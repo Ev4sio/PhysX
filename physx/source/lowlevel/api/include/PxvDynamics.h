@@ -36,7 +36,7 @@
 #include "foundation/PxIntrinsics.h"
 #include "PxRigidDynamic.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 /*!
@@ -115,7 +115,7 @@ struct PxsBodyCore : public PxsRigidCore
 	PxRigidDynamicLockFlags	lockFlags;				//This is u8. 
 	PxU8					fixedBaseLink;			//160 This indicates whether the articulation link has PxArticulationFlag::eFIX_BASE. All fits into 16 byte alignment
 	
-	// PT: moved from Sc::BodyCore ctor - we don't want to duplicate all this in immediate mode
+	// PT: moved from ev4sio_Sc::BodyCore ctor - we don't want to duplicate all this in immediate mode
 	PX_FORCE_INLINE	void	init(	const PxTransform& bodyPose,
 									const PxVec3& inverseInertia_, PxReal inverseMass_,
 									PxReal wakeCounter_, PxReal scaleSpeed,

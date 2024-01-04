@@ -31,7 +31,7 @@
 
 #include "foundation/PxThread.h"
 
-namespace physx { namespace profile {
+namespace ev4sio_physx { namespace profile {
 	
 	struct PxDefaultContextProvider
 	{

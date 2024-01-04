@@ -37,9 +37,9 @@
 #include "PxFEMClothFlags.h"
 #include "PxsFEMClothMaterialCore.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-	namespace Dy
+	namespace ev4sio_Dy
 	{
 		struct FEMClothCore
 		{

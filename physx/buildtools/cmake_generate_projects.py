@@ -270,7 +270,7 @@ def presetProvided(pName):
         cleanupCompilerDir(outputDir)
 
         # run the cmake script
-        #print('Cmake params:' + cmakeParams)
+        print('Cmake params:' + cmakeParams)
         os.chdir(os.path.join(os.environ['PHYSX_ROOT_DIR'], outputDir))
         os.system(cmakeExec + ' \"' +
                   os.environ['PHYSX_ROOT_DIR'] + '/compiler/' + cmakeMasterDir + '\"' + cmakeParams)
@@ -283,7 +283,7 @@ def presetProvided(pName):
             cleanupCompilerDir(outputDir)
 
             # run the cmake script
-            #print('Cmake params:' + cmakeParams)
+            print('Cmake params:' + cmakeParams)
             os.chdir(os.path.join(os.environ['PHYSX_ROOT_DIR'], outputDir))
             # print(cmakeExec + ' \"' + os.environ['PHYSX_ROOT_DIR'] + '/compiler/' + cmakeMasterDir + '\"' + cmakeParams + ' -DCMAKE_BUILD_TYPE=' + config)
             os.system(cmakeExec + ' \"' + os.environ['PHYSX_ROOT_DIR'] + '/compiler/' +

@@ -49,7 +49,7 @@
 #include "geometry/PxCustomGeometry.h"  // for PxCustomGeometry::Callbacks
 
 
-namespace physx
+namespace ev4sio_physx
 {
 
 class PxAggregate;

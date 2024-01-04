@@ -40,9 +40,9 @@
 
 #include "omnipvd/NpOmniPvdSetData.h"
 
-using namespace physx;
-using namespace Sq;
-using namespace Cm;
+using namespace ev4sio_physx;
+using namespace ev4sio_Sq;
+using namespace ev4sio_Cm;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -230,7 +230,7 @@ void NpShape::releaseInternal()
 	RefCountable_decRefCount(*this);
 }
 
-Sc::RigidCore& NpShape::getScRigidObjectExclusive() const
+ev4sio_Sc::RigidCore& NpShape::getScRigidObjectExclusive() const
 {
 	const PxType actorType = mExclusiveShapeActor->getConcreteType();
 
@@ -293,7 +293,7 @@ void NpShape::setGeometry(const PxGeometry& g)
 	PxRefCounted* mesh = getMeshRefCountable();
 
 	{
-		Sc::RigidCore* rigidCore = getScRigidObjectSLOW();
+		ev4sio_Sc::RigidCore* rigidCore = getScRigidObjectSLOW();
 
 		if(rigidCore)
 			rigidCore->unregisterShapeFromNphase(mCore);
@@ -303,7 +303,7 @@ void NpShape::setGeometry(const PxGeometry& g)
 		if (rigidCore)
 		{
 			rigidCore->registerShapeInNphase(mCore);
-			rigidCore->onShapeChange(mCore, Sc::ShapeChangeNotifyFlag::eGEOMETRY);
+			rigidCore->onShapeChange(mCore, ev4sio_Sc::ShapeChangeNotifyFlag::eGEOMETRY);
 		}
 
 #if PX_SUPPORT_PVD
@@ -345,7 +345,7 @@ void NpShape::setLocalPose(const PxTransform& newShape2Actor)
 	PxTransform normalizedTransform = newShape2Actor.getNormalized();
 	mCore.setShape2Actor(normalizedTransform);
 
-	notifyActorAndUpdatePVD(Sc::ShapeChangeNotifyFlag::eSHAPE2BODY);
+	notifyActorAndUpdatePVD(ev4sio_Sc::ShapeChangeNotifyFlag::eSHAPE2BODY);
 
 	OMNI_PVD_WRITE_SCOPE_BEGIN(pvdWriter, pvdRegData)
 	OMNI_PVD_SET_EXPLICIT(pvdWriter, pvdRegData, OMNI_PVD_CONTEXT_HANDLE, PxShape, translation, static_cast<PxShape &>(*this), normalizedTransform.p)
@@ -373,7 +373,7 @@ void NpShape::setSimulationFilterData(const PxFilterData& data)
 
 	mCore.setSimulationFilterData(data);
 
-	notifyActorAndUpdatePVD(Sc::ShapeChangeNotifyFlag::eFILTERDATA);
+	notifyActorAndUpdatePVD(ev4sio_Sc::ShapeChangeNotifyFlag::eFILTERDATA);
 
 	OMNI_PVD_SET(OMNI_PVD_CONTEXT_HANDLE, PxShape, simulationFilterData, static_cast<PxShape&>(*this), data);
 }
@@ -556,7 +556,7 @@ PxBaseMaterial* NpShape::getMaterialFromInternalFaceIndex(PxU32 faceIndex) const
 	{
 		const PxTriangleMeshGeometry& triGeo = static_cast<const PxTriangleMeshGeometry&>(geom);
 
-		Gu::TriangleMesh* tm = static_cast<Gu::TriangleMesh*>(triGeo.triangleMesh);
+		ev4sio_Gu::TriangleMesh* tm = static_cast<ev4sio_Gu::TriangleMesh*>(triGeo.triangleMesh);
 		if(tm->hasPerTriangleMaterials())
 			hitMatTableId = triGeo.triangleMesh->getTriangleMaterialIndex(faceIndex);
 	}
@@ -577,7 +577,7 @@ void NpShape::setContactOffset(PxReal contactOffset)
 
 	mCore.setContactOffset(contactOffset);
 
-	notifyActorAndUpdatePVD(Sc::ShapeChangeNotifyFlag::eCONTACTOFFSET);
+	notifyActorAndUpdatePVD(ev4sio_Sc::ShapeChangeNotifyFlag::eCONTACTOFFSET);
 
 	OMNI_PVD_SET(OMNI_PVD_CONTEXT_HANDLE, PxShape, contactOffset, static_cast<PxShape&>(*this), contactOffset)
 }
@@ -600,7 +600,7 @@ void NpShape::setRestOffset(PxReal restOffset)
 
 	mCore.setRestOffset(restOffset);
 
-	notifyActorAndUpdatePVD(Sc::ShapeChangeNotifyFlag::eRESTOFFSET);
+	notifyActorAndUpdatePVD(ev4sio_Sc::ShapeChangeNotifyFlag::eRESTOFFSET);
 
 	OMNI_PVD_SET(OMNI_PVD_CONTEXT_HANDLE, PxShape, restOffset, static_cast<PxShape&>(*this), restOffset)
 }
@@ -622,7 +622,7 @@ void NpShape::setDensityForFluid(PxReal densityForFluid)
 
 	mCore.setDensityForFluid(densityForFluid);
 
-	///notifyActorAndUpdatePVD(Sc::ShapeChangeNotifyFlag::eRESTOFFSET);
+	///notifyActorAndUpdatePVD(ev4sio_Sc::ShapeChangeNotifyFlag::eRESTOFFSET);
 
 	OMNI_PVD_SET(OMNI_PVD_CONTEXT_HANDLE, PxShape, densityForFluid, static_cast<PxShape &>(*this), densityForFluid);
 }
@@ -648,9 +648,9 @@ void NpShape::setTorsionalPatchRadius(PxReal radius)
 	OMNI_PVD_SET(OMNI_PVD_CONTEXT_HANDLE, PxShape, torsionalPatchRadius, static_cast<PxShape &>(*this), radius);
 
 // shared shapes return NULL. But shared shapes aren't mutable when attached to an actor, so no notification needed.
-//	Sc::RigidCore* rigidCore = NpShapeGetScRigidObjectFromScSLOW();
+//	ev4sio_Sc::RigidCore* rigidCore = NpShapeGetScRigidObjectFromScSLOW();
 //	if(rigidCore)
-//		rigidCore->onShapeChange(mShape, Sc::ShapeChangeNotifyFlag::eFLAGS, oldShapeFlags);
+//		rigidCore->onShapeChange(mShape, ev4sio_Sc::ShapeChangeNotifyFlag::eFLAGS, oldShapeFlags);
 
 	UPDATE_PVD_PROPERTY
 }
@@ -675,9 +675,9 @@ void NpShape::setMinTorsionalPatchRadius(PxReal radius)
 
 	OMNI_PVD_SET(OMNI_PVD_CONTEXT_HANDLE, PxShape, minTorsionalPatchRadius, static_cast<PxShape &>(*this), radius);
 
-//	Sc::RigidCore* rigidCore = NpShapeGetScRigidObjectFromSbSLOW();
+//	ev4sio_Sc::RigidCore* rigidCore = NpShapeGetScRigidObjectFromSbSLOW();
 //	if(rigidCore)
-//		rigidCore->onShapeChange(mShape, Sc::ShapeChangeNotifyFlag::eFLAGS, oldShapeFlags);
+//		rigidCore->onShapeChange(mShape, ev4sio_Sc::ShapeChangeNotifyFlag::eFLAGS, oldShapeFlags);
 
 	UPDATE_PVD_PROPERTY
 }
@@ -942,12 +942,12 @@ bool NpShape::setMaterialsHelper(PxMaterialType* const* materials, PxU16 materia
 	return true;
 }
 
-void NpShape::notifyActorAndUpdatePVD(Sc::ShapeChangeNotifyFlags notifyFlags)
+void NpShape::notifyActorAndUpdatePVD(ev4sio_Sc::ShapeChangeNotifyFlags notifyFlags)
 {
 	// shared shapes return NULL. But shared shapes aren't mutable when attached to an actor, so no notification needed.
 	if(mExclusiveShapeActor)
 	{
-		Sc::RigidCore* rigidCore = getScRigidObjectSLOW();
+		ev4sio_Sc::RigidCore* rigidCore = getScRigidObjectSLOW();
 		if(rigidCore)
 			rigidCore->onShapeChange(mCore, notifyFlags);
 
@@ -968,7 +968,7 @@ void NpShape::notifyActorAndUpdatePVD(Sc::ShapeChangeNotifyFlags notifyFlags)
 void NpShape::notifyActorAndUpdatePVD(const PxShapeFlags oldShapeFlags)
 {
 	// shared shapes return NULL. But shared shapes aren't mutable when attached to an actor, so no notification needed.
-	Sc::RigidCore* rigidCore = getScRigidObjectSLOW();
+	ev4sio_Sc::RigidCore* rigidCore = getScRigidObjectSLOW();
 	if(rigidCore)
 		rigidCore->onShapeFlagsChange(mCore, oldShapeFlags);
 

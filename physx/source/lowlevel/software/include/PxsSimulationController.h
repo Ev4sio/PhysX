@@ -43,18 +43,18 @@
 	#include "PxMPMParticleSystem.h"
 
 	// if these assert fail adjust the type here and in the forward declaration of the #else section just below
-	PX_COMPILE_TIME_ASSERT(sizeof(physx::PxMPMParticleDataFlag::Enum) == sizeof(physx::PxU32));
-	PX_COMPILE_TIME_ASSERT(sizeof(physx::PxSparseGridDataFlag::Enum) == sizeof(physx::PxU32));
+	PX_COMPILE_TIME_ASSERT(sizeof(ev4sio_physx::PxMPMParticleDataFlag::Enum) == sizeof(ev4sio_physx::PxU32));
+	PX_COMPILE_TIME_ASSERT(sizeof(ev4sio_physx::PxSparseGridDataFlag::Enum) == sizeof(ev4sio_physx::PxU32));
 #else
-	namespace PxMPMParticleDataFlag { enum Enum : physx::PxU32; }
-	namespace PxSparseGridDataFlag { enum Enum : physx::PxU32; }
+	namespace PxMPMParticleDataFlag { enum Enum : ev4sio_physx::PxU32; }
+	namespace PxSparseGridDataFlag { enum Enum : ev4sio_physx::PxU32; }
 #endif
 
 #include "PxParticleSolverType.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-	namespace Dy
+	namespace ev4sio_Dy
 	{
 		class Context;
 		struct Constraint;
@@ -70,20 +70,20 @@ namespace physx
 #endif
 	}
 
-	namespace Bp
+	namespace ev4sio_Bp
 	{
 		class BoundsArray;
 		class BroadPhase;
 		class AABBManagerBase;
 	}
 
-	namespace IG
+	namespace ev4sio_IG
 	{
 		class SimpleIslandManager;
 		class IslandSim;
 	}
 
-	namespace Sc
+	namespace ev4sio_Sc
 	{
 		class BodySim;
 	}
@@ -122,9 +122,9 @@ namespace physx
 					PxsSimulationController(PxsSimulationControllerCallback* callback, PxIntBool gpu) : mCallback(callback), mGPU(gpu)	{}
 		virtual		~PxsSimulationController(){}
 
-		virtual void addJoint(const PxU32 /*edgeIndex*/, Dy::Constraint* /*constraint*/, IG::IslandSim& /*islandSim*/, PxArray<PxU32>& /*jointIndices*/,
+		virtual void addJoint(const PxU32 /*edgeIndex*/, ev4sio_Dy::Constraint* /*constraint*/, ev4sio_IG::IslandSim& /*islandSim*/, PxArray<PxU32>& /*jointIndices*/,
 			PxPinnedArray<PxgSolverConstraintManagerConstants>& /*managerIter*/, PxU32 /*uniqueId*/){}
-		virtual void removeJoint(const PxU32 /*edgeIndex*/, Dy::Constraint* /*constraint*/, PxArray<PxU32>& /*jointIndices*/, IG::IslandSim& /*islandSim*/){}
+		virtual void removeJoint(const PxU32 /*edgeIndex*/, ev4sio_Dy::Constraint* /*constraint*/, PxArray<PxU32>& /*jointIndices*/, ev4sio_IG::IslandSim& /*islandSim*/){}
 		virtual void addShape(PxsShapeSim* /*shapeSim*/, const PxU32 /*index*/){}
 		virtual void reinsertShape(PxsShapeSim* /*shapeSim*/, const PxU32 /*index*/) {}
 		virtual void updateShape(PxsShapeSim& /*shapeSim*/, const PxNodeIndex& /*index*/) {}
@@ -132,132 +132,132 @@ namespace physx
 
 		virtual void addDynamic(PxsRigidBody* /*rigidBody*/, const PxNodeIndex& /*nodeIndex*/){}
 		virtual void addDynamics(PxsRigidBody** /*rigidBody*/, const PxU32* /*nodeIndex*/, PxU32 /*nbBodies*/) {}
-		virtual void addArticulation(Dy::FeatherstoneArticulation* /*articulation*/, const PxNodeIndex& /*nodeIndex*/) {}
-		virtual void releaseArticulation(Dy::FeatherstoneArticulation* /*articulation*/, const PxNodeIndex& /*nodeIndex*/) {}
+		virtual void addArticulation(ev4sio_Dy::FeatherstoneArticulation* /*articulation*/, const PxNodeIndex& /*nodeIndex*/) {}
+		virtual void releaseArticulation(ev4sio_Dy::FeatherstoneArticulation* /*articulation*/, const PxNodeIndex& /*nodeIndex*/) {}
 		virtual void releaseDeferredArticulationIds() {}
 
 #if PX_SUPPORT_GPU_PHYSX
-		virtual void addSoftBody(Dy::SoftBody* /*softBody*/, const PxNodeIndex& /*nodeIndex*/)	{}
-		virtual void releaseSoftBody(Dy::SoftBody* /*softBody*/) 	{}
+		virtual void addSoftBody(ev4sio_Dy::SoftBody* /*softBody*/, const PxNodeIndex& /*nodeIndex*/)	{}
+		virtual void releaseSoftBody(ev4sio_Dy::SoftBody* /*softBody*/) 	{}
 		virtual void releaseDeferredSoftBodyIds() 	{}
-		virtual void activateSoftbody(Dy::SoftBody*) 	{}
-		virtual void deactivateSoftbody(Dy::SoftBody*) 	{}
-		virtual void activateSoftbodySelfCollision(Dy::SoftBody*) 	{}
-		virtual void deactivateSoftbodySelfCollision(Dy::SoftBody*) 	{}
-		virtual void setSoftBodyWakeCounter(Dy::SoftBody*) 	{}
+		virtual void activateSoftbody(ev4sio_Dy::SoftBody*) 	{}
+		virtual void deactivateSoftbody(ev4sio_Dy::SoftBody*) 	{}
+		virtual void activateSoftbodySelfCollision(ev4sio_Dy::SoftBody*) 	{}
+		virtual void deactivateSoftbodySelfCollision(ev4sio_Dy::SoftBody*) 	{}
+		virtual void setSoftBodyWakeCounter(ev4sio_Dy::SoftBody*) 	{}
 
-		virtual void addParticleFilter(Dy::SoftBody* /*softBodySystem*/, Dy::ParticleSystem* /*particleSystem*/,
+		virtual void addParticleFilter(ev4sio_Dy::SoftBody* /*softBodySystem*/, ev4sio_Dy::ParticleSystem* /*particleSystem*/,
 			PxU32 /*particleId*/, PxU32 /*userBufferId*/, PxU32 /*tetId*/) 	{}
-		virtual void removeParticleFilter(Dy::SoftBody* /*softBodySystem*/,
-			const Dy::ParticleSystem* /*particleSystem*/, PxU32 /*particleId*/, PxU32 /*userBufferId*/, PxU32 /*tetId*/) 	{}
+		virtual void removeParticleFilter(ev4sio_Dy::SoftBody* /*softBodySystem*/,
+			const ev4sio_Dy::ParticleSystem* /*particleSystem*/, PxU32 /*particleId*/, PxU32 /*userBufferId*/, PxU32 /*tetId*/) 	{}
 
-		virtual PxU32 addParticleAttachment(Dy::SoftBody* /*softBodySystem*/, const Dy::ParticleSystem* /*particleSystem*/,
+		virtual PxU32 addParticleAttachment(ev4sio_Dy::SoftBody* /*softBodySystem*/, const ev4sio_Dy::ParticleSystem* /*particleSystem*/,
 			PxU32 /*particleId*/, PxU32 /*userBufferId*/, PxU32 /*tetId*/, const PxVec4& /*barycentrics*/, const bool /*isActive*/) 	{ return 0; }
-		virtual void removeParticleAttachment(Dy::SoftBody* /*softBody*/, PxU32 /*handle*/) 	{}
+		virtual void removeParticleAttachment(ev4sio_Dy::SoftBody* /*softBody*/, PxU32 /*handle*/) 	{}
 
-		virtual void addRigidFilter(Dy::SoftBody* /*softBodySystem*/, const PxNodeIndex& /*rigidNodeIndex*/, PxU32 /*vertIndex*/) 	{}
-		virtual void removeRigidFilter(Dy::SoftBody* /*softBodySystem*/, 
+		virtual void addRigidFilter(ev4sio_Dy::SoftBody* /*softBodySystem*/, const PxNodeIndex& /*rigidNodeIndex*/, PxU32 /*vertIndex*/) 	{}
+		virtual void removeRigidFilter(ev4sio_Dy::SoftBody* /*softBodySystem*/, 
 			const PxNodeIndex& /*rigidNodeIndex*/, PxU32 /*vertIndex*/) 	{}
 
-		virtual PxU32 addRigidAttachment(Dy::SoftBody* /*softBodySystem*/, const PxNodeIndex& /*softBodyNodeIndex*/,
+		virtual PxU32 addRigidAttachment(ev4sio_Dy::SoftBody* /*softBodySystem*/, const PxNodeIndex& /*softBodyNodeIndex*/,
 			PxsRigidBody* /*rigidBody*/, const PxNodeIndex& /*rigidNodeIndex*/, PxU32 /*vertIndex*/, const PxVec3& /*actorSpacePose*/,
 			PxConeLimitedConstraint* /*constraint*/, const bool /*isActive*/) 	{ return 0; }
-		virtual void removeRigidAttachment(Dy::SoftBody* /*softBody*/, PxU32 /*handle*/) 	{}
+		virtual void removeRigidAttachment(ev4sio_Dy::SoftBody* /*softBody*/, PxU32 /*handle*/) 	{}
 
-		virtual void addTetRigidFilter(Dy::SoftBody* /*softBodySystem*/,
+		virtual void addTetRigidFilter(ev4sio_Dy::SoftBody* /*softBodySystem*/,
 			const PxNodeIndex& /*rigidNodeIndex*/, PxU32 /*tetId*/) 	{}
 
-		virtual PxU32 addTetRigidAttachment(Dy::SoftBody* /*softBodySystem*/,
+		virtual PxU32 addTetRigidAttachment(ev4sio_Dy::SoftBody* /*softBodySystem*/,
 			PxsRigidBody* /*rigidBody*/, const PxNodeIndex& /*rigidNodeIndex*/, PxU32 /*tetIdx*/, 
 			const PxVec4& /*barycentrics*/, const PxVec3& /*actorSpacePose*/, PxConeLimitedConstraint* /*constraint*/,
 			const bool /*isActive*/) 	{ return 0; }
 
-		virtual void removeTetRigidFilter(Dy::SoftBody* /*softBody*/, 
+		virtual void removeTetRigidFilter(ev4sio_Dy::SoftBody* /*softBody*/, 
 			const PxNodeIndex& /*rigidNodeIndex*/, PxU32 /*tetId*/) 	{}
 
-		virtual void addSoftBodyFilter(Dy::SoftBody* /*softBody0*/, Dy::SoftBody* /*softBody1*/, PxU32 /*tetIdx0*/, 
+		virtual void addSoftBodyFilter(ev4sio_Dy::SoftBody* /*softBody0*/, ev4sio_Dy::SoftBody* /*softBody1*/, PxU32 /*tetIdx0*/, 
 			PxU32 /*tetIdx1*/) 	{}
-		virtual void removeSoftBodyFilter(Dy::SoftBody* /*softBody0*/, Dy::SoftBody* /*softBody1*/, PxU32 /*tetIdx0*/,
+		virtual void removeSoftBodyFilter(ev4sio_Dy::SoftBody* /*softBody0*/, ev4sio_Dy::SoftBody* /*softBody1*/, PxU32 /*tetIdx0*/,
 			PxU32 /*tetId1*/) 	{}
-		virtual void addSoftBodyFilters(Dy::SoftBody* /*softBody0*/, Dy::SoftBody* /*softBody1*/, PxU32* /*tetIndices0*/, PxU32* /*tetIndices1*/,
+		virtual void addSoftBodyFilters(ev4sio_Dy::SoftBody* /*softBody0*/, ev4sio_Dy::SoftBody* /*softBody1*/, PxU32* /*tetIndices0*/, PxU32* /*tetIndices1*/,
 			PxU32 /*tetIndicesSize*/) 	{}
-		virtual void removeSoftBodyFilters(Dy::SoftBody* /*softBody0*/, Dy::SoftBody* /*softBody1*/, PxU32* /*tetIndices0*/, PxU32* /*tetIndices1*/,
+		virtual void removeSoftBodyFilters(ev4sio_Dy::SoftBody* /*softBody0*/, ev4sio_Dy::SoftBody* /*softBody1*/, PxU32* /*tetIndices0*/, PxU32* /*tetIndices1*/,
 			PxU32 /*tetIndicesSize*/) 	{}
 
-		virtual PxU32 addSoftBodyAttachment(Dy::SoftBody* /*softBody0*/, Dy::SoftBody* /*softBody1*/, PxU32 /*tetIdx0*/, PxU32 /*tetIdx1*/,
+		virtual PxU32 addSoftBodyAttachment(ev4sio_Dy::SoftBody* /*softBody0*/, ev4sio_Dy::SoftBody* /*softBody1*/, PxU32 /*tetIdx0*/, PxU32 /*tetIdx1*/,
 			const PxVec4& /*tetBarycentric0*/, const PxVec4& /*tetBarycentric1*/,
 			PxConeLimitedConstraint* /*constraint*/, PxReal /*constraintOffset*/, const bool /*isActive*/) 	{ return 0; }
 
-		virtual void removeSoftBodyAttachment(Dy::SoftBody* /*softBody0*/, PxU32 /*handle*/) 	{}
+		virtual void removeSoftBodyAttachment(ev4sio_Dy::SoftBody* /*softBody0*/, PxU32 /*handle*/) 	{}
 
-		virtual void addClothFilter(Dy::SoftBody* /*softBody*/, Dy::FEMCloth* /*cloth*/, PxU32 /*triIdx*/, PxU32 /*tetIdx*/) 	{}
-		virtual void removeClothFilter(Dy::SoftBody* /*softBody*/, Dy::FEMCloth* /*cloth*/, PxU32 /*triIdx*/, PxU32 /*tetIdx*/) 	{}
+		virtual void addClothFilter(ev4sio_Dy::SoftBody* /*softBody*/, ev4sio_Dy::FEMCloth* /*cloth*/, PxU32 /*triIdx*/, PxU32 /*tetIdx*/) 	{}
+		virtual void removeClothFilter(ev4sio_Dy::SoftBody* /*softBody*/, ev4sio_Dy::FEMCloth* /*cloth*/, PxU32 /*triIdx*/, PxU32 /*tetIdx*/) 	{}
 
-		virtual void addVertClothFilter(Dy::SoftBody* /*softBody*/, Dy::FEMCloth* /*cloth*/, PxU32 /*vertIdx*/, PxU32 /*tetIdx*/) 	{}
-		virtual void removeVertClothFilter(Dy::SoftBody* /*softBody*/, Dy::FEMCloth* /*cloth*/, PxU32 /*vertIdx*/, PxU32 /*tetIdx*/) 	{}
+		virtual void addVertClothFilter(ev4sio_Dy::SoftBody* /*softBody*/, ev4sio_Dy::FEMCloth* /*cloth*/, PxU32 /*vertIdx*/, PxU32 /*tetIdx*/) 	{}
+		virtual void removeVertClothFilter(ev4sio_Dy::SoftBody* /*softBody*/, ev4sio_Dy::FEMCloth* /*cloth*/, PxU32 /*vertIdx*/, PxU32 /*tetIdx*/) 	{}
 
-		virtual PxU32 addClothAttachment(Dy::SoftBody* /*softBody*/, Dy::FEMCloth* /*cloth*/, PxU32 /*triIdx*/,
+		virtual PxU32 addClothAttachment(ev4sio_Dy::SoftBody* /*softBody*/, ev4sio_Dy::FEMCloth* /*cloth*/, PxU32 /*triIdx*/,
 			const PxVec4& /*triBarycentric*/, PxU32 /*tetIdx*/, const PxVec4& /*tetBarycentric*/, 
 			PxConeLimitedConstraint* /*constraint*/, PxReal /*constraintOffset*/,
 			const bool /*isActive*/) 	{ return 0; }
 
-		virtual void removeClothAttachment(Dy::SoftBody* /*softBody*/,PxU32 /*handle*/) 	{}
+		virtual void removeClothAttachment(ev4sio_Dy::SoftBody* /*softBody*/,PxU32 /*handle*/) 	{}
 
-		virtual void addFEMCloth(Dy::FEMCloth* /*femCloth*/, const PxNodeIndex& /*nodeIndex*/) 	{}
-		virtual void releaseFEMCloth(Dy::FEMCloth* /*femCloth*/) 	{}
+		virtual void addFEMCloth(ev4sio_Dy::FEMCloth* /*femCloth*/, const PxNodeIndex& /*nodeIndex*/) 	{}
+		virtual void releaseFEMCloth(ev4sio_Dy::FEMCloth* /*femCloth*/) 	{}
 		virtual void releaseDeferredFEMClothIds() 	{}
-		virtual void activateCloth(Dy::FEMCloth* /*femCloth*/) 	{}
-		virtual void deactivateCloth(Dy::FEMCloth* /*femCloth*/) 	{}
-		virtual void setClothWakeCounter(Dy::FEMCloth*) 	{}
+		virtual void activateCloth(ev4sio_Dy::FEMCloth* /*femCloth*/) 	{}
+		virtual void deactivateCloth(ev4sio_Dy::FEMCloth* /*femCloth*/) 	{}
+		virtual void setClothWakeCounter(ev4sio_Dy::FEMCloth*) 	{}
 
-		virtual void addRigidFilter(Dy::FEMCloth* /*cloth*/,
+		virtual void addRigidFilter(ev4sio_Dy::FEMCloth* /*cloth*/,
 			const PxNodeIndex& /*rigidNodeIndex*/, PxU32 /*vertId*/) 	{}
 
-		virtual void removeRigidFilter(Dy::FEMCloth* /*cloth*/,
+		virtual void removeRigidFilter(ev4sio_Dy::FEMCloth* /*cloth*/,
 			const PxNodeIndex& /*rigidNodeIndex*/, PxU32 /*vertId*/) 	{}
 
-		virtual PxU32 addRigidAttachment(Dy::FEMCloth* /*cloth*/, const PxNodeIndex& /*clothNodeIndex*/,
+		virtual PxU32 addRigidAttachment(ev4sio_Dy::FEMCloth* /*cloth*/, const PxNodeIndex& /*clothNodeIndex*/,
 			PxsRigidBody* /*rigidBody*/, const PxNodeIndex& /*rigidNodeIndex*/, PxU32 /*vertIndex*/, const PxVec3& /*actorSpacePose*/,
 			PxConeLimitedConstraint* /*constraint*/, const bool /*isActive*/) 	{ return 0; }
-		virtual void removeRigidAttachment(Dy::FEMCloth* /*cloth*/, PxU32 /*handle*/) 	{}
+		virtual void removeRigidAttachment(ev4sio_Dy::FEMCloth* /*cloth*/, PxU32 /*handle*/) 	{}
 
-		virtual void addTriRigidFilter(Dy::FEMCloth* /*cloth*/,
+		virtual void addTriRigidFilter(ev4sio_Dy::FEMCloth* /*cloth*/,
 			const PxNodeIndex& /*rigidNodeIndex*/, PxU32 /*triIdx*/) 	{}
 
-		virtual void removeTriRigidFilter(Dy::FEMCloth* /*cloth*/, 
+		virtual void removeTriRigidFilter(ev4sio_Dy::FEMCloth* /*cloth*/, 
 			const PxNodeIndex& /*rigidNodeIndex*/, PxU32 /*triIdx*/) 	{}
 
-		virtual PxU32 addTriRigidAttachment(Dy::FEMCloth* /*cloth*/,
+		virtual PxU32 addTriRigidAttachment(ev4sio_Dy::FEMCloth* /*cloth*/,
 			PxsRigidBody* /*rigidBody*/, const PxNodeIndex& /*rigidNodeIndex*/, PxU32 /*triIdx*/, const PxVec4& /*barycentrics*/, 
 			const PxVec3& /*actorSpacePose*/, PxConeLimitedConstraint* /*constraint*/,
 			const bool /*isActive*/) 	{ return 0; }
 
-		virtual void removeTriRigidAttachment(Dy::FEMCloth* /*cloth*/, PxU32 /*handle*/) 	{}
+		virtual void removeTriRigidAttachment(ev4sio_Dy::FEMCloth* /*cloth*/, PxU32 /*handle*/) 	{}
 
-		virtual void addClothFilter(Dy::FEMCloth* /*cloth0*/, Dy::FEMCloth* /*cloth1*/, PxU32 /*triIdx0*/, PxU32 /*triIdx1*/) 	{}
-		virtual void removeClothFilter(Dy::FEMCloth* /*cloth0*/, Dy::FEMCloth* /*cloth1*/, PxU32 /*triIdx0*/, PxU32 /*triIdx1*/) 	{}
+		virtual void addClothFilter(ev4sio_Dy::FEMCloth* /*cloth0*/, ev4sio_Dy::FEMCloth* /*cloth1*/, PxU32 /*triIdx0*/, PxU32 /*triIdx1*/) 	{}
+		virtual void removeClothFilter(ev4sio_Dy::FEMCloth* /*cloth0*/, ev4sio_Dy::FEMCloth* /*cloth1*/, PxU32 /*triIdx0*/, PxU32 /*triIdx1*/) 	{}
 
-		virtual PxU32 addTriClothAttachment(Dy::FEMCloth* /*cloth0*/, Dy::FEMCloth* /*cloth1*/, PxU32 /*triIdx0*/, PxU32 /*triIdx1*/,
+		virtual PxU32 addTriClothAttachment(ev4sio_Dy::FEMCloth* /*cloth0*/, ev4sio_Dy::FEMCloth* /*cloth1*/, PxU32 /*triIdx0*/, PxU32 /*triIdx1*/,
 			const PxVec4& /*triBarycentric0*/, const PxVec4& /*triBarycentric1*/, const bool /*addToActive*/) 	{ return 0; }
 
-		virtual void removeTriClothAttachment(Dy::FEMCloth* /*cloth*/, PxU32 /*handle*/) 	{}
+		virtual void removeTriClothAttachment(ev4sio_Dy::FEMCloth* /*cloth*/, PxU32 /*handle*/) 	{}
 
-		virtual void addParticleSystem(Dy::ParticleSystem* /*particleSystem*/, const PxNodeIndex& /*nodeIndex*/, PxParticleSolverType::Enum /*type*/) 	{}
-		virtual void releaseParticleSystem(Dy::ParticleSystem* /*particleSystem*/, PxParticleSolverType::Enum /*type*/) 	{}
+		virtual void addParticleSystem(ev4sio_Dy::ParticleSystem* /*particleSystem*/, const PxNodeIndex& /*nodeIndex*/, PxParticleSolverType::Enum /*type*/) 	{}
+		virtual void releaseParticleSystem(ev4sio_Dy::ParticleSystem* /*particleSystem*/, PxParticleSolverType::Enum /*type*/) 	{}
 		virtual void releaseDeferredParticleSystemIds() 	{}
 
-		virtual void addHairSystem(Dy::HairSystem* /*hairSystem*/, const PxNodeIndex& /*nodeIndex*/) 	{}
-		virtual void releaseHairSystem(Dy::HairSystem* /*hairSystem*/) 	{}
+		virtual void addHairSystem(ev4sio_Dy::HairSystem* /*hairSystem*/, const PxNodeIndex& /*nodeIndex*/) 	{}
+		virtual void releaseHairSystem(ev4sio_Dy::HairSystem* /*hairSystem*/) 	{}
 		virtual void releaseDeferredHairSystemIds() 	{}
-		virtual void activateHairSystem(Dy::HairSystem*) 	{}
-		virtual void deactivateHairSystem(Dy::HairSystem*) 	{}
-		virtual void setHairSystemWakeCounter(Dy::HairSystem*) 	{}
+		virtual void activateHairSystem(ev4sio_Dy::HairSystem*) 	{}
+		virtual void deactivateHairSystem(ev4sio_Dy::HairSystem*) 	{}
+		virtual void setHairSystemWakeCounter(ev4sio_Dy::HairSystem*) 	{}
 #endif
 
 		virtual void flush() {}
 
-		virtual void updateDynamic(Dy::FeatherstoneArticulation* /*articulation*/, const PxNodeIndex& /*nodeIndex*/) {}
-		virtual void updateJoint(const PxU32 /*edgeIndex*/, Dy::Constraint* /*constraint*/){}
+		virtual void updateDynamic(ev4sio_Dy::FeatherstoneArticulation* /*articulation*/, const PxNodeIndex& /*nodeIndex*/) {}
+		virtual void updateJoint(const PxU32 /*edgeIndex*/, ev4sio_Dy::Constraint* /*constraint*/){}
 		virtual void updateBodies(PxsRigidBody** /*rigidBodies*/,  PxU32* /*nodeIndices*/, const PxU32 /*nbBodies*/) {}
 //		virtual void updateBody(PxsRigidBody* /*rigidBody*/, const PxU32 /*nodeIndex*/) {}
 		virtual void updateBodies(PxBaseTask* /*continuation*/){}
@@ -266,16 +266,16 @@ namespace physx
 		virtual void updateParticleSystemsAndSoftBodies(){}
 		virtual void sortContacts(){}
 		virtual void update(PxBitMapPinned& /*changedHandleMap*/){}
-		virtual void updateArticulation(Dy::FeatherstoneArticulation* /*articulation*/, const PxNodeIndex& /*nodeIndex*/) {}
-		virtual void updateArticulationJoint(Dy::FeatherstoneArticulation* /*articulation*/, const PxNodeIndex& /*nodeIndex*/) {}
-//		virtual void updateArticulationTendon(Dy::FeatherstoneArticulation* /*articulation*/, const PxNodeIndex& /*nodeIndex*/) {}
-		virtual void updateArticulationExtAccel(Dy::FeatherstoneArticulation* /*articulation*/, const PxNodeIndex& /*nodeIndex*/) {}
-		virtual void updateArticulationAfterIntegration(PxsContext*	/*llContext*/, Bp::AABBManagerBase* /*aabbManager*/,
-			PxArray<Sc::BodySim*>& /*ccdBodies*/, PxBaseTask* /*continuation*/, IG::IslandSim& /*islandSim*/, float /*dt*/)	{}
+		virtual void updateArticulation(ev4sio_Dy::FeatherstoneArticulation* /*articulation*/, const PxNodeIndex& /*nodeIndex*/) {}
+		virtual void updateArticulationJoint(ev4sio_Dy::FeatherstoneArticulation* /*articulation*/, const PxNodeIndex& /*nodeIndex*/) {}
+//		virtual void updateArticulationTendon(ev4sio_Dy::FeatherstoneArticulation* /*articulation*/, const PxNodeIndex& /*nodeIndex*/) {}
+		virtual void updateArticulationExtAccel(ev4sio_Dy::FeatherstoneArticulation* /*articulation*/, const PxNodeIndex& /*nodeIndex*/) {}
+		virtual void updateArticulationAfterIntegration(PxsContext*	/*llContext*/, ev4sio_Bp::AABBManagerBase* /*aabbManager*/,
+			PxArray<ev4sio_Sc::BodySim*>& /*ccdBodies*/, PxBaseTask* /*continuation*/, ev4sio_IG::IslandSim& /*islandSim*/, float /*dt*/)	{}
 
 		virtual void mergeChangedAABBMgHandle() {}
-		virtual void gpuDmabackData(PxsTransformCache& /*cache*/, Bp::BoundsArray& /*boundArray*/, PxBitMapPinned& /*changedAABBMgrHandles*/, bool /*enableDirectGPUAPI*/){}
-		virtual void	updateScBodyAndShapeSim(PxsTransformCache& cache, Bp::BoundsArray& boundArray, PxBaseTask* continuation) = 0;
+		virtual void gpuDmabackData(PxsTransformCache& /*cache*/, ev4sio_Bp::BoundsArray& /*boundArray*/, PxBitMapPinned& /*changedAABBMgrHandles*/, bool /*enableDirectGPUAPI*/){}
+		virtual void	updateScBodyAndShapeSim(PxsTransformCache& cache, ev4sio_Bp::BoundsArray& boundArray, PxBaseTask* continuation) = 0;
 		virtual PxU32* getActiveBodies()		{ return NULL;	}
 		virtual PxU32* getDeactiveBodies()		{ return NULL;	}
 		virtual void** getRigidBodies()			{ return NULL;	}
@@ -289,7 +289,7 @@ namespace physx
 		virtual PxU32	getNbShapes()			{ return 0;	}
 
 		virtual void	clear() { }
-		virtual void	setBounds(Bp::BoundsArray* /*boundArray*/){}
+		virtual void	setBounds(ev4sio_Bp::BoundsArray* /*boundArray*/){}
 		virtual void	reserve(const PxU32 /*nbBodies*/) {}
 
 		virtual PxU32   getArticulationRemapIndex(const PxU32 /*nodeIndex*/) { return PX_INVALID_U32;}
@@ -304,7 +304,7 @@ namespace physx
 
 		virtual void	copySoftBodyData(void** /*data*/, void* /*dataSizes*/, void* /*softBodyIndices*/, PxSoftBodyGpuDataFlag::Enum /*flag*/, const PxU32 /*nbCopySoftBodies*/, const PxU32 /*maxSize*/, CUevent /*copyEvent*/) {}
 		virtual void	applySoftBodyData(void** /*data*/, void* /*dataSizes*/, void* /*softBodyIndices*/, PxSoftBodyGpuDataFlag::Enum /*flag*/, const PxU32 /*nbUpdatedSoftBodies*/, const PxU32 /*maxSize*/, CUevent /*applyEvent*/, CUevent /*signalEvent*/) {}
-		virtual	void	copyContactData(Dy::Context* /*dyContext*/, void* /*data*/, const PxU32 /*maxContactPairs*/, void* /*numContactPairs*/, CUevent /*copyEvent*/) {}
+		virtual	void	copyContactData(ev4sio_Dy::Context* /*dyContext*/, void* /*data*/, const PxU32 /*maxContactPairs*/, void* /*numContactPairs*/, CUevent /*copyEvent*/) {}
 		virtual	void	copyBodyData(PxGpuBodyData* /*data*/, PxGpuActorPair* /*index*/, const PxU32 /*nbCopyActors*/, CUevent /*copyEvent*/){}
 		virtual	void	applyActorData(void* /*data*/, PxGpuActorPair* /*index*/, PxActorCacheFlag::Enum /*flag*/, const PxU32 /*nbUpdatedActors*/, CUevent /*waitEvent*/, CUevent /*signalEvent*/) {}
 
@@ -314,7 +314,7 @@ namespace physx
 
 		virtual void	syncParticleData()	{}
 
-		virtual void    updateBoundsAndShapes(Bp::AABBManagerBase& /*aabbManager*/, bool /*useDirectApi*/){}
+		virtual void    updateBoundsAndShapes(ev4sio_Bp::AABBManagerBase& /*aabbManager*/, bool /*useDirectApi*/){}
 
 		virtual	void	computeDenseJacobians(const PxIndexDataPair* /*indices*/, PxU32 /*nbIndices*/, CUevent /*computeEvent*/){}
 		virtual	void	computeGeneralizedMassMatrices(const PxIndexDataPair* /*indices*/, PxU32 /*nbIndices*/, CUevent /*computeEvent*/){}
@@ -326,8 +326,8 @@ namespace physx
 		virtual PxU32				getNbDeactivatedFEMCloth()		const	{ return 0;		}
 		virtual PxU32				getNbActivatedFEMCloth()		const	{ return 0;		}
 
-		virtual Dy::FEMCloth**		getDeactivatedFEMCloths()		const	{ return NULL;	}
-		virtual Dy::FEMCloth**		getActivatedFEMCloths()			const	{ return NULL;	}
+		virtual ev4sio_Dy::FEMCloth**		getDeactivatedFEMCloths()		const	{ return NULL;	}
+		virtual ev4sio_Dy::FEMCloth**		getActivatedFEMCloths()			const	{ return NULL;	}
 
 		virtual PxU32				getNbDeactivatedSoftbodies()	const	{ return 0;		}
 		virtual PxU32				getNbActivatedSoftbodies()		const	{ return 0;		}
@@ -335,21 +335,21 @@ namespace physx
 		virtual const PxReal*		getSoftBodyWakeCounters()		const	{ return NULL;	}
 		virtual const PxReal*		getHairSystemWakeCounters()		const	{ return NULL;	}
 
-		virtual Dy::SoftBody**		getDeactivatedSoftbodies()		const	{ return NULL;	}
-		virtual Dy::SoftBody**		getActivatedSoftbodies()		const	{ return NULL;	}
+		virtual ev4sio_Dy::SoftBody**		getDeactivatedSoftbodies()		const	{ return NULL;	}
+		virtual ev4sio_Dy::SoftBody**		getActivatedSoftbodies()		const	{ return NULL;	}
 
 		virtual bool				hasFEMCloth()					const	{ return false;	}
 		virtual bool				hasSoftBodies()					const	{ return false;	}
 
 		virtual PxU32				getNbDeactivatedHairSystems()	const	{ return 0;		}
 		virtual PxU32				getNbActivatedHairSystems()		const	{ return 0;		}
-		virtual Dy::HairSystem**	getDeactivatedHairSystems()		const	{ return NULL;	}
-		virtual Dy::HairSystem**	getActivatedHairSystems()		const	{ return NULL;	}
+		virtual ev4sio_Dy::HairSystem**	getDeactivatedHairSystems()		const	{ return NULL;	}
+		virtual ev4sio_Dy::HairSystem**	getActivatedHairSystems()		const	{ return NULL;	}
 		virtual bool				hasHairSystems()				const	{ return false;	}
 #endif
 
-		virtual void*	getMPMDataPointer(const Dy::ParticleSystem& /*psLL*/, PxMPMParticleDataFlag::Enum /*flags*/) { return NULL; }
-		virtual void*	getSparseGridDataPointer(const Dy::ParticleSystem& /*psLL*/, PxSparseGridDataFlag::Enum /*flags*/, PxParticleSolverType::Enum /*type*/) { return NULL; }
+		virtual void*	getMPMDataPointer(const ev4sio_Dy::ParticleSystem& /*psLL*/, PxMPMParticleDataFlag::Enum /*flags*/) { return NULL; }
+		virtual void*	getSparseGridDataPointer(const ev4sio_Dy::ParticleSystem& /*psLL*/, PxSparseGridDataFlag::Enum /*flags*/, PxParticleSolverType::Enum /*type*/) { return NULL; }
 
 	protected:
 		PxsSimulationControllerCallback*	mCallback;

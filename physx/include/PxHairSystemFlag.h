@@ -33,7 +33,7 @@
 #include "foundation/PxFlags.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -67,7 +67,7 @@ namespace physx
 	typedef PxFlags<PxHairSystemFlag::Enum, PxU32> PxHairSystemFlags;
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

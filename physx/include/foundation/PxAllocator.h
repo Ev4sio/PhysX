@@ -64,7 +64,7 @@
 // - Inherit from PxUserAllocated to PX_NEW something. Do it even on small classes, it's free.
 // - You cannot PX_NEW a POD. Use PX_ALLOC.
 
-#define PX_ALLOC(n, name) physx::PxAllocator().allocate(n, PX_FL)
+#define PX_ALLOC(n, name) ev4sio_physx::PxAllocator().allocate(n, PX_FL)
 
 // PT: use this one to reduce the amount of visible reinterpret_cast
 #define PX_ALLOCATE(type, count, name)	reinterpret_cast<type*>(PX_ALLOC(count*sizeof(type), name))
@@ -72,13 +72,13 @@
 #define PX_FREE(x)							\
 	if(x)									\
 	{										\
-		physx::PxAllocator().deallocate(x);	\
+		ev4sio_physx::PxAllocator().deallocate(x);	\
 		x = NULL;							\
 	}
 
-#define PX_FREE_THIS	physx::PxAllocator().deallocate(this)
+#define PX_FREE_THIS	ev4sio_physx::PxAllocator().deallocate(this)
 
-#define PX_NEW(T)				new (physx::PxReflectionAllocator<T>(), PX_FL) T
+#define PX_NEW(T)				new (ev4sio_physx::PxReflectionAllocator<T>(), PX_FL) T
 #define PX_PLACEMENT_NEW(p, T)	new (p) T
 #define PX_DELETE_THIS			delete this
 #define PX_DELETE(x)			if(x)	{ delete x;		x = NULL;	}
@@ -86,7 +86,7 @@
 #define PX_RELEASE(x)			if(x)	{ x->release(); x = NULL;	}
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 	/**
@@ -99,13 +99,13 @@ namespace physx
 
 		PX_FORCE_INLINE	void*	allocate(size_t size, const char* file, int line)
 		{
-			return size ? PxGetBroadcastAllocator()->allocate(size, "", file, line) : NULL;
+			return size ? ev4sio_PxGetBroadcastAllocator()->allocate(size, "", file, line) : NULL;
 		}
 
 		PX_FORCE_INLINE	void	deallocate(void* ptr)
 		{
 			if(ptr)
-				PxGetBroadcastAllocator()->deallocate(ptr);
+				ev4sio_PxGetBroadcastAllocator()->deallocate(ptr);
 		}
 	};
 
@@ -217,7 +217,7 @@ namespace physx
 				return NULL;
 
 			bool reportAllocationNames;
-			PxAllocatorCallback* cb = PxGetBroadcastAllocator(&reportAllocationNames);
+			PxAllocatorCallback* cb = ev4sio_PxGetBroadcastAllocator(&reportAllocationNames);
 
 			return cb->allocate(size, getName(reportAllocationNames), filename, line);
 		}
@@ -225,7 +225,7 @@ namespace physx
 		PX_FORCE_INLINE	void	deallocate(void* ptr)
 		{
 			if(ptr)
-				PxGetBroadcastAllocator()->deallocate(ptr);
+				ev4sio_PxGetBroadcastAllocator()->deallocate(ptr);
 		}
 	};
 
@@ -236,7 +236,7 @@ namespace physx
 	};
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

@@ -32,9 +32,9 @@
 #include "DySolverCore.h"
 #include "DySolverConstraintDesc.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Dy
+namespace ev4sio_Dy
 {
 
 class BatchIterator
@@ -102,7 +102,7 @@ public:
 
 	// SolverCore
 	virtual void solveVParallelAndWriteBack
-		(SolverIslandParams& params, Cm::SpatialVectorF* Z, Cm::SpatialVectorF* deltaV) const	PX_OVERRIDE	PX_FINAL;
+		(SolverIslandParams& params, ev4sio_Cm::SpatialVectorF* Z, ev4sio_Cm::SpatialVectorF* deltaV) const	PX_OVERRIDE	PX_FINAL;
 
 	virtual void solveV_Blocks
 		(SolverIslandParams& params) const	PX_OVERRIDE	PX_FINAL;

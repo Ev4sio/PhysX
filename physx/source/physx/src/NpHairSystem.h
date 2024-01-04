@@ -34,7 +34,7 @@
 #include "ScHairSystemCore.h"
 #include "NpActorTemplate.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	class NpScene;
 	class NpShape;
@@ -73,7 +73,7 @@ namespace physx
 				}
 			}
 
-			void setAllocatorCallback(physx::PxVirtualAllocatorCallback* cb)
+			void setAllocatorCallback(ev4sio_physx::PxVirtualAllocatorCallback* cb)
 			{
 				if (mSize > 0)
 				{
@@ -92,9 +92,9 @@ namespace physx
 
 			void swap(MemoryWithAlloc<T>& other)
 			{
-				physx::PxSwap(mData, other.mData);
-				physx::PxSwap(mSize, other.mSize);
-				physx::PxSwap(mAlloc, other.mAlloc);
+				ev4sio_physx::PxSwap(mData, other.mData);
+				ev4sio_physx::PxSwap(mSize, other.mSize);
+				ev4sio_physx::PxSwap(mAlloc, other.mAlloc);
 			}
 
 			uint32_t size() const
@@ -137,7 +137,7 @@ namespace physx
 		private:
 			T* mData;
 			uint32_t mSize;
-			physx::PxVirtualAllocatorCallback* mAlloc;
+			ev4sio_physx::PxVirtualAllocatorCallback* mAlloc;
 		};
 
 	public:
@@ -242,8 +242,8 @@ namespace physx
 		void visualize(PxRenderOutput& out, NpScene& npScene)	const;
 #endif
 
-		PX_FORCE_INLINE	const	Sc::HairSystemCore&		getCore() const	{ return mCore; }
-		PX_FORCE_INLINE			Sc::HairSystemCore&		getCore()		{ return mCore; }
+		PX_FORCE_INLINE	const	ev4sio_Sc::HairSystemCore&		getCore() const	{ return mCore; }
+		PX_FORCE_INLINE			ev4sio_Sc::HairSystemCore&		getCore()		{ return mCore; }
 		static PX_FORCE_INLINE size_t					getCoreOffset()	{ return PX_OFFSET_OF_RT(NpHairSystem, mCore); }
 
 		// Debug name
@@ -257,7 +257,7 @@ namespace physx
 		void releaseAllocator();
 
 	private:
-		Sc::HairSystemCore			mCore;
+		ev4sio_Sc::HairSystemCore			mCore;
 		PxHairSystemGeometry		mGeometry;
 		PxCudaContextManager*		mCudaContextManager;
 
@@ -278,7 +278,7 @@ namespace physx
 		PxArray<PxReal> mLodProportionOfVertices;
 
 		PxHashMap<PxU32, PxPair<PxU32, PxU32>> mSoftbodyAttachmentsOffsets; // map from handle to {offset, size}
-		PxPinnedArray<Dy::SoftbodyHairAttachment> mSoftbodyAttachments;
+		PxPinnedArray<ev4sio_Dy::SoftbodyHairAttachment> mSoftbodyAttachments;
 	};
 }
 

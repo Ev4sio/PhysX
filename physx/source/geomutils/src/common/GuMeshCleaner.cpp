@@ -32,8 +32,8 @@
 #include "foundation/PxBitUtils.h"
 #include "GuMeshCleaner.h"
 
-using namespace physx;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
 
 struct Indices
 {

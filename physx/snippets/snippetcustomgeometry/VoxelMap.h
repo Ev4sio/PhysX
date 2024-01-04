@@ -32,7 +32,7 @@
 #include "PxPhysicsAPI.h"
 
 /*
-VoxelMap inherits physx::PxCustomGeometry::Callbacks interface and provides
+VoxelMap inherits ev4sio_physx::PxCustomGeometry::Callbacks interface and provides
 implementations for 5 callback functions:
 
 - getLocalBounds
@@ -44,7 +44,7 @@ implementations for 5 callback functions:
 It should be passed to PxCustomGeometry constructor.
 
 */
-struct VoxelMap : physx::PxCustomGeometry::Callbacks, physx::PxUserAllocated
+struct VoxelMap : ev4sio_physx::PxCustomGeometry::Callbacks, ev4sio_physx::PxUserAllocated
 {
 	void setDimensions(int x, int y, int z);
 	int dimX() const;
@@ -52,12 +52,12 @@ struct VoxelMap : physx::PxCustomGeometry::Callbacks, physx::PxUserAllocated
 	int dimZ() const;
 
 	void setVoxelSize(float x, float y, float z);
-	const physx::PxVec3& voxelSize() const;
+	const ev4sio_physx::PxVec3& voxelSize() const;
 	float voxelSizeX() const;
 	float voxelSizeY() const;
 	float voxelSizeZ() const;
 
-	physx::PxVec3 extents() const;
+	ev4sio_physx::PxVec3 extents() const;
 
 	void setVoxel(int x, int y, int z, bool yes = true);
 
@@ -69,30 +69,30 @@ struct VoxelMap : physx::PxCustomGeometry::Callbacks, physx::PxUserAllocated
 
 	void setWaveVoxels();
 
-	void voxelize(const physx::PxGeometry& geom, const physx::PxTransform& pose, bool add = true);
+	void voxelize(const ev4sio_physx::PxGeometry& geom, const ev4sio_physx::PxTransform& pose, bool add = true);
 
-	physx::PxVec3 voxelPos(int x, int y, int z) const;
+	ev4sio_physx::PxVec3 voxelPos(int x, int y, int z) const;
 
-	void pointCoords(const physx::PxVec3& p, int& x, int& y, int& z) const;
+	void pointCoords(const ev4sio_physx::PxVec3& p, int& x, int& y, int& z) const;
 
-	void getVoxelRegion(const physx::PxBounds3& b, int& sx, int& sy, int& sz, int& ex, int& ey, int& ez) const;
+	void getVoxelRegion(const ev4sio_physx::PxBounds3& b, int& sx, int& sy, int& sz, int& ex, int& ey, int& ez) const;
 
-	// physx::PxCustomGeometry::Callbacks overrides
+	// ev4sio_physx::PxCustomGeometry::Callbacks overrides
 
 	DECLARE_CUSTOM_GEOMETRY_TYPE
-	virtual physx::PxBounds3 getLocalBounds(const physx::PxGeometry&) const;
-	virtual bool generateContacts(const physx::PxGeometry& geom0, const physx::PxGeometry& geom1, const physx::PxTransform& pose0, const physx::PxTransform& pose1,
-		const physx::PxReal contactDistance, const physx::PxReal meshContactMargin, const physx::PxReal toleranceLength,
-		physx::PxContactBuffer& contactBuffer) const;
-	virtual physx::PxU32 raycast(const physx::PxVec3& origin, const physx::PxVec3& unitDir, const physx::PxGeometry& geom, const physx::PxTransform& pose,
-		physx::PxReal maxDist, physx::PxHitFlags hitFlags, physx::PxU32 maxHits, physx::PxGeomRaycastHit* rayHits, physx::PxU32 stride, physx::PxRaycastThreadContext*) const;
-	virtual bool overlap(const physx::PxGeometry& geom0, const physx::PxTransform& pose0, const physx::PxGeometry& geom1, const physx::PxTransform& pose1, physx::PxOverlapThreadContext*) const;
-	virtual bool sweep(const physx::PxVec3& unitDir, const physx::PxReal maxDist,
-		const physx::PxGeometry& geom0, const physx::PxTransform& pose0, const physx::PxGeometry& geom1, const physx::PxTransform& pose1,
-		physx::PxGeomSweepHit& sweepHit, physx::PxHitFlags hitFlags, const physx::PxReal inflation, physx::PxSweepThreadContext*) const;
-	virtual void visualize(const physx::PxGeometry&, physx::PxRenderOutput&, const physx::PxTransform&, const physx::PxBounds3&) const;
-	virtual void computeMassProperties(const physx::PxGeometry&, physx::PxMassProperties&) const {}
-	virtual bool usePersistentContactManifold(const physx::PxGeometry&, physx::PxReal&) const { return true; }
+	virtual ev4sio_physx::PxBounds3 getLocalBounds(const ev4sio_physx::PxGeometry&) const;
+	virtual bool generateContacts(const ev4sio_physx::PxGeometry& geom0, const ev4sio_physx::PxGeometry& geom1, const ev4sio_physx::PxTransform& pose0, const ev4sio_physx::PxTransform& pose1,
+		const ev4sio_physx::PxReal contactDistance, const ev4sio_physx::PxReal meshContactMargin, const ev4sio_physx::PxReal toleranceLength,
+		ev4sio_physx::PxContactBuffer& contactBuffer) const;
+	virtual ev4sio_physx::PxU32 raycast(const ev4sio_physx::PxVec3& origin, const ev4sio_physx::PxVec3& unitDir, const ev4sio_physx::PxGeometry& geom, const ev4sio_physx::PxTransform& pose,
+		ev4sio_physx::PxReal maxDist, ev4sio_physx::PxHitFlags hitFlags, ev4sio_physx::PxU32 maxHits, ev4sio_physx::PxGeomRaycastHit* rayHits, ev4sio_physx::PxU32 stride, ev4sio_physx::PxRaycastThreadContext*) const;
+	virtual bool overlap(const ev4sio_physx::PxGeometry& geom0, const ev4sio_physx::PxTransform& pose0, const ev4sio_physx::PxGeometry& geom1, const ev4sio_physx::PxTransform& pose1, ev4sio_physx::PxOverlapThreadContext*) const;
+	virtual bool sweep(const ev4sio_physx::PxVec3& unitDir, const ev4sio_physx::PxReal maxDist,
+		const ev4sio_physx::PxGeometry& geom0, const ev4sio_physx::PxTransform& pose0, const ev4sio_physx::PxGeometry& geom1, const ev4sio_physx::PxTransform& pose1,
+		ev4sio_physx::PxGeomSweepHit& sweepHit, ev4sio_physx::PxHitFlags hitFlags, const ev4sio_physx::PxReal inflation, ev4sio_physx::PxSweepThreadContext*) const;
+	virtual void visualize(const ev4sio_physx::PxGeometry&, ev4sio_physx::PxRenderOutput&, const ev4sio_physx::PxTransform&, const ev4sio_physx::PxBounds3&) const;
+	virtual void computeMassProperties(const ev4sio_physx::PxGeometry&, ev4sio_physx::PxMassProperties&) const {}
+	virtual bool usePersistentContactManifold(const ev4sio_physx::PxGeometry&, ev4sio_physx::PxReal&) const { return true; }
 
 private:
 
@@ -101,8 +101,8 @@ private:
 	int pacsZ() const;
 
 	int m_dimensions[3];
-	physx::PxVec3 m_voxelSize;
-	physx::PxArray<physx::PxU64> m_packs;
+	ev4sio_physx::PxVec3 m_voxelSize;
+	ev4sio_physx::PxArray<ev4sio_physx::PxU64> m_packs;
 };
 
 #endif

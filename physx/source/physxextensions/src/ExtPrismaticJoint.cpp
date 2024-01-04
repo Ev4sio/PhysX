@@ -31,8 +31,8 @@
 
 #include "omnipvd/ExtOmniPvdSetData.h"
 
-using namespace physx;
-using namespace Ext;
+using namespace ev4sio_physx;
+using namespace ev4sio_Ext;
 
 PrismaticJoint::PrismaticJoint(const PxTolerancesScale& scale, PxRigidActor* actor0, const PxTransform& localFrame0, PxRigidActor* actor1, const PxTransform& localFrame1) :
 	PrismaticJointT(PxJointConcreteType::ePRISMATIC, actor0, localFrame0, actor1, localFrame1, "PrismaticJointData")
@@ -153,7 +153,7 @@ static PxConstraintShaderTable gPrismaticJointShaders = { PrismaticJointSolverPr
 
 PxConstraintSolverPrep PrismaticJoint::getPrep()	const	{ return gPrismaticJointShaders.solverPrep; }
 
-PxPrismaticJoint* physx::PxPrismaticJointCreate(PxPhysics& physics, PxRigidActor* actor0, const PxTransform& localFrame0, PxRigidActor* actor1, const PxTransform& localFrame1)
+PxPrismaticJoint* ev4sio_physx::PxPrismaticJointCreate(PxPhysics& physics, PxRigidActor* actor0, const PxTransform& localFrame0, PxRigidActor* actor1, const PxTransform& localFrame1)
 {
 	PX_CHECK_AND_RETURN_NULL(localFrame0.isSane(), "PxPrismaticJointCreate: local frame 0 is not a valid transform"); 
 	PX_CHECK_AND_RETURN_NULL(localFrame1.isSane(), "PxPrismaticJointCreate: local frame 1 is not a valid transform"); 
@@ -184,7 +184,7 @@ void PrismaticJoint::updateOmniPvdProperties() const
 }
 
 template<>
-void physx::Ext::omniPvdInitJoint<PrismaticJoint>(PrismaticJoint& joint)
+void ev4sio_physx::ev4sio_Ext::omniPvdInitJoint<PrismaticJoint>(PrismaticJoint& joint)
 {
 	OMNI_PVD_WRITE_SCOPE_BEGIN(pvdWriter, pvdRegData)
 

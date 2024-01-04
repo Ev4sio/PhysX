@@ -31,8 +31,8 @@
 #include "GuConvexEdgeFlags.h"
 #include "GuBarycentricCoordinates.h"
 
-using namespace physx;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
 using namespace aos;
 
 // This function adds the newly created manifold contacts to a new patch or existing patches 

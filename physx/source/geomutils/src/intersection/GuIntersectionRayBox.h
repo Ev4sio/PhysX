@@ -33,9 +33,9 @@
 #include "common/PxPhysXCommonConfig.h"
 #include "foundation/PxVecMath.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Gu
+namespace ev4sio_Gu
 {
 	bool	rayAABBIntersect(const PxVec3& minimum, const PxVec3& maximum, const PxVec3& origin, const PxVec3& _dir, PxVec3& coord);
 	PxU32	rayAABBIntersect2(const PxVec3& minimum, const PxVec3& maximum, const PxVec3& origin, const PxVec3& _dir, PxVec3& coord, PxReal & t);
@@ -86,7 +86,7 @@ namespace Gu
 												const aos::Vec3VArg ro, const aos::Vec3VArg rd, const aos::FloatVArg maxDist, 
 												aos::FloatV& tnear, aos::FloatV& tfar);
 
-} // namespace Gu
+} // namespace ev4sio_Gu
 }
 
 #endif

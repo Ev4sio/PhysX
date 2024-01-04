@@ -35,10 +35,10 @@
 #include "GuSweepSharedTests.h"
 #include "GuInternal.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
-namespace Gu
+namespace ev4sio_Gu
 {
 	// PT: computes proper impact data for sphere-sweep-vs-tri, after the closest tri has been found.
 	void computeSphereTriImpactData(PxVec3& hit, PxVec3& normal, const PxVec3& center, const PxVec3& dir, float t, const PxTriangle& tri);
@@ -75,8 +75,8 @@ namespace Gu
 
 		// PT: keep min value = earliest possible impact distance
 		PxReal dp = dp0;
-		dp = physx::intrinsics::selectMin(dp, dp1);
-		dp = physx::intrinsics::selectMin(dp, dp2);
+		dp = ev4sio_physx::intrinsics::selectMin(dp, dp1);
+		dp = ev4sio_physx::intrinsics::selectMin(dp, dp2);
 
 		// PT: make sure we keep triangles that are about as close as best current distance
 		radius += 0.001f + GU_EPSILON_SAME_DISTANCE;
@@ -112,9 +112,9 @@ namespace Gu
 
 		// PT: keep min value = earliest possible impact distance
 		PxReal dp = dp0;
-		dp = physx::intrinsics::selectMin(dp, dp1);
-		dp = physx::intrinsics::selectMin(dp, dp2);
-		dp = physx::intrinsics::selectMin(dp, dp3);
+		dp = ev4sio_physx::intrinsics::selectMin(dp, dp1);
+		dp = ev4sio_physx::intrinsics::selectMin(dp, dp2);
+		dp = ev4sio_physx::intrinsics::selectMin(dp, dp3);
 
 		// PT: make sure we keep quads that are about as close as best current distance
 		radius += 0.001f + GU_EPSILON_SAME_DISTANCE;
@@ -153,8 +153,8 @@ namespace Gu
 	{
 		PxVec3 diff = point - p0;
 		PxReal fT = diff.dot(dir);
-		fT = physx::intrinsics::selectMax(fT, 0.0f);
-		fT = physx::intrinsics::selectMin(fT, t);
+		fT = ev4sio_physx::intrinsics::selectMax(fT, 0.0f);
+		fT = ev4sio_physx::intrinsics::selectMin(fT, t);
 		diff -= fT*dir;
 		return diff.magnitudeSquared();
 	}
@@ -190,8 +190,8 @@ namespace Gu
 			const float d0 = (triCenter-triVerts[0]).magnitudeSquared();
 			const float d1 = (triCenter-triVerts[1]).magnitudeSquared();
 			const float d2 = (triCenter-triVerts[2]).magnitudeSquared();
-			float triRadius = physx::intrinsics::selectMax(d0, d1);
-			triRadius = physx::intrinsics::selectMax(triRadius, d2);
+			float triRadius = ev4sio_physx::intrinsics::selectMax(d0, d1);
+			triRadius = ev4sio_physx::intrinsics::selectMax(triRadius, d2);
 			if(d <= triRadius)
 				return true;
 		}
@@ -330,7 +330,7 @@ namespace Gu
 		}
 	}
 
-} // namespace Gu
+} // namespace ev4sio_Gu
 
 }
 

@@ -34,9 +34,9 @@
 #include "foundation/PxSort.h"
 #include "PxcConstraintBlockStream.h"
 #include "DyArticulationContactPrep.h"
-namespace physx
+namespace ev4sio_physx
 {
-namespace Dy
+namespace ev4sio_Dy
 {
 
 namespace

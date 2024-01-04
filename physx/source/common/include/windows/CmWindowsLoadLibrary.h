@@ -39,9 +39,9 @@
 #endif
 
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Cm
+namespace ev4sio_Cm
 {
 	EXTERN_C IMAGE_DOS_HEADER __ImageBase;
 
@@ -59,7 +59,7 @@ namespace Cm
 #endif		
 	};
 
-	PX_INLINE FARPROC WINAPI physXCommonDliNotePreLoadLibrary(const char* libraryName, const physx::PxDelayLoadHook* delayLoadHook)
+	PX_INLINE FARPROC WINAPI physXCommonDliNotePreLoadLibrary(const char* libraryName, const ev4sio_physx::PxDelayLoadHook* delayLoadHook)
 	{	
 		if(!delayLoadHook)
 		{
@@ -69,18 +69,18 @@ namespace Cm
 		{
 			if(strstr(libraryName, "PhysXFoundation"))
 			{
-				return (FARPROC)Cm::loadLibrary(delayLoadHook->getPhysXFoundationDllName());
+				return (FARPROC)ev4sio_Cm::loadLibrary(delayLoadHook->getPhysXFoundationDllName());
 			}
 
 			if(strstr(libraryName, "PhysXCommon"))
 			{
-				return (FARPROC)Cm::loadLibrary(delayLoadHook->getPhysXCommonDllName());
+				return (FARPROC)ev4sio_Cm::loadLibrary(delayLoadHook->getPhysXCommonDllName());
 			}
 		}
 		return NULL;
     }
-} // namespace Cm
-} // namespace physx
+} // namespace ev4sio_Cm
+} // namespace ev4sio_physx
 
 
 #endif	// CM_WINDOWS_LOADLIBRARY_H

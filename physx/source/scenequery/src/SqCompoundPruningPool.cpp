@@ -32,10 +32,10 @@
 #include "GuAABBTree.h"
 #include "GuBVH.h"
 
-using namespace physx;
-using namespace Cm;
-using namespace Gu;
-using namespace Sq;
+using namespace ev4sio_physx;
+using namespace ev4sio_Cm;
+using namespace ev4sio_Gu;
+using namespace ev4sio_Sq;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -193,7 +193,7 @@ PoolIndex CompoundTreePool::addCompound(PrunerHandle* results, const BVH& bvh, c
 		if(!resize(PxMax<PxU32>(mMaxNbObjects*2, 32)))
 		{
 			// pool can return an invalid handle if memory alloc fails			
-			PxGetFoundation().error(PxErrorCode::eOUT_OF_MEMORY, PX_FL, "CompoundTreePool::addCompound memory allocation in resize failed.");
+			ev4sio_PxGetFoundation().error(PxErrorCode::eOUT_OF_MEMORY, PX_FL, "CompoundTreePool::addCompound memory allocation in resize failed.");
 			return INVALID_PRUNERHANDLE;
 		}
 	}

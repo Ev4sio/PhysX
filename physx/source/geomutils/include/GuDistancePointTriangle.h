@@ -33,9 +33,9 @@
 #include "common/PxPhysXCommonConfig.h"
 #include "foundation/PxVecMath.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Gu
+namespace ev4sio_Gu
 {
 	// PT: special version:
 	// - inlined
@@ -154,7 +154,7 @@ namespace Gu
 		aos::FloatV& v,
 		aos::Vec3V& closestP);
 
-} // namespace Gu
+} // namespace ev4sio_Gu
 }
 
 #endif

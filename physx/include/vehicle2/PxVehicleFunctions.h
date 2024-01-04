@@ -42,7 +42,7 @@
 #include "physxActor/PxVehiclePhysXActorStates.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 namespace vehicle2
 {
@@ -108,7 +108,7 @@ PX_FORCE_INLINE PxQuat PxVehicleComputeRotation(const PxVehicleFrame& frame, con
 
 PX_FORCE_INLINE PxF32 PxVehicleComputeSign(const PxReal f)
 {
-	return physx::intrinsics::fsel(f, physx::intrinsics::fsel(-f, 0.0f, 1.0f), -1.0f);
+	return ev4sio_physx::intrinsics::fsel(f, ev4sio_physx::intrinsics::fsel(-f, 0.0f, 1.0f), -1.0f);
 }
 
 
@@ -193,7 +193,7 @@ PX_FORCE_INLINE void PxVehicleShiftOrigin
 
 #if !PX_DOXYGEN
 } // namespace vehicle2
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 /** @} */

@@ -32,25 +32,25 @@
 #include "GuConvexMeshData.h"
 #include "CmScaling.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Gu
+namespace ev4sio_Gu
 {
 	struct PolygonalData;
 	typedef void	(*HullPrefetchCB)		(PxU32 numVerts, const PxVec3* PX_RESTRICT verts);
-	typedef void	(*HullProjectionCB)		(const PolygonalData& data, const PxVec3& dir, const PxMat34& world2hull, const Cm::FastVertex2ShapeScaling& scaling, PxReal& minimum, PxReal& maximum);
-	typedef PxU32	(*SelectClosestEdgeCB)	(const PolygonalData& data, const Cm::FastVertex2ShapeScaling& scaling, const PxVec3& localDirection);
+	typedef void	(*HullProjectionCB)		(const PolygonalData& data, const PxVec3& dir, const PxMat34& world2hull, const ev4sio_Cm::FastVertex2ShapeScaling& scaling, PxReal& minimum, PxReal& maximum);
+	typedef PxU32	(*SelectClosestEdgeCB)	(const PolygonalData& data, const ev4sio_Cm::FastVertex2ShapeScaling& scaling, const PxVec3& localDirection);
 
 	struct PolygonalData
 	{
 		// Data
-		Gu::InternalObjectsData				mInternal;
+		ev4sio_Gu::InternalObjectsData				mInternal;
 		PxMeshScale							mScale;
 		PxVec3								mCenter;
 		PxU32								mNbVerts;
 		PxU32								mNbPolygons;
 		PxU32								mNbEdges;
-		const Gu::HullPolygonData*			mPolygons;
+		const ev4sio_Gu::HullPolygonData*			mPolygons;
 		const PxVec3*						mVerts;
 		const PxU8*							mPolygonVertexRefs;
 		const PxU8*							mFacesByEdges;
@@ -58,7 +58,7 @@ namespace Gu
 		
 		union
 		{
-			const Gu::BigConvexRawData*		mBigData;	// Only for big convexes
+			const ev4sio_Gu::BigConvexRawData*		mBigData;	// Only for big convexes
 			const PxVec3*					mHalfSide;	// Only for boxes
 		};
 
@@ -66,7 +66,7 @@ namespace Gu
 		HullProjectionCB					mProjectHull;
 		SelectClosestEdgeCB					mSelectClosestEdgeCB;
 
-		PX_FORCE_INLINE const PxU8*	getPolygonVertexRefs(const Gu::HullPolygonData& poly)	const
+		PX_FORCE_INLINE const PxU8*	getPolygonVertexRefs(const ev4sio_Gu::HullPolygonData& poly)	const
 		{
 			return mPolygonVertexRefs + poly.mVRef8;
 		}
@@ -85,7 +85,7 @@ namespace Gu
 
 			const PxVec3&			mHalfSide;
 			PxVec3					mVertices[8];
-			Gu::HullPolygonData		mPolygons[6];
+			ev4sio_Gu::HullPolygonData		mPolygons[6];
 	private:
 			PolygonalBox& operator=(const PolygonalBox&);
 	};
@@ -93,7 +93,7 @@ namespace Gu
      #pragma warning(pop) 
 #endif
 
-	void getPolygonalData_Convex(PolygonalData* PX_RESTRICT dst, const Gu::ConvexHullData* PX_RESTRICT src, const Cm::FastVertex2ShapeScaling& scaling);
+	void getPolygonalData_Convex(PolygonalData* PX_RESTRICT dst, const ev4sio_Gu::ConvexHullData* PX_RESTRICT src, const ev4sio_Cm::FastVertex2ShapeScaling& scaling);
 }
 }
 

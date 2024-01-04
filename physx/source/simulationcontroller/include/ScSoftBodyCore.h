@@ -39,9 +39,9 @@
 #include "PxFiltering.h"
 #include "ScRigidCore.h" //KS - needed for ShapeChangeNotifyFlags. Move to a shared header
 
-namespace physx
+namespace ev4sio_physx
 {
-	namespace Sc
+	namespace ev4sio_Sc
 	{
 		class SoftBodySim;
 		class BodyCore;
@@ -92,42 +92,42 @@ namespace physx
 			void						attachShapeCore(ShapeCore* shapeCore);
 			void						attachSimulationMesh(PxTetrahedronMesh* simulationMesh, PxSoftBodyAuxData* simulationState);
 
-			void						addParticleFilter(Sc::ParticleSystemCore* core, PxU32 particleId, PxU32 userBufferId, PxU32 tetId);
-			void						removeParticleFilter(Sc::ParticleSystemCore* core, PxU32 particleId, PxU32 userBufferId, PxU32 tetId);
+			void						addParticleFilter(ev4sio_Sc::ParticleSystemCore* core, PxU32 particleId, PxU32 userBufferId, PxU32 tetId);
+			void						removeParticleFilter(ev4sio_Sc::ParticleSystemCore* core, PxU32 particleId, PxU32 userBufferId, PxU32 tetId);
 
-			PxU32						addParticleAttachment(Sc::ParticleSystemCore* core, PxU32 particleId, PxU32 userBufferId, PxU32 tetId, const PxVec4& barycentric);
-			void						removeParticleAttachment(Sc::ParticleSystemCore* core, PxU32 handle);
+			PxU32						addParticleAttachment(ev4sio_Sc::ParticleSystemCore* core, PxU32 particleId, PxU32 userBufferId, PxU32 tetId, const PxVec4& barycentric);
+			void						removeParticleAttachment(ev4sio_Sc::ParticleSystemCore* core, PxU32 handle);
 
-			void						addRigidFilter(Sc::BodyCore* core, PxU32 vertId);
-			void						removeRigidFilter(Sc::BodyCore* core, PxU32 vertId);
+			void						addRigidFilter(ev4sio_Sc::BodyCore* core, PxU32 vertId);
+			void						removeRigidFilter(ev4sio_Sc::BodyCore* core, PxU32 vertId);
 
-			PxU32						addRigidAttachment(Sc::BodyCore* core, PxU32 vertId, const PxVec3& actorSpacePose, PxConeLimitedConstraint* constraint);
-			void						removeRigidAttachment(Sc::BodyCore* core, PxU32 handle);
+			PxU32						addRigidAttachment(ev4sio_Sc::BodyCore* core, PxU32 vertId, const PxVec3& actorSpacePose, PxConeLimitedConstraint* constraint);
+			void						removeRigidAttachment(ev4sio_Sc::BodyCore* core, PxU32 handle);
 
-			void						addTetRigidFilter(Sc::BodyCore* core, PxU32 tetIdx);
-			void						removeTetRigidFilter(Sc::BodyCore* core, PxU32 tetIdx);
+			void						addTetRigidFilter(ev4sio_Sc::BodyCore* core, PxU32 tetIdx);
+			void						removeTetRigidFilter(ev4sio_Sc::BodyCore* core, PxU32 tetIdx);
 
-			PxU32						addTetRigidAttachment(Sc::BodyCore* core, PxU32 tetIdx, const PxVec4& barycentric, const PxVec3& actorSpacePose,
+			PxU32						addTetRigidAttachment(ev4sio_Sc::BodyCore* core, PxU32 tetIdx, const PxVec4& barycentric, const PxVec3& actorSpacePose,
 										PxConeLimitedConstraint* constraint);
 
-			void						addSoftBodyFilter(Sc::SoftBodyCore& core, PxU32 tetIdx0, PxU32 tetIdx1);
-			void						removeSoftBodyFilter(Sc::SoftBodyCore& core, PxU32 tetIdx0, PxU32 tetIdx1);
-			void						addSoftBodyFilters(Sc::SoftBodyCore& core, PxU32* tetIndices0, PxU32* tetIndices1, PxU32 tetIndicesSize);
-			void						removeSoftBodyFilters(Sc::SoftBodyCore& core, PxU32* tetIndices0, PxU32* tetIndices1, PxU32 tetIndicesSize);
+			void						addSoftBodyFilter(ev4sio_Sc::SoftBodyCore& core, PxU32 tetIdx0, PxU32 tetIdx1);
+			void						removeSoftBodyFilter(ev4sio_Sc::SoftBodyCore& core, PxU32 tetIdx0, PxU32 tetIdx1);
+			void						addSoftBodyFilters(ev4sio_Sc::SoftBodyCore& core, PxU32* tetIndices0, PxU32* tetIndices1, PxU32 tetIndicesSize);
+			void						removeSoftBodyFilters(ev4sio_Sc::SoftBodyCore& core, PxU32* tetIndices0, PxU32* tetIndices1, PxU32 tetIndicesSize);
 
-			PxU32						addSoftBodyAttachment(Sc::SoftBodyCore& core, PxU32 tetIdx0, const PxVec4& triBarycentric0, PxU32 tetIdx1, const PxVec4& tetBarycentric1,
+			PxU32						addSoftBodyAttachment(ev4sio_Sc::SoftBodyCore& core, PxU32 tetIdx0, const PxVec4& triBarycentric0, PxU32 tetIdx1, const PxVec4& tetBarycentric1,
 										PxConeLimitedConstraint* constraint, PxReal constraintOffset);
-			void						removeSoftBodyAttachment(Sc::SoftBodyCore& core, PxU32 handle);
+			void						removeSoftBodyAttachment(ev4sio_Sc::SoftBodyCore& core, PxU32 handle);
 
-			void						addClothFilter(Sc::FEMClothCore& core, PxU32 triIdx, PxU32 tetIdx);
-			void						removeClothFilter(Sc::FEMClothCore& core, PxU32 triIdx, PxU32 tetIdx);
+			void						addClothFilter(ev4sio_Sc::FEMClothCore& core, PxU32 triIdx, PxU32 tetIdx);
+			void						removeClothFilter(ev4sio_Sc::FEMClothCore& core, PxU32 triIdx, PxU32 tetIdx);
 
-			void						addVertClothFilter(Sc::FEMClothCore& core, PxU32 vertIdx, PxU32 tetIdx);
-			void						removeVertClothFilter(Sc::FEMClothCore& core, PxU32 vertIdx, PxU32 tetIdx);
+			void						addVertClothFilter(ev4sio_Sc::FEMClothCore& core, PxU32 vertIdx, PxU32 tetIdx);
+			void						removeVertClothFilter(ev4sio_Sc::FEMClothCore& core, PxU32 vertIdx, PxU32 tetIdx);
 
-			PxU32						addClothAttachment(Sc::FEMClothCore& core, PxU32 triIdx, const PxVec4& triBarycentric, PxU32 tetIdx, const PxVec4& tetBarycentric, 
+			PxU32						addClothAttachment(ev4sio_Sc::FEMClothCore& core, PxU32 triIdx, const PxVec4& triBarycentric, PxU32 tetIdx, const PxVec4& tetBarycentric, 
 										PxConeLimitedConstraint* constraint, PxReal constraintOffset);
-			void						removeClothAttachment(Sc::FEMClothCore& core,  PxU32 handle);
+			void						removeClothAttachment(ev4sio_Sc::FEMClothCore& core,  PxU32 handle);
 
 			PxU32						getGpuSoftBodyIndex()	const;
 
@@ -139,9 +139,9 @@ namespace physx
 			
 			SoftBodySim*		getSim() const;
 
-			PX_FORCE_INLINE	const Dy::SoftBodyCore&	getCore() const { return mCore; }
+			PX_FORCE_INLINE	const ev4sio_Dy::SoftBodyCore&	getCore() const { return mCore; }
 
-			PX_FORCE_INLINE	Dy::SoftBodyCore& getCore() { return mCore; }
+			PX_FORCE_INLINE	ev4sio_Dy::SoftBodyCore& getCore() { return mCore; }
 
 			void								setSimulationFilterData(const PxFilterData& data);
 		
@@ -159,12 +159,12 @@ namespace physx
 			void								onShapeChange(ShapeCore& shape, ShapeChangeNotifyFlags notifyFlags);
 
 		private:
-			Dy::SoftBodyCore					mCore;
+			ev4sio_Dy::SoftBodyCore					mCore;
 			PxFilterData						mFilterData;
 			PxU64								mGpuMemStat;
 		};
 
-	} // namespace Sc
+	} // namespace ev4sio_Sc
 }
 #endif
 

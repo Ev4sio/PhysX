@@ -40,7 +40,7 @@
 #include "PxAttachment.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -386,7 +386,7 @@ PxParticleRigidBuffer*					PxCreateAndPopulateParticleRigidBuffer(const ExtGpu::
 } // namespace ExtGpu
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 /** @} */

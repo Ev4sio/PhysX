@@ -37,11 +37,11 @@
 class SoftBody
 {
 public:
-	SoftBody(physx::PxSoftBody* softBody, physx::PxCudaContextManager* cudaContextManager) :
+	SoftBody(ev4sio_physx::PxSoftBody* softBody, ev4sio_physx::PxCudaContextManager* cudaContextManager) :
 		mSoftBody(softBody),
 		mCudaContextManager(cudaContextManager)
 	{
-		mPositionsInvMass = PX_PINNED_HOST_ALLOC_T(physx::PxVec4, cudaContextManager, softBody->getCollisionMesh()->getNbVertices());
+		mPositionsInvMass = PX_PINNED_HOST_ALLOC_T(ev4sio_physx::PxVec4, cudaContextManager, softBody->getCollisionMesh()->getNbVertices());
 	}
 
 	~SoftBody()
@@ -58,24 +58,24 @@ public:
 
 	void copyDeformedVerticesFromGPUAsync(CUstream stream)
 	{	
-		physx::PxTetrahedronMesh* tetMesh = mSoftBody->getCollisionMesh();
+		ev4sio_physx::PxTetrahedronMesh* tetMesh = mSoftBody->getCollisionMesh();
 
-		physx::PxScopedCudaLock _lock(*mCudaContextManager);
-		mCudaContextManager->getCudaContext()->memcpyDtoHAsync(mPositionsInvMass, reinterpret_cast<CUdeviceptr>(mSoftBody->getPositionInvMassBufferD()), tetMesh->getNbVertices() * sizeof(physx::PxVec4), stream);
+		ev4sio_physx::PxScopedCudaLock _lock(*mCudaContextManager);
+		mCudaContextManager->getCudaContext()->memcpyDtoHAsync(mPositionsInvMass, reinterpret_cast<CUdeviceptr>(mSoftBody->getPositionInvMassBufferD()), tetMesh->getNbVertices() * sizeof(ev4sio_physx::PxVec4), stream);
 	}
 
 	void copyDeformedVerticesFromGPU()
 	{	
-		physx::PxTetrahedronMesh* tetMesh = mSoftBody->getCollisionMesh();
+		ev4sio_physx::PxTetrahedronMesh* tetMesh = mSoftBody->getCollisionMesh();
 
-		physx::PxScopedCudaLock _lock(*mCudaContextManager);
-		mCudaContextManager->getCudaContext()->memcpyDtoH(mPositionsInvMass, reinterpret_cast<CUdeviceptr>(mSoftBody->getPositionInvMassBufferD()), tetMesh->getNbVertices() * sizeof(physx::PxVec4));
+		ev4sio_physx::PxScopedCudaLock _lock(*mCudaContextManager);
+		mCudaContextManager->getCudaContext()->memcpyDtoH(mPositionsInvMass, reinterpret_cast<CUdeviceptr>(mSoftBody->getPositionInvMassBufferD()), tetMesh->getNbVertices() * sizeof(ev4sio_physx::PxVec4));
 	}
 
 
-	physx::PxVec4* mPositionsInvMass;
-	physx::PxSoftBody* mSoftBody;
-	physx::PxCudaContextManager* mCudaContextManager;
+	ev4sio_physx::PxVec4* mPositionsInvMass;
+	ev4sio_physx::PxSoftBody* mSoftBody;
+	ev4sio_physx::PxCudaContextManager* mCudaContextManager;
 };
 
 #endif

@@ -41,9 +41,9 @@
 #include "geometry/PxTetrahedronMesh.h"
 
 
-using namespace physx;
+using namespace ev4sio_physx;
 
-Sc::SoftBodyCore::SoftBodyCore() :
+ev4sio_Sc::SoftBodyCore::SoftBodyCore() :
 	ActorCore(PxActorType::eSOFTBODY, PxActorFlag::eVISUALIZATION, PX_DEFAULT_CLIENT, 0),
 	mGpuMemStat(0)
 {
@@ -71,24 +71,24 @@ Sc::SoftBodyCore::SoftBodyCore() :
 }
 
 
-Sc::SoftBodyCore::~SoftBodyCore() { }
+ev4sio_Sc::SoftBodyCore::~SoftBodyCore() { }
 
 
-void Sc::SoftBodyCore::setMaterial(const PxU16 handle)
+void ev4sio_Sc::SoftBodyCore::setMaterial(const PxU16 handle)
 {
 	mCore.setMaterial(handle);
 	mCore.dirty = true;
 }
 
-void Sc::SoftBodyCore::clearMaterials()
+void ev4sio_Sc::SoftBodyCore::clearMaterials()
 {
 	mCore.clearMaterials();
 	mCore.dirty = true;
 }
 
-void Sc::SoftBodyCore::setFlags(PxSoftBodyFlags flags)
+void ev4sio_Sc::SoftBodyCore::setFlags(PxSoftBodyFlags flags)
 {
-	Sc::SoftBodySim* sim = getSim();
+	ev4sio_Sc::SoftBodySim* sim = getSim();
 	if (sim)
 	{
 		const bool wasDisabledSelfCollision = mCore.mFlags & PxSoftBodyFlag::eDISABLE_SELF_COLLISION;
@@ -131,62 +131,62 @@ void computeRestPoses(PxVec4* pInvMasses, PxMat33* tetraRestPoses, const I* cons
 
 		if (fabsf(det) <= 1.e-9f)
 		{
-			PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "computeRestPoses(): Degenerate or inverted tetrahedron\n");
+			ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "computeRestPoses(): Degenerate or inverted tetrahedron\n");
 		}
 #endif
 	}
 }
 
-PxFEMParameters Sc::SoftBodyCore::getParameter() const
+PxFEMParameters ev4sio_Sc::SoftBodyCore::getParameter() const
 {
 	return mCore.parameters;
 }
 
-void Sc::SoftBodyCore::setParameter(const PxFEMParameters parameter)
+void ev4sio_Sc::SoftBodyCore::setParameter(const PxFEMParameters parameter)
 {
 	mCore.parameters = parameter;
 	mCore.dirty = true;
 }
 
-PxReal Sc::SoftBodyCore::getSleepThreshold() const
+PxReal ev4sio_Sc::SoftBodyCore::getSleepThreshold() const
 {
 	return mCore.sleepThreshold;
 }
 
-void Sc::SoftBodyCore::setSleepThreshold(const PxReal v)
+void ev4sio_Sc::SoftBodyCore::setSleepThreshold(const PxReal v)
 {
 	mCore.sleepThreshold = v;
 	mCore.dirty = true;
 }
 
-PxReal Sc::SoftBodyCore::getFreezeThreshold() const
+PxReal ev4sio_Sc::SoftBodyCore::getFreezeThreshold() const
 {
 	return mCore.freezeThreshold;
 }
 
-void Sc::SoftBodyCore::setFreezeThreshold(const PxReal v)
+void ev4sio_Sc::SoftBodyCore::setFreezeThreshold(const PxReal v)
 {
 	mCore.freezeThreshold = v;
 	mCore.dirty = true;
 }
 
-void Sc::SoftBodyCore::setSolverIterationCounts(const PxU16 c)
+void ev4sio_Sc::SoftBodyCore::setSolverIterationCounts(const PxU16 c)
 {
 	mCore.solverIterationCounts = c;
 	mCore.dirty = true;
 }
 
-PxReal Sc::SoftBodyCore::getWakeCounter() const
+PxReal ev4sio_Sc::SoftBodyCore::getWakeCounter() const
 {
 	return mCore.wakeCounter;
 }
 
-void Sc::SoftBodyCore::setWakeCounter(const PxReal v)
+void ev4sio_Sc::SoftBodyCore::setWakeCounter(const PxReal v)
 {
 	mCore.wakeCounter = v;
 	mCore.dirty = true;
 
-	Sc::SoftBodySim* sim = getSim();
+	ev4sio_Sc::SoftBodySim* sim = getSim();
 	if (sim)
 	{
 		sim->onSetWakeCounter();
@@ -194,44 +194,44 @@ void Sc::SoftBodyCore::setWakeCounter(const PxReal v)
 
 }
 
-void Sc::SoftBodyCore::setWakeCounterInternal(const PxReal v)
+void ev4sio_Sc::SoftBodyCore::setWakeCounterInternal(const PxReal v)
 {
 	mCore.wakeCounter = v;
 	mCore.dirty = true;
 
-	Sc::SoftBodySim* sim = getSim();
+	ev4sio_Sc::SoftBodySim* sim = getSim();
 	if (sim)
 	{
 		sim->onSetWakeCounter();
 	}
 }
 
-bool Sc::SoftBodyCore::isSleeping() const
+bool ev4sio_Sc::SoftBodyCore::isSleeping() const
 {
-	Sc::SoftBodySim* sim = getSim();
+	ev4sio_Sc::SoftBodySim* sim = getSim();
 	return sim ? sim->isSleeping() : (mCore.wakeCounter == 0.0f);
 }
 
-void Sc::SoftBodyCore::wakeUp(PxReal wakeCounter)
+void ev4sio_Sc::SoftBodyCore::wakeUp(PxReal wakeCounter)
 {
 	mCore.wakeCounter = wakeCounter;
 	mCore.dirty = true;
 }
 
-void Sc::SoftBodyCore::putToSleep()
+void ev4sio_Sc::SoftBodyCore::putToSleep()
 {
 	mCore.wakeCounter = 0.0f;
 	mCore.dirty = true;
 }
 
-PxActor* Sc::SoftBodyCore::getPxActor() const
+PxActor* ev4sio_Sc::SoftBodyCore::getPxActor() const
 {
 	return PxPointerOffset<PxActor*>(const_cast<SoftBodyCore*>(this), gOffsetTable.scCore2PxActor[getActorCoreType()]);
 }
 
-void Sc::SoftBodyCore::attachShapeCore(ShapeCore* shapeCore)
+void ev4sio_Sc::SoftBodyCore::attachShapeCore(ShapeCore* shapeCore)
 {
-	Sc::SoftBodySim* sim = getSim();
+	ev4sio_Sc::SoftBodySim* sim = getSim();
 	if (sim) 
 	{
 		sim->attachShapeCore(shapeCore);
@@ -239,9 +239,9 @@ void Sc::SoftBodyCore::attachShapeCore(ShapeCore* shapeCore)
 	}
 }
 
-void Sc::SoftBodyCore::attachSimulationMesh(PxTetrahedronMesh* simulationMesh, PxSoftBodyAuxData* simulationState)
+void ev4sio_Sc::SoftBodyCore::attachSimulationMesh(PxTetrahedronMesh* simulationMesh, PxSoftBodyAuxData* simulationState)
 {
-	Sc::SoftBodySim* sim = getSim();
+	ev4sio_Sc::SoftBodySim* sim = getSim();
 	if (sim) 
 	{
 		sim->attachSimulationMesh(simulationMesh, simulationState);
@@ -249,42 +249,42 @@ void Sc::SoftBodyCore::attachSimulationMesh(PxTetrahedronMesh* simulationMesh, P
 	}
 }
 
-Sc::SoftBodySim* Sc::SoftBodyCore::getSim() const
+ev4sio_Sc::SoftBodySim* ev4sio_Sc::SoftBodyCore::getSim() const
 {
-	return static_cast<Sc::SoftBodySim*>(ActorCore::getSim());
+	return static_cast<ev4sio_Sc::SoftBodySim*>(ActorCore::getSim());
 }
 
 
-void Sc::SoftBodyCore::setSimulationFilterData(const PxFilterData& data)
+void ev4sio_Sc::SoftBodyCore::setSimulationFilterData(const PxFilterData& data)
 {
 	mFilterData = data;
 }
 
-PxFilterData Sc::SoftBodyCore::getSimulationFilterData() const
+PxFilterData ev4sio_Sc::SoftBodyCore::getSimulationFilterData() const
 {
 	return mFilterData;
 }
 
 
-void Sc::SoftBodyCore::addParticleFilter(Sc::ParticleSystemCore* core, PxU32 particleId, PxU32 userBufferId, PxU32 tetId)
+void ev4sio_Sc::SoftBodyCore::addParticleFilter(ev4sio_Sc::ParticleSystemCore* core, PxU32 particleId, PxU32 userBufferId, PxU32 tetId)
 {
-	Sc::SoftBodySim* sim = getSim();
+	ev4sio_Sc::SoftBodySim* sim = getSim();
 
 	if (sim)
 		sim->getScene().addParticleFilter(core, *sim, particleId, userBufferId, tetId);
 }
 
-void Sc::SoftBodyCore::removeParticleFilter(Sc::ParticleSystemCore* core, PxU32 particleId, PxU32 userBufferId, PxU32 tetId)
+void ev4sio_Sc::SoftBodyCore::removeParticleFilter(ev4sio_Sc::ParticleSystemCore* core, PxU32 particleId, PxU32 userBufferId, PxU32 tetId)
 {
-	Sc::SoftBodySim* sim = getSim();
+	ev4sio_Sc::SoftBodySim* sim = getSim();
 
 	if (sim)
 		sim->getScene().removeParticleFilter(core, *sim, particleId, userBufferId, tetId);
 }
 
-PxU32 Sc::SoftBodyCore::addParticleAttachment(Sc::ParticleSystemCore* core, PxU32 particleId, PxU32 userBufferId, PxU32 tetId, const PxVec4& barycentric)
+PxU32 ev4sio_Sc::SoftBodyCore::addParticleAttachment(ev4sio_Sc::ParticleSystemCore* core, PxU32 particleId, PxU32 userBufferId, PxU32 tetId, const PxVec4& barycentric)
 {
-	Sc::SoftBodySim* sim = getSim();
+	ev4sio_Sc::SoftBodySim* sim = getSim();
 	PxU32 handle = 0xFFFFFFFF;
 	if (sim)
 		handle = sim->getScene().addParticleAttachment(core, *sim, particleId, userBufferId, tetId, barycentric);
@@ -292,9 +292,9 @@ PxU32 Sc::SoftBodyCore::addParticleAttachment(Sc::ParticleSystemCore* core, PxU3
 	return handle;
 }
 
-void Sc::SoftBodyCore::removeParticleAttachment(Sc::ParticleSystemCore* core, PxU32 handle)
+void ev4sio_Sc::SoftBodyCore::removeParticleAttachment(ev4sio_Sc::ParticleSystemCore* core, PxU32 handle)
 {
-	Sc::SoftBodySim* sim = getSim();
+	ev4sio_Sc::SoftBodySim* sim = getSim();
 	if (sim)
 	{
 		sim->getScene().removeParticleAttachment(core, *sim, handle);
@@ -302,25 +302,25 @@ void Sc::SoftBodyCore::removeParticleAttachment(Sc::ParticleSystemCore* core, Px
 	}
 }
 
-void Sc::SoftBodyCore::addRigidFilter(Sc::BodyCore* core, PxU32 vertId)
+void ev4sio_Sc::SoftBodyCore::addRigidFilter(ev4sio_Sc::BodyCore* core, PxU32 vertId)
 {
-	Sc::SoftBodySim* sim = getSim();
+	ev4sio_Sc::SoftBodySim* sim = getSim();
 
 	if (sim)
 		sim->getScene().addRigidFilter(core, *sim, vertId);
 
 }
 
-void Sc::SoftBodyCore::removeRigidFilter(Sc::BodyCore* core, PxU32 vertId)
+void ev4sio_Sc::SoftBodyCore::removeRigidFilter(ev4sio_Sc::BodyCore* core, PxU32 vertId)
 {
-	Sc::SoftBodySim* sim = getSim();
+	ev4sio_Sc::SoftBodySim* sim = getSim();
 	if (sim)
 		sim->getScene().removeRigidFilter(core, *sim, vertId);
 }
 
-PxU32 Sc::SoftBodyCore::addRigidAttachment(Sc::BodyCore* core, PxU32 particleId, const PxVec3& actorSpacePose, PxConeLimitedConstraint* constraint)
+PxU32 ev4sio_Sc::SoftBodyCore::addRigidAttachment(ev4sio_Sc::BodyCore* core, PxU32 particleId, const PxVec3& actorSpacePose, PxConeLimitedConstraint* constraint)
 {
-	Sc::SoftBodySim* sim = getSim();
+	ev4sio_Sc::SoftBodySim* sim = getSim();
 	PxU32 handle = 0xFFFFFFFF;
 	if(sim)
 		handle = sim->getScene().addRigidAttachment(core, *sim, particleId, actorSpacePose, constraint);
@@ -328,9 +328,9 @@ PxU32 Sc::SoftBodyCore::addRigidAttachment(Sc::BodyCore* core, PxU32 particleId,
 	return handle;
 }
 
-void Sc::SoftBodyCore::removeRigidAttachment(Sc::BodyCore* core, PxU32 handle)
+void ev4sio_Sc::SoftBodyCore::removeRigidAttachment(ev4sio_Sc::BodyCore* core, PxU32 handle)
 {
-	Sc::SoftBodySim* sim = getSim();
+	ev4sio_Sc::SoftBodySim* sim = getSim();
 	if (sim)
 	{
 		sim->getScene().removeRigidAttachment(core, *sim, handle);
@@ -339,25 +339,25 @@ void Sc::SoftBodyCore::removeRigidAttachment(Sc::BodyCore* core, PxU32 handle)
 }
 
 
-void Sc::SoftBodyCore::addTetRigidFilter(Sc::BodyCore* core, PxU32 tetIdx)
+void ev4sio_Sc::SoftBodyCore::addTetRigidFilter(ev4sio_Sc::BodyCore* core, PxU32 tetIdx)
 {
-	Sc::SoftBodySim* sim = getSim();
+	ev4sio_Sc::SoftBodySim* sim = getSim();
 	if (sim)
 		sim->getScene().addTetRigidFilter(core, *sim, tetIdx);
 }
 
-void Sc::SoftBodyCore::removeTetRigidFilter(Sc::BodyCore* core, PxU32 tetIdx)
+void ev4sio_Sc::SoftBodyCore::removeTetRigidFilter(ev4sio_Sc::BodyCore* core, PxU32 tetIdx)
 {
-	Sc::SoftBodySim* sim = getSim();
+	ev4sio_Sc::SoftBodySim* sim = getSim();
 	if (sim)
 	{
 		sim->getScene().removeTetRigidFilter(core, *sim, tetIdx);
 	}
 }
-PxU32 Sc::SoftBodyCore::addTetRigidAttachment(Sc::BodyCore* core, PxU32 tetIdx, const PxVec4& barycentric, 
+PxU32 ev4sio_Sc::SoftBodyCore::addTetRigidAttachment(ev4sio_Sc::BodyCore* core, PxU32 tetIdx, const PxVec4& barycentric, 
 	const PxVec3& actorSpacePose, PxConeLimitedConstraint* constraint)
 {
-	Sc::SoftBodySim* sim = getSim();
+	ev4sio_Sc::SoftBodySim* sim = getSim();
 	PxU32 handle = 0xFFFFFFFF;
 	if (sim)
 		handle = sim->getScene().addTetRigidAttachment(core, *sim, tetIdx, barycentric, actorSpacePose, constraint);
@@ -366,39 +366,39 @@ PxU32 Sc::SoftBodyCore::addTetRigidAttachment(Sc::BodyCore* core, PxU32 tetIdx, 
 }
 
 
-void Sc::SoftBodyCore::addSoftBodyFilter(Sc::SoftBodyCore& core, PxU32 tetIdx0, PxU32 tetIdx1)
+void ev4sio_Sc::SoftBodyCore::addSoftBodyFilter(ev4sio_Sc::SoftBodyCore& core, PxU32 tetIdx0, PxU32 tetIdx1)
 {
-	Sc::SoftBodySim* sim = getSim();
+	ev4sio_Sc::SoftBodySim* sim = getSim();
 	if (sim)
 		sim->getScene().addSoftBodyFilter(core, tetIdx0, *sim, tetIdx1);
 }
 
-void Sc::SoftBodyCore::removeSoftBodyFilter(Sc::SoftBodyCore& core, PxU32 tetIdx0, PxU32 tetIdx1)
+void ev4sio_Sc::SoftBodyCore::removeSoftBodyFilter(ev4sio_Sc::SoftBodyCore& core, PxU32 tetIdx0, PxU32 tetIdx1)
 {
-	Sc::SoftBodySim* sim = getSim();
+	ev4sio_Sc::SoftBodySim* sim = getSim();
 	if (sim)
 		sim->getScene().removeSoftBodyFilter(core, tetIdx0, *sim, tetIdx1);
 }
 
-void Sc::SoftBodyCore::addSoftBodyFilters(Sc::SoftBodyCore& core, PxU32* tetIndices0, PxU32* tetIndices1, PxU32 tetIndicesSize)
+void ev4sio_Sc::SoftBodyCore::addSoftBodyFilters(ev4sio_Sc::SoftBodyCore& core, PxU32* tetIndices0, PxU32* tetIndices1, PxU32 tetIndicesSize)
 {
-	Sc::SoftBodySim* sim = getSim();
+	ev4sio_Sc::SoftBodySim* sim = getSim();
 	if (sim)
 		sim->getScene().addSoftBodyFilters(core, *sim, tetIndices0, tetIndices1, tetIndicesSize);
 }
 
-void Sc::SoftBodyCore::removeSoftBodyFilters(Sc::SoftBodyCore& core, PxU32* tetIndices0, PxU32* tetIndices1, PxU32 tetIndicesSize)
+void ev4sio_Sc::SoftBodyCore::removeSoftBodyFilters(ev4sio_Sc::SoftBodyCore& core, PxU32* tetIndices0, PxU32* tetIndices1, PxU32 tetIndicesSize)
 {
-	Sc::SoftBodySim* sim = getSim();
+	ev4sio_Sc::SoftBodySim* sim = getSim();
 	if (sim)
 		sim->getScene().removeSoftBodyFilters(core, *sim, tetIndices0, tetIndices1, tetIndicesSize);
 }
 
 
-PxU32 Sc::SoftBodyCore::addSoftBodyAttachment(Sc::SoftBodyCore& core, PxU32 tetIdx0, const PxVec4& triBarycentric0, PxU32 tetIdx1, const PxVec4& tetBarycentric1,
+PxU32 ev4sio_Sc::SoftBodyCore::addSoftBodyAttachment(ev4sio_Sc::SoftBodyCore& core, PxU32 tetIdx0, const PxVec4& triBarycentric0, PxU32 tetIdx1, const PxVec4& tetBarycentric1,
 	PxConeLimitedConstraint* constraint, PxReal constraintOffset)
 {
-	Sc::SoftBodySim* sim = getSim();
+	ev4sio_Sc::SoftBodySim* sim = getSim();
 	PxU32 handle = 0xFFFFFFFF;
 	if (sim)
 		handle = sim->getScene().addSoftBodyAttachment(core, tetIdx0, triBarycentric0, *sim, tetIdx1, tetBarycentric1, constraint, constraintOffset);
@@ -406,9 +406,9 @@ PxU32 Sc::SoftBodyCore::addSoftBodyAttachment(Sc::SoftBodyCore& core, PxU32 tetI
 	return handle;
 }
 
-void Sc::SoftBodyCore::removeSoftBodyAttachment(Sc::SoftBodyCore& core, PxU32 handle)
+void ev4sio_Sc::SoftBodyCore::removeSoftBodyAttachment(ev4sio_Sc::SoftBodyCore& core, PxU32 handle)
 {
-	Sc::SoftBodySim* sim = getSim();
+	ev4sio_Sc::SoftBodySim* sim = getSim();
 	setWakeCounterInternal(ScInternalWakeCounterResetValue);
 	core.setWakeCounterInternal(ScInternalWakeCounterResetValue);
 	if (sim)
@@ -416,40 +416,40 @@ void Sc::SoftBodyCore::removeSoftBodyAttachment(Sc::SoftBodyCore& core, PxU32 ha
 }
 
 
-void Sc::SoftBodyCore::addClothFilter(Sc::FEMClothCore& core, PxU32 triIdx, PxU32 tetIdx)
+void ev4sio_Sc::SoftBodyCore::addClothFilter(ev4sio_Sc::FEMClothCore& core, PxU32 triIdx, PxU32 tetIdx)
 {
-	Sc::SoftBodySim* sim = getSim();
+	ev4sio_Sc::SoftBodySim* sim = getSim();
 
 	if (sim)
 		sim->getScene().addClothFilter(core, triIdx, *sim, tetIdx);
 }
 
-void Sc::SoftBodyCore::removeClothFilter(Sc::FEMClothCore& core, PxU32 triIdx, PxU32 tetIdx)
+void ev4sio_Sc::SoftBodyCore::removeClothFilter(ev4sio_Sc::FEMClothCore& core, PxU32 triIdx, PxU32 tetIdx)
 {
-	Sc::SoftBodySim* sim = getSim();
+	ev4sio_Sc::SoftBodySim* sim = getSim();
 	if (sim)
 		sim->getScene().removeClothFilter(core, triIdx, *sim, tetIdx);
 }
 
-void Sc::SoftBodyCore::addVertClothFilter(Sc::FEMClothCore& core, PxU32 vertIdx, PxU32 tetIdx)
+void ev4sio_Sc::SoftBodyCore::addVertClothFilter(ev4sio_Sc::FEMClothCore& core, PxU32 vertIdx, PxU32 tetIdx)
 {
-	Sc::SoftBodySim* sim = getSim();
+	ev4sio_Sc::SoftBodySim* sim = getSim();
 
 	if (sim)
 		sim->getScene().addVertClothFilter(core, vertIdx, *sim, tetIdx);
 }
 
-void Sc::SoftBodyCore::removeVertClothFilter(Sc::FEMClothCore& core, PxU32 vertIdx, PxU32 tetIdx)
+void ev4sio_Sc::SoftBodyCore::removeVertClothFilter(ev4sio_Sc::FEMClothCore& core, PxU32 vertIdx, PxU32 tetIdx)
 {
-	Sc::SoftBodySim* sim = getSim();
+	ev4sio_Sc::SoftBodySim* sim = getSim();
 	if (sim)
 		sim->getScene().removeVertClothFilter(core, vertIdx, *sim, tetIdx);
 }
 
-PxU32 Sc::SoftBodyCore::addClothAttachment(Sc::FEMClothCore& core, PxU32 triIdx, const PxVec4& triBarycentric, PxU32 tetIdx, const PxVec4& tetBarycentric,
+PxU32 ev4sio_Sc::SoftBodyCore::addClothAttachment(ev4sio_Sc::FEMClothCore& core, PxU32 triIdx, const PxVec4& triBarycentric, PxU32 tetIdx, const PxVec4& tetBarycentric,
 	PxConeLimitedConstraint* constraint, PxReal constraintOffset)
 {
-	Sc::SoftBodySim* sim = getSim();
+	ev4sio_Sc::SoftBodySim* sim = getSim();
 	PxU32 handle = 0xFFFFFFFF;
 	if (sim)
 		handle = sim->getScene().addClothAttachment(core, triIdx, triBarycentric, *sim, tetIdx, tetBarycentric, constraint, constraintOffset);
@@ -457,9 +457,9 @@ PxU32 Sc::SoftBodyCore::addClothAttachment(Sc::FEMClothCore& core, PxU32 triIdx,
 	return handle;
 }
 
-void Sc::SoftBodyCore::removeClothAttachment(Sc::FEMClothCore& core, PxU32 handle)
+void ev4sio_Sc::SoftBodyCore::removeClothAttachment(ev4sio_Sc::FEMClothCore& core, PxU32 handle)
 {
-	Sc::SoftBodySim* sim = getSim();
+	ev4sio_Sc::SoftBodySim* sim = getSim();
 	setWakeCounter(ScInternalWakeCounterResetValue);
 	core.setWakeCounter(ScInternalWakeCounterResetValue);
 	if (sim)
@@ -467,14 +467,14 @@ void Sc::SoftBodyCore::removeClothAttachment(Sc::FEMClothCore& core, PxU32 handl
 
 }
 
-PxU32 Sc::SoftBodyCore::getGpuSoftBodyIndex() const
+PxU32 ev4sio_Sc::SoftBodyCore::getGpuSoftBodyIndex() const
 {
-	const Sc::SoftBodySim* sim = getSim();
+	const ev4sio_Sc::SoftBodySim* sim = getSim();
 
 	return sim ? sim->getGpuSoftBodyIndex() : 0xffffffff;
 }
 
-void Sc::SoftBodyCore::onShapeChange(ShapeCore& shape, ShapeChangeNotifyFlags notifyFlags)
+void ev4sio_Sc::SoftBodyCore::onShapeChange(ShapeCore& shape, ShapeChangeNotifyFlags notifyFlags)
 {
 	PX_UNUSED(shape);
 	SoftBodySim* sim = getSim();
@@ -498,7 +498,7 @@ void Sc::SoftBodyCore::onShapeChange(ShapeCore& shape, ShapeChangeNotifyFlags no
 		s.onRestOffsetChange();
 }
 
-void Sc::SoftBodyCore::setKinematicTargets(const PxVec4* positions, PxSoftBodyFlags flags)
+void ev4sio_Sc::SoftBodyCore::setKinematicTargets(const PxVec4* positions, PxSoftBodyFlags flags)
 {
 	mCore.mKinematicTarget = positions;
 

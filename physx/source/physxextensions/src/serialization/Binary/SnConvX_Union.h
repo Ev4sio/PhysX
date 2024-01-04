@@ -27,7 +27,7 @@
 #ifndef SN_CONVX_UNION_H
 #define SN_CONVX_UNION_H
 
-namespace physx { namespace Sn {
+namespace ev4sio_physx { namespace Sn {
 	struct UnionType
 	{
 		const char*			mTypeName;

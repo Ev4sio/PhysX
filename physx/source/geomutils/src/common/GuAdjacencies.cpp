@@ -34,9 +34,9 @@
 
 // PT: code archeology: this initially came from ICE (IceAdjacencies.h/cpp). Consider putting it back the way it was initially.
 
-using namespace physx;
-using namespace Gu;
-using namespace Cm;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
+using namespace ev4sio_Cm;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -55,7 +55,7 @@ void AdjTriangle::Flip()
 #endif
 
 	// Flip links. We flipped vertex references 1 & 2, i.e. links 0 & 1.
-	physx::PxSwap(mATri[0], mATri[1]);
+	ev4sio_physx::PxSwap(mATri[0], mATri[1]);
 }
 
 /**

@@ -30,7 +30,7 @@
 #define EXT_JOINT_META_DATA_EXTENSIONS_H
 #include "PvdMetaDataExtensions.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 namespace pvdsdk

@@ -69,14 +69,14 @@
 //
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 template <class Key, class HashFn = PxHash<Key>, class Allocator = PxAllocator>
-class PxHashSet : public physx::PxHashSetBase<Key, HashFn, Allocator, false>
+class PxHashSet : public ev4sio_physx::PxHashSetBase<Key, HashFn, Allocator, false>
 {
   public:
-	typedef physx::PxHashSetBase<Key, HashFn, Allocator, false> HashSetBase;
+	typedef ev4sio_physx::PxHashSetBase<Key, HashFn, Allocator, false> HashSetBase;
 	typedef typename HashSetBase::Iterator Iterator;
 
 	PxHashSet(uint32_t initialTableSize = 64, float loadFactor = 0.75f) : HashSetBase(initialTableSize, loadFactor)
@@ -96,10 +96,10 @@ class PxHashSet : public physx::PxHashSetBase<Key, HashFn, Allocator, false>
 };
 
 template <class Key, class HashFn = PxHash<Key>, class Allocator = PxAllocator>
-class PxCoalescedHashSet : public physx::PxHashSetBase<Key, HashFn, Allocator, true>
+class PxCoalescedHashSet : public ev4sio_physx::PxHashSetBase<Key, HashFn, Allocator, true>
 {
   public:
-	typedef typename physx::PxHashSetBase<Key, HashFn, Allocator, true> HashSetBase;
+	typedef typename ev4sio_physx::PxHashSetBase<Key, HashFn, Allocator, true> HashSetBase;
 
 	PxCoalescedHashSet(uint32_t initialTableSize = 64, float loadFactor = 0.75f)
 	: HashSetBase(initialTableSize, loadFactor)
@@ -121,7 +121,7 @@ class PxCoalescedHashSet : public physx::PxHashSetBase<Key, HashFn, Allocator, t
 };
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

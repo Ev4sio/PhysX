@@ -31,9 +31,9 @@
 #include "GuBigConvexData2.h"
 #include "GuMeshFactory.h"
 
-using namespace physx;
-using namespace Gu;
-using namespace Cm;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
+using namespace ev4sio_Cm;
 
 bool ConvexMesh::getPolygonData(PxU32 i, PxHullPolygon& data) const
 {
@@ -319,7 +319,7 @@ bool ConvexMesh::load(PxInputStream& stream)
 
 	// Check if old (incompatible) mesh format is loaded
 	if (version < PX_CONVEX_VERSION)
-		return PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "Loading convex mesh failed: Deprecated mesh cooking format.");
+		return ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "Loading convex mesh failed: Deprecated mesh cooking format.");
 
 	// Import serialization flags
 	PxU32 serialFlags	= readDword(mismatch, stream);

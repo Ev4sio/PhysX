@@ -34,10 +34,10 @@
 #include "geometry/PxHeightFieldSample.h"
 #include "GuCenterExtents.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
-namespace Gu
+namespace ev4sio_Gu
 {
 
 #if PX_VC 
@@ -77,9 +77,9 @@ struct PX_PHYSX_COMMON_API HeightFieldData
 #endif
 
 	// PT: 'getPaddedBounds()' is only safe if we make sure the bounds member is followed by at least 32bits of data
-	PX_COMPILE_TIME_ASSERT(PX_OFFSET_OF(Gu::HeightFieldData, rows)>=PX_OFFSET_OF(Gu::HeightFieldData, mAABB)+4);
+	PX_COMPILE_TIME_ASSERT(PX_OFFSET_OF(ev4sio_Gu::HeightFieldData, rows)>=PX_OFFSET_OF(ev4sio_Gu::HeightFieldData, mAABB)+4);
 
-} // namespace Gu
+} // namespace ev4sio_Gu
 
 }
 

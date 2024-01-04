@@ -37,9 +37,9 @@
 #endif
 
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Sc
+namespace ev4sio_Sc
 {
 	class ActorPairContactReportData
 	{
@@ -148,9 +148,9 @@ namespace Sc
 			ActorPairContactReportData* mReportData;
 	};
 
-} // namespace Sc
+} // namespace ev4sio_Sc
 
-PX_FORCE_INLINE Sc::ActorPairReport::ActorPairReport(ActorSim& actor0, ActorSim& actor1) : ActorPair(),
+PX_FORCE_INLINE ev4sio_Sc::ActorPairReport::ActorPairReport(ActorSim& actor0, ActorSim& actor1) : ActorPair(),
 mActorA			(actor0),
 mActorB			(actor1),
 mReportData		(NULL)
@@ -159,12 +159,12 @@ mReportData		(NULL)
 	mInternalFlags = ActorPair::eIS_REPORT_PAIR;
 }
 
-PX_FORCE_INLINE Sc::ActorPairReport::~ActorPairReport()
+PX_FORCE_INLINE ev4sio_Sc::ActorPairReport::~ActorPairReport()
 {
 	PX_ASSERT(mReportData == NULL);
 }
 
-PX_INLINE bool Sc::ActorPairReport::streamResetStamp(PxU32 cmpStamp) 
+PX_INLINE bool ev4sio_Sc::ActorPairReport::streamResetStamp(PxU32 cmpStamp) 
 {
 	PX_ASSERT(mReportData);
 	const bool ret = (cmpStamp != mReportData->mStrmResetStamp);
@@ -172,7 +172,7 @@ PX_INLINE bool Sc::ActorPairReport::streamResetStamp(PxU32 cmpStamp)
 	return ret; 
 }
 
-PX_INLINE Sc::ContactStreamManager&	Sc::ActorPairReport::createContactStreamManager(NPhaseCore& npCore)
+PX_INLINE ev4sio_Sc::ContactStreamManager&	ev4sio_Sc::ActorPairReport::createContactStreamManager(NPhaseCore& npCore)
 {
 	// Lazy create report data
 	if(!mReportData)
@@ -181,10 +181,10 @@ PX_INLINE Sc::ContactStreamManager&	Sc::ActorPairReport::createContactStreamMana
 	return mReportData->mContactStreamManager;
 }
 
-PX_FORCE_INLINE void Sc::ActorPairReport::createContactReportData(NPhaseCore& npCore)
+PX_FORCE_INLINE void ev4sio_Sc::ActorPairReport::createContactReportData(NPhaseCore& npCore)
 {
 	PX_ASSERT(!mReportData);
-	Sc::ActorPairContactReportData* reportData = npCore.createActorPairContactReportData(); 
+	ev4sio_Sc::ActorPairContactReportData* reportData = npCore.createActorPairContactReportData(); 
 	mReportData = reportData;
 
 	if(reportData)
@@ -211,7 +211,7 @@ PX_FORCE_INLINE void Sc::ActorPairReport::createContactReportData(NPhaseCore& np
 	}
 }
 
-PX_FORCE_INLINE void Sc::ActorPairReport::releaseContactReportData(NPhaseCore& npCore)
+PX_FORCE_INLINE void ev4sio_Sc::ActorPairReport::releaseContactReportData(NPhaseCore& npCore)
 {
 	// Can't take the NPhaseCore (scene) reference from the actors since they're already gone on scene release
 

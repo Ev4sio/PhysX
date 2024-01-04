@@ -30,8 +30,8 @@
 #include "GuAABBTree.h"
 #include "GuAABBTreeNode.h"
 
-using namespace physx;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
 
 static const PxU32 SHRINK_THRESHOLD = 1024;
 

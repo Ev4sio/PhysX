@@ -32,8 +32,8 @@
 
 #include "SqQuery.h"
 
-using namespace physx;
-using namespace Sq;
+using namespace ev4sio_physx;
+using namespace ev4sio_Sq;
 
 #include "common/PxProfileZone.h"
 #include "foundation/PxFPU.h"
@@ -49,9 +49,9 @@ using namespace Sq;
 
 #include "PxQueryFiltering.h"
 
-using namespace physx;
-using namespace Sq;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Sq;
+using namespace ev4sio_Gu;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -125,9 +125,9 @@ static PxU32 clipHitsToNewMaxDist(HitType* ppuHits, PxU32 count, PxReal newMaxDi
 	return count;
 }
 
-namespace physx
+namespace ev4sio_physx
 {
-	namespace Sq
+	namespace ev4sio_Sq
 	{
 	struct MultiQueryInput
 	{
@@ -183,12 +183,12 @@ template<typename HitType>
 struct GeomQueryAny
 {
 	static PX_FORCE_INLINE PxU32 geomHit(
-		const CachedFuncs& funcs, const MultiQueryInput& input, const Gu::ShapeData* sd,
+		const CachedFuncs& funcs, const MultiQueryInput& input, const ev4sio_Gu::ShapeData* sd,
 		const PxGeometry& sceneGeom, const PxTransform& pose, PxHitFlags hitFlags,
 		PxU32 maxHits, HitType* hits, const PxReal shrunkMaxDistance, const PxBounds3* precomputedBounds,
 		PxQueryThreadContext* context)
 	{
-		using namespace Gu;
+		using namespace ev4sio_Gu;
 
 		const PxGeometry& geom0 = *input.geometry;
 		const PxTransform& pose0 = *input.pose;
@@ -227,7 +227,7 @@ struct GeomQueryAny
 			PxBounds3 b0 = *precomputedBounds, b1;
 			// compute the scene geometry bounds
 			// PT: TODO: avoid recomputing the bounds here
-			Gu::computeBounds(b1, sceneGeom, pose, 0.0f, 1.0f);
+			ev4sio_Gu::computeBounds(b1, sceneGeom, pose, 0.0f, 1.0f);
 			const PxVec3 combExt = (b0.getExtents() + b1.getExtents())*1.01f;
 
 			PxF32 tnear, tfar;
@@ -244,7 +244,7 @@ struct GeomQueryAny
 			const bool offsetPos = (tnear > GU_RAY_SURFACE_OFFSET);
 			const PxReal offset = offsetPos ? (tnear - GU_RAY_SURFACE_OFFSET) : 0.0f;
 			const PxVec3 offsetVec(offsetPos ? (unitDir*offset) : PxVec3(0.0f));
-			// we move the geometry we sweep against, so that we avoid the Gu::Capsule/Box recomputation
+			// we move the geometry we sweep against, so that we avoid the ev4sio_Gu::Capsule/Box recomputation
 			const PxTransform pose1Offset(pose1.p - offsetVec, pose1.q);
             
 			const PxReal distance = PxMin(tfar, shrunkMaxDistance) - offset;
@@ -295,7 +295,7 @@ struct GeomQueryAny
 				}
 				break;
 				default:
-					outputError<physx::PxErrorCode::eINVALID_PARAMETER>(__LINE__, "PxScene::sweep(): first geometry object parameter must be sphere, capsule, box or convex geometry.");
+					outputError<ev4sio_physx::PxErrorCode::eINVALID_PARAMETER>(__LINE__, "PxScene::sweep(): first geometry object parameter must be sphere, capsule, box or convex geometry.");
 				break;
 			}
 			if (retVal)
@@ -311,7 +311,7 @@ struct GeomQueryAny
 		else if(HitTypeSupport<HitType>::IsOverlap)
 		{
 			const GeomOverlapTable* overlapFuncs = funcs.mCachedOverlapFuncs;
-			return PxU32(Gu::overlap(geom0, pose0, geom1, pose1, overlapFuncs, context));
+			return PxU32(ev4sio_Gu::overlap(geom0, pose0, geom1, pose1, overlapFuncs, context));
 		}
 		else
 		{

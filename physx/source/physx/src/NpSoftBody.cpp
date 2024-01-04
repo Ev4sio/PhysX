@@ -46,9 +46,9 @@
 #include "NpFEMSoftBodyMaterial.h"
 #include "cudamanager/PxCudaContext.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
-namespace physx
+namespace ev4sio_physx
 {
 	NpSoftBody::NpSoftBody(PxCudaContextManager& cudaContextManager) :
 		NpActorTemplate	(PxConcreteType::eSOFT_BODY, PxBaseFlag::eOWNS_MEMORY | PxBaseFlag::eIS_RELEASABLE, NpType::eSOFTBODY),
@@ -70,11 +70,11 @@ namespace physx
 
 		if (!getNpScene())
 		{
-			PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "Querying bounds of a PxSoftBody which is not part of a PxScene is not supported.");
+			ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "Querying bounds of a PxSoftBody which is not part of a PxScene is not supported.");
 			return PxBounds3::empty();
 		}
 
-		const Sc::SoftBodySim* sim = mCore.getSim();
+		const ev4sio_Sc::SoftBodySim* sim = mCore.getSim();
 		PX_ASSERT(sim);
 
 		PX_SIMD_GUARD;
@@ -138,7 +138,7 @@ namespace physx
 	{
 		PX_CHECK_AND_RETURN_NULL(mShape != NULL, "NpSoftBody::getPositionInvMassBufferD: Softbody does not have a shape, attach shape first.");
 
-		Dy::SoftBodyCore& core = mCore.getCore();
+		ev4sio_Dy::SoftBodyCore& core = mCore.getCore();
 		return core.mPositionInvMass;
 	}
 
@@ -146,7 +146,7 @@ namespace physx
 	{
 		PX_CHECK_AND_RETURN_NULL(mShape != NULL, "NpSoftBody::getRestPositionBufferD: Softbody does not have a shape, attach shape first.");
 
-		Dy::SoftBodyCore& core = mCore.getCore();
+		ev4sio_Dy::SoftBodyCore& core = mCore.getCore();
 		return core.mRestPosition;
 	}
 
@@ -154,7 +154,7 @@ namespace physx
 	{
 		PX_CHECK_AND_RETURN_NULL(mSimulationMesh != NULL, "NpSoftBody::getSimPositionInvMassBufferD: Softbody does not have a simulation mesh, attach simulation mesh first.");
 
-		Dy::SoftBodyCore& core = mCore.getCore();
+		ev4sio_Dy::SoftBodyCore& core = mCore.getCore();
 		return core.mSimPositionInvMass;
 	}
 
@@ -162,7 +162,7 @@ namespace physx
 	{
 		PX_CHECK_AND_RETURN_NULL(mSimulationMesh != NULL, "NpSoftBody::getSimVelocityBufferD: Softbody does not have a simulation mesh, attach simulation mesh first.");
 
-		Dy::SoftBodyCore& core = mCore.getCore();
+		ev4sio_Dy::SoftBodyCore& core = mCore.getCore();
 		return core.mSimVelocity;
 	}
 
@@ -170,7 +170,7 @@ namespace physx
 	{
 		NP_WRITE_CHECK(getNpScene());
 
-		Dy::SoftBodyCore& core = mCore.getCore();
+		ev4sio_Dy::SoftBodyCore& core = mCore.getCore();
 		core.mDirtyFlags |= flags;
 	}
 
@@ -253,15 +253,15 @@ namespace physx
 
 	bool NpSoftBody::attachSimulationMesh(PxTetrahedronMesh& simulationMesh, PxSoftBodyAuxData& softBodyAuxData)
 	{
-		Dy::SoftBodyCore& core = mCore.getCore();
+		ev4sio_Dy::SoftBodyCore& core = mCore.getCore();
 
 		PX_CHECK_AND_RETURN_NULL(core.mSimPositionInvMass == NULL, "NpSoftBody::attachSimulationMesh: mSimPositionInvMass already exists, overwrite not allowed, call detachSimulationMesh first");
 		PX_CHECK_AND_RETURN_NULL(core.mSimVelocity == NULL, "NpSoftBody::attachSimulationMesh: mSimVelocity already exists, overwrite not allowed, call detachSimulationMesh first");
 
-		mSimulationMesh = static_cast<Gu::TetrahedronMesh*>(&simulationMesh);
-		mSoftBodyAuxData = static_cast<Gu::SoftBodyAuxData*>(&softBodyAuxData);
+		mSimulationMesh = static_cast<ev4sio_Gu::TetrahedronMesh*>(&simulationMesh);
+		mSoftBodyAuxData = static_cast<ev4sio_Gu::SoftBodyAuxData*>(&softBodyAuxData);
 
-		Gu::TetrahedronMesh* tetMesh = static_cast<Gu::TetrahedronMesh*>(&simulationMesh);
+		ev4sio_Gu::TetrahedronMesh* tetMesh = static_cast<ev4sio_Gu::TetrahedronMesh*>(&simulationMesh);
 
 		const PxU32 numVertsGM = tetMesh->getNbVerticesFast();
 		core.mSimPositionInvMass = PX_DEVICE_ALLOC_T(PxVec4, mCudaContextManager, numVertsGM);
@@ -272,7 +272,7 @@ namespace physx
 
 	void NpSoftBody::updateMaterials()
 	{
-		Dy::SoftBodyCore& core = mCore.getCore();
+		ev4sio_Dy::SoftBodyCore& core = mCore.getCore();
 		core.clearMaterials();
 		for (PxU32 i = 0; i < mShape->getNbMaterials(); ++i)
 		{
@@ -291,7 +291,7 @@ namespace physx
 		PX_CHECK_AND_RETURN_NULL(shape.isExclusive(), "NpSoftBody::attachShape: shape must be exclusive");
 		PX_CHECK_AND_RETURN_NULL(npShape->getCore().getCore().mShapeCoreFlags & PxShapeCoreFlag::eSOFT_BODY_SHAPE, "NpSoftBody::attachShape: shape must be a soft body shape!");
 
-		Dy::SoftBodyCore& core = mCore.getCore();
+		ev4sio_Dy::SoftBodyCore& core = mCore.getCore();
 
 		PX_CHECK_AND_RETURN_NULL(core.mPositionInvMass == NULL, "NpSoftBody::attachShape: mPositionInvMass already exists, overwrite not allowed, call detachShape first");
 
@@ -302,7 +302,7 @@ namespace physx
 
 		const PxGeometryHolder gh(mShape->getGeometry());	// PT: TODO: avoid that copy
 		const PxTetrahedronMeshGeometry& tetGeometry = gh.tetMesh();
-		Gu::BVTetrahedronMesh* tetMesh = static_cast<Gu::BVTetrahedronMesh*>(tetGeometry.tetrahedronMesh);
+		ev4sio_Gu::BVTetrahedronMesh* tetMesh = static_cast<ev4sio_Gu::BVTetrahedronMesh*>(tetGeometry.tetrahedronMesh);
 		const PxU32 numVerts = tetMesh->getNbVerticesFast();
 
 		core.mPositionInvMass = PX_DEVICE_ALLOC_T(PxVec4, mCudaContextManager, numVerts);
@@ -317,7 +317,7 @@ namespace physx
 	{
 		PX_CHECK_MSG(getNpSceneFromActor(*this) == NULL, "Detaching a shape from a softbody is currenly only allowed as long as it is not part of a scene. Please remove the softbody from its scene first.");
 
-		Dy::SoftBodyCore& core = mCore.getCore();
+		ev4sio_Dy::SoftBodyCore& core = mCore.getCore();
 		if (core.mRestPosition)
 		{
 			PX_DEVICE_FREE(mCudaContextManager, core.mRestPosition);
@@ -336,7 +336,7 @@ namespace physx
 
 	void NpSoftBody::detachSimulationMesh()
 	{
-		Dy::SoftBodyCore& core = mCore.getCore();
+		ev4sio_Dy::SoftBodyCore& core = mCore.getCore();
 		if (core.mSimPositionInvMass)
 		{
 			PX_DEVICE_FREE(mCudaContextManager, core.mSimPositionInvMass);
@@ -396,7 +396,7 @@ namespace physx
 		PX_CHECK_SCENE_API_WRITE_FORBIDDEN(getNpScene(), "NpSoftBody::addParticleFilter: Illegal to call while simulation is running.");
 
 		NpPBDParticleSystem* npParticleSystem = static_cast<NpPBDParticleSystem*>(particlesystem);
-		Sc::ParticleSystemCore& core = npParticleSystem->getCore();
+		ev4sio_Sc::ParticleSystemCore& core = npParticleSystem->getCore();
 		mCore.addParticleFilter(&core, particleId, buffer ? buffer->bufferUniqueId : 0, tetId);
 	}
 
@@ -409,7 +409,7 @@ namespace physx
 		PX_CHECK_SCENE_API_WRITE_FORBIDDEN(getNpScene(), "NpSoftBody::removeParticleFilter: Illegal to call while simulation is running.");
 
 		NpPBDParticleSystem* npParticleSystem = static_cast<NpPBDParticleSystem*>(particlesystem);
-		Sc::ParticleSystemCore& core = npParticleSystem->getCore();
+		ev4sio_Sc::ParticleSystemCore& core = npParticleSystem->getCore();
 		mCore.removeParticleFilter(&core, particleId, buffer ? buffer->bufferUniqueId : 0, tetId);
 	}
 
@@ -422,7 +422,7 @@ namespace physx
 		PX_CHECK_SCENE_API_WRITE_FORBIDDEN_AND_RETURN_VAL(getNpScene(), "NpSoftBody::addParticleAttachment: Illegal to call while simulation is running.", 0xFFFFFFFF);
 
 		NpPBDParticleSystem* npParticleSystem = static_cast<NpPBDParticleSystem*>(particlesystem);
-		Sc::ParticleSystemCore& core = npParticleSystem->getCore();
+		ev4sio_Sc::ParticleSystemCore& core = npParticleSystem->getCore();
 		return mCore.addParticleAttachment(&core, particleId, buffer ? buffer->bufferUniqueId : 0, tetId, barycentric);
 	}
 
@@ -435,7 +435,7 @@ namespace physx
 		PX_CHECK_SCENE_API_WRITE_FORBIDDEN(getNpScene(), "NpSoftBody::addParticleAttachment: Illegal to call while simulation is running.");
 
 		NpPBDParticleSystem* npParticleSystem = static_cast<NpPBDParticleSystem*>(particlesystem);
-		Sc::ParticleSystemCore& core = npParticleSystem->getCore();
+		ev4sio_Sc::ParticleSystemCore& core = npParticleSystem->getCore();
 		mCore.removeParticleAttachment(&core, handle);
 	}
 
@@ -447,7 +447,7 @@ namespace physx
 
 		PX_CHECK_SCENE_API_WRITE_FORBIDDEN(getNpScene(), "NpSoftBody::addRigidFilter: Illegal to call while simulation is running.");
 
-		Sc::BodyCore* core = getBodyCore(actor);
+		ev4sio_Sc::BodyCore* core = getBodyCore(actor);
 		mCore.addRigidFilter(core, vertId);
 	}
 
@@ -459,7 +459,7 @@ namespace physx
 
 		PX_CHECK_SCENE_API_WRITE_FORBIDDEN(getNpScene(), "NpSoftBody::removeRigidFilter: Illegal to call while simulation is running.");
 
-		Sc::BodyCore* core = getBodyCore(actor);
+		ev4sio_Sc::BodyCore* core = getBodyCore(actor);
 		mCore.removeRigidFilter(core, vertId);
 	}
 
@@ -472,7 +472,7 @@ namespace physx
 
 		PX_CHECK_SCENE_API_WRITE_FORBIDDEN_AND_RETURN_VAL(getNpScene(), "NpSoftBody::addRigidAttachment: Illegal to call while simulation is running.", 0xFFFFFFFF);
 
-		Sc::BodyCore* core = getBodyCore(actor);
+		ev4sio_Sc::BodyCore* core = getBodyCore(actor);
 
 		PxVec3 aPose = actorSpacePose;
 		if (actor && actor->getConcreteType()==PxConcreteType::eRIGID_STATIC)
@@ -492,7 +492,7 @@ namespace physx
 
 		PX_CHECK_SCENE_API_WRITE_FORBIDDEN(getNpScene(), "NpSoftBody::removeRigidAttachment: Illegal to call while simulation is running.");
 
-		Sc::BodyCore* core = getBodyCore(actor);
+		ev4sio_Sc::BodyCore* core = getBodyCore(actor);
 		mCore.removeRigidAttachment(core, handle);
 	}
 
@@ -504,7 +504,7 @@ namespace physx
 
 		PX_CHECK_SCENE_API_WRITE_FORBIDDEN(getNpScene(), "NpSoftBody::addTetRigidFilter: Illegal to call while simulation is running.");
 
-		Sc::BodyCore* core = getBodyCore(actor);
+		ev4sio_Sc::BodyCore* core = getBodyCore(actor);
 		return mCore.addTetRigidFilter(core, tetIdx);
 	}
 
@@ -516,7 +516,7 @@ namespace physx
 
 		PX_CHECK_SCENE_API_WRITE_FORBIDDEN(getNpScene(), "NpSoftBody::removeTetRigidFilter: Illegal to call while simulation is running.");
 
-		Sc::BodyCore* core = getBodyCore(actor);
+		ev4sio_Sc::BodyCore* core = getBodyCore(actor);
 		mCore.removeTetRigidFilter(core, tetIdx);
 	}
 
@@ -529,7 +529,7 @@ namespace physx
 
 		PX_CHECK_SCENE_API_WRITE_FORBIDDEN_AND_RETURN_VAL(getNpScene(), "NpSoftBody::addTetRigidAttachment: Illegal to call while simulation is running.", 0xFFFFFFFF);
 
-		Sc::BodyCore* core = getBodyCore(actor);
+		ev4sio_Sc::BodyCore* core = getBodyCore(actor);
 
 		PxVec3 aPose = actorSpacePose;
 		if (actor && actor->getConcreteType()==PxConcreteType::eRIGID_STATIC)
@@ -551,7 +551,7 @@ namespace physx
 		PX_CHECK_SCENE_API_WRITE_FORBIDDEN(getNpScene(), "NpSoftBody::addSoftBodyFilter: Illegal to call while simulation is running.");
 
 		NpSoftBody* dyn = static_cast<NpSoftBody*>(softbody0);
-		Sc::SoftBodyCore* core = &dyn->getCore();
+		ev4sio_Sc::SoftBodyCore* core = &dyn->getCore();
 
 		mCore.addSoftBodyFilter(*core, tetIdx0, tetIdx1);
 	}
@@ -566,7 +566,7 @@ namespace physx
 		PX_CHECK_SCENE_API_WRITE_FORBIDDEN(getNpScene(), "NpSoftBody::removeSoftBodyFilter: Illegal to call while simulation is running.");
 
 		NpSoftBody* dyn = static_cast<NpSoftBody*>(softbody0);
-		Sc::SoftBodyCore* core = &dyn->getCore();
+		ev4sio_Sc::SoftBodyCore* core = &dyn->getCore();
 
 		mCore.removeSoftBodyFilter(*core, tetIdx0, tetIdx1);
 	}
@@ -581,7 +581,7 @@ namespace physx
 		PX_CHECK_SCENE_API_WRITE_FORBIDDEN(getNpScene(), "NpSoftBody::addSoftBodyFilter: Illegal to call while simulation is running.");
 
 		NpSoftBody* dyn = static_cast<NpSoftBody*>(softbody0);
-		Sc::SoftBodyCore* core = &dyn->getCore();
+		ev4sio_Sc::SoftBodyCore* core = &dyn->getCore();
 
 		mCore.addSoftBodyFilters(*core, tetIndices0, tetIndices1, tetIndicesSize);
 	}
@@ -596,7 +596,7 @@ namespace physx
 		PX_CHECK_SCENE_API_WRITE_FORBIDDEN(getNpScene(), "NpSoftBody::removeSoftBodyFilter: Illegal to call while simulation is running.");
 
 		NpSoftBody* dyn = static_cast<NpSoftBody*>(softbody0);
-		Sc::SoftBodyCore* core = &dyn->getCore();
+		ev4sio_Sc::SoftBodyCore* core = &dyn->getCore();
 
 		mCore.removeSoftBodyFilters(*core, tetIndices0, tetIndices1, tetIndicesSize);
 	}
@@ -613,7 +613,7 @@ namespace physx
 		PX_CHECK_SCENE_API_WRITE_FORBIDDEN_AND_RETURN_VAL(getNpScene(), "NpSoftBody::addSoftBodyAttachment: Illegal to call while simulation is running.", 0xFFFFFFFF);
 
 		NpSoftBody* dyn = static_cast<NpSoftBody*>(softbody0);
-		Sc::SoftBodyCore* core = &dyn->getCore();
+		ev4sio_Sc::SoftBodyCore* core = &dyn->getCore();
 
 		return mCore.addSoftBodyAttachment(*core, tetIdx0, tetBarycentric0, tetIdx1, tetBarycentric1, constraint, constraintOffset);
 	}
@@ -628,7 +628,7 @@ namespace physx
 		PX_CHECK_SCENE_API_WRITE_FORBIDDEN(getNpScene(), "NpSoftBody::removeSoftBodyAttachment: Illegal to call while simulation is running.");
 
 		NpSoftBody* dyn = static_cast<NpSoftBody*>(softbody0);
-		Sc::SoftBodyCore* core = &dyn->getCore();
+		ev4sio_Sc::SoftBodyCore* core = &dyn->getCore();
 
 		mCore.removeSoftBodyAttachment(*core, handle);
 	}
@@ -644,7 +644,7 @@ namespace physx
 		PX_CHECK_SCENE_API_WRITE_FORBIDDEN(getNpScene(), "NpSoftBody::addClothFilter: Illegal to call while simulation is running.");
 
 		NpFEMCloth* dyn = static_cast<NpFEMCloth*>(cloth);
-		Sc::FEMClothCore* core = &dyn->getCore();
+		ev4sio_Sc::FEMClothCore* core = &dyn->getCore();
 
 		return mCore.addClothFilter(*core, triIdx, tetIdx);
 	}
@@ -663,7 +663,7 @@ namespace physx
 		PX_CHECK_SCENE_API_WRITE_FORBIDDEN(getNpScene(), "NpSoftBody::removeClothFilter: Illegal to call while simulation is running.");
 
 		NpFEMCloth* dyn = static_cast<NpFEMCloth*>(cloth);
-		Sc::FEMClothCore* core = &dyn->getCore();
+		ev4sio_Sc::FEMClothCore* core = &dyn->getCore();
 
 		mCore.removeClothFilter(*core, triIdx, tetIdx);
 	}
@@ -682,7 +682,7 @@ namespace physx
 		PX_CHECK_SCENE_API_WRITE_FORBIDDEN(getNpScene(), "NpSoftBody::addClothFilter: Illegal to call while simulation is running.");
 
 		NpFEMCloth* dyn = static_cast<NpFEMCloth*>(cloth);
-		Sc::FEMClothCore* core = &dyn->getCore();
+		ev4sio_Sc::FEMClothCore* core = &dyn->getCore();
 
 		return mCore.addVertClothFilter(*core, vertIdx, tetIdx);
 	}
@@ -701,7 +701,7 @@ namespace physx
 		PX_CHECK_SCENE_API_WRITE_FORBIDDEN(getNpScene(), "NpSoftBody::removeClothFilter: Illegal to call while simulation is running.");
 
 		NpFEMCloth* dyn = static_cast<NpFEMCloth*>(cloth);
-		Sc::FEMClothCore* core = &dyn->getCore();
+		ev4sio_Sc::FEMClothCore* core = &dyn->getCore();
 
 		mCore.removeVertClothFilter(*core, vertIdx, tetIdx);
 	}
@@ -722,7 +722,7 @@ namespace physx
 		PX_CHECK_SCENE_API_WRITE_FORBIDDEN_AND_RETURN_VAL(getNpScene(), "NpSoftBody::addClothAttachment: Illegal to call while simulation is running.", 0xFFFFFFFF);
 
 		NpFEMCloth* dyn = static_cast<NpFEMCloth*>(cloth);
-		Sc::FEMClothCore* core = &dyn->getCore();
+		ev4sio_Sc::FEMClothCore* core = &dyn->getCore();
 
 		return mCore.addClothAttachment(*core, triIdx, triBarycentric, tetIdx, tetBarycentric, constraint, constraintOffset);
 	}
@@ -741,7 +741,7 @@ namespace physx
 		PX_CHECK_SCENE_API_WRITE_FORBIDDEN(getNpScene(), "NpSoftBody::releaseClothAttachment: Illegal to call while simulation is running.");
 
 		NpFEMCloth* dyn = static_cast<NpFEMCloth*>(cloth);
-		Sc::FEMClothCore* core = &dyn->getCore();
+		ev4sio_Sc::FEMClothCore* core = &dyn->getCore();
 
 		mCore.removeClothAttachment(*core, handle);
 	}

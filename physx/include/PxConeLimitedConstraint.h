@@ -37,7 +37,7 @@
 #include "foundation/PxVec4.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -121,7 +121,7 @@ struct PxConeLimitParams
 }PX_ALIGN_SUFFIX(16);
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 /** @} */

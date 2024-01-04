@@ -31,7 +31,7 @@
 #include "PxPvdCommStreamEvents.h"
 #include "PxPvdCommStreamTypes.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 namespace pvdsdk
 {

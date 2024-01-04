@@ -33,18 +33,18 @@
 
 #if PX_ENABLE_DEBUG_VISUALIZATION
 
-namespace physx
+namespace ev4sio_physx
 {
 	class PxRenderOutput;
 	class NpScene;
 	class PxRigidActor;
 
-	namespace Sc
+	namespace ev4sio_Sc
 	{
 		class BodyCore;
 	}
 
-	void visualizeRigidBody(PxRenderOutput& out, NpScene& scene, const PxRigidActor& actor, const Sc::BodyCore& mCore, float scale);
+	void visualizeRigidBody(PxRenderOutput& out, NpScene& scene, const PxRigidActor& actor, const ev4sio_Sc::BodyCore& mCore, float scale);
 }
 
 #else

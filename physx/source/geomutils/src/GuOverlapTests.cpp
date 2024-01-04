@@ -45,9 +45,9 @@
 #include "geometry/PxCustomGeometry.h"
 #include "CmMatrix34.h"
 
-using namespace physx;
-using namespace Cm;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Cm;
+using namespace ev4sio_Gu;
 
 // PT: TODO: why don't we use ShapeData for overlaps?
 
@@ -74,7 +74,7 @@ static PxVec3 projectHull_(	const ConvexHullData& hull,
 		while(NbVerts--)
 		{
 			const float dp = (*Verts).dot(vertexSpaceDir);
-			min_ = physx::intrinsics::selectMin(min_, dp);
+			min_ = ev4sio_physx::intrinsics::selectMin(min_, dp);
 			if(dp > max_)	{ max_ = dp; bestVert = Verts; }
 
 			Verts++;
@@ -786,7 +786,7 @@ GeomOverlapTable gGeomOverlapMethodTable[] =
 };
 PX_COMPILE_TIME_ASSERT(sizeof(gGeomOverlapMethodTable) / sizeof(gGeomOverlapMethodTable[0]) == PxGeometryType::eGEOMETRY_COUNT);
 
-const GeomOverlapTable* Gu::getOverlapFuncTable()
+const GeomOverlapTable* ev4sio_Gu::getOverlapFuncTable()
 {
 	return gGeomOverlapMethodTable;
 }

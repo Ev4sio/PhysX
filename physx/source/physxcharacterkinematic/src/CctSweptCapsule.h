@@ -31,7 +31,7 @@
 
 #include "CctSweptVolume.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 namespace Cct
 {

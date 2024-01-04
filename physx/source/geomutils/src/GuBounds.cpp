@@ -47,12 +47,12 @@
 #include "GuConvexUtilsInternal.h"
 #include "GuBoxConversion.h"
 
-using namespace physx;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
 using namespace aos;
 
 // Compute global box for current node. The box is stored in mBV.
-void Gu::computeGlobalBox(PxBounds3& bounds, PxU32 nbPrims, const PxBounds3* PX_RESTRICT boxes, const PxU32* PX_RESTRICT primitives)
+void ev4sio_Gu::computeGlobalBox(PxBounds3& bounds, PxU32 nbPrims, const PxBounds3* PX_RESTRICT boxes, const PxU32* PX_RESTRICT primitives)
 {
 	PX_ASSERT(boxes);
 	PX_ASSERT(primitives);
@@ -71,7 +71,7 @@ void Gu::computeGlobalBox(PxBounds3& bounds, PxU32 nbPrims, const PxBounds3* PX_
 	StoreBounds(bounds, minV, maxV);
 }
 
-void Gu::computeBoundsAroundVertices(PxBounds3& bounds, PxU32 nbVerts, const PxVec3* PX_RESTRICT verts)
+void ev4sio_Gu::computeBoundsAroundVertices(PxBounds3& bounds, PxU32 nbVerts, const PxVec3* PX_RESTRICT verts)
 {
 	// PT: we can safely V4LoadU the first N-1 vertices. We must V3LoadU the last vertex, to make sure we don't read
 	// invalid memory. Since we have to special-case that last vertex anyway, we reuse that code to also initialize
@@ -103,7 +103,7 @@ void Gu::computeBoundsAroundVertices(PxBounds3& bounds, PxU32 nbVerts, const PxV
 	StoreBounds(bounds, minV, maxV);
 }
 
-void Gu::computeLocalBoundsAndGeomEpsilon(const PxVec3* vertices, PxU32 nbVerties, PxBounds3& localBounds, PxReal& geomEpsilon)
+void ev4sio_Gu::computeLocalBoundsAndGeomEpsilon(const PxVec3* vertices, PxU32 nbVerties, PxBounds3& localBounds, PxReal& geomEpsilon)
 {
 	computeBoundsAroundVertices(localBounds, nbVerties, vertices);
 
@@ -133,7 +133,7 @@ void Gu::computeLocalBoundsAndGeomEpsilon(const PxVec3* vertices, PxU32 nbVertie
 static PX_FORCE_INLINE void transformNoEmptyTest(PxVec3p& c, PxVec3p& ext, const PxMat33& rot, const PxVec3& pos, const CenterExtentsPadded& bounds)
 {
 	c = rot.transform(bounds.mCenter) + pos;
-	ext = Cm::basisExtent(rot.column0, rot.column1, rot.column2, bounds.mExtents);
+	ext = ev4sio_Cm::basisExtent(rot.column0, rot.column1, rot.column2, bounds.mExtents);
 }
 
 // PT: this one may have duplicates in GuBV4_BoxSweep_Internal.h & GuBV4_Raycast.cpp
@@ -178,7 +178,7 @@ static PX_FORCE_INLINE PxU32 isNonIdentity(const PxVec3& scale)
 // PT: please don't inline this one - 300+ lines of rarely used code
 static void computeScaledMatrix(PxMat33Padded& rot, const PxMeshScale& scale)
 {
-	rot = rot * Cm::toMat33(scale);
+	rot = rot * ev4sio_Cm::toMat33(scale);
 }
 
 static PX_FORCE_INLINE void transformNoEmptyTest(PxVec3p& c, PxVec3p& ext, const PxTransform& transform, const PxMeshScale& scale, const CenterExtentsPadded& bounds)
@@ -196,7 +196,7 @@ static PX_FORCE_INLINE void transformNoEmptyTest(PxVec3p& c, PxVec3p& ext, const
 	if(scale.isIdentity())
 		transformNoEmptyTest(c, ext, rot, pos, bounds);
 	else
-		transformNoEmptyTest(c, ext, rot * Cm::toMat33(scale), pos, bounds);
+		transformNoEmptyTest(c, ext, rot * ev4sio_Cm::toMat33(scale), pos, bounds);
 }
 
 static void computeMeshBounds(const PxTransform& pose, const CenterExtentsPadded* PX_RESTRICT localSpaceBounds, const PxMeshScale& meshScale, PxVec3p& origin, PxVec3p& extent)
@@ -295,7 +295,7 @@ static PX_FORCE_INLINE void computeMeshBounds(PxBounds3& bounds, float contactOf
 	::inflateBounds(bounds, origin, extents, contactOffset, inflation);
 }
 
-void Gu::computeTightBounds(PxBounds3& bounds, PxU32 nb, const PxVec3* PX_RESTRICT v, const PxTransform& pose, const PxMeshScale& scale, float contactOffset, float inflation)
+void ev4sio_Gu::computeTightBounds(PxBounds3& bounds, PxU32 nb, const PxVec3* PX_RESTRICT v, const PxTransform& pose, const PxMeshScale& scale, float contactOffset, float inflation)
 {
 	if(!nb)
 	{
@@ -348,7 +348,7 @@ void Gu::computeTightBounds(PxBounds3& bounds, PxU32 nb, const PxVec3* PX_RESTRI
 	StoreBounds(bounds, minV, maxV);
 }
 
-void Gu::computeBounds(PxBounds3& bounds, const PxGeometry& geometry, const PxTransform& pose, float contactOffset, float inflation)
+void ev4sio_Gu::computeBounds(PxBounds3& bounds, const PxGeometry& geometry, const PxTransform& pose, float contactOffset, float inflation)
 {
 	// Box, Convex, Mesh and HeightField will compute local bounds and pose to world space.
 	// Sphere, Capsule & Plane will compute world space bounds directly.
@@ -397,7 +397,7 @@ void Gu::computeBounds(PxBounds3& bounds, const PxGeometry& geometry, const PxTr
 		case PxGeometryType::eCONVEXMESH:
 		{
 			const PxConvexMeshGeometry& shape = static_cast<const PxConvexMeshGeometry&>(geometry);
-			const Gu::ConvexHullData& hullData = static_cast<const Gu::ConvexMesh*>(shape.convexMesh)->getHull();
+			const ev4sio_Gu::ConvexHullData& hullData = static_cast<const ev4sio_Gu::ConvexMesh*>(shape.convexMesh)->getHull();
 
 			const bool useTightBounds = shape.meshFlags & PxConvexMeshGeometryFlag::eTIGHT_BOUNDS;
 			if(useTightBounds)
@@ -423,14 +423,14 @@ void Gu::computeBounds(PxBounds3& bounds, const PxGeometry& geometry, const PxTr
 		case PxGeometryType::eHEIGHTFIELD:
 		{
 			const PxHeightFieldGeometry& shape = static_cast<const PxHeightFieldGeometry&>(geometry);
-			computeMeshBounds(bounds, contactOffset, inflation, pose, &static_cast<const Gu::HeightField*>(shape.heightField)->getData().getPaddedBounds(), PxMeshScale(PxVec3(shape.rowScale, shape.heightScale, shape.columnScale)));
+			computeMeshBounds(bounds, contactOffset, inflation, pose, &static_cast<const ev4sio_Gu::HeightField*>(shape.heightField)->getData().getPaddedBounds(), PxMeshScale(PxVec3(shape.rowScale, shape.heightScale, shape.columnScale)));
 		}
 		break;
 
 		case PxGeometryType::eTETRAHEDRONMESH:
 		{		
 			const PxTetrahedronMeshGeometry& shape = static_cast<const PxTetrahedronMeshGeometry&>(geometry);
-			computeMeshBounds(bounds, contactOffset, inflation, pose, &static_cast<const Gu::TetrahedronMesh*>(shape.tetrahedronMesh)->getPaddedBounds(), PxMeshScale());
+			computeMeshBounds(bounds, contactOffset, inflation, pose, &static_cast<const ev4sio_Gu::TetrahedronMesh*>(shape.tetrahedronMesh)->getPaddedBounds(), PxMeshScale());
 		}
 		break;
 
@@ -476,7 +476,7 @@ void Gu::computeBounds(PxBounds3& bounds, const PxGeometry& geometry, const PxTr
 		default:
 		{
 			PX_ASSERT(0);		
-			PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "Gu::computeBounds: Unknown shape type.");
+			ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "ev4sio_Gu::computeBounds: Unknown shape type.");
 		}
 	}
 }
@@ -509,7 +509,7 @@ static PX_FORCE_INLINE void computeMinMaxBounds(PxBounds3* PX_RESTRICT bounds, c
 
 ShapeData::ShapeData(const PxGeometry& g, const PxTransform& t, PxReal inflation)
 {
-	using namespace physx::aos;
+	using namespace ev4sio_physx::aos;
 
 	// PT: this cast to matrix is already done in GeometryUnion::computeBounds (e.g. for boxes). So we do it first,
 	// then we'll pass the matrix directly to computeBoundsShapeData, to avoid the double conversion.

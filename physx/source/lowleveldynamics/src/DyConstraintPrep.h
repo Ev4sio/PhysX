@@ -35,7 +35,7 @@
 #include "foundation/PxArray.h"
 #include "PxConstraint.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 class PxcConstraintBlockStream;
@@ -44,12 +44,12 @@ struct PxSolverBody;
 struct PxSolverBodyData;
 struct PxSolverConstraintDesc;
 
-namespace Cm
+namespace ev4sio_Cm
 {
 	struct SpatialVectorF;
 }
 
-namespace Dy
+namespace ev4sio_Dy
 {
 
 	static const PxU32 MAX_CONSTRAINT_ROWS = 20;
@@ -76,7 +76,7 @@ namespace Dy
 	PxU32 SetupSolverConstraint(SolverConstraintShaderPrepDesc& shaderDesc,
 								PxSolverConstraintPrepDesc& prepDesc,
 								   PxConstraintAllocator& allocator,
-								   PxReal dt, PxReal invdt, Cm::SpatialVectorF* Z);
+								   PxReal dt, PxReal invdt, ev4sio_Cm::SpatialVectorF* Z);
 
 
 	class ConstraintHelper
@@ -86,7 +86,7 @@ namespace Dy
 		static PxU32 setupSolverConstraint(
 			PxSolverConstraintPrepDesc& prepDesc,
 			PxConstraintAllocator& allocator,
-			PxReal dt, PxReal invdt, Cm::SpatialVectorF* Z);
+			PxReal dt, PxReal invdt, ev4sio_Cm::SpatialVectorF* Z);
 	};
 
 	template<class PrepDescT>

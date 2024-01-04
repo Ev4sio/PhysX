@@ -31,11 +31,11 @@
 #include "ExtUtilities.h"
 
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Ext
+namespace ev4sio_Ext
 {
-	using Triangle = Gu::IndexedTriangleT<PxI32>;
+	using Triangle = ev4sio_Gu::IndexedTriangleT<PxI32>;
 
 	//http://tizian.cs.uni-bonn.de/publications/BaudsonKlein.pdf Page 44
 	static const PxI32 neighborFaces[4][3] = { { 0, 1, 2 }, { 0, 3, 1 }, { 0, 2, 3 }, { 1, 3, 2 } };
@@ -985,14 +985,14 @@ namespace Ext
 	void DelaunayTetrahedralizer::collectTetsConnectedToVertex(PxI32 vertexIndex, PxArray<PxI32>& tetIds)
 	{
 		stackMemory.clear();
-		physx::Ext::collectTetsConnectedToVertex(stackMemory.faces, stackMemory.hashSet, result, neighbors, vertexToTet, vertexIndex, tetIds, -1, -1);
+		ev4sio_physx::ev4sio_Ext::collectTetsConnectedToVertex(stackMemory.faces, stackMemory.hashSet, result, neighbors, vertexToTet, vertexIndex, tetIds, -1, -1);
 	}
 
 	void DelaunayTetrahedralizer::collectTetsConnectedToVertex(PxArray<PxI32>& faces, PxHashSet<PxI32>& tetsDone, PxI32 vertexIndex, PxArray<PxI32>& tetIds)
 	{
 		faces.clear();
 		tetsDone.clear();
-		physx::Ext::collectTetsConnectedToVertex(faces, tetsDone, result, neighbors, vertexToTet, vertexIndex, tetIds);
+		ev4sio_physx::ev4sio_Ext::collectTetsConnectedToVertex(faces, tetsDone, result, neighbors, vertexToTet, vertexIndex, tetIds);
 	}
 
 	void DelaunayTetrahedralizer::collectTetsConnectedToEdge(PxI32 edgeStart, PxI32 edgeEnd, PxArray<PxI32>& tetIds)
@@ -1001,7 +1001,7 @@ namespace Ext
 			PxSwap(edgeStart, edgeEnd);
 
 		stackMemory.clear();
-		physx::Ext::collectTetsConnectedToVertex(stackMemory.faces, stackMemory.hashSet, result, neighbors, vertexToTet, edgeStart, tetIds, edgeEnd);
+		ev4sio_physx::ev4sio_Ext::collectTetsConnectedToVertex(stackMemory.faces, stackMemory.hashSet, result, neighbors, vertexToTet, edgeStart, tetIds, edgeEnd);
 	}
 
 	PX_FORCE_INLINE bool containsDuplicates(PxI32 a, PxI32 b, PxI32 c, PxI32 d)
@@ -1110,18 +1110,18 @@ namespace Ext
 		PxF64 qualityAfterCollapse;
 		PxArray<PxI32> tetsA, tetsB;
 		stackMemory.clear();
-		physx::Ext::collectTetsConnectedToVertex(stackMemory.faces, stackMemory.hashSet, result, neighbors, vertexToTet, edgeVertexToKeep, tetsA);
+		ev4sio_physx::ev4sio_Ext::collectTetsConnectedToVertex(stackMemory.faces, stackMemory.hashSet, result, neighbors, vertexToTet, edgeVertexToKeep, tetsA);
 		stackMemory.clear();
-		physx::Ext::collectTetsConnectedToVertex(stackMemory.faces, stackMemory.hashSet, result, neighbors, vertexToTet, edgeVertexToRemove, tetsB);
+		ev4sio_physx::ev4sio_Ext::collectTetsConnectedToVertex(stackMemory.faces, stackMemory.hashSet, result, neighbors, vertexToTet, edgeVertexToRemove, tetsB);
 		return canCollapseEdge(edgeVertexToKeep, edgeVertexToRemove, tetsA, tetsB, qualityAfterCollapse, volumeChangeThreshold, tetAnalyzer);
 	}
 
 	bool DelaunayTetrahedralizer::canCollapseEdge(PxI32 edgeVertexAToKeep, PxI32 edgeVertexBToRemove, const PxArray<PxI32>& tetsConnectedToA, const PxArray<PxI32>& tetsConnectedToB,
 		PxF64& qualityAfterCollapse, PxF64 volumeChangeThreshold, BaseTetAnalyzer* tetAnalyzer)
 	{
-		return physx::Ext::canCollapseEdge(edgeVertexAToKeep, edgeVertexBToRemove, centeredNormalizedPoints,
-			tetsConnectedToA, //physx::Ext::collectTetsConnectedToVertex(result, neighbors, vertexToTet, edgeVertexAToKeep),
-			tetsConnectedToB, //physx::Ext::collectTetsConnectedToVertex(result, neighbors, vertexToTet, edgeVertexBToRemove),
+		return ev4sio_physx::ev4sio_Ext::canCollapseEdge(edgeVertexAToKeep, edgeVertexBToRemove, centeredNormalizedPoints,
+			tetsConnectedToA, //ev4sio_physx::ev4sio_Ext::collectTetsConnectedToVertex(result, neighbors, vertexToTet, edgeVertexAToKeep),
+			tetsConnectedToB, //ev4sio_physx::ev4sio_Ext::collectTetsConnectedToVertex(result, neighbors, vertexToTet, edgeVertexBToRemove),
 			result, qualityAfterCollapse, volumeChangeThreshold, tetAnalyzer);
 	}
 
@@ -1184,10 +1184,10 @@ namespace Ext
 		PxArray<PxI32> keepTetIds;
 		PxArray<PxI32> removeTetIds;
 		stackMemory.clear();
-		physx::Ext::collectTetsConnectedToVertex(stackMemory.faces, stackMemory.hashSet, result, neighbors, vertexToTet, edgeVertexToKeep, keepTetIds);
+		ev4sio_physx::ev4sio_Ext::collectTetsConnectedToVertex(stackMemory.faces, stackMemory.hashSet, result, neighbors, vertexToTet, edgeVertexToKeep, keepTetIds);
 		stackMemory.clear();
-		physx::Ext::collectTetsConnectedToVertex(stackMemory.faces, stackMemory.hashSet, result, neighbors, vertexToTet, edgeVertexToRemove, removeTetIds);
-		physx::Ext::collapseEdge(edgeVertexToKeep, edgeVertexToRemove,
+		ev4sio_physx::ev4sio_Ext::collectTetsConnectedToVertex(stackMemory.faces, stackMemory.hashSet, result, neighbors, vertexToTet, edgeVertexToRemove, removeTetIds);
+		ev4sio_physx::ev4sio_Ext::collapseEdge(edgeVertexToKeep, edgeVertexToRemove,
 			keepTetIds,
 			removeTetIds,
 			result, neighbors, vertexToTet, unusedTets, changedTets);
@@ -1196,7 +1196,7 @@ namespace Ext
 	void DelaunayTetrahedralizer::collapseEdge(PxI32 edgeVertexAToKeep, PxI32 edgeVertexBToRemove, const PxArray<PxI32>& tetsConnectedToA, const PxArray<PxI32>& tetsConnectedToB)
 	{
 		PxArray<PxI32> changedTets;
-		physx::Ext::collapseEdge(edgeVertexAToKeep, edgeVertexBToRemove,
+		ev4sio_physx::ev4sio_Ext::collapseEdge(edgeVertexAToKeep, edgeVertexBToRemove,
 			tetsConnectedToA, tetsConnectedToB,
 			result, neighbors, vertexToTet, unusedTets, changedTets);
 	}
@@ -1422,7 +1422,7 @@ namespace Ext
 	bool DelaunayTetrahedralizer::removeEdgeByFlip(PxI32 edgeA, PxI32 edgeB, PxArray<PxI32>& tetIndices, BaseTetAnalyzer* qualityAnalyzer)
 	{
 		stackMemory.clear();
-		return physx::Ext::removeEdgeByFlip(edgeA, edgeB, stackMemory.faces, stackMemory.hashSet, tetIndices, result, centeredNormalizedPoints, unusedTets, neighbors, vertexToTet, qualityAnalyzer);
+		return ev4sio_physx::ev4sio_Ext::removeEdgeByFlip(edgeA, edgeB, stackMemory.faces, stackMemory.hashSet, tetIndices, result, centeredNormalizedPoints, unusedTets, neighbors, vertexToTet, qualityAnalyzer);
 	}
 
 	void DelaunayTetrahedralizer::addLockedEdges(const PxArray<Triangle>& triangles)
@@ -1799,7 +1799,7 @@ namespace Ext
 		PxArray<PxI32> stack;
 		for (PxU32 i = 0; i < affectedFaces.size(); ++i)
 			stack.pushBack(affectedFaces[i]);
-		PxI32 counter = physx::Ext::optimizeByFlipping(stack, neighbors, vertexToTet, centeredNormalizedPoints, result, unusedTets, qualityAnalyzer, affectedFaces, lockedTriangles, lockedEdges);
+		PxI32 counter = ev4sio_physx::ev4sio_Ext::optimizeByFlipping(stack, neighbors, vertexToTet, centeredNormalizedPoints, result, unusedTets, qualityAnalyzer, affectedFaces, lockedTriangles, lockedEdges);
 		return counter > 0;
 	}
 
@@ -1852,7 +1852,7 @@ namespace Ext
 	void DelaunayTetrahedralizer::insertPointIntoEdge(PxI32 newPointIndex, PxI32 edgeA, PxI32 edgeB, PxArray<PxI32>& affectedTets, BaseTetAnalyzer* qualityAnalyzer)
 	{
 		PxArray<PxI32> affectedFaces;
-		physx::Ext::insertPointIntoEdge(newPointIndex, edgeA, edgeB, result, neighbors, vertexToTet, unusedTets, &affectedFaces, affectedTets);
+		ev4sio_physx::ev4sio_Ext::insertPointIntoEdge(newPointIndex, edgeA, edgeB, result, neighbors, vertexToTet, unusedTets, &affectedFaces, affectedTets);
 
 		if (qualityAnalyzer != NULL)
 			optimizeByFlipping(affectedFaces, *qualityAnalyzer);

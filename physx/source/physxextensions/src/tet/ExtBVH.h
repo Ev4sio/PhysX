@@ -32,13 +32,13 @@
 #include "foundation/PxArray.h"
 #include "GuAABBTreeNode.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-	namespace Ext
+	namespace ev4sio_Ext
 	{
 		struct BVHDesc
 		{
-			PxArray<Gu::BVHNode> tree;
+			PxArray<ev4sio_Gu::BVHNode> tree;
 			void query(const PxBounds3& bounds, PxArray<PxI32>& items);
 		};
 

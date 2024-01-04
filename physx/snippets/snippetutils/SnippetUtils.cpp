@@ -39,7 +39,7 @@
 
 #include "extensions/PxDefaultAllocator.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 namespace
@@ -244,10 +244,10 @@ namespace SnippetUtils
 
 
 } // namespace physXUtils
-} // namespace physx
+} // namespace ev4sio_physx
 
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 #define BUNNY_NBVERTICES	(453)
 #define BUNNY_NBFACES		(902)

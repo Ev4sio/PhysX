@@ -35,7 +35,7 @@
 #include "cooking/PxCooking.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -45,12 +45,12 @@ namespace physx
 	class PxBVH;
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
-	PX_C_EXPORT PX_PHYSX_COOKING_API physx::PxTriangleMesh* PX_CALL_CONV PxCreateTriangleMeshInternal(const physx::PxTriangleMeshInternalData& data);
+	PX_C_EXPORT PX_PHYSX_COOKING_API ev4sio_physx::PxTriangleMesh* PX_CALL_CONV PxCreateTriangleMeshInternal(const ev4sio_physx::PxTriangleMeshInternalData& data);
 
-	PX_C_EXPORT PX_PHYSX_COOKING_API physx::PxBVH* PX_CALL_CONV PxCreateBVHInternal(const physx::PxBVHInternalData& data);
+	PX_C_EXPORT PX_PHYSX_COOKING_API ev4sio_physx::PxBVH* PX_CALL_CONV PxCreateBVHInternal(const ev4sio_physx::PxBVHInternalData& data);
 
 /** @} */
 #endif

@@ -42,9 +42,9 @@
 #include "DySolverContext.h"
 #include "DyArticulationCpuGpu.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Dy
+namespace ev4sio_Dy
 {
 void solve1DBlock					(DY_PGS_SOLVE_METHOD_PARAMS);
 void solveContactBlock				(DY_PGS_SOLVE_METHOD_PARAMS);
@@ -140,11 +140,11 @@ SolveWriteBackBlockMethod* getSolveWritebackBlockTable()
 
 // PT: TODO: ideally we could reuse this in immediate mode as well, but the code currently uses separate arrays of PxVec3s instead of
 // spatial vectors so the SIMD code won't work there. Switching to spatial vectors requires a change in the immediate mode API (PxSolveConstraints).
-void saveMotionVelocities(PxU32 nbBodies, PxSolverBody* PX_RESTRICT solverBodies, Cm::SpatialVector* PX_RESTRICT motionVelocityArray)
+void saveMotionVelocities(PxU32 nbBodies, PxSolverBody* PX_RESTRICT solverBodies, ev4sio_Cm::SpatialVector* PX_RESTRICT motionVelocityArray)
 {
 	for(PxU32 i=0; i<nbBodies; i++)
 	{
-		Cm::SpatialVector& motionVel = motionVelocityArray[i];
+		ev4sio_Cm::SpatialVector& motionVel = motionVelocityArray[i];
 		const PxSolverBody& atom = solverBodies[i];
 
 		V4StoreA(V4LoadA(&atom.linearVelocity.x), &motionVel.linear.x);
@@ -154,8 +154,8 @@ void saveMotionVelocities(PxU32 nbBodies, PxSolverBody* PX_RESTRICT solverBodies
 
 // PT: this case is reached when e.g. a lot of objects falling but not touching yet. So there are no contacts but potentially a lot of bodies.
 // See LegacyBenchmark/falling_spheres for example.
-void solveNoContactsCase(	PxU32 nbBodies, PxSolverBody* PX_RESTRICT solverBodies, Cm::SpatialVector* PX_RESTRICT motionVelocityArray,
-							PxU32 nbArticulations, ArticulationSolverDesc* PX_RESTRICT articulationListStart, Cm::SpatialVectorF* PX_RESTRICT Z, Cm::SpatialVectorF* PX_RESTRICT deltaV,
+void solveNoContactsCase(	PxU32 nbBodies, PxSolverBody* PX_RESTRICT solverBodies, ev4sio_Cm::SpatialVector* PX_RESTRICT motionVelocityArray,
+							PxU32 nbArticulations, ArticulationSolverDesc* PX_RESTRICT articulationListStart, ev4sio_Cm::SpatialVectorF* PX_RESTRICT Z, ev4sio_Cm::SpatialVectorF* PX_RESTRICT deltaV,
 							PxU32 nbPosIter, PxU32 nbVelIter, PxF32 dt, PxF32 invDt)
 {
 	saveMotionVelocities(nbBodies, solverBodies, motionVelocityArray);
@@ -204,7 +204,7 @@ void SolverCoreGeneral::solveV_Blocks(SolverIslandParams& params) const
 	PxSolverBody* PX_RESTRICT bodyListStart = params.bodyListStart;
 	const PxU32 bodyListSize = params.bodyListSize;
 
-	Cm::SpatialVector* PX_RESTRICT motionVelocityArray = params.motionVelocityArray;
+	ev4sio_Cm::SpatialVector* PX_RESTRICT motionVelocityArray = params.motionVelocityArray;
 
 	const PxU32 velocityIterations = params.velocityIterations;
 	const PxU32 positionIterations = params.positionIterations;
@@ -298,7 +298,7 @@ void SolverCoreGeneral::solveV_Blocks(SolverIslandParams& params) const
 	}
 }
 
-void SolverCoreGeneral::solveVParallelAndWriteBack(SolverIslandParams& params, Cm::SpatialVectorF* Z, Cm::SpatialVectorF* deltaV) const
+void SolverCoreGeneral::solveVParallelAndWriteBack(SolverIslandParams& params, ev4sio_Cm::SpatialVectorF* Z, ev4sio_Cm::SpatialVectorF* deltaV) const
 {
 #if PX_PROFILE_SOLVE_STALLS
 	PxU64 startTime = readTimer();
@@ -450,7 +450,7 @@ void SolverCoreGeneral::solveVParallelAndWriteBack(SolverIslandParams& params, C
 	PxI32* bodyListIndexCompleted = &params.bodyListIndexCompleted;
 
 	PxSolverBody* PX_RESTRICT bodyListStart = params.bodyListStart;
-	Cm::SpatialVector* PX_RESTRICT motionVelocityArray = params.motionVelocityArray;
+	ev4sio_Cm::SpatialVector* PX_RESTRICT motionVelocityArray = params.motionVelocityArray;
 
 	//Save velocity - articulated
 	PxI32 endIndexCount2 = SaveUnrollCount;
@@ -488,7 +488,7 @@ void SolverCoreGeneral::solveVParallelAndWriteBack(SolverIslandParams& params, C
 				PxPrefetchLine(&bodyListStart[index2 + 8]);
 				PxPrefetchLine(&motionVelocityArray[index2 + 8]);
 				PxSolverBody& body = bodyListStart[index2];
-				Cm::SpatialVector& motionVel = motionVelocityArray[index2];
+				ev4sio_Cm::SpatialVector& motionVel = motionVelocityArray[index2];
 				motionVel.linear = body.linearVelocity;
 				motionVel.angular = body.angularState;
 				PX_ASSERT(motionVel.linear.isFinite());

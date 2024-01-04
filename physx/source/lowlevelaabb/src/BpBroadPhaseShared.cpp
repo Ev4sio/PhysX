@@ -30,8 +30,8 @@
 #include "foundation/PxMemory.h"
 #include "foundation/PxBitUtils.h"
 
-using namespace physx;
-using namespace Bp;
+using namespace ev4sio_physx;
+using namespace ev4sio_Bp;
 
 #define MBP_ALLOC(x)	PX_ALLOC(x, "MBP")
 #define MBP_FREE(x)		PX_FREE(x)

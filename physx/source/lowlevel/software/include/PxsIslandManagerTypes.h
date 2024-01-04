@@ -29,10 +29,10 @@
 #ifndef PXS_ISLAND_MANAGER_TYPES_H
 #define PXS_ISLAND_MANAGER_TYPES_H
 
-namespace physx
+namespace ev4sio_physx
 {
 class PxsContactManager;
-namespace Dy
+namespace ev4sio_Dy
 {
 	struct Constraint;
 }
@@ -86,9 +86,9 @@ struct PxsIndexedInteraction
 
 	\note If body0 is a static (eWORLD) then solverBody0 is PX_MAX_U32 or PX_MAX_U64, depending on the platform being 32- or 64-bit.
 
-	\note If body0 is an articulation then the articulation is found directly from Dy::getArticulation(articulation0)
+	\note If body0 is an articulation then the articulation is found directly from ev4sio_Dy::getArticulation(articulation0)
 
-	\note If body0 is an soft body then the soft body is found directly from Dy::getSoftBody(softBody0)
+	\note If body0 is an soft body then the soft body is found directly from ev4sio_Dy::getSoftBody(softBody0)
 	*/
 	union
 	{
@@ -104,9 +104,9 @@ struct PxsIndexedInteraction
 
 	\note If body1 is a static (eWORLD) then solverBody1 is PX_MAX_U32 or PX_MAX_U64, depending on the platform being 32- or 64-bit.
 
-	\note If body1 is an articulation then the articulation is found directly from Dy::getArticulation(articulation1)
+	\note If body1 is an articulation then the articulation is found directly from ev4sio_Dy::getArticulation(articulation1)
 	
-	\note If body0 is an soft body then the soft body is found directly from Dy::getSoftBody(softBody1)
+	\note If body0 is an soft body then the soft body is found directly from ev4sio_Dy::getSoftBody(softBody1)
 	*/
 	union
 	{
@@ -151,14 +151,14 @@ struct PxsIndexedConstraint : public PxsIndexedInteraction
 	/**
 	\brief The constraint corresponds to the value set in PxsIslandManager::setEdgeConstraint
 	*/
-	Dy::Constraint* constraint;
+	ev4sio_Dy::Constraint* constraint;
 
-	PxsIndexedConstraint(Dy::Constraint* c) : constraint(c) {}
+	PxsIndexedConstraint(ev4sio_Dy::Constraint* c) : constraint(c) {}
 };
 #if !PX_P64_FAMILY
 PX_COMPILE_TIME_ASSERT(0==(sizeof(PxsIndexedConstraint) & 0x0f));
 #endif
 
-} //namespace physx
+} //namespace ev4sio_physx
 
 #endif

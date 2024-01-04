@@ -34,14 +34,14 @@
 #include "PxsSimpleIslandManager.h"
 #include "DyArticulationTendon.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Bp
+namespace ev4sio_Bp
 {
 	class BoundsArray;
 }
 
-namespace Sc
+namespace ev4sio_Sc
 {
 	class BodySim;
 	class BodyCore;
@@ -74,7 +74,7 @@ namespace Sc
 
 											~ArticulationSim();
 
-		PX_FORCE_INLINE	Dy::FeatherstoneArticulation*	getLowLevelArticulation() const { return mLLArticulation; }
+		PX_FORCE_INLINE	ev4sio_Dy::FeatherstoneArticulation*	getLowLevelArticulation() const { return mLLArticulation; }
 		PX_FORCE_INLINE	ArticulationCore&				getCore() const { return mCore; }
 								
 								//we don't need removeBody method anymore because when the articulation is removed from the scene, the articulation sim will
@@ -109,7 +109,7 @@ namespace Sc
 								void		updateCCDLinks(PxArray<BodySim*>& sims);
 								void		updateCached(PxBitMapPinned* shapehapeChangedMap);
 								void		markShapesUpdated(PxBitMapPinned* shapeChangedMap);
-								void		updateContactDistance(PxReal* contactDistance, PxReal dt, const Bp::BoundsArray& boundsArray);
+								void		updateContactDistance(PxReal* contactDistance, PxReal dt, const ev4sio_Bp::BoundsArray& boundsArray);
 
 								void		setActive(bool b, bool asPartOfCreation=false);
 
@@ -177,7 +177,7 @@ namespace Sc
 
 					PxU32					findBodyIndex(BodySim &body) const;
 
-					void					setJointDirty(Dy::ArticulationJointCore& jointCore);
+					void					setJointDirty(ev4sio_Dy::ArticulationJointCore& jointCore);
 
 					void					addLoopConstraint(ConstraintSim* constraint);
 					void					removeLoopConstraint(ConstraintSim* constraint);
@@ -189,7 +189,7 @@ namespace Sc
 	PX_FORCE_INLINE	void						setDirtyFlag(ArticulationSimDirtyFlag::Enum flag) { mDirtyFlags = flag; }
 	PX_FORCE_INLINE	ArticulationSimDirtyFlags	getDirtyFlag() const { return mDirtyFlags; }
 
-	PX_FORCE_INLINE	const Dy::ArticulationLink&	getLink(const PxU32 linkId) const { return mLinks[linkId]; }
+	PX_FORCE_INLINE	const ev4sio_Dy::ArticulationLink&	getLink(const PxU32 linkId) const { return mLinks[linkId]; }
 
 					PxU32					getRootActorIndex() const;
 					const PxSpatialForce& getSensorForce(const PxU32 lowLevelIndex) const;
@@ -201,25 +201,25 @@ namespace Sc
 	PX_FORCE_INLINE void					getLLArticulationInitialized(bool val) { mIsLLArticulationInitialized = val; }
 	PX_FORCE_INLINE	bool					getLLArticulationInitialized() { return mIsLLArticulationInitialized; }
 	private:
-					Dy::FeatherstoneArticulation*					mLLArticulation;
+					ev4sio_Dy::FeatherstoneArticulation*					mLLArticulation;
 					Scene&											mScene;
 					ArticulationCore&								mCore;
-					PxArray<Dy::ArticulationLink>					mLinks;
+					PxArray<ev4sio_Dy::ArticulationLink>					mLinks;
 					PxArray<BodySim*>								mBodies;
 					PxArray<ArticulationJointSim*>					mJoints;
-					PxArray<Dy::ArticulationSpatialTendon*>			mSpatialTendons;
-					PxArray<Dy::ArticulationFixedTendon*>			mFixedTendons;
-					PxArray<Dy::ArticulationSensor*>				mSensors;
+					PxArray<ev4sio_Dy::ArticulationSpatialTendon*>			mSpatialTendons;
+					PxArray<ev4sio_Dy::ArticulationFixedTendon*>			mFixedTendons;
+					PxArray<ev4sio_Dy::ArticulationSensor*>				mSensors;
 					PxArray<PxSpatialForce>							mSensorForces;
 					
 					PxNodeIndex										mIslandNodeIndex;
-					PxArray <Dy::ArticulationLoopConstraint>		mLoopConstraints;
+					PxArray <ev4sio_Dy::ArticulationLoopConstraint>		mLoopConstraints;
 					PxU32											mMaxDepth;
 					bool											mIsLLArticulationInitialized;
 					ArticulationSimDirtyFlags						mDirtyFlags;
 	};
 
-} // namespace Sc
+} // namespace ev4sio_Sc
 
 }
 

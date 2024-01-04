@@ -31,8 +31,8 @@
 #include "CmUtils.h"
 #include "omnipvd/NpOmniPvdSetData.h"
 
-using namespace physx;
-using namespace Cm;
+using namespace ev4sio_physx;
+using namespace ev4sio_Cm;
 
 NpMaterial::NpMaterial(const PxsMaterialCore& desc) :
 	PxMaterial(PxConcreteType::eMATERIAL, PxBaseFlag::eOWNS_MEMORY | PxBaseFlag::eIS_RELEASABLE),
@@ -142,7 +142,7 @@ void NpMaterial::setRestitution(PxReal x)
 	if ((!(mMaterial.flags & PxMaterialFlag::eCOMPLIANT_CONTACT) && x < 0.0f) || (x > 1.0f))
 	{
 		PxClamp(x, 0.0f, 1.0f);
-		PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "PxMaterial::setRestitution: Invalid value %f was clamped to [0,1]!", PxF64(x));
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "PxMaterial::setRestitution: Invalid value %f was clamped to [0,1]!", PxF64(x));
 	}
 	mMaterial.restitution = x;
 	updateMaterial();
@@ -163,7 +163,7 @@ void NpMaterial::setDamping(PxReal x)
 	if ((!(mMaterial.flags & PxMaterialFlag::eCOMPLIANT_CONTACT) && x != 0.0f))
 	{
 		x = 0.f;
-		PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "PxMaterial::setDamping: Attempting to set a non-zero damping coefficient without raising PxMaterialFlag::eCOMPLIANT_CONTACT first!");
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "PxMaterial::setDamping: Attempting to set a non-zero damping coefficient without raising PxMaterialFlag::eCOMPLIANT_CONTACT first!");
 	}
 	mMaterial.damping = x;
 	updateMaterial();

@@ -34,9 +34,9 @@
 #include "ScParticleSystemCore.h" 
 #include "ScParticleSystemShapeSim.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-	namespace Sc
+	namespace ev4sio_Sc
 	{
 		class Scene;
 
@@ -47,7 +47,7 @@ namespace physx
 			ParticleSystemSim(ParticleSystemCore& core, Scene& scene);
 			~ParticleSystemSim();
 
-			PX_INLINE	Dy::ParticleSystem*		getLowLevelParticleSystem() const { return mLLParticleSystem; }
+			PX_INLINE	ev4sio_Dy::ParticleSystem*		getLowLevelParticleSystem() const { return mLLParticleSystem; }
 			PX_INLINE	ParticleSystemCore&		getCore() const { return static_cast<ParticleSystemCore&>(mCore); }
 
 			virtual			PxActor*		getPxActor() const { return getCore().getPxActor(); }
@@ -66,7 +66,7 @@ namespace physx
 							ParticleSystemShapeSim& getShapeSim()		 { return mShapeSim; }
 
 		private:
-			Dy::ParticleSystem*									mLLParticleSystem;
+			ev4sio_Dy::ParticleSystem*									mLLParticleSystem;
 
 			ParticleSystemShapeSim								mShapeSim;
 
@@ -75,7 +75,7 @@ namespace physx
 //								void			deactivate();
 		};
 
-	} // namespace Sc
+	} // namespace ev4sio_Sc
 }
 #endif
 

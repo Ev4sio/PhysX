@@ -35,8 +35,8 @@
 #include "SnXmlDeserializer.h"		
 #include "SnRepXCoreSerializer.h"
 
-using namespace physx::Sn;
-namespace physx { 
+using namespace ev4sio_physx::Sn;
+namespace ev4sio_physx { 
 	typedef PxReadOnlyPropertyInfo<PxPropertyInfoName::PxArticulationLink_InboundJoint, PxArticulationLink, PxArticulationJointReducedCoordinate *> TIncomingJointPropType;
 		
 	//*************************************************************
@@ -176,7 +176,7 @@ namespace physx {
 			TMemoryPoolManager theManager(mAllocator);
 			MemoryBuffer theTempBuf( &theManager );
 			theTempBuf.clear();
-			PxCookTriangleMesh( *inArgs.cooker, meshDesc, theTempBuf );
+			ev4sio_PxCookTriangleMesh( *inArgs.cooker, meshDesc, theTempBuf );
 
 			writeBuffer( inWriter, inTempBuffer, 16, theTempBuf.mBuffer, theTempBuf.mWriteOffset, "CookedData", writeDatatype<PxU8> );
 		}
@@ -218,7 +218,7 @@ namespace physx {
 			PxCookingParams params = *inArgs.cooker;
 			params.midphaseDesc = PxMeshMidPhase::eBVH33;
 
-			PxCookTriangleMesh( params, theDesc, theTempBuf );
+			ev4sio_PxCookTriangleMesh( params, theDesc, theTempBuf );
 //			theMesh = inArgs.physics.createTriangleMesh( theTempBuf );
 			theMesh = static_cast<PxBVH33TriangleMesh*>(inArgs.physics.createTriangleMesh( theTempBuf ));
 		}					
@@ -277,7 +277,7 @@ namespace physx {
 			TMemoryPoolManager theManager(mAllocator);
 			MemoryBuffer theTempBuf( &theManager );
 			theTempBuf.clear();
-			PxCookTriangleMesh( *inArgs.cooker, meshDesc, theTempBuf );
+			ev4sio_PxCookTriangleMesh( *inArgs.cooker, meshDesc, theTempBuf );
 
 			writeBuffer( inWriter, inTempBuffer, 16, theTempBuf.mBuffer, theTempBuf.mWriteOffset, "CookedData", writeDatatype<PxU8> );
 		}
@@ -319,7 +319,7 @@ namespace physx {
 			PxCookingParams params = *inArgs.cooker;
 			params.midphaseDesc = PxMeshMidPhase::eBVH34;
 
-			PxCookTriangleMesh( params, theDesc, theTempBuf );
+			ev4sio_PxCookTriangleMesh( params, theDesc, theTempBuf );
 //			theMesh = inArgs.physics.createTriangleMesh( theTempBuf );
 			theMesh = static_cast<PxBVH34TriangleMesh*>(inArgs.physics.createTriangleMesh( theTempBuf ));
 		}					
@@ -362,7 +362,7 @@ namespace physx {
 		//Now read the data...
 		PxU32 count = 0; //ignored becaues numRows and numColumns tells the story
 		readStridedBufferProperty<PxHeightFieldSample>( inReader, "samples", theDesc.samples, count, inAllocator);
-		PxHeightField* retval = PxCreateHeightField( theDesc, inArgs.physics.getPhysicsInsertionCallback() );
+		PxHeightField* retval = ev4sio_PxCreateHeightField( theDesc, inArgs.physics.getPhysicsInsertionCallback() );
 		return PxCreateRepXObject(retval);
 	}
 
@@ -384,7 +384,7 @@ namespace physx {
 			theDesc.flags = PxConvexFlag::eCOMPUTE_CONVEX;
 			TMemoryPoolManager theManager(mAllocator);
 			MemoryBuffer theTempBuf( &theManager );
-			PxCookConvexMesh( *inArgs.cooker, theDesc, theTempBuf );
+			ev4sio_PxCookConvexMesh( *inArgs.cooker, theDesc, theTempBuf );
 
 			writeBuffer( inWriter, inTempBuffer, 16, theTempBuf.mBuffer, theTempBuf.mWriteOffset, "CookedData", writeDatatype<PxU8> );
 		}
@@ -419,7 +419,7 @@ namespace physx {
 			PX_ASSERT(inArgs.cooker);
 			theTempBuf.clear();
 
-			PxCookConvexMesh( *inArgs.cooker, theDesc, theTempBuf );
+			ev4sio_PxCookConvexMesh( *inArgs.cooker, theDesc, theTempBuf );
 			theMesh = inArgs.physics.createConvexMesh( theTempBuf );
 		}					
 
@@ -521,7 +521,7 @@ namespace physx {
 				matSuccess = inReader.gotoNextSibling() )
 			{
 				const char* actorType = inReader.getCurrentItemName();
-				if ( 0 == physx::Pxstricmp( actorType, "PxActorRef" ) ) 
+				if ( 0 == ev4sio_physx::Pxstricmp( actorType, "PxActorRef" ) ) 
 				{
 					PxActor *actor = NULL;
 					ret &= readReference<PxActor>( inReader, *inCollection, actor );
@@ -536,7 +536,7 @@ namespace physx {
 						theAggregate->addActor(*actor);
 					}
 				}
-				else if ( 0 == physx::Pxstricmp( actorType, "PxArticulationRef" ) ) 
+				else if ( 0 == ev4sio_physx::Pxstricmp( actorType, "PxArticulationRef" ) ) 
 				{
 					PxArticulationReducedCoordinate* articulation = NULL;
 					ret &= readReference<PxArticulationReducedCoordinate>( inReader, *inCollection, articulation );

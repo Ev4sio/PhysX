@@ -37,8 +37,8 @@
 #include "GuDistancePointSegment.h"
 #include "GuInternal.h"
 
-using namespace physx;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
 
 namespace
 {
@@ -55,7 +55,7 @@ static const PxVec3 gNearPlaneNormal[] =
 
 }
 
-bool Gu::sweepBoxSphere(const Box& box, PxReal sphereRadius, const PxVec3& spherePos, const PxVec3& dir, PxReal length, PxReal& min_dist, PxVec3& normal, PxHitFlags hitFlags)
+bool ev4sio_Gu::sweepBoxSphere(const Box& box, PxReal sphereRadius, const PxVec3& spherePos, const PxVec3& dir, PxReal length, PxReal& min_dist, PxVec3& normal, PxHitFlags hitFlags)
 {
 	if(!(hitFlags & PxHitFlag::eASSUME_NO_INITIAL_OVERLAP))
 	{

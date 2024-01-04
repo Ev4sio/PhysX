@@ -37,7 +37,7 @@
 #include "CmRadixSort.h"
 #include "CmUtils.h"
 
-using namespace physx::aos;
+using namespace ev4sio_physx::aos;
 
 //#define CHECK_NB_OVERLAPS
 #define USE_FULLY_INSIDE_FLAG
@@ -46,9 +46,9 @@ using namespace physx::aos;
 //HWSCAN: reverse bits in fully-inside-flag bitmaps because the code gives us indices for which bits are set (and we want the opposite)
 #define HWSCAN
 
-using namespace physx;
-using namespace Bp;
-using namespace Cm;
+using namespace ev4sio_physx;
+using namespace ev4sio_Bp;
+using namespace ev4sio_Cm;
 
 	static PX_FORCE_INLINE MBP_Handle encodeHandle(MBP_ObjectIndex objectIndex, PxU32 flipFlop, bool isStatic)
 	{
@@ -348,7 +348,7 @@ static PX_FORCE_INLINE void clearBit(BitArray& bitmap, MBP_ObjectIndex objectInd
 //						bool				removePair					(PxU32 id0, PxU32 id1);
 						bool				computeCreatedDeletedPairs	(const MBP_Object* objects, BroadPhaseMBP* mbp, const BitArray& updated, const BitArray& removed);
 
-						const Bp::FilterGroup::Enum*	mGroups;
+						const ev4sio_Bp::FilterGroup::Enum*	mGroups;
 						const MBP_Object*				mObjects;
 						const bool*						mLUT;
 	};
@@ -509,7 +509,7 @@ struct RegionData : public PxUserAllocated
 						bool				updateObjectAfterRegionRemoval(MBP_Handle handle, Region* removedRegion);
 						bool				updateObjectAfterNewRegionAdded(MBP_Handle handle, const MBP_AABB& box, Region* addedRegion, PxU32 regionIndex);
 						void				prepareOverlaps();
-						void				findOverlaps(const Bp::FilterGroup::Enum* PX_RESTRICT groups, const bool* PX_RESTRICT lut);
+						void				findOverlaps(const ev4sio_Bp::FilterGroup::Enum* PX_RESTRICT groups, const bool* PX_RESTRICT lut);
 						PxU32				finalize(BroadPhaseMBP* mbp);
 						void				shiftOrigin(const PxVec3& shift, const PxBounds3* boundsArray, const PxReal* contactDistances);
 
@@ -2100,7 +2100,7 @@ PxU32 MBP::addRegion(const PxBroadPhaseRegion& region, bool populateRegion, cons
 	{
 		if(mNbRegions>=MAX_NB_MBP)
 		{
-			PxGetFoundation().error(PxErrorCode::eOUT_OF_MEMORY, PX_FL, "MBP::addRegion: max number of regions reached.");
+			ev4sio_PxGetFoundation().error(PxErrorCode::eOUT_OF_MEMORY, PX_FL, "MBP::addRegion: max number of regions reached.");
 			return INVALID_ID;
 		}
 
@@ -2133,7 +2133,7 @@ bool MBP::removeRegion(PxU32 handle)
 {
 	if(handle>=mNbRegions)
 	{
-		PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "MBP::removeRegion: invalid handle.");
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "MBP::removeRegion: invalid handle.");
 		return false;
 	}
 
@@ -2143,7 +2143,7 @@ bool MBP::removeRegion(PxU32 handle)
 	Region* bp = region->mBP;
 	if(!bp)
 	{
-		PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "MBP::removeRegion: invalid handle.");
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "MBP::removeRegion: invalid handle.");
 		return false;
 	}
 
@@ -2349,7 +2349,7 @@ MBP_Handle MBP::addObject(const MBP_AABB& box, BpHandle userID, bool isStatic)
 #endif
 #ifdef MBP_USE_WORDS
 			if(regions[i].mBP->mNbObjects==0xffff)
-				PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "MBP::addObject: 64K objects in single region reached. Some collisions might be lost.");
+				ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "MBP::addObject: 64K objects in single region reached. Some collisions might be lost.");
 			else
 #endif
 			{
@@ -2813,7 +2813,7 @@ void MBP::prepareOverlaps()
 	}
 }
 
-void MBP::findOverlaps(const Bp::FilterGroup::Enum* PX_RESTRICT groups, const bool* PX_RESTRICT lut)
+void MBP::findOverlaps(const ev4sio_Bp::FilterGroup::Enum* PX_RESTRICT groups, const bool* PX_RESTRICT lut)
 {
 	PxU32 nb = mNbRegions;
 	const RegionData* PX_RESTRICT regions = mRegions.begin();
@@ -3036,7 +3036,7 @@ bool BroadPhaseMBP::removeRegion(PxU32 handle)
 	return mMBP->removeRegion(handle);
 }
 
-void BroadPhaseMBP::update(PxcScratchAllocator* scratchAllocator, const BroadPhaseUpdateData& updateData, physx::PxBaseTask* /*continuation*/)
+void BroadPhaseMBP::update(PxcScratchAllocator* scratchAllocator, const BroadPhaseUpdateData& updateData, ev4sio_physx::PxBaseTask* /*continuation*/)
 {
 	PX_CHECK_AND_RETURN(scratchAllocator, "BroadPhaseMBP::update - scratchAllocator must be non-NULL \n");
 	PX_UNUSED(scratchAllocator);
@@ -3156,7 +3156,7 @@ void BroadPhaseMBP::addObjects(const BroadPhaseUpdateData& updateData)
 	if(created)
 	{
 		const PxBounds3* PX_RESTRICT boundsXYZ = updateData.getAABBs();
-		const Bp::FilterGroup::Enum* PX_RESTRICT groups = updateData.getGroups();
+		const ev4sio_Bp::FilterGroup::Enum* PX_RESTRICT groups = updateData.getGroups();
 
 		PxU32 nbToGo = updateData.getNumCreatedHandles();
 		while(nbToGo--)

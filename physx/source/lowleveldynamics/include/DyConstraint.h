@@ -36,12 +36,12 @@
 #include "PxConstraint.h"
 #include "DyConstraintWriteBack.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 class PxsRigidBody;
 
-namespace Dy
+namespace ev4sio_Dy
 {
 
 #if PX_VC 

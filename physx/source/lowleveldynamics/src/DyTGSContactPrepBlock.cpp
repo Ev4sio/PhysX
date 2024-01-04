@@ -32,17 +32,17 @@
 #include "PxcNpContactPrepShared.h"
 #include "DyTGSDynamics.h"
 
-using namespace physx;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
 
 #include "PxsMaterialManager.h"
 #include "DyContactPrepShared.h"
 #include "DyConstraintPrep.h"
 #include "DyTGS.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Dy
+namespace ev4sio_Dy
 {
 	inline bool ValidateVec4(const Vec4V v)
 	{
@@ -118,7 +118,7 @@ struct SolverContactHeaderStepBlock
 
 	Vec4V maxPenBias;
 
-	Sc::ShapeInteraction* shapeInteraction[4];		//192 or 208
+	ev4sio_Sc::ShapeInteraction* shapeInteraction[4];		//192 or 208
 
 	BoolV broken;
 	PxU8* frictionBrokenWritebackByte[4];
@@ -1363,7 +1363,7 @@ static void computeBlockStreamByteSizes4(PxTGSSolverContactDesc* descs,
 	PX_ASSERT(0 == (_solverConstraintByteSize & 0x0f));
 }
 
-static SolverConstraintPrepState::Enum reserveBlockStreams4(PxTGSSolverContactDesc* descs, Dy::CorrelationBuffer& c,
+static SolverConstraintPrepState::Enum reserveBlockStreams4(PxTGSSolverContactDesc* descs, ev4sio_Dy::CorrelationBuffer& c,
 	PxU8*& solverConstraint, PxU32* axisConstraintCount,
 	PxU32& solverConstraintByteSize,
 	PxConstraintAllocator& constraintAllocator)
@@ -1420,7 +1420,7 @@ static SolverConstraintPrepState::Enum reserveBlockStreams4(PxTGSSolverContactDe
 }
 
 SolverConstraintPrepState::Enum createFinalizeSolverContacts4Step(
-	Dy::CorrelationBuffer& c,
+	ev4sio_Dy::CorrelationBuffer& c,
 	PxTGSSolverContactDesc* blockDescs,
 	const PxReal invDtF32,
 	const PxReal totalDtF32,
@@ -2887,7 +2887,7 @@ static void writeBackContact4_Block(const PxSolverConstraintDesc* PX_RESTRICT de
 		PX_ALIGN(16, PxReal nf[4]);
 		V4StoreA(normalForce, nf);
 
-		Sc::ShapeInteraction** shapeInteractions = reinterpret_cast<SolverContactHeader4*>(desc[0].constraint)->shapeInteraction;
+		ev4sio_Sc::ShapeInteraction** shapeInteractions = reinterpret_cast<SolverContactHeader4*>(desc[0].constraint)->shapeInteraction;
 
 		for (PxU32 a = 0; a < 4; ++a)
 		{

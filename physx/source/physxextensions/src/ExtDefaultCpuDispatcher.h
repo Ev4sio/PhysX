@@ -38,9 +38,9 @@
 #include "foundation/PxSList.h"
 #include "ExtSharedQueueEntryPool.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Ext
+namespace ev4sio_Ext
 {
 	class CpuWorkerThread;
 
@@ -109,7 +109,7 @@ namespace Ext
 #pragma warning(pop)
 #endif
 
-} // namespace Ext
+} // namespace ev4sio_Ext
 }
 
 #endif

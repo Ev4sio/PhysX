@@ -34,7 +34,7 @@
 #include "foundation/PxAssert.h"
 #include "foundation/PxAllocator.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 namespace shdfnd
 {
@@ -132,12 +132,12 @@ class FastXml
 
 		virtual void* allocate(uint32_t size)
 		{
-			return PxGetBroadcastAllocator()->allocate(size, "FastXml", PX_FL);
+			return ev4sio_PxGetBroadcastAllocator()->allocate(size, "FastXml", PX_FL);
 		}
 
 		virtual void deallocate(void* ptr)
 		{
-			PxGetBroadcastAllocator()->deallocate(ptr);
+			ev4sio_PxGetBroadcastAllocator()->deallocate(ptr);
 		}
 	};
 

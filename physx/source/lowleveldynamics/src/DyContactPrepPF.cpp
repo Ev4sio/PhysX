@@ -36,12 +36,12 @@
 #include "PxsMaterialManager.h"
 #include "DyContactPrepShared.h"
 
-using namespace physx::Gu;
-using namespace physx::aos;
+using namespace ev4sio_physx::ev4sio_Gu;
+using namespace ev4sio_physx::aos;
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Dy
+namespace ev4sio_Dy
 {
 bool createFinalizeSolverContactsCoulomb(PxSolverContactDesc& contactDesc,
 		PxsContactManagerOutput& output,
@@ -53,9 +53,9 @@ bool createFinalizeSolverContactsCoulomb(PxSolverContactDesc& contactDesc,
 		PxReal correlationDistance,
 		PxConstraintAllocator& constraintAllocator,
 		PxFrictionType::Enum frictionType,
-		Cm::SpatialVectorF* Z);
+		ev4sio_Cm::SpatialVectorF* Z);
 
-static bool setupFinalizeSolverConstraintsCoulomb(Sc::ShapeInteraction* shapeInteraction,
+static bool setupFinalizeSolverConstraintsCoulomb(ev4sio_Sc::ShapeInteraction* shapeInteraction,
 						    const PxContactBuffer& buffer,
 							const CorrelationBuffer& c,
 							const PxTransform& bodyFrame0,
@@ -465,7 +465,7 @@ bool createFinalizeSolverContactsCoulomb1D(PxSolverContactDesc& contactDesc,
 	PxReal frictionOffsetThreshold,
 	PxReal correlationDistance,
 	PxConstraintAllocator& constraintAllocator,
-	Cm::SpatialVectorF* Z)
+	ev4sio_Cm::SpatialVectorF* Z)
 {
 	return createFinalizeSolverContactsCoulomb(contactDesc, output, threadContext, invDtF32, dtF32, bounceThresholdF32, frictionOffsetThreshold, correlationDistance,
 		constraintAllocator, PxFrictionType::eONE_DIRECTIONAL, Z);
@@ -480,7 +480,7 @@ bool createFinalizeSolverContactsCoulomb2D(PxSolverContactDesc& contactDesc,
 	PxReal frictionOffsetThreshold,
 	PxReal correlationDistance,
 	PxConstraintAllocator& constraintAllocator,
-	Cm::SpatialVectorF* Z)
+	ev4sio_Cm::SpatialVectorF* Z)
 {
 	return createFinalizeSolverContactsCoulomb(contactDesc, output, threadContext, invDtF32, dtF32, bounceThresholdF32, frictionOffsetThreshold, correlationDistance,
 		constraintAllocator, PxFrictionType::eTWO_DIRECTIONAL, Z);
@@ -496,7 +496,7 @@ bool createFinalizeSolverContactsCoulomb(PxSolverContactDesc& contactDesc,
 								 PxReal correlationDistance,
 								 PxConstraintAllocator& constraintAllocator,
 								 PxFrictionType::Enum frictionType,
-								 Cm::SpatialVectorF* Z)
+								 ev4sio_Cm::SpatialVectorF* Z)
 {
 	PX_UNUSED(frictionOffsetThreshold);
 	PX_UNUSED(correlationDistance);
@@ -549,7 +549,7 @@ bool createFinalizeSolverContactsCoulomb(PxSolverContactDesc& contactDesc,
 	PX_UNUSED(overflow);
 #if PX_CHECKED
 	if(overflow)
-		PxGetFoundation().error(physx::PxErrorCode::eDEBUG_WARNING, PX_FL, "Dropping contacts in solver because we exceeded limit of 32 friction patches.");
+		ev4sio_PxGetFoundation().error(ev4sio_physx::PxErrorCode::eDEBUG_WARNING, PX_FL, "Dropping contacts in solver because we exceeded limit of 32 friction patches.");
 #endif
 
 	//PX_ASSERT(patchCount == c.frictionPatchCount);

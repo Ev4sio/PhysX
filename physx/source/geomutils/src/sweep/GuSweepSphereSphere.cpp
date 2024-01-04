@@ -29,8 +29,8 @@
 #include "GuSweepSphereSphere.h"
 #include "foundation/PxUtilities.h"
 
-using namespace physx;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
 
 // Adapted from Gamasutra (Gomez article)
 // Return true if r1 and r2 are real
@@ -96,7 +96,7 @@ static bool sphereSphereSweep(	const PxReal ra, //radius of sphere A
 	return false;
 }
 
-bool Gu::sweepSphereSphere(const PxVec3& center0, PxReal radius0, const PxVec3& center1, PxReal radius1, const PxVec3& motion, PxReal& d, PxVec3& nrm)
+bool ev4sio_Gu::sweepSphereSphere(const PxVec3& center0, PxReal radius0, const PxVec3& center1, PxReal radius1, const PxVec3& motion, PxReal& d, PxVec3& nrm)
 {
 	const PxVec3 movedCenter = center1 + motion;
 

@@ -31,8 +31,8 @@
 #include "foundation/PxMemory.h"
 #include "GuSAH.h"
 
-using namespace physx;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
 
 static PX_FORCE_INLINE float getSurfaceArea(const PxBounds3& bounds)
 {

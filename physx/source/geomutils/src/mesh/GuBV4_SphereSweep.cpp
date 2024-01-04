@@ -33,11 +33,11 @@
 #include "GuSphere.h"
 #include "GuSweepSphereTriangle.h"
 
-using namespace physx;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
 
 #include "foundation/PxVecMath.h"
-using namespace physx::aos;
+using namespace ev4sio_physx::aos;
 
 #include "GuBV4_Common.h"
 

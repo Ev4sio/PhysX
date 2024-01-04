@@ -31,20 +31,20 @@
 #include "GuBucketPruner.h"
 #include "GuIncrementalAABBPruner.h"
 
-using namespace physx;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
 
-Pruner* physx::Gu::createBucketPruner(PxU64 contextID)
+Pruner* ev4sio_physx::ev4sio_Gu::createBucketPruner(PxU64 contextID)
 {
 	return PX_NEW(BucketPruner)(contextID);
 }
 
-Pruner* physx::Gu::createAABBPruner(PxU64 contextID, bool dynamic, CompanionPrunerType cpType, BVHBuildStrategy buildStrategy, PxU32 nbObjectsPerNode)
+Pruner* ev4sio_physx::ev4sio_Gu::createAABBPruner(PxU64 contextID, bool dynamic, CompanionPrunerType cpType, BVHBuildStrategy buildStrategy, PxU32 nbObjectsPerNode)
 {
 	return PX_NEW(AABBPruner)(dynamic, contextID, cpType, buildStrategy, nbObjectsPerNode);
 }
 
-Pruner* physx::Gu::createIncrementalPruner(PxU64 contextID)
+Pruner* ev4sio_physx::ev4sio_Gu::createIncrementalPruner(PxU64 contextID)
 {
 	return PX_NEW(IncrementalAABBPruner)(32, contextID);
 }

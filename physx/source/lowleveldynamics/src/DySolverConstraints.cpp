@@ -42,8 +42,8 @@
 #include "DyFeatherstoneArticulation.h"
 #include "DyPGS.h"
 
-using namespace physx;
-using namespace Dy;
+using namespace ev4sio_physx;
+using namespace ev4sio_Dy;
 
 //Port of scalar implementation to SIMD maths with some interleaving of instructions
 static void solve1D(const PxSolverConstraintDesc& desc, SolverContext& /*cache*/)
@@ -116,9 +116,9 @@ static void solve1D(const PxSolverConstraintDesc& desc, SolverContext& /*cache*/
 	PX_ASSERT(b1.angularState.isFinite());
 }
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Dy
+namespace ev4sio_Dy
 {
 void conclude1D(const PxSolverConstraintDesc& desc, SolverContext& /*cache*/)
 {
@@ -666,7 +666,7 @@ void solveContactBlockWriteBack(DY_PGS_SOLVE_METHOD_PARAMS)
 	if(cache.mThresholdStreamIndex > (cache.mThresholdStreamLength - 4))
 	{
 		//Write back to global buffer
-		PxI32 threshIndex = physx::PxAtomicAdd(cache.mSharedOutThresholdPairs, PxI32(cache.mThresholdStreamIndex)) - PxI32(cache.mThresholdStreamIndex);
+		PxI32 threshIndex = ev4sio_physx::PxAtomicAdd(cache.mSharedOutThresholdPairs, PxI32(cache.mThresholdStreamIndex)) - PxI32(cache.mThresholdStreamIndex);
 		for(PxU32 a = 0; a < cache.mThresholdStreamIndex; ++a)
 		{
 			cache.mSharedThresholdStream[a + threshIndex] = cache.mThresholdStream[a];
@@ -722,7 +722,7 @@ void solveContact_BStaticBlockWriteBack(DY_PGS_SOLVE_METHOD_PARAMS)
 	{
 		//Not enough space to write 4 more thresholds back!
 		//Write back to global buffer
-		PxI32 threshIndex = physx::PxAtomicAdd(cache.mSharedOutThresholdPairs, PxI32(cache.mThresholdStreamIndex)) - PxI32(cache.mThresholdStreamIndex);
+		PxI32 threshIndex = ev4sio_physx::PxAtomicAdd(cache.mSharedOutThresholdPairs, PxI32(cache.mThresholdStreamIndex)) - PxI32(cache.mThresholdStreamIndex);
 		for(PxU32 a = 0; a < cache.mThresholdStreamIndex; ++a)
 		{
 			cache.mSharedThresholdStream[a + threshIndex] = cache.mThresholdStream[a];
@@ -813,7 +813,7 @@ void solveExt1D(const PxSolverConstraintDesc& desc, SolverContext& cache)
 
 	if (desc.articulationA == desc.articulationB)
 	{
-		Cm::SpatialVectorV v0, v1;
+		ev4sio_Cm::SpatialVectorV v0, v1;
 		getArticulationA(desc)->pxcFsGetVelocities(desc.linkIndexA, desc.linkIndexB, v0, v1);
 		linVel0 = v0.linear;
 		angVel0 = v0.angular;
@@ -829,7 +829,7 @@ void solveExt1D(const PxSolverConstraintDesc& desc, SolverContext& cache)
 		}
 		else
 		{
-			Cm::SpatialVectorV v = getArticulationA(desc)->pxcFsGetVelocity(desc.linkIndexA);
+			ev4sio_Cm::SpatialVectorV v = getArticulationA(desc)->pxcFsGetVelocity(desc.linkIndexA);
 			linVel0 = v.linear;
 			angVel0 = v.angular;
 		}
@@ -841,7 +841,7 @@ void solveExt1D(const PxSolverConstraintDesc& desc, SolverContext& cache)
 		}
 		else
 		{
-			Cm::SpatialVectorV v = getArticulationB(desc)->pxcFsGetVelocity(desc.linkIndexB);
+			ev4sio_Cm::SpatialVectorV v = getArticulationB(desc)->pxcFsGetVelocity(desc.linkIndexB);
 			linVel1 = v.linear;
 			angVel1 = v.angular;
 		}
@@ -1087,7 +1087,7 @@ static void solveExtContact(const PxSolverConstraintDesc& desc, SolverContext& c
 
 	if (desc.articulationA == desc.articulationB)
 	{
-		Cm::SpatialVectorV v0, v1;
+		ev4sio_Cm::SpatialVectorV v0, v1;
 		getArticulationA(desc)->pxcFsGetVelocities(desc.linkIndexA, desc.linkIndexB, v0, v1);
 		linVel0 = v0.linear;
 		angVel0 = v0.angular;
@@ -1103,7 +1103,7 @@ static void solveExtContact(const PxSolverConstraintDesc& desc, SolverContext& c
 		}
 		else
 		{
-			Cm::SpatialVectorV v = getArticulationA(desc)->pxcFsGetVelocity(desc.linkIndexA);
+			ev4sio_Cm::SpatialVectorV v = getArticulationA(desc)->pxcFsGetVelocity(desc.linkIndexA);
 			linVel0 = v.linear;
 			angVel0 = v.angular;
 		}
@@ -1115,7 +1115,7 @@ static void solveExtContact(const PxSolverConstraintDesc& desc, SolverContext& c
 		}
 		else
 		{
-			Cm::SpatialVectorV v = getArticulationB(desc)->pxcFsGetVelocity(desc.linkIndexB);
+			ev4sio_Cm::SpatialVectorV v = getArticulationB(desc)->pxcFsGetVelocity(desc.linkIndexB);
 			linVel1 = v.linear;
 			angVel1 = v.angular;
 		}
@@ -1187,7 +1187,7 @@ void solveExtContactBlockWriteBack(DY_PGS_SOLVE_METHOD_PARAMS)
 	{
 		//Not enough space to write 4 more thresholds back!
 		//Write back to global buffer
-		PxI32 threshIndex = physx::PxAtomicAdd(cache.mSharedOutThresholdPairs, PxI32(cache.mThresholdStreamIndex)) - PxI32(cache.mThresholdStreamIndex);
+		PxI32 threshIndex = ev4sio_physx::PxAtomicAdd(cache.mSharedOutThresholdPairs, PxI32(cache.mThresholdStreamIndex)) - PxI32(cache.mThresholdStreamIndex);
 		for(PxU32 a = 0; a < cache.mThresholdStreamIndex; ++a)
 		{
 			cache.mSharedThresholdStream[a + threshIndex] = cache.mThresholdStream[a];

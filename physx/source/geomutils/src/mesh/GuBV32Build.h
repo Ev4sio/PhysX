@@ -34,16 +34,16 @@
 
 #define BV32_VALIDATE	0
 
-namespace physx
+namespace ev4sio_physx
 {
-	namespace Gu
+	namespace ev4sio_Gu
 	{
 		class BV32Tree;
 		class SourceMeshBase;
 
 		bool BuildBV32Ex(BV32Tree& tree, SourceMeshBase& mesh, float epsilon, PxU32 nbPrimitivesPerLeaf);
 
-	} // namespace Gu
+	} // namespace ev4sio_Gu
 }
 
 #endif // GU_BV32_BUILD_H

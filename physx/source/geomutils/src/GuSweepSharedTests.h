@@ -31,12 +31,12 @@
 
 #include "GuBoxConversion.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-PX_FORCE_INLINE void computeWorldToBoxMatrix(PxMat34& worldToBox, const physx::Gu::Box& box)
+PX_FORCE_INLINE void computeWorldToBoxMatrix(PxMat34& worldToBox, const ev4sio_physx::ev4sio_Gu::Box& box)
 {
 	PxMat34 boxToWorld;
-	physx::buildMatrixFromBox(boxToWorld, box);
+	ev4sio_physx::buildMatrixFromBox(boxToWorld, box);
 	worldToBox = boxToWorld.getInverseRT();
 }
 

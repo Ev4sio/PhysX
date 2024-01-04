@@ -48,9 +48,9 @@
 #include "cudamanager/PxCudaContext.h"
 #include "GuTetrahedronMeshUtils.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
-namespace physx
+namespace ev4sio_physx
 {
 #if PX_ENABLE_FEATURES_UNDER_CONSTRUCTION
 	NpHairSystem::NpHairSystem(PxCudaContextManager& cudaContextManager) :
@@ -118,11 +118,11 @@ namespace physx
 
 		if (!getNpScene())
 		{
-			PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "Querying bounds of a PxHairSystem which is not part of a PxScene is not supported.");
+			ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "Querying bounds of a PxHairSystem which is not part of a PxScene is not supported.");
 			return PxBounds3::empty();
 		}
 
-		const Sc::HairSystemSim* sim = mCore.getSim();
+		const ev4sio_Sc::HairSystemSim* sim = mCore.getSim();
 		PX_ASSERT(sim);
 
 		PX_SIMD_GUARD;
@@ -142,13 +142,13 @@ namespace physx
 		if(!(mCore.getActorFlags() & PxActorFlag::eVISUALIZATION))
 			return;
 
-		const Sc::Scene& scScene = scene.getScScene();
+		const ev4sio_Sc::Scene& scScene = scene.getScScene();
 
 		const bool visualizeAABBs = scScene.getVisualizationParameter(PxVisualizationParameter::eCOLLISION_AABBS) != 0.0f;	
 		if(visualizeAABBs)
 		{
 			out << PxU32(PxDebugColor::eARGB_YELLOW) << PxMat44(PxIdentity);
-			Cm::renderOutputDebugBox(out, mCore.getSim()->getBounds());
+			ev4sio_Cm::renderOutputDebugBox(out, mCore.getSim()->getBounds());
 		}
 	}
 #endif
@@ -171,7 +171,7 @@ namespace physx
 			flags.clear(flag);
 		}
 		mCore.setFlags(flags);
-		mCore.getShapeCore().getLLCore().mDirtyFlags |= Dy::HairSystemDirtyFlag::ePARAMETERS;
+		mCore.getShapeCore().getLLCore().mDirtyFlags |= ev4sio_Dy::HairSystemDirtyFlag::ePARAMETERS;
 	}
 
 	void NpHairSystem::setReadRequestFlag(PxHairSystemData::Enum flag, bool val)
@@ -214,7 +214,7 @@ namespace physx
 		PX_CHECK_AND_RETURN(!((uintptr_t)static_cast<const void *>(vertexPositionsInvMass) & 15), "PxHairSystem::setPositionsInvMass vertexPositionInvMass not aligned to 16 bytes");
 		PX_CHECK_AND_RETURN(!bounds.isEmpty(), "PxHairSystem::setPositionsInvMass bounds must not be empty");
 
-		Dy::HairSystemCore& llCore = mCore.getShapeCore().getLLCore();
+		ev4sio_Dy::HairSystemCore& llCore = mCore.getShapeCore().getLLCore();
 
 		PX_CHECK_AND_RETURN(llCore.mNumVertices > 0, "PxHairSystem::setPositionsInvMass numVertices must be greater than zero. Use setTopology().")
 		PX_CHECK_AND_RETURN(llCore.mNumStrands > 0, "PxHairSystem::setPositionsInvMass numStrands must be greater than zero. Use setTopology().")
@@ -228,8 +228,8 @@ namespace physx
 		if (vertexPositionsInvMass != mPosInvMassInternal.begin())
 			mPosInvMassInternal.reset();
 
-		llCore.mDirtyFlags |= Dy::HairSystemDirtyFlag::ePOSITIONS_VELOCITIES_MASS |
-			Dy::HairSystemDirtyFlag::eGRID_SIZE;
+		llCore.mDirtyFlags |= ev4sio_Dy::HairSystemDirtyFlag::ePOSITIONS_VELOCITIES_MASS |
+			ev4sio_Dy::HairSystemDirtyFlag::eGRID_SIZE;
 	}
 
 	void NpHairSystem::setVelocities(PxVec4* vertexVelocities)
@@ -238,7 +238,7 @@ namespace physx
 		PX_CHECK_AND_RETURN(vertexVelocities != NULL, "PxHairSystem::setVelocities vertexVelocities must not be NULL.")
 		PX_CHECK_AND_RETURN(!((uintptr_t)static_cast<const void *>(vertexVelocities) & 15), "PxHairSystem::setVelocities vertexVelocities not aligned to 16 bytes");
 
-		Dy::HairSystemCore& llCore = mCore.getShapeCore().getLLCore();
+		ev4sio_Dy::HairSystemCore& llCore = mCore.getShapeCore().getLLCore();
 
 		PX_CHECK_AND_RETURN(llCore.mNumVertices > 0, "PxHairSystem::setPositionsInvMass numVertices must be greater than zero. Use setTopology().")
 
@@ -247,7 +247,7 @@ namespace physx
 			mVelInternal.reset();
 
 		llCore.mVelocity = vertexVelocities;
-		llCore.mDirtyFlags |= Dy::HairSystemDirtyFlag::ePOSITIONS_VELOCITIES_MASS;
+		llCore.mDirtyFlags |= ev4sio_Dy::HairSystemDirtyFlag::ePOSITIONS_VELOCITIES_MASS;
 	}
 
 	void NpHairSystem::setBendingRestAngles(const PxReal* bendingRestAngles, PxReal bendingCompliance)
@@ -255,14 +255,14 @@ namespace physx
 		NpScene* npScene = getNpScene();
 		NP_WRITE_CHECK(npScene);
 
-		Dy::HairSystemCore& llCore = mCore.getShapeCore().getLLCore();
+		ev4sio_Dy::HairSystemCore& llCore = mCore.getShapeCore().getLLCore();
 		PX_CHECK_AND_RETURN(bendingRestAngles || llCore.mRestPositionsD, "PxHairSystem::setBendingRestAngles() NULL bendingRestAngles only allowed if restPositions have been set.");
 
 		PX_CHECK_SCENE_API_WRITE_FORBIDDEN(npScene, "PxHairSystem::setBendingRestAngles() not allowed while simulation is running. Call will be ignored.");
 
 		llCore.mBendingRestAngles = bendingRestAngles;
 		llCore.mParams.mBendingCompliance = bendingCompliance;
-		llCore.mDirtyFlags |= Dy::HairSystemDirtyFlag::eBENDING_REST_ANGLES | Dy::HairSystemDirtyFlag::ePARAMETERS;
+		llCore.mDirtyFlags |= ev4sio_Dy::HairSystemDirtyFlag::eBENDING_REST_ANGLES | ev4sio_Dy::HairSystemDirtyFlag::ePARAMETERS;
 	}
 
 	void NpHairSystem::setTwistingCompliance(PxReal twistingCompliance)
@@ -272,9 +272,9 @@ namespace physx
 
 		PX_CHECK_SCENE_API_WRITE_FORBIDDEN(npScene, "PxHairSystem::setTwistingCompliance() not allowed while simulation is running. Call will be ignored.")
 
-		Dy::HairSystemCore& llCore = mCore.getShapeCore().getLLCore();
+		ev4sio_Dy::HairSystemCore& llCore = mCore.getShapeCore().getLLCore();
 		llCore.mParams.mTwistingCompliance = twistingCompliance;
-		llCore.mDirtyFlags |= Dy::HairSystemDirtyFlag::ePARAMETERS;
+		llCore.mDirtyFlags |= ev4sio_Dy::HairSystemDirtyFlag::ePARAMETERS;
 	}
 
 	void NpHairSystem::getTwistingRestPositions(PxReal* buffer)
@@ -283,7 +283,7 @@ namespace physx
 
 		PxScopedCudaLock lock(*mCudaContextManager);
 
-		Dy::HairSystemCore& llCore = mCore.getShapeCore().getLLCore();
+		ev4sio_Dy::HairSystemCore& llCore = mCore.getShapeCore().getLLCore();
 		mCudaContextManager->getCudaContext()->memcpyDtoH(buffer,
 			reinterpret_cast<CUdeviceptr>(llCore.mTwistingRestPositionsGpuSim),
 			sizeof(float) * llCore.mNumVertices);
@@ -297,7 +297,7 @@ namespace physx
 		PX_CHECK_SCENE_API_WRITE_FORBIDDEN(npScene, "PxHairSystem::setWakeCounter() not allowed while simulation is running. Call will be ignored.")
 
 		mCore.setWakeCounter(wakeCounterValue);
-		mCore.getShapeCore().getLLCore().mDirtyFlags |= Dy::HairSystemDirtyFlag::ePARAMETERS;
+		mCore.getShapeCore().getLLCore().mDirtyFlags |= ev4sio_Dy::HairSystemDirtyFlag::ePARAMETERS;
 	}
 
 	PxReal NpHairSystem::getWakeCounter() const
@@ -361,12 +361,12 @@ namespace physx
 
 		PX_CHECK_SCENE_API_WRITE_FORBIDDEN(getNpScene(), "PxHairSystem::addRigidAttachment: Illegal to call while simulation is running.");
 
-		const Sc::BodyCore* attachmentBodyCore = getBodyCore(&rigidBody);
+		const ev4sio_Sc::BodyCore* attachmentBodyCore = getBodyCore(&rigidBody);
 		PX_CHECK_AND_RETURN(attachmentBodyCore != NULL, "PxHairSystem::addRigidAttachment: Attachment body must be rigid dynamic or articulation link.");
 
 		if(attachmentBodyCore != NULL)
 		{
-			const Sc::BodySim* bodySim = attachmentBodyCore->getSim();
+			const ev4sio_Sc::BodySim* bodySim = attachmentBodyCore->getSim();
 			if(bodySim)
 				mCore.addAttachment(*bodySim);
 		}
@@ -380,10 +380,10 @@ namespace physx
 
 		PX_CHECK_SCENE_API_WRITE_FORBIDDEN(getNpScene(), "PxHairSystem::removeRigidAttachment: Illegal to call while simulation is running.");
 
-		const Sc::BodyCore* attachmentBodyCore = getBodyCore(&rigidBody);
+		const ev4sio_Sc::BodyCore* attachmentBodyCore = getBodyCore(&rigidBody);
 		if(attachmentBodyCore != NULL)
 		{
-			const Sc::BodySim* bodySim = attachmentBodyCore->getSim();
+			const ev4sio_Sc::BodySim* bodySim = attachmentBodyCore->getSim();
 			if(bodySim)
 				mCore.removeAttachment(*bodySim);
 		}
@@ -397,7 +397,7 @@ namespace physx
 
 		PX_CHECK_SCENE_API_WRITE_FORBIDDEN(getNpScene(), "PxHairSystem::setRigidAttachments: Illegal to call while simulation is running.");
 
-		Dy::HairSystemCore& llCore = mCore.getShapeCore().getLLCore();
+		ev4sio_Dy::HairSystemCore& llCore = mCore.getShapeCore().getLLCore();
 		llCore.mNumRigidAttachments = numAttachments;
 
 		if(!isGpuPtr)
@@ -423,14 +423,14 @@ namespace physx
 		}
 		// Don't clear mParticleRigidAttachmentsInternal if isGpuPtr==true and user has passed in the same pointer again
 
-		llCore.mDirtyFlags |= Dy::HairSystemDirtyFlag::eRIGID_ATTACHMENTS;
+		llCore.mDirtyFlags |= ev4sio_Dy::HairSystemDirtyFlag::eRIGID_ATTACHMENTS;
 	}
 
 	PxParticleRigidAttachment* NpHairSystem::getRigidAttachmentsGpu(PxU32* numAttachments)
 	{
 		NP_READ_CHECK(getNpScene());
 
-		Dy::HairSystemCore& llCore = mCore.getShapeCore().getLLCore();
+		ev4sio_Dy::HairSystemCore& llCore = mCore.getShapeCore().getLLCore();
 		if(numAttachments)
 			*numAttachments = llCore.mNumRigidAttachments;
 		return llCore.mRigidAttachments;
@@ -450,7 +450,7 @@ namespace physx
 		if(numAttachments == 0)
 			return 0xffFFffFF;
 
-		Dy::HairSystemCore& llCore = mCore.getShapeCore().getLLCore();
+		ev4sio_Dy::HairSystemCore& llCore = mCore.getShapeCore().getLLCore();
 
 		const NpSoftBody& npSoftbody = static_cast<const NpSoftBody&>(softbody);
 		const PxU32 softbodyIdx = npSoftbody.getCore().getGpuSoftBodyIndex();
@@ -459,12 +459,12 @@ namespace physx
 		PX_CHECK_AND_RETURN_VAL(NULL != simMesh, "PxHairSystem::addSoftbodyAttachment: The softbody doesn't have a valid simulation mesh.", 0xffFFffFF);
 
 		const PxSoftBodyAuxData* auxData = softbody.getSoftBodyAuxData();
-		PX_CHECK_AND_RETURN_VAL(auxData->getConcreteType() == PxConcreteType::eSOFT_BODY_STATE, "PxHairSystem::addSoftbodyAttachment: The softbodies aux data must be of type Gu::SoftBodyAuxData.", 0xffFFffFF);
-		const Gu::SoftBodyAuxData* guAuxData = static_cast<const Gu::SoftBodyAuxData*>(auxData);
+		PX_CHECK_AND_RETURN_VAL(auxData->getConcreteType() == PxConcreteType::eSOFT_BODY_STATE, "PxHairSystem::addSoftbodyAttachment: The softbodies aux data must be of type ev4sio_Gu::SoftBodyAuxData.", 0xffFFffFF);
+		const ev4sio_Gu::SoftBodyAuxData* guAuxData = static_cast<const ev4sio_Gu::SoftBodyAuxData*>(auxData);
 
-		// Gu::BVTetrahedronMesh does not have a concrete type
+		// ev4sio_Gu::BVTetrahedronMesh does not have a concrete type
 		const PxTetrahedronMesh* collisionMesh = softbody.getCollisionMesh();
-		const Gu::BVTetrahedronMesh* bvCollisionMesh = static_cast<const Gu::BVTetrahedronMesh*>(collisionMesh);
+		const ev4sio_Gu::BVTetrahedronMesh* bvCollisionMesh = static_cast<const ev4sio_Gu::BVTetrahedronMesh*>(collisionMesh);
 
 		// assign handle by finding the first nonexistent key in the hashmap
 		PxU32 handle = PX_MAX_U32;
@@ -487,10 +487,10 @@ namespace physx
 			// convert to sim mesh tets/barycentrics
 			PxU32 simTetId;
 			PxVec4 simBarycentric;
-			Gu::convertSoftbodyCollisionToSimMeshTets(*simMesh, *guAuxData, *bvCollisionMesh,
+			ev4sio_Gu::convertSoftbodyCollisionToSimMeshTets(*simMesh, *guAuxData, *bvCollisionMesh,
 				tetIds[i], tetmeshBarycentrics[i], simTetId, simBarycentric);
 
-			Dy::SoftbodyHairAttachment attachment;
+			ev4sio_Dy::SoftbodyHairAttachment attachment;
 			attachment.hairVtxIdx = hairVertices[i];
 			attachment.softbodyNodeIdx = softbodyIdx;
 			attachment.tetBarycentric = simBarycentric;
@@ -503,7 +503,7 @@ namespace physx
 				attachment.low_high_angle = PxVec4(constraint->mLowLimit, constraint->mHighLimit, constraint->mAngle, 0.f);
 				if(constraint->mAngle >= 0.f)
 				{
-					attachment.attachmentBarycentric = Gu::addAxisToSimMeshBarycentric(*simMesh, simTetId, simBarycentric, constraint->mAxis.getNormalized());
+					attachment.attachmentBarycentric = ev4sio_Gu::addAxisToSimMeshBarycentric(*simMesh, simTetId, simBarycentric, constraint->mAxis.getNormalized());
 				}
 				else
 				{
@@ -524,7 +524,7 @@ namespace physx
 		llCore.mSoftbodyAttachments = mSoftbodyAttachments.begin();
 		llCore.mNumSoftbodyAttachments = mSoftbodyAttachments.size();
 
-		llCore.mDirtyFlags |= Dy::HairSystemDirtyFlag::eSOFTBODY_ATTACHMENTS;
+		llCore.mDirtyFlags |= ev4sio_Dy::HairSystemDirtyFlag::eSOFTBODY_ATTACHMENTS;
 		return handle;
 	}
 
@@ -564,11 +564,11 @@ namespace physx
 		const NpSoftBody& npSoftbody = static_cast<const NpSoftBody&>(softbody);
 		mCore.removeAttachment(*npSoftbody.getCore().getSim()); // remove edge for island generation
 
-		Dy::HairSystemCore& llCore = mCore.getShapeCore().getLLCore();
+		ev4sio_Dy::HairSystemCore& llCore = mCore.getShapeCore().getLLCore();
 		llCore.mSoftbodyAttachments = mSoftbodyAttachments.begin();
 		llCore.mNumSoftbodyAttachments = mSoftbodyAttachments.size();
 
-		llCore.mDirtyFlags |= Dy::HairSystemDirtyFlag::eSOFTBODY_ATTACHMENTS;
+		llCore.mDirtyFlags |= ev4sio_Dy::HairSystemDirtyFlag::eSOFTBODY_ATTACHMENTS;
 	}
 
 
@@ -580,7 +580,7 @@ namespace physx
 		if(restPos == NULL)
 			isGpuPtr = false;
 
-		Dy::HairSystemCore& llCore = mCore.getShapeCore().getLLCore();
+		ev4sio_Dy::HairSystemCore& llCore = mCore.getShapeCore().getLLCore();
 
 		if(!isGpuPtr)
 		{
@@ -600,21 +600,21 @@ namespace physx
 		}
 		// Don't clear mRestPositionsInternal if isGpuPtr==true and user has passed in the same pointer again
 
-		llCore.mDirtyFlags |= Dy::HairSystemDirtyFlag::eREST_POSITIONS;
+		llCore.mDirtyFlags |= ev4sio_Dy::HairSystemDirtyFlag::eREST_POSITIONS;
 	}
 
 	PxVec4* NpHairSystem::getRestPositionsGpu()
 	{
 		NP_READ_CHECK(getNpScene());
 
-		Dy::HairSystemCore& llCore = mCore.getShapeCore().getLLCore();
+		ev4sio_Dy::HairSystemCore& llCore = mCore.getShapeCore().getLLCore();
 		return llCore.mRestPositionsD;
 	}
 
 	void NpHairSystem::setLlGridSize(const PxBounds3& bounds)
 	{
 		// give system some space to expand: create a grid to accomodate at least 1.5 times the initial size
-		Dy::HairSystemCore& llCore = mCore.getShapeCore().getLLCore();
+		ev4sio_Dy::HairSystemCore& llCore = mCore.getShapeCore().getLLCore();
 		const PxVec3 dimensions = bounds.getDimensions();
 		const PxReal maxXZ = PxMax(dimensions.x, dimensions.z); // rotations in plane perpendicular to gravity are very likely
 		const PxReal cellSize = llCore.mParams.getCellSize();
@@ -635,7 +635,7 @@ namespace physx
 		llCore.mParams.mGridSize[2] = llCore.mParams.mGridSize[0];
 
 		if (static_cast<PxU32>(dimensions.maxElement() / cellSize) > 512)
-			PxGetFoundation().error(physx::PxErrorCode::eDEBUG_WARNING, PX_FL,
+			ev4sio_PxGetFoundation().error(ev4sio_physx::PxErrorCode::eDEBUG_WARNING, PX_FL,
 				"Grid of hair system appears very large (%i by %i by %i). Double check ratio of segment"
 				" length (%f) to extent of the hair system defined by the vertices (%f, %f, %f).",
 				llCore.mParams.mGridSize[0], llCore.mParams.mGridSize[1], llCore.mParams.mGridSize[2],
@@ -773,7 +773,7 @@ namespace physx
 		PX_CHECK_AND_RETURN(!((uintptr_t)static_cast<const void *>(vertexVelocities) & 15), "PxHairSystem::setTopology vertexVelocities not aligned to 16 bytes");
 		PX_CHECK_AND_RETURN(numVertices < (1 << 24), "PxHairSystem::setTopology numVertices must be smaller than 1<<24"); // due to encoding compressedVtxIndex with hairsystem index
 
-		Dy::HairSystemCore& llCore = mCore.getShapeCore().getLLCore();
+		ev4sio_Dy::HairSystemCore& llCore = mCore.getShapeCore().getLLCore();
 
 		// release internal buffers if they're not needed anymore
 		if (vertexPositionsInvMass != mPosInvMassInternal.begin())
@@ -797,9 +797,9 @@ namespace physx
 
 		setLlGridSize(bounds);
 
-		llCore.mDirtyFlags |= Dy::HairSystemDirtyFlag::eNUM_STRANDS_OR_VERTS |
-			Dy::HairSystemDirtyFlag::ePOSITIONS_VELOCITIES_MASS | Dy::HairSystemDirtyFlag::ePARAMETERS |
-			Dy::HairSystemDirtyFlag::eSTRAND_LENGTHS | Dy::HairSystemDirtyFlag::eGRID_SIZE;
+		llCore.mDirtyFlags |= ev4sio_Dy::HairSystemDirtyFlag::eNUM_STRANDS_OR_VERTS |
+			ev4sio_Dy::HairSystemDirtyFlag::ePOSITIONS_VELOCITIES_MASS | ev4sio_Dy::HairSystemDirtyFlag::ePARAMETERS |
+			ev4sio_Dy::HairSystemDirtyFlag::eSTRAND_LENGTHS | ev4sio_Dy::HairSystemDirtyFlag::eGRID_SIZE;
 	}
 
 	void NpHairSystem::setLevelOfDetailGradations(const PxReal* proportionOfStrands, const PxReal* proportionOfVertices,
@@ -818,30 +818,30 @@ namespace physx
 		mLodProportionOfVertices.assign(proportionOfVertices, proportionOfVertices + numLevels);
 
 		// TODO(jcarius) check that hair system is initialized already
-		Dy::HairSystemCore& llCore = mCore.getShapeCore().getLLCore();
+		ev4sio_Dy::HairSystemCore& llCore = mCore.getShapeCore().getLLCore();
 		llCore.mLodNumLevels = numLevels;
 		llCore.mLodProportionOfStrands = mLodProportionOfStrands.begin();
 		llCore.mLodProportionOfVertices = mLodProportionOfVertices.begin();
 
-		llCore.mDirtyFlags |= Dy::HairSystemDirtyFlag::eLOD_DATA;
+		llCore.mDirtyFlags |= ev4sio_Dy::HairSystemDirtyFlag::eLOD_DATA;
 
 		// in case the level that we were on got removed switch to closest one
 		if(llCore.mLodLevel > numLevels)
 		{
 			llCore.mLodLevel = numLevels;
-			llCore.mDirtyFlags |= Dy::HairSystemDirtyFlag::eLOD_SWITCH;
+			llCore.mDirtyFlags |= ev4sio_Dy::HairSystemDirtyFlag::eLOD_SWITCH;
 		}
 	}
 
 	void NpHairSystem::setLevelOfDetail(PxU32 level)
 	{
 		NP_WRITE_CHECK(getNpScene());
-		Dy::HairSystemCore& llCore = mCore.getShapeCore().getLLCore();
+		ev4sio_Dy::HairSystemCore& llCore = mCore.getShapeCore().getLLCore();
 		PX_CHECK_AND_RETURN(level == 0 || llCore.mLodNumLevels >= level, "PxHairSystem::setLevelOfDetail Invalid level given");
 
 		llCore.mLodLevel = level;
 
-		llCore.mDirtyFlags |= Dy::HairSystemDirtyFlag::eLOD_SWITCH;
+		llCore.mDirtyFlags |= ev4sio_Dy::HairSystemDirtyFlag::eLOD_SWITCH;
 	}
 
 	PxU32 NpHairSystem::getLevelOfDetail(PxU32* numLevels) const
@@ -869,7 +869,7 @@ namespace physx
 	void NpHairSystem::getSegmentDimensions(PxReal& length, PxReal& radius) const
 	{
 		NP_READ_CHECK(getNpScene());
-		const Dy::HairSystemCore& llCore = mCore.getShapeCore().getLLCore();
+		const ev4sio_Dy::HairSystemCore& llCore = mCore.getShapeCore().getLLCore();
 		length = llCore.mParams.mSegmentLength;
 		radius = llCore.mParams.mSegmentRadius;
 	}
@@ -877,29 +877,29 @@ namespace physx
 	void NpHairSystem::setSegmentRadius(PxReal radius)
 	{
 		NP_WRITE_CHECK(getNpScene());
-		Dy::HairSystemCore& llCore = mCore.getShapeCore().getLLCore();
+		ev4sio_Dy::HairSystemCore& llCore = mCore.getShapeCore().getLLCore();
 		PX_CHECK_AND_RETURN(2.0f * radius < llCore.mParams.mSegmentLength, "PxHairSystem::setSegmentRadius radius must be smaller than half of segment length. Call ignored");
 
 		llCore.mParams.mSegmentRadius = radius;
 		mCore.setContactOffset(2.0f * radius); // sensible default
-		llCore.mDirtyFlags |= Dy::HairSystemDirtyFlag::ePARAMETERS;
+		llCore.mDirtyFlags |= ev4sio_Dy::HairSystemDirtyFlag::ePARAMETERS;
 	}
 
 	void NpHairSystem::setWind(const PxVec3& wind)
 	{
 		NP_WRITE_CHECK(getNpScene());
-		Dy::HairSystemCore& llCore = mCore.getShapeCore().getLLCore();
+		ev4sio_Dy::HairSystemCore& llCore = mCore.getShapeCore().getLLCore();
 
 		PxVec3 windNormalized = wind;
 		const PxReal magnitude = windNormalized.normalize();
 		llCore.mWind = PxVec4(windNormalized, magnitude);
-		llCore.mDirtyFlags |= Dy::HairSystemDirtyFlag::ePARAMETERS;
+		llCore.mDirtyFlags |= ev4sio_Dy::HairSystemDirtyFlag::ePARAMETERS;
 	}
 
 	PxVec3 NpHairSystem::getWind() const
 	{
 		NP_READ_CHECK(getNpScene());
-		const Dy::HairSystemCore& llCore = mCore.getShapeCore().getLLCore();
+		const ev4sio_Dy::HairSystemCore& llCore = mCore.getShapeCore().getLLCore();
 		return llCore.mWind.getXYZ() * llCore.mWind.w;
 	}
 
@@ -908,9 +908,9 @@ namespace physx
 		NP_WRITE_CHECK(getNpScene());
 		PX_CHECK_AND_RETURN(dragCoefficient >= 0.0f, "PxHairSystem::setAerodynamicDrag: dragCoefficient must be greater or equal zero.");
 
-		Dy::HairSystemCore& llCore = mCore.getShapeCore().getLLCore();
+		ev4sio_Dy::HairSystemCore& llCore = mCore.getShapeCore().getLLCore();
 		llCore.mParams.mAeroDrag = dragCoefficient;
-		llCore.mDirtyFlags |= Dy::HairSystemDirtyFlag::ePARAMETERS;
+		llCore.mDirtyFlags |= ev4sio_Dy::HairSystemDirtyFlag::ePARAMETERS;
 	}
 
 	void NpHairSystem::setAerodynamicLift(PxReal liftCoefficient)
@@ -918,22 +918,22 @@ namespace physx
 		NP_WRITE_CHECK(getNpScene());
 		PX_CHECK_AND_RETURN(liftCoefficient >= 0.0f, "PxHairSystem::setAerodynamicLift: liftCoefficient must be greater or equal zero.");
 
-		Dy::HairSystemCore& llCore = mCore.getShapeCore().getLLCore();
+		ev4sio_Dy::HairSystemCore& llCore = mCore.getShapeCore().getLLCore();
 		llCore.mParams.mAeroLift = liftCoefficient;
-		llCore.mDirtyFlags |= Dy::HairSystemDirtyFlag::ePARAMETERS;
+		llCore.mDirtyFlags |= ev4sio_Dy::HairSystemDirtyFlag::ePARAMETERS;
 	}
 
 	PxReal NpHairSystem::getAerodynamicDrag() const
 	{
 		NP_READ_CHECK(getNpScene());
-		const Dy::HairSystemCore& llCore = mCore.getShapeCore().getLLCore();
+		const ev4sio_Dy::HairSystemCore& llCore = mCore.getShapeCore().getLLCore();
 		return llCore.mParams.mAeroDrag;
 	}
 
 	PxReal NpHairSystem::getAerodynamicLift() const
 	{
 		NP_READ_CHECK(getNpScene());
-		const Dy::HairSystemCore& llCore = mCore.getShapeCore().getLLCore();
+		const ev4sio_Dy::HairSystemCore& llCore = mCore.getShapeCore().getLLCore();
 		return llCore.mParams.mAeroLift;
 	}
 
@@ -944,18 +944,18 @@ namespace physx
 		PX_CHECK_AND_RETURN(interHairVelDamping <= 1.0f, "PxHairSystem::setFrictionParameters interHairVelDamping must be smaller or equal one.");
 		PX_CHECK_AND_RETURN(frictionCoeff >= 0.0f, "PxHairSystem::setFrictionParameters frictionCoeff must be greater or equal zero.");
 
-		Dy::HairSystemCore& llCore = mCore.getShapeCore().getLLCore();
+		ev4sio_Dy::HairSystemCore& llCore = mCore.getShapeCore().getLLCore();
 
 		llCore.mParams.mInterHairVelocityDamping = interHairVelDamping;
 		llCore.mParams.mFrictionCoeff = frictionCoeff;
 
-		llCore.mDirtyFlags |= Dy::HairSystemDirtyFlag::ePARAMETERS;
+		llCore.mDirtyFlags |= ev4sio_Dy::HairSystemDirtyFlag::ePARAMETERS;
 	}
 
 	void NpHairSystem::getFrictionParameters(PxReal& interHairVelDamping, PxReal& frictionCoeff) const
 	{
 		NP_READ_CHECK(getNpScene());
-		const Dy::HairSystemCore& llCore = mCore.getShapeCore().getLLCore();
+		const ev4sio_Dy::HairSystemCore& llCore = mCore.getShapeCore().getLLCore();
 		interHairVelDamping = llCore.mParams.mInterHairVelocityDamping;
 		frictionCoeff = llCore.mParams.mFrictionCoeff;
 	}
@@ -965,17 +965,17 @@ namespace physx
 		NP_WRITE_CHECK(getNpScene());
 		PX_CHECK_AND_RETURN(maxDepenetrationVelocity > 0.0f, "PxHairSystem::setMaxDepenetrationVelocity maxDepenetrationVelocity must be larger than zero.");
 
-		Dy::HairSystemCore& llCore = mCore.getShapeCore().getLLCore();
+		ev4sio_Dy::HairSystemCore& llCore = mCore.getShapeCore().getLLCore();
 
 		llCore.mParams.mMaxDepenetrationVelocity = maxDepenetrationVelocity;
 
-		llCore.mDirtyFlags |= Dy::HairSystemDirtyFlag::ePARAMETERS;
+		llCore.mDirtyFlags |= ev4sio_Dy::HairSystemDirtyFlag::ePARAMETERS;
 	}
 
 	PxReal NpHairSystem::getMaxDepenetrationVelocity() const
 	{
 		NP_READ_CHECK(getNpScene());
-		const Dy::HairSystemCore& llCore = mCore.getShapeCore().getLLCore();
+		const ev4sio_Dy::HairSystemCore& llCore = mCore.getShapeCore().getLLCore();
 		return llCore.mParams.mMaxDepenetrationVelocity;
 	}
 
@@ -984,19 +984,19 @@ namespace physx
 		NP_WRITE_CHECK(getNpScene());
 		PX_CHECK_AND_RETURN(strandRatio >= 0.0f, "PxHairSystem::setShapeCompliance strandRatio must not be negative.");
 
-		Dy::HairSystemCore& llCore = mCore.getShapeCore().getLLCore();
+		ev4sio_Dy::HairSystemCore& llCore = mCore.getShapeCore().getLLCore();
 		PX_CHECK_AND_RETURN(llCore.mRestPositionsD, "PxHairSystem::setShapeCompliance restPositions must be set before enabling shape compliance");
 
 		llCore.mParams.mShapeCompliance[0] = startCompliance;
 		llCore.mParams.mShapeCompliance[1] = strandRatio;
 
-		llCore.mDirtyFlags |= Dy::HairSystemDirtyFlag::ePARAMETERS;
+		llCore.mDirtyFlags |= ev4sio_Dy::HairSystemDirtyFlag::ePARAMETERS;
 	}
 
 	void NpHairSystem::getShapeCompliance(PxReal& startCompliance, PxReal& strandRatio) const
 	{
 		NP_READ_CHECK(getNpScene());
-		const Dy::HairSystemCore& llCore = mCore.getShapeCore().getLLCore();
+		const ev4sio_Dy::HairSystemCore& llCore = mCore.getShapeCore().getLLCore();
 		startCompliance = llCore.mParams.mShapeCompliance[0];
 		strandRatio = llCore.mParams.mShapeCompliance[1];
 	}
@@ -1006,15 +1006,15 @@ namespace physx
 		NP_WRITE_CHECK(getNpScene());
 		PX_CHECK_AND_RETURN(repulsion >= 0.0f, "PxHairSystem::setInterHairRepulsion repulsion must not be negative.");
 
-		Dy::HairSystemCore& llCore = mCore.getShapeCore().getLLCore();
+		ev4sio_Dy::HairSystemCore& llCore = mCore.getShapeCore().getLLCore();
 		llCore.mParams.mInterHairRepulsion = repulsion;
-		llCore.mDirtyFlags |= Dy::HairSystemDirtyFlag::ePARAMETERS;
+		llCore.mDirtyFlags |= ev4sio_Dy::HairSystemDirtyFlag::ePARAMETERS;
 	}
 
 	PxReal NpHairSystem::getInterHairRepulsion() const
 	{
 		NP_READ_CHECK(getNpScene());
-		const Dy::HairSystemCore& llCore = mCore.getShapeCore().getLLCore();
+		const ev4sio_Dy::HairSystemCore& llCore = mCore.getShapeCore().getLLCore();
 		return llCore.mParams.mInterHairRepulsion;
 	}
 
@@ -1024,15 +1024,15 @@ namespace physx
 		PX_CHECK_AND_RETURN(relaxation > 0.0f, "PxHairSystem::setSelfCollisionRelaxation relaxation must be greater zero.");
 		PX_CHECK_AND_RETURN(relaxation <= 1.0f, "PxHairSystem::setSelfCollisionRelaxation relaxation must not be greater 1.0.");
 
-		Dy::HairSystemCore& llCore = mCore.getShapeCore().getLLCore();
+		ev4sio_Dy::HairSystemCore& llCore = mCore.getShapeCore().getLLCore();
 		llCore.mParams.mSelfCollisionRelaxation = relaxation;
-		llCore.mDirtyFlags |= Dy::HairSystemDirtyFlag::ePARAMETERS;
+		llCore.mDirtyFlags |= ev4sio_Dy::HairSystemDirtyFlag::ePARAMETERS;
 	}
 
 	PxReal NpHairSystem::getSelfCollisionRelaxation() const
 	{
 		NP_READ_CHECK(getNpScene());
-		const Dy::HairSystemCore& llCore = mCore.getShapeCore().getLLCore();
+		const ev4sio_Dy::HairSystemCore& llCore = mCore.getShapeCore().getLLCore();
 		return llCore.mParams.mSelfCollisionRelaxation;
 	}
 
@@ -1042,15 +1042,15 @@ namespace physx
 		PX_CHECK_AND_RETURN(relaxation > 0.0f, "PxHairSystem::setStretchingRelaxation relaxation must be greater zero.");
 		PX_CHECK_AND_RETURN(relaxation <= 1.0f, "PxHairSystem::setStretchingRelaxation relaxation must not be greater 1.0.");
 
-		Dy::HairSystemCore& llCore = mCore.getShapeCore().getLLCore();
+		ev4sio_Dy::HairSystemCore& llCore = mCore.getShapeCore().getLLCore();
 		llCore.mParams.mLraRelaxation = relaxation;
-		llCore.mDirtyFlags |= Dy::HairSystemDirtyFlag::ePARAMETERS;
+		llCore.mDirtyFlags |= ev4sio_Dy::HairSystemDirtyFlag::ePARAMETERS;
 	}
 
 	PxReal NpHairSystem::getStretchingRelaxation() const
 	{
 		NP_READ_CHECK(getNpScene());
-		const Dy::HairSystemCore& llCore = mCore.getShapeCore().getLLCore();
+		const ev4sio_Dy::HairSystemCore& llCore = mCore.getShapeCore().getLLCore();
 		return llCore.mParams.mLraRelaxation;
 	}
 
@@ -1061,8 +1061,8 @@ namespace physx
 
 		mCore.setContactOffset(contactOffset);
 
-		Dy::HairSystemCore& llCore = mCore.getShapeCore().getLLCore();
-		llCore.mDirtyFlags |= Dy::HairSystemDirtyFlag::ePARAMETERS;
+		ev4sio_Dy::HairSystemCore& llCore = mCore.getShapeCore().getLLCore();
+		llCore.mDirtyFlags |= ev4sio_Dy::HairSystemDirtyFlag::ePARAMETERS;
 	}
 
 	PxReal NpHairSystem::getContactOffset() const
@@ -1076,15 +1076,15 @@ namespace physx
 		NP_WRITE_CHECK(getNpScene());
 		PX_CHECK_AND_RETURN(hairContactOffset >= 1.0f, "PxHairSystem::setHairContactOffset hairContactOffset must not be below 1.0.");
 
-		Dy::HairSystemCore& llCore = mCore.getShapeCore().getLLCore();
+		ev4sio_Dy::HairSystemCore& llCore = mCore.getShapeCore().getLLCore();
 		llCore.mParams.mSelfCollisionContactDist = hairContactOffset;
-		llCore.mDirtyFlags |= Dy::HairSystemDirtyFlag::ePARAMETERS;
+		llCore.mDirtyFlags |= ev4sio_Dy::HairSystemDirtyFlag::ePARAMETERS;
 	}
 
 	PxReal NpHairSystem::getHairContactOffset() const
 	{
 		NP_READ_CHECK(getNpScene());
-		const Dy::HairSystemCore& llCore = mCore.getShapeCore().getLLCore();
+		const ev4sio_Dy::HairSystemCore& llCore = mCore.getShapeCore().getLLCore();
 		return llCore.mParams.mSelfCollisionContactDist;
 	}
 
@@ -1097,7 +1097,7 @@ namespace physx
 		PX_CHECK_AND_RETURN(numVerticesPerGroup > 1, "PxHairSystem::setShapeMatchingParameters numVerticesPerGroup must be greater 1.");
 		PX_CHECK_AND_RETURN(numVerticesPerGroup >= 2 * numVerticesOverlap, "PxHairSystem::setShapeMatchingParameters numVerticesOverlap must at most be numVerticesPerGroup/2.");
 
-		Dy::HairSystemCore& llCore = mCore.getShapeCore().getLLCore();
+		ev4sio_Dy::HairSystemCore& llCore = mCore.getShapeCore().getLLCore();
 		PX_CHECK_AND_RETURN(llCore.mRestPositionsD, "PxHairSystem::setShapeMatchingParameters restPositions must be set before enabling shape compliance");
 
 		llCore.mParams.mShapeMatchingCompliance = compliance;
@@ -1105,16 +1105,16 @@ namespace physx
 		llCore.mParams.mShapeMatchingNumVertsPerGroup = numVerticesPerGroup;
 		llCore.mParams.mShapeMatchingNumVertsOverlap = numVerticesOverlap;
 
-		llCore.mDirtyFlags |= Dy::HairSystemDirtyFlag::eSHAPE_MATCHING_SIZES;
+		llCore.mDirtyFlags |= ev4sio_Dy::HairSystemDirtyFlag::eSHAPE_MATCHING_SIZES;
 	}
 
 	PxReal NpHairSystem::getShapeMatchingCompliance() const
 	{
 		NP_READ_CHECK(getNpScene());
-		const Dy::HairSystemCore& llCore = mCore.getShapeCore().getLLCore();
+		const ev4sio_Dy::HairSystemCore& llCore = mCore.getShapeCore().getLLCore();
 		return llCore.mParams.mShapeMatchingCompliance;
 	}
 #endif
-} // namespace physx
+} // namespace ev4sio_physx
 
 #endif //PX_SUPPORT_GPU_PHYSX

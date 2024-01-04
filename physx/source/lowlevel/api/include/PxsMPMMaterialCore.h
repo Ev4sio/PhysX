@@ -33,7 +33,7 @@
 #include "PxsMaterialShared.h"
 #include "PxMPMMaterial.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	struct PxsMPMMaterialData : public PxsParticleMaterialData
 	{

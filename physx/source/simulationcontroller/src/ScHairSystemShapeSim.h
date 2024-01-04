@@ -33,9 +33,9 @@
 #include "ScElementSim.h"
 #include "ScShapeSimBase.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-	namespace Sc
+	namespace ev4sio_Sc
 	{
 		class HairSystemSim;
 		class HairSystemShapeCore;
@@ -66,7 +66,7 @@ namespace physx
 
 		};
 
-	} // namespace Sc
+	} // namespace ev4sio_Sc
 }
 #endif
 

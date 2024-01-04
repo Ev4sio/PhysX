@@ -33,7 +33,7 @@
 
 //Memory events define their own event stream
 
-namespace physx { namespace profile {
+namespace ev4sio_physx { namespace profile {
 	struct MemoryEventTypes
 	{
 		enum Enum
@@ -402,7 +402,7 @@ namespace physx { namespace profile {
 	template<typename TRetVal, typename TOperator>
 	inline TRetVal MemoryEvent::visit( TOperator inOp ) const
 	{ 
-		return physx::profile::visit<TRetVal>( mHeader.getType(), mData, inOp ); 
+		return ev4sio_physx::profile::visit<TRetVal>( mHeader.getType(), mData, inOp ); 
 	}
 }}
 

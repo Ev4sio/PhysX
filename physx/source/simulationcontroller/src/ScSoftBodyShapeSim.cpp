@@ -38,11 +38,11 @@
 #include "BpAABBManager.h"
 #include "geometry/PxTetrahedronMesh.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Sc::SoftBodyShapeSim::SoftBodyShapeSim(SoftBodySim& softBody) :
+ev4sio_Sc::SoftBodyShapeSim::SoftBodyShapeSim(SoftBodySim& softBody) :
 	ShapeSimBase(softBody, NULL),
 	initialTransform(PxVec3(0, 0, 0)),
 	initialScale(1.0f)
@@ -51,7 +51,7 @@ Sc::SoftBodyShapeSim::SoftBodyShapeSim(SoftBodySim& softBody) :
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Sc::SoftBodyShapeSim::~SoftBodyShapeSim()
+ev4sio_Sc::SoftBodyShapeSim::~SoftBodyShapeSim()
 {
 	if (isInBroadPhase())
 		destroyLowLevelVolume();
@@ -60,7 +60,7 @@ Sc::SoftBodyShapeSim::~SoftBodyShapeSim()
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void Sc::SoftBodyShapeSim::attachShapeCore(const Sc::ShapeCore* shapeCore)
+void ev4sio_Sc::SoftBodyShapeSim::attachShapeCore(const ev4sio_Sc::ShapeCore* shapeCore)
 {
 	setCore(shapeCore);
 	createLowLevelVolume();
@@ -68,7 +68,7 @@ void Sc::SoftBodyShapeSim::attachShapeCore(const Sc::ShapeCore* shapeCore)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Sc::SoftBodyShapeSim::getFilterInfo(PxFilterObjectAttributes& filterAttr, PxFilterData& filterData) const
+void ev4sio_Sc::SoftBodyShapeSim::getFilterInfo(PxFilterObjectAttributes& filterAttr, PxFilterData& filterData) const
 {
 	filterAttr = 0;
 	setFilterObjectAttributeType(filterAttr, PxFilterObjectType::eSOFTBODY);
@@ -77,7 +77,7 @@ void Sc::SoftBodyShapeSim::getFilterInfo(PxFilterObjectAttributes& filterAttr, P
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Sc::SoftBodyShapeSim::updateBounds()
+void ev4sio_Sc::SoftBodyShapeSim::updateBounds()
 {
 	Scene& scene = getScene();
 	
@@ -87,14 +87,14 @@ void Sc::SoftBodyShapeSim::updateBounds()
 	scene.getAABBManager()->getChangedAABBMgActorHandleMap().growAndSet(getElementID());
 }
 
-void Sc::SoftBodyShapeSim::updateBoundsInAABBMgr()
+void ev4sio_Sc::SoftBodyShapeSim::updateBoundsInAABBMgr()
 {
 	Scene& scene = getScene();
 	scene.getAABBManager()->getChangedAABBMgActorHandleMap().growAndSet(getElementID());
 	scene.getAABBManager()->setGPUStateChanged();
 }
 
-PxBounds3 Sc::SoftBodyShapeSim::getBounds() const
+PxBounds3 ev4sio_Sc::SoftBodyShapeSim::getBounds() const
 {
 	PxBounds3 bounds = getScene().getBoundsArray().getBounds(getElementID());
 	return bounds;
@@ -102,7 +102,7 @@ PxBounds3 Sc::SoftBodyShapeSim::getBounds() const
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Sc::SoftBodyShapeSim::createLowLevelVolume()
+void ev4sio_Sc::SoftBodyShapeSim::createLowLevelVolume()
 {
 	PX_ASSERT(getWorldBounds().isFinite());
 
@@ -111,9 +111,9 @@ void Sc::SoftBodyShapeSim::createLowLevelVolume()
 	getScene().getBoundsArray().setBounds(getWorldBounds(), index);
 
 	{
-		const PxU32 group = Bp::FilterGroup::eDYNAMICS_BASE + getActor().getActorID();
-		const PxU32 type = Bp::FilterType::SOFTBODY;
-		addToAABBMgr(getCore().getContactOffset(), Bp::FilterGroup::Enum((group << BP_FILTERING_TYPE_SHIFT_BIT) | type), Bp::ElementType::eSHAPE);
+		const PxU32 group = ev4sio_Bp::FilterGroup::eDYNAMICS_BASE + getActor().getActorID();
+		const PxU32 type = ev4sio_Bp::FilterType::SOFTBODY;
+		addToAABBMgr(getCore().getContactOffset(), ev4sio_Bp::FilterGroup::Enum((group << BP_FILTERING_TYPE_SHIFT_BIT) | type), ev4sio_Bp::ElementType::eSHAPE);
 	}
 
 	// PT: TODO: what's the difference between "getContactOffset()" and "getCore().getContactOffset()" above?
@@ -129,19 +129,19 @@ void Sc::SoftBodyShapeSim::createLowLevelVolume()
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Sc::SoftBodyShapeSim::destroyLowLevelVolume()
+void ev4sio_Sc::SoftBodyShapeSim::destroyLowLevelVolume()
 {
 	if (!isInBroadPhase())
 		return;
 
-	Sc::Scene& scene = getScene();
+	ev4sio_Sc::Scene& scene = getScene();
 	PxsContactManagerOutputIterator outputs = scene.getLowLevelContext()->getNphaseImplementationContext()->getContactManagerOutputs();
 	scene.getNPhaseCore()->onVolumeRemoved(this, PairReleaseFlag::eWAKE_ON_LOST_TOUCH, outputs);
 	removeFromAABBMgr();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-PxBounds3 Sc::SoftBodyShapeSim::getWorldBounds() const
+PxBounds3 ev4sio_Sc::SoftBodyShapeSim::getWorldBounds() const
 {
 	const PxTetrahedronMeshGeometry& tetGeom = static_cast<const PxTetrahedronMeshGeometry&>(getCore().getGeometry());
 	PxTetrahedronMesh* tetMesh = tetGeom.tetrahedronMesh;
@@ -155,7 +155,7 @@ PxBounds3 Sc::SoftBodyShapeSim::getWorldBounds() const
 	return bounds;
 }
 
-Sc::SoftBodySim& Sc::SoftBodyShapeSim::getBodySim()	const 
+ev4sio_Sc::SoftBodySim& ev4sio_Sc::SoftBodyShapeSim::getBodySim()	const 
 { 
 	return static_cast<SoftBodySim&>(getActor());
 }

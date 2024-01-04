@@ -32,9 +32,9 @@
 #include "ScArticulationSensorSim.h"
 #include "NpArticulationReducedCoordinate.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
-namespace physx
+namespace ev4sio_physx
 {
 
 // PX_SERIALIZATION
@@ -68,7 +68,7 @@ void NpArticulationSensor::release()
 {
 	if (getNpScene())
 	{
-		PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxArticulationSensor::release() not allowed while the articulation is in a scene. Call will be ignored.");
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxArticulationSensor::release() not allowed while the articulation is in a scene. Call will be ignored.");
 		return;
 	}
 

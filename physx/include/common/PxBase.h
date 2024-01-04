@@ -45,13 +45,13 @@
 	PX_ASSERT(query != NULL);                                                                                          \
 	if(query == NULL)                                                                                                  \
 	{                                                                                                                  \
-		PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "isKindOf called with invalid string");        \
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "isKindOf called with invalid string");        \
 		return false;                                                                                                  \
 	}                                                                                                                  \
 	return !Pxstrcmp(classname, query) || baseclass::isKindOf(query)
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -236,7 +236,7 @@ protected:
 };
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 /** @} */

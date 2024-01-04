@@ -34,11 +34,11 @@
 #include "foundation/PxVecMath.h"
 #include "foundation/PxUserAllocated.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 using namespace aos;
 
-namespace Gu
+namespace ev4sio_Gu
 {
 	struct BVHNode : public PxUserAllocated
 	{
@@ -92,7 +92,7 @@ namespace Gu
 						PxU32			mData;	// 27 bits node or prim index|4 bits #prims|1 bit leaf
 	};
 
-} // namespace Gu
+} // namespace ev4sio_Gu
 }
 
 #endif // GU_AABBTREE_NODE_H

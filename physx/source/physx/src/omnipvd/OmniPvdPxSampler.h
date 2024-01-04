@@ -36,7 +36,7 @@
 #include "foundation/PxUserAllocated.h"
 #include "OmniPvdChunkAlloc.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	class PxScene;
 	class PxBase;
@@ -58,17 +58,17 @@ namespace physx
 	class NpOmniPvd;
 }
 
-void streamActorName(const physx::PxActor & a, const char* name);
-void streamSceneName(const physx::PxScene & s, const char* name);
+void streamActorName(const ev4sio_physx::PxActor & a, const char* name);
+void streamSceneName(const ev4sio_physx::PxScene & s, const char* name);
 
-void streamShapeMaterials(const physx::PxShape&, physx::PxMaterial* const * mats, physx::PxU32 nbrMaterials);
-void streamShapeMaterials(const physx::PxShape&, physx::PxFEMClothMaterial* const * mats, physx::PxU32 nbrMaterials);
-void streamShapeMaterials(const physx::PxShape&, physx::PxFEMMaterial* const * mats, physx::PxU32 nbrMaterials);
-void streamShapeMaterials(const physx::PxShape&, physx::PxFEMSoftBodyMaterial* const * mats, physx::PxU32 nbrMaterials);
-void streamShapeMaterials(const physx::PxShape&, physx::PxFLIPMaterial* const * mats, physx::PxU32 nbrMaterials);
-void streamShapeMaterials(const physx::PxShape&, physx::PxMPMMaterial* const * mats, physx::PxU32 nbrMaterials);
-void streamShapeMaterials(const physx::PxShape&, physx::PxParticleMaterial* const * mats, physx::PxU32 nbrMaterials);
-void streamShapeMaterials(const physx::PxShape&, physx::PxPBDMaterial* const * mats, physx::PxU32 nbrMaterials);
+void streamShapeMaterials(const ev4sio_physx::PxShape&, ev4sio_physx::PxMaterial* const * mats, ev4sio_physx::PxU32 nbrMaterials);
+void streamShapeMaterials(const ev4sio_physx::PxShape&, ev4sio_physx::PxFEMClothMaterial* const * mats, ev4sio_physx::PxU32 nbrMaterials);
+void streamShapeMaterials(const ev4sio_physx::PxShape&, ev4sio_physx::PxFEMMaterial* const * mats, ev4sio_physx::PxU32 nbrMaterials);
+void streamShapeMaterials(const ev4sio_physx::PxShape&, ev4sio_physx::PxFEMSoftBodyMaterial* const * mats, ev4sio_physx::PxU32 nbrMaterials);
+void streamShapeMaterials(const ev4sio_physx::PxShape&, ev4sio_physx::PxFLIPMaterial* const * mats, ev4sio_physx::PxU32 nbrMaterials);
+void streamShapeMaterials(const ev4sio_physx::PxShape&, ev4sio_physx::PxMPMMaterial* const * mats, ev4sio_physx::PxU32 nbrMaterials);
+void streamShapeMaterials(const ev4sio_physx::PxShape&, ev4sio_physx::PxParticleMaterial* const * mats, ev4sio_physx::PxU32 nbrMaterials);
+void streamShapeMaterials(const ev4sio_physx::PxShape&, ev4sio_physx::PxPBDMaterial* const * mats, ev4sio_physx::PxU32 nbrMaterials);
 
 
 enum OmniPvdSharedMeshEnum {
@@ -81,33 +81,33 @@ class OmniPvdWriter;
 class OmniPvdPxScene;
 
 
-class OmniPvdPxSampler : public physx::PxUserAllocated
+class OmniPvdPxSampler : public ev4sio_physx::PxUserAllocated
 {
 public:
 	OmniPvdPxSampler();
 	~OmniPvdPxSampler();
 	void startSampling();
 	bool isSampling();
-	void setOmniPvdInstance(physx::NpOmniPvd* omniPvdIntance);
+	void setOmniPvdInstance(ev4sio_physx::NpOmniPvd* omniPvdIntance);
 
 	// writes all contacts to the stream
-	void streamSceneContacts(physx::NpScene& scene);
+	void streamSceneContacts(ev4sio_physx::NpScene& scene);
 
 	// call at the end of a simulation step: 
-	void sampleScene(physx::NpScene* scene);
+	void sampleScene(ev4sio_physx::NpScene* scene);
 
 	static OmniPvdPxSampler* getInstance();
 
-	void onObjectAdd(const physx::PxBase& object);
-	void onObjectRemove(const physx::PxBase& object);
+	void onObjectAdd(const ev4sio_physx::PxBase& object);
+	void onObjectRemove(const ev4sio_physx::PxBase& object);
 
 
 private:
-	OmniPvdPxScene* getSampledScene(physx::NpScene* scene);
+	OmniPvdPxScene* getSampledScene(ev4sio_physx::NpScene* scene);
 };
 
 
-namespace physx
+namespace ev4sio_physx
 {
 
 const OmniPvdPxCoreRegistrationData* NpOmniPvdGetPxCoreRegistrationData();

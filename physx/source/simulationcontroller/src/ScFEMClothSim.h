@@ -35,9 +35,9 @@
 #include "ScFEMClothShapeSim.h"
 #include "ScActorSim.h"  // to be deleted
 
-namespace physx
+namespace ev4sio_physx
 {
-	namespace Sc
+	namespace ev4sio_Sc
 	{
 		class Scene;
 		class FEMClothSim : public ActorSim
@@ -47,7 +47,7 @@ namespace physx
 			FEMClothSim(FEMClothCore& core, Scene& scene);
 			~FEMClothSim();
 
-			PX_INLINE	Dy::FEMCloth*		getLowLevelFEMCloth() const { return mLLFEMCloth; }
+			PX_INLINE	ev4sio_Dy::FEMCloth*		getLowLevelFEMCloth() const { return mLLFEMCloth; }
 			PX_INLINE	FEMClothCore&		getCore() const { return static_cast<FEMClothCore&>(mCore); }
 			virtual		PxActor*  		    getPxActor() const { return getCore().getPxActor(); }
 
@@ -67,7 +67,7 @@ namespace physx
 			FEMClothShapeSim& getShapeSim() { return mShapeSim; }
 
 		private:
-			Dy::FEMCloth*									mLLFEMCloth;
+			ev4sio_Dy::FEMCloth*									mLLFEMCloth;
 
 			FEMClothShapeSim								mShapeSim;
 
@@ -77,7 +77,7 @@ namespace physx
 							void			deactivate();
 		};
 
-	} // namespace Sc
+	} // namespace ev4sio_Sc
 }
 #endif
 

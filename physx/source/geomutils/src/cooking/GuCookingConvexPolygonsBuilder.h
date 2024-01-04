@@ -32,27 +32,27 @@
 #include "GuCookingConvexHullBuilder.h"
 #include "GuTriangle.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	//////////////////////////////////////////////////////////////////////////
 	// extended convex hull builder for a case where we build polygons from input triangles
 	class ConvexPolygonsBuilder : public ConvexHullBuilder
 	{
 		public:
-														ConvexPolygonsBuilder(Gu::ConvexHullData* hull, const bool buildGRBData);
+														ConvexPolygonsBuilder(ev4sio_Gu::ConvexHullData* hull, const bool buildGRBData);
 														~ConvexPolygonsBuilder();
 
 						bool							computeHullPolygons(const PxU32& nbVerts,const PxVec3* verts, const PxU32& nbTriangles, const PxU32* triangles);
 
 		PX_FORCE_INLINE	PxU32							getNbFaces()const	{ return mNbHullFaces; }
-		PX_FORCE_INLINE	const Gu::IndexedTriangle32*	getFaces()	const	{ return mFaces; }
+		PX_FORCE_INLINE	const ev4sio_Gu::IndexedTriangle32*	getFaces()	const	{ return mFaces; }
 
 		private:
 						bool							createPolygonData();
 						bool							createTrianglesFromPolygons();
 		
 						PxU32							mNbHullFaces;	//!< Number of faces in the convex hull
-						Gu::IndexedTriangle32*			mFaces;			//!< Triangles.
+						ev4sio_Gu::IndexedTriangle32*			mFaces;			//!< Triangles.
 	};
 }
 

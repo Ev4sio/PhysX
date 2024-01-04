@@ -40,7 +40,7 @@
 #include "PxVehicleSerialization.h"
 #include "SnRepXSerializerImpl.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 void setVehicleToleranceScale(const PxTolerancesScale& ts);
@@ -49,10 +49,10 @@ void setSerializationRegistryPtr(const PxSerializationRegistry* sr);
 const PxSerializationRegistry* resetSerializationRegistryPtr();
 void setVehicleDefaults();
 
-bool PxInitVehicleSDK(PxPhysics& physics, PxSerializationRegistry* sr)
+bool ev4sio_PxInitVehicleSDK(PxPhysics& physics, PxSerializationRegistry* sr)
 {
-	PX_ASSERT(&physics.getFoundation() == &PxGetFoundation());
-	PxIncFoundationRefCount();
+	PX_ASSERT(&physics.getFoundation() == &ev4sio_PxGetFoundation());
+	ev4sio_PxIncFoundationRefCount();
 	setVehicleToleranceScale(physics.getTolerancesScale());
 
 	setVehicleDefaults();
@@ -78,16 +78,16 @@ bool PxInitVehicleSDK(PxPhysics& physics, PxSerializationRegistry* sr)
 	return true;
 }
 
-void PxCloseVehicleSDK(PxSerializationRegistry* sr)
+void ev4sio_PxCloseVehicleSDK(PxSerializationRegistry* sr)
 {
-	PxDecFoundationRefCount();
+	ev4sio_PxDecFoundationRefCount();
 	resetVehicleToleranceScale();
 
 	setVehicleDefaults();
 
 	if (sr != resetSerializationRegistryPtr())
 	{
-		PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "PxCloseVehicleSDK called with different PxSerializationRegistry instance than PxInitVehicleSDK.");
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "ev4sio_PxCloseVehicleSDK called with different PxSerializationRegistry instance than ev4sio_PxInitVehicleSDK.");
 		return;
 	}
 

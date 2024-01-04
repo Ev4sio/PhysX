@@ -42,15 +42,15 @@
 #include "GuGJK.h"
 #include "geometry/PxSphereGeometry.h"
 
-using namespace physx;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
 using namespace aos;
 
 ///////////////////////////////////////////////////////////////////////////////
 
 namespace
 {
-	struct HeightfieldOverlapReport : Gu::OverlapReport
+	struct HeightfieldOverlapReport : ev4sio_Gu::OverlapReport
 	{
 		PX_NOCOPY(HeightfieldOverlapReport)
 	public:

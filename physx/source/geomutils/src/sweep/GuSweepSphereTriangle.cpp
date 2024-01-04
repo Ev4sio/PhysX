@@ -50,8 +50,8 @@ static const bool gSanityCheck = false;
 // PT: alternative version that checks 2 capsules max and avoids the questionable heuristic and the whole du/dv fix
 static const bool gUseAlternativeImplementation = true;
 
-using namespace physx;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
 
 // PT: using GU_CULLING_EPSILON_RAY_TRIANGLE fails here, in capsule-vs-mesh's triangle extrusion, when
 // the sweep dir is almost the same as the capsule's dir (i.e. when we usually fallback to the sphere codepath).
@@ -200,7 +200,7 @@ static PX_FORCE_INLINE bool testRayVsSphereOrCapsule(PxReal& impactDistance, boo
 	return false;
 }
 
-bool Gu::sweepSphereVSTri(const PxVec3* PX_RESTRICT triVerts, const PxVec3& normal, const PxVec3& center, PxReal radius, const PxVec3& dir, PxReal& impactDistance, bool& directHit, bool testInitialOverlap)
+bool ev4sio_Gu::sweepSphereVSTri(const PxVec3* PX_RESTRICT triVerts, const PxVec3& normal, const PxVec3& center, PxReal radius, const PxVec3& dir, PxReal& impactDistance, bool& directHit, bool testInitialOverlap)
 {
 	// Ok, this new version is now faster than the original code. Needs more testing though.
 
@@ -453,7 +453,7 @@ bool Gu::sweepSphereVSTri(const PxVec3* PX_RESTRICT triVerts, const PxVec3& norm
 	}
 }
 
-bool Gu::sweepSphereTriangles(	PxU32 nbTris, const PxTriangle* PX_RESTRICT triangles,							// Triangle data
+bool ev4sio_Gu::sweepSphereTriangles(	PxU32 nbTris, const PxTriangle* PX_RESTRICT triangles,							// Triangle data
 								const PxVec3& center, const PxReal radius,										// Sphere data
 								const PxVec3& unitDir, PxReal distance,											// Ray data
 								const PxU32* PX_RESTRICT cachedIndex,											// Cache data
@@ -609,7 +609,7 @@ static PX_FORCE_INLINE PxU32 rayQuadSpecial3(const PxVec3& orig, const PxVec3& o
 }
 #endif
 
-bool Gu::sweepSphereVSQuad(const PxVec3* PX_RESTRICT quadVerts, const PxVec3& normal, const PxVec3& center, float radius, const PxVec3& dir, float& impactDistance)
+bool ev4sio_Gu::sweepSphereVSQuad(const PxVec3* PX_RESTRICT quadVerts, const PxVec3& normal, const PxVec3& center, float radius, const PxVec3& dir, float& impactDistance)
 {
 	// Quad formed by 2 tris:
 	// p0 p1 p2

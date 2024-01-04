@@ -41,14 +41,14 @@
 	#include "ScHairSystemSim.h"
 #endif
 
-using namespace physx;
-using namespace physx::Cm;
-using namespace physx::Dy;
-using namespace Sc;
+using namespace ev4sio_physx;
+using namespace ev4sio_physx::ev4sio_Cm;
+using namespace ev4sio_physx::ev4sio_Dy;
+using namespace ev4sio_Sc;
 
 // PT: "setActive()" moved from ActorSim to BodySim because GPU classes silently re-implement this in a very different way (see below),
 // i.e. it defeats the purpose of the virtual activate()/deactivate() functions.
-void Sc::BodySim::setActive(bool active, bool asPartOfCreation)
+void ev4sio_Sc::BodySim::setActive(bool active, bool asPartOfCreation)
 {
 	PX_ASSERT(!active || isDynamicRigid());  // Currently there should be no need to activate an actor that does not take part in island generation
 
@@ -77,7 +77,7 @@ void Sc::BodySim::setActive(bool active, bool asPartOfCreation)
 	}
 }
 
-void Sc::ArticulationSim::setActive(bool b, bool asPartOfCreation)
+void ev4sio_Sc::ArticulationSim::setActive(bool b, bool asPartOfCreation)
 {
 	const PxReal wakeCounter = mCore.getWakeCounter();
 	const PxU32 nbBodies = mBodies.size();
@@ -97,25 +97,25 @@ void Sc::ArticulationSim::setActive(bool b, bool asPartOfCreation)
 
 // PT: moving all the sleeping-related implementations to the same file clearly exposes the inconsistencies between them
 #if PX_SUPPORT_GPU_PHYSX
-void Sc::ParticleSystemSim::setActive(bool /*active*/, bool /*asPartOfCreation*/)
+void ev4sio_Sc::ParticleSystemSim::setActive(bool /*active*/, bool /*asPartOfCreation*/)
 {
 }
 
-void Sc::FEMClothSim::activate()
+void ev4sio_Sc::FEMClothSim::activate()
 {
 	mScene.getSimulationController()->activateCloth(mLLFEMCloth);
 
 	activateInteractions(*this);
 }
 
-void Sc::FEMClothSim::deactivate()
+void ev4sio_Sc::FEMClothSim::deactivate()
 {
 	mScene.getSimulationController()->deactivateCloth(mLLFEMCloth);
 
 	deactivateInteractions(*this);
 }
 
-void Sc::FEMClothSim::setActive(bool active, bool /*asPartOfCreation*/)
+void ev4sio_Sc::FEMClothSim::setActive(bool active, bool /*asPartOfCreation*/)
 {
 	if(active)
 		activate();
@@ -123,7 +123,7 @@ void Sc::FEMClothSim::setActive(bool active, bool /*asPartOfCreation*/)
 		deactivate();
 }
 
-void Sc::SoftBodySim::setActive(bool active, bool /*asPartOfCreation*/)
+void ev4sio_Sc::SoftBodySim::setActive(bool active, bool /*asPartOfCreation*/)
 {
 	if(active)
 		getScene().getSimulationController()->activateSoftbody(mLLSoftBody);
@@ -131,7 +131,7 @@ void Sc::SoftBodySim::setActive(bool active, bool /*asPartOfCreation*/)
 		getScene().getSimulationController()->deactivateSoftbody(mLLSoftBody);
 }
 
-void Sc::HairSystemSim::setActive(bool active, bool /*asPartOfCreation*/)
+void ev4sio_Sc::HairSystemSim::setActive(bool active, bool /*asPartOfCreation*/)
 {
 	if(active)
 		getScene().getSimulationController()->activateHairSystem(mLLHairSystem);
@@ -142,24 +142,24 @@ void Sc::HairSystemSim::setActive(bool active, bool /*asPartOfCreation*/)
 
 namespace
 {
-struct GetRigidSim		{ static PX_FORCE_INLINE BodySim* getSim(const IG::Node& node)			{ return reinterpret_cast<BodySim*>(reinterpret_cast<PxU8*>(node.mRigidBody) - BodySim::getRigidBodyOffset());	}	};
-struct GetArticSim		{ static PX_FORCE_INLINE ArticulationSim* getSim(const IG::Node& node)	{ return reinterpret_cast<ArticulationSim*>(node.mLLArticulation->getUserData());								}	};
+struct GetRigidSim		{ static PX_FORCE_INLINE BodySim* getSim(const ev4sio_IG::Node& node)			{ return reinterpret_cast<BodySim*>(reinterpret_cast<PxU8*>(node.mRigidBody) - BodySim::getRigidBodyOffset());	}	};
+struct GetArticSim		{ static PX_FORCE_INLINE ArticulationSim* getSim(const ev4sio_IG::Node& node)	{ return reinterpret_cast<ArticulationSim*>(node.mLLArticulation->getUserData());								}	};
 #if PX_SUPPORT_GPU_PHYSX
-struct GetSoftBodySim	{ static PX_FORCE_INLINE SoftBodySim* getSim(const IG::Node& node)		{ return node.mLLSoftBody->getSoftBodySim();																	}	};
-struct GetFEMClothSim	{ static PX_FORCE_INLINE FEMClothSim* getSim(const IG::Node& node)		{ return node.mLLFEMCloth->getFEMClothSim();																	}	};
-struct GetHairSystemSim	{ static PX_FORCE_INLINE HairSystemSim* getSim(const IG::Node& node)	{ return node.mLLHairSystem->getHairSystemSim();																}	};
+struct GetSoftBodySim	{ static PX_FORCE_INLINE SoftBodySim* getSim(const ev4sio_IG::Node& node)		{ return node.mLLSoftBody->getSoftBodySim();																	}	};
+struct GetFEMClothSim	{ static PX_FORCE_INLINE FEMClothSim* getSim(const ev4sio_IG::Node& node)		{ return node.mLLFEMCloth->getFEMClothSim();																	}	};
+struct GetHairSystemSim	{ static PX_FORCE_INLINE HairSystemSim* getSim(const ev4sio_IG::Node& node)	{ return node.mLLHairSystem->getHairSystemSim();																}	};
 #endif
 }
 
 template<class SimT, class SimAccessT, const bool active>
-static void setActive(PxU32& nbModified, const IG::IslandSim& islandSim, IG::Node::NodeType type)
+static void setActive(PxU32& nbModified, const ev4sio_IG::IslandSim& islandSim, ev4sio_IG::Node::NodeType type)
 {
 	PxU32 nbToProcess = active ? islandSim.getNbNodesToActivate(type) : islandSim.getNbNodesToDeactivate(type);
 	const PxNodeIndex* indices = active ? islandSim.getNodesToActivate(type) : islandSim.getNodesToDeactivate(type);
 
 	while(nbToProcess--)
 	{
-		const IG::Node& node = islandSim.getNode(*indices++);
+		const ev4sio_IG::Node& node = islandSim.getNode(*indices++);
 		PX_ASSERT(node.mType == type);
 		if(node.isActive()==active)
 		{
@@ -209,7 +209,7 @@ struct SetActiveRigidSim
 }
 
 template<class SimT, class SimAccessT, class SetActiveBatchedT, const bool active>
-static void setActiveBatched(Scene& scene, PxU32& nbModified, const IG::IslandSim& islandSim, IG::Node::NodeType type)
+static void setActiveBatched(Scene& scene, PxU32& nbModified, const ev4sio_IG::IslandSim& islandSim, ev4sio_IG::Node::NodeType type)
 {
 	PxU32 nbToProcess = active ? islandSim.getNbNodesToActivate(type) : islandSim.getNbNodesToDeactivate(type);
 	const PxNodeIndex* indices = active ? islandSim.getNodesToActivate(type) : islandSim.getNodesToDeactivate(type);
@@ -219,7 +219,7 @@ static void setActiveBatched(Scene& scene, PxU32& nbModified, const IG::IslandSi
 	PxU32 nb = 0;
 	while(nbToProcess--)
 	{
-		const IG::Node& node = islandSim.getNode(*indices++);
+		const ev4sio_IG::Node& node = islandSim.getNode(*indices++);
 		PX_ASSERT(node.mType == type);
 		if(node.isActive()==active)
 		{
@@ -239,7 +239,7 @@ Batched version would be just:
 a) addToActiveList(batched objects)
 b) activate(batched objects)
 
-void Sc::ActorSim::setActive(bool active)
+void ev4sio_Sc::ActorSim::setActive(bool active)
 {
 	PX_ASSERT(!active || isDynamicRigid());  // Currently there should be no need to activate an actor that does not take part in island generation
 
@@ -268,45 +268,45 @@ void Sc::ActorSim::setActive(bool active)
 */
 #endif
 
-void Sc::Scene::putObjectsToSleep()
+void ev4sio_Sc::Scene::putObjectsToSleep()
 {
-	PX_PROFILE_ZONE("Sc::Scene::putObjectsToSleep", mContextId);
+	PX_PROFILE_ZONE("ev4sio_Sc::Scene::putObjectsToSleep", mContextId);
 
 	//Set to sleep all bodies that were in awake islands that have just been put to sleep.
 
-	const IG::IslandSim& islandSim = mSimpleIslandManager->getAccurateIslandSim();
+	const ev4sio_IG::IslandSim& islandSim = mSimpleIslandManager->getAccurateIslandSim();
 
 	PxU32 nbBodiesDeactivated = 0;
-	//setActiveBatched<BodySim, GetRigidSim, SetActiveRigidSim, false>(*this, nbBodiesDeactivated, islandSim, IG::Node::eRIGID_BODY_TYPE);
-	setActive<BodySim, GetRigidSim, false>(nbBodiesDeactivated, islandSim, IG::Node::eRIGID_BODY_TYPE);
-	setActive<ArticulationSim, GetArticSim, false>(nbBodiesDeactivated, islandSim, IG::Node::eARTICULATION_TYPE);
+	//setActiveBatched<BodySim, GetRigidSim, SetActiveRigidSim, false>(*this, nbBodiesDeactivated, islandSim, ev4sio_IG::Node::eRIGID_BODY_TYPE);
+	setActive<BodySim, GetRigidSim, false>(nbBodiesDeactivated, islandSim, ev4sio_IG::Node::eRIGID_BODY_TYPE);
+	setActive<ArticulationSim, GetArticSim, false>(nbBodiesDeactivated, islandSim, ev4sio_IG::Node::eARTICULATION_TYPE);
 
 #if PX_SUPPORT_GPU_PHYSX
-	setActive<SoftBodySim, GetSoftBodySim, false>(nbBodiesDeactivated, islandSim, IG::Node::eSOFTBODY_TYPE);
-	setActive<FEMClothSim, GetFEMClothSim, false>(nbBodiesDeactivated, islandSim, IG::Node::eFEMCLOTH_TYPE);
-	setActive<HairSystemSim, GetHairSystemSim, false>(nbBodiesDeactivated, islandSim, IG::Node::eHAIRSYSTEM_TYPE);
+	setActive<SoftBodySim, GetSoftBodySim, false>(nbBodiesDeactivated, islandSim, ev4sio_IG::Node::eSOFTBODY_TYPE);
+	setActive<FEMClothSim, GetFEMClothSim, false>(nbBodiesDeactivated, islandSim, ev4sio_IG::Node::eFEMCLOTH_TYPE);
+	setActive<HairSystemSim, GetHairSystemSim, false>(nbBodiesDeactivated, islandSim, ev4sio_IG::Node::eHAIRSYSTEM_TYPE);
 #endif
 
 	if(nbBodiesDeactivated)
 		mDynamicsContext->setStateDirty(true);
 }
 
-void Sc::Scene::wakeObjectsUp()
+void ev4sio_Sc::Scene::wakeObjectsUp()
 {
-	PX_PROFILE_ZONE("Sc::Scene::wakeObjectsUp", mContextId);
+	PX_PROFILE_ZONE("ev4sio_Sc::Scene::wakeObjectsUp", mContextId);
 
 	//Wake up all bodies that were in sleeping islands that have just been hit by a moving object.
 
-	const IG::IslandSim& islandSim = mSimpleIslandManager->getAccurateIslandSim();
+	const ev4sio_IG::IslandSim& islandSim = mSimpleIslandManager->getAccurateIslandSim();
 
 	PxU32 nbBodiesWoken = 0;
-	setActive<BodySim, GetRigidSim, true>(nbBodiesWoken, islandSim, IG::Node::eRIGID_BODY_TYPE);
-	setActive<ArticulationSim, GetArticSim, true>(nbBodiesWoken, islandSim, IG::Node::eARTICULATION_TYPE);
+	setActive<BodySim, GetRigidSim, true>(nbBodiesWoken, islandSim, ev4sio_IG::Node::eRIGID_BODY_TYPE);
+	setActive<ArticulationSim, GetArticSim, true>(nbBodiesWoken, islandSim, ev4sio_IG::Node::eARTICULATION_TYPE);
 
 #if PX_SUPPORT_GPU_PHYSX
-	setActive<SoftBodySim, GetSoftBodySim, true>(nbBodiesWoken, islandSim, IG::Node::eSOFTBODY_TYPE);
-	setActive<FEMClothSim, GetFEMClothSim, true>(nbBodiesWoken, islandSim, IG::Node::eFEMCLOTH_TYPE);
-	setActive<HairSystemSim, GetHairSystemSim, true>(nbBodiesWoken, islandSim, IG::Node::eHAIRSYSTEM_TYPE);
+	setActive<SoftBodySim, GetSoftBodySim, true>(nbBodiesWoken, islandSim, ev4sio_IG::Node::eSOFTBODY_TYPE);
+	setActive<FEMClothSim, GetFEMClothSim, true>(nbBodiesWoken, islandSim, ev4sio_IG::Node::eFEMCLOTH_TYPE);
+	setActive<HairSystemSim, GetHairSystemSim, true>(nbBodiesWoken, islandSim, ev4sio_IG::Node::eHAIRSYSTEM_TYPE);
 #endif
 
 	if(nbBodiesWoken)

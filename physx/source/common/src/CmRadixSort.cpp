@@ -32,8 +32,8 @@
 
 // PT: code archeology: this initially came from ICE (IceRevisitedRadix.h/cpp). Consider putting it back the way it was initially.
 
-using namespace physx;
-using namespace Cm;
+using namespace ev4sio_physx;
+using namespace ev4sio_Cm;
 
 #if defined(__BIG_ENDIAN__) || defined(_XBOX)
 	#define H0_OFFSET	768
@@ -445,8 +445,8 @@ bool RadixSort::SetBuffers(PxU32* ranks0, PxU32* ranks1, PxU32* histogram1024, P
 
 #include "foundation/PxAllocator.h"
 
-using namespace physx;
-using namespace Cm;
+using namespace ev4sio_physx;
+using namespace ev4sio_Cm;
 
 RadixSortBuffered::RadixSortBuffered()
 : RadixSort()

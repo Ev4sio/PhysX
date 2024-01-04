@@ -43,14 +43,14 @@
 #include "solver/PxSolverDefs.h"
 #include "PxsIslandSim.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-	namespace Cm
+	namespace ev4sio_Cm
 	{
 		class FlushPool;
 	}
 
-	namespace IG
+	namespace ev4sio_IG
 	{
 		class SimpleIslandManager;
 	}
@@ -62,7 +62,7 @@ namespace physx
 	struct PxsIndexedInteraction;
 	struct PxsIndexedContactManager;
 
-	namespace Dy
+	namespace ev4sio_Dy
 	{
 		struct SolverContext;
 
@@ -73,7 +73,7 @@ namespace physx
 			FeatherstoneArticulation**	articulationOwners;
 			PxsIndexedContactManager*	contactManagers;
 
-			const IG::IslandId*			islandIds;
+			const ev4sio_IG::IslandId*			islandIds;
 			PxU32						numIslands;
 			PxU32*						bodyRemapTable;
 			PxU32*						nodeIndexArray;
@@ -82,7 +82,7 @@ namespace physx
 			PxSolverConstraintDesc*		orderedConstraintDescs;
 			PxSolverConstraintDesc*		tempConstraintDescs;
 			PxConstraintBatchHeader*	constraintBatchHeaders;
-			Cm::SpatialVector*			motionVelocities;
+			ev4sio_Cm::SpatialVector*			motionVelocities;
 			PxsBodyCore**				bodyCoreArray;
 
 			PxU32						solverBodyOffset;
@@ -155,12 +155,12 @@ class DynamicsTGSContext : public Context
 public:
 									DynamicsTGSContext(PxcNpMemBlockPool* memBlockPool,
 										PxcScratchAllocator& scratchAllocator,
-										Cm::FlushPool& taskPool,
+										ev4sio_Cm::FlushPool& taskPool,
 										PxvSimStats& simStats,
 										PxTaskManager* taskManager,
 										PxVirtualAllocatorCallback* allocator,
 										PxsMaterialManager* materialManager,
-										IG::SimpleIslandManager* islandManager,
+										ev4sio_IG::SimpleIslandManager* islandManager,
 										PxU64 contextID,
 										bool enableStabilization,
 										bool useEnhancedDeterminism,
@@ -171,7 +171,7 @@ public:
 
 	// Context
 	virtual	void						destroy()	PX_OVERRIDE;
-	virtual void						update(IG::SimpleIslandManager& simpleIslandManager, PxBaseTask* continuation, PxBaseTask* lostTouchTask,
+	virtual void						update(ev4sio_IG::SimpleIslandManager& simpleIslandManager, PxBaseTask* continuation, PxBaseTask* lostTouchTask,
 										PxvNphaseImplementationContext* nphase, PxU32 maxPatchesPerCM, PxU32 maxArticulationLinks, PxReal dt, const PxVec3& gravity, PxBitMapPinned& changedHandleMap)	PX_OVERRIDE;
 	virtual void						mergeResults()	PX_OVERRIDE;
 	virtual void						setSimulationController(PxsSimulationController* simulationController)	PX_OVERRIDE	{ mSimulationController = simulationController; }
@@ -190,12 +190,12 @@ public:
 	*/
 					void				putThreadContext(ThreadContext* context)	{ mThreadContextPool.put(context);	}
 
-	PX_FORCE_INLINE Cm::FlushPool&		getTaskPool()					{ return mTaskPool;			}
+	PX_FORCE_INLINE ev4sio_Cm::FlushPool&		getTaskPool()					{ return mTaskPool;			}
 	PX_FORCE_INLINE ThresholdStream&	getThresholdStream()			{ return *mThresholdStream; }
 	PX_FORCE_INLINE PxvSimStats&		getSimStats()					{ return mSimStats;			}
 	PX_FORCE_INLINE	PxU32				getKinematicCount()		const	{ return mKinematicCount;	}
 
-					void				updatePostKinematic(IG::SimpleIslandManager& simpleIslandManager, PxBaseTask* continuation, PxBaseTask* lostTouchTask, PxU32 maxLinks);
+					void				updatePostKinematic(ev4sio_IG::SimpleIslandManager& simpleIslandManager, PxBaseTask* continuation, PxBaseTask* lostTouchTask, PxU32 maxLinks);
 protected:
 
 	// PT: TODO: the thread stats are missing for TGS
@@ -217,24 +217,24 @@ protected:
 			\param[in,out] desc The PxSolverConstraintDesc
 			\param[in] constraint The PxsIndexedInteraction
 			*/
-			void								setDescFromIndices(PxSolverConstraintDesc& desc, const IG::IslandSim& islandSim,
+			void								setDescFromIndices(PxSolverConstraintDesc& desc, const ev4sio_IG::IslandSim& islandSim,
 				const PxsIndexedInteraction& constraint, PxU32 solverBodyOffset, PxTGSSolverBodyVel* solverBodies);
 
 
-			void								setDescFromIndices(PxSolverConstraintDesc& desc, IG::EdgeIndex edgeIndex,
-				const IG::SimpleIslandManager& islandManager, PxU32* bodyRemapTable, PxU32 solverBodyOffset, PxTGSSolverBodyVel* solverBodies);
+			void								setDescFromIndices(PxSolverConstraintDesc& desc, ev4sio_IG::EdgeIndex edgeIndex,
+				const ev4sio_IG::SimpleIslandManager& islandManager, PxU32* bodyRemapTable, PxU32 solverBodyOffset, PxTGSSolverBodyVel* solverBodies);
 
 
 			void solveIsland(const SolverIslandObjectsStep& objects,
 				const PxsIslandIndices& counts,
 				PxU32 solverBodyOffset,
-				IG::SimpleIslandManager& islandManager,
+				ev4sio_IG::SimpleIslandManager& islandManager,
 				PxU32* bodyRemapTable, PxsMaterialManager* materialManager,
 				PxsContactManagerOutputIterator& iterator,
 				PxBaseTask* continuation);
 
 			void prepareBodiesAndConstraints(const SolverIslandObjectsStep& objects,
-				IG::SimpleIslandManager& islandManager,
+				ev4sio_IG::SimpleIslandManager& islandManager,
 				IslandContextStep& islandContext);
 
 			void setupDescs(IslandContextStep& islandContext, const SolverIslandObjectsStep& objects, PxU32* mBodyRemapTable, PxU32 mSolverBodyOffset,
@@ -249,7 +249,7 @@ protected:
 			PxU32 setupArticulationInternalConstraints(IslandContextStep& islandContext, PxReal dt, PxReal invStepDt);
 
 			void createSolverConstraints(PxSolverConstraintDesc* contactDescPtr, PxConstraintBatchHeader* headers, PxU32 nbHeaders,
-				PxsContactManagerOutputIterator& outputs, Dy::ThreadContext& islandThreadContext, Dy::ThreadContext& threadContext, PxReal stepDt, PxReal totalDt, 
+				PxsContactManagerOutputIterator& outputs, ev4sio_Dy::ThreadContext& islandThreadContext, ev4sio_Dy::ThreadContext& threadContext, PxReal stepDt, PxReal totalDt, 
 				PxReal invStepDt, PxReal biasCoefficient, PxI32 velIters);
 
 			void solveConstraintsIteration(const PxSolverConstraintDesc* const contactDescPtr, const PxConstraintBatchHeader* const batchHeaders, PxU32 nbHeaders, PxReal invStepDt,
@@ -278,12 +278,12 @@ protected:
 
 			void copyBackBodies(const SolverIslandObjectsStep& objects,
 				PxTGSSolverBodyVel* vels, PxTGSSolverBodyTxInertia* txInertias,
-				PxTGSSolverBodyData* solverBodyData, PxReal invDt,	IG::IslandSim& islandSim,
+				PxTGSSolverBodyData* solverBodyData, PxReal invDt,	ev4sio_IG::IslandSim& islandSim,
 				PxU32 startIdx, PxU32 endIdx);
 
-			void updateArticulations(Dy::ThreadContext& threadContext, PxU32 startIdx, PxU32 endIdx, PxReal dt);
+			void updateArticulations(ev4sio_Dy::ThreadContext& threadContext, PxU32 startIdx, PxU32 endIdx, PxReal dt);
 
-			void stepArticulations(Dy::ThreadContext& threadContext, const PxsIslandIndices& counts, PxReal dt, PxReal stepInvDt);
+			void stepArticulations(ev4sio_Dy::ThreadContext& threadContext, const PxsIslandIndices& counts, PxReal dt, PxReal stepInvDt);
 
 			void iterativeSolveIsland(const SolverIslandObjectsStep& objects, const PxsIslandIndices& counts, ThreadContext& mThreadContext,
 				PxReal stepDt, PxReal invStepDt, PxU32 posIters, PxU32 velIters, SolverContext& cache, PxReal ratio,
@@ -297,7 +297,7 @@ protected:
 			void endIsland(ThreadContext& mThreadContext);
 
 			void finishSolveIsland(ThreadContext& mThreadContext, const SolverIslandObjectsStep& objects,
-				const PxsIslandIndices& counts, IG::SimpleIslandManager& islandManager, PxBaseTask* continuation);
+				const PxsIslandIndices& counts, ev4sio_IG::SimpleIslandManager& islandManager, PxBaseTask* continuation);
 
 			/**
 			\brief Resets the thread contexts
@@ -335,7 +335,7 @@ protected:
 			/**
 			\brief Array of motion velocities for all bodies in the scene.
 			*/
-			PxArray<Cm::SpatialVector> mMotionVelocityArray;
+			PxArray<ev4sio_Cm::SpatialVector> mMotionVelocityArray;
 
 			/**
 			\brief Array of body core pointers for all bodies in the scene.
@@ -385,7 +385,7 @@ protected:
 		private:
 			//private:
 			PxcScratchAllocator&						mScratchAllocator;
-			Cm::FlushPool&								mTaskPool;
+			ev4sio_Cm::FlushPool&								mTaskPool;
 			PxTaskManager*								mTaskManager;
 			PxU32										mCurrentIndex; // this is the index point to the current exceeded force threshold stream
 

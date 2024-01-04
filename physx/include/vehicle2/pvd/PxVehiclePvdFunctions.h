@@ -52,7 +52,7 @@
 #include "vehicle2/wheel/PxVehicleWheelStates.h"
 
 class OmniPvdWriter;
-namespace physx
+namespace ev4sio_physx
 {
 class PxAllocatorCallback;
 namespace vehicle2
@@ -60,10 +60,10 @@ namespace vehicle2
 struct PxVehiclePvdAttributeHandles;
 struct PxVehiclePvdObjectHandles;
 } // namespace vehicle2
-} // namespace physx
+} // namespace ev4sio_physx
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 namespace vehicle2
 {
@@ -632,7 +632,7 @@ void PxVehiclePvdPhysXSteerStateWrite
 
 #if !PX_DOXYGEN
 } // namespace vehicle2
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 /** @} */

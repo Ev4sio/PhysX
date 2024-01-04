@@ -36,8 +36,8 @@
 #include "GuPCMContactGen.h"
 #include "GuPCMShapeConvex.h"
 
-using namespace physx;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
 using namespace aos;
 
 static bool fullContactsGenerationCapsuleConvex(const CapsuleV& capsule, const ConvexHullV& convexHull, const PxMatTransformV& aToB, const PxTransformV& transf0,const PxTransformV& transf1,
@@ -78,7 +78,7 @@ static bool fullContactsGenerationCapsuleConvex(const CapsuleV& capsule, const C
 	return true;
 }
 
-bool Gu::pcmContactCapsuleConvex(GU_CONTACT_METHOD_ARGS)
+bool ev4sio_Gu::pcmContactCapsuleConvex(GU_CONTACT_METHOD_ARGS)
 {
 	PX_UNUSED(renderOutput);
 	PX_ASSERT(transform1.q.isSane());

@@ -27,11 +27,11 @@
 #include "ExtBVH.h"
 #include "ExtUtilities.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-	namespace Ext
+	namespace ev4sio_Ext
 	{
-		using namespace Gu;
+		using namespace ev4sio_Gu;
 
 		void BVHDesc::query(const PxBounds3& bounds, PxArray<PxI32>& items)
 		{
@@ -46,7 +46,7 @@ namespace physx
 			boxes.init(n);
 			for (PxI32 i = 0; i < n; ++i)			
 				boxes.getBounds()[i] = items[i];
-			Gu::buildAABBTree(n, boxes, bvh.tree);
+			ev4sio_Gu::buildAABBTree(n, boxes, bvh.tree);
 		}
 	}
 }

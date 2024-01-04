@@ -34,7 +34,7 @@
 #include "foundation/PxVec3.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -407,7 +407,7 @@ PX_COMPILE_TIME_ASSERT(0==(sizeof(PxVehicleTelemetryData) & 15));
 //#endif // PX_DEBUG_VEHICLE_ON
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

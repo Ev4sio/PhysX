@@ -43,7 +43,7 @@
 #include "extensions/PxSceneQueryExt.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -401,7 +401,7 @@ PX_COMPILE_TIME_ASSERT(sizeof(PxVehicleWheels4DynData::SuspLineRaycast) <= sizeo
 PX_COMPILE_TIME_ASSERT(sizeof(PxVehicleWheels4DynData::CachedSuspLineSceneQuerytHitResult) <= sizeof(PxVehicleWheels4DynData::SuspLineSweep));
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 /** @} */

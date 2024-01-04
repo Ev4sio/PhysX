@@ -32,9 +32,9 @@
 #include "ScActorSim.h"
 #include "ScRigidCore.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Sc
+namespace ev4sio_Sc
 {
 	class Scene;
 
@@ -53,7 +53,7 @@ namespace Sc
 		virtual			PxActor*	getPxActor() const { return getRigidCore().getPxActor(); }
 	};
 
-} // namespace Sc
+} // namespace ev4sio_Sc
 
 }
 

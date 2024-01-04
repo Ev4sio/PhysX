@@ -32,16 +32,16 @@
 #include "foundation/Px.h"
 #include "common/PxPhysXCommonConfig.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 class PxContactBuffer;
 
-namespace Cm
+namespace ev4sio_Cm
 {
 	class FastVertex2ShapeScaling;
 }
 
-namespace Gu
+namespace ev4sio_Gu
 {
 
 PX_PHYSX_COMMON_API PxMat33 findRotationMatrixFromZ(const PxVec3& to);

@@ -39,7 +39,7 @@
 #include "PxSDFDesc.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 /**
@@ -339,7 +339,7 @@ PX_INLINE bool PxConvexMeshDesc::isValid() const
 }
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 /** @} */

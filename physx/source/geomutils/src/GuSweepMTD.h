@@ -29,26 +29,26 @@
 #ifndef GU_SWEEP_MTD_H
 #define GU_SWEEP_MTD_H
 
-namespace physx
+namespace ev4sio_physx
 {
 	class PxConvexMeshGeometry;
 	class PxTriangleMeshGeometry;
 	class PxGeometry;
 	class PxHeightFieldGeometry;
 
-namespace Gu
+namespace ev4sio_Gu
 {
 	class Sphere;
 	class Capsule;
 
-	bool computeCapsule_TriangleMeshMTD(const PxTriangleMeshGeometry& triMeshGeom, const PxTransform& pose, Gu::CapsuleV& capsuleV, PxReal inflatedRadius, bool isDoubleSided, PxGeomSweepHit& hit);
+	bool computeCapsule_TriangleMeshMTD(const PxTriangleMeshGeometry& triMeshGeom, const PxTransform& pose, ev4sio_Gu::CapsuleV& capsuleV, PxReal inflatedRadius, bool isDoubleSided, PxGeomSweepHit& hit);
 
-	bool computeCapsule_HeightFieldMTD(const PxHeightFieldGeometry& heightFieldGeom, const PxTransform& pose, Gu::CapsuleV& capsuleV, PxReal inflatedRadius, bool isDoubleSided, PxGeomSweepHit& hit);
+	bool computeCapsule_HeightFieldMTD(const PxHeightFieldGeometry& heightFieldGeom, const PxTransform& pose, ev4sio_Gu::CapsuleV& capsuleV, PxReal inflatedRadius, bool isDoubleSided, PxGeomSweepHit& hit);
 
-	bool computeBox_TriangleMeshMTD(const PxTriangleMeshGeometry& triMeshGeom, const PxTransform& pose, const Gu::Box& box, const PxTransform& boxTransform, PxReal inflation,
+	bool computeBox_TriangleMeshMTD(const PxTriangleMeshGeometry& triMeshGeom, const PxTransform& pose, const ev4sio_Gu::Box& box, const PxTransform& boxTransform, PxReal inflation,
 									bool isDoubleSided,  PxGeomSweepHit& hit);    
 
-	bool computeBox_HeightFieldMTD(	const PxHeightFieldGeometry& heightFieldGeom, const PxTransform& pose, const Gu::Box& box, const PxTransform& boxTransform, PxReal inflation, bool isDoubleSided, PxGeomSweepHit& hit);
+	bool computeBox_HeightFieldMTD(	const PxHeightFieldGeometry& heightFieldGeom, const PxTransform& pose, const ev4sio_Gu::Box& box, const PxTransform& boxTransform, PxReal inflation, bool isDoubleSided, PxGeomSweepHit& hit);
 
 	bool computeConvex_TriangleMeshMTD(	const PxTriangleMeshGeometry& triMeshGeom, const PxTransform& pose, const PxConvexMeshGeometry& convexGeom, const PxTransform& convexTransform, PxReal inflation,
 										bool isDoubleSided, PxGeomSweepHit& hit);

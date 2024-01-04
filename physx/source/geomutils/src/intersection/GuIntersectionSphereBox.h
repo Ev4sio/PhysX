@@ -29,9 +29,9 @@
 #ifndef GU_INTERSECTION_SPHERE_BOX_H
 #define GU_INTERSECTION_SPHERE_BOX_H
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Gu
+namespace ev4sio_Gu
 {
 	class Sphere;
 	class Box;
@@ -44,9 +44,9 @@ namespace Gu
 
 	\return	true if sphere overlaps box (or exactly touches it)
 	*/
-	bool intersectSphereBox(const Gu::Sphere& sphere, const Gu::Box& box);
+	bool intersectSphereBox(const ev4sio_Gu::Sphere& sphere, const ev4sio_Gu::Box& box);
 
-} // namespace Gu
+} // namespace ev4sio_Gu
 
 }
 

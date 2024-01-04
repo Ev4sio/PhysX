@@ -86,7 +86,7 @@ public:
 	OmniPvdChunkElement*	mNextElement;
 };
 
-class OmniPvdChunk : public physx::PxUserAllocated
+class OmniPvdChunk : public ev4sio_physx::PxUserAllocated
 {
 public:
 	OmniPvdChunk();

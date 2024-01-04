@@ -27,9 +27,9 @@
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
 
 #include "GuBV4.h"
-using namespace physx;
-using namespace Gu;
-using namespace physx::aos;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
+using namespace ev4sio_physx::aos;
 
 #include "GuBV4_BoxOverlap_Internal.h"
 #include "GuBV4_BoxBoxOverlapTest.h"
@@ -1373,7 +1373,7 @@ bool BV4_OverlapMeshVsMesh(
 #include "GuConvexUtilsInternal.h"
 #include "GuBoxConversion.h"
 
-using namespace Cm;
+using namespace ev4sio_Cm;
 
 // PT/ dups from NpDebugViz.cpp
 static PX_FORCE_INLINE Vec4V multiply3x3V_(const Vec4V p, const PxMat34& mat)

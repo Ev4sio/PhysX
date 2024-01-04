@@ -29,9 +29,9 @@
 #include "CmRandom.h"
 #include "ExtTetUnionFind.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-	namespace Ext
+	namespace ev4sio_Ext
 	{
 		// -------------------------------------------------------------------------------------
 		static PxI32 cubeNeighbors[6][3] = { { -1,0,0 }, {1,0,0}, {0,-1,0}, {0,1,0}, {0,0,-1}, {0,0,1} };

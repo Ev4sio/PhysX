@@ -43,7 +43,7 @@
 #endif
 
 
-namespace physx { namespace Sn {
+namespace ev4sio_physx { namespace Sn {
 
 	template<typename TDataType>
 	struct StrToImpl
@@ -159,8 +159,8 @@ namespace physx { namespace Sn {
 	};
 	
 
-	template<> struct StrToImpl<physx::PxVec3> {
-	inline void strto( physx::PxVec3& ioDatatype,const char*& ioData )
+	template<> struct StrToImpl<ev4sio_physx::PxVec3> {
+	inline void strto( ev4sio_physx::PxVec3& ioDatatype,const char*& ioData )
 	{
 		StrToImpl<PxF32>().strto( ioDatatype[0], ioData );
 		StrToImpl<PxF32>().strto( ioDatatype[1], ioData );
@@ -177,7 +177,7 @@ namespace physx { namespace Sn {
 	template<> struct StrToImpl<bool> {
 	inline void strto( bool& ioType,const char*& inValue )
 	{
-		ioType = physx::Pxstricmp( inValue, "true" ) == 0 ? true : false;
+		ioType = ev4sio_physx::Pxstricmp( inValue, "true" ) == 0 ? true : false;
 	}
 	};
 	

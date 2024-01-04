@@ -33,7 +33,7 @@
 #include "omnipvd/PxOmniPvd.h"
 
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 
 void OmniPvdPxExtensionsSampler::registerClasses()
@@ -55,12 +55,12 @@ OmniPvdPxExtensionsSampler::~OmniPvdPxExtensionsSampler()
 {
 }
 
-void OmniPvdPxExtensionsSampler::setOmniPvdInstance(physx::PxOmniPvd* omniPvdInstance)
+void OmniPvdPxExtensionsSampler::setOmniPvdInstance(ev4sio_physx::PxOmniPvd* omniPvdInstance)
 {
 	mOmniPvdInstance = omniPvdInstance;
 }
 
-physx::PxOmniPvd* OmniPvdPxExtensionsSampler::getOmniPvdInstance() {
+ev4sio_physx::PxOmniPvd* OmniPvdPxExtensionsSampler::getOmniPvdInstance() {
 	return mOmniPvdInstance;
 }
 
@@ -86,9 +86,9 @@ void OmniPvdPxExtensionsSampler::destroyInstance()
 }
 
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Ext
+namespace ev4sio_Ext
 {
 
 const OmniPvdPxExtensionsRegistrationData* OmniPvdGetPxExtensionsRegistrationData()

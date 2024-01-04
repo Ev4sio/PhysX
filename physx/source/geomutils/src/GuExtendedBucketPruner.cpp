@@ -34,8 +34,8 @@
 #include "GuCallbackAdapter.h"
 #include "GuSqInternal.h"
 
-using namespace physx;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
 
 #define EXT_NB_OBJECTS_PER_NODE	4
 

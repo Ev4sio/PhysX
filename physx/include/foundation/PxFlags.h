@@ -36,7 +36,7 @@
 #include "foundation/Px.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 /**
@@ -375,7 +375,7 @@ PX_CUDA_CALLABLE PX_INLINE PxFlags<enumtype, storagetype>& PxFlags<enumtype, sto
 	return *this;
 }
 
-} // namespace physx
+} // namespace ev4sio_physx
 #endif //!PX_DOXYGEN
 
 /** @} */

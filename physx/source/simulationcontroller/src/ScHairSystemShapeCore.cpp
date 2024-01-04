@@ -35,12 +35,12 @@
 #include "PxvGlobals.h"
 #include "PxPhysXGpu.h"
 
-using namespace physx;
-using namespace Sc;
+using namespace ev4sio_physx;
+using namespace ev4sio_Sc;
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Sc
+namespace ev4sio_Sc
 {
 
 HairSystemShapeCore::HairSystemShapeCore()
@@ -87,7 +87,7 @@ void HairSystemShapeCore::releaseBuffers()
 	// nothing to do at the moment
 }
 
-} // namespace Sc
-} // namespace physx
+} // namespace ev4sio_Sc
+} // namespace ev4sio_physx
 
 #endif // PX_SUPPORT_GPU_PHYSX

@@ -38,12 +38,12 @@
 #include "../intersection/GuIntersectionRayTriangle.h"
 #include "../intersection/GuIntersectionRayBox.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 #define HF_SWEEP_REPORT_BUFFER_SIZE 64
 #define HF_OVERLAP_REPORT_BUFFER_SIZE 64
 
-namespace Gu
+namespace ev4sio_Gu
 {
 	class OverlapReport;
 
@@ -71,10 +71,10 @@ namespace Gu
 		PxReal							mOneOverRowScale;
 		PxReal							mOneOverHeightScale;
 		PxReal							mOneOverColumnScale;
-		const Gu::HeightField*			mHeightField;
+		const ev4sio_Gu::HeightField*			mHeightField;
 		const PxHeightFieldGeometry*	mHfGeom;
 
-		PX_FORCE_INLINE HeightFieldUtil(const PxHeightFieldGeometry& hfGeom) : mHeightField(static_cast<const Gu::HeightField*>(hfGeom.heightField)), mHfGeom(&hfGeom)
+		PX_FORCE_INLINE HeightFieldUtil(const PxHeightFieldGeometry& hfGeom) : mHeightField(static_cast<const ev4sio_Gu::HeightField*>(hfGeom.heightField)), mHfGeom(&hfGeom)
 		{
 			const PxReal absRowScale = PxAbs(mHfGeom->rowScale);
 			const PxReal absColScale = PxAbs(mHfGeom->columnScale);
@@ -86,14 +86,14 @@ namespace Gu
 			PX_ASSERT(absColScale >= PX_MIN_HEIGHTFIELD_XZ_SCALE);
 			PX_UNUSED(absRowScale);
 			PX_UNUSED(absColScale);
-			//using physx::intrinsics::fsel;
+			//using ev4sio_physx::intrinsics::fsel;
 			//mOneOverHeightScale	= fsel(mHfGeom->heightScale - minHeightPerSample, 1.0f / mHfGeom->heightScale, 1.0f / minHeightPerSample);
 			mOneOverHeightScale	= 1.0f / mHfGeom->heightScale;
 			mOneOverRowScale	= 1.0f / mHfGeom->rowScale;
 			mOneOverColumnScale	= 1.0f / mHfGeom->columnScale;	
 		}
 
-		PX_CUDA_CALLABLE	PX_FORCE_INLINE	const Gu::HeightField&			getHeightField()			const	{ return *mHeightField;			}
+		PX_CUDA_CALLABLE	PX_FORCE_INLINE	const ev4sio_Gu::HeightField&			getHeightField()			const	{ return *mHeightField;			}
 		PX_CUDA_CALLABLE	PX_FORCE_INLINE	const PxHeightFieldGeometry&	getHeightFieldGeometry()	const	{ return *mHfGeom;				}
 
 							PX_FORCE_INLINE	PxReal							getOneOverRowScale()		const	{ return mOneOverRowScale;		}
@@ -220,7 +220,7 @@ namespace Gu
 		public:
 			void operator = (OverlapTraceSegment&) {}
 
-			OverlapTraceSegment(const HeightFieldUtil& hfUtil,const Gu::HeightField& hf)
+			OverlapTraceSegment(const HeightFieldUtil& hfUtil,const ev4sio_Gu::HeightField& hf)
 			  : mInitialized(false), mHfUtil(hfUtil), mHf(hf), mNbIndices(0) {}
 
 			PX_FORCE_INLINE	bool initialized() const { return mInitialized; }
@@ -445,7 +445,7 @@ namespace Gu
 		private:
 			bool					mInitialized;
 			const HeightFieldUtil&	mHfUtil;
-			const Gu::HeightField&	mHf;
+			const ev4sio_Gu::HeightField&	mHf;
 			T*						mCallback;
 			PxI32					mOffsetU;
 			PxI32					mOffsetV;
@@ -465,9 +465,9 @@ namespace Gu
 		};
 
 		// If useUnderFaceCalblack is false, traceSegment will report segment/triangle hits via
-		//   faceHit(const Gu::HeightFieldUtil& hf, const PxVec3& point, PxU32 triangleIndex)
+		//   faceHit(const ev4sio_Gu::HeightFieldUtil& hf, const PxVec3& point, PxU32 triangleIndex)
 		// Otherwise traceSegment will report all triangles the segment passes under via
-		//   underFaceHit(const Gu::HeightFieldUtil& hf, const PxVec3& triNormal, const PxVec3& crossedEdge,
+		//   underFaceHit(const ev4sio_Gu::HeightFieldUtil& hf, const PxVec3& triNormal, const PxVec3& crossedEdge,
 		//     PxF32 x, PxF32 z, PxF32 rayHeight, PxU32 triangleIndex)
 		//   where x,z is the point of previous intercept in hf coords, rayHeight is at that same point
 		//   crossedEdge is the edge vector crossed from last call to underFaceHit, undefined for first call
@@ -482,7 +482,7 @@ namespace Gu
 			const PxVec3* overlapObjectExtent = NULL) const
 		{			
 			PxF32 tnear, tfar;
-			if(!Gu::intersectRayAABB2(hfLocalBounds.minimum, hfLocalBounds.maximum, aP0, rayDir, rayLength, tnear, tfar)) 
+			if(!ev4sio_Gu::intersectRayAABB2(hfLocalBounds.minimum, hfLocalBounds.maximum, aP0, rayDir, rayLength, tnear, tfar)) 
 				return;
 
 			const PxVec3 p0 = aP0 + rayDir * tnear;
@@ -597,7 +597,7 @@ namespace Gu
 				tEnd = 1.0f + 1e-4f;
 			PxF32 tMinUV;
 
-			const Gu::HeightField& hf = *mHeightField;
+			const ev4sio_Gu::HeightField& hf = *mHeightField;
 
 			// seed hLinePrev as h(0)
 			PxReal hLinePrev = COMPUTE_H_FROM_T(0);
@@ -680,7 +680,7 @@ namespace Gu
 						p11a = &p10;
 					}
 
-					// For triangle index computation, see illustration in Gu::HeightField::getTriangleNormal()
+					// For triangle index computation, see illustration in ev4sio_Gu::HeightField::getTriangleNormal()
 					// Since row = u, column = v
 					// for zeroth vert shared the 10 index is the corner of the 0-index triangle, and 01 is 1-index
 					// if zeroth vertex is not shared, the 00 index is the corner of 0-index triangle
@@ -691,14 +691,14 @@ namespace Gu
 						PxF32 triU0, triV0, triU1, triV1;
 
 						// PT: TODO: consider testing hole first and skipping ray-tri test. Might be faster.
-						if(Gu::intersectRayTriangle(auhP0, duhvNormalized, *p10a, *p00a, *p11a, triT0, triU0, triV0, backfaceCull, enlargeEpsilon) && triT0 >= 0.0f && triT0 <= duhvLength && (hf.getMaterialIndex0(vertIndex) != PxHeightFieldMaterial::eHOLE))
+						if(ev4sio_Gu::intersectRayTriangle(auhP0, duhvNormalized, *p10a, *p00a, *p11a, triT0, triU0, triV0, backfaceCull, enlargeEpsilon) && triT0 >= 0.0f && triT0 <= duhvLength && (hf.getMaterialIndex0(vertIndex) != PxHeightFieldMaterial::eHOLE))
 						{
 							hit0 = true;
 						}
 						else
 							triT0 = PX_MAX_REAL;
 
-						if(Gu::intersectRayTriangle(auhP0, duhvNormalized, *p01a, *p11a, *p00a, triT1, triU1, triV1, backfaceCull, enlargeEpsilon) && triT1 >= 0.0f && triT1 <= duhvLength && (hf.getMaterialIndex1(vertIndex) != PxHeightFieldMaterial::eHOLE))
+						if(ev4sio_Gu::intersectRayTriangle(auhP0, duhvNormalized, *p01a, *p11a, *p00a, triT1, triU1, triV1, backfaceCull, enlargeEpsilon) && triT1 >= 0.0f && triT1 <= duhvLength && (hf.getMaterialIndex1(vertIndex) != PxHeightFieldMaterial::eHOLE))
 						{
 							hit1 = true;
 						}
@@ -832,7 +832,7 @@ namespace Gu
 		}
 	};
 
-} // namespace Gu
+} // namespace ev4sio_Gu
 
 }
 

@@ -32,13 +32,13 @@
 #include "foundation/PxPreprocessor.h"
 #include "foundation/PxSimpleTypes.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	struct PxConstraintBatchHeader;
 	struct PxSolverConstraintDesc;
 	struct PxTGSSolverBodyTxInertia;
 
-	namespace Dy
+	namespace ev4sio_Dy
 	{
 		struct SolverContext;
 

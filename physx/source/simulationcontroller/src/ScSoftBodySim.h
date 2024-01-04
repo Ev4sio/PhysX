@@ -34,9 +34,9 @@
 #include "ScSoftBodyCore.h" 
 #include "ScSoftBodyShapeSim.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-	namespace Sc
+	namespace ev4sio_Sc
 	{
 		class Scene;
 
@@ -47,7 +47,7 @@ namespace physx
 											SoftBodySim(SoftBodyCore& core, Scene& scene);
 											~SoftBodySim();
 
-			PX_INLINE	Dy::SoftBody*		getLowLevelSoftBody() const { return mLLSoftBody; }
+			PX_INLINE	ev4sio_Dy::SoftBody*		getLowLevelSoftBody() const { return mLLSoftBody; }
 			PX_INLINE	SoftBodyCore&		getCore() const { return static_cast<SoftBodyCore&>(mCore); }
 
 			virtual			PxActor*		getPxActor() const { return getCore().getPxActor(); }
@@ -78,7 +78,7 @@ namespace physx
 			SoftBodyShapeSim& getShapeSim() { return mShapeSim; }
 		
 		private:
-			Dy::SoftBody*									mLLSoftBody;
+			ev4sio_Dy::SoftBody*									mLLSoftBody;
 	
 			SoftBodyShapeSim								mShapeSim;
 
@@ -89,7 +89,7 @@ namespace physx
 //							void			deactivate();
 		};
 
-	} // namespace Sc
+	} // namespace ev4sio_Sc
 }
 #endif
 

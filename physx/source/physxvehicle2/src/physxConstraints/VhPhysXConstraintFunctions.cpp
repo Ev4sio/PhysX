@@ -41,7 +41,7 @@
 #include "vehicle2/physxConstraints/PxVehiclePhysXConstraintStates.h"
 #include "vehicle2/physxConstraints/PxVehiclePhysXConstraintParams.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 namespace vehicle2
 {
@@ -158,4 +158,4 @@ void PxVehiclePhysXConstraintStatesUpdate
 }
 
 } //namespace vehicle2
-} //namespace physx
+} //namespace ev4sio_physx

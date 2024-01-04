@@ -33,7 +33,7 @@
 
 #include "CmUtils.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 extern PxF32 gToleranceScaleLength;
@@ -49,7 +49,7 @@ PxVehicleDriveTank* PxVehicleDriveTank::allocate(const PxU32 numWheels)
 {
 	PX_CHECK_AND_RETURN_NULL(numWheels>0, "Cars with zero wheels are illegal");
 	PX_CHECK_AND_RETURN_NULL(0 == (numWheels % 2), "PxVehicleDriveTank::allocate - needs to have even number of wheels");
-	PX_CHECK_AND_RETURN_NULL(gToleranceScaleLength > 0, "PxVehicleDriveTank::allocate - need to call PxInitVehicleSDK");
+	PX_CHECK_AND_RETURN_NULL(gToleranceScaleLength > 0, "PxVehicleDriveTank::allocate - need to call ev4sio_PxInitVehicleSDK");
 
 	//Compute the bytes needed.
 	const PxU32 byteSize = sizeof(PxVehicleDriveTank) + PxVehicleDrive::computeByteSize(numWheels);
@@ -113,5 +113,5 @@ void PxVehicleDriveTank::setToRestState()
 	//Set core to rest state.
 	PxVehicleDrive::setToRestState();
 }
-} //namespace physx
+} //namespace ev4sio_physx
 

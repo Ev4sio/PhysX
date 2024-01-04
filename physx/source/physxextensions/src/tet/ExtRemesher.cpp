@@ -31,9 +31,9 @@
 #include "GuIntersectionTriangleBox.h"
 #include "GuBox.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-	namespace Ext
+	namespace ev4sio_Ext
 	{
 
 		// -------------------------------------------------------------------------------------
@@ -113,7 +113,7 @@ namespace physx
 
 			PxU32 numTris = nbTriangleIndices / 3;
 			PxBounds3 triBounds, cellBounds;
-			Gu::BoxPadded box;
+			ev4sio_Gu::BoxPadded box;
 			box.rot = PxMat33(PxIdentity);
 
 			firstCell.clear();
@@ -155,7 +155,7 @@ namespace physx
 							box.center = cellBounds.getCenter();
 							box.extents = cellBounds.getExtents();
 
-							if (!Gu::intersectTriangleBox(box, p0, p1, p2))
+							if (!ev4sio_Gu::intersectTriangleBox(box, p0, p1, p2))
 								continue;
 
 							if (!cellExists(xi, yi, zi))

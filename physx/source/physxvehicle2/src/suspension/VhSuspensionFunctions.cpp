@@ -36,7 +36,7 @@
 #include "vehicle2/suspension/PxVehicleSuspensionFunctions.h"
 #include "vehicle2/suspension/PxVehicleSuspensionHelpers.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 namespace vehicle2
 {
@@ -714,4 +714,4 @@ void PxVehicleAntiRollForceUpdate
 
 
 } //namespace vehicle2
-} //namespace physx
+} //namespace ev4sio_physx

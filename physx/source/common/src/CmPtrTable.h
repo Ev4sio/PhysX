@@ -31,12 +31,12 @@
 
 #include "common/PxPhysXCommonConfig.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 class PxSerializationContext;
 class PxDeserializationContext;
 
-namespace Cm
+namespace ev4sio_Cm
 {
 class PtrTableStorageManager
 {
@@ -96,7 +96,7 @@ struct PX_PHYSX_COMMON_API PtrTable
 	void	exportExtraData(PxSerializationContext& stream);
 	void	importExtraData(PxDeserializationContext& context);
 
-	static void getBinaryMetaData(physx::PxOutputStream& stream);
+	static void getBinaryMetaData(ev4sio_physx::PxOutputStream& stream);
 
 private:
 	void realloc(PxU32 oldCapacity, PxU32 newCapacity, PtrTableStorageManager& sm);
@@ -114,7 +114,7 @@ public:
 	PxU32	mFreeSlot;		// PT: padding bytes on x64
 };
 
-} // namespace Cm
+} // namespace ev4sio_Cm
 
 }
 

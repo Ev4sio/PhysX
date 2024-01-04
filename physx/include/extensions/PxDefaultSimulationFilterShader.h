@@ -37,7 +37,7 @@
 #include "PxFiltering.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -254,7 +254,7 @@ PxGroupsMask PxGetGroupsMask(const PxActor& actor);
 void PxSetGroupsMask(PxActor& actor, const PxGroupsMask& mask);
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 /** @} */

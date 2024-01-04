@@ -28,11 +28,11 @@
 
 #include "GuPCMContactGenUtil.h"
 
-using namespace physx;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
 using namespace aos;
 
-bool Gu::contains(Vec3V* verts, PxU32 numVerts, const Vec3VArg p, const Vec3VArg min, const Vec3VArg max)
+bool ev4sio_Gu::contains(Vec3V* verts, PxU32 numVerts, const Vec3VArg p, const Vec3VArg min, const Vec3VArg max)
 {
 	const BoolV tempCon = BOr(V3IsGrtr(min, p), V3IsGrtr(p, max));
 	const BoolV con = BOr(BGetX(tempCon), BGetY(tempCon));
@@ -102,7 +102,7 @@ bool Gu::contains(Vec3V* verts, PxU32 numVerts, const Vec3VArg p, const Vec3VArg
 	return intersectionPoints> 0;
 }
 
-PxI32 Gu::getPolygonIndex(const PolygonalData& polyData, const SupportLocal* map, const Vec3VArg normal, PxI32& polyIndex2)
+PxI32 ev4sio_Gu::getPolygonIndex(const PolygonalData& polyData, const SupportLocal* map, const Vec3VArg normal, PxI32& polyIndex2)
 {
 	//normal is in shape space, need to transform the vertex space
 	const Vec3V n = M33TrnspsMulV3(map->vertex2Shape, normal);
@@ -198,7 +198,7 @@ PxI32 Gu::getPolygonIndex(const PolygonalData& polyData, const SupportLocal* map
 	return closestFaceIndex;
 }
 
-PxU32 Gu::getWitnessPolygonIndex(const PolygonalData& polyData, const SupportLocal* map, const Vec3VArg normal, const Vec3VArg closest, PxReal tolerance)
+PxU32 ev4sio_Gu::getWitnessPolygonIndex(const PolygonalData& polyData, const SupportLocal* map, const Vec3VArg normal, const Vec3VArg closest, PxReal tolerance)
 {
 	PxReal pd[256];
 	//first pass : calculate the smallest distance from the closest point to the polygon face

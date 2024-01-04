@@ -34,7 +34,7 @@
 #include "CustomConvex.h"
 #include "geomutils/PxContactBuffer.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 CustomConvex::CustomConvex(float _margin)
 	:
@@ -214,7 +214,7 @@ IMPLEMENT_CUSTOM_GEOMETRY_TYPE(CustomCylinder)
 //{
 //	return 1;
 //}
-void CustomCylinder::computeMassProperties(const physx::PxGeometry& /*geometry*/, physx::PxMassProperties& massProperties) const
+void CustomCylinder::computeMassProperties(const ev4sio_physx::PxGeometry& /*geometry*/, ev4sio_physx::PxMassProperties& massProperties) const
 {
 	float H = height + 2.0f * margin, R = radius + margin;
 	massProperties.mass = PxPi * R * R * H;
@@ -235,7 +235,7 @@ PxVec3 CustomCylinder::supportLocal(const PxVec3& dir) const
 }
 
 IMPLEMENT_CUSTOM_GEOMETRY_TYPE(CustomCone)
-void CustomCone::computeMassProperties(const physx::PxGeometry&, physx::PxMassProperties& massProperties) const
+void CustomCone::computeMassProperties(const ev4sio_physx::PxGeometry&, ev4sio_physx::PxMassProperties& massProperties) const
 {
 	float H = height + 2.0f * margin, R = radius + margin;
 	massProperties.mass = PxPi * R * R * H / 3.0f;

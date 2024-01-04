@@ -29,9 +29,9 @@
 
 #include <GuTetrahedronMesh.h>
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Gu
+namespace ev4sio_Gu
 {
 
 PX_PHYSX_COMMON_API

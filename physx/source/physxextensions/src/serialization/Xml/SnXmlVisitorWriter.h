@@ -37,7 +37,7 @@
 #include "SnXmlImpl.h"
 #include "foundation/PxStrideIterator.h"
 
-namespace physx { namespace Sn {
+namespace ev4sio_physx { namespace Sn {
 
 	template<typename TDataType>
 	inline void writeReference( XmlWriter& writer, PxCollection& inCollection, const char* inPropName, const TDataType* inDatatype )
@@ -45,7 +45,7 @@ namespace physx { namespace Sn {
 		const PxBase* s =  static_cast<const PxBase*>( inDatatype ) ;
 		if( inDatatype && !inCollection.contains( *const_cast<PxBase*>(s) ))
 		{
-			PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL,
+			ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL,
 				"PxSerialization::serializeCollectionToXml: Reference \"%s\" could not be resolved.", inPropName);
 		}
 		
@@ -559,12 +559,12 @@ namespace physx { namespace Sn {
 
 		void handleShapes( const PxRigidActorShapeCollection& inProp )
 		{
-			physx::Sn::handleShapes( *this, inProp );
+			ev4sio_physx::Sn::handleShapes( *this, inProp );
 		}
 
 		void handleShapeMaterials( const PxShapeMaterialsProperty& inProp )
 		{
-			physx::Sn::handleShapeMaterials( *this, inProp );
+			ev4sio_physx::Sn::handleShapeMaterials( *this, inProp );
 		}
 
 		void handleRigidActorGlobalPose(const PxRigidActorGlobalPosePropertyInfo& inProp)

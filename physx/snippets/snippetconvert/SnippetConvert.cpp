@@ -62,7 +62,7 @@
 #include "../snippetcommon/SnippetPrint.h"
 #include "../snippetutils/SnippetUtils.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 static PxDefaultAllocator		 gAllocator;
 static PxDefaultErrorCallback	 gErrorCallback;
@@ -218,7 +218,7 @@ static bool parseCommandLine(CmdLineParameters& result, int argc, const char *co
 
 static bool generateExampleFile(const char* filename)
 {
-	PxCollection* collection = PxCreateCollection();
+	PxCollection* collection = ev4sio_PxCreateCollection();
 	PX_ASSERT( collection );
 	
 	PxMaterial *material = gPhysics->createMaterial(0.5f, 0.5f, 0.6f);
@@ -245,18 +245,18 @@ static bool dumpBinaryMetaData(const char* filename)
 
 static void initPhysics()
 {
-	gFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, gAllocator, gErrorCallback);
+	gFoundation = ev4sio_PxCreateFoundation(ev4sio_PX_PHYSICS_VERSION, gAllocator, gErrorCallback);
 	
-	gPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *gFoundation, PxTolerancesScale(),true);
+	gPhysics = ev4sio_PxCreatePhysics(ev4sio_PX_PHYSICS_VERSION, *gFoundation, PxTolerancesScale(),true);
 	
 	gSerializationRegistry = PxSerialization::createSerializationRegistry(*gPhysics);
 
-	PxInitVehicleSDK(*gPhysics, gSerializationRegistry);
+	ev4sio_PxInitVehicleSDK(*gPhysics, gSerializationRegistry);
 }
 
 static void cleanupPhysics()
 {
-	PxCloseVehicleSDK(gSerializationRegistry);
+	ev4sio_PxCloseVehicleSDK(gSerializationRegistry);
 
 	gSerializationRegistry->release();
 	

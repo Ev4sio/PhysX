@@ -39,8 +39,8 @@
 
 #define PCM_USE_INTERNAL_OBJECT 1
 
-using namespace physx;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
 using namespace aos;
 
 //Precompute the convex data
@@ -529,7 +529,7 @@ static void generatedContacts(const PolygonalData& polyData0, const PolygonalDat
 	}
 }
 
-bool Gu::generateFullContactManifold(const PolygonalData& polyData0, const PolygonalData& polyData1, const SupportLocal* map0, const SupportLocal* map1, PersistentContact* manifoldContacts, PxU32& numContacts,
+bool ev4sio_Gu::generateFullContactManifold(const PolygonalData& polyData0, const PolygonalData& polyData1, const SupportLocal* map0, const SupportLocal* map1, PersistentContact* manifoldContacts, PxU32& numContacts,
 	const FloatVArg contactDist, const Vec3VArg normal, const Vec3VArg closestA, const Vec3VArg closestB, PxReal marginA, PxReal marginB, bool doOverlapTest, 
 	PxRenderOutput* renderOutput, PxReal toleranceLength)
 {
@@ -665,7 +665,7 @@ EdgeTest:
 }
 
 //This function called by box/convex and convex/convex pcm function
-bool Gu::addGJKEPAContacts(const GjkConvex* relativeConvex, const GjkConvex* localConvex, const PxMatTransformV& aToB, GjkStatus status,
+bool ev4sio_Gu::addGJKEPAContacts(const GjkConvex* relativeConvex, const GjkConvex* localConvex, const PxMatTransformV& aToB, GjkStatus status,
 	PersistentContact* manifoldContacts, const FloatV replaceBreakingThreshold, const FloatV tolerenceLength, GjkOutput& output,
 	PersistentContactManifold& manifold)
 {
@@ -719,7 +719,7 @@ bool Gu::addGJKEPAContacts(const GjkConvex* relativeConvex, const GjkConvex* loc
 	return doOverlapTest;
 }
 
-bool Gu::computeMTD(const PolygonalData& polyData0, const PolygonalData& polyData1, const SupportLocal* map0, const SupportLocal* map1, FloatV& penDepth, Vec3V& normal)
+bool ev4sio_Gu::computeMTD(const PolygonalData& polyData0, const PolygonalData& polyData1, const SupportLocal* map0, const SupportLocal* map1, FloatV& penDepth, Vec3V& normal)
 {
 	using namespace aos;
 

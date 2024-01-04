@@ -33,9 +33,9 @@
 @{
 */
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Gu
+namespace ev4sio_Gu
 {
 	template<typename R, typename V3>
 	struct ClusterApproximationT

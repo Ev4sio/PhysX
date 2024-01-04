@@ -35,7 +35,7 @@
 #include "cooking/PxBVHDesc.h"
 #include "cooking/PxCooking.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 PxBounds3* PxRigidActorExt::getRigidActorShapeLocalBoundsList(const PxRigidActor& actor, PxU32& numBounds)
 {
@@ -81,7 +81,7 @@ PxBVH* PxRigidActorExt::createBVHFromActor(PxPhysics& physics, const PxRigidActo
 	bvhDesc.bounds.data		= bounds;
 	bvhDesc.bounds.stride	= sizeof(PxBounds3);
 
-	PxBVH* bvh = PxCreateBVH(bvhDesc, physics.getPhysicsInsertionCallback());
+	PxBVH* bvh = ev4sio_PxCreateBVH(bvhDesc, physics.getPhysicsInsertionCallback());
 
 	PX_FREE(bounds);
 	return bvh;

@@ -36,9 +36,9 @@
 
 // ------------------------------------------------------------------------------
 
-namespace physx
+namespace ev4sio_physx
 {
-	namespace Ext
+	namespace ev4sio_Ext
 	{
 
 		template <class T> class RandomAccessHeap 

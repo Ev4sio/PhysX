@@ -53,8 +53,8 @@
 #include "foundation/PxFPU.h"
 #include "CmUtils.h"
 
-using namespace physx;
-using namespace Cm;
+using namespace ev4sio_physx;
+using namespace ev4sio_Cm;
 
 //TODO: lsd - handle case where wheels are spinning in different directions.
 //TODO: ackermann - use faster approximate functions for PxTan/PxATan because the results don't need to be too accurate here.
@@ -66,7 +66,7 @@ using namespace Cm;
 //TODO: blend the graphics jounce towards the physics jounce to avoid graphical pops at kerbs etc.
 //TODO: better graph of friction vs slip.  Need to account for negative slip and positive slip differences.
 
-namespace physx
+namespace ev4sio_physx
 {
 
 ////////////////////////////////////////////////////////////////////////////
@@ -132,7 +132,7 @@ void setVehicleDefaults()
 }
 
 ////////////////////////////////////////////////////////////////////////////
-//Called from PxVehicleInitSDK/PxCloseVehicleSDK
+//Called from PxVehicleInitSDK/ev4sio_PxCloseVehicleSDK
 ////////////////////////////////////////////////////////////////////////////
 
 //***********************
@@ -883,7 +883,7 @@ PxU64 gTimers[MAX_NB_TIMERS]={0,0,0,0,0,0,0,0,0,0,0};
 PxU64 gStartTimers[MAX_NB_TIMERS]={0,0,0,0,0,0,0,0,0,0,0};
 PxU64 gEndTimers[MAX_NB_TIMERS]={0,0,0,0,0,0,0,0,0,0,0};
 PxU32 gTimerCount=0;
-physx::PxTime gTimer;
+ev4sio_physx::PxTime gTimer;
 
 PX_FORCE_INLINE void START_TIMER(const PxU32 id)
 {
@@ -981,7 +981,7 @@ PX_INLINE void computeVelocity(const PxTransform& t1, const PxTransform& t2, con
 
 PX_FORCE_INLINE PxF32 computeSign(const PxF32 f)
 {
-	return physx::intrinsics::fsel(f, physx::intrinsics::fsel(-f, 0.0f, 1.0f), -1.0f); 
+	return ev4sio_physx::intrinsics::fsel(f, ev4sio_physx::intrinsics::fsel(-f, 0.0f, 1.0f), -1.0f); 
 }
 
 
@@ -1216,9 +1216,9 @@ PX_FORCE_INLINE void splitTorque
 	const PxF32 omegaMax=PxMax(w1Abs,w2Abs);
 	const PxF32 omegaMin=PxMin(w1Abs,w2Abs);
 	const PxF32 delta=omegaMax-diffBias*omegaMin;
-	const PxF32 deltaTorque=physx::intrinsics::fsel(delta, delta/omegaMax , 0.0f);
-	const PxF32 f1=physx::intrinsics::fsel(w1Abs-w2Abs, defaultSplitRatio*(1.0f-deltaTorque), defaultSplitRatio*(1.0f+deltaTorque));
-	const PxF32 f2=physx::intrinsics::fsel(w1Abs-w2Abs, (1.0f-defaultSplitRatio)*(1.0f+deltaTorque), (1.0f-defaultSplitRatio)*(1.0f-deltaTorque));
+	const PxF32 deltaTorque=ev4sio_physx::intrinsics::fsel(delta, delta/omegaMax , 0.0f);
+	const PxF32 f1=ev4sio_physx::intrinsics::fsel(w1Abs-w2Abs, defaultSplitRatio*(1.0f-deltaTorque), defaultSplitRatio*(1.0f+deltaTorque));
+	const PxF32 f2=ev4sio_physx::intrinsics::fsel(w1Abs-w2Abs, (1.0f-defaultSplitRatio)*(1.0f+deltaTorque), (1.0f-defaultSplitRatio)*(1.0f-deltaTorque));
 	const PxF32 denom=1.0f/(f1+f2);
 	*t1=f1*denom;
 	*t2=f2*denom;
@@ -1554,8 +1554,8 @@ PX_FORCE_INLINE void computeAckermannSteerAngles
 	const PxF32 dx=width + dz/PxTan(rightSteerAngle);
 	const PxF32 leftSteerAnglePerfect=PxAtan(dz/dx);
 	const PxF32 leftSteerAngle=rightSteerAngle + ackermannAccuracy*(leftSteerAnglePerfect-rightSteerAngle);
-	*rightAckermannSteerAngle=physx::intrinsics::fsel(steerAngle, rightSteerAngle, -leftSteerAngle);
-	*leftAckermannSteerAngle=physx::intrinsics::fsel(steerAngle, leftSteerAngle, -rightSteerAngle);
+	*rightAckermannSteerAngle=ev4sio_physx::intrinsics::fsel(steerAngle, rightSteerAngle, -leftSteerAngle);
+	*leftAckermannSteerAngle=ev4sio_physx::intrinsics::fsel(steerAngle, leftSteerAngle, -rightSteerAngle);
 }
 
 PX_FORCE_INLINE void computeAckermannCorrectedSteerAngles
@@ -4356,7 +4356,7 @@ void integrateWheelRotationAngles
 
 		PxF32 newRotAngle=wheelRotationAngles[j]+wheelOmega*timestep;
 		//Clamp the wheel rotation angle to a range (-10*pi,10*pi) to stop it getting crazily big.
-		newRotAngle=physx::intrinsics::fsel(newRotAngle-10*PxPi, newRotAngle-10*PxPi, physx::intrinsics::fsel(-newRotAngle-10*PxPi, newRotAngle + 10*PxPi, newRotAngle));
+		newRotAngle=ev4sio_physx::intrinsics::fsel(newRotAngle-10*PxPi, newRotAngle-10*PxPi, ev4sio_physx::intrinsics::fsel(-newRotAngle-10*PxPi, newRotAngle + 10*PxPi, newRotAngle));
 		wheelRotationAngles[j]=newRotAngle;
 		correctedWheelSpeeds[j]=wheelOmega;
 	}
@@ -4406,7 +4406,7 @@ void integrateNoDriveWheelRotationAngles
 
 		PxF32 newRotAngle=wheelRotationAngles[j]+wheelOmega*timestep;
 		//Clamp the wheel rotation angle to a range (-10*pi,10*pi) to stop it getting crazily big.
-		newRotAngle=physx::intrinsics::fsel(newRotAngle-10*PxPi, newRotAngle-10*PxPi, physx::intrinsics::fsel(-newRotAngle-10*PxPi, newRotAngle + 10*PxPi, newRotAngle));
+		newRotAngle=ev4sio_physx::intrinsics::fsel(newRotAngle-10*PxPi, newRotAngle-10*PxPi, ev4sio_physx::intrinsics::fsel(-newRotAngle-10*PxPi, newRotAngle + 10*PxPi, newRotAngle));
 		wheelRotationAngles[j]=newRotAngle;
 		correctedWheelSpeeds[j]=wheelOmega;
 	}
@@ -6763,7 +6763,7 @@ void PxVehicleUpdate::shiftOrigin(const PxVec3& shift, const PxU32 numVehicles, 
 	}
 }
 
-}//namespace physx
+}//namespace ev4sio_physx
 
 #if PX_DEBUG_VEHICLE_ON
 
@@ -6836,8 +6836,8 @@ PX_FORCE_INLINE void PxVehicleUpdate::updateSingleVehicleAndStoreTelemetryData
 #endif
 }
 
-void physx::PxVehicleUpdateSingleVehicleAndStoreTelemetryData
-(const PxReal timestep, const PxVec3& gravity, const physx::PxVehicleDrivableSurfaceToTireFrictionPairs& vehicleDrivableSurfaceToTireFrictionPairs, 
+void ev4sio_physx::PxVehicleUpdateSingleVehicleAndStoreTelemetryData
+(const PxReal timestep, const PxVec3& gravity, const ev4sio_physx::PxVehicleDrivableSurfaceToTireFrictionPairs& vehicleDrivableSurfaceToTireFrictionPairs, 
  PxVehicleWheels* focusVehicle, PxVehicleWheelQueryResult* wheelQueryResults, PxVehicleTelemetryData& telemetryData,
  PxVehicleConcurrentUpdateData* vehicleConcurrentUpdates, const PxVehicleContext& context)
 {
@@ -6861,7 +6861,7 @@ void PxVehicleUpdate::update
 {
 	PX_CHECK_AND_RETURN(gravity.magnitude()>0, "gravity vector must have non-zero length");
 	PX_CHECK_AND_RETURN(timestep>0, "timestep must be greater than zero");
-	PX_CHECK_AND_RETURN(gThresholdForwardSpeedForWheelAngleIntegration>0, "PxInitVehicleSDK needs to be called before ever calling PxVehicleUpdates or PxVehicleUpdateSingleVehicleAndStoreTelemetryData");
+	PX_CHECK_AND_RETURN(gThresholdForwardSpeedForWheelAngleIntegration>0, "ev4sio_PxInitVehicleSDK needs to be called before ever calling PxVehicleUpdates or PxVehicleUpdateSingleVehicleAndStoreTelemetryData");
 
 #if PX_CHECKED
 	for(PxU32 i=0;i<numVehicles;i++)
@@ -7080,7 +7080,7 @@ void PxVehicleUpdate::updatePost
 }
 
 
-void physx::PxVehicleUpdates
+void ev4sio_physx::PxVehicleUpdates
 (const PxReal timestep, const PxVec3& gravity, const PxVehicleDrivableSurfaceToTireFrictionPairs& vehicleDrivableSurfaceToTireFrictionPairs, 
  const PxU32 numVehicles, PxVehicleWheels** vehicles, PxVehicleWheelQueryResult* vehicleWheelQueryResults, PxVehicleConcurrentUpdateData* vehicleConcurrentUpdates,
  const PxVehicleContext& context)
@@ -7093,7 +7093,7 @@ void physx::PxVehicleUpdates
 		NULL, context);
 }
 
-void physx::PxVehiclePostUpdates
+void ev4sio_physx::PxVehiclePostUpdates
 (const PxVehicleConcurrentUpdateData* vehicleConcurrentUpdates, const PxU32 numVehicles, PxVehicleWheels** vehicles,
  const PxVehicleContext& context)
 {
@@ -7102,7 +7102,7 @@ void physx::PxVehiclePostUpdates
 	PxVehicleUpdate::updatePost(vehicleConcurrentUpdates, numVehicles, vehicles, context);
 }
 
-void physx::PxVehicleShiftOrigin(const PxVec3& shift, const PxU32 numVehicles, PxVehicleWheels** vehicles)
+void ev4sio_physx::PxVehicleShiftOrigin(const PxVec3& shift, const PxU32 numVehicles, PxVehicleWheels** vehicles)
 {
 	PxVehicleUpdate::shiftOrigin(shift, numVehicles, vehicles);
 }
@@ -7257,7 +7257,7 @@ void PxVehicleUpdate::suspensionRaycasts(PxBatchQueryExt* batchQuery, const PxU3
 	END_TIMER(TIMER_RAYCASTS);
 }
 
-void physx::PxVehicleSuspensionRaycasts(PxBatchQueryExt* batchQuery, const PxU32 numVehicles, PxVehicleWheels** vehicles, const bool* vehiclesToRaycast, const PxQueryFlags queryFlags)
+void ev4sio_physx::PxVehicleSuspensionRaycasts(PxBatchQueryExt* batchQuery, const PxU32 numVehicles, PxVehicleWheels** vehicles, const bool* vehiclesToRaycast, const PxQueryFlags queryFlags)
 {
 	PX_PROFILE_ZONE("PxVehicleSuspensionRaycasts::ePROFILE_RAYCASTS",0);
 	PxVehicleUpdate::suspensionRaycasts(batchQuery, numVehicles, vehicles, vehiclesToRaycast, queryFlags);
@@ -7490,7 +7490,7 @@ void PxVehicleUpdate::suspensionSweeps
 	END_TIMER(TIMER_SWEEPS);
 }
 
-namespace physx
+namespace ev4sio_physx
 {
     void PxVehicleSuspensionSweeps
     (PxBatchQueryExt* batchQuery,

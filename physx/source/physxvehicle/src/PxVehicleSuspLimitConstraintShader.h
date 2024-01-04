@@ -39,7 +39,7 @@
 #include "vehicle/PxVehicleWheels.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -300,7 +300,7 @@ PX_COMPILE_TIME_ASSERT(0==(sizeof(PxVehicleTireForceCalculator) & 15));
 
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 

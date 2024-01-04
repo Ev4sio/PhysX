@@ -31,7 +31,7 @@
 
 #include "foundation/PxSimpleTypes.h"
 
-namespace physx { 
+namespace ev4sio_physx { 
 
 	class PX_DEPRECATED XmlMemoryAllocator
 	{

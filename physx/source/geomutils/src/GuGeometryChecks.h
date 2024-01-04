@@ -41,7 +41,7 @@
 #include "geometry/PxHairSystemGeometry.h"
 #include "geometry/PxCustomGeometry.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 	// We sometimes overload capsule code for spheres, so every sphere should have 
@@ -90,7 +90,7 @@ namespace physx
 
 #if !defined(__CUDACC__)
 // the shape structure relies on punning capsules and spheres 
-PX_COMPILE_TIME_ASSERT(PX_OFFSET_OF(physx::PxCapsuleGeometry, radius) == PX_OFFSET_OF(physx::PxSphereGeometry, radius));
+PX_COMPILE_TIME_ASSERT(PX_OFFSET_OF(ev4sio_physx::PxCapsuleGeometry, radius) == PX_OFFSET_OF(ev4sio_physx::PxSphereGeometry, radius));
 #endif
 
 #endif

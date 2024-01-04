@@ -27,8 +27,8 @@
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
 
 #include "GuBV4.h"
-using namespace physx;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
 
 #include "PxQueryReport.h"
 #include "GuInternal.h"
@@ -36,7 +36,7 @@ using namespace Gu;
 #include "GuIntersectionRayTriangle.h"
 
 #include "foundation/PxVecMath.h"
-using namespace physx::aos;
+using namespace ev4sio_physx::aos;
 
 #include "GuBV4_Common.h"
 

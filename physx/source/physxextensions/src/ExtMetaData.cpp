@@ -41,9 +41,9 @@
 #include "serialization/SnSerializationRegistry.h"
 #include "serialization/Binary/SnSerializationContext.h"
 
-using namespace physx;
-using namespace Cm;
-using namespace Ext;
+using namespace ev4sio_physx;
+using namespace ev4sio_Cm;
+using namespace ev4sio_Ext;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -393,9 +393,9 @@ void getBinaryMetaData_SerializationContext(PxOutputStream& stream)
 	PX_DEF_BIN_METADATA_ITEM(stream,	Sn::InternalReferenceHandle16,	SerialObjectIndex,	    objIndex,  	0)
 }
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Ext
+namespace ev4sio_Ext
 {
 void GetExtensionsBinaryMetaData(PxOutputStream& stream)
 {

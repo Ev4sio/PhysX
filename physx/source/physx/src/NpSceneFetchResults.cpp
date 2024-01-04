@@ -50,7 +50,7 @@
 #include "BpAABBManagerBase.h"
 #include "omnipvd/NpOmniPvdSetData.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -58,7 +58,7 @@ PX_IMPLEMENT_OUTPUT_ERROR
 
 ///////////////////////////////////////////////////////////////////////////////
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 bool NpScene::checkResultsInternal(bool block)
 {
@@ -152,11 +152,11 @@ void NpScene::fetchResultsPostContactCallbacks()
 
 	mRenderBuffer.append(mScene.getRenderBuffer());
 
-	PX_ASSERT(getSimulationStage() != Sc::SimulationStage::eCOMPLETE);
+	PX_ASSERT(getSimulationStage() != ev4sio_Sc::SimulationStage::eCOMPLETE);
 	if (mControllingSimulation)
 		mTaskManager->stopSimulation();
 
-	setSimulationStage(Sc::SimulationStage::eCOMPLETE);
+	setSimulationStage(ev4sio_Sc::SimulationStage::eCOMPLETE);
 	setAPIWriteToAllowed();
 
 	mPhysicsDone.reset();				// allow Physics to run again
@@ -165,7 +165,7 @@ void NpScene::fetchResultsPostContactCallbacks()
 
 bool NpScene::fetchResults(bool block, PxU32* errorState)
 {
-	if(getSimulationStage() != Sc::SimulationStage::eADVANCE)
+	if(getSimulationStage() != ev4sio_Sc::SimulationStage::eADVANCE)
 		return outputError<PxErrorCode::eINVALID_OPERATION>(__LINE__, "PxScene::fetchResults: fetchResults() called illegally! It must be called after advance() or simulate()");
 
 	if(!checkResultsInternal(block))
@@ -179,7 +179,7 @@ bool NpScene::fetchResults(bool block, PxU32* errorState)
 			PxCUresult res = mCudaContextManager->getCudaContext()->getLastError();
 			if (res)
 			{
-				PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "PhysX Internal CUDA error. Simulation can not continue! Error code %i!\n", PxI32(res));
+				ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "PhysX Internal CUDA error. Simulation can not continue! Error code %i!\n", PxI32(res));
 				//outputError<PxErrorCode::eINTERNAL_ERROR>(__LINE__, "PhysX Internal CUDA error. Simulation can not continue!");
 				if(errorState)
 					*errorState = res;
@@ -274,16 +274,16 @@ bool NpScene::fetchResults(bool block, PxU32* errorState)
 						OMNI_PVD_SET_ARRAY_EXPLICIT(pvdWriter, pvdRegData, OMNI_PVD_CONTEXT_HANDLE, PxArticulationJointReducedCoordinate, jointVelocity, jcord, vals, PxArticulationAxis::eCOUNT);
 					}
 
-					physx::PxTransform TArtLinkLocal;
+					ev4sio_physx::PxTransform TArtLinkLocal;
 					if (pxArticulationParentLink)
 					{
 						// TGlobal = TFatherGlobal * TLocal
 						// Inv(TFatherGlobal)* TGlobal = Inv(TFatherGlobal)*TFatherGlobal * TLocal
 						// Inv(TFatherGlobal)* TGlobal = TLocal
 						// TLocal = Inv(TFatherGlobal) * TGlobal
-						//physx::PxTransform TParentGlobal = pxArticulationParentLink->getGlobalPose();
-						physx::PxTransform TParentGlobalInv = pxArticulationParentLink->getGlobalPose().getInverse();
-						physx::PxTransform TArtLinkGlobal = pxArticulationLink->getGlobalPose();
+						//ev4sio_physx::PxTransform TParentGlobal = pxArticulationParentLink->getGlobalPose();
+						ev4sio_physx::PxTransform TParentGlobalInv = pxArticulationParentLink->getGlobalPose().getInverse();
+						ev4sio_physx::PxTransform TArtLinkGlobal = pxArticulationLink->getGlobalPose();
 						// PT:: tag: scalar transform*transform
 						TArtLinkLocal = TParentGlobalInv * TArtLinkGlobal;
 					}
@@ -356,7 +356,7 @@ bool NpScene::fetchResults(bool block, PxU32* errorState)
 
 bool NpScene::fetchResultsStart(const PxContactPairHeader*& contactPairs, PxU32& nbContactPairs, bool block)
 {
-	if (getSimulationStage() != Sc::SimulationStage::eADVANCE)
+	if (getSimulationStage() != ev4sio_Sc::SimulationStage::eADVANCE)
 		return outputError<PxErrorCode::eINVALID_OPERATION>(__LINE__, "PxScene::fetchResultsStart: fetchResultsStart() called illegally! It must be called after advance() or simulate()");
 
 	if (!checkResultsInternal(block))
@@ -411,7 +411,7 @@ void NpScene::processCallbacks(PxBaseTask* continuation)
 	const PxContactPairHeader* contactPairs = pairs.begin();
 	const PxU32 nbToProcess = 256;
 
-	Cm::FlushPool* flushPool = mScene.getFlushPool();
+	ev4sio_Cm::FlushPool* flushPool = mScene.getFlushPool();
 
 	for (PxU32 i = 0; i < nbPairs; i += nbToProcess)
 	{
@@ -432,7 +432,7 @@ void NpScene::fetchResultsFinish(PxU32* errorState)
 			PxCUresult res = mCudaContextManager->getCudaContext()->getLastError();
 			if (res)
 			{
-				PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "PhysX Internal CUDA error. Simulation can not continue! Error code %i!\n", PxI32(res));
+				ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "PhysX Internal CUDA error. Simulation can not continue! Error code %i!\n", PxI32(res));
 				//outputError<PxErrorCode::eINTERNAL_ERROR>(__LINE__, "PhysX Internal CUDA error. Simulation can not continue!");
 				if (errorState)
 					*errorState = mCudaContextManager->getCudaContext()->getLastError();

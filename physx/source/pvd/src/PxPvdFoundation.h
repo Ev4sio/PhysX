@@ -37,7 +37,7 @@
 #include "foundation/PxPool.h"
 #include "PxPvdObjectModelBaseTypes.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 namespace pvdsdk
 {
@@ -48,11 +48,11 @@ class ForwardingAllocator : public PxAllocatorCallback
 {
 	void* allocate(size_t size, const char* typeName, const char* filename, int line)
 	{
-		return PxGetBroadcastAllocator()->allocate(size, typeName, filename, line);
+		return ev4sio_PxGetBroadcastAllocator()->allocate(size, typeName, filename, line);
 	}
 	void deallocate(void* ptr)
 	{
-		PxGetBroadcastAllocator()->deallocate(ptr);
+		ev4sio_PxGetBroadcastAllocator()->deallocate(ptr);
 	}
 };
 
@@ -128,7 +128,7 @@ class RawMemoryBuffer
 		uint32_t writeSize = inLength * sizeof(TDataType);
 		if(inValue && inLength)
 		{
-			physx::intrinsics::memCopy(growBuf(writeSize), inValue, writeSize);
+			ev4sio_physx::intrinsics::memCopy(growBuf(writeSize), inValue, writeSize);
 		}
 		if(inLength && !inValue)
 		{
@@ -153,7 +153,7 @@ class RawMemoryBuffer
 	{
 		uint32_t offset = size();
 		growBuf(inAmount);
-		physx::intrinsics::memZero(begin() + offset, inAmount);
+		ev4sio_physx::intrinsics::memZero(begin() + offset, inAmount);
 	}
 	void reserve(uint32_t newSize)
 	{
@@ -164,7 +164,7 @@ class RawMemoryBuffer
 			uint8_t* newData = static_cast<uint8_t*>(PX_ALLOC(newDataSize, mBufDataName));
 			if(mBegin)
 			{
-				physx::intrinsics::memCopy(newData, mBegin, currentSize);
+				ev4sio_physx::intrinsics::memCopy(newData, mBegin, currentSize);
 				PX_FREE(mBegin);
 			}
 			mBegin = newData;

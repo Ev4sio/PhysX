@@ -33,10 +33,10 @@
 #include "ScScene.h"
 #include "PxsSimulationController.h"
 
-using namespace physx;
-using namespace physx::Dy; 
+using namespace ev4sio_physx;
+using namespace ev4sio_physx::ev4sio_Dy; 
 
-Sc::SoftBodySim::SoftBodySim(SoftBodyCore& core, Scene& scene) :
+ev4sio_Sc::SoftBodySim::SoftBodySim(SoftBodyCore& core, Scene& scene) :
 	ActorSim(scene, core),
 	mShapeSim(*this)
 {
@@ -49,7 +49,7 @@ Sc::SoftBodySim::SoftBodySim(SoftBodyCore& core, Scene& scene) :
 	mLLSoftBody->setElementId(mShapeSim.getElementID());
 }
 
-Sc::SoftBodySim::~SoftBodySim()
+ev4sio_Sc::SoftBodySim::~SoftBodySim()
 {
 	if (!mLLSoftBody)
 		return;
@@ -61,28 +61,28 @@ Sc::SoftBodySim::~SoftBodySim()
 	mCore.setSim(NULL);
 }
 
-void Sc::SoftBodySim::updateBounds()
+void ev4sio_Sc::SoftBodySim::updateBounds()
 {
 	mShapeSim.updateBounds();
 }
 
-void Sc::SoftBodySim::updateBoundsInAABBMgr()
+void ev4sio_Sc::SoftBodySim::updateBoundsInAABBMgr()
 {
 	mShapeSim.updateBoundsInAABBMgr();
 }
 
-PxBounds3 Sc::SoftBodySim::getBounds() const
+PxBounds3 ev4sio_Sc::SoftBodySim::getBounds() const
 {
 	return mShapeSim.getBounds();
 }
 
-bool Sc::SoftBodySim::isSleeping() const
+bool ev4sio_Sc::SoftBodySim::isSleeping() const
 {
-	IG::IslandSim& sim = mScene.getSimpleIslandManager()->getAccurateIslandSim();
+	ev4sio_IG::IslandSim& sim = mScene.getSimpleIslandManager()->getAccurateIslandSim();
 	return sim.getActiveNodeIndex(mNodeIndex) == PX_INVALID_NODE;
 }
 
-void Sc::SoftBodySim::onSetWakeCounter()
+void ev4sio_Sc::SoftBodySim::onSetWakeCounter()
 {
 	getScene().getSimulationController()->setSoftBodyWakeCounter(mLLSoftBody);
 	if (mLLSoftBody->getCore().wakeCounter > 0.f)
@@ -91,7 +91,7 @@ void Sc::SoftBodySim::onSetWakeCounter()
 		getScene().getSimpleIslandManager()->deactivateNode(mNodeIndex);
 }
 
-void Sc::SoftBodySim::attachShapeCore(ShapeCore* core)
+void ev4sio_Sc::SoftBodySim::attachShapeCore(ShapeCore* core)
 {
 	mShapeSim.attachShapeCore(core);
 
@@ -99,27 +99,27 @@ void Sc::SoftBodySim::attachShapeCore(ShapeCore* core)
 	mLLSoftBody->setShapeCore(shapeCore);
 }
 
-void Sc::SoftBodySim::attachSimulationMesh(PxTetrahedronMesh* simulationMesh, PxSoftBodyAuxData* simulationState)
+void ev4sio_Sc::SoftBodySim::attachSimulationMesh(PxTetrahedronMesh* simulationMesh, PxSoftBodyAuxData* simulationState)
 {
 	mLLSoftBody->setSimShapeCore(simulationMesh, simulationState);
 }
 
-PxTetrahedronMesh* Sc::SoftBodySim::getSimulationMesh()
+PxTetrahedronMesh* ev4sio_Sc::SoftBodySim::getSimulationMesh()
 {
 	return mLLSoftBody->getSimulationMesh();
 }
 
-PxSoftBodyAuxData* Sc::SoftBodySim::getSoftBodyAuxData()
+PxSoftBodyAuxData* ev4sio_Sc::SoftBodySim::getSoftBodyAuxData()
 {
 	return mLLSoftBody->getSoftBodyAuxData();
 }
 
-PxTetrahedronMesh* Sc::SoftBodySim::getCollisionMesh()
+PxTetrahedronMesh* ev4sio_Sc::SoftBodySim::getCollisionMesh()
 {
 	return mLLSoftBody->getCollisionMesh();
 }
 
-void Sc::SoftBodySim::enableSelfCollision()
+void ev4sio_Sc::SoftBodySim::enableSelfCollision()
 {
 	if (isActive())
 	{
@@ -127,7 +127,7 @@ void Sc::SoftBodySim::enableSelfCollision()
 	}
 }
 
-void Sc::SoftBodySim::disableSelfCollision()
+void ev4sio_Sc::SoftBodySim::disableSelfCollision()
 {
 	if (isActive())
 	{
@@ -135,7 +135,7 @@ void Sc::SoftBodySim::disableSelfCollision()
 	}
 }
 
-/*void Sc::SoftBodySim::activate()
+/*void ev4sio_Sc::SoftBodySim::activate()
 {
 	// Activate body
 	//{
@@ -160,7 +160,7 @@ void Sc::SoftBodySim::disableSelfCollision()
 	activateInteractions(*this);
 }
 
-void Sc::SoftBodySim::deactivate()
+void ev4sio_Sc::SoftBodySim::deactivate()
 {
 	deactivateInteractions(*this);
 
@@ -193,7 +193,7 @@ void Sc::SoftBodySim::deactivate()
 	//}
 }*/
 
-PxU32 Sc::SoftBodySim::getGpuSoftBodyIndex() const
+PxU32 ev4sio_Sc::SoftBodySim::getGpuSoftBodyIndex() const
 {
 	return mLLSoftBody->getGpuSoftBodyIndex();
 }

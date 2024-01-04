@@ -32,15 +32,15 @@
 #include "foundation/PxVec3.h"
 #include "PxQueryReport.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Gu
+namespace ev4sio_Gu
 {
 	class Box;
 
 	bool sweepBoxSphere(const Box& box, PxReal sphereRadius, const PxVec3& spherePos, const PxVec3& dir, PxReal length, PxReal& min_dist, PxVec3& normal, PxHitFlags hitFlags);
 
-} // namespace Gu
+} // namespace ev4sio_Gu
 
 }
 

@@ -33,9 +33,9 @@
 #include "foundation/PxSimpleTypes.h"
 #include "foundation/PxHashMap.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Gu
+namespace ev4sio_Gu
 {
 	typedef PxU64	ActorShapeData;
 

@@ -35,7 +35,7 @@
 */
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 
 class PxPhysics;
@@ -86,7 +86,7 @@ void PxVehicleConstraintsDestroy
 
 #if !PX_DOXYGEN
 } // namespace vehicle2
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 /** @} */

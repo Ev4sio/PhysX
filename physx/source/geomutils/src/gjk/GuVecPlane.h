@@ -41,9 +41,9 @@
 
 Plane equation used: a*x + b*y + c*z + d = 0
 */
-namespace physx
+namespace ev4sio_physx
 {
-namespace Gu
+namespace ev4sio_Gu
 {
 	
 	class PlaneV

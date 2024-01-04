@@ -36,14 +36,14 @@
 #include "PxQueryReport.h"
 #include "GuCachedFuncs.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 class PxGeometry;
 struct PxQueryFilterData;
 struct PxFilterData;
 class PxQueryFilterCallback;
 
-namespace Sq
+namespace ev4sio_Sq
 {
 	struct ExtMultiQueryInput;
 
@@ -68,33 +68,33 @@ namespace Sq
 		virtual						~ExtQueryAdapter()	{}
 
 		// PT: TODO: decouple from PxQueryCache?
-		virtual	Gu::PrunerHandle	findPrunerHandle(const PxQueryCache& cache, PrunerCompoundId& compoundId, PxU32& prunerIndex)	const	= 0;
+		virtual	ev4sio_Gu::PrunerHandle	findPrunerHandle(const PxQueryCache& cache, PrunerCompoundId& compoundId, PxU32& prunerIndex)	const	= 0;
 
 		// PT: TODO: return reference? but this version is at least consistent with getActorShape
-		virtual	void				getFilterData(const Gu::PrunerPayload& payload, PxFilterData& filterData)	const	= 0;
-		virtual	void				getActorShape(const Gu::PrunerPayload& payload, PxActorShape& actorShape)	const	= 0;
+		virtual	void				getFilterData(const ev4sio_Gu::PrunerPayload& payload, PxFilterData& filterData)	const	= 0;
+		virtual	void				getActorShape(const ev4sio_Gu::PrunerPayload& payload, PxActorShape& actorShape)	const	= 0;
 
 		// PT: new for this customized version: a function to perform per-pruner filtering
 		virtual	bool				processPruner(PxU32 prunerIndex, const PxQueryThreadContext* context, const PxQueryFilterData& filterData, PxQueryFilterCallback* filterCall)	const	= 0;
 	};
 }
 
-	// PT: this is a customized version of physx::Sq::SceneQueries that supports more than 2 hardcoded pruners.
+	// PT: this is a customized version of ev4sio_physx::ev4sio_Sq::SceneQueries that supports more than 2 hardcoded pruners.
 	// It might not be possible to support the whole PxSceneQuerySystem API with an arbitrary number of pruners.
 	class ExtSceneQueries
 	{
 													PX_NOCOPY(ExtSceneQueries)
 		public:
-													ExtSceneQueries(Sq::ExtPVDCapture* pvd, PxU64 contextID,
-														float inflation, const Sq::ExtQueryAdapter& adapter, bool usesTreeOfPruners);
+													ExtSceneQueries(ev4sio_Sq::ExtPVDCapture* pvd, PxU64 contextID,
+														float inflation, const ev4sio_Sq::ExtQueryAdapter& adapter, bool usesTreeOfPruners);
 													~ExtSceneQueries();
 
-		PX_FORCE_INLINE	Sq::ExtPrunerManager&		getPrunerManagerFast()			{ return mSQManager;	}
-		PX_FORCE_INLINE	const Sq::ExtPrunerManager&	getPrunerManagerFast()	const	{ return mSQManager;	}
+		PX_FORCE_INLINE	ev4sio_Sq::ExtPrunerManager&		getPrunerManagerFast()			{ return mSQManager;	}
+		PX_FORCE_INLINE	const ev4sio_Sq::ExtPrunerManager&	getPrunerManagerFast()	const	{ return mSQManager;	}
 
 		template<typename QueryHit>
 						bool						multiQuery(
-														const Sq::ExtMultiQueryInput& in,
+														const ev4sio_Sq::ExtMultiQueryInput& in,
 														PxHitCallback<QueryHit>& hits, PxHitFlags hitFlags, const PxQueryCache*,
 														const PxQueryFilterData& filterData, PxQueryFilterCallback* filterCall) const;
 
@@ -118,23 +118,23 @@ namespace Sq
 														const PxQueryCache* cache, PxGeometryQueryFlags flags) const;
 
 		PX_FORCE_INLINE	PxU64						getContextId()			const	{ return mSQManager.getContextId();	}
-						Sq::ExtPrunerManager		mSQManager;
+						ev4sio_Sq::ExtPrunerManager		mSQManager;
 		public:
-						Gu::CachedFuncs				mCachedFuncs;
+						ev4sio_Gu::CachedFuncs				mCachedFuncs;
 
-						Sq::ExtPVDCapture*			mPVD;
+						ev4sio_Sq::ExtPVDCapture*			mPVD;
 	};
 
 #if PX_SUPPORT_EXTERN_TEMPLATE
 	//explicit template instantiation declaration
 	extern template
-	bool ExtSceneQueries::multiQuery<PxRaycastHit>(const Sq::ExtMultiQueryInput&, PxHitCallback<PxRaycastHit>&, PxHitFlags, const PxQueryCache*, const PxQueryFilterData&, PxQueryFilterCallback*) const;
+	bool ExtSceneQueries::multiQuery<PxRaycastHit>(const ev4sio_Sq::ExtMultiQueryInput&, PxHitCallback<PxRaycastHit>&, PxHitFlags, const PxQueryCache*, const PxQueryFilterData&, PxQueryFilterCallback*) const;
 
 	extern template
-	bool ExtSceneQueries::multiQuery<PxOverlapHit>(const Sq::ExtMultiQueryInput&, PxHitCallback<PxOverlapHit>&, PxHitFlags, const PxQueryCache*, const PxQueryFilterData&, PxQueryFilterCallback*) const;
+	bool ExtSceneQueries::multiQuery<PxOverlapHit>(const ev4sio_Sq::ExtMultiQueryInput&, PxHitCallback<PxOverlapHit>&, PxHitFlags, const PxQueryCache*, const PxQueryFilterData&, PxQueryFilterCallback*) const;
 
 	extern template
-	bool ExtSceneQueries::multiQuery<PxSweepHit>(const Sq::ExtMultiQueryInput&, PxHitCallback<PxSweepHit>&, PxHitFlags, const PxQueryCache*, const PxQueryFilterData&, PxQueryFilterCallback*) const;
+	bool ExtSceneQueries::multiQuery<PxSweepHit>(const ev4sio_Sq::ExtMultiQueryInput&, PxHitCallback<PxSweepHit>&, PxHitFlags, const PxQueryCache*, const PxQueryFilterData&, PxQueryFilterCallback*) const;
 #endif
 
 }

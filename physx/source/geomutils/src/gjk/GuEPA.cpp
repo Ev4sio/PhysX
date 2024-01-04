@@ -32,9 +32,9 @@
 #include "CmPriorityQueue.h"
 #include "foundation/PxAllocator.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Gu
+namespace ev4sio_Gu
 {
 	using namespace aos;
 
@@ -68,7 +68,7 @@ namespace Gu
 	
 		bool originInTetrahedron(const aos::Vec3VArg p1, const aos::Vec3VArg p2, const aos::Vec3VArg p3, const aos::Vec3VArg p4);
 
-		Cm::InlinePriorityQueue<Facet*, MaxFacets, FacetDistanceComparator> heap;
+		ev4sio_Cm::InlinePriorityQueue<Facet*, MaxFacets, FacetDistanceComparator> heap;
 		aos::Vec3V aBuf[MaxSupportPoints];
 		aos::Vec3V bBuf[MaxSupportPoints];
 		Facet facetBuf[MaxFacets];

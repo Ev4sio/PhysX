@@ -67,23 +67,23 @@
 #define PARTICLE_MAX_NUM_PARTITIONS_TEMP	32
 #define PARTICLE_MAX_NUM_PARTITIONS_FINAL   8
 
-using namespace physx;
+using namespace ev4sio_physx;
 
-namespace physx
+namespace ev4sio_physx
 {
 #if PX_ENABLE_DEBUG_VISUALIZATION
-	static void visualizeParticleSystem(PxRenderOutput& out, NpScene& npScene, const Sc::ParticleSystemCore& core)
+	static void visualizeParticleSystem(PxRenderOutput& out, NpScene& npScene, const ev4sio_Sc::ParticleSystemCore& core)
 	{
 		if (!(core.getActorFlags() & PxActorFlag::eVISUALIZATION))
 			return;
 
-		const Sc::Scene& scScene = npScene.getScScene();
+		const ev4sio_Sc::Scene& scScene = npScene.getScScene();
 
 		const bool visualizeAABBs = scScene.getVisualizationParameter(PxVisualizationParameter::eCOLLISION_AABBS) != 0.0f;
 		if (visualizeAABBs)
 		{
 			out << PxU32(PxDebugColor::eARGB_YELLOW) << PxMat44(PxIdentity);
-			Cm::renderOutputDebugBox(out, core.getSim()->getBounds());
+			ev4sio_Cm::renderOutputDebugBox(out, core.getSim()->getBounds());
 		}
 	}
 #else
@@ -226,7 +226,7 @@ namespace physx
 		// at this point all of the springs are partitioned and in the ordered list.
 	}
 
-	void NpParticleClothPreProcessor::classifySprings(const PxParticleSpring* springs, PxU32* partitionProgresses, PxU32* tempSprings, physx::PxArray<PxU32>& tempSpringsPerPartition)
+	void NpParticleClothPreProcessor::classifySprings(const PxParticleSpring* springs, PxU32* partitionProgresses, PxU32* tempSprings, ev4sio_physx::PxArray<PxU32>& tempSpringsPerPartition)
 	{
 		//initialize the partition progress counter to be zero
 		PxMemZero(partitionProgresses, sizeof(PxU32) * mNumParticles);
@@ -662,8 +662,8 @@ namespace physx
 	{
 		if (material->getConcreteType() == PxConcreteType::ePBD_MATERIAL)
 		{
-			Sc::ParticleSystemShapeCore& shapeCore = mCore.getShapeCore();
-			Dy::ParticleSystemCore& core = shapeCore.getLLCore();
+			ev4sio_Sc::ParticleSystemShapeCore& shapeCore = mCore.getShapeCore();
+			ev4sio_Dy::ParticleSystemCore& core = shapeCore.getLLCore();
 
 			PxU16 materialHandle = static_cast<NpPBDMaterial*>(material)->mMaterial.mMaterialIndex;
 		
@@ -677,14 +677,14 @@ namespace physx
 			}
 
 			if (mCore.getSim())
-				mCore.getSim()->getLowLevelParticleSystem()->mFlag |= Dy::ParticleSystemFlag::eUPDATE_PHASE;
+				mCore.getSim()->getLowLevelParticleSystem()->mFlag |= ev4sio_Dy::ParticleSystemFlag::eUPDATE_PHASE;
 
 			return (groupID & PxParticlePhaseFlag::eParticlePhaseGroupMask)
 				| (PxU32(flags) & PxParticlePhaseFlag::eParticlePhaseFlagsMask);
 		}
 		else
 		{
-			PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "PxPBDParticleSystem:createPhase(): the provided material is not supported by this type of particle system.");
+			ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "PxPBDParticleSystem:createPhase(): the provided material is not supported by this type of particle system.");
 			return 0;
 		}
 	}
@@ -734,16 +734,16 @@ namespace physx
 	PX_CATCH_UNDEFINED_ENABLE_DEBUG_VISUALIZATION
 #endif
 
-	static void internalAddRigidAttachment(PxRigidActor* actor, Sc::ParticleSystemCore& psCore)
+	static void internalAddRigidAttachment(PxRigidActor* actor, ev4sio_Sc::ParticleSystemCore& psCore)
 	{
-		Sc::BodyCore* core = getBodyCore(actor);
+		ev4sio_Sc::BodyCore* core = getBodyCore(actor);
 
 		psCore.addRigidAttachment(core);
 	}
 
-	static void internalRemoveRigidAttachment(PxRigidActor* actor, Sc::ParticleSystemCore& psCore)
+	static void internalRemoveRigidAttachment(PxRigidActor* actor, ev4sio_Sc::ParticleSystemCore& psCore)
 	{
-		Sc::BodyCore* core = getBodyCore(actor);
+		ev4sio_Sc::BodyCore* core = getBodyCore(actor);
 		psCore.removeRigidAttachment(core);
 	}
 
@@ -784,8 +784,8 @@ namespace physx
 	{
 		if (material->getConcreteType() == PxConcreteType::eFLIP_MATERIAL)
 		{
-			Sc::ParticleSystemShapeCore& shapeCore = mCore.getShapeCore();
-			Dy::ParticleSystemCore& core = shapeCore.getLLCore();
+			ev4sio_Sc::ParticleSystemShapeCore& shapeCore = mCore.getShapeCore();
+			ev4sio_Dy::ParticleSystemCore& core = shapeCore.getLLCore();
 
 			PxU16 materialHandle = static_cast<NpFLIPMaterial*>(material)->mMaterial.mMaterialIndex;
 
@@ -799,14 +799,14 @@ namespace physx
 			}
 
 			if (mCore.getSim())
-				mCore.getSim()->getLowLevelParticleSystem()->mFlag |= Dy::ParticleSystemFlag::eUPDATE_PHASE;
+				mCore.getSim()->getLowLevelParticleSystem()->mFlag |= ev4sio_Dy::ParticleSystemFlag::eUPDATE_PHASE;
 
 			return (groupID & PxParticlePhaseFlag::eParticlePhaseGroupMask)
 				| (PxU32(flags) & PxParticlePhaseFlag::eParticlePhaseFlagsMask);
 		}
 		else
 		{
-			PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "PxFLIPParticleSystem:createPhase(): the provided material is not supported by this type of particle system.");
+			ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "PxFLIPParticleSystem:createPhase(): the provided material is not supported by this type of particle system.");
 			return 0;
 		}
 	}
@@ -847,7 +847,7 @@ namespace physx
 			| PxSparseGridDataFlag::eGRIDCELL_FLUID_SDF | PxSparseGridDataFlag::eGRIDCELL_FLUID_VELOCITY
 			)) == 0)
 		{
-			PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxParticleSystem::getSparseGridDataPointer, specified data is not available.");
+			ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxParticleSystem::getSparseGridDataPointer, specified data is not available.");
 			return NULL;
 		}
 
@@ -883,7 +883,7 @@ namespace physx
 		}
 		else
 		{
-			PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "NpFLIPParticleSystem:addParticleBuffer(): the provided buffer type is not supported by this type of particle system.");
+			ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "NpFLIPParticleSystem:addParticleBuffer(): the provided buffer type is not supported by this type of particle system.");
 		}
 	}
 
@@ -896,7 +896,7 @@ namespace physx
 		}
 		else
 		{
-			PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "NpFLIPParticleSystem:addParticleBuffer(): the provided buffer type is not supported by this type of particle system.");
+			ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "NpFLIPParticleSystem:addParticleBuffer(): the provided buffer type is not supported by this type of particle system.");
 		}
 	}
 
@@ -915,8 +915,8 @@ namespace physx
 	{
 		if (material->getConcreteType() == PxConcreteType::eMPM_MATERIAL)
 		{
-			Sc::ParticleSystemShapeCore& shapeCore = mCore.getShapeCore();
-			Dy::ParticleSystemCore& core = shapeCore.getLLCore();
+			ev4sio_Sc::ParticleSystemShapeCore& shapeCore = mCore.getShapeCore();
+			ev4sio_Dy::ParticleSystemCore& core = shapeCore.getLLCore();
 
 			PxU16 materialHandle = static_cast<NpMPMMaterial*>(material)->mMaterial.mMaterialIndex;
 
@@ -930,14 +930,14 @@ namespace physx
 			}
 
 			if (mCore.getSim())
-				mCore.getSim()->getLowLevelParticleSystem()->mFlag |= Dy::ParticleSystemFlag::eUPDATE_PHASE;
+				mCore.getSim()->getLowLevelParticleSystem()->mFlag |= ev4sio_Dy::ParticleSystemFlag::eUPDATE_PHASE;
 
 			return (groupID & PxParticlePhaseFlag::eParticlePhaseGroupMask)
 				| (PxU32(flags) & PxParticlePhaseFlag::eParticlePhaseFlagsMask);
 		}
 		else
 		{
-			PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "PxMPMParticleSystem:createPhase(): the provided material is not supported by this type of particle system.");
+			ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "PxMPMParticleSystem:createPhase(): the provided material is not supported by this type of particle system.");
 			return 0;
 		}
 	}
@@ -974,7 +974,7 @@ namespace physx
 			| PxSparseGridDataFlag::eGRIDCELL_FLUID_SDF | PxSparseGridDataFlag::eGRIDCELL_FLUID_VELOCITY
 			)) == 0)
 		{
-			PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxParticleSystem::getSparseGridDataPointer, specified data is not available.");
+			ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxParticleSystem::getSparseGridDataPointer, specified data is not available.");
 			return NULL;
 		}
 
@@ -994,7 +994,7 @@ namespace physx
 		if ((flags & (PxMPMParticleDataFlag::eMPM_AFFINE_C1 | PxMPMParticleDataFlag::eMPM_AFFINE_C2 | PxMPMParticleDataFlag::eMPM_AFFINE_C3
 			| PxMPMParticleDataFlag::eMPM_DEFORMATION_GRADIENT_F1 | PxMPMParticleDataFlag::eMPM_DEFORMATION_GRADIENT_F2 | PxMPMParticleDataFlag::eMPM_DEFORMATION_GRADIENT_F3)) == 0)
 		{
-			PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxMPMParticleSystem::copyData, specified data is not available.");
+			ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxMPMParticleSystem::copyData, specified data is not available.");
 			return NULL;
 		}
 
@@ -1029,7 +1029,7 @@ namespace physx
 		}
 		else
 		{
-			PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "NpMPMParticleSystem:addParticleBuffer(): the provided buffer type is not supported by this type of particle system.");
+			ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "NpMPMParticleSystem:addParticleBuffer(): the provided buffer type is not supported by this type of particle system.");
 		}
 	}
 
@@ -1041,7 +1041,7 @@ namespace physx
 		}
 		else
 		{
-			PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "NpMPMParticleSystem:addParticleBuffer(): the provided buffer type is not supported by this type of particle system.");
+			ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "NpMPMParticleSystem:addParticleBuffer(): the provided buffer type is not supported by this type of particle system.");
 		}
 	}
 
@@ -1070,9 +1070,9 @@ namespace physx
 
 }
 
-physx::PxParticleClothPreProcessor* PxCreateParticleClothPreProcessor(physx::PxCudaContextManager* cudaContextManager)
+ev4sio_physx::PxParticleClothPreProcessor* ev4sio_PxCreateParticleClothPreProcessor(ev4sio_physx::PxCudaContextManager* cudaContextManager)
 {
-	physx::PxParticleClothPreProcessor* processor = PX_NEW(physx::NpParticleClothPreProcessor)(cudaContextManager);
+	ev4sio_physx::PxParticleClothPreProcessor* processor = PX_NEW(ev4sio_physx::NpParticleClothPreProcessor)(cudaContextManager);
 	return processor;
 }
 

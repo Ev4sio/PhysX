@@ -33,9 +33,9 @@
 #include "foundation/PxArray.h"
 #include "foundation/PxSList.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Ext
+namespace ev4sio_Ext
 {
 	class SharedQueueEntry : public PxSListEntry
 	{
@@ -145,7 +145,7 @@ void SharedQueueEntryPool<Alloc>::putEntry(SharedQueueEntry& entry)
 	}
 }
 
-} // namespace Ext
-} // namespace physx
+} // namespace ev4sio_Ext
+} // namespace ev4sio_physx
 
 #endif

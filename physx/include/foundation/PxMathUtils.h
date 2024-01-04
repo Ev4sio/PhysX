@@ -40,7 +40,7 @@
 #include "foundation/PxPlane.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -521,7 +521,7 @@ PX_INLINE PX_CUDA_CALLABLE PxReal PxSdfSample(const PxReal* PX_RESTRICT sdf, con
 }
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 /** @} */

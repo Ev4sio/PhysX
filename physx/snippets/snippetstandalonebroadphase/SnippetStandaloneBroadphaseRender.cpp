@@ -36,7 +36,7 @@
 #include "../snippetrender/SnippetCamera.h"
 #include "../snippetutils/SnippetUtils.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 extern void initPhysics(bool interactive);
 extern void stepPhysics(bool interactive);	

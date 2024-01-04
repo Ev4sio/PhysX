@@ -31,20 +31,20 @@
 #include "ExtVec3.h"
 #include "GuWindingNumberT.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Ext
+namespace ev4sio_Ext
 {
-	using Triangle = Gu::IndexedTriangleT<PxI32>;
-	using Triangle16 = Gu::IndexedTriangleT<PxI16>;
+	using Triangle = ev4sio_Gu::IndexedTriangleT<PxI32>;
+	using Triangle16 = ev4sio_Gu::IndexedTriangleT<PxI16>;
 	
-	typedef Gu::ClusterApproximationT<PxF64, PxVec3d> ClusterApproximationF64;
-	typedef Gu::SecondOrderClusterApproximationT<PxF64, PxVec3d> SecondOrderClusterApproximationF64;
+	typedef ev4sio_Gu::ClusterApproximationT<PxF64, PxVec3d> ClusterApproximationF64;
+	typedef ev4sio_Gu::SecondOrderClusterApproximationT<PxF64, PxVec3d> SecondOrderClusterApproximationF64;
 	
-	PxF64 computeWindingNumber(const PxArray<Gu::BVHNode>& tree, const PxVec3d& q, PxF64 beta, const PxHashMap<PxU32, ClusterApproximationF64>& clusters,
+	PxF64 computeWindingNumber(const PxArray<ev4sio_Gu::BVHNode>& tree, const PxVec3d& q, PxF64 beta, const PxHashMap<PxU32, ClusterApproximationF64>& clusters,
 		const PxArray<Triangle>& triangles, const PxArray<PxVec3d>& points);
 
-	void precomputeClusterInformation(PxArray<Gu::BVHNode>& tree, const PxArray<Triangle>& triangles,
+	void precomputeClusterInformation(PxArray<ev4sio_Gu::BVHNode>& tree, const PxArray<Triangle>& triangles,
 		const PxArray<PxVec3d>& points, PxHashMap<PxU32, ClusterApproximationF64>& result, PxI32 rootNodeIndex = 0);
 }
 }

@@ -34,9 +34,9 @@
 #include "GuSqInternal.h"
 #include "GuBounds.h"
 
-using namespace physx;
-using namespace Sq;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Sq;
+using namespace ev4sio_Gu;
 
 PrunerExt::PrunerExt() : mPruner(NULL), mDirtyList("SQmDirtyList"), mDirtyStatic(false)
 {
@@ -510,7 +510,7 @@ void PrunerManager::shiftOrigin(const PxVec3& shift)
 void PrunerManager::addCompoundShape(const PxBVH& pxbvh, PrunerCompoundId compoundId, const PxTransform& compoundTransform, PrunerData* prunerData, const PrunerPayload* payloads, const PxTransform* transforms, bool isDynamic)
 {
 	const BVH& bvh = static_cast<const BVH&>(pxbvh);
-	const PxU32 nbShapes = bvh.Gu::BVH::getNbBounds();
+	const PxU32 nbShapes = bvh.ev4sio_Gu::BVH::getNbBounds();
 
 	PX_ALLOCA(res, PrunerHandle, nbShapes);
 

@@ -31,14 +31,14 @@
 #include "ScStaticSim.h"
 #include "PxRigidStatic.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
-Sc::StaticSim* Sc::StaticCore::getSim() const
+ev4sio_Sc::StaticSim* ev4sio_Sc::StaticCore::getSim() const
 {
-	return static_cast<StaticSim*>(Sc::ActorCore::getSim());
+	return static_cast<StaticSim*>(ev4sio_Sc::ActorCore::getSim());
 }
 
-void Sc::StaticCore::setActor2World(const PxTransform& actor2World)
+void ev4sio_Sc::StaticCore::setActor2World(const PxTransform& actor2World)
 {
 	mCore.body2World = actor2World;
 

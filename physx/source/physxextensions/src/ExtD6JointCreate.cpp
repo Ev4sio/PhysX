@@ -36,11 +36,11 @@
 #include "extensions/PxDistanceJoint.h"
 #include "PxPhysics.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 static const PxVec3 gX(1.0f, 0.0f, 0.0f);
 
-PxJoint* physx::PxD6JointCreate_Fixed(PxPhysics& physics, PxRigidActor* actor0, const PxVec3& localPos0, PxRigidActor* actor1, const PxVec3& localPos1, bool useD6)
+PxJoint* ev4sio_physx::PxD6JointCreate_Fixed(PxPhysics& physics, PxRigidActor* actor0, const PxVec3& localPos0, PxRigidActor* actor1, const PxVec3& localPos1, bool useD6)
 {
 	const PxTransform jointFrame0(localPos0);
 	const PxTransform jointFrame1(localPos1);
@@ -51,7 +51,7 @@ PxJoint* physx::PxD6JointCreate_Fixed(PxPhysics& physics, PxRigidActor* actor0, 
 		return PxFixedJointCreate(physics, actor0, jointFrame0, actor1, jointFrame1);
 }
 
-PxJoint* physx::PxD6JointCreate_Distance(PxPhysics& physics, PxRigidActor* actor0, const PxVec3& localPos0, PxRigidActor* actor1, const PxVec3& localPos1, float maxDist, bool useD6)
+PxJoint* ev4sio_physx::PxD6JointCreate_Distance(PxPhysics& physics, PxRigidActor* actor0, const PxVec3& localPos0, PxRigidActor* actor1, const PxVec3& localPos1, float maxDist, bool useD6)
 {
 	const PxTransform localFrame0(localPos0);
 	const PxTransform localFrame1(localPos1);
@@ -78,7 +78,7 @@ PxJoint* physx::PxD6JointCreate_Distance(PxPhysics& physics, PxRigidActor* actor
 	}
 }
 
-PxJoint* physx::PxD6JointCreate_Prismatic(PxPhysics& physics, PxRigidActor* actor0, const PxVec3& localPos0, PxRigidActor* actor1, const PxVec3& localPos1, const PxVec3& axis, float minLimit, float maxLimit, bool useD6)
+PxJoint* ev4sio_physx::PxD6JointCreate_Prismatic(PxPhysics& physics, PxRigidActor* actor0, const PxVec3& localPos0, PxRigidActor* actor1, const PxVec3& localPos1, const PxVec3& axis, float minLimit, float maxLimit, bool useD6)
 {
 	const PxQuat q = PxShortestRotation(gX, axis);
 	const PxTransform localFrame0(localPos0, q);
@@ -113,7 +113,7 @@ PxJoint* physx::PxD6JointCreate_Prismatic(PxPhysics& physics, PxRigidActor* acto
 	}
 }
 
-PxJoint* physx::PxD6JointCreate_Revolute(PxPhysics& physics, PxRigidActor* actor0, const PxVec3& localPos0, PxRigidActor* actor1, const PxVec3& localPos1, const PxVec3& axis, float minLimit, float maxLimit, bool useD6)
+PxJoint* ev4sio_physx::PxD6JointCreate_Revolute(PxPhysics& physics, PxRigidActor* actor0, const PxVec3& localPos0, PxRigidActor* actor1, const PxVec3& localPos1, const PxVec3& axis, float minLimit, float maxLimit, bool useD6)
 {
 	const PxQuat q = PxShortestRotation(gX, axis);
 	const PxTransform localFrame0(localPos0, q);
@@ -147,7 +147,7 @@ PxJoint* physx::PxD6JointCreate_Revolute(PxPhysics& physics, PxRigidActor* actor
 	}
 }
 
-PxJoint* physx::PxD6JointCreate_Spherical(PxPhysics& physics, PxRigidActor* actor0, const PxVec3& localPos0, PxRigidActor* actor1, const PxVec3& localPos1, const PxVec3& axis, float limit1, float limit2, bool useD6)
+PxJoint* ev4sio_physx::PxD6JointCreate_Spherical(PxPhysics& physics, PxRigidActor* actor0, const PxVec3& localPos0, PxRigidActor* actor1, const PxVec3& localPos1, const PxVec3& axis, float limit1, float limit2, bool useD6)
 {
 	const PxQuat q = PxShortestRotation(gX, axis);
 	const PxTransform localFrame0(localPos0, q);
@@ -184,7 +184,7 @@ PxJoint* physx::PxD6JointCreate_Spherical(PxPhysics& physics, PxRigidActor* acto
 	}
 }
 
-PxJoint* physx::PxD6JointCreate_GenericCone(float& apiroty, float& apirotz, PxPhysics& physics, PxRigidActor* actor0, const PxVec3& localPos0, PxRigidActor* actor1, const PxVec3& localPos1, float minLimit1, float maxLimit1, float minLimit2, float maxLimit2, bool useD6)
+PxJoint* ev4sio_physx::PxD6JointCreate_GenericCone(float& apiroty, float& apirotz, PxPhysics& physics, PxRigidActor* actor0, const PxVec3& localPos0, PxRigidActor* actor1, const PxVec3& localPos1, float minLimit1, float maxLimit1, float minLimit2, float maxLimit2, bool useD6)
 {
 	const float DesiredMinSwingY = minLimit1;
 	const float DesiredMaxSwingY = maxLimit1;
@@ -224,7 +224,7 @@ PxJoint* physx::PxD6JointCreate_GenericCone(float& apiroty, float& apirotz, PxPh
 	}
 }
 
-PxJoint* physx::PxD6JointCreate_Pyramid(PxPhysics& physics, PxRigidActor* actor0, const PxVec3& localPos0, PxRigidActor* actor1, const PxVec3& localPos1, const PxVec3& axis,
+PxJoint* ev4sio_physx::PxD6JointCreate_Pyramid(PxPhysics& physics, PxRigidActor* actor0, const PxVec3& localPos0, PxRigidActor* actor1, const PxVec3& localPos1, const PxVec3& axis,
 										float minLimit1, float maxLimit1, float minLimit2, float maxLimit2)
 {
 	const PxQuat q = PxShortestRotation(gX, axis);

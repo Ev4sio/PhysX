@@ -32,24 +32,24 @@
 #include "ExtTaskQueueHelper.h"
 #include "foundation/PxFPU.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
-Ext::CpuWorkerThread::CpuWorkerThread()
+ev4sio_Ext::CpuWorkerThread::CpuWorkerThread()
 :	mQueueEntryPool(EXT_TASK_QUEUE_ENTRY_POOL_SIZE),
 	mThreadId(0)
 {
 }
 
-Ext::CpuWorkerThread::~CpuWorkerThread()
+ev4sio_Ext::CpuWorkerThread::~CpuWorkerThread()
 {
 }
 
-void Ext::CpuWorkerThread::initialize(DefaultCpuDispatcher* ownerDispatcher)
+void ev4sio_Ext::CpuWorkerThread::initialize(DefaultCpuDispatcher* ownerDispatcher)
 {
 	mOwner = ownerDispatcher;
 }
 
-bool Ext::CpuWorkerThread::tryAcceptJobToLocalQueue(PxBaseTask& task, PxThread::Id taskSubmitionThread)
+bool ev4sio_Ext::CpuWorkerThread::tryAcceptJobToLocalQueue(PxBaseTask& task, PxThread::Id taskSubmitionThread)
 {
 	if(taskSubmitionThread == mThreadId)
 	{
@@ -66,12 +66,12 @@ bool Ext::CpuWorkerThread::tryAcceptJobToLocalQueue(PxBaseTask& task, PxThread::
 	return false;
 }
 
-PxBaseTask* Ext::CpuWorkerThread::giveUpJob()
+PxBaseTask* ev4sio_Ext::CpuWorkerThread::giveUpJob()
 {
 	return TaskQueueHelper::fetchTask(mLocalJobList, mQueueEntryPool);
 }
 
-void Ext::CpuWorkerThread::execute()
+void ev4sio_Ext::CpuWorkerThread::execute()
 {
 	mThreadId = getId();
 

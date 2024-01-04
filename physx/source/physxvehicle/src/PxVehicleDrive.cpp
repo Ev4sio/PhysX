@@ -34,7 +34,7 @@
 #include "foundation/PxFoundation.h"
 #include "foundation/PxErrors.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 bool PxVehicleDriveSimData::isValid() const
@@ -208,5 +208,5 @@ void PxVehicleDrive::setToRestState()
 	mDriveDynData.setToRestState();
 }
 
-} //namespace physx
+} //namespace ev4sio_physx
 

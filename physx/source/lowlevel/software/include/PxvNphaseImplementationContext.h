@@ -42,20 +42,20 @@
 #include "PxsMPMMaterialCore.h"
 #include "PxsPBDMaterialCore.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace IG
+namespace ev4sio_IG
 {
 	class IslandSim;
 	typedef PxU32 EdgeIndex;
 }
 
-namespace Cm
+namespace ev4sio_Cm
 {
 	class FanoutTask;
 }
 
-namespace Sc
+namespace ev4sio_Sc
 {
 	class ShapeInteraction;
 }
@@ -117,13 +117,13 @@ public:
 	virtual								~PxvNphaseImplementationContext() {}
 
 	virtual void						destroy() = 0;
-	virtual void						updateContactManager(PxReal dt, bool hasContactDistanceChanged, PxBaseTask* continuation, PxBaseTask* firstPassContinuation, Cm::FanoutTask* updateBoundAndShapeTask) = 0;
+	virtual void						updateContactManager(PxReal dt, bool hasContactDistanceChanged, PxBaseTask* continuation, PxBaseTask* firstPassContinuation, ev4sio_Cm::FanoutTask* updateBoundAndShapeTask) = 0;
 	virtual void						postBroadPhaseUpdateContactManager(PxBaseTask* continuation) = 0;
 	virtual void						secondPassUpdateContactManager(PxReal dt, PxBaseTask* continuation) = 0;
 	virtual void						fetchUpdateContactManager() = 0;
 	
-	virtual void						registerContactManager(PxsContactManager* cm, Sc::ShapeInteraction* interaction, PxI32 touching, PxU32 patchCount) = 0;
-//	virtual void						registerContactManagers(PxsContactManager** cm, Sc::ShapeInteraction** shapeInteractions, PxU32 nbContactManagers, PxU32 maxContactManagerId) = 0;
+	virtual void						registerContactManager(PxsContactManager* cm, ev4sio_Sc::ShapeInteraction* interaction, PxI32 touching, PxU32 patchCount) = 0;
+//	virtual void						registerContactManagers(PxsContactManager** cm, ev4sio_Sc::ShapeInteraction** shapeInteractions, PxU32 nbContactManagers, PxU32 maxContactManagerId) = 0;
 	virtual void						unregisterContactManager(PxsContactManager* cm) = 0;
 	virtual void						refreshContactManager(PxsContactManager* cm) = 0;
 
@@ -183,7 +183,7 @@ public:
 
 	virtual PxsContactManagerOutput*	getGPUContactManagerOutputBase() = 0;
 	virtual PxReal*						getGPURestDistances() = 0;
-	virtual Sc::ShapeInteraction**		getGPUShapeInteractions() = 0;
+	virtual ev4sio_Sc::ShapeInteraction**		getGPUShapeInteractions() = 0;
 	virtual PxsTorsionalFrictionData*	getGPUTorsionalData() = 0;
 
 protected:
@@ -204,7 +204,7 @@ public:
 	virtual void							processContactManagerSecondPass(PxReal dt, PxBaseTask* continuation) = 0;
 
 	// PT: TODO: this one is already defined in PxvNphaseImplementationContext ?! Should be "registerContactManagerFallback"...
-	virtual void							registerContactManager(PxsContactManager* cm, Sc::ShapeInteraction* shapeInteraction, PxI32 touching, PxU32 numPatches) = 0;
+	virtual void							registerContactManager(PxsContactManager* cm, ev4sio_Sc::ShapeInteraction* shapeInteraction, PxI32 touching, PxU32 numPatches) = 0;
 	virtual void							unregisterContactManagerFallback(PxsContactManager* cm, PxsContactManagerOutput* cmOutputs) = 0;
 
 	virtual void							refreshContactManagerFallback(PxsContactManager* cm, PxsContactManagerOutput* cmOutputs) = 0;
@@ -228,7 +228,7 @@ public:
 	virtual PxsContactManager**				getFoundPatchManagers() = 0;
 	virtual PxU32							getNbFoundPatchManagers() = 0;
 
-	virtual Sc::ShapeInteraction**			getShapeInteractions() = 0;
+	virtual ev4sio_Sc::ShapeInteraction**			getShapeInteractions() = 0;
 	virtual PxReal*							getRestDistances() = 0;
 	virtual PxsTorsionalFrictionData*		getTorsionalData() = 0;
 };
@@ -242,7 +242,7 @@ public:
 	virtual ~PxvNphaseImplementationContextUsableAsFallback() {}
 };
 
-PxvNphaseImplementationContextUsableAsFallback* createNphaseImplementationContext(PxsContext& context, IG::IslandSim* islandSim, PxVirtualAllocatorCallback* allocator, bool gpuDynamics);
+PxvNphaseImplementationContextUsableAsFallback* createNphaseImplementationContext(PxsContext& context, ev4sio_IG::IslandSim* islandSim, PxVirtualAllocatorCallback* allocator, bool gpuDynamics);
 
 }
 

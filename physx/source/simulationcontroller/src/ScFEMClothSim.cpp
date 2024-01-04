@@ -35,11 +35,11 @@
 #include "ScInteraction.h"  // to be deleted
 #include "PxsSimulationController.h"
 
-using namespace physx;
-using namespace physx::Dy;
+using namespace ev4sio_physx;
+using namespace ev4sio_physx::ev4sio_Dy;
 
 
-Sc::FEMClothSim::FEMClothSim(FEMClothCore& core, Scene& scene) :
+ev4sio_Sc::FEMClothSim::FEMClothSim(FEMClothCore& core, Scene& scene) :
 	ActorSim(scene, core),
 	mShapeSim(*this)
 {
@@ -52,7 +52,7 @@ Sc::FEMClothSim::FEMClothSim(FEMClothCore& core, Scene& scene) :
 	mLLFEMCloth->setElementId(mShapeSim.getElementID());
 }
 
-Sc::FEMClothSim::~FEMClothSim()
+ev4sio_Sc::FEMClothSim::~FEMClothSim()
 {
 	if (!mLLFEMCloth)
 		return;
@@ -64,28 +64,28 @@ Sc::FEMClothSim::~FEMClothSim()
 	mCore.setSim(NULL);
 }
 
-void Sc::FEMClothSim::updateBounds()
+void ev4sio_Sc::FEMClothSim::updateBounds()
 {
 	mShapeSim.updateBounds();
 }
 
-void Sc::FEMClothSim::updateBoundsInAABBMgr()
+void ev4sio_Sc::FEMClothSim::updateBoundsInAABBMgr()
 {
 	mShapeSim.updateBoundsInAABBMgr();
 }
 
-PxBounds3 Sc::FEMClothSim::getBounds() const
+PxBounds3 ev4sio_Sc::FEMClothSim::getBounds() const
 {
 	return mShapeSim.getBounds();
 }
 
-bool Sc::FEMClothSim::isSleeping() const
+bool ev4sio_Sc::FEMClothSim::isSleeping() const
 {
-	IG::IslandSim& sim = mScene.getSimpleIslandManager()->getAccurateIslandSim();
+	ev4sio_IG::IslandSim& sim = mScene.getSimpleIslandManager()->getAccurateIslandSim();
 	return sim.getActiveNodeIndex(mNodeIndex) == PX_INVALID_NODE;
 }
 
-void Sc::FEMClothSim::onSetWakeCounter()
+void ev4sio_Sc::FEMClothSim::onSetWakeCounter()
 {
 	getScene().getSimulationController()->setClothWakeCounter(mLLFEMCloth);
 	if (mLLFEMCloth->getCore().wakeCounter > 0.f)
@@ -94,7 +94,7 @@ void Sc::FEMClothSim::onSetWakeCounter()
 		getScene().getSimpleIslandManager()->deactivateNode(mNodeIndex);
 }
 
-void Sc::FEMClothSim::attachShapeCore(ShapeCore* core)
+void ev4sio_Sc::FEMClothSim::attachShapeCore(ShapeCore* core)
 {
 	mShapeSim.attachShapeCore(core);
 

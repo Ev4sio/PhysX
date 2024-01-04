@@ -33,9 +33,9 @@
 #include "foundation/PxBounds3.h"
 #include "common/PxPhysXCommonConfig.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Gu
+namespace ev4sio_Gu
 {
 	class Box;
 	class BoxPadded;
@@ -53,7 +53,7 @@ namespace Gu
 	PX_PHYSX_COMMON_API bool intersectTetrahedronBox(const PxVec3& a, const PxVec3& b, const PxVec3& c, const PxVec3& d, const PxBounds3& box);
 
 
-} // namespace Gu
+} // namespace ev4sio_Gu
 }
 
 #endif

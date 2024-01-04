@@ -63,7 +63,7 @@
 #endif
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 typedef int64_t PxI64;
@@ -82,7 +82,7 @@ typedef PxI32 PxIntBool;
 static const PxIntBool PxIntFalse = 0;
 static const PxIntBool PxIntTrue = 1;
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #define PX_SIGN_BITMASK 0x80000000

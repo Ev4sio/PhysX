@@ -43,9 +43,9 @@
 #include "ScRigidCore.h" //KS - required for ShapeChangeNotifyFlags. Ideally, we should move that to a separate shared file
 #include "PxConeLimitedConstraint.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-	namespace Sc
+	namespace ev4sio_Sc
 	{
 		class FEMClothSim;
 
@@ -66,25 +66,25 @@ namespace physx
 			PxFEMParameters				getParameter() const;
 			void						setParameter(const PxFEMParameters& paramters);
 
-			void						addRigidFilter(Sc::BodyCore* core, PxU32 vertId);
-			void						removeRigidFilter(Sc::BodyCore* core, PxU32 vertId);
+			void						addRigidFilter(ev4sio_Sc::BodyCore* core, PxU32 vertId);
+			void						removeRigidFilter(ev4sio_Sc::BodyCore* core, PxU32 vertId);
 
-			PxU32						addRigidAttachment(Sc::BodyCore* core, PxU32 vertId, const PxVec3& actorSpacePose, PxConeLimitedConstraint* constraint);
-			void						removeRigidAttachment(Sc::BodyCore* core, PxU32 handle);
+			PxU32						addRigidAttachment(ev4sio_Sc::BodyCore* core, PxU32 vertId, const PxVec3& actorSpacePose, PxConeLimitedConstraint* constraint);
+			void						removeRigidAttachment(ev4sio_Sc::BodyCore* core, PxU32 handle);
 
-			void						addTriRigidFilter(Sc::BodyCore* core, PxU32 triIdx);
-			void						removeTriRigidFilter(Sc::BodyCore* core, PxU32 triIdx);
+			void						addTriRigidFilter(ev4sio_Sc::BodyCore* core, PxU32 triIdx);
+			void						removeTriRigidFilter(ev4sio_Sc::BodyCore* core, PxU32 triIdx);
 
-			PxU32						addTriRigidAttachment(Sc::BodyCore* core, PxU32 triIdx, const PxVec4& barycentric, 
+			PxU32						addTriRigidAttachment(ev4sio_Sc::BodyCore* core, PxU32 triIdx, const PxVec4& barycentric, 
 										const PxVec3& actorSpacePose, PxConeLimitedConstraint* constraint);
-			void						removeTriRigidAttachment(Sc::BodyCore* core, PxU32 handle);
+			void						removeTriRigidAttachment(ev4sio_Sc::BodyCore* core, PxU32 handle);
 
-			void						addClothFilter(Sc::FEMClothCore* otherCore, PxU32 otherTriIdx, PxU32 triIdx);
-			void						removeClothFilter(Sc::FEMClothCore* otherCore, PxU32 otherTriIdx0, PxU32 triIdx);
+			void						addClothFilter(ev4sio_Sc::FEMClothCore* otherCore, PxU32 otherTriIdx, PxU32 triIdx);
+			void						removeClothFilter(ev4sio_Sc::FEMClothCore* otherCore, PxU32 otherTriIdx0, PxU32 triIdx);
 
-			PxU32						addClothAttachment(Sc::FEMClothCore* otherCore, PxU32 otherTriIdx, const PxVec4& otherTriBarycentric, PxU32 triIdx, 
+			PxU32						addClothAttachment(ev4sio_Sc::FEMClothCore* otherCore, PxU32 otherTriIdx, const PxVec4& otherTriBarycentric, PxU32 triIdx, 
 										const PxVec4& triBarycentric);
-			void						removeClothAttachment(Sc::FEMClothCore* otherCore, PxU32 handle);
+			void						removeClothAttachment(ev4sio_Sc::FEMClothCore* otherCore, PxU32 handle);
 
 #if 0 // disabled until future use.
 			void						setDrag(const PxReal v) { mCore.drag = v; }
@@ -136,9 +136,9 @@ namespace physx
 
 			FEMClothSim*		getSim() const;
 
-			PX_FORCE_INLINE	const Dy::FEMClothCore&	getCore() const { return mCore; }
+			PX_FORCE_INLINE	const ev4sio_Dy::FEMClothCore&	getCore() const { return mCore; }
 
-			PX_FORCE_INLINE	Dy::FEMClothCore& getCore() { return mCore; }
+			PX_FORCE_INLINE	ev4sio_Dy::FEMClothCore& getCore() { return mCore; }
 
 			static PX_FORCE_INLINE FEMClothCore&	getFEMClothCore(FEMClothCore& core)
 			{
@@ -161,12 +161,12 @@ namespace physx
 			void onShapeChange(ShapeCore& shape, ShapeChangeNotifyFlags notifyFlags);
 
 		private:
-			Dy::FEMClothCore				mCore;
+			ev4sio_Dy::FEMClothCore				mCore;
 			PxFilterData					mFilterData;
 			PxU64							mGpuMemStat;
 		};
 
-	} // namespace Sc
+	} // namespace ev4sio_Sc
 }
 #endif
 

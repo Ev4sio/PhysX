@@ -34,9 +34,9 @@
 /*
 	This file is used to avoid the inner loop cross DLL calls
 */
-namespace physx
+namespace ev4sio_physx
 {
-namespace Gu
+namespace ev4sio_Gu
 {
 
 enum GjkStatus

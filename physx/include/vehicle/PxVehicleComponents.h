@@ -36,7 +36,7 @@
 #include "common/PxTypeInfo.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -1349,7 +1349,7 @@ private:
 };
 PX_COMPILE_TIME_ASSERT(0==(sizeof(PxVehicleTireData)& 0x0f));
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

@@ -64,10 +64,10 @@ static void reportError(const char* file, int line, const char* format, ...)
 	va_list args;
 	va_start(args, format);
 
-	physx::PxFoundation* foundation = PxIsFoundationValid();
+	ev4sio_physx::PxFoundation* foundation = ev4sio_PxIsFoundationValid();
 	if(foundation)
 	{
-		foundation->error(physx::PxErrorCode::eINTERNAL_ERROR, file, line, format, args);
+		foundation->error(ev4sio_physx::PxErrorCode::eINTERNAL_ERROR, file, line, format, args);
 	}
 	else
 	{
@@ -79,12 +79,12 @@ static void reportError(const char* file, int line, const char* format, ...)
 }
 
 
-void PxSetPhysXGpuLoadHook(const PxGpuLoadHook* hook)
+void ev4sio_PxSetPhysXGpuLoadHook(const PxGpuLoadHook* hook)
 {
 	gPhysXGpuLibraryName = hook->getPhysXGpuDllName();
 }
 
-namespace physx
+namespace ev4sio_physx
 {
 #if PX_VC
 #pragma warning(disable: 4191)	//'operator/operation' : unsafe conversion from 'type of expression' to 'type required'
@@ -94,13 +94,13 @@ namespace physx
 	class PxPhysXGpu;
 	class PxPhysicsGpu;
 
-	typedef physx::PxPhysXGpu* (PxCreatePhysXGpu_FUNC)();
-	typedef physx::PxCudaContextManager* (PxCreateCudaContextManager_FUNC)(physx::PxFoundation& foundation, const physx::PxCudaContextManagerDesc& desc, physx::PxProfilerCallback* profilerCallback, bool launchSynchronous);
-	typedef int (PxGetSuggestedCudaDeviceOrdinal_FUNC)(physx::PxErrorCallback& errc);
-	typedef void (PxSetPhysXGpuProfilerCallback_FUNC)(physx::PxProfilerCallback* cbk);
+	typedef ev4sio_physx::PxPhysXGpu* (PxCreatePhysXGpu_FUNC)();
+	typedef ev4sio_physx::PxCudaContextManager* (PxCreateCudaContextManager_FUNC)(ev4sio_physx::PxFoundation& foundation, const ev4sio_physx::PxCudaContextManagerDesc& desc, ev4sio_physx::PxProfilerCallback* profilerCallback, bool launchSynchronous);
+	typedef int (PxGetSuggestedCudaDeviceOrdinal_FUNC)(ev4sio_physx::PxErrorCallback& errc);
+	typedef void (PxSetPhysXGpuProfilerCallback_FUNC)(ev4sio_physx::PxProfilerCallback* cbk);
 	typedef void (PxCudaRegisterFunction_FUNC)(int, const char*);
 	typedef void** (PxCudaRegisterFatBinary_FUNC)(void*);
-	typedef physx::PxKernelIndex* (PxGetCudaFunctionTable_FUNC)();
+	typedef ev4sio_physx::PxKernelIndex* (PxGetCudaFunctionTable_FUNC)();
 	typedef PxU32 (PxGetCudaFunctionTableSize_FUNC)();
 	typedef void** PxGetCudaModuleTable_FUNC();
 	typedef PxPhysicsGpu* PxCreatePhysicsGpu_FUNC();
@@ -145,7 +145,7 @@ namespace physx
 		bool freshlyLoaded = false;
 		if (s_library == NULL)
 		{
-			Cm::CmModuleUpdateLoader moduleLoader(UPDATE_LOADER_DLL_NAME);
+			ev4sio_Cm::CmModuleUpdateLoader moduleLoader(UPDATE_LOADER_DLL_NAME);
 			s_library = moduleLoader.LoadModule(gPhysXGpuLibraryName, appGUID == NULL ? DEFAULT_PHYSX_GPU_GUID : appGUID);
 			freshlyLoaded = true;
 		}
@@ -153,9 +153,9 @@ namespace physx
 		if (s_library && (freshlyLoaded || g_PxCreatePhysXGpu_Func == NULL))
 		{			
 			g_PxCreatePhysXGpu_Func = (PxCreatePhysXGpu_FUNC*)GetProcAddress(s_library, "PxCreatePhysXGpu");
-			g_PxCreateCudaContextManager_Func = (PxCreateCudaContextManager_FUNC*)GetProcAddress(s_library, "PxCreateCudaContextManager");
-			g_PxGetSuggestedCudaDeviceOrdinal_Func = (PxGetSuggestedCudaDeviceOrdinal_FUNC*)GetProcAddress(s_library, "PxGetSuggestedCudaDeviceOrdinal");
-			g_PxSetPhysXGpuProfilerCallback_Func = (PxSetPhysXGpuProfilerCallback_FUNC*)GetProcAddress(s_library, "PxSetPhysXGpuProfilerCallback");
+			g_PxCreateCudaContextManager_Func = (PxCreateCudaContextManager_FUNC*)GetProcAddress(s_library, "ev4sio_PxCreateCudaContextManager");
+			g_PxGetSuggestedCudaDeviceOrdinal_Func = (PxGetSuggestedCudaDeviceOrdinal_FUNC*)GetProcAddress(s_library, "ev4sio_PxGetSuggestedCudaDeviceOrdinal");
+			g_PxSetPhysXGpuProfilerCallback_Func = (PxSetPhysXGpuProfilerCallback_FUNC*)GetProcAddress(s_library, "ev4sio_PxSetPhysXGpuProfilerCallback");
 			g_PxCudaRegisterFunction_Func = (PxCudaRegisterFunction_FUNC*)GetProcAddress(s_library, "PxGpuCudaRegisterFunction");
 			g_PxCudaRegisterFatBinary_Func = (PxCudaRegisterFatBinary_FUNC*)GetProcAddress(s_library, "PxGpuCudaRegisterFatBinary");
 			g_PxGetCudaFunctionTable_Func  = (PxGetCudaFunctionTable_FUNC*)GetProcAddress(s_library, "PxGpuGetCudaFunctionTable");
@@ -206,9 +206,9 @@ namespace physx
 		if (s_library)
 		{
 			*reinterpret_cast<void**>(&g_PxCreatePhysXGpu_Func) = dlsym(s_library, "PxCreatePhysXGpu");
-			*reinterpret_cast<void**>(&g_PxCreateCudaContextManager_Func) = dlsym(s_library, "PxCreateCudaContextManager");
-			*reinterpret_cast<void**>(&g_PxGetSuggestedCudaDeviceOrdinal_Func) = dlsym(s_library, "PxGetSuggestedCudaDeviceOrdinal");
-			*reinterpret_cast<void**>(&g_PxSetPhysXGpuProfilerCallback_Func) = dlsym(s_library, "PxSetPhysXGpuProfilerCallback");
+			*reinterpret_cast<void**>(&g_PxCreateCudaContextManager_Func) = dlsym(s_library, "ev4sio_PxCreateCudaContextManager");
+			*reinterpret_cast<void**>(&g_PxGetSuggestedCudaDeviceOrdinal_Func) = dlsym(s_library, "ev4sio_PxGetSuggestedCudaDeviceOrdinal");
+			*reinterpret_cast<void**>(&g_PxSetPhysXGpuProfilerCallback_Func) = dlsym(s_library, "ev4sio_PxSetPhysXGpuProfilerCallback");
 			*reinterpret_cast<void**>(&g_PxCudaRegisterFunction_Func) = dlsym(s_library, "PxGpuCudaRegisterFunction");
 			*reinterpret_cast<void**>(&g_PxCudaRegisterFatBinary_Func) = dlsym(s_library, "PxGpuCudaRegisterFatBinary");
 			*reinterpret_cast<void**>(&g_PxGetCudaFunctionTable_Func)  = dlsym(s_library, "PxGpuGetCudaFunctionTable");

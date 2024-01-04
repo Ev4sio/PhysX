@@ -40,7 +40,7 @@
 
 #define INVALID_REPORT_PAIR_ID	0xffffffff
 
-namespace physx
+namespace ev4sio_physx
 {
 static PX_FORCE_INLINE bool isParticleSystem(const PxActorType::Enum actorType)
 {
@@ -49,7 +49,7 @@ static PX_FORCE_INLINE bool isParticleSystem(const PxActorType::Enum actorType)
 }
 
 class PxsContactManagerOutputIterator;
-namespace Sc
+namespace ev4sio_Sc
 {
 	class ContactReportAllocationManager;
 	/*
@@ -148,8 +148,8 @@ namespace Sc
 
 		PX_FORCE_INLINE PxU32					getEdgeIndex() const { return mEdgeIndex;  }
 
-		PX_FORCE_INLINE	Sc::ShapeSimBase&		getShape0()	const { return static_cast<ShapeSimBase&>(getElement0()); }
-		PX_FORCE_INLINE	Sc::ShapeSimBase&		getShape1()	const { return static_cast<ShapeSimBase&>(getElement1()); }
+		PX_FORCE_INLINE	ev4sio_Sc::ShapeSimBase&		getShape0()	const { return static_cast<ShapeSimBase&>(getElement0()); }
+		PX_FORCE_INLINE	ev4sio_Sc::ShapeSimBase&		getShape1()	const { return static_cast<ShapeSimBase&>(getElement1()); }
 
 	private:
 						ActorPair*				mActorPair;
@@ -183,16 +183,16 @@ namespace Sc
 
 		// Certain SiFlag cache properties of the pair. If these properties change then the flags have to be updated.
 		// For example: is collision enabled for this pair? are contact points requested for this pair?
-		PX_FORCE_INLINE	void					updateFlags(const Sc::Scene&, const Sc::ActorSim&, const Sc::ActorSim&, const PxU32 pairFlags);
+		PX_FORCE_INLINE	void					updateFlags(const ev4sio_Sc::Scene&, const ev4sio_Sc::ActorSim&, const ev4sio_Sc::ActorSim&, const PxU32 pairFlags);
 
-		friend class Sc::Scene;
+		friend class ev4sio_Sc::Scene;
 	};
 
-} // namespace Sc
+} // namespace ev4sio_Sc
 
 // PT: TODO: is there a reason for force-inlining all that stuff?
 
-PX_FORCE_INLINE void Sc::ShapeInteraction::sendLostTouchReport(bool shapeVolumeRemoved, PxU32 ccdPass, PxsContactManagerOutputIterator& outputs)
+PX_FORCE_INLINE void ev4sio_Sc::ShapeInteraction::sendLostTouchReport(bool shapeVolumeRemoved, PxU32 ccdPass, PxsContactManagerOutputIterator& outputs)
 {
 	PX_ASSERT(hasTouch());
 	PX_ASSERT(isReportPair());
@@ -223,7 +223,7 @@ PX_FORCE_INLINE void Sc::ShapeInteraction::sendLostTouchReport(bool shapeVolumeR
 	}
 }
 
-PX_FORCE_INLINE void Sc::ShapeInteraction::setPairFlags(PxPairFlags flags)
+PX_FORCE_INLINE void ev4sio_Sc::ShapeInteraction::setPairFlags(PxPairFlags flags)
 {
 	PX_ASSERT(PxU32(flags) < PxPairFlag::eNEXT_FREE);  // to find out if a new PxPairFlag has been added after eLAST instead of in front
 
@@ -236,12 +236,12 @@ PX_FORCE_INLINE void Sc::ShapeInteraction::setPairFlags(PxPairFlags flags)
 }
 
 // PT: returning PxU32 instead of PxPairFlags to remove LHS. Please do not undo this.
-PX_FORCE_INLINE PxU32 Sc::ShapeInteraction::getPairFlags() const
+PX_FORCE_INLINE PxU32 ev4sio_Sc::ShapeInteraction::getPairFlags() const
 {
 	return (mFlags & PAIR_FLAGS_MASK);
 }
 
-PX_INLINE void Sc::ShapeInteraction::swapAndClearForceThresholdExceeded()
+PX_INLINE void ev4sio_Sc::ShapeInteraction::swapAndClearForceThresholdExceeded()
 {
 	PxU32 flags = mFlags;
 
@@ -254,7 +254,7 @@ PX_INLINE void Sc::ShapeInteraction::swapAndClearForceThresholdExceeded()
 	mFlags = flags;
 }
 
-PX_FORCE_INLINE	void Sc::ShapeInteraction::removeFromReportPairList()
+PX_FORCE_INLINE	void ev4sio_Sc::ShapeInteraction::removeFromReportPairList()
 {
 	// this method should only get called if the pair is in the list for
 	// persistent or force based contact reports
@@ -272,7 +272,7 @@ PX_FORCE_INLINE	void Sc::ShapeInteraction::removeFromReportPairList()
 	}
 }
 
-PX_INLINE bool Sc::ShapeInteraction::updateManager(void* contactManager)
+PX_INLINE bool ev4sio_Sc::ShapeInteraction::updateManager(void* contactManager)
 {
 	if (activeManagerAllowed())
 	{
@@ -285,7 +285,7 @@ PX_INLINE bool Sc::ShapeInteraction::updateManager(void* contactManager)
 		return false;
 }
 
-PX_INLINE void Sc::ShapeInteraction::destroyManager()
+PX_INLINE void ev4sio_Sc::ShapeInteraction::destroyManager()
 {
 	PX_ASSERT(mManager);
 
@@ -301,7 +301,7 @@ PX_INLINE void Sc::ShapeInteraction::destroyManager()
 	mManager = 0;
 }
 
-PX_FORCE_INLINE bool Sc::ShapeInteraction::activeManagerAllowed() const
+PX_FORCE_INLINE bool ev4sio_Sc::ShapeInteraction::activeManagerAllowed() const
 {
 	ShapeSimBase& shape0 = getShape0();
 	ShapeSimBase& shape1 = getShape1();
@@ -320,7 +320,7 @@ PX_FORCE_INLINE bool Sc::ShapeInteraction::activeManagerAllowed() const
 	if(!bodySim0.getNodeIndex().isValid())
 		return false;
 
-	const IG::IslandSim& islandSim = getScene().getSimpleIslandManager()->getSpeculativeIslandSim();
+	const ev4sio_IG::IslandSim& islandSim = getScene().getSimpleIslandManager()->getSpeculativeIslandSim();
 
 	//check whether active in the speculative sim!
 
@@ -328,26 +328,26 @@ PX_FORCE_INLINE bool Sc::ShapeInteraction::activeManagerAllowed() const
 		(!bodySim1.isStaticRigid() && islandSim.getNode(bodySim1.getNodeIndex()).isActive()));
 }
 
-PX_FORCE_INLINE void Sc::ShapeInteraction::sendCCDRetouch(PxU32 ccdPass, PxsContactManagerOutputIterator& outputs)
+PX_FORCE_INLINE void ev4sio_Sc::ShapeInteraction::sendCCDRetouch(PxU32 ccdPass, PxsContactManagerOutputIterator& outputs)
 {
 	const PxU32 pairFlags = getPairFlags();
 	if (pairFlags & PxPairFlag::eNOTIFY_TOUCH_CCD)
 		processUserNotification(PxPairFlag::eNOTIFY_TOUCH_CCD, 0, false, ccdPass, false, outputs);
 }
 
-PX_FORCE_INLINE void Sc::ShapeInteraction::adjustCountersOnLostTouch()
+PX_FORCE_INLINE void ev4sio_Sc::ShapeInteraction::adjustCountersOnLostTouch()
 {
 	PX_ASSERT(mActorPair->getTouchCount());
 
 	mActorPair->decTouchCount();
 }
 
-PX_FORCE_INLINE void Sc::ShapeInteraction::adjustCountersOnNewTouch()
+PX_FORCE_INLINE void ev4sio_Sc::ShapeInteraction::adjustCountersOnNewTouch()
 {
 	mActorPair->incTouchCount();
 }
 
-PX_FORCE_INLINE PxIntBool Sc::ShapeInteraction::hasKnownTouchState() const
+PX_FORCE_INLINE PxIntBool ev4sio_Sc::ShapeInteraction::hasKnownTouchState() const
 {
 	// For a pair where the bodies were added asleep, the touch state is not known until narrowphase runs on the pair for the first time.
 	// If such a pair looses AABB overlap before, the conservative approach is to wake the bodies up. This method provides an indicator that

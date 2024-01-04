@@ -32,9 +32,9 @@
 #include "GuCapsule.h"
 #include "foundation/PxUtilities.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Gu
+namespace ev4sio_Gu
 {
 	// PT: precomputed data for capsule-triangle test. Useful when testing the same capsule vs several triangles.
 	struct CapsuleTriangleOverlapData
@@ -128,7 +128,7 @@ namespace Gu
 	*	\param		params	[in] precomputed capsule params
 	*	\return		true if capsule overlaps triangle
 	*/
-	bool intersectCapsuleTriangle(const PxVec3& normal, const PxVec3& p0, const PxVec3& p1, const PxVec3& p2, const Gu::Capsule& capsule, const CapsuleTriangleOverlapData& params);
+	bool intersectCapsuleTriangle(const PxVec3& normal, const PxVec3& p0, const PxVec3& p1, const PxVec3& p2, const ev4sio_Gu::Capsule& capsule, const CapsuleTriangleOverlapData& params);
 }
 }
 

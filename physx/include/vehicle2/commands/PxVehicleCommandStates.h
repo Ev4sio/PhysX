@@ -38,7 +38,7 @@
 #include "vehicle2/PxVehicleLimits.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 namespace vehicle2
 {
@@ -134,7 +134,7 @@ struct PxVehicleTankDriveTransmissionCommandState : public PxVehicleEngineDriveT
 
 #if !PX_DOXYGEN
 } // namespace vehicle2
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 /** @} */

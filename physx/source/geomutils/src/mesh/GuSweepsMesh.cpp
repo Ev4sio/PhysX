@@ -41,10 +41,10 @@
 #include "GuCapsule.h"
 #include "CmMatrix34.h"
 
-using namespace physx;
-using namespace Gu;
-using namespace Cm;
-using namespace physx::aos;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
+using namespace ev4sio_Cm;
+using namespace ev4sio_physx::aos;
 
 #include "GuSweepConvexTri.h"
 

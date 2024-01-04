@@ -31,7 +31,7 @@
 #include "foundation/PxFoundation.h"
 #include "foundation/PxErrors.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 PxVehicleWheels4SimData::PxVehicleWheels4SimData()
@@ -185,5 +185,5 @@ void PxVehicleWheels4SimData::setSceneQueryFilterData(const PxU32 id, const PxFi
 }
 
 
-} //namespace physx
+} //namespace ev4sio_physx
 

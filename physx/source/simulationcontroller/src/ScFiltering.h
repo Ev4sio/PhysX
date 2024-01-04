@@ -31,9 +31,9 @@
 
 #include "PxFiltering.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Sc
+namespace ev4sio_Sc
 {
 	struct FilterInfo
 	{

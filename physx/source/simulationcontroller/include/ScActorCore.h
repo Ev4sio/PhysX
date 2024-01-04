@@ -32,9 +32,9 @@
 #include "common/PxMetaData.h"
 #include "PxActor.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Sc
+namespace ev4sio_Sc
 {
 	class ActorSim;
 
@@ -101,12 +101,12 @@ namespace Sc
 	};
 
 #if PX_P64_FAMILY
-	PX_COMPILE_TIME_ASSERT(sizeof(Sc::ActorCore)==16);
+	PX_COMPILE_TIME_ASSERT(sizeof(ev4sio_Sc::ActorCore)==16);
 #else
-	PX_COMPILE_TIME_ASSERT(sizeof(Sc::ActorCore)==12);
+	PX_COMPILE_TIME_ASSERT(sizeof(ev4sio_Sc::ActorCore)==12);
 #endif
 
-} // namespace Sc
+} // namespace ev4sio_Sc
 
 }
 

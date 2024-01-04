@@ -31,11 +31,11 @@
 #include "GuIntersectionTriangleBox.h"
 #include "GuBox.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Gu
+namespace ev4sio_Gu
 {
 	bool intersectTetrahedronBox(const PxVec3& a, const PxVec3& b, const PxVec3& c, const PxVec3& d, const PxBounds3& box)
 	{
@@ -52,7 +52,7 @@ namespace Gu
 		if (!box.intersects(tetBox))
 			return false;
 
-		Gu::BoxPadded boxP;
+		ev4sio_Gu::BoxPadded boxP;
 		boxP.center = box.getCenter();
 		boxP.extents = box.getExtents();
 		boxP.rot = PxMat33(PxIdentity);

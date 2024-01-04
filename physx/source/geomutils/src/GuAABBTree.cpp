@@ -35,8 +35,8 @@
 #include "foundation/PxMathUtils.h"
 #include "foundation/PxFPU.h"
 
-using namespace physx;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -131,7 +131,7 @@ AABBTreeBuildNode* NodeAllocator::getBiNode()
 
 ///////////////////////////////////////////////////////////////////////////////
 
-PxU32 Gu::reshuffle(PxU32 nb, PxU32* const PX_RESTRICT prims, const PxVec3* PX_RESTRICT centers, float splitValue, PxU32 axis)
+PxU32 ev4sio_Gu::reshuffle(PxU32 nb, PxU32* const PX_RESTRICT prims, const PxVec3* PX_RESTRICT centers, float splitValue, PxU32 axis)
 {
 	// PT: to avoid calling the unsafe [] operator
 	const size_t ptrValue = size_t(centers) + axis*sizeof(float);
@@ -400,7 +400,7 @@ static PxU32* initAABBTreeBuild(const AABBTreeBuildParams& params, NodeAllocator
 	return indices;
 }
 
-PxU32* Gu::buildAABBTree(const AABBTreeBuildParams& params, NodeAllocator& nodeAllocator, BuildStats& stats)
+PxU32* ev4sio_Gu::buildAABBTree(const AABBTreeBuildParams& params, NodeAllocator& nodeAllocator, BuildStats& stats)
 {
 	// initialize the build first
 	PxU32* indices = initAABBTreeBuild(params, nodeAllocator, stats);
@@ -419,7 +419,7 @@ PxU32* Gu::buildAABBTree(const AABBTreeBuildParams& params, NodeAllocator& nodeA
 	return indices;
 }
 
-void Gu::flattenTree(const NodeAllocator& nodeAllocator, BVHNode* dest, const PxU32* remap)
+void ev4sio_Gu::flattenTree(const NodeAllocator& nodeAllocator, BVHNode* dest, const PxU32* remap)
 {
 	// PT: gathers all build nodes allocated so far and flatten them to a linear destination array of smaller runtime nodes
 	PxU32 offset = 0;
@@ -465,7 +465,7 @@ void Gu::flattenTree(const NodeAllocator& nodeAllocator, BVHNode* dest, const Px
 	}
 }
 
-void Gu::buildAABBTree(PxU32 nbBounds, const AABBTreeBounds& bounds, PxArray<BVHNode>& tree)
+void ev4sio_Gu::buildAABBTree(PxU32 nbBounds, const AABBTreeBounds& bounds, PxArray<BVHNode>& tree)
 {
 	PX_SIMD_GUARD
 	// build the BVH
@@ -487,7 +487,7 @@ void Gu::buildAABBTree(PxU32 nbBounds, const AABBTreeBounds& bounds, PxArray<BVH
 ///////////////////////////////////////////////////////////////////////////////
 
 // Progressive building
-class Gu::FIFOStack : public PxUserAllocated
+class ev4sio_Gu::FIFOStack : public PxUserAllocated
 {
 public:
 												FIFOStack() : mStack("SQFIFOStack"), mCurIndex(0)	{}
@@ -501,7 +501,7 @@ private:
 					PxU32						mCurIndex;			//!< Current index within the container
 };
 
-bool Gu::FIFOStack::pop(AABBTreeBuildNode*& entry)
+bool ev4sio_Gu::FIFOStack::pop(AABBTreeBuildNode*& entry)
 {
 	const PxU32 NbEntries = mStack.size(); // Get current number of entries
 	if (!NbEntries)

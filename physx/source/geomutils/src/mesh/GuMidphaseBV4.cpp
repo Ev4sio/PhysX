@@ -29,11 +29,11 @@
 #include "geometry/PxTriangleMeshGeometry.h"
 
 #include "GuBV4.h"
-using namespace physx;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
 
 #include "foundation/PxVecMath.h"
-using namespace physx::aos;
+using namespace ev4sio_physx::aos;
 
 #include "GuSweepMesh.h"
 #include "GuBV4Build.h"
@@ -54,9 +54,9 @@ using namespace physx::aos;
 
 // PT: TODO: revisit/inline static sweep functions (TA34704)
 
-using namespace physx;
-using namespace Gu;
-using namespace Cm;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
+using namespace ev4sio_Cm;
 
 PxIntBool	BV4_RaycastSingle		(const PxVec3& origin, const PxVec3& dir, const BV4Tree& tree, const PxMat44* PX_RESTRICT worldm_Aligned, PxGeomRaycastHit* PX_RESTRICT hit, float maxDist, float geomEpsilon, PxU32 flags, PxHitFlags hitFlags);
 PxU32		BV4_RaycastAll			(const PxVec3& origin, const PxVec3& dir, const BV4Tree& tree, const PxMat44* PX_RESTRICT worldm_Aligned, PxGeomRaycastHit* PX_RESTRICT hits, PxU32 maxNbHits, float maxDist, PxU32 stride, float geomEpsilon, PxU32 flags, PxHitFlags hitFlags);
@@ -363,7 +363,7 @@ static HitCode gRayCallback(void* userData, const PxVec3& lp0, const PxVec3& lp1
 	return HIT_NONE;
 }
 
-PxU32 physx::Gu::raycast_triangleMesh_BV4(	const TriangleMesh* mesh, const PxTriangleMeshGeometry& meshGeom, const PxTransform& pose,
+PxU32 ev4sio_physx::ev4sio_Gu::raycast_triangleMesh_BV4(	const TriangleMesh* mesh, const PxTriangleMeshGeometry& meshGeom, const PxTransform& pose,
 											const PxVec3& rayOrigin, const PxVec3& rayDir, PxReal maxDist,
 											PxHitFlags hitFlags, PxU32 maxHits, PxGeomRaycastHit* PX_RESTRICT hits, PxU32 stride)
 {
@@ -617,7 +617,7 @@ static bool gBoxVsMeshCallback(void* userData, const PxVec3& p0, const PxVec3& p
 	return !callback->processHit(triangleIndex, p0, p1, p2);
 }
 
-bool physx::Gu::intersectSphereVsMesh_BV4(const Sphere& sphere, const TriangleMesh& triMesh, const PxTransform& meshTransform, const PxMeshScale& meshScale, LimitedResults* results)
+bool ev4sio_physx::ev4sio_Gu::intersectSphereVsMesh_BV4(const Sphere& sphere, const TriangleMesh& triMesh, const PxTransform& meshTransform, const PxMeshScale& meshScale, LimitedResults* results)
 {
 	PX_ASSERT(triMesh.getConcreteType()==PxConcreteType::eTRIANGLE_MESH_BVH34);
 	const BV4Tree& tree = static_cast<const BV4TriangleMesh&>(triMesh).getBV4Tree();
@@ -651,7 +651,7 @@ bool physx::Gu::intersectSphereVsMesh_BV4(const Sphere& sphere, const TriangleMe
 	}
 }
 
-bool physx::Gu::intersectBoxVsMesh_BV4(const Box& box, const TriangleMesh& triMesh, const PxTransform& meshTransform, const PxMeshScale& meshScale, LimitedResults* results)
+bool ev4sio_physx::ev4sio_Gu::intersectBoxVsMesh_BV4(const Box& box, const TriangleMesh& triMesh, const PxTransform& meshTransform, const PxMeshScale& meshScale, LimitedResults* results)
 {
 	PX_ASSERT(triMesh.getConcreteType()==PxConcreteType::eTRIANGLE_MESH_BVH34);
 	const BV4Tree& tree = static_cast<const BV4TriangleMesh&>(triMesh).getBV4Tree();
@@ -684,7 +684,7 @@ bool physx::Gu::intersectBoxVsMesh_BV4(const Box& box, const TriangleMesh& triMe
 	}
 }
 
-bool physx::Gu::intersectCapsuleVsMesh_BV4(const Capsule& capsule, const TriangleMesh& triMesh, const PxTransform& meshTransform, const PxMeshScale& meshScale, LimitedResults* results)
+bool ev4sio_physx::ev4sio_Gu::intersectCapsuleVsMesh_BV4(const Capsule& capsule, const TriangleMesh& triMesh, const PxTransform& meshTransform, const PxMeshScale& meshScale, LimitedResults* results)
 {
 	PX_ASSERT(triMesh.getConcreteType()==PxConcreteType::eTRIANGLE_MESH_BVH34);
 	const BV4Tree& tree = static_cast<const BV4TriangleMesh&>(triMesh).getBV4Tree();
@@ -741,14 +741,14 @@ static bool gTetVolumeCallback(void* userData, const PxVec3& p0, const PxVec3& p
 	return !callback->processHit(hit, p0, p1, p2, p3, dummy, vertexIndices);
 }
 
-void physx::Gu::intersectOBB_BV4(const TriangleMesh* mesh, const Box& obb, MeshHitCallback<PxGeomRaycastHit>& callback, bool bothTriangleSidesCollide, bool checkObbIsAligned)
+void ev4sio_physx::ev4sio_Gu::intersectOBB_BV4(const TriangleMesh* mesh, const Box& obb, MeshHitCallback<PxGeomRaycastHit>& callback, bool bothTriangleSidesCollide, bool checkObbIsAligned)
 {
 	PX_UNUSED(checkObbIsAligned);
 	PX_UNUSED(bothTriangleSidesCollide);
 	BV4_OverlapBoxCB(obb, static_cast<const BV4TriangleMesh*>(mesh)->getBV4Tree(), gVolumeCallback, &callback);
 }
 
-void physx::Gu::intersectOBB_BV4(const TetrahedronMesh* mesh, const Box& obb, TetMeshHitCallback<PxGeomRaycastHit>& callback)
+void ev4sio_physx::ev4sio_Gu::intersectOBB_BV4(const TetrahedronMesh* mesh, const Box& obb, TetMeshHitCallback<PxGeomRaycastHit>& callback)
 {
 	BV4_OverlapBoxCB(obb, static_cast<const BVTetrahedronMesh*>(mesh)->getBV4Tree(), gTetVolumeCallback, &callback);
 }
@@ -768,7 +768,7 @@ static bool gCapsuleMeshSweepCallback(void* userData, const PxVec3& p0, const Px
 }
 
 // PT: TODO: refactor/share bits of this (TA34704)
-bool physx::Gu::sweepCapsule_MeshGeom_BV4(	const TriangleMesh* mesh, const PxTriangleMeshGeometry& triMeshGeom, const PxTransform& pose,
+bool ev4sio_physx::ev4sio_Gu::sweepCapsule_MeshGeom_BV4(	const TriangleMesh* mesh, const PxTriangleMeshGeometry& triMeshGeom, const PxTransform& pose,
 											const Capsule& lss, const PxVec3& unitDir, PxReal distance,
 											PxGeomSweepHit& sweepHit, PxHitFlags hitFlags, PxReal inflation)
 {
@@ -872,7 +872,7 @@ static bool gBoxMeshSweepCallback(void* userData, const PxVec3& p0, const PxVec3
 }
 
 // PT: TODO: refactor/share bits of this (TA34704)
-bool physx::Gu::sweepBox_MeshGeom_BV4(	const TriangleMesh* mesh, const PxTriangleMeshGeometry& triMeshGeom, const PxTransform& pose,
+bool ev4sio_physx::ev4sio_Gu::sweepBox_MeshGeom_BV4(	const TriangleMesh* mesh, const PxTriangleMeshGeometry& triMeshGeom, const PxTransform& pose,
 										const Box& box, const PxVec3& unitDir, PxReal distance,
 										PxGeomSweepHit& sweepHit, PxHitFlags hitFlags, PxReal inflation)
 {
@@ -1000,7 +1000,7 @@ static bool gConvexVsMeshSweepCallback(void* userData, const PxVec3& p0, const P
 	return !callback->SweepConvexMeshHitCallback::processHit(hit, p0, p1, p2, dist, NULL/*vertexIndices*/);
 }
 
-void physx::Gu::sweepConvex_MeshGeom_BV4(const TriangleMesh* mesh, const Box& hullBox, const PxVec3& localDir, PxReal distance, SweepConvexMeshHitCallback& callback, bool anyHit)
+void ev4sio_physx::ev4sio_Gu::sweepConvex_MeshGeom_BV4(const TriangleMesh* mesh, const Box& hullBox, const PxVec3& localDir, PxReal distance, SweepConvexMeshHitCallback& callback, bool anyHit)
 {
 	PX_ASSERT(mesh->getConcreteType()==PxConcreteType::eTRIANGLE_MESH_BVH34);
 	const BV4TriangleMesh* meshData = static_cast<const BV4TriangleMesh*>(mesh);
@@ -1012,7 +1012,7 @@ void physx::Gu::sweepConvex_MeshGeom_BV4(const TriangleMesh* mesh, const Box& hu
 
 void BV4_PointDistance(const PxVec3& point, const BV4Tree& tree, float maxDist, PxU32& index, float& dist, PxVec3& cp/*, const PxMat44* PX_RESTRICT worldm_Aligned*/);
 
-void Gu::pointMeshDistance_BV4(const TriangleMesh* mesh, const PxTriangleMeshGeometry& meshGeom, const PxTransform& pose, const PxVec3& point, float maxDist
+void ev4sio_Gu::pointMeshDistance_BV4(const TriangleMesh* mesh, const PxTriangleMeshGeometry& meshGeom, const PxTransform& pose, const PxVec3& point, float maxDist
 	, PxU32& index, float& dist, PxVec3& closestPt)
 {
 	PX_ASSERT(mesh->getConcreteType()==PxConcreteType::eTRIANGLE_MESH_BVH34);
@@ -1065,7 +1065,7 @@ bool BV4_OverlapMeshVsMesh(	PxReportCallback<PxGeomIndexPair>& callback,
 							const PxMeshScale& meshScale0, const PxMeshScale& meshScale1,
 							PxMeshMeshQueryFlags meshMeshFlags, float tolerance);
 
-bool physx::Gu::intersectMeshVsMesh_BV4(PxReportCallback<PxGeomIndexPair>& callback,
+bool ev4sio_physx::ev4sio_Gu::intersectMeshVsMesh_BV4(PxReportCallback<PxGeomIndexPair>& callback,
 										const TriangleMesh& triMesh0, const PxTransform& meshPose0, const PxMeshScale& meshScale0,
 										const TriangleMesh& triMesh1, const PxTransform& meshPose1, const PxMeshScale& meshScale1,
 										PxMeshMeshQueryFlags meshMeshFlags, float tolerance)

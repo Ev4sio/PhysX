@@ -36,7 +36,7 @@
 #include "geometry/PxBVHBuildStrategy.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -321,7 +321,7 @@ PX_INLINE bool PxSceneQueryDesc::isValid() const
 }
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 /** @} */

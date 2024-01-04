@@ -33,7 +33,7 @@
 #include "foundation/PxSimpleTypes.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -69,7 +69,7 @@ struct PxCache
 	PxU8*		mCachedData;	//!< Cached data pointer. Allocated via PxCacheAllocator
 	PxU16		mCachedSize;	//!< The total size of the cached data 
 	PxU8		mPairData;		//!< Pair data information used and cached internally by some contact generation functions to accelerate performance.
-	PxU8		mManifoldFlags;	//!< Manifold flags used to identify the format the cached data is stored in. @see Gu::ManifoldFlags
+	PxU8		mManifoldFlags;	//!< Manifold flags used to identify the format the cached data is stored in. @see ev4sio_Gu::ManifoldFlags
 
 	PX_FORCE_INLINE	PxCache() : mCachedData(NULL), mCachedSize(0), mPairData(0), mManifoldFlags(0)
 	{

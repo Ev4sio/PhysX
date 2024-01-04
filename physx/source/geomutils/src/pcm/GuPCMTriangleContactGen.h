@@ -32,25 +32,25 @@
 #include "GuPCMContactGenUtil.h"
 #include "GuPersistentContactManifold.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	class PxTriangleMeshGeometry;
 	class PxHeightFieldGeometry;
 
-namespace Gu
+namespace ev4sio_Gu
 {
-	bool PCMContactConvexMesh(const Gu::PolygonalData& polyData0, const Gu::SupportLocal* polyMap, const aos::FloatVArg minMargin, const PxBounds3& hullAABB, 
+	bool PCMContactConvexMesh(const ev4sio_Gu::PolygonalData& polyData0, const ev4sio_Gu::SupportLocal* polyMap, const aos::FloatVArg minMargin, const PxBounds3& hullAABB, 
 						const PxTriangleMeshGeometry& shapeMesh,
 						const PxTransform& transform0, const PxTransform& transform1, PxReal contactDistance, PxContactBuffer& contactBuffer,
-						const Cm::FastVertex2ShapeScaling& convexScaling, const Cm::FastVertex2ShapeScaling& meshScaling,
+						const ev4sio_Cm::FastVertex2ShapeScaling& convexScaling, const ev4sio_Cm::FastVertex2ShapeScaling& meshScaling,
 						bool idtConvexScale, bool idtMeshScale,
-						Gu::MultiplePersistentContactManifold& multiManifold, PxRenderOutput* renderOutput);
+						ev4sio_Gu::MultiplePersistentContactManifold& multiManifold, PxRenderOutput* renderOutput);
 
-	bool PCMContactConvexHeightfield(const Gu::PolygonalData& polyData0, const Gu::SupportLocal* polyMap, const aos::FloatVArg minMargin, const PxBounds3& hullAABB, 
+	bool PCMContactConvexHeightfield(const ev4sio_Gu::PolygonalData& polyData0, const ev4sio_Gu::SupportLocal* polyMap, const aos::FloatVArg minMargin, const PxBounds3& hullAABB, 
 						const PxHeightFieldGeometry& shapeHeightfield,
 						const PxTransform& transform0, const PxTransform& transform1, PxReal contactDistance, PxContactBuffer& contactBuffer,
-						const Cm::FastVertex2ShapeScaling& convexScaling, bool idtConvexScale,
-						Gu::MultiplePersistentContactManifold& multiManifold, PxRenderOutput* renderOutput);
+						const ev4sio_Cm::FastVertex2ShapeScaling& convexScaling, bool idtConvexScale,
+						ev4sio_Gu::MultiplePersistentContactManifold& multiManifold, PxRenderOutput* renderOutput);
 }
 }
 

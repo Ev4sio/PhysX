@@ -41,9 +41,9 @@
 #endif
 
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Gu
+namespace ev4sio_Gu
 {
 	PX_NOALIAS aos::Vec3V closestPtPointTetrahedron(aos::Vec3V* PX_RESTRICT Q, aos::Vec3V* PX_RESTRICT A, aos::Vec3V* PX_RESTRICT B, PxU32& size);
 

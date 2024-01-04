@@ -31,7 +31,7 @@
 
 #include "foundation/Px.h"
 
-namespace physx { namespace profile {
+namespace ev4sio_physx { namespace profile {
 
 	//Converts datatypes without using type punning.
 	struct BlockParserDataConverter

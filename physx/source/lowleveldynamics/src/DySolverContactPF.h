@@ -34,12 +34,12 @@
 #include "PxvConfig.h"
 #include "foundation/PxVecMath.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 using namespace aos;
 
-namespace Dy
+namespace ev4sio_Dy
 {
 
 struct SolverContactCoulombHeader
@@ -54,7 +54,7 @@ struct SolverContactCoulombHeader
 	PX_ALIGN(16, PxVec3	normalXYZ);			//28
 	PxF32	angDom1;						//32
 	
-	Sc::ShapeInteraction* shapeInteraction;		//36	40
+	ev4sio_Sc::ShapeInteraction* shapeInteraction;		//36	40
 	PxU8	flags;								//37	41
 	PxU8	pad0[3];							//40	44
 #if !PX_P64_FAMILY

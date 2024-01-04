@@ -36,7 +36,7 @@
 #include "PxRigidDynamic.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -948,7 +948,7 @@ public:
 PX_COMPILE_TIME_ASSERT(0==(sizeof(PxVehicleWheels) & 15));
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

@@ -38,7 +38,7 @@
 #include "foundation/PxUtilities.h"
 #include "CmUtils.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 extern PxF32 gToleranceScaleLength;
@@ -68,7 +68,7 @@ bool PxVehicleDriveNW::isValid() const
 PxVehicleDriveNW* PxVehicleDriveNW::allocate(const PxU32 numWheels)
 {
 	PX_CHECK_AND_RETURN_NULL(numWheels>0, "Cars with zero wheels are illegal");
-	PX_CHECK_AND_RETURN_NULL(gToleranceScaleLength > 0, "PxVehicleDriveNW::allocate - need to call PxInitVehicleSDK");
+	PX_CHECK_AND_RETURN_NULL(gToleranceScaleLength > 0, "PxVehicleDriveNW::allocate - need to call ev4sio_PxInitVehicleSDK");
 
 	//Compute the bytes needed.
 	const PxU32 byteSize = sizeof(PxVehicleDriveNW) + PxVehicleDrive::computeByteSize(numWheels);
@@ -141,5 +141,5 @@ void PxVehicleDriveNW::setToRestState()
 
 
 
-} //namespace physx
+} //namespace ev4sio_physx
 

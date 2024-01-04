@@ -31,15 +31,15 @@
 
 #include "foundation/PxVec3.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Gu
+namespace ev4sio_Gu
 {
 	class Capsule;
 
 	bool sweepCapsuleCapsule(const Capsule& capsule0, const Capsule& capsule1, const PxVec3& dir, PxReal length, PxReal& min_dist, PxVec3& ip, PxVec3& normal, PxU32 inHitFlags, PxU16& outHitFlags);
 
-} // namespace Gu
+} // namespace ev4sio_Gu
 
 }
 

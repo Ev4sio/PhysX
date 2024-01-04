@@ -33,7 +33,7 @@
 #include "foundation/PxAllocator.h"
 #include "stdio.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 #if PX_DEBUG_VEHICLE_ON
@@ -504,7 +504,7 @@ void PxVehicleGraph::setupWheelGraph
 	}
 }
 
-PxVehicleTelemetryData* physx::PxVehicleTelemetryData::allocate(const PxU32 numWheels)
+PxVehicleTelemetryData* ev4sio_physx::PxVehicleTelemetryData::allocate(const PxU32 numWheels)
 {
 	//Work out the byte size required.
 	PxU32 size = sizeof(PxVehicleTelemetryData);
@@ -544,7 +544,7 @@ void PxVehicleTelemetryData::free()
 	PX_FREE_THIS;
 }
 
-void physx::PxVehicleTelemetryData::setup
+void ev4sio_physx::PxVehicleTelemetryData::setup
 (const PxF32 graphSizeX, const PxF32 graphSizeY,
 const PxF32 engineGraphPosX, const PxF32 engineGraphPosY,
 const PxF32* const wheelGraphPosX, const PxF32* const wheelGraphPosY,
@@ -566,7 +566,7 @@ const PxVec3& backgroundColor, const PxVec3& lineColorHigh, const PxVec3& lineCo
 	}
 }
 
-void physx::PxVehicleTelemetryData::clear()
+void ev4sio_physx::PxVehicleTelemetryData::clear()
 {
 	mEngineGraph->clearRecordedChannelData();
 

@@ -32,17 +32,17 @@
 #include "DyThreadContext.h"
 #include "PxcNpContactPrepShared.h"
 
-using namespace physx;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
 
 #include "PxsMaterialManager.h"
 #include "DyContactPrepShared.h"
 
 using namespace aos;
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Dy
+namespace ev4sio_Dy
 {
 
 PxcCreateFinalizeSolverContactMethod4 createFinalizeMethods4[3] = 
@@ -1203,7 +1203,7 @@ void computeBlockStreamByteSizes4(PxSolverContactDesc* descs,
 	PX_ASSERT(0 == (_solverConstraintByteSize & 0x0f));
 }
 
-static SolverConstraintPrepState::Enum reserveBlockStreams4(PxSolverContactDesc* descs, Dy::CorrelationBuffer& c,
+static SolverConstraintPrepState::Enum reserveBlockStreams4(PxSolverContactDesc* descs, ev4sio_Dy::CorrelationBuffer& c,
 						PxU8*& solverConstraint, PxU32* axisConstraintCount,
 						PxU32& solverConstraintByteSize, 
 						PxConstraintAllocator& constraintAllocator)
@@ -1260,7 +1260,7 @@ static SolverConstraintPrepState::Enum reserveBlockStreams4(PxSolverContactDesc*
 }
 
 SolverConstraintPrepState::Enum createFinalizeSolverContacts4(
-	Dy::CorrelationBuffer& c,
+	ev4sio_Dy::CorrelationBuffer& c,
 	PxSolverContactDesc* blockDescs,
 	const PxReal invDtF32,
 	const PxReal dtF32,

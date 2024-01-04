@@ -36,7 +36,7 @@
 */
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -64,7 +64,7 @@ PX_FORCE_INLINE A PxUnionCast(B b)
 #undef USE_VOLATILE_UNION
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 /** @} */

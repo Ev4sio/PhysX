@@ -32,7 +32,7 @@
 #include "foundation/PxSimpleTypes.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -83,7 +83,7 @@ namespace physx
 		PX_CUDA_CALLABLE PxU64 getInd() const { return ind; }
 	};
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

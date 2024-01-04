@@ -32,10 +32,10 @@
 #include "ScArticulationSim.h"
 #include "PxArticulationReducedCoordinate.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
-	Sc::ArticulationSensorSim::ArticulationSensorSim(ArticulationSensorCore& sensorCore,  Scene& scene) :
+	ev4sio_Sc::ArticulationSensorSim::ArticulationSensorSim(ArticulationSensorCore& sensorCore,  Scene& scene) :
 		mScene(scene), mCore(sensorCore),
 		mLLIndex(0xffffffff)
 	{
@@ -44,27 +44,27 @@ namespace physx
 		mLLSensor.mFlags = sensorCore.mFlags;
 	}
 
-	Sc::ArticulationSensorSim::~ArticulationSensorSim()
+	ev4sio_Sc::ArticulationSensorSim::~ArticulationSensorSim()
 	{
 		mCore.setSim(NULL);
 	}
 
-	const PxSpatialForce& Sc::ArticulationSensorSim::getForces() const
+	const PxSpatialForce& ev4sio_Sc::ArticulationSensorSim::getForces() const
 	{
 		return mArticulationSim->getSensorForce(mLLIndex);
 	}
 
-	void Sc::ArticulationSensorSim::setRelativePose(const PxTransform& relativePose)
+	void ev4sio_Sc::ArticulationSensorSim::setRelativePose(const PxTransform& relativePose)
 	{
 		mLLSensor.mRelativePose = relativePose;
 
-		mArticulationSim->setArticulationDirty(Dy::ArticulationDirtyFlag::eDIRTY_SENSOR);
+		mArticulationSim->setArticulationDirty(ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_SENSOR);
 	}
 
-	void Sc::ArticulationSensorSim::setFlag(const PxU16 flag)
+	void ev4sio_Sc::ArticulationSensorSim::setFlag(const PxU16 flag)
 	{
 		mLLSensor.mFlags = flag;
-		mArticulationSim->setArticulationDirty(Dy::ArticulationDirtyFlag::eDIRTY_SENSOR);
+		mArticulationSim->setArticulationDirty(ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_SENSOR);
 
 	}
 

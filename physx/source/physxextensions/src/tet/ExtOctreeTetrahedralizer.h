@@ -35,9 +35,9 @@
 #include "foundation/PxVec3.h"
 #include "ExtInsideTester.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-	namespace Ext
+	namespace ev4sio_Ext
 	{
 
 		class InsideTester;

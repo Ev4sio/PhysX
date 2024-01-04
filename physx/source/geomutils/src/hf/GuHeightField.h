@@ -43,11 +43,11 @@
 //#define PX_HEIGHTFIELD_VERSION 1  // tiled version that was needed for PS3 only has been removed
 #define PX_HEIGHTFIELD_VERSION 2  // some floats are now integers
 
-namespace physx
+namespace ev4sio_physx
 {
 class PxHeightFieldDesc;
 
-namespace Gu
+namespace ev4sio_Gu
 {
 class MeshFactory;
 class HeightField : public PxHeightField, public PxUserAllocated
@@ -56,7 +56,7 @@ public:
 // PX_SERIALIZATION
 																	HeightField(PxBaseFlags baseFlags) : PxHeightField(baseFlags), mData(PxEmpty), mModifyCount(0) {}
 
-										void						preExportDataReset() { Cm::RefCountable_preExportDataReset(*this); }
+										void						preExportDataReset() { ev4sio_Cm::RefCountable_preExportDataReset(*this); }
 							virtual		void						exportExtraData(PxSerializationContext& context);
 										void						importExtraData(PxDeserializationContext& context);
 		PX_FORCE_INLINE					void						setMeshFactory(MeshFactory* f)		{ mMeshFactory = f;					}
@@ -67,7 +67,7 @@ public:
 							virtual		void						requiresObjects(PxProcessPxBaseCallback&){}
 //~PX_SERIALIZATION
 		 															HeightField(MeshFactory* factory);
-																	HeightField(MeshFactory* factory, Gu::HeightFieldData& data);
+																	HeightField(MeshFactory* factory, ev4sio_Gu::HeightFieldData& data);
 		// PxHeightField
 							 virtual	void						release();
 							 virtual	PxU32						saveCells(void* destBuffer, PxU32 destBufferSize) const;
@@ -223,7 +223,7 @@ public:
 						PX_FORCE_INLINE	PxReal						getMinHeight()					const	{ return mMinHeight; }
 						PX_FORCE_INLINE	PxReal						getMaxHeight()					const	{ return mMaxHeight; }
 
-						PX_FORCE_INLINE	const Gu::HeightFieldData&	getData()						const	{ return mData; }
+						PX_FORCE_INLINE	const ev4sio_Gu::HeightFieldData&	getData()						const	{ return mData; }
 	
 	PX_CUDA_CALLABLE	PX_FORCE_INLINE	void						getTriangleVertices(PxU32 triangleIndex, PxU32 row, PxU32 column, PxVec3& v0, PxVec3& v1, PxVec3& v2) const;
 
@@ -244,7 +244,7 @@ public:
 #ifdef __CUDACC__
 	PX_CUDA_CALLABLE					void						setSamplePtr(PxHeightFieldSample* s) { mData.samples = s; }
 #endif
-										Gu::HeightFieldData			mData;
+										ev4sio_Gu::HeightFieldData			mData;
 										PxU32						mSampleStride;
 										PxU32						mNbSamples;	// PT: added for platform conversion. Try to remove later.
 										PxReal						mMinHeight;
@@ -258,9 +258,9 @@ private:
 										MeshFactory*				mMeshFactory;	// PT: changed to pointer for serialization
 };
 
-} // namespace Gu
+} // namespace ev4sio_Gu
 
-PX_INLINE PxVec3 Gu::HeightField::getVertex(PxU32 vertexIndex) const
+PX_INLINE PxVec3 ev4sio_Gu::HeightField::getVertex(PxU32 vertexIndex) const
 {
 	const PxU32 row    = vertexIndex / mData.columns;
 	const PxU32 column = vertexIndex % mData.columns;
@@ -269,7 +269,7 @@ PX_INLINE PxVec3 Gu::HeightField::getVertex(PxU32 vertexIndex) const
 }
 
 // PT: only called from "isCollisionVertex", should move
-PX_INLINE bool Gu::HeightField::isConvexVertex(PxU32 vertexIndex, PxU32 row, PxU32 column) const
+PX_INLINE bool ev4sio_Gu::HeightField::isConvexVertex(PxU32 vertexIndex, PxU32 row, PxU32 column) const
 {
 #ifdef PX_HEIGHTFIELD_DEBUG
 	PX_ASSERT(isValidVertex(vertexIndex));
@@ -327,7 +327,7 @@ PX_INLINE bool Gu::HeightField::isConvexVertex(PxU32 vertexIndex, PxU32 row, PxU
 	return true;
 }
 
-PX_INLINE bool Gu::HeightField::isValidEdge(PxU32 edgeIndex) const
+PX_INLINE bool ev4sio_Gu::HeightField::isValidEdge(PxU32 edgeIndex) const
 {
 	const PxU32 cell   = (edgeIndex / 3);
 	const PxU32 row    = cell / mData.columns;
@@ -351,7 +351,7 @@ PX_INLINE bool Gu::HeightField::isValidEdge(PxU32 edgeIndex) const
 	return true;
 }
 
-PX_INLINE PxU32 Gu::HeightField::getEdgeTriangleIndices(PxU32 edgeIndex, PxU32 triangleIndices[2]) const
+PX_INLINE PxU32 ev4sio_Gu::HeightField::getEdgeTriangleIndices(PxU32 edgeIndex, PxU32 triangleIndices[2]) const
 {
 	const PxU32 cell   = edgeIndex / 3;
 	const PxU32 row    = cell / mData.columns;
@@ -401,7 +401,7 @@ PX_INLINE PxU32 Gu::HeightField::getEdgeTriangleIndices(PxU32 edgeIndex, PxU32 t
 	return count;
 }
 
-PX_INLINE PxU32 Gu::HeightField::getEdgeTriangleIndices(PxU32 edgeIndex, PxU32 triangleIndices[2], PxU32 cell, PxU32 row, PxU32 column) const
+PX_INLINE PxU32 ev4sio_Gu::HeightField::getEdgeTriangleIndices(PxU32 edgeIndex, PxU32 triangleIndices[2], PxU32 cell, PxU32 row, PxU32 column) const
 {
 //	const PxU32 cell   = edgeIndex / 3;
 //	const PxU32 row    = cell / mData.columns;
@@ -451,7 +451,7 @@ PX_INLINE PxU32 Gu::HeightField::getEdgeTriangleIndices(PxU32 edgeIndex, PxU32 t
 	return count;
 }
 
-PX_INLINE void Gu::HeightField::getEdgeVertexIndices(PxU32 edgeIndex, PxU32& vertexIndex0, PxU32& vertexIndex1) const
+PX_INLINE void ev4sio_Gu::HeightField::getEdgeVertexIndices(PxU32 edgeIndex, PxU32& vertexIndex0, PxU32& vertexIndex1) const
 {
 	const PxU32 cell = edgeIndex / 3;
 //	switch (edgeIndex % 3)
@@ -485,7 +485,7 @@ PX_INLINE void Gu::HeightField::getEdgeVertexIndices(PxU32 edgeIndex, PxU32& ver
 	}
 }
 
-PX_INLINE bool Gu::HeightField::isConvexEdge(PxU32 edgeIndex, PxU32 cell, PxU32 row, PxU32 column) const
+PX_INLINE bool ev4sio_Gu::HeightField::isConvexEdge(PxU32 edgeIndex, PxU32 cell, PxU32 row, PxU32 column) const
 {
 //	const PxU32 cell = edgeIndex / 3;
 	PX_ASSERT(cell == edgeIndex / 3);
@@ -706,7 +706,7 @@ PX_INLINE bool Gu::HeightField::isConvexEdge(PxU32 edgeIndex, PxU32 cell, PxU32 
 	return convexity > threshold;
 }
 
-PX_INLINE bool Gu::HeightField::isValidTriangle(PxU32 triangleIndex) const
+PX_INLINE bool ev4sio_Gu::HeightField::isValidTriangle(PxU32 triangleIndex) const
 {
 	const PxU32 cell = triangleIndex >> 1;
 	const PxU32 row  = cell / mData.columns;
@@ -716,7 +716,7 @@ PX_INLINE bool Gu::HeightField::isValidTriangle(PxU32 triangleIndex) const
 	return true;
 }
 
-PX_INLINE void Gu::HeightField::getTriangleVertexIndices(PxU32 triangleIndex, PxU32& vertexIndex0, PxU32& vertexIndex1, PxU32& vertexIndex2) const
+PX_INLINE void ev4sio_Gu::HeightField::getTriangleVertexIndices(PxU32 triangleIndex, PxU32& vertexIndex0, PxU32& vertexIndex1, PxU32& vertexIndex2) const
 {
 	const PxU32 cell = triangleIndex >> 1;
 	if (isZerothVertexShared(cell))
@@ -767,7 +767,7 @@ PX_INLINE void Gu::HeightField::getTriangleVertexIndices(PxU32 triangleIndex, Px
 	}
 }
 
-PX_INLINE void Gu::HeightField::getTriangleAdjacencyIndices(PxU32 triangleIndex, PxU32 vertexIndex0, PxU32 vertexIndex1, PxU32 vertexIndex2, PxU32& adjacencyIndex0, PxU32& adjacencyIndex1, PxU32& adjacencyIndex2) const
+PX_INLINE void ev4sio_Gu::HeightField::getTriangleAdjacencyIndices(PxU32 triangleIndex, PxU32 vertexIndex0, PxU32 vertexIndex1, PxU32 vertexIndex2, PxU32& adjacencyIndex0, PxU32& adjacencyIndex1, PxU32& adjacencyIndex2) const
 {
 	PX_UNUSED(vertexIndex0);
 	PX_UNUSED(vertexIndex1);
@@ -866,7 +866,7 @@ PX_INLINE void Gu::HeightField::getTriangleAdjacencyIndices(PxU32 triangleIndex,
 	}
 }
 
-PX_INLINE PxVec3 Gu::HeightField::getTriangleNormalInternal(PxU32 triangleIndex) const
+PX_INLINE PxVec3 ev4sio_Gu::HeightField::getTriangleNormalInternal(PxU32 triangleIndex) const
 {
 	PxU32 v0, v1, v2;
 	getTriangleVertexIndices(triangleIndex, v0, v1, v2); 
@@ -879,7 +879,7 @@ PX_INLINE PxVec3 Gu::HeightField::getTriangleNormalInternal(PxU32 triangleIndex)
 	const PxI32 h2 = getSample(v2).height;
 
 	const float thickness = 0.0f;
-	const PxReal coeff = physx::intrinsics::fsel(thickness, -1.0f, 1.0f);
+	const PxReal coeff = ev4sio_physx::intrinsics::fsel(thickness, -1.0f, 1.0f);
 
 //	PxVec3 n(0,1,0);
 	const PxU32 cell = triangleIndex >> 1;
@@ -932,7 +932,7 @@ PX_INLINE PxVec3 Gu::HeightField::getTriangleNormalInternal(PxU32 triangleIndex)
 //	return n;
 }
 
-PX_INLINE PxReal Gu::HeightField::getHeightInternal2(PxU32 vertexIndex, PxReal fracX, PxReal fracZ) const
+PX_INLINE PxReal ev4sio_Gu::HeightField::getHeightInternal2(PxU32 vertexIndex, PxReal fracX, PxReal fracZ) const
 {
 	if (isZerothVertexShared(vertexIndex))
 	{
@@ -1016,7 +1016,7 @@ PX_INLINE PxReal Gu::HeightField::getHeightInternal2(PxU32 vertexIndex, PxReal f
 	}
 }
 
-PX_INLINE PxVec3 Gu::HeightField::getNormal_2(PxU32 vertexIndex, PxReal fracX, PxReal fracZ, PxReal xcoeff, PxReal ycoeff, PxReal zcoeff) const
+PX_INLINE PxVec3 ev4sio_Gu::HeightField::getNormal_2(PxU32 vertexIndex, PxReal fracX, PxReal fracZ, PxReal xcoeff, PxReal ycoeff, PxReal zcoeff) const
 {
 	PxVec3 normal;
 	if (isZerothVertexShared(vertexIndex))
@@ -1125,7 +1125,7 @@ PX_INLINE PxVec3 Gu::HeightField::getNormal_2(PxU32 vertexIndex, PxReal fracX, P
 	return normal;
 }
 
-PX_INLINE PxU32 Gu::HeightField::getTriangleIndex2(PxU32 cell, PxReal fracX, PxReal fracZ) const
+PX_INLINE PxU32 ev4sio_Gu::HeightField::getTriangleIndex2(PxU32 cell, PxReal fracX, PxReal fracZ) const
 {
 	if (isZerothVertexShared(cell))
 		return (fracZ > fracX) ? (cell << 1) + 1 : (cell << 1);
@@ -1133,7 +1133,7 @@ PX_INLINE PxU32 Gu::HeightField::getTriangleIndex2(PxU32 cell, PxReal fracX, PxR
 		return (fracX + fracZ > 1) ? (cell << 1) + 1 : (cell << 1);
 }
 
-PX_INLINE PxU32 Gu::HeightField::getTriangleIndex(PxReal x, PxReal z) const
+PX_INLINE PxU32 ev4sio_Gu::HeightField::getTriangleIndex(PxReal x, PxReal z) const
 {
 	PxReal fracX, fracZ;
 	const PxU32 cell = computeCellCoordinates(x, z, fracX, fracZ);
@@ -1141,7 +1141,7 @@ PX_INLINE PxU32 Gu::HeightField::getTriangleIndex(PxReal x, PxReal z) const
 	return getTriangleIndex2(cell, fracX, fracZ);
 }
 
-PX_FORCE_INLINE void Gu::HeightField::getTriangleVertices(PxU32 triangleIndex, PxU32 row, PxU32 column, PxVec3& v0, PxVec3& v1, PxVec3& v2) const
+PX_FORCE_INLINE void ev4sio_Gu::HeightField::getTriangleVertices(PxU32 triangleIndex, PxU32 row, PxU32 column, PxVec3& v0, PxVec3& v1, PxVec3& v2) const
 {
 	PxU32 cell = triangleIndex >> 1;
 	PX_ASSERT(row * getNbColumnsFast() + column == cell);
@@ -1215,9 +1215,9 @@ PX_FORCE_INLINE void Gu::HeightField::getTriangleVertices(PxU32 triangleIndex, P
 	}
 }
 
-PX_FORCE_INLINE const Gu::HeightFieldData* _getHFData(const PxHeightFieldGeometry& hfGeom)
+PX_FORCE_INLINE const ev4sio_Gu::HeightFieldData* _getHFData(const PxHeightFieldGeometry& hfGeom)
 {
-	return &static_cast<const Gu::HeightField*>(hfGeom.heightField)->getData();
+	return &static_cast<const ev4sio_Gu::HeightField*>(hfGeom.heightField)->getData();
 }
 
 }

@@ -42,7 +42,7 @@
 #include "extensions/PxCustomGeometryExt.h"  // for PxCustomGeometryExtBaseConvexCallbacks etc.
 
 
-namespace physx
+namespace ev4sio_physx
 {
 
 class PxContactJoint;
@@ -51,7 +51,7 @@ class PxGearJoint;
 class PxRackAndPinionJoint;
 
 
-namespace Ext
+namespace ev4sio_Ext
 {
 
 struct OmniPvdPxExtensionsRegistrationData

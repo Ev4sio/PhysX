@@ -31,7 +31,7 @@
 #include "PxVehicleMetaDataObjects.h"
 #include "PxExtensionMetaDataObjects.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	inline void SetMFrictionVsSlipGraph( PxVehicleTireData* inTireData, PxU32 idx1, PxU32 idx2, PxReal val ) { inTireData->mFrictionVsSlipGraph[idx1][idx2] = val; }
 	inline PxReal GetMFrictionVsSlipGraph( const PxVehicleTireData* inTireData, PxU32 idx1, PxU32 idx2 ) 

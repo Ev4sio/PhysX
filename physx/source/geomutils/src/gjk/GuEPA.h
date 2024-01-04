@@ -32,10 +32,10 @@
 #include "GuGJKUtil.h"
 #include "GuGJKType.h"
 
-namespace physx
+namespace ev4sio_physx
 {
   
-namespace Gu
+namespace ev4sio_Gu
 {
 	//ML: The main entry point for EPA.
 	// 

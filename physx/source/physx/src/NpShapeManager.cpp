@@ -37,10 +37,10 @@
 #include "NpRigidStatic.h"
 #include "foundation/PxSIMDHelpers.h"
 
-using namespace physx;
-using namespace Sq;
-using namespace Gu;
-using namespace Cm;
+using namespace ev4sio_physx;
+using namespace ev4sio_Sq;
+using namespace ev4sio_Gu;
+using namespace ev4sio_Cm;
 
 // PT: TODO: refactor if we keep it
 static void getSQGlobalPose(PxTransform& globalPose, const NpShape& npShape, const NpActor& npActor)
@@ -71,20 +71,20 @@ static void getSQGlobalPose(PxTransform& globalPose, const NpShape& npShape, con
 		const PxU16 sqktFlags = PxRigidBodyFlag::eKINEMATIC | PxRigidBodyFlag::eUSE_KINEMATIC_TARGET_FOR_SCENE_QUERIES;
 
 		// PT: TODO: revisit this once the dust has settled
-		const Sc::BodyCore& core = actorType==NpType::eBODY ? static_cast<const NpRigidDynamic&>(npActor).getCore() : static_cast<const NpArticulationLink&>(npActor).getCore();
+		const ev4sio_Sc::BodyCore& core = actorType==NpType::eBODY ? static_cast<const NpRigidDynamic&>(npActor).getCore() : static_cast<const NpArticulationLink&>(npActor).getCore();
 		const bool useTarget = (PxU16(core.getFlags()) & sqktFlags) == sqktFlags;
 		const PxTransform& body2World = (useTarget && core.getKinematicTarget(kinematicTarget)) ? kinematicTarget : core.getBody2World();
 
 		if(!core.getCore().hasIdtBody2Actor())
 		{
-			Cm::getDynamicGlobalPoseAligned(body2World, shape2Actor, core.getBody2Actor(), globalPose);
+			ev4sio_Cm::getDynamicGlobalPoseAligned(body2World, shape2Actor, core.getBody2Actor(), globalPose);
 			return;
 		}
 
 		actor2World = &body2World;
 	}
 
-	Cm::getStaticGlobalPoseAligned(*actor2World, shape2Actor, globalPose);
+	ev4sio_Cm::getStaticGlobalPoseAligned(*actor2World, shape2Actor, globalPose);
 }
 
 
@@ -481,7 +481,7 @@ void NpShapeManager::setupSQShape(PxSceneQuerySystem& pxsq, const NpShape& shape
 	else
 	{
 		const PxTransform& shape2Actor = shape.getCore().getShape2Actor();		
-		Gu::computeBounds(b, shape.getCore().getGeometry(), shape2Actor, 0.0f, SQ_PRUNER_INFLATION);
+		ev4sio_Gu::computeBounds(b, shape.getCore().getGeometry(), shape2Actor, 0.0f, SQ_PRUNER_INFLATION);
 
 		transform = shape2Actor;
 	}

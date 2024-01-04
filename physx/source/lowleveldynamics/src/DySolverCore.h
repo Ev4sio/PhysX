@@ -37,14 +37,14 @@
 // (for patch / point friction). TGS doesn't use the same architecture / class hierarchy.
 #include "DyPGS.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 struct PxSolverBody;
 struct PxSolverBodyData;
 struct PxSolverConstraintDesc;
 struct PxConstraintBatchHeader;
 
-namespace Dy
+namespace ev4sio_Dy
 {
 struct ThresholdStreamElement;
 struct ArticulationSolverDesc;
@@ -155,7 +155,7 @@ struct SolverIslandParams
 	PxU32 numConstraintHeaders;
 	PxU32* headersPerPartition;
 	PxU32 nbPartitions;
-	Cm::SpatialVector* PX_RESTRICT motionVelocityArray;
+	ev4sio_Cm::SpatialVector* PX_RESTRICT motionVelocityArray;
 	PxU32 batchSize;
 	PxsBodyCore*const* bodyArray;
 	PxsRigidBody** PX_RESTRICT rigidBodies;
@@ -191,8 +191,8 @@ struct SolverIslandParams
 	PxI32* outThresholdPairs;
 
 	PxU32 mMaxArticulationLinks;
-	Cm::SpatialVectorF* Z;
-	Cm::SpatialVectorF* deltaV;
+	ev4sio_Cm::SpatialVectorF* Z;
+	ev4sio_Cm::SpatialVectorF* deltaV;
 };
 
 /*!
@@ -211,7 +211,7 @@ public:
 	state should not be stored, this function is safe to call from multiple threads.
 	*/
 	virtual void solveVParallelAndWriteBack
-		(SolverIslandParams& params, Cm::SpatialVectorF* Z, Cm::SpatialVectorF* deltaV) const = 0;
+		(SolverIslandParams& params, ev4sio_Cm::SpatialVectorF* Z, ev4sio_Cm::SpatialVectorF* deltaV) const = 0;
 
 	virtual void solveV_Blocks
 		(SolverIslandParams& params) const = 0;

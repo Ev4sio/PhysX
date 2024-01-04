@@ -32,9 +32,9 @@
 #include "GuVecConvex.h"
 #include "foundation/PxVecTransform.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Gu
+namespace ev4sio_Gu
 {
 	class ConvexHullV;
 	class ConvexHullNoScaleV;

@@ -29,7 +29,7 @@
 #include "vehicle/PxVehicleComponents.h"
 #include "foundation/PxBitMap.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 bool PxVehicleChassisData::isValid() const
@@ -214,5 +214,5 @@ bool PxVehicleTireData::isValid() const
 	PX_CHECK_AND_RETURN_VAL(PxAbs((1.0f/(mFrictionVsSlipGraph[2][0]-mFrictionVsSlipGraph[1][0])) - mFrictionVsSlipGraphRecipx2Minusx1) < 0.001f, "PxVehicleTireData.mFrictionVsSlipGraphRecipx2Minusx1 not set up", false);
 	return true;
 }
-} //namespace physx
+} //namespace ev4sio_physx
 

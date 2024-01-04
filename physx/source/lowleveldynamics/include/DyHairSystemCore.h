@@ -35,10 +35,10 @@
 #include "foundation/PxVec2.h"
 #include "foundation/PxVec4.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
-namespace Dy
+namespace ev4sio_Dy
 {
 // These parameters are needed on GPU for simulation and are grouped in a struct
 // to reduce the number of assignments in update user data.
@@ -197,8 +197,8 @@ struct HairSystemCore
 	{
 	}
 };
-} // namespace Dy
-} // namespace physx
+} // namespace ev4sio_Dy
+} // namespace ev4sio_physx
 
 #endif
 

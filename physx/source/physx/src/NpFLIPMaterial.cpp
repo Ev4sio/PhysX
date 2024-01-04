@@ -32,8 +32,8 @@
 
 #if PX_SUPPORT_GPU_PHYSX
 #if PX_ENABLE_FEATURES_UNDER_CONSTRUCTION
-using namespace physx;
-using namespace Cm;
+using namespace ev4sio_physx;
+using namespace ev4sio_Cm;
 
 NpFLIPMaterial::NpFLIPMaterial(const PxsFLIPMaterialCore& desc) :
 	PxFLIPMaterial(PxConcreteType::eFLIP_MATERIAL, PxBaseFlag::eOWNS_MEMORY | PxBaseFlag::eIS_RELEASABLE),

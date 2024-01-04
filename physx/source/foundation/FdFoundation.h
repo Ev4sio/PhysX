@@ -41,7 +41,7 @@
 
 #include <stdarg.h>
 
-namespace physx
+namespace ev4sio_physx
 {
 
 #if PX_VC
@@ -107,8 +107,8 @@ class PX_FOUNDATION_API Foundation : public PxFoundation, public PxUserAllocated
 		return mBroadcastingAllocator;
 	} // Return the broadcasting allocator
 
-	virtual void registerAllocationListener(physx::PxAllocationListener& listener);
-	virtual void deregisterAllocationListener(physx::PxAllocationListener& listener);
+	virtual void registerAllocationListener(ev4sio_physx::PxAllocationListener& listener);
+	virtual void deregisterAllocationListener(ev4sio_physx::PxAllocationListener& listener);
 
 	virtual bool getReportAllocationNames() const
 	{
@@ -161,7 +161,7 @@ class PX_FOUNDATION_API Foundation : public PxFoundation, public PxUserAllocated
 
 Foundation& getFoundation();
 
-} // namespace physx
+} // namespace ev4sio_physx
 
 
 #endif

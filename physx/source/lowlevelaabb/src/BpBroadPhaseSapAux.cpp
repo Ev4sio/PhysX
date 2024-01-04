@@ -29,10 +29,10 @@
 #include "BpBroadPhaseSapAux.h"
 #include "PxcScratchAllocator.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
-namespace Bp
+namespace ev4sio_Bp
 {
 
 PX_FORCE_INLINE void PxBpHandleSwap(BpHandle& a, BpHandle& b)													
@@ -469,7 +469,7 @@ void resizeCreatedDeleted(BroadPhasePair*& pairs, PxU32& maxNumPairs)
 }
 
 void ComputeCreatedDeletedPairsLists
-(const Bp::FilterGroup::Enum* PX_RESTRICT boxGroups, 
+(const ev4sio_Bp::FilterGroup::Enum* PX_RESTRICT boxGroups, 
  const BpHandle* PX_RESTRICT dataArray, const PxU32 dataArraySize,
  PxcScratchAllocator* scratchAllocator,
  BroadPhasePair*& createdPairsList, PxU32& numCreatedPairs, PxU32& maxNumCreatedPairs,
@@ -706,12 +706,12 @@ static void addPair(const AddPairParams* PX_RESTRICT params, const BpHandle id0_
 
 // PT: TODO: use SIMD
 
-AuxData::AuxData(PxU32 nb, const SapBox1D*const* PX_RESTRICT boxes, const BpHandle* PX_RESTRICT indicesSorted, const Bp::FilterGroup::Enum* PX_RESTRICT groupIds)
+AuxData::AuxData(PxU32 nb, const SapBox1D*const* PX_RESTRICT boxes, const BpHandle* PX_RESTRICT indicesSorted, const ev4sio_Bp::FilterGroup::Enum* PX_RESTRICT groupIds)
 {
 	// PT: TODO: use scratch allocator / etc
 	BoxX* PX_RESTRICT boxX						= reinterpret_cast<BoxX*>(PX_ALLOC(sizeof(BoxX)*(nb+1), "mBoxX"));
 	BoxYZ* PX_RESTRICT boxYZ					= reinterpret_cast<BoxYZ*>(PX_ALLOC(sizeof(BoxYZ)*nb, "mBoxYZ"));
-	Bp::FilterGroup::Enum* PX_RESTRICT groups	= reinterpret_cast<Bp::FilterGroup::Enum*>(PX_ALLOC(sizeof(Bp::FilterGroup::Enum)*nb, "mGroups"));
+	ev4sio_Bp::FilterGroup::Enum* PX_RESTRICT groups	= reinterpret_cast<ev4sio_Bp::FilterGroup::Enum*>(PX_ALLOC(sizeof(ev4sio_Bp::FilterGroup::Enum)*nb, "mGroups"));
 	PxU32* PX_RESTRICT remap					= reinterpret_cast<PxU32*>(PX_ALLOC(sizeof(PxU32)*nb, "mRemap"));
 
 	mBoxX = boxX;
@@ -770,7 +770,7 @@ void performBoxPruningNewNew(	const AuxData* PX_RESTRICT auxData, PxcScratchAllo
 	{
 		BoxX* boxX = auxData->mBoxX;
 		BoxYZ* boxYZ = auxData->mBoxYZ;
-		Bp::FilterGroup::Enum* groups = auxData->mGroups;
+		ev4sio_Bp::FilterGroup::Enum* groups = auxData->mGroups;
 		PxU32* remap = auxData->mRemap;
 
 		AddPairParams params(remap, remap, scratchAllocator, &pairManager, &da);
@@ -781,7 +781,7 @@ void performBoxPruningNewNew(	const AuxData* PX_RESTRICT auxData, PxcScratchAllo
 		while(runningIndex<nb && index0<nb)
 		{
 #if BP_SAP_TEST_GROUP_ID_CREATEUPDATE
-			const Bp::FilterGroup::Enum group0 = groups[index0];
+			const ev4sio_Bp::FilterGroup::Enum group0 = groups[index0];
 #endif
 			const BoxX& boxX0 = boxX[index0];
 
@@ -824,8 +824,8 @@ void performBoxPruningNewNew(	const AuxData* PX_RESTRICT auxData, PxcScratchAllo
 
 template<int codepath>
 static void bipartitePruning(
-	const PxU32 nb0, const BoxX* PX_RESTRICT boxX0, const BoxYZ* PX_RESTRICT boxYZ0, const PxU32* PX_RESTRICT remap0, const Bp::FilterGroup::Enum* PX_RESTRICT groups0,
-	const PxU32 nb1, const BoxX* PX_RESTRICT boxX1, const BoxYZ* PX_RESTRICT boxYZ1, const PxU32* PX_RESTRICT remap1, const Bp::FilterGroup::Enum* PX_RESTRICT groups1,
+	const PxU32 nb0, const BoxX* PX_RESTRICT boxX0, const BoxYZ* PX_RESTRICT boxYZ0, const PxU32* PX_RESTRICT remap0, const ev4sio_Bp::FilterGroup::Enum* PX_RESTRICT groups0,
+	const PxU32 nb1, const BoxX* PX_RESTRICT boxX1, const BoxYZ* PX_RESTRICT boxYZ1, const PxU32* PX_RESTRICT remap1, const ev4sio_Bp::FilterGroup::Enum* PX_RESTRICT groups1,
 	const bool* lut, PxcScratchAllocator* scratchAllocator, SapPairManager& pairManager, DataArray& dataArray)
 {
 	AddPairParams params(remap0, remap1, scratchAllocator, &pairManager, &dataArray);
@@ -836,7 +836,7 @@ static void bipartitePruning(
 	while(runningIndex<nb1 && index0<nb0)
 	{
 #if BP_SAP_TEST_GROUP_ID_CREATEUPDATE
-		const Bp::FilterGroup::Enum group0 = groups0[index0];
+		const ev4sio_Bp::FilterGroup::Enum group0 = groups0[index0];
 #endif
 
 		const BpHandle minLimit = boxX0[index0].mMinX;
@@ -888,12 +888,12 @@ void performBoxPruningNewOld(	const AuxData* PX_RESTRICT auxData0, const AuxData
 	{
 		const BoxX* boxX0 = auxData0->mBoxX;
 		const BoxYZ* boxYZ0 = auxData0->mBoxYZ;
-		const Bp::FilterGroup::Enum* groups0 = auxData0->mGroups;
+		const ev4sio_Bp::FilterGroup::Enum* groups0 = auxData0->mGroups;
 		const PxU32* remap0 = auxData0->mRemap;
 
 		const BoxX* boxX1 = auxData1->mBoxX;
 		const BoxYZ* boxYZ1 = auxData1->mBoxYZ;
-		const Bp::FilterGroup::Enum* groups1 = auxData1->mGroups;
+		const ev4sio_Bp::FilterGroup::Enum* groups1 = auxData1->mGroups;
 		const PxU32* remap1 = auxData1->mRemap;
 		bipartitePruning<0>(nb0, boxX0, boxYZ0, remap0, groups0, nb1, boxX1, boxYZ1, remap1, groups1, lut, scratchAllocator, pairManager, da);
 		bipartitePruning<1>(nb1, boxX1, boxYZ1, remap1, groups1, nb0, boxX0, boxYZ0, remap0, groups0, lut, scratchAllocator, pairManager, da);
@@ -905,7 +905,7 @@ void performBoxPruningNewOld(	const AuxData* PX_RESTRICT auxData0, const AuxData
 	dataArrayCapacity = da.mCapacity;
 }
 
-} //namespace Bp
+} //namespace ev4sio_Bp
 
-} //namespace physx
+} //namespace ev4sio_physx
 

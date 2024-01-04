@@ -36,8 +36,8 @@
 #include "cudamanager/PxCudaContextManager.h"
 #include "cudamanager/PxCudaContext.h"
 
-using namespace physx;
-using namespace Cm;
+using namespace ev4sio_physx;
+using namespace ev4sio_Cm;
 
 //Computes the volume of the simulation mesh defined as the sum of the volumes of all tetrahedra
 static PxReal computeSimulationMeshVolume(PxSoftBody& sb, PxVec4* simPositions)
@@ -101,7 +101,7 @@ static void updateNodeInverseVolumes(PxSoftBody& sb, PxVec4* simPositions)
 		const PxReal det = Q.getDeterminant();
 
 		if (det <= 1.e-9f)
-			PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "updateNodeInverseVolumes(): tetrahedron is degenerate or inverted");
+			ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "updateNodeInverseVolumes(): tetrahedron is degenerate or inverted");
 
 		//Distribute one quarter of the volume to each vertex the tetrahedron is connected to
 		const PxReal volume = det / 6.0f;
@@ -192,7 +192,7 @@ void PxSoftBodyExt::transform(PxSoftBody& sb, const PxTransform& transform, cons
 		collPositionsPinned[i] = PxVec4(vert.x, vert.y, vert.z, tpInvMass.w);
 	}
 
-	PxMat33* tetraRestPosesGM = static_cast<Gu::SoftBodyAuxData*>(sb.getSoftBodyAuxData())->getGridModelRestPosesFast(); // reinterpret_cast<PxMat33*>(simMeshData->softBodyAuxData.getGridModelRestPosesFast());
+	PxMat33* tetraRestPosesGM = static_cast<ev4sio_Gu::SoftBodyAuxData*>(sb.getSoftBodyAuxData())->getGridModelRestPosesFast(); // reinterpret_cast<PxMat33*>(simMeshData->softBodyAuxData.getGridModelRestPosesFast());
 	const PxU32 nbTetraGM = sb.getSimulationMesh()->getNbTetrahedrons();
 
 	const PxReal invScale = 1.0f / scale;
@@ -215,7 +215,7 @@ void PxSoftBodyExt::transform(PxSoftBody& sb, const PxTransform& transform, cons
 	}	
 
 
-	PxMat33* tetraRestPoses = static_cast<Gu::SoftBodyAuxData*>(sb.getSoftBodyAuxData())->getRestPosesFast(); // reinterpret_cast<PxMat33*>(simMeshData->softBodyAuxData.getGridModelRestPosesFast());
+	PxMat33* tetraRestPoses = static_cast<ev4sio_Gu::SoftBodyAuxData*>(sb.getSoftBodyAuxData())->getRestPosesFast(); // reinterpret_cast<PxMat33*>(simMeshData->softBodyAuxData.getGridModelRestPosesFast());
 	const PxU32 nbTetra = sb.getCollisionMesh()->getNbTetrahedrons();
 
 	for (PxU32 i = 0; i < nbTetra; ++i)
@@ -240,7 +240,7 @@ void PxSoftBodyExt::transform(PxSoftBody& sb, const PxTransform& transform, cons
 
 void PxSoftBodyExt::updateEmbeddedCollisionMesh(PxSoftBody& sb, PxVec4* simPositionsPinned, PxVec4* collPositionsPinned)
 {
-	Gu::SoftBodyAuxData* softBodyAuxData = static_cast<Gu::SoftBodyAuxData*>(sb.getSoftBodyAuxData());
+	ev4sio_Gu::SoftBodyAuxData* softBodyAuxData = static_cast<ev4sio_Gu::SoftBodyAuxData*>(sb.getSoftBodyAuxData());
 	const PxU32* remapTable = softBodyAuxData->mVertsRemapInGridModel;
 	PxReal* barycentricCoordinates = softBodyAuxData->mVertsBarycentricInGridModel;
 
@@ -315,22 +315,22 @@ void PxSoftBodyExt::copyToDevice(PxSoftBody& sb, PxSoftBodyDataFlags flags, PxVe
 PxSoftBodyMesh* PxSoftBodyExt::createSoftBodyMesh(const PxCookingParams& params, const PxSimpleTriangleMesh& surfaceMesh, PxU32 numVoxelsAlongLongestAABBAxis, PxInsertionCallback& insertionCallback, const bool validate)
 {
 	//Compute collision mesh
-	physx::PxArray<physx::PxVec3> collisionMeshVertices;
-	physx::PxArray<physx::PxU32> collisionMeshIndices;
+	ev4sio_physx::PxArray<ev4sio_physx::PxVec3> collisionMeshVertices;
+	ev4sio_physx::PxArray<ev4sio_physx::PxU32> collisionMeshIndices;
 	if (!PxTetMaker::createConformingTetrahedronMesh(surfaceMesh, collisionMeshVertices, collisionMeshIndices, validate))
 		return NULL;
 	PxTetrahedronMeshDesc meshDesc(collisionMeshVertices, collisionMeshIndices);
 	
 	//Compute simulation mesh
-	physx::PxArray<physx::PxI32> vertexToTet;
+	ev4sio_physx::PxArray<ev4sio_physx::PxI32> vertexToTet;
 	vertexToTet.resize(meshDesc.points.count);
-	physx::PxArray<physx::PxVec3> simulationMeshVertices;
-	physx::PxArray<physx::PxU32> simulationMeshIndices;
+	ev4sio_physx::PxArray<ev4sio_physx::PxVec3> simulationMeshVertices;
+	ev4sio_physx::PxArray<ev4sio_physx::PxU32> simulationMeshIndices;
 	PxTetMaker::createVoxelTetrahedronMesh(meshDesc, numVoxelsAlongLongestAABBAxis, simulationMeshVertices, simulationMeshIndices, vertexToTet.begin());
 	PxTetrahedronMeshDesc simMeshDesc(simulationMeshVertices, simulationMeshIndices);
 	PxSoftBodySimulationDataDesc simDesc(vertexToTet);
 
-	physx::PxSoftBodyMesh* softBodyMesh = PxCreateSoftBodyMesh(params, simMeshDesc, meshDesc, simDesc, insertionCallback);
+	ev4sio_physx::PxSoftBodyMesh* softBodyMesh = ev4sio_PxCreateSoftBodyMesh(params, simMeshDesc, meshDesc, simDesc, insertionCallback);
 	
 	return softBodyMesh;
 }
@@ -340,14 +340,14 @@ PxSoftBodyMesh* PxSoftBodyExt::createSoftBodyMeshNoVoxels(const PxCookingParams&
 	PxCookingParams p = params;
 	p.maxWeightRatioInTet = maxWeightRatioInTet;
 
-	physx::PxArray<physx::PxVec3> collisionMeshVertices;
-	physx::PxArray<physx::PxU32> collisionMeshIndices;
+	ev4sio_physx::PxArray<ev4sio_physx::PxVec3> collisionMeshVertices;
+	ev4sio_physx::PxArray<ev4sio_physx::PxU32> collisionMeshIndices;
 	if (!PxTetMaker::createConformingTetrahedronMesh(surfaceMesh, collisionMeshVertices, collisionMeshIndices, validate))
 		return NULL;
 	PxTetrahedronMeshDesc meshDesc(collisionMeshVertices, collisionMeshIndices);
 	PxSoftBodySimulationDataDesc simDesc;
 
-	physx::PxSoftBodyMesh* softBodyMesh = PxCreateSoftBodyMesh(p, meshDesc, meshDesc, simDesc, insertionCallback);
+	ev4sio_physx::PxSoftBodyMesh* softBodyMesh = ev4sio_PxCreateSoftBodyMesh(p, meshDesc, meshDesc, simDesc, insertionCallback);
 
 	return softBodyMesh;
 }
@@ -355,7 +355,7 @@ PxSoftBodyMesh* PxSoftBodyExt::createSoftBodyMeshNoVoxels(const PxCookingParams&
 PxSoftBody* PxSoftBodyExt::createSoftBodyFromMesh(PxSoftBodyMesh* softBodyMesh, const PxTransform& transform, const PxFEMSoftBodyMaterial& material, PxCudaContextManager& cudaContextManager,
 	PxReal density, PxU32 solverIterationCount, const PxFEMParameters& femParams, PxReal scale)
 {
-	PxSoftBody* softBody = PxGetPhysics().createSoftBody(cudaContextManager);
+	PxSoftBody* softBody = ev4sio_PxGetPhysics().createSoftBody(cudaContextManager);
 	if (softBody)
 	{
 		PxShapeFlags shapeFlags = PxShapeFlag::eVISUALIZATION | PxShapeFlag::eSCENE_QUERY_SHAPE | PxShapeFlag::eSIMULATION_SHAPE;
@@ -363,7 +363,7 @@ PxSoftBody* PxSoftBodyExt::createSoftBodyFromMesh(PxSoftBodyMesh* softBodyMesh, 
 
 		PxTetrahedronMeshGeometry geometry(softBodyMesh->getCollisionMesh());
 		PxFEMSoftBodyMaterial* materialPointer = const_cast<PxFEMSoftBodyMaterial*>(&material);
-		PxShape* shape = PxGetPhysics().createShape(geometry, &materialPointer, 1, true, shapeFlags);
+		PxShape* shape = ev4sio_PxGetPhysics().createShape(geometry, &materialPointer, 1, true, shapeFlags);
 		if (shape)
 		{
 			softBody->attachShape(*shape);
@@ -445,7 +445,7 @@ PxSoftBody* PxSoftBodyExt::createSoftBodyBox(const PxTransform& transform, const
 	params.buildGPUData = true;
 	params.midphaseDesc = PxMeshMidPhase::eBVH34;
 
-	PxSoftBodyMesh* softBodyMesh = createSoftBodyMesh(params, surfaceMesh, numVoxelsAlongLongestAABBAxis, PxGetPhysics().getPhysicsInsertionCallback());
+	PxSoftBodyMesh* softBodyMesh = createSoftBodyMesh(params, surfaceMesh, numVoxelsAlongLongestAABBAxis, ev4sio_PxGetPhysics().getPhysicsInsertionCallback());
 
 	return createSoftBodyFromMesh(softBodyMesh, transform, material, cudaContextManager, density, solverIterationCount, femParams, scale);
 }

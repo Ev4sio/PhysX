@@ -37,7 +37,7 @@
 #include "foundation/PxArray.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -190,7 +190,7 @@ class PxHeightFieldGeometry;
 	bool PxExtractIsosurfaceFromSDF(const PxTriangleMesh& triangleMesh, PxArray<PxVec3>& isosurfaceVertices, PxArray<PxU32>& isosurfaceTriangleIndices);
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 /** @} */

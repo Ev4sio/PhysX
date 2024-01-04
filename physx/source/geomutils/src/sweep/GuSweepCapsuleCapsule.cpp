@@ -35,8 +35,8 @@
 #include "GuDistanceSegmentSegment.h"
 #include "GuIntersectionRayCapsule.h"
 
-using namespace physx;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
 
 #define LOCAL_EPSILON 0.00001f	// PT: this value makes the 'basicAngleTest' pass. Fails because of a ray almost parallel to a triangle
 
@@ -169,7 +169,7 @@ static bool rayQuad(const PxVec3& orig, const PxVec3& dir, const PxVec3& vert0, 
 	return true;
 }
 
-bool Gu::sweepCapsuleCapsule(const Capsule& capsule0, const Capsule& capsule1, const PxVec3& dir, PxReal length, PxReal& min_dist, PxVec3& ip, PxVec3& normal, PxU32 inHitFlags, PxU16& outHitFlags)
+bool ev4sio_Gu::sweepCapsuleCapsule(const Capsule& capsule0, const Capsule& capsule1, const PxVec3& dir, PxReal length, PxReal& min_dist, PxVec3& ip, PxVec3& normal, PxU32 inHitFlags, PxU16& outHitFlags)
 {
 	const PxReal radiusSum = capsule0.radius + capsule1.radius;
 

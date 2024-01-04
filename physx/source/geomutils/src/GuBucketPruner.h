@@ -41,11 +41,11 @@
 	#include "foundation/PxHashMap.h"
 #endif
 
-namespace physx
+namespace ev4sio_physx
 {
 	class PxRenderOutput;
 
-namespace Gu
+namespace ev4sio_Gu
 {
 	typedef PxU32	BucketWord;
 	
@@ -123,9 +123,9 @@ namespace Gu
 //		const PxU32 h1 = PxHash((const void*)payload.data[1]);
 		const PxU32 h0 = PxU32(PX_MAX_U32 & payload.data[0]);
 		const PxU32 h1 = PxU32(PX_MAX_U32 & payload.data[1]);
-		return physx::PxComputeHash(PxU64(h0)|(PxU64(h1)<<32));
+		return ev4sio_physx::PxComputeHash(PxU64(h0)|(PxU64(h1)<<32));
 #else
-		return physx::PxComputeHash(PxU64(payload.data[0])|(PxU64(payload.data[1])<<32));
+		return ev4sio_physx::PxComputeHash(PxU64(payload.data[0])|(PxU64(payload.data[1])<<32));
 #endif
 	}
 

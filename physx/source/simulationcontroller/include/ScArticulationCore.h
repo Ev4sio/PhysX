@@ -32,11 +32,11 @@
 #include "ScActorCore.h"
 #include "DyFeatherstoneArticulation.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 class PxNodeIndex;
 
-namespace Sc
+namespace ev4sio_Sc
 {
 	class ArticulationSim;
 
@@ -141,7 +141,7 @@ namespace Sc
 													}
 		PX_FORCE_INLINE	ArticulationSim*			getSim()			const	{ return mSim;			}
 
-		PX_FORCE_INLINE	Dy::ArticulationCore&		getCore()			{ return mCore;			}
+		PX_FORCE_INLINE	ev4sio_Dy::ArticulationCore&		getCore()			{ return mCore;			}
 
 		static PX_FORCE_INLINE ArticulationCore&	getArticulationCore(ArticulationCore& core)
 													{
@@ -155,10 +155,10 @@ namespace Sc
 
 	private:
 						ArticulationSim*			mSim;
-						Dy::ArticulationCore		mCore;
+						ev4sio_Dy::ArticulationCore		mCore;
 	};
 
-} // namespace Sc
+} // namespace ev4sio_Sc
 
 }
 

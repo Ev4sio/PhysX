@@ -33,15 +33,15 @@
 #if PX_SUPPORT_PVD
 #include "PxPvdObjectModelBaseTypes.h"
 
-namespace physx { namespace pvdsdk {
+namespace ev4sio_physx { namespace pvdsdk {
 
-	template<> PX_INLINE NamespacedName getPvdNamespacedNameForType<physx::PxMetaDataPlane>() { return getPvdNamespacedNameForType<PxVec4>(); }
-	template<> PX_INLINE NamespacedName getPvdNamespacedNameForType<physx::PxRigidActor*>() { return getPvdNamespacedNameForType<VoidPtr>(); }
+	template<> PX_INLINE NamespacedName getPvdNamespacedNameForType<ev4sio_physx::PxMetaDataPlane>() { return getPvdNamespacedNameForType<PxVec4>(); }
+	template<> PX_INLINE NamespacedName getPvdNamespacedNameForType<ev4sio_physx::PxRigidActor*>() { return getPvdNamespacedNameForType<VoidPtr>(); }
 	
 }}
 #endif
 
-namespace physx
+namespace ev4sio_physx
 {
 namespace Vd
 {

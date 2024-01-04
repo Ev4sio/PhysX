@@ -32,7 +32,7 @@
 #include "foundation/PxArray.h"
 #include "common/PxPhysXCommonConfig.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	class PxTriangleMeshDesc;
 

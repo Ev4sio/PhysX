@@ -56,9 +56,9 @@
 #include "NpArticulationJointReducedCoordinate.h"
 #include "NpArticulationReducedCoordinate.h"
 
-using namespace physx;
-using namespace physx::Vd;
-using namespace physx::pvdsdk;
+using namespace ev4sio_physx;
+using namespace ev4sio_physx::Vd;
+using namespace ev4sio_physx::pvdsdk;
 
 namespace
 {
@@ -67,7 +67,7 @@ namespace
 	///////////////////////////////////////////////////////////////////////////////
 
 	// Sc-to-Np
-	PX_FORCE_INLINE static NpConstraint* getNpConstraint(Sc::ConstraintCore* scConstraint)
+	PX_FORCE_INLINE static NpConstraint* getNpConstraint(ev4sio_Sc::ConstraintCore* scConstraint)
 	{
 		return reinterpret_cast<NpConstraint*>(reinterpret_cast<char*>(scConstraint) - NpConstraint::getCoreOffset());
 	}
@@ -82,18 +82,18 @@ namespace
 	struct CreateOp
 	{
 		CreateOp& operator=(const CreateOp&);
-		physx::pvdsdk::PvdDataStream& mStream;
+		ev4sio_physx::pvdsdk::PvdDataStream& mStream;
 		PvdMetaDataBinding& mBinding;
 		PsPvd* mPvd;
 		PxScene& mScene;
-		CreateOp(physx::pvdsdk::PvdDataStream& str, PvdMetaDataBinding& bind, PsPvd* pvd, PxScene& scene)
+		CreateOp(ev4sio_physx::pvdsdk::PvdDataStream& str, PvdMetaDataBinding& bind, PsPvd* pvd, PxScene& scene)
 			: mStream(str), mBinding(bind), mPvd(pvd), mScene(scene)
 		{
 		}
 		template <typename TDataType>
 		void operator()(const TDataType& dtype)
 		{
-			mBinding.createInstance(mStream, dtype, mScene, PxGetPhysics(), mPvd);
+			mBinding.createInstance(mStream, dtype, mScene, ev4sio_PxGetPhysics(), mPvd);
 		}
 		void operator()(const PxArticulationLink&)
 		{
@@ -103,9 +103,9 @@ namespace
 	struct UpdateOp
 	{
 		UpdateOp& operator=(const UpdateOp&);
-		physx::pvdsdk::PvdDataStream& mStream;
+		ev4sio_physx::pvdsdk::PvdDataStream& mStream;
 		PvdMetaDataBinding& mBinding;
-		UpdateOp(physx::pvdsdk::PvdDataStream& str, PvdMetaDataBinding& bind) : mStream(str), mBinding(bind)
+		UpdateOp(ev4sio_physx::pvdsdk::PvdDataStream& str, PvdMetaDataBinding& bind) : mStream(str), mBinding(bind)
 		{
 		}
 		template <typename TDataType>
@@ -118,10 +118,10 @@ namespace
 	struct DestroyOp
 	{
 		DestroyOp& operator=(const DestroyOp&);
-		physx::pvdsdk::PvdDataStream& mStream;
+		ev4sio_physx::pvdsdk::PvdDataStream& mStream;
 		PvdMetaDataBinding& mBinding;
 		PxScene& mScene;
-		DestroyOp(physx::pvdsdk::PvdDataStream& str, PvdMetaDataBinding& bind, PxScene& scene)
+		DestroyOp(ev4sio_physx::pvdsdk::PvdDataStream& str, PvdMetaDataBinding& bind, PxScene& scene)
 			: mStream(str), mBinding(bind), mScene(scene)
 		{
 		}
@@ -200,9 +200,9 @@ namespace
 		{
 			PX_NOCOPY(PvdConstraintVisualizer)
 		public:
-			physx::pvdsdk::PvdUserRenderer& mRenderer;
+			ev4sio_physx::pvdsdk::PvdUserRenderer& mRenderer;
 
-			PvdConstraintVisualizer(const void* id, physx::pvdsdk::PvdUserRenderer& r) : mRenderer(r)
+			PvdConstraintVisualizer(const void* id, ev4sio_physx::pvdsdk::PvdUserRenderer& r) : mRenderer(r)
 			{
 				mRenderer.setInstanceId(id);
 			}
@@ -240,7 +240,7 @@ namespace
 		};
 	}
 
-	class SceneRendererClient : public RendererEventClient, public physx::PxUserAllocated
+	class SceneRendererClient : public RendererEventClient, public ev4sio_physx::PxUserAllocated
 	{
 		PX_NOCOPY(SceneRendererClient)
 	public:
@@ -363,7 +363,7 @@ void PvdSceneClient::releasePvdInstance()
 	{		
 		PxScene* theScene = &mScene;
 		// remove from parent	
-		mPvdDataStream->removeObjectRef(&PxGetPhysics(), "Scenes", theScene);
+		mPvdDataStream->removeObjectRef(&ev4sio_PxGetPhysics(), "Scenes", theScene);
 		mPvdDataStream->destroyInstance(theScene);
 	}
 }
@@ -376,7 +376,7 @@ void PvdSceneClient::sendEntireScene()
 	if(npScene->getFlagsFast() & PxSceneFlag::eREQUIRE_RW_LOCK) // getFlagsFast() will trigger a warning of lock check
 		npScene->lockRead(PX_FL);
 
-	PxPhysics& physics = PxGetPhysics();
+	PxPhysics& physics = ev4sio_PxGetPhysics();
 	{
 		PxScene* theScene = &mScene;
 		mPvdDataStream->createInstance(theScene);
@@ -431,7 +431,7 @@ void PvdSceneClient::sendEntireScene()
 
 		// joints
 		{
-			Sc::ConstraintCore*const * constraints = mScene.getScScene().getConstraints();
+			ev4sio_Sc::ConstraintCore*const * constraints = mScene.getScScene().getConstraints();
 			PxU32 nbConstraints = mScene.getScScene().getNbConstraints();
 			for(PxU32 i = 0; i < nbConstraints; i++)
 			{
@@ -445,7 +445,7 @@ void PvdSceneClient::sendEntireScene()
 		npScene->unlockRead();
 }
 
-void PvdSceneClient::updateConstraint(const Sc::ConstraintCore& scConstraint, PxU32 updateType)
+void PvdSceneClient::updateConstraint(const ev4sio_Sc::ConstraintCore& scConstraint, PxU32 updateType)
 {
 	PxConstraintConnector* conn = scConstraint.getPxConnector();
 	if(conn && checkPvdDebugFlag())	
@@ -560,7 +560,7 @@ void PvdSceneClient::releasePvdInstance(const NpRigidStatic* rigidStatic)
 void PvdSceneClient::createPvdInstance(const NpRigidStatic* rigidStatic)
 {	
 	if(checkPvdDebugFlag())	
-		mMetaDataBinding.createInstance(*mPvdDataStream, *rigidStatic, mScene, PxGetPhysics(), mPvd);
+		mMetaDataBinding.createInstance(*mPvdDataStream, *rigidStatic, mScene, ev4sio_PxGetPhysics(), mPvd);
 }
 
 void PvdSceneClient::updatePvdProperties(const NpRigidStatic* rigidStatic)
@@ -585,7 +585,7 @@ void PvdSceneClient::updatePvdProperties(const NpConstraint* constraint)
 
 void PvdSceneClient::releasePvdInstance(const NpConstraint* constraint)
 {	
-	const Sc::ConstraintCore& scConstraint = constraint->getCore();
+	const ev4sio_Sc::ConstraintCore& scConstraint = constraint->getCore();
 	PxConstraintConnector* conn;
 	if(checkPvdDebugFlag() && (conn = scConstraint.getPxConnector()) != NULL)
 		conn->updatePvdProperties(*mPvdDataStream, scConstraint.getPxConstraint(), PxPvdUpdateType::RELEASE_INSTANCE);
@@ -597,7 +597,7 @@ void PvdSceneClient::createPvdInstance(const NpArticulationReducedCoordinate* ar
 {
 	if (checkPvdDebugFlag())
 	{
-		mMetaDataBinding.createInstance(*mPvdDataStream, *articulation, mScene, PxGetPhysics(), mPvd);
+		mMetaDataBinding.createInstance(*mPvdDataStream, *articulation, mScene, ev4sio_PxGetPhysics(), mPvd);
 	}
 }
 
@@ -695,7 +695,7 @@ void PvdSceneClient::createPvdInstance(const PxsMaterialCore* materialCore)
 	{
 		const PxMaterial* theMaterial = materialCore->mMaterial;
 		if(mPvd->registerObject(theMaterial))
-			mMetaDataBinding.createInstance(*mPvdDataStream, *theMaterial, PxGetPhysics());
+			mMetaDataBinding.createInstance(*mPvdDataStream, *theMaterial, ev4sio_PxGetPhysics());
 	}
 }
 
@@ -708,7 +708,7 @@ void PvdSceneClient::updatePvdProperties(const PxsMaterialCore* materialCore)
 void PvdSceneClient::releasePvdInstance(const PxsMaterialCore* materialCore)
 {
 	if(checkPvdDebugFlag() && mPvd->unRegisterObject(materialCore->mMaterial))
-		mMetaDataBinding.destroyInstance(*mPvdDataStream, *materialCore->mMaterial, PxGetPhysics());
+		mMetaDataBinding.destroyInstance(*mPvdDataStream, *materialCore->mMaterial, ev4sio_PxGetPhysics());
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -719,7 +719,7 @@ void PvdSceneClient::createPvdInstance(const PxsFEMSoftBodyMaterialCore* materia
 	{
 		const PxFEMSoftBodyMaterial* theMaterial = materialCore->mMaterial;
 		if (mPvd->registerObject(theMaterial))
-			mMetaDataBinding.createInstance(*mPvdDataStream, *theMaterial, PxGetPhysics());
+			mMetaDataBinding.createInstance(*mPvdDataStream, *theMaterial, ev4sio_PxGetPhysics());
 	}
 }
 
@@ -732,7 +732,7 @@ void PvdSceneClient::updatePvdProperties(const PxsFEMSoftBodyMaterialCore* mater
 void PvdSceneClient::releasePvdInstance(const PxsFEMSoftBodyMaterialCore* materialCore)
 {
 	if (checkPvdDebugFlag() && mPvd->unRegisterObject(materialCore->mMaterial))
-		mMetaDataBinding.destroyInstance(*mPvdDataStream, *materialCore->mMaterial, PxGetPhysics());
+		mMetaDataBinding.destroyInstance(*mPvdDataStream, *materialCore->mMaterial, ev4sio_PxGetPhysics());
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -806,13 +806,13 @@ void PvdSceneClient::createPvdInstance(const NpShape* npShape, PxActor& owner)
 	if(checkPvdDebugFlag())
 	{
 		PX_PROFILE_ZONE("PVD.createPVDInstance", getContextId(mScene));
-		mMetaDataBinding.createInstance(*mPvdDataStream, *npShape, static_cast<PxRigidActor&>(owner), PxGetPhysics(), mPvd);
+		mMetaDataBinding.createInstance(*mPvdDataStream, *npShape, static_cast<PxRigidActor&>(owner), ev4sio_PxGetPhysics(), mPvd);
 	}
 }
 
 static void addShapesToPvd(PxU32 nbShapes, NpShape* const* shapes, PxActor& pxActor, PsPvd* pvd, PvdDataStream& stream, PvdMetaDataBinding& binding)
 {
-	PxPhysics& physics = PxGetPhysics();
+	PxPhysics& physics = ev4sio_PxGetPhysics();
 	for(PxU32 i=0;i<nbShapes;i++)
 	{
 		const NpShape* npShape = shapes[i];
@@ -1191,13 +1191,13 @@ void PvdSceneClient::updateJoints()
 
 		const bool visualizeJoints = getScenePvdFlagsFast() & PxPvdSceneFlag::eTRANSMIT_CONSTRAINTS;
 
-		Sc::ConstraintCore*const * constraints = mScene.getScScene().getConstraints();
+		ev4sio_Sc::ConstraintCore*const * constraints = mScene.getScScene().getConstraints();
 		const PxU32 nbConstraints = mScene.getScScene().getNbConstraints();
 		PxI64 constraintCount = 0;
 
 		for(PxU32 i=0; i<nbConstraints; i++)
 		{
-			Sc::ConstraintCore* constraint = constraints[i];
+			ev4sio_Sc::ConstraintCore* constraint = constraints[i];
 			PxPvdUpdateType::Enum updateType = getNpConstraint(constraint)->isDirty()
 				? PxPvdUpdateType::UPDATE_ALL_PROPERTIES
 				: PxPvdUpdateType::UPDATE_SIM_PROPERTIES;
@@ -1210,11 +1210,11 @@ void PvdSceneClient::updateJoints()
 				if(conn)
 					joint = conn->getExternalReference(typeId);
 				// visualize:
-				Sc::ConstraintSim* sim = constraint->getSim();
+				ev4sio_Sc::ConstraintSim* sim = constraint->getSim();
 				if(visualizeJoints && sim && sim->getConstantsLL() && joint && constraint->getVisualize())
 				{
-					Sc::BodySim* b0 = sim->getBody(0);
-					Sc::BodySim* b1 = sim->getBody(1);
+					ev4sio_Sc::BodySim* b0 = sim->getBody(0);
+					ev4sio_Sc::BodySim* b1 = sim->getBody(1);
 					PxTransform t0 = b0 ? b0->getBody2World() : PxTransform(PxIdentity);
 					PxTransform t1 = b1 ? b1->getBody2World() : PxTransform(PxIdentity);
 					PvdConstraintVisualizer viz(joint, *mUserRender);
@@ -1245,11 +1245,11 @@ void PvdSceneClient::updateContacts()
 
 	PxsContactManagerOutputIterator outputIter;
 
-	Sc::ContactIterator contactIter;
+	ev4sio_Sc::ContactIterator contactIter;
 	mScene.getScScene().initContactsIterator(contactIter, outputIter);
-	Sc::ContactIterator::Pair* pair;
-	Sc::Contact* contact;
-	PxArray<Sc::Contact> contacts;
+	ev4sio_Sc::ContactIterator::Pair* pair;
+	ev4sio_Sc::Contact* contact;
+	PxArray<ev4sio_Sc::Contact> contacts;
 	while ((pair = contactIter.getNextPair()) != NULL)
 	{
 		while ((contact = pair->getNextContact()) != NULL)

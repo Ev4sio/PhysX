@@ -29,18 +29,18 @@
 #include "GuAABBTreeBuildStats.h"
 #include "foundation/PxFPU.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Ext
+namespace ev4sio_Ext
 {
-	using namespace Gu;
+	using namespace ev4sio_Gu;
 	
 	static PxVec3 toFloat(const PxVec3d& p)
 	{
 		return PxVec3(PxReal(p.x), PxReal(p.y), PxReal(p.z));
 	}
 
-	void buildTree(const PxU32* triangles, const PxU32 numTriangles, const PxVec3d* points, PxArray<Gu::BVHNode>& tree, PxF32 enlargement)
+	void buildTree(const PxU32* triangles, const PxU32 numTriangles, const PxVec3d* points, PxArray<ev4sio_Gu::BVHNode>& tree, PxF32 enlargement)
 	{
 		//Computes a bounding box for every triangle in triangles
 		AABBTreeBounds boxes;
@@ -56,7 +56,7 @@ namespace Ext
 			boxes.getBounds()[i] = box;
 		}
 
-		Gu::buildAABBTree(numTriangles, boxes, tree);
+		ev4sio_Gu::buildAABBTree(numTriangles, boxes, tree);
 	}
 }
 }

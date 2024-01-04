@@ -34,9 +34,9 @@
 #include "foundation/PxBasicTemplates.h"
 #include "foundation/PxBitMap.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Cm
+namespace ev4sio_Cm
 {
 
 /*!

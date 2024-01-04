@@ -38,7 +38,7 @@
 #include "foundation/PxSimpleTypes.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -52,7 +52,7 @@ namespace physx
 	*/
 	PX_FORCE_INLINE void* PxMemZero(void* dest, PxU32 count)
 	{
-		return physx::intrinsics::memZero(dest, count);
+		return ev4sio_physx::intrinsics::memZero(dest, count);
 	}
 
 	/**
@@ -66,7 +66,7 @@ namespace physx
 	*/
 	PX_FORCE_INLINE void* PxMemSet(void* dest, PxI32 c, PxU32 count)
 	{
-		return physx::intrinsics::memSet(dest, c, count);
+		return ev4sio_physx::intrinsics::memSet(dest, c, count);
 	}
 
 	/**
@@ -82,7 +82,7 @@ namespace physx
 	*/
 	PX_FORCE_INLINE void* PxMemCopy(void* dest, const void* src, PxU32 count)
 	{
-		return physx::intrinsics::memCopy(dest, src, count);
+		return ev4sio_physx::intrinsics::memCopy(dest, src, count);
 	}
 
 	/**
@@ -98,7 +98,7 @@ namespace physx
 	*/
 	PX_FORCE_INLINE void* PxMemMove(void* dest, const void* src, PxU32 count)
 	{
-		return physx::intrinsics::memMove(dest, src, count);
+		return ev4sio_physx::intrinsics::memMove(dest, src, count);
 	}
 
 	/**
@@ -119,7 +119,7 @@ namespace physx
 	}
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 /** @} */

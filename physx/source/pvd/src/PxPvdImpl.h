@@ -40,7 +40,7 @@
 #include "PxPvdObjectModelMetaData.h"
 #include "PxPvdObjectRegistrar.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 namespace profile
@@ -195,7 +195,7 @@ class PvdImpl : public PsPvd, public PxUserAllocated
 	void sendTransportInitialization();
 
 	PxPvdTransport*						mPvdTransport;
-	physx::PxArray<PvdClient*>	mPvdClients;
+	ev4sio_physx::PxArray<PvdClient*>	mPvdClients;
 
 	MetaDataProvider*					mSharedMetaProvider; // shared between clients
 	ObjectRegistrar						mObjectRegistrar;
@@ -208,9 +208,9 @@ class PvdImpl : public PsPvd, public PxUserAllocated
 	bool								mIsNVTXSupportEnabled;
 	uint32_t							mNVTXContext;
 	uint64_t							mNextStreamId;
-	physx::profile::PxProfileZoneManager*mProfileZoneManager;
+	ev4sio_physx::profile::PxProfileZoneManager*mProfileZoneManager;
 	PvdProfileZoneClient*				mProfileClient;
-	physx::profile::PxProfileZone*		mProfileZone;
+	ev4sio_physx::profile::PxProfileZone*		mProfileZone;
 	static PvdImpl*						sInstance;
 	static uint32_t						sRefCount;
 };

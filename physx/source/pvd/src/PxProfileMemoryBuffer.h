@@ -32,7 +32,7 @@
 #include "foundation/PxAllocator.h"
 #include "foundation/PxMemory.h"
 
-namespace physx { namespace profile {
+namespace ev4sio_physx { namespace profile {
 
 	template<typename TAllocator = typename PxAllocatorTraits<uint8_t>::Type >
 	class MemoryBuffer : public TAllocator

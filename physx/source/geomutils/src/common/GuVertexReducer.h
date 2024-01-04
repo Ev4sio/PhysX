@@ -32,9 +32,9 @@
 #include "foundation/PxVec3.h"
 #include "common/PxPhysXCommonConfig.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Gu
+namespace ev4sio_Gu
 {
 	//! Vertex cloud reduction result structure
 	struct REDUCEDCLOUD

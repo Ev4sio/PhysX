@@ -29,13 +29,13 @@
 #ifndef NP_BOUNDS_H
 #define NP_BOUNDS_H
 
-namespace physx
+namespace ev4sio_physx
 {
 	class PxBounds3;
 	class NpShape;
 	class NpActor;
 
-namespace Sq
+namespace ev4sio_Sq
 {
 	typedef void(*ComputeBoundsFunc)	(PxBounds3& bounds, const NpShape& scShape, const NpActor& npActor);
 

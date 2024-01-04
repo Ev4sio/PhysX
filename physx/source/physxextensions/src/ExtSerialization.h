@@ -30,9 +30,9 @@
 #ifndef EXT_SERIALIZATION_H
 #define EXT_SERIALIZATION_H
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Ext
+namespace ev4sio_Ext
 {
 	void RegisterExtensionsSerializers(PxSerializationRegistry& sr);
 	void UnregisterExtensionsSerializers(PxSerializationRegistry& sr);

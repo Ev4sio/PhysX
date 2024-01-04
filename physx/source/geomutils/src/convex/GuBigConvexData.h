@@ -31,7 +31,7 @@
 
 #include "foundation/PxSimpleTypes.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 class BigConvexDataBuilder;
@@ -40,7 +40,7 @@ class BigConvexData;
 
 // Data
 
-namespace Gu
+namespace ev4sio_Gu
 {
 
 struct Valency
@@ -48,7 +48,7 @@ struct Valency
 	PxU16		mCount;
 	PxU16		mOffset;
 };
-PX_COMPILE_TIME_ASSERT(sizeof(Gu::Valency) == 4);
+PX_COMPILE_TIME_ASSERT(sizeof(ev4sio_Gu::Valency) == 4);
 
 struct BigConvexRawData
 {
@@ -66,17 +66,17 @@ struct BigConvexRawData
 	// Valencies data
 	PxU32			mNbVerts;		//!< Number of vertices
 	PxU32			mNbAdjVerts;	//!< Total number of adjacent vertices  ### PT: this is useless at runtime and should not be stored here
-	Gu::Valency*	mValencies;		//!< A list of mNbVerts valencies (= number of neighbors)
+	ev4sio_Gu::Valency*	mValencies;		//!< A list of mNbVerts valencies (= number of neighbors)
 	PxU8*			mAdjacentVerts;	//!< List of adjacent vertices
 	//~Valencies data
 };
 #if PX_P64_FAMILY
-PX_COMPILE_TIME_ASSERT(sizeof(Gu::BigConvexRawData) == 40);
+PX_COMPILE_TIME_ASSERT(sizeof(ev4sio_Gu::BigConvexRawData) == 40);
 #else
-PX_COMPILE_TIME_ASSERT(sizeof(Gu::BigConvexRawData) == 24);
+PX_COMPILE_TIME_ASSERT(sizeof(ev4sio_Gu::BigConvexRawData) == 24);
 #endif
 
-} // namespace Gu
+} // namespace ev4sio_Gu
 
 }
 

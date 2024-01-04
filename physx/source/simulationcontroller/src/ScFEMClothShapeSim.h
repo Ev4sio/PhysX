@@ -34,9 +34,9 @@
 #include "ScElementSim.h"
 #include "ScShapeSimBase.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-	namespace Sc
+	namespace ev4sio_Sc
 	{
 		class FEMClothSim;
 
@@ -77,7 +77,7 @@ namespace physx
 			void				createLowLevelVolume();
 			void				destroyLowLevelVolume();
 		};
-	} // namespace Sc
+	} // namespace ev4sio_Sc
 }
 #endif
 

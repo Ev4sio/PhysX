@@ -36,7 +36,7 @@
 #include "foundation/PxVec4.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -106,14 +106,14 @@ protected:
 
 \return A pointer to the new PxParticleClothCooker.
 */
-ExtGpu::PxParticleClothCooker* PxCreateParticleClothCooker(PxU32 vertexCount, physx::PxVec4* inVertices, PxU32 triangleIndexCount, PxU32* inTriangleIndices,
+ExtGpu::PxParticleClothCooker* PxCreateParticleClothCooker(PxU32 vertexCount, ev4sio_physx::PxVec4* inVertices, PxU32 triangleIndexCount, PxU32* inTriangleIndices,
 	PxU32 constraintTypeFlags = ExtGpu::PxParticleClothConstraint::eTYPE_ALL,
 	PxVec3 verticalDirection = PxVec3(0.0f, 1.0f, 0.0f), PxReal bendingConstraintMaxAngle = 20.0f*PxTwoPi/360.0f
 );
 
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 /** @} */

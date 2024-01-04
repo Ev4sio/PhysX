@@ -30,14 +30,14 @@
 #include "DyHairSystemCore.h"
 #include "PxvGeometry.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-	namespace Sc
+	namespace ev4sio_Sc
 	{
 		class HairSystemSim;
 	}
 
-	namespace Dy
+	namespace ev4sio_Dy
 	{
 		typedef size_t HairSystemHandle;
 		
@@ -81,7 +81,7 @@ namespace physx
 		{
 			PX_NOCOPY(HairSystem)
 		public:
-			HairSystem(Sc::HairSystemSim* sim, Dy::HairSystemCore& core) :
+			HairSystem(ev4sio_Sc::HairSystemSim* sim, ev4sio_Dy::HairSystemCore& core) :
 				mSim(sim)
 				, mCore(core)
 				, mShapeCore(NULL)
@@ -111,7 +111,7 @@ namespace physx
 			PX_FORCE_INLINE void setElementId(const PxU32 elementId) { mElementId = elementId; }
 
 
-			PX_FORCE_INLINE Sc::HairSystemSim* getHairSystemSim() const { return mSim; }
+			PX_FORCE_INLINE ev4sio_Sc::HairSystemSim* getHairSystemSim() const { return mSim; }
 
 			PX_FORCE_INLINE const HairSystemCore& getCore() const { return mCore; }
 			PX_FORCE_INLINE HairSystemCore& getCore() { return mCore; }
@@ -120,7 +120,7 @@ namespace physx
 			PX_FORCE_INLINE PxU16 getIterationCounts() { return mCore.mSolverIterationCounts; }
 
 		private: // variables
-			Sc::HairSystemSim*	mSim;
+			ev4sio_Sc::HairSystemSim*	mSim;
 			HairSystemCore&		mCore;
 			PxsShapeCore*		mShapeCore;
 			PxU32				mElementId; //this is used for the bound array

@@ -32,7 +32,7 @@
 #include "foundation/Px.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -53,7 +53,7 @@ that wheels disabled more recently than the last call to PxVehicleUpdates report
 PX_DEPRECATED bool PxVehicleIsInAir(const PxVehicleWheelQueryResult& vehWheelQueryResults);
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

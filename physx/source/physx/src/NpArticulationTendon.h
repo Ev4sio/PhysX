@@ -37,7 +37,7 @@
 #include "NpBase.h"
 
 
-namespace physx
+namespace ev4sio_physx
 {
 
 typedef PxU32	ArticulationAttachmentHandle;
@@ -121,7 +121,7 @@ public:
 	PX_FORCE_INLINE void setTendon(NpArticulationSpatialTendon* tendon) { mTendon = tendon; }
 	PX_FORCE_INLINE NpArticulationSpatialTendon& getTendon() { return *mTendon; }
 
-	PX_FORCE_INLINE Sc::ArticulationAttachmentCore&	getCore() { return mCore;  }
+	PX_FORCE_INLINE ev4sio_Sc::ArticulationAttachmentCore&	getCore() { return mCore;  }
 
 	void removeChild(NpArticulationAttachment* child);
 
@@ -130,7 +130,7 @@ public:
 	ArticulationAttachmentHandle		mHandle;
 	NpArticulationAttachmentArray		mChildren;
 	NpArticulationSpatialTendon*		mTendon;
-	Sc::ArticulationAttachmentCore		mCore;
+	ev4sio_Sc::ArticulationAttachmentCore		mCore;
 };
 
 
@@ -177,7 +177,7 @@ public:
 
 	virtual		void							release();
 
-	PX_FORCE_INLINE Sc::ArticulationSpatialTendonCore&	getTendonCore() { return mCore; }
+	PX_FORCE_INLINE ev4sio_Sc::ArticulationSpatialTendonCore&	getTendonCore() { return mCore; }
 
 	PX_FORCE_INLINE ArticulationTendonHandle			getHandle() { return mHandle; }
 	PX_FORCE_INLINE void								setHandle(ArticulationTendonHandle handle) { mHandle = handle; }
@@ -188,7 +188,7 @@ private:
 	NpArticulationAttachmentArray				mAttachments;
 	NpArticulationReducedCoordinate*			mArticulation;
 	PxU32										mLLIndex;
-	Sc::ArticulationSpatialTendonCore			mCore;
+	ev4sio_Sc::ArticulationSpatialTendonCore			mCore;
 	ArticulationTendonHandle					mHandle;
 };
 
@@ -229,7 +229,7 @@ public:
 	PX_FORCE_INLINE void setTendon(NpArticulationFixedTendon* tendon) { mTendon = tendon; }
 	PX_FORCE_INLINE NpArticulationFixedTendon& getTendon() { return *mTendon; }
 
-	PX_FORCE_INLINE Sc::ArticulationTendonJointCore&	getCore() { return mCore; }
+	PX_FORCE_INLINE ev4sio_Sc::ArticulationTendonJointCore&	getCore() { return mCore; }
 
 	void removeChild(NpArticulationTendonJoint* child);
 
@@ -237,7 +237,7 @@ public:
 	PxArticulationTendonJoint*			mParent;
 	NpArticulationTendonJointArray		mChildren;
 	NpArticulationFixedTendon*			mTendon;
-	Sc::ArticulationTendonJointCore		mCore;
+	ev4sio_Sc::ArticulationTendonJointCore		mCore;
 	PxU32								mHandle;
 	
 };
@@ -292,7 +292,7 @@ public:
 	PX_FORCE_INLINE ArticulationTendonHandle			getHandle() { return mHandle; }
 	PX_FORCE_INLINE void								setHandle(ArticulationTendonHandle handle) { mHandle = handle; }
 
-	PX_FORCE_INLINE Sc::ArticulationFixedTendonCore&			getTendonCore() { return mCore; }
+	PX_FORCE_INLINE ev4sio_Sc::ArticulationFixedTendonCore&			getTendonCore() { return mCore; }
 
 	PX_FORCE_INLINE NpArticulationTendonJointArray&		getTendonJoints() { return mTendonJoints; }
 
@@ -300,7 +300,7 @@ private:
 	NpArticulationTendonJointArray				mTendonJoints;
 	NpArticulationReducedCoordinate*			mArticulation;
 	PxU32										mLLIndex;
-	Sc::ArticulationFixedTendonCore				mCore;
+	ev4sio_Sc::ArticulationFixedTendonCore				mCore;
 	ArticulationTendonHandle					mHandle;
 };
 

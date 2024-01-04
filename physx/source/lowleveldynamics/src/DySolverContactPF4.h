@@ -34,17 +34,17 @@
 #include "PxvConfig.h"
 #include "foundation/PxVecMath.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 using namespace aos;
 
-namespace Sc
+namespace ev4sio_Sc
 {
 	class ShapeInteraction;
 }
 
-namespace Dy
+namespace ev4sio_Dy
 {
 
 struct SolverContactCoulombHeader4
@@ -63,7 +63,7 @@ struct SolverContactCoulombHeader4
 	Vec4V	invMassBDom;			//112
 	Vec4V	angD0;					//128
 	Vec4V	angD1;					//144
-	Sc::ShapeInteraction* shapeInteraction[4];		//160	or 176
+	ev4sio_Sc::ShapeInteraction* shapeInteraction[4];		//160	or 176
 }; 
 
 #if !PX_P64_FAMILY

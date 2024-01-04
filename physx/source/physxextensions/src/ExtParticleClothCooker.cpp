@@ -34,7 +34,7 @@
 #include "foundation/PxHashSet.h"
 #include "GuInternal.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 namespace ExtGpu
 {
@@ -200,7 +200,7 @@ Edge GetAlternateDiagonal(Edge const& edge, PxU32* inTriangleIndices)
 class PxParticleClothCookerImpl : public PxParticleClothCooker, public PxUserAllocated
 {
 public:
-	PxParticleClothCookerImpl(PxU32 vertexCount, physx::PxVec4* inVertices, PxU32 triangleIndexCount, PxU32* inTriangleIndices,
+	PxParticleClothCookerImpl(PxU32 vertexCount, ev4sio_physx::PxVec4* inVertices, PxU32 triangleIndexCount, PxU32* inTriangleIndices,
 		PxU32 constraintTypeFlags, PxVec3 verticalDirection, PxReal bendingConstraintMaxAngle)
 		:
 		mVertexCount(vertexCount),
@@ -237,7 +237,7 @@ private:
 	PxArray<PxParticleClothConstraint> mConstraintBuffer;
 
 	PxU32 mVertexCount;
-	physx::PxVec4* mVertices; //we don't own this
+	ev4sio_physx::PxVec4* mVertices; //we don't own this
 	PxU32 mTriangleIndexCount;
 	PxU32* mTriangleIndices; //we don't own this
 	PxU32 mConstraintTypeFlags;
@@ -449,7 +449,7 @@ void PxParticleClothCookerImpl::cookConstraints(const PxParticleClothConstraint*
 void PxParticleClothCookerImpl::calculateMeshVolume()
 {
 	// the physx api takes volume*6 now.
-	mMeshVolume = Gu::computeTriangleMeshVolume(mVertices, mTriangleIndices, mTriangleIndexCount / 3) * 6.0f;
+	mMeshVolume = ev4sio_Gu::computeTriangleMeshVolume(mVertices, mTriangleIndices, mTriangleIndexCount / 3) * 6.0f;
 }
 
 } // namespace ExtGpu
@@ -461,4 +461,4 @@ ExtGpu::PxParticleClothCooker* PxCreateParticleClothCooker(PxU32 vertexCount, Px
 		constraintTypeFlags, verticalDirection, bendingConstraintMaxAngle);
 }
 
-} // namespace physx
+} // namespace ev4sio_physx

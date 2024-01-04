@@ -33,9 +33,9 @@
 #include "PxArticulationReducedCoordinate.h"
 #include "DyFeatherstoneArticulation.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Sc
+namespace ev4sio_Sc
 {
 class Scene;
 class ArticulationSensorCore;
@@ -49,7 +49,7 @@ class ArticulationSensorSim : public PxUserAllocated
 
 	
 public:
-	ArticulationSensorSim(Sc::ArticulationSensorCore& core, Sc::Scene& scene);
+	ArticulationSensorSim(ev4sio_Sc::ArticulationSensorCore& core, ev4sio_Sc::Scene& scene);
 
 	~ArticulationSensorSim();
 
@@ -58,23 +58,23 @@ public:
 	void setRelativePose(const PxTransform& relativePose);
 	void setFlag(PxU16 flag);
 
-	PX_FORCE_INLINE Sc::Scene& getScene() { return mScene; }
-	PX_FORCE_INLINE const Sc::Scene& getScene() const { return mScene; }
+	PX_FORCE_INLINE ev4sio_Sc::Scene& getScene() { return mScene; }
+	PX_FORCE_INLINE const ev4sio_Sc::Scene& getScene() const { return mScene; }
 
 	PX_FORCE_INLINE void setLowLevelIndex(const PxU32 llIndex) { mLLIndex = llIndex;}
 	PX_FORCE_INLINE PxU32 getLowLevelIndex() const { return mLLIndex; }
 
 	
-	PX_FORCE_INLINE Sc::ArticulationSensorCore& getCore() { return mCore; }
-	PX_FORCE_INLINE const Sc::ArticulationSensorCore& getCore() const { return mCore; }
+	PX_FORCE_INLINE ev4sio_Sc::ArticulationSensorCore& getCore() { return mCore; }
+	PX_FORCE_INLINE const ev4sio_Sc::ArticulationSensorCore& getCore() const { return mCore; }
 
-	PX_FORCE_INLINE Dy::ArticulationSensor& getLLSensor() { return mLLSensor; }
+	PX_FORCE_INLINE ev4sio_Dy::ArticulationSensor& getLLSensor() { return mLLSensor; }
 
 
-	Sc::Scene&							mScene;
-	Sc::ArticulationSensorCore&			mCore;
-	Sc::ArticulationSim*				mArticulationSim;
-	Dy::ArticulationSensor				mLLSensor;
+	ev4sio_Sc::Scene&							mScene;
+	ev4sio_Sc::ArticulationSensorCore&			mCore;
+	ev4sio_Sc::ArticulationSim*				mArticulationSim;
+	ev4sio_Dy::ArticulationSensor				mLLSensor;
 	PxU32								mLLIndex;
 };
 

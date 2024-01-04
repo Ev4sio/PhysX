@@ -37,7 +37,7 @@
 // fixed part (NvPhysXToDrv_SectionName) followed by the process id. This allows 
 // each process to have its own communication channel. 
 
-namespace physx
+namespace ev4sio_physx
 {
 
 #define NvPhysXToDrv_SectionName "PH71828182845_" 

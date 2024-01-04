@@ -34,9 +34,9 @@
 
 #include "foundation/PxVec3.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Gu
+namespace ev4sio_Gu
 {
 
 	/**
@@ -170,7 +170,7 @@ namespace Gu
 		PxVec3	p0;		//!< Start of segment
 		PxVec3	p1;		//!< End of segment
 	};
-	PX_COMPILE_TIME_ASSERT(sizeof(Gu::Segment) == 24);
+	PX_COMPILE_TIME_ASSERT(sizeof(ev4sio_Gu::Segment) == 24);
 }
 
 }

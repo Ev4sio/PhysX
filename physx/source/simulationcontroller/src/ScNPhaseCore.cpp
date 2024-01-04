@@ -33,8 +33,8 @@
 #include "ScConstraintInteraction.h"
 #include "ScSimStats.h"
 
-using namespace physx;
-using namespace Sc;
+using namespace ev4sio_physx;
+using namespace ev4sio_Sc;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -380,7 +380,7 @@ ElementSimInteraction* NPhaseCore::convert(ElementSimInteraction* pair, Interact
 	// call that follows.
 	pair->clearInteractionFlag(InteractionFlag::eIS_FILTER_PAIR);
 
-	// PT: we need to unregister the old interaction *before* creating the new one, because Sc::NPhaseCore::registerInteraction will use
+	// PT: we need to unregister the old interaction *before* creating the new one, because ev4sio_Sc::NPhaseCore::registerInteraction will use
 	// ElementSim pointers which are the same for both. Since "releaseElementPair" will call the unregister function from
 	// the element's dtor, we don't need to do it explicitly here. Just release the object.
 	releaseElementPair(pair, PairReleaseFlag::eWAKE_ON_LOST_TOUCH | PairReleaseFlag::eRUN_LOST_TOUCH_LOGIC, NULL, 0, removeFromDirtyList, outputs);
@@ -425,9 +425,9 @@ ElementSimInteraction* NPhaseCore::convert(ElementSimInteraction* pair, Interact
 	return result;
 }
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Sc
+namespace ev4sio_Sc
 {
 static bool findTriggerContacts(TriggerInteraction* tri, bool toBeDeleted, bool volumeRemoved,
 								PxTriggerPair& triggerPair, TriggerPairExtraData& triggerPairExtra,
@@ -476,8 +476,8 @@ static bool findTriggerContacts(TriggerInteraction* tri, bool toBeDeleted, bool 
 		if(primitive0->getGeometryType() > primitive1->getGeometryType())
 			PxSwap(primitive0, primitive1);
 
-		const Gu::GeomOverlapFunc overlapFunc =
-			Gu::getOverlapFuncTable()[primitive0->getGeometryType()][primitive1->getGeometryType()];
+		const ev4sio_Gu::GeomOverlapFunc overlapFunc =
+			ev4sio_Gu::getOverlapFuncTable()[primitive0->getGeometryType()][primitive1->getGeometryType()];
 
 		const PxU32 elementID0 = primitive0->getElementID();
 		const PxU32 elementID1 = primitive1->getElementID();
@@ -538,13 +538,13 @@ static bool findTriggerContacts(TriggerInteraction* tri, bool toBeDeleted, bool 
 	return false;
 }
 
-class TriggerContactTask : public Cm::Task
+class TriggerContactTask : public ev4sio_Cm::Task
 {
 	PX_NOCOPY(TriggerContactTask)
 public:
 	TriggerContactTask(TriggerInteraction* const* triggerPairs, PxU32 triggerPairCount, PxMutex& lock,
 		Scene& scene, PxsTransformCache& transformCache) :
-		Cm::Task				(scene.getContextId()),
+		ev4sio_Cm::Task				(scene.getContextId()),
 		mTriggerPairs			(triggerPairs),
 		mTriggerPairCount		(triggerPairCount),
 		mLock					(lock),
@@ -624,8 +624,8 @@ private:
 	PxsTransformCache&				mTransformCache;
 };
 
-}  // namespace Sc
-}  // namespace physx
+}  // namespace ev4sio_Sc
+}  // namespace ev4sio_physx
 
 bool TriggerProcessingContext::initialize(TriggerInteraction** interactions, PxU32 pairCount, PxcScratchAllocator& allocator)
 {
@@ -768,9 +768,9 @@ void NPhaseCore::concludeTriggerInteractionProcessing(PxBaseTask*)
 }
 
 #ifdef REMOVED
-class ProcessPersistentContactTask : public Cm::Task
+class ProcessPersistentContactTask : public ev4sio_Cm::Task
 {
-	Sc::NPhaseCore& mCore;
+	ev4sio_Sc::NPhaseCore& mCore;
 	ContactReportBuffer& mBuffer;
 	PxMutex& mMutex;
 	ShapeInteraction*const* mPersistentEventPairs;
@@ -779,8 +779,8 @@ class ProcessPersistentContactTask : public Cm::Task
 	PX_NOCOPY(ProcessPersistentContactTask)
 public:
 
-	ProcessPersistentContactTask(Sc::NPhaseCore& core, ContactReportBuffer& buffer, PxMutex& mutex, ShapeInteraction*const* persistentEventPairs,
-		PxU32 nbPersistentEventPairs, PxsContactManagerOutputIterator& outputs) : Cm::Task(0), mCore(core), mBuffer(buffer), mMutex(mutex),
+	ProcessPersistentContactTask(ev4sio_Sc::NPhaseCore& core, ContactReportBuffer& buffer, PxMutex& mutex, ShapeInteraction*const* persistentEventPairs,
+		PxU32 nbPersistentEventPairs, PxsContactManagerOutputIterator& outputs) : ev4sio_Cm::Task(0), mCore(core), mBuffer(buffer), mMutex(mutex),
 		mPersistentEventPairs(persistentEventPairs), mNbPersistentEventPairs(nbPersistentEventPairs), mOutputs(outputs)
 	{
 	}
@@ -844,7 +844,7 @@ public:
 
 void NPhaseCore::processPersistentContactEvents(PxsContactManagerOutputIterator& outputs)
 {
-	PX_PROFILE_ZONE("Sc::NPhaseCore::processPersistentContactEvents", mOwnerScene.getContextId());
+	PX_PROFILE_ZONE("ev4sio_Sc::NPhaseCore::processPersistentContactEvents", mOwnerScene.getContextId());
 	
 	// Go through ShapeInteractions which requested persistent contact event reports. This is necessary since there are no low level events for persistent contact.
 	ShapeInteraction*const* persistentEventPairs = getCurrentPersistentContactEventPairs();

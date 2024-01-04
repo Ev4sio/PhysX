@@ -32,10 +32,10 @@
 #include "PxvDynamics.h"
 #include "foundation/PxSIMDHelpers.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 // PT: TODO: SIMDify all this...
-void Dy::copyToSolverBodyData(const PxVec3& linearVelocity, const PxVec3& angularVelocity, PxReal invMass, const PxVec3& invInertia, const PxTransform& globalPose,
+void ev4sio_Dy::copyToSolverBodyData(const PxVec3& linearVelocity, const PxVec3& angularVelocity, PxReal invMass, const PxVec3& invInertia, const PxTransform& globalPose,
 	PxReal maxDepenetrationVelocity, PxReal maxContactImpulse, PxU32 nodeIndex, PxReal reportThreshold, PxSolverBodyData& data, PxU32 lockFlags,
 	PxReal dt, bool gyroscopicForces)
 {
@@ -45,7 +45,7 @@ void Dy::copyToSolverBodyData(const PxVec3& linearVelocity, const PxVec3& angula
 
 	const PxMat33Padded rotation(globalPose.q);
 
-	Cm::transformInertiaTensor(safeSqrtInvInertia, rotation, data.sqrtInvInertia);
+	ev4sio_Cm::transformInertiaTensor(safeSqrtInvInertia, rotation, data.sqrtInvInertia);
 
 	PxVec3 ang = angularVelocity;
 	PxVec3 lin = linearVelocity;

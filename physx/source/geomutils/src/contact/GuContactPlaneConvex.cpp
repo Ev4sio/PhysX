@@ -33,10 +33,10 @@
 #include "CmScaling.h"
 #include "CmMatrix34.h"
 
-using namespace physx;
-using namespace Cm;
+using namespace ev4sio_physx;
+using namespace ev4sio_Cm;
 
-bool Gu::contactPlaneConvex(GU_CONTACT_METHOD_ARGS)
+bool ev4sio_Gu::contactPlaneConvex(GU_CONTACT_METHOD_ARGS)
 {
 	PX_UNUSED(renderOutput);
 	PX_UNUSED(cache);

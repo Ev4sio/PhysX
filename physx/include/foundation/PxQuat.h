@@ -35,7 +35,7 @@
 
 #include "foundation/PxVec3.h"
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -398,7 +398,7 @@ typedef PxQuatT<float>	PxQuat;
 typedef PxQuatT<double>	PxQuatd;
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 /** @} */

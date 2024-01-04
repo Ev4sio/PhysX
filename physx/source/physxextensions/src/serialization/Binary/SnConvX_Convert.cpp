@@ -35,9 +35,9 @@
 #include "CmUtils.h"
 #include <assert.h>
 
-using namespace physx;
-using namespace physx::Sn;
-using namespace Cm;
+using namespace ev4sio_physx;
+using namespace ev4sio_physx::Sn;
+using namespace ev4sio_Cm;
 
 void Sn::ConvX::resetConvexFlags()
 {
@@ -1120,7 +1120,7 @@ bool Sn::ConvX::convert(const void* buffer, int fileSize)
 
 	if (header != PX_MAKE_FOURCC('S','E','B','D'))
 	{
-		displayMessage(physx::PxErrorCode::eINVALID_PARAMETER, 
+		displayMessage(ev4sio_physx::PxErrorCode::eINVALID_PARAMETER, 
 			"PxBinaryConverter: Buffer contains data with bad header indicating invalid serialized data.");
 		return false;
 	}
@@ -1136,7 +1136,7 @@ bool Sn::ConvX::convert(const void* buffer, int fileSize)
 
 	if (!checkCompatibility(binaryVersionGuid))
 	{
-		displayMessage(physx::PxErrorCode::eINVALID_PARAMETER,
+		displayMessage(ev4sio_physx::PxErrorCode::eINVALID_PARAMETER,
 			"PxBinaryConverter: Buffer contains binary data version 0x%s which is incompatible with this PhysX sdk (0x%s).\n",
 			binaryVersionGuid, getBinaryVersionGuid());
 		return false;
@@ -1151,7 +1151,7 @@ bool Sn::ConvX::convert(const void* buffer, int fileSize)
 
 	if (srcPlatformTag != mMetaData_Src->getPlatformTag())
 	{
-		displayMessage(physx::PxErrorCode::eINVALID_PARAMETER,
+		displayMessage(ev4sio_physx::PxErrorCode::eINVALID_PARAMETER,
 			"PxBinaryConverter: Mismatch of platform tags of binary data and metadata:\n Binary Data: %s\n MetaData: %s\n",
 			getBinaryPlatformName(PxU32(srcPlatformTag)),
 			getBinaryPlatformName(PxU32(mMetaData_Src->getPlatformTag())));

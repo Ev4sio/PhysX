@@ -33,7 +33,7 @@
 #include "foundation/PxFoundation.h"
 #include "foundation/PxErrors.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 #if PX_CHECKED

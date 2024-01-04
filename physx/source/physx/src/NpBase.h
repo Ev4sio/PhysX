@@ -52,7 +52,7 @@
 // stay in all builds, contrary to other macros like PX_CHECK_AND_RETURN.
 ///////////////////////////////////////////////////////////////////////////////
 
-#define NP_API_READ_WRITE_ERROR_MSG(text) PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, text)
+#define NP_API_READ_WRITE_ERROR_MSG(text) ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, text)
 
 // some API read calls are not allowed while the simulation is running since the properties might get
 // written to during simulation. Some of those are allowed while collision is running though or in callbacks
@@ -96,7 +96,7 @@
 #define NP_API_WRITE_FORBIDDEN(npScene) (npScene && npScene->isAPIWriteForbidden())
 
 // some API write calls are allowed between fetchCollide and advance
-#define NP_API_WRITE_FORBIDDEN_EXCEPT_SPLIT_SIM(npScene) (npScene && npScene->isAPIWriteForbidden() && (npScene->getSimulationStage() != Sc::SimulationStage::eFETCHCOLLIDE))
+#define NP_API_WRITE_FORBIDDEN_EXCEPT_SPLIT_SIM(npScene) (npScene && npScene->isAPIWriteForbidden() && (npScene->getSimulationStage() != ev4sio_Sc::SimulationStage::eFETCHCOLLIDE))
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -127,7 +127,7 @@
 #define NP_BASE_INDEX_MASK		0x07ffffff
 #define NP_BASE_INDEX_SHIFT		27
 
-namespace physx
+namespace ev4sio_physx
 {
 	struct NpType
 	{

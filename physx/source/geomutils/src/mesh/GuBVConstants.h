@@ -33,11 +33,11 @@
 
 namespace
 {
-	const physx::aos::VecU32V signMask = physx::aos::U4LoadXYZW((physx::PxU32(1)<<31), (physx::PxU32(1)<<31), (physx::PxU32(1)<<31), (physx::PxU32(1)<<31));
-	const physx::aos::Vec4V epsFloat4 = physx::aos::V4Load(1e-9f);
-	const physx::aos::Vec4V zeroes = physx::aos::V4Zero();
-	const physx::aos::Vec4V twos = physx::aos::V4Load(2.0f);
-	const physx::aos::Vec4V epsInflateFloat4 = physx::aos::V4Load(1e-7f);
+	const ev4sio_physx::aos::VecU32V signMask = ev4sio_physx::aos::U4LoadXYZW((ev4sio_physx::PxU32(1)<<31), (ev4sio_physx::PxU32(1)<<31), (ev4sio_physx::PxU32(1)<<31), (ev4sio_physx::PxU32(1)<<31));
+	const ev4sio_physx::aos::Vec4V epsFloat4 = ev4sio_physx::aos::V4Load(1e-9f);
+	const ev4sio_physx::aos::Vec4V zeroes = ev4sio_physx::aos::V4Zero();
+	const ev4sio_physx::aos::Vec4V twos = ev4sio_physx::aos::V4Load(2.0f);
+	const ev4sio_physx::aos::Vec4V epsInflateFloat4 = ev4sio_physx::aos::V4Load(1e-7f);
 }
 
 #endif // GU_BV_CONSTANTS_H

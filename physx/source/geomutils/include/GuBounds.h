@@ -45,11 +45,11 @@
 // See PX-954 for details.
 #define GU_EMPTY_BOUNDS_EXTENTS	PxSqrt(0.25f * 1e33f)
 
-namespace physx
+namespace ev4sio_physx
 {
 	class PxMeshScale;
 
-namespace Gu
+namespace ev4sio_Gu
 {
 	PX_FORCE_INLINE void computeCapsuleBounds(PxBounds3& bounds, const PxCapsuleGeometry& capsuleGeom, const PxTransform& pose, float contactOffset=0.0f, float inflation=1.0f)
 	{
@@ -90,7 +90,7 @@ namespace Gu
 		const float coeff = 0.5f * enlargement;
 		if(useSIMD)
 		{
-			using namespace physx::aos;
+			using namespace ev4sio_physx::aos;
 
 			Vec4V minV = V4LoadU(&src.minimum.x);
 			Vec4V maxV = V4LoadU(&src.maximum.x);
@@ -132,24 +132,24 @@ namespace Gu
 		PX_FORCE_INLINE const PxMat33&			getPrunerWorldRot33()				const	{ return mGuBox.rot;			}
 
 		// PT: this one only used by overlaps so far (for sphere shape, pruner level)
-		PX_FORCE_INLINE const Gu::Sphere&		getGuSphere() const
+		PX_FORCE_INLINE const ev4sio_Gu::Sphere&		getGuSphere() const
 		{
 			PX_ASSERT(mType == PxGeometryType::eSPHERE);
-			return reinterpret_cast<const Gu::Sphere&>(mGuSphere);
+			return reinterpret_cast<const ev4sio_Gu::Sphere&>(mGuSphere);
 		}
 
 		// PT: this one only used by sweeps so far (for box shape, NP level)
-		PX_FORCE_INLINE const Gu::Box&			getGuBox() const
+		PX_FORCE_INLINE const ev4sio_Gu::Box&			getGuBox() const
 		{
 			PX_ASSERT(mType == PxGeometryType::eBOX);
 			return mGuBox;
 		}
 
 		// PT: this one used by sweeps (NP level) and overlaps (pruner level) - for capsule shape
-		PX_FORCE_INLINE const Gu::Capsule&		getGuCapsule() const
+		PX_FORCE_INLINE const ev4sio_Gu::Capsule&		getGuCapsule() const
 		{
 			PX_ASSERT(mType == PxGeometryType::eCAPSULE);
-			return reinterpret_cast<const Gu::Capsule&>(mGuCapsule);
+			return reinterpret_cast<const ev4sio_Gu::Capsule&>(mGuCapsule);
 		}
 
 		PX_FORCE_INLINE float					getCapsuleHalfHeight() const
@@ -179,7 +179,7 @@ namespace Gu
 		// SIMD code will load it as V4s (safe because member is not last of Gu structure)
 		//
 		// box extents = non-inflated initial box extents for box shape, half-height for capsule, otherwise not used
-		Gu::Box				mGuBox;
+		ev4sio_Gu::Box				mGuBox;
 
 		PxBounds3			mPrunerInflatedAABB;	// precomputed AABB for the pruner shape
 		PxU16				mIsOBB;					// true for OBB, false for AABB. Also used as padding for mPrunerInflatedAABB, don't move.
@@ -189,15 +189,15 @@ namespace Gu
 		// so need separate storage
 		union
 		{
-			PxU8 mGuCapsule[sizeof(Gu::Capsule)];	// 28
-			PxU8 mGuSphere[sizeof(Gu::Sphere)];		// 16
+			PxU8 mGuCapsule[sizeof(ev4sio_Gu::Capsule)];	// 28
+			PxU8 mGuSphere[sizeof(ev4sio_Gu::Sphere)];		// 16
 		};
 	};
 
 // PT: please make sure it fits in "one" cache line
 PX_COMPILE_TIME_ASSERT(sizeof(ShapeData)==128);
 
-}  // namespace Gu
+}  // namespace ev4sio_Gu
 
 }
 #endif

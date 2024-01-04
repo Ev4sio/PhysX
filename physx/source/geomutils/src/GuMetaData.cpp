@@ -37,9 +37,9 @@
 #include "GuTriangleMeshRTree.h"
 #include "foundation/PxIntrinsics.h"
 
-using namespace physx;
-using namespace Cm;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Cm;
+using namespace ev4sio_Gu;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -148,7 +148,7 @@ static void getBinaryMetaData_ConvexHullData(PxOutputStream& stream)
 	PX_DEF_BIN_METADATA_ITEM(stream,	ConvexHullData, InternalObjectsData,	mInternal,			0)
 }
 
-void Gu::ConvexMesh::getBinaryMetaData(PxOutputStream& stream)
+void ev4sio_Gu::ConvexMesh::getBinaryMetaData(PxOutputStream& stream)
 {
 	getBinaryMetaData_InternalObjectsData(stream);
 	getBinaryMetaData_HullPolygonData(stream);
@@ -170,27 +170,27 @@ void Gu::ConvexMesh::getBinaryMetaData(PxOutputStream& stream)
 
 	//------ Extra-data ------
 
-	// mHullData.mPolygons (Gu::HullPolygonData, PxVec3, PxU8*2, PxU8)
+	// mHullData.mPolygons (ev4sio_Gu::HullPolygonData, PxVec3, PxU8*2, PxU8)
 	// PT: we only align the first array since the other ones are contained within it
 
-	PX_DEF_BIN_METADATA_EXTRA_ARRAY(stream,	Gu::ConvexMesh, HullPolygonData,	mHullData.mNbPolygons,		PX_SERIAL_ALIGN, 0)
-	PX_DEF_BIN_METADATA_EXTRA_ARRAY(stream,	Gu::ConvexMesh, PxVec3,				mHullData.mNbHullVertices,	0, 0)
-	PX_DEF_BIN_METADATA_EXTRA_ARRAY(stream, Gu::ConvexMesh, PxU8,				mHullData.mNbEdges,			0, PxMetaDataFlag::eCOUNT_MASK_MSB)
-	PX_DEF_BIN_METADATA_EXTRA_ARRAY(stream, Gu::ConvexMesh, PxU8,				mHullData.mNbEdges,			0, PxMetaDataFlag::eCOUNT_MASK_MSB)
-	PX_DEF_BIN_METADATA_EXTRA_ARRAY(stream,	Gu::ConvexMesh, PxU8,			    mHullData.mNbHullVertices,	0, 0)
-	PX_DEF_BIN_METADATA_EXTRA_ARRAY(stream,	Gu::ConvexMesh, PxU8,			    mHullData.mNbHullVertices,	0, 0)
-	PX_DEF_BIN_METADATA_EXTRA_ARRAY(stream,	Gu::ConvexMesh, PxU8,			    mHullData.mNbHullVertices,	0, 0)
+	PX_DEF_BIN_METADATA_EXTRA_ARRAY(stream,	ev4sio_Gu::ConvexMesh, HullPolygonData,	mHullData.mNbPolygons,		PX_SERIAL_ALIGN, 0)
+	PX_DEF_BIN_METADATA_EXTRA_ARRAY(stream,	ev4sio_Gu::ConvexMesh, PxVec3,				mHullData.mNbHullVertices,	0, 0)
+	PX_DEF_BIN_METADATA_EXTRA_ARRAY(stream, ev4sio_Gu::ConvexMesh, PxU8,				mHullData.mNbEdges,			0, PxMetaDataFlag::eCOUNT_MASK_MSB)
+	PX_DEF_BIN_METADATA_EXTRA_ARRAY(stream, ev4sio_Gu::ConvexMesh, PxU8,				mHullData.mNbEdges,			0, PxMetaDataFlag::eCOUNT_MASK_MSB)
+	PX_DEF_BIN_METADATA_EXTRA_ARRAY(stream,	ev4sio_Gu::ConvexMesh, PxU8,			    mHullData.mNbHullVertices,	0, 0)
+	PX_DEF_BIN_METADATA_EXTRA_ARRAY(stream,	ev4sio_Gu::ConvexMesh, PxU8,			    mHullData.mNbHullVertices,	0, 0)
+	PX_DEF_BIN_METADATA_EXTRA_ARRAY(stream,	ev4sio_Gu::ConvexMesh, PxU8,			    mHullData.mNbHullVertices,	0, 0)
 
-	PX_DEF_BIN_METADATA_EXTRA_ARRAY(stream,	Gu::ConvexMesh, PxU8,			    mNb,						0, PxMetaDataFlag::eCOUNT_MASK_MSB)
+	PX_DEF_BIN_METADATA_EXTRA_ARRAY(stream,	ev4sio_Gu::ConvexMesh, PxU8,			    mNb,						0, PxMetaDataFlag::eCOUNT_MASK_MSB)
 	PX_DEF_BIN_METADATA_EXTRA_ALIGN(stream,	ConvexMesh, 4)
 	
 	//mSdfData this is currently broken
-	//PX_DEF_BIN_METADATA_EXTRA_ITEMS(stream, Gu::SDF, PxReal, mSdf, mNumSdfs, 0, PX_SERIAL_ALIGN)
-	//PX_DEF_BIN_METADATA_EXTRA_ITEMS(stream, Gu::SDF, PxU32, mSubgridStartSlots, mNumStartSlots, 0, PX_SERIAL_ALIGN)
-	//PX_DEF_BIN_METADATA_EXTRA_ITEMS(stream, Gu::SDF, PxU8, mSubgridSdf, mNumSubgridSdfs, 0, PX_SERIAL_ALIGN)
+	//PX_DEF_BIN_METADATA_EXTRA_ITEMS(stream, ev4sio_Gu::SDF, PxReal, mSdf, mNumSdfs, 0, PX_SERIAL_ALIGN)
+	//PX_DEF_BIN_METADATA_EXTRA_ITEMS(stream, ev4sio_Gu::SDF, PxU32, mSubgridStartSlots, mNumStartSlots, 0, PX_SERIAL_ALIGN)
+	//PX_DEF_BIN_METADATA_EXTRA_ITEMS(stream, ev4sio_Gu::SDF, PxU8, mSubgridSdf, mNumSubgridSdfs, 0, PX_SERIAL_ALIGN)
 
 	// mBigConvexData
-	PX_DEF_BIN_METADATA_EXTRA_ITEM(stream, Gu::ConvexMesh, BigConvexData, mBigConvexData, PX_SERIAL_ALIGN)
+	PX_DEF_BIN_METADATA_EXTRA_ITEM(stream, ev4sio_Gu::ConvexMesh, BigConvexData, mBigConvexData, PX_SERIAL_ALIGN)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -225,7 +225,7 @@ static void getBinaryMetaData_HeightFieldData(PxOutputStream& stream)
 	PX_DEF_BIN_METADATA_ITEM(stream,	HeightFieldData, PxHeightFieldFormat::Enum,	format,					0)
 }
 
-void Gu::HeightField::getBinaryMetaData(PxOutputStream& stream)
+void ev4sio_Gu::HeightField::getBinaryMetaData(PxOutputStream& stream)
 {
 	getBinaryMetaData_PxHeightFieldSample(stream);
 	getBinaryMetaData_HeightFieldData(stream);
@@ -370,7 +370,7 @@ void BV4Tree::getBinaryMetaData(PxOutputStream& stream)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void Gu::TriangleMesh::getBinaryMetaData(PxOutputStream& stream)
+void ev4sio_Gu::TriangleMesh::getBinaryMetaData(PxOutputStream& stream)
 {
 	SDF::getBinaryMetaData(stream);
 
@@ -401,7 +401,7 @@ void Gu::TriangleMesh::getBinaryMetaData(PxOutputStream& stream)
 	PX_DEF_BIN_METADATA_ITEM(stream,	TriangleMesh, void,				mGRB_triAdjacencies,	PxMetaDataFlag::ePTR)
 	PX_DEF_BIN_METADATA_ITEM(stream,	TriangleMesh, PxU32,			mGRB_faceRemap,			PxMetaDataFlag::ePTR)
 	PX_DEF_BIN_METADATA_ITEM(stream,	TriangleMesh, PxU32,			mGRB_faceRemapInverse,	PxMetaDataFlag::ePTR)
-	PX_DEF_BIN_METADATA_ITEM(stream,	TriangleMesh, Gu::BV32Tree,		mGRB_BV32Tree,			PxMetaDataFlag::ePTR)
+	PX_DEF_BIN_METADATA_ITEM(stream,	TriangleMesh, ev4sio_Gu::BV32Tree,		mGRB_BV32Tree,			PxMetaDataFlag::ePTR)
 
 	PX_DEF_BIN_METADATA_ITEM(stream,	TriangleMesh, SDF,				mSdfData,				0)
 
@@ -459,7 +459,7 @@ void Gu::TriangleMesh::getBinaryMetaData(PxOutputStream& stream)
 #endif
 }
 
-void Gu::RTreeTriangleMesh::getBinaryMetaData(PxOutputStream& stream)
+void ev4sio_Gu::RTreeTriangleMesh::getBinaryMetaData(PxOutputStream& stream)
 {
 	RTree::getBinaryMetaData(stream);
 
@@ -469,7 +469,7 @@ void Gu::RTreeTriangleMesh::getBinaryMetaData(PxOutputStream& stream)
 	PX_DEF_BIN_METADATA_ITEM(stream,		RTreeTriangleMesh, RTree,		mRTree,				0)
 }
 
-void Gu::BV4TriangleMesh::getBinaryMetaData(PxOutputStream& stream)
+void ev4sio_Gu::BV4TriangleMesh::getBinaryMetaData(PxOutputStream& stream)
 {
 	SourceMeshBase::getBinaryMetaData(stream);
 	SourceMesh::getBinaryMetaData(stream);

@@ -31,9 +31,9 @@
 
 #include "ScInteraction.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Sc
+namespace ev4sio_Sc
 {
 	class ArticulationJointCore;
 	class BodySim;
@@ -58,7 +58,7 @@ namespace Sc
 						ArticulationJointCore&	mCore;
 	};
 
-} // namespace Sc
+} // namespace ev4sio_Sc
 
 }
 

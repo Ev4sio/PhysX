@@ -32,14 +32,14 @@
 #include "DySoftBodyCore.h"
 #include "PxvGeometry.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-	namespace Sc
+	namespace ev4sio_Sc
 	{
 		class SoftBodySim;
 	}
 
-	namespace Dy
+	namespace ev4sio_Dy
 	{
 
 		typedef size_t SoftBodyHandle;
@@ -52,7 +52,7 @@ namespace physx
 		{
 			PX_NOCOPY(SoftBody)
 		public:
-			SoftBody(Sc::SoftBodySim* sim, Dy::SoftBodyCore& core) : 
+			SoftBody(ev4sio_Sc::SoftBodySim* sim, ev4sio_Dy::SoftBodyCore& core) : 
 				mSoftBodySoftBodyFilterPairs(NULL), mSim(sim), mCore(core), mElementId(0xffffffff), mGpuRemapId(0xffffffff)
 			{
 				mFilterDirty = false;
@@ -65,7 +65,7 @@ namespace physx
 			{
 				if (mDirtySoftBodyForFilterPairs)
 				{
-					Dy::SoftBody** dirtySoftBodies = mDirtySoftBodyForFilterPairs->begin();
+					ev4sio_Dy::SoftBody** dirtySoftBodies = mDirtySoftBodyForFilterPairs->begin();
 
 					const PxU32 size = mDirtySoftBodyForFilterPairs->size();
 
@@ -84,7 +84,7 @@ namespace physx
 
 			PX_FORCE_INLINE PxReal getMaxPenetrationBias() const { return mCore.maxPenBias; }
 
-			PX_FORCE_INLINE Sc::SoftBodySim* getSoftBodySim() const { return mSim; }
+			PX_FORCE_INLINE ev4sio_Sc::SoftBodySim* getSoftBodySim() const { return mSim; }
 
 			PX_FORCE_INLINE void setGpuRemapId(const PxU32 remapId) 
 			{ 
@@ -136,7 +136,7 @@ namespace physx
 			PxArray<PxU32>			mSoftSoftBodyAttachments;
 
 			SoftBodyFilterArray*    mSoftBodySoftBodyFilterPairs;
-			PxArray <Dy::SoftBody*>* mDirtySoftBodyForFilterPairs; //pointer to the array of mDirtySoftBodyForFilterPairs in PxgSimulationController.cpp
+			PxArray <ev4sio_Dy::SoftBody*>* mDirtySoftBodyForFilterPairs; //pointer to the array of mDirtySoftBodyForFilterPairs in PxgSimulationController.cpp
 
 			PxArray<PxU32>			mSoftBodySoftBodyAttachmentIdReferences;
 			bool					mFilterDirty;
@@ -144,7 +144,7 @@ namespace physx
 
 			
 		private:
-			Sc::SoftBodySim*	mSim;
+			ev4sio_Sc::SoftBodySim*	mSim;
 			SoftBodyCore&		mCore;
 			PxsShapeCore*		mShapeCore; 
 

@@ -37,7 +37,7 @@
 #include "cudamanager/PxCudaContextManager.h"
 #include "PxSparseGridParams.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 class PxFoundation;
@@ -68,25 +68,25 @@ class PxPhysicsGpu;
 
 struct PxvSimStats;
 
-namespace Bp
+namespace ev4sio_Bp
 {
 	class BroadPhase;
 	class AABBManagerBase;
 	class BoundsArray;
 }
 
-namespace Dy
+namespace ev4sio_Dy
 {
 	class Context;
 }
 
-namespace IG
+namespace ev4sio_IG
 {
 	class IslandSim;
 	class SimpleIslandManager;
 }
 
-namespace Cm
+namespace ev4sio_Cm
 {
 	class FlushPool;
 }
@@ -134,7 +134,7 @@ public:
 	/**
 	Create GPU broadphase.
 	*/
-	virtual Bp::BroadPhase* createGpuBroadPhase(
+	virtual ev4sio_Bp::BroadPhase* createGpuBroadPhase(
 		PxsKernelWranglerManager* gpuKernelWrangler,
 		PxCudaContextManager* cudaContextManager,
 		const PxU32 gpuComputeVersion,
@@ -145,14 +145,14 @@ public:
 	/**
 	Create GPU aabb manager.
 	*/
-	virtual Bp::AABBManagerBase* createGpuAABBManager(
+	virtual ev4sio_Bp::AABBManagerBase* createGpuAABBManager(
 		PxsKernelWranglerManager* gpuKernelWrangler,
 		PxCudaContextManager* cudaContextManager,
 		const PxU32 gpuComputeVersion,
 		const PxgDynamicsMemoryConfig& config,
 		PxsHeapMemoryAllocatorManager* heapMemoryManager,
-		Bp::BroadPhase& bp, 
-		Bp::BoundsArray& boundsArray, 
+		ev4sio_Bp::BroadPhase& bp, 
+		ev4sio_Bp::BoundsArray& boundsArray, 
 		PxFloatArrayPinned& contactDistance,
 		PxU32 maxNbAggregates, PxU32 maxNbShapes,
 		PxVirtualAllocator& allocator, 
@@ -167,8 +167,8 @@ public:
 		PxsKernelWranglerManager* gpuKernelWrangler,
 		PxvNphaseImplementationFallback* fallbackForUnsupportedCMs,
 		const PxgDynamicsMemoryConfig& gpuDynamicsConfig, void* contactStreamBase, void* patchStreamBase, void* forceAndIndiceStreamBase,
-		PxBoundsArrayPinned& bounds, IG::IslandSim* islandSim,
-		physx::Dy::Context* dynamicsContext, const PxU32 gpuComputeVersion, PxsHeapMemoryAllocatorManager* heapMemoryManager,
+		PxBoundsArrayPinned& bounds, ev4sio_IG::IslandSim* islandSim,
+		ev4sio_physx::ev4sio_Dy::Context* dynamicsContext, const PxU32 gpuComputeVersion, PxsHeapMemoryAllocatorManager* heapMemoryManager,
 		bool useGpuBP) = 0;
 
 	/**
@@ -176,17 +176,17 @@ public:
 	*/
 	virtual PxsSimulationController* createGpuSimulationController(PxsKernelWranglerManager* gpuWranglerManagers, 
 		PxCudaContextManager* cudaContextManager,
-		Dy::Context* dynamicContext, PxvNphaseImplementationContext* npContext, Bp::BroadPhase* bp, 
-		const bool useGpuBroadphase, IG::SimpleIslandManager* simpleIslandSim,
+		ev4sio_Dy::Context* dynamicContext, PxvNphaseImplementationContext* npContext, ev4sio_Bp::BroadPhase* bp, 
+		const bool useGpuBroadphase, ev4sio_IG::SimpleIslandManager* simpleIslandSim,
 		PxsSimulationControllerCallback* callback, const PxU32 gpuComputeVersion, PxsHeapMemoryAllocatorManager* heapMemoryManager,
 		const PxU32 maxSoftBodyContacts, const PxU32 maxFemClothContacts, const PxU32 maxParticleContacts, const PxU32 maxHairContacts) = 0;
 
 	/**
 	Create GPU dynamics context.
 	*/
-	virtual Dy::Context* createGpuDynamicsContext(Cm::FlushPool& taskPool, PxsKernelWranglerManager* gpuKernelWragler, 
+	virtual ev4sio_Dy::Context* createGpuDynamicsContext(ev4sio_Cm::FlushPool& taskPool, PxsKernelWranglerManager* gpuKernelWragler, 
 		PxCudaContextManager* cudaContextManager, 
-		const PxgDynamicsMemoryConfig& config, IG::SimpleIslandManager* islandManager, const PxU32 maxNumPartitions, const PxU32 maxNumStaticPartitions,
+		const PxgDynamicsMemoryConfig& config, ev4sio_IG::SimpleIslandManager* islandManager, const PxU32 maxNumPartitions, const PxU32 maxNumStaticPartitions,
 		const bool enableStabilization, const bool useEnhancedDeterminism, const PxReal maxBiasCoefficient,
 		const PxU32 gpuComputeVersion, PxvSimStats& simStats, PxsHeapMemoryAllocatorManager* heapMemoryManager,
 		const bool frictionEveryIteration, PxSolverType::Enum solverType, const PxReal lengthScale, bool enableDirectGPUAPI) = 0;
@@ -197,32 +197,32 @@ public:
 /**
 Create PxPhysXGpu interface class.
 */
-PX_C_EXPORT PX_PHYSX_GPU_API physx::PxPhysXGpu* PX_CALL_CONV PxCreatePhysXGpu();
+PX_C_EXPORT PX_PHYSX_GPU_API ev4sio_physx::PxPhysXGpu* PX_CALL_CONV PxCreatePhysXGpu();
 
 /**
 Create a cuda context manager. Set launchSynchronous to true for Cuda to report the actual point of failure.
 */
-PX_C_EXPORT PX_PHYSX_GPU_API physx::PxCudaContextManager* PX_CALL_CONV PxCreateCudaContextManager(physx::PxFoundation& foundation, const physx::PxCudaContextManagerDesc& desc, physx::PxProfilerCallback* profilerCallback = NULL, bool launchSynchronous = false);
+PX_C_EXPORT PX_PHYSX_GPU_API ev4sio_physx::PxCudaContextManager* PX_CALL_CONV ev4sio_PxCreateCudaContextManager(ev4sio_physx::PxFoundation& foundation, const ev4sio_physx::PxCudaContextManagerDesc& desc, ev4sio_physx::PxProfilerCallback* profilerCallback = NULL, bool launchSynchronous = false);
 
 /**
 Set profiler callback.
 */
-PX_C_EXPORT PX_PHYSX_GPU_API void PX_CALL_CONV PxSetPhysXGpuProfilerCallback(physx::PxProfilerCallback* profilerCallback);
+PX_C_EXPORT PX_PHYSX_GPU_API void PX_CALL_CONV ev4sio_PxSetPhysXGpuProfilerCallback(ev4sio_physx::PxProfilerCallback* profilerCallback);
 
 /**
 Query the device ordinal - depends on control panel settings.
 */
-PX_C_EXPORT PX_PHYSX_GPU_API int PX_CALL_CONV PxGetSuggestedCudaDeviceOrdinal(physx::PxErrorCallback& errc);
+PX_C_EXPORT PX_PHYSX_GPU_API int PX_CALL_CONV ev4sio_PxGetSuggestedCudaDeviceOrdinal(ev4sio_physx::PxErrorCallback& errc);
 
 // Implementation of the corresponding functions from PxGpu.h/cpp in the GPU shared library
 PX_C_EXPORT PX_PHYSX_GPU_API void PX_CALL_CONV PxGpuCudaRegisterFunction(int moduleIndex, const char* functionName);
 PX_C_EXPORT PX_PHYSX_GPU_API void** PX_CALL_CONV PxGpuCudaRegisterFatBinary(void* fatBin);
 #if PX_SUPPORT_GPU_PHYSX
-PX_C_EXPORT PX_PHYSX_GPU_API physx::PxKernelIndex* PX_CALL_CONV PxGpuGetCudaFunctionTable();
-PX_C_EXPORT PX_PHYSX_GPU_API physx::PxU32 PX_CALL_CONV PxGpuGetCudaFunctionTableSize();
+PX_C_EXPORT PX_PHYSX_GPU_API ev4sio_physx::PxKernelIndex* PX_CALL_CONV PxGpuGetCudaFunctionTable();
+PX_C_EXPORT PX_PHYSX_GPU_API ev4sio_physx::PxU32 PX_CALL_CONV PxGpuGetCudaFunctionTableSize();
 PX_C_EXPORT PX_PHYSX_GPU_API void** PX_CALL_CONV PxGpuGetCudaModuleTable();
-PX_C_EXPORT PX_PHYSX_GPU_API physx::PxU32 PX_CALL_CONV PxGpuGetCudaModuleTableSize();
-PX_C_EXPORT PX_PHYSX_GPU_API physx::PxPhysicsGpu* PX_CALL_CONV PxGpuCreatePhysicsGpu();
+PX_C_EXPORT PX_PHYSX_GPU_API ev4sio_physx::PxU32 PX_CALL_CONV PxGpuGetCudaModuleTableSize();
+PX_C_EXPORT PX_PHYSX_GPU_API ev4sio_physx::PxPhysicsGpu* PX_CALL_CONV PxGpuCreatePhysicsGpu();
 
 #endif
 

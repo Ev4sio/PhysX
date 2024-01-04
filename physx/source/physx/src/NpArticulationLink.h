@@ -38,7 +38,7 @@
 	PX_CATCH_UNDEFINED_ENABLE_DEBUG_VISUALIZATION
 #endif
 
-namespace physx
+namespace ev4sio_physx
 {
 
 class NpArticulationLink;

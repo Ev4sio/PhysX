@@ -30,8 +30,8 @@
 
 #include "omnipvd/ExtOmniPvdSetData.h"
 
-using namespace physx;
-using namespace Ext;
+using namespace ev4sio_physx;
+using namespace ev4sio_Ext;
 
 ContactJoint::ContactJoint(const PxTolerancesScale& scale, PxRigidActor* actor0, const PxTransform& localFrame0, PxRigidActor* actor1, const PxTransform& localFrame1) :
 	ContactJointT(PxJointConcreteType::eCONTACT, actor0, localFrame0, actor1, localFrame1, "ContactJointData")
@@ -207,7 +207,7 @@ static PxConstraintShaderTable gContactJointShaders = { ContactJointSolverPrep, 
 
 PxConstraintSolverPrep ContactJoint::getPrep()	const	{ return gContactJointShaders.solverPrep; }
 
-PxContactJoint* physx::PxContactJointCreate(PxPhysics& physics, PxRigidActor* actor0, const PxTransform& localFrame0, PxRigidActor* actor1, const PxTransform& localFrame1)
+PxContactJoint* ev4sio_physx::PxContactJointCreate(PxPhysics& physics, PxRigidActor* actor0, const PxTransform& localFrame0, PxRigidActor* actor1, const PxTransform& localFrame1)
 {
 	PX_CHECK_AND_RETURN_NULL(localFrame0.isSane(), "PxContactJointCreate: local frame 0 is not a valid transform");
 	PX_CHECK_AND_RETURN_NULL(localFrame1.isSane(), "PxContactJointCreate: local frame 1 is not a valid transform");
@@ -227,7 +227,7 @@ void ContactJoint::resolveReferences(PxDeserializationContext& context)
 #if PX_SUPPORT_OMNI_PVD
 
 template<>
-void physx::Ext::omniPvdInitJoint<ContactJoint>(ContactJoint& joint)
+void ev4sio_physx::ev4sio_Ext::omniPvdInitJoint<ContactJoint>(ContactJoint& joint)
 {
 	OMNI_PVD_WRITE_SCOPE_BEGIN(pvdWriter, pvdRegData)
 

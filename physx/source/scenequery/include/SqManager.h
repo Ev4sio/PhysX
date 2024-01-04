@@ -40,9 +40,9 @@
 #include "SqPruner.h"
 #include "geometry/PxGeometryHelpers.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Sq
+namespace ev4sio_Sq
 {
 	// PrunerManager-level adapter
 	class Adapter
@@ -53,7 +53,7 @@ namespace Sq
 
 		// Retrieves the PxGeometry associated with a given PrunerPayload. This will be called by
 		// the PrunerManager class when computing bounds.
-		virtual	const PxGeometry&	getGeometry(const Gu::PrunerPayload& payload)	const	= 0;
+		virtual	const PxGeometry&	getGeometry(const ev4sio_Gu::PrunerPayload& payload)	const	= 0;
 	};
 
 	// PT: extended pruner structure. We might want to move the additional data to the pruner itself later.
@@ -63,21 +63,21 @@ namespace Sq
 												PrunerExt();
 												~PrunerExt();
 
-						void					init(Gu::Pruner* pruner);
+						void					init(ev4sio_Gu::Pruner* pruner);
 						void					flushMemory();
 						void					preallocate(PxU32 nbShapes);
 
-						void					addToDirtyList(Gu::PrunerHandle handle, bool dynamic, const PxTransform& transform);
-						void					removeFromDirtyList(Gu::PrunerHandle handle);
+						void					addToDirtyList(ev4sio_Gu::PrunerHandle handle, bool dynamic, const PxTransform& transform);
+						void					removeFromDirtyList(ev4sio_Gu::PrunerHandle handle);
 						bool					processDirtyList(PxU32 index, const Adapter& adapter, float inflation);
-//						void					growDirtyList(Gu::PrunerHandle handle);
+//						void					growDirtyList(ev4sio_Gu::PrunerHandle handle);
 
-		PX_FORCE_INLINE	Gu::Pruner*				pruner()			{ return mPruner;	}
-		PX_FORCE_INLINE	const Gu::Pruner*		pruner()	const	{ return mPruner;	}
+		PX_FORCE_INLINE	ev4sio_Gu::Pruner*				pruner()			{ return mPruner;	}
+		PX_FORCE_INLINE	const ev4sio_Gu::Pruner*		pruner()	const	{ return mPruner;	}
 
-						Gu::Pruner*				mPruner;
+						ev4sio_Gu::Pruner*				mPruner;
 						PxBitMap				mDirtyMap;
-					PxArray<Gu::PrunerHandle>	mDirtyList;
+					PxArray<ev4sio_Gu::PrunerHandle>	mDirtyList;
 						bool					mDirtyStatic;	// true if dirty list contains a static
 
 						PX_NOCOPY(PrunerExt)
@@ -88,12 +88,12 @@ namespace Sq
 }
 
 #include "foundation/PxHashSet.h"
-namespace physx
+namespace ev4sio_physx
 {
-namespace Sq
+namespace ev4sio_Sq
 {
 	class CompoundPruner;
-	typedef PxPair<PrunerCompoundId, Gu::PrunerHandle>	CompoundPair;
+	typedef PxPair<PrunerCompoundId, ev4sio_Gu::PrunerHandle>	CompoundPair;
 	typedef PxCoalescedHashSet<CompoundPair >			CompoundPrunerSet;
 	// AB: extended compound pruner structure, buffers compound shape changes and flushes them.
 	struct CompoundPrunerExt : public PxUserAllocated
@@ -105,8 +105,8 @@ namespace Sq
 						void					flushMemory();
 						void					preallocate(PxU32 nbShapes);
 						void					flushShapes(const Adapter& adapter, float inflation);
-						void					addToDirtyList(PrunerCompoundId compoundId, Gu::PrunerHandle handle, const PxTransform& transform);
-						void					removeFromDirtyList(PrunerCompoundId compoundId, Gu::PrunerHandle handle);						
+						void					addToDirtyList(PrunerCompoundId compoundId, ev4sio_Gu::PrunerHandle handle, const PxTransform& transform);
+						void					removeFromDirtyList(PrunerCompoundId compoundId, ev4sio_Gu::PrunerHandle handle);						
 
 		PX_FORCE_INLINE	const CompoundPruner*	pruner()	const	{ return mPruner;	}
 		PX_FORCE_INLINE	CompoundPruner*			pruner()			{ return mPruner;	}
@@ -124,29 +124,29 @@ namespace Sq
 #include "foundation/PxMutex.h"
 #include "SqPrunerData.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 class PxRenderOutput;
 class PxBVH;
 class PxSceneLimits;	// PT: TODO: decouple from PxSceneLimits
 
-namespace Sq
+namespace ev4sio_Sq
 {
 	class PrunerManager : public PxUserAllocated
 	{
 	public:
-														PrunerManager(PxU64 contextID, Gu::Pruner* staticPruner, Gu::Pruner* dynamicPruner,
+														PrunerManager(PxU64 contextID, ev4sio_Gu::Pruner* staticPruner, ev4sio_Gu::Pruner* dynamicPruner,
 															PxU32 dynamicTreeRebuildRateHint, float inflation,
 															const PxSceneLimits& limits, const Adapter& adapter);
 														~PrunerManager();
 
-						PrunerData						addPrunerShape(const Gu::PrunerPayload& payload, bool dynamic, PrunerCompoundId compoundId, const PxBounds3& bounds, const PxTransform& transform, bool hasPruningStructure=false);
-						void							addCompoundShape(const PxBVH& bvh, PrunerCompoundId compoundId, const PxTransform& compoundTransform, PrunerData* prunerData, const Gu::PrunerPayload* payloads, const PxTransform* transforms, bool isDynamic);
+						PrunerData						addPrunerShape(const ev4sio_Gu::PrunerPayload& payload, bool dynamic, PrunerCompoundId compoundId, const PxBounds3& bounds, const PxTransform& transform, bool hasPruningStructure=false);
+						void							addCompoundShape(const PxBVH& bvh, PrunerCompoundId compoundId, const PxTransform& compoundTransform, PrunerData* prunerData, const ev4sio_Gu::PrunerPayload* payloads, const PxTransform* transforms, bool isDynamic);
 						void							markForUpdate(PrunerCompoundId compoundId, PrunerData s, const PxTransform& transform);
-						void							removePrunerShape(PrunerCompoundId compoundId, PrunerData shapeData, Gu::PrunerPayloadRemovalCallback* removalCallback);
+						void							removePrunerShape(PrunerCompoundId compoundId, PrunerData shapeData, ev4sio_Gu::PrunerPayloadRemovalCallback* removalCallback);
 
-		PX_FORCE_INLINE	const Gu::Pruner*				getPruner(PruningIndex::Enum index)			const	{ return mPrunerExt[index].mPruner;		}
-		PX_FORCE_INLINE	Gu::Pruner*						getPruner(PruningIndex::Enum index)					{ return mPrunerExt[index].mPruner;		}
+		PX_FORCE_INLINE	const ev4sio_Gu::Pruner*				getPruner(PruningIndex::Enum index)			const	{ return mPrunerExt[index].mPruner;		}
+		PX_FORCE_INLINE	ev4sio_Gu::Pruner*						getPruner(PruningIndex::Enum index)					{ return mPrunerExt[index].mPruner;		}
 		PX_FORCE_INLINE	const CompoundPruner*			getCompoundPruner()							const	{ return mCompoundPrunerExt.mPruner;	}
 		PX_FORCE_INLINE	PxU64							getContextId()								const	{ return mContextID;					}
 
@@ -159,12 +159,12 @@ namespace Sq
 						void							forceRebuildDynamicTree(PxU32 prunerIndex);
 
 						void							updateCompoundActor(PrunerCompoundId compoundId, const PxTransform& compoundTransform);
-						void							removeCompoundActor(PrunerCompoundId compoundId, Gu::PrunerPayloadRemovalCallback* removalCallback);
+						void							removeCompoundActor(PrunerCompoundId compoundId, ev4sio_Gu::PrunerPayloadRemovalCallback* removalCallback);
 
 						void*							prepareSceneQueriesUpdate(PruningIndex::Enum index);
 						void							sceneQueryBuildStep(void* handle);
 
-						void							sync(const Gu::PrunerHandle* handles, const PxU32* boundsIndices, const PxBounds3* bounds, const PxTransform32* transforms, PxU32 count, const PxBitMap& ignoredIndices);
+						void							sync(const ev4sio_Gu::PrunerHandle* handles, const PxU32* boundsIndices, const PxBounds3* bounds, const PxTransform32* transforms, PxU32 count, const PxBitMap& ignoredIndices);
 						void							afterSync(bool buildStep, bool commit);
 						void							shiftOrigin(const PxVec3& shift);
 						void							visualize(PxU32 prunerIndex, PxRenderOutput& out)	const;

@@ -33,10 +33,10 @@
 #include "foundation/PxVecMath.h"
 #include "common/PxSerialFramework.h"
 
-using namespace physx;
-using namespace Gu;
-using namespace Cm;
-using namespace physx::aos;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
+using namespace ev4sio_Cm;
+using namespace ev4sio_physx::aos;
 
 SourceMeshBase::SourceMeshBase(MeshType meshType) : mNbVerts(0), mVerts(NULL), mType(meshType), mRemap(NULL)
 {

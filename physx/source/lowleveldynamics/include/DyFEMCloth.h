@@ -32,14 +32,14 @@
 #include "DyFEMClothCore.h"
 #include "PxvGeometry.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-	namespace Sc
+	namespace ev4sio_Sc
 	{
 		class FEMClothSim;
 	}
 
-	namespace Dy
+	namespace ev4sio_Dy
 	{
 
 		typedef size_t FEMClothHandle;
@@ -51,7 +51,7 @@ namespace physx
 			PX_NOCOPY(FEMCloth)
 
 		public:
-			FEMCloth(Sc::FEMClothSim* sim, Dy::FEMClothCore& core) :
+			FEMCloth(ev4sio_Sc::FEMClothSim* sim, ev4sio_Dy::FEMClothCore& core) :
 				mSim(sim), mCore(core), mElementId(0xffffffff), mGpuRemapId(0xffffffff)
 			{}
 
@@ -59,7 +59,7 @@ namespace physx
 
 			//PX_FORCE_INLINE PxReal getMaxPenetrationBias() const { return mCore.maxPenBias; }
 
-			PX_FORCE_INLINE Sc::FEMClothSim* getFEMClothSim() const { return mSim; }
+			PX_FORCE_INLINE ev4sio_Sc::FEMClothSim* getFEMClothSim() const { return mSim; }
 
 			PX_FORCE_INLINE void setGpuRemapId(const PxU32 remapId)
 			{
@@ -101,7 +101,7 @@ namespace physx
 			PxArray<PxU32>		mClothClothAttachments;
 		private:
 			
-			Sc::FEMClothSim*	mSim;
+			ev4sio_Sc::FEMClothSim*	mSim;
 			FEMClothCore&		mCore;
 			PxsShapeCore*		mShapeCore;
 			PxU32				mElementId; //this is used for the bound array, contactDist

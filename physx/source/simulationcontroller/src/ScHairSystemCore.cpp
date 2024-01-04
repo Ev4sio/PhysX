@@ -33,9 +33,9 @@
 #include "ScHairSystemSim.h"
 #include "ScPhysics.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Sc
+namespace ev4sio_Sc
 {
 
 HairSystemCore::HairSystemCore()
@@ -52,19 +52,19 @@ void HairSystemCore::clearMaterials() { mShapeCore.getLLCore().clearMaterials();
 void HairSystemCore::setSleepThreshold(const PxReal v)
 {
 	mShapeCore.getLLCore().mSleepThreshold = v;
-	mShapeCore.getLLCore().mDirtyFlags |= Dy::HairSystemDirtyFlag::ePARAMETERS;
+	mShapeCore.getLLCore().mDirtyFlags |= ev4sio_Dy::HairSystemDirtyFlag::ePARAMETERS;
 }
 
 void HairSystemCore::setSolverIterationCounts(const PxU16 c)
 {
 	mShapeCore.getLLCore().mSolverIterationCounts = c;
-	mShapeCore.getLLCore().mDirtyFlags |= Dy::HairSystemDirtyFlag::ePARAMETERS;
+	mShapeCore.getLLCore().mDirtyFlags |= ev4sio_Dy::HairSystemDirtyFlag::ePARAMETERS;
 }
 
 void HairSystemCore::setWakeCounter(const PxReal v)
 {
 	mShapeCore.getLLCore().mWakeCounter = v;
-	mShapeCore.getLLCore().mDirtyFlags |= Dy::HairSystemDirtyFlag::ePARAMETERS;
+	mShapeCore.getLLCore().mDirtyFlags |= ev4sio_Dy::HairSystemDirtyFlag::ePARAMETERS;
 
 	HairSystemSim* sim = getSim();
 	if(sim)
@@ -82,13 +82,13 @@ bool HairSystemCore::isSleeping() const
 void HairSystemCore::wakeUp(PxReal wakeCounter)
 {
 	mShapeCore.getLLCore().mWakeCounter = wakeCounter;
-	mShapeCore.getLLCore().mDirtyFlags |= Dy::HairSystemDirtyFlag::ePARAMETERS;
+	mShapeCore.getLLCore().mDirtyFlags |= ev4sio_Dy::HairSystemDirtyFlag::ePARAMETERS;
 }
 
 void HairSystemCore::putToSleep()
 {
 	mShapeCore.getLLCore().mWakeCounter = 0.0f;
-	mShapeCore.getLLCore().mDirtyFlags |= Dy::HairSystemDirtyFlag::ePARAMETERS;
+	mShapeCore.getLLCore().mDirtyFlags |= ev4sio_Dy::HairSystemDirtyFlag::ePARAMETERS;
 }
 
 PxActor* HairSystemCore::getPxActor() const
@@ -130,7 +130,7 @@ void HairSystemCore::removeAttachment(const BodySim& bodySim)
 
 void HairSystemCore::addAttachment(const SoftBodySim& sbSim)
 {
-	const Sc::HairSystemSim* sim = getSim();
+	const ev4sio_Sc::HairSystemSim* sim = getSim();
 	if(sim)
 	{
 		sim->getScene().addAttachment(sbSim, *sim);
@@ -139,20 +139,20 @@ void HairSystemCore::addAttachment(const SoftBodySim& sbSim)
 
 void HairSystemCore::removeAttachment(const SoftBodySim& sbSim)
 {
-	const Sc::HairSystemSim* sim = getSim();
+	const ev4sio_Sc::HairSystemSim* sim = getSim();
 	if(sim)
 	{
 		sim->getScene().removeAttachment(sbSim, *sim);
 	}
 }
 
-void Sc::HairSystemCore::setFlags(PxHairSystemFlags flags)
+void ev4sio_Sc::HairSystemCore::setFlags(PxHairSystemFlags flags)
 {
 	mShapeCore.getLLCore().mParams.mFlags = flags;
-	mShapeCore.getLLCore().mDirtyFlags |= Dy::HairSystemDirtyFlag::ePARAMETERS;
+	mShapeCore.getLLCore().mDirtyFlags |= ev4sio_Dy::HairSystemDirtyFlag::ePARAMETERS;
 }
 
-} // namespace Sc
-} // namespace physx
+} // namespace ev4sio_Sc
+} // namespace ev4sio_physx
 
 #endif // PX_SUPPORT_GPU_PHYSX

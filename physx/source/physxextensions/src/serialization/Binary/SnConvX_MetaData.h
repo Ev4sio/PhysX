@@ -32,7 +32,7 @@
 #include "SnConvX_Output.h"
 #include "serialization/SnSerialUtils.h"
 
-namespace physx { namespace Sn {
+namespace ev4sio_physx { namespace Sn {
 
 #if PX_VC
 #pragma warning (push)

@@ -34,7 +34,7 @@
 #include "common/PxTypeInfo.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -52,9 +52,9 @@ Call this before using any of the vehicle functions.
 \note This function must be called after PxFoundation and PxPhysics instances have been created.
 \note If a PxSerializationRegistry instance is specified then PhysXVehicle is also dependent on PhysXExtensions.
 
-@see PxCloseVehicleSDK
+@see ev4sio_PxCloseVehicleSDK
 */
-PX_DEPRECATED PX_C_EXPORT bool PX_CALL_CONV PxInitVehicleSDK(PxPhysics& physics, PxSerializationRegistry* serializationRegistry = NULL);
+PX_DEPRECATED PX_C_EXPORT bool PX_CALL_CONV ev4sio_PxInitVehicleSDK(PxPhysics& physics, PxSerializationRegistry* serializationRegistry = NULL);
 
 
 /**
@@ -62,14 +62,14 @@ PX_DEPRECATED PX_C_EXPORT bool PX_CALL_CONV PxInitVehicleSDK(PxPhysics& physics,
 
 Call this function as part of the physx shutdown process.
 
-\param serializationRegistry PxSerializationRegistry instance, if non-NULL must be the same as passed into PxInitVehicleSDK.
+\param serializationRegistry PxSerializationRegistry instance, if non-NULL must be the same as passed into ev4sio_PxInitVehicleSDK.
 
 \note This function must be called prior to shutdown of PxFoundation and PxPhysics.
 \note If the PxSerializationRegistry instance is specified this function must additionally be called prior to shutdown of PhysXExtensions.
 
-@see PxInitVehicleSDK
+@see ev4sio_PxInitVehicleSDK
 */
-PX_DEPRECATED PX_C_EXPORT void PX_CALL_CONV PxCloseVehicleSDK(PxSerializationRegistry* serializationRegistry = NULL);
+PX_DEPRECATED PX_C_EXPORT void PX_CALL_CONV ev4sio_PxCloseVehicleSDK(PxSerializationRegistry* serializationRegistry = NULL);
 
 
 /**
@@ -414,7 +414,7 @@ PX_DEPRECATED const PxVehicleContext& PxVehicleGetDefaultContext();
 
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

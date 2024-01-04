@@ -28,7 +28,7 @@
 #include <assert.h>
 #include "foundation/PxString.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 void Sn::ConvX::resetUnions()
 {

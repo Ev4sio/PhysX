@@ -31,9 +31,9 @@
 
 #include "ScInteraction.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Sc
+namespace ev4sio_Sc
 {
 	class ConstraintSim;
 	class RigidSim;
@@ -58,7 +58,7 @@ namespace Sc
 						PxU32			mEdgeIndex;
 	};
 
-} // namespace Sc
+} // namespace ev4sio_Sc
 
 }
 

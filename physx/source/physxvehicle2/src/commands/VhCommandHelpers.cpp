@@ -29,7 +29,7 @@
 #include "vehicle2/commands/PxVehicleCommandParams.h"
 #include "vehicle2/commands/PxVehicleCommandHelpers.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 namespace vehicle2
 {
@@ -157,4 +157,4 @@ PxReal PxVehicleNonLinearResponseCompute
 }
 
 } // namespace vehicle2
-} // namespace physx
+} // namespace ev4sio_physx

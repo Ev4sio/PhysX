@@ -27,7 +27,7 @@
 #ifndef SN_CONVX_ALIGN_H
 #define SN_CONVX_ALIGN_H
 
-namespace physx { namespace Sn {
+namespace ev4sio_physx { namespace Sn {
 	#define ALIGN_DEFAULT	16
 	#define ALIGN_FILE		128
 

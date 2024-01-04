@@ -54,7 +54,7 @@
 //
 #undef OMNI_PVD_GET_WRITER
 #define OMNI_PVD_GET_WRITER(writer) \
-physx::PxOmniPvd::ScopedExclusiveWriter writeLock(NpOmniPvdGetInstance()); \
+ev4sio_physx::PxOmniPvd::ScopedExclusiveWriter writeLock(NpOmniPvdGetInstance()); \
 OmniPvdWriter* writer = writeLock.getWriter();
 
 

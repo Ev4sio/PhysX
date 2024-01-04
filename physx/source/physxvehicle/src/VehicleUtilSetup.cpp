@@ -38,7 +38,7 @@
 #include "vehicle/PxVehicleUtil.h"
 #include "vehicle/PxVehicleUpdate.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 void enable3WMode(const PxU32 rightDirection, const PxU32 upDirection, const bool removeFrontWheel, PxVehicleWheelsSimData& wheelsSimData, PxVehicleWheelsDynData& wheelsDynData, PxVehicleDriveSimData4W& driveSimData);

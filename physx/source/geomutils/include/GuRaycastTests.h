@@ -34,7 +34,7 @@
 #include "geometry/PxGeometryHit.h"
 #include "geometry/PxGeometryQueryContext.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	#define UNUSED_RAYCAST_THREAD_CONTEXT	NULL
 
@@ -54,7 +54,7 @@ namespace physx
 								const PxVec3& rayOrigin, const PxVec3& rayDir, PxReal maxDist,		\
 								PxHitFlags hitFlags, PxU32 maxHits, PxGeomRaycastHit* PX_RESTRICT hits, PxU32 stride, PxRaycastThreadContext* threadContext
 
-	namespace Gu
+	namespace ev4sio_Gu
 	{
 		// PT: function pointer for Geom-indexed raycast functions
 		// See GU_RAY_FUNC_PARAMS for function parameters details.
@@ -68,7 +68,7 @@ namespace physx
 		// PT: retrieves the raycast function table (for access by external non-Gu modules)
 		PX_PHYSX_COMMON_API const GeomRaycastTable& getRaycastFuncTable();
 
-	}  // namespace Gu
+	}  // namespace ev4sio_Gu
 }
 
 #endif

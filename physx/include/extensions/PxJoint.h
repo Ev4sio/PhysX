@@ -38,7 +38,7 @@
 #include "common/PxBase.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -387,7 +387,7 @@ public:
 
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 /** \brief Helper function to setup a joint's global frame
@@ -404,7 +404,7 @@ public:
 	\param[in,out] joint Joint having its global frame set.
 */
 
-PX_C_EXPORT void PX_CALL_CONV PxSetJointGlobalFrame(physx::PxJoint& joint, const physx::PxVec3* wsAnchor, const physx::PxVec3* wsAxis);
+PX_C_EXPORT void PX_CALL_CONV ev4sio_PxSetJointGlobalFrame(ev4sio_physx::PxJoint& joint, const ev4sio_physx::PxVec3* wsAnchor, const ev4sio_physx::PxVec3* wsAxis);
 
 /** @} */
 #endif

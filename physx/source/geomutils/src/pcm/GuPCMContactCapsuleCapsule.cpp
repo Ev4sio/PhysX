@@ -32,8 +32,8 @@
 #include "GuDistanceSegmentSegment.h"
 #include "GuPCMContactGenUtil.h"
 
-using namespace physx;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
 using namespace aos;
 
 static Vec4V pcmDistancePointSegmentTValue22(	const Vec3VArg a0, const Vec3VArg b0, 
@@ -76,7 +76,7 @@ static void storeContact(const Vec3VArg contact, const Vec3VArg normal, const Fl
 	outputSimplePCMContact(buffer, contact, normal, separation);
 }
 
-bool Gu::pcmContactCapsuleCapsule(GU_CONTACT_METHOD_ARGS)
+bool ev4sio_Gu::pcmContactCapsuleCapsule(GU_CONTACT_METHOD_ARGS)
 {
 	PX_UNUSED(renderOutput);
 	PX_UNUSED(cache);

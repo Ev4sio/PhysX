@@ -35,10 +35,10 @@
 #include "GuGJKPenetration.h"
 #include "GuEPA.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
-namespace Gu
+namespace ev4sio_Gu
 {
 	/*
 		ConvexA is in the local space of ConvexB
@@ -230,7 +230,7 @@ namespace Gu
 				PxU8 size=0;
 				GjkOutput output;
 
-				//PX_COMPILE_TIME_ASSERT(typename Shrink<ConvexB>::Type != Gu::BoxV);
+				//PX_COMPILE_TIME_ASSERT(typename Shrink<ConvexB>::Type != ev4sio_Gu::BoxV);
 				
 #ifdef USE_VIRTUAL_GJK
 				GjkStatus status = gjkPenetration<ConvexA, ConvexB>(a, b,

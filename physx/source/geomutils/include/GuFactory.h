@@ -33,15 +33,15 @@
 #include "common/PxPhysXCommonConfig.h"
 #include "GuPrunerTypedef.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Gu
+namespace ev4sio_Gu
 {
 	class Pruner;
 
-	PX_C_EXPORT	PX_PHYSX_COMMON_API	Gu::Pruner*	createBucketPruner(PxU64 contextID);
-	PX_C_EXPORT	PX_PHYSX_COMMON_API	Gu::Pruner*	createAABBPruner(PxU64 contextID, bool dynamic, Gu::CompanionPrunerType type, Gu::BVHBuildStrategy buildStrategy, PxU32 nbObjectsPerNode);
-	PX_C_EXPORT	PX_PHYSX_COMMON_API	Gu::Pruner*	createIncrementalPruner(PxU64 contextID);
+	PX_C_EXPORT	PX_PHYSX_COMMON_API	ev4sio_Gu::Pruner*	createBucketPruner(PxU64 contextID);
+	PX_C_EXPORT	PX_PHYSX_COMMON_API	ev4sio_Gu::Pruner*	createAABBPruner(PxU64 contextID, bool dynamic, ev4sio_Gu::CompanionPrunerType type, ev4sio_Gu::BVHBuildStrategy buildStrategy, PxU32 nbObjectsPerNode);
+	PX_C_EXPORT	PX_PHYSX_COMMON_API	ev4sio_Gu::Pruner*	createIncrementalPruner(PxU64 contextID);
 }
 }
 

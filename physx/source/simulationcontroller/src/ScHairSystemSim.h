@@ -34,9 +34,9 @@
 #include "ScHairSystemShapeSim.h"
 #include "ScActorSim.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-	namespace Sc
+	namespace ev4sio_Sc
 	{
 		class Scene;
 
@@ -47,7 +47,7 @@ namespace physx
 			HairSystemSim(HairSystemCore& core, Scene& scene);
 			~HairSystemSim();
 
-			PX_INLINE Dy::HairSystem* getLowLevelHairSystem() const { return mLLHairSystem; }
+			PX_INLINE ev4sio_Dy::HairSystem* getLowLevelHairSystem() const { return mLLHairSystem; }
 			PX_INLINE HairSystemCore& getCore() const { return static_cast<HairSystemCore&>(mCore); }
 
 			virtual PxActor* getPxActor() const { return getCore().getPxActor(); }
@@ -66,15 +66,15 @@ namespace physx
 			HairSystemShapeSim& getShapeSim() { return mShapeSim; }
 
 		private:
-			Dy::HairSystem*		mLLHairSystem;
+			ev4sio_Dy::HairSystem*		mLLHairSystem;
 			HairSystemShapeSim	mShapeSim;
 
 // PT: as far as I can tell these are never actually called
 //						void activate();
 //						void deactivate();
 		};
-	} // namespace Sc
-} // namespace physx
+	} // namespace ev4sio_Sc
+} // namespace ev4sio_physx
 #endif
 
 #endif

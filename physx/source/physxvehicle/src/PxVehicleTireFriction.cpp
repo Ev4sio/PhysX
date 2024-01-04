@@ -38,7 +38,7 @@
 
 #include "PxMaterial.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 PX_FORCE_INLINE PxU32 computeByteSize(const PxU32 maxNbTireTypes, const PxU32 maxNbSurfaceTypes)

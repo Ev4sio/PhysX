@@ -33,9 +33,9 @@
 #include "common/PxMetaData.h"
 #include "DyVArticulation.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Sc
+namespace ev4sio_Sc
 {
 	class BodyCore;
 	class ArticulationJointSim;
@@ -55,7 +55,7 @@ namespace Sc
 	public:
 // PX_SERIALIZATION
 															ArticulationJointCore(const PxEMPTY) : mCore(PxEmpty), mSim(NULL) {}
-						void								preExportDataReset() { mCore.jointDirtyFlag = Dy::ArticulationJointCoreDirtyFlag::eALL; }
+						void								preExportDataReset() { mCore.jointDirtyFlag = ev4sio_Dy::ArticulationJointCoreDirtyFlag::eALL; }
 		static			void								getBinaryMetaData(PxOutputStream& stream);
 //~PX_SERIALIZATION
 															ArticulationJointCore(const PxTransform& parentFrame, const PxTransform& childFrame);
@@ -110,7 +110,7 @@ namespace Sc
 																	mSim = sim;
 																}
 
-		PX_FORCE_INLINE	Dy::ArticulationJointCore&				getCore()											{ return mCore;					}
+		PX_FORCE_INLINE	ev4sio_Dy::ArticulationJointCore&				getCore()											{ return mCore;					}
 
 		PX_FORCE_INLINE void									setArticulation(ArticulationCore* articulation)		{ mArticulation = articulation;	}
 		PX_FORCE_INLINE	const ArticulationCore*					getArticulation()							const	{ return mArticulation;			}
@@ -121,13 +121,13 @@ namespace Sc
 		PX_FORCE_INLINE void									setLLIndex(const PxU32 llLinkIndex)					{ mLLLinkIndex = llLinkIndex;	}
 	private:
 						void									setSimDirty();
-		PX_FORCE_INLINE	void									setDirty(Dy::ArticulationJointCoreDirtyFlag::Enum dirtyFlag)
+		PX_FORCE_INLINE	void									setDirty(ev4sio_Dy::ArticulationJointCoreDirtyFlag::Enum dirtyFlag)
 																{
 																	mCore.jointDirtyFlag |= dirtyFlag;
 																	setSimDirty();
 																}
 
-						Dy::ArticulationJointCore				mCore;
+						ev4sio_Dy::ArticulationJointCore				mCore;
 						ArticulationJointSim*					mSim;
 						ArticulationCore*						mArticulation;
 						PxArticulationJointReducedCoordinate*	mRootType;
@@ -137,7 +137,7 @@ namespace Sc
 #endif
 	};
 
-} // namespace Sc
+} // namespace ev4sio_Sc
 
 }
 

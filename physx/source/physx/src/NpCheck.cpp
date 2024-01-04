@@ -29,7 +29,7 @@
 #include "NpCheck.h"
 #include "NpScene.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 NpReadCheck::NpReadCheck(const NpScene* scene, const char* functionName) : mScene(scene), mName(functionName), mErrorCount(0)
 {
@@ -39,14 +39,14 @@ NpReadCheck::NpReadCheck(const NpScene* scene, const char* functionName) : mScen
 		{
 			if(mScene->getScScene().getFlags() & PxSceneFlag::eREQUIRE_RW_LOCK)
 			{
-				PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, 
+				ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, 
 					"An API read call (%s) was made from thread %d but PxScene::lockRead() was not called first, note that "
 					"when PxSceneFlag::eREQUIRE_RW_LOCK is enabled all API reads and writes must be "
 					"wrapped in the appropriate locks.", mName, PxU32(PxThread::getId()));
 			}
 			else
 			{
-				PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, 
+				ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, 
 					"Overlapping API read and write call detected during %s from thread %d! Note that read operations to "
 					"the SDK must not be overlapped with write calls, else the resulting behavior is undefined.", mName, PxU32(PxThread::getId()));
 			}
@@ -69,7 +69,7 @@ NpReadCheck::~NpReadCheck()
 		// details so that the user can see which two API calls overlapped
 		if(mScene->getReadWriteErrorCount() != mErrorCount && !(mScene->getScScene().getFlags() & PxSceneFlag::eREQUIRE_RW_LOCK))
 		{
-			PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, 
+			ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, 
 				"Leaving %s on thread %d, an API overlapping write on another thread was detected.", mName, PxU32(PxThread::getId()));
 		}
 
@@ -86,13 +86,13 @@ NpWriteCheck::NpWriteCheck(NpScene* scene, const char* functionName, bool allowR
 		case NpScene::StartWriteResult::eOK:
 			break;
 		case NpScene::StartWriteResult::eNO_LOCK:
-			PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL,
+			ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL,
 				"An API write call (%s) was made from thread %d but PxScene::lockWrite() was not called first, note that "
 				"when PxSceneFlag::eREQUIRE_RW_LOCK is enabled all API reads and writes must be "
 				"wrapped in the appropriate locks.", mName, PxU32(PxThread::getId()));
 			break;
 		case NpScene::StartWriteResult::eRACE_DETECTED:
-			PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL,
+			ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL,
 				"Concurrent API write call or overlapping API read and write call detected during %s from thread %d! "
 				"Note that write operations to the SDK must be sequential, i.e., no overlap with "
 				"other write or read calls, else the resulting behavior is undefined. "
@@ -100,7 +100,7 @@ NpWriteCheck::NpWriteCheck(NpScene* scene, const char* functionName, bool allowR
 			break;
 
 		case NpScene::StartWriteResult::eIN_FETCHRESULTS:
-			PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL,
+			ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL,
 				"Illegal write call detected in %s from thread %d during split fetchResults! "
 				"Note that write operations to the SDK are not permitted between the start of fetchResultsStart() and end of fetchResultsFinish(). "
 				"Behavior will be undefined. ", mName, PxU32(PxThread::getId()));
@@ -124,7 +124,7 @@ NpWriteCheck::~NpWriteCheck()
 		// details so that the user can see which two API calls overlapped
 		if(mScene->getReadWriteErrorCount() != mErrorCount && !(mScene->getScScene().getFlags() & PxSceneFlag::eREQUIRE_RW_LOCK))
 		{
-			PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, 
+			ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, 
 			"Leaving %s on thread %d, an overlapping API read or write by another thread was detected.", mName, PxU32(PxThread::getId()));
 		}
 

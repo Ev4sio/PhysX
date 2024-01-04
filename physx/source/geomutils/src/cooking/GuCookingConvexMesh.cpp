@@ -34,8 +34,8 @@
 #include "foundation/PxFPU.h"
 #include "common/PxInsertionCallback.h"
 
-using namespace physx;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
 
 ///////////////////////////////////////////////////////////////////////////////
 

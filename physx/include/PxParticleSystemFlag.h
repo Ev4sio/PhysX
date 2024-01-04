@@ -32,7 +32,7 @@
 #include "foundation/PxFlags.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -95,7 +95,7 @@ struct PxParticlePhaseFlag
 typedef PxFlags<PxParticlePhaseFlag::Enum, PxU32> PxParticlePhaseFlags;
 	
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

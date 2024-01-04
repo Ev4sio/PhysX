@@ -32,7 +32,7 @@
 #include "common/PxStringTable.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -45,11 +45,11 @@ namespace physx
 class PxStringTableExt
 {
 public:
-	static PxStringTable& createStringTable( physx::PxAllocatorCallback& inAllocator );
+	static PxStringTable& createStringTable( ev4sio_physx::PxAllocatorCallback& inAllocator );
 };
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

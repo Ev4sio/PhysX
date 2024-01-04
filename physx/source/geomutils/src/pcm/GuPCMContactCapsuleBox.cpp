@@ -35,8 +35,8 @@
 #include "GuGJKPenetration.h"
 #include "GuEPA.h"
 
-using namespace physx;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
 using namespace aos;
 
 static bool fullContactsGenerationCapsuleBox(const CapsuleV& capsule, const BoxV& box, const PxVec3& halfExtents, const PxMatTransformV& aToB, const PxTransformV& transf0, const PxTransformV& transf1,
@@ -70,7 +70,7 @@ static bool fullContactsGenerationCapsuleBox(const CapsuleV& capsule, const BoxV
 	return true;	
 }
 
-bool Gu::pcmContactCapsuleBox(GU_CONTACT_METHOD_ARGS)
+bool ev4sio_Gu::pcmContactCapsuleBox(GU_CONTACT_METHOD_ARGS)
 {
 	PX_UNUSED(renderOutput);
 	PX_ASSERT(transform1.q.isSane());

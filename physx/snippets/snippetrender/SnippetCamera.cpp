@@ -30,7 +30,7 @@
 #include <ctype.h>
 #include "foundation/PxMat33.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 namespace Snippets
 {

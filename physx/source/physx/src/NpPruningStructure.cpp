@@ -42,9 +42,9 @@
 
 #include "SqPrunerData.h"
 
-using namespace physx;
-using namespace Sq;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Sq;
+using namespace ev4sio_Gu;
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -138,7 +138,7 @@ bool PruningStructure::build(PxRigidActor*const* actors, PxU32 nbActors)
 		NpScene* scene = NpActor::getFromPxActor(actor).getNpScene();
 		if(scene)
 		{
-			PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "PrunerStructure::build: Actor already assigned to a scene!");
+			ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "PrunerStructure::build: Actor already assigned to a scene!");
 			return false;
 		}
 
@@ -161,7 +161,7 @@ bool PruningStructure::build(PxRigidActor*const* actors, PxU32 nbActors)
 		// each provided actor must have a query shape
 		if(!hasQueryShape)
 		{
-			PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "PrunerStructure::build: Provided actor has no scene query shape!");
+			ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "PrunerStructure::build: Provided actor has no scene query shape!");
 			return false;
 		}
 
@@ -170,7 +170,7 @@ bool PruningStructure::build(PxRigidActor*const* actors, PxU32 nbActors)
 			NpRigidStatic* rs = static_cast<NpRigidStatic*>(actors[actorsDone]);
 			if(rs->getShapeManager().getPruningStructure())
 			{
-				PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "PrunerStructure::build: Provided actor has already a pruning structure!");
+				ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "PrunerStructure::build: Provided actor has already a pruning structure!");
 				return false;
 			}			
 			rs->getShapeManager().setPruningStructure(this);
@@ -180,14 +180,14 @@ bool PruningStructure::build(PxRigidActor*const* actors, PxU32 nbActors)
 			NpRigidDynamic* rd = static_cast<NpRigidDynamic*>(actors[actorsDone]);			
 			if (rd->getShapeManager().getPruningStructure())
 			{
-				PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "PrunerStructure::build: Provided actor has already a pruning structure!");
+				ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "PrunerStructure::build: Provided actor has already a pruning structure!");
 				return false;
 			}
 			rd->getShapeManager().setPruningStructure(this);
 		}
 		else 
 		{
-			PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "PrunerStructure::build: Provided actor is not a rigid actor!");
+			ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "PrunerStructure::build: Provided actor is not a rigid actor!");
 			return false;
 		}
 	}
@@ -290,7 +290,7 @@ void PruningStructure::exportExtraData(PxSerializationContext& stream)
 {
 	if (!isValid())
 	{
-		PxGetFoundation().error(PxErrorCode::eDEBUG_WARNING, PX_FL, "PrunerStructure::exportExtraData: Pruning structure is invalid!");
+		ev4sio_PxGetFoundation().error(PxErrorCode::eDEBUG_WARNING, PX_FL, "PrunerStructure::exportExtraData: Pruning structure is invalid!");
 		return;
 	}
 
@@ -325,7 +325,7 @@ void PruningStructure::importExtraData(PxDeserializationContext& context)
 {
 	if (!isValid())
 	{
-		PxGetFoundation().error(PxErrorCode::eDEBUG_WARNING, PX_FL, "PrunerStructure::importExtraData: Pruning structure is invalid!");
+		ev4sio_PxGetFoundation().error(PxErrorCode::eDEBUG_WARNING, PX_FL, "PrunerStructure::importExtraData: Pruning structure is invalid!");
 		return;
 	}
 
@@ -365,11 +365,11 @@ PxU32 PruningStructure::getRigidActors(PxRigidActor** userBuffer, PxU32 bufferSi
 {	
 	if(!isValid())
 	{
-		PxGetFoundation().error(PxErrorCode::eDEBUG_WARNING, PX_FL, "PrunerStructure::getRigidActors: Pruning structure is invalid!");
+		ev4sio_PxGetFoundation().error(PxErrorCode::eDEBUG_WARNING, PX_FL, "PrunerStructure::getRigidActors: Pruning structure is invalid!");
 		return 0;
 	}
 
-	return Cm::getArrayOfPointers(userBuffer, bufferSize, startIndex, mActors, mNbActors);
+	return ev4sio_Cm::getArrayOfPointers(userBuffer, bufferSize, startIndex, mActors, mNbActors);
 }
 
 //////////////////////////////////////////////////////////////////////////

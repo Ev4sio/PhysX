@@ -39,7 +39,7 @@
 
 #include "vehicle2/tire/PxVehicleTireStates.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 namespace vehicle2
 {
@@ -147,4 +147,4 @@ void PxVehicleRigidBodyUpdate
 }
 
 } //namespace vehicle2
-} //namespace physx
+} //namespace ev4sio_physx

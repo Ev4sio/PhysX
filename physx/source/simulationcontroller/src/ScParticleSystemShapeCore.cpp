@@ -36,8 +36,8 @@
 #include "cudamanager/PxCudaContextManager.h"
 #include "CmVisualization.h"
 
-using namespace physx;
-using namespace Sc;
+using namespace ev4sio_physx;
+using namespace ev4sio_Sc;
 
 
 ParticleSystemShapeCore::ParticleSystemShapeCore()
@@ -127,7 +127,7 @@ void ParticleSystemShapeCore::removeParticleBuffer(PxParticleBuffer* particleBuf
 
 void ParticleSystemShapeCore::initializeLLCoreData(PxU32 maxNeighborhood)
 {
-	const PxTolerancesScale& scale = Sc::Physics::getInstance().getTolerancesScale();
+	const PxTolerancesScale& scale = ev4sio_Sc::Physics::getInstance().getTolerancesScale();
 
 	mLLCore.mMaxNeighborhood = maxNeighborhood;
 	

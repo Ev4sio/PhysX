@@ -37,8 +37,8 @@
 
 #include "GuCookingConvexPolygonsBuilder.h"
 
-using namespace physx;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
 
 #define USE_PRECOMPUTED_HULL_PROJECTION
 
@@ -952,7 +952,7 @@ static bool extractHullPolygons(PxU32& nb_polygons, PxArray<PxU32>& polygon_data
 				}
 			}
 			else
-				return PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "Meshmerizer::extractHullPolygons: line strip extraction failed");				
+				return ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "Meshmerizer::extractHullPolygons: line strip extraction failed");				
 		}
 	}
 	while(currentFace!=nbFaces);
@@ -1099,11 +1099,11 @@ bool ConvexPolygonsBuilder::createPolygonData()
 	}
 
 	if(nbPolygons>255)
-		return PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "ConvexHullBuilder: convex hull has more than 255 polygons!");
+		return ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "ConvexHullBuilder: convex hull has more than 255 polygons!");
 
 	// Precompute hull polygon structures
 	mHull->mNbPolygons = PxTo8(nbPolygons);
-	mHullDataPolygons = PX_ALLOCATE(HullPolygonData, mHull->mNbPolygons, "Gu::HullPolygonData");
+	mHullDataPolygons = PX_ALLOCATE(HullPolygonData, mHull->mNbPolygons, "ev4sio_Gu::HullPolygonData");
 	PxMemZero(mHullDataPolygons, sizeof(HullPolygonData)*mHull->mNbPolygons);
 
 	// The winding hasn't been preserved so we need to handle this. Basically we need to "unify normals"
@@ -1232,7 +1232,7 @@ bool ConvexPolygonsBuilder::createTrianglesFromPolygons()
 	for (PxU32 i = 0; i < mHull->mNbPolygons; i++)
 	{
 		if (mHullDataPolygons[i].mNbVerts < 3)
-			return PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "ConvexHullBuilder::CreateTrianglesFromPolygons: convex hull has a polygon with less than 3 vertices!");
+			return ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "ConvexHullBuilder::CreateTrianglesFromPolygons: convex hull has a polygon with less than 3 vertices!");
 
 		maxNbTriangles += mHullDataPolygons[i].mNbVerts - 2;
 	}

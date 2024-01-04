@@ -37,7 +37,7 @@
 #include "PxPhysicsAPI.h"
 #include "../snippetutils/SnippetUtils.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 static PxDefaultAllocator		gAllocator;
 static PxDefaultErrorCallback	gErrorCallback;
@@ -180,7 +180,7 @@ void createBV33TriangleMesh(PxU32 numVertices, const PxVec3* vertices, PxU32 num
 	// We should check the validity of provided triangles in debug/checked builds though.
 	if (skipMeshCleanup)
 	{
-		PX_ASSERT(PxValidateTriangleMesh(params, meshDesc));
+		PX_ASSERT(ev4sio_PxValidateTriangleMesh(params, meshDesc));
 	}
 #endif // DEBUG
 
@@ -191,12 +191,12 @@ void createBV33TriangleMesh(PxU32 numVertices, const PxVec3* vertices, PxU32 num
 	// The cooked mesh may either be saved to a stream for later loading, or inserted directly into PxPhysics.
 	if (inserted)
 	{
-		triMesh = PxCreateTriangleMesh(params, meshDesc, gPhysics->getPhysicsInsertionCallback());
+		triMesh = ev4sio_PxCreateTriangleMesh(params, meshDesc, gPhysics->getPhysicsInsertionCallback());
 	}
 	else
 	{
 		PxDefaultMemoryOutputStream outBuffer;
-		PxCookTriangleMesh(params, meshDesc, outBuffer);
+		ev4sio_PxCookTriangleMesh(params, meshDesc, outBuffer);
 
 		PxDefaultMemoryInputData stream(outBuffer.getData(), outBuffer.getSize());
 		triMesh = gPhysics->createTriangleMesh(stream);
@@ -255,7 +255,7 @@ void createBV34TriangleMesh(PxU32 numVertices, const PxVec3* vertices, PxU32 num
 	// We should check the validity of provided triangles in debug/checked builds though.
 	if (skipMeshCleanup)
 	{
-		PX_ASSERT(PxValidateTriangleMesh(params, meshDesc));
+		PX_ASSERT(ev4sio_PxValidateTriangleMesh(params, meshDesc));
 	}
 #endif // DEBUG
 
@@ -266,12 +266,12 @@ void createBV34TriangleMesh(PxU32 numVertices, const PxVec3* vertices, PxU32 num
 	// The cooked mesh may either be saved to a stream for later loading, or inserted directly into PxPhysics.
 	if (inserted)
 	{
-		triMesh = PxCreateTriangleMesh(params, meshDesc, gPhysics->getPhysicsInsertionCallback());
+		triMesh = ev4sio_PxCreateTriangleMesh(params, meshDesc, gPhysics->getPhysicsInsertionCallback());
 	}
 	else
 	{
 		PxDefaultMemoryOutputStream outBuffer;
-		PxCookTriangleMesh(params, meshDesc, outBuffer);
+		ev4sio_PxCookTriangleMesh(params, meshDesc, outBuffer);
 
 		PxDefaultMemoryInputData stream(outBuffer.getData(), outBuffer.getSize());
 		triMesh = gPhysics->createTriangleMesh(stream);
@@ -361,8 +361,8 @@ void createTriangleMeshes()
 
 void initPhysics()
 {
-	gFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, gAllocator, gErrorCallback);
-	gPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *gFoundation, PxTolerancesScale(),true);
+	gFoundation = ev4sio_PxCreateFoundation(ev4sio_PX_PHYSICS_VERSION, gAllocator, gErrorCallback);
+	gPhysics = ev4sio_PxCreatePhysics(ev4sio_PX_PHYSICS_VERSION, *gFoundation, PxTolerancesScale(),true);
 	
 	createTriangleMeshes();
 }

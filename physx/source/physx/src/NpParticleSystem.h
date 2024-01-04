@@ -66,7 +66,7 @@
 #include "PxMPMMaterial.h"
 #endif
 
-namespace physx
+namespace ev4sio_physx
 {
 	class NpScene;
 
@@ -75,7 +75,7 @@ namespace physx
 	class PxRigidActor;
 	class PxSerializationContext;
 
-	namespace Sc
+	namespace ev4sio_Sc
 	{
 		class ParticleSystemSim;
 	}
@@ -109,11 +109,11 @@ namespace physx
 
 			if (!NpBase::getNpScene())
 			{
-				PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "Querying bounds of a PxParticleSystem which is not part of a PxScene is not supported.");
+				ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "Querying bounds of a PxParticleSystem which is not part of a PxScene is not supported.");
 				return PxBounds3::empty();
 			}
 
-			const Sc::ParticleSystemSim* sim = mCore.getSim();
+			const ev4sio_Sc::ParticleSystemSim* sim = mCore.getSim();
 			PX_ASSERT(sim);
 
 			PX_SIMD_GUARD;
@@ -217,8 +217,8 @@ namespace physx
 
 		virtual PxU32 getNbParticleMaterials() const 
 		{
-			const Sc::ParticleSystemShapeCore& shapeCore = mCore.getShapeCore();
-			const Dy::ParticleSystemCore& core = shapeCore.getLLCore();
+			const ev4sio_Sc::ParticleSystemShapeCore& shapeCore = mCore.getShapeCore();
+			const ev4sio_Dy::ParticleSystemCore& core = shapeCore.getLLCore();
 			return core.mUniqueMaterialHandles.size();
 		}
 
@@ -237,8 +237,8 @@ namespace physx
 			return 0xffffffff;
 		}
 
-		PX_FORCE_INLINE	const Sc::ParticleSystemCore&	getCore()	const	{ return mCore; }
-		PX_FORCE_INLINE	Sc::ParticleSystemCore&			getCore()			{ return mCore; }
+		PX_FORCE_INLINE	const ev4sio_Sc::ParticleSystemCore&	getCore()	const	{ return mCore; }
+		PX_FORCE_INLINE	ev4sio_Sc::ParticleSystemCore&			getCore()			{ return mCore; }
 		static PX_FORCE_INLINE size_t					getCoreOffset()		{ return PX_OFFSET_OF_RT(NpParticleSystem, mCore); }
 
 		PX_INLINE void scSetDirtyFlag()
@@ -247,7 +247,7 @@ namespace physx
 			NpScene* scene = NpBase::getNpScene();
 			if (scene)
 			{
-				mCore.getSim()->getLowLevelParticleSystem()->mFlag |= Dy::ParticleSystemFlag::eUPDATE_PARAMS;
+				mCore.getSim()->getLowLevelParticleSystem()->mFlag |= ev4sio_Dy::ParticleSystemFlag::eUPDATE_PARAMS;
 			}
 		}
 
@@ -398,8 +398,8 @@ namespace physx
 		PxU32 getParticleMaterialsInternal(PxParticleMaterial** userBuffer, PxU32 bufferSize,
 	                                       PxU32 startIndex = 0) const
 	    {
-		    const Sc::ParticleSystemShapeCore& shapeCore = mCore.getShapeCore();
-		    const Dy::ParticleSystemCore& core = shapeCore.getLLCore();
+		    const ev4sio_Sc::ParticleSystemShapeCore& shapeCore = mCore.getShapeCore();
+		    const ev4sio_Dy::ParticleSystemCore& core = shapeCore.getLLCore();
 
 		    NpMaterialManager<ParticleMaterialType>& matManager =
 		        NpMaterialAccessor<ParticleMaterialType>::getMaterialManager(NpPhysics::getInstance());
@@ -416,7 +416,7 @@ namespace physx
 
 
 	protected:
-		Sc::ParticleSystemCore		mCore;
+		ev4sio_Sc::ParticleSystemCore		mCore;
 		PxCudaContextManager*		mCudaContextManager;
 		PxU32						mNextPhaseGroupID;
 	};
@@ -440,7 +440,7 @@ namespace physx
 		PxU32 combinePartitions(const PxParticleSpring* springs, const PxU32* orderedSpringIndices, const PxU32* accumulatedSpringsPerPartition,
 			PxU32* accumulatedSpringsPerCombinedPartitions, PxParticleSpring* orderedSprings, PxU32* accumulatedCopiesPerParticles, PxU32* remapOutput);
 
-		void classifySprings(const PxParticleSpring* springs, PxU32* partitionProgresses, PxU32* tempSprings, physx::PxArray<PxU32>& springsPerPartition);
+		void classifySprings(const PxParticleSpring* springs, PxU32* partitionProgresses, PxU32* tempSprings, ev4sio_physx::PxArray<PxU32>& springsPerPartition);
 
 		void writeSprings(const PxParticleSpring* springs, PxU32* partitionProgresses, PxU32* tempSprings, PxU32* orderedSprings,
 			PxU32* accumulatedSpringsPerPartition);

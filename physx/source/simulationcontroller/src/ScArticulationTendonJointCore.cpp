@@ -29,9 +29,9 @@
 #include "ScArticulationTendonJointCore.h"
 #include "ScArticulationTendonSim.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
-void Sc::ArticulationTendonJointCore::setCoefficient(PxArticulationAxis::Enum axis_, const PxReal coefficient_, const PxReal recipCoefficient_)
+void ev4sio_Sc::ArticulationTendonJointCore::setCoefficient(PxArticulationAxis::Enum axis_, const PxReal coefficient_, const PxReal recipCoefficient_)
 {
 	axis = axis_;
 	coefficient = coefficient_;

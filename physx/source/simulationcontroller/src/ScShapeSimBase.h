@@ -32,9 +32,9 @@
 #include "ScRigidSim.h"
 #include "PxsShapeSim.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-	namespace Sc
+	namespace ev4sio_Sc
 	{
 		PX_FORCE_INLINE PxU32 isBroadPhase(PxShapeFlags flags) { return PxU32(flags) & PxU32(PxShapeFlag::eTRIGGER_SHAPE | PxShapeFlag::eSIMULATION_SHAPE); }
 
@@ -43,7 +43,7 @@ namespace physx
 		// PT: TODO: ShapeSimBase is bonkers:
 		//	PxU32			ElementSim::mElementID
 		//	PxU32			ElementSim::mShapeArrayIndex;
-		//	IG::NodeIndex	mLLShape::mBodySimIndex;		*** GPU only
+		//	ev4sio_IG::NodeIndex	mLLShape::mBodySimIndex;		*** GPU only
 		//	PxU32			mLLShape::mElementIndex;		*** GPU only, looks like a copy of ElementSim::mElementID
 		//	PxU32			mLLShape::mShapeIndex;			*** GPU only, looks like a copy of ElementSim::mElementID
 		//	PxU32			ShapeSimBase::mId;
@@ -108,7 +108,7 @@ namespace physx
 							void					destroySqBounds();
 
 							void					updateCached(PxU32 transformCacheFlags, PxBitMapPinned* shapeChangedMap);
-							void					updateCached(PxsTransformCache& transformCache, Bp::BoundsArray& boundsArray);
+							void					updateCached(PxsTransformCache& transformCache, ev4sio_Bp::BoundsArray& boundsArray);
 							void					updateBPGroup();
 		protected:
 
@@ -125,8 +125,8 @@ namespace physx
 		// PT: to compensate for the padding I removed in PxsShapeSim
 		PX_COMPILE_TIME_ASSERT((sizeof(ShapeSimBase) - sizeof(PxsShapeSim))>=12);
 #else
-		//	PX_COMPILE_TIME_ASSERT(32==sizeof(Sc::ShapeSim)); // after removing bounds from shapes
-		//	PX_COMPILE_TIME_ASSERT((sizeof(Sc::ShapeSim) % 16) == 0); // aligned mem bounds are better for prefetching
+		//	PX_COMPILE_TIME_ASSERT(32==sizeof(ev4sio_Sc::ShapeSim)); // after removing bounds from shapes
+		//	PX_COMPILE_TIME_ASSERT((sizeof(ev4sio_Sc::ShapeSim) % 16) == 0); // aligned mem bounds are better for prefetching
 #endif
 
 		PX_FORCE_INLINE void ShapeSimBase::setCore(const ShapeCore* core)
@@ -135,10 +135,10 @@ namespace physx
 		}
 		PX_FORCE_INLINE const ShapeCore& ShapeSimBase::getCore() const
 		{
-			return Sc::ShapeCore::getCore(*mLLShape.mShapeCore);
+			return ev4sio_Sc::ShapeCore::getCore(*mLLShape.mShapeCore);
 		}
 
-	} // namespace Sc
+	} // namespace ev4sio_Sc
 }
 
 #endif

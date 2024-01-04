@@ -38,9 +38,9 @@
 
 #define BV4_ALIGN16(x)	PX_ALIGN_PREFIX(16)	x PX_ALIGN_SUFFIX(16)
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Gu
+namespace ev4sio_Gu
 {
 	enum QueryModifierFlag
 	{
@@ -63,7 +63,7 @@ namespace Gu
 		HIT_EXIT		= 2		//!< Hit found, you can early-exit (raycast any)
 	};
 
-	class RaycastHitInternal : public physx::PxUserAllocated
+	class RaycastHitInternal : public ev4sio_physx::PxUserAllocated
 	{
 		public:
 		PX_FORCE_INLINE		RaycastHitInternal()	{}
@@ -73,7 +73,7 @@ namespace Gu
 				PxU32		mTriangleID;
 	};
 
-	class SweepHit : public physx::PxUserAllocated
+	class SweepHit : public ev4sio_physx::PxUserAllocated
 	{
 		public:
 		PX_FORCE_INLINE		SweepHit()		{}
@@ -148,7 +148,7 @@ namespace Gu
 		dest->column3.w = 1.0f;
 	}
 
-	PX_FORCE_INLINE void invertBoxMatrix(PxMat33& m, PxVec3& t, const Gu::Box& box)
+	PX_FORCE_INLINE void invertBoxMatrix(PxMat33& m, PxVec3& t, const ev4sio_Gu::Box& box)
 	{
 		const float m30 = box.center.x;
 		const float m31 = box.center.y;
@@ -187,7 +187,7 @@ namespace Gu
 
 	// PT: now duplicated because not easy to do otherwise
 
-	struct BVDataSwizzledQ : public physx::PxUserAllocated
+	struct BVDataSwizzledQ : public ev4sio_physx::PxUserAllocated
 	{
 		struct Data
 		{
@@ -209,7 +209,7 @@ namespace Gu
 		PX_FORCE_INLINE	PxU32	decodePNSNoShift(PxU32 i)	const	{ return mData[i];									}
 	};
 
-	struct BVDataSwizzledNQ : public physx::PxUserAllocated
+	struct BVDataSwizzledNQ : public ev4sio_physx::PxUserAllocated
 	{
 		float		mMinX[4];
 		float		mMinY[4];
@@ -244,7 +244,7 @@ namespace Gu
 	template<class ParamsT>
 	PX_FORCE_INLINE	void setupMeshPointersAndQuantizedCoeffs(ParamsT* PX_RESTRICT params, const SourceMesh* PX_RESTRICT mesh, const BV4Tree* PX_RESTRICT tree)
 	{
-		using namespace physx::aos;
+		using namespace ev4sio_physx::aos;
 		
 		params->mTris32	= mesh->getTris32();
 		params->mTris16	= mesh->getTris16();
@@ -265,7 +265,7 @@ namespace Gu
 		V4StoreA_Safe(V4LoadU_Safe(&tree->mExtentsOrMaxCoeff.x), &params->mExtentsOrMaxCoeff_PaddedAligned.x);
 	}
 
-	PX_FORCE_INLINE void rotateBox(Gu::Box& dst, const PxMat44& m, const Gu::Box& src)
+	PX_FORCE_INLINE void rotateBox(ev4sio_Gu::Box& dst, const PxMat44& m, const ev4sio_Gu::Box& src)
 	{
 		// The extents remain constant
 		dst.extents = src.extents;
@@ -363,7 +363,7 @@ namespace Gu
 		}
 	}
 
-	PX_FORCE_INLINE void computeLocalBox(Gu::Box& dst, const Gu::Box& src, const PxMat44* PX_RESTRICT worldm_Aligned)
+	PX_FORCE_INLINE void computeLocalBox(ev4sio_Gu::Box& dst, const ev4sio_Gu::Box& src, const PxMat44* PX_RESTRICT worldm_Aligned)
 	{
 		if(worldm_Aligned)
 		{

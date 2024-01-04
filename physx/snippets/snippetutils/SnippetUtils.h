@@ -27,7 +27,7 @@
 #include "foundation/Px.h"
 #include "foundation/PxSimpleTypes.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	namespace SnippetUtils
 	{
@@ -67,8 +67,8 @@ namespace physx
 										}
 
 							PxF32		randomFloat32(PxReal a, PxReal b) { return rand32()/PxF32(0xffffffff)*(b-a)+a; }
-							void		unitRandomPt(physx::PxVec3& v);	
-							void		unitRandomQuat(physx::PxQuat& v);
+							void		unitRandomPt(ev4sio_physx::PxVec3& v);	
+							void		unitRandomQuat(ev4sio_physx::PxQuat& v);
 
 							PxVec3		unitRandomPt();
 							PxQuat		unitRandomQuat();

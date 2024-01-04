@@ -40,36 +40,36 @@
 #include "ScArticulationAttachmentCore.h"
 #include "ScArticulationTendonJointCore.h"
 
-using namespace physx;
-using namespace Cm;
-using namespace Sc;
+using namespace ev4sio_physx;
+using namespace ev4sio_Cm;
+using namespace ev4sio_Sc;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-template <typename T> class PxMetaDataArray : public physx::PxArray<T>
+template <typename T> class PxMetaDataArray : public ev4sio_physx::PxArray<T>
 {
 public:
-    static PX_FORCE_INLINE physx::PxU32 getDataOffset()		{ return PX_OFFSET_OF(PxMetaDataArray<T>, mData); }
-    static PX_FORCE_INLINE physx::PxU32 getDataSize()		{ return PX_SIZE_OF(PxMetaDataArray<T>, mData); }
-    static PX_FORCE_INLINE physx::PxU32 getSizeOffset()		{ return PX_OFFSET_OF(PxMetaDataArray<T>, mSize); }
-    static PX_FORCE_INLINE physx::PxU32 getSizeSize()		{ return PX_SIZE_OF(PxMetaDataArray<T>, mSize); }
-    static PX_FORCE_INLINE physx::PxU32 getCapacityOffset()	{ return PX_OFFSET_OF(PxMetaDataArray<T>, mCapacity); }
-    static PX_FORCE_INLINE physx::PxU32 getCapacitySize()	{ return PX_SIZE_OF(PxMetaDataArray<T>, mCapacity); }
+    static PX_FORCE_INLINE ev4sio_physx::PxU32 getDataOffset()		{ return PX_OFFSET_OF(PxMetaDataArray<T>, mData); }
+    static PX_FORCE_INLINE ev4sio_physx::PxU32 getDataSize()		{ return PX_SIZE_OF(PxMetaDataArray<T>, mData); }
+    static PX_FORCE_INLINE ev4sio_physx::PxU32 getSizeOffset()		{ return PX_OFFSET_OF(PxMetaDataArray<T>, mSize); }
+    static PX_FORCE_INLINE ev4sio_physx::PxU32 getSizeSize()		{ return PX_SIZE_OF(PxMetaDataArray<T>, mSize); }
+    static PX_FORCE_INLINE ev4sio_physx::PxU32 getCapacityOffset()	{ return PX_OFFSET_OF(PxMetaDataArray<T>, mCapacity); }
+    static PX_FORCE_INLINE ev4sio_physx::PxU32 getCapacitySize()	{ return PX_SIZE_OF(PxMetaDataArray<T>, mCapacity); }
 };
 
-void Sc::ActorCore::getBinaryMetaData(PxOutputStream& stream)
+void ev4sio_Sc::ActorCore::getBinaryMetaData(PxOutputStream& stream)
 {
 	PX_DEF_BIN_METADATA_TYPEDEF(stream,	PxActorFlags,     PxU8)
 	PX_DEF_BIN_METADATA_TYPEDEF(stream,	PxDominanceGroup, PxU8)
 	PX_DEF_BIN_METADATA_TYPEDEF(stream,	PxClientID,       PxU8)
 
-	PX_DEF_BIN_METADATA_CLASS(stream,	Sc::ActorCore)
+	PX_DEF_BIN_METADATA_CLASS(stream,	ev4sio_Sc::ActorCore)
 
-	PX_DEF_BIN_METADATA_ITEM(stream,	Sc::ActorCore, ActorSim,			mSim,						PxMetaDataFlag::ePTR)
-	PX_DEF_BIN_METADATA_ITEM(stream,	Sc::ActorCore, PxU32,			    mAggregateIDOwnerClient,	0)
-	PX_DEF_BIN_METADATA_ITEM(stream,	Sc::ActorCore, PxActorFlags,		mActorFlags,				0)
-	PX_DEF_BIN_METADATA_ITEM(stream,	Sc::ActorCore, PxU8,				mActorType,					0)
-	PX_DEF_BIN_METADATA_ITEM(stream,	Sc::ActorCore, PxU8,				mDominanceGroup,			0)
+	PX_DEF_BIN_METADATA_ITEM(stream,	ev4sio_Sc::ActorCore, ActorSim,			mSim,						PxMetaDataFlag::ePTR)
+	PX_DEF_BIN_METADATA_ITEM(stream,	ev4sio_Sc::ActorCore, PxU32,			    mAggregateIDOwnerClient,	0)
+	PX_DEF_BIN_METADATA_ITEM(stream,	ev4sio_Sc::ActorCore, PxActorFlags,		mActorFlags,				0)
+	PX_DEF_BIN_METADATA_ITEM(stream,	ev4sio_Sc::ActorCore, PxU8,				mActorType,					0)
+	PX_DEF_BIN_METADATA_ITEM(stream,	ev4sio_Sc::ActorCore, PxU8,				mDominanceGroup,			0)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -160,20 +160,20 @@ We need to fix the header deps by moving the API out of PhysXCore and into its o
 [25.08.2010 19:04:53] Gordon Yeoman nvidia: simd loads are faster when they are 16-byte aligned.  I think the padding might be to ensure the second vector is also 16-byte aligned.  We could drop the second 4-byte pad but dropping the 1st 4-byte pad will likely  have performance implications.
 [25.08.2010 19:06:22] Dilip Sequeira: We should still align the vec3s, as now - but we shouldn't use padding to do it, since there are a boatload of scalar data fields floating around in that struct too.
 */
-void Sc::BodyCore::getBinaryMetaData(PxOutputStream& stream)
+void ev4sio_Sc::BodyCore::getBinaryMetaData(PxOutputStream& stream)
 {
 	getBinaryMetaData_PxsBodyCore(stream);
 	PX_DEF_BIN_METADATA_TYPEDEF(stream, PxRigidBodyFlags, PxU16)
 
-	PX_DEF_BIN_METADATA_CLASS(stream,		Sc::BodyCore)
-	PX_DEF_BIN_METADATA_BASE_CLASS(stream,	Sc::BodyCore, Sc::RigidCore)
+	PX_DEF_BIN_METADATA_CLASS(stream,		ev4sio_Sc::BodyCore)
+	PX_DEF_BIN_METADATA_BASE_CLASS(stream,	ev4sio_Sc::BodyCore, ev4sio_Sc::RigidCore)
 
-	PX_DEF_BIN_METADATA_ITEM(stream,		Sc::BodyCore, PxsBodyCore,	mCore,					0)
+	PX_DEF_BIN_METADATA_ITEM(stream,		ev4sio_Sc::BodyCore, PxsBodyCore,	mCore,					0)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void Sc::ConstraintCore::getBinaryMetaData(PxOutputStream& stream)
+void ev4sio_Sc::ConstraintCore::getBinaryMetaData(PxOutputStream& stream)
 {   
 	PX_DEF_BIN_METADATA_TYPEDEF(stream,		PxConstraintFlags, PxU16)
 
@@ -196,20 +196,20 @@ void Sc::ConstraintCore::getBinaryMetaData(PxOutputStream& stream)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void Sc::RigidCore::getBinaryMetaData(PxOutputStream& stream)
+void ev4sio_Sc::RigidCore::getBinaryMetaData(PxOutputStream& stream)
 {
-	PX_DEF_BIN_METADATA_CLASS(stream,		Sc::RigidCore)
-	PX_DEF_BIN_METADATA_BASE_CLASS(stream,	Sc::RigidCore, Sc::ActorCore)
+	PX_DEF_BIN_METADATA_CLASS(stream,		ev4sio_Sc::RigidCore)
+	PX_DEF_BIN_METADATA_BASE_CLASS(stream,	ev4sio_Sc::RigidCore, ev4sio_Sc::ActorCore)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void Sc::StaticCore::getBinaryMetaData(PxOutputStream& stream)
+void ev4sio_Sc::StaticCore::getBinaryMetaData(PxOutputStream& stream)
 {
-	PX_DEF_BIN_METADATA_CLASS(stream,		Sc::StaticCore)
-	PX_DEF_BIN_METADATA_BASE_CLASS(stream,	Sc::StaticCore, Sc::RigidCore)
+	PX_DEF_BIN_METADATA_CLASS(stream,		ev4sio_Sc::StaticCore)
+	PX_DEF_BIN_METADATA_BASE_CLASS(stream,	ev4sio_Sc::StaticCore, ev4sio_Sc::RigidCore)
 
-	PX_DEF_BIN_METADATA_ITEM(stream,		Sc::StaticCore, PxsRigidCore,		mCore,		0)
+	PX_DEF_BIN_METADATA_ITEM(stream,		ev4sio_Sc::StaticCore, PxsRigidCore,		mCore,		0)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -252,7 +252,7 @@ static void getBinaryMetaData_PxsShapeCore(PxOutputStream& stream)
 	PX_DEF_BIN_METADATA_TYPEDEF(stream,	PxsShapeCore, ShadowPxsShapeCore)
 }
 
-void Sc::ShapeCore::getBinaryMetaData(PxOutputStream& stream)
+void ev4sio_Sc::ShapeCore::getBinaryMetaData(PxOutputStream& stream)
 {
 	getBinaryMetaData_PxFilterData(stream);
 	getBinaryMetaData_PxsShapeCore(stream);
@@ -274,31 +274,31 @@ void Sc::ShapeCore::getBinaryMetaData(PxOutputStream& stream)
 
 static void getBinaryMetaData_ArticulationCore(PxOutputStream& stream)
 {
-	PX_DEF_BIN_METADATA_CLASS(stream, Dy::ArticulationCore)
+	PX_DEF_BIN_METADATA_CLASS(stream, ev4sio_Dy::ArticulationCore)
 
 	PX_DEF_BIN_METADATA_TYPEDEF(stream, PxArticulationFlags, PxU8)
 
-	PX_DEF_BIN_METADATA_ITEM(stream, Dy::ArticulationCore, PxU16, solverIterationCounts, 0)
-	PX_DEF_BIN_METADATA_ITEM(stream, Dy::ArticulationCore, PxArticulationFlags, flags, 0)
-	PX_DEF_BIN_METADATA_ITEM(stream, Dy::ArticulationCore, PxReal, sleepThreshold, 0)
-	PX_DEF_BIN_METADATA_ITEM(stream, Dy::ArticulationCore, PxReal, freezeThreshold, 0)
-	PX_DEF_BIN_METADATA_ITEM(stream, Dy::ArticulationCore, PxReal, wakeCounter, 0)
-	PX_DEF_BIN_METADATA_ITEM(stream, Dy::ArticulationCore, PxReal, gpuRemapIndex, 0)
-	PX_DEF_BIN_METADATA_ITEM(stream, Dy::ArticulationCore, PxReal, maxLinearVelocity, 0)
-	PX_DEF_BIN_METADATA_ITEM(stream, Dy::ArticulationCore, PxReal, maxAngularVelocity, 0)
+	PX_DEF_BIN_METADATA_ITEM(stream, ev4sio_Dy::ArticulationCore, PxU16, solverIterationCounts, 0)
+	PX_DEF_BIN_METADATA_ITEM(stream, ev4sio_Dy::ArticulationCore, PxArticulationFlags, flags, 0)
+	PX_DEF_BIN_METADATA_ITEM(stream, ev4sio_Dy::ArticulationCore, PxReal, sleepThreshold, 0)
+	PX_DEF_BIN_METADATA_ITEM(stream, ev4sio_Dy::ArticulationCore, PxReal, freezeThreshold, 0)
+	PX_DEF_BIN_METADATA_ITEM(stream, ev4sio_Dy::ArticulationCore, PxReal, wakeCounter, 0)
+	PX_DEF_BIN_METADATA_ITEM(stream, ev4sio_Dy::ArticulationCore, PxReal, gpuRemapIndex, 0)
+	PX_DEF_BIN_METADATA_ITEM(stream, ev4sio_Dy::ArticulationCore, PxReal, maxLinearVelocity, 0)
+	PX_DEF_BIN_METADATA_ITEM(stream, ev4sio_Dy::ArticulationCore, PxReal, maxAngularVelocity, 0)
 }
 
-void Sc::ArticulationCore::getBinaryMetaData(PxOutputStream& stream)
+void ev4sio_Sc::ArticulationCore::getBinaryMetaData(PxOutputStream& stream)
 {
 	getBinaryMetaData_ArticulationCore(stream);
 
 	PX_DEF_BIN_METADATA_CLASS(stream,	ArticulationCore)
 
 	PX_DEF_BIN_METADATA_ITEM(stream,	ArticulationCore, ArticulationSim,		mSim,					PxMetaDataFlag::ePTR)
-	PX_DEF_BIN_METADATA_ITEM(stream,	ArticulationCore, Dy::ArticulationCore,	mCore,					0)
+	PX_DEF_BIN_METADATA_ITEM(stream,	ArticulationCore, ev4sio_Dy::ArticulationCore,	mCore,					0)
 }
 
-void Sc::ArticulationSensorCore::getBinaryMetaData(PxOutputStream& stream)
+void ev4sio_Sc::ArticulationSensorCore::getBinaryMetaData(PxOutputStream& stream)
 {
 	PX_DEF_BIN_METADATA_CLASS(stream, ArticulationSensorCore)
 
@@ -307,7 +307,7 @@ void Sc::ArticulationSensorCore::getBinaryMetaData(PxOutputStream& stream)
 	PX_DEF_BIN_METADATA_ITEM(stream, ArticulationSensorCore, PxU16, mFlags, 0)
 }
 
-void Sc::ArticulationAttachmentCore::getBinaryMetaData(PxOutputStream& stream)
+void ev4sio_Sc::ArticulationAttachmentCore::getBinaryMetaData(PxOutputStream& stream)
 {
 	PX_DEF_BIN_METADATA_CLASS(stream, ArticulationAttachmentCore)
 
@@ -322,7 +322,7 @@ void Sc::ArticulationAttachmentCore::getBinaryMetaData(PxOutputStream& stream)
 	PX_DEF_BIN_METADATA_ITEM(stream, ArticulationAttachmentCore, ArticulationSpatialTendonSim, mTendonSim, PxMetaDataFlag::ePTR)
 }
 
-void Sc::ArticulationTendonCore::getBinaryMetaData(PxOutputStream& stream)
+void ev4sio_Sc::ArticulationTendonCore::getBinaryMetaData(PxOutputStream& stream)
 {
 	PX_DEF_BIN_METADATA_CLASS(stream, ArticulationTendonCore)
 
@@ -332,7 +332,7 @@ void Sc::ArticulationTendonCore::getBinaryMetaData(PxOutputStream& stream)
 	PX_DEF_BIN_METADATA_ITEM(stream, ArticulationTendonCore, PxReal, mLimitStiffness, 0)
 }
 
-void Sc::ArticulationSpatialTendonCore::getBinaryMetaData(PxOutputStream& stream)
+void ev4sio_Sc::ArticulationSpatialTendonCore::getBinaryMetaData(PxOutputStream& stream)
 {
 	PX_DEF_BIN_METADATA_CLASS(stream, ArticulationSpatialTendonCore)
 	PX_DEF_BIN_METADATA_BASE_CLASS(stream, ArticulationSpatialTendonCore, ArticulationTendonCore)
@@ -340,7 +340,7 @@ void Sc::ArticulationSpatialTendonCore::getBinaryMetaData(PxOutputStream& stream
 	PX_DEF_BIN_METADATA_ITEM(stream, ArticulationSpatialTendonCore, ArticulationSpatialTendonSim, mSim, PxMetaDataFlag::ePTR)
 }
 
-void Sc::ArticulationFixedTendonCore::getBinaryMetaData(PxOutputStream& stream)
+void ev4sio_Sc::ArticulationFixedTendonCore::getBinaryMetaData(PxOutputStream& stream)
 {
 	PX_DEF_BIN_METADATA_CLASS(stream, ArticulationFixedTendonCore)
 	PX_DEF_BIN_METADATA_BASE_CLASS(stream, ArticulationFixedTendonCore, ArticulationTendonCore)
@@ -351,7 +351,7 @@ void Sc::ArticulationFixedTendonCore::getBinaryMetaData(PxOutputStream& stream)
 	PX_DEF_BIN_METADATA_ITEM(stream, ArticulationFixedTendonCore, ArticulationFixedTendonSim, mSim, PxMetaDataFlag::ePTR)
 }
 
-void Sc::ArticulationTendonJointCore::getBinaryMetaData(PxOutputStream& stream)
+void ev4sio_Sc::ArticulationTendonJointCore::getBinaryMetaData(PxOutputStream& stream)
 {
 	PX_DEF_BIN_METADATA_TYPEDEF(stream, PxArticulationAxis, PxU32)
 
@@ -391,55 +391,55 @@ static void getBinaryMetaData_ArticulationJointCore(PxOutputStream& stream)
 	getBinaryMetaData_ArticulationLimit(stream);
 	getBinaryMetaData_ArticulationDrive(stream);
 
-	PX_DEF_BIN_METADATA_CLASS(stream, Dy::ArticulationJointCore)	
+	PX_DEF_BIN_METADATA_CLASS(stream, ev4sio_Dy::ArticulationJointCore)	
 
 	PX_DEF_BIN_METADATA_TYPEDEF(stream, ArticulationJointCoreDirtyFlags, PxU8)
 
-	PX_DEF_BIN_METADATA_ITEM(stream, Dy::ArticulationJointCore, PxTransform, parentPose, 0)
-	PX_DEF_BIN_METADATA_ITEM(stream, Dy::ArticulationJointCore, PxTransform, childPose, 0)
+	PX_DEF_BIN_METADATA_ITEM(stream, ev4sio_Dy::ArticulationJointCore, PxTransform, parentPose, 0)
+	PX_DEF_BIN_METADATA_ITEM(stream, ev4sio_Dy::ArticulationJointCore, PxTransform, childPose, 0)
 
-	PX_DEF_BIN_METADATA_ITEMS_AUTO(stream, Dy::ArticulationJointCore, PxArticulationLimit, limits, 0)
-	PX_DEF_BIN_METADATA_ITEMS_AUTO(stream, Dy::ArticulationJointCore, PxArticulationDrive, drives, 0)
+	PX_DEF_BIN_METADATA_ITEMS_AUTO(stream, ev4sio_Dy::ArticulationJointCore, PxArticulationLimit, limits, 0)
+	PX_DEF_BIN_METADATA_ITEMS_AUTO(stream, ev4sio_Dy::ArticulationJointCore, PxArticulationDrive, drives, 0)
 
-	PX_DEF_BIN_METADATA_ITEMS_AUTO(stream, Dy::ArticulationJointCore, PxReal, targetP, 0)
-	PX_DEF_BIN_METADATA_ITEMS_AUTO(stream, Dy::ArticulationJointCore, PxReal, targetV, 0)
-	PX_DEF_BIN_METADATA_ITEMS_AUTO(stream, Dy::ArticulationJointCore, PxReal, armature, 0)
+	PX_DEF_BIN_METADATA_ITEMS_AUTO(stream, ev4sio_Dy::ArticulationJointCore, PxReal, targetP, 0)
+	PX_DEF_BIN_METADATA_ITEMS_AUTO(stream, ev4sio_Dy::ArticulationJointCore, PxReal, targetV, 0)
+	PX_DEF_BIN_METADATA_ITEMS_AUTO(stream, ev4sio_Dy::ArticulationJointCore, PxReal, armature, 0)
 
-	PX_DEF_BIN_METADATA_ITEMS_AUTO(stream, Dy::ArticulationJointCore, PxReal, jointPos, 0)
-	PX_DEF_BIN_METADATA_ITEMS_AUTO(stream, Dy::ArticulationJointCore, PxReal, jointVel, 0)
+	PX_DEF_BIN_METADATA_ITEMS_AUTO(stream, ev4sio_Dy::ArticulationJointCore, PxReal, jointPos, 0)
+	PX_DEF_BIN_METADATA_ITEMS_AUTO(stream, ev4sio_Dy::ArticulationJointCore, PxReal, jointVel, 0)
 	
-	PX_DEF_BIN_METADATA_ITEM(stream, Dy::ArticulationJointCore, PxReal, frictionCoefficient, 0)
+	PX_DEF_BIN_METADATA_ITEM(stream, ev4sio_Dy::ArticulationJointCore, PxReal, frictionCoefficient, 0)
 
-	PX_DEF_BIN_METADATA_ITEMS_AUTO(stream, Dy::ArticulationJointCore, PxU8, dofIds, 0)
+	PX_DEF_BIN_METADATA_ITEMS_AUTO(stream, ev4sio_Dy::ArticulationJointCore, PxU8, dofIds, 0)
 
-	PX_DEF_BIN_METADATA_ITEMS_AUTO(stream, Dy::ArticulationJointCore, PxU8, motion, 0)
+	PX_DEF_BIN_METADATA_ITEMS_AUTO(stream, ev4sio_Dy::ArticulationJointCore, PxU8, motion, 0)
 
-	PX_DEF_BIN_METADATA_ITEMS_AUTO(stream, Dy::ArticulationJointCore, PxU8, invDofIds, 0)
+	PX_DEF_BIN_METADATA_ITEMS_AUTO(stream, ev4sio_Dy::ArticulationJointCore, PxU8, invDofIds, 0)
 
-	PX_DEF_BIN_METADATA_ITEM(stream, Dy::ArticulationJointCore, PxReal, maxJointVelocity, 0)
+	PX_DEF_BIN_METADATA_ITEM(stream, ev4sio_Dy::ArticulationJointCore, PxReal, maxJointVelocity, 0)
 
-	PX_DEF_BIN_METADATA_ITEM(stream, Dy::ArticulationJointCore, ArticulationJointCoreDirtyFlags, jointDirtyFlag, 0)
+	PX_DEF_BIN_METADATA_ITEM(stream, ev4sio_Dy::ArticulationJointCore, ArticulationJointCoreDirtyFlags, jointDirtyFlag, 0)
 
-	PX_DEF_BIN_METADATA_ITEM(stream, Dy::ArticulationJointCore, PxU32, jointOffset, 0)
+	PX_DEF_BIN_METADATA_ITEM(stream, ev4sio_Dy::ArticulationJointCore, PxU32, jointOffset, 0)
 
-	PX_DEF_BIN_METADATA_ITEM(stream, Dy::ArticulationJointCore, PxU8, jointType, 0)
+	PX_DEF_BIN_METADATA_ITEM(stream, ev4sio_Dy::ArticulationJointCore, PxU8, jointType, 0)
 }
 
 //
 //static void getBinaryMetaData_ArticulationJointCore(PxOutputStream& stream)
 //{	
 //	getBinaryMetaData_ArticulationJointCoreBase(stream);
-//	PX_DEF_BIN_METADATA_CLASS(stream, Dy::ArticulationJointCore)
-//	PX_DEF_BIN_METADATA_BASE_CLASS(stream, Dy::ArticulationJointCore, Dy::ArticulationJointCoreBase)
+//	PX_DEF_BIN_METADATA_CLASS(stream, ev4sio_Dy::ArticulationJointCore)
+//	PX_DEF_BIN_METADATA_BASE_CLASS(stream, ev4sio_Dy::ArticulationJointCore, ev4sio_Dy::ArticulationJointCoreBase)
 //}
 
-void Sc::ArticulationJointCore::getBinaryMetaData(PxOutputStream& stream)
+void ev4sio_Sc::ArticulationJointCore::getBinaryMetaData(PxOutputStream& stream)
 {
 	getBinaryMetaData_ArticulationJointCore(stream);
 	PX_DEF_BIN_METADATA_CLASS(stream,	ArticulationJointCore)
 	PX_DEF_BIN_METADATA_ITEM(stream,	ArticulationJointCore, ArticulationJointSim,		mSim,		PxMetaDataFlag::ePTR)
-	PX_DEF_BIN_METADATA_ITEM(stream,	ArticulationJointCore, Dy::ArticulationJointCore,	mCore,		0)
-	PX_DEF_BIN_METADATA_ITEM(stream,	ArticulationJointCore, Dy::ArticulationCore,		mArticulation, PxMetaDataFlag::ePTR)
+	PX_DEF_BIN_METADATA_ITEM(stream,	ArticulationJointCore, ev4sio_Dy::ArticulationJointCore,	mCore,		0)
+	PX_DEF_BIN_METADATA_ITEM(stream,	ArticulationJointCore, ev4sio_Dy::ArticulationCore,		mArticulation, PxMetaDataFlag::ePTR)
 	PX_DEF_BIN_METADATA_ITEM(stream,	ArticulationJointCore, PxArticulationJointReducedCoordinate, mRootType, PxMetaDataFlag::ePTR)
 	PX_DEF_BIN_METADATA_ITEM(stream,	ArticulationJointCore, PxU32, mLLLinkIndex,			0)
 }

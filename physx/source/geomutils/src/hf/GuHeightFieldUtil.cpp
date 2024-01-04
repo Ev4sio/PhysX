@@ -35,17 +35,17 @@
 #include "foundation/PxIntrinsics.h"
 #include "CmScaling.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
-void Gu::HeightFieldUtil::computeLocalBounds(PxBounds3& bounds) const
+void ev4sio_Gu::HeightFieldUtil::computeLocalBounds(PxBounds3& bounds) const
 {
 	const PxMeshScale scale(PxVec3(mHfGeom->rowScale, mHfGeom->heightScale, mHfGeom->columnScale), PxQuat(PxIdentity));
-	const PxMat33 mat33 = Cm::toMat33(scale);
+	const PxMat33 mat33 = ev4sio_Cm::toMat33(scale);
 
 	bounds.minimum = mat33.transform(mHeightField->getData().mAABB.getMin());
 	bounds.maximum = mat33.transform(mHeightField->getData().mAABB.getMax());
 
-	// PT: HFs will assert in Gu::intersectRayAABB2() if we don't deal with that
+	// PT: HFs will assert in ev4sio_Gu::intersectRayAABB2() if we don't deal with that
 	const float deltaY = GU_MIN_AABB_EXTENT*0.5f - (bounds.maximum.y - bounds.minimum.y);
 	if(deltaY>0.0f)
 	{
@@ -54,7 +54,7 @@ void Gu::HeightFieldUtil::computeLocalBounds(PxBounds3& bounds) const
 	}
 }
 
-static PX_FORCE_INLINE bool reportTriangle(Gu::OverlapReport& callback, PxU32 material, PxU32* PX_RESTRICT indexBuffer, const PxU32 bufferSize, PxU32& indexBufferUsed, PxU32 triangleIndex)
+static PX_FORCE_INLINE bool reportTriangle(ev4sio_Gu::OverlapReport& callback, PxU32 material, PxU32* PX_RESTRICT indexBuffer, const PxU32 bufferSize, PxU32& indexBufferUsed, PxU32 triangleIndex)
 {
 	if(material != PxHeightFieldMaterial::eHOLE) 
 	{
@@ -70,7 +70,7 @@ static PX_FORCE_INLINE bool reportTriangle(Gu::OverlapReport& callback, PxU32 ma
 	return true;
 }
 
-void Gu::HeightFieldUtil::overlapAABBTriangles(const PxBounds3& bounds, OverlapReport& callback, PxU32 batchSize) const
+void ev4sio_Gu::HeightFieldUtil::overlapAABBTriangles(const PxBounds3& bounds, OverlapReport& callback, PxU32 batchSize) const
 {
 	PX_ASSERT(batchSize<=HF_OVERLAP_REPORT_BUFFER_SIZE);
 	PX_ASSERT(!bounds.isEmpty());
@@ -153,13 +153,13 @@ void Gu::HeightFieldUtil::overlapAABBTriangles(const PxBounds3& bounds, OverlapR
 		callback.reportTouchedTris(indexBufferUsed, indexBuffer);
 }
 
-PxU32 Gu::HeightFieldUtil::getTriangle(const PxTransform& pose, PxTriangle& worldTri,
+PxU32 ev4sio_Gu::HeightFieldUtil::getTriangle(const PxTransform& pose, PxTriangle& worldTri,
 									   PxU32* _vertexIndices, PxU32* adjacencyIndices, PxTriangleID triangleIndex, bool worldSpaceTranslation, bool worldSpaceRotation) const
 {
 #if PX_CHECKED
 	if (!mHeightField->isValidTriangle(triangleIndex)) 
 	{
-		PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "HeightFieldShape::getTriangle: Invalid triangle index!");
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "HeightFieldShape::getTriangle: Invalid triangle index!");
 		return 0;
 	}
 #endif
@@ -181,7 +181,7 @@ PxU32 Gu::HeightFieldUtil::getTriangle(const PxTransform& pose, PxTriangle& worl
 	{
 		if (mHeightField.getTriangleMaterial(triangleIndex) == mHfGeom.holeMaterialIndex)
 		{
-			PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "HeightFieldShape::getTriangle: Non-existing triangle (triangle has hole material)!");
+			ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "HeightFieldShape::getTriangle: Non-existing triangle (triangle has hole material)!");
 			return 0;
 		}
 	}*/

@@ -32,8 +32,8 @@
 #include "serialization/SnSerialUtils.h"
 #include <assert.h>
 
-using namespace physx;
-using namespace physx::Sn;
+using namespace ev4sio_physx;
+using namespace ev4sio_physx::Sn;
 
 //#define REMOVE_EXPLICIT_PADDING
 
@@ -904,7 +904,7 @@ MetaClass* ConvX::getMetaClass(PxConcreteType::Enum concreteType, MetaDataType t
 ///////////////////////////////////////////////////////////////////////////////
 
 // Peek & poke, yes sir.
-PxU64 physx::Sn::peek(int size, const char* buffer, int flags)
+PxU64 ev4sio_physx::Sn::peek(int size, const char* buffer, int flags)
 {
 	const int maskMSB = flags & PxMetaDataFlag::eCOUNT_MASK_MSB;
 	const int skipIfOne = flags & PxMetaDataFlag::eCOUNT_SKIP_IF_ONE;

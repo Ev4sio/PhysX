@@ -38,9 +38,9 @@
 #include "GuQuery.h"
 #include "CmSerialize.h"
 
-using namespace physx;
-using namespace Gu;
-using namespace Cm;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
+using namespace ev4sio_Cm;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -155,7 +155,7 @@ bool BVH::getInternalData(PxBVHInternalData& data, bool takeOwnership) const
 	return true;
 }
 
-bool physx::PxGetBVHInternalData(PxBVHInternalData& data, const PxBVH& bvh, bool takeOwnership)
+bool ev4sio_physx::PxGetBVHInternalData(PxBVHInternalData& data, const PxBVH& bvh, bool takeOwnership)
 {
 	return static_cast<const BVH&>(bvh).getInternalData(data, takeOwnership);
 }
@@ -861,7 +861,7 @@ static bool BVH_BVH(PxReportCallback<PxGeomIndexPair>& callback, const BVH& tree
 	}
 }
 
-bool physx::PxFindOverlap(PxReportCallback<PxGeomIndexPair>& callback, const PxBVH& bvh0, const PxBVH& bvh1)
+bool ev4sio_physx::ev4sio_PxFindOverlap(PxReportCallback<PxGeomIndexPair>& callback, const PxBVH& bvh0, const PxBVH& bvh1)
 {
 	PX_SIMD_GUARD
 

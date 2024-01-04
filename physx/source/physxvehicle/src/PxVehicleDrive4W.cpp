@@ -38,7 +38,7 @@
 #include "foundation/PxUtilities.h"
 #include "CmUtils.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 extern PxF32 gToleranceScaleLength;
@@ -83,7 +83,7 @@ bool PxVehicleDrive4W::isValid() const
 PxVehicleDrive4W* PxVehicleDrive4W::allocate(const PxU32 numWheels)
 {
 	PX_CHECK_AND_RETURN_NULL(numWheels>=4, "PxVehicleDrive4W::allocate - needs to have at least 4 wheels");
-	PX_CHECK_AND_RETURN_NULL(gToleranceScaleLength > 0, "PxVehicleDrive4W::allocate - need to call PxInitVehicleSDK");
+	PX_CHECK_AND_RETURN_NULL(gToleranceScaleLength > 0, "PxVehicleDrive4W::allocate - need to call ev4sio_PxInitVehicleSDK");
 
 	//Compute the bytes needed.
 	const PxU32 byteSize = sizeof(PxVehicleDrive4W) + PxVehicleDrive::computeByteSize(numWheels);
@@ -145,5 +145,5 @@ void PxVehicleDrive4W::setToRestState()
 	//Set core to rest state.
 	PxVehicleDrive::setToRestState();
 }
-} //namespace physx
+} //namespace ev4sio_physx
 

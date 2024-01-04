@@ -33,9 +33,9 @@
 #include "ScHairSystemShapeCore.h"
 #include "DyHairSystem.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Sc
+namespace ev4sio_Sc
 {
 class HairSystemSim;
 class BodySim;
@@ -97,8 +97,8 @@ class HairSystemCore : public ActorCore
   private:
 	HairSystemShapeCore mShapeCore;
 };
-} // namespace Sc
-} // namespace physx
+} // namespace ev4sio_Sc
+} // namespace ev4sio_physx
 
 #endif
 #endif

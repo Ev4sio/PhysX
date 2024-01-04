@@ -30,8 +30,8 @@
 #include "common/PxProfileZone.h"
 #include "foundation/PxBitMap.h"
 
-using namespace physx;
-using namespace Bp;
+using namespace ev4sio_physx;
+using namespace ev4sio_Bp;
 
 #if PX_CHECKED
 bool BroadPhaseUpdateData::isValid(const BroadPhaseUpdateData& updateData, const BroadPhase& bp, const bool skipBoundValidation, PxU64 contextID)
@@ -41,7 +41,7 @@ bool BroadPhaseUpdateData::isValid(const BroadPhaseUpdateData& updateData, const
 	return (updateData.isValid(skipBoundValidation) && bp.isValid(updateData));
 }
 
-static bool testHandles(PxU32 size, const BpHandle* handles, const PxU32 capacity, const Bp::FilterGroup::Enum* groups, const PxBounds3* bounds, PxBitMap& bitmap)
+static bool testHandles(PxU32 size, const BpHandle* handles, const PxU32 capacity, const ev4sio_Bp::FilterGroup::Enum* groups, const PxBounds3* bounds, PxBitMap& bitmap)
 {
 	if(!handles && size)
 		return false;
@@ -113,7 +113,7 @@ bool BroadPhaseUpdateData::isValid(const bool skipBoundValidation) const
 {
 	const PxBounds3* bounds = skipBoundValidation ? NULL : getAABBs();
 	const PxU32 boxesCapacity = getCapacity();
-	const Bp::FilterGroup::Enum* groups = getGroups();
+	const ev4sio_Bp::FilterGroup::Enum* groups = getGroups();
 
 	PxBitMap createdBitmap;	createdBitmap.resizeAndClear(boxesCapacity);
 	PxBitMap updatedBitmap;	updatedBitmap.resizeAndClear(boxesCapacity);

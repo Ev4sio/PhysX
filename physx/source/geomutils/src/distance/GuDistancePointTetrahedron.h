@@ -34,9 +34,9 @@
 #include "GuDistancePointTriangle.h"
 #include "common/PxPhysXCommonConfig.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-	namespace Gu
+	namespace ev4sio_Gu
 	{
 		PX_PHYSX_COMMON_API PxVec4 PointOutsideOfPlane4(const PxVec3& p, const PxVec3& _a, const PxVec3& _b,
 			const PxVec3& _c, const PxVec3& _d);

@@ -35,7 +35,7 @@
 #include "extensions/PxDefaultStreams.h"
 #include "PxPhysics.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 namespace vehicle2
 {
@@ -69,7 +69,7 @@ PxConvexMesh* PxVehicleUnitCylinderSweepMeshCreate
 
 	PxConvexMesh* convexMesh = NULL;
 	PxDefaultMemoryOutputStream buf;
-	if (PxCookConvexMesh(params, convexDesc, buf))
+	if (ev4sio_PxCookConvexMesh(params, convexDesc, buf))
 	{
 		PxDefaultMemoryInputData id(buf.getData(), buf.getSize());
 		convexMesh = physics.createConvexMesh(id);
@@ -84,4 +84,4 @@ void PxVehicleUnitCylinderSweepMeshDestroy(PxConvexMesh* mesh)
 }
 
 } //namespace vehicle2
-} //namespace physx
+} //namespace ev4sio_physx

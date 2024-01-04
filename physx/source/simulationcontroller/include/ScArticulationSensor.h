@@ -32,9 +32,9 @@
 #include "foundation/PxVec3.h"
 #include "foundation/PxTransform.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Sc
+namespace ev4sio_Sc
 {
 
 class ArticulationCore;
@@ -64,8 +64,8 @@ public:
 	PxTransform							mRelativePose;
 	PxU16								mFlags;
 };
-}//namespace Sc
-}//namespace physx
+}//namespace ev4sio_Sc
+}//namespace ev4sio_physx
 
 #endif //SC_ARTICULATION_SENSOR_CORE
 

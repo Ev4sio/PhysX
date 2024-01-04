@@ -37,9 +37,9 @@
 #define DY_ARTICULATION_CFM	2e-4f
 #define DY_ARTICULATION_PGS_BIAS_COEFFICIENT 0.8f
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Dy
+namespace ev4sio_Dy
 {
 
 PX_CUDA_CALLABLE PX_FORCE_INLINE ArticulationImplicitDriveDesc computeImplicitDriveParamsForceDrive
@@ -142,7 +142,7 @@ PX_CUDA_CALLABLE PX_FORCE_INLINE PxReal computeDriveImpulse
 	return unclampedForce;
 }
 
-} //namespace Dy
-} //namespace physx
+} //namespace ev4sio_Dy
+} //namespace ev4sio_physx
 #endif //DY_ARTICULATION_CPUGPU_H
 

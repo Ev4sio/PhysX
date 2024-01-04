@@ -69,15 +69,15 @@
 //			myFunction(iter->first, iter->second);
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
 template <class Key, class Value, class HashFn = PxHash<Key>, class Allocator = PxAllocator>
-class PxHashMap : public physx::PxHashMapBase<Key, Value, HashFn, Allocator>
+class PxHashMap : public ev4sio_physx::PxHashMapBase<Key, Value, HashFn, Allocator>
 {
   public:
-	typedef physx::PxHashMapBase<Key, Value, HashFn, Allocator> HashMapBase;
+	typedef ev4sio_physx::PxHashMapBase<Key, Value, HashFn, Allocator> HashMapBase;
 	typedef typename HashMapBase::Iterator Iterator;
 
 	PxHashMap(uint32_t initialTableSize = 64, float loadFactor = 0.75f) : HashMapBase(initialTableSize, loadFactor)
@@ -97,10 +97,10 @@ class PxHashMap : public physx::PxHashMapBase<Key, Value, HashFn, Allocator>
 };
 
 template <class Key, class Value, class HashFn = PxHash<Key>, class Allocator = PxAllocator>
-class PxCoalescedHashMap : public physx::PxHashMapBase<Key, Value, HashFn, Allocator>
+class PxCoalescedHashMap : public ev4sio_physx::PxHashMapBase<Key, Value, HashFn, Allocator>
 {
   public:
-	typedef physx::PxHashMapBase<Key, Value, HashFn, Allocator> HashMapBase;
+	typedef ev4sio_physx::PxHashMapBase<Key, Value, HashFn, Allocator> HashMapBase;
 
 	PxCoalescedHashMap(uint32_t initialTableSize = 64, float loadFactor = 0.75f)
 	: HashMapBase(initialTableSize, loadFactor)
@@ -112,7 +112,7 @@ class PxCoalescedHashMap : public physx::PxHashMapBase<Key, Value, HashFn, Alloc
 	}
 };
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

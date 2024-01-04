@@ -32,7 +32,7 @@
 #include "foundation/PxFoundation.h"
 #include "extensions/PxBroadPhaseExt.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 PxU32 PxBroadPhaseExt::createRegionsFromWorldBounds(PxBounds3* regions, const PxBounds3& globalBounds, PxU32 nbSubdiv, PxU32 upAxis)
 {

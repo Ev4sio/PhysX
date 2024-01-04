@@ -35,7 +35,7 @@
 #include "foundation/PxAllocator.h"
 #include "geomutils/PxContactBuffer.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 ///////////////////////////////////////////////////////////////////////////////
 

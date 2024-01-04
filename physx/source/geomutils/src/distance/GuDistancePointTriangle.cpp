@@ -29,10 +29,10 @@
 #include "foundation/PxVec3.h"
 #include "GuDistancePointTriangle.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 // Based on Christer Ericson's book
-PxVec3 Gu::closestPtPointTriangle(const PxVec3& p, const PxVec3& a, const PxVec3& b, const PxVec3& c, float& s, float& t)
+PxVec3 ev4sio_Gu::closestPtPointTriangle(const PxVec3& p, const PxVec3& a, const PxVec3& b, const PxVec3& c, float& s, float& t)
 {
 	// Check if P in vertex region outside A
 	const PxVec3 ab = b - a;
@@ -108,7 +108,7 @@ PxVec3 Gu::closestPtPointTriangle(const PxVec3& p, const PxVec3& a, const PxVec3
 	return a + ab*v + ac*w;
 }
 
-//aos::FloatV Gu::distancePointTriangleSquared(	const aos::Vec3VArg p, 
+//aos::FloatV ev4sio_Gu::distancePointTriangleSquared(	const aos::Vec3VArg p, 
 //													const aos::Vec3VArg a, 
 //													const aos::Vec3VArg b, 
 //													const aos::Vec3VArg c,
@@ -212,7 +212,7 @@ PxVec3 Gu::closestPtPointTriangle(const PxVec3& p, const PxVec3& a, const PxVec3
 //	return V3Dot(vv, vv);
 //}
 
-PX_PHYSX_COMMON_API aos::FloatV Gu::distancePointTriangleSquared2UnitBox(
+PX_PHYSX_COMMON_API aos::FloatV ev4sio_Gu::distancePointTriangleSquared2UnitBox(
 	const aos::Vec3VArg queryPoint,
 	const aos::Vec3VArg triA,
 	const aos::Vec3VArg triB,
@@ -237,14 +237,14 @@ PX_PHYSX_COMMON_API aos::FloatV Gu::distancePointTriangleSquared2UnitBox(
 	const Vec3V c = V3Scale(V3Sub(triC, min), scaling);
 
 	Vec3V cp;
-	FloatV result = Gu::distancePointTriangleSquared(p, a, b, c, u, v, cp);
+	FloatV result = ev4sio_Gu::distancePointTriangleSquared(p, a, b, c, u, v, cp);
 
 	closestP = V3Add(V3Scale(cp, invScaling), min);
 
 	return FMul(result, FMul(invScaling, invScaling));
 }
 
-aos::FloatV Gu::distancePointTriangleSquared(	const aos::Vec3VArg p, 
+aos::FloatV ev4sio_Gu::distancePointTriangleSquared(	const aos::Vec3VArg p, 
 													const aos::Vec3VArg a, 
 													const aos::Vec3VArg b, 
 													const aos::Vec3VArg c,

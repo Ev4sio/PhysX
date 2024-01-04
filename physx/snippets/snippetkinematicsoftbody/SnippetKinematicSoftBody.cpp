@@ -40,7 +40,7 @@
 #include "extensions/PxTetMakerExt.h"
 #include "extensions/PxSoftBodyExt.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 using namespace meshgenerator;
 
 static PxDefaultAllocator		gAllocator;
@@ -86,7 +86,7 @@ void addSoftBody(PxSoftBody* softBody, const PxFEMParameters& femParams, const P
 
 static PxSoftBody* createSoftBody(const PxCookingParams& params, const PxArray<PxVec3>& triVerts, const PxArray<PxU32>& triIndices, bool useCollisionMeshForSimulation = false)
 {
-	PxFEMSoftBodyMaterial* material = PxGetPhysics().createFEMSoftBodyMaterial(1e+6f, 0.45f, 0.5f);
+	PxFEMSoftBodyMaterial* material = ev4sio_PxGetPhysics().createFEMSoftBodyMaterial(1e+6f, 0.45f, 0.5f);
 	material->setDamping(0.005f);
 
 	PxSoftBodyMesh* softBodyMesh;
@@ -119,7 +119,7 @@ static PxSoftBody* createSoftBody(const PxCookingParams& params, const PxArray<P
 	{
 		PxShapeFlags shapeFlags = PxShapeFlag::eVISUALIZATION | PxShapeFlag::eSCENE_QUERY_SHAPE | PxShapeFlag::eSIMULATION_SHAPE;
 
-		PxFEMSoftBodyMaterial* materialPtr = PxGetPhysics().createFEMSoftBodyMaterial(1e+6f, 0.45f, 0.5f);
+		PxFEMSoftBodyMaterial* materialPtr = ev4sio_PxGetPhysics().createFEMSoftBodyMaterial(1e+6f, 0.45f, 0.5f);
 		materialPtr->setMaterialModel(PxFEMSoftBodyMaterialModel::eNEO_HOOKEAN);
 		PxTetrahedronMeshGeometry geometry(softBodyMesh->getCollisionMesh());
 		PxShape* shape = gPhysics->createShape(geometry, &materialPtr, 1, true, shapeFlags);
@@ -207,14 +207,14 @@ static void createSoftbodies(const PxCookingParams& params)
 
 void initPhysics(bool /*interactive*/)
 {
-	gFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, gAllocator, gErrorCallback);
-	gPvd = PxCreatePvd(*gFoundation);
-	PxPvdTransport* transport = PxDefaultPvdSocketTransportCreate(PVD_HOST, 5425, 10);
+	gFoundation = ev4sio_PxCreateFoundation(ev4sio_PX_PHYSICS_VERSION, gAllocator, gErrorCallback);
+	gPvd = ev4sio_PxCreatePvd(*gFoundation);
+	PxPvdTransport* transport = ev4sio_PxDefaultPvdSocketTransportCreate(PVD_HOST, 5425, 10);
 	gPvd->connect(*transport,PxPvdInstrumentationFlag::eALL);
 	
 	// initialize cuda
 	PxCudaContextManagerDesc cudaContextManagerDesc;
-	gCudaContextManager = PxCreateCudaContextManager(*gFoundation, cudaContextManagerDesc, PxGetProfilerCallback());
+	gCudaContextManager = ev4sio_PxCreateCudaContextManager(*gFoundation, cudaContextManagerDesc, ev4sio_PxGetProfilerCallback());
 	if (gCudaContextManager && !gCudaContextManager->contextIsValid())
 	{
 		gCudaContextManager->release();
@@ -223,8 +223,8 @@ void initPhysics(bool /*interactive*/)
 	}
 
 	PxTolerancesScale scale;
-	gPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *gFoundation, scale, true, gPvd);
-	PxInitExtensions(*gPhysics, gPvd);
+	gPhysics = ev4sio_PxCreatePhysics(ev4sio_PX_PHYSICS_VERSION, *gFoundation, scale, true, gPvd);
+	ev4sio_PxInitExtensions(*gPhysics, gPvd);
 
 	PxCookingParams params(scale);
 	params.meshWeldTolerance = 0.001f;
@@ -388,7 +388,7 @@ void cleanupPhysics(bool /*interactive*/)
 	PxPvdTransport* transport = gPvd->getTransport();
 	gPvd->release();
 	transport->release();
-	PxCloseExtensions();
+	ev4sio_PxCloseExtensions();
 
 	gCudaContextManager->release();
 	PX_RELEASE(gFoundation);

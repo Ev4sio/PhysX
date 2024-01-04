@@ -33,7 +33,7 @@
 #include "foundation/PxString.h"
 #include "foundation/PxBasicTemplates.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 namespace
 {
@@ -67,7 +67,7 @@ const char* sBinaryPlatformNames[SN_NUM_BINARY_PLATFORMS] =
 
 }
 
-namespace physx { namespace Sn {
+namespace ev4sio_physx { namespace Sn {
 
 PxU32 getBinaryPlatformTag()
 {
@@ -94,14 +94,14 @@ PxU32 getBinaryPlatformTag()
 #endif
 }
 
-bool isBinaryPlatformTagValid(physx::PxU32 platformTag)
+bool isBinaryPlatformTagValid(ev4sio_physx::PxU32 platformTag)
 {
 	PxU32 platformIndex = 0;
 	while (platformIndex < SN_NUM_BINARY_PLATFORMS && platformTag != sBinaryPlatformTags[platformIndex]) platformIndex++;
 	return platformIndex < SN_NUM_BINARY_PLATFORMS;
 }
 
-const char* getBinaryPlatformName(physx::PxU32 platformTag)
+const char* getBinaryPlatformName(ev4sio_physx::PxU32 platformTag)
 {
 	PxU32 platformIndex = 0;
 	while (platformIndex < SN_NUM_BINARY_PLATFORMS && platformTag != sBinaryPlatformTags[platformIndex]) platformIndex++;

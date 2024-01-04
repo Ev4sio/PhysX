@@ -32,9 +32,9 @@
 #include "common/PxPhysXCommonConfig.h"
 #include "GuSegment.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Gu
+namespace ev4sio_Gu
 {
 	// dir = p1 - p0
 	PX_FORCE_INLINE PxReal distancePointSegmentSquaredInternal(const PxVec3& p0, const PxVec3& dir, const PxVec3& point, PxReal* param=NULL)
@@ -77,12 +77,12 @@ namespace Gu
 		return distancePointSegmentSquaredInternal(p0, p1 - p0, point, param);
 	}
 
-	PX_INLINE PxReal distancePointSegmentSquared(const Gu::Segment& segment, const PxVec3& point, PxReal* param=NULL)
+	PX_INLINE PxReal distancePointSegmentSquared(const ev4sio_Gu::Segment& segment, const PxVec3& point, PxReal* param=NULL)
 	{
 		return distancePointSegmentSquared(segment.p0, segment.p1, point, param);
 	}
 
-} // namespace Gu
+} // namespace ev4sio_Gu
 
 }
 

@@ -31,7 +31,7 @@
 
 #include "foundation/Px.h"
 
-namespace physx { namespace profile {
+namespace ev4sio_physx { namespace profile {
 
 	/**
 	 *	Generic class to wrap any mutex type that has lock and unlock methods

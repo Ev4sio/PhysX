@@ -29,7 +29,7 @@
 
 #include "PxProfileEventNames.h"
 
-namespace physx { namespace profile {
+namespace ev4sio_physx { namespace profile {
 	
 	/**
 	\brief Client handles the data when an event buffer flushes.  This data

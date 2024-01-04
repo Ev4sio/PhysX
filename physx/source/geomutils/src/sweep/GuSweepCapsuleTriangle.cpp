@@ -33,9 +33,9 @@
 #include "GuSweepSphereTriangle.h"
 #include "GuInternal.h"
 
-using namespace physx;
-using namespace Gu;
-using namespace physx::aos;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
+using namespace ev4sio_physx::aos;
 
 #define COLINEARITY_EPSILON 0.00001f
 
@@ -67,7 +67,7 @@ using namespace physx::aos;
 
 //#define NEW_VERSION
 
-bool Gu::sweepCapsuleTriangles_Precise(	PxU32 nbTris, const PxTriangle* PX_RESTRICT triangles,	// Triangle data
+bool ev4sio_Gu::sweepCapsuleTriangles_Precise(	PxU32 nbTris, const PxTriangle* PX_RESTRICT triangles,	// Triangle data
 										const Capsule& capsule,									// Capsule data
 										const PxVec3& unitDir, const PxReal distance,			// Ray data
 										const PxU32* PX_RESTRICT cachedIndex,					// Cache data

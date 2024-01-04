@@ -28,11 +28,11 @@
 
 #include "GuSweepBoxTriangle_SAT.h"
 
-using namespace physx;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
 
 // PT: SAT-based version, in box space
-int Gu::triBoxSweepTestBoxSpace(const PxTriangle& tri, const PxVec3& extents, const PxVec3& dir, const PxVec3& oneOverDir, float tmax, float& toi, bool doBackfaceCulling)
+int ev4sio_Gu::triBoxSweepTestBoxSpace(const PxTriangle& tri, const PxVec3& extents, const PxVec3& dir, const PxVec3& oneOverDir, float tmax, float& toi, bool doBackfaceCulling)
 {
 	return triBoxSweepTestBoxSpace_inlined(tri, extents, dir, oneOverDir, tmax, toi, PxU32(doBackfaceCulling));
 }

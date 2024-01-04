@@ -28,8 +28,8 @@
 
 #include "ScShapeSim.h"
 
-using namespace physx;
-using namespace Sc;
+using namespace ev4sio_physx;
+using namespace ev4sio_Sc;
 
 void resetElementID(Scene& scene, ShapeSimBase& shapeSim);
 
@@ -41,7 +41,7 @@ ShapeSim::ShapeSim(RigidSim& owner, ShapeCore& core) : ShapeSimBase(owner, &core
 
 ShapeSim::~ShapeSim()
 {
-	Sc::ShapeCore::getCore(*mLLShape.mShapeCore).setExclusiveSim(NULL);
+	ev4sio_Sc::ShapeCore::getCore(*mLLShape.mShapeCore).setExclusiveSim(NULL);
 	Scene& scScene = getScene();
 	resetElementID(scScene, *this);
 }

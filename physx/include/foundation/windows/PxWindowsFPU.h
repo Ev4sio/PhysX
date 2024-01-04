@@ -29,7 +29,7 @@
 #ifndef PX_WINDOWS_FPU_H
 #define PX_WINDOWS_FPU_H
 
-PX_INLINE physx::PxSIMDGuard::PxSIMDGuard(bool enable) : mEnabled(enable)
+PX_INLINE ev4sio_physx::PxSIMDGuard::PxSIMDGuard(bool enable) : mEnabled(enable)
 {
 #if !PX_ARM && !PX_A64
 	if (enable)
@@ -47,7 +47,7 @@ PX_INLINE physx::PxSIMDGuard::PxSIMDGuard(bool enable) : mEnabled(enable)
 #endif
 }
 
-PX_INLINE physx::PxSIMDGuard::~PxSIMDGuard()
+PX_INLINE ev4sio_physx::PxSIMDGuard::~PxSIMDGuard()
 {
 #if !PX_ARM && !PX_A64
 	if (mEnabled)

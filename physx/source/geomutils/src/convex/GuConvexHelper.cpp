@@ -31,12 +31,12 @@
 #include "GuInternal.h"
 #include "GuConvexMesh.h"
 
-using namespace physx;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
 
 // PT: we can't call alloca in a function and we want to avoid defines or duplicating the code. This makes it a bit tricky to write.
-void Gu::getScaledConvex(	PxVec3*& scaledVertices, PxU8*& scaledIndices, PxVec3* dstVertices, PxU8* dstIndices,
-							bool idtConvexScale, const PxVec3* srcVerts, const PxU8* srcIndices, PxU32 nbVerts, const Cm::FastVertex2ShapeScaling& convexScaling)
+void ev4sio_Gu::getScaledConvex(	PxVec3*& scaledVertices, PxU8*& scaledIndices, PxVec3* dstVertices, PxU8* dstIndices,
+							bool idtConvexScale, const PxVec3* srcVerts, const PxU8* srcIndices, PxU32 nbVerts, const ev4sio_Cm::FastVertex2ShapeScaling& convexScaling)
 {
 	//pretransform convex polygon if we have scaling!
 	if(idtConvexScale)	// PT: the scale is always 1 for boxes so no need to test the type
@@ -56,7 +56,7 @@ void Gu::getScaledConvex(	PxVec3*& scaledVertices, PxU8*& scaledIndices, PxVec3*
 	}
 }
 
-bool Gu::getConvexData(const PxConvexMeshGeometry& shapeConvex, Cm::FastVertex2ShapeScaling& scaling, PxBounds3& bounds, PolygonalData& polyData)
+bool ev4sio_Gu::getConvexData(const PxConvexMeshGeometry& shapeConvex, ev4sio_Cm::FastVertex2ShapeScaling& scaling, PxBounds3& bounds, PolygonalData& polyData)
 {
 	const bool idtScale = shapeConvex.scale.isIdentity();
 	if(!idtScale)
@@ -79,7 +79,7 @@ bool Gu::getConvexData(const PxConvexMeshGeometry& shapeConvex, Cm::FastVertex2S
 	return idtScale;
 }
 
-PxU32 Gu::findUniqueConvexEdges(PxU32 maxNbEdges, ConvexEdge* PX_RESTRICT edges, PxU32 numPolygons, const Gu::HullPolygonData* PX_RESTRICT polygons, const PxU8* PX_RESTRICT vertexData)
+PxU32 ev4sio_Gu::findUniqueConvexEdges(PxU32 maxNbEdges, ConvexEdge* PX_RESTRICT edges, PxU32 numPolygons, const ev4sio_Gu::HullPolygonData* PX_RESTRICT polygons, const PxU8* PX_RESTRICT vertexData)
 {
 	PxU32 nbEdges = 0;
 

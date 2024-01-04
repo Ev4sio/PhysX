@@ -33,19 +33,19 @@
 #include "PxsIslandSim.h"
 #include "CmTask.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 // PT: TODO: fw declaring an Sc class here is not good
-namespace Sc
+namespace ev4sio_Sc
 {
 	class Interaction;
 }
-namespace IG
+namespace ev4sio_IG
 {
 	class SimpleIslandManager;
 
-class ThirdPassTask : public Cm::Task
+class ThirdPassTask : public ev4sio_Cm::Task
 {
 	SimpleIslandManager& mIslandManager;
 	IslandSim& mIslandSim;
@@ -65,7 +65,7 @@ private:
 	PX_NOCOPY(ThirdPassTask)
 };
 
-class PostThirdPassTask : public Cm::Task
+class PostThirdPassTask : public ev4sio_Cm::Task
 {
 	SimpleIslandManager& mIslandManager;
 
@@ -90,7 +90,7 @@ class SimpleIslandManager : public PxUserAllocated
 
 	//An array of destroyed nodes
 	PxArray<PxNodeIndex> mDestroyedNodes;
-	Cm::BlockArray<Sc::Interaction*> mInteractions;
+	ev4sio_Cm::BlockArray<ev4sio_Sc::Interaction*> mInteractions;
 
 	//Edges destroyed this frame
 	PxArray<EdgeIndex> mDestroyedEdges;
@@ -98,8 +98,8 @@ class SimpleIslandManager : public PxUserAllocated
 	PxArray<PartitionEdge*> mDestroyedPartitionEdges;
 	//KS - stores node indices for a given edge. Node index 0 is at 2* edgeId and NodeIndex1 is at 2*edgeId + 1
 	//can also be used for edgeInstance indexing so there's no need to figure out outboundNode ID either!
-	Cm::BlockArray<PxNodeIndex> mEdgeNodeIndices;
-	Cm::BlockArray<void*> mConstraintOrCm;	//! Pointers to either the constraint or Cm for this pair
+	ev4sio_Cm::BlockArray<PxNodeIndex> mEdgeNodeIndices;
+	ev4sio_Cm::BlockArray<void*> mConstraintOrCm;	//! Pointers to either the constraint or Cm for this pair
 
 	PxBitMap mConnectedMap;
 
@@ -123,22 +123,22 @@ public:
 
 	void removeNode(const PxNodeIndex index);
 
-	PxNodeIndex addArticulation(Dy::FeatherstoneArticulation* llArtic, bool isActive);
+	PxNodeIndex addArticulation(ev4sio_Dy::FeatherstoneArticulation* llArtic, bool isActive);
 
 #if PX_SUPPORT_GPU_PHYSX
-	PxNodeIndex addSoftBody(Dy::SoftBody* llSoftBody, bool isActive);
+	PxNodeIndex addSoftBody(ev4sio_Dy::SoftBody* llSoftBody, bool isActive);
 
-	PxNodeIndex addFEMCloth(Dy::FEMCloth* llFEMCloth, bool isActive);
+	PxNodeIndex addFEMCloth(ev4sio_Dy::FEMCloth* llFEMCloth, bool isActive);
 
-	PxNodeIndex addParticleSystem(Dy::ParticleSystem* llParticleSystem, bool isActive);
+	PxNodeIndex addParticleSystem(ev4sio_Dy::ParticleSystem* llParticleSystem, bool isActive);
 
-	PxNodeIndex addHairSystem(Dy::HairSystem* llHairSystem, bool isActive);
+	PxNodeIndex addHairSystem(ev4sio_Dy::HairSystem* llHairSystem, bool isActive);
 #endif
 
-	EdgeIndex addContactManager(PxsContactManager* manager, PxNodeIndex nodeHandle1, PxNodeIndex nodeHandle2, Sc::Interaction* interaction,
+	EdgeIndex addContactManager(PxsContactManager* manager, PxNodeIndex nodeHandle1, PxNodeIndex nodeHandle2, ev4sio_Sc::Interaction* interaction,
 		Edge::EdgeType edgeType);
 
-	EdgeIndex addConstraint(Dy::Constraint* constraint, PxNodeIndex nodeHandle1, PxNodeIndex nodeHandle2, Sc::Interaction* interaction);
+	EdgeIndex addConstraint(ev4sio_Dy::Constraint* constraint, PxNodeIndex nodeHandle1, PxNodeIndex nodeHandle2, ev4sio_Sc::Interaction* interaction);
 
 	bool isConnected(EdgeIndex edgeIndex) const { return !!mConnectedMap.test(edgeIndex); }
 
@@ -185,12 +185,12 @@ public:
 
 	void deactivateEdge(const EdgeIndex edge);
 
-	PX_FORCE_INLINE PxsContactManager* getContactManager(IG::EdgeIndex edgeId) const { return reinterpret_cast<PxsContactManager*>(mConstraintOrCm[edgeId]); }
-	PX_FORCE_INLINE PxsContactManager* getContactManagerUnsafe(IG::EdgeIndex edgeId) const { return reinterpret_cast<PxsContactManager*>(mConstraintOrCm[edgeId]); }
-	PX_FORCE_INLINE Dy::Constraint* getConstraint(IG::EdgeIndex edgeId) const { return reinterpret_cast<Dy::Constraint*>(mConstraintOrCm[edgeId]); }
-	PX_FORCE_INLINE Dy::Constraint* getConstraintUnsafe(IG::EdgeIndex edgeId) const { return reinterpret_cast<Dy::Constraint*>(mConstraintOrCm[edgeId]); }
+	PX_FORCE_INLINE PxsContactManager* getContactManager(ev4sio_IG::EdgeIndex edgeId) const { return reinterpret_cast<PxsContactManager*>(mConstraintOrCm[edgeId]); }
+	PX_FORCE_INLINE PxsContactManager* getContactManagerUnsafe(ev4sio_IG::EdgeIndex edgeId) const { return reinterpret_cast<PxsContactManager*>(mConstraintOrCm[edgeId]); }
+	PX_FORCE_INLINE ev4sio_Dy::Constraint* getConstraint(ev4sio_IG::EdgeIndex edgeId) const { return reinterpret_cast<ev4sio_Dy::Constraint*>(mConstraintOrCm[edgeId]); }
+	PX_FORCE_INLINE ev4sio_Dy::Constraint* getConstraintUnsafe(ev4sio_IG::EdgeIndex edgeId) const { return reinterpret_cast<ev4sio_Dy::Constraint*>(mConstraintOrCm[edgeId]); }
 
-	PX_FORCE_INLINE Sc::Interaction* getInteraction(IG::EdgeIndex edgeId) const { return mInteractions[edgeId]; }
+	PX_FORCE_INLINE ev4sio_Sc::Interaction* getInteraction(ev4sio_IG::EdgeIndex edgeId) const { return mInteractions[edgeId]; }
 
 	PX_FORCE_INLINE	PxU64			getContextId() const { return mContextID; }
 

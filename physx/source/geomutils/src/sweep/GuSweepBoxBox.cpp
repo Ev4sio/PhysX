@@ -36,8 +36,8 @@
 #include "GuSweepTriangleUtils.h"
 #include "GuInternal.h"
 
-using namespace physx;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
 
 namespace
 {
@@ -95,7 +95,7 @@ static void computeBoxWorldEdgeNormal(const Box& box, PxU32 edgeIndex, PxVec3& w
 }
 
 // ### optimize! and refactor. And optimize for aabbs
-bool Gu::sweepBoxBox(const Box& box0, const Box& box1, const PxVec3& dir, PxReal length, PxHitFlags hitFlags, PxGeomSweepHit& sweepHit)
+bool ev4sio_Gu::sweepBoxBox(const Box& box0, const Box& box1, const PxVec3& dir, PxReal length, PxHitFlags hitFlags, PxGeomSweepHit& sweepHit)
 {
 	if(!(hitFlags & PxHitFlag::eASSUME_NO_INITIAL_OVERLAP))
 	{

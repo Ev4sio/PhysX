@@ -35,7 +35,7 @@
 #include <Winsock2.h>
 #pragma comment(lib, "Ws2_32")
 
-namespace physx
+namespace ev4sio_physx
 {
 const uint32_t PxSocket::DEFAULT_BUFFER_SIZE = 32768;
 
@@ -435,4 +435,4 @@ bool PxSocket::isBlocking() const
 {
 	return mImpl->isBlocking();
 }
-} // namespace physx
+} // namespace ev4sio_physx

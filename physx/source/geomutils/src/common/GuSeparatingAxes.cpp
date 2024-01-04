@@ -28,7 +28,7 @@
 
 #include "GuSeparatingAxes.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 union FloatInt
 {
@@ -36,7 +36,7 @@ union FloatInt
 	PxU32	i;
 };
 
-bool Gu::SeparatingAxes::addAxis(const PxVec3& axis)
+bool ev4sio_Gu::SeparatingAxes::addAxis(const PxVec3& axis)
 {
 	PxU32 numAxes = getNumAxes();
 	const PxVec3* PX_RESTRICT axes = getAxes();

@@ -35,7 +35,7 @@
 
 #include "VehicleMFTireData.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 template<typename TFloat>
@@ -1771,7 +1771,7 @@ PX_FORCE_INLINE void mfTireComputeForce(
 }
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif //VEHICLE_MF_TIRE_H

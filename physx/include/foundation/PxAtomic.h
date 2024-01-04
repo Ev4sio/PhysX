@@ -33,7 +33,7 @@
 #include "foundation/PxSimpleTypes.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 /* set *dest equal to val. Return the old value of *dest */
@@ -58,7 +58,7 @@ PX_FOUNDATION_API PxI32 PxAtomicAdd(volatile PxI32* val, PxI32 delta);
 PX_FOUNDATION_API PxI32 PxAtomicMax(volatile PxI32* val, PxI32 val2);
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

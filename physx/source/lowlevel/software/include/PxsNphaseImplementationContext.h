@@ -36,15 +36,15 @@
 
 class PxsCMDiscreteUpdateTask;
 
-namespace physx
+namespace ev4sio_physx
 {
 
 struct PxsContactManagers : PxsContactManagerBase
 {
 	PxArray<PxsContactManagerOutput>		mOutputContactManagers;
 	PxArray<PxsContactManager*>				mContactManagerMapping;
-	PxArray<Gu::Cache>						mCaches;
-	PxPinnedArray<Sc::ShapeInteraction*>	mShapeInteractions;
+	PxArray<ev4sio_Gu::Cache>						mCaches;
+	PxPinnedArray<ev4sio_Sc::ShapeInteraction*>	mShapeInteractions;
 	PxFloatArrayPinned						mRestDistances;
 	PxPinnedArray<PxsTorsionalFrictionData>	mTorsionalProperties;
 
@@ -75,7 +75,7 @@ private:
 class PxsNphaseImplementationContext : public PxvNphaseImplementationContextUsableAsFallback
 {
 public:
-											PxsNphaseImplementationContext(PxsContext& context, IG::IslandSim* islandSim, PxVirtualAllocatorCallback* callback, PxU32 index, bool gpu) :
+											PxsNphaseImplementationContext(PxsContext& context, ev4sio_IG::IslandSim* islandSim, PxVirtualAllocatorCallback* callback, PxU32 index, bool gpu) :
 											PxvNphaseImplementationContextUsableAsFallback	(context), 
 											mNarrowPhasePairs								(index, callback), 
 											mNewNarrowPhasePairs							(index, callback),
@@ -87,12 +87,12 @@ public:
 	// PxvNphaseImplementationContext
 	virtual void							destroy()	PX_OVERRIDE;
 	virtual void							updateContactManager(PxReal dt, bool hasContactDistanceChanged, PxBaseTask* continuation, 
-																PxBaseTask* firstPassContinuation, Cm::FanoutTask* updateBoundAndShape)	PX_OVERRIDE;
+																PxBaseTask* firstPassContinuation, ev4sio_Cm::FanoutTask* updateBoundAndShape)	PX_OVERRIDE;
 	virtual void							postBroadPhaseUpdateContactManager(PxBaseTask*) PX_OVERRIDE	{}
 	virtual void							secondPassUpdateContactManager(PxReal dt, PxBaseTask* continuation)	PX_OVERRIDE;
 	virtual void							fetchUpdateContactManager() PX_OVERRIDE	{}
-	virtual void							registerContactManager(PxsContactManager* cm, Sc::ShapeInteraction* shapeInteraction, PxI32 touching, PxU32 numPatches)	PX_OVERRIDE;
-//	virtual void							registerContactManagers(PxsContactManager** cm, Sc::ShapeInteraction** shapeInteractions, PxU32 nbContactManagers, PxU32 maxContactManagerId);
+	virtual void							registerContactManager(PxsContactManager* cm, ev4sio_Sc::ShapeInteraction* shapeInteraction, PxI32 touching, PxU32 numPatches)	PX_OVERRIDE;
+//	virtual void							registerContactManagers(PxsContactManager** cm, ev4sio_Sc::ShapeInteraction** shapeInteractions, PxU32 nbContactManagers, PxU32 maxContactManagerId);
 	virtual void							unregisterContactManager(PxsContactManager* cm)	PX_OVERRIDE;
 	virtual void							refreshContactManager(PxsContactManager* cm)	PX_OVERRIDE;
 
@@ -148,7 +148,7 @@ public:
 
 	virtual PxsContactManagerOutput*		getGPUContactManagerOutputBase()	PX_OVERRIDE	{ return NULL; }
 	virtual PxReal*							getGPURestDistances()				PX_OVERRIDE	{ return NULL; }
-	virtual Sc::ShapeInteraction**			getGPUShapeInteractions()			PX_OVERRIDE	{ return NULL; }
+	virtual ev4sio_Sc::ShapeInteraction**			getGPUShapeInteractions()			PX_OVERRIDE	{ return NULL; }
 	virtual PxsTorsionalFrictionData*		getGPUTorsionalData()				PX_OVERRIDE	{ return NULL; }
 	//~PxvNphaseImplementationContext
 
@@ -159,7 +159,7 @@ public:
 	virtual void							refreshContactManagerFallback(PxsContactManager* cm, PxsContactManagerOutput* cmOutputs)	PX_OVERRIDE;
 	virtual void							appendContactManagersFallback(PxsContactManagerOutput* cmOutputs)	PX_OVERRIDE;
 	virtual void							removeContactManagersFallback(PxsContactManagerOutput* cmOutputs)	PX_OVERRIDE;
-	virtual Sc::ShapeInteraction**			getShapeInteractions()	PX_OVERRIDE	{ return mNarrowPhasePairs.mShapeInteractions.begin();		}
+	virtual ev4sio_Sc::ShapeInteraction**			getShapeInteractions()	PX_OVERRIDE	{ return mNarrowPhasePairs.mShapeInteractions.begin();		}
 	virtual PxReal*							getRestDistances()		PX_OVERRIDE	{ return mNarrowPhasePairs.mRestDistances.begin();			}
 	virtual PxsTorsionalFrictionData*		getTorsionalData()		PX_OVERRIDE	{ return mNarrowPhasePairs.mTorsionalProperties.begin();	}
 	//~PxvNphaseImplementationFallback
@@ -170,7 +170,7 @@ public:
 
 			PxContactModifyCallback*		mModifyCallback;
 
-			IG::IslandSim*					mIslandSim;
+			ev4sio_IG::IslandSim*					mIslandSim;
 
 			PxMutex							mContactManagerMutex;
 

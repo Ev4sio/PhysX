@@ -53,9 +53,9 @@
 #include "GuHeightField.h"
 #include "GuPrunerMergeData.h"
 
-using namespace physx;
-using namespace Cm;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Cm;
+using namespace ev4sio_Gu;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -69,7 +69,7 @@ using namespace Gu;
 //	PX_DEF_BIN_METADATA_ITEM(stream,	x, PxU32,			mIndex,			0)
 
 #define DefineMetaData_NpRigidBodyTemplate(x) \
-	PX_DEF_BIN_METADATA_ITEM(stream,	x, Sc::BodyCore,	mCore,			0)
+	PX_DEF_BIN_METADATA_ITEM(stream,	x, ev4sio_Sc::BodyCore,	mCore,			0)
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -131,11 +131,11 @@ static void getBinaryMetaData_PxMat33(PxOutputStream& stream)
 
 static void getBinaryMetaData_SpatialVectorF(PxOutputStream& stream)
 {
-	PX_DEF_BIN_METADATA_CLASS(stream, Cm::SpatialVectorF)
-	PX_DEF_BIN_METADATA_ITEM(stream, Cm::SpatialVectorF, PxVec3, top, 0)
-	PX_DEF_BIN_METADATA_ITEM(stream, Cm::SpatialVectorF, PxReal, pad0, 0)
-	PX_DEF_BIN_METADATA_ITEM(stream, Cm::SpatialVectorF, PxVec3, bottom, 0)
-	PX_DEF_BIN_METADATA_ITEM(stream, Cm::SpatialVectorF, PxReal, pad1, 0)
+	PX_DEF_BIN_METADATA_CLASS(stream, ev4sio_Cm::SpatialVectorF)
+	PX_DEF_BIN_METADATA_ITEM(stream, ev4sio_Cm::SpatialVectorF, PxVec3, top, 0)
+	PX_DEF_BIN_METADATA_ITEM(stream, ev4sio_Cm::SpatialVectorF, PxReal, pad0, 0)
+	PX_DEF_BIN_METADATA_ITEM(stream, ev4sio_Cm::SpatialVectorF, PxVec3, bottom, 0)
+	PX_DEF_BIN_METADATA_ITEM(stream, ev4sio_Cm::SpatialVectorF, PxReal, pad1, 0)
 }
 
 namespace
@@ -299,7 +299,7 @@ void NpShapeManager::getBinaryMetaData(PxOutputStream& stream)
 	PX_DEF_BIN_METADATA_CLASS(stream,	NpShapeManager)
 	PX_DEF_BIN_METADATA_ITEM(stream,	NpShapeManager, PtrTable,	mShapes,			0)
 //	PX_DEF_BIN_METADATA_ITEM(stream,	NpShapeManager, PxU32,		mSqCompoundId,		0)
-	PX_DEF_BIN_METADATA_ITEM(stream,	NpShapeManager, Sq::PruningStructure, mPruningStructure, PxMetaDataFlag::ePTR)
+	PX_DEF_BIN_METADATA_ITEM(stream,	NpShapeManager, ev4sio_Sq::PruningStructure, mPruningStructure, PxMetaDataFlag::ePTR)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -332,7 +332,7 @@ void NpRigidStatic::getBinaryMetaData(PxOutputStream& stream)
 	DefineMetaData_NpRigidActorTemplate(NpRigidStatic)
 
 	// NpRigidStatic
-	PX_DEF_BIN_METADATA_ITEM(stream,		NpRigidStatic, Sc::StaticCore,	mCore,		0)
+	PX_DEF_BIN_METADATA_ITEM(stream,		NpRigidStatic, ev4sio_Sc::StaticCore,	mCore,		0)
 
 	//------ Extra-data ------
 
@@ -685,12 +685,12 @@ static void getBinaryMetaData_AABBPrunerMergeData(PxOutputStream& stream)
 {
 	PX_DEF_BIN_METADATA_CLASS(stream,	AABBPrunerMergeData)
 	PX_DEF_BIN_METADATA_ITEM(stream,	AABBPrunerMergeData,	PxU32,			mNbNodes,			0)
-	PX_DEF_BIN_METADATA_ITEM(stream,	AABBPrunerMergeData,	Gu::BVHNode,	mAABBTreeNodes,		PxMetaDataFlag::ePTR)
+	PX_DEF_BIN_METADATA_ITEM(stream,	AABBPrunerMergeData,	ev4sio_Gu::BVHNode,	mAABBTreeNodes,		PxMetaDataFlag::ePTR)
 	PX_DEF_BIN_METADATA_ITEM(stream,	AABBPrunerMergeData,	PxU32,			mNbObjects,			0)
 	PX_DEF_BIN_METADATA_ITEM(stream,	AABBPrunerMergeData,	PxU32,			mAABBTreeIndices,	PxMetaDataFlag::ePTR)
 }
 
-void Sq::PruningStructure::getBinaryMetaData(PxOutputStream& stream)
+void ev4sio_Sq::PruningStructure::getBinaryMetaData(PxOutputStream& stream)
 {	
 	getBinaryMetaData_AABBPrunerMergeData(stream);
 
@@ -706,7 +706,7 @@ void Sq::PruningStructure::getBinaryMetaData(PxOutputStream& stream)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-namespace physx
+namespace ev4sio_physx
 {
 void getBinaryMetaData_PxBase(PxOutputStream& stream)
 {
@@ -743,7 +743,7 @@ static void getFoundationMetaData(PxOutputStream& stream)
 	getBinaryMetaData_PxMat33(stream);
 	getBinaryMetaData_SpatialVectorF(stream);
 	getBinaryMetaData_BitMap(stream);
-	Cm::PtrTable::getBinaryMetaData(stream);
+	ev4sio_Cm::PtrTable::getBinaryMetaData(stream);
 	getBinaryMetaData_PxPlane(stream);
 	getBinaryMetaData_PxConstraintInvMassScale(stream);
 
@@ -753,7 +753,7 @@ static void getFoundationMetaData(PxOutputStream& stream)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-namespace physx
+namespace ev4sio_physx
 {
 template<> void PxsMaterialCore::getBinaryMetaData(PxOutputStream& stream);
 template<> void PxsFEMSoftBodyMaterialCore::getBinaryMetaData(PxOutputStream& stream);
@@ -763,16 +763,16 @@ template<> void PxsFLIPMaterialCore::getBinaryMetaData(PxOutputStream& stream);
 template<> void PxsMPMMaterialCore::getBinaryMetaData(PxOutputStream& stream);
 }
 
-void PxGetPhysicsBinaryMetaData(PxOutputStream& stream)
+void ev4sio_PxGetPhysicsBinaryMetaData(PxOutputStream& stream)
 {
 	getFoundationMetaData(stream);
 	getBinaryMetaData_PxMeshScale(stream);
 
-	Gu::ConvexMesh::getBinaryMetaData(stream);
-	Gu::TriangleMesh::getBinaryMetaData(stream);
-	Gu::RTreeTriangleMesh::getBinaryMetaData(stream);
-	Gu::BV4TriangleMesh::getBinaryMetaData(stream);
-	Gu::HeightField::getBinaryMetaData(stream);
+	ev4sio_Gu::ConvexMesh::getBinaryMetaData(stream);
+	ev4sio_Gu::TriangleMesh::getBinaryMetaData(stream);
+	ev4sio_Gu::RTreeTriangleMesh::getBinaryMetaData(stream);
+	ev4sio_Gu::BV4TriangleMesh::getBinaryMetaData(stream);
+	ev4sio_Gu::HeightField::getBinaryMetaData(stream);
 
 	PxsMaterialCore::getBinaryMetaData(stream);
 	PxsFEMSoftBodyMaterialCore::getBinaryMetaData(stream);
@@ -783,20 +783,20 @@ void PxGetPhysicsBinaryMetaData(PxOutputStream& stream)
 
 	MaterialIndicesStruct::getBinaryMetaData(stream);
 	GeometryUnion::getBinaryMetaData(stream);
-	Sc::ActorCore::getBinaryMetaData(stream);
-	Sc::RigidCore::getBinaryMetaData(stream);
-	Sc::StaticCore::getBinaryMetaData(stream);
-	Sc::BodyCore::getBinaryMetaData(stream);
-	Sc::ShapeCore::getBinaryMetaData(stream);
-	Sc::ConstraintCore::getBinaryMetaData(stream);
-	Sc::ArticulationCore::getBinaryMetaData(stream);
-	Sc::ArticulationJointCore::getBinaryMetaData(stream);
-	Sc::ArticulationSensorCore::getBinaryMetaData(stream);
-	Sc::ArticulationTendonCore::getBinaryMetaData(stream);
-	Sc::ArticulationSpatialTendonCore::getBinaryMetaData(stream);
-	Sc::ArticulationAttachmentCore::getBinaryMetaData(stream);
-	Sc::ArticulationFixedTendonCore::getBinaryMetaData(stream);
-	Sc::ArticulationTendonJointCore::getBinaryMetaData(stream);
+	ev4sio_Sc::ActorCore::getBinaryMetaData(stream);
+	ev4sio_Sc::RigidCore::getBinaryMetaData(stream);
+	ev4sio_Sc::StaticCore::getBinaryMetaData(stream);
+	ev4sio_Sc::BodyCore::getBinaryMetaData(stream);
+	ev4sio_Sc::ShapeCore::getBinaryMetaData(stream);
+	ev4sio_Sc::ConstraintCore::getBinaryMetaData(stream);
+	ev4sio_Sc::ArticulationCore::getBinaryMetaData(stream);
+	ev4sio_Sc::ArticulationJointCore::getBinaryMetaData(stream);
+	ev4sio_Sc::ArticulationSensorCore::getBinaryMetaData(stream);
+	ev4sio_Sc::ArticulationTendonCore::getBinaryMetaData(stream);
+	ev4sio_Sc::ArticulationSpatialTendonCore::getBinaryMetaData(stream);
+	ev4sio_Sc::ArticulationAttachmentCore::getBinaryMetaData(stream);
+	ev4sio_Sc::ArticulationFixedTendonCore::getBinaryMetaData(stream);
+	ev4sio_Sc::ArticulationTendonJointCore::getBinaryMetaData(stream);
 
 	NpConnector::getBinaryMetaData(stream);
 	NpConnectorArray::getBinaryMetaData(stream);

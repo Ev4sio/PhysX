@@ -30,7 +30,7 @@
 
 #if PX_SUPPORT_OMNI_PVD
 
-namespace physx
+namespace ev4sio_physx
 {
 
 void OmniPvdPxCoreRegistrationData::registerData(OmniPvdWriter& writer)

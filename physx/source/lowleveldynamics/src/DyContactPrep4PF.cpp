@@ -36,12 +36,12 @@
 #include "PxsMaterialManager.h"
 #include "DyContactPrepShared.h"
 
-using namespace physx::Gu;
-using namespace physx::aos;
+using namespace ev4sio_physx::ev4sio_Gu;
+using namespace ev4sio_physx::aos;
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Dy
+namespace ev4sio_Dy
 {
 
 SolverConstraintPrepState::Enum createFinalizeSolverContacts4Coulomb(

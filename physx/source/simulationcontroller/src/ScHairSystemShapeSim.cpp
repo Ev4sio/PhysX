@@ -33,11 +33,11 @@
 #include "ScHairSystemSim.h"
 #include "PxsContext.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Sc::HairSystemShapeSim::HairSystemShapeSim(HairSystemSim& hairSystemSim, const HairSystemShapeCore* core) :
+ev4sio_Sc::HairSystemShapeSim::HairSystemShapeSim(HairSystemSim& hairSystemSim, const HairSystemShapeCore* core) :
 	ShapeSimBase(hairSystemSim, core)
 {
 	createLowLevelVolume();
@@ -45,7 +45,7 @@ Sc::HairSystemShapeSim::HairSystemShapeSim(HairSystemSim& hairSystemSim, const H
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Sc::HairSystemShapeSim::~HairSystemShapeSim()
+ev4sio_Sc::HairSystemShapeSim::~HairSystemShapeSim()
 {
 	if (isInBroadPhase())
 		destroyLowLevelVolume();
@@ -55,7 +55,7 @@ Sc::HairSystemShapeSim::~HairSystemShapeSim()
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Sc::HairSystemShapeSim::getFilterInfo(PxFilterObjectAttributes& filterAttr, PxFilterData& filterData) const
+void ev4sio_Sc::HairSystemShapeSim::getFilterInfo(PxFilterObjectAttributes& filterAttr, PxFilterData& filterData) const
 {
 	filterAttr = 0;
 	setFilterObjectAttributeType(filterAttr, PxFilterObjectType::eHAIRSYSTEM);
@@ -64,7 +64,7 @@ void Sc::HairSystemShapeSim::getFilterInfo(PxFilterObjectAttributes& filterAttr,
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Sc::HairSystemShapeSim::updateBounds()
+void ev4sio_Sc::HairSystemShapeSim::updateBounds()
 {
 	Scene& scene = getScene();
 
@@ -77,7 +77,7 @@ void Sc::HairSystemShapeSim::updateBounds()
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Sc::HairSystemShapeSim::updateBoundsInAABBMgr()
+void ev4sio_Sc::HairSystemShapeSim::updateBoundsInAABBMgr()
 {
 	//we are updating the bound in GPU so we just need to set the actor handle in CPU to make sure
 	//the GPU BP will process the vertices
@@ -88,7 +88,7 @@ void Sc::HairSystemShapeSim::updateBoundsInAABBMgr()
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-PxBounds3 Sc::HairSystemShapeSim::getBounds() const
+PxBounds3 ev4sio_Sc::HairSystemShapeSim::getBounds() const
 {
 	PxBounds3 bounds = getScene().getBoundsArray().getBounds(getElementID());
 	return bounds;
@@ -96,7 +96,7 @@ PxBounds3 Sc::HairSystemShapeSim::getBounds() const
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Sc::HairSystemShapeSim::createLowLevelVolume()
+void ev4sio_Sc::HairSystemShapeSim::createLowLevelVolume()
 {
 	// PX_ASSERT(getWorldBounds().isFinite());
 
@@ -105,9 +105,9 @@ void Sc::HairSystemShapeSim::createLowLevelVolume()
 	getScene().getBoundsArray().setBounds(PxBounds3(PxVec3(0.f), PxVec3(0.f)), index);
 
 	{
-		const PxU32 group = Bp::FilterGroup::eDYNAMICS_BASE + getActor().getActorID();
-		const PxU32 type = Bp::FilterType::HAIRSYSTEM;
-		addToAABBMgr(getCore().getContactOffset(), Bp::FilterGroup::Enum((group << BP_FILTERING_TYPE_SHIFT_BIT) | type), Bp::ElementType::eSHAPE);
+		const PxU32 group = ev4sio_Bp::FilterGroup::eDYNAMICS_BASE + getActor().getActorID();
+		const PxU32 type = ev4sio_Bp::FilterType::HAIRSYSTEM;
+		addToAABBMgr(getCore().getContactOffset(), ev4sio_Bp::FilterGroup::Enum((group << BP_FILTERING_TYPE_SHIFT_BIT) | type), ev4sio_Bp::ElementType::eSHAPE);
 	}
 
 	// PT: TODO: what's the difference between "getContactOffset()" and "getCore().getContactOffset()" above?
@@ -123,12 +123,12 @@ void Sc::HairSystemShapeSim::createLowLevelVolume()
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Sc::HairSystemShapeSim::destroyLowLevelVolume()
+void ev4sio_Sc::HairSystemShapeSim::destroyLowLevelVolume()
 {
 	if (!isInBroadPhase())
 		return;
 
-	Sc::Scene& scene = getScene();
+	ev4sio_Sc::Scene& scene = getScene();
 	PxsContactManagerOutputIterator outputs = scene.getLowLevelContext()->getNphaseImplementationContext()->getContactManagerOutputs();
 	scene.getNPhaseCore()->onVolumeRemoved(this, 0, outputs);
 	removeFromAABBMgr();
@@ -136,7 +136,7 @@ void Sc::HairSystemShapeSim::destroyLowLevelVolume()
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Sc::HairSystemSim& Sc::HairSystemShapeSim::getBodySim()	const
+ev4sio_Sc::HairSystemSim& ev4sio_Sc::HairSystemShapeSim::getBodySim()	const
 {
 	return static_cast<HairSystemSim&>(getActor());
 }

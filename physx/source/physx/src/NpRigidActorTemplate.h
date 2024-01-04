@@ -40,7 +40,7 @@
 //~PX_SERIALIZATION
 #include "omnipvd/NpOmniPvdSetData.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 template<class APIClass>
 class NpRigidActorTemplate : public NpActorTemplate<APIClass>
@@ -103,7 +103,7 @@ public:
 	PX_FORCE_INLINE PxU32					getRigidActorSceneIndex()			const	{ return NpBase::getBaseIndex();	}
 	PX_FORCE_INLINE void					setRigidActorSceneIndex(PxU32 index)		{ NpBase::setBaseIndex(index);		}
 
-					bool					resetFiltering_(NpActor& ro, Sc::RigidCore& core, PxShape*const* shapes, PxU32 shapeCount);
+					bool					resetFiltering_(NpActor& ro, ev4sio_Sc::RigidCore& core, PxShape*const* shapes, PxU32 shapeCount);
 
 #if PX_ENABLE_DEBUG_VISUALIZATION
 public:
@@ -141,7 +141,7 @@ void NpRigidActorTemplate<APIClass>::preExportDataReset()
 	//Clearing the aggregate ID for serialization so we avoid having a stale 
 	//reference after deserialization. The aggregate ID get's reset on readding to the 
 	//scene anyway.
-	Sc::ActorCore& actorCore = NpActor::getActorCore();
+	ev4sio_Sc::ActorCore& actorCore = NpActor::getActorCore();
 	actorCore.setAggregateID(PX_INVALID_U32);
 	mShapeManager.preExportDataReset();
 	//mIndex = 0xFFFFFFFF;
@@ -207,7 +207,7 @@ void NpRigidActorTemplate<APIClass>::removeShapes(PxSceneQuerySystem* sqManager)
 {
 	if(mShapeManager.getPruningStructure())
 	{
-		PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxRigidActor::release: Actor is part of a pruning structure, pruning structure is now invalid!");
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxRigidActor::release: Actor is part of a pruning structure, pruning structure is now invalid!");
 		mShapeManager.getPruningStructure()->invalidate(this);
 	}
 
@@ -230,7 +230,7 @@ bool NpRigidActorTemplate<APIClass>::attachShape(PxShape& shape)
 	// invalidate the pruning structure if the actor bounds changed
 	if (mShapeManager.getPruningStructure())
 	{
-		PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxRigidActor::attachShape: Actor is part of a pruning structure, pruning structure is now invalid!");
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxRigidActor::attachShape: Actor is part of a pruning structure, pruning structure is now invalid!");
 		mShapeManager.getPruningStructure()->invalidate(this);
 	}
 
@@ -253,13 +253,13 @@ void NpRigidActorTemplate<APIClass>::detachShape(PxShape& shape, bool wakeOnLost
 
 	if (mShapeManager.getPruningStructure())
 	{
-		PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxRigidActor::detachShape: Actor is part of a pruning structure, pruning structure is now invalid!");
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxRigidActor::detachShape: Actor is part of a pruning structure, pruning structure is now invalid!");
 		mShapeManager.getPruningStructure()->invalidate(this);
 	}
 
 	if(!mShapeManager.detachShape(static_cast<NpShape&>(shape), *this, wakeOnLostTouch))
 	{
-		PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxRigidActor::detachShape: shape is not attached to this actor!");
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxRigidActor::detachShape: shape is not attached to this actor!");
 	}
 }
 
@@ -376,7 +376,7 @@ void NpRigidActorTemplate<APIClass>::updateShaderComs()
 }
 
 template<class APIClass>
-bool NpRigidActorTemplate<APIClass>::resetFiltering_(NpActor& ro, Sc::RigidCore& core, PxShape*const* shapes, PxU32 shapeCount)
+bool NpRigidActorTemplate<APIClass>::resetFiltering_(NpActor& ro, ev4sio_Sc::RigidCore& core, PxShape*const* shapes, PxU32 shapeCount)
 {
 #if PX_CHECKED
 	PX_CHECK_AND_RETURN_VAL(!(ro.getActorFlags().isSet(PxActorFlag::eDISABLE_SIMULATION)), "PxScene::resetFiltering(): Not allowed if PxActorFlag::eDISABLE_SIMULATION is set!", false);
@@ -442,7 +442,7 @@ bool NpRigidActorTemplate<APIClass>::resetFiltering_(NpActor& ro, Sc::RigidCore&
 
 			// PT: TODO: rewrite this thing, we end up in getSimForShape() each time
 			for(PxU32 i=0; i < sCount; i++)
-				core.onShapeChange(scShapes[i]->getCore(), Sc::ShapeChangeNotifyFlag::eRESET_FILTERING);
+				core.onShapeChange(scShapes[i]->getCore(), ev4sio_Sc::ShapeChangeNotifyFlag::eRESET_FILTERING);
 		}
 	}
 

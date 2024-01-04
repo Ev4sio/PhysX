@@ -32,19 +32,19 @@
 #include "foundation/PxUserAllocated.h"
 #include "CmTask.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	class PxcScratchAllocator;
-namespace Bp
+namespace ev4sio_Bp
 {
 	class AABBManager;
 	class Aggregate;
 
-	class AggregateBoundsComputationTask : public Cm::Task, public PxUserAllocated
+	class AggregateBoundsComputationTask : public ev4sio_Cm::Task, public PxUserAllocated
 	{
 		public:
 										AggregateBoundsComputationTask(PxU64 contextId) :
-											Cm::Task	(contextId),
+											ev4sio_Cm::Task	(contextId),
 											mManager	(NULL),
 											mStart		(0),
 											mNbToGo		(0),
@@ -71,11 +71,11 @@ namespace Bp
 		AggregateBoundsComputationTask& operator=(const AggregateBoundsComputationTask&);
 	};
 
-	class PreBpUpdateTask : public Cm::Task, public PxUserAllocated
+	class PreBpUpdateTask : public ev4sio_Cm::Task, public PxUserAllocated
 	{
 	public:
 		PreBpUpdateTask(PxU64 contextId) :
-			Cm::Task(contextId),
+			ev4sio_Cm::Task(contextId),
 			mManager(NULL),
 			mNumCpuTasks(0)
 		{}
@@ -97,6 +97,6 @@ namespace Bp
 	};
 
 }
-} //namespace physx
+} //namespace ev4sio_physx
 
 #endif // BP_AABB_MANAGER_TASKS_H

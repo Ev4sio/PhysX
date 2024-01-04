@@ -31,11 +31,11 @@
 #include "geometry/PxConvexMesh.h"
 #include "extensions/PxConvexMeshExt.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 static const PxReal gEpsilon = .01f;
 
-PxU32 physx::PxFindFaceIndex(const PxConvexMeshGeometry& convexGeom, const PxTransform& pose, 
+PxU32 ev4sio_physx::PxFindFaceIndex(const PxConvexMeshGeometry& convexGeom, const PxTransform& pose, 
 	const PxVec3& impactPos, const PxVec3& unitDir)
 {
 	PX_ASSERT(unitDir.isFinite());

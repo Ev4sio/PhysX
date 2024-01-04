@@ -35,7 +35,7 @@
 
 #include "omnipvd/NpOmniPvdSetData.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 // PT: only API (virtual) functions should be implemented here. Other shared non-virtual functions should go to NpActor.
@@ -172,7 +172,7 @@ void NpActorTemplate<APIClass>::setOwnerClient( PxClientID inId )
 {
 	if ( getNpScene() != NULL )
 	{
-		PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, 
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, 
 				"Attempt to set the client id when an actor is already in a scene.");
 	}
 	else

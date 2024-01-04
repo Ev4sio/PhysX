@@ -37,9 +37,9 @@
 #include "GuGJK.h"
 #include "CmMatrix34.h"
 
-using namespace physx;
-using namespace Gu;
-using namespace Cm;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
+using namespace ev4sio_Cm;
 
 ///////////
 //	#include "PxRenderOutput.h"
@@ -122,7 +122,7 @@ static bool GuTestAxis(const PxVec3& axis, const Segment& segment, PxReal radius
 	PX_ASSERT(d0>=0.0f);
 	const PxReal d1 = Max1 - min0;
 	PX_ASSERT(d1>=0.0f);
-	depth = physx::intrinsics::selectMin(d0, d1);
+	depth = ev4sio_physx::intrinsics::selectMin(d0, d1);
 	return true;
 }
 
@@ -236,7 +236,7 @@ static bool raycast_convexMesh2(	const PolygonalData& polyData,
 
 		if (dn > 1E-7f)	//the ray direction "exits" from the back side
 		{
-			earliestExit = physx::intrinsics::selectMin(earliestExit, distAlongRay);
+			earliestExit = ev4sio_physx::intrinsics::selectMin(earliestExit, distAlongRay);
 		}
 		else if (dn < -1E-7f)	//the ray direction "enters" from the front side
 		{
@@ -244,7 +244,7 @@ static bool raycast_convexMesh2(	const PolygonalData& polyData,
 			{
 				latestEntry = distAlongRay;
 			}*/
-			latestEntry = physx::intrinsics::selectMax(latestEntry, distAlongRay);
+			latestEntry = ev4sio_physx::intrinsics::selectMax(latestEntry, distAlongRay);
 		}
 		else
 		{
@@ -262,7 +262,7 @@ static bool raycast_convexMesh2(	const PolygonalData& polyData,
 	return false;
 }
 
-// PT: version based on Gu::raycast_convexMesh to handle scaling, but modified to make sure it works when ray starts inside the convex
+// PT: version based on ev4sio_Gu::raycast_convexMesh to handle scaling, but modified to make sure it works when ray starts inside the convex
 static void GuGenerateVFContacts2(PxContactBuffer& contactBuffer,
 									//
 									const PxTransform& convexPose,
@@ -430,7 +430,7 @@ static void GuGenerateEEContacts2b(PxContactBuffer& contactBuffer,
 	}
 }
 
-bool Gu::contactCapsuleConvex(GU_CONTACT_METHOD_ARGS)
+bool ev4sio_Gu::contactCapsuleConvex(GU_CONTACT_METHOD_ARGS)
 {
 	PX_UNUSED(renderOutput);
 	PX_UNUSED(cache);

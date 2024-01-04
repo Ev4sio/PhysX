@@ -32,10 +32,10 @@
 #include "CmMatrix34.h"
 #include "foundation/PxUtilities.h"
 
-using namespace physx;
-using namespace Cm;
+using namespace ev4sio_physx;
+using namespace ev4sio_Cm;
 
-bool Gu::contactPlaneBox(GU_CONTACT_METHOD_ARGS)
+bool ev4sio_Gu::contactPlaneBox(GU_CONTACT_METHOD_ARGS)
 {
 	PX_UNUSED(renderOutput);
 	PX_UNUSED(cache);

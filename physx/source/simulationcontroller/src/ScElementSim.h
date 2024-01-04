@@ -37,9 +37,9 @@
 #include "ScObjectIDTracker.h"
 #include "ScScene.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Sc
+namespace ev4sio_Sc
 {
 	class ElementSimInteraction;
 
@@ -95,7 +95,7 @@ namespace Sc
 		PX_FORCE_INLINE PxU32					getElementID()				const	{ return mElementID;	}
 		PX_FORCE_INLINE bool					isInBroadPhase()			const	{ return mInBroadPhase;	}
 
-						void					addToAABBMgr(PxReal contactDistance, Bp::FilterGroup::Enum group, Bp::ElementType::Enum type);
+						void					addToAABBMgr(PxReal contactDistance, ev4sio_Bp::FilterGroup::Enum group, ev4sio_Bp::ElementType::Enum type);
 						bool					removeFromAABBMgr();
 
 		PX_FORCE_INLINE	void					initID()
@@ -112,7 +112,7 @@ namespace Sc
 	protected:
 						ActorSim&				mActor;
 
-						PxU32					mElementID : 31;	// PT: ID provided by Sc::Scene::mElementIDPool
+						PxU32					mElementID : 31;	// PT: ID provided by ev4sio_Sc::Scene::mElementIDPool
 						PxU32					mInBroadPhase : 1;
 	public:
 						PxU32					mShapeArrayIndex;
@@ -123,7 +123,7 @@ namespace Sc
 		PX_ASSERT((attr & (PxFilterObjectType::eMAX_TYPE_COUNT-1)) == 0);
 		attr |= type;
 	}
-} // namespace Sc
+} // namespace ev4sio_Sc
 }
 
 #endif

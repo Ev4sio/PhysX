@@ -33,7 +33,7 @@
 #include "PxcMaterialMethodImpl.h"
 #include "PxcNpCache.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 struct PxsRigidCore;
 struct PxsShapeCore;

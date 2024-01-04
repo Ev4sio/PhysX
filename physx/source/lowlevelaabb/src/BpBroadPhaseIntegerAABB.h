@@ -33,9 +33,9 @@
 #include "foundation/PxBounds3.h"
 #include "foundation/PxUnionCast.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Bp
+namespace ev4sio_Bp
 {
 
 	/*
@@ -211,7 +211,7 @@ public:
 	*/
 	PX_FORCE_INLINE void shift(const PxVec3& shift)
 	{
-		::physx::PxBounds3 elemBounds;
+		::ev4sio_physx::PxBounds3 elemBounds;
 		decode(elemBounds);
 		elemBounds.minimum -= shift;
 		elemBounds.maximum -= shift;
@@ -303,8 +303,8 @@ PX_FORCE_INLINE ValType encodeMax(const PxBounds3& bounds, PxU32 axis, PxReal co
 	return m;
 }
 
-} //namespace Bp
+} //namespace ev4sio_Bp
 
-} //namespace physx
+} //namespace ev4sio_physx
 
 #endif

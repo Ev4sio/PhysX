@@ -36,9 +36,9 @@
 #include "CmBlockArray.h"
 #include "PxNodeIndex.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Dy
+namespace ev4sio_Dy
 {
 	struct Constraint;
 	class FeatherstoneArticulation;
@@ -51,7 +51,7 @@ namespace Dy
 }
 
 // PT: TODO: fw declaring an Sc class here is not good
-namespace Sc
+namespace ev4sio_Sc
 {
 	class ArticulationSim;
 }
@@ -61,7 +61,7 @@ class PxsRigidBody;
 
 struct PartitionEdge;
 
-namespace IG
+namespace ev4sio_IG
 {
 //This index is 
 #define IG_INVALID_ISLAND 0xFFFFFFFFu
@@ -242,12 +242,12 @@ public:
 	union
 	{
 		PxsRigidBody*							mRigidBody;
-		Dy::FeatherstoneArticulation*			mLLArticulation;
+		ev4sio_Dy::FeatherstoneArticulation*			mLLArticulation;
 #if PX_SUPPORT_GPU_PHYSX
-		Dy::SoftBody*							mLLSoftBody;
-		Dy::FEMCloth*							mLLFEMCloth;
-		Dy::ParticleSystem*						mLLParticleSystem;
-		Dy::HairSystem*							mLLHairSystem;
+		ev4sio_Dy::SoftBody*							mLLSoftBody;
+		ev4sio_Dy::FEMCloth*							mLLFEMCloth;
+		ev4sio_Dy::ParticleSystem*						mLLParticleSystem;
+		ev4sio_Dy::HairSystem*							mLLHairSystem;
 #endif
 	};
 
@@ -271,12 +271,12 @@ public:
 
 	PX_FORCE_INLINE PxsRigidBody* getRigidBody() const { return mRigidBody; }
 
-	PX_FORCE_INLINE Dy::FeatherstoneArticulation* getArticulation() const { return mLLArticulation; }
+	PX_FORCE_INLINE ev4sio_Dy::FeatherstoneArticulation* getArticulation() const { return mLLArticulation; }
 
 #if PX_SUPPORT_GPU_PHYSX
-	PX_FORCE_INLINE Dy::SoftBody* getSoftBody() const { return mLLSoftBody; }
-	PX_FORCE_INLINE Dy::FEMCloth* getFEMCloth() const { return mLLFEMCloth; }
-	PX_FORCE_INLINE Dy::HairSystem* getHairSystem() const { return mLLHairSystem; }
+	PX_FORCE_INLINE ev4sio_Dy::SoftBody* getSoftBody() const { return mLLSoftBody; }
+	PX_FORCE_INLINE ev4sio_Dy::FEMCloth* getFEMCloth() const { return mLLFEMCloth; }
+	PX_FORCE_INLINE ev4sio_Dy::HairSystem* getHairSystem() const { return mLLHairSystem; }
 #endif
 
 	PX_FORCE_INLINE void setActive() { mFlags |= eACTIVE; }
@@ -391,8 +391,8 @@ class IslandSim
 
 	PxArray<Node>									mNodes;										//! The nodes used in the constraint graph
 	PxArray<PxU32>									mActiveNodeIndex;							//! The active node index for each node
-	Cm::BlockArray<Edge>							mEdges;
-	Cm::BlockArray<EdgeInstance>					mEdgeInstances;								//! Edges used to connect nodes in the constraint graph
+	ev4sio_Cm::BlockArray<Edge>							mEdges;
+	ev4sio_Cm::BlockArray<EdgeInstance>					mEdgeInstances;								//! Edges used to connect nodes in the constraint graph
 	PxArray<Island>									mIslands;									//! The array of islands
 	PxArray<PxU32>									mIslandStaticTouchCount;					//! Array of static touch counts per-island
 
@@ -434,7 +434,7 @@ class IslandSim
 
 	//Temporary, transient data used for traversals. TODO - move to PxsSimpleIslandManager. Or if we keep it here, we can 
 	//process multiple island simulations in parallel
-	Cm::PriorityQueue<QueueElement, NodeComparator>	mPriorityQueue;								//! Priority queue used for graph traversal
+	ev4sio_Cm::PriorityQueue<QueueElement, NodeComparator>	mPriorityQueue;								//! Priority queue used for graph traversal
 	PxArray<TraversalState>							mVisitedNodes;								//! The list of nodes visited in the current traversal
 	PxBitMap										mVisitedState;								//! Indicates whether a node has been visited
 	PxArray<EdgeIndex>								mIslandSplitEdges[Edge::eEDGE_TYPE_COUNT];
@@ -442,8 +442,8 @@ class IslandSim
 	PxArray<EdgeIndex>								mDeactivatingEdges[Edge::eEDGE_TYPE_COUNT];
 
 	PxArray<PartitionEdge*>*						mFirstPartitionEdges;
-	Cm::BlockArray<PxNodeIndex>&					mEdgeNodeIndices;
-	PxArray<physx::PartitionEdge*>*					mDestroyedPartitionEdges;
+	ev4sio_Cm::BlockArray<PxNodeIndex>&					mEdgeNodeIndices;
+	PxArray<ev4sio_physx::PartitionEdge*>*					mDestroyedPartitionEdges;
 
 	PxU32*											mNpIndexPtr;
 	
@@ -451,28 +451,28 @@ class IslandSim
 
 public:
 
-	IslandSim(PxArray<PartitionEdge*>* firstPartitionEdges, Cm::BlockArray<PxNodeIndex>& edgeNodeIndices, PxArray<PartitionEdge*>* destroyedPartitionEdges, PxU64 contextID);
+	IslandSim(PxArray<PartitionEdge*>* firstPartitionEdges, ev4sio_Cm::BlockArray<PxNodeIndex>& edgeNodeIndices, PxArray<PartitionEdge*>* destroyedPartitionEdges, PxU64 contextID);
 	~IslandSim() {}
 
 	//void resize(const PxU32 nbNodes, const PxU32 nbContactManagers, const PxU32 nbConstraints);
 
 	void addRigidBody(PxsRigidBody* body, bool isKinematic, bool isActive, PxNodeIndex nodeIndex);
 
-	void addArticulation(Dy::FeatherstoneArticulation* llArtic, bool isActive, PxNodeIndex nodeIndex);
+	void addArticulation(ev4sio_Dy::FeatherstoneArticulation* llArtic, bool isActive, PxNodeIndex nodeIndex);
 
 #if PX_SUPPORT_GPU_PHYSX
-	void addSoftBody(Dy::SoftBody* llArtic, bool isActive, PxNodeIndex nodeIndex);
+	void addSoftBody(ev4sio_Dy::SoftBody* llArtic, bool isActive, PxNodeIndex nodeIndex);
 
-	void addFEMCloth(Dy::FEMCloth* llArtic, bool isActive, PxNodeIndex nodeIndex);
+	void addFEMCloth(ev4sio_Dy::FEMCloth* llArtic, bool isActive, PxNodeIndex nodeIndex);
 
-	void addParticleSystem(Dy::ParticleSystem* llArtic, bool isActive, PxNodeIndex nodeIndex);
+	void addParticleSystem(ev4sio_Dy::ParticleSystem* llArtic, bool isActive, PxNodeIndex nodeIndex);
 
-	void addHairSystem(Dy::HairSystem* llHairSystem, bool isActive, PxNodeIndex nodeIndex);
+	void addHairSystem(ev4sio_Dy::HairSystem* llHairSystem, bool isActive, PxNodeIndex nodeIndex);
 #endif
 
 	//void addContactManager(PxsContactManager* manager, PxNodeIndex nodeHandle1, PxNodeIndex nodeHandle2, EdgeIndex handle);
 
-	void addConstraint(Dy::Constraint* constraint, PxNodeIndex nodeHandle1, PxNodeIndex nodeHandle2, EdgeIndex handle);
+	void addConstraint(ev4sio_Dy::Constraint* constraint, PxNodeIndex nodeHandle1, PxNodeIndex nodeHandle2, EdgeIndex handle);
 
 	void activateNode(PxNodeIndex index);
 	void deactivateNode(PxNodeIndex index);
@@ -504,8 +504,8 @@ public:
 
 	PX_FORCE_INLINE PxU32 getNbActiveEdges(Edge::EdgeType type) const { return mActiveEdgeCount[type]; }
 
-	PX_FORCE_INLINE PartitionEdge* getFirstPartitionEdge(IG::EdgeIndex edgeIndex) const { return (*mFirstPartitionEdges)[edgeIndex]; }
-	PX_FORCE_INLINE void setFirstPartitionEdge(IG::EdgeIndex edgeIndex, PartitionEdge* partitionEdge)  { (*mFirstPartitionEdges)[edgeIndex] = partitionEdge; }
+	PX_FORCE_INLINE PartitionEdge* getFirstPartitionEdge(ev4sio_IG::EdgeIndex edgeIndex) const { return (*mFirstPartitionEdges)[edgeIndex]; }
+	PX_FORCE_INLINE void setFirstPartitionEdge(ev4sio_IG::EdgeIndex edgeIndex, PartitionEdge* partitionEdge)  { (*mFirstPartitionEdges)[edgeIndex] = partitionEdge; }
 
 	//PX_FORCE_INLINE const EdgeIndex* getActiveEdges(Edge::EdgeType type) const { return mActiveEdges[type].begin(); }
 
@@ -516,7 +516,7 @@ public:
 		return node.mRigidBody;
 	}
 
-	PX_FORCE_INLINE Dy::FeatherstoneArticulation* getLLArticulation(PxNodeIndex nodeIndex) const
+	PX_FORCE_INLINE ev4sio_Dy::FeatherstoneArticulation* getLLArticulation(PxNodeIndex nodeIndex) const
 	{
 		const Node& node = mNodes[nodeIndex.index()];
 		PX_ASSERT(node.mType == Node::eARTICULATION_TYPE);
@@ -524,24 +524,24 @@ public:
 	}
 
 	// PT: this one is questionable here
-	Sc::ArticulationSim* getArticulationSim(PxNodeIndex nodeIndex) const;
+	ev4sio_Sc::ArticulationSim* getArticulationSim(PxNodeIndex nodeIndex) const;
 
 #if PX_SUPPORT_GPU_PHYSX
-	PX_FORCE_INLINE Dy::SoftBody* getLLSoftBody(PxNodeIndex nodeIndex) const
+	PX_FORCE_INLINE ev4sio_Dy::SoftBody* getLLSoftBody(PxNodeIndex nodeIndex) const
 	{
 		const Node& node = mNodes[nodeIndex.index()];
 		PX_ASSERT(node.mType == Node::eSOFTBODY_TYPE);
 		return node.mLLSoftBody;
 	}
 
-	PX_FORCE_INLINE Dy::FEMCloth* getLLFEMCloth(PxNodeIndex nodeIndex) const
+	PX_FORCE_INLINE ev4sio_Dy::FEMCloth* getLLFEMCloth(PxNodeIndex nodeIndex) const
 	{
 		const Node& node = mNodes[nodeIndex.index()];
 		PX_ASSERT(node.mType == Node::eFEMCLOTH_TYPE);
 		return node.mLLFEMCloth;
 	}
 
-	PX_FORCE_INLINE Dy::HairSystem* getLLHairSystem(PxNodeIndex nodeIndex) const
+	PX_FORCE_INLINE ev4sio_Dy::HairSystem* getLLHairSystem(PxNodeIndex nodeIndex) const
 	{
 		const Node& node = mNodes[nodeIndex.index()];
 		PX_ASSERT(node.mType == Node::eHAIRSYSTEM_TYPE);
@@ -558,13 +558,13 @@ public:
 		}
 	}
 
-	PX_FORCE_INLINE const Island& getIsland(IG::IslandId islandIndex) const { return mIslands[islandIndex]; }
+	PX_FORCE_INLINE const Island& getIsland(ev4sio_IG::IslandId islandIndex) const { return mIslands[islandIndex]; }
 
 	PX_FORCE_INLINE PxU32 getNbActiveIslands() const { return mActiveIslands.size(); }
 	PX_FORCE_INLINE const IslandId* getActiveIslands() const { return mActiveIslands.begin(); }
 
-	PX_FORCE_INLINE PxU32 getNbDeactivatingEdges(const IG::Edge::EdgeType edgeType) const { return mDeactivatingEdges[edgeType].size(); }
-	PX_FORCE_INLINE const EdgeIndex* getDeactivatingEdges(const IG::Edge::EdgeType edgeType) const { return mDeactivatingEdges[edgeType].begin(); }
+	PX_FORCE_INLINE PxU32 getNbDeactivatingEdges(const ev4sio_IG::Edge::EdgeType edgeType) const { return mDeactivatingEdges[edgeType].size(); }
+	PX_FORCE_INLINE const EdgeIndex* getDeactivatingEdges(const ev4sio_IG::Edge::EdgeType edgeType) const { return mDeactivatingEdges[edgeType].begin(); }
 
 	PX_FORCE_INLINE PxU32 getNbDestroyedEdges() const { return mDestroyedEdges.size(); }
 	PX_FORCE_INLINE const EdgeIndex* getDestroyedEdges() const { return mDestroyedEdges.begin(); }
@@ -573,8 +573,8 @@ public:
 	PX_FORCE_INLINE const PartitionEdge*const * getDestroyedPartitionEdges() const { return mDestroyedPartitionEdges->begin(); }
 	PX_FORCE_INLINE PartitionEdge** getDestroyedPartitionEdges() { return mDestroyedPartitionEdges->begin(); }
 
-	PX_FORCE_INLINE PxU32 getNbDirtyEdges(IG::Edge::EdgeType type) const { return mDirtyEdges[type].size(); }
-	PX_FORCE_INLINE const EdgeIndex* getDirtyEdges(IG::Edge::EdgeType type) const { return mDirtyEdges[type].begin(); }
+	PX_FORCE_INLINE PxU32 getNbDirtyEdges(ev4sio_IG::Edge::EdgeType type) const { return mDirtyEdges[type].size(); }
+	PX_FORCE_INLINE const EdgeIndex* getDirtyEdges(ev4sio_IG::Edge::EdgeType type) const { return mDirtyEdges[type].begin(); }
 
 	PX_FORCE_INLINE const Edge& getEdge(const EdgeIndex edgeIndex) const { return mEdges[edgeIndex]; }
 
@@ -598,8 +598,8 @@ public:
 
 	void setDynamic(PxNodeIndex nodeIndex);
 
-	PX_FORCE_INLINE PxNodeIndex getNodeIndex1(IG::EdgeIndex index) const { return mEdgeNodeIndices[2 * index]; }
-	PX_FORCE_INLINE PxNodeIndex getNodeIndex2(IG::EdgeIndex index) const { return mEdgeNodeIndices[2 * index + 1]; }
+	PX_FORCE_INLINE PxNodeIndex getNodeIndex1(ev4sio_IG::EdgeIndex index) const { return mEdgeNodeIndices[2 * index]; }
+	PX_FORCE_INLINE PxNodeIndex getNodeIndex2(ev4sio_IG::EdgeIndex index) const { return mEdgeNodeIndices[2 * index + 1]; }
 
 	PX_FORCE_INLINE	PxU64	getContextId()			const { return mContextId;	}
 
@@ -613,13 +613,13 @@ public:
 
 	PX_INLINE void activateNode_ForGPUSolver(PxNodeIndex index)
 	{
-		IG::Node& node = mNodes[index.index()];
+		ev4sio_IG::Node& node = mNodes[index.index()];
 		node.clearIsReadyForSleeping(); //Clear the "isReadyForSleeping" flag. Just in case it was set
 		node.clearDeactivating();
 	}
 	PX_INLINE void deactivateNode_ForGPUSolver(PxNodeIndex index)
 	{
-		IG::Node& node = mNodes[index.index()];
+		ev4sio_IG::Node& node = mNodes[index.index()];
 		node.setIsReadyForSleeping();
 	}
 
@@ -821,7 +821,7 @@ private:
 
 		if (nodeIndex1.index() != PX_INVALID_NODE && nodeIndex2.index() != PX_INVALID_NODE)
 		{
-			PX_ASSERT((!mNodes[nodeIndex1.index()].isKinematic()) || (!mNodes[nodeIndex2.index()].isKinematic()) || edge.getEdgeType() == IG::Edge::eCONTACT_MANAGER);
+			PX_ASSERT((!mNodes[nodeIndex1.index()].isKinematic()) || (!mNodes[nodeIndex2.index()].isKinematic()) || edge.getEdgeType() == ev4sio_IG::Edge::eCONTACT_MANAGER);
 			{
 				Node& node = mNodes[nodeIndex1.index()];
 
@@ -956,7 +956,7 @@ struct PartitionNodeData
 
 struct PartitionEdge
 {
-	IG::EdgeIndex mEdgeIndex;	//! The edge index into the island manager. Used to identify the contact manager/constraint
+	ev4sio_IG::EdgeIndex mEdgeIndex;	//! The edge index into the island manager. Used to identify the contact manager/constraint
 	PxNodeIndex mNode0;			//! The node index for node 0. Can be obtained from the edge index alternatively
 	PxNodeIndex mNode1;			//! The node idnex for node 1. Can be obtained from the edge index alternatively
 	bool mInfiniteMass0;		//! Whether body 0 is kinematic

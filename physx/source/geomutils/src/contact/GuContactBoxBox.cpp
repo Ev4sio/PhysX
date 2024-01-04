@@ -32,9 +32,9 @@
 #include "CmMatrix34.h"
 #include "foundation/PxUtilities.h"
 
-using namespace physx;
-using namespace Gu;
-using namespace Cm;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
+using namespace ev4sio_Cm;
 
 #define MAX_NB_CTCS	8 + 12*5 + 6*4
 #define ABS_GREATER(x, y)			(PxAbs(x) > (y))
@@ -83,7 +83,7 @@ static PxI32 doBoxBoxContactGeneration(PxContactBuffer& contactBuffer,
 									 PxU32& collisionData,
 									 const PxMat34& transform0, const PxMat34& transform1, PxReal contactDistance);
 
-bool Gu::contactBoxBox(GU_CONTACT_METHOD_ARGS)
+bool ev4sio_Gu::contactBoxBox(GU_CONTACT_METHOD_ARGS)
 {
 	PX_UNUSED(renderOutput);
 

@@ -29,9 +29,9 @@
 #include "geomutils/PxContactBuffer.h"
 #include "GuContactMethodImpl.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
-bool Gu::contactSpherePlane(GU_CONTACT_METHOD_ARGS)
+bool ev4sio_Gu::contactSpherePlane(GU_CONTACT_METHOD_ARGS)
 {
 	PX_UNUSED(renderOutput);
 	PX_UNUSED(cache);

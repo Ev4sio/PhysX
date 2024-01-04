@@ -40,11 +40,11 @@
 #include "geometry/PxTetrahedronMesh.h"
 #include "geometry/PxTriangleMesh.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Sc::FEMClothShapeSim::FEMClothShapeSim(FEMClothSim& FEMCloth) :
+ev4sio_Sc::FEMClothShapeSim::FEMClothShapeSim(FEMClothSim& FEMCloth) :
 	ShapeSimBase(FEMCloth, NULL),
 	initialTransform(PxVec3(0, 0, 0)),
 	initialScale(1.0f)
@@ -53,7 +53,7 @@ Sc::FEMClothShapeSim::FEMClothShapeSim(FEMClothSim& FEMCloth) :
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Sc::FEMClothShapeSim::~FEMClothShapeSim()
+ev4sio_Sc::FEMClothShapeSim::~FEMClothShapeSim()
 {
 	if (isInBroadPhase())
 		destroyLowLevelVolume();
@@ -62,7 +62,7 @@ Sc::FEMClothShapeSim::~FEMClothShapeSim()
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void Sc::FEMClothShapeSim::attachShapeCore(const Sc::ShapeCore* shapeCore)
+void ev4sio_Sc::FEMClothShapeSim::attachShapeCore(const ev4sio_Sc::ShapeCore* shapeCore)
 {
 	setCore(shapeCore);
 	createLowLevelVolume();
@@ -70,7 +70,7 @@ void Sc::FEMClothShapeSim::attachShapeCore(const Sc::ShapeCore* shapeCore)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Sc::FEMClothShapeSim::getFilterInfo(PxFilterObjectAttributes& filterAttr, PxFilterData& filterData) const
+void ev4sio_Sc::FEMClothShapeSim::getFilterInfo(PxFilterObjectAttributes& filterAttr, PxFilterData& filterData) const
 {
 	filterAttr = 0;
 	setFilterObjectAttributeType(filterAttr, PxFilterObjectType::eFEMCLOTH);
@@ -79,7 +79,7 @@ void Sc::FEMClothShapeSim::getFilterInfo(PxFilterObjectAttributes& filterAttr, P
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Sc::FEMClothShapeSim::updateBounds()
+void ev4sio_Sc::FEMClothShapeSim::updateBounds()
 {
 	Scene& scene = getScene();
 
@@ -89,14 +89,14 @@ void Sc::FEMClothShapeSim::updateBounds()
 	scene.getAABBManager()->getChangedAABBMgActorHandleMap().growAndSet(getElementID());
 }
 
-void Sc::FEMClothShapeSim::updateBoundsInAABBMgr()
+void ev4sio_Sc::FEMClothShapeSim::updateBoundsInAABBMgr()
 {
 	Scene& scene = getScene();
 	scene.getAABBManager()->getChangedAABBMgActorHandleMap().growAndSet(getElementID());
 	scene.getAABBManager()->setGPUStateChanged();
 }
 
-PxBounds3 Sc::FEMClothShapeSim::getBounds() const
+PxBounds3 ev4sio_Sc::FEMClothShapeSim::getBounds() const
 {
 	PxBounds3 bounds = getScene().getBoundsArray().getBounds(getElementID());
 	return bounds;
@@ -105,7 +105,7 @@ PxBounds3 Sc::FEMClothShapeSim::getBounds() const
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Sc::FEMClothShapeSim::createLowLevelVolume()
+void ev4sio_Sc::FEMClothShapeSim::createLowLevelVolume()
 {
 	PX_ASSERT(getWorldBounds().isFinite());
 
@@ -114,9 +114,9 @@ void Sc::FEMClothShapeSim::createLowLevelVolume()
 	getScene().getBoundsArray().setBounds(getWorldBounds(), index);
 
 	{
-		const PxU32 group = Bp::FilterGroup::eDYNAMICS_BASE + getActor().getActorID();
-		const PxU32 type = Bp::FilterType::FEMCLOTH;
-		addToAABBMgr(getCore().getContactOffset(), Bp::FilterGroup::Enum((group << BP_FILTERING_TYPE_SHIFT_BIT) | type), Bp::ElementType::eSHAPE);
+		const PxU32 group = ev4sio_Bp::FilterGroup::eDYNAMICS_BASE + getActor().getActorID();
+		const PxU32 type = ev4sio_Bp::FilterType::FEMCLOTH;
+		addToAABBMgr(getCore().getContactOffset(), ev4sio_Bp::FilterGroup::Enum((group << BP_FILTERING_TYPE_SHIFT_BIT) | type), ev4sio_Bp::ElementType::eSHAPE);
 	}
 
 	// PT: TODO: what's the difference between "getContactOffset()" and "getCore().getContactOffset()" above?
@@ -132,19 +132,19 @@ void Sc::FEMClothShapeSim::createLowLevelVolume()
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Sc::FEMClothShapeSim::destroyLowLevelVolume()
+void ev4sio_Sc::FEMClothShapeSim::destroyLowLevelVolume()
 {
 	if (!isInBroadPhase())
 		return;
 
-	Sc::Scene& scene = getScene();
+	ev4sio_Sc::Scene& scene = getScene();
 	PxsContactManagerOutputIterator outputs = scene.getLowLevelContext()->getNphaseImplementationContext()->getContactManagerOutputs();
 	scene.getNPhaseCore()->onVolumeRemoved(this, 0, outputs);
 	removeFromAABBMgr();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-PxBounds3 Sc::FEMClothShapeSim::getWorldBounds() const
+PxBounds3 ev4sio_Sc::FEMClothShapeSim::getWorldBounds() const
 {
 	const PxTriangleMeshGeometry& triGeom = static_cast<const PxTriangleMeshGeometry&>(getCore().getGeometry());
 	PxTriangleMesh* triMesh = triGeom.triangleMesh;
@@ -159,7 +159,7 @@ PxBounds3 Sc::FEMClothShapeSim::getWorldBounds() const
 	return bounds;
 }
 
-Sc::FEMClothSim& Sc::FEMClothShapeSim::getBodySim()	const
+ev4sio_Sc::FEMClothSim& ev4sio_Sc::FEMClothShapeSim::getBodySim()	const
 {
 	return static_cast<FEMClothSim&>(getActor());
 }

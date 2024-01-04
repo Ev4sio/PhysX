@@ -32,7 +32,7 @@
 #include "extensions/PxRepXSimpleType.h"
 #include "SnRepXSerializerImpl.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	class PxRepXSerializer;
 	class PxSerializationRegistry;

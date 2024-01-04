@@ -27,11 +27,11 @@
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
 
 #include "GuBV4.h"
-using namespace physx;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
 
 #include "foundation/PxVecMath.h"
-using namespace physx::aos;
+using namespace ev4sio_physx::aos;
 #include "GuBV4_BoxSweep_Internal.h"
 
 PxIntBool Sweep_AABB_BV4(const Box& localBox, const PxVec3& localDir, float maxDist, const BV4Tree& tree, SweepHit* PX_RESTRICT hit, PxU32 flags);

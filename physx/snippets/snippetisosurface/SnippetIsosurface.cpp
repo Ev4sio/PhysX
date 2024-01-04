@@ -47,7 +47,7 @@
 #include "gpu/PxPhysicsGpu.h"
 #include "PxArrayConverter.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 static PxDefaultAllocator		gAllocator;
 static PxDefaultErrorCallback	gErrorCallback;
@@ -102,7 +102,7 @@ public:
 		p.isosurfaceValue =threshold;
 		p.clearFilteringPasses();*/	
 		
-		PxPhysicsGpu* pxGpu = PxGetPhysicsGpu();
+		PxPhysicsGpu* pxGpu = ev4sio_PxGetPhysicsGpu();
 
 		mSmoothedPositionGenerator = pxGpu->createSmoothedPositionGenerator(cudaContextManager, maxNumParticles, 0.5f);
 		PX_DEVICE_ALLOC(cudaContextManager, mSmoothedPositionsDeviceBuffer, maxNumParticles);
@@ -191,11 +191,11 @@ static IsosurfaceCallback gIsosuraceCallback;
 static void initScene()
 {
 	PxCudaContextManager* cudaContextManager = NULL;
-	if (PxGetSuggestedCudaDeviceOrdinal(gFoundation->getErrorCallback()) >= 0)
+	if (ev4sio_PxGetSuggestedCudaDeviceOrdinal(gFoundation->getErrorCallback()) >= 0)
 	{
 		// initialize CUDA
 		PxCudaContextManagerDesc cudaContextManagerDesc;
-		cudaContextManager = PxCreateCudaContextManager(*gFoundation, cudaContextManagerDesc, PxGetProfilerCallback());
+		cudaContextManager = ev4sio_PxCreateCudaContextManager(*gFoundation, cudaContextManagerDesc, ev4sio_PxGetProfilerCallback());
 		if (cudaContextManager && !cudaContextManager->contextIsValid())
 		{
 			cudaContextManager->release();
@@ -204,7 +204,7 @@ static void initScene()
 	}
 	if (cudaContextManager == NULL)
 	{
-		PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "Failed to initialize CUDA!\n");
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "Failed to initialize CUDA!\n");
 	}
 
 	PxSceneDesc sceneDesc(gPhysics->getTolerancesScale());
@@ -312,7 +312,7 @@ static PxReal initParticles(const PxU32 numX, const PxU32 numY, const PxU32 numZ
 	bufferDesc.velocities = velocity;
 	bufferDesc.phases = phase;
 
-	gParticleBuffer = physx::ExtGpu::PxCreateAndPopulateParticleBuffer(bufferDesc, cudaContextManager);
+	gParticleBuffer = ev4sio_physx::ExtGpu::PxCreateAndPopulateParticleBuffer(bufferDesc, cudaContextManager);
 	gParticleSystem->addParticleBuffer(gParticleBuffer);
 	
 	cudaContextManager->freePinnedHostBuffer(positionInvMass);
@@ -345,13 +345,13 @@ void addKinematicBox(PxVec3 boxSize, PxVec3 boxCenter)
 // -----------------------------------------------------------------------------------------------------------------
 void initPhysics(bool /*interactive*/)
 {
-	gFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, gAllocator, gErrorCallback);
+	gFoundation = ev4sio_PxCreateFoundation(ev4sio_PX_PHYSICS_VERSION, gAllocator, gErrorCallback);
 
-	gPvd = PxCreatePvd(*gFoundation);
-	PxPvdTransport* transport = PxDefaultPvdSocketTransportCreate(PVD_HOST, 5425, 10);
+	gPvd = ev4sio_PxCreatePvd(*gFoundation);
+	PxPvdTransport* transport = ev4sio_PxDefaultPvdSocketTransportCreate(PVD_HOST, 5425, 10);
 	gPvd->connect(*transport, PxPvdInstrumentationFlag::eALL);
 
-	gPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *gFoundation, PxTolerancesScale(), true, gPvd);
+	gPhysics = ev4sio_PxCreatePhysics(ev4sio_PX_PHYSICS_VERSION, *gFoundation, PxTolerancesScale(), true, gPvd);
 
 	initScene();
 

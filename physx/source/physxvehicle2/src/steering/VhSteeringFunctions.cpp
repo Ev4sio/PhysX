@@ -34,7 +34,7 @@
 
 #include "vehicle2/steering/PxVehicleSteeringParams.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 namespace vehicle2
 {
@@ -93,4 +93,4 @@ void PxVehicleAckermannSteerUpdate
 }
 
 } //namespace vehicle2
-} //namespace physx
+} //namespace ev4sio_physx

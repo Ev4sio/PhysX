@@ -35,7 +35,7 @@
 #include "foundation/PxSocket.h"
 #include "foundation/PxMutex.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 namespace pvdsdk
 {

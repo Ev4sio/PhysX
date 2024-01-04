@@ -39,7 +39,7 @@
 #pragma warning(disable : 4706) // assignment within conditional expression
 #endif
 
-namespace physx
+namespace ev4sio_physx
 {
 namespace
 {
@@ -121,4 +121,4 @@ void PxTempAllocator::deallocate(void* ptr)
 	getFreeTable()[index] = chunk;
 }
 
-} // namespace physx
+} // namespace ev4sio_physx

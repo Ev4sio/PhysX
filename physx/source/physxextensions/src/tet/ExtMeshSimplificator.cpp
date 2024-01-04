@@ -28,9 +28,9 @@
 #include "foundation/PxSort.h"
 
 
-namespace physx
+namespace ev4sio_physx
 {
-	namespace Ext
+	namespace ev4sio_Ext
 	{
 
 		// -------------------------------------------------------------------------------------
@@ -520,7 +520,7 @@ namespace physx
 				scaledOriginalVertices.resize(inputMesh.points.count);
 				for (PxU32 i = 0; i < inputMesh.points.count; i++)
 					scaledOriginalVertices[i] = vertices[i].p;
-				projector = Gu::PxCreatePointOntoTriangleMeshProjector(scaledOriginalVertices.begin(), originalTriIds.begin(), inputMesh.triangles.count);
+				projector = ev4sio_Gu::PxCreatePointOntoTriangleMeshProjector(scaledOriginalVertices.begin(), originalTriIds.begin(), inputMesh.triangles.count);
 			}
 			else
 				projector = NULL;
@@ -553,7 +553,7 @@ namespace physx
 				scaledOriginalVertices.resize(inputVertices.size());
 				for (PxU32 i = 0; i < inputVertices.size(); i++)
 					scaledOriginalVertices[i] = vertices[i].p;
-				projector = Gu::PxCreatePointOntoTriangleMeshProjector(scaledOriginalVertices.begin(), inputTriIds.begin(), inputTriIds.size() / 3);
+				projector = ev4sio_Gu::PxCreatePointOntoTriangleMeshProjector(scaledOriginalVertices.begin(), inputTriIds.begin(), inputTriIds.size() / 3);
 			}
 			else
 				projector = NULL;

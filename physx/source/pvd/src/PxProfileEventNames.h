@@ -29,7 +29,7 @@
 
 #include "PxProfileEventId.h"
 
-namespace physx { namespace profile {
+namespace ev4sio_physx { namespace profile {
 
 	/**
 	\brief Mapping from event id to name.

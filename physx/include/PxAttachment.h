@@ -39,7 +39,7 @@
 */
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -62,7 +62,7 @@ struct PxParticleRigidAttachment : public PxParticleRigidFilterPair
 };
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 /** @} */

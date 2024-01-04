@@ -32,7 +32,7 @@
 #include "foundation/PxUserAllocated.h"
 #include <stdio.h>
 
-namespace physx
+namespace ev4sio_physx
 {
 namespace general_PxIOStream2
 {

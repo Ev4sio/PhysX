@@ -29,7 +29,7 @@
 
 #include "foundation/PxSimpleTypes.h"
 
-namespace physx { namespace Sn {
+namespace ev4sio_physx { namespace Sn {
 
 	struct PxMetaDataEntry;
 	class ConvX;

@@ -30,7 +30,7 @@
 #include <assert.h>
 #include "PxConstraint.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 //TAG:solverprepshader
 static PxU32 solverPrep(Px1DConstraint* constraints,

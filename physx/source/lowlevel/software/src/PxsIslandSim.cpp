@@ -34,10 +34,10 @@
 
 #define IG_SANITY_CHECKS 0
 
-using namespace physx;
-using namespace IG;
+using namespace ev4sio_physx;
+using namespace ev4sio_IG;
 
-IslandSim::IslandSim(PxArray<PartitionEdge*>* firstPartitionEdges, Cm::BlockArray<PxNodeIndex>& edgeNodeIndices, PxArray<PartitionEdge*>* destroyedPartitionEdges, PxU64 contextID) :
+IslandSim::IslandSim(PxArray<PartitionEdge*>* firstPartitionEdges, ev4sio_Cm::BlockArray<PxNodeIndex>& edgeNodeIndices, PxArray<PartitionEdge*>* destroyedPartitionEdges, PxU64 contextID) :
 	mNodes					("IslandSim::mNodes"),
 	mActiveNodeIndex		("IslandSim::mActiveNodeIndex"),
 	mIslands				("IslandSim::mIslands"),
@@ -156,7 +156,7 @@ void IslandSim::addRigidBody(PxsRigidBody* body, bool isKinematic, bool isActive
 	node.mRigidBody = body;
 }
 
-void IslandSim::addArticulation(Dy::FeatherstoneArticulation* llArtic, bool isActive, PxNodeIndex nodeIndex)
+void IslandSim::addArticulation(ev4sio_Dy::FeatherstoneArticulation* llArtic, bool isActive, PxNodeIndex nodeIndex)
 {
 	addNode(isActive, false, Node::eARTICULATION_TYPE, nodeIndex);
 	Node& node = mNodes[nodeIndex.index()];
@@ -164,28 +164,28 @@ void IslandSim::addArticulation(Dy::FeatherstoneArticulation* llArtic, bool isAc
 }
 
 #if PX_SUPPORT_GPU_PHYSX
-void IslandSim::addSoftBody(Dy::SoftBody* llSoftBody, bool isActive, PxNodeIndex nodeIndex)
+void IslandSim::addSoftBody(ev4sio_Dy::SoftBody* llSoftBody, bool isActive, PxNodeIndex nodeIndex)
 {
 	addNode(isActive, false, Node::eSOFTBODY_TYPE, nodeIndex);
 	Node& node = mNodes[nodeIndex.index()];
 	node.mLLSoftBody = llSoftBody;
 }
 
-void IslandSim::addFEMCloth(Dy::FEMCloth* llFEMCloth, bool isActive, PxNodeIndex nodeIndex)
+void IslandSim::addFEMCloth(ev4sio_Dy::FEMCloth* llFEMCloth, bool isActive, PxNodeIndex nodeIndex)
 {
 	addNode(isActive, false, Node::eFEMCLOTH_TYPE, nodeIndex);
 	Node& node = mNodes[nodeIndex.index()];
 	node.mLLFEMCloth = llFEMCloth;
 }
 
-void IslandSim::addParticleSystem(Dy::ParticleSystem* llParticleSystem, bool isActive, PxNodeIndex nodeIndex)
+void IslandSim::addParticleSystem(ev4sio_Dy::ParticleSystem* llParticleSystem, bool isActive, PxNodeIndex nodeIndex)
 {
 	addNode(isActive, false, Node::ePARTICLESYSTEM_TYPE, nodeIndex);
 	Node& node = mNodes[nodeIndex.index()];
 	node.mLLParticleSystem = llParticleSystem;
 }
 
-void IslandSim::addHairSystem(Dy::HairSystem* llHairSystem, bool isActive, PxNodeIndex nodeIndex)
+void IslandSim::addHairSystem(ev4sio_Dy::HairSystem* llHairSystem, bool isActive, PxNodeIndex nodeIndex)
 {
 	addNode(isActive, false, Node::eHAIRSYSTEM_TYPE, nodeIndex);
 	Node& node = mNodes[nodeIndex.index()];
@@ -193,10 +193,10 @@ void IslandSim::addHairSystem(Dy::HairSystem* llHairSystem, bool isActive, PxNod
 }
 #endif
 
-Sc::ArticulationSim* IslandSim::getArticulationSim(PxNodeIndex nodeIndex) const
+ev4sio_Sc::ArticulationSim* IslandSim::getArticulationSim(PxNodeIndex nodeIndex) const
 {
 	void* userData = getLLArticulation(nodeIndex)->getUserData();
-	return reinterpret_cast<Sc::ArticulationSim*>(userData);
+	return reinterpret_cast<ev4sio_Sc::ArticulationSim*>(userData);
 }
 
 void IslandSim::connectEdge(EdgeInstance& instance, EdgeInstanceIndex edgeIndex, Node& source, PxNodeIndex /*destination*/)
@@ -313,7 +313,7 @@ void IslandSim::addConnectionToGraph(EdgeIndex handle)
 		kinematicKinematicEdge = kinematicKinematicEdge && node.isKinematic();
 	}
 
-	if(activeEdge && (!kinematicKinematicEdge || edge.getEdgeType() == IG::Edge::eCONTACT_MANAGER))
+	if(activeEdge && (!kinematicKinematicEdge || edge.getEdgeType() == ev4sio_IG::Edge::eCONTACT_MANAGER))
 	{				
 		markEdgeActive(handle);
 		edge.activateEdge();
@@ -412,7 +412,7 @@ void IslandSim::removeConnectionInternal(EdgeIndex edgeIndex)
 	addConnection(nodeHandle1, nodeHandle2, Edge::eCONTACT_MANAGER, handle);
 }*/
 
-void IslandSim::addConstraint(Dy::Constraint* /*constraint*/, PxNodeIndex nodeHandle1, PxNodeIndex nodeHandle2, EdgeIndex handle)
+void IslandSim::addConstraint(ev4sio_Dy::Constraint* /*constraint*/, PxNodeIndex nodeHandle1, PxNodeIndex nodeHandle2, EdgeIndex handle)
 {
 	addConnection(nodeHandle1, nodeHandle2, Edge::eCONSTRAINT, handle);
 }
@@ -690,7 +690,7 @@ void IslandSim::wakeIslands()
 	{
 		for (PxU32 i = 0, count = mActivatedEdges[a].size(); i < count; ++i)
 		{
-			IG::Edge& edge = mEdges[mActivatedEdges[a][i]];
+			ev4sio_IG::Edge& edge = mEdges[mActivatedEdges[a][i]];
 			edge.mEdgeState &= (~Edge::eACTIVATING);
 		}
 
@@ -745,7 +745,7 @@ void IslandSim::wakeIslands()
 					//If the edge connects to a static body *or* it connects to a node which is not part of an island (i.e. a kinematic), then activate the edge
 					const EdgeIndex idx = index / 2;
 					Edge& edge = mEdges[idx];
-					if (!edge.isActive() && edge.getEdgeType() != IG::Edge::eCONSTRAINT)
+					if (!edge.isActive() && edge.getEdgeType() != ev4sio_IG::Edge::eCONSTRAINT)
 					{
 						//Make the edge active...
 						PX_ASSERT(mEdgeNodeIndices[idx * 2].index() == PX_INVALID_NODE || !mNodes[mEdgeNodeIndices[idx * 2].index()].isActive() || mNodes[mEdgeNodeIndices[idx * 2].index()].isKinematic());
@@ -829,7 +829,7 @@ void IslandSim::wakeIslands2()
 					//If the edge connects to a static body *or* it connects to a node which is not part of an island (i.e. a kinematic), then activate the edge
 					const EdgeIndex idx = index / 2;
 					Edge& edge = mEdges[idx];
-					if (!edge.isActive() && edge.getEdgeType() != IG::Edge::eCONSTRAINT)
+					if (!edge.isActive() && edge.getEdgeType() != ev4sio_IG::Edge::eCONSTRAINT)
 					{
 						//Make the edge active...
 						PX_ASSERT(mEdgeNodeIndices[idx * 2].index() == PX_INVALID_NODE || !mNodes[mEdgeNodeIndices[idx * 2].index()].isActive() || mNodes[mEdgeNodeIndices[idx * 2].index()].isKinematic());
@@ -1632,7 +1632,7 @@ void IslandSim::processLostEdges(PxArray<PxNodeIndex>& destroyedNodes, bool allo
 
 						PX_ASSERT(mNodes[newIsland.mLastNode.index()].mNextNode.index() == PX_INVALID_NODE);
 
-						for (PxU32 j = 0; j < IG::Edge::eEDGE_TYPE_COUNT; ++j)
+						for (PxU32 j = 0; j < ev4sio_IG::Edge::eEDGE_TYPE_COUNT; ++j)
 						{
 							PxArray<EdgeIndex>& splitEdges = mIslandSplitEdges[j];
 							const PxU32 splitEdgeSize = splitEdges.size();
@@ -2008,7 +2008,7 @@ void IslandSim::mergeIslandsInternal(Island& island0, Island& island1, IslandId 
 	mIslandStaticTouchCount[islandId0] += mIslandStaticTouchCount[islandId1];
 
 	//Merge the edge list for the islands...
-	for(PxU32 a = 0; a < IG::Edge::eEDGE_TYPE_COUNT; ++a)
+	for(PxU32 a = 0; a < ev4sio_IG::Edge::eEDGE_TYPE_COUNT; ++a)
 	{
 		if(island0.mLastEdge[a] != IG_INVALID_EDGE)
 		{
@@ -2033,7 +2033,7 @@ void IslandSim::mergeIslandsInternal(Island& island0, Island& island1, IslandId 
 		island1.mEdgeCount[a] = 0;
 	}
 
-	for (PxU32 a = 0; a < IG::Node::eTYPE_COUNT; ++a)
+	for (PxU32 a = 0; a < ev4sio_IG::Node::eTYPE_COUNT; ++a)
 	{
 		island0.mNodeCount[a] += island1.mNodeCount[a];
 		island1.mNodeCount[a] = 0;
@@ -2155,7 +2155,7 @@ void IslandSim::setKinematic(PxNodeIndex nodeIndex)
 				const EdgeInstanceIndex nextId = instance.mNextEdge;
 
 				const PxU32 idx = edgeId/2;
-				IG::Edge& edge = mEdges[edgeId/2];
+				ev4sio_IG::Edge& edge = mEdges[edgeId/2];
 
 				removeEdgeFromIsland(island, idx);
 
@@ -2240,7 +2240,7 @@ void IslandSim::setDynamic(PxNodeIndex nodeIndex)
 			const PxNodeIndex otherNode = mEdgeNodeIndices[edgeId^1];
 
 			const PxU32 idx = edgeId/2;
-			IG::Edge& edge = mEdges[edgeId/2];
+			ev4sio_IG::Edge& edge = mEdges[edgeId/2];
 
 			if(!otherNode.isStaticBody())
 			{

@@ -47,7 +47,7 @@
 #include "geometry/PxConvexMeshGeometry.h"
 #include "geometry/PxGeometryQuery.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 namespace vehicle2
 {
@@ -228,4 +228,4 @@ void PxVehiclePhysXRoadGeometryQueryUpdate
 }
 
 } //namespace vehicle2
-} //namespace physx
+} //namespace ev4sio_physx

@@ -45,7 +45,7 @@
 /* Thanks to David Hunt for finding a ">="-bug!         */
 /********************************************************/
 
-namespace physx
+namespace ev4sio_physx
 {
 
 #define CROSS(dest,v1,v2)		\
@@ -56,10 +56,10 @@ namespace physx
 #define DOT(v1,v2) (v1.x*v2.x+v1.y*v2.y+v1.z*v2.z)
 
 #define FINDMINMAX(x0, x1, x2, minimum, maximum)			\
-	minimum = physx::intrinsics::selectMin(x0, x1);			\
-	maximum = physx::intrinsics::selectMax(x0, x1);			\
-	minimum = physx::intrinsics::selectMin(minimum, x2);	\
-	maximum = physx::intrinsics::selectMax(maximum, x2);
+	minimum = ev4sio_physx::intrinsics::selectMin(x0, x1);			\
+	maximum = ev4sio_physx::intrinsics::selectMax(x0, x1);			\
+	minimum = ev4sio_physx::intrinsics::selectMin(minimum, x2);	\
+	maximum = ev4sio_physx::intrinsics::selectMax(maximum, x2);
 
 	static PX_CUDA_CALLABLE PX_FORCE_INLINE PxIntBool planeBoxOverlap(const PxVec3& normal, PxReal d, const PxVec3& maxbox)
 	{
@@ -109,16 +109,16 @@ namespace physx
 #define AXISTEST_X01(a, b, fa, fb)							\
 	p0 = a*v0.y - b*v0.z;									\
 	p2 = a*v2.y - b*v2.z;									\
-	minimum = physx::intrinsics::selectMin(p0, p2);			\
-	maximum = physx::intrinsics::selectMax(p0, p2);			\
+	minimum = ev4sio_physx::intrinsics::selectMin(p0, p2);			\
+	maximum = ev4sio_physx::intrinsics::selectMax(p0, p2);			\
 	rad = fa * extents.y + fb * extents.z;					\
 	if(minimum>rad || maximum<-rad) return PxIntFalse;
 
 #define AXISTEST_X2(a, b, fa, fb)							\
 	p0 = a*v0.y - b*v0.z;									\
 	p1 = a*v1.y - b*v1.z;									\
-	minimum = physx::intrinsics::selectMin(p0, p1);			\
-	maximum = physx::intrinsics::selectMax(p0, p1);			\
+	minimum = ev4sio_physx::intrinsics::selectMin(p0, p1);			\
+	maximum = ev4sio_physx::intrinsics::selectMax(p0, p1);			\
 	rad = fa * extents.y + fb * extents.z;					\
 	if(minimum>rad || maximum<-rad) return PxIntFalse;
 
@@ -126,16 +126,16 @@ namespace physx
 #define AXISTEST_Y02(a, b, fa, fb)							\
 	p0 = -a*v0.x + b*v0.z;									\
 	p2 = -a*v2.x + b*v2.z;									\
-	minimum = physx::intrinsics::selectMin(p0, p2);			\
-	maximum = physx::intrinsics::selectMax(p0, p2);			\
+	minimum = ev4sio_physx::intrinsics::selectMin(p0, p2);			\
+	maximum = ev4sio_physx::intrinsics::selectMax(p0, p2);			\
 	rad = fa * extents.x + fb * extents.z;					\
 	if(minimum>rad || maximum<-rad) return PxIntFalse;
 
 #define AXISTEST_Y1(a, b, fa, fb)							\
 	p0 = -a*v0.x + b*v0.z;									\
 	p1 = -a*v1.x + b*v1.z;									\
-	minimum = physx::intrinsics::selectMin(p0, p1);			\
-	maximum = physx::intrinsics::selectMax(p0, p1);			\
+	minimum = ev4sio_physx::intrinsics::selectMin(p0, p1);			\
+	maximum = ev4sio_physx::intrinsics::selectMax(p0, p1);			\
 	rad = fa * extents.x + fb * extents.z;					\
 	if(minimum>rad || maximum<-rad) return PxIntFalse;
 
@@ -143,20 +143,20 @@ namespace physx
 #define AXISTEST_Z12(a, b, fa, fb)							\
 	p1 = a*v1.x - b*v1.y;									\
 	p2 = a*v2.x - b*v2.y;									\
-	minimum = physx::intrinsics::selectMin(p1, p2);			\
-	maximum = physx::intrinsics::selectMax(p1, p2);			\
+	minimum = ev4sio_physx::intrinsics::selectMin(p1, p2);			\
+	maximum = ev4sio_physx::intrinsics::selectMax(p1, p2);			\
 	rad = fa * extents.x + fb * extents.y;					\
 	if(minimum>rad || maximum<-rad) return PxIntFalse;
 
 #define AXISTEST_Z0(a, b, fa, fb)							\
 	p0 = a*v0.x - b*v0.y;									\
 	p1 = a*v1.x - b*v1.y;									\
-	minimum = physx::intrinsics::selectMin(p0, p1);			\
-	maximum = physx::intrinsics::selectMax(p0, p1);			\
+	minimum = ev4sio_physx::intrinsics::selectMin(p0, p1);			\
+	maximum = ev4sio_physx::intrinsics::selectMax(p0, p1);			\
 	rad = fa * extents.x + fb * extents.y;					\
 	if(minimum>rad || maximum<-rad) return PxIntFalse;
 
-	namespace Gu
+	namespace ev4sio_Gu
 	{
 		template <const bool bDoVertexChecks = false>
 		static PX_CUDA_CALLABLE PX_FORCE_INLINE PxIntBool intersectTriangleBox_RefImpl(const PxVec3& boxcenter, const PxVec3& extents, const PxVec3& tp0, const PxVec3& tp1, const PxVec3& tp2)

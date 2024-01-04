@@ -29,11 +29,11 @@
 #ifndef DY_SOLVER_CONTEXT_H
 #define DY_SOLVER_CONTEXT_H
 
-namespace physx
+namespace ev4sio_physx
 {
 	struct PxSolverBodyData;
 
-namespace Dy
+namespace ev4sio_Dy
 {
 	struct ThresholdStreamElement;
 	
@@ -52,8 +52,8 @@ struct SolverContext
 	ThresholdStreamElement* PX_RESTRICT		mSharedThresholdStream;
 	PxU32									mSharedThresholdStreamLength;
 	PxI32*									mSharedOutThresholdPairs;
-	Cm::SpatialVectorF*						Z;
-	Cm::SpatialVectorF*						deltaV;
+	ev4sio_Cm::SpatialVectorF*						Z;
+	ev4sio_Cm::SpatialVectorF*						deltaV;
 
 };
 

@@ -36,7 +36,7 @@
 #include "foundation/PxFoundationConfig.h"
 #include "foundation/Px.h"
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -86,7 +86,7 @@ class PxAllocatorCallback
 };
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 /** @} */

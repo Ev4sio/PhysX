@@ -31,8 +31,8 @@
 #include "CmUtils.h"
 
 #if PX_SUPPORT_GPU_PHYSX
-using namespace physx;
-using namespace Cm;
+using namespace ev4sio_physx;
+using namespace ev4sio_Cm;
 
 #if PX_ENABLE_FEATURES_UNDER_CONSTRUCTION
 

@@ -34,7 +34,7 @@
 
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -68,7 +68,7 @@ struct PxFEMClothFlag
 typedef PxFlags<PxFEMClothFlag::Enum, PxU32> PxFEMClothFlags;
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

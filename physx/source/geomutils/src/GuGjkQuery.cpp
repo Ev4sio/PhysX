@@ -42,8 +42,8 @@
 #include "GuMidphaseInterface.h"
 #include "foundation/PxFPU.h"
 
-using namespace physx;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
 
 #include "GuGJK.h"
 #include "GuGJKPenetration.h"
@@ -72,7 +72,7 @@ struct CustomConvexV : ConvexV
 	const PxGjkQuery::Support* s;
 	PxReal supportScale;
 
-	CustomConvexV(const PxGjkQuery::Support& _s) : ConvexV(Gu::ConvexType::eCUSTOM), s(&_s), supportScale(1.0f)
+	CustomConvexV(const PxGjkQuery::Support& _s) : ConvexV(ev4sio_Gu::ConvexType::eCUSTOM), s(&_s), supportScale(1.0f)
 	{
 		setMinMargin(FLoad(0.001f));
 		setSweepMargin(FLoad(0.001f));
@@ -162,7 +162,7 @@ bool PxGjkQuery::proximityInfo(const Support& a, const Support& b, const PxTrans
 struct PointConvexV : ConvexV
 {
 	Vec3V zero;
-	PointConvexV() : ConvexV(Gu::ConvexType::eCUSTOM)
+	PointConvexV() : ConvexV(ev4sio_Gu::ConvexType::eCUSTOM)
 	{
 		zero = V3Zero();
 		setMinMargin(FLoad(0.001f));

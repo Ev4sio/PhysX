@@ -35,8 +35,8 @@
 #include "GuPCMShapeConvex.h"
 #include "GuPCMContactGen.h"
 
-using namespace physx;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
 using namespace aos;
 
 static bool fullContactsGenerationConvexConvex(const GjkConvex* relativeConvex, const GjkConvex* localConvex, const PxTransformV& transf0, const PxTransformV& transf1, 
@@ -191,7 +191,7 @@ static bool convexHullHasScale0(const ConvexHullV& convexHull0, const ConvexHull
 	}
 }
 
-bool Gu::pcmContactConvexConvex(GU_CONTACT_METHOD_ARGS)
+bool ev4sio_Gu::pcmContactConvexConvex(GU_CONTACT_METHOD_ARGS)
 {
 	const PxConvexMeshGeometry& shapeConvex0 = checkedCast<PxConvexMeshGeometry>(shape0);
 	const PxConvexMeshGeometry& shapeConvex1 = checkedCast<PxConvexMeshGeometry>(shape1);

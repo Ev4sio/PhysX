@@ -31,9 +31,9 @@
 
 #include "PxConstraint.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Sc
+namespace ev4sio_Sc
 {
 	class ConstraintSim;
 	class RigidCore;
@@ -112,7 +112,7 @@ namespace Sc
 					ConstraintSim*			mSim;
 	};
 
-} // namespace Sc
+} // namespace ev4sio_Sc
 
 }
 

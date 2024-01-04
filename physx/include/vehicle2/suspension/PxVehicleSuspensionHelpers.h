@@ -40,7 +40,7 @@
 #include "PxVehicleSuspensionParams.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 namespace vehicle2
 {
@@ -148,7 +148,7 @@ bool PxVehicleComputeSprungMasses(const PxU32 nbSprungMasses, const PxVec3* spru
 
 #if !PX_DOXYGEN
 } // namespace vehicle2
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 /** @} */

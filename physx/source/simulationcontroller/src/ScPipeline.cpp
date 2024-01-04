@@ -66,17 +66,17 @@
 	#include "DyHairSystem.h"
 #endif
 
-using namespace physx;
-using namespace physx::Cm;
-using namespace physx::Dy;
-using namespace Sc;
+using namespace ev4sio_physx;
+using namespace ev4sio_physx::ev4sio_Cm;
+using namespace ev4sio_physx::ev4sio_Dy;
+using namespace ev4sio_Sc;
 
 PX_IMPLEMENT_OUTPUT_ERROR
 
 ///////////////////////////////////////////////////////////////////////////////
 
 void PxcClearContactCacheStats();
-void Sc::Scene::stepSetupCollide(PxBaseTask* continuation)
+void ev4sio_Sc::Scene::stepSetupCollide(PxBaseTask* continuation)
 {
 	PX_PROFILE_ZONE("Sim.stepSetupCollide", mContextId);
 
@@ -103,7 +103,7 @@ void Sc::Scene::stepSetupCollide(PxBaseTask* continuation)
 	mInternalFlags &= ~(SceneInternalFlag::eSCENE_SIP_STATES_DIRTY_DOMINANCE | SceneInternalFlag::eSCENE_SIP_STATES_DIRTY_VISUALIZATION);
 }
 
-void Sc::Scene::simulate(PxReal timeStep, PxBaseTask* continuation)
+void ev4sio_Sc::Scene::simulate(PxReal timeStep, PxBaseTask* continuation)
 {
 	if(timeStep != 0.0f)
 	{
@@ -123,7 +123,7 @@ void Sc::Scene::simulate(PxReal timeStep, PxBaseTask* continuation)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void Sc::Scene::collideStep(PxBaseTask* continuation)
+void ev4sio_Sc::Scene::collideStep(PxBaseTask* continuation)
 {
 	PX_PROFILE_ZONE("Sim.collideQueueTasks", mContextId);
 	PX_PROFILE_START_CROSSTHREAD("Basic.collision", mContextId);
@@ -148,7 +148,7 @@ void Sc::Scene::collideStep(PxBaseTask* continuation)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void Sc::Scene::updateShapes(PxBaseTask* continuation)
+void ev4sio_Sc::Scene::updateShapes(PxBaseTask* continuation)
 {
 	//dma shapes data to gpu
 	mSimulationController->updateShapes(continuation);
@@ -158,18 +158,18 @@ void Sc::Scene::updateShapes(PxBaseTask* continuation)
 
 namespace
 {
-class DirtyShapeUpdatesTask : public Cm::Task
+class DirtyShapeUpdatesTask : public ev4sio_Cm::Task
 {
 public:
 	static const PxU32 MaxShapes = 256;
 
 	PxsTransformCache&	mCache;
-	Bp::BoundsArray&	mBoundsArray;
+	ev4sio_Bp::BoundsArray&	mBoundsArray;
 	ShapeSim*			mShapes[MaxShapes];
 	PxU32				mNbShapes;
 
-	DirtyShapeUpdatesTask(PxU64 contextID, PxsTransformCache& cache, Bp::BoundsArray& boundsArray) : 
-		Cm::Task	(contextID),
+	DirtyShapeUpdatesTask(PxU64 contextID, PxsTransformCache& cache, ev4sio_Bp::BoundsArray& boundsArray) : 
+		ev4sio_Cm::Task	(contextID),
 		mCache		(cache),
 		mBoundsArray(boundsArray),
 		mNbShapes	(0)
@@ -189,12 +189,12 @@ private:
 };
 }
 
-static DirtyShapeUpdatesTask* createDirtyShapeUpdateTask(Cm::FlushPool& pool, PxU64 contextID, PxsTransformCache& cache, Bp::BoundsArray& boundsArray)
+static DirtyShapeUpdatesTask* createDirtyShapeUpdateTask(ev4sio_Cm::FlushPool& pool, PxU64 contextID, PxsTransformCache& cache, ev4sio_Bp::BoundsArray& boundsArray)
 {
 	return PX_PLACEMENT_NEW(pool.allocate(sizeof(DirtyShapeUpdatesTask)), DirtyShapeUpdatesTask)(contextID, cache, boundsArray);
 }
 
-void Sc::Scene::updateDirtyShapes(PxBaseTask* continuation)
+void ev4sio_Sc::Scene::updateDirtyShapes(PxBaseTask* continuation)
 {
 	PX_PROFILE_ZONE("Scene.updateDirtyShapes", mContextId);
 
@@ -204,9 +204,9 @@ void Sc::Scene::updateDirtyShapes(PxBaseTask* continuation)
 	PxBitMap::Iterator dirtyShapeIter(mDirtyShapeSimMap);
 
 	PxsTransformCache& cache = mLLContext->getTransformCache();
-	Bp::BoundsArray& boundsArray = mAABBManager->getBoundsArray();
+	ev4sio_Bp::BoundsArray& boundsArray = mAABBManager->getBoundsArray();
 
-	Cm::FlushPool& pool = mLLContext->getTaskPool();
+	ev4sio_Cm::FlushPool& pool = mLLContext->getTaskPool();
 	PxBitMapPinned& changedMap = mAABBManager->getChangedAABBMgActorHandleMap();
 
 	DirtyShapeUpdatesTask* task = createDirtyShapeUpdateTask(pool, mContextId, cache, boundsArray);
@@ -254,7 +254,7 @@ void Sc::Scene::updateDirtyShapes(PxBaseTask* continuation)
 	mDirtyShapeSimMap.clear();
 }
 
-void Sc::Scene::preRigidBodyNarrowPhase(PxBaseTask* continuation)
+void ev4sio_Sc::Scene::preRigidBodyNarrowPhase(PxBaseTask* continuation)
 {
 	PX_PROFILE_ZONE("Scene.preNarrowPhase", mContextId);
 
@@ -264,7 +264,7 @@ void Sc::Scene::preRigidBodyNarrowPhase(PxBaseTask* continuation)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void Sc::Scene::rigidBodyNarrowPhase(PxBaseTask* continuation)
+void ev4sio_Sc::Scene::rigidBodyNarrowPhase(PxBaseTask* continuation)
 {
 	PX_PROFILE_START_CROSSTHREAD("Basic.narrowPhase", mContextId);
 
@@ -297,7 +297,7 @@ void Sc::Scene::rigidBodyNarrowPhase(PxBaseTask* continuation)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void Sc::Scene::updateBoundsAndShapes(PxBaseTask* /*continuation*/)
+void ev4sio_Sc::Scene::updateBoundsAndShapes(PxBaseTask* /*continuation*/)
 {
 	//if the scene doesn't use gpu dynamic and gpu broad phase and the user enables the direct API,
 	//the sdk will refuse to create the scene.
@@ -306,7 +306,7 @@ void Sc::Scene::updateBoundsAndShapes(PxBaseTask* /*continuation*/)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void Sc::Scene::broadPhase(PxBaseTask* continuation)
+void ev4sio_Sc::Scene::broadPhase(PxBaseTask* continuation)
 {
 	PX_PROFILE_START_CROSSTHREAD("Basic.broadPhase", mContextId);
 
@@ -328,13 +328,13 @@ void Sc::Scene::broadPhase(PxBaseTask* continuation)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void Sc::Scene::processFoundSolverPatches(PxBaseTask* /*continuation*/)
+void ev4sio_Sc::Scene::processFoundSolverPatches(PxBaseTask* /*continuation*/)
 {
 	PxvNphaseImplementationContext* nphase = mLLContext->getNphaseImplementationContext();
 	mDynamicsContext->processFoundPatches(*mSimpleIslandManager, nphase->getFoundPatchManagers(), nphase->getNbFoundPatchManagers(), nphase->getFoundPatchOutputCounts());
 }
 
-void Sc::Scene::processLostSolverPatches(PxBaseTask* /*continuation*/)
+void ev4sio_Sc::Scene::processLostSolverPatches(PxBaseTask* /*continuation*/)
 {
 	PxvNphaseImplementationContext* nphase = mLLContext->getNphaseImplementationContext();
 	mDynamicsContext->processLostPatches(*mSimpleIslandManager, nphase->getFoundPatchManagers(), nphase->getNbFoundPatchManagers(), nphase->getFoundPatchOutputCounts());
@@ -342,7 +342,7 @@ void Sc::Scene::processLostSolverPatches(PxBaseTask* /*continuation*/)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void Sc::Scene::broadPhaseFirstPass(PxBaseTask* continuation)
+void ev4sio_Sc::Scene::broadPhaseFirstPass(PxBaseTask* continuation)
 {
 	PX_PROFILE_ZONE("Basic.broadPhaseFirstPass", mContextId);
 
@@ -359,7 +359,7 @@ void Sc::Scene::broadPhaseFirstPass(PxBaseTask* continuation)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void Sc::Scene::broadPhaseSecondPass(PxBaseTask* continuation)
+void ev4sio_Sc::Scene::broadPhaseSecondPass(PxBaseTask* continuation)
 {
 	PX_PROFILE_ZONE("Basic.broadPhaseSecondPass", mContextId);
 
@@ -372,7 +372,7 @@ void Sc::Scene::broadPhaseSecondPass(PxBaseTask* continuation)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void Sc::Scene::preIntegrate(PxBaseTask* continuation)
+void ev4sio_Sc::Scene::preIntegrate(PxBaseTask* continuation)
 {
 	PX_PROFILE_ZONE("Basic.preIntegrate", mContextId);
 
@@ -382,7 +382,7 @@ void Sc::Scene::preIntegrate(PxBaseTask* continuation)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void Sc::Scene::updateBroadPhase(PxBaseTask* continuation)
+void ev4sio_Sc::Scene::updateBroadPhase(PxBaseTask* continuation)
 {
 	PX_PROFILE_ZONE("Basic.updateBroadPhase", mContextId);
 
@@ -401,7 +401,7 @@ void Sc::Scene::updateBroadPhase(PxBaseTask* continuation)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void Sc::Scene::unblockNarrowPhase(PxBaseTask*)
+void ev4sio_Sc::Scene::unblockNarrowPhase(PxBaseTask*)
 {
 	/*if (!mCCDBp && mUseGpuRigidBodies)
 		mSimulationController->updateParticleSystemsAndSoftBodies();*/
@@ -411,7 +411,7 @@ void Sc::Scene::unblockNarrowPhase(PxBaseTask*)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void Sc::Scene::postBroadPhase(PxBaseTask* continuation)
+void ev4sio_Sc::Scene::postBroadPhase(PxBaseTask* continuation)
 {
 	PX_PROFILE_START_CROSSTHREAD("Basic.postBroadPhase", mContextId);
 
@@ -423,12 +423,12 @@ void Sc::Scene::postBroadPhase(PxBaseTask* continuation)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-	class OverlapFilterTask : public Cm::Task
+	class OverlapFilterTask : public ev4sio_Cm::Task
 	{
 	public:
 		static const PxU32 MaxPairs = 512;
 		NPhaseCore*				mNPhaseCore;
-		const Bp::AABBOverlap*	mPairs;
+		const ev4sio_Bp::AABBOverlap*	mPairs;
 
 		PxU32					mNbToProcess;
 
@@ -441,8 +441,8 @@ void Sc::Scene::postBroadPhase(PxBaseTask* continuation)
 
 		OverlapFilterTask*		mNext;
 
-		OverlapFilterTask(PxU64 contextID, NPhaseCore* nPhaseCore, FilterInfo* fInfo, const Bp::AABBOverlap* pairs, PxU32 nbToProcess) :
-			Cm::Task		(contextID),
+		OverlapFilterTask(PxU64 contextID, NPhaseCore* nPhaseCore, FilterInfo* fInfo, const ev4sio_Bp::AABBOverlap* pairs, PxU32 nbToProcess) :
+			ev4sio_Cm::Task		(contextID),
 			mNPhaseCore		(nPhaseCore),
 			mPairs			(pairs),
 			mNbToProcess	(nbToProcess),
@@ -462,9 +462,9 @@ void Sc::Scene::postBroadPhase(PxBaseTask* continuation)
 		virtual const char* getName() const { return "OverlapFilterTask"; }
 	};
 
-void Sc::Scene::finishBroadPhase(PxBaseTask* continuation)
+void ev4sio_Sc::Scene::finishBroadPhase(PxBaseTask* continuation)
 {
-	PX_PROFILE_ZONE("Sc::Scene::finishBroadPhase", mContextId);
+	PX_PROFILE_ZONE("ev4sio_Sc::Scene::finishBroadPhase", mContextId);
 
 	{
 		PX_PROFILE_ZONE("Sim.processNewOverlaps", mContextId);
@@ -483,7 +483,7 @@ void Sc::Scene::finishBroadPhase(PxBaseTask* continuation)
 			PX_PROFILE_ZONE("Sim.processNewOverlaps.createOverlapsNoShapeInteractions", mContextId);
 			{
 				PxU32 createdOverlapCount;
-				const Bp::AABBOverlap* PX_RESTRICT p = mAABBManager->getCreatedOverlaps(Bp::ElementType::eTRIGGER, createdOverlapCount);
+				const ev4sio_Bp::AABBOverlap* PX_RESTRICT p = mAABBManager->getCreatedOverlaps(ev4sio_Bp::ElementType::eTRIGGER, createdOverlapCount);
 				if(createdOverlapCount)
 				{
 					mLLContext->getSimStats().mNbNewPairs += createdOverlapCount;
@@ -493,14 +493,14 @@ void Sc::Scene::finishBroadPhase(PxBaseTask* continuation)
 		}
 
 		// PT: for regular shapes the code has been multithreaded and split into different parts, making it harder to follow.
-		// Basically this is the same code as the above for triggers, but scattered over multiple Sc::Scene functions and
+		// Basically this is the same code as the above for triggers, but scattered over multiple ev4sio_Sc::Scene functions and
 		// tasks. As far as I can tell the steps are:
 		// - "first stage" filtering (right here below)
 		// - "second stage" filtering and creation of ShapeInteractions in preallocateContactManagers
 		// - some cleanup in postBroadPhaseStage2
 		{
 			PxU32 createdOverlapCount;
-			const Bp::AABBOverlap* PX_RESTRICT p = mAABBManager->getCreatedOverlaps(Bp::ElementType::eSHAPE, createdOverlapCount);
+			const ev4sio_Bp::AABBOverlap* PX_RESTRICT p = mAABBManager->getCreatedOverlaps(ev4sio_Bp::ElementType::eSHAPE, createdOverlapCount);
 
 			// PT: removed this because it's pointless at this stage?
 			if(0)
@@ -519,14 +519,14 @@ void Sc::Scene::finishBroadPhase(PxBaseTask* continuation)
 
 			// PT: this is a temporary member value used to pass the OverlapFilterTasks to the next stage of the pipeline (preallocateContactManagers).
 			// It ideally shouldn't be a class member but just a user-data passed from one task to the next. The task manager doesn't support that though (AFAIK),
-			// so instead it just lies there in Sc::Scene as a class member. It's only used in finishBroadPhase & preallocateContactManagers though.
+			// so instead it just lies there in ev4sio_Sc::Scene as a class member. It's only used in finishBroadPhase & preallocateContactManagers though.
 			mOverlapFilterTaskHead = NULL;
 
 			if(createdOverlapCount)
 			{
 				mLLContext->getSimStats().mNbNewPairs += createdOverlapCount;
 
-				Cm::FlushPool& flushPool = mLLContext->getTaskPool();
+				ev4sio_Cm::FlushPool& flushPool = mLLContext->getTaskPool();
 
 				// PT: temporary data, similar to mOverlapFilterTaskHead. Will be filled with filter info for each pair by the OverlapFilterTask.
 				mFilterInfo.forceSize_Unsafe(0);
@@ -559,7 +559,7 @@ void Sc::Scene::finishBroadPhase(PxBaseTask* continuation)
 	}	
 }
 
-void Sc::Scene::postBroadPhaseContinuation(PxBaseTask* continuation)
+void ev4sio_Sc::Scene::postBroadPhaseContinuation(PxBaseTask* continuation)
 {
 	mAABBManager->getChangedAABBMgActorHandleMap().clear();
 
@@ -584,20 +584,20 @@ static PX_FORCE_INLINE	T*	getUsedPointer(T* ptr)
 
 namespace
 {
-	class OnOverlapCreatedTask : public Cm::Task
+	class OnOverlapCreatedTask : public ev4sio_Cm::Task
 	{
 	public:
 		NPhaseCore*					mNPhaseCore;
-		const Bp::AABBOverlap*		mPairs;
+		const ev4sio_Bp::AABBOverlap*		mPairs;
 		const FilterInfo*			mFinfo;
 		PxsContactManager**			mContactManagers;
 		ShapeInteraction**			mShapeInteractions;
 		ElementInteractionMarker**	mInteractionMarkers;
 		PxU32						mNbToProcess;
 
-		OnOverlapCreatedTask(PxU64 contextID, NPhaseCore* nPhaseCore, const Bp::AABBOverlap* pairs, const FilterInfo* fInfo, PxsContactManager** contactManagers,
+		OnOverlapCreatedTask(PxU64 contextID, NPhaseCore* nPhaseCore, const ev4sio_Bp::AABBOverlap* pairs, const FilterInfo* fInfo, PxsContactManager** contactManagers,
 							ShapeInteraction** shapeInteractions, ElementInteractionMarker** interactionMarkers, PxU32 nbToProcess) :
-			Cm::Task			(contextID),
+			ev4sio_Cm::Task			(contextID),
 			mNPhaseCore			(nPhaseCore),
 			mPairs				(pairs),
 			mFinfo				(fInfo),
@@ -616,7 +616,7 @@ namespace
 
 			for(PxU32 i=0; i<mNbToProcess; i++)
 			{
-				const Bp::AABBOverlap& pair = mPairs[i];
+				const ev4sio_Bp::AABBOverlap& pair = mPairs[i];
 				ShapeSimBase* s0 = reinterpret_cast<ShapeSimBase*>(pair.mUserData1);
 				ShapeSimBase* s1 = reinterpret_cast<ShapeSimBase*>(pair.mUserData0);
 
@@ -652,7 +652,7 @@ namespace
 	};
 }
 
-void Sc::Scene::preallocateContactManagers(PxBaseTask* continuation)
+void ev4sio_Sc::Scene::preallocateContactManagers(PxBaseTask* continuation)
 {
 	//Iterate over all filter tasks and work out how many pairs we need...
 
@@ -688,7 +688,7 @@ void Sc::Scene::preallocateContactManagers(PxBaseTask* continuation)
 	}
 
 	PxU32 overlapCount;
-	Bp::AABBOverlap* PX_RESTRICT p = mAABBManager->getCreatedOverlaps(Bp::ElementType::eSHAPE, overlapCount);
+	ev4sio_Bp::AABBOverlap* PX_RESTRICT p = mAABBManager->getCreatedOverlaps(ev4sio_Bp::ElementType::eSHAPE, overlapCount);
 	if(!overlapCount)
 		return;
 
@@ -722,7 +722,7 @@ void Sc::Scene::preallocateContactManagers(PxBaseTask* continuation)
 	ShapeInteraction** shapeInter = mPreallocatedShapeInteractions.begin();
 	ElementInteractionMarker** markerIter = mPreallocatedInteractionMarkers.begin();
 
-	Cm::FlushPool& flushPool = mLLContext->getTaskPool();
+	ev4sio_Cm::FlushPool& flushPool = mLLContext->getTaskPool();
 
 	FilterInfo* fInfo = mFilterInfo.begin();
 
@@ -784,9 +784,9 @@ void Sc::Scene::preallocateContactManagers(PxBaseTask* continuation)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void Sc::Scene::processLostTouchPairs()
+void ev4sio_Sc::Scene::processLostTouchPairs()
 {
-	PX_PROFILE_ZONE("Sc::Scene::processLostTouchPairs", mContextId);
+	PX_PROFILE_ZONE("ev4sio_Sc::Scene::processLostTouchPairs", mContextId);
 
 	const PxU32 nb = mLostTouchPairs.size();
 	const SimpleBodyPair* pairs = mLostTouchPairs.begin();
@@ -827,7 +827,7 @@ void Sc::Scene::processLostTouchPairs()
 	mLostTouchPairsDeletedBodyIDs.clear();
 }
 
-void Sc::Scene::postBroadPhaseStage2(PxBaseTask* continuation)
+void ev4sio_Sc::Scene::postBroadPhaseStage2(PxBaseTask* continuation)
 {
 	// - Wakes actors that lost touch if appropriate
 	processLostTouchPairs();
@@ -848,7 +848,7 @@ void Sc::Scene::postBroadPhaseStage2(PxBaseTask* continuation)
 		{
 			PxU32 nb = mPreallocatedContactManagers.size();
 			PxsContactManager** managers = mPreallocatedContactManagers.begin();
-			Cm::PoolList<PxsContactManager, PxsContext>& pool = mLLContext->getContactManagerPool();
+			ev4sio_Cm::PoolList<PxsContactManager, PxsContext>& pool = mLLContext->getContactManagerPool();
 			while(nb--)
 			{
 				PxsContactManager* current = *managers++;
@@ -885,7 +885,7 @@ void Sc::Scene::postBroadPhaseStage2(PxBaseTask* continuation)
 ///////////////////////////////////////////////////////////////////////////////
 
 // PT: islandInsertion / registerContactManagers / registerInteractions / registerSceneInteractions run in parallel
-void Sc::Scene::islandInsertion(PxBaseTask* /*continuation*/)
+void ev4sio_Sc::Scene::islandInsertion(PxBaseTask* /*continuation*/)
 {
 	PX_PROFILE_ZONE("Sim.processNewOverlaps.islandInsertion", mContextId);
 
@@ -906,18 +906,18 @@ void Sc::Scene::islandInsertion(PxBaseTask* /*continuation*/)
 			if (!bs1.isStaticRigid())
 				nodeIndexB = bs1.getNodeIndex();
 
-			IG::Edge::EdgeType type = IG::Edge::eCONTACT_MANAGER;
+			ev4sio_IG::Edge::EdgeType type = ev4sio_IG::Edge::eCONTACT_MANAGER;
 #if PX_SUPPORT_GPU_PHYSX
 			if(actorTypeLargest == PxActorType::eSOFTBODY)
-				type = IG::Edge::eSOFT_BODY_CONTACT;
+				type = ev4sio_IG::Edge::eSOFT_BODY_CONTACT;
 			else if (actorTypeLargest == PxActorType::eFEMCLOTH)
-				type = IG::Edge::eFEM_CLOTH_CONTACT;
+				type = ev4sio_IG::Edge::eFEM_CLOTH_CONTACT;
 			else if(isParticleSystem(actorTypeLargest))
-				type = IG::Edge::ePARTICLE_SYSTEM_CONTACT;
+				type = ev4sio_IG::Edge::ePARTICLE_SYSTEM_CONTACT;
 			else if (actorTypeLargest == PxActorType::eHAIRSYSTEM)
-				type = IG::Edge::eHAIR_SYSTEM_CONTACT;
+				type = ev4sio_IG::Edge::eHAIR_SYSTEM_CONTACT;
 #endif
-			IG::EdgeIndex edgeIdx = mSimpleIslandManager->addContactManager(contactManager, bs0.getNodeIndex(), nodeIndexB, interaction, type);
+			ev4sio_IG::EdgeIndex edgeIdx = mSimpleIslandManager->addContactManager(contactManager, bs0.getNodeIndex(), nodeIndexB, interaction, type);
 
 			interaction->mEdgeIndex = edgeIdx;
 
@@ -940,7 +940,7 @@ void Sc::Scene::islandInsertion(PxBaseTask* /*continuation*/)
 ///////////////////////////////////////////////////////////////////////////////
 
 // PT: islandInsertion / registerContactManagers / registerInteractions / registerSceneInteractions run in parallel
-void Sc::Scene::registerContactManagers(PxBaseTask* /*continuation*/)
+void ev4sio_Sc::Scene::registerContactManagers(PxBaseTask* /*continuation*/)
 {
 	PX_PROFILE_ZONE("Sim.processNewOverlaps.registerCms", mContextId);
 
@@ -968,7 +968,7 @@ void Sc::Scene::registerContactManagers(PxBaseTask* /*continuation*/)
 ///////////////////////////////////////////////////////////////////////////////
 
 // PT: islandInsertion / registerContactManagers / registerInteractions / registerSceneInteractions run in parallel
-void Sc::Scene::registerInteractions(PxBaseTask* /*continuation*/)
+void ev4sio_Sc::Scene::registerInteractions(PxBaseTask* /*continuation*/)
 {
 	PX_PROFILE_ZONE("Sim.processNewOverlaps.registerInteractions", mContextId);
 
@@ -1009,7 +1009,7 @@ void Sc::Scene::registerInteractions(PxBaseTask* /*continuation*/)
 ///////////////////////////////////////////////////////////////////////////////
 
 // PT: islandInsertion / registerContactManagers / registerInteractions / registerSceneInteractions run in parallel
-void Sc::Scene::registerSceneInteractions(PxBaseTask* /*continuation*/)
+void ev4sio_Sc::Scene::registerSceneInteractions(PxBaseTask* /*continuation*/)
 {
 	PX_PROFILE_ZONE("Sim.processNewOverlaps.registerInteractionsScene", mContextId);
 
@@ -1038,17 +1038,17 @@ void Sc::Scene::registerSceneInteractions(PxBaseTask* /*continuation*/)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void Sc::Scene::finishBroadPhaseStage2(PxU32 ccdPass)
+void ev4sio_Sc::Scene::finishBroadPhaseStage2(PxU32 ccdPass)
 {
-	PX_PROFILE_ZONE("Sc::Scene::finishBroadPhase2", mContextId);
+	PX_PROFILE_ZONE("ev4sio_Sc::Scene::finishBroadPhase2", mContextId);
 
-	Bp::AABBManagerBase* aabbMgr = mAABBManager;
+	ev4sio_Bp::AABBManagerBase* aabbMgr = mAABBManager;
 
 	PxU32 nbLostPairs = 0;
-	for(PxU32 i=0; i<Bp::ElementType::eCOUNT; i++)
+	for(PxU32 i=0; i<ev4sio_Bp::ElementType::eCOUNT; i++)
 	{
 		PxU32 destroyedOverlapCount;
-		aabbMgr->getDestroyedOverlaps(Bp::ElementType::Enum(i), destroyedOverlapCount);
+		aabbMgr->getDestroyedOverlaps(ev4sio_Bp::ElementType::Enum(i), destroyedOverlapCount);
 		nbLostPairs += destroyedOverlapCount;
 	}
 	mLLContext->getSimStats().mNbLostPairs += nbLostPairs;
@@ -1064,7 +1064,7 @@ void Sc::Scene::finishBroadPhaseStage2(PxU32 ccdPass)
 
 		// PT: for regular shapes
 		{
-			Bp::AABBOverlap* PX_RESTRICT p = aabbMgr->getDestroyedOverlaps(Bp::ElementType::eSHAPE, destroyedOverlapCount);
+			ev4sio_Bp::AABBOverlap* PX_RESTRICT p = aabbMgr->getDestroyedOverlaps(ev4sio_Bp::ElementType::eSHAPE, destroyedOverlapCount);
 
 			while(destroyedOverlapCount--)
 			{
@@ -1107,7 +1107,7 @@ void Sc::Scene::finishBroadPhaseStage2(PxU32 ccdPass)
 
 		// PT: for triggers
 		{
-			Bp::AABBOverlap* PX_RESTRICT p = aabbMgr->getDestroyedOverlaps(Bp::ElementType::eTRIGGER, destroyedOverlapCount);
+			ev4sio_Bp::AABBOverlap* PX_RESTRICT p = aabbMgr->getDestroyedOverlaps(ev4sio_Bp::ElementType::eTRIGGER, destroyedOverlapCount);
 
 			while(destroyedOverlapCount--)
 			{
@@ -1130,7 +1130,7 @@ void Sc::Scene::finishBroadPhaseStage2(PxU32 ccdPass)
 		aabbMgr->freeBuffers();
 }
 
-void Sc::Scene::postBroadPhaseStage3(PxBaseTask* /*continuation*/)
+void ev4sio_Sc::Scene::postBroadPhaseStage3(PxBaseTask* /*continuation*/)
 {
 	finishBroadPhaseStage2(0);
 
@@ -1140,7 +1140,7 @@ void Sc::Scene::postBroadPhaseStage3(PxBaseTask* /*continuation*/)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void Sc::Scene::advanceStep(PxBaseTask* continuation)
+void ev4sio_Sc::Scene::advanceStep(PxBaseTask* continuation)
 {
 	PX_PROFILE_ZONE("Sim.solveQueueTasks", mContextId);
 
@@ -1188,9 +1188,9 @@ void Sc::Scene::advanceStep(PxBaseTask* continuation)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void Sc::Scene::activateEdgesInternal(const IG::EdgeIndex* activatingEdges, const PxU32 nbActivatingEdges)
+void ev4sio_Sc::Scene::activateEdgesInternal(const ev4sio_IG::EdgeIndex* activatingEdges, const PxU32 nbActivatingEdges)
 {
-	const IG::IslandSim& speculativeSim = mSimpleIslandManager->getSpeculativeIslandSim();
+	const ev4sio_IG::IslandSim& speculativeSim = mSimpleIslandManager->getSpeculativeIslandSim();
 	for(PxU32 i = 0; i < nbActivatingEdges; ++i)
 	{
 		Interaction* interaction = mSimpleIslandManager->getInteraction(activatingEdges[i]);
@@ -1208,7 +1208,7 @@ void Sc::Scene::activateEdgesInternal(const IG::EdgeIndex* activatingEdges, cons
 	}
 }
 
-void Sc::Scene::secondPassNarrowPhase(PxBaseTask* /*continuation*/)
+void ev4sio_Sc::Scene::secondPassNarrowPhase(PxBaseTask* /*continuation*/)
 {
 	PX_PROFILE_ZONE("Sim.secondPassNarrowPhase", mContextId);
 	{
@@ -1219,18 +1219,18 @@ void Sc::Scene::secondPassNarrowPhase(PxBaseTask* /*continuation*/)
 		// wake interactions
 		{
 			PX_PROFILE_ZONE("ScScene.wakeInteractions", mContextId);
-			const IG::IslandSim& speculativeSim = mSimpleIslandManager->getSpeculativeIslandSim();
+			const ev4sio_IG::IslandSim& speculativeSim = mSimpleIslandManager->getSpeculativeIslandSim();
 
 			//KS - only wake contact managers based on speculative state to trigger contact gen. Waking actors based on accurate state
 			//should activate and joints.
 			{
 				//Wake speculatively based on rigid contacts, soft contacts and particle contacts
-				activateEdgesInternal(speculativeSim.getActivatedEdges(IG::Edge::eCONTACT_MANAGER), speculativeSim.getNbActivatedEdges(IG::Edge::eCONTACT_MANAGER));
+				activateEdgesInternal(speculativeSim.getActivatedEdges(ev4sio_IG::Edge::eCONTACT_MANAGER), speculativeSim.getNbActivatedEdges(ev4sio_IG::Edge::eCONTACT_MANAGER));
 #if PX_SUPPORT_GPU_PHYSX
-				activateEdgesInternal(speculativeSim.getActivatedEdges(IG::Edge::eSOFT_BODY_CONTACT), speculativeSim.getNbActivatedEdges(IG::Edge::eSOFT_BODY_CONTACT));
-				activateEdgesInternal(speculativeSim.getActivatedEdges(IG::Edge::eFEM_CLOTH_CONTACT), speculativeSim.getNbActivatedEdges(IG::Edge::eFEM_CLOTH_CONTACT));
-				activateEdgesInternal(speculativeSim.getActivatedEdges(IG::Edge::ePARTICLE_SYSTEM_CONTACT), speculativeSim.getNbActivatedEdges(IG::Edge::ePARTICLE_SYSTEM_CONTACT));
-				activateEdgesInternal(speculativeSim.getActivatedEdges(IG::Edge::eHAIR_SYSTEM_CONTACT), speculativeSim.getNbActivatedEdges(IG::Edge::eHAIR_SYSTEM_CONTACT));
+				activateEdgesInternal(speculativeSim.getActivatedEdges(ev4sio_IG::Edge::eSOFT_BODY_CONTACT), speculativeSim.getNbActivatedEdges(ev4sio_IG::Edge::eSOFT_BODY_CONTACT));
+				activateEdgesInternal(speculativeSim.getActivatedEdges(ev4sio_IG::Edge::eFEM_CLOTH_CONTACT), speculativeSim.getNbActivatedEdges(ev4sio_IG::Edge::eFEM_CLOTH_CONTACT));
+				activateEdgesInternal(speculativeSim.getActivatedEdges(ev4sio_IG::Edge::ePARTICLE_SYSTEM_CONTACT), speculativeSim.getNbActivatedEdges(ev4sio_IG::Edge::ePARTICLE_SYSTEM_CONTACT));
+				activateEdgesInternal(speculativeSim.getActivatedEdges(ev4sio_IG::Edge::eHAIR_SYSTEM_CONTACT), speculativeSim.getNbActivatedEdges(ev4sio_IG::Edge::eHAIR_SYSTEM_CONTACT));
 #endif
 			}
 		}
@@ -1240,7 +1240,7 @@ void Sc::Scene::secondPassNarrowPhase(PxBaseTask* /*continuation*/)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void Sc::Scene::releaseConstraints(bool endOfScene)
+void ev4sio_Sc::Scene::releaseConstraints(bool endOfScene)
 {
 	PX_ASSERT(mLLContext);
 
@@ -1265,7 +1265,7 @@ void Sc::Scene::releaseConstraints(bool endOfScene)
 	}
 }
 
-void Sc::Scene::postNarrowPhase(PxBaseTask* /*continuation*/)
+void ev4sio_Sc::Scene::postNarrowPhase(PxBaseTask* /*continuation*/)
 {
 	setCollisionPhaseToInactive();
 
@@ -1283,7 +1283,7 @@ void Sc::Scene::postNarrowPhase(PxBaseTask* /*continuation*/)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void Sc::Scene::processNarrowPhaseTouchEvents()
+void ev4sio_Sc::Scene::processNarrowPhaseTouchEvents()
 {
 	PX_PROFILE_ZONE("Sim.preIslandGen", mContextId);
 
@@ -1317,9 +1317,9 @@ void Sc::Scene::processNarrowPhaseTouchEvents()
 	context->getSimStats().mNbLostTouches = lostTouchCount;
 }
 
-void Sc::Scene::islandGen(PxBaseTask* continuation)
+void ev4sio_Sc::Scene::islandGen(PxBaseTask* continuation)
 {
-	PX_PROFILE_ZONE("Sc::Scene::islandGen", mContextId);
+	PX_PROFILE_ZONE("ev4sio_Sc::Scene::islandGen", mContextId);
 
 	//mLLContext->runModifiableContactManagers(); //KS - moved here so that we can get up-to-date touch found/lost events in IG
 
@@ -1347,7 +1347,7 @@ static PX_FORCE_INLINE ShapeInteraction* getSI(PxvContactManagerTouchEvent& evt)
 
 namespace
 {
-	class InteractionNewTouchTask : public Cm::Task
+	class InteractionNewTouchTask : public ev4sio_Cm::Task
 	{
 		PxvContactManagerTouchEvent*	mEvents;
 		const PxU32						mNbEvents;
@@ -1356,7 +1356,7 @@ namespace
 
 	public:
 		InteractionNewTouchTask(PxU64 contextID, PxvContactManagerTouchEvent* events, PxU32 nbEvents, PxsContactManagerOutputIterator& outputs, NPhaseCore* nPhaseCore) :
-			Cm::Task	(contextID),
+			ev4sio_Cm::Task	(contextID),
 			mEvents		(events),
 			mNbEvents	(nbEvents),
 			mOutputs	(outputs),
@@ -1386,9 +1386,9 @@ namespace
 	};
 }
 
-void Sc::Scene::processNarrowPhaseTouchEventsStage2(PxBaseTask* continuation)
+void ev4sio_Sc::Scene::processNarrowPhaseTouchEventsStage2(PxBaseTask* continuation)
 {
-	PX_PROFILE_ZONE("Sc::Scene::processNarrowPhaseTouchEventsStage2", mContextId);
+	PX_PROFILE_ZONE("ev4sio_Sc::Scene::processNarrowPhaseTouchEventsStage2", mContextId);
 
 	PxvNphaseImplementationContext*	ctx = mLLContext->getNphaseImplementationContext();
 
@@ -1397,7 +1397,7 @@ void Sc::Scene::processNarrowPhaseTouchEventsStage2(PxBaseTask* continuation)
 	const PxU32 newTouchCount = mTouchFoundEvents.size();
 
 	{
-		Cm::FlushPool& flushPool = mLLContext->getTaskPool();
+		ev4sio_Cm::FlushPool& flushPool = mLLContext->getTaskPool();
 
 		// PT: why not a delegate task here? We seem to be creating a single InteractionNewTouchTask ?
 		InteractionNewTouchTask* task = PX_PLACEMENT_NEW(flushPool.allocate(sizeof(InteractionNewTouchTask)), InteractionNewTouchTask)(mContextId, mTouchFoundEvents.begin(), newTouchCount, outputs, mNPhaseCore);
@@ -1418,7 +1418,7 @@ void Sc::Scene::processNarrowPhaseTouchEventsStage2(PxBaseTask* continuation)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void Sc::Scene::postIslandGen(PxBaseTask* continuation)
+void ev4sio_Sc::Scene::postIslandGen(PxBaseTask* continuation)
 {
 	PX_PROFILE_ZONE("Sim.postIslandGen", mContextId);
 
@@ -1430,7 +1430,7 @@ void Sc::Scene::postIslandGen(PxBaseTask* continuation)
 	// 
 	// (1) can deactivate trigger pairs while (2) can activate trigger pairs (both might
 	// happen for the same pair). The active interaction tracking arrays are not thread safe
-	// (Sc::Scene::notifyInteractionDeactivated, ::notifyInteractionActivated) plus the
+	// (ev4sio_Sc::Scene::notifyInteractionDeactivated, ::notifyInteractionActivated) plus the
 	// natural order is to process activation first (deactivation should be based on the
 	// state after activation). Thus, (1) is split into a part (1a) that does the overlap checks
 	// and a part (1b) that checks if trigger pairs can be deactivated. (1a) will run in parallel
@@ -1467,7 +1467,7 @@ void Sc::Scene::postIslandGen(PxBaseTask* continuation)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void Sc::Scene::setEdgesConnected(PxBaseTask*)
+void ev4sio_Sc::Scene::setEdgesConnected(PxBaseTask*)
 {
 	PX_PROFILE_ZONE("Sim.preIslandGen.islandTouches", mContextId);
 	{
@@ -1481,13 +1481,13 @@ void Sc::Scene::setEdgesConnected(PxBaseTask*)
 			// jcarius: defensive coding for OM-99507. If this assert hits, you maybe hit the same issue, please report!
 			if(si == NULL || si->getEdgeIndex() == IG_INVALID_EDGE)
 			{
-				outputError<PxErrorCode::eINTERNAL_ERROR>(__LINE__, "Sc::Scene::setEdgesConnected: adding an invalid edge. Skipping.");
+				outputError<PxErrorCode::eINTERNAL_ERROR>(__LINE__, "ev4sio_Sc::Scene::setEdgesConnected: adding an invalid edge. Skipping.");
 				PX_ALWAYS_ASSERT();
 				continue;
 			}
 
 			if(!si->readFlag(ShapeInteraction::CONTACTS_RESPONSE_DISABLED))
-				mSimpleIslandManager->setEdgeConnected(si->getEdgeIndex(), IG::Edge::eCONTACT_MANAGER);
+				mSimpleIslandManager->setEdgeConnected(si->getEdgeIndex(), ev4sio_IG::Edge::eCONTACT_MANAGER);
 		}
 	}
 
@@ -1498,7 +1498,7 @@ void Sc::Scene::setEdgesConnected(PxBaseTask*)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void Sc::Scene::solver(PxBaseTask* continuation)
+void ev4sio_Sc::Scene::solver(PxBaseTask* continuation)
 {
 	PX_PROFILE_START_CROSSTHREAD("Basic.rigidBodySolver", mContextId);
 
@@ -1518,20 +1518,20 @@ void Sc::Scene::solver(PxBaseTask* continuation)
 
 namespace
 {
-	class ScBeforeSolverTask : public Cm::Task
+	class ScBeforeSolverTask : public ev4sio_Cm::Task
 	{
 	public:
 		static const PxU32 MaxBodiesPerTask = 256;
 		PxNodeIndex					mBodies[MaxBodiesPerTask];
 		PxU32						mNumBodies;
 		const PxReal				mDt;
-		IG::SimpleIslandManager*	mIslandManager;
+		ev4sio_IG::SimpleIslandManager*	mIslandManager;
 		PxsSimulationController*	mSimulationController;
 
 	public:
 
-		ScBeforeSolverTask(PxReal dt, IG::SimpleIslandManager* islandManager, PxsSimulationController* simulationController, PxU64 contextID) : 
-			Cm::Task				(contextID),
+		ScBeforeSolverTask(PxReal dt, ev4sio_IG::SimpleIslandManager* islandManager, PxsSimulationController* simulationController, PxU64 contextID) : 
+			ev4sio_Cm::Task				(contextID),
 			mDt						(dt),
 			mIslandManager			(islandManager),
 			mSimulationController	(simulationController)
@@ -1542,7 +1542,7 @@ namespace
 		{
 			PX_PROFILE_ZONE("Sim.ScBeforeSolverTask", mContextID);
 
-			const IG::IslandSim& islandSim = mIslandManager->getAccurateIslandSim();
+			const ev4sio_IG::IslandSim& islandSim = mIslandManager->getAccurateIslandSim();
 			const PxU32 rigidBodyOffset = BodySim::getRigidBodyOffset();
 
 			PxsRigidBody* updatedBodySims[MaxBodiesPerTask];
@@ -1557,7 +1557,7 @@ namespace
 
 				if(islandSim.getActiveNodeIndex(index) != PX_INVALID_NODE)
 				{
-					if(islandSim.getNode(index).mType == IG::Node::eRIGID_BODY_TYPE)
+					if(islandSim.getNode(index).mType == ev4sio_IG::Node::eRIGID_BODY_TYPE)
 					{
 						PxsRigidBody* body = islandSim.getRigidBody(index);
 						BodySim* bodySim = reinterpret_cast<BodySim*>(reinterpret_cast<PxU8*>(body) - rigidBodyOffset);
@@ -1579,18 +1579,18 @@ namespace
 		PX_NOCOPY(ScBeforeSolverTask)
 	};
 
-	class ScArticBeforeSolverTask : public Cm::Task
+	class ScArticBeforeSolverTask : public ev4sio_Cm::Task
 	{
 	public:
 		ArticulationSim* const*		mArticSims;
 		const PxU32					mNumArticulations;
 		const PxReal				mDt;
-		IG::SimpleIslandManager*	mIslandManager;
+		ev4sio_IG::SimpleIslandManager*	mIslandManager;
 
 	public:
 
-		ScArticBeforeSolverTask(ArticulationSim* const* articSims, PxU32 nbArtics, PxReal dt, IG::SimpleIslandManager* islandManager, PxU64 contextID) :
-			Cm::Task(contextID),
+		ScArticBeforeSolverTask(ArticulationSim* const* articSims, PxU32 nbArtics, PxReal dt, ev4sio_IG::SimpleIslandManager* islandManager, PxU64 contextID) :
+			ev4sio_Cm::Task(contextID),
 			mArticSims(articSims),
 			mNumArticulations(nbArtics),
 			mDt(dt),
@@ -1601,7 +1601,7 @@ namespace
 		virtual void runInternal()
 		{
 			PX_PROFILE_ZONE("Sim.ScArticBeforeSolverTask", mContextID);
-			//const IG::IslandSim& islandSim = mIslandManager->getAccurateIslandSim();
+			//const ev4sio_IG::IslandSim& islandSim = mIslandManager->getAccurateIslandSim();
 
 			for(PxU32 a = 0; a < mNumArticulations; ++a)
 			{
@@ -1621,18 +1621,18 @@ namespace
 		PX_NOCOPY(ScArticBeforeSolverTask)
 	};
 
-	class ScArticBeforeSolverCCDTask : public Cm::Task
+	class ScArticBeforeSolverCCDTask : public ev4sio_Cm::Task
 	{
 	public:
 		const PxNodeIndex* const	mArticIndices;
 		const PxU32					mNumArticulations;
 		const PxReal				mDt;
-		IG::SimpleIslandManager*	mIslandManager;
+		ev4sio_IG::SimpleIslandManager*	mIslandManager;
 
 	public:
 
-		ScArticBeforeSolverCCDTask(const PxNodeIndex* const	articIndices, PxU32 nbArtics, PxReal dt, IG::SimpleIslandManager* islandManager, PxU64 contextID) :
-			Cm::Task(contextID),
+		ScArticBeforeSolverCCDTask(const PxNodeIndex* const	articIndices, PxU32 nbArtics, PxReal dt, ev4sio_IG::SimpleIslandManager* islandManager, PxU64 contextID) :
+			ev4sio_Cm::Task(contextID),
 			mArticIndices(articIndices),
 			mNumArticulations(nbArtics),
 			mDt(dt),
@@ -1643,7 +1643,7 @@ namespace
 		virtual void runInternal()
 		{
 			PX_PROFILE_ZONE("Sim.ScArticBeforeSolverCCDTask", mContextID);
-			const IG::IslandSim& islandSim = mIslandManager->getAccurateIslandSim();
+			const ev4sio_IG::IslandSim& islandSim = mIslandManager->getAccurateIslandSim();
 
 			for(PxU32 a = 0; a < mNumArticulations; ++a)
 			{
@@ -1663,7 +1663,7 @@ namespace
 	};
 }
 
-void Sc::Scene::beforeSolver(PxBaseTask* continuation)
+void ev4sio_Sc::Scene::beforeSolver(PxBaseTask* continuation)
 {
 	PX_PROFILE_ZONE("Sim.updateForces", mContextId);
 
@@ -1674,22 +1674,22 @@ void Sc::Scene::beforeSolver(PxBaseTask* continuation)
 	ThresholdStream& thresholdStream = mDynamicsContext->getThresholdStream();
 	thresholdStream.clear();
 
-	const IG::IslandSim& islandSim = mSimpleIslandManager->getAccurateIslandSim();
+	const ev4sio_IG::IslandSim& islandSim = mSimpleIslandManager->getAccurateIslandSim();
 
-	const PxU32 nbActiveBodies = islandSim.getNbActiveNodes(IG::Node::eRIGID_BODY_TYPE);
+	const PxU32 nbActiveBodies = islandSim.getNbActiveNodes(ev4sio_IG::Node::eRIGID_BODY_TYPE);
 
-	mNumDeactivatingNodes[IG::Node::eRIGID_BODY_TYPE] = 0;//islandSim.getNbNodesToDeactivate(IG::Node::eRIGID_BODY_TYPE);
-	mNumDeactivatingNodes[IG::Node::eARTICULATION_TYPE] = 0;//islandSim.getNbNodesToDeactivate(IG::Node::eARTICULATION_TYPE);
+	mNumDeactivatingNodes[ev4sio_IG::Node::eRIGID_BODY_TYPE] = 0;//islandSim.getNbNodesToDeactivate(ev4sio_IG::Node::eRIGID_BODY_TYPE);
+	mNumDeactivatingNodes[ev4sio_IG::Node::eARTICULATION_TYPE] = 0;//islandSim.getNbNodesToDeactivate(ev4sio_IG::Node::eARTICULATION_TYPE);
 //#if PX_SUPPORT_GPU_PHYSX
-	mNumDeactivatingNodes[IG::Node::eSOFTBODY_TYPE] = 0;
-	mNumDeactivatingNodes[IG::Node::eFEMCLOTH_TYPE] = 0;
-	mNumDeactivatingNodes[IG::Node::ePARTICLESYSTEM_TYPE] = 0;
-	mNumDeactivatingNodes[IG::Node::eHAIRSYSTEM_TYPE] = 0;
+	mNumDeactivatingNodes[ev4sio_IG::Node::eSOFTBODY_TYPE] = 0;
+	mNumDeactivatingNodes[ev4sio_IG::Node::eFEMCLOTH_TYPE] = 0;
+	mNumDeactivatingNodes[ev4sio_IG::Node::ePARTICLESYSTEM_TYPE] = 0;
+	mNumDeactivatingNodes[ev4sio_IG::Node::eHAIRSYSTEM_TYPE] = 0;
 //#endif
 
 	const PxU32 MaxBodiesPerTask = ScBeforeSolverTask::MaxBodiesPerTask;
 
-	Cm::FlushPool& flushPool = mLLContext->getTaskPool();
+	ev4sio_Cm::FlushPool& flushPool = mLLContext->getTaskPool();
 
 	mSimulationController->reserve(nbActiveBodies);
 
@@ -1738,8 +1738,8 @@ void Sc::Scene::beforeSolver(PxBaseTask* continuation)
 	if(mPublicFlags & PxSceneFlag::eENABLE_CCD)
 	{
 		//CCD
-		const PxU32 nbActiveArticulations = islandSim.getNbActiveNodes(IG::Node::eARTICULATION_TYPE);
-		const PxNodeIndex* const articIndices = islandSim.getActiveNodes(IG::Node::eARTICULATION_TYPE);
+		const PxU32 nbActiveArticulations = islandSim.getNbActiveNodes(ev4sio_IG::Node::eARTICULATION_TYPE);
+		const PxNodeIndex* const articIndices = islandSim.getActiveNodes(ev4sio_IG::Node::eARTICULATION_TYPE);
 
 		// PT: TASK-CREATION TAG
 		for(PxU32 a = 0; a < nbActiveArticulations; a += nbArticsPerTask)
@@ -1755,7 +1755,7 @@ void Sc::Scene::beforeSolver(PxBaseTask* continuation)
 	// AD: need to raise dirty flags serially because the PxgBodySimManager::updateArticulation() is not thread-safe.
 	for (PxU32 a = 0; a < nbDirtyArticulations; ++a)
 	{
-		if (artiSim[a]->getLowLevelArticulation()->mGPUDirtyFlags & (Dy::ArticulationDirtyFlag::eDIRTY_EXT_ACCEL))
+		if (artiSim[a]->getLowLevelArticulation()->mGPUDirtyFlags & (ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_EXT_ACCEL))
 		{
 			mSimulationController->updateArticulationExtAccel(artiSim[a]->getLowLevelArticulation(), artiSim[a]->getIslandNodeIndex());
 		}
@@ -1764,7 +1764,7 @@ void Sc::Scene::beforeSolver(PxBaseTask* continuation)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void Sc::Scene::updateBodies(PxBaseTask* continuation)
+void ev4sio_Sc::Scene::updateBodies(PxBaseTask* continuation)
 {
 	//dma bodies and articulation data to gpu
 	mSimulationController->updateBodies(continuation);
@@ -1772,7 +1772,7 @@ void Sc::Scene::updateBodies(PxBaseTask* continuation)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void Sc::Scene::updateDynamics(PxBaseTask* continuation)
+void ev4sio_Sc::Scene::updateDynamics(PxBaseTask* continuation)
 {
 	PX_PROFILE_START_CROSSTHREAD("Basic.dynamics", mContextId);
 
@@ -1806,9 +1806,9 @@ void Sc::Scene::updateDynamics(PxBaseTask* continuation)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void Sc::Scene::processLostContacts(PxBaseTask* continuation)
+void ev4sio_Sc::Scene::processLostContacts(PxBaseTask* continuation)
 {
-	PX_PROFILE_ZONE("Sc::Scene::processLostContacts", mContextId);
+	PX_PROFILE_ZONE("ev4sio_Sc::Scene::processLostContacts", mContextId);
 
 	mProcessNarrowPhaseLostTouchTasks.setContinuation(continuation);
 	mProcessNarrowPhaseLostTouchTasks.removeReference();
@@ -1820,9 +1820,9 @@ void Sc::Scene::processLostContacts(PxBaseTask* continuation)
 	{
 		PX_PROFILE_ZONE("Sim.findInteractionsPtrs", mContextId);
 
-		Bp::AABBManagerBase* aabbMgr = mAABBManager;
+		ev4sio_Bp::AABBManagerBase* aabbMgr = mAABBManager;
 		PxU32 destroyedOverlapCount;
-		Bp::AABBOverlap* PX_RESTRICT p = aabbMgr->getDestroyedOverlaps(Bp::ElementType::eSHAPE, destroyedOverlapCount);
+		ev4sio_Bp::AABBOverlap* PX_RESTRICT p = aabbMgr->getDestroyedOverlaps(ev4sio_Bp::ElementType::eSHAPE, destroyedOverlapCount);
 		while(destroyedOverlapCount--)
 		{
 			ElementSim* volume0 = reinterpret_cast<ElementSim*>(p->mUserData0);
@@ -1840,9 +1840,9 @@ void Sc::Scene::processLostContacts(PxBaseTask* continuation)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void Sc::Scene::processNarrowPhaseLostTouchEventsIslands(PxBaseTask*)
+void ev4sio_Sc::Scene::processNarrowPhaseLostTouchEventsIslands(PxBaseTask*)
 {
-	PX_PROFILE_ZONE("Sc::Scene.islandLostTouches", mContextId);
+	PX_PROFILE_ZONE("ev4sio_Sc::Scene.islandLostTouches", mContextId);
 
 	const PxU32 count = mTouchLostEvents.size();
 	for(PxU32 i=0; i <count; ++i)
@@ -1854,7 +1854,7 @@ void Sc::Scene::processNarrowPhaseLostTouchEventsIslands(PxBaseTask*)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void Sc::Scene::addToLostTouchList(ActorSim& body1, ActorSim& body2)
+void ev4sio_Sc::Scene::addToLostTouchList(ActorSim& body1, ActorSim& body2)
 {
 	PX_ASSERT(!body1.isStaticRigid());
 	PX_ASSERT(!body2.isStaticRigid());
@@ -1862,9 +1862,9 @@ void Sc::Scene::addToLostTouchList(ActorSim& body1, ActorSim& body2)
 	mLostTouchPairs.pushBack(p);
 }
 
-void Sc::Scene::processNarrowPhaseLostTouchEvents(PxBaseTask*)
+void ev4sio_Sc::Scene::processNarrowPhaseLostTouchEvents(PxBaseTask*)
 {
-	PX_PROFILE_ZONE("Sc::Scene.processNarrowPhaseLostTouchEvents", mContextId);
+	PX_PROFILE_ZONE("ev4sio_Sc::Scene.processNarrowPhaseLostTouchEvents", mContextId);
 
 	PxvNphaseImplementationContext*	ctx = mLLContext->getNphaseImplementationContext();
 
@@ -1881,7 +1881,7 @@ void Sc::Scene::processNarrowPhaseLostTouchEvents(PxBaseTask*)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void Sc::Scene::processLostContacts2(PxBaseTask* continuation)
+void ev4sio_Sc::Scene::processLostContacts2(PxBaseTask* continuation)
 {
 	mDestroyManagersTask.setContinuation(continuation);
 	mLostTouchReportsTask.setContinuation(&mDestroyManagersTask);
@@ -1893,10 +1893,10 @@ void Sc::Scene::processLostContacts2(PxBaseTask* continuation)
 	{
 		PX_PROFILE_ZONE("Sim.clearIslandData", mContextId);
 
-		Bp::AABBManagerBase* aabbMgr = mAABBManager;
+		ev4sio_Bp::AABBManagerBase* aabbMgr = mAABBManager;
 		PxU32 destroyedOverlapCount;
 		{
-			Bp::AABBOverlap* PX_RESTRICT p = aabbMgr->getDestroyedOverlaps(Bp::ElementType::eSHAPE, destroyedOverlapCount);
+			ev4sio_Bp::AABBOverlap* PX_RESTRICT p = aabbMgr->getDestroyedOverlaps(ev4sio_Bp::ElementType::eSHAPE, destroyedOverlapCount);
 			while(destroyedOverlapCount--)
 			{
 				ElementSimInteraction* pair = reinterpret_cast<ElementSimInteraction*>(p->mPairUserData);
@@ -1918,7 +1918,7 @@ void Sc::Scene::processLostContacts2(PxBaseTask* continuation)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void Sc::Scene::lostTouchReports(PxBaseTask*)
+void ev4sio_Sc::Scene::lostTouchReports(PxBaseTask*)
 {
 	PX_PROFILE_ZONE("Sim.lostTouchReports", mContextId);
 
@@ -1927,7 +1927,7 @@ void Sc::Scene::lostTouchReports(PxBaseTask*)
 	mNPhaseCore->lockReports();
 	{
 		PxU32 destroyedOverlapCount;
-		const Bp::AABBOverlap* PX_RESTRICT p = mAABBManager->getDestroyedOverlaps(Bp::ElementType::eSHAPE, destroyedOverlapCount);
+		const ev4sio_Bp::AABBOverlap* PX_RESTRICT p = mAABBManager->getDestroyedOverlaps(ev4sio_Bp::ElementType::eSHAPE, destroyedOverlapCount);
 		while(destroyedOverlapCount--)
 		{
 			if(p->mPairUserData)
@@ -1944,12 +1944,12 @@ void Sc::Scene::lostTouchReports(PxBaseTask*)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void Sc::Scene::unregisterInteractions(PxBaseTask*)
+void ev4sio_Sc::Scene::unregisterInteractions(PxBaseTask*)
 {
 	PX_PROFILE_ZONE("Sim.unregisterInteractions", mContextId);
 
 	PxU32 destroyedOverlapCount;
-	const Bp::AABBOverlap* PX_RESTRICT p = mAABBManager->getDestroyedOverlaps(Bp::ElementType::eSHAPE, destroyedOverlapCount);
+	const ev4sio_Bp::AABBOverlap* PX_RESTRICT p = mAABBManager->getDestroyedOverlaps(ev4sio_Bp::ElementType::eSHAPE, destroyedOverlapCount);
 
 	while(destroyedOverlapCount--)
 	{
@@ -1965,7 +1965,7 @@ void Sc::Scene::unregisterInteractions(PxBaseTask*)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void Sc::Scene::destroyManagers(PxBaseTask*)
+void ev4sio_Sc::Scene::destroyManagers(PxBaseTask*)
 {
 	PX_PROFILE_ZONE("Sim.destroyManagers", mContextId);
 
@@ -1974,7 +1974,7 @@ void Sc::Scene::destroyManagers(PxBaseTask*)
 	mSimpleIslandManager->thirdPassIslandGen(&mPostThirdPassIslandGenTask);
 
 	PxU32 destroyedOverlapCount;
-	const Bp::AABBOverlap* PX_RESTRICT p = mAABBManager->getDestroyedOverlaps(Bp::ElementType::eSHAPE, destroyedOverlapCount);
+	const ev4sio_Bp::AABBOverlap* PX_RESTRICT p = mAABBManager->getDestroyedOverlaps(ev4sio_Bp::ElementType::eSHAPE, destroyedOverlapCount);
 
 	while(destroyedOverlapCount--)
 	{
@@ -1994,19 +1994,19 @@ void Sc::Scene::destroyManagers(PxBaseTask*)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void Sc::Scene::processLostContacts3(PxBaseTask* /*continuation*/)
+void ev4sio_Sc::Scene::processLostContacts3(PxBaseTask* /*continuation*/)
 {
 	{
 		PX_PROFILE_ZONE("Sim.processLostOverlapsStage2", mContextId);
 
 		PxsContactManagerOutputIterator outputs = mLLContext->getNphaseImplementationContext()->getContactManagerOutputs();
 
-		Bp::AABBManagerBase* aabbMgr = mAABBManager;
+		ev4sio_Bp::AABBManagerBase* aabbMgr = mAABBManager;
 		PxU32 destroyedOverlapCount;
 
 		// PT: for regular shapes
 		{
-			const Bp::AABBOverlap* PX_RESTRICT p = aabbMgr->getDestroyedOverlaps(Bp::ElementType::eSHAPE, destroyedOverlapCount);
+			const ev4sio_Bp::AABBOverlap* PX_RESTRICT p = aabbMgr->getDestroyedOverlaps(ev4sio_Bp::ElementType::eSHAPE, destroyedOverlapCount);
 			while(destroyedOverlapCount--)
 			{
 				ElementSim* volume0 = reinterpret_cast<ElementSim*>(p->mUserData0);
@@ -2019,7 +2019,7 @@ void Sc::Scene::processLostContacts3(PxBaseTask* /*continuation*/)
 
 		// PT: for triggers
 		{
-			const Bp::AABBOverlap* PX_RESTRICT p = aabbMgr->getDestroyedOverlaps(Bp::ElementType::eTRIGGER, destroyedOverlapCount);
+			const ev4sio_Bp::AABBOverlap* PX_RESTRICT p = aabbMgr->getDestroyedOverlaps(ev4sio_Bp::ElementType::eTRIGGER, destroyedOverlapCount);
 			while(destroyedOverlapCount--)
 			{
 				ElementSim* volume0 = reinterpret_cast<ElementSim*>(p->mUserData0);
@@ -2040,31 +2040,31 @@ void Sc::Scene::processLostContacts3(PxBaseTask* /*continuation*/)
 
 /*static*/ bool deactivateInteraction(Interaction* interaction, const InteractionType::Enum type);
 
-void Sc::Scene::postThirdPassIslandGen(PxBaseTask* /*continuation*/)
+void ev4sio_Sc::Scene::postThirdPassIslandGen(PxBaseTask* /*continuation*/)
 {
-	PX_PROFILE_ZONE("Sc::Scene::postThirdPassIslandGen", mContextId);
+	PX_PROFILE_ZONE("ev4sio_Sc::Scene::postThirdPassIslandGen", mContextId);
 
 	putObjectsToSleep();
 
 	{
-		PX_PROFILE_ZONE("Sc::Scene::putInteractionsToSleep", mContextId);
-		const IG::IslandSim& islandSim = mSimpleIslandManager->getSpeculativeIslandSim();
+		PX_PROFILE_ZONE("ev4sio_Sc::Scene::putInteractionsToSleep", mContextId);
+		const ev4sio_IG::IslandSim& islandSim = mSimpleIslandManager->getSpeculativeIslandSim();
 
 		//KS - only deactivate contact managers based on speculative state to trigger contact gen. When the actors were deactivated based on accurate state
 		//joints should have been deactivated.
 
 		const PxU32 NbTypes = 5;
-		const IG::Edge::EdgeType types[NbTypes] = {
-			IG::Edge::eCONTACT_MANAGER,
-			IG::Edge::eSOFT_BODY_CONTACT,
-			IG::Edge::eFEM_CLOTH_CONTACT,
-			IG::Edge::ePARTICLE_SYSTEM_CONTACT,
-			IG::Edge::eHAIR_SYSTEM_CONTACT };
+		const ev4sio_IG::Edge::EdgeType types[NbTypes] = {
+			ev4sio_IG::Edge::eCONTACT_MANAGER,
+			ev4sio_IG::Edge::eSOFT_BODY_CONTACT,
+			ev4sio_IG::Edge::eFEM_CLOTH_CONTACT,
+			ev4sio_IG::Edge::ePARTICLE_SYSTEM_CONTACT,
+			ev4sio_IG::Edge::eHAIR_SYSTEM_CONTACT };
 
 		for(PxU32 t = 0; t < NbTypes; ++t)
 		{
 			const PxU32 nbDeactivatingEdges = islandSim.getNbDeactivatingEdges(types[t]);
-			const IG::EdgeIndex* deactivatingEdgeIds = islandSim.getDeactivatingEdges(types[t]);
+			const ev4sio_IG::EdgeIndex* deactivatingEdgeIds = islandSim.getDeactivatingEdges(types[t]);
 
 			for(PxU32 i = 0; i < nbDeactivatingEdges; ++i)
 			{
@@ -2092,12 +2092,12 @@ void Sc::Scene::postThirdPassIslandGen(PxBaseTask* /*continuation*/)
 ///////////////////////////////////////////////////////////////////////////////
 
 //This is called after solver finish
-void Sc::Scene::updateSimulationController(PxBaseTask* continuation)
+void ev4sio_Sc::Scene::updateSimulationController(PxBaseTask* continuation)
 {
 	PX_PROFILE_ZONE("Sim.updateSimulationController", mContextId);
 	
 	PxsTransformCache& cache = getLowLevelContext()->getTransformCache();
-	Bp::BoundsArray& boundArray = getBoundsArray();
+	ev4sio_Bp::BoundsArray& boundArray = getBoundsArray();
 
 	PxBitMapPinned& changedAABBMgrActorHandles = mAABBManager->getChangedAABBMgActorHandleMap();
 
@@ -2116,9 +2116,9 @@ void Sc::Scene::updateSimulationController(PxBaseTask* continuation)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void Sc::Scene::postSolver(PxBaseTask* /*continuation*/)
+void ev4sio_Sc::Scene::postSolver(PxBaseTask* /*continuation*/)
 {
-	PX_PROFILE_ZONE("Sc::Scene::postSolver", mContextId);
+	PX_PROFILE_ZONE("ev4sio_Sc::Scene::postSolver", mContextId);
 
 	PxcNpMemBlockPool& blockPool = mLLContext->getNpMemBlockPool();
 
@@ -2156,13 +2156,13 @@ void Sc::Scene::postSolver(PxBaseTask* /*continuation*/)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void Sc::Scene::constraintProjection(PxBaseTask* /*continuation*/)
+void ev4sio_Sc::Scene::constraintProjection(PxBaseTask* /*continuation*/)
 {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void Sc::Scene::checkForceThresholdContactEvents(PxU32 ccdPass)
+void ev4sio_Sc::Scene::checkForceThresholdContactEvents(PxU32 ccdPass)
 {
 	PX_PROFILE_ZONE("Sim.checkForceThresholdContactEvents", mContextId);
 
@@ -2215,15 +2215,15 @@ void Sc::Scene::checkForceThresholdContactEvents(PxU32 ccdPass)
 	}
 }
 
-void Sc::Scene::afterIntegration(PxBaseTask* continuation)
+void ev4sio_Sc::Scene::afterIntegration(PxBaseTask* continuation)
 {
-	PX_PROFILE_ZONE("Sc::Scene::afterIntegration", mContextId);
+	PX_PROFILE_ZONE("ev4sio_Sc::Scene::afterIntegration", mContextId);
 
 	mLLContext->getTransformCache().resetChangedState(); //Reset the changed state. If anything outside of the GPU kernels updates any shape's transforms, this will be raised again
 	getBoundsArray().resetChangedState();
 
 	PxsTransformCache& cache = getLowLevelContext()->getTransformCache();
-	Bp::BoundsArray& boundArray = getBoundsArray();
+	ev4sio_Bp::BoundsArray& boundArray = getBoundsArray();
 
 	{
 		PX_PROFILE_ZONE("AfterIntegration::lockStage", mContextId);
@@ -2234,15 +2234,15 @@ void Sc::Scene::afterIntegration(PxBaseTask* continuation)
 			mSimulationController->updateScBodyAndShapeSim(cache, boundArray, continuation);
 		}
 
-		const IG::IslandSim& islandSim = mSimpleIslandManager->getAccurateIslandSim();
+		const ev4sio_IG::IslandSim& islandSim = mSimpleIslandManager->getAccurateIslandSim();
 
 		const PxU32 rigidBodyOffset = BodySim::getRigidBodyOffset();
 
-		const PxU32 numBodiesToDeactivate = islandSim.getNbNodesToDeactivate(IG::Node::eRIGID_BODY_TYPE);
+		const PxU32 numBodiesToDeactivate = islandSim.getNbNodesToDeactivate(ev4sio_IG::Node::eRIGID_BODY_TYPE);
 
-		const PxNodeIndex*const deactivatingIndices = islandSim.getNodesToDeactivate(IG::Node::eRIGID_BODY_TYPE);
+		const PxNodeIndex*const deactivatingIndices = islandSim.getNodesToDeactivate(ev4sio_IG::Node::eRIGID_BODY_TYPE);
 
-		PxU32 previousNumBodiesToDeactivate = mNumDeactivatingNodes[IG::Node::eRIGID_BODY_TYPE];
+		PxU32 previousNumBodiesToDeactivate = mNumDeactivatingNodes[ev4sio_IG::Node::eRIGID_BODY_TYPE];
 
 		{
 			PX_PROFILE_ZONE("AfterIntegration::deactivateStage", mContextId);
@@ -2289,18 +2289,18 @@ void Sc::Scene::afterIntegration(PxBaseTask* continuation)
 		mLLContext->getLock().unlock();
 	}
 
-	IG::IslandSim& islandSim = mSimpleIslandManager->getAccurateIslandSim();
+	ev4sio_IG::IslandSim& islandSim = mSimpleIslandManager->getAccurateIslandSim();
 
-	const PxU32 nbActiveArticulations = islandSim.getNbActiveNodes(IG::Node::eARTICULATION_TYPE);
+	const PxU32 nbActiveArticulations = islandSim.getNbActiveNodes(ev4sio_IG::Node::eARTICULATION_TYPE);
 
 	if(nbActiveArticulations)
 		mSimulationController->updateArticulationAfterIntegration(mLLContext, mAABBManager, mCcdBodies, continuation, islandSim, mDt);
 
-	const PxU32 numArticsToDeactivate = islandSim.getNbNodesToDeactivate(IG::Node::eARTICULATION_TYPE);
+	const PxU32 numArticsToDeactivate = islandSim.getNbNodesToDeactivate(ev4sio_IG::Node::eARTICULATION_TYPE);
 
-	const PxNodeIndex*const deactivatingArticIndices = islandSim.getNodesToDeactivate(IG::Node::eARTICULATION_TYPE);
+	const PxNodeIndex*const deactivatingArticIndices = islandSim.getNodesToDeactivate(ev4sio_IG::Node::eARTICULATION_TYPE);
 
-	PxU32 previousNumArticsToDeactivate = mNumDeactivatingNodes[IG::Node::eARTICULATION_TYPE];
+	PxU32 previousNumArticsToDeactivate = mNumDeactivatingNodes[ev4sio_IG::Node::eARTICULATION_TYPE];
 
 	for(PxU32 i = previousNumArticsToDeactivate; i < numArticsToDeactivate; ++i)
 	{
@@ -2309,9 +2309,9 @@ void Sc::Scene::afterIntegration(PxBaseTask* continuation)
 		artic->putToSleep();
 	}
 
-	//PxU32 previousNumClothToDeactivate = mNumDeactivatingNodes[IG::Node::eFEMCLOTH_TYPE];
-	//const PxU32 numClothToDeactivate = islandSim.getNbNodesToDeactivate(IG::Node::eFEMCLOTH_TYPE);
-	//const IG::NodeIndex*const deactivatingClothIndices = islandSim.getNodesToDeactivate(IG::Node::eFEMCLOTH_TYPE);
+	//PxU32 previousNumClothToDeactivate = mNumDeactivatingNodes[ev4sio_IG::Node::eFEMCLOTH_TYPE];
+	//const PxU32 numClothToDeactivate = islandSim.getNbNodesToDeactivate(ev4sio_IG::Node::eFEMCLOTH_TYPE);
+	//const ev4sio_IG::NodeIndex*const deactivatingClothIndices = islandSim.getNodesToDeactivate(ev4sio_IG::Node::eFEMCLOTH_TYPE);
 
 	//for (PxU32 i = previousNumClothToDeactivate; i < numClothToDeactivate; ++i)
 	//{
@@ -2319,13 +2319,13 @@ void Sc::Scene::afterIntegration(PxBaseTask* continuation)
 	//	mSimulationController->deactivateCloth(cloth);
 	//}
 
-	//PxU32 previousNumSoftBodiesToDeactivate = mNumDeactivatingNodes[IG::Node::eSOFTBODY_TYPE];
-	//const PxU32 numSoftBodiesToDeactivate = islandSim.getNbNodesToDeactivate(IG::Node::eSOFTBODY_TYPE);
-	//const IG::NodeIndex*const deactivatingSoftBodiesIndices = islandSim.getNodesToDeactivate(IG::Node::eSOFTBODY_TYPE);
+	//PxU32 previousNumSoftBodiesToDeactivate = mNumDeactivatingNodes[ev4sio_IG::Node::eSOFTBODY_TYPE];
+	//const PxU32 numSoftBodiesToDeactivate = islandSim.getNbNodesToDeactivate(ev4sio_IG::Node::eSOFTBODY_TYPE);
+	//const ev4sio_IG::NodeIndex*const deactivatingSoftBodiesIndices = islandSim.getNodesToDeactivate(ev4sio_IG::Node::eSOFTBODY_TYPE);
 
 	//for (PxU32 i = previousNumSoftBodiesToDeactivate; i < numSoftBodiesToDeactivate; ++i)
 	//{
-	//	Dy::SoftBody* softbody = islandSim.getLLSoftBody(deactivatingSoftBodiesIndices[i]);
+	//	ev4sio_Dy::SoftBody* softbody = islandSim.getLLSoftBody(deactivatingSoftBodiesIndices[i]);
 	//	printf("after Integration: Deactivating soft body %i\n", softbody->getGpuRemapId());
 	//	//mSimulationController->deactivateSoftbody(softbody);
 	//	softbody->getSoftBodySim()->setActive(false, 0);
@@ -2338,7 +2338,7 @@ void Sc::Scene::afterIntegration(PxBaseTask* continuation)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void Sc::Scene::fireOnAdvanceCallback()
+void ev4sio_Sc::Scene::fireOnAdvanceCallback()
 {
 	if(!mSimulationEventCallback)
 		return;
@@ -2371,7 +2371,7 @@ void Sc::Scene::fireOnAdvanceCallback()
 		mSimulationEventCallback->onAdvance(mClientPosePreviewBodies.begin(), mClientPosePreviewBuffer.begin(), bodyCount);
 }
 
-void Sc::Scene::finalizationPhase(PxBaseTask* /*continuation*/)
+void ev4sio_Sc::Scene::finalizationPhase(PxBaseTask* /*continuation*/)
 {
 	PX_PROFILE_ZONE("Sim.sceneFinalization", mContextId);
 

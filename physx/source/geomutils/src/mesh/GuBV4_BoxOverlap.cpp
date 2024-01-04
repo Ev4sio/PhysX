@@ -27,9 +27,9 @@
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
 
 #include "GuBV4.h"
-using namespace physx;
-using namespace Gu;
-using namespace physx::aos;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
+using namespace ev4sio_physx::aos;
 
 #include "GuInternal.h"
 #include "GuDistancePointSegment.h"

@@ -36,7 +36,7 @@
 #include "common/PxCoreUtilityTypes.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 	class PxTetrahedronMesh;
@@ -104,7 +104,7 @@ namespace physx
 	}
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
   /** @} */

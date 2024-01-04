@@ -35,35 +35,35 @@
 #include "GuIncrementalAABBTree.h"
 #include "GuAABBTreeBounds.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Gu
+namespace ev4sio_Gu
 {
 	class PruningPool;
 }
 
-namespace Sq
+namespace ev4sio_Sq
 {
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
 
-	typedef PxArray<Gu::IncrementalAABBTreeNode*>	UpdateMap;
+	typedef PxArray<ev4sio_Gu::IncrementalAABBTreeNode*>	UpdateMap;
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
 
 	class CompoundTree
 	{
 	public:
-		void	updateObjectAfterManualBoundsUpdates(Gu::PrunerHandle handle);
-		void	removeObject(Gu::PrunerHandle handle, Gu::PrunerPayloadRemovalCallback* removalCallback);
-		bool	addObject(Gu::PrunerHandle& result, const PxBounds3& bounds, const Gu::PrunerPayload& data, const PxTransform& transform);
+		void	updateObjectAfterManualBoundsUpdates(ev4sio_Gu::PrunerHandle handle);
+		void	removeObject(ev4sio_Gu::PrunerHandle handle, ev4sio_Gu::PrunerPayloadRemovalCallback* removalCallback);
+		bool	addObject(ev4sio_Gu::PrunerHandle& result, const PxBounds3& bounds, const ev4sio_Gu::PrunerPayload& data, const PxTransform& transform);
 
 	private:
-		void	updateMapping(const Gu::PoolIndex poolIndex, Gu::IncrementalAABBTreeNode* node, const Gu::NodeList& changedLeaves);
+		void	updateMapping(const ev4sio_Gu::PoolIndex poolIndex, ev4sio_Gu::IncrementalAABBTreeNode* node, const ev4sio_Gu::NodeList& changedLeaves);
 
 	public:
-		Gu::IncrementalAABBTree*	mTree;
-		Gu::PruningPool*			mPruningPool;
+		ev4sio_Gu::IncrementalAABBTree*	mTree;
+		ev4sio_Gu::PruningPool*			mPruningPool;
 		UpdateMap*					mUpdateMap;
 		PxTransform					mGlobalPose;
 		PxCompoundPrunerQueryFlags	mFlags;
@@ -79,12 +79,12 @@ namespace Sq
 
 						void						preallocate(PxU32 newCapacity);
 
-						Gu::PoolIndex				addCompound(Gu::PrunerHandle* results, const Gu::BVH& bvh, const PxBounds3& compoundBounds, const PxTransform& transform, bool isDynamic, const Gu::PrunerPayload* data, const PxTransform* transforms);
-						Gu::PoolIndex				removeCompound(Gu::PoolIndex index, Gu::PrunerPayloadRemovalCallback* removalCallback);
+						ev4sio_Gu::PoolIndex				addCompound(ev4sio_Gu::PrunerHandle* results, const ev4sio_Gu::BVH& bvh, const PxBounds3& compoundBounds, const PxTransform& transform, bool isDynamic, const ev4sio_Gu::PrunerPayload* data, const PxTransform* transforms);
+						ev4sio_Gu::PoolIndex				removeCompound(ev4sio_Gu::PoolIndex index, ev4sio_Gu::PrunerPayloadRemovalCallback* removalCallback);
 
 						void						shiftOrigin(const PxVec3& shift);
 
-		PX_FORCE_INLINE const Gu::AABBTreeBounds&	getCurrentAABBTreeBounds()	const	{ return mCompoundBounds;				}
+		PX_FORCE_INLINE const ev4sio_Gu::AABBTreeBounds&	getCurrentAABBTreeBounds()	const	{ return mCompoundBounds;				}
 		PX_FORCE_INLINE const PxBounds3*			getCurrentCompoundBounds()	const	{ return mCompoundBounds.getBounds();	}
 		PX_FORCE_INLINE PxBounds3*					getCurrentCompoundBounds()			{ return mCompoundBounds.getBounds();	}
 
@@ -100,7 +100,7 @@ namespace Sq
 						PxU32						mMaxNbObjects;		//!< Max. number of objects (capacity for mWorldBoxes, mObjects)
 
 		//!< these arrays are parallel
-						Gu::AABBTreeBounds			mCompoundBounds;	//!< List of compound world boxes, stores mNbObjects, capacity=mMaxNbObjects		
+						ev4sio_Gu::AABBTreeBounds			mCompoundBounds;	//!< List of compound world boxes, stores mNbObjects, capacity=mMaxNbObjects		
 						CompoundTree*				mCompoundTrees;
 
 						PxU64						mContextID;

@@ -32,16 +32,16 @@
 #include "DySolverConstraintExtShared.h"
 #include "DyFeatherstoneArticulation.h"
 
-using namespace physx;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
 
 // constraint-gen only, since these use getVelocityFast methods
 // which aren't valid during the solver phase
 
-namespace physx
+namespace ev4sio_physx
 {
 
-namespace Dy
+namespace ev4sio_Dy
 {
 
 
@@ -61,7 +61,7 @@ bool setupFinalizeExtSolverContactsCoulomb(
 							PxReal invMassScale1, PxReal invInertiaScale1,
 							PxReal restDist,
 							PxReal ccdMaxDistance,
-							Cm::SpatialVectorF* Z,
+							ev4sio_Cm::SpatialVectorF* Z,
 							const PxReal solverOffsetSlop)
 {
 	// NOTE II: the friction patches are sparse (some of them have no contact patches, and
@@ -92,8 +92,8 @@ bool setupFinalizeExtSolverContactsCoulomb(
 	const FloatV restDistance = FLoad(restDist); 
 	const FloatV bounceThreshold = FLoad(bounceThresholdF32);
 
-	const Cm::SpatialVectorV vel0 = b0.getVelocity();
-	const Cm::SpatialVectorV vel1 = b1.getVelocity();
+	const ev4sio_Cm::SpatialVectorV vel0 = b0.getVelocity();
+	const ev4sio_Cm::SpatialVectorV vel1 = b1.getVelocity();
 
 	const FloatV invDtV = FLoad(invDt);
 	const FloatV pt8 = FLoad(0.8f);
@@ -277,13 +277,13 @@ bool setupFinalizeExtSolverContactsCoulomb(
 						ind = 1 - ind;
 						const Vec3V raXn = V3Cross(ra, t0); 
 						const Vec3V rbXn = V3Cross(rb, t0);
-						Cm::SpatialVectorV deltaV0, deltaV1;
+						ev4sio_Cm::SpatialVectorV deltaV0, deltaV1;
 
-						const Cm::SpatialVectorV resp0 = createImpulseResponseVector(t0, raXn, b0);
-						const Cm::SpatialVectorV resp1 = createImpulseResponseVector(V3Neg(t0), V3Neg(rbXn), b1);
+						const ev4sio_Cm::SpatialVectorV resp0 = createImpulseResponseVector(t0, raXn, b0);
+						const ev4sio_Cm::SpatialVectorV resp1 = createImpulseResponseVector(V3Neg(t0), V3Neg(rbXn), b1);
 
 						FloatV unitResponse = getImpulseResponse(b0, resp0, deltaV0, d0, angD0,
-																 b1, resp1, deltaV1, d1, angD1, reinterpret_cast<Cm::SpatialVectorV*>(Z));
+																 b1, resp1, deltaV1, d1, angD1, reinterpret_cast<ev4sio_Cm::SpatialVectorV*>(Z));
 
 						FloatV tv = V3Dot(targetVel, t0);
 						if(b0.mLinkIndex == PxSolverConstraintDesc::RIGID_BODY)

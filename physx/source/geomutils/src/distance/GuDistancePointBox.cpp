@@ -28,9 +28,9 @@
 
 #include "GuDistancePointBox.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
-PxReal Gu::distancePointBoxSquared(	const PxVec3& point, 
+PxReal ev4sio_Gu::distancePointBoxSquared(	const PxVec3& point, 
 									const PxVec3& boxOrigin, const PxVec3& boxExtent, const PxMat33& boxBase, 
 									PxVec3* boxParam)
 {

@@ -32,9 +32,9 @@
 #include "extensions/PxStringTableExt.h"
 #include "PxProfileAllocatorWrapper.h" //tools for using a custom allocator
 
-namespace physx
+namespace ev4sio_physx
 {
-	using namespace physx::profile;
+	using namespace ev4sio_physx::profile;
 
 	class PxStringTableImpl : public PxStringTable, public PxUserAllocated
 	{
@@ -69,7 +69,7 @@ namespace physx
 				size_t len( strlen( inSrc ) );
 				len += 1;
 				char* newMem = reinterpret_cast<char*>(mWrapper.getAllocator().allocate( len, "PxStringTableImpl: const char*", PX_FL));
-				physx::Pxstrlcpy( newMem, len, inSrc );
+				ev4sio_physx::Pxstrlcpy( newMem, len, inSrc );
 				mHashMap.insert( newMem, 1 );
 				return newMem;
 			}

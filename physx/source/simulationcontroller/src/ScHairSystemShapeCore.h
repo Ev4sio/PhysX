@@ -34,13 +34,13 @@
 #include "ScShapeCore.h"
 #include "PxShape.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	class PxCudaContextManager;
 
-	namespace Sc
+	namespace ev4sio_Sc
 	{
-		class HairSystemShapeCore : public Sc::ShapeCore
+		class HairSystemShapeCore : public ev4sio_Sc::ShapeCore
 		{
 		public:
 			// PX_SERIALIZATION
@@ -50,8 +50,8 @@ namespace physx
 			HairSystemShapeCore();
 			~HairSystemShapeCore();
 
-			PX_FORCE_INLINE const	Dy::HairSystemCore&	getLLCore() const	{ return mLLCore; }
-			PX_FORCE_INLINE			Dy::HairSystemCore&	getLLCore()			{ return mLLCore; }
+			PX_FORCE_INLINE const	ev4sio_Dy::HairSystemCore&	getLLCore() const	{ return mLLCore; }
+			PX_FORCE_INLINE			ev4sio_Dy::HairSystemCore&	getLLCore()			{ return mLLCore; }
 
 			void createBuffers(PxCudaContextManager* cudaContextManager);
 			void releaseBuffers();
@@ -59,13 +59,13 @@ namespace physx
 			PxU64& getGpuMemStat() { return mGpuMemStat; }
 
 		private:
-			Dy::HairSystemCore		mLLCore;
+			ev4sio_Dy::HairSystemCore		mLLCore;
 			PxU64					mGpuMemStat;
 			PxCudaContextManager*	mCudaContextManager;
 		};
 
-	} // namespace Sc
-} // namespace physx
+	} // namespace ev4sio_Sc
+} // namespace ev4sio_physx
 #endif
 
 #endif

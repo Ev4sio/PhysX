@@ -27,10 +27,10 @@
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
 
 #include "GuBV4.h"
-using namespace physx;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
 
 #define SWEEP_AABB_IMPL
 #include "foundation/PxVecMath.h"
-using namespace physx::aos;
+using namespace ev4sio_physx::aos;
 #include "GuBV4_BoxSweep_Internal.h"

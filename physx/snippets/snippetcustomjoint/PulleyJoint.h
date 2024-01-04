@@ -43,66 +43,66 @@
 // The above equation results in a singularity when the anchor point is coincident with the attachment point; for simplicity
 // the constraint does not attempt to handle this case robustly.
 
-class PulleyJoint : public physx::PxConstraintConnector
+class PulleyJoint : public ev4sio_physx::PxConstraintConnector
 {
 public:
 
-	static const physx::PxU32 TYPE_ID = physx::PxConcreteType::eFIRST_USER_EXTENSION;
+	static const ev4sio_physx::PxU32 TYPE_ID = ev4sio_physx::PxConcreteType::eFIRST_USER_EXTENSION;
 
-	PulleyJoint(physx::PxPhysics& physics, 
-				physx::PxRigidBody& body0, const physx::PxTransform& localFrame0, const physx::PxVec3& attachment0,
-			    physx::PxRigidBody& body1, const physx::PxTransform& localFrame1, const physx::PxVec3& attachment1);
+	PulleyJoint(ev4sio_physx::PxPhysics& physics, 
+				ev4sio_physx::PxRigidBody& body0, const ev4sio_physx::PxTransform& localFrame0, const ev4sio_physx::PxVec3& attachment0,
+			    ev4sio_physx::PxRigidBody& body1, const ev4sio_physx::PxTransform& localFrame1, const ev4sio_physx::PxVec3& attachment1);
 
 	void release();
 
 	// attribute accessor and mutators
 
-	void			setAttachment0(const physx::PxVec3& pos);
-	physx::PxVec3	getAttachment0() const;
+	void			setAttachment0(const ev4sio_physx::PxVec3& pos);
+	ev4sio_physx::PxVec3	getAttachment0() const;
 
-	void			setAttachment1(const physx::PxVec3& pos);
-	physx::PxVec3	getAttachment1() const;
+	void			setAttachment1(const ev4sio_physx::PxVec3& pos);
+	ev4sio_physx::PxVec3	getAttachment1() const;
 
-	void			setDistance(physx::PxReal totalDistance);
-	physx::PxReal	getDistance() const;
+	void			setDistance(ev4sio_physx::PxReal totalDistance);
+	ev4sio_physx::PxReal	getDistance() const;
 	
-	void			setRatio(physx::PxReal ratio);
-	physx::PxReal	getRatio() const;
+	void			setRatio(ev4sio_physx::PxReal ratio);
+	ev4sio_physx::PxReal	getRatio() const;
 
 	// PxConstraintConnector boilerplate
 
 	void*			prepareData();
 	void			onConstraintRelease();
-	void			onComShift(physx::PxU32 actor);
-	void			onOriginShift(const physx::PxVec3& shift);
-	void*			getExternalReference(physx::PxU32& typeID);
+	void			onComShift(ev4sio_physx::PxU32 actor);
+	void			onOriginShift(const ev4sio_physx::PxVec3& shift);
+	void*			getExternalReference(ev4sio_physx::PxU32& typeID);
 
-	bool			updatePvdProperties(physx::pvdsdk::PvdDataStream&,
-										const physx::PxConstraint*,
-										physx::PxPvdUpdateType::Enum) const { return true; }
+	bool			updatePvdProperties(ev4sio_physx::pvdsdk::PvdDataStream&,
+										const ev4sio_physx::PxConstraint*,
+										ev4sio_physx::PxPvdUpdateType::Enum) const { return true; }
 	void			updateOmniPvdProperties() const { }
-	physx::PxBase*	getSerializable() { return NULL; }
+	ev4sio_physx::PxBase*	getSerializable() { return NULL; }
 
-	virtual physx::PxConstraintSolverPrep getPrep() const;
+	virtual ev4sio_physx::PxConstraintSolverPrep getPrep() const;
 
 	virtual const void* getConstantBlock() const { return &mData; }
 
 	struct PulleyJointData
 	{
-		physx::PxTransform c2b[2];
+		ev4sio_physx::PxTransform c2b[2];
 	
-		physx::PxVec3 attachment0;
-		physx::PxVec3 attachment1;
+		ev4sio_physx::PxVec3 attachment0;
+		ev4sio_physx::PxVec3 attachment1;
 
-		physx::PxReal distance;
-		physx::PxReal ratio;
-		physx::PxReal tolerance;
+		ev4sio_physx::PxReal distance;
+		ev4sio_physx::PxReal ratio;
+		ev4sio_physx::PxReal tolerance;
 	};
 
-	physx::PxRigidBody*		mBody[2];
-	physx::PxTransform		mLocalPose[2];
+	ev4sio_physx::PxRigidBody*		mBody[2];
+	ev4sio_physx::PxTransform		mLocalPose[2];
 
-	physx::PxConstraint*	mConstraint;
+	ev4sio_physx::PxConstraint*	mConstraint;
 	PulleyJointData			mData;
 
 	~PulleyJoint() {}

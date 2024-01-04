@@ -36,7 +36,7 @@
 #include "NpActorTemplate.h"
 #include "GuTetrahedronMesh.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	class NpScene;
 	class NpShape;
@@ -100,8 +100,8 @@ namespace physx
 
 		virtual void					release();
 
-		PX_FORCE_INLINE	const Sc::SoftBodyCore&	getCore()	const	{ return mCore; }
-		PX_FORCE_INLINE	Sc::SoftBodyCore&		getCore()			{ return mCore; }
+		PX_FORCE_INLINE	const ev4sio_Sc::SoftBodyCore&	getCore()	const	{ return mCore; }
+		PX_FORCE_INLINE	ev4sio_Sc::SoftBodyCore&		getCore()			{ return mCore; }
 		static PX_FORCE_INLINE size_t			getCoreOffset()		{ return PX_OFFSET_OF_RT(NpSoftBody, mCore); }
 
 		virtual		void				addParticleFilter(PxPBDParticleSystem* particlesystem, const PxParticleBuffer* buffer, PxU32 particleId, PxU32 tetId);
@@ -151,9 +151,9 @@ namespace physx
 	private:
 
 		NpShape*					mShape; //soft body should just have one shape. The geometry type should be tetrahedron mesh
-		Gu::TetrahedronMesh*		mSimulationMesh;
-		Gu::SoftBodyAuxData*		mSoftBodyAuxData;
-		Sc::SoftBodyCore			mCore;
+		ev4sio_Gu::TetrahedronMesh*		mSimulationMesh;
+		ev4sio_Gu::SoftBodyAuxData*		mSoftBodyAuxData;
+		ev4sio_Sc::SoftBodyCore			mCore;
 		PxCudaContextManager*		mCudaContextManager;
 	};
 }

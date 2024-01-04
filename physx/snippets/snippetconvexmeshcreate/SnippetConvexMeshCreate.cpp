@@ -36,7 +36,7 @@
 #include "PxPhysicsAPI.h"
 #include "../snippetutils/SnippetUtils.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 static PxDefaultAllocator		gAllocator;
 static PxDefaultErrorCallback	gErrorCallback;
@@ -78,14 +78,14 @@ static void createRandomConvex(PxU32 numVerts, const PxVec3* verts)
 	if(directInsertion)
 	{
 		// Directly insert mesh into PhysX
-		convex = PxCreateConvexMesh(params, desc, gPhysics->getPhysicsInsertionCallback());
+		convex = ev4sio_PxCreateConvexMesh(params, desc, gPhysics->getPhysicsInsertionCallback());
 		PX_ASSERT(convex);
 	}
 	else
 	{
 		// Serialize the cooked mesh into a stream.
 		PxDefaultMemoryOutputStream outStream;
-		bool res = PxCookConvexMesh(params, desc, outStream);
+		bool res = ev4sio_PxCookConvexMesh(params, desc, outStream);
 		PX_UNUSED(res);
 		PX_ASSERT(res);
 		meshSize = outStream.getSize();
@@ -148,8 +148,8 @@ static void createConvexMeshes()
 
 void initPhysics()
 {
-	gFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, gAllocator, gErrorCallback);
-	gPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *gFoundation, PxTolerancesScale(),true);
+	gFoundation = ev4sio_PxCreateFoundation(ev4sio_PX_PHYSICS_VERSION, gAllocator, gErrorCallback);
+	gPhysics = ev4sio_PxCreatePhysics(ev4sio_PX_PHYSICS_VERSION, *gFoundation, PxTolerancesScale(),true);
 }
 	
 void cleanupPhysics()

@@ -31,7 +31,7 @@
 
 #include "PxPhysicsAPI.h"
 
-struct CustomConvex : physx::PxCustomGeometry::Callbacks, physx::PxGjkQuery::Support
+struct CustomConvex : ev4sio_physx::PxCustomGeometry::Callbacks, ev4sio_physx::PxGjkQuery::Support
 {
 	float margin;
 
@@ -39,22 +39,22 @@ struct CustomConvex : physx::PxCustomGeometry::Callbacks, physx::PxGjkQuery::Sup
 
 	// override PxCustomGeometry::Callbacks
 
-	virtual physx::PxBounds3 getLocalBounds(const physx::PxGeometry&) const;
-	virtual bool generateContacts(const physx::PxGeometry& geom0, const physx::PxGeometry& geom1, const physx::PxTransform& pose0, const physx::PxTransform& pose1,
-		const physx::PxReal contactDistance, const physx::PxReal meshContactMargin, const physx::PxReal toleranceLength,
-		physx::PxContactBuffer& contactBuffer) const;
-	virtual physx::PxU32 raycast(const physx::PxVec3& origin, const physx::PxVec3& unitDir, const physx::PxGeometry& geom, const physx::PxTransform& pose,
-		physx::PxReal maxDist, physx::PxHitFlags hitFlags, physx::PxU32 maxHits, physx::PxGeomRaycastHit* rayHits, physx::PxU32 stride, physx::PxRaycastThreadContext*) const;
-	virtual bool overlap(const physx::PxGeometry& geom0, const physx::PxTransform& pose0, const physx::PxGeometry& geom1, const physx::PxTransform& pose1, physx::PxOverlapThreadContext*) const;
-	virtual bool sweep(const physx::PxVec3& unitDir, const physx::PxReal maxDist,
-		const physx::PxGeometry& geom0, const physx::PxTransform& pose0, const physx::PxGeometry& geom1, const physx::PxTransform& pose1,
-		physx::PxGeomSweepHit& sweepHit, physx::PxHitFlags hitFlags, const physx::PxReal inflation, physx::PxSweepThreadContext*) const;
-	virtual void visualize(const physx::PxGeometry&, physx::PxRenderOutput&, const physx::PxTransform&, const physx::PxBounds3&) const {}
-	virtual bool usePersistentContactManifold(const physx::PxGeometry&, physx::PxReal&) const { return true; }
+	virtual ev4sio_physx::PxBounds3 getLocalBounds(const ev4sio_physx::PxGeometry&) const;
+	virtual bool generateContacts(const ev4sio_physx::PxGeometry& geom0, const ev4sio_physx::PxGeometry& geom1, const ev4sio_physx::PxTransform& pose0, const ev4sio_physx::PxTransform& pose1,
+		const ev4sio_physx::PxReal contactDistance, const ev4sio_physx::PxReal meshContactMargin, const ev4sio_physx::PxReal toleranceLength,
+		ev4sio_physx::PxContactBuffer& contactBuffer) const;
+	virtual ev4sio_physx::PxU32 raycast(const ev4sio_physx::PxVec3& origin, const ev4sio_physx::PxVec3& unitDir, const ev4sio_physx::PxGeometry& geom, const ev4sio_physx::PxTransform& pose,
+		ev4sio_physx::PxReal maxDist, ev4sio_physx::PxHitFlags hitFlags, ev4sio_physx::PxU32 maxHits, ev4sio_physx::PxGeomRaycastHit* rayHits, ev4sio_physx::PxU32 stride, ev4sio_physx::PxRaycastThreadContext*) const;
+	virtual bool overlap(const ev4sio_physx::PxGeometry& geom0, const ev4sio_physx::PxTransform& pose0, const ev4sio_physx::PxGeometry& geom1, const ev4sio_physx::PxTransform& pose1, ev4sio_physx::PxOverlapThreadContext*) const;
+	virtual bool sweep(const ev4sio_physx::PxVec3& unitDir, const ev4sio_physx::PxReal maxDist,
+		const ev4sio_physx::PxGeometry& geom0, const ev4sio_physx::PxTransform& pose0, const ev4sio_physx::PxGeometry& geom1, const ev4sio_physx::PxTransform& pose1,
+		ev4sio_physx::PxGeomSweepHit& sweepHit, ev4sio_physx::PxHitFlags hitFlags, const ev4sio_physx::PxReal inflation, ev4sio_physx::PxSweepThreadContext*) const;
+	virtual void visualize(const ev4sio_physx::PxGeometry&, ev4sio_physx::PxRenderOutput&, const ev4sio_physx::PxTransform&, const ev4sio_physx::PxBounds3&) const {}
+	virtual bool usePersistentContactManifold(const ev4sio_physx::PxGeometry&, ev4sio_physx::PxReal&) const { return true; }
 
 	// override PxGjkQuery::Support
 
-	virtual physx::PxReal getMargin() const;
+	virtual ev4sio_physx::PxReal getMargin() const;
 };
 struct CustomCylinder : CustomConvex
 {
@@ -66,11 +66,11 @@ struct CustomCylinder : CustomConvex
 
 	DECLARE_CUSTOM_GEOMETRY_TYPE
 
-	virtual void computeMassProperties(const physx::PxGeometry& geometry, physx::PxMassProperties& massProperties) const;
+	virtual void computeMassProperties(const ev4sio_physx::PxGeometry& geometry, ev4sio_physx::PxMassProperties& massProperties) const;
 
 	// override PxGjkQuery::Support
 
-	virtual physx::PxVec3 supportLocal(const physx::PxVec3& dir) const;
+	virtual ev4sio_physx::PxVec3 supportLocal(const ev4sio_physx::PxVec3& dir) const;
 };
 struct CustomCone : CustomConvex
 {
@@ -82,11 +82,11 @@ struct CustomCone : CustomConvex
 
 	DECLARE_CUSTOM_GEOMETRY_TYPE
 
-	virtual void computeMassProperties(const physx::PxGeometry& geometry, physx::PxMassProperties& massProperties) const;
+	virtual void computeMassProperties(const ev4sio_physx::PxGeometry& geometry, ev4sio_physx::PxMassProperties& massProperties) const;
 
 	// override PxGjkQuery::Support
 
-	virtual physx::PxVec3 supportLocal(const physx::PxVec3& dir) const;
+	virtual ev4sio_physx::PxVec3 supportLocal(const ev4sio_physx::PxVec3& dir) const;
 };
 
 #endif

@@ -33,7 +33,7 @@
 
 
 
-namespace physx
+namespace ev4sio_physx
 {
 
 template<class APIClass, class T>

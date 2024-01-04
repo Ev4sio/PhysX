@@ -33,9 +33,9 @@
 #include "foundation/PxUtilities.h"
 #include "foundation/PxUserAllocated.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Gu
+namespace ev4sio_Gu
 {
 	// PT: I'm taking back control of these files and re-introducing the "ICE" naming conventions:
 	// - "Triangle" is for actual triangles (like the PxTriangle class)

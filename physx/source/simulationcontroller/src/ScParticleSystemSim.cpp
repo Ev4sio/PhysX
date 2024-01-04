@@ -32,11 +32,11 @@
 #include "ScParticleSystemCore.h"
 #include "ScScene.h"
 
-using namespace physx;
-using namespace physx::Dy;
+using namespace ev4sio_physx;
+using namespace ev4sio_physx::ev4sio_Dy;
 
 
-Sc::ParticleSystemSim::ParticleSystemSim(ParticleSystemCore& core, Scene& scene) :
+ev4sio_Sc::ParticleSystemSim::ParticleSystemSim(ParticleSystemCore& core, Scene& scene) :
 	ActorSim(scene, core),
 	mShapeSim(*this, &core.getShapeCore())
 {
@@ -61,7 +61,7 @@ Sc::ParticleSystemSim::ParticleSystemSim(ParticleSystemCore& core, Scene& scene)
 	mLLParticleSystem->setShapeCore(shapeCore);
 }
 
-Sc::ParticleSystemSim::~ParticleSystemSim()
+ev4sio_Sc::ParticleSystemSim::~ParticleSystemSim()
 {
 	if (!mLLParticleSystem)
 		return;
@@ -73,37 +73,37 @@ Sc::ParticleSystemSim::~ParticleSystemSim()
 	mCore.setSim(NULL);
 }
 
-void Sc::ParticleSystemSim::updateBounds()
+void ev4sio_Sc::ParticleSystemSim::updateBounds()
 {
 	mShapeSim.updateBounds();
 }
 
-void Sc::ParticleSystemSim::updateBoundsInAABBMgr()
+void ev4sio_Sc::ParticleSystemSim::updateBoundsInAABBMgr()
 {
 	mShapeSim.updateBoundsInAABBMgr();
 }
 
-PxBounds3 Sc::ParticleSystemSim::getBounds() const
+PxBounds3 ev4sio_Sc::ParticleSystemSim::getBounds() const
 {
 	return mShapeSim.getBounds();
 }
 
-bool Sc::ParticleSystemSim::isSleeping() const
+bool ev4sio_Sc::ParticleSystemSim::isSleeping() const
 {
 	return false;
 }
 
-void Sc::ParticleSystemSim::sleepCheck(PxReal dt)
+void ev4sio_Sc::ParticleSystemSim::sleepCheck(PxReal dt)
 {
 	PX_UNUSED(dt);
 }
 
-/*void Sc::ParticleSystemSim::activate()
+/*void ev4sio_Sc::ParticleSystemSim::activate()
 {
 	activateInteractions(*this);
 }
 
-void Sc::ParticleSystemSim::deactivate()
+void ev4sio_Sc::ParticleSystemSim::deactivate()
 {
 	deactivateInteractions(*this);
 }*/

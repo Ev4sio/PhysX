@@ -35,8 +35,8 @@
 #include "GuContactMethodImpl.h"
 #include "GuPCMContactGenUtil.h"
 
-using namespace physx;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
 using namespace aos;
 
 static void getIncidentPolygon(Vec3V* pts, Vec3V& faceNormal, const Vec3VArg axis, const PxMatTransformV& transf1To0, const Vec3VArg extents)
@@ -845,7 +845,7 @@ static PxU32 doBoxBoxGenerateContacts(const Vec3VArg box0Extent, const Vec3VArg 
 	return true;
 }  
 
-bool Gu::pcmContactBoxBox(GU_CONTACT_METHOD_ARGS)
+bool ev4sio_Gu::pcmContactBoxBox(GU_CONTACT_METHOD_ARGS)
 {
 	PX_UNUSED(renderOutput);
 	PX_ASSERT(transform1.q.isSane());

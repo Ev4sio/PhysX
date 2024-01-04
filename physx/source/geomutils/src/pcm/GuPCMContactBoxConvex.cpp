@@ -38,8 +38,8 @@
 
 #define PCM_BOX_HULL_DEBUG 0
 
-using namespace physx;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
 using namespace aos;
 
 static bool fullContactsGenerationBoxConvex(const GjkConvex* relativeConvex, const GjkConvex* localConvex, const PxTransformV& transf0, const PxTransformV& transf1,
@@ -147,7 +147,7 @@ static bool generateOrProcessContactsBoxConvex(	const GjkConvex* relativeConvex,
 	}
 }
 
-bool Gu::pcmContactBoxConvex(GU_CONTACT_METHOD_ARGS)
+bool ev4sio_Gu::pcmContactBoxConvex(GU_CONTACT_METHOD_ARGS)
 {
 	PX_ASSERT(transform1.q.isSane());
 	PX_ASSERT(transform0.q.isSane());

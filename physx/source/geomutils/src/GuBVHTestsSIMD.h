@@ -36,10 +36,10 @@
 #include "geometry/PxCapsuleGeometry.h"
 #include "foundation/PxVecMath.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	using namespace aos;
-namespace Gu
+namespace ev4sio_Gu
 {
 
 struct RayAABBTest

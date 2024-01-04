@@ -32,9 +32,9 @@
 
 #define INTERLEAVE_SELF_CONSTRAINTS 1
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Dy
+namespace ev4sio_Dy
 {
 namespace
 {
@@ -101,7 +101,7 @@ class ExtendedRigidBodyClassification : public ExtendedRigidBodyClassificationBa
 
 public:
 
-	ExtendedRigidBodyClassification(PxU8* bodies, PxU32 numBodies, PxU32 stride, Dy::FeatherstoneArticulation** articulations, PxU32 numArticulations, bool forceStaticCollisionsToSolver) :
+	ExtendedRigidBodyClassification(PxU8* bodies, PxU32 numBodies, PxU32 stride, ev4sio_Dy::FeatherstoneArticulation** articulations, PxU32 numArticulations, bool forceStaticCollisionsToSolver) :
 		ExtendedRigidBodyClassificationBase	(bodies, numBodies, stride, articulations, numArticulations),
 		mForceStaticCollisionsToSolver		(forceStaticCollisionsToSolver)
 	{
@@ -844,8 +844,8 @@ PxU32 partitionContactConstraints(ConstraintPartitionArgs& args)
 	else
 	{
 		const ArticulationSolverDesc* articulationDescs=args.mArticulationPtrs;
-		PX_ALLOCA(_eaArticulations, Dy::FeatherstoneArticulation*, numArticulations);
-		Dy::FeatherstoneArticulation** eaArticulations = _eaArticulations;
+		PX_ALLOCA(_eaArticulations, ev4sio_Dy::FeatherstoneArticulation*, numArticulations);
+		ev4sio_Dy::FeatherstoneArticulation** eaArticulations = _eaArticulations;
 		for(PxU32 i=0;i<numArticulations;i++)
 		{
 			FeatherstoneArticulation* articulation = articulationDescs[i].articulation;
@@ -925,7 +925,7 @@ PxU32 partitionContactConstraints(ConstraintPartitionArgs& args)
 	return maxPartition;
 }
 
-void processOverflowConstraints(PxU8* bodies, PxU32 bodyStride, PxU32 numBodies, Dy::ArticulationSolverDesc* articulationDescs, PxU32 numArticulations,
+void processOverflowConstraints(PxU8* bodies, PxU32 bodyStride, PxU32 numBodies, ev4sio_Dy::ArticulationSolverDesc* articulationDescs, PxU32 numArticulations,
 	PxSolverConstraintDesc* constraints, PxU32 numConstraints)
 {
 	for (PxU32 a = 0, offset = 0; a < numBodies; ++a, offset += bodyStride)
@@ -954,8 +954,8 @@ void processOverflowConstraints(PxU8* bodies, PxU32 bodyStride, PxU32 numBodies,
 	}
 	else
 	{
-		PX_ALLOCA(_eaArticulations, Dy::FeatherstoneArticulation*, numArticulations);
-		Dy::FeatherstoneArticulation** eaArticulations = _eaArticulations;
+		PX_ALLOCA(_eaArticulations, ev4sio_Dy::FeatherstoneArticulation*, numArticulations);
+		ev4sio_Dy::FeatherstoneArticulation** eaArticulations = _eaArticulations;
 		for (PxU32 i = 0; i<numArticulations; i++)
 		{
 			FeatherstoneArticulation* articulation = articulationDescs[i].articulation;

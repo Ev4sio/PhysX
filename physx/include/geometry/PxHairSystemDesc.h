@@ -37,7 +37,7 @@
 #if PX_ENABLE_FEATURES_UNDER_CONSTRUCTION
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -191,7 +191,7 @@ namespace physx
 	}
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

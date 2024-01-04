@@ -33,9 +33,9 @@
 #include "foundation/PxAllocator.h"
 #include "foundation/PxMemory.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Cm
+namespace ev4sio_Cm
 {
 	template<class Element, class Comparator = PxLess<Element> >
 	class PriorityQueueBase : protected Comparator // inherit so that stateless comparators take no space
@@ -177,7 +177,7 @@ namespace Cm
 		InlinePriorityQueue<Element, Capacity, Comparator>& operator = (const InlinePriorityQueue<Element, Capacity, Comparator>);
 	};
 
-	template <typename Element, typename Comparator, typename Alloc = typename physx::PxAllocatorTraits<Element>::Type>
+	template <typename Element, typename Comparator, typename Alloc = typename ev4sio_physx::PxAllocatorTraits<Element>::Type>
 	class PriorityQueue : public PriorityQueueBase<Element, Comparator>, protected Alloc
 	{
 		PxU32 mCapacity;
@@ -216,7 +216,7 @@ namespace Cm
 				Element* newElems = reinterpret_cast<Element*>(Alloc::allocate(sizeof(Element)*newCapacity, PX_FL));
 				if(this->mDataPtr)
 				{
-					physx::PxMemCopy(newElems, this->mDataPtr, sizeof(Element) * this->mHeapSize);
+					ev4sio_physx::PxMemCopy(newElems, this->mDataPtr, sizeof(Element) * this->mHeapSize);
 					Alloc::deallocate(this->mDataPtr);
 				}
 				this->mDataPtr = newElems;

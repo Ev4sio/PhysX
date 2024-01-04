@@ -31,7 +31,7 @@
 
 #include "PxsMaterialCore.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	PX_CUDA_CALLABLE PX_FORCE_INLINE PxReal combineScalars(PxReal a, PxReal b, PxI32 combineMode)
 	{
@@ -97,7 +97,7 @@ namespace physx
 #ifdef __CUDACC__
 			const PxReal fStaFriction = (staFriction - fDynFriction) > 0 ? staFriction : dynFriction;
 #else
-			const PxReal fStaFriction = physx::intrinsics::fsel(staFriction - fDynFriction, staFriction, fDynFriction);
+			const PxReal fStaFriction = ev4sio_physx::intrinsics::fsel(staFriction - fDynFriction, staFriction, fDynFriction);
 #endif
 			dynamicFriction = fDynFriction;
 			staticFriction = fStaFriction;

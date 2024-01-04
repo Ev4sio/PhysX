@@ -31,9 +31,9 @@
 
 #include "DyDynamics.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Dy
+namespace ev4sio_Dy
 {
 #define MAX_NUM_PARTITIONS 32u
 
@@ -112,12 +112,12 @@ class ExtendedRigidBodyClassificationBase
 	const PxU32 mBodyCount;
 	const PxU32 mBodySize;
 	const PxU32 mStride;
-	Dy::FeatherstoneArticulation** mArticulations;
+	ev4sio_Dy::FeatherstoneArticulation** mArticulations;
 	const PxU32 mNumArticulations;
 
 public:
 
-	ExtendedRigidBodyClassificationBase(PxU8* bodies, PxU32 numBodies, PxU32 stride, Dy::FeatherstoneArticulation** articulations, PxU32 numArticulations) :
+	ExtendedRigidBodyClassificationBase(PxU8* bodies, PxU32 numBodies, PxU32 stride, ev4sio_Dy::FeatherstoneArticulation** articulations, PxU32 numArticulations) :
 		mBodies				(bodies),
 		mBodyCount			(numBodies),
 		mBodySize			(numBodies*stride),
@@ -159,7 +159,7 @@ PxU32 partitionContactConstraints(ConstraintPartitionArgs& args);
 void processOverflowConstraints(PxU8* bodies, PxU32 bodyStride, PxU32 numBodies, ArticulationSolverDesc* articulations, PxU32 numArticulations,
 	PxSolverConstraintDesc* constraints, PxU32 numConstraints);
 
-} // namespace physx
+} // namespace ev4sio_physx
 
 }
 

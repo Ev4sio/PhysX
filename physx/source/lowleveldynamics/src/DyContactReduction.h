@@ -32,11 +32,11 @@
 #include "geomutils/PxContactPoint.h"
 #include "PxsMaterialManager.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 
-namespace Dy
+namespace ev4sio_Dy
 {
 
 //KS - might be OK with 4 but 5 guarantees the deepest + 4 contacts that contribute to largest surface area

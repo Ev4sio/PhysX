@@ -203,6 +203,14 @@ struct ConvexDecompositionParams
     uint32_t voxelGridResolution = 1000000;        // Voxel grid resolution used for chunk convex decomposition
                                                    // (default=1,000,000, range=10,000-16,000,000).
     float concavity = 0.0025f;                     // Value between 0 and 1, controls how accurate hull generation is
+
+    bool convexHullApproximation = false;
+
+    uint32_t planeDownsampling = 4;
+
+    uint32_t convexHullDownsampling = 4;
+
+    bool principalComponentAnalysis = false;
 };
 
 }  // namespace Blast

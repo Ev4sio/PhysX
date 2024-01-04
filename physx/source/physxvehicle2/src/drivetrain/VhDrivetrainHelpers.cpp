@@ -36,7 +36,7 @@
 #include "vehicle2/wheel/PxVehicleWheelStates.h"
 
 
-namespace physx
+namespace ev4sio_physx
 {
 namespace vehicle2
 {
@@ -321,9 +321,9 @@ PX_FORCE_INLINE void splitTorque
 	const PxF32 omegaMax = PxMax(w1Abs, w2Abs);
 	const PxF32 omegaMin = PxMin(w1Abs, w2Abs);
 	const PxF32 delta = omegaMax - diffBias * omegaMin;
-	const PxF32 deltaTorque = physx::intrinsics::fsel(delta, delta / omegaMax, 0.0f);
-	const PxF32 f1 = physx::intrinsics::fsel(w1Abs - w2Abs, defaultSplitRatio*(1.0f - deltaTorque), defaultSplitRatio*(1.0f + deltaTorque));
-	const PxF32 f2 = physx::intrinsics::fsel(w1Abs - w2Abs, (1.0f - defaultSplitRatio)*(1.0f + deltaTorque), (1.0f - defaultSplitRatio)*(1.0f - deltaTorque));
+	const PxF32 deltaTorque = ev4sio_physx::intrinsics::fsel(delta, delta / omegaMax, 0.0f);
+	const PxF32 f1 = ev4sio_physx::intrinsics::fsel(w1Abs - w2Abs, defaultSplitRatio*(1.0f - deltaTorque), defaultSplitRatio*(1.0f + deltaTorque));
+	const PxF32 f2 = ev4sio_physx::intrinsics::fsel(w1Abs - w2Abs, (1.0f - defaultSplitRatio)*(1.0f + deltaTorque), (1.0f - defaultSplitRatio)*(1.0f - deltaTorque));
 	const PxF32 denom = 1.0f / (f1 + f2);
 	*t1 = f1 * denom;
 	*t2 = f2 * denom;
@@ -435,5 +435,5 @@ void PxVehicleLegacyDifferentialTorqueRatiosCompute
 
 
 } //namespace vehicle2
-} //namespace physx
+} //namespace ev4sio_physx
 

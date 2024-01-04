@@ -33,8 +33,8 @@
 #include "CmPtrTable.h"
 #include "CmUtils.h"
 
-using namespace physx;
-using namespace Cm;
+using namespace ev4sio_physx;
+using namespace ev4sio_Cm;
 
 PtrTable::PtrTable() :
 	mList		(NULL),
@@ -190,7 +190,7 @@ void PtrTable::replaceWithLast(PxU32 index, PtrTableStorageManager& sm)
 	}
 }
 
-void Cm::PtrTable::getBinaryMetaData(PxOutputStream& stream)
+void ev4sio_Cm::PtrTable::getBinaryMetaData(PxOutputStream& stream)
 {
 	PX_DEF_BIN_METADATA_CLASS(stream,	PtrTable)
 

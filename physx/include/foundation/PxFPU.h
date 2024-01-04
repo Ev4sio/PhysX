@@ -42,7 +42,7 @@
 #define PX_SIMD_GUARD_CNDT(x) PxSIMDGuard scopedFpGuard(x);
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 // sets the default SDK state for scalar and SIMD units
@@ -79,7 +79,7 @@ PX_FOUNDATION_API void PxEnableFPExceptions();
 PX_FOUNDATION_API void PxDisableFPExceptions();
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #if PX_WINDOWS_FAMILY
@@ -87,10 +87,10 @@ PX_FOUNDATION_API void PxDisableFPExceptions();
 #elif (PX_LINUX && PX_SSE2) || PX_OSX
 #include "foundation/unix/PxUnixFPU.h"
 #else
-PX_INLINE physx::PxSIMDGuard::PxSIMDGuard(bool)
+PX_INLINE ev4sio_physx::PxSIMDGuard::PxSIMDGuard(bool)
 {
 }
-PX_INLINE physx::PxSIMDGuard::~PxSIMDGuard()
+PX_INLINE ev4sio_physx::PxSIMDGuard::~PxSIMDGuard()
 {
 }
 #endif

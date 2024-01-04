@@ -35,7 +35,7 @@
 #include "CmRefCountable.h"
 #include "PxsFEMSoftBodyMaterialCore.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	// Compared to other objects, materials are special since they belong to the SDK and not to scenes
 	// (similar to meshes). That's why the NpFEMMaterial does have direct access to the core material instead
@@ -51,7 +51,7 @@ namespace physx
 		static	NpFEMSoftBodyMaterial*	createObject(PxU8*& address, PxDeserializationContext& context);
 		static		void				getBinaryMetaData(PxOutputStream& stream);
 
-		void							preExportDataReset() { Cm::RefCountable_preExportDataReset(*this); }
+		void							preExportDataReset() { ev4sio_Cm::RefCountable_preExportDataReset(*this); }
 		void							exportExtraData(PxSerializationContext&) {}
 		void							importExtraData(PxDeserializationContext&) {}
 		virtual		void				requiresObjects(PxProcessPxBaseCallback&) {}

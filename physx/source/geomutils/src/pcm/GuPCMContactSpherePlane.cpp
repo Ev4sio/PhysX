@@ -31,9 +31,9 @@
 #include "GuContactMethodImpl.h"
 #include "GuPCMContactGenUtil.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
-bool Gu::pcmContactSpherePlane(GU_CONTACT_METHOD_ARGS)
+bool ev4sio_Gu::pcmContactSpherePlane(GU_CONTACT_METHOD_ARGS)
 {
 	using namespace aos;
 	PX_UNUSED(renderOutput);

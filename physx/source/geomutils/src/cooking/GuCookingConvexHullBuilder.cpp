@@ -44,11 +44,11 @@
 // 7: added mHullDataFacesByVertices8
 // 8: added mEdges
 // 9: removed duplicite 'C', 'V', 'H', 'L' header
-static const physx::PxU32 gVersion = 9;
+static const ev4sio_physx::PxU32 gVersion = 9;
 
-using namespace physx;
-using namespace Gu;
-using namespace Cm;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
+using namespace ev4sio_Cm;
 using namespace aos;
 
 #define USE_PRECOMPUTED_HULL_PROJECTION
@@ -129,7 +129,7 @@ bool ConvexHullBuilder::init(PxU32 nbVerts, const PxVec3* verts, const PxU32* in
 
 	// Precompute hull polygon structures
 	mHull->mNbPolygons = PxTo8(nbPolygons);
-	mHullDataPolygons = PX_ALLOCATE(HullPolygonData, mHull->mNbPolygons, "Gu::HullPolygonData");
+	mHullDataPolygons = PX_ALLOCATE(HullPolygonData, mHull->mNbPolygons, "ev4sio_Gu::HullPolygonData");
 
 	mHullDataVertexData8 = PX_ALLOCATE(PxU8, nbIndices, "mHullDataVertexData8");
 	PxU8* dest = mHullDataVertexData8;
@@ -321,7 +321,7 @@ bool ConvexHullBuilder::checkHullPolygons() const
 //					if(d>0.0001f)					
 				//if(d>0.02f)
 				if(d > testEpsilon)
-					return outputError<PxErrorCode::eINTERNAL_ERROR>(__LINE__, "Gu::ConvexMesh::checkHullPolygons: Some hull vertices seems to be too far from hull planes.");
+					return outputError<PxErrorCode::eINTERNAL_ERROR>(__LINE__, "ev4sio_Gu::ConvexMesh::checkHullPolygons: Some hull vertices seems to be too far from hull planes.");
 			}
 		}
 	}
@@ -329,7 +329,7 @@ bool ConvexHullBuilder::checkHullPolygons() const
 	for (PxU32 i = 0; i < 8; i++)
 	{
 		if(!foundPlane[i])
-			return outputError<PxErrorCode::eINTERNAL_ERROR>(__LINE__, "Gu::ConvexMesh::checkHullPolygons: Hull seems to have opened volume or do (some) faces have reversed winding?");			
+			return outputError<PxErrorCode::eINTERNAL_ERROR>(__LINE__, "ev4sio_Gu::ConvexMesh::checkHullPolygons: Hull seems to have opened volume or do (some) faces have reversed winding?");			
 	}
 	
 	return true;
@@ -568,7 +568,7 @@ bool ConvexHullBuilder::createEdgeList(bool doValidation, PxU32 nbEdges)
 			bool flipped = vRef0>vRef1;
 
 			if (flipped)
-				physx::PxSwap(vRef0, vRef1);
+				ev4sio_physx::PxSwap(vRef0, vRef1);
 
 			*run0++ = vRef0;
 			*run1++ = vRef1;
@@ -583,8 +583,8 @@ bool ConvexHullBuilder::createEdgeList(bool doValidation, PxU32 nbEdges)
 	PX_ASSERT(PxU32(run1-vRefs1)==nbEdgesUnshared);
 
 	// 3) Sort the list according to both keys (VRefs0 and VRefs1)
-	Cm::RadixSortBuffered sorter;
-	const PxU32* PX_RESTRICT sorted = sorter.Sort(vRefs1, nbEdgesUnshared,Cm::RADIX_UNSIGNED).Sort(vRefs0, nbEdgesUnshared,Cm::RADIX_UNSIGNED).GetRanks();
+	ev4sio_Cm::RadixSortBuffered sorter;
+	const PxU32* PX_RESTRICT sorted = sorter.Sort(vRefs1, nbEdgesUnshared,ev4sio_Cm::RADIX_UNSIGNED).Sort(vRefs0, nbEdgesUnshared,ev4sio_Cm::RADIX_UNSIGNED).GetRanks();
 
 	PX_FREE(mEdges);
 	// Edges by their tail and head VRefs. NbEdgesUnshared == nbEdges * 2
@@ -641,7 +641,7 @@ bool ConvexHullBuilder::createEdgeList(bool doValidation, PxU32 nbEdges)
 
 			//feodorb:restore the original order of VRefs (tail and head)
 			if (flipped)
-				physx::PxSwap(sortedRef0, sortedRef1);
+				ev4sio_physx::PxSwap(sortedRef0, sortedRef1);
 
 			*edgeVertOutput++ = PxTo16(sortedRef0);
 			*edgeVertOutput++ = PxTo16(sortedRef1);
@@ -675,7 +675,7 @@ bool ConvexHullBuilder::createEdgeList(bool doValidation, PxU32 nbEdges)
 	if(doValidation)
 	{
 		//
-		sorted = sorter.Sort(vertexIndex2, nbEdgesUnshared, Cm::RADIX_UNSIGNED).Sort(polyIndex2, nbEdgesUnshared, Cm::RADIX_UNSIGNED).GetRanks();
+		sorted = sorter.Sort(vertexIndex2, nbEdgesUnshared, ev4sio_Cm::RADIX_UNSIGNED).Sort(polyIndex2, nbEdgesUnshared, ev4sio_Cm::RADIX_UNSIGNED).GetRanks();
 
 		for (PxU32 i = 0; i < nbEdgesUnshared; i++)	edgeData[i] = edgeIndex[sorted[i]];
 

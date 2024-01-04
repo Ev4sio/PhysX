@@ -41,14 +41,14 @@
 #include "PxvNphaseImplementationContext.h"
 #include "solver/PxSolverDefs.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Cm
+namespace ev4sio_Cm
 {
 	class FlushPool;
 }
 
-namespace IG
+namespace ev4sio_IG
 {
 	class SimpleIslandManager;
 }
@@ -61,12 +61,12 @@ struct PxsIndexedInteraction;
 struct PxsIndexedContactManager;
 struct PxSolverConstraintDesc;
 
-namespace Cm
+namespace ev4sio_Cm
 {
 	class SpatialVector;
 }
 
-namespace Dy
+namespace ev4sio_Dy
 {
 	class SolverCore;
 	struct SolverIslandParams;
@@ -75,7 +75,7 @@ namespace Dy
 #define SOLVER_PARALLEL_METHOD_ARGS	\
 	DynamicsContext&	context,	\
 	SolverIslandParams& params,		\
-	IG::IslandSim& islandSim
+	ev4sio_IG::IslandSim& islandSim
 
 /**
 \brief Solver body pool (array) that enforces 128-byte alignment for base address of array.
@@ -133,12 +133,12 @@ public:
 	
 										DynamicsContext(PxcNpMemBlockPool* memBlockPool,
 														PxcScratchAllocator& scratchAllocator,
-														Cm::FlushPool& taskPool,
+														ev4sio_Cm::FlushPool& taskPool,
 														PxvSimStats& simStats,
 														PxTaskManager* taskManager,
 														PxVirtualAllocatorCallback* allocator,
 														PxsMaterialManager* materialManager,
-														IG::SimpleIslandManager* islandManager,
+														ev4sio_IG::SimpleIslandManager* islandManager,
 														PxU64 contextID,
 														bool enableStabilization,
 														bool useEnhancedDeterminism,
@@ -151,7 +151,7 @@ public:
 
 	// Context
 	virtual	void						destroy()	PX_OVERRIDE;
-	virtual void						update(IG::SimpleIslandManager& simpleIslandManager, PxBaseTask* continuation, PxBaseTask* lostTouchTask,
+	virtual void						update(ev4sio_IG::SimpleIslandManager& simpleIslandManager, PxBaseTask* continuation, PxBaseTask* lostTouchTask,
 										PxvNphaseImplementationContext* nPhase, PxU32 maxPatchesPerCM, PxU32 maxArticulationLinks, PxReal dt, const PxVec3& gravity, PxBitMapPinned& changedHandleMap)	PX_OVERRIDE;
 	virtual void						mergeResults()	PX_OVERRIDE;
 	virtual void						setSimulationController(PxsSimulationController* simulationController )	PX_OVERRIDE	{ mSimulationController = simulationController; }
@@ -170,12 +170,12 @@ public:
 	*/
 					void				putThreadContext(ThreadContext* context)	{ mThreadContextPool.put(context);	}
 
-	PX_FORCE_INLINE Cm::FlushPool&		getTaskPool()					{ return mTaskPool;			}
+	PX_FORCE_INLINE ev4sio_Cm::FlushPool&		getTaskPool()					{ return mTaskPool;			}
 	PX_FORCE_INLINE ThresholdStream&	getThresholdStream()			{ return *mThresholdStream;	}
 	PX_FORCE_INLINE PxvSimStats&		getSimStats()					{ return mSimStats;			}
 	PX_FORCE_INLINE	PxU32				getKinematicCount()		const	{ return mKinematicCount;	}
 
-					void				updatePostKinematic(IG::SimpleIslandManager& simpleIslandManager, PxBaseTask* continuation, PxBaseTask* lostTouchTask, PxU32 maxLinks);
+					void				updatePostKinematic(ev4sio_IG::SimpleIslandManager& simpleIslandManager, PxBaseTask* continuation, PxBaseTask* lostTouchTask, PxU32 maxLinks);
 protected:
 
 #if PX_ENABLE_SIM_STATS
@@ -196,12 +196,12 @@ protected:
 	\param[in,out] desc The PxSolverConstraintDesc
 	\param[in] constraint The PxsIndexedInteraction
 	*/
-	void								setDescFromIndices(PxSolverConstraintDesc& desc, const IG::IslandSim& islandSim,
+	void								setDescFromIndices(PxSolverConstraintDesc& desc, const ev4sio_IG::IslandSim& islandSim,
 										const PxsIndexedInteraction& constraint, PxU32 solverBodyOffset);
 
 
-	void								setDescFromIndices(PxSolverConstraintDesc& desc, IG::EdgeIndex edgeIndex,
-											const IG::SimpleIslandManager& islandManager, PxU32* bodyRemapTable, PxU32 solverBodyOffset);
+	void								setDescFromIndices(PxSolverConstraintDesc& desc, ev4sio_IG::EdgeIndex edgeIndex,
+											const ev4sio_IG::SimpleIslandManager& islandManager, PxU32* bodyRemapTable, PxU32 solverBodyOffset);
 
 	/**
 	\brief Compute the unconstrained velocity for set of bodies in parallel. This function may spawn additional tasks.
@@ -225,7 +225,7 @@ protected:
 											   PxU32 bodyCount,									// IN: body count
 											   PxSolverBody* solverBodyPool,					// IN: solver atom pool (space preallocated)
 											   PxSolverBodyData* solverBodyDataPool,
-											   Cm::SpatialVector* motionVelocityArray,			// OUT: motion velocities
+											   ev4sio_Cm::SpatialVector* motionVelocityArray,			// OUT: motion velocities
 											   PxU32& maxSolverPositionIterations,
 											   PxU32& maxSolverVelocityIterations,
 											   PxBaseTask& integrateTask
@@ -237,9 +237,9 @@ protected:
 	\param[in] params Solver parameter structure
 	*/
 
-	void								solveParallel(SolverIslandParams& params, IG::IslandSim& islandSim, Cm::SpatialVectorF* Z, Cm::SpatialVectorF* deltaV);
+	void								solveParallel(SolverIslandParams& params, ev4sio_IG::IslandSim& islandSim, ev4sio_Cm::SpatialVectorF* Z, ev4sio_Cm::SpatialVectorF* deltaV);
 
-	void								integrateCoreParallel(SolverIslandParams& params, Cm::SpatialVectorF* deltaV, IG::IslandSim& islandSim);
+	void								integrateCoreParallel(SolverIslandParams& params, ev4sio_Cm::SpatialVectorF* deltaV, ev4sio_IG::IslandSim& islandSim);
 
 	/**
 	\brief Resets the thread contexts
@@ -291,7 +291,7 @@ protected:
 	/**
 	\brief Array of motion velocities for all bodies in the scene.
 	*/
-	PxArray<Cm::SpatialVector> mMotionVelocityArray;
+	PxArray<ev4sio_Cm::SpatialVector> mMotionVelocityArray;
 
 	/**
 	\brief Array of body core pointers for all bodies in the scene.
@@ -350,7 +350,7 @@ protected:
 private:
 	//private:
 	PxcScratchAllocator&			mScratchAllocator;
-	Cm::FlushPool&					mTaskPool;
+	ev4sio_Cm::FlushPool&					mTaskPool;
 	PxTaskManager*					mTaskManager;
 	PxU32							mCurrentIndex; // this is the index point to the current exceeded force threshold stream
 

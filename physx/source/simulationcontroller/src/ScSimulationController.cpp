@@ -37,18 +37,18 @@
 #include "BpAABBManager.h"
 #include "DyVArticulation.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
-void Sc::SimulationController::updateScBodyAndShapeSim(PxsTransformCache& /*cache*/, Bp::BoundsArray& /*boundArray*/, PxBaseTask* continuation)
+void ev4sio_Sc::SimulationController::updateScBodyAndShapeSim(PxsTransformCache& /*cache*/, ev4sio_Bp::BoundsArray& /*boundArray*/, PxBaseTask* continuation)
 {
 	mCallback->updateScBodyAndShapeSim(continuation);
 }
 
 namespace
 {
-class UpdateArticulationAfterIntegrationTask : public Cm::Task
+class UpdateArticulationAfterIntegrationTask : public ev4sio_Cm::Task
 {
-	IG::IslandSim&							mIslandSim;
+	ev4sio_IG::IslandSim&							mIslandSim;
 	const PxNodeIndex* const PX_RESTRICT	mNodeIndices;
 	const PxU32								mNbArticulations;
 	const PxReal							mDt;
@@ -57,8 +57,8 @@ class UpdateArticulationAfterIntegrationTask : public Cm::Task
 public:
 	static const PxU32 NbArticulationsPerTask = 64;
 
-	UpdateArticulationAfterIntegrationTask(PxU64 contextId, PxU32 nbArticulations, PxReal dt, const PxNodeIndex* nodeIndices, IG::IslandSim& islandSim) :
-		Cm::Task(contextId),
+	UpdateArticulationAfterIntegrationTask(PxU64 contextId, PxU32 nbArticulations, PxReal dt, const PxNodeIndex* nodeIndices, ev4sio_IG::IslandSim& islandSim) :
+		ev4sio_Cm::Task(contextId),
 		mIslandSim(islandSim),
 		mNodeIndices(nodeIndices),
 		mNbArticulations(nbArticulations),
@@ -71,8 +71,8 @@ public:
 		for (PxU32 i = 0; i < mNbArticulations; ++i)
 		{
 			PxNodeIndex nodeIndex = mNodeIndices[i];
-			//Sc::ArticulationSim* articSim = getArticulationSim(mIslandSim, nodeIndex);
-			Sc::ArticulationSim* articSim = mIslandSim.getArticulationSim(nodeIndex);
+			//ev4sio_Sc::ArticulationSim* articSim = getArticulationSim(mIslandSim, nodeIndex);
+			ev4sio_Sc::ArticulationSim* articSim = mIslandSim.getArticulationSim(nodeIndex);
 			articSim->sleepCheck(mDt);
 			articSim->updateCached(NULL);
 		}
@@ -83,20 +83,20 @@ public:
 }
 
 //KS - TODO - parallelize this bit!!!!!
-void Sc::SimulationController::updateArticulationAfterIntegration(
+void ev4sio_Sc::SimulationController::updateArticulationAfterIntegration(
 	PxsContext*	llContext,
-	Bp::AABBManagerBase* aabbManager,
-	PxArray<Sc::BodySim*>& ccdBodies,
+	ev4sio_Bp::AABBManagerBase* aabbManager,
+	PxArray<ev4sio_Sc::BodySim*>& ccdBodies,
 	PxBaseTask* continuation,
-	IG::IslandSim& islandSim,
+	ev4sio_IG::IslandSim& islandSim,
 	float dt
 	)
 {
-	const PxU32 nbActiveArticulations = islandSim.getNbActiveNodes(IG::Node::eARTICULATION_TYPE);
+	const PxU32 nbActiveArticulations = islandSim.getNbActiveNodes(ev4sio_IG::Node::eARTICULATION_TYPE);
 
-	Cm::FlushPool& flushPool = llContext->getTaskPool();
+	ev4sio_Cm::FlushPool& flushPool = llContext->getTaskPool();
 
-	const PxNodeIndex* activeArticulations = islandSim.getActiveNodes(IG::Node::eARTICULATION_TYPE);
+	const PxNodeIndex* activeArticulations = islandSim.getActiveNodes(ev4sio_IG::Node::eARTICULATION_TYPE);
 
 	for (PxU32 i = 0; i < nbActiveArticulations; i += UpdateArticulationAfterIntegrationTask::NbArticulationsPerTask)
 	{
@@ -109,13 +109,13 @@ void Sc::SimulationController::updateArticulationAfterIntegration(
 
 	llContext->getLock().lock();
 
-	//const IG::NodeIndex* activeArticulations = islandSim.getActiveNodes(IG::Node::eARTICULATION_TYPE);
+	//const ev4sio_IG::NodeIndex* activeArticulations = islandSim.getActiveNodes(ev4sio_IG::Node::eARTICULATION_TYPE);
 
 	PxBitMapPinned& changedAABBMgrActorHandles = aabbManager->getChangedAABBMgActorHandleMap();
 
 	for (PxU32 i = 0; i < nbActiveArticulations; i++)
 	{
-		Sc::ArticulationSim* articSim = islandSim.getArticulationSim(activeArticulations[i]);
+		ev4sio_Sc::ArticulationSim* articSim = islandSim.getArticulationSim(activeArticulations[i]);
 
 		//KS - check links for CCD flags and add to mCcdBodies list if required....
 		articSim->updateCCDLinks(ccdBodies);

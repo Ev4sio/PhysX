@@ -29,9 +29,9 @@
 #include "GuIntersectionEdgeEdge.h"
 #include "GuInternal.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
-bool Gu::intersectEdgeEdge(const PxVec3& p1, const PxVec3& p2, const PxVec3& dir, const PxVec3& p3, const PxVec3& p4, PxReal& dist, PxVec3& ip)
+bool ev4sio_Gu::intersectEdgeEdge(const PxVec3& p1, const PxVec3& p2, const PxVec3& dir, const PxVec3& p3, const PxVec3& p4, PxReal& dist, PxVec3& ip)
 {
 	const PxVec3 v1 = p2 - p1;
 

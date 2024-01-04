@@ -32,7 +32,7 @@
 #pragma warning(disable:4389)	// signed/unsigned mismatch
 #endif
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 void Sn::ConvX::setNullPtr(bool flag)
 {

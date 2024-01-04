@@ -28,7 +28,7 @@
 
 #include "CctSweptVolume.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 using namespace Cct;
 
 SweptVolume::SweptVolume()

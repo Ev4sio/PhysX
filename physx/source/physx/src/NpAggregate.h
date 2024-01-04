@@ -32,7 +32,7 @@
 #include "PxAggregate.h"
 #include "NpBase.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 class NpScene;
 

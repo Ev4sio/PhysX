@@ -215,8 +215,13 @@ int32_t buildMeshConvexDecomposition(ConvexMeshBuilder& cmb, const Triangle* mes
 
     VHACD::IVHACD::Parameters vhacdParam;
     vhacdParam.m_maxConvexHulls = iparams.maximumNumberOfHulls;
+    vhacdParam.m_maxNumVerticesPerCH = iparams.maximumNumberOfVerticesPerHull;
     vhacdParam.m_resolution = iparams.voxelGridResolution;
     vhacdParam.m_concavity = iparams.concavity;
+    vhacdParam.m_convexhullApproximation = iparams.convexHullApproximation ? 1 : 0;
+    vhacdParam.m_planeDownsampling = iparams.planeDownsampling;
+    vhacdParam.m_convexhullDownsampling = iparams.convexHullDownsampling;
+    vhacdParam.m_pca = iparams.principalComponentAnalysis ? 1 : 0;
     vhacdParam.m_oclAcceleration = false;
     //TODO vhacdParam.m_callback
     vhacdParam.m_minVolumePerCH = 0.003f; // 1.f / (3 * vhacdParam.m_resolution ^ (1 / 3));

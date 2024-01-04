@@ -45,13 +45,13 @@
 #include "../pcm/GuPersistentContactManifold.h"
 #include "../contact/GuContactMethodImpl.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 class PxsTransformCache;
 class PxsMaterialManager;
 
-namespace Sc
+namespace ev4sio_Sc
 {
 	class BodySim;
 }
@@ -97,7 +97,7 @@ struct PxcNpContext
 					PxcNpMemBlockPool			mNpMemBlockPool;
 					PxReal						mMeshContactMargin;
 					PxReal						mToleranceLength;
-					Cm::RenderBuffer			mRenderBuffer;
+					ev4sio_Cm::RenderBuffer			mRenderBuffer;
 					PxcDataStreamPool*			mContactStreamPool;
 					PxcDataStreamPool*			mPatchStreamPool;
 					PxcDataStreamPool*			mForceAndIndiceStreamPool;
@@ -158,13 +158,13 @@ public:
 	// temporary contact buffer
 					PxContactBuffer				mContactBuffer;    
 
-	PX_ALIGN(16, Gu::MultiplePersistentContactManifold		mTempManifold); 
+	PX_ALIGN(16, ev4sio_Gu::MultiplePersistentContactManifold		mTempManifold); 
 
-					Gu::NarrowPhaseParams		mNarrowPhaseParams;
+					ev4sio_Gu::NarrowPhaseParams		mNarrowPhaseParams;
 
 	// DS: this stuff got moved here from the PxcNpPairContext. As Pierre says:
 	////////// PT: those members shouldn't be there in the end, it's not necessary
-					PxArray<Sc::BodySim*>		mBodySimPool;
+					PxArray<ev4sio_Sc::BodySim*>		mBodySimPool;
 					PxsTransformCache*			mTransformCache;
 					const PxReal*				mContactDistances;
 					bool						mPCM;

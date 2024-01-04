@@ -40,7 +40,7 @@
 #include "DyArticulationCore.h"
 #include "DyArticulationJointCore.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	struct PxsBodyCore;
 	class PxsConstraintBlockManager;
@@ -52,7 +52,7 @@ namespace physx
 	struct PxTGSSolverBodyTxInertia;
 	struct PxSolverConstraintDesc;
 
-	namespace Dy
+	namespace ev4sio_Dy
 	{
 		
 		struct SpatialSubspaceMatrix;
@@ -75,7 +75,7 @@ namespace physx
 		public:
 			PxU32 linkIndex0;
 			PxU32 linkIndex1;
-			Dy::Constraint* constraint;
+			ev4sio_Dy::Constraint* constraint;
 		};
 
 #define DY_ARTICULATION_LINK_NONE 0xffffffff
@@ -118,8 +118,8 @@ namespace physx
 
 			FeatherstoneArticulation*	articulation;
 			ArticulationLink*			links;
-			Cm::SpatialVectorV*			motionVelocity;
-			Cm::SpatialVector*			acceleration;
+			ev4sio_Cm::SpatialVectorV*			motionVelocity;
+			ev4sio_Cm::SpatialVector*			acceleration;
 			PxTransform*				poses;
 			PxQuat*						deltaQ;
 	

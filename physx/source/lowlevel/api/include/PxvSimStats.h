@@ -33,7 +33,7 @@
 #include "foundation/PxMemory.h"
 #include "geometry/PxGeometry.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 /*!

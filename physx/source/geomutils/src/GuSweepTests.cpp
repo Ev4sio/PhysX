@@ -36,10 +36,10 @@
 #include "GuInternal.h"
 #include "GuGJKRaycast.h"
 
-using namespace physx;
-using namespace Gu;
-using namespace Cm;
-using namespace physx::aos;  
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
+using namespace ev4sio_Cm;
+using namespace ev4sio_physx::aos;  
 
 //#define USE_VIRTUAL_GJK
 #ifdef USE_VIRTUAL_GJK
@@ -350,7 +350,7 @@ bool sweepBox_BoxGeom(GU_BOX_SWEEP_FUNC_PARAMS)
 	return true;
 }
 
-bool Gu::sweepBoxTriangles(GU_SWEEP_TRIANGLES_FUNC_PARAMS(PxBoxGeometry))
+bool ev4sio_Gu::sweepBoxTriangles(GU_SWEEP_TRIANGLES_FUNC_PARAMS(PxBoxGeometry))
 {
 	PX_UNUSED(hitFlags);
 
@@ -595,7 +595,7 @@ static bool sweepConvex_CustomGeom(GU_CONVEX_SWEEP_FUNC_PARAMS)
 	return false;
 }
 
-Gu::GeomSweepFuncs gGeomSweepFuncs =
+ev4sio_Gu::GeomSweepFuncs gGeomSweepFuncs =
 {
 	{
 		sweepCapsule_SphereGeom,
@@ -664,7 +664,7 @@ Gu::GeomSweepFuncs gGeomSweepFuncs =
 	}
 };
 
-PX_PHYSX_COMMON_API const GeomSweepFuncs& Gu::getSweepFuncTable()
+PX_PHYSX_COMMON_API const GeomSweepFuncs& ev4sio_Gu::getSweepFuncTable()
 {
 	return gGeomSweepFuncs;
 }

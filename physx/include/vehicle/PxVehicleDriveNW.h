@@ -34,7 +34,7 @@
 #include "vehicle/PxVehicleComponents.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -213,7 +213,7 @@ PX_COMPILE_TIME_ASSERT(0==(sizeof(PxVehicleDriveNW) & 15));
 
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

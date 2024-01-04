@@ -37,7 +37,7 @@
 #endif
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -90,7 +90,7 @@ class PX_FOUNDATION_API PxTime
 #endif
 };
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

@@ -35,7 +35,7 @@
 #include "PxSceneQuerySystem.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -60,7 +60,7 @@ namespace physx
 	PxSceneQuerySystem* PxCreateExternalSceneQuerySystem(const PxSceneQueryDesc& desc, PxU64 contextID);
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 /** @} */

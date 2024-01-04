@@ -37,7 +37,7 @@
 #include "ScFEMClothCore.h"
 #include "NpActorTemplate.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	class NpShape;
 
@@ -136,8 +136,8 @@ namespace physx
 
 		virtual void					release();
 
-		PX_FORCE_INLINE	const Sc::FEMClothCore&	getCore() const { return mCore; }
-		PX_FORCE_INLINE	Sc::FEMClothCore&		getCore() { return mCore; }
+		PX_FORCE_INLINE	const ev4sio_Sc::FEMClothCore&	getCore() const { return mCore; }
+		PX_FORCE_INLINE	ev4sio_Sc::FEMClothCore&		getCore() { return mCore; }
 
 		static PX_FORCE_INLINE size_t			getCoreOffset() { return PX_OFFSET_OF_RT(NpFEMCloth, mCore); }
 
@@ -154,7 +154,7 @@ namespace physx
 	private:
 
 		NpShape*						mShape;
-		Sc::FEMClothCore				mCore;
+		ev4sio_Sc::FEMClothCore				mCore;
 		PxCudaContextManager*			mCudaContextManager;
 	};
 #endif

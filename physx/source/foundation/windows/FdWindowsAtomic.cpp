@@ -29,7 +29,7 @@
 #include "foundation/windows/PxWindowsInclude.h"
 #include "foundation/PxAtomic.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 PxI32 PxAtomicExchange(volatile PxI32* val, PxI32 val2)
@@ -86,4 +86,4 @@ PxI32 PxAtomicMax(volatile PxI32* val, PxI32 val2)
 	return newValue;
 }
 
-} // namespace physx
+} // namespace ev4sio_physx

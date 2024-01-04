@@ -37,16 +37,16 @@
 #include "foundation/PxAllocator.h"
 #include "foundation/PxUserAllocated.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 class PxcNpMemBlockPool;
 
-namespace Cm
+namespace ev4sio_Cm
 {
 	class FlushPool;
 }
 
-namespace IG
+namespace ev4sio_IG
 {
 	class SimpleIslandManager;
 }
@@ -59,7 +59,7 @@ struct PxsContactManagerOutputCounts;
 
 class PxvNphaseImplementationContext;
 
-namespace Dy
+namespace ev4sio_Dy
 {
 
 class Context : public PxUserAllocated
@@ -120,7 +120,7 @@ public:
 	PX_FORCE_INLINE PxcDataStreamPool&							getContactStreamPool()			{ return mContactStreamPool;		}
 	PX_FORCE_INLINE PxcDataStreamPool&							getPatchStreamPool()			{ return mPatchStreamPool;			}
 	PX_FORCE_INLINE PxcDataStreamPool&							getForceStreamPool()			{ return mForceStreamPool;			}
-	PX_FORCE_INLINE PxPinnedArray<Dy::ConstraintWriteback>&		getConstraintWriteBackPool()	{ return mConstraintWriteBackPool;  }
+	PX_FORCE_INLINE PxPinnedArray<ev4sio_Dy::ConstraintWriteback>&		getConstraintWriteBackPool()	{ return mConstraintWriteBackPool;  }
 
 	/**
 	\brief Destroys this dynamics context
@@ -141,11 +141,11 @@ public:
 	Each island is solved as an independent solver task chain. In addition, large islands may be solved using multiple parallel tasks.
 	Island solving is asynchronous. Once all islands have been solved, the continuation task will be called.
 	*/
-	virtual void						update(IG::SimpleIslandManager& simpleIslandManager, PxBaseTask* continuation, PxBaseTask* processLostTouchTask,
+	virtual void						update(ev4sio_IG::SimpleIslandManager& simpleIslandManager, PxBaseTask* continuation, PxBaseTask* processLostTouchTask,
 										PxvNphaseImplementationContext* nPhaseContext, PxU32 maxPatchesPerCM, PxU32 maxArticulationLinks, PxReal dt, const PxVec3& gravity, PxBitMapPinned& changedHandleMap) = 0;
 
-	virtual void						processLostPatches(IG::SimpleIslandManager& /*simpleIslandManager*/, PxsContactManager** /*lostPatchManagers*/, PxU32 /*nbLostPatchManagers*/, PxsContactManagerOutputCounts* /*outCounts*/)	{}
-	virtual void						processFoundPatches(IG::SimpleIslandManager& /*simpleIslandManager*/, PxsContactManager** /*foundPatchManagers*/, PxU32 /*nbFoundPatchManagers*/, PxsContactManagerOutputCounts* /*outCounts*/) {}
+	virtual void						processLostPatches(ev4sio_IG::SimpleIslandManager& /*simpleIslandManager*/, PxsContactManager** /*lostPatchManagers*/, PxU32 /*nbLostPatchManagers*/, PxsContactManagerOutputCounts* /*outCounts*/)	{}
+	virtual void						processFoundPatches(ev4sio_IG::SimpleIslandManager& /*simpleIslandManager*/, PxsContactManager** /*foundPatchManagers*/, PxU32 /*nbFoundPatchManagers*/, PxsContactManagerOutputCounts* /*outCounts*/) {}
 
 	/**
 	\brief This method copy gpu solver body data to cpu body core
@@ -166,7 +166,7 @@ public:
 
 protected:
 
-	Context(IG::SimpleIslandManager* islandManager, PxVirtualAllocatorCallback* allocatorCallback,
+	Context(ev4sio_IG::SimpleIslandManager* islandManager, PxVirtualAllocatorCallback* allocatorCallback,
 			PxvSimStats& simStats, bool enableStabilization, bool useEnhancedDeterminism,
 			PxReal maxBiasCoefficient, PxReal lengthScale, PxU64 contextID) :
 		mThresholdStream			(NULL),
@@ -197,7 +197,7 @@ protected:
 	ThresholdStream*			mForceChangedThresholdStream;
 	ThresholdTable				mThresholdTable;
 
-	IG::SimpleIslandManager*	mIslandManager;
+	ev4sio_IG::SimpleIslandManager*	mIslandManager;
 	PxsSimulationController*	mSimulationController;
 	/**
 	\brief Time-step.
@@ -278,7 +278,7 @@ protected:
 	/**
 	\brief Structure to encapsulate constraint write back allocations. Used by GPU/CPU solver to reference pre-allocated pinned host memory for breakable joint reports.
 	*/
-	PxPinnedArray<Dy::ConstraintWriteback>	mConstraintWriteBackPool;
+	PxPinnedArray<ev4sio_Dy::ConstraintWriteback>	mConstraintWriteBackPool;
 
 	PxvSimStats& mSimStats;
 
@@ -287,14 +287,14 @@ protected:
 	bool mBodyStateDirty;
 };
 
-Context* createDynamicsContext(	PxcNpMemBlockPool* memBlockPool, PxcScratchAllocator& scratchAllocator, Cm::FlushPool& taskPool,
+Context* createDynamicsContext(	PxcNpMemBlockPool* memBlockPool, PxcScratchAllocator& scratchAllocator, ev4sio_Cm::FlushPool& taskPool,
 								PxvSimStats& simStats, PxTaskManager* taskManager, PxVirtualAllocatorCallback* allocatorCallback, PxsMaterialManager* materialManager,
-								IG::SimpleIslandManager* islandManager, PxU64 contextID, bool enableStabilization, bool useEnhancedDeterminism,
+								ev4sio_IG::SimpleIslandManager* islandManager, PxU64 contextID, bool enableStabilization, bool useEnhancedDeterminism,
 								PxReal maxBiasCoefficient, bool frictionEveryIteration, PxReal lengthScale);
 
-Context* createTGSDynamicsContext(	PxcNpMemBlockPool* memBlockPool, PxcScratchAllocator& scratchAllocator, Cm::FlushPool& taskPool,
+Context* createTGSDynamicsContext(	PxcNpMemBlockPool* memBlockPool, PxcScratchAllocator& scratchAllocator, ev4sio_Cm::FlushPool& taskPool,
 									PxvSimStats& simStats, PxTaskManager* taskManager, PxVirtualAllocatorCallback* allocatorCallback, PxsMaterialManager* materialManager,
-									IG::SimpleIslandManager* islandManager, PxU64 contextID, bool enableStabilization, bool useEnhancedDeterminism, PxReal lengthScale);
+									ev4sio_IG::SimpleIslandManager* islandManager, PxU64 contextID, bool enableStabilization, bool useEnhancedDeterminism, PxReal lengthScale);
 }
 
 }

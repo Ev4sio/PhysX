@@ -49,13 +49,13 @@
 //
 #undef OMNI_PVD_GET_WRITER
 #define OMNI_PVD_GET_WRITER(writer) \
-physx::PxOmniPvd::ScopedExclusiveWriter writeLock(physx::Ext::OmniPvdGetInstance()); \
+ev4sio_physx::PxOmniPvd::ScopedExclusiveWriter writeLock(ev4sio_physx::ev4sio_Ext::OmniPvdGetInstance()); \
 OmniPvdWriter* writer = writeLock.getWriter();
 
 
 #undef OMNI_PVD_GET_REGISTRATION_DATA
 #define OMNI_PVD_GET_REGISTRATION_DATA(registrationData) \
-const OmniPvdPxExtensionsRegistrationData* registrationData = physx::Ext::OmniPvdGetPxExtensionsRegistrationData();
+const OmniPvdPxExtensionsRegistrationData* registrationData = ev4sio_physx::ev4sio_Ext::OmniPvdGetPxExtensionsRegistrationData();
 
 #endif  // PX_SUPPORT_OMNI_PVD
 

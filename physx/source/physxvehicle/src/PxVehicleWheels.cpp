@@ -37,7 +37,7 @@
 #include "PxVehicleSuspLimitConstraintShader.h"
 #include "foundation/PxUtilities.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 PxF32 gThresholdLongSpeed=5.0f;
@@ -944,5 +944,5 @@ PxU32 PxVehicleWheelsDynData::getConstraints(PxConstraint** userBuffer, PxU32 bu
 }
 
 
-} //namespace physx
+} //namespace ev4sio_physx
 

@@ -38,7 +38,7 @@
 #include "foundation/PxFPU.h"
 
 
-namespace physx
+namespace ev4sio_physx
 {
 	using namespace Sn;
 	
@@ -109,7 +109,7 @@ namespace physx
 		readProperty( inReader, "NumWheels", numWheels );
 		if( numWheels == 0)
 		{
-			PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, 
+			ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, 
 				"PxSerialization::createCollectionFromXml: PxVehicleRepXSerializer: Xml field NumWheels is zero!");
 			return PxRepXObject();
 		}

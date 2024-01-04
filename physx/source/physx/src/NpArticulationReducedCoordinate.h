@@ -42,7 +42,7 @@
 #include "NpArticulationTendon.h"
 #include "ScArticulationCore.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	class NpArticulationLink;
 	class NpScene;
@@ -257,8 +257,8 @@ namespace physx
 
 		void										setGlobalPose();
 
-		PX_FORCE_INLINE	Sc::ArticulationCore&		getCore()			{ return mCore; }
-		PX_FORCE_INLINE	const Sc::ArticulationCore&	getCore()	const	{ return mCore; }
+		PX_FORCE_INLINE	ev4sio_Sc::ArticulationCore&		getCore()			{ return mCore; }
+		PX_FORCE_INLINE	const ev4sio_Sc::ArticulationCore&	getCore()	const	{ return mCore; }
 		static PX_FORCE_INLINE size_t				getCoreOffset()		{ return PX_OFFSET_OF_RT(NpArticulationReducedCoordinate, mCore); }
 
 
@@ -328,7 +328,7 @@ public:
 	PX_CATCH_UNDEFINED_ENABLE_DEBUG_VISUALIZATION
 #endif
 
-	Sc::ArticulationCore		mCore;
+	ev4sio_Sc::ArticulationCore		mCore;
 	NpArticulationLinkArray		mArticulationLinks;
 	PxU32						mNumShapes;
 	NpAggregate*				mAggregate;

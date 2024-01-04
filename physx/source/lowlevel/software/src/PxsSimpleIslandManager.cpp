@@ -35,14 +35,14 @@
 
 #define IG_SANITY_CHECKS 0
 
-using namespace physx;
-using namespace IG;
+using namespace ev4sio_physx;
+using namespace ev4sio_IG;
 
-ThirdPassTask::ThirdPassTask(PxU64 contextID, SimpleIslandManager& islandManager, IslandSim& islandSim) : Cm::Task(contextID), mIslandManager(islandManager), mIslandSim(islandSim)
+ThirdPassTask::ThirdPassTask(PxU64 contextID, SimpleIslandManager& islandManager, IslandSim& islandSim) : ev4sio_Cm::Task(contextID), mIslandManager(islandManager), mIslandSim(islandSim)
 {
 }
 
-PostThirdPassTask::PostThirdPassTask(PxU64 contextID, SimpleIslandManager& islandManager) : Cm::Task(contextID), mIslandManager(islandManager)
+PostThirdPassTask::PostThirdPassTask(PxU64 contextID, SimpleIslandManager& islandManager) : ev4sio_Cm::Task(contextID), mIslandManager(islandManager)
 {
 }
 
@@ -81,7 +81,7 @@ void SimpleIslandManager::removeNode(const PxNodeIndex index)
 	mDestroyedNodes.pushBack(index);
 }
 
-PxNodeIndex SimpleIslandManager::addArticulation(Dy::FeatherstoneArticulation* llArtic, bool isActive)
+PxNodeIndex SimpleIslandManager::addArticulation(ev4sio_Dy::FeatherstoneArticulation* llArtic, bool isActive)
 {
 	const PxU32 handle = mNodeHandles.getHandle();
 	const PxNodeIndex nodeIndex(handle);
@@ -91,7 +91,7 @@ PxNodeIndex SimpleIslandManager::addArticulation(Dy::FeatherstoneArticulation* l
 }
 
 #if PX_SUPPORT_GPU_PHYSX
-PxNodeIndex SimpleIslandManager::addSoftBody(Dy::SoftBody* llSoftBody, bool isActive)
+PxNodeIndex SimpleIslandManager::addSoftBody(ev4sio_Dy::SoftBody* llSoftBody, bool isActive)
 {
 	const PxU32 handle = mNodeHandles.getHandle();
 	const PxNodeIndex nodeIndex(handle);
@@ -100,7 +100,7 @@ PxNodeIndex SimpleIslandManager::addSoftBody(Dy::SoftBody* llSoftBody, bool isAc
 	return nodeIndex;
 }
 
-PxNodeIndex SimpleIslandManager::addFEMCloth(Dy::FEMCloth* llFEMCloth, bool isActive)
+PxNodeIndex SimpleIslandManager::addFEMCloth(ev4sio_Dy::FEMCloth* llFEMCloth, bool isActive)
 {
 	const PxU32 handle = mNodeHandles.getHandle();
 	const PxNodeIndex nodeIndex(handle);
@@ -109,7 +109,7 @@ PxNodeIndex SimpleIslandManager::addFEMCloth(Dy::FEMCloth* llFEMCloth, bool isAc
 	return nodeIndex;
 }
 
-PxNodeIndex SimpleIslandManager::addParticleSystem(Dy::ParticleSystem* llParticleSystem, bool isActive)
+PxNodeIndex SimpleIslandManager::addParticleSystem(ev4sio_Dy::ParticleSystem* llParticleSystem, bool isActive)
 {
 	const PxU32 handle = mNodeHandles.getHandle();
 	const PxNodeIndex nodeIndex(handle);
@@ -118,7 +118,7 @@ PxNodeIndex SimpleIslandManager::addParticleSystem(Dy::ParticleSystem* llParticl
 	return nodeIndex;
 }
 
-PxNodeIndex SimpleIslandManager::addHairSystem(Dy::HairSystem* llHairSystem, bool isActive)
+PxNodeIndex SimpleIslandManager::addHairSystem(ev4sio_Dy::HairSystem* llHairSystem, bool isActive)
 {
 	const PxU32 handle = mNodeHandles.getHandle();
 	const PxNodeIndex nodeIndex(handle);
@@ -128,7 +128,7 @@ PxNodeIndex SimpleIslandManager::addHairSystem(Dy::HairSystem* llHairSystem, boo
 }
 #endif //PX_SUPPORT_GPU_PHYSX
 
-EdgeIndex SimpleIslandManager::addContactManager(PxsContactManager* manager, PxNodeIndex nodeHandle1, PxNodeIndex nodeHandle2, Sc::Interaction* interaction, Edge::EdgeType edgeType)
+EdgeIndex SimpleIslandManager::addContactManager(PxsContactManager* manager, PxNodeIndex nodeHandle1, PxNodeIndex nodeHandle2, ev4sio_Sc::Interaction* interaction, Edge::EdgeType edgeType)
 {
 	const EdgeIndex handle = mEdgeHandles.getHandle();
 
@@ -162,7 +162,7 @@ EdgeIndex SimpleIslandManager::addContactManager(PxsContactManager* manager, PxN
 	return handle;
 }
 
-EdgeIndex SimpleIslandManager::addConstraint(Dy::Constraint* constraint, PxNodeIndex nodeHandle1, PxNodeIndex nodeHandle2, Sc::Interaction* interaction)
+EdgeIndex SimpleIslandManager::addConstraint(ev4sio_Dy::Constraint* constraint, PxNodeIndex nodeHandle1, PxNodeIndex nodeHandle2, ev4sio_Sc::Interaction* interaction)
 {
 	const EdgeIndex handle = mEdgeHandles.getHandle();
 

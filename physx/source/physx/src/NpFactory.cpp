@@ -62,11 +62,11 @@
 #	define OMNI_PVD_NOTIFY_REMOVE(OBJECT)
 #endif
 
-using namespace physx;
-using namespace Cm;
+using namespace ev4sio_physx;
+using namespace ev4sio_Cm;
 
 NpFactory::NpFactory() :
-	Gu::MeshFactory()
+	ev4sio_Gu::MeshFactory()
 	, mConnectorArrayPool("connectorArrayPool")
 	, mPtrTableStorageManager(PX_NEW(NpPtrTableStorageManager))
 	, mMaterialPool("MaterialPool")
@@ -115,7 +115,7 @@ void NpFactory::release()
 	releaseAll(mParticleBufferTracking);
 #endif
 
-	Gu::MeshFactory::release();  // deletes the class
+	ev4sio_Gu::MeshFactory::release();  // deletes the class
 }
 
 void NpFactory::createInstance()
@@ -218,7 +218,7 @@ PxArticulationReducedCoordinate* NpFactory::createArticulationRC()
 	if(npArticulation)
 		addArticulation(npArticulation);
 	else
-		PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "Articulation initialization failed: returned NULL.");
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "Articulation initialization failed: returned NULL.");
 
 	// OMNI_PVD_CREATE()
 	return npArticulation;
@@ -263,7 +263,7 @@ PxArticulationLink* NpFactory::createArticulationLink(NpArticulationReducedCoord
 	NpArticulationLink* npArticulationLink = NpFactory::getInstance().createNpArticulationLink(root, parent, pose);
 	if (!npArticulationLink)
 	{
-		PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL,  "Articulation link initialization failed: returned NULL.");
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL,  "Articulation link initialization failed: returned NULL.");
 		return NULL;
 	}
 	OMNI_PVD_NOTIFY_ADD(npArticulationLink);
@@ -278,7 +278,7 @@ PxArticulationLink* NpFactory::createArticulationLink(NpArticulationReducedCoord
 		{
 			PX_DELETE(npArticulationLink);
 	
-			PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "Articulation link initialization failed due to joint creation failure: returned NULL.");
+			ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "Articulation link initialization failed due to joint creation failure: returned NULL.");
 			return NULL;
 		}
 
@@ -600,7 +600,7 @@ PxFEMSoftBodyMaterial* NpFactory::createFEMSoftBodyMaterial(PxReal youngs, PxRea
 	PX_UNUSED(youngs);
 	PX_UNUSED(poissons);
 	PX_UNUSED(dynamicFriction);
-	PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxFEMMaterial is not supported on this platform.");
+	ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxFEMMaterial is not supported on this platform.");
 	return NULL;
 #endif
 }
@@ -644,7 +644,7 @@ PxFEMClothMaterial* NpFactory::createFEMClothMaterial(PxReal youngs, PxReal pois
 	PX_UNUSED(youngs);
 	PX_UNUSED(poissons);
 	PX_UNUSED(dynamicFriction);
-	PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxFEMClothMaterial is not supported on this platform.");
+	ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxFEMClothMaterial is not supported on this platform.");
 	return NULL;
 #endif
 }
@@ -703,7 +703,7 @@ PxPBDMaterial* NpFactory::createPBDMaterial(PxReal friction, PxReal damping, PxR
 	PX_UNUSED(drag);
 	PX_UNUSED(cflCoefficient);
 	PX_UNUSED(gravityScale);
-	PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxPBDMaterial is not supported on this platform.");
+	ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxPBDMaterial is not supported on this platform.");
 	return NULL;
 #endif
 }
@@ -748,7 +748,7 @@ PxFLIPMaterial* NpFactory::createFLIPMaterial(PxReal friction, PxReal damping, P
 	PX_UNUSED(adhesion);
 	PX_UNUSED(viscosity);
 	PX_UNUSED(gravityScale);
-	PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxFLIPMaterial is not supported on this platform.");
+	ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxFLIPMaterial is not supported on this platform.");
 	return NULL;
 #endif
 }
@@ -819,7 +819,7 @@ PxMPMMaterial* NpFactory::createMPMMaterial(
 	PX_UNUSED(compressiveDamageSensitivity);
 	PX_UNUSED(attractiveForceResidual);
 	PX_UNUSED(gravityScale);
-	PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxMPMMaterial is not supported on this platform.");
+	ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxMPMMaterial is not supported on this platform.");
 	return NULL;
 #endif
 }
@@ -860,7 +860,7 @@ bool checkShape(const PxGeometry& g, const char* errorMsg)
 {
 	const bool isValid = PxGeometryQuery::isValid(g);
 	if(!isValid)
-		PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, errorMsg);
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, errorMsg);
 	return isValid;
 }
 #endif
@@ -1024,19 +1024,19 @@ void NpFactory::addCollection(const Collection& collection)
 //////////////////////////
 		if(serialType==PxConcreteType::eHEIGHTFIELD)
 		{
-			Gu::HeightField* gu = static_cast<Gu::HeightField*>(s);
+			ev4sio_Gu::HeightField* gu = static_cast<ev4sio_Gu::HeightField*>(s);
 			gu->setMeshFactory(this);
 			addHeightField(gu, false);
 		}
 		else if(serialType==PxConcreteType::eCONVEX_MESH)
 		{
-			Gu::ConvexMesh* gu = static_cast<Gu::ConvexMesh*>(s);
+			ev4sio_Gu::ConvexMesh* gu = static_cast<ev4sio_Gu::ConvexMesh*>(s);
 			gu->setMeshFactory(this);
 			addConvexMesh(gu, false);
 		}
 		else if(serialType==PxConcreteType::eTRIANGLE_MESH_BVH33 || serialType==PxConcreteType::eTRIANGLE_MESH_BVH34)
 		{
-			Gu::TriangleMesh* gu = static_cast<Gu::TriangleMesh*>(s);
+			ev4sio_Gu::TriangleMesh* gu = static_cast<ev4sio_Gu::TriangleMesh*>(s);
 			gu->setMeshFactory(this);
 			addTriangleMesh(gu, false);
 		}
@@ -1209,23 +1209,23 @@ static PX_FORCE_INLINE void NpDestroy(T* np)
 	NpPhysics::getInstance().notifyDeletionListenersMemRelease(np, ud);
 }
 
-void physx::NpDestroyRigidActor(NpRigidStatic* np)									{ NpDestroy(np);	}
-void physx::NpDestroyRigidDynamic(NpRigidDynamic* np)								{ NpDestroy(np);	}
-void physx::NpDestroyAggregate(NpAggregate* np)										{ NpDestroy(np);	}
-void physx::NpDestroyShape(NpShape* np)												{ NpDestroy(np);	}
-void physx::NpDestroyConstraint(NpConstraint* np)									{ NpDestroy(np);	}
-void physx::NpDestroyArticulationLink(NpArticulationLink* np)						{ NpDestroy(np);	}
-void physx::NpDestroyArticulationJoint(PxArticulationJointReducedCoordinate* np)	{ NpDestroy(np);	}
-void physx::NpDestroyArticulation(PxArticulationReducedCoordinate* np)				{ NpDestroy(np);	}
+void ev4sio_physx::NpDestroyRigidActor(NpRigidStatic* np)									{ NpDestroy(np);	}
+void ev4sio_physx::NpDestroyRigidDynamic(NpRigidDynamic* np)								{ NpDestroy(np);	}
+void ev4sio_physx::NpDestroyAggregate(NpAggregate* np)										{ NpDestroy(np);	}
+void ev4sio_physx::NpDestroyShape(NpShape* np)												{ NpDestroy(np);	}
+void ev4sio_physx::NpDestroyConstraint(NpConstraint* np)									{ NpDestroy(np);	}
+void ev4sio_physx::NpDestroyArticulationLink(NpArticulationLink* np)						{ NpDestroy(np);	}
+void ev4sio_physx::NpDestroyArticulationJoint(PxArticulationJointReducedCoordinate* np)	{ NpDestroy(np);	}
+void ev4sio_physx::NpDestroyArticulation(PxArticulationReducedCoordinate* np)				{ NpDestroy(np);	}
 #if PX_SUPPORT_GPU_PHYSX
-void physx::NpDestroySoftBody(NpSoftBody* np)										{ NpDestroy(np);	}
+void ev4sio_physx::NpDestroySoftBody(NpSoftBody* np)										{ NpDestroy(np);	}
 #if PX_ENABLE_FEATURES_UNDER_CONSTRUCTION
-void physx::NpDestroyFEMCloth(NpFEMCloth* np)										{ NpDestroy(np);	}
+void ev4sio_physx::NpDestroyFEMCloth(NpFEMCloth* np)										{ NpDestroy(np);	}
 #endif
-void physx::NpDestroyParticleSystem(NpPBDParticleSystem* np)						{ NpDestroy(np);	}
+void ev4sio_physx::NpDestroyParticleSystem(NpPBDParticleSystem* np)						{ NpDestroy(np);	}
 #if PX_ENABLE_FEATURES_UNDER_CONSTRUCTION
-void physx::NpDestroyParticleSystem(NpFLIPParticleSystem* np)						{ NpDestroy(np);	}
-void physx::NpDestroyParticleSystem(NpMPMParticleSystem* np)						{ NpDestroy(np);	}
-void physx::NpDestroyHairSystem(NpHairSystem* np)									{ NpDestroy(np);	}
+void ev4sio_physx::NpDestroyParticleSystem(NpFLIPParticleSystem* np)						{ NpDestroy(np);	}
+void ev4sio_physx::NpDestroyParticleSystem(NpMPMParticleSystem* np)						{ NpDestroy(np);	}
+void ev4sio_physx::NpDestroyHairSystem(NpHairSystem* np)									{ NpDestroy(np);	}
 #endif
 #endif

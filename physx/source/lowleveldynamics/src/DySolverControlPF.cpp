@@ -42,9 +42,9 @@
 #include "DySolverControlPF.h"
 #include "DyArticulationCpuGpu.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Dy
+namespace ev4sio_Dy
 {
 void solve1DBlock		(DY_PGS_SOLVE_METHOD_PARAMS);
 void solveExt1DBlock	(DY_PGS_SOLVE_METHOD_PARAMS);
@@ -156,11 +156,11 @@ static SolveBlockMethod gVTableSolveConcludeBlockCoulomb[] PX_UNUSED_ATTRIBUTE =
 };
 
 // PT: code shared with patch friction solver. Ideally should move to a shared DySolverCore.cpp file.
-void solveNoContactsCase(	PxU32 bodyListSize, PxSolverBody* PX_RESTRICT bodyListStart, Cm::SpatialVector* PX_RESTRICT motionVelocityArray,
-							PxU32 articulationListSize, ArticulationSolverDesc* PX_RESTRICT articulationListStart, Cm::SpatialVectorF* PX_RESTRICT Z, Cm::SpatialVectorF* PX_RESTRICT deltaV,
+void solveNoContactsCase(	PxU32 bodyListSize, PxSolverBody* PX_RESTRICT bodyListStart, ev4sio_Cm::SpatialVector* PX_RESTRICT motionVelocityArray,
+							PxU32 articulationListSize, ArticulationSolverDesc* PX_RESTRICT articulationListStart, ev4sio_Cm::SpatialVectorF* PX_RESTRICT Z, ev4sio_Cm::SpatialVectorF* PX_RESTRICT deltaV,
 							PxU32 positionIterations, PxU32 velocityIterations, PxF32 dt, PxF32 invDt);
 
-void saveMotionVelocities(PxU32 nbBodies, PxSolverBody* PX_RESTRICT solverBodies, Cm::SpatialVector* PX_RESTRICT motionVelocityArray);
+void saveMotionVelocities(PxU32 nbBodies, PxSolverBody* PX_RESTRICT solverBodies, ev4sio_Cm::SpatialVector* PX_RESTRICT motionVelocityArray);
 
 void SolverCoreGeneralPF::solveV_Blocks(SolverIslandParams& params) const
 {
@@ -184,7 +184,7 @@ void SolverCoreGeneralPF::solveV_Blocks(SolverIslandParams& params) const
 	PxSolverBody* PX_RESTRICT bodyListStart = params.bodyListStart;
 	const PxU32 bodyListSize = params.bodyListSize;
 
-	Cm::SpatialVector* PX_RESTRICT motionVelocityArray = params.motionVelocityArray;
+	ev4sio_Cm::SpatialVector* PX_RESTRICT motionVelocityArray = params.motionVelocityArray;
 
 	const PxU32 velocityIterations = params.velocityIterations;
 	const PxU32 positionIterations = params.positionIterations;
@@ -309,7 +309,7 @@ void SolverCoreGeneralPF::solveV_Blocks(SolverIslandParams& params) const
 }
 
 void SolverCoreGeneralPF::solveVParallelAndWriteBack(SolverIslandParams& params,
-	Cm::SpatialVectorF* Z, Cm::SpatialVectorF* deltaV) const
+	ev4sio_Cm::SpatialVectorF* Z, ev4sio_Cm::SpatialVectorF* deltaV) const
 {
 	const PxF32 biasCoefficient = DY_ARTICULATION_PGS_BIAS_COEFFICIENT;
 	const bool isTGS = false;
@@ -500,7 +500,7 @@ void SolverCoreGeneralPF::solveVParallelAndWriteBack(SolverIslandParams& params,
 
 	PxSolverBody* PX_RESTRICT bodyListStart = params.bodyListStart;
 
-	Cm::SpatialVector* PX_RESTRICT motionVelocityArray = params.motionVelocityArray;
+	ev4sio_Cm::SpatialVector* PX_RESTRICT motionVelocityArray = params.motionVelocityArray;
 
 	PxI32 endIndexCount2 = SaveUnrollCount;
 	PxI32 index2 = PxAtomicAdd(bodyListIndex, SaveUnrollCount) - SaveUnrollCount;
@@ -535,7 +535,7 @@ void SolverCoreGeneralPF::solveVParallelAndWriteBack(SolverIslandParams& params,
 				PxPrefetchLine(&bodyListStart[index2 + 8]);
 				PxPrefetchLine(&motionVelocityArray[index2 + 8]);
 				PxSolverBody& body = bodyListStart[index2];
-				Cm::SpatialVector& motionVel = motionVelocityArray[index2];
+				ev4sio_Cm::SpatialVector& motionVel = motionVelocityArray[index2];
 				motionVel.linear = body.linearVelocity;
 				motionVel.angular = body.angularState;
 				PX_ASSERT(motionVel.linear.isFinite());

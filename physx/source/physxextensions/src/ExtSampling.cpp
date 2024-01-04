@@ -42,12 +42,12 @@
 #include "foundation/PxMathUtils.h"
 #include "foundation/PxSort.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	namespace
 	{
-		using namespace Gu;
-		using namespace Cm;	
+		using namespace ev4sio_Gu;
+		using namespace ev4sio_Cm;	
 
 		static const PxI32 neighborEdges[3][2] = { { 0, 1 }, { 2, 0 }, { 1, 2 } };
 		
@@ -188,7 +188,7 @@ namespace physx
 					if (n >= 0 && !result.contains(n))
 					{
 						const PxU32* t = &triangles[3 * n];
-						if (Gu::distancePointTriangleSquared(center, points[t[0]], points[t[1]] - points[t[0]], points[t[2]] - points[t[0]]) < radius * radius)
+						if (ev4sio_Gu::distancePointTriangleSquared(center, points[t[0]], points[t[1]] - points[t[0]], points[t[2]] - points[t[0]]) < radius * radius)
 						{
 							result.insert(n);
 							stack.pushBack(n);
@@ -359,7 +359,7 @@ namespace physx
 		PxArray<PxU32> occupiedCellBits;
 		PxHashMap<PxI32, SparseGridNode> sparseGrid3D;
 		PxArray<PxI32> excessList;
-		Cm::BasicRandom rnd;
+		ev4sio_Cm::BasicRandom rnd;
 
 		bool gridResolutionValid = false;
 
@@ -475,8 +475,8 @@ namespace physx
 		PxArray<PxReal> triangleAreaBuffer;
 		PxArray<PxI32> adj;
 
-		PxArray<Gu::BVHNode> tree;
-		PxHashMap<PxU32, Gu::ClusterApproximation> clusters;
+		PxArray<ev4sio_Gu::BVHNode> tree;
+		PxHashMap<PxU32, ev4sio_Gu::ClusterApproximation> clusters;
 
 		//Intermediate data
 		PxArray<ActiveSample> activeSamples;
@@ -524,7 +524,7 @@ namespace physx
 
 	bool TriangleMeshPoissonSampler::pointInMesh(const PxVec3& p)
 	{
-		return Gu::computeWindingNumber(tree.begin(), p, clusters, originalTriangles, originalPoints) > 0.5f;
+		return ev4sio_Gu::computeWindingNumber(tree.begin(), p, clusters, originalTriangles, originalPoints) > 0.5f;
 	}
 
 
@@ -711,7 +711,7 @@ namespace physx
 			cellsZ >= (1u << 31))
 		{
 			gridResolutionValid = false;
-			PxGetFoundation().error(physx::PxErrorCode::eINVALID_PARAMETER, PX_FL, "Internal grid resolution of sampler too high. Either a smaller mesh or a bigger radius must be used.");
+			ev4sio_PxGetFoundation().error(ev4sio_physx::PxErrorCode::eINVALID_PARAMETER, PX_FL, "Internal grid resolution of sampler too high. Either a smaller mesh or a bigger radius must be used.");
 			return false;
 		}
 
@@ -876,10 +876,10 @@ namespace physx
 	}
 	
 
-	void buildTree(const PxU32* triangles, const PxU32 numTriangles, const PxVec3* points, PxArray<Gu::BVHNode>& tree, PxF32 enlargement = 1e-4f)
+	void buildTree(const PxU32* triangles, const PxU32 numTriangles, const PxVec3* points, PxArray<ev4sio_Gu::BVHNode>& tree, PxF32 enlargement = 1e-4f)
 	{
 		//Computes a bounding box for every triangle in triangles
-		Gu::AABBTreeBounds boxes;
+		ev4sio_Gu::AABBTreeBounds boxes;
 		boxes.init(numTriangles);
 		for (PxU32 i = 0; i < numTriangles; ++i)
 		{
@@ -892,7 +892,7 @@ namespace physx
 			boxes.getBounds()[i] = box;
 		}
 
-		Gu::buildAABBTree(numTriangles, boxes, tree);
+		ev4sio_Gu::buildAABBTree(numTriangles, boxes, tree);
 	}
 
 	bool TriangleMeshPoissonSampler::isPointInTriangleMesh(const PxVec3& p)
@@ -901,7 +901,7 @@ namespace physx
 		{
 			//Lazy initialization
 			buildTree(originalTriangles, numOriginalTriangles, originalPoints, tree);
-			Gu::precomputeClusterInformation(tree.begin(), originalTriangles, numOriginalTriangles, originalPoints, clusters);
+			ev4sio_Gu::precomputeClusterInformation(tree.begin(), originalTriangles, numOriginalTriangles, originalPoints, clusters);
 		}
 
 		return pointInMesh(p);
@@ -1076,7 +1076,7 @@ namespace physx
 		{
 			//Lazy initialization
 			buildTree(originalTriangles, numOriginalTriangles, originalPoints, tree);
-			Gu::precomputeClusterInformation(tree.begin(), originalTriangles, numOriginalTriangles, originalPoints, clusters);
+			ev4sio_Gu::precomputeClusterInformation(tree.begin(), originalTriangles, numOriginalTriangles, originalPoints, clusters);
 		}
 
 		

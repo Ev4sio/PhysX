@@ -33,9 +33,9 @@
 #include "GuPrunerTypedef.h"
 #include "foundation/PxArray.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Gu
+namespace ev4sio_Gu
 {
 	class AABBTree;
 

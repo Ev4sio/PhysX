@@ -30,7 +30,7 @@
 #define PX_VEC_MATH_SSE_H
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 namespace aos
@@ -60,7 +60,7 @@ PX_FORCE_INLINE void QuatGetMat33V(const QuatVArg q, Vec3V& column0, Vec3V& colu
 
 } // namespace aos
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 

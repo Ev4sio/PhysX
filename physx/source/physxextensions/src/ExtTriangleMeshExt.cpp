@@ -39,7 +39,7 @@
 
 #include "foundation/PxAllocator.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 PxMeshOverlapUtil::PxMeshOverlapUtil() : mResultsMemory(mResults), mNbResults(0), mMaxNbResults(256)
 {
@@ -149,7 +149,7 @@ bool computeMeshPenetrationT(PxVec3& direction,
 }
 }
 
-bool physx::PxComputeTriangleMeshPenetration(PxVec3& direction, 
+bool ev4sio_physx::PxComputeTriangleMeshPenetration(PxVec3& direction, 
 											PxReal& depth,
 											const PxGeometry& geom, 
 											const PxTransform& geomPose, 
@@ -161,7 +161,7 @@ bool physx::PxComputeTriangleMeshPenetration(PxVec3& direction,
 	return computeMeshPenetrationT(direction, depth, geom, geomPose, meshGeom, meshPose, maxIter, nbIter);
 }
 
-bool physx::PxComputeHeightFieldPenetration(PxVec3& direction, 
+bool ev4sio_physx::PxComputeHeightFieldPenetration(PxVec3& direction, 
 										    PxReal& depth,
 											const PxGeometry& geom, 
 											const PxTransform& geomPose, 
@@ -173,15 +173,15 @@ bool physx::PxComputeHeightFieldPenetration(PxVec3& direction,
 	return computeMeshPenetrationT(direction, depth, geom, geomPose, hfGeom, meshPose, maxIter, nbIter);
 }
 
-bool physx::PxExtractIsosurfaceFromSDF(const PxTriangleMesh& triangleMesh, PxArray<PxVec3>& isosurfaceVertices, PxArray<PxU32>& isosurfaceTriangleIndices)
+bool ev4sio_physx::PxExtractIsosurfaceFromSDF(const PxTriangleMesh& triangleMesh, PxArray<PxVec3>& isosurfaceVertices, PxArray<PxU32>& isosurfaceTriangleIndices)
 {
 	PxU32 dimX, dimY, dimZ;
 	triangleMesh.getSDFDimensions(dimX, dimY, dimZ);
 	if (dimX == 0 || dimY == 0 || dimZ == 0)
 		return false;
 
-	const Gu::TriangleMesh* guTriangleMesh = static_cast<const Gu::TriangleMesh*>(&triangleMesh);
-	const Gu::SDF& sdf = guTriangleMesh->getSdfDataFast();	
+	const ev4sio_Gu::TriangleMesh* guTriangleMesh = static_cast<const ev4sio_Gu::TriangleMesh*>(&triangleMesh);
+	const ev4sio_Gu::SDF& sdf = guTriangleMesh->getSdfDataFast();	
 
 	extractIsosurfaceFromSDF(sdf, isosurfaceVertices, isosurfaceTriangleIndices);
 

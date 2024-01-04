@@ -29,7 +29,7 @@
 
 #include "PxProfileEventBufferClient.h"
 
-namespace physx { namespace profile {
+namespace ev4sio_physx { namespace profile {
 	
 	/**
 	\brief	Manager keep collections of PxProfileEventBufferClient clients. 

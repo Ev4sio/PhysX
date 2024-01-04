@@ -32,9 +32,9 @@
 #include "GuBounds.h"
 #include "GuBVHTestsSIMD.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Gu
+namespace ev4sio_Gu
 {
 	// PT: TODO: the various V3LoadUs in the base tests like SphereAABBTest could be avoided
 

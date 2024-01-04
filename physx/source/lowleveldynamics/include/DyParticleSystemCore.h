@@ -41,9 +41,9 @@
 #include "PxParticleSolverType.h"
 #include "PxSparseGridParams.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Dy
+namespace ev4sio_Dy
 {	
 
 class ParticleSystemCore
@@ -131,7 +131,7 @@ public:
 
 				default:
 				{
-					PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "addParticleBuffer : Error, this buffer does not have a valid type!");
+					ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "addParticleBuffer : Error, this buffer does not have a valid type!");
 					return;
 				}
 					
@@ -139,7 +139,7 @@ public:
 		}
 		else
 		{
-			PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "addParticleBuffer : Error, this buffer cannot be added to multiple particle systems!");
+			ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "addParticleBuffer : Error, this buffer cannot be added to multiple particle systems!");
 		}
 	}
 
@@ -209,7 +209,7 @@ public:
 
 			default:
 			{
-				PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "removeParticleBuffer : Error, this buffer does not have a valid type!");
+				ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "removeParticleBuffer : Error, this buffer does not have a valid type!");
 				return;
 			}
 
@@ -270,8 +270,8 @@ public:
 
 };
 
-} // namespace Dy
-} // namespace physx
+} // namespace ev4sio_Dy
+} // namespace ev4sio_physx
 
 #endif
 

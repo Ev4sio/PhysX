@@ -36,9 +36,9 @@
 #include "common/PxPhysXCommonConfig.h"
 #include "GuPrunerTypedef.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Gu
+namespace ev4sio_Gu
 {
 	struct BVHNode;
 	struct SAH_Buffers;
@@ -234,7 +234,7 @@ namespace Gu
 	class FIFOStack;
 	//~Progressive building
 
-	// PT: base class used to share some data and code between Gu::AABBtree and Gu::BVH. This is WIP and subject to change.
+	// PT: base class used to share some data and code between ev4sio_Gu::AABBtree and ev4sio_Gu::BVH. This is WIP and subject to change.
 	// Design dictated by refactoring necessities rather than a grand vision of something.
 	class BVHCoreData : public PxUserAllocated
 	{
@@ -327,7 +327,7 @@ namespace Gu
 								void			addRuntimeChilds(PxU32& nodeIndex, const AABBTreeMergeData& tree);
 								void			traverseRuntimeNode(BVHNode& targetNode, const AABBTreeMergeData& tree, PxU32 nodeIndex);
 	};
-} // namespace Gu
+} // namespace ev4sio_Gu
 }
 
 #endif // GU_AABBTREE_H

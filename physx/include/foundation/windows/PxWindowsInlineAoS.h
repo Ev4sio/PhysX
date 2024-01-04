@@ -35,7 +35,7 @@
 
 #include "../PxVecMathSSE.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 namespace aos
 {
@@ -3168,7 +3168,7 @@ PX_FORCE_INLINE Vec4V V4ConvertFromI32V(const VecI32V in)
 }
 
 } // namespace aos
-} // namespace physx
+} // namespace ev4sio_physx
 
 #endif
 

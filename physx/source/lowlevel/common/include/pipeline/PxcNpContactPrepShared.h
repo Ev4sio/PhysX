@@ -29,7 +29,7 @@
 #ifndef PXC_NP_CONTACT_PREP_SHARED_H
 #define PXC_NP_CONTACT_PREP_SHARED_H
 
-namespace physx
+namespace ev4sio_physx
 {
 class PxcNpThreadContext;
 struct PxsMaterialInfo;
@@ -38,7 +38,7 @@ class PxsConstraintBlockManager;
 class PxcConstraintBlockStream;
 struct PxsContactManagerOutput;
 
-namespace Gu
+namespace ev4sio_Gu
 {
 	struct ContactPoint;
 }

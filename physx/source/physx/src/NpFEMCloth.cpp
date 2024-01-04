@@ -45,9 +45,9 @@
 #include "GuTriangleMesh.h"
 #include "ScFEMClothSim.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
-namespace physx
+namespace ev4sio_physx
 {
 #if PX_ENABLE_FEATURES_UNDER_CONSTRUCTION
 	NpFEMCloth::NpFEMCloth(PxCudaContextManager& cudaContextManager)
@@ -71,11 +71,11 @@ namespace physx
 
 		if (!getNpScene())
 		{
-			PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "Querying bounds of a PxFEMCloth which is not part of a PxScene is not supported.");
+			ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "Querying bounds of a PxFEMCloth which is not part of a PxScene is not supported.");
 			return PxBounds3::empty();
 		}
 
-		const Sc::FEMClothSim* sim = mCore.getSim();
+		const ev4sio_Sc::FEMClothSim* sim = mCore.getSim();
 		PX_ASSERT(sim);
 
 		PX_SIMD_GUARD;
@@ -300,7 +300,7 @@ namespace physx
 	{
 		PX_CHECK_AND_RETURN_NULL(mShape != NULL, " NpFEMCloth::getPositionInvMassBufferD: FEM cloth does not have a shape, attach shape first.");
 
-		Dy::FEMClothCore& core = mCore.getCore();
+		ev4sio_Dy::FEMClothCore& core = mCore.getCore();
 		return core.mPositionInvMass;
 	}
 
@@ -308,7 +308,7 @@ namespace physx
 	{
 		PX_CHECK_AND_RETURN_NULL(mShape != NULL, " NpFEMCloth::getVelocityBufferD: FEM cloth does not have a shape, attach shape first.");
 
-		Dy::FEMClothCore& core = mCore.getCore();
+		ev4sio_Dy::FEMClothCore& core = mCore.getCore();
 		return core.mVelocity;
 	}
 
@@ -316,7 +316,7 @@ namespace physx
 	{
 		PX_CHECK_AND_RETURN_NULL(mShape != NULL, " NpFEMCloth::getRestPositionBufferD: FEM cloth does not have a shape, attach shape first.");
 		
-		Dy::FEMClothCore& core = mCore.getCore();
+		ev4sio_Dy::FEMClothCore& core = mCore.getCore();
 		return core.mRestPosition;
 	}
 
@@ -324,7 +324,7 @@ namespace physx
 	{
 		NP_WRITE_CHECK(getNpScene());
 
-		Dy::FEMClothCore& core = mCore.getCore();
+		ev4sio_Dy::FEMClothCore& core = mCore.getCore();
 		core.mDirtyFlags |= flags;
 	}
 
@@ -375,13 +375,13 @@ namespace physx
 		PX_CHECK_AND_RETURN_NULL(mShape == NULL, "NpFEMCloth::attachShape: FEM-cloth can just have one shape");
 		PX_CHECK_AND_RETURN_NULL(shape.isExclusive(), "NpFEMCloth::attachShape: shape must be exclusive");
 
-		Dy::FEMClothCore& core = mCore.getCore();
+		ev4sio_Dy::FEMClothCore& core = mCore.getCore();
 		PX_CHECK_AND_RETURN_NULL(core.mPositionInvMass == NULL, "NpFEMCloth::attachShape: mPositionInvMass already exists, overwrite not allowed, call detachShape first");
 		PX_CHECK_AND_RETURN_NULL(core.mVelocity == NULL, "NpFEMCloth::attachShape: mClothVelocity already exists, overwrite not allowed, call detachShape first");
 		PX_CHECK_AND_RETURN_NULL(core.mRestPosition == NULL, "NpFEMCloth::attachShape: mClothRestPosition already exists, overwrite not allowed, call detachShape first");
 
 		const PxTriangleMeshGeometry& geom = static_cast<const PxTriangleMeshGeometry&>(npShape->getGeometry());
-		Gu::TriangleMesh* guMesh = static_cast<Gu::TriangleMesh*>(geom.triangleMesh);
+		ev4sio_Gu::TriangleMesh* guMesh = static_cast<ev4sio_Gu::TriangleMesh*>(geom.triangleMesh);
 
 #if PX_CHECKED
 		const PxU32 triangleReference = guMesh->getNbTriangleReferences();
@@ -412,7 +412,7 @@ namespace physx
 
 		PX_CHECK_SCENE_API_WRITE_FORBIDDEN(getNpScene(), "NpFEMCloth::addRigidFilter: Illegal to call while simulation is running.");
 
-		Sc::BodyCore* core = getBodyCore(actor);
+		ev4sio_Sc::BodyCore* core = getBodyCore(actor);
 
 		return mCore.addRigidFilter(core, vertId);
 	}
@@ -425,7 +425,7 @@ namespace physx
 
 		PX_CHECK_SCENE_API_WRITE_FORBIDDEN(getNpScene(), "NpFEMCloth::removeRigidFilter: Illegal to call while simulation is running.");
 
-		Sc::BodyCore* core = getBodyCore(actor);
+		ev4sio_Sc::BodyCore* core = getBodyCore(actor);
 
 		mCore.removeRigidFilter(core, vertId);
 	}
@@ -439,7 +439,7 @@ namespace physx
 
 		PX_CHECK_SCENE_API_WRITE_FORBIDDEN_AND_RETURN_VAL(getNpScene(), "NpFEMCloth::addRigidAttachment: Illegal to call while simulation is running.", 0xFFFFFFFF);
 
-		Sc::BodyCore* core = getBodyCore(actor);
+		ev4sio_Sc::BodyCore* core = getBodyCore(actor);
 
 		PxVec3 aPose = actorSpacePose;
 		if(actor && actor->getConcreteType()==PxConcreteType::eRIGID_STATIC)
@@ -459,7 +459,7 @@ namespace physx
 
 		PX_CHECK_SCENE_API_WRITE_FORBIDDEN(getNpScene(), "NpFEMCloth::removeRigidAttachment: Illegal to call while simulation is running.");
 
-		Sc::BodyCore* core = getBodyCore(actor);
+		ev4sio_Sc::BodyCore* core = getBodyCore(actor);
 
 		mCore.removeRigidAttachment(core, handle);
 	}
@@ -472,7 +472,7 @@ namespace physx
 
 		PX_CHECK_SCENE_API_WRITE_FORBIDDEN(getNpScene(), "NpFEMCloth::addTriRigidFilter: Illegal to call while simulation is running.");
 
-		Sc::BodyCore* core = getBodyCore(actor);
+		ev4sio_Sc::BodyCore* core = getBodyCore(actor);
 
 		return mCore.addTriRigidFilter(core, triangleIdx);
 	}
@@ -485,7 +485,7 @@ namespace physx
 
 		PX_CHECK_SCENE_API_WRITE_FORBIDDEN(getNpScene(), "NpFEMCloth::releaseTriRigidAttachment: Illegal to call while simulation is running.");
 
-		Sc::BodyCore* core = getBodyCore(actor);
+		ev4sio_Sc::BodyCore* core = getBodyCore(actor);
 
 		mCore.removeTriRigidFilter(core, triangleId);
 	}
@@ -499,7 +499,7 @@ namespace physx
 
 		PX_CHECK_SCENE_API_WRITE_FORBIDDEN_AND_RETURN_VAL(getNpScene(), "NpFEMCloth::addTriRigidAttachment: Illegal to call while simulation is running.", 0xFFFFFFFF);
 
-		Sc::BodyCore* core = getBodyCore(actor);
+		ev4sio_Sc::BodyCore* core = getBodyCore(actor);
 
 		PxVec3 aPose = actorSpacePose;
 		if(actor && actor->getConcreteType()==PxConcreteType::eRIGID_STATIC)
@@ -519,7 +519,7 @@ namespace physx
 
 		PX_CHECK_SCENE_API_WRITE_FORBIDDEN(getNpScene(), "NpFEMCloth::releaseTriRigidAttachment: Illegal to call while simulation is running.");
 
-		Sc::BodyCore* core = getBodyCore(actor);
+		ev4sio_Sc::BodyCore* core = getBodyCore(actor);
 
 		mCore.removeTriRigidAttachment(core, handle);
 	}
@@ -533,7 +533,7 @@ namespace physx
 		PX_CHECK_SCENE_API_WRITE_FORBIDDEN(getNpScene(), "NpFEMCloth::addClothFilter: Illegal to call while simulation is running.");
 
 		NpFEMCloth* dyn = static_cast<NpFEMCloth*>(otherCloth);
-		Sc::FEMClothCore* otherCore = &dyn->getCore();
+		ev4sio_Sc::FEMClothCore* otherCore = &dyn->getCore();
 
 		return mCore.addClothFilter(otherCore, otherTriIdx, triIdx);
 	}
@@ -548,7 +548,7 @@ namespace physx
 		PX_CHECK_SCENE_API_WRITE_FORBIDDEN(getNpScene(), "NpFEMCloth::removeClothFilter: Illegal to call while simulation is running.");
 
 		NpFEMCloth* dyn = static_cast<NpFEMCloth*>(otherCloth);
-		Sc::FEMClothCore* otherCore = &dyn->getCore();
+		ev4sio_Sc::FEMClothCore* otherCore = &dyn->getCore();
 
 		mCore.removeClothFilter(otherCore, otherTriIdx, triIdx);
 	}
@@ -562,7 +562,7 @@ namespace physx
 		PX_CHECK_SCENE_API_WRITE_FORBIDDEN_AND_RETURN_VAL(getNpScene(), "NpFEMCloth::addClothAttachment: Illegal to call while simulation is running.", 0xFFFFFFFF);
 
 		NpFEMCloth* dyn = static_cast<NpFEMCloth*>(otherCloth);
-		Sc::FEMClothCore* otherCore = &dyn->getCore();
+		ev4sio_Sc::FEMClothCore* otherCore = &dyn->getCore();
 
 		return mCore.addClothAttachment(otherCore, otherTriIdx, otherTriBarycentric, triIdx, triBarycentric);
 	}
@@ -577,14 +577,14 @@ namespace physx
 		PX_CHECK_SCENE_API_WRITE_FORBIDDEN(getNpScene(), "NpFEMCloth::releaseClothAttachment: Illegal to call while simulation is running.");
 
 		NpFEMCloth* dyn = static_cast<NpFEMCloth*>(otherCloth);
-		Sc::FEMClothCore* otherCore = &dyn->getCore();
+		ev4sio_Sc::FEMClothCore* otherCore = &dyn->getCore();
 
 		mCore.removeClothAttachment(otherCore, handle);
 	}
 
 	void NpFEMCloth::detachShape()
 	{
-		Dy::FEMClothCore& core = mCore.getCore();
+		ev4sio_Dy::FEMClothCore& core = mCore.getCore();
 
 		if (core.mPositionInvMass)
 		{
@@ -640,7 +640,7 @@ namespace physx
 
 	bool NpFEMCloth::isSleeping() const
 	{
-		Sc::FEMClothSim* sim = mCore.getSim();
+		ev4sio_Sc::FEMClothSim* sim = mCore.getSim();
 		if (sim)
 		{
 			return sim->isSleeping();
@@ -650,7 +650,7 @@ namespace physx
 
 	void NpFEMCloth::updateMaterials()
 	{
-		Dy::FEMClothCore& core = mCore.getCore();
+		ev4sio_Dy::FEMClothCore& core = mCore.getCore();
 		core.clearMaterials();
 		for (PxU32 i = 0; i < mShape->getNbMaterials(); ++i)
 		{

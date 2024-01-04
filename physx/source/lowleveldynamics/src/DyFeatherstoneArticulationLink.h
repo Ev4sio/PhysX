@@ -38,9 +38,9 @@
 #include "DyVArticulation.h"
 #include "DyFeatherstoneArticulationUtils.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-	namespace Dy
+	namespace ev4sio_Dy
 	{
 
 		class ArticulationLinkData
@@ -57,7 +57,7 @@ namespace physx
 
 		};
 
-	}//namespace Dy
+	}//namespace ev4sio_Dy
 }
 
 #endif

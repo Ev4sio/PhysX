@@ -44,10 +44,10 @@
 #include <stdio.h>
 #endif
 
-using namespace physx::Gu;
-using namespace physx::aos;
+using namespace ev4sio_physx::ev4sio_Gu;
+using namespace ev4sio_physx::aos;
 
-namespace physx
+namespace ev4sio_physx
 {
 
 // Google "wikipedia QuickSelect" for algorithm explanation
@@ -156,13 +156,13 @@ struct PxBounds3V
 };
 
 static void buildFromBounds(
-	Gu::RTree& resultTree, const PxBounds3V* allBounds, PxU32 numBounds,
+	ev4sio_Gu::RTree& resultTree, const PxBounds3V* allBounds, PxU32 numBounds,
 	PxArray<PxU32>& resultPermute, RTreeCooker::RemapCallback* rc, Vec3VArg allMn, Vec3VArg allMx,
 	PxReal sizePerfTradeOff, PxMeshCookingHint::Enum hint);
 
 /////////////////////////////////////////////////////////////////////////
 void RTreeCooker::buildFromTriangles(
-	Gu::RTree& result, const PxVec3* verts, PxU32 numVerts, const PxU16* tris16, const PxU32* tris32, PxU32 numTris,
+	ev4sio_Gu::RTree& result, const PxVec3* verts, PxU32 numVerts, const PxU16* tris16, const PxU32* tris32, PxU32 numTris,
 	PxArray<PxU32>& resultPermute, RTreeCooker::RemapCallback* rc, PxReal sizePerfTradeOff01, PxMeshCookingHint::Enum hint)
 {
 	PX_UNUSED(numVerts);
@@ -800,7 +800,7 @@ struct SubSortSAH
 // initializes the input permute array with identity permutation
 // and shuffles it so that new sorted index, newIndex = resultPermute[oldIndex]
 static void buildFromBounds(
-	Gu::RTree& result, const PxBounds3V* allBounds, PxU32 numBounds,
+	ev4sio_Gu::RTree& result, const PxBounds3V* allBounds, PxU32 numBounds,
 	PxArray<PxU32>& permute, RTreeCooker::RemapCallback* rc, Vec3VArg allMn, Vec3VArg allMx,
 	PxReal sizePerfTradeOff01, PxMeshCookingHint::Enum hint)
 {
@@ -967,4 +967,4 @@ static void buildFromBounds(
 #endif
 }
 
-} // namespace physx
+} // namespace ev4sio_physx

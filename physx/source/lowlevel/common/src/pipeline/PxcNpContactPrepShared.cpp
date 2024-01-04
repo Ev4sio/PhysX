@@ -31,8 +31,8 @@
 #include "PxcNpWorkUnit.h"
 #include "PxvDynamics.h"
 
-using namespace physx;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
 
 #include "PxsMaterialManager.h"
 #include "PxsMaterialCombiner.h"
@@ -43,7 +43,7 @@ using namespace Gu;
 
 #include "foundation/PxVecMath.h"
 #include "foundation/PxErrors.h"
-using namespace physx;
+using namespace ev4sio_physx;
 using namespace aos;
 
 static PX_FORCE_INLINE void copyContactPoint(PxContact* PX_RESTRICT point, const PxContactPoint* PX_RESTRICT cp)
@@ -77,7 +77,7 @@ struct StridePatch
 	bool isRoot;
 };
 
-PxU32 physx::writeCompressedContact(const PxContactPoint* const PX_RESTRICT contactPoints, const PxU32 numContactPoints, PxcNpThreadContext* threadContext,
+PxU32 ev4sio_physx::writeCompressedContact(const PxContactPoint* const PX_RESTRICT contactPoints, const PxU32 numContactPoints, PxcNpThreadContext* threadContext,
 									PxU16& writtenContactCount, PxU8*& outContactPatches, PxU8*& outContactPoints, PxU16& compressedContactSize, PxReal*& outContactForces, PxU32 contactForceByteSize,
 									const PxsMaterialManager* materialManager, bool hasModifiableContacts, bool forceNoResponse, const PxsMaterialInfo* PX_RESTRICT pMaterial, PxU8& numPatches,
 									PxU32 additionalHeaderSize, PxsConstraintBlockManager* manager, PxcConstraintBlockStream* blockStream, bool insertAveragePoint,

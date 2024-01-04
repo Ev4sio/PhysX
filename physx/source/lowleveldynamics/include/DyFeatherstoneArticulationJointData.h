@@ -40,9 +40,9 @@
 #include "DyArticulationJointCore.h"
 #include <stdio.h>
 
-namespace physx
+namespace ev4sio_physx
 {
-	namespace Dy
+	namespace ev4sio_Dy
 	{	
 		class ArticulationJointCoreData
 		{
@@ -67,13 +67,13 @@ namespace physx
 				return tDof;
 			}
 
-			PX_CUDA_CALLABLE PX_FORCE_INLINE void computeJointAxis(const ArticulationJointCore* joint, Cm::UnAlignedSpatialVector* jointAxis)
+			PX_CUDA_CALLABLE PX_FORCE_INLINE void computeJointAxis(const ArticulationJointCore* joint, ev4sio_Cm::UnAlignedSpatialVector* jointAxis)
 			{
 				for (PxU32 i = 0; i < dof; ++i)
 				{
 					PxU32 ind = joint->dofIds[i];
 
-					Cm::UnAlignedSpatialVector axis = Cm::UnAlignedSpatialVector::Zero();
+					ev4sio_Cm::UnAlignedSpatialVector axis = ev4sio_Cm::UnAlignedSpatialVector::Zero();
 					//axis is in the local space of joint
 					axis[ind] = 1.f;
 
@@ -81,7 +81,7 @@ namespace physx
 				}
 			}
 
-			PX_FORCE_INLINE PxU32 computeJointDof(ArticulationJointCore* joint, Cm::UnAlignedSpatialVector* jointAxis)
+			PX_FORCE_INLINE PxU32 computeJointDof(ArticulationJointCore* joint, ev4sio_Cm::UnAlignedSpatialVector* jointAxis)
 			{
 				if (joint->jointDirtyFlag & ArticulationJointCoreDirtyFlag::eMOTION)
 				{
@@ -96,7 +96,7 @@ namespace physx
 					{
 						if (joint->motion[i] != PxArticulationMotion::eLOCKED)
 						{
-							Cm::UnAlignedSpatialVector axis = Cm::UnAlignedSpatialVector::Zero();
+							ev4sio_Cm::UnAlignedSpatialVector axis = ev4sio_Cm::UnAlignedSpatialVector::Zero();
 							//axis is in the local space of joint
 							axis[i] = 1.f;
 
@@ -141,7 +141,7 @@ namespace physx
 
 		};
 
-	}//namespace Dy
+	}//namespace ev4sio_Dy
 }
 
 #endif

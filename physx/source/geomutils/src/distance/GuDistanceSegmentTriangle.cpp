@@ -32,8 +32,8 @@
 #include "GuDistanceSegmentSegment.h"
 #include "GuBarycentricCoordinates.h"
 
-using namespace physx;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
 
 // ptchernev: 
 // The Magic Software code uses a relative error test for parallel case.
@@ -62,7 +62,7 @@ static PX_FORCE_INLINE void updateClosestHit(	PxReal fSqrDist0, PxReal fR0, PxRe
 	}
 }
 
-PxReal Gu::distanceSegmentTriangleSquared(	const PxVec3& origin, const PxVec3& dir,
+PxReal ev4sio_Gu::distanceSegmentTriangleSquared(	const PxVec3& origin, const PxVec3& dir,
 											const PxVec3& p0, const PxVec3& triEdge0, const PxVec3& triEdge1,
 											PxReal* t, PxReal* u, PxReal* v)
 {
@@ -371,12 +371,12 @@ PxReal Gu::distanceSegmentTriangleSquared(	const PxVec3& origin, const PxVec3& d
 	if(v)	*v = fT;
 
 	// account for numerical round-off error
-	return physx::intrinsics::selectMax(0.0f, fSqrDist);
+	return ev4sio_physx::intrinsics::selectMax(0.0f, fSqrDist);
 }
 
 //	closest0 is the closest point on segment pq
 //	closest1 is the closest point on triangle abc
-aos::FloatV Gu::distanceSegmentTriangleSquared(	const aos::Vec3VArg p, const aos::Vec3VArg q,
+aos::FloatV ev4sio_Gu::distanceSegmentTriangleSquared(	const aos::Vec3VArg p, const aos::Vec3VArg q,
 												const aos::Vec3VArg a, const aos::Vec3VArg b, const aos::Vec3VArg c,
 												aos::Vec3V& closest0, aos::Vec3V& closest1)
 {

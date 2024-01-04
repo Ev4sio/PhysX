@@ -37,8 +37,8 @@
 #include "GuPCMContactConvexCommon.h"
 #include "GuPCMContactMeshCallback.h"
 
-using namespace physx;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
 using namespace aos;
 
 namespace
@@ -74,7 +74,7 @@ struct PCMSphereVsHeightfieldContactGenerationCallback : PCMHeightfieldContactGe
 };
 }
 
-bool Gu::pcmContactSphereHeightField(GU_CONTACT_METHOD_ARGS)
+bool ev4sio_Gu::pcmContactSphereHeightField(GU_CONTACT_METHOD_ARGS)
 {
 	PX_UNUSED(renderOutput);
 

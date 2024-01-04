@@ -35,7 +35,7 @@
 #ifndef NP_ARTICULATION_SENSOR_H
 #define NP_ARTICULATION_SENSOR_H
 
-namespace physx
+namespace ev4sio_physx
 {
 
 typedef PxU32	ArticulationSensorHandle;
@@ -70,14 +70,14 @@ public:
 	virtual PxArticulationSensorFlags getFlags() const;
 	virtual void setFlag(PxArticulationSensorFlag::Enum flag, bool enabled);
 
-	PX_FORCE_INLINE Sc::ArticulationSensorCore& getSensorCore() { return mCore; }
-	PX_FORCE_INLINE const Sc::ArticulationSensorCore& getSensorCore() const { return mCore; }
+	PX_FORCE_INLINE ev4sio_Sc::ArticulationSensorCore& getSensorCore() { return mCore; }
+	PX_FORCE_INLINE const ev4sio_Sc::ArticulationSensorCore& getSensorCore() const { return mCore; }
 	PX_FORCE_INLINE ArticulationSensorHandle	getHandle() { return mHandle; }
 	PX_FORCE_INLINE	void						setHandle(ArticulationSensorHandle handle) { mHandle = handle; }
 
 private:
 	PxArticulationLink* mLink;
-	Sc::ArticulationSensorCore mCore;
+	ev4sio_Sc::ArticulationSensorCore mCore;
 	ArticulationSensorHandle   mHandle;
 };
 }

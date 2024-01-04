@@ -47,11 +47,11 @@
 
 #define PI 3.141592653589793238462643383
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Ext
+namespace ev4sio_Ext
 {
-	using namespace Gu;
+	using namespace ev4sio_Gu;
 
 	template<typename T>
 	bool contains(const PxArray<T>& list, const T& value)
@@ -1224,7 +1224,7 @@ namespace Ext
 				PxF64 scaling = 1.0 / PxMax(size.x, PxMax(size.y, size.z));
 
 				//Add some noise to avoid geometric degeneracies
-				Cm::RandomR250 r(0);
+				ev4sio_Cm::RandomR250 r(0);
 				PxF64 randomMagnitude = 1e-6;
 				for (PxU32 i = 0; i < points.size(); ++i)
 				{
@@ -2158,7 +2158,7 @@ namespace Ext
 		if (counter > 0)
 			return false; //Triangles share at leat one point
 
-		return Gu::trianglesIntersect(points[tri1[0]], points[tri1[1]], points[tri1[2]], points[tri2[0]], points[tri2[1]], points[tri2[2]]);
+		return ev4sio_Gu::trianglesIntersect(points[tri1[0]], points[tri1[1]], points[tri1[2]], points[tri2[0]], points[tri2[1]], points[tri2[2]]);
 	}
 
 	static PxBounds3 triBounds(const PxArray<PxVec3>& points, const Triangle& tri, PxReal enlargement)
@@ -2181,8 +2181,8 @@ namespace Ext
 			boxes.getBounds()[i] = triBounds(points, triangles[i], enlargement);
 		}
 
-		PxArray<Gu::BVHNode> tree;
-		Gu::buildAABBTree(triangles.size(), boxes, tree);
+		PxArray<ev4sio_Gu::BVHNode> tree;
+		ev4sio_Gu::buildAABBTree(triangles.size(), boxes, tree);
 
 		PxArray<PxI32> candidateTriangleIndices;
 		IntersectionCollectingTraversalController tc(candidateTriangleIndices);

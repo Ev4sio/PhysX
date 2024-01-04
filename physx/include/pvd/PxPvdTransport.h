@@ -37,7 +37,7 @@
 #include "pvd/PxPvd.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -112,16 +112,16 @@ class PxPvdTransport
 	\param timeoutInMilliseconds timeout when connect to pvd host.
 */
 PX_C_EXPORT PxPvdTransport* PX_CALL_CONV
-PxDefaultPvdSocketTransportCreate(const char* host, int port, unsigned int timeoutInMilliseconds);
+ev4sio_PxDefaultPvdSocketTransportCreate(const char* host, int port, unsigned int timeoutInMilliseconds);
 
 /**
 	\brief Create a default file transport.
 	\param name full path filename used save captured pvd data, or NULL for a fake/test file transport.
 */
-PX_C_EXPORT PxPvdTransport* PX_CALL_CONV PxDefaultPvdFileTransportCreate(const char* name);
+PX_C_EXPORT PxPvdTransport* PX_CALL_CONV ev4sio_PxDefaultPvdFileTransportCreate(const char* name);
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 /** @} */

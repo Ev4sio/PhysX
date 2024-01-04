@@ -30,9 +30,9 @@
 #include "foundation/PxQuat.h"
 #include "CmRandom.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-	namespace Ext
+	namespace ev4sio_Ext
 	{
 		// -------------------------------------------------------------------------------------
 		static const PxI32 childRelPos[8][3] = { {0,0,0}, {1,0,0},{0,1,0},{1,1,0}, {0,0,1}, {1,0,1},{0,1,1},{1,1,1} };
@@ -177,7 +177,7 @@ namespace physx
 
 		// -----------------------------------------------------------------------------------
 
-		static PxVec3d jitter(const PxVec3d& p, Cm::RandomR250& random)
+		static PxVec3d jitter(const PxVec3d& p, ev4sio_Cm::RandomR250& random)
 		{
 			PxF64 eps = 0.001;
 			return PxVec3d(
@@ -247,7 +247,7 @@ namespace physx
 				PxArray<bool> duplicate(numTreeVerts, false);
 				
 				PxI32 nr = 0;
-				Cm::RandomR250 random(0);
+				ev4sio_Cm::RandomR250 random(0);
 				while (nr < numTreeVerts) 
 				{
 					Ref& r = refs[nr];

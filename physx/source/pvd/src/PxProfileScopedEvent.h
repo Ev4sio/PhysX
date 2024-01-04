@@ -30,7 +30,7 @@
 #include "PxProfileEventId.h"
 #include "PxProfileCompileTimeEventFilter.h"
 
-namespace physx { namespace profile {
+namespace ev4sio_physx { namespace profile {
 
 	/**
 	\brief Template version of startEvent, called directly on provided profile buffer.

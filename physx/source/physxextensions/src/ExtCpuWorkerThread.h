@@ -33,9 +33,9 @@
 #include "ExtDefaultCpuDispatcher.h"
 #include "ExtSharedQueueEntryPool.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Ext
+namespace ev4sio_Ext
 {
 class DefaultCpuDispatcher;
 
@@ -67,7 +67,7 @@ class DefaultCpuDispatcher;
 #pragma warning(pop)
 #endif
 
-} // namespace Ext
+} // namespace ev4sio_Ext
 
 }
 

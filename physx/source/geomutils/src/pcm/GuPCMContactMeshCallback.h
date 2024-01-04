@@ -35,21 +35,21 @@
 #include "GuTriangleCache.h"
 #include "GuConvexEdgeFlags.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Gu
+namespace ev4sio_Gu
 {
 template <typename Derived>
 struct PCMMeshContactGenerationCallback : MeshHitCallback<PxGeomRaycastHit>
 {
 public:
-	const Cm::FastVertex2ShapeScaling&		mMeshScaling;
+	const ev4sio_Cm::FastVertex2ShapeScaling&		mMeshScaling;
 	const PxU8* PX_RESTRICT					mExtraTrigData;
 	bool									mIdtMeshScale;
 	static const PxU32 CacheSize = 16;
-	Gu::TriangleCache<CacheSize>			mCache;
+	ev4sio_Gu::TriangleCache<CacheSize>			mCache;
 
-	PCMMeshContactGenerationCallback(const Cm::FastVertex2ShapeScaling& meshScaling, const PxU8* extraTrigData, bool idtMeshScale)
+	PCMMeshContactGenerationCallback(const ev4sio_Cm::FastVertex2ShapeScaling& meshScaling, const PxU8* extraTrigData, bool idtMeshScale)
 	:	MeshHitCallback<PxGeomRaycastHit>(CallbackMode::eMULTIPLE),
 		mMeshScaling(meshScaling), mExtraTrigData(extraTrigData), mIdtMeshScale(idtMeshScale)
 	{
@@ -114,14 +114,14 @@ protected:
 };
 
 template <typename Derived>
-struct PCMHeightfieldContactGenerationCallback : Gu::OverlapReport
+struct PCMHeightfieldContactGenerationCallback : ev4sio_Gu::OverlapReport
 {
 public:
-	const Gu::HeightFieldUtil&	mHfUtil;
+	const ev4sio_Gu::HeightFieldUtil&	mHfUtil;
 	const PxTransform&			mHeightfieldTransform;
 	bool						mBoundaryCollisions;
 
-	PCMHeightfieldContactGenerationCallback(const Gu::HeightFieldUtil& hfUtil, const PxTransform& heightfieldTransform)	:
+	PCMHeightfieldContactGenerationCallback(const ev4sio_Gu::HeightFieldUtil& hfUtil, const PxTransform& heightfieldTransform)	:
 		mHfUtil(hfUtil), mHeightfieldTransform(heightfieldTransform)
 	{
 		mBoundaryCollisions = !(hfUtil.getHeightField().getFlags() & PxHeightFieldFlag::eNO_BOUNDARY_EDGES);
@@ -131,7 +131,7 @@ public:
 	virtual bool reportTouchedTris(PxU32 nb, const PxU32* indices)
 	{
 		const PxU32 CacheSize = 16;
-		Gu::TriangleCache<CacheSize> cache;
+		ev4sio_Gu::TriangleCache<CacheSize> cache;
 
 		const PxU32 nbPasses = (nb+(CacheSize-1))/CacheSize;
 		PxU32 nbTrigs = nb;
@@ -214,7 +214,7 @@ struct PCMTetMeshContactGenerationCallback : TetMeshHitCallback<PxGeomRaycastHit
 public:
 		
 	static const PxU32 CacheSize = 16;
-	Gu::TetrahedronCache<CacheSize>	mCache;
+	ev4sio_Gu::TetrahedronCache<CacheSize>	mCache;
 
 	PCMTetMeshContactGenerationCallback(): TetMeshHitCallback<PxGeomRaycastHit>(CallbackMode::eMULTIPLE)
 	{

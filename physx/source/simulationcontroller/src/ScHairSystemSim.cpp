@@ -35,10 +35,10 @@
 #include "ScScene.h"
 #include "PxsSimulationController.h"
 
-using namespace physx;
-using namespace physx::Dy;
+using namespace ev4sio_physx;
+using namespace ev4sio_physx::ev4sio_Dy;
 
-Sc::HairSystemSim::HairSystemSim(HairSystemCore& core, Scene& scene) :
+ev4sio_Sc::HairSystemSim::HairSystemSim(HairSystemCore& core, Scene& scene) :
 	ActorSim(scene, core),
 	mShapeSim(*this, &core.getShapeCore())
 {
@@ -55,7 +55,7 @@ Sc::HairSystemSim::HairSystemSim(HairSystemCore& core, Scene& scene) :
 	mLLHairSystem->setShapeCore(shapeCore);
 }
 
-Sc::HairSystemSim::~HairSystemSim()
+ev4sio_Sc::HairSystemSim::~HairSystemSim()
 {
 	if (!mLLHairSystem) {
 		return;
@@ -66,29 +66,29 @@ Sc::HairSystemSim::~HairSystemSim()
 	mCore.setSim(NULL);
 }
 
-void Sc::HairSystemSim::updateBounds()
+void ev4sio_Sc::HairSystemSim::updateBounds()
 {
 	mShapeSim.updateBounds();
 }
 
-void Sc::HairSystemSim::updateBoundsInAABBMgr()
+void ev4sio_Sc::HairSystemSim::updateBoundsInAABBMgr()
 {
 	mShapeSim.updateBoundsInAABBMgr();
 }
 
-PxBounds3 Sc::HairSystemSim::getBounds() const
+PxBounds3 ev4sio_Sc::HairSystemSim::getBounds() const
 {
 	return mShapeSim.getBounds();
 }
 
 
-bool Sc::HairSystemSim::isSleeping() const
+bool ev4sio_Sc::HairSystemSim::isSleeping() const
 {
-	IG::IslandSim& sim = mScene.getSimpleIslandManager()->getAccurateIslandSim();
+	ev4sio_IG::IslandSim& sim = mScene.getSimpleIslandManager()->getAccurateIslandSim();
 	return sim.getActiveNodeIndex(mNodeIndex) == PX_INVALID_NODE;
 }
 
-void Sc::HairSystemSim::onSetWakeCounter()
+void ev4sio_Sc::HairSystemSim::onSetWakeCounter()
 {
 	getScene().getSimulationController()->setHairSystemWakeCounter(mLLHairSystem);
 	if (mLLHairSystem->getCore().mWakeCounter > 0.0f) {
@@ -100,12 +100,12 @@ void Sc::HairSystemSim::onSetWakeCounter()
 	}
 }
 
-/*void Sc::HairSystemSim::activate()
+/*void ev4sio_Sc::HairSystemSim::activate()
 {
 	activateInteractions(*this);
 }
 
-void Sc::HairSystemSim::deactivate()
+void ev4sio_Sc::HairSystemSim::deactivate()
 {
 	deactivateInteractions(*this);
 }*/

@@ -31,8 +31,8 @@
 #include "CmConeLimitHelper.h"
 #include "omnipvd/ExtOmniPvdSetData.h"
 
-using namespace physx;
-using namespace Ext;
+using namespace ev4sio_physx;
+using namespace ev4sio_Ext;
 
 SphericalJoint::SphericalJoint(const PxTolerancesScale& /*scale*/, PxRigidActor* actor0, const PxTransform& localFrame0, PxRigidActor* actor1, const PxTransform& localFrame1) :
 	SphericalJointT(PxJointConcreteType::eSPHERICAL, actor0, localFrame0, actor1, localFrame1, "SphericalJointData")
@@ -148,7 +148,7 @@ static PxU32 SphericalJointSolverPrep(Px1DConstraint* constraints,
 
 		PxVec3 axis;
 		PxReal error;
-		const Cm::ConeLimitHelperTanLess coneHelper(data.limit.yAngle, data.limit.zAngle);
+		const ev4sio_Cm::ConeLimitHelperTanLess coneHelper(data.limit.yAngle, data.limit.zAngle);
 		coneHelper.getLimit(swing, axis, error);
 		ch.angularLimit(cA2w.rotate(axis), error, data.limit);
 	}
@@ -167,7 +167,7 @@ static PxConstraintShaderTable gSphericalJointShaders = { SphericalJointSolverPr
 
 PxConstraintSolverPrep SphericalJoint::getPrep()	const	{ return gSphericalJointShaders.solverPrep; }
 
-PxSphericalJoint* physx::PxSphericalJointCreate(PxPhysics& physics, PxRigidActor* actor0, const PxTransform& localFrame0, PxRigidActor* actor1, const PxTransform& localFrame1)
+PxSphericalJoint* ev4sio_physx::PxSphericalJointCreate(PxPhysics& physics, PxRigidActor* actor0, const PxTransform& localFrame0, PxRigidActor* actor1, const PxTransform& localFrame1)
 {
 	PX_CHECK_AND_RETURN_NULL(localFrame0.isSane(), "PxSphericalJointCreate: local frame 0 is not a valid transform"); 
 	PX_CHECK_AND_RETURN_NULL(localFrame1.isSane(), "PxSphericalJointCreate: local frame 1 is not a valid transform"); 
@@ -198,7 +198,7 @@ void SphericalJoint::updateOmniPvdProperties() const
 }
 
 template<>
-void physx::Ext::omniPvdInitJoint<SphericalJoint>(SphericalJoint& joint)
+void ev4sio_physx::ev4sio_Ext::omniPvdInitJoint<SphericalJoint>(SphericalJoint& joint)
 {
 	OMNI_PVD_WRITE_SCOPE_BEGIN(pvdWriter, pvdRegData)
 

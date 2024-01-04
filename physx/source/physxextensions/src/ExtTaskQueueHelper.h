@@ -32,17 +32,17 @@
 #include "task/PxTask.h"
 #include "ExtSharedQueueEntryPool.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 #define EXT_TASK_QUEUE_ENTRY_POOL_SIZE 128
 
-namespace Ext
+namespace ev4sio_Ext
 {
 	class TaskQueueHelper
 	{
 	public:
-		static PxBaseTask* fetchTask(PxSList& taskQueue, Ext::SharedQueueEntryPool<>& entryPool)
+		static PxBaseTask* fetchTask(PxSList& taskQueue, ev4sio_Ext::SharedQueueEntryPool<>& entryPool)
 		{
 			SharedQueueEntry* entry = static_cast<SharedQueueEntry*>(taskQueue.pop());
 			if (entry)
@@ -56,7 +56,7 @@ namespace Ext
 		}
 	};
 
-} // namespace Ext
+} // namespace ev4sio_Ext
 
 }
 

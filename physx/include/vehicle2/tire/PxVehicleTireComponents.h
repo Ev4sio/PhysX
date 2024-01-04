@@ -48,7 +48,7 @@
 #include "common/PxProfileZone.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 namespace vehicle2
 {
@@ -337,7 +337,7 @@ public:
 
 #if !PX_DOXYGEN
 } // namespace vehicle2
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 /** @} */

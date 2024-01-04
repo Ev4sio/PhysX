@@ -28,10 +28,10 @@
 
 #include "GuBarycentricCoordinates.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 using namespace aos;
 
-void Gu::barycentricCoordinates(const Vec3VArg p, const Vec3VArg a, const Vec3VArg b, FloatV& v)
+void ev4sio_Gu::barycentricCoordinates(const Vec3VArg p, const Vec3VArg a, const Vec3VArg b, FloatV& v)
 {
 	const Vec3V v0 = V3Sub(a, p);
 	const Vec3V v1 = V3Sub(b, p);
@@ -43,7 +43,7 @@ void Gu::barycentricCoordinates(const Vec3VArg p, const Vec3VArg a, const Vec3VA
 	v = FMul(numerator, denom);
 }
 
-void Gu::barycentricCoordinates(const aos::Vec3VArg p, const aos::Vec3VArg a, const aos::Vec3VArg b, const aos::Vec3VArg c, aos::FloatV& v, aos::FloatV& w)
+void ev4sio_Gu::barycentricCoordinates(const aos::Vec3VArg p, const aos::Vec3VArg a, const aos::Vec3VArg b, const aos::Vec3VArg c, aos::FloatV& v, aos::FloatV& w)
 {
 	const Vec3V ab = V3Sub(b, a);
 	const Vec3V ac = V3Sub(c, a);
@@ -70,7 +70,7 @@ void Gu::barycentricCoordinates(const aos::Vec3VArg p, const aos::Vec3VArg a, co
 //	v0 = b - a;
 //	v1 = c - a;
 //	v2 = p - a;
-void Gu::barycentricCoordinates(const Vec3VArg v0, const Vec3VArg v1, const Vec3VArg v2, FloatV& v, FloatV& w)
+void ev4sio_Gu::barycentricCoordinates(const Vec3VArg v0, const Vec3VArg v1, const Vec3VArg v2, FloatV& v, FloatV& w)
 {
 	const FloatV d00 = V3Dot(v0, v0);
 	const FloatV d01 = V3Dot(v0, v1);

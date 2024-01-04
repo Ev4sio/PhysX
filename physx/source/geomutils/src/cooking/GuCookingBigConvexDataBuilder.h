@@ -32,7 +32,7 @@
 #include "foundation/PxMemory.h"
 #include "foundation/PxVecMath.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	class BigConvexData;
 	class ConvexHullBuilder;
@@ -40,7 +40,7 @@ namespace physx
 	class BigConvexDataBuilder : public PxUserAllocated
 	{
 		public:
-									BigConvexDataBuilder(const Gu::ConvexHullData* hull, BigConvexData* gm, const PxVec3* hullVerts);
+									BigConvexDataBuilder(const ev4sio_Gu::ConvexHullData* hull, BigConvexData* gm, const PxVec3* hullVerts);
 									~BigConvexDataBuilder();
 	// Support vertex map
 				bool				precompute(PxU32 subdiv);				
@@ -59,7 +59,7 @@ namespace physx
 		PX_FORCE_INLINE void		precomputeSample(const PxVec3& dir, PxU8& startIndex, float negativeDir);
 
 	private:
-		const Gu::ConvexHullData*	mHull;
+		const ev4sio_Gu::ConvexHullData*	mHull;
 		BigConvexData*				mSVM;
 		const	PxVec3*				mHullVerts;
 

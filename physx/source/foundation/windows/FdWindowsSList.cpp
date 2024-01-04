@@ -30,7 +30,7 @@
 #include "foundation/PxAllocator.h"
 #include "foundation/PxSList.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 template <typename T>
 static PX_FORCE_INLINE SLIST_HEADER* getDetail(T* impl)

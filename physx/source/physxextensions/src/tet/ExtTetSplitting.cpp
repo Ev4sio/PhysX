@@ -28,9 +28,9 @@
 #include "ExtUtilities.h"
 #include "foundation/PxBasicTemplates.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Ext
+namespace ev4sio_Ext
 {
 	//Last four bits are used
 	//Last bit set stands for A

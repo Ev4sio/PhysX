@@ -26,9 +26,9 @@
 
 #include "ExtTetUnionFind.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Ext
+namespace ev4sio_Ext
 {
 	//------------------------------------------------------------------------------------
 	void UnionFind::init(PxI32 numSets)

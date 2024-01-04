@@ -33,11 +33,11 @@
 #include "ScParticleSystemSim.h"
 #include "PxsContext.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Sc::ParticleSystemShapeSim::ParticleSystemShapeSim(ParticleSystemSim& particleSim, const ParticleSystemShapeCore* core) :
+ev4sio_Sc::ParticleSystemShapeSim::ParticleSystemShapeSim(ParticleSystemSim& particleSim, const ParticleSystemShapeCore* core) :
 	ShapeSimBase(particleSim, core)
 {
 	mLLShape.mBodySimIndex_GPU = PxNodeIndex(PX_INVALID_NODE);
@@ -48,7 +48,7 @@ Sc::ParticleSystemShapeSim::ParticleSystemShapeSim(ParticleSystemSim& particleSi
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Sc::ParticleSystemShapeSim::~ParticleSystemShapeSim()
+ev4sio_Sc::ParticleSystemShapeSim::~ParticleSystemShapeSim()
 {
 	if (isInBroadPhase())
 		destroyLowLevelVolume();
@@ -58,14 +58,14 @@ Sc::ParticleSystemShapeSim::~ParticleSystemShapeSim()
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Sc::ParticleSystemShapeSim::getFilterInfo(PxFilterObjectAttributes& filterAttr, PxFilterData& filterData) const
+void ev4sio_Sc::ParticleSystemShapeSim::getFilterInfo(PxFilterObjectAttributes& filterAttr, PxFilterData& filterData) const
 {
 	filterAttr = 0;
 	setFilterObjectAttributeType(filterAttr, PxFilterObjectType::ePARTICLESYSTEM);
 	filterData = getBodySim().getCore().getShapeCore().getSimulationFilterData();
 }
 
-void Sc::ParticleSystemShapeSim::updateBounds()
+void ev4sio_Sc::ParticleSystemShapeSim::updateBounds()
 {
 	Scene& scene = getScene();
 
@@ -79,12 +79,12 @@ void Sc::ParticleSystemShapeSim::updateBounds()
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Sc::ParticleSystemShapeSim::updateBoundsInAABBMgr()
+void ev4sio_Sc::ParticleSystemShapeSim::updateBoundsInAABBMgr()
 {
 	//we are updating the bound in GPU so we just need to set the actor handle in CPU to make sure
 	//the GPU BP will process the particles
 
-	if (!(static_cast<Sc::ParticleSystemSim&>(getActor()).getCore().getFlags() & PxParticleFlag::eDISABLE_RIGID_COLLISION))
+	if (!(static_cast<ev4sio_Sc::ParticleSystemSim&>(getActor()).getCore().getFlags() & PxParticleFlag::eDISABLE_RIGID_COLLISION))
 	{
 		Scene& scene = getScene();
 		scene.getAABBManager()->getChangedAABBMgActorHandleMap().growAndSet(getElementID());
@@ -92,21 +92,21 @@ void Sc::ParticleSystemShapeSim::updateBoundsInAABBMgr()
 	}
 }
 
-PxBounds3 Sc::ParticleSystemShapeSim::getBounds() const
+PxBounds3 ev4sio_Sc::ParticleSystemShapeSim::getBounds() const
 {
 	PxBounds3 bounds = getScene().getBoundsArray().getBounds(getElementID());
 	return bounds;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void Sc::ParticleSystemShapeSim::createLowLevelVolume()
+void ev4sio_Sc::ParticleSystemShapeSim::createLowLevelVolume()
 {
 	//PX_ASSERT(getWorldBounds().isFinite());
 
 	const PxU32 index = getElementID();
 
 
-	if (!(static_cast<Sc::ParticleSystemSim&>(getActor()).getCore().getFlags() & PxParticleFlag::eDISABLE_RIGID_COLLISION))
+	if (!(static_cast<ev4sio_Sc::ParticleSystemSim&>(getActor()).getCore().getFlags() & PxParticleFlag::eDISABLE_RIGID_COLLISION))
 	{
 		getScene().getBoundsArray().setBounds(PxBounds3(PxVec3(PX_MAX_BOUNDS_EXTENTS), PxVec3(-PX_MAX_BOUNDS_EXTENTS)), index);
 		mInBroadPhase = true;
@@ -115,10 +115,10 @@ void Sc::ParticleSystemShapeSim::createLowLevelVolume()
 		getScene().getAABBManager()->reserveSpaceForBounds(index);
 
 	{
-		const PxU32 group = Bp::FilterGroup::eDYNAMICS_BASE + getActor().getActorID();
-		const PxU32 type = Bp::FilterType::PARTICLESYSTEM;
+		const PxU32 group = ev4sio_Bp::FilterGroup::eDYNAMICS_BASE + getActor().getActorID();
+		const PxU32 type = ev4sio_Bp::FilterType::PARTICLESYSTEM;
 		const PxReal contactOffset = getBodySim().getCore().getContactOffset();
-		addToAABBMgr(contactOffset, Bp::FilterGroup::Enum((group << BP_FILTERING_TYPE_SHIFT_BIT) | type), Bp::ElementType::eSHAPE);
+		addToAABBMgr(contactOffset, ev4sio_Bp::FilterGroup::Enum((group << BP_FILTERING_TYPE_SHIFT_BIT) | type), ev4sio_Bp::ElementType::eSHAPE);
 	}
 
 	// PT: TODO: what's the difference between "getContactOffset()" and "getBodySim().getCore().getContactOffset()" above?
@@ -134,12 +134,12 @@ void Sc::ParticleSystemShapeSim::createLowLevelVolume()
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Sc::ParticleSystemShapeSim::destroyLowLevelVolume()
+void ev4sio_Sc::ParticleSystemShapeSim::destroyLowLevelVolume()
 {
 	if (!isInBroadPhase())
 		return;
 
-	Sc::Scene& scene = getScene();
+	ev4sio_Sc::Scene& scene = getScene();
 	PxsContactManagerOutputIterator outputs = scene.getLowLevelContext()->getNphaseImplementationContext()->getContactManagerOutputs();
 	scene.getNPhaseCore()->onVolumeRemoved(this, 0, outputs);
 	removeFromAABBMgr();
@@ -147,7 +147,7 @@ void Sc::ParticleSystemShapeSim::destroyLowLevelVolume()
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Sc::ParticleSystemSim& Sc::ParticleSystemShapeSim::getBodySim()	const
+ev4sio_Sc::ParticleSystemSim& ev4sio_Sc::ParticleSystemShapeSim::getBodySim()	const
 {
 	return static_cast<ParticleSystemSim&>(getActor());
 }

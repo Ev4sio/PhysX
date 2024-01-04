@@ -32,7 +32,7 @@
 #include "GuDistancePointSegment.h"
 #include "GuIntersectionRayBox.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 static void face(unsigned int i0, unsigned int i1, unsigned int i2, PxVec3& rkPnt, const PxVec3& rkDir, const PxVec3& extents, const PxVec3& rkPmE, PxReal* pfLParam, PxReal& rfSqrDistance)
 {
@@ -512,7 +512,7 @@ static PxReal distanceLineBoxSquared(const PxVec3& lineOrigin, const PxVec3& lin
 }
 
 //! Compute the smallest distance from the (finite) line segment to the box.
-PxReal Gu::distanceSegmentBoxSquared(	const PxVec3& segmentPoint0, const PxVec3& segmentPoint1,
+PxReal ev4sio_Gu::distanceSegmentBoxSquared(	const PxVec3& segmentPoint0, const PxVec3& segmentPoint1,
 										const PxVec3& boxOrigin, const PxVec3& boxExtent, const PxMat33& boxBase,
 										PxReal* segmentParam,
 										PxVec3* boxParam)
@@ -536,13 +536,13 @@ PxReal Gu::distanceSegmentBoxSquared(	const PxVec3& segmentPoint0, const PxVec3&
 		{
 			if(segmentParam)
 				*segmentParam = 1.0f;
-			return Gu::distancePointBoxSquared(segmentPoint1, boxOrigin, boxExtent, boxBase, boxParam);
+			return ev4sio_Gu::distancePointBoxSquared(segmentPoint1, boxOrigin, boxExtent, boxBase, boxParam);
 		}
 	}
 	else
 	{
 		if(segmentParam)
 			*segmentParam = 0.0f;
-		return Gu::distancePointBoxSquared(segmentPoint0, boxOrigin, boxExtent, boxBase, boxParam);
+		return ev4sio_Gu::distancePointBoxSquared(segmentPoint0, boxOrigin, boxExtent, boxBase, boxParam);
 	}
 }

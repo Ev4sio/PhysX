@@ -33,7 +33,7 @@
 #include "vehicle/PxVehicleSDK.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -154,7 +154,7 @@ PX_DEPRECATED void PxVehicleCopyDynamicsData(const PxVehicleCopyDynamicsMap& whe
 
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

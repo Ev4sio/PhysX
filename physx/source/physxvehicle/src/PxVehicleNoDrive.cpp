@@ -32,7 +32,7 @@
 #include "PxRigidDynamic.h"
 #include "CmUtils.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 extern PxF32 gToleranceScaleLength;
@@ -46,7 +46,7 @@ bool PxVehicleNoDrive::isValid() const
 PxVehicleNoDrive* PxVehicleNoDrive::allocate(const PxU32 numWheels)
 {
 	PX_CHECK_AND_RETURN_NULL(numWheels>0, "Cars with zero wheels are illegal");
-	PX_CHECK_AND_RETURN_NULL(gToleranceScaleLength > 0, "PxVehicleNoDrive::allocate - need to call PxInitVehicleSDK");
+	PX_CHECK_AND_RETURN_NULL(gToleranceScaleLength > 0, "PxVehicleNoDrive::allocate - need to call ev4sio_PxInitVehicleSDK");
 
 	//Compute the bytes needed.
 	const PxU32 numWheels4 = (((numWheels + 3) & ~3) >> 2);
@@ -149,5 +149,5 @@ PxReal PxVehicleNoDrive::getSteerAngle(const PxU32 id) const
 	return mSteerAngles[id];
 }
 
-} //namespace physx
+} //namespace ev4sio_physx
 

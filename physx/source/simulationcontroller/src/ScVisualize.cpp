@@ -33,18 +33,18 @@
 #include "ScConstraintCore.h"
 #include "CmVisualization.h"
 
-using namespace physx;
-using namespace Sc;
+using namespace ev4sio_physx;
+using namespace ev4sio_Sc;
 
 // PT: Sc-level visualization code has been moved to this dedicated file (like we did in NpDebugViz.cpp)
 
-static void visualize(const ConstraintSim& sim, Cm::ConstraintImmediateVisualizer& viz, PxU32 flags, const PxTransform& idt)
+static void visualize(const ConstraintSim& sim, ev4sio_Cm::ConstraintImmediateVisualizer& viz, PxU32 flags, const PxTransform& idt)
 {
 	ConstraintCore& core = sim.getCore();
 	if(!(core.getFlags() & PxConstraintFlag::eVISUALIZATION))
 		return;
 
-	const Dy::Constraint& llc = sim.getLowLevelConstraint();
+	const ev4sio_Dy::Constraint& llc = sim.getLowLevelConstraint();
 
 	PxsRigidBody* b0 = llc.body0;
 	PxsRigidBody* b1 = llc.body1;
@@ -55,13 +55,13 @@ static void visualize(const ConstraintSim& sim, Cm::ConstraintImmediateVisualize
 	core.getVisualize()(viz, llc.constantBlock, t0, t1, flags);
 }
 
-void Sc::ShapeInteraction::visualize(PxRenderOutput& out, PxsContactManagerOutputIterator& outputs,
+void ev4sio_Sc::ShapeInteraction::visualize(PxRenderOutput& out, PxsContactManagerOutputIterator& outputs,
 									float scale, float param_contactForce, float param_contactNormal, float param_contactError, float param_contactPoint)
 {
 	if(mManager)  // sleeping pairs have no contact points -> do not visualize
 	{
-		Sc::ActorSim* actorSim0 = &getShape0().getActor();
-		Sc::ActorSim* actorSim1 = &getShape1().getActor();
+		ev4sio_Sc::ActorSim* actorSim0 = &getShape0().getActor();
+		ev4sio_Sc::ActorSim* actorSim1 = &getShape1().getActor();
 		if(!actorSim0->isNonRigid() && !actorSim1->isNonRigid())
 		{
 			PxU32 offset;
@@ -127,7 +127,7 @@ void Sc::ShapeInteraction::visualize(PxRenderOutput& out, PxsContactManagerOutpu
 }
 
 // Render objects before simulation starts
-void Sc::Scene::visualizeStartStep()
+void ev4sio_Sc::Scene::visualizeStartStep()
 {
 	PX_PROFILE_ZONE("Sim.visualizeStartStep", mContextId);
 
@@ -162,7 +162,7 @@ void Sc::Scene::visualizeStartStep()
 		const float limitScale = scale * getVisualizationParameter(PxVisualizationParameter::eJOINT_LIMITS);
 		if(frameScale!=0.0f || limitScale!=0.0f)
 		{
-			Cm::ConstraintImmediateVisualizer viz(frameScale, limitScale, out);
+			ev4sio_Cm::ConstraintImmediateVisualizer viz(frameScale, limitScale, out);
 
 			PxU32 flags = 0;
 			if(frameScale!=0.0f)
@@ -172,7 +172,7 @@ void Sc::Scene::visualizeStartStep()
 
 			const PxTransform idt(PxIdentity);
 
-			Sc::ConstraintCore*const * constraints = mConstraints.getEntries();
+			ev4sio_Sc::ConstraintCore*const * constraints = mConstraints.getEntries();
 			for(PxU32 i=0, size = mConstraints.size();i<size; i++)
 			{
 				ConstraintSim* sim = constraints[i]->getSim();

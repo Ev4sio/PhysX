@@ -35,7 +35,7 @@
 // an exception for setting the thread name in Microsoft debuggers
 #define NS_MS_VC_EXCEPTION 0x406D1388
 
-namespace physx
+namespace ev4sio_physx
 {
 namespace
 {
@@ -145,7 +145,7 @@ uint32_t PxThreadImpl::getNbPhysicalCores()
 		}
 		else
 		{
-			PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "Error querying buffer size for number of physical processors");
+			ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "Error querying buffer size for number of physical processors");
 			return 0;
 		}
 
@@ -153,7 +153,7 @@ uint32_t PxThreadImpl::getNbPhysicalCores()
 		rc = (DWORD)glpi(buffer, &returnLength);
 		if(rc != TRUE)
 		{
-			PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "Error querying number of physical processors");
+			ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "Error querying number of physical processors");
 			return 0;
 		}
 
@@ -224,7 +224,7 @@ void PxThreadImpl::start(uint32_t stackSize, PxRunnable* runnable)
 	    CreateThread(NULL, stackSize, PxThreadStart, (LPVOID) this, CREATE_SUSPENDED, &getThread(this)->threadID);
 	if(!getThread(this)->thread)
 	{
-		PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "FdWindowsThread::start: Failed to create thread.");
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "FdWindowsThread::start: Failed to create thread.");
 		getThread(this)->state = ThreadImpl::NotStarted;
 		return;
 	}
@@ -239,7 +239,7 @@ void PxThreadImpl::start(uint32_t stackSize, PxRunnable* runnable)
 	DWORD rc = ResumeThread(getThread(this)->thread);
 	if(rc == DWORD(-1))
 	{
-		PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "FdWindowsThread::start: Failed to resume thread.");
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "FdWindowsThread::start: Failed to resume thread.");
 		getThread(this)->state = ThreadImpl::NotStarted;
 		return;
 	}	
@@ -361,7 +361,7 @@ void PxThreadImpl::setPriority(PxThreadPriority::Enum prio)
 	}
 	if(!rc)
 	{
-		PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "FdWindowsThread::setPriority: Failed to set thread priority.");
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "FdWindowsThread::setPriority: Failed to set thread priority.");
 	}
 }
 
@@ -418,4 +418,4 @@ PxU32 PxThreadImpl::getDefaultStackSize()
 	return 1048576;
 };
 
-} // namespace physx
+} // namespace ev4sio_physx

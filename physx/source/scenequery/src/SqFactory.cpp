@@ -29,10 +29,10 @@
 #include "SqFactory.h"
 #include "SqCompoundPruner.h"
 
-using namespace physx;
-using namespace Sq;
+using namespace ev4sio_physx;
+using namespace ev4sio_Sq;
 
-CompoundPruner* physx::Sq::createCompoundPruner(PxU64 contextID)
+CompoundPruner* ev4sio_physx::ev4sio_Sq::createCompoundPruner(PxU64 contextID)
 {
 	return PX_NEW(BVHCompoundPruner)(contextID);
 }

@@ -39,7 +39,7 @@
 
 #include "foundation/PxAllocator.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 namespace
 {

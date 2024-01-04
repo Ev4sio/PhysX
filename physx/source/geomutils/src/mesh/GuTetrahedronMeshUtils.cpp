@@ -27,9 +27,9 @@
 #include "GuTetrahedronMeshUtils.h"
 #include "GuDistancePointTetrahedron.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Gu
+namespace ev4sio_Gu
 {
 
 void convertSoftbodyCollisionToSimMeshTets(const PxTetrahedronMesh& simMesh, const SoftBodyAuxData& simState,

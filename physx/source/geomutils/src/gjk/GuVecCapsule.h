@@ -37,9 +37,9 @@
 #include "GuVecConvex.h"   
 #include "GuConvexSupportTable.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Gu
+namespace ev4sio_Gu
 {
 
 	PX_FORCE_INLINE aos::FloatV CalculateCapsuleMinMargin(const aos::FloatVArg radius)

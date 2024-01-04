@@ -28,9 +28,9 @@
 #include "ExtInsideTester.h"
 #include "foundation/PxBounds3.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-	namespace Ext
+	namespace ev4sio_Ext
 	{
 		// ------------------------------------------------------------------------
 		void InsideTester::init(const PxVec3 *vertices, PxI32 numVertices, const PxI32 *triIndices, PxI32 numTris)

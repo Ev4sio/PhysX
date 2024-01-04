@@ -34,6 +34,6 @@
 #include "common/PxPhysXCommonConfig.h"      
 
 #define	inline_	PX_FORCE_INLINE
-#define PsArray physx::PxArray
+#define PsArray ev4sio_physx::PxArray
 
 #endif

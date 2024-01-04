@@ -33,7 +33,7 @@
 #include "PxvConfig.h"
 #include "PxcNpMemBlockPool.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 static const PxU32 PXC_NPCACHE_BLOCK_SIZE = 16384;

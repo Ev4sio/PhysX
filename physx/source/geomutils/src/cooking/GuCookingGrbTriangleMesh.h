@@ -39,9 +39,9 @@
 
 //#define CHECK_OLD_CODE_VS_NEW_CODE
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Gu
+namespace ev4sio_Gu
 {
 PX_ALIGN_PREFIX(16)
 struct uint4

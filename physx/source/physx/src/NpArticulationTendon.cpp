@@ -32,7 +32,7 @@
 #include "ScArticulationTendonSim.h"
 #include "CmUtils.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 // PX_SERIALIZATION
 void NpArticulationAttachment::requiresObjects(PxProcessPxBaseCallback& c)
@@ -45,12 +45,12 @@ void NpArticulationAttachment::requiresObjects(PxProcessPxBaseCallback& c)
 
 void NpArticulationAttachment::exportExtraData(PxSerializationContext& stream)
 {
-	Cm::exportInlineArray(mChildren, stream);
+	ev4sio_Cm::exportInlineArray(mChildren, stream);
 }
 
 void NpArticulationAttachment::importExtraData(PxDeserializationContext& context)
 {
-	Cm::importInlineArray(mChildren, context);
+	ev4sio_Cm::importInlineArray(mChildren, context);
 }
 
 void NpArticulationAttachment::resolveReferences(PxDeserializationContext& context)
@@ -109,7 +109,7 @@ void NpArticulationAttachment::setRestLength(const PxReal restLength)
     NpScene* npScene = mTendon ? mTendon->getNpScene() : NULL;
 	if (npScene && (npScene->getFlags() & PxSceneFlag::eENABLE_DIRECT_GPU_API) && npScene->isDirectGPUAPIInitialized())
 	{
-		PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxArticulationAttachment::setRestLength(): it is illegal to call this method if PxSceneFlag::eENABLE_DIRECT_GPU_API is enabled!");
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxArticulationAttachment::setRestLength(): it is illegal to call this method if PxSceneFlag::eENABLE_DIRECT_GPU_API is enabled!");
 	}
 
 	mCore.mRestLength = restLength;
@@ -132,7 +132,7 @@ void NpArticulationAttachment::setLimitParameters(const PxArticulationTendonLimi
     NpScene* npScene = mTendon ? mTendon->getNpScene() : NULL;
 	if (npScene && (npScene->getFlags() & PxSceneFlag::eENABLE_DIRECT_GPU_API) && npScene->isDirectGPUAPIInitialized())
 	{
-		PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxArticulationAttachment::setLimitParameters(): it is illegal to call this method if PxSceneFlag::eENABLE_DIRECT_GPU_API is enabled!");
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxArticulationAttachment::setLimitParameters(): it is illegal to call this method if PxSceneFlag::eENABLE_DIRECT_GPU_API is enabled!");
 	}
 
 	mCore.mLowLimit = parameter.lowLimit;
@@ -156,7 +156,7 @@ void NpArticulationAttachment::setRelativeOffset(const PxVec3& offset)
     NpScene* npScene = mTendon ? mTendon->getNpScene() : NULL;
 	if (npScene && (npScene->getFlags() & PxSceneFlag::eENABLE_DIRECT_GPU_API) && npScene->isDirectGPUAPIInitialized())
 	{
-		PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxArticulationAttachment::setRelativeOffset(): it is illegal to call this method if PxSceneFlag::eENABLE_DIRECT_GPU_API is enabled!");
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxArticulationAttachment::setRelativeOffset(): it is illegal to call this method if PxSceneFlag::eENABLE_DIRECT_GPU_API is enabled!");
 	}
 
 	mCore.mRelativeOffset = offset;
@@ -177,7 +177,7 @@ void NpArticulationAttachment::setCoefficient(const PxReal coefficient)
     NpScene* npScene = mTendon ? mTendon->getNpScene() : NULL;
 	if (npScene && (npScene->getFlags() & PxSceneFlag::eENABLE_DIRECT_GPU_API) && npScene->isDirectGPUAPIInitialized())
 	{
-		PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxArticulationAttachment::setCoefficient(): it is illegal to call this method if PxSceneFlag::eENABLE_DIRECT_GPU_API is enabled!");
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxArticulationAttachment::setCoefficient(): it is illegal to call this method if PxSceneFlag::eENABLE_DIRECT_GPU_API is enabled!");
 	}
 
 	mCore.mCoefficient = coefficient;
@@ -200,7 +200,7 @@ void NpArticulationAttachment::release()
 {
 	if (mTendon->getNpScene())
 	{
-		PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxArticulationAttachment::release() not allowed while the articulation is in the scene. Call will be ignored.");
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxArticulationAttachment::release() not allowed while the articulation is in the scene. Call will be ignored.");
 		return;
 	}
 
@@ -252,12 +252,12 @@ void NpArticulationSpatialTendon::requiresObjects(PxProcessPxBaseCallback& c)
 
 void NpArticulationSpatialTendon::exportExtraData(PxSerializationContext& stream)
 {
-	Cm::exportInlineArray(mAttachments, stream);
+	ev4sio_Cm::exportInlineArray(mAttachments, stream);
 }
 
 void NpArticulationSpatialTendon::importExtraData(PxDeserializationContext& context)
 {
-	Cm::importInlineArray(mAttachments, context);
+	ev4sio_Cm::importInlineArray(mAttachments, context);
 }
 
 void NpArticulationSpatialTendon::resolveReferences(PxDeserializationContext& context)
@@ -307,7 +307,7 @@ PxArticulationAttachment* NpArticulationSpatialTendon::createAttachment(PxArticu
 {
 	if(getNpScene())
 	{
-		PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxArticulationSpatialTendon::createAttachment() not allowed while the articulation is in the scene. Call will be ignored.");
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxArticulationSpatialTendon::createAttachment() not allowed while the articulation is in the scene. Call will be ignored.");
 		return NULL;
 	}
 	PX_CHECK_AND_RETURN_NULL(link, "PxArticulationSpatialTendon::createAttachment: Null pointer link provided. Need valid link.");
@@ -351,7 +351,7 @@ PxU32 NpArticulationSpatialTendon::getAttachments(PxArticulationAttachment** use
 {
 	NP_READ_CHECK(mArticulation->getNpScene());
 
-	return Cm::getArrayOfPointers(userBuffer, bufferSize, startIndex, mAttachments.begin(), mAttachments.size());
+	return ev4sio_Cm::getArrayOfPointers(userBuffer, bufferSize, startIndex, mAttachments.begin(), mAttachments.size());
 }
 
 void NpArticulationSpatialTendon::setStiffness(const PxReal stiffness)
@@ -364,7 +364,7 @@ void NpArticulationSpatialTendon::setStiffness(const PxReal stiffness)
 
 	if (getNpScene() && (getNpScene()->getFlags() & PxSceneFlag::eENABLE_DIRECT_GPU_API) && getNpScene()->isDirectGPUAPIInitialized())
 	{
-		PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxArticulationSpatialTendon::setStiffness(): it is illegal to call this method if PxSceneFlag::eENABLE_DIRECT_GPU_API is enabled!");
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxArticulationSpatialTendon::setStiffness(): it is illegal to call this method if PxSceneFlag::eENABLE_DIRECT_GPU_API is enabled!");
 	}
 
 	PX_ASSERT(!isAPIWriteForbidden());
@@ -385,7 +385,7 @@ void NpArticulationSpatialTendon::setDamping(const PxReal damping)
 
 	if (getNpScene() && (getNpScene()->getFlags() & PxSceneFlag::eENABLE_DIRECT_GPU_API) && getNpScene()->isDirectGPUAPIInitialized())
 	{
-		PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxArticulationSpatialTendon::setDamping(): it is illegal to call this method if PxSceneFlag::eENABLE_DIRECT_GPU_API is enabled!");
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxArticulationSpatialTendon::setDamping(): it is illegal to call this method if PxSceneFlag::eENABLE_DIRECT_GPU_API is enabled!");
 	}
 
 	PX_ASSERT(!isAPIWriteForbidden());
@@ -406,7 +406,7 @@ void  NpArticulationSpatialTendon::setLimitStiffness(const PxReal stiffness)
 
 	if (getNpScene() && (getNpScene()->getFlags() & PxSceneFlag::eENABLE_DIRECT_GPU_API) && getNpScene()->isDirectGPUAPIInitialized())
 	{
-		PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxArticulationSpatialTendon::setLimitStiffness(): it is illegal to call this method if PxSceneFlag::eENABLE_DIRECT_GPU_API is enabled!");
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxArticulationSpatialTendon::setLimitStiffness(): it is illegal to call this method if PxSceneFlag::eENABLE_DIRECT_GPU_API is enabled!");
 	}
 
 	PX_ASSERT(!isAPIWriteForbidden());
@@ -427,7 +427,7 @@ void NpArticulationSpatialTendon::setOffset(const PxReal offset, bool autowake)
 
 	if (getNpScene() && (getNpScene()->getFlags() & PxSceneFlag::eENABLE_DIRECT_GPU_API) && getNpScene()->isDirectGPUAPIInitialized())
 	{
-		PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxArticulationSpatialTendon::setOffset(): it is illegal to call this method if PxSceneFlag::eENABLE_DIRECT_GPU_API is enabled!");
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxArticulationSpatialTendon::setOffset(): it is illegal to call this method if PxSceneFlag::eENABLE_DIRECT_GPU_API is enabled!");
 	}
 
 	PX_ASSERT(!isAPIWriteForbidden());
@@ -446,7 +446,7 @@ PxReal NpArticulationSpatialTendon::getOffset() const
 	return mCore.getOffset();
 }
 
-PxArticulationReducedCoordinate* physx::NpArticulationSpatialTendon::getArticulation() const
+PxArticulationReducedCoordinate* ev4sio_physx::NpArticulationSpatialTendon::getArticulation() const
 {
 	return mArticulation;
 }
@@ -455,7 +455,7 @@ void NpArticulationSpatialTendon::release()
 {
 	if (getNpScene())
 	{
-		PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL,
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL,
 			"PxArticulationSpatialTendon::release() not allowed while the articulation is in a scene. Call will be ignored.");
 		return;
 	}
@@ -493,12 +493,12 @@ void NpArticulationTendonJoint::requiresObjects(PxProcessPxBaseCallback& c)
 
 void NpArticulationTendonJoint::exportExtraData(PxSerializationContext& stream)
 {
-	Cm::exportInlineArray(mChildren, stream);
+	ev4sio_Cm::exportInlineArray(mChildren, stream);
 }
 
 void NpArticulationTendonJoint::importExtraData(PxDeserializationContext& context)
 {
-	Cm::importInlineArray(mChildren, context);
+	ev4sio_Cm::importInlineArray(mChildren, context);
 }
 
 void NpArticulationTendonJoint::resolveReferences(PxDeserializationContext& context)
@@ -548,7 +548,7 @@ NpArticulationTendonJoint::NpArticulationTendonJoint(PxArticulationTendonJoint* 
 	mHandle = 0xffffffff;
 }
 
-PxArticulationFixedTendon* physx::NpArticulationTendonJoint::getTendon() const
+PxArticulationFixedTendon* ev4sio_physx::NpArticulationTendonJoint::getTendon() const
 {
 	return mTendon;
 }
@@ -561,7 +561,7 @@ void NpArticulationTendonJoint::setCoefficient(const PxArticulationAxis::Enum ax
     NpScene* npScene = mTendon ? mTendon->getNpScene() : NULL;
 	if (npScene && (npScene->getFlags() & PxSceneFlag::eENABLE_DIRECT_GPU_API) && npScene->isDirectGPUAPIInitialized())
 	{
-		PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxArticulationTendonJoint::setCoefficient(): it is illegal to call this method if PxSceneFlag::eENABLE_DIRECT_GPU_API is enabled!");
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxArticulationTendonJoint::setCoefficient(): it is illegal to call this method if PxSceneFlag::eENABLE_DIRECT_GPU_API is enabled!");
 	}
 	
 	mCore.coefficient = coefficient;
@@ -582,7 +582,7 @@ void NpArticulationTendonJoint::release()
 {
 	if (mTendon->getNpScene())
 	{
-		PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxArticulationTendonJoint::release() not allowed while the articulation is in the scene. Call will be ignored.");
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxArticulationTendonJoint::release() not allowed while the articulation is in the scene. Call will be ignored.");
 		return;
 	}
 
@@ -614,12 +614,12 @@ void NpArticulationFixedTendon::requiresObjects(PxProcessPxBaseCallback& c)
 
 void NpArticulationFixedTendon::exportExtraData(PxSerializationContext& stream)
 {
-	Cm::exportInlineArray(mTendonJoints, stream);
+	ev4sio_Cm::exportInlineArray(mTendonJoints, stream);
 }
 
 void NpArticulationFixedTendon::importExtraData(PxDeserializationContext& context)
 {
-	Cm::importInlineArray(mTendonJoints, context);
+	ev4sio_Cm::importInlineArray(mTendonJoints, context);
 }
 
 void NpArticulationFixedTendon::resolveReferences(PxDeserializationContext& context)
@@ -671,7 +671,7 @@ void NpArticulationFixedTendon::release()
 {
 	if (getNpScene())
 	{
-		PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxArticulationFixedTendon::release() not allowed while the articulation is in a scene. Call will be ignored.");
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxArticulationFixedTendon::release() not allowed while the articulation is in a scene. Call will be ignored.");
 		return;
 	}
 
@@ -689,7 +689,7 @@ PxArticulationTendonJoint* NpArticulationFixedTendon::createTendonJoint(PxArticu
 {
 	if(getNpScene())
 	{
-		PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxArticulationFixedTendon::createTendonJoint() not allowed while the articulation is in the scene. Call will be ignored.");
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxArticulationFixedTendon::createTendonJoint() not allowed while the articulation is in the scene. Call will be ignored.");
 		return NULL;
 	}
 	PX_CHECK_AND_RETURN_NULL(link, "PxArticulationFixedTendon::createTendonJoint: Null pointer link provided. Need valid link.");
@@ -733,7 +733,7 @@ PxU32 NpArticulationFixedTendon::getTendonJoints(PxArticulationTendonJoint** use
 {
 	NP_READ_CHECK(mArticulation->getNpScene());
 
-	return Cm::getArrayOfPointers(userBuffer, bufferSize, startIndex, mTendonJoints.begin(), mTendonJoints.size());
+	return ev4sio_Cm::getArrayOfPointers(userBuffer, bufferSize, startIndex, mTendonJoints.begin(), mTendonJoints.size());
 }
 
 void NpArticulationFixedTendon::setStiffness(const PxReal stiffness)
@@ -742,7 +742,7 @@ void NpArticulationFixedTendon::setStiffness(const PxReal stiffness)
 
 	if (getNpScene() && (getNpScene()->getFlags() & PxSceneFlag::eENABLE_DIRECT_GPU_API) && getNpScene()->isDirectGPUAPIInitialized())
 	{
-		PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxArticulationFixedTendon::setStiffness(): it is illegal to call this method if PxSceneFlag::eENABLE_DIRECT_GPU_API is enabled!");
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxArticulationFixedTendon::setStiffness(): it is illegal to call this method if PxSceneFlag::eENABLE_DIRECT_GPU_API is enabled!");
 	}
 
 	PX_ASSERT(!isAPIWriteForbidden());
@@ -763,7 +763,7 @@ void NpArticulationFixedTendon::setDamping(const PxReal damping)
 
 	if (getNpScene() && (getNpScene()->getFlags() & PxSceneFlag::eENABLE_DIRECT_GPU_API) && getNpScene()->isDirectGPUAPIInitialized())
 	{
-		PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxArticulationFixedTendon::setDamping(): it is illegal to call this method if PxSceneFlag::eENABLE_DIRECT_GPU_API is enabled!");
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxArticulationFixedTendon::setDamping(): it is illegal to call this method if PxSceneFlag::eENABLE_DIRECT_GPU_API is enabled!");
 	}
 
 	PX_ASSERT(!isAPIWriteForbidden());
@@ -784,7 +784,7 @@ void NpArticulationFixedTendon::setLimitStiffness(const PxReal stiffness)
 
 	if (getNpScene() && (getNpScene()->getFlags() & PxSceneFlag::eENABLE_DIRECT_GPU_API) && getNpScene()->isDirectGPUAPIInitialized())
 	{
-		PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxArticulationFixedTendon::setLimitStiffness(): it is illegal to call this method if PxSceneFlag::eENABLE_DIRECT_GPU_API is enabled!");
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxArticulationFixedTendon::setLimitStiffness(): it is illegal to call this method if PxSceneFlag::eENABLE_DIRECT_GPU_API is enabled!");
 	}
 
 	PX_ASSERT(!isAPIWriteForbidden());
@@ -805,7 +805,7 @@ void NpArticulationFixedTendon::setRestLength(const PxReal restLength)
 
 	if (getNpScene() && (getNpScene()->getFlags() & PxSceneFlag::eENABLE_DIRECT_GPU_API) && getNpScene()->isDirectGPUAPIInitialized())
 	{
-		PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxArticulationFixedTendon::setRestLength(): it is illegal to call this method if PxSceneFlag::eENABLE_DIRECT_GPU_API is enabled!");
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxArticulationFixedTendon::setRestLength(): it is illegal to call this method if PxSceneFlag::eENABLE_DIRECT_GPU_API is enabled!");
 	}
 
 	PX_ASSERT(!isAPIWriteForbidden());
@@ -826,7 +826,7 @@ void NpArticulationFixedTendon::setLimitParameters(const PxArticulationTendonLim
 
 	if (getNpScene() && (getNpScene()->getFlags() & PxSceneFlag::eENABLE_DIRECT_GPU_API) && getNpScene()->isDirectGPUAPIInitialized())
 	{
-		PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxArticulationFixedTendon::setLimitParameters(): it is illegal to call this method if PxSceneFlag::eENABLE_DIRECT_GPU_API is enabled!");
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxArticulationFixedTendon::setLimitParameters(): it is illegal to call this method if PxSceneFlag::eENABLE_DIRECT_GPU_API is enabled!");
 	}
 
 	PX_ASSERT(!isAPIWriteForbidden());
@@ -861,7 +861,7 @@ void  NpArticulationFixedTendon::setOffset(const PxReal offset, bool autowake)
 
 	if (getNpScene() && (getNpScene()->getFlags() & PxSceneFlag::eENABLE_DIRECT_GPU_API) && getNpScene()->isDirectGPUAPIInitialized())
 	{
-		PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxArticulationFixedTendon::setOffset(): it is illegal to call this method if PxSceneFlag::eENABLE_DIRECT_GPU_API is enabled!");
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxArticulationFixedTendon::setOffset(): it is illegal to call this method if PxSceneFlag::eENABLE_DIRECT_GPU_API is enabled!");
 	}
 
 	if (autowake && getNpScene())
@@ -878,7 +878,7 @@ PxReal NpArticulationFixedTendon::getOffset() const
 	return mCore.getOffset();
 }
 
-PxArticulationReducedCoordinate* physx::NpArticulationFixedTendon::getArticulation() const
+PxArticulationReducedCoordinate* ev4sio_physx::NpArticulationFixedTendon::getArticulation() const
 {
 	return mArticulation;
 }

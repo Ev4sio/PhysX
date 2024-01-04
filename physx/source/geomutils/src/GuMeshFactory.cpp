@@ -44,9 +44,9 @@
 #	define OMNI_PVD_NOTIFY_REMOVE(OBJECT)
 #endif
 
-using namespace physx;
-using namespace Gu;
-using namespace Cm;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
+using namespace ev4sio_Cm;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -82,12 +82,12 @@ static void releaseObjects(PxCoalescedHashSet<T*>& objects)
 	}
 }
 
-// PT: needed because Gu::BVH is not a PxRefCounted object, although it derives from RefCountable
-static void releaseObjects(PxCoalescedHashSet<Gu::BVH*>& objects)
+// PT: needed because ev4sio_Gu::BVH is not a PxRefCounted object, although it derives from RefCountable
+static void releaseObjects(PxCoalescedHashSet<ev4sio_Gu::BVH*>& objects)
 {
 	while(objects.size())
 	{
-		Gu::BVH* object = objects.getEntries()[0];
+		ev4sio_Gu::BVH* object = objects.getEntries()[0];
 		PX_ASSERT(object->getRefCount()==1);
 		object->release();
 	}
@@ -860,7 +860,7 @@ PxTetrahedronMesh* MeshFactory::createTetrahedronMesh(void* data)
 	return createTetrahedronMesh(*reinterpret_cast<TetrahedronMeshData*>(data));
 }
 
-PxSoftBodyMesh* MeshFactory::createSoftBodyMesh(Gu::SoftBodyMeshData& data)
+PxSoftBodyMesh* MeshFactory::createSoftBodyMesh(ev4sio_Gu::SoftBodyMeshData& data)
 {
 	SoftBodyMesh* np = NULL;
 	PX_NEW_SERIALIZED(np, SoftBodyMesh)(this, data);
@@ -952,7 +952,7 @@ PxConvexMesh* MeshFactory::createConvexMesh(PxInputStream& desc)
 
 	if(!np->load(desc))
 	{
-		Cm::deletePxBase(np);
+		ev4sio_Cm::deletePxBase(np);
 		return NULL;
 	}
 
@@ -1008,7 +1008,7 @@ PxHeightField* MeshFactory::createHeightField(PxInputStream& stream)
 
 	if(!np->load(stream))
 	{
-		Cm::deletePxBase(np);
+		ev4sio_Cm::deletePxBase(np);
 		return NULL;
 	}
 
@@ -1039,13 +1039,13 @@ PxU32 MeshFactory::getHeightFields(PxHeightField** userBuffer, PxU32 bufferSize,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void MeshFactory::addFactoryListener(Gu::MeshFactoryListener& listener )
+void MeshFactory::addFactoryListener(ev4sio_Gu::MeshFactoryListener& listener )
 {
 	PxMutex::ScopedLock lock(mTrackingMutex);
 	mFactoryListeners.pushBack( &listener );
 }
 
-void MeshFactory::removeFactoryListener(Gu::MeshFactoryListener& listener )
+void MeshFactory::removeFactoryListener(ev4sio_Gu::MeshFactoryListener& listener )
 {
 	PxMutex::ScopedLock lock(mTrackingMutex);
 	for ( PxU32 idx = 0; idx < mFactoryListeners.size(); ++idx )
@@ -1111,7 +1111,7 @@ PxBVH* MeshFactory::createBVH(PxInputStream& desc)
 
 	if(!np->load(desc))
 	{
-		Cm::deletePxBase(np);
+		ev4sio_Cm::deletePxBase(np);
 		return NULL;
 	}
 
@@ -1227,7 +1227,7 @@ namespace
 	}gSAIC;
 }
 
-PxInsertionCallback* physx::immediateCooking::getInsertionCallback()
+PxInsertionCallback* ev4sio_physx::immediateCooking::getInsertionCallback()
 {
 	return &gSAIC;
 }

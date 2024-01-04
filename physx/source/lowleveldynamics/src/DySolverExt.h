@@ -34,7 +34,7 @@
 #include "CmSpatialVector.h"
 #include "foundation/PxVecMath.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 class PxsRigidBody;
@@ -43,7 +43,7 @@ struct PxSolverBody;
 struct PxSolverBodyData;
 
 
-namespace Dy
+namespace ev4sio_Dy
 {
 
 
@@ -82,7 +82,7 @@ public:
 	  aos::Vec3V getLinVelV() const;
 	  aos::Vec3V getAngVelV() const;
 
-	  Cm::SpatialVectorV getVelocity() const;
+	  ev4sio_Cm::SpatialVectorV getVelocity() const;
 	  PxReal getCFM() const;
 };
 

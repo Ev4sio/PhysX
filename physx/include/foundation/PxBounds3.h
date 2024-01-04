@@ -37,7 +37,7 @@
 #include "foundation/PxMat33.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -493,7 +493,7 @@ PX_CUDA_CALLABLE PX_FORCE_INLINE PxVec3 PxBounds3::closestPoint(const PxVec3& p)
 }
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 /** @} */

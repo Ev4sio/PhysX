@@ -39,7 +39,7 @@
 #include "common/PxBase.h"
 
 #if !PX_DOXYGEN
-namespace physx { namespace pvdsdk {
+namespace ev4sio_physx { namespace pvdsdk {
 #endif
 	class PvdDataStream;
 #if !PX_DOXYGEN
@@ -47,7 +47,7 @@ namespace physx { namespace pvdsdk {
 #endif
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -333,7 +333,7 @@ public:
 	/** 
 	\brief this function is called by the SDK to update PVD's view of it
 	*/
-	virtual bool	updatePvdProperties(physx::pvdsdk::PvdDataStream& pvdConnection,
+	virtual bool	updatePvdProperties(ev4sio_physx::pvdsdk::PvdDataStream& pvdConnection,
 										const PxConstraint* c,
 										PxPvdUpdateType::Enum updateType) const		= 0;
 
@@ -423,7 +423,7 @@ public:
 };
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 /** @} */

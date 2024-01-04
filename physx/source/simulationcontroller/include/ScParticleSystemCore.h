@@ -39,9 +39,9 @@
 #include "DyParticleSystem.h"
 #include "ScParticleSystemShapeCore.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-	namespace Sc
+	namespace ev4sio_Sc
 	{
 		class ParticleSystemSim;
 		class BodyCore;
@@ -138,9 +138,9 @@ namespace physx
 			void						setMPMParams(const PxMPMParams& params) { mShapeCore.getLLCore().mpmParams = params; }
 #endif
 			
-			void						addRigidAttachment(Sc::BodyCore* core);
+			void						addRigidAttachment(ev4sio_Sc::BodyCore* core);
 
-			void						removeRigidAttachment(Sc::BodyCore* core);
+			void						removeRigidAttachment(ev4sio_Sc::BodyCore* core);
 
 			//---------------------------------------------------------------------------------
 			// Internal API
@@ -158,7 +158,7 @@ namespace physx
 			ParticleSystemShapeCore					mShapeCore;
 		};
 
-	} // namespace Sc
+	} // namespace ev4sio_Sc
 }
 #endif
 

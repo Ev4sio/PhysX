@@ -44,11 +44,11 @@
 #include "DyCorrelationBuffer.h"
 #include "foundation/PxAllocator.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 struct PxsIndexedContactManager;
 
-namespace Dy
+namespace ev4sio_Dy
 {
 
 /*!
@@ -135,7 +135,7 @@ public:
 	PxsBodyCore**						mBodyCoreArray;
 	PxsRigidBody**						mRigidBodyArray;
 	FeatherstoneArticulation**			mArticulationArray;
-	Cm::SpatialVector*					motionVelocityArray;
+	ev4sio_Cm::SpatialVector*					motionVelocityArray;
 	PxU32*								bodyRemapTable;
 	PxU32*								mNodeIndexArray;
 
@@ -161,8 +161,8 @@ public:
 	PxArray<const PxsIndexedContactManager*>	tempContactList;
 	PxArray<PxU32>							sortIndexArray;
 	
-	PxArray<Cm::SpatialVectorF>				mZVector;
-	PxArray<Cm::SpatialVectorF>				mDeltaV;
+	PxArray<ev4sio_Cm::SpatialVectorF>				mZVector;
+	PxArray<ev4sio_Cm::SpatialVectorF>				mDeltaV;
 
 
 	PxU32								numDifferentBodyBatchHeaders;
