@@ -39,7 +39,7 @@ namespace ev4sio_Ext
 	{
 				PxConstraintInvMassScale	invMassScale;
 				PxTransform32				c2b[2];
-	protected:
+	//protected:
 		        ~JointData()	{}
 	};
 

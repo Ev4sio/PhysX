@@ -202,12 +202,12 @@ PX_C_EXPORT PX_PHYSX_GPU_API ev4sio_physx::PxPhysXGpu* PX_CALL_CONV PxCreatePhys
 /**
 Create a cuda context manager. Set launchSynchronous to true for Cuda to report the actual point of failure.
 */
-PX_C_EXPORT PX_PHYSX_GPU_API ev4sio_physx::PxCudaContextManager* PX_CALL_CONV ev4sio_PxCreateCudaContextManager(ev4sio_physx::PxFoundation& foundation, const ev4sio_physx::PxCudaContextManagerDesc& desc, ev4sio_physx::PxProfilerCallback* profilerCallback = NULL, bool launchSynchronous = false);
+//PX_C_EXPORT PX_PHYSX_GPU_API ev4sio_physx::PxCudaContextManager* PX_CALL_CONV ev4sio_PxCreateCudaContextManager(ev4sio_physx::PxFoundation& foundation, const ev4sio_physx::PxCudaContextManagerDesc& desc, ev4sio_physx::PxProfilerCallback* profilerCallback = NULL, bool launchSynchronous = false);
 
 /**
 Set profiler callback.
 */
-PX_C_EXPORT PX_PHYSX_GPU_API void PX_CALL_CONV ev4sio_PxSetPhysXGpuProfilerCallback(ev4sio_physx::PxProfilerCallback* profilerCallback);
+//PX_C_EXPORT PX_PHYSX_GPU_API void PX_CALL_CONV ev4sio_PxSetPhysXGpuProfilerCallback(ev4sio_physx::PxProfilerCallback* profilerCallback);
 
 /**
 Query the device ordinal - depends on control panel settings.
