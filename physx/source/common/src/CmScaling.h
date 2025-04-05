@@ -37,9 +37,9 @@
 #include "geometry/PxMeshScale.h"
 #include "CmUtils.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Cm
+namespace ev4sio_Cm
 {
 	// PT: same as PxMeshScale::toMat33() but faster
 	PX_FORCE_INLINE PxMat33 toMat33(const PxMeshScale& meshScale)
@@ -189,7 +189,7 @@ namespace Cm
 		bool mFlipNormal;
 	};
 
-	PX_FORCE_INLINE void getScaledVertices(PxVec3* v, const PxVec3& v0, const PxVec3& v1, const PxVec3& v2, bool idtMeshScale, const Cm::FastVertex2ShapeScaling& scaling)
+	PX_FORCE_INLINE void getScaledVertices(PxVec3* v, const PxVec3& v0, const PxVec3& v1, const PxVec3& v2, bool idtMeshScale, const ev4sio_Cm::FastVertex2ShapeScaling& scaling)
 	{
 		if(idtMeshScale)
 		{
@@ -206,19 +206,19 @@ namespace Cm
 		}
 	}
 
-} // namespace Cm
+} // namespace ev4sio_Cm
 
 
 PX_INLINE PxMat34 operator*(const PxTransform& transform, const PxMeshScale& scale) 
 {
 	const PxMat33Padded tmp(transform.q);
 
-	return PxMat34(tmp * Cm::toMat33(scale), transform.p);
+	return PxMat34(tmp * ev4sio_Cm::toMat33(scale), transform.p);
 }
 
 PX_INLINE PxMat34 operator*(const PxMeshScale& scale, const PxTransform& transform) 
 {
-	const PxMat33 scaleMat = Cm::toMat33(scale);
+	const PxMat33 scaleMat = ev4sio_Cm::toMat33(scale);
 	const PxMat33Padded t(transform.q);
 	const PxMat33 r = scaleMat * t;
 	const PxVec3 p = scaleMat * transform.p;
@@ -227,12 +227,12 @@ PX_INLINE PxMat34 operator*(const PxMeshScale& scale, const PxTransform& transfo
 
 PX_INLINE PxMat34 operator*(const PxMat34& transform, const PxMeshScale& scale) 
 {
-	return PxMat34(transform.m * Cm::toMat33(scale), transform.p);
+	return PxMat34(transform.m * ev4sio_Cm::toMat33(scale), transform.p);
 }
 
 PX_INLINE PxMat34 operator*(const PxMeshScale& scale, const PxMat34& transform) 
 {
-	const PxMat33 scaleMat = Cm::toMat33(scale);
+	const PxMat33 scaleMat = ev4sio_Cm::toMat33(scale);
 	return PxMat34(scaleMat * transform.m, scaleMat * transform.p);
 }
 

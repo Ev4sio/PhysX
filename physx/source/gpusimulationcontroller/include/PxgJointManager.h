@@ -36,16 +36,16 @@
 #include "PxgConstraintPrep.h"
 #include "PxgConstraintIdMap.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-	namespace IG
+	namespace ev4sio_IG
 	{
 		class IslandSim;
 		class CPUExternalData;
 		class GPUExternalData;
 	}
 
-	namespace Dy
+	namespace ev4sio_Dy
 	{
 		struct Constraint;
 	}
@@ -65,11 +65,11 @@ namespace physx
 		void	reserveMemoryPreAddRemove();  // reserveMemory() above can not be used because it gets called after 
 		                                      // joints get added/removed during constraint partitioning
 
-		void	registerJoint(const Dy::Constraint& constraint);
-		void	removeJoint(PxU32 edgeIndex, PxArray<PxU32>& jointIndices, const IG::CPUExternalData& islandSimCpuData, const IG::GPUExternalData& islandSimGpuData);
-		void	addJoint(	PxU32 edgeIndex, const Dy::Constraint* constraint, IG::IslandSim& islandSim, PxArray<PxU32>& jointIndices, 
+		void	registerJoint(const ev4sio_Dy::Constraint& constraint);
+		void	removeJoint(PxU32 edgeIndex, PxArray<PxU32>& jointIndices, const ev4sio_IG::CPUExternalData& islandSimCpuData, const ev4sio_IG::GPUExternalData& islandSimGpuData);
+		void	addJoint(	PxU32 edgeIndex, const ev4sio_Dy::Constraint* constraint, ev4sio_IG::IslandSim& islandSim, PxArray<PxU32>& jointIndices, 
 							PxPinnedArray<PxgSolverConstraintManagerConstants>& managerIter, PxU32 uniqueId);
-		void	updateJoint(PxU32 edgeIndex, const Dy::Constraint* constraint);
+		void	updateJoint(PxU32 edgeIndex, const ev4sio_Dy::Constraint* constraint);
 		void	update(PxArray<PxU32>& jointOutputIndex);
 		void	reset();
 		PxU32	getGpuNbRigidConstraints();
@@ -79,8 +79,8 @@ namespace physx
 		PxU32	getGpuNbActiveRigidConstraints(); 
 		PxU32	getGpuNbActiveArtiConstraints();
 
-		PX_FORCE_INLINE	const PxArray<const Dy::Constraint*>&		getCpuRigidConstraints()			const	{ return mCpuRigidConstraints;				}
-		PX_FORCE_INLINE	const PxArray<const Dy::Constraint*>&		getCpuArtiConstraints()				const	{ return mCpuArtiConstraints;				}
+		PX_FORCE_INLINE	const PxArray<const ev4sio_Dy::Constraint*>&		getCpuRigidConstraints()			const	{ return mCpuRigidConstraints;				}
+		PX_FORCE_INLINE	const PxArray<const ev4sio_Dy::Constraint*>&		getCpuArtiConstraints()				const	{ return mCpuArtiConstraints;				}
 
 		PX_FORCE_INLINE	const PxInt32ArrayPinned&					getDirtyGPURigidJointDataIndices()	const	{ return mDirtyGPURigidJointDataIndices;	}
 		PX_FORCE_INLINE	const PxInt32ArrayPinned&					getDirtyGPUArtiJointDataIndices()	const	{ return mDirtyGPUArtiJointDataIndices;		}
@@ -113,8 +113,8 @@ namespace physx
 		PxHashMap<PxU32, PxU32> mCpuRigidConstraintIndices;
 		PxHashMap<PxU32, PxU32> mCpuArtiConstraintIndices;
 
-		PxArray<const Dy::Constraint*> mCpuRigidConstraints;
-		PxArray<const Dy::Constraint*> mCpuArtiConstraints;
+		PxArray<const ev4sio_Dy::Constraint*> mCpuRigidConstraints;
+		PxArray<const ev4sio_Dy::Constraint*> mCpuArtiConstraints;
 
 		PxArray<PxU32> mCpuRigidUniqueIndex;
 		PxArray<PxU32> mCpuArtiUniqueIndex;
@@ -142,8 +142,8 @@ namespace physx
 		PxHashMap<PxU32, PxU32> mEdgeIndexToGpuConstraintIdMap;  // Get from edge index to constraint ID. Only used when direct GPU API is
 		                                                         // enabled and for joint/constraints that have the shader run on GPU.
 		
-		Cm::IDPool			mGpuRigidJointDataIDPool; //each PxgD6JointData has an unique id. We can recycle the id when a joint has been removed from the joint manager
-		Cm::IDPool			mGpuArtiJointDataIDPool;
+		ev4sio_Cm::IDPool			mGpuRigidJointDataIDPool; //each PxgD6JointData has an unique id. We can recycle the id when a joint has been removed from the joint manager
+		ev4sio_Cm::IDPool			mGpuArtiJointDataIDPool;
 		public:
 		// PT: not sure why these are here, it's computed by PxgGpuContext at the same time it fills the CPU constraint data (*)
 		PxI32				mNbCpuRigidConstraintRows;

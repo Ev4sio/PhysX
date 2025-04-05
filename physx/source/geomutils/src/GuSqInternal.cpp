@@ -33,9 +33,9 @@
 #include "GuIncrementalAABBTree.h"
 #include "GuBVH.h"
 
-using namespace physx;
-using namespace Cm;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Cm;
+using namespace ev4sio_Gu;
 
 static void drawBVH(const BVHNode* root, const BVHNode* node, PxRenderOutput& out_)
 {
@@ -85,7 +85,7 @@ void visualizeTree(PxRenderOutput& out, PxU32 color, const IncrementalAABBTree* 
 					discard = cb_->visualizeNode(*node, bounds);
 
 				if(!discard)
-					Cm::renderOutputDebugBox(out_, bounds);
+					ev4sio_Cm::renderOutputDebugBox(out_, bounds);
 
 				if(node->isLeaf())
 					return;

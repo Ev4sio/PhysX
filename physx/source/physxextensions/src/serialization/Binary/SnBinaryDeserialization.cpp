@@ -40,7 +40,7 @@
 #include "serialization/SnSerialUtils.h"
 #include "CmCollection.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 using namespace Sn;
 
 namespace
@@ -83,16 +83,16 @@ namespace
 		PX_UNUSED(markedPadding);
 
 		if (header != PX_MAKE_FOURCC('S','E','B','D'))
-			return PxGetFoundation().error(physx::PxErrorCode::eINVALID_PARAMETER, PX_FL, 
+			return ev4sio_PxGetFoundation().error(ev4sio_physx::PxErrorCode::eINVALID_PARAMETER, PX_FL, 
 				"Buffer contains data with wrong header indicating invalid binary data.");
 
 		if (!checkCompatibility(binaryVersionGuid))
-			return PxGetFoundation().error(physx::PxErrorCode::eINVALID_PARAMETER, PX_FL, 
+			return ev4sio_PxGetFoundation().error(ev4sio_physx::PxErrorCode::eINVALID_PARAMETER, PX_FL, 
 				"Buffer contains binary data version 0x%s and is incompatible with this PhysX sdk (0x%s).\n", 
 				binaryVersionGuid, getBinaryVersionGuid());
 
 		if (platformTag != getBinaryPlatformTag())
-			return PxGetFoundation().error(physx::PxErrorCode::eINVALID_PARAMETER, PX_FL, 
+			return ev4sio_PxGetFoundation().error(ev4sio_physx::PxErrorCode::eINVALID_PARAMETER, PX_FL, 
 				"Buffer contains data with platform mismatch:\nExpected: %s \nActual: %s\n",
 				getBinaryPlatformName(getBinaryPlatformTag()),
 				getBinaryPlatformName(platformTag));
@@ -100,12 +100,12 @@ namespace
 		return true;
 	}
 
-	bool checkImportReferences(const ImportReference* importReferences, PxU32 nbImportReferences, const Cm::Collection* externalRefs)
+	bool checkImportReferences(const ImportReference* importReferences, PxU32 nbImportReferences, const ev4sio_Cm::Collection* externalRefs)
 	{
 		if (!externalRefs)
 		{
 			if (nbImportReferences > 0)
-				return PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "PxSerialization::createCollectionFromBinary: External references needed but no externalRefs collection specified.");
+				return ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "PxSerialization::createCollectionFromBinary: External references needed but no externalRefs collection specified.");
 		}
 		else
 		{
@@ -116,10 +116,10 @@ namespace
 
 				PxBase* referencedObject = externalRefs->find(id);
 				if (!referencedObject)
-					return PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "PxSerialization::createCollectionFromBinary: External reference %llu expected in externalRefs collection but not found.", id);
+					return ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "PxSerialization::createCollectionFromBinary: External reference %llu expected in externalRefs collection but not found.", id);
 
 				if (referencedObject->getConcreteType() != type)
-					return PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "PxSerialization::createCollectionFromBinary: External reference %d type mismatch. Expected %d but found %d in externalRefs collection.", type, referencedObject->getConcreteType());
+					return ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "PxSerialization::createCollectionFromBinary: External reference %d type mismatch. Expected %d but found %d in externalRefs collection.", type, referencedObject->getConcreteType());
 			}
 		}
 		return true;
@@ -131,12 +131,12 @@ PxCollection* PxSerialization::createCollectionFromBinary(void* memBlock, PxSeri
 {
 	if(size_t(memBlock) & (PX_SERIAL_FILE_ALIGN-1))
 	{
-		PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "Buffer must be 128-bytes aligned.");
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "Buffer must be 128-bytes aligned.");
 		return NULL;
 	}
 
 	PxU8* address = reinterpret_cast<PxU8*>(memBlock);
-	const Cm::Collection* externalRefs = static_cast<const Cm::Collection*>(pxExternalRefs);
+	const ev4sio_Cm::Collection* externalRefs = static_cast<const ev4sio_Cm::Collection*>(pxExternalRefs);
 			
 	if (!readHeader(address))
 	{
@@ -224,7 +224,7 @@ PxCollection* PxSerialization::createCollectionFromBinary(void* memBlock, PxSeri
 	}
 
 	SerializationRegistry& sn = static_cast<SerializationRegistry&>(sr);
-	Cm::Collection* collection = static_cast<Cm::Collection*>(PxCreateCollection());
+	ev4sio_Cm::Collection* collection = static_cast<ev4sio_Cm::Collection*>(ev4sio_PxCreateCollection());
 	PX_ASSERT(collection);
 	collection->mObjects.reserve(nbObjectsInCollection*2);
 	if(nbExportReferences > 0)
@@ -253,7 +253,7 @@ PxCollection* PxSerialization::createCollectionFromBinary(void* memBlock, PxSeri
 			PxBase* instance = serializer->createObject(address, context);
 			if (!instance)
 			{
-				PxGetFoundation().error(physx::PxErrorCode::eINVALID_PARAMETER, PX_FL, 
+				ev4sio_PxGetFoundation().error(ev4sio_physx::PxErrorCode::eINVALID_PARAMETER, PX_FL, 
 					"Cannot create class instance for concrete type %d.", classType);
 				collection->release();
 				return NULL;
@@ -289,12 +289,12 @@ PxCollection* PxSerialization::createCollectionFromBinary(void* memBlock, PxSeri
 
 		if (manifestTableAccessError)
 		{
-			PxGetFoundation().error(physx::PxErrorCode::eINTERNAL_ERROR, PX_FL, "Manifest table access error");
+			ev4sio_PxGetFoundation().error(ev4sio_physx::PxErrorCode::eINTERNAL_ERROR, PX_FL, "Manifest table access error");
 			collection->release();
 			return NULL;
 		}
 	}
 
-	PxAddCollectionToPhysics(*collection);
+	ev4sio_PxAddCollectionToPhysics(*collection);
 	return collection;
 }

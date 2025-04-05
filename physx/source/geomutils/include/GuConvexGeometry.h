@@ -33,13 +33,13 @@
 #include "foundation/PxMat33.h"
 #include "foundation/PxBounds3.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	class PxConvexCoreGeometry;
 	class PxBounds3;
 	class PxRenderOutput;
 
-	namespace Gu
+	namespace ev4sio_Gu
 	{
 		struct ConvexShape;
 

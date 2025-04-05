@@ -50,7 +50,7 @@
 #include "atomic.cuh"
 #include "utils.cuh"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 // simpler kernel for diffuse weighting
 __device__ inline PxReal WDiffuse(const PxReal h, const PxReal invR)

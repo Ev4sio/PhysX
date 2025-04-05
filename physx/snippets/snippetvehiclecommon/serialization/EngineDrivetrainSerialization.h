@@ -53,8 +53,8 @@
 namespace snippetvehicle
 {
 
-using namespace physx;
-using namespace physx::vehicle2;
+using namespace ev4sio_physx;
+using namespace ev4sio_physx::vehicle2;
 
 bool readAutoboxParams(const rapidjson::Document& config, PxVehicleAutoboxParams& autoboxParams);
 bool writeAutoboxParams(const PxVehicleAutoboxParams& autoboxParams, rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer);

@@ -32,8 +32,8 @@
 #include "foundation/PxBounds3.h"
 #include "foundation/PxMemory.h"
 
-using namespace physx;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
 
 namespace local
 {
@@ -215,7 +215,7 @@ bool ConvexHullLib::cleanupVertices(PxU32 svcount, const PxVec3* svertices, PxU3
 	}
 
 	if(vcount < 4)
-		return PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "ConvexHullLib::cleanupVertices: Less than four valid vertices were found. Provide at least four valid (e.g. each at a different position) vertices.");
+		return ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "ConvexHullLib::cleanupVertices: Less than four valid vertices were found. Provide at least four valid (e.g. each at a different position) vertices.");
 	
 	if (quantizer)
 		quantizer->release();

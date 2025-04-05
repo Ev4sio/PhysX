@@ -43,12 +43,12 @@
 #include "../SnSerializationRegistry.h"
 #include "CmCollection.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 using namespace Sn;
 
-using namespace physx::profile; //for the foundation wrapper system.
+using namespace ev4sio_physx::profile; //for the foundation wrapper system.
 
-namespace physx { namespace Sn {	
+namespace ev4sio_physx { namespace Sn {	
 
 	class XmlNodeWriter : public SimpleXmlWriter
 	{
@@ -347,7 +347,7 @@ namespace physx { namespace Sn {
 		// Return true to continue processing the XML file.
 		// Return false to stop processing the XML file; leaves the read pointer of the stream right after this close tag.
 		// The bool 'isError' indicates whether processing was stopped due to an error, or intentionally canceled early.
-		virtual bool processClose(const char* /*element*/,physx::PxU32 /*depth*/,bool& isError)
+		virtual bool processClose(const char* /*element*/,ev4sio_physx::PxU32 /*depth*/,bool& isError)
 		{
 			if (NULL != mCurrentNode)
 			{
@@ -566,7 +566,7 @@ namespace physx { namespace Sn {
 				}
 				else
 				{
-					PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, 
+					ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, 
 						"PxSerialization::createCollectionFromXml: "
 						"PxRepXSerializer missing for type %s", theItem.liveObject.typeName);
 					return false;					
@@ -641,9 +641,9 @@ namespace physx { namespace Sn {
 						theChild != NULL;
 						theChild = theChild->mNextSibling )
 				{
-					if ( physx::Pxstricmp( theChild->mName, "scale" ) == 0
-						|| physx::Pxstricmp( theChild->mName, "version" ) == 0
-						|| physx::Pxstricmp( theChild->mName, "upvector" ) == 0 )
+					if ( ev4sio_physx::Pxstricmp( theChild->mName, "scale" ) == 0
+						|| ev4sio_physx::Pxstricmp( theChild->mName, "version" ) == 0
+						|| ev4sio_physx::Pxstricmp( theChild->mName, "upvector" ) == 0 )
 						continue;
 					XmlNodeReader theReader( theChild, mAllocator.getAllocator(), mAllocator.mManager );
 					PxRepXObject theObject;
@@ -657,7 +657,7 @@ namespace physx { namespace Sn {
 			}
 			else
 			{
-				PxGetFoundation().error(PxErrorCode::eDEBUG_WARNING, PX_FL, 
+				ev4sio_PxGetFoundation().error(PxErrorCode::eDEBUG_WARNING, PX_FL, 
 				"Cannot parse any object from the input buffer, please check the input repx data.");
 			}
 			theFastXml->release();
@@ -685,7 +685,7 @@ namespace physx { namespace Sn {
 		//Performs a deep copy of the repx node.
 		virtual XmlNode* copyRepXNode( const XmlNode* srcNode ) 
 		{
-			return physx::Sn::copyRepXNode( &mAllocator.mManager, srcNode );
+			return ev4sio_physx::Sn::copyRepXNode( &mAllocator.mManager, srcNode );
 		}
 
 		virtual void addCollectionItem( RepXCollectionItem inItem ) 
@@ -743,7 +743,7 @@ namespace physx { namespace Sn {
 		SerializationRegistry& sn = static_cast<SerializationRegistry&>(sr);
 		PxRepXInstantiationArgs args( sn.getPhysics(), params );
 
-		PxCollection* tmpCollection = PxCreateCollection();
+		PxCollection* tmpCollection = ev4sio_PxCreateCollection();
 		PX_ASSERT(tmpCollection);
 
 		tmpCollection->add( collection );
@@ -752,7 +752,7 @@ namespace physx { namespace Sn {
 			tmpCollection->add(*const_cast<PxCollection*>(externalRefs));
 		}
 		
-		PxAllocatorCallback& allocator = *PxGetAllocatorCallback();
+		PxAllocatorCallback& allocator = *ev4sio_PxGetAllocatorCallback();
 		Sn::RepXCollection* theRepXCollection = Sn::create(sn, allocator, *tmpCollection );
 				
 		if(inArgs != NULL)
@@ -764,7 +764,7 @@ namespace physx { namespace Sn {
 		PxU32 nbObjects = collection.getNbObjects();
 		if( nbObjects )
 		{
-			sortCollection( static_cast<Cm::Collection&>(collection), sn, true);
+			sortCollection( static_cast<ev4sio_Cm::Collection&>(collection), sn, true);
 
             for( PxU32 i = 0; i < nbObjects; i++ )
 			{
@@ -802,13 +802,13 @@ namespace physx { namespace Sn {
 	PxCollection* PxSerialization::createCollectionFromXml(PxInputData& inputData, const PxCookingParams& params, PxSerializationRegistry& sr, const PxCollection* externalRefs, PxStringTable* stringTable, PxXmlMiscParameter* outArgs)
 	{
 		SerializationRegistry& sn = static_cast<SerializationRegistry&>(sr);
-		PxCollection* collection = PxCreateCollection();
+		PxCollection* collection = ev4sio_PxCreateCollection();
 		PX_ASSERT(collection);
 		
 		if( externalRefs )
 			collection->add(*const_cast<PxCollection*>(externalRefs));
 
-		PxAllocatorCallback& allocator = *PxGetAllocatorCallback();
+		PxAllocatorCallback& allocator = *ev4sio_PxGetAllocatorCallback();
 		Sn::RepXCollection* theRepXCollection = Sn::create(sn, inputData, allocator, *collection);
 		theRepXCollection = &Sn::RepXUpgrader::upgradeCollection( *theRepXCollection );
 				

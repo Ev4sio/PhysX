@@ -33,8 +33,8 @@
 #include "ScConstraintInteraction.h"
 #include "ScElementSimInteraction.h"
 
-using namespace physx;
-using namespace Sc;
+using namespace ev4sio_physx;
+using namespace ev4sio_Sc;
 
 static ConstraintInteraction* createInteraction(ConstraintSim* sim, RigidCore* r0, RigidCore* r1, Scene& scene)
 {
@@ -51,7 +51,7 @@ static void releaseInteraction(ConstraintInteraction* interaction, const Constra
 	scene.getConstraintInteractionPool().destroy(interaction);
 }
 
-Sc::ConstraintSim::ConstraintSim(ConstraintCore& core, RigidCore* r0, RigidCore* r1, Scene& scene) :
+ev4sio_Sc::ConstraintSim::ConstraintSim(ConstraintCore& core, RigidCore* r0, RigidCore* r1, Scene& scene) :
 	mScene		(scene),
 	mCore		(core),
 	mInteraction(NULL),
@@ -63,7 +63,7 @@ Sc::ConstraintSim::ConstraintSim(ConstraintCore& core, RigidCore* r0, RigidCore*
 	const PxU32 id = scene.getConstraintIDTracker().createID();
 
 	mLowLevelConstraint.index = id;
-	PxPinnedArray<Dy::ConstraintWriteback>& writeBackPool = scene.getDynamicsContext()->getConstraintWriteBackPool();
+	PxPinnedArray<ev4sio_Dy::ConstraintWriteback>& writeBackPool = scene.getDynamicsContext()->getConstraintWriteBackPool();
 	if(id >= writeBackPool.capacity())
 		writeBackPool.reserve(writeBackPool.capacity() * 2);
 
@@ -82,13 +82,13 @@ Sc::ConstraintSim::ConstraintSim(ConstraintCore& core, RigidCore* r0, RigidCore*
 
 	mInteraction = createInteraction(this, r0, r1, scene);
 
-	PX_ASSERT(!mInteraction->isRegistered());  // constraint interactions must not register in the scene, there is a list of Sc::ConstraintSim instead
+	PX_ASSERT(!mInteraction->isRegistered());  // constraint interactions must not register in the scene, there is a list of ev4sio_Sc::ConstraintSim instead
 }
 
-Sc::ConstraintSim::~ConstraintSim()
+ev4sio_Sc::ConstraintSim::~ConstraintSim()
 {
 	PX_ASSERT(mInteraction);  // This is fine now, a body which gets removed from the scene removes all constraints automatically
-	PX_ASSERT(!mInteraction->isRegistered());  // constraint interactions must not register in the scene, there is a list of Sc::ConstraintSim instead
+	PX_ASSERT(!mInteraction->isRegistered());  // constraint interactions must not register in the scene, there is a list of ev4sio_Sc::ConstraintSim instead
 
 	releaseInteraction(mInteraction, this, mScene);
 
@@ -98,7 +98,7 @@ Sc::ConstraintSim::~ConstraintSim()
 	mCore.setSim(NULL);
 }
 
-static PX_FORCE_INLINE void setLLBodies(Dy::Constraint& c, BodySim* b0, BodySim* b1)
+static PX_FORCE_INLINE void setLLBodies(ev4sio_Dy::Constraint& c, BodySim* b0, BodySim* b1)
 {
 	PxsRigidBody* body0 = b0 ? &b0->getLowLevelBody() : NULL;
 	PxsRigidBody* body1 = b1 ? &b1->getLowLevelBody() : NULL;
@@ -110,14 +110,14 @@ static PX_FORCE_INLINE void setLLBodies(Dy::Constraint& c, BodySim* b0, BodySim*
 	c.bodyCore1 = body1 ? &body1->getCore() : NULL;
 }
 
-bool Sc::ConstraintSim::createLLConstraint()
+bool ev4sio_Sc::ConstraintSim::createLLConstraint()
 {
 	ConstraintCore& core = getCore();
 	const PxU32 constantBlockSize = core.getConstantBlockSize();
 
 	void* constantBlock = mScene.allocateConstraintBlock(constantBlockSize);
 	if(!constantBlock)
-		return PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "Constraint: could not allocate low-level resources.");
+		return ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "Constraint: could not allocate low-level resources.");
 
 	//Ensure the constant block isn't just random data because some functions may attempt to use it before it is
 	//setup.  Specifically pvd visualization of joints
@@ -125,7 +125,7 @@ bool Sc::ConstraintSim::createLLConstraint()
 
 	PxMemZero(constantBlock, constantBlockSize);
 
-	Dy::Constraint& llc = mLowLevelConstraint;
+	ev4sio_Dy::Constraint& llc = mLowLevelConstraint;
 	core.getBreakForce(llc.linBreakForce, llc.angBreakForce);
 	llc.flags					= core.getFlags();
 	llc.constantBlockSize		= PxU16(constantBlockSize);
@@ -140,13 +140,13 @@ bool Sc::ConstraintSim::createLLConstraint()
 	return true;
 }
 
-void Sc::ConstraintSim::destroyLLConstraint()
+void ev4sio_Sc::ConstraintSim::destroyLLConstraint()
 {
 	if(mLowLevelConstraint.constantBlock)
 		mScene.deallocateConstraintBlock(mLowLevelConstraint.constantBlock, mLowLevelConstraint.constantBlockSize);
 }
 
-void Sc::ConstraintSim::setBodies(RigidCore* r0, RigidCore* r1)
+void ev4sio_Sc::ConstraintSim::setBodies(RigidCore* r0, RigidCore* r1)
 {
 	PX_ASSERT(mInteraction);
 
@@ -167,15 +167,15 @@ void Sc::ConstraintSim::setBodies(RigidCore* r0, RigidCore* r1)
 	mScene.addConstraintToMap(mCore, r0, r1);
 }
 
-void Sc::ConstraintSim::getForce(PxVec3& lin, PxVec3& ang)
+void ev4sio_Sc::ConstraintSim::getForce(PxVec3& lin, PxVec3& ang)
 {
 	const PxReal recipDt = mScene.getOneOverDt();
-	Dy::ConstraintWriteback& solverOutput = mScene.getDynamicsContext()->getConstraintWriteBackPool()[mLowLevelConstraint.index];
+	ev4sio_Dy::ConstraintWriteback& solverOutput = mScene.getDynamicsContext()->getConstraintWriteBackPool()[mLowLevelConstraint.index];
 	lin = solverOutput.linearImpulse * recipDt;
 	ang = solverOutput.angularImpulse * recipDt;
 }
 
-void Sc::ConstraintSim::setBreakForceLL(PxReal linear, PxReal angular)
+void ev4sio_Sc::ConstraintSim::setBreakForceLL(PxReal linear, PxReal angular)
 {
 	PxU8 wasBreakable = readFlag(eBREAKABLE);
 	PxU8 isBreakable;
@@ -205,12 +205,12 @@ void Sc::ConstraintSim::setBreakForceLL(PxReal linear, PxReal angular)
 	mLowLevelConstraint.angBreakForce = angular;
 }
 
-void Sc::ConstraintSim::postFlagChange(PxConstraintFlags /*oldFlags*/, PxConstraintFlags newFlags)
+void ev4sio_Sc::ConstraintSim::postFlagChange(PxConstraintFlags /*oldFlags*/, PxConstraintFlags newFlags)
 {
 	mLowLevelConstraint.flags = newFlags;
 }
 
-PxConstraintGPUIndex Sc::ConstraintSim::getGPUIndex() const
+PxConstraintGPUIndex ev4sio_Sc::ConstraintSim::getGPUIndex() const
 {
 	//
 	// The constraint ID is used as GPU index
@@ -218,7 +218,7 @@ PxConstraintGPUIndex Sc::ConstraintSim::getGPUIndex() const
 
 	if (mLowLevelConstraint.flags & PxConstraintFlag::eGPU_COMPATIBLE)
 	{
-		PX_COMPILE_TIME_ASSERT(sizeof(Dy::Constraint::index) <= sizeof(PxConstraintGPUIndex));
+		PX_COMPILE_TIME_ASSERT(sizeof(ev4sio_Dy::Constraint::index) <= sizeof(PxConstraintGPUIndex));
 		return static_cast<PxConstraintGPUIndex>(mLowLevelConstraint.index);
 	}
 	else

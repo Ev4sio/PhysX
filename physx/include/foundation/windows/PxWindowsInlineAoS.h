@@ -29,7 +29,7 @@
 #ifndef PX_WINDOWS_INLINE_AOS_H
 #define PX_WINDOWS_INLINE_AOS_H
 
-namespace physx
+namespace ev4sio_physx
 {
 namespace aos
 {
@@ -72,7 +72,7 @@ PX_FORCE_INLINE bool isValidFloatV(const FloatV a)
 
 #include "../PxVecMathSSE.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 namespace aos
 {
@@ -604,7 +604,7 @@ PX_FORCE_INLINE Vec4V V4SplatElement(Vec4V a)
 }*/
 
 } // namespace aos
-} // namespace physx
+} // namespace ev4sio_physx
 
 #endif
 

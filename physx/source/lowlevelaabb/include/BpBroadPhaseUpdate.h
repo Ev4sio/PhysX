@@ -33,9 +33,9 @@
 #include "foundation/PxBounds3.h"
 #include "foundation/PxUnionCast.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Bp
+namespace ev4sio_Bp
 {
 typedef PxU32 ShapeHandle;
 typedef PxU32 BpHandle;
@@ -91,7 +91,7 @@ public:
 		const ShapeHandle* created, PxU32 createdSize, 
 		const ShapeHandle* updated, PxU32 updatedSize, 
 		const ShapeHandle* removed, PxU32 removedSize, 
-		const PxBounds3* boxBounds, const Bp::FilterGroup::Enum* boxGroups, const PxReal* boxContactDistances, const PxU32* boxEnvIDs, PxU32 boxesCapacity,
+		const PxBounds3* boxBounds, const ev4sio_Bp::FilterGroup::Enum* boxGroups, const PxReal* boxContactDistances, const PxU32* boxEnvIDs, PxU32 boxesCapacity,
 		const BpFilter& filter,
 		bool stateChanged,
 		bool gpuStateChanged
@@ -117,7 +117,7 @@ public:
 		const ShapeHandle* created, PxU32 createdSize, 
 		const ShapeHandle* updated, PxU32 updatedSize, 
 		const ShapeHandle* removed, PxU32 removedSize, 
-		const PxBounds3* boxBounds, const Bp::FilterGroup::Enum* boxGroups, const PxReal* boxContactDistances, PxU32 boxesCapacity,
+		const PxBounds3* boxBounds, const ev4sio_Bp::FilterGroup::Enum* boxGroups, const PxReal* boxContactDistances, PxU32 boxesCapacity,
 		const BpFilter& filter,
 		bool stateChanged,
 		bool gpuStateChanged
@@ -169,7 +169,7 @@ public:
 	PX_FORCE_INLINE	PxU32							getNumRemovedHandles()	const { return mRemovedSize;		}
 
 	PX_FORCE_INLINE	const PxBounds3*				getAABBs()				const { return mBoxBounds;			}
-	PX_FORCE_INLINE	const Bp::FilterGroup::Enum*	getGroups()				const { return mBoxGroups;			}
+	PX_FORCE_INLINE	const ev4sio_Bp::FilterGroup::Enum*	getGroups()				const { return mBoxGroups;			}
 	PX_FORCE_INLINE	const PxReal*					getContactDistance()	const { return mBoxDistances;		}
 	PX_FORCE_INLINE	const PxU32*					getEnvIDs()				const { return mBoxEnvIDs;			}
 	PX_FORCE_INLINE	PxU32							getCapacity()			const { return mBoxesCapacity;		}
@@ -196,7 +196,7 @@ private:
 	const PxU32						mRemovedSize;
 
 	const PxBounds3*				mBoxBounds;
-	const Bp::FilterGroup::Enum*	mBoxGroups;
+	const ev4sio_Bp::FilterGroup::Enum*	mBoxGroups;
 	const PxReal*					mBoxDistances;
 	const PxU32*					mBoxEnvIDs;
 	const PxU32						mBoxesCapacity;
@@ -207,8 +207,8 @@ private:
 	const bool						mGpuStateChanged;
 };
 
-} //namespace Bp
+} //namespace ev4sio_Bp
 
-} //namespace physx
+} //namespace ev4sio_physx
 
 #endif

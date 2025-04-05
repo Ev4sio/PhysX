@@ -36,22 +36,22 @@
 
 #include "ExtOmniPvdRegistrationData.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	class PxOmniPvd;
 }
 
 
-class OmniPvdPxExtensionsSampler : public physx::PxUserAllocated
+class OmniPvdPxExtensionsSampler : public ev4sio_physx::PxUserAllocated
 {
 public:
 	OmniPvdPxExtensionsSampler();
 	~OmniPvdPxExtensionsSampler();
-	void setOmniPvdInstance(physx::PxOmniPvd* omniPvdInstance);
-	physx::PxOmniPvd* getOmniPvdInstance();
+	void setOmniPvdInstance(ev4sio_physx::PxOmniPvd* omniPvdInstance);
+	ev4sio_physx::PxOmniPvd* getOmniPvdInstance();
 	void registerClasses();
 
-	const physx::Ext::OmniPvdPxExtensionsRegistrationData& getRegistrationData() const { return mRegistrationData; }
+	const ev4sio_physx::ev4sio_Ext::OmniPvdPxExtensionsRegistrationData& getRegistrationData() const { return mRegistrationData; }
 
 	// OmniPvdPxExtensionsSampler singleton
 	static bool createInstance();
@@ -59,14 +59,14 @@ public:
 	static void destroyInstance();
 
 private:
-	physx::PxOmniPvd* mOmniPvdInstance;
-	physx::Ext::OmniPvdPxExtensionsRegistrationData mRegistrationData;
+	ev4sio_physx::PxOmniPvd* mOmniPvdInstance;
+	ev4sio_physx::ev4sio_Ext::OmniPvdPxExtensionsRegistrationData mRegistrationData;
 };
 
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Ext
+namespace ev4sio_Ext
 {
 
 const OmniPvdPxExtensionsRegistrationData* OmniPvdGetPxExtensionsRegistrationData();

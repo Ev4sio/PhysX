@@ -32,14 +32,14 @@
 #include "DyDeformableVolumeCore.h"
 #include "PxvGeometry.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Sc
+namespace ev4sio_Sc
 {
 	class DeformableVolumeSim;
 }
 
-namespace Dy
+namespace ev4sio_Dy
 {
 
 typedef size_t DeformableVolumeHandle;
@@ -51,7 +51,7 @@ class DeformableVolume
 {
 	PX_NOCOPY(DeformableVolume)
 public:
-	DeformableVolume(Sc::DeformableVolumeSim* sim, Dy::DeformableVolumeCore& core) :
+	DeformableVolume(ev4sio_Sc::DeformableVolumeSim* sim, ev4sio_Dy::DeformableVolumeCore& core) :
 		mVolumeVolumeFilterPairs(NULL), mSim(sim), mCore(core), mElementId(0xffffffff), mGpuRemapId(0xffffffff)
 	{
 		mFilterDirty = false;
@@ -64,7 +64,7 @@ public:
 	{
 		if (mDirtyVolumeForFilterPairs)
 		{
-			Dy::DeformableVolume** dirtySoftBodies = mDirtyVolumeForFilterPairs->begin();
+			ev4sio_Dy::DeformableVolume** dirtySoftBodies = mDirtyVolumeForFilterPairs->begin();
 
 			const PxU32 size = mDirtyVolumeForFilterPairs->size();
 
@@ -111,7 +111,7 @@ public:
 	PX_FORCE_INLINE const PxDeformableVolumeAuxData*	getAuxData() const { return mAuxData; }
 	PX_FORCE_INLINE PxDeformableVolumeAuxData*			getAuxData() { return mAuxData; }
 
-	PX_FORCE_INLINE Sc::DeformableVolumeSim*			getSim() const { return mSim; }
+	PX_FORCE_INLINE ev4sio_Sc::DeformableVolumeSim*			getSim() const { return mSim; }
 	PX_FORCE_INLINE const DeformableVolumeCore&			getCore() const { return mCore; }
 	PX_FORCE_INLINE DeformableVolumeCore&				getCore() { return mCore; }
 
@@ -126,14 +126,14 @@ public:
 
 	//TODO: Move all Pxg level data into Pxg layer!
 	VolumeVolumeFilterArray*							mVolumeVolumeFilterPairs;
-	PxArray <Dy::DeformableVolume*>*					mDirtyVolumeForFilterPairs; //pointer to the array of mDirtyDeformableVolumeForFilterPairs in PxgSimulationController.cpp
+	PxArray <ev4sio_Dy::DeformableVolume*>*					mDirtyVolumeForFilterPairs; //pointer to the array of mDirtyDeformableVolumeForFilterPairs in PxgSimulationController.cpp
 
 	PxArray<PxU32>										mVolumeVolumeAttachmentIdReferences;
 	bool												mFilterDirty;
 	bool												mFilterInDirtyList;
 
 private:
-	Sc::DeformableVolumeSim*							mSim;
+	ev4sio_Sc::DeformableVolumeSim*							mSim;
 	DeformableVolumeCore&								mCore;
 	PxsShapeCore*										mShapeCore; 
 
@@ -149,7 +149,7 @@ PX_FORCE_INLINE DeformableVolume*						getDeformableVolume(DeformableVolumeHandl
 	return reinterpret_cast<DeformableVolume*>(handle);
 }
 
-} // namespace Dy
-} // namespace physx
+} // namespace ev4sio_Dy
+} // namespace ev4sio_physx
 
 #endif // DY_DEFORMABLE_VOLUME_H

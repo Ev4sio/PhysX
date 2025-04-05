@@ -40,7 +40,7 @@
 
 #define EXTENDED_DEBUG 0
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 // re-allocation policy of 1.5x 
 static PX_FORCE_INLINE PxU32 calculateSlack(PxU32 n)
@@ -313,7 +313,7 @@ void PxgLinearBVHBuilderGPU::prepareHierarchConstruction(PxgBVH& bvh, const PxVe
 }
 
 void PxgSDFBuilder::computeDenseSDF(const PxgBvhTriangleMesh& mesh, const PxgWindingClusterApproximation* windingNumberClustersD,
-	const Gu::GridQueryPointSampler& sampler, PxU32 sizeX, PxU32 sizeY, PxU32 sizeZ, PxReal* sdfDataD, CUstream stream, PxReal* windingNumbersD)
+	const ev4sio_Gu::GridQueryPointSampler& sampler, PxU32 sizeX, PxU32 sizeY, PxU32 sizeZ, PxReal* sdfDataD, CUstream stream, PxReal* windingNumbersD)
 {
 	PxCUresult result = CUDA_SUCCESS;
 
@@ -368,7 +368,7 @@ PxgSDFBuilder::PxgSDFBuilder(PxgKernelLauncher& kernelLauncher) : mKernelLaunche
 }
 
 void PxgSDFBuilder::fixHoles(PxU32 width, PxU32 height, PxU32 depth, PxReal* sdfDataD, const PxVec3& cellSize, const PxVec3& minExtents, const PxVec3& maxExtents,
-	Gu::GridQueryPointSampler& sampler, CUstream stream)
+	ev4sio_Gu::GridQueryPointSampler& sampler, CUstream stream)
 {
 	PxCudaContextManager* ccm = mKernelLauncher.getCudaContextManager();
 
@@ -499,7 +499,7 @@ PxReal* PxgSDFBuilder::buildDenseSDF(const PxVec3* vertices, PxU32 numVertices, 
 
 	if (ccm->getCudaContext()->isInAbortMode())
 	{
-		PxGetFoundation().error(PxErrorCode::eABORT, PX_FL, "GPU SDF cooking failed!\n");
+		ev4sio_PxGetFoundation().error(PxErrorCode::eABORT, PX_FL, "GPU SDF cooking failed!\n");
 
 		PX_DEVICE_MEMORY_FREE(*ccm, gpuMesh.mVertices);
 		PX_DEVICE_MEMORY_FREE(*ccm, gpuMesh.mTriangles);
@@ -524,7 +524,7 @@ PxReal* PxgSDFBuilder::buildDenseSDF(const PxVec3* vertices, PxU32 numVertices, 
 
 	const PxVec3 extents(maxExtents - minExtents);
 	const PxVec3 cellSize(extents.x / width, extents.y / height, extents.z / depth);
-	Gu::GridQueryPointSampler sampler(minExtents, cellSize, cellCenteredSamples);	
+	ev4sio_Gu::GridQueryPointSampler sampler(minExtents, cellSize, cellCenteredSamples);	
 
 #if EXTENDED_DEBUG
 	bool debugWindingNumbers = false;		
@@ -583,7 +583,7 @@ PxReal* PxgSDFBuilder::buildDenseSDF(const PxVec3* vertices, PxU32 numVertices, 
 
 	if (ccm->getCudaContext()->isInAbortMode())
 	{
-		PxGetFoundation().error(PxErrorCode::eABORT, PX_FL, "GPU SDF cooking failed!\n");
+		ev4sio_PxGetFoundation().error(PxErrorCode::eABORT, PX_FL, "GPU SDF cooking failed!\n");
 		PX_DEVICE_MEMORY_FREE(*ccm, sdfDataD);
 		return NULL;
 	}
@@ -669,7 +669,7 @@ bool PxgSDFBuilder::buildSparseSDF(const PxVec3* vertices, PxU32 numVertices, co
 
 			if (!sdfCoarse.size())
 			{
-				PxGetFoundation().error(PxErrorCode::eABORT, PX_FL, "GPU SDF cooking failed!\n");
+				ev4sio_PxGetFoundation().error(PxErrorCode::eABORT, PX_FL, "GPU SDF cooking failed!\n");
 				success = false;
 			}
 		}

@@ -29,8 +29,8 @@
 #include "GuIntersectionTriangleTriangle.h"
 #include "foundation/PxPlane.h"
 
-using namespace physx;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
 
 namespace
 {
@@ -197,7 +197,7 @@ namespace
 	}
 }
 
-bool Gu::intersectTriangleTriangle(const PxVec3& a1, const PxVec3& b1, const PxVec3& c1, const PxVec3& a2, const PxVec3& b2, const PxVec3& c2/*, Segment* intersection*/, bool ignoreCoplanar)
+bool ev4sio_Gu::intersectTriangleTriangle(const PxVec3& a1, const PxVec3& b1, const PxVec3& c1, const PxVec3& a2, const PxVec3& b2, const PxVec3& c2/*, Segment* intersection*/, bool ignoreCoplanar)
 {
 	const PxReal tolerance = 1e-8f;
 

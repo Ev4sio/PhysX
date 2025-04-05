@@ -54,7 +54,7 @@
 #include "GuPersistentContactManifold.h"
 #include "PxcNpThreadContext.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 #if PX_SUPPORT_GPU_PHYSX
 class PxCudaContextManager;
@@ -66,12 +66,12 @@ class PxsCCDContext;
 struct PxsContactManagerOutput;
 struct PxvContactManagerTouchEvent;
 	
-namespace Cm
+namespace ev4sio_Cm
 {
 	class FlushPool;
 }
 
-namespace IG
+namespace ev4sio_IG
 {
 	typedef PxU32 EdgeIndex;
 }
@@ -89,14 +89,14 @@ class PxsContext : public PxUserAllocated, public PxcNpContext
 {
 												PX_NOCOPY(PxsContext)
 public:
-												PxsContext(	const PxSceneDesc& desc, PxTaskManager*, Cm::FlushPool&, PxCudaContextManager*, PxU32 poolSlabSize, PxU64 contextID);
+												PxsContext(	const PxSceneDesc& desc, PxTaskManager*, ev4sio_Cm::FlushPool&, PxCudaContextManager*, PxU32 poolSlabSize, PxU64 contextID);
 												~PxsContext();
 
 					void						createTransformCache(PxVirtualAllocatorCallback& allocatorCallback);
 
 					PxsContactManager*			createContactManager(PxsContactManager* contactManager, bool useCCD);
-					void						createCache(Gu::Cache& cache, PxGeometryType::Enum geomType0, PxGeometryType::Enum geomType1);
-					void						destroyCache(Gu::Cache& cache);
+					void						createCache(ev4sio_Gu::Cache& cache, PxGeometryType::Enum geomType0, PxGeometryType::Enum geomType1);
+					void						destroyCache(ev4sio_Gu::Cache& cache);
 					void						destroyContactManager(PxsContactManager* cm);
 
 	PX_FORCE_INLINE	PxU64						getContextId() const { return mContextID; }
@@ -113,7 +113,7 @@ public:
 
 	// Task-related
 					void						updateContactManager(PxReal dt, bool hasContactDistanceChanged, PxBaseTask* continuation, 
-																	PxBaseTask* firstPassContinuation, Cm::FanoutTask* updateBoundAndShapeTask);
+																	PxBaseTask* firstPassContinuation, ev4sio_Cm::FanoutTask* updateBoundAndShapeTask);
 					void						secondPassUpdateContactManager(PxReal dt, PxBaseTask* continuation);
 					void						fetchUpdateContactManager();
 					void						swapStreams();
@@ -133,7 +133,7 @@ public:
 	PX_FORCE_INLINE	PxvSimStats&				getSimStats()						{ return mSimStats;													}
 	PX_FORCE_INLINE	const PxvSimStats&			getSimStats()				const	{ return mSimStats;													}
 
-	PX_FORCE_INLINE	Cm::FlushPool&				getTaskPool()				const	{ return mTaskPool;													}
+	PX_FORCE_INLINE	ev4sio_Cm::FlushPool&				getTaskPool()				const	{ return mTaskPool;													}
 	PX_FORCE_INLINE	PxRenderBuffer&				getRenderBuffer()					{ return mRenderBuffer;												}
 
 	PX_FORCE_INLINE	PxReal						getRenderScale()			const	{ return mVisualizationParams[PxVisualizationParameter::eSCALE];	}
@@ -201,7 +201,7 @@ public:
 
 	PX_FORCE_INLINE	void						clearManagerTouchEvents();
 
-	PX_FORCE_INLINE Cm::PoolList<PxsContactManager>& getContactManagerPool()
+	PX_FORCE_INLINE ev4sio_Cm::PoolList<PxsContactManager>& getContactManagerPool()
 	{
 		return mContactManagerPool;
 	}
@@ -237,15 +237,15 @@ private:
 												mNpThreadContextPool;
 
 	// Contact managers
-	Cm::PoolList<PxsContactManager>				mContactManagerPool;
-	PxPool<Gu::LargePersistentContactManifold>	mManifoldPool;
-	PxPool<Gu::SpherePersistentContactManifold>	mSphereManifoldPool;
+	ev4sio_Cm::PoolList<PxsContactManager>				mContactManagerPool;
+	PxPool<ev4sio_Gu::LargePersistentContactManifold>	mManifoldPool;
+	PxPool<ev4sio_Gu::SpherePersistentContactManifold>	mSphereManifoldPool;
 	
 //	PxBitMap				mActiveContactManager;
 	PxBitMap				mActiveContactManagersWithCCD; //KS - adding to filter any pairs that had a touch
 	PxBitMap				mContactManagersWithCCDTouch; //KS - adding to filter any pairs that had a touch
 	PxBitMap				mContactManagerTouchEvent;
-	//Cm::BitMap				mContactManagerPatchChangeEvent;
+	//ev4sio_Cm::BitMap				mContactManagerPatchChangeEvent;
 
 	PxU32					mCMTouchEventCount[PXS_TOUCH_EVENT_COUNT];
 
@@ -263,7 +263,7 @@ private:
 					PxBounds3					mVisualizationCullingBox;
 
 					PxTaskManager*				mTaskManager;
-					Cm::FlushPool&				mTaskPool;
+					ev4sio_Cm::FlushPool&				mTaskPool;
 
 					PxCudaContextManager*		mCudaContextManager;
 

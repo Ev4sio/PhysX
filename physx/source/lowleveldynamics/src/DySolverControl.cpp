@@ -35,9 +35,9 @@
 #include "DySolverContext.h"
 #include "DyCpuGpuArticulation.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Dy
+namespace ev4sio_Dy
 {
 void solve1DBlock					(DY_PGS_SOLVE_METHOD_PARAMS);
 void solveContactBlock				(DY_PGS_SOLVE_METHOD_PARAMS);
@@ -135,7 +135,7 @@ void solveV_Blocks(SolverIslandParams& params, bool solveFrictionEveryIteration)
 	const PxSolverBody* PX_RESTRICT bodyListStart = params.bodyListStart;
 	const PxU32 bodyListSize = params.bodyListSize;
 
-	Cm::SpatialVector* PX_RESTRICT motionVelocityArray = params.motionVelocityArray;
+	ev4sio_Cm::SpatialVector* PX_RESTRICT motionVelocityArray = params.motionVelocityArray;
 
 	const PxU32 velocityIterations = params.velocityIterations;
 	const PxU32 positionIterations = params.positionIterations;
@@ -240,7 +240,7 @@ void solveV_Blocks(SolverIslandParams& params, bool solveFrictionEveryIteration)
 	}
 }
 
-void solveVParallelAndWriteBack(SolverIslandParams& params, Cm::SpatialVectorF* deltaV, Dy::ErrorAccumulatorEx* errorAccumulator,
+void solveVParallelAndWriteBack(SolverIslandParams& params, ev4sio_Cm::SpatialVectorF* deltaV, ev4sio_Dy::ErrorAccumulatorEx* errorAccumulator,
 	bool solveFrictionEveryIteration)
 {
 #if PX_PROFILE_SOLVE_STALLS
@@ -394,7 +394,7 @@ void solveVParallelAndWriteBack(SolverIslandParams& params, Cm::SpatialVectorF* 
 	PxI32* bodyListIndexCompleted = &params.bodyListIndexCompleted;
 
 	const PxSolverBody* PX_RESTRICT bodyListStart = params.bodyListStart;
-	Cm::SpatialVector* PX_RESTRICT motionVelocityArray = params.motionVelocityArray;
+	ev4sio_Cm::SpatialVector* PX_RESTRICT motionVelocityArray = params.motionVelocityArray;
 
 	//Save velocity - articulated
 	PxI32 endIndexCount2 = SaveUnrollCount;

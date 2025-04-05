@@ -35,7 +35,7 @@
 
 #include "omnipvd/NpOmniPvdSetData.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 // PT: only API (virtual) functions should be implemented here. Other shared non-virtual functions should go to NpActor.
@@ -174,7 +174,7 @@ void NpActorTemplate<APIClass>::setOwnerClient( PxClientID inId )
 {
 	if ( getNpScene() != NULL )
 	{
-		PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, 
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, 
 				"Attempt to set the client id when an actor is already in a scene.");
 	}
 	else
@@ -242,17 +242,17 @@ bool NpActorTemplate<APIClass>::setEnvironmentID(PxU32 envID)
 {
 	NpScene* scene = getNpScene();
 	if(scene)
-		return PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxActor::setEnvironmentID: environment ID cannot be set while the actor is in a scene.");
+		return ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxActor::setEnvironmentID: environment ID cannot be set while the actor is in a scene.");
 
 	if(envID>=SC_FILTERING_ID_MAX && envID!=PX_INVALID_U32)
-		return PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "PxActor::setEnvironmentID: environment ID must be smaller than 1<<24.");
+		return ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "PxActor::setEnvironmentID: environment ID must be smaller than 1<<24.");
 
 	NP_WRITE_CHECK(scene);
 
 	if(NpActor::getAggregate())
-		return PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxActor::setEnvironmentID: environment ID cannot be set on aggregated actors. Set the ID on the aggregate with PxAggregate::setEnvironmentID().");
+		return ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxActor::setEnvironmentID: environment ID cannot be set on aggregated actors. Set the ID on the aggregate with PxAggregate::setEnvironmentID().");
 
-	Sc::ActorCore& actorCore = NpActor::getActorCore();
+	ev4sio_Sc::ActorCore& actorCore = NpActor::getActorCore();
 	actorCore.setEnvID(envID);
 
 	OMNI_PVD_SET(OMNI_PVD_CONTEXT_HANDLE, PxActor, environmentID, static_cast<PxActor&>(*this), envID)
@@ -264,7 +264,7 @@ template<class APIClass>
 PxU32 NpActorTemplate<APIClass>::getEnvironmentID()	const
 {
 	NP_READ_CHECK(getNpScene());
-	const Sc::ActorCore& actorCore = NpActor::getActorCore();
+	const ev4sio_Sc::ActorCore& actorCore = NpActor::getActorCore();
 	return actorCore.getEnvID();
 }
 

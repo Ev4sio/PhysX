@@ -57,7 +57,7 @@
 
 #define CLOTH_GPU_DEBUG 0
 
-namespace physx
+namespace ev4sio_physx
 {
 	extern "C" void initFEMClothKernels0();
 	extern "C" void initFEMClothKernels1();
@@ -201,7 +201,7 @@ namespace physx
 			result = mCudaContext->streamSynchronize(bpStream);
 			PX_ASSERT(result == CUDA_SUCCESS);
 			if(result != CUDA_SUCCESS)
-				PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU cloth_preIntegrateLaunch kernel fail!\n");
+				ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU cloth_preIntegrateLaunch kernel fail!\n");
 	#endif
 		}
 	}
@@ -248,7 +248,7 @@ namespace physx
 	#if CLOTH_GPU_DEBUG
 				result = mCudaContext->streamSynchronize(stream);
 				if(result != CUDA_SUCCESS)
-					PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL,
+					ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL,
 											"GPU cloth_rigidAttachmentPrepareLaunch kernel fail!\n");
 				PX_ASSERT(result == CUDA_SUCCESS);
 
@@ -290,7 +290,7 @@ namespace physx
 	#if CLOTH_GPU_DEBUG
 				result = mCudaContext->streamSynchronize(stream);
 				if(result != CUDA_SUCCESS)
-					PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL,
+					ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL,
 											"GPU cloth_rigidAttachmentPrepareLaunch kernel fail!\n");
 				PX_ASSERT(result == CUDA_SUCCESS);
 
@@ -348,7 +348,7 @@ namespace physx
 			result = mCudaContext->streamSynchronize(solverStream);
 			PX_ASSERT(result == CUDA_SUCCESS);
 			if(result != CUDA_SUCCESS)
-				PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL,
+				ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL,
 										"GPU cloth_rigidContactPrepareLaunch kernel fail!\n");
 
 			int bob = 0;
@@ -405,7 +405,7 @@ namespace physx
 				result = mCudaContext->streamSynchronize(mStream);
 				PX_ASSERT(result == CUDA_SUCCESS);
 				if(result != CUDA_SUCCESS)
-					PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL,
+					ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL,
 											"GPU sb_particleContactPrepareLaunch first pass kernel fail!\n");
 	#endif
 			}
@@ -448,7 +448,7 @@ namespace physx
 	#if CLOTH_GPU_DEBUG
 					result = mCudaContext->streamSynchronize(mStream);
 					if(result != CUDA_SUCCESS)
-						PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL,
+						ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL,
 												"GPU ps_findStartEndParticleFirst kernel fail!\n");
 
 	#endif
@@ -477,7 +477,7 @@ namespace physx
 	#if CLOTH_GPU_DEBUG
 					result = mCudaContext->streamSynchronize(mStream);
 					if(result != CUDA_SUCCESS)
-						PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL,
+						ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL,
 												"GPU ps_findStartEndParticleSecond kernel fail!\n");
 
 	#endif
@@ -531,7 +531,7 @@ namespace physx
 			result = mCudaContext->streamSynchronize(mStream);
 			PX_ASSERT(result == CUDA_SUCCESS);
 			if(result != CUDA_SUCCESS)
-				PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL,
+				ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL,
 										"GPU cloth_clothContactPrepareLaunch first pass kernel fail!\n");
 
 			PxU32 numContacts;
@@ -593,7 +593,7 @@ namespace physx
 			result = mCudaContext->streamSynchronize(stream);
 			PX_ASSERT(result == CUDA_SUCCESS);
 			if(result != CUDA_SUCCESS)
-				PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU cloth_refitBoundLaunch kernel fail!\n");
+				ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU cloth_refitBoundLaunch kernel fail!\n");
 
 	#endif
 		}
@@ -617,12 +617,12 @@ namespace physx
 		PxU32 contactCountNeeded = PxMax(*mParticleContactCountPrevTimestep, PxMax(*mRigidContactCountPrevTimestep, *mFemContactCountPrevTimestep));
 		if (contactCountNeeded >= mMaxContacts) 
 		{
-			PxGetFoundation().error(::physx::PxErrorCode::eINTERNAL_ERROR, PX_FL, "Deformable surface contact buffer overflow detected, please increase PxGpuDynamicsMemoryConfig::maxDeformableSurfaceContacts to at least %u\n", contactCountNeeded);
+			ev4sio_PxGetFoundation().error(::ev4sio_physx::PxErrorCode::eINTERNAL_ERROR, PX_FL, "Deformable surface contact buffer overflow detected, please increase PxGpuDynamicsMemoryConfig::maxDeformableSurfaceContacts to at least %u\n", contactCountNeeded);
 		}
 
 		if (*mStackSizeNeededPinned > mCollisionStackSizeBytes)
 		{
-			PxGetFoundation().error(::physx::PxErrorCode::eINTERNAL_ERROR, PX_FL, "PxGpuDynamicsMemoryConfig::collisionStackSize buffer overflow detected, please increase its size to at least %i in the scene desc! Contacts have been dropped.\n", *mStackSizeNeededPinned);
+			ev4sio_PxGetFoundation().error(::ev4sio_physx::PxErrorCode::eINTERNAL_ERROR, PX_FL, "PxGpuDynamicsMemoryConfig::collisionStackSize buffer overflow detected, please increase its size to at least %i in the scene desc! Contacts have been dropped.\n", *mStackSizeNeededPinned);
 		}
 
 #if PX_ENABLE_SIM_STATS
@@ -671,7 +671,7 @@ namespace physx
 				result = mCudaContext->streamSynchronize(mStream);
 				PX_ASSERT(result == CUDA_SUCCESS);
 				if(result != CUDA_SUCCESS)
-					PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU cloth_updateClothContactValidityLaunch kernel fail!\n");
+					ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU cloth_updateClothContactValidityLaunch kernel fail!\n");
 #endif
 			}
 		}
@@ -714,12 +714,12 @@ namespace physx
 
 				CUresult result = mCudaContext->launchKernel(clothMidphaseFunction, numBlocks, nbActiveClothes, 1, WARP_SIZE, numWarpsPerBlock, 1, 0, mStream, clothMidphaseKernelParams, sizeof(clothMidphaseKernelParams), 0);
 				if (result != CUDA_SUCCESS)
-					PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU cloth_selfCollisionMidphaseGeneratePairsLaunch fail to launch kernel!!\n");
+					ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU cloth_selfCollisionMidphaseGeneratePairsLaunch fail to launch kernel!!\n");
 
 	#if CLOTH_GPU_DEBUG
 				result = mCudaContext->streamSynchronize(mStream);
 				if (result != CUDA_SUCCESS)
-					PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU cloth_selfCollisionMidphaseGeneratePairsLaunch fail!!\n");
+					ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU cloth_selfCollisionMidphaseGeneratePairsLaunch fail!!\n");
 
 				PxU32 numPairs;
 				mCudaContext->memcpyDtoH(&numPairs, gpuMidphasePairsNumOnDevice, sizeof(PxU32));
@@ -766,12 +766,12 @@ namespace physx
 
 				CUresult result = mCudaContext->launchKernel(selfCollisionFunction, numBlocks, 1, 1, WARP_SIZE, numWarpsPerBlock, 1, 0, mStream, selfCollisionKernelParams, sizeof(selfCollisionKernelParams), 0, PX_FL);
 				if (result != CUDA_SUCCESS)
-					PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU cloth_selfCollisionContactGenLaunch fail to launch kernel!!\n");
+					ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU cloth_selfCollisionContactGenLaunch fail to launch kernel!!\n");
 
 	#if CLOTH_GPU_DEBUG
 				result = mCudaContext->streamSynchronize(mStream);
 				if (result != CUDA_SUCCESS)
-					PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU cloth_selfCollisionContactGenLaunch fail!!\n");
+					ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU cloth_selfCollisionContactGenLaunch fail!!\n");
 
 				PxU32 numContacts;
 				mCudaContext->memcpyDtoH(&numContacts, totalNumContactsd, sizeof(PxU32));
@@ -828,14 +828,14 @@ namespace physx
 			mCudaContext->launchKernel(selfCollisionFunction, numBlocks, nbActiveClothes, 1, WARP_SIZE, numWarpsPerBlock, 1,
 									   0, mStream, selfCollisionKernelParams, sizeof(selfCollisionKernelParams), 0, PX_FL);
 		if(result != CUDA_SUCCESS)
-			PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL,
+			ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL,
 									"GPU cloth_selfCollisionContactGenLaunch fail to launch kernel!!\n");
 
 
 	#if CLOTH_GPU_DEBUG
 		result = mCudaContext->streamSynchronize(mStream);
 		if(result != CUDA_SUCCESS)
-			PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU cloth_selfCollisionContactGenLaunch fail!!\n");
+			ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU cloth_selfCollisionContactGenLaunch fail!!\n");
 
 		PxU32 numContacts;
 		mCudaContext->memcpyDtoH(&numContacts, totalNumContactsd, sizeof(PxU32));
@@ -928,14 +928,14 @@ namespace physx
 												numWarpsPerBlock, 1, 0, mStream, kernelParams, sizeof(kernelParams), 0, PX_FL);
 
 			if(result != CUDA_SUCCESS)
-				PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL,
+				ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL,
 										"GPU cloth_clothVertexCollisionLaunch fail to launch kernel!!\n");
 
 	#if GPU_NP_DEBUG
 
 			result = mCudaContext->streamSynchronize(mStream);
 			if(result != CUDA_SUCCESS)
-				PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL,
+				ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL,
 										"GPU cloth_clothVertexCollisionLaunch kernel fail!!!\n");
 	#endif
 
@@ -972,12 +972,12 @@ namespace physx
 		CUresult resultR = mCudaContext->launchKernel(clampCountactCountFun, 1, 1, 1, 1, 1, 1, 0, mStream, kernelParams,
 													  sizeof(kernelParams), 0, PX_FL);
 		if(resultR != CUDA_SUCCESS)
-			PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU clampMaxValues fail to launch kernel!!\n");
+			ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU clampMaxValues fail to launch kernel!!\n");
 
 	#if CLOTH_GPU_DEBUG
 		CUresult result = mCudaContext->streamSynchronize(mStream);
 		if(result != CUDA_SUCCESS)
-			PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU clampMaxValues fail!!\n");
+			ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU clampMaxValues fail!!\n");
 	#endif
 	}
 
@@ -1049,14 +1049,14 @@ namespace physx
 															  PxgRadixSortKernelBlockDim::RADIX_SORT, 1, 1, 0, mStream,
 															  radixSortKernelParams, sizeof(radixSortKernelParams), 0, PX_FL);
 				if(resultR != CUDA_SUCCESS)
-					PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL,
+					ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL,
 											"GPU fem cloth sortContacts fail to launch kernel!!\n");
 
 				resultR = mCudaContext->launchKernel(calculateRanksFunction, PxgRadixSortKernelGridDim::RADIX_SORT, 2, 1,
 													 PxgRadixSortKernelBlockDim::RADIX_SORT, 1, 1, 0, mStream,
 													 radixSortKernelParams, sizeof(radixSortKernelParams), 0, PX_FL);
 				if(resultR != CUDA_SUCCESS)
-					PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL,
+					ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL,
 											"GPU fem cloth sortContacts fail to launch kernel!!\n");
 
 				startBit += 4;
@@ -1064,7 +1064,7 @@ namespace physx
 	#if CLOTH_GPU_DEBUG
 			CUresult result = mCudaContext->streamSynchronize(mStream);
 			if(result != CUDA_SUCCESS)
-				PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU sortFemClothContacts fail!!\n");
+				ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU sortFemClothContacts fail!!\n");
 	#endif
 		}
 
@@ -1085,13 +1085,13 @@ namespace physx
 			CUresult resultR = mCudaContext->launchKernel(copyFunction, 32, 1, 1, PxgRadixSortKernelBlockDim::RADIX_SORT, 1,
 														  1, 0, mStream, copyKernelParams, sizeof(copyKernelParams), 0, PX_FL);
 			if(resultR != CUDA_SUCCESS)
-				PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL,
+				ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL,
 										"GPU radixSortCopyBits fail to launch kernel!!\n");
 
 	#if CLOTH_GPU_DEBUG
 			resultR = mCudaContext->streamSynchronize(mStream);
 			if(resultR != CUDA_SUCCESS)
-				PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU radixSortCopyBits fail!!\n");
+				ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU radixSortCopyBits fail!!\n");
 	#endif
 		}
 
@@ -1112,14 +1112,14 @@ namespace physx
 															  PxgRadixSortKernelBlockDim::RADIX_SORT, 1, 1, 0, mStream,
 															  radixSortKernelParams, sizeof(radixSortKernelParams), 0, PX_FL);
 				if(resultR != CUDA_SUCCESS)
-					PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL,
+					ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL,
 											"GPU sortParticleContacts fail to launch kernel!!\n");
 
 				resultR = mCudaContext->launchKernel(calculateRanksFunction, PxgRadixSortKernelGridDim::RADIX_SORT, 1, 1,
 													 PxgRadixSortKernelBlockDim::RADIX_SORT, 1, 1, 0, mStream,
 													 radixSortKernelParams, sizeof(radixSortKernelParams), 0, PX_FL);
 				if(resultR != CUDA_SUCCESS)
-					PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL,
+					ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL,
 											"GPU sortParticleContacts fail to launch kernel!!\n");
 
 				startBit += 4;
@@ -1141,12 +1141,12 @@ namespace physx
 			CUresult resultR = mCudaContext->launchKernel(copyFunction, 32, 1, 1, PxgRadixSortKernelBlockDim::RADIX_SORT, 1,
 														  1, 0, mStream, copyKernelParams, sizeof(copyKernelParams), 0, PX_FL);
 			if(resultR != CUDA_SUCCESS)
-				PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU radixSortCopy fail to launch kernel!!\n");
+				ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU radixSortCopy fail to launch kernel!!\n");
 
 	#if CLOTH_GPU_DEBUG
 			resultR = mCudaContext->streamSynchronize(mStream);
 			if(resultR != CUDA_SUCCESS)
-				PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU radixSortCopy fail!!\n");
+				ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU radixSortCopy fail!!\n");
 	#endif
 		}
 
@@ -1170,13 +1170,13 @@ namespace physx
 			CUresult resultR = mCudaContext->launchKernel(copyFunction, 32, 1, 1, PxgRadixSortKernelBlockDim::RADIX_SORT, 1,
 														  1, 0, mStream, copyKernelParams, sizeof(copyKernelParams), 0, PX_FL);
 			if(resultR != CUDA_SUCCESS)
-				PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL,
+				ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL,
 										"GPU radixSortCopyBits fail to launch kernel!!\n");
 
 	#if CLOTH_GPU_DEBUG
 			resultR = mCudaContext->streamSynchronize(mStream);
 			if(resultR != CUDA_SUCCESS)
-				PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU radixSortCopyBits fail!!\n");
+				ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU radixSortCopyBits fail!!\n");
 	#endif
 		}
 
@@ -1199,14 +1199,14 @@ namespace physx
 															  PxgRadixSortKernelBlockDim::RADIX_SORT, 1, 1, 0, mStream,
 															  radixSortKernelParams, sizeof(radixSortKernelParams), 0, PX_FL);
 				if(resultR != CUDA_SUCCESS)
-					PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL,
+					ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL,
 											"GPU sortParticleContacts fail to launch kernel!!\n");
 
 				resultR = mCudaContext->launchKernel(calculateRanksFunction, PxgRadixSortKernelGridDim::RADIX_SORT, 1, 1,
 													 PxgRadixSortKernelBlockDim::RADIX_SORT, 1, 1, 0, mStream,
 													 radixSortKernelParams, sizeof(radixSortKernelParams), 0, PX_FL);
 				if(resultR != CUDA_SUCCESS)
-					PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL,
+					ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL,
 											"GPU sortParticleContacts fail to launch kernel!!\n");
 
 				startBit += 4;
@@ -1228,12 +1228,12 @@ namespace physx
 			CUresult resultR = mCudaContext->launchKernel(copyFunction, 32, 1, 1, PxgRadixSortKernelBlockDim::RADIX_SORT, 1,
 														  1, 0, mStream, copyKernelParams, sizeof(copyKernelParams), 0, PX_FL);
 			if(resultR != CUDA_SUCCESS)
-				PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU radixSortCopy fail to launch kernel!!\n");
+				ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU radixSortCopy fail to launch kernel!!\n");
 
 	#if CLOTH_GPU_DEBUG
 			resultR = mCudaContext->streamSynchronize(mStream);
 			if(resultR != CUDA_SUCCESS)
-				PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU radixSortCopy fail!!\n");
+				ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU radixSortCopy fail!!\n");
 	#endif
 		}
 
@@ -1266,13 +1266,13 @@ namespace physx
 														  1, PxgSoftBodyKernelBlockDim::SB_REORDERCONTACTS, 1, 1, 0,
 														  mStream, kernelParams, sizeof(kernelParams), 0, PX_FL);
 			if(resultR != CUDA_SUCCESS)
-				PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL,
+				ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL,
 										"GPU fc_reorderPSContactsLaunch fail to launch kernel!!\n");
 
 	#if CLOTH_GPU_DEBUG
 			resultR = mCudaContext->streamSynchronize(mStream);
 			if(resultR != CUDA_SUCCESS)
-				PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU fc_reorderParticleContactsLaunch fail!!\n");
+				ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU fc_reorderParticleContactsLaunch fail!!\n");
 	#endif
 		}
 	}
@@ -1390,7 +1390,7 @@ namespace physx
 				result = mCudaContext->streamSynchronize(mStream);
 				PX_ASSERT(result == CUDA_SUCCESS);
 				if(result != CUDA_SUCCESS)
-					PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL,
+					ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL,
 											"GPU cloth_finalizeVelocitiesLaunch kernel fail!\n");
 	#endif
 			}
@@ -1423,7 +1423,7 @@ namespace physx
 				result = mCudaContext->streamSynchronize(mStream);
 				PX_ASSERT(result == CUDA_SUCCESS);
 				if(result != CUDA_SUCCESS)
-					PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU cloth_sleeping kernel fail!\n");
+					ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU cloth_sleeping kernel fail!\n");
 	#endif
 			}
 
@@ -1451,7 +1451,7 @@ namespace physx
 		PxgSimulationCore* core = mSimController->getSimulationCore();
 		PxBitMapPinned& clothChangedMap = core->getActiveClothStateChangedMap();
 
-		PxArray<Dy::DeformableSurface*>& deformableSurfaces = mSimController->getBodySimManager().mDeformableSurfaces;
+		PxArray<ev4sio_Dy::DeformableSurface*>& deformableSurfaces = mSimController->getBodySimManager().mDeformableSurfaces;
 
 		PxgBodySimManager& bodyManager = mSimController->getBodySimManager();
 
@@ -1677,7 +1677,7 @@ namespace physx
 				result = mCudaContext->streamSynchronize(stream);
 				PX_ASSERT(result == CUDA_SUCCESS);
 				if(result != CUDA_SUCCESS)
-					PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU step kernel fail!\n");
+					ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU step kernel fail!\n");
 	#endif
 			}
 		}
@@ -1735,7 +1735,7 @@ namespace physx
 		CUresult result = mCudaContext->streamSynchronize(mStream);
 		PX_ASSERT(result == CUDA_SUCCESS);
 		if(result != CUDA_SUCCESS)
-			PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU cloth_solveNonSharedTriangleEnergyLaunch kernel fail!\n");
+			ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU cloth_solveNonSharedTriangleEnergyLaunch kernel fail!\n");
 #endif
 	}
 
@@ -1801,7 +1801,7 @@ namespace physx
 			CUresult result = mCudaContext->streamSynchronize(mStream);
 			PX_ASSERT(result == CUDA_SUCCESS);
 			if (result != CUDA_SUCCESS)
-				PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU cloth_solveTrianglePairEnergyLaunch kernel fail!\n");
+				ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU cloth_solveTrianglePairEnergyLaunch kernel fail!\n");
 #endif
 		}
 
@@ -1829,7 +1829,7 @@ namespace physx
 			result = mCudaContext->streamSynchronize(mStream);
 			PX_ASSERT(result == CUDA_SUCCESS);
 			if (result != CUDA_SUCCESS)
-				PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU cloth_averageTrianglePairVertsLaunch kernel fail!\n");
+				ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU cloth_averageTrianglePairVertsLaunch kernel fail!\n");
 #endif
 		}
 	}
@@ -1911,7 +1911,7 @@ namespace physx
 		result = mCudaContext->streamSynchronize(mStream);
 		PX_ASSERT(result == CUDA_SUCCESS);
 		if(result != CUDA_SUCCESS)
-			PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU cloth_queryRigidClothContactReferenceCountLaunch kernel fail!\n");
+			ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU cloth_queryRigidClothContactReferenceCountLaunch kernel fail!\n");
 #endif
 	}
 
@@ -1971,7 +1971,7 @@ namespace physx
 			result = mCudaContext->streamSynchronize(mStream);
 			PX_ASSERT(result == CUDA_SUCCESS);
 			if(result != CUDA_SUCCESS)
-				PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU cloth_solveOutputClothDeltaVLaunch kernel fail!\n");
+				ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU cloth_solveOutputClothDeltaVLaunch kernel fail!\n");
 #endif
 		}
 	}
@@ -2031,7 +2031,7 @@ namespace physx
 			result = mCudaContext->streamSynchronize(mStream);
 			PX_ASSERT(result == CUDA_SUCCESS);
 			if(result != CUDA_SUCCESS)
-				PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU cloth_solveOutputRigidDeltaVLaunch kernel fail!\n");
+				ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU cloth_solveOutputRigidDeltaVLaunch kernel fail!\n");
 
 			int bob = 0;
 			PX_UNUSED(bob);
@@ -2090,7 +2090,7 @@ namespace physx
 	#if CLOTH_GPU_DEBUG
 				result = mCudaContext->streamSynchronize(solverStream);
 				if(result != CUDA_SUCCESS)
-					PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL,
+					ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL,
 											"GPU cloth_solveOutputAttachmentRigidDeltaVLaunch kernel fail!\n");
 
 	#endif
@@ -2143,7 +2143,7 @@ namespace physx
 	#if CLOTH_GPU_DEBUG
 				result = mCudaContext->streamSynchronize(mStream);
 				if(result != CUDA_SUCCESS)
-					PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL,
+					ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL,
 											"GPU cloth_solveOutputAttachmentClothDeltaVLaunch kernel fail!\n");
 	#endif
 			}
@@ -2181,7 +2181,7 @@ namespace physx
 	#if CLOTH_GPU_DEBUG
 				result = mCudaContext->streamSynchronize(mStream);
 				if(result != CUDA_SUCCESS)
-					PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL,
+					ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL,
 											"GPU sb_solveOutputAttachmentSoftDeltaVLaunchTGS kernel fail!\n");
 	#endif
 			}
@@ -2218,7 +2218,7 @@ namespace physx
 				result = mCudaContext->streamSynchronize(mStream);
 				PX_ASSERT(result == CUDA_SUCCESS);
 				if(result != CUDA_SUCCESS)
-					PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU cloth_rewindLaunch kernel fail!\n");
+					ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU cloth_rewindLaunch kernel fail!\n");
 #endif
 			}
 		}
@@ -2254,7 +2254,7 @@ namespace physx
 				result = mCudaContext->streamSynchronize(mStream);
 				PX_ASSERT(result == CUDA_SUCCESS);
 				if(result != CUDA_SUCCESS)
-					PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU cloth_subStepLaunch kernel fail!\n");
+					ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU cloth_subStepLaunch kernel fail!\n");
 #endif
 			}
 		}
@@ -2356,7 +2356,7 @@ namespace physx
 			result = mCudaContext->streamSynchronize(mStream);
 			PX_ASSERT(result == CUDA_SUCCESS);
 			if(result != CUDA_SUCCESS)
-				PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL,
+				ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL,
 										"GPU cloth_solveClothTriClothVertDeltaVLaunch kernel fail!\n");
 	#endif
 		}
@@ -2465,7 +2465,7 @@ namespace physx
 			result = mCudaContext->streamSynchronize(mStream);
 			PX_ASSERT(result == CUDA_SUCCESS);
 			if(result != CUDA_SUCCESS)
-				PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL,
+				ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL,
 										"GPU cloth_applyExternalDeltasLaunch kernel fail!\n");
 	#endif
 		}
@@ -2502,7 +2502,7 @@ namespace physx
 			result = mCudaContext->streamSynchronize(mStream);
 			PX_ASSERT(result == CUDA_SUCCESS);
 			if(result != CUDA_SUCCESS)
-				PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL,
+				ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL,
 										"GPU cloth_applyExternalDeltasAndCheckClothCollisionValidityLaunch kernel fail!\n");
 #endif
 
@@ -2538,7 +2538,7 @@ namespace physx
 		result = mCudaContext->streamSynchronize(mStream);
 		PX_ASSERT(result == CUDA_SUCCESS);
 		if(result != CUDA_SUCCESS)
-			PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL,
+			ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL,
 									"GPU cloth_applyExternalDeltasWithVelocityClampingLaunch kernel fail!\n");
 #endif
 	}
@@ -2593,7 +2593,7 @@ namespace physx
 				result = mCudaContext->streamSynchronize(mStream);
 				PX_ASSERT(result == CUDA_SUCCESS);
 				if(result != CUDA_SUCCESS)
-					PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL,
+					ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL,
 											"GPU sb_solveOutputSSDeltaVLaunch kernel fail!\n");
 			}
 	#endif
@@ -2662,7 +2662,7 @@ namespace physx
 				result = mCudaContext->streamSynchronize(particleStream);
 				PX_ASSERT(result == CUDA_SUCCESS);
 				if(result != CUDA_SUCCESS)
-					PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL,
+					ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL,
 											"GPU sb_solveOutputSSDeltaVLaunch kernel fail!\n");
 
 				PxArray<PxVec4> deltaV;
@@ -2716,8 +2716,8 @@ namespace physx
 		{
 			PxgFEMCloth& femCloth = femClothPool[activeFEMCloths[i]];
 			PxU32 nodeIndex = femClothNodeIndexPool[femCloth.mGpuRemapIndex];
-			Dy::DeformableSurface* dyDeformableSurface = reinterpret_cast<Dy::DeformableSurface*>(bodySimsLL[nodeIndex]);
-			Dy::DeformableSurfaceCore& dyDeformableSurfaceCore = dyDeformableSurface->getCore();
+			ev4sio_Dy::DeformableSurface* dyDeformableSurface = reinterpret_cast<ev4sio_Dy::DeformableSurface*>(bodySimsLL[nodeIndex]);
+			ev4sio_Dy::DeformableSurfaceCore& dyDeformableSurfaceCore = dyDeformableSurface->getCore();
 
 			if(dyDeformableSurfaceCore.dirty)
 			{
@@ -3528,4 +3528,4 @@ namespace physx
 	#endif
 	}
 
-} // namespace physx
+} // namespace ev4sio_physx

@@ -72,7 +72,7 @@
 #endif
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 namespace aos
@@ -1340,7 +1340,7 @@ PX_FORCE_INLINE Vec3V V3LoadU_SafeReadW(const PxVec3& f)
 
 } // namespace aos
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 // Now for the cross-platform implementations of the 16-byte aligned maths functions (win32/360/ppu/spu etc).

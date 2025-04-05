@@ -32,7 +32,7 @@
 #include "PxDeformableMaterial.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -43,7 +43,7 @@ namespace physx
 	typedef PX_DEPRECATED PxDeformableMaterial PxFEMMaterial;
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif // PX_FEM_MATERIAL_H

@@ -32,7 +32,7 @@
 #include "foundation/PxTempAllocator.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 template <typename T, typename Alloc = PxTempAllocator>
@@ -55,7 +55,7 @@ class PxScopedPointer : private Alloc
 };
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
   // Don't use inline for alloca !!!
@@ -77,12 +77,12 @@ class PxScopedPointer : private Alloc
 
 /*! Stack allocation for \c count instances of \c type. Falling back to temp allocator if using more than 4kB. */
 #define PX_ALLOCA(var, type, count)																	\
-	physx::PxScopedPointer<type> var;																\
+	ev4sio_physx::PxScopedPointer<type> var;																\
 	{																								\
 		const uint32_t size = sizeof(type) * (count);												\
 		var.mOwned = size > 4096;																	\
 		if(var.mOwned)																				\
-			var.mPointer = reinterpret_cast<type*>(physx::PxTempAllocator().allocate(size, PX_FL));	\
+			var.mPointer = reinterpret_cast<type*>(ev4sio_physx::PxTempAllocator().allocate(size, PX_FL));	\
 		else																						\
 			var.mPointer = reinterpret_cast<type*>(PxAlloca(size));									\
 	}

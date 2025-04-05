@@ -38,9 +38,9 @@
 #include "foundation/PxAllocator.h"
 #include "foundation/PxMemory.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Cm
+namespace ev4sio_Cm
 {
 
 template<class DstType, class SrcType>
@@ -225,7 +225,7 @@ Note: Only use PX_NEW_SERIALIZED once in a scope.
 */
 #if PX_CHECKED
 	#define PX_NEW_SERIALIZED(v,T)													\
-		void* _buf = physx::PxReflectionAllocator<T>().allocate(sizeof(T), PX_FL);	\
+		void* _buf = ev4sio_physx::PxReflectionAllocator<T>().allocate(sizeof(T), PX_FL);	\
 		PxMarkSerializedMemory(_buf, sizeof(T));									\
 		v = PX_PLACEMENT_NEW(_buf, T)
 #else
@@ -264,14 +264,14 @@ template<typename T, PxU32 N, typename Alloc>
 void exportInlineArray(const PxInlineArray<T, N, Alloc>& a, PxSerializationContext& context)
 {
 	if(!a.isInlined())
-		Cm::exportArray(a, context);
+		ev4sio_Cm::exportArray(a, context);
 }
 
 template<typename T, PxU32 N, typename Alloc>
 void importInlineArray(PxInlineArray<T, N, Alloc>& a, PxDeserializationContext& context)
 {
 	if(!a.isInlined())
-		Cm::importArray(a, context);
+		ev4sio_Cm::importArray(a, context);
 }
 
 template<class T>
@@ -292,7 +292,7 @@ static PX_INLINE T* reserveContainerMemory(PxArray<T>& container, PxU32 nb)
 	return buf;
 }
 
-} // namespace Cm
+} // namespace ev4sio_Cm
 
 
 

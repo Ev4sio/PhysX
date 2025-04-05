@@ -37,7 +37,7 @@
 // a "regular" update handles array (not a bitmap), like the CPU implementations do.
 #define SUPPORT_UPDATE_HANDLES_ARRAY_FOR_GPU
 
-namespace physx
+namespace ev4sio_physx
 {
 	class PxgIntegerAABB;
 	class PxgSapBox1D;
@@ -46,7 +46,7 @@ namespace physx
 	struct PxgIntegerRegion;
 	class PxBounds3;
 
-	namespace Bp
+	namespace ev4sio_Bp
 	{
 		struct VolumeData;
 	}
@@ -102,7 +102,7 @@ namespace physx
 		PxgBroadPhasePair*		foundPairReportMap;			//mapped address in the GPU for the cpu foundReport for actor pairs (not include aggregate);
 		PxgBroadPhasePair*		lostPairReportMap;			//mapped address in the GPU for the cpu lostReport  for actor pairs(not include aggregate);
 
-		Bp::VolumeData*			aabbMngr_volumeData;		// PT: data coming from the AABB manager, creating all the coupling problems
+		ev4sio_Bp::VolumeData*			aabbMngr_volumeData;		// PT: data coming from the AABB manager, creating all the coupling problems
 
 		PxU32*					activeRegionsHistogram;		//! Histogram used for active handles, 64 regions and each regions has nbProjections(multiply of 4) elements
 		PxU32*					startRegionsHistogram;		//! Histogram for all start handles

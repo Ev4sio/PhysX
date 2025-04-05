@@ -35,11 +35,11 @@
 #include "foundation/PxIntrinsics.h"
 #include "CmUtils.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 struct PxRevoluteJointGeneratedValues;
 
-namespace Ext
+namespace ev4sio_Ext
 {
 	struct RevoluteJointData : public JointData
 	{
@@ -89,8 +89,8 @@ namespace Ext
 		//~PxConstraintConnector
 	};
 
-} // namespace Ext
+} // namespace ev4sio_Ext
 
-} // namespace physx
+} // namespace ev4sio_physx
 
 #endif

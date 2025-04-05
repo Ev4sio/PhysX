@@ -33,7 +33,7 @@
 #include "foundation/PxMath.h"
 #include "foundation/PxMutex.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 template<typename AllocT>

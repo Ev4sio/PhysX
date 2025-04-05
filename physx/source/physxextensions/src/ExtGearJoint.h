@@ -33,10 +33,10 @@
 #include "ExtJoint.h"
 #include "CmUtils.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 struct PxGearJointGeneratedValues;
-namespace Ext
+namespace ev4sio_Ext
 {
 	struct GearJointData : public JointData
 	{
@@ -82,7 +82,7 @@ namespace Ext
 				void					updateError();
 				void					resetError();
 	};
-} // namespace Ext
+} // namespace ev4sio_Ext
 
 }
 

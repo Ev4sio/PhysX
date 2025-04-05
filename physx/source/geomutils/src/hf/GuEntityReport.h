@@ -31,9 +31,9 @@
 
 #include "PxQueryReport.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Gu
+namespace ev4sio_Gu
 {
 	class EntityReport
 	{
@@ -53,7 +53,7 @@ namespace Gu
 		virtual	bool	reportTouchedTris(PxU32 nbEntities, const PxU32* entities) = 0;
 	};
 
-}  // namespace Gu
+}  // namespace ev4sio_Gu
 
 }
 

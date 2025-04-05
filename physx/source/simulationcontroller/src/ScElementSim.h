@@ -37,9 +37,9 @@
 #include "ScObjectIDTracker.h"
 #include "ScScene.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Sc
+namespace ev4sio_Sc
 {
 	class ElementSimInteraction;
 
@@ -96,11 +96,11 @@ namespace Sc
 		PX_FORCE_INLINE bool					isInBroadPhase()			const	{ return mInBroadPhase;	}
 		PX_FORCE_INLINE void					setInBroadPhase()					{ mInBroadPhase = true;	}
 
-						void					addToAABBMgr(PxReal contactDistance, Bp::FilterGroup::Enum group, Bp::ElementType::Enum type);
-		PX_FORCE_INLINE	void					addToAABBMgr(PxReal contactOffset, Bp::FilterType::Enum type)
+						void					addToAABBMgr(PxReal contactDistance, ev4sio_Bp::FilterGroup::Enum group, ev4sio_Bp::ElementType::Enum type);
+		PX_FORCE_INLINE	void					addToAABBMgr(PxReal contactOffset, ev4sio_Bp::FilterType::Enum type)
 												{
-													const PxU32 group = Bp::FilterGroup::eDYNAMICS_BASE + mActor.getActorID();
-													addToAABBMgr(contactOffset, Bp::FilterGroup::Enum((group << BP_FILTERING_TYPE_SHIFT_BIT) | type), Bp::ElementType::eSHAPE);
+													const PxU32 group = ev4sio_Bp::FilterGroup::eDYNAMICS_BASE + mActor.getActorID();
+													addToAABBMgr(contactOffset, ev4sio_Bp::FilterGroup::Enum((group << BP_FILTERING_TYPE_SHIFT_BIT) | type), ev4sio_Bp::ElementType::eSHAPE);
 												}
 
 						bool					removeFromAABBMgr();
@@ -119,7 +119,7 @@ namespace Sc
 	protected:
 						ActorSim&				mActor;
 
-						PxU32					mElementID : 31;	// PT: ID provided by Sc::Scene::mElementIDPool
+						PxU32					mElementID : 31;	// PT: ID provided by ev4sio_Sc::Scene::mElementIDPool
 						PxU32					mInBroadPhase : 1;
 	public:
 						PxU32					mShapeArrayIndex;
@@ -130,7 +130,7 @@ namespace Sc
 		PX_ASSERT((attr & (PxFilterObjectType::eMAX_TYPE_COUNT-1)) == 0);
 		attr |= type;
 	}
-} // namespace Sc
+} // namespace ev4sio_Sc
 }
 
 #endif

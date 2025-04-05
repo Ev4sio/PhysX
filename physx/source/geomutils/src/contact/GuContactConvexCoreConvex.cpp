@@ -38,11 +38,11 @@
 #include "GuConvexSupport.h"
 #include "GuRefGjkEpa.h"
 
-using namespace physx;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
 using namespace aos;
 
-bool Gu::contactConvexCoreConvex(GU_CONTACT_METHOD_ARGS)
+bool ev4sio_Gu::contactConvexCoreConvex(GU_CONTACT_METHOD_ARGS)
 {
 	PX_UNUSED(cache);
 	PX_UNUSED(renderOutput);
@@ -52,13 +52,13 @@ bool Gu::contactConvexCoreConvex(GU_CONTACT_METHOD_ARGS)
 	const PxTransform pose1(transform1.p - shift, transform1.q);
 	const PxReal contactDist = params.mContactDistance;
 
-	ConvexShape convex0; Gu::makeConvexShape(shape0, pose0, convex0);
-	ConvexShape convex1; Gu::makeConvexShape(shape1, pose1, convex1);
+	ConvexShape convex0; ev4sio_Gu::makeConvexShape(shape0, pose0, convex0);
+	ConvexShape convex1; ev4sio_Gu::makeConvexShape(shape1, pose1, convex1);
 	PX_ASSERT(convex0.isValid() && convex1.isValid());
 
-	PxVec3 normal, points[Gu::MAX_CONVEX_CONTACTS];
-	PxReal dists[Gu::MAX_CONVEX_CONTACTS];
-	if (PxU32 count = Gu::generateContacts(convex0, convex1, contactDist, normal, points, dists))
+	PxVec3 normal, points[ev4sio_Gu::MAX_CONVEX_CONTACTS];
+	PxReal dists[ev4sio_Gu::MAX_CONVEX_CONTACTS];
+	if (PxU32 count = ev4sio_Gu::generateContacts(convex0, convex1, contactDist, normal, points, dists))
 		for (PxU32 i = 0; i < count; ++i)
 			contactBuffer.contact(points[i] + shift, normal, dists[i]);
 

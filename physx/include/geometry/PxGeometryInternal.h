@@ -34,7 +34,7 @@
 #include "geometry/PxTriangleMesh.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -114,7 +114,7 @@ namespace physx
 	PX_C_EXPORT PX_PHYSX_COMMON_API bool PX_CALL_CONV PxGetBVHInternalData(PxBVHInternalData& data, const PxBVH& bvh, bool takeOwnership);
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

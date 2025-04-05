@@ -40,7 +40,7 @@
 
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -104,7 +104,7 @@ namespace physx
 		PxgKernelLauncher mKernelLauncher;
 
 		void computeDenseSDF(const PxgBvhTriangleMesh& mesh, const PxgWindingClusterApproximation* windingNumberClustersD,
-			const Gu::GridQueryPointSampler& sampler, PxU32 sizeX, PxU32 sizeY, PxU32 sizeZ, PxReal* sdfDataD, CUstream stream, PxReal* windingNumbersD = NULL);
+			const ev4sio_Gu::GridQueryPointSampler& sampler, PxU32 sizeX, PxU32 sizeY, PxU32 sizeZ, PxReal* sdfDataD, CUstream stream, PxReal* windingNumbersD = NULL);
 
 		// returns NULL if GPU errors occurred.
 		PxReal* buildDenseSDF(const PxVec3* vertices, PxU32 numVertices, const PxU32* indicesOrig, PxU32 numTriangleIndices, PxU32 width, PxU32 height, PxU32 depth,
@@ -116,7 +116,7 @@ namespace physx
 			PxU32& sdfSubgrids3DTexBlockDimX, PxU32& sdfSubgrids3DTexBlockDimY, PxU32& sdfSubgrids3DTexBlockDimZ, CUstream stream);
 		
 		void fixHoles(PxU32 width, PxU32 height, PxU32 depth, PxReal* sdfDataD, const PxVec3& cellSize, const PxVec3& minExtents, const PxVec3& maxExtents,
-			Gu::GridQueryPointSampler& sampler, CUstream stream);
+			ev4sio_Gu::GridQueryPointSampler& sampler, CUstream stream);
 
 		bool allocateBuffersForCompression(PxReal*& backgroundSdfD, PxU32 numBackgroundSdfSamples, PxU32*& subgridAddressesD, PxU8*& subgridActiveD, PxU32 numAddressEntries,
 			PxReal*& subgridGlobalMinValueD, PxReal*& subgridGlobalMaxValueD, PxGpuScan& scan);
@@ -140,7 +140,7 @@ namespace physx
 	};
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

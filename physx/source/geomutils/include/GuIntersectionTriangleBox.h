@@ -32,9 +32,9 @@
 #include "foundation/PxMat33.h"
 #include "common/PxPhysXCommonConfig.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Gu
+namespace ev4sio_Gu
 {
 	class Box;
 	class BoxPadded;
@@ -83,7 +83,7 @@ namespace Gu
 	\return	true if triangle overlaps box
 	*/
 	PX_PHYSX_COMMON_API PxIntBool intersectTriangleBox(const BoxPadded& box, const PxVec3& p0, const PxVec3& p1, const PxVec3& p2);
-} // namespace Gu
+} // namespace ev4sio_Gu
 }
 
 #endif

@@ -35,7 +35,7 @@
 #include "../../../simulationcontroller/include/ScConstraintCore.h"
 #include "NpActor.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 class NpScene;
 
@@ -81,8 +81,8 @@ public:
 
 					NpScene*					getSceneFromActors() const;
 
-	PX_FORCE_INLINE	Sc::ConstraintCore&			getCore()			{ return mCore; }
-	PX_FORCE_INLINE	const Sc::ConstraintCore&	getCore() const		{ return mCore; }
+	PX_FORCE_INLINE	ev4sio_Sc::ConstraintCore&			getCore()			{ return mCore; }
+	PX_FORCE_INLINE	const ev4sio_Sc::ConstraintCore&	getCore() const		{ return mCore; }
 	static PX_FORCE_INLINE size_t				getCoreOffset()		{ return PX_OFFSET_OF_RT(NpConstraint, mCore); }
 
 	PX_FORCE_INLINE	bool						isDirty() const		{ return mCore.isDirty(); }
@@ -90,7 +90,7 @@ public:
 private:
 					PxRigidActor*				mActor0;
 					PxRigidActor*				mActor1;
-					Sc::ConstraintCore			mCore;
+					ev4sio_Sc::ConstraintCore			mCore;
 
 					void						addConnectors(PxRigidActor* actor0, PxRigidActor* actor1);
 					void						removeConnectors(const char* errorMsg0, const char* errorMsg1);

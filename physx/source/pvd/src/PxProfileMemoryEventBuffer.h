@@ -40,7 +40,7 @@
 #include "foundation/PxHashMap.h"
 #include "foundation/PxUserAllocated.h"
 
-namespace physx { namespace profile {
+namespace ev4sio_physx { namespace profile {
 
 	template<typename TMutex,
 			 typename TScopedLock>
@@ -63,7 +63,7 @@ namespace physx { namespace profile {
 		MemoryEventBuffer( PxAllocatorCallback& cback
 					, uint32_t inBufferFullAmount
 					, TMutexType* inBufferMutex )
-			: TBaseType( &cback, inBufferFullAmount, inBufferMutex, "struct physx::profile::MemoryEvent" )
+			: TBaseType( &cback, inBufferFullAmount, inBufferMutex, "struct ev4sio_physx::profile::MemoryEvent" )
 			, mStringTable( TU8AllocatorType( TBaseType::getWrapper(), "MemoryEventStringBuffer" ) )
 		{
 		}

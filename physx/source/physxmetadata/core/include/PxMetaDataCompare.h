@@ -165,8 +165,8 @@ struct EqualityOp
 	{
 		if ( hasFailed() ) 
 			return;
-		physx::PxInlineArray<TCollectionType, 20> lhsArray;
-		physx::PxInlineArray<TCollectionType, 20> rhsArray;
+		ev4sio_physx::PxInlineArray<TCollectionType, 20> lhsArray;
+		ev4sio_physx::PxInlineArray<TCollectionType, 20> rhsArray;
 		PxU32 size = inProp.size( mLhs );
 		if ( size != inProp.size( mRhs ) )
 			update( false, inProp.mName );
@@ -189,8 +189,8 @@ struct EqualityOp
 	void compare( const PxReadOnlyFilteredCollectionPropertyInfo< TKey, TObjType, TFilterType, TCollectionType >& inProp, const PxU32ToName* inNames )
 	{
 		//Exaustively compare all items.
-		physx::PxInlineArray<TCollectionType*, 20> lhsArray;
-		physx::PxInlineArray<TCollectionType*, 20> rhsArray;
+		ev4sio_physx::PxInlineArray<TCollectionType*, 20> lhsArray;
+		ev4sio_physx::PxInlineArray<TCollectionType*, 20> rhsArray;
 		for ( const PxU32ToName* theName = inNames;
 			theName->mName != NULL && !hasFailed();
 			++theName )

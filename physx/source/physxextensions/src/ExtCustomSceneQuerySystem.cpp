@@ -38,18 +38,18 @@
 #include "PxRigidActor.h"
 #include "PxPruningStructure.h"
 
-using namespace physx;
-using namespace Sq;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Sq;
+using namespace ev4sio_Gu;
 
 // PT: this customized version uses:
-// - a modified version of Sq::PrunerManager, named Sq::ExtPrunerManager, located in ExtSqManager.cpp
-// - a modified version of Sq::SceneQueries, named Sq::ExtSceneQueries, located in ExtSqQuery.cpp
+// - a modified version of ev4sio_Sq::PrunerManager, named ev4sio_Sq::ExtPrunerManager, located in ExtSqManager.cpp
+// - a modified version of ev4sio_Sq::SceneQueries, named ev4sio_Sq::ExtSceneQueries, located in ExtSqQuery.cpp
 //
-// Sq::PrunerManager and Sq::SceneQueries live in the SceneQuery lib, and are used by PhysX internally
+// ev4sio_Sq::PrunerManager and ev4sio_Sq::SceneQueries live in the SceneQuery lib, and are used by PhysX internally
 // to implement the regular SQ system.
 //
-// Sq::ExtPrunerManager and Sq::ExtSceneQueries live in the Extensions lib, and are not used by the
+// ev4sio_Sq::ExtPrunerManager and ev4sio_Sq::ExtSceneQueries live in the Extensions lib, and are not used by the
 // regular PhysX SQ system. They are examples of how the default code can be customized.
 //
 
@@ -498,7 +498,7 @@ void CustomPxSQ::finishCustomBuildstep()
 
 ///////////////////////////////////////////////////////////////////////////////
 
-PxCustomSceneQuerySystem* physx::PxCreateCustomSceneQuerySystem(PxSceneQueryUpdateMode::Enum sceneQueryUpdateMode, PxU64 contextID, const PxCustomSceneQuerySystemAdapter& adapter, bool usesTreeOfPruners)
+PxCustomSceneQuerySystem* ev4sio_physx::PxCreateCustomSceneQuerySystem(PxSceneQueryUpdateMode::Enum sceneQueryUpdateMode, PxU64 contextID, const PxCustomSceneQuerySystemAdapter& adapter, bool usesTreeOfPruners)
 {
 	ExtPVDCapture* pvd = NULL;
 	CustomPxSQ* pxsq = PX_NEW(CustomPxSQ)(adapter, pvd, contextID, sceneQueryUpdateMode, usesTreeOfPruners);

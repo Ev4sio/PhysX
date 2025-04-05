@@ -31,7 +31,7 @@
 
 #include "foundation/PxSimpleTypes.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	#define	MATERIAL_INVALID_HANDLE	0xffff
 

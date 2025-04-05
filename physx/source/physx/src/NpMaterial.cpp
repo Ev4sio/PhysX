@@ -31,8 +31,8 @@
 #include "CmUtils.h"
 #include "omnipvd/NpOmniPvdSetData.h"
 
-using namespace physx;
-using namespace Cm;
+using namespace ev4sio_physx;
+using namespace ev4sio_Cm;
 
 NpMaterial::NpMaterial(const PxsMaterialCore& desc) :
 	PxMaterial(PxConcreteType::eMATERIAL, PxBaseFlag::eOWNS_MEMORY | PxBaseFlag::eIS_RELEASABLE),
@@ -142,7 +142,7 @@ void NpMaterial::setRestitution(PxReal x)
 	if (x > 1.0f)
 	{
 		x = PxMin(1.0f, x);
-		PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "PxMaterial::setRestitution: Invalid value %f was clamped to 1.0!", PxF64(x));
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "PxMaterial::setRestitution: Invalid value %f was clamped to 1.0!", PxF64(x));
 	}
 	mMaterial.restitution = x;
 	updateMaterial();

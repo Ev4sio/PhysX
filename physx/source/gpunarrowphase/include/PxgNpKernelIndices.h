@@ -35,7 +35,7 @@
 #define PS_MIDPHASE_COLLISION_WAPRS_PER_BLOCK 1
 #define SB_REFIT_WAPRS_PER_BLOCK              32
 
-namespace physx
+namespace ev4sio_physx
 {
 
 	struct PxgNarrowPhaseBlockDims

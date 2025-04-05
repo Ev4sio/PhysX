@@ -36,7 +36,7 @@
 #define _MCW_ALL _MCW_DN | _MCW_EM | _MCW_IC | _MCW_RC | _MCW_PC
 #endif
 
-physx::PxFPUGuard::PxFPUGuard()
+ev4sio_physx::PxFPUGuard::PxFPUGuard()
 {
 // default plus FTZ and DAZ
 #if PX_X64 || PX_ARM || PX_A64
@@ -56,7 +56,7 @@ physx::PxFPUGuard::PxFPUGuard()
 #endif
 }
 
-physx::PxFPUGuard::~PxFPUGuard()
+ev4sio_physx::PxFPUGuard::~PxFPUGuard()
 {
 	_clearfp();
 
@@ -73,7 +73,7 @@ physx::PxFPUGuard::~PxFPUGuard()
 #endif
 }
 
-void physx::PxEnableFPExceptions()
+void ev4sio_physx::PxEnableFPExceptions()
 {
 	// clear any pending exceptions
 	_clearfp();
@@ -82,7 +82,7 @@ void physx::PxEnableFPExceptions()
 	_controlfp_s(NULL, uint32_t(~_MCW_EM) | _EM_INEXACT | _EM_UNDERFLOW, _MCW_EM);
 }
 
-void physx::PxDisableFPExceptions()
+void ev4sio_physx::PxDisableFPExceptions()
 {
 	_controlfp_s(NULL, _MCW_EM, _MCW_EM);
 }

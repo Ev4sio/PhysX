@@ -35,9 +35,9 @@
 #include "PxsSimulationController.h"
 #include "ScSimStateData.h"
 
-using namespace physx;
-using namespace Dy;
-using namespace Sc;
+using namespace ev4sio_physx;
+using namespace ev4sio_Dy;
+using namespace ev4sio_Sc;
 
 #define PX_FREEZE_INTERVAL 1.5f
 #define PX_FREE_EXIT_THRESHOLD 4.f
@@ -83,10 +83,10 @@ BodySim::BodySim(Scene& scene, BodyCore& core, bool compound) :
 
 	const bool isKine = isKinematic();
 
-	IG::SimpleIslandManager* simpleIslandManager = scene.getSimpleIslandManager();
+	ev4sio_IG::SimpleIslandManager* simpleIslandManager = scene.getSimpleIslandManager();
 	if(!isArticulationLink())
 	{
-		mNodeIndex = simpleIslandManager->addNode(isAwake, isKine, IG::Node::eRIGID_BODY_TYPE, &mLLBody);
+		mNodeIndex = simpleIslandManager->addNode(isAwake, isKine, ev4sio_IG::Node::eRIGID_BODY_TYPE, &mLLBody);
 	}
 	else
 	{
@@ -177,7 +177,7 @@ void BodySim::updateCached(PxBitMapPinned* shapeChangedMap)
 	}
 }
 
-void BodySim::updateCached(PxsTransformCache& transformCache, Bp::BoundsArray& boundsArray)
+void BodySim::updateCached(PxsTransformCache& transformCache, ev4sio_Bp::BoundsArray& boundsArray)
 {
 	PX_ASSERT(!(mLLBody.mInternalFlags & PxsRigidBody::eFROZEN));	// PT: should not be called otherwise
 
@@ -578,7 +578,7 @@ void BodySim::notifyPutToSleep()
 
 //This function will be called by CPU sleepCheck code
 // PT: TODO: actually this seems to be only called by the articulation sim code, while regular rigid bodies use a copy of that code in LowLevelDynamics?
-PxReal BodySim::updateWakeCounter(PxReal dt, PxReal energyThreshold, const Cm::SpatialVector& motionVelocity)
+PxReal BodySim::updateWakeCounter(PxReal dt, PxReal energyThreshold, const ev4sio_Cm::SpatialVector& motionVelocity)
 {
 	// update the body's sleep state and 
 	BodyCore& core = getBodyCore();
@@ -648,12 +648,12 @@ PX_FORCE_INLINE void BodySim::initKinematicStateBase(BodyCore&, bool asPartOfCre
 	if (!asPartOfCreation && isActive())
 		mScene.swapInActiveBodyList(*this);
 
-	//mLLBody.setAccelerationV(Cm::SpatialVector::zero());
+	//mLLBody.setAccelerationV(ev4sio_Cm::SpatialVector::zero());
 
 	// Need to be before setting setRigidBodyFlag::KINEMATIC
 }
 
-bool BodySim::updateForces(PxReal dt, PxsRigidBody** updatedBodySims, PxU32* updatedBodyNodeIndices, PxU32& index, Cm::SpatialVector* acceleration, 
+bool BodySim::updateForces(PxReal dt, PxsRigidBody** updatedBodySims, PxU32* updatedBodyNodeIndices, PxU32& index, ev4sio_Cm::SpatialVector* acceleration, 
 	PxsExternalAccelerationProvider* externalAccelerations, PxU32 maxNumExternalAccelerations)
 {
 	PxVec3 linVelDt(0.0f), angVelDt(0.0f);
@@ -784,9 +784,9 @@ void BodySim::setArticulation(ArticulationSim* a, PxReal wakeCounter, bool aslee
 			ElementSim** current = getElements();
 			PxU32 nbElements = getNbElements();
 
-			Bp::AABBManagerBase* aabbMgr = mScene.getAABBManager();
+			ev4sio_Bp::AABBManagerBase* aabbMgr = mScene.getAABBManager();
 			
-			Bp::FilterGroup::Enum rootGroup = Bp::getFilterGroup(false, a->getRootActorIndex(), false);
+			ev4sio_Bp::FilterGroup::Enum rootGroup = ev4sio_Bp::getFilterGroup(false, a->getRootActorIndex(), false);
 
 			while (nbElements--)
 			{

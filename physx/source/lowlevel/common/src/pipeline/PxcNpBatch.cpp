@@ -44,8 +44,8 @@
 //#define LOCAL_PROFILE_ZONE(x, y)	PX_PROFILE_ZONE(x, y)
 #define LOCAL_PROFILE_ZONE(x, y)
 
-using namespace physx;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
 
 PX_COMPILE_TIME_ASSERT(sizeof(PxsCachedTransform)==sizeof(PxTransform32));
 
@@ -86,7 +86,7 @@ static PX_FORCE_INLINE void updateDiscreteContactStats(PxcNpThreadContext& conte
 #endif
 }
 
-static bool copyBuffers(PxsContactManagerOutput& cmOutput, Gu::Cache& cache, PxcNpThreadContext& context, const bool useContactCache, const bool isMeshType)
+static bool copyBuffers(PxsContactManagerOutput& cmOutput, ev4sio_Gu::Cache& cache, PxcNpThreadContext& context, const bool useContactCache, const bool isMeshType)
 {
 	bool ret = false;
 	//Copy the contact stream from previous buffer to current buffer...
@@ -317,7 +317,7 @@ static bool finishContacts(const PxcNpWorkUnit& input, PxsContactManagerOutput& 
 }
 
 template<bool useContactCacheT>
-static PX_FORCE_INLINE bool checkContactsMustBeGenerated(PxcNpThreadContext& context, const PxcNpWorkUnit& input, Gu::Cache& cache, PxsContactManagerOutput& output,
+static PX_FORCE_INLINE bool checkContactsMustBeGenerated(PxcNpThreadContext& context, const PxcNpWorkUnit& input, ev4sio_Gu::Cache& cache, PxsContactManagerOutput& output,
 										 const PxsCachedTransform* cachedTransform0, const PxsCachedTransform* cachedTransform1,
 										 const bool flip, PxGeometryType::Enum type0, PxGeometryType::Enum type1)
 {
@@ -365,7 +365,7 @@ static PX_FORCE_INLINE bool checkContactsMustBeGenerated(PxcNpThreadContext& con
 }
 
 template<bool useLegacyCodepath>
-static PX_FORCE_INLINE void discreteNarrowPhase(PxcNpThreadContext& context, const PxcNpWorkUnit& input, Gu::Cache& cache, PxsContactManagerOutput& output, PxU64 contextID)
+static PX_FORCE_INLINE void discreteNarrowPhase(PxcNpThreadContext& context, const PxcNpWorkUnit& input, ev4sio_Gu::Cache& cache, PxsContactManagerOutput& output, PxU64 contextID)
 {
 	PxGeometryType::Enum type0 = input.getGeomType0();
 	PxGeometryType::Enum type1 = input.getGeomType1();
@@ -390,7 +390,7 @@ static PX_FORCE_INLINE void discreteNarrowPhase(PxcNpThreadContext& context, con
 
 	PxsMaterialInfo materialInfo[PxContactBuffer::MAX_CONTACTS];
 
-	Gu::MultiplePersistentContactManifold& manifold = context.mTempManifold;
+	ev4sio_Gu::MultiplePersistentContactManifold& manifold = context.mTempManifold;
 	bool isMultiManifold = false;
 
 	if(!useLegacyCodepath)
@@ -481,7 +481,7 @@ static PX_FORCE_INLINE void discreteNarrowPhase(PxcNpThreadContext& context, con
 			//Store the manifold back...
 			const PxU32 size = (sizeof(MultiPersistentManifoldHeader) +
 				manifold.mNumManifolds * sizeof(SingleManifoldHeader) +
-				manifold.mNumTotalContacts * sizeof(Gu::CachedMeshPersistentContact));
+				manifold.mNumTotalContacts * sizeof(ev4sio_Gu::CachedMeshPersistentContact));
 
 			PxcNpCacheReserve(context.mNpCacheStreamPair, cache, size);
 
@@ -499,13 +499,13 @@ static PX_FORCE_INLINE void discreteNarrowPhase(PxcNpThreadContext& context, con
 	finishContacts(input, output, context, materialInfo, isMeshType, contextID);
 }
 
-void physx::PxcDiscreteNarrowPhase(PxcNpThreadContext& context, const PxcNpWorkUnit& input, Gu::Cache& cache, PxsContactManagerOutput& output, PxU64 contextID)
+void ev4sio_physx::PxcDiscreteNarrowPhase(PxcNpThreadContext& context, const PxcNpWorkUnit& input, ev4sio_Gu::Cache& cache, PxsContactManagerOutput& output, PxU64 contextID)
 {
 	LOCAL_PROFILE_ZONE("PxcDiscreteNarrowPhase", contextID);
 	discreteNarrowPhase<true>(context, input, cache, output, contextID);
 }
 
-void physx::PxcDiscreteNarrowPhasePCM(PxcNpThreadContext& context, const PxcNpWorkUnit& input, Gu::Cache& cache, PxsContactManagerOutput& output, PxU64 contextID)
+void ev4sio_physx::PxcDiscreteNarrowPhasePCM(PxcNpThreadContext& context, const PxcNpWorkUnit& input, ev4sio_Gu::Cache& cache, PxsContactManagerOutput& output, PxU64 contextID)
 {
 	LOCAL_PROFILE_ZONE("PxcDiscreteNarrowPhasePCM", contextID);
 	discreteNarrowPhase<false>(context, input, cache, output, contextID);

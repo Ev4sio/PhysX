@@ -40,9 +40,9 @@
 
 // MM: implementation of paper Garland and Heckbert: "Surface Simplification Using Quadric Error Metrics"
 
-namespace physx
+namespace ev4sio_physx
 {
-	namespace Ext
+	namespace ev4sio_Ext
 	{
 		struct PxVec3Ex
 		{
@@ -77,7 +77,7 @@ namespace physx
 			PxArray<PxI32> triIds;
 			PxArray<PxVec3> scaledOriginalVertices;
 			PxArray<PxU32> originalTriIds;
-			Gu::PxPointOntoTriangleMeshProjector* projector;
+			ev4sio_Gu::PxPointOntoTriangleMeshProjector* projector;
 
 			void init();
 			bool step(PxF32 maximalEdgeLength);

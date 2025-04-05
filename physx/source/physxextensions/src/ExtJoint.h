@@ -50,7 +50,7 @@
 
 #include "omnipvd/ExtOmniPvdSetData.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 // PX_SERIALIZATION
 	class PxDeserializationContext;
@@ -59,7 +59,7 @@ PxConstraint* resolveConstraintPtr(PxDeserializationContext& v, PxConstraint* ol
 
 // ~PX_SERIALIZATION
 
-namespace Ext
+namespace ev4sio_Ext
 {
 	PX_FORCE_INLINE float computeSwingAngle(float swingYZ, float swingW)
 	{
@@ -145,32 +145,32 @@ namespace Ext
 		
 #if PX_SUPPORT_PVD
 		// PxConstraintConnector
-		virtual bool updatePvdProperties(physx::pvdsdk::PvdDataStream& pvdConnection, const PxConstraint* c, PxPvdUpdateType::Enum updateType) const	PX_OVERRIDE
+		virtual bool updatePvdProperties(ev4sio_physx::pvdsdk::PvdDataStream& pvdConnection, const PxConstraint* c, PxPvdUpdateType::Enum updateType) const	PX_OVERRIDE
 		{
 			if(updateType == PxPvdUpdateType::UPDATE_SIM_PROPERTIES)
 			{
-				Ext::Pvd::simUpdate<Base>(pvdConnection, *this);
+				ev4sio_Ext::Pvd::simUpdate<Base>(pvdConnection, *this);
 				return true;
 			}
 			else if(updateType == PxPvdUpdateType::UPDATE_ALL_PROPERTIES)
 			{
-				Ext::Pvd::updatePvdProperties<Base, ValueStruct>(pvdConnection, *this);
+				ev4sio_Ext::Pvd::updatePvdProperties<Base, ValueStruct>(pvdConnection, *this);
 				return true;
 			}
 			else if(updateType == PxPvdUpdateType::CREATE_INSTANCE)
 			{
-				Ext::Pvd::createPvdInstance<Base>(pvdConnection, *c, *this);
+				ev4sio_Ext::Pvd::createPvdInstance<Base>(pvdConnection, *c, *this);
 				return true;
 			}
 			else if(updateType == PxPvdUpdateType::RELEASE_INSTANCE)
 			{
-				Ext::Pvd::releasePvdInstance(pvdConnection, *c, *this);
+				ev4sio_Ext::Pvd::releasePvdInstance(pvdConnection, *c, *this);
 				return true;
 			}
 			return false;
 		}
 #else
-		virtual bool updatePvdProperties(physx::pvdsdk::PvdDataStream&, const PxConstraint*, PxPvdUpdateType::Enum) const	PX_OVERRIDE
+		virtual bool updatePvdProperties(ev4sio_physx::pvdsdk::PvdDataStream&, const PxConstraint*, PxPvdUpdateType::Enum) const	PX_OVERRIDE
 		{
 			return false;
 		}
@@ -186,7 +186,7 @@ namespace Ext
 		{	
 			//TODO SDK-DEV
 			//You can get the debugger stream from the NpScene
-			//Ext::Pvd::setActors( stream, this, mPxConstraint, actor0, actor1 );
+			//ev4sio_Ext::Pvd::setActors( stream, this, mPxConstraint, actor0, actor1 );
 			PX_CHECK_AND_RETURN(actor0 != actor1, "PxJoint::setActors: actors must be different");
 			PX_CHECK_AND_RETURN((actor0 && !actor0->is<PxRigidStatic>()) || (actor1 && !actor1->is<PxRigidStatic>()), "PxJoint::setActors: at least one actor must be non-static");
 
@@ -195,9 +195,9 @@ namespace Ext
 			if(scene)
 			{
 				//if pvd not connect data stream is NULL
-				physx::pvdsdk::PvdDataStream* conn = scene->getScenePvdClient()->getClientInternal()->getDataStream();
+				ev4sio_physx::pvdsdk::PvdDataStream* conn = scene->getScenePvdClient()->getClientInternal()->getDataStream();
 				if( conn != NULL )
-					Ext::Pvd::setActors(
+					ev4sio_Ext::Pvd::setActors(
 					*conn,
 					*this,
 					*mPxConstraint,
@@ -719,7 +719,7 @@ namespace Ext
 	template<typename JointType> void omniPvdInitJoint(JointType& joint);
 #endif
 
-} // namespace Ext
+} // namespace ev4sio_Ext
 
 }
 

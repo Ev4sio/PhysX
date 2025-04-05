@@ -34,7 +34,7 @@
 #include "PxScene.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -498,7 +498,7 @@ PxBatchQueryExt* PxCreateBatchQueryExt(
 	PxOverlapBuffer* overlapBuffers, const PxU32 maxNbOverlaps, PxOverlapHit* overlapTouches, const PxU32 maxNbOverlapTouches);
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

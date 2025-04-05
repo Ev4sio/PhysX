@@ -32,11 +32,11 @@
 #include "ScShapeSim.h"
 #include "ScShapeInteraction.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-Sc::ContactIterator::Pair::Pair(const void*& contactPatches, const void*& contactPoints, const void*& frictionPatches, PxU32 /*contactDataSize*/, const PxReal*& forces, PxU32 numContacts, PxU32 numPatches,
+ev4sio_Sc::ContactIterator::Pair::Pair(const void*& contactPatches, const void*& contactPoints, const void*& frictionPatches, PxU32 /*contactDataSize*/, const PxReal*& forces, PxU32 numContacts, PxU32 numPatches,
 	ShapeSimBase& shape0, ShapeSimBase& shape1, ActorSim* actor0, ActorSim* actor1)
 : mIndex(0)
 , mNumContacts(numContacts)
@@ -51,7 +51,7 @@ Sc::ContactIterator::Pair::Pair(const void*& contactPatches, const void*& contac
 	mCurrentContact.normalForceAvailable = (forces != NULL);
 }
 
-Sc::ContactIterator::Pair* Sc::ContactIterator::getNextPair()
+ev4sio_Sc::ContactIterator::Pair* ev4sio_Sc::ContactIterator::getNextPair()
 { 
 	PX_ASSERT(mCurrent || (mCurrent == mLast));
 	if(mCurrent < mLast)
@@ -80,7 +80,7 @@ Sc::ContactIterator::Pair* Sc::ContactIterator::getNextPair()
 		return NULL;
 }
 
-Sc::Contact* Sc::ContactIterator::Pair::getNextContact()
+ev4sio_Sc::Contact* ev4sio_Sc::ContactIterator::Pair::getNextContact()
 {
 	if(mIndex < mNumContacts)
 	{
@@ -105,7 +105,7 @@ Sc::Contact* Sc::ContactIterator::Pair::getNextContact()
 	return NULL;
 }
 
-Sc::FrictionAnchor* Sc::ContactIterator::Pair::getNextFrictionAnchor()
+ev4sio_Sc::FrictionAnchor* ev4sio_Sc::ContactIterator::Pair::getNextFrictionAnchor()
 {
 	if(mAnchorIter.hasNextPatch())
 	{

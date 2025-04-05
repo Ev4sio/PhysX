@@ -32,11 +32,11 @@
 #include "foundation/PxPreprocessor.h"
 #include "foundation/PxSimpleTypes.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	struct PxSolverConstraintDesc;
 
-	namespace Dy
+	namespace ev4sio_Dy
 	{
 		struct SolverContext;
 

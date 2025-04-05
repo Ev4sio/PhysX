@@ -36,13 +36,13 @@
 #include "foundation/PxBounds3.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 namespace pvdsdk
 {
 #endif
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 inline const char* nonNull(const char* str)
 {

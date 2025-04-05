@@ -45,14 +45,14 @@
 #include "CmUtils.h"
 #include "foundation/PxUtilities.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 using namespace aos;
-using namespace Gu;
-using namespace Cm;
+using namespace ev4sio_Gu;
+using namespace ev4sio_Cm;
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Gu {
+namespace ev4sio_Gu {
 
 bool RTree::load(PxInputStream& stream, PxU32 meshVersion, bool mismatch_)	// PT: 'meshVersion' is the PX_MESH_VERSION from cooked file
 {
@@ -399,6 +399,6 @@ void RTree::refitAllStaticTree(CallbackRefit& cb, PxBounds3* retBounds)
 const RTreeValue RTreePage::MN = -PX_MAX_F32;
 const RTreeValue RTreePage::MX = PX_MAX_F32;
 
-} // namespace Gu
+} // namespace ev4sio_Gu
 
 }

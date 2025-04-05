@@ -31,7 +31,7 @@
 
 #include "foundation/PxSimpleTypes.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	struct PX_ALIGN_PREFIX(16) PxgContactManagerInput
 	{

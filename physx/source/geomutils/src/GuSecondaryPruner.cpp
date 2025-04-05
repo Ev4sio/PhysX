@@ -36,8 +36,8 @@
 	#include <stdio.h>
 #endif
 
-using namespace physx;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
 
 class CompanionPrunerBucket : public CompanionPruner
 {
@@ -852,7 +852,7 @@ bool CompanionPrunerAABBTree::raycast(const PxVec3& origin, const PxVec3& unitDi
 #ifdef USE_MAVERICK_NODE
 	{
 		MaverickRaycastAdapter ra(mMaverick, prunerCallback);
-		Gu::RayAABBTest test(origin*2.0f, unitDir*2.0f, inOutDistance, PxVec3(0.0f));
+		ev4sio_Gu::RayAABBTest test(origin*2.0f, unitDir*2.0f, inOutDistance, PxVec3(0.0f));
 		if(!doLeafTest<false, true, MaverickNode, MaverickRaycastAdapter>(&mMaverick, test, mMaverick.mFreeBounds, NULL, inOutDistance, ra))
 			return false;
 	}
@@ -993,7 +993,7 @@ bool CompanionPrunerAABBTree::sweep(const ShapeData& queryVolume, const PxVec3& 
 	{
 		MaverickRaycastAdapter ra(mMaverick, prunerCallback);
 		const PxBounds3& aabb = queryVolume.getPrunerInflatedWorldAABB();
-		Gu::RayAABBTest test(aabb.getCenter()*2.0f, unitDir*2.0f, inOutDistance, aabb.getExtents());
+		ev4sio_Gu::RayAABBTest test(aabb.getCenter()*2.0f, unitDir*2.0f, inOutDistance, aabb.getExtents());
 		if(!doLeafTest<true, true, MaverickNode, MaverickRaycastAdapter>(&mMaverick, test, mMaverick.mFreeBounds, NULL, inOutDistance, ra))
 			return false;
 	}
@@ -1050,7 +1050,7 @@ void CompanionPrunerAABBTree::getGlobalBounds(PxBounds3& bounds) const
 
 
 
-CompanionPruner* physx::Gu::createCompanionPruner(PxU64 contextID, CompanionPrunerType type, const PruningPool* pool)
+CompanionPruner* ev4sio_physx::ev4sio_Gu::createCompanionPruner(PxU64 contextID, CompanionPrunerType type, const PruningPool* pool)
 {
 	if(0)
 //		return NULL;

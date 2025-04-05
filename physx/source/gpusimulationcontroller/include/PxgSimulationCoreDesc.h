@@ -44,7 +44,7 @@ PX_COMPILE_TIME_ASSERT(PX_MAX_NB_DEFORMABLE_SURFACE_TRI == PX_MAX_NB_DEFORMABLE_
 PX_COMPILE_TIME_ASSERT(PXG_CHECK_BITSHIFT_32(PX_MAX_NB_DEFORMABLE_SURFACE_TRI, PX_MAX_NB_DEFORMABLE_SURFACE, PXG_BITSHIFT_ELEMENT_ID));
 PX_COMPILE_TIME_ASSERT(PXG_CHECK_BITSHIFT_32(PX_MAX_NB_DEFORMABLE_VOLUME_TET, PX_MAX_NB_DEFORMABLE_VOLUME, PXG_BITSHIFT_TET_ID));
 
-namespace physx
+namespace ev4sio_physx
 {
 	struct PxgSolverBodySleepData;
 	struct PxgShape;
@@ -65,7 +65,7 @@ namespace physx
 	class PxgArticulationTendonElementFixedData;
 	class PxGpuTendonJointCoefficientData;
 
-	namespace Dy
+	namespace ev4sio_Dy
 	{
 		struct ArticulationJointCore;
 		class ArticulationJointCoreData;
@@ -284,12 +284,12 @@ namespace physx
 		PxgArticulationLinkProp*				mNewLinkProps;
 		
 		PxU32*									mNewLinkParents;
-		Dy::ArticulationBitField*				mNewLinkChildren;
+		ev4sio_Dy::ArticulationBitField*				mNewLinkChildren;
 		PxTransform*							mNewLinkBody2Worlds;
 		PxTransform*							mNewLinkBody2Actors;
-		Cm::UnAlignedSpatialVector*				mNewLinkExtAccels;
-		Dy::ArticulationJointCore*				mNewJointCores;
-		Dy::ArticulationJointCoreData*			mNewJointData;
+		ev4sio_Cm::UnAlignedSpatialVector*				mNewLinkExtAccels;
+		ev4sio_Dy::ArticulationJointCore*				mNewJointCores;
+		ev4sio_Dy::ArticulationJointCoreData*			mNewJointData;
 		PxgArticulationSimUpdate*				mIndicesOffset;
 
 		PxgArticulation*						mArticulationPool;
@@ -306,7 +306,7 @@ namespace physx
 		PxgArticulationTendonElementFixedData*	mNewTendonJointFixedPool;
 		PxGpuTendonJointCoefficientData*		mNewTendonJointCoefficientPool;
 		PxU32*									mNewTendonTendonJointRemapPool;
-		Dy::ArticulationMimicJointCore*			mNewArticulationMimicJointPool;	
+		ev4sio_Dy::ArticulationMimicJointCore*			mNewArticulationMimicJointPool;	
 
 		PxU32*									mNewPathToRootPool;
 		

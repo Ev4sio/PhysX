@@ -31,9 +31,9 @@
 
 #include "GuTriangleMesh.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Gu
+namespace ev4sio_Gu
 {
 class MeshFactory;
 
@@ -60,16 +60,16 @@ class RTreeTriangleMesh : public TriangleMesh
 						virtual PxVec3*					getVerticesForModification();
 						virtual PxBounds3				refitBVH();
 
-	PX_FORCE_INLINE				const Gu::RTree&		getRTree()				const	{ return mRTree; }
+	PX_FORCE_INLINE				const ev4sio_Gu::RTree&		getRTree()				const	{ return mRTree; }
 	private:
-								Gu::RTree				mRTree;								
+								ev4sio_Gu::RTree				mRTree;								
 };
 
 #if PX_VC
 #pragma warning(pop)
 #endif
 
-} // namespace Gu
+} // namespace ev4sio_Gu
 
 }
 

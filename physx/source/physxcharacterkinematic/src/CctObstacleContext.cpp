@@ -31,7 +31,7 @@
 #include "CctCharacterControllerManager.h"
 #include "foundation/PxUtilities.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 using namespace Cct;
 
 //! Initial list size
@@ -416,7 +416,7 @@ const PxObstacle* ObstacleContext::getObstacleByHandle(PxObstacleHandle handle) 
 #include "GuRaycastTests.h"
 #include "geometry/PxBoxGeometry.h"
 #include "geometry/PxCapsuleGeometry.h"
-using namespace Gu;
+using namespace ev4sio_Gu;
 const PxObstacle* ObstacleContext::raycastSingle(PxGeomRaycastHit& hit, const PxVec3& origin, const PxVec3& unitDir, PxReal distance, PxObstacleHandle& obstacleHandle) const
 {
 	PxGeomRaycastHit localHit;
@@ -426,7 +426,7 @@ const PxObstacle* ObstacleContext::raycastSingle(PxGeomRaycastHit& hit, const Px
 	const PxHitFlags hitFlags = PxHitFlags(0);
 
 	{
-		const RaycastFunc raycastFunc = Gu::getRaycastFuncTable()[PxGeometryType::eBOX];
+		const RaycastFunc raycastFunc = ev4sio_Gu::getRaycastFuncTable()[PxGeometryType::eBOX];
 		PX_ASSERT(raycastFunc);
 
 		const PxU32 nbExtraBoxes = mBoxObstacles.size();
@@ -450,7 +450,7 @@ const PxObstacle* ObstacleContext::raycastSingle(PxGeomRaycastHit& hit, const Px
 	}
 
 	{
-		const RaycastFunc raycastFunc = Gu::getRaycastFuncTable()[PxGeometryType::eCAPSULE];
+		const RaycastFunc raycastFunc = ev4sio_Gu::getRaycastFuncTable()[PxGeometryType::eCAPSULE];
 		PX_ASSERT(raycastFunc);
 
 		const PxU32 nbExtraCapsules = mCapsuleObstacles.size();
@@ -494,7 +494,7 @@ const PxObstacle* ObstacleContext::raycastSingle(PxGeomRaycastHit& hit, const Px
 	{
 		const PxBoxObstacle& userBoxObstacle = mBoxObstacles[index].mData;
 
-		PxU32 status = Gu::getRaycastFuncTable()[PxGeometryType::eBOX](
+		PxU32 status = ev4sio_Gu::getRaycastFuncTable()[PxGeometryType::eBOX](
 			PxBoxGeometry(userBoxObstacle.mHalfExtents),
 			PxTransform(toVec3(userBoxObstacle.mPos), userBoxObstacle.mRot),
 			origin, unitDir, distance,
@@ -511,7 +511,7 @@ const PxObstacle* ObstacleContext::raycastSingle(PxGeomRaycastHit& hit, const Px
 		PX_ASSERT(geomType == PxGeometryType::eCAPSULE);
 		const PxCapsuleObstacle& userCapsuleObstacle = mCapsuleObstacles[index].mData;
 
-		PxU32 status = Gu::getRaycastFuncTable()[PxGeometryType::eCAPSULE](
+		PxU32 status = ev4sio_Gu::getRaycastFuncTable()[PxGeometryType::eCAPSULE](
 			PxCapsuleGeometry(userCapsuleObstacle.mRadius, userCapsuleObstacle.mHalfHeight),
 			PxTransform(toVec3(userCapsuleObstacle.mPos), userCapsuleObstacle.mRot),
 			origin, unitDir, distance,

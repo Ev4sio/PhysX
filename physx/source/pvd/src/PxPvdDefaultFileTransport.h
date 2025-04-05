@@ -35,12 +35,12 @@
 #include "PsFileBuffer.h"
 #include "foundation/PxMutex.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 namespace pvdsdk
 {
 
-class PvdDefaultFileTransport : public physx::PxPvdTransport, public physx::PxUserAllocated
+class PvdDefaultFileTransport : public ev4sio_physx::PxPvdTransport, public ev4sio_physx::PxUserAllocated
 {
 	PX_NOCOPY(PvdDefaultFileTransport)
   public:
@@ -63,10 +63,10 @@ class PvdDefaultFileTransport : public physx::PxPvdTransport, public physx::PxUs
 	virtual void release();
 
   private:
-	physx::PsFileBuffer* mFileBuffer;
+	ev4sio_physx::PsFileBuffer* mFileBuffer;
 	bool mConnected;
 	uint64_t mWrittenData;
-	physx::PxMutex mMutex;
+	ev4sio_physx::PxMutex mMutex;
 	bool mLocked; // for debug, remove it when finished
 };
 

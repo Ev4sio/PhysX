@@ -30,7 +30,7 @@
 #define PX_PROFILE_SCOPED_MUTEX_LOCK_H
 
 
-namespace physx { namespace profile {
+namespace ev4sio_physx { namespace profile {
 
 	/**
 	 *	Generic class to wrap any mutex type that has lock and unlock methods

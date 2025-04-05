@@ -38,16 +38,16 @@
 
 // PT: this shouldn't be in Cm. The whole task manager is in the PhysX DLL so we cannot use any of these inside the Common DLL
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Cm
+namespace ev4sio_Cm
 {
 	// wrapper around the public PxLightCpuTask
 	// internal SDK tasks should be inherited from
 	// this and override the runInternal() method
 	// to ensure that the correct floating point 
 	// state is set / reset during execution
-	class Task : public physx::PxLightCpuTask
+	class Task : public ev4sio_physx::PxLightCpuTask
 	{
 	public:
 		Task(PxU64 contextId)
@@ -68,9 +68,9 @@ namespace Cm
 		virtual void runInternal()=0;
 	};
 
-	// same as Cm::Task but inheriting from physx::PxBaseTask
+	// same as ev4sio_Cm::Task but inheriting from ev4sio_physx::PxBaseTask
 	// instead of PxLightCpuTask
-	class BaseTask : public physx::PxBaseTask
+	class BaseTask : public ev4sio_physx::PxBaseTask
 	{
 	public:
 
@@ -87,12 +87,12 @@ namespace Cm
 		virtual void runInternal()=0;
 	};
 
-	template <class T, void (T::*Fn)(physx::PxBaseTask*) >
-	class DelegateTask : public Cm::Task, public PxUserAllocated
+	template <class T, void (T::*Fn)(ev4sio_physx::PxBaseTask*) >
+	class DelegateTask : public ev4sio_Cm::Task, public PxUserAllocated
 	{
 	public:
 
-		DelegateTask(PxU64 contextID, T* obj, const char* name) : Cm::Task(contextID), mObj(obj), mName(name) {}
+		DelegateTask(PxU64 contextID, T* obj, const char* name) : ev4sio_Cm::Task(contextID), mObj(obj), mName(name) {}
 
 		virtual void run()
 		{
@@ -130,11 +130,11 @@ namespace Cm
 
 	The refcount is incremented every time a dependent task is added.
 	*/
-	class FanoutTask : public Cm::BaseTask
+	class FanoutTask : public ev4sio_Cm::BaseTask
 	{
 		PX_NOCOPY(FanoutTask)
 	public:
-		FanoutTask(PxU64 contextID, const char* name) : Cm::BaseTask(), mRefCount(0), mName(name), mNotifySubmission(false) { mContextID = contextID; }
+		FanoutTask(PxU64 contextID, const char* name) : ev4sio_Cm::BaseTask(), mRefCount(0), mName(name), mNotifySubmission(false) { mContextID = contextID; }
 
 		virtual void runInternal() {}
 
@@ -146,10 +146,10 @@ namespace Cm
 		virtual void removeReference()
 		{
 			PxMutex::ScopedLock lock(mMutex);
-			if (!physx::PxAtomicDecrement(&mRefCount))
+			if (!ev4sio_physx::PxAtomicDecrement(&mRefCount))
 			{
 				// prevents access to mReferencesToRemove until release
-				physx::PxAtomicIncrement(&mRefCount);
+				ev4sio_physx::PxAtomicIncrement(&mRefCount);
 				mNotifySubmission = false;
 				PX_ASSERT(mReferencesToRemove.empty());
 				for (PxU32 i = 0; i < mDependents.size(); i++)
@@ -165,7 +165,7 @@ namespace Cm
 		virtual void addReference()
 		{
 			PxMutex::ScopedLock lock(mMutex);
-			physx::PxAtomicIncrement(&mRefCount);
+			ev4sio_physx::PxAtomicIncrement(&mRefCount);
 			mNotifySubmission = true;
 		}
 
@@ -180,7 +180,7 @@ namespace Cm
 		/**
 		Sets the task manager. Doesn't increase the reference count.
 		*/
-		PX_INLINE void setTaskManager(physx::PxTaskManager& tm)
+		PX_INLINE void setTaskManager(ev4sio_physx::PxTaskManager& tm)
 		{
 			mTm = &tm;
 		}
@@ -189,10 +189,10 @@ namespace Cm
 		Adds a dependent task. It also sets the task manager querying it from the dependent task.  
 		The refcount is incremented every time a dependent task is added.
 		*/
-		PX_INLINE void addDependent(physx::PxBaseTask& dependent)
+		PX_INLINE void addDependent(ev4sio_physx::PxBaseTask& dependent)
 		{
 			PxMutex::ScopedLock lock(mMutex);
-			physx::PxAtomicIncrement(&mRefCount);
+			ev4sio_physx::PxAtomicIncrement(&mRefCount);
 			mTm = dependent.getTaskManager();
 			mDependents.pushBack(&dependent);
 			dependent.addReference();
@@ -205,7 +205,7 @@ namespace Cm
 		*/
 		virtual void release()
 		{
-			PxInlineArray<physx::PxBaseTask*, 10> referencesToRemove;
+			PxInlineArray<ev4sio_physx::PxBaseTask*, 10> referencesToRemove;
 
 			{
 				PxMutex::ScopedLock lock(mMutex);
@@ -223,7 +223,7 @@ namespace Cm
 				}
 				else
 				{
-					physx::PxAtomicDecrement(&mRefCount);
+					ev4sio_physx::PxAtomicDecrement(&mRefCount);
 				}
 
 				// the scoped lock needs to get freed before the continuation tasks get (potentially) submitted because
@@ -240,8 +240,8 @@ namespace Cm
 	protected:
 		volatile PxI32 mRefCount;
 		const char* mName;
-		PxInlineArray<physx::PxBaseTask*, 4> mDependents;
-		PxInlineArray<physx::PxBaseTask*, 4> mReferencesToRemove;
+		PxInlineArray<ev4sio_physx::PxBaseTask*, 4> mDependents;
+		PxInlineArray<ev4sio_physx::PxBaseTask*, 4> mReferencesToRemove;
 		bool mNotifySubmission;
 		PxMutex mMutex; // guarding mDependents and mNotifySubmission
 	};
@@ -250,7 +250,7 @@ namespace Cm
 	/**
 	\brief Specialization of FanoutTask class in order to provide the delegation mechanism.
 	*/
-	template <class T, void (T::*Fn)(physx::PxBaseTask*) >
+	template <class T, void (T::*Fn)(ev4sio_physx::PxBaseTask*) >
 	class DelegateFanoutTask : public FanoutTask, public PxUserAllocated
 	{
 	public:
@@ -259,7 +259,7 @@ namespace Cm
 
 		  virtual void runInternal()
 		  {
-			  physx::PxBaseTask* continuation = mReferencesToRemove.empty() ? NULL : mReferencesToRemove[0];
+			  ev4sio_physx::PxBaseTask* continuation = mReferencesToRemove.empty() ? NULL : mReferencesToRemove[0];
 			  (mObj->*Fn)(continuation);
 		  }
 
@@ -269,7 +269,7 @@ namespace Cm
 		T* mObj;
 	};
 
-	PX_FORCE_INLINE void startTask(Cm::Task* task, PxBaseTask* continuation)
+	PX_FORCE_INLINE void startTask(ev4sio_Cm::Task* task, PxBaseTask* continuation)
 	{
 		if(continuation)
 		{
@@ -292,7 +292,7 @@ namespace Cm
 		previousTask = task;
 	}
 
-} // namespace Cm
+} // namespace ev4sio_Cm
 
 }
 

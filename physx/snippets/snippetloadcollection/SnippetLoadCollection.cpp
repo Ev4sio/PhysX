@@ -61,7 +61,7 @@
 
 #define MAX_INPUT_FILES   16
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 static PxDefaultAllocator		    gAllocator;
 static PxDefaultErrorCallback	    gErrorCallback;
@@ -241,14 +241,14 @@ static PxCollection* deserializeCollection(PxInputData& inputData, bool isBinary
 
 void initPhysics()
 {
-	gFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, gAllocator, gErrorCallback);
+	gFoundation = ev4sio_PxCreateFoundation(ev4sio_PX_PHYSICS_VERSION, gAllocator, gErrorCallback);
 
-	gPvd = PxCreatePvd(*gFoundation);
-	PxPvdTransport* transport = PxDefaultPvdSocketTransportCreate(PVD_HOST, 5425, 10);
+	gPvd = ev4sio_PxCreatePvd(*gFoundation);
+	PxPvdTransport* transport = ev4sio_PxDefaultPvdSocketTransportCreate(PVD_HOST, 5425, 10);
 	gPvd->connect(*transport,PxPvdInstrumentationFlag::eALL);
 	
-	gPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *gFoundation, PxTolerancesScale(), true, gPvd);
-	PxInitExtensions(*gPhysics, gPvd);
+	gPhysics = ev4sio_PxCreatePhysics(ev4sio_PX_PHYSICS_VERSION, *gFoundation, PxTolerancesScale(), true, gPvd);
+	ev4sio_PxInitExtensions(*gPhysics, gPvd);
 	
 	PxSceneDesc sceneDesc(gPhysics->getTolerancesScale());
 	sceneDesc.gravity = PxVec3(0, -9.81f, 0);	
@@ -273,7 +273,7 @@ void cleanupPhysics()
 	PX_RELEASE(gSerializationRegistry);
 	PX_RELEASE(gScene);
 	PX_RELEASE(gDispatcher);
-	PxCloseExtensions();
+	ev4sio_PxCloseExtensions();
 		
 	PX_RELEASE(gPhysics);	// releases of all objects	
 
@@ -319,9 +319,9 @@ static void serializeCollection(PxCollection& collection, PxCollection* external
 
 static void generateExampleFiles()
 {
-	PxCollection* collection = PxCreateCollection();
-	PxCollection* collectionA = PxCreateCollection();
-	PxCollection* collectionB = PxCreateCollection();
+	PxCollection* collection = ev4sio_PxCreateCollection();
+	PxCollection* collectionA = ev4sio_PxCreateCollection();
+	PxCollection* collectionB = ev4sio_PxCreateCollection();
 	PX_ASSERT( (collection != NULL) && (collectionA != NULL) && (collectionB != NULL) );
 	
 	PxMaterial *material = gPhysics->createMaterial(0.5f, 0.5f, 0.6f);

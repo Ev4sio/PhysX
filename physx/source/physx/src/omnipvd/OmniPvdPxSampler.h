@@ -39,7 +39,7 @@
 #include "foundation/PxErrorCallback.h"
 #include "OmniPvdChunkAlloc.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	class PxScene;
 	class PxBase;
@@ -64,19 +64,19 @@ namespace physx
 	class NpOmniPvd;
 }
 
-void streamActorName(const physx::PxActor & a, const char* name);
-void streamSceneName(const physx::PxScene & s, const char* name);
-void streamArticulationName(const physx::PxArticulationReducedCoordinate & art, const char* name);
-void streamArticulationJointName(const physx::PxArticulationJointReducedCoordinate& joint, const char* name);
+void streamActorName(const ev4sio_physx::PxActor & a, const char* name);
+void streamSceneName(const ev4sio_physx::PxScene & s, const char* name);
+void streamArticulationName(const ev4sio_physx::PxArticulationReducedCoordinate & art, const char* name);
+void streamArticulationJointName(const ev4sio_physx::PxArticulationJointReducedCoordinate& joint, const char* name);
 
-void streamShapeMaterials(const physx::PxShape&, physx::PxMaterial* const * mats, physx::PxU32 nbrMaterials);
+void streamShapeMaterials(const ev4sio_physx::PxShape&, ev4sio_physx::PxMaterial* const * mats, ev4sio_physx::PxU32 nbrMaterials);
 
-void streamShapeMaterials(const physx::PxShape&, physx::PxDeformableMaterial* const * mats, physx::PxU32 nbrMaterials);
-void streamShapeMaterials(const physx::PxShape&, physx::PxDeformableSurfaceMaterial* const * mats, physx::PxU32 nbrMaterials);
-void streamShapeMaterials(const physx::PxShape&, physx::PxDeformableVolumeMaterial* const * mats, physx::PxU32 nbrMaterials);
-void streamShapeMaterials(const physx::PxShape&, physx::PxPBDMaterial* const * mats, physx::PxU32 nbrMaterials);
+void streamShapeMaterials(const ev4sio_physx::PxShape&, ev4sio_physx::PxDeformableMaterial* const * mats, ev4sio_physx::PxU32 nbrMaterials);
+void streamShapeMaterials(const ev4sio_physx::PxShape&, ev4sio_physx::PxDeformableSurfaceMaterial* const * mats, ev4sio_physx::PxU32 nbrMaterials);
+void streamShapeMaterials(const ev4sio_physx::PxShape&, ev4sio_physx::PxDeformableVolumeMaterial* const * mats, ev4sio_physx::PxU32 nbrMaterials);
+void streamShapeMaterials(const ev4sio_physx::PxShape&, ev4sio_physx::PxPBDMaterial* const * mats, ev4sio_physx::PxU32 nbrMaterials);
 
-void streamDiffuseParticleParamsAttributes(const physx::PxDiffuseParticleParams& diffuseParams);
+void streamDiffuseParticleParamsAttributes(const ev4sio_physx::PxDiffuseParticleParams& diffuseParams);
 
 enum OmniPvdSharedMeshEnum {
 	eOmniPvdTriMesh     = 0,
@@ -86,13 +86,13 @@ enum OmniPvdSharedMeshEnum {
 
 class OmniPvdWriter;
 
-namespace physx
+namespace ev4sio_physx
 {
 
-class NpOmniPvdSceneClient : public physx::PxUserAllocated
+class NpOmniPvdSceneClient : public ev4sio_physx::PxUserAllocated
 {
 public:
-	NpOmniPvdSceneClient(physx::PxScene& scene);
+	NpOmniPvdSceneClient(ev4sio_physx::PxScene& scene);
 	~NpOmniPvdSceneClient();	
 
 	////////////////////////////////////////////////////////////////////////////////
@@ -125,55 +125,55 @@ public:
 	void incrementFrame(OmniPvdWriter& pvdWriter, bool recordProfileFrame = false); // stopFrame (frameID), then startFrame (frameID + 1)
 	void stopLastFrame(OmniPvdWriter& pvdWriter);
 	
-	void addRigidDynamicReset(const physx::PxRigidDynamic* rigidDynamic);
-	void addRigidDynamicForceReset(const physx::PxRigidDynamic* rigidDynamic);
-	void addRigidDynamicTorqueReset(const physx::PxRigidDynamic* rigidDynamic);
-	void removeRigidDynamicReset(const physx::PxRigidDynamic* rigidDynamic);
+	void addRigidDynamicReset(const ev4sio_physx::PxRigidDynamic* rigidDynamic);
+	void addRigidDynamicForceReset(const ev4sio_physx::PxRigidDynamic* rigidDynamic);
+	void addRigidDynamicTorqueReset(const ev4sio_physx::PxRigidDynamic* rigidDynamic);
+	void removeRigidDynamicReset(const ev4sio_physx::PxRigidDynamic* rigidDynamic);
 	
-	void addArticulationFromLinkFlagChangeReset(const physx::PxArticulationLink* link);
-	void addArticulationLinksForceReset(const physx::PxArticulationReducedCoordinate* articulation);
-	void addArticulationLinksTorqueReset(const physx::PxArticulationReducedCoordinate* articulation);
-	void addArticulationJointsForceReset(const physx::PxArticulationReducedCoordinate* articulation);
-	void removeArticulationReset(const physx::PxArticulationReducedCoordinate* articulation);
+	void addArticulationFromLinkFlagChangeReset(const ev4sio_physx::PxArticulationLink* link);
+	void addArticulationLinksForceReset(const ev4sio_physx::PxArticulationReducedCoordinate* articulation);
+	void addArticulationLinksTorqueReset(const ev4sio_physx::PxArticulationReducedCoordinate* articulation);
+	void addArticulationJointsForceReset(const ev4sio_physx::PxArticulationReducedCoordinate* articulation);
+	void removeArticulationReset(const ev4sio_physx::PxArticulationReducedCoordinate* articulation);
 	
 	void resetForces();
 
 private:
-	physx::PxScene& mScene;
-	physx::PxU64 mFrameId;
+	ev4sio_physx::PxScene& mScene;
+	ev4sio_physx::PxU64 mFrameId;
 
-	physx::PxHashSet<const PxRigidDynamic*> mResetRigidDynamicForce;
-	physx::PxHashSet<const PxRigidDynamic*> mResetRigidDynamicTorque;
+	ev4sio_physx::PxHashSet<const PxRigidDynamic*> mResetRigidDynamicForce;
+	ev4sio_physx::PxHashSet<const PxRigidDynamic*> mResetRigidDynamicTorque;
 
-	physx::PxHashSet<const PxArticulationReducedCoordinate*> mResetArticulationLinksForce;
-	physx::PxHashSet<const PxArticulationReducedCoordinate*> mResetArticulationLinksTorque;
-	physx::PxHashSet<const PxArticulationReducedCoordinate*> mResetArticulationJointsForce;
+	ev4sio_physx::PxHashSet<const PxArticulationReducedCoordinate*> mResetArticulationLinksForce;
+	ev4sio_physx::PxHashSet<const PxArticulationReducedCoordinate*> mResetArticulationLinksTorque;
+	ev4sio_physx::PxHashSet<const PxArticulationReducedCoordinate*> mResetArticulationJointsForce;
 };
 
 }
 
-class OmniPvdPxSampler : public physx::PxUserAllocated, public physx::PxErrorCallback
+class OmniPvdPxSampler : public ev4sio_physx::PxUserAllocated, public ev4sio_physx::PxErrorCallback
 {
 public:
 	OmniPvdPxSampler();
 	~OmniPvdPxSampler();
 	bool startSampling();
 	bool isSampling();
-	void setOmniPvdInstance(physx::NpOmniPvd* omniPvdIntance);
+	void setOmniPvdInstance(ev4sio_physx::NpOmniPvd* omniPvdIntance);
 
 	// writes all contacts to the stream
-	void streamSceneContacts(physx::NpScene& scene);
+	void streamSceneContacts(ev4sio_physx::NpScene& scene);
 
 	static OmniPvdPxSampler* getInstance();
 
-	void onObjectAdd(const physx::PxBase& object);
-	void onObjectRemove(const physx::PxBase& object);
+	void onObjectAdd(const ev4sio_physx::PxBase& object);
+	void onObjectRemove(const ev4sio_physx::PxBase& object);
 	
-	virtual void reportError(physx::PxErrorCode::Enum code, const char* message, const char* file, int line) PX_OVERRIDE;
+	virtual void reportError(ev4sio_physx::PxErrorCode::Enum code, const char* message, const char* file, int line) PX_OVERRIDE;
 };
 
 
-namespace physx
+namespace ev4sio_physx
 {
 
 const OmniPvdPxCoreRegistrationData* NpOmniPvdGetPxCoreRegistrationData();

@@ -34,7 +34,7 @@
 #include "PxConeLimitedConstraint.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -696,7 +696,7 @@ PX_CUDA_CALLABLE PX_FORCE_INLINE PxVec4 PxConfigureDeformableVolumeKinematicTarg
 
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif // PX_DEFORMABLE_VOLUME_H

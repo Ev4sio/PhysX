@@ -31,9 +31,9 @@
 
 #include "foundation/PxPlane.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Gu
+namespace ev4sio_Gu
 {
 	// Returns true if line and plane are not parallel
 	PX_INLINE bool intersectRayPlane(const PxVec3& orig, const PxVec3& dir, const PxPlane& plane, float& distanceAlongLine, PxVec3* pointOnPlane = NULL)
@@ -50,7 +50,7 @@ namespace Gu
 		return true;
 	}
 
-} // namespace Gu
+} // namespace ev4sio_Gu
 
 }
 

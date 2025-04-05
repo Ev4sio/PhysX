@@ -35,13 +35,13 @@
 #include "GuPruner.h"
 #include "SqTypedef.h"
 
-namespace physx
+namespace ev4sio_physx
 {	
-namespace Gu
+namespace ev4sio_Gu
 {
 	class BVH;
 }
-namespace Sq
+namespace ev4sio_Sq
 {
 
 /**
@@ -67,7 +67,7 @@ struct CompoundPrunerRaycastCallback
 					CompoundPrunerRaycastCallback()		{}
     virtual			~CompoundPrunerRaycastCallback()	{}
 
-	virtual bool	invoke(PxReal& distance, PxU32 primIndex, const Gu::PrunerPayload* payloads, const PxTransform* transforms, const PxTransform* compoundPose) = 0;
+	virtual bool	invoke(PxReal& distance, PxU32 primIndex, const ev4sio_Gu::PrunerPayload* payloads, const PxTransform* transforms, const PxTransform* compoundPose) = 0;
 };
 
 struct CompoundPrunerOverlapCallback
@@ -75,7 +75,7 @@ struct CompoundPrunerOverlapCallback
 					CompoundPrunerOverlapCallback()		{}
     virtual			~CompoundPrunerOverlapCallback()	{}
 
-	virtual bool	invoke(PxU32 primIndex, const Gu::PrunerPayload* payloads, const PxTransform* transforms, const PxTransform* compoundPose) = 0;
+	virtual bool	invoke(PxU32 primIndex, const ev4sio_Gu::PrunerPayload* payloads, const PxTransform* transforms, const PxTransform* compoundPose) = 0;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -83,7 +83,7 @@ struct CompoundPrunerOverlapCallback
 *	Pruner holding compound objects
 */
 //////////////////////////////////////////////////////////////////////////
-class CompoundPruner : public Gu::BasePruner
+class CompoundPruner : public ev4sio_Gu::BasePruner
 {
 	public:
 	virtual							~CompoundPruner() {}
@@ -101,13 +101,13 @@ class CompoundPruner : public Gu::BasePruner
 	Handles are usable as indices. Each handle is either be a recycled handle returned by the client via removeObjects(),
 	or a fresh handle that is either zero, or one greater than the last fresh handle returned.
 	*/
-	virtual bool					addCompound(Gu::PrunerHandle* results, const Gu::BVH& bvh, PrunerCompoundId compoundId, const PxTransform& transform, bool isDynamic, const Gu::PrunerPayload* data, const PxTransform* transforms) = 0;
+	virtual bool					addCompound(ev4sio_Gu::PrunerHandle* results, const ev4sio_Gu::BVH& bvh, PrunerCompoundId compoundId, const PxTransform& transform, bool isDynamic, const ev4sio_Gu::PrunerPayload* data, const PxTransform* transforms) = 0;
 
 	/**
 	Removes compound from the pruner.
 	\param		compoundId	[in]	compound to remove
 	*/
-	virtual bool					removeCompound(PrunerCompoundId compoundId, Gu::PrunerPayloadRemovalCallback* removalCallback) = 0;
+	virtual bool					removeCompound(PrunerCompoundId compoundId, ev4sio_Gu::PrunerPayloadRemovalCallback* removalCallback) = 0;
 
 	/**
 	Updates compound object
@@ -121,14 +121,14 @@ class CompoundPruner : public Gu::BasePruner
 	\param		compoundId	[in]	compound that the object belongs to
 	\param		handle		[in]	the object to update
 	*/
-	virtual void					updateObjectAfterManualBoundsUpdates(PrunerCompoundId compoundId, const Gu::PrunerHandle handle) = 0;
+	virtual void					updateObjectAfterManualBoundsUpdates(PrunerCompoundId compoundId, const ev4sio_Gu::PrunerHandle handle) = 0;
 
 	/**
 	Removes object from compound pruner.
 	\param		compoundId	[in]	compound that the object belongs to	 
 	\param		handle		[in]	the object to remove
 	*/
-	virtual void					removeObject(PrunerCompoundId compoundId, const Gu::PrunerHandle handle, Gu::PrunerPayloadRemovalCallback* removalCallback) = 0;
+	virtual void					removeObject(PrunerCompoundId compoundId, const ev4sio_Gu::PrunerHandle handle, ev4sio_Gu::PrunerPayloadRemovalCallback* removalCallback) = 0;
 
 	/**
 	\brief		Adds object to the pruner.
@@ -139,7 +139,7 @@ class CompoundPruner : public Gu::BasePruner
 	
 	\return		true if success, false if internal allocation failed. The first failing add results in a INVALID_PRUNERHANDLE.
 	*/
-	virtual bool					addObject(PrunerCompoundId compoundId, Gu::PrunerHandle& result, const PxBounds3& bounds, const Gu::PrunerPayload userData, const PxTransform& transform) = 0;
+	virtual bool					addObject(PrunerCompoundId compoundId, ev4sio_Gu::PrunerHandle& result, const PxBounds3& bounds, const ev4sio_Gu::PrunerPayload userData, const PxTransform& transform) = 0;
 
 	/**
 	 *	Query functions
@@ -148,8 +148,8 @@ class CompoundPruner : public Gu::BasePruner
 	 *			currently it is still used for the dynamic pruner internally (to decide if added objects must be queried)
 	 */
 	virtual	bool					raycast(const PxVec3& origin, const PxVec3& unitDir, PxReal& inOutDistance, CompoundPrunerRaycastCallback&, PxCompoundPrunerQueryFlags flags) const = 0;
-	virtual	bool					overlap(const Gu::ShapeData& queryVolume, CompoundPrunerOverlapCallback&, PxCompoundPrunerQueryFlags flags) const = 0;
-	virtual	bool					sweep(const Gu::ShapeData& queryVolume, const PxVec3& unitDir, PxReal& inOutDistance, CompoundPrunerRaycastCallback&, PxCompoundPrunerQueryFlags flags) const = 0;
+	virtual	bool					overlap(const ev4sio_Gu::ShapeData& queryVolume, CompoundPrunerOverlapCallback&, PxCompoundPrunerQueryFlags flags) const = 0;
+	virtual	bool					sweep(const ev4sio_Gu::ShapeData& queryVolume, const PxVec3& unitDir, PxReal& inOutDistance, CompoundPrunerRaycastCallback&, PxCompoundPrunerQueryFlags flags) const = 0;
 
 	/**
 	\brief	Retrieves the object's payload and data associated with the handle.
@@ -164,7 +164,7 @@ class CompoundPruner : public Gu::BasePruner
 
 	\return	The payload associated with the given handle.
 	*/
-	virtual const Gu::PrunerPayload&	getPayloadData(Gu::PrunerHandle handle, PrunerCompoundId compoundId, Gu::PrunerPayloadData* data) const = 0;
+	virtual const ev4sio_Gu::PrunerPayload&	getPayloadData(ev4sio_Gu::PrunerHandle handle, PrunerCompoundId compoundId, ev4sio_Gu::PrunerPayloadData* data) const = 0;
 
 	/**
 	\brief	Preallocate space
@@ -174,7 +174,7 @@ class CompoundPruner : public Gu::BasePruner
 	virtual void					preallocate(PxU32 nbEntries) = 0;
 
 	// PT: beware, shape transform
-	virtual bool					setTransform(Gu::PrunerHandle handle, PrunerCompoundId compoundId, const PxTransform& transform)	 = 0;
+	virtual bool					setTransform(ev4sio_Gu::PrunerHandle handle, PrunerCompoundId compoundId, const PxTransform& transform)	 = 0;
 
 	// PT: beware, actor transform
 	virtual	const PxTransform&		getTransform(PrunerCompoundId compoundId)	const	= 0;

@@ -30,7 +30,7 @@
 #include "foundation/PxUserAllocated.h"
 #include "foundation/PxSync.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 static PX_FORCE_INLINE HANDLE& getSync(PxSyncImpl* impl)
 {

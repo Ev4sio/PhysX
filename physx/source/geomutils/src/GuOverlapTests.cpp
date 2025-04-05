@@ -49,9 +49,9 @@
 #include "GuConvexSupport.h"
 #include "GuRefGjkEpa.h"
 
-using namespace physx;
-using namespace Cm;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Cm;
+using namespace ev4sio_Gu;
 
 // PT: TODO: why don't we use ShapeData for overlaps?
 
@@ -78,7 +78,7 @@ static PxVec3 projectHull_(	const ConvexHullData& hull,
 		while(NbVerts--)
 		{
 			const float dp = (*Verts).dot(vertexSpaceDir);
-			min_ = physx::intrinsics::selectMin(min_, dp);
+			min_ = ev4sio_physx::intrinsics::selectMin(min_, dp);
 			if(dp > max_)	{ max_ = dp; bestVert = Verts; }
 
 			Verts++;
@@ -626,15 +626,15 @@ static bool GeomOverlapCallback_ConvexCoreGeometry(GU_OVERLAP_FUNC_PARAMS)
 	PX_UNUSED(threadContext);
 	PX_UNUSED(cache);
 
-	Gu::ConvexShape shape0, shape1;
-	Gu::makeConvexShape(geom0, pose0, shape0);
-	Gu::makeConvexShape(geom1, pose1, shape1);
+	ev4sio_Gu::ConvexShape shape0, shape1;
+	ev4sio_Gu::makeConvexShape(geom0, pose0, shape0);
+	ev4sio_Gu::makeConvexShape(geom1, pose1, shape1);
 
 	if (!shape0.isValid() || !shape1.isValid())
 		return false;
 
 	PxVec3 point0, point1, axis;
-	PxReal dist = Gu::RefGjkEpa::computeGjkDistance(shape0, shape1, shape0.pose, shape1.pose, shape0.margin + shape1.margin, point0, point1, axis);
+	PxReal dist = ev4sio_Gu::RefGjkEpa::computeGjkDistance(shape0, shape1, shape0.pose, shape1.pose, shape0.margin + shape1.margin, point0, point1, axis);
 
 	return dist <= shape0.margin + shape1.margin + FLT_EPSILON;
 }
@@ -808,7 +808,7 @@ GeomOverlapTable gGeomOverlapMethodTable[] =
 };
 PX_COMPILE_TIME_ASSERT(sizeof(gGeomOverlapMethodTable) / sizeof(gGeomOverlapMethodTable[0]) == PxGeometryType::eGEOMETRY_COUNT);
 
-const GeomOverlapTable* Gu::getOverlapFuncTable()
+const GeomOverlapTable* ev4sio_Gu::getOverlapFuncTable()
 {
 	return gGeomOverlapMethodTable;
 }

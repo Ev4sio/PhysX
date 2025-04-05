@@ -39,9 +39,9 @@
 #include "NpArticulationLink.h"
 #include "GuActorShapeMap.h"
 
-using namespace physx;
-using namespace Sq;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Sq;
+using namespace ev4sio_Gu;
 
 #if PX_SUPPORT_PVD
 	#include "NpPvdSceneQueryCollector.h"
@@ -115,7 +115,7 @@ void NpSqAdapter::getActorShape(const PrunerPayload& payload, PxActorShape& acto
 {
 	NpShape* npShape = getShapeFromPayload(payload);
 	NpActor* npActor = getActorFromPayload(payload);
-	actorShape.actor = static_cast<PxRigidActor*>(static_cast<const Sc::RigidCore&>(npActor->getActorCore()).getPxActor());
+	actorShape.actor = static_cast<PxRigidActor*>(static_cast<const ev4sio_Sc::RigidCore&>(npActor->getActorCore()).getPxActor());
 	actorShape.shape = npShape;
 	PX_ASSERT(actorShape.shape == npShape->getCore().getPxShape());
 }
@@ -210,8 +210,8 @@ namespace
 										{}
 		virtual							~InternalPxSQ(){}
 
-		PX_FORCE_INLINE	Sq::PrunerManager&			SQ()				{ return mQueries.mSQManager;	}
-		PX_FORCE_INLINE	const Sq::PrunerManager&	SQ()	const		{ return mQueries.mSQManager;	}
+		PX_FORCE_INLINE	ev4sio_Sq::PrunerManager&			SQ()				{ return mQueries.mSQManager;	}
+		PX_FORCE_INLINE	const ev4sio_Sq::PrunerManager&	SQ()	const		{ return mQueries.mSQManager;	}
 
 		virtual		void				release()
 		{
@@ -627,7 +627,7 @@ void NpScene::flushUpdates()
 
 namespace
 {
-	class SqRefFinder: public Sc::SqRefFinder
+	class SqRefFinder: public ev4sio_Sc::SqRefFinder
 	{
 		PX_NOCOPY(SqRefFinder)
 	public:
@@ -647,7 +647,7 @@ void NpScene::syncSQ()
 
 	{
 		const PxU32 numBodies = mScene.getNumActiveCompoundBodies();
-		const Sc::BodyCore*const* bodies = mScene.getActiveCompoundBodiesArray();
+		const ev4sio_Sc::BodyCore*const* bodies = mScene.getActiveCompoundBodiesArray();
 
 		// PT: we emulate "getGlobalPose" here by doing the equivalent matrix computation directly.
 		// This works because the code is the same for rigid dynamic & articulation links.

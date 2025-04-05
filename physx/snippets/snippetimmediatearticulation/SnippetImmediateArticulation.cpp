@@ -68,7 +68,7 @@
 //can be solved in parallel by using multiple lanes of SIMD registers.
 #define BATCH_CONTACTS 1
 
-using namespace physx;
+using namespace ev4sio_physx;
 using namespace immediate;
 using namespace SnippetImmUtils;
 
@@ -165,7 +165,7 @@ static void computeMassProps(MassProps& props, const PxGeometry& geometry, float
 }
 
 #ifdef TEST_IMMEDIATE_JOINTS
-	struct MyJointData : Ext::JointData
+	struct MyJointData : ev4sio_Ext::JointData
 	{
 		PxU32		mActors[2];
 		PxTransform	mLocalFrames[2];
@@ -1170,7 +1170,7 @@ void ImmediateScene::createScene()
 		convexDesc.points.stride	= sizeof(PxVec3);
 		convexDesc.points.data		= verts;
 		convexDesc.flags			= PxConvexFlag::eCOMPUTE_CONVEX;
-		PxConvexMesh* convexMesh = PxCreateConvexMesh(params, convexDesc);
+		PxConvexMesh* convexMesh = ev4sio_PxCreateConvexMesh(params, convexDesc);
 
 		const PxConvexMeshGeometry convexGeom(convexMesh);
 
@@ -1492,9 +1492,9 @@ static PxU32 SphericalJointSolverPrep(Px1DConstraint* constraints,
 	const MyJointData& data = *reinterpret_cast<const MyJointData*>(constantBlock);
 
 	PxTransform32 cA2w, cB2w;
-	Ext::joint::ConstraintHelper ch(constraints, invMassScale, cA2w, cB2w, body0WorldOffset, data, bA2w, bB2w);
+	ev4sio_Ext::joint::ConstraintHelper ch(constraints, invMassScale, cA2w, cB2w, body0WorldOffset, data, bA2w, bB2w);
 
-	Ext::joint::applyNeighborhoodOperator(cA2w, cB2w);
+	ev4sio_Ext::joint::applyNeighborhoodOperator(cA2w, cB2w);
 
 /*	if(data.jointFlags & PxSphericalJointFlag::eLIMIT_ENABLED)
 	{
@@ -1506,7 +1506,7 @@ static PxU32 SphericalJointSolverPrep(Px1DConstraint* constraints,
 		PxVec3 axis;
 		PxReal error;
 		const PxReal pad = data.limit.isSoft() ? 0.0f : data.limit.contactDistance;
-		const Cm::ConeLimitHelperTanLess coneHelper(data.limit.yAngle, data.limit.zAngle, pad);
+		const ev4sio_Cm::ConeLimitHelperTanLess coneHelper(data.limit.yAngle, data.limit.zAngle, pad);
 		const bool active = coneHelper.getLimit(swing, axis, error);				
 		if(active)
 			ch.angularLimit(cA2w.rotate(axis), error, data.limit);
@@ -1678,22 +1678,22 @@ void ImmediateScene::createContactConstraints(float dt, float invDt, float lengt
 	PxArray<PxSolverConstraintDesc>& orderedDescs = mOrderedSolverConstraintDesc;
 
 #if USE_TGS
-	const PxU32 nbContactHeaders = physx::immediate::PxBatchConstraintsTGS(	mSolverConstraintDesc.begin(), mContactPairs.size(), mSolverBodies.begin(), nbBodies,
+	const PxU32 nbContactHeaders = ev4sio_physx::immediate::PxBatchConstraintsTGS(	mSolverConstraintDesc.begin(), mContactPairs.size(), mSolverBodies.begin(), nbBodies,
 																			mHeaders.begin(), orderedDescs.begin(),
 																			mArticulations.begin(), mArticulations.size());
 
 	//2 batch the joints...
-	const PxU32 nbJointHeaders = physx::immediate::PxBatchConstraintsTGS(	mSolverConstraintDesc.begin() + mContactPairs.size(), mJointData.size(), mSolverBodies.begin(), nbBodies,
+	const PxU32 nbJointHeaders = ev4sio_physx::immediate::PxBatchConstraintsTGS(	mSolverConstraintDesc.begin() + mContactPairs.size(), mJointData.size(), mSolverBodies.begin(), nbBodies,
 																			mHeaders.begin() + nbContactHeaders, orderedDescs.begin() + mContactPairs.size(),
 																			mArticulations.begin(), mArticulations.size());
 #else
 	//1 batch the contacts
-	const PxU32 nbContactHeaders = physx::immediate::PxBatchConstraints(mSolverConstraintDesc.begin(), mContactPairs.size(), mSolverBodies.begin(), nbBodies,
+	const PxU32 nbContactHeaders = ev4sio_physx::immediate::PxBatchConstraints(mSolverConstraintDesc.begin(), mContactPairs.size(), mSolverBodies.begin(), nbBodies,
 																		mHeaders.begin(), orderedDescs.begin(),
 																		mArticulations.begin(), mArticulations.size());
 
 	//2 batch the joints...
-	const PxU32 nbJointHeaders = physx::immediate::PxBatchConstraints(	mSolverConstraintDesc.begin() + mContactPairs.size(), mJointData.size(), mSolverBodies.begin(), nbBodies,
+	const PxU32 nbJointHeaders = ev4sio_physx::immediate::PxBatchConstraints(	mSolverConstraintDesc.begin() + mContactPairs.size(), mJointData.size(), mSolverBodies.begin(), nbBodies,
 																		mHeaders.begin() + nbContactHeaders, orderedDescs.begin() + mContactPairs.size(),
 																		mArticulations.begin(), mArticulations.size());
 #endif
@@ -2048,7 +2048,7 @@ const PxContactPoint* getContacts()
 
 void initPhysics(bool /*interactive*/)
 {
-	gFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, gAllocator, gErrorCallback);
+	gFoundation = ev4sio_PxCreateFoundation(ev4sio_PX_PHYSICS_VERSION, gAllocator, gErrorCallback);
 
 	gScene = new ImmediateScene;
 	gScene->createScene();

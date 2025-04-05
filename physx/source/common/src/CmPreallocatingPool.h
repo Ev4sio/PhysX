@@ -33,9 +33,9 @@
 #include "foundation/PxSort.h"
 #include "foundation/PxArray.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Cm
+namespace ev4sio_Cm
 {
 
 class PreallocatingRegion
@@ -407,7 +407,7 @@ public:
 	}
 };
 	
-} // namespace Cm
+} // namespace ev4sio_Cm
 
 }
 

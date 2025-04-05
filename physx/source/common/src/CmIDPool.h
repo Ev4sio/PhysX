@@ -32,9 +32,9 @@
 #include "foundation/PxArray.h"
 #include "foundation/PxUserAllocated.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Cm
+namespace ev4sio_Cm
 {
 	template<class FreeBuffer>
 	class IDPoolBase : public PxUserAllocated
@@ -196,7 +196,7 @@ namespace Cm
 
 	};
 
-} // namespace Cm
+} // namespace ev4sio_Cm
 
 }
 

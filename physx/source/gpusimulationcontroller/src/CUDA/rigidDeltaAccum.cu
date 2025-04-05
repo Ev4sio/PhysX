@@ -38,7 +38,7 @@
 #include "PxgSimulationCoreDesc.h"
 #include "PxgArticulationCoreDesc.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 extern "C" __host__ void initSimulationControllerKernels2() {}
 
@@ -371,7 +371,7 @@ extern "C" __global__ void accumulateDeltaVRigidSecondLaunch(
 						linVel.w = 0.f;
 
 						//for articulation, linVel and angVel accumulate impulse
-						Cm::UnAlignedSpatialVector impulse;
+						ev4sio_Cm::UnAlignedSpatialVector impulse;
 						impulse.top = PxVec3(linVel.x, linVel.y, linVel.z );
 						impulse.bottom = PxVec3(angVel.x, angVel.y, angVel.z);
 
@@ -824,7 +824,7 @@ extern "C" __global__ void accumulateDeltaVRigidSecondLaunchMultiStage2(
 						PxReal ratio = 1.f / denom;
 
 						//for articulation, linVel and angVel accumulate impulse
-						Cm::UnAlignedSpatialVector impulse;
+						ev4sio_Cm::UnAlignedSpatialVector impulse;
 						impulse.top = PxVec3(linVel.x, linVel.y, linVel.z);
 						impulse.bottom = PxVec3(angVel.x, angVel.y, angVel.z);
 

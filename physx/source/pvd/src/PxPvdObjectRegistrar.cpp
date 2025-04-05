@@ -28,14 +28,14 @@
 
 #include "PxPvdObjectRegistrar.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 namespace pvdsdk
 {
 
 bool ObjectRegistrar::addItem(const void* inItem)
 {
-	physx::PxMutex::ScopedLock lock(mRefCountMapLock);
+	ev4sio_physx::PxMutex::ScopedLock lock(mRefCountMapLock);
 
 	if(mRefCountMap.find(inItem))
 	{
@@ -52,8 +52,8 @@ bool ObjectRegistrar::addItem(const void* inItem)
 
 bool ObjectRegistrar::decItem(const void* inItem)
 {
-	physx::PxMutex::ScopedLock lock(mRefCountMapLock);
-	const physx::PxHashMap<const void*, uint32_t>::Entry* entry = mRefCountMap.find(inItem);
+	ev4sio_physx::PxMutex::ScopedLock lock(mRefCountMapLock);
+	const ev4sio_physx::PxHashMap<const void*, uint32_t>::Entry* entry = mRefCountMap.find(inItem);
 	if(entry)
 	{
 		uint32_t& retval(const_cast<uint32_t&>(entry->second));
@@ -71,7 +71,7 @@ bool ObjectRegistrar::decItem(const void* inItem)
 
 void ObjectRegistrar::clear()
 {
-	physx::PxMutex::ScopedLock lock(mRefCountMapLock);
+	ev4sio_physx::PxMutex::ScopedLock lock(mRefCountMapLock);
 	mRefCountMap.clear();
 }
 

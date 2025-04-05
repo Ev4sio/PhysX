@@ -49,7 +49,7 @@
 #include "constraintPrepShared.cuh"
 #include "copy.cuh"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 
 
@@ -132,9 +132,9 @@ static __device__ bool getFrictionPatches(PxgFrictionPatch&  frictionPatch,
 }
 
 static __device__ void growPatches(PxgFrictionPatch& fp, PxgFrictionAnchorPatch& fAnchor,
-	const physx::PxgContactPoint* msContacts, const PxU32 numContacts,
-	const physx::PxTransform& msBodyFrame0,
-	const physx::PxTransform& msBodyFrame1,
+	const ev4sio_physx::PxgContactPoint* msContacts, const PxU32 numContacts,
+	const ev4sio_physx::PxTransform& msBodyFrame0,
+	const ev4sio_physx::PxTransform& msBodyFrame1,
 	float frictionOffsetThreshold,
 	const PxReal anchorSqDistance,
 	const float minimum,			//PxBounds3
@@ -142,7 +142,7 @@ static __device__ void growPatches(PxgFrictionPatch& fp, PxgFrictionAnchorPatch&
 	ScratchMemoryAllocator& sAlloc,
 	const PxU32 threadIndexInWarp)
 {
-	using namespace physx;
+	using namespace ev4sio_physx;
 	PxU32 oldAnchorCount = fp.anchorCount;
 
 	ScratchMemoryMarker marker(sAlloc);
@@ -317,7 +317,7 @@ static __device__ void growPatches(PxgFrictionPatch& fp, PxgFrictionAnchorPatch&
 	__syncwarp();
 }
 
-static __device__ void initFrictionPatch(physx::PxgFrictionPatch& p,
+static __device__ void initFrictionPatch(ev4sio_physx::PxgFrictionPatch& p,
 	const float msBody0Normal, const float msBody1Normal,
 	const PxU32 threadIndexInWarp)
 {
@@ -344,11 +344,11 @@ static __device__ void initFrictionPatch(physx::PxgFrictionPatch& p,
 }
 
 
-static __device__ void correlatePatches(PxgFrictionPatch& frictionPatch, const physx::PxgContactPoint* contacts, const PxU32 nbContacts,
-	const float msNormal, const physx::PxAlignedTransform& msBodyFrame0, const physx::PxAlignedTransform& msBodyFrame1,
+static __device__ void correlatePatches(PxgFrictionPatch& frictionPatch, const ev4sio_physx::PxgContactPoint* contacts, const PxU32 nbContacts,
+	const float msNormal, const ev4sio_physx::PxAlignedTransform& msBodyFrame0, const ev4sio_physx::PxAlignedTransform& msBodyFrame1,
 	float normalTolerance, ScratchMemoryAllocator& sAlloc, const PxU32 threadIndexInWarp)
 {
-	using namespace physx;
+	using namespace ev4sio_physx;
 
 	if (nbContacts > 0)
 	{

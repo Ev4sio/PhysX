@@ -49,7 +49,7 @@
 
 #define DY_STATIC_CONTACTS_IN_INTERNAL_SOLVER true
 
-namespace physx
+namespace ev4sio_physx
 {
 
 class PxcConstraintBlockStream;
@@ -64,7 +64,7 @@ class PxsContactManagerOutputIterator;
 
 struct PxSolverConstraintDesc;
 	
-namespace Dy
+namespace ev4sio_Dy
 {
 //#if PX_VC 
 //#pragma warning(push)   
@@ -86,10 +86,10 @@ namespace Dy
 
 	struct ArticulationInternalTendonConstraint
 	{
-		Cm::UnAlignedSpatialVector row0;			//24	24
-		Cm::UnAlignedSpatialVector row1;			//24	48
+		ev4sio_Cm::UnAlignedSpatialVector row0;			//24	24
+		ev4sio_Cm::UnAlignedSpatialVector row1;			//24	48
 
-		Cm::UnAlignedSpatialVector deltaVB;			//24	72
+		ev4sio_Cm::UnAlignedSpatialVector deltaVB;			//24	72
 
 		PxU32	linkID0;							//4		74
 		PxU32	linkID1;							//4		78
@@ -113,10 +113,10 @@ namespace Dy
 	struct ArticulationInternalConstraintBase
 	{
 		//Common/shared directional info between, frictions and drives
-		Cm::UnAlignedSpatialVector row0;		//24	24
-		Cm::UnAlignedSpatialVector row1;		//24	48
-		Cm::UnAlignedSpatialVector deltaVA;		//24	72	
-		Cm::UnAlignedSpatialVector deltaVB;		//24	96
+		ev4sio_Cm::UnAlignedSpatialVector row0;		//24	24
+		ev4sio_Cm::UnAlignedSpatialVector row1;		//24	48
+		ev4sio_Cm::UnAlignedSpatialVector deltaVA;		//24	72	
+		ev4sio_Cm::UnAlignedSpatialVector deltaVB;		//24	96
 
 		//Response information
 		PxReal recipResponse;					//4		100
@@ -185,7 +185,7 @@ namespace Dy
 	{
 		PxReal mVals [6][4];
 
-		PxReal dot(Cm::SpatialVectorF& v, PxU32 id)
+		PxReal dot(ev4sio_Cm::SpatialVectorF& v, PxU32 id)
 		{
 			return v.top.x * mVals[0][id] + v.top.y * mVals[1][id] + v.top.z * mVals[2][id]
 				+ v.bottom.x * mVals[3][id] + v.bottom.y * mVals[4][id] + v.bottom.z * mVals[5][id];
@@ -204,7 +204,7 @@ namespace Dy
 			mMimicJoints(NULL), mNbMimicJoints(0), mDt(0.f),mDofs(0xffffffff),
 			mDataDirty(true)
 		{
-			mRootPreMotionVelocity = Cm::SpatialVectorF::Zero();
+			mRootPreMotionVelocity = ev4sio_Cm::SpatialVectorF::Zero();
 		}
 
 		~ArticulationData();
@@ -231,42 +231,42 @@ namespace Dy
 		PX_FORCE_INLINE ArticulationInternalConstraint&			getInternalConstraint(const PxU32 dofId)		{ return mInternalConstraints[dofId];	}
 		PX_FORCE_INLINE const ArticulationInternalConstraint&	getInternalConstraint(const PxU32 dofId) const	{ return mInternalConstraints[dofId];	}
 		
-		PX_FORCE_INLINE Cm::SpatialVectorF*			getMotionVelocities()									{ return mMotionVelocities.begin();			}
-		PX_FORCE_INLINE Cm::SpatialVectorF*			getMotionAccelerations()								{ return mMotionAccelerations.begin();		}
-		PX_FORCE_INLINE const Cm::SpatialVectorF*	getMotionAccelerations() const							{ return mMotionAccelerations.begin(); }
-		PX_FORCE_INLINE		  Cm::SpatialVectorF*	getLinkIncomingJointForces()							{ return mLinkIncomingJointForces.begin(); }
-		PX_FORCE_INLINE Cm::SpatialVectorF*			getCorioliseVectors()									{ return mCorioliseVectors.begin();			}
-		PX_FORCE_INLINE Cm::SpatialVectorF*			getSpatialZAVectors()									{ return mZAForces.begin();					}
-		PX_FORCE_INLINE Cm::SpatialVectorF*			getSpatialZAInternalVectors()							{ return mZAInternalForces.begin();			}
-		PX_FORCE_INLINE Cm::SpatialVectorF*			getTransmittedForces()									{ return mJointTransmittedForce.begin();	}
+		PX_FORCE_INLINE ev4sio_Cm::SpatialVectorF*			getMotionVelocities()									{ return mMotionVelocities.begin();			}
+		PX_FORCE_INLINE ev4sio_Cm::SpatialVectorF*			getMotionAccelerations()								{ return mMotionAccelerations.begin();		}
+		PX_FORCE_INLINE const ev4sio_Cm::SpatialVectorF*	getMotionAccelerations() const							{ return mMotionAccelerations.begin(); }
+		PX_FORCE_INLINE		  ev4sio_Cm::SpatialVectorF*	getLinkIncomingJointForces()							{ return mLinkIncomingJointForces.begin(); }
+		PX_FORCE_INLINE ev4sio_Cm::SpatialVectorF*			getCorioliseVectors()									{ return mCorioliseVectors.begin();			}
+		PX_FORCE_INLINE ev4sio_Cm::SpatialVectorF*			getSpatialZAVectors()									{ return mZAForces.begin();					}
+		PX_FORCE_INLINE ev4sio_Cm::SpatialVectorF*			getSpatialZAInternalVectors()							{ return mZAInternalForces.begin();			}
+		PX_FORCE_INLINE ev4sio_Cm::SpatialVectorF*			getTransmittedForces()									{ return mJointTransmittedForce.begin();	}
 
-		PX_FORCE_INLINE Cm::SpatialVectorF*			getPosIterMotionVelocities()							{ return mPosIterMotionVelocities.begin();	}
-		PX_FORCE_INLINE const Cm::SpatialVectorF*	getPosIterMotionVelocities() const						{ return mPosIterMotionVelocities.begin();	}
+		PX_FORCE_INLINE ev4sio_Cm::SpatialVectorF*			getPosIterMotionVelocities()							{ return mPosIterMotionVelocities.begin();	}
+		PX_FORCE_INLINE const ev4sio_Cm::SpatialVectorF*	getPosIterMotionVelocities() const						{ return mPosIterMotionVelocities.begin();	}
 		PX_FORCE_INLINE PxReal*						getPosIterJointVelocities()								{ return mPosIterJointVelocities.begin();	}
 	
-		PX_FORCE_INLINE Cm::SpatialVectorF&			getPosIterMotionVelocity(const PxU32 index)				{ return mPosIterMotionVelocities[index];	}
-		PX_FORCE_INLINE const Cm::SpatialVectorF&	getMotionVelocity(const PxU32 index)			const	{ return mMotionVelocities[index];			}
-		PX_FORCE_INLINE const Cm::SpatialVectorF&	getMotionAcceleration(const PxU32 index)		const	{ return mMotionAccelerations[index];		}
-		PX_FORCE_INLINE const Cm::SpatialVectorF&	getCorioliseVector(const PxU32 index)			const	{ return mCorioliseVectors[index];			}
-		PX_FORCE_INLINE const Cm::SpatialVectorF&	getSpatialZAVector(const PxU32 index)			const	{ return mZAForces[index];					}
-		PX_FORCE_INLINE const Cm::SpatialVectorF&	getTransmittedForce(const PxU32 index)			const	{ return mJointTransmittedForce[index];		}
+		PX_FORCE_INLINE ev4sio_Cm::SpatialVectorF&			getPosIterMotionVelocity(const PxU32 index)				{ return mPosIterMotionVelocities[index];	}
+		PX_FORCE_INLINE const ev4sio_Cm::SpatialVectorF&	getMotionVelocity(const PxU32 index)			const	{ return mMotionVelocities[index];			}
+		PX_FORCE_INLINE const ev4sio_Cm::SpatialVectorF&	getMotionAcceleration(const PxU32 index)		const	{ return mMotionAccelerations[index];		}
+		PX_FORCE_INLINE const ev4sio_Cm::SpatialVectorF&	getCorioliseVector(const PxU32 index)			const	{ return mCorioliseVectors[index];			}
+		PX_FORCE_INLINE const ev4sio_Cm::SpatialVectorF&	getSpatialZAVector(const PxU32 index)			const	{ return mZAForces[index];					}
+		PX_FORCE_INLINE const ev4sio_Cm::SpatialVectorF&	getTransmittedForce(const PxU32 index)			const	{ return mJointTransmittedForce[index];		}
 
-		PX_FORCE_INLINE Cm::SpatialVectorF&			getMotionVelocity(const PxU32 index)					{ return mMotionVelocities[index];			}
-		PX_FORCE_INLINE Cm::SpatialVectorF&			getMotionAcceleration(const PxU32 index)				{ return mMotionAccelerations[index];		}
-		PX_FORCE_INLINE Cm::SpatialVectorF&			getCorioliseVector(const PxU32 index)					{ return mCorioliseVectors[index];			}
-		PX_FORCE_INLINE Cm::SpatialVectorF&			getSpatialZAVector(const PxU32 index)					{ return mZAForces[index];					}
-		PX_FORCE_INLINE Cm::SpatialVectorF&			getTransmittedForce(const PxU32 index)					{ return mJointTransmittedForce[index];		}
+		PX_FORCE_INLINE ev4sio_Cm::SpatialVectorF&			getMotionVelocity(const PxU32 index)					{ return mMotionVelocities[index];			}
+		PX_FORCE_INLINE ev4sio_Cm::SpatialVectorF&			getMotionAcceleration(const PxU32 index)				{ return mMotionAccelerations[index];		}
+		PX_FORCE_INLINE ev4sio_Cm::SpatialVectorF&			getCorioliseVector(const PxU32 index)					{ return mCorioliseVectors[index];			}
+		PX_FORCE_INLINE ev4sio_Cm::SpatialVectorF&			getSpatialZAVector(const PxU32 index)					{ return mZAForces[index];					}
+		PX_FORCE_INLINE ev4sio_Cm::SpatialVectorF&			getTransmittedForce(const PxU32 index)					{ return mJointTransmittedForce[index];		}
 
-		//PX_FORCE_INLINE Dy::SpatialMatrix*			getTempSpatialMatrix() { mTempSpatialMatrix.begin(); }
+		//PX_FORCE_INLINE ev4sio_Dy::SpatialMatrix*			getTempSpatialMatrix() { mTempSpatialMatrix.begin(); }
 
 		PX_FORCE_INLINE PxTransform&				getPreTransform(const PxU32 index)						{ return mPreTransform[index];				}
 		PX_FORCE_INLINE const PxTransform&			getPreTransform(const PxU32 index)				const	{ return mPreTransform[index];				}
 //		PX_FORCE_INLINE void						setPreTransform(const PxU32 index, const PxTransform& t){ mPreTransform[index] = t;					}
 		PX_FORCE_INLINE PxTransform*				getPreTransform()										{ return mPreTransform.begin();				}
 
-		PX_FORCE_INLINE const Cm::SpatialVectorF&	getDeltaMotionVector(const PxU32 index) const			{ return mDeltaMotionVector[index];			}
-		PX_FORCE_INLINE void						setDeltaMotionVector(const PxU32 index, const Cm::SpatialVectorF& vec) { mDeltaMotionVector[index] = vec; }
-		PX_FORCE_INLINE Cm::SpatialVectorF*			getDeltaMotionVector()									{ return mDeltaMotionVector.begin();		}
+		PX_FORCE_INLINE const ev4sio_Cm::SpatialVectorF&	getDeltaMotionVector(const PxU32 index) const			{ return mDeltaMotionVector[index];			}
+		PX_FORCE_INLINE void						setDeltaMotionVector(const PxU32 index, const ev4sio_Cm::SpatialVectorF& vec) { mDeltaMotionVector[index] = vec; }
+		PX_FORCE_INLINE ev4sio_Cm::SpatialVectorF*			getDeltaMotionVector()									{ return mDeltaMotionVector.begin();		}
 
 		PX_FORCE_INLINE ArticulationLink*			getLinks()										const	{ return mLinks;							}
 		PX_FORCE_INLINE PxU32						getLinkCount()									const	{ return mLinkCount;						}
@@ -292,10 +292,10 @@ namespace Dy
 		// PT: PX-1399
 		PX_FORCE_INLINE PxArticulationFlags			getArticulationFlags()							const	{ return *mFlags;							}
 
-		PX_FORCE_INLINE Cm::SpatialVector*			getExternalAccelerations()								{ return mExternalAcceleration;				}
+		PX_FORCE_INLINE ev4sio_Cm::SpatialVector*			getExternalAccelerations()								{ return mExternalAcceleration;				}
 
-		PX_FORCE_INLINE Cm::SpatialVector&			getExternalAcceleration(const PxU32 linkID)				{ return mExternalAcceleration[linkID];		}
-		PX_FORCE_INLINE const Cm::SpatialVector&	getExternalAcceleration(const PxU32 linkID)		const	{ return mExternalAcceleration[linkID]; 	}
+		PX_FORCE_INLINE ev4sio_Cm::SpatialVector&			getExternalAcceleration(const PxU32 linkID)				{ return mExternalAcceleration[linkID];		}
+		PX_FORCE_INLINE const ev4sio_Cm::SpatialVector&	getExternalAcceleration(const PxU32 linkID)		const	{ return mExternalAcceleration[linkID]; 	}
 
 		PX_FORCE_INLINE PxReal						getDt()											const	{ return mDt;								}
 		PX_FORCE_INLINE void						setDt(const PxReal dt)									{ mDt = dt;									}
@@ -315,20 +315,20 @@ namespace Dy
 		PX_FORCE_INLINE PxTransform*				getAccumulatedPoses()									{ return mAccumulatedPoses.begin();			}
 		PX_FORCE_INLINE const PxTransform*			getAccumulatedPoses()							const	{ return mAccumulatedPoses.begin();			}
 
-		PX_FORCE_INLINE const Cm::SpatialVectorF&	getRootDeferredZ()								const	{ return mRootDeferredZ;					}
-		PX_FORCE_INLINE	Cm::SpatialVectorF&			getRootDeferredZ()										{ return mRootDeferredZ;					}
+		PX_FORCE_INLINE const ev4sio_Cm::SpatialVectorF&	getRootDeferredZ()								const	{ return mRootDeferredZ;					}
+		PX_FORCE_INLINE	ev4sio_Cm::SpatialVectorF&			getRootDeferredZ()										{ return mRootDeferredZ;					}
 
 		PX_FORCE_INLINE const	SpatialMatrix*		getWorldSpatialArticulatedInertia()				const	{ return mWorldSpatialArticulatedInertia.begin(); }
 		PX_FORCE_INLINE			SpatialMatrix*		getWorldSpatialArticulatedInertia()						{ return mWorldSpatialArticulatedInertia.begin(); }
 
-		PX_FORCE_INLINE const	Cm::UnAlignedSpatialVector* getWorldMotionMatrix()					const	{ return mWorldMotionMatrix.begin(); }
-		PX_FORCE_INLINE			Cm::UnAlignedSpatialVector* getWorldMotionMatrix()							{ return mWorldMotionMatrix.begin(); }
+		PX_FORCE_INLINE const	ev4sio_Cm::UnAlignedSpatialVector* getWorldMotionMatrix()					const	{ return mWorldMotionMatrix.begin(); }
+		PX_FORCE_INLINE			ev4sio_Cm::UnAlignedSpatialVector* getWorldMotionMatrix()							{ return mWorldMotionMatrix.begin(); }
 
-		PX_FORCE_INLINE const	Cm::UnAlignedSpatialVector* getMotionMatrix()						const	{ return mMotionMatrix.begin(); }
-		PX_FORCE_INLINE			Cm::UnAlignedSpatialVector* getMotionMatrix()								{ return mMotionMatrix.begin(); }
+		PX_FORCE_INLINE const	ev4sio_Cm::UnAlignedSpatialVector* getMotionMatrix()						const	{ return mMotionMatrix.begin(); }
+		PX_FORCE_INLINE			ev4sio_Cm::UnAlignedSpatialVector* getMotionMatrix()								{ return mMotionMatrix.begin(); }
 
-		PX_FORCE_INLINE const	Cm::SpatialVectorF* getIsW()										const	{ return mIsW.begin(); }
-		PX_FORCE_INLINE			Cm::SpatialVectorF* getIsW()												{ return mIsW.begin(); }
+		PX_FORCE_INLINE const	ev4sio_Cm::SpatialVectorF* getIsW()										const	{ return mIsW.begin(); }
+		PX_FORCE_INLINE			ev4sio_Cm::SpatialVectorF* getIsW()												{ return mIsW.begin(); }
 
 		PX_FORCE_INLINE const	PxVec3* getRw()														const	{ return mRw.begin(); }
 		PX_FORCE_INLINE			PxVec3* getRw()																{ return mRw.begin(); }
@@ -345,8 +345,8 @@ namespace Dy
 		PX_FORCE_INLINE const	InvStIs* getInvStIS()												const	{ return mInvStIs.begin(); }
 		PX_FORCE_INLINE			InvStIs* getInvStIS()														{ return mInvStIs.begin(); }
 
-		PX_FORCE_INLINE const	Cm::SpatialVectorF* getISInvStIS()									const	{ return mISInvStIS.begin(); }
-		PX_FORCE_INLINE			Cm::SpatialVectorF* getISInvStIS()											{ return mISInvStIS.begin(); }
+		PX_FORCE_INLINE const	ev4sio_Cm::SpatialVectorF* getISInvStIS()									const	{ return mISInvStIS.begin(); }
+		PX_FORCE_INLINE			ev4sio_Cm::SpatialVectorF* getISInvStIS()											{ return mISInvStIS.begin(); }
 
 		PX_FORCE_INLINE			TestImpulseResponse* getImpulseResponseMatrixWorld()						{ return mResponseMatrixW.begin(); }
 
@@ -356,29 +356,29 @@ namespace Dy
 		
 		PX_FORCE_INLINE const InvStIs& getInvStIs(const PxU32 linkID) const { return mInvStIs[linkID]; }
 
-		PX_FORCE_INLINE const Cm::UnAlignedSpatialVector& getMotionMatrix(const PxU32 dofId) const { return mMotionMatrix[dofId]; }
-		PX_FORCE_INLINE const Cm::UnAlignedSpatialVector& getWorldMotionMatrix(const PxU32 dofId) const { return mWorldMotionMatrix[dofId]; }
+		PX_FORCE_INLINE const ev4sio_Cm::UnAlignedSpatialVector& getMotionMatrix(const PxU32 dofId) const { return mMotionMatrix[dofId]; }
+		PX_FORCE_INLINE const ev4sio_Cm::UnAlignedSpatialVector& getWorldMotionMatrix(const PxU32 dofId) const { return mWorldMotionMatrix[dofId]; }
 
-		PX_FORCE_INLINE		  Cm::UnAlignedSpatialVector& getJointAxis(const PxU32 dofId)			{ return mJointAxis[dofId]; }
-		PX_FORCE_INLINE const Cm::UnAlignedSpatialVector& getJointAxis(const PxU32 dofId) const		{ return mJointAxis[dofId]; }
+		PX_FORCE_INLINE		  ev4sio_Cm::UnAlignedSpatialVector& getJointAxis(const PxU32 dofId)			{ return mJointAxis[dofId]; }
+		PX_FORCE_INLINE const ev4sio_Cm::UnAlignedSpatialVector& getJointAxis(const PxU32 dofId) const		{ return mJointAxis[dofId]; }
 
 		PX_FORCE_INLINE const PxVec3& getRw(const PxU32 linkID) const								{ return mRw[linkID]; }
 
-		PX_FORCE_INLINE const Cm::SpatialVectorF& getIsW(const PxU32 dofId) const { return mIsW[dofId]; }
+		PX_FORCE_INLINE const ev4sio_Cm::SpatialVectorF& getIsW(const PxU32 dofId) const { return mIsW[dofId]; }
 
-		PX_FORCE_INLINE const Cm::SpatialVectorF& getWorldIsInvD(const PxU32 dofId) const { return mISInvStIS[dofId]; }
+		PX_FORCE_INLINE const ev4sio_Cm::SpatialVectorF& getWorldIsInvD(const PxU32 dofId) const { return mISInvStIS[dofId]; }
 		PX_FORCE_INLINE PxReal* getDeferredQstZ() { return mDeferredQstZ.begin(); }
 
-		PX_FORCE_INLINE void setRootPreMotionVelocity(const Cm::UnAlignedSpatialVector& vel) { mRootPreMotionVelocity.top = vel.top; mRootPreMotionVelocity.bottom = vel.bottom; }
+		PX_FORCE_INLINE void setRootPreMotionVelocity(const ev4sio_Cm::UnAlignedSpatialVector& vel) { mRootPreMotionVelocity.top = vel.top; mRootPreMotionVelocity.bottom = vel.bottom; }
 
 		PX_FORCE_INLINE PxU32*	getPathToRootElements() const { return mPathToRootElements; }
 		PX_FORCE_INLINE PxU32	getPathToRootElementCount() const { return mNumPathToRootElements; }
 
-		PX_FORCE_INLINE void incrementSolverSpatialDeltaVel(const PxU32 linkID, const Cm::SpatialVectorF& deltaV) {mSolverLinkSpatialDeltaVels[linkID] += deltaV;}
+		PX_FORCE_INLINE void incrementSolverSpatialDeltaVel(const PxU32 linkID, const ev4sio_Cm::SpatialVectorF& deltaV) {mSolverLinkSpatialDeltaVels[linkID] += deltaV;}
 
 	private:
-		Cm::SpatialVectorF							mRootPreMotionVelocity;
-		Cm::SpatialVectorF							mRootDeferredZ;
+		ev4sio_Cm::SpatialVectorF							mRootPreMotionVelocity;
+		ev4sio_Cm::SpatialVectorF							mRootDeferredZ;
 		PxArray<PxReal>								mJointAcceleration;		//	joint acceleration
 		PxArray<PxReal>								mJointInternalAcceleration;	//joint internal force acceleration
 		PxArray<PxReal>								mJointVelocity;			//	joint velocity
@@ -389,17 +389,17 @@ namespace Dy
 		PxArray<PxReal>								mJointTargetVelocities; //	joint target velocities
 	
 		PxArray<PxReal>											mPosIterJointVelocities;	//joint delta velocity after postion iternation before velocity iteration
-		PxArray<Cm::SpatialVectorF>								mPosIterMotionVelocities;	//link motion velocites after position iteration before velocity iteration
-		PxArray<Cm::SpatialVectorF>								mMotionVelocities;			//link motion velocites
-		PxArray<Cm::SpatialVectorF>								mSolverLinkSpatialDeltaVels;	//link DeltaVels arising from solver
-		PxArray<Cm::SpatialVectorF>								mSolverLinkSpatialImpulses;	//link impulses arising from solver.
-		PxArray<Cm::SpatialVectorF>								mMotionAccelerations;	//link motion accelerations
-		PxArray<Cm::SpatialVectorF>								mLinkIncomingJointForces;
-		PxArray<Cm::SpatialVectorF>								mMotionAccelerationsInternal;	//link motion accelerations
-		PxArray<Cm::SpatialVectorF>								mCorioliseVectors;		//link coriolise vector
-		PxArray<Cm::SpatialVectorF>								mZAInternalForces;		//link internal spatial forces
-		PxArray<Cm::SpatialVectorF>								mZAForces;				//link spatial zero acceleration force/ spatial articulated force
-		PxArray<Cm::SpatialVectorF>								mJointTransmittedForce; 
+		PxArray<ev4sio_Cm::SpatialVectorF>								mPosIterMotionVelocities;	//link motion velocites after position iteration before velocity iteration
+		PxArray<ev4sio_Cm::SpatialVectorF>								mMotionVelocities;			//link motion velocites
+		PxArray<ev4sio_Cm::SpatialVectorF>								mSolverLinkSpatialDeltaVels;	//link DeltaVels arising from solver
+		PxArray<ev4sio_Cm::SpatialVectorF>								mSolverLinkSpatialImpulses;	//link impulses arising from solver.
+		PxArray<ev4sio_Cm::SpatialVectorF>								mMotionAccelerations;	//link motion accelerations
+		PxArray<ev4sio_Cm::SpatialVectorF>								mLinkIncomingJointForces;
+		PxArray<ev4sio_Cm::SpatialVectorF>								mMotionAccelerationsInternal;	//link motion accelerations
+		PxArray<ev4sio_Cm::SpatialVectorF>								mCorioliseVectors;		//link coriolise vector
+		PxArray<ev4sio_Cm::SpatialVectorF>								mZAInternalForces;		//link internal spatial forces
+		PxArray<ev4sio_Cm::SpatialVectorF>								mZAForces;				//link spatial zero acceleration force/ spatial articulated force
+		PxArray<ev4sio_Cm::SpatialVectorF>								mJointTransmittedForce; 
 		PxArray<ArticulationInternalConstraint>					mInternalConstraints;
 		PxArray<ArticulationInternalLimit>						mInternalLimits;
 		PxArray<ArticulationInternalTendonConstraint>			mInternalSpatialTendonConstraints;
@@ -408,20 +408,20 @@ namespace Dy
 
 		PxArray<PxReal>											mDeferredQstZ;
 
-		PxArray<Cm::SpatialVectorF>				mDeltaMotionVector; //this is for TGS solver
+		PxArray<ev4sio_Cm::SpatialVectorF>				mDeltaMotionVector; //this is for TGS solver
 		PxArray<PxTransform>					mPreTransform; //this is the previous transform list for links
 		PxArray<TestImpulseResponse>			mResponseMatrixW;
 		PxArray<SpatialMatrix>					mWorldSpatialArticulatedInertia;
 		PxArray<PxMat33>						mWorldIsolatedSpatialArticulatedInertia;
 		PxArray<PxReal>							mMasses;
 		PxArray<InvStIs>						mInvStIs;
-		PxArray<Cm::SpatialVectorF>				mIsW;
+		PxArray<ev4sio_Cm::SpatialVectorF>				mIsW;
 		PxArray<PxReal>							qstZIc;//jointForce - stZIc
 		PxArray<PxReal>							qstZIntIc;
-		PxArray<Cm::UnAlignedSpatialVector>		mJointAxis;
-		PxArray<Cm::UnAlignedSpatialVector>		mMotionMatrix;
-		PxArray<Cm::UnAlignedSpatialVector>		mWorldMotionMatrix;
-		PxArray<Cm::SpatialVectorF>				mISInvStIS;
+		PxArray<ev4sio_Cm::UnAlignedSpatialVector>		mJointAxis;
+		PxArray<ev4sio_Cm::UnAlignedSpatialVector>		mMotionMatrix;
+		PxArray<ev4sio_Cm::UnAlignedSpatialVector>		mWorldMotionMatrix;
+		PxArray<ev4sio_Cm::SpatialVectorF>				mISInvStIS;
 		PxArray<PxVec3>							mRw;
 
 		PxArray<PxU32>							mNbStatic1DConstraints;
@@ -448,7 +448,7 @@ namespace Dy
 		PxReal									mDt;
 		PxU32									mDofs;
 		const PxArticulationFlags*				mFlags;	// PT: PX-1399
-		Cm::SpatialVector*						mExternalAcceleration;
+		ev4sio_Cm::SpatialVector*						mExternalAcceleration;
 		bool									mDataDirty; //this means we need to call commonInit()
 		bool									mJointDirty; //this means joint delta velocity has been changed by contacts so we need to update joint velocity/joint acceleration 
 		FeatherstoneArticulation*				mArticulation;
@@ -467,8 +467,8 @@ namespace Dy
 	void ArticulationData::init()
 	{
 		//zero delta motion vector for TGS solver
-		PxMemZero(getDeltaMotionVector(), sizeof(Cm::SpatialVectorF) * mLinkCount);
-		PxMemZero(getPosIterMotionVelocities(), sizeof(Cm::SpatialVectorF) * mLinkCount);
+		PxMemZero(getDeltaMotionVector(), sizeof(ev4sio_Cm::SpatialVectorF) * mLinkCount);
+		PxMemZero(getPosIterMotionVelocities(), sizeof(ev4sio_Cm::SpatialVectorF) * mLinkCount);
 		mJointDirty = false;
 	}
 
@@ -491,12 +491,12 @@ namespace Dy
 			jointFrictionForces = NULL;
 		}
 
-		Cm::SpatialVectorF* motionVelocities;
-		Cm::SpatialVectorF* motionAccelerations;
-		Cm::SpatialVectorF* coriolisVectors;
-		Cm::SpatialVectorF* spatialZAVectors;
-		Cm::SpatialVector*	externalAccels;
-		Dy::SpatialMatrix*	compositeSpatialInertias;
+		ev4sio_Cm::SpatialVectorF* motionVelocities;
+		ev4sio_Cm::SpatialVectorF* motionAccelerations;
+		ev4sio_Cm::SpatialVectorF* coriolisVectors;
+		ev4sio_Cm::SpatialVectorF* spatialZAVectors;
+		ev4sio_Cm::SpatialVector*	externalAccels;
+		ev4sio_Dy::SpatialMatrix*	compositeSpatialInertias;
 
 		PxReal*				jointVelocities;
 		PxReal*				jointAccelerations;
@@ -600,11 +600,11 @@ namespace Dy
 
 		bool		resize(const PxU32 linkCount);
 
-		void		assignTendons(const PxU32 /*nbTendons*/, Dy::ArticulationSpatialTendon** /*tendons*/);
+		void		assignTendons(const PxU32 /*nbTendons*/, ev4sio_Dy::ArticulationSpatialTendon** /*tendons*/);
 
-		void		assignTendons(const PxU32 /*nbTendons*/, Dy::ArticulationFixedTendon** /*tendons*/);
+		void		assignTendons(const PxU32 /*nbTendons*/, ev4sio_Dy::ArticulationFixedTendon** /*tendons*/);
 
-		void		assignMimicJoints(const PxU32 nbMimicJoints, Dy::ArticulationMimicJointCore** mimicJoints);
+		void		assignMimicJoints(const PxU32 nbMimicJoints, ev4sio_Dy::ArticulationMimicJointCore** mimicJoints);
 
 		PxU32		getDofs()	const;
 
@@ -667,32 +667,32 @@ namespace Dy
 
 		void		getImpulseResponse(
 			PxU32 linkID,
-			const Cm::SpatialVector& impulse,
-			Cm::SpatialVector& deltaV) const;
+			const ev4sio_Cm::SpatialVector& impulse,
+			ev4sio_Cm::SpatialVector& deltaV) const;
 
 		void	getImpulseResponse(
 			PxU32 linkID,
-			const Cm::SpatialVectorV& impulse,
-			Cm::SpatialVectorV& deltaV) const;
+			const ev4sio_Cm::SpatialVectorV& impulse,
+			ev4sio_Cm::SpatialVectorV& deltaV) const;
 
 		void		getImpulseSelfResponse(
 			PxU32 linkID0,
 			PxU32 linkID1,
-			const Cm::SpatialVector& impulse0,
-			const Cm::SpatialVector& impulse1,
-			Cm::SpatialVector& deltaV0,
-			Cm::SpatialVector& deltaV1) const;
+			const ev4sio_Cm::SpatialVector& impulse0,
+			const ev4sio_Cm::SpatialVector& impulse1,
+			ev4sio_Cm::SpatialVector& deltaV0,
+			ev4sio_Cm::SpatialVector& deltaV1) const;
 
-		Cm::SpatialVectorV getLinkVelocity(const PxU32 linkID) const;
+		ev4sio_Cm::SpatialVectorV getLinkVelocity(const PxU32 linkID) const;
 
-		Cm::SpatialVector getLinkScalarVelocity(const PxU32 linkID) const;
+		ev4sio_Cm::SpatialVector getLinkScalarVelocity(const PxU32 linkID) const;
 
-		Cm::SpatialVectorV getLinkMotionVector(const PxU32 linkID) const;
+		ev4sio_Cm::SpatialVectorV getLinkMotionVector(const PxU32 linkID) const;
 
 		//this is called by island gen to determine whether the articulation should be awake or sleep
-		Cm::SpatialVector getMotionVelocity(const PxU32 linkID) const;
+		ev4sio_Cm::SpatialVector getMotionVelocity(const PxU32 linkID) const;
 
-		Cm::SpatialVector getMotionAcceleration(const PxU32 linkID, const bool isGpuSimEnabled) const;
+		ev4sio_Cm::SpatialVector getMotionAcceleration(const PxU32 linkID, const bool isGpuSimEnabled) const;
 
 		PxReal getLinkMaxPenBias(const PxU32 linkID) const;
 
@@ -714,22 +714,22 @@ namespace Dy
 			PxReal dt,
 			PxReal invDt, PxReal totalDt);
 
-		static void saveVelocity(FeatherstoneArticulation* articulation, Cm::SpatialVectorF* deltaV);
+		static void saveVelocity(FeatherstoneArticulation* articulation, ev4sio_Cm::SpatialVectorF* deltaV);
 
 		static void saveVelocityTGS(FeatherstoneArticulation* articulation, PxReal invDtF32);
 
-		static void updateBodies(const ArticulationSolverDesc& desc, Cm::SpatialVectorF* tempDeltaV, PxReal dt);
+		static void updateBodies(const ArticulationSolverDesc& desc, ev4sio_Cm::SpatialVectorF* tempDeltaV, PxReal dt);
 
-		static void updateBodiesTGS(const ArticulationSolverDesc& desc, Cm::SpatialVectorF* tempDeltaV, PxReal dt);
+		static void updateBodiesTGS(const ArticulationSolverDesc& desc, ev4sio_Cm::SpatialVectorF* tempDeltaV, PxReal dt);
 
-		static void updateBodies(FeatherstoneArticulation* articulation, Cm::SpatialVectorF* tempDeltaV, PxReal dt, bool integrateJointPosition);
+		static void updateBodies(FeatherstoneArticulation* articulation, ev4sio_Cm::SpatialVectorF* tempDeltaV, PxReal dt, bool integrateJointPosition);
 
-		static void recordDeltaMotion(const ArticulationSolverDesc& desc, const PxReal dt, Cm::SpatialVectorF* deltaV, const PxReal totalInvDt);
+		static void recordDeltaMotion(const ArticulationSolverDesc& desc, const PxReal dt, ev4sio_Cm::SpatialVectorF* deltaV, const PxReal totalInvDt);
 
 		static void deltaMotionToMotionVelocity(const ArticulationSolverDesc& desc, PxReal invDt);
 
 		static void applyTgsSubstepForces(const ArticulationSolverDesc& desc, const PxReal stepDt,
-								Cm::SpatialVectorF* scratchExtForcesArticulatedYW);
+								ev4sio_Cm::SpatialVectorF* scratchExtForcesArticulatedYW);
 
 		/**
 		\brief Apply a spatial impulse to a specified link and optionally a joint impulse to the link's inbound joint.
@@ -769,11 +769,11 @@ namespace Dy
 		\return The spatial velocity that is equal to the pre-solver spatial velocity of the specified link incremented by 
 		a delta that arises from the application of the deferred root and link impulses.
 		*/
-		Cm::SpatialVectorV pxcFsGetVelocity(const PxU32 linkID, PxReal* jointDofSpeeds = NULL) const;
+		ev4sio_Cm::SpatialVectorV pxcFsGetVelocity(const PxU32 linkID, PxReal* jointDofSpeeds = NULL) const;
 
-		void pxcFsGetVelocities(PxU32 linkID, PxU32 linkID1, Cm::SpatialVectorV& v0, Cm::SpatialVectorV& v1) const;
+		void pxcFsGetVelocities(PxU32 linkID, PxU32 linkID1, ev4sio_Cm::SpatialVectorV& v0, ev4sio_Cm::SpatialVectorV& v1) const;
 
-		Cm::SpatialVectorV pxcFsGetVelocityTGS(PxU32 linkID);
+		ev4sio_Cm::SpatialVectorV pxcFsGetVelocityTGS(PxU32 linkID);
 
 		const PxQuat& getDeltaQ(PxU32 linkID) const;
 
@@ -795,10 +795,10 @@ namespace Dy
 		\note See Mirtich p121 and equations for propagating forces/applying accelerations and
 			p141 for propagating velocities/applying impulses.
 		*/
-		static Cm::SpatialVectorF propagateVelocityW(
-			const PxVec3& parentToChild, const Cm::SpatialVectorF& parentLinkDeltaV,
-			const Dy::SpatialMatrix& spatialInertia, const Cm::SpatialVectorF& Z,
-			const PxReal* joinDofImpulses, const InvStIs& invStIs, const Cm::UnAlignedSpatialVector* motionMatrixW, const PxU32 dofCount, 
+		static ev4sio_Cm::SpatialVectorF propagateVelocityW(
+			const PxVec3& parentToChild, const ev4sio_Cm::SpatialVectorF& parentLinkDeltaV,
+			const ev4sio_Dy::SpatialMatrix& spatialInertia, const ev4sio_Cm::SpatialVectorF& Z,
+			const PxReal* joinDofImpulses, const InvStIs& invStIs, const ev4sio_Cm::UnAlignedSpatialVector* motionMatrixW, const PxU32 dofCount, 
 			PxReal* jointVelocity);
 
 
@@ -818,14 +818,14 @@ namespace Dy
 		//void	setGpuRemapId(const PxU32 id) { mGpuRemapId = id; }
 		//PxU32	getGpuRemapId() { return mGpuRemapId; }
 
-		static PX_CUDA_CALLABLE PX_FORCE_INLINE Cm::SpatialVectorF translateSpatialVector(const PxVec3& offset, const Cm::SpatialVectorF& vec)
+		static PX_CUDA_CALLABLE PX_FORCE_INLINE ev4sio_Cm::SpatialVectorF translateSpatialVector(const PxVec3& offset, const ev4sio_Cm::SpatialVectorF& vec)
 		{
-			return Cm::SpatialVectorF(vec.top, vec.bottom + offset.cross(vec.top));
+			return ev4sio_Cm::SpatialVectorF(vec.top, vec.bottom + offset.cross(vec.top));
 		}
 
-		static PX_CUDA_CALLABLE PX_FORCE_INLINE Cm::UnAlignedSpatialVector translateSpatialVector(const PxVec3& offset, const Cm::UnAlignedSpatialVector& vec)
+		static PX_CUDA_CALLABLE PX_FORCE_INLINE ev4sio_Cm::UnAlignedSpatialVector translateSpatialVector(const PxVec3& offset, const ev4sio_Cm::UnAlignedSpatialVector& vec)
 		{
-			return Cm::UnAlignedSpatialVector(vec.top, vec.bottom + offset.cross(vec.top));
+			return ev4sio_Cm::UnAlignedSpatialVector(vec.top, vec.bottom + offset.cross(vec.top));
 		}
 
 		static PX_FORCE_INLINE PxMat33 constructSkewSymmetricMatrix(const PxVec3 r)
@@ -870,7 +870,7 @@ namespace Dy
 		//this function calculates loop joint constraint subspace matrix(s) and active force
 		//subspace matrix
 		void jcalcLoopJointSubspace(ArticulationJointCore* joint, ArticulationJointCoreData& jointDatum, SpatialSubspaceMatrix& T,
-			const Cm::UnAlignedSpatialVector* jointAxis);
+			const ev4sio_Cm::UnAlignedSpatialVector* jointAxis);
 
 		void computeSpatialInertia(ArticulationData& data);
 
@@ -885,8 +885,8 @@ namespace Dy
 			bool velocityIteration, bool isTGS, const PxReal elapsedTime, const PxReal biasCoefficient, bool residualReportingActive, bool isExternalForcesEveryTgsIterationEnabled);
 
 	private:
-		Cm::SpatialVectorF solveInternalJointConstraintRecursive(const InternalConstraintSolverData& data, const PxU32 linkID,
-			const Cm::SpatialVectorF& parentDeltaV, PxU32& dofId, PxU32& limitId);
+		ev4sio_Cm::SpatialVectorF solveInternalJointConstraintRecursive(const InternalConstraintSolverData& data, const PxU32 linkID,
+			const ev4sio_Cm::SpatialVectorF& parentDeltaV, PxU32& dofId, PxU32& limitId);
 	public:
 		void solveInternalSpatialTendonConstraints(bool isTGS);
 
@@ -917,8 +917,8 @@ namespace Dy
 		*/
 		static void computeRelativeTransformC2P(
 			const ArticulationLink* links, const PxU32 linkCount, const ArticulationJointCoreData* jointCoreDatas,
-			const Cm::UnAlignedSpatialVector* jointDofMotionMatrices,
-			PxTransform* linkAccumulatedPoses, PxVec3* linkRws, Cm::UnAlignedSpatialVector* jointDofmotionMatricesW);
+			const ev4sio_Cm::UnAlignedSpatialVector* jointDofMotionMatrices,
+			PxTransform* linkAccumulatedPoses, PxVec3* linkRws, ev4sio_Cm::UnAlignedSpatialVector* jointDofmotionMatricesW);
 
 		//compute relative transform child to base
 		void computeRelativeTransformC2B(ArticulationData& data);
@@ -969,14 +969,14 @@ namespace Dy
 			const PxF32 dt, const PxReal invLengthScale, const PxVec3& gravity,
 			const bool fixBase,
 			const PxU32 linkCount,
-			const PxTransform* linkAccumulatedPosesW, Cm::SpatialVector* linkExternalAccelsW, const PxVec3* linkRsW, const Cm::UnAlignedSpatialVector* jointDofMotionMatricesW,
-			const  Dy::ArticulationJointCoreData* jointCoreData, bool externalForcesEveryTgsIterationEnabled,
-			Dy::ArticulationLinkData *linkData, Dy::ArticulationLink* links, 
-			Cm::SpatialVectorF* linkMotionAccelerationsW, Cm::SpatialVectorF* linkMotionVelocitiesW, 
-			Cm::SpatialVectorF* linkZAForcesExtW, Cm::SpatialVectorF* linkZAForcesIntW, Cm::SpatialVectorF* linkCoriolisVectorsW, 
-			PxMat33* linkIsolatedArticulatedInertiasW, PxF32* linkMasses, Dy::SpatialMatrix* linkSpatialArticulatedInertiasW, 
+			const PxTransform* linkAccumulatedPosesW, ev4sio_Cm::SpatialVector* linkExternalAccelsW, const PxVec3* linkRsW, const ev4sio_Cm::UnAlignedSpatialVector* jointDofMotionMatricesW,
+			const  ev4sio_Dy::ArticulationJointCoreData* jointCoreData, bool externalForcesEveryTgsIterationEnabled,
+			ev4sio_Dy::ArticulationLinkData *linkData, ev4sio_Dy::ArticulationLink* links, 
+			ev4sio_Cm::SpatialVectorF* linkMotionAccelerationsW, ev4sio_Cm::SpatialVectorF* linkMotionVelocitiesW, 
+			ev4sio_Cm::SpatialVectorF* linkZAForcesExtW, ev4sio_Cm::SpatialVectorF* linkZAForcesIntW, ev4sio_Cm::SpatialVectorF* linkCoriolisVectorsW, 
+			PxMat33* linkIsolatedArticulatedInertiasW, PxF32* linkMasses, ev4sio_Dy::SpatialMatrix* linkSpatialArticulatedInertiasW, 
 			PxReal* jointDofVelocities,
-			Cm::SpatialVectorF& rootPreMotionVelocityW, PxVec3& comW, PxF32& invSumMass);
+			ev4sio_Cm::SpatialVectorF& rootPreMotionVelocityW, PxVec3& comW, PxF32& invSumMass);
 
 		/**
 		\brief Propagate articulated z.a. spatial force and articulated spatial inertia from parent link to child link.
@@ -1010,13 +1010,13 @@ namespace Dy
 		*/
 		static SpatialMatrix computePropagateSpatialInertia_ZA_ZIc
 			(const PxArticulationJointType::Enum jointType, const PxU8 nbJointDofs,
-			 const Cm::UnAlignedSpatialVector* jointMotionMatricesW, const Cm::SpatialVectorF* jointISW, 	
+			 const ev4sio_Cm::UnAlignedSpatialVector* jointMotionMatricesW, const ev4sio_Cm::SpatialVectorF* jointISW, 	
 			 const PxReal* jointTargetArmatures, const PxU8* dofIds, const PxReal* jointExternalForces, 
 			 const SpatialMatrix& linkArticulatedInertiaW, 
-			 const Cm::SpatialVectorF& linkZExtW, const Cm::SpatialVectorF& linkZIntIcW, 
-			 InvStIs& linkInvStISW, Cm::SpatialVectorF* jointDofISInvStISW, 
+			 const ev4sio_Cm::SpatialVectorF& linkZExtW, const ev4sio_Cm::SpatialVectorF& linkZIntIcW, 
+			 InvStIs& linkInvStISW, ev4sio_Cm::SpatialVectorF* jointDofISInvStISW, 
 			 PxReal* jointDofMinusStZExtW, PxReal* jointDofQStZIntIcW,
-			 Cm::SpatialVectorF& deltaZAExtParent, Cm::SpatialVectorF& deltaZAIntIcParent);
+			 ev4sio_Cm::SpatialVectorF& deltaZAExtParent, ev4sio_Cm::SpatialVectorF& deltaZAIntIcParent);
 
 		/**
 		\brief Propagate articulated z.a. spatial force and articulated spatial inertia from child link to parent link. 
@@ -1044,14 +1044,14 @@ namespace Dy
 		*/
 		static SpatialMatrix computePropagateSpatialInertia_ZA_ZIc_NonSeparated
 			(const PxArticulationJointType::Enum jointType, const PxU8 nbJointDofs, 
-			 const Cm::UnAlignedSpatialVector* jointMotionMatrices, const Cm::SpatialVectorF* jointIs, 
+			 const ev4sio_Cm::UnAlignedSpatialVector* jointMotionMatrices, const ev4sio_Cm::SpatialVectorF* jointIs, 
 			 const PxReal* jointTargetArmatures, const PxU8* dofIds,
 			 const PxReal* jointExternalForces, 
 			 const SpatialMatrix& linkArticulatedInertia, 
- 			 const Cm::SpatialVectorF& ZIc, 
-			 InvStIs& invStIs, Cm::SpatialVectorF* isInvD, 
+ 			 const ev4sio_Cm::SpatialVectorF& ZIc, 
+			 InvStIs& invStIs, ev4sio_Cm::SpatialVectorF* isInvD, 
 			 PxReal* qstZIc,
-			 Cm::SpatialVectorF& deltaZParent);
+			 ev4sio_Cm::SpatialVectorF& deltaZParent);
 
 		/*
 		\brief Propagate articulated spatial inertia (but not the  articulated z.a. spatial force) from child link to parent link. 
@@ -1070,9 +1070,9 @@ namespace Dy
 		*/
 		static SpatialMatrix computePropagateSpatialInertia(
 			const PxArticulationJointType::Enum jointType, const PxU8 nbDofs,
-			const SpatialMatrix& linkArticulatedInertia, const Cm::UnAlignedSpatialVector* jointMotionMatrices,
-			const Cm::SpatialVectorF* jointIs, 
-			InvStIs& invStIs, Cm::SpatialVectorF* isInvD);
+			const SpatialMatrix& linkArticulatedInertia, const ev4sio_Cm::UnAlignedSpatialVector* jointMotionMatrices,
+			const ev4sio_Cm::SpatialVectorF* jointIs, 
+			InvStIs& invStIs, ev4sio_Cm::SpatialVectorF* isInvD);
 
 		static void transformInertia(const SpatialTransform& sTod, SpatialMatrix& inertia);
 
@@ -1100,10 +1100,10 @@ namespace Dy
 		static void computeArticulatedSpatialInertiaAndZ
 			(const ArticulationLink* links, const PxU32 linkCount, const PxVec3* linkRsW,
 			 const ArticulationJointCoreData* jointData,
-			 const Cm::UnAlignedSpatialVector* jointDofMotionMatricesW,
-			 const Cm::SpatialVectorF* linkCoriolisVectorsW, const PxReal* jointDofForces,
-			 Cm::SpatialVectorF* jointDofIsW, InvStIs* linkInvStIsW, Cm::SpatialVectorF* jointDofISInvStIS, PxReal* joIntDofMinusStZExtW, PxReal* jointDofQStZIntIcW, 
-			 Cm::SpatialVectorF* linkZAExtForcesW, Cm::SpatialVectorF* linkZAIntForcesW, SpatialMatrix* linkSpatialArticulatedInertiaW, 
+			 const ev4sio_Cm::UnAlignedSpatialVector* jointDofMotionMatricesW,
+			 const ev4sio_Cm::SpatialVectorF* linkCoriolisVectorsW, const PxReal* jointDofForces,
+			 ev4sio_Cm::SpatialVectorF* jointDofIsW, InvStIs* linkInvStIsW, ev4sio_Cm::SpatialVectorF* jointDofISInvStIS, PxReal* joIntDofMinusStZExtW, PxReal* jointDofQStZIntIcW, 
+			 ev4sio_Cm::SpatialVectorF* linkZAExtForcesW, ev4sio_Cm::SpatialVectorF* linkZAIntForcesW, SpatialMatrix* linkSpatialArticulatedInertiaW, 
 			 SpatialMatrix& baseInvSpatialArticulatedInertiaW);
 
 		void computeArticulatedSpatialInertiaAndZ_NonSeparated(ArticulationData& data, ScratchData& scratchData);
@@ -1128,8 +1128,8 @@ namespace Dy
 			(const PxArticulationFlags& articulationFlags, const PxU32 linkCount, 
 			 const ArticulationJointCoreData* jointData,
 			 const SpatialMatrix& baseInvArticulatedInertiaW, 
-			 const PxVec3* linkRsW, const Cm::UnAlignedSpatialVector* jointDofMotionMatricesW,
-			 const Cm::SpatialVectorF* jointDofISW, const InvStIs* linkInvStISW, const Cm::SpatialVectorF* jointDofIsInvDW, 
+			 const PxVec3* linkRsW, const ev4sio_Cm::UnAlignedSpatialVector* jointDofMotionMatricesW,
+			 const ev4sio_Cm::SpatialVectorF* jointDofISW, const InvStIs* linkInvStISW, const ev4sio_Cm::SpatialVectorF* jointDofIsInvDW, 
 			 ArticulationLink* links, TestImpulseResponse* linkResponsesW);
 
 		void computeArticulatedSpatialZ(ArticulationData& data, ScratchData& scratchData);
@@ -1146,7 +1146,7 @@ namespace Dy
 		\param[out] jointAcceleration is an array of output joint dof accelerations equivalent to Eq 4.27 in Mirtich thesis.
 		*/
 		static void computeJointAccelerationW(const PxU8 nbJointDofs,
-			const Cm::SpatialVectorF& pMotionAcceleration, const Cm::SpatialVectorF* jointDofISW, const InvStIs& linkInvStISW,
+			const ev4sio_Cm::SpatialVectorF& pMotionAcceleration, const ev4sio_Cm::SpatialVectorF* jointDofISW, const InvStIs& linkInvStISW,
 			const PxReal* jointDofQStZIcW, PxReal* jointAcceleration);
 
 		//compute joint acceleration, joint velocity and link acceleration, velocity based
@@ -1194,12 +1194,12 @@ namespace Dy
 			(const bool doIC, const PxReal dt,
 			 const bool fixBase,
 			 const ArticulationLink* links, const PxU32 linkCount, const ArticulationJointCoreData* jointDatas,
-			 const Cm::SpatialVectorF* linkSpatialZAForcesW, const Cm::SpatialVectorF* linkCoriolisForcesW, const PxVec3* linkRsW, 
-			 const Cm::UnAlignedSpatialVector* jointDofMotionMatricesW,
+			 const ev4sio_Cm::SpatialVectorF* linkSpatialZAForcesW, const ev4sio_Cm::SpatialVectorF* linkCoriolisForcesW, const PxVec3* linkRsW, 
+			 const ev4sio_Cm::UnAlignedSpatialVector* jointDofMotionMatricesW,
 			 const SpatialMatrix& baseInvSpatialArticulatedInertiaW,
 			 const InvStIs* linkInvStISW, 
-			 const Cm::SpatialVectorF* jointDofISW, const PxReal* jointDofQStZIcW,
-			 Cm::SpatialVectorF* linkMotionAccelerationsW, Cm::SpatialVectorF* linkMotionVelocitiesW, 
+			 const ev4sio_Cm::SpatialVectorF* jointDofISW, const PxReal* jointDofQStZIcW,
+			 ev4sio_Cm::SpatialVectorF* linkMotionAccelerationsW, ev4sio_Cm::SpatialVectorF* linkMotionVelocitiesW, 
 			 PxReal* jointDofAccelerations, PxReal* jointDofVelocities, PxReal* jointDofNewVelocities);
 
 		/**
@@ -1240,10 +1240,10 @@ namespace Dy
 			 const SpatialMatrix& baseInvSpatialArticulatedInertiaW,	
 			 const ArticulationLink* links, const PxU32 linkCount, 
 			 const PxReal* linkMasses, const PxVec3* linkRsW, const PxTransform* linkAccumulatedPosesW,
-			 const Cm::SpatialVectorF* linkSpatialZAIntForcesW, const Cm::SpatialVectorF* linkCoriolisVectorsW,
-			 const ArticulationJointCoreData* jointDatas, const Cm::UnAlignedSpatialVector* jointDofMotionMatricesW,
-			 const InvStIs* linkInvStISW, const Cm::SpatialVectorF* jointDofISW, const PxReal* jointDoQStZIntIcW,
-			 Cm::SpatialVectorF* linkMotionAccelerationsW, Cm::SpatialVectorF* linkMotionAccelerationIntsW, Cm::SpatialVectorF* linkMotionVelocitiesW, 
+			 const ev4sio_Cm::SpatialVectorF* linkSpatialZAIntForcesW, const ev4sio_Cm::SpatialVectorF* linkCoriolisVectorsW,
+			 const ArticulationJointCoreData* jointDatas, const ev4sio_Cm::UnAlignedSpatialVector* jointDofMotionMatricesW,
+			 const InvStIs* linkInvStISW, const ev4sio_Cm::SpatialVectorF* jointDofISW, const PxReal* jointDoQStZIntIcW,
+			 ev4sio_Cm::SpatialVectorF* linkMotionAccelerationsW, ev4sio_Cm::SpatialVectorF* linkMotionAccelerationIntsW, ev4sio_Cm::SpatialVectorF* linkMotionVelocitiesW, 
 			 PxReal* jointDofAccelerations, PxReal* jointDofInternalAccelerations, PxReal* jointDofVelocities, PxReal* jointDofNewVelocities);
 
 		/**
@@ -1257,60 +1257,60 @@ namespace Dy
 		*/
 		static void computeLinkIncomingJointForce(
 				const PxU32 linkCount,						
-				const Cm::SpatialVectorF* linkZAForcesExtW,	const Cm::SpatialVectorF* linkZAForcesIntW,
-				const Cm::SpatialVectorF* linkMotionAccelerationsW, const SpatialMatrix* linkSpatialInertiasW,
-				Cm::SpatialVectorF* linkIncomingJointForces);
+				const ev4sio_Cm::SpatialVectorF* linkZAForcesExtW,	const ev4sio_Cm::SpatialVectorF* linkZAForcesIntW,
+				const ev4sio_Cm::SpatialVectorF* linkMotionAccelerationsW, const SpatialMatrix* linkSpatialInertiasW,
+				ev4sio_Cm::SpatialVectorF* linkIncomingJointForces);
 
 		//void computeTempLinkAcceleration(ArticulationData& data, ScratchData& scratchData);
 		void computeJointTransmittedFrictionForce(ArticulationData& data, ScratchData& scratchData);
 
-		static Cm::SpatialVectorF getDeltaVWithDeltaJV(const bool fixBase, const PxU32 linkID,
-			const ArticulationData& data, Cm::SpatialVectorF* Z,
+		static ev4sio_Cm::SpatialVectorF getDeltaVWithDeltaJV(const bool fixBase, const PxU32 linkID,
+			const ArticulationData& data, ev4sio_Cm::SpatialVectorF* Z,
 			PxReal* jointVelocities);
 
 		//impulse need to be in the linkID space
 		static void getZ(const PxU32 linkID, const ArticulationData& data, 
-			Cm::SpatialVectorF* Z, const Cm::SpatialVectorF& impulse);
+			ev4sio_Cm::SpatialVectorF* Z, const ev4sio_Cm::SpatialVectorF& impulse);
 
 		//This method use in impulse self response. The input impulse is in the link space
-		static Cm::SpatialVectorF getImpulseResponseW(
+		static ev4sio_Cm::SpatialVectorF getImpulseResponseW(
 			const PxU32 linkID,
 			const ArticulationData& data,
-			const Cm::SpatialVectorF& impulse);
+			const ev4sio_Cm::SpatialVectorF& impulse);
 
 		//This method use in impulse self response. The input impulse is in the link space
-		static Cm::SpatialVectorF getImpulseResponseWithJ(
+		static ev4sio_Cm::SpatialVectorF getImpulseResponseWithJ(
 			const PxU32 linkID,
 			const bool fixBase,
 			const ArticulationData& data,
-			Cm::SpatialVectorF* Z,
-			const Cm::SpatialVectorF& impulse,
+			ev4sio_Cm::SpatialVectorF* Z,
+			const ev4sio_Cm::SpatialVectorF& impulse,
 			PxReal* jointVelocities);
 
 		void getImpulseSelfResponseInv(const bool fixBase, 
 			PxU32 linkID0,
 			PxU32 linkID1,
-			Cm::SpatialVectorF* Z,
-			const Cm::SpatialVector& impulse0,
-			const Cm::SpatialVector& impulse1,
-			Cm::SpatialVector& deltaV0,
-			Cm::SpatialVector& deltaV1,
+			ev4sio_Cm::SpatialVectorF* Z,
+			const ev4sio_Cm::SpatialVector& impulse0,
+			const ev4sio_Cm::SpatialVector& impulse1,
+			ev4sio_Cm::SpatialVector& deltaV0,
+			ev4sio_Cm::SpatialVector& deltaV1,
 			PxReal* jointVelocities);
 
-		void getImpulseResponseSlowInv(Dy::ArticulationLink* links,
+		void getImpulseResponseSlowInv(ev4sio_Dy::ArticulationLink* links,
 			const ArticulationData& data,
 			PxU32 linkID0_,
-			const Cm::SpatialVector& impulse0,
-			Cm::SpatialVector& deltaV0,
+			const ev4sio_Cm::SpatialVector& impulse0,
+			ev4sio_Cm::SpatialVector& deltaV0,
 			PxU32 linkID1_,
-			const Cm::SpatialVector& impulse1,
-			Cm::SpatialVector& deltaV1,
+			const ev4sio_Cm::SpatialVector& impulse1,
+			ev4sio_Cm::SpatialVector& deltaV1,
 			PxReal* jointVelocities,
-			Cm::SpatialVectorF* Z);
+			ev4sio_Cm::SpatialVectorF* Z);
 
-		Cm::SpatialVectorF getImpulseResponseInv(const bool fixBase, 
-			const PxU32 linkID, Cm::SpatialVectorF* Z, 
-			const Cm::SpatialVector& impulse,
+		ev4sio_Cm::SpatialVectorF getImpulseResponseInv(const bool fixBase, 
+			const PxU32 linkID, ev4sio_Cm::SpatialVectorF* Z, 
+			const ev4sio_Cm::SpatialVector& impulse,
 			PxReal* jointVelocites);
 
 		void inverseDynamic(ArticulationData& data, const PxVec3& gravity,
@@ -1321,7 +1321,7 @@ namespace Dy
 
 		//compute link body force with motion velocity and acceleration
 		void computeZAForceInv(ArticulationData& data, ScratchData& scratchData);
-		void initCompositeSpatialInertia(ArticulationData& data, Dy::SpatialMatrix* compositeSpatialInertia);
+		void initCompositeSpatialInertia(ArticulationData& data, ev4sio_Dy::SpatialMatrix* compositeSpatialInertia);
 		void computeCompositeSpatialInertiaAndZAForceInv(ArticulationData& data, ScratchData& scratchData);
 
 		void computeRelativeGeneralizedForceInv(ArticulationData& data, ScratchData& scratchData, const bool coriolisFloatingBase = false);
@@ -1345,7 +1345,7 @@ namespace Dy
 
 			PX_FORCE_INLINE	void addBody()
 			{
-				mAcceleration.pushBack(Cm::SpatialVector(PxVec3(0.f), PxVec3(0.f)));
+				mAcceleration.pushBack(ev4sio_Cm::SpatialVector(PxVec3(0.f), PxVec3(0.f)));
 				mUpdateSolverData = true;
 			}
 
@@ -1369,9 +1369,9 @@ namespace Dy
 
 			PX_FORCE_INLINE void*					getUserData()								const	{ return mUserData;				}
 
-			PX_FORCE_INLINE void					setDyContext(Dy::Context* context)					{ mContext = context;			}
+			PX_FORCE_INLINE void					setDyContext(ev4sio_Dy::Context* context)					{ mContext = context;			}
 
-			void	setupLinks(PxU32 nbLinks, Dy::ArticulationLink* links);
+			void	setupLinks(PxU32 nbLinks, ev4sio_Dy::ArticulationLink* links);
 			void	setupDofs();
 			void	allocatePathToRootElements(const PxU32 totalPathToRootElements);
 			void	initPathToRoot();
@@ -1379,20 +1379,20 @@ namespace Dy
 		static void getImpulseSelfResponse(ArticulationLink* links,
 			ArticulationData& data,
 			PxU32 linkID0,
-			const Cm::SpatialVectorV& impulse0,
-			Cm::SpatialVectorV& deltaV0,
+			const ev4sio_Cm::SpatialVectorV& impulse0,
+			ev4sio_Cm::SpatialVectorV& deltaV0,
 			PxU32 linkID1,
-			const Cm::SpatialVectorV& impulse1,
-			Cm::SpatialVectorV& deltaV1);
+			const ev4sio_Cm::SpatialVectorV& impulse1,
+			ev4sio_Cm::SpatialVectorV& deltaV1);
 
-		static void getImpulseResponseSlow(Dy::ArticulationLink* links,
+		static void getImpulseResponseSlow(ev4sio_Dy::ArticulationLink* links,
 			ArticulationData& data,
 			PxU32 linkID0_,
-			const Cm::SpatialVector& impulse0,
-			Cm::SpatialVector& deltaV0,
+			const ev4sio_Cm::SpatialVector& impulse0,
+			ev4sio_Cm::SpatialVector& deltaV0,
 			PxU32 linkID1_,
-			const Cm::SpatialVector& impulse1,
-			Cm::SpatialVector& deltaV1);
+			const ev4sio_Cm::SpatialVector& impulse1,
+			ev4sio_Cm::SpatialVector& deltaV1);
 
 		PxU32 setupSolverConstraints(
 			ArticulationLink* links,
@@ -1464,26 +1464,26 @@ namespace Dy
 		//void updateFixedTendonConstraintsRecursive(ArticulationLink* links, ArticulationTendonJoint* tendonJoint, ArticulationData& data, const PxU32 tendonJointID, const PxReal accumErr);
 
 		PxVec3 calculateFixedTendonVelocityAndPositionRecursive(FixedTendonSolveData& solveData,
-			const Cm::SpatialVectorF& parentV, const Cm::SpatialVectorF& parentDeltaV, const PxU32 tendonJointID);
+			const ev4sio_Cm::SpatialVectorF& parentV, const ev4sio_Cm::SpatialVectorF& parentDeltaV, const PxU32 tendonJointID);
 
-		Cm::SpatialVectorF solveFixedTendonConstraintsRecursive(FixedTendonSolveData& solveData,
+		ev4sio_Cm::SpatialVectorF solveFixedTendonConstraintsRecursive(FixedTendonSolveData& solveData,
 			const PxU32 tendonJointID);
 
 		void prepareStaticConstraints(const PxReal dt, const PxReal invDt, PxsContactManagerOutputIterator& outputs,
-			Dy::ThreadContext& threadContext, PxReal correlationDist, PxReal bounceThreshold, PxReal frictionOffsetThreshold,
+			ev4sio_Dy::ThreadContext& threadContext, PxReal correlationDist, PxReal bounceThreshold, PxReal frictionOffsetThreshold,
 			PxReal ccdMaxSeparation, PxSolverBodyData* solverBodyData, PxsConstraintBlockManager& blockManager,
-			Dy::ConstraintWriteback* constraintWritebackPool);
+			ev4sio_Dy::ConstraintWriteback* constraintWritebackPool);
 
 		void prepareStaticConstraintsTGS(const PxReal stepDt, const PxReal totalDt, const PxReal invStepDt, const PxReal invTotalDt, 
-			PxsContactManagerOutputIterator& outputs, Dy::ThreadContext& threadContext, PxReal correlationDist, PxReal bounceThreshold, 
+			PxsContactManagerOutputIterator& outputs, ev4sio_Dy::ThreadContext& threadContext, PxReal correlationDist, PxReal bounceThreshold, 
 			PxReal frictionOffsetThreshold, PxTGSSolverBodyData* solverBodyData, 
-			PxTGSSolverBodyTxInertia* txInertia, PxsConstraintBlockManager& blockManager, Dy::ConstraintWriteback* constraintWritebackPool,
+			PxTGSSolverBodyTxInertia* txInertia, PxsConstraintBlockManager& blockManager, ev4sio_Dy::ConstraintWriteback* constraintWritebackPool,
 			const PxReal biasCoefficient, const PxReal lengthScale);
 
 
 		//integration
 		void propagateLinksDown(ArticulationData& data, const PxReal* jointVelocities, PxReal* jointPositions,
-			Cm::SpatialVectorF* motionVelocities);
+			ev4sio_Cm::SpatialVectorF* motionVelocities);
 
 		void updateJointProperties(
 			const PxReal* jointNewVelocities,
@@ -1502,11 +1502,11 @@ namespace Dy
 
 		//This method calculate the velocity change from parent to child using parent current motion velocity
 		PxTransform propagateTransform(const PxU32 linkID, ArticulationLink* links, ArticulationJointCoreData& jointDatum,
-			Cm::SpatialVectorF* motionVelocities, const PxReal dt, const PxTransform& pBody2World, const PxTransform& currentTransform,
-			PxReal* jointVelocity, PxReal* jointPosition, const Cm::UnAlignedSpatialVector* motionMatrix,
-			const Cm::UnAlignedSpatialVector* worldMotionMatrix);
+			ev4sio_Cm::SpatialVectorF* motionVelocities, const PxReal dt, const PxTransform& pBody2World, const PxTransform& currentTransform,
+			PxReal* jointVelocity, PxReal* jointPosition, const ev4sio_Cm::UnAlignedSpatialVector* motionMatrix,
+			const ev4sio_Cm::UnAlignedSpatialVector* worldMotionMatrix);
 
-		static void updateRootBody(const Cm::SpatialVectorF& motionVelocity,
+		static void updateRootBody(const ev4sio_Cm::SpatialVectorF& motionVelocity,
 			const PxTransform& preTransform, ArticulationData& data, const PxReal dt);
 
 		//These variables are used in the constraint partition
@@ -1517,10 +1517,10 @@ namespace Dy
 		PxU8							numTotalConstraints;
 		
 		void*							mUserData;
-		Dy::Context*					mContext;
+		ev4sio_Dy::Context*					mContext;
 		ArticulationSolverDesc			mSolverDesc;
 
-		PxArray<Cm::SpatialVector>		mAcceleration;		// supplied by Sc-layer to feed into articulations
+		PxArray<ev4sio_Cm::SpatialVector>		mAcceleration;		// supplied by Sc-layer to feed into articulations
 
 		bool							mUpdateSolverData;
 		PxU32							mMaxDepth;
@@ -1532,11 +1532,11 @@ namespace Dy
 		PxU32							mGPUDirtyFlags;
 		bool							mJcalcDirty;
 
-		Dy::ErrorAccumulator			mInternalErrorAccumulatorVelIter;
-		Dy::ErrorAccumulator			mContactErrorAccumulatorVelIter;
+		ev4sio_Dy::ErrorAccumulator			mInternalErrorAccumulatorVelIter;
+		ev4sio_Dy::ErrorAccumulator			mContactErrorAccumulatorVelIter;
 	
-		Dy::ErrorAccumulator			mInternalErrorAccumulatorPosIter;
-		Dy::ErrorAccumulator			mContactErrorAccumulatorPosIter;
+		ev4sio_Dy::ErrorAccumulator			mInternalErrorAccumulatorPosIter;
+		ev4sio_Dy::ErrorAccumulator			mContactErrorAccumulatorPosIter;
 
 } PX_ALIGN_SUFFIX(64);
 
@@ -1544,7 +1544,7 @@ namespace Dy
 #pragma warning(pop) 
 #endif
 
-} //namespace Dy
+} //namespace ev4sio_Dy
 
 }
 

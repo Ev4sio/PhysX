@@ -32,9 +32,9 @@
 #include "foundation/PxVec3.h"
 #include "foundation/PxTransform.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Sc
+namespace ev4sio_Sc
 {
 
 class ArticulationCore;
@@ -67,8 +67,8 @@ public:
 	PxReal mNaturalFrequency;
 	PxReal mDampingRatio;
 };
-}//namespace Sc
-}//namespace physx
+}//namespace ev4sio_Sc
+}//namespace ev4sio_physx
 
 #endif //SC_ARTICULATION_MIMIC_JOINT_CORE
 

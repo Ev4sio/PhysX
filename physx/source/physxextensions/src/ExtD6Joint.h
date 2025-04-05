@@ -33,10 +33,10 @@
 
 #include "ExtJoint.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 struct PxD6JointGeneratedValues;
-namespace Ext
+namespace ev4sio_Ext
 {
 	struct D6JointData : public JointData
 	{
@@ -150,8 +150,8 @@ namespace Ext
 		bool	mPadding[3];	// PT: padding from prev bool
 	};
 
-} // namespace Ext
+} // namespace ev4sio_Ext
 
-} // namespace physx
+} // namespace ev4sio_physx
 
 #endif

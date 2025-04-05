@@ -35,7 +35,7 @@
 #include "shuffle.cuh"
 #include "nputils.cuh"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 //See trunk/internaldocumentation/Solver/PhysX 3 constraint solver.doc

@@ -37,9 +37,9 @@
 	#define	RetType	int
 	#define	MTDType	bool
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Gu
+namespace ev4sio_Gu
 {
 
 // We have separation if one of those conditions is true:
@@ -229,7 +229,7 @@ namespace Gu
 	*/
 	int triBoxSweepTestBoxSpace(const PxTriangle& tri, const PxVec3& extents, const PxVec3& dir, const PxVec3& oneOverDir, float tmax, float& toi, bool doBackfaceCulling);
 
-} // namespace Gu
+} // namespace ev4sio_Gu
 
 }
 

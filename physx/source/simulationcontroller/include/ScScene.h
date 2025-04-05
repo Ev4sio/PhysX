@@ -64,7 +64,7 @@ class OnOverlapCreatedTask;
 class IslandInsertionTask;
 }
 
-namespace physx
+namespace ev4sio_physx
 {
 	class NpShape;
 
@@ -81,7 +81,7 @@ class PxsKernelWranglerManager;
 class PxsHeapMemoryAllocatorManager;
 #endif
 
-namespace IG
+namespace ev4sio_IG
 {
 	class SimpleIslandManager;
 	typedef PxU32 EdgeIndex;
@@ -91,8 +91,8 @@ struct DelayedGPUTypes
 {
 	struct Data
 	{
-		IG::EdgeIndex		mEdgeIndex;
-		IG::Edge::EdgeType	mType;
+		ev4sio_IG::EdgeIndex		mEdgeIndex;
+		ev4sio_IG::Edge::EdgeType	mType;
 	};
 	PxArray<Data>	mDelayed;
 	PxMutex			mLock;
@@ -100,19 +100,19 @@ struct DelayedGPUTypes
 
 class PxsCCDContext;
 
-namespace Cm
+namespace ev4sio_Cm
 {
 	class IDPool;
 }
 
-namespace Bp
+namespace ev4sio_Bp
 {
 	class AABBManagerBase;
 	class BroadPhase;
 	class BoundsArray;
 }
 
-namespace Dy
+namespace ev4sio_Dy
 {
 	class FeatherstoneArticulation;
 	class Context;
@@ -123,7 +123,7 @@ namespace Dy
 #endif
 }
 
-namespace Sc
+namespace ev4sio_Sc
 {
 	class ActorSim;
 	class ElementSim;
@@ -213,7 +213,7 @@ namespace Sc
 
 	struct ParticleOrSoftBodyRigidInteraction
 	{
-		IG::EdgeIndex mIndex;
+		ev4sio_IG::EdgeIndex mIndex;
 		PxU32 mCount;
 
 		ParticleOrSoftBodyRigidInteraction() : mCount(0) {}
@@ -241,12 +241,12 @@ namespace Sc
 	PX_FORCE_INLINE	PxsSimulationController*	getSimulationController()						{ return mSimulationController;	}
 	PX_FORCE_INLINE	const PxsSimulationController*	getSimulationController()			const	{ return mSimulationController;	}
 
-	PX_FORCE_INLINE	Bp::AABBManagerBase*		getAABBManager()								{ return mAABBManager;	}
-	PX_FORCE_INLINE const Bp::AABBManagerBase*	getAABBManager()						const	{ return mAABBManager;	}
+	PX_FORCE_INLINE	ev4sio_Bp::AABBManagerBase*		getAABBManager()								{ return mAABBManager;	}
+	PX_FORCE_INLINE const ev4sio_Bp::AABBManagerBase*	getAABBManager()						const	{ return mAABBManager;	}
 	PX_FORCE_INLINE PxArray<BodySim*>&			getCcdBodies()									{ return mCcdBodies;	}
 
-	PX_FORCE_INLINE	IG::SimpleIslandManager*	getSimpleIslandManager()						{ return mSimpleIslandManager; }
-	PX_FORCE_INLINE	const IG::SimpleIslandManager*	getSimpleIslandManager()			const	{ return mSimpleIslandManager; }
+	PX_FORCE_INLINE	ev4sio_IG::SimpleIslandManager*	getSimpleIslandManager()						{ return mSimpleIslandManager; }
+	PX_FORCE_INLINE	const ev4sio_IG::SimpleIslandManager*	getSimpleIslandManager()			const	{ return mSimpleIslandManager; }
 
 	PX_FORCE_INLINE SimulationStage::Enum		getSimulationStage()					const	{ return mSimulationStage; }
 	PX_FORCE_INLINE void						setSimulationStage(SimulationStage::Enum stage)	{ mSimulationStage = stage; }
@@ -271,8 +271,8 @@ namespace Sc
 	PX_FORCE_INLINE	PxU32						getMaxArticulationLinks()				const	{ return mMaxNbArticulationLinks;		}
 
 	// mDynamicsContext wrappers
-	PX_FORCE_INLINE	Dy::Context*				getDynamicsContext()							{ return mDynamicsContext; }
-	PX_FORCE_INLINE const Dy::Context*			getDynamicsContext()					const	{ return mDynamicsContext; }
+	PX_FORCE_INLINE	ev4sio_Dy::Context*				getDynamicsContext()							{ return mDynamicsContext; }
+	PX_FORCE_INLINE const ev4sio_Dy::Context*			getDynamicsContext()					const	{ return mDynamicsContext; }
 
 	PX_FORCE_INLINE	void						setBounceThresholdVelocity(PxReal t)			{ mDynamicsContext->setBounceThreshold(-t);			}
 	PX_FORCE_INLINE	PxReal						getBounceThresholdVelocity()			const	{ return -mDynamicsContext->getBounceThreshold();	}
@@ -306,7 +306,7 @@ namespace Sc
 	PX_FORCE_INLINE	PxsContext*					getLowLevelContext()							{ return mLLContext; }
 	PX_FORCE_INLINE const PxsContext*			getLowLevelContext()					const	{ return mLLContext; }
 
-	PX_FORCE_INLINE Cm::FlushPool*				getFlushPool()									{ return &mLLContext->getTaskPool();	}
+	PX_FORCE_INLINE ev4sio_Cm::FlushPool*				getFlushPool()									{ return &mLLContext->getTaskPool();	}
 
 	PX_FORCE_INLINE	void						setPCM(bool enabled)							{ mLLContext->setPCM(enabled);			}
 	PX_FORCE_INLINE	void						setContactCache(bool enabled)					{ mLLContext->setContactCache(enabled);	}
@@ -541,8 +541,8 @@ namespace Sc
 
 					void						deleteAggregate(PxU32 id);
 
-					Dy::FeatherstoneArticulation*	createLLArticulation(ArticulationSim* sim);
-					void							destroyLLArticulation(Dy::FeatherstoneArticulation&);
+					ev4sio_Dy::FeatherstoneArticulation*	createLLArticulation(ArticulationSim* sim);
+					void							destroyLLArticulation(ev4sio_Dy::FeatherstoneArticulation&);
 
 		PX_FORCE_INLINE	PxPool2<ConstraintInteraction, 4096>&	getConstraintInteractionPool()			{ return mConstraintInteractionPool;	}
 	public:
@@ -585,7 +585,7 @@ namespace Sc
 
 		PX_FORCE_INLINE	StaticSim&					getStaticAnchor()								{ return *mStaticAnchor;				}
 
-		PX_FORCE_INLINE Bp::BoundsArray&			getBoundsArray()						const	{ return *mBoundsArray; }
+		PX_FORCE_INLINE ev4sio_Bp::BoundsArray&			getBoundsArray()						const	{ return *mBoundsArray; }
 		PX_FORCE_INLINE void						updateContactDistance(PxU32 idx, PxReal distance)	{ (*mContactDistance)[idx] = distance; mHasContactDistanceChanged = true; }
 		PX_FORCE_INLINE SqBoundsManager&			getSqBoundsManager()					const	{ return *mSqBoundsManager; }
 
@@ -634,7 +634,7 @@ namespace Sc
 
 		//internal private methods:
 	private:
-					void						activateEdgesInternal(IG::Edge::EdgeType type);
+					void						activateEdgesInternal(ev4sio_IG::Edge::EdgeType type);
 					void						releaseConstraints(bool endOfScene);
 		PX_INLINE	void						clearBrokenConstraintBuffer()	{ mBrokenConstraints.clear();	}
 
@@ -708,14 +708,14 @@ namespace Sc
 
 					PxsContext*					mLLContext;
 
-					Bp::AABBManagerBase*		mAABBManager;
+					ev4sio_Bp::AABBManagerBase*		mAABBManager;
 					PxsCCDContext*				mCCDContext;
 					PxI32						mNumFastMovingShapes;
 					PxU32						mCCDPass;
 
-					IG::SimpleIslandManager*	mSimpleIslandManager;
+					ev4sio_IG::SimpleIslandManager*	mSimpleIslandManager;
 
-					Dy::Context*				mDynamicsContext;
+					ev4sio_Dy::Context*				mDynamicsContext;
 
 					PxsMemoryManager*			mMemoryManager;
 
@@ -746,7 +746,7 @@ namespace Sc
 
 					PxCoalescedHashSet<ConstraintCore*>		mConstraints;
 												
-					Bp::BoundsArray*						mBoundsArray;
+					ev4sio_Bp::BoundsArray*						mBoundsArray;
 					PxFloatArrayPinned*						mContactDistance;
 					bool									mHasContactDistanceChanged;
 					SqBoundsManager*						mSqBoundsManager;
@@ -809,16 +809,16 @@ namespace Sc
 					PxSceneFlags				mPublicFlags;	// Copy of PxSceneDesc::flags, of type PxSceneFlag
 
 					// PT: TODO: unify names, "tracker" or "pool"?
-					ObjectIDTracker*			mConstraintIDTracker;	// PT: provides Sc::ContraintSim::mLowLevelConstraint::index
-					ObjectIDTracker*			mActorIDTracker;		// PT: provides Sc::ActorSim::mId
-					ObjectIDTracker*			mElementIDPool;			// PT: provides Sc::ElementSim::mElementID
+					ObjectIDTracker*			mConstraintIDTracker;	// PT: provides ev4sio_Sc::ContraintSim::mLowLevelConstraint::index
+					ObjectIDTracker*			mActorIDTracker;		// PT: provides ev4sio_Sc::ActorSim::mId
+					ObjectIDTracker*			mElementIDPool;			// PT: provides ev4sio_Sc::ElementSim::mElementID
 
 					StaticCore					mAnchorCore;
 					StaticSim*					mStaticAnchor;
 
-					Cm::PreallocatingPool<ShapeSim>*	mShapeSimPool;
-					Cm::PreallocatingPool<StaticSim>*	mStaticSimPool;
-					Cm::PreallocatingPool<BodySim>*		mBodySimPool;
+					ev4sio_Cm::PreallocatingPool<ShapeSim>*	mShapeSimPool;
+					ev4sio_Cm::PreallocatingPool<StaticSim>*	mStaticSimPool;
+					ev4sio_Cm::PreallocatingPool<BodySim>*		mBodySimPool;
 					PxPool2<ConstraintSim, 4096>		mConstraintSimPool;
 					PxPool2<ArticulationJointSim, 4096>	mArticulationJointSimPool;
 					LLArticulationRCPool*				mLLArticulationRCPool;
@@ -854,8 +854,8 @@ namespace Sc
 					PxU32						mNbRigidKinematic;
 					PxU32						mNbGeometries[PxGeometryType::eGEOMETRY_COUNT];
 
-					//IG::Node::eTYPE_COUNT
-					PxU32						mNumDeactivatingNodes[IG::Node::eTYPE_COUNT];
+					//ev4sio_IG::Node::eTYPE_COUNT
+					PxU32						mNumDeactivatingNodes[ev4sio_IG::Node::eTYPE_COUNT];
 
 					// task decomposition
 					void						setupBroadPhaseFirstAndSecondPassTasks(PxBaseTask* continuation);
@@ -908,65 +908,65 @@ namespace Sc
 					void						updateContactDistances(PxBaseTask* continuation);
 					void						updateDirtyShapes(PxBaseTask* continuation);
 
-					Cm::DelegateTask<Scene, &Scene::secondPassNarrowPhase>		mSecondPassNarrowPhase;
-					Cm::DelegateTask<Scene, &Scene::postNarrowPhase>			mPostNarrowPhase;
-					Cm::DelegateTask<Scene, &Scene::finalizationPhase>			mFinalizationPhase;
-					Cm::DelegateTask<Scene, &Scene::updateCCDMultiPass>			mUpdateCCDMultiPass;
+					ev4sio_Cm::DelegateTask<Scene, &Scene::secondPassNarrowPhase>		mSecondPassNarrowPhase;
+					ev4sio_Cm::DelegateTask<Scene, &Scene::postNarrowPhase>			mPostNarrowPhase;
+					ev4sio_Cm::DelegateTask<Scene, &Scene::finalizationPhase>			mFinalizationPhase;
+					ev4sio_Cm::DelegateTask<Scene, &Scene::updateCCDMultiPass>			mUpdateCCDMultiPass;
 
 					//multi-pass ccd stuff
-					PxArray<Cm::DelegateTask<Scene, &Scene::updateCCDSinglePass> >			mUpdateCCDSinglePass;
-					PxArray<Cm::DelegateTask<Scene, &Scene::updateCCDSinglePassStage2> >	mUpdateCCDSinglePass2;
-					PxArray<Cm::DelegateTask<Scene, &Scene::updateCCDSinglePassStage3> >	mUpdateCCDSinglePass3;
-					PxArray<Cm::DelegateTask<Scene, &Scene::ccdBroadPhaseAABB> >			mCCDBroadPhaseAABB;
-					PxArray<Cm::DelegateTask<Scene, &Scene::ccdBroadPhase> >				mCCDBroadPhase;
-					PxArray<Cm::DelegateTask<Scene, &Scene::postCCDPass> >					mPostCCDPass;
+					PxArray<ev4sio_Cm::DelegateTask<Scene, &Scene::updateCCDSinglePass> >			mUpdateCCDSinglePass;
+					PxArray<ev4sio_Cm::DelegateTask<Scene, &Scene::updateCCDSinglePassStage2> >	mUpdateCCDSinglePass2;
+					PxArray<ev4sio_Cm::DelegateTask<Scene, &Scene::updateCCDSinglePassStage3> >	mUpdateCCDSinglePass3;
+					PxArray<ev4sio_Cm::DelegateTask<Scene, &Scene::ccdBroadPhaseAABB> >			mCCDBroadPhaseAABB;
+					PxArray<ev4sio_Cm::DelegateTask<Scene, &Scene::ccdBroadPhase> >				mCCDBroadPhase;
+					PxArray<ev4sio_Cm::DelegateTask<Scene, &Scene::postCCDPass> >					mPostCCDPass;
 
-					Cm::DelegateTask<Scene, &Scene::afterIntegration>					mAfterIntegration;
-					Cm::DelegateTask<Scene, &Scene::postSolver>							mPostSolver;
-					Cm::DelegateTask<Scene, &Scene::solver>								mSolver;
-					Cm::DelegateTask<Scene, &Scene::updateBodies>						mUpdateBodies;
-					Cm::DelegateTask<Scene, &Scene::updateShapes>						mUpdateShapes;
-					Cm::DelegateTask<Scene, &Scene::updateSimulationController>			mUpdateSimulationController;
-					Cm::DelegateTask<Scene, &Scene::updateDynamics>						mUpdateDynamics;
-					Cm::DelegateTask<Scene, &Scene::updateDynamicsPostPartitioning>		mUpdateDynamicsPostPartitioning;
-					Cm::DelegateTask<Scene, &Scene::processLostContacts>				mProcessLostContactsTask;
-					Cm::DelegateTask<Scene, &Scene::processLostContacts2>				mProcessLostContactsTask2;
-					Cm::DelegateTask<Scene, &Scene::processLostContacts3>				mProcessLostContactsTask3;
-					Cm::DelegateTask<Scene, &Scene::destroyManagers>					mDestroyManagersTask;
-					Cm::DelegateTask<Scene, &Scene::lostTouchReports>					mLostTouchReportsTask;
-					Cm::DelegateTask<Scene, &Scene::unregisterInteractions>				mUnregisterInteractionsTask;
-					Cm::DelegateTask<Scene,
+					ev4sio_Cm::DelegateTask<Scene, &Scene::afterIntegration>					mAfterIntegration;
+					ev4sio_Cm::DelegateTask<Scene, &Scene::postSolver>							mPostSolver;
+					ev4sio_Cm::DelegateTask<Scene, &Scene::solver>								mSolver;
+					ev4sio_Cm::DelegateTask<Scene, &Scene::updateBodies>						mUpdateBodies;
+					ev4sio_Cm::DelegateTask<Scene, &Scene::updateShapes>						mUpdateShapes;
+					ev4sio_Cm::DelegateTask<Scene, &Scene::updateSimulationController>			mUpdateSimulationController;
+					ev4sio_Cm::DelegateTask<Scene, &Scene::updateDynamics>						mUpdateDynamics;
+					ev4sio_Cm::DelegateTask<Scene, &Scene::updateDynamicsPostPartitioning>		mUpdateDynamicsPostPartitioning;
+					ev4sio_Cm::DelegateTask<Scene, &Scene::processLostContacts>				mProcessLostContactsTask;
+					ev4sio_Cm::DelegateTask<Scene, &Scene::processLostContacts2>				mProcessLostContactsTask2;
+					ev4sio_Cm::DelegateTask<Scene, &Scene::processLostContacts3>				mProcessLostContactsTask3;
+					ev4sio_Cm::DelegateTask<Scene, &Scene::destroyManagers>					mDestroyManagersTask;
+					ev4sio_Cm::DelegateTask<Scene, &Scene::lostTouchReports>					mLostTouchReportsTask;
+					ev4sio_Cm::DelegateTask<Scene, &Scene::unregisterInteractions>				mUnregisterInteractionsTask;
+					ev4sio_Cm::DelegateTask<Scene,
 						&Scene::processNarrowPhaseLostTouchEventsIslands>				mProcessNarrowPhaseLostTouchTasks;
-					Cm::DelegateTask<Scene,
+					ev4sio_Cm::DelegateTask<Scene,
 						&Scene::processNarrowPhaseLostTouchEvents>						mProcessNPLostTouchEvents;
-					Cm::DelegateTask<Scene, &Scene::postThirdPassIslandGen>				mPostThirdPassIslandGenTask;
+					ev4sio_Cm::DelegateTask<Scene, &Scene::postThirdPassIslandGen>				mPostThirdPassIslandGenTask;
 #if !USE_SPLIT_SECOND_PASS_ISLAND_GEN
-					Cm::DelegateTask<Scene, &Scene::postIslandGen>						mPostIslandGen;
+					ev4sio_Cm::DelegateTask<Scene, &Scene::postIslandGen>						mPostIslandGen;
 #endif
-					Cm::DelegateTask<Scene, &Scene::islandGen>							mIslandGen;
-					Cm::DelegateTask<Scene, &Scene::preRigidBodyNarrowPhase>			mPreRigidBodyNarrowPhase;
-					Cm::DelegateTask<Scene, &Scene::setEdgesConnected>					mSetEdgesConnectedTask;
-					Cm::DelegateFanoutTask<Scene, &Scene::updateBoundsAndShapes>		mUpdateBoundAndShapeTask;
-					Cm::DelegateTask<Scene, &Scene::rigidBodyNarrowPhase>				mRigidBodyNarrowPhase;
-					Cm::DelegateTask<Scene, &Scene::unblockNarrowPhase>					mRigidBodyNPhaseUnlock;
-					Cm::DelegateTask<Scene, &Scene::postBroadPhase>						mPostBroadPhase;
-					Cm::DelegateTask<Scene, &Scene::postBroadPhaseContinuation>			mPostBroadPhaseCont;
-					Cm::DelegateTask<Scene, &Scene::postBroadPhaseStage2>				mPostBroadPhase2;
-					Cm::DelegateFanoutTask<Scene, &Scene::postBroadPhaseStage3>			mPostBroadPhase3;
-					Cm::DelegateTask<Scene, &Scene::preallocateContactManagers>			mPreallocateContactManagers;
-					Cm::DelegateTask<Scene, &Scene::islandInsertion>					mIslandInsertion;
-					Cm::DelegateTask<Scene, &Scene::registerContactManagers>			mRegisterContactManagers;
-					Cm::DelegateTask<Scene, &Scene::registerInteractions>				mRegisterInteractions;
-					Cm::DelegateTask<Scene, &Scene::registerSceneInteractions>			mRegisterSceneInteractions;
-					Cm::DelegateTask<Scene, &Scene::broadPhase>							mBroadPhase;
-					Cm::DelegateTask<Scene, &Scene::advanceStep>						mAdvanceStep;
-					Cm::DelegateTask<Scene, &Scene::collideStep>						mCollideStep;
-					Cm::DelegateTask<Scene, &Scene::broadPhaseFirstPass>				mBpFirstPass;
-					Cm::DelegateTask<Scene, &Scene::broadPhaseSecondPass>				mBpSecondPass;
-					Cm::DelegateTask<Scene, &Scene::updateBroadPhase>					mBpUpdate;
-					Cm::DelegateTask<Scene, &Scene::preIntegrate>						mPreIntegrate;
+					ev4sio_Cm::DelegateTask<Scene, &Scene::islandGen>							mIslandGen;
+					ev4sio_Cm::DelegateTask<Scene, &Scene::preRigidBodyNarrowPhase>			mPreRigidBodyNarrowPhase;
+					ev4sio_Cm::DelegateTask<Scene, &Scene::setEdgesConnected>					mSetEdgesConnectedTask;
+					ev4sio_Cm::DelegateFanoutTask<Scene, &Scene::updateBoundsAndShapes>		mUpdateBoundAndShapeTask;
+					ev4sio_Cm::DelegateTask<Scene, &Scene::rigidBodyNarrowPhase>				mRigidBodyNarrowPhase;
+					ev4sio_Cm::DelegateTask<Scene, &Scene::unblockNarrowPhase>					mRigidBodyNPhaseUnlock;
+					ev4sio_Cm::DelegateTask<Scene, &Scene::postBroadPhase>						mPostBroadPhase;
+					ev4sio_Cm::DelegateTask<Scene, &Scene::postBroadPhaseContinuation>			mPostBroadPhaseCont;
+					ev4sio_Cm::DelegateTask<Scene, &Scene::postBroadPhaseStage2>				mPostBroadPhase2;
+					ev4sio_Cm::DelegateFanoutTask<Scene, &Scene::postBroadPhaseStage3>			mPostBroadPhase3;
+					ev4sio_Cm::DelegateTask<Scene, &Scene::preallocateContactManagers>			mPreallocateContactManagers;
+					ev4sio_Cm::DelegateTask<Scene, &Scene::islandInsertion>					mIslandInsertion;
+					ev4sio_Cm::DelegateTask<Scene, &Scene::registerContactManagers>			mRegisterContactManagers;
+					ev4sio_Cm::DelegateTask<Scene, &Scene::registerInteractions>				mRegisterInteractions;
+					ev4sio_Cm::DelegateTask<Scene, &Scene::registerSceneInteractions>			mRegisterSceneInteractions;
+					ev4sio_Cm::DelegateTask<Scene, &Scene::broadPhase>							mBroadPhase;
+					ev4sio_Cm::DelegateTask<Scene, &Scene::advanceStep>						mAdvanceStep;
+					ev4sio_Cm::DelegateTask<Scene, &Scene::collideStep>						mCollideStep;
+					ev4sio_Cm::DelegateTask<Scene, &Scene::broadPhaseFirstPass>				mBpFirstPass;
+					ev4sio_Cm::DelegateTask<Scene, &Scene::broadPhaseSecondPass>				mBpSecondPass;
+					ev4sio_Cm::DelegateTask<Scene, &Scene::updateBroadPhase>					mBpUpdate;
+					ev4sio_Cm::DelegateTask<Scene, &Scene::preIntegrate>						mPreIntegrate;
 
-					Cm::FlushPool														mTaskPool;
+					ev4sio_Cm::FlushPool														mTaskPool;
 					PxTaskManager*														mTaskManager;
 					PxCudaContextManager*												mCudaContextManager;
 
@@ -988,8 +988,8 @@ namespace Sc
 					PxArray<FilterInfo>													mFilterInfo;			// PT: tmp data passed from finishBroadPhase to preallocateContactManagers
 					OnOverlapCreatedTask*												mOverlapCreatedTaskHead;
 					IslandInsertionTask*												mIslandInsertionTaskHead;
-					PxArray<IG::EdgeIndex>												mPreallocatedHandles;
-					DelayedGPUTypes														mGPUTypes;				// PT: GPU types found in last part of Sc::Scene::islandInsertion(), delayed for later processing
+					PxArray<ev4sio_IG::EdgeIndex>												mPreallocatedHandles;
+					DelayedGPUTypes														mGPUTypes;				// PT: GPU types found in last part of ev4sio_Sc::Scene::islandInsertion(), delayed for later processing
 					//~class members that should ideally just be local parameters passed from task to task
 
 					PxBitMap															mSpeculativeCCDRigidBodyBitMap;
@@ -1058,14 +1058,14 @@ namespace Sc
 	PX_FORCE_INLINE	const PxsPBDMaterialManager&		getPBDMaterialManager()				const	{ return mPBDMaterialManager;		}
 	PX_FORCE_INLINE	PxsPBDMaterialManager&				getPBDMaterialManager()						{ return mPBDMaterialManager;		}
 
-					Dy::DeformableSurface*				createLLDeformableSurface(DeformableSurfaceSim* sim);
-					void								destroyLLDeformableSurface(Dy::DeformableSurface& femCloth);
+					ev4sio_Dy::DeformableSurface*				createLLDeformableSurface(DeformableSurfaceSim* sim);
+					void								destroyLLDeformableSurface(ev4sio_Dy::DeformableSurface& femCloth);
 
-					Dy::DeformableVolume*				createLLDeformableVolume(DeformableVolumeSim* sim);
-					void								destroyLLDeformableVolume(Dy::DeformableVolume& deformableVolume);
+					ev4sio_Dy::DeformableVolume*				createLLDeformableVolume(DeformableVolumeSim* sim);
+					void								destroyLLDeformableVolume(ev4sio_Dy::DeformableVolume& deformableVolume);
 
-					Dy::ParticleSystem*					createLLParticleSystem(ParticleSystemSim* sim);
-					void								destroyLLParticleSystem(Dy::ParticleSystem& softBody);
+					ev4sio_Dy::ParticleSystem*					createLLParticleSystem(ParticleSystemSim* sim);
+					void								destroyLLParticleSystem(ev4sio_Dy::ParticleSystem& softBody);
 
 					void								cleanUpSleepDeformableVolumes();
 					void								cleanUpWokenDeformableVolumes();
@@ -1078,11 +1078,11 @@ namespace Sc
 					void								addParticleSystemSimControl(ParticleSystemCore& core);
 					void								removeParticleSystemSimControl(ParticleSystemCore& core);
 
-					void								addParticleFilter(Sc::ParticleSystemCore* core, DeformableVolumeSim& sim, PxU32 particleId, PxU32 userBufferId, PxU32 tetId);
-					void								removeParticleFilter(Sc::ParticleSystemCore* core, DeformableVolumeSim& sim, PxU32 particleId, PxU32 userBufferId, PxU32 tetId);
+					void								addParticleFilter(ev4sio_Sc::ParticleSystemCore* core, DeformableVolumeSim& sim, PxU32 particleId, PxU32 userBufferId, PxU32 tetId);
+					void								removeParticleFilter(ev4sio_Sc::ParticleSystemCore* core, DeformableVolumeSim& sim, PxU32 particleId, PxU32 userBufferId, PxU32 tetId);
 
-					PxU32								addParticleAttachment(Sc::ParticleSystemCore* core, DeformableVolumeSim& sim, PxU32 particleId, PxU32 userBufferId, PxU32 tetId, const PxVec4& barycentric);
-					void								removeParticleAttachment(Sc::ParticleSystemCore* core, DeformableVolumeSim& sim, PxU32 handle);
+					PxU32								addParticleAttachment(ev4sio_Sc::ParticleSystemCore* core, DeformableVolumeSim& sim, PxU32 particleId, PxU32 userBufferId, PxU32 tetId, const PxVec4& barycentric);
+					void								removeParticleAttachment(ev4sio_Sc::ParticleSystemCore* core, DeformableVolumeSim& sim, PxU32 handle);
 
 					void								addRigidFilter(BodyCore* core, DeformableVolumeSim& sim, PxU32 vertId);
 					void								removeRigidFilter(BodyCore* core, DeformableVolumeSim& sim, PxU32 vertId);
@@ -1103,8 +1103,8 @@ namespace Sc
 					PxU32								addSoftBodyAttachment(DeformableVolumeCore& core, PxU32 tetIdx0, const PxVec4& triBarycentric0, DeformableVolumeSim& sim, PxU32 tetIdx1, const PxVec4& tetBarycentric1, PxConeLimitedConstraint* constraint, PxReal constraintOffset, bool doConversion);
 					void								removeSoftBodyAttachment(DeformableVolumeCore& core, DeformableVolumeSim& sim, PxU32 handle);
 
-					void								addClothFilter(DeformableSurfaceCore& core, PxU32 triIdx, Sc::DeformableVolumeSim& sim, PxU32 tetIdx);
-					void								removeClothFilter(DeformableSurfaceCore& core, PxU32 triIdx, Sc::DeformableVolumeSim& sim, PxU32 tetIdx);
+					void								addClothFilter(DeformableSurfaceCore& core, PxU32 triIdx, ev4sio_Sc::DeformableVolumeSim& sim, PxU32 tetIdx);
+					void								removeClothFilter(DeformableSurfaceCore& core, PxU32 triIdx, ev4sio_Sc::DeformableVolumeSim& sim, PxU32 tetIdx);
 
 					PxU32								addClothAttachment(DeformableSurfaceCore& core, PxU32 triIdx, const PxVec4& triBarycentric, DeformableVolumeSim& sim, PxU32 tetIdx, const PxVec4& tetBarycentric, PxConeLimitedConstraint* constraint, PxReal constraintOffset, bool doConversion);
 					void								removeClothAttachment(DeformableSurfaceCore& core, DeformableVolumeSim& sim, PxU32 handle);
@@ -1112,10 +1112,10 @@ namespace Sc
 					PxU32								addRigidAttachment(BodyCore* core, DeformableSurfaceSim& sim, PxU32 vertId, const PxVec3& actorSpacePose, PxConeLimitedConstraint* constraint);
 					void								removeRigidAttachment(BodyCore* core, DeformableSurfaceSim& sim, PxU32 handle);
 
-					void								addClothFilter(DeformableSurfaceCore& core0, PxU32 triIdx0, Sc::DeformableSurfaceSim& sim1, PxU32 triIdx1);
+					void								addClothFilter(DeformableSurfaceCore& core0, PxU32 triIdx0, ev4sio_Sc::DeformableSurfaceSim& sim1, PxU32 triIdx1);
 					void								removeClothFilter(DeformableSurfaceCore& core, PxU32 triIdx0, DeformableSurfaceSim& sim1, PxU32 triIdx1);
 
-					PxU32								addTriClothAttachment(DeformableSurfaceCore& core0, PxU32 triIdx0, const PxVec4& barycentric0, Sc::DeformableSurfaceSim& sim1, PxU32 triIdx1, const PxVec4& barycentric1);
+					PxU32								addTriClothAttachment(DeformableSurfaceCore& core0, PxU32 triIdx0, const PxVec4& barycentric0, ev4sio_Sc::DeformableSurfaceSim& sim1, PxU32 triIdx1, const PxVec4& barycentric1);
 					void								removeTriClothAttachment(DeformableSurfaceCore& core, DeformableSurfaceSim& sim1, PxU32 handle);
 
 					void								addTriRigidFilter(BodyCore* core, DeformableSurfaceSim& sim, PxU32 triIdx);
@@ -1167,10 +1167,10 @@ namespace Sc
 	};
 
 	bool	activateInteraction(Interaction* interaction);
-	void	activateInteractions(Sc::ActorSim& actorSim);
-	void	deactivateInteractions(Sc::ActorSim& actorSim);
+	void	activateInteractions(ev4sio_Sc::ActorSim& actorSim);
+	void	deactivateInteractions(ev4sio_Sc::ActorSim& actorSim);
 
-} // namespace Sc
+} // namespace ev4sio_Sc
 
 }
 

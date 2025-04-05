@@ -37,23 +37,23 @@
 #include "ScParticleSystemSim.h"
 #include "CmVisualization.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
-namespace physx
+namespace ev4sio_physx
 {
 #if PX_ENABLE_DEBUG_VISUALIZATION
-	static void visualizeParticleSystem(PxRenderOutput& out, NpScene& npScene, const Sc::ParticleSystemCore& core)
+	static void visualizeParticleSystem(PxRenderOutput& out, NpScene& npScene, const ev4sio_Sc::ParticleSystemCore& core)
 	{
 		if (!(core.getActorFlags() & PxActorFlag::eVISUALIZATION))
 			return;
 
-		const Sc::Scene& scScene = npScene.getScScene();
+		const ev4sio_Sc::Scene& scScene = npScene.getScScene();
 
 		const bool visualizeAABBs = scScene.getVisualizationParameter(PxVisualizationParameter::eCOLLISION_AABBS) != 0.0f;
 		if (visualizeAABBs)
 		{
 			out << PxU32(PxDebugColor::eARGB_YELLOW) << PxMat44(PxIdentity);
-			Cm::renderOutputDebugBox(out, scScene.getBoundsArray().getBounds(core.getSim()->getShapeSim().getElementID()));
+			ev4sio_Cm::renderOutputDebugBox(out, scScene.getBoundsArray().getBounds(core.getSim()->getShapeSim().getElementID()));
 		}
 	}
 #else
@@ -83,11 +83,11 @@ namespace physx
 
 		if (!NpBase::getNpScene())
 		{
-			PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "Querying bounds of a PxParticleSystem which is not part of a PxScene is not supported.");
+			ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "Querying bounds of a PxParticleSystem which is not part of a PxScene is not supported.");
 			return PxBounds3::empty();
 		}
 
-		const Sc::ParticleSystemSim* sim = mCore.getSim();
+		const ev4sio_Sc::ParticleSystemSim* sim = mCore.getSim();
 		PX_ASSERT(sim);
 
 		PX_SIMD_GUARD;
@@ -129,8 +129,8 @@ namespace physx
 	{
 		if (material->getConcreteType() == PxConcreteType::ePBD_MATERIAL)
 		{
-			Sc::ParticleSystemShapeCore& shapeCore = mCore.getShapeCore();
-			Dy::ParticleSystemCore& core = shapeCore.getLLCore();
+			ev4sio_Sc::ParticleSystemShapeCore& shapeCore = mCore.getShapeCore();
+			ev4sio_Dy::ParticleSystemCore& core = shapeCore.getLLCore();
 
 			PxU16 materialHandle = static_cast<NpPBDMaterial*>(material)->mMaterial.mMaterialIndex;
 		
@@ -144,14 +144,14 @@ namespace physx
 			}
 
 			if (mCore.getSim())
-				mCore.getSim()->getLowLevelParticleSystem()->mFlag |= Dy::ParticleSystemFlag::eUPDATE_PHASE;
+				mCore.getSim()->getLowLevelParticleSystem()->mFlag |= ev4sio_Dy::ParticleSystemFlag::eUPDATE_PHASE;
 
 			return (groupID & PxParticlePhaseFlag::eParticlePhaseGroupMask)
 				| (PxU32(flags) & PxParticlePhaseFlag::eParticlePhaseFlagsMask);
 		}
 		else
 		{
-			PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "PxPBDParticleSystem:createPhase(): the provided material is not supported by this type of particle system.");
+			ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "PxPBDParticleSystem:createPhase(): the provided material is not supported by this type of particle system.");
 			return 0;
 		}
 	}
@@ -199,8 +199,8 @@ namespace physx
 
 	PxU32 NpPBDParticleSystem::getParticleMaterials(PxParticleMaterial** userBuffer, PxU32 bufferSize, PxU32 startIndex) const
 	{
-		const Sc::ParticleSystemShapeCore& shapeCore = mCore.getShapeCore();
-		const Dy::ParticleSystemCore& core = shapeCore.getLLCore();
+		const ev4sio_Sc::ParticleSystemShapeCore& shapeCore = mCore.getShapeCore();
+		const ev4sio_Dy::ParticleSystemCore& core = shapeCore.getLLCore();
 
 		NpMaterialManager<NpPBDMaterial>& matManager = NpMaterialAccessor<NpPBDMaterial>::getMaterialManager(NpPhysics::getInstance());
 
@@ -280,7 +280,7 @@ namespace physx
 		PX_CHECK_AND_RETURN(particleBuffer != NULL, "NpPBDParticleSystem::addParticleBuffer: particle buffer is NULL!");
 		PX_CHECK_AND_RETURN(getNpScene() != NULL, "NpPBDParticleSystem::addParticleBuffer: this function cannot be called when the particle system is not inserted into the scene!");
 			
-		Dy::ParticleSystemCore& llCore = mCore.getShapeCore().getLLCore();
+		ev4sio_Dy::ParticleSystemCore& llCore = mCore.getShapeCore().getLLCore();
 		bool added = false;
 		switch (particleBuffer->getConcreteType())
 		{
@@ -310,7 +310,7 @@ namespace physx
 			}
 			default:
 			{
-				PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "NpPBDParticleSystem::addParticleBuffer: Error, this buffer does not have a valid type!");
+				ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "NpPBDParticleSystem::addParticleBuffer: Error, this buffer does not have a valid type!");
 				break;
 			}
 		}
@@ -326,7 +326,7 @@ namespace physx
 	{
 		PX_CHECK_AND_RETURN(particleBuffer != NULL, "NpPBDParticleSystem::removeParticleBuffer: particle buffer is NULL!");
 
-		Dy::ParticleSystemCore& llCore = mCore.getShapeCore().getLLCore();
+		ev4sio_Dy::ParticleSystemCore& llCore = mCore.getShapeCore().getLLCore();
 		bool removed = false;
 		switch (particleBuffer->getConcreteType())
 		{
@@ -356,7 +356,7 @@ namespace physx
 			}
 			default:
 			{
-				PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "NpPBDParticleSystem::removeParticleBuffer: Error, this buffer does not have a valid type!");
+				ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "NpPBDParticleSystem::removeParticleBuffer: Error, this buffer does not have a valid type!");
 				break;
 			}
 		}
@@ -377,16 +377,16 @@ namespace physx
 	PX_CATCH_UNDEFINED_ENABLE_DEBUG_VISUALIZATION
 #endif
 
-	static void internalAddRigidAttachment(PxRigidActor* actor, Sc::ParticleSystemCore& psCore)
+	static void internalAddRigidAttachment(PxRigidActor* actor, ev4sio_Sc::ParticleSystemCore& psCore)
 	{
-		Sc::BodyCore* core = getBodyCore(actor);
+		ev4sio_Sc::BodyCore* core = getBodyCore(actor);
 
 		psCore.addRigidAttachment(core);
 	}
 
-	static void internalRemoveRigidAttachment(PxRigidActor* actor, Sc::ParticleSystemCore& psCore)
+	static void internalRemoveRigidAttachment(PxRigidActor* actor, ev4sio_Sc::ParticleSystemCore& psCore)
 	{
-		Sc::BodyCore* core = getBodyCore(actor);
+		ev4sio_Sc::BodyCore* core = getBodyCore(actor);
 		psCore.removeRigidAttachment(core);
 	}
 

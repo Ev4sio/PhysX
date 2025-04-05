@@ -51,9 +51,9 @@
 #include "PxcNpContactPrepShared.h"
 #include "PxcNpCache.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
-PxsContext::PxsContext(const PxSceneDesc& desc, PxTaskManager* taskManager, Cm::FlushPool& taskPool, PxCudaContextManager* cudaContextManager, PxU32 poolSlabSize, PxU64 contextID) :
+PxsContext::PxsContext(const PxSceneDesc& desc, PxTaskManager* taskManager, ev4sio_Cm::FlushPool& taskPool, PxCudaContextManager* cudaContextManager, PxU32 poolSlabSize, PxU64 contextID) :
 	mNpThreadContextPool			(this),
 	mContactManagerPool				("mContactManagerPool", poolSlabSize),
 	mManifoldPool					("mManifoldPool", poolSlabSize),
@@ -84,7 +84,7 @@ PxsContext::~PxsContext()
 }
 
 // =========================== Create methods
-namespace physx
+namespace ev4sio_physx
 {
 	const bool gEnablePCMCaching[][PxGeometryType::eGEOMETRY_COUNT] =
 	{
@@ -280,7 +280,7 @@ PxsContactManager* PxsContext::createContactManager(PxsContactManager* contactMa
 	return cm;
 }
 
-void PxsContext::createCache(Gu::Cache& cache, PxGeometryType::Enum geomType0, PxGeometryType::Enum geomType1)
+void PxsContext::createCache(ev4sio_Gu::Cache& cache, PxGeometryType::Enum geomType0, PxGeometryType::Enum geomType1)
 {
 	if(mPCM)
 	{
@@ -290,14 +290,14 @@ void PxsContext::createCache(Gu::Cache& cache, PxGeometryType::Enum geomType0, P
 			{
 				if(geomType0 == PxGeometryType::eSPHERE || geomType1 == PxGeometryType::eSPHERE)
 				{
-					Gu::PersistentContactManifold* manifold = mSphereManifoldPool.allocate();
-					PX_PLACEMENT_NEW(manifold, Gu::SpherePersistentContactManifold());
+					ev4sio_Gu::PersistentContactManifold* manifold = mSphereManifoldPool.allocate();
+					PX_PLACEMENT_NEW(manifold, ev4sio_Gu::SpherePersistentContactManifold());
 					cache.setManifold(manifold);
 				}
 				else
 				{
-					Gu::PersistentContactManifold* manifold = mManifoldPool.allocate();
-					PX_PLACEMENT_NEW(manifold, Gu::LargePersistentContactManifold());
+					ev4sio_Gu::PersistentContactManifold* manifold = mManifoldPool.allocate();
+					PX_PLACEMENT_NEW(manifold, ev4sio_Gu::LargePersistentContactManifold());
 					cache.setManifold(manifold);
 
 				}
@@ -329,17 +329,17 @@ void PxsContext::destroyContactManager(PxsContactManager* cm)
 	mContactManagerPool.put(cm);
 }
 
-void PxsContext::destroyCache(Gu::Cache& cache)
+void PxsContext::destroyCache(ev4sio_Gu::Cache& cache)
 {
 	if(cache.isManifold())
 	{
 		if(!cache.isMultiManifold())
 		{
-			Gu::PersistentContactManifold& manifold = cache.getManifold();
+			ev4sio_Gu::PersistentContactManifold& manifold = cache.getManifold();
 			if(manifold.mCapacity == GU_SPHERE_MANIFOLD_CACHE_SIZE)
-				mSphereManifoldPool.deallocate(static_cast<Gu::SpherePersistentContactManifold*>(&manifold));
+				mSphereManifoldPool.deallocate(static_cast<ev4sio_Gu::SpherePersistentContactManifold*>(&manifold));
 			else
-				mManifoldPool.deallocate(static_cast<Gu::LargePersistentContactManifold*>(&manifold));
+				mManifoldPool.deallocate(static_cast<ev4sio_Gu::LargePersistentContactManifold*>(&manifold));
 		}
 		cache.mCachedData = NULL;
 		cache.mManifoldFlags = 0;
@@ -479,7 +479,7 @@ void PxsContext::mergeCMDiscreteUpdateResults(PxBaseTask* /*continuation*/)
 }
 
 void PxsContext::updateContactManager(PxReal dt, bool hasContactDistanceChanged, PxBaseTask* continuation, PxBaseTask* firstPassContinuation,
-	Cm::FanoutTask* updateBoundAndShapeTask)
+	ev4sio_Cm::FanoutTask* updateBoundAndShapeTask)
 {
 	PX_ASSERT(mNpImplementationContext);
 	return mNpImplementationContext->updateContactManager(dt, hasContactDistanceChanged, continuation, 

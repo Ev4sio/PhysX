@@ -37,11 +37,11 @@
 #include "GuPruner.h"
 #include "GuActorShapeMap.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	class PxGeometry;
 
-namespace Gu
+namespace ev4sio_Gu
 {
 	class BVH;
 
@@ -146,7 +146,7 @@ namespace Gu
 							PxArray<PxU32>			mDirtyPruners;
 							PxArray<PxU32>			mFreePruners;
 
-							Gu::BVH*				mTreeOfPruners;
+							ev4sio_Gu::BVH*				mTreeOfPruners;
 
 							const PxU64				mContextID;
 							PxU32					mStaticTimestamp;
@@ -180,9 +180,9 @@ namespace Gu
 #pragma warning(disable: 4355 )	// "this" used in base member initializer list
 #endif
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Gu
+namespace ev4sio_Gu
 {
 	// PT: TODO: use templates instead of v-calls?
 
@@ -310,7 +310,7 @@ namespace Gu
 			const PrunerPayload& payload = payloads[primIndex];
 
 			const PxGeometry* shapeGeom = mFilterCB.validatePayload(payload, mUnused);
-			if(!shapeGeom || !Gu::overlap(mGeometry, mPose, *shapeGeom, transforms[primIndex], mCachedFuncs, mContext))
+			if(!shapeGeom || !ev4sio_Gu::overlap(mGeometry, mPose, *shapeGeom, transforms[primIndex], mCachedFuncs, mContext))
 				return true;
 
 			return reportHit(payload);

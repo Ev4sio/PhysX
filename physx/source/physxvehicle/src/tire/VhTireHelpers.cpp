@@ -28,7 +28,7 @@
 
 #include "vehicle2/tire/PxVehicleTireHelpers.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 namespace vehicle2
 {
@@ -61,5 +61,5 @@ void PxVehicleTireStickyStateReset
 }
 
 } //namespace vehicle2
-} //namespace physx
+} //namespace ev4sio_physx
 

@@ -40,14 +40,14 @@
 #include "PxQueryReport.h"
 #include "GuCachedFuncs.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 class PxGeometry;
 struct PxQueryFilterData;
 struct PxFilterData;
 class PxQueryFilterCallback;
 
-namespace Sq
+namespace ev4sio_Sq
 {
 	struct MultiQueryInput;
 
@@ -72,11 +72,11 @@ namespace Sq
 		virtual						~QueryAdapter()	{}
 
 		// PT: TODO: decouple from PxQueryCache?
-		virtual	Gu::PrunerHandle	findPrunerHandle(const PxQueryCache& cache, PrunerCompoundId& compoundId, PxU32& prunerIndex)	const	= 0;
+		virtual	ev4sio_Gu::PrunerHandle	findPrunerHandle(const PxQueryCache& cache, PrunerCompoundId& compoundId, PxU32& prunerIndex)	const	= 0;
 
 		// PT: TODO: return reference? but this version is at least consistent with getActorShape
-		virtual	void				getFilterData(const Gu::PrunerPayload& payload, PxFilterData& filterData)	const	= 0;
-		virtual	void				getActorShape(const Gu::PrunerPayload& payload, PxActorShape& actorShape)	const	= 0;
+		virtual	void				getFilterData(const ev4sio_Gu::PrunerPayload& payload, PxFilterData& filterData)	const	= 0;
+		virtual	void				getActorShape(const ev4sio_Gu::PrunerPayload& payload, PxActorShape& actorShape)	const	= 0;
 	};
 
 }
@@ -85,17 +85,17 @@ namespace Sq
 	{
 													PX_NOCOPY(SceneQueries)
 		public:
-													SceneQueries(Sq::PVDCapture* pvd, PxU64 contextID, Gu::Pruner* staticPruner, Gu::Pruner* dynamicPruner,
+													SceneQueries(ev4sio_Sq::PVDCapture* pvd, PxU64 contextID, ev4sio_Gu::Pruner* staticPruner, ev4sio_Gu::Pruner* dynamicPruner,
 														PxU32 dynamicTreeRebuildRateHint, float inflation,
-														const PxSceneLimits& limits, const Sq::QueryAdapter& adapter);
+														const PxSceneLimits& limits, const ev4sio_Sq::QueryAdapter& adapter);
 													~SceneQueries();
 
-		PX_FORCE_INLINE	Sq::PrunerManager&			getPrunerManagerFast()			{ return mSQManager;	}
-		PX_FORCE_INLINE	const Sq::PrunerManager&	getPrunerManagerFast()	const	{ return mSQManager;	}
+		PX_FORCE_INLINE	ev4sio_Sq::PrunerManager&			getPrunerManagerFast()			{ return mSQManager;	}
+		PX_FORCE_INLINE	const ev4sio_Sq::PrunerManager&	getPrunerManagerFast()	const	{ return mSQManager;	}
 
 		template<typename QueryHit>
 						bool						multiQuery(
-														const Sq::MultiQueryInput& in,
+														const ev4sio_Sq::MultiQueryInput& in,
 														PxHitCallback<QueryHit>& hits, PxHitFlags hitFlags, const PxQueryCache* cache,
 														const PxQueryFilterData& filterData, PxQueryFilterCallback* filterCall) const;
 
@@ -119,23 +119,23 @@ namespace Sq
 														const PxQueryCache* cache, PxGeometryQueryFlags flags) const;
 
 		PX_FORCE_INLINE	PxU64						getContextId()			const	{ return mSQManager.getContextId();	}
-						Sq::PrunerManager			mSQManager;
+						ev4sio_Sq::PrunerManager			mSQManager;
 		public:
-						Gu::CachedFuncs				mCachedFuncs;
+						ev4sio_Gu::CachedFuncs				mCachedFuncs;
 
-						Sq::PVDCapture*				mPVD;
+						ev4sio_Sq::PVDCapture*				mPVD;
 	};
 
 #if PX_SUPPORT_EXTERN_TEMPLATE
 	//explicit template instantiation declaration
 	extern template
-	bool SceneQueries::multiQuery<PxRaycastHit>(const Sq::MultiQueryInput&, PxHitCallback<PxRaycastHit>&, PxHitFlags, const PxQueryCache*, const PxQueryFilterData&, PxQueryFilterCallback*) const;
+	bool SceneQueries::multiQuery<PxRaycastHit>(const ev4sio_Sq::MultiQueryInput&, PxHitCallback<PxRaycastHit>&, PxHitFlags, const PxQueryCache*, const PxQueryFilterData&, PxQueryFilterCallback*) const;
 
 	extern template
-	bool SceneQueries::multiQuery<PxOverlapHit>(const Sq::MultiQueryInput&, PxHitCallback<PxOverlapHit>&, PxHitFlags, const PxQueryCache*, const PxQueryFilterData&, PxQueryFilterCallback*) const;
+	bool SceneQueries::multiQuery<PxOverlapHit>(const ev4sio_Sq::MultiQueryInput&, PxHitCallback<PxOverlapHit>&, PxHitFlags, const PxQueryCache*, const PxQueryFilterData&, PxQueryFilterCallback*) const;
 
 	extern template
-	bool SceneQueries::multiQuery<PxSweepHit>(const Sq::MultiQueryInput&, PxHitCallback<PxSweepHit>&, PxHitFlags, const PxQueryCache*, const PxQueryFilterData&, PxQueryFilterCallback*) const;
+	bool SceneQueries::multiQuery<PxSweepHit>(const ev4sio_Sq::MultiQueryInput&, PxHitCallback<PxSweepHit>&, PxHitFlags, const PxQueryCache*, const PxQueryFilterData&, PxQueryFilterCallback*) const;
 #endif
 
 }

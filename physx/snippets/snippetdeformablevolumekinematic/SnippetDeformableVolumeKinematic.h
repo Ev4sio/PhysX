@@ -43,11 +43,11 @@ public:
 		mCudaContextManager(NULL)		
 	{ }
 
-	DeformableVolume(physx::PxDeformableVolume* deformableVolume, physx::PxCudaContextManager* cudaContextManager) :
+	DeformableVolume(ev4sio_physx::PxDeformableVolume* deformableVolume, ev4sio_physx::PxCudaContextManager* cudaContextManager) :
 		mDeformableVolume(deformableVolume),
 		mCudaContextManager(cudaContextManager)
 	{
-		mPositionsInvMass = PX_EXT_PINNED_MEMORY_ALLOC(physx::PxVec4, *cudaContextManager, deformableVolume->getCollisionMesh()->getNbVertices());
+		mPositionsInvMass = PX_EXT_PINNED_MEMORY_ALLOC(ev4sio_physx::PxVec4, *cudaContextManager, deformableVolume->getCollisionMesh()->getNbVertices());
 	}
 
 	~DeformableVolume()
@@ -66,28 +66,28 @@ public:
 
 	void copyDeformedVerticesFromGPUAsync(CUstream stream)
 	{	
-		physx::PxTetrahedronMesh* tetMesh = mDeformableVolume->getCollisionMesh();
+		ev4sio_physx::PxTetrahedronMesh* tetMesh = mDeformableVolume->getCollisionMesh();
 
-		physx::PxScopedCudaLock _lock(*mCudaContextManager);
-		mCudaContextManager->getCudaContext()->memcpyDtoHAsync(mPositionsInvMass, reinterpret_cast<CUdeviceptr>(mDeformableVolume->getPositionInvMassBufferD()), tetMesh->getNbVertices() * sizeof(physx::PxVec4), stream);
+		ev4sio_physx::PxScopedCudaLock _lock(*mCudaContextManager);
+		mCudaContextManager->getCudaContext()->memcpyDtoHAsync(mPositionsInvMass, reinterpret_cast<CUdeviceptr>(mDeformableVolume->getPositionInvMassBufferD()), tetMesh->getNbVertices() * sizeof(ev4sio_physx::PxVec4), stream);
 	}
 
 	void copyDeformedVerticesFromGPU()
 	{	
-		physx::PxTetrahedronMesh* tetMesh = mDeformableVolume->getCollisionMesh();
+		ev4sio_physx::PxTetrahedronMesh* tetMesh = mDeformableVolume->getCollisionMesh();
 
-		physx::PxScopedCudaLock _lock(*mCudaContextManager);
-		mCudaContextManager->getCudaContext()->memcpyDtoH(mPositionsInvMass, reinterpret_cast<CUdeviceptr>(mDeformableVolume->getPositionInvMassBufferD()), tetMesh->getNbVertices() * sizeof(physx::PxVec4));
+		ev4sio_physx::PxScopedCudaLock _lock(*mCudaContextManager);
+		mCudaContextManager->getCudaContext()->memcpyDtoH(mPositionsInvMass, reinterpret_cast<CUdeviceptr>(mDeformableVolume->getPositionInvMassBufferD()), tetMesh->getNbVertices() * sizeof(ev4sio_physx::PxVec4));
 	}
 
 
-	physx::PxVec4* mPositionsInvMass;
-	physx::PxDeformableVolume* mDeformableVolume;
-	physx::PxCudaContextManager* mCudaContextManager;
+	ev4sio_physx::PxVec4* mPositionsInvMass;
+	ev4sio_physx::PxDeformableVolume* mDeformableVolume;
+	ev4sio_physx::PxCudaContextManager* mCudaContextManager;
 
-	physx::PxVec4* mTargetPositionsH;
-	physx::PxVec4* mTargetPositionsD;
-	physx::PxU32 mTargetCount;
+	ev4sio_physx::PxVec4* mTargetPositionsH;
+	ev4sio_physx::PxVec4* mTargetPositionsD;
+	ev4sio_physx::PxU32 mTargetCount;
 };
 
 #endif // PHYSX_SNIPPET_DEFORMABLE_VOLUME_KINEMATIC_H

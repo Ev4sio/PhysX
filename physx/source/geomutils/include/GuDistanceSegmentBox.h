@@ -33,9 +33,9 @@
 #include "GuSegment.h"
 #include "GuBox.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Gu
+namespace ev4sio_Gu
 {
 
 	//! Compute the smallest distance from the (finite) line segment to the box.
@@ -44,12 +44,12 @@ namespace Gu
 															PxReal* segmentParam = NULL,
 															PxVec3* boxParam = NULL);
 
-	PX_FORCE_INLINE PxReal distanceSegmentBoxSquared(const Gu::Segment& segment, const Gu::Box& box, PxReal* t = NULL, PxVec3* p = NULL)
+	PX_FORCE_INLINE PxReal distanceSegmentBoxSquared(const ev4sio_Gu::Segment& segment, const ev4sio_Gu::Box& box, PxReal* t = NULL, PxVec3* p = NULL)
 	{
 		return distanceSegmentBoxSquared(segment.p0, segment.p1, box.center, box.extents, box.rot, t, p);
 	}
 
-} // namespace Gu
+} // namespace ev4sio_Gu
 
 }
 

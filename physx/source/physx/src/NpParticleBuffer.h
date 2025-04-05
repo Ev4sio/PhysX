@@ -39,7 +39,7 @@
 #include "PxsParticleBuffer.h"
 #include "omnipvd/OmniPvdPxSampler.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	class PxCudaContextManager;
 
@@ -61,7 +61,7 @@ namespace physx
 		PxU32 combinePartitions(const PxParticleSpring* springs, const PxU32* orderedSpringIndices, const PxU32* accumulatedSpringsPerPartition,
 			PxU32* accumulatedSpringsPerCombinedPartitions, PxParticleSpring* orderedSprings, PxU32* accumulatedCopiesPerParticles, PxU32* remapOutput);
 
-		void classifySprings(const PxParticleSpring* springs, PxU32* partitionProgresses, PxU32* tempSprings, physx::PxArray<PxU32>& springsPerPartition);
+		void classifySprings(const PxParticleSpring* springs, PxU32* partitionProgresses, PxU32* tempSprings, ev4sio_physx::PxArray<PxU32>& springsPerPartition);
 
 		void writeSprings(const PxParticleSpring* springs, PxU32* partitionProgresses, PxU32* tempSprings, PxU32* orderedSprings,
 			PxU32* accumulatedSpringsPerPartition);

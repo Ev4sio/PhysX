@@ -28,7 +28,7 @@
 #define PX_PROFILE_EVENT_ID_H
 
 
-namespace physx { namespace profile {
+namespace ev4sio_physx { namespace profile {
 	/**
 	\brief A event id structure. Optionally includes information about
 	if the event was enabled at compile time.

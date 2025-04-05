@@ -38,7 +38,7 @@
 #include "foundation/PxMemory.h"
 #include "foundation/PxUtilities.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 struct ConvexHullCooked

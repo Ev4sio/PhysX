@@ -40,7 +40,7 @@
 #include "foundation/PxBounds3.h"
 #include "foundation/PxMemory.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 namespace local
 {		
@@ -459,7 +459,7 @@ namespace local
 		PX_FORCE_INLINE PxU32 getNbHullVerts() { return mOutputNumVertices; }
 
 	protected:
-		friend class physx::QuickHullConvexHullLib;
+		friend class ev4sio_physx::QuickHullConvexHullLib;
 
 		const PxCookingParams&	mCookingParams;		// cooking params
 		const PxConvexMeshDesc& mConvexDesc;		// convex desc
@@ -868,7 +868,7 @@ namespace local
 
 		if (max <= mTolerance)
 			// should not happen as we clear the vertices before and expand them if they are really close to each other
-			return PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "QuickHullConvexHullLib::findSimplex: Simplex input points appers to be almost at the same place");
+			return ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "QuickHullConvexHullLib::findSimplex: Simplex input points appers to be almost at the same place");
 
 		QuickHullVertex simplex[4];
 
@@ -900,7 +900,7 @@ namespace local
 		}
 
 		if (PxSqrt(maxDist) <= mTolerance)
-			return PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "QuickHullConvexHullLib::findSimplex: Simplex input points appers to be colinear.");
+			return ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "QuickHullConvexHullLib::findSimplex: Simplex input points appers to be colinear.");
 
 		normal.normalize();
 
@@ -921,7 +921,7 @@ namespace local
 		}
 
 		if (PxAbs(maxDist) <= mTolerance)
-			return PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "QuickHullConvexHullLib::findSimplex: Simplex input points appers to be coplanar.");
+			return ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "QuickHullConvexHullLib::findSimplex: Simplex input points appers to be coplanar.");
 
 		// now create faces from those triangles
 		if (!addSimplex(&simplex[0], simplex[3].point.dot(normal) - d0 < 0))

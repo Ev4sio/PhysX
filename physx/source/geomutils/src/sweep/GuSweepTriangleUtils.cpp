@@ -35,13 +35,13 @@
 #include "GuInternal.h"
 #include "GuGJK.h"
 
-using namespace physx;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
 using namespace aos;
 
 #define GU_SAFE_DISTANCE_FOR_NORMAL_COMPUTATION 0.1f
 
-void Gu::computeSphereTriImpactData(PxVec3& hit, PxVec3& normal, const PxVec3& center, const PxVec3& dir, float t, const PxTriangle& tri)
+void ev4sio_Gu::computeSphereTriImpactData(PxVec3& hit, PxVec3& normal, const PxVec3& center, const PxVec3& dir, float t, const PxTriangle& tri)
 {
 	const PxVec3 newSphereCenter = center + dir*t;
 
@@ -104,7 +104,7 @@ static bool runBackupProcedure(PxVec3& hit, PxVec3& normal, const PxVec3& localM
 	return true;
 }
 
-void Gu::computeBoxTriImpactData(PxVec3& hit, PxVec3& normal, const PxVec3& boxExtents, const PxVec3& localDir, const PxTriangle& triInBoxSpace, PxReal impactDist)
+void ev4sio_Gu::computeBoxTriImpactData(PxVec3& hit, PxVec3& normal, const PxVec3& boxExtents, const PxVec3& localDir, const PxTriangle& triInBoxSpace, PxReal impactDist)
 {
 	// PT: the triangle is in "box space", i.e. the box can be seen as an AABB centered around the origin.
 
@@ -193,7 +193,7 @@ static PX_FORCE_INLINE void edgeEdgeDistNoZeroVector(	PxVec3& x, PxVec3& y,				/
 	y = q + b * u;
 }
 
-void Gu::computeEdgeEdgeNormal(PxVec3& normal, const PxVec3& p1, const PxVec3& p2_p1, const PxVec3& p3, const PxVec3& p4_p3, const PxVec3& dir, float d)
+void ev4sio_Gu::computeEdgeEdgeNormal(PxVec3& normal, const PxVec3& p1, const PxVec3& p2_p1, const PxVec3& p3, const PxVec3& p4_p3, const PxVec3& dir, float d)
 {
 	// PT: cross-product doesn't produce nice normals so we use an edge-edge distance function itself
 

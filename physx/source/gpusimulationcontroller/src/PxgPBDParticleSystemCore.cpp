@@ -53,7 +53,7 @@
 
 #define PS_GPU_DEBUG 0
 
-namespace physx
+namespace ev4sio_physx
 {
 
 	PxgPBDParticleSystemCore::PxgPBDParticleSystemCore(PxgCudaKernelWranglerManager* gpuKernelWrangler, PxCudaContextManager* cudaContextManager,
@@ -102,14 +102,14 @@ namespace physx
 				/*result = mCudaContext->streamSynchronize(mStream);
 				PX_ASSERT(result == CUDA_SUCCESS);
 				if (result != CUDA_SUCCESS)
-					PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU updateBound first pass kernel fail!\n");*
+					ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU updateBound first pass kernel fail!\n");*
 					*/
 
 #if PS_GPU_DEBUG
 				result = mCudaContext->streamSynchronize(bpStream);
 				PX_ASSERT(result == CUDA_SUCCESS);
 				if (result != CUDA_SUCCESS)
-					PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU updateBound first pass kernel fail!\n");
+					ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU updateBound first pass kernel fail!\n");
 
 				//PxgParticleSystem ps;
 				//mCudaContext->memcpyDtoH(&ps, particleSystemsd, sizeof(PxgParticleSystem));
@@ -259,23 +259,23 @@ namespace physx
 
 						CUresult  resultR = mCudaContext->launchKernel(radixFunction, PxgRadixSortKernelGridDim::RADIX_SORT, count, 1, PxgRadixSortKernelBlockDim::RADIX_SORT, 1, 1, 0, mStream, radixSortKernelParams, sizeof(radixSortKernelParams), 0, PX_FL);
 						if (resultR != CUDA_SUCCESS)
-							PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU sortParticleContacts fail to launch kernel!!\n");
+							ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU sortParticleContacts fail to launch kernel!!\n");
 
 						resultR = mCudaContext->launchKernel(calculateRanksFunction, PxgRadixSortKernelGridDim::RADIX_SORT, count, 1, PxgRadixSortKernelBlockDim::RADIX_SORT, 1, 1, 0, mStream, radixSortKernelParams, sizeof(radixSortKernelParams), 0, PX_FL);
 						if (resultR != CUDA_SUCCESS)
-							PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU sortParticleContacts fail to launch kernel!!\n");
+							ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU sortParticleContacts fail to launch kernel!!\n");
 
 						startBit += 4;
 					}
 
 					/*CUresult result = mCudaContext->streamSynchronize(mStream);
 					if (result != CUDA_SUCCESS)
-						PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU sortParticleContacts fail!!\n");*/
+						ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU sortParticleContacts fail!!\n");*/
 
 #if PS_GPU_DEBUG
 					CUresult result = mCudaContext->streamSynchronize(mStream);
 					if (result != CUDA_SUCCESS)
-						PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU sortParticleContacts fail!!\n");
+						ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU sortParticleContacts fail!!\n");
 #endif
 				}
 			}
@@ -508,7 +508,7 @@ namespace physx
 					CUresult result = mCudaContext->streamSynchronize(mStream);
 					PX_ASSERT(result == CUDA_SUCCESS);
 					if (result != CUDA_SUCCESS)
-						PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU ps_finalizeParticlesLaunch kernel fail!\n");
+						ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU ps_finalizeParticlesLaunch kernel fail!\n");
 #endif
 				}
 			}
@@ -593,8 +593,8 @@ namespace physx
 			if (particleSystem.mCommonData.mNumParticles)
 			{
 				void** bodySimsLL = mSimController->getBodySimManager().mBodies.begin();
-				Dy::ParticleSystem* dyParticleSystem = reinterpret_cast<Dy::ParticleSystem*>(bodySimsLL[particleSystemNodeIndex[index]]);
-				Dy::ParticleSystemCore& dyParticleSystemCore = dyParticleSystem->getCore();
+				ev4sio_Dy::ParticleSystem* dyParticleSystem = reinterpret_cast<ev4sio_Dy::ParticleSystem*>(bodySimsLL[particleSystemNodeIndex[index]]);
+				ev4sio_Dy::ParticleSystemCore& dyParticleSystemCore = dyParticleSystem->getCore();
 
 				PxParticleSystemCallback* callback = dyParticleSystemCore.mCallback;
 				if (callback)
@@ -651,8 +651,8 @@ namespace physx
 		{
 			const PxU32 index = activeParticleSystems[i];
 			PxU32 nodeIndex = particleSystemNodeIndex[index];
-			Dy::ParticleSystem* dyParticleSystem = reinterpret_cast<Dy::ParticleSystem*>(bodySimsLL[nodeIndex]);
-			Dy::ParticleSystemCore& dyParticleSystemCore = dyParticleSystem->getCore();
+			ev4sio_Dy::ParticleSystem* dyParticleSystem = reinterpret_cast<ev4sio_Dy::ParticleSystem*>(bodySimsLL[nodeIndex]);
+			ev4sio_Dy::ParticleSystemCore& dyParticleSystemCore = dyParticleSystem->getCore();
 
 			if (dyParticleSystemCore.mCallback)
 			{
@@ -846,7 +846,7 @@ namespace physx
 			{
 				CUresult result = mCudaContext->streamSynchronize(mStream);
 				if (result != CUDA_SUCCESS)
-					PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU solvesprings kernel fail!\n");
+					ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU solvesprings kernel fail!\n");
 				PX_ASSERT(result == CUDA_SUCCESS);
 			}
 #endif
@@ -878,7 +878,7 @@ namespace physx
 				result = mCudaContext->streamSynchronize(mFinalizeStream);
 				PX_ASSERT(result == CUDA_SUCCESS);
 				if (result != CUDA_SUCCESS)
-					PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU ps_solveAerodynamics1Launch kernel fail!\n");
+					ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU ps_solveAerodynamics1Launch kernel fail!\n");
 #endif
 			}
 
@@ -903,7 +903,7 @@ namespace physx
 				result = mCudaContext->streamSynchronize(mFinalizeStream);
 				PX_ASSERT(result == CUDA_SUCCESS);
 				if (result != CUDA_SUCCESS)
-					PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU ps_solveAerodynamics2Launch kernel fail!\n");
+					ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU ps_solveAerodynamics2Launch kernel fail!\n");
 #endif
 			}
 		}
@@ -941,7 +941,7 @@ namespace physx
 				{
 					result = mCudaContext->streamSynchronize(mStream);
 					if (result != CUDA_SUCCESS)
-						PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU ps_initializeSpringsLaunch kernel fail!\n");
+						ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU ps_initializeSpringsLaunch kernel fail!\n");
 					PX_ASSERT(result == CUDA_SUCCESS);
 				}
 #endif
@@ -981,7 +981,7 @@ namespace physx
 				{
 					result = mCudaContext->streamSynchronize(mStream);
 					if (result != CUDA_SUCCESS)
-						PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU ps_updateRemapVertsLaunch kernel fail!\n");
+						ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU ps_updateRemapVertsLaunch kernel fail!\n");
 					PX_ASSERT(result == CUDA_SUCCESS);
 				}
 #endif
@@ -1020,7 +1020,7 @@ namespace physx
 					{
 						result = mCudaContext->streamSynchronize(mStream);
 						if (result != CUDA_SUCCESS)
-							PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU ps_solveSpringsPGSLaunch kernel fail!\n");
+							ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU ps_solveSpringsPGSLaunch kernel fail!\n");
 						PX_ASSERT(result == CUDA_SUCCESS);
 					}
 #endif
@@ -1055,7 +1055,7 @@ namespace physx
 				{
 					result = mCudaContext->streamSynchronize(mStream);
 					if (result != CUDA_SUCCESS)
-						PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU ps_averageVertsLaunch fail!\n");
+						ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU ps_averageVertsLaunch fail!\n");
 					PX_ASSERT(result == CUDA_SUCCESS);
 				}
 #endif
@@ -1108,7 +1108,7 @@ namespace physx
 #if PS_GPU_DEBUG
 			result = mCudaContext->streamSynchronize(mStream);
 			if (result != CUDA_SUCCESS)
-				PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU prepParticleConstraint ps_contactPrepareLaunch kernel fail!\n");
+				ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU prepParticleConstraint ps_contactPrepareLaunch kernel fail!\n");
 			PX_ASSERT(result == CUDA_SUCCESS);
 #endif
 		}
@@ -1133,7 +1133,7 @@ namespace physx
 #if PS_GPU_DEBUG
 			result = mCudaContext->streamSynchronize(mStream);
 			if (result != CUDA_SUCCESS)
-				PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU prepParticleConstraint ps_contactPrepareLaunch kernel fail!\n");
+				ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU prepParticleConstraint ps_contactPrepareLaunch kernel fail!\n");
 			PX_ASSERT(result == CUDA_SUCCESS);
 #endif
 		}
@@ -1164,7 +1164,7 @@ namespace physx
 #if PS_GPU_DEBUG
 			result = mCudaContext->streamSynchronize(mStream);
 			if (result != CUDA_SUCCESS)
-				PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU prepParticleConstraint ps_contactPrepareLaunch kernel fail!\n");
+				ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU prepParticleConstraint ps_contactPrepareLaunch kernel fail!\n");
 			PX_ASSERT(result == CUDA_SUCCESS);
 #endif
 		}
@@ -1205,7 +1205,7 @@ namespace physx
 				result = mCudaContext->streamSynchronize(mStream);
 				PX_ASSERT(result == CUDA_SUCCESS);
 				if (result != CUDA_SUCCESS)
-					PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU ps_diffuseParticleOneWayCollision kernel fail!\n");
+					ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU ps_diffuseParticleOneWayCollision kernel fail!\n");
 #endif
 			}
 
@@ -1229,7 +1229,7 @@ namespace physx
 				result = mCudaContext->streamSynchronize(mStream);
 				PX_ASSERT(result == CUDA_SUCCESS);
 				if (result != CUDA_SUCCESS)
-					PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU ps_diffuseParticleUpdatePBF kernel fail!\n");
+					ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU ps_diffuseParticleUpdatePBF kernel fail!\n");
 #endif
 			}
 
@@ -1253,7 +1253,7 @@ namespace physx
 				result = mCudaContext->streamSynchronize(mStream);
 				PX_ASSERT(result == CUDA_SUCCESS);
 				if (result != CUDA_SUCCESS)
-					PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU ps_diffuseParticleUpdatePBF kernel fail!\n");
+					ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU ps_diffuseParticleUpdatePBF kernel fail!\n");
 #endif
 			}
 
@@ -1280,7 +1280,7 @@ namespace physx
 				result = mCudaContext->streamSynchronize(mStream);
 				PX_ASSERT(result == CUDA_SUCCESS);
 				if (result != CUDA_SUCCESS)
-					PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU ps_diffuseParticleCreate kernel fail!\n");
+					ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU ps_diffuseParticleCreate kernel fail!\n");
 #endif
 			}
 
@@ -1301,7 +1301,7 @@ namespace physx
 				result = mCudaContext->streamSynchronize(mStream);
 				PX_ASSERT(result == CUDA_SUCCESS);
 				if (result != CUDA_SUCCESS)
-					PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU ps_diffuseParticleCopy kernel fail!\n");
+					ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU ps_diffuseParticleCopy kernel fail!\n");
 #endif
 
 			}
@@ -1323,7 +1323,7 @@ namespace physx
 				result = mCudaContext->streamSynchronize(mStream);
 				PX_ASSERT(result == CUDA_SUCCESS);
 				if (result != CUDA_SUCCESS)
-					PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU ps_diffuseParticleCopy kernel fail!\n");
+					ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU ps_diffuseParticleCopy kernel fail!\n");
 #endif
 			}
 		}
@@ -1356,7 +1356,7 @@ namespace physx
 			result = mCudaContext->streamSynchronize(bpStream);
 			PX_ASSERT(result == CUDA_SUCCESS);
 			if (result != CUDA_SUCCESS)
-				PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU ps_updateMaterials kernel fail!\n");
+				ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU ps_updateMaterials kernel fail!\n");
 #endif
 		}
 	}
@@ -1422,7 +1422,7 @@ namespace physx
 	}
 
 	//create particle position buffers and create runsum for the buffer
-    bool PxgPBDParticleSystemCore::createUserParticleData(PxgParticleSystem& particleSystem, Dy::ParticleSystemCore& dyParticleSystemCore, PxgParticleSystemBuffer* buffer, PxgParticleSystemDiffuseBuffer* diffuseParticlesBuffer, CUstream stream)
+    bool PxgPBDParticleSystemCore::createUserParticleData(PxgParticleSystem& particleSystem, ev4sio_Dy::ParticleSystemCore& dyParticleSystemCore, PxgParticleSystemBuffer* buffer, PxgParticleSystemDiffuseBuffer* diffuseParticlesBuffer, CUstream stream)
 	{
 		const PxU32 numPBDParticleBuffer = dyParticleSystemCore.mParticleBuffers.size();
 		
@@ -1972,8 +1972,8 @@ namespace physx
 			PxgParticleSystem& particleSystem = mParticleSystemPool[data.mRemapIndex];
 
 			PxU32 nodeIndex = mNewParticleSystemNodeIndexPool[id];
-			Dy::ParticleSystem* dyParticleSystem = reinterpret_cast<Dy::ParticleSystem*>(bodySimsLL[nodeIndex]);
-			const Dy::ParticleSystemCore& dyParticleSystemCore = dyParticleSystem->getCore();
+			ev4sio_Dy::ParticleSystem* dyParticleSystem = reinterpret_cast<ev4sio_Dy::ParticleSystem*>(bodySimsLL[nodeIndex]);
+			const ev4sio_Dy::ParticleSystemCore& dyParticleSystemCore = dyParticleSystem->getCore();
 
 			mParticleSystemNodeIndexPool[data.mRemapIndex] = nodeIndex;
 			particleSystem.mData = data;
@@ -2005,7 +2005,7 @@ namespace physx
 				//const PxU32 kRandomTableSize = 1024;
 				mDiffuseParticlesRandomTableBuf.allocate(mRandomTableSize * sizeof(PxReal), PX_FL);
 				CUdeviceptr randomTabled = mDiffuseParticlesRandomTableBuf.getDevicePtr();
-				Cm::BasicRandom rnd(42);
+				ev4sio_Cm::BasicRandom rnd(42);
 				buffer->mRandomTable.resize(mRandomTableSize); //would be nice to deallocate after first frame
 				for (PxU32 i = 0; i < mRandomTableSize; ++i)
 				{
@@ -2090,7 +2090,7 @@ namespace physx
 #if PS_GPU_DEBUG
 				result = mCudaContext->streamSynchronize(mStream);
 				if (result != CUDA_SUCCESS)
-					PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU ps_calculateHashForDiffuseParticlesLaunch kernel fail!\n");
+					ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU ps_calculateHashForDiffuseParticlesLaunch kernel fail!\n");
 #endif
 			}
 		}
@@ -2129,8 +2129,8 @@ namespace physx
 			PxgParticleSystemData& data = particleSystem.mData;
 
 			PxU32 nodeIndex = mParticleSystemNodeIndexPool[data.mRemapIndex];
-			Dy::ParticleSystem* dyParticleSystem = reinterpret_cast<Dy::ParticleSystem*>(bodySimsLL[nodeIndex]);
-			Dy::ParticleSystemCore& dyParticleSystemCore = dyParticleSystem->getCore();
+			ev4sio_Dy::ParticleSystem* dyParticleSystem = reinterpret_cast<ev4sio_Dy::ParticleSystem*>(bodySimsLL[nodeIndex]);
+			ev4sio_Dy::ParticleSystemCore& dyParticleSystemCore = dyParticleSystem->getCore();
 
 			{
 				if (dyParticleSystemCore.mCallback) 
@@ -2166,27 +2166,27 @@ namespace physx
 			//mMaxVolumesPerPS = PxMax(mMaxVolumesPerPS, dyParticleSystemCore.mNumParticleVolumes);
 			mHasNonZeroFluidBoundaryScale = mHasNonZeroFluidBoundaryScale || (dyParticleSystemCore.fluidBoundaryDensityScale > 0.0f);
 
-			if (dyParticleSystem->mFlag & Dy::ParticleSystemFlag::eUPDATE_PARAMS)
+			if (dyParticleSystem->mFlag & ev4sio_Dy::ParticleSystemFlag::eUPDATE_PARAMS)
 			{
 				updateParticleSystemData(particleSystem, dyParticleSystemCore);
 				anyPBDDirty = true;
 
 				//clear the flag
-				dyParticleSystem->mFlag &= (~Dy::ParticleSystemFlag::eUPDATE_PARAMS);
+				dyParticleSystem->mFlag &= (~ev4sio_Dy::ParticleSystemFlag::eUPDATE_PARAMS);
 			}
 
-			if (dyParticleSystem->mFlag & Dy::ParticleSystemFlag::eUPDATE_MATERIAL)
+			if (dyParticleSystem->mFlag & ev4sio_Dy::ParticleSystemFlag::eUPDATE_MATERIAL)
 			{
 				anyPBDDirty = true;
 
 				//clear the flag
-				dyParticleSystem->mFlag &= (~Dy::ParticleSystemFlag::eUPDATE_MATERIAL);
+				dyParticleSystem->mFlag &= (~ev4sio_Dy::ParticleSystemFlag::eUPDATE_MATERIAL);
 
 				// Trigger phase update
-				dyParticleSystem->mFlag |= Dy::ParticleSystemFlag::eUPDATE_PHASE;
+				dyParticleSystem->mFlag |= ev4sio_Dy::ParticleSystemFlag::eUPDATE_PHASE;
 			}
 
-			if (dyParticleSystem->mFlag & Dy::ParticleSystemFlag::eUPDATE_PHASE)
+			if (dyParticleSystem->mFlag & ev4sio_Dy::ParticleSystemFlag::eUPDATE_PHASE)
 			{
 				anyPBDDirty = true;
 
@@ -2211,10 +2211,10 @@ namespace physx
 				mMaxNumPhaseToMaterials = PxMax(mMaxNumPhaseToMaterials, numPhaseToMaterial);
 
 				//clear the flag
-				dyParticleSystem->mFlag &= (~Dy::ParticleSystemFlag::eUPDATE_PHASE);
+				dyParticleSystem->mFlag &= (~ev4sio_Dy::ParticleSystemFlag::eUPDATE_PHASE);
 			}
 
-			if (dyParticleSystem->mFlag & Dy::ParticleSystemFlag::eENABLE_GPU_DATA_SYNC)
+			if (dyParticleSystem->mFlag & ev4sio_Dy::ParticleSystemFlag::eENABLE_GPU_DATA_SYNC)
 			{
 				PxgParticleBuffer** particleBuffers = reinterpret_cast<PxgParticleBuffer**>(dyParticleSystemCore.mParticleBuffers.begin());
 				for (PxU32 j = 0; j < dyParticleSystemCore.mParticleBuffers.size(); ++j)
@@ -2293,7 +2293,7 @@ namespace physx
 #if PS_GPU_DEBUG
 		result = mCudaContext->streamSynchronize(mStream);
 		if (result != CUDA_SUCCESS)
-			PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU applyParticleBufferData kernel fail!\n");
+			ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU applyParticleBufferData kernel fail!\n");
 #endif
 
 		if (signalEvent)

@@ -34,7 +34,7 @@
 #include "foundation/PxVec3.h"
 #include "PxgSolverBody.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 #if PX_VC

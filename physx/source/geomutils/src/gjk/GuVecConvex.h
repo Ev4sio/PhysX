@@ -34,9 +34,9 @@
 #define PX_SUPPORT_INLINE PX_FORCE_INLINE
 #define PX_SUPPORT_FORCE_INLINE PX_FORCE_INLINE
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Gu
+namespace ev4sio_Gu
 {
 
 	struct ConvexType

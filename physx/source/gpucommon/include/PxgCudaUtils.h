@@ -39,7 +39,7 @@
 
 #include "cudamanager/PxCudaContext.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 	/**
@@ -53,13 +53,13 @@ namespace physx
 		CUresult result = cudaContext->eventRecord(ev, parentStream);		
 
 		if (result != CUDA_SUCCESS)
-			PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "SynchronizeStreams cuEventRecord failed with error %i\n", result);
+			ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "SynchronizeStreams cuEventRecord failed with error %i\n", result);
 		PX_ASSERT(result == CUDA_SUCCESS);
 
 		result = cudaContext->streamWaitEvent(dependentStream, ev);		
 
 		if (result != CUDA_SUCCESS)
-			PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "SynchronizeStreams cuStreamWaitEvent failed with error %i\n", result);
+			ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "SynchronizeStreams cuStreamWaitEvent failed with error %i\n", result);
 		PX_ASSERT(result == CUDA_SUCCESS);
 
 		cudaContext->eventDestroy(ev);
@@ -75,13 +75,13 @@ namespace physx
 
 		CUresult result = cudaContext->eventRecord(ev, parentStream);
 		if (result != CUDA_SUCCESS)
-			PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "SynchronizeStreams cuEventRecord failed with error %i\n", result);
+			ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "SynchronizeStreams cuEventRecord failed with error %i\n", result);
 
 		PX_ASSERT(result == CUDA_SUCCESS);
 
 		result = cudaContext->streamWaitEvent(dependentStream, ev);
 		if (result != CUDA_SUCCESS)
-			PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "SynchronizeStreams cuStreamWaitEvent failed with error %i\n", result);
+			ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "SynchronizeStreams cuStreamWaitEvent failed with error %i\n", result);
 
 		PX_ASSERT(result == CUDA_SUCCESS);
 

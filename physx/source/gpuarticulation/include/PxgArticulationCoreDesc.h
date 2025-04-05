@@ -33,7 +33,7 @@
 #include "foundation/PxVec3.h"
 #include "PxgArticulation.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	struct PxgBodySim;
 	struct PxgSolverBodySleepData;
@@ -41,12 +41,12 @@ namespace physx
 	class PxGpuTendonAttachmentData;
 	class PxGpuTendonJointCoefficientData;
 
-	namespace IG
+	namespace ev4sio_IG
 	{
 		class NodeIndex;
 	};
 
-	namespace Cm
+	namespace ev4sio_Cm
 	{
 		struct UnAlignedSpatialVector;
 	}
@@ -66,7 +66,7 @@ namespace physx
 		PxReal							invLengthScale;
 		bool							isExternalForcesEveryTgsIterationEnabled;
 
-		Cm::UnAlignedSpatialVector*		impulses;
+		ev4sio_Cm::UnAlignedSpatialVector*		impulses;
 		PxU32							nbSlabs;
 		PxU32							nbPartitions;
 		uint2*							slabHasChanges; // one uint2 per articulation per slab. Stores up to two link indices to communicate which links holds an impulse from the solver.
@@ -127,7 +127,7 @@ namespace physx
 		PxU32*							mTempSelfContactHeaderBlock;
 		PxU32*							mTempSelfConstraintHeaderBlock;
 
-		Dy::ErrorAccumulator			mContactErrorAccumulator;
+		ev4sio_Dy::ErrorAccumulator			mContactErrorAccumulator;
 	};
 
 	struct PxgArticulationOutputDesc
@@ -137,8 +137,8 @@ namespace physx
 		PxU8*								linkAndJointAndRootStateData;
 		//PxReal*								jointPosition_Vel_Accel;
 		PxgSolverBodySleepData*				sleepData;
-		Dy::ErrorAccumulator*				errorAccumulator; //Per articulation, collects internal residuals (no contacts or external PxJoints connected to the articulation)
-		Dy::ErrorAccumulator*				contactResidualAccumulator; //Only one value accumulating contact residuals over all articulations
+		ev4sio_Dy::ErrorAccumulator*				errorAccumulator; //Per articulation, collects internal residuals (no contacts or external PxJoints connected to the articulation)
+		ev4sio_Dy::ErrorAccumulator*				contactResidualAccumulator; //Only one value accumulating contact residuals over all articulations
 	};
 }
 

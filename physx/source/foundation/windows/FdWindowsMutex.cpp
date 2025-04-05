@@ -32,7 +32,7 @@
 #include "foundation/PxErrorCallback.h"
 #include "foundation/PxThread.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 namespace
 {
@@ -84,7 +84,7 @@ void PxMutexImpl::unlock()
 	// ensure we are already holding the lock
 	if(getMutex(this)->mOwner != PxThread::getId())
 	{
-		PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "Mutex must be unlocked only by thread that has already acquired lock");
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "Mutex must be unlocked only by thread that has already acquired lock");
 		return;
 	}
 #endif
@@ -151,4 +151,4 @@ void PxReadWriteLock::unlockWriter()
 	mImpl->mutex.unlock();
 }
 
-} // namespace physx
+} // namespace ev4sio_physx

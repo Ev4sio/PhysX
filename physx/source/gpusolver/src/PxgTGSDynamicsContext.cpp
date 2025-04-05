@@ -31,10 +31,10 @@
 #include "PxgArticulationCore.h"
 #include "PxgTGSCudaSolverCore.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-	PxgTGSDynamicsContext::PxgTGSDynamicsContext(Cm::FlushPool& flushPool, PxsKernelWranglerManager* gpuKernelWrangler, PxCudaContextManager* cudaContextManager,
-		const PxGpuDynamicsMemoryConfig& config, IG::SimpleIslandManager& islandManager, PxU32 maxNumPartitions, PxU32 maxNumStaticPartitions,
+	PxgTGSDynamicsContext::PxgTGSDynamicsContext(ev4sio_Cm::FlushPool& flushPool, PxsKernelWranglerManager* gpuKernelWrangler, PxCudaContextManager* cudaContextManager,
+		const PxGpuDynamicsMemoryConfig& config, ev4sio_IG::SimpleIslandManager& islandManager, PxU32 maxNumPartitions, PxU32 maxNumStaticPartitions,
 		bool enableStabilization, bool useEnhancedDeterminism,
 		PxReal maxBiasCoefficient,
 		PxvSimStats& simStats, PxgHeapMemoryAllocatorManager* heapMemoryManager,

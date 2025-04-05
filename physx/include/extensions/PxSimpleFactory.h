@@ -34,7 +34,7 @@
 #include "foundation/PxPlane.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -287,7 +287,7 @@ center of mass is linearly scaled, the mass is multiplied by the cube of the sca
 void PxScaleRigidActor(PxRigidActor& actor, PxReal scale, bool scaleMassProps = true);
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

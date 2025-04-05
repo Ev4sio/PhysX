@@ -39,7 +39,7 @@
 #include "stdio.h"
 #include "PxgNpKernelIndices.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 extern "C" __host__ void initNarrowphaseKernels8() {}
 
@@ -231,7 +231,7 @@ __device__ void convexTrimeshPostProcessCore(
 	const uint4 trimesh_nbVerts_nbTris_nbAdjVertsTotal = *reinterpret_cast<const uint4 *>(trimeshGeomPtr);
 	trimeshGeomPtr += sizeof(uint4);
 
-	trimeshGeomPtr += sizeof(const Gu::BV32DataPacked)* trimesh_nbVerts_nbTris_nbAdjVertsTotal.w;
+	trimeshGeomPtr += sizeof(const ev4sio_Gu::BV32DataPacked)* trimesh_nbVerts_nbTris_nbAdjVertsTotal.w;
 
 	const PxU32 numVerts = trimesh_nbVerts_nbTris_nbAdjVertsTotal.x;
 	const PxU32 numTris = trimesh_nbVerts_nbTris_nbAdjVertsTotal.y;

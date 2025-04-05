@@ -33,7 +33,7 @@
 #include "foundation/PxBitAndData.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -106,7 +106,7 @@ struct PxHeightFieldSample
 };
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

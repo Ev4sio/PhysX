@@ -29,7 +29,7 @@
 #ifndef PXG_SOLVER_CONTEXT_H
 #define	PXG_SOLVER_CONTEXT_H
 
-namespace physx
+namespace ev4sio_physx
 {
 
 struct PxgThresholdStreamElement;

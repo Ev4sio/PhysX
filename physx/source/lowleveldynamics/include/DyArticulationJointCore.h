@@ -34,9 +34,9 @@
 #include "PxArticulationJointReducedCoordinate.h"
 #include "CmSpatialVector.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-	namespace Dy
+	namespace ev4sio_Dy
 	{
 		// PT: avoid some multiplies when immediately normalizing a rotated vector
 		PX_CUDA_CALLABLE PX_FORCE_INLINE PxVec3 rotateAndNormalize(const PxQuat& q, const PxVec3& v)
@@ -131,8 +131,8 @@ namespace physx
 				}
 			}
 			
-			PX_CUDA_CALLABLE void setJointFrame(Cm::UnAlignedSpatialVector* motionMatrix, 
-                                                const Cm::UnAlignedSpatialVector* jointAxis,
+			PX_CUDA_CALLABLE void setJointFrame(ev4sio_Cm::UnAlignedSpatialVector* motionMatrix, 
+                                                const ev4sio_Cm::UnAlignedSpatialVector* jointAxis,
                                                 PxQuat& relativeQuat,
 												const PxU32 dofs)
 			{
@@ -147,8 +147,8 @@ namespace physx
 				}
 			}
 
-			PX_CUDA_CALLABLE PX_FORCE_INLINE void computeMotionMatrix(Cm::UnAlignedSpatialVector* motionMatrix,
-																	  const Cm::UnAlignedSpatialVector* jointAxis,
+			PX_CUDA_CALLABLE PX_FORCE_INLINE void computeMotionMatrix(ev4sio_Cm::UnAlignedSpatialVector* motionMatrix,
+																	  const ev4sio_Cm::UnAlignedSpatialVector* jointAxis,
 																	  const PxU32 dofs)
 			{
 				const PxVec3 childOffset = -childPose.p;
@@ -157,10 +157,10 @@ namespace physx
 				{
 				case PxArticulationJointType::ePRISMATIC:
 				{
-					const Cm::UnAlignedSpatialVector& jJointAxis = jointAxis[0];
+					const ev4sio_Cm::UnAlignedSpatialVector& jJointAxis = jointAxis[0];
 					const PxVec3 u = rotateAndNormalize(childPose.q, jJointAxis.bottom);
 
-					motionMatrix[0] = Cm::UnAlignedSpatialVector(PxVec3(0.0f), u);
+					motionMatrix[0] = ev4sio_Cm::UnAlignedSpatialVector(PxVec3(0.0f), u);
 
 					PX_ASSERT(dofs == 1);
 
@@ -169,11 +169,11 @@ namespace physx
 				case PxArticulationJointType::eREVOLUTE:
 				case PxArticulationJointType::eREVOLUTE_UNWRAPPED:
 				{
-					const Cm::UnAlignedSpatialVector& jJointAxis = jointAxis[0];
+					const ev4sio_Cm::UnAlignedSpatialVector& jJointAxis = jointAxis[0];
 					const PxVec3 u = rotateAndNormalize(childPose.q, jJointAxis.top);
 					const PxVec3 uXd = u.cross(childOffset);
 
-					motionMatrix[0] = Cm::UnAlignedSpatialVector(u, uXd);
+					motionMatrix[0] = ev4sio_Cm::UnAlignedSpatialVector(u, uXd);
 
 					break;
 				}
@@ -182,11 +182,11 @@ namespace physx
 
 					for (PxU32 ind = 0; ind < dofs; ++ind)
 					{
-						const Cm::UnAlignedSpatialVector& jJointAxis = jointAxis[ind];
+						const ev4sio_Cm::UnAlignedSpatialVector& jJointAxis = jointAxis[ind];
 						const PxVec3 u = rotateAndNormalize(childPose.q, jJointAxis.top);
 
 						const PxVec3 uXd = u.cross(childOffset);
-						motionMatrix[ind] = Cm::UnAlignedSpatialVector(u, uXd);
+						motionMatrix[ind] = ev4sio_Cm::UnAlignedSpatialVector(u, uXd);
 					}
 
 					break;

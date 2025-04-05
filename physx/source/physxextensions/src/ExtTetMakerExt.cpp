@@ -37,7 +37,7 @@
 #include "foundation/PxMat33.h"
 #include <stdio.h>
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 static PX_FORCE_INLINE PxReal computeTetrahedronVolume(const PxVec3& x0, const PxVec3& x1, const PxVec3& x2, const PxVec3& x3)
 {
@@ -54,7 +54,7 @@ static PX_FORCE_INLINE PxReal computeTetrahedronVolume(const PxVec3& x0, const P
 }
 
 //Remove tets with small volume
-static void removeSmallVolumeTetrahedra(PxArray<::physx::PxVec3>& vertices, PxArray<PxU32>& indices, PxReal volumeThreshold = 1e-8f)
+static void removeSmallVolumeTetrahedra(PxArray<::ev4sio_physx::PxVec3>& vertices, PxArray<PxU32>& indices, PxReal volumeThreshold = 1e-8f)
 {
 	uint32_t indexer = 0;
 
@@ -78,7 +78,7 @@ static void removeSmallVolumeTetrahedra(PxArray<::physx::PxVec3>& vertices, PxAr
 }
 
 //Removes vertices not referenced by any tetrahedron and maps the tet's indices to match the compacted vertex list
-static void removeUnusedVertices(PxArray<::physx::PxVec3>& vertices, PxArray<PxU32>& tets, PxU32 numPointsToKeepAtBeginning = 0)
+static void removeUnusedVertices(PxArray<::ev4sio_physx::PxVec3>& vertices, PxArray<PxU32>& tets, PxU32 numPointsToKeepAtBeginning = 0)
 {
 	PxArray<PxI32> compressorMap;
 	compressorMap.resize(vertices.size());
@@ -236,24 +236,24 @@ PxU32 PxTetMaker::findLargestIslandId(const PxU32* islandIndexPerTriangle, PxU32
 }
 
 bool PxTetMaker::createConformingTetrahedronMesh(const PxSimpleTriangleMesh& triangleMesh,
-	physx::PxArray<physx::PxVec3>& outVertices, physx::PxArray<physx::PxU32>& outTetIndices, const bool validate, PxReal volumeThreshold)
+	ev4sio_physx::PxArray<ev4sio_physx::PxVec3>& outVertices, ev4sio_physx::PxArray<ev4sio_physx::PxU32>& outTetIndices, const bool validate, PxReal volumeThreshold)
 {
 	if (validate)
 	{
 		PxTriangleMeshAnalysisResults result = PxTetMaker::validateTriangleMesh(triangleMesh);		
 		if (result & PxTriangleMeshAnalysisResult::eMESH_IS_INVALID) 
 		{
-			PxGetFoundation().error(PxErrorCode::eDEBUG_INFO, PX_FL, "createConformingTetrahedronMesh(): Input triangle mesh is not suited to create a tetmesh due to deficiencies. Please call PxTetMaker::validateTriangleMesh(triangleMesh) for more details.");
+			ev4sio_PxGetFoundation().error(PxErrorCode::eDEBUG_INFO, PX_FL, "createConformingTetrahedronMesh(): Input triangle mesh is not suited to create a tetmesh due to deficiencies. Please call PxTetMaker::validateTriangleMesh(triangleMesh) for more details.");
 			return false;
 		}
 	}
 
-	Ext::generateTetmesh(triangleMesh.points, triangleMesh.triangles, triangleMesh.flags & PxMeshFlag::e16_BIT_INDICES, outVertices, outTetIndices);
+	ev4sio_Ext::generateTetmesh(triangleMesh.points, triangleMesh.triangles, triangleMesh.flags & PxMeshFlag::e16_BIT_INDICES, outVertices, outTetIndices);
 	
 	if (volumeThreshold > 0.0f)
 		removeSmallVolumeTetrahedra(outVertices, outTetIndices, volumeThreshold);
 
-	PxU32 numRemoveAtEnd = Ext::removeDisconnectedIslands(reinterpret_cast<PxI32*>(outTetIndices.begin()), outTetIndices.size() / 4);
+	PxU32 numRemoveAtEnd = ev4sio_Ext::removeDisconnectedIslands(reinterpret_cast<PxI32*>(outTetIndices.begin()), outTetIndices.size() / 4);
 	if (numRemoveAtEnd > 0)
 		outTetIndices.removeRange(outTetIndices.size() - 4 * numRemoveAtEnd, 4 * numRemoveAtEnd);
 
@@ -263,35 +263,35 @@ bool PxTetMaker::createConformingTetrahedronMesh(const PxSimpleTriangleMesh& tri
 }
 
 bool PxTetMaker::createVoxelTetrahedronMesh(const PxTetrahedronMeshDesc& tetMesh,
-	const PxU32 numVoxelsAlongLongestBoundingBoxAxis, physx::PxArray<physx::PxVec3>& outVertices, physx::PxArray<physx::PxU32>& outTetIndices,
+	const PxU32 numVoxelsAlongLongestBoundingBoxAxis, ev4sio_physx::PxArray<ev4sio_physx::PxVec3>& outVertices, ev4sio_physx::PxArray<ev4sio_physx::PxU32>& outTetIndices,
 	PxI32* intputPointToOutputTetIndex, const PxU32* anchorNodeIndices, PxU32 numTetsPerVoxel)
 {
 	//numTetsPerVoxel has only two valid values.
 	if (numTetsPerVoxel != 5 && numTetsPerVoxel != 6)
 		numTetsPerVoxel = 5;
-	Ext::generateVoxelTetmesh(tetMesh.points, tetMesh.tetrahedrons,	numVoxelsAlongLongestBoundingBoxAxis, outVertices, outTetIndices, intputPointToOutputTetIndex, anchorNodeIndices, numTetsPerVoxel);
+	ev4sio_Ext::generateVoxelTetmesh(tetMesh.points, tetMesh.tetrahedrons,	numVoxelsAlongLongestBoundingBoxAxis, outVertices, outTetIndices, intputPointToOutputTetIndex, anchorNodeIndices, numTetsPerVoxel);
 	return true;
 }
 
 bool PxTetMaker::createVoxelTetrahedronMeshFromEdgeLength(const PxTetrahedronMeshDesc& tetMesh,
-	const PxReal voxelEdgeLength, physx::PxArray<physx::PxVec3>& outVertices, physx::PxArray<physx::PxU32>& outTetIndices, 
+	const PxReal voxelEdgeLength, ev4sio_physx::PxArray<ev4sio_physx::PxVec3>& outVertices, ev4sio_physx::PxArray<ev4sio_physx::PxU32>& outTetIndices, 
 	PxI32* intputPointToOutputTetIndex, const PxU32* anchorNodeIndices, PxU32 numTetsPerVoxel)
 {
 	//numTetsPerVoxel has only two valid values.
 	if (numTetsPerVoxel != 5 && numTetsPerVoxel != 6)
 		numTetsPerVoxel = 5;
-	Ext::generateVoxelTetmesh(tetMesh.points, tetMesh.tetrahedrons, voxelEdgeLength, outVertices, outTetIndices, intputPointToOutputTetIndex, anchorNodeIndices, numTetsPerVoxel);
+	ev4sio_Ext::generateVoxelTetmesh(tetMesh.points, tetMesh.tetrahedrons, voxelEdgeLength, outVertices, outTetIndices, intputPointToOutputTetIndex, anchorNodeIndices, numTetsPerVoxel);
 	return true;
 }
 
 PxTriangleMeshAnalysisResults PxTetMaker::validateTriangleMesh(const PxSimpleTriangleMesh& triangleMesh, const PxReal minVolumeThreshold, const PxReal minTriangleAngleRadians)
 {
-	return Ext::validateTriangleMesh(triangleMesh.points, triangleMesh.triangles, triangleMesh.flags & PxMeshFlag::e16_BIT_INDICES, minVolumeThreshold, minTriangleAngleRadians);
+	return ev4sio_Ext::validateTriangleMesh(triangleMesh.points, triangleMesh.triangles, triangleMesh.flags & PxMeshFlag::e16_BIT_INDICES, minVolumeThreshold, minTriangleAngleRadians);
 }
 
 PxTetrahedronMeshAnalysisResults PxTetMaker::validateTetrahedronMesh(const PxBoundedData& points, const PxBoundedData& tetrahedra, const PxReal minTetVolumeThreshold)
 {
-	return Ext::validateTetrahedronMesh(points, tetrahedra, false, minTetVolumeThreshold);
+	return ev4sio_Ext::validateTetrahedronMesh(points, tetrahedra, false, minTetVolumeThreshold);
 }
 
 void PxTetMaker::simplifyTriangleMesh(const PxArray<PxVec3>& inputVertices, const PxArray<PxU32>&inputIndices, int targetTriangleCount, PxF32 maximalEdgeLength,
@@ -299,7 +299,7 @@ void PxTetMaker::simplifyTriangleMesh(const PxArray<PxVec3>& inputVertices, cons
 	PxArray<PxU32> *vertexMap, PxReal edgeLengthCostWeight, PxReal flatnessDetectionThreshold,
 	bool projectSimplifiedPointsOnInputMeshSurface, PxArray<PxU32>* outputVertexToInputTriangle, bool removeDisconnectedPatches)
 {
-	Ext::MeshSimplificator ms;
+	ev4sio_Ext::MeshSimplificator ms;
 
 	PxArray<PxU32> indexMapToFullTriangleSet;
 	if (removeDisconnectedPatches)
@@ -342,7 +342,7 @@ void PxTetMaker::simplifyTriangleMesh(const PxArray<PxVec3>& inputVertices, cons
 void PxTetMaker::remeshTriangleMesh(const PxArray<PxVec3>& inputVertices, const PxArray<PxU32>&inputIndices, PxU32 gridResolution,
 	PxArray<PxVec3>& outputVertices, PxArray<PxU32>& outputIndices, PxArray<PxU32> *vertexMap)
 {
-	Ext::Remesher rm;
+	ev4sio_Ext::Remesher rm;
 	rm.remesh(inputVertices, inputIndices, gridResolution, vertexMap);
 	rm.readBack(outputVertices, outputIndices);
 }
@@ -350,7 +350,7 @@ void PxTetMaker::remeshTriangleMesh(const PxArray<PxVec3>& inputVertices, const 
 void PxTetMaker::remeshTriangleMesh(const PxVec3* inputVertices, PxU32 nbVertices, const PxU32* inputIndices, PxU32 nbIndices, PxU32 gridResolution,
 	PxArray<PxVec3>& outputVertices, PxArray<PxU32>& outputIndices, PxArray<PxU32> *vertexMap)
 {
-	Ext::Remesher rm;
+	ev4sio_Ext::Remesher rm;
 	rm.remesh(inputVertices, nbVertices, inputIndices, nbIndices, gridResolution, vertexMap);
 	rm.readBack(outputVertices, outputIndices);
 }
@@ -358,14 +358,14 @@ void PxTetMaker::remeshTriangleMesh(const PxVec3* inputVertices, PxU32 nbVertice
 void PxTetMaker::createTreeBasedTetrahedralMesh(const PxArray<PxVec3>& inputVertices, const PxArray<PxU32>&inputIndices,
 	bool useTreeNodes, PxArray<PxVec3>& outputVertices, PxArray<PxU32>& outputIndices, PxReal volumeThreshold)
 {
-	Ext::OctreeTetrahedralizer ot;
+	ev4sio_Ext::OctreeTetrahedralizer ot;
 	ot.createTetMesh(inputVertices, inputIndices, useTreeNodes);
 	ot.readBack(outputVertices, outputIndices);
 
 	if (volumeThreshold > 0.0f)
 		removeSmallVolumeTetrahedra(outputVertices, outputIndices, volumeThreshold);
 
-	PxU32 numRemoveAtEnd = Ext::removeDisconnectedIslands(reinterpret_cast<PxI32*>(outputIndices.begin()), outputIndices.size() / 4);
+	PxU32 numRemoveAtEnd = ev4sio_Ext::removeDisconnectedIslands(reinterpret_cast<PxI32*>(outputIndices.begin()), outputIndices.size() / 4);
 	if (numRemoveAtEnd > 0)
 		outputIndices.removeRange(outputIndices.size() - 4 * numRemoveAtEnd, 4 * numRemoveAtEnd);
 
@@ -376,7 +376,7 @@ void PxTetMaker::createRelaxedVoxelTetrahedralMesh(const PxArray<PxVec3>& inputV
 	PxArray<PxVec3>& outputVertices, PxArray<PxU32>& outputIndices,
 	PxI32 resolution, PxI32 numRelaxationIters, PxF32 relMinTetVolume)
 {
-	Ext::VoxelTetrahedralizer vt;
+	ev4sio_Ext::VoxelTetrahedralizer vt;
 	vt.createTetMesh(inputVertices, inputIndices, resolution, numRelaxationIters, relMinTetVolume);
 	vt.readBack(outputVertices, outputIndices);
 }

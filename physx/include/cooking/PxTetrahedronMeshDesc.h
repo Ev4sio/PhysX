@@ -37,7 +37,7 @@
 #include "foundation/PxArray.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 	/**
@@ -131,7 +131,7 @@ namespace physx
 		/**
 		\brief Constructor to build a tetmeshdescription that links to the vertices and indices provided
 		*/
-		PxTetrahedronMeshDesc(physx::PxArray<physx::PxVec3>& meshVertices, physx::PxArray<physx::PxU32>& meshTetIndices, 
+		PxTetrahedronMeshDesc(ev4sio_physx::PxArray<ev4sio_physx::PxVec3>& meshVertices, ev4sio_physx::PxArray<ev4sio_physx::PxU32>& meshTetIndices, 
 			const PxTetrahedronMeshDesc::PxMeshFormat meshFormat = eTET_MESH, PxU16 numberOfTetsPerHexElement = 5)
 		{
 			points.count = meshVertices.size();
@@ -210,7 +210,7 @@ namespace physx
 		/**
 		\brief Constructor to build a simulation description with a defined vertex to tetrahedron mapping
 		*/
-		PxDeformableVolumeSimulationDataDesc(physx::PxArray<physx::PxI32>& vertToTet)
+		PxDeformableVolumeSimulationDataDesc(ev4sio_physx::PxArray<ev4sio_physx::PxI32>& vertToTet)
 		{
 			vertexToTet.count = vertToTet.size();
 			vertexToTet.stride = sizeof(PxI32);
@@ -226,7 +226,7 @@ namespace physx
 	typedef PX_DEPRECATED PxDeformableVolumeSimulationDataDesc PxSoftBodySimulationDataDesc;
 	
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

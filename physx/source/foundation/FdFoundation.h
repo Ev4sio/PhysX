@@ -33,14 +33,14 @@
 #include "foundation/PxArray.h"
 #include "foundation/PxMutex.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	union PxTempAllocatorChunk;
 
 	typedef PxMutexT<PxAllocator> Mutex;
 	typedef PxArray<PxTempAllocatorChunk*, PxAllocator> AllocFreeTable;
 
-} // namespace physx
+} // namespace ev4sio_physx
 
 
 #endif

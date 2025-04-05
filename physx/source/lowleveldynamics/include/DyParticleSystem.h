@@ -36,15 +36,15 @@
 #define MIN_SPARSEGRID_ID -512
 #define MAX_SPARSEGRID_ID 511
 
-namespace physx
+namespace ev4sio_physx
 {
-	namespace Sc
+	namespace ev4sio_Sc
 	{
 		class ParticleSystemSim;
 	}
 
 
-	namespace Dy
+	namespace ev4sio_Dy
 	{
 		typedef size_t ParticleSystemHandle;
 
@@ -68,7 +68,7 @@ namespace physx
 			PX_NOCOPY(ParticleSystem)
 		public:
 
-			ParticleSystem(Dy::ParticleSystemCore& core) : mCore(core), mShapeCore(NULL),
+			ParticleSystem(ev4sio_Dy::ParticleSystemCore& core) : mCore(core), mShapeCore(NULL),
 				mElementId(0xffffffff), mGpuRemapId(0xffffffff)
 			{
 				mFlag = 0;

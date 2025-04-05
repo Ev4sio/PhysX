@@ -33,9 +33,9 @@
 #include "PxSimulationEventCallback.h"
 #include "DyConstraint.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Sc
+namespace ev4sio_Sc
 {
 	class Scene;
 	class ConstraintInteraction;
@@ -65,8 +65,8 @@ namespace Sc
 
 						void					postFlagChange(PxConstraintFlags oldFlags, PxConstraintFlags newFlags);
 
-		PX_FORCE_INLINE	const Dy::Constraint&	getLowLevelConstraint()				const	{ return mLowLevelConstraint;	}
-		PX_FORCE_INLINE	Dy::Constraint&			getLowLevelConstraint()						{ return mLowLevelConstraint;	}
+		PX_FORCE_INLINE	const ev4sio_Dy::Constraint&	getLowLevelConstraint()				const	{ return mLowLevelConstraint;	}
+		PX_FORCE_INLINE	ev4sio_Dy::Constraint&			getLowLevelConstraint()						{ return mLowLevelConstraint;	}
 		PX_FORCE_INLINE	ConstraintCore&			getCore()							const	{ return mCore;					}
 		PX_FORCE_INLINE	BodySim*				getBody(PxU32 i)					const  // for static actors or world attached constraints NULL is returned
 												{
@@ -88,14 +88,14 @@ namespace Sc
 						bool					createLLConstraint();
 						void					destroyLLConstraint();
 
-						Dy::Constraint			mLowLevelConstraint;
+						ev4sio_Dy::Constraint			mLowLevelConstraint;
 						Scene&					mScene;
 						ConstraintCore&			mCore;
 						ConstraintInteraction*	mInteraction;	// PT: why do we have an interaction object here?
 						BodySim*				mBodies[2];
 						PxU8					mFlags;
 	};
-} // namespace Sc
+} // namespace ev4sio_Sc
 
 }
 

@@ -30,11 +30,11 @@
 
 #include "omnipvd/ExtOmniPvdSetData.h"
 
-using namespace physx;
-using namespace Ext;
+using namespace ev4sio_physx;
+using namespace ev4sio_Ext;
 
 // PX_SERIALIZATION
-PxConstraint* physx::resolveConstraintPtr(PxDeserializationContext& v, PxConstraint* old, PxConstraintConnector* connector, PxConstraintShaderTable &shaders)
+PxConstraint* ev4sio_physx::resolveConstraintPtr(PxDeserializationContext& v, PxConstraint* old, PxConstraintConnector* connector, PxConstraintShaderTable &shaders)
 {
 	v.translatePxBase(old);
 	PxConstraint* new_nx = static_cast<PxConstraint*>(old);
@@ -64,7 +64,7 @@ static void normalToTangents(const PxVec3& n, PxVec3& t1, PxVec3& t2)
 	t2.normalize();
 }
 
-void PxSetJointGlobalFrame(PxJoint& joint, const PxVec3* wsAnchor, const PxVec3* axisIn)
+void ev4sio_PxSetJointGlobalFrame(PxJoint& joint, const PxVec3* wsAnchor, const PxVec3* axisIn)
 {
 	PxRigidActor* actors[2];
 	joint.getActors(actors[0], actors[1]);
@@ -126,7 +126,7 @@ void PxSetJointGlobalFrame(PxJoint& joint, const PxVec3* wsAnchor, const PxVec3*
 
 #if PX_SUPPORT_OMNI_PVD
 
-void physx::Ext::omniPvdSetBaseJointParams(PxJoint& joint, PxJointConcreteType::Enum cType)
+void ev4sio_physx::ev4sio_Ext::omniPvdSetBaseJointParams(PxJoint& joint, PxJointConcreteType::Enum cType)
 {
 	OMNI_PVD_WRITE_SCOPE_BEGIN(pvdWriter, pvdRegData)
 

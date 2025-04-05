@@ -32,9 +32,9 @@
 #include "PxvConfig.h"
 #include "foundation/PxAssert.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-	namespace Bp
+	namespace ev4sio_Bp
 	{
 
 #define BP_USE_AGGREGATE_GROUP_TAIL	1
@@ -79,24 +79,24 @@ namespace physx
 		};
 	};
 
-	PX_FORCE_INLINE Bp::FilterGroup::Enum getFilterGroup_Statics()
+	PX_FORCE_INLINE ev4sio_Bp::FilterGroup::Enum getFilterGroup_Statics()
 	{
-		return Bp::FilterGroup::eSTATICS;
+		return ev4sio_Bp::FilterGroup::eSTATICS;
 	}
 
-	PX_FORCE_INLINE	Bp::FilterGroup::Enum	getFilterGroup_Dynamics(PxU32 rigidId, bool isKinematic)
+	PX_FORCE_INLINE	ev4sio_Bp::FilterGroup::Enum	getFilterGroup_Dynamics(PxU32 rigidId, bool isKinematic)
 	{
-		const PxU32 group = rigidId + Bp::FilterGroup::eDYNAMICS_BASE;
+		const PxU32 group = rigidId + ev4sio_Bp::FilterGroup::eDYNAMICS_BASE;
 		const PxU32 type = isKinematic ? FilterType::KINEMATIC : FilterType::DYNAMIC;
-		return Bp::FilterGroup::Enum((group<< BP_FILTERING_TYPE_SHIFT_BIT)|type);
+		return ev4sio_Bp::FilterGroup::Enum((group<< BP_FILTERING_TYPE_SHIFT_BIT)|type);
 	}
 
-	PX_FORCE_INLINE	Bp::FilterGroup::Enum	getFilterGroup(bool isStatic, PxU32 rigidId, bool isKinematic)
+	PX_FORCE_INLINE	ev4sio_Bp::FilterGroup::Enum	getFilterGroup(bool isStatic, PxU32 rigidId, bool isKinematic)
 	{
 		return isStatic ? getFilterGroup_Statics() : getFilterGroup_Dynamics(rigidId, isKinematic);
 	}
 
-	PX_FORCE_INLINE bool groupFiltering(const Bp::FilterGroup::Enum group0, const Bp::FilterGroup::Enum group1, const bool* PX_RESTRICT lut)
+	PX_FORCE_INLINE bool groupFiltering(const ev4sio_Bp::FilterGroup::Enum group0, const ev4sio_Bp::FilterGroup::Enum group1, const bool* PX_RESTRICT lut)
 	{
 /*		const int g0 = group0 & ~3;
 		const int g1 = group1 & ~3;
@@ -110,7 +110,7 @@ namespace physx
 
 		const int type0 = group0 & BP_FILTERING_TYPE_MASK;
 		const int type1 = group1 & BP_FILTERING_TYPE_MASK;
-		return lut[type0*Bp::FilterType::COUNT+type1];
+		return lut[type0*ev4sio_Bp::FilterType::COUNT+type1];
 	}
 
 	class BpFilter
@@ -121,7 +121,7 @@ namespace physx
 
 		PX_FORCE_INLINE	const bool*	getLUT()	const	{ return &mLUT[0][0];	}
 
-						bool		mLUT[Bp::FilterType::COUNT][Bp::FilterType::COUNT];
+						bool		mLUT[ev4sio_Bp::FilterType::COUNT][ev4sio_Bp::FilterType::COUNT];
 	};
 	}
 }

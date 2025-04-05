@@ -32,7 +32,7 @@
 #include "PxPhysXConfig.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 

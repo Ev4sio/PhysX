@@ -33,7 +33,7 @@
 #include "foundation/PxVec4.h"
 #include "cudamanager/PxCudaTypes.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 	class PxgCudaKernelWranglerManager;

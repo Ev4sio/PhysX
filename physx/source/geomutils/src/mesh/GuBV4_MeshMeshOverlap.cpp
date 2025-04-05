@@ -27,8 +27,8 @@
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
 
 #include "GuBV4.h"
-using namespace physx;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
 using namespace aos;
 
 #include "GuBV4_BoxOverlap_Internal.h"
@@ -1341,7 +1341,7 @@ static bool BV4_OverlapMeshVsMeshT(	PxReportCallbackBase& callback, const BV4Tre
 #include "GuConvexUtilsInternal.h"
 #include "GuBoxConversion.h"
 
-using namespace Cm;
+using namespace ev4sio_Cm;
 
 // PT: dups from NpDebugViz.cpp
 static PX_FORCE_INLINE Vec4V multiply3x3V_(const Vec4V p, const PxMat34& mat)
@@ -1561,7 +1561,7 @@ static PX_FORCE_INLINE PxIntBool doLeafVsNode_Scaled(const BVDataPackedNQ* const
 	return BV4_ProcessStreamSwizzledNoOrderNQ<LeafFunction_MeshMesh_Scaled, MeshMeshParams_Scaled>(root, node->getChildData(i), params);
 }
 
-// PT: similar to Gu::computeVertexSpaceOBB() but we already computed the inverse, and the source box is an AABB
+// PT: similar to ev4sio_Gu::computeVertexSpaceOBB() but we already computed the inverse, and the source box is an AABB
 static void computeVertexSpaceOBB(Box& dst, const PxVec3& center, const PxVec3& extents, const PxMat34& inverse)
 {
 	// PT: TODO: optimize this

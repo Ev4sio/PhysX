@@ -34,9 +34,9 @@
 #include "foundation/PxInlineArray.h"
 #include "GuAABBTreeNode.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-	namespace Gu
+	namespace ev4sio_Gu
 	{
 #define RAW_TRAVERSAL_STACK_SIZE 256
 
@@ -130,7 +130,7 @@ namespace physx
 		//////////////////////////////////////////////////////////////////////////
 
 		template <const bool tInflate, const bool tHasIndices, typename Node, typename QueryCallback> // use inflate=true for sweeps, inflate=false for raycasts
-		static PX_FORCE_INLINE bool doLeafTest(	const Node* node, Gu::RayAABBTest& test, const PxBounds3* bounds, const PxU32* indices, PxReal& maxDist, QueryCallback& pcb)
+		static PX_FORCE_INLINE bool doLeafTest(	const Node* node, ev4sio_Gu::RayAABBTest& test, const PxBounds3* bounds, const PxU32* indices, PxReal& maxDist, QueryCallback& pcb)
 		{
 			PxU32 nbPrims = node->getNbPrimitives();
 			const bool doBoxTest = nbPrims > 1;
@@ -201,7 +201,7 @@ namespace physx
 
 				// PT: we will pass center*2 and extents*2 to the ray-box code, to save some work per-box
 				// So we initialize the test with values multiplied by 2 as well, to get correct results
-				Gu::RayAABBTest test(origin*2.0f, unitDir*2.0f, maxDist, inflation*2.0f);
+				ev4sio_Gu::RayAABBTest test(origin*2.0f, unitDir*2.0f, maxDist, inflation*2.0f);
 
 				PxInlineArray<const Node*, RAW_TRAVERSAL_STACK_SIZE> stack;
 				stack.forceSize_Unsafe(RAW_TRAVERSAL_STACK_SIZE);
@@ -266,7 +266,7 @@ namespace physx
 		};
 
 		template<typename T>
-		void traverseBVH(const Gu::BVHNode* nodes, T& traversalController, PxI32 rootNodeIndex = 0)
+		void traverseBVH(const ev4sio_Gu::BVHNode* nodes, T& traversalController, PxI32 rootNodeIndex = 0)
 		{
 			PxI32 index = rootNodeIndex;
 
@@ -274,7 +274,7 @@ namespace physx
 
 			while (true)
 			{
-				const Gu::BVHNode& a = nodes[index];
+				const ev4sio_Gu::BVHNode& a = nodes[index];
 
 				TraversalControl::Enum control = traversalController.analyze(a, index);
 				if (control == TraversalControl::eAbort)

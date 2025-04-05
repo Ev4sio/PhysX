@@ -33,7 +33,7 @@
 
 #define	NUM_RADIX_SORT_DESC	2
 
-namespace physx
+namespace ev4sio_physx
 {
 	
 	struct PxgRadixSortDesc

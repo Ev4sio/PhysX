@@ -30,9 +30,9 @@
 #include "GuSphere.h"
 #include "GuBox.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
-bool Gu::intersectSphereBox(const Sphere& sphere, const Box& box)
+bool ev4sio_Gu::intersectSphereBox(const Sphere& sphere, const Box& box)
 {
 	const PxVec3 delta = sphere.center - box.center;
 	PxVec3 dRot = box.rot.transformTranspose(delta);	//transform delta into OBB body coords. (use method call!)

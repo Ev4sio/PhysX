@@ -33,7 +33,7 @@
 #include "PxVehicleComponent.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 namespace vehicle2
 {
@@ -126,7 +126,7 @@ struct PxVehicleComponentSequence
 		}
 		else
 		{
-			PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL,
+			ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL,
 				"PxVehicleComponentSequence::update: The timestep must be positive!");
 		}
 	}
@@ -317,6 +317,6 @@ PxU8 PxVehicleComponentSequence::beginSubstepGroup(const PxU8 nbSubSteps)
 
 #if !PX_DOXYGEN
 } // namespace vehicle2
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 

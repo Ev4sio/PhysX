@@ -31,8 +31,8 @@
 #include "CmTransformUtils.h"
 #include "ScShapeInteraction.h"
 
-using namespace physx;
-using namespace Sc;
+using namespace ev4sio_physx;
+using namespace ev4sio_Sc;
 
 // PT: keep local functions in cpp, no need to pollute the header. Don't force conversions to bool if not necessary.
 static PX_FORCE_INLINE PxU32 hasTriggerFlags(PxShapeFlags flags) { return PxU32(flags) & PxU32(PxShapeFlag::eTRIGGER_SHAPE); }
@@ -48,7 +48,7 @@ void resetElementID(Scene& scene, ShapeSimBase& shapeSim)
 		shapeSim.destroySqBounds();
 }
 
-static PX_INLINE Bp::FilterGroup::Enum getBPGroup(const ShapeSimBase& shapeSim)
+static PX_INLINE ev4sio_Bp::FilterGroup::Enum getBPGroup(const ShapeSimBase& shapeSim)
 {
 	const BodySim* bs = shapeSim.getBodySim();
 
@@ -59,10 +59,10 @@ static PX_INLINE Bp::FilterGroup::Enum getBPGroup(const ShapeSimBase& shapeSim)
 	if (isKinematic && bs->hasForcedKinematicNotif())
 		isKinematic = false;
 
-	return Bp::getFilterGroup(rbSim.getActorType() == PxActorType::eRIGID_STATIC, rbSim.getActorID(), isKinematic);
+	return ev4sio_Bp::getFilterGroup(rbSim.getActorType() == PxActorType::eRIGID_STATIC, rbSim.getActorID(), isKinematic);
 }
 
-static void setElementInteractionsDirty(Sc::ElementSim& elementSim, InteractionDirtyFlag::Enum flag, PxU8 interactionFlag)
+static void setElementInteractionsDirty(ev4sio_Sc::ElementSim& elementSim, InteractionDirtyFlag::Enum flag, PxU8 interactionFlag)
 {
 	ElementSim::ElementInteractionIterator iter = elementSim.getElemInteractions();
 	ElementSimInteraction* interaction = iter.getNext();
@@ -160,7 +160,7 @@ PX_FORCE_INLINE void ShapeSimBase::internalAddToBroadPhase()
 {
 	PX_ASSERT(!isInBroadPhase());
 
-	addToAABBMgr(getCore().getContactOffset(), getBPGroup(*this), (getCore().getCore().mShapeFlags & PxShapeFlag::eTRIGGER_SHAPE) ? Bp::ElementType::eTRIGGER : Bp::ElementType::eSHAPE);
+	addToAABBMgr(getCore().getContactOffset(), getBPGroup(*this), (getCore().getCore().mShapeFlags & PxShapeFlag::eTRIGGER_SHAPE) ? ev4sio_Bp::ElementType::eTRIGGER : ev4sio_Bp::ElementType::eSHAPE);
 }
 
 PX_FORCE_INLINE bool ShapeSimBase::internalRemoveFromBroadPhase(bool wakeOnLostTouch)
@@ -178,7 +178,7 @@ void ShapeSimBase::initSubsystemsDependingOnElementID(PxU32 indexFrom)
 {
 	Scene& scScene = getScene();
 
-	Bp::BoundsArray& boundsArray = scScene.getBoundsArray();
+	ev4sio_Bp::BoundsArray& boundsArray = scScene.getBoundsArray();
 	const PxU32 index = getElementID();
 
 	PX_ALIGN(16, PxTransform absPos);
@@ -240,12 +240,12 @@ void ShapeSimBase::getAbsPoseAligned(PxTransform* PX_RESTRICT globalPose) const
 		PxsBodyCore& core = static_cast<BodySim&>(getActor()).getBodyCore().getCore();
 		if (!core.hasIdtBody2Actor())
 		{
-			Cm::getDynamicGlobalPoseAligned(core.body2World, shape2Actor, core.getBody2Actor(), *globalPose);
+			ev4sio_Cm::getDynamicGlobalPoseAligned(core.body2World, shape2Actor, core.getBody2Actor(), *globalPose);
 			return;
 		}
 		actor2World = &core.body2World;
 	}
-	Cm::getStaticGlobalPoseAligned(*actor2World, shape2Actor, *globalPose);
+	ev4sio_Cm::getStaticGlobalPoseAligned(*actor2World, shape2Actor, *globalPose);
 }
 
 void ShapeSimBase::onFlagChange(PxShapeFlags oldFlags)
@@ -318,7 +318,7 @@ void ShapeSimBase::updateCached(PxU32 transformCacheFlags, PxBitMapPinned* shape
 		shapeChangedMap->growAndSet(index);
 }
 
-void ShapeSimBase::updateCached(PxsTransformCache& transformCache, Bp::BoundsArray& boundsArray)
+void ShapeSimBase::updateCached(PxsTransformCache& transformCache, ev4sio_Bp::BoundsArray& boundsArray)
 {
 	const PxU32 index = getElementID();
 
@@ -330,14 +330,14 @@ void ShapeSimBase::updateCached(PxsTransformCache& transformCache, Bp::BoundsArr
 	ct.flags = 0;
 
 	PxBounds3& b = boundsArray.begin()[index];
-	Gu::computeBounds(b, getCore().getGeometryUnion().getGeometry(), ct.transform, 0.0f, 1.0f);
+	ev4sio_Gu::computeBounds(b, getCore().getGeometryUnion().getGeometry(), ct.transform, 0.0f, 1.0f);
 }
 
 void ShapeSimBase::updateBPGroup()
 {
 	if (isInBroadPhase())
 	{
-		Sc::Scene& scene = getScene();
+		ev4sio_Sc::Scene& scene = getScene();
 		scene.getAABBManager()->setBPGroup(getElementID(), getBPGroup(*this));
 
 		reinsertBroadPhase();

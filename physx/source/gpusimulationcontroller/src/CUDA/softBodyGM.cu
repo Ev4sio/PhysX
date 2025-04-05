@@ -63,7 +63,7 @@
 #include "cudaNpCommon.h"
 #include "dataReadWriteHelper.cuh"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 extern "C" __host__ void initSoftBodyKernels1() {}
 
@@ -448,7 +448,7 @@ extern "C" __global__ void sb_gm_updateTetrahedraRotationsLaunch(
 		//this is quaternion
 		float4* tetRotationsGM = softbody.mSimTetraRotations;
 
-		//storeSpatialVector(softbody.mSimTetraMultipliers[tetrahedronIdx/32], Cm::UnAlignedSpatialVector::Zero(), tetrahedronIdx&31);
+		//storeSpatialVector(softbody.mSimTetraMultipliers[tetrahedronIdx/32], ev4sio_Cm::UnAlignedSpatialVector::Zero(), tetrahedronIdx&31);
 
 		computeSimTetrahedronRotations(tetIndicesGM, tetrahedronIdx,
 			vertsGM, restPosesGM, tetRotationsGM, initialRotation);
@@ -518,7 +518,7 @@ static PX_FORCE_INLINE __device__ PxReal evalStiffnessMatrix6x6(PxU32 row, PxU32
 	return result;
 }
 
-static __device__ inline float multiplyStrainByCompliance(PxReal invE, PxReal nu, int strainIndex, const Cm::UnAlignedSpatialVector& lambda)
+static __device__ inline float multiplyStrainByCompliance(PxReal invE, PxReal nu, int strainIndex, const ev4sio_Cm::UnAlignedSpatialVector& lambda)
 {
 	float s = lambda.top.x * evalStiffnessMatrix6x6(strainIndex, 0, invE, nu) +
 		lambda.top.y *    evalStiffnessMatrix6x6(strainIndex, 1, invE, nu) +
@@ -604,7 +604,7 @@ static PX_FORCE_INLINE __device__ void compute_deltaLambdaXgradC(PxMat33& deltaL
 }
 
 template <const PxU32 indexA, const PxU32 indexB, const PxU32 strainIndex>
-__device__ PxReal computeLambda(const PxMat33& G, const PxMat33& E, const Cm::UnAlignedSpatialVector& totalLambda,
+__device__ PxReal computeLambda(const PxMat33& G, const PxMat33& E, const ev4sio_Cm::UnAlignedSpatialVector& totalLambda,
 	const PxReal gamma, const PxReal scale, PxReal invE, PxReal nu, const PxReal invDtSq)
 {
 	return -(G(indexA, indexB) + invDtSq * multiplyStrainByCompliance(invE, nu, strainIndex, totalLambda) + gamma * E(indexA, indexB))*scale;
@@ -834,14 +834,14 @@ PX_FORCE_INLINE __device__ PxMat33 tetrahedronsSolveInner(const PxMat33& P,
 	const PxReal common = (1.0f + damping * invDt) * (volumeSqrt * volumeSqrt *(sqLength1 * v1.w + sqLength2 * v2.w + sqLength3 * v3.w + sqLengthSum * v0.w));
 	float scale = 1.0f / (common + alpha);
 
-	Cm::UnAlignedSpatialVector lambda;
+	ev4sio_Cm::UnAlignedSpatialVector lambda;
 
 	if (!isTGS)
 	{
 		PxReal invE = 1.0f / material.youngs;
 		PxReal nu = material.poissons;
 
-		Cm::UnAlignedSpatialVector totalLambda = loadSpatialVector(shSoftbody.mSimTetraMultipliers[workIndex / 32], workIndex & 31);
+		ev4sio_Cm::UnAlignedSpatialVector totalLambda = loadSpatialVector(shSoftbody.mSimTetraMultipliers[workIndex / 32], workIndex & 31);
 		lambda.top.x = computeLambda<0, 0, 0>(G, E, totalLambda, scaledDamping, scale, invE, nu, invDtSq);
 		lambda.top.y = computeLambda<1, 1, 1>(G, E, totalLambda, scaledDamping, scale, invE, nu, invDtSq);
 		lambda.top.z = computeLambda<2, 2, 2>(G, E, totalLambda, scaledDamping, scale, invE, nu, invDtSq);
@@ -1813,7 +1813,7 @@ extern "C" __global__ void sb_gm_zeroTetMultipliers(
 	
 	if(groupThreadIdx < numTets)
 	{
-		storeSpatialVector(softbody.mSimTetraMultipliers[groupThreadIdx /32], Cm::UnAlignedSpatialVector::Zero(), groupThreadIdx &31);
+		storeSpatialVector(softbody.mSimTetraMultipliers[groupThreadIdx /32], ev4sio_Cm::UnAlignedSpatialVector::Zero(), groupThreadIdx &31);
 	}
 
 }
@@ -1933,9 +1933,9 @@ extern "C" __global__ void sb_rigidAttachmentPrepareLaunch(
 			const PxVec3 raXn2 = ra.cross(normal2);
 
 			PxSpatialMatrix& spatialResponse = articulation.spatialResponseMatrixW[linkID];
-			const Cm::UnAlignedSpatialVector deltaV0 = spatialResponse * Cm::UnAlignedSpatialVector(normal0, raXn0);
-			const Cm::UnAlignedSpatialVector deltaV1 = spatialResponse * Cm::UnAlignedSpatialVector(normal1, raXn1);
-			const Cm::UnAlignedSpatialVector deltaV2 = spatialResponse * Cm::UnAlignedSpatialVector(normal2, raXn2);
+			const ev4sio_Cm::UnAlignedSpatialVector deltaV0 = spatialResponse * ev4sio_Cm::UnAlignedSpatialVector(normal0, raXn0);
+			const ev4sio_Cm::UnAlignedSpatialVector deltaV1 = spatialResponse * ev4sio_Cm::UnAlignedSpatialVector(normal1, raXn1);
+			const ev4sio_Cm::UnAlignedSpatialVector deltaV2 = spatialResponse * ev4sio_Cm::UnAlignedSpatialVector(normal2, raXn2);
 
 			const PxReal resp0 = deltaV0.top.dot(raXn0) + deltaV0.bottom.dot(normal0) + invMass1;
 			const PxReal resp1 = deltaV1.top.dot(raXn1) + deltaV1.bottom.dot(normal1) + invMass1;

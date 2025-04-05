@@ -39,7 +39,7 @@
 #include "jointConstraintBlockPrepTGS.cuh"
 
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 extern "C" __host__ void initSolverKernels10() {}
 
@@ -107,8 +107,8 @@ extern "C" __global__ void jointConstraintBlockPrepareParallelLaunchTGS( PxgCons
 		{
 				//desc.descIndex for joint in fact is the batch index
 			PxgBlockConstraint1DData& constraintData = solverDesc->blockJointPrepPool[descIndexBatch];
-			PxgBlockConstraint1DVelocities* rowVelocities = &solverDesc->blockJointPrepPool0[descIndexBatch * Dy::MAX_CONSTRAINT_ROWS];
-			PxgBlockConstraint1DParameters* rowParameters = &solverDesc->blockJointPrepPool1[descIndexBatch * Dy::MAX_CONSTRAINT_ROWS];
+			PxgBlockConstraint1DVelocities* rowVelocities = &solverDesc->blockJointPrepPool0[descIndexBatch * ev4sio_Dy::MAX_CONSTRAINT_ROWS];
+			PxgBlockConstraint1DParameters* rowParameters = &solverDesc->blockJointPrepPool1[descIndexBatch * ev4sio_Dy::MAX_CONSTRAINT_ROWS];
 
 			PxgSolverBodyData* bodyData0 = &solverBodyDatas[bodyAIndex];
 			PxgSolverBodyData* bodyData1 = &solverBodyDatas[bodyBIndex];

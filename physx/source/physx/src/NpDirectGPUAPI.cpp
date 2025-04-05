@@ -31,7 +31,7 @@
 #include "NpDirectGPUAPI.h"
 #include "NpScene.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 #if PX_SUPPORT_GPU_PHYSX
 

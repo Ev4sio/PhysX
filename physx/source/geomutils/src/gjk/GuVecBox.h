@@ -36,11 +36,11 @@
 #include "GuVecConvex.h"
 #include "GuConvexSupportTable.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 PX_PHYSX_COMMON_API extern const aos::BoolV boxVertexTable[8];
 
-namespace Gu
+namespace ev4sio_Gu
 {
 
 #define BOX_MARGIN_RATIO		0.15f
@@ -214,7 +214,7 @@ namespace Gu
 
 		aos::Vec3V  extents;
 	};
-}	//PX_COMPILE_TIME_ASSERT(sizeof(Gu::BoxV) == 96);
+}	//PX_COMPILE_TIME_ASSERT(sizeof(ev4sio_Gu::BoxV) == 96);
 
 }
 

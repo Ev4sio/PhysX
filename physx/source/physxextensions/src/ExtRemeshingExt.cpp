@@ -29,7 +29,7 @@
 #include "extensions/PxRemeshingExt.h"
 #include "foundation/PxHashMap.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 static void assignTriangle(PxArray<PxU32>& triangles, PxU32 triIndex, PxU32 a, PxU32 b, PxU32 c)
 {

@@ -34,7 +34,7 @@
 #include "foundation/PxBounds3.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -140,7 +140,7 @@ namespace physx
 	typedef	PxArray<PxU8, PxPinnedAllocator<PxU8> >								PxInt8ArrayPinnedSafe;
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

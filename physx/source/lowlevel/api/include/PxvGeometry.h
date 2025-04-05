@@ -44,7 +44,7 @@ Geometry interface
 #include "GuGeometryChecks.h"
 #include "CmUtils.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 //
@@ -187,7 +187,7 @@ private:
 	{
 		enum Enum
 		{
-			eOWNS_MATERIAL_IDX_MEMORY	= (1<<0),	// PT: for de-serialization to avoid deallocating material index list. Moved there from Sc::ShapeCore (since one byte was free).
+			eOWNS_MATERIAL_IDX_MEMORY	= (1<<0),	// PT: for de-serialization to avoid deallocating material index list. Moved there from ev4sio_Sc::ShapeCore (since one byte was free).
 			eIS_EXCLUSIVE				= (1<<1),	// PT: shape's exclusive flag
 			eIDT_TRANSFORM				= (1<<2),	// PT: true if PxsShapeCore::transform is identity
 			eDEFORMABLE_SURFACE_SHAPE	= (1<<3),	// True if this shape is a deformable surface shape
@@ -235,10 +235,10 @@ struct PxsShapeCore
 	PxU8				mShapeFlags;				// PT: Offset 32	!< API shape flags	// PT: TODO: use PxShapeFlags here. Needs to move flags to separate file.
 	PxShapeCoreFlags	mShapeCoreFlags;			// PT: Offset 33
 	PxU16				mMaterialIndex;				// PT: Offset 34
-	PxReal				mRestOffset;				// PT: Offset 36 - same as the API property of the same name - PT: moved from Sc::ShapeCore to fill padding bytes
+	PxReal				mRestOffset;				// PT: Offset 36 - same as the API property of the same name - PT: moved from ev4sio_Sc::ShapeCore to fill padding bytes
 	GeometryUnion		mGeometry;					// PT: Offset 40
-	PxReal				mTorsionalRadius;			// PT: Offset 104 - PT: moved from Sc::ShapeCore to fill padding bytes
-	PxReal				mMinTorsionalPatchRadius;	// PT: Offset 108 - PT: moved from Sc::ShapeCore to fill padding bytes
+	PxReal				mTorsionalRadius;			// PT: Offset 104 - PT: moved from ev4sio_Sc::ShapeCore to fill padding bytes
+	PxReal				mMinTorsionalPatchRadius;	// PT: Offset 108 - PT: moved from ev4sio_Sc::ShapeCore to fill padding bytes
 
 	PX_FORCE_INLINE	float	getDensityForFluid()	const
 	{

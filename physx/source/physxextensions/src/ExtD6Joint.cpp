@@ -34,8 +34,8 @@
 
 #include "omnipvd/ExtOmniPvdSetData.h"
 
-using namespace physx;
-using namespace Ext;
+using namespace ev4sio_physx;
+using namespace ev4sio_Ext;
 
 D6Joint::D6Joint(const PxTolerancesScale& scale, PxRigidActor* actor0, const PxTransform& localFrame0, PxRigidActor* actor1, const PxTransform& localFrame1) :
 	D6JointT		(PxJointConcreteType::eD6, actor0, localFrame0, actor1, localFrame1, "D6JointData"),
@@ -686,7 +686,7 @@ static void setupConeSwingLimits(joint::ConstraintHelper& ch, const D6JointData&
 {
 	PxVec3 axis;
 	PxReal error;
-	const Cm::ConeLimitHelperTanLess coneHelper(data.swingLimit.yAngle, data.swingLimit.zAngle);
+	const ev4sio_Cm::ConeLimitHelperTanLess coneHelper(data.swingLimit.yAngle, data.swingLimit.zAngle);
 	coneHelper.getLimit(swing, axis, error);
 	ch.angularLimit(cA2w.rotate(axis), error, data.swingLimit);
 }
@@ -852,7 +852,7 @@ static PxU32 D6JointSolverPrep(Px1DConstraint* constraints,
 					if(!data.mUsePyramidLimits)
 						setupDualConeSwingLimits(ch, data, aZ.cross(bX), -aZ.dot(bX), data.swingLimit.yAngle);	// PT: swing Y limited, swing Z free
 					else
-						PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "D6JointSolverPrep: invalid joint setup. Double pyramid mode not supported.");
+						ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "D6JointSolverPrep: invalid joint setup. Double pyramid mode not supported.");
 				}
 			}
 			if(limited & SWING2_FLAG)
@@ -868,7 +868,7 @@ static PxU32 D6JointSolverPrep(Px1DConstraint* constraints,
 					if(!data.mUsePyramidLimits)
 						setupDualConeSwingLimits(ch, data, -aY.cross(bX), aY.dot(bX), data.swingLimit.zAngle);	// PT: swing Z limited, swing Y free
 					else
-						PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "D6JointSolverPrep: invalid joint setup. Double pyramid mode not supported.");
+						ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "D6JointSolverPrep: invalid joint setup. Double pyramid mode not supported.");
 			}
 		}
 
@@ -940,7 +940,7 @@ static PxConstraintShaderTable gD6JointShaders = { D6JointSolverPrep, D6JointVis
 
 PxConstraintSolverPrep D6Joint::getPrep()	const	{ return gD6JointShaders.solverPrep; }
 
-PxD6Joint* physx::PxD6JointCreate(PxPhysics& physics, PxRigidActor* actor0, const PxTransform& localFrame0, PxRigidActor* actor1, const PxTransform& localFrame1)
+PxD6Joint* ev4sio_physx::PxD6JointCreate(PxPhysics& physics, PxRigidActor* actor0, const PxTransform& localFrame0, PxRigidActor* actor1, const PxTransform& localFrame1)
 {
 	PX_CHECK_AND_RETURN_NULL(localFrame0.isSane(), "PxD6JointCreate: local frame 0 is not a valid transform"); 
 	PX_CHECK_AND_RETURN_NULL(localFrame1.isSane(), "PxD6JointCreate: local frame 1 is not a valid transform"); 
@@ -972,7 +972,7 @@ void D6Joint::updateOmniPvdProperties() const
 }
 
 template<>
-void physx::Ext::omniPvdInitJoint<D6Joint>(D6Joint& joint)
+void ev4sio_physx::ev4sio_Ext::omniPvdInitJoint<D6Joint>(D6Joint& joint)
 {
 	OMNI_PVD_WRITE_SCOPE_BEGIN(pvdWriter, pvdRegData)
 

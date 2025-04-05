@@ -37,7 +37,7 @@
 #include "foundation/PxMathUtils.h"
 
 
-namespace physx
+namespace ev4sio_physx
 {
 	PxgDeformableSkinning::PxgDeformableSkinning(PxgKernelLauncher& kernelLauncher)
 	{
@@ -48,7 +48,7 @@ namespace physx
 		PxTrimeshSkinningGpuData* skinningDataArrayD, PxU32 arrayLength,
 		CUstream stream, PxU32 numGpuThreads)
 	{
-		physx::PxScopedCudaLock _lock(*mKernelLauncher.getCudaContextManager());
+		ev4sio_physx::PxScopedCudaLock _lock(*mKernelLauncher.getCudaContextManager());
 
 		const PxU32 numThreadsPerBlock = 256;
 		const PxU32 numBlocks = (numGpuThreads + numThreadsPerBlock - 1) / numThreadsPerBlock;
@@ -70,7 +70,7 @@ namespace physx
 		PxTrimeshSkinningGpuData* skinningDataArrayD, PxU32 arrayLength,
 		CUstream stream, PxU32 numGpuThreads)
 	{
-		physx::PxScopedCudaLock _lock(*mKernelLauncher.getCudaContextManager());
+		ev4sio_physx::PxScopedCudaLock _lock(*mKernelLauncher.getCudaContextManager());
 		const PxU32 numThreadsPerBlock = 256;
 		const PxU32 numBlocks = (numGpuThreads + numThreadsPerBlock - 1) / numThreadsPerBlock;
 		mKernelLauncher.launchKernelXYZ(PxgKernelIds::util_InterpolateSkinnedClothVertices, numBlocks, arrayLength, 1, numThreadsPerBlock, 1, 1, 0, stream,
@@ -81,7 +81,7 @@ namespace physx
 		PxTetmeshSkinningGpuData* skinningDataArrayD, PxU32 arrayLength,
 		CUstream stream, PxU32 numGpuThreads)
 	{
-		physx::PxScopedCudaLock _lock(*mKernelLauncher.getCudaContextManager());
+		ev4sio_physx::PxScopedCudaLock _lock(*mKernelLauncher.getCudaContextManager());
 		const PxU32 numThreadsPerBlock = 256;
 		const PxU32 numBlocks = (numGpuThreads + numThreadsPerBlock - 1) / numThreadsPerBlock;
 		mKernelLauncher.launchKernelXYZ(PxgKernelIds::util_InterpolateSkinnedSoftBodyVertices, numBlocks, arrayLength, 1, numThreadsPerBlock, 1, 1, 0, stream,

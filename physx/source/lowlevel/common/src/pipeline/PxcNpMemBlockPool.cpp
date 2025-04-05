@@ -33,7 +33,7 @@
 #include "foundation/PxInlineArray.h"
 #include "PxcScratchAllocator.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 PxcNpMemBlockPool::PxcNpMemBlockPool(PxcScratchAllocator& allocator) :
 	mConstraints("PxcNpMemBlockPool::mConstraints"),
@@ -209,7 +209,7 @@ PxcNpMemBlock* PxcNpMemBlockPool::acquire(PxcNpMemBlockArray& trackingArray, PxU
 	if(mAllocatedBlocks == mMaxBlocks)
 	{
 #if PX_CHECKED
-		PxGetFoundation().error(PxErrorCode::eDEBUG_WARNING, PX_FL,
+		ev4sio_PxGetFoundation().error(PxErrorCode::eDEBUG_WARNING, PX_FL,
 				"Reached maximum number of allocated blocks so 16k block allocation will fail!");
 #endif
 		return NULL;
@@ -218,7 +218,7 @@ PxcNpMemBlock* PxcNpMemBlockPool::acquire(PxcNpMemBlockArray& trackingArray, PxU
 #if PX_CHECKED
 	if(mInitialBlocks)
 	{
-		PxGetFoundation().error(PxErrorCode::eDEBUG_WARNING, PX_FL,
+		ev4sio_PxGetFoundation().error(PxErrorCode::eDEBUG_WARNING, PX_FL,
 			"Number of required 16k memory blocks has exceeded the initial number of blocks. Allocator is being called. Consider increasing the number of pre-allocated 16k blocks.");
 	}
 #endif

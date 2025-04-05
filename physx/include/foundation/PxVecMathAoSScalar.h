@@ -34,7 +34,7 @@
 #endif
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 namespace aos
@@ -244,7 +244,7 @@ typedef VecI32V VecShiftV;
 
 } // namespace aos
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

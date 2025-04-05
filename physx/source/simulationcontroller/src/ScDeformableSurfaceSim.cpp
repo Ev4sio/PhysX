@@ -32,22 +32,22 @@
 
 #include "geometry/PxTriangleMesh.h"
 
-using namespace physx;
-using namespace Dy;
+using namespace ev4sio_physx;
+using namespace ev4sio_Dy;
 
-Sc::DeformableSurfaceSim::DeformableSurfaceSim(DeformableSurfaceCore& core, Scene& scene) :
+ev4sio_Sc::DeformableSurfaceSim::DeformableSurfaceSim(DeformableSurfaceCore& core, Scene& scene) :
 	GPUActorSim(scene, core, NULL)
 {
 	mLLDeformableSurface = scene.createLLDeformableSurface(this);
 
-	mNodeIndex = scene.getSimpleIslandManager()->addNode(false, false, IG::Node::eDEFORMABLE_SURFACE_TYPE, mLLDeformableSurface);
+	mNodeIndex = scene.getSimpleIslandManager()->addNode(false, false, ev4sio_IG::Node::eDEFORMABLE_SURFACE_TYPE, mLLDeformableSurface);
 
 	scene.getSimpleIslandManager()->activateNode(mNodeIndex);
 
 	mLLDeformableSurface->setElementId(mShapeSim.getElementID());
 }
 
-Sc::DeformableSurfaceSim::~DeformableSurfaceSim()
+ev4sio_Sc::DeformableSurfaceSim::~DeformableSurfaceSim()
 {
 	if (!mLLDeformableSurface)
 		return;
@@ -59,13 +59,13 @@ Sc::DeformableSurfaceSim::~DeformableSurfaceSim()
 	mCore.setSim(NULL);
 }
 
-bool Sc::DeformableSurfaceSim::isSleeping() const
+bool ev4sio_Sc::DeformableSurfaceSim::isSleeping() const
 {
-	IG::IslandSim& sim = mScene.getSimpleIslandManager()->getAccurateIslandSim();
+	ev4sio_IG::IslandSim& sim = mScene.getSimpleIslandManager()->getAccurateIslandSim();
 	return sim.getActiveNodeIndex(mNodeIndex) == PX_INVALID_NODE;
 }
 
-void Sc::DeformableSurfaceSim::onSetWakeCounter()
+void ev4sio_Sc::DeformableSurfaceSim::onSetWakeCounter()
 {
 	mScene.getSimulationController()->setClothWakeCounter(mLLDeformableSurface);
 	if (mLLDeformableSurface->getCore().wakeCounter > 0.f)
@@ -74,7 +74,7 @@ void Sc::DeformableSurfaceSim::onSetWakeCounter()
 		mScene.getSimpleIslandManager()->deactivateNode(mNodeIndex);
 }
 
-void Sc::DeformableSurfaceSim::attachShapeCore(ShapeCore* core)
+void ev4sio_Sc::DeformableSurfaceSim::attachShapeCore(ShapeCore* core)
 {
 	mShapeSim.setCore(core);
 	{
@@ -84,14 +84,14 @@ void Sc::DeformableSurfaceSim::attachShapeCore(ShapeCore* core)
 
 		mScene.getBoundsArray().setBounds(getWorldBounds(), index);
 
-		addToAABBMgr(Bp::FilterType::DEFORMABLE_SURFACE);
+		addToAABBMgr(ev4sio_Bp::FilterType::DEFORMABLE_SURFACE);
 	}
 
 	PxsShapeCore* shapeCore = const_cast<PxsShapeCore*>(&core->getCore());
 	mLLDeformableSurface->setShapeCore(shapeCore);
 }
 
-PxBounds3 Sc::DeformableSurfaceSim::getWorldBounds() const
+PxBounds3 ev4sio_Sc::DeformableSurfaceSim::getWorldBounds() const
 {
 	const PxTriangleMeshGeometry& triGeom = static_cast<const PxTriangleMeshGeometry&>(mShapeSim.getCore().getGeometry());
 

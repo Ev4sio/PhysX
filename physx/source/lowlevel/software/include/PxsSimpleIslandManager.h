@@ -79,26 +79,26 @@ mIslandGen->processNarrowPhaseTouchEvents->postIslandGen									|secondPassIsla
 */
 #define USE_SPLIT_SECOND_PASS_ISLAND_GEN	1
 
-namespace physx
+namespace ev4sio_physx
 {
 	class PxsContactManager;
 
 // PT: TODO: fw declaring an Sc class here is not good
-namespace Sc
+namespace ev4sio_Sc
 {
 	class Interaction;
 }
 
-namespace Dy
+namespace ev4sio_Dy
 {
 	struct Constraint;
 }
 
-namespace IG
+namespace ev4sio_IG
 {
 	class SimpleIslandManager;
 
-class ThirdPassTask : public Cm::Task
+class ThirdPassTask : public ev4sio_Cm::Task
 {
 	SimpleIslandManager& mIslandManager;
 	IslandSim& mIslandSim;
@@ -118,7 +118,7 @@ private:
 	PX_NOCOPY(ThirdPassTask)
 };
 
-class PostThirdPassTask : public Cm::Task
+class PostThirdPassTask : public ev4sio_Cm::Task
 {
 	SimpleIslandManager& mIslandManager;
 
@@ -139,10 +139,10 @@ private:
 class AuxCpuData
 {
 	public:
-	PX_FORCE_INLINE PxsContactManager*	getContactManager(IG::EdgeIndex edgeId)	const { return reinterpret_cast<PxsContactManager*>(mConstraintOrCm[edgeId]);	}
-	PX_FORCE_INLINE Dy::Constraint*		getConstraint(IG::EdgeIndex edgeId)		const { return reinterpret_cast<Dy::Constraint*>(mConstraintOrCm[edgeId]);		}
+	PX_FORCE_INLINE PxsContactManager*	getContactManager(ev4sio_IG::EdgeIndex edgeId)	const { return reinterpret_cast<PxsContactManager*>(mConstraintOrCm[edgeId]);	}
+	PX_FORCE_INLINE ev4sio_Dy::Constraint*		getConstraint(ev4sio_IG::EdgeIndex edgeId)		const { return reinterpret_cast<ev4sio_Dy::Constraint*>(mConstraintOrCm[edgeId]);		}
 
-	Cm::BlockArray<void*>	mConstraintOrCm;	//! Pointers to either the constraint or Cm for this pair
+	ev4sio_Cm::BlockArray<void*>	mConstraintOrCm;	//! Pointers to either the constraint or Cm for this pair
 };
 
 class SimpleIslandManager : public PxUserAllocated
@@ -152,7 +152,7 @@ class SimpleIslandManager : public PxUserAllocated
 
 	//An array of destroyed nodes
 	PxArray<PxNodeIndex> mDestroyedNodes;
-	Cm::BlockArray<Sc::Interaction*> mInteractions;
+	ev4sio_Cm::BlockArray<ev4sio_Sc::Interaction*> mInteractions;
 
 	//Edges destroyed this frame
 	PxArray<EdgeIndex> mDestroyedEdges;
@@ -183,12 +183,12 @@ public:
 	PxNodeIndex	addNode(bool isActive, bool isKinematic, Node::NodeType type, void* object);
 	void		removeNode(const PxNodeIndex index);
 
-	// PT: these two functions added for multithreaded implementation of Sc::Scene::islandInsertion
+	// PT: these two functions added for multithreaded implementation of ev4sio_Sc::Scene::islandInsertion
 	void preallocateContactManagers(PxU32 nb, EdgeIndex* handles);
-	bool addPreallocatedContactManager(EdgeIndex handle, PxsContactManager* manager, PxNodeIndex nodeHandle1, PxNodeIndex nodeHandle2, Sc::Interaction* interaction, Edge::EdgeType edgeType);
+	bool addPreallocatedContactManager(EdgeIndex handle, PxsContactManager* manager, PxNodeIndex nodeHandle1, PxNodeIndex nodeHandle2, ev4sio_Sc::Interaction* interaction, Edge::EdgeType edgeType);
 
-	EdgeIndex addContactManager(PxsContactManager* manager, PxNodeIndex nodeHandle1, PxNodeIndex nodeHandle2, Sc::Interaction* interaction, Edge::EdgeType edgeType);
-	EdgeIndex addConstraint(Dy::Constraint* constraint, PxNodeIndex nodeHandle1, PxNodeIndex nodeHandle2, Sc::Interaction* interaction);
+	EdgeIndex addContactManager(PxsContactManager* manager, PxNodeIndex nodeHandle1, PxNodeIndex nodeHandle2, ev4sio_Sc::Interaction* interaction, Edge::EdgeType edgeType);
+	EdgeIndex addConstraint(ev4sio_Dy::Constraint* constraint, PxNodeIndex nodeHandle1, PxNodeIndex nodeHandle2, ev4sio_Sc::Interaction* interaction);
 
 	PX_FORCE_INLINE	PxIntBool isEdgeConnected(EdgeIndex edgeIndex) const { return mConnectedMap.test(edgeIndex); }
 
@@ -235,10 +235,10 @@ public:
 
 	void deactivateEdge(const EdgeIndex edge);
 
-	PX_FORCE_INLINE PxsContactManager*	getContactManager(IG::EdgeIndex edgeId)	const { return reinterpret_cast<PxsContactManager*>(mAuxCpuData.mConstraintOrCm[edgeId]);	}
-	PX_FORCE_INLINE Dy::Constraint*		getConstraint(IG::EdgeIndex edgeId)		const { return reinterpret_cast<Dy::Constraint*>(mAuxCpuData.mConstraintOrCm[edgeId]);		}
+	PX_FORCE_INLINE PxsContactManager*	getContactManager(ev4sio_IG::EdgeIndex edgeId)	const { return reinterpret_cast<PxsContactManager*>(mAuxCpuData.mConstraintOrCm[edgeId]);	}
+	PX_FORCE_INLINE ev4sio_Dy::Constraint*		getConstraint(ev4sio_IG::EdgeIndex edgeId)		const { return reinterpret_cast<ev4sio_Dy::Constraint*>(mAuxCpuData.mConstraintOrCm[edgeId]);		}
 
-	PX_FORCE_INLINE Sc::Interaction*	getInteractionFromEdgeIndex(IG::EdgeIndex edgeId) const { return mInteractions[edgeId]; }
+	PX_FORCE_INLINE ev4sio_Sc::Interaction*	getInteractionFromEdgeIndex(ev4sio_IG::EdgeIndex edgeId) const { return mInteractions[edgeId]; }
 
 	PX_FORCE_INLINE	PxU64				getContextId() const { return mContextID; }
 
@@ -250,7 +250,7 @@ private:
 	friend class PostThirdPassTask;
 
 	bool		validateDeactivations() const;
-	EdgeIndex	addEdge(void* edge, PxNodeIndex nodeHandle1, PxNodeIndex nodeHandle2, Sc::Interaction* interaction);
+	EdgeIndex	addEdge(void* edge, PxNodeIndex nodeHandle1, PxNodeIndex nodeHandle2, ev4sio_Sc::Interaction* interaction);
 	EdgeIndex	resizeEdgeArrays(EdgeIndex handle, bool flag);
 
 	PX_NOCOPY(SimpleIslandManager)

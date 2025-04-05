@@ -32,12 +32,12 @@
 #include "foundation/PxVec3.h"
 #include "PxContact.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 class PxShape;
 class PxsContactManagerOutputIterator;
 
-namespace Sc
+namespace ev4sio_Sc
 {
 	class ShapeSimBase;
 	class ElementSimInteraction;
@@ -116,7 +116,7 @@ namespace Sc
 	private:
 	};
 
-}  // namespace Sc
+}  // namespace ev4sio_Sc
 
 }
 

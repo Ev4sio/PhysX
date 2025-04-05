@@ -34,9 +34,9 @@
 #include "ScArticulationSim.h"
 #include "PxsSimpleIslandManager.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
-Sc::ArticulationJointSim::ArticulationJointSim(ArticulationJointCore& joint, ActorSim& parent, ActorSim& child) :
+ev4sio_Sc::ArticulationJointSim::ArticulationJointSim(ArticulationJointCore& joint, ActorSim& parent, ActorSim& child) :
 	Interaction	(parent, child, InteractionType::eARTICULATION, 0),
 	mCore		(joint)
 {
@@ -53,7 +53,7 @@ Sc::ArticulationJointSim::ArticulationJointSim(ArticulationJointCore& joint, Act
 	mCore.setSim(this);
 }
 
-Sc::ArticulationJointSim::~ArticulationJointSim()
+ev4sio_Sc::ArticulationJointSim::~ArticulationJointSim()
 {
 	// articulation interactions do not make use of the dirty flags yet. If they did, a setClean(true) has to be introduced here.
 	PX_ASSERT(!readInteractionFlag(InteractionFlag::eIN_DIRTY_LIST));
@@ -64,17 +64,17 @@ Sc::ArticulationJointSim::~ArticulationJointSim()
 	mCore.setSim(NULL);
 }
 
-Sc::BodySim& Sc::ArticulationJointSim::getParent() const
+ev4sio_Sc::BodySim& ev4sio_Sc::ArticulationJointSim::getParent() const
 {
 	return static_cast<BodySim&>(getActorSim0());
 }
 
-Sc::BodySim& Sc::ArticulationJointSim::getChild() const
+ev4sio_Sc::BodySim& ev4sio_Sc::ArticulationJointSim::getChild() const
 {
 	return static_cast<BodySim&>(getActorSim1());
 }
 
-bool Sc::ArticulationJointSim::onActivate()
+bool ev4sio_Sc::ArticulationJointSim::onActivate()
 {
 	if(!(getParent().isActive() && getChild().isActive()))
 		return false;
@@ -83,15 +83,15 @@ bool Sc::ArticulationJointSim::onActivate()
 	return true; 
 }
 
-bool Sc::ArticulationJointSim::onDeactivate()
+bool ev4sio_Sc::ArticulationJointSim::onDeactivate()
 {
 	clearInteractionFlag(InteractionFlag::eIS_ACTIVE);
 	return true;
 }
 
-void Sc::ArticulationJointSim::setDirty()
+void ev4sio_Sc::ArticulationJointSim::setDirty()
 {
-	Dy::ArticulationJointCore& llCore = mCore.getCore();
+	ev4sio_Dy::ArticulationJointCore& llCore = mCore.getCore();
 	ArticulationSim* sim = mCore.getArticulation()->getSim();
 	sim->setJointDirty(llCore);
 }

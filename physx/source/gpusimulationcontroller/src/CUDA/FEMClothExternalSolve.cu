@@ -52,7 +52,7 @@
 
 #define FEMCLOTH_BIAS_COEFFICIENT 0.7f
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 extern "C" __host__ void initFEMClothKernels2() {}
 

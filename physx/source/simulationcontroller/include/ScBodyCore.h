@@ -35,9 +35,9 @@
 #include "PxvDynamics.h"
 #include "PxvConfig.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Sc
+namespace ev4sio_Sc
 {
 	class BodySim;
 
@@ -181,7 +181,7 @@ namespace Sc
 						PX_ALIGN_PREFIX(16) PxsBodyCore mCore PX_ALIGN_SUFFIX(16);
 	};
 
-} // namespace Sc
+} // namespace ev4sio_Sc
 
 }
 

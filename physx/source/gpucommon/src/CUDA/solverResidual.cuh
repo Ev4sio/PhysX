@@ -64,7 +64,7 @@ struct PxgErrorAccumulator
 		accumulateErrorLocal(deltaF1, velocityMultiplier1);
 	}
 
-	/*PX_FORCE_INLINE __device__ void accumulateErrorGlobal(Dy::ErrorAccumulator& globalAccumulator)
+	/*PX_FORCE_INLINE __device__ void accumulateErrorGlobal(ev4sio_Dy::ErrorAccumulator& globalAccumulator)
 	{
 		atomicAdd(&globalAccumulator.mErrorSumOfSquares, sumOfSquares);
 		atomicAdd(&globalAccumulator.mCounter, counter);
@@ -72,7 +72,7 @@ struct PxgErrorAccumulator
 			AtomicMax(&globalAccumulator.mMaxError, maxError);
 	}*/
 
-	PX_FORCE_INLINE __device__ void accumulateErrorGlobalNoAtomics(Dy::ErrorAccumulator& globalAccumulator)
+	PX_FORCE_INLINE __device__ void accumulateErrorGlobalNoAtomics(ev4sio_Dy::ErrorAccumulator& globalAccumulator)
 	{
 		globalAccumulator.mErrorSumOfSquares += sumOfSquares;
 		globalAccumulator.mCounter += counter;
@@ -80,7 +80,7 @@ struct PxgErrorAccumulator
 			globalAccumulator.mMaxError = maxError;
 	}
 
-	PX_FORCE_INLINE __device__ void accumulateErrorGlobalFullWarp(Dy::ErrorAccumulator& globalAccumulator, PxU32 threadIndexInWarp)
+	PX_FORCE_INLINE __device__ void accumulateErrorGlobalFullWarp(ev4sio_Dy::ErrorAccumulator& globalAccumulator, PxU32 threadIndexInWarp)
 	{
 		PxReal s = warpReduction<AddOpPxReal, PxReal>(FULL_MASK, sumOfSquares);
 		PxU32 count = warpReduction<AddOpPxU32, PxU32>(FULL_MASK, counter);

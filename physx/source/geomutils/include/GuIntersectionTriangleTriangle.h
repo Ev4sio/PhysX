@@ -32,9 +32,9 @@
 #include "GuSegment.h"
 #include "common/PxPhysXCommonConfig.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Gu
+namespace ev4sio_Gu
 {
 	/**
 	Tests if a two triangles intersect
@@ -51,7 +51,7 @@ namespace Gu
 	PX_PHYSX_COMMON_API bool intersectTriangleTriangle(	const PxVec3& a1, const PxVec3& b1, const PxVec3& c1,
 														const PxVec3& a2, const PxVec3& b2, const PxVec3& c2,
 														bool ignoreCoplanar = false);
-} // namespace Gu
+} // namespace ev4sio_Gu
 }
 
 #endif

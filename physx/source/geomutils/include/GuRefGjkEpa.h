@@ -34,9 +34,9 @@
 #include "foundation/PxVec4.h"
 #include "GuBounds.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-	namespace Gu
+	namespace ev4sio_Gu
 	{
 		// The reference implementation of GJK-EPA algorithm
 		namespace RefGjkEpa

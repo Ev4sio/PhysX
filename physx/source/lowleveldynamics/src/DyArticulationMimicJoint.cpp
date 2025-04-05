@@ -30,9 +30,9 @@
 #include "DyArticulationMimicJointCore.h"
 #include "DyCpuGpuArticulation.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Dy
+namespace ev4sio_Dy
 {
 
 /**
@@ -60,23 +60,23 @@ PX_INLINE PxReal computeMimicJointSelfResponse(const PxU32 linkIndex, const PxU3
 
 	//(1) Propagate joint impulse (and zero link impulse) to parent
 	PxReal QMinusStZ[3] = { 0.f, 0.f, 0.f };
-	const Cm::UnAlignedSpatialVector* motionMatrixW = artData.getWorldMotionMatrix();
-	const Cm::SpatialVectorF* IsInvStISW = artData.getISInvStIS();	
-	const Cm::SpatialVectorF Zp = propagateImpulseW(
+	const ev4sio_Cm::UnAlignedSpatialVector* motionMatrixW = artData.getWorldMotionMatrix();
+	const ev4sio_Cm::SpatialVectorF* IsInvStISW = artData.getISInvStIS();	
+	const ev4sio_Cm::SpatialVectorF Zp = propagateImpulseW(
 		parentLinkToChildLink,
-		Cm::SpatialVectorF(PxVec3(0, 0,0), PxVec3(0, 0, 0)), 
+		ev4sio_Cm::SpatialVectorF(PxVec3(0, 0,0), PxVec3(0, 0, 0)), 
 		testJointImpulse, &IsInvStISW[jointOffset], &motionMatrixW[jointOffset], dofCount, 
 		QMinusStZ);				
 
 	//(2) Get deltaV response for parent
 	const TestImpulseResponse* linkImpulseResponses = artData.getImpulseResponseMatrixWorld();
-	const Cm::SpatialVectorF deltaVParent = -linkImpulseResponses[parentLinkIndex].getLinkDeltaVImpulseResponse(Zp);
+	const ev4sio_Cm::SpatialVectorF deltaVParent = -linkImpulseResponses[parentLinkIndex].getLinkDeltaVImpulseResponse(Zp);
 
 	//(3) Propagate parent deltaV and apply test impulse (encoded in QMinusStZ).
 	PxReal jointDeltaQDot[3]= {0, 0, 0};
 	const InvStIs* invStIS = artData.getInvStIS();
-	const Cm::SpatialVectorF* ISW = artData.getIsW();
-	const Cm::SpatialVectorF deltaVChild = 
+	const ev4sio_Cm::SpatialVectorF* ISW = artData.getIsW();
+	const ev4sio_Cm::SpatialVectorF deltaVChild = 
 		propagateAccelerationW(
 			parentLinkToChildLink, deltaVParent, 
 			invStIS[linkIndex], &motionMatrixW[jointOffset], &ISW[jointOffset], QMinusStZ, dofCount, 
@@ -107,7 +107,7 @@ PX_INLINE PxReal computeMimicJointCrossResponse
 	//Compute the test impulse to apply the inbound joint of linkA.
 	const PxReal testJointImpulses[3][3] = {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}};
 	const PxReal* testJointImpulse = testJointImpulses[dofA];
-	const Cm::SpatialVectorF testLinkImpulse(PxVec3(0, 0, 0), PxVec3(0, 0, 0));
+	const ev4sio_Cm::SpatialVectorF testLinkImpulse(PxVec3(0, 0, 0), PxVec3(0, 0, 0));
 
 	//Zero QMinusSTZ before using it.
 	PxMemZero(QMinusSTZ, sizeof(PxReal) * QMinusStZLength);
@@ -119,14 +119,14 @@ PX_INLINE PxReal computeMimicJointCrossResponse
 	const PxU32 numFromRootToOtherLink = links[linkB].mPathToRootCount;
 	const PxU32* pathFromRootToOtherLink = &pathToRootElements[links[linkB].mPathToRootStartIndex];
 			
-	const Cm::UnAlignedSpatialVector* motionMatrixW = artData.getWorldMotionMatrix();
-	const Cm::SpatialVectorF* ISInvStISW = artData.getISInvStIS();	
+	const ev4sio_Cm::UnAlignedSpatialVector* motionMatrixW = artData.getWorldMotionMatrix();
+	const ev4sio_Cm::SpatialVectorF* ISInvStISW = artData.getISInvStIS();	
 	const InvStIs* InvStISW = artData.getInvStIS();
-	const Cm::SpatialVectorF* ISW = artData.getIsW();
+	const ev4sio_Cm::SpatialVectorF* ISW = artData.getIsW();
 
 	// Propagate test joint impulse from inbound joint of start link to its parent link.
 	// This generates a link impulse that we can propagate to root.
-	Cm::SpatialVectorF Zp;
+	ev4sio_Cm::SpatialVectorF Zp;
 	{					
 		const PxU32 linkIndex = pathFromRootToLink[numFromRootToLink - 1];
 		PX_ASSERT(linkA == linkIndex);
@@ -167,7 +167,7 @@ PX_INLINE PxReal computeMimicJointCrossResponse
 
 	//We can now get the deltaV on the root link.
 	const TestImpulseResponse* linkImpulseResponses = artData.getImpulseResponseMatrixWorld();
-	Cm::SpatialVectorF deltaVParent = -linkImpulseResponses[0].getLinkDeltaVImpulseResponse(Zp);
+	ev4sio_Cm::SpatialVectorF deltaVParent = -linkImpulseResponses[0].getLinkDeltaVImpulseResponse(Zp);
 
 	//Propagate deltaV down the tree to linkB.
 	//We only care about jointVelocity of the inbound joint of linkB.
@@ -331,5 +331,5 @@ void FeatherstoneArticulation::solveInternalMimicJointConstraints(const PxReal d
 }
 
 
-} //namespace Dy
-} //namespace physx
+} //namespace ev4sio_Dy
+} //namespace ev4sio_physx

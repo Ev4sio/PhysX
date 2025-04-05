@@ -50,13 +50,13 @@
 
 #if PX_SUPPORT_OMNI_PVD
 class OmniPvdPxSampler;
-namespace physx
+namespace ev4sio_physx
 {
 	class PxOmniPvd;
 }
 #endif
 
-namespace physx
+namespace ev4sio_physx
 {
 
 #if PX_SUPPORT_PVD
@@ -103,9 +103,9 @@ class NpPhysics : public PxPhysics, public PxUserAllocated
 									NpPhysics(	const PxTolerancesScale& scale, 
 												const PxvOffsetTable& pxvOffsetTable,
 												bool trackOutstandingAllocations, 
-                                                physx::pvdsdk::PsPvd* pvd,
+                                                ev4sio_physx::pvdsdk::PsPvd* pvd,
 												PxFoundation&,
-												physx::PxOmniPvd* omniPvd);
+												ev4sio_physx::PxOmniPvd* omniPvd);
 	virtual							~NpPhysics();
 
 public:
@@ -114,8 +114,8 @@ public:
 													PxFoundation& foundation, 
 													const PxTolerancesScale& scale,
 													bool trackOutstandingAllocations,
-													physx::pvdsdk::PsPvd* pvd,
-													physx::PxOmniPvd* omniPvd);
+													ev4sio_physx::pvdsdk::PsPvd* pvd,
+													ev4sio_physx::PxOmniPvd* omniPvd);
 
 	static		PxU32			releaseInstance();
 
@@ -272,7 +272,7 @@ private:
 
 				PxArray<NpScene*>	mSceneArray;
 
-				Sc::Physics										mPhysics;
+				ev4sio_Sc::Physics										mPhysics;
 				NpMaterialManager<NpMaterial>					mMasterMaterialManager;
 #if PX_SUPPORT_GPU_PHYSX
 				NpMaterialManager<NpDeformableSurfaceMaterial>	mMasterDeformableSurfaceMaterialManager;
@@ -281,7 +281,7 @@ private:
 #endif
 				NpPhysicsInsertionCallback	mObjectInsertion;
 
-				struct MeshDeletionListener: public Gu::MeshFactoryListener
+				struct MeshDeletionListener: public ev4sio_Gu::MeshFactoryListener
 				{
 					void onMeshFactoryBufferRelease(const PxBase* object, PxType type)
 					{
@@ -312,7 +312,7 @@ private:
 				PxFoundation&							mFoundation;
 
 #if PX_SUPPORT_PVD	
-				physx::pvdsdk::PsPvd*  mPvd;
+				ev4sio_physx::pvdsdk::PsPvd*  mPvd;
                 Vd::PvdPhysicsClient*   mPvdPhysicsClient;
 #endif
 
@@ -323,7 +323,7 @@ private:
 
 #if PX_SUPPORT_OMNI_PVD
 	public:
-	class OmniPvdListener : public physx::NpFactoryListener
+	class OmniPvdListener : public ev4sio_physx::NpFactoryListener
 	{
 	public:
 		virtual void onMeshFactoryBufferRelease(const PxBase*, PxType) {}

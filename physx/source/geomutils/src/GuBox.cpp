@@ -30,9 +30,9 @@
 #include "GuBoxConversion.h"
 #include "GuInternal.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
-void Gu::Box::create(const Gu::Capsule& capsule)
+void ev4sio_Gu::Box::create(const ev4sio_Gu::Capsule& capsule)
 {
 	// Box center = center of the two LSS's endpoints
 	center = capsule.computeCenter();
@@ -59,7 +59,7 @@ void Gu::Box::create(const Gu::Capsule& capsule)
 Returns edges.
 \return		24 indices (12 edges) indexing the list returned by ComputePoints()
 */
-const PxU8* Gu::getBoxEdges()
+const PxU8* ev4sio_Gu::getBoxEdges()
 {
 	//     7+------+6			0 = ---
 	//     /|     /|			1 = +--
@@ -80,7 +80,7 @@ const PxU8* Gu::getBoxEdges()
 }
 
 
-void Gu::computeOBBPoints(PxVec3* PX_RESTRICT pts, const PxVec3& center, const PxVec3& extents, const PxVec3& base0, const PxVec3& base1, const PxVec3& base2)
+void ev4sio_Gu::computeOBBPoints(PxVec3* PX_RESTRICT pts, const PxVec3& center, const PxVec3& extents, const PxVec3& base0, const PxVec3& base1, const PxVec3& base2)
 {
 	PX_ASSERT(pts);
 

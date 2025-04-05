@@ -30,8 +30,8 @@
 #include "foundation/PxArray.h"
 #include "GuMeshAnalysis.h"
 
-using namespace physx;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
 
 PX_FORCE_INLINE PxU64 key(PxI32 a, PxI32 b)
 {

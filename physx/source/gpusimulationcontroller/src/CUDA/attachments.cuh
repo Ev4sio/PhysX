@@ -31,7 +31,7 @@
 
 #include "foundation/PxVecMath.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 __device__ inline bool isConeLimitedEnabled(float maxAngle, float minDist, float maxDist)
 {

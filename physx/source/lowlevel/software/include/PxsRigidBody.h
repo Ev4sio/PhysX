@@ -33,7 +33,7 @@
 #include "CmSpatialVector.h"
 #include "foundation/PxMutex.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 struct PxsCCDBody;
 
@@ -122,7 +122,7 @@ class PxsRigidBody
 					void				advanceToToi(PxReal toi, PxReal dt, bool clip);
 					void				advancePrevPoseToToi(PxReal toi);
 //					PxTransform			getAdvancedTransform(PxReal toi) const;
-					Cm::SpatialVector	getPreSolverVelocities() const;
+					ev4sio_Cm::SpatialVector	getPreSolverVelocities() const;
 
 					PxTransform			mLastTransform;			//28
 

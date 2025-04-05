@@ -34,21 +34,21 @@
 //#include "nputils.cuh"
 
 static __device__ __forceinline__
-physx::PxVec3 shuffle(const physx::PxU32 syncMask, const physx::PxVec3& v, int i, physx::PxU32 width = WARP_SIZE)
+ev4sio_physx::PxVec3 shuffle(const ev4sio_physx::PxU32 syncMask, const ev4sio_physx::PxVec3& v, int i, ev4sio_physx::PxU32 width = WARP_SIZE)
 {
-	return physx::PxVec3(__shfl_sync(syncMask, v.x, i, width), __shfl_sync(syncMask, v.y, i, width), __shfl_sync(syncMask, v.z, i, width));
+	return ev4sio_physx::PxVec3(__shfl_sync(syncMask, v.x, i, width), __shfl_sync(syncMask, v.y, i, width), __shfl_sync(syncMask, v.z, i, width));
 }
 
 static __device__ __forceinline__
-float4 shuffle(const physx::PxU32 syncMask, const float4& v, const int lane)
+float4 shuffle(const ev4sio_physx::PxU32 syncMask, const float4& v, const int lane)
 {
 	return make_float4(__shfl_sync(syncMask, v.x, lane), __shfl_sync(syncMask, v.y, lane), __shfl_sync(syncMask, v.z, lane), __shfl_sync(syncMask, v.w, lane));
 }
 
 static __device__ __forceinline__
-physx::PxVec3 warpShuffleMin(physx::PxVec3 v)
+ev4sio_physx::PxVec3 warpShuffleMin(ev4sio_physx::PxVec3 v)
 {
-	for (physx::PxU32 reductionRadius = 1; reductionRadius < WARP_SIZE; reductionRadius <<= 1)
+	for (ev4sio_physx::PxU32 reductionRadius = 1; reductionRadius < WARP_SIZE; reductionRadius <<= 1)
 	{
 		v.x = fminf(v.x, __shfl_xor_sync(FULL_MASK, v.x, reductionRadius));
 		v.y = fminf(v.y, __shfl_xor_sync(FULL_MASK, v.y, reductionRadius));
@@ -59,9 +59,9 @@ physx::PxVec3 warpShuffleMin(physx::PxVec3 v)
 }
 
 static __device__ __forceinline__
-physx::PxVec3 warpShuffleMax(physx::PxVec3 v)
+ev4sio_physx::PxVec3 warpShuffleMax(ev4sio_physx::PxVec3 v)
 {
-	for (physx::PxU32 reductionRadius = 1; reductionRadius < WARP_SIZE; reductionRadius <<= 1)
+	for (ev4sio_physx::PxU32 reductionRadius = 1; reductionRadius < WARP_SIZE; reductionRadius <<= 1)
 	{
 		v.x = fmaxf(v.x, __shfl_xor_sync(FULL_MASK, v.x, reductionRadius));
 		v.y = fmaxf(v.y, __shfl_xor_sync(FULL_MASK, v.y, reductionRadius));
@@ -73,13 +73,13 @@ physx::PxVec3 warpShuffleMax(physx::PxVec3 v)
 
 //// experimentally, seems more register-efficient to coalesce this
 //static __device__ __forceinline__
-//physx::PxReal shuffleDot(const physx::PxU32 syncMask, const physx::PxVec3& v0, int shuffle0, const physx::PxVec3& v1)
+//ev4sio_physx::PxReal shuffleDot(const ev4sio_physx::PxU32 syncMask, const ev4sio_physx::PxVec3& v0, int shuffle0, const ev4sio_physx::PxVec3& v1)
 //{
 //	return __shfl_sync(syncMask, v0.x, shuffle0)*v1.x + __shfl_sync(syncMask, v0.y, shuffle0)*v1.y + __shfl_sync(syncMask, v0.z, shuffle0)*v1.z;
 //}
 //
 //static __device__ __forceinline__
-//physx::PxU32 maxIndex(physx::PxReal v, physx::PxU32 mask, physx::PxReal& maxV)
+//ev4sio_physx::PxU32 maxIndex(ev4sio_physx::PxReal v, ev4sio_physx::PxU32 mask, ev4sio_physx::PxReal& maxV)
 //{
 //	maxV = mask & (1 << threadIdx.x) ? v : -FLT_MAX;
 //
@@ -93,7 +93,7 @@ physx::PxVec3 warpShuffleMax(physx::PxVec3 v)
 //}
 //
 //static __device__ __forceinline__
-//physx::PxU32 minIndex(physx::PxReal v, physx::PxU32 mask, physx::PxReal& minV)
+//ev4sio_physx::PxU32 minIndex(ev4sio_physx::PxReal v, ev4sio_physx::PxU32 mask, ev4sio_physx::PxReal& minV)
 //{
 //	minV = mask & (1 << threadIdx.x) ? v : FLT_MAX;
 //

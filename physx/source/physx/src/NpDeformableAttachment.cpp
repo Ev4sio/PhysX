@@ -42,7 +42,7 @@
 #include "NpDeformableSurface.h"
 #include "NpDeformableVolume.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 NpInternalAttachmentType::Enum getInternalAttachmentType(const PxDeformableAttachmentData& data, PxU32 actorIndex[2])
 {
@@ -274,7 +274,7 @@ void NpDeformableAttachment::addAttachment()
 			PxActor* actor0 = mActor[mActorIndex[0]];
 
 			PxRigidActor* actor1 = mActor[mActorIndex[1]] == NULL ? NULL : mActor[mActorIndex[1]]->is<PxRigidActor>();
-			Sc::BodyCore* core1 = mActor[mActorIndex[1]] == NULL ? NULL : getBodyCore(actor1);
+			ev4sio_Sc::BodyCore* core1 = mActor[mActorIndex[1]] == NULL ? NULL : getBodyCore(actor1);
 
 			mHandles.resize(mIndices[mActorIndex[0]].size());
 			for (PxU32 i = 0; i < mIndices[mActorIndex[0]].size(); i++)
@@ -384,7 +384,7 @@ void NpDeformableAttachment::removeAttachment()
 			PxActor* actor0 = mActor[mActorIndex[0]];
 
 			PxRigidActor* actor1 = mActor[mActorIndex[1]] == NULL ? NULL : mActor[mActorIndex[1]]->is<PxRigidActor>();
-			Sc::BodyCore* core1 = mActor[mActorIndex[1]] == NULL ? NULL : getBodyCore(actor1);
+			ev4sio_Sc::BodyCore* core1 = mActor[mActorIndex[1]] == NULL ? NULL : getBodyCore(actor1);
 
 			for (PxU32 i = 0; i < mHandles.size(); i++)
 			{
@@ -566,7 +566,7 @@ void NpDeformableAttachment::updatePose(const PxTransform& pose)
 			PxActor* actor0 = mActor[mActorIndex[0]];
 
 			PxRigidActor* actor1 = mActor[mActorIndex[1]] == NULL ? NULL : mActor[mActorIndex[1]]->is<PxRigidActor>();
-			Sc::BodyCore* core1 = mActor[mActorIndex[1]] == NULL ? NULL : getBodyCore(actor1);
+			ev4sio_Sc::BodyCore* core1 = mActor[mActorIndex[1]] == NULL ? NULL : getBodyCore(actor1);
 
 			for (PxU32 i = 0; i < mHandles.size(); i++)
 			{

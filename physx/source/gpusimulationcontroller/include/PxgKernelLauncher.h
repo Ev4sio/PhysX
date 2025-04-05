@@ -37,32 +37,32 @@
 
 #define KERNEL_LAUNCH_ERROR_CHECK 0
 
-namespace physx
+namespace ev4sio_physx
 {
 	// PT: do not inline this
 	static PX_NOINLINE void outputKernelLaunchDebugInfo(KernelWrangler* kernelWrangler, PxU16 id, const char* file, PxU32 line)
 	{
 		char errorMsg[4096];
-		physx::Pxsnprintf(errorMsg, 4096, "Launching GPU kernel %s...\n", kernelWrangler->getCuFunctionName(id));
-		PxGetFoundation().error(PxErrorCode::eDEBUG_INFO, file, line, errorMsg);
+		ev4sio_physx::Pxsnprintf(errorMsg, 4096, "Launching GPU kernel %s...\n", kernelWrangler->getCuFunctionName(id));
+		ev4sio_PxGetFoundation().error(PxErrorCode::eDEBUG_INFO, file, line, errorMsg);
 	}
 
 	// PT: do not inline this
 	static PX_NOINLINE void outputKernelLaunchError(KernelWrangler* kernelWrangler, PxU16 kernelId, PxCUresult result, const char* file, PxU32 line)
 	{
 		char errorMsg[4096];
-		physx::Pxsnprintf(errorMsg, 4096, "GPU kernel '%s' failed to launch with error %u!!\n",
+		ev4sio_physx::Pxsnprintf(errorMsg, 4096, "GPU kernel '%s' failed to launch with error %u!!\n",
 			kernelWrangler->getCuFunctionName(kernelId), result.value);
-		PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, file, line, errorMsg);
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, file, line, errorMsg);
 	}
 
 	//do not inline this
 	static PX_NOINLINE void outputKernelLaunchSyncError(KernelWrangler* kernelWrangler, PxU16 kernelId, PxCUresult result, const char* file, PxU32 line)
 	{
 		char buffer[4096];
-		physx::Pxsnprintf(buffer, 4096, "GPU kernel '%s' execution failed with error %u!\n",
+		ev4sio_physx::Pxsnprintf(buffer, 4096, "GPU kernel '%s' execution failed with error %u!\n",
 			kernelWrangler->getCuFunctionName(kernelId), result.value);
-		PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, file, line, buffer);
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, file, line, buffer);
 	}
 
 	template<const bool debugExecution>
@@ -82,9 +82,9 @@ namespace physx
 			{
 				outputKernelLaunchSyncError(kernelWrangler, kernelId, syncErr, file, line);
 				/*char buffer[4096];
-				physx::Pxsnprintf(buffer, 4096, "GPU kernel '%s' execution failed with error %u!\n",
+				ev4sio_physx::Pxsnprintf(buffer, 4096, "GPU kernel '%s' execution failed with error %u!\n",
 					kernelWrangler->getCuFunctionName(kernelId), syncErr.value);
-				PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, file, line, buffer);*/
+				ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, file, line, buffer);*/
 			}
 			PX_ASSERT(syncErr == CUDA_SUCCESS);
 		}

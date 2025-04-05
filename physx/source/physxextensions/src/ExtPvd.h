@@ -47,7 +47,7 @@
 #pragma clang diagnostic pop
 #endif
 
-namespace physx
+namespace ev4sio_physx
 {
 
 class PxJoint;
@@ -62,10 +62,10 @@ class PxRackAndPinionJoint;
 }
 
 #define JOINT_GROUP 3
-namespace physx
+namespace ev4sio_physx
 {
 namespace pvdsdk {
-	#define DEFINE_NATIVE_PVD_PHYSX3_TYPE_MAP( type ) DEFINE_PVD_TYPE_NAME_MAP( physx::type, "physx3", #type )
+	#define DEFINE_NATIVE_PVD_PHYSX3_TYPE_MAP( type ) DEFINE_PVD_TYPE_NAME_MAP( ev4sio_physx::type, "physx3", #type )
 
 	DEFINE_NATIVE_PVD_PHYSX3_TYPE_MAP(PxJoint)
 	DEFINE_NATIVE_PVD_PHYSX3_TYPE_MAP(PxJointGeneratedValues)
@@ -89,13 +89,13 @@ namespace pvdsdk {
 } //pvdsdk
 } // physx
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Ext
+namespace ev4sio_Ext
 {
-	using namespace physx::pvdsdk;	
+	using namespace ev4sio_physx::pvdsdk;	
 	
-	class Pvd: public physx::PxUserAllocated
+	class Pvd: public ev4sio_physx::PxUserAllocated
 	{
 		Pvd& operator=(const Pvd&);
 	public:

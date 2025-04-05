@@ -32,15 +32,15 @@
 #include "DyDynamics.h"
 #include "DyFeatherstoneArticulation.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Dy
+namespace ev4sio_Dy
 {
 // PT: input of partitionContactConstraints
 struct ConstraintPartitionIn
 {
 	ConstraintPartitionIn(	PxU8* bodies, PxU32 nbBodies, PxU32 stride,
-							Dy::FeatherstoneArticulation** articulations, PxU32 nbArticulations,
+							ev4sio_Dy::FeatherstoneArticulation** articulations, PxU32 nbArticulations,
 							const PxSolverConstraintDesc* contactConstraintDescs, PxU32 nbContactConstraintDescs,
 							PxU32 maxPartitions, bool forceStaticConstraintsToSolver) :
 		mBodies	(bodies), mNumBodies(nbBodies), mStride(stride),
@@ -53,7 +53,7 @@ struct ConstraintPartitionIn
 	PxU8*							mBodies;							// PT: PxSolverBody (PGS) or PxTGSSolverBodyVel (TGS)
 	PxU32							mNumBodies;
 	PxU32							mStride;
-	Dy::FeatherstoneArticulation**	mArticulationPtrs;
+	ev4sio_Dy::FeatherstoneArticulation**	mArticulationPtrs;
 	PxU32							mNumArticulationPtrs;
 	const PxSolverConstraintDesc*	mContactConstraintDescriptors;
 	PxU32							mNumContactConstraintDescriptors;
@@ -88,7 +88,7 @@ PxU32 partitionContactConstraints(ConstraintPartitionOut& out, const ConstraintP
 void processOverflowConstraints(PxU8* bodies, PxU32 bodyStride, PxU32 numBodies, ArticulationSolverDesc* articulations, PxU32 numArticulations,
 	PxSolverConstraintDesc* constraints, PxU32 numConstraints);
 
-} // namespace physx
+} // namespace ev4sio_physx
 
 }
 

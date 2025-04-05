@@ -55,7 +55,7 @@
 #define	INITIAL_SCREEN_WIDTH	768
 #define	INITIAL_SCREEN_HEIGHT	768
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 static GLFontRenderer	gTexter;
 
@@ -1001,13 +1001,13 @@ void renderGeoms(const PxU32 nbGeoms, const PxGeometryHolder* geoms, const PxTra
 	}
 }
 
-PX_FORCE_INLINE PxVec3 getVec3(const physx::PxU8* data, const PxU32 index, const PxU32 sStrideInBytes)
+PX_FORCE_INLINE PxVec3 getVec3(const ev4sio_physx::PxU8* data, const PxU32 index, const PxU32 sStrideInBytes)
 {
 	return *reinterpret_cast<const PxVec3*>(data + index * sStrideInBytes);
 }
 
-void renderMesh(physx::PxU32 /*nbVerts*/, const physx::PxU8* verts, const PxU32 vertsStrideInBytes, physx::PxU32 nbTris, const void* indices, bool has16bitIndices, const physx::PxVec3& color,
-	const physx::PxU8* normals, const PxU32 normalsStrideInBytes, bool flipFaceOrientation, bool enableBackFaceCulling = true)
+void renderMesh(ev4sio_physx::PxU32 /*nbVerts*/, const ev4sio_physx::PxU8* verts, const PxU32 vertsStrideInBytes, ev4sio_physx::PxU32 nbTris, const void* indices, bool has16bitIndices, const ev4sio_physx::PxVec3& color,
+	const ev4sio_physx::PxU8* normals, const PxU32 normalsStrideInBytes, bool flipFaceOrientation, bool enableBackFaceCulling = true)
 {
 	if (nbTris == 0)
 		return;
@@ -1111,18 +1111,18 @@ void renderMesh(physx::PxU32 /*nbVerts*/, const physx::PxU8* verts, const PxU32 
 	}
 }
 
-void renderMesh(physx::PxU32 nbVerts, const physx::PxVec3* verts, physx::PxU32 nbTris, const physx::PxU32* indices, const physx::PxVec3& color, const physx::PxVec3* normals, bool flipFaceOrientation)
+void renderMesh(ev4sio_physx::PxU32 nbVerts, const ev4sio_physx::PxVec3* verts, ev4sio_physx::PxU32 nbTris, const ev4sio_physx::PxU32* indices, const ev4sio_physx::PxVec3& color, const ev4sio_physx::PxVec3* normals, bool flipFaceOrientation)
 {
 	renderMesh(nbVerts, reinterpret_cast<const PxU8*>(verts), sizeof(PxVec3), nbTris, indices, false, color, reinterpret_cast<const PxU8*>(normals), sizeof(PxVec3), flipFaceOrientation);
 }
 
-void renderMesh(physx::PxU32 nbVerts, const physx::PxVec4* verts, physx::PxU32 nbTris, const physx::PxU32* indices, const physx::PxVec3& color, const physx::PxVec4* normals, bool flipFaceOrientation)
+void renderMesh(ev4sio_physx::PxU32 nbVerts, const ev4sio_physx::PxVec4* verts, ev4sio_physx::PxU32 nbTris, const ev4sio_physx::PxU32* indices, const ev4sio_physx::PxVec3& color, const ev4sio_physx::PxVec4* normals, bool flipFaceOrientation)
 {
 	renderMesh(nbVerts, reinterpret_cast<const PxU8*>(verts), sizeof(PxVec4), nbTris, indices, false, color, reinterpret_cast<const PxU8*>(normals), sizeof(PxVec4), flipFaceOrientation);
 }
 
-void renderMesh(physx::PxU32 nbVerts, const physx::PxVec4* verts, physx::PxU32 nbTris, const void* indices, bool hasSixteenBitIndices,
-	const physx::PxVec3& color, const physx::PxVec4* normals, bool flipFaceOrientation, bool enableBackFaceCulling)
+void renderMesh(ev4sio_physx::PxU32 nbVerts, const ev4sio_physx::PxVec4* verts, ev4sio_physx::PxU32 nbTris, const void* indices, bool hasSixteenBitIndices,
+	const ev4sio_physx::PxVec3& color, const ev4sio_physx::PxVec4* normals, bool flipFaceOrientation, bool enableBackFaceCulling)
 {
 	renderMesh(nbVerts, reinterpret_cast<const PxU8*>(verts), sizeof(PxVec4), nbTris, indices, hasSixteenBitIndices,
 		color, reinterpret_cast<const PxU8*>(normals), sizeof(PxVec4), flipFaceOrientation, enableBackFaceCulling);
@@ -1141,7 +1141,7 @@ void DrawLine(const PxVec3& p0, const PxVec3& p1, const PxVec3& color)
 	glEnable(GL_LIGHTING);
 }
 
-const physx::PxVec3 icosahedronPoints[12] = { PxVec3(0, -0.525731, 0.850651),
+const ev4sio_physx::PxVec3 icosahedronPoints[12] = { PxVec3(0, -0.525731, 0.850651),
 PxVec3(0.850651, 0, 0.525731),
 PxVec3(0.850651, 0, -0.525731),
 PxVec3(-0.850651, 0, -0.525731),
@@ -1243,7 +1243,7 @@ void DrawPoints(const PxArray<PxVec4>& pts, const PxVec3& color, float scale)
 	glEnable(GL_LIGHTING);
 }
 
-void DrawPoints(const physx::PxArray<physx::PxVec3>& pts, const physx::PxArray<physx::PxVec3>& colors, float scale)
+void DrawPoints(const ev4sio_physx::PxArray<ev4sio_physx::PxVec3>& pts, const ev4sio_physx::PxArray<ev4sio_physx::PxVec3>& colors, float scale)
 {
 	glPointSize(scale);
 	glDisable(GL_LIGHTING);
@@ -1258,7 +1258,7 @@ void DrawPoints(const physx::PxArray<physx::PxVec3>& pts, const physx::PxArray<p
 	glEnable(GL_LIGHTING);
 }
 
-void DrawPoints(const physx::PxArray<physx::PxVec4>& pts, const physx::PxArray<physx::PxVec3>& colors, float scale)
+void DrawPoints(const ev4sio_physx::PxArray<ev4sio_physx::PxVec4>& pts, const ev4sio_physx::PxArray<ev4sio_physx::PxVec3>& colors, float scale)
 {
 	glPointSize(scale);
 	glDisable(GL_LIGHTING);
@@ -1332,7 +1332,7 @@ void SharedGLBuffer::allocate(PxU32 sizeInBytes)
 	release();
 	createVBO(&vbo, sizeInBytes);
 #if USE_CUDA_INTEROP
-	physx::PxCudaInteropRegisterFlags flags = physx::PxCudaInteropRegisterFlags();
+	ev4sio_physx::PxCudaInteropRegisterFlags flags = ev4sio_physx::PxCudaInteropRegisterFlags();
 	cudaContextManager->acquireContext();
 	CUresult result = cuGraphicsGLRegisterBuffer(reinterpret_cast<CUgraphicsResource*>(&vbo_res), vbo, flags);
 	PX_UNUSED(result);
@@ -1432,7 +1432,7 @@ void DrawLines(GLuint vbo, PxU32 numPoints, const PxVec3& color, float scale, Px
 	glEnable(GL_LIGHTING);
 }
 
-void DrawMeshIndexed(GLuint vbo, GLuint elementbuffer, GLuint numTriangles, const physx::PxVec3& color, physx::PxU32 stride)
+void DrawMeshIndexed(GLuint vbo, GLuint elementbuffer, GLuint numTriangles, const ev4sio_physx::PxVec3& color, ev4sio_physx::PxU32 stride)
 {
 	/*glPushMatrix();
 	glScalef(1.0f, 1.0f, 1.0f);*/
@@ -1459,7 +1459,7 @@ void DrawMeshIndexed(GLuint vbo, GLuint elementbuffer, GLuint numTriangles, cons
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
 
-void DrawMeshIndexedNoNormals(GLuint vbo, GLuint elementbuffer, GLuint numTriangles, const physx::PxVec3& color, physx::PxU32 stride)
+void DrawMeshIndexedNoNormals(GLuint vbo, GLuint elementbuffer, GLuint numTriangles, const ev4sio_physx::PxVec3& color, ev4sio_physx::PxU32 stride)
 {
 	/*glPushMatrix();
 	glScalef(1.0f, 1.0f, 1.0f);*/
@@ -1486,7 +1486,7 @@ void DrawFrame(const PxVec3& pt, float scale)
 	DrawLine(pt, pt + PxVec3(0.0f, 0.0f, scale), PxVec3(0.0f, 0.0f, 1.0f));
 }
 
-void DrawBounds(const physx::PxBounds3& box, const physx::PxVec3& color)
+void DrawBounds(const ev4sio_physx::PxBounds3& box, const ev4sio_physx::PxVec3& color)
 {
 	DrawLine(PxVec3(box.minimum.x, box.minimum.y, box.minimum.z), PxVec3(box.maximum.x, box.minimum.y, box.minimum.z), color);
 	DrawLine(PxVec3(box.maximum.x, box.minimum.y, box.minimum.z), PxVec3(box.maximum.x, box.maximum.y, box.minimum.z), color);
@@ -1533,7 +1533,7 @@ GLuint CreateTexture(PxU32 width, PxU32 height, const GLubyte* buffer, bool crea
 	return texId;
 }
 
-void UpdateTexture(GLuint texId, physx::PxU32 width, physx::PxU32 height, const GLubyte* buffer, bool createMipmaps)
+void UpdateTexture(GLuint texId, ev4sio_physx::PxU32 width, ev4sio_physx::PxU32 height, const GLubyte* buffer, bool createMipmaps)
 {
 	glBindTexture(GL_TEXTURE_2D, texId);
 	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, buffer);

@@ -28,7 +28,7 @@
 
 #include "GuVecBox.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	const aos::BoolV boxVertexTable[8] = {
 										aos::BFFFF(),//---

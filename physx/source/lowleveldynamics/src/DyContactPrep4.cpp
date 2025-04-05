@@ -33,12 +33,12 @@
 #include "DyContactPrepShared.h"
 #include "DyAllocator.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 using namespace aos;
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Dy
+namespace ev4sio_Dy
 {
 
 inline bool ValidateVec4(const Vec4V v)
@@ -1181,7 +1181,7 @@ void computeBlockStreamByteSizes4(PxSolverContactDesc* descs,
 	PX_ASSERT(0 == (_solverConstraintByteSize & 0x0f));
 }
 
-static SolverConstraintPrepState::Enum reserveBlockStreams4(PxSolverContactDesc* descs, Dy::CorrelationBuffer& c,
+static SolverConstraintPrepState::Enum reserveBlockStreams4(PxSolverContactDesc* descs, ev4sio_Dy::CorrelationBuffer& c,
 						PxU8*& solverConstraint, PxU32* axisConstraintCount,
 						PxU32& solverConstraintByteSize, 
 						PxConstraintAllocator& constraintAllocator)
@@ -1223,7 +1223,7 @@ static SolverConstraintPrepState::Enum reserveBlockStreams4(PxSolverContactDesc*
 }
 
 SolverConstraintPrepState::Enum createFinalizeSolverContacts4(
-	Dy::CorrelationBuffer& c,
+	ev4sio_Dy::CorrelationBuffer& c,
 	PxSolverContactDesc* blockDescs,
 	const PxReal invDtF32,
 	const PxReal dtF32,

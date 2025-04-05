@@ -53,7 +53,7 @@ __asm__(".symver powf,powf@GLIBC_2.2.5");
 #include "foundation/PxAssert.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -354,7 +354,7 @@ PX_CUDA_CALLABLE PX_FORCE_INLINE float PxCeil(float a)
 
 PX_CUDA_CALLABLE PX_FORCE_INLINE float PxSign(float a)
 {
-	return physx::intrinsics::sign(a);
+	return ev4sio_physx::intrinsics::sign(a);
 }
 
 PX_CUDA_CALLABLE PX_FORCE_INLINE float PxSign2(float a, float eps = FLT_EPSILON)
@@ -373,7 +373,7 @@ PX_CUDA_CALLABLE PX_FORCE_INLINE float PxLog(float x)
 }
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

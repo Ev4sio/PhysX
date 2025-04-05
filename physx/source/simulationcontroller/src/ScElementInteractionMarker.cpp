@@ -29,9 +29,9 @@
 #include "ScElementInteractionMarker.h"
 #include "ScNPhaseCore.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
-Sc::ElementInteractionMarker::~ElementInteractionMarker()
+ev4sio_Sc::ElementInteractionMarker::~ElementInteractionMarker()
 {
 	if(isRegistered())
 		getScene().unregisterInteraction(this);

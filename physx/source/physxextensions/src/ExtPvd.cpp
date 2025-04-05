@@ -44,9 +44,9 @@ PX_DUMMY_SYMBOL
 #include "PvdMetaDataPropertyVisitor.h"
 #include "PvdMetaDataDefineProperties.h"
 
-using namespace physx;
-using namespace Ext;
-using namespace physx::Vd;
+using namespace ev4sio_physx;
+using namespace ev4sio_Ext;
+using namespace ev4sio_physx::Vd;
 
 template<typename TObjType, typename TOperator>
 static inline void visitPvdInstanceProperties( TOperator inOperator )
@@ -62,7 +62,7 @@ static inline void visitPvdProperties( TOperator inOperator )
 	PxClassInfoTraits<TObjType>().Info.visitInstanceProperties( theFilter, thePropCount );
 }
 
-Pvd::PvdNameSpace::PvdNameSpace(physx::pvdsdk::PvdDataStream& conn, const char* /*name*/)
+Pvd::PvdNameSpace::PvdNameSpace(ev4sio_physx::pvdsdk::PvdDataStream& conn, const char* /*name*/)
 	: mConnection(conn)
 {
 }
@@ -71,7 +71,7 @@ Pvd::PvdNameSpace::~PvdNameSpace()
 {
 }
 
-void Pvd::releasePvdInstance(physx::pvdsdk::PvdDataStream& pvdConnection, const PxConstraint& c, const PxJoint& joint)
+void Pvd::releasePvdInstance(ev4sio_physx::pvdsdk::PvdDataStream& pvdConnection, const PxConstraint& c, const PxJoint& joint)
 {
 	if(!pvdConnection.isConnected())
 		return;
@@ -111,7 +111,7 @@ static void registerPropertiesAndValueStruct( PvdDataStream& inStream )
 	}
 }
 
-void Pvd::sendClassDescriptions(physx::pvdsdk::PvdDataStream& inStream)
+void Pvd::sendClassDescriptions(ev4sio_physx::pvdsdk::PvdDataStream& inStream)
 {
 	if (inStream.isClassExist<PxJoint>())
 		    return;
@@ -130,7 +130,7 @@ void Pvd::sendClassDescriptions(physx::pvdsdk::PvdDataStream& inStream)
 	}
 }
 	
-void Pvd::setActors( physx::pvdsdk::PvdDataStream& inStream, const PxJoint& inJoint, const PxConstraint& c, const PxActor* newActor0, const PxActor* newActor1 )
+void Pvd::setActors( ev4sio_physx::pvdsdk::PvdDataStream& inStream, const PxJoint& inJoint, const PxConstraint& c, const PxActor* newActor0, const PxActor* newActor1 )
 {
 	PxRigidActor* actor0, *actor1;
 	c.getActors( actor0, actor1 );

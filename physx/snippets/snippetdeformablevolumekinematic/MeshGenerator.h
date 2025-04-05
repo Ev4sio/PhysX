@@ -34,7 +34,7 @@
 
 namespace meshgenerator
 {
-using namespace physx;
+using namespace ev4sio_physx;
 
 void createCube(PxArray<PxVec3>& triVerts, PxArray<PxU32>& triIndices, const PxVec3& pos, const PxVec3& scaling)
 {

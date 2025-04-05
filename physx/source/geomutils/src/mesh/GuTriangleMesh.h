@@ -41,12 +41,12 @@
 #include "CmRefCountable.h"
 #include "common/PxRenderOutput.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 class PxMeshScale;
 struct PxTriangleMeshInternalData;
 
-namespace Gu
+namespace ev4sio_Gu
 {
 	PX_FORCE_INLINE	void	getVertexRefs(PxU32 triangleIndex, PxU32& vref0, PxU32& vref1, PxU32& vref2, const void* indices, bool has16BitIndices)
 	{
@@ -81,7 +81,7 @@ public:
 // PX_SERIALIZATION
 														TriangleMesh(PxBaseFlags baseFlags)	: PxTriangleMesh(baseFlags), mSdfData(PxEmpty)	{}
 
-								void					preExportDataReset() { Cm::RefCountable_preExportDataReset(*this); }
+								void					preExportDataReset() { ev4sio_Cm::RefCountable_preExportDataReset(*this); }
 	virtual						void					exportExtraData(PxSerializationContext& context);
 								void					importExtraData(PxDeserializationContext& context);
 	virtual						void					release();
@@ -96,8 +96,8 @@ public:
 	//~PxBase
 
 	// PxRefCounted
-	virtual						void					acquireReference()					{ Cm::RefCountable_incRefCount(*this);			}
-	virtual						PxU32					getReferenceCount()			const	{ return Cm::RefCountable_getRefCount(*this);	}
+	virtual						void					acquireReference()					{ ev4sio_Cm::RefCountable_incRefCount(*this);			}
+	virtual						PxU32					getReferenceCount()			const	{ return ev4sio_Cm::RefCountable_getRefCount(*this);	}
 	//~PxRefCounted
 	
 	// PxTriangleMesh
@@ -157,7 +157,7 @@ public:
 
 	virtual						bool					getInternalData(PxTriangleMeshInternalData&, bool)	const	{ return false; }
 
-	// PT: this one is just to prevent instancing Gu::TriangleMesh.
+	// PT: this one is just to prevent instancing ev4sio_Gu::TriangleMesh.
 	// But you should use PxBase::getConcreteType() instead to avoid the virtual call.
 	virtual						PxMeshMidPhase::Enum	getMidphaseID()				const	= 0;
 
@@ -198,7 +198,7 @@ public:
 	PX_FORCE_INLINE				PxReal					getMass()			const { return mMass; }
 
 								// PT: for debug viz
-	PX_PHYSX_COMMON_API			const Gu::EdgeList*		requestEdgeList()			const;
+	PX_PHYSX_COMMON_API			const ev4sio_Gu::EdgeList*		requestEdgeList()			const;
 
 protected:
 								PxU32					mNbVertices;
@@ -226,7 +226,7 @@ protected:
 																				//!< Set to 0xFFFFffff if no adjacent face
 	
 								MeshFactory*			mMeshFactory;			// PT: changed to pointer for serialization
-				mutable			Gu::EdgeList*			mEdgeList;				// PT: for debug viz
+				mutable			ev4sio_Gu::EdgeList*			mEdgeList;				// PT: for debug viz
 
 
 								PxReal					mMass;					//this is mass assuming a unit density that can be scaled by instances!
@@ -242,7 +242,7 @@ public:
 
 								PxU32*					mGRB_faceRemap;			//!< GRB : gpu to cpu triangle indice remap
 								PxU32*					mGRB_faceRemapInverse;
-								Gu::BV32Tree*			mGRB_BV32Tree;			//!< GRB: BV32 tree
+								ev4sio_Gu::BV32Tree*			mGRB_BV32Tree;			//!< GRB: BV32 tree
 								// End of GRB data ------------------
 
 								// SDF data -------------------------
@@ -261,9 +261,9 @@ public:
 #pragma warning(pop)
 #endif
 
-} // namespace Gu
+} // namespace ev4sio_Gu
 
-PX_FORCE_INLINE void Gu::TriangleMesh::computeWorldTriangle(PxTriangle& worldTri, PxTriangleID triangleIndex, const PxMat34& worldMatrix, bool flipNormal,
+PX_FORCE_INLINE void ev4sio_Gu::TriangleMesh::computeWorldTriangle(PxTriangle& worldTri, PxTriangleID triangleIndex, const PxMat34& worldMatrix, bool flipNormal,
 	PxU32* PX_RESTRICT vertexIndices, PxU32* PX_RESTRICT adjacencyIndices) const
 {
 	PxU32 vref0, vref1, vref2;
@@ -302,7 +302,7 @@ PX_FORCE_INLINE void Gu::TriangleMesh::computeWorldTriangle(PxTriangle& worldTri
 	}
 }
 
-PX_FORCE_INLINE void Gu::TriangleMesh::getLocalTriangle(PxTriangle& localTri, PxTriangleID triangleIndex, bool flipNormal) const
+PX_FORCE_INLINE void ev4sio_Gu::TriangleMesh::getLocalTriangle(PxTriangle& localTri, PxTriangleID triangleIndex, bool flipNormal) const
 {
 	PxU32 vref0, vref1, vref2;
 	getVertexRefs(triangleIndex, vref0, vref1, vref2, mTriangles, has16BitIndices());
@@ -316,19 +316,19 @@ PX_FORCE_INLINE void Gu::TriangleMesh::getLocalTriangle(PxTriangle& localTri, Px
 	localTri.verts[2] = vertices[vref2];
 }
 
-PX_INLINE float computeSweepData(const PxTriangleMeshGeometry& triMeshGeom, /*const Cm::FastVertex2ShapeScaling& scaling,*/ PxVec3& sweepOrigin, PxVec3& sweepExtents, PxVec3& sweepDir, float distance)
+PX_INLINE float computeSweepData(const PxTriangleMeshGeometry& triMeshGeom, /*const ev4sio_Cm::FastVertex2ShapeScaling& scaling,*/ PxVec3& sweepOrigin, PxVec3& sweepExtents, PxVec3& sweepDir, float distance)
 {
-	PX_ASSERT(!Cm::isEmpty(sweepOrigin, sweepExtents));
+	PX_ASSERT(!ev4sio_Cm::isEmpty(sweepOrigin, sweepExtents));
 
 	const PxVec3 endPt = sweepOrigin + sweepDir*distance;
-	PX_ASSERT(!Cm::isEmpty(endPt, sweepExtents));
+	PX_ASSERT(!ev4sio_Cm::isEmpty(endPt, sweepExtents));
 
-	const Cm::FastVertex2ShapeScaling meshScaling(triMeshGeom.scale.getInverse()); // shape to vertex transform
+	const ev4sio_Cm::FastVertex2ShapeScaling meshScaling(triMeshGeom.scale.getInverse()); // shape to vertex transform
 
 	const PxMat33& vertex2ShapeSkew = meshScaling.getVertex2ShapeSkew();
 
 	const PxVec3 originBoundsCenter = vertex2ShapeSkew * sweepOrigin;
-	const PxVec3 originBoundsExtents = Cm::basisExtent(vertex2ShapeSkew.column0, vertex2ShapeSkew.column1, vertex2ShapeSkew.column2, sweepExtents);
+	const PxVec3 originBoundsExtents = ev4sio_Cm::basisExtent(vertex2ShapeSkew.column0, vertex2ShapeSkew.column1, vertex2ShapeSkew.column2, sweepExtents);
 
 	sweepOrigin = originBoundsCenter;
 	sweepExtents = originBoundsExtents;
@@ -336,9 +336,9 @@ PX_INLINE float computeSweepData(const PxTriangleMeshGeometry& triMeshGeom, /*co
 	return sweepDir.normalizeSafe();
 }
 
-PX_FORCE_INLINE const Gu::TriangleMesh* _getMeshData(const PxTriangleMeshGeometry& meshGeom)
+PX_FORCE_INLINE const ev4sio_Gu::TriangleMesh* _getMeshData(const PxTriangleMeshGeometry& meshGeom)
 {
-	return static_cast<const Gu::TriangleMesh*>(meshGeom.triangleMesh);
+	return static_cast<const ev4sio_Gu::TriangleMesh*>(meshGeom.triangleMesh);
 }
 
 }

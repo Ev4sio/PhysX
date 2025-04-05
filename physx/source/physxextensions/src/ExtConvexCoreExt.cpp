@@ -29,14 +29,14 @@
 #include "extensions/PxConvexCoreExt.h"
 #include "GuConvexGeometry.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 void PxConvexCoreExt::computeMassInfo(const PxConvexCoreGeometry& convex, PxReal& density1Mass, PxMat33& inertiaTensor, PxVec3& centerOfMass)
 {
-	Gu::computeMassInfo(convex, density1Mass, inertiaTensor, centerOfMass);
+	ev4sio_Gu::computeMassInfo(convex, density1Mass, inertiaTensor, centerOfMass);
 }
 
 void PxConvexCoreExt::visualize(const PxConvexCoreGeometry& convex, const PxTransform& pose, bool drawCore, const PxBounds3& cullbox, PxRenderOutput& out)
 {
-	Gu::visualize(convex, pose, drawCore, cullbox, out);
+	ev4sio_Gu::visualize(convex, pose, drawCore, cullbox, out);
 }

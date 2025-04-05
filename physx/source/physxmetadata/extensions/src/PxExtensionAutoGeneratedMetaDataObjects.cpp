@@ -44,7 +44,7 @@
 
 #include "PxMetaDataCppPrefix.h"
 #include "extensions/PxExtensionsAPI.h"
-using namespace physx;
+using namespace ev4sio_physx;
 void setPxJoint_Actors( PxJoint* inObj, PxRigidActor * inArg0, PxRigidActor * inArg1 ) { inObj->setActors( inArg0, inArg1 ); }
 void getPxJoint_Actors( const PxJoint* inObj, PxRigidActor *& inArg0, PxRigidActor *& inArg1 ) { inObj->getActors( inArg0, inArg1 ); }
 void setPxJoint_LocalPose( PxJoint* inObj, PxJointActorIndex::Enum inIndex, PxTransform inArg ){ inObj->setLocalPose( inIndex, inArg ); }
@@ -103,7 +103,7 @@ inline void setPxJointUserData( PxJoint* inOwner, void * inData) { inOwner->user
 {
 	PX_UNUSED(inSource);
 	getPxJoint_Actors( inSource, Actors[0], Actors[1] );
-		for ( PxU32 idx = 0; idx < static_cast<PxU32>( physx::PxJointActorIndex::COUNT ); ++idx )
+		for ( PxU32 idx = 0; idx < static_cast<PxU32>( ev4sio_physx::PxJointActorIndex::COUNT ); ++idx )
 		LocalPose[idx] = getPxJoint_LocalPose( inSource, static_cast< PxJointActorIndex::Enum >( idx ) );
 	getPxJoint_BreakForce( inSource, BreakForce[0], BreakForce[1] );
 }
@@ -186,9 +186,9 @@ const char * getPxD6Joint_ConcreteTypeName( const PxD6Joint* inObj ) { return in
 		,ConcreteTypeName( getPxD6Joint_ConcreteTypeName( inSource ) )
 {
 	PX_UNUSED(inSource);
-		for ( PxU32 idx = 0; idx < static_cast<PxU32>( physx::PxD6Axis::eCOUNT ); ++idx )
+		for ( PxU32 idx = 0; idx < static_cast<PxU32>( ev4sio_physx::PxD6Axis::eCOUNT ); ++idx )
 		Motion[idx] = getPxD6Joint_Motion( inSource, static_cast< PxD6Axis::Enum >( idx ) );
-		for ( PxU32 idx = 0; idx < static_cast<PxU32>( physx::PxD6Drive::eCOUNT ); ++idx )
+		for ( PxU32 idx = 0; idx < static_cast<PxU32>( ev4sio_physx::PxD6Drive::eCOUNT ); ++idx )
 		Drive[idx] = getPxD6Joint_Drive( inSource, static_cast< PxD6Drive::Enum >( idx ) );
 }
 PxReal getPxDistanceJoint_Distance( const PxDistanceJoint* inObj ) { return inObj->getDistance(); }

@@ -32,7 +32,7 @@
 #include "foundation/PxPreprocessor.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -60,7 +60,7 @@ struct PX_DEPRECATED PxParticleSolverType
 
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

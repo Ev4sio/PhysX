@@ -37,7 +37,7 @@
 
 #define BODY_SIM_VALIDATE	0
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 void PxgBodySimManager::addBody(PxsRigidBody* rigidBody, const PxU32 nodeIndex)
 {
@@ -88,7 +88,7 @@ PxgBodySimManager::~PxgBodySimManager()
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////articulation
-void PxgBodySimManager::addArticulation(Dy::FeatherstoneArticulation* articulation, const PxU32 nodeIndex, bool OmniPVDRecordDirectGPUAPI)
+void PxgBodySimManager::addArticulation(ev4sio_Dy::FeatherstoneArticulation* articulation, const PxU32 nodeIndex, bool OmniPVDRecordDirectGPUAPI)
 {
 	if (mUpdatedMap.boundedTest(nodeIndex))
 		return;
@@ -105,12 +105,12 @@ void PxgBodySimManager::addArticulation(Dy::FeatherstoneArticulation* articulati
 	index.nodeIndex = nodeIndex;
 	index.remapIndex = mArticulationIdPool.getNewID();
 
-	Dy::ArticulationCore* core = articulation->getCore();
+	ev4sio_Dy::ArticulationCore* core = articulation->getCore();
 	core->gpuRemapIndex = index.remapIndex;
 
 	mNewArticulationSims.pushBack(index);
 	//Mark as in dirty list so that it doesn't appear in update list!
-	articulation->mGPUDirtyFlags |= Dy::ArticulationDirtyFlag::eIN_DIRTY_LIST;
+	articulation->mGPUDirtyFlags |= ev4sio_Dy::ArticulationDirtyFlag::eIN_DIRTY_LIST;
 
 	mNodeToRemapMap.insert(nodeIndex, index.remapIndex);
 #if PX_SUPPORT_OMNI_PVD
@@ -139,16 +139,16 @@ void PxgBodySimManager::addArticulation(Dy::FeatherstoneArticulation* articulati
 	selfConstraints.mSelfJoints.forceSize_Unsafe(0);
 }
 
-void PxgBodySimManager::updateArticulation(Dy::FeatherstoneArticulation* articulation, const PxU32 nodeIndex)
+void PxgBodySimManager::updateArticulation(ev4sio_Dy::FeatherstoneArticulation* articulation, const PxU32 nodeIndex)
 {
-	if (!(articulation->mGPUDirtyFlags & Dy::ArticulationDirtyFlag::eIN_DIRTY_LIST))
+	if (!(articulation->mGPUDirtyFlags & ev4sio_Dy::ArticulationDirtyFlag::eIN_DIRTY_LIST))
 	{
 		const PxHashMap<PxU32, PxU32>::Entry* entry = mNodeToRemapMap.find(nodeIndex);
 		//If entry is not there, it means that this articulation is pending insertion (added to scene, but not yet simulated). In this
 		//case, it will not need to appear in the update list
 		if (entry)
 		{
-			articulation->mGPUDirtyFlags |= Dy::ArticulationDirtyFlag::eIN_DIRTY_LIST;
+			articulation->mGPUDirtyFlags |= ev4sio_Dy::ArticulationDirtyFlag::eIN_DIRTY_LIST;
 			PxU32 index = entry->second;
 
 			PxgArticulationUpdate update;
@@ -391,11 +391,11 @@ bool PxgBodySimManager::removeSelfArticulationJoint(PxU32 uniqueIndex, const PxN
 	return remove(uniqueIndex, mArticulationSelfConstraints[index].mSelfJoints, mTotalSelfArticJoints);
 }
 
-void PxgBodySimManager::releaseArticulation(Dy::FeatherstoneArticulation* articulation, const PxU32 nodeIndex)
+void PxgBodySimManager::releaseArticulation(ev4sio_Dy::FeatherstoneArticulation* articulation, const PxU32 nodeIndex)
 {
 	mDeferredFreeNodeIDs.pushBack(nodeIndex);
 
-	if (articulation->mGPUDirtyFlags & Dy::ArticulationDirtyFlag::eIN_DIRTY_LIST)
+	if (articulation->mGPUDirtyFlags & ev4sio_Dy::ArticulationDirtyFlag::eIN_DIRTY_LIST)
 	{
 		for (PxU32 i = 0; i < mUpdatedArticulations.size(); ++i)
 		{
@@ -437,7 +437,7 @@ void PxgBodySimManager::releaseDeferredArticulationIds()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////softbody
 	
-void PxgBodySimManager::addSoftBody(Dy::DeformableVolume* deformableVolume, const PxU32 nodeIndex)
+void PxgBodySimManager::addSoftBody(ev4sio_Dy::DeformableVolume* deformableVolume, const PxU32 nodeIndex)
 {
 	if (mUpdatedMap.boundedTest(nodeIndex))
 		return;
@@ -483,7 +483,7 @@ void PxgBodySimManager::addSoftBody(Dy::DeformableVolume* deformableVolume, cons
 		mDeformableVolumes[index.remapIndex] = deformableVolume;
 }
 
-void PxgBodySimManager::releaseSoftBody(Dy::DeformableVolume* deformableVolume)
+void PxgBodySimManager::releaseSoftBody(ev4sio_Dy::DeformableVolume* deformableVolume)
 {
 	PxU32 remapIndex = deformableVolume->getGpuRemapId();
 	PxU32 index = mActiveSoftbodyIndex[remapIndex];
@@ -531,7 +531,7 @@ void PxgBodySimManager::releaseDeferredSoftBodyIds()
 	mSoftBodyIdPool.processDeferredIds();
 }
 
-bool PxgBodySimManager::activateSoftbody(Dy::DeformableVolume* deformableVolume)
+bool PxgBodySimManager::activateSoftbody(ev4sio_Dy::DeformableVolume* deformableVolume)
 {
 	PxU32 remapIndex = deformableVolume->getGpuRemapId();
 	PxU32 index = mActiveSoftbodyIndex[remapIndex];
@@ -554,7 +554,7 @@ bool PxgBodySimManager::activateSoftbody(Dy::DeformableVolume* deformableVolume)
 	return false;
 }
 
-bool PxgBodySimManager::deactivateSoftbody(Dy::DeformableVolume* deformableVolume)
+bool PxgBodySimManager::deactivateSoftbody(ev4sio_Dy::DeformableVolume* deformableVolume)
 {
 	PxU32 remapIndex = deformableVolume->getGpuRemapId();
 	PxU32 index = mActiveSoftbodyIndex[remapIndex];
@@ -573,7 +573,7 @@ bool PxgBodySimManager::deactivateSoftbody(Dy::DeformableVolume* deformableVolum
 	return false;
 }
 
-bool PxgBodySimManager::activateSoftbodySelfCollision(Dy::DeformableVolume* deformableVolume)
+bool PxgBodySimManager::activateSoftbodySelfCollision(ev4sio_Dy::DeformableVolume* deformableVolume)
 {
 	PxU32 remapIndex = deformableVolume->getGpuRemapId();
 	PxU32 index = mActiveSelfCollisionSoftbodyIndex[remapIndex];
@@ -587,7 +587,7 @@ bool PxgBodySimManager::activateSoftbodySelfCollision(Dy::DeformableVolume* defo
 	return false;
 }
 
-bool PxgBodySimManager::deactivateSoftbodySelfCollision(Dy::DeformableVolume* deformableVolume)
+bool PxgBodySimManager::deactivateSoftbodySelfCollision(ev4sio_Dy::DeformableVolume* deformableVolume)
 {
 	PxU32 remapIndex = deformableVolume->getGpuRemapId();
 	PxU32 index = mActiveSelfCollisionSoftbodyIndex[remapIndex];
@@ -608,7 +608,7 @@ bool PxgBodySimManager::deactivateSoftbodySelfCollision(Dy::DeformableVolume* de
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////femCloth
 
-void PxgBodySimManager::addFEMCloth(Dy::DeformableSurface* deformableSurface, const PxU32 nodeIndex)
+void PxgBodySimManager::addFEMCloth(ev4sio_Dy::DeformableSurface* deformableSurface, const PxU32 nodeIndex)
 {
 	if (mUpdatedMap.boundedTest(nodeIndex))
 		return;
@@ -647,7 +647,7 @@ void PxgBodySimManager::addFEMCloth(Dy::DeformableSurface* deformableSurface, co
 		mDeformableSurfaces[index.remapIndex] = deformableSurface;
 }
 
-void PxgBodySimManager::releaseFEMCloth(Dy::DeformableSurface* deformableSurface)
+void PxgBodySimManager::releaseFEMCloth(ev4sio_Dy::DeformableSurface* deformableSurface)
 {
 	PxU32 remapIndex = deformableSurface->getGpuRemapId();
 	PxU32 index = mActiveFEMClothIndex[remapIndex];
@@ -681,7 +681,7 @@ void PxgBodySimManager::releaseDeferredFEMClothIds()
 	mFEMClothIdPool.processDeferredIds();
 }
 
-bool PxgBodySimManager::activateCloth(Dy::DeformableSurface* deformableSurface)
+bool PxgBodySimManager::activateCloth(ev4sio_Dy::DeformableSurface* deformableSurface)
 {
 	PxU32 remapIndex = deformableSurface->getGpuRemapId();
 	PxU32 index = mActiveFEMClothIndex[remapIndex];
@@ -695,7 +695,7 @@ bool PxgBodySimManager::activateCloth(Dy::DeformableSurface* deformableSurface)
 	return false;
 }
 
-bool PxgBodySimManager::deactivateCloth(Dy::DeformableSurface* deformableSurface)
+bool PxgBodySimManager::deactivateCloth(ev4sio_Dy::DeformableSurface* deformableSurface)
 {
 	PxU32 remapIndex = deformableSurface->getGpuRemapId();
 	PxU32 index = mActiveFEMClothIndex[remapIndex];
@@ -713,7 +713,7 @@ bool PxgBodySimManager::deactivateCloth(Dy::DeformableSurface* deformableSurface
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////particlesystem
 
-void PxgBodySimManager::addPBDParticleSystem(Dy::ParticleSystem* particleSystem, const PxU32 nodeIndex)
+void PxgBodySimManager::addPBDParticleSystem(ev4sio_Dy::ParticleSystem* particleSystem, const PxU32 nodeIndex)
 {
 	if (mUpdatedMap.boundedTest(nodeIndex))
 		return;
@@ -740,7 +740,7 @@ void PxgBodySimManager::addPBDParticleSystem(Dy::ParticleSystem* particleSystem,
 	mActivePBDParticleSystemsDirty = true;
 }
 
-void PxgBodySimManager::releasePBDParticleSystem(Dy::ParticleSystem* particleSystem)
+void PxgBodySimManager::releasePBDParticleSystem(ev4sio_Dy::ParticleSystem* particleSystem)
 {
 	PxU32 remapIndex = particleSystem->getGpuRemapId();
 	for (PxU32 i = 0; i < mActivePBDParticleSystems.size(); ++i)

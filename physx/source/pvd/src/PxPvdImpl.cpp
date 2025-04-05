@@ -45,17 +45,17 @@ namespace
 	const char* gSdkName = "PhysXSDK";
 }
 
-namespace physx
+namespace ev4sio_physx
 {
 namespace pvdsdk
 {
 
-class CmEventNameProvider : public physx::profile::PxProfileNameProvider
+class CmEventNameProvider : public ev4sio_physx::profile::PxProfileNameProvider
 {
 public:
-	physx::profile::PxProfileNames getProfileNames() const
+	ev4sio_physx::profile::PxProfileNames getProfileNames() const
 	{
-		physx::profile::PxProfileNames  ret;
+		ev4sio_physx::profile::PxProfileNames  ret;
 		ret.eventCount = 0;
 		return ret;
 	}
@@ -93,7 +93,7 @@ PvdImpl::PvdImpl()
 , mProfileClient(NULL)
 , mProfileZone(NULL)
 {
-	mProfileZoneManager = &physx::profile::PxProfileZoneManager::createProfileZoneManager(PxGetBroadcastAllocator());
+	mProfileZoneManager = &ev4sio_physx::profile::PxProfileZoneManager::createProfileZoneManager(ev4sio_PxGetBroadcastAllocator());
 	mProfileClient = PVD_NEW(PvdProfileZoneClient)(*this);
 }
 
@@ -101,11 +101,11 @@ PvdImpl::~PvdImpl()
 {
 	if((mFlags & PxPvdInstrumentationFlag::ePROFILE) )
 	{
-		PxSetProfilerCallback(NULL);
+		ev4sio_PxSetProfilerCallback(NULL);
 #if PX_SUPPORT_GPU_PHYSX
 		if (mGPUProfilingWasConnected)
 		{
-			PxSetPhysXGpuProfilerCallback(NULL);
+			ev4sio_PxSetPhysXGpuProfilerCallback(NULL);
 		}
 #endif
 	}
@@ -126,7 +126,7 @@ bool PvdImpl::connect(PxPvdTransport& transport, PxPvdInstrumentationFlags flags
 {
 	if(mIsConnected)
 	{
-		PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "PxPvd::connect - recall connect! Should call disconnect before re-connect.");
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "PxPvd::connect - recall connect! Should call disconnect before re-connect.");
 	    return false;
 	}
 
@@ -153,7 +153,7 @@ bool PvdImpl::connect(PxPvdTransport& transport, PxPvdInstrumentationFlags flags
 		if((mFlags & PxPvdInstrumentationFlag::ePROFILE) && mProfileZoneManager)
 		{			
 			mPvdClients.pushBack(mProfileClient);
-			mProfileZone = &physx::profile::PxProfileZone::createProfileZone(PxGetBroadcastAllocator(),gSdkName,gProfileNameProvider.getProfileNames());
+			mProfileZone = &ev4sio_physx::profile::PxProfileZone::createProfileZone(ev4sio_PxGetBroadcastAllocator(),gSdkName,gProfileNameProvider.getProfileNames());
 		}
 
 		for(uint32_t i = 0; i < mPvdClients.size(); i++)
@@ -167,9 +167,9 @@ bool PvdImpl::connect(PxPvdTransport& transport, PxPvdInstrumentationFlags flags
 
 		if ((mFlags & PxPvdInstrumentationFlag::ePROFILE))
 		{
-			PxSetProfilerCallback(this);
+			ev4sio_PxSetProfilerCallback(this);
 #if PX_SUPPORT_GPU_PHYSX
-			PxSetPhysXGpuProfilerCallback(this);
+			ev4sio_PxSetPhysXGpuProfilerCallback(this);
 			mGPUProfilingWasConnected = true;
 #endif
 		}

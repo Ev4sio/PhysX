@@ -37,9 +37,9 @@
 #include "DyPGS.h"
 #include "DyResidualAccumulator.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Dy
+namespace ev4sio_Dy
 {
 
 static void solveContact4_Block(const PxSolverConstraintDesc* PX_RESTRICT desc, SolverContext& cache)
@@ -102,7 +102,7 @@ static void solveContact4_Block(const PxSolverConstraintDesc* PX_RESTRICT desc, 
 
 	const Vec4V sumInvMass = V4Add(invMassA, invMassB);
 
-	Dy::ErrorAccumulator error;
+	ev4sio_Dy::ErrorAccumulator error;
 	const bool residualReportingActive = cache.contactErrorAccumulator;
 
 	while(currPtr < last)
@@ -444,7 +444,7 @@ static void solveContact4_StaticBlock(const PxSolverConstraintDesc* PX_RESTRICT 
 
 	const Vec4V invMass0 = hdr->invMass0D0;
 
-	Dy::ErrorAccumulator error;
+	ev4sio_Dy::ErrorAccumulator error;
 	const bool residualReportingActive = cache.contactErrorAccumulator;
 
 	while((currPtr < last))
@@ -891,7 +891,7 @@ static void writeBackContact4_Block(const PxSolverConstraintDesc* PX_RESTRICT de
 	PX_ALIGN(16, PxReal nf[4]);
 	V4StoreA(normalForce, nf);
 
-	Sc::ShapeInteraction** shapeInteractions = reinterpret_cast<SolverContactHeader4*>(desc[0].constraint)->shapeInteraction;
+	ev4sio_Sc::ShapeInteraction** shapeInteractions = reinterpret_cast<SolverContactHeader4*>(desc[0].constraint)->shapeInteraction;
 
 	for(PxU32 a = 0; a < 4; ++a)
 	{
@@ -1013,7 +1013,7 @@ static void solve1D4_Block(const PxSolverConstraintDesc* PX_RESTRICT desc, const
 		if (residualReportingEnabled) 
 		{
 			SolverConstraint1DDynamic4WithResidual& cc = static_cast<SolverConstraint1DDynamic4WithResidual&>(c);
-			const Vec4V residual = Dy::calculateResidualV4(deltaF, c.velMultiplier);
+			const Vec4V residual = ev4sio_Dy::calculateResidualV4(deltaF, c.velMultiplier);
 			if (cache.isPositionIteration)
 				cc.residualPosIter = residual;
 			else
@@ -1262,7 +1262,7 @@ void solveContactPreBlock_WriteBack(DY_PGS_SOLVE_METHOD_PARAMS)
 	if(cache.mThresholdStreamIndex > (cache.mThresholdStreamLength - 4))
 	{
 		//Write back to global buffer
-		PxI32 threshIndex = physx::PxAtomicAdd(cache.mSharedOutThresholdPairs, PxI32(cache.mThresholdStreamIndex)) - PxI32(cache.mThresholdStreamIndex);
+		PxI32 threshIndex = ev4sio_physx::PxAtomicAdd(cache.mSharedOutThresholdPairs, PxI32(cache.mThresholdStreamIndex)) - PxI32(cache.mThresholdStreamIndex);
 		for(PxU32 a = 0; a < cache.mThresholdStreamIndex; ++a)
 		{
 			cache.mSharedThresholdStream[a + threshIndex] = cache.mThresholdStream[a];
@@ -1290,7 +1290,7 @@ void solveContactPreBlock_WriteBackStatic(DY_PGS_SOLVE_METHOD_PARAMS)
 	if(cache.mThresholdStreamIndex > (cache.mThresholdStreamLength - 4))
 	{
 		//Write back to global buffer
-		PxI32 threshIndex = physx::PxAtomicAdd(cache.mSharedOutThresholdPairs, PxI32(cache.mThresholdStreamIndex)) - PxI32(cache.mThresholdStreamIndex);
+		PxI32 threshIndex = ev4sio_physx::PxAtomicAdd(cache.mSharedOutThresholdPairs, PxI32(cache.mThresholdStreamIndex)) - PxI32(cache.mThresholdStreamIndex);
 		for(PxU32 a = 0; a < cache.mThresholdStreamIndex; ++a)
 		{
 			cache.mSharedThresholdStream[a + threshIndex] = cache.mThresholdStream[a];

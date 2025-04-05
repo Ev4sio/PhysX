@@ -43,9 +43,9 @@
 #include "MemoryAllocator.cuh"
 #include "PxgSolverKernelIndices.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
-namespace physx
+namespace ev4sio_physx
 {
 	struct PxgMassProps
 	{
@@ -75,10 +75,10 @@ static __device__ void orthogonalize( PxU32* sortedRowIndices, PxgBlockConstrain
 										PxVec3* angSqrtInvInertia1,
 										PxU32 rowCount, 
 										PxU32 eqRowCount,
-										const physx::PxgMassProps* m,
+										const ev4sio_physx::PxgMassProps* m,
 										const PxU32 threadIndex)
 {
-	using namespace physx;
+	using namespace ev4sio_physx;
 
 	assert(eqRowCount<=6);
 
@@ -170,11 +170,11 @@ static __device__ void orthogonalize( PxU32* sortedRowIndices, PxgBlockConstrain
 static __device__ void preprocessRows(PxU32* sortedRowIndices, PxgBlockConstraint1DData* constraintData, 
 									  PxgBlockConstraint1DVelocities* rowVelocities, PxgBlockConstraint1DParameters* rowParameters,
 									  PxVec3* angSqrtInvInertia0, PxVec3* angSqrtInvInertia1,
-									  const physx::PxgSolverBodyPrepData* bd0, const physx::PxgSolverBodyPrepData* bd1,
+									  const ev4sio_physx::PxgSolverBodyPrepData* bd0, const ev4sio_physx::PxgSolverBodyPrepData* bd1,
 									  PxgSolverTxIData* txIData0, PxgSolverTxIData* txIData1,
 									  const PxU32 threadIndex, bool disablePreprocessing)
 {
-	using namespace physx;
+	using namespace ev4sio_physx;
 
 	//Px1DConstraint* sorted[MAX_CONSTRAINTS];
 	// j is maxed at 12, typically around 7, so insertion sort is fine
@@ -241,8 +241,8 @@ static __device__ void preprocessRows(PxU32* sortedRowIndices, PxgBlockConstrain
 	}
 }
   
-static __device__ void intializeBlock1D(const physx::PxgBlockConstraint1DVelocities& rv,
-										const physx::PxgBlockConstraint1DParameters& rp,
+static __device__ void intializeBlock1D(const ev4sio_physx::PxgBlockConstraint1DVelocities& rv,
+										const ev4sio_physx::PxgBlockConstraint1DParameters& rp,
 											float jointSpeedForRestitutionBounce,
 											float initJointSpeed,
 											float resp0,
@@ -259,7 +259,7 @@ static __device__ void intializeBlock1D(const physx::PxgBlockConstraint1DVelocit
 											const PxU32 threadIndex
 											)
 {
-	using namespace physx;
+	using namespace ev4sio_physx;
 	
 	{
 		const PxU16 flags = rp.flags[threadIndex];
@@ -299,10 +299,10 @@ static __device__ void intializeBlock1D(const physx::PxgBlockConstraint1DVelocit
 
 static __device__ void setUp1DConstraintBlock(PxU32* sortedRowIndices, PxgBlockConstraint1DData* constraintData, PxgBlockConstraint1DVelocities* rowVelocities, PxgBlockConstraint1DParameters* rowParameters, 
 								  PxVec3* angSqrtInvInertia0, PxVec3* angSqrtInvInertia1, PxgBlockSolverConstraint1DCon* constraintsCon, PxgBlockSolverConstraint1DMod* constraintsMod,
-									float dt, float recipdt, const physx::PxgSolverBodyPrepData* sBodyData0, const physx::PxgSolverBodyPrepData* sBodyData1,
+									float dt, float recipdt, const ev4sio_physx::PxgSolverBodyPrepData* sBodyData0, const ev4sio_physx::PxgSolverBodyPrepData* sBodyData1,
 									const PxU32 threadIndex)
 {
-	using namespace physx;
+	using namespace ev4sio_physx;
 
 	//PxU32 stride = sizeof(PxgSolverConstraint1D);
 
@@ -339,7 +339,7 @@ static __device__ void setUp1DConstraintBlock(PxU32* sortedRowIndices, PxgBlockC
 		{
 			const bool hasDriveLimit = rp.flags[threadIndex] & Px1DConstraintFlag::eHAS_DRIVE_LIMIT;
 			const bool driveLimitsAreForces = constraintData->mFlags[threadIndex] & PxConstraintFlag::eDRIVE_LIMITS_ARE_FORCES;
-			Dy::computeMinMaxImpulseOrForceAsImpulse(
+			ev4sio_Dy::computeMinMaxImpulseOrForceAsImpulse(
 				c_linear1XYZ_minImpulseW.w, c_angular1XYZ_maxImpulseW.w,
 				hasDriveLimit, driveLimitsAreForces, dt,
 				minImpulse, maxImpulse);
@@ -365,12 +365,12 @@ static __device__ void setUp1DConstraintBlock(PxU32* sortedRowIndices, PxgBlockC
 
 template<int NbThreads>
 static __device__ void setupSolverConstraintBlockGPU(PxgBlockConstraint1DData* constraintData, PxgBlockConstraint1DVelocities* rowVelocities, PxgBlockConstraint1DParameters* rowParameters, 
-													 const physx::PxgSolverBodyPrepData* sBodyData0, const physx::PxgSolverBodyPrepData* sBodyData1, PxgSolverTxIData* txIData0, PxgSolverTxIData* txIData1,
+													 const ev4sio_physx::PxgSolverBodyPrepData* sBodyData0, const ev4sio_physx::PxgSolverBodyPrepData* sBodyData1, PxgSolverTxIData* txIData0, PxgSolverTxIData* txIData1,
 													float dt, float recipdt, PxgBlockConstraintBatch& batch, 
 													 const PxU32 threadIndex, PxgBlockSolverConstraint1DHeader* header, PxgBlockSolverConstraint1DCon* rowsCon, PxgBlockSolverConstraint1DMod* rowsMod,
 													 const PxgSolverConstraintManagerConstants& managerConstants)
 {
-	using namespace physx;
+	using namespace ev4sio_physx;
 
 	//distance constraint might have zero number of rows	
 	header->rowCounts[threadIndex] = PxU8(constraintData->mNumRows[threadIndex]);
@@ -397,9 +397,9 @@ static __device__ void setupSolverConstraintBlockGPU(PxgBlockConstraint1DData* c
 	
 	header->breakable[threadIndex] = PxU8((raWorld_linBreakForce.w != PX_MAX_F32) || (angBreakForce != PX_MAX_F32));
 
-	__shared__ PxU32 sortedRowIndices[NbThreads][Dy::MAX_CONSTRAINT_ROWS];
-	__shared__ PxVec3 angSqrtInvInertia0[NbThreads][Dy::MAX_CONSTRAINT_ROWS];
-	__shared__ PxVec3 angSqrtInvInertia1[NbThreads][Dy::MAX_CONSTRAINT_ROWS];
+	__shared__ PxU32 sortedRowIndices[NbThreads][ev4sio_Dy::MAX_CONSTRAINT_ROWS];
+	__shared__ PxVec3 angSqrtInvInertia0[NbThreads][ev4sio_Dy::MAX_CONSTRAINT_ROWS];
+	__shared__ PxVec3 angSqrtInvInertia1[NbThreads][ev4sio_Dy::MAX_CONSTRAINT_ROWS];
 	
 	preprocessRows(sortedRowIndices[threadIdx.x], constraintData, rowVelocities, rowParameters, angSqrtInvInertia0[threadIdx.x], angSqrtInvInertia1[threadIdx.x], sBodyData0, sBodyData1, txIData0, txIData1, threadIndex, !!(constraintData->mFlags[threadIndex] & PxConstraintFlag::eDISABLE_PREPROCESSING));
 	setUp1DConstraintBlock(sortedRowIndices[threadIdx.x], constraintData, rowVelocities, rowParameters, angSqrtInvInertia0[threadIdx.x], angSqrtInvInertia1[threadIdx.x], rowsCon, rowsMod, dt, recipdt, sBodyData0, sBodyData1, threadIndex);

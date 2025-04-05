@@ -32,7 +32,7 @@
 #include "../snippetrender/SnippetRender.h"
 #include "../snippetrender/SnippetCamera.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 extern void initPhysics(bool interactive);
 extern void stepPhysics(bool interactive);	
@@ -48,7 +48,7 @@ Snippets::Camera* sCamera;
 	class MyTriggerRender : public Snippets::TriggerRender
 	{
 		public:
-		virtual	bool	isTrigger(physx::PxShape* shape)	const
+		virtual	bool	isTrigger(ev4sio_physx::PxShape* shape)	const
 		{
 			return ::isTriggerShape(shape);
 		}
@@ -69,7 +69,7 @@ void renderCallback()
 	Snippets::startRender(sCamera);
 
 	PxScene* scene;
-	PxGetPhysics().getScenes(&scene,1);
+	ev4sio_PxGetPhysics().getScenes(&scene,1);
 	PxU32 nbActors = scene->getNbActors(PxActorTypeFlag::eRIGID_DYNAMIC | PxActorTypeFlag::eRIGID_STATIC);
 	if(nbActors)
 	{

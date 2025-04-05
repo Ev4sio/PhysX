@@ -32,7 +32,7 @@
 #include "common/PxTolerancesScale.h"
 #include "PxgD6Joint.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	// PT: why aren't these shared with the CPU ?
 

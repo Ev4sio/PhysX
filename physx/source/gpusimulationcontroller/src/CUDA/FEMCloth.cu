@@ -31,7 +31,7 @@
 #include "utils.cuh"
 #include "atomic.cuh"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 extern "C" __host__ void initFEMClothKernels1() {}
 
@@ -346,14 +346,14 @@ void cloth_refitBoundLaunch(
 
 		const PxU32 & nbBv32PackedNodes = nbVerts_nbTriangle_maxDepth_nbBv32TreeNodes.w;
 
-		Gu::BV32DataPacked* bv32PackedNodes = reinterpret_cast<Gu::BV32DataPacked*>(triMeshGeomPtr);
+		ev4sio_Gu::BV32DataPacked* bv32PackedNodes = reinterpret_cast<ev4sio_Gu::BV32DataPacked*>(triMeshGeomPtr);
 		s_warpScratch->bv32PackedNodes = bv32PackedNodes;
 	
-		triMeshGeomPtr += sizeof(const Gu::BV32DataPacked)* nbBv32PackedNodes;
+		triMeshGeomPtr += sizeof(const ev4sio_Gu::BV32DataPacked)* nbBv32PackedNodes;
 
-		Gu::BV32DataDepthInfo* bv32DepthInfo = reinterpret_cast<Gu::BV32DataDepthInfo*>(triMeshGeomPtr);
+		ev4sio_Gu::BV32DataDepthInfo* bv32DepthInfo = reinterpret_cast<ev4sio_Gu::BV32DataDepthInfo*>(triMeshGeomPtr);
 		s_warpScratch->bv32DepthInfo = bv32DepthInfo;
-		triMeshGeomPtr += sizeof(const Gu::BV32DataDepthInfo) * maxDepth;
+		triMeshGeomPtr += sizeof(const ev4sio_Gu::BV32DataDepthInfo) * maxDepth;
 
 		PxU32* remapPackedNodeIndex = reinterpret_cast<PxU32*>(triMeshGeomPtr);
 		s_warpScratch->bv32RemapPackedNodeIndex = remapPackedNodeIndex;
@@ -363,13 +363,13 @@ void cloth_refitBoundLaunch(
 	__syncthreads();
 
 	// depth buffer will be all the node index
-	const Gu::BV32DataDepthInfo* depthInfo = s_warpScratch->bv32DepthInfo;
+	const ev4sio_Gu::BV32DataDepthInfo* depthInfo = s_warpScratch->bv32DepthInfo;
 	const PxU32* remapPackedNodeIndex = s_warpScratch->bv32RemapPackedNodeIndex;
 
 	// each warp to deal with one node
 	for (PxU32 i = maxDepth; i > 0; i--)
 	{
-		const  Gu::BV32DataDepthInfo& info = depthInfo[i - 1];
+		const  ev4sio_Gu::BV32DataDepthInfo& info = depthInfo[i - 1];
 
 		const PxU32 offset = info.offset;
 		const PxU32 count = info.count;
@@ -377,7 +377,7 @@ void cloth_refitBoundLaunch(
 		for (PxU32 j = warpIndex; j < count; j += SB_REFIT_WAPRS_PER_BLOCK)
 		{
 			const PxU32 nodeIndex = remapPackedNodeIndex[j + offset];
-			Gu::BV32DataPacked& currentNode = const_cast<Gu::BV32DataPacked&>(s_warpScratch->bv32PackedNodes[nodeIndex]);
+			ev4sio_Gu::BV32DataPacked& currentNode = const_cast<ev4sio_Gu::BV32DataPacked&>(s_warpScratch->bv32PackedNodes[nodeIndex]);
 			const PxU32 nbChildren = currentNode.mNbNodes;
 
 			// compute the bitMask for all the leaf node

@@ -32,9 +32,9 @@
 
 #include "foundation/PxVec3.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Sc
+namespace ev4sio_Sc
 {
 	class ArticulationAttachmentCore
 	{
@@ -58,10 +58,10 @@ namespace Sc
 		PxReal								mCoefficient;
 		PxU32								mLLLinkIndex;
 		PxU32								mAttachmentIndex;
-		Sc::ArticulationSpatialTendonSim*	mTendonSim;
+		ev4sio_Sc::ArticulationSpatialTendonSim*	mTendonSim;
 
 	};
-}//namespace Sc
-}//namespace physx
+}//namespace ev4sio_Sc
+}//namespace ev4sio_physx
 
 #endif

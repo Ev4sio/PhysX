@@ -30,17 +30,17 @@
 
 #include "ScParticleSystemSim.h"
 
-using namespace physx;
-using namespace Dy;
+using namespace ev4sio_physx;
+using namespace ev4sio_Dy;
 
-Sc::ParticleSystemSim::ParticleSystemSim(ParticleSystemCore& core, Scene& scene) :
+ev4sio_Sc::ParticleSystemSim::ParticleSystemSim(ParticleSystemCore& core, Scene& scene) :
 	GPUActorSim(scene, core, &core.getShapeCore())
 {
 	createLowLevelVolume();
 
 	mLLParticleSystem = scene.createLLParticleSystem(this);
 
-	mNodeIndex = scene.getSimpleIslandManager()->addNode(false, false, IG::Node::ePARTICLESYSTEM_TYPE, mLLParticleSystem);
+	mNodeIndex = scene.getSimpleIslandManager()->addNode(false, false, ev4sio_IG::Node::ePARTICLESYSTEM_TYPE, mLLParticleSystem);
 
 	scene.getSimpleIslandManager()->activateNode(mNodeIndex);
 
@@ -57,7 +57,7 @@ Sc::ParticleSystemSim::ParticleSystemSim(ParticleSystemCore& core, Scene& scene)
 	mLLParticleSystem->setShapeCore(shapeCore);
 }
 
-Sc::ParticleSystemSim::~ParticleSystemSim()
+ev4sio_Sc::ParticleSystemSim::~ParticleSystemSim()
 {
 	if (!mLLParticleSystem)
 		return;
@@ -69,13 +69,13 @@ Sc::ParticleSystemSim::~ParticleSystemSim()
 	mCore.setSim(NULL);
 }
 
-void Sc::ParticleSystemSim::createLowLevelVolume()
+void ev4sio_Sc::ParticleSystemSim::createLowLevelVolume()
 {
 	//PX_ASSERT(getWorldBounds().isFinite());
 
 	const PxU32 index = mShapeSim.getElementID();
 
-	if (!(static_cast<Sc::ParticleSystemSim&>(mShapeSim.getActor()).getCore().getFlags() & PxParticleFlag::eDISABLE_RIGID_COLLISION))
+	if (!(static_cast<ev4sio_Sc::ParticleSystemSim&>(mShapeSim.getActor()).getCore().getFlags() & PxParticleFlag::eDISABLE_RIGID_COLLISION))
 	{
 		mScene.getBoundsArray().setBounds(PxBounds3(PxVec3(PX_MAX_BOUNDS_EXTENTS), PxVec3(-PX_MAX_BOUNDS_EXTENTS)), index);
 		mShapeSim.setInBroadPhase();
@@ -83,25 +83,25 @@ void Sc::ParticleSystemSim::createLowLevelVolume()
 	else
 		mScene.getAABBManager()->reserveSpaceForBounds(index);
 
-	addToAABBMgr(Bp::FilterType::PARTICLESYSTEM);
+	addToAABBMgr(ev4sio_Bp::FilterType::PARTICLESYSTEM);
 }
 
-bool Sc::ParticleSystemSim::isSleeping() const
+bool ev4sio_Sc::ParticleSystemSim::isSleeping() const
 {
 	return false;
 }
 
-void Sc::ParticleSystemSim::sleepCheck(PxReal dt)
+void ev4sio_Sc::ParticleSystemSim::sleepCheck(PxReal dt)
 {
 	PX_UNUSED(dt);
 }
 
-/*void Sc::ParticleSystemSim::activate()
+/*void ev4sio_Sc::ParticleSystemSim::activate()
 {
 	activateInteractions(*this);
 }
 
-void Sc::ParticleSystemSim::deactivate()
+void ev4sio_Sc::ParticleSystemSim::deactivate()
 {
 	deactivateInteractions(*this);
 }*/

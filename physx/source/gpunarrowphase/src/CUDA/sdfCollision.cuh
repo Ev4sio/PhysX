@@ -37,7 +37,7 @@
 #include "triangleMesh.cuh"
 #include "utils.cuh"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 struct PX_ALIGN_PREFIX(16) SparseSDFTexture
@@ -369,7 +369,7 @@ static __device__ PxReal doTetrahedronSDFCollision(SparseSDFTexture& texture, co
 			if (((newUVW.x <= -eps || newUVW.x >= 1.f + eps) || (newUVW.y <= -eps || newUVW.y >= 1.f + eps) ||
 				(newUVW.z <= -eps || newUVW.z >= 1.f + eps) || (newUVW.w <= -eps || newUVW.w >= 1.f + eps)))
 			{
-				PxVec3 cp = Gu::closestPtPointTetrahedron(newUVW.getXYZ(), PxVec3(1.0f, 0.0f, 0.0f), PxVec3(0.0f, 1.0f, 0.0f), PxVec3(0.f, 0.f, 1.f), PxVec3(0.0f));
+				PxVec3 cp = ev4sio_Gu::closestPtPointTetrahedron(newUVW.getXYZ(), PxVec3(1.0f, 0.0f, 0.0f), PxVec3(0.0f, 1.0f, 0.0f), PxVec3(0.f, 0.f, 1.f), PxVec3(0.0f));
 				newUVW.x = cp.x;
 				newUVW.y = cp.y;
 				newUVW.z = cp.z;
@@ -470,7 +470,7 @@ static __device__ PxReal doTriangleSDFCollision(SparseSDFTexture& texture, const
 
 			step = step * 0.8f;
 
-			newUVW = Gu::closestPtPointBaryTriangle(newUVW);
+			newUVW = ev4sio_Gu::closestPtPointBaryTriangle(newUVW);
 
 			p = v0 * newUVW.x + v1 * newUVW.y + v2 * newUVW.z;
 
@@ -527,7 +527,7 @@ PX_FORCE_INLINE __device__ void getTriangleVertices(const uint4& triangle, const
 	c = t.transform(vertex2Shape(PxLoad3(meshVerts[triangle.z]), scale.scale, scale.rotation));
 
 	if (encodedSubIndex > 0)
-		Gu::getSubTriangleEncoded(a, b, c, encodedSubIndex);
+		ev4sio_Gu::getSubTriangleEncoded(a, b, c, encodedSubIndex);
 }
 
 PX_FORCE_INLINE __device__ void getTriangleVertices(const uint4* meshInd, const float4* meshVerts, const PxMeshScale& scale, const PxTransform t,
@@ -546,7 +546,7 @@ PX_FORCE_INLINE __device__ void getTriangleVertices(const PxgTriangleMesh& mesh,
 	c = t.transform(vertex2Shape(PxLoad3(mesh.trimeshVerts[inds.z]), scale.scale, scale.rotation));
 
 	if (encodedSubIndex > 0)
-		Gu::getSubTriangleEncoded(a, b, c, encodedSubIndex);
+		ev4sio_Gu::getSubTriangleEncoded(a, b, c, encodedSubIndex);
 }
 
 
@@ -637,7 +637,7 @@ __device__ PxU32 findInterestingTrianglesA(PxU32 mesh0NbPrimitives, const uint4*
 			uint2 v = sharedSubdivisionIndices[threadIdx.x >> 2];
 			ind = v.x;
 			subdivisionLevel = v.y;
-			subdivisionLevel = Gu::elevateSubdivisionId(subdivisionLevel, threadIdx.x & 3);
+			subdivisionLevel = ev4sio_Gu::elevateSubdivisionId(subdivisionLevel, threadIdx.x & 3);
 		}
 		else
 		{
@@ -743,7 +743,7 @@ template<PxU32 NbWarps, const PxU32 TargetCount>
 __device__ PxU32 addToRefinementBuffer(bool addToBuffer, PxU32 ind, PxU32 subInd, PxU32 nbElementsInBuffer, uint2* sharedMemoryBuffer, PxU32 maxRefinementLevel)
 {
 	PxU32 subdivisionLevel, subTriangleIndex;
-	Gu::decodeSubdivisionId(subInd, subdivisionLevel, subTriangleIndex);
+	ev4sio_Gu::decodeSubdivisionId(subInd, subdivisionLevel, subTriangleIndex);
 	addToBuffer = addToBuffer && subdivisionLevel < maxRefinementLevel; //Make sure a upper limit of refinement is never exceeded
 
 	PxU32 total;

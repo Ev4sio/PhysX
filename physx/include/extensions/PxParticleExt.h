@@ -37,7 +37,7 @@
 #include "PxDeformableAttachment.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -403,7 +403,7 @@ PX_DEPRECATED PxParticleRigidBuffer* PxCreateAndPopulateParticleRigidBuffer(cons
 } // namespace ExtGpu
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

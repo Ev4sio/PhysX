@@ -37,7 +37,7 @@
 #include "foundation/PxFoundationConfig.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 	class PxContactBuffer;
@@ -281,26 +281,26 @@ namespace physx
 	}
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 /**
 \brief Used in pair with IMPLEMENT_CUSTOM_GEOMETRY_TYPE to overwrite Callbacks::getCustomType() callback.
 */
 #define DECLARE_CUSTOM_GEOMETRY_TYPE								\
-	static ::physx::PxCustomGeometry::Type TYPE();					\
-	virtual ::physx::PxCustomGeometry::Type getCustomType() const;
+	static ::ev4sio_physx::PxCustomGeometry::Type TYPE();					\
+	virtual ::ev4sio_physx::PxCustomGeometry::Type getCustomType() const;
 
 /**
 \brief Used in pair with DECLARE_CUSTOM_GEOMETRY_TYPE to overwrite Callbacks::getCustomType() callback.
 */
 #define IMPLEMENT_CUSTOM_GEOMETRY_TYPE(CLASS)						\
-::physx::PxCustomGeometry::Type CLASS::TYPE()						\
+::ev4sio_physx::PxCustomGeometry::Type CLASS::TYPE()						\
 {																	\
-	static ::physx::PxCustomGeometry::Type customType;				\
+	static ::ev4sio_physx::PxCustomGeometry::Type customType;				\
 	return customType;												\
 }																	\
-::physx::PxCustomGeometry::Type CLASS::getCustomType() const		\
+::ev4sio_physx::PxCustomGeometry::Type CLASS::getCustomType() const		\
 {																	\
 	return TYPE();													\
 }

@@ -35,7 +35,7 @@
 #include "foundation/PxSimpleTypes.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -50,7 +50,7 @@ namespace physx
 	PX_FORCE_INLINE void* PxMemZero(void* dest, PxU32 count)
 	{
 		// This is to avoid undefined behavior
-		return (count != 0) ? physx::intrinsics::memZero(dest, count) : NULL;
+		return (count != 0) ? ev4sio_physx::intrinsics::memZero(dest, count) : NULL;
 	}
 
 	/**
@@ -65,7 +65,7 @@ namespace physx
 	PX_FORCE_INLINE void* PxMemSet(void* dest, PxI32 c, PxU32 count)
 	{
 		// This is to avoid undefined behavior
-		return (count != 0) ? physx::intrinsics::memSet(dest, c, count) : NULL;
+		return (count != 0) ? ev4sio_physx::intrinsics::memSet(dest, c, count) : NULL;
 	}
 
 	/**
@@ -82,7 +82,7 @@ namespace physx
 	PX_FORCE_INLINE void* PxMemCopy(void* dest, const void* src, PxU32 count)
 	{
 		// This is to avoid undefined behavior
-		return (count != 0) ? physx::intrinsics::memCopy(dest, src, count) : NULL;
+		return (count != 0) ? ev4sio_physx::intrinsics::memCopy(dest, src, count) : NULL;
 	}
 
 	/**
@@ -98,7 +98,7 @@ namespace physx
 	*/
 	PX_FORCE_INLINE void* PxMemMove(void* dest, const void* src, PxU32 count)
 	{
-		return physx::intrinsics::memMove(dest, src, count);
+		return ev4sio_physx::intrinsics::memMove(dest, src, count);
 	}
 
 	/**
@@ -119,7 +119,7 @@ namespace physx
 	}
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

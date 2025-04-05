@@ -57,7 +57,7 @@
 #include "PxgDynamicsConfiguration.h"
 #include "DyCpuGpu1dConstraint.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 PX_FORCE_INLINE static __device__ uint32_t nextPowerOfTwo(uint32_t x)
 {
@@ -113,7 +113,7 @@ static __device__ void solve1DBlock(const PxgBlockConstraintBatch& batch, PxVec3
 	PxgBlockSolverConstraint1DMod* PX_RESTRICT rowsMod, bool residualReportingEnabled,
 	PxReal ref0 = 1.f, PxReal ref1 = 1.f)
 {
-	using namespace physx;
+	using namespace ev4sio_physx;
 
 	const PxgBlockSolverConstraint1DHeader* PX_RESTRICT  header = &headers[batch.mConstraintBatchIndex];
 	PxgBlockSolverConstraint1DCon* PX_RESTRICT baseCon = &rowsCon[batch.startConstraintIndex];
@@ -157,14 +157,14 @@ static __device__ void solve1DBlock(const PxgBlockConstraintBatch& batch, PxVec3
 
 		//https://omniverse-jirasw.nvidia.com/browse/PX-4383
 		const PxReal minRowResponse = DY_MIN_RESPONSE;
-		const PxReal recipResponse = Dy::computeRecipUnitResponse(unitResponse, minRowResponse);
+		const PxReal recipResponse = ev4sio_Dy::computeRecipUnitResponse(unitResponse, minRowResponse);
 
 		PxReal constant, unbiasedConstant, vMul, iMul;
 
 		bool isSpring = flags & DY_SC_FLAG_SPRING;
 		bool isAccelerationSpring = flags & DY_SC_FLAG_ACCELERATION_SPRING;
 
-		Dy::compute1dConstraintSolverConstantsPGS(isSpring, isAccelerationSpring, coeff0, coeff1, initJointSpeed, unitResponse,
+		ev4sio_Dy::compute1dConstraintSolverConstantsPGS(isSpring, isAccelerationSpring, coeff0, coeff1, initJointSpeed, unitResponse,
 												  recipResponse, constant, unbiasedConstant, vMul, iMul);
 
 		// For velocity iterations, "constant" is overwritten by "unbiasedConstant".
@@ -206,19 +206,19 @@ static __device__ void solve1DBlock(const PxgBlockConstraintBatch& batch, PxVec3
 // Mass-splitting version of 1D constraints; mass-related terms are computed at every sub-timestep. See "setupArtiSolverConstraintBlockGPU".
 // Refer to "Mass Splitting for Jitter-Free Parallel Rigid Body Simulation" for the general mass-splitting concept.
 static __device__ void solveExt1DBlock(const PxgBlockConstraintBatch& batch,
-	Cm::UnAlignedSpatialVector& vel0,
-	Cm::UnAlignedSpatialVector& vel1,
+	ev4sio_Cm::UnAlignedSpatialVector& vel0,
+	ev4sio_Cm::UnAlignedSpatialVector& vel1,
 	const PxU32 threadIndex,
 	const PxgBlockSolverConstraint1DHeader* PX_RESTRICT headers,
 	PxgBlockSolverConstraint1DCon* PX_RESTRICT rowsCon,
 	PxgBlockSolverConstraint1DMod* PX_RESTRICT rowsMod,
 	PxgArticulationBlockResponse* PX_RESTRICT artiResponse,
-	Cm::UnAlignedSpatialVector& impluse0,
-	Cm::UnAlignedSpatialVector& impluse1,
+	ev4sio_Cm::UnAlignedSpatialVector& impluse0,
+	ev4sio_Cm::UnAlignedSpatialVector& impluse1,
 	bool residualReportingEnabled,
 	PxReal ref0 = 1.f, PxReal ref1 = 1.f)
 {
-	using namespace physx;
+	using namespace ev4sio_physx;
 
 	const PxgBlockSolverConstraint1DHeader* PX_RESTRICT  header = &headers[batch.mConstraintBatchIndex];
 	PxgBlockSolverConstraint1DCon* PX_RESTRICT baseCon = &rowsCon[batch.startConstraintIndex];
@@ -271,7 +271,7 @@ static __device__ void solveExt1DBlock(const PxgBlockConstraintBatch& batch,
 
 		//https://omniverse-jirasw.nvidia.com/browse/PX-4383
 		const PxReal minRowResponse = DY_MIN_RESPONSE;
-		const PxReal recipResponse = Dy::computeRecipUnitResponse(unitResponse, minRowResponse);
+		const PxReal recipResponse = ev4sio_Dy::computeRecipUnitResponse(unitResponse, minRowResponse);
 
 		PxReal constant, unbiasedConstant, vMul, iMul;
 
@@ -327,7 +327,7 @@ static __device__ void solveExt1DBlock(const PxgBlockConstraintBatch& batch,
 
 static __device__ void conclude1DBlock(const PxgBlockConstraintBatch& batch, const PxU32 threadIndex, const PxgBlockSolverConstraint1DHeader* PX_RESTRICT headers, PxgBlockSolverConstraint1DMod* PX_RESTRICT rowsMod)
 {
-	using namespace physx;
+	using namespace ev4sio_physx;
 	const PxgBlockSolverConstraint1DHeader* PX_RESTRICT  header = &headers[batch.mConstraintBatchIndex];
 	PxgBlockSolverConstraint1DMod* PX_RESTRICT base = &rowsMod[batch.startConstraintIndex];
 
@@ -348,7 +348,7 @@ static __device__ void solveContactBlock(const PxgBlockConstraintBatch& batch, P
 	PxgBlockSolverContactHeader* contactHeaders, PxgBlockSolverFrictionHeader* frictionHeaders, PxgBlockSolverContactPoint* contactPoints, PxgBlockSolverContactFriction* frictionPoints,
 	PxgErrorAccumulator* error, PxReal ref0 = 1.f, PxReal ref1 = 1.f)
 {
-	using namespace physx;
+	using namespace ev4sio_physx;
 
 	PxVec3 linVel0 = b0LinVel;
 	PxVec3 linVel1 = b1LinVel;
@@ -580,7 +580,7 @@ static __device__ bool checkActiveContactBlock(const PxgBlockConstraintBatch& ba
 	const PxVec3& angVel0, const PxVec3& linVel1, const PxVec3& angVel1, const PxU32 threadIndex,
 	PxgBlockSolverContactHeader* contactHeaders, PxgBlockSolverContactPoint* contactPoints)
 {
-	using namespace physx;
+	using namespace ev4sio_physx;
 
 	{
 		PxgBlockSolverContactHeader* PX_RESTRICT contactHeader = &contactHeaders[batch.mConstraintBatchIndex];
@@ -683,7 +683,7 @@ static __device__ void concludeContactBlock(const PxgBlockConstraintBatch& batch
 	PxgBlockSolverContactPoint* contactPoints, PxgBlockSolverContactFriction* frictions)
 {
 
-	using namespace physx;
+	using namespace ev4sio_physx;
 
 	{
 		const PxgBlockSolverContactHeader* contactHeader = &contactHeaders[batch.mConstraintBatchIndex];
@@ -723,7 +723,7 @@ static __device__ void concludeContactBlock(const PxgBlockConstraintBatch& batch
 
 
 static __device__ void writeBackContactBlock(const PxgBlockConstraintBatch& batch, const PxU32 threadIndex,
-											 const PxgSolverBodyData* bodies, Dy::ThresholdStreamElement* thresholdStream,
+											 const PxgSolverBodyData* bodies, ev4sio_Dy::ThresholdStreamElement* thresholdStream,
 											 PxI32* sharedThresholdStreamIndex, PxgBlockSolverContactHeader* contactHeaders, PxgBlockSolverFrictionHeader* frictionHeaders, 
 											PxgBlockSolverContactPoint* contactPoints, PxgBlockSolverContactFriction* frictions,
 											PxF32* forcewritebackBuffer, PxgBlockFrictionPatch& frictionPatchBlock,
@@ -776,7 +776,7 @@ static __device__ void writeBackContactBlock(const PxgBlockConstraintBatch& batc
 	if((forceThreshold && normalForce !=0 && (reportThreshold0 < PX_MAX_REAL  || reportThreshold1 < PX_MAX_REAL)))
 	{
 		//ToDo : support PxgThresholdStreamElement
-		Dy::ThresholdStreamElement elt;
+		ev4sio_Dy::ThresholdStreamElement elt;
 		elt.normalForce = normalForce;
 		elt.threshold = PxMin<float>(reportThreshold0, reportThreshold1);
 		

@@ -32,7 +32,7 @@
 #include "foundation/PxQuat.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -254,7 +254,7 @@ PX_COMPILE_TIME_ASSERT(sizeof(PxTransformPadded)==32);
 typedef PxTransformPadded	PxTransform32;
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

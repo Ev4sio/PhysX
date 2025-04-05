@@ -31,9 +31,9 @@
 #include "PxvSimStats.h"
 #include "PxsHeapMemoryAllocator.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
-Sc::SimStats::SimStats()
+ev4sio_Sc::SimStats::SimStats()
 {
 	numBroadPhaseAdds = numBroadPhaseRemoves = 0;
 
@@ -44,7 +44,7 @@ Sc::SimStats::SimStats()
 	clear();
 }
 
-void Sc::SimStats::clear()
+void ev4sio_Sc::SimStats::clear()
 {
 #if PX_ENABLE_SIM_STATS
 	PxMemZero(const_cast<void*>(reinterpret_cast<volatile void*>(&numTriggerPairs)), sizeof(TriggerPairCounts));
@@ -54,7 +54,7 @@ void Sc::SimStats::clear()
 #endif
 }
 
-void Sc::SimStats::simStart()
+void ev4sio_Sc::SimStats::simStart()
 {
 #if PX_ENABLE_SIM_STATS
 	// pending broadphase adds/removes are now the current ones
@@ -66,7 +66,7 @@ void Sc::SimStats::simStart()
 #endif
 }
 
-void Sc::SimStats::readOut(PxSimulationStatistics& s, const PxvSimStats& simStats) const
+void ev4sio_Sc::SimStats::readOut(PxSimulationStatistics& s, const PxvSimStats& simStats) const
 {
 #if PX_ENABLE_SIM_STATS
 	s = PxSimulationStatistics();  // clear stats

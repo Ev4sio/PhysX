@@ -35,7 +35,7 @@
 #include "foundation/PxArray.h"
 #include "PxConstraint.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 class PxcConstraintBlockStream;
@@ -44,12 +44,12 @@ struct PxSolverBody;
 struct PxSolverBodyData;
 struct PxSolverConstraintDesc;
 
-namespace Cm
+namespace ev4sio_Cm
 {
 	struct SpatialVectorF;
 }
 
-namespace Dy
+namespace ev4sio_Dy
 {
 
 	static const PxU32 MAX_CONSTRAINT_ROWS = 20;

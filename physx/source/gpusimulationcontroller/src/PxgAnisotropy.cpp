@@ -46,7 +46,7 @@
 #include "PxgAnisotropyData.h"
 #include "PxgCudaMemoryAllocator.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 #if ENABLE_KERNEL_LAUNCH_ERROR_CHECK

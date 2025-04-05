@@ -33,7 +33,7 @@
 #include "foundation/PxTransform.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 namespace aos
@@ -284,7 +284,7 @@ class PxMatTransformV
 };
 }
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

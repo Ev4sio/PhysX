@@ -33,7 +33,7 @@
 #include "foundation/PxMat33.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 /*!
@@ -267,7 +267,7 @@ class PxMat34Padded : public PxMat34
 PX_COMPILE_TIME_ASSERT(0==(sizeof(PxMat34Padded)==16));
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

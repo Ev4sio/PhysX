@@ -55,7 +55,7 @@
 #include "NpParticleBuffer.h"
 
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 class OmniPvdStreamContainer
 {
@@ -68,27 +68,27 @@ public:
 	void setOmniPvdInstance(NpOmniPvd* omniPvdInstance);
 
 	NpOmniPvd* mOmniPvdInstance;
-	physx::PxMutex mMutex;
+	ev4sio_physx::PxMutex mMutex;
 	OmniPvdPxCoreRegistrationData mRegistrationData;
 	bool mClassesRegistered;
 };
 
-class OmniPvdSamplerInternals : public physx::PxUserAllocated
+class OmniPvdSamplerInternals : public ev4sio_physx::PxUserAllocated
 {
 public:
 OmniPvdStreamContainer mPvdStream;
 bool addSharedMeshIfNotSeen(const void* geom, OmniPvdSharedMeshEnum geomEnum); // Returns true if the Geom was not yet seen and added
-physx::PxMutex mSampleMutex;
+ev4sio_physx::PxMutex mSampleMutex;
 bool mIsSampling;
 
-physx::PxMutex mSharedGeomsMutex;
-physx::PxHashMap<const void*, OmniPvdSharedMeshEnum> mSharedMeshesMap;
+ev4sio_physx::PxMutex mSharedGeomsMutex;
+ev4sio_physx::PxHashMap<const void*, OmniPvdSharedMeshEnum> mSharedMeshesMap;
 };
 OmniPvdSamplerInternals * samplerInternals = NULL;
 
-namespace physx
+namespace ev4sio_physx
 {
-NpOmniPvdSceneClient::NpOmniPvdSceneClient(physx::PxScene& scene) : mScene(scene), mFrameId(1)
+NpOmniPvdSceneClient::NpOmniPvdSceneClient(ev4sio_physx::PxScene& scene) : mScene(scene), mFrameId(1)
 {
 }
 
@@ -117,23 +117,23 @@ void NpOmniPvdSceneClient::stopLastFrame(OmniPvdWriter& pvdWriter)
 	pvdWriter.stopFrame((OmniPvdContextHandle)(&mScene), mFrameId);
 }
 
-void NpOmniPvdSceneClient::addRigidDynamicForceReset(const physx::PxRigidDynamic* rigidDynamic)
+void NpOmniPvdSceneClient::addRigidDynamicForceReset(const ev4sio_physx::PxRigidDynamic* rigidDynamic)
 {
 	mResetRigidDynamicForce.insert(rigidDynamic);
 }
 	
-void NpOmniPvdSceneClient::addRigidDynamicTorqueReset(const physx::PxRigidDynamic* rigidDynamic)
+void NpOmniPvdSceneClient::addRigidDynamicTorqueReset(const ev4sio_physx::PxRigidDynamic* rigidDynamic)
 {
 	mResetRigidDynamicTorque.insert(rigidDynamic);
 }
 
-void NpOmniPvdSceneClient::addRigidDynamicReset(const physx::PxRigidDynamic* rigidDynamic)
+void NpOmniPvdSceneClient::addRigidDynamicReset(const ev4sio_physx::PxRigidDynamic* rigidDynamic)
 {
 	mResetRigidDynamicForce.insert(rigidDynamic);
 	mResetRigidDynamicTorque.insert(rigidDynamic);
 }
 
-void NpOmniPvdSceneClient::removeRigidDynamicReset(const physx::PxRigidDynamic* rigidDynamic)
+void NpOmniPvdSceneClient::removeRigidDynamicReset(const ev4sio_physx::PxRigidDynamic* rigidDynamic)
 {
 	mResetRigidDynamicForce.erase(rigidDynamic);
 	mResetRigidDynamicTorque.erase(rigidDynamic);
@@ -159,7 +159,7 @@ void NpOmniPvdSceneClient::addArticulationJointsForceReset(const PxArticulationR
 	mResetArticulationJointsForce.insert(articulation);
 }
 
-void NpOmniPvdSceneClient::addArticulationFromLinkFlagChangeReset(const physx::PxArticulationLink* link)
+void NpOmniPvdSceneClient::addArticulationFromLinkFlagChangeReset(const ev4sio_physx::PxArticulationLink* link)
 {
 	PxArticulationReducedCoordinate& arti = link->getArticulation();
 	{
@@ -282,7 +282,7 @@ void NpOmniPvdSceneClient::resetForces()
 
 OmniPvdStreamContainer::OmniPvdStreamContainer()
 {
-	physx::PxMutex::ScopedLock myLock(mMutex);
+	ev4sio_physx::PxMutex::ScopedLock myLock(mMutex);
 	mClassesRegistered = false;
 	mOmniPvdInstance = NULL;
 }
@@ -298,7 +298,7 @@ void OmniPvdStreamContainer::setOmniPvdInstance(NpOmniPvd* omniPvdInstance)
 
 bool OmniPvdStreamContainer::initOmniPvd()
 {
-	physx::PxMutex::ScopedLock myLock(mMutex);
+	ev4sio_physx::PxMutex::ScopedLock myLock(mMutex);
 
 	registerClasses();
 
@@ -314,7 +314,7 @@ bool OmniPvdStreamContainer::initOmniPvd()
 	
 	PxPhysics& physicsRef = static_cast<PxPhysics&>(NpPhysics::getInstance());
 	OMNI_PVD_CREATE_EXPLICIT(pvdWriter, pvdRegData, OMNI_PVD_CONTEXT_HANDLE, PxPhysics, physicsRef);
-	const physx::PxTolerancesScale& tolScale = physicsRef.getTolerancesScale();
+	const ev4sio_physx::PxTolerancesScale& tolScale = physicsRef.getTolerancesScale();
 	OMNI_PVD_SET_EXPLICIT(pvdWriter, pvdRegData, OMNI_PVD_CONTEXT_HANDLE, PxPhysics, tolerancesScale, physicsRef, tolScale);
 
 	OMNI_PVD_WRITE_SCOPE_END
@@ -376,7 +376,7 @@ int streamStringLength(const char* name)
 #endif
 }
 
-void streamActorName(const physx::PxActor & a, const char* name)
+void streamActorName(const ev4sio_physx::PxActor & a, const char* name)
 {
 #if PX_SUPPORT_OMNI_PVD
 	int strLen = streamStringLength(name);
@@ -387,7 +387,7 @@ void streamActorName(const physx::PxActor & a, const char* name)
 #endif
 }
 
-void streamSceneName(const physx::PxScene & s, const char* name)
+void streamSceneName(const ev4sio_physx::PxScene & s, const char* name)
 {
 #if PX_SUPPORT_OMNI_PVD
 	int strLen = streamStringLength(name);
@@ -398,7 +398,7 @@ void streamSceneName(const physx::PxScene & s, const char* name)
 #endif
 }
 
-void streamArticulationName(const physx::PxArticulationReducedCoordinate & art, const char* name)
+void streamArticulationName(const ev4sio_physx::PxArticulationReducedCoordinate & art, const char* name)
 {
 #if PX_SUPPORT_OMNI_PVD
 	int strLen = streamStringLength(name);
@@ -409,7 +409,7 @@ void streamArticulationName(const physx::PxArticulationReducedCoordinate & art, 
 #endif
 }
 
-void streamArticulationJointName(const physx::PxArticulationJointReducedCoordinate& joint, const char* name)
+void streamArticulationJointName(const ev4sio_physx::PxArticulationJointReducedCoordinate& joint, const char* name)
 {
 #if PX_SUPPORT_OMNI_PVD
 	int strLen = streamStringLength(name);
@@ -420,7 +420,7 @@ void streamArticulationJointName(const physx::PxArticulationJointReducedCoordina
 #endif
 }
 
-void streamSphereGeometry(const physx::PxSphereGeometry& g)
+void streamSphereGeometry(const ev4sio_physx::PxSphereGeometry& g)
 {
 	OMNI_PVD_WRITE_SCOPE_BEGIN(pvdWriter, pvdRegData)
 	OMNI_PVD_CREATE_EXPLICIT(pvdWriter, pvdRegData, OMNI_PVD_CONTEXT_HANDLE, PxSphereGeometry, g);
@@ -428,7 +428,7 @@ void streamSphereGeometry(const physx::PxSphereGeometry& g)
 	OMNI_PVD_WRITE_SCOPE_END
 }
 
-void streamCapsuleGeometry(const physx::PxCapsuleGeometry& g)
+void streamCapsuleGeometry(const ev4sio_physx::PxCapsuleGeometry& g)
 {
 	OMNI_PVD_WRITE_SCOPE_BEGIN(pvdWriter, pvdRegData)
 	OMNI_PVD_CREATE_EXPLICIT(pvdWriter, pvdRegData, OMNI_PVD_CONTEXT_HANDLE, PxCapsuleGeometry, g);
@@ -437,7 +437,7 @@ void streamCapsuleGeometry(const physx::PxCapsuleGeometry& g)
 	OMNI_PVD_WRITE_SCOPE_END
 }
 
-void streamBoxGeometry(const physx::PxBoxGeometry& g)
+void streamBoxGeometry(const ev4sio_physx::PxBoxGeometry& g)
 {
 	OMNI_PVD_WRITE_SCOPE_BEGIN(pvdWriter, pvdRegData)
 	OMNI_PVD_CREATE_EXPLICIT(pvdWriter, pvdRegData, OMNI_PVD_CONTEXT_HANDLE, PxBoxGeometry, g);
@@ -445,12 +445,12 @@ void streamBoxGeometry(const physx::PxBoxGeometry& g)
 	OMNI_PVD_WRITE_SCOPE_END
 }
 
-void streamPlaneGeometry(const physx::PxPlaneGeometry& g)
+void streamPlaneGeometry(const ev4sio_physx::PxPlaneGeometry& g)
 {
 	OMNI_PVD_CREATE(OMNI_PVD_CONTEXT_HANDLE, PxPlaneGeometry, g);
 }
 
-void streamCustomGeometry(const physx::PxCustomGeometry& g)
+void streamCustomGeometry(const ev4sio_physx::PxCustomGeometry& g)
 {
 	OMNI_PVD_WRITE_SCOPE_BEGIN(pvdWriter, pvdRegData)
 	OMNI_PVD_CREATE_EXPLICIT(pvdWriter, pvdRegData, OMNI_PVD_CONTEXT_HANDLE, PxCustomGeometry, g);
@@ -458,7 +458,7 @@ void streamCustomGeometry(const physx::PxCustomGeometry& g)
 	OMNI_PVD_WRITE_SCOPE_END
 }
 
-void streamConvexCore(const physx::PxConvexCoreGeometry& g)
+void streamConvexCore(const ev4sio_physx::PxConvexCoreGeometry& g)
 {
 	OMNI_PVD_WRITE_SCOPE_BEGIN(pvdWriter, pvdRegData)
 		switch (g.getCoreType())
@@ -512,7 +512,7 @@ void streamConvexCore(const physx::PxConvexCoreGeometry& g)
 	OMNI_PVD_WRITE_SCOPE_END
 }
 
-void streamConvexCoreGeometry(const physx::PxConvexCoreGeometry& g)
+void streamConvexCoreGeometry(const ev4sio_physx::PxConvexCoreGeometry& g)
 {
 	OMNI_PVD_WRITE_SCOPE_BEGIN(pvdWriter, pvdRegData)
 		OMNI_PVD_CREATE_EXPLICIT(pvdWriter, pvdRegData, OMNI_PVD_CONTEXT_HANDLE, PxConvexCoreGeometry, g);
@@ -522,7 +522,7 @@ void streamConvexCoreGeometry(const physx::PxConvexCoreGeometry& g)
 	OMNI_PVD_WRITE_SCOPE_END
 }
 
-void streamConvexMesh(const physx::PxConvexMesh& mesh)
+void streamConvexMesh(const ev4sio_physx::PxConvexMesh& mesh)
 {		
 	if (samplerInternals->addSharedMeshIfNotSeen(&mesh, OmniPvdSharedMeshEnum::eOmniPvdConvexMesh))
 	{
@@ -537,7 +537,7 @@ void streamConvexMesh(const physx::PxConvexMesh& mesh)
 		PxU32 totalTris = 0;
 		for (PxU32 i = 0; i < nbPolys; i++)
 		{
-			physx::PxHullPolygon data;
+			ev4sio_physx::PxHullPolygon data;
 			mesh.getPolygonData(i, data);
 			totalTris += data.mNbVerts - 2;
 		}
@@ -558,7 +558,7 @@ void streamConvexMesh(const physx::PxConvexMesh& mesh)
 		PxU32 triIndex = 0;
 		for (PxU32 p = 0; p < nbPolys; p++)
 		{
-			physx::PxHullPolygon data;
+			ev4sio_physx::PxHullPolygon data;
 			mesh.getPolygonData(p, data);
 			PxU32 nbTris = data.mNbVerts - 2;
 			const PxU32 vref0 = polygons[data.mIndexBase + 0 + 0];
@@ -581,7 +581,7 @@ void streamConvexMesh(const physx::PxConvexMesh& mesh)
 	}
 }
 
-void streamConvexMeshGeometry(const physx::PxConvexMeshGeometry& g)
+void streamConvexMeshGeometry(const ev4sio_physx::PxConvexMeshGeometry& g)
 {
 	OMNI_PVD_WRITE_SCOPE_BEGIN(pvdWriter, pvdRegData)
 	OMNI_PVD_CREATE_EXPLICIT(pvdWriter, pvdRegData, OMNI_PVD_CONTEXT_HANDLE, PxConvexMeshGeometry, g);
@@ -591,7 +591,7 @@ void streamConvexMeshGeometry(const physx::PxConvexMeshGeometry& g)
 	OMNI_PVD_WRITE_SCOPE_END
 }
 
-void streamHeightField(const physx::PxHeightField& hf)
+void streamHeightField(const ev4sio_physx::PxHeightField& hf)
 {
 	if (samplerInternals->addSharedMeshIfNotSeen(&hf, OmniPvdSharedMeshEnum::eOmniPvdHeightField))
 	{
@@ -601,8 +601,8 @@ void streamHeightField(const physx::PxHeightField& hf)
 		const PxU32 nbRows = hf.getNbRows();
 		const PxU32 nbVerts = nbRows * nbCols;
 		const PxU32 nbFaces = (nbCols - 1) * (nbRows - 1) * 2;
-		physx::PxHeightFieldSample* sampleBuffer = (physx::PxHeightFieldSample*)PX_ALLOC(sizeof(physx::PxHeightFieldSample)*(nbVerts), "sampleBuffer");
-		hf.saveCells(sampleBuffer, nbVerts * sizeof(physx::PxHeightFieldSample));
+		ev4sio_physx::PxHeightFieldSample* sampleBuffer = (ev4sio_physx::PxHeightFieldSample*)PX_ALLOC(sizeof(ev4sio_physx::PxHeightFieldSample)*(nbVerts), "sampleBuffer");
+		hf.saveCells(sampleBuffer, nbVerts * sizeof(ev4sio_physx::PxHeightFieldSample));
 		//TODO: are the copies necessary?
 		float* tmpVerts = (float*)PX_ALLOC(sizeof(float)*(nbVerts * 3), "tmpVerts");
 		PxU32* tmpIndices = (PxU32*)PX_ALLOC(sizeof(PxU32)*(nbFaces * 3), "tmpIndices");
@@ -657,7 +657,7 @@ void streamHeightField(const physx::PxHeightField& hf)
 	}
 }
 
-void streamHeightFieldGeometry(const physx::PxHeightFieldGeometry& g)
+void streamHeightFieldGeometry(const ev4sio_physx::PxHeightFieldGeometry& g)
 {
 	OMNI_PVD_WRITE_SCOPE_BEGIN(pvdWriter, pvdRegData)
 	OMNI_PVD_CREATE_EXPLICIT(pvdWriter, pvdRegData, OMNI_PVD_CONTEXT_HANDLE, PxHeightFieldGeometry, g);
@@ -669,7 +669,7 @@ void streamHeightFieldGeometry(const physx::PxHeightFieldGeometry& g)
 	OMNI_PVD_WRITE_SCOPE_END
 }
 
-void streamActorAttributes(const physx::PxActor& actor, const bool supportStandaloneBounds)
+void streamActorAttributes(const ev4sio_physx::PxActor& actor, const bool supportStandaloneBounds)
 {
 	OMNI_PVD_WRITE_SCOPE_BEGIN(pvdWriter, pvdRegData)
 
@@ -708,7 +708,7 @@ void streamRigidActorAttributes(const PxRigidActor &ra)
 	OMNI_PVD_WRITE_SCOPE_END
 }
 
-void streamRigidBodyAttributes(const physx::PxRigidBody& rigidBody)
+void streamRigidBodyAttributes(const ev4sio_physx::PxRigidBody& rigidBody)
 {
 	streamRigidActorAttributes(rigidBody);
 
@@ -732,7 +732,7 @@ void streamRigidBodyAttributes(const physx::PxRigidBody& rigidBody)
 	OMNI_PVD_WRITE_SCOPE_END
 }
 
-void streamRigidDynamicAttributes(const physx::PxRigidDynamic& rd)
+void streamRigidDynamicAttributes(const ev4sio_physx::PxRigidDynamic& rd)
 {
 	streamRigidBodyAttributes(rd);
 	OMNI_PVD_WRITE_SCOPE_BEGIN(pvdWriter, pvdRegData)
@@ -756,7 +756,7 @@ void streamRigidDynamicAttributes(const physx::PxRigidDynamic& rd)
 	OMNI_PVD_WRITE_SCOPE_END
 }
 
-void streamRigidDynamic(const physx::PxRigidDynamic& rd)
+void streamRigidDynamic(const ev4sio_physx::PxRigidDynamic& rd)
 {
 	OMNI_PVD_WRITE_SCOPE_BEGIN(pvdWriter, pvdRegData)
 
@@ -771,7 +771,7 @@ void streamRigidDynamic(const physx::PxRigidDynamic& rd)
 	streamRigidDynamicAttributes(rd);
 }
 
-void streamRigidStatic(const physx::PxRigidStatic& rs)
+void streamRigidStatic(const ev4sio_physx::PxRigidStatic& rs)
 {
 	OMNI_PVD_WRITE_SCOPE_BEGIN(pvdWriter, pvdRegData)
 
@@ -788,7 +788,7 @@ void streamRigidStatic(const physx::PxRigidStatic& rs)
 
 #if PX_SUPPORT_GPU_PHYSX
 
-void streamPBDParticleSystemAttributes(const physx::PxPBDParticleSystem& ps)
+void streamPBDParticleSystemAttributes(const ev4sio_physx::PxPBDParticleSystem& ps)
 {
 	streamActorAttributes(ps, false);
 	const NpPBDParticleSystem& npPs = static_cast<const NpPBDParticleSystem&>(ps);
@@ -840,7 +840,7 @@ void streamPBDParticleSystemAttributes(const physx::PxPBDParticleSystem& ps)
 	OMNI_PVD_WRITE_SCOPE_END
 }
 
-void streamPBDParticleSystem(const physx::PxPBDParticleSystem& ps)
+void streamPBDParticleSystem(const ev4sio_physx::PxPBDParticleSystem& ps)
 {
 	OMNI_PVD_WRITE_SCOPE_BEGIN(pvdWriter, pvdRegData)
 
@@ -855,7 +855,7 @@ void streamPBDParticleSystem(const physx::PxPBDParticleSystem& ps)
 	streamPBDParticleSystemAttributes(ps);
 }
 
-void streamParticleBufferAttributes(const physx::PxParticleBuffer& pb)
+void streamParticleBufferAttributes(const ev4sio_physx::PxParticleBuffer& pb)
 {
 	OMNI_PVD_WRITE_SCOPE_BEGIN(pvdWriter, pvdRegData)
 	OMNI_PVD_SET_EXPLICIT(pvdWriter, pvdRegData, OMNI_PVD_CONTEXT_HANDLE, PxParticleBuffer, maxParticles, pb, pb.getMaxParticles());
@@ -865,7 +865,7 @@ void streamParticleBufferAttributes(const physx::PxParticleBuffer& pb)
 	OMNI_PVD_WRITE_SCOPE_END
 }
 
-void streamParticleBuffer(const physx::PxParticleBuffer& pb)
+void streamParticleBuffer(const ev4sio_physx::PxParticleBuffer& pb)
 {
 	OMNI_PVD_WRITE_SCOPE_BEGIN(pvdWriter, pvdRegData)
 	OMNI_PVD_CREATE_EXPLICIT(pvdWriter, pvdRegData, OMNI_PVD_CONTEXT_HANDLE, PxParticleBuffer, pb);
@@ -873,7 +873,7 @@ void streamParticleBuffer(const physx::PxParticleBuffer& pb)
 	streamParticleBufferAttributes(pb);
 }
 
-void streamDiffuseParticleParamsAttributes(const physx::PxDiffuseParticleParams& diffuseParams)
+void streamDiffuseParticleParamsAttributes(const ev4sio_physx::PxDiffuseParticleParams& diffuseParams)
 {
 	OMNI_PVD_WRITE_SCOPE_BEGIN(pvdWriter, pvdRegData)
 	OMNI_PVD_SET_EXPLICIT(pvdWriter, pvdRegData, OMNI_PVD_CONTEXT_HANDLE, PxDiffuseParticleParams, threshold, diffuseParams, diffuseParams.threshold);
@@ -889,7 +889,7 @@ void streamDiffuseParticleParamsAttributes(const physx::PxDiffuseParticleParams&
 	OMNI_PVD_WRITE_SCOPE_END
 }
 
-void streamParticleAndDiffuseBufferAttributes(const physx::PxParticleAndDiffuseBuffer& pb)
+void streamParticleAndDiffuseBufferAttributes(const ev4sio_physx::PxParticleAndDiffuseBuffer& pb)
 {
 	streamParticleBufferAttributes(pb);
 	OMNI_PVD_WRITE_SCOPE_BEGIN(pvdWriter, pvdRegData)
@@ -899,7 +899,7 @@ void streamParticleAndDiffuseBufferAttributes(const physx::PxParticleAndDiffuseB
 	streamDiffuseParticleParamsAttributes(diffuseParams);
 }
 
-void streamParticleAndDiffuseBuffer(const physx::PxParticleAndDiffuseBuffer& pb)
+void streamParticleAndDiffuseBuffer(const ev4sio_physx::PxParticleAndDiffuseBuffer& pb)
 {
 	{
 		OMNI_PVD_WRITE_SCOPE_BEGIN(pvdWriter, pvdRegData)
@@ -918,7 +918,7 @@ void streamParticleAndDiffuseBuffer(const physx::PxParticleAndDiffuseBuffer& pb)
 	}
 }
 
-void streamParticleClothBuffer(const physx::PxParticleClothBuffer& pb)
+void streamParticleClothBuffer(const ev4sio_physx::PxParticleClothBuffer& pb)
 {
 	OMNI_PVD_WRITE_SCOPE_BEGIN(pvdWriter, pvdRegData)
 	OMNI_PVD_CREATE_EXPLICIT(pvdWriter, pvdRegData, OMNI_PVD_CONTEXT_HANDLE, PxParticleClothBuffer, pb);
@@ -926,7 +926,7 @@ void streamParticleClothBuffer(const physx::PxParticleClothBuffer& pb)
 	streamParticleBufferAttributes(pb);
 }
 
-void streamParticleRigidBuffer(const physx::PxParticleRigidBuffer& pb)
+void streamParticleRigidBuffer(const ev4sio_physx::PxParticleRigidBuffer& pb)
 {
 	OMNI_PVD_WRITE_SCOPE_BEGIN(pvdWriter, pvdRegData)
 	OMNI_PVD_CREATE_EXPLICIT(pvdWriter, pvdRegData, OMNI_PVD_CONTEXT_HANDLE, PxParticleRigidBuffer, pb);
@@ -936,7 +936,7 @@ void streamParticleRigidBuffer(const physx::PxParticleRigidBuffer& pb)
 
 #endif
 
-void streamArticulationJoint(const physx::PxArticulationJointReducedCoordinate& jointRef)
+void streamArticulationJoint(const ev4sio_physx::PxArticulationJointReducedCoordinate& jointRef)
 {
 	const PxU32 degreesOfFreedom = PxArticulationAxis::eCOUNT;
 
@@ -1033,7 +1033,7 @@ void streamArticulationJoint(const physx::PxArticulationJointReducedCoordinate& 
 	OMNI_PVD_WRITE_SCOPE_END
 }
 
-void streamArticulationLink(const physx::PxArticulationLink& al)
+void streamArticulationLink(const ev4sio_physx::PxArticulationLink& al)
 {
 	OMNI_PVD_WRITE_SCOPE_BEGIN(pvdWriter, pvdRegData)
 
@@ -1052,7 +1052,7 @@ void streamArticulationLink(const physx::PxArticulationLink& al)
 	streamRigidBodyAttributes(al);
 }
 
-void streamArticulationMimicJoint(const physx::PxArticulationMimicJoint& mj)
+void streamArticulationMimicJoint(const ev4sio_physx::PxArticulationMimicJoint& mj)
 {
 	OMNI_PVD_WRITE_SCOPE_BEGIN(pvdWriter, pvdRegData)
 
@@ -1072,7 +1072,7 @@ void streamArticulationMimicJoint(const physx::PxArticulationMimicJoint& mj)
 	OMNI_PVD_WRITE_SCOPE_END
 }
 
-void streamArticulation(const physx::PxArticulationReducedCoordinate& art)
+void streamArticulation(const ev4sio_physx::PxArticulationReducedCoordinate& art)
 {
 	OMNI_PVD_WRITE_SCOPE_BEGIN(pvdWriter, pvdRegData)
 
@@ -1091,7 +1091,7 @@ void streamArticulation(const physx::PxArticulationReducedCoordinate& art)
 	OMNI_PVD_WRITE_SCOPE_END
 }
 
-void streamAggregate(const physx::PxAggregate& agg)
+void streamAggregate(const ev4sio_physx::PxAggregate& agg)
 {
 	OMNI_PVD_WRITE_SCOPE_BEGIN(pvdWriter, pvdRegData)
 
@@ -1111,7 +1111,7 @@ void streamAggregate(const physx::PxAggregate& agg)
 	OMNI_PVD_WRITE_SCOPE_END
 }
 
-void streamPBDMaterial(const physx::PxPBDMaterial& m)
+void streamPBDMaterial(const ev4sio_physx::PxPBDMaterial& m)
 {
 	OMNI_PVD_CREATE(OMNI_PVD_CONTEXT_HANDLE, PxPBDMaterial, m);
 
@@ -1133,17 +1133,17 @@ void streamPBDMaterial(const physx::PxPBDMaterial& m)
 	OMNI_PVD_WRITE_SCOPE_END
 }
 
-void streamFEMClothMaterial(const physx::PxDeformableSurfaceMaterial& m)
+void streamFEMClothMaterial(const ev4sio_physx::PxDeformableSurfaceMaterial& m)
 {
 	OMNI_PVD_CREATE(OMNI_PVD_CONTEXT_HANDLE, PxDeformableSurfaceMaterial, m);
 }
 
-void streamFEMSoBoMaterial(const physx::PxDeformableVolumeMaterial& m)
+void streamFEMSoBoMaterial(const ev4sio_physx::PxDeformableVolumeMaterial& m)
 {
 	OMNI_PVD_CREATE(OMNI_PVD_CONTEXT_HANDLE, PxDeformableVolumeMaterial, m);
 }
 
-void streamMaterial(const physx::PxMaterial& m)
+void streamMaterial(const ev4sio_physx::PxMaterial& m)
 {
 	OMNI_PVD_WRITE_SCOPE_BEGIN(pvdWriter, pvdRegData)
 
@@ -1160,26 +1160,26 @@ void streamMaterial(const physx::PxMaterial& m)
 	OMNI_PVD_WRITE_SCOPE_END
 }
 
-void streamShapeMaterials(const physx::PxShape& shape, physx::PxMaterial* const * mats, physx::PxU32 nbrMaterials)
+void streamShapeMaterials(const ev4sio_physx::PxShape& shape, ev4sio_physx::PxMaterial* const * mats, ev4sio_physx::PxU32 nbrMaterials)
 {
 	OMNI_PVD_SET_ARRAY(OMNI_PVD_CONTEXT_HANDLE, PxShape, materials, shape, mats, nbrMaterials);
 }
 
-void streamShapeMaterials(const physx::PxShape& shape, physx::PxDeformableSurfaceMaterial* const * mats, physx::PxU32 nbrMaterials)
+void streamShapeMaterials(const ev4sio_physx::PxShape& shape, ev4sio_physx::PxDeformableSurfaceMaterial* const * mats, ev4sio_physx::PxU32 nbrMaterials)
 {
 	PX_UNUSED(shape);
 	PX_UNUSED(mats);
 	PX_UNUSED(nbrMaterials);
 }
 
-void streamShapeMaterials(const physx::PxShape& shape, physx::PxDeformableVolumeMaterial* const * mats, physx::PxU32 nbrMaterials)
+void streamShapeMaterials(const ev4sio_physx::PxShape& shape, ev4sio_physx::PxDeformableVolumeMaterial* const * mats, ev4sio_physx::PxU32 nbrMaterials)
 {
 	PX_UNUSED(shape);
 	PX_UNUSED(mats);
 	PX_UNUSED(nbrMaterials);
 }
 
-void streamShapeMaterials(const physx::PxShape& shape, physx::PxPBDMaterial* const * mats, physx::PxU32 nbrMaterials)
+void streamShapeMaterials(const ev4sio_physx::PxShape& shape, ev4sio_physx::PxPBDMaterial* const * mats, ev4sio_physx::PxU32 nbrMaterials)
 {
 	PX_UNUSED(shape);
 	PX_UNUSED(mats);
@@ -1187,7 +1187,7 @@ void streamShapeMaterials(const physx::PxShape& shape, physx::PxPBDMaterial* con
 }
 
 
-void streamShape(const physx::PxShape& shape)
+void streamShape(const ev4sio_physx::PxShape& shape)
 {
 	OMNI_PVD_WRITE_SCOPE_BEGIN(pvdWriter, pvdRegData)
 
@@ -1208,7 +1208,7 @@ void streamShape(const physx::PxShape& shape)
 
 	const int nbrMaterials = shape.getNbMaterials();
 	PxMaterial** tmpMaterials = (PxMaterial**)PX_ALLOC(sizeof(PxMaterial*) * nbrMaterials, "tmpMaterials");
-	physx::PxU32 nbrMats = shape.getMaterials(tmpMaterials, nbrMaterials);
+	ev4sio_physx::PxU32 nbrMats = shape.getMaterials(tmpMaterials, nbrMaterials);
 	streamShapeMaterials(shape, tmpMaterials, nbrMats);
 
 	PX_FREE(tmpMaterials);
@@ -1216,12 +1216,12 @@ void streamShape(const physx::PxShape& shape)
 	OMNI_PVD_WRITE_SCOPE_END
 }
 
-void streamBVH(const physx::PxBVH& bvh)
+void streamBVH(const ev4sio_physx::PxBVH& bvh)
 {
 	OMNI_PVD_CREATE(OMNI_PVD_CONTEXT_HANDLE, PxBVH, bvh);
 }
 
-void streamDeVoMesh(const physx::PxDeformableVolumeMesh& mesh)
+void streamDeVoMesh(const ev4sio_physx::PxDeformableVolumeMesh& mesh)
 {
 	OMNI_PVD_WRITE_SCOPE_BEGIN(pvdWriter, pvdRegData)
 
@@ -1232,14 +1232,14 @@ void streamDeVoMesh(const physx::PxDeformableVolumeMesh& mesh)
 	OMNI_PVD_WRITE_SCOPE_END
 }
 
-void streamTetMesh(const physx::PxTetrahedronMesh& mesh)
+void streamTetMesh(const ev4sio_physx::PxTetrahedronMesh& mesh)
 {
 	OMNI_PVD_WRITE_SCOPE_BEGIN(pvdWriter, pvdRegData)
 
 	OMNI_PVD_CREATE_EXPLICIT(pvdWriter, pvdRegData, OMNI_PVD_CONTEXT_HANDLE, PxTetrahedronMesh, mesh);
 	//this gets done at the bottom now
 	const PxU32 tetrahedronCount = mesh.getNbTetrahedrons();
-	const PxU32 has16BitIndices = mesh.getTetrahedronMeshFlags() & physx::PxTetrahedronMeshFlag::e16_BIT_INDICES;
+	const PxU32 has16BitIndices = mesh.getTetrahedronMeshFlags() & ev4sio_physx::PxTetrahedronMeshFlag::e16_BIT_INDICES;
 	const void* indexBuffer = mesh.getTetrahedrons();
 	const PxVec3* vertexBuffer = mesh.getVertices();
 	const PxU32* intIndices = reinterpret_cast<const PxU32*>(indexBuffer);
@@ -1280,7 +1280,7 @@ void streamTetMesh(const physx::PxTetrahedronMesh& mesh)
 	OMNI_PVD_WRITE_SCOPE_END
 }
 
-void streamTriMesh(const physx::PxTriangleMesh& mesh)
+void streamTriMesh(const ev4sio_physx::PxTriangleMesh& mesh)
 {
 	if (samplerInternals->addSharedMeshIfNotSeen(&mesh, OmniPvdSharedMeshEnum::eOmniPvdTriMesh))
 	{
@@ -1289,7 +1289,7 @@ void streamTriMesh(const physx::PxTriangleMesh& mesh)
 		OMNI_PVD_CREATE_EXPLICIT(pvdWriter, pvdRegData, OMNI_PVD_CONTEXT_HANDLE, PxTriangleMesh, mesh);
 		//this gets done at the bottom now
 		const PxU32 triangleCount = mesh.getNbTriangles();
-		const PxU32 has16BitIndices = mesh.getTriangleMeshFlags() & physx::PxTriangleMeshFlag::e16_BIT_INDICES;
+		const PxU32 has16BitIndices = mesh.getTriangleMeshFlags() & ev4sio_physx::PxTriangleMeshFlag::e16_BIT_INDICES;
 		const void* indexBuffer = mesh.getTriangles();
 		const PxVec3* vertexBuffer = mesh.getVertices();
 		const PxU32* intIndices = reinterpret_cast<const PxU32*>(indexBuffer);
@@ -1331,7 +1331,7 @@ void streamTriMesh(const physx::PxTriangleMesh& mesh)
 	}
 }
 
-void streamTriMeshGeometry(const physx::PxTriangleMeshGeometry& g)
+void streamTriMeshGeometry(const ev4sio_physx::PxTriangleMeshGeometry& g)
 {
 	OMNI_PVD_WRITE_SCOPE_BEGIN(pvdWriter, pvdRegData)
 
@@ -1343,13 +1343,13 @@ void streamTriMeshGeometry(const physx::PxTriangleMeshGeometry& g)
 	OMNI_PVD_WRITE_SCOPE_END
 }
 
-void OmniPvdPxSampler::streamSceneContacts(physx::NpScene& scene)
+void OmniPvdPxSampler::streamSceneContacts(ev4sio_physx::NpScene& scene)
 {
 	if (!isSampling()) return;
 	PxsContactManagerOutputIterator outputIter;
-	Sc::ContactIterator contactIter;
+	ev4sio_Sc::ContactIterator contactIter;
 	scene.getScScene().initContactsIterator(contactIter, outputIter);
-	Sc::ContactIterator::Pair* pair;
+	ev4sio_Sc::ContactIterator::Pair* pair;
 	PxU32 pairCount = 0;
 	PxArray<PxActor*> pairsActors;
 	PxArray<PxU32> pairsContactCounts;
@@ -1368,8 +1368,8 @@ void OmniPvdPxSampler::streamSceneContacts(physx::NpScene& scene)
 	{
 		PxU32 pairContactCount = 0;
 		PxU32 pairFrictionAnchorCount = 0;
-		Sc::Contact* contact = NULL;
-		Sc::FrictionAnchor* anchor = NULL;
+		ev4sio_Sc::Contact* contact = NULL;
+		ev4sio_Sc::FrictionAnchor* anchor = NULL;
 		bool firstContact = true;
 		while ((contact = pair->getNextContact()) != NULL)
 		{
@@ -1457,7 +1457,7 @@ OmniPvdPxSampler::OmniPvdPxSampler()
 {
 	samplerInternals = PX_NEW(OmniPvdSamplerInternals)();
 
-	physx::PxMutex::ScopedLock myLock(samplerInternals->mSampleMutex);
+	ev4sio_physx::PxMutex::ScopedLock myLock(samplerInternals->mSampleMutex);
 	samplerInternals->mIsSampling = false;
 }
 
@@ -1468,7 +1468,7 @@ OmniPvdPxSampler::~OmniPvdPxSampler()
 
 bool OmniPvdPxSampler::startSampling()
 {
-	physx::PxMutex::ScopedLock myLock(samplerInternals->mSampleMutex);
+	ev4sio_physx::PxMutex::ScopedLock myLock(samplerInternals->mSampleMutex);
 	if (samplerInternals->mIsSampling)
 	{
 		return true;
@@ -1483,63 +1483,63 @@ bool OmniPvdPxSampler::startSampling()
 bool OmniPvdPxSampler::isSampling()
 {
 	if (!samplerInternals) return false;
-	physx::PxMutex::ScopedLock myLock(samplerInternals->mSampleMutex);
+	ev4sio_physx::PxMutex::ScopedLock myLock(samplerInternals->mSampleMutex);
 	return samplerInternals->mIsSampling;
 }
 
-void OmniPvdPxSampler::setOmniPvdInstance(physx::NpOmniPvd* omniPvdInstance)
+void OmniPvdPxSampler::setOmniPvdInstance(ev4sio_physx::NpOmniPvd* omniPvdInstance)
 {
 	samplerInternals->mPvdStream.setOmniPvdInstance(omniPvdInstance);
 }
 
-void createGeometry(const physx::PxGeometry & pxGeom)
+void createGeometry(const ev4sio_physx::PxGeometry & pxGeom)
 {
 
 	switch (pxGeom.getType())
 	{
-	case physx::PxGeometryType::eSPHERE:
+	case ev4sio_physx::PxGeometryType::eSPHERE:
 	{
-		streamSphereGeometry((const physx::PxSphereGeometry &)pxGeom);
+		streamSphereGeometry((const ev4sio_physx::PxSphereGeometry &)pxGeom);
 	}
 	break;
-	case physx::PxGeometryType::eCAPSULE:
+	case ev4sio_physx::PxGeometryType::eCAPSULE:
 	{
-		streamCapsuleGeometry((const physx::PxCapsuleGeometry &)pxGeom);
+		streamCapsuleGeometry((const ev4sio_physx::PxCapsuleGeometry &)pxGeom);
 	}
 	break;
-	case physx::PxGeometryType::eBOX:
+	case ev4sio_physx::PxGeometryType::eBOX:
 	{
-		streamBoxGeometry((const physx::PxBoxGeometry &)pxGeom);
+		streamBoxGeometry((const ev4sio_physx::PxBoxGeometry &)pxGeom);
 	}
 	break;
-	case physx::PxGeometryType::eTRIANGLEMESH:
+	case ev4sio_physx::PxGeometryType::eTRIANGLEMESH:
 	{
-		streamTriMeshGeometry((const physx::PxTriangleMeshGeometry &)pxGeom);
+		streamTriMeshGeometry((const ev4sio_physx::PxTriangleMeshGeometry &)pxGeom);
 	}
 	break;
-	case physx::PxGeometryType::eCONVEXCORE:
+	case ev4sio_physx::PxGeometryType::eCONVEXCORE:
 	{
-		streamConvexCoreGeometry((const physx::PxConvexCoreGeometry &)pxGeom);
+		streamConvexCoreGeometry((const ev4sio_physx::PxConvexCoreGeometry &)pxGeom);
 	}
 	break;
-	case physx::PxGeometryType::eCONVEXMESH:
+	case ev4sio_physx::PxGeometryType::eCONVEXMESH:
 	{
-		streamConvexMeshGeometry((const physx::PxConvexMeshGeometry &)pxGeom);
+		streamConvexMeshGeometry((const ev4sio_physx::PxConvexMeshGeometry &)pxGeom);
 	}
 	break;
-	case physx::PxGeometryType::eHEIGHTFIELD:
+	case ev4sio_physx::PxGeometryType::eHEIGHTFIELD:
 	{
-		streamHeightFieldGeometry((const physx::PxHeightFieldGeometry &)pxGeom);
+		streamHeightFieldGeometry((const ev4sio_physx::PxHeightFieldGeometry &)pxGeom);
 	}
 	break;
-	case physx::PxGeometryType::ePLANE:
+	case ev4sio_physx::PxGeometryType::ePLANE:
 	{
-		streamPlaneGeometry((const physx::PxPlaneGeometry &)pxGeom);
+		streamPlaneGeometry((const ev4sio_physx::PxPlaneGeometry &)pxGeom);
 	}	
 	break;
-	case physx::PxGeometryType::eCUSTOM:
+	case ev4sio_physx::PxGeometryType::eCUSTOM:
 	{
-		streamCustomGeometry((const physx::PxCustomGeometry &)pxGeom);
+		streamCustomGeometry((const ev4sio_physx::PxCustomGeometry &)pxGeom);
 	}
 	break;
 	default:
@@ -1547,47 +1547,47 @@ void createGeometry(const physx::PxGeometry & pxGeom)
 	}
 }
 
-void destroyGeometry(const physx::PxGeometry& pxGeom)
+void destroyGeometry(const ev4sio_physx::PxGeometry& pxGeom)
 {
 
 	switch (pxGeom.getType())
 	{
-	case physx::PxGeometryType::eSPHERE:
+	case ev4sio_physx::PxGeometryType::eSPHERE:
 	{
 		OMNI_PVD_DESTROY(OMNI_PVD_CONTEXT_HANDLE, PxSphereGeometry, static_cast<const PxSphereGeometry&>(pxGeom));
 	}
 	break;
-	case physx::PxGeometryType::eCAPSULE:
+	case ev4sio_physx::PxGeometryType::eCAPSULE:
 	{
 		OMNI_PVD_DESTROY(OMNI_PVD_CONTEXT_HANDLE, PxCapsuleGeometry, static_cast<const PxCapsuleGeometry&>(pxGeom));
 	}
 	break;
-	case physx::PxGeometryType::eBOX:
+	case ev4sio_physx::PxGeometryType::eBOX:
 	{
 		OMNI_PVD_DESTROY(OMNI_PVD_CONTEXT_HANDLE, PxBoxGeometry, static_cast<const PxBoxGeometry&>(pxGeom));
 	}
 	break;
-	case physx::PxGeometryType::eTRIANGLEMESH:
+	case ev4sio_physx::PxGeometryType::eTRIANGLEMESH:
 	{
 		OMNI_PVD_DESTROY(OMNI_PVD_CONTEXT_HANDLE, PxTriangleMeshGeometry, static_cast<const PxTriangleMeshGeometry&>(pxGeom));
 	}
 	break;
-	case physx::PxGeometryType::eCONVEXMESH:
+	case ev4sio_physx::PxGeometryType::eCONVEXMESH:
 	{
 		OMNI_PVD_DESTROY(OMNI_PVD_CONTEXT_HANDLE, PxConvexMeshGeometry, static_cast<const PxConvexMeshGeometry&>(pxGeom));
 	}
 	break;
-	case physx::PxGeometryType::eHEIGHTFIELD:
+	case ev4sio_physx::PxGeometryType::eHEIGHTFIELD:
 	{
 		OMNI_PVD_DESTROY(OMNI_PVD_CONTEXT_HANDLE, PxHeightFieldGeometry, static_cast<const PxHeightFieldGeometry&>(pxGeom));
 	}
 	break;
-	case physx::PxGeometryType::ePLANE:
+	case ev4sio_physx::PxGeometryType::ePLANE:
 	{
 		OMNI_PVD_DESTROY(OMNI_PVD_CONTEXT_HANDLE, PxPlaneGeometry, static_cast<const PxPlaneGeometry&>(pxGeom));
 	}	
 	break;
-	case physx::PxGeometryType::eCUSTOM:
+	case ev4sio_physx::PxGeometryType::eCUSTOM:
 	{
 		OMNI_PVD_DESTROY(OMNI_PVD_CONTEXT_HANDLE, PxCustomGeometry, static_cast<const PxCustomGeometry&>(pxGeom));
 	}	
@@ -1597,7 +1597,7 @@ void destroyGeometry(const physx::PxGeometry& pxGeom)
 	}
 }
 
-void OmniPvdPxSampler::onObjectAdd(const physx::PxBase& object)
+void OmniPvdPxSampler::onObjectAdd(const ev4sio_physx::PxBase& object)
 {
 	if (!isSampling()) return;
 
@@ -1605,127 +1605,127 @@ void OmniPvdPxSampler::onObjectAdd(const physx::PxBase& object)
 
 	switch (object.getConcreteType())
 	{
-		case physx::PxConcreteType::eHEIGHTFIELD:
+		case ev4sio_physx::PxConcreteType::eHEIGHTFIELD:
 		{
 			const PxHeightField& hf = static_cast<const PxHeightField&>(object);
 			streamHeightField(hf);
 			OMNI_PVD_ADD(OMNI_PVD_CONTEXT_HANDLE, PxPhysics, heightFields, physics, hf);
 		}
 		break;
-		case physx::PxConcreteType::eCONVEX_MESH:
+		case ev4sio_physx::PxConcreteType::eCONVEX_MESH:
 		{
 			const PxConvexMesh& cm = static_cast<const PxConvexMesh&>(object);
 			streamConvexMesh(cm);
 			OMNI_PVD_ADD(OMNI_PVD_CONTEXT_HANDLE, PxPhysics, convexMeshes, physics, cm);
 		}
 		break;
-		case physx::PxConcreteType::eTRIANGLE_MESH_BVH33:
-		case physx::PxConcreteType::eTRIANGLE_MESH_BVH34:
+		case ev4sio_physx::PxConcreteType::eTRIANGLE_MESH_BVH33:
+		case ev4sio_physx::PxConcreteType::eTRIANGLE_MESH_BVH34:
 		{
 			const PxTriangleMesh& m = static_cast<const PxTriangleMesh&>(object);
 			streamTriMesh(m);
 			OMNI_PVD_ADD(OMNI_PVD_CONTEXT_HANDLE, PxPhysics, triangleMeshes, physics, m);
 		}
 		break;
-		case physx::PxConcreteType::eTETRAHEDRON_MESH:
+		case ev4sio_physx::PxConcreteType::eTETRAHEDRON_MESH:
 		{
 			const PxTetrahedronMesh& tm = static_cast<const PxTetrahedronMesh&>(object);
 			streamTetMesh(tm);
 			OMNI_PVD_ADD(OMNI_PVD_CONTEXT_HANDLE, PxPhysics, tetrahedronMeshes, physics, tm);
 		}
 		break;
-		case physx::PxConcreteType::eDEFORMABLE_VOLUME_MESH:
+		case ev4sio_physx::PxConcreteType::eDEFORMABLE_VOLUME_MESH:
 		{
 			const PxDeformableVolumeMesh& dm = static_cast<const PxDeformableVolumeMesh&>(object);
 			streamDeVoMesh(dm);
 			OMNI_PVD_ADD(OMNI_PVD_CONTEXT_HANDLE, PxPhysics, deformableVolumeMeshes, physics, dm);
 		}
 		break;
-		case physx::PxConcreteType::eBVH:
+		case ev4sio_physx::PxConcreteType::eBVH:
 		{
 			const PxBVH& bvh = static_cast<const PxBVH&>(object);
 			streamBVH(bvh);
 			OMNI_PVD_ADD(OMNI_PVD_CONTEXT_HANDLE, PxPhysics, bvhs, physics, bvh);
 		}
 		break;
-		case physx::PxConcreteType::eSHAPE:
+		case ev4sio_physx::PxConcreteType::eSHAPE:
 		{
-			const PxShape& shape = static_cast<const physx::PxShape&>(object);
+			const PxShape& shape = static_cast<const ev4sio_physx::PxShape&>(object);
 			createGeometry(shape.getGeometry());
 			streamShape(shape);
 			OMNI_PVD_ADD(OMNI_PVD_CONTEXT_HANDLE, PxPhysics, shapes, physics, shape);
 		}
 		break;
-		case physx::PxConcreteType::eMATERIAL:
+		case ev4sio_physx::PxConcreteType::eMATERIAL:
 		{
 			const PxMaterial& mat = static_cast<const PxMaterial&>(object);
 			streamMaterial(mat);
 			OMNI_PVD_ADD(OMNI_PVD_CONTEXT_HANDLE, PxPhysics, materials, physics, mat);
 		}
 		break;
-		case physx::PxConcreteType::eDEFORMABLE_SURFACE_MATERIAL:
+		case ev4sio_physx::PxConcreteType::eDEFORMABLE_SURFACE_MATERIAL:
 		{
 			const PxDeformableSurfaceMaterial& dsMat = static_cast<const PxDeformableSurfaceMaterial&>(object);
 			streamFEMClothMaterial(dsMat);
 			OMNI_PVD_ADD(OMNI_PVD_CONTEXT_HANDLE, PxPhysics, deformableSurfaceMaterials, physics, dsMat);
 		}
 		break;
-		case physx::PxConcreteType::eDEFORMABLE_VOLUME_MATERIAL:
+		case ev4sio_physx::PxConcreteType::eDEFORMABLE_VOLUME_MATERIAL:
 		{
 			const PxDeformableVolumeMaterial& sbMat = static_cast<const PxDeformableVolumeMaterial&>(object);
 			streamFEMSoBoMaterial(sbMat);
 			OMNI_PVD_ADD(OMNI_PVD_CONTEXT_HANDLE, PxPhysics, deformableVolumeMaterials, physics, sbMat);
 		}
 		break;
-		case physx::PxConcreteType::ePBD_MATERIAL:
+		case ev4sio_physx::PxConcreteType::ePBD_MATERIAL:
 		{
 			const PxPBDMaterial& pbdhMat = static_cast<const PxPBDMaterial&>(object);
 			streamPBDMaterial(pbdhMat);
 			OMNI_PVD_ADD(OMNI_PVD_CONTEXT_HANDLE, PxPhysics, PBDMaterials, physics, pbdhMat);
 		}
 		break;
-		case physx::PxConcreteType::eAGGREGATE:
+		case ev4sio_physx::PxConcreteType::eAGGREGATE:
 		{
 			const PxAggregate& agg = static_cast<const PxAggregate&>(object);
 			streamAggregate(agg);
 			OMNI_PVD_ADD(OMNI_PVD_CONTEXT_HANDLE, PxPhysics, aggregates, physics, agg);
 		}
 		break;
-		case physx::PxConcreteType::eARTICULATION_REDUCED_COORDINATE:
+		case ev4sio_physx::PxConcreteType::eARTICULATION_REDUCED_COORDINATE:
 		{
 			const PxArticulationReducedCoordinate& art = static_cast<const PxArticulationReducedCoordinate&>(object);
 			streamArticulation(art);
 			OMNI_PVD_ADD(OMNI_PVD_CONTEXT_HANDLE, PxPhysics, articulations, physics, art);
 		}
 		break;
-		case physx::PxConcreteType::eARTICULATION_LINK:
+		case ev4sio_physx::PxConcreteType::eARTICULATION_LINK:
 		{
 			const PxArticulationLink& artLink = static_cast<const PxArticulationLink&>(object);
 			streamArticulationLink(artLink);
 			OMNI_PVD_ADD(OMNI_PVD_CONTEXT_HANDLE, PxArticulationReducedCoordinate, links, artLink.getArticulation(), artLink);
 		}
 		break;
-		case physx::PxConcreteType::eARTICULATION_JOINT_REDUCED_COORDINATE:
+		case ev4sio_physx::PxConcreteType::eARTICULATION_JOINT_REDUCED_COORDINATE:
 		{
 			const PxArticulationJointReducedCoordinate& artJoint = static_cast<const PxArticulationJointReducedCoordinate&>(object);
 			streamArticulationJoint(artJoint);
 			break;
 		}
-		case physx::PxConcreteType::eARTICULATION_MIMIC_JOINT:
+		case ev4sio_physx::PxConcreteType::eARTICULATION_MIMIC_JOINT:
 		{
 			const PxArticulationMimicJoint& artMimicJoint = static_cast<const PxArticulationMimicJoint&>(object);
 			streamArticulationMimicJoint(artMimicJoint);
 			break;
 		}
 
-		case physx::PxConcreteType::eRIGID_DYNAMIC:
+		case ev4sio_physx::PxConcreteType::eRIGID_DYNAMIC:
 		{
 			const PxRigidDynamic& rd = static_cast<const PxRigidDynamic&>(object);
 			streamRigidDynamic(rd);
 			OMNI_PVD_ADD(OMNI_PVD_CONTEXT_HANDLE, PxPhysics, rigidDynamics, physics, rd);
 		}
 		break;
-		case physx::PxConcreteType::eRIGID_STATIC:
+		case ev4sio_physx::PxConcreteType::eRIGID_STATIC:
 		{
 			const PxRigidStatic& rs = static_cast<const PxRigidStatic&>(object);
 			streamRigidStatic(rs);
@@ -1735,35 +1735,35 @@ void OmniPvdPxSampler::onObjectAdd(const physx::PxBase& object)
 
 	#if PX_SUPPORT_GPU_PHYSX
 
-		case physx::PxConcreteType::ePBD_PARTICLESYSTEM:
+		case ev4sio_physx::PxConcreteType::ePBD_PARTICLESYSTEM:
 		{
 			const PxPBDParticleSystem& ps = static_cast<const PxPBDParticleSystem&>(object);
 			streamPBDParticleSystem(ps);
 			OMNI_PVD_ADD(OMNI_PVD_CONTEXT_HANDLE, PxPhysics, pbdParticleSystems, physics, ps);
 		}
 		break;
-		case physx::PxConcreteType::ePARTICLE_BUFFER:
+		case ev4sio_physx::PxConcreteType::ePARTICLE_BUFFER:
 		{
 			const PxParticleBuffer& pb = static_cast<const PxParticleBuffer&>(object);
 			streamParticleBuffer(pb);
 			OMNI_PVD_ADD(OMNI_PVD_CONTEXT_HANDLE, PxPhysics, particleBuffers, physics, pb);
 		}
 		break;
-		case physx::PxConcreteType::ePARTICLE_DIFFUSE_BUFFER:
+		case ev4sio_physx::PxConcreteType::ePARTICLE_DIFFUSE_BUFFER:
 		{
 			const PxParticleAndDiffuseBuffer& pb = static_cast<const PxParticleAndDiffuseBuffer&>(object);
 			streamParticleAndDiffuseBuffer(pb);
 			OMNI_PVD_ADD(OMNI_PVD_CONTEXT_HANDLE, PxPhysics, particleBuffers, physics, pb);
 		}
 		break;
-		case physx::PxConcreteType::ePARTICLE_CLOTH_BUFFER:
+		case ev4sio_physx::PxConcreteType::ePARTICLE_CLOTH_BUFFER:
 		{
 			const PxParticleClothBuffer& pb = static_cast<const PxParticleClothBuffer&>(object);
 			streamParticleClothBuffer(pb);
 			OMNI_PVD_ADD(OMNI_PVD_CONTEXT_HANDLE, PxPhysics, particleBuffers, physics, pb);
 		}
 		break;
-		case physx::PxConcreteType::ePARTICLE_RIGID_BUFFER:
+		case ev4sio_physx::PxConcreteType::ePARTICLE_RIGID_BUFFER:
 		{
 			const PxParticleRigidBuffer& pb = static_cast<const PxParticleRigidBuffer&>(object);
 			streamParticleRigidBuffer(pb);
@@ -1775,7 +1775,7 @@ void OmniPvdPxSampler::onObjectAdd(const physx::PxBase& object)
 	}
 }
 
-void OmniPvdPxSampler::onObjectRemove(const physx::PxBase& object)
+void OmniPvdPxSampler::onObjectRemove(const ev4sio_physx::PxBase& object)
 {
 	if (!isSampling()) return;
 
@@ -1783,133 +1783,133 @@ void OmniPvdPxSampler::onObjectRemove(const physx::PxBase& object)
 
 	switch (object.getConcreteType())
 	{
-		case physx::PxConcreteType::eHEIGHTFIELD:
+		case ev4sio_physx::PxConcreteType::eHEIGHTFIELD:
 		{
 			const PxHeightField& hf = static_cast<const PxHeightField&>(object);
 			OMNI_PVD_REMOVE(OMNI_PVD_CONTEXT_HANDLE, PxPhysics, heightFields, physics, hf);
 			OMNI_PVD_DESTROY(OMNI_PVD_CONTEXT_HANDLE, PxHeightField, hf);
 		}
 		break;
-		case physx::PxConcreteType::eCONVEX_MESH:
+		case ev4sio_physx::PxConcreteType::eCONVEX_MESH:
 		{
 			const PxConvexMesh& cm = static_cast<const PxConvexMesh&>(object);
 			OMNI_PVD_REMOVE(OMNI_PVD_CONTEXT_HANDLE, PxPhysics, convexMeshes, physics, cm);
 			OMNI_PVD_DESTROY(OMNI_PVD_CONTEXT_HANDLE, PxConvexMesh, cm);
 		}
 		break;
-		case physx::PxConcreteType::eTRIANGLE_MESH_BVH33:
-		case physx::PxConcreteType::eTRIANGLE_MESH_BVH34:
+		case ev4sio_physx::PxConcreteType::eTRIANGLE_MESH_BVH33:
+		case ev4sio_physx::PxConcreteType::eTRIANGLE_MESH_BVH34:
 		{
 			const PxTriangleMesh& m = static_cast<const PxTriangleMesh&>(object);
 			OMNI_PVD_REMOVE(OMNI_PVD_CONTEXT_HANDLE, PxPhysics, triangleMeshes, physics, m);
 			OMNI_PVD_DESTROY(OMNI_PVD_CONTEXT_HANDLE, PxTriangleMesh, m);
 		}
 		break;
-		case physx::PxConcreteType::eTETRAHEDRON_MESH:
+		case ev4sio_physx::PxConcreteType::eTETRAHEDRON_MESH:
 		{
 			const PxTetrahedronMesh& tm = static_cast<const PxTetrahedronMesh&>(object);
 			OMNI_PVD_REMOVE(OMNI_PVD_CONTEXT_HANDLE, PxPhysics, tetrahedronMeshes, physics, tm);
 			OMNI_PVD_DESTROY(OMNI_PVD_CONTEXT_HANDLE, PxTetrahedronMesh, tm);
 		}
 		break;
-		case physx::PxConcreteType::eDEFORMABLE_VOLUME_MESH:
+		case ev4sio_physx::PxConcreteType::eDEFORMABLE_VOLUME_MESH:
 		{
 			const PxDeformableVolumeMesh& dm = static_cast<const PxDeformableVolumeMesh&>(object);
 			OMNI_PVD_REMOVE(OMNI_PVD_CONTEXT_HANDLE, PxPhysics, deformableVolumeMeshes, physics, dm);
 			OMNI_PVD_DESTROY(OMNI_PVD_CONTEXT_HANDLE, PxDeformableVolumeMesh, dm);
 		}
 		break;
-		case physx::PxConcreteType::eBVH:
+		case ev4sio_physx::PxConcreteType::eBVH:
 		{
 			const PxBVH& bvh = static_cast<const PxBVH&>(object);
 			OMNI_PVD_REMOVE(OMNI_PVD_CONTEXT_HANDLE, PxPhysics, bvhs, physics, bvh);
 			OMNI_PVD_DESTROY(OMNI_PVD_CONTEXT_HANDLE, PxBVH, bvh);
 		}
 		break;
-		case physx::PxConcreteType::eSHAPE:
+		case ev4sio_physx::PxConcreteType::eSHAPE:
 		{
-			const PxShape& shape = static_cast<const physx::PxShape&>(object);
+			const PxShape& shape = static_cast<const ev4sio_physx::PxShape&>(object);
 			OMNI_PVD_REMOVE(OMNI_PVD_CONTEXT_HANDLE, PxPhysics, shapes, physics, shape);
 			OMNI_PVD_DESTROY(OMNI_PVD_CONTEXT_HANDLE, PxShape, shape);
 			destroyGeometry(shape.getGeometry());
 		}
 		break;
-		case physx::PxConcreteType::eMATERIAL:
+		case ev4sio_physx::PxConcreteType::eMATERIAL:
 		{
 			const PxMaterial& mat = static_cast<const PxMaterial&>(object);
 			OMNI_PVD_REMOVE(OMNI_PVD_CONTEXT_HANDLE, PxPhysics, materials, physics, mat);
 			OMNI_PVD_DESTROY(OMNI_PVD_CONTEXT_HANDLE, PxMaterial, mat);
 		}
 		break;
-		case physx::PxConcreteType::eDEFORMABLE_SURFACE_MATERIAL:
+		case ev4sio_physx::PxConcreteType::eDEFORMABLE_SURFACE_MATERIAL:
 		{
 			const PxDeformableSurfaceMaterial& dsMat = static_cast<const PxDeformableSurfaceMaterial&>(object);
 			OMNI_PVD_REMOVE(OMNI_PVD_CONTEXT_HANDLE, PxPhysics, deformableSurfaceMaterials, physics, dsMat);
 			OMNI_PVD_DESTROY(OMNI_PVD_CONTEXT_HANDLE, PxDeformableSurfaceMaterial, dsMat);
 		}
 		break;
-		case physx::PxConcreteType::eDEFORMABLE_VOLUME_MATERIAL:
+		case ev4sio_physx::PxConcreteType::eDEFORMABLE_VOLUME_MATERIAL:
 		{
 			const PxDeformableVolumeMaterial& sbMat = static_cast<const PxDeformableVolumeMaterial&>(object);
 			OMNI_PVD_REMOVE(OMNI_PVD_CONTEXT_HANDLE, PxPhysics, deformableVolumeMaterials, physics, sbMat);
 			OMNI_PVD_DESTROY(OMNI_PVD_CONTEXT_HANDLE, PxDeformableVolumeMaterial, sbMat);
 		}
 		break;
-		case physx::PxConcreteType::ePBD_MATERIAL:
+		case ev4sio_physx::PxConcreteType::ePBD_MATERIAL:
 		{
 			const PxPBDMaterial& pbdhMat = static_cast<const PxPBDMaterial&>(object);
 			OMNI_PVD_REMOVE(OMNI_PVD_CONTEXT_HANDLE, PxPhysics, PBDMaterials, physics, pbdhMat);
 			OMNI_PVD_DESTROY(OMNI_PVD_CONTEXT_HANDLE, PxPBDMaterial, pbdhMat);
 		}
 		break;
-		case physx::PxConcreteType::eAGGREGATE:
+		case ev4sio_physx::PxConcreteType::eAGGREGATE:
 		{
 			const PxAggregate& agg = static_cast<const PxAggregate&>(object);
 			OMNI_PVD_REMOVE(OMNI_PVD_CONTEXT_HANDLE, PxPhysics, aggregates, physics, agg);
 			OMNI_PVD_DESTROY(OMNI_PVD_CONTEXT_HANDLE, PxAggregate, agg);
 		}
 		break;
-		case physx::PxConcreteType::eARTICULATION_REDUCED_COORDINATE:
+		case ev4sio_physx::PxConcreteType::eARTICULATION_REDUCED_COORDINATE:
 		{
 			const PxArticulationReducedCoordinate& art = static_cast<const PxArticulationReducedCoordinate&>(object);
 			OMNI_PVD_REMOVE(OMNI_PVD_CONTEXT_HANDLE, PxPhysics, articulations, physics, art);
 			OMNI_PVD_DESTROY(OMNI_PVD_CONTEXT_HANDLE, PxArticulationReducedCoordinate, art);
 		}
 		break;
-		case physx::PxConcreteType::eARTICULATION_LINK:
+		case ev4sio_physx::PxConcreteType::eARTICULATION_LINK:
 		{
 			const PxArticulationLink& artLink = static_cast<const PxArticulationLink&>(object);
 			OMNI_PVD_DESTROY(OMNI_PVD_CONTEXT_HANDLE, PxActor, artLink);
 		}
 		break;
-		case physx::PxConcreteType::eARTICULATION_JOINT_REDUCED_COORDINATE:
+		case ev4sio_physx::PxConcreteType::eARTICULATION_JOINT_REDUCED_COORDINATE:
 		{
 			const PxArticulationJointReducedCoordinate& artJoint = static_cast<const PxArticulationJointReducedCoordinate&>(object);
 			OMNI_PVD_DESTROY(OMNI_PVD_CONTEXT_HANDLE, PxArticulationJointReducedCoordinate, artJoint);
 		}
 		break;
-		case physx::PxConcreteType::eARTICULATION_MIMIC_JOINT:
+		case ev4sio_physx::PxConcreteType::eARTICULATION_MIMIC_JOINT:
 		{
 			const PxArticulationMimicJoint& artMimicJoint = static_cast<const PxArticulationMimicJoint&>(object);
 			OMNI_PVD_DESTROY(OMNI_PVD_CONTEXT_HANDLE, PxArticulationMimicJoint, artMimicJoint);
 		}
 		break;
 
-		case physx::PxConcreteType::eRIGID_DYNAMIC:
+		case ev4sio_physx::PxConcreteType::eRIGID_DYNAMIC:
 		{
 			const PxRigidDynamic& rd = static_cast<const PxRigidDynamic&>(object);
 			OMNI_PVD_REMOVE(OMNI_PVD_CONTEXT_HANDLE, PxPhysics, rigidDynamics, physics, rd);
 			OMNI_PVD_DESTROY(OMNI_PVD_CONTEXT_HANDLE, PxActor, rd);
 		}
 		break;
-		case physx::PxConcreteType::eRIGID_STATIC:
+		case ev4sio_physx::PxConcreteType::eRIGID_STATIC:
 		{
 			const PxRigidStatic& rs = static_cast<const PxRigidStatic&>(object);
 			OMNI_PVD_REMOVE(OMNI_PVD_CONTEXT_HANDLE, PxPhysics, rigidStatics, physics, rs);
 			OMNI_PVD_DESTROY(OMNI_PVD_CONTEXT_HANDLE, PxActor, rs);
 		}
 		break;
-		case physx::PxConcreteType::ePBD_PARTICLESYSTEM:
+		case ev4sio_physx::PxConcreteType::ePBD_PARTICLESYSTEM:
 		{
 			const PxPBDParticleSystem& ps = static_cast<const PxPBDParticleSystem&>(object);
 			OMNI_PVD_REMOVE(OMNI_PVD_CONTEXT_HANDLE, PxPhysics, pbdParticleSystems, physics, ps);
@@ -1919,14 +1919,14 @@ void OmniPvdPxSampler::onObjectRemove(const physx::PxBase& object)
 
 #if PX_SUPPORT_GPU_PHYSX
 
-		case physx::PxConcreteType::ePARTICLE_BUFFER:
+		case ev4sio_physx::PxConcreteType::ePARTICLE_BUFFER:
 		{
 			const PxParticleBuffer& pb = static_cast<const PxParticleBuffer&>(object);
 			OMNI_PVD_REMOVE(OMNI_PVD_CONTEXT_HANDLE, PxPhysics, particleBuffers, physics, pb);
 			OMNI_PVD_DESTROY(OMNI_PVD_CONTEXT_HANDLE, PxParticleBuffer, pb);
 		}
 		break;
-		case physx::PxConcreteType::ePARTICLE_DIFFUSE_BUFFER:
+		case ev4sio_physx::PxConcreteType::ePARTICLE_DIFFUSE_BUFFER:
 		{
 			//need to remove PxDiffuseParticleParams before releasing the low level object
 			const PxParticleAndDiffuseBuffer& pb = static_cast<const PxParticleAndDiffuseBuffer&>(object);
@@ -1934,14 +1934,14 @@ void OmniPvdPxSampler::onObjectRemove(const physx::PxBase& object)
 			OMNI_PVD_DESTROY(OMNI_PVD_CONTEXT_HANDLE, PxParticleAndDiffuseBuffer, pb);
 		}
 		break;
-		case physx::PxConcreteType::ePARTICLE_CLOTH_BUFFER:
+		case ev4sio_physx::PxConcreteType::ePARTICLE_CLOTH_BUFFER:
 		{
 			const PxParticleClothBuffer& pb = static_cast<const PxParticleClothBuffer&>(object);
 			OMNI_PVD_REMOVE(OMNI_PVD_CONTEXT_HANDLE, PxPhysics, particleBuffers, physics, pb);
 			OMNI_PVD_DESTROY(OMNI_PVD_CONTEXT_HANDLE, PxParticleClothBuffer, pb);
 		}
 		break;
-		case physx::PxConcreteType::ePARTICLE_RIGID_BUFFER:
+		case ev4sio_physx::PxConcreteType::ePARTICLE_RIGID_BUFFER:
 		{
 			const PxParticleRigidBuffer& pb = static_cast<const PxParticleRigidBuffer&>(object);
 			OMNI_PVD_REMOVE(OMNI_PVD_CONTEXT_HANDLE, PxPhysics, particleBuffers, physics, pb);
@@ -1956,8 +1956,8 @@ void OmniPvdPxSampler::onObjectRemove(const physx::PxBase& object)
 // Returns true if the Geom was not yet seen and added
 bool OmniPvdSamplerInternals::addSharedMeshIfNotSeen(const void* geom, OmniPvdSharedMeshEnum geomEnum)
 {
-	physx::PxMutex::ScopedLock myLock(samplerInternals->mSharedGeomsMutex);
-	const physx::PxHashMap<const void*, OmniPvdSharedMeshEnum>::Entry* entry = samplerInternals->mSharedMeshesMap.find(geom);
+	ev4sio_physx::PxMutex::ScopedLock myLock(samplerInternals->mSharedGeomsMutex);
+	const ev4sio_physx::PxHashMap<const void*, OmniPvdSharedMeshEnum>::Entry* entry = samplerInternals->mSharedMeshesMap.find(geom);
 	if (entry)
 	{
 		return false;
@@ -1995,12 +1995,12 @@ void OmniPvdPxSampler::reportError(PxErrorCode::Enum code, const char* message, 
 
 OmniPvdPxSampler* OmniPvdPxSampler::getInstance()
 {
-	PX_ASSERT(&physx::NpPhysics::getInstance() != NULL);
-	return &physx::NpPhysics::getInstance() ? physx::NpPhysics::getInstance().mOmniPvdSampler : NULL;
+	PX_ASSERT(&ev4sio_physx::NpPhysics::getInstance() != NULL);
+	return &ev4sio_physx::NpPhysics::getInstance() ? ev4sio_physx::NpPhysics::getInstance().mOmniPvdSampler : NULL;
 }
 
 
-namespace physx
+namespace ev4sio_physx
 {
 
 const OmniPvdPxCoreRegistrationData* NpOmniPvdGetPxCoreRegistrationData()
@@ -2015,7 +2015,7 @@ const OmniPvdPxCoreRegistrationData* NpOmniPvdGetPxCoreRegistrationData()
 	}
 }
 
-physx::NpOmniPvd* NpOmniPvdGetInstance()
+ev4sio_physx::NpOmniPvd* NpOmniPvdGetInstance()
 {
 	if (samplerInternals)
 	{

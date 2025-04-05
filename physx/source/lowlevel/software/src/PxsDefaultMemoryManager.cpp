@@ -30,7 +30,7 @@
 #include "foundation/PxAllocator.h"
 #include "foundation/PxArray.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 namespace
 {
@@ -52,7 +52,7 @@ namespace
 	};
 }
 
-PxsMemoryManager* physx::createDefaultMemoryManager()
+PxsMemoryManager* ev4sio_physx::createDefaultMemoryManager()
 {
 	return PX_NEW(PxsDefaultMemoryManager);
 }

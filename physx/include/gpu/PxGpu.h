@@ -44,9 +44,9 @@ This is a helper class for loading the PhysXGpu dll.
 If a PhysXGpu dll with a non-default file name needs to be loaded, 
 PxGpuLoadHook can be sub-classed to provide the custom filenames.
 
-Once the names are set, the instance must be set for use by PhysX.dll using PxSetPhysXGpuLoadHook(), 
+Once the names are set, the instance must be set for use by PhysX.dll using ev4sio_PxSetPhysXGpuLoadHook(), 
 
-\see PxSetPhysXGpuLoadHook()
+\see ev4sio_PxSetPhysXGpuLoadHook()
 */
 class PxGpuLoadHook
 {
@@ -67,14 +67,14 @@ private:
 
 \see PxGpuLoadHook
 */
-PX_C_EXPORT PX_PHYSX_CORE_API void PX_CALL_CONV PxSetPhysXGpuLoadHook(const PxGpuLoadHook* hook);
+PX_C_EXPORT PX_PHYSX_CORE_API void PX_CALL_CONV ev4sio_PxSetPhysXGpuLoadHook(const PxGpuLoadHook* hook);
 
 /**
  * \brief Ask the NVIDIA control panel which GPU has been selected for use by
  * PhysX.  Returns -1 if no PhysX capable GPU is found or GPU PhysX has
  * been disabled.
  */
-PX_C_EXPORT PX_PHYSX_CORE_API int PX_CALL_CONV PxGetSuggestedCudaDeviceOrdinal(physx::PxErrorCallback& errc);
+PX_C_EXPORT PX_PHYSX_CORE_API int PX_CALL_CONV ev4sio_PxGetSuggestedCudaDeviceOrdinal(ev4sio_physx::PxErrorCallback& errc);
 
 /**
  * \brief Allocate a CUDA Context manager, complete with heaps.
@@ -85,63 +85,63 @@ PX_C_EXPORT PX_PHYSX_CORE_API int PX_CALL_CONV PxGetSuggestedCudaDeviceOrdinal(p
  \param[in] profilerCallback PhysX profiler callback instance.
  \param[in] launchSynchronous Set launchSynchronous to true for CUDA to report the actual point of failure.
 
- \see PxGetProfilerCallback()
+ \see ev4sio_PxGetProfilerCallback()
  */
-PX_C_EXPORT PX_PHYSX_CORE_API physx::PxCudaContextManager* PX_CALL_CONV PxCreateCudaContextManager(physx::PxFoundation& foundation, const physx::PxCudaContextManagerDesc& desc, physx::PxProfilerCallback* profilerCallback = NULL, bool launchSynchronous = false);
+PX_C_EXPORT PX_PHYSX_CORE_API ev4sio_physx::PxCudaContextManager* PX_CALL_CONV ev4sio_PxCreateCudaContextManager(ev4sio_physx::PxFoundation& foundation, const ev4sio_physx::PxCudaContextManagerDesc& desc, ev4sio_physx::PxProfilerCallback* profilerCallback = NULL, bool launchSynchronous = false);
 
 /**
  * \brief Sets profiler callback to PhysX GPU
  \param[in] profilerCallback PhysX profiler callback instance.
 
- \see PxGetProfilerCallback()
+ \see ev4sio_PxGetProfilerCallback()
  */
-PX_C_EXPORT PX_PHYSX_CORE_API void PX_CALL_CONV PxSetPhysXGpuProfilerCallback(physx::PxProfilerCallback* profilerCallback);
+PX_C_EXPORT PX_PHYSX_CORE_API void PX_CALL_CONV ev4sio_PxSetPhysXGpuProfilerCallback(ev4sio_physx::PxProfilerCallback* profilerCallback);
 
 /**
  * \brief Sets PhysXFoundation instance
  \param[in] foundation PhysXFoundation instance.
 
- \see PxGetFoundation()
+ \see ev4sio_PxGetFoundation()
  */
-PX_C_EXPORT PX_PHYSX_CORE_API void PX_CALL_CONV PxSetPhysXGpuFoundationInstance(physx::PxFoundation& foundation);
+PX_C_EXPORT PX_PHYSX_CORE_API void PX_CALL_CONV ev4sio_PxSetPhysXGpuFoundationInstance(ev4sio_physx::PxFoundation& foundation);
 
 /**
 \brief Internally used callback to register function names of cuda kernels
 */
-PX_C_EXPORT PX_PHYSX_CORE_API void PX_CALL_CONV PxCudaRegisterFunction(int moduleIndex, const char* functionName);
+PX_C_EXPORT PX_PHYSX_CORE_API void PX_CALL_CONV ev4sio_PxCudaRegisterFunction(int moduleIndex, const char* functionName);
 
 /**
 \brief Internally used callback to register cuda modules at load time
 */
-PX_C_EXPORT PX_PHYSX_CORE_API void** PX_CALL_CONV PxCudaRegisterFatBinary(void*);
+PX_C_EXPORT PX_PHYSX_CORE_API void** PX_CALL_CONV ev4sio_PxCudaRegisterFatBinary(void*);
 
 /**
 \brief Access to the registered cuda modules
 */
-PX_C_EXPORT PX_PHYSX_CORE_API void** PX_CALL_CONV PxGetCudaModuleTable();
+PX_C_EXPORT PX_PHYSX_CORE_API void** PX_CALL_CONV ev4sio_PxGetCudaModuleTable();
 
 /**
 \brief Number of registered cuda modules
 */
-PX_C_EXPORT PX_PHYSX_CORE_API physx::PxU32 PX_CALL_CONV PxGetCudaModuleTableSize();
+PX_C_EXPORT PX_PHYSX_CORE_API ev4sio_physx::PxU32 PX_CALL_CONV ev4sio_PxGetCudaModuleTableSize();
 
 /**
 \brief Access to the loaded cuda functions (kernels)
 */
-PX_C_EXPORT PX_PHYSX_CORE_API physx::PxKernelIndex* PX_CALL_CONV PxGetCudaFunctionTable();
+PX_C_EXPORT PX_PHYSX_CORE_API ev4sio_physx::PxKernelIndex* PX_CALL_CONV ev4sio_PxGetCudaFunctionTable();
 
 /**
 \brief Number of loaded cuda functions (kernels)
 */
-PX_C_EXPORT PX_PHYSX_CORE_API physx::PxU32 PX_CALL_CONV  PxGetCudaFunctionTableSize();
+PX_C_EXPORT PX_PHYSX_CORE_API ev4sio_physx::PxU32 PX_CALL_CONV  ev4sio_PxGetCudaFunctionTableSize();
 
 
-namespace physx
+namespace ev4sio_physx
 {
 	class PxPhysicsGpu;
 }
 
-PX_C_EXPORT PX_PHYSX_CORE_API physx::PxPhysicsGpu* PX_CALL_CONV  PxGetPhysicsGpu();
+PX_C_EXPORT PX_PHYSX_CORE_API ev4sio_physx::PxPhysicsGpu* PX_CALL_CONV  ev4sio_PxGetPhysicsGpu();
 
 
 #endif // PX_SUPPORT_GPU_PHYSX

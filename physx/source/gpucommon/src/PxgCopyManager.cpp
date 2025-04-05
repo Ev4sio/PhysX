@@ -39,7 +39,7 @@
 
 #define DEBUG_COPY_MANAGER 0
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 PxgCopyManager::PxgCopyManager(PxgHeapMemoryAllocatorManager* heapMemoryManager) :
 						mDescriptorsQueue(PxVirtualAllocator(heapMemoryManager->mMappedMemoryAllocators)),

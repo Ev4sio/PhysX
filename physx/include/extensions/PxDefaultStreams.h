@@ -37,7 +37,7 @@
 typedef FILE* PxFileHandle;
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -50,7 +50,7 @@ namespace physx
 class PxDefaultMemoryOutputStream: public PxOutputStream
 {
 public:
-						PxDefaultMemoryOutputStream(PxAllocatorCallback &allocator = *PxGetAllocatorCallback());
+						PxDefaultMemoryOutputStream(PxAllocatorCallback &allocator = *ev4sio_PxGetAllocatorCallback());
 	virtual				~PxDefaultMemoryOutputStream();
 
 	virtual	PxU32		write(const void* src, PxU32 count);

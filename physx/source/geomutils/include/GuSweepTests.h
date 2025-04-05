@@ -34,7 +34,7 @@
 #include "geometry/PxGeometryHit.h"
 #include "geometry/PxGeometryQueryContext.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	class PxConvexMeshGeometry;
 	class PxCapsuleGeometry;
@@ -58,13 +58,13 @@ namespace physx
 
 	// PT: sweep parameters for capsule
 	#define GU_CAPSULE_SWEEP_FUNC_PARAMS	const PxGeometry& geom, const PxTransform& pose,												\
-											const PxCapsuleGeometry& capsuleGeom_, const PxTransform& capsulePose_, const Gu::Capsule& lss,	\
+											const PxCapsuleGeometry& capsuleGeom_, const PxTransform& capsulePose_, const ev4sio_Gu::Capsule& lss,	\
 											const PxVec3& unitDir, PxReal distance,															\
 											PxGeomSweepHit& sweepHit, const PxHitFlags hitFlags, PxReal inflation, PxSweepThreadContext* threadContext
 
 	// PT: sweep parameters for box
 	#define GU_BOX_SWEEP_FUNC_PARAMS	const PxGeometry& geom, const PxTransform& pose,								\
-										const PxBoxGeometry& boxGeom_, const PxTransform& boxPose_, const Gu::Box& box,	\
+										const PxBoxGeometry& boxGeom_, const PxTransform& boxPose_, const ev4sio_Gu::Box& box,	\
 										const PxVec3& unitDir, PxReal distance,											\
 										PxGeomSweepHit& sweepHit, const PxHitFlags hitFlags, PxReal inflation, PxSweepThreadContext* threadContext
 
@@ -73,7 +73,7 @@ namespace physx
 											const PxConvexMeshGeometry& convexGeom, const PxTransform& convexPose,	\
 											const PxVec3& unitDir, PxReal distance,									\
 											PxGeomSweepHit& sweepHit, const PxHitFlags hitFlags, PxReal inflation, PxSweepThreadContext* threadContext
-	namespace Gu
+	namespace ev4sio_Gu
 	{
 		class Capsule;
 		class Box;
@@ -133,7 +133,7 @@ namespace physx
 		bool sweepBoxTriangles			(GU_SWEEP_TRIANGLES_FUNC_PARAMS(PxBoxGeometry));
 		bool sweepBoxTriangles_Precise	(GU_SWEEP_TRIANGLES_FUNC_PARAMS(PxBoxGeometry));
 
-	}  // namespace Gu
+	}  // namespace ev4sio_Gu
 }
 
 #endif

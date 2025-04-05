@@ -31,7 +31,7 @@
 #include "foundation/PxFPU.h"
 #include "GuIntersectionRayBox.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /**
@@ -56,7 +56,7 @@ using namespace physx;
 */
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #define RAYAABB_EPSILON 0.00001f
-bool Gu::rayAABBIntersect(const PxVec3& minimum, const PxVec3& maximum, const PxVec3& origin, const PxVec3& _dir, PxVec3& coord)
+bool ev4sio_Gu::rayAABBIntersect(const PxVec3& minimum, const PxVec3& maximum, const PxVec3& origin, const PxVec3& _dir, PxVec3& coord)
 {
 	PxIntBool Inside = PxIntTrue;
 	PxVec3 MaxT(-1.0f, -1.0f, -1.0f);
@@ -150,7 +150,7 @@ bool Gu::rayAABBIntersect(const PxVec3& minimum, const PxVec3& maximum, const Px
 	Note: sign bit that determines if the minimum (0) or maximum (1) of the axis was hit is equal to sign(coord[returnVal-1]).
 */
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-PxU32 Gu::rayAABBIntersect2(const PxVec3& minimum, const PxVec3& maximum, const PxVec3& origin, const PxVec3& _dir, PxVec3& coord, PxReal & t)
+PxU32 ev4sio_Gu::rayAABBIntersect2(const PxVec3& minimum, const PxVec3& maximum, const PxVec3& origin, const PxVec3& _dir, PxVec3& coord, PxReal & t)
 {
 	PxIntBool Inside = PxIntTrue;
 	PxVec3 MaxT(-1.0f, -1.0f, -1.0f);
@@ -225,7 +225,7 @@ PxU32 Gu::rayAABBIntersect2(const PxVec3& minimum, const PxVec3& maximum, const 
 // Should we use an enum, or should we keep the anonymous ints? 
 // Should we increment the return code by one (return 0 for non intersection)?
 
-int Gu::intersectRayAABB(const PxVec3& minimum, const PxVec3& maximum, const PxVec3& ro, const PxVec3& rd, float& tnear, float& tfar)
+int ev4sio_Gu::intersectRayAABB(const PxVec3& minimum, const PxVec3& maximum, const PxVec3& ro, const PxVec3& rd, float& tnear, float& tfar)
 {
 	// Refactor
 	int ret=-1;
@@ -277,21 +277,21 @@ int Gu::intersectRayAABB(const PxVec3& minimum, const PxVec3& maximum, const PxV
 }
 
 // PT: specialized version where oneOverDir is available
-int Gu::intersectRayAABB(const PxVec3& minimum, const PxVec3& maximum, const PxVec3& ro, const PxVec3& rd, const PxVec3& oneOverDir, float& tnear, float& tfar)
+int ev4sio_Gu::intersectRayAABB(const PxVec3& minimum, const PxVec3& maximum, const PxVec3& ro, const PxVec3& rd, const PxVec3& oneOverDir, float& tnear, float& tfar)
 {
 	// PT: why did we change the initial epsilon value?
 	#define LOCAL_EPSILON PX_EPS_F32
 	//#define LOCAL_EPSILON 0.0001f
 
-	if(physx::intrinsics::abs(rd.x)<LOCAL_EPSILON)
+	if(ev4sio_physx::intrinsics::abs(rd.x)<LOCAL_EPSILON)
 //	if(rd.x>-LOCAL_EPSILON && rd.x<LOCAL_EPSILON)
 		if(ro.x<minimum.x || ro.x>maximum.x)
 				return -1;
-	if(physx::intrinsics::abs(rd.y)<LOCAL_EPSILON)
+	if(ev4sio_physx::intrinsics::abs(rd.y)<LOCAL_EPSILON)
 //	if(rd.y>-LOCAL_EPSILON && rd.y<LOCAL_EPSILON)
 		if(ro.y<minimum.y || ro.y>maximum.y)
 				return -1;
-	if(physx::intrinsics::abs(rd.z)<LOCAL_EPSILON)
+	if(ev4sio_physx::intrinsics::abs(rd.z)<LOCAL_EPSILON)
 //	if(rd.z>-LOCAL_EPSILON && rd.z<LOCAL_EPSILON)
 		if(ro.z<minimum.z || ro.z>maximum.z)
 				return -1;
@@ -366,14 +366,14 @@ int Gu::intersectRayAABB(const PxVec3& minimum, const PxVec3& maximum, const PxV
 	return ret;
 }
 
-bool Gu::intersectRayAABB2(
+bool ev4sio_Gu::intersectRayAABB2(
 	const PxVec3& minimum, const PxVec3& maximum, const PxVec3& ro, const PxVec3& rd, float maxDist, float& tnear, float& tfar)
 {
 	PX_ASSERT(maximum.x-minimum.x >= GU_MIN_AABB_EXTENT*0.5f);
 	PX_ASSERT(maximum.y-minimum.y >= GU_MIN_AABB_EXTENT*0.5f);
 	PX_ASSERT(maximum.z-minimum.z >= GU_MIN_AABB_EXTENT*0.5f);
 	// not using vector math due to vector to integer pipeline penalties. TODO: verify that it's indeed faster
-	namespace i = physx::intrinsics;
+	namespace i = ev4sio_physx::intrinsics;
 
 	// P+tD=a; t=(a-P)/D
 	// t=(a - p.x)*1/d.x = a/d.x +(- p.x/d.x)
@@ -421,7 +421,7 @@ bool Gu::intersectRayAABB2(
 	return (tnear<tfar);
 }
 
-bool Gu::intersectRayAABB2(const aos::Vec3VArg minimum, const aos::Vec3VArg maximum, 
+bool ev4sio_Gu::intersectRayAABB2(const aos::Vec3VArg minimum, const aos::Vec3VArg maximum, 
 					   const aos::Vec3VArg ro, const aos::Vec3VArg rd, const aos::FloatVArg maxDist, 
 					   aos::FloatV& tnear, aos::FloatV& tfar)
 {

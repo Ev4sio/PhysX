@@ -37,18 +37,18 @@
 #include "common/PxRenderOutput.h"
 #include "GuConvexMeshData.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 class BigConvexData;
 
-namespace Gu
+namespace ev4sio_Gu
 {
 	class MeshFactory;
 	struct HullPolygonData;
 
-	PX_INLINE PxU32 computeBufferSize(const Gu::ConvexHullData& data, PxU32 nb)
+	PX_INLINE PxU32 computeBufferSize(const ev4sio_Gu::ConvexHullData& data, PxU32 nb)
 	{
-		PxU32 bytesNeeded = sizeof(Gu::HullPolygonData) * data.mNbPolygons;
+		PxU32 bytesNeeded = sizeof(ev4sio_Gu::HullPolygonData) * data.mNbPolygons;
 		bytesNeeded += sizeof(PxVec3) * data.mNbHullVertices;
 		bytesNeeded += sizeof(PxU8) * data.mNbEdges * 2;		// mFacesByEdges8
 		bytesNeeded += sizeof(PxU8) * data.mNbHullVertices * 3; // mFacesByVertices8;
@@ -98,7 +98,7 @@ namespace Gu
 													mNb.setBit();
 												}									
 
-						void					preExportDataReset() { Cm::RefCountable_preExportDataReset(*this); }
+						void					preExportDataReset() { ev4sio_Cm::RefCountable_preExportDataReset(*this); }
 		 virtual		void					exportExtraData(PxSerializationContext& stream);
 						void					importExtraData(PxDeserializationContext& context);
 		PX_PHYSX_COMMON_API static	ConvexMesh*	createObject(PxU8*& address, PxDeserializationContext& context);
@@ -175,12 +175,12 @@ namespace Gu
 		PX_FORCE_INLINE	PxU32					ownsMemory()										const	{ return PxU32(!mNb.isBitSet());	}
 	};
 
-	PX_FORCE_INLINE const Gu::ConvexHullData* _getHullData(const PxConvexMeshGeometry& convexGeom)
+	PX_FORCE_INLINE const ev4sio_Gu::ConvexHullData* _getHullData(const PxConvexMeshGeometry& convexGeom)
 	{
-		return &static_cast<const Gu::ConvexMesh*>(convexGeom.convexMesh)->getHull();
+		return &static_cast<const ev4sio_Gu::ConvexMesh*>(convexGeom.convexMesh)->getHull();
 	}
 
-} // namespace Gu
+} // namespace ev4sio_Gu
 
 }
 

@@ -44,7 +44,7 @@
 #include "../snippetutils/SnippetUtils.h"
 #include "../snippetrender/SnippetRender.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 /*
 	10x10 grid of boxes with even boxes removed.
@@ -148,7 +148,7 @@ struct CheckerBoard : PxCustomGeometry::Callbacks
 		return false;
 	}
 	virtual void visualize(const PxGeometry&, PxRenderOutput&, const PxTransform&, const PxBounds3&) const {}
-	virtual void computeMassProperties(const physx::PxGeometry&, physx::PxMassProperties&) const {}
+	virtual void computeMassProperties(const ev4sio_physx::PxGeometry&, ev4sio_physx::PxMassProperties&) const {}
 	virtual bool usePersistentContactManifold(const PxGeometry&, PxReal&) const { return false; }
 };
 
@@ -193,13 +193,13 @@ static void createStack(const PxTransform& t, PxU32 size, PxReal halfExtent)
 
 void initPhysics(bool /*interactive*/)
 {
-	gFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, gAllocator, gErrorCallback);
+	gFoundation = ev4sio_PxCreateFoundation(ev4sio_PX_PHYSICS_VERSION, gAllocator, gErrorCallback);
 
-	gPvd = PxCreatePvd(*gFoundation);
-	PxPvdTransport* transport = PxDefaultPvdSocketTransportCreate(PVD_HOST, 5425, 10);
+	gPvd = ev4sio_PxCreatePvd(*gFoundation);
+	PxPvdTransport* transport = ev4sio_PxDefaultPvdSocketTransportCreate(PVD_HOST, 5425, 10);
 	gPvd->connect(*transport, PxPvdInstrumentationFlag::eALL);
 
-	gPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *gFoundation, PxTolerancesScale(), true, gPvd);
+	gPhysics = ev4sio_PxCreatePhysics(ev4sio_PX_PHYSICS_VERSION, *gFoundation, PxTolerancesScale(), true, gPvd);
 
 	PxSceneDesc sceneDesc(gPhysics->getTolerancesScale());
 	sceneDesc.gravity = PxVec3(0.0f, -9.81f * 3, 0.0f);

@@ -47,16 +47,16 @@ public:
 		mTriangleMesh(NULL)
 	{ }
 
-	TestSurface(physx::PxDeformableSurface* deformableSurface, physx::PxCudaContextManager* cudaContextManager) :
+	TestSurface(ev4sio_physx::PxDeformableSurface* deformableSurface, ev4sio_physx::PxCudaContextManager* cudaContextManager) :
 		mDeformableSurface(deformableSurface),
 		mCudaContextManager(cudaContextManager)
 	{
-		physx::PxShape* shape = deformableSurface->getShape();
+		ev4sio_physx::PxShape* shape = deformableSurface->getShape();
 
-		const physx::PxTriangleMeshGeometry& triangleMeshGeom = static_cast<const physx::PxTriangleMeshGeometry&>(shape->getGeometry());
+		const ev4sio_physx::PxTriangleMeshGeometry& triangleMeshGeom = static_cast<const ev4sio_physx::PxTriangleMeshGeometry&>(shape->getGeometry());
 		mTriangleMesh = triangleMeshGeom.triangleMesh;
 
-		mPositionsInvMass = PX_EXT_PINNED_MEMORY_ALLOC(physx::PxVec4, *cudaContextManager, mTriangleMesh->getNbVertices());
+		mPositionsInvMass = PX_EXT_PINNED_MEMORY_ALLOC(ev4sio_physx::PxVec4, *cudaContextManager, mTriangleMesh->getNbVertices());
 	}
 
 	~TestSurface()
@@ -72,21 +72,21 @@ public:
 
 	void copyDeformedVerticesFromGPUAsync(CUstream stream)
 	{	
-		physx::PxScopedCudaLock _lock(*mCudaContextManager);
-		mCudaContextManager->getCudaContext()->memcpyDtoHAsync(mPositionsInvMass, reinterpret_cast<CUdeviceptr>(mDeformableSurface->getPositionInvMassBufferD()), mTriangleMesh->getNbVertices() * sizeof(physx::PxVec4), stream);
+		ev4sio_physx::PxScopedCudaLock _lock(*mCudaContextManager);
+		mCudaContextManager->getCudaContext()->memcpyDtoHAsync(mPositionsInvMass, reinterpret_cast<CUdeviceptr>(mDeformableSurface->getPositionInvMassBufferD()), mTriangleMesh->getNbVertices() * sizeof(ev4sio_physx::PxVec4), stream);
 	}
 
 	void copyDeformedVerticesFromGPU()
 	{	
-		physx::PxScopedCudaLock _lock(*mCudaContextManager);
-		mCudaContextManager->getCudaContext()->memcpyDtoH(mPositionsInvMass, reinterpret_cast<CUdeviceptr>(mDeformableSurface->getPositionInvMassBufferD()), mTriangleMesh->getNbVertices() * sizeof(physx::PxVec4));
+		ev4sio_physx::PxScopedCudaLock _lock(*mCudaContextManager);
+		mCudaContextManager->getCudaContext()->memcpyDtoH(mPositionsInvMass, reinterpret_cast<CUdeviceptr>(mDeformableSurface->getPositionInvMassBufferD()), mTriangleMesh->getNbVertices() * sizeof(ev4sio_physx::PxVec4));
 	}
 
 
-	physx::PxVec4* mPositionsInvMass;
-	physx::PxDeformableSurface* mDeformableSurface;
-	physx::PxCudaContextManager* mCudaContextManager;
-	physx::PxTriangleMesh* mTriangleMesh;
+	ev4sio_physx::PxVec4* mPositionsInvMass;
+	ev4sio_physx::PxDeformableSurface* mDeformableSurface;
+	ev4sio_physx::PxCudaContextManager* mCudaContextManager;
+	ev4sio_physx::PxTriangleMesh* mTriangleMesh;
 };
 
 #endif // PHYSX_SNIPPET_DEFORMABLE_SURFACE_H

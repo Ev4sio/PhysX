@@ -39,9 +39,9 @@
 #include "GuDistancePointTriangle.h"
 #include "GuDistancePointTetrahedron.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Gu
+namespace ev4sio_Gu
 {
 	struct BVHNode;
 	struct SAH_Buffers;
@@ -235,7 +235,7 @@ namespace Gu
 	class FIFOStack;
 	//~Progressive building
 
-	// PT: base class used to share some data and code between Gu::AABBtree and Gu::BVH. This is WIP and subject to change.
+	// PT: base class used to share some data and code between ev4sio_Gu::AABBtree and ev4sio_Gu::BVH. This is WIP and subject to change.
 	// Design dictated by refactoring necessities rather than a grand vision of something.
 	class BVHCoreData : public PxUserAllocated
 	{
@@ -333,7 +333,7 @@ namespace Gu
 
 	struct TinyBVH
 	{
-		PxArray<Gu::BVHNode> mTree;
+		PxArray<ev4sio_Gu::BVHNode> mTree;
 
 		PX_PHYSX_COMMON_API static void constructFromTriangles(const PxU32* triangles, const PxU32 numTriangles, const PxVec3* points,
 			TinyBVH& result, PxF32 enlargement = 1e-4f);
@@ -344,7 +344,7 @@ namespace Gu
 		template<typename T>
 		void Traverse(T& traversalController, PxI32 rootNodeIndex = 0)
 		{
-			Gu::traverseBVH(mTree.begin(), traversalController, rootNodeIndex);
+			ev4sio_Gu::traverseBVH(mTree.begin(), traversalController, rootNodeIndex);
 		}
 	};
 
@@ -354,7 +354,7 @@ namespace Gu
 		PxReal mClosestDistanceSquared;
 		const PxU32* mTetrahedra;
 		const PxVec3* mPoints;
-		const Gu::BVHNode* mNodes;
+		const ev4sio_Gu::BVHNode* mNodes;
 		PxVec3 mQueryPoint;
 		PxVec3 mClosestPoint;
 		PxI32 mClosestTetId;
@@ -362,13 +362,13 @@ namespace Gu
 	public:
 		PX_FORCE_INLINE ClosestDistanceToTetmeshTraversalController() {}
 
-		PX_FORCE_INLINE ClosestDistanceToTetmeshTraversalController(const PxU32* tetrahedra, const PxVec3* points, Gu::BVHNode* nodes) :
+		PX_FORCE_INLINE ClosestDistanceToTetmeshTraversalController(const PxU32* tetrahedra, const PxVec3* points, ev4sio_Gu::BVHNode* nodes) :
 			mClosestDistanceSquared(PX_MAX_F32), mTetrahedra(tetrahedra), mPoints(points), mNodes(nodes), mQueryPoint(0.0f), mClosestPoint(0.0f), mClosestTetId(-1)
 		{
 			initialize(tetrahedra, points, nodes);
 		}
 
-		void initialize(const PxU32* tetrahedra, const PxVec3* points, Gu::BVHNode* nodes)
+		void initialize(const PxU32* tetrahedra, const PxVec3* points, ev4sio_Gu::BVHNode* nodes)
 		{
 			mTetrahedra = tetrahedra;
 			mPoints = points;
@@ -398,10 +398,10 @@ namespace Gu
 			return (closestPt - point).magnitudeSquared();
 		}
 
-		PX_FORCE_INLINE Gu::TraversalControl::Enum analyze(const Gu::BVHNode& node, PxI32)
+		PX_FORCE_INLINE ev4sio_Gu::TraversalControl::Enum analyze(const ev4sio_Gu::BVHNode& node, PxI32)
 		{
 			if (distancePointBoxSquared(node.mBV, mQueryPoint) >= mClosestDistanceSquared)
-				return Gu::TraversalControl::eDontGoDeeper;
+				return ev4sio_Gu::TraversalControl::eDontGoDeeper;
 
 			if (node.isLeaf())
 			{
@@ -420,27 +420,27 @@ namespace Gu
 					mClosestPoint = closest;
 				}
 				if (d2 == 0.0f)
-					return Gu::TraversalControl::eAbort;
+					return ev4sio_Gu::TraversalControl::eAbort;
 
-				return Gu::TraversalControl::eDontGoDeeper;
+				return ev4sio_Gu::TraversalControl::eDontGoDeeper;
 			}
 
-			const Gu::BVHNode& nodePos = mNodes[node.getPosIndex()];
+			const ev4sio_Gu::BVHNode& nodePos = mNodes[node.getPosIndex()];
 			const PxReal distSquaredPos = distancePointBoxSquared(nodePos.mBV, mQueryPoint);
-			const Gu::BVHNode& nodeNeg = mNodes[node.getNegIndex()];
+			const ev4sio_Gu::BVHNode& nodeNeg = mNodes[node.getNegIndex()];
 			const PxReal distSquaredNeg = distancePointBoxSquared(nodeNeg.mBV, mQueryPoint);
 
 			if (distSquaredPos < distSquaredNeg)
 			{
 				if (distSquaredPos < mClosestDistanceSquared)
-					return Gu::TraversalControl::eGoDeeper;
+					return ev4sio_Gu::TraversalControl::eGoDeeper;
 			}
 			else
 			{
 				if (distSquaredNeg < mClosestDistanceSquared)
-					return Gu::TraversalControl::eGoDeeperNegFirst;
+					return ev4sio_Gu::TraversalControl::eGoDeeperNegFirst;
 			}
-			return Gu::TraversalControl::eDontGoDeeper;
+			return ev4sio_Gu::TraversalControl::eDontGoDeeper;
 		}
 
 		PxI32 getClosestTetId() const { return mClosestTetId; }
@@ -462,7 +462,7 @@ namespace Gu
 		PxReal mClosestDistanceSquared;
 		const PxU32* mTriangles;
 		const PxVec3* mPoints;
-		const Gu::BVHNode* mNodes;
+		const ev4sio_Gu::BVHNode* mNodes;
 		PxVec3 mQueryPoint;
 		PxVec3 mClosestPoint;
 		PxI32 mClosestTriId;
@@ -470,13 +470,13 @@ namespace Gu
 	public:
 		PX_FORCE_INLINE ClosestDistanceToTrimeshTraversalController() {}
 
-		PX_FORCE_INLINE ClosestDistanceToTrimeshTraversalController(const PxU32* triangles, const PxVec3* points, Gu::BVHNode* nodes) :
+		PX_FORCE_INLINE ClosestDistanceToTrimeshTraversalController(const PxU32* triangles, const PxVec3* points, ev4sio_Gu::BVHNode* nodes) :
 			mClosestDistanceSquared(PX_MAX_F32), mTriangles(triangles), mPoints(points), mNodes(nodes), mQueryPoint(0.0f), mClosestPoint(0.0f), mClosestTriId(-1)
 		{
 			initialize(triangles, points, nodes);
 		}
 
-		void initialize(const PxU32* triangles, const PxVec3* points, Gu::BVHNode* nodes)
+		void initialize(const PxU32* triangles, const PxVec3* points, ev4sio_Gu::BVHNode* nodes)
 		{
 			mTriangles = triangles;
 			mPoints = points;
@@ -507,10 +507,10 @@ namespace Gu
 			return (closestPt - point).magnitudeSquared();
 		}
 
-		PX_FORCE_INLINE Gu::TraversalControl::Enum analyze(const Gu::BVHNode& node, PxI32)
+		PX_FORCE_INLINE ev4sio_Gu::TraversalControl::Enum analyze(const ev4sio_Gu::BVHNode& node, PxI32)
 		{
 			if (distancePointBoxSquared(node.mBV, mQueryPoint) >= mClosestDistanceSquared)
-				return Gu::TraversalControl::eDontGoDeeper;
+				return ev4sio_Gu::TraversalControl::eDontGoDeeper;
 
 			if (node.isLeaf())
 			{
@@ -524,7 +524,7 @@ namespace Gu
 				aos::Vec3V b = V3LoadU(mPoints[tri[1]]);
 				aos::Vec3V c = V3LoadU(mPoints[tri[2]]);
 				aos::Vec3V cp;
-				aos::FloatV d = Gu::distancePointTriangleSquared2UnitBox(q, a, b, c, t1, t2, cp);
+				aos::FloatV d = ev4sio_Gu::distancePointTriangleSquared2UnitBox(q, a, b, c, t1, t2, cp);
 				PxReal d2;
 				FStore(d, &d2);
 				PxVec3 closest;
@@ -538,25 +538,25 @@ namespace Gu
 					mClosestTriId = j;
 					mClosestPoint = closest;
 				}
-				return Gu::TraversalControl::eDontGoDeeper;
+				return ev4sio_Gu::TraversalControl::eDontGoDeeper;
 			}
 
-			const Gu::BVHNode& nodePos = mNodes[node.getPosIndex()];
+			const ev4sio_Gu::BVHNode& nodePos = mNodes[node.getPosIndex()];
 			const PxReal distSquaredPos = distancePointBoxSquared(nodePos.mBV, mQueryPoint);
-			const Gu::BVHNode& nodeNeg = mNodes[node.getNegIndex()];
+			const ev4sio_Gu::BVHNode& nodeNeg = mNodes[node.getNegIndex()];
 			const PxReal distSquaredNeg = distancePointBoxSquared(nodeNeg.mBV, mQueryPoint);
 
 			if (distSquaredPos < distSquaredNeg)
 			{
 				if (distSquaredPos < mClosestDistanceSquared)
-					return Gu::TraversalControl::eGoDeeper;
+					return ev4sio_Gu::TraversalControl::eGoDeeper;
 			}
 			else
 			{
 				if (distSquaredNeg < mClosestDistanceSquared)
-					return Gu::TraversalControl::eGoDeeperNegFirst;
+					return ev4sio_Gu::TraversalControl::eGoDeeperNegFirst;
 			}
-			return Gu::TraversalControl::eDontGoDeeper;
+			return ev4sio_Gu::TraversalControl::eDontGoDeeper;
 		}
 
 		PxI32 getClosestTriId() const { return mClosestTriId; }
@@ -574,7 +574,7 @@ namespace Gu
 
 
 
-} // namespace Gu
+} // namespace ev4sio_Gu
 }
 
 #endif // GU_AABBTREE_H

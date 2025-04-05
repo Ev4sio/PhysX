@@ -29,7 +29,7 @@
 #ifndef PXG_COMMON_H
 #define PXG_COMMON_H
 
-namespace physx
+namespace ev4sio_physx
 {
 	//this is needed to force PhysXCommonGpu linkage as Static Library!
 	void createPxgCommon();

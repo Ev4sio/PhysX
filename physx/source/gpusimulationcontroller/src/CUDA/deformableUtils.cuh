@@ -38,7 +38,7 @@
 #include "PxgBodySim.h"
 #include "dataReadWriteHelper.cuh"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 //This code is based on Matthias Muller's paper: A robust method to extract the rotational part of deformations
 //Basically, this is another way to extract a rotational matrix from deformation gradient instead of using polar
@@ -176,11 +176,11 @@ PX_FORCE_INLINE __device__ void prepareFEMContacts(PxgFemRigidConstraintBlock& c
 
 		PxSpatialMatrix& spatialResponse = articulation.spatialResponseMatrixW[linkID];
 
-		const Cm::UnAlignedSpatialVector deltaV0 = spatialResponse * Cm::UnAlignedSpatialVector(normal, raXn);
+		const ev4sio_Cm::UnAlignedSpatialVector deltaV0 = spatialResponse * ev4sio_Cm::UnAlignedSpatialVector(normal, raXn);
 		const PxReal resp0 = deltaV0.top.dot(raXn) + deltaV0.bottom.dot(normal);
 
-		const Cm::UnAlignedSpatialVector deltaFV0 = spatialResponse * Cm::UnAlignedSpatialVector(t0, raXF0);
-		const Cm::UnAlignedSpatialVector deltaFV1 = spatialResponse * Cm::UnAlignedSpatialVector(t1, raXF1);
+		const ev4sio_Cm::UnAlignedSpatialVector deltaFV0 = spatialResponse * ev4sio_Cm::UnAlignedSpatialVector(t0, raXF0);
+		const ev4sio_Cm::UnAlignedSpatialVector deltaFV1 = spatialResponse * ev4sio_Cm::UnAlignedSpatialVector(t1, raXF1);
 
 		const PxReal respF0 = deltaFV0.top.dot(raXF0) + deltaFV0.bottom.dot(t0);
 		const PxReal respF1 = deltaFV1.top.dot(raXF1) + deltaFV1.bottom.dot(t1);

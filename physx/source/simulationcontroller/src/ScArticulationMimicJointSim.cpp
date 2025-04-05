@@ -33,10 +33,10 @@
 #include "PxArticulationReducedCoordinate.h"
 #include "DyArticulationMimicJointCore.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
-Sc::ArticulationMimicJointSim::ArticulationMimicJointSim(ArticulationMimicJointCore& mimicJointCore, Scene& scene) :
+ev4sio_Sc::ArticulationMimicJointSim::ArticulationMimicJointSim(ArticulationMimicJointCore& mimicJointCore, Scene& scene) :
 	mScene(scene), mCore(mimicJointCore),
 	mLLIndex(0xffffffff)
 {
@@ -49,33 +49,33 @@ Sc::ArticulationMimicJointSim::ArticulationMimicJointSim(ArticulationMimicJointC
 	mLLMimicJoint.dampingRatio = mimicJointCore.mDampingRatio;
 }
 
-Sc::ArticulationMimicJointSim::~ArticulationMimicJointSim()
+ev4sio_Sc::ArticulationMimicJointSim::~ArticulationMimicJointSim()
 {
 	mCore.setSim(NULL);
 }
 
-void Sc::ArticulationMimicJointSim::setGearRatio(const PxReal gearRatio)
+void ev4sio_Sc::ArticulationMimicJointSim::setGearRatio(const PxReal gearRatio)
 {
 	mLLMimicJoint.gearRatio = gearRatio;
-	mArticulationSim->setArticulationDirty(Dy::ArticulationDirtyFlag::eDIRTY_MIMIC_JOINT);
+	mArticulationSim->setArticulationDirty(ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_MIMIC_JOINT);
 }
 
-void Sc::ArticulationMimicJointSim::setOffset(const PxReal offset)
+void ev4sio_Sc::ArticulationMimicJointSim::setOffset(const PxReal offset)
 {
 	mLLMimicJoint.offset = offset;
-	mArticulationSim->setArticulationDirty(Dy::ArticulationDirtyFlag::eDIRTY_MIMIC_JOINT);
+	mArticulationSim->setArticulationDirty(ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_MIMIC_JOINT);
 }
 
-void Sc::ArticulationMimicJointSim::setNaturalFrequency(const PxReal naturalFrequency)
+void ev4sio_Sc::ArticulationMimicJointSim::setNaturalFrequency(const PxReal naturalFrequency)
 {
 	mLLMimicJoint.naturalFrequency = naturalFrequency;
-	mArticulationSim->setArticulationDirty(Dy::ArticulationDirtyFlag::eDIRTY_MIMIC_JOINT);
+	mArticulationSim->setArticulationDirty(ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_MIMIC_JOINT);
 }
 
-void Sc::ArticulationMimicJointSim::setDampingRatio(const PxReal dampingRatio)
+void ev4sio_Sc::ArticulationMimicJointSim::setDampingRatio(const PxReal dampingRatio)
 {
 	mLLMimicJoint.dampingRatio = dampingRatio;
-	mArticulationSim->setArticulationDirty(Dy::ArticulationDirtyFlag::eDIRTY_MIMIC_JOINT);
+	mArticulationSim->setArticulationDirty(ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_MIMIC_JOINT);
 }
 
 

@@ -31,12 +31,12 @@
 
 #include "PxgFEMCore.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 #define FEMCLOTH_MAX_NUM_PARTITIONS 32
 
-	namespace Dy
+	namespace ev4sio_Dy
 	{
 		struct DeformableSurfaceCore;
 		class DeformableSurface;
@@ -234,8 +234,8 @@ namespace physx
 											  // before we call applyExternalTetraDelta
 
 	  public:
-		PxArray<Dy::DeformableSurface*> mActivatingDeformableSurfaces;
-		PxArray<Dy::DeformableSurface*> mDeactivatingDeformableSurfaces;
+		PxArray<ev4sio_Dy::DeformableSurface*> mActivatingDeformableSurfaces;
+		PxArray<ev4sio_Dy::DeformableSurface*> mDeactivatingDeformableSurfaces;
 		PxPostSolveCallback* mPostSolveCallback;
 	};
 }

@@ -33,11 +33,11 @@
 #include "PxvConfig.h"
 #include "PxcContactMethodImpl.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	class PxcNpThreadContext;
 
-	bool PxcCacheLocalContacts(	PxcNpThreadContext& context, Gu::Cache& pairContactCache,
+	bool PxcCacheLocalContacts(	PxcNpThreadContext& context, ev4sio_Gu::Cache& pairContactCache,
 								const PxTransform32& tm0, const PxTransform32& tm1,
 								const PxcContactMethod conMethod,
 								const PxGeometry& shape0, const PxGeometry& shape1);

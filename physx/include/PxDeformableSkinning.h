@@ -39,7 +39,7 @@
 #include "common/PxCoreUtilityTypes.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -218,7 +218,7 @@ namespace physx
 #endif
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

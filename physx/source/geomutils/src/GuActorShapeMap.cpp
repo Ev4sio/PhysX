@@ -29,12 +29,12 @@
 #include "GuActorShapeMap.h"
 #include "foundation/PxMemory.h"
 
-using namespace physx;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
 
-namespace physx
+namespace ev4sio_physx
 {
-	namespace Gu
+	namespace ev4sio_Gu
 	{
 		/*PX_FORCE_INLINE*/ uint32_t PxComputeHash(const ActorShapeMap::ActorShape& owner)
 		{

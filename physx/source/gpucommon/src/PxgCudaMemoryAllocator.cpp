@@ -48,7 +48,7 @@
 #include "cudamanager/PxCudaContext.h"
 #include "common/PxPhysXCommonConfig.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 // memory tracking.
 #if PX_DEBUG
@@ -59,13 +59,13 @@ static MemTracker hostMemTracker;
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void* physx::PxgPinnedMemoryAllocate(PxCudaContext& cudaContext, size_t size, const char* filename, PxI32 line)
+void* ev4sio_physx::PxgPinnedMemoryAllocate(PxCudaContext& cudaContext, size_t size, const char* filename, PxI32 line)
 {
 	PxU8* ptr = NULL;
 	CUresult result = cudaContext.memHostAlloc((void**)&ptr, size, CU_MEMHOSTALLOC_DEVICEMAP | CU_MEMHOSTALLOC_PORTABLE);
 	if (result != CUDA_SUCCESS || !ptr)
 	{
-		PxGetFoundation().error(PX_WARN, PX_FL, "Failed to allocate pinned memory.");
+		ev4sio_PxGetFoundation().error(PX_WARN, PX_FL, "Failed to allocate pinned memory.");
 		return NULL;
 	}
 
@@ -89,7 +89,7 @@ void* physx::PxgPinnedMemoryAllocate(PxCudaContext& cudaContext, size_t size, co
 	return ptr;
 }
 
-void physx::PxgPinnedMemoryDeallocate(PxCudaContext& cudaContext, void* ptr)
+void ev4sio_physx::PxgPinnedMemoryDeallocate(PxCudaContext& cudaContext, void* ptr)
 {
 	if (ptr == NULL)
 		return;
@@ -104,7 +104,7 @@ void physx::PxgPinnedMemoryDeallocate(PxCudaContext& cudaContext, void* ptr)
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void* physx::PxgCudaDeviceMemoryAllocate(PxCudaContext& cudaContext, size_t size, const char* filename, PxI32 line)
+void* ev4sio_physx::PxgCudaDeviceMemoryAllocate(PxCudaContext& cudaContext, size_t size, const char* filename, PxI32 line)
 {
 	if (cudaContext.isInAbortMode())
 		return NULL;
@@ -117,7 +117,7 @@ void* physx::PxgCudaDeviceMemoryAllocate(PxCudaContext& cudaContext, size_t size
 		if (!result)
 		{
 			cudaContext.setAbortMode(true);
-			PxGetFoundation().error(PxErrorCode::eOUT_OF_MEMORY, PX_FL, "PxDeviceAllocatorCallback failed to allocate memory %zu bytes!", size);
+			ev4sio_PxGetFoundation().error(PxErrorCode::eOUT_OF_MEMORY, PX_FL, "PxDeviceAllocatorCallback failed to allocate memory %zu bytes!", size);
 			return NULL;
 		}
 #if PX_DEBUG
@@ -137,7 +137,7 @@ void* physx::PxgCudaDeviceMemoryAllocate(PxCudaContext& cudaContext, size_t size
 		if (result != CUDA_SUCCESS)
 		{
 			cudaContext.setAbortMode(true);
-			PxGetFoundation().error(PxErrorCode::eOUT_OF_MEMORY, PX_FL, "PxgCudaDeviceMemoryAllocator failed to allocate memory %zu bytes! Result = %i", size, result);
+			ev4sio_PxGetFoundation().error(PxErrorCode::eOUT_OF_MEMORY, PX_FL, "PxgCudaDeviceMemoryAllocator failed to allocate memory %zu bytes! Result = %i", size, result);
 			return NULL;
 		}
 #if PX_DEBUG
@@ -151,20 +151,20 @@ void* physx::PxgCudaDeviceMemoryAllocate(PxCudaContext& cudaContext, size_t size
 	}
 }
 
-void physx::PxgCudaDeviceMemoryDeallocate(PxCudaContext& cudaContext, void* ptr)
+void ev4sio_physx::PxgCudaDeviceMemoryDeallocate(PxCudaContext& cudaContext, void* ptr)
 {
 	PxDeviceAllocatorCallback* callback = cudaContext.getAllocatorCallback();
 	if (callback)
 	{
 		bool result = callback->memFree(ptr);
 		if (!result)
-			PxGetFoundation().error(PX_WARN, PX_FL, "PxDeviceAllocatorCallback fail to deallocate memory!!\n");
+			ev4sio_PxGetFoundation().error(PX_WARN, PX_FL, "PxDeviceAllocatorCallback fail to deallocate memory!!\n");
 	}
 	else
 	{
 		CUresult result = cudaContext.memFree(reinterpret_cast<CUdeviceptr>(ptr));
 		if (result != CUDA_SUCCESS)
-			PxGetFoundation().error(PX_WARN, PX_FL, "PxgCudaDeviceMemoryDeallocate fail to deallocate memory!! Result = %i\n", result);
+			ev4sio_PxGetFoundation().error(PX_WARN, PX_FL, "PxgCudaDeviceMemoryDeallocate fail to deallocate memory!! Result = %i\n", result);
 	}
 #if PX_DEBUG
 	if (ptr) 
@@ -221,11 +221,11 @@ void* PxgPinnedHostLinearMemoryAllocator::allocate(const PxU64 size, const PxU64
 	if(size > 0)
 	{
 		const PxI64 alignedSize = PxI64(size + alignment);
-		PxU64 baseOffset = PxU64(physx::PxAtomicAdd(reinterpret_cast<PxI64*>(&mCurrentSize), alignedSize));
+		PxU64 baseOffset = PxU64(ev4sio_physx::PxAtomicAdd(reinterpret_cast<PxI64*>(&mCurrentSize), alignedSize));
 
 		if (baseOffset > mTotalSize)
 		{
-			PxGetFoundation().error(PxErrorCode::eOUT_OF_MEMORY, PX_FL, "PxgPinnedHostLinearMemoryAllocator: overflowing initial allocation size, increase capacity to at least %u\n", baseOffset);
+			ev4sio_PxGetFoundation().error(PxErrorCode::eOUT_OF_MEMORY, PX_FL, "PxgPinnedHostLinearMemoryAllocator: overflowing initial allocation size, increase capacity to at least %u\n", baseOffset);
 			return NULL;
 		}
 

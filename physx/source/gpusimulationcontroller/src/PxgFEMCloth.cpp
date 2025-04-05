@@ -34,7 +34,7 @@
 #include "geometry/PxSimpleTriangleMesh.h"
 #include <stdio.h>
 
-namespace physx
+namespace ev4sio_physx
 {
 
 /*******************************************************************************
@@ -64,37 +64,37 @@ void queryVertexIndicesAndTriangleIndexPairs(PxArray<uint4>& vertexIndicesAndTri
  *
  ******************************************************************************/
 
-PxU32 PxgFEMClothUtil::computeTriangleMeshByteSize(const Gu::TriangleMesh* triangleMesh)
+PxU32 PxgFEMClothUtil::computeTriangleMeshByteSize(const ev4sio_Gu::TriangleMesh* triangleMesh)
 {
 	const PxU32 meshDataSize = sizeof(uint4); // (nbVerts, nbTriangles, maxDepth, nbBv32TreeNodes)
 
 	// ML: don't know whether we need to have local bound
-	Gu::BV32Tree* bv32Tree = triangleMesh->mGRB_BV32Tree;
-	const PxU32 bv32Size = bv32Tree->mNbPackedNodes * sizeof(Gu::BV32DataPacked) + bv32Tree->mMaxTreeDepth * sizeof(Gu::BV32DataDepthInfo) +
+	ev4sio_Gu::BV32Tree* bv32Tree = triangleMesh->mGRB_BV32Tree;
+	const PxU32 bv32Size = bv32Tree->mNbPackedNodes * sizeof(ev4sio_Gu::BV32DataPacked) + bv32Tree->mMaxTreeDepth * sizeof(ev4sio_Gu::BV32DataDepthInfo) +
 						   bv32Tree->mNbPackedNodes * sizeof(PxU32);
 
 	return meshDataSize + bv32Size;
 }
 
-PxU32 PxgFEMClothUtil::loadOutTriangleMesh(void* mem, const Gu::TriangleMesh* triangleMesh)
+PxU32 PxgFEMClothUtil::loadOutTriangleMesh(void* mem, const ev4sio_Gu::TriangleMesh* triangleMesh)
 {
 	const PxU32 nbTriangles = triangleMesh->getNbTrianglesFast();
 	const PxU32 numVerts = triangleMesh->getNbVerticesFast();
 
-	Gu::BV32Tree* bv32Tree = triangleMesh->mGRB_BV32Tree;
+	ev4sio_Gu::BV32Tree* bv32Tree = triangleMesh->mGRB_BV32Tree;
 
 	PxU8* m = (PxU8*)mem;
 	*((uint4*)m) = make_uint4(numVerts, nbTriangles, bv32Tree->mMaxTreeDepth, bv32Tree->mNbPackedNodes);
 	m += sizeof(uint4);
 
 	// Midphase
-	PxMemCopy(m, bv32Tree->mPackedNodes, sizeof(Gu::BV32DataPacked) * bv32Tree->mNbPackedNodes);
-	m += sizeof(Gu::BV32DataPacked) * bv32Tree->mNbPackedNodes;
+	PxMemCopy(m, bv32Tree->mPackedNodes, sizeof(ev4sio_Gu::BV32DataPacked) * bv32Tree->mNbPackedNodes);
+	m += sizeof(ev4sio_Gu::BV32DataPacked) * bv32Tree->mNbPackedNodes;
 
 	PX_ASSERT(bv32Tree->mNbPackedNodes > 0);
 
-	PxMemCopy(m, bv32Tree->mTreeDepthInfo, sizeof(Gu::BV32DataDepthInfo) * bv32Tree->mMaxTreeDepth);
-	m += sizeof(Gu::BV32DataDepthInfo) * bv32Tree->mMaxTreeDepth;
+	PxMemCopy(m, bv32Tree->mTreeDepthInfo, sizeof(ev4sio_Gu::BV32DataDepthInfo) * bv32Tree->mMaxTreeDepth);
+	m += sizeof(ev4sio_Gu::BV32DataDepthInfo) * bv32Tree->mMaxTreeDepth;
 
 	PxMemCopy(m, bv32Tree->mRemapPackedNodeIndexWithDepth, sizeof(PxU32) * bv32Tree->mNbPackedNodes);
 	m += sizeof(PxU32) * bv32Tree->mNbPackedNodes;
@@ -103,7 +103,7 @@ PxU32 PxgFEMClothUtil::loadOutTriangleMesh(void* mem, const Gu::TriangleMesh* tr
 }
 
 PxU32 PxgFEMClothUtil::initialTriangleData(PxgFEMCloth& femCloth, PxArray<uint2>& trianglePairTriangleIndices,
-										   PxArray<uint4>& trianglePairVertexIndices, const Gu::TriangleMesh* triangleMesh,
+										   PxArray<uint4>& trianglePairVertexIndices, const ev4sio_Gu::TriangleMesh* triangleMesh,
 										   const PxU16* materialHandles, PxsDeformableSurfaceMaterialData* materials, const PxU32 nbMaterials)
 {
 	PX_UNUSED(nbMaterials);
@@ -380,7 +380,7 @@ static void initialMaterialData(const PxU16* materialIndices, const PxU16* mater
 
 void PxgFEMClothUtil::computeNonSharedTriangleConfiguration(PxgFEMCloth& femCloth, const PxArray<PxU32>& orderedNonSharedTriangles,
 															const PxArray<PxU32>& activeTriangleIndices,
-															const Gu::TriangleMesh* const triangleMesh)
+															const ev4sio_Gu::TriangleMesh* const triangleMesh)
 {
 	const PxVec3* positions = triangleMesh->getVerticesFast();
 	float4* orderedTriangleRestPoseInv = femCloth.mOrderedNonSharedTriangleRestPoseInv;
@@ -556,7 +556,7 @@ bool PxgFEMClothUtil::updateRestConfiguration(float4* orderedRestAngleAndStiffne
 
 void PxgFEMClothUtil::computeTrianglePairConfiguration(
 	PxgFEMCloth& femCloth, PxArray<uint2>& trianglePairTriangleIndices, const PxArray<uint4>& trianglePairVertexIndices,
-	const PxArray<PxU32>& orderedTrianglePairs, const PxArray<PxU32>& activeTrianglePairIndices, const Gu::TriangleMesh* const triangleMesh,
+	const PxArray<PxU32>& orderedTrianglePairs, const PxArray<PxU32>& activeTrianglePairIndices, const ev4sio_Gu::TriangleMesh* const triangleMesh,
 	const PxsDeformableSurfaceMaterialData* materials, bool zeroRestBendingAngle, bool isSharedPartition)
 {
 	const PxVec3* positions = triangleMesh->getVerticesFast();
@@ -677,4 +677,4 @@ void PxgFEMCloth::deallocate(PxsHeapMemoryAllocator *allocator)
 	allocator->deallocate(mDynamicFrictions);
 }
 
-} // namespace physx
+} // namespace ev4sio_physx

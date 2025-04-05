@@ -43,13 +43,13 @@
 	PxReal restDistance,							\
 	PxVec3& worldNormal,							\
 	PxVec3& worldPoint,								\
-	const Cm::FastVertex2ShapeScaling& meshScaling,	\
-	Gu::TriangleV& triangle,						\
+	const ev4sio_Cm::FastVertex2ShapeScaling& meshScaling,	\
+	ev4sio_Gu::TriangleV& triangle,						\
 	const PxF32 toiEstimate
 
 #define GU_SWEEP_METHOD_ARGS			\
-	const Gu::CCDShape& shape0,			\
-	const Gu::CCDShape& shape1,			\
+	const ev4sio_Gu::CCDShape& shape0,			\
+	const ev4sio_Gu::CCDShape& shape1,			\
 	const PxTransform32& transform0,	\
 	const PxTransform32& transform1,	\
 	const PxTransform32& lastTm0,		\
@@ -68,8 +68,8 @@
 	const PxReal fastMovingThreshold
 
 #define GU_SWEEP_METHOD_ARGS_UNUSED		\
-	const Gu::CCDShape& /*shape0*/,		\
-	const Gu::CCDShape& /*shape1*/,		\
+	const ev4sio_Gu::CCDShape& /*shape0*/,		\
+	const ev4sio_Gu::CCDShape& /*shape1*/,		\
 	const PxTransform32& /*transform0*/,\
 	const PxTransform32& /*transform1*/,\
 	const PxTransform32& /*lastTm0*/,	\
@@ -81,9 +81,9 @@
 	PxU32& /*outCCDFaceIndex*/,			\
 	const PxReal /*fastMovingThreshold*/
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Gu
+namespace ev4sio_Gu
 {
 	struct CCDShape
 	{

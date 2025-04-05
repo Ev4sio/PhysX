@@ -62,13 +62,13 @@ struct BV32TraversalTemplate
 
 template<typename T, unsigned int WarpsPerBlock>
 __device__ static void bv32TreeTraversal(
-	const physx::Gu::BV32DataPacked* bv32PackedNodes,
+	const ev4sio_physx::ev4sio_Gu::BV32DataPacked* bv32PackedNodes,
 	int* sBv32Nodes,
 	T& callback
 )
 {
 #if OPTIMIZE_TRAVERSAL
-	__shared__ Gu::BV32DataPacked shNode[WarpsPerBlock];
+	__shared__ ev4sio_Gu::BV32DataPacked shNode[WarpsPerBlock];
 	const unsigned int warpId = threadIdx.y;
 #endif
 
@@ -76,7 +76,7 @@ __device__ static void bv32TreeTraversal(
 	const unsigned int idxInWarp = threadIdx.x;
 
 	PxU32 currentNodeIndex = 0; // start at the root
-	const Gu::BV32DataPacked* PX_RESTRICT currentNode = &bv32PackedNodes[0];
+	const ev4sio_Gu::BV32DataPacked* PX_RESTRICT currentNode = &bv32PackedNodes[0];
 
 	PxU32 nbStack = 0; // number of nodes on the stack of to-be-expanded nodes
 
@@ -85,12 +85,12 @@ __device__ static void bv32TreeTraversal(
 #if OPTIMIZE_TRAVERSAL
 		//This optimization was found in cudaParticleSystem.cu, line 2373
 		// VR: This variant works ~6 times *faster* on my GTX 1080
-		Gu::BV32DataPacked& node = shNode[warpId];
-		warpCopy((uint*)&node, (uint*)currentNode, sizeof(Gu::BV32DataPacked));
+		ev4sio_Gu::BV32DataPacked& node = shNode[warpId];
+		warpCopy((uint*)&node, (uint*)currentNode, sizeof(ev4sio_Gu::BV32DataPacked));
 		__syncwarp();
 #else
 		// VR: This variant works ~6 times *slower* on my GTX 1080
-		const Gu::BV32DataPacked& node = *currentNode;
+		const ev4sio_Gu::BV32DataPacked& node = *currentNode;
 #endif
 
 		__syncwarp(); //sBv32Nodes (shared memory) is read and written in the same loop - read and write must be separated with a sync

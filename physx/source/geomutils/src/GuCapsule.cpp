@@ -31,13 +31,13 @@
 #include "GuBox.h"
 #include "GuCapsule.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 /**
 *	Computes an OBB surrounding the capsule.
 *	\param		box		[out] the OBB
 */
-void Gu::computeBoxAroundCapsule(const Gu::Capsule& capsule, Gu::Box& box)
+void ev4sio_Gu::computeBoxAroundCapsule(const ev4sio_Gu::Capsule& capsule, ev4sio_Gu::Box& box)
 {
 	// Box center = center of the two capsule's endpoints
 	box.center = capsule.computeCenter();

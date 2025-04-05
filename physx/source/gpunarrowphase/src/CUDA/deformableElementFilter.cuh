@@ -34,7 +34,7 @@
 #include "PxgSimulationCoreDesc.h"
 #include "PxgParticleSystem.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 static __device__ bool find(PxParticleRigidFilterPair* pairs, const PxU32 nbPairs, PxParticleRigidFilterPair& pair)
 {

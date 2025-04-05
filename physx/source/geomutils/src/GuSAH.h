@@ -33,9 +33,9 @@
 #include "foundation/PxBounds3.h"
 #include "CmRadixSort.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Gu
+namespace ev4sio_Gu
 {
 	struct SAH_Buffers
 	{
@@ -44,7 +44,7 @@ namespace Gu
 
 		bool					split(PxU32& leftCount, PxU32 nb, const PxU32* PX_RESTRICT prims, const PxBounds3* PX_RESTRICT boxes, const PxVec3* PX_RESTRICT centers);
 
-		Cm::RadixSortBuffered	mSorters[3];
+		ev4sio_Cm::RadixSortBuffered	mSorters[3];
 		float*					mKeys;
 		float*					mCumulativeLower;
 		float*					mCumulativeUpper;

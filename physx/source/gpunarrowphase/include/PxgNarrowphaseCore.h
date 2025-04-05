@@ -54,7 +54,7 @@
 #include "geometry/PxParticleSystemGeometry.h"
 #include "PxvGeometry.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	class PxsTransformCache;
 	struct PxsMaterialData;
@@ -70,7 +70,7 @@ namespace physx
 
 	struct PxgFemContactInfo;
 
-	namespace Gu
+	namespace ev4sio_Gu
 	{
 		struct ConvexHullData;
 		class TriangleMesh;
@@ -80,12 +80,12 @@ namespace physx
 		class PersistentContactManifold;
 	}
 
-	namespace Cm
+	namespace ev4sio_Cm
 	{
 		class FlushPool;
 	}
 
-	namespace IG
+	namespace ev4sio_IG
 	{
 		class IslandSim;
 	}
@@ -195,7 +195,7 @@ namespace physx
 
 		PxPinnedArray<PxgContactManagerInput>		mGpuInputContactManagers;
 		PxPinnedArray<PxsContactManager*>			mCpuContactManagerMapping;
-		PxPinnedArray<const Sc::ShapeInteraction*>	mShapeInteractions;
+		PxPinnedArray<const ev4sio_Sc::ShapeInteraction*>	mShapeInteractions;
 		PxFloatArrayPinned							mRestDistances;
 		PxPinnedArray<PxsTorsionalFrictionData>		mTorsionalProperties;
 
@@ -255,7 +255,7 @@ namespace physx
 		PxgTypedCudaBuffer<PxsContactManagerOutputCounts> mLostFoundPairsOutputData;
 		PxgTypedCudaBuffer<PxsContactManager*>        mLostFoundPairsCms;
 		PxgTypedCudaBuffer<PxsContactManager*>        mCpuContactManagerMapping;
-		PxgTypedCudaBuffer<Sc::ShapeInteraction*>     mShapeInteractions;
+		PxgTypedCudaBuffer<ev4sio_Sc::ShapeInteraction*>     mShapeInteractions;
 		PxgTypedCudaBuffer<PxReal>                    mRestDistances;
 		PxgTypedCudaBuffer<PxsTorsionalFrictionData>  mTorsionalProperties;
 		uint2*								mLostAndTotalReportedPairsCountPinned;	
@@ -438,7 +438,7 @@ namespace physx
 	    PxgCopyManager							mCopyManBp;
 		PxgGeometryManager						mGeometryManager;
 
-		IG::IslandSim*							mIslandSim;
+		ev4sio_IG::IslandSim*							mIslandSim;
 
 		PxgNphaseImplementationContext*			mNphaseImplContext;
 		PxgGpuContext*							mGpuContext;
@@ -501,7 +501,7 @@ namespace physx
 	public:
 
 		PxgGpuNarrowphaseCore(PxgCudaKernelWranglerManager* gpuKernelWrangler, PxCudaContextManager* cudaContextManager, const PxGpuDynamicsMemoryConfig& gpuDynamicsConfig, void* contactStreamBase,
-			void* patchStreamBase, void* forceAndIndiceStreamBase, IG::IslandSim* islandSim, CUstream solverStream, PxgHeapMemoryAllocatorManager* heapMemoryManager,
+			void* patchStreamBase, void* forceAndIndiceStreamBase, ev4sio_IG::IslandSim* islandSim, CUstream solverStream, PxgHeapMemoryAllocatorManager* heapMemoryManager,
 			PxgNphaseImplementationContext* nphaseImplContext);
 		virtual ~PxgGpuNarrowphaseCore();		
 		
@@ -612,7 +612,7 @@ namespace physx
 		void updateFrictionPatches(PxgGpuContactManagers& gpuManagers, PxU32 count, PxU8* baseContactPatches, PxU8* baseFrictionPatches);
 
 		void fetchNarrowPhaseResults(PxcDataStreamPool* contactStreamPool, PxcDataStreamPool* patchStreamPool, PxcDataStreamPool* forceStreamPool,
-			PxsContactManagerOutput* cmOutputs, const Sc::ShapeInteraction*const* shapeInteractions, const PxReal* restDistances, const PxsTorsionalFrictionData* torsionalData, PxU32 nbFallbackPairs,
+			PxsContactManagerOutput* cmOutputs, const ev4sio_Sc::ShapeInteraction*const* shapeInteractions, const PxReal* restDistances, const PxsTorsionalFrictionData* torsionalData, PxU32 nbFallbackPairs,
 			const PxsContactManagerOutputCounts* foundPatchCounts, const PxsContactManager*const* foundPatchManagers, PxU32 nbFoundPatchManagers);
 
 		void syncNotRigidWithNp();
@@ -622,7 +622,7 @@ namespace physx
 
 		CUstream getStream();
 
-		void registerContactManager(PxsContactManager* cm, const Sc::ShapeInteraction* shapeInteraction, PxsContactManagerOutput& output, const PxU32 bucketId);
+		void registerContactManager(PxsContactManager* cm, const ev4sio_Sc::ShapeInteraction* shapeInteraction, PxsContactManagerOutput& output, const PxU32 bucketId);
 		void unregisterContactManager(PxsContactManager* manager, const PxU32 bucketId);
 		void refreshContactManager(PxsContactManager* manager, PxsContactManagerOutput* cmOutputs, PxgContactManagerInput& input, const PxU32 bucketId);
 
@@ -634,13 +634,13 @@ namespace physx
 		template <GPU_BUCKET_ID::Enum>
 		void prepareTempContactManagers();
 
-		void prepareTempContactManagersTasks(Cm::FlushPool& flushPool, PxBaseTask* continuation);
+		void prepareTempContactManagersTasks(ev4sio_Cm::FlushPool& flushPool, PxBaseTask* continuation);
 
 		bool isMeshGPUCompatible(const PxTriangleMeshGeometryLL& meshData);
 
 		bool isClothMeshGPUCompatible(const PxTriangleMeshGeometryLL& meshData); // skipping material counts
 
-		bool isTetMeshGPUCompatible(const Gu::BVTetrahedronMesh* meshData);
+		bool isTetMeshGPUCompatible(const ev4sio_Gu::BVTetrahedronMesh* meshData);
 
 		void computeRigidsToShapes();
 
@@ -652,7 +652,7 @@ namespace physx
 
 		PxsTorsionalFrictionData* getGPUTorsionalData() { return reinterpret_cast<PxsTorsionalFrictionData*>(mGpuContactManagers[GPU_BUCKET_ID::eConvex]->mContactManagers.mTorsionalProperties.getDevicePtr()); }
 
-		Sc::ShapeInteraction** getGPUShapeInteractions() { return reinterpret_cast<Sc::ShapeInteraction**>(mGpuContactManagers[GPU_BUCKET_ID::eConvex]->mContactManagers.mShapeInteractions.getDevicePtr()); }
+		ev4sio_Sc::ShapeInteraction** getGPUShapeInteractions() { return reinterpret_cast<ev4sio_Sc::ShapeInteraction**>(mGpuContactManagers[GPU_BUCKET_ID::eConvex]->mContactManagers.mShapeInteractions.getDevicePtr()); }
 
 		PxgContactManagers& getExistingContactManagers(GPU_BUCKET_ID::Enum type) { return mContactManagers[type]->mContactManagers; }
 		PxgNewContactManagers& getNewContactManagers(GPU_BUCKET_ID::Enum type) { return mContactManagers[type]->mNewContactManagers; }
@@ -673,8 +673,8 @@ namespace physx
 
 		void pushBuffer();
 
-		PxU32 addHull(const Gu::ConvexHullData& hull);
-		PxU32 getHullIdxByHostPtr(const Gu::ConvexHullData* hull);
+		PxU32 addHull(const ev4sio_Gu::ConvexHullData& hull);
+		PxU32 getHullIdxByHostPtr(const ev4sio_Gu::ConvexHullData* hull);
 		void removeGeometry(PxU32 idx);
 
 		//schedules data copies on the near phase stream
@@ -687,11 +687,11 @@ namespace physx
 	    void uploadDataChunksToGpuBp();
 	    void waitAndResetCopyQueuesBp();
 
-		PxU32 addTriMesh(const Gu::TriangleMesh& mesh);
-		PxU32 getTriMeshIdxByHostPtr(const Gu::TriangleMesh* mesh);
+		PxU32 addTriMesh(const ev4sio_Gu::TriangleMesh& mesh);
+		PxU32 getTriMeshIdxByHostPtr(const ev4sio_Gu::TriangleMesh* mesh);
 
-		PxU32 addHeightfield(const Gu::HeightFieldData& hf);
-		PxU32 getHeightfieldIdxByHostPtr(const Gu::HeightFieldData* hf);
+		PxU32 addHeightfield(const ev4sio_Gu::HeightFieldData& hf);
+		PxU32 getHeightfieldIdxByHostPtr(const ev4sio_Gu::HeightFieldData* hf);
 
 		void registerShape(const PxNodeIndex& nodeIndex, const PxsShapeCore& shapeCore, const PxU32 transformCacheID, const bool isFemCloth, PxActor* actor);
 		void updateShapeMaterial(const PxsShapeCore& shapeCore);
@@ -744,18 +744,18 @@ namespace physx
 		);
 
 		void adjustNpIndices(PxgNewContactManagers& newContactManagers, PxPinnedArray<PxgContactManagerInput>& itMainInputs,
-			PxPinnedArray<PxsContactManager*>& itCms, PxPinnedArray<const Sc::ShapeInteraction*>& itSIs,
+			PxPinnedArray<PxsContactManager*>& itCms, PxPinnedArray<const ev4sio_Sc::ShapeInteraction*>& itSIs,
 			PxFloatArrayPinned& itR, PxPinnedArray<PxsTorsionalFrictionData>& itTor,
 			PxPinnedArray<PxgContactManagerInput>& itNewInputs,
 			PxPinnedArray<PxsContactManager*>& itNewCms,
-			PxPinnedArray<const Sc::ShapeInteraction*>& itNewSIs, PxFloatArrayPinned& itNewR,
+			PxPinnedArray<const ev4sio_Sc::ShapeInteraction*>& itNewSIs, PxFloatArrayPinned& itNewR,
 			PxPinnedArray<PxsTorsionalFrictionData>& itNewTor);
 
-		void registerContactManagerInternal(PxsContactManager* cm, const Sc::ShapeInteraction* shapeInteraction, PxgContactManagerInput* input, PxsContactManagerOutput& output, PxgNewContactManagers& newContactManagers);
+		void registerContactManagerInternal(PxsContactManager* cm, const ev4sio_Sc::ShapeInteraction* shapeInteraction, PxgContactManagerInput* input, PxsContactManagerOutput& output, PxgNewContactManagers& newContactManagers);
 
 		void unregisterContactManagerInternal(PxsContactManager* cm, PxInt32ArrayPinned& removedIndices, PxgNewContactManagers& newContactManagers);
 	
-		void refreshContactManagerInternal(PxsContactManager* cm, PxsContactManagerOutput* cmOutputs, const Sc::ShapeInteraction** shapeInteractions, PxgContactManagerInput& input, PxgNewContactManagers& newContactManagers,
+		void refreshContactManagerInternal(PxsContactManager* cm, PxsContactManagerOutput* cmOutputs, const ev4sio_Sc::ShapeInteraction** shapeInteractions, PxgContactManagerInput& input, PxgNewContactManagers& newContactManagers,
 			PxInt32ArrayPinned& removedIndices);
 
 		template <typename Manifold> 
@@ -765,7 +765,7 @@ namespace physx
 
 		void removeLostPairsInternal(PxInt32ArrayPinned& removedIndices, PxgContactManagers& contactManagers);
 
-		void prepareTempContactManagersInternal(PxgNewContactManagers& newManagers, Cm::FlushPool& flushPool, PxBaseTask* continuation);
+		void prepareTempContactManagersInternal(PxgNewContactManagers& newManagers, ev4sio_Cm::FlushPool& flushPool, PxBaseTask* continuation);
 
 		void drawContacts(PxRenderOutput& out, CUdeviceptr contactsd, CUdeviceptr normalPensd, const PxU32 numContacts);
 

@@ -39,7 +39,7 @@
 #include "foundation/PxMath.h"
 #include <assert.h>
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 #define		RADIX_SIZE			16
 #define		RADIX_ACCUM_SIZE	8

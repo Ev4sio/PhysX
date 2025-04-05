@@ -45,7 +45,7 @@
 #include "foundation/PxUtilities.h"
 #include "foundation/PxMemory.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	class PxInsertionCallback;
 	class PxOutputStream;

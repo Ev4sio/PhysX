@@ -52,8 +52,8 @@
 	#include "../snippetrender/SnippetRender.h"
 #endif
 
-using namespace physx;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
 
 // The query system can compute the bounds for you, or you can do it manually. Manual bounds
 // computation can be useful for specific effects (like using temporal bounds) or if there is
@@ -445,7 +445,7 @@ void initPhysics(bool /*interactive*/)
 	// Also note how we are not going to use a PxScene in this snippet, and in fact
 	// we're not going to need anything from the main PhysX_xx.dll, we only use
 	// PhysXCommon_xx.dll.
-	gFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, gAllocator, gErrorCallback);
+	gFoundation = ev4sio_PxCreateFoundation(ev4sio_PX_PHYSICS_VERSION, gAllocator, gErrorCallback);
 
 	// Cook one convex mesh and one triangle mesh used in this snippet
 	{

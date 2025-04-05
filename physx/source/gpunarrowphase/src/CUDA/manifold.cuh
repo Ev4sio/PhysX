@@ -38,12 +38,12 @@
 #define SUBMANIFOLD_MAX_CONTACTS	6
 
 __device__ static inline bool refreshManifolds(
-	const physx::PxTransform & aToB,
-	physx::PxReal projectBreakingThreshold,
-	physx::PxgPersistentContactMultiManifold * PX_RESTRICT multiManifold
+	const ev4sio_physx::PxTransform & aToB,
+	ev4sio_physx::PxReal projectBreakingThreshold,
+	ev4sio_physx::PxgPersistentContactMultiManifold * PX_RESTRICT multiManifold
 	)
 {
-	using namespace physx;
+	using namespace ev4sio_physx;
 
 	const PxU32 threadIdxInWarp = threadIdx.x & (WARP_SIZE - 1);
 	const PxReal sqProjectBreakingThreshold = projectBreakingThreshold * projectBreakingThreshold;
@@ -102,10 +102,10 @@ __device__ static inline bool refreshManifolds(
 	return false;
 }
 
-__device__  static inline bool invalidateManifold(const physx::PxTransform & aToB, physx::PxgPersistentContactMultiManifold& multiManifold, 
-	const physx::PxReal minMargin, const PxReal ratio)
+__device__  static inline bool invalidateManifold(const ev4sio_physx::PxTransform & aToB, ev4sio_physx::PxgPersistentContactMultiManifold& multiManifold, 
+	const ev4sio_physx::PxReal minMargin, const PxReal ratio)
 {
-	using namespace physx;
+	using namespace ev4sio_physx;
 
 	PxAlignedTransform prevRelativeTransform;
 	PxAlignedTransform_ReadWarp(prevRelativeTransform, &multiManifold.mRelativeTransform);

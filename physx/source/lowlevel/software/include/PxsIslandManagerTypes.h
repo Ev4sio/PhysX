@@ -29,7 +29,7 @@
 #ifndef PXS_ISLAND_MANAGER_TYPES_H
 #define PXS_ISLAND_MANAGER_TYPES_H
 
-namespace physx
+namespace ev4sio_physx
 {
 class PxsContactManager;
 
@@ -79,9 +79,9 @@ struct PxsIndexedInteraction	// 24
 
 	\note If body0 is a static (eWORLD) then solverBody0 is PX_MAX_U32 or PX_MAX_U64, depending on the platform being 32- or 64-bit.
 
-	\note If body0 is an articulation then the articulation is found directly from Dy::getArticulation(articulation0)
+	\note If body0 is an articulation then the articulation is found directly from ev4sio_Dy::getArticulation(articulation0)
 
-	\note If body0 is an deformable volume then the deformable volume is found directly from Dy::getDeformableVolume(deformableVolume0)
+	\note If body0 is an deformable volume then the deformable volume is found directly from ev4sio_Dy::getDeformableVolume(deformableVolume0)
 	*/
 	union
 	{
@@ -97,9 +97,9 @@ struct PxsIndexedInteraction	// 24
 
 	\note If body1 is a static (eWORLD) then solverBody1 is PX_MAX_U32 or PX_MAX_U64, depending on the platform being 32- or 64-bit.
 
-	\note If body1 is an articulation then the articulation is found directly from Dy::getArticulation(articulation1)
+	\note If body1 is an articulation then the articulation is found directly from ev4sio_Dy::getArticulation(articulation1)
 	
-	\note If body0 is an deformable volume then the deformable volume is found directly from Dy::getDeformableVolume(deformableVolume1)
+	\note If body0 is an deformable volume then the deformable volume is found directly from ev4sio_Dy::getDeformableVolume(deformableVolume1)
 	*/
 	union
 	{
@@ -137,6 +137,6 @@ struct PxsIndexedContactManager : public PxsIndexedInteraction	// 32
 PX_COMPILE_TIME_ASSERT(0==(sizeof(PxsIndexedContactManager) & 0x0f));
 #endif
 
-} //namespace physx
+} //namespace ev4sio_physx
 
 #endif

@@ -48,7 +48,7 @@
 #include "ScDeformableVolumeSim.h"
 #include "NpDeformableVolumeMaterial.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 class PxCudaContextManager;
 
@@ -76,7 +76,7 @@ namespace
 	}
 }
 
-namespace physx
+namespace ev4sio_physx
 {
 
 NpDeformableVolume::NpDeformableVolume(PxCudaContextManager& cudaContextManager) :
@@ -132,11 +132,11 @@ PxBounds3 NpDeformableVolume::getWorldBounds(float inflation) const
 
 	if (!getNpScene())
 	{
-		PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "Querying bounds of a PxDeformableBody which is not part of a PxScene is not supported.");
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "Querying bounds of a PxDeformableBody which is not part of a PxScene is not supported.");
 		return PxBounds3::empty();
 	}
 
-	const Sc::DeformableVolumeSim* sim = mCore.getSim();
+	const ev4sio_Sc::DeformableVolumeSim* sim = mCore.getSim();
 	PX_ASSERT(sim);
 
 	PX_SIMD_GUARD;
@@ -357,7 +357,7 @@ PxReal NpDeformableVolume::getWakeCounter() const
 
 bool NpDeformableVolume::isSleeping() const
 {
-	Sc::DeformableVolumeSim* sim = mCore.getSim();
+	ev4sio_Sc::DeformableVolumeSim* sim = mCore.getSim();
 	if (sim)
 	{
 		return sim->isSleeping();
@@ -385,14 +385,14 @@ bool NpDeformableVolume::attachShape(PxShape& shape)
 	PX_CHECK_AND_RETURN_NULL(tetGeom.tetrahedronMesh != NULL,
 		"PxDeformableVolume::attachShape: PxTetrahedronMeshGeometry::tetrahedronMesh is NULL");
 
-	Gu::BVTetrahedronMesh* tetMesh = static_cast<Gu::BVTetrahedronMesh*>(tetGeom.tetrahedronMesh);
+	ev4sio_Gu::BVTetrahedronMesh* tetMesh = static_cast<ev4sio_Gu::BVTetrahedronMesh*>(tetGeom.tetrahedronMesh);
 	PX_CHECK_AND_RETURN_NULL(tetMesh->getNbTetrahedronsFast() <= PX_MAX_NB_DEFORMABLE_VOLUME_TET,
 		"PxDeformableVolume::attachShape: collision mesh consists of too many tetrahedrons, see PX_MAX_NB_DEFORMABLE_VOLUME_TET");
 
 	PX_CHECK_AND_RETURN_NULL(npShape->getCore().getCore().mShapeCoreFlags & PxShapeCoreFlag::eDEFORMABLE_VOLUME_SHAPE,
 		"PxDeformableVolume::attachShape: shape must be a deformable volume shape!");
 
-	Dy::DeformableVolumeCore& core = mCore.getCore();
+	ev4sio_Dy::DeformableVolumeCore& core = mCore.getCore();
 	PX_CHECK_AND_RETURN_NULL(core.positionInvMass == NULL,
 		"PxDeformableVolume::attachShape: positionInvMass already exists, overwrite not allowed, call detachShape first");
 
@@ -419,7 +419,7 @@ void NpDeformableVolume::detachShape()
 
 	PX_ASSERT(mDeviceMemoryAllocator);
 
-	Dy::DeformableVolumeCore& core = mCore.getCore();
+	ev4sio_Dy::DeformableVolumeCore& core = mCore.getCore();
 	if (core.restPosition)
 	{
 		mDeviceMemoryAllocator->deallocate(core.restPosition);
@@ -528,7 +528,7 @@ PxVec4* NpDeformableVolume::getPositionInvMassBufferD()
 {
 	PX_CHECK_AND_RETURN_NULL(mShape != NULL, "PxDeformableVolume::getPositionInvMassBufferD: Softbody does not have a shape, attach shape first.");
 
-	Dy::DeformableVolumeCore& core = mCore.getCore();
+	ev4sio_Dy::DeformableVolumeCore& core = mCore.getCore();
 	return core.positionInvMass;
 }
 
@@ -536,7 +536,7 @@ PxVec4* NpDeformableVolume::getRestPositionBufferD()
 {
 	PX_CHECK_AND_RETURN_NULL(mShape != NULL, "PxDeformableVolume::getRestPositionBufferD: Softbody does not have a shape, attach shape first.");
 
-	Dy::DeformableVolumeCore& core = mCore.getCore();
+	ev4sio_Dy::DeformableVolumeCore& core = mCore.getCore();
 	return core.restPosition;
 }
 
@@ -544,7 +544,7 @@ PxVec4* NpDeformableVolume::getSimPositionInvMassBufferD()
 {
 	PX_CHECK_AND_RETURN_NULL(mSimulationMesh != NULL, "PxDeformableVolume::getSimPositionInvMassBufferD: Softbody does not have a simulation mesh, attach simulation mesh first.");
 
-	Dy::DeformableVolumeCore& core = mCore.getCore();
+	ev4sio_Dy::DeformableVolumeCore& core = mCore.getCore();
 	return core.simPositionInvMass;
 }
 
@@ -552,7 +552,7 @@ PxVec4* NpDeformableVolume::getSimVelocityBufferD()
 {
 	PX_CHECK_AND_RETURN_NULL(mSimulationMesh != NULL, "PxDeformableVolume::getSimVelocityBufferD: Softbody does not have a simulation mesh, attach simulation mesh first.");
 
-	Dy::DeformableVolumeCore& core = mCore.getCore();
+	ev4sio_Dy::DeformableVolumeCore& core = mCore.getCore();
 	return core.simVelocity;
 }
 
@@ -560,7 +560,7 @@ void NpDeformableVolume::markDirty(PxDeformableVolumeDataFlags flags)
 {
 	NP_WRITE_CHECK(getNpScene());
 
-	Dy::DeformableVolumeCore& core = mCore.getCore();
+	ev4sio_Dy::DeformableVolumeCore& core = mCore.getCore();
 	core.dirtyFlags |= flags;
 }
 
@@ -613,15 +613,15 @@ void NpDeformableVolume::setKinematicTargetBufferD(const PxVec4* positions, PxDe
 
 bool NpDeformableVolume::attachSimulationMesh(PxTetrahedronMesh& simulationMesh, PxDeformableVolumeAuxData& deformableVolumeAuxData)
 {
-	Dy::DeformableVolumeCore& core = mCore.getCore();
+	ev4sio_Dy::DeformableVolumeCore& core = mCore.getCore();
 
 	PX_CHECK_AND_RETURN_NULL(core.simPositionInvMass == NULL, "PxDeformableVolume::attachSimulationMesh: simPositionInvMass already exists, overwrite not allowed, call detachSimulationMesh first");
 	PX_CHECK_AND_RETURN_NULL(core.simVelocity == NULL, "PxDeformableVolume::attachSimulationMesh: simVelocity already exists, overwrite not allowed, call detachSimulationMesh first");
-	Gu::TetrahedronMesh& tetMesh = static_cast<Gu::TetrahedronMesh&>(simulationMesh);
+	ev4sio_Gu::TetrahedronMesh& tetMesh = static_cast<ev4sio_Gu::TetrahedronMesh&>(simulationMesh);
 	PX_CHECK_AND_RETURN_NULL(tetMesh.getNbTetrahedronsFast() <= PX_MAX_NB_DEFORMABLE_VOLUME_TET, "PxDeformableVolume::attachSimulationMesh: simulation mesh contains too many tetrahedrons, see PX_MAX_NB_DEFORMABLE_VOLUME_TET");
 
 	mSimulationMesh = &tetMesh;
-	mAuxData = static_cast<Gu::DeformableVolumeAuxData*>(&deformableVolumeAuxData);
+	mAuxData = static_cast<ev4sio_Gu::DeformableVolumeAuxData*>(&deformableVolumeAuxData);
 	const PxU32 numVertsGM = tetMesh.getNbVerticesFast();
 
 	createAllocator();
@@ -636,7 +636,7 @@ void NpDeformableVolume::detachSimulationMesh()
 {
 	PX_ASSERT(mDeviceMemoryAllocator);
 
-	Dy::DeformableVolumeCore& core = mCore.getCore();
+	ev4sio_Dy::DeformableVolumeCore& core = mCore.getCore();
 	if (core.simPositionInvMass)
 	{
 		mDeviceMemoryAllocator->deallocate(core.simPositionInvMass);
@@ -683,7 +683,7 @@ void NpDeformableVolume::addParticleFilter(PxPBDParticleSystem* particlesystem, 
 	PX_CHECK_SCENE_API_WRITE_FORBIDDEN(getNpScene(), "PxDeformableVolume::addParticleFilter: Illegal to call while simulation is running.");
 
 	NpPBDParticleSystem* npParticleSystem = static_cast<NpPBDParticleSystem*>(particlesystem);
-	Sc::ParticleSystemCore& core = npParticleSystem->getCore();
+	ev4sio_Sc::ParticleSystemCore& core = npParticleSystem->getCore();
 	mCore.addParticleFilter(&core, particleId, buffer ? buffer->getUniqueId() : 0, tetId);
 }
 
@@ -697,7 +697,7 @@ void NpDeformableVolume::removeParticleFilter(PxPBDParticleSystem* particlesyste
 	PX_CHECK_SCENE_API_WRITE_FORBIDDEN(getNpScene(), "PxDeformableVolume::removeParticleFilter: Illegal to call while simulation is running.");
 
 	NpPBDParticleSystem* npParticleSystem = static_cast<NpPBDParticleSystem*>(particlesystem);
-	Sc::ParticleSystemCore& core = npParticleSystem->getCore();
+	ev4sio_Sc::ParticleSystemCore& core = npParticleSystem->getCore();
 	mCore.removeParticleFilter(&core, particleId, buffer ? buffer->getUniqueId() : 0, tetId);
 }
 
@@ -711,7 +711,7 @@ PxU32 NpDeformableVolume::addParticleAttachment(PxPBDParticleSystem* particlesys
 	PX_CHECK_SCENE_API_WRITE_FORBIDDEN_AND_RETURN_VAL(getNpScene(), "PxDeformableVolume::addParticleAttachment: Illegal to call while simulation is running.", 0xFFFFFFFF);
 
 	NpPBDParticleSystem* npParticleSystem = static_cast<NpPBDParticleSystem*>(particlesystem);
-	Sc::ParticleSystemCore& core = npParticleSystem->getCore();
+	ev4sio_Sc::ParticleSystemCore& core = npParticleSystem->getCore();
 	return mCore.addParticleAttachment(&core, particleId, buffer ? buffer->getUniqueId() : 0, tetId, barycentric);
 }
 
@@ -725,7 +725,7 @@ void NpDeformableVolume::removeParticleAttachment(PxPBDParticleSystem* particles
 	PX_CHECK_SCENE_API_WRITE_FORBIDDEN(getNpScene(), "PxDeformableVolume::addParticleAttachment: Illegal to call while simulation is running.");
 
 	NpPBDParticleSystem* npParticleSystem = static_cast<NpPBDParticleSystem*>(particlesystem);
-	Sc::ParticleSystemCore& core = npParticleSystem->getCore();
+	ev4sio_Sc::ParticleSystemCore& core = npParticleSystem->getCore();
 	mCore.removeParticleAttachment(&core, handle);
 }
 
@@ -738,7 +738,7 @@ void NpDeformableVolume::addRigidFilter(PxRigidActor* actor, PxU32 vertId)
 
 	PX_CHECK_SCENE_API_WRITE_FORBIDDEN(getNpScene(), "PxDeformableVolume::addRigidFilter: Illegal to call while simulation is running.");
 
-	Sc::BodyCore* core = getBodyCore(actor);
+	ev4sio_Sc::BodyCore* core = getBodyCore(actor);
 	mCore.addRigidFilter(core, vertId);
 }
 
@@ -751,7 +751,7 @@ void NpDeformableVolume::removeRigidFilter(PxRigidActor* actor, PxU32 vertId)
 
 	PX_CHECK_SCENE_API_WRITE_FORBIDDEN(getNpScene(), "PxDeformableVolume::removeRigidFilter: Illegal to call while simulation is running.");
 
-	Sc::BodyCore* core = getBodyCore(actor);
+	ev4sio_Sc::BodyCore* core = getBodyCore(actor);
 	mCore.removeRigidFilter(core, vertId);
 }
 
@@ -765,7 +765,7 @@ PxU32 NpDeformableVolume::addRigidAttachment(PxRigidActor* actor, PxU32 vertId, 
 
 	PX_CHECK_SCENE_API_WRITE_FORBIDDEN_AND_RETURN_VAL(getNpScene(), "PxDeformableVolume::addRigidAttachment: Illegal to call while simulation is running.", 0xFFFFFFFF);
 
-	Sc::BodyCore* core = getBodyCore(actor);
+	ev4sio_Sc::BodyCore* core = getBodyCore(actor);
 
 	PxVec3 aPose = actorSpacePose;
 	if (actor && actor->getConcreteType()==PxConcreteType::eRIGID_STATIC)
@@ -786,7 +786,7 @@ void NpDeformableVolume::removeRigidAttachment(PxRigidActor* actor, PxU32 handle
 
 	PX_CHECK_SCENE_API_WRITE_FORBIDDEN(getNpScene(), "PxDeformableVolume::removeRigidAttachment: Illegal to call while simulation is running.");
 
-	Sc::BodyCore* core = getBodyCore(actor);
+	ev4sio_Sc::BodyCore* core = getBodyCore(actor);
 	mCore.removeRigidAttachment(core, handle);
 }
 
@@ -799,7 +799,7 @@ void NpDeformableVolume::addTetRigidFilter(PxRigidActor* actor, PxU32 tetIdx)
 
 	PX_CHECK_SCENE_API_WRITE_FORBIDDEN(getNpScene(), "PxDeformableVolume::addTetRigidFilter: Illegal to call while simulation is running.");
 
-	Sc::BodyCore* core = getBodyCore(actor);
+	ev4sio_Sc::BodyCore* core = getBodyCore(actor);
 	return mCore.addTetRigidFilter(core, tetIdx);
 }
 
@@ -812,7 +812,7 @@ void NpDeformableVolume::removeTetRigidFilter(PxRigidActor* actor, PxU32 tetIdx)
 
 	PX_CHECK_SCENE_API_WRITE_FORBIDDEN(getNpScene(), "PxDeformableVolume::removeTetRigidFilter: Illegal to call while simulation is running.");
 
-	Sc::BodyCore* core = getBodyCore(actor);
+	ev4sio_Sc::BodyCore* core = getBodyCore(actor);
 	mCore.removeTetRigidFilter(core, tetIdx);
 }
 
@@ -826,7 +826,7 @@ PxU32 NpDeformableVolume::addTetRigidAttachment(PxRigidActor* actor, PxU32 tetId
 
 	PX_CHECK_SCENE_API_WRITE_FORBIDDEN_AND_RETURN_VAL(getNpScene(), "PxDeformableVolume::addTetRigidAttachment: Illegal to call while simulation is running.", 0xFFFFFFFF);
 
-	Sc::BodyCore* core = getBodyCore(actor);
+	ev4sio_Sc::BodyCore* core = getBodyCore(actor);
 
 	PxVec3 aPose = actorSpacePose;
 	if (actor && actor->getConcreteType()==PxConcreteType::eRIGID_STATIC)
@@ -849,7 +849,7 @@ void NpDeformableVolume::addSoftBodyFilter(PxDeformableVolume* softbody0, PxU32 
 	PX_CHECK_SCENE_API_WRITE_FORBIDDEN(getNpScene(), "PxDeformableVolume::addSoftBodyFilter: Illegal to call while simulation is running.");
 
 	NpDeformableVolume* dyn = static_cast<NpDeformableVolume*>(softbody0);
-	Sc::DeformableVolumeCore* core = &dyn->getCore();
+	ev4sio_Sc::DeformableVolumeCore* core = &dyn->getCore();
 
 	mCore.addSoftBodyFilter(*core, tetIdx0, tetIdx1);
 }
@@ -865,7 +865,7 @@ void NpDeformableVolume::removeSoftBodyFilter(PxDeformableVolume* softbody0, PxU
 	PX_CHECK_SCENE_API_WRITE_FORBIDDEN(getNpScene(), "PxDeformableVolume::removeSoftBodyFilter: Illegal to call while simulation is running.");
 
 	NpDeformableVolume* dyn = static_cast<NpDeformableVolume*>(softbody0);
-	Sc::DeformableVolumeCore* core = &dyn->getCore();
+	ev4sio_Sc::DeformableVolumeCore* core = &dyn->getCore();
 
 	mCore.removeSoftBodyFilter(*core, tetIdx0, tetIdx1);
 }
@@ -881,7 +881,7 @@ void NpDeformableVolume::addSoftBodyFilters(PxDeformableVolume* softbody0, PxU32
 	PX_CHECK_SCENE_API_WRITE_FORBIDDEN(getNpScene(), "PxDeformableVolume::addSoftBodyFilter: Illegal to call while simulation is running.");
 
 	NpDeformableVolume* dyn = static_cast<NpDeformableVolume*>(softbody0);
-	Sc::DeformableVolumeCore* core = &dyn->getCore();
+	ev4sio_Sc::DeformableVolumeCore* core = &dyn->getCore();
 
 	mCore.addSoftBodyFilters(*core, tetIndices0, tetIndices1, tetIndicesSize);
 }
@@ -897,7 +897,7 @@ void NpDeformableVolume::removeSoftBodyFilters(PxDeformableVolume* softbody0, Px
 	PX_CHECK_SCENE_API_WRITE_FORBIDDEN(getNpScene(), "PxDeformableVolume::removeSoftBodyFilter: Illegal to call while simulation is running.");
 
 	NpDeformableVolume* dyn = static_cast<NpDeformableVolume*>(softbody0);
-	Sc::DeformableVolumeCore* core = &dyn->getCore();
+	ev4sio_Sc::DeformableVolumeCore* core = &dyn->getCore();
 
 	mCore.removeSoftBodyFilters(*core, tetIndices0, tetIndices1, tetIndicesSize);
 }
@@ -915,7 +915,7 @@ PxU32 NpDeformableVolume::addSoftBodyAttachment(PxDeformableVolume* softbody0, P
 	PX_CHECK_SCENE_API_WRITE_FORBIDDEN_AND_RETURN_VAL(getNpScene(), "PxDeformableVolume::addSoftBodyAttachment: Illegal to call while simulation is running.", 0xFFFFFFFF);
 
 	NpDeformableVolume* dyn = static_cast<NpDeformableVolume*>(softbody0);
-	Sc::DeformableVolumeCore* core = &dyn->getCore();
+	ev4sio_Sc::DeformableVolumeCore* core = &dyn->getCore();
 
 	return mCore.addSoftBodyAttachment(*core, tetIdx0, tetBarycentric0, tetIdx1, tetBarycentric1, constraint, constraintOffset, true);
 }
@@ -931,7 +931,7 @@ void NpDeformableVolume::removeSoftBodyAttachment(PxDeformableVolume* softbody0,
 	PX_CHECK_SCENE_API_WRITE_FORBIDDEN(getNpScene(), "PxDeformableVolume::removeSoftBodyAttachment: Illegal to call while simulation is running.");
 
 	NpDeformableVolume* dyn = static_cast<NpDeformableVolume*>(softbody0);
-	Sc::DeformableVolumeCore* core = &dyn->getCore();
+	ev4sio_Sc::DeformableVolumeCore* core = &dyn->getCore();
 
 	mCore.removeSoftBodyAttachment(*core, handle);
 }
@@ -968,7 +968,7 @@ void NpDeformableVolume::createAllocator()
 void NpDeformableVolume::releaseAllocator()
 {
 	// deallocate device memory if not released already.
-	Dy::DeformableVolumeCore& core = mCore.getCore();
+	ev4sio_Dy::DeformableVolumeCore& core = mCore.getCore();
 	if (core.simVelocity)
 	{
 		mDeviceMemoryAllocator->deallocate(core.simVelocity);
@@ -997,7 +997,7 @@ void NpDeformableVolume::releaseAllocator()
 	}
 }
 
-Sc::DeformableVolumeCore* getDeformableVolumeCore(PxActor* actor)
+ev4sio_Sc::DeformableVolumeCore* getDeformableVolumeCore(PxActor* actor)
 {
 	if (actor->getConcreteType() == PxConcreteType::eDEFORMABLE_VOLUME)
 	{
@@ -1007,6 +1007,6 @@ Sc::DeformableVolumeCore* getDeformableVolumeCore(PxActor* actor)
 	return NULL;
 }
 
-} // namespace physx
+} // namespace ev4sio_physx
 
 #endif //PX_SUPPORT_GPU_PHYSX

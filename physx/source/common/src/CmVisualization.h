@@ -33,9 +33,9 @@
 #include "common/PxRenderOutput.h"
 #include "PxConstraintDesc.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Cm
+namespace ev4sio_Cm
 {
 	// PT: the force-inlined functions in PxRenderOutput generate a lot of code. Use these non-inlined functions instead.
 	PX_PHYSX_COMMON_API	void renderOutputDebugBox(PxRenderOutput& out, const PxBounds3& box);
@@ -89,27 +89,27 @@ namespace Cm
 
 		virtual void visualizeJointFrames(const PxTransform& parent, const PxTransform& child)	PX_OVERRIDE
 		{
-			Cm::visualizeJointFrames(mCmOutput, mFrameScale, parent, child);
+			ev4sio_Cm::visualizeJointFrames(mCmOutput, mFrameScale, parent, child);
 		}
 
 		virtual void visualizeLinearLimit(const PxTransform& t0, const PxTransform& t1, PxReal value)	PX_OVERRIDE
 		{
-			Cm::visualizeLinearLimit(mCmOutput, mLimitScale, t0, t1, value);
+			ev4sio_Cm::visualizeLinearLimit(mCmOutput, mLimitScale, t0, t1, value);
 		}
 
 		virtual void visualizeAngularLimit(const PxTransform& t0, PxReal lower, PxReal upper)	PX_OVERRIDE
 		{
-			Cm::visualizeAngularLimit(mCmOutput, mLimitScale, t0, lower, upper);
+			ev4sio_Cm::visualizeAngularLimit(mCmOutput, mLimitScale, t0, lower, upper);
 		}
 
 		virtual void visualizeLimitCone(const PxTransform& t, PxReal tanQSwingY, PxReal tanQSwingZ)	PX_OVERRIDE
 		{
-			Cm::visualizeLimitCone(mCmOutput, mLimitScale, t, tanQSwingY, tanQSwingZ);
+			ev4sio_Cm::visualizeLimitCone(mCmOutput, mLimitScale, t, tanQSwingY, tanQSwingZ);
 		}
 
 		virtual void visualizeDoubleCone(const PxTransform& t, PxReal angle)	PX_OVERRIDE
 		{
-			Cm::visualizeDoubleCone(mCmOutput, mLimitScale, t, angle);
+			ev4sio_Cm::visualizeDoubleCone(mCmOutput, mLimitScale, t, angle);
 		}
 
 		virtual void visualizeLine( const PxVec3& p0, const PxVec3& p1, PxU32 color)	PX_OVERRIDE

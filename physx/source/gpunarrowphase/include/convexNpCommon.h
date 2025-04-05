@@ -65,11 +65,11 @@
 
 #include <vector_types.h>
 
-namespace physx
+namespace ev4sio_physx
 {
 	struct ConvexMeshPair
 	{
-		physx::PxTransform aToB;		// pB = aToB.transform(pA + normal * separation)										28
+		ev4sio_physx::PxTransform aToB;		// pB = aToB.transform(pA + normal * separation)										28
 		int startIndex;			// start index in the ConvexTriContacts and ConvexTriPairs arrays								32
 		int count;				// the number of triangles in the ConvexTriContacts and ConvexTriPairs							36
 		int cmIndex;			// index of the original CM, to index into the output buffer and pass on to contact reporting	40
@@ -84,7 +84,7 @@ namespace physx
 	{
 		static const PxU32 DeferredContactMask = 0x80000000;
 		static const PxU32 NbContactsShift = 27;
-		physx::PxVec3 normal;		// normal
+		ev4sio_physx::PxVec3 normal;		// normal
 		int index;					// isDeferredContact is in bit 31, nbContacts is in bits 27-30, rest is cpu mesh index for the triangle
 
 		static PX_CUDA_CALLABLE PX_FORCE_INLINE PxU32 getTriangleIndex(PxU32 index)
@@ -129,7 +129,7 @@ namespace physx
 			eMASK = 0xe0000000
 		};
 
-		physx::PxU32 gpuTriIndex;				//gpu triangle index
+		ev4sio_physx::PxU32 gpuTriIndex;				//gpu triangle index
 
 		static PX_CUDA_CALLABLE PX_FORCE_INLINE bool isEdgeContact(const PxU32 mask)
 		{
@@ -148,7 +148,7 @@ namespace physx
 
 #include "PxgCommonDefines.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 	PX_ALIGN_PREFIX(16)
@@ -165,7 +165,7 @@ namespace physx
 		PxU32 trimeshShape_materialIndex;
 		
 		//bv32 tree
-		const Gu::BV32DataPacked* bv32PackedNodes;
+		const ev4sio_Gu::BV32DataPacked* bv32PackedNodes;
 
 		//stack for traversal
 		int sBv32Nodes[320]; //10 depth of the bv32 tree
@@ -178,25 +178,25 @@ namespace physx
 //0 is primitive, 1 is tetrahedron world space
 struct TetCollideScratch
 {
-	physx::PxVec3 vA[CONVEX_MAX_VERTICES_POLYGONS];
-	physx::PxVec3 vB[4];
+	ev4sio_physx::PxVec3 vA[CONVEX_MAX_VERTICES_POLYGONS];
+	ev4sio_physx::PxVec3 vB[4];
 	schlock::GjkCachedData cachedData;
 	schlock::GjkOutput gjkOutput;
 
-	physx::PxQuat rot0;
-	physx::PxVec3 scale0;
+	ev4sio_physx::PxQuat rot0;
+	ev4sio_physx::PxVec3 scale0;
 
-	physx::PxReal contactDistance;
-	physx::PxReal inSphereRadius0;
-	physx::PxReal inSphereRadius1;
+	ev4sio_physx::PxReal contactDistance;
+	ev4sio_physx::PxReal inSphereRadius0;
+	ev4sio_physx::PxReal inSphereRadius1;
 
-	physx::PxVec3 searchDir;
+	ev4sio_physx::PxVec3 searchDir;
 
-	physx::PxU8 nbVertices0;
-	physx::PxU8 nbVertices1;
+	ev4sio_physx::PxU8 nbVertices0;
+	ev4sio_physx::PxU8 nbVertices1;
 
-	physx::PxU32 tetIndex0;
-	physx::PxU32 tetIndex1;
+	ev4sio_physx::PxU32 tetIndex0;
+	ev4sio_physx::PxU32 tetIndex1;
 
 	__device__ void Clear()
 	{
@@ -212,18 +212,18 @@ struct TetCollideScratch
 __device__ static schlock::GjkResult::Enum tetPrimitivesCollide2(
 		squawk::EpaScratch& ss_epa_scratch,
 		TetCollideScratch& ss_scratch,
-		const physx::PxU32 globalWarpIndex)
+		const ev4sio_physx::PxU32 globalWarpIndex)
 {
 	typedef schlock::GjkResult GjkResult;
 
-	const physx::PxReal convergenceRatio = 1 - 0.000225f;
+	const ev4sio_physx::PxReal convergenceRatio = 1 - 0.000225f;
 
 	assert(ss_scratch.nbVertices0 <= 64);
 	assert(ss_scratch.nbVertices1 <= 64);
 
-	physx::PxVec3 initialDir(1, 0, 0);
+	ev4sio_physx::PxVec3 initialDir(1, 0, 0);
 
-	physx::PxVec3 aToB_p = ss_scratch.searchDir; // ss_scratch.aToB.p;
+	ev4sio_physx::PxVec3 aToB_p = ss_scratch.searchDir; // ss_scratch.aToB.p;
 
 	if (aToB_p.magnitudeSquared() > 0)
 		initialDir = aToB_p; // GJK's initial start dir is usually from the warm cache => lazy normalize inside GJK
@@ -270,7 +270,7 @@ __device__ static schlock::GjkResult::Enum tetPrimitivesCollide2(
 			ss_scratch.cachedData.size = 0;
 
 			//we need to re-run gjk epa with other configurations
-			initialDir = physx::PxVec3(0.f, 1.f, 0.f);
+			initialDir = ev4sio_physx::PxVec3(0.f, 1.f, 0.f);
 
 			GjkResult::Enum gjkResult = squawk::gjk(
 				ss_scratch.vA, ss_scratch.nbVertices0,

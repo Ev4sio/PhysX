@@ -35,7 +35,7 @@
 #include "PxParticleSystem.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -54,20 +54,20 @@ struct PxsParticleMaterialData
 };
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #if PX_SUPPORT_GPU_PHYSX
 
 struct float4;
 
-PX_CUDA_CALLABLE inline physx::PxU32 PxGetGroup(physx::PxU32 phase) { return phase & physx::PxParticlePhaseFlag::eParticlePhaseGroupMask; }
-PX_CUDA_CALLABLE inline bool PxGetFluid(physx::PxU32 phase) { return (phase & physx::PxParticlePhaseFlag::eParticlePhaseFluid) != 0; }
-PX_CUDA_CALLABLE inline bool PxGetSelfCollide(physx::PxU32 phase) { return (phase & physx::PxParticlePhaseFlag::eParticlePhaseSelfCollide) != 0; }
-PX_CUDA_CALLABLE inline bool PxGetSelfCollideFilter(physx::PxU32 phase) { return (phase & physx::PxParticlePhaseFlag::eParticlePhaseSelfCollideFilter) != 0; }
+PX_CUDA_CALLABLE inline ev4sio_physx::PxU32 PxGetGroup(ev4sio_physx::PxU32 phase) { return phase & ev4sio_physx::PxParticlePhaseFlag::eParticlePhaseGroupMask; }
+PX_CUDA_CALLABLE inline bool PxGetFluid(ev4sio_physx::PxU32 phase) { return (phase & ev4sio_physx::PxParticlePhaseFlag::eParticlePhaseFluid) != 0; }
+PX_CUDA_CALLABLE inline bool PxGetSelfCollide(ev4sio_physx::PxU32 phase) { return (phase & ev4sio_physx::PxParticlePhaseFlag::eParticlePhaseSelfCollide) != 0; }
+PX_CUDA_CALLABLE inline bool PxGetSelfCollideFilter(ev4sio_physx::PxU32 phase) { return (phase & ev4sio_physx::PxParticlePhaseFlag::eParticlePhaseSelfCollideFilter) != 0; }
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -179,7 +179,7 @@ public:
 };
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

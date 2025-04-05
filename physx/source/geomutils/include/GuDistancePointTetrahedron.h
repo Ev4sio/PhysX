@@ -35,9 +35,9 @@
 #include "GuDistancePointTriangle.h"
 #include "foundation/PxMathUtils.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-	namespace Gu
+	namespace ev4sio_Gu
 	{
 		PX_INLINE PX_CUDA_CALLABLE PxVec4 PointOutsideOfPlane4(const PxVec3& p, const PxVec3& _a, const PxVec3& _b,
 			const PxVec3& _c, const PxVec3& _d)

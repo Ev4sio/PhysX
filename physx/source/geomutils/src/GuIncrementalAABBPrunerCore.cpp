@@ -38,8 +38,8 @@
 #include "GuCapsule.h"
 #include "GuQuery.h"
 
-using namespace physx;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
 
 #define PARANOIA_CHECKS 0
 

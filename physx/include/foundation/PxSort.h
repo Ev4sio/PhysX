@@ -49,7 +49,7 @@ that the predicate implements the < operator:
 #endif
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 template <class T, class Predicate, class PxAllocator>
@@ -117,7 +117,7 @@ void PxSort(T* elements, uint32_t count)
 }
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #if PX_VC

@@ -34,9 +34,9 @@
 #include "foundation/PxHash.h"
 #include "foundation/PxVecMath.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Bp
+namespace ev4sio_Bp
 {
 	#define	INVALID_ID		0xffffffff
 	#define INVALID_USER_ID	0xffffffff
@@ -211,7 +211,7 @@ namespace Bp
 
 		PX_FORCE_INLINE	void	operator = (const AABB_YZn& box)
 		{
-			using namespace physx::aos;
+			using namespace ev4sio_physx::aos;
 			V4StoreA(V4LoadA(&box.mMinY), &mMinY);
 		}
 
@@ -236,7 +236,7 @@ namespace Bp
 
 		PX_FORCE_INLINE	void	operator = (const AABB_YZr& box)
 		{
-			using namespace physx::aos;
+			using namespace ev4sio_physx::aos;
 			V4StoreA(V4LoadA(&box.mMinY), &mMinY);
 		}
 
@@ -246,7 +246,7 @@ namespace Bp
 		float mMaxZ;
 	};
 
-} //namespace Bp
-} //namespace physx
+} //namespace ev4sio_Bp
+} //namespace ev4sio_physx
 
 #endif // BP_BROADPHASE_SHARED_H

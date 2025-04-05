@@ -29,9 +29,9 @@
 #include "geomutils/PxContactBuffer.h"
 #include "GuContactMethodImpl.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
-bool Gu::contactCustomGeometryGeometry(GU_CONTACT_METHOD_ARGS)
+bool ev4sio_Gu::contactCustomGeometryGeometry(GU_CONTACT_METHOD_ARGS)
 {
 	PX_UNUSED(renderOutput);
 	PX_UNUSED(cache);
@@ -45,7 +45,7 @@ bool Gu::contactCustomGeometryGeometry(GU_CONTACT_METHOD_ARGS)
 	return true;
 }
 
-bool Gu::contactGeometryCustomGeometry(GU_CONTACT_METHOD_ARGS)
+bool ev4sio_Gu::contactGeometryCustomGeometry(GU_CONTACT_METHOD_ARGS)
 {
 	bool res = contactCustomGeometryGeometry(shape1, shape0, transform1, transform0, params, cache, contactBuffer, renderOutput);
 

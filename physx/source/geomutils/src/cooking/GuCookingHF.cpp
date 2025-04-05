@@ -32,13 +32,13 @@
 #include "common/PxInsertionCallback.h"
 #include "CmUtils.h"
 
-using namespace physx;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
 
 bool immediateCooking::cookHeightField(const PxHeightFieldDesc& desc, PxOutputStream& stream)
 {
 	if(!desc.isValid())
-		return PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "Cooking::cookHeightField: user-provided heightfield descriptor is invalid!");
+		return ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "Cooking::cookHeightField: user-provided heightfield descriptor is invalid!");
 
 	PX_FPU_GUARD;
 
@@ -65,7 +65,7 @@ PxHeightField* immediateCooking::createHeightField(const PxHeightFieldDesc& desc
 {
 	if(!desc.isValid())
 	{
-		PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "Cooking::createHeightField: user-provided heightfield descriptor is invalid!");
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "Cooking::createHeightField: user-provided heightfield descriptor is invalid!");
 		return NULL;
 	}
 

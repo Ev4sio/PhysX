@@ -32,8 +32,8 @@
 #include "extensions/PxStringTableExt.h"
 #include "PxProfileAllocatorWrapper.h" //tools for using a custom allocator
 
-using namespace physx;
-using namespace physx::profile;
+using namespace ev4sio_physx;
+using namespace ev4sio_physx::profile;
 
 namespace
 {
@@ -69,7 +69,7 @@ namespace
 				size_t len( strlen( inSrc ) );
 				len += 1;
 				char* newMem = reinterpret_cast<char*>(mWrapper.getAllocator().allocate( len, "PxStringTableImpl: const char*", PX_FL));
-				physx::Pxstrlcpy( newMem, len, inSrc );
+				ev4sio_physx::Pxstrlcpy( newMem, len, inSrc );
 				mHashMap.insert( newMem, 1 );
 				return newMem;
 			}
@@ -90,7 +90,7 @@ namespace
 	};
 }
 
-PxStringTable& physx::PxStringTableExt::createStringTable( PxAllocatorCallback& inAllocator )
+PxStringTable& ev4sio_physx::PxStringTableExt::createStringTable( PxAllocatorCallback& inAllocator )
 {
 	return *PX_PROFILE_NEW( inAllocator, PxStringTableImpl )( inAllocator );
 }

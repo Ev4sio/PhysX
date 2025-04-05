@@ -33,9 +33,9 @@
 #include "GuPCMShapeConvex.h"
 #include "GuPCMContactGen.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 using namespace aos;
-using namespace Gu;
+using namespace ev4sio_Gu;
 
 static bool pcmContactCustomGeometryGeometry(GU_CONTACT_METHOD_ARGS)
 {
@@ -128,7 +128,7 @@ static bool pcmContactCustomGeometryGeometry(GU_CONTACT_METHOD_ARGS)
 		contactBuffer);
 }
 
-bool Gu::pcmContactGeometryCustomGeometry(GU_CONTACT_METHOD_ARGS)
+bool ev4sio_Gu::pcmContactGeometryCustomGeometry(GU_CONTACT_METHOD_ARGS)
 {
 	bool res = pcmContactCustomGeometryGeometry(shape1, shape0, transform1, transform0, params, cache, contactBuffer, renderOutput);
 

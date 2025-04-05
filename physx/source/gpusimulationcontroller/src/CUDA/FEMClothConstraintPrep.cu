@@ -46,7 +46,7 @@
 #include "utils.cuh"
 #include "deformableUtils.cuh"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 extern "C" __host__ void initFEMClothKernels0() {}
 
@@ -449,9 +449,9 @@ extern "C" __global__ void cloth_rigidAttachmentPrepareLaunch(
 			const PxVec3 raXn2 = ra.cross(normal2);
 
 			PxSpatialMatrix& spatialResponse = articulation.spatialResponseMatrixW[linkID];
-			const Cm::UnAlignedSpatialVector deltaV0 = spatialResponse * Cm::UnAlignedSpatialVector(normal0, raXn0);
-			const Cm::UnAlignedSpatialVector deltaV1 = spatialResponse * Cm::UnAlignedSpatialVector(normal1, raXn1);
-			const Cm::UnAlignedSpatialVector deltaV2 = spatialResponse * Cm::UnAlignedSpatialVector(normal2, raXn2);
+			const ev4sio_Cm::UnAlignedSpatialVector deltaV0 = spatialResponse * ev4sio_Cm::UnAlignedSpatialVector(normal0, raXn0);
+			const ev4sio_Cm::UnAlignedSpatialVector deltaV1 = spatialResponse * ev4sio_Cm::UnAlignedSpatialVector(normal1, raXn1);
+			const ev4sio_Cm::UnAlignedSpatialVector deltaV2 = spatialResponse * ev4sio_Cm::UnAlignedSpatialVector(normal2, raXn2);
 
 			const PxReal resp0 = deltaV0.top.dot(raXn0) + deltaV0.bottom.dot(normal0) + invMass1;
 			const PxReal resp1 = deltaV0.top.dot(raXn1) + deltaV0.bottom.dot(normal1) + invMass1;

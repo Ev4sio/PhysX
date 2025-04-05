@@ -32,7 +32,7 @@
 #include "common/PxProfileZone.h"
 #include "PxsMemoryManager.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 #define EXCEPTIONAL_ALLOC_FACTOR 2
 

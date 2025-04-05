@@ -39,9 +39,9 @@
 #include "GuContactReduction.h"
 #include <GuTriangleMesh.h>
 
-using namespace physx;
-using namespace Gu;
-using namespace Cm;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
+using namespace ev4sio_Cm;
 using namespace aos;
 using namespace intrinsics;
 
@@ -252,25 +252,25 @@ namespace
 	}
 }
 
-bool Gu::contactConvexCoreTrimesh(GU_CONTACT_METHOD_ARGS)
+bool ev4sio_Gu::contactConvexCoreTrimesh(GU_CONTACT_METHOD_ARGS)
 {
 	PX_UNUSED(cache);
 	PX_UNUSED(renderOutput);
 
 	struct Callback : MeshHitCallback<PxGeomRaycastHit>
 	{
-		const Gu::ConvexShape& mConvex;
+		const ev4sio_Gu::ConvexShape& mConvex;
 		const PxMeshScale& mScale;
 		const TriangleMesh* mData;
 		const PxReal mContactDist;
 		const PxReal mTriMargin;
 		const PxTransform& mTransform;
-		Gu::Contact& mContact;
+		ev4sio_Gu::Contact& mContact;
 
 		PxRenderOutput* mRenderOutput;
 
-		Callback(const Gu::ConvexShape& convex, const PxMeshScale& scale, const TriangleMesh* data, PxReal contactDist,
-			PxReal triMargin, const PxTransform& transform, Gu::Contact& contact, PxRenderOutput* renderOutput)
+		Callback(const ev4sio_Gu::ConvexShape& convex, const PxMeshScale& scale, const TriangleMesh* data, PxReal contactDist,
+			PxReal triMargin, const PxTransform& transform, ev4sio_Gu::Contact& contact, PxRenderOutput* renderOutput)
 			:
 			MeshHitCallback<PxGeomRaycastHit>(CallbackMode::eMULTIPLE),
 			mConvex(convex), mScale(scale), mData(data), mContactDist(contactDist),
@@ -282,10 +282,10 @@ bool Gu::contactConvexCoreTrimesh(GU_CONTACT_METHOD_ARGS)
 		{
 			const PxVec3 verts[] = { v0, v1, v2 };
 
-			Gu::ConvexShape tri;
-			tri.coreType = Gu::ConvexCore::Type::ePOINTS;
+			ev4sio_Gu::ConvexShape tri;
+			tri.coreType = ev4sio_Gu::ConvexCore::Type::ePOINTS;
 			tri.pose = PxTransform(PxIdentity);
-			Gu::ConvexCore::PointsCore& core = *reinterpret_cast<Gu::ConvexCore::PointsCore*>(tri.coreData);
+			ev4sio_Gu::ConvexCore::PointsCore& core = *reinterpret_cast<ev4sio_Gu::ConvexCore::PointsCore*>(tri.coreData);
 			core.points = verts;
 			core.numPoints = 3;
 			core.stride = sizeof(PxVec3);
@@ -296,9 +296,9 @@ bool Gu::contactConvexCoreTrimesh(GU_CONTACT_METHOD_ARGS)
 			const PxVec3 triNormal = (v1 - v0).cross(v2 - v0).getNormalized();
 
 			TriangleMeshTriangles triSource(mData, mScale);
-			PxVec3 normal, points[Gu::MAX_CONVEX_CONTACTS];
-			PxReal dists[Gu::MAX_CONVEX_CONTACTS];
-			if (PxU32 count = Gu::generateContacts(mConvex, tri, mContactDist, triNormal, normal, points, dists))
+			PxVec3 normal, points[ev4sio_Gu::MAX_CONVEX_CONTACTS];
+			PxReal dists[ev4sio_Gu::MAX_CONVEX_CONTACTS];
+			if (PxU32 count = ev4sio_Gu::generateContacts(mConvex, tri, mContactDist, triNormal, normal, points, dists))
 			{
 				const PxVec3 worldNormal = mTransform.rotate(normal);
 				for (PxU32 i = 0; i < count; ++i)
@@ -321,7 +321,7 @@ bool Gu::contactConvexCoreTrimesh(GU_CONTACT_METHOD_ARGS)
 	const TriangleMesh* meshData = _getMeshData(shapeMesh);
 
 	const PxTransform transform0in1 = transform1.transformInv(transform0);
-	const PxBounds3 bounds = Gu::computeBounds(shapeConvex, PxTransform(PxIdentity));
+	const PxBounds3 bounds = ev4sio_Gu::computeBounds(shapeConvex, PxTransform(PxIdentity));
 
 	Box queryBox;
 	queryBox.extents = bounds.getExtents() + PxVec3(params.mContactDistance);
@@ -333,8 +333,8 @@ bool Gu::contactConvexCoreTrimesh(GU_CONTACT_METHOD_ARGS)
 	const FastVertex2ShapeScaling meshScaling(shapeMesh.scale);
 	meshScaling.transformQueryBounds(queryBox.center, queryBox.extents, queryBox.rot);
 
-	Gu::Contact contact;
-	Gu::ConvexShape convex; Gu::makeConvexShape(shapeConvex, transform0in1, convex);
+	ev4sio_Gu::Contact contact;
+	ev4sio_Gu::ConvexShape convex; ev4sio_Gu::makeConvexShape(shapeConvex, transform0in1, convex);
 	Callback callback(convex, shapeMesh.scale, meshData, params.mContactDistance, triMargin, transform1, contact, renderOutput);
 
 	Midphase::intersectOBB(meshData, queryBox, callback, false);
@@ -346,21 +346,21 @@ bool Gu::contactConvexCoreTrimesh(GU_CONTACT_METHOD_ARGS)
 	return contactBuffer.count > 0;
 }
 
-bool Gu::contactConvexCoreHeightfield(GU_CONTACT_METHOD_ARGS)
+bool ev4sio_Gu::contactConvexCoreHeightfield(GU_CONTACT_METHOD_ARGS)
 {
 	PX_UNUSED(cache);
 	PX_UNUSED(renderOutput);
 
-	struct Callback : Gu::OverlapReport
+	struct Callback : ev4sio_Gu::OverlapReport
 	{
-		const Gu::ConvexShape& mConvex;
+		const ev4sio_Gu::ConvexShape& mConvex;
 		const HeightFieldUtil& mHfUtil;
 		const PxReal mContactDist;
 		const PxTransform& mTransform;
-		Gu::Contact& mContact;
+		ev4sio_Gu::Contact& mContact;
 
-		Callback(const Gu::ConvexShape& convex, const HeightFieldUtil& hfUtil, const PxReal contactDist,
-			const PxTransform& transform, Gu::Contact& contact)
+		Callback(const ev4sio_Gu::ConvexShape& convex, const HeightFieldUtil& hfUtil, const PxReal contactDist,
+			const PxTransform& transform, ev4sio_Gu::Contact& contact)
 			:
 			mConvex(convex), mHfUtil(hfUtil), mContactDist(contactDist), mTransform(transform), mContact(contact)
 		{}
@@ -379,10 +379,10 @@ bool Gu::contactConvexCoreHeightfield(GU_CONTACT_METHOD_ARGS)
 								   triSource.getVertex(vertInds[1]),
 								   triSource.getVertex(vertInds[2]) };
 
-				Gu::ConvexShape tri;
-				tri.coreType = Gu::ConvexCore::Type::ePOINTS;
+				ev4sio_Gu::ConvexShape tri;
+				tri.coreType = ev4sio_Gu::ConvexCore::Type::ePOINTS;
 				tri.pose = PxTransform(PxIdentity);
-				Gu::ConvexCore::PointsCore& core = *reinterpret_cast<Gu::ConvexCore::PointsCore*>(tri.coreData);
+				ev4sio_Gu::ConvexCore::PointsCore& core = *reinterpret_cast<ev4sio_Gu::ConvexCore::PointsCore*>(tri.coreData);
 				core.points = verts;
 				core.numPoints = 3;
 				core.stride = sizeof(PxVec3);
@@ -390,9 +390,9 @@ bool Gu::contactConvexCoreHeightfield(GU_CONTACT_METHOD_ARGS)
 				core.R = PxQuat(PxIdentity);
 				tri.margin = 0.0f;
 
-				PxVec3 normal, points[Gu::MAX_CONVEX_CONTACTS];
-				PxReal dists[Gu::MAX_CONVEX_CONTACTS];
-				if (PxU32 count = Gu::generateContacts(mConvex, tri, mContactDist, normal, points, dists))
+				PxVec3 normal, points[ev4sio_Gu::MAX_CONVEX_CONTACTS];
+				PxReal dists[ev4sio_Gu::MAX_CONVEX_CONTACTS];
+				if (PxU32 count = ev4sio_Gu::generateContacts(mConvex, tri, mContactDist, normal, points, dists))
 				{
 					const PxVec3 worldNormal = mTransform.rotate(normal);
 					for (PxU32 i = 0; i < count; ++i)
@@ -418,11 +418,11 @@ bool Gu::contactConvexCoreHeightfield(GU_CONTACT_METHOD_ARGS)
 	const HeightFieldUtil hfUtil(shapeHeightfield);
 
 	const PxTransform transform0in1 = transform1.transformInv(transform0);
-	PxBounds3 bounds = Gu::computeBounds(shapeConvex, PxTransform(PxIdentity));
+	PxBounds3 bounds = ev4sio_Gu::computeBounds(shapeConvex, PxTransform(PxIdentity));
 	bounds.fattenFast(params.mContactDistance);
 
-	Gu::Contact contact;
-	Gu::ConvexShape convex; Gu::makeConvexShape(shapeConvex, transform0in1, convex);
+	ev4sio_Gu::Contact contact;
+	ev4sio_Gu::ConvexShape convex; ev4sio_Gu::makeConvexShape(shapeConvex, transform0in1, convex);
 	Callback callback(convex, hfUtil, params.mContactDistance, transform1, contact);
 
 	hfUtil.overlapAABBTriangles0to1(transform0in1, bounds, callback);

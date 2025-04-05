@@ -31,9 +31,9 @@
 
 #include "foundation/PxFoundation.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Dy
+namespace ev4sio_Dy
 {
 	extern const char* gConstraintDataErrorMsg_Null_Joints;
 	extern const char* gConstraintDataErrorMsg_TooLarge_Joints;

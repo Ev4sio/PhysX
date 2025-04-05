@@ -40,7 +40,7 @@
 #include "foundation/PxVec4.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -610,7 +610,7 @@ protected:
 
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 /**
@@ -620,7 +620,7 @@ protected:
 
 See #PxParticleClothDesc, #PxPartitionedParticleCloth.
 */
-PX_DEPRECATED PX_C_EXPORT PX_PHYSX_CORE_API physx::PxParticleClothPreProcessor* PX_CALL_CONV PxCreateParticleClothPreProcessor(physx::PxCudaContextManager* cudaContextManager);
+PX_DEPRECATED PX_C_EXPORT PX_PHYSX_CORE_API ev4sio_physx::PxParticleClothPreProcessor* PX_CALL_CONV ev4sio_PxCreateParticleClothPreProcessor(ev4sio_physx::PxCudaContextManager* cudaContextManager);
 
 
 #endif

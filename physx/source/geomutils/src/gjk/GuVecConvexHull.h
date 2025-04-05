@@ -41,9 +41,9 @@
 #include "foundation/PxVecQuat.h"
 #include "GuShapeConvex.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Gu
+namespace ev4sio_Gu
 {
 #define CONVEX_MARGIN_RATIO			0.1f
 #define CONVEX_MIN_MARGIN_RATIO		0.05f
@@ -52,7 +52,7 @@ namespace Gu
 #define TOLERANCE_MIN_MARGIN_RATIO	0.05f
 
 	//This margin is used in Persistent contact manifold
-	PX_SUPPORT_FORCE_INLINE aos::FloatV CalculatePCMConvexMargin(const Gu::ConvexHullData* hullData, const aos::Vec3VArg scale, 
+	PX_SUPPORT_FORCE_INLINE aos::FloatV CalculatePCMConvexMargin(const ev4sio_Gu::ConvexHullData* hullData, const aos::Vec3VArg scale, 
 		const PxReal toleranceLength, const PxReal toleranceRatio = TOLERANCE_MIN_MARGIN_RATIO)
 	{
 		
@@ -64,7 +64,7 @@ namespace Gu
 		return FMin(FMul(min, FLoad(0.25f)), toleranceMargin);
 	}
 
-	PX_SUPPORT_FORCE_INLINE aos::FloatV CalculateMTDConvexMargin(const Gu::ConvexHullData* hullData, const aos::Vec3VArg scale)
+	PX_SUPPORT_FORCE_INLINE aos::FloatV CalculateMTDConvexMargin(const ev4sio_Gu::ConvexHullData* hullData, const aos::Vec3VArg scale)
 	{
 		using namespace aos;
 		const Vec3V extents = V3Mul(V3LoadU_SafeReadW(hullData->mInternal.mInternalExtents), scale);
@@ -199,7 +199,7 @@ namespace Gu
 		{
 		}
 
-		PX_SUPPORT_INLINE ConvexHullV(const Gu::ConvexHullData* _hullData, const aos::Vec3VArg _center, const aos::Vec3VArg scale, const aos::QuatVArg scaleRot,
+		PX_SUPPORT_INLINE ConvexHullV(const ev4sio_Gu::ConvexHullData* _hullData, const aos::Vec3VArg _center, const aos::Vec3VArg scale, const aos::QuatVArg scaleRot,
 			const bool idtScale) :
 			ConvexV(ConvexType::eCONVEXHULL, _center)
 		{
@@ -214,7 +214,7 @@ namespace Gu
 			data = _hullData->mBigConvexRawData;
 		}
 
-		PX_SUPPORT_INLINE ConvexHullV(const Gu::ConvexHullData* _hullData, const aos::Vec3VArg _center) :
+		PX_SUPPORT_INLINE ConvexHullV(const ev4sio_Gu::ConvexHullData* _hullData, const aos::Vec3VArg _center) :
 			ConvexV(ConvexType::eCONVEXHULL, _center)
 		{
 			using namespace aos;
@@ -230,7 +230,7 @@ namespace Gu
 		{
 			using namespace aos;
 			const PxConvexMeshGeometry& convexGeom = static_cast<const PxConvexMeshGeometry&>(geom);
-			const Gu::ConvexHullData* hData = _getHullData(convexGeom);
+			const ev4sio_Gu::ConvexHullData* hData = _getHullData(convexGeom);
 
 			const Vec3V vScale = V3LoadU_SafeReadW(convexGeom.scale.scale);	// PT: safe because 'rotation' follows 'scale' in PxMeshScale
 			const QuatV vRot = QuatVLoadU(&convexGeom.scale.rotation.x);
@@ -247,7 +247,7 @@ namespace Gu
 		}
 
 		//this is used by convex vs tetrahedron collision
-		PX_SUPPORT_INLINE ConvexHullV(const Gu::PolygonalData& polyData, const Cm::FastVertex2ShapeScaling& convexScale) :
+		PX_SUPPORT_INLINE ConvexHullV(const ev4sio_Gu::PolygonalData& polyData, const ev4sio_Cm::FastVertex2ShapeScaling& convexScale) :
 			ConvexV(ConvexType::eCONVEXHULL, aos::V3LoadU(polyData.mCenter))
 		{
 			using namespace aos;
@@ -273,7 +273,7 @@ namespace Gu
 
 		}
 
-		PX_SUPPORT_INLINE void initialize(const Gu::ConvexHullData* _hullData, const aos::Vec3VArg _center, const aos::Vec3VArg scale,
+		PX_SUPPORT_INLINE void initialize(const ev4sio_Gu::ConvexHullData* _hullData, const aos::Vec3VArg _center, const aos::Vec3VArg scale,
 			const aos::QuatVArg scaleRot, const bool idtScale)
 		{
 			using namespace aos;
@@ -322,7 +322,7 @@ namespace Gu
 		{
 			using namespace aos;
 
-			const Gu::Valency* valency = data->mValencies;
+			const ev4sio_Gu::Valency* valency = data->mValencies;
 			const PxU8* adjacentVerts = data->mAdjacentVerts;
 			
 			//NotSoTinyBitMap visited;
@@ -525,7 +525,7 @@ namespace Gu
 		aos::Mat33V vertex2Shape;//inv(R)*S*R
 		aos::Mat33V shape2Vertex;//inv(vertex2Shape)
 
-		const Gu::ConvexHullData* hullData;
+		const ev4sio_Gu::ConvexHullData* hullData;
 		const BigConvexRawData* data;  
 		const PxVec3* verts;
 		PxU8 numVerts;

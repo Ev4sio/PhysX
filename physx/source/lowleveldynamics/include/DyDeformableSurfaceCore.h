@@ -35,9 +35,9 @@
 #include "PxDeformableSurfaceFlag.h"
 #include "DyDeformableBodyCore.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Dy
+namespace ev4sio_Dy
 {
 
 struct DeformableSurfaceCore : public DeformableBodyCore
@@ -69,7 +69,7 @@ public:
 	}
 };
 
-} // namespace Dy
-} // namespace physx
+} // namespace ev4sio_Dy
+} // namespace ev4sio_physx
 
 #endif // DY_DEFORMABLE_SURFACE_CORE_H

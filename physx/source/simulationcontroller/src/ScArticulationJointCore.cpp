@@ -33,9 +33,9 @@
 #include "ScBodyCore.h"
 #include "ScPhysics.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
-Sc::ArticulationJointCore::ArticulationJointCore(const PxTransform& parentFrame, const PxTransform& childFrame) :
+ev4sio_Sc::ArticulationJointCore::ArticulationJointCore(const PxTransform& parentFrame, const PxTransform& childFrame) :
 	mCore			(parentFrame, childFrame),
 	mSim			(NULL),
 	mArticulation	(NULL),
@@ -44,26 +44,26 @@ Sc::ArticulationJointCore::ArticulationJointCore(const PxTransform& parentFrame,
 {
 }
 
-Sc::ArticulationJointCore::~ArticulationJointCore()
+ev4sio_Sc::ArticulationJointCore::~ArticulationJointCore()
 {
 	PX_ASSERT(getSim() == 0);
 }
 
-void Sc::ArticulationJointCore::setSimDirty()
+void ev4sio_Sc::ArticulationJointCore::setSimDirty()
 {
-	Sc::ArticulationJointSim* sim = getSim();
+	ev4sio_Sc::ArticulationJointSim* sim = getSim();
 	if(sim)
 		sim->setDirty();
 
 	ArticulationSim* artiSim = mArticulation->getSim();
 	if (artiSim && artiSim->isLLArticulationInitialized())
 	{
-		Dy::FeatherstoneArticulation* llarticulation = artiSim->getLowLevelArticulation();
+		ev4sio_Dy::FeatherstoneArticulation* llarticulation = artiSim->getLowLevelArticulation();
 		llarticulation->mJcalcDirty = true;
 	}
 }
 
-void Sc::ArticulationJointCore::setParentPose(const PxTransform& t)
+void ev4sio_Sc::ArticulationJointCore::setParentPose(const PxTransform& t)
 {
 	// AD: we check if it changed at all to avoid marking the complete articulation dirty for a jcalc.
 	// The jcalc internally checks these ArticulationJointCoreDirtyFlag again so we would skip most things
@@ -76,7 +76,7 @@ void Sc::ArticulationJointCore::setParentPose(const PxTransform& t)
 	}
 }
 
-void Sc::ArticulationJointCore::setChildPose(const PxTransform& t)
+void ev4sio_Sc::ArticulationJointCore::setChildPose(const PxTransform& t)
 {
 	if (!(mCore.childPose == t))
 	{
@@ -86,7 +86,7 @@ void Sc::ArticulationJointCore::setChildPose(const PxTransform& t)
 	}
 }
 
-void Sc::ArticulationJointCore::setTargetP(PxArticulationAxis::Enum axis, PxReal targetP)
+void ev4sio_Sc::ArticulationJointCore::setTargetP(PxArticulationAxis::Enum axis, PxReal targetP)
 {
 	// this sets the target position in the core.
 	mCore.targetP[axis] = targetP;
@@ -96,10 +96,10 @@ void Sc::ArticulationJointCore::setTargetP(PxArticulationAxis::Enum axis, PxReal
 	ArticulationSim* artiSim = mArticulation->getSim();
 	if (artiSim && artiSim->isLLArticulationInitialized())
 	{
-		Dy::FeatherstoneArticulation* llarticulation = artiSim->getLowLevelArticulation();
-		Dy::ArticulationData& data = llarticulation->getArticulationData();
-		Dy::ArticulationJointCoreData* jointData = data.getJointData();
-		Dy::ArticulationJointCoreData& jointDatum = jointData[mLLLinkIndex];
+		ev4sio_Dy::FeatherstoneArticulation* llarticulation = artiSim->getLowLevelArticulation();
+		ev4sio_Dy::ArticulationData& data = llarticulation->getArticulationData();
+		ev4sio_Dy::ArticulationJointCoreData* jointData = data.getJointData();
+		ev4sio_Dy::ArticulationJointCoreData& jointDatum = jointData[mLLLinkIndex];
 
 		PxReal* jointTargetPositions = data.getJointTargetPositions();
 		PxReal* jTargetPosition = &jointTargetPositions[jointDatum.jointOffset];
@@ -110,7 +110,7 @@ void Sc::ArticulationJointCore::setTargetP(PxArticulationAxis::Enum axis, PxReal
 		{
 			jTargetPosition[dofId] = targetP;
 
-			artiSim->setArticulationDirty(Dy::ArticulationDirtyFlag::eDIRTY_JOINT_TARGET_POS);
+			artiSim->setArticulationDirty(ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_JOINT_TARGET_POS);
 		}
 	}
 
@@ -118,7 +118,7 @@ void Sc::ArticulationJointCore::setTargetP(PxArticulationAxis::Enum axis, PxReal
 	// handled by setArticulationDirty.
 }
 
-void Sc::ArticulationJointCore::setTargetV(PxArticulationAxis::Enum axis, PxReal targetV)
+void ev4sio_Sc::ArticulationJointCore::setTargetV(PxArticulationAxis::Enum axis, PxReal targetV)
 {
 	// this sets the target velocity in the core.
 	mCore.targetV[axis] = targetV;
@@ -128,10 +128,10 @@ void Sc::ArticulationJointCore::setTargetV(PxArticulationAxis::Enum axis, PxReal
 	ArticulationSim* artiSim = mArticulation->getSim();
 	if (artiSim && artiSim->isLLArticulationInitialized())
 	{
-		Dy::FeatherstoneArticulation* llarticulation = artiSim->getLowLevelArticulation();
-		Dy::ArticulationData& data = llarticulation->getArticulationData();
-		Dy::ArticulationJointCoreData* jointData = data.getJointData();
-		Dy::ArticulationJointCoreData& jointDatum = jointData[mLLLinkIndex];
+		ev4sio_Dy::FeatherstoneArticulation* llarticulation = artiSim->getLowLevelArticulation();
+		ev4sio_Dy::ArticulationData& data = llarticulation->getArticulationData();
+		ev4sio_Dy::ArticulationJointCoreData* jointData = data.getJointData();
+		ev4sio_Dy::ArticulationJointCoreData& jointDatum = jointData[mLLLinkIndex];
 
 		PxReal* jointTargetVelocities = data.getJointTargetVelocities();
 		PxReal* jTargetVelocity = &jointTargetVelocities[jointDatum.jointOffset];
@@ -142,7 +142,7 @@ void Sc::ArticulationJointCore::setTargetV(PxArticulationAxis::Enum axis, PxReal
 		{
 			jTargetVelocity[dofId] = targetV;
 
-			artiSim->setArticulationDirty(Dy::ArticulationDirtyFlag::eDIRTY_JOINT_TARGET_VEL);
+			artiSim->setArticulationDirty(ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_JOINT_TARGET_VEL);
 		}
 	}
 
@@ -150,7 +150,7 @@ void Sc::ArticulationJointCore::setTargetV(PxArticulationAxis::Enum axis, PxReal
 	// handled by setArticulationDirty.
 }
 
-void Sc::ArticulationJointCore::setArmature(PxArticulationAxis::Enum axis, PxReal armature)
+void ev4sio_Sc::ArticulationJointCore::setArmature(PxArticulationAxis::Enum axis, PxReal armature)
 {
 	if (mCore.armature[axis] != armature)
 	{
@@ -160,7 +160,7 @@ void Sc::ArticulationJointCore::setArmature(PxArticulationAxis::Enum axis, PxRea
 	}
 }
 
-void Sc::ArticulationJointCore::setJointPosition(PxArticulationAxis::Enum axis, const PxReal jointPos)
+void ev4sio_Sc::ArticulationJointCore::setJointPosition(PxArticulationAxis::Enum axis, const PxReal jointPos)
 {
 	// this sets the position in the core.
 	mCore.jointPos[axis] = jointPos;
@@ -170,10 +170,10 @@ void Sc::ArticulationJointCore::setJointPosition(PxArticulationAxis::Enum axis, 
 	ArticulationSim* artiSim = mArticulation->getSim();
 	if (artiSim && artiSim->isLLArticulationInitialized())
 	{
-		Dy::FeatherstoneArticulation* llarticulation = artiSim->getLowLevelArticulation();
-		Dy::ArticulationData& data = llarticulation->getArticulationData();
-		Dy::ArticulationJointCoreData* jointData = data.getJointData();
-		Dy::ArticulationJointCoreData& jointDatum = jointData[mLLLinkIndex];
+		ev4sio_Dy::FeatherstoneArticulation* llarticulation = artiSim->getLowLevelArticulation();
+		ev4sio_Dy::ArticulationData& data = llarticulation->getArticulationData();
+		ev4sio_Dy::ArticulationJointCoreData* jointData = data.getJointData();
+		ev4sio_Dy::ArticulationJointCoreData& jointDatum = jointData[mLLLinkIndex];
 
 		PxReal* jointPositions = data.getJointPositions();
 		PxReal* jPosition = &jointPositions[jointDatum.jointOffset];
@@ -184,23 +184,23 @@ void Sc::ArticulationJointCore::setJointPosition(PxArticulationAxis::Enum axis, 
 		{
 			jPosition[dofId] = jointPos;
 
-			artiSim->setArticulationDirty(Dy::ArticulationDirtyFlag::eDIRTY_POSITIONS);
+			artiSim->setArticulationDirty(ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_POSITIONS);
 		}
 	}
 }
 
 // AD: we need this indirection right now because we could have updated joint vel using the cache, so
 // the read from the joint core might be stale.
-PxReal Sc::ArticulationJointCore::getJointPosition(PxArticulationAxis::Enum axis) const
+PxReal ev4sio_Sc::ArticulationJointCore::getJointPosition(PxArticulationAxis::Enum axis) const
 {
 	PxReal jointPos = mCore.jointPos[axis];
 	ArticulationSim* artiSim = mArticulation->getSim();
 	if (artiSim && artiSim->isLLArticulationInitialized())
 	{
-		const Dy::FeatherstoneArticulation* llarticulation = artiSim->getLowLevelArticulation();
-		const Dy::ArticulationData& data = llarticulation->getArticulationData();
-		const Dy::ArticulationJointCoreData* jointData = data.getJointData();
-		const Dy::ArticulationJointCoreData& jointDatum = jointData[mLLLinkIndex];
+		const ev4sio_Dy::FeatherstoneArticulation* llarticulation = artiSim->getLowLevelArticulation();
+		const ev4sio_Dy::ArticulationData& data = llarticulation->getArticulationData();
+		const ev4sio_Dy::ArticulationJointCoreData* jointData = data.getJointData();
+		const ev4sio_Dy::ArticulationJointCoreData& jointDatum = jointData[mLLLinkIndex];
 
 		const PxReal* jointPositions = data.getJointPositions();
 		const PxReal* jPosition = &jointPositions[jointDatum.jointOffset];
@@ -214,17 +214,17 @@ PxReal Sc::ArticulationJointCore::getJointPosition(PxArticulationAxis::Enum axis
 	return jointPos;
 }
 
-void Sc::ArticulationJointCore::setJointVelocity(PxArticulationAxis::Enum axis, const PxReal jointVel)
+void ev4sio_Sc::ArticulationJointCore::setJointVelocity(PxArticulationAxis::Enum axis, const PxReal jointVel)
 {
 	mCore.jointVel[axis] = jointVel;
 
 	ArticulationSim* artiSim = mArticulation->getSim();
 	if (artiSim && artiSim->isLLArticulationInitialized())
 	{
-		Dy::FeatherstoneArticulation* llarticulation = artiSim->getLowLevelArticulation();
-		Dy::ArticulationData& data = llarticulation->getArticulationData();
-		Dy::ArticulationJointCoreData* jointData = data.getJointData();
-		Dy::ArticulationJointCoreData& jointDatum = jointData[mLLLinkIndex];
+		ev4sio_Dy::FeatherstoneArticulation* llarticulation = artiSim->getLowLevelArticulation();
+		ev4sio_Dy::ArticulationData& data = llarticulation->getArticulationData();
+		ev4sio_Dy::ArticulationJointCoreData* jointData = data.getJointData();
+		ev4sio_Dy::ArticulationJointCoreData& jointDatum = jointData[mLLLinkIndex];
 
 		PxReal* jointVelocities = data.getJointVelocities();
 		PxReal* jVelocity = &jointVelocities[jointDatum.jointOffset];
@@ -234,23 +234,23 @@ void Sc::ArticulationJointCore::setJointVelocity(PxArticulationAxis::Enum axis, 
 		{
 			jVelocity[dofId] = jointVel;
 
-			artiSim->setArticulationDirty(Dy::ArticulationDirtyFlag::eDIRTY_VELOCITIES);
+			artiSim->setArticulationDirty(ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_VELOCITIES);
 		}
 	}
 }
 
 // AD: we need this indirection right now because we could have updated joint vel using the cache, so
 // the read from the joint core might be stale.
-PxReal Sc::ArticulationJointCore::getJointVelocity(PxArticulationAxis::Enum axis) const
+PxReal ev4sio_Sc::ArticulationJointCore::getJointVelocity(PxArticulationAxis::Enum axis) const
 {
 	PxReal jointVel = mCore.jointVel[axis];
 	ArticulationSim* artiSim = mArticulation->getSim();
 	if (artiSim && artiSim->isLLArticulationInitialized())
 	{
-		const Dy::FeatherstoneArticulation* llarticulation = artiSim->getLowLevelArticulation();
-		const Dy::ArticulationData& data = llarticulation->getArticulationData();
-		const Dy::ArticulationJointCoreData* jointData = data.getJointData();
-		const Dy::ArticulationJointCoreData& jointDatum = jointData[mLLLinkIndex];
+		const ev4sio_Dy::FeatherstoneArticulation* llarticulation = artiSim->getLowLevelArticulation();
+		const ev4sio_Dy::ArticulationData& data = llarticulation->getArticulationData();
+		const ev4sio_Dy::ArticulationJointCoreData* jointData = data.getJointData();
+		const ev4sio_Dy::ArticulationJointCoreData& jointDatum = jointData[mLLLinkIndex];
 
 		const PxReal* jointVelocities = data.getJointVelocities();
 		const PxReal* jVelocities = &jointVelocities[jointDatum.jointOffset];
@@ -263,42 +263,42 @@ PxReal Sc::ArticulationJointCore::getJointVelocity(PxArticulationAxis::Enum axis
 	return jointVel;
 }
 
-void Sc::ArticulationJointCore::setLimit(PxArticulationAxis::Enum axis, const PxArticulationLimit& limit)
+void ev4sio_Sc::ArticulationJointCore::setLimit(PxArticulationAxis::Enum axis, const PxArticulationLimit& limit)
 {
 	mCore.setLimit(axis, limit);
 	
 	setSimDirty();
 }
 
-void Sc::ArticulationJointCore::setDrive(PxArticulationAxis::Enum axis, const PxArticulationDrive& drive)
+void ev4sio_Sc::ArticulationJointCore::setDrive(PxArticulationAxis::Enum axis, const PxArticulationDrive& drive)
 {
 	mCore.setDrive(axis, drive);
 	
 	setSimDirty();
 }
 
-void Sc::ArticulationJointCore::setFrictionCoefficient(PxReal frictionCoefficient)
+void ev4sio_Sc::ArticulationJointCore::setFrictionCoefficient(PxReal frictionCoefficient)
 {
 	mCore.setFrictionCoefficient(frictionCoefficient);
 
 	setSimDirty();
 }
 
-void Sc::ArticulationJointCore::setFrictionParams(PxArticulationAxis::Enum axis, const PxJointFrictionParams& jointFrictionParams)
+void ev4sio_Sc::ArticulationJointCore::setFrictionParams(PxArticulationAxis::Enum axis, const PxJointFrictionParams& jointFrictionParams)
 {
 	mCore.setFrictionParams(axis, jointFrictionParams);
 
 	setSimDirty();
 }
 
-void Sc::ArticulationJointCore::setMaxJointVelocity(PxReal maxJointV)
+void ev4sio_Sc::ArticulationJointCore::setMaxJointVelocity(PxReal maxJointV)
 {
 	mCore.setMaxJointVelocity(maxJointV);
 
 	setSimDirty();
 }
 
-void Sc::ArticulationJointCore::setMaxJointVelocity(PxArticulationAxis::Enum axis, PxReal maxJointV)
+void ev4sio_Sc::ArticulationJointCore::setMaxJointVelocity(PxArticulationAxis::Enum axis, PxReal maxJointV)
 {
 	mCore.setMaxJointVelocity(axis, maxJointV);
 

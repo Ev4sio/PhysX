@@ -35,14 +35,14 @@
 #include "foundation/PxArray.h"
 #include "foundation/PxMathUtils.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	class PxSDFBuilder;
 	class PxSerializationContext;
 	class PxDeserializationContext;
 	class PxOutputStream;
 
-	namespace Gu
+	namespace ev4sio_Gu
 	{
 		/**
 		\brief Represents dimensions of signed distance field
@@ -362,7 +362,7 @@ namespace physx
 		\param[out] isosurfaceTriangleIndices The triangles of the extracted isosurface
 		\param[in] numThreads The number of threads to use
 		*/
-		PX_PHYSX_COMMON_API void extractIsosurfaceFromSDF(const Gu::SDF& sdf, PxArray<PxVec3>& isosurfaceVertices, PxArray<PxU32>& isosurfaceTriangleIndices, PxU32 numThreads = 1);
+		PX_PHYSX_COMMON_API void extractIsosurfaceFromSDF(const ev4sio_Gu::SDF& sdf, PxArray<PxVec3>& isosurfaceVertices, PxArray<PxU32>& isosurfaceTriangleIndices, PxU32 numThreads = 1);
 
 
 		/**

@@ -34,8 +34,8 @@
 #include "serialization/SnSerialUtils.h"
 #include "serialization/SnSerializationRegistry.h"
 
-using namespace physx;
-using namespace Cm;
+using namespace ev4sio_physx;
+using namespace ev4sio_Cm;
 using namespace Sn;
 
 //------------------------------------------------------------------------------------
@@ -60,7 +60,7 @@ using namespace Sn;
 //// header tag plus various version and platform information
 //------------------------------------------------------------------------------------
 // header SEBD
-// PX_PHYSICS_VERSION
+// ev4sio_PX_PHYSICS_VERSION
 // PX_BINARY_SERIAL_VERSION
 // platform tag
 // markedPadding (on for PX_CHECKED)
@@ -193,7 +193,7 @@ namespace
 
 		virtual void	registerReference(PxBase&, PxU32, size_t)
 		{
-			PxGetFoundation().error(physx::PxErrorCode::eINVALID_OPERATION, PX_FL, 
+			ev4sio_PxGetFoundation().error(ev4sio_physx::PxErrorCode::eINVALID_OPERATION, PX_FL, 
 					"Cannot register references during exportData, exportExtraData.");
 		}
 
@@ -223,7 +223,7 @@ namespace
 		const PxU32 header = PX_MAKE_FOURCC('S','E','B','D');
 		stream.writeData(&header, sizeof(PxU32));
 
-		PxU32 version = PX_PHYSICS_VERSION;
+		PxU32 version = ev4sio_PX_PHYSICS_VERSION;
 		stream.writeData(&version, sizeof(PxU32));
 
 		stream.writeData(PX_BINARY_SERIAL_VERSION, SN_BINARY_VERSION_GUID_NUM_CHARS);

@@ -57,8 +57,8 @@
 #include "utils.cuh"
 #include "deformableElementFilter.cuh"
 
-using namespace physx;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
 
 extern "C" __host__ void initNarrowphaseKernels24() {}
 
@@ -107,19 +107,19 @@ struct TestInput
 	}
 };
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Gu
+namespace ev4sio_Gu
 {
 	__device__ bool makeConvexShape(const PxgShape& shape, const PxTransform& pose, ConvexShape& convex)
 	{
-		convex.coreType = Gu::ConvexCore::Type::Enum(-1);
+		convex.coreType = ev4sio_Gu::ConvexCore::Type::Enum(-1);
 
 		switch (shape.type)
 		{
 			case PxGeometryType::eCONVEXCORE:
 			{
-				convex.coreType = Gu::ConvexCore::Type::Enum(shape.hullOrMeshPtr);
+				convex.coreType = ev4sio_Gu::ConvexCore::Type::Enum(shape.hullOrMeshPtr);
 				memcpy(convex.coreData, &shape.scale.scale.x, PxConvexCoreGeometry::MAX_CORE_SIZE);
 				convex.margin = shape.scale.rotation.w;
 				convex.pose = pose;
@@ -127,15 +127,15 @@ namespace Gu
 			}
 			case PxGeometryType::eSPHERE:
 			{
-				convex.coreType = Gu::ConvexCore::Type::ePOINT;
+				convex.coreType = ev4sio_Gu::ConvexCore::Type::ePOINT;
 				convex.margin = shape.scale.scale.x;
 				convex.pose = pose;
 				return true;
 			}
 			case PxGeometryType::eCAPSULE:
 			{
-				convex.coreType = Gu::ConvexCore::Type::eSEGMENT;
-				Gu::ConvexCore::SegmentCore& core = *reinterpret_cast<Gu::ConvexCore::SegmentCore*>(convex.coreData);
+				convex.coreType = ev4sio_Gu::ConvexCore::Type::eSEGMENT;
+				ev4sio_Gu::ConvexCore::SegmentCore& core = *reinterpret_cast<ev4sio_Gu::ConvexCore::SegmentCore*>(convex.coreData);
 				core.length = shape.scale.scale.x * 2.0f;
 				convex.margin = shape.scale.scale.y;
 				convex.pose = pose;
@@ -143,8 +143,8 @@ namespace Gu
 			}
 			case PxGeometryType::eBOX:
 			{
-				convex.coreType = Gu::ConvexCore::Type::eBOX;
-				Gu::ConvexCore::BoxCore& core = *reinterpret_cast<Gu::ConvexCore::BoxCore*>(convex.coreData);
+				convex.coreType = ev4sio_Gu::ConvexCore::Type::eBOX;
+				ev4sio_Gu::ConvexCore::BoxCore& core = *reinterpret_cast<ev4sio_Gu::ConvexCore::BoxCore*>(convex.coreData);
 				core.extents = shape.scale.scale * 2.0f;
 				convex.margin = 0;
 				convex.pose = pose;
@@ -152,8 +152,8 @@ namespace Gu
 			}
 			case PxGeometryType::eCONVEXMESH:
 			{
-				convex.coreType = Gu::ConvexCore::Type::ePOINTS;
-				Gu::ConvexCore::PointsCore core;
+				convex.coreType = ev4sio_Gu::ConvexCore::Type::ePOINTS;
+				ev4sio_Gu::ConvexCore::PointsCore core;
 				const float4* ptr = reinterpret_cast<const float4*>(shape.hullOrMeshPtr);
 				core.points =  ptr + 3;
 				core.numPoints = (reinterpret_cast<const int4*>(ptr + 1)->x >> 8) & 0xff;
@@ -289,7 +289,7 @@ struct TestOutput
 	}
 
 	__device__ static void writeOutput(
-		PxU32 testIndex, const Gu::Contact& contact,
+		PxU32 testIndex, const ev4sio_Gu::Contact& contact,
 		const PxgShape& shape0, const PxgShape& shape1,
 		const PxgContactManagerInput* PX_RESTRICT cmInputs,
 		PxsContactManagerOutput* PX_RESTRICT cmOutputs,
@@ -340,7 +340,7 @@ struct TestOutput
 			{
 				for (PxU32 j = 0; j < contact.numPatchPoints(i); ++j)
 				{
-					const Gu::Contact::Point& p = contact.patchPoint(i, j);
+					const ev4sio_Gu::Contact::Point& p = contact.patchPoint(i, j);
 					*(baseContactStream++) = make_float4(p.p.x, p.p.y, p.p.z, p.d);
 				}
 			}
@@ -475,14 +475,14 @@ void convexCorePlaneNphase_Kernel(
 	in.checkTypes(PxGeometryType::ePLANE, PxGeometryType::eCONVEXCORE);
 
 	PxPlane plane0(in.transform0.p, in.transform0.q.getBasisVector0());
-	Gu::ConvexShape convex1; Gu::makeConvexShape(in.shape1, in.transform1, convex1);
+	ev4sio_Gu::ConvexShape convex1; ev4sio_Gu::makeConvexShape(in.shape1, in.transform1, convex1);
 	assert(convex1.isValid());
 
 	PxVec3 normal;
-	PxVec3 points[Gu::MAX_CONVEX_CONTACTS];
-	PxReal dists[Gu::MAX_CONVEX_CONTACTS];
-	PxU32 numContacts = Gu::generateContacts(plane0, convex1, in.contactDist, normal, points, dists);
-	PxContact contacts[Gu::MAX_CONVEX_CONTACTS];
+	PxVec3 points[ev4sio_Gu::MAX_CONVEX_CONTACTS];
+	PxReal dists[ev4sio_Gu::MAX_CONVEX_CONTACTS];
+	PxU32 numContacts = ev4sio_Gu::generateContacts(plane0, convex1, in.contactDist, normal, points, dists);
+	PxContact contacts[ev4sio_Gu::MAX_CONVEX_CONTACTS];
 	for (PxU32 i = 0; i < numContacts; ++i)
 		contacts[i] = PxContact({ points[i], dists[i] });
 
@@ -525,16 +525,16 @@ void convexCoreConvexNphase_Kernel(
 	const PxTransform pose0(in.transform0.p - shift, in.transform0.q);
 	const PxTransform pose1(in.transform1.p - shift, in.transform1.q);
 
-	Gu::ConvexShape convex0, convex1;
-	Gu::makeConvexShape(in.shape0, pose0, convex0);
-	Gu::makeConvexShape(in.shape1, pose1, convex1);
+	ev4sio_Gu::ConvexShape convex0, convex1;
+	ev4sio_Gu::makeConvexShape(in.shape0, pose0, convex0);
+	ev4sio_Gu::makeConvexShape(in.shape1, pose1, convex1);
 	assert(convex0.isValid() && convex1.isValid());
 
 	PxVec3 normal;
-	PxVec3 points[Gu::MAX_CONVEX_CONTACTS];
-	PxReal dists[Gu::MAX_CONVEX_CONTACTS];
-	PxU32 numContacts = Gu::generateContacts(convex0, convex1, in.contactDist, normal, points, dists);
-	PxContact contacts[Gu::MAX_CONVEX_CONTACTS];
+	PxVec3 points[ev4sio_Gu::MAX_CONVEX_CONTACTS];
+	PxReal dists[ev4sio_Gu::MAX_CONVEX_CONTACTS];
+	PxU32 numContacts = ev4sio_Gu::generateContacts(convex0, convex1, in.contactDist, normal, points, dists);
+	PxContact contacts[ev4sio_Gu::MAX_CONVEX_CONTACTS];
 	for (PxU32 i = 0; i < numContacts; ++i)
 		contacts[i] = PxContact({ points[i] + shift, dists[i] });
 
@@ -581,7 +581,7 @@ struct TestBvh
 
 			PX_FORCE_INLINE __device__ void intersectPrimitiveFullWarp(PxU32 primIndex, PxU32 /*idxInWarp*/) const
 			{
-				Gu::ConvexShape prim;
+				ev4sio_Gu::ConvexShape prim;
 				float4 verts[_Bvh::PRIM_VERT_COUNT];
 				if (primIndex != 0xffffffff)
 					bvh.createConvex(primIndex, margin, verts, prim);
@@ -597,7 +597,7 @@ struct TrimeshBvh
 {
 	const float4* trimeshVerts;
 	const uint4* trimeshTriIndices;
-	const Gu::BV32DataPacked* bv32PackedNodes;
+	const ev4sio_Gu::BV32DataPacked* bv32PackedNodes;
 	PxMeshScale scale;
 
 	__device__ TrimeshBvh(const PxgShape& shape)
@@ -613,7 +613,7 @@ struct TrimeshBvh
 		trimeshGeomPtr += sizeof(uint4); // skip nbVerts_nbTets_maxDepth_nbBv32TreeNodes
 		trimeshVerts = femCloth.mPosition_InvMass;
 		trimeshTriIndices = femCloth.mTriangleVertexIndices;
-		bv32PackedNodes = reinterpret_cast<const Gu::BV32DataPacked*>(trimeshGeomPtr);
+		bv32PackedNodes = reinterpret_cast<const ev4sio_Gu::BV32DataPacked*>(trimeshGeomPtr);
 	}
 
 	__device__ PxBounds3 scaleBounds(const PxBounds3& bounds) const
@@ -621,14 +621,14 @@ struct TrimeshBvh
 		return PxBounds3::transformFast(scale.getInverse().toMat33(), bounds);
 	}
 
-	__device__ const Gu::BV32DataPacked* getNodes() const
+	__device__ const ev4sio_Gu::BV32DataPacked* getNodes() const
 	{
 		return bv32PackedNodes;
 	}
 
 	static const PxU32 PRIM_VERT_COUNT = 3;
 
-	__device__ void createConvex(PxU32 index, PxReal margin, float4* verts, Gu::ConvexShape& prim) const
+	__device__ void createConvex(PxU32 index, PxReal margin, float4* verts, ev4sio_Gu::ConvexShape& prim) const
 	{
 		uint4 inds = trimeshTriIndices[index];
 
@@ -641,9 +641,9 @@ struct TrimeshBvh
 		verts[1] = make_float4(v1.x, v1.y, v1.z, 1);
 		verts[2] = make_float4(v2.x, v2.y, v2.z, 1);
 
-		prim.coreType = Gu::ConvexCore::Type::ePOINTS;
+		prim.coreType = ev4sio_Gu::ConvexCore::Type::ePOINTS;
 		prim.pose = PxTransform(PxIdentity);
-		Gu::ConvexCore::PointsCore core;
+		ev4sio_Gu::ConvexCore::PointsCore core;
 		core.points = verts;
 		core.numPoints = 3;
 		core.stride = sizeof(float4);
@@ -680,9 +680,9 @@ struct TrimeshBvh
 	}
 };
 
-namespace physx
+namespace ev4sio_physx
 {
-	namespace Gu
+	namespace ev4sio_Gu
 	{
 		struct Contact32 : Contact
 		{
@@ -698,8 +698,8 @@ namespace physx
 			NewPoint newPoints[WARP_SIZE * MAX_CONVEX_CONTACTS];
 			Point tmpBuffer[8];
 
-			__device__ void addPoints(const PxVec3& normal, PxVec3 points[Gu::MAX_CONVEX_CONTACTS],
-				PxReal dists[Gu::MAX_CONVEX_CONTACTS], PxU32 numPoints, const PxTransform& transform)
+			__device__ void addPoints(const PxVec3& normal, PxVec3 points[ev4sio_Gu::MAX_CONVEX_CONTACTS],
+				PxReal dists[ev4sio_Gu::MAX_CONVEX_CONTACTS], PxU32 numPoints, const PxTransform& transform)
 			{
 				const PxU32 thread = threadIdx.x;
 
@@ -785,8 +785,8 @@ namespace physx
 				}
 			}
 
-			__device__ PxU32 copyPoints(const PxVec3& normal, PxVec3 points[Gu::MAX_CONVEX_CONTACTS],
-				PxReal dists[Gu::MAX_CONVEX_CONTACTS], PxU32 numPoints, const PxTransform& transform)
+			__device__ PxU32 copyPoints(const PxVec3& normal, PxVec3 points[ev4sio_Gu::MAX_CONVEX_CONTACTS],
+				PxReal dists[ev4sio_Gu::MAX_CONVEX_CONTACTS], PxU32 numPoints, const PxTransform& transform)
 			{
 				const PxVec3 worldNormal = transform.rotate(normal);
 
@@ -951,11 +951,11 @@ void convexCoreTrimeshNphase_Kernel32(
 	struct _Shared
 	{
 		TestInput in;
-		Gu::ConvexShape convex;
+		ev4sio_Gu::ConvexShape convex;
 		PxTransform transform0in1;
 		PxBounds3 convexBounds;
 		TestTrimesh trimesh;
-		Gu::Contact32 contact;
+		ev4sio_Gu::Contact32 contact;
 		PxU32 contactLock;
 
 		__device__ static _Shared& cast(PxU8* ptr)
@@ -967,21 +967,21 @@ void convexCoreTrimeshNphase_Kernel32(
 
 	TestInput& in = _sh.in;
 	PxTransform& transform0in1 = _sh.transform0in1;
-	Gu::ConvexShape& convex = _sh.convex;
+	ev4sio_Gu::ConvexShape& convex = _sh.convex;
 	PxBounds3& convexBounds = _sh.convexBounds;
 	TestTrimesh& trimesh = _sh.trimesh;
-	Gu::Contact32& contact = _sh.contact;
+	ev4sio_Gu::Contact32& contact = _sh.contact;
 
 	if (warpThreadIndex == 0)
 	{
 		in = TestInput(testIndex, cmInputs, shapes, transformCache, contactDistance, NULL);
 		in.checkTypes(PxGeometryType::eCONVEXCORE, PxGeometryType::eTRIANGLEMESH);
 		transform0in1 = in.transform1.transformInv(in.transform0);
-		Gu::makeConvexShape(in.shape0, transform0in1, convex);
+		ev4sio_Gu::makeConvexShape(in.shape0, transform0in1, convex);
 		convexBounds = convex.computeBounds();
 		convexBounds.fattenFast(in.contactDist);
 		trimesh = TestTrimesh(TrimeshBvh(in.shape1));
-		contact = Gu::Contact32();
+		contact = ev4sio_Gu::Contact32();
 		_sh.contactLock = 0;
 	}
 
@@ -991,17 +991,17 @@ void convexCoreTrimeshNphase_Kernel32(
 	{
 		_Shared& sh;
 		__device__ Callback(_Shared& _sh) : sh(_sh) {}
-		__device__ void operator()(const Gu::ConvexShape& tri, PxU32 triIndex) const
+		__device__ void operator()(const ev4sio_Gu::ConvexShape& tri, PxU32 triIndex) const
 		{
 			PxVec3 normal;
-			PxVec3 points[Gu::MAX_CONVEX_CONTACTS];
-			PxReal dists[Gu::MAX_CONVEX_CONTACTS];
+			PxVec3 points[ev4sio_Gu::MAX_CONVEX_CONTACTS];
+			PxReal dists[ev4sio_Gu::MAX_CONVEX_CONTACTS];
 			PxU32 numPoints = 0;
 
 			if (triIndex != 0xffffffff)
 			{
 				const PxVec3 triNormal = sh.trimesh.bvh.getTriNormal(triIndex);
-				numPoints = Gu::generateContacts(sh.convex, tri, sh.in.contactDist, triNormal, normal, points, dists);
+				numPoints = ev4sio_Gu::generateContacts(sh.convex, tri, sh.in.contactDist, triNormal, normal, points, dists);
 			}
 #if 1
 			// this version uses full warp of 32 threads to generate contact patches
@@ -1043,7 +1043,7 @@ struct TetmeshBvh
 	const float4* tetmeshVerts;
 	const uint4* tetmeshTetIndices;
 	const PxU8* tetmeshSurfaceHint;
-	const Gu::BV32DataPacked* bv32PackedNodes;
+	const ev4sio_Gu::BV32DataPacked* bv32PackedNodes;
 
 	__device__ TetmeshBvh(const PxgShape& shape, const PxgSoftBody* softbodies)
 	{
@@ -1054,7 +1054,7 @@ struct TetmeshBvh
 		tetmeshVerts = softbody.mPosition_InvMass;
 		tetmeshTetIndices = softbody.mTetIndices;
 		tetmeshSurfaceHint = softbody.mTetMeshSurfaceHint;
-		bv32PackedNodes = reinterpret_cast<const Gu::BV32DataPacked*>(tetmeshGeomPtr);
+		bv32PackedNodes = reinterpret_cast<const ev4sio_Gu::BV32DataPacked*>(tetmeshGeomPtr);
 	}
 
 	__device__ PxBounds3 scaleBounds(const PxBounds3& bounds) const
@@ -1062,14 +1062,14 @@ struct TetmeshBvh
 		return bounds;
 	}
 
-	__device__ const Gu::BV32DataPacked* getNodes() const
+	__device__ const ev4sio_Gu::BV32DataPacked* getNodes() const
 	{
 		return bv32PackedNodes;
 	}
 
 	static const PxU32 PRIM_VERT_COUNT = 4;
 
-	__device__ void createConvex(PxU32 index, PxReal margin, float4* verts, Gu::ConvexShape& prim) const
+	__device__ void createConvex(PxU32 index, PxReal margin, float4* verts, ev4sio_Gu::ConvexShape& prim) const
 	{
 		uint4 inds = tetmeshTetIndices[index];
 
@@ -1078,9 +1078,9 @@ struct TetmeshBvh
 		verts[2] = tetmeshVerts[inds.z];
 		verts[3] = tetmeshVerts[inds.w];
 
-		prim.coreType = Gu::ConvexCore::Type::ePOINTS;
+		prim.coreType = ev4sio_Gu::ConvexCore::Type::ePOINTS;
 		prim.pose = PxTransform(PxIdentity);
-		Gu::ConvexCore::PointsCore core;
+		ev4sio_Gu::ConvexCore::PointsCore core;
 		core.points = verts;
 		core.numPoints = 4;
 		core.stride = sizeof(float4);
@@ -1119,7 +1119,7 @@ extern "C" __global__ void convexCoreTetmeshNphase_Kernel32(
 	struct _Shared
 	{
 		TestInput in;
-		Gu::ConvexShape convex;
+		ev4sio_Gu::ConvexShape convex;
 		PxTransform transform0in1;
 		PxBounds3 convexBounds;
 		TestTetmesh tetmesh;
@@ -1136,7 +1136,7 @@ extern "C" __global__ void convexCoreTetmeshNphase_Kernel32(
 
 	TestInput& in = _sh.in;
 	PxTransform& transform0in1 = _sh.transform0in1;
-	Gu::ConvexShape& convex = _sh.convex;
+	ev4sio_Gu::ConvexShape& convex = _sh.convex;
 	PxBounds3& convexBounds = _sh.convexBounds;
 	TestTetmesh& tetmesh = _sh.tetmesh;
 
@@ -1145,7 +1145,7 @@ extern "C" __global__ void convexCoreTetmeshNphase_Kernel32(
 		in = TestInput(testIndex, cmInputs, shapes, transformCache, contactDistance, restDistance);
 		in.checkTypes(PxGeometryType::eCONVEXCORE, PxGeometryType::eTETRAHEDRONMESH);
 		transform0in1 = in.transform1.transformInv(in.transform0);
-		Gu::makeConvexShape(in.shape0, transform0in1, convex);
+		ev4sio_Gu::makeConvexShape(in.shape0, transform0in1, convex);
 		convexBounds = convex.computeBounds();
 		convexBounds.fattenFast(in.contactDist);
 		tetmesh = TestTetmesh(TetmeshBvh(in.shape1, softbodies));
@@ -1160,15 +1160,15 @@ extern "C" __global__ void convexCoreTetmeshNphase_Kernel32(
 	{
 		_Shared& sh;
 		__device__ Callback(_Shared& _sh) : sh(_sh) {}
-		__device__ void operator()(const Gu::ConvexShape& tet, PxU32 tetIndex) const
+		__device__ void operator()(const ev4sio_Gu::ConvexShape& tet, PxU32 tetIndex) const
 		{
 			PxVec3 normal;
-			PxVec3 points[Gu::MAX_CONVEX_CONTACTS];
-			PxReal dists[Gu::MAX_CONVEX_CONTACTS];
+			PxVec3 points[ev4sio_Gu::MAX_CONVEX_CONTACTS];
+			PxReal dists[ev4sio_Gu::MAX_CONVEX_CONTACTS];
 			PxU32 numPoints = 0;
 
 			if (tetIndex != 0xffffffff)
-				numPoints = Gu::generateContacts(sh.convex, tet, sh.in.contactDist, normal, points, dists);
+				numPoints = ev4sio_Gu::generateContacts(sh.convex, tet, sh.in.contactDist, normal, points, dists);
 
 			if (numPoints)
 			{
@@ -1237,7 +1237,7 @@ void convexCoreClothmeshNphase_Kernel32(
 			continue;
 
 		const PxTransform transform0in1 = in.transform1.transformInv(in.transform0);
-		Gu::ConvexShape convex0; Gu::makeConvexShape(in.shape0, transform0in1, convex0);
+		ev4sio_Gu::ConvexShape convex0; ev4sio_Gu::makeConvexShape(in.shape0, transform0in1, convex0);
 		PxBounds3 bounds0 = convex0.computeBounds();
 		bounds0.fattenFast(in.contactDist);
 
@@ -1247,14 +1247,14 @@ void convexCoreClothmeshNphase_Kernel32(
 
 		const PxReal margin = bounds0.getDimensions().maxElement() * triMarginK;
 		float4 verts[TrimeshBvh::PRIM_VERT_COUNT];
-		Gu::ConvexShape convex1; bvh.createConvex(triIndex, margin, verts, convex1);
+		ev4sio_Gu::ConvexShape convex1; bvh.createConvex(triIndex, margin, verts, convex1);
 
 		assert(convex0.isValid() && convex1.isValid());
 
 		PxVec3 normal;
-		PxVec3 points[Gu::MAX_CONVEX_CONTACTS];
-		PxReal dists[Gu::MAX_CONVEX_CONTACTS];
-		PxU32 numPoints = Gu::generateContacts(convex0, convex1, in.contactDist, normal, points, dists);
+		PxVec3 points[ev4sio_Gu::MAX_CONVEX_CONTACTS];
+		PxReal dists[ev4sio_Gu::MAX_CONVEX_CONTACTS];
+		PxU32 numPoints = ev4sio_Gu::generateContacts(convex0, convex1, in.contactDist, normal, points, dists);
 
 		if (numPoints)
 		{

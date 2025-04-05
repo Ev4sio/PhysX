@@ -36,7 +36,7 @@
 
 #include <vector_types.h>
 
-namespace physx
+namespace ev4sio_physx
 {
 	struct PxgPrePrepDesc;
 	struct PxgSolverCoreDesc;

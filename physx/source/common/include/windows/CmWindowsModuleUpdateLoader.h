@@ -35,9 +35,9 @@
 #include "common/PxPhysXCommonConfig.h"
 
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Cm
+namespace ev4sio_Cm
 {
 
 #if PX_X64
@@ -62,8 +62,8 @@ protected:
 	HMODULE mUpdateLoaderDllHandle;
 	FARPROC mGetUpdatedModuleFunc;
 };
-} // namespace Cm
-} // namespace physx
+} // namespace ev4sio_Cm
+} // namespace ev4sio_physx
 
 
 #endif	// CM_WINDOWS_MODULEUPDATELOADER_H

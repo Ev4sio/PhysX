@@ -29,9 +29,9 @@
 #include "PxgMemoryManager.h"
 #include "PxgCudaMemoryAllocator.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
-namespace physx
+namespace ev4sio_physx
 {
 	PxgCudaAllocatorCallbackBase::PxgCudaAllocatorCallbackBase(PxCudaContextManager* contextManager) : mContextManager(contextManager), mCudaContext(contextManager->getCudaContext()) {}
 }
@@ -105,7 +105,7 @@ namespace
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-PxsMemoryManager* physx::createPxgMemoryManager(PxCudaContextManager* cudaContextManager)
+PxsMemoryManager* ev4sio_physx::createPxgMemoryManager(PxCudaContextManager* cudaContextManager)
 {
 	return PX_NEW(PxgMemoryManager)(cudaContextManager);
 }

@@ -32,7 +32,7 @@
 #include "PxPvdObjectModelBaseTypes.h"
 #include "PxMetaDataObjects.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 namespace Vd
 {
@@ -101,12 +101,12 @@ struct PvdPositionAndRadius
 } //Vd
 } //physx
 
-namespace physx
+namespace ev4sio_physx
 {
 namespace pvdsdk
 {
 
-#define DEFINE_NATIVE_PVD_PHYSX3_TYPE_MAP(type) DEFINE_PVD_TYPE_NAME_MAP(physx::type, "physx3", #type)
+#define DEFINE_NATIVE_PVD_PHYSX3_TYPE_MAP(type) DEFINE_PVD_TYPE_NAME_MAP(ev4sio_physx::type, "physx3", #type)
 DEFINE_NATIVE_PVD_PHYSX3_TYPE_MAP(PxPhysics)
 DEFINE_NATIVE_PVD_PHYSX3_TYPE_MAP(PxScene)
 DEFINE_NATIVE_PVD_PHYSX3_TYPE_MAP(PxTolerancesScale)
@@ -171,7 +171,7 @@ DEFINE_NATIVE_PVD_PHYSX3_TYPE_MAP(PxAggregateGeneratedValues)
 
 #undef DEFINE_NATIVE_PVD_PHYSX3_TYPE_MAP
 
-#define DEFINE_NATIVE_PVD_TYPE_MAP(type) DEFINE_PVD_TYPE_NAME_MAP(physx::Vd::type, "physx3", #type)
+#define DEFINE_NATIVE_PVD_TYPE_MAP(type) DEFINE_PVD_TYPE_NAME_MAP(ev4sio_physx::Vd::type, "physx3", #type)
 DEFINE_NATIVE_PVD_TYPE_MAP(PvdHullPolygonData)
 DEFINE_NATIVE_PVD_TYPE_MAP(PxRigidDynamicUpdateBlock)
 DEFINE_NATIVE_PVD_TYPE_MAP(PxArticulationLinkUpdateBlock)
@@ -186,7 +186,7 @@ DEFINE_NATIVE_PVD_TYPE_MAP(PvdPositionAndRadius)
 #undef DEFINE_NATIVE_PVD_TYPE_MAP
 
 
-DEFINE_PVD_TYPE_ALIAS(physx::PxFilterData, U32Array4)
+DEFINE_PVD_TYPE_ALIAS(ev4sio_physx::PxFilterData, U32Array4)
 
 
 }

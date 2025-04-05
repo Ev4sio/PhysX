@@ -36,7 +36,7 @@
 #include "foundation/PxUserAllocated.h"
 #include "foundation/PxArray.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	struct PxGeomRaycastHit;
 

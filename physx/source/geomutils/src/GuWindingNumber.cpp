@@ -29,26 +29,26 @@
 #include "GuWindingNumberT.h"
 #include "GuWindingNumber.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Gu
+namespace ev4sio_Gu
 {
-	PxF32 computeWindingNumber(const Gu::BVHNode* tree, const PxVec3& q, PxF32 beta, const PxHashMap<PxU32, ClusterApproximation>& clusters,
+	PxF32 computeWindingNumber(const ev4sio_Gu::BVHNode* tree, const PxVec3& q, PxF32 beta, const PxHashMap<PxU32, ClusterApproximation>& clusters,
 		const PxU32* triangles, const PxVec3* points)
 	{
-		return Gu::computeWindingNumber<PxF32, PxVec3>(tree, q, beta, clusters, triangles, points);
+		return ev4sio_Gu::computeWindingNumber<PxF32, PxVec3>(tree, q, beta, clusters, triangles, points);
 	}
 
-	PxF32 computeWindingNumber(const Gu::BVHNode* tree, const PxVec3& q, const PxHashMap<PxU32, ClusterApproximation>& clusters,
+	PxF32 computeWindingNumber(const ev4sio_Gu::BVHNode* tree, const PxVec3& q, const PxHashMap<PxU32, ClusterApproximation>& clusters,
 		const PxU32* triangles, const PxVec3* points)
 	{
-		return Gu::computeWindingNumber<PxF32, PxVec3>(tree, q, 2.0f, clusters, triangles, points);
+		return ev4sio_Gu::computeWindingNumber<PxF32, PxVec3>(tree, q, 2.0f, clusters, triangles, points);
 	}
 
-	void precomputeClusterInformation(const Gu::BVHNode* tree, const PxU32* triangles, const PxU32 numTriangles,
+	void precomputeClusterInformation(const ev4sio_Gu::BVHNode* tree, const PxU32* triangles, const PxU32 numTriangles,
 		const PxVec3* points, PxHashMap<PxU32, ClusterApproximation>& result, PxI32 rootNodeIndex)
 	{
-		Gu::precomputeClusterInformation<PxF32, PxVec3>(tree, triangles, numTriangles, points, result, rootNodeIndex);
+		ev4sio_Gu::precomputeClusterInformation<PxF32, PxVec3>(tree, triangles, numTriangles, points, result, rootNodeIndex);
 	}
 
 	PxF32 computeWindingNumber(const PxVec3& q, const PxU32* triangles, const PxU32 numTriangles, const PxVec3* points)
@@ -57,7 +57,7 @@ namespace Gu
 		for (PxU32 i = 0; i < numTriangles; ++i) 
 		{
 			const PxU32* tri = &triangles[3 * i];
-			windingNumber += Gu::evaluateExact<PxReal, PxVec3>(points[tri[0]], points[tri[1]], points[tri[2]], q);
+			windingNumber += ev4sio_Gu::evaluateExact<PxReal, PxVec3>(points[tri[0]], points[tri[1]], points[tri[2]], q);
 		}
 		return windingNumber;
 	}

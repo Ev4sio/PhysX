@@ -55,10 +55,10 @@
 
 #define	MAX_ITER	10
 
-using namespace physx;
+using namespace ev4sio_physx;
 using namespace Cct;
-using namespace Gu;
-using namespace Cm;
+using namespace ev4sio_Gu;
+using namespace ev4sio_Cm;
 
 static const PxU32 gObstacleDebugColor = PxU32(PxDebugColor::eARGB_CYAN);
 //static const PxU32 gCCTBoxDebugColor = PxU32(PxDebugColor::eARGB_YELLOW);
@@ -1203,12 +1203,12 @@ void SweepTest::findTouchedObstacles(const UserObstacles& userObstacles, const P
 		// Find touched boxes, i.e. other box controllers
 		for(PxU32 i=0;i<nbBoxes;i++)
 		{
-			const Gu::Box obb(
+			const ev4sio_Gu::Box obb(
 				toVec3(boxes[i].center),	// LOSS OF ACCURACY
 				boxes[i].extents,
 				PxMat33(boxes[i].rot));	// #### PT: TODO: useless conversion here
 
-			if(!Gu::intersectOBBAABB(obb, singlePrecisionWorldBox))
+			if(!ev4sio_Gu::intersectOBBAABB(obb, singlePrecisionWorldBox))
 				continue;
 
 			TouchedUserBox* UserBox = reinterpret_cast<TouchedUserBox*>(reserveContainerMemory(mGeomStream, sizeof(TouchedUserBox)/sizeof(PxU32)));
@@ -1248,7 +1248,7 @@ void SweepTest::findTouchedObstacles(const UserObstacles& userObstacles, const P
 			if((capMinz - PxExtended(r) > worldBox.maximum.z) || (worldBox.minimum.z > capMaxz + PxExtended(r))) continue;
 
 			// PT: more accurate capsule-box test. Not strictly necessary but worth doing if available
-			const PxReal d2 = Gu::distanceSegmentBoxSquared(toVec3(capsules[i].p0), toVec3(capsules[i].p1), toVec3(Center), Extents, PxMat33(PxIdentity));
+			const PxReal d2 = ev4sio_Gu::distanceSegmentBoxSquared(toVec3(capsules[i].p0), toVec3(capsules[i].p1), toVec3(Center), Extents, PxMat33(PxIdentity));
 			if(d2>r*r)
 				continue;
 
@@ -1597,11 +1597,11 @@ bool SweepTest::doSweepTest(const InternalCBData_FindTouchedGeom* userData,
 					const float dp1 = touchedTri.verts[1].dot(upDirection);
 					const float dp2 = touchedTri.verts[2].dot(upDirection);
 					float dpmin = dp0;
-					dpmin = physx::intrinsics::selectMin(dpmin, dp1);
-					dpmin = physx::intrinsics::selectMin(dpmin, dp2);
+					dpmin = ev4sio_physx::intrinsics::selectMin(dpmin, dp1);
+					dpmin = ev4sio_physx::intrinsics::selectMin(dpmin, dp2);
 					float dpmax = dp0;
-					dpmax = physx::intrinsics::selectMax(dpmax, dp1);
-					dpmax = physx::intrinsics::selectMax(dpmax, dp2);
+					dpmax = ev4sio_physx::intrinsics::selectMax(dpmax, dp1);
+					dpmax = ev4sio_physx::intrinsics::selectMax(dpmax, dp2);
 
 					PxExtendedVec3 cacheCenter;
 					getCenter(mCacheBounds, cacheCenter);
@@ -2079,7 +2079,7 @@ void Controller::findTouchedObject(const PxControllerFilters& filters, const PxO
 			virtual	PxQueryHitType::Enum preFilter(const PxFilterData& filterData, const PxShape* shape, const PxRigidActor* actor, PxHitFlags& queryFlags)	PX_OVERRIDE	PX_FINAL
 			{
 				// PT: ignore triggers
-				if(shape->getFlags() & physx::PxShapeFlag::eTRIGGER_SHAPE)
+				if(shape->getFlags() & ev4sio_physx::PxShapeFlag::eTRIGGER_SHAPE)
 					return PxQueryHitType::eNONE;
 
 				// PT: we want to discard our own internal shapes only

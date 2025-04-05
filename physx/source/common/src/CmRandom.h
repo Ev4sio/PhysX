@@ -33,9 +33,9 @@
 #include "foundation/PxVec3.h"
 #define TEST_MAX_RAND 0xffff
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Cm
+namespace ev4sio_Cm
 {
 	class BasicRandom
 	{
@@ -71,12 +71,12 @@ namespace Cm
 		}
 
 		PxF32		randomFloat32(PxReal a, PxReal b) { return rand32() / PxF32(0xffffffff)*(b - a) + a; }
-		void		unitRandomPt(physx::PxVec3& v)
+		void		unitRandomPt(ev4sio_physx::PxVec3& v)
 		{
 			v = unitRandomPt();
 		}
 
-		void		unitRandomQuat(physx::PxQuat& v)
+		void		unitRandomQuat(ev4sio_physx::PxQuat& v)
 		{
 			v = unitRandomQuat();
 		}

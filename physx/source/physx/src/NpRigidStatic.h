@@ -34,7 +34,7 @@
 #include "ScStaticCore.h"
 
 
-namespace physx
+namespace ev4sio_physx
 {
 typedef NpRigidActorTemplate<PxRigidStatic> NpRigidStaticT;
 
@@ -73,8 +73,8 @@ public:
 					bool					checkConstraintValidity() const;
 #endif
 
-	PX_FORCE_INLINE	const Sc::StaticCore&	getCore()				const	{ return mCore;	}
-	PX_FORCE_INLINE	Sc::StaticCore&			getCore()						{ return mCore;	}
+	PX_FORCE_INLINE	const ev4sio_Sc::StaticCore&	getCore()				const	{ return mCore;	}
+	PX_FORCE_INLINE	ev4sio_Sc::StaticCore&			getCore()						{ return mCore;	}
 
 	static PX_FORCE_INLINE size_t			getCoreOffset()					{ return PX_OFFSET_OF_RT(NpRigidStatic, mCore);			}
 	static PX_FORCE_INLINE size_t			getNpShapeManagerOffset()		{ return PX_OFFSET_OF_RT(NpRigidStatic, mShapeManager);	}
@@ -86,7 +86,7 @@ public:
 #endif
 
 private:
-					Sc::StaticCore			mCore;
+					ev4sio_Sc::StaticCore			mCore;
 };
 
 }

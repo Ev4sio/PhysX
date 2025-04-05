@@ -30,7 +30,7 @@
 #include "NpOmniPvd.h"
 #include "foundation/PxPhysicsVersion.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 NpOmniPvdMetaData::NpOmniPvdMetaData()

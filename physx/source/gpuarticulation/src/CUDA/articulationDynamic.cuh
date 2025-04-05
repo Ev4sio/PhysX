@@ -35,14 +35,14 @@
 #include "DyFeatherstoneArticulation.h"
 
 //This function stores Q-stZ to mDeferredQstZ
-static __device__ Cm::UnAlignedSpatialVector propagateImpulseW_0(const PxVec3& childToParent,
-	PxgArticulationBlockDofData* PX_RESTRICT dofData, const Cm::UnAlignedSpatialVector& Z,
+static __device__ ev4sio_Cm::UnAlignedSpatialVector propagateImpulseW_0(const PxVec3& childToParent,
+	PxgArticulationBlockDofData* PX_RESTRICT dofData, const ev4sio_Cm::UnAlignedSpatialVector& Z,
 	const PxU32 dofCount, const PxU32 threadIndexInWarp,
 	const PxReal* PX_RESTRICT jointForce = NULL, const PxReal jointForceMultiplier = 1.0f)
 {
-	Cm::UnAlignedSpatialVector temp = Z;
-	Cm::UnAlignedSpatialVector sas[3];
-	Cm::UnAlignedSpatialVector isInvD[3];
+	ev4sio_Cm::UnAlignedSpatialVector temp = Z;
+	ev4sio_Cm::UnAlignedSpatialVector sas[3];
+	ev4sio_Cm::UnAlignedSpatialVector isInvD[3];
 	PxReal jf[3];
 
 // the split into two separate loops is an optimization that allows dispatching the loads as early as possible.
@@ -69,22 +69,22 @@ static __device__ Cm::UnAlignedSpatialVector propagateImpulseW_0(const PxVec3& c
 	}
 
 	//parent space's spatial zero acceleration impulse
-	return Dy::FeatherstoneArticulation::translateSpatialVector(childToParent, temp);
+	return ev4sio_Dy::FeatherstoneArticulation::translateSpatialVector(childToParent, temp);
 }
 
-static __device__ Cm::UnAlignedSpatialVector propagateImpulseWTemp(const PxVec3& childToParent,
-	PxgArticulationBlockDofData* PX_RESTRICT dofData, const Cm::UnAlignedSpatialVector& Z,
+static __device__ ev4sio_Cm::UnAlignedSpatialVector propagateImpulseWTemp(const PxVec3& childToParent,
+	PxgArticulationBlockDofData* PX_RESTRICT dofData, const ev4sio_Cm::UnAlignedSpatialVector& Z,
 	const PxU32 dofCount, const PxU32 threadIndexInWarp)
 {
-	Cm::UnAlignedSpatialVector temp = Z;
+	ev4sio_Cm::UnAlignedSpatialVector temp = Z;
 
 	assert(dofCount<=3);
 	for (PxU32 ind = 0; ind < 3; ++ind)
 	{
 		if(ind<dofCount)
 		{
-			const Cm::UnAlignedSpatialVector sa = loadSpatialVector(dofData[ind].mWorldMotionMatrix, threadIndexInWarp);
-			const Cm::UnAlignedSpatialVector isInvD = loadSpatialVector(dofData[ind].mIsInvDW, threadIndexInWarp);
+			const ev4sio_Cm::UnAlignedSpatialVector sa = loadSpatialVector(dofData[ind].mWorldMotionMatrix, threadIndexInWarp);
+			const ev4sio_Cm::UnAlignedSpatialVector isInvD = loadSpatialVector(dofData[ind].mIsInvDW, threadIndexInWarp);
 			const PxReal stZ = -sa.innerProduct(Z);
 			dofData[ind].mTmpQstZ[threadIndexInWarp] += stZ;
 
@@ -93,26 +93,26 @@ static __device__ Cm::UnAlignedSpatialVector propagateImpulseWTemp(const PxVec3&
 	}
 
 	//parent space's spatial zero acceleration impulse
-	return Dy::FeatherstoneArticulation::translateSpatialVector(childToParent, temp);
+	return ev4sio_Dy::FeatherstoneArticulation::translateSpatialVector(childToParent, temp);
 }
 
-static __device__ Cm::UnAlignedSpatialVector propagateImpulseW_1(
+static __device__ ev4sio_Cm::UnAlignedSpatialVector propagateImpulseW_1(
 	const PxVec3& childToParent,
 	const PxgArticulationBlockDofData* PX_RESTRICT dofData, 
-	const Cm::UnAlignedSpatialVector& Z,
+	const ev4sio_Cm::UnAlignedSpatialVector& Z,
 	const PxReal* jointDofImpulses, const PxU32 dofCount,
 	const PxU32 threadIndexInWarp, 
 	PxReal* qstZ)
 {
-	Cm::UnAlignedSpatialVector temp = Z;
+	ev4sio_Cm::UnAlignedSpatialVector temp = Z;
 
 	assert(dofCount<=3);
 	for (PxU32 ind = 0; ind < 3; ++ind)
 	{
 		if(ind<dofCount)
 		{
-			const Cm::UnAlignedSpatialVector sa = loadSpatialVector(dofData[ind].mWorldMotionMatrix, threadIndexInWarp);
-			const Cm::UnAlignedSpatialVector isInvD = loadSpatialVector(dofData[ind].mIsInvDW, threadIndexInWarp);
+			const ev4sio_Cm::UnAlignedSpatialVector sa = loadSpatialVector(dofData[ind].mWorldMotionMatrix, threadIndexInWarp);
+			const ev4sio_Cm::UnAlignedSpatialVector isInvD = loadSpatialVector(dofData[ind].mIsInvDW, threadIndexInWarp);
 			const PxReal jointDofImpulse = jointDofImpulses ? jointDofImpulses[ind] : 0.0f;
 			const PxReal QMinusSTZ = jointDofImpulse - sa.innerProduct(Z);
 			qstZ[ind] += QMinusSTZ;
@@ -122,14 +122,14 @@ static __device__ Cm::UnAlignedSpatialVector propagateImpulseW_1(
 	}
 
 	//parent space's spatial zero acceleration impulse
-	return Dy::FeatherstoneArticulation::translateSpatialVector(childToParent, temp);
+	return ev4sio_Dy::FeatherstoneArticulation::translateSpatialVector(childToParent, temp);
 }
 
-static __device__ Cm::UnAlignedSpatialVector propagateAccelerationW(const PxVec3& c2p, const float3* invStIsT,
-	const Cm::UnAlignedSpatialVector* motionMatrix, const Cm::UnAlignedSpatialVector& hDeltaV, const PxU32 dofCount,
-	const Cm::UnAlignedSpatialVector* IsW, const PxReal* qstZ)
+static __device__ ev4sio_Cm::UnAlignedSpatialVector propagateAccelerationW(const PxVec3& c2p, const float3* invStIsT,
+	const ev4sio_Cm::UnAlignedSpatialVector* motionMatrix, const ev4sio_Cm::UnAlignedSpatialVector& hDeltaV, const PxU32 dofCount,
+	const ev4sio_Cm::UnAlignedSpatialVector* IsW, const PxReal* qstZ)
 {
-	Cm::UnAlignedSpatialVector pDeltaV = Dy::FeatherstoneArticulation::translateSpatialVector(-c2p, hDeltaV); //parent velocity change
+	ev4sio_Cm::UnAlignedSpatialVector pDeltaV = ev4sio_Dy::FeatherstoneArticulation::translateSpatialVector(-c2p, hDeltaV); //parent velocity change
 
 	//Convert parent velocity change into an impulse
 	PxReal tJointDelta[3] = { 0.f, 0.f, 0.f };
@@ -163,12 +163,12 @@ static __device__ Cm::UnAlignedSpatialVector propagateAccelerationW(const PxVec3
 	return pDeltaV;
 }
 
-static __device__ Cm::UnAlignedSpatialVector computeSpatialJointDelta(
+static __device__ ev4sio_Cm::UnAlignedSpatialVector computeSpatialJointDelta(
 	const PxgArticulationBlockDofData* PX_RESTRICT dofData,
 	const PxReal* PX_RESTRICT QSTZMinusISDotTranslatedParentDeltaV, PxReal* PX_RESTRICT jointDeltaDofSpeeds, const PxU32 dofCount, 
 	const PxU32 threadIndexInWarp)
 {
-	Cm::UnAlignedSpatialVector sas[3];
+	ev4sio_Cm::UnAlignedSpatialVector sas[3];
 
 	// the split into two separate loops is an optimization that allows dispatching the loads as early as possible.
 #pragma unroll 3
@@ -180,7 +180,7 @@ static __device__ Cm::UnAlignedSpatialVector computeSpatialJointDelta(
 		}
 	}
 
-	Cm::UnAlignedSpatialVector jointSpatialDeltaV(PxVec3(0.f), PxVec3(0.f));
+	ev4sio_Cm::UnAlignedSpatialVector jointSpatialDeltaV(PxVec3(0.f), PxVec3(0.f));
 #pragma unroll 3
 	for (PxU32 ind = 0; ind < 3; ++ind)
 	{
@@ -205,16 +205,16 @@ static __device__ Cm::UnAlignedSpatialVector computeSpatialJointDelta(
 }
 
 //This function use mDeferredQstZ
-static __device__ Cm::UnAlignedSpatialVector propagateAccelerationW(const PxVec3& c2p,
+static __device__ ev4sio_Cm::UnAlignedSpatialVector propagateAccelerationW(const PxVec3& c2p,
 	const PxgArticulationBlockDofData* PX_RESTRICT dofData,
-	const Cm::UnAlignedSpatialVector& hDeltaV,
+	const ev4sio_Cm::UnAlignedSpatialVector& hDeltaV,
 	const PxU32 dofCount, PxReal* jointDeltaDofSpeeds, const PxU32 threadIndexInWarp)
 {
-	const Cm::UnAlignedSpatialVector pDeltaV = Dy::FeatherstoneArticulation::translateSpatialVector(-c2p, hDeltaV); //parent velocity change
+	const ev4sio_Cm::UnAlignedSpatialVector pDeltaV = ev4sio_Dy::FeatherstoneArticulation::translateSpatialVector(-c2p, hDeltaV); //parent velocity change
 
 	//[(Q - S^T *Z)] - [(I*S).innerProduct(translated(parentDeltaV))]
 	PxReal QSTZMinusISDotTranslatedParentDeltaV[3] = { 0.f, 0.f, 0.f };
-	Cm::UnAlignedSpatialVector IsW;
+	ev4sio_Cm::UnAlignedSpatialVector IsW;
 #pragma unroll(3)
 	for (PxU32 ind = 0; ind < 3; ++ind)
 	{
@@ -228,18 +228,18 @@ static __device__ Cm::UnAlignedSpatialVector propagateAccelerationW(const PxVec3
 		}
 	}
 
-	const Cm::UnAlignedSpatialVector jointSpatialDeltaV = computeSpatialJointDelta(dofData, QSTZMinusISDotTranslatedParentDeltaV, jointDeltaDofSpeeds, dofCount, threadIndexInWarp);
+	const ev4sio_Cm::UnAlignedSpatialVector jointSpatialDeltaV = computeSpatialJointDelta(dofData, QSTZMinusISDotTranslatedParentDeltaV, jointDeltaDofSpeeds, dofCount, threadIndexInWarp);
 
 	return pDeltaV + jointSpatialDeltaV;
 }
 
 //This function use mTmpQstZ
-static __device__ Cm::UnAlignedSpatialVector propagateAccelerationWTemp(const PxVec3& c2p,
+static __device__ ev4sio_Cm::UnAlignedSpatialVector propagateAccelerationWTemp(const PxVec3& c2p,
 	const PxgArticulationBlockDofData* PX_RESTRICT dofData,
-	const Cm::UnAlignedSpatialVector& hDeltaV,
+	const ev4sio_Cm::UnAlignedSpatialVector& hDeltaV,
 	const PxU32 dofCount, const PxU32 threadIndexInWarp)
 {
-	const Cm::UnAlignedSpatialVector pDeltaV = Dy::FeatherstoneArticulation::translateSpatialVector(-c2p, hDeltaV); //parent velocity change
+	const ev4sio_Cm::UnAlignedSpatialVector pDeltaV = ev4sio_Dy::FeatherstoneArticulation::translateSpatialVector(-c2p, hDeltaV); //parent velocity change
 
 	//[(Q - S^T *Z)] - [(I*S).innerProduct(translated(parentDeltaV))]
 	PxReal QSTZMinusISDotTransaltedParentDeltaV[3] = { 0.f, 0.f, 0.f };
@@ -249,7 +249,7 @@ static __device__ Cm::UnAlignedSpatialVector propagateAccelerationWTemp(const Px
 	{
 		if (ind < dofCount)
 		{
-			const Cm::UnAlignedSpatialVector IsW = loadSpatialVector(dofData[ind].mIsW, threadIndexInWarp);
+			const ev4sio_Cm::UnAlignedSpatialVector IsW = loadSpatialVector(dofData[ind].mIsW, threadIndexInWarp);
 			//stI * pAcceleration
 			const PxReal temp = IsW.innerProduct(pDeltaV);
 
@@ -257,23 +257,23 @@ static __device__ Cm::UnAlignedSpatialVector propagateAccelerationWTemp(const Px
 		}
 	}
 
-	const Cm::UnAlignedSpatialVector jointSpatialDeltaV = computeSpatialJointDelta(dofData, QSTZMinusISDotTransaltedParentDeltaV, NULL, dofCount, threadIndexInWarp);
+	const ev4sio_Cm::UnAlignedSpatialVector jointSpatialDeltaV = computeSpatialJointDelta(dofData, QSTZMinusISDotTransaltedParentDeltaV, NULL, dofCount, threadIndexInWarp);
 
 	return pDeltaV + jointSpatialDeltaV;
 }
 
 //This function use qstZ as input
-static __device__ Cm::UnAlignedSpatialVector propagateAccelerationW(const PxVec3& c2p,
+static __device__ ev4sio_Cm::UnAlignedSpatialVector propagateAccelerationW(const PxVec3& c2p,
 	const PxgArticulationBlockDofData* PX_RESTRICT dofData,
-	const Cm::UnAlignedSpatialVector& hDeltaV,
+	const ev4sio_Cm::UnAlignedSpatialVector& hDeltaV,
 	const PxU32 dofCount, const PxU32 threadIndexInWarp,
 	const PxReal* qstZ)
 {
-	const Cm::UnAlignedSpatialVector pDeltaV = Dy::FeatherstoneArticulation::translateSpatialVector(-c2p, hDeltaV); //parent velocity change
+	const ev4sio_Cm::UnAlignedSpatialVector pDeltaV = ev4sio_Dy::FeatherstoneArticulation::translateSpatialVector(-c2p, hDeltaV); //parent velocity change
 
 	//[(Q - S^T *Z)] - [(I*S).innerProduct(translated(parentDeltaV))]
 	PxReal QSTZMinusISDotTransaltedParentDeltaV[3] = { 0.f, 0.f, 0.f };
-	Cm::UnAlignedSpatialVector IsW;
+	ev4sio_Cm::UnAlignedSpatialVector IsW;
 #pragma unroll(3)
 	for (PxU32 ind = 0; ind < 3; ++ind)
 	{
@@ -287,16 +287,16 @@ static __device__ Cm::UnAlignedSpatialVector propagateAccelerationW(const PxVec3
 		}
 	}
 
-	const Cm::UnAlignedSpatialVector jointSpatialDeltaV = computeSpatialJointDelta(dofData, QSTZMinusISDotTransaltedParentDeltaV, NULL, dofCount, threadIndexInWarp);
+	const ev4sio_Cm::UnAlignedSpatialVector jointSpatialDeltaV = computeSpatialJointDelta(dofData, QSTZMinusISDotTransaltedParentDeltaV, NULL, dofCount, threadIndexInWarp);
 
 	return pDeltaV + jointSpatialDeltaV;
 }
 
-static __device__ Cm::UnAlignedSpatialVector propagateAccelerationW(
+static __device__ ev4sio_Cm::UnAlignedSpatialVector propagateAccelerationW(
 	PxgArticulationBlockLinkData& linkData,
 	PxgArticulationBlockDofData* dofData,
 	const PxU32 dofCount,
-	const Cm::UnAlignedSpatialVector& hDeltaV,
+	const ev4sio_Cm::UnAlignedSpatialVector& hDeltaV,
 	const PxU32 threadIndexInWarp)
 {
 	const float c2px = linkData.mRw_x[threadIndexInWarp];
@@ -305,8 +305,8 @@ static __device__ Cm::UnAlignedSpatialVector propagateAccelerationW(
 
 	float3 invStIsT[3];
 	PxReal tJointDelta[3] = { 0.f, 0.f, 0.f };
-	Cm::UnAlignedSpatialVector isW[3];
-	Cm::UnAlignedSpatialVector mMotionMatrix[3];
+	ev4sio_Cm::UnAlignedSpatialVector isW[3];
+	ev4sio_Cm::UnAlignedSpatialVector mMotionMatrix[3];
 	PxReal jVel[3];
 
 // the split into three separate loops is an optimization that allows dispatching the loads as early as possible.
@@ -323,7 +323,7 @@ static __device__ Cm::UnAlignedSpatialVector propagateAccelerationW(
 		}
 	}
 
-	Cm::UnAlignedSpatialVector pDeltaV = Dy::FeatherstoneArticulation::translateSpatialVector(PxVec3(-c2px, -c2py, -c2pz), hDeltaV); //parent velocity change
+	ev4sio_Cm::UnAlignedSpatialVector pDeltaV = ev4sio_Dy::FeatherstoneArticulation::translateSpatialVector(PxVec3(-c2px, -c2py, -c2pz), hDeltaV); //parent velocity change
 	
 #pragma unroll 3
 	for (PxU32 ind = 0; ind < 3; ++ind)
@@ -358,17 +358,17 @@ static void __device__ PxcFsFlushVelocity(PxgArticulationBlockData& articulation
 	PxgArticulationBlockDofData* PX_RESTRICT artiDofs,
 	PxU32 linkCount, bool fixBase, const PxU32 threadIndexInWarp)
 {
-	Cm::UnAlignedSpatialVector deltaV = Cm::UnAlignedSpatialVector::Zero();
-	Cm::UnAlignedSpatialVector deferredZ = -loadSpatialVector(articulation.mRootDeferredZ, threadIndexInWarp);
+	ev4sio_Cm::UnAlignedSpatialVector deltaV = ev4sio_Cm::UnAlignedSpatialVector::Zero();
+	ev4sio_Cm::UnAlignedSpatialVector deferredZ = -loadSpatialVector(articulation.mRootDeferredZ, threadIndexInWarp);
 	if (!fixBase)
 	{
 		//ArticulationLink& link = links[0];
 
 		// PT: preload data
-		const Cm::UnAlignedSpatialVector motionVelocity0 = loadSpatialVector(artiLinks[0].mMotionVelocity, threadIndexInWarp);
-		const Cm::UnAlignedSpatialVector solverSpatialDeltaVel0 = loadSpatialVector(artiLinks[0].mSolverSpatialDeltaVel, threadIndexInWarp);
+		const ev4sio_Cm::UnAlignedSpatialVector motionVelocity0 = loadSpatialVector(artiLinks[0].mMotionVelocity, threadIndexInWarp);
+		const ev4sio_Cm::UnAlignedSpatialVector solverSpatialDeltaVel0 = loadSpatialVector(artiLinks[0].mSolverSpatialDeltaVel, threadIndexInWarp);
 
-		Dy::SpatialMatrix invInertia;
+		ev4sio_Dy::SpatialMatrix invInertia;
 		loadSpatialMatrix(articulation.mInvSpatialArticulatedInertia, threadIndexInWarp, invInertia);
 		//deltaV = invInertia * (-loadSpatialVector(artiLinks[0].mDeferredZ, threadIndexInWarp));
 
@@ -376,24 +376,24 @@ static void __device__ PxcFsFlushVelocity(PxgArticulationBlockData& articulation
 
 		//motionVelocities[0] += deltaV[0];
 		storeSpatialVector(artiLinks[0].mMotionVelocity, motionVelocity0 + deltaV, threadIndexInWarp);
-		//storeSpatialVector(artiLinks[0].mDeferredZ, Cm::UnAlignedSpatialVector::Zero(), threadIndexInWarp);
-		storeSpatialVector(articulation.mRootDeferredZ, Cm::UnAlignedSpatialVector::Zero(), threadIndexInWarp);
+		//storeSpatialVector(artiLinks[0].mDeferredZ, ev4sio_Cm::UnAlignedSpatialVector::Zero(), threadIndexInWarp);
+		storeSpatialVector(articulation.mRootDeferredZ, ev4sio_Cm::UnAlignedSpatialVector::Zero(), threadIndexInWarp);
 		storeSpatialVector(artiLinks[0].mSolverSpatialDeltaVel, solverSpatialDeltaVel0 + deltaV, threadIndexInWarp);	
 	}
 
 	storeSpatialVector(artiLinks[0].mScratchDeltaV, deltaV, threadIndexInWarp);
 	addSpatialVector(artiLinks[0].mConstraintForces, deferredZ, threadIndexInWarp);
 
-	storeSpatialVector(articulation.mCommonLinkDeltaVelocity, Cm::UnAlignedSpatialVector::Zero(), threadIndexInWarp);
+	storeSpatialVector(articulation.mCommonLinkDeltaVelocity, ev4sio_Cm::UnAlignedSpatialVector::Zero(), threadIndexInWarp);
 
 	PxgArticulationBlockDofData* dofs = artiDofs;
 
 	if (linkCount > 1)
 	{
-		Cm::UnAlignedSpatialVector nextMotionV = loadSpatialVector(artiLinks[1].mMotionVelocity, threadIndexInWarp);
+		ev4sio_Cm::UnAlignedSpatialVector nextMotionV = loadSpatialVector(artiLinks[1].mMotionVelocity, threadIndexInWarp);
 		PxU32 nextNbDofs = artiLinks[1].mDofs[threadIndexInWarp];
 		PxU32 nextParent = artiLinks[1].mParents[threadIndexInWarp];
-		//Cm::UnAlignedSpatialVector nextDeferredZ = loadSpatialVector(artiLinks[1].mDeferredZ, threadIndexInWarp);
+		//ev4sio_Cm::UnAlignedSpatialVector nextDeferredZ = loadSpatialVector(artiLinks[1].mDeferredZ, threadIndexInWarp);
 
 		for (PxU32 i = 1; i < linkCount; i++)
 		{
@@ -401,13 +401,13 @@ static void __device__ PxcFsFlushVelocity(PxgArticulationBlockData& articulation
 			const PxU32 nbDofs = nextNbDofs;
 			const PxU32 parent = nextParent;
 
-			const Cm::UnAlignedSpatialVector preloadedConstraintForces = loadSpatialVector(tLink.mConstraintForces, threadIndexInWarp);
-			const Cm::UnAlignedSpatialVector preloadedSolverSpatialDeltaVel = loadSpatialVector(tLink.mSolverSpatialDeltaVel, threadIndexInWarp);
+			const ev4sio_Cm::UnAlignedSpatialVector preloadedConstraintForces = loadSpatialVector(tLink.mConstraintForces, threadIndexInWarp);
+			const ev4sio_Cm::UnAlignedSpatialVector preloadedSolverSpatialDeltaVel = loadSpatialVector(tLink.mSolverSpatialDeltaVel, threadIndexInWarp);
 
-			Cm::UnAlignedSpatialVector motionV = nextMotionV;
-			//const Cm::UnAlignedSpatialVector deferredZ = nextDeferredZ;
+			ev4sio_Cm::UnAlignedSpatialVector motionV = nextMotionV;
+			//const ev4sio_Cm::UnAlignedSpatialVector deferredZ = nextDeferredZ;
 
-			//storeSpatialVector(tLink.mDeferredZ, Cm::UnAlignedSpatialVector::Zero(), threadIndexInWarp);
+			//storeSpatialVector(tLink.mDeferredZ, ev4sio_Cm::UnAlignedSpatialVector::Zero(), threadIndexInWarp);
 
 			if ((i + 1) < linkCount)
 			{

@@ -34,9 +34,9 @@
 #include "foundation/PxBitUtils.h"
 #include "CmPtrTable.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-class NpPtrTableStorageManager : public Cm::PtrTableStorageManager, public PxUserAllocated
+class NpPtrTableStorageManager : public ev4sio_Cm::PtrTableStorageManager, public PxUserAllocated
 {
 	PX_NOCOPY(NpPtrTableStorageManager)
 

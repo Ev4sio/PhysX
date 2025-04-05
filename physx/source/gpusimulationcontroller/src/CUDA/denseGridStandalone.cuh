@@ -33,7 +33,7 @@
 //Should have the same value as the same define in sparseGrid.cuh
 #define EMPTY_SUBGRID 0xffffffff 
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 PX_FORCE_INLINE __device__ __host__ int getCellNr(int numCellsX, int numCellsY, int xi, int yi, int zi)
 {

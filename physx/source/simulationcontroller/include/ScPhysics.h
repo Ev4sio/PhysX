@@ -35,7 +35,7 @@
 #include "foundation/PxBasicTemplates.h"
 #include "PxActor.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 class PxMaterial;
@@ -46,7 +46,7 @@ struct PxvOffsetTable;
 class PxPhysXGpu;
 #endif
 
-namespace Sc
+namespace ev4sio_Sc
 {
 	class Scene;
 	class StaticCore;
@@ -120,7 +120,7 @@ namespace Sc
 		static			const PxReal				sWakeCounterOnCreation;
 	};
 
-} // namespace Sc
+} // namespace ev4sio_Sc
 
 }
 

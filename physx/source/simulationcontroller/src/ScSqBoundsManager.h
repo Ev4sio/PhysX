@@ -35,11 +35,11 @@
 
 #include "ScSqBoundsSync.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	class PxBounds3;
 
-namespace Sc
+namespace ev4sio_Sc
 {
 	struct SqBoundsSync;
 	struct SqRefFinder;

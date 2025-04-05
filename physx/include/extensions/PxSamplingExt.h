@@ -37,7 +37,7 @@
 #include "geometry/PxSimpleTriangleMesh.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -177,7 +177,7 @@ PxTriangleMeshPoissonSampler* PxCreateTriangleMeshSampler(const PxU32* triangles
 
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

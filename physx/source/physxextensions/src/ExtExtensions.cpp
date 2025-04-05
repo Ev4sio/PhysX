@@ -56,8 +56,8 @@
 #	include "omnipvd/OmniPvdPxExtensionsSampler.h"
 #endif
 
-using namespace physx;
-using namespace physx::pvdsdk;
+using namespace ev4sio_physx;
+using namespace ev4sio_physx::pvdsdk;
 
 #if PX_SUPPORT_PVD
 struct JointConnectionHandler : public PvdClient
@@ -75,7 +75,7 @@ struct JointConnectionHandler : public PvdClient
 		if(stream)
 		{
 			mConnected = true;
-			Ext::Pvd::sendClassDescriptions(*stream);	
+			ev4sio_Ext::Pvd::sendClassDescriptions(*stream);	
 			stream->release();
 		}		
 	}
@@ -101,12 +101,12 @@ struct JointConnectionHandler : public PvdClient
 static JointConnectionHandler gPvdHandler;
 #endif
 
-bool PxInitExtensions(PxPhysics& physics, PxPvd* pvd)
+bool ev4sio_PxInitExtensions(PxPhysics& physics, PxPvd* pvd)
 {
-	PX_ASSERT(&physics.getFoundation() == &PxGetFoundation());
+	PX_ASSERT(&physics.getFoundation() == &ev4sio_PxGetFoundation());
 	PX_UNUSED(physics);
 	PX_UNUSED(pvd);
-	PxIncFoundationRefCount();
+	ev4sio_PxIncFoundationRefCount();
 
 #if PX_SUPPORT_PVD
 	if(pvd)
@@ -173,11 +173,11 @@ static void releaseExternalSQ()
 	}
 }
 
-void PxCloseExtensions()
+void ev4sio_PxCloseExtensions()
 {
 	releaseExternalSQ();
 
-	PxDecFoundationRefCount();
+	ev4sio_PxDecFoundationRefCount();
 
 #if PX_SUPPORT_PVD
 	if(gPvdHandler.mConnected)
@@ -196,7 +196,7 @@ void PxCloseExtensions()
 #endif
 }
 
-void Ext::RegisterExtensionsSerializers(PxSerializationRegistry& sr)
+void ev4sio_Ext::RegisterExtensionsSerializers(PxSerializationRegistry& sr)
 {
 	//for repx serialization
 	sr.registerRepXSerializer(PxConcreteType::eMATERIAL,						PX_NEW_REPX_SERIALIZER( PxMaterialRepXSerializer ));
@@ -228,7 +228,7 @@ void Ext::RegisterExtensionsSerializers(PxSerializationRegistry& sr)
 	sr.registerSerializer(PxJointConcreteType::eRACK_AND_PINION,				PX_NEW_SERIALIZER_ADAPTER( RackAndPinionJoint ));
 }
 
-void Ext::UnregisterExtensionsSerializers(PxSerializationRegistry& sr)
+void ev4sio_Ext::UnregisterExtensionsSerializers(PxSerializationRegistry& sr)
 {
 	PX_DELETE_SERIALIZER_ADAPTER(sr.unregisterSerializer(PxJointConcreteType::eFIXED));
 	PX_DELETE_SERIALIZER_ADAPTER(sr.unregisterSerializer(PxJointConcreteType::eDISTANCE));

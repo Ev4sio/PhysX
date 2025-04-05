@@ -30,7 +30,7 @@
 #include "NpRigidActorTemplateInternal.h"
 #include "omnipvd/NpOmniPvdSetData.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -576,7 +576,7 @@ PxReal NpRigidDynamic::getContactReportThreshold() const
 	return mCore.getContactReportThreshold();
 }
 
-PxU32 physx::NpRigidDynamicGetShapes(NpRigidDynamic& actor, NpShape* const*& shapes, bool* isCompound)
+PxU32 ev4sio_physx::NpRigidDynamicGetShapes(NpRigidDynamic& actor, NpShape* const*& shapes, bool* isCompound)
 {
 	NpShapeManager& sm = actor.getShapeManager();
 	shapes = sm.getShapes();

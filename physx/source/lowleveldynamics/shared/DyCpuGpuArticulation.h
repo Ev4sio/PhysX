@@ -39,9 +39,9 @@
 #define DY_ARTICULATION_CFM	2e-4f
 #define DY_ARTICULATION_PGS_BIAS_COEFFICIENT 0.8f
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Dy
+namespace ev4sio_Dy
 {
 struct ArticulationImplicitDriveDesc
 {
@@ -320,9 +320,9 @@ spatial vector and s.bottom representing the linear part of the spatial vector.
 \return The spatial vector translated into the frame of the target link with top representing the angular part of the spatial vector
 and bottom representing the linear part of the spatial vector.
 */
-PX_CUDA_CALLABLE PX_FORCE_INLINE Cm::SpatialVectorF translateSpatialVector(const PxVec3& offset, const Cm::SpatialVectorF& s)
+PX_CUDA_CALLABLE PX_FORCE_INLINE ev4sio_Cm::SpatialVectorF translateSpatialVector(const PxVec3& offset, const ev4sio_Cm::SpatialVectorF& s)
 {
-	return Cm::SpatialVectorF(s.top, s.bottom + offset.cross(s.top));
+	return ev4sio_Cm::SpatialVectorF(s.top, s.bottom + offset.cross(s.top));
 }
 
 /**
@@ -348,21 +348,21 @@ delta spatial velocity from parent link to child link.
 \note jointDofImpulse, jointDofISInvStISW, jointDofMotionMatrixW and jointDofQMinusStY have dofCount entries ie one entry for each dof of the joint. 
 \return The propagated spatial impulse in the world frame.
 */
-PX_CUDA_CALLABLE PX_FORCE_INLINE Cm::SpatialVectorF propagateImpulseW
+PX_CUDA_CALLABLE PX_FORCE_INLINE ev4sio_Cm::SpatialVectorF propagateImpulseW
 (const PxVec3& parentToChild, 
- const Cm::SpatialVectorF& YChildW, 
- const PxReal* jointDofImpulse, const Cm::SpatialVectorF* jointDofISInvStISW, const Cm::UnAlignedSpatialVector* jointDofMotionMatrixW, const PxU8 dofCount, 
+ const ev4sio_Cm::SpatialVectorF& YChildW, 
+ const PxReal* jointDofImpulse, const ev4sio_Cm::SpatialVectorF* jointDofISInvStISW, const ev4sio_Cm::UnAlignedSpatialVector* jointDofMotionMatrixW, const PxU8 dofCount, 
  PxReal* jointDofQMinusStY)
 {
 	//See Mirtich Figure 5.7 page 141
 	//Mirtich equivalent after accounting for joint impulse: 
 	//	childToParentTranform{ Y +  (I * s) * (Q - s^T* Y)]/ (s^T * I * s) }
 
-	Cm::SpatialVectorF YParentW(PxVec3(0, 0, 0), PxVec3(0, 0, 0));
+	ev4sio_Cm::SpatialVectorF YParentW(PxVec3(0, 0, 0), PxVec3(0, 0, 0));
 	for (PxU8 ind = 0; ind < dofCount; ++ind)
 	{
 		//(Q - s^T* Y) 			
-		const Cm::UnAlignedSpatialVector& sa = jointDofMotionMatrixW[ind];
+		const ev4sio_Cm::UnAlignedSpatialVector& sa = jointDofMotionMatrixW[ind];
 		const PxReal Q = jointDofImpulse ? jointDofImpulse[ind] : 0.0f;
 		const PxReal QMinusStY = Q - (sa.innerProduct(YChildW));
 		PX_ASSERT(PxIsFinite(QMinusStY));
@@ -403,13 +403,13 @@ propagateVelocityW().
 \note See Mirtich p121 and equations for propagating forces/applying accelerations and
 	p141 for propagating velocities/applying impulses.
 */
-PX_CUDA_CALLABLE PX_FORCE_INLINE  Cm::SpatialVectorF propagateAccelerationW(
-	const PxVec3& parentToChild, const Cm::SpatialVectorF& parentLinkAccelerationW, 
-	const InvStIs& invStISW, const Cm::UnAlignedSpatialVector* motionMatrixW, const Cm::SpatialVectorF* IsW, const PxReal* QMinusSTZ, const PxU32 dofCount, 
+PX_CUDA_CALLABLE PX_FORCE_INLINE  ev4sio_Cm::SpatialVectorF propagateAccelerationW(
+	const PxVec3& parentToChild, const ev4sio_Cm::SpatialVectorF& parentLinkAccelerationW, 
+	const InvStIs& invStISW, const ev4sio_Cm::UnAlignedSpatialVector* motionMatrixW, const ev4sio_Cm::SpatialVectorF* IsW, const PxReal* QMinusSTZ, const PxU32 dofCount, 
 	PxReal* jointAcceleration)
 {
 	//parentToChild satisfies parent = child + parentToChild.
-	Cm::SpatialVectorF motionAccelerationW = translateSpatialVector(-parentToChild, parentLinkAccelerationW); //parent velocity change
+	ev4sio_Cm::SpatialVectorF motionAccelerationW = translateSpatialVector(-parentToChild, parentLinkAccelerationW); //parent velocity change
 
 
 	//[Q_i - (s^T * Z_i^A + I_i^A * c_i)] - s^T * I_i^A * translated(vParent)
@@ -583,6 +583,6 @@ PX_CUDA_CALLABLE PX_FORCE_INLINE void computeMimicJointImpulses
 }
 
 
-} //namespace Dy
-} //namespace physx
+} //namespace ev4sio_Dy
+} //namespace ev4sio_physx
 #endif //DY_ARTICULATION_CPUGPU_H

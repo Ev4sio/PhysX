@@ -32,9 +32,9 @@
 #include "foundation/PxVecMath.h"
 #include "foundation/PxArray.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Dy
+namespace ev4sio_Dy
 {
 	PX_FORCE_INLINE PX_CUDA_CALLABLE PxReal calculateResidual(PxReal deltaF, PxReal velocityMultiplier)
 	{
@@ -144,7 +144,7 @@ namespace Dy
 			mMaxError = 0.0f;
 		}
 
-		PX_FORCE_INLINE void accumulateErrorGlobal(Dy::ErrorAccumulator& globalAccumulator)
+		PX_FORCE_INLINE void accumulateErrorGlobal(ev4sio_Dy::ErrorAccumulator& globalAccumulator)
 		{
 			globalAccumulator.mErrorSumOfSquares += mErrorSumOfSquares;
 			globalAccumulator.mCounter += mCounter;
@@ -173,7 +173,7 @@ namespace Dy
 		}
 	};
 
-} // namespace Cm
+} // namespace ev4sio_Cm
 
 }
 

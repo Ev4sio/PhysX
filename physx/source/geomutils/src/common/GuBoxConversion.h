@@ -34,10 +34,10 @@
 #include "foundation/PxMat34.h"
 #include "foundation/PxVecMath.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	// PT: builds rot from quat. WARNING: writes 4 bytes after 'dst.rot'.
-	PX_FORCE_INLINE void buildFrom(Gu::Box& dst, const PxQuat& q)
+	PX_FORCE_INLINE void buildFrom(ev4sio_Gu::Box& dst, const PxQuat& q)
 	{
 		using namespace aos;
 		const QuatV qV = V4LoadU(&q.x);
@@ -49,7 +49,7 @@ namespace physx
 		V4StoreU(Vec4V_From_Vec3V(column2), &dst.rot.column2.x);
 	}
 
-	PX_FORCE_INLINE void buildFrom(Gu::Box& dst, const PxVec3& center, const PxVec3& extents, const PxQuat& q)
+	PX_FORCE_INLINE void buildFrom(ev4sio_Gu::Box& dst, const PxVec3& center, const PxVec3& extents, const PxQuat& q)
 	{
 		using namespace aos;
 		// PT: writes 4 bytes after 'rot' but it's safe since we then write 'center' just afterwards
@@ -58,7 +58,7 @@ namespace physx
 		dst.extents	= extents;
 	}
 
-	PX_FORCE_INLINE void buildMatrixFromBox(PxMat34& mat34, const Gu::Box& box)
+	PX_FORCE_INLINE void buildMatrixFromBox(PxMat34& mat34, const ev4sio_Gu::Box& box)
 	{
 		mat34.m	= box.rot;
 		mat34.p	= box.center;
@@ -66,9 +66,9 @@ namespace physx
 
 	// SD: function is now the same as FastVertex2ShapeScaling::transformQueryBounds
 	// PT: lots of LHS in that one. TODO: revisit...
-	PX_INLINE Gu::Box transform(const PxMat34& transfo, const Gu::Box& box)
+	PX_INLINE ev4sio_Gu::Box transform(const PxMat34& transfo, const ev4sio_Gu::Box& box)
 	{
-		Gu::Box ret;
+		ev4sio_Gu::Box ret;
 		PxMat33& obbBasis = ret.rot;
 
 		obbBasis.column0 = transfo.rotate(box.rot.column0 * box.extents.x);
@@ -80,9 +80,9 @@ namespace physx
 		return ret;
 	}
 
-	PX_INLINE Gu::Box transformBoxOrthonormal(const Gu::Box& box, const PxTransform& t)
+	PX_INLINE ev4sio_Gu::Box transformBoxOrthonormal(const ev4sio_Gu::Box& box, const PxTransform& t)
 	{
-		Gu::Box ret;
+		ev4sio_Gu::Box ret;
 		PxMat33& obbBasis = ret.rot;
 		obbBasis.column0 = t.rotate(box.rot.column0);
 		obbBasis.column1 = t.rotate(box.rot.column1);
@@ -97,7 +97,7 @@ namespace physx
 	\param	mtx		[in] the transform matrix
 	\param	obb		[out] the transformed OBB
 	*/
-	PX_INLINE	void rotate(const Gu::Box& src, const PxMat34& mtx, Gu::Box& obb)
+	PX_INLINE	void rotate(const ev4sio_Gu::Box& src, const PxMat34& mtx, ev4sio_Gu::Box& obb)
 	{
 		// The extents remain constant
 		obb.extents = src.extents;

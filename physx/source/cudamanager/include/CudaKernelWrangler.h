@@ -45,7 +45,7 @@
 #pragma clang diagnostic pop
 #endif
 
-namespace physx
+namespace ev4sio_physx
 {
 	class PxCudaContextManager;
 	class PxCudaContext;

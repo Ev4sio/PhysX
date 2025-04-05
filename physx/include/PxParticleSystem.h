@@ -33,7 +33,7 @@
 #include "PxPBDParticleSystem.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 
 /**
@@ -41,7 +41,7 @@ namespace physx
  */
 typedef PX_DEPRECATED PxPBDParticleSystem PxParticleSystem;
 
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

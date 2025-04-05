@@ -39,9 +39,9 @@
 #include "CmIDPool.h"
 #include "solver/PxSolverDefs.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Dy
+namespace ev4sio_Dy
 {
 
 	typedef PxU64 ArticulationAttachmentBitField;
@@ -117,7 +117,7 @@ namespace Dy
 	private:
 
 		PxArray<ArticulationAttachment>		mAttachments;
-		Cm::IDPool							mIDPool;
+		ev4sio_Cm::IDPool							mIDPool;
 		PxU32								mIndex;
 	};
 
@@ -181,12 +181,12 @@ namespace Dy
 	private:
 		PxArray<ArticulationTendonJoint>	mTendonJoints;
 
-		Cm::IDPool							mIDPool;
+		ev4sio_Cm::IDPool							mIDPool;
 		PxU32								mIndex;
 	};
 
 
-}//namespace Dy
-}//namespace physx
+}//namespace ev4sio_Dy
+}//namespace ev4sio_physx
 
 #endif

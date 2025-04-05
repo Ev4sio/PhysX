@@ -31,7 +31,7 @@
 
 #include "foundation/PxPreprocessor.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	struct PxConstraintBatchHeader;
 	struct PxSolverConstraintDesc;
@@ -39,7 +39,7 @@ namespace physx
 	struct PxTGSSolverBodyData;
 	struct PxTGSSolverBodyVel;
 
-	namespace Dy
+	namespace ev4sio_Dy
 	{
 		struct SolverContext;
 

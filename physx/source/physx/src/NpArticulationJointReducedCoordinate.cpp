@@ -32,7 +32,7 @@
 
 #include "omnipvd/NpOmniPvdSetData.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 //PX_SERIALIZATION
 
@@ -79,7 +79,7 @@ void NpArticulationJointReducedCoordinate::setJointType(PxArticulationJointType:
 {
 	if(getNpScene())
 	{
-		PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxArticulationJointReducedCoordinate::setJointType() not allowed while the articulation is in a scene. Call will be ignored.");
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxArticulationJointReducedCoordinate::setJointType() not allowed while the articulation is in a scene. Call will be ignored.");
 		return;
 	}
 	PX_CHECK_AND_RETURN(jointType != PxArticulationJointType::eUNDEFINED, "PxArticulationJointReducedCoordinate::setJointType valid joint type(ePRISMATIC, eREVOLUTE, eREVOLUTE_UNWRAPPED, eSPHERICAL, eFIX) need to be set");
@@ -159,7 +159,7 @@ void NpArticulationJointReducedCoordinate::setMotion(PxArticulationAxis::Enum ax
 {
 	if(getNpScene())
 	{
-		PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxArticulationJointReducedCoordinate::setMotion() not allowed while the articulation is in a scene. Call will be ignored.");
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxArticulationJointReducedCoordinate::setMotion() not allowed while the articulation is in a scene. Call will be ignored.");
 		return;
 	}
 	PX_CHECK_AND_RETURN(getJointType() != PxArticulationJointType::eUNDEFINED, "PxArticulationJointReducedCoordinate::setMotion valid joint type(ePRISMATIC, eREVOLUTE, eREVOUTE_UNWRAPPED, eSPHERICAL or eFIX) has to be set before setMotion");
@@ -370,7 +370,7 @@ void NpArticulationJointReducedCoordinate::setDriveTarget(PxArticulationAxis::En
 
 	if (npScene && (npScene->getFlags() & PxSceneFlag::eENABLE_DIRECT_GPU_API) && npScene->isDirectGPUAPIInitialized())
 	{
-		PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxArticulationJointReducedCoordinate::setDriveTarget(): it is illegal to call this method if PxSceneFlag::eENABLE_DIRECT_GPU_API is enabled!");
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxArticulationJointReducedCoordinate::setDriveTarget(): it is illegal to call this method if PxSceneFlag::eENABLE_DIRECT_GPU_API is enabled!");
 	}
 
 	if (autowake && npScene)
@@ -398,7 +398,7 @@ void NpArticulationJointReducedCoordinate::setDriveVelocity(PxArticulationAxis::
 
 	if (npScene && (npScene->getFlags() & PxSceneFlag::eENABLE_DIRECT_GPU_API) && npScene->isDirectGPUAPIInitialized())
 	{
-		PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxArticulationJointReducedCoordinate::setDriveVelocity(): it is illegal to call this method if PxSceneFlag::eENABLE_DIRECT_GPU_API is enabled!");
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxArticulationJointReducedCoordinate::setDriveVelocity(): it is illegal to call this method if PxSceneFlag::eENABLE_DIRECT_GPU_API is enabled!");
 	}
 
 	if (autowake && npScene)
@@ -523,7 +523,7 @@ void NpArticulationJointReducedCoordinate::setJointPosition(PxArticulationAxis::
 
 	if (npScene && (npScene->getFlags() & PxSceneFlag::eENABLE_DIRECT_GPU_API) && npScene->isDirectGPUAPIInitialized())
 	{
-		PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxArticulationJointReducedCoordinate::setJointPosition(): it is illegal to call this method if PxSceneFlag::eENABLE_DIRECT_GPU_API is enabled!");
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxArticulationJointReducedCoordinate::setJointPosition(): it is illegal to call this method if PxSceneFlag::eENABLE_DIRECT_GPU_API is enabled!");
 	}
 
 	scSetJointPosition(axis, jointPos);
@@ -555,7 +555,7 @@ void NpArticulationJointReducedCoordinate::setJointVelocity(PxArticulationAxis::
 
 	if (npScene && (npScene->getFlags() & PxSceneFlag::eENABLE_DIRECT_GPU_API) && npScene->isDirectGPUAPIInitialized())
 	{
-		PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxArticulationJointReducedCoordinate::setJointVelocity(): it is illegal to call this method if PxSceneFlag::eENABLE_DIRECT_GPU_API is enabled!");
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxArticulationJointReducedCoordinate::setJointVelocity(): it is illegal to call this method if PxSceneFlag::eENABLE_DIRECT_GPU_API is enabled!");
 	}
 
 	scSetJointVelocity(axis, jointVel);

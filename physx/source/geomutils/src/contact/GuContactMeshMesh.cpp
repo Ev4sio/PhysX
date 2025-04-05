@@ -47,8 +47,8 @@
 #include "GuTriangle.h"
 #include "GuTriangleRefinement.h"
 
-using namespace physx;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
 
 using ContactReduction = SDFContactReduction<5, 10000, 32>;
 
@@ -112,7 +112,7 @@ inline PxU32 sdfMeshCollision (
 
 	const PxVec3* PX_RESTRICT vertices = mesh.getVertices();
 	const void* PX_RESTRICT tris = mesh.getTriangles();
-	const bool has16BitIndices = mesh.getTriangleMeshFlags() & physx::PxTriangleMeshFlag::e16_BIT_INDICES;
+	const bool has16BitIndices = mesh.getTriangleMeshFlags() & ev4sio_physx::PxTriangleMeshFlag::e16_BIT_INDICES;
 	const PxU32 nbTris = overlapCount; // mesh.getNbTriangles();
 
 
@@ -156,7 +156,7 @@ inline PxU32 sdfMeshCollision (
 			const PxU32 triIdx = overlappingTriangles[i];
 			TransformedTriangle niceTri;
 
-			const Gu::IndexedTriangle32 triIndices = has16BitIndices ?
+			const ev4sio_Gu::IndexedTriangle32 triIndices = has16BitIndices ?
 				getTriangleVertexIndices<PxU16>(tris, triIdx) :
 				getTriangleVertexIndices<PxU32>(tris, triIdx);
 
@@ -184,7 +184,7 @@ inline PxU32 sdfMeshCollision (
 				for (int childIdx = 0; childIdx < 4; ++childIdx)
 				{
 					TransformedTriangle child = tri;
-					Gu::getSubTriangle4(childIdx, child.v0, child.v1, child.v2);
+					ev4sio_Gu::getSubTriangle4(childIdx, child.v0, child.v1, child.v2);
 					++child.refinementLevel;
 					if (sdfTriangleSphericalCull(sdf, child.v0, child.v1, child.v2, cullScale))
 						goodTriangles[goodTriEnd++] = child;
@@ -230,7 +230,7 @@ inline PxU32 sdfMeshCollision (
 };
 
 
-bool Gu::contactMeshMesh(GU_CONTACT_METHOD_ARGS)
+bool ev4sio_Gu::contactMeshMesh(GU_CONTACT_METHOD_ARGS)
 {
 	PX_UNUSED(renderOutput);
 	PX_UNUSED(cache);

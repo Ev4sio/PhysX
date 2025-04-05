@@ -32,9 +32,9 @@
 
 #include "vector_types.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-	namespace Gu
+	namespace ev4sio_Gu
 	{
 		struct BV32DataDepthInfo;
 		struct BV32DataPacked;
@@ -47,10 +47,10 @@ struct sbMidphaseScratch
 	const uint4 * PX_RESTRICT tetmeshTetIndices;
 	const PxU8* PX_RESTRICT tetmeshSurfaceHint;
 
-	const Gu::BV32DataDepthInfo* PX_RESTRICT bv32DepthInfo;
+	const ev4sio_Gu::BV32DataDepthInfo* PX_RESTRICT bv32DepthInfo;
 	const PxU32* PX_RESTRICT bv32RemapPackedNodeIndex;
 	//bv32 tree
-	Gu::BV32DataPacked* bv32PackedNodes;
+	ev4sio_Gu::BV32DataPacked* bv32PackedNodes;
 
 	//stack for traversal
 	int sBv32Nodes[192]; //6 depth of the bv32 tree

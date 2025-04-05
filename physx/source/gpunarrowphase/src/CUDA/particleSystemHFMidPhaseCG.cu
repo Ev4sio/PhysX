@@ -52,7 +52,7 @@
 
 #include "assert.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 extern "C" __host__ void initNarrowphaseKernels12() {}
 

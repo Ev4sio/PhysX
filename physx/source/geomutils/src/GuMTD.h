@@ -33,9 +33,9 @@
 #include "foundation/PxTransform.h"
 #include "geometry/PxGeometry.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Gu
+namespace ev4sio_Gu
 {
 	// PT: we use a define to be able to quickly change the signature of all MTD functions.
 	// (this also ensures they all use consistent names for passed parameters).

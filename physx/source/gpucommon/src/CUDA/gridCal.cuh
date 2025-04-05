@@ -43,7 +43,7 @@ PX_FORCE_INLINE static __device__ int3 calcGridPos(const float4& particlePos, co
 }
 
 // calculate address in grid from position (wrap-around)
-PX_FORCE_INLINE static __device__ physx::PxU32 calcGridHash(int3 gridPos, uint3 gridSize)
+PX_FORCE_INLINE static __device__ ev4sio_physx::PxU32 calcGridHash(int3 gridPos, uint3 gridSize)
 {
 	gridPos.x = gridPos.x & (gridSize.x - 1);
 	gridPos.y = gridPos.y & (gridSize.y - 1);

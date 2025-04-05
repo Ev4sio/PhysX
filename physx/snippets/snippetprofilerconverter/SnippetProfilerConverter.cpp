@@ -49,7 +49,7 @@
 #include "string.h"
 
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 #define TENS_NANO_SECONDS_TO_MICRO_SECONDS	10.0 * 0.001
 

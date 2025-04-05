@@ -37,7 +37,7 @@
 #include "PxSparseGridParams.h"
 #include "PxgParticleSystem.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	__device__ inline PxVec3 getSubgridDomainSize(const PxSparseGridParams& params)
 	{

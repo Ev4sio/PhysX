@@ -39,7 +39,7 @@
 #include "PxConstraintDesc.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 
 class PxConstraint;
@@ -289,7 +289,7 @@ public:
 	virtual void onConstraintRelease() { }
 
 	//Can be empty functions.
-	virtual bool updatePvdProperties(physx::pvdsdk::PvdDataStream& pvdConnection, const PxConstraint* c, PxPvdUpdateType::Enum updateType) const
+	virtual bool updatePvdProperties(ev4sio_physx::pvdsdk::PvdDataStream& pvdConnection, const PxConstraint* c, PxPvdUpdateType::Enum updateType) const
 	{
 		PX_UNUSED(pvdConnection);
 		PX_UNUSED(c);
@@ -347,7 +347,7 @@ struct PxVehiclePhysXConstraints
 
 #if !PX_DOXYGEN
 } // namespace vehicle2
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 

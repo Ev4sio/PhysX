@@ -55,8 +55,8 @@
 
 #include <assert.h>
 
-using namespace physx;
-using namespace Dy;
+using namespace ev4sio_physx;
+using namespace ev4sio_Dy;
 
 extern "C" __host__ void initArticulationKernels3() {}
 
@@ -204,16 +204,16 @@ static PX_FORCE_INLINE __device__ void updateKinematicInternal(
             if (zeroSimOutput)
             {
                 // link velocity update - unfortunately also dependent on parent position and velocity.
-                Cm::UnAlignedSpatialVector parentVel = articulation.motionVelocities[parent];
+                ev4sio_Cm::UnAlignedSpatialVector parentVel = articulation.motionVelocities[parent];
                 const PxVec3 c2p = body2World.p - pBody2World.p;
-                Cm::UnAlignedSpatialVector linkVelocity = FeatherstoneArticulation::translateSpatialVector(-c2p, parentVel);
+                ev4sio_Cm::UnAlignedSpatialVector linkVelocity = FeatherstoneArticulation::translateSpatialVector(-c2p, parentVel);
 
                 // AD unfortunately this is more-or-less the same code as in computeLinkVelocities, minus the maxJointVel clamping.
                 const ArticulationJointCoreData& jointDatum = jointData[linkID];
                 const PxReal* jVelocity = &articulation.jointVelocities[jointDatum.jointOffset];
                 for (PxU32 ind = 0; ind < jointDatum.nbDof; ++ind)
                 {
-                    const Cm::UnAlignedSpatialVector worldCol = motionMatrix[linkID][ind].rotate(body2World);
+                    const ev4sio_Cm::UnAlignedSpatialVector worldCol = motionMatrix[linkID][ind].rotate(body2World);
                     const PxReal jVel = jVelocity[ind];
                     linkVelocity += worldCol * jVel;
                 }
@@ -232,7 +232,7 @@ static PX_FORCE_INLINE __device__ void updateKinematicInternal(
         PxReal* PX_RESTRICT linkAccelData = reinterpret_cast<PxReal*>(articulation.motionAccelerations);
         PxReal* PX_RESTRICT linkIncomingJointForceData = reinterpret_cast<PxReal*>(articulation.linkIncomingJointForces);
 
-        const PxU32 numRealsForSpatialVector = sizeof(Cm::UnAlignedSpatialVector) / 4;
+        const PxU32 numRealsForSpatialVector = sizeof(ev4sio_Cm::UnAlignedSpatialVector) / 4;
 		const PxU32 maxLinksReal = articulation.data.numLinks * numRealsForSpatialVector;
         const PxU32 linkCountReal = numLinks * numRealsForSpatialVector;
 
@@ -291,7 +291,7 @@ static PX_FORCE_INLINE __device__ void updateKinematicInternal(
 	}
 }
 
-//This function is called after user update gpu buffer(Dy::ArticulationDirtyFlag::eDIRTY_ROOT || Dy::ArticulationDirtyFlag::eDIRTY_POSITIONS)
+//This function is called after user update gpu buffer(ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_ROOT || ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_POSITIONS)
 extern "C" __global__ void artiUpdateKinematic(
 	const PxgArticulationCoreDesc* const PX_RESTRICT scDesc,
 	const PxgShapeSim* PX_RESTRICT gShapeSimPool,
@@ -520,7 +520,7 @@ extern "C" __global__ void getArtiVelocityStates(
 		if (linkIndex < numLinks)
 		{
 			PxReal* PX_RESTRICT dstData = reinterpret_cast<PxReal*>(&data[groupIndex * maxLinks + linkIndex]);
-			const PxReal* PX_RESTRICT srcDataU = &srcData[linkIndex * threadPerGroup * 2]; // careful because source is Cm::UnAlignedSpatialVector
+			const PxReal* PX_RESTRICT srcDataU = &srcData[linkIndex * threadPerGroup * 2]; // careful because source is ev4sio_Cm::UnAlignedSpatialVector
 
 			if (elementIndex < threadPerGroup)
 			{
@@ -538,10 +538,10 @@ extern "C" __global__ void getArtiSpatialForceStates(
 	const PxU32 maxLinks
 )
 {
-	// 1 thread - 1 element of Cm::UnAlignedSpatialVector.
+	// 1 thread - 1 element of ev4sio_Cm::UnAlignedSpatialVector.
 
 	// AD sizeof is probably evaluated at compile time, so just use sizeof for the constant?
-	PX_COMPILE_TIME_ASSERT((sizeof(Cm::UnAlignedSpatialVector) / 4) == 6u);
+	PX_COMPILE_TIME_ASSERT((sizeof(ev4sio_Cm::UnAlignedSpatialVector) / 4) == 6u);
 
 	//we need 6 threads for the velocities - for each link
 	const PxU32 threadPerGroup = 6u;
@@ -559,7 +559,7 @@ extern "C" __global__ void getArtiSpatialForceStates(
 		const PxArticulationGPUIndex articulationIndex = gpuIndices[groupIndex];
 		const PxgArticulation& articulation = scDesc->articulations[articulationIndex];
 
-		const Cm::UnAlignedSpatialVector* PX_RESTRICT srcData = articulation.linkIncomingJointForces;
+		const ev4sio_Cm::UnAlignedSpatialVector* PX_RESTRICT srcData = articulation.linkIncomingJointForces;
 		const PxU32 numLinks = articulation.data.numLinks;
 
 		if (linkIndex < numLinks)
@@ -605,35 +605,35 @@ extern "C" __global__ void setArtiDofStates(
 			{
 				dstData = articulation.jointPositions;
 				if (dofIndex == 0)
-					articulation.data.gpuDirtyFlag |= (Dy::ArticulationDirtyFlag::eDIRTY_POSITIONS | Dy::ArticulationDirtyFlag::eNEEDS_KINEMATIC_UPDATE);
+					articulation.data.gpuDirtyFlag |= (ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_POSITIONS | ev4sio_Dy::ArticulationDirtyFlag::eNEEDS_KINEMATIC_UPDATE);
 				break;
 			}
 			case (PxArticulationGPUAPIWriteType::eJOINT_VELOCITY):
 			{
 				dstData = articulation.jointVelocities;
 				if (dofIndex == 0)
-					articulation.data.gpuDirtyFlag |= (Dy::ArticulationDirtyFlag::eDIRTY_VELOCITIES | Dy::ArticulationDirtyFlag::eNEEDS_KINEMATIC_UPDATE);
+					articulation.data.gpuDirtyFlag |= (ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_VELOCITIES | ev4sio_Dy::ArticulationDirtyFlag::eNEEDS_KINEMATIC_UPDATE);
 				break;
 			}
 			case (PxArticulationGPUAPIWriteType::eJOINT_FORCE):
 			{
 				dstData = articulation.jointForce;
 				if (dofIndex == 0)
-					articulation.data.gpuDirtyFlag |= Dy::ArticulationDirtyFlag::eDIRTY_FORCES; 
+					articulation.data.gpuDirtyFlag |= ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_FORCES; 
 				break;
 			}
 			case (PxArticulationGPUAPIWriteType::eJOINT_TARGET_POSITION):
 			{
 				dstData = articulation.jointTargetPositions;
 				if (dofIndex == 0)
-					articulation.data.gpuDirtyFlag |= Dy::ArticulationDirtyFlag::eDIRTY_JOINT_TARGET_POS;
+					articulation.data.gpuDirtyFlag |= ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_JOINT_TARGET_POS;
 				break;
 			}
 			case (PxArticulationGPUAPIWriteType::eJOINT_TARGET_VELOCITY):
 			{
 				dstData = articulation.jointTargetVelocities;
 				if (dofIndex == 0)
-					articulation.data.gpuDirtyFlag |= Dy::ArticulationDirtyFlag::eDIRTY_JOINT_TARGET_VEL;
+					articulation.data.gpuDirtyFlag |= ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_JOINT_TARGET_VEL;
 				break;
 			}
 			default:
@@ -669,7 +669,7 @@ extern "C" __global__ void setArtiRootGlobalPoseState(
 		const PxArticulationGPUIndex articulationIndex = index[globalThreadIndex];
 		PxgArticulation& articulation = scDesc->articulations[articulationIndex];
 
-		articulation.data.gpuDirtyFlag |= (Dy::ArticulationDirtyFlag::eDIRTY_ROOT_TRANSFORM | Dy::ArticulationDirtyFlag::eNEEDS_KINEMATIC_UPDATE);
+		articulation.data.gpuDirtyFlag |= (ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_ROOT_TRANSFORM | ev4sio_Dy::ArticulationDirtyFlag::eNEEDS_KINEMATIC_UPDATE);
 		
 		const PxTransform actorPose = data[globalThreadIndex];
 		const PxTransform body2Actor = articulation.linkBody2Actors[0]; // TODO AD: this could be outdated - how do we resolve this?
@@ -702,7 +702,7 @@ extern "C" __global__ void setArtiRootVelocityState(
 		PxgArticulation& articulation = scDesc->articulations[articulationIndex];
 
 		if(localIndex == 0)
-			articulation.data.gpuDirtyFlag |= (Dy::ArticulationDirtyFlag::eDIRTY_ROOT_VELOCITIES | Dy::ArticulationDirtyFlag::eNEEDS_KINEMATIC_UPDATE);
+			articulation.data.gpuDirtyFlag |= (ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_ROOT_VELOCITIES | ev4sio_Dy::ArticulationDirtyFlag::eNEEDS_KINEMATIC_UPDATE);
 
 		PxReal* dstData;
 
@@ -756,7 +756,7 @@ extern "C" __global__ void setArtiLinkForceState(
 		const PxgArticulation& articulation = scDesc->articulations[articulationIndex];
 
 		const PxgArticulationLinkProp* const PX_RESTRICT linkProps = articulation.linkProps;
-		Cm::UnAlignedSpatialVector* externalAccel = articulation.externalAccelerations;
+		ev4sio_Cm::UnAlignedSpatialVector* externalAccel = articulation.externalAccelerations;
 
 		const PxU32 artiNumLinks = articulation.data.numLinks;
 		const PxVec3* PX_RESTRICT srcData = &data[artiSourceIndex * maxLinks];
@@ -795,7 +795,7 @@ extern "C" __global__ void setArtiLinkTorqueState(
 		PxgArticulation& articulation = scDesc->articulations[articulationIndex];
 
 		const PxgArticulationLinkProp* const PX_RESTRICT linkProps = articulation.linkProps;
-		Cm::UnAlignedSpatialVector* externalAccel = articulation.externalAccelerations;
+		ev4sio_Cm::UnAlignedSpatialVector* externalAccel = articulation.externalAccelerations;
 		const PxTransform* PX_RESTRICT body2Worlds = articulation.linkBody2Worlds;
 
 		const PxVec3* PX_RESTRICT srcData = &data[groupIndex * maxLinks];
@@ -848,7 +848,7 @@ extern "C" __global__ void setArtiTendonState(
 					articulation.spatialTendonParams[tendonIndex] = srcData[tendonIndex];
 				}
 				if (tendonIndex == 0)
-					articulation.data.gpuDirtyFlag |= Dy::ArticulationDirtyFlag::eDIRTY_SPATIAL_TENDON;
+					articulation.data.gpuDirtyFlag |= ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_SPATIAL_TENDON;
 				break;
 			}
 			case (PxArticulationGPUAPIWriteType::eFIXED_TENDON):
@@ -860,7 +860,7 @@ extern "C" __global__ void setArtiTendonState(
 					articulation.fixedTendonParams[tendonIndex] = srcData[tendonIndex];
 				}
 				if (tendonIndex == 0)
-					articulation.data.gpuDirtyFlag |= Dy::ArticulationDirtyFlag::eDIRTY_FIXED_TENDON;
+					articulation.data.gpuDirtyFlag |= ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_FIXED_TENDON;
 				break;
 			}
 			default:
@@ -892,7 +892,7 @@ extern "C" __global__ void setArtiSpatialTendonAttachmentState(
 		PxgArticulation& articulation = scDesc->articulations[articulationIndex];
 
 		if (elementIndex == 0)
-			articulation.data.gpuDirtyFlag |= Dy::ArticulationDirtyFlag::eDIRTY_SPATIAL_TENDON_ATTACHMENT;
+			articulation.data.gpuDirtyFlag |= ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_SPATIAL_TENDON_ATTACHMENT;
 
 		const PxU32 numSpatialTendons = articulation.data.numSpatialTendons;
 
@@ -943,7 +943,7 @@ extern "C" __global__ void setArtiFixedTendonJointState(
 		PxgArticulation& articulation = scDesc->articulations[articulationIndex];
 
 		if (elementIndex == 0)
-			articulation.data.gpuDirtyFlag |= Dy::ArticulationDirtyFlag::eDIRTY_FIXED_TENDON_JOINT;
+			articulation.data.gpuDirtyFlag |= ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_FIXED_TENDON_JOINT;
 
 		PxgArticulationTendon* fixedTendons = articulation.fixedTendons;
 		const PxU32 numFixedTendonJoints = articulation.data.numFixedTendons;

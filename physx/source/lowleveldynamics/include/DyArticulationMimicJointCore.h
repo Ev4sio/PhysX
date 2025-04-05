@@ -33,9 +33,9 @@
 
 #include "foundation/PxSimpleTypes.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Dy
+namespace ev4sio_Dy
 {
 
 struct ArticulationMimicJointCore
@@ -51,7 +51,7 @@ struct ArticulationMimicJointCore
 };
 PX_COMPILE_TIME_ASSERT(32 == sizeof(ArticulationMimicJointCore));
 
-}//namespace Dy
-}//namespace physx
+}//namespace ev4sio_Dy
+}//namespace ev4sio_physx
 
 #endif //PXD_ARTICULATION_MIMIC_JOINT_CORE_H

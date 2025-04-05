@@ -28,7 +28,7 @@
 
 // ****************************************************************************
 // This snippet demonstrates how to re-implement a 'compound pruner' in
-// Gu::QuerySystem using PxCustomGeometry objects.
+// ev4sio_Gu::QuerySystem using PxCustomGeometry objects.
 //
 // Please get yourself familiar with SnippetQuerySystemAllQueries first.
 //
@@ -47,8 +47,8 @@
 	#include "../snippetrender/SnippetRender.h"
 #endif
 
-using namespace physx;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
 #ifdef RENDER_SNIPPET
 	using namespace Snippets;
 #endif
@@ -192,7 +192,7 @@ namespace
 
 			// We derive our objects from PxCustomGeometry, to get easy access to the data in the PxCustomGeometry::Callbacks
 			// functions. This generally wouldn't work in the regular PxScene / PhysX code since the geometries are copied around and the
-			// system doesn't know about potential user-data surrounding the PxCustomGeometry objects. But the Gu::QuerySystem only
+			// system doesn't know about potential user-data surrounding the PxCustomGeometry objects. But the ev4sio_Gu::QuerySystem only
 			// passes PxGeometry pointers around so it works here.
 			// A more traditional usage of PxCustomGeometry would be to derive our Object from PxCustomGeometry::Callbacks (see e.g.
 			// SnippetCustomConvex). Both approaches would work here.
@@ -205,8 +205,8 @@ namespace
 				PxTransform			mLocalPoses[MAX_SHAPES_PER_COMPOUND];
 				PxU32				mNbShapes;
 
-				// Compound/actor data. Note how mData is Gu::QuerySystem handle for the compound. We don't have
-				// ActorShapeData values for each sub-shape, the Gu::QuerySystem doesn't know about these.
+				// Compound/actor data. Note how mData is ev4sio_Gu::QuerySystem handle for the compound. We don't have
+				// ActorShapeData values for each sub-shape, the ev4sio_Gu::QuerySystem doesn't know about these.
 				ActorShapeData		mData;
 				PxVec3				mTouchedColor;
 				bool				mTouched;
@@ -251,7 +251,7 @@ namespace
 				// The old API flags must be adapted to this new scenario, and we need to re-interpret what they all mean.
 
 				// As discussed in SnippetQuerySystemAllQueries we don't use PxHitFlag::eMESH_MULTIPLE in the snippets, i.e.
-				// from the point-of-view of the Gu::QuerySystem this raycast function against a unique (custom) geometry
+				// from the point-of-view of the ev4sio_Gu::QuerySystem this raycast function against a unique (custom) geometry
 				// should not return multiple hits. And indeed, "maxHits" is always 1 here.
 				PX_UNUSED(stride);
 				PX_UNUSED(maxHits);
@@ -264,7 +264,7 @@ namespace
 
 				// We derive the object's index from the object's pointer. This is the counterpart of 'getObjectIndexFromPayload'
 				// for regular geometries. We don't have a payload here since our sub-shapes are part of our compound
-				// and hidden from the Gu::QuerySystem. Note that this is only used to highlight touched objects in the
+				// and hidden from the ev4sio_Gu::QuerySystem. Note that this is only used to highlight touched objects in the
 				// render code, so this is all custom for this snippet and not mandatory in any way.
 				const PxU32 objectIndex = PxU32(&obj - mObjects);
 
@@ -372,7 +372,7 @@ namespace
 					const PxGeometry& currentGeom = obj.mShapeGeoms[i].any();
 					const PxTransform& currentPose = obj.mLocalPoses[i];
 
-					if(Gu::overlap(queryGeom, queryLocalPose, currentGeom, currentPose, gCachedFuncs.mCachedOverlapFuncs, context))
+					if(ev4sio_Gu::overlap(queryGeom, queryLocalPose, currentGeom, currentPose, gCachedFuncs.mCachedOverlapFuncs, context))
 					{
 						PrunerPayload payload;
 						setupPayload(payload, objectIndex, &currentGeom);
@@ -1234,7 +1234,7 @@ static CustomScene* gScene = NULL;
 
 void initPhysics(bool /*interactive*/)
 {
-	gFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, gAllocator, gErrorCallback);
+	gFoundation = ev4sio_PxCreateFoundation(ev4sio_PX_PHYSICS_VERSION, gAllocator, gErrorCallback);
 
 	const PxTolerancesScale scale;
 	PxCookingParams params(scale);
@@ -1264,7 +1264,7 @@ void initPhysics(bool /*interactive*/)
 			convexDesc.points.stride	= sizeof(PxVec3);
 			convexDesc.points.data		= points;
 			convexDesc.flags			= PxConvexFlag::eCOMPUTE_CONVEX;
-			gConvexMesh = PxCreateConvexMesh(params, convexDesc);
+			gConvexMesh = ev4sio_PxCreateConvexMesh(params, convexDesc);
 		}
 
 		{
@@ -1276,7 +1276,7 @@ void initPhysics(bool /*interactive*/)
 			meshDesc.triangles.stride	= sizeof(int)*3;
 			meshDesc.triangles.data		= SnippetUtils::Bunny_getFaces();
 
-			gTriangleMesh = PxCreateTriangleMesh(params, meshDesc);
+			gTriangleMesh = ev4sio_PxCreateTriangleMesh(params, meshDesc);
 		}
 	}
 

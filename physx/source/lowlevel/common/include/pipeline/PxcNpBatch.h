@@ -31,19 +31,19 @@
 
 #include "PxvConfig.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	struct PxcNpWorkUnit;
 	class PxcNpThreadContext;
 	struct PxsContactManagerOutput;
 
-	namespace Gu
+	namespace ev4sio_Gu
 	{
 		struct Cache;
 	}
 
-	void PxcDiscreteNarrowPhase(PxcNpThreadContext& context, const PxcNpWorkUnit& cmInput, Gu::Cache& cache, PxsContactManagerOutput& output, PxU64 contextID);
-	void PxcDiscreteNarrowPhasePCM(PxcNpThreadContext& context, const PxcNpWorkUnit& cmInput, Gu::Cache& cache, PxsContactManagerOutput& output, PxU64 contextID);
+	void PxcDiscreteNarrowPhase(PxcNpThreadContext& context, const PxcNpWorkUnit& cmInput, ev4sio_Gu::Cache& cache, PxsContactManagerOutput& output, PxU64 contextID);
+	void PxcDiscreteNarrowPhasePCM(PxcNpThreadContext& context, const PxcNpWorkUnit& cmInput, ev4sio_Gu::Cache& cache, PxsContactManagerOutput& output, PxU64 contextID);
 }
 
 #endif

@@ -32,9 +32,9 @@
 // MM: used in ExtMeshSimplificator
 // see paper Garland and Heckbert: "Surface Simplification Using Quadric Error Metrics"
 
-namespace physx
+namespace ev4sio_physx
 {
-	namespace Ext
+	namespace ev4sio_Ext
 	{
 		class Quadric {
 		public:

@@ -33,11 +33,11 @@
 #include "foundation/PxUserAllocated.h"
 #include "foundation/PxBounds3.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Gu
+namespace ev4sio_Gu
 {
-	class CenterExtents : public physx::PxUserAllocated
+	class CenterExtents : public ev4sio_physx::PxUserAllocated
 	{
 		public:
 		PX_FORCE_INLINE				CenterExtents()						{}

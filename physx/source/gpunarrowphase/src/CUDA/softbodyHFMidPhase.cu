@@ -46,7 +46,7 @@
 #include "PxgSoftBodyCoreKernelIndices.h"
 #include "PxgNpKernelIndices.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 extern "C" __host__ void initNarrowphaseKernels16() {}
 
@@ -348,8 +348,8 @@ extern "C" __global__ void sb_heightfieldMidphaseGeneratePairsLaunch(
 				const uint4 nbVerts_nbPrimitives_maxDepth_nbBv32TreeNodes = *reinterpret_cast<const uint4 *>(meshGeomPtr);
 				s_warpScratch->numTets = nbVerts_nbPrimitives_maxDepth_nbBv32TreeNodes.y;
 
-				meshGeomPtr += sizeof(uint4) + sizeof(const Gu::BV32DataPacked)* nbVerts_nbPrimitives_maxDepth_nbBv32TreeNodes.w 
-					+sizeof(const Gu::BV32DataDepthInfo) * nbVerts_nbPrimitives_maxDepth_nbBv32TreeNodes.z
+				meshGeomPtr += sizeof(uint4) + sizeof(const ev4sio_Gu::BV32DataPacked)* nbVerts_nbPrimitives_maxDepth_nbBv32TreeNodes.w 
+					+sizeof(const ev4sio_Gu::BV32DataDepthInfo) * nbVerts_nbPrimitives_maxDepth_nbBv32TreeNodes.z
 					+ sizeof(PxU32) * nbVerts_nbPrimitives_maxDepth_nbBv32TreeNodes.w;
 				
 				/*const PxU8* surfaceHint = reinterpret_cast<const PxU8*>(meshGeomPtr);

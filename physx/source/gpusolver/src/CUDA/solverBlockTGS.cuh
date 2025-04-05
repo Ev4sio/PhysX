@@ -57,7 +57,7 @@
 #include "solverBlockCommon.cuh"
 #include "constraintPrepShared.cuh"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 static __forceinline__ __device__ float4 shfl(const PxU32 syncMask, const float4 f, const PxU32 index)
 {
@@ -157,7 +157,7 @@ static __device__ void solveContactBlockTGS(const PxgBlockConstraintBatch& batch
 	const PxReal elapsedTime, const PxReal minPen, PxgErrorAccumulator* error, 
 	PxReal ref0 = 1.f, PxReal ref1 = 1.f)
 {  
-	using namespace physx;
+	using namespace ev4sio_physx;
 
 	PxVec3 linVel0(b0LinVel.x, b0LinVel.y, b0LinVel.z);
 	PxVec3 linVel1(b1LinVel.x, b1LinVel.y, b1LinVel.z);
@@ -505,7 +505,7 @@ static __device__ bool checkActiveContactBlockTGS(const PxgBlockConstraintBatch&
 	const PxVec3& b1AngDelta, const PxU32 threadIndex, const PxgTGSBlockSolverContactHeader* PX_RESTRICT contactHeaders,
 	PxgTGSBlockSolverContactPoint* PX_RESTRICT contactPoints, const PxReal elapsedTime, const PxReal minPen)
 {
-	using namespace physx;
+	using namespace ev4sio_physx;
 
 	{
 		const PxgTGSBlockSolverContactHeader* PX_RESTRICT contactHeader = &contactHeaders[batch.mConstraintBatchIndex];
@@ -633,7 +633,7 @@ static __device__ void concludeContactBlockTGS(const PxgBlockConstraintBatch& ba
 {
 
 #if 0
-	using namespace physx;
+	using namespace ev4sio_physx;
 
 	{
 		const PxgTGSBlockSolverContactHeader* contactHeader = &contactHeaders[batch.mConstraintBatchIndex];
@@ -664,7 +664,7 @@ static __device__ void concludeContactBlockTGS(const PxgBlockConstraintBatch& ba
 
 
 static __device__ void writeBackContactBlockTGS(const PxgBlockConstraintBatch& batch, const PxU32 threadIndex,
-											 const PxgSolverBodyData* bodies, Dy::ThresholdStreamElement* thresholdStream,
+											 const PxgSolverBodyData* bodies, ev4sio_Dy::ThresholdStreamElement* thresholdStream,
 											 PxI32* sharedThresholdStreamIndex, PxgTGSBlockSolverContactHeader* contactHeaders, PxgTGSBlockSolverFrictionHeader* frictionHeaders,
 											PxgTGSBlockSolverContactPoint* contactPoints, PxgTGSBlockSolverContactFriction* frictions,
 											PxF32* forcewritebackBuffer, PxgBlockFrictionPatch& frictionPatchBlock,
@@ -717,7 +717,7 @@ static __device__ void writeBackContactBlockTGS(const PxgBlockConstraintBatch& b
 	if((forceThreshold && normalForce !=0 && (reportThreshold0 < PX_MAX_REAL  || reportThreshold1 < PX_MAX_REAL)))
 	{
 		//ToDo : support PxgThresholdStreamElement
-		Dy::ThresholdStreamElement elt;
+		ev4sio_Dy::ThresholdStreamElement elt;
 		elt.normalForce = normalForce;
 		elt.threshold = PxMin<float>(reportThreshold0, reportThreshold1);
 		
@@ -747,7 +747,7 @@ static __device__ void solve1DBlockTGS(const PxgBlockConstraintBatch& batch, PxV
 	const PxgSolverTxIData& iData0, const PxgSolverTxIData& iData1, const PxReal elapsedTime, bool residualReportingEnabled,
 	PxReal ref0 = 1.f, PxReal ref1 = 1.f)
 {
-	using namespace physx;
+	using namespace ev4sio_physx;
 
 	//
 	// please refer to solve1DStep() in DyTGSContactPrep.cpp for a description of the parameters and some of the logic
@@ -834,7 +834,7 @@ static __device__ void solve1DBlockTGS(const PxgBlockConstraintBatch& batch, PxV
 
 		const PxReal maxBias = ccon.maxBias[threadIndex];
 
-		const PxReal minBias = Dy::computeMinBiasTGS(flags, maxBias);
+		const PxReal minBias = ev4sio_Dy::computeMinBiasTGS(flags, maxBias);
 
 		PxVec3 raXnI = iData0.sqrtInvInertia * cangVel0;
 		PxVec3 rbXnI = iData1.sqrtInvInertia * cangVel1;
@@ -868,7 +868,7 @@ static __device__ void solve1DBlockTGS(const PxgBlockConstraintBatch& batch, PxV
 
 		const bool isSpringConstraint = (flags & DY_SC_FLAG_SPRING);
 
-		const PxReal errorDelta = Dy::computeResolvedGeometricErrorTGS(raMotion, rbMotion, clinVel0, clinVel1,
+		const PxReal errorDelta = ev4sio_Dy::computeResolvedGeometricErrorTGS(raMotion, rbMotion, clinVel0, clinVel1,
 			angDelta0, angDelta1, raXnI, rbXnI,
 			ccon.angularErrorScale[threadIndex],
 			isSpringConstraint, targetVel, elapsedTime);
@@ -930,22 +930,22 @@ static __device__ void solve1DBlockTGS(const PxgBlockConstraintBatch& batch, PxV
 // i.e., mass-related terms are computed at every sub-timestep.
 
 static __device__ PX_FORCE_INLINE void solveExt1DBlockTGS(const PxgBlockConstraintBatch& batch,
-	Cm::UnAlignedSpatialVector& vel0,
-	Cm::UnAlignedSpatialVector& vel1,
-	const Cm::UnAlignedSpatialVector& motion0,
-	const Cm::UnAlignedSpatialVector& motion1,
+	ev4sio_Cm::UnAlignedSpatialVector& vel0,
+	ev4sio_Cm::UnAlignedSpatialVector& vel1,
+	const ev4sio_Cm::UnAlignedSpatialVector& motion0,
+	const ev4sio_Cm::UnAlignedSpatialVector& motion1,
 	const PxU32 threadIndex,
 	const PxgTGSBlockSolverConstraint1DHeader* PX_RESTRICT headers,
 	PxgTGSBlockSolverConstraint1DCon* PX_RESTRICT rowsCon,
 	PxgArticulationBlockResponse* PX_RESTRICT artiResponse,
 	const PxQuat& deltaQ0, const PxQuat& deltaQ1,
 	const PxReal elapsedTime,
-	Cm::UnAlignedSpatialVector& impluse0,
-	Cm::UnAlignedSpatialVector& impluse1,
+	ev4sio_Cm::UnAlignedSpatialVector& impluse0,
+	ev4sio_Cm::UnAlignedSpatialVector& impluse1,
 	bool residualReportingEnabled, 
 	PxReal ref0 = 1.f, PxReal ref1 = 1.f)
 {
-	using namespace physx;
+	using namespace ev4sio_physx;
 
 	const PxgTGSBlockSolverConstraint1DHeader* PX_RESTRICT  header = &headers[batch.mConstraintBatchIndex];
 	PxgTGSBlockSolverConstraint1DCon* PX_RESTRICT baseCon = &rowsCon[batch.startConstraintIndex];
@@ -1011,7 +1011,7 @@ static __device__ PX_FORCE_INLINE void solveExt1DBlockTGS(const PxgBlockConstrai
 
 		//https://omniverse-jirasw.nvidia.com/browse/PX-4383
 		const PxReal minRowResponse = DY_ARTICULATION_MIN_RESPONSE;
-		const PxReal recipResponse = Dy::computeRecipUnitResponse(unitResponse, minRowResponse);
+		const PxReal recipResponse = ev4sio_Dy::computeRecipUnitResponse(unitResponse, minRowResponse);
 
 		const bool isAccelerationSpring = (flags & DY_SC_FLAG_ACCELERATION_SPRING);
 
@@ -1022,7 +1022,7 @@ static __device__ PX_FORCE_INLINE void solveExt1DBlockTGS(const PxgBlockConstrai
 		const PxReal geometricError = ccon.geometricError[threadIndex];
 
 		PxReal biasScale, velMultiplier, initBias, targetVel;
-		Dy::compute1dConstraintSolverConstantsTGS(isSpringConstraint, isAccelerationSpring, geometricError,
+		ev4sio_Dy::compute1dConstraintSolverConstantsTGS(isSpringConstraint, isAccelerationSpring, geometricError,
 			unitResponse, recipResponse, coeff0, coeff1, coeff2,
 			coeff3, biasScale, velMultiplier, initBias, targetVel);
 
@@ -1031,7 +1031,7 @@ static __device__ PX_FORCE_INLINE void solveExt1DBlockTGS(const PxgBlockConstrai
 		// Thus, explicitly resetting it to zero here for velocity iteration.
 		initBias = (biasScale == 0.f) ? 0.f : initBias;
 
-		const PxReal errorDelta = Dy::computeResolvedGeometricErrorTGS(raMotion, rbMotion, clinVel0, clinVel1,
+		const PxReal errorDelta = ev4sio_Dy::computeResolvedGeometricErrorTGS(raMotion, rbMotion, clinVel0, clinVel1,
 			motion0.top, motion1.top, cangVel0, cangVel1,
 			ccon.angularErrorScale[threadIndex],
 			isSpringConstraint, targetVel, elapsedTime);
@@ -1043,7 +1043,7 @@ static __device__ PX_FORCE_INLINE void solveExt1DBlockTGS(const PxgBlockConstrai
 		const float appliedForce = ccon.appliedForce[threadIndex];
 
 		const PxReal unclampedBias = initBias + errorDelta * biasScale;
-		const PxReal minBias = Dy::computeMinBiasTGS(flags, maxBias);
+		const PxReal minBias = ev4sio_Dy::computeMinBiasTGS(flags, maxBias);
 		const PxReal bias = PxClamp(unclampedBias, minBias, maxBias);
 
 		const PxReal constant = isSpringConstraint ? (bias + targetVel) : recipResponse * (bias + targetVel);
@@ -1090,7 +1090,7 @@ static __device__ PX_FORCE_INLINE void solveExt1DBlockTGS(const PxgBlockConstrai
 
 static __device__ void conclude1DBlockTGS(const PxgBlockConstraintBatch& batch, const PxU32 threadIndex, const PxgTGSBlockSolverConstraint1DHeader* PX_RESTRICT headers, PxgTGSBlockSolverConstraint1DCon* PX_RESTRICT rows)
 {
-	using namespace physx;
+	using namespace ev4sio_physx;
 
 	const PxgTGSBlockSolverConstraint1DHeader* PX_RESTRICT  header = &headers[batch.mConstraintBatchIndex];
 	PxgTGSBlockSolverConstraint1DCon* PX_RESTRICT base = &rows[batch.startConstraintIndex];

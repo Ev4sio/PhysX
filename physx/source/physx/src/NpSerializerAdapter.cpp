@@ -45,9 +45,9 @@
 #include "NpMaterial.h"
 #include "NpAggregate.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-	using namespace physx::Gu;
+	using namespace ev4sio_physx::ev4sio_Gu;
 
 	template<>
 	void PxSerializerDefaultAdapter<NpMaterial>::registerReferences(PxBase& obj, PxSerializationContext& context) const
@@ -66,7 +66,7 @@ namespace physx
 
 		struct RequiresCallback : public PxProcessPxBaseCallback
 		{
-			RequiresCallback(physx::PxSerializationContext& c) : context(c) {}
+			RequiresCallback(ev4sio_physx::PxSerializationContext& c) : context(c) {}
 			RequiresCallback& operator=(const RequiresCallback&) { PX_ASSERT(0); return *this; } //PX_NOCOPY doesn't work for local classes
 			void process(PxBase& base)
 			{
@@ -94,7 +94,7 @@ namespace physx
 
 		struct RequiresCallback : public PxProcessPxBaseCallback
 		{
-			RequiresCallback(physx::PxSerializationContext& c) : context(c) {}
+			RequiresCallback(ev4sio_physx::PxSerializationContext& c) : context(c) {}
 			RequiresCallback &operator=(const RequiresCallback&) { PX_ASSERT(0); return *this; } //PX_NOCOPY doesn't work for local classes
 			void process(PxBase& base)
 			{
@@ -131,9 +131,9 @@ namespace physx
 
 }
 
-using namespace physx;
+using namespace ev4sio_physx;
 
-void PxRegisterPhysicsSerializers(PxSerializationRegistry& sr)
+void ev4sio_PxRegisterPhysicsSerializers(PxSerializationRegistry& sr)
 {
 	sr.registerSerializer(PxConcreteType::eCONVEX_MESH,								PX_NEW_SERIALIZER_ADAPTER(ConvexMesh));
 	sr.registerSerializer(PxConcreteType::eTRIANGLE_MESH_BVH33,						PX_NEW_SERIALIZER_ADAPTER(RTreeTriangleMesh));
@@ -153,11 +153,11 @@ void PxRegisterPhysicsSerializers(PxSerializationRegistry& sr)
 	sr.registerSerializer(PxConcreteType::eARTICULATION_ATTACHMENT,					PX_NEW_SERIALIZER_ADAPTER(NpArticulationAttachment));
 	sr.registerSerializer(PxConcreteType::eARTICULATION_FIXED_TENDON,				PX_NEW_SERIALIZER_ADAPTER(NpArticulationFixedTendon));
 	sr.registerSerializer(PxConcreteType::eARTICULATION_TENDON_JOINT,				PX_NEW_SERIALIZER_ADAPTER(NpArticulationTendonJoint));
-	sr.registerSerializer(PxConcreteType::ePRUNING_STRUCTURE,						PX_NEW_SERIALIZER_ADAPTER(Sq::PruningStructure));
+	sr.registerSerializer(PxConcreteType::ePRUNING_STRUCTURE,						PX_NEW_SERIALIZER_ADAPTER(ev4sio_Sq::PruningStructure));
 }
 
 
-void PxUnregisterPhysicsSerializers(PxSerializationRegistry& sr)
+void ev4sio_PxUnregisterPhysicsSerializers(PxSerializationRegistry& sr)
 {
 	PX_DELETE_SERIALIZER_ADAPTER(sr.unregisterSerializer(PxConcreteType::eCONVEX_MESH));
 	PX_DELETE_SERIALIZER_ADAPTER(sr.unregisterSerializer(PxConcreteType::eTRIANGLE_MESH_BVH33));

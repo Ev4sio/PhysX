@@ -33,9 +33,9 @@
 #include "CmVisualization.h"
 #include "CmRadixSort.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 using namespace aos;
-using namespace Gu;
+using namespace ev4sio_Gu;
 
 #define INVALID_HANDLE	0xffffffff
 
@@ -921,7 +921,7 @@ static PxU32 sortBoxes(	PxU32 nb, const PxBounds3* PX_RESTRICT boxes, const Prun
 	for(PxU32 i=0;i<nb;i++)
 		keys[i] = boxes[i].minimum[sortAxis];
 
-	Cm::RadixSortBuffered rs;	// ###TODO: some allocs here, remove
+	ev4sio_Cm::RadixSortBuffered rs;	// ###TODO: some allocs here, remove
 	const PxU32* ranks = rs.Sort(keys, nb).GetRanks();
 
 	const float Half = 0.5f;
@@ -2270,7 +2270,7 @@ void BucketPrunerCore::shiftOrigin(const PxVec3& shift)
 
 static void visualize(PxRenderOutput& out, const BucketBox& bounds)
 {
-	Cm::renderOutputDebugBox(out, PxBounds3(bounds.getMin(), bounds.getMax()));
+	ev4sio_Cm::renderOutputDebugBox(out, PxBounds3(bounds.getMin(), bounds.getMax()));
 }
 
 void BucketPrunerCore::visualize(PxRenderOutput& out, PxU32 color) const

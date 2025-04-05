@@ -38,8 +38,8 @@
 namespace snippetvehicle
 {
 
-using namespace physx;
-using namespace physx::vehicle2;
+using namespace ev4sio_physx;
+using namespace ev4sio_physx::vehicle2;
 
 
 //

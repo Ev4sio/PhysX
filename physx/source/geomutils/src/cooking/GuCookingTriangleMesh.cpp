@@ -48,9 +48,9 @@
 #include "GuCookingSDF.h"
 #include "GuMeshAnalysis.h"
 
-using namespace physx;
-using namespace Gu;
-using namespace Cm;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
+using namespace ev4sio_Cm;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -570,7 +570,7 @@ void TriangleMeshBuilder::buildInertiaTensor(bool flipNormals)
 
 void TriangleMeshBuilder::buildInertiaTensorFromSDF()
 {
-	if (MeshAnalyzer::checkMeshWatertightness(reinterpret_cast<const Gu::Triangle*>(mMeshData.mTriangles), mMeshData.mNbTriangles))
+	if (MeshAnalyzer::checkMeshWatertightness(reinterpret_cast<const ev4sio_Gu::Triangle*>(mMeshData.mTriangles), mMeshData.mNbTriangles))
 	{
 		buildInertiaTensor();
 		if (mMeshData.mMass < 0.0f)
@@ -814,7 +814,7 @@ bool checkInputFloats(PxU32 nb, const float* values, const char* file, PxU32 lin
 	while(nb--)
 	{
 		if(!PxIsFinite(*values++))
-			return PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, file, line, errorMsg);
+			return ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, file, line, errorMsg);
 	}
 	return true;
 }

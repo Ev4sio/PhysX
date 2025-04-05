@@ -32,10 +32,10 @@
 #define TRI_FEATURE_IDX		0x7FffFFff
 #define EDGE_FEATURE_IDX	0x80000000
 
-static const physx::PxU32 BOUNDARY = 0xffffffff;
-static const physx::PxU32 NONCONVEX_FLAG = 0x80000000;
+static const ev4sio_physx::PxU32 BOUNDARY = 0xffffffff;
+static const ev4sio_physx::PxU32 NONCONVEX_FLAG = 0x80000000;
 
-__device__ static bool isEdgeNonconvex(physx::PxU32 adjEdgeIndex)
+__device__ static bool isEdgeNonconvex(ev4sio_physx::PxU32 adjEdgeIndex)
 {
 	return (adjEdgeIndex != BOUNDARY) && (adjEdgeIndex & NONCONVEX_FLAG);
 }

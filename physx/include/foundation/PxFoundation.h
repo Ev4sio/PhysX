@@ -37,7 +37,7 @@
 #include <stdarg.h>
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -59,7 +59,7 @@ class PX_FOUNDATION_API PxFoundation
 	The operation will fail, if there are still modules referencing the foundation object. Release all dependent modules
 	prior to calling this method.
 
-	\see PxCreateFoundation()
+	\see ev4sio_PxCreateFoundation()
 	*/
 	virtual void release() = 0;
 
@@ -113,7 +113,7 @@ class PX_FOUNDATION_API PxFoundation
 };
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 // PT: use this to make generated code shorter (e.g. from 52 to 24 bytes of assembly (10 to 4 instructions))
@@ -122,7 +122,7 @@ class PX_FOUNDATION_API PxFoundation
 template<const int errorCode>																\
 static PX_NOINLINE bool outputError(int line, const char* message)							\
 {																							\
-	return PxGetFoundation().error(PxErrorCode::Enum(errorCode), __FILE__, line, message);	\
+	return ev4sio_PxGetFoundation().error(PxErrorCode::Enum(errorCode), __FILE__, line, message);	\
 }
 
 /**
@@ -132,17 +132,17 @@ The foundation class is needed to initialize higher level SDKs. There may be onl
 Calling this method after an instance has been created already will result in an error message and NULL will be
 returned.
 
-\param version Version number we are expecting (should be #PX_PHYSICS_VERSION)
+\param version Version number we are expecting (should be #ev4sio_PX_PHYSICS_VERSION)
 \param allocator User supplied interface for allocating memory(see #PxAllocatorCallback)
 \param errorCallback User supplied interface for reporting errors and displaying messages(see #PxErrorCallback)
 \return Foundation instance on success, NULL if operation failed
 
 \see PxFoundation
 */
-PX_C_EXPORT PX_FOUNDATION_API physx::PxFoundation* PX_CALL_CONV PxCreateFoundation(physx::PxU32 version, physx::PxAllocatorCallback& allocator, physx::PxErrorCallback& errorCallback);
+PX_C_EXPORT PX_FOUNDATION_API ev4sio_physx::PxFoundation* PX_CALL_CONV ev4sio_PxCreateFoundation(ev4sio_physx::PxU32 version, ev4sio_physx::PxAllocatorCallback& allocator, ev4sio_physx::PxErrorCallback& errorCallback);
 
 
-PX_C_EXPORT PX_FOUNDATION_API void PX_CALL_CONV PxSetFoundationInstance(physx::PxFoundation& foundation);
+PX_C_EXPORT PX_FOUNDATION_API void PX_CALL_CONV ev4sio_PxSetFoundationInstance(ev4sio_physx::PxFoundation& foundation);
 
 
 /**
@@ -150,7 +150,7 @@ PX_C_EXPORT PX_FOUNDATION_API void PX_CALL_CONV PxSetFoundationInstance(physx::P
 
 \note The behavior of this method is undefined if the foundation instance has not been created already.
 
-\see PxCreateFoundation(), PxIsFoundationValid()
+\see ev4sio_PxCreateFoundation(), ev4sio_PxIsFoundationValid()
 */
 #if PX_CLANG
 #if PX_LINUX
@@ -158,7 +158,7 @@ PX_C_EXPORT PX_FOUNDATION_API void PX_CALL_CONV PxSetFoundationInstance(physx::P
 #pragma clang diagnostic ignored "-Wreturn-type-c-linkage"
 #endif // PX_LINUX
 #endif // PX_CLANG
-PX_C_EXPORT PX_FOUNDATION_API physx::PxFoundation& PX_CALL_CONV PxGetFoundation();
+PX_C_EXPORT PX_FOUNDATION_API ev4sio_physx::PxFoundation& PX_CALL_CONV ev4sio_PxGetFoundation();
 #if PX_CLANG
 #if PX_LINUX
 #pragma clang diagnostic pop
@@ -166,68 +166,68 @@ PX_C_EXPORT PX_FOUNDATION_API physx::PxFoundation& PX_CALL_CONV PxGetFoundation(
 #endif // PX_CLANG
 
 /**
-\brief Similar to PxGetFoundation() except it handles the case if the foundation was not created already.
+\brief Similar to ev4sio_PxGetFoundation() except it handles the case if the foundation was not created already.
 \return Pointer to the foundation if an instance is currently available, otherwise null.
 
-\see PxCreateFoundation(), PxGetFoundation()
+\see ev4sio_PxCreateFoundation(), ev4sio_PxGetFoundation()
 */
-PX_C_EXPORT PX_FOUNDATION_API physx::PxFoundation* PX_CALL_CONV PxIsFoundationValid();
+PX_C_EXPORT PX_FOUNDATION_API ev4sio_physx::PxFoundation* PX_CALL_CONV ev4sio_PxIsFoundationValid();
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 class PxProfilerCallback;
 class PxAllocatorCallback;
 class PxErrorCallback;
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 /**
 \brief Get the callback that will be used for all profiling.
 */
-PX_C_EXPORT PX_FOUNDATION_API physx::PxProfilerCallback* PX_CALL_CONV PxGetProfilerCallback();
+PX_C_EXPORT PX_FOUNDATION_API ev4sio_physx::PxProfilerCallback* PX_CALL_CONV ev4sio_PxGetProfilerCallback();
 
 /**
 \brief Set the callback that will be used for all profiling.
 */
-PX_C_EXPORT PX_FOUNDATION_API void PX_CALL_CONV PxSetProfilerCallback(physx::PxProfilerCallback* profiler);
+PX_C_EXPORT PX_FOUNDATION_API void PX_CALL_CONV ev4sio_PxSetProfilerCallback(ev4sio_physx::PxProfilerCallback* profiler);
 
 /**
 \brief Get the allocator callback
 */
-PX_C_EXPORT PX_FOUNDATION_API physx::PxAllocatorCallback* PX_CALL_CONV PxGetAllocatorCallback();
+PX_C_EXPORT PX_FOUNDATION_API ev4sio_physx::PxAllocatorCallback* PX_CALL_CONV ev4sio_PxGetAllocatorCallback();
 
 /**
 \brief Get the broadcasting allocator callback
 */
-PX_C_EXPORT PX_FOUNDATION_API physx::PxAllocatorCallback* PX_CALL_CONV PxGetBroadcastAllocator(bool* reportAllocationNames = NULL);
+PX_C_EXPORT PX_FOUNDATION_API ev4sio_physx::PxAllocatorCallback* PX_CALL_CONV ev4sio_PxGetBroadcastAllocator(bool* reportAllocationNames = NULL);
 
 /**
 \brief Get the error callback
 */
-PX_C_EXPORT PX_FOUNDATION_API physx::PxErrorCallback* PX_CALL_CONV PxGetErrorCallback();
+PX_C_EXPORT PX_FOUNDATION_API ev4sio_physx::PxErrorCallback* PX_CALL_CONV ev4sio_PxGetErrorCallback();
 
 /**
 \brief Get the broadcasting error callback
 */
-PX_C_EXPORT PX_FOUNDATION_API physx::PxErrorCallback* PX_CALL_CONV PxGetBroadcastError();
+PX_C_EXPORT PX_FOUNDATION_API ev4sio_physx::PxErrorCallback* PX_CALL_CONV ev4sio_PxGetBroadcastError();
 
 /**
 \brief Get the warn once timestamp
 */
-PX_C_EXPORT PX_FOUNDATION_API physx::PxU32 PX_CALL_CONV PxGetWarnOnceTimeStamp();
+PX_C_EXPORT PX_FOUNDATION_API ev4sio_physx::PxU32 PX_CALL_CONV ev4sio_PxGetWarnOnceTimeStamp();
 
 /**
 \brief Decrement the ref count of PxFoundation
 */
-PX_C_EXPORT PX_FOUNDATION_API void PX_CALL_CONV PxDecFoundationRefCount();
+PX_C_EXPORT PX_FOUNDATION_API void PX_CALL_CONV ev4sio_PxDecFoundationRefCount();
 
 /**
 \brief Increment the ref count of PxFoundation
 */
-PX_C_EXPORT PX_FOUNDATION_API void PX_CALL_CONV PxIncFoundationRefCount();
+PX_C_EXPORT PX_FOUNDATION_API void PX_CALL_CONV ev4sio_PxIncFoundationRefCount();
 
 #endif
 

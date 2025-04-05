@@ -28,7 +28,7 @@
 
 #include "PxPvdDefaultFileTransport.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 namespace pvdsdk
 {
@@ -108,7 +108,7 @@ void PvdDefaultFileTransport::release()
 	PX_DELETE_THIS;
 }
 
-class NullFileTransport : public physx::PxPvdTransport, public physx::PxUserAllocated
+class NullFileTransport : public ev4sio_physx::PxPvdTransport, public ev4sio_physx::PxUserAllocated
 {
 	PX_NOCOPY(NullFileTransport)
   public:
@@ -133,7 +133,7 @@ class NullFileTransport : public physx::PxPvdTransport, public physx::PxUserAllo
   private:
 	bool mConnected;
 	uint64_t mWrittenData;
-	physx::PxMutex mMutex;
+	ev4sio_physx::PxMutex mMutex;
 	bool mLocked; // for debug, remove it when finished
 };
 
@@ -205,7 +205,7 @@ void NullFileTransport::release()
 
 } // namespace pvdsdk
 
-PxPvdTransport* PxDefaultPvdFileTransportCreate(const char* name)
+PxPvdTransport* ev4sio_PxDefaultPvdFileTransportCreate(const char* name)
 {
 	if(name)
 		return PX_NEW(pvdsdk::PvdDefaultFileTransport)(name);
@@ -213,5 +213,5 @@ PxPvdTransport* PxDefaultPvdFileTransportCreate(const char* name)
 		return PX_NEW(pvdsdk::NullFileTransport)();
 }
 
-} // namespace physx
+} // namespace ev4sio_physx
 

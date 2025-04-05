@@ -46,8 +46,8 @@
 #include "extensions/PxDeformableSkinningExt.h"
 #include "extensions/PxRemeshingExt.h"
 
-using namespace physx;
-using namespace physx::Ext;
+using namespace ev4sio_physx;
+using namespace ev4sio_physx::ev4sio_Ext;
 using namespace meshgenerator;
 
 static PxDefaultAllocator		gAllocator;
@@ -207,7 +207,7 @@ struct PostSolveCallback : BasePostSolveCallback, PxUserAllocated
 		const PxU32 CU_STREAM_NON_BLOCKING = 0x1;
 		mContextManager->getCudaContext()->streamCreate(&mSkinningStream, CU_STREAM_NON_BLOCKING);
 
-		skinning = PxGetPhysicsGpu()->createDeformableSkinning(contextManager);
+		skinning = ev4sio_PxGetPhysicsGpu()->createDeformableSkinning(contextManager);
 
 		packagedSkinningData.initialize(contextManager, maxNumDeformableVolumes);
 		skinningHelpers.resize(maxNumDeformableVolumes);
@@ -310,7 +310,7 @@ static PxDeformableVolume* createDeformableVolume(const PxCookingParams& params,
 	{
 		PxShapeFlags shapeFlags = PxShapeFlag::eVISUALIZATION | PxShapeFlag::eSCENE_QUERY_SHAPE | PxShapeFlag::eSIMULATION_SHAPE;
 
-		PxDeformableVolumeMaterial* materialPtr = PxGetPhysics().createDeformableVolumeMaterial(2.e+5f, 0.3f, 0.1f);
+		PxDeformableVolumeMaterial* materialPtr = ev4sio_PxGetPhysics().createDeformableVolumeMaterial(2.e+5f, 0.3f, 0.1f);
 		PxTetrahedronMeshGeometry geometry(deformableVolumeMesh->getCollisionMesh());
 		PxShape* shape = gPhysics->createShape(geometry, &materialPtr, 1, true, shapeFlags);
 		if (shape)
@@ -380,14 +380,14 @@ static void createDeformableVolumes(const PxCookingParams& params)
 
 void initPhysics(bool /*interactive*/)
 {
-	gFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, gAllocator, gErrorCallback);
-	gPvd = PxCreatePvd(*gFoundation);
-	PxPvdTransport* transport = PxDefaultPvdSocketTransportCreate(PVD_HOST, 5425, 10);
+	gFoundation = ev4sio_PxCreateFoundation(ev4sio_PX_PHYSICS_VERSION, gAllocator, gErrorCallback);
+	gPvd = ev4sio_PxCreatePvd(*gFoundation);
+	PxPvdTransport* transport = ev4sio_PxDefaultPvdSocketTransportCreate(PVD_HOST, 5425, 10);
 	gPvd->connect(*transport, PxPvdInstrumentationFlag::eALL);
 
 	// initialize cuda
 	PxCudaContextManagerDesc cudaContextManagerDesc;
-	gCudaContextManager = PxCreateCudaContextManager(*gFoundation, cudaContextManagerDesc, PxGetProfilerCallback());
+	gCudaContextManager = ev4sio_PxCreateCudaContextManager(*gFoundation, cudaContextManagerDesc, ev4sio_PxGetProfilerCallback());
 	if (gCudaContextManager && !gCudaContextManager->contextIsValid())
 	{
 		PX_RELEASE(gCudaContextManager);
@@ -395,8 +395,8 @@ void initPhysics(bool /*interactive*/)
 	}
 
 	PxTolerancesScale scale;
-	gPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *gFoundation, scale, true, gPvd);
-	PxInitExtensions(*gPhysics, gPvd);
+	gPhysics = ev4sio_PxCreatePhysics(ev4sio_PX_PHYSICS_VERSION, *gFoundation, scale, true, gPvd);
+	ev4sio_PxInitExtensions(*gPhysics, gPvd);
 
 	PxCookingParams params(scale);
 	params.meshWeldTolerance = 0.001f;
@@ -471,7 +471,7 @@ void cleanupPhysics(bool /*interactive*/)
 		PX_RELEASE(gPvd);
 		PX_RELEASE(transport);
 	}
-	PxCloseExtensions();
+	ev4sio_PxCloseExtensions();
 
 	PX_RELEASE(gCudaContextManager);
 	PX_RELEASE(gFoundation);

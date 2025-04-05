@@ -41,9 +41,9 @@
 #include "GuQuery.h"
 #include "CmVisualization.h"
 
-using namespace physx;
-using namespace Gu;
-using namespace Cm;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
+using namespace ev4sio_Cm;
 
 // PT: TODO: this is copied from SqBounds.h, should be either moved to Gu and shared or passed as a user parameter
 	#define SQ_PRUNER_EPSILON	0.005f
@@ -340,7 +340,7 @@ void AABBPruner::commit()
 	if(!mAABBTree || !mIncrementalRebuild)
 	{
 		if(!mIncrementalRebuild && mAABBTree)
-			PxGetFoundation().error(PxErrorCode::ePERF_WARNING, PX_FL, "SceneQuery static AABB Tree rebuilt, because a shape attached to a static actor was added, removed or moved, and PxSceneQueryDesc::staticStructure is set to eSTATIC_AABB_TREE.");
+			ev4sio_PxGetFoundation().error(PxErrorCode::ePERF_WARNING, PX_FL, "SceneQuery static AABB Tree rebuilt, because a shape attached to a static actor was added, removed or moved, and PxSceneQueryDesc::staticStructure is set to eSTATIC_AABB_TREE.");
 
 		fullRebuildAABBTree();
 		return;

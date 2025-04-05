@@ -31,15 +31,15 @@
 
 #include "GuShapeConvex.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	class PxConvexMeshGeometry;
-namespace Gu
+namespace ev4sio_Gu
 {
 	///////////////////////////////////////////////////////////////////////////
 
 	void getScaledConvex(	PxVec3*& scaledVertices, PxU8*& scaledIndices, PxVec3* dstVertices, PxU8* dstIndices,
-							bool idtConvexScale, const PxVec3* srcVerts, const PxU8* srcIndices, PxU32 nbVerts, const Cm::FastVertex2ShapeScaling& convexScaling);
+							bool idtConvexScale, const PxVec3* srcVerts, const PxU8* srcIndices, PxU32 nbVerts, const ev4sio_Cm::FastVertex2ShapeScaling& convexScaling);
 
 	// PT: calling this correctly isn't trivial so let's macroize it. At least we limit the damage since it immediately calls a real function.
 	#define GET_SCALEX_CONVEX(scaledVertices, stackIndices, idtScaling, nbVerts, scaling, srcVerts, srcIndices)	\
@@ -48,7 +48,7 @@ namespace Gu
 					idtScaling ? NULL : reinterpret_cast<PxU8*>(PxAlloca(nbVerts * sizeof(PxU8))),				\
 					idtScaling, srcVerts, srcIndices, nbVerts, scaling);
 
-	bool getConvexData(const PxConvexMeshGeometry& shapeConvex, Cm::FastVertex2ShapeScaling& scaling, PxBounds3& bounds, PolygonalData& polyData);
+	bool getConvexData(const PxConvexMeshGeometry& shapeConvex, ev4sio_Cm::FastVertex2ShapeScaling& scaling, PxBounds3& bounds, PolygonalData& polyData);
 
 	struct ConvexEdge
 	{
@@ -57,7 +57,7 @@ namespace Gu
 		PxVec3	normal;	// warning: non-unit vector!
 	};
 
-	PxU32 findUniqueConvexEdges(PxU32 maxNbEdges, ConvexEdge* PX_RESTRICT edges, PxU32 numPolygons, const Gu::HullPolygonData* PX_RESTRICT polygons, const PxU8* PX_RESTRICT vertexData);
+	PxU32 findUniqueConvexEdges(PxU32 maxNbEdges, ConvexEdge* PX_RESTRICT edges, PxU32 numPolygons, const ev4sio_Gu::HullPolygonData* PX_RESTRICT polygons, const PxU8* PX_RESTRICT vertexData);
 }
 }
 

@@ -54,7 +54,7 @@ namespace schlock
 
 extern bool epaDebug;
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 template<typename T>
 PX_CUDA_CALLABLE PX_FORCE_INLINE void swap(T& a, T& b)
@@ -148,7 +148,7 @@ static const PxU32 EPA_MAX_VERTS = 18, EPA_MAX_FACES = 2*EPA_MAX_VERTS-4;		// fo
 
 typedef int EPABitMap;
 
-#define MAKE_Vec3I8(A, B, C) (physx::PxU32(A) | (physx::PxU32(B) << 8) | (physx::PxU32(C) << 16))
+#define MAKE_Vec3I8(A, B, C) (ev4sio_physx::PxU32(A) | (ev4sio_physx::PxU32(B) << 8) | (ev4sio_physx::PxU32(C) << 16))
 
 struct Vec3I8
 {

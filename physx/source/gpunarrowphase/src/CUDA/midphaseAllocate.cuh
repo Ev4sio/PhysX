@@ -33,7 +33,7 @@
 #include "convexNpCommon.h"
 #include <vector_types.h>
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 /*
 	// TODO: read/write infos

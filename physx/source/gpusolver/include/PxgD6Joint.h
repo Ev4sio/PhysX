@@ -32,7 +32,7 @@
 #include "PxConstraintDesc.h"
 #include "PxgD6JointLimit.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	struct PxgD6Drive
 	{

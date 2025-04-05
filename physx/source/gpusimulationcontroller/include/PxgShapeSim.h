@@ -33,7 +33,7 @@
 #include "foundation/PxBounds3.h"
 #include "PxNodeIndex.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	struct PxgShapeSim
 	{

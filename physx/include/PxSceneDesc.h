@@ -40,7 +40,7 @@
 #include "task/PxTask.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -460,7 +460,7 @@ struct PxGpuDynamicsMemoryConfig
 	{
 	}
 
-	PX_PHYSX_CORE_API bool isValid() const;
+	PX_INLINE bool isValid() const;
 };
 
 PX_INLINE bool PxGpuDynamicsMemoryConfig::isValid() const
@@ -951,9 +951,9 @@ public:
 	\brief constructor sets to default.
 
 	\param[in] scale scale values for the tolerances in the scene, these must be the same values passed into
-	PxCreatePhysics(). The affected tolerances are bounceThresholdVelocity and frictionOffsetThreshold.
+	ev4sio_PxCreatePhysics(). The affected tolerances are bounceThresholdVelocity and frictionOffsetThreshold.
 
-	\see PxCreatePhysics() PxTolerancesScale bounceThresholdVelocity frictionOffsetThreshold
+	\see ev4sio_PxCreatePhysics() PxTolerancesScale bounceThresholdVelocity frictionOffsetThreshold
 	*/	
 	PX_INLINE PxSceneDesc(const PxTolerancesScale& scale);
 
@@ -961,9 +961,9 @@ public:
 	\brief (re)sets the structure to the default.
 
 	\param[in] scale scale values for the tolerances in the scene, these must be the same values passed into
-	PxCreatePhysics(). The affected tolerances are bounceThresholdVelocity and frictionOffsetThreshold.
+	ev4sio_PxCreatePhysics(). The affected tolerances are bounceThresholdVelocity and frictionOffsetThreshold.
 
-	\see PxCreatePhysics() PxTolerancesScale bounceThresholdVelocity frictionOffsetThreshold
+	\see ev4sio_PxCreatePhysics() PxTolerancesScale bounceThresholdVelocity frictionOffsetThreshold
 	*/
 	PX_INLINE void setToDefault(const PxTolerancesScale& scale);
 
@@ -1118,7 +1118,7 @@ PX_INLINE bool PxSceneDesc::isValid() const
 }
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

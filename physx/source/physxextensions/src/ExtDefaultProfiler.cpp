@@ -32,7 +32,7 @@
 #include "ExtDefaultProfiler.h"
 
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 const PxU32 gMinBufferSize = 32767;
 
@@ -48,12 +48,12 @@ DEFAULT_PROFILER_CHECK_ALIGNMENT_SIZE(PxDefaultProfilerEvent, DEFAULT_PROFILER_R
 DEFAULT_PROFILER_CHECK_ALIGNMENT_SIZE(PxDefaultProfilerValueEvent, DEFAULT_PROFILER_REQUIRED_ALIGNMENT)
 
 
-PxDefaultProfiler* physx::PxDefaultProfilerCreate(PxOutputStream& outputStream, PxU32 numberOfBuffers, PxU32 bufferSize)
+PxDefaultProfiler* ev4sio_physx::PxDefaultProfilerCreate(PxOutputStream& outputStream, PxU32 numberOfBuffers, PxU32 bufferSize)
 {
-	return PX_NEW(Ext::DefaultProfiler)(outputStream, numberOfBuffers, bufferSize);
+	return PX_NEW(ev4sio_Ext::DefaultProfiler)(outputStream, numberOfBuffers, bufferSize);
 }
 
-Ext::DefaultProfiler::DefaultProfiler(PxOutputStream& outputStream, PxU32 numberOfBuffers, PxU32 bufferSize) : 
+ev4sio_Ext::DefaultProfiler::DefaultProfiler(PxOutputStream& outputStream, PxU32 numberOfBuffers, PxU32 bufferSize) : 
 	mOutputStream(outputStream)
 {
 	mTlsSlotId = PxTlsAlloc();
@@ -61,8 +61,8 @@ Ext::DefaultProfiler::DefaultProfiler(PxOutputStream& outputStream, PxU32 number
 	// Ensure the buffer size is large enough to hold some minimal set of data.
 	if(bufferSize < gMinBufferSize)
 	{
-		PxGetFoundation().error(physx::PxErrorCode::eDEBUG_WARNING, PX_FL,
-								"Ext::DefaultProfiler::DefaultProfiler: buffer was increased to the minimum buffer size of %d bytes.",
+		ev4sio_PxGetFoundation().error(ev4sio_physx::PxErrorCode::eDEBUG_WARNING, PX_FL,
+								"ev4sio_Ext::DefaultProfiler::DefaultProfiler: buffer was increased to the minimum buffer size of %d bytes.",
 								gMinBufferSize);
 
 		mBufferSize = gMinBufferSize;
@@ -86,7 +86,7 @@ Ext::DefaultProfiler::DefaultProfiler(PxOutputStream& outputStream, PxU32 number
 	outputStream.write(&versionInfo, sizeof(PxDefaultProfilerVersionInfo));
 }
 
-Ext::DefaultProfiler::~DefaultProfiler()
+ev4sio_Ext::DefaultProfiler::~DefaultProfiler()
 {
 	flush();
 
@@ -112,12 +112,12 @@ Ext::DefaultProfiler::~DefaultProfiler()
 	PxTlsFree(mTlsSlotId);
 }
 
-void Ext::DefaultProfiler::release() 
+void ev4sio_Ext::DefaultProfiler::release() 
 {
 	PX_DELETE_THIS; 
 }
 
-void Ext::DefaultProfiler::flush()
+void ev4sio_Ext::DefaultProfiler::flush()
 {
 	// Loop through every used data block and flush them to the stream.
 	DefaultProfilerDataBlock* usedDataBlock = reinterpret_cast<DefaultProfilerDataBlock*>(mUsedList.flush());
@@ -133,7 +133,7 @@ void Ext::DefaultProfiler::flush()
 	}
 }
 
-Ext::DefaultProfilerDataBlock* Ext::DefaultProfiler::getThreadData()
+ev4sio_Ext::DefaultProfilerDataBlock* ev4sio_Ext::DefaultProfiler::getThreadData()
 {
 	DefaultProfilerDataBlock* dataBlock = reinterpret_cast<DefaultProfilerDataBlock*>(PxTlsGet(mTlsSlotId));
 
@@ -166,9 +166,9 @@ Ext::DefaultProfilerDataBlock* Ext::DefaultProfiler::getThreadData()
 }
 
 template <typename TEntry>
-TEntry* Ext::DefaultProfiler::writeProfilerEvent(const char* name, PxDefaultProfilerDataType::Enum type, PxU64 contextId)
+TEntry* ev4sio_Ext::DefaultProfiler::writeProfilerEvent(const char* name, PxDefaultProfilerDataType::Enum type, PxU64 contextId)
 {
-	Ext::DefaultProfilerDataBlock* dataBlock = getThreadData();
+	ev4sio_Ext::DefaultProfilerDataBlock* dataBlock = getThreadData();
 
 	TEntry* entry;
 	dataBlock->write(type, entry, name);
@@ -181,7 +181,7 @@ TEntry* Ext::DefaultProfiler::writeProfilerEvent(const char* name, PxDefaultProf
 	return entry;
 }
 
-void* Ext::DefaultProfiler::zoneStart(const char* eventName, bool detached, uint64_t contextId)
+void* ev4sio_Ext::DefaultProfiler::zoneStart(const char* eventName, bool detached, uint64_t contextId)
 {
 	PxDefaultProfilerDataType::Enum type;
 
@@ -199,7 +199,7 @@ void* Ext::DefaultProfiler::zoneStart(const char* eventName, bool detached, uint
 	return NULL;
 }
 
-void Ext::DefaultProfiler::zoneEnd(void*, const char* eventName, bool detached, uint64_t contextId)
+void ev4sio_Ext::DefaultProfiler::zoneEnd(void*, const char* eventName, bool detached, uint64_t contextId)
 {
 	PxDefaultProfilerDataType::Enum type;
 
@@ -215,19 +215,19 @@ void Ext::DefaultProfiler::zoneEnd(void*, const char* eventName, bool detached, 
 	writeProfilerEvent<PxDefaultProfilerEvent>(eventName, type, contextId);
 }
 
-void Ext::DefaultProfiler::recordData(int32_t value, const char* valueName, uint64_t contextId)
+void ev4sio_Ext::DefaultProfiler::recordData(int32_t value, const char* valueName, uint64_t contextId)
 {
 	PxDefaultProfilerValueEvent* valueEvent = writeProfilerEvent<PxDefaultProfilerValueEvent>(valueName, PxDefaultProfilerDataType::eVALUE_INT, contextId);
 	valueEvent->intValue = value;
 }
 
-void Ext::DefaultProfiler::recordData(float value, const char* valueName, uint64_t contextId)
+void ev4sio_Ext::DefaultProfiler::recordData(float value, const char* valueName, uint64_t contextId)
 {
 	PxDefaultProfilerValueEvent* valueEvent = writeProfilerEvent<PxDefaultProfilerValueEvent>(valueName, PxDefaultProfilerDataType::eVALUE_FLOAT, contextId);
 	valueEvent->floatValue = value;
 }
 
-void Ext::DefaultProfiler::recordFrame(const char* name, uint64_t contextId)
+void ev4sio_Ext::DefaultProfiler::recordFrame(const char* name, uint64_t contextId)
 {
 	writeProfilerEvent<PxDefaultProfilerEvent>(name, PxDefaultProfilerDataType::eFRAME, contextId);
 }

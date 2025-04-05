@@ -34,12 +34,12 @@
 #include "foundation/PxVecMath.h"
 #include "GuBounds.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 using namespace aos;
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Dy
+namespace ev4sio_Dy
 {
 static PX_FORCE_INLINE void initContactPatch(CorrelationBuffer::ContactPatchData& patch, PxU16 index, PxReal restitution, PxReal staticFriction, PxReal dynamicFriction,
 	PxU8 flags)

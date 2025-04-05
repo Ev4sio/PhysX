@@ -31,7 +31,7 @@
 #include "foundation/windows/PxWindowsInclude.h"
 #include "windows/CmWindowsLoadLibrary.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	static const PxDelayLoadHook* gPhysXDelayLoadHook = NULL;
 	
@@ -48,7 +48,7 @@ namespace physx
 #define DELAYIMP_INSECURE_WRITABLE_HOOKS
 #include <delayimp.h>
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 #pragma comment(lib, "delayimp")
 
@@ -60,7 +60,7 @@ FARPROC WINAPI physxDelayHook(unsigned dliNotify, PDelayLoadInfo pdli)
 
 	case dliNotePreLoadLibrary :
 		{
-			return Cm::physXCommonDliNotePreLoadLibrary(pdli->szDll,gPhysXDelayLoadHook);
+			return ev4sio_Cm::physXCommonDliNotePreLoadLibrary(pdli->szDll,gPhysXDelayLoadHook);
 		}
 		break;
 

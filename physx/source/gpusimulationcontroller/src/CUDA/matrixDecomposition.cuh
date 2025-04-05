@@ -31,7 +31,7 @@
 
 #include "foundation/PxMat33.h"
 
-namespace physx {
+namespace ev4sio_physx {
 
 // Eigen decomposition code thanks to Matthias Mueller-Fischer!
 template<int p, int q, int k> __device__

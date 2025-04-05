@@ -38,9 +38,9 @@
 #include "GuDistancePointTriangle.h"
 #include "GuTriangle.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Gu
+namespace ev4sio_Gu
 {
 
 template <typename T>
@@ -185,12 +185,12 @@ PX_INLINE PxReal sdfTriangleCollision(
 // Get the indices of the triangle at position `triIdx`.
 // `T` should be `PxU16` if the mesh has 16 bit indices, and `PxU32` otherwise
 template <typename T>
-PX_INLINE Gu::IndexedTriangle32 getTriangleVertexIndices(const void* triangles, PxU32 triIdx)
+PX_INLINE ev4sio_Gu::IndexedTriangle32 getTriangleVertexIndices(const void* triangles, PxU32 triIdx)
 {
 	const T* trisCast = reinterpret_cast<const T*>(triangles);
 	return {trisCast[triIdx*3], trisCast[triIdx*3+1], trisCast[triIdx*3+2]};
 }
 
-}  // namespace Gu
-}  // namespace physx
+}  // namespace ev4sio_Gu
+}  // namespace ev4sio_physx
 #endif

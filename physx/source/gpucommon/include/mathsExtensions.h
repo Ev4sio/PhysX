@@ -34,7 +34,7 @@
 #include "foundation/PxQuat.h"
 #include "foundation/PxVec3.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 PX_CUDA_CALLABLE PX_FORCE_INLINE PxReal dot3(const float4& x, const float4& y)

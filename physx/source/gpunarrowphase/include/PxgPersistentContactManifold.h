@@ -37,7 +37,7 @@
 #define PXG_MULTIMANIFOLD_MAX_SUBMANIFOLDS	4
 #define PXG_SUBMANIFOLD_MAX_CONTACTS		6
 
-namespace physx
+namespace ev4sio_physx
 {
 	struct PX_ALIGN_PREFIX(16) PxgPersistentContactManifold
 	{

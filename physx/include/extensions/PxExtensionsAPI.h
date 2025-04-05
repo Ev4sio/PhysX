@@ -71,9 +71,9 @@ This should be called before calling any functions or methods in extensions whic
 \param physics a PxPhysics object
 \param pvd an PxPvd (PhysX Visual Debugger) object
 
-\see PxCloseExtensions PxFoundation PxPhysics
+\see ev4sio_PxCloseExtensions PxFoundation PxPhysics
 */
-PX_C_EXPORT bool PX_CALL_CONV PxInitExtensions(physx::PxPhysics& physics, physx::PxPvd* pvd);
+PX_C_EXPORT bool PX_CALL_CONV ev4sio_PxInitExtensions(ev4sio_physx::PxPhysics& physics, ev4sio_physx::PxPvd* pvd);
 
 /** \brief Shut down the PhysXExtensions library. 
 
@@ -81,9 +81,9 @@ This function should be called to cleanly shut down the PhysXExtensions library 
 
 \note This function is required to be called to release foundation usage.
 
-\see PxInitExtensions
+\see ev4sio_PxInitExtensions
 */
-PX_C_EXPORT void PX_CALL_CONV PxCloseExtensions();
+PX_C_EXPORT void PX_CALL_CONV ev4sio_PxCloseExtensions();
 
 #endif
 

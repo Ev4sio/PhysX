@@ -47,9 +47,9 @@
 #include "foundation/PxFPU.h"
 #include "CmMatrix34.h"
 
-using namespace physx;
-using namespace Gu;
-using namespace Cm;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
+using namespace ev4sio_Cm;
 using namespace aos;
 using namespace intrinsics;
 
@@ -1262,7 +1262,7 @@ static bool contactHullMesh2(const PolygonalData& polyData0, const PxBounds3& hu
 
 /////////////
 
-bool Gu::contactConvexMesh(GU_CONTACT_METHOD_ARGS)
+bool ev4sio_Gu::contactConvexMesh(GU_CONTACT_METHOD_ARGS)
 {
 	PX_UNUSED(cache);
 	PX_UNUSED(renderOutput);
@@ -1284,7 +1284,7 @@ bool Gu::contactConvexMesh(GU_CONTACT_METHOD_ARGS)
 	return contactHullMesh2(polyData0, hullAABB, shapeMesh, transform0, transform1, params, contactBuffer, convexScaling, meshScaling, idtScaleConvex, idtScaleMesh);
 }
 
-bool Gu::contactBoxMesh(GU_CONTACT_METHOD_ARGS)
+bool ev4sio_Gu::contactBoxMesh(GU_CONTACT_METHOD_ARGS)
 {
 	PX_UNUSED(cache);
 	PX_UNUSED(renderOutput);
@@ -1422,7 +1422,7 @@ static bool contactHullHeightfield2(const PolygonalData& polyData0, const PxBoun
 	return blockCallback.mGeneration.mAnyHits;
 }
 
-bool Gu::contactConvexHeightfield(GU_CONTACT_METHOD_ARGS)
+bool ev4sio_Gu::contactConvexHeightfield(GU_CONTACT_METHOD_ARGS)
 {
 	PX_UNUSED(cache);
 	PX_UNUSED(renderOutput);
@@ -1442,7 +1442,7 @@ bool Gu::contactConvexHeightfield(GU_CONTACT_METHOD_ARGS)
 	return contactHullHeightfield2(polyData0, hullAABB, shapeMesh, transform0, transform1, params, contactBuffer, convexScaling, idtScaleConvex);
 }
 
-bool Gu::contactBoxHeightfield(GU_CONTACT_METHOD_ARGS)
+bool ev4sio_Gu::contactBoxHeightfield(GU_CONTACT_METHOD_ARGS)
 {
 	PX_UNUSED(cache);
 	PX_UNUSED(renderOutput);

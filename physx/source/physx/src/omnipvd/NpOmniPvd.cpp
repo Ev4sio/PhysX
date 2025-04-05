@@ -35,10 +35,10 @@
 #endif
 #include "foundation/PxUserAllocated.h"
 
-physx::PxU32 physx::NpOmniPvd::mRefCount = 0;
-physx::NpOmniPvd* physx::NpOmniPvd::mInstance = NULL;
+ev4sio_physx::PxU32 ev4sio_physx::NpOmniPvd::mRefCount = 0;
+ev4sio_physx::NpOmniPvd* ev4sio_physx::NpOmniPvd::mInstance = NULL;
 
-namespace physx
+namespace ev4sio_physx
 {
 	NpOmniPvd::NpOmniPvd() :
 		mLoader			(NULL),
@@ -82,7 +82,7 @@ namespace physx
 		}
 	}
 
-	// Called once by physx::PxOmniPvd* PxCreateOmniPvd(...)
+	// Called once by ev4sio_physx::PxOmniPvd* ev4sio_PxCreateOmniPvd(...)
 	// Called once by NpPhysics::NpPhysics(...)
 	void NpOmniPvd::incRefCount()
 	{
@@ -206,31 +206,31 @@ namespace physx
 	}
 }
 
-physx::PxOmniPvd* PxCreateOmniPvd(physx::PxFoundation& foundation)
+ev4sio_physx::PxOmniPvd* ev4sio_PxCreateOmniPvd(ev4sio_physx::PxFoundation& foundation)
 {
 	PX_UNUSED(foundation);
 #if PX_SUPPORT_OMNI_PVD
-	if (physx::NpOmniPvd::mInstance)
+	if (ev4sio_physx::NpOmniPvd::mInstance)
 	{
 		// No need to call this function again
 		//foundation.getErrorCallback()
-		return physx::NpOmniPvd::mInstance;
+		return ev4sio_physx::NpOmniPvd::mInstance;
 	}	
-	physx::NpOmniPvd::mInstance = PX_PLACEMENT_NEW(PX_ALLOC(sizeof(physx::NpOmniPvd), "NpOmniPvd"), physx::NpOmniPvd)();
+	ev4sio_physx::NpOmniPvd::mInstance = PX_PLACEMENT_NEW(PX_ALLOC(sizeof(ev4sio_physx::NpOmniPvd), "NpOmniPvd"), ev4sio_physx::NpOmniPvd)();
 	
-	if (physx::NpOmniPvd::mInstance)
+	if (ev4sio_physx::NpOmniPvd::mInstance)
 	{
-		if (physx::NpOmniPvd::mInstance->initOmniPvd())
+		if (ev4sio_physx::NpOmniPvd::mInstance->initOmniPvd())
 		{
-			physx::NpOmniPvd::mRefCount = 1; // Sets the reference counter to exactly 1
-			return physx::NpOmniPvd::mInstance;
+			ev4sio_physx::NpOmniPvd::mRefCount = 1; // Sets the reference counter to exactly 1
+			return ev4sio_physx::NpOmniPvd::mInstance;
 		}
 		else
 		{
-			physx::NpOmniPvd::mInstance->~NpOmniPvd();
-			PX_FREE(physx::NpOmniPvd::mInstance);
-			physx::NpOmniPvd::mInstance = NULL;
-			physx::NpOmniPvd::mRefCount = 0;
+			ev4sio_physx::NpOmniPvd::mInstance->~NpOmniPvd();
+			PX_FREE(ev4sio_physx::NpOmniPvd::mInstance);
+			ev4sio_physx::NpOmniPvd::mInstance = NULL;
+			ev4sio_physx::NpOmniPvd::mRefCount = 0;
 			return NULL;
 		}
 	}

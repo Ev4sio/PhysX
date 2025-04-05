@@ -35,9 +35,9 @@
 #include "CmSerialize.h"
 #include "foundation/PxUtilities.h"
 
-using namespace physx;
-using namespace Gu;
-using namespace Cm;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
+using namespace ev4sio_Cm;
 
 BigConvexData::BigConvexData() : mVBuffer(NULL)
 {
@@ -92,12 +92,12 @@ bool BigConvexData::VLoad(PxInputStream& stream)
 
 	PX_FREE(mVBuffer);
 
-	// PT: align Gu::Valency?
+	// PT: align ev4sio_Gu::Valency?
 	const PxU32 numVerts = (mData.mNbVerts+3)&~3;
-	const PxU32 TotalSize = sizeof(Gu::Valency)*numVerts + sizeof(PxU8)*mData.mNbAdjVerts;
+	const PxU32 TotalSize = sizeof(ev4sio_Gu::Valency)*numVerts + sizeof(PxU8)*mData.mNbAdjVerts;
 	mVBuffer = PX_ALLOC(TotalSize, "BigConvexData data");
-	mData.mValencies		= reinterpret_cast<Gu::Valency*>(mVBuffer);
-	mData.mAdjacentVerts	= (reinterpret_cast<PxU8*>(mVBuffer)) + sizeof(Gu::Valency)*numVerts;
+	mData.mValencies		= reinterpret_cast<ev4sio_Gu::Valency*>(mVBuffer);
+	mData.mAdjacentVerts	= (reinterpret_cast<PxU8*>(mVBuffer)) + sizeof(ev4sio_Gu::Valency)*numVerts;
 
 	PX_ASSERT(0 == (size_t(mData.mAdjacentVerts) & 0xf));
 	PX_ASSERT(Version==2);
@@ -179,7 +179,7 @@ void BigConvexData::exportExtraData(PxSerializationContext& stream)
 	{
 		stream.alignData(PX_SERIAL_ALIGN);
 		PxU32 numVerts = (mData.mNbVerts+3)&~3;
-		const PxU32 TotalSize = sizeof(Gu::Valency)*numVerts + sizeof(PxU8)*mData.mNbAdjVerts;
+		const PxU32 TotalSize = sizeof(ev4sio_Gu::Valency)*numVerts + sizeof(PxU8)*mData.mNbAdjVerts;
 		stream.writeData(mData.mValencies, TotalSize);
 	}
 }
@@ -193,7 +193,7 @@ void BigConvexData::importExtraData(PxDeserializationContext& context)
 	{
 		context.alignExtraData();
 		PxU32 numVerts = (mData.mNbVerts+3)&~3;
-		mData.mValencies		= context.readExtraData<Gu::Valency>(numVerts);
+		mData.mValencies		= context.readExtraData<ev4sio_Gu::Valency>(numVerts);
 		mData.mAdjacentVerts	= context.readExtraData<PxU8>(mData.mNbAdjVerts);
 
 	}

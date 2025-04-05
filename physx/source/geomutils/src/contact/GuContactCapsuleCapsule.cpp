@@ -32,9 +32,9 @@
 #include "GuContactMethodImpl.h"
 #include "GuInternal.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
-bool Gu::contactCapsuleCapsule(GU_CONTACT_METHOD_ARGS)
+bool ev4sio_Gu::contactCapsuleCapsule(GU_CONTACT_METHOD_ARGS)
 {
 	PX_UNUSED(renderOutput);
 	PX_UNUSED(cache);

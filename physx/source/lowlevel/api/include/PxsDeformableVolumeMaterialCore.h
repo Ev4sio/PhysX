@@ -32,7 +32,7 @@
 #include "PxDeformableVolumeMaterial.h"
 #include "PxsMaterialShared.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 PX_FORCE_INLINE PX_CUDA_CALLABLE PxU16 toUniformU16(PxReal f)

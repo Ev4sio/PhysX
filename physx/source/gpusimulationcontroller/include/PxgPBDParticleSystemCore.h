@@ -36,7 +36,7 @@
 
 #include "PxgParticleSystemCore.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	class PxCudaContextManager;
 	class PxgBodySimManager;
@@ -52,7 +52,7 @@ namespace physx
 	class PxgParticleSystemDiffuseBuffer;
 	class PxgSimulationController;
 
-	namespace Dy
+	namespace ev4sio_Dy
 	{
 		class ParticleSystemCore;
 	}
@@ -118,7 +118,7 @@ namespace physx
 
 		void resizeParticleDataBuffer(PxgParticleSystem& particleSystem, PxgParticleSystemBuffer* buffer, const PxU32 maxParticles, const PxU32 maxNeighborhood, CUstream stream);
 		void resizeDiffuseParticleDiffuseBuffer(PxgParticleSystem& particleSystem, PxgParticleSystemDiffuseBuffer* diffuseBuffer, const PxU32 maxDiffuseParticles, CUstream stream);
-		bool createUserParticleData(PxgParticleSystem& particleSystem, Dy::ParticleSystemCore& dyParticleSystemCore, PxgParticleSystemBuffer* buffer, PxgParticleSystemDiffuseBuffer* diffuseBuffer,
+		bool createUserParticleData(PxgParticleSystem& particleSystem, ev4sio_Dy::ParticleSystemCore& dyParticleSystemCore, PxgParticleSystemBuffer* buffer, PxgParticleSystemDiffuseBuffer* diffuseBuffer,
 			CUstream stream);
 
 		PX_FORCE_INLINE PxU32 getMaxSpringsPerBuffer() { return mMaxSpringsPerBuffer; }

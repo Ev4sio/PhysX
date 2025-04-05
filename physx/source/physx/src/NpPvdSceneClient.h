@@ -48,7 +48,7 @@
 #include "PxsDeformableVolumeMaterialCore.h"
 #include "PxsPBDMaterialCore.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 class PxActor;
 class PxArticulationLink;
@@ -75,7 +75,7 @@ class NpDeformableAttachment;
 class NpDeformableElementFilter;
 #endif
 
-namespace Sc
+namespace ev4sio_Sc
 {
 class ConstraintCore;
 }
@@ -246,7 +246,7 @@ class PvdSceneClient : public PxPvdSceneClient, public PvdClient, public PvdVisu
   private:
 
 	void				sendEntireScene();
-	void				updateConstraint(const Sc::ConstraintCore& scConstraint, PxU32 updateType);
+	void				updateConstraint(const ev4sio_Sc::ConstraintCore& scConstraint, PxU32 updateType);
 
 	PxPvdSceneFlags			mFlags;
 	PsPvd*					mPvd;

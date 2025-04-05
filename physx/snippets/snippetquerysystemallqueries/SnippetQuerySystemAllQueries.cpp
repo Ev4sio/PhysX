@@ -44,8 +44,8 @@
 	#include "../snippetrender/SnippetRender.h"
 #endif
 
-using namespace physx;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
 #ifdef RENDER_SNIPPET
 	using namespace Snippets;
 #endif
@@ -944,7 +944,7 @@ static CustomScene* gScene = NULL;
 
 void initPhysics(bool /*interactive*/)
 {
-	gFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, gAllocator, gErrorCallback);
+	gFoundation = ev4sio_PxCreateFoundation(ev4sio_PX_PHYSICS_VERSION, gAllocator, gErrorCallback);
 
 	const PxTolerancesScale scale;
 	PxCookingParams params(scale);
@@ -974,7 +974,7 @@ void initPhysics(bool /*interactive*/)
 			convexDesc.points.stride	= sizeof(PxVec3);
 			convexDesc.points.data		= points;
 			convexDesc.flags			= PxConvexFlag::eCOMPUTE_CONVEX;
-			gConvexMesh = PxCreateConvexMesh(params, convexDesc);
+			gConvexMesh = ev4sio_PxCreateConvexMesh(params, convexDesc);
 		}
 
 		{
@@ -986,7 +986,7 @@ void initPhysics(bool /*interactive*/)
 			meshDesc.triangles.stride	= sizeof(int)*3;
 			meshDesc.triangles.data		= SnippetUtils::Bunny_getFaces();
 
-			gTriangleMesh = PxCreateTriangleMesh(params, meshDesc);
+			gTriangleMesh = ev4sio_PxCreateTriangleMesh(params, meshDesc);
 		}
 	}
 

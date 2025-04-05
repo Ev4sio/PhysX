@@ -32,18 +32,18 @@
 #include "PxvConfig.h"
 #include "foundation/PxArray.h"
 
-// PT: this class captures parts of the Sc::Scene that deals with broadphase matters.
+// PT: this class captures parts of the ev4sio_Sc::Scene that deals with broadphase matters.
 
-namespace physx
+namespace ev4sio_physx
 {
 	class PxBroadPhaseCallback;
 
-namespace Bp
+namespace ev4sio_Bp
 {
 	class AABBManagerBase;
 }
 
-namespace Sc
+namespace ev4sio_Sc
 {
 	class ObjectIDTracker;
 
@@ -56,10 +56,10 @@ namespace Sc
 			PX_FORCE_INLINE	void					setBroadPhaseCallback(PxBroadPhaseCallback* callback)	{ mBroadPhaseCallback = callback;	}
 			PX_FORCE_INLINE	PxBroadPhaseCallback*	getBroadPhaseCallback()	const							{ return mBroadPhaseCallback;		}
 
-							void					prepareOutOfBoundsCallbacks(Bp::AABBManagerBase* aabbManager);
-							bool					fireOutOfBoundsCallbacks(Bp::AABBManagerBase* aabbManager, const ObjectIDTracker& tracker, PxU64 contextID);
+							void					prepareOutOfBoundsCallbacks(ev4sio_Bp::AABBManagerBase* aabbManager);
+							bool					fireOutOfBoundsCallbacks(ev4sio_Bp::AABBManagerBase* aabbManager, const ObjectIDTracker& tracker, PxU64 contextID);
 
-							void					flush(Bp::AABBManagerBase* aabbManager);
+							void					flush(ev4sio_Bp::AABBManagerBase* aabbManager);
 
 							PxBroadPhaseCallback*	mBroadPhaseCallback;
 							PxArray<PxU32>			mOutOfBoundsIDs;

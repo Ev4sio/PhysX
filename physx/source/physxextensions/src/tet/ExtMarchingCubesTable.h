@@ -27,9 +27,9 @@
 #ifndef EXT_MARCHING_CUBES_TABLE_H
 #define EXT_MARCHING_CUBES_TABLE_H
 
-namespace physx
+namespace ev4sio_physx
 {
-	namespace Ext
+	namespace ev4sio_Ext
 	{
 
 		//  point numbering

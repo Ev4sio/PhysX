@@ -34,9 +34,9 @@
 #include "foundation/PxMat33.h"
 #include "common/PxPhysXCommonConfig.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Gu
+namespace ev4sio_Gu
 {
 	class Capsule;
 
@@ -187,18 +187,18 @@ namespace Gu
 		*/
 		PX_FORCE_INLINE void computeBoxPoints(PxVec3* PX_RESTRICT pts) const
 		{
-			Gu::computeOBBPoints(pts, center, extents, rot.column0, rot.column1, rot.column2);
+			ev4sio_Gu::computeOBBPoints(pts, center, extents, rot.column0, rot.column1, rot.column2);
 		}
 
-		void create(const Gu::Capsule& capsule);
+		void create(const ev4sio_Gu::Capsule& capsule);
 
 		PxMat33	rot;
 		PxVec3	center;
 		PxVec3	extents;
 	};
-	PX_COMPILE_TIME_ASSERT(sizeof(Gu::Box) == 60);
+	PX_COMPILE_TIME_ASSERT(sizeof(ev4sio_Gu::Box) == 60);
 
-	//! A padded version of Gu::Box, to safely load its data using SIMD
+	//! A padded version of ev4sio_Gu::Box, to safely load its data using SIMD
 	class BoxPadded : public Box
 	{
 	public:
@@ -206,7 +206,7 @@ namespace Gu
 		PX_FORCE_INLINE ~BoxPadded()	{}
 		PxU32	padding;
 	};
-	PX_COMPILE_TIME_ASSERT(sizeof(Gu::BoxPadded) == 64);
+	PX_COMPILE_TIME_ASSERT(sizeof(ev4sio_Gu::BoxPadded) == 64);
 
 #if PX_VC 
      #pragma warning(pop) 

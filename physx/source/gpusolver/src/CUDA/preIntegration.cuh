@@ -34,7 +34,7 @@
 #include "PxgSolverKernelIndices.h"
 #include "stdio.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 __device__ __forceinline__ PxVec3 computeSafeSqrtInertia(const PxVec3& v)
 {
@@ -108,8 +108,8 @@ __device__  __forceinline__ void bodyCoreComputeUnconstrainedVelocity(const floa
 	angularVelocity += angularAccelTimesDT;
 
 	//Apply damping.
-	const PxReal linVelMultiplier = physx::intrinsics::fsel(oneMinusLinearDampingTimesDT, oneMinusLinearDampingTimesDT, 0.0f);
-	const PxReal angVelMultiplier = physx::intrinsics::fsel(oneMinusAngularDampingTimesDT, oneMinusAngularDampingTimesDT, 0.0f);
+	const PxReal linVelMultiplier = ev4sio_physx::intrinsics::fsel(oneMinusLinearDampingTimesDT, oneMinusLinearDampingTimesDT, 0.0f);
+	const PxReal angVelMultiplier = ev4sio_physx::intrinsics::fsel(oneMinusAngularDampingTimesDT, oneMinusAngularDampingTimesDT, 0.0f);
 	linearVelocity *= linVelMultiplier;
 	angularVelocity *= angVelMultiplier;
 

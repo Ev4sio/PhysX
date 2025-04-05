@@ -32,11 +32,11 @@
 #include "ScConstraintInteraction.h"
 #include "common/PxProfileZone.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 // PT: the breakable constraints are added to / removed from mActiveBreakableConstraints:
 
-void Sc::Scene::addActiveBreakableConstraint(Sc::ConstraintSim* c, Sc::ConstraintInteraction* ci)
+void ev4sio_Sc::Scene::addActiveBreakableConstraint(ev4sio_Sc::ConstraintSim* c, ev4sio_Sc::ConstraintInteraction* ci)
 {
 	PX_ASSERT(ci && ci->readInteractionFlag(InteractionFlag::eIS_ACTIVE));
 	PX_UNUSED(ci);
@@ -46,7 +46,7 @@ void Sc::Scene::addActiveBreakableConstraint(Sc::ConstraintSim* c, Sc::Constrain
 	c->setFlag(ConstraintSim::eCHECK_MAX_FORCE_EXCEEDED);
 }
 
-void Sc::Scene::removeActiveBreakableConstraint(Sc::ConstraintSim* c)
+void ev4sio_Sc::Scene::removeActiveBreakableConstraint(ev4sio_Sc::ConstraintSim* c)
 {
 	const bool exists = mActiveBreakableConstraints.erase(c);
 	PX_ASSERT(exists);
@@ -57,7 +57,7 @@ void Sc::Scene::removeActiveBreakableConstraint(Sc::ConstraintSim* c)
 // PT: then at runtime we parse mActiveBreakableConstraints, check for max force exceeded,
 // and add broken constraints to mBrokenConstraints:
 
-void Sc::Scene::checkConstraintBreakage()
+void ev4sio_Sc::Scene::checkConstraintBreakage()
 {
 	PX_PROFILE_ZONE("Sim.checkConstraintBreakage", mContextId);
 
@@ -65,7 +65,7 @@ void Sc::Scene::checkConstraintBreakage()
 	if(!count)
 		return;
 
-	PxPinnedArray<Dy::ConstraintWriteback>& pool = mDynamicsContext->getConstraintWriteBackPool();
+	PxPinnedArray<ev4sio_Dy::ConstraintWriteback>& pool = mDynamicsContext->getConstraintWriteBackPool();
 
 	ConstraintSim* const* constraints = mActiveBreakableConstraints.getEntries(); 
 	while(count--)
@@ -74,7 +74,7 @@ void Sc::Scene::checkConstraintBreakage()
 
 		PX_ASSERT(sim->readFlag(ConstraintSim::eCHECK_MAX_FORCE_EXCEEDED));
 
-		const Dy::ConstraintWriteback& solverOutput = pool[sim->getLowLevelConstraint().index];
+		const ev4sio_Dy::ConstraintWriteback& solverOutput = pool[sim->getLowLevelConstraint().index];
 		if(solverOutput.isBroken())
 		{
 			sim->setFlag(ConstraintSim::eBROKEN);
@@ -109,7 +109,7 @@ void Sc::Scene::checkConstraintBreakage()
 
 // PT: finally mBrokenConstraints is parsed and callbacks issued:
 
-void Sc::Scene::fireBrokenConstraintCallbacks()
+void ev4sio_Sc::Scene::fireBrokenConstraintCallbacks()
 {
 	if(!mSimulationEventCallback)
 		return;
@@ -117,7 +117,7 @@ void Sc::Scene::fireBrokenConstraintCallbacks()
 	const PxU32 count = mBrokenConstraints.size();
 	for(PxU32 i=0;i<count;i++)
 	{
-		Sc::ConstraintCore* c = mBrokenConstraints[i];
+		ev4sio_Sc::ConstraintCore* c = mBrokenConstraints[i];
 		PX_ASSERT(c->getSim());
 
 		PxU32 typeID = 0xffffffff;

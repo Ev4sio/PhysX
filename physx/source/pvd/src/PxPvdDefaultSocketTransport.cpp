@@ -28,7 +28,7 @@
 
 #include "PxPvdDefaultSocketTransport.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 namespace pvdsdk
 {
@@ -125,9 +125,9 @@ void PvdDefaultSocketTransport::release()
 
 } // namespace pvdsdk
 
-PxPvdTransport* PxDefaultPvdSocketTransportCreate(const char* host, int port, unsigned int timeoutInMilliseconds)
+PxPvdTransport* ev4sio_PxDefaultPvdSocketTransportCreate(const char* host, int port, unsigned int timeoutInMilliseconds)
 {
 	return PX_NEW(pvdsdk::PvdDefaultSocketTransport)(host, port, timeoutInMilliseconds);
 }
 
-} // namespace physx
+} // namespace ev4sio_physx

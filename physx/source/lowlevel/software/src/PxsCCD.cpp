@@ -64,9 +64,9 @@ static const bool gUseGeometryQuery = false;
 
 #define CCD_ANGULAR_IMPULSE					0	// PT: this doesn't compile anymore
 
-using namespace physx;
-using namespace Dy;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Dy;
+using namespace ev4sio_Gu;
 
 static PX_FORCE_INLINE void verifyCCDPair(const PxsCCDPair& /*pair*/)
 {
@@ -121,7 +121,7 @@ PX_FORCE_INLINE	PxVec3	getAngularMotionVelocity(PxReal dt, const PxsBodyCore* PX
 
 #include <stdio.h>
 #pragma warning(disable: 4313)
-namespace physx {
+namespace ev4sio_physx {
 
 static const char* gGeomTypes[PxGeometryType::eGEOMETRY_COUNT+1] = {
 	"sphere", "plane", "capsule", "box", "convex", "trimesh", "heightfield", "*"
@@ -186,7 +186,7 @@ void printShape(
 	#if DEBUG_RENDER_CCD && DEBUG_RENDER_CCD_ATOM_PTR
 	if (!DEBUG_RENDER_CCD_FIRST_PASS_ONLY || pass == 0)
 	{
-		PxScene *s; PxGetPhysics()->getScenes(&s, 1, 0);
+		PxScene *s; ev4sio_PxGetPhysics()->getScenes(&s, 1, 0);
 		PxRenderOutput((PxRenderBufferImpl&)s->getRenderBuffer())
 			<< DebugText(atom0->getPose().p, 0.05f, "%x", atom0);
 	}
@@ -198,11 +198,11 @@ static inline void flushCCDLog()
 	fflush(gCCDLog);
 }
 
-} // namespace physx
+} // namespace ev4sio_physx
 
 #else
 
-namespace physx
+namespace ev4sio_physx
 {
 
 void printShape(PxsRigidBody* /*atom0*/, PxGeometryType::Enum /*g0*/, const char* /*annotation*/, PxReal /*dt*/, PxU32 /*pass*/, bool printPtr = true)
@@ -217,10 +217,10 @@ void printCCDDebug(const char* /*msg*/, const PxsRigidBody* /*atom0*/, PxGeometr
 static inline void printSeparator(
 	const char* /*prefix*/, PxU32 /*pass*/, PxsRigidBody* /*atom0*/, PxGeometryType::Enum /*g0*/,
 	PxsRigidBody* /*atom1*/, PxGeometryType::Enum /*g1*/) {}
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
-float physx::computeCCDThreshold(const PxGeometry& geometry)
+float ev4sio_physx::computeCCDThreshold(const PxGeometry& geometry)
 {
 	// Box, Convex, Mesh and HeightField will compute local bounds and pose to world space.
 	// Sphere, Capsule & Plane will compute world space bounds directly.
@@ -264,7 +264,7 @@ float physx::computeCCDThreshold(const PxGeometry& geometry)
 
 		case PxGeometryType::eCONVEXCORE:
 		{
-			const PxBounds3 bounds = Gu::computeBounds(geometry, PxTransform(PxIdentity));
+			const PxBounds3 bounds = ev4sio_Gu::computeBounds(geometry, PxTransform(PxIdentity));
 			const PxVec3 halfExtents = bounds.getDimensions() * 0.5f;
 			return PxMin(PxMin(halfExtents.x, halfExtents.y), halfExtents.z) * inSphereRatio;
 		}
@@ -272,7 +272,7 @@ float physx::computeCCDThreshold(const PxGeometry& geometry)
 		case PxGeometryType::eCONVEXMESH:
 		{
 			const PxConvexMeshGeometry& shape = static_cast<const PxConvexMeshGeometry&>(geometry);
-			const Gu::ConvexHullData& hullData = static_cast<const Gu::ConvexMesh*>(shape.convexMesh)->getHull();
+			const ev4sio_Gu::ConvexHullData& hullData = static_cast<const ev4sio_Gu::ConvexMesh*>(shape.convexMesh)->getHull();
 			return PxMin(shape.scale.scale.z, PxMin(shape.scale.scale.x, shape.scale.scale.y)) * hullData.mInternal.mInternalRadius * inSphereRatio;
 		}
 
@@ -285,7 +285,7 @@ float physx::computeCCDThreshold(const PxGeometry& geometry)
 		default:
 		{
 			PX_ASSERT(0);		
-			PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "Gu::computeBoundsWithCCDThreshold::computeBounds: Unknown shape type.");
+			ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "ev4sio_Gu::computeBoundsWithCCDThreshold::computeBounds: Unknown shape type.");
 		}
 	}
 	return PX_MAX_REAL;
@@ -347,7 +347,7 @@ static void getLastCCDAbsPose(PxTransform32& out, const PxsCCDShape* ccdShape, c
 	trInvTr(out, atom->getLastCCDTransform(), atom->getCore().getBody2Actor(), ccdShape->mShapeCore->getTransform());
 }
 
-PxsCCDContext::PxsCCDContext(PxsContext* context, Dy::ThresholdStream& thresholdStream, PxvNphaseImplementationContext& nPhaseContext, PxReal ccdThreshold) :
+PxsCCDContext::PxsCCDContext(PxsContext* context, ev4sio_Dy::ThresholdStream& thresholdStream, PxvNphaseImplementationContext& nPhaseContext, PxReal ccdThreshold) :
 	mPostCCDSweepTask		(context->getContextId(), this, "PxsContext.postCCDSweep"),
 	mPostCCDAdvanceTask		(context->getContextId(), this, "PxsContext.postCCDAdvance"),
 	mPostCCDDepenetrateTask	(context->getContextId(), this, "PxsContext.postCCDDepenetrate"),
@@ -438,7 +438,7 @@ PxReal PxsCCDPair::sweepFindToi(PxcNpThreadContext& context, PxReal dt, PxU32 pa
 	else
 	{
 		const PxReal restDistance = PxMax(mCm->getWorkUnit().mRestDistance, 0.0f);
-		toi = Gu::SweepShapeShape(*ccdShape0, *ccdShape1, tm0, tm1, lastTm0, lastTm1, restDistance, sweepNormal, sweepPoint, mMinToi, context.mCCDFaceIndex, sumFastMovingThresh);
+		toi = ev4sio_Gu::SweepShapeShape(*ccdShape0, *ccdShape1, tm0, tm1, lastTm0, lastTm1, restDistance, sweepNormal, sweepPoint, mMinToi, context.mCCDFaceIndex, sumFastMovingThresh);
 	}
 
 	//If toi is after the end of TOI, return no hit
@@ -611,7 +611,7 @@ PxReal PxsCCDPair::sweepEstimateToi(PxReal ccdThreshold)
 	if(g1 == PxGeometryType::eTRIANGLEMESH)
 	{
 		//Special-case estimation code for meshes
-		const PxF32 toi = Gu::SweepEstimateAnyShapeMesh(*ccdShape0, *ccdShape1, restDistance, sumFastMovingThresh);
+		const PxF32 toi = ev4sio_Gu::SweepEstimateAnyShapeMesh(*ccdShape0, *ccdShape1, restDistance, sumFastMovingThresh);
 									
 		mMinToi	= toi;
 		return toi;
@@ -619,7 +619,7 @@ PxReal PxsCCDPair::sweepEstimateToi(PxReal ccdThreshold)
 	else if (g1 == PxGeometryType::eHEIGHTFIELD)
 	{
 		//Special-case estimation code for heightfields
-		const PxF32 toi = Gu::SweepEstimateAnyShapeHeightfield(*ccdShape0, *ccdShape1, restDistance, sumFastMovingThresh);
+		const PxF32 toi = ev4sio_Gu::SweepEstimateAnyShapeHeightfield(*ccdShape0, *ccdShape1, restDistance, sumFastMovingThresh);
 									
 		mMinToi	= toi;
 		return toi;
@@ -632,7 +632,7 @@ PxReal PxsCCDPair::sweepEstimateToi(PxReal ccdThreshold)
 	const PxVec3& centreB = ccdShape1->mCenter;
 	const PxVec3& extentsB = ccdShape1->mExtents;
 
-	const PxF32 toi = Gu::sweepAABBAABB(centreA, extentsA * 1.1f, centreB, extentsB * 1.1f, trA, trB);
+	const PxF32 toi = ev4sio_Gu::sweepAABBAABB(centreA, extentsA * 1.1f, centreB, extentsB * 1.1f, trA, trB);
 	mMinToi	= toi;
 	return toi;
 }
@@ -706,7 +706,7 @@ bool PxsCCDPair::sweepAdvanceToToi(PxReal dt, bool clipTrajectoryToToi)
 			localPoint0 = mMinToiPoint - trA.p;
 			v0 = atom0->mCore->linearVelocity + atom0->mCore->angularVelocity.cross(localPoint0);
 			
-			physx::Cm::transformInertiaTensor(atom0->mCore->inverseInertia, PxMat33(trA.q),invInertia0);
+			ev4sio_physx::ev4sio_Cm::transformInertiaTensor(atom0->mCore->inverseInertia, PxMat33(trA.q),invInertia0);
 			invInertia0 *= dom0;
 #else
 			v0 = atom0->mCore->linearVelocity + atom0->mCore->angularVelocity.cross(ccds0->mCurrentTransform.p - atom0->mCore->body2World.p);
@@ -721,7 +721,7 @@ bool PxsCCDPair::sweepAdvanceToToi(PxReal dt, bool clipTrajectoryToToi)
 #if CCD_ANGULAR_IMPULSE			
 			localPoint1 = mMinToiPoint - trB.p;
 			v1 = atom1->mCore->linearVelocity + atom1->mCore->angularVelocity.cross(localPoint1);
-			physx::Cm::transformInertiaTensor(atom1->mCore->inverseInertia, PxMat33(trB.q),invInertia1);
+			ev4sio_physx::ev4sio_Cm::transformInertiaTensor(atom1->mCore->inverseInertia, PxMat33(trB.q),invInertia1);
 			invInertia1 *= dom1;
 #else
 			v1 = atom1->mCore->linearVelocity + atom1->mCore->angularVelocity.cross(ccds1->mCurrentTransform.p - atom1->mCore->body2World.p);
@@ -931,14 +931,14 @@ struct ToiPtrCompare
 /**
 \brief Class to perform a set of sweep estimate tasks
 */
-class PxsCCDSweepTask : public Cm::Task
+class PxsCCDSweepTask : public ev4sio_Cm::Task
 {
 	PxsCCDPair**	mPairs;
 	PxU32			mNumPairs;
 	PxReal			mCCDThreshold;
 public:
 	PxsCCDSweepTask(PxU64 contextID, PxsCCDPair** pairs, PxU32 nPairs, PxReal ccdThreshold) :
-		Cm::Task(contextID), mPairs(pairs), mNumPairs(nPairs), mCCDThreshold(ccdThreshold)
+		ev4sio_Cm::Task(contextID), mPairs(pairs), mNumPairs(nPairs), mCCDThreshold(ccdThreshold)
 	{
 	}
 
@@ -967,7 +967,7 @@ private:
 /**
 \brief Class to advance a set of islands
 */
-class PxsCCDAdvanceTask : public Cm::Task
+class PxsCCDAdvanceTask : public ev4sio_Cm::Task
 {
 	PxsCCDPair** 			mCCDPairs;
 	PxU32					mNumPairs;
@@ -994,7 +994,7 @@ public:
 				PxU32 firstIslandPair, PxU32 firstThreadIsland, PxU32 islandsPerThread, PxU32 totalIslands, 
 				PxsCCDBody** islandBodies, PxU16* numIslandBodies, bool clipTrajectory, bool disableResweep,
 				PxI32* sweepTotalHits)
-		:	Cm::Task(context->getContextId()), mCCDPairs(pairs), mNumPairs(nPairs), mContext(context), mCCDContext(ccdContext), mDt(dt),
+		:	ev4sio_Cm::Task(context->getContextId()), mCCDPairs(pairs), mNumPairs(nPairs), mContext(context), mCCDContext(ccdContext), mDt(dt),
 			mCCDPass(ccdPass), mCCDBodies(ccdBodies), mFirstThreadIsland(firstThreadIsland), 
 			mIslandsPerThread(islandsPerThread), mTotalIslandCount(totalIslands), mFirstIslandPair(firstIslandPair),
 			mIslandBodies(islandBodies), mNumIslandBodies(numIslandBodies),	mSweepTotalHits(sweepTotalHits),
@@ -1282,7 +1282,7 @@ public:
 // CCD main function
 // Overall structure:
 /*
-for nPasses (passes are now handled in void Sc::Scene::updateCCDMultiPass)
+for nPasses (passes are now handled in void ev4sio_Sc::Scene::updateCCDMultiPass)
 
   update CCD broadphase, generate a list of CMs
 
@@ -1421,7 +1421,7 @@ static PX_FORCE_INLINE bool pairNeedsCCD(const PxsContactManager* cm)
 static PxsCCDShape* processShape(
 	PxVec3& tr, PxReal& threshold, PxsCCDShape* ccdShape,
 	const PxsRigidCore* const rc, const PxsShapeCore* const sc, const PxsRigidBody* const ba,
-	const PxsContactManager* const cm, IG::IslandSim& islandSim, PxsCCDShapeArray& mCCDShapes, PxHashMap<PxsRigidShapePair, PxsCCDShape*>& mMap, bool flag)
+	const PxsContactManager* const cm, ev4sio_IG::IslandSim& islandSim, PxsCCDShapeArray& mCCDShapes, PxHashMap<PxsRigidShapePair, PxsCCDShape*>& mMap, bool flag)
 {
 	if(ccdShape == NULL)
 	{
@@ -1467,7 +1467,7 @@ static PxsCCDShape* processShape(
 	return ccdShape;
 }
 
-void PxsCCDContext::updateCCD(PxReal dt, PxBaseTask* continuation, IG::IslandSim& islandSim, bool disableResweep, PxI32 numFastMovingShapes)
+void PxsCCDContext::updateCCD(PxReal dt, PxBaseTask* continuation, ev4sio_IG::IslandSim& islandSim, bool disableResweep, PxI32 numFastMovingShapes)
 {
 	//Flag to run a slightly less-accurate version of CCD that will ensure that objects don't tunnel through the static world but is not as reliable for dynamic-dynamic collisions
 	mDisableCCDResweep = disableResweep;  
@@ -1899,7 +1899,7 @@ void PxsCCDContext::postCCDAdvance(PxBaseTask* /*continuation*/)
 					//Also need to write it in the CmOutput structure!!!!!
 
 					////The achieve this, we need to unregister the CM from the Nphase, then re-register it with the status set. This is the only way to force a push to the GPU
-					Sc::ShapeInteraction* interaction = p.mCm->getShapeInteraction();
+					ev4sio_Sc::ShapeInteraction* interaction = p.mCm->getShapeInteraction();
 					mNphaseContext.unregisterContactManager(p.mCm);
 					mNphaseContext.registerContactManager(p.mCm, interaction, 1, 0);
 					countFound++;
@@ -2032,11 +2032,11 @@ void PxsCCDContext::postCCDDepenetrate(PxBaseTask* /*continuation*/)
 	flushCCDLog();
 }
 
-Cm::SpatialVector PxsRigidBody::getPreSolverVelocities() const
+ev4sio_Cm::SpatialVector PxsRigidBody::getPreSolverVelocities() const
 {
 	if (mCCD)
 		return mCCD->mPreSolverVelocity;
-	return Cm::SpatialVector(PxVec3(0.0f), PxVec3(0.0f));
+	return ev4sio_Cm::SpatialVector(PxVec3(0.0f), PxVec3(0.0f));
 }
 
 /*PxTransform PxsRigidBody::getAdvancedTransform(PxReal toi) const

@@ -28,9 +28,9 @@
 
 #include "DyAllocator.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Dy
+namespace ev4sio_Dy
 {
 // PT: the various error messages we used here look the same but they are slightly different. We could unify this really.
 

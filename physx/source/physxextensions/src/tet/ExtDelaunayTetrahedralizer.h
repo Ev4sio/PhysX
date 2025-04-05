@@ -33,14 +33,14 @@
 #include "GuTetrahedron.h"
 #include "ExtVec3.h"
 
-namespace physx
+namespace ev4sio_physx
 {	
 
-namespace Ext
+namespace ev4sio_Ext
 {
 	using Edge = PxPair<PxI32, PxI32>;
-	using Tetrahedron = Gu::TetrahedronT<PxI32>;
-	using Tetrahedron16 = Gu::TetrahedronT<PxI16>;
+	using Tetrahedron = ev4sio_Gu::TetrahedronT<PxI32>;
+	using Tetrahedron16 = ev4sio_Gu::TetrahedronT<PxI16>;
 
 	void buildNeighborhood(const PxArray<Tetrahedron>& tets, PxArray<PxI32>& result);
 	void buildNeighborhood(const PxI32* tets, PxU32 numTets, PxArray<PxI32>& result);
@@ -269,9 +269,9 @@ namespace Ext
 
 		bool removeEdgeByFlip(PxI32 edgeA, PxI32 edgeB, PxArray<PxI32>& tetIndices, BaseTetAnalyzer* qualityAnalyzer = NULL);
 
-		void addLockedEdges(const PxArray<Gu::IndexedTriangleT<PxI32>>& triangles);
+		void addLockedEdges(const PxArray<ev4sio_Gu::IndexedTriangleT<PxI32>>& triangles);
 
-		void addLockedTriangles(const PxArray<Gu::IndexedTriangleT<PxI32>>& triangles);
+		void addLockedTriangles(const PxArray<ev4sio_Gu::IndexedTriangleT<PxI32>>& triangles);
 
 		void clearLockedEdges() { lockedEdges.clear(); }
 
@@ -279,7 +279,7 @@ namespace Ext
 
 		bool recoverEdgeByFlip(PxI32 eStart, PxI32 eEnd, RecoverEdgeMemoryCache& cache);
 
-		void generateTetmeshEnforcingEdges(const PxArray<PxVec3d>& trianglePoints, const PxArray<Gu::IndexedTriangleT<PxI32>>& triangles, PxArray<PxArray<PxI32>>& allEdges,
+		void generateTetmeshEnforcingEdges(const PxArray<PxVec3d>& trianglePoints, const PxArray<ev4sio_Gu::IndexedTriangleT<PxI32>>& triangles, PxArray<PxArray<PxI32>>& allEdges,
 			PxArray<PxArray<PxI32>>& pointToOriginalTriangle, 
 			PxArray<PxVec3d>& points, PxArray<Tetrahedron>& finalTets);
 

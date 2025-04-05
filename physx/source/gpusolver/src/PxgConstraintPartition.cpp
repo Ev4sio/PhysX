@@ -37,7 +37,7 @@
 #include "PxvDynamics.h"
 #include "CmFlushPool.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 // PT: unfortunately these don't seem to be just an optimization, several UTs fail if we disable them
 // ===> which means things will fail when the buffers in the body sim manager are full
@@ -108,7 +108,7 @@ void PartitionEdgeManager::allocateSlab()
 	mFreeEdges = edges;
 }
 
-PX_FORCE_INLINE PartitionEdge* PartitionEdgeManager::getEdge(IG::EdgeIndex index)
+PX_FORCE_INLINE PartitionEdge* PartitionEdgeManager::getEdge(ev4sio_IG::EdgeIndex index)
 {
 	if(mFreeEdges == NULL)
 		allocateSlab();
@@ -733,7 +733,7 @@ static PX_FORCE_INLINE bool removeSpecialHandled(PartitionEdge* edge, PxU32 uniq
 	return selfConstraint;
 }
 
-void PxgIncrementalPartition::removeEdge(PartitionEdge* edge, IG::GPUExternalData& islandSimGpuData, PxgBodySimManager& manager)
+void PxgIncrementalPartition::removeEdge(PartitionEdge* edge, ev4sio_IG::GPUExternalData& islandSimGpuData, PxgBodySimManager& manager)
 {
 #if USE_FINE_GRAINED_PROFILE_ZONES
 	PX_PROFILE_ZONE("PxgIncrementalPartition::removeEdge", mContextID);
@@ -779,7 +779,7 @@ void PxgIncrementalPartition::removeEdge(PartitionEdge* edge, IG::GPUExternalDat
 	}
 
 	{
-		const IG::EdgeIndex edgeIndex = edge->getEdgeIndex();
+		const ev4sio_IG::EdgeIndex edgeIndex = edge->getEdgeIndex();
 		const PartitionEdge* pEdge = islandSimGpuData.getFirstPartitionEdge(edgeIndex);
 		if (pEdge == edge)
 			islandSimGpuData.setFirstPartitionEdge(edgeIndex, edge->mNextPatch);
@@ -791,13 +791,13 @@ void PxgIncrementalPartition::removeEdge(PartitionEdge* edge, IG::GPUExternalDat
 	mEdgeManager.putEdge(edge);
 }
 
-static PX_FORCE_INLINE PxIntBool isKinematic(const IG::IslandSim& islandSim, PxNodeIndex nodeIndex)
+static PX_FORCE_INLINE PxIntBool isKinematic(const ev4sio_IG::IslandSim& islandSim, PxNodeIndex nodeIndex)
 {
 	PxIntBool infinite = true;
 	if(nodeIndex.isValid())
 	{
 		// PT: TODO: pretty bad here to access one cache line just to read one bit
-		const IG::Node& node = islandSim.getNode(nodeIndex);
+		const ev4sio_IG::Node& node = islandSim.getNode(nodeIndex);
 		infinite = node.isKinematic();
 	}
 	return infinite;
@@ -811,7 +811,7 @@ static PX_FORCE_INLINE PxIntBool isKinematic(const IG::IslandSim& islandSim, PxN
 // 5) initialize some of the data for the newly allocated PartitionNodeData entry in mPartitionNodeArray
 // 6) initialize the newly allocated entry in mNpIndexArray
 // 7) initialize the newly allocated entry in mSolverConstants
-PartitionEdge* PxgIncrementalPartition::addEdge_Stage1(const IG::IslandSim& islandSim, IG::EdgeIndex edgeIndex, PxU32 patchIndex, PxU32 npIndex, PxNodeIndex node1, PxNodeIndex node2)
+PartitionEdge* PxgIncrementalPartition::addEdge_Stage1(const ev4sio_IG::IslandSim& islandSim, ev4sio_IG::EdgeIndex edgeIndex, PxU32 patchIndex, PxU32 npIndex, PxNodeIndex node1, PxNodeIndex node2)
 {
 #if USE_FINE_GRAINED_PROFILE_ZONES
 	PX_PROFILE_ZONE("PxgIncrementalPartition::addEdge_Stage1", mContextID);
@@ -873,7 +873,7 @@ PartitionEdge* PxgIncrementalPartition::addEdge_Stage1(const IG::IslandSim& isla
 	indexData.mPatchIndex = PxTo8(patchIndex);
 
 	const PxU8 articulationOffset = node1.isArticulation() || node2.isArticulation() ? 2 : 0;
-	const PxU32 implicitEdgeType = npIndex == 0xffffffff ? IG::Edge::EdgeType::eCONSTRAINT : IG::Edge::EdgeType::eCONTACT_MANAGER;
+	const PxU32 implicitEdgeType = npIndex == 0xffffffff ? ev4sio_IG::Edge::EdgeType::eCONSTRAINT : ev4sio_IG::Edge::EdgeType::eCONTACT_MANAGER;
 	indexData.mCType = PxU8(implicitEdgeType) + articulationOffset;
 
 	///////////////////////////////////////////////////////////////////////////
@@ -899,7 +899,7 @@ PartitionEdge* PxgIncrementalPartition::addEdge_Stage1(const IG::IslandSim& isla
 	return partitionEdge;
 }
 
-static PX_FORCE_INLINE void updatePartitionEdgeLinkedListHead(IG::GPUExternalData& islandSimGpuData, IG::EdgeIndex edgeIndex, PartitionEdge* partitionEdge)
+static PX_FORCE_INLINE void updatePartitionEdgeLinkedListHead(ev4sio_IG::GPUExternalData& islandSimGpuData, ev4sio_IG::EdgeIndex edgeIndex, PartitionEdge* partitionEdge)
 {
 	partitionEdge->mNextPatch = islandSimGpuData.getFirstPartitionEdge(edgeIndex);
 	islandSimGpuData.setFirstPartitionEdge(edgeIndex, partitionEdge);
@@ -911,7 +911,7 @@ static PX_FORCE_INLINE void updatePartitionEdgeLinkedListHead(IG::GPUExternalDat
 // related to the edge coloring bits.
 // 2b) initialize the rest of the data for the newly allocated PartitionIndexData entry in mPartitionIndexArray.
 // 3) initialize another linked-list for patches, the one first seen in the island manager where the data is actually stored.
-void PxgIncrementalPartition::addEdge_Stage2(IG::GPUExternalData& islandSimGpuData, IG::EdgeIndex edgeIndex, PartitionEdge* partitionEdge, bool specialHandled, bool doPart1, bool doPart2)
+void PxgIncrementalPartition::addEdge_Stage2(ev4sio_IG::GPUExternalData& islandSimGpuData, ev4sio_IG::EdgeIndex edgeIndex, PartitionEdge* partitionEdge, bool specialHandled, bool doPart1, bool doPart2)
 {
 #if USE_FINE_GRAINED_PROFILE_ZONES
 	PX_PROFILE_ZONE("PxgIncrementalPartition::addEdge_Stage2", mContextID);
@@ -1006,22 +1006,22 @@ static PX_FORCE_INLINE bool isFoundPatch(const PxsContactManagerOutputCounts& ou
 
 namespace
 {
-	class ProcessPatchesTask : public Cm::Task
+	class ProcessPatchesTask : public ev4sio_Cm::Task
 	{
 		PX_NOCOPY(ProcessPatchesTask)
 	public:
 		PxgIncrementalPartition&				mIncrementalPartition;
-		IG::IslandSim&							mIslandSim;
+		ev4sio_IG::IslandSim&							mIslandSim;
 		PxsContactManager**						mLostFoundPatchManagers;
 		PxU32									mNbLostFoundPatchManagers;
 		const PxsContactManagerOutputCounts*	mLostFoundPairOutputs;
 		PxgBodySimManager&						mBodySimManager;
 		PxgJointManager&						mJointManager;
 
-		ProcessPatchesTask(	PxU64 contextID, PxgIncrementalPartition& partition, IG::IslandSim& islandSim,
+		ProcessPatchesTask(	PxU64 contextID, PxgIncrementalPartition& partition, ev4sio_IG::IslandSim& islandSim,
 							PxsContactManager** lostFoundPatchManagers, PxU32 nbLostFoundPatchManagers, const PxsContactManagerOutputCounts* lostFoundPairOutputs,
 							PxgBodySimManager& bodySimManager, PxgJointManager& jointManager) :
-			Cm::Task					(contextID),
+			ev4sio_Cm::Task					(contextID),
 			mIncrementalPartition		(partition),
 			mIslandSim					(islandSim),
 			mLostFoundPatchManagers		(lostFoundPatchManagers),
@@ -1044,19 +1044,19 @@ namespace
 	};
 }
 
-void PxgIncrementalPartition::processLostFoundPatches(	Cm::FlushPool& flushPool, PxBaseTask* continuation,
-														IG::IslandSim& islandSim, PxgBodySimManager& bodySimManager, PxgJointManager& jointManager,
+void PxgIncrementalPartition::processLostFoundPatches(	ev4sio_Cm::FlushPool& flushPool, PxBaseTask* continuation,
+														ev4sio_IG::IslandSim& islandSim, PxgBodySimManager& bodySimManager, PxgJointManager& jointManager,
 														PxsContactManager** lostFoundPatchManagers, PxU32 nbLostFoundPatchManagers, const PxsContactManagerOutputCounts* lostFoundPairOutputs)
 {
 #if USE_SPLIT_SECOND_PASS_ISLAND_GEN
 	// PT: this copy is necessary when running postIslandGen in parallel with this function. Specifically
-	// Sc::Scene::setEdgesConnected will call mSimpleIslandManager->setEdgeConnected and mSimpleIslandManager->secondPassIslandGenPart1
+	// ev4sio_Sc::Scene::setEdgesConnected will call mSimpleIslandManager->setEdgeConnected and mSimpleIslandManager->secondPassIslandGenPart1
 	// while this is running, and these functions will modify the active contact manager bitmap.
 	{
 		PX_PROFILE_ZONE("PxgIncrementalPartition::copyData", mContextID);
 
 		PX_ASSERT(islandSim.mGpuData);
-		IG::GPUExternalData& islandSimGpuData = *islandSim.mGpuData;
+		ev4sio_IG::GPUExternalData& islandSimGpuData = *islandSim.mGpuData;
 
 		// PT: TODO: use the scratch allocator instead?
 		mActiveCMBitmapCopy.copy(islandSimGpuData.getActiveContactManagerBitmap());
@@ -1086,7 +1086,7 @@ namespace
 	{
 		SharedContext(
 			PxgIncrementalPartition& ip,
-				IG::IslandSim& islandSim, Cm::FlushPool& flushPool, PxBaseTask* continuation, PxgBodySimManager& bodySimManager, PxgJointManager& jointManager,
+				ev4sio_IG::IslandSim& islandSim, ev4sio_Cm::FlushPool& flushPool, PxBaseTask* continuation, PxgBodySimManager& bodySimManager, PxgJointManager& jointManager,
 				const PxsContactManagerOutputCounts* lostFoundPairOutputs, PxsContactManager** lostFoundPatchManagers, PxU32 nbLostFoundPatchManagers) :
 			mIP(ip),
 			mIslandSim(islandSim), mFlushPool(flushPool), mContinuation(continuation),
@@ -1096,8 +1096,8 @@ namespace
 		}
 
 		PxgIncrementalPartition&				mIP;
-		IG::IslandSim&							mIslandSim;
-		Cm::FlushPool&							mFlushPool;
+		ev4sio_IG::IslandSim&							mIslandSim;
+		ev4sio_Cm::FlushPool&							mFlushPool;
 		PxBaseTask*								mContinuation;
 		PxgBodySimManager&						mBodySimManager;
 		PxgJointManager&						mJointManager;
@@ -1107,7 +1107,7 @@ namespace
 		PreprocessTask*							mTaskHead;
 	};
 
-	class PreprocessTask : public Cm::Task
+	class PreprocessTask : public ev4sio_Cm::Task
 	{
 		PX_NOCOPY(PreprocessTask)
 	public:
@@ -1118,7 +1118,7 @@ namespace
 		PreprocessTask*									mNext;
 
 		PreprocessTask(PxU64 contextID, SharedContext& context, PxU32 startIndex, PxU32 nbToProcess) :
-			Cm::Task(contextID), mContext(context), mStartIndex(startIndex), mNbToProcess(nbToProcess), mBatch(NULL), mNext(NULL)
+			ev4sio_Cm::Task(contextID), mContext(context), mStartIndex(startIndex), mNbToProcess(nbToProcess), mBatch(NULL), mNext(NULL)
 			{}
 
 		virtual const char* getName() const	PX_OVERRIDE	PX_FINAL
@@ -1129,7 +1129,7 @@ namespace
 		virtual void runInternal()	PX_OVERRIDE	PX_FINAL
 		{
 			PX_ASSERT(mContext.mIslandSim.mGpuData);
-			IG::GPUExternalData& islandSimGpuData = *mContext.mIslandSim.mGpuData;
+			ev4sio_IG::GPUExternalData& islandSimGpuData = *mContext.mIslandSim.mGpuData;
 
 			const PxsContactManagerOutputCounts* PX_RESTRICT lostFoundPairOutputs = mContext.mLostFoundPairOutputs;
 			const PxsContactManager*const* PX_RESTRICT lostFoundPatchManagers = mContext.mLostFoundPatchManagers;
@@ -1272,14 +1272,14 @@ namespace
 		}
 	};
 
-	class RemoveBatchedSpecialEdgesTask : public Cm::Task
+	class RemoveBatchedSpecialEdgesTask : public ev4sio_Cm::Task
 	{
 		PX_NOCOPY(RemoveBatchedSpecialEdgesTask)
 		SharedContext&	mContext;
 
 	public:
 		RemoveBatchedSpecialEdgesTask(PxU64 contextID, SharedContext& context) :
-			Cm::Task(contextID), mContext(context)
+			ev4sio_Cm::Task(contextID), mContext(context)
 			{}
 
 		virtual const char* getName() const	PX_OVERRIDE	PX_FINAL
@@ -1333,7 +1333,7 @@ namespace
 		"PxgPartitioning_RemoveSpecialEdges",
 	};
 
-	class ControlTask : public Cm::Task
+	class ControlTask : public ev4sio_Cm::Task
 	{
 		PX_NOCOPY(ControlTask)
 		SharedContext&	mContext;
@@ -1343,7 +1343,7 @@ namespace
 
 	public:
 		ControlTask(PxU64 contextID, SharedContext& context, Codepath codepath, PxU32 startIndex=0, PxU32 nbToProcess=0xffffffff) :
-			Cm::Task(contextID), mContext(context), mCodepath(codepath), mStartIndex(startIndex), mNbToProcess(nbToProcess)
+			ev4sio_Cm::Task(contextID), mContext(context), mCodepath(codepath), mStartIndex(startIndex), mNbToProcess(nbToProcess)
 			{}
 
 		virtual const char* getName() const	PX_OVERRIDE	PX_FINAL
@@ -1358,7 +1358,7 @@ namespace
 			if(mCodepath==DESTROY_EDGES_PROCESS_FOUND_PATCHES)
 			{
 				PX_ASSERT(mContext.mIslandSim.mGpuData);
-				IG::GPUExternalData& islandSimGpuData = *mContext.mIslandSim.mGpuData;
+				ev4sio_IG::GPUExternalData& islandSimGpuData = *mContext.mIslandSim.mGpuData;
 
 				// PT: last part of processLostPatches_Reference, not multithreaded yet
 				mContext.mIP.destroyEdges(mContext.mIslandSim.mCpuData, islandSimGpuData, mContext.mBodySimManager, mContext.mJointManager, true, false);
@@ -1371,7 +1371,7 @@ namespace
 		void parse()
 		{
 			PX_ASSERT(mContext.mIslandSim.mGpuData);
-			IG::GPUExternalData& islandSimGpuData = *mContext.mIslandSim.mGpuData;
+			ev4sio_IG::GPUExternalData& islandSimGpuData = *mContext.mIslandSim.mGpuData;
 
 			const PxsContactManagerOutputCounts* PX_RESTRICT lostFoundPairOutputs = mContext.mLostFoundPairOutputs;
 			const PxsContactManager*const* PX_RESTRICT lostFoundPatchManagers = mContext.mLostFoundPatchManagers;
@@ -1498,7 +1498,7 @@ namespace
 					{
 						// PT: part of removeEdge() we couldn't run before
 						{
-							const IG::EdgeIndex edgeIndex = partitionEdge->getEdgeIndex();
+							const ev4sio_IG::EdgeIndex edgeIndex = partitionEdge->getEdgeIndex();
 							PartitionEdge* pEdge = islandSimGpuData.getFirstPartitionEdge(edgeIndex);
 							if (pEdge == partitionEdge)
 								islandSimGpuData.setFirstPartitionEdge(edgeIndex, nextPartitionEdge);
@@ -1512,13 +1512,13 @@ namespace
 		}
 	};
 
-	class PreprocessEpilogueTask : public Cm::Task
+	class PreprocessEpilogueTask : public ev4sio_Cm::Task
 	{
 		PX_NOCOPY(PreprocessEpilogueTask)
 		SharedContext&	mContext;
 	public:
 		PreprocessEpilogueTask(PxU64 contextID, SharedContext& context) :
-			Cm::Task(contextID), mContext(context)
+			ev4sio_Cm::Task(contextID), mContext(context)
 			{}
 
 		virtual const char* getName() const	PX_OVERRIDE	PX_FINAL
@@ -1528,7 +1528,7 @@ namespace
 
 		virtual void runInternal()	PX_OVERRIDE	PX_FINAL
 		{
-			Cm::FlushPool& flushPool = mContext.mFlushPool;
+			ev4sio_Cm::FlushPool& flushPool = mContext.mFlushPool;
 
 			ControlTask* removeEdgesFromPartitionsTask = PX_PLACEMENT_NEW(flushPool.allocate(sizeof(ControlTask)), ControlTask)(mContextID, mContext, REMOVE_EDGES_FROM_PARTITIONS);
 			RemoveBatchedSpecialEdgesTask* removeSpecialEdgesTask = PX_PLACEMENT_NEW(flushPool.allocate(sizeof(RemoveBatchedSpecialEdgesTask)), RemoveBatchedSpecialEdgesTask)(mContextID, mContext);
@@ -1564,7 +1564,7 @@ namespace
 }
 
 // PT: a multi-threaded version of processLostPatches_Reference
-void PxgIncrementalPartition::processLostPatchesMT(	IG::IslandSim& islandSim, Cm::FlushPool& flushPool, PxBaseTask* continuation,
+void PxgIncrementalPartition::processLostPatchesMT(	ev4sio_IG::IslandSim& islandSim, ev4sio_Cm::FlushPool& flushPool, PxBaseTask* continuation,
 													PxsContactManager** lostFoundPatchManagers, PxU32 nbLostFoundPatchManagers, const PxsContactManagerOutputCounts* lostFoundPairOutputs,
 													PxgBodySimManager& bodySimManager, PxgJointManager& jointManager)
 {
@@ -1647,14 +1647,14 @@ void PxgIncrementalPartition::processLostPatchesMT(	IG::IslandSim& islandSim, Cm
 ///////////////////////////////////////////////////////////////////////////////
 
 void PxgIncrementalPartition::processLostPatches_Reference(
-	IG::IslandSim& islandSim, PxgBodySimManager& bodySimManager, PxgJointManager& jointManager,
+	ev4sio_IG::IslandSim& islandSim, PxgBodySimManager& bodySimManager, PxgJointManager& jointManager,
 	PxsContactManager** lostFoundPatchManagers, PxU32 nbLostFoundPatchManagers, const PxsContactManagerOutputCounts* lostFoundPairOutputs)
 {
 	PX_PROFILE_ZONE("PxgIncrementalPartition::processLostPatches", mContextID);
 
-	const IG::CPUExternalData& islandSimCpuData = islandSim.mCpuData;
+	const ev4sio_IG::CPUExternalData& islandSimCpuData = islandSim.mCpuData;
 	PX_ASSERT(islandSim.mGpuData);
-	IG::GPUExternalData& islandSimGpuData = *islandSim.mGpuData;
+	ev4sio_IG::GPUExternalData& islandSimGpuData = *islandSim.mGpuData;
 
 	mDestroyedContactEdgeIndices.forceSize_Unsafe(0);
 
@@ -1675,7 +1675,7 @@ void PxgIncrementalPartition::processLostPatches_Reference(
 
 			if (!(unit.mFlags & PxcNpWorkUnitFlag::eDISABLE_RESPONSE))
 			{
-				const IG::EdgeIndex edgeIndex = unit.mEdgeIndex;
+				const ev4sio_IG::EdgeIndex edgeIndex = unit.mEdgeIndex;
 				PartitionEdge* partitionEdge = islandSimGpuData.getFirstPartitionEdge(edgeIndex);
 
 				//KS - if this is NULL, it means this unit was also destroyed and will be included in the destroyedEdgeCount (i.e. NP detected a lost touch at the same time as BP detected a lost pair
@@ -1709,14 +1709,14 @@ void PxgIncrementalPartition::processLostPatches_Reference(
 	destroyEdges(islandSimCpuData, islandSimGpuData, bodySimManager, jointManager, true, false);
 }
 
-void PxgIncrementalPartition::processFoundPatches_Reference(IG::IslandSim& islandSim, PxgBodySimManager& bodySimManager,
+void PxgIncrementalPartition::processFoundPatches_Reference(ev4sio_IG::IslandSim& islandSim, PxgBodySimManager& bodySimManager,
 	PxsContactManager** lostFoundPatchManagers, PxU32 nbLostFoundPatchManagers, const PxsContactManagerOutputCounts* lostFoundPairOutputs)
 {
 	PX_PROFILE_ZONE("PxgIncrementalPartition::processFoundPatches", mContextID);
 
-	const IG::CPUExternalData& islandSimCpuData = islandSim.mCpuData;
+	const ev4sio_IG::CPUExternalData& islandSimCpuData = islandSim.mCpuData;
 	PX_ASSERT(islandSim.mGpuData);
-	IG::GPUExternalData& islandSimGpuData = *islandSim.mGpuData;
+	ev4sio_IG::GPUExternalData& islandSimGpuData = *islandSim.mGpuData;
 
 	{
 		PX_PROFILE_ZONE("FoundPatches", mContextID);
@@ -1738,7 +1738,7 @@ void PxgIncrementalPartition::processFoundPatches_Reference(IG::IslandSim& islan
 
 			const PxsContactManager* manager = lostFoundPatchManagers[a];
 			const PxcNpWorkUnit& unit = manager->getWorkUnit();
-			const IG::EdgeIndex edgeIndex = unit.mEdgeIndex;
+			const ev4sio_IG::EdgeIndex edgeIndex = unit.mEdgeIndex;
 
 			if (!(unit.mFlags & PxcNpWorkUnitFlag::eDISABLE_RESPONSE) && activeCMBitmap.boundedTest(unit.mEdgeIndex))
 			{
@@ -1769,7 +1769,7 @@ void PxgIncrementalPartition::processFoundPatches_Reference(IG::IslandSim& islan
 }
 
 // PT: walk the patch linked list and remove all related edges
-PX_FORCE_INLINE void PxgIncrementalPartition::removeAllEdges(IG::GPUExternalData& islandSimGpuData, PxgBodySimManager& bodySimManager, PartitionEdge* partitionEdge)
+PX_FORCE_INLINE void PxgIncrementalPartition::removeAllEdges(ev4sio_IG::GPUExternalData& islandSimGpuData, PxgBodySimManager& bodySimManager, PartitionEdge* partitionEdge)
 {
 	while(partitionEdge)
 	{
@@ -1779,7 +1779,7 @@ PX_FORCE_INLINE void PxgIncrementalPartition::removeAllEdges(IG::GPUExternalData
 	}
 }
 
-void PxgIncrementalPartition::destroyEdges(const IG::CPUExternalData& islandSimCpuData, IG::GPUExternalData& islandSimGpuData, PxgBodySimManager& bodySimManager, PxgJointManager& jointManager, bool clearDestroyedEdges, bool recordDestroyedEdges)
+void PxgIncrementalPartition::destroyEdges(const ev4sio_IG::CPUExternalData& islandSimCpuData, ev4sio_IG::GPUExternalData& islandSimGpuData, PxgBodySimManager& bodySimManager, PxgJointManager& jointManager, bool clearDestroyedEdges, bool recordDestroyedEdges)
 {
 	PX_PROFILE_ZONE("DestroyedEdges", mContextID);
 
@@ -1820,7 +1820,7 @@ void PxgIncrementalPartition::destroyEdges(const IG::CPUExternalData& islandSimC
 
 namespace
 {
-	class UpdateIncrementalIslandsTask : public Cm::Task
+	class UpdateIncrementalIslandsTask : public ev4sio_Cm::Task
 	{
 	public:
 		enum Codepath
@@ -1838,8 +1838,8 @@ namespace
 		PX_NOCOPY(UpdateIncrementalIslandsTask)
 
 		PxgIncrementalPartition&			mIncrementalPartition;
-		IG::IslandSim&						mIslandSim;
-		const IG::AuxCpuData&				mIslandManagerData;
+		ev4sio_IG::IslandSim&						mIslandSim;
+		const ev4sio_IG::AuxCpuData&				mIslandManagerData;
 		PxsContactManagerOutputIterator&	mIterator;
 		PxgBodySimManager&					mBodySimManager;
 		PxgJointManager&					mJointManager;
@@ -1848,9 +1848,9 @@ namespace
 		PxU32								mStartIndex;
 		PxU32								mNbToProcess;
 
-		UpdateIncrementalIslandsTask(	PxU64 contextID, PxgIncrementalPartition& partition, IG::IslandSim& islandSim, const IG::AuxCpuData& islandManagerData,
+		UpdateIncrementalIslandsTask(	PxU64 contextID, PxgIncrementalPartition& partition, ev4sio_IG::IslandSim& islandSim, const ev4sio_IG::AuxCpuData& islandManagerData,
 										PxsContactManagerOutputIterator& iterator, PxgBodySimManager& bodySimManager, PxgJointManager& jointManager, Codepath codepath) :
-			Cm::Task				(contextID),
+			ev4sio_Cm::Task				(contextID),
 			mIncrementalPartition	(partition),
 			mIslandSim				(islandSim),
 			mIslandManagerData		(islandManagerData),
@@ -1910,7 +1910,7 @@ namespace
 		}
 	};
 
-	class UnlockLastIncrementalIslandsTasks : public Cm::Task
+	class UnlockLastIncrementalIslandsTasks : public ev4sio_Cm::Task
 	{
 		PX_NOCOPY(UnlockLastIncrementalIslandsTasks)
 		UpdateIncrementalIslandsTask&	mTask0;
@@ -1921,7 +1921,7 @@ namespace
 			UpdateIncrementalIslandsTask& task0,
 			UpdateIncrementalIslandsTask& task1,
 			UpdateIncrementalIslandsTask& task2
-		) : Cm::Task(contextID), mTask0(task0), mTask1(task1), mTask2(task2)	{}
+		) : ev4sio_Cm::Task(contextID), mTask0(task0), mTask1(task1), mTask2(task2)	{}
 
 		virtual const char* getName() const	PX_OVERRIDE	PX_FINAL
 		{
@@ -1938,8 +1938,8 @@ namespace
 }
 
 void PxgIncrementalPartition::updateIncrementalIslands(
-	IG::IslandSim& islandSim, const IG::AuxCpuData& islandManagerData,
-	Cm::FlushPool* flushPool, PxBaseTask* continuation,
+	ev4sio_IG::IslandSim& islandSim, const ev4sio_IG::AuxCpuData& islandManagerData,
+	ev4sio_Cm::FlushPool* flushPool, PxBaseTask* continuation,
 	PxsContactManagerOutputIterator& iterator, PxgBodySimManager& bodySimManager, PxgJointManager& jointManager)
 {
 	PX_PROFILE_ZONE("PxgIncrementalPartition::updateIncrementalIslands", mContextID);
@@ -1960,7 +1960,7 @@ void PxgIncrementalPartition::updateIncrementalIslands(
 			// We want to optimize "Part 2" (i.e. effectively the "ActivatedContacts" profile zone), which itself has multiple subparts. Code is like:
 			//
 			//	foreach activated contact i:
-			//		const IG::EdgeIndex edgeId = activatedContacts[a];
+			//		const ev4sio_IG::EdgeIndex edgeId = activatedContacts[a];
 			//		if (activeCMBitmap.test(edgeId))
 			//			PxsContactManager* cm = islandManagerData.getContactManager(edgeId);
 			//			if (cm)
@@ -2057,7 +2057,7 @@ void PxgIncrementalPartition::updateIncrementalIslands(
 }
 
 void PxgIncrementalPartition::updateIncrementalIslands_Reference(
-	IG::IslandSim& islandSim, const IG::AuxCpuData& islandManagerData,
+	ev4sio_IG::IslandSim& islandSim, const ev4sio_IG::AuxCpuData& islandManagerData,
 	PxsContactManagerOutputIterator& iterator, PxgBodySimManager& bodySimManager, PxgJointManager& jointManager)
 {
 	PX_PROFILE_ZONE("PxgIncrementalPartition::updateIncrementalIslands_Reference", mContextID);
@@ -2097,34 +2097,34 @@ void PxgIncrementalPartition::updateIncrementalIslands_Reference(
 // - process deactivating contacts
 // - process activating joints
 void PxgIncrementalPartition::updateIncrementalIslands_Part1(
-	IG::IslandSim& islandSim, const IG::AuxCpuData& islandManagerData,
+	ev4sio_IG::IslandSim& islandSim, const ev4sio_IG::AuxCpuData& islandManagerData,
 	PxsContactManagerOutputIterator& iterator,
 	PxgBodySimManager& bodySimManager, PxgJointManager& jointManager)
 {
 	PX_PROFILE_ZONE("PxgIncrementalPartition::updateIncrementalIslands_Part1", mContextID);
 
-	const IG::CPUExternalData& islandSimCpuData = islandSim.mCpuData;
+	const ev4sio_IG::CPUExternalData& islandSimCpuData = islandSim.mCpuData;
 	PX_ASSERT(islandSim.mGpuData);
-	IG::GPUExternalData& islandSimGpuData = *islandSim.mGpuData;
+	ev4sio_IG::GPUExternalData& islandSimGpuData = *islandSim.mGpuData;
 
 	//KS - TODO - plumb articulation contacts/joints into this!
 
 	const PxU32 destroyedEdgeCount = islandSimGpuData.getNbDestroyedPartitionEdges();
 	
 	/*const PxU32 destroyedEdgeCount = islandSim.getNbDestroyedEdges();
-	const IG::EdgeIndex* destroyedEdges = islandSim.getDestroyedEdges();*/
+	const ev4sio_IG::EdgeIndex* destroyedEdges = islandSim.getDestroyedEdges();*/
 
-	const PxU32 deactivatingJointCount = islandSim.getNbDeactivatingEdges(IG::Edge::eCONSTRAINT);
-	const IG::EdgeIndex* const deactivatingJoints = islandSim.getDeactivatingEdges(IG::Edge::eCONSTRAINT);
+	const PxU32 deactivatingJointCount = islandSim.getNbDeactivatingEdges(ev4sio_IG::Edge::eCONSTRAINT);
+	const ev4sio_IG::EdgeIndex* const deactivatingJoints = islandSim.getDeactivatingEdges(ev4sio_IG::Edge::eCONSTRAINT);
 
-	const PxU32 deactivatingContactCount = islandSim.getNbDeactivatingEdges(IG::Edge::eCONTACT_MANAGER);
-	const IG::EdgeIndex* const deactivatingContacts = islandSim.getDeactivatingEdges(IG::Edge::eCONTACT_MANAGER);
+	const PxU32 deactivatingContactCount = islandSim.getNbDeactivatingEdges(ev4sio_IG::Edge::eCONTACT_MANAGER);
+	const ev4sio_IG::EdgeIndex* const deactivatingContacts = islandSim.getDeactivatingEdges(ev4sio_IG::Edge::eCONTACT_MANAGER);
 
-	//const PxU32 newJointCount = islandSim.getNbDirtyEdges(IG::Edge::eCONSTRAINT);
-	const PxU32 activatedJointCount = islandSim.getNbActivatedEdges(IG::Edge::eCONSTRAINT);
-	const IG::EdgeIndex* const activatedJoints = islandSim.getActivatedEdges(IG::Edge::eCONSTRAINT);
+	//const PxU32 newJointCount = islandSim.getNbDirtyEdges(ev4sio_IG::Edge::eCONSTRAINT);
+	const PxU32 activatedJointCount = islandSim.getNbActivatedEdges(ev4sio_IG::Edge::eCONSTRAINT);
+	const ev4sio_IG::EdgeIndex* const activatedJoints = islandSim.getActivatedEdges(ev4sio_IG::Edge::eCONSTRAINT);
 
-	const PxU32 activatedContactCount = islandSim.getNbActivatedEdges(IG::Edge::eCONTACT_MANAGER);
+	const PxU32 activatedContactCount = islandSim.getNbActivatedEdges(ev4sio_IG::Edge::eCONTACT_MANAGER);
 
 	reserveNodes(islandSim.getNbNodes());
 
@@ -2172,7 +2172,7 @@ void PxgIncrementalPartition::updateIncrementalIslands_Part1(
 
 		for (PxU32 a = 0; a < deactivatingContactCount; ++a)
 		{
-			const IG::EdgeIndex edgeId = deactivatingContacts[a];
+			const ev4sio_IG::EdgeIndex edgeId = deactivatingContacts[a];
 			
 			PartitionEdge* partitionEdge = islandSimGpuData.getFirstPartitionEdge(edgeId);
 			if (partitionEdge)
@@ -2204,7 +2204,7 @@ void PxgIncrementalPartition::updateIncrementalIslands_Part1(
 		for (PxU32 a = 0; a < activatedJointCount; ++a)
 		{
 			//add it to the PxgJointManager
-			Dy::Constraint* constraint = islandManagerData.getConstraint(activatedJoints[a]);
+			ev4sio_Dy::Constraint* constraint = islandManagerData.getConstraint(activatedJoints[a]);
 
 			//PX_ASSERT((!constraint->bodyCore0->isKinematic()) || (!constraint->bodyCore1->isKinematic()));
 
@@ -2226,17 +2226,17 @@ void PxgIncrementalPartition::updateIncrementalIslands_Part1(
 	//processFoundPatches(islandManager, foundPatchManagers, nbFoundPatchManagers, foundManagerCounts, *simulationController);
 }
 
-void PxgIncrementalPartition::updateIncrementalIslands_Part2_0(IG::IslandSim& islandSim, const IG::AuxCpuData& islandManagerData, PxsContactManagerOutputIterator& iterator)
+void PxgIncrementalPartition::updateIncrementalIslands_Part2_0(ev4sio_IG::IslandSim& islandSim, const ev4sio_IG::AuxCpuData& islandManagerData, PxsContactManagerOutputIterator& iterator)
 {
 	PX_PROFILE_ZONE("PxgIncrementalPartition::updateIncrementalIslands_Part2_0", mContextID);
 
 	PX_ASSERT(islandSim.mGpuData);
-	IG::GPUExternalData& islandSimGpuData = *islandSim.mGpuData;
+	ev4sio_IG::GPUExternalData& islandSimGpuData = *islandSim.mGpuData;
 
 	const PxBitMap& activeCMBitmap = islandSimGpuData.getActiveContactManagerBitmap();
 
-	const PxU32 activatedContactCount = islandSim.getNbActivatedEdges(IG::Edge::eCONTACT_MANAGER);
-	const IG::EdgeIndex* const activatedContacts = islandSim.getActivatedEdges(IG::Edge::eCONTACT_MANAGER);
+	const PxU32 activatedContactCount = islandSim.getNbActivatedEdges(ev4sio_IG::Edge::eCONTACT_MANAGER);
+	const ev4sio_IG::EdgeIndex* const activatedContacts = islandSim.getActivatedEdges(ev4sio_IG::Edge::eCONTACT_MANAGER);
 
 	{
 		PX_PROFILE_ZONE("PreallocateEdgesAndSerialWork", mContextID);
@@ -2248,7 +2248,7 @@ void PxgIncrementalPartition::updateIncrementalIslands_Part2_0(IG::IslandSim& is
 
 		for (PxU32 a = 0; a < activatedContactCount; ++a)
 		{
-			const IG::EdgeIndex edgeId = activatedContacts[a];
+			const ev4sio_IG::EdgeIndex edgeId = activatedContacts[a];
 			if(activeCMBitmap.test(edgeId))
 			{
 				mDestroyedContactEdgeIndices.pushBack(edgeId);	//KS - looks a bit weird because we didn't "destroy" any edges but this just ensures that we zero the PF count for this edge
@@ -2306,13 +2306,13 @@ void PxgIncrementalPartition::updateIncrementalIslands_Part2_0(IG::IslandSim& is
 }
 
 // PT: this one called from multiple threads
-void PxgIncrementalPartition::updateIncrementalIslands_Part2_1(PxU32 startIndex, PxU32 nbToProcess, IG::IslandSim& islandSim, const IG::AuxCpuData& islandManagerData)
+void PxgIncrementalPartition::updateIncrementalIslands_Part2_1(PxU32 startIndex, PxU32 nbToProcess, ev4sio_IG::IslandSim& islandSim, const ev4sio_IG::AuxCpuData& islandManagerData)
 {
 	PX_PROFILE_ZONE("PxgIncrementalPartition::updateIncrementalIslands_Part2_1", mContextID);
 
-	const IG::CPUExternalData& islandSimCpuData = islandSim.mCpuData;
+	const ev4sio_IG::CPUExternalData& islandSimCpuData = islandSim.mCpuData;
 	PX_ASSERT(islandSim.mGpuData);
-	IG::GPUExternalData& islandSimGpuData = *islandSim.mGpuData;
+	ev4sio_IG::GPUExternalData& islandSimGpuData = *islandSim.mGpuData;
 
 	const PxBitMap& activeCMBitmap = islandSimGpuData.getActiveContactManagerBitmap();
 	PX_UNUSED(activeCMBitmap);
@@ -2322,7 +2322,7 @@ void PxgIncrementalPartition::updateIncrementalIslands_Part2_1(PxU32 startIndex,
 	const PxU32 last = startIndex + nbToProcess;
 	for (PxU32 i=startIndex; i<last; i++)
 	{
-		const IG::EdgeIndex edgeId = workItems[i].mEdgeID;
+		const ev4sio_IG::EdgeIndex edgeId = workItems[i].mEdgeID;
 
 		PX_ASSERT(activeCMBitmap.test(edgeId));
 		PxsContactManager* cm = islandManagerData.getContactManager(edgeId);
@@ -2365,7 +2365,7 @@ void PxgIncrementalPartition::updateIncrementalIslands_Part2_1(PxU32 startIndex,
 		indexData.mPatchIndex = PxTo8(b);
 
 		const PxU8 articulationOffset = node1.isArticulation() || node2.isArticulation() ? 2 : 0;
-		const PxU32 implicitEdgeType = unit.mNpIndex == 0xffffffff ? IG::Edge::EdgeType::eCONSTRAINT : IG::Edge::EdgeType::eCONTACT_MANAGER;
+		const PxU32 implicitEdgeType = unit.mNpIndex == 0xffffffff ? ev4sio_IG::Edge::EdgeType::eCONSTRAINT : ev4sio_IG::Edge::EdgeType::eCONTACT_MANAGER;
 		indexData.mCType = PxU8(implicitEdgeType) + articulationOffset;
 
 		// PT: this block was part 5) of addEdge_Stage1
@@ -2395,12 +2395,12 @@ void PxgIncrementalPartition::updateIncrementalIslands_Part2_1(PxU32 startIndex,
 }
 
 // PT: this is called from 3 different threads for the 3 different parts
-void PxgIncrementalPartition::updateIncrementalIslands_Part2_2(IG::IslandSim& islandSim, PxgBodySimManager& bodySimManager, bool dopart1, bool dopart2, bool dopart3)
+void PxgIncrementalPartition::updateIncrementalIslands_Part2_2(ev4sio_IG::IslandSim& islandSim, PxgBodySimManager& bodySimManager, bool dopart1, bool dopart2, bool dopart3)
 {
 	PX_PROFILE_ZONE("PxgIncrementalPartition::updateIncrementalIslands_Part2_2", mContextID);
 
 	PX_ASSERT(islandSim.mGpuData);
-	IG::GPUExternalData& islandSimGpuData = *islandSim.mGpuData;
+	ev4sio_IG::GPUExternalData& islandSimGpuData = *islandSim.mGpuData;
 
 	// PT: we prepared these work items in updateIncrementalIslands_Part2_0, they are faster to parse now than the initial input data
 	const PxU32 nbPartitionEdges = mPart2WorkItems.size();
@@ -2431,7 +2431,7 @@ void PxgIncrementalPartition::updateIncrementalIslands_Part2_2(IG::IslandSim& is
 
 		for (PxU32 i=0; i<nbPartitionEdges; i++)
 		{
-			const IG::EdgeIndex edgeId = workItems[i].mEdgeID;
+			const ev4sio_IG::EdgeIndex edgeId = workItems[i].mEdgeID;
 			PartitionEdge* edge = workItems[i].mPartitionEdge;
 			// PT: TODO: we could probably improve that part:
 			// - the special case bit could have been set before
@@ -2447,7 +2447,7 @@ void PxgIncrementalPartition::updateIncrementalIslands_Part2_2(IG::IslandSim& is
 
 		for (PxU32 i=0; i<nbPartitionEdges; i++)
 		{
-			const IG::EdgeIndex edgeId = workItems[i].mEdgeID;
+			const ev4sio_IG::EdgeIndex edgeId = workItems[i].mEdgeID;
 			PartitionEdge* edge = workItems[i].mPartitionEdge;
 			updatePartitionEdgeLinkedListHead(islandSimGpuData, edgeId, edge);
 		}
@@ -2455,7 +2455,7 @@ void PxgIncrementalPartition::updateIncrementalIslands_Part2_2(IG::IslandSim& is
 }
 
 // PT: this is called after updateIncrementalIslands_Part2_2 and before updateIncrementalIslands_Part3
-void PxgIncrementalPartition::updateIncrementalIslands_Part2_2_ProcessEdgeCases(IG::IslandSim& islandSim)
+void PxgIncrementalPartition::updateIncrementalIslands_Part2_2_ProcessEdgeCases(ev4sio_IG::IslandSim& islandSim)
 {
 	PX_PROFILE_ZONE("PxgIncrementalPartition::updateIncrementalIslands_Part2_2_ProcessEdgeCases", mContextID);
 
@@ -2464,7 +2464,7 @@ void PxgIncrementalPartition::updateIncrementalIslands_Part2_2_ProcessEdgeCases(
 		return;
 
 	PX_ASSERT(islandSim.mGpuData);
-	IG::GPUExternalData& islandSimGpuData = *islandSim.mGpuData;
+	ev4sio_IG::GPUExternalData& islandSimGpuData = *islandSim.mGpuData;
 
 	const PxU32* indices = mPart2EdgeCases.begin();
 	const Part2WorkItem* workItems = mPart2WorkItems.begin();
@@ -2473,7 +2473,7 @@ void PxgIncrementalPartition::updateIncrementalIslands_Part2_2_ProcessEdgeCases(
 	while(nb--)
 	{
 		const PxU32 index = *indices++;
-		const IG::EdgeIndex edgeId = workItems[index].mEdgeID;
+		const ev4sio_IG::EdgeIndex edgeId = workItems[index].mEdgeID;
 		PartitionEdge* edge = workItems[index].mPartitionEdge;
 		addEdge_Stage2(islandSimGpuData, edgeId, edge, specialHandled, true, false);
 		// PT: subtle: we must also undo what addEdge_Stage2 did while we were discovering the buffer overflow,
@@ -2486,7 +2486,7 @@ void PxgIncrementalPartition::updateIncrementalIslands_Part2_2_ProcessEdgeCases(
 // - process activated contacts
 // This is the reference implementation.
 void PxgIncrementalPartition::updateIncrementalIslands_Part2(
-	IG::IslandSim& islandSim, const IG::AuxCpuData& islandManagerData,
+	ev4sio_IG::IslandSim& islandSim, const ev4sio_IG::AuxCpuData& islandManagerData,
 	PxsContactManagerOutputIterator& iterator,
 	PxgBodySimManager& bodySimManager)
 {
@@ -2500,19 +2500,19 @@ void PxgIncrementalPartition::updateIncrementalIslands_Part2(
 		//Be aware that there is no guarantee that cmOutput being read has completed being written to this frame as this reads from the global buffer.
 		//However, we know that, if the state changed, it would have been processed by the found pairs case rather than the activated pairs case.
 
-		const IG::CPUExternalData& islandSimCpuData = islandSim.mCpuData;
+		const ev4sio_IG::CPUExternalData& islandSimCpuData = islandSim.mCpuData;
 		PX_ASSERT(islandSim.mGpuData);
-		IG::GPUExternalData& islandSimGpuData = *islandSim.mGpuData;
+		ev4sio_IG::GPUExternalData& islandSimGpuData = *islandSim.mGpuData;
 
-		const PxU32 activatedContactCount = islandSim.getNbActivatedEdges(IG::Edge::eCONTACT_MANAGER);
-		const IG::EdgeIndex* const activatedContacts = islandSim.getActivatedEdges(IG::Edge::eCONTACT_MANAGER);
+		const PxU32 activatedContactCount = islandSim.getNbActivatedEdges(ev4sio_IG::Edge::eCONTACT_MANAGER);
+		const ev4sio_IG::EdgeIndex* const activatedContacts = islandSim.getActivatedEdges(ev4sio_IG::Edge::eCONTACT_MANAGER);
 		//printf("activatedContactCount: %d\n", activatedContactCount);
 
 		const PxBitMap& activeCMBitmap = islandSimGpuData.getActiveContactManagerBitmap();
 
 		for (PxU32 a = 0; a < activatedContactCount; ++a)
 		{
-			const IG::EdgeIndex edgeId = activatedContacts[a];
+			const ev4sio_IG::EdgeIndex edgeId = activatedContacts[a];
 
 			if (activeCMBitmap.test(edgeId))
 			{
@@ -2556,7 +2556,7 @@ void PxgIncrementalPartition::updateIncrementalIslands_Part2(
 // - accumulate slabs
 // - accumulate partitions
 // - finalize partitions
-void PxgIncrementalPartition::updateIncrementalIslands_Part3(IG::IslandSim& islandSim, PxgJointManager& jointManager)
+void PxgIncrementalPartition::updateIncrementalIslands_Part3(ev4sio_IG::IslandSim& islandSim, PxgJointManager& jointManager)
 {
 	PX_PROFILE_ZONE("PxgIncrementalPartition::updateIncrementalIslands_Part3", mContextID);
 
@@ -2571,7 +2571,7 @@ void PxgIncrementalPartition::updateIncrementalIslands_Part3(IG::IslandSim& isla
 	}
 
 	PX_ASSERT(islandSim.mGpuData);
-	IG::GPUExternalData& islandSimGpuData = *islandSim.mGpuData;
+	ev4sio_IG::GPUExternalData& islandSimGpuData = *islandSim.mGpuData;
 
 	islandSimGpuData.setEdgeNodeIndexPtr(mNpIndexArray.begin());
 

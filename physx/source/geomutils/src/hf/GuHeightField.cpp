@@ -31,9 +31,9 @@
 #include "CmSerialize.h"
 #include "foundation/PxBitMap.h"
 
-using namespace physx;
-using namespace Gu;
-using namespace Cm;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
+using namespace ev4sio_Cm;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -126,12 +126,12 @@ bool HeightField::modifySamples(PxI32 startCol, PxI32 startRow, const PxHeightFi
 {
 	const PxU32 nbCols = getNbColumns();
 	const PxU32 nbRows = getNbRows();
-	PX_CHECK_AND_RETURN_NULL(desc.format == mData.format, "Gu::HeightField::modifySamples: desc.format mismatch");
+	PX_CHECK_AND_RETURN_NULL(desc.format == mData.format, "ev4sio_Gu::HeightField::modifySamples: desc.format mismatch");
 	//PX_CHECK_AND_RETURN_NULL(startCol + desc.nbColumns <= nbCols,
-	//	"Gu::HeightField::modifySamples: startCol + nbColumns out of range");
+	//	"ev4sio_Gu::HeightField::modifySamples: startCol + nbColumns out of range");
 	//PX_CHECK_AND_RETURN_NULL(startRow + desc.nbRows <= nbRows,
-	//	"Gu::HeightField::modifySamples: startRow + nbRows out of range");
-	//PX_CHECK_AND_RETURN_NULL(desc.samples.stride == mSampleStride, "Gu::HeightField::modifySamples: desc.samples.stride mismatch");
+	//	"ev4sio_Gu::HeightField::modifySamples: startRow + nbRows out of range");
+	//PX_CHECK_AND_RETURN_NULL(desc.samples.stride == mSampleStride, "ev4sio_Gu::HeightField::modifySamples: desc.samples.stride mismatch");
 
 	// by default bounds don't shrink since the whole point of this function is to avoid modifying the whole HF
 	// unless shrinkBounds is specified. then the bounds will be fully recomputed later
@@ -153,8 +153,8 @@ bool HeightField::modifySamples(PxI32 startCol, PxI32 startRow, const PxHeightFi
 
 			// grow (but not shrink) the height extents
 			const PxReal h = getHeight(vertexIndex);
-			minHeight = physx::intrinsics::selectMin(h, minHeight);
-			maxHeight = physx::intrinsics::selectMax(h, maxHeight);
+			minHeight = ev4sio_physx::intrinsics::selectMin(h, minHeight);
+			maxHeight = ev4sio_physx::intrinsics::selectMax(h, maxHeight);
 		}
 	}
 
@@ -168,8 +168,8 @@ bool HeightField::modifySamples(PxI32 startCol, PxI32 startRow, const PxHeightFi
 		{
 			// update height extents
 			const PxReal h = getHeight(vertexIndex);
-			minHeight = physx::intrinsics::selectMin(h, minHeight);
-			maxHeight = physx::intrinsics::selectMax(h, maxHeight);
+			minHeight = ev4sio_physx::intrinsics::selectMin(h, minHeight);
+			maxHeight = ev4sio_physx::intrinsics::selectMax(h, maxHeight);
 		}
 	}
 	mMinHeight = minHeight;
@@ -242,7 +242,7 @@ bool HeightField::load(PxInputStream& stream)
 	{
 		mData.samples = PX_ALLOCATE(PxHeightFieldSample, nbVerts, "PxHeightFieldSample");
 		if (mData.samples == NULL)
-			return PxGetFoundation().error(PxErrorCode::eOUT_OF_MEMORY, PX_FL, "Gu::HeightField::load: PX_ALLOC failed!");
+			return ev4sio_PxGetFoundation().error(PxErrorCode::eOUT_OF_MEMORY, PX_FL, "ev4sio_Gu::HeightField::load: PX_ALLOC failed!");
 
 		stream.read(mData.samples, mNbSamples*sizeof(PxHeightFieldSample));
 		if (endian)
@@ -260,7 +260,7 @@ bool HeightField::load(PxInputStream& stream)
 bool HeightField::loadFromDesc(const PxHeightFieldDesc& desc)
 {
 	// verify descriptor	
-	PX_CHECK_AND_RETURN_NULL(desc.isValid(), "Gu::HeightField::loadFromDesc: desc.isValid() failed!");
+	PX_CHECK_AND_RETURN_NULL(desc.isValid(), "ev4sio_Gu::HeightField::loadFromDesc: desc.isValid() failed!");
 	
 	// release old memory
 	releaseMemory();
@@ -288,7 +288,7 @@ bool HeightField::loadFromDesc(const PxHeightFieldDesc& desc)
 	{
 		mData.samples = PX_ALLOCATE(PxHeightFieldSample, nbVerts, "PxHeightFieldSample");
 		if(!mData.samples)
-			return PxGetFoundation().error(PxErrorCode::eOUT_OF_MEMORY, PX_FL, "Gu::HeightField::load: PX_ALLOC failed!");
+			return ev4sio_PxGetFoundation().error(PxErrorCode::eOUT_OF_MEMORY, PX_FL, "ev4sio_Gu::HeightField::load: PX_ALLOC failed!");
 
 		const PxU8* PX_RESTRICT src = reinterpret_cast<const PxU8*>(desc.samples.data);
 		PxHeightFieldSample* PX_RESTRICT dst = mData.samples;
@@ -332,7 +332,7 @@ bool HeightField::save(PxOutputStream& stream, bool endian)
 	if(!writeHeader('H', 'F', 'H', 'F', PX_HEIGHTFIELD_VERSION, endian, stream))
 		return false;
 
-	const Gu::HeightFieldData& hfData = getData();
+	const ev4sio_Gu::HeightFieldData& hfData = getData();
 
 	// write mData members
 	writeDword(hfData.rows, endian, stream);
@@ -408,7 +408,7 @@ namespace
 // it would most likely be better to stay in cell coords instead, since fractional vertex coords just do not make any sense
 PxU32 HeightField::computeCellCoordinates(PxReal x, PxReal z, PxReal& fracX, PxReal& fracZ) const
 {
-	namespace i = physx::intrinsics;
+	namespace i = ev4sio_physx::intrinsics;
 
 	x = i::selectMax(x, 0.0f);
 	z = i::selectMax(z, 0.0f);

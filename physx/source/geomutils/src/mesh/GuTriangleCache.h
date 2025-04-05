@@ -31,9 +31,9 @@
 #include "foundation/PxHash.h"
 #include "foundation/PxUtilities.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-	namespace Gu
+	namespace ev4sio_Gu
 	{
 		struct CachedEdge
 		{

@@ -33,10 +33,10 @@
 #include "ScSqBoundsSync.h"
 #include "common/PxProfileZone.h"
 
-using namespace physx;
-using namespace Sc;
+using namespace ev4sio_physx;
+using namespace ev4sio_Sc;
 
-#define INVALID_REF	ScPrunerHandle(Gu::INVALID_PRUNERHANDLE)
+#define INVALID_REF	ScPrunerHandle(ev4sio_Gu::INVALID_PRUNERHANDLE)
 
 SqBoundsManager0::SqBoundsManager0() :
 	mShapes			("SqBoundsManager::mShapes"),
@@ -63,10 +63,10 @@ void SqBoundsManager0::addSyncShape(ShapeSimBase& shape)
 	// mRefs / mBoundsIndices will be ultimately passed to updateObjects, whose API dictates the layout here.
 	// mShapes is not actually used for the sync, it's only here to be able to call setSqBoundsId in removeShape.
 
-	mShapes.pushBack(static_cast<Sc::ShapeSim*>(&shape));
+	mShapes.pushBack(static_cast<ev4sio_Sc::ShapeSim*>(&shape));
 	mRefs.pushBack(INVALID_REF);
 	mBoundsIndices.pushBack(shape.getElementID());
-	mRefless.pushBack(static_cast<Sc::ShapeSim*>(&shape));
+	mRefless.pushBack(static_cast<ev4sio_Sc::ShapeSim*>(&shape));
 }
 
 void SqBoundsManager0::removeSyncShape(ShapeSimBase& shape)

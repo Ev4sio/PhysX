@@ -32,8 +32,8 @@
 #include "foundation/PxAlloca.h"
 #include "common/PxProfileZone.h"
 
-using namespace physx;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -247,7 +247,7 @@ static PX_FORCE_INLINE QuerySystem::PrunerExt* checkPrunerIndex(PxU32 prunerInde
 {
 	if(prunerIndex>=prunerExt.size() || !prunerExt[prunerIndex])
 	{
-		PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "Invalid pruner index");
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "Invalid pruner index");
 		return NULL;
 	}
 

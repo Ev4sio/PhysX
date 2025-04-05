@@ -34,7 +34,7 @@
 #include "foundation/PxErrorCallback.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -144,7 +144,7 @@ class PxBroadcast : public Base
 	{
 	}
 
-	physx::PxInlineArray<Listener*, MAX_NB_LISTENERS, physx::PxAllocator> mListeners;
+	ev4sio_physx::PxInlineArray<Listener*, MAX_NB_LISTENERS, ev4sio_physx::PxAllocator> mListeners;
 };
 
 /**
@@ -269,7 +269,7 @@ class PxBroadcastingErrorCallback : public PxBroadcast<PxErrorCallback, PxErrorC
 	}
 };
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

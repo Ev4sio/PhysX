@@ -29,9 +29,9 @@
 #ifndef GU_FEATURE_CODE_H
 #define GU_FEATURE_CODE_H
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Gu
+namespace ev4sio_Gu
 {
 	enum FeatureCode
 	{

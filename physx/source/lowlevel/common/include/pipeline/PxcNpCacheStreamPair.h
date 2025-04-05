@@ -33,7 +33,7 @@
 #include "PxvConfig.h"
 #include "PxcNpMemBlockPool.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	struct PxcNpCacheStreamPair
 	{

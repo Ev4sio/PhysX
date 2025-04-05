@@ -36,9 +36,9 @@
 #include "ScArticulationSim.h"
 
 
-using namespace physx;
+using namespace ev4sio_physx;
 
-Sc::ArticulationSpatialTendonSim::ArticulationSpatialTendonSim(ArticulationSpatialTendonCore& tendon, Scene& scene) :
+ev4sio_Sc::ArticulationSpatialTendonSim::ArticulationSpatialTendonSim(ArticulationSpatialTendonCore& tendon, Scene& scene) :
 	mTendonCore(tendon), mScene(scene)
 {
 	mTendonCore.setSim(this);
@@ -49,120 +49,120 @@ Sc::ArticulationSpatialTendonSim::ArticulationSpatialTendonSim(ArticulationSpati
 }
 
 
-Sc::ArticulationSpatialTendonSim::~ArticulationSpatialTendonSim()
+ev4sio_Sc::ArticulationSpatialTendonSim::~ArticulationSpatialTendonSim()
 {
 	mTendonCore.setSim(NULL);
 }
 
 
-void Sc::ArticulationSpatialTendonSim::setStiffness(const PxReal stiffness)
+void ev4sio_Sc::ArticulationSpatialTendonSim::setStiffness(const PxReal stiffness)
 {
 	mLLTendon.mStiffness = stiffness;
 
-	Dy::FeatherstoneArticulation* llArticulation = static_cast<Dy::FeatherstoneArticulation*>(mArtiSim->getLowLevelArticulation());
-	llArticulation->setGpuDirtyFlag(Dy::ArticulationDirtyFlag::eDIRTY_SPATIAL_TENDON);
+	ev4sio_Dy::FeatherstoneArticulation* llArticulation = static_cast<ev4sio_Dy::FeatherstoneArticulation*>(mArtiSim->getLowLevelArticulation());
+	llArticulation->setGpuDirtyFlag(ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_SPATIAL_TENDON);
 }
 
-PxReal Sc::ArticulationSpatialTendonSim::getStiffness() const
+PxReal ev4sio_Sc::ArticulationSpatialTendonSim::getStiffness() const
 {
 	return mLLTendon.mStiffness;
 }
 
-void Sc::ArticulationSpatialTendonSim::setDamping(const PxReal damping)
+void ev4sio_Sc::ArticulationSpatialTendonSim::setDamping(const PxReal damping)
 {
 	mLLTendon.mDamping = damping;
 
-	Dy::FeatherstoneArticulation* llArticulation = static_cast<Dy::FeatherstoneArticulation*>(mArtiSim->getLowLevelArticulation());
-	llArticulation->setGpuDirtyFlag(Dy::ArticulationDirtyFlag::eDIRTY_SPATIAL_TENDON);
+	ev4sio_Dy::FeatherstoneArticulation* llArticulation = static_cast<ev4sio_Dy::FeatherstoneArticulation*>(mArtiSim->getLowLevelArticulation());
+	llArticulation->setGpuDirtyFlag(ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_SPATIAL_TENDON);
 }
 
-PxReal Sc::ArticulationSpatialTendonSim::getDamping() const
+PxReal ev4sio_Sc::ArticulationSpatialTendonSim::getDamping() const
 {
 	return mLLTendon.mDamping;
 }
 
-void Sc::ArticulationSpatialTendonSim::setLimitStiffness(const PxReal stiffness)
+void ev4sio_Sc::ArticulationSpatialTendonSim::setLimitStiffness(const PxReal stiffness)
 {
 	mLLTendon.mLimitStiffness = stiffness;
 
-	Dy::FeatherstoneArticulation* llArticulation = static_cast<Dy::FeatherstoneArticulation*>(mArtiSim->getLowLevelArticulation());
-	llArticulation->setGpuDirtyFlag(Dy::ArticulationDirtyFlag::eDIRTY_FIXED_TENDON);
+	ev4sio_Dy::FeatherstoneArticulation* llArticulation = static_cast<ev4sio_Dy::FeatherstoneArticulation*>(mArtiSim->getLowLevelArticulation());
+	llArticulation->setGpuDirtyFlag(ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_FIXED_TENDON);
 }
 
-PxReal Sc::ArticulationSpatialTendonSim::getLimitStiffness() const
+PxReal ev4sio_Sc::ArticulationSpatialTendonSim::getLimitStiffness() const
 {
 	return mLLTendon.mLimitStiffness;
 }
 
-void Sc::ArticulationSpatialTendonSim::setOffset(const PxReal offset)
+void ev4sio_Sc::ArticulationSpatialTendonSim::setOffset(const PxReal offset)
 {
 	mLLTendon.mOffset = offset;
 
-	Dy::FeatherstoneArticulation* llArticulation = static_cast<Dy::FeatherstoneArticulation*>(mArtiSim->getLowLevelArticulation());
-	llArticulation->setGpuDirtyFlag(Dy::ArticulationDirtyFlag::eDIRTY_SPATIAL_TENDON);
+	ev4sio_Dy::FeatherstoneArticulation* llArticulation = static_cast<ev4sio_Dy::FeatherstoneArticulation*>(mArtiSim->getLowLevelArticulation());
+	llArticulation->setGpuDirtyFlag(ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_SPATIAL_TENDON);
 }
 
-PxReal Sc::ArticulationSpatialTendonSim::getOffset() const
+PxReal ev4sio_Sc::ArticulationSpatialTendonSim::getOffset() const
 {
 	return mLLTendon.mOffset;
 }
 
 
-void Sc::ArticulationSpatialTendonSim::setAttachmentCoefficient(ArticulationAttachmentCore& core, const PxReal coefficient)
+void ev4sio_Sc::ArticulationSpatialTendonSim::setAttachmentCoefficient(ArticulationAttachmentCore& core, const PxReal coefficient)
 {
 	const PxU32 index = core.mAttachmentIndex;
 
-	Dy::ArticulationAttachment& attachment = mLLTendon.getAttachment(index);
+	ev4sio_Dy::ArticulationAttachment& attachment = mLLTendon.getAttachment(index);
 
 	attachment.coefficient = coefficient;
 
-	Dy::FeatherstoneArticulation* llArticulation = static_cast<Dy::FeatherstoneArticulation*>(mArtiSim->getLowLevelArticulation());
-	llArticulation->setGpuDirtyFlag(Dy::ArticulationDirtyFlag::eDIRTY_SPATIAL_TENDON_ATTACHMENT);
+	ev4sio_Dy::FeatherstoneArticulation* llArticulation = static_cast<ev4sio_Dy::FeatherstoneArticulation*>(mArtiSim->getLowLevelArticulation());
+	llArticulation->setGpuDirtyFlag(ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_SPATIAL_TENDON_ATTACHMENT);
 }
 
-void Sc::ArticulationSpatialTendonSim::setAttachmentRelativeOffset(ArticulationAttachmentCore& core, const PxVec3& offset)
+void ev4sio_Sc::ArticulationSpatialTendonSim::setAttachmentRelativeOffset(ArticulationAttachmentCore& core, const PxVec3& offset)
 {
 	const PxU32 index = core.mAttachmentIndex;
 
-	Dy::ArticulationAttachment& attachment = mLLTendon.getAttachment(index);
+	ev4sio_Dy::ArticulationAttachment& attachment = mLLTendon.getAttachment(index);
 
 	attachment.relativeOffset = offset;
 
-	Dy::FeatherstoneArticulation* llArticulation = static_cast<Dy::FeatherstoneArticulation*>(mArtiSim->getLowLevelArticulation());
-	llArticulation->setGpuDirtyFlag(Dy::ArticulationDirtyFlag::eDIRTY_SPATIAL_TENDON_ATTACHMENT);
+	ev4sio_Dy::FeatherstoneArticulation* llArticulation = static_cast<ev4sio_Dy::FeatherstoneArticulation*>(mArtiSim->getLowLevelArticulation());
+	llArticulation->setGpuDirtyFlag(ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_SPATIAL_TENDON_ATTACHMENT);
 }
 
-void Sc::ArticulationSpatialTendonSim::setAttachmentLimits(ArticulationAttachmentCore& core, const PxReal lowLimit, const PxReal highLimit)
+void ev4sio_Sc::ArticulationSpatialTendonSim::setAttachmentLimits(ArticulationAttachmentCore& core, const PxReal lowLimit, const PxReal highLimit)
 {
 	const PxU32 index = core.mAttachmentIndex;
 
-	Dy::ArticulationAttachment& attachment = mLLTendon.getAttachment(index);
+	ev4sio_Dy::ArticulationAttachment& attachment = mLLTendon.getAttachment(index);
 
 	attachment.lowLimit = lowLimit;
 	attachment.highLimit = highLimit;
 
-	Dy::FeatherstoneArticulation* llArticulation = static_cast<Dy::FeatherstoneArticulation*>(mArtiSim->getLowLevelArticulation());
-	llArticulation->setGpuDirtyFlag(Dy::ArticulationDirtyFlag::eDIRTY_SPATIAL_TENDON_ATTACHMENT);
+	ev4sio_Dy::FeatherstoneArticulation* llArticulation = static_cast<ev4sio_Dy::FeatherstoneArticulation*>(mArtiSim->getLowLevelArticulation());
+	llArticulation->setGpuDirtyFlag(ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_SPATIAL_TENDON_ATTACHMENT);
 }
 
-void Sc::ArticulationSpatialTendonSim::setAttachmentRestLength(ArticulationAttachmentCore& core, const PxReal restLength)
+void ev4sio_Sc::ArticulationSpatialTendonSim::setAttachmentRestLength(ArticulationAttachmentCore& core, const PxReal restLength)
 {
 	const PxU32 index = core.mAttachmentIndex;
-	Dy::ArticulationAttachment& attachment = mLLTendon.getAttachment(index);
+	ev4sio_Dy::ArticulationAttachment& attachment = mLLTendon.getAttachment(index);
 	attachment.restLength = restLength;
 
-	Dy::FeatherstoneArticulation* llArticulation = static_cast<Dy::FeatherstoneArticulation*>(mArtiSim->getLowLevelArticulation());
-	llArticulation->setGpuDirtyFlag(Dy::ArticulationDirtyFlag::eDIRTY_SPATIAL_TENDON_ATTACHMENT);
+	ev4sio_Dy::FeatherstoneArticulation* llArticulation = static_cast<ev4sio_Dy::FeatherstoneArticulation*>(mArtiSim->getLowLevelArticulation());
+	llArticulation->setGpuDirtyFlag(ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_SPATIAL_TENDON_ATTACHMENT);
 
 }
 
 
-void Sc::ArticulationSpatialTendonSim::addAttachment(ArticulationAttachmentCore& core)
+void ev4sio_Sc::ArticulationSpatialTendonSim::addAttachment(ArticulationAttachmentCore& core)
 {
 
 	const PxU32 index = mLLTendon.getNewID();
 
-	Dy::ArticulationAttachment& attachment = mLLTendon.getAttachment(index);
+	ev4sio_Dy::ArticulationAttachment& attachment = mLLTendon.getAttachment(index);
 
 	attachment.relativeOffset = core.mRelativeOffset;
 	attachment.linkInd = PxU16(core.mLLLinkIndex);
@@ -181,7 +181,7 @@ void Sc::ArticulationSpatialTendonSim::addAttachment(ArticulationAttachmentCore&
 	{
 		const PxU32 parentIndex = core.mParent->mAttachmentIndex;
 		attachment.parent = parentIndex;
-		mLLTendon.getAttachment(parentIndex).children |= Dy::ArticulationAttachmentBitField(1) << index;
+		mLLTendon.getAttachment(parentIndex).children |= ev4sio_Dy::ArticulationAttachmentBitField(1) << index;
 		mLLTendon.getAttachment(parentIndex).childCount++;
 	}
 	else
@@ -191,18 +191,18 @@ void Sc::ArticulationSpatialTendonSim::addAttachment(ArticulationAttachmentCore&
 
 }
 
-void Sc::ArticulationSpatialTendonSim::removeAttachment(ArticulationAttachmentCore& core)
+void ev4sio_Sc::ArticulationSpatialTendonSim::removeAttachment(ArticulationAttachmentCore& core)
 {
 	const PxU32 index = core.mAttachmentIndex;
 
-	Dy::ArticulationAttachment& attachment = mLLTendon.getAttachment(index);
+	ev4sio_Dy::ArticulationAttachment& attachment = mLLTendon.getAttachment(index);
 
 	PX_ASSERT(attachment.childCount == 0);
 
 	if (attachment.parent != DY_ARTICULATION_ATTACHMENT_NONE)
 	{
-		Dy::ArticulationAttachment& parent = mLLTendon.getAttachment(attachment.parent);
-		parent.children &= ~(Dy::ArticulationAttachmentBitField(1) << index);
+		ev4sio_Dy::ArticulationAttachment& parent = mLLTendon.getAttachment(attachment.parent);
+		parent.children &= ~(ev4sio_Dy::ArticulationAttachmentBitField(1) << index);
 		parent.childCount--;
 	}
 
@@ -211,7 +211,7 @@ void Sc::ArticulationSpatialTendonSim::removeAttachment(ArticulationAttachmentCo
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Sc::ArticulationFixedTendonSim::ArticulationFixedTendonSim(ArticulationFixedTendonCore& tendon, Scene& scene) :
+ev4sio_Sc::ArticulationFixedTendonSim::ArticulationFixedTendonSim(ArticulationFixedTendonCore& tendon, Scene& scene) :
 	mTendonCore(tendon), mScene(scene)
 {
 	mTendonCore.setSim(this);
@@ -224,95 +224,95 @@ Sc::ArticulationFixedTendonSim::ArticulationFixedTendonSim(ArticulationFixedTend
 	mLLTendon.mRestLength = tendon.mRestLength;
 }
 
-Sc::ArticulationFixedTendonSim::~ArticulationFixedTendonSim()
+ev4sio_Sc::ArticulationFixedTendonSim::~ArticulationFixedTendonSim()
 {
 	mTendonCore.setSim(NULL);
 }
 
-void Sc::ArticulationFixedTendonSim::setStiffness(const PxReal stiffness)
+void ev4sio_Sc::ArticulationFixedTendonSim::setStiffness(const PxReal stiffness)
 {
 	mLLTendon.mStiffness = stiffness;
 
-	Dy::FeatherstoneArticulation* llArticulation = static_cast<Dy::FeatherstoneArticulation*>(mArtiSim->getLowLevelArticulation());
-	llArticulation->setGpuDirtyFlag(Dy::ArticulationDirtyFlag::eDIRTY_FIXED_TENDON);
+	ev4sio_Dy::FeatherstoneArticulation* llArticulation = static_cast<ev4sio_Dy::FeatherstoneArticulation*>(mArtiSim->getLowLevelArticulation());
+	llArticulation->setGpuDirtyFlag(ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_FIXED_TENDON);
 }
 
-PxReal Sc::ArticulationFixedTendonSim::getStiffness() const
+PxReal ev4sio_Sc::ArticulationFixedTendonSim::getStiffness() const
 {
 	return mLLTendon.mStiffness;
 }
 
-void Sc::ArticulationFixedTendonSim::setDamping(const PxReal damping)
+void ev4sio_Sc::ArticulationFixedTendonSim::setDamping(const PxReal damping)
 {
 	mLLTendon.mDamping = damping;
 
-	Dy::FeatherstoneArticulation* llArticulation = static_cast<Dy::FeatherstoneArticulation*>(mArtiSim->getLowLevelArticulation());
-	llArticulation->setGpuDirtyFlag(Dy::ArticulationDirtyFlag::eDIRTY_FIXED_TENDON);
+	ev4sio_Dy::FeatherstoneArticulation* llArticulation = static_cast<ev4sio_Dy::FeatherstoneArticulation*>(mArtiSim->getLowLevelArticulation());
+	llArticulation->setGpuDirtyFlag(ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_FIXED_TENDON);
 }
 
-PxReal Sc::ArticulationFixedTendonSim::getDamping() const
+PxReal ev4sio_Sc::ArticulationFixedTendonSim::getDamping() const
 {
 	return mLLTendon.mDamping;
 }
 
-void Sc::ArticulationFixedTendonSim::setLimitStiffness(const PxReal stiffness)
+void ev4sio_Sc::ArticulationFixedTendonSim::setLimitStiffness(const PxReal stiffness)
 {
 	mLLTendon.mLimitStiffness = stiffness;
 
-	Dy::FeatherstoneArticulation* llArticulation = static_cast<Dy::FeatherstoneArticulation*>(mArtiSim->getLowLevelArticulation());
-	llArticulation->setGpuDirtyFlag(Dy::ArticulationDirtyFlag::eDIRTY_FIXED_TENDON);
+	ev4sio_Dy::FeatherstoneArticulation* llArticulation = static_cast<ev4sio_Dy::FeatherstoneArticulation*>(mArtiSim->getLowLevelArticulation());
+	llArticulation->setGpuDirtyFlag(ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_FIXED_TENDON);
 }
 
-PxReal Sc::ArticulationFixedTendonSim::getLimitStiffness() const
+PxReal ev4sio_Sc::ArticulationFixedTendonSim::getLimitStiffness() const
 {
 	return mLLTendon.mLimitStiffness;
 }
 
-void Sc::ArticulationFixedTendonSim::setOffset(const PxReal offset)
+void ev4sio_Sc::ArticulationFixedTendonSim::setOffset(const PxReal offset)
 {
 	mLLTendon.mOffset = offset;
 
-	mArtiSim->setArticulationDirty(Dy::ArticulationDirtyFlag::eDIRTY_FIXED_TENDON);
+	mArtiSim->setArticulationDirty(ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_FIXED_TENDON);
 }
 
-PxReal Sc::ArticulationFixedTendonSim::getOffset() const
+PxReal ev4sio_Sc::ArticulationFixedTendonSim::getOffset() const
 {
 	return mLLTendon.mOffset;
 }
 
-void Sc::ArticulationFixedTendonSim::setSpringRestLength(const PxReal restLength)
+void ev4sio_Sc::ArticulationFixedTendonSim::setSpringRestLength(const PxReal restLength)
 {
 	mLLTendon.mRestLength = restLength;
 
-	mArtiSim->setArticulationDirty(Dy::ArticulationDirtyFlag::eDIRTY_FIXED_TENDON);
+	mArtiSim->setArticulationDirty(ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_FIXED_TENDON);
 }
 
-PxReal Sc::ArticulationFixedTendonSim::getSpringRestLength() const
+PxReal ev4sio_Sc::ArticulationFixedTendonSim::getSpringRestLength() const
 {
 	return mLLTendon.mRestLength;
 }
 
 
-void Sc::ArticulationFixedTendonSim::setLimitRange(const PxReal lowLimit, const PxReal highLimit)
+void ev4sio_Sc::ArticulationFixedTendonSim::setLimitRange(const PxReal lowLimit, const PxReal highLimit)
 {
 	mLLTendon.mLowLimit = lowLimit;
 	mLLTendon.mHighLimit = highLimit;
 
-	mArtiSim->setArticulationDirty(Dy::ArticulationDirtyFlag::eDIRTY_FIXED_TENDON);
+	mArtiSim->setArticulationDirty(ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_FIXED_TENDON);
 }
 
-void Sc::ArticulationFixedTendonSim::getLimitRange(PxReal& lowLimit, PxReal& highLimit) const
+void ev4sio_Sc::ArticulationFixedTendonSim::getLimitRange(PxReal& lowLimit, PxReal& highLimit) const
 {
 	lowLimit = mLLTendon.mLowLimit;
 	highLimit = mLLTendon.mHighLimit;
 }
 
-void Sc::ArticulationFixedTendonSim::addTendonJoint(ArticulationTendonJointCore& tendonJointCore)
+void ev4sio_Sc::ArticulationFixedTendonSim::addTendonJoint(ArticulationTendonJointCore& tendonJointCore)
 {
 
 	const PxU32 jointIndex = mLLTendon.getNewID();
 
-	Dy::ArticulationTendonJoint& tendonJoint = mLLTendon.getTendonJoint(jointIndex);
+	ev4sio_Dy::ArticulationTendonJoint& tendonJoint = mLLTendon.getTendonJoint(jointIndex);
 
 	tendonJoint.axis = PxU16(tendonJointCore.axis);
 	tendonJoint.coefficient = tendonJointCore.coefficient;
@@ -329,7 +329,7 @@ void Sc::ArticulationFixedTendonSim::addTendonJoint(ArticulationTendonJointCore&
 	{
 		const PxU32 parentIndex = tendonJointCore.mParent->mLLTendonJointIndex;
 		tendonJoint.parent = parentIndex;
-		mLLTendon.getTendonJoint(parentIndex).children |= Dy::ArticulationAttachmentBitField(1) << jointIndex;
+		mLLTendon.getTendonJoint(parentIndex).children |= ev4sio_Dy::ArticulationAttachmentBitField(1) << jointIndex;
 		mLLTendon.getTendonJoint(parentIndex).childCount++;
 	}
 	else
@@ -339,34 +339,34 @@ void Sc::ArticulationFixedTendonSim::addTendonJoint(ArticulationTendonJointCore&
 	
 }
 
-void Sc::ArticulationFixedTendonSim::removeTendonJoint(ArticulationTendonJointCore& core)
+void ev4sio_Sc::ArticulationFixedTendonSim::removeTendonJoint(ArticulationTendonJointCore& core)
 {
 	const PxU32 index = core.mLLTendonJointIndex;
 
-	Dy::ArticulationTendonJoint& tendonJoint = mLLTendon.getTendonJoint(index);
+	ev4sio_Dy::ArticulationTendonJoint& tendonJoint = mLLTendon.getTendonJoint(index);
 
 	PX_ASSERT(tendonJoint.childCount == 0);
 
 	if (tendonJoint.parent != DY_ARTICULATION_ATTACHMENT_NONE)
 	{
-		Dy::ArticulationTendonJoint& parent = mLLTendon.getTendonJoint(tendonJoint.parent);
-		parent.children &= ~(Dy::ArticulationAttachmentBitField(1) << index);
+		ev4sio_Dy::ArticulationTendonJoint& parent = mLLTendon.getTendonJoint(tendonJoint.parent);
+		parent.children &= ~(ev4sio_Dy::ArticulationAttachmentBitField(1) << index);
 		parent.childCount--;
 	}
 
 	mLLTendon.freeID(index);
 }
 
-void Sc::ArticulationFixedTendonSim::setTendonJointCoefficient(ArticulationTendonJointCore& core, const PxArticulationAxis::Enum axis, const float coefficient, const float recipCoefficient)
+void ev4sio_Sc::ArticulationFixedTendonSim::setTendonJointCoefficient(ArticulationTendonJointCore& core, const PxArticulationAxis::Enum axis, const float coefficient, const float recipCoefficient)
 {
 	const PxU32 index = core.mLLTendonJointIndex;
 
-	Dy::ArticulationTendonJoint& tendonJoint = mLLTendon.getTendonJoint(index);
+	ev4sio_Dy::ArticulationTendonJoint& tendonJoint = mLLTendon.getTendonJoint(index);
 	tendonJoint.axis = PxU16(axis);
 	tendonJoint.coefficient = coefficient;
 	tendonJoint.recipCoefficient = recipCoefficient;
 
-	mArtiSim->setArticulationDirty(Dy::ArticulationDirtyFlag::eDIRTY_FIXED_TENDON_JOINT);
+	mArtiSim->setArticulationDirty(ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_FIXED_TENDON_JOINT);
 
 }
 

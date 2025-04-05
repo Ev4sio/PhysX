@@ -39,7 +39,7 @@
 
 #define FEM_GPU_DEBUG 0
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 PxgFEMCore::PxgFEMCore(PxgCudaKernelWranglerManager* gpuKernelWrangler, PxCudaContextManager* cudaContextManager,
 	PxgHeapMemoryAllocatorManager* heapMemoryManager, PxgSimulationController* simController, PxgGpuContext* gpuContext,
@@ -246,11 +246,11 @@ void PxgFEMCore::reorderRigidContacts()
 
 		CUresult  result = mCudaContext->launchKernel(reorderFunction, PxgSoftBodyKernelGridDim::SB_REORDERCONTACTS, 1, 1, PxgSoftBodyKernelBlockDim::SB_REORDERCONTACTS, 1, 1, 0, mStream, kernelParams, sizeof(kernelParams), 0, PX_FL);
 		if (result != CUDA_SUCCESS)
-			PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU sb_reorderRSContactsLaunch fail to launch kernel!!\n");
+			ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU sb_reorderRSContactsLaunch fail to launch kernel!!\n");
 #if FEM_GPU_DEBUG
 		result = mCudaContext->streamSynchronize(mStream);
 		if (result != CUDA_SUCCESS)
-			PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU sb_reorderRSContactsLaunch fail!!\n");
+			ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU sb_reorderRSContactsLaunch fail!!\n");
 #endif
 	}
 }
@@ -286,7 +286,7 @@ void PxgFEMCore::accumulateRigidDeltas(PxgDevicePointer<PxgPrePrepDesc> prePrepD
 		result = mCudaContext->streamSynchronize(stream);
 		PX_ASSERT(result == CUDA_SUCCESS);
 		if (result != CUDA_SUCCESS)
-			PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU fem accumulateDeltaVRigidFirstLaunch kernel fail!\n");
+			ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU fem accumulateDeltaVRigidFirstLaunch kernel fail!\n");
 
 		int bob = 0;
 		PX_UNUSED(bob);
@@ -328,7 +328,7 @@ void PxgFEMCore::accumulateRigidDeltas(PxgDevicePointer<PxgPrePrepDesc> prePrepD
 		result = mCudaContext->streamSynchronize(stream);
 		PX_ASSERT(result == CUDA_SUCCESS);
 		if (result != CUDA_SUCCESS)
-			PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU fem accumulateDeltaVRigidSecondLaunch kernel fail!\n");
+			ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU fem accumulateDeltaVRigidSecondLaunch kernel fail!\n");
 
 		int bob = 0;
 		PX_UNUSED(bob);

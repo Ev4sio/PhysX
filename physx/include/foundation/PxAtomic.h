@@ -33,7 +33,7 @@
 #include "foundation/PxSimpleTypes.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 /* set *dest equal to val. Return the old value of *dest */
@@ -72,7 +72,7 @@ PX_FOUNDATION_API PxI32 PxAtomicAnd(volatile PxI32* val, PxI32 mask);
 PX_FOUNDATION_API PxI64 PxAtomicAnd(volatile PxI64* val, PxI64 mask);
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

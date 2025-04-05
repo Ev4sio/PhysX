@@ -38,9 +38,9 @@
 #include "GuBox.h"
 #include "GuConvexMeshData.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 using namespace aos;
-using namespace Gu;
+using namespace ev4sio_Gu;
 
 namespace local
 {
@@ -190,7 +190,7 @@ ConvexHull::ConvexHull(const PxVec3& extent, const PxTransform& transform, const
 	// get the OBB corner points
 	PxVec3 extentPoints[8];
 	const PxMat33Padded rot(transform.q);
-	Gu::computeOBBPoints(extentPoints, transform.p, extent, rot.column0, rot.column1, rot.column2);
+	ev4sio_Gu::computeOBBPoints(extentPoints, transform.p, extent, rot.column0, rot.column1, rot.column2);
 
 	mVertices.pushBack(PxVec3(extentPoints[0].x, extentPoints[0].y, extentPoints[0].z)); // ---
 	mVertices.pushBack(PxVec3(extentPoints[4].x, extentPoints[4].y, extentPoints[4].z)); // --+
@@ -397,7 +397,7 @@ PxU32 ConvexHull::maxNumVertsPerFace() const
 
 //////////////////////////////////////////////////////////////////////////
 // slice the input convexHull with the slice plane
-ConvexHull* physx::convexHullCrop(const ConvexHull& convex, const PxPlane& slice, float planeTestEpsilon)
+ConvexHull* ev4sio_physx::convexHullCrop(const ConvexHull& convex, const PxPlane& slice, float planeTestEpsilon)
 {
 	static const PxU8 invalidIndex = PxU8(-1);
 	PxU32 i;
@@ -818,7 +818,7 @@ ConvexHull* physx::convexHullCrop(const ConvexHull& convex, const PxPlane& slice
 	return punder;
 }
 
-bool physx::computeOBBFromConvex(const PxConvexMeshDesc& desc, PxVec3& sides, PxTransform& matrix)
+bool ev4sio_physx::computeOBBFromConvex(const PxConvexMeshDesc& desc, PxVec3& sides, PxTransform& matrix)
 {
 	PxIntegrals integrals;
 	// using the centroid of the convex for the volume integration solved accuracy issues in cases where the inertia tensor
@@ -839,7 +839,7 @@ bool physx::computeOBBFromConvex(const PxConvexMeshDesc& desc, PxVec3& sides, Px
 		indices[i] = PxTo8(ind[i]);
 	}
 	// we need to move the polygon data to internal format
-	Gu::HullPolygonData* polygonData = PX_ALLOCATE(Gu::HullPolygonData, desc.polygons.count, "Gu::HullPolygonData");
+	ev4sio_Gu::HullPolygonData* polygonData = PX_ALLOCATE(ev4sio_Gu::HullPolygonData, desc.polygons.count, "ev4sio_Gu::HullPolygonData");
 	for (PxU32 i = 0; i < desc.polygons.count; i++)
 	{
 		polygonData[i].mPlane = PxPlane(polygons[i].mPlane[0], polygons[i].mPlane[1], polygons[i].mPlane[2], polygons[i].mPlane[3]);

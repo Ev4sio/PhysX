@@ -33,7 +33,7 @@
 #include "foundation/PxBounds3.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -141,7 +141,7 @@ namespace physx
 	The kinematic filtering flags are currently not supported by the GPU broadphase. They are used to
 	dismiss pairs that involve kinematic objects directly within the broadphase.
 
-	\see	PxCreateBroadPhase
+	\see	ev4sio_PxCreateBroadPhase
 	*/
 	class PxBroadPhaseDesc
 	{
@@ -190,7 +190,7 @@ namespace physx
 	\return		Filter group for static objects.
 	\see		PxBpFilterGroup
 	*/
-	PX_C_EXPORT PX_PHYSX_CORE_API	PxBpFilterGroup	PxGetBroadPhaseStaticFilterGroup();
+	PX_C_EXPORT PX_PHYSX_CORE_API	PxBpFilterGroup	ev4sio_PxGetBroadPhaseStaticFilterGroup();
 
 	/**
 	\brief Retrieves a filter group for dynamic objects.
@@ -204,7 +204,7 @@ namespace physx
 	\return		Filter group for the object.
 	\see		PxBpFilterGroup
 	*/
-	PX_C_EXPORT PX_PHYSX_CORE_API	PxBpFilterGroup	PxGetBroadPhaseDynamicFilterGroup(PxU32 id);
+	PX_C_EXPORT PX_PHYSX_CORE_API	PxBpFilterGroup	ev4sio_PxGetBroadPhaseDynamicFilterGroup(PxU32 id);
 
 	/**
 	\brief Retrieves a filter group for kinematic objects.
@@ -217,7 +217,7 @@ namespace physx
 	\return		Filter group for the object.
 	\see		PxBpFilterGroup
 	*/
-	PX_C_EXPORT PX_PHYSX_CORE_API	PxBpFilterGroup	PxGetBroadPhaseKinematicFilterGroup(PxU32 id);
+	PX_C_EXPORT PX_PHYSX_CORE_API	PxBpFilterGroup	ev4sio_PxGetBroadPhaseKinematicFilterGroup(PxU32 id);
 
 	/**
 	\brief Broadphase data update structure.
@@ -416,7 +416,7 @@ namespace physx
 	
 	The high-level broadphase API (PxAABBManager) is an easier-to-use interface that automatically deals with these requirements.
 
-	\see	PxCreateBroadPhase
+	\see	ev4sio_PxCreateBroadPhase
 	*/
 	class PxBroadPhase
 	{
@@ -555,7 +555,7 @@ namespace physx
 	\return	Newly created broadphase, or NULL
 	\see	PxBroadPhase PxBroadPhaseDesc
 	*/
-	PX_C_EXPORT PX_PHYSX_CORE_API	PxBroadPhase*	PxCreateBroadPhase(const PxBroadPhaseDesc& desc);
+	PX_C_EXPORT PX_PHYSX_CORE_API	PxBroadPhase*	ev4sio_PxCreateBroadPhase(const PxBroadPhaseDesc& desc);
 
 	/**
 	\brief High-level broadphase API.
@@ -566,7 +566,7 @@ namespace physx
 	The high-level broadphase API (PxAABBManager) is an easier-to-use one-object-at-a-time API that
 	automatically deals with the quirks of the PxBroadPhase data management.
 
-	\see	PxCreateAABBManager
+	\see	ev4sio_PxCreateAABBManager
 	*/
 	class PxAABBManager
 	{
@@ -722,10 +722,10 @@ namespace physx
 	\return	Newly created AABB manager, or NULL
 	\see	PxAABBManager PxBroadPhase
 	*/
-	PX_C_EXPORT PX_PHYSX_CORE_API	PxAABBManager*	PxCreateAABBManager(PxBroadPhase& broadphase);
+	PX_C_EXPORT PX_PHYSX_CORE_API	PxAABBManager*	ev4sio_PxCreateAABBManager(PxBroadPhase& broadphase);
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

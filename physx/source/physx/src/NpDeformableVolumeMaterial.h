@@ -35,7 +35,7 @@
 #include "CmRefCountable.h"
 #include "PxsDeformableVolumeMaterialCore.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 // Compared to other objects, materials are special since they belong to the SDK and not to scenes
@@ -51,7 +51,7 @@ public:
 	virtual	void						resolveReferences(PxDeserializationContext& context);
 	static	NpDeformableVolumeMaterial*	createObject(PxU8*& address, PxDeserializationContext& context);
 
-			void						preExportDataReset() { Cm::RefCountable_preExportDataReset(*this); }
+			void						preExportDataReset() { ev4sio_Cm::RefCountable_preExportDataReset(*this); }
 			void						exportExtraData(PxSerializationContext&) {}
 			void						importExtraData(PxDeserializationContext&) {}
 	virtual	void						requiresObjects(PxProcessPxBaseCallback&) {}
@@ -113,6 +113,6 @@ PX_FORCE_INLINE void NpDeformableVolumeMaterial::getMaterialIndices(PxDeformable
 		materialIndices[i] = static_cast<NpDeformableVolumeMaterial*>(materials[i])->mMaterial.mMaterialIndex;
 }
 
-} // namespace physx
+} // namespace ev4sio_physx
 
 #endif // NP_DEFORMABLE_VOLUME_MATERIAL_H

@@ -32,9 +32,9 @@
 #include "foundation/PxVec3.h"
 #include "common/PxPhysXCommonConfig.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Gu
+namespace ev4sio_Gu
 {
 	// PT: this is a number of axes. Multiply by sizeof(PxVec3) for size in bytes.
 	#define SEP_AXIS_FIXED_MEMORY	256

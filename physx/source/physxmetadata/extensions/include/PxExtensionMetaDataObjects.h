@@ -33,7 +33,7 @@
 #include "PxMetaDataObjects.h"
 
 
-namespace physx
+namespace ev4sio_physx
 {
 
 class PxD6Joint;

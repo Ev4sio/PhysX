@@ -33,7 +33,7 @@
 #include "foundation/PxBroadcast.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -49,7 +49,7 @@ class PvdClient;
 class PvdOMMetaDataProvider;
 
 // PsPvd is used for advanced user, it support custom pvd client API
-class PsPvd : public physx::PxPvd, public PxAllocationListener
+class PsPvd : public ev4sio_physx::PxPvd, public PxAllocationListener
 {
   public:
 	virtual void addClient(PvdClient* client) = 0;
@@ -72,7 +72,7 @@ class PsPvd : public physx::PxPvd, public PxAllocationListener
 
 #if !PX_DOXYGEN
 } // namespace pvdsdk
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

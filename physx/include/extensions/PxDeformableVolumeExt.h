@@ -37,7 +37,7 @@
 #include "cudamanager/PxCudaTypes.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -291,7 +291,7 @@ public:
 };
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif // PX_DEFORMABLE_VOLUME_EXT_H

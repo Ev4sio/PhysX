@@ -34,7 +34,7 @@
 #include "foundation/PxVec3.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 	namespace pvdsdk
@@ -46,11 +46,11 @@ namespace physx
 	struct PxDebugTriangle;
 	struct PxDebugText;
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -109,34 +109,34 @@ class PxPvdSceneClient
 	/**
 	draw points on PVD application's render window
 	*/
-	virtual void drawPoints(const physx::PxDebugPoint* points, PxU32 count) = 0;
+	virtual void drawPoints(const ev4sio_physx::PxDebugPoint* points, PxU32 count) = 0;
 
 	/**
 	draw lines on PVD application's render window
 	*/
-	virtual void drawLines(const physx::PxDebugLine* lines, PxU32 count) = 0;
+	virtual void drawLines(const ev4sio_physx::PxDebugLine* lines, PxU32 count) = 0;
 
 	/**
 	draw triangles on PVD application's render window
 	*/
-	virtual void drawTriangles(const physx::PxDebugTriangle* triangles, PxU32 count) = 0;
+	virtual void drawTriangles(const ev4sio_physx::PxDebugTriangle* triangles, PxU32 count) = 0;
 
 	/**
 	draw text on PVD application's render window
 	*/
-	virtual void drawText(const physx::PxDebugText& text) = 0;
+	virtual void drawText(const ev4sio_physx::PxDebugText& text) = 0;
 
 	/**
 	get the underlying client, for advanced users
 	*/
-	virtual physx::pvdsdk::PvdClient* getClientInternal() = 0;
+	virtual ev4sio_physx::pvdsdk::PvdClient* getClientInternal() = 0;
 
 protected:
 	virtual ~PxPvdSceneClient(){}
 };
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

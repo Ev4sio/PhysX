@@ -35,22 +35,22 @@
 #include "foundation/PxMemory.h"
 #include "PxNodeIndex.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 class PxsRigidBody;
 
-namespace Sc
+namespace ev4sio_Sc
 {
 	class ShapeInteraction;
 }
 
-namespace Dy
+namespace ev4sio_Dy
 {
 
 struct ThresholdStreamElement
 {
-	Sc::ShapeInteraction*	shapeInteraction;			//4/8	4/8
+	ev4sio_Sc::ShapeInteraction*	shapeInteraction;			//4/8	4/8
 	PxReal					normalForce;				//4		8/12
 	PxReal					threshold;					//4		12/16
 	PxNodeIndex				nodeIndexA;					//8		24 This is the unique node index in island gen which corresonding to that body and it is persistent	16	20

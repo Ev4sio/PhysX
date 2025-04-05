@@ -35,7 +35,7 @@
 #include "NpCheck.h"
 #include "common/PxProfileZone.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 #if PX_ENABLE_DEBUG_VISUALIZATION
 
@@ -59,8 +59,8 @@ using namespace physx;
 #include "GuConvexGeometry.h"
 
 using namespace aos;
-using namespace Gu;
-using namespace Cm;
+using namespace ev4sio_Gu;
+using namespace ev4sio_Cm;
 
 /////
 
@@ -130,7 +130,7 @@ static void visualizeBox(const PxBoxGeometry& geometry, PxRenderOutput& out, con
 
 static void visualizeConvexCore(const PxConvexCoreGeometry& geometry, PxRenderOutput& out, const PxTransform& absPose, const PxBounds3& cullbox)
 {
-	Gu::visualize(geometry, absPose, true, cullbox, out);
+	ev4sio_Gu::visualize(geometry, absPose, true, cullbox, out);
 }
 
 static void visualizeConvexMesh(const PxConvexMeshGeometry& geometry, PxRenderOutput& out, const PxTransform& absPose)
@@ -328,12 +328,12 @@ PX_FORCE_INLINE PxU32 makeColor(PxReal v, PxReal invRange0, PxReal invRange1)
 }
 
 //Returns true if the number of samples chosen to visualize was reduced (to speed up rendering) compared to the total number of sdf samples available
-static bool visualizeSDF(PxRenderOutput& out, const Gu::SDF& sdf, const PxMat34& absPose, bool limitNumberOfVisualizedSamples = false)
+static bool visualizeSDF(PxRenderOutput& out, const ev4sio_Gu::SDF& sdf, const PxMat34& absPose, bool limitNumberOfVisualizedSamples = false)
 {
 	//### DEFENSIVE coding for OM-122453 and OM-112365
 	if (!sdf.mSdf)
 	{
-		PxGetFoundation().error(::physx::PxErrorCode::eINTERNAL_ERROR, PX_FL, "No distance data available (null pointer) when evaluating an SDF.");
+		ev4sio_PxGetFoundation().error(::ev4sio_physx::PxErrorCode::eINTERNAL_ERROR, PX_FL, "No distance data available (null pointer) when evaluating an SDF.");
 		return false;
 	}
 
@@ -373,7 +373,7 @@ static bool visualizeSDF(PxRenderOutput& out, const Gu::SDF& sdf, const PxMat34&
 			//### DEFENSIVE coding for OM-122453 and OM-112365
 			if (!sdf.mSubgridSdf || !sdf.mSubgridStartSlots)
 			{
-				PxGetFoundation().error(::physx::PxErrorCode::eINTERNAL_ERROR, PX_FL, "No sparse grid data available (null pointer) when evaluating an SDF.");
+				ev4sio_PxGetFoundation().error(::ev4sio_physx::PxErrorCode::eINTERNAL_ERROR, PX_FL, "No sparse grid data available (null pointer) when evaluating an SDF.");
 				return false;
 			}
 
@@ -605,13 +605,13 @@ static void visualizeTriangleMesh(const PxTriangleMeshGeometry& geometry, PxRend
 					transformV(&transformed[i], &vertices[i], posV, absPose);
 				}
 
-				const Gu::EdgeList* edgeList = triangleMesh->requestEdgeList();
+				const ev4sio_Gu::EdgeList* edgeList = triangleMesh->requestEdgeList();
 				if (edgeList)
 				{
 					PxU32 nbEdges = edgeList->getNbEdges();
 					PxDebugLine* segments = out.reserveSegments(nbEdges);
 
-					const Gu::EdgeData* edges = edgeList->getEdges();
+					const ev4sio_Gu::EdgeData* edges = edgeList->getEdges();
 					while (nbEdges--)
 					{
 						segments->pos0 = transformed[edges->Ref0];
@@ -651,7 +651,7 @@ static void visualizeTriangleMesh(const PxTriangleMeshGeometry& geometry, PxRend
 
 	if (drawSDF)
 	{
-		const Gu::SDF& sdf = triangleMesh->getSdfDataFast();
+		const ev4sio_Gu::SDF& sdf = triangleMesh->getSdfDataFast();
 		//We have an SDF, we should debug render it...
 		visualizeSDF(out, sdf, absPose);
 
@@ -779,7 +779,7 @@ void NpShapeManager::visualize(PxRenderOutput& out, NpScene& scene, const PxRigi
 {
 	PX_ASSERT(scale!=0.0f);	// Else we shouldn't have been called
 
-	const Sc::Scene& scScene = scene.getScScene();
+	const ev4sio_Sc::Scene& scScene = scene.getScScene();
 
 	const PxU32 nbShapes = getNbShapes();
 	NpShape*const* PX_RESTRICT shapes = getShapes();
@@ -827,7 +827,7 @@ void NpShapeManager::visualize(PxRenderOutput& out, NpScene& scene, const PxRigi
 			if(collisionAxes != 0.0f)
 			{
 				out << PxMat44(absPose);
-				Cm::renderOutputDebugBasis(out, PxDebugBasis(PxVec3(collisionAxes), 0xcf0000, 0x00cf00, 0x0000cf));
+				ev4sio_Cm::renderOutputDebugBasis(out, PxDebugBasis(PxVec3(collisionAxes), 0xcf0000, 0x00cf00, 0x0000cf));
 			}
 
 			if(visualizeCollision)
@@ -850,23 +850,23 @@ void NpShapeManager::visualize(PxRenderOutput& out, NpScene& scene, const PxRigi
 
 /////
 
-static PX_FORCE_INLINE void visualizeActor(PxRenderOutput& out, const Sc::Scene& scScene, const PxRigidActor& actor, float scale)
+static PX_FORCE_INLINE void visualizeActor(PxRenderOutput& out, const ev4sio_Sc::Scene& scScene, const PxRigidActor& actor, float scale)
 {
 	//visualize actor frames
 	const PxReal actorAxes = scale * scScene.getVisualizationParameter(PxVisualizationParameter::eACTOR_AXES);
 	if(actorAxes != 0.0f)
 	{
 		out << actor.getGlobalPose();
-		Cm::renderOutputDebugBasis(out, PxDebugBasis(PxVec3(actorAxes)));
+		ev4sio_Cm::renderOutputDebugBasis(out, PxDebugBasis(PxVec3(actorAxes)));
 	}
 }
 
-void physx::visualizeRigidBody(PxRenderOutput& out, NpScene& scene, const PxRigidActor& actor, const Sc::BodyCore& core, float scale)
+void ev4sio_physx::visualizeRigidBody(PxRenderOutput& out, NpScene& scene, const PxRigidActor& actor, const ev4sio_Sc::BodyCore& core, float scale)
 {
 	PX_ASSERT(scale!=0.0f);	// Else we shouldn't have been called
 	PX_ASSERT(core.getActorFlags() & PxActorFlag::eVISUALIZATION);	// Else we shouldn't have been called
 
-	const Sc::Scene& scScene = scene.getScScene();
+	const ev4sio_Sc::Scene& scScene = scene.getScScene();
 
 	visualizeActor(out, scScene, actor, scale);
 
@@ -876,21 +876,21 @@ void physx::visualizeRigidBody(PxRenderOutput& out, NpScene& scene, const PxRigi
 	if(bodyAxes != 0.0f)
 	{
 		out << body2World;
-		Cm::renderOutputDebugBasis(out, PxDebugBasis(PxVec3(bodyAxes)));
+		ev4sio_Cm::renderOutputDebugBasis(out, PxDebugBasis(PxVec3(bodyAxes)));
 	}
 
 	const PxReal linVelocity = scale * scScene.getVisualizationParameter(PxVisualizationParameter::eBODY_LIN_VELOCITY);
 	if(linVelocity != 0.0f)
 	{
 		out << 0xffffff << PxMat44(PxIdentity);
-		Cm::renderOutputDebugArrow(out, PxDebugArrow(body2World.p, core.getLinearVelocity() * linVelocity, 0.2f * linVelocity));
+		ev4sio_Cm::renderOutputDebugArrow(out, PxDebugArrow(body2World.p, core.getLinearVelocity() * linVelocity, 0.2f * linVelocity));
 	}
 
 	const PxReal angVelocity = scale * scScene.getVisualizationParameter(PxVisualizationParameter::eBODY_ANG_VELOCITY);
 	if(angVelocity != 0.0f)
 	{
 		out << 0x000000 << PxMat44(PxIdentity);
-		Cm::renderOutputDebugArrow(out, PxDebugArrow(body2World.p, core.getAngularVelocity() * angVelocity, 0.2f * angVelocity));
+		ev4sio_Cm::renderOutputDebugArrow(out, PxDebugArrow(body2World.p, core.getAngularVelocity() * angVelocity, 0.2f * angVelocity));
 	}
 
 	const PxReal massAxes = scale * scScene.getVisualizationParameter(PxVisualizationParameter::eBODY_MASS_AXES);
@@ -903,7 +903,7 @@ void physx::visualizeRigidBody(PxRenderOutput& out, NpScene& scene, const PxRigi
 		dims = getDimsFromBodyInertia(dims, 1.0f / core.getInverseMass());
 		out << color << core.getBody2World();
 		const PxVec3 extents = dims * 0.5f;
-		Cm::renderOutputDebugBox(out, PxBounds3(-extents, extents));
+		ev4sio_Cm::renderOutputDebugBox(out, PxBounds3(-extents, extents));
 	}
 }
 
@@ -935,7 +935,7 @@ void NpArticulationLink::visualize(PxRenderOutput& out, NpScene& scene, float sc
 
 	NpArticulationLinkT::visualize(out, scene, scale);
 
-	const Sc::Scene& scScene = scene.getScScene();
+	const ev4sio_Sc::Scene& scScene = scene.getScScene();
 
 	const PxReal frameScale = scale * scScene.getVisualizationParameter(PxVisualizationParameter::eJOINT_LOCAL_FRAMES);
 	const PxReal limitScale = scale * scScene.getVisualizationParameter(PxVisualizationParameter::eJOINT_LIMITS);
@@ -974,7 +974,7 @@ void NpArticulationLink::visualizeJoint(PxConstraintVisualizer& jointViz) const
 
 		const PxTransform cA2cB = cB2w.transformInv(cA2w);
 
-		Sc::ArticulationJointCore& joint = impl->getCore();
+		ev4sio_Sc::ArticulationJointCore& joint = impl->getCore();
 
 		if(joint.getMotion(PxArticulationAxis::eTWIST))
 		{
@@ -1050,7 +1050,7 @@ void NpScene::visualize()
 	// Visualize scene axes
 	const PxReal worldAxes = scale * mScene.getVisualizationParameter(PxVisualizationParameter::eWORLD_AXES);
 	if(worldAxes != 0)
-		Cm::renderOutputDebugBasis(out, PxDebugBasis(PxVec3(worldAxes)));
+		ev4sio_Cm::renderOutputDebugBasis(out, PxDebugBasis(PxVec3(worldAxes)));
 
 	// Visualize articulations
 	const PxU32 articulationCount = mArticulations.size();
@@ -1081,7 +1081,7 @@ void NpScene::visualize()
 	{
 		out << PxTransform(PxIdentity);
 
-		const Bp::BroadPhase* bp = mScene.getAABBManager()->getBroadPhase();
+		const ev4sio_Bp::BroadPhase* bp = mScene.getAABBManager()->getBroadPhase();
 
 		const PxU32 nbRegions = bp->getNbRegions();
 		for(PxU32 i=0;i<nbRegions;i++)
@@ -1093,7 +1093,7 @@ void NpScene::visualize()
 				out << PxU32(PxDebugColor::eARGB_YELLOW);
 			else
 				out << PxU32(PxDebugColor::eARGB_BLACK);
-			Cm::renderOutputDebugBox(out, info.mRegion.mBounds);
+			ev4sio_Cm::renderOutputDebugBox(out, info.mRegion.mBounds);
 		}
 	}
 
@@ -1103,7 +1103,7 @@ void NpScene::visualize()
 		if(!cullbox.isEmpty())
 		{
 			out << PxU32(PxDebugColor::eARGB_YELLOW);
-			Cm::renderOutputDebugBox(out, cullbox);
+			ev4sio_Cm::renderOutputDebugBox(out, cullbox);
 		}
 	}
 

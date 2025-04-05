@@ -34,7 +34,7 @@
 #include "PxsSimulationController.h"
 #include "foundation/PxArray.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 class NpArticulationLink;
 class NpArticulationReducedCoordinate;
@@ -45,13 +45,13 @@ class NpOmniPvdSimulationControllerCallbacks : public PxsSimulationControllerOVD
 public:
 	NpOmniPvdSimulationControllerCallbacks(NpScene& scene);
 	virtual void processRigidDynamicSet(const PxsRigidBody* const * rigids, const void* dataVec, const PxRigidDynamicGPUIndex* gpuIndices, PxRigidDynamicGPUAPIWriteType::Enum dataType, PxU32 nbElements) PX_OVERRIDE;
-	virtual void processArticulationSet(const Dy::FeatherstoneArticulation* const * articulations, const void* dataVec, const PxArticulationGPUIndex* nodeIndices, PxArticulationGPUAPIWriteType::Enum dataType, PxU32 nbElements,
+	virtual void processArticulationSet(const ev4sio_Dy::FeatherstoneArticulation* const * articulations, const void* dataVec, const PxArticulationGPUIndex* nodeIndices, PxArticulationGPUAPIWriteType::Enum dataType, PxU32 nbElements,
 			PxU32 maxLinks, PxU32 maxDofs, PxU32 maxFixedTendons, PxU32 maxTendonJoints, PxU32 maxSpatialTendons, PxU32 maxSpatialTendonAttachments) PX_OVERRIDE;
 private:
 	const PxRigidDynamic* castPxsRigidBodyToPxRigidDynamic(const PxsRigidBody* rigidBody);
-	static const NpArticulationReducedCoordinate* castFeatherstoneToNpArticulation(const Dy::FeatherstoneArticulation* const featherstone);
+	static const NpArticulationReducedCoordinate* castFeatherstoneToNpArticulation(const ev4sio_Dy::FeatherstoneArticulation* const featherstone);
 	void setDofOffsetVec(PxArray<PxU32>& dofStarts, PxU32 nbLinks, const NpArticulationLink* const * npLinks);
-	void streamJointValues(const PxArticulationGPUAPIWriteType::Enum dataType, const Dy::FeatherstoneArticulation* const * articulations, PxReal* realsDataVec, const PxArticulationGPUIndex* nodeIndices,
+	void streamJointValues(const PxArticulationGPUAPIWriteType::Enum dataType, const ev4sio_Dy::FeatherstoneArticulation* const * articulations, PxReal* realsDataVec, const PxArticulationGPUIndex* nodeIndices,
 		PxU32 nbArticulations, PxU32 maxLinks, PxU32 maxSubElementsInBlock);
 	NpScene& mNpScene;
 	PxArray<PxU32> mDofStarts;

@@ -32,19 +32,19 @@
 
 #if PX_DEBUG || PX_CHECKED || PX_PROFILE
 	#define PX_PROFILE_ZONE(x, y)										\
-		physx::PxProfileScoped PX_CONCAT(_scoped, __LINE__)(PxGetProfilerCallback(), x, false, y)
+		ev4sio_physx::PxProfileScoped PX_CONCAT(_scoped, __LINE__)(ev4sio_PxGetProfilerCallback(), x, false, y)
 	#define PX_PROFILE_START_CROSSTHREAD(x, y)							\
-		if(PxGetProfilerCallback())										\
-			PxGetProfilerCallback()->zoneStart(x, true, y)
+		if(ev4sio_PxGetProfilerCallback())										\
+			ev4sio_PxGetProfilerCallback()->zoneStart(x, true, y)
 	#define PX_PROFILE_STOP_CROSSTHREAD(x, y)							\
-		if(PxGetProfilerCallback())										\
-			PxGetProfilerCallback()->zoneEnd(NULL, x, true, y)
+		if(ev4sio_PxGetProfilerCallback())										\
+			ev4sio_PxGetProfilerCallback()->zoneEnd(NULL, x, true, y)
 	#define PX_PROFILE_VALUE(x, y, z)									\
-		if(PxGetProfilerCallback())										\
-			PxGetProfilerCallback()->recordData(x, y, z)
+		if(ev4sio_PxGetProfilerCallback())										\
+			ev4sio_PxGetProfilerCallback()->recordData(x, y, z)
 	#define PX_PROFILE_FRAME(x, y)                                                                                                         \
-		if(PxGetProfilerCallback())                                                                                                        \
-			PxGetProfilerCallback()->recordFrame(x, y)
+		if(ev4sio_PxGetProfilerCallback())                                                                                                        \
+			ev4sio_PxGetProfilerCallback()->recordFrame(x, y)
 #else
 	#define PX_PROFILE_ZONE(x, y)
 	#define PX_PROFILE_START_CROSSTHREAD(x, y)

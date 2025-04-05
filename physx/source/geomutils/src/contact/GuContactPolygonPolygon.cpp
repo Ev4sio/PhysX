@@ -35,8 +35,8 @@
 #include "foundation/PxAlloca.h"
 #include "foundation/PxFPU.h"
 
-using namespace physx;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
 
 #define CONTACT_REDUCTION
 
@@ -158,8 +158,8 @@ static void ContactReductionAllIn(	PxContactBuffer& contactBuffer, PxU32 nbExist
 			for(PxU32 j=0;j<nbAxes;j++)
 			{
 				const float dp = dot2D(dirs[j], p2d);
-				dpmin[j] = physx::intrinsics::selectMin(dpmin[j], dp);
-				dpmax[j] = physx::intrinsics::selectMax(dpmax[j], dp);
+				dpmin[j] = ev4sio_physx::intrinsics::selectMin(dpmin[j], dp);
+				dpmax[j] = ev4sio_physx::intrinsics::selectMax(dpmax[j], dp);
 			}
 		}
 
@@ -248,7 +248,7 @@ static void ContactReductionAllIn(	PxContactBuffer& contactBuffer, PxU32 nbExist
 #endif
 
 // PT: please leave that function in the same translation unit as the calling code
-/*static*/ PxMat33 Gu::findRotationMatrixFromZ(const PxVec3& to)
+/*static*/ PxMat33 ev4sio_Gu::findRotationMatrixFromZ(const PxVec3& to)
 {
 	PxMat33 result;
 
@@ -364,10 +364,10 @@ static void transformVertices(	float& minX, float& minY,
 	{
 		float x,y;
 		transform2DT(x, y, vertices[indices[i]], RotT);
-		lminX = physx::intrinsics::selectMin(lminX, x);
-		lminY = physx::intrinsics::selectMin(lminY, y);
-		lmaxX = physx::intrinsics::selectMax(lmaxX, x);
-		lmaxY = physx::intrinsics::selectMax(lmaxY, y);
+		lminX = ev4sio_physx::intrinsics::selectMin(lminX, x);
+		lminY = ev4sio_physx::intrinsics::selectMin(lminY, y);
+		lmaxX = ev4sio_physx::intrinsics::selectMax(lmaxX, x);
+		lmaxY = ev4sio_physx::intrinsics::selectMax(lmaxY, y);
 		verts2D[i*2+0] = x;
 		verts2D[i*2+1] = y;
 	}
@@ -398,13 +398,13 @@ static void transformVertices(	float& minX, float& minY,
 		// PT: theoretically proper DE702 fix (relocation + scaling)
 		const float dx = x - cx;
 		const float dy = y - cy;
-//		const float coeff = epsilon * physx::intrinsics::recipSqrt(dx*dx+dy*dy);
+//		const float coeff = epsilon * ev4sio_physx::intrinsics::recipSqrt(dx*dx+dy*dy);
 //		verts2D[i*2+0] = x - lminX + dx * coeff;
 //		verts2D[i*2+1] = y - lminY + dy * coeff;
 
 		// PT: approximate but faster DE702 fix. We multiply by epsilon so this is good enough.
-		verts2D[i*2+0] = x - lminX + physx::intrinsics::fsel(dx, epsilon, -epsilon);
-		verts2D[i*2+1] = y - lminY + physx::intrinsics::fsel(dy, epsilon, -epsilon);
+		verts2D[i*2+0] = x - lminX + ev4sio_physx::intrinsics::fsel(dx, epsilon, -epsilon);
+		verts2D[i*2+1] = y - lminY + ev4sio_physx::intrinsics::fsel(dy, epsilon, -epsilon);
 	}
 	lmaxX -= lminX;
 	lmaxY -= lminY;
@@ -552,7 +552,7 @@ PX_FORCE_INLINE bool EdgeEdgeContactSpecial(const PxVec3& v1, const PxPlane& pla
 }
 
 //This one can also handle 2 vertex 'polygons' (useful for capsule surface segments) and can shift the results before contact generation.
-bool Gu::contactPolygonPolygonExt(	PxU32 numVerts0, const PxVec3* vertices0, const PxU8* indices0,	//polygon 0
+bool ev4sio_Gu::contactPolygonPolygonExt(	PxU32 numVerts0, const PxVec3* vertices0, const PxU8* indices0,	//polygon 0
 									const PxMat34& world0, const PxPlane& localPlane0,	//xform of polygon 0, plane of polygon
 									const PxMat33& rotT0,
 									//

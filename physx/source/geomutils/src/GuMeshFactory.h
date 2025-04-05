@@ -46,9 +46,9 @@
 #include "CmUtils.h"
 #include "foundation/PxFoundation.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Gu
+namespace ev4sio_Gu
 {
 	class ConvexMesh;
 	class HeightField;
@@ -91,7 +91,7 @@ namespace Gu
 		void							release();
 
 		// Triangle meshes
-		void							addTriangleMesh(Gu::TriangleMesh* np, bool lock=true);
+		void							addTriangleMesh(ev4sio_Gu::TriangleMesh* np, bool lock=true);
 		PxTriangleMesh*					createTriangleMesh(PxInputStream& stream);
 		PxTriangleMesh*					createTriangleMesh(void* triangleMeshData);
 		bool							removeTriangleMesh(PxTriangleMesh&);
@@ -99,7 +99,7 @@ namespace Gu
 		PxU32							getTriangleMeshes(PxTriangleMesh** userBuffer, PxU32 bufferSize, PxU32 startIndex)	const;
 
 		// Tetrahedron meshes
-		void							addTetrahedronMesh(Gu::TetrahedronMesh* np, bool lock = true);
+		void							addTetrahedronMesh(ev4sio_Gu::TetrahedronMesh* np, bool lock = true);
 		PxTetrahedronMesh*				createTetrahedronMesh(PxInputStream& stream);
 		PxTetrahedronMesh*				createTetrahedronMesh(void* tetrahedronMeshData);
 		bool							removeTetrahedronMesh(PxTetrahedronMesh&);
@@ -107,7 +107,7 @@ namespace Gu
 		PxU32							getTetrahedronMeshes(PxTetrahedronMesh** userBuffer, PxU32 bufferSize, PxU32 startIndex)	const;
 
 		// Deformable volume meshes
-		void							addDeformableVolumeMesh(Gu::DeformableVolumeMesh* np, bool lock = true);
+		void							addDeformableVolumeMesh(ev4sio_Gu::DeformableVolumeMesh* np, bool lock = true);
 		PxDeformableVolumeMesh*			createDeformableVolumeMesh(PxInputStream& stream);
 		PxDeformableVolumeMesh*			createDeformableVolumeMesh(void* tetrahedronMeshData);
 		bool							removeDeformableVolumeMesh(PxDeformableVolumeMesh&);
@@ -115,7 +115,7 @@ namespace Gu
 		PxU32							getDeformableVolumeMeshes(PxDeformableVolumeMesh** userBuffer, PxU32 bufferSize, PxU32 startIndex)	const;
 
 		// Convexes
-		void							addConvexMesh(Gu::ConvexMesh* np, bool lock=true);
+		void							addConvexMesh(ev4sio_Gu::ConvexMesh* np, bool lock=true);
 		PxConvexMesh*					createConvexMesh(PxInputStream&);
 		PxConvexMesh*					createConvexMesh(void* convexMeshData);
 		bool							removeConvexMesh(PxConvexMesh&);
@@ -123,7 +123,7 @@ namespace Gu
 		PxU32							getConvexMeshes(PxConvexMesh** userBuffer, PxU32 bufferSize, PxU32 startIndex)	const;
 
 		// Heightfields
-		void							addHeightField(Gu::HeightField* np, bool lock=true);
+		void							addHeightField(ev4sio_Gu::HeightField* np, bool lock=true);
 		PxHeightField*					createHeightField(void* heightFieldMeshData);
 		PxHeightField*					createHeightField(PxInputStream&);
 		bool							removeHeightField(PxHeightField&);
@@ -131,7 +131,7 @@ namespace Gu
 		PxU32							getHeightFields(PxHeightField** userBuffer, PxU32 bufferSize, PxU32 startIndex)	const;
 
 		// BVH
-		void							addBVH(Gu::BVH* np, bool lock=true);
+		void							addBVH(ev4sio_Gu::BVH* np, bool lock=true);
 		PxBVH*							createBVH(PxInputStream&);
 		PxBVH*							createBVH(void* bvhData);
 		bool							removeBVH(PxBVH&);
@@ -146,20 +146,20 @@ namespace Gu
 
 	protected:
 
-		PxTriangleMesh*					createTriangleMesh(Gu::TriangleMeshData& data);
-		PxTetrahedronMesh*				createTetrahedronMesh(Gu::TetrahedronMeshData& data);
-		PxDeformableVolumeMesh*			createDeformableVolumeMesh(Gu::DeformableVolumeMeshData& data);
-		PxConvexMesh*					createConvexMesh(Gu::ConvexHullInitData& data);
-		PxBVH*							createBVH(Gu::BVHData& data);
+		PxTriangleMesh*					createTriangleMesh(ev4sio_Gu::TriangleMeshData& data);
+		PxTetrahedronMesh*				createTetrahedronMesh(ev4sio_Gu::TetrahedronMeshData& data);
+		PxDeformableVolumeMesh*			createDeformableVolumeMesh(ev4sio_Gu::DeformableVolumeMeshData& data);
+		PxConvexMesh*					createConvexMesh(ev4sio_Gu::ConvexHullInitData& data);
+		PxBVH*							createBVH(ev4sio_Gu::BVHData& data);
 
 		mutable PxMutex					mTrackingMutex;
 	private:
-		PxCoalescedHashSet<Gu::TriangleMesh*>			mTriangleMeshes;
-		PxCoalescedHashSet<Gu::TetrahedronMesh*>		mTetrahedronMeshes;
-		PxCoalescedHashSet<Gu::DeformableVolumeMesh*>	mDeformableVolumeMeshes;
-		PxCoalescedHashSet<Gu::ConvexMesh*>				mConvexMeshes;
-		PxCoalescedHashSet<Gu::HeightField*>			mHeightFields;
-		PxCoalescedHashSet<Gu::BVH*>					mBVHs;
+		PxCoalescedHashSet<ev4sio_Gu::TriangleMesh*>			mTriangleMeshes;
+		PxCoalescedHashSet<ev4sio_Gu::TetrahedronMesh*>		mTetrahedronMeshes;
+		PxCoalescedHashSet<ev4sio_Gu::DeformableVolumeMesh*>	mDeformableVolumeMeshes;
+		PxCoalescedHashSet<ev4sio_Gu::ConvexMesh*>				mConvexMeshes;
+		PxCoalescedHashSet<ev4sio_Gu::HeightField*>			mHeightFields;
+		PxCoalescedHashSet<ev4sio_Gu::BVH*>					mBVHs;
 
 		PxArray<MeshFactoryListener*>					mFactoryListeners;
 
@@ -174,24 +174,24 @@ namespace Gu
 	#endif
 
 		template<typename T>
-		PX_INLINE void onRefCountZero(T* object, Gu::MeshFactory* mf, bool cndt, const char* errorMsg)
+		PX_INLINE void onRefCountZero(T* object, ev4sio_Gu::MeshFactory* mf, bool cndt, const char* errorMsg)
 		{
 			if(mf)
 			{
 				if(cndt || mf->remove(*object))
 				{
 					const PxType type = object->getConcreteType();
-					Cm::deletePxBase(object);
+					ev4sio_Cm::deletePxBase(object);
 					mf->notifyFactoryListener(object, type);
 					return;
 				}
 	
 				// PT: if we reach this point, we didn't find the mesh in the Physics object => don't delete!
 				// This prevents deleting the object twice.
-				PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, errorMsg);
+				ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, errorMsg);
 			}
 			else
-				Cm::deletePxBase(object);
+				ev4sio_Cm::deletePxBase(object);
 		}
 	}
 

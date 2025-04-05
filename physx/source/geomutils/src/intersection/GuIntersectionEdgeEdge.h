@@ -32,9 +32,9 @@
 #include "foundation/PxVec3.h"
 #include "common/PxPhysXCommonConfig.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Gu
+namespace ev4sio_Gu
 {
 
 	// collide edge (p1,p2) moving in direction (dir) colliding
@@ -44,7 +44,7 @@ namespace Gu
 	// note: ip is on (p1,p2), not (p1+dist*dir,p2+dist*dir)
 	PX_PHYSX_COMMON_API bool intersectEdgeEdge(const PxVec3& p1, const PxVec3& p2, const PxVec3& dir, const PxVec3& p3, const PxVec3& p4, PxReal& dist, PxVec3& ip);
 
-} // namespace Gu
+} // namespace ev4sio_Gu
 
 }
 

@@ -33,7 +33,7 @@
 #include "foundation/PxFoundationConfig.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -57,19 +57,19 @@ PX_FOUNDATION_API void PxAssert(const char* exp, const char* file, int line, boo
 	#define PX_ASSERT(exp)																			\
 		{																							\
 			static bool _ignore = false;															\
-			((void)((!!(exp)) || (!_ignore && (physx::PxAssert(#exp, PX_FL, _ignore), false))));	\
+			((void)((!!(exp)) || (!_ignore && (ev4sio_physx::PxAssert(#exp, PX_FL, _ignore), false))));	\
 			PX_CODE_ANALYSIS_ASSUME(exp);															\
 		}
 	#define PX_ALWAYS_ASSERT_MESSAGE(exp)															\
 		{																							\
 			static bool _ignore = false;															\
 			if(!_ignore)																			\
-				physx::PxAssert(exp, PX_FL, _ignore);												\
+				ev4sio_physx::PxAssert(exp, PX_FL, _ignore);												\
 		}
 	#define PX_ASSERT_WITH_MESSAGE(exp, message)													\
 		{																							\
 			static bool _ignore = false;															\
-			((void)((!!(exp)) || (!_ignore && (physx::PxAssert(message, PX_FL, _ignore), false))));	\
+			((void)((!!(exp)) || (!_ignore && (ev4sio_physx::PxAssert(message, PX_FL, _ignore), false))));	\
 			PX_CODE_ANALYSIS_ASSUME(exp);															\
 		}
 #endif // !PX_ENABLE_ASSERTS
@@ -77,7 +77,7 @@ PX_FOUNDATION_API void PxAssert(const char* exp, const char* file, int line, boo
 #define PX_ALWAYS_ASSERT() PX_ASSERT(0)
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 

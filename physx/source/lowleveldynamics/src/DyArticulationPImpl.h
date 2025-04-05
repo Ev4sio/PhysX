@@ -31,9 +31,9 @@
 
 #include "DyFeatherstoneArticulation.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Dy
+namespace ev4sio_Dy
 {
 	struct ArticulationSolverDesc;
 
@@ -50,19 +50,19 @@ public:
 		return FeatherstoneArticulation::computeUnconstrainedVelocities(desc, dt, acCount, gravity, invLengthScale);
 	}
 
-	static void	updateBodies(const ArticulationSolverDesc& desc, Cm::SpatialVectorF* tempDeltaV,
+	static void	updateBodies(const ArticulationSolverDesc& desc, ev4sio_Cm::SpatialVectorF* tempDeltaV,
 						 PxReal dt)
 	{
 		FeatherstoneArticulation::updateBodies(desc, tempDeltaV, dt);
 	}
 
-	static void	updateBodiesTGS(const ArticulationSolverDesc& desc, Cm::SpatialVectorF* tempDeltaV,
+	static void	updateBodiesTGS(const ArticulationSolverDesc& desc, ev4sio_Cm::SpatialVectorF* tempDeltaV,
 		PxReal dt)
 	{
 		FeatherstoneArticulation::updateBodiesTGS(desc, tempDeltaV, dt);
 	}
 
-	static void	saveVelocity(FeatherstoneArticulation* articulation, Cm::SpatialVectorF* tempDeltaV)
+	static void	saveVelocity(FeatherstoneArticulation* articulation, ev4sio_Cm::SpatialVectorF* tempDeltaV)
 	{
 		FeatherstoneArticulation::saveVelocity(articulation, tempDeltaV);
 	}
@@ -81,7 +81,7 @@ public:
 		FeatherstoneArticulation::computeUnconstrainedVelocitiesTGS(desc, dt, gravity, invLengthScale, externalForcesEveryTgsIterationEnabled);
 	}
 
-	static void	updateDeltaMotion(const ArticulationSolverDesc& desc, const PxReal dt, Cm::SpatialVectorF* DeltaV, const PxReal totalInvDt)
+	static void	updateDeltaMotion(const ArticulationSolverDesc& desc, const PxReal dt, ev4sio_Cm::SpatialVectorF* DeltaV, const PxReal totalInvDt)
 	{
 		FeatherstoneArticulation::recordDeltaMotion(desc, dt, DeltaV, totalInvDt);
 	}

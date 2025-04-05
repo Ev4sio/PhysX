@@ -35,8 +35,8 @@
 
 #include "omnipvd/ExtOmniPvdSetData.h"
 
-using namespace physx;
-using namespace Ext;
+using namespace ev4sio_physx;
+using namespace ev4sio_Ext;
 
 PX_IMPLEMENT_OUTPUT_ERROR
 
@@ -353,7 +353,7 @@ static PxConstraintShaderTable gRackAndPinionJointShaders = { RackAndPinionJoint
 
 PxConstraintSolverPrep RackAndPinionJoint::getPrep()	const	{ return gRackAndPinionJointShaders.solverPrep;  }
 
-PxRackAndPinionJoint* physx::PxRackAndPinionJointCreate(PxPhysics& physics, PxRigidActor* actor0, const PxTransform& localFrame0, PxRigidActor* actor1, const PxTransform& localFrame1)
+PxRackAndPinionJoint* ev4sio_physx::PxRackAndPinionJointCreate(PxPhysics& physics, PxRigidActor* actor0, const PxTransform& localFrame0, PxRigidActor* actor1, const PxTransform& localFrame1)
 {
 	PX_CHECK_AND_RETURN_NULL(localFrame0.isSane(), "PxRackAndPinionJointCreate: local frame 0 is not a valid transform"); 
 	PX_CHECK_AND_RETURN_NULL(localFrame1.isSane(), "PxRackAndPinionJointCreate: local frame 1 is not a valid transform"); 
@@ -377,7 +377,7 @@ void RackAndPinionJoint::resolveReferences(PxDeserializationContext& context)
 #if PX_SUPPORT_OMNI_PVD
 
 template<>
-void physx::Ext::omniPvdInitJoint<RackAndPinionJoint>(RackAndPinionJoint& joint)
+void ev4sio_physx::ev4sio_Ext::omniPvdInitJoint<RackAndPinionJoint>(RackAndPinionJoint& joint)
 {
 	OMNI_PVD_WRITE_SCOPE_BEGIN(pvdWriter, pvdRegData)
 

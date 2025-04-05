@@ -31,9 +31,9 @@
 
 #include "foundation/PxSimpleTypes.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Gu
+namespace ev4sio_Gu
 {
 	enum ExtraTrigDataFlag
 	{
@@ -60,21 +60,21 @@ namespace Gu
 		// 12 => 21
 		// 20 => 10
 
-		const PxU8 convex01 = extraData & Gu::ETD_CONVEX_EDGE_01;
-		const PxU8 convex12 = extraData & Gu::ETD_CONVEX_EDGE_12;
-		const PxU8 convex20 = extraData & Gu::ETD_CONVEX_EDGE_20;
-		const PxU8 silhouette01 = extraData & Gu::ETD_SILHOUETTE_EDGE_01;
-		const PxU8 silhouette12 = extraData & Gu::ETD_SILHOUETTE_EDGE_12;
-		const PxU8 silhouette20 = extraData & Gu::ETD_SILHOUETTE_EDGE_20;
+		const PxU8 convex01 = extraData & ev4sio_Gu::ETD_CONVEX_EDGE_01;
+		const PxU8 convex12 = extraData & ev4sio_Gu::ETD_CONVEX_EDGE_12;
+		const PxU8 convex20 = extraData & ev4sio_Gu::ETD_CONVEX_EDGE_20;
+		const PxU8 silhouette01 = extraData & ev4sio_Gu::ETD_SILHOUETTE_EDGE_01;
+		const PxU8 silhouette12 = extraData & ev4sio_Gu::ETD_SILHOUETTE_EDGE_12;
+		const PxU8 silhouette20 = extraData & ev4sio_Gu::ETD_SILHOUETTE_EDGE_20;
 		extraData = convex12|silhouette12;
 		if(convex01)
-			extraData |= Gu::ETD_CONVEX_EDGE_20;
+			extraData |= ev4sio_Gu::ETD_CONVEX_EDGE_20;
 		if(convex20)
-			extraData |= Gu::ETD_CONVEX_EDGE_01;
+			extraData |= ev4sio_Gu::ETD_CONVEX_EDGE_01;
 		if(silhouette01)
-			extraData |= Gu::ETD_SILHOUETTE_EDGE_20;
+			extraData |= ev4sio_Gu::ETD_SILHOUETTE_EDGE_20;
 		if(silhouette20)
-			extraData |= Gu::ETD_SILHOUETTE_EDGE_01;
+			extraData |= ev4sio_Gu::ETD_SILHOUETTE_EDGE_01;
 	}
 }
 }

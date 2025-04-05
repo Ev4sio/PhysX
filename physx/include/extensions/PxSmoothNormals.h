@@ -50,7 +50,7 @@ wFaces and set dFaces to zero.
 \param[in] flip Flips the normals or not
 \return True on success.
 */
-PX_C_EXPORT bool PX_CALL_CONV PxBuildSmoothNormals(physx::PxU32 nbTris, physx::PxU32 nbVerts, const physx::PxVec3* verts,
-												   const physx::PxU32* dFaces, const physx::PxU16* wFaces, physx::PxVec3* normals, bool flip);
+PX_C_EXPORT bool PX_CALL_CONV ev4sio_PxBuildSmoothNormals(ev4sio_physx::PxU32 nbTris, ev4sio_physx::PxU32 nbVerts, const ev4sio_physx::PxVec3* verts,
+												   const ev4sio_physx::PxU32* dFaces, const ev4sio_physx::PxU16* wFaces, ev4sio_physx::PxVec3* normals, bool flip);
 
 #endif

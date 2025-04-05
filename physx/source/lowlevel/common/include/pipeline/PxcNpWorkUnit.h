@@ -36,14 +36,14 @@
 // We can store the geom types there since they fit. An alternative would be simply to read the types from
 // shapeCore->mGeometry.getType() but that is one more indirection/cache miss. We might be using other shapeCore
 // data everywhere we need the type so that might be irrelevant and could be revisited.
-PX_COMPILE_TIME_ASSERT(physx::PxGeometryType::eGEOMETRY_COUNT<16);
+PX_COMPILE_TIME_ASSERT(ev4sio_physx::PxGeometryType::eGEOMETRY_COUNT<16);
 
-namespace physx
+namespace ev4sio_physx
 {
 struct PxsRigidCore;
 struct PxsShapeCore;
 
-namespace IG
+namespace ev4sio_IG
 {
 	typedef PxU32 EdgeIndex;
 }
@@ -110,7 +110,7 @@ struct PxcNpWorkUnit
 	PxU32				mTransformCache0;			//										//60
 	PxU32				mTransformCache1;			//										//64
 	
-	IG::EdgeIndex		mEdgeIndex;					//inout the island gen edge index		//68
+	ev4sio_IG::EdgeIndex		mEdgeIndex;					//inout the island gen edge index		//68
 	PxU32				mNpIndex;					//INPUT									//72
 
 	PxReal				mTorsionalPatchRadius;												//76

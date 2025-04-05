@@ -33,7 +33,7 @@
 #include "vehicle2/PxVehicleParams.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 namespace vehicle2
 {
@@ -309,6 +309,6 @@ void PxVehicleEngineDrivetrainUpdate
 
 #if !PX_DOXYGEN
 } // namespace vehicle2
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 

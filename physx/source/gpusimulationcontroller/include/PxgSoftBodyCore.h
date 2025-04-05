@@ -33,7 +33,7 @@
 #include "PxSoftBodyFlag.h"
 #include "foundation/PxPreprocessor.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	//this is needed to force PhysXSimulationControllerGpu linkage as Static Library!
 	void createPxgSoftBody();
@@ -57,7 +57,7 @@ namespace physx
 		PxReal friction[32];
 	};
 
-	namespace Dy
+	namespace ev4sio_Dy
 	{
 		class DeformableVolume;
 	}
@@ -258,8 +258,8 @@ namespace physx
 		CUevent							mSolveSoftBodyParticleEvent; //this event is used to synchronize particle system contacts (particle stream) before we call applyExternalTetraDelta
 
 		public:
-		PxArray<Dy::DeformableVolume*>	mActivatingDeformableVolumes;
-		PxArray<Dy::DeformableVolume*>	mDeactivatingDeformableVolumes;
+		PxArray<ev4sio_Dy::DeformableVolume*>	mActivatingDeformableVolumes;
+		PxArray<ev4sio_Dy::DeformableVolume*>	mDeactivatingDeformableVolumes;
 		PxPostSolveCallback*			mPostSolveCallback;
 	};
 

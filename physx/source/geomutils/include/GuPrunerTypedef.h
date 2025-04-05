@@ -31,9 +31,9 @@
 
 #include "foundation/PxSimpleTypes.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-	namespace Gu
+	namespace ev4sio_Gu
 	{
 		typedef PxU32 PrunerHandle;
 		static const PrunerHandle INVALID_PRUNERHANDLE = 0xffffffff;

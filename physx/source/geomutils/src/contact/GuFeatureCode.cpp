@@ -29,8 +29,8 @@
 #include "GuConvexEdgeFlags.h"
 #include "GuFeatureCode.h"
 
-using namespace physx;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
 
 static FeatureCode computeFeatureCode(PxReal u, PxReal v)
 {
@@ -86,34 +86,34 @@ static FeatureCode computeFeatureCode(PxReal u, PxReal v)
 }
 
 
-bool Gu::selectNormal(PxU8 data, PxReal u, PxReal v)
+bool ev4sio_Gu::selectNormal(PxU8 data, PxReal u, PxReal v)
 {
 	bool useFaceNormal = false;
 	const FeatureCode FC = computeFeatureCode(u, v);
 	switch(FC)
 	{
 		case FC_VERTEX0:
-			if(!(data & (Gu::ETD_CONVEX_EDGE_01|Gu::ETD_CONVEX_EDGE_20)))
+			if(!(data & (ev4sio_Gu::ETD_CONVEX_EDGE_01|ev4sio_Gu::ETD_CONVEX_EDGE_20)))
 				useFaceNormal = true;
 			break;
 		case FC_VERTEX1:
-			if(!(data & (Gu::ETD_CONVEX_EDGE_01|Gu::ETD_CONVEX_EDGE_12)))
+			if(!(data & (ev4sio_Gu::ETD_CONVEX_EDGE_01|ev4sio_Gu::ETD_CONVEX_EDGE_12)))
 				useFaceNormal = true;
 			break;
 		case FC_VERTEX2:
-			if(!(data & (Gu::ETD_CONVEX_EDGE_12|Gu::ETD_CONVEX_EDGE_20)))
+			if(!(data & (ev4sio_Gu::ETD_CONVEX_EDGE_12|ev4sio_Gu::ETD_CONVEX_EDGE_20)))
 				useFaceNormal = true;
 			break;
 		case FC_EDGE01:
-			if(!(data & Gu::ETD_CONVEX_EDGE_01))
+			if(!(data & ev4sio_Gu::ETD_CONVEX_EDGE_01))
 				useFaceNormal = true;
 			break;
 		case FC_EDGE12:
-			if(!(data & Gu::ETD_CONVEX_EDGE_12))
+			if(!(data & ev4sio_Gu::ETD_CONVEX_EDGE_12))
 				useFaceNormal = true;
 			break;
 		case FC_EDGE20:
-			if(!(data & Gu::ETD_CONVEX_EDGE_20))
+			if(!(data & ev4sio_Gu::ETD_CONVEX_EDGE_20))
 				useFaceNormal = true;
 			break;
 		case FC_FACE:

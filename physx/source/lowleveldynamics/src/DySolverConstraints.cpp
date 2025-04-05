@@ -40,8 +40,8 @@
 
 #include "DyContactPrep.h"
 
-using namespace physx;
-using namespace Dy;
+using namespace ev4sio_physx;
+using namespace ev4sio_Dy;
 
 //Port of scalar implementation to SIMD maths with some interleaving of instructions
 static void solve1D(const PxSolverConstraintDesc& desc, const SolverContext& cache)
@@ -169,7 +169,7 @@ static void solve1D(const PxSolverConstraintDesc& desc, const SolverContext& cac
 		if (residualReportingAcitve)
 		{
 			PxReal residual;
-			FStore(Dy::calculateResidual(deltaF, vMul), &residual);
+			FStore(ev4sio_Dy::calculateResidual(deltaF, vMul), &residual);
 			cache.isPositionIteration ? c.setPositionIterationResidual(residual) : c.setVelocityIterationResidual(residual);
 		}
 		linVel0 = V3ScaleAdd(clinVel0, FMul(deltaF, invMass0), linVel0);			
@@ -190,9 +190,9 @@ static void solve1D(const PxSolverConstraintDesc& desc, const SolverContext& cac
 	PX_ASSERT(b1.angularState.isFinite());
 }
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Dy
+namespace ev4sio_Dy
 {
 void conclude1D(const PxSolverConstraintDesc& desc)
 {
@@ -233,7 +233,7 @@ static void solveContact(const PxSolverConstraintDesc& desc, SolverContext& cach
 	//hopefully pointer aliasing doesn't bite.
 	PxU8* PX_RESTRICT currPtr = desc.constraint;
 
-	Dy::ErrorAccumulator error;
+	ev4sio_Dy::ErrorAccumulator error;
 	const bool residualReportingActive = cache.contactErrorAccumulator;
 
 	while(currPtr < last)
@@ -383,7 +383,7 @@ static void solveContact_BStatic(const PxSolverConstraintDesc& desc, SolverConte
 	//hopefully pointer aliasing doesn't bite.
 	PxU8* PX_RESTRICT currPtr = desc.constraint;
 
-	Dy::ErrorAccumulator error;
+	ev4sio_Dy::ErrorAccumulator error;
 	const bool residualReportingActive = cache.contactErrorAccumulator;
 
 	while(currPtr < last)
@@ -767,7 +767,7 @@ void solveContactBlockWriteBack(DY_PGS_SOLVE_METHOD_PARAMS)
 	if(cache.mThresholdStreamIndex > (cache.mThresholdStreamLength - 4))
 	{
 		//Write back to global buffer
-		PxI32 threshIndex = physx::PxAtomicAdd(cache.mSharedOutThresholdPairs, PxI32(cache.mThresholdStreamIndex)) - PxI32(cache.mThresholdStreamIndex);
+		PxI32 threshIndex = ev4sio_physx::PxAtomicAdd(cache.mSharedOutThresholdPairs, PxI32(cache.mThresholdStreamIndex)) - PxI32(cache.mThresholdStreamIndex);
 		for(PxU32 a = 0; a < cache.mThresholdStreamIndex; ++a)
 		{
 			cache.mSharedThresholdStream[a + threshIndex] = cache.mThresholdStream[a];
@@ -823,7 +823,7 @@ void solveContact_BStaticBlockWriteBack(DY_PGS_SOLVE_METHOD_PARAMS)
 	{
 		//Not enough space to write 4 more thresholds back!
 		//Write back to global buffer
-		PxI32 threshIndex = physx::PxAtomicAdd(cache.mSharedOutThresholdPairs, PxI32(cache.mThresholdStreamIndex)) - PxI32(cache.mThresholdStreamIndex);
+		PxI32 threshIndex = ev4sio_physx::PxAtomicAdd(cache.mSharedOutThresholdPairs, PxI32(cache.mThresholdStreamIndex)) - PxI32(cache.mThresholdStreamIndex);
 		for(PxU32 a = 0; a < cache.mThresholdStreamIndex; ++a)
 		{
 			cache.mSharedThresholdStream[a + threshIndex] = cache.mThresholdStream[a];
@@ -884,7 +884,7 @@ void solveExt1D(const PxSolverConstraintDesc& desc, Vec3V& linVel0, Vec3V& linVe
 
 		FStore(clampedForce, &base->appliedForce);
 		PxReal residual;
-		FStore(Dy::calculateResidual(deltaF, vMul), &residual);
+		FStore(ev4sio_Dy::calculateResidual(deltaF, vMul), &residual);
 		isPositionIteration ? base->setPositionIterationResidual(residual) : base->setVelocityIterationResidual(residual);
 
 		li0 = V3ScaleAdd(lin0, deltaF, li0);	ai0 = V3ScaleAdd(ang0, deltaF, ai0);
@@ -920,7 +920,7 @@ void solveExt1D(const PxSolverConstraintDesc& desc, bool isPositionIteration)
 
 	if (desc.articulationA == desc.articulationB)
 	{
-		Cm::SpatialVectorV v0, v1;
+		ev4sio_Cm::SpatialVectorV v0, v1;
 		getArticulationA(desc)->pxcFsGetVelocities(desc.linkIndexA, desc.linkIndexB, v0, v1);
 		linVel0 = v0.linear;
 		angVel0 = v0.angular;
@@ -936,7 +936,7 @@ void solveExt1D(const PxSolverConstraintDesc& desc, bool isPositionIteration)
 		}
 		else
 		{
-			Cm::SpatialVectorV v = getArticulationA(desc)->pxcFsGetVelocity(desc.linkIndexA);
+			ev4sio_Cm::SpatialVectorV v = getArticulationA(desc)->pxcFsGetVelocity(desc.linkIndexA);
 			linVel0 = v.linear;
 			angVel0 = v.angular;
 		}
@@ -948,7 +948,7 @@ void solveExt1D(const PxSolverConstraintDesc& desc, bool isPositionIteration)
 		}
 		else
 		{
-			Cm::SpatialVectorV v = getArticulationB(desc)->pxcFsGetVelocity(desc.linkIndexB);
+			ev4sio_Cm::SpatialVectorV v = getArticulationB(desc)->pxcFsGetVelocity(desc.linkIndexB);
 			linVel1 = v.linear;
 			angVel1 = v.angular;
 		}
@@ -994,7 +994,7 @@ FloatV solveExtContacts(const SolverContactPointExt* PX_RESTRICT contacts, PxU32
 	Vec3V& li0, Vec3V& ai0,
 	Vec3V& li1, Vec3V& ai1,
 	PxF32* PX_RESTRICT appliedForceBuffer,
-	Dy::ErrorAccumulator* PX_RESTRICT error)
+	ev4sio_Dy::ErrorAccumulator* PX_RESTRICT error)
 {
 	FloatV accumulatedNormalImpulse = FZero();
 	for (PxU32 i = 0; i<nbContactPoints; i++)
@@ -1057,14 +1057,14 @@ FloatV solveExtContacts(const SolverContactPointExt* PX_RESTRICT contacts, PxU32
 }
 
 void solveExtContact(const PxSolverConstraintDesc& desc, Vec3V& linVel0, Vec3V& linVel1, Vec3V& angVel0, Vec3V& angVel1,
-	Vec3V& linImpulse0, Vec3V& linImpulse1, Vec3V& angImpulse0, Vec3V& angImpulse1, bool doFriction, Dy::ErrorAccumulator* contactErrorAccumulator)
+	Vec3V& linImpulse0, Vec3V& linImpulse1, Vec3V& angImpulse0, Vec3V& angImpulse1, bool doFriction, ev4sio_Dy::ErrorAccumulator* contactErrorAccumulator)
 {
 	const PxU8* PX_RESTRICT last = desc.constraint + desc.constraintLengthOver16 * 16;
 
 	//hopefully pointer aliasing doesn't bite.
 	PxU8* PX_RESTRICT currPtr = desc.constraint;
 
-	Dy::ErrorAccumulator error;
+	ev4sio_Dy::ErrorAccumulator error;
 
 	while (currPtr < last)
 	{
@@ -1204,7 +1204,7 @@ static void solveExtContact(const PxSolverConstraintDesc& desc, SolverContext& c
 
 	if (desc.articulationA == desc.articulationB)
 	{
-		Cm::SpatialVectorV v0, v1;
+		ev4sio_Cm::SpatialVectorV v0, v1;
 		getArticulationA(desc)->pxcFsGetVelocities(desc.linkIndexA, desc.linkIndexB, v0, v1);
 		linVel0 = v0.linear;
 		angVel0 = v0.angular;
@@ -1220,7 +1220,7 @@ static void solveExtContact(const PxSolverConstraintDesc& desc, SolverContext& c
 		}
 		else
 		{
-			Cm::SpatialVectorV v = getArticulationA(desc)->pxcFsGetVelocity(desc.linkIndexA);
+			ev4sio_Cm::SpatialVectorV v = getArticulationA(desc)->pxcFsGetVelocity(desc.linkIndexA);
 			linVel0 = v.linear;
 			angVel0 = v.angular;
 		}
@@ -1232,7 +1232,7 @@ static void solveExtContact(const PxSolverConstraintDesc& desc, SolverContext& c
 		}
 		else
 		{
-			Cm::SpatialVectorV v = getArticulationB(desc)->pxcFsGetVelocity(desc.linkIndexB);
+			ev4sio_Cm::SpatialVectorV v = getArticulationB(desc)->pxcFsGetVelocity(desc.linkIndexB);
 			linVel1 = v.linear;
 			angVel1 = v.angular;
 		}
@@ -1305,7 +1305,7 @@ void solveExtContactBlockWriteBack(DY_PGS_SOLVE_METHOD_PARAMS)
 	{
 		//Not enough space to write 4 more thresholds back!
 		//Write back to global buffer
-		PxI32 threshIndex = physx::PxAtomicAdd(cache.mSharedOutThresholdPairs, PxI32(cache.mThresholdStreamIndex)) - PxI32(cache.mThresholdStreamIndex);
+		PxI32 threshIndex = ev4sio_physx::PxAtomicAdd(cache.mSharedOutThresholdPairs, PxI32(cache.mThresholdStreamIndex)) - PxI32(cache.mThresholdStreamIndex);
 		for(PxU32 a = 0; a < cache.mThresholdStreamIndex; ++a)
 		{
 			cache.mSharedThresholdStream[a + threshIndex] = cache.mThresholdStream[a];

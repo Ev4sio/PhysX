@@ -35,21 +35,21 @@
 #include "foundation/PxArray.h"
 #include "GuWindingNumberCluster.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Gu
+namespace ev4sio_Gu
 {
 	struct BVHNode;
 
 	typedef ClusterApproximationT<PxReal, PxVec3> ClusterApproximation;
 	
-	PX_PHYSX_COMMON_API PxF32 computeWindingNumber(const Gu::BVHNode* tree, const PxVec3& q, const PxHashMap<PxU32, ClusterApproximation>& clusters,
+	PX_PHYSX_COMMON_API PxF32 computeWindingNumber(const ev4sio_Gu::BVHNode* tree, const PxVec3& q, const PxHashMap<PxU32, ClusterApproximation>& clusters,
 		const PxU32* triangles, const PxVec3* points);
 
-	PX_PHYSX_COMMON_API PxF32 computeWindingNumber(const Gu::BVHNode* tree, const PxVec3& q, PxF32 beta, const PxHashMap<PxU32, ClusterApproximation>& clusters,
+	PX_PHYSX_COMMON_API PxF32 computeWindingNumber(const ev4sio_Gu::BVHNode* tree, const PxVec3& q, PxF32 beta, const PxHashMap<PxU32, ClusterApproximation>& clusters,
 		const PxU32* triangles, const PxVec3* points);
 
-	PX_PHYSX_COMMON_API void precomputeClusterInformation(const Gu::BVHNode* tree, const PxU32* triangles, const PxU32 numTriangles,
+	PX_PHYSX_COMMON_API void precomputeClusterInformation(const ev4sio_Gu::BVHNode* tree, const PxU32* triangles, const PxU32 numTriangles,
 		const PxVec3* points, PxHashMap<PxU32, ClusterApproximation>& result, PxI32 rootNodeIndex = 0);	
 
 	//Quite slow, only useful for few query points, otherwise it is worth to construct a tree for acceleration

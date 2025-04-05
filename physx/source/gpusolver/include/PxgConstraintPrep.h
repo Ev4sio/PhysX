@@ -36,7 +36,7 @@
 
 #include "PxcNpWorkUnit.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	typedef PxcNpWorkUnitFlag	PxgNpWorkUnitFlag;
 

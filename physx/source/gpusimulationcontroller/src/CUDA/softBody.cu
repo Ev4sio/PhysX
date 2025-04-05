@@ -62,13 +62,13 @@
 #include "utils.cuh"
 #include "deformableUtils.cuh"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 extern "C" __host__ void initSoftBodyKernels0() {}
 
 
 //static __device__ __forceinline__
-//PxVec3 shuffleMin(physx::PxVec3 v)
+//PxVec3 shuffleMin(ev4sio_physx::PxVec3 v)
 //{
 //	for (PxU32 reductionRadius = 1; reductionRadius < WARP_SIZE; reductionRadius <<= 1)
 //	{
@@ -81,7 +81,7 @@ extern "C" __host__ void initSoftBodyKernels0() {}
 //}
 //
 //static __device__ __forceinline__
-//PxVec3 shuffleMax(physx::PxVec3 v)
+//PxVec3 shuffleMax(ev4sio_physx::PxVec3 v)
 //{
 //	for (PxU32 reductionRadius = 1; reductionRadius < WARP_SIZE; reductionRadius <<= 1)
 //	{
@@ -143,14 +143,14 @@ void sb_refitBoundLaunch(
 
 		//printf("maxDepth %i numVerts %i numTets %i nbBv32TreeNodes %i\n", maxDepth, numVerts, numTets, nbBv32TreeNodes);
 
-		Gu::BV32DataPacked* bv32PackedNodes = reinterpret_cast<Gu::BV32DataPacked*>(tetmeshGeomPtr);
+		ev4sio_Gu::BV32DataPacked* bv32PackedNodes = reinterpret_cast<ev4sio_Gu::BV32DataPacked*>(tetmeshGeomPtr);
 		s_warpScratch->bv32PackedNodes = bv32PackedNodes;
-		tetmeshGeomPtr += sizeof(const Gu::BV32DataPacked)* nbBv32PackedNodes;
+		tetmeshGeomPtr += sizeof(const ev4sio_Gu::BV32DataPacked)* nbBv32PackedNodes;
 
 
-		Gu::BV32DataDepthInfo* bv32DepthInfo = reinterpret_cast<Gu::BV32DataDepthInfo*>(tetmeshGeomPtr);
+		ev4sio_Gu::BV32DataDepthInfo* bv32DepthInfo = reinterpret_cast<ev4sio_Gu::BV32DataDepthInfo*>(tetmeshGeomPtr);
 		s_warpScratch->bv32DepthInfo = bv32DepthInfo;
-		tetmeshGeomPtr += sizeof(const Gu::BV32DataDepthInfo) * maxDepth;
+		tetmeshGeomPtr += sizeof(const ev4sio_Gu::BV32DataDepthInfo) * maxDepth;
 
 		PxU32* remapPackedNodeIndex = reinterpret_cast<PxU32*>(tetmeshGeomPtr);
 		s_warpScratch->bv32RemapPackedNodeIndex = remapPackedNodeIndex;
@@ -161,7 +161,7 @@ void sb_refitBoundLaunch(
 
 
 	//Depth Buffer will be all the node index
-	const Gu::BV32DataDepthInfo* depthInfo = s_warpScratch->bv32DepthInfo;
+	const ev4sio_Gu::BV32DataDepthInfo* depthInfo = s_warpScratch->bv32DepthInfo;
 
 	const PxU32* remapPackedNodeIndex = s_warpScratch->bv32RemapPackedNodeIndex;
 
@@ -169,7 +169,7 @@ void sb_refitBoundLaunch(
 	//each warp to deal with one node
 	for (PxU32 i = maxDepth; i > 0; i--)
 	{
-		const  Gu::BV32DataDepthInfo& info = depthInfo[i-1];
+		const  ev4sio_Gu::BV32DataDepthInfo& info = depthInfo[i-1];
 
 		const PxU32 offset = info.offset;
 		const PxU32 count = info.count;
@@ -184,7 +184,7 @@ void sb_refitBoundLaunch(
 		{
 			const PxU32 nodeIndex = remapPackedNodeIndex[j + offset];
 
-			Gu::BV32DataPacked& currentNode = s_warpScratch->bv32PackedNodes[nodeIndex];
+			ev4sio_Gu::BV32DataPacked& currentNode = s_warpScratch->bv32PackedNodes[nodeIndex];
 
 			const PxU32 nbChildren = currentNode.mNbNodes;
 

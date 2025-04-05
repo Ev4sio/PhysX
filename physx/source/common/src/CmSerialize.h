@@ -34,7 +34,7 @@
 #include "common/PxPhysXCommonConfig.h"
 #include "foundation/PxUtilities.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	PX_INLINE void flip(PxU16& v)
 	{
@@ -180,7 +180,7 @@ namespace physx
 	}
 
 // PT: TODO: copied from IceSerialize.h, still needs to be refactored/cleaned up.
-namespace Cm
+namespace ev4sio_Cm
 {
 	bool WriteHeader(PxU8 a, PxU8 b, PxU8 c, PxU8 d, PxU32 version, bool mismatch, PxOutputStream& stream);
 	bool ReadHeader(PxU8 a_, PxU8 b_, PxU8 c_, PxU8 d_, PxU32& version, bool& mismatch, PxInputStream& stream);

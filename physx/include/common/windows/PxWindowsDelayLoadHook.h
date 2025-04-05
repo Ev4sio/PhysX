@@ -34,7 +34,7 @@
 
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 	/**
@@ -70,7 +70,7 @@ namespace physx
 
 	\see PxDelayLoadHook
 	*/
-	PX_C_EXPORT PX_PHYSX_CORE_API void PX_CALL_CONV PxSetPhysXDelayLoadHook(const physx::PxDelayLoadHook* hook);
+	PX_C_EXPORT PX_PHYSX_CORE_API void PX_CALL_CONV PxSetPhysXDelayLoadHook(const ev4sio_physx::PxDelayLoadHook* hook);
 
 	/**
 	\brief Sets delay load hook instance for PhysXCooking dll.
@@ -79,7 +79,7 @@ namespace physx
 
 	\see PxDelayLoadHook
 	*/
-	PX_C_EXPORT PX_PHYSX_CORE_API void PX_CALL_CONV PxSetPhysXCookingDelayLoadHook(const physx::PxDelayLoadHook* hook);
+	PX_C_EXPORT PX_PHYSX_CORE_API void PX_CALL_CONV PxSetPhysXCookingDelayLoadHook(const ev4sio_physx::PxDelayLoadHook* hook);
 
 	/**
 	\brief Sets delay load hook instance for PhysXCommon dll.
@@ -88,9 +88,9 @@ namespace physx
 
 	\see PxDelayLoadHook
 	*/
-	PX_C_EXPORT PX_PHYSX_COMMON_API void PX_CALL_CONV PxSetPhysXCommonDelayLoadHook(const physx::PxDelayLoadHook* hook);
+	PX_C_EXPORT PX_PHYSX_COMMON_API void PX_CALL_CONV PxSetPhysXCommonDelayLoadHook(const ev4sio_physx::PxDelayLoadHook* hook);
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 #endif

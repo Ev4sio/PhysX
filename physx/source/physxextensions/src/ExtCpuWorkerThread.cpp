@@ -31,20 +31,20 @@
 #include "ExtDefaultCpuDispatcher.h"
 #include "foundation/PxFPU.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
-Ext::CpuWorkerThread::CpuWorkerThread() : mOwner(NULL), mThreadId(0)
+ev4sio_Ext::CpuWorkerThread::CpuWorkerThread() : mOwner(NULL), mThreadId(0)
 {
 }
 
-Ext::CpuWorkerThread::~CpuWorkerThread()
+ev4sio_Ext::CpuWorkerThread::~CpuWorkerThread()
 {
 }
 
 #define HighPriority	true
 #define RegularPriority	false
 
-void Ext::CpuWorkerThread::execute()
+void ev4sio_Ext::CpuWorkerThread::execute()
 {
 	mThreadId = getId();
 

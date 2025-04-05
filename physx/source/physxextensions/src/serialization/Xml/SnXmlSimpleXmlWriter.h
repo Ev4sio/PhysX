@@ -32,7 +32,7 @@
 #include "foundation/PxArray.h"
 #include "SnXmlMemoryPoolStreams.h"
 
-namespace physx { namespace Sn {
+namespace ev4sio_physx { namespace Sn {
 	class XmlWriter
 	{
 	public:

@@ -31,9 +31,9 @@
 
 #include "ScInteraction.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Sc
+namespace ev4sio_Sc
 {
 	class ConstraintSim;
 	class RigidSim;
@@ -51,14 +51,14 @@ namespace Sc
 						void			destroy();  // disables the interaction and unregisters from the system. Does NOT delete the object. This is used on destruction but also when a constraint breaks.
 
 		PX_FORCE_INLINE	ConstraintSim*	getConstraint()			{ return mConstraint;	}
-		PX_FORCE_INLINE	IG::EdgeIndex	getEdgeIndex()	const	{ return mEdgeIndex;	}
+		PX_FORCE_INLINE	ev4sio_IG::EdgeIndex	getEdgeIndex()	const	{ return mEdgeIndex;	}
 
 	private:
 						ConstraintSim*	mConstraint;
-						IG::EdgeIndex	mEdgeIndex;
+						ev4sio_IG::EdgeIndex	mEdgeIndex;
 	};
 
-} // namespace Sc
+} // namespace ev4sio_Sc
 
 }
 

@@ -31,19 +31,19 @@
 
 #include "extensions/PxJointLimit.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Ext
+namespace ev4sio_Ext
 {
 	struct JointData
 	{
 				PxConstraintInvMassScale	invMassScale;
 				PxTransform32				c2b[2];
-	protected:
+	//protected:
 		        ~JointData()	{}
 	};
 
-} // namespace Ext
+} // namespace ev4sio_Ext
 }
 
 #endif

@@ -36,7 +36,7 @@
 
 #define PCM_LOW_LEVEL_DEBUG 0
 
-namespace physx
+namespace ev4sio_physx
 {
 
 #define VISUALIZE_PERSISTENT_CONTACT 1
@@ -60,7 +60,7 @@ namespace physx
 class PxRenderOutput;
 class PxContactBuffer;
   
-namespace Gu
+namespace ev4sio_Gu
 {
 	struct GjkOutput;
 
@@ -147,7 +147,7 @@ public:
 
 	PersistentContactManifold(PersistentContact* contactPointsBuff, PxU8 capacity): mNumContacts(0), mCapacity(capacity), mNumWarmStartPoints(0), mContactPoints(contactPointsBuff)
 	{
-		using namespace physx::aos;
+		using namespace ev4sio_physx::aos;
 		mRelativeTransform.invalidate();
 		mQuatA = QuatIdentity();
 		mQuatB = QuatIdentity();

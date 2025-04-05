@@ -32,18 +32,18 @@
 #include "NpConnector.h"
 #include "NpBase.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	class NpShapeManager;
 	class NpAggregate;
 	class NpScene;
 	class NpShape;
 
-	const Sc::BodyCore* getBodyCore(const PxRigidActor* actor);
-	PX_FORCE_INLINE Sc::BodyCore* getBodyCore(PxRigidActor* actor)
+	const ev4sio_Sc::BodyCore* getBodyCore(const PxRigidActor* actor);
+	PX_FORCE_INLINE ev4sio_Sc::BodyCore* getBodyCore(PxRigidActor* actor)
 	{
-		const Sc::BodyCore* core = getBodyCore(static_cast<const PxRigidActor*>(actor));
-		return const_cast<Sc::BodyCore*>(core);
+		const ev4sio_Sc::BodyCore* core = getBodyCore(static_cast<const PxRigidActor*>(actor));
+		return const_cast<ev4sio_Sc::BodyCore*>(core);
 	}
 
 class NpActor : public NpBase
@@ -138,7 +138,7 @@ public:
 												if((!aFlags.isSet(PxActorFlag::eDISABLE_SIMULATION)) && v.isSet(PxActorFlag::eDISABLE_SIMULATION) &&
 													(npType != NpType::eBODY) && (npType != NpType::eRIGID_STATIC))
 												{
-													PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, 
+													ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, 
 														"PxActor::setActorFlag: PxActorFlag::eDISABLE_SIMULATION is only supported by PxRigidDynamic and PxRigidStatic objects.");
 												}
 #endif
@@ -147,22 +147,22 @@ public:
 											}
 
 
-	PX_FORCE_INLINE const Sc::ActorCore&	getActorCore() const 
+	PX_FORCE_INLINE const ev4sio_Sc::ActorCore&	getActorCore() const 
 											{
-												return *reinterpret_cast<const Sc::ActorCore*>(size_t(this) + sNpOffsets.npToSc[getNpType()]);
+												return *reinterpret_cast<const ev4sio_Sc::ActorCore*>(size_t(this) + sNpOffsets.npToSc[getNpType()]);
 											}
-	PX_FORCE_INLINE	Sc::ActorCore&			getActorCore()
+	PX_FORCE_INLINE	ev4sio_Sc::ActorCore&			getActorCore()
 											{
-												return *reinterpret_cast<Sc::ActorCore*>(size_t(this) + sNpOffsets.npToSc[getNpType()]);
+												return *reinterpret_cast<ev4sio_Sc::ActorCore*>(size_t(this) + sNpOffsets.npToSc[getNpType()]);
 											}
 
-	PX_INLINE const Sc::RigidCore&			getScRigidCore()	const
+	PX_INLINE const ev4sio_Sc::RigidCore&			getScRigidCore()	const
 											{
-												return static_cast<const Sc::RigidCore&>(getActorCore());
+												return static_cast<const ev4sio_Sc::RigidCore&>(getActorCore());
 											}
-	PX_INLINE Sc::RigidCore&				getScRigidCore()
+	PX_INLINE ev4sio_Sc::RigidCore&				getScRigidCore()
 											{
-												return static_cast<Sc::RigidCore&>(getActorCore());
+												return static_cast<ev4sio_Sc::RigidCore&>(getActorCore());
 											}
 
 	PX_FORCE_INLINE	void					scSwitchToNoSim()

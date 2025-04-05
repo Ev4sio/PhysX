@@ -30,8 +30,8 @@
 #include "ScElementSimInteraction.h"
 #include "ScSimStats.h"
 
-using namespace physx;
-using namespace Sc;
+using namespace ev4sio_physx;
+using namespace ev4sio_Sc;
 
 static PX_FORCE_INLINE bool interactionHasElement(const Interaction* it, const ElementSim* elem)
 {
@@ -48,7 +48,7 @@ static PX_FORCE_INLINE bool interactionHasElement(const Interaction* it, const E
 	return false;
 }
 
-Sc::ElementSimInteraction* Sc::ElementSim::ElementInteractionIterator::getNext()
+ev4sio_Sc::ElementSimInteraction* ev4sio_Sc::ElementSim::ElementInteractionIterator::getNext()
 {
 	while(mInteractions!=mInteractionsLast)
 	{
@@ -59,7 +59,7 @@ Sc::ElementSimInteraction* Sc::ElementSim::ElementInteractionIterator::getNext()
 	return NULL;
 }
 
-Sc::ElementSimInteraction* Sc::ElementSim::ElementInteractionReverseIterator::getNext()
+ev4sio_Sc::ElementSimInteraction* ev4sio_Sc::ElementSim::ElementInteractionReverseIterator::getNext()
 {
 	while(mInteractions!=mInteractionsLast)
 	{
@@ -72,7 +72,7 @@ Sc::ElementSimInteraction* Sc::ElementSim::ElementInteractionReverseIterator::ge
 
 namespace
 {
-	class ElemSimPtrTableStorageManager : public Cm::PtrTableStorageManager, public PxUserAllocated
+	class ElemSimPtrTableStorageManager : public ev4sio_Cm::PtrTableStorageManager, public PxUserAllocated
 	{
 		PX_NOCOPY(ElemSimPtrTableStorageManager)
 
@@ -107,7 +107,7 @@ static PX_FORCE_INLINE void onElementAttach(ElementSim& element, ShapeManager& m
 	manager.mShapes.add(&element, gElemSimTableStorageManager);
 }
 
-void Sc::ShapeManager::onElementDetach(ElementSim& element)
+void ev4sio_Sc::ShapeManager::onElementDetach(ElementSim& element)
 {
 	const PxU32 index = element.mShapeArrayIndex;
 	PX_ASSERT(index != 0xffffffff);
@@ -126,7 +126,7 @@ void Sc::ShapeManager::onElementDetach(ElementSim& element)
 	element.mShapeArrayIndex = 0xffffffff;
 }
 
-Sc::ElementSim::ElementSim(ActorSim& actor) :
+ev4sio_Sc::ElementSim::ElementSim(ActorSim& actor) :
 	mActor			(actor),
 	mInBroadPhase	(false),
 	mShapeArrayIndex(0xffffffff)
@@ -136,20 +136,20 @@ Sc::ElementSim::ElementSim(ActorSim& actor) :
 	onElementAttach(*this, actor);
 }
 
-Sc::ElementSim::~ElementSim()
+ev4sio_Sc::ElementSim::~ElementSim()
 {
 	PX_ASSERT(!mInBroadPhase);
 	releaseID();
 	mActor.onElementDetach(*this);
 }
 
-void Sc::ElementSim::addToAABBMgr(PxReal contactDistance, Bp::FilterGroup::Enum group, Bp::ElementType::Enum type)
+void ev4sio_Sc::ElementSim::addToAABBMgr(PxReal contactDistance, ev4sio_Bp::FilterGroup::Enum group, ev4sio_Bp::ElementType::Enum type)
 {
 	const ActorCore& actorCore = mActor.getActorCore();
 	const PxU32 aggregateID = actorCore.getAggregateID();
 	const PxU32 envID = actorCore.getEnvID();
 
-	Sc::Scene& scene = getScene();
+	ev4sio_Sc::Scene& scene = getScene();
 	if(!scene.getAABBManager()->addBounds(mElementID, contactDistance, group, this, aggregateID, type, envID))
 		return;
 
@@ -161,10 +161,10 @@ void Sc::ElementSim::addToAABBMgr(PxReal contactDistance, Bp::FilterGroup::Enum 
 #endif
 }
 
-bool Sc::ElementSim::removeFromAABBMgr()
+bool ev4sio_Sc::ElementSim::removeFromAABBMgr()
 {
 	PX_ASSERT(mInBroadPhase);
-	Sc::Scene& scene = getScene();
+	ev4sio_Sc::Scene& scene = getScene();
 	bool res = scene.getAABBManager()->removeBounds(mElementID);
 	scene.getAABBManager()->getChangedAABBMgActorHandleMap().growAndReset(mElementID);
 

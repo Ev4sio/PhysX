@@ -31,9 +31,9 @@
 
 #include "common/PxPhysXCommonConfig.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Gu
+namespace ev4sio_Gu
 {
 	// PT: basic version, limited accuracy, might fail for long rays vs small spheres
 	PX_PHYSX_COMMON_API bool intersectRaySphereBasic(const PxVec3& origin, const PxVec3& dir, PxReal length, const PxVec3& center, PxReal radius, PxReal& dist, PxVec3* hit_pos = NULL);
@@ -41,7 +41,7 @@ namespace Gu
 	// PT: version with improved accuracy
 	PX_PHYSX_COMMON_API bool intersectRaySphere(const PxVec3& origin, const PxVec3& dir, PxReal length, const PxVec3& center, PxReal radius, PxReal& dist, PxVec3* hit_pos = NULL);
 
-} // namespace Gu
+} // namespace ev4sio_Gu
 
 }
 

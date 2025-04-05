@@ -40,7 +40,7 @@
 #include "foundation/PxTime.h"
 
 
-namespace physx {
+namespace ev4sio_physx {
 	namespace profile {
 
 		static const uint32_t LOCAL_BUFFER_SIZE = 512;
@@ -136,7 +136,7 @@ namespace physx {
 				, const TContextProvider& inProvider
 				, TMutexType* inBufferMutex
 				, const TEventFilterType& inEventFilter)
-				: TBaseType(inFoundation, inBufferFullAmount, inBufferMutex, "struct physx::profile::ProfileEvent")				
+				: TBaseType(inFoundation, inBufferFullAmount, inBufferMutex, "struct ev4sio_physx::profile::ProfileEvent")				
 				, mContextProvider(inProvider)
 				, mEventFilter(inEventFilter)
 				, mReserved(0)

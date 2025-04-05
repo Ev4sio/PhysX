@@ -50,7 +50,7 @@
 #include "../snippetcommon/SnippetPVD.h"
 #include "../snippetutils/SnippetUtils.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 static PxDefaultAllocator		gAllocator;
 static PxDefaultErrorCallback	gErrorCallback;
@@ -99,7 +99,7 @@ static void createLargeSphere(const PxTransform& t, PxU32 density, PxReal largeR
 	bvhDesc.bounds.stride = sizeof(PxBounds3);
 
 	// cook the bvh
-	PxBVH* bvh = PxCreateBVH(bvhDesc, gPhysics->getPhysicsInsertionCallback());
+	PxBVH* bvh = ev4sio_PxCreateBVH(bvhDesc, gPhysics->getPhysicsInsertionCallback());
 
 	// release the memory allocated within extensions, the bounds are not required anymore
 	gAllocator.deallocate(bounds);
@@ -129,13 +129,13 @@ static void createLargeSphere(const PxTransform& t, PxU32 density, PxReal largeR
 
 void initPhysics(bool /*interactive*/)
 {
-	gFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, gAllocator, gErrorCallback);
+	gFoundation = ev4sio_PxCreateFoundation(ev4sio_PX_PHYSICS_VERSION, gAllocator, gErrorCallback);
 
-	gPvd = PxCreatePvd(*gFoundation);
-	PxPvdTransport* transport = PxDefaultPvdSocketTransportCreate(PVD_HOST, 5425, 10);
+	gPvd = ev4sio_PxCreatePvd(*gFoundation);
+	PxPvdTransport* transport = ev4sio_PxDefaultPvdSocketTransportCreate(PVD_HOST, 5425, 10);
 	gPvd->connect(*transport,PxPvdInstrumentationFlag::eALL);
 
-	gPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *gFoundation, PxTolerancesScale(), true, gPvd);
+	gPhysics = ev4sio_PxCreatePhysics(ev4sio_PX_PHYSICS_VERSION, *gFoundation, PxTolerancesScale(), true, gPvd);
 
 	PxSceneDesc sceneDesc(gPhysics->getTolerancesScale());
 	sceneDesc.gravity = PxVec3(0.0f, -9.81f, 0.0f);

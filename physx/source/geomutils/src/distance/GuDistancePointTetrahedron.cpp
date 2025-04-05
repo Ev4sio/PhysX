@@ -29,9 +29,9 @@
 #include "GuDistancePointTetrahedron.h"
 #include "GuDistancePointTriangle.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
-PxVec3 Gu::closestPtPointTetrahedron(const PxVec3& p, const PxVec3& a, const PxVec3& b, const PxVec3& c, const PxVec3& d, const PxVec4& result)
+PxVec3 ev4sio_Gu::closestPtPointTetrahedron(const PxVec3& p, const PxVec3& a, const PxVec3& b, const PxVec3& c, const PxVec3& d, const PxVec4& result)
 {
 	const PxVec3 ab = b - a;
 	const PxVec3 ac = c - a;

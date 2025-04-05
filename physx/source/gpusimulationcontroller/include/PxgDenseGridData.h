@@ -35,7 +35,7 @@
 #include "PxSparseGridParams.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -58,7 +58,7 @@ namespace physx
 	};
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

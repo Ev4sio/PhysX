@@ -34,87 +34,87 @@
 #include "triangle.cuh"
 #include "assert.h"
 
-__device__	static inline physx::PxU32	getMinRow(physx::PxReal x, const physx::PxU32 rows)
+__device__	static inline ev4sio_physx::PxU32	getMinRow(ev4sio_physx::PxReal x, const ev4sio_physx::PxU32 rows)
 {
-	using namespace physx;
+	using namespace ev4sio_physx;
 	return (PxU32)PxClamp(PxI32(PxFloor(x)), PxI32(0), PxI32(rows - 2));
 }
-__device__	static inline physx::PxU32	getMaxRow(physx::PxReal x, const physx::PxU32 rows)
+__device__	static inline ev4sio_physx::PxU32	getMaxRow(ev4sio_physx::PxReal x, const ev4sio_physx::PxU32 rows)
 {
-	using namespace physx;
+	using namespace ev4sio_physx;
 	return (PxU32)PxClamp(PxI32(PxCeil(x)), PxI32(0), PxI32(rows - 1));
 }
 
-__device__	static inline physx::PxU32	getMinColumn(physx::PxReal z, const physx::PxU32 columns)
+__device__	static inline ev4sio_physx::PxU32	getMinColumn(ev4sio_physx::PxReal z, const ev4sio_physx::PxU32 columns)
 {
-	using namespace physx;
+	using namespace ev4sio_physx;
 	return (PxU32)PxClamp(PxI32(PxFloor(z)), PxI32(0), PxI32(columns - 2));
 }
 
-__device__	static inline  physx::PxU32	getMaxColumn(physx::PxReal z, const  physx::PxU32 columns)
+__device__	static inline  ev4sio_physx::PxU32	getMaxColumn(ev4sio_physx::PxReal z, const  ev4sio_physx::PxU32 columns)
 {
-	using namespace physx;
+	using namespace ev4sio_physx;
 	return (PxU32)PxClamp(PxI32(PxCeil(z)), PxI32(0), PxI32(columns - 1));
 }
 
-__device__	static inline bool isValidVertex(physx::PxU32 vertexIndex, const  physx::PxU32 rows, const  physx::PxU32 columns)
+__device__	static inline bool isValidVertex(ev4sio_physx::PxU32 vertexIndex, const  ev4sio_physx::PxU32 rows, const  ev4sio_physx::PxU32 columns)
 {
-	using namespace physx;
+	using namespace ev4sio_physx;
 	return vertexIndex < rows*columns;
 }
 
-__device__	static inline  bool	isFirstTriangle(physx::PxU32 triangleIndex)
+__device__	static inline  bool	isFirstTriangle(ev4sio_physx::PxU32 triangleIndex)
 {
 	return ((triangleIndex & 0x1) == 0);
 }
 
-__device__	static inline const physx::PxHeightFieldSample& getSample(physx::PxU32 vertexIndex, const physx::PxHeightFieldSample* samples)
+__device__	static inline const ev4sio_physx::PxHeightFieldSample& getSample(ev4sio_physx::PxU32 vertexIndex, const ev4sio_physx::PxHeightFieldSample* samples)
 {
 
 	return samples[vertexIndex];
 }
 
-__device__	static inline  physx::PxReal getHeight(physx::PxU32 vertexIndex, const physx::PxHeightFieldSample* samples)
+__device__	static inline  ev4sio_physx::PxReal getHeight(ev4sio_physx::PxU32 vertexIndex, const ev4sio_physx::PxHeightFieldSample* samples)
 {
-	using namespace physx;
+	using namespace ev4sio_physx;
 	return PxReal(getSample(vertexIndex, samples).height);
 }
 
-__device__	static inline  physx::PxU16	getMaterialIndex0(physx::PxU32 vertexIndex, const physx::PxHeightFieldSample* samples)
+__device__	static inline  ev4sio_physx::PxU16	getMaterialIndex0(ev4sio_physx::PxU32 vertexIndex, const ev4sio_physx::PxHeightFieldSample* samples)
 {
-	using namespace physx;
+	using namespace ev4sio_physx;
 	return getSample(vertexIndex, samples).materialIndex0;
 }
 
-__device__	static inline  physx::PxU16	getMaterialIndex1(physx::PxU32 vertexIndex, const physx::PxHeightFieldSample* samples)
+__device__	static inline  ev4sio_physx::PxU16	getMaterialIndex1(ev4sio_physx::PxU32 vertexIndex, const ev4sio_physx::PxHeightFieldSample* samples)
 {
-	using namespace physx;
+	using namespace ev4sio_physx;
 	return getSample(vertexIndex, samples).materialIndex1;
 }
 
-__device__ static inline bool isZerothVertexShared(physx::PxU32 vertexIndex, const physx::PxHeightFieldSample* samples)
+__device__ static inline bool isZerothVertexShared(ev4sio_physx::PxU32 vertexIndex, const ev4sio_physx::PxHeightFieldSample* samples)
 {
 	return getSample(vertexIndex, samples).tessFlag() != 0;
 }
 
 
-__device__ static inline physx::PxVec3 getVertex(physx::PxU32 vertexIndex, const physx::PxU32 columns, const physx::PxHeightFieldSample* samples)
+__device__ static inline ev4sio_physx::PxVec3 getVertex(ev4sio_physx::PxU32 vertexIndex, const ev4sio_physx::PxU32 columns, const ev4sio_physx::PxHeightFieldSample* samples)
 {
-	using namespace physx;
+	using namespace ev4sio_physx;
 	const PxU32 row = vertexIndex / columns;
 	const PxU32 column = vertexIndex % columns;
 	return PxVec3(PxReal(row), getHeight(vertexIndex, samples), PxReal(column));
 }
 
-__device__ static inline physx::PxVec3 hf2shapep(const physx::PxVec3& v, const physx::PxReal rowScale, const physx::PxReal heightScale, const physx::PxReal columnScale) 
+__device__ static inline ev4sio_physx::PxVec3 hf2shapep(const ev4sio_physx::PxVec3& v, const ev4sio_physx::PxReal rowScale, const ev4sio_physx::PxReal heightScale, const ev4sio_physx::PxReal columnScale) 
 {
-	using namespace physx;
+	using namespace ev4sio_physx;
 	return PxVec3(v.x *rowScale, v.y * heightScale, v.z * columnScale);
 }
 
-__device__ static inline void getTriangleVertexIndices(physx::PxU32 triangleIndex, physx::PxU32& vertexIndex0, physx::PxU32& vertexIndex1, physx::PxU32& vertexIndex2, const physx::PxU32 columns, const physx::PxHeightFieldSample* samples)
+__device__ static inline void getTriangleVertexIndices(ev4sio_physx::PxU32 triangleIndex, ev4sio_physx::PxU32& vertexIndex0, ev4sio_physx::PxU32& vertexIndex1, ev4sio_physx::PxU32& vertexIndex2, const ev4sio_physx::PxU32 columns, const ev4sio_physx::PxHeightFieldSample* samples)
 {
-	using namespace physx;
+	using namespace ev4sio_physx;
 	const PxU32 cell = triangleIndex >> 1;
 	if (isZerothVertexShared(cell, samples))
 	{
@@ -164,10 +164,10 @@ __device__ static inline void getTriangleVertexIndices(physx::PxU32 triangleInde
 	}
 }
 
-__device__ static inline void getTriangleAdjacencyIndices(physx::PxU32 triangleIndex, physx::PxU32& adjacencyIndex0, physx::PxU32& adjacencyIndex1, physx::PxU32& adjacencyIndex2, const physx::PxU32 rows, const physx::PxU32 columns,
-	const physx::PxHeightFieldSample* samples)
+__device__ static inline void getTriangleAdjacencyIndices(ev4sio_physx::PxU32 triangleIndex, ev4sio_physx::PxU32& adjacencyIndex0, ev4sio_physx::PxU32& adjacencyIndex1, ev4sio_physx::PxU32& adjacencyIndex2, const ev4sio_physx::PxU32 rows, const ev4sio_physx::PxU32 columns,
+	const ev4sio_physx::PxHeightFieldSample* samples)
 {
-	using namespace physx;
+	using namespace ev4sio_physx;
 	const PxU32 cell = triangleIndex >> 1;
 	if (isZerothVertexShared(cell, samples))
 	{
@@ -259,9 +259,9 @@ __device__ static inline void getTriangleAdjacencyIndices(physx::PxU32 triangleI
 
 
 
-__device__ static void getTriangle(physx::PxVec3& triLocV0, physx::PxVec3& triLocV1, physx::PxVec3& triLocV2, uint4* adjacencyIndices, const physx::PxU32 triangleIndex, const physx::PxMeshScale& scale, const physx::PxU32 rows, const physx::PxU32 columns, const physx::PxHeightFieldSample* samples)
+__device__ static void getTriangle(ev4sio_physx::PxVec3& triLocV0, ev4sio_physx::PxVec3& triLocV1, ev4sio_physx::PxVec3& triLocV2, uint4* adjacencyIndices, const ev4sio_physx::PxU32 triangleIndex, const ev4sio_physx::PxMeshScale& scale, const ev4sio_physx::PxU32 rows, const ev4sio_physx::PxU32 columns, const ev4sio_physx::PxHeightFieldSample* samples)
 {
-	using namespace physx;
+	using namespace ev4sio_physx;
 
 	const PxReal rowScale = scale.scale.x;
 	const PxReal heightScale = scale.scale.y;
@@ -309,9 +309,9 @@ __device__ static void getTriangle(physx::PxVec3& triLocV0, physx::PxVec3& triLo
 	triLocV2 = hf2shapep(vertex2, rowScale, heightScale, columnScale);
 }
 
-__device__ static bool testLocalPoint(const physx::PxVec3& pnt, const physx::PxU32 rows, const physx::PxU32 columns, const physx::PxHeightFieldSample* samples, float& height)
+__device__ static bool testLocalPoint(const ev4sio_physx::PxVec3& pnt, const ev4sio_physx::PxU32 rows, const ev4sio_physx::PxU32 columns, const ev4sio_physx::PxHeightFieldSample* samples, float& height)
 {
-	using namespace physx;
+	using namespace ev4sio_physx;
 
     if (pnt.x < 0 || pnt.x > rows - 1 || pnt.z < 0 || pnt.z > columns - 1)
         return false;
@@ -331,19 +331,19 @@ __device__ static bool testLocalPoint(const physx::PxVec3& pnt, const physx::PxU
 }
 
 
-__device__ static inline physx::PxU32 heightfieldComputePairs(
-	const physx::PxU32 minColumn,
-	const physx::PxU32 maxColumn,
-	const physx::PxU32 minRow,
-	const physx::PxU32 maxRow,
-	const physx::PxU32 nbRows,
-	const physx::PxU32 nbCols,
-	physx::PxHeightFieldSample* samples,
-	const physx::PxU32 miny,
-	const physx::PxU32 maxy
+__device__ static inline ev4sio_physx::PxU32 heightfieldComputePairs(
+	const ev4sio_physx::PxU32 minColumn,
+	const ev4sio_physx::PxU32 maxColumn,
+	const ev4sio_physx::PxU32 minRow,
+	const ev4sio_physx::PxU32 maxRow,
+	const ev4sio_physx::PxU32 nbRows,
+	const ev4sio_physx::PxU32 nbCols,
+	ev4sio_physx::PxHeightFieldSample* samples,
+	const ev4sio_physx::PxU32 miny,
+	const ev4sio_physx::PxU32 maxy
 )
 {
-	using namespace physx;
+	using namespace ev4sio_physx;
 
 	PxU32 nbPairs = 0;
 
@@ -380,26 +380,26 @@ __device__ static inline physx::PxU32 heightfieldComputePairs(
 }
 
 __device__ static inline void heightfieldOutputPairs(
-	const physx::PxU32 minColumn,
-	const physx::PxU32 maxColumn,
-	const physx::PxU32 minRow,
-	const physx::PxU32 maxRow,
-	const physx::PxU32 nbRows,
-	const physx::PxU32 nbCols,
-	physx::PxHeightFieldSample* samples,
-	const physx::PxU32 miny,
-	const physx::PxU32 maxy,
+	const ev4sio_physx::PxU32 minColumn,
+	const ev4sio_physx::PxU32 maxColumn,
+	const ev4sio_physx::PxU32 minRow,
+	const ev4sio_physx::PxU32 maxRow,
+	const ev4sio_physx::PxU32 nbRows,
+	const ev4sio_physx::PxU32 nbCols,
+	ev4sio_physx::PxHeightFieldSample* samples,
+	const ev4sio_physx::PxU32 miny,
+	const ev4sio_physx::PxU32 maxy,
 
-	const physx::PxU32 cmInd,
-	const physx::PxU32 elementInd, //either tetrahedron id or triangle id
-	const physx::PxU32 startOffset,
-	const physx::PxU32 size,
+	const ev4sio_physx::PxU32 cmInd,
+	const ev4sio_physx::PxU32 elementInd, //either tetrahedron id or triangle id
+	const ev4sio_physx::PxU32 startOffset,
+	const ev4sio_physx::PxU32 size,
 
 	uint4* stackPtr						//output
 
 )
 {
-	using namespace physx;
+	using namespace ev4sio_physx;
 
 	PxU32 writeIndex = startOffset;
 	const PxU32 columnSpan = maxColumn - minColumn;

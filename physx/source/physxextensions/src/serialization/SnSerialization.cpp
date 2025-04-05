@@ -36,14 +36,14 @@
 #include "ExtSerialization.h"
 #include "CmCollection.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 using namespace Sn;
 
 namespace
 {
 	struct RequiresCallback : public PxProcessPxBaseCallback
 	{
-		RequiresCallback(physx::PxCollection& c) : collection(c) {}
+		RequiresCallback(ev4sio_physx::PxCollection& c) : collection(c) {}
 		void process(PxBase& base)
 		{			
 			  if(!collection.contains(base))
@@ -56,7 +56,7 @@ namespace
 
 	struct CompleteCallback : public PxProcessPxBaseCallback
 	{
-		CompleteCallback(physx::PxCollection& r, physx::PxCollection& c, const physx::PxCollection* e) :
+		CompleteCallback(ev4sio_physx::PxCollection& r, ev4sio_physx::PxCollection& c, const ev4sio_physx::PxCollection* e) :
 		required(r), complete(c), external(e)	{}
 		void process(PxBase& base)
 		{
@@ -111,7 +111,7 @@ namespace
 
 bool PxSerialization::isSerializable(PxCollection& collection, PxSerializationRegistry& sr, const PxCollection* externalReferences) 
 {		
-	PxCollection* subordinateCollection = PxCreateCollection();
+	PxCollection* subordinateCollection = ev4sio_PxCreateCollection();
 	PX_ASSERT(subordinateCollection);
 
 	for(PxU32 i = 0; i < collection.getNbObjects(); ++i)
@@ -131,7 +131,7 @@ bool PxSerialization::isSerializable(PxCollection& collection, PxSerializationRe
 				if(object && (object != &s))
 				{					
 					subordinateCollection->release();					
-					return PxGetFoundation().error(physx::PxErrorCode::eINVALID_PARAMETER, PX_FL, 
+					return ev4sio_PxGetFoundation().error(ev4sio_physx::PxErrorCode::eINVALID_PARAMETER, PX_FL, 
 						"PxSerialization::isSerializable: Reference id %llu used both in current collection and in externalReferences. "
 						"Please use unique identifiers.", id);	
 				}
@@ -139,7 +139,7 @@ bool PxSerialization::isSerializable(PxCollection& collection, PxSerializationRe
 		}		
 	}
 
-	PxCollection* requiresCollection = PxCreateCollection();
+	PxCollection* requiresCollection = ev4sio_PxCreateCollection();
 	PX_ASSERT(requiresCollection);
 		
 	RequiresCallback requiresCallback0(*requiresCollection);
@@ -151,7 +151,7 @@ bool PxSerialization::isSerializable(PxCollection& collection, PxSerializationRe
 		PX_ASSERT(serializer);
 		serializer->requiresObjects(s, requiresCallback0);
 
-		Cm::Collection* cmRequiresCollection = static_cast<Cm::Collection*>(requiresCollection);
+		ev4sio_Cm::Collection* cmRequiresCollection = static_cast<ev4sio_Cm::Collection*>(requiresCollection);
 
 		for(PxU32 j = 0; j < cmRequiresCollection->getNbObjects(); ++j)
 		{
@@ -170,14 +170,14 @@ bool PxSerialization::isSerializable(PxCollection& collection, PxSerializationRe
 				{
 					if(!externalReferences->contains(s0))
 					{						
-						PxGetFoundation().error(physx::PxErrorCode::eINVALID_PARAMETER, PX_FL, 
+						ev4sio_PxGetFoundation().error(ev4sio_physx::PxErrorCode::eINVALID_PARAMETER, PX_FL, 
 							"PxSerialization::isSerializable: Object of type %s references a missing object of type %s. "
 							"The missing object needs to be added to either the current collection or the externalReferences collection.",
 							s.getConcreteTypeName(), s0.getConcreteTypeName());						
 					}
 					else if(externalReferences->getId(s0) == PX_SERIAL_OBJECT_ID_INVALID)
 					{						
-						PxGetFoundation().error(physx::PxErrorCode::eINVALID_PARAMETER, PX_FL, 
+						ev4sio_PxGetFoundation().error(ev4sio_physx::PxErrorCode::eINVALID_PARAMETER, PX_FL, 
 							"PxSerialization::isSerializable: Object of type %s in externalReferences collection requires an id.", 
 							s0.getConcreteTypeName());
 					}
@@ -186,7 +186,7 @@ bool PxSerialization::isSerializable(PxCollection& collection, PxSerializationRe
 				}
 				else
 				{				
-					PxGetFoundation().error(physx::PxErrorCode::eINVALID_PARAMETER, PX_FL, 
+					ev4sio_PxGetFoundation().error(ev4sio_physx::PxErrorCode::eINVALID_PARAMETER, PX_FL, 
 						"PxSerialization::isSerializable: Object of type %s references a missing serial object of type %s. "
 						"Please completed the collection or specify an externalReferences collection containing the object.",
 						s.getConcreteTypeName(), s0.getConcreteTypeName());					
@@ -206,7 +206,7 @@ bool PxSerialization::isSerializable(PxCollection& collection, PxSerializationRe
 	{
 		PxBase& subordinate = subordinateCollection->getObject(j);
 
-		PxGetFoundation().error(physx::PxErrorCode::eINVALID_PARAMETER, PX_FL, 
+		ev4sio_PxGetFoundation().error(ev4sio_physx::PxErrorCode::eINVALID_PARAMETER, PX_FL, 
 			"PxSerialization::isSerializable: An object of type %s is subordinate but not required "
 			"by other objects in the collection (orphan). Please remove the object from the collection or add its owner.", 
 			subordinate.getConcreteTypeName());
@@ -219,7 +219,7 @@ bool PxSerialization::isSerializable(PxCollection& collection, PxSerializationRe
 
 	if(externalReferences)
 	{
-		PxCollection* oppositeRequiresCollection = PxCreateCollection();
+		PxCollection* oppositeRequiresCollection = ev4sio_PxCreateCollection();
 		PX_ASSERT(oppositeRequiresCollection);
 
 		RequiresCallback requiresCallback(*oppositeRequiresCollection);
@@ -231,7 +231,7 @@ bool PxSerialization::isSerializable(PxCollection& collection, PxSerializationRe
 			PX_ASSERT(serializer);
 			serializer->requiresObjects(s, requiresCallback);
 		
-			Cm::Collection* cmCollection = static_cast<Cm::Collection*>(oppositeRequiresCollection);
+			ev4sio_Cm::Collection* cmCollection = static_cast<ev4sio_Cm::Collection*>(oppositeRequiresCollection);
 
 			for(PxU32 j = 0; j < cmCollection->getNbObjects(); ++j)
 			{
@@ -240,7 +240,7 @@ bool PxSerialization::isSerializable(PxCollection& collection, PxSerializationRe
 				if(collection.contains(s0))
 				{
 					oppositeRequiresCollection->release();
-					PxGetFoundation().error(physx::PxErrorCode::eINVALID_PARAMETER, PX_FL, 
+					ev4sio_PxGetFoundation().error(ev4sio_physx::PxErrorCode::eINVALID_PARAMETER, PX_FL, 
 						"PxSerialization::isSerializable: Object of type %s in externalReferences references an object "
 						"of type %s in collection (circular dependency).",
 						s.getConcreteTypeName(), s0.getConcreteTypeName());
@@ -257,11 +257,11 @@ bool PxSerialization::isSerializable(PxCollection& collection, PxSerializationRe
 
 void PxSerialization::complete(PxCollection& collection, PxSerializationRegistry& sr, const PxCollection* exceptFor, bool followJoints)
 {	
-	PxCollection* curCollection = PxCreateCollection();
+	PxCollection* curCollection = ev4sio_PxCreateCollection();
 	PX_ASSERT(curCollection);	
 	curCollection->add(collection);
 
-	PxCollection* requiresCollection = PxCreateCollection();
+	PxCollection* requiresCollection = ev4sio_PxCreateCollection();
 	PX_ASSERT(requiresCollection);
 
 	do
@@ -272,7 +272,7 @@ void PxSerialization::complete(PxCollection& collection, PxSerializationRegistry
 		PxCollection* swap = curCollection;	
 		curCollection = requiresCollection;
 		requiresCollection = swap;
-		(static_cast<Cm::Collection*>(requiresCollection))->mObjects.clear();
+		(static_cast<ev4sio_Cm::Collection*>(requiresCollection))->mObjects.clear();
 
 	}while(curCollection->getNbObjects() > 0);
 

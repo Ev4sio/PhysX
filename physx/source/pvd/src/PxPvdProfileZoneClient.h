@@ -34,7 +34,7 @@
 #include "foundation/PxMutex.h"
 #include "PxProfileZoneManager.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 namespace pvdsdk
 {
@@ -65,12 +65,12 @@ class PvdProfileZoneClient : public PvdClient, public profile::PxProfileZoneHand
 	PxMutex mMutex; // zoneAdded can called from different threads
 	PvdImpl& mSDKPvd;
 	PvdDataStream* mPvdDataStream;	
-	physx::PxArray<ProfileZoneClient*> mProfileZoneClients;
+	ev4sio_physx::PxArray<ProfileZoneClient*> mProfileZoneClients;
 	bool mIsConnected;
 };
 
 } // namespace pvdsdk
-} // namespace physx
+} // namespace ev4sio_physx
 
 #endif
 

@@ -33,7 +33,7 @@
 
 #include "PxPvdObjectModelBaseTypes.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 namespace pvdsdk
 {
@@ -309,8 +309,8 @@ struct StreamInitialization : public EventSerializeable
 	StreamInitialization()
 	: mStreamId(getStreamId())
 	, mStreamVersion(getStreamVersion())
-	, mTimestampNumerator(physx::PxTime::getCounterFrequency().mNumerator * 10)
-	, mTimestampDenominator(physx::PxTime::getCounterFrequency().mDenominator)
+	, mTimestampNumerator(ev4sio_physx::PxTime::getCounterFrequency().mNumerator * 10)
+	, mTimestampDenominator(ev4sio_physx::PxTime::getCounterFrequency().mDenominator)
 	, mStreamFlags(sizeof(void*) == 4 ? 0 : 1)
 	{
 	}

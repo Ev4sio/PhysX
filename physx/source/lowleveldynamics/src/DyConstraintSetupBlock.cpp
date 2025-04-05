@@ -36,12 +36,12 @@
 #include "DyArticulationContactPrep.h"
 #include "DyAllocator.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 using namespace aos;
 
-namespace Dy
+namespace ev4sio_Dy
 {
 
 SolverConstraintPrepState::Enum setupSolverConstraint4
@@ -310,19 +310,19 @@ PxConstraintAllocator& allocator, PxU32 maxRows, bool residualReportingEnabled)
 
 			PxReal minImpulse0, minImpulse1, minImpulse2, minImpulse3;
 			PxReal maxImpulse0, maxImpulse1, maxImpulse2, maxImpulse3;
-			Dy::computeMinMaxImpulseOrForceAsImpulse(
+			ev4sio_Dy::computeMinMaxImpulseOrForceAsImpulse(
 				con0->minImpulse, con0->maxImpulse,		
 				con0->flags & Px1DConstraintFlag::eHAS_DRIVE_LIMIT, constraintDescs[0].driveLimitsAreForces, simDt,
 				minImpulse0, maxImpulse0);
-			Dy::computeMinMaxImpulseOrForceAsImpulse(
+			ev4sio_Dy::computeMinMaxImpulseOrForceAsImpulse(
 				con1->minImpulse, con1->maxImpulse,		
 				con1->flags & Px1DConstraintFlag::eHAS_DRIVE_LIMIT, constraintDescs[1].driveLimitsAreForces, simDt,
 				minImpulse1, maxImpulse1);
-			Dy::computeMinMaxImpulseOrForceAsImpulse(
+			ev4sio_Dy::computeMinMaxImpulseOrForceAsImpulse(
 				con2->minImpulse, con2->maxImpulse,		
 				con2->flags & Px1DConstraintFlag::eHAS_DRIVE_LIMIT, constraintDescs[2].driveLimitsAreForces, simDt,
 				minImpulse2, maxImpulse2);
-			Dy::computeMinMaxImpulseOrForceAsImpulse(
+			ev4sio_Dy::computeMinMaxImpulseOrForceAsImpulse(
 				con3->minImpulse, con3->maxImpulse,		
 				con3->flags & Px1DConstraintFlag::eHAS_DRIVE_LIMIT, constraintDescs[3].driveLimitsAreForces, simDt,
 				minImpulse3, maxImpulse3);
@@ -467,7 +467,7 @@ PxConstraintAllocator& allocator, PxU32 maxRows, bool residualReportingEnabled)
 						const PxReal recipResponseI = computeRecipUnitResponse(unitResponseI, minRowResponseI);
 
 						const Constraint1dSolverConstantsPGS solverConstants = 
-							 Dy::compute1dConstraintSolverConstantsPGS(
+							 ev4sio_Dy::compute1dConstraintSolverConstantsPGS(
 								constraintFlagsI, 
 								stiffnessI, dampingI, 
 								restitutionI, bounceVelocityThresholdI,

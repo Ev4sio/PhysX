@@ -30,7 +30,7 @@
 #define PX_PROFILE_DATA_PARSING_H
 
 
-namespace physx { namespace profile {
+namespace ev4sio_physx { namespace profile {
 
 	//Converts datatypes without using type punning.
 	struct BlockParserDataConverter

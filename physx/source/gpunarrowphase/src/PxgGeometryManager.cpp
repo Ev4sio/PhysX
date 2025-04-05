@@ -53,8 +53,8 @@
 
 // AD: PxgGeometryManager manages the CPU/GPU data transfers and the lifetime of collision geometries: Convex Hulls, Trimeshes, SDFs, Heightfields.
 
-using namespace physx;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
 
 // forward declarations of static functions
 static PxU64 computeBoxHullByteSize();

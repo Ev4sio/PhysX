@@ -44,7 +44,7 @@
 #include "vehicle2/wheel/PxVehicleWheelParams.h"
 #include "vehicle2/wheel/PxVehicleWheelStates.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 namespace vehicle2
 {
@@ -973,4 +973,4 @@ void PxVehicleEngineDriveThrottleCommandResponseLinearUpdate
 
 
 } //namespace vehicle2
-} //namespace physx
+} //namespace ev4sio_physx

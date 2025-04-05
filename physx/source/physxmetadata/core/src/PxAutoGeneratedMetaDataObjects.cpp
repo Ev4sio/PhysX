@@ -43,7 +43,7 @@
 #endif
 
 #include "PxMetaDataCppPrefix.h"
-using namespace physx;
+using namespace ev4sio_physx;
 const PxTolerancesScale getPxPhysics_TolerancesScale( const PxPhysics* inObj ) { return inObj->getTolerancesScale(); }
 PxU32 getPxPhysics_TriangleMeshes( const PxPhysics* inObj, PxTriangleMesh ** outBuffer, PxU32 inBufSize ) { return inObj->getTriangleMeshes( outBuffer, inBufSize ); }
 PxU32 getNbPxPhysics_TriangleMeshes( const PxPhysics* inObj ) { return inObj->getNbTriangleMeshes(  ); }
@@ -550,19 +550,19 @@ PX_PHYSX_CORE_API PxArticulationJointReducedCoordinateGeneratedValues::PxArticul
 		,UserData( inSource->userData )
 {
 	PX_UNUSED(inSource);
-		for ( PxU32 idx = 0; idx < static_cast<PxU32>( physx::PxArticulationAxis::eCOUNT ); ++idx )
+		for ( PxU32 idx = 0; idx < static_cast<PxU32>( ev4sio_physx::PxArticulationAxis::eCOUNT ); ++idx )
 		Motion[idx] = getPxArticulationJointReducedCoordinate_Motion( inSource, static_cast< PxArticulationAxis::Enum >( idx ) );
-		for ( PxU32 idx = 0; idx < static_cast<PxU32>( physx::PxArticulationAxis::eCOUNT ); ++idx )
+		for ( PxU32 idx = 0; idx < static_cast<PxU32>( ev4sio_physx::PxArticulationAxis::eCOUNT ); ++idx )
 		LimitParams[idx] = getPxArticulationJointReducedCoordinate_LimitParams( inSource, static_cast< PxArticulationAxis::Enum >( idx ) );
-		for ( PxU32 idx = 0; idx < static_cast<PxU32>( physx::PxArticulationAxis::eCOUNT ); ++idx )
+		for ( PxU32 idx = 0; idx < static_cast<PxU32>( ev4sio_physx::PxArticulationAxis::eCOUNT ); ++idx )
 		DriveParams[idx] = getPxArticulationJointReducedCoordinate_DriveParams( inSource, static_cast< PxArticulationAxis::Enum >( idx ) );
-		for ( PxU32 idx = 0; idx < static_cast<PxU32>( physx::PxArticulationAxis::eCOUNT ); ++idx )
+		for ( PxU32 idx = 0; idx < static_cast<PxU32>( ev4sio_physx::PxArticulationAxis::eCOUNT ); ++idx )
 		Armature[idx] = getPxArticulationJointReducedCoordinate_Armature( inSource, static_cast< PxArticulationAxis::Enum >( idx ) );
-		for ( PxU32 idx = 0; idx < static_cast<PxU32>( physx::PxArticulationAxis::eCOUNT ); ++idx )
+		for ( PxU32 idx = 0; idx < static_cast<PxU32>( ev4sio_physx::PxArticulationAxis::eCOUNT ); ++idx )
 		FrictionParams[idx] = getPxArticulationJointReducedCoordinate_FrictionParams( inSource, static_cast< PxArticulationAxis::Enum >( idx ) );
-		for ( PxU32 idx = 0; idx < static_cast<PxU32>( physx::PxArticulationAxis::eCOUNT ); ++idx )
+		for ( PxU32 idx = 0; idx < static_cast<PxU32>( ev4sio_physx::PxArticulationAxis::eCOUNT ); ++idx )
 		JointPosition[idx] = getPxArticulationJointReducedCoordinate_JointPosition( inSource, static_cast< PxArticulationAxis::Enum >( idx ) );
-		for ( PxU32 idx = 0; idx < static_cast<PxU32>( physx::PxArticulationAxis::eCOUNT ); ++idx )
+		for ( PxU32 idx = 0; idx < static_cast<PxU32>( ev4sio_physx::PxArticulationAxis::eCOUNT ); ++idx )
 		JointVelocity[idx] = getPxArticulationJointReducedCoordinate_JointVelocity( inSource, static_cast< PxArticulationAxis::Enum >( idx ) );
 }
 PxScene * getPxArticulationReducedCoordinate_Scene( const PxArticulationReducedCoordinate* inObj ) { return inObj->getScene(); }

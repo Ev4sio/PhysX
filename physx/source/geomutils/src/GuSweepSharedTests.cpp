@@ -44,9 +44,9 @@
 #include "GuInternal.h"
 #include "GuGJKRaycast.h"
 
-using namespace physx;
-using namespace Gu;
-using namespace Cm;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
+using namespace ev4sio_Cm;
 using namespace aos;
 
 static const PxReal gEpsilon = .01f;
@@ -500,7 +500,7 @@ bool sweepBox_ConvexGeom(GU_BOX_SWEEP_FUNC_PARAMS)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool Gu::sweepCapsuleTriangles(GU_SWEEP_TRIANGLES_FUNC_PARAMS(PxCapsuleGeometry))
+bool ev4sio_Gu::sweepCapsuleTriangles(GU_SWEEP_TRIANGLES_FUNC_PARAMS(PxCapsuleGeometry))
 {
 	Capsule capsule;
 	getCapsule(capsule, geom, pose);

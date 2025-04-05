@@ -32,7 +32,7 @@
 #include "foundation/PxAllocator.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -47,7 +47,7 @@ class PxTempAllocator
 };
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

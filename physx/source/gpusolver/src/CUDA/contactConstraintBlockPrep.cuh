@@ -42,9 +42,9 @@
 #include "PxRigidBody.h"
 #include "assert.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
-static __device__ void initFrictionPatch(physx::PxgBlockFrictionPatch& p, const PxU32 threadIndex, const physx::PxVec3& body0Normal, const physx::PxVec3& body1Normal)
+static __device__ void initFrictionPatch(ev4sio_physx::PxgBlockFrictionPatch& p, const PxU32 threadIndex, const ev4sio_physx::PxVec3& body0Normal, const ev4sio_physx::PxVec3& body1Normal)
 {
 	p.body0Normal[threadIndex] = make_float4(body0Normal.x, body0Normal.y, body0Normal.z, 0.f);
 	p.body1Normal[threadIndex] = make_float4(body1Normal.x, body1Normal.y, body1Normal.z, 0.f);
@@ -52,11 +52,11 @@ static __device__ void initFrictionPatch(physx::PxgBlockFrictionPatch& p, const 
 	p.broken[threadIndex] = 0;
 }
 
-static __device__ void correlatePatches(PxgBlockFrictionPatch& frictionPatch, const physx::PxgBlockContactPoint* contacts, const PxU32 nbContacts,
-							const PxVec3& normal, const physx::PxAlignedTransform& bodyFrame0, const physx::PxAlignedTransform& bodyFrame1,
+static __device__ void correlatePatches(PxgBlockFrictionPatch& frictionPatch, const ev4sio_physx::PxgBlockContactPoint* contacts, const PxU32 nbContacts,
+							const PxVec3& normal, const ev4sio_physx::PxAlignedTransform& bodyFrame0, const ev4sio_physx::PxAlignedTransform& bodyFrame1,
 							float normalTolerance, const PxU32 threadIndex)
 {
-	using namespace physx;
+	using namespace ev4sio_physx;
 
 	if(nbContacts > 0)
 	{
@@ -74,14 +74,14 @@ static __device__ void correlatePatches(PxgBlockFrictionPatch& frictionPatch, co
 }
 
 static __device__ void growPatches(PxgBlockFrictionPatch& fp, PxgBlockFrictionAnchorPatch& fAnchor,
-	const physx::PxgBlockContactPoint* contacts, const PxU32 numContacts,
-				const physx::PxAlignedTransform& bodyFrame0,
-				 const physx::PxAlignedTransform& bodyFrame1,
+	const ev4sio_physx::PxgBlockContactPoint* contacts, const PxU32 numContacts,
+				const ev4sio_physx::PxAlignedTransform& bodyFrame0,
+				 const ev4sio_physx::PxAlignedTransform& bodyFrame1,
 				 float frictionOffsetThreshold,
 				 const PxU32 threadIndex,
 				 const PxReal anchorSqDistance)
 {
-	using namespace physx;
+	using namespace ev4sio_physx;
 
 	PxBounds3 pointBounds = PxBounds3::empty();
 	for (PxU32 i = 0; i < numContacts; ++i)
@@ -341,7 +341,7 @@ static __device__ void setupFinalizeSolverConstraintsBlock(PxgBlockContactData& 
 									const PxReal ccdMaxSeparationThreshold,
 									const PxReal solverOffsetSlop)
 {
-	using namespace physx;
+	using namespace ev4sio_physx;
 	// NOTE II: the friction patches are sparse (some of them have no contact patches, and
 	// therefore did not get written back to the cache) but the patch addresses are dense,
 	// corresponding to valid patches
@@ -779,7 +779,7 @@ static __device__ void setupFinalizeSolverConstraintsBlockTGS(PxgBlockContactDat
 	const PxReal solverOffsetSlop,
 	const float2 torsionalFrictionData)
 {
-	using namespace physx;
+	using namespace ev4sio_physx;
 	// NOTE II: the friction patches are sparse (some of them have no contact patches, and
 	// therefore did not get written back to the cache) but the patch addresses are dense,
 	// corresponding to valid patches

@@ -34,8 +34,8 @@
 #include "GuBarycentricCoordinates.h"
 #include "GuBox.h"
 
-using namespace physx;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
 using namespace aos;
 
 namespace
@@ -55,7 +55,7 @@ struct PCMCapsuleVsMeshContactGenerationCallback : PCMMeshContactGenerationCallb
 		MultiplePersistentContactManifold& multiManifold,
 		PxContactBuffer& contactBuffer,
 		const PxU8* extraTriData,
-		const Cm::FastVertex2ShapeScaling& meshScaling,
+		const ev4sio_Cm::FastVertex2ShapeScaling& meshScaling,
 		bool idtMeshScale,
 		PxInlineArray<PxU32, LOCAL_PCM_CONTACTS_SIZE>* deferredContacts,
 		PxRenderOutput* renderOutput = NULL
@@ -76,7 +76,7 @@ struct PCMCapsuleVsMeshContactGenerationCallback : PCMMeshContactGenerationCallb
 };
 }
 
-bool Gu::pcmContactCapsuleMesh(GU_CONTACT_METHOD_ARGS)
+bool ev4sio_Gu::pcmContactCapsuleMesh(GU_CONTACT_METHOD_ARGS)
 {
 	MultiplePersistentContactManifold& multiManifold = cache.getMultipleManifold();
 	const PxCapsuleGeometry& shapeCapsule = checkedCast<PxCapsuleGeometry>(shape0);
@@ -96,7 +96,7 @@ bool Gu::pcmContactCapsuleMesh(GU_CONTACT_METHOD_ARGS)
 	{
 		const FloatV replaceBreakingThreshold = FMul(capsuleRadius, FLoad(0.001f));
 		//const FloatV capsuleHalfHeight = FloatV_From_F32(shapeCapsule.halfHeight);
-		Cm::FastVertex2ShapeScaling meshScaling;
+		ev4sio_Cm::FastVertex2ShapeScaling meshScaling;
 		const bool idtMeshScale = shapeMesh.scale.isIdentity();
 		if(!idtMeshScale)
 			meshScaling.init(shapeMesh.scale);
@@ -166,7 +166,7 @@ bool Gu::pcmContactCapsuleMesh(GU_CONTACT_METHOD_ARGS)
 	return multiManifold.addManifoldContactsToContactBuffer(contactBuffer, capsuleTransform, meshTransform, capsuleRadius);
 }
 
-void Gu::PCMCapsuleVsMeshContactGeneration::generateEE(const Vec3VArg p, const Vec3VArg q, const FloatVArg sqInflatedRadius,
+void ev4sio_Gu::PCMCapsuleVsMeshContactGeneration::generateEE(const Vec3VArg p, const Vec3VArg q, const FloatVArg sqInflatedRadius,
 														const Vec3VArg normal, PxU32 triangleIndex, const Vec3VArg a, const Vec3VArg b,
 														MeshPersistentContact* manifoldContacts, PxU32& numContacts)
 {
@@ -221,7 +221,7 @@ void Gu::PCMCapsuleVsMeshContactGeneration::generateEE(const Vec3VArg p, const V
 	}
 }
 
-void Gu::PCMCapsuleVsMeshContactGeneration::generateEEContacts(const Vec3VArg a, const Vec3VArg b,
+void ev4sio_Gu::PCMCapsuleVsMeshContactGeneration::generateEEContacts(const Vec3VArg a, const Vec3VArg b,
 															   const Vec3VArg c, const Vec3VArg normal,
 															   PxU32 triangleIndex, const Vec3VArg p, 
 															   const Vec3VArg q, const FloatVArg sqInflatedRadius,
@@ -236,7 +236,7 @@ void Gu::PCMCapsuleVsMeshContactGeneration::generateEEContacts(const Vec3VArg a,
 		generateEE(p, q, sqInflatedRadius, normal, triangleIndex, a, c, manifoldContacts, numContacts);
 }
 
-void Gu::PCMCapsuleVsMeshContactGeneration::generateEEMTD(	const Vec3VArg p, const Vec3VArg q, const FloatVArg inflatedRadius,
+void ev4sio_Gu::PCMCapsuleVsMeshContactGeneration::generateEEMTD(	const Vec3VArg p, const Vec3VArg q, const FloatVArg inflatedRadius,
 															const Vec3VArg normal, PxU32 triangleIndex, const Vec3VArg a, const Vec3VArg b,
 															MeshPersistentContact* manifoldContacts, PxU32& numContacts)
 {
@@ -283,7 +283,7 @@ void Gu::PCMCapsuleVsMeshContactGeneration::generateEEMTD(	const Vec3VArg p, con
 	}
 }
 
-void Gu::PCMCapsuleVsMeshContactGeneration::generateEEContactsMTD(	const Vec3VArg a, const Vec3VArg b,
+void ev4sio_Gu::PCMCapsuleVsMeshContactGeneration::generateEEContactsMTD(	const Vec3VArg a, const Vec3VArg b,
 																	const Vec3VArg c, const Vec3VArg normal,
 																	PxU32 triangleIndex, const Vec3VArg p, 
 																	const Vec3VArg q, const FloatVArg inflatedRadius,
@@ -294,7 +294,7 @@ void Gu::PCMCapsuleVsMeshContactGeneration::generateEEContactsMTD(	const Vec3VAr
 	generateEEMTD(p, q, inflatedRadius, normal, triangleIndex, a, c, manifoldContacts, numContacts);
 }
 
-void Gu::PCMCapsuleVsMeshContactGeneration::generateContacts(const Vec3VArg a, const Vec3VArg b,
+void ev4sio_Gu::PCMCapsuleVsMeshContactGeneration::generateContacts(const Vec3VArg a, const Vec3VArg b,
 															 const Vec3VArg c, const Vec3VArg planeNormal, 
 															 const Vec3VArg normal, PxU32 triangleIndex,
 															 const Vec3VArg p, const Vec3VArg q,
@@ -493,7 +493,7 @@ static FloatV pcmDistanceSegmentTriangleSquared(const Vec3VArg p, const Vec3VArg
 	const FloatV d11 = V4GetZ(combinedDot);
 	const FloatV dist3 = V4GetW(combinedDot);
 
-	// PT: the new version is copied from Gu::distanceSegmentTriangleSquared
+	// PT: the new version is copied from ev4sio_Gu::distanceSegmentTriangleSquared
 	const FloatV tDenom = FSub(FMul(d00, d11), FMul(d01, d01));
 	const FloatV bdenom = FSel(FIsGrtr(tDenom, zero), FRecip(tDenom), zero);
 
@@ -692,7 +692,7 @@ static bool selectNormal(const FloatVArg u, FloatVArg v, PxU8 data)
 	return false;
 }
 
-bool Gu::PCMCapsuleVsMeshContactGeneration::processTriangle(const PxVec3* verts, PxU32 triangleIndex, PxU8 triFlags, const PxU32* vertInds)
+bool ev4sio_Gu::PCMCapsuleVsMeshContactGeneration::processTriangle(const PxVec3* verts, PxU32 triangleIndex, PxU8 triFlags, const PxU32* vertInds)
 {
 	PX_UNUSED(vertInds);
 
@@ -795,7 +795,7 @@ bool Gu::PCMCapsuleVsMeshContactGeneration::processTriangle(const PxVec3* verts,
 	return true;
 }
 
-bool Gu::PCMCapsuleVsMeshContactGeneration::processTriangle(const TriangleV& triangleV, PxU32 triangleIndex, const CapsuleV& capsule, const FloatVArg inflatedRadius, const PxU8 trigFlag,
+bool ev4sio_Gu::PCMCapsuleVsMeshContactGeneration::processTriangle(const TriangleV& triangleV, PxU32 triangleIndex, const CapsuleV& capsule, const FloatVArg inflatedRadius, const PxU8 trigFlag,
 															MeshPersistentContact* manifoldContacts, PxU32& numContacts)
 {
 	const FloatV zero = FZero();

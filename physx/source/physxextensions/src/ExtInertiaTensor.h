@@ -32,9 +32,9 @@
 #include "foundation/PxMat33.h"
 #include "foundation/PxMathUtils.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Ext
+namespace ev4sio_Ext
 {
 	class InertiaTensorComputer
 	{
@@ -128,9 +128,9 @@ namespace Ext
 	bool jacobiTransform(PxI32 n, PxF64 a[], PxF64 w[]);
 	bool diagonalizeInertiaTensor(const PxMat33& denseInertia, PxVec3& diagonalInertia, PxMat33& rotation);
 
-} // namespace Ext
+} // namespace ev4sio_Ext
 
-void Ext::computeBoxInertiaTensor(PxVec3& inertia, PxReal mass, PxReal xlength, PxReal ylength, PxReal zlength)
+void ev4sio_Ext::computeBoxInertiaTensor(PxVec3& inertia, PxReal mass, PxReal xlength, PxReal ylength, PxReal zlength)
 {
 	//to model a hollow block, one would have to multiply coeff by up to two.
 	const PxReal coeff = mass/12;
@@ -144,7 +144,7 @@ void Ext::computeBoxInertiaTensor(PxVec3& inertia, PxReal mass, PxReal xlength, 
 	PX_ASSERT(inertia.isFinite());
 }
 
-void Ext::computeSphereInertiaTensor(PxVec3& inertia, PxReal mass, PxReal radius, bool hollow)
+void ev4sio_Ext::computeSphereInertiaTensor(PxVec3& inertia, PxReal mass, PxReal radius, bool hollow)
 {
 	inertia.x = mass * radius * radius;
 	if (hollow) 
@@ -162,13 +162,13 @@ void Ext::computeSphereInertiaTensor(PxVec3& inertia, PxReal mass, PxReal radius
 //
 //--------------------------------------------------------------
 
-Ext::InertiaTensorComputer::InertiaTensorComputer(bool initTozero)
+ev4sio_Ext::InertiaTensorComputer::InertiaTensorComputer(bool initTozero)
 {
 	if (initTozero)
 		zero();
 }
 
-Ext::InertiaTensorComputer::InertiaTensorComputer(const PxMat33& inertia, const PxVec3& com, PxReal mass) :
+ev4sio_Ext::InertiaTensorComputer::InertiaTensorComputer(const PxMat33& inertia, const PxVec3& com, PxReal mass) :
 	mI(inertia),
 	mG(com),
 	mMass(mass)
@@ -176,18 +176,18 @@ Ext::InertiaTensorComputer::InertiaTensorComputer(const PxMat33& inertia, const 
 }
 
 
-Ext::InertiaTensorComputer::~InertiaTensorComputer()
+ev4sio_Ext::InertiaTensorComputer::~InertiaTensorComputer()
 {
 }
 
-PX_INLINE void Ext::InertiaTensorComputer::zero()
+PX_INLINE void ev4sio_Ext::InertiaTensorComputer::zero()
 {
 	mMass = 0.0f;
 	mI = PxMat33(PxZero);
 	mG = PxVec3(0);
 }
 
-PX_INLINE void Ext::InertiaTensorComputer::setDiagonal(PxReal mass, const PxVec3& diag)
+PX_INLINE void ev4sio_Ext::InertiaTensorComputer::setDiagonal(PxReal mass, const PxVec3& diag)
 {
 	mMass = mass;
 	mI = PxMat33::createDiagonal(diag);
@@ -196,7 +196,7 @@ PX_INLINE void Ext::InertiaTensorComputer::setDiagonal(PxReal mass, const PxVec3
 	PX_ASSERT(PxIsFinite(mMass));
 }
 
-void Ext::InertiaTensorComputer::setBox(const PxVec3& halfWidths)
+void ev4sio_Ext::InertiaTensorComputer::setBox(const PxVec3& halfWidths)
 {
 	// Setup inertia tensor for a cube with unit density
 	const PxReal mass = 8.0f * computeBoxRatio(halfWidths);
@@ -209,7 +209,7 @@ void Ext::InertiaTensorComputer::setBox(const PxVec3& halfWidths)
 	setDiagonal(mass, PxVec3(y+z, z+x, x+y) * s);
 }
 
-PX_INLINE void Ext::InertiaTensorComputer::rotate(const PxMat33& rot)
+PX_INLINE void ev4sio_Ext::InertiaTensorComputer::rotate(const PxMat33& rot)
 {
 	//well known inertia tensor rotation expression is: RIR' -- this could be optimized due to symmetry, see code to do that in Body::updateGlobalInverseInertia
 	mI = rot * mI * rot.getTranspose();
@@ -219,7 +219,7 @@ PX_INLINE void Ext::InertiaTensorComputer::rotate(const PxMat33& rot)
 	PX_ASSERT(mG.isFinite());
 }
 
-void Ext::InertiaTensorComputer::translate(const PxVec3& t)
+void ev4sio_Ext::InertiaTensorComputer::translate(const PxVec3& t)
 {
 	if (!t.isZero())	//its common for this to be zero
 	{
@@ -250,20 +250,20 @@ void Ext::InertiaTensorComputer::translate(const PxVec3& t)
 	}
 }
 
-PX_INLINE void Ext::InertiaTensorComputer::transform(const PxTransform& transform)
+PX_INLINE void ev4sio_Ext::InertiaTensorComputer::transform(const PxTransform& transform)
 {
 	rotate(PxMat33(transform.q));
 	translate(transform.p);
 }
 
-PX_INLINE void Ext::InertiaTensorComputer::setBox(const PxVec3& halfWidths, const PxTransform* pose)
+PX_INLINE void ev4sio_Ext::InertiaTensorComputer::setBox(const PxVec3& halfWidths, const PxTransform* pose)
 {
 	setBox(halfWidths);
 	if (pose)
 		transform(*pose);
 }
 
-PX_INLINE void Ext::InertiaTensorComputer::scaleDensity(PxReal densityScale)
+PX_INLINE void ev4sio_Ext::InertiaTensorComputer::scaleDensity(PxReal densityScale)
 {
 	mI *= densityScale;
 	mMass *= densityScale;
@@ -271,7 +271,7 @@ PX_INLINE void Ext::InertiaTensorComputer::scaleDensity(PxReal densityScale)
 	PX_ASSERT(PxIsFinite(mMass));
 }
 
-PX_INLINE void Ext::InertiaTensorComputer::add(const InertiaTensorComputer& it)
+PX_INLINE void ev4sio_Ext::InertiaTensorComputer::add(const InertiaTensorComputer& it)
 {
 	const PxReal TotalMass = mMass + it.mMass;
 	mG = (mG * mMass + it.mG * it.mMass) / TotalMass;
@@ -283,13 +283,13 @@ PX_INLINE void Ext::InertiaTensorComputer::add(const InertiaTensorComputer& it)
 	PX_ASSERT(PxIsFinite(mMass));
 }
 
-PX_INLINE void Ext::InertiaTensorComputer::center()
+PX_INLINE void ev4sio_Ext::InertiaTensorComputer::center()
 {
 	PxVec3 center = -mG;
 	translate(center);
 }
 
-void Ext::InertiaTensorComputer::setSphere(PxReal radius)
+void ev4sio_Ext::InertiaTensorComputer::setSphere(PxReal radius)
 {
 	// Compute mass of the sphere
 	const PxReal m = computeSphereRatio(radius);
@@ -298,14 +298,14 @@ void Ext::InertiaTensorComputer::setSphere(PxReal radius)
 	setDiagonal(m,PxVec3(s,s,s));
 }
 
-PX_INLINE void Ext::InertiaTensorComputer::setSphere(PxReal radius, const PxTransform* pose)
+PX_INLINE void ev4sio_Ext::InertiaTensorComputer::setSphere(PxReal radius, const PxTransform* pose)
 {
 	setSphere(radius);
 	if (pose)
 		transform(*pose);
 }
 
-void Ext::InertiaTensorComputer::setCylinder(int dir, PxReal r, PxReal l)
+void ev4sio_Ext::InertiaTensorComputer::setCylinder(int dir, PxReal r, PxReal l)
 {
 	// Compute mass of cylinder
 	const PxReal m = computeCylinderRatio(r, l);
@@ -321,14 +321,14 @@ void Ext::InertiaTensorComputer::setCylinder(int dir, PxReal r, PxReal l)
 	}
 }
 
-PX_INLINE void Ext::InertiaTensorComputer::setCylinder(int dir, PxReal r, PxReal l, const PxTransform* pose)
+PX_INLINE void ev4sio_Ext::InertiaTensorComputer::setCylinder(int dir, PxReal r, PxReal l, const PxTransform* pose)
 {
 	setCylinder(dir, r, l);
 	if (pose)
 		transform(*pose);
 }
 
-void Ext::InertiaTensorComputer::setCapsule(int dir, PxReal r, PxReal l)
+void ev4sio_Ext::InertiaTensorComputer::setCapsule(int dir, PxReal r, PxReal l)
 {
 	// Compute mass of capsule
 	const PxReal m = computeCapsuleRatio(r, l);
@@ -345,14 +345,14 @@ void Ext::InertiaTensorComputer::setCapsule(int dir, PxReal r, PxReal l)
 	}
 }
 
-PX_INLINE void Ext::InertiaTensorComputer::setCapsule(int dir, PxReal r, PxReal l, const PxTransform* pose)
+PX_INLINE void ev4sio_Ext::InertiaTensorComputer::setCapsule(int dir, PxReal r, PxReal l, const PxTransform* pose)
 {
 	setCapsule(dir, r, l);
 	if (pose)
 		transform(*pose);
 }
 
-void Ext::InertiaTensorComputer::setEllipsoid(PxReal rx, PxReal ry, PxReal rz)
+void ev4sio_Ext::InertiaTensorComputer::setEllipsoid(PxReal rx, PxReal ry, PxReal rz)
 {
 	// Compute mass of ellipsoid
 	const PxReal m = computeEllipsoidRatio(PxVec3(rx, ry, rz));
@@ -364,7 +364,7 @@ void Ext::InertiaTensorComputer::setEllipsoid(PxReal rx, PxReal ry, PxReal rz)
 	setDiagonal(m,PxVec3(ry*rz,rz*rx,rx*ry)*s);
 }
 
-PX_INLINE void Ext::InertiaTensorComputer::setEllipsoid(PxReal rx, PxReal ry, PxReal rz, const PxTransform* pose)
+PX_INLINE void ev4sio_Ext::InertiaTensorComputer::setEllipsoid(PxReal rx, PxReal ry, PxReal rz, const PxTransform* pose)
 {
 	setEllipsoid(rx,ry,rz);
 	if (pose)

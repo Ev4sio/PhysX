@@ -32,7 +32,7 @@
 #include "foundation/PxVec3.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 namespace vehicle2
 {
@@ -83,6 +83,6 @@ void PxVehiclePhysXConstraintStatesUpdate
 
 #if !PX_DOXYGEN
 } // namespace vehicle2
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 

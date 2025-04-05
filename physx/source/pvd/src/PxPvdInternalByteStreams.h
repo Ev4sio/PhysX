@@ -30,7 +30,7 @@
 #include "PxPvdByteStreams.h"
 #include "PxPvdFoundation.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 namespace pvdsdk
 {
@@ -85,10 +85,10 @@ struct MemPvdInputStream : public PvdInputStream
 		uint32_t original = len;
 		len = PxMin(len, size());
 
-		physx::intrinsics::memCopy(buffer, mBegin, len);
+		ev4sio_physx::intrinsics::memCopy(buffer, mBegin, len);
 		mBegin += len;
 		if(len < original)
-			physx::intrinsics::memZero(buffer + len, original - len);
+			ev4sio_physx::intrinsics::memZero(buffer + len, original - len);
 		mGood = mGood && len == original;
 		return mGood;
 	}

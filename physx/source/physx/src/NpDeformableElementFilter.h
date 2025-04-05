@@ -36,7 +36,7 @@
 #if PX_SUPPORT_GPU_PHYSX
 #include "PxDeformableElementFilter.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 struct ElementFilterInfo

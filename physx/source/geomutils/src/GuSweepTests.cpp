@@ -40,9 +40,9 @@
 #include "GuConvexSupport.h"
 #include "geometry/PxGjkQuery.h"
 
-using namespace physx;
-using namespace Gu;
-using namespace Cm;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
+using namespace ev4sio_Cm;
 using namespace aos;
 
 //#define USE_VIRTUAL_GJK
@@ -354,7 +354,7 @@ bool sweepBox_BoxGeom(GU_BOX_SWEEP_FUNC_PARAMS)
 	return true;
 }
 
-bool Gu::sweepBoxTriangles(GU_SWEEP_TRIANGLES_FUNC_PARAMS(PxBoxGeometry))
+bool ev4sio_Gu::sweepBoxTriangles(GU_SWEEP_TRIANGLES_FUNC_PARAMS(PxBoxGeometry))
 {
 	PX_UNUSED(hitFlags);
 
@@ -626,9 +626,9 @@ static bool sweepCapsule_ConvexCoreGeom(GU_CAPSULE_SWEEP_FUNC_PARAMS)
 
 	struct ConvexCoreSupport : PxGjkQuery::Support
 	{
-		Gu::ConvexShape shape;
+		ev4sio_Gu::ConvexShape shape;
 		ConvexCoreSupport(const PxConvexCoreGeometry& g)
-			{ Gu::makeConvexShape(g, PxTransform(PxIdentity), shape); }
+			{ ev4sio_Gu::makeConvexShape(g, PxTransform(PxIdentity), shape); }
 		virtual PxReal getMargin() const
 			{ return shape.margin; }
 		virtual PxVec3 supportLocal(const PxVec3& dir) const
@@ -638,8 +638,8 @@ static bool sweepCapsule_ConvexCoreGeom(GU_CAPSULE_SWEEP_FUNC_PARAMS)
 	const PxConvexCoreGeometry& convex = static_cast<const PxConvexCoreGeometry&>(geom);
 	if (convex.isValid())
 	{
-		PxBounds3 bounds = Gu::computeBounds(convex, pose);
-		bounds.include(Gu::computeBounds(capsuleGeom_, capsulePose_));
+		PxBounds3 bounds = ev4sio_Gu::computeBounds(convex, pose);
+		bounds.include(ev4sio_Gu::computeBounds(capsuleGeom_, capsulePose_));
 		PxReal wiseDist = PxMin(distance, bounds.getDimensions().magnitude());
 		PxReal t;
 		PxVec3 n, p;
@@ -685,9 +685,9 @@ static bool sweepBox_ConvexCoreGeom(GU_BOX_SWEEP_FUNC_PARAMS)
 
 	struct ConvexCoreSupport : PxGjkQuery::Support
 	{
-		Gu::ConvexShape shape;
+		ev4sio_Gu::ConvexShape shape;
 		ConvexCoreSupport(const PxConvexCoreGeometry& g)
-			{ Gu::makeConvexShape(g, PxTransform(PxIdentity), shape); }
+			{ ev4sio_Gu::makeConvexShape(g, PxTransform(PxIdentity), shape); }
 		virtual PxReal getMargin() const
 			{ return shape.margin; }
 		virtual PxVec3 supportLocal(const PxVec3& dir) const
@@ -697,8 +697,8 @@ static bool sweepBox_ConvexCoreGeom(GU_BOX_SWEEP_FUNC_PARAMS)
 	const PxConvexCoreGeometry& convex = static_cast<const PxConvexCoreGeometry&>(geom);
 	if (convex.isValid())
 	{
-		PxBounds3 bounds = Gu::computeBounds(convex, pose);
-		bounds.include(Gu::computeBounds(boxGeom_, boxPose_));
+		PxBounds3 bounds = ev4sio_Gu::computeBounds(convex, pose);
+		bounds.include(ev4sio_Gu::computeBounds(boxGeom_, boxPose_));
 		PxReal wiseDist = PxMin(distance, bounds.getDimensions().magnitude());
 		PxReal t;
 		PxVec3 n, p;
@@ -765,9 +765,9 @@ static bool sweepConvex_ConvexCoreGeom(GU_CONVEX_SWEEP_FUNC_PARAMS)
 
 	struct ConvexCoreSupport : PxGjkQuery::Support
 	{
-		Gu::ConvexShape shape;
+		ev4sio_Gu::ConvexShape shape;
 		ConvexCoreSupport(const PxConvexCoreGeometry& g)
-			{ Gu::makeConvexShape(g, PxTransform(PxIdentity), shape); }
+			{ ev4sio_Gu::makeConvexShape(g, PxTransform(PxIdentity), shape); }
 		virtual PxReal getMargin() const
 			{ return shape.margin; }
 		virtual PxVec3 supportLocal(const PxVec3& dir) const
@@ -777,8 +777,8 @@ static bool sweepConvex_ConvexCoreGeom(GU_CONVEX_SWEEP_FUNC_PARAMS)
 	const PxConvexCoreGeometry& convex = static_cast<const PxConvexCoreGeometry&>(geom);
 	if (convex.isValid())
 	{
-		PxBounds3 bounds = Gu::computeBounds(convex, pose);
-		bounds.include(Gu::computeBounds(convexGeom, convexPose));
+		PxBounds3 bounds = ev4sio_Gu::computeBounds(convex, pose);
+		bounds.include(ev4sio_Gu::computeBounds(convexGeom, convexPose));
 		PxReal wiseDist = PxMin(distance, bounds.getDimensions().magnitude());
 		PxReal t;
 		PxVec3 n, p;
@@ -796,7 +796,7 @@ static bool sweepConvex_ConvexCoreGeom(GU_CONVEX_SWEEP_FUNC_PARAMS)
 
 	return 0;
 }
-Gu::GeomSweepFuncs gGeomSweepFuncs =
+ev4sio_Gu::GeomSweepFuncs gGeomSweepFuncs =
 {
 	{
 		sweepCapsule_SphereGeom,
@@ -865,7 +865,7 @@ Gu::GeomSweepFuncs gGeomSweepFuncs =
 	}
 };
 
-PX_PHYSX_COMMON_API const GeomSweepFuncs& Gu::getSweepFuncTable()
+PX_PHYSX_COMMON_API const GeomSweepFuncs& ev4sio_Gu::getSweepFuncTable()
 {
 	return gGeomSweepFuncs;
 }

@@ -37,7 +37,7 @@
 #include "ScArticulationSim.h"
 #include "ScPhysics.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 NpOmniPvdSimulationControllerCallbacks::NpOmniPvdSimulationControllerCallbacks(NpScene& scene) :
 	mNpScene(scene)
@@ -47,20 +47,20 @@ NpOmniPvdSimulationControllerCallbacks::NpOmniPvdSimulationControllerCallbacks(N
 const PxRigidDynamic* NpOmniPvdSimulationControllerCallbacks::castPxsRigidBodyToPxRigidDynamic(const PxsRigidBody* rigidBody)
 {
 	const PxsBodyCore& pxsBodyCoreRef = rigidBody->getCore();
-	Sc::BodyCore& bodyCoreRef = Sc::BodyCore::getCore(pxsBodyCoreRef);
+	ev4sio_Sc::BodyCore& bodyCoreRef = ev4sio_Sc::BodyCore::getCore(pxsBodyCoreRef);
 	PxRigidDynamic* rigidDynamic = static_cast<PxRigidDynamic*>(bodyCoreRef.getPxActor());
 	PX_ASSERT(rigidDynamic->getConcreteType() == PxConcreteType::eRIGID_DYNAMIC);
 	return rigidDynamic;
 }
 
-const NpArticulationReducedCoordinate* NpOmniPvdSimulationControllerCallbacks::castFeatherstoneToNpArticulation(const Dy::FeatherstoneArticulation* const featherstone)
+const NpArticulationReducedCoordinate* NpOmniPvdSimulationControllerCallbacks::castFeatherstoneToNpArticulation(const ev4sio_Dy::FeatherstoneArticulation* const featherstone)
 {
-	// Dy::FeatherstoneArticulation's constructor takes a void pointer argument, which is stored as userData in the
-	// object. This userData argument is the Sc::ArticulationSim pointer for the purpose of the PxgArticulationCore
-	// See Sc::ArticulationSim constructor
-	Sc::ArticulationSim* articulationSim = (Sc::ArticulationSim*)(featherstone->getUserData());
-	Sc::ArticulationCore& articulationCore = articulationSim->getCore();
-	NpArticulationReducedCoordinate* npArticulation = static_cast<NpArticulationReducedCoordinate*>(Sc::gOffsetTable.convertScArticulation2Px(&articulationCore));
+	// ev4sio_Dy::FeatherstoneArticulation's constructor takes a void pointer argument, which is stored as userData in the
+	// object. This userData argument is the ev4sio_Sc::ArticulationSim pointer for the purpose of the PxgArticulationCore
+	// See ev4sio_Sc::ArticulationSim constructor
+	ev4sio_Sc::ArticulationSim* articulationSim = (ev4sio_Sc::ArticulationSim*)(featherstone->getUserData());
+	ev4sio_Sc::ArticulationCore& articulationCore = articulationSim->getCore();
+	NpArticulationReducedCoordinate* npArticulation = static_cast<NpArticulationReducedCoordinate*>(ev4sio_Sc::gOffsetTable.convertScArticulation2Px(&articulationCore));
 	PX_ASSERT(npArticulation->getConcreteType() == PxConcreteType::eARTICULATION_REDUCED_COORDINATE);
 	return npArticulation;
 }
@@ -146,7 +146,7 @@ void NpOmniPvdSimulationControllerCallbacks::setDofOffsetVec(PxArray<PxU32>& dof
 	}
 }
 
-void NpOmniPvdSimulationControllerCallbacks::streamJointValues(const PxArticulationGPUAPIWriteType::Enum dataType, const Dy::FeatherstoneArticulation* const * articulations, PxReal* realsDataVec, const PxArticulationGPUIndex* nodeIndices,
+void NpOmniPvdSimulationControllerCallbacks::streamJointValues(const PxArticulationGPUAPIWriteType::Enum dataType, const ev4sio_Dy::FeatherstoneArticulation* const * articulations, PxReal* realsDataVec, const PxArticulationGPUIndex* nodeIndices,
 	PxU32 nbArticulations, PxU32 maxLinks, PxU32 maxSubElementsInBlock)
 {
 	NpOmniPvdSceneClient& ovdClient = mNpScene.getSceneOvdClientInternal();
@@ -243,7 +243,7 @@ void NpOmniPvdSimulationControllerCallbacks::streamJointValues(const PxArticulat
 
 // The nodeIndices are expected to be remapped from gpuIndices to nodeIndices before this function is called
 // The remapping is done in PxgArticulationCore::ovdArticulationCallback
-void NpOmniPvdSimulationControllerCallbacks::processArticulationSet(const Dy::FeatherstoneArticulation* const *articulations, const void* dataVec, const PxArticulationGPUIndex* nodeIndices, PxArticulationGPUAPIWriteType::Enum dataType, PxU32 nbElements,
+void NpOmniPvdSimulationControllerCallbacks::processArticulationSet(const ev4sio_Dy::FeatherstoneArticulation* const *articulations, const void* dataVec, const PxArticulationGPUIndex* nodeIndices, PxArticulationGPUAPIWriteType::Enum dataType, PxU32 nbElements,
 		PxU32 maxLinks, PxU32 maxDofs, PxU32 maxFixedTendons, PxU32 maxTendonJoints, PxU32 maxSpatialTendons, PxU32 maxSpatialTendonAttachments)
 {
 	PxU32 nbrSubElementsPerBlock;

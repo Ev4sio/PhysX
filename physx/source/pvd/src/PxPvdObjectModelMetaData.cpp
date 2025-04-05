@@ -29,7 +29,7 @@
 #include "PxPvdInternalByteStreams.h"
 #include "PxPvdMarshalling.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 using namespace pvdsdk;
 
 namespace

@@ -35,7 +35,7 @@
 #include <stdarg.h>
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -73,7 +73,7 @@ programmer
 PX_FOUNDATION_API void PxPrintString(const char*);
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 #endif
 

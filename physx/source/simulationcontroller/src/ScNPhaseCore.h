@@ -45,14 +45,14 @@
 #include "ScScene.h"
 #include "ScContactReportBuffer.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Bp
+namespace ev4sio_Bp
 {
 	struct AABBOverlap;
 }
 
-namespace Sc
+namespace ev4sio_Sc
 {
 	class ElementSim;
 	class ShapeSimBase;
@@ -105,7 +105,7 @@ namespace Sc
 
 		const PxU32 base = PxU32((add0 & 0xFFFF) | (add1 << 16));
 
-		return physx::PxComputeHash(base);
+		return ev4sio_physx::PxComputeHash(base);
 	}
 
 	struct ElementSimKey
@@ -130,7 +130,7 @@ namespace Sc
 	PX_INLINE PxU32 PxComputeHash(const ElementSimKey& key)
 	{
 		const PxU64 base = PxU64(key.mID0) | (PxU64(key.mID1) << 32);
-		return physx::PxComputeHash(base);
+		return ev4sio_physx::PxComputeHash(base);
 	}
 
 	class ContactReportAllocationManager
@@ -210,7 +210,7 @@ namespace Sc
 
 	private:
 		PxU8* mTmpTriggerProcessingBlock;  // temporary memory block to process trigger pairs in parallel
-		                                   // (see comment in Sc::Scene::postIslandGen too)
+		                                   // (see comment in ev4sio_Sc::Scene::postIslandGen too)
 		PxU32 mTmpTriggerPairCount;
 		PxMutex mTriggerWriteBackLock;
 	};
@@ -231,9 +231,9 @@ namespace Sc
 
 		ElementSimInteraction* findInteraction(const ElementSim* element0, const ElementSim* element1)	const;
 
-		void	onTriggerOverlapCreated(const Bp::AABBOverlap* PX_RESTRICT pairs, PxU32 pairCount);
+		void	onTriggerOverlapCreated(const ev4sio_Bp::AABBOverlap* PX_RESTRICT pairs, PxU32 pairCount);
 
-		void	runOverlapFilters(	PxU32 nbToProcess, Bp::AABBOverlap* PX_RESTRICT pairs, FilterInfo* PX_RESTRICT filterInfo,
+		void	runOverlapFilters(	PxU32 nbToProcess, ev4sio_Bp::AABBOverlap* PX_RESTRICT pairs, FilterInfo* PX_RESTRICT filterInfo,
 									PxU32& nbToKeep, PxU32& nbToSuppress)	const;
 
 		void onOverlapRemoved(ElementSim* volume0, ElementSim* volume1, PxU32 ccdPass, void* elemSim, PxsContactManagerOutputIterator& outputs);
@@ -252,7 +252,7 @@ namespace Sc
 		/**
 		\brief Allocate buffers for trigger overlap test.
 
-		See comment in Sc::Scene::postIslandGen for why this is split up into multiple parts.
+		See comment in ev4sio_Sc::Scene::postIslandGen for why this is split up into multiple parts.
 
 		\param[in] continuation The task to run after trigger processing.
 		\return The concluding trigger processing task if there is work to do, else NULL.
@@ -263,7 +263,7 @@ namespace Sc
 		void processTriggerInteractions(PxBaseTask& continuation);
 		
 		// Deactivate trigger interactions if possible, free buffers from overlap tests and clean up.
-		// See comment in Sc::Scene::postIslandGen for why this is split up into multiple parts.
+		// See comment in ev4sio_Sc::Scene::postIslandGen for why this is split up into multiple parts.
 		void concludeTriggerInteractionProcessing(PxBaseTask* continuation);
 
 		// Check candidates for persistent touch contact events and create those events if necessary.
@@ -365,7 +365,7 @@ namespace Sc
 		ActorPairContactReportDataPool				mActorPairContactReportDataPool;
 		ElementInteractionMarkerPool				mInteractionMarkerPool;
 
-		Cm::DelegateTask<NPhaseCore, &NPhaseCore::concludeTriggerInteractionProcessing> mConcludeTriggerInteractionProcessingTask;
+		ev4sio_Cm::DelegateTask<NPhaseCore, &NPhaseCore::concludeTriggerInteractionProcessing> mConcludeTriggerInteractionProcessingTask;
 		TriggerProcessingContext					mTriggerProcessingContext;
 		PxHashMap<BodyPairKey, ActorPair*>			mActorPairMap; 
 
@@ -374,8 +374,8 @@ namespace Sc
 		PxMutex										mBufferAllocLock;
 		PxMutex										mReportAllocLock;
 
-		friend class Sc::Scene;
-		friend class Sc::ShapeInteraction;
+		friend class ev4sio_Sc::Scene;
+		friend class ev4sio_Sc::ShapeInteraction;
 	};
 
 	struct FilteringContext
@@ -402,7 +402,7 @@ namespace Sc
 		const bool 							mIsDirectGPU;
 	};
 
-} // namespace Sc
+} // namespace ev4sio_Sc
 
 }
 

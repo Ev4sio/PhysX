@@ -33,8 +33,8 @@
 #include "ScScene.h"
 #include "DyIslandManager.h"
 
-using namespace physx;
-using namespace Sc;
+using namespace ev4sio_physx;
+using namespace ev4sio_Sc;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -61,7 +61,7 @@ void BodySim::removeFromSpeculativeCCDMap()
 }
 
 // PT: TODO: consider using a non-member function for this one
-void BodySim::updateContactDistance(PxReal* contactDistance, PxReal dt, const Bp::BoundsArray& boundsArray)
+void BodySim::updateContactDistance(PxReal* contactDistance, PxReal dt, const ev4sio_Bp::BoundsArray& boundsArray)
 {
 	const PxsRigidBody& llBody = getLowLevelBody();
 
@@ -95,7 +95,7 @@ void BodySim::updateContactDistance(PxReal* contactDistance, PxReal dt, const Bp
 	}
 }
 
-void Sc::ArticulationSim::updateContactDistance(PxReal* contactDistance, PxReal dt, const Bp::BoundsArray& boundsArray)
+void ev4sio_Sc::ArticulationSim::updateContactDistance(PxReal* contactDistance, PxReal dt, const ev4sio_Bp::BoundsArray& boundsArray)
 {
 	const PxU32 size = mBodies.size();
 	for(PxU32 i=0; i<size; i++)
@@ -104,16 +104,16 @@ void Sc::ArticulationSim::updateContactDistance(PxReal* contactDistance, PxReal 
 
 namespace
 {
-class SpeculativeCCDBaseTask : public Cm::Task
+class SpeculativeCCDBaseTask : public ev4sio_Cm::Task
 {
 	PX_NOCOPY(SpeculativeCCDBaseTask)
 	public:
-	const Bp::BoundsArray&	mBoundsArray;
+	const ev4sio_Bp::BoundsArray&	mBoundsArray;
 	float*					mContactDistances;
 	const float				mDt;
 
-	SpeculativeCCDBaseTask(PxU64 contextID, const Bp::BoundsArray& boundsArray, PxReal* contactDistances, PxReal dt) :
-		Cm::Task			(contextID),
+	SpeculativeCCDBaseTask(PxU64 contextID, const ev4sio_Bp::BoundsArray& boundsArray, PxReal* contactDistances, PxReal dt) :
+		ev4sio_Cm::Task			(contextID),
 		mBoundsArray		(boundsArray),
 		mContactDistances	(contactDistances),
 		mDt					(dt)
@@ -127,7 +127,7 @@ public:
 	BodySim*	mBodySims[MaxBodies];
 	PxU32		mNbBodies;
 
-	SpeculativeCCDContactDistanceUpdateTask(PxU64 contextID, PxReal* contactDistances, PxReal dt, const Bp::BoundsArray& boundsArray) :
+	SpeculativeCCDContactDistanceUpdateTask(PxU64 contextID, PxReal* contactDistances, PxReal dt, const ev4sio_Bp::BoundsArray& boundsArray) :
 		SpeculativeCCDBaseTask	(contextID, boundsArray, contactDistances, dt),
 		mNbBodies				(0)
 	{}
@@ -150,7 +150,7 @@ class SpeculativeCCDContactDistanceArticulationUpdateTask : public SpeculativeCC
 public:
 	ArticulationSim* mArticulation;
 
-	SpeculativeCCDContactDistanceArticulationUpdateTask(PxU64 contextID, PxReal* contactDistances, PxReal dt, const Bp::BoundsArray& boundsArray, ArticulationSim* sim) :
+	SpeculativeCCDContactDistanceArticulationUpdateTask(PxU64 contextID, PxReal* contactDistances, PxReal dt, const ev4sio_Bp::BoundsArray& boundsArray, ArticulationSim* sim) :
 		SpeculativeCCDBaseTask	(contextID, boundsArray, contactDistances, dt),
 		mArticulation			(sim)
 	{}
@@ -167,17 +167,17 @@ private:
 };
 }
 
-static SpeculativeCCDContactDistanceUpdateTask* createCCDTask(Cm::FlushPool& pool, PxU64 contextID, PxReal* contactDistances, PxReal dt, const Bp::BoundsArray& boundsArray)
+static SpeculativeCCDContactDistanceUpdateTask* createCCDTask(ev4sio_Cm::FlushPool& pool, PxU64 contextID, PxReal* contactDistances, PxReal dt, const ev4sio_Bp::BoundsArray& boundsArray)
 {
 	return PX_PLACEMENT_NEW(pool.allocate(sizeof(SpeculativeCCDContactDistanceUpdateTask)), SpeculativeCCDContactDistanceUpdateTask)(contextID, contactDistances, dt, boundsArray);
 }
 
-void Sc::Scene::updateContactDistances(PxBaseTask* continuation)
+void ev4sio_Sc::Scene::updateContactDistances(PxBaseTask* continuation)
 {
 	PX_PROFILE_ZONE("Scene.updateContactDistances", mContextId);
 	
-	Cm::FlushPool& pool = mLLContext->getTaskPool();
-	IG::IslandSim& islandSim = mSimpleIslandManager->getAccurateIslandSim();
+	ev4sio_Cm::FlushPool& pool = mLLContext->getTaskPool();
+	ev4sio_IG::IslandSim& islandSim = mSimpleIslandManager->getAccurateIslandSim();
 	bool hasContactDistanceChanged = mHasContactDistanceChanged;
 
 	// PT: TODO: it is quite unfortunate that we cannot shortcut parsing the bitmaps. Consider switching to arrays.
@@ -303,37 +303,37 @@ void Sc::Scene::updateContactDistances(PxBaseTask* continuation)
 #include "PxsSimulationController.h"
 #include "CmTransformUtils.h"
 
-void Sc::Scene::setCCDContactModifyCallback(PxCCDContactModifyCallback* callback)
+void ev4sio_Sc::Scene::setCCDContactModifyCallback(PxCCDContactModifyCallback* callback)
 {
 	mCCDContext->setCCDContactModifyCallback(callback);
 }
 
-PxCCDContactModifyCallback* Sc::Scene::getCCDContactModifyCallback() const
+PxCCDContactModifyCallback* ev4sio_Sc::Scene::getCCDContactModifyCallback() const
 {
 	return mCCDContext->getCCDContactModifyCallback();
 }
 
-void Sc::Scene::setCCDMaxPasses(PxU32 ccdMaxPasses)
+void ev4sio_Sc::Scene::setCCDMaxPasses(PxU32 ccdMaxPasses)
 {
 	mCCDContext->setCCDMaxPasses(ccdMaxPasses);
 }
 
-PxU32 Sc::Scene::getCCDMaxPasses() const
+PxU32 ev4sio_Sc::Scene::getCCDMaxPasses() const
 {
 	return mCCDContext->getCCDMaxPasses();
 }
 
-void Sc::Scene::setCCDThreshold(PxReal t)
+void ev4sio_Sc::Scene::setCCDThreshold(PxReal t)
 {
 	mCCDContext->setCCDThreshold(t);
 }
 
-PxReal Sc::Scene::getCCDThreshold() const
+PxReal ev4sio_Sc::Scene::getCCDThreshold() const
 {
 	return mCCDContext->getCCDThreshold();
 }
 
-void Sc::Scene::collectPostSolverVelocitiesBeforeCCD()
+void ev4sio_Sc::Scene::collectPostSolverVelocitiesBeforeCCD()
 {
 	if(mContactReportsNeedPostSolverVelocity)
 	{
@@ -365,7 +365,7 @@ void Sc::Scene::collectPostSolverVelocitiesBeforeCCD()
 	}
 }
 
-void Sc::Scene::updateCCDMultiPass(PxBaseTask* parentContinuation)
+void ev4sio_Sc::Scene::updateCCDMultiPass(PxBaseTask* parentContinuation)
 {
 	getCcdBodies().forceSize_Unsafe(mSimulationControllerCallback->getNbCcdBodies());
 	
@@ -394,12 +394,12 @@ void Sc::Scene::updateCCDMultiPass(PxBaseTask* parentContinuation)
 			mCCDBroadPhaseAABB.reserve(2);
 			for (int j = 0; j < 2; j++)
 			{
-				mPostCCDPass.pushBack(Cm::DelegateTask<Sc::Scene, &Sc::Scene::postCCDPass>(mContextId, this, "ScScene.postCCDPass"));
-				mUpdateCCDSinglePass.pushBack(Cm::DelegateTask<Sc::Scene, &Sc::Scene::updateCCDSinglePass>(mContextId, this, "ScScene.updateCCDSinglePass"));
-				mUpdateCCDSinglePass2.pushBack(Cm::DelegateTask<Sc::Scene, &Sc::Scene::updateCCDSinglePassStage2>(mContextId, this, "ScScene.updateCCDSinglePassStage2"));
-				mUpdateCCDSinglePass3.pushBack(Cm::DelegateTask<Sc::Scene, &Sc::Scene::updateCCDSinglePassStage3>(mContextId, this, "ScScene.updateCCDSinglePassStage3"));
-				mCCDBroadPhase.pushBack(Cm::DelegateTask<Sc::Scene, &Sc::Scene::ccdBroadPhase>(mContextId, this, "ScScene.ccdBroadPhase"));
-				mCCDBroadPhaseAABB.pushBack(Cm::DelegateTask<Sc::Scene, &Sc::Scene::ccdBroadPhaseAABB>(mContextId, this, "ScScene.ccdBroadPhaseAABB"));
+				mPostCCDPass.pushBack(ev4sio_Cm::DelegateTask<ev4sio_Sc::Scene, &ev4sio_Sc::Scene::postCCDPass>(mContextId, this, "ScScene.postCCDPass"));
+				mUpdateCCDSinglePass.pushBack(ev4sio_Cm::DelegateTask<ev4sio_Sc::Scene, &ev4sio_Sc::Scene::updateCCDSinglePass>(mContextId, this, "ScScene.updateCCDSinglePass"));
+				mUpdateCCDSinglePass2.pushBack(ev4sio_Cm::DelegateTask<ev4sio_Sc::Scene, &ev4sio_Sc::Scene::updateCCDSinglePassStage2>(mContextId, this, "ScScene.updateCCDSinglePassStage2"));
+				mUpdateCCDSinglePass3.pushBack(ev4sio_Cm::DelegateTask<ev4sio_Sc::Scene, &ev4sio_Sc::Scene::updateCCDSinglePassStage3>(mContextId, this, "ScScene.updateCCDSinglePassStage3"));
+				mCCDBroadPhase.pushBack(ev4sio_Cm::DelegateTask<ev4sio_Sc::Scene, &ev4sio_Sc::Scene::ccdBroadPhase>(mContextId, this, "ScScene.ccdBroadPhase"));
+				mCCDBroadPhaseAABB.pushBack(ev4sio_Cm::DelegateTask<ev4sio_Sc::Scene, &ev4sio_Sc::Scene::ccdBroadPhaseAABB>(mContextId, this, "ScScene.ccdBroadPhaseAABB"));
 			}
 		}
 
@@ -417,9 +417,9 @@ void Sc::Scene::updateCCDMultiPass(PxBaseTask* parentContinuation)
 
 namespace
 {
-class UpdateCCDBoundsTask : public Cm::Task
+class UpdateCCDBoundsTask : public ev4sio_Cm::Task
 {
-	Bp::BoundsArray*	mBoundArray;
+	ev4sio_Bp::BoundsArray*	mBoundArray;
 	PxsTransformCache*	mTransformCache;
 	BodySim**			mBodySims;
 	PxU32				mNbToProcess;
@@ -429,8 +429,8 @@ public:
 
 	static const PxU32 MaxPerTask = 256;
 
-	UpdateCCDBoundsTask(PxU64 contextID, Bp::BoundsArray* boundsArray, PxsTransformCache* transformCache, BodySim** bodySims, PxU32 nbToProcess, PxI32* numFastMovingShapes) :
-		Cm::Task			(contextID),
+	UpdateCCDBoundsTask(PxU64 contextID, ev4sio_Bp::BoundsArray* boundsArray, PxsTransformCache* transformCache, BodySim** bodySims, PxU32 nbToProcess, PxI32* numFastMovingShapes) :
+		ev4sio_Cm::Task			(contextID),
 		mBoundArray			(boundsArray),
 		mTransformCache		(transformCache),
 		mBodySims			(bodySims), 
@@ -455,10 +455,10 @@ public:
 		const PxsRigidBody& rigidBody = body->getLowLevelBody();
 		const PxsBodyCore& bodyCore = body->getBodyCore().getCore();
 		PX_ALIGN(16, PxTransform shape2World);
-		Cm::getDynamicGlobalPoseAligned(rigidBody.mLastTransform, shapeCore.getShape2Actor(), bodyCore.getBody2Actor(), shape2World);
+		ev4sio_Cm::getDynamicGlobalPoseAligned(rigidBody.mLastTransform, shapeCore.getShape2Actor(), bodyCore.getBody2Actor(), shape2World);
 
 		const float ccdThreshold = computeCCDThreshold(shapeGeom);
-		PxBounds3 bounds = Gu::computeBounds(shapeGeom, endPose);
+		PxBounds3 bounds = ev4sio_Gu::computeBounds(shapeGeom, endPose);
 		PxIntBool isFastMoving;
 		if(1)
 		{
@@ -466,13 +466,13 @@ public:
 			isFastMoving = (shape2World.p - endPose.p).magnitudeSquared() >= ccdThreshold * ccdThreshold ? 1 : 0;
 			if(isFastMoving)
 			{
-				const PxBounds3 startBounds = Gu::computeBounds(shapeGeom, shape2World);
+				const PxBounds3 startBounds = ev4sio_Gu::computeBounds(shapeGeom, shape2World);
 				bounds.include(startBounds);
 			}
 		}
 		else
 		{
-			const PxBounds3 startBounds = Gu::computeBounds(shapeGeom, shape2World);
+			const PxBounds3 startBounds = ev4sio_Gu::computeBounds(shapeGeom, shape2World);
 
 			isFastMoving = (startBounds.getCenter() - bounds.getCenter()).magnitudeSquared() >= ccdThreshold * ccdThreshold ? 1 : 0;
 
@@ -520,7 +520,7 @@ public:
 };
 }
 
-void Sc::Scene::ccdBroadPhaseAABB(PxBaseTask* continuation)
+void ev4sio_Sc::Scene::ccdBroadPhaseAABB(PxBaseTask* continuation)
 {
 	PX_PROFILE_START_CROSSTHREAD("Sim.ccdBroadPhaseComplete", mContextId);
 	PX_PROFILE_ZONE("Sim.ccdBroadPhaseAABB", mContextId);
@@ -528,7 +528,7 @@ void Sc::Scene::ccdBroadPhaseAABB(PxBaseTask* continuation)
 
 	PxU32 currentPass = mCCDContext->getCurrentCCDPass();
 
-	Cm::FlushPool& flushPool = mLLContext->getTaskPool();
+	ev4sio_Cm::FlushPool& flushPool = mLLContext->getTaskPool();
 
 	mNumFastMovingShapes = 0;
 
@@ -546,7 +546,7 @@ void Sc::Scene::ccdBroadPhaseAABB(PxBaseTask* continuation)
 	}
 }
 
-void Sc::Scene::ccdBroadPhase(PxBaseTask* continuation)
+void ev4sio_Sc::Scene::ccdBroadPhase(PxBaseTask* continuation)
 {
 	PX_PROFILE_ZONE("Sim.ccdBroadPhase", mContextId);
 
@@ -598,7 +598,7 @@ void Sc::Scene::ccdBroadPhase(PxBaseTask* continuation)
 	}
 }
 
-void Sc::Scene::updateCCDSinglePass(PxBaseTask* continuation)
+void ev4sio_Sc::Scene::updateCCDSinglePass(PxBaseTask* continuation)
 {
 	PX_PROFILE_ZONE("Sim.updateCCDSinglePass", mContextId);
 	mReportShapePairTimeStamp++;  // This will makes sure that new report pairs will get created instead of re-using the existing ones.
@@ -626,13 +626,13 @@ void Sc::Scene::updateCCDSinglePass(PxBaseTask* continuation)
 	}
 }
 
-void Sc::Scene::updateCCDSinglePassStage2(PxBaseTask* continuation)
+void ev4sio_Sc::Scene::updateCCDSinglePassStage2(PxBaseTask* continuation)
 {
 	PX_PROFILE_ZONE("Sim.updateCCDSinglePassStage2", mContextId);
 	postBroadPhaseStage2(continuation);
 }
 
-void Sc::Scene::updateCCDSinglePassStage3(PxBaseTask* continuation)
+void ev4sio_Sc::Scene::updateCCDSinglePassStage3(PxBaseTask* continuation)
 {
 	PX_PROFILE_ZONE("Sim.updateCCDSinglePassStage3", mContextId);
 	mReportShapePairTimeStamp++;  // This will makes sure that new report pairs will get created instead of re-using the existing ones.
@@ -647,12 +647,12 @@ void Sc::Scene::updateCCDSinglePassStage3(PxBaseTask* continuation)
 	mCCDContext->updateCCD(mDt, continuation, mSimpleIslandManager->getAccurateIslandSim(), (mPublicFlags & PxSceneFlag::eDISABLE_CCD_RESWEEP), mNumFastMovingShapes);
 }
 
-static PX_FORCE_INLINE Sc::ShapeInteraction* getSI(PxvContactManagerTouchEvent& evt)
+static PX_FORCE_INLINE ev4sio_Sc::ShapeInteraction* getSI(PxvContactManagerTouchEvent& evt)
 {
-	return reinterpret_cast<Sc::ShapeInteraction*>(evt.getCMTouchEventUserData());
+	return reinterpret_cast<ev4sio_Sc::ShapeInteraction*>(evt.getCMTouchEventUserData());
 }
 
-void Sc::Scene::postCCDPass(PxBaseTask* /*continuation*/)
+void ev4sio_Sc::Scene::postCCDPass(PxBaseTask* /*continuation*/)
 {
 	// - Performs sleep check
 	// - Updates touch flags
@@ -679,7 +679,7 @@ void Sc::Scene::postCCDPass(PxBaseTask* /*continuation*/)
 		si->managerNewTouch(currentPass, outputs);
 		if (!si->readFlag(ShapeInteraction::CONTACTS_RESPONSE_DISABLED))
 		{
-			mSimpleIslandManager->setEdgeConnected(si->getEdgeIndex(), IG::Edge::eCONTACT_MANAGER);
+			mSimpleIslandManager->setEdgeConnected(si->getEdgeIndex(), ev4sio_IG::Edge::eCONTACT_MANAGER);
 		}
 	}
 	for(PxU32 i=0; i<lostTouchCount; ++i)

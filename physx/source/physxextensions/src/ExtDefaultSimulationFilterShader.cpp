@@ -36,7 +36,7 @@
 #include "foundation/PxAllocator.h"
 #include "foundation/PxInlineArray.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 namespace
 {
@@ -235,7 +235,7 @@ namespace
 	}
 }
 
-PxFilterFlags physx::PxDefaultSimulationFilterShader(
+PxFilterFlags ev4sio_physx::PxDefaultSimulationFilterShader(
 	PxFilterObjectAttributes attributes0,
 	PxFilterData filterData0, 
 	PxFilterObjectAttributes attributes1,
@@ -279,14 +279,14 @@ PxFilterFlags physx::PxDefaultSimulationFilterShader(
 	return PxFilterFlags();
 }
 
-bool physx::PxGetGroupCollisionFlag(const PxU16 group1, const PxU16 group2)
+bool ev4sio_physx::PxGetGroupCollisionFlag(const PxU16 group1, const PxU16 group2)
 {
 	PX_CHECK_AND_RETURN_NULL(group1 < 32 && group2 < 32, "Group must be less than 32");	
 
 	return gCollisionTable[group1][group2]();
 }
 
-void physx::PxSetGroupCollisionFlag(const PxU16 group1, const PxU16 group2, const bool enable)
+void ev4sio_physx::PxSetGroupCollisionFlag(const PxU16 group1, const PxU16 group2, const bool enable)
 {
 	PX_CHECK_AND_RETURN(group1 < 32 && group2 < 32, "Group must be less than 32");	
 
@@ -294,57 +294,57 @@ void physx::PxSetGroupCollisionFlag(const PxU16 group1, const PxU16 group2, cons
 	gCollisionTable[group2][group1] = enable;
 }
 
-PxU16 physx::PxGetGroup(const PxActor& actor)
+PxU16 ev4sio_physx::PxGetGroup(const PxActor& actor)
 {
 	PxFilterData fd;
 	getFilterData(actor, fd);
 	return PxU16(fd.word0);
 }
 
-void physx::PxSetGroup(PxActor& actor, const PxU16 collisionGroup)
+void ev4sio_physx::PxSetGroup(PxActor& actor, const PxU16 collisionGroup)
 {
 	PX_CHECK_AND_RETURN(collisionGroup < 32,"Collision group must be less than 32");
 	PxFilterData fd(collisionGroup, 0, 0, 0);
 	setFilterData<false>(actor, fd);
 }
 
-void physx::PxGetFilterOps(PxFilterOp::Enum& op0, PxFilterOp::Enum& op1, PxFilterOp::Enum& op2)
+void ev4sio_physx::PxGetFilterOps(PxFilterOp::Enum& op0, PxFilterOp::Enum& op1, PxFilterOp::Enum& op2)
 {
 	op0 = gFilterOps[0];
 	op1 = gFilterOps[1];
 	op2 = gFilterOps[2];
 }
 
-void physx::PxSetFilterOps(const PxFilterOp::Enum& op0, const PxFilterOp::Enum& op1, const PxFilterOp::Enum& op2)
+void ev4sio_physx::PxSetFilterOps(const PxFilterOp::Enum& op0, const PxFilterOp::Enum& op1, const PxFilterOp::Enum& op2)
 {
 	gFilterOps[0] = op0;
 	gFilterOps[1] = op1;
 	gFilterOps[2] = op2;
 }
 
-bool physx::PxGetFilterBool()
+bool ev4sio_physx::PxGetFilterBool()
 {
 	return gFilterBool;
 }
 
-void physx::PxSetFilterBool(const bool enable)
+void ev4sio_physx::PxSetFilterBool(const bool enable)
 {
 	gFilterBool = enable;
 }
 
-void physx::PxGetFilterConstants(PxGroupsMask& c0, PxGroupsMask& c1)
+void ev4sio_physx::PxGetFilterConstants(PxGroupsMask& c0, PxGroupsMask& c1)
 {
 	c0 = gFilterConstants[0];
 	c1 = gFilterConstants[1];
 }
 
-void physx::PxSetFilterConstants(const PxGroupsMask& c0, const PxGroupsMask& c1)
+void ev4sio_physx::PxSetFilterConstants(const PxGroupsMask& c0, const PxGroupsMask& c1)
 {
 	gFilterConstants[0] = c0;
 	gFilterConstants[1] = c1;
 }
 
-PxGroupsMask physx::PxGetGroupsMask(const PxActor& actor)
+PxGroupsMask ev4sio_physx::PxGetGroupsMask(const PxActor& actor)
 {
 	PxFilterData fd;
 	if (getFilterData(actor, fd))
@@ -353,7 +353,7 @@ PxGroupsMask physx::PxGetGroupsMask(const PxActor& actor)
 		return PxGroupsMask();
 }
 
-void physx::PxSetGroupsMask(PxActor& actor, const PxGroupsMask& mask)
+void ev4sio_physx::PxSetGroupsMask(PxActor& actor, const PxGroupsMask& mask)
 {
 	PxFilterData fd = convert(mask);
 	setFilterData<true>(actor, fd);

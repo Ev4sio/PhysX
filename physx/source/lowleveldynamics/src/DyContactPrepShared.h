@@ -40,14 +40,14 @@
 #include "PxcNpContactPrepShared.h"
 #include "DySolverContact4.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Dy
+namespace ev4sio_Dy
 {
 template<class PxSolverContactDescT>
-PX_FORCE_INLINE Sc::ShapeInteraction* getInteraction(const PxSolverContactDescT& desc)
+PX_FORCE_INLINE ev4sio_Sc::ShapeInteraction* getInteraction(const PxSolverContactDescT& desc)
 {
-	return reinterpret_cast<Sc::ShapeInteraction*>(desc.shapeInteraction);
+	return reinterpret_cast<ev4sio_Sc::ShapeInteraction*>(desc.shapeInteraction);
 }
 
 PX_FORCE_INLINE bool pointsAreClose(const PxTransform& body1ToBody0,

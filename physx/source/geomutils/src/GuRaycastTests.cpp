@@ -45,8 +45,8 @@
 #include "GuConvexSupport.h"
 #include "GuBounds.h"
 
-using namespace physx;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
 
 ////////////////////////////////////////////////// raycasts //////////////////////////////////////////////////////////////////
 PxU32 raycast_box(GU_RAY_FUNC_PARAMS)
@@ -322,7 +322,7 @@ PxU32 raycast_convexMesh(GU_RAY_FUNC_PARAMS)
 
 		if(dn > 1E-7f)	//the ray direction "exits" from the back side
 		{
-			earliestExit = physx::intrinsics::selectMin(earliestExit, distAlongRay);
+			earliestExit = ev4sio_physx::intrinsics::selectMin(earliestExit, distAlongRay);
 		}
 		else if(dn < -1E-7f)	//the ray direction "enters" from the front side
 		{
@@ -360,7 +360,7 @@ PxU32 raycast_convexMesh(GU_RAY_FUNC_PARAMS)
 		{
 			outFlags |= PxHitFlag::ePOSITION;
 			const PxVec3 pointOnPlane = vrayOrig + latestEntry * vrayDir;
-			hit.position = pose.transform(Cm::toMat33(convexGeom.scale) * pointOnPlane);
+			hit.position = pose.transform(ev4sio_Cm::toMat33(convexGeom.scale) * pointOnPlane);
 		}
 		hit.distance	= latestEntry;
 		hit.u			= 0.0f;
@@ -508,7 +508,7 @@ namespace
 				hit.flags |= PxHitFlag::eNORMAL;
 			}
 
-			hit.distance = physx::intrinsics::selectMax(0.f, (hit.position - mLocalRayOrig).dot(mLocalRayDir));
+			hit.distance = ev4sio_physx::intrinsics::selectMax(0.f, (hit.position - mLocalRayOrig).dot(mLocalRayDir));
 
 			if(mHitFlags & PxHitFlag::ePOSITION)
 			{
@@ -604,10 +604,10 @@ static PxU32 raycast_convexCore(GU_RAY_FUNC_PARAMS)
 
 	struct GjkSupport : PxGjkQuery::Support
 	{
-		Gu::ConvexShape shape;
+		ev4sio_Gu::ConvexShape shape;
 		GjkSupport(const PxConvexCoreGeometry& g)
 		{
-			Gu::makeConvexShape(g, PxTransform(PxIdentity), shape);
+			ev4sio_Gu::makeConvexShape(g, PxTransform(PxIdentity), shape);
 		}
 		virtual PxReal getMargin() const
 		{
@@ -622,7 +622,7 @@ static PxU32 raycast_convexCore(GU_RAY_FUNC_PARAMS)
 	const PxConvexCoreGeometry& convex = static_cast<const PxConvexCoreGeometry&>(geom);
 	if (convex.isValid())
 	{
-		PxBounds3 bounds = Gu::computeBounds(convex, pose);
+		PxBounds3 bounds = ev4sio_Gu::computeBounds(convex, pose);
 		bounds.include(rayOrigin);
 		PxReal wiseDist = PxMin(maxDist, bounds.getDimensions().magnitude());
 		PxReal t;
@@ -660,7 +660,7 @@ RaycastFunc gRaycastMap[] =
 PX_COMPILE_TIME_ASSERT(sizeof(gRaycastMap) / sizeof(gRaycastMap[0]) == PxGeometryType::eGEOMETRY_COUNT);
 
 // PT: the function is used by external modules (Np, CCT, Sq)
-const Gu::GeomRaycastTable& Gu::getRaycastFuncTable()
+const ev4sio_Gu::GeomRaycastTable& ev4sio_Gu::getRaycastFuncTable()
 {
 	return gRaycastMap;
 }

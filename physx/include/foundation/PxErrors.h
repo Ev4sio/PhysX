@@ -32,7 +32,7 @@
 #include "foundation/PxSimpleTypes.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -81,10 +81,10 @@ struct PxErrorCode
 };
 
 #if PX_CHECKED
-	#define PX_CHECK_MSG(exp, msg)					(!!(exp) || (PxGetFoundation().error(physx::PxErrorCode::eINVALID_PARAMETER, PX_FL, msg), 0) )
-	#define PX_CHECK_AND_RETURN(exp, msg)			{ if(!(exp)) { PxGetFoundation().error(physx::PxErrorCode::eINVALID_PARAMETER, PX_FL, msg); return; } }
-	#define PX_CHECK_AND_RETURN_NULL(exp, msg)		{ if(!(exp)) { PxGetFoundation().error(physx::PxErrorCode::eINVALID_PARAMETER, PX_FL, msg); return 0; } }
-	#define PX_CHECK_AND_RETURN_VAL(exp, msg, r)	{ if(!(exp)) { PxGetFoundation().error(physx::PxErrorCode::eINVALID_PARAMETER, PX_FL, msg); return r; } }
+	#define PX_CHECK_MSG(exp, msg)					(!!(exp) || (ev4sio_PxGetFoundation().error(ev4sio_physx::PxErrorCode::eINVALID_PARAMETER, PX_FL, msg), 0) )
+	#define PX_CHECK_AND_RETURN(exp, msg)			{ if(!(exp)) { ev4sio_PxGetFoundation().error(ev4sio_physx::PxErrorCode::eINVALID_PARAMETER, PX_FL, msg); return; } }
+	#define PX_CHECK_AND_RETURN_NULL(exp, msg)		{ if(!(exp)) { ev4sio_PxGetFoundation().error(ev4sio_physx::PxErrorCode::eINVALID_PARAMETER, PX_FL, msg); return 0; } }
+	#define PX_CHECK_AND_RETURN_VAL(exp, msg, r)	{ if(!(exp)) { ev4sio_PxGetFoundation().error(ev4sio_physx::PxErrorCode::eINVALID_PARAMETER, PX_FL, msg); return r; } }
 #else
 	#define PX_CHECK_MSG(exp, msg)
 	#define PX_CHECK_AND_RETURN(exp, msg)
@@ -93,19 +93,19 @@ struct PxErrorCode
 #endif
 
 // shortcut macros:
-// usage: PxGetFoundation().error(PX_WARN, "static friction %f is is lower than dynamic friction %d", sfr, dfr);
-#define PX_WARN ::physx::PxErrorCode::eDEBUG_WARNING, PX_FL
-#define PX_INFO ::physx::PxErrorCode::eDEBUG_INFO, PX_FL
+// usage: ev4sio_PxGetFoundation().error(PX_WARN, "static friction %f is is lower than dynamic friction %d", sfr, dfr);
+#define PX_WARN ::ev4sio_physx::PxErrorCode::eDEBUG_WARNING, PX_FL
+#define PX_INFO ::ev4sio_physx::PxErrorCode::eDEBUG_INFO, PX_FL
 
 #if PX_DEBUG || PX_CHECKED
 	#define PX_WARN_ONCE(string)							\
 		{													\
 			static PxU32 timestamp = 0;						\
-			const PxU32 ts = PxGetWarnOnceTimeStamp();		\
+			const PxU32 ts = ev4sio_PxGetWarnOnceTimeStamp();		\
 			if(timestamp != ts)								\
 			{                                               \
 				timestamp = ts;								\
-				PxGetFoundation().error(PX_WARN, string);   \
+				ev4sio_PxGetFoundation().error(PX_WARN, string);   \
 			}                                               \
 		}
 	#define PX_WARN_ONCE_IF(condition, string)	\
@@ -121,7 +121,7 @@ struct PxErrorCode
 #endif
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

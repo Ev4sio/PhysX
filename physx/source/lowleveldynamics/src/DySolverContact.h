@@ -34,12 +34,12 @@
 #include "PxvConfig.h"
 #include "foundation/PxVecMath.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 using namespace aos;
 
-namespace Sc
+namespace ev4sio_Sc
 {
 	class ShapeInteraction;
 }
@@ -47,7 +47,7 @@ namespace Sc
 \brief A header to represent a friction patch for the solver.
 */
 
-namespace Dy
+namespace ev4sio_Dy
 {
 
 struct SolverContactHeader
@@ -76,7 +76,7 @@ struct SolverContactHeader
 	PxReal	invMass1;														//52
 	PxU32	broken;															//56
 	PxU8*	frictionBrokenWritebackByte;									//60	64
-	Sc::ShapeInteraction* shapeInteraction;									//64	72
+	ev4sio_Sc::ShapeInteraction* shapeInteraction;									//64	72
 #if PX_P64_FAMILY
 	PxU32	pad[2];															//64	80
 #endif // PX_X64

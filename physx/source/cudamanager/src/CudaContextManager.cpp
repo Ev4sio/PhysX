@@ -95,7 +95,7 @@ typedef unsigned int GLuint;
 #include "foundation/PxErrorCallback.h"
 #include "common/PxPhysXCommonConfig.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 #if PX_VC
@@ -229,7 +229,7 @@ CUdeviceptr CudaCtxMgr::getMappedDevicePtr(void* pinnedHostBuffer)
 	CUdeviceptr dPtr = 0;
 	PxCUresult result = getCudaContext()->memHostGetDevicePointer(&dPtr, pinnedHostBuffer, 0);
 	if (result != CUDA_SUCCESS)
-		PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "Getting mapped device pointer failed with error code %i!\n", PxI32(result));
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "Getting mapped device pointer failed with error code %i!\n", PxI32(result));
 	return dPtr;
 }
 
@@ -241,7 +241,7 @@ void* CudaCtxMgr::allocDeviceBufferInternal(PxU64 numBytes, const char* filename
 	CUdeviceptr ptr;
 	PxCUresult result = getCudaContext()->memAlloc(&ptr, numBytes);
 	if (result != CUDA_SUCCESS)
-		PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "Mem allocation failed with error code %i!\n", PxI32(result));
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "Mem allocation failed with error code %i!\n", PxI32(result));
 	void* deviceBuffer = reinterpret_cast<void*>(ptr);
 #if PX_DEBUG
 	if (deviceBuffer)
@@ -261,7 +261,7 @@ void* CudaCtxMgr::allocPinnedHostBufferInternal(PxU64 numBytes, const char* file
 	const unsigned int cuMemhostallocPortable = 0x01;
 	PxCUresult result = getCudaContext()->memHostAlloc(&pinnedHostBuffer, numBytes, cuMemhostallocDevicemap | cuMemhostallocPortable);
 	if (result != CUDA_SUCCESS)
-		PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "Mem allocation failed with error code %i!\n", PxI32(result));
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "Mem allocation failed with error code %i!\n", PxI32(result));
 
 #if PX_DEBUG
 	mMemTracker.registerMemory(pinnedHostBuffer, false, numBytes, filename, lineNumber);
@@ -279,7 +279,7 @@ void CudaCtxMgr::freeDeviceBufferInternal(void* deviceBuffer)
 	PxScopedCudaLock lock(*this);
 	PxCUresult result = getCudaContext()->memFree(CUdeviceptr(deviceBuffer));
 	if (result != CUDA_SUCCESS)
-		PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "Mem free failed with error code %i!\n", PxI32(result));
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "Mem free failed with error code %i!\n", PxI32(result));
 #if PX_DEBUG
 	mMemTracker.unregisterMemory(deviceBuffer, true);
 #endif
@@ -291,7 +291,7 @@ void CudaCtxMgr::freePinnedHostBufferInternal(void* pinnedHostBuffer)
 	PxScopedCudaLock lock(*this);
 	PxCUresult result = getCudaContext()->memFreeHost(pinnedHostBuffer);
 	if (result != CUDA_SUCCESS)
-		PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "Mem free failed with error code %i!\n", PxI32(result));
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "Mem free failed with error code %i!\n", PxI32(result));
 #if PX_DEBUG
 	mMemTracker.unregisterMemory(pinnedHostBuffer, false);
 #endif
@@ -305,7 +305,7 @@ void CudaCtxMgr::clearDeviceBufferAsyncInternal(void* deviceBuffer, PxU32 numByt
 	PX_ASSERT(numBytes % 4 == 0);
 	PxCUresult result = getCudaContext()->memsetD32Async(CUdeviceptr(deviceBuffer), value, numBytes >> 2, stream);
 	if (result != CUDA_SUCCESS)
-		PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "Mem set failed with error code %i!\n", PxI32(result));
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "Mem set failed with error code %i!\n", PxI32(result));
 }
 
 void CudaCtxMgr::copyDToHAsyncInternal(void* hostBuffer, const void* deviceBuffer, PxU32 numBytes, CUstream stream)
@@ -315,7 +315,7 @@ void CudaCtxMgr::copyDToHAsyncInternal(void* hostBuffer, const void* deviceBuffe
 	PxScopedCudaLock lock(*this);
 	PxCUresult result = getCudaContext()->memcpyDtoHAsync(hostBuffer, CUdeviceptr(deviceBuffer), numBytes, stream);
 	if (result != CUDA_SUCCESS)
-		PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "copyDtoHAsync set failed with error code %i!\n", PxI32(result));
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "copyDtoHAsync set failed with error code %i!\n", PxI32(result));
 }
 void CudaCtxMgr::copyHToDAsyncInternal(void* deviceBuffer, const void* hostBuffer, PxU32 numBytes, CUstream stream)
 {
@@ -324,7 +324,7 @@ void CudaCtxMgr::copyHToDAsyncInternal(void* deviceBuffer, const void* hostBuffe
 	PxScopedCudaLock lock(*this);
 	PxCUresult result = getCudaContext()->memcpyHtoDAsync(CUdeviceptr(deviceBuffer), hostBuffer, numBytes, stream);
 	if (result != CUDA_SUCCESS)
-		PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "copyHtoDAsync set failed with error code %i!\n", PxI32(result));
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "copyHtoDAsync set failed with error code %i!\n", PxI32(result));
 }
 void CudaCtxMgr::copyDToDAsyncInternal(void* dstDeviceBuffer, const void* srcDeviceBuffer, PxU32 numBytes, CUstream stream)
 {
@@ -333,7 +333,7 @@ void CudaCtxMgr::copyDToDAsyncInternal(void* dstDeviceBuffer, const void* srcDev
 	PxScopedCudaLock lock(*this);
 	PxCUresult result = getCudaContext()->memcpyDtoDAsync(CUdeviceptr(dstDeviceBuffer), CUdeviceptr(srcDeviceBuffer), numBytes, stream);
 	if (result != CUDA_SUCCESS)
-		PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "copyDtoDAsync set failed with error code %i!\n", PxI32(result));
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "copyDtoDAsync set failed with error code %i!\n", PxI32(result));
 }
 
 void CudaCtxMgr::copyDToHInternal(void* hostBuffer, const void* deviceBuffer, PxU32 numBytes)
@@ -343,7 +343,7 @@ void CudaCtxMgr::copyDToHInternal(void* hostBuffer, const void* deviceBuffer, Px
 	PxScopedCudaLock lock(*this);
 	PxCUresult result = getCudaContext()->memcpyDtoH(hostBuffer, CUdeviceptr(deviceBuffer), numBytes);
 	if (result != CUDA_SUCCESS)
-		PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "copyDtoH set failed with error code %i!\n", PxI32(result));
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "copyDtoH set failed with error code %i!\n", PxI32(result));
 }
 void CudaCtxMgr::copyHToDInternal(void* deviceBuffer, const void* hostBuffer, PxU32 numBytes)
 {
@@ -352,7 +352,7 @@ void CudaCtxMgr::copyHToDInternal(void* deviceBuffer, const void* hostBuffer, Px
 	PxScopedCudaLock lock(*this);
 	PxCUresult result = getCudaContext()->memcpyHtoD(CUdeviceptr(deviceBuffer), hostBuffer, numBytes);
 	if (result != CUDA_SUCCESS)
-		PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "copyHtoD set failed with error code %i!\n", PxI32(result));
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "copyHtoD set failed with error code %i!\n", PxI32(result));
 }
 
 void CudaCtxMgr::memsetD8AsyncInternal(void* dstDeviceBuffer, const PxU8& value, PxU32 numBytes, CUstream stream)
@@ -362,7 +362,7 @@ void CudaCtxMgr::memsetD8AsyncInternal(void* dstDeviceBuffer, const PxU8& value,
 	PxScopedCudaLock lock(*this);
 	PxCUresult result = getCudaContext()->memsetD8Async(CUdeviceptr(dstDeviceBuffer), value, numBytes, stream);
 	if (result != CUDA_SUCCESS)
-		PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "Memset failed with error code %i!\n", PxI32(result));
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "Memset failed with error code %i!\n", PxI32(result));
 
 }
 
@@ -373,7 +373,7 @@ void CudaCtxMgr::memsetD32AsyncInternal(void* dstDeviceBuffer, const PxU32& valu
 	PxScopedCudaLock lock(*this);
 	PxCUresult result = getCudaContext()->memsetD32Async(CUdeviceptr(dstDeviceBuffer), value, numIntegers, stream);
 	if (result != CUDA_SUCCESS)
-		PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "Memset failed with error code %i!\n", PxI32(result));
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "Memset failed with error code %i!\n", PxI32(result));
 }
 
 
@@ -517,7 +517,7 @@ CudaCtxMgr::CudaCtxMgr(const PxCudaContextManagerDesc& desc, PxErrorCallback& er
 	if (safeDelayImport(errorCallback) == false)
 	{
 		char buffer[256];
-		physx::Pxsnprintf(buffer, 256, "NVIDIA Release %u.%u graphics driver and above is required for GPU acceleration.", NV_DRIVER_MAJOR_VERSION, NV_DRIVER_MINOR_VERSION);
+		ev4sio_physx::Pxsnprintf(buffer, 256, "NVIDIA Release %u.%u graphics driver and above is required for GPU acceleration.", NV_DRIVER_MAJOR_VERSION, NV_DRIVER_MINOR_VERSION);
 		errorCallback.reportError(PxErrorCode::eDEBUG_WARNING, buffer, PX_FL);
 		return;
 	}
@@ -558,7 +558,7 @@ CudaCtxMgr::CudaCtxMgr(const PxCudaContextManagerDesc& desc, PxErrorCallback& er
 		if (CUDA_SUCCESS != status)
 		{
 			char buffer[128];
-			physx::Pxsnprintf(buffer, 128, "cuInit failed with error code %i", status);
+			ev4sio_physx::Pxsnprintf(buffer, 128, "cuInit failed with error code %i", status);
 			errorCallback.reportError(PxErrorCode::eDEBUG_WARNING, buffer, PX_FL);
 			return;
 		}
@@ -576,7 +576,7 @@ CudaCtxMgr::CudaCtxMgr(const PxCudaContextManagerDesc& desc, PxErrorCallback& er
 			{
 				const size_t bufferSize = 128;
 				char errorMsg[bufferSize];
-				physx::Pxsnprintf(errorMsg, bufferSize, "cuCtxCreate failed with error %i.", status);
+				ev4sio_physx::Pxsnprintf(errorMsg, bufferSize, "cuCtxCreate failed with error %i.", status);
 				errorCallback.reportError(PxErrorCode::eDEBUG_WARNING, errorMsg, PX_FL);
 				return;
 			}
@@ -638,7 +638,7 @@ CudaCtxMgr::CudaCtxMgr(const PxCudaContextManagerDesc& desc, PxErrorCallback& er
 		(mComputeCapMajor == MIN_SM_MAJOR_VERSION && mComputeCapMinor < MIN_SM_MINOR_VERSION))
 	{
 		char buffer[256];
-		physx::Pxsnprintf(buffer, 256, "Minimum GPU compute capability %d.%d is required", MIN_SM_MAJOR_VERSION, MIN_SM_MINOR_VERSION);
+		ev4sio_physx::Pxsnprintf(buffer, 256, "Minimum GPU compute capability %d.%d is required", MIN_SM_MAJOR_VERSION, MIN_SM_MINOR_VERSION);
 		errorCallback.reportError(PxErrorCode::eDEBUG_WARNING,buffer,__FILE__,__LINE__);
 		return;
 	}
@@ -649,8 +649,8 @@ CudaCtxMgr::CudaCtxMgr(const PxCudaContextManagerDesc& desc, PxErrorCallback& er
 	// Formally load the CUDA modules, get CUmodule handles
 	{
 		PxScopedCudaLock lock(*this);
-		const PxU32 moduleTableSize = PxGpuGetCudaModuleTableSize();
-		void** moduleTable = PxGpuGetCudaModuleTable();
+		const PxU32 moduleTableSize = ev4sio_PxGpuGetCudaModuleTableSize();
+		void** moduleTable = ev4sio_PxGpuGetCudaModuleTable();
 		mCuModules.resize(moduleTableSize, NULL);
 		for (PxU32 i = 0 ; i < moduleTableSize ; ++i)
 		{
@@ -666,9 +666,9 @@ CudaCtxMgr::CudaCtxMgr(const PxCudaContextManagerDesc& desc, PxErrorCallback& er
 			{
 				const size_t bufferSize = 256;
 				char errorMsg[bufferSize];
-				physx::Pxsnprintf(errorMsg, bufferSize, "Failed to load CUDA module data. Cuda error code %i.\n", ret);
+				ev4sio_physx::Pxsnprintf(errorMsg, bufferSize, "Failed to load CUDA module data. Cuda error code %i.\n", ret);
 
-				PxGetErrorCallback()->reportError(PxErrorCode::eINTERNAL_ERROR, errorMsg, PX_FL);
+				ev4sio_PxGetErrorCallback()->reportError(PxErrorCode::eINTERNAL_ERROR, errorMsg, PX_FL);
 				mCuModules[i] = NULL;
 			}
 		}
@@ -721,7 +721,7 @@ bool CudaCtxMgr::safeDelayImport(PxErrorCallback& errorCallback)
 	if (mDriverVersion < MIN_CUDA_VERSION)
 	{
 		char buffer[256];
-		physx::Pxsnprintf(buffer, 256, "CUDA driver version is %u, expected driver version is at least %u.", mDriverVersion, MIN_CUDA_VERSION);
+		ev4sio_physx::Pxsnprintf(buffer, 256, "CUDA driver version is %u, expected driver version is at least %u.", mDriverVersion, MIN_CUDA_VERSION);
 		errorCallback.reportError(PxErrorCode::eINTERNAL_ERROR, buffer, __FILE__,__LINE__);
 		return false;
 	}
@@ -762,8 +762,8 @@ CudaCtxMgr::~CudaCtxMgr()
 				if(ret != CUDA_SUCCESS)
 				{
 					char msg[128];
-					physx::Pxsnprintf(msg, 128, "Failed to unload CUDA module data, returned %i.", ret);
-					PxGetErrorCallback()->reportError(PxErrorCode::eINTERNAL_ERROR, msg, PX_FL);
+					ev4sio_physx::Pxsnprintf(msg, 128, "Failed to unload CUDA module data, returned %i.", ret);
+					ev4sio_PxGetErrorCallback()->reportError(PxErrorCode::eINTERNAL_ERROR, msg, PX_FL);
 				}
 			}
 		}
@@ -1179,7 +1179,7 @@ PxCUresult CudaCtx::launchKernel(
 		{
 			mLastResult = cuStreamSynchronize(hStream);
 			if (mLastResult != CUDA_SUCCESS)
-				PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, file, line, "Launch failed!! Error: %i\n", mLastResult);
+				ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, file, line, "Launch failed!! Error: %i\n", mLastResult);
 		}
 
 		PX_ASSERT(mLastResult == CUDA_SUCCESS || mLastResult == CUDA_ERROR_INVALID_VALUE);
@@ -1221,7 +1221,7 @@ PxCUresult CudaCtx::launchKernel(
 		{
 			mLastResult = cuStreamSynchronize(hStream);
 			if (mLastResult != CUDA_SUCCESS)
-				PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, file, line, "Launch failed!! Error: %i\n", mLastResult);
+				ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, file, line, "Launch failed!! Error: %i\n", mLastResult);
 		}
 
 		PX_ASSERT(mLastResult == CUDA_SUCCESS || mLastResult == CUDA_ERROR_INVALID_VALUE);
@@ -1240,7 +1240,7 @@ PxCUresult CudaCtx::memcpyDtoH(void* dstHost, CUdeviceptr srcDevice, size_t Byte
 	
 	if (mLastResult != CUDA_SUCCESS)
 	{
-		PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "copyDToH failed with error code %i!\n", PxI32(mLastResult));
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "copyDToH failed with error code %i!\n", PxI32(mLastResult));
 	}
 
 	return mLastResult;
@@ -1259,12 +1259,12 @@ PxCUresult CudaCtx::memcpyDtoHAsync(void* dstHost, CUdeviceptr srcDevice, size_t
 		{
 			if (mLastResult != CUDA_SUCCESS)
 			{
-				PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "memcpyDtoHAsync invalid parameters!! Error: %i\n", mLastResult);
+				ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "memcpyDtoHAsync invalid parameters!! Error: %i\n", mLastResult);
 			}
 			mLastResult = cuStreamSynchronize(hStream);
 			if (mLastResult != CUDA_SUCCESS)
 			{
-				PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "memcpyDtoHAsync failed!! Error: %i\n", mLastResult);
+				ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "memcpyDtoHAsync failed!! Error: %i\n", mLastResult);
 			}
 		}
 	}
@@ -1281,7 +1281,7 @@ PxCUresult CudaCtx::memcpyHtoD(CUdeviceptr dstDevice, const void* srcHost, size_
 		mLastResult = cuMemcpyHtoD(dstDevice, srcHost, ByteCount);
 		if (mLastResult != CUDA_SUCCESS)
 		{
-			PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "memcpyHtoD invalid parameters!! %i\n", mLastResult);
+			ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "memcpyHtoD invalid parameters!! %i\n", mLastResult);
 		}
 	}
 	return mLastResult;
@@ -1299,12 +1299,12 @@ PxCUresult CudaCtx::memcpyHtoDAsync(CUdeviceptr dstDevice, const void* srcHost, 
 		{
 			if (mLastResult != CUDA_SUCCESS)
 			{
-				PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "memcpyHtoDAsync invalid parameters!! Error: %i\n", mLastResult);
+				ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "memcpyHtoDAsync invalid parameters!! Error: %i\n", mLastResult);
 			}
 			mLastResult = cuStreamSynchronize(hStream);
 			if (mLastResult != CUDA_SUCCESS)
 			{
-				PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "memcpyHtoDAsync failed!! Error: %i\n", mLastResult);
+				ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "memcpyHtoDAsync failed!! Error: %i\n", mLastResult);
 			}
 		}
 	}
@@ -1323,12 +1323,12 @@ PxCUresult CudaCtx::memcpyDtoDAsync(CUdeviceptr dstDevice, CUdeviceptr srcDevice
 		{
 			if (mLastResult != CUDA_SUCCESS)
 			{
-				PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "memcpyDtoDAsync invalid parameters!! Error: %i\n", mLastResult);
+				ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "memcpyDtoDAsync invalid parameters!! Error: %i\n", mLastResult);
 			}
 			mLastResult = cuStreamSynchronize(hStream);
 			if (mLastResult != CUDA_SUCCESS)
 			{
-				PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "memcpyDtoDAsync failed!! Error: %i\n", mLastResult);
+				ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "memcpyDtoDAsync failed!! Error: %i\n", mLastResult);
 			}
 		}
 	}
@@ -1348,7 +1348,7 @@ PxCUresult CudaCtx::memcpyDtoD(CUdeviceptr dstDevice, CUdeviceptr srcDevice, siz
 		mLastResult = cuStreamSynchronize(0);
 		if (mLastResult != CUDA_SUCCESS)
 		{
-			PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "memcpyDtoD invalid parameters!! Error: %i\n", mLastResult);
+			ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "memcpyDtoD invalid parameters!! Error: %i\n", mLastResult);
 		}
 	}
 	return mLastResult;
@@ -1375,12 +1375,12 @@ PxCUresult CudaCtx::memsetD32Async(CUdeviceptr dstDevice, unsigned int ui, size_
 			PX_ASSERT(mLastResult == CUDA_SUCCESS);
 			if (mLastResult != CUDA_SUCCESS)
 			{
-				PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "memsetD32Async invalid parameters!! Error: %i\n", mLastResult);
+				ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "memsetD32Async invalid parameters!! Error: %i\n", mLastResult);
 			}
 			mLastResult = cuStreamSynchronize(hStream);
 			if (mLastResult != CUDA_SUCCESS)
 			{
-				PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "memsetD32Async failed!! Error: %i\n", mLastResult);
+				ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "memsetD32Async failed!! Error: %i\n", mLastResult);
 			}
 		}
 	}
@@ -1399,12 +1399,12 @@ PxCUresult CudaCtx::memsetD8Async(CUdeviceptr dstDevice, unsigned char uc, size_
 		{
 			if (mLastResult!= CUDA_SUCCESS)
 			{
-				PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "cuMemsetD8Async invalid parameters!! Error: %i\n", mLastResult);
+				ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "cuMemsetD8Async invalid parameters!! Error: %i\n", mLastResult);
 			}
 			mLastResult = cuStreamSynchronize(hStream);
 			if (mLastResult != CUDA_SUCCESS)
 			{
-				PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "cuMemsetD8Async failed!! Error: %i\n", mLastResult);
+				ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "cuMemsetD8Async failed!! Error: %i\n", mLastResult);
 			}
 		}
 	}
@@ -1421,7 +1421,7 @@ PxCUresult CudaCtx::memsetD32(CUdeviceptr dstDevice, unsigned int ui, size_t N)
 		mLastResult = cuMemsetD32(dstDevice, ui, N);
 		if (mLastResult != CUDA_SUCCESS)
 		{
-			PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "memsetD32 failed!! Error: %i\n", mLastResult);
+			ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "memsetD32 failed!! Error: %i\n", mLastResult);
 			return mLastResult;
 		}
 
@@ -1430,7 +1430,7 @@ PxCUresult CudaCtx::memsetD32(CUdeviceptr dstDevice, unsigned int ui, size_t N)
 		mLastResult = cuStreamSynchronize(0);
 		if (mLastResult != CUDA_SUCCESS)
 		{
-			PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "memsetD32 failed!! Error: %i\n", mLastResult);
+			ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "memsetD32 failed!! Error: %i\n", mLastResult);
 		}
 	}
 	return mLastResult;
@@ -1449,7 +1449,7 @@ PxCUresult CudaCtx::memsetD16(CUdeviceptr dstDevice, unsigned short uh, size_t N
 		mLastResult = cuStreamSynchronize(0);
 		if (mLastResult != CUDA_SUCCESS)
 		{
-			PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "memsetD16 failed!! Error: %i\n", mLastResult);
+			ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "memsetD16 failed!! Error: %i\n", mLastResult);
 		}
 	}
 	return mLastResult;
@@ -1468,7 +1468,7 @@ PxCUresult CudaCtx::memsetD8(CUdeviceptr dstDevice, unsigned char uc, size_t N)
 		mLastResult = cuStreamSynchronize(0);
 		if (mLastResult != CUDA_SUCCESS)
 		{
-			PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "memsetD8 failed!! Error: %i\n", mLastResult);
+			ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "memsetD8 failed!! Error: %i\n", mLastResult);
 		}
 	}
 	return mLastResult;

@@ -64,8 +64,8 @@
 #include "sdfCollision.cuh"
 #include "reduction.cuh"
 
-using namespace physx;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
 
 extern "C" __host__ void initNarrowphaseKernels15() {}
 
@@ -742,7 +742,7 @@ __device__ static inline void sb_tetmeshMidphaseCore2(
 
 			//s_warpScratch->nbPrimitives[idx] = nbVerts_nbTets_maxDepth_nbBv32TreeNodes.y;
 
-			Gu::BV32DataPacked* bv32PackedNodes = reinterpret_cast<Gu::BV32DataPacked*>(tetmeshGeomPtr);
+			ev4sio_Gu::BV32DataPacked* bv32PackedNodes = reinterpret_cast<ev4sio_Gu::BV32DataPacked*>(tetmeshGeomPtr);
 			s_warpScratch->bv32PackedNodes = bv32PackedNodes;
 		}
 
@@ -883,7 +883,7 @@ __device__ static inline void sb_selfCollisionMidphaseCore2(
 
 			//s_warpScratch->nbPrimitives[idx] = nbVerts_nbTets_maxDepth_nbBv32TreeNodes.y;
 
-			Gu::BV32DataPacked* bv32PackedNodes = reinterpret_cast<Gu::BV32DataPacked*>(tetmeshGeomPtr);
+			ev4sio_Gu::BV32DataPacked* bv32PackedNodes = reinterpret_cast<ev4sio_Gu::BV32DataPacked*>(tetmeshGeomPtr);
 			s_warpScratch->bv32PackedNodes = bv32PackedNodes;
 		}
 
@@ -1345,7 +1345,7 @@ __device__ static inline void sb_clothMidphaseCore(
 			//const uint4 nbVerts_nbPrimitives_maxDepth_nbBv32TreeNodes = *reinterpret_cast<const uint4 *>(triGeomPtr);
 			triGeomPtr += sizeof(uint4);
 
-			Gu::BV32DataPacked* bv32PackedNodes = reinterpret_cast<Gu::BV32DataPacked*>(triGeomPtr);
+			ev4sio_Gu::BV32DataPacked* bv32PackedNodes = reinterpret_cast<ev4sio_Gu::BV32DataPacked*>(triGeomPtr);
 			s_warpScratch->bv32PackedNodes = bv32PackedNodes;
 		
 			s_warpScratch->meshVerts = cloth.mPosition_InvMass;

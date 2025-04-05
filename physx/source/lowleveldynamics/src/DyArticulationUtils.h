@@ -31,16 +31,16 @@
 
 #include "CmSpatialVector.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
-namespace Dy
+namespace ev4sio_Dy
 {
 
 using namespace aos;
 
-PX_FORCE_INLINE Cm::SpatialVector& unsimdRef(Cm::SpatialVectorV& v)				{ return reinterpret_cast<Cm::SpatialVector&>(v); }
-PX_FORCE_INLINE const Cm::SpatialVector& unsimdRef(const Cm::SpatialVectorV& v) { return reinterpret_cast<const Cm::SpatialVector&>(v); }
+PX_FORCE_INLINE ev4sio_Cm::SpatialVector& unsimdRef(ev4sio_Cm::SpatialVectorV& v)				{ return reinterpret_cast<ev4sio_Cm::SpatialVector&>(v); }
+PX_FORCE_INLINE const ev4sio_Cm::SpatialVector& unsimdRef(const ev4sio_Cm::SpatialVectorV& v) { return reinterpret_cast<const ev4sio_Cm::SpatialVector&>(v); }
 
 }
 }

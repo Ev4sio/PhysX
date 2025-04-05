@@ -41,8 +41,8 @@
 #include "GuMidphaseInterface.h"
 #include "foundation/PxFPU.h"
 
-using namespace physx;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
 
 namespace {
 
@@ -98,14 +98,14 @@ namespace {
 
 } // namespace
 
-void physx::PxMeshQuery::getTriangle(const PxTriangleMeshGeometry& triGeom, const PxTransform& globalPose, PxTriangleID triangleIndex, PxTriangle& triangle, PxU32* vertexIndices, PxU32* adjacencyIndices)
+void ev4sio_physx::PxMeshQuery::getTriangle(const PxTriangleMeshGeometry& triGeom, const PxTransform& globalPose, PxTriangleID triangleIndex, PxTriangle& triangle, PxU32* vertexIndices, PxU32* adjacencyIndices)
 {
 	const TriangleMesh* tm = static_cast<const TriangleMesh*>(triGeom.triangleMesh);
 
 	PX_CHECK_AND_RETURN(triangleIndex<tm->getNbTriangles(), "PxMeshQuery::getTriangle: triangle index is out of bounds");
 
 	if(adjacencyIndices && !tm->getAdjacencies())
-		PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "Adjacency information not created. Set buildTriangleAdjacencies on Cooking params.");
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "Adjacency information not created. Set buildTriangleAdjacencies on Cooking params.");
 
 	const PxMat34 vertex2worldSkew = globalPose * triGeom.scale;
 	tm->computeWorldTriangle(triangle, triangleIndex, vertex2worldSkew, triGeom.scale.hasNegativeDeterminant(), vertexIndices, adjacencyIndices);
@@ -113,7 +113,7 @@ void physx::PxMeshQuery::getTriangle(const PxTriangleMeshGeometry& triGeom, cons
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void physx::PxMeshQuery::getTriangle(const PxHeightFieldGeometry& hfGeom, const PxTransform& globalPose, PxTriangleID triangleIndex, PxTriangle& triangle, PxU32* vertexIndices, PxU32* adjacencyIndices)
+void ev4sio_physx::PxMeshQuery::getTriangle(const PxHeightFieldGeometry& hfGeom, const PxTransform& globalPose, PxTriangleID triangleIndex, PxTriangle& triangle, PxU32* vertexIndices, PxU32* adjacencyIndices)
 {
 	HeightFieldUtil hfUtil(hfGeom);
 	
@@ -122,7 +122,7 @@ void physx::PxMeshQuery::getTriangle(const PxHeightFieldGeometry& hfGeom, const 
 
 ///////////////////////////////////////////////////////////////////////////////
 
-PxU32 physx::PxMeshQuery::findOverlapTriangleMesh(
+PxU32 ev4sio_physx::PxMeshQuery::findOverlapTriangleMesh(
 	const PxGeometry& geom, const PxTransform& geomPose,
 	const PxTriangleMeshGeometry& meshGeom, const PxTransform& meshPose,
 	PxU32* results, PxU32 maxResults, PxU32 startIndex, bool& overflow, PxGeometryQueryFlags queryFlags)
@@ -176,7 +176,7 @@ PxU32 physx::PxMeshQuery::findOverlapTriangleMesh(
 
 ///////////////////////////////////////////////////////////////////////////////
 
-bool physx::PxMeshQuery::findOverlapTriangleMesh(	PxReportCallback<PxGeomIndexPair>& callback,
+bool ev4sio_physx::PxMeshQuery::findOverlapTriangleMesh(	PxReportCallback<PxGeomIndexPair>& callback,
 													const PxTriangleMeshGeometry& meshGeom0, const PxTransform& meshPose0,
 													const PxTriangleMeshGeometry& meshGeom1, const PxTransform& meshPose1,
 													PxGeometryQueryFlags queryFlags, PxMeshMeshQueryFlags meshMeshFlags, float tolerance)
@@ -188,13 +188,13 @@ bool physx::PxMeshQuery::findOverlapTriangleMesh(	PxReportCallback<PxGeomIndexPa
 
 	// PT: only implemented for BV4
 	if(!tm0 || !tm1 || tm0->getConcreteType()!=PxConcreteType::eTRIANGLE_MESH_BVH34 || tm1->getConcreteType()!=PxConcreteType::eTRIANGLE_MESH_BVH34)
-		return PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxMeshQuery::findOverlapTriangleMesh(): only available between two BVH34 triangles meshes.");
+		return ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxMeshQuery::findOverlapTriangleMesh(): only available between two BVH34 triangles meshes.");
 
 	// PT: ...so we don't need a table like for the other ops, just go straight to BV4
 	return intersectMeshVsMesh_BV4(callback, *tm0, meshPose0, meshGeom0.scale, *tm1, meshPose1, meshGeom1.scale, meshMeshFlags, tolerance);
 }
 
-bool physx::PxMeshQuery::findOverlapTriangleMesh(	PxReportCallback<PxGeomIndexClosePair>& callback,
+bool ev4sio_physx::PxMeshQuery::findOverlapTriangleMesh(	PxReportCallback<PxGeomIndexClosePair>& callback,
 													const PxTriangleMeshGeometry& meshGeom0, const PxTransform& meshPose0,
 													const PxTriangleMeshGeometry& meshGeom1, const PxTransform& meshPose1,
 													PxGeometryQueryFlags queryFlags, PxMeshMeshQueryFlags meshMeshFlags, float tolerance)
@@ -206,7 +206,7 @@ bool physx::PxMeshQuery::findOverlapTriangleMesh(	PxReportCallback<PxGeomIndexCl
 
 	// PT: only implemented for BV4
 	if(!tm0 || !tm1 || tm0->getConcreteType()!=PxConcreteType::eTRIANGLE_MESH_BVH34 || tm1->getConcreteType()!=PxConcreteType::eTRIANGLE_MESH_BVH34)
-		return PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxMeshQuery::findOverlapTriangleMesh(): only available between two BVH34 triangles meshes.");
+		return ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxMeshQuery::findOverlapTriangleMesh(): only available between two BVH34 triangles meshes.");
 
 	// PT: ...so we don't need a table like for the other ops, just go straight to BV4
 	return distanceMeshVsMesh_BV4(callback, *tm0, meshPose0, meshGeom0.scale, *tm1, meshPose1, meshGeom1.scale, meshMeshFlags, tolerance);
@@ -214,7 +214,7 @@ bool physx::PxMeshQuery::findOverlapTriangleMesh(	PxReportCallback<PxGeomIndexCl
 
 ///////////////////////////////////////////////////////////////////////////////
 
-PxU32 physx::PxMeshQuery::findOverlapHeightField(	const PxGeometry& geom, const PxTransform& geomPose,
+PxU32 ev4sio_physx::PxMeshQuery::findOverlapHeightField(	const PxGeometry& geom, const PxTransform& geomPose,
 													const PxHeightFieldGeometry& hfGeom, const PxTransform& hfPose,
 													PxU32* results, PxU32 maxResults, PxU32 startIndex, bool& overflow, PxGeometryQueryFlags queryFlags)
 {
@@ -270,7 +270,7 @@ PxU32 physx::PxMeshQuery::findOverlapHeightField(	const PxGeometry& geom, const 
 
 ///////////////////////////////////////////////////////////////////////////////
 
-bool physx::PxMeshQuery::sweep(	const PxVec3& unitDir, const PxReal maxDistance,
+bool ev4sio_physx::PxMeshQuery::sweep(	const PxVec3& unitDir, const PxReal maxDistance,
 								const PxGeometry& geom, const PxTransform& pose,
 								PxU32 triangleCount, const PxTriangle* triangles,
 								PxGeomSweepHit& sweepHit, PxHitFlags hitFlags,

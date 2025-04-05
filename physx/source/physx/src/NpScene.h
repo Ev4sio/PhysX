@@ -58,15 +58,15 @@
 
 #include "ScScene.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Sc
+namespace ev4sio_Sc
 {
 	class Joint;
 	class ConstraintBreakEvent;
 }
 
-namespace Sq
+namespace ev4sio_Sq
 {
 	class PrunerManager;
 }
@@ -248,14 +248,14 @@ class NpScene : public NpSceneAccessor, public PxUserAllocated
 	virtual			PxPhysics&						getPhysics()	PX_OVERRIDE PX_FINAL;
 
 	// new API methods
-	virtual			bool							simulate(PxReal elapsedTime, physx::PxBaseTask* completionTask, void* scratchBlock, PxU32 scratchBlockSize, bool controlSimulation)	PX_OVERRIDE PX_FINAL;
-	virtual			bool							advance(physx::PxBaseTask* completionTask)	PX_OVERRIDE PX_FINAL;
-	virtual			bool							collide(PxReal elapsedTime, physx::PxBaseTask* completionTask, void* scratchBlock, PxU32 scratchBlockSize, bool controlSimulation = true)	PX_OVERRIDE PX_FINAL;
+	virtual			bool							simulate(PxReal elapsedTime, ev4sio_physx::PxBaseTask* completionTask, void* scratchBlock, PxU32 scratchBlockSize, bool controlSimulation)	PX_OVERRIDE PX_FINAL;
+	virtual			bool							advance(ev4sio_physx::PxBaseTask* completionTask)	PX_OVERRIDE PX_FINAL;
+	virtual			bool							collide(PxReal elapsedTime, ev4sio_physx::PxBaseTask* completionTask, void* scratchBlock, PxU32 scratchBlockSize, bool controlSimulation = true)	PX_OVERRIDE PX_FINAL;
 	virtual			bool							checkResults(bool block)	PX_OVERRIDE PX_FINAL;
 	virtual			bool							fetchCollision(bool block)	PX_OVERRIDE PX_FINAL;
 	virtual			bool							fetchResults(bool block, PxU32* errorState)	PX_OVERRIDE PX_FINAL;
 	virtual			bool							fetchResultsStart(const PxContactPairHeader*& contactPairs, PxU32& nbContactPairs, bool block = false)	PX_OVERRIDE PX_FINAL;
-	virtual			void							processCallbacks(physx::PxBaseTask* continuation)	PX_OVERRIDE PX_FINAL;
+	virtual			void							processCallbacks(ev4sio_physx::PxBaseTask* continuation)	PX_OVERRIDE PX_FINAL;
 	virtual			void							fetchResultsFinish(PxU32* errorState = 0)	PX_OVERRIDE PX_FINAL;
 
 	virtual			void							flushSimulation(bool sendPendingReports)	PX_OVERRIDE PX_FINAL;
@@ -361,7 +361,7 @@ class NpScene : public NpSceneAccessor, public PxUserAllocated
 	// PxSceneSQSystem
 	virtual			PxPruningStructureType::Enum	getStaticStructure()	const	PX_OVERRIDE PX_FINAL;
 	virtual			PxPruningStructureType::Enum	getDynamicStructure()	const	PX_OVERRIDE PX_FINAL;
-	virtual			void							sceneQueriesUpdate(physx::PxBaseTask* completionTask, bool controlSimulation)	PX_OVERRIDE PX_FINAL;
+	virtual			void							sceneQueriesUpdate(ev4sio_physx::PxBaseTask* completionTask, bool controlSimulation)	PX_OVERRIDE PX_FINAL;
 	virtual			bool							checkQueries(bool block)	PX_OVERRIDE PX_FINAL;
 	virtual			bool							fetchQueries(bool block)	PX_OVERRIDE PX_FINAL;
 	//~PxSceneSQSystem
@@ -380,12 +380,12 @@ class NpScene : public NpSceneAccessor, public PxUserAllocated
 
 	PX_FORCE_INLINE	PxTaskManager*					getTaskManagerFast()		const					{ return mTaskManager;					}
 
-	PX_FORCE_INLINE Sc::SimulationStage::Enum		getSimulationStage()		const					{ return mScene.getSimulationStage();	}
-	PX_FORCE_INLINE void							setSimulationStage(Sc::SimulationStage::Enum stage)	{ mScene.setSimulationStage(stage);		}
+	PX_FORCE_INLINE ev4sio_Sc::SimulationStage::Enum		getSimulationStage()		const					{ return mScene.getSimulationStage();	}
+	PX_FORCE_INLINE void							setSimulationStage(ev4sio_Sc::SimulationStage::Enum stage)	{ mScene.setSimulationStage(stage);		}
 
 					bool							addActorInternal(PxActor& actor, const PxBVH* bvh);
 					void							removeActorInternal(PxActor& actor, bool wakeOnLostTouch, bool removeFromAggregate);
-					bool							addActorsInternal(PxActor*const* PX_RESTRICT actors, PxU32 nbActors, const Sq::PruningStructure* ps = NULL);
+					bool							addActorsInternal(PxActor*const* PX_RESTRICT actors, PxU32 nbActors, const ev4sio_Sq::PruningStructure* ps = NULL);
 
 					bool							addArticulationInternal(PxArticulationReducedCoordinate&);
 					void							removeArticulationInternal(PxArticulationReducedCoordinate&, bool wakeOnLostTouch, bool removeFromAggregate);
@@ -486,8 +486,8 @@ class NpScene : public NpSceneAccessor, public PxUserAllocated
 	PX_FORCE_INLINE void							setAPIWriteToForbidden()					{ mIsAPIWriteForbidden = true;		}
 	PX_FORCE_INLINE void							setAPIWriteToAllowed()						{ mIsAPIWriteForbidden = false;		}
 
-	PX_FORCE_INLINE	const Sc::Scene&				getScScene()						const	{ return mScene;					}
-	PX_FORCE_INLINE	Sc::Scene&						getScScene()								{ return mScene;					}
+	PX_FORCE_INLINE	const ev4sio_Sc::Scene&				getScScene()						const	{ return mScene;					}
+	PX_FORCE_INLINE	ev4sio_Sc::Scene&						getScScene()								{ return mScene;					}
 
 	PX_FORCE_INLINE	PxSceneFlags					getFlagsFast()						const	{ return mScene.getFlags();			}
 	PX_FORCE_INLINE PxReal							getWakeCounterResetValueInternal()	const	{ return mWakeCounterResetValue;	}
@@ -498,11 +498,11 @@ class NpScene : public NpSceneAccessor, public PxUserAllocated
 
 					// PT: TODO: consider merging the "sc" methods with the np ones, as we did for constraints
 
-					void 							scAddActor(NpRigidStatic&, bool noSim, PxBounds3* uninflatedBounds, const Gu::BVH* bvh);
+					void 							scAddActor(NpRigidStatic&, bool noSim, PxBounds3* uninflatedBounds, const ev4sio_Gu::BVH* bvh);
 					void 							scRemoveActor(NpRigidStatic&, bool wakeOnLostTouch, bool noSim);
-					void 							scAddActor(NpRigidDynamic&, bool noSim, PxBounds3* uninflatedBounds, const Gu::BVH* bvh);
+					void 							scAddActor(NpRigidDynamic&, bool noSim, PxBounds3* uninflatedBounds, const ev4sio_Gu::BVH* bvh);
 					void 							scRemoveActor(NpRigidDynamic&, bool wakeOnLostTouch, bool noSim);
-					void 							scAddActor(NpArticulationLink&, bool noSim, PxBounds3* uninflatedBounds, const Gu::BVH* bvh);
+					void 							scAddActor(NpArticulationLink&, bool noSim, PxBounds3* uninflatedBounds, const ev4sio_Gu::BVH* bvh);
 					void 							scRemoveActor(NpArticulationLink&, bool wakeOnLostTouch, bool noSim);
 
 #if PX_SUPPORT_GPU_PHYSX
@@ -557,13 +557,13 @@ private:
 					bool							checkResultsInternal(bool block);
 					bool							checkCollisionInternal(bool block);
 					bool							checkSceneQueriesInternal(bool block);
-					bool							simulateOrCollide(PxReal elapsedTime, physx::PxBaseTask* completionTask, void* scratchBlock, PxU32 scratchBlockSize, bool controlSimulation, const char* invalidCallMsg, Sc::SimulationStage::Enum simStage);
+					bool							simulateOrCollide(PxReal elapsedTime, ev4sio_physx::PxBaseTask* completionTask, void* scratchBlock, PxU32 scratchBlockSize, bool controlSimulation, const char* invalidCallMsg, ev4sio_Sc::SimulationStage::Enum simStage);
 					bool 							checkSceneStateAndCudaErrors(bool isCollide = false);
 					bool							checkGpuErrorsPreSim(bool isCollide = false);
 
-					bool							addRigidStatic(NpRigidStatic& , const Gu::BVH* bvh, const Sq::PruningStructure* ps = NULL);
+					bool							addRigidStatic(NpRigidStatic& , const ev4sio_Gu::BVH* bvh, const ev4sio_Sq::PruningStructure* ps = NULL);
 					void							removeRigidStatic(NpRigidStatic&, bool wakeOnLostTouch, bool removeFromAggregate);
-					bool							addRigidDynamic(NpRigidDynamic& , const Gu::BVH* bvh, const Sq::PruningStructure* ps = NULL);
+					bool							addRigidDynamic(NpRigidDynamic& , const ev4sio_Gu::BVH* bvh, const ev4sio_Sq::PruningStructure* ps = NULL);
 					void							removeRigidDynamic(NpRigidDynamic&, bool wakeOnLostTouch, bool removeFromAggregate);
 
 					bool							addDeformableSurface(PxDeformableSurface&);
@@ -583,10 +583,10 @@ private:
 					void							fetchResultsPostContactCallbacks();
 					void							fetchResultsParticleSystem();
 
-					bool							addSpatialTendonInternal(NpArticulationReducedCoordinate* npaRC, Sc::ArticulationSim* scArtSim);
-					bool							addFixedTendonInternal(NpArticulationReducedCoordinate* npaRC, Sc::ArticulationSim* scArtSim);
+					bool							addSpatialTendonInternal(NpArticulationReducedCoordinate* npaRC, ev4sio_Sc::ArticulationSim* scArtSim);
+					bool							addFixedTendonInternal(NpArticulationReducedCoordinate* npaRC, ev4sio_Sc::ArticulationSim* scArtSim);
 
-					bool							addArticulationMimicJointInternal(NpArticulationReducedCoordinate* npaRC, Sc::ArticulationSim* scArtSim);
+					bool							addArticulationMimicJointInternal(NpArticulationReducedCoordinate* npaRC, ev4sio_Sc::ArticulationSim* scArtSim);
 
 					void							syncSQ();
 					void							sceneQueriesStaticPrunerUpdate(PxBaseTask* continuation);
@@ -596,14 +596,14 @@ private:
 
 					NpSceneQueries					mNpSQ;
 					PxPruningStructureType::Enum	mPrunerType[2];
-					typedef Cm::DelegateTask<NpScene, &NpScene::sceneQueriesStaticPrunerUpdate> SceneQueriesStaticPrunerUpdate;
-					typedef Cm::DelegateTask<NpScene, &NpScene::sceneQueriesDynamicPrunerUpdate> SceneQueriesDynamicPrunerUpdate;
+					typedef ev4sio_Cm::DelegateTask<NpScene, &NpScene::sceneQueriesStaticPrunerUpdate> SceneQueriesStaticPrunerUpdate;
+					typedef ev4sio_Cm::DelegateTask<NpScene, &NpScene::sceneQueriesDynamicPrunerUpdate> SceneQueriesDynamicPrunerUpdate;
 					SceneQueriesStaticPrunerUpdate	mSceneQueriesStaticPrunerUpdate;
 					SceneQueriesDynamicPrunerUpdate	mSceneQueriesDynamicPrunerUpdate;
 
-					Cm::RenderBuffer				mRenderBuffer;
+					ev4sio_Cm::RenderBuffer				mRenderBuffer;
 	public:
-					Cm::IDPool						mRigidActorIndexPool;
+					ev4sio_Cm::IDPool						mRigidActorIndexPool;
 					struct Acceleration
 					{
 						PX_FORCE_INLINE	Acceleration() : mLinAccel(0.0f), mAngAccel(0.0f), mPrevLinVel(0.0f), mPrevAngVel(0.0f)
@@ -641,9 +641,9 @@ private:
 
 					PxU32							mNbClients;		// Tracks reserved clients for multiclient support.
 
-					struct SceneCompletion : public Cm::Task
+					struct SceneCompletion : public ev4sio_Cm::Task
 					{
-						SceneCompletion(PxU64 contextId, PxSync& sync) : Cm::Task(contextId), mSync(sync){}
+						SceneCompletion(PxU64 contextId, PxSync& sync) : ev4sio_Cm::Task(contextId), mSync(sync){}
 						virtual void runInternal() {}
 						//ML: As soon as mSync.set is called, and the scene is shutting down,
 						//the scene may be deleted. That means this running task may also be deleted.
@@ -671,9 +671,9 @@ private:
 						SceneCompletion& operator=(const SceneCompletion&);
 					};
 
-					typedef Cm::DelegateTask<NpScene, &NpScene::executeScene> SceneExecution;
-					typedef Cm::DelegateTask<NpScene, &NpScene::executeCollide> SceneCollide;
-					typedef Cm::DelegateTask<NpScene, &NpScene::executeAdvance> SceneAdvance;
+					typedef ev4sio_Cm::DelegateTask<NpScene, &NpScene::executeScene> SceneExecution;
+					typedef ev4sio_Cm::DelegateTask<NpScene, &NpScene::executeCollide> SceneCollide;
+					typedef ev4sio_Cm::DelegateTask<NpScene, &NpScene::executeAdvance> SceneAdvance;
 					
 					PxTaskManager*					mTaskManager;
 					PxCudaContextManager*			mCudaContextManager;
@@ -731,7 +731,7 @@ private:
 					PxArray<MaterialEvent>		mSceneDeformableSurfaceMaterialBuffer;
 					PxArray<MaterialEvent>		mSceneDeformableVolumeMaterialBuffer;
 					PxArray<MaterialEvent>		mScenePBDMaterialBuffer;
-					Sc::Scene					mScene;
+					ev4sio_Sc::Scene					mScene;
 					NpDirectGPUAPI*				mDirectGPUAPI;
 #if PX_SUPPORT_PVD
 					Vd::PvdSceneClient			mScenePvdClient;

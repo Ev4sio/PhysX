@@ -36,15 +36,15 @@
  * Creating object file for apex/src/PsAllocator.cpp ...
  * In file included from apex/include/PsFoundation.h:30,
  *                from apex/src/PsAllocator.cpp:26:
- * apex/include/PsMutex.h: In constructor  'physx::PxMutexT<Alloc>::MutexT(const Alloc&)':
+ * apex/include/PsMutex.h: In constructor  'ev4sio_physx::PxMutexT<Alloc>::MutexT(const Alloc&)':
  * apex/include/PsMutex.h:92: error: no matching function for call to 'operator new(unsigned int,
- * physx::PxMutexImpl*&)'
+ * ev4sio_physx::PxMutexImpl*&)'
  * <built-in>:0: note: candidates are: void* operator new(unsigned int)
  */
 #include <new>
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 class PX_FOUNDATION_API PxMutexImpl
@@ -176,7 +176,7 @@ class PX_FOUNDATION_API PxReadWriteLock
 typedef PxMutexT<> PxMutex;
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

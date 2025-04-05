@@ -33,7 +33,7 @@
 #include "foundation/PxBounds3.h"
 #include "vector_types.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 class PxgIntegerAABB
@@ -155,7 +155,7 @@ public:
 	*/
 	PX_FORCE_INLINE void shift(const PxVec3& shift)
 	{
-		::physx::PxBounds3 elemBounds;
+		::ev4sio_physx::PxBounds3 elemBounds;
 		decode(elemBounds);
 		elemBounds.minimum -= shift;
 		elemBounds.maximum -= shift;

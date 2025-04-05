@@ -33,9 +33,9 @@
 #include "GuConvexSupportTable.h"
 #include "GuDistancePointTriangle.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-	namespace Gu
+	namespace ev4sio_Gu
 	{
 
 
@@ -105,7 +105,7 @@ namespace physx
 
 			\param[in] tetrahedron Tetrahedron to copy
 			*/
-			PX_FORCE_INLINE			TetrahedronV(const Gu::TetrahedronV& tetrahedron) : ConvexV(ConvexType::eTETRAHEDRON)
+			PX_FORCE_INLINE			TetrahedronV(const ev4sio_Gu::TetrahedronV& tetrahedron) : ConvexV(ConvexType::eTETRAHEDRON)
 			{
 				using namespace aos;
 				vertsX = tetrahedron.vertsX;

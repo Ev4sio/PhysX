@@ -34,8 +34,8 @@
 #include "DyCpuGpu1dConstraint.h"
 #include "DyAllocator.h"
 
-using namespace physx;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
 
 #include "PxsMaterialManager.h"
 #include "DyContactPrepShared.h"
@@ -43,9 +43,9 @@ using namespace Gu;
 #include "DyTGS.h"
 #include "DySolverContext.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Dy
+namespace ev4sio_Dy
 {
 	inline bool ValidateVec4(const Vec4V v)
 	{
@@ -121,7 +121,7 @@ struct SolverContactHeaderStepBlock
 
 	Vec4V maxPenBias;
 
-	Sc::ShapeInteraction* shapeInteraction[4];		//192 or 208
+	ev4sio_Sc::ShapeInteraction* shapeInteraction[4];		//192 or 208
 
 	BoolV broken;
 	PxU8* frictionBrokenWritebackByte[4];
@@ -1354,7 +1354,7 @@ static void computeBlockStreamByteSizes4(PxTGSSolverContactDesc* descs,
 	PX_ASSERT(0 == (_solverConstraintByteSize & 0x0f));
 }
 
-static SolverConstraintPrepState::Enum reserveBlockStreams4(PxTGSSolverContactDesc* descs, Dy::CorrelationBuffer& c,
+static SolverConstraintPrepState::Enum reserveBlockStreams4(PxTGSSolverContactDesc* descs, ev4sio_Dy::CorrelationBuffer& c,
 	PxU8*& solverConstraint, PxU32* axisConstraintCount,
 	PxU32& solverConstraintByteSize,
 	PxConstraintAllocator& constraintAllocator)
@@ -1396,7 +1396,7 @@ static SolverConstraintPrepState::Enum reserveBlockStreams4(PxTGSSolverContactDe
 }
 
 SolverConstraintPrepState::Enum createFinalizeSolverContacts4Step(
-	Dy::CorrelationBuffer& c,
+	ev4sio_Dy::CorrelationBuffer& c,
 	PxTGSSolverContactDesc* blockDescs,
 	const PxReal invDtF32,
 	const PxReal totalDtF32,
@@ -2374,7 +2374,7 @@ static void solveContact4_Block(const PxSolverConstraintDesc* PX_RESTRICT desc, 
 	Vec4V linDeltaY = V4Sub(linDelta0T1, linDelta1T1);
 	Vec4V linDeltaZ = V4Sub(linDelta0T2, linDelta1T2);
 
-	Dy::ErrorAccumulator error;
+	ev4sio_Dy::ErrorAccumulator error;
 	const bool residualReportingActive = cache.contactErrorAccumulator;
 
 	while (currPtr < last)
@@ -2913,7 +2913,7 @@ static void writeBackContact4_Block(const PxSolverConstraintDesc* PX_RESTRICT de
 		PX_ALIGN(16, PxReal nf[4]);
 		V4StoreA(normalForce, nf);
 
-		Sc::ShapeInteraction** shapeInteractions = reinterpret_cast<SolverContactHeader4*>(desc[0].constraint)->shapeInteraction;
+		ev4sio_Sc::ShapeInteraction** shapeInteractions = reinterpret_cast<SolverContactHeader4*>(desc[0].constraint)->shapeInteraction;
 
 		for (PxU32 a = 0; a < 4; ++a)
 		{
@@ -3316,7 +3316,7 @@ static void solve1DStep4(const PxSolverConstraintDesc* PX_RESTRICT desc, const P
 		if (cache.contactErrorAccumulator) 
 		{
 			SolverConstraint1DStep4WithResidual& cc = static_cast<SolverConstraint1DStep4WithResidual&>(c);
-			const Vec4V residual = Dy::calculateResidualV4(deltaF, vMul);
+			const Vec4V residual = ev4sio_Dy::calculateResidualV4(deltaF, vMul);
 			if (cache.isPositionIteration)
 				cc.residualPosIter = residual;
 			else

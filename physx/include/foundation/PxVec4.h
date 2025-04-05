@@ -38,7 +38,7 @@
 This is a 4-dimensional vector class with public data members.
 */
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -357,7 +357,7 @@ typedef PxVec4T<float>	PxVec4;
 typedef PxVec4T<double>	PxVec4d;
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

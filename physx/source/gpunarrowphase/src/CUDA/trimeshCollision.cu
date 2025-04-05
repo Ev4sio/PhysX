@@ -53,7 +53,7 @@
 
 #define PLANE_TRI_MAX_CONTACTS 6
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 extern "C" __host__ void initNarrowphaseKernels22() {}
 
@@ -114,7 +114,7 @@ void trimeshPlaneNarrowphase(
 	// Geometries : Triangle Mesh
 	const PxU8 * trimeshGeomPtr = reinterpret_cast<const PxU8 *>(trimeshShape.hullOrMeshPtr);
 
-	const Gu::BV32DataPacked* nodes;
+	const ev4sio_Gu::BV32DataPacked* nodes;
 	const float4 * trimeshVerts;
 	uint4 counts = readTriangleMesh(trimeshGeomPtr, nodes, trimeshVerts);
 	const PxU32 numVerts = counts.x;
@@ -487,7 +487,7 @@ void trimeshHeightfieldNarrowphase(
 	// Geometries : Triangle Mesh
 	const PxU8 * trimeshGeomPtr = reinterpret_cast<const PxU8 *>(trimeshShape.hullOrMeshPtr);
 
-	const Gu::BV32DataPacked* nodes;
+	const ev4sio_Gu::BV32DataPacked* nodes;
 	const float4 * trimeshVerts;
 	uint4 counts = readTriangleMesh(trimeshGeomPtr, nodes, trimeshVerts);
 	const PxU32 numVerts = counts.x;

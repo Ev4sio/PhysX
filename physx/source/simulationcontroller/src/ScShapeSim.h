@@ -31,14 +31,14 @@
 
 #include "ScShapeSimBase.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 /** Simulation object corresponding to a shape core object. This object is created when
     a ShapeCore object is added to the simulation, and destroyed when it is removed
 */
 
-namespace Sc
+namespace ev4sio_Sc
 {
 	class ActorSim;
 	class ShapeCore;
@@ -51,7 +51,7 @@ namespace Sc
 				~ShapeSim();
 	};
 
-} // namespace Sc
+} // namespace ev4sio_Sc
 
 }
 

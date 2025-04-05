@@ -39,7 +39,7 @@
 #include "CmRenderBuffer.h"
 #include "CmRadixSort.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 using namespace Cct;
 
 static const PxF32 gMaxOverlapRecover = 4.0f;	// PT: TODO: expose this
@@ -95,10 +95,10 @@ void CharacterControllerManager::release()
 
 	PX_DELETE_THIS;
 
-	PxDecFoundationRefCount();
+	ev4sio_PxDecFoundationRefCount();
 }
 
-PX_C_EXPORT PxControllerManager* PX_CALL_CONV PxCreateControllerManager(PxScene& scene, bool lockingEnabled)
+PX_C_EXPORT PxControllerManager* PX_CALL_CONV ev4sio_PxCreateControllerManager(PxScene& scene, bool lockingEnabled)
 {
 	if(gControllerManagers)
 	{
@@ -111,7 +111,7 @@ PX_C_EXPORT PxControllerManager* PX_CALL_CONV PxCreateControllerManager(PxScene&
 		}
 	}
 
-	PxIncFoundationRefCount();
+	ev4sio_PxIncFoundationRefCount();
 	CharacterControllerManager* controllerManager = PX_NEW(CharacterControllerManager)(scene, lockingEnabled);
 
 	if(!gControllerManagers)
@@ -129,7 +129,7 @@ PxScene& CharacterControllerManager::getScene() const
 PxRenderBuffer& CharacterControllerManager::getRenderBuffer()
 {
 	if(!mRenderBuffer)
-		mRenderBuffer = PX_NEW(Cm::RenderBuffer); 
+		mRenderBuffer = PX_NEW(ev4sio_Cm::RenderBuffer); 
 
 	return *mRenderBuffer;
 }
@@ -158,7 +158,7 @@ PxController* CharacterControllerManager::getController(PxU32 index)
 {
 	if(index>=mControllers.size())
 	{
-		PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "PxControllerManager::getController(): out-of-range index");
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "PxControllerManager::getController(): out-of-range index");
 		return NULL;
 	}
 
@@ -170,7 +170,7 @@ PxController* CharacterControllerManager::createController(const PxControllerDes
 {
 	if(!desc.isValid())
 	{
-		PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "PxControllerManager::createController(): desc.isValid() fails.");
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "PxControllerManager::createController(): desc.isValid() fails.");
 		return NULL;
 	}
 
@@ -313,7 +313,7 @@ PxObstacleContext* CharacterControllerManager::getObstacleContext(PxU32 index)
 {
 	if(index>=mObstacleContexts.size())
 	{
-		PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "PxControllerManager::getObstacleContext(): out-of-range index");
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "PxControllerManager::getObstacleContext(): out-of-range index");
 		return NULL;
 	}
 
@@ -541,7 +541,7 @@ static void InteractionCharacterCharacter(Controller* entity0, Controller* entit
 		const PxVec3 p11 = toVec3(capsule1.p1);
 
 		PxF32 s,t;
-		const PxF32 d = sqrtf(Gu::distanceSegmentSegmentSquared(p00, p01 - p00, p10, p11 - p10, &s, &t));
+		const PxF32 d = sqrtf(ev4sio_Gu::distanceSegmentSegmentSquared(p00, p01 - p00, p10, p11 - p10, &s, &t));
 		if(d<r)
 		{
 			const PxVec3 center0 = s * p00 + (1.0f - s) * p01;
@@ -568,7 +568,7 @@ static void InteractionCharacterCharacter(Controller* entity0, Controller* entit
 		PxVec3 p;
 		const PxMat33 M(obb.rot);
 		const PxVec3 boxCenter = toVec3(obb.center);
-		const PxF32 d = sqrtf(Gu::distanceSegmentBoxSquared(p0, p1, boxCenter, obb.extents, M, &t, &p));
+		const PxF32 d = sqrtf(ev4sio_Gu::distanceSegmentBoxSquared(p0, p1, boxCenter, obb.extents, M, &t, &p));
 		if(d<capsule.radius)
 		{
 //			const PxVec3 center0 = M.transform(p) + boxCenter;
@@ -638,7 +638,7 @@ static void completeBoxPruning(const PxBounds3* bounds, PxU32 nb, PxArray<PxU32>
 	for(PxU32 i=0;i<nb;i++)
 		PosList[i] = bounds[i].minimum.x;
 
-	/*static*/ Cm::RadixSortBuffered RS;	// Static for coherence
+	/*static*/ ev4sio_Cm::RadixSortBuffered RS;	// Static for coherence
 	const PxU32* Sorted = RS.Sort(PosList, nb).GetRanks();
 
 	const PxU32* const LastSorted = &Sorted[nb];

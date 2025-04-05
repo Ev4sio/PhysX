@@ -35,7 +35,7 @@
 #include "common/PxRenderBuffer.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -269,7 +269,7 @@ protected:
 };
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 	/**
@@ -290,7 +290,7 @@ protected:
 
 	By default, locking is disabled.
 	*/
-PX_C_EXPORT physx::PxControllerManager* PX_CALL_CONV PxCreateControllerManager(physx::PxScene& scene, bool lockingEnabled = false);
+PX_C_EXPORT ev4sio_physx::PxControllerManager* PX_CALL_CONV ev4sio_PxCreateControllerManager(ev4sio_physx::PxScene& scene, bool lockingEnabled = false);
 
 #endif
 

@@ -32,9 +32,9 @@
 #include "PxvDynamics.h"
 #include "DySolverBody.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Dy
+namespace ev4sio_Dy
 {
 PX_FORCE_INLINE void bodyCoreComputeUnconstrainedVelocity
 	(const PxVec3& gravity, PxReal dt, PxReal linearDamping, PxReal angularDamping, PxReal accelScale, 
@@ -59,8 +59,8 @@ PX_FORCE_INLINE void bodyCoreComputeUnconstrainedVelocity
 	}
 
 	//Apply damping.
-	const PxReal linVelMultiplier = physx::intrinsics::fsel(oneMinusLinearDampingTimesDT, oneMinusLinearDampingTimesDT, 0.0f);
-	const PxReal angVelMultiplier = physx::intrinsics::fsel(oneMinusAngularDampingTimesDT, oneMinusAngularDampingTimesDT, 0.0f);
+	const PxReal linVelMultiplier = ev4sio_physx::intrinsics::fsel(oneMinusLinearDampingTimesDT, oneMinusLinearDampingTimesDT, 0.0f);
+	const PxReal angVelMultiplier = ev4sio_physx::intrinsics::fsel(oneMinusAngularDampingTimesDT, oneMinusAngularDampingTimesDT, 0.0f);
 	linearVelocity*=linVelMultiplier;
 	angularVelocity*=angVelMultiplier;
 

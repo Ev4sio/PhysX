@@ -30,7 +30,7 @@
 #include "PxProfileMemoryEventBuffer.h"
 #include "foundation/PxUserAllocated.h"
 
-namespace physx { namespace profile {
+namespace ev4sio_physx { namespace profile {
 
 	struct PxProfileNameProviderForward
 	{

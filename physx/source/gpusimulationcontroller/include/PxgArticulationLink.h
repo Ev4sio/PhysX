@@ -34,15 +34,15 @@
 #include "DyFeatherstoneArticulationUtils.h"
 
 
-namespace physx
+namespace ev4sio_physx
 {
 	typedef PxU64 ArticulationBitField;
 
 	struct PxgArticulationLinkData
 	{
 	public:
-		Cm::UnAlignedSpatialVector		IsW[3];//stI is the transpose of Is
-		Cm::UnAlignedSpatialVector		IsInvDW[3];
+		ev4sio_Cm::UnAlignedSpatialVector		IsW[3];//stI is the transpose of Is
+		ev4sio_Cm::UnAlignedSpatialVector		IsInvDW[3];
 		//PxVec3							r;  //vector from parent com to child com
 		//PxVec3							rw;	//world space r
 		PxReal							qstZIc[3];//jointForce - stZIc

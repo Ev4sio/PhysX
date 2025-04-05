@@ -34,7 +34,7 @@
 #include "PxPhysXConfig.h"
 #include "foundation/PxArray.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	namespace pvdsdk
 	{
@@ -44,10 +44,10 @@ namespace physx
 	}
 }
 
-namespace physx
+namespace ev4sio_physx
 {
 
-namespace Sc
+namespace ev4sio_Sc
 {
 struct Contact;
 }
@@ -55,7 +55,7 @@ struct Contact;
 namespace Vd
 {
 
-using namespace physx::pvdsdk;
+using namespace ev4sio_physx::pvdsdk;
 
 class PvdVisualizer
 {
@@ -82,7 +82,7 @@ class PvdMetaDataBinding
 	void sendAllProperties(PvdDataStream& inStream, const PxScene& inScene);
 	// per frame update
 	void sendBeginFrame(PvdDataStream& inStream, const PxScene* inScene, PxReal simulateElapsedTime);
-	void sendContacts(PvdDataStream& inStream, const PxScene& inScene, PxArray<Sc::Contact>& inContacts);
+	void sendContacts(PvdDataStream& inStream, const PxScene& inScene, PxArray<ev4sio_Sc::Contact>& inContacts);
 	void sendContacts(PvdDataStream& inStream, const PxScene& inScene);
 	void sendStats(PvdDataStream& inStream, const PxScene* inScene);
 	void sendSceneQueries(PvdDataStream& inStream, const PxScene& inScene, PsPvd* pvd);

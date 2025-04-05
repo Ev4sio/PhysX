@@ -42,9 +42,9 @@
 #define DEFAULT_PROFILER_REQUIRED_ALIGNMENT						8
 
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Ext
+namespace ev4sio_Ext
 {
 
 
@@ -214,7 +214,7 @@ public:
 	PxU32 mBufferSize;
 };
 
-} // namespace Ext
+} // namespace ev4sio_Ext
 }
 
 #endif

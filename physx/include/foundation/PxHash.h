@@ -46,7 +46,7 @@ Central definition of hash functions
 */
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 // Hash functions
@@ -152,7 +152,7 @@ struct PxHash<const char*>
 };
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #if PX_VC

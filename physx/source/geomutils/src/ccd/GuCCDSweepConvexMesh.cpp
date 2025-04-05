@@ -72,9 +72,9 @@ static const bool gUseGeometryQueryEst = false;
 	#include <stdio.h>
 #endif
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Gu
+namespace ev4sio_Gu
 {
 
 PxReal SweepShapeTriangle(GU_TRIANGLE_SWEEP_METHOD_ARGS);
@@ -127,10 +127,10 @@ class TriangleHelper
 {
 public:
 										TriangleHelper(const PxTriangleMeshGeometry& shapeMesh, 
-														   const Cm::FastVertex2ShapeScaling& skew, // object is not copied, beware!
+														   const ev4sio_Cm::FastVertex2ShapeScaling& skew, // object is not copied, beware!
 														   const PxU32 triangleIndex);
 
-					void				getBounds(PxBounds3& bounds, const physx::PxTransform& transform)	const;
+					void				getBounds(PxBounds3& bounds, const ev4sio_physx::PxTransform& transform)	const;
 
 	//non-virtuals:
 	PX_FORCE_INLINE	const TriangleMesh*	getMeshData()		const			{ return _getMeshData(mShapeMesh); }
@@ -140,16 +140,16 @@ private:
 	TriangleHelper& operator=(const TriangleHelper&);
 
 	const PxTriangleMeshGeometry&		mShapeMesh;
-	const Cm::FastVertex2ShapeScaling&	mVertex2ShapeSkew;
+	const ev4sio_Cm::FastVertex2ShapeScaling&	mVertex2ShapeSkew;
 	const PxU32							mTriangleIndex;
 };
 
-TriangleHelper::TriangleHelper(const PxTriangleMeshGeometry& md, const Cm::FastVertex2ShapeScaling& skew, const PxU32 tg) 
+TriangleHelper::TriangleHelper(const PxTriangleMeshGeometry& md, const ev4sio_Cm::FastVertex2ShapeScaling& skew, const PxU32 tg) 
 : mShapeMesh(md), mVertex2ShapeSkew(skew), mTriangleIndex(tg)
 {
 }
 
-void TriangleHelper::getBounds(PxBounds3& bounds, const physx::PxTransform& transform) const
+void TriangleHelper::getBounds(PxBounds3& bounds, const ev4sio_physx::PxTransform& transform) const
 {
 	PxTriangle localTri;
 	getMeshData()->getLocalTriangle(localTri, mTriangleIndex, false);	// PT: 'false': no need to flip winding to compute bounds
@@ -261,7 +261,7 @@ PxReal SweepAnyShapeHeightfield(GU_SWEEP_METHOD_ARGS)
 
 	worldNormal = PxVec3(PxReal(0));
 	worldPoint = PxVec3(PxReal(0));
-	Cm::FastVertex2ShapeScaling idScale;
+	ev4sio_Cm::FastVertex2ShapeScaling idScale;
 	PxU32 ccdFaceIndex = PXC_CONTACT_NO_FACE_INDEX;
 
 	const PxVec3 sphereCenter(shape0.mPrevTransform.p);
@@ -286,7 +286,7 @@ PxReal SweepAnyShapeHeightfield(GU_SWEEP_METHOD_ARGS)
 
 		PxReal res = SweepShapeTriangle(
 			*shape0.mGeometry, *shape1.mGeometry, transform0, transform1, lastTm0, lastTm1, restDistance,
-			resultNormal, resultPoint, Cm::FastVertex2ShapeScaling(), triangle,
+			resultNormal, resultPoint, ev4sio_Cm::FastVertex2ShapeScaling(), triangle,
 			0.f);
 
 		if(res <= 0.f)
@@ -434,7 +434,7 @@ PxReal SweepAnyShapeMesh(GU_SWEEP_METHOD_ARGS)
 		PX_ASSERT(shape1.mGeometry->getType()==PxGeometryType::eTRIANGLEMESH);
 		const PxTriangleMeshGeometry& shapeMesh = static_cast<const PxTriangleMeshGeometry&>(*shape1.mGeometry);
 
-		const Cm::FastVertex2ShapeScaling meshScaling(shapeMesh.scale);
+		const ev4sio_Cm::FastVertex2ShapeScaling meshScaling(shapeMesh.scale);
 
 		const PxMat33 matRot(PxIdentity);
 
@@ -519,7 +519,7 @@ PxReal SweepAnyShapeMesh(GU_SWEEP_METHOD_ARGS)
 
 		PxVec3 tempWorldNormal(0.f), tempWorldPoint(0.f);
 
-		Cm::FastVertex2ShapeScaling idScale;
+		ev4sio_Cm::FastVertex2ShapeScaling idScale;
 		PxU32 ccdFaceIndex = PXC_CONTACT_NO_FACE_INDEX;
 
 		const PxVec3 sphereCenter(lastTm1.p);
@@ -547,7 +547,7 @@ PxReal SweepAnyShapeMesh(GU_SWEEP_METHOD_ARGS)
 			//do sweep
 			PxReal res = SweepShapeTriangle(
 				*shape0.mGeometry, *shape1.mGeometry, transform0, transform1, lastTm0, lastTm1, restDistance,
-				resultNormal, resultPoint, Cm::FastVertex2ShapeScaling(), triangle,
+				resultNormal, resultPoint, ev4sio_Cm::FastVertex2ShapeScaling(), triangle,
 				0.f);
 
 			resultNormal = -resultNormal;
@@ -643,7 +643,7 @@ PxReal SweepEstimateAnyShapeMesh(GU_SWEEP_ESTIMATE_ARGS)
 	}
 	else
 	{
-		const Cm::FastVertex2ShapeScaling meshScaling(shapeMesh.scale);
+		const ev4sio_Cm::FastVertex2ShapeScaling meshScaling(shapeMesh.scale);
 
 		const PxMat33 matRot(PxIdentity);
 
@@ -663,7 +663,7 @@ PxReal SweepEstimateAnyShapeMesh(GU_SWEEP_ESTIMATE_ARGS)
 			PxReal minTOI;
 			PxReal sumFastMovingThresh;
 			const PxTriangleMeshGeometry& shapeMesh;
-			const Cm::FastVertex2ShapeScaling& meshScaling;
+			const ev4sio_Cm::FastVertex2ShapeScaling& meshScaling;
 			const PxVec3& relTr;
 			const PxVec3& trA;
 			const PxVec3& trB;
@@ -671,7 +671,7 @@ PxReal SweepEstimateAnyShapeMesh(GU_SWEEP_ESTIMATE_ARGS)
 			const PxVec3& origin;
 			const PxVec3& extent;
 
-			CB(PxReal aSumFast, const PxTriangleMeshGeometry& aShapeMesh, const Cm::FastVertex2ShapeScaling& aMeshScaling,
+			CB(PxReal aSumFast, const PxTriangleMeshGeometry& aShapeMesh, const ev4sio_Cm::FastVertex2ShapeScaling& aMeshScaling,
 				const PxVec3& aRelTr, const PxVec3& atrA, const PxVec3& atrB, const PxTransform& aTransform1, const PxVec3& aOrigin, const PxVec3& aExtent)
 				:	MeshHitCallback<PxGeomRaycastHit>(CallbackMode::eMULTIPLE),
 					sumFastMovingThresh(aSumFast), shapeMesh(aShapeMesh), meshScaling(aMeshScaling), relTr(aRelTr), trA(atrA), trB(atrB),

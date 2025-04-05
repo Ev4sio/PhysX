@@ -31,8 +31,8 @@
 #include "BpBroadPhaseMBP.h"
 #include "BpBroadPhaseABP.h"
 
-using namespace physx;
-using namespace Bp;
+using namespace ev4sio_physx;
+using namespace ev4sio_Bp;
 
 BroadPhase* BroadPhase::create(
 	const PxBroadPhaseType::Enum bpType,

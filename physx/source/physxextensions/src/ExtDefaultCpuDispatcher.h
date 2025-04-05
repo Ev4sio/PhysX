@@ -39,9 +39,9 @@
 #include "ExtTaskQueueHelper.h"
 #include "ExtCpuWorkerThread.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Ext
+namespace ev4sio_Ext
 {
 #if PX_VC
 #pragma warning(push)
@@ -121,7 +121,7 @@ namespace Ext
 #pragma warning(pop)
 #endif
 
-} // namespace Ext
+} // namespace ev4sio_Ext
 }
 
 #endif

@@ -32,14 +32,14 @@
 #include "DyDeformableSurfaceCore.h"
 #include "PxvGeometry.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Sc
+namespace ev4sio_Sc
 {
 	class DeformableSurfaceSim;
 }
 
-namespace Dy
+namespace ev4sio_Dy
 {
 
 typedef size_t DeformableSurfaceHandle;
@@ -50,7 +50,7 @@ class DeformableSurface
 	PX_NOCOPY(DeformableSurface)
 
 public:
-	DeformableSurface(Sc::DeformableSurfaceSim* sim, Dy::DeformableSurfaceCore& core) :
+	DeformableSurface(ev4sio_Sc::DeformableSurfaceSim* sim, ev4sio_Dy::DeformableSurfaceCore& core) :
 		mSim(sim), mCore(core), mElementId(0xffffffff), mGpuRemapId(0xffffffff)
 	{}
 
@@ -77,7 +77,7 @@ public:
 	PX_FORCE_INLINE PxsShapeCore&					getShapeCore() { return *mShapeCore; }
 	PX_FORCE_INLINE void							setShapeCore(PxsShapeCore* shapeCore) { mShapeCore = shapeCore; }
 
-	PX_FORCE_INLINE Sc::DeformableSurfaceSim*		getSim() const { return mSim; }
+	PX_FORCE_INLINE ev4sio_Sc::DeformableSurfaceSim*		getSim() const { return mSim; }
 	PX_FORCE_INLINE const DeformableSurfaceCore&	getCore() const { return mCore; }
 	PX_FORCE_INLINE DeformableSurfaceCore&			getCore() { return mCore; }
 
@@ -90,7 +90,7 @@ public:
 	PxArray<PxU32>									mSurfaceSurfaceAttachments;
 private:
 			
-	Sc::DeformableSurfaceSim*						mSim;
+	ev4sio_Sc::DeformableSurfaceSim*						mSim;
 	DeformableSurfaceCore&							mCore;
 	PxsShapeCore*									mShapeCore;
 
@@ -119,7 +119,7 @@ PX_FORCE_INLINE void DeformableSurface::removeAttachmentHandle(PxU32 handle)
 	}
 }
 
-} // namespace Dy
-} // namespace physx
+} // namespace ev4sio_Dy
+} // namespace ev4sio_physx
 
 #endif // DY_DEFORMABLE_SURFACE_H

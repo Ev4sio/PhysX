@@ -41,7 +41,7 @@
 #endif
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 template <class Entry, class Key, class HashFn, class GetKey, class PxAllocator, bool compacting>
@@ -783,7 +783,7 @@ class PxHashMapBase
 	BaseMap mBase;
 };
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #if PX_VC

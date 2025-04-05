@@ -32,13 +32,13 @@
 #include "task/PxTask.h"
 #include "ExtSharedQueueEntryPool.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 #define EXT_TASK_QUEUE_ENTRY_POOL_SIZE 128
 #define EXT_TASK_QUEUE_ENTRY_HIGH_PRIORITY_POOL_SIZE 32
 
-namespace Ext
+namespace ev4sio_Ext
 {
 	class TaskQueueHelper
 	{
@@ -95,7 +95,7 @@ namespace Ext
 		}
 	};
 
-} // namespace Ext
+} // namespace ev4sio_Ext
 
 }
 

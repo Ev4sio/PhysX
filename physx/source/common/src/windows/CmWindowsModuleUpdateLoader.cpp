@@ -38,7 +38,7 @@
 
 #include "stdio.h"
 
-namespace physx { namespace Cm {
+namespace ev4sio_physx { namespace ev4sio_Cm {
 
 #if PX_VC
 #pragma warning(disable: 4191)	//'operator/operation' : unsafe conversion from 'type of expression' to 'type required'

@@ -29,7 +29,7 @@
 #ifndef PXG_SOFTBODY_CORE_KERNEL_INDICES_H
 #define PXG_SOFTBODY_CORE_KERNEL_INDICES_H
 
-namespace physx
+namespace ev4sio_physx
 {
 
 	struct PxgSoftBodyKernelBlockDim

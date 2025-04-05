@@ -37,9 +37,9 @@
 #include "extensions/PxTetrahedronMeshAnalysisResult.h"
 
 #include "ExtDelaunayTetrahedralizer.h"
-namespace physx
+namespace ev4sio_physx
 {
-namespace Ext
+namespace ev4sio_Ext
 {
 	//Generates a tetmesh that matches the specified triangle mesh. All triangle mesh points are present in the tetmesh, additional points on edges and faces might be present.
 	void generateTetmesh(const PxBoundedData& inputPoints, const PxBoundedData& inputTriangles, const bool has16bitIndices, PxArray<PxVec3>& tetPoints, PxArray<PxU32>& finalTets);

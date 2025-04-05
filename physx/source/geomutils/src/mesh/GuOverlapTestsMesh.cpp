@@ -39,9 +39,9 @@
 #include "GuSweepSharedTests.h"
 #include "CmMatrix34.h"
 
-using namespace physx;
-using namespace Cm;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Cm;
+using namespace ev4sio_Gu;
 using namespace aos;
 
 bool GeomOverlapCallback_SphereMesh(GU_OVERLAP_FUNC_PARAMS)
@@ -254,7 +254,7 @@ bool GeomOverlapCallback_MeshMesh(GU_OVERLAP_FUNC_PARAMS)
 
 	// PT: only implemented for BV4
 	if(!tm0 || !tm1 || tm0->getConcreteType()!=PxConcreteType::eTRIANGLE_MESH_BVH34 || tm1->getConcreteType()!=PxConcreteType::eTRIANGLE_MESH_BVH34)
-		return PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxGeometryQuery::overlap(): only available between two BVH34 triangles meshes.");
+		return ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxGeometryQuery::overlap(): only available between two BVH34 triangles meshes.");
 
 	class AnyHitReportCallback : public PxReportCallback<PxGeomIndexPair>
 	{

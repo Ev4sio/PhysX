@@ -32,8 +32,8 @@
 #include "CmPtrTable.h"
 #include "CmUtils.h"
 
-using namespace physx;
-using namespace Cm;
+using namespace ev4sio_physx;
+using namespace ev4sio_Cm;
 
 PtrTable::PtrTable() :
 	mList		(NULL),

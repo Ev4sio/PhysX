@@ -36,10 +36,10 @@
 #include "BpBroadPhaseIntegerAABB.h"
 #include "foundation/PxBitMap.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 class PxcScratchAllocator;
-namespace Bp
+namespace ev4sio_Bp
 {
 #define ALIGN_SIZE_16(size) ((unsigned(size)+15)&(unsigned(~15)))
 
@@ -220,7 +220,7 @@ void addPair(const BpHandle id0, const BpHandle id1, PxcScratchAllocator* scratc
 void removePair(BpHandle id0, BpHandle id1, PxcScratchAllocator* scratchAllocator, SapPairManager& pairManager, DataArray& dataArray);
 
 void ComputeCreatedDeletedPairsLists
-(const Bp::FilterGroup::Enum* PX_RESTRICT boxGroups, 
+(const ev4sio_Bp::FilterGroup::Enum* PX_RESTRICT boxGroups, 
  const BpHandle* PX_RESTRICT dataArray, const PxU32 dataArraySize,
  PxcScratchAllocator* scratchAllocator,
  BroadPhasePair* & createdPairsList, PxU32& numCreatedPairs, PxU32& maxNumCreatdPairs,
@@ -244,12 +244,12 @@ void ComputeCreatedDeletedPairsLists
 
 	struct AuxData
 	{
-		AuxData(PxU32 nb, const SapBox1D*const* PX_RESTRICT boxes, const BpHandle* PX_RESTRICT indicesSorted, const Bp::FilterGroup::Enum* PX_RESTRICT groupIds);
+		AuxData(PxU32 nb, const SapBox1D*const* PX_RESTRICT boxes, const BpHandle* PX_RESTRICT indicesSorted, const ev4sio_Bp::FilterGroup::Enum* PX_RESTRICT groupIds);
 		~AuxData();
 
 		BoxX*					mBoxX;
 		BoxYZ*					mBoxYZ;
-		Bp::FilterGroup::Enum*	mGroups;
+		ev4sio_Bp::FilterGroup::Enum*	mGroups;
 		PxU32*					mRemap;
 		PxU32					mNb;
 	};
@@ -268,8 +268,8 @@ PX_FORCE_INLINE bool Intersect2D_Handle
 			bDir2Max > cDir2Min && cDir2Max > bDir2Min);        
 }
 
-} //namespace Bp
+} //namespace ev4sio_Bp
 
-} //namespace physx
+} //namespace ev4sio_physx
 
 #endif //BP_BROADPHASE_SAP_AUX_H

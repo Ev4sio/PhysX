@@ -36,9 +36,9 @@
 #define SC_FILTERING_ID_MAX			(1<<SC_FILTERING_ID_SHIFT_BIT)
 #define SC_FILTERING_ID_MASK		0x00ffffff
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Sc
+namespace ev4sio_Sc
 {
 	class ActorSim;
 
@@ -123,12 +123,12 @@ namespace Sc
 	};
 
 #if PX_P64_FAMILY
-	PX_COMPILE_TIME_ASSERT(sizeof(Sc::ActorCore)==16);
+	PX_COMPILE_TIME_ASSERT(sizeof(ev4sio_Sc::ActorCore)==16);
 #else
-	PX_COMPILE_TIME_ASSERT(sizeof(Sc::ActorCore)==12);
+	PX_COMPILE_TIME_ASSERT(sizeof(ev4sio_Sc::ActorCore)==12);
 #endif
 
-} // namespace Sc
+} // namespace ev4sio_Sc
 
 }
 

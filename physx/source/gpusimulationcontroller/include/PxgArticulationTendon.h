@@ -32,7 +32,7 @@
 #include "foundation/PxSimpleTypes.h"
 #include "foundation/PxVec3.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 	class PxgArticulationTendonElementFixedData
@@ -52,6 +52,6 @@ namespace physx
 		PxU32							mNbElements;
 	};
 
-}//namespace physx
+}//namespace ev4sio_physx
 
 #endif

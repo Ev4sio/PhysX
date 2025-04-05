@@ -32,7 +32,7 @@
 #include "foundation/PxUserAllocated.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 // this is used by the array class to allocate some space for a small number
@@ -87,7 +87,7 @@ class PxInlineAllocator : private BaseAllocator
 	bool mBufferUsed;
 };
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

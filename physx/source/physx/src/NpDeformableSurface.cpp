@@ -44,11 +44,11 @@
 #include "ScDeformableSurfaceSim.h"
 
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 class PxCudaContextManager;
 
-namespace physx
+namespace ev4sio_physx
 {
 
 NpDeformableSurface::NpDeformableSurface(PxCudaContextManager& cudaContextManager)
@@ -101,11 +101,11 @@ PxBounds3 NpDeformableSurface::getWorldBounds(float inflation) const
 
 	if (!getNpScene())
 	{
-		PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "Querying bounds of a PxDeformableBody which is not part of a PxScene is not supported.");
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "Querying bounds of a PxDeformableBody which is not part of a PxScene is not supported.");
 		return PxBounds3::empty();
 	}
 
-	const Sc::DeformableSurfaceSim* sim = mCore.getSim();
+	const ev4sio_Sc::DeformableSurfaceSim* sim = mCore.getSim();
 	PX_ASSERT(sim);
 
 	PX_SIMD_GUARD;
@@ -325,7 +325,7 @@ PxReal NpDeformableSurface::getWakeCounter() const
 
 bool NpDeformableSurface::isSleeping() const
 {
-	Sc::DeformableSurfaceSim* sim = mCore.getSim();
+	ev4sio_Sc::DeformableSurfaceSim* sim = mCore.getSim();
 	if (sim)
 	{
 		return sim->isSleeping();
@@ -353,7 +353,7 @@ bool NpDeformableSurface::attachShape(PxShape& shape)
 	PX_CHECK_AND_RETURN_NULL(triGeom.triangleMesh != NULL,
 		"PxDeformableSurface::attachShape: PxTriangleMeshGeometry::triangleMesh is NULL");
 
-	Gu::TriangleMesh* triMesh = static_cast<Gu::TriangleMesh*>(triGeom.triangleMesh);
+	ev4sio_Gu::TriangleMesh* triMesh = static_cast<ev4sio_Gu::TriangleMesh*>(triGeom.triangleMesh);
 	PX_CHECK_AND_RETURN_NULL(triMesh->getNbTrianglesFast() <= PX_MAX_NB_DEFORMABLE_SURFACE_TRI,
 		"PxDeformableSurface::attachShape: triangle mesh consists of too many triangles, see PX_MAX_NB_DEFORMABLE_SURFACE_TRI");
 	PX_CHECK_AND_RETURN_NULL(triMesh->getNbVerticesFast() <= PX_MAX_NB_DEFORMABLE_SURFACE_VTX,
@@ -368,7 +368,7 @@ bool NpDeformableSurface::attachShape(PxShape& shape)
 	PX_CHECK_AND_RETURN_NULL(npShape->getCore().getCore().mShapeCoreFlags & PxShapeCoreFlag::eDEFORMABLE_SURFACE_SHAPE,
 		"PxDeformableSurface::attachShape: shape must be a deformable surface shape!");
 
-	Dy::DeformableSurfaceCore& core = mCore.getCore();
+	ev4sio_Dy::DeformableSurfaceCore& core = mCore.getCore();
 	PX_CHECK_AND_RETURN_NULL(core.positionInvMass == NULL,
 		"PxDeformableSurface::attachShape: positionInvMass already exists, overwrite not allowed, call detachShape first");
 	PX_CHECK_AND_RETURN_NULL(core.velocity == NULL,
@@ -395,7 +395,7 @@ bool NpDeformableSurface::attachShape(PxShape& shape)
 	
 void NpDeformableSurface::detachShape()
 {
-	Dy::DeformableSurfaceCore& core = mCore.getCore();
+	ev4sio_Dy::DeformableSurfaceCore& core = mCore.getCore();
 
 	PX_ASSERT(mDeviceMemoryAllocator);
 
@@ -571,7 +571,7 @@ void NpDeformableSurface::createAllocator()
 void NpDeformableSurface::releaseAllocator()
 {
 	// deallocate device memory if not released already.
-	Dy::DeformableSurfaceCore& core = mCore.getCore();
+	ev4sio_Dy::DeformableSurfaceCore& core = mCore.getCore();
 	if (core.positionInvMass)
 	{
 		mDeviceMemoryAllocator->deallocate(core.positionInvMass);
@@ -595,7 +595,7 @@ void NpDeformableSurface::releaseAllocator()
 	}
 }
 
-Sc::DeformableSurfaceCore* getDeformableSurfaceCore(PxActor* actor)
+ev4sio_Sc::DeformableSurfaceCore* getDeformableSurfaceCore(PxActor* actor)
 {
 	if (actor->getConcreteType() == PxConcreteType::eDEFORMABLE_SURFACE)
 	{
@@ -605,6 +605,6 @@ Sc::DeformableSurfaceCore* getDeformableSurfaceCore(PxActor* actor)
 	return NULL;
 }
 
-} // namespace physx
+} // namespace ev4sio_physx
 
 #endif //PX_SUPPORT_GPU_PHYSX

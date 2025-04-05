@@ -35,22 +35,22 @@
 
 #define GPU_JOINT_PREP	1
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 static PX_FORCE_INLINE void resetConstraintPrepPrep(PxgConstraintPrePrep& preData)
 {
 	preData.mNodeIndexA = preData.mNodeIndexB = PxNodeIndex(PX_INVALID_NODE);
 }
 
-static PX_FORCE_INLINE void setupConstraintPrepPrep(PxgConstraintPrePrep& preData, const Dy::Constraint* constraint)
+static PX_FORCE_INLINE void setupConstraintPrepPrep(PxgConstraintPrePrep& preData, const ev4sio_Dy::Constraint* constraint)
 {
 	preData.mFlags = constraint->flags;
 	preData.mLinBreakForce = constraint->linBreakForce;
 	preData.mAngBreakForce = constraint->angBreakForce;
 }
 
-static PX_FORCE_INLINE void setupConstraintPrepPrep(PxgConstraintPrePrep& preData, const Dy::Constraint* constraint,
-													const IG::IslandSim& islandSim, const PxNodeIndex nodeIndex0, const PxNodeIndex nodeIndex1)
+static PX_FORCE_INLINE void setupConstraintPrepPrep(PxgConstraintPrePrep& preData, const ev4sio_Dy::Constraint* constraint,
+													const ev4sio_IG::IslandSim& islandSim, const PxNodeIndex nodeIndex0, const PxNodeIndex nodeIndex1)
 {
 	preData.mNodeIndexA = nodeIndex0;
 	preData.mNodeIndexB = nodeIndex1;
@@ -111,7 +111,7 @@ void PxgJointManager::reserveMemoryPreAddRemove()
 	}
 }
 
-void PxgJointManager::registerJoint(const Dy::Constraint& constraint)
+void PxgJointManager::registerJoint(const ev4sio_Dy::Constraint& constraint)
 {
 	if (mIsDirectGpuApiEnabled && (constraint.flags & PxConstraintFlag::eGPU_COMPATIBLE) && GPU_JOINT_PREP)
 	{
@@ -122,13 +122,13 @@ void PxgJointManager::registerJoint(const Dy::Constraint& constraint)
 }
 
 static PX_FORCE_INLINE void removeJointGpuCpu(PxU32 edgeIndex,
-	const IG::GPUExternalData& islandSimGpuData,
+	const ev4sio_IG::GPUExternalData& islandSimGpuData,
 	PxHashMap<PxU32, PxU32>& gpuConstraintIndexMap,
 	PxPinnedArray<PxgConstraintPrePrep>& gpuConstraintPrePrepEntries,
 	PxInt32ArrayPinned& gpuDirtyJointDataIndices,
-	Cm::IDPool& gpuIdPool,
+	ev4sio_Cm::IDPool& gpuIdPool,
 	PxHashMap<PxU32, PxU32>& cpuConstraintIndexMap,
-	PxArray<const Dy::Constraint*>& cpuConstraintList,
+	PxArray<const ev4sio_Dy::Constraint*>& cpuConstraintList,
 	PxArray<PxU32>& cpuConstraintEdgeIndices,
 	PxArray<PxU32>& cpuUniqueIndices,
 	PxArray<PxU32>& jointIndices,
@@ -196,7 +196,7 @@ static PX_FORCE_INLINE void removeJointGpuCpu(PxU32 edgeIndex,
 	}
 }
 
-void PxgJointManager::removeJoint(PxU32 edgeIndex, PxArray<PxU32>& jointIndices, const IG::CPUExternalData& islandSimCpuData, const IG::GPUExternalData& islandSimGpuData)
+void PxgJointManager::removeJoint(PxU32 edgeIndex, PxArray<PxU32>& jointIndices, const ev4sio_IG::CPUExternalData& islandSimCpuData, const ev4sio_IG::GPUExternalData& islandSimGpuData)
 {
 	const PxNodeIndex nodeIndex0 = islandSimCpuData.getNodeIndex1(edgeIndex);
 	const PxNodeIndex nodeIndex1 = islandSimCpuData.getNodeIndex2(edgeIndex);
@@ -221,16 +221,16 @@ void PxgJointManager::removeJoint(PxU32 edgeIndex, PxArray<PxU32>& jointIndices,
 	}
 }
 
-static PX_FORCE_INLINE void addJointGpu(const Dy::Constraint& constraint, PxU32 edgeIndex, PxU32 uniqueId,
+static PX_FORCE_INLINE void addJointGpu(const ev4sio_Dy::Constraint& constraint, PxU32 edgeIndex, PxU32 uniqueId,
 	PxNodeIndex nodeIndex0, PxNodeIndex nodeIndex1,
-	Cm::IDPool& idPool, 
+	ev4sio_Cm::IDPool& idPool, 
 	PxPinnedArray<PxgD6JointData>& jointDataEntries,
 	PxPinnedArray<PxgConstraintPrePrep>& constraintPrePrepEntries,
 	PxInt32ArrayPinned& dirtyJointDataIndices,
 	PxHashMap<PxU32, PxU32>& constraintIndexMap,
 	PxArray<PxU32>& jointIndices, 
 	PxPinnedArray<PxgSolverConstraintManagerConstants>& managerIter,
-	const IG::IslandSim& islandSim,
+	const ev4sio_IG::IslandSim& islandSim,
 	PxgJointManager::ConstraintIdMap& gpuConstraintIdMapHost,
 	PxHashMap<PxU32, PxU32>& edgeIndexToGpuConstraintIdMap,
 	bool& isGpuConstraintIdMapDirty,
@@ -274,8 +274,8 @@ static PX_FORCE_INLINE void addJointGpu(const Dy::Constraint& constraint, PxU32 
 	}
 }
 
-static PX_FORCE_INLINE void addJointCpu(const Dy::Constraint& constraint, PxU32 edgeIndex, PxU32 uniqueId,
-	PxArray<const Dy::Constraint*>& constraintList,
+static PX_FORCE_INLINE void addJointCpu(const ev4sio_Dy::Constraint& constraint, PxU32 edgeIndex, PxU32 uniqueId,
+	PxArray<const ev4sio_Dy::Constraint*>& constraintList,
 	PxHashMap<PxU32, PxU32>& constraintIndexMap,
 	PxArray<PxU32>& constraintEdgeIndices,
 	PxArray<PxU32>& uniqueIndices,
@@ -283,7 +283,7 @@ static PX_FORCE_INLINE void addJointCpu(const Dy::Constraint& constraint, PxU32 
 	PxPinnedArray<PxgSolverConstraintManagerConstants>& managerIter)
 {
 	const PxU32 index = constraintList.size();
-	//In CPU, we work with Dy::Constraint and fill in PxgConstraintData
+	//In CPU, we work with ev4sio_Dy::Constraint and fill in PxgConstraintData
 	constraintIndexMap.insert(edgeIndex, index);
 
 	constraintList.pushBack(&constraint);
@@ -294,7 +294,7 @@ static PX_FORCE_INLINE void addJointCpu(const Dy::Constraint& constraint, PxU32 
 	managerIter[uniqueId].mConstraintWriteBackIndex = constraint.index; // this is the joint writeback index
 }
 
-void PxgJointManager::addJoint(PxU32 edgeIndex, const Dy::Constraint* constraint, IG::IslandSim& islandSim, PxArray<PxU32>& jointIndices, 
+void PxgJointManager::addJoint(PxU32 edgeIndex, const ev4sio_Dy::Constraint* constraint, ev4sio_IG::IslandSim& islandSim, PxArray<PxU32>& jointIndices, 
 	PxPinnedArray<PxgSolverConstraintManagerConstants>& managerIter, PxU32 uniqueId)
 {
 	const PxNodeIndex nodeIndex0 = islandSim.mCpuData.getNodeIndex1(edgeIndex);
@@ -340,7 +340,7 @@ void PxgJointManager::addJoint(PxU32 edgeIndex, const Dy::Constraint* constraint
 	}
 }
 
-static PX_FORCE_INLINE bool updateJointGpu(const Dy::Constraint& constraint, PxU32 edgeIndex,
+static PX_FORCE_INLINE bool updateJointGpu(const ev4sio_Dy::Constraint& constraint, PxU32 edgeIndex,
 	const PxHashMap<PxU32, PxU32>& constraintIndexMap,
 	PxPinnedArray<PxgD6JointData>& jointDataEntries,
 	PxPinnedArray<PxgConstraintPrePrep>& constraintPrePrepEntries,
@@ -368,7 +368,7 @@ static PX_FORCE_INLINE bool updateJointGpu(const Dy::Constraint& constraint, PxU
 	return false;
 }
 
-void PxgJointManager::updateJoint(PxU32 edgeIndex, const Dy::Constraint* constraint)
+void PxgJointManager::updateJoint(PxU32 edgeIndex, const ev4sio_Dy::Constraint* constraint)
 {
 	if (constraint->flags & PxConstraintFlag::eGPU_COMPATIBLE && GPU_JOINT_PREP)
 	{

@@ -70,7 +70,7 @@ using namespace schlock;
 #include "gjk.cuh"
 #include "epa.cuh"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 extern "C" __host__ void initNarrowphaseKernels14() {}
 
@@ -725,7 +725,7 @@ __device__ static inline void sbMeshCollision(
 		PxU8 * trimeshGeomPtr = reinterpret_cast<PxU8*>(trimeshShape.hullOrMeshPtr);
 
 		const uint4 nbVerts_nbTri_maxDepth_nbBv32TreeNodes = *reinterpret_cast<const uint4 *>(trimeshGeomPtr);
-		trimeshGeomPtr += sizeof(uint4) + sizeof(const Gu::BV32DataPacked)* nbVerts_nbTri_maxDepth_nbBv32TreeNodes.w;
+		trimeshGeomPtr += sizeof(uint4) + sizeof(const ev4sio_Gu::BV32DataPacked)* nbVerts_nbTri_maxDepth_nbBv32TreeNodes.w;
 
 		s_warpScratch->tetmeshVerts[1] = reinterpret_cast<const float4 *>(trimeshGeomPtr);
 
@@ -1684,7 +1684,7 @@ void fem_reorderRigidContactsLaunch(
 		const PxgFemContactInfo contactInfo = contactInfos[remapIndex];
 
 		PxU64 rigidId = contactInfo.pairInd0;
-		//assert(reinterpret_cast<const IG::NodeIndex&>(rigidId).isStaticBody());
+		//assert(reinterpret_cast<const ev4sio_IG::NodeIndex&>(rigidId).isStaticBody());
 
 		sortedContactInfos[index] = contactInfo;
 		sortedRigidIds[index] = rigidId;
@@ -1772,7 +1772,7 @@ __device__ PxVec3 getClosestPtPointTetrahedron(const PxVec3& p, const PxVec3& _a
 	if (result.x < 0.f)
 	{
 		// 0, 1, 2
-		bestClosestPt = Gu::closestPtPointTriangle2(p, _a, _b, _c, ab, ac);
+		bestClosestPt = ev4sio_Gu::closestPtPointTriangle2(p, _a, _b, _c, ab, ac);
 		PxVec3 diff = bestClosestPt - p;
 		bestSqDist = diff.dot(diff);
 	}
@@ -1780,7 +1780,7 @@ __device__ PxVec3 getClosestPtPointTetrahedron(const PxVec3& p, const PxVec3& _a
 	if (result.y < 0.f)
 	{
 		// 0, 2, 3
-		const PxVec3 closestPt = Gu::closestPtPointTriangle2(p, _a, _c, _d, ac, ad);
+		const PxVec3 closestPt = ev4sio_Gu::closestPtPointTriangle2(p, _a, _c, _d, ac, ad);
 		PxVec3 diff = closestPt - p;
 		const PxReal sqDist = diff.dot(diff);
 		if (sqDist < bestSqDist)
@@ -1793,7 +1793,7 @@ __device__ PxVec3 getClosestPtPointTetrahedron(const PxVec3& p, const PxVec3& _a
 	if (result.z < 0.f)
 	{
 		// 0, 3, 1
-		const PxVec3 closestPt = Gu::closestPtPointTriangle2(p, _a, _d, _b, ad, ab);
+		const PxVec3 closestPt = ev4sio_Gu::closestPtPointTriangle2(p, _a, _d, _b, ad, ab);
 		PxVec3 diff = closestPt - p;
 		const PxReal sqDist = diff.dot(diff);
 		if (sqDist < bestSqDist)
@@ -1806,7 +1806,7 @@ __device__ PxVec3 getClosestPtPointTetrahedron(const PxVec3& p, const PxVec3& _a
 	if (result.w < 0.f)
 	{
 		// 1, 3, 2
-		const PxVec3 closestPt = Gu::closestPtPointTriangle2(p, _b, _d, _c, _d-_b, _c-_b);
+		const PxVec3 closestPt = ev4sio_Gu::closestPtPointTriangle2(p, _b, _d, _c, _d-_b, _c-_b);
 		PxVec3 diff = closestPt - p;
 		const PxReal sqDist = diff.dot(diff);
 		if (sqDist < bestSqDist)
@@ -1871,7 +1871,7 @@ __device__ static void closestPtTetrahedron(const PxVec3& point, const PxU8 hint
 
 	if (hint & 1) //0111
 	{
-		const PxVec3 tPoint = Gu::closestPtPointTriangle2(point, a, b, c, ab, ac);
+		const PxVec3 tPoint = ev4sio_Gu::closestPtPointTriangle2(point, a, b, c, ab, ac);
 		const PxVec3 v = tPoint - point;
 		const PxReal tSqDist = v.magnitudeSquared();
 		if (tSqDist < sqDist)
@@ -1892,7 +1892,7 @@ __device__ static void closestPtTetrahedron(const PxVec3& point, const PxU8 hint
 
 	if (hint & 2)//1011
 	{
-		const PxVec3 tPoint = Gu::closestPtPointTriangle2(point, a, b, d, ab, ad);
+		const PxVec3 tPoint = ev4sio_Gu::closestPtPointTriangle2(point, a, b, d, ab, ad);
 		const PxVec3 v = tPoint - point;
 		const PxReal tSqDist = v.magnitudeSquared();
 		if (tSqDist < sqDist)
@@ -1913,7 +1913,7 @@ __device__ static void closestPtTetrahedron(const PxVec3& point, const PxU8 hint
 
 	if (hint & 4)//1101
 	{
-		const PxVec3 tPoint = Gu::closestPtPointTriangle2(point, a, c, d, ac, ad);
+		const PxVec3 tPoint = ev4sio_Gu::closestPtPointTriangle2(point, a, c, d, ac, ad);
 		const PxVec3 v = tPoint - point;
 		const PxReal tSqDist = v.magnitudeSquared();
 		if (tSqDist < sqDist)
@@ -1937,7 +1937,7 @@ __device__ static void closestPtTetrahedron(const PxVec3& point, const PxU8 hint
 
 		const PxVec3 bd = (d - b);
 		const PxVec3 bc = (c - b);
-		const PxVec3 tPoint = Gu::closestPtPointTriangle2(point, b, c, d, bc, bd);
+		const PxVec3 tPoint = ev4sio_Gu::closestPtPointTriangle2(point, b, c, d, bc, bd);
 		const PxVec3 v = tPoint - point;
 		const PxReal tSqDist = v.magnitudeSquared();
 		if (tSqDist < sqDist)
@@ -2215,7 +2215,7 @@ void sb_rcs_contact_remap_to_simLaunch(
 
 				if (!intersect)
 				{
-					PxVec3 tmpClosest = Gu::closestPtPointTetrahedron(contact, a, b, c, d);
+					PxVec3 tmpClosest = ev4sio_Gu::closestPtPointTetrahedron(contact, a, b, c, d);
 					const PxVec3 v = contact - tmpClosest;
 					PxReal tmpDist = v.dot(v);
 					if (tmpDist < sqDist)
@@ -2376,7 +2376,7 @@ void sb_ss_contact_remap_to_simLaunch(
 
 					if (!intersect)
 					{
-						PxVec3 tmpClosest = Gu::closestPtPointTetrahedron(contact, a, b, c, d);
+						PxVec3 tmpClosest = ev4sio_Gu::closestPtPointTetrahedron(contact, a, b, c, d);
 						const PxVec3 v = contact - tmpClosest;
 						PxReal tmpDist = v.dot(v);
 						if (tmpDist < sqDist)

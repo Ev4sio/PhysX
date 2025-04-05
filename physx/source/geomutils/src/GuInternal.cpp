@@ -34,14 +34,14 @@
 #include "GuVecPlane.h"
 #include "foundation/PxVecMath.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 using namespace aos;
 
 /**
 Computes the aabb points.
 \param		pts	[out] 8 box points
 */
-void Gu::computeBoxPoints(const PxBounds3& bounds, PxVec3* PX_RESTRICT pts)
+void ev4sio_Gu::computeBoxPoints(const PxBounds3& bounds, PxVec3* PX_RESTRICT pts)
 {
 	PX_ASSERT(pts);
 
@@ -69,13 +69,13 @@ void Gu::computeBoxPoints(const PxBounds3& bounds, PxVec3* PX_RESTRICT pts)
 	pts[7] = PxVec3(minimum.x, maximum.y, maximum.z);
 }
 
-PxPlane Gu::getPlane(const PxTransform& pose)
+PxPlane ev4sio_Gu::getPlane(const PxTransform& pose)
 { 
 	const PxVec3 n = pose.q.getBasisVector0();
 	return PxPlane(n, -pose.p.dot(n)); 
 }
 
-void Gu::computeSweptBox(Gu::Box& dest, const PxVec3& extents, const PxVec3& center, const PxMat33& rot, const PxVec3& unitDir, PxReal distance)
+void ev4sio_Gu::computeSweptBox(ev4sio_Gu::Box& dest, const PxVec3& extents, const PxVec3& center, const PxMat33& rot, const PxVec3& unitDir, PxReal distance)
 {
 	PxVec3 R1, R2;
 	PxComputeBasisVectors(unitDir, R1, R2);

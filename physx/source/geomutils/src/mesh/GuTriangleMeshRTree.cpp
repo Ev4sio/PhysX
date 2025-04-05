@@ -29,12 +29,12 @@
 #include "GuTriangleMesh.h"
 #include "GuTriangleMeshRTree.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
-namespace physx
+namespace ev4sio_physx
 {
 
-Gu::RTreeTriangleMesh::RTreeTriangleMesh(MeshFactory* factory, TriangleMeshData& d) : TriangleMesh(factory, d)
+ev4sio_Gu::RTreeTriangleMesh::RTreeTriangleMesh(MeshFactory* factory, TriangleMeshData& d) : TriangleMesh(factory, d)
 {
 	PX_ASSERT(d.mType==PxMeshMidPhase::eBVH33);
 
@@ -43,7 +43,7 @@ Gu::RTreeTriangleMesh::RTreeTriangleMesh(MeshFactory* factory, TriangleMeshData&
 	rtreeData.mRTree.mPages = NULL;
 }
 
-Gu::TriangleMesh* Gu::RTreeTriangleMesh::createObject(PxU8*& address, PxDeserializationContext& context)
+ev4sio_Gu::TriangleMesh* ev4sio_Gu::RTreeTriangleMesh::createObject(PxU8*& address, PxDeserializationContext& context)
 {
 	RTreeTriangleMesh* obj = PX_PLACEMENT_NEW(address, RTreeTriangleMesh(PxBaseFlag::eIS_RELEASABLE));
 	address += sizeof(RTreeTriangleMesh);	
@@ -51,25 +51,25 @@ Gu::TriangleMesh* Gu::RTreeTriangleMesh::createObject(PxU8*& address, PxDeserial
 	return obj;
 }
 
-void Gu::RTreeTriangleMesh::exportExtraData(PxSerializationContext& stream)
+void ev4sio_Gu::RTreeTriangleMesh::exportExtraData(PxSerializationContext& stream)
 {
 	mRTree.exportExtraData(stream);
 	TriangleMesh::exportExtraData(stream);
 }
 
-void Gu::RTreeTriangleMesh::importExtraData(PxDeserializationContext& context)
+void ev4sio_Gu::RTreeTriangleMesh::importExtraData(PxDeserializationContext& context)
 {
 	mRTree.importExtraData(context);
 	TriangleMesh::importExtraData(context);
 }
 
-PxVec3 * Gu::RTreeTriangleMesh::getVerticesForModification()
+PxVec3 * ev4sio_Gu::RTreeTriangleMesh::getVerticesForModification()
 {
 	return const_cast<PxVec3*>(getVertices());
 }
 
 template<typename IndexType>
-struct RefitCallback : Gu::RTree::CallbackRefit
+struct RefitCallback : ev4sio_Gu::RTree::CallbackRefit
 {
 	const PxVec3* newPositions;
 	const IndexType* indices;
@@ -82,7 +82,7 @@ struct RefitCallback : Gu::RTree::CallbackRefit
 		using namespace aos;
 
 		// Each leaf box has a set of triangles
-		Gu::LeafTriangles currentLeaf; currentLeaf.Data = index;
+		ev4sio_Gu::LeafTriangles currentLeaf; currentLeaf.Data = index;
 		PxU32 nbTris = currentLeaf.GetNbTriangles();
 		PxU32 baseTri = currentLeaf.GetTriangleIndex();
 		PX_ASSERT(nbTris > 0);
@@ -110,7 +110,7 @@ struct RefitCallback : Gu::RTree::CallbackRefit
 	}
 };
 
-PxBounds3 Gu::RTreeTriangleMesh::refitBVH()
+PxBounds3 ev4sio_Gu::RTreeTriangleMesh::refitBVH()
 {
 	PxBounds3 meshBounds;
 	if (has16BitIndices())
@@ -135,4 +135,4 @@ PxBounds3 Gu::RTreeTriangleMesh::refitBVH()
 	return meshBounds;
 }
 
-} // namespace physx
+} // namespace ev4sio_physx

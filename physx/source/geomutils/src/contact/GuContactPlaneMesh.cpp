@@ -49,13 +49,13 @@
 #include "GuMidphaseInterface.h"
 #include "PxContact.h"
 
-using namespace physx;
-using namespace Cm;
+using namespace ev4sio_physx;
+using namespace ev4sio_Cm;
 
-using BufferedContactPatch = Gu::BufferedPatch<6, 64>;
-using ReducedContactPatch = Gu::TinyContactPatch<6>;
+using BufferedContactPatch = ev4sio_Gu::BufferedPatch<6, 64>;
+using ReducedContactPatch = ev4sio_Gu::TinyContactPatch<6>;
 
-bool Gu::contactPlaneMesh(GU_CONTACT_METHOD_ARGS)
+bool ev4sio_Gu::contactPlaneMesh(GU_CONTACT_METHOD_ARGS)
 {
 	PX_UNUSED(renderOutput);
 	PX_UNUSED(cache);
@@ -107,7 +107,7 @@ bool Gu::contactPlaneMesh(GU_CONTACT_METHOD_ARGS)
 	const PxU32 overlapCount = PxMeshQuery::findOverlapTriangleMesh(planeBoxMesh, PxTransform(transformedBoundsCenter), shapeMesh, meshToPlane0Trafo, overlappingTriangles.begin(), MAX_INTERSECTIONS, 0, overflow);
 	PX_ASSERT(!overflow);
 
-	const bool has16BitIndices = shapeMesh.triangleMesh->getTriangleMeshFlags() & physx::PxTriangleMeshFlag::e16_BIT_INDICES;
+	const bool has16BitIndices = shapeMesh.triangleMesh->getTriangleMeshFlags() & ev4sio_physx::PxTriangleMeshFlag::e16_BIT_INDICES;
 	const void* PX_RESTRICT tris = shapeMesh.triangleMesh->getTriangles();
 
 	PxBitMap bitmap;
@@ -118,7 +118,7 @@ bool Gu::contactPlaneMesh(GU_CONTACT_METHOD_ARGS)
 	for (PxU32 i = 0; i < overlapCount; ++i)
 	{
 		const PxU32 triIdx = overlappingTriangles[i];
-		Gu::IndexedTriangle32 triIndices;		
+		ev4sio_Gu::IndexedTriangle32 triIndices;		
 		getVertexRefs(triIdx, triIndices.mRef[0], triIndices.mRef[1], triIndices.mRef[2], tris, has16BitIndices);
 
 		for (PxU32 j = 0; j < 3; ++j) 

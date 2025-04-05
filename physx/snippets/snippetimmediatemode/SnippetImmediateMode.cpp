@@ -61,7 +61,7 @@
 // Toggles profiling for the full step. Only for Windows.
 #define PROFILE_STEP	0
 
-using namespace physx;
+using namespace ev4sio_physx;
 using namespace immediate;
 using namespace SnippetImmUtils;
 
@@ -74,7 +74,7 @@ static PxScene*					gScene		= NULL;
 static PxMaterial*				gMaterial	= NULL;
 static PxPvd*					gPvd = NULL;
 
-static physx::PxArray<PxConstraint*>* gConstraints = NULL;
+static ev4sio_physx::PxArray<PxConstraint*>* gConstraints = NULL;
 
 static PxReal gStackZ = 10.0f;
 
@@ -223,7 +223,7 @@ static bool generateContacts(	const PxGeometryHolder& geom0, const PxGeometryHol
 	const PxGeometry* pxGeom0 = &geom0.any();
 	const PxGeometry* pxGeom1 = &geom1.any();
 
-	physx::immediate::PxGenerateContacts(&pxGeom0, &pxGeom1, &tr0, &tr1, &cache, 1, recorder, gUnitScale*0.04f, gUnitScale*0.01f, gUnitScale, cacheAllocator);
+	ev4sio_physx::immediate::PxGenerateContacts(&pxGeom0, &pxGeom1, &tr0, &tr1, &cache, 1, recorder, gUnitScale*0.04f, gUnitScale*0.01f, gUnitScale, cacheAllocator);
 
 	return recorder.hasContacts();
 }
@@ -250,8 +250,8 @@ static void updateInertia(PxRigidBody* body, PxReal density)
 	PxU32 nbShapes = body->getNbShapes();
 
 	//Keep track of an array of inertia tensors and local poses.
-	physx::PxArray<PxMassProperties> inertias;
-	physx::PxArray<PxTransform> localPoses;
+	ev4sio_physx::PxArray<PxMassProperties> inertias;
+	ev4sio_physx::PxArray<PxTransform> localPoses;
 
 	for (PxU32 a = 0; a < nbShapes; ++a)
 	{
@@ -349,7 +349,7 @@ static PxTriangleMesh* createMeshGround()
 	meshDesc.triangles.stride = sizeof(Triangle);
 
 	PxCookingParams cookingParams(gPhysics->getTolerancesScale());
-	PxTriangleMesh* triMesh = PxCreateTriangleMesh(cookingParams, meshDesc, gPhysics->getPhysicsInsertionCallback());
+	PxTriangleMesh* triMesh = ev4sio_PxCreateTriangleMesh(cookingParams, meshDesc, gPhysics->getPhysicsInsertionCallback());
 
 	return triMesh;
 }
@@ -358,8 +358,8 @@ static PxTriangleMesh* createMeshGround()
 static void createBroadPhase()
 {
 	PxBroadPhaseDesc bpDesc(PxBroadPhaseType::eABP);
-	PxBroadPhase* bp = PxCreateBroadPhase(bpDesc);
-	gAABBManager = PxCreateAABBManager(*bp);
+	PxBroadPhase* bp = ev4sio_PxCreateBroadPhase(bpDesc);
+	gAABBManager = ev4sio_PxCreateAABBManager(*bp);
 
 	gPersistentPairs = new PxHashMap<PersistentPair, PersistentPairData>;
 }
@@ -406,12 +406,12 @@ static void updateContactPairs()
 
 void initPhysics(bool /*interactive*/)
 {
-	gFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, gAllocator, gErrorCallback);
-	gPvd = PxCreatePvd(*gFoundation);
-	PxPvdTransport* transport = PxDefaultPvdSocketTransportCreate(PVD_HOST, 5425, 10);
+	gFoundation = ev4sio_PxCreateFoundation(ev4sio_PX_PHYSICS_VERSION, gAllocator, gErrorCallback);
+	gPvd = ev4sio_PxCreatePvd(*gFoundation);
+	PxPvdTransport* transport = ev4sio_PxDefaultPvdSocketTransportCreate(PVD_HOST, 5425, 10);
 	gPvd->connect(*transport, PxPvdInstrumentationFlag::ePROFILE);
 
-	gPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *gFoundation, PxTolerancesScale(), true, gPvd);
+	gPhysics = ev4sio_PxCreatePhysics(ev4sio_PX_PHYSICS_VERSION, *gFoundation, PxTolerancesScale(), true, gPvd);
 
 	PxSceneDesc sceneDesc(gPhysics->getTolerancesScale());
 	sceneDesc.gravity = PxVec3(0.0f, -9.81f, 0.0f)*gUnitScale;
@@ -423,7 +423,7 @@ void initPhysics(bool /*interactive*/)
 
 	gMaterial = gPhysics->createMaterial(0.5f, 0.5f, 0.2f);
 
-	gConstraints = new physx::PxArray<PxConstraint*>();
+	gConstraints = new ev4sio_physx::PxArray<PxConstraint*>();
 
 	const bool useGroundMesh = true;	// Use a triangle mesh or a plane for the ground
 	if(useGroundMesh)
@@ -535,7 +535,7 @@ void stepPhysics(bool /*interactive*/)
 	#if WITH_PERSISTENCY
 		if(gFrameIndex==1)
 		{
-			const PxBpFilterGroup group = a < nbDynamics ? PxGetBroadPhaseDynamicFilterGroup(a) : PxGetBroadPhaseStaticFilterGroup();
+			const PxBpFilterGroup group = a < nbDynamics ? ev4sio_PxGetBroadPhaseDynamicFilterGroup(a) : ev4sio_PxGetBroadPhaseStaticFilterGroup();
 			gAABBManager->addObject(a, shapeBounds[a], group);
 		}
 		else if(a < nbDynamics)
@@ -546,9 +546,9 @@ void stepPhysics(bool /*interactive*/)
 		handles[a] = a;
 		distances[a]= 0.0f;
 		if(a < nbDynamics)
-			groups[a] = PxGetBroadPhaseDynamicFilterGroup(a);
+			groups[a] = ev4sio_PxGetBroadPhaseDynamicFilterGroup(a);
 		else
-			groups[a] = PxGetBroadPhaseStaticFilterGroup();
+			groups[a] = ev4sio_PxGetBroadPhaseStaticFilterGroup();
 	#endif
 #endif
 	}
@@ -593,7 +593,7 @@ void stepPhysics(bool /*interactive*/)
 		}
 	#else
 		PxBroadPhaseDesc bpDesc(PxBroadPhaseType::eABP);
-		PxBroadPhase* bp = PxCreateBroadPhase(bpDesc);
+		PxBroadPhase* bp = ev4sio_PxCreateBroadPhase(bpDesc);
 
 		const PxBroadPhaseUpdateData updateData(handles.begin(), totalActors, NULL, 0, NULL, 0, shapeBounds.begin(), groups.begin(), distances.begin(), totalActors);
 		bp->update(results, updateData);
@@ -743,10 +743,10 @@ void stepPhysics(bool /*interactive*/)
 		data.maxAngularVelocitySq		= 7.f*7.f;
 
 #if USE_TGS
-		physx::immediate::PxConstructSolverBodiesTGS(&data, &bodies[a], &txInertia[a], &bodyData[a], 1, gravity, dt);
+		ev4sio_physx::immediate::PxConstructSolverBodiesTGS(&data, &bodies[a], &txInertia[a], &bodyData[a], 1, gravity, dt);
 		globalPoses[a] = data.body2World;
 #else
-		physx::immediate::PxConstructSolverBodies(&data, &bodyData[a], 1, gravity, dt);
+		ev4sio_physx::immediate::PxConstructSolverBodies(&data, &bodyData[a], 1, gravity, dt);
 #endif
 		dyn->userData = reinterpret_cast<void*>(size_t(a));
 	}
@@ -756,10 +756,10 @@ void stepPhysics(bool /*interactive*/)
 	{
 		PxRigidStatic* sta = actors[a]->is<PxRigidStatic>();
 #if USE_TGS
-		physx::immediate::PxConstructStaticSolverBodyTGS(sta->getGlobalPose(), bodies[a], txInertia[a], bodyData[a]);
+		ev4sio_physx::immediate::PxConstructStaticSolverBodyTGS(sta->getGlobalPose(), bodies[a], txInertia[a], bodyData[a]);
 		globalPoses[a] = sta->getGlobalPose();
 #else
-		physx::immediate::PxConstructStaticSolverBody(sta->getGlobalPose(), bodyData[a]);
+		ev4sio_physx::immediate::PxConstructStaticSolverBody(sta->getGlobalPose(), bodyData[a]);
 #endif
 		sta->userData = reinterpret_cast<void*>(size_t(a));
 	}
@@ -831,22 +831,22 @@ void stepPhysics(bool /*interactive*/)
 
 #if BATCH_CONTACTS
 	PxArray<PxSolverConstraintDesc> tempOrderedDescs(descs.size());
-	physx::PxArray<PxSolverConstraintDesc>& orderedDescs = tempOrderedDescs;
+	ev4sio_physx::PxArray<PxSolverConstraintDesc>& orderedDescs = tempOrderedDescs;
 	#if USE_TGS
 	//1 batch the contacts
-	const PxU32 nbContactHeaders = physx::immediate::PxBatchConstraintsTGS(descs.begin(), activeContactPairs.size(), bodies.begin(), nbDynamics, headers.begin(), orderedDescs.begin());
+	const PxU32 nbContactHeaders = ev4sio_physx::immediate::PxBatchConstraintsTGS(descs.begin(), activeContactPairs.size(), bodies.begin(), nbDynamics, headers.begin(), orderedDescs.begin());
 
 	//2 batch the joints...
-	const PxU32 nbJointHeaders = physx::immediate::PxBatchConstraintsTGS(descs.begin() + activeContactPairs.size(), gConstraints->size(), bodies.begin(), nbDynamics, headers.begin() + nbContactHeaders, orderedDescs.begin() + activeContactPairs.size());
+	const PxU32 nbJointHeaders = ev4sio_physx::immediate::PxBatchConstraintsTGS(descs.begin() + activeContactPairs.size(), gConstraints->size(), bodies.begin(), nbDynamics, headers.begin() + nbContactHeaders, orderedDescs.begin() + activeContactPairs.size());
 	#else
 	//1 batch the contacts
-	const PxU32 nbContactHeaders = physx::immediate::PxBatchConstraints(descs.begin(), activeContactPairs.size(), bodies.begin(), nbDynamics, headers.begin(), orderedDescs.begin());
+	const PxU32 nbContactHeaders = ev4sio_physx::immediate::PxBatchConstraints(descs.begin(), activeContactPairs.size(), bodies.begin(), nbDynamics, headers.begin(), orderedDescs.begin());
 
 	//2 batch the joints...
-	const PxU32 nbJointHeaders = physx::immediate::PxBatchConstraints(descs.begin() + activeContactPairs.size(), gConstraints->size(), bodies.begin(), nbDynamics, headers.begin() + nbContactHeaders, orderedDescs.begin() + activeContactPairs.size());
+	const PxU32 nbJointHeaders = ev4sio_physx::immediate::PxBatchConstraints(descs.begin() + activeContactPairs.size(), gConstraints->size(), bodies.begin(), nbDynamics, headers.begin() + nbContactHeaders, orderedDescs.begin() + activeContactPairs.size());
 	#endif
 #else	
-	physx::PxArray<PxSolverConstraintDesc>& orderedDescs = descs;
+	ev4sio_physx::PxArray<PxSolverConstraintDesc>& orderedDescs = descs;
 	
 	//We are bypassing the constraint batching so we create dummy PxConstraintBatchHeaders
 	const PxU32 nbContactHeaders = activeContactPairs.size();

@@ -32,9 +32,9 @@
 
 #include "DyArticulationTendon.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Sc
+namespace ev4sio_Sc
 {
 	class ArticulationSpatialTendonSim;
 	class ArticulationFixedTendonSim;
@@ -141,7 +141,7 @@ namespace Sc
 	};
 
 
-}//namespace Sc
-} //namespace physx
+}//namespace ev4sio_Sc
+} //namespace ev4sio_physx
 
 #endif

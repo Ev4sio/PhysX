@@ -40,7 +40,7 @@
 	PX_CATCH_UNDEFINED_ENABLE_DEBUG_VISUALIZATION
 #endif
 
-namespace physx
+namespace ev4sio_physx
 {
 	class NpScene;
 	class NpArticulationLink;
@@ -104,7 +104,7 @@ namespace physx
 		virtual		const char*			getName() const	PX_OVERRIDE	PX_FINAL;
 		//~PxArticulationJointReducedCoordinate
 
-		PX_FORCE_INLINE	Sc::ArticulationJointCore&	getCore()		{ return mCore; }
+		PX_FORCE_INLINE	ev4sio_Sc::ArticulationJointCore&	getCore()		{ return mCore; }
 		static PX_FORCE_INLINE size_t				getCoreOffset()	{ return PX_OFFSET_OF_RT(NpArticulationJointReducedCoordinate, mCore); }
 
 		PX_INLINE void						scSetParentPose(const PxTransform& v)
@@ -214,7 +214,7 @@ namespace physx
 		PX_INLINE	const NpArticulationLink&		getChild() const { return *mChild; }
 		PX_INLINE	NpArticulationLink&				getChild() { return *mChild; }
 
-		Sc::ArticulationJointCore					mCore;
+		ev4sio_Sc::ArticulationJointCore					mCore;
 		NpArticulationLink*							mParent;
 		NpArticulationLink*							mChild;
 		const char*									mName;

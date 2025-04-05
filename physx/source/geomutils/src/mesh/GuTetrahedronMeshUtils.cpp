@@ -27,9 +27,9 @@
 #include "GuTetrahedronMeshUtils.h"
 #include "GuDistancePointTetrahedron.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Gu
+namespace ev4sio_Gu
 {
 
 void convertDeformableVolumeCollisionToSimMeshTets(const PxTetrahedronMesh& simMesh, const DeformableVolumeAuxData& simState, const BVTetrahedronMesh& collisionMesh,

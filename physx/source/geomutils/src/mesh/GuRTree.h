@@ -45,7 +45,7 @@
 #define RTREE_N 4 // changing this number will affect the mesh format
 PX_COMPILE_TIME_ASSERT(RTREE_N == 4 || RTREE_N == 8); // using the low 5 bits for storage of index(childPtr) for dynamic rtree
 
-namespace physx
+namespace ev4sio_physx
 {
 
 
@@ -54,7 +54,7 @@ namespace physx
 #pragma warning(disable: 4324)	// Padding was added at the end of a structure because of a __declspec(align) value.
 #endif
 
-namespace Gu {
+namespace ev4sio_Gu {
 	
 	class Box;
 	struct RTreePage;
@@ -151,14 +151,14 @@ namespace Gu {
 						const PxVec3& boxMin, const PxVec3& boxMax,
 						const PxU32 maxResultsPerBlock, PxU32* resultsBlockBuf, Callback* processResultsBlockCallback) const;
 		void		traverseOBB(
-						const Gu::Box& obb,
+						const ev4sio_Gu::Box& obb,
 						const PxU32 maxResultsPerBlock, PxU32* resultsBlockBuf, Callback* processResultsBlockCallback) const;
 
 		template <int inflate>
 		void		traverseRay(
 						const PxVec3& rayOrigin, const PxVec3& rayDir, // dir doesn't have to be normalized and is B-A for raySegment
 						const PxU32 maxResults, PxU32* resultsPtr,
-						Gu::RTree::CallbackRaycast* callback,
+						ev4sio_Gu::RTree::CallbackRaycast* callback,
 						const PxVec3* inflateAABBs, // inflate tree's AABBs by this amount. This function turns into AABB sweep.
 						PxF32 maxT = PX_MAX_F32 // maximum ray t parameter, p(t)=origin+t*dir; use 1.0f for ray segment
 						) const;
@@ -204,10 +204,10 @@ namespace Gu {
 #if PX_SUPPORT_EXTERN_TEMPLATE
 	//explicit template instantiation declaration
 	extern template
-	void RTree::traverseRay<0>(const PxVec3&, const PxVec3&, const PxU32, PxU32*, Gu::RTree::CallbackRaycast*, const PxVec3*, PxF32) const;
+	void RTree::traverseRay<0>(const PxVec3&, const PxVec3&, const PxU32, PxU32*, ev4sio_Gu::RTree::CallbackRaycast*, const PxVec3*, PxF32) const;
 	
 	extern template
-	void RTree::traverseRay<1>(const PxVec3&, const PxVec3&, const PxU32, PxU32*, Gu::RTree::CallbackRaycast*, const PxVec3*, PxF32) const;
+	void RTree::traverseRay<1>(const PxVec3&, const PxVec3&, const PxU32, PxU32*, ev4sio_Gu::RTree::CallbackRaycast*, const PxVec3*, PxF32) const;
 #endif
 
 #if PX_VC
@@ -229,7 +229,7 @@ namespace Gu {
 	{
 		if ((mFlags & USER_ALLOCATED) == 0 && mPages)
 		{
-			physx::PxAlignedAllocator<128>().deallocate(mPages);
+			ev4sio_physx::PxAlignedAllocator<128>().deallocate(mPages);
 			mPages = NULL;
 		}
 	}
@@ -265,7 +265,7 @@ namespace Gu {
 
 	PX_COMPILE_TIME_ASSERT(sizeof(LeafTriangles)==4); // RTree has space for 4 bytes
 
-} // namespace Gu
+} // namespace ev4sio_Gu
 
 }
 

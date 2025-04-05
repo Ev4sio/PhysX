@@ -38,7 +38,7 @@
 #include "PxCudaTypes.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -108,7 +108,7 @@ public:
      *
      * If the user provides a context for the PxCudaContextManager, the context
      * _must_ have either been created on the GPU ordinal returned by
-     * PxGetSuggestedCudaDeviceOrdinal() or on your graphics device.
+     * ev4sio_PxGetSuggestedCudaDeviceOrdinal() or on your graphics device.
      */
 	CUcontext*	ctx;
 
@@ -547,7 +547,7 @@ protected:
 };
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif // PX_SUPPORT_GPU_PHYSX

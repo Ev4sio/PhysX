@@ -37,8 +37,8 @@
 #include "GuCenterExtents.h"
 #include "GuBV4Build.h"
 
-using namespace physx;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
 
 #include "foundation/PxVecMath.h"
 using namespace aos;
@@ -653,7 +653,7 @@ static bool gReorderCallback(const AABBTreeNode* current, PxU32 /*depth*/, void*
 }
 
 
-bool Gu::BuildBV32Ex(BV32Tree& tree, SourceMeshBase& mesh, float epsilon, PxU32 nbPrimitivesPerLeaf)
+bool ev4sio_Gu::BuildBV32Ex(BV32Tree& tree, SourceMeshBase& mesh, float epsilon, PxU32 nbPrimitivesPerLeaf)
 {
 	const PxU32 nbPrimitives = mesh.getNbPrimitives();
 

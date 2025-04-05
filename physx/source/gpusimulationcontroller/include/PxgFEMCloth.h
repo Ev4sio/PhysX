@@ -37,9 +37,9 @@
 #include "foundation/PxVec2.h"
 #include "foundation/PxVec4.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Gu
+namespace ev4sio_Gu
 {
 class TriangleMesh;
 };
@@ -336,10 +336,10 @@ class PxgFEMClothBuffer : public PxUserAllocated
 class PxgFEMClothUtil
 {
   public:
-	static PxU32 computeTriangleMeshByteSize(const Gu::TriangleMesh* triangleMesh);
-	static PxU32 loadOutTriangleMesh(void* mem, const Gu::TriangleMesh* triangleMesh);
+	static PxU32 computeTriangleMeshByteSize(const ev4sio_Gu::TriangleMesh* triangleMesh);
+	static PxU32 loadOutTriangleMesh(void* mem, const ev4sio_Gu::TriangleMesh* triangleMesh);
 	static PxU32 initialTriangleData(PxgFEMCloth& femCloth, PxArray<uint2>& trianglePairTriangleIndices,
-									 PxArray<uint4>& trianglePairVertexIndices, const Gu::TriangleMesh* triangleMesh,
+									 PxArray<uint4>& trianglePairVertexIndices, const ev4sio_Gu::TriangleMesh* triangleMesh,
 									 const PxU16* materialHandles, PxsDeformableSurfaceMaterialData* materials, const PxU32 nbMaterials);
 	static void categorizeClothConstraints(PxArray<PxU32>& sharedTrianglePairs, PxArray<PxU32>& nonSharedTriangles,
 										   PxArray<PxU32>& nonSharedTrianglePairs, PxgFEMCloth& femCloth,
@@ -356,7 +356,7 @@ class PxgFEMClothUtil
 
 	static void computeNonSharedTriangleConfiguration(PxgFEMCloth& femCloth, const PxArray<PxU32>& orderedNonSharedTriangles,
 													  const PxArray<PxU32>& activeTriangleIndices,
-													  const Gu::TriangleMesh* const triangleMesh);
+													  const ev4sio_Gu::TriangleMesh* const triangleMesh);
 
 	/*******************************************************************************
 	 *
@@ -376,11 +376,11 @@ class PxgFEMClothUtil
 
 	static void computeTrianglePairConfiguration(PxgFEMCloth& femCloth, PxArray<uint2>& trianglePairTriangleIndices,
 												 const PxArray<uint4>& trianglePairVertexIndices, const PxArray<PxU32>& orderedTrianglePairs,
-												 const PxArray<PxU32>& activeTrianglePairIndices, const Gu::TriangleMesh* const triangleMesh,
+												 const PxArray<PxU32>& activeTrianglePairIndices, const ev4sio_Gu::TriangleMesh* const triangleMesh,
 												 const PxsDeformableSurfaceMaterialData* materials, bool zeroRestBendingAngle,
 												 bool isSharedPartition);
 };
 
-} // namespace physx
+} // namespace ev4sio_physx
 
 #endif

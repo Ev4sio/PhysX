@@ -34,11 +34,11 @@
 #include "PxFiltering.h"
 #include "PxShape.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 class PxShape;	// PT: TODO: fw decl of higher-level class isn't great
 
-namespace Sc
+namespace ev4sio_Sc
 {
 	class ShapeSim;
 
@@ -124,7 +124,7 @@ namespace Sc
 						const char*					mName;		// PT: moved here from NpShape to fill padding bytes
 	};
 
-} // namespace Sc
+} // namespace ev4sio_Sc
 
 
 }

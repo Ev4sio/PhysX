@@ -38,9 +38,9 @@
 
 #define	GJK_SEPERATING_AXIS_VALIDATE 0
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Gu
+namespace ev4sio_Gu
 {
 
 	class ConvexV;

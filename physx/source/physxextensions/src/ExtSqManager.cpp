@@ -34,9 +34,9 @@
 	#define SQ_DEBUG_VIZ_COMPOUND_COLOR	PxU32(PxDebugColor::eARGB_MAGENTA)
 #include "GuBounds.h"
 
-using namespace physx;
-using namespace Sq;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Sq;
+using namespace ev4sio_Gu;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -46,7 +46,7 @@ using namespace Gu;
 #include "GuBVH.h"
 #include "foundation/PxAlloca.h"
 
-// PT: this is a customized version of physx::Sq::PrunerManager that supports more than 2 hardcoded pruners.
+// PT: this is a customized version of ev4sio_physx::ev4sio_Sq::PrunerManager that supports more than 2 hardcoded pruners.
 // It might not be possible to support the whole PxSceneQuerySystem API with an arbitrary number of pruners.
 
 ExtPrunerManager::ExtPrunerManager(PxU64 contextID, float inflation, const Adapter& adapter, bool usesTreeOfPruners) :
@@ -97,7 +97,7 @@ void ExtPrunerManager::preallocate(PxU32 prunerIndex, PxU32 nbShapes)
 	{
 		if(prunerIndex>=mPrunerExt.size())
 		{
-			PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "Invalid pruner index");
+			ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "Invalid pruner index");
 			return;
 		}
 
@@ -121,7 +121,7 @@ PrunerHandle ExtPrunerManager::addPrunerShape(const PrunerPayload& payload, PxU3
 {
 	if(compoundId==INVALID_COMPOUND_ID && prunerIndex>=mPrunerExt.size())
 	{
-		PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "Invalid pruner index");
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "Invalid pruner index");
 		return INVALID_PRUNERHANDLE;
 	}
 
@@ -151,7 +151,7 @@ void ExtPrunerManager::removePrunerShape(PxU32 prunerIndex, bool dynamic, Pruner
 {
 	if(compoundId==INVALID_COMPOUND_ID && prunerIndex>=mPrunerExt.size())
 	{
-		PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "Invalid pruner index");
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "Invalid pruner index");
 		return;
 	}
 
@@ -179,7 +179,7 @@ void ExtPrunerManager::markForUpdate(PxU32 prunerIndex, bool dynamic, PrunerComp
 { 
 	if(compoundId==INVALID_COMPOUND_ID && prunerIndex>=mPrunerExt.size())
 	{
-		PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "Invalid pruner index");
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "Invalid pruner index");
 		return;
 	}
 
@@ -319,7 +319,7 @@ void ExtPrunerManager::forceRebuildDynamicTree(PxU32 prunerIndex)
 
 	if(prunerIndex>=mPrunerExt.size())
 	{
-		PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "Invalid pruner index");
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "Invalid pruner index");
 		return;
 	}
 
@@ -341,7 +341,7 @@ void* ExtPrunerManager::prepareSceneQueriesUpdate(PxU32 prunerIndex)
 
 	if(prunerIndex>=mPrunerExt.size())
 	{
-		PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "Invalid pruner index");
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "Invalid pruner index");
 		return NULL;
 	}
 
@@ -388,7 +388,7 @@ void ExtPrunerManager::visualize(PxU32 prunerIndex, PxRenderOutput& out) const
 	{
 		if(prunerIndex>=mPrunerExt.size())
 		{
-			PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "Invalid pruner index");
+			ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "Invalid pruner index");
 			return;
 		}
 
@@ -429,7 +429,7 @@ void ExtPrunerManager::shiftOrigin(const PxVec3& shift)
 
 void ExtPrunerManager::addCompoundShape(const PxBVH& pxbvh, PrunerCompoundId compoundId, const PxTransform& compoundTransform, PrunerHandle* prunerHandle, const PrunerPayload* payloads, const PxTransform* transforms, bool isDynamic)
 {
-	const Gu::BVH& bvh = static_cast<const Gu::BVH&>(pxbvh);
+	const ev4sio_Gu::BVH& bvh = static_cast<const ev4sio_Gu::BVH&>(pxbvh);
 
 	PX_ASSERT(mCompoundPrunerExt.mPruner);
 	mCompoundPrunerExt.mPruner->addCompound(prunerHandle, bvh, compoundId, compoundTransform, isDynamic, payloads, transforms);
@@ -460,7 +460,7 @@ void ExtPrunerManager::sync(PxU32 prunerIndex, const PrunerHandle* handles, cons
 
 	if(prunerIndex>=mPrunerExt.size())
 	{
-		PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "Invalid pruner index");
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "Invalid pruner index");
 		return;
 	}
 

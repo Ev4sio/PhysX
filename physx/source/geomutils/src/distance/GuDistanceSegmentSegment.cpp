@@ -28,14 +28,14 @@
 
 #include "GuDistanceSegmentSegment.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 using namespace aos;
 
 static const float ZERO_TOLERANCE = 1e-06f;
 
 // S0 = origin + extent * dir;
 // S1 = origin - extent * dir;
-PxReal Gu::distanceSegmentSegmentSquared(	const PxVec3& origin0, const PxVec3& dir0, PxReal extent0,
+PxReal ev4sio_Gu::distanceSegmentSegmentSquared(	const PxVec3& origin0, const PxVec3& dir0, PxReal extent0,
 											const PxVec3& origin1, const PxVec3& dir1, PxReal extent1,
 											PxReal* param0, PxReal* param1)
 {
@@ -332,10 +332,10 @@ PxReal Gu::distanceSegmentSegmentSquared(	const PxVec3& origin0, const PxVec3& d
 		*param1 = fS1;
 
 	// account for numerical round-off error
-	return physx::intrinsics::selectMax(0.0f, fSqrDist);
+	return ev4sio_physx::intrinsics::selectMax(0.0f, fSqrDist);
 }
 
-PxReal Gu::distanceSegmentSegmentSquared(	const PxVec3& origin0, const PxVec3& extent0,
+PxReal ev4sio_Gu::distanceSegmentSegmentSquared(	const PxVec3& origin0, const PxVec3& extent0,
 											const PxVec3& origin1, const PxVec3& extent1,
 											PxReal* param0, 
 											PxReal* param1)
@@ -408,7 +408,7 @@ PxReal Gu::distanceSegmentSegmentSquared(	const PxVec3& origin0, const PxVec3& e
 	d2 is the direction vector(q2 - p2) 
 */
 
-FloatV Gu::distanceSegmentSegmentSquared(	const Vec3VArg p1, 
+FloatV ev4sio_Gu::distanceSegmentSegmentSquared(	const Vec3VArg p1, 
 											const Vec3VArg d1,
 											const Vec3VArg p2, 
 											const Vec3VArg d2,
@@ -477,7 +477,7 @@ FloatV Gu::distanceSegmentSegmentSquared(	const Vec3VArg p1,
 	segment (p, d) and segment (p22, d22)
 	segment (p, d) and segment (p32, d32)
 */
-Vec4V Gu::distanceSegmentSegmentSquared4(	const Vec3VArg p, const Vec3VArg d0, 
+Vec4V ev4sio_Gu::distanceSegmentSegmentSquared4(	const Vec3VArg p, const Vec3VArg d0, 
 											const Vec3VArg p02, const Vec3VArg d02, 
 											const Vec3VArg p12, const Vec3VArg d12, 
 											const Vec3VArg p22, const Vec3VArg d22,

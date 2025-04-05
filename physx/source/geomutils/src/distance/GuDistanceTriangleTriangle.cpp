@@ -29,13 +29,13 @@
 #include "GuDistanceTriangleTriangle.h"
 #include "foundation/PxVecMath.h"
 
-using namespace physx;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
 using namespace aos;
 
 void edgeEdgeDist(PxVec3& x, PxVec3& y, const PxVec3& p, const PxVec3& a, const PxVec3& q, const PxVec3& b);
 
-float Gu::distanceTriangleTriangleSquared(PxVec3& cp, PxVec3& cq, const PxVec3p p[3], const PxVec3p q[3])
+float ev4sio_Gu::distanceTriangleTriangleSquared(PxVec3& cp, PxVec3& cq, const PxVec3p p[3], const PxVec3p q[3])
 {
 	PxVec3p Sv[3];
 	V4StoreU(V4Sub(V4LoadU(&p[1].x), V4LoadU(&p[0].x)), &Sv[0].x);

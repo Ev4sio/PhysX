@@ -46,18 +46,18 @@
 #include "PxsSimulationController.h"
 #include "DyIslandManager.h"
 
-using namespace physx;
-using namespace Dy;
-using namespace Sc;
-using namespace IG;
+using namespace ev4sio_physx;
+using namespace ev4sio_Dy;
+using namespace ev4sio_Sc;
+using namespace ev4sio_IG;
 
-ArticulationSim* Sc::getArticulationSim(const IslandSim& islandSim, PxNodeIndex nodeIndex)
+ArticulationSim* ev4sio_Sc::getArticulationSim(const IslandSim& islandSim, PxNodeIndex nodeIndex)
 {
 	void* userData = getArticulationFromIG(islandSim, nodeIndex)->getUserData();
 	return reinterpret_cast<ArticulationSim*>(userData);
 }
 
-Sc::ArticulationSim::ArticulationSim(ArticulationCore& core, Scene& scene, BodyCore& root) : 
+ev4sio_Sc::ArticulationSim::ArticulationSim(ArticulationCore& core, Scene& scene, BodyCore& root) : 
 	mLLArticulation				(NULL),
 	mScene						(scene),
 	mCore						(core),
@@ -73,11 +73,11 @@ Sc::ArticulationSim::ArticulationSim(ArticulationCore& core, Scene& scene, BodyC
 
 	mLLArticulation = mScene.createLLArticulation(this);
 	
-	mIslandNodeIndex = scene.getSimpleIslandManager()->addNode(false, false, IG::Node::eARTICULATION_TYPE, mLLArticulation);
+	mIslandNodeIndex = scene.getSimpleIslandManager()->addNode(false, false, ev4sio_IG::Node::eARTICULATION_TYPE, mLLArticulation);
 
 	if(!mLLArticulation)
 	{
-		PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "Articulation: could not allocate low-level resources.");
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "Articulation: could not allocate low-level resources.");
 		return;
 	}
 
@@ -93,7 +93,7 @@ Sc::ArticulationSim::ArticulationSim(ArticulationCore& core, Scene& scene, BodyC
 	//mLLArticulation->onUpdateSolverDesc();
 }
 
-Sc::ArticulationSim::~ArticulationSim()
+ev4sio_Sc::ArticulationSim::~ArticulationSim()
 {
 	if (!mLLArticulation)
 		return;
@@ -105,7 +105,7 @@ Sc::ArticulationSim::~ArticulationSim()
 	mCore.setSim(NULL);
 }
 
-PxU32 Sc::ArticulationSim::findBodyIndex(BodySim& body) const
+PxU32 ev4sio_Sc::ArticulationSim::findBodyIndex(BodySim& body) const
 {
 	for(PxU32 i=0; i<mBodies.size(); i++)
 	{
@@ -116,7 +116,7 @@ PxU32 Sc::ArticulationSim::findBodyIndex(BodySim& body) const
 	return 0x80000000;
 }
 
-void Sc::ArticulationSim::addLoopConstraint(ConstraintSim* constraintSim)
+void ev4sio_Sc::ArticulationSim::addLoopConstraint(ConstraintSim* constraintSim)
 {
 	const PxU32 size = mLoopConstraints.size();
 	if (size < mLoopConstraints.size())
@@ -141,9 +141,9 @@ void Sc::ArticulationSim::addLoopConstraint(ConstraintSim* constraintSim)
 	mLoopConstraints.pushBack(lConstraint);
 }
 
-void Sc::ArticulationSim::removeLoopConstraint(ConstraintSim* constraintSim)
+void ev4sio_Sc::ArticulationSim::removeLoopConstraint(ConstraintSim* constraintSim)
 {
-	Dy::Constraint* constraint = &constraintSim->getLowLevelConstraint();
+	ev4sio_Dy::Constraint* constraint = &constraintSim->getLowLevelConstraint();
 
 	const PxU32 size = mLoopConstraints.size();
 	PxU32 index = 0;
@@ -154,13 +154,13 @@ void Sc::ArticulationSim::removeLoopConstraint(ConstraintSim* constraintSim)
 		mLoopConstraints.replaceWithLast(index);
 }
 
-void Sc::ArticulationSim::updateCached(PxBitMapPinned* shapeChangedMap)
+void ev4sio_Sc::ArticulationSim::updateCached(PxBitMapPinned* shapeChangedMap)
 {
 	for(PxU32 i=0; i<mBodies.size(); i++)
 		mBodies[i]->updateCached(shapeChangedMap);
 }
 
-void Sc::ArticulationSim::markShapesUpdated(PxBitMapPinned* shapeChangedMap)
+void ev4sio_Sc::ArticulationSim::markShapesUpdated(PxBitMapPinned* shapeChangedMap)
 {
 	for (PxU32 a = 0; a < mBodies.size(); ++a)
 	{
@@ -175,7 +175,7 @@ void Sc::ArticulationSim::markShapesUpdated(PxBitMapPinned* shapeChangedMap)
 	}
 }
 
-void Sc::ArticulationSim::addBody(BodySim& body, BodySim* parent, ArticulationJointSim* joint)
+void ev4sio_Sc::ArticulationSim::addBody(BodySim& body, BodySim* parent, ArticulationJointSim* joint)
 {
 	mBodies.pushBack(&body);
 	mJoints.pushBack(joint);
@@ -233,7 +233,7 @@ void Sc::ArticulationSim::addBody(BodySim& body, BodySim* parent, ArticulationJo
 	body.setArticulation(this, wakeCounter, shouldSleep, index);
 }
 
-void Sc::ArticulationSim::removeBody(BodySim& body)
+void ev4sio_Sc::ArticulationSim::removeBody(BodySim& body)
 {
 	for (PxU32 i = 0; i < mBodies.size(); ++i)
 	{
@@ -246,41 +246,41 @@ void Sc::ArticulationSim::removeBody(BodySim& body)
 	}
 }
 
-void Sc::ArticulationSim::addTendon(ArticulationSpatialTendonSim* const tendonSim)
+void ev4sio_Sc::ArticulationSim::addTendon(ArticulationSpatialTendonSim* const tendonSim)
 {
 	tendonSim->mArtiSim = this;
 
 	const PxU32 index = mSpatialTendons.size();
-	Dy::ArticulationSpatialTendon& llTendon = tendonSim->mLLTendon;
+	ev4sio_Dy::ArticulationSpatialTendon& llTendon = tendonSim->mLLTendon;
 	llTendon.setTendonIndex(index);
 	mSpatialTendons.pushBack(&llTendon);
 
 	//mSpatialTendons.pushBack(&tendonSim->mLLTendon);
 }
 
-void Sc::ArticulationSim::addTendon(ArticulationFixedTendonSim* const tendonSim)
+void ev4sio_Sc::ArticulationSim::addTendon(ArticulationFixedTendonSim* const tendonSim)
 {
 	tendonSim->mArtiSim = this;
 	
 	const PxU32 index = mFixedTendons.size();
-	Dy::ArticulationFixedTendon& llTendon = tendonSim->mLLTendon;
+	ev4sio_Dy::ArticulationFixedTendon& llTendon = tendonSim->mLLTendon;
 	llTendon.setTendonIndex(index);
 	mFixedTendons.pushBack(&llTendon);
 }
 
-void Sc::ArticulationSim::addMimicJoint(ArticulationMimicJointSim* const mimicJointSim, const PxU32 linkA, const PxU32 linkB)
+void ev4sio_Sc::ArticulationSim::addMimicJoint(ArticulationMimicJointSim* const mimicJointSim, const PxU32 linkA, const PxU32 linkB)
 {
 	const PxU32 index = mMimicJoints.size();
 	mimicJointSim->setLowLevelIndex(index);
 	mimicJointSim->mArticulationSim = this;
 
-	Dy::ArticulationMimicJointCore& llMimicJoint = mimicJointSim->getLLMimicJoint();
+	ev4sio_Dy::ArticulationMimicJointCore& llMimicJoint = mimicJointSim->getLLMimicJoint();
 	llMimicJoint.linkA = linkA;
 	llMimicJoint.linkB = linkB;
 	mMimicJoints.pushBack(&llMimicJoint);
 }
 
-void Sc::ArticulationSim::createLLStructure()
+void ev4sio_Sc::ArticulationSim::createLLStructure()
 {
 	if(!mBodies.size())
 		return;
@@ -296,14 +296,14 @@ void Sc::ArticulationSim::createLLStructure()
 	mIsLLArticulationInitialized = true;
 }
 
-void Sc::ArticulationSim::initializeConfiguration()
+void ev4sio_Sc::ArticulationSim::initializeConfiguration()
 {
-	Dy::ArticulationData& data = mLLArticulation->getArticulationData();
+	ev4sio_Dy::ArticulationData& data = mLLArticulation->getArticulationData();
 	mLLArticulation->jcalc(data);
 	mLLArticulation->mJcalcDirty = false;
 
-	Dy::ArticulationLink* links = data.getLinks();
-	Dy::ArticulationJointCoreData* jointData = data.getJointData();
+	ev4sio_Dy::ArticulationLink* links = data.getLinks();
+	ev4sio_Dy::ArticulationJointCoreData* jointData = data.getJointData();
 	const PxU32 linkCount = data.getLinkCount();
 
 	PxReal* jointVelocites = data.getJointVelocities();
@@ -313,10 +313,10 @@ void Sc::ArticulationSim::initializeConfiguration()
 	
 	for (PxU32 linkID = 1; linkID < linkCount; ++linkID)
 	{
-		Dy::ArticulationLink& link = links[linkID];
+		ev4sio_Dy::ArticulationLink& link = links[linkID];
 
-		Dy::ArticulationJointCore* joint = link.inboundJoint;
-		Dy::ArticulationJointCoreData& jointDatum = jointData[linkID];
+		ev4sio_Dy::ArticulationJointCore* joint = link.inboundJoint;
+		ev4sio_Dy::ArticulationJointCoreData& jointDatum = jointData[linkID];
 
 		PxReal* jPositions = &jointPositions[jointDatum.jointOffset];
 		PxReal* jVelocites = &jointVelocites[jointDatum.jointOffset];
@@ -333,19 +333,19 @@ void Sc::ArticulationSim::initializeConfiguration()
 		}
 	}
 
-	PxU32 flags = (Dy::ArticulationDirtyFlag::eDIRTY_POSITIONS |
-				  Dy::ArticulationDirtyFlag::eDIRTY_VELOCITIES |
-				  Dy::ArticulationDirtyFlag::eDIRTY_JOINT_TARGET_POS |
-				  Dy::ArticulationDirtyFlag::eDIRTY_JOINT_TARGET_VEL);
+	PxU32 flags = (ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_POSITIONS |
+				  ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_VELOCITIES |
+				  ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_JOINT_TARGET_POS |
+				  ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_JOINT_TARGET_VEL);
 
-	mLLArticulation->raiseGPUDirtyFlag(Dy::ArticulationDirtyFlag::Enum(flags));
+	mLLArticulation->raiseGPUDirtyFlag(ev4sio_Dy::ArticulationDirtyFlag::Enum(flags));
 
 	mLLArticulation->initPathToRoot();
 }
 
-void Sc::ArticulationSim::updateKinematic(PxArticulationKinematicFlags flags)
+void ev4sio_Sc::ArticulationSim::updateKinematic(PxArticulationKinematicFlags flags)
 {
-	Dy::ArticulationData& data = mLLArticulation->getArticulationData();
+	ev4sio_Dy::ArticulationData& data = mLLArticulation->getArticulationData();
 	if (mLLArticulation->mJcalcDirty)
 	{
 		mLLArticulation->jcalc(data);
@@ -354,27 +354,27 @@ void Sc::ArticulationSim::updateKinematic(PxArticulationKinematicFlags flags)
 
 	if ((flags & PxArticulationKinematicFlag::ePOSITION))
 	{
-		mLLArticulation->raiseGPUDirtyFlag(Dy::ArticulationDirtyFlag::eDIRTY_POSITIONS);
+		mLLArticulation->raiseGPUDirtyFlag(ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_POSITIONS);
 		mLLArticulation->teleportLinks(data);
 	}
 
 	if ((flags & PxArticulationKinematicFlag::ePOSITION) ||
 		(flags & PxArticulationKinematicFlag::eVELOCITY))
 	{
-		mLLArticulation->raiseGPUDirtyFlag(Dy::ArticulationDirtyFlag::eDIRTY_VELOCITIES);
+		mLLArticulation->raiseGPUDirtyFlag(ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_VELOCITIES);
 		mLLArticulation->computeLinkVelocities(data);
 	}
 }
 
-void Sc::ArticulationSim::copyJointStatus(const PxU32 linkID)
+void ev4sio_Sc::ArticulationSim::copyJointStatus(const PxU32 linkID)
 {
-	Dy::ArticulationData& data = mLLArticulation->getArticulationData();
-	Dy::ArticulationLink* links = data.getLinks();
-	Dy::ArticulationJointCoreData* jointData = data.getJointData();
+	ev4sio_Dy::ArticulationData& data = mLLArticulation->getArticulationData();
+	ev4sio_Dy::ArticulationLink* links = data.getLinks();
+	ev4sio_Dy::ArticulationJointCoreData* jointData = data.getJointData();
 
-	Dy::ArticulationLink& link = links[linkID];
-	Dy::ArticulationJointCore* joint = link.inboundJoint;
-	Dy::ArticulationJointCoreData& jointDatum = jointData[linkID];
+	ev4sio_Dy::ArticulationLink& link = links[linkID];
+	ev4sio_Dy::ArticulationJointCore* joint = link.inboundJoint;
+	ev4sio_Dy::ArticulationJointCoreData& jointDatum = jointData[linkID];
 
 	PxReal* jointVelocites = data.getJointVelocities();
 	PxReal* jointPositions = data.getJointPositions();
@@ -391,7 +391,7 @@ void Sc::ArticulationSim::copyJointStatus(const PxU32 linkID)
 
 }
 
-void Sc::ArticulationSim::updateCCDLinks(PxArray<BodySim*>& sims)
+void ev4sio_Sc::ArticulationSim::updateCCDLinks(PxArray<BodySim*>& sims)
 {
 	
 	for (PxU32 a = 0; a < mBodies.size(); ++a)
@@ -403,7 +403,7 @@ void Sc::ArticulationSim::updateCCDLinks(PxArray<BodySim*>& sims)
 	}
 }
 
-void Sc::ArticulationSim::putToSleep()
+void ev4sio_Sc::ArticulationSim::putToSleep()
 {
 	for (PxU32 i = 0; i < mLinks.size(); i++)
 	{
@@ -429,7 +429,7 @@ void Sc::ArticulationSim::putToSleep()
 	mScene.getSimulationController()->updateArticulation(mLLArticulation, mIslandNodeIndex);
 }
 
-void Sc::ArticulationSim::sleepCheck(PxReal dt)
+void ev4sio_Sc::ArticulationSim::sleepCheck(PxReal dt)
 {
 	if(!mBodies.size())
 		return;
@@ -465,7 +465,7 @@ void Sc::ArticulationSim::sleepCheck(PxReal dt)
 
 	for(PxU32 i=0;i<mLinks.size();i++)
 	{
-		const Cm::SpatialVector& motionVelocity = mLLArticulation->getMotionVelocity(i);
+		const ev4sio_Cm::SpatialVector& motionVelocity = mLLArticulation->getMotionVelocity(i);
 		PxReal timer = mBodies[i]->updateWakeCounter(dt, sleepThreshold, motionVelocity);
 		maxTimer = PxMax(maxTimer, timer);
 		minTimer = PxMin(minTimer, timer);
@@ -493,12 +493,12 @@ void Sc::ArticulationSim::sleepCheck(PxReal dt)
 	mScene.getSimpleIslandManager()->deactivateNode(mIslandNodeIndex);
 }
 
-bool Sc::ArticulationSim::isSleeping() const
+bool ev4sio_Sc::ArticulationSim::isSleeping() const
 {
 	return (mBodies.size() > 0) ? (!mBodies[0]->isActive()) : true;
 }
 
-void Sc::ArticulationSim::internalWakeUp(PxReal wakeCounter)
+void ev4sio_Sc::ArticulationSim::internalWakeUp(PxReal wakeCounter)
 {
 	if(mCore.getWakeCounter() < wakeCounter)
 	{
@@ -508,7 +508,7 @@ void Sc::ArticulationSim::internalWakeUp(PxReal wakeCounter)
 	}
 }
 
-void Sc::ArticulationSim::updateForces(PxReal dt)
+void ev4sio_Sc::ArticulationSim::updateForces(PxReal dt)
 {
 	PxU32 count = 0;
 	bool anyForcesApplied = false;
@@ -524,10 +524,10 @@ void Sc::ArticulationSim::updateForces(PxReal dt)
 		anyForcesApplied |= mBodies[i]->updateForces(dt, NULL, NULL, count, &mLLArticulation->getSolverDesc().acceleration[i], NULL);
 	}
 	if(anyForcesApplied)
-		mLLArticulation->raiseGPUDirtyFlag(Dy::ArticulationDirtyFlag::eDIRTY_EXT_ACCEL);
+		mLLArticulation->raiseGPUDirtyFlag(ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_EXT_ACCEL);
 }
 
-void Sc::ArticulationSim::clearAcceleration(PxReal dt)
+void ev4sio_Sc::ArticulationSim::clearAcceleration(PxReal dt)
 {
 	PxU32 count = 0;
 
@@ -577,7 +577,7 @@ void Sc::ArticulationSim::clearAcceleration(PxReal dt)
 	}
 }
 
-void Sc::ArticulationSim::saveLastCCDTransform()
+void ev4sio_Sc::ArticulationSim::saveLastCCDTransform()
 {
 	for(PxU32 i=0;i<mBodies.size();i++)
 	{
@@ -590,7 +590,7 @@ void Sc::ArticulationSim::saveLastCCDTransform()
 	}
 }
 
-void Sc::ArticulationSim::setFixedBaseLink(bool value)
+void ev4sio_Sc::ArticulationSim::setFixedBaseLink(bool value)
 {
 	const PxU32 linkCount = mLinks.size();
 
@@ -598,28 +598,28 @@ void Sc::ArticulationSim::setFixedBaseLink(bool value)
 		mLinks[0].bodyCore->fixedBaseLink = PxU8(value);
 }
 
-PxU32 Sc::ArticulationSim::getDofs() const
+PxU32 ev4sio_Sc::ArticulationSim::getDofs() const
 {
 	return mLLArticulation->getDofs();
 }
 
-PxU32 Sc::ArticulationSim::getDof(const PxU32 linkID) const
+PxU32 ev4sio_Sc::ArticulationSim::getDof(const PxU32 linkID) const
 {
 	return mLLArticulation->getDof(linkID);
 }
 
-PX_COMPILE_TIME_ASSERT(sizeof(Cm::SpatialVector)==sizeof(PxSpatialForce));
-PxArticulationCache* Sc::ArticulationSim::createCache()
+PX_COMPILE_TIME_ASSERT(sizeof(ev4sio_Cm::SpatialVector)==sizeof(PxSpatialForce));
+PxArticulationCache* ev4sio_Sc::ArticulationSim::createCache()
 {
 	return FeatherstoneArticulation::createCache(getDofs(), mLinks.size());
 }
 
-PxU32 Sc::ArticulationSim::getCacheDataSize() const
+PxU32 ev4sio_Sc::ArticulationSim::getCacheDataSize() const
 {
 	return FeatherstoneArticulation::getCacheDataSize(getDofs(), mLinks.size());
 }
 
-void Sc::ArticulationSim::zeroCache(PxArticulationCache& cache) const
+void ev4sio_Sc::ArticulationSim::zeroCache(PxArticulationCache& cache) const
 {
 	const PxU32 cacheDataSize = getCacheDataSize();
 
@@ -627,7 +627,7 @@ void Sc::ArticulationSim::zeroCache(PxArticulationCache& cache) const
 }
 
 //copy external data to internal data
-bool  Sc::ArticulationSim::applyCache(PxArticulationCache& cache, const PxArticulationCacheFlags flag) const
+bool  ev4sio_Sc::ArticulationSim::applyCache(PxArticulationCache& cache, const PxArticulationCacheFlags flag) const
 {
 	//checkResize();
 	bool shouldWake = false;
@@ -639,69 +639,69 @@ bool  Sc::ArticulationSim::applyCache(PxArticulationCache& cache, const PxArticu
 }
 
 //copy internal data to external data
-void Sc::ArticulationSim::copyInternalStateToCache(PxArticulationCache& cache, const PxArticulationCacheFlags flag, const bool isGpuSimEnabled) const
+void ev4sio_Sc::ArticulationSim::copyInternalStateToCache(PxArticulationCache& cache, const PxArticulationCacheFlags flag, const bool isGpuSimEnabled) const
 {
 	mLLArticulation->copyInternalStateToCache(cache, flag, isGpuSimEnabled);
 }
 
-void Sc::ArticulationSim::packJointData(const PxReal* maximum, PxReal* reduced) const
+void ev4sio_Sc::ArticulationSim::packJointData(const PxReal* maximum, PxReal* reduced) const
 {
 	mLLArticulation->packJointData(maximum, reduced);
 }
 
-void Sc::ArticulationSim::unpackJointData(const PxReal* reduced, PxReal* maximum) const
+void ev4sio_Sc::ArticulationSim::unpackJointData(const PxReal* reduced, PxReal* maximum) const
 {
 	mLLArticulation->unpackJointData(reduced, maximum);
 }
 
-void Sc::ArticulationSim::commonInit()
+void ev4sio_Sc::ArticulationSim::commonInit()
 {
 	mLLArticulation->initializeCommonData();
 }
 
-void Sc::ArticulationSim::computeGeneralizedGravityForce(PxArticulationCache& cache, const bool rootMotion)
+void ev4sio_Sc::ArticulationSim::computeGeneralizedGravityForce(PxArticulationCache& cache, const bool rootMotion)
 {
 	mLLArticulation->getGeneralizedGravityForce(mScene.getGravity(), cache, rootMotion);
 }
 
-void Sc::ArticulationSim::computeCoriolisAndCentrifugalForce(PxArticulationCache& cache, const bool rootMotion)
+void ev4sio_Sc::ArticulationSim::computeCoriolisAndCentrifugalForce(PxArticulationCache& cache, const bool rootMotion)
 {
 	mLLArticulation->getCoriolisAndCentrifugalForce(cache, rootMotion);
 }
 
-void Sc::ArticulationSim::computeGeneralizedExternalForce(PxArticulationCache& cache)
+void ev4sio_Sc::ArticulationSim::computeGeneralizedExternalForce(PxArticulationCache& cache)
 {
 	mLLArticulation->getGeneralizedExternalForce(cache);
 }
 
-void Sc::ArticulationSim::computeJointAcceleration(PxArticulationCache& cache)
+void ev4sio_Sc::ArticulationSim::computeJointAcceleration(PxArticulationCache& cache)
 {
 	mLLArticulation->getJointAcceleration(mScene.getGravity(), cache);
 }
 
-void Sc::ArticulationSim::computeJointForce(PxArticulationCache& cache)
+void ev4sio_Sc::ArticulationSim::computeJointForce(PxArticulationCache& cache)
 {
 	mLLArticulation->getJointForce(cache);
 }
 
-void Sc::ArticulationSim::computeDenseJacobian(PxArticulationCache& cache, PxU32& nRows, PxU32& nCols)
+void ev4sio_Sc::ArticulationSim::computeDenseJacobian(PxArticulationCache& cache, PxU32& nRows, PxU32& nCols)
 {
 	mLLArticulation->getDenseJacobian(cache, nRows, nCols);
 }
 
-void Sc::ArticulationSim::computeCoefficientMatrix(PxArticulationCache& cache)
+void ev4sio_Sc::ArticulationSim::computeCoefficientMatrix(PxArticulationCache& cache)
 {
 	mLLArticulation->getCoefficientMatrixWithLoopJoints(mLoopConstraints.begin(), mLoopConstraints.size(), cache);
 }
 
-bool Sc::ArticulationSim::computeLambda(PxArticulationCache& cache, PxArticulationCache& initialState,
+bool ev4sio_Sc::ArticulationSim::computeLambda(PxArticulationCache& cache, PxArticulationCache& initialState,
 	const PxReal* const jointTorque, const PxVec3 gravity, const PxU32 maxIter)
 {
 	const PxReal invLengthScale = 1.f / mScene.getLengthScale();
 	return mLLArticulation->getLambda(mLoopConstraints.begin(), mLoopConstraints.size(), cache, initialState, jointTorque, gravity, maxIter, invLengthScale);
 }
 
-void Sc::ArticulationSim::computeGeneralizedMassMatrix(PxArticulationCache& cache, const bool rootMotion)
+void ev4sio_Sc::ArticulationSim::computeGeneralizedMassMatrix(PxArticulationCache& cache, const bool rootMotion)
 {
 	mLLArticulation->getGeneralizedMassMatrixCRB(cache, rootMotion);
 
@@ -727,66 +727,66 @@ void Sc::ArticulationSim::computeGeneralizedMassMatrix(PxArticulationCache& cach
 	PX_FREE(massMatrix);*/
 }
 
-PxVec3 Sc::ArticulationSim::computeArticulationCOM(const bool rootFrame)
+PxVec3 ev4sio_Sc::ArticulationSim::computeArticulationCOM(const bool rootFrame)
 {
 	return mLLArticulation->getArticulationCOM(rootFrame);
 }
 
-void Sc::ArticulationSim::computeCentroidalMomentumMatrix(PxArticulationCache& cache)
+void ev4sio_Sc::ArticulationSim::computeCentroidalMomentumMatrix(PxArticulationCache& cache)
 {
 	mLLArticulation->getCentroidalMomentumMatrix(cache);
 }
 
-PxU32 Sc::ArticulationSim::getCoefficientMatrixSize() const
+PxU32 ev4sio_Sc::ArticulationSim::getCoefficientMatrixSize() const
 {
 	const PxU32 size = mLoopConstraints.size();
 	const PxU32 totalDofs = mLLArticulation->getDofs();
 	return size * totalDofs;
 }
 
-void Sc::ArticulationSim::setRootLinearVelocity(const PxVec3& velocity)
+void ev4sio_Sc::ArticulationSim::setRootLinearVelocity(const PxVec3& velocity)
 {
 	mLLArticulation->setRootLinearVelocity(velocity);
 }
 
-void Sc::ArticulationSim::setRootAngularVelocity(const PxVec3& velocity)
+void ev4sio_Sc::ArticulationSim::setRootAngularVelocity(const PxVec3& velocity)
 {
 	mLLArticulation->setRootAngularVelocity(velocity);
 }
 
-PxSpatialVelocity Sc::ArticulationSim::getLinkVelocity(const PxU32 linkId) const
+PxSpatialVelocity ev4sio_Sc::ArticulationSim::getLinkVelocity(const PxU32 linkId) const
 {
-	Cm::SpatialVector vel = mLLArticulation->getLinkScalarVelocity(linkId);
+	ev4sio_Cm::SpatialVector vel = mLLArticulation->getLinkScalarVelocity(linkId);
 	return reinterpret_cast<PxSpatialVelocity&>(vel);
 }
 
-PxSpatialVelocity Sc::ArticulationSim::getLinkAcceleration(const PxU32 linkId, const bool isGpuSimEnabled) const
+PxSpatialVelocity ev4sio_Sc::ArticulationSim::getLinkAcceleration(const PxU32 linkId, const bool isGpuSimEnabled) const
 {
-	Cm::SpatialVector accel = mLLArticulation->getMotionAcceleration(linkId, isGpuSimEnabled);
+	ev4sio_Cm::SpatialVector accel = mLLArticulation->getMotionAcceleration(linkId, isGpuSimEnabled);
 	return reinterpret_cast<PxSpatialVelocity&>(accel);
 }
 
 // This method allows user teleport the root links and the articulation
 //system update all other links pose
-void Sc::ArticulationSim::setGlobalPose()
+void ev4sio_Sc::ArticulationSim::setGlobalPose()
 {
 	mLLArticulation->teleportRootLink();
 }
 
-void Sc::ArticulationSim::setJointDirty(Dy::ArticulationJointCore& jointCore)
+void ev4sio_Sc::ArticulationSim::setJointDirty(ev4sio_Dy::ArticulationJointCore& jointCore)
 {
 	PX_UNUSED(jointCore);
 	mScene.getSimulationController()->updateArticulationJoint(mLLArticulation, mIslandNodeIndex);
 }
 
-void Sc::ArticulationSim::setArticulationDirty(PxU32 flag)
+void ev4sio_Sc::ArticulationSim::setArticulationDirty(PxU32 flag)
 {
-	Dy::FeatherstoneArticulation* featherstoneArtic = static_cast<Dy::FeatherstoneArticulation*>(mLLArticulation);
-	featherstoneArtic->raiseGPUDirtyFlag(Dy::ArticulationDirtyFlag::Enum(flag));
+	ev4sio_Dy::FeatherstoneArticulation* featherstoneArtic = static_cast<ev4sio_Dy::FeatherstoneArticulation*>(mLLArticulation);
+	featherstoneArtic->raiseGPUDirtyFlag(ev4sio_Dy::ArticulationDirtyFlag::Enum(flag));
 	mScene.getSimulationController()->updateArticulation(mLLArticulation, mIslandNodeIndex);
 }
 
-void Sc::ArticulationSim::debugCheckWakeCounterOfLinks(PxReal wakeCounter) const
+void ev4sio_Sc::ArticulationSim::debugCheckWakeCounterOfLinks(PxReal wakeCounter) const
 {
 	PX_UNUSED(wakeCounter);
 
@@ -799,7 +799,7 @@ void Sc::ArticulationSim::debugCheckWakeCounterOfLinks(PxReal wakeCounter) const
 #endif
 }
 
-void Sc::ArticulationSim::debugCheckSleepStateOfLinks(bool isSleeping) const
+void ev4sio_Sc::ArticulationSim::debugCheckSleepStateOfLinks(bool isSleeping) const
 {
 	PX_UNUSED(isSleeping);
 
@@ -819,7 +819,7 @@ void Sc::ArticulationSim::debugCheckSleepStateOfLinks(bool isSleeping) const
 #endif
 }
 
-PxU32 Sc::ArticulationSim::getRootActorIndex() const
+PxU32 ev4sio_Sc::ArticulationSim::getRootActorIndex() const
 {
 	return mBodies[0]->getActorID();
 }

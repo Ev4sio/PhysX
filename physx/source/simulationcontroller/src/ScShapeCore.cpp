@@ -34,14 +34,14 @@
 #include "GuHeightField.h"
 #include "GuTetrahedronMesh.h"
 
-using namespace physx;
-using namespace Gu;
-using namespace Cm;
-using namespace Sc;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
+using namespace ev4sio_Cm;
+using namespace ev4sio_Sc;
 
-static PX_FORCE_INLINE Gu::ConvexMesh& getConvexMesh(PxConvexMesh* pxcm)
+static PX_FORCE_INLINE ev4sio_Gu::ConvexMesh& getConvexMesh(PxConvexMesh* pxcm)
 { 
-	return *static_cast<Gu::ConvexMesh*>(pxcm);
+	return *static_cast<ev4sio_Gu::ConvexMesh*>(pxcm);
 }
 
 // PT: TODO: optimize all these data copies
@@ -221,13 +221,13 @@ ShapeCore::~ShapeCore()
 	}
 }
 
-PxU16 Sc::ShapeCore::getNbMaterialIndices() const
+PxU16 ev4sio_Sc::ShapeCore::getNbMaterialIndices() const
 {
 	const MaterialIndicesStruct* materialsLL = getMaterials(mCore.mGeometry);
 	return materialsLL ? materialsLL->numIndices : 1;
 }
 
-const PxU16* Sc::ShapeCore::getMaterialIndices() const
+const PxU16* ev4sio_Sc::ShapeCore::getMaterialIndices() const
 {
 	const MaterialIndicesStruct* materialsLL = getMaterials(mCore.mGeometry);
 	return materialsLL ? materialsLL->indices : &mCore.mMaterialIndex;
@@ -293,12 +293,12 @@ void ShapeCore::setGeometry(const PxGeometry& geom)
 
 PxShape* ShapeCore::getPxShape()
 {
-	return Sc::gOffsetTable.convertScShape2Px(this);
+	return ev4sio_Sc::gOffsetTable.convertScShape2Px(this);
 }
 
 const PxShape* ShapeCore::getPxShape() const
 {
-	return Sc::gOffsetTable.convertScShape2Px(this);
+	return ev4sio_Sc::gOffsetTable.convertScShape2Px(this);
 }
 
 void ShapeCore::setContactOffset(const PxReal offset)

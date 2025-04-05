@@ -35,7 +35,7 @@
 #include "reduction.cuh"
 #include "MemoryAllocator.cuh"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 static __device__ PxReal rotateR(
 	const float vec,

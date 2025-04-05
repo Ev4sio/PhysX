@@ -33,7 +33,7 @@
 #include "foundation/PxMemory.h"
 #include "CmIDPool.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	template<class Material>
 	class NpMaterialManager 
@@ -132,7 +132,7 @@ namespace physx
 			mMaterials = mat;
 		}
 
-		Cm::IDPool		mHandleManager;
+		ev4sio_Cm::IDPool		mHandleManager;
 		Material**		mMaterials;
 		PxU32			mMaxMaterials;
 	};

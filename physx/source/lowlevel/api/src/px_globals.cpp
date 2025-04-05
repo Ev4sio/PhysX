@@ -33,10 +33,10 @@
 
 #if PX_SUPPORT_GPU_PHYSX
 	#include "PxPhysXGpu.h"
-	static physx::PxPhysXGpu* gPxPhysXGpu = NULL;
+	static ev4sio_physx::PxPhysXGpu* gPxPhysXGpu = NULL;
 #endif
 
-namespace physx
+namespace ev4sio_physx
 {
 
 PxvOffsetTable gPxvOffsetTable;
@@ -59,12 +59,12 @@ void PxvTerm()
 }
 
 #if PX_SUPPORT_GPU_PHYSX
-namespace physx
+namespace ev4sio_physx
 {
 	//forward declare stuff from PxPhysXGpuModuleLoader.cpp
 	void PxLoadPhysxGPUModule(const char* appGUID);
 	void PxUnloadPhysxGPUModule();
-	typedef physx::PxPhysXGpu* (PxCreatePhysXGpu_FUNC)();
+	typedef ev4sio_physx::PxPhysXGpu* (PxCreatePhysXGpu_FUNC)();
 	extern PxCreatePhysXGpu_FUNC* g_PxCreatePhysXGpu_Func;
 
 	PxPhysXGpu* PxvGetPhysXGpu(bool createIfNeeded)
@@ -72,7 +72,7 @@ namespace physx
 		if (!gPxPhysXGpu && createIfNeeded)
 		{
 #ifdef PX_PHYSX_GPU_STATIC
-			gPxPhysXGpu = PxCreatePhysXGpu();
+			gPxPhysXGpu = ev4sio_PxCreatePhysXGpu();
 #else
 			PxLoadPhysxGPUModule(NULL);
 			if (g_PxCreatePhysXGpu_Func)

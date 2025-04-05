@@ -33,18 +33,18 @@
 #include "ScConstraintCore.h"
 #include "CmVisualization.h"
 
-using namespace physx;
-using namespace Sc;
+using namespace ev4sio_physx;
+using namespace ev4sio_Sc;
 
 // PT: Sc-level visualization code has been moved to this dedicated file (like we did in NpDebugViz.cpp)
 
-static void visualize(const ConstraintSim& sim, Cm::ConstraintImmediateVisualizer& viz, PxU32 flags, const PxTransform& idt)
+static void visualize(const ConstraintSim& sim, ev4sio_Cm::ConstraintImmediateVisualizer& viz, PxU32 flags, const PxTransform& idt)
 {
 	ConstraintCore& core = sim.getCore();
 	if(!(core.getFlags() & PxConstraintFlag::eVISUALIZATION))
 		return;
 
-	const Dy::Constraint& llc = sim.getLowLevelConstraint();
+	const ev4sio_Dy::Constraint& llc = sim.getLowLevelConstraint();
 
 	PxsRigidBody* b0 = llc.body0;
 	PxsRigidBody* b1 = llc.body1;
@@ -55,14 +55,14 @@ static void visualize(const ConstraintSim& sim, Cm::ConstraintImmediateVisualize
 	core.getVisualize()(viz, llc.constantBlock, t0, t1, flags);
 }
 
-void Sc::ShapeInteraction::visualize(PxRenderOutput& out, PxsContactManagerOutputIterator& outputs,
+void ev4sio_Sc::ShapeInteraction::visualize(PxRenderOutput& out, PxsContactManagerOutputIterator& outputs,
 									float scale, float contactImpulse, float contactNormal, float contactError, float contactPoint,
 									float frictionImpulse, float frictionNormal, float frictionPoint)
 {
 	if(mManager)  // sleeping pairs have no contact points -> do not visualize
 	{
-		Sc::ActorSim* actorSim0 = &getActor0();
-		Sc::ActorSim* actorSim1 = &getActor1();
+		ev4sio_Sc::ActorSim* actorSim0 = &getActor0();
+		ev4sio_Sc::ActorSim* actorSim1 = &getActor1();
 		if(!actorSim0->isNonRigid() && !actorSim1->isNonRigid())
 		{
 			PxU32 offset;
@@ -161,7 +161,7 @@ void Sc::ShapeInteraction::visualize(PxRenderOutput& out, PxsContactManagerOutpu
 }
 
 // Render objects before simulation starts
-void Sc::Scene::visualizeStartStep()
+void ev4sio_Sc::Scene::visualizeStartStep()
 {
 	PX_PROFILE_ZONE("Sim.visualizeStartStep", mContextId);
 
@@ -198,7 +198,7 @@ void Sc::Scene::visualizeStartStep()
 		const float limitScale = scale * getVisualizationParameter(PxVisualizationParameter::eJOINT_LIMITS);
 		if(frameScale!=0.0f || limitScale!=0.0f)
 		{
-			Cm::ConstraintImmediateVisualizer viz(frameScale, limitScale, out);
+			ev4sio_Cm::ConstraintImmediateVisualizer viz(frameScale, limitScale, out);
 
 			PxU32 flags = 0;
 			if(frameScale!=0.0f)
@@ -208,7 +208,7 @@ void Sc::Scene::visualizeStartStep()
 
 			const PxTransform idt(PxIdentity);
 
-			Sc::ConstraintCore*const * constraints = mConstraints.getEntries();
+			ev4sio_Sc::ConstraintCore*const * constraints = mConstraints.getEntries();
 			for(PxU32 i=0, size = mConstraints.size();i<size; i++)
 			{
 				ConstraintSim* sim = constraints[i]->getSim();
@@ -223,7 +223,7 @@ void Sc::Scene::visualizeStartStep()
 }
 
 // Render contacts at the simulation frame end
-void Sc::Scene::visualizeContacts()
+void ev4sio_Sc::Scene::visualizeContacts()
 {
 	PX_PROFILE_ZONE("Sim.visualizeContacts", mContextId);
 

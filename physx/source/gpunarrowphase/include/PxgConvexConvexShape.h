@@ -33,7 +33,7 @@
 
 #define PXG_MAX_PCM_CONTACTS 4
 
-namespace physx
+namespace ev4sio_physx
 {
 	template<PxU32 byteSize> 
 	class FlexiblePad

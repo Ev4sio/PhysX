@@ -42,7 +42,7 @@
 #define DEBUG_RENDER_CCD			0
 
 #if CCD_DEBUG_PRINTS
-namespace physx {
+namespace ev4sio_physx {
 	extern void printCCDDebug(const char* msg, const PxsRigidBody* atom0, PxGeometryType::Enum g0, bool printPtr = true);
 	extern void printShape(PxsRigidBody* atom0, PxGeometryType::Enum g0, const char* annotation, PxReal dt, PxU32 pass, bool printPtr = true);
 }
@@ -53,7 +53,7 @@ namespace physx {
 #define PRINTCCDDEBUG(x)
 #endif
 
-namespace physx
+namespace ev4sio_physx
 {
 	float	computeCCDThreshold(const PxGeometry& geometry);
 
@@ -74,7 +74,7 @@ class PxcNpThreadContext;
 
 class PxvNphaseImplementationContext;
 
-namespace Dy
+namespace ev4sio_Dy
 {
 	class ThresholdStream;
 }
@@ -96,7 +96,7 @@ struct PxsCCDOverlap
 Stores data about a shape that may be frequently used in CCD. It also stores update counters per-shape that can be compared with the body's update
 counter to determine if the shape needs its transforms re-calculated. This avoids us needing to store a list of shapes in a CCD body.
 */
-struct PxsCCDShape : public Gu::CCDShape
+struct PxsCCDShape : public ev4sio_Gu::CCDShape
 {
 	const PxsShapeCore*		mShapeCore;		//Shape core (can be shared)
 	const PxsRigidCore*		mRigidCore;		//Rigid body core
@@ -108,7 +108,7 @@ struct PxsCCDShape : public Gu::CCDShape
 */
 struct PxsCCDBody
 {
-	Cm::SpatialVector		mPreSolverVelocity;
+	ev4sio_Cm::SpatialVector		mPreSolverVelocity;
 	PxU16					mIndex;						//The CCD body's index
 	bool					mPassDone;					//Whether it has been processed in the current CCD pass
 	bool					mHasAnyPassDone;			//Whether this body was influenced by any passes
@@ -413,7 +413,7 @@ public:
 	\brief Constructor for PxsCCDContext
 	\param[in] context The PxsContext that is associated with this PxsCCDContext.
 	*/
-	PxsCCDContext(PxsContext* context, Dy::ThresholdStream& thresholdStream, PxvNphaseImplementationContext& nPhaseContext, PxReal ccdThreshold);
+	PxsCCDContext(PxsContext* context, ev4sio_Dy::ThresholdStream& thresholdStream, PxvNphaseImplementationContext& nPhaseContext, PxReal ccdThreshold);
 	/**
 	\brief Destructor for PxsCCDContext
 	*/
@@ -492,7 +492,7 @@ public:
 	\param[in] islandSim The island manager
 	\param[in] disableResweep If this is true, we perform a reduced-fidelity CCD approach
 	*/
-						void					updateCCD(PxReal dt, PxBaseTask* continuation, IG::IslandSim& islandSim, bool disableResweep, PxI32 numFastMovingShapes);
+						void					updateCCD(PxReal dt, PxBaseTask* continuation, ev4sio_IG::IslandSim& islandSim, bool disableResweep, PxI32 numFastMovingShapes);
 
 	/**
 	\brief Signals the beginning of a CCD multi-pass update
@@ -532,9 +532,9 @@ private:
 	*/
 						void					postCCDDepenetrate(PxBaseTask* continuation);
 
-		typedef Cm::DelegateTask<PxsCCDContext, &PxsCCDContext::postCCDSweep> PostCCDSweepTask;
-		typedef Cm::DelegateTask<PxsCCDContext, &PxsCCDContext::postCCDAdvance> PostCCDAdvanceTask;
-		typedef Cm::DelegateTask<PxsCCDContext, &PxsCCDContext::postCCDDepenetrate> PostCCDDepenetrateTask;
+		typedef ev4sio_Cm::DelegateTask<PxsCCDContext, &PxsCCDContext::postCCDSweep> PostCCDSweepTask;
+		typedef ev4sio_Cm::DelegateTask<PxsCCDContext, &PxsCCDContext::postCCDAdvance> PostCCDAdvanceTask;
+		typedef ev4sio_Cm::DelegateTask<PxsCCDContext, &PxsCCDContext::postCCDDepenetrate> PostCCDDepenetrateTask;
 
 		PostCCDSweepTask mPostCCDSweepTask;
 		PostCCDAdvanceTask mPostCCDAdvanceTask;
@@ -569,7 +569,7 @@ private:
 		PxU32 mCCDMaxPasses;
 
 		PxsContext* mContext;
-		Dy::ThresholdStream& mThresholdStream;
+		ev4sio_Dy::ThresholdStream& mThresholdStream;
 
 		PxvNphaseImplementationContext& mNphaseContext;
 

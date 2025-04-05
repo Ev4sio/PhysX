@@ -33,9 +33,9 @@
 #include "foundation/PxBitMap.h"
 #include "foundation/PxUserAllocated.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Sc
+namespace ev4sio_Sc
 {
 	// PT: TODO: this has no direct dependency on "Sc". It should really be a "Cm" class.
 	class ObjectIDTracker : public PxUserAllocated
@@ -90,7 +90,7 @@ namespace Sc
 											mDeletedIDsMap.growAndSet(id);
 										}
 
-						Cm::IDPool		mIDPool;
+						ev4sio_Cm::IDPool		mIDPool;
 						PxBitMap		mDeletedIDsMap;
 						PxArray<PxU32>	mPendingReleasedIDs;  // Buffer for released IDs to make sure newly created objects do not re-use these IDs immediately
 	};

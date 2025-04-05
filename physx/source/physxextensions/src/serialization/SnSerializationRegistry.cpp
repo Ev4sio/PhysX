@@ -36,7 +36,7 @@
 #include "ExtSerialization.h"
 #include "CmCollection.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 namespace
 {
@@ -55,7 +55,7 @@ namespace
 		};
 
 	public:
-		CollectionSorter(Cm::Collection& collection, Sn::SerializationRegistry& sr, bool isRepx) : mCollection(collection), mSr(sr), mIsRepx(isRepx) {}
+		CollectionSorter(ev4sio_Cm::Collection& collection, Sn::SerializationRegistry& sr, bool isRepx) : mCollection(collection), mSr(sr), mIsRepx(isRepx) {}
 		virtual ~CollectionSorter(){}
 
 		void process(PxBase& base)
@@ -77,7 +77,7 @@ namespace
 			PxU32 i;
 
 			PxU32 nbObject = mCollection.internalGetNbObjects();
-			const Cm::Collection::ObjectToIdMap::Entry* objectdatas = mCollection.internalGetObjects();
+			const ev4sio_Cm::Collection::ObjectToIdMap::Entry* objectdatas = mCollection.internalGetObjects();
 			for( i = 0; i < nbObject; ++i )
 			{				
 				element.object.first = objectdatas[i].first;
@@ -134,7 +134,7 @@ namespace
 		CollectionSorter& operator=(const CollectionSorter&);
 		PxHashMap<PxBase*, PxU32>	mObjToIdMap;
 		PxArray<Element>			mElements;
-		Cm::Collection&				mCollection;
+		ev4sio_Cm::Collection&				mCollection;
 		Sn::SerializationRegistry&  mSr;
 		PxArray<Object>           mSorted;
 		Element*                    mCurElement;
@@ -142,29 +142,29 @@ namespace
 	};
 }
 
-namespace physx { namespace Sn {
+namespace ev4sio_physx { namespace Sn {
 
 SerializationRegistry::SerializationRegistry(PxPhysics& physics)
 	: mPhysics(physics)
 {	
-	PxRegisterPhysicsSerializers(*this);
-	Ext::RegisterExtensionsSerializers(*this);
+	ev4sio_PxRegisterPhysicsSerializers(*this);
+	ev4sio_Ext::RegisterExtensionsSerializers(*this);
 }
 
 SerializationRegistry::~SerializationRegistry()
 {
-	PxUnregisterPhysicsSerializers(*this);
-	Ext::UnregisterExtensionsSerializers(*this);
+	ev4sio_PxUnregisterPhysicsSerializers(*this);
+	ev4sio_Ext::UnregisterExtensionsSerializers(*this);
 
 	if(mSerializers.size() > 0)
 	{
-		PxGetFoundation().error(physx::PxErrorCode::eDEBUG_WARNING, PX_FL, 
+		ev4sio_PxGetFoundation().error(ev4sio_physx::PxErrorCode::eDEBUG_WARNING, PX_FL, 
 			"PxSerializationRegistry::release(): some registered PxSerializer instances were not unregistered");	
 	}
 
 	if(mRepXSerializers.size() > 0)
 	{
-		PxGetFoundation().error(physx::PxErrorCode::eDEBUG_WARNING, PX_FL, 
+		ev4sio_PxGetFoundation().error(ev4sio_physx::PxErrorCode::eDEBUG_WARNING, PX_FL, 
 			"PxSerializationRegistry::release(): some registered PxRepXSerializer instances were not unregistered");	
 	}
 }
@@ -173,7 +173,7 @@ void SerializationRegistry::registerSerializer(PxType type, PxSerializer& serial
 {
 	if(mSerializers.find(type))
 	{
-		PxGetFoundation().error(physx::PxErrorCode::eDEBUG_WARNING, PX_FL, 
+		ev4sio_PxGetFoundation().error(ev4sio_physx::PxErrorCode::eDEBUG_WARNING, PX_FL, 
 			"PxSerializationRegistry::registerSerializer: Type %d has already been registered", type);		
 	}
 
@@ -187,7 +187,7 @@ PxSerializer* SerializationRegistry::unregisterSerializer(PxType type)
 
 	if(!mSerializers.erase(type))
 	{
-		PxGetFoundation().error(physx::PxErrorCode::eDEBUG_WARNING, PX_FL, 
+		ev4sio_PxGetFoundation().error(ev4sio_physx::PxErrorCode::eDEBUG_WARNING, PX_FL, 
 			"PxSerializationRegistry::unregisterSerializer: failed to find PxSerializer instance for type %d", type);
 	}
 	return s;
@@ -199,7 +199,7 @@ const PxSerializer* SerializationRegistry::getSerializer(PxType type) const
 #if PX_CHECKED
 	if (!e)
 	{
-		PxGetFoundation().error(physx::PxErrorCode::eDEBUG_WARNING, PX_FL, 
+		ev4sio_PxGetFoundation().error(ev4sio_physx::PxErrorCode::eDEBUG_WARNING, PX_FL, 
 			"PxSerializationRegistry::getSerializer: failed to find PxSerializer instance for type %d", type);
 	}
 #endif
@@ -222,7 +222,7 @@ void SerializationRegistry::registerRepXSerializer(PxType type, PxRepXSerializer
 {
 	if(mRepXSerializers.find(type))
 	{
-		PxGetFoundation().error(physx::PxErrorCode::eDEBUG_WARNING, PX_FL, 
+		ev4sio_PxGetFoundation().error(ev4sio_physx::PxErrorCode::eDEBUG_WARNING, PX_FL, 
 			"PxSerializationRegistry::registerRepXSerializer: Type %d has already been registered", type);	
 	}
 
@@ -234,7 +234,7 @@ PxRepXSerializer* SerializationRegistry::getRepXSerializer(const char* typeName)
 	SerializationRegistry* sr = const_cast<SerializationRegistry*>(this);
 	for( RepXSerializerMap::Iterator iter = sr->mRepXSerializers.getIterator(); !iter.done(); ++iter)
 	{
-		if ( physx::Pxstricmp( iter->second->getTypeName(), typeName ) == 0 )
+		if ( ev4sio_physx::Pxstricmp( iter->second->getTypeName(), typeName ) == 0 )
 			return iter->second;
 	}
 	return NULL;
@@ -247,13 +247,13 @@ PxRepXSerializer* SerializationRegistry::unregisterRepXSerializer(PxType type)
 
 	if(!mRepXSerializers.erase(type))
 	{
-		PxGetFoundation().error(physx::PxErrorCode::eDEBUG_WARNING, PX_FL, 
+		ev4sio_PxGetFoundation().error(ev4sio_physx::PxErrorCode::eDEBUG_WARNING, PX_FL, 
 			"PxSerializationRegistry::unregisterRepXSerializer: failed to find PxRepXSerializer instance for type %d", type);	
 	}
 	return s;
 }
 
-void sortCollection(Cm::Collection& collection, SerializationRegistry& sr, bool isRepx)
+void sortCollection(ev4sio_Cm::Collection& collection, SerializationRegistry& sr, bool isRepx)
 {
 	CollectionSorter sorter(collection, sr, isRepx);	
 	sorter.sort();	

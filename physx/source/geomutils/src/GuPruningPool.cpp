@@ -30,8 +30,8 @@
 #include "foundation/PxMemory.h"
 #include "common/PxProfileZone.h"
 
-using namespace physx;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
 
 PruningPool::PruningPool(PxU64 contextID, TransformCacheMode mode) :
 	mNbObjects			(0),

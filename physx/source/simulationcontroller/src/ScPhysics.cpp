@@ -33,26 +33,26 @@
 #include "ScScene.h"
 #include "PxvGlobals.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
-Sc::Physics* Sc::Physics::mInstance = NULL;
-const PxReal Sc::Physics::sWakeCounterOnCreation = 20.0f*0.02f;
+ev4sio_Sc::Physics* ev4sio_Sc::Physics::mInstance = NULL;
+const PxReal ev4sio_Sc::Physics::sWakeCounterOnCreation = 20.0f*0.02f;
 
-namespace physx
+namespace ev4sio_physx
 {
-	namespace Sc
+	namespace ev4sio_Sc
 	{
 		OffsetTable	gOffsetTable;
 	}
 }
 
-Sc::Physics::Physics(const PxTolerancesScale& scale, const PxvOffsetTable& pxvOffsetTable) : mScale(scale)
+ev4sio_Sc::Physics::Physics(const PxTolerancesScale& scale, const PxvOffsetTable& pxvOffsetTable) : mScale(scale)
 {
 	mInstance = this;
 	PxvInit(pxvOffsetTable);
 }
 
-Sc::Physics::~Physics()
+ev4sio_Sc::Physics::~Physics()
 {
 	PxvTerm();
 	mInstance = NULL;

@@ -32,9 +32,9 @@
 #include "ScRigidSim.h"
 #include "ScStaticCore.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Sc
+namespace ev4sio_Sc
 {
 	class StaticSim : public RigidSim
 	{
@@ -48,7 +48,7 @@ namespace Sc
 		PX_FORCE_INLINE	StaticCore&	getStaticCore()		const											{ return static_cast<StaticCore&>(getRigidCore());	}
 	};
 
-} // namespace Sc
+} // namespace ev4sio_Sc
 
 }
 

@@ -32,7 +32,7 @@
 #include "foundation/PxUserAllocated.h"
 #include "foundation/PxBroadcast.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 #if PX_VC
 #pragma warning(push)
@@ -52,8 +52,8 @@ class PX_FOUNDATION_API Foundation : public PxFoundation, public PxUserAllocated
 	virtual PxAllocatorCallback&	getAllocatorCallback()					PX_OVERRIDE	{ return mAllocatorCallback;		}
 	virtual bool					getReportAllocationNames() const		PX_OVERRIDE	{ return mReportAllocationNames;	}
 	virtual void					setReportAllocationNames(bool value)	PX_OVERRIDE	{ mReportAllocationNames = value;	}
-	virtual void					registerAllocationListener(physx::PxAllocationListener& listener)	PX_OVERRIDE;
-	virtual void					deregisterAllocationListener(physx::PxAllocationListener& listener)	PX_OVERRIDE;
+	virtual void					registerAllocationListener(ev4sio_physx::PxAllocationListener& listener)	PX_OVERRIDE;
+	virtual void					deregisterAllocationListener(ev4sio_physx::PxAllocationListener& listener)	PX_OVERRIDE;
 	virtual void					registerErrorCallback(PxErrorCallback& listener)	PX_OVERRIDE;
 	virtual void					deregisterErrorCallback(PxErrorCallback& listener)	PX_OVERRIDE;
 	virtual bool					error(PxErrorCode::Enum, const char* file, int line, const char* messageFmt, ...)		PX_OVERRIDE;
@@ -87,9 +87,9 @@ class PX_FOUNDATION_API Foundation : public PxFoundation, public PxUserAllocated
 #pragma warning(pop)
 #endif
 
-} // namespace physx
+} // namespace ev4sio_physx
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 static PxProfilerCallback* gProfilerCallback = NULL;
 static Foundation* gInstance = NULL;
@@ -208,12 +208,12 @@ void Foundation::deregisterErrorCallback(PxErrorCallback& callback)
 	mBroadcastingError.deregisterListener(callback);
 }
 
-PxFoundation* PxCreateFoundation(PxU32 version, PxAllocatorCallback& allocator, PxErrorCallback& errorCallback)
+PxFoundation* ev4sio_PxCreateFoundation(PxU32 version, PxAllocatorCallback& allocator, PxErrorCallback& errorCallback)
 {
-	if(version != PX_PHYSICS_VERSION)
+	if(version != ev4sio_PX_PHYSICS_VERSION)
 	{
 		char buffer[256];
-		Pxsnprintf(buffer, 256, "Wrong version: physics version is 0x%08x, tried to create 0x%08x", PX_PHYSICS_VERSION, version);
+		Pxsnprintf(buffer, 256, "Wrong version: physics version is 0x%08x, tried to create 0x%08x", ev4sio_PX_PHYSICS_VERSION, version);
 		errorCallback.reportError(PxErrorCode::eINVALID_PARAMETER, buffer, PX_FL);
 		return 0;
 	}
@@ -250,17 +250,17 @@ PxFoundation* PxCreateFoundation(PxU32 version, PxAllocatorCallback& allocator, 
 	return 0;
 }
 
-void PxSetFoundationInstance(PxFoundation& foundation)
+void ev4sio_PxSetFoundationInstance(PxFoundation& foundation)
 {
 	gInstance = &static_cast<Foundation&>(foundation);
 }
 
-PxAllocatorCallback* PxGetAllocatorCallback()
+PxAllocatorCallback* ev4sio_PxGetAllocatorCallback()
 {
 	return &gInstance->getAllocatorCallback();
 }
 
-PxAllocatorCallback* PxGetBroadcastAllocator(bool* reportAllocationNames)
+PxAllocatorCallback* ev4sio_PxGetBroadcastAllocator(bool* reportAllocationNames)
 {
 	PX_ASSERT(gInstance);
 	if(reportAllocationNames)
@@ -269,44 +269,44 @@ PxAllocatorCallback* PxGetBroadcastAllocator(bool* reportAllocationNames)
 	return &gInstance->mBroadcastingAllocator;
 }
 
-PxErrorCallback* PX_CALL_CONV PxGetErrorCallback()
+PxErrorCallback* PX_CALL_CONV ev4sio_PxGetErrorCallback()
 {
 	return &gInstance->getErrorCallback();
 }
 
-PxErrorCallback* PX_CALL_CONV PxGetBroadcastError()
+PxErrorCallback* PX_CALL_CONV ev4sio_PxGetBroadcastError()
 {
 	return &gInstance->mBroadcastingError;
 }
 
-PxFoundation& PxGetFoundation()
+PxFoundation& ev4sio_PxGetFoundation()
 {
 	PX_ASSERT(gInstance);
 	return *gInstance;
 }
 
-PxFoundation* PxIsFoundationValid()
+PxFoundation* ev4sio_PxIsFoundationValid()
 {
 	return gInstance;
 }
 
-PxProfilerCallback* PxGetProfilerCallback()
+PxProfilerCallback* ev4sio_PxGetProfilerCallback()
 {
 	return gProfilerCallback;
 }
 
-void PxSetProfilerCallback(PxProfilerCallback* profiler)
+void ev4sio_PxSetProfilerCallback(PxProfilerCallback* profiler)
 {
 	gProfilerCallback = profiler;
 }
 
-PxU32 PxGetWarnOnceTimeStamp()
+PxU32 ev4sio_PxGetWarnOnceTimeStamp()
 {
 	PX_ASSERT(gInstance);
 	return gInstance->mWarnOnceTimestap;
 }
 
-void PxDecFoundationRefCount()
+void ev4sio_PxDecFoundationRefCount()
 {
 	PX_ASSERT(gInstance);
 
@@ -316,7 +316,7 @@ void PxDecFoundationRefCount()
 		gInstance->error(PxErrorCode::eINVALID_OPERATION, PX_FL, "Foundation: Invalid deregistration detected.");
 }
 
-void PxIncFoundationRefCount()
+void ev4sio_PxIncFoundationRefCount()
 {
 	PX_ASSERT(gInstance);
 

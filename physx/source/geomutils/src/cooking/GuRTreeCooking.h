@@ -35,7 +35,7 @@
 #include "GuMeshData.h"
 #include "GuRTree.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	struct RTreeCooker
 	{
@@ -47,7 +47,7 @@ namespace physx
 
 		// triangles will be remapped so that newIndex = resultPermute[oldIndex]
 		static void buildFromTriangles(
-			Gu::RTree& resultTree, const PxVec3* verts, PxU32 numVerts, const PxU16* tris16, const PxU32* tris32, PxU32 numTris,
+			ev4sio_Gu::RTree& resultTree, const PxVec3* verts, PxU32 numVerts, const PxU16* tris16, const PxU32* tris32, PxU32 numTris,
 			PxArray<PxU32>& resultPermute, RemapCallback* rc, PxReal sizePerfTradeOff01, PxMeshCookingHint::Enum hint);
 	};
 }

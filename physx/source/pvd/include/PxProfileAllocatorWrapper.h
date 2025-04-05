@@ -36,7 +36,7 @@
 #include "foundation/PxHashMap.h"
 #include "foundation/PxArray.h"
 
-namespace physx { namespace profile {
+namespace ev4sio_physx { namespace profile {
 
 	/**
 	\brief Helper struct to encapsulate the user allocator callback
@@ -226,8 +226,8 @@ namespace physx { namespace profile {
 
 } }
 
-#define PX_PROFILE_NEW( allocator, dtype ) new (physx::profile::PxProfileAllocate<dtype>( allocator, PX_FL)) dtype
-#define PX_PROFILE_DELETE( allocator, obj ) physx::profile::PxProfileDeleteAndDeallocate( allocator, obj );
+#define PX_PROFILE_NEW( allocator, dtype ) new (ev4sio_physx::profile::PxProfileAllocate<dtype>( allocator, PX_FL)) dtype
+#define PX_PROFILE_DELETE( allocator, obj ) ev4sio_physx::profile::PxProfileDeleteAndDeallocate( allocator, obj );
 
 #endif
 

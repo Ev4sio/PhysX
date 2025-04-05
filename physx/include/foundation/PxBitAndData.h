@@ -33,7 +33,7 @@
 #include "foundation/PxSimpleTypes.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -77,7 +77,7 @@ typedef PxBitAndDataT<PxU16, 0x8000> PxBitAndWord;
 typedef PxBitAndDataT<PxU32, 0x80000000> PxBitAndDword;
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

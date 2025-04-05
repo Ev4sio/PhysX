@@ -35,10 +35,10 @@
 #include "ExtJoint.h"
 #include "CmUtils.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 struct PxPrismaticJointGeneratedValues;
-namespace Ext
+namespace ev4sio_Ext
 {
 	struct PrismaticJointData : public JointData
 	{
@@ -78,8 +78,8 @@ namespace Ext
 #endif
 		//~PxConstraintConnector
 	};
-} // namespace Ext
+} // namespace ev4sio_Ext
 
-} // namespace physx
+} // namespace ev4sio_physx
 
 #endif

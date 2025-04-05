@@ -35,10 +35,10 @@
 #include "GuCookingConvexPolygonsBuilder.h"
 #include "GuSDF.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	class BigConvexData;
-	namespace Gu
+	namespace ev4sio_Gu
 	{
 		struct ConvexHullInitData;
 	}
@@ -59,7 +59,7 @@ namespace physx
 				bool				save(PxOutputStream& stream, bool platformMismatch)		const;
 
 				// copy the convex mesh into internal convex mesh, which can be directly used then
-				bool				copy(Gu::ConvexHullInitData& convexData);
+				bool				copy(ev4sio_Gu::ConvexHullInitData& convexData);
 
 				// loads the convex mesh from given polygons
 				bool				loadConvexHull(const PxConvexMeshDesc&, ConvexHullLib* hullLib);
@@ -88,8 +88,8 @@ namespace physx
 		mutable	ConvexPolygonsBuilder	hullBuilder;
 
 	protected:
-		Gu::ConvexHullData			mHullData;		
-		Gu::SDF*					mSdfData;
+		ev4sio_Gu::ConvexHullData			mHullData;		
+		ev4sio_Gu::SDF*					mSdfData;
 		BigConvexData*				mBigConvexData;		//!< optional, only for large meshes! PT: redundant with ptr in chull data? Could also be end of other buffer
 		PxReal						mMass;				//this is mass assuming a unit density that can be scaled by instances!
 		PxMat33						mInertia;			//in local space of mesh!

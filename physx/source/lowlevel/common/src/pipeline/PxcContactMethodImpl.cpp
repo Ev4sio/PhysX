@@ -29,7 +29,7 @@
 #include "geometry/PxGeometry.h"
 #include "PxcContactMethodImpl.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 #define ARGS	shape0, shape1, transform0, transform1, params, cache, contactBuffer, renderOutput
 
@@ -98,7 +98,7 @@ static bool PxcPCMContactGeometryCustomGeometry	(GU_CONTACT_METHOD_ARGS)	{ retur
 
 #undef ARGS
 
-namespace physx
+namespace ev4sio_physx
 {
 //Table of contact methods for different shape-type combinations
 PxcContactMethod g_ContactMethodTable[][PxGeometryType::eGEOMETRY_COUNT] = 

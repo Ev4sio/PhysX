@@ -32,9 +32,9 @@
 #include "foundation/PxSimpleTypes.h"
 #include "GuPrunerTypedef.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Sq
+namespace ev4sio_Sq
 {
 	typedef PxU32 PrunerCompoundId;
 	static const PrunerCompoundId INVALID_COMPOUND_ID = 0xffffffff;

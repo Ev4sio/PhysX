@@ -42,9 +42,9 @@
 
 #include "omnipvd/ExtOmniPvdSetData.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 #if PX_SUPPORT_OMNI_PVD
-using namespace Ext;
+using namespace ev4sio_Ext;
 #endif
 
 static const PxU32 gCollisionShapeColor = PxU32(PxDebugColor::eARGB_MAGENTA);
@@ -280,7 +280,7 @@ bool PxCustomGeometryExt::BaseConvexCallbacks::generateContacts(const PxGeometry
 			PxMeshQuery::findOverlapTriangleMesh(boxGeom, pose0, static_cast<const PxTriangleMeshGeometry&>(geom1), pose1, triangles, MAX_TRIANGLES, 0, overflow) :
 			PxMeshQuery::findOverlapHeightField(boxGeom, pose0, static_cast<const PxHeightFieldGeometry&>(geom1), pose1, triangles, MAX_TRIANGLES, 0, overflow);
 		if (overflow)
-			PxGetFoundation().error(PxErrorCode::eDEBUG_INFO, PX_FL, "PxCustomGeometryExt::BaseConvexCallbacks::generateContacts() Too many triangles.\n");
+			ev4sio_PxGetFoundation().error(PxErrorCode::eDEBUG_INFO, PX_FL, "PxCustomGeometryExt::BaseConvexCallbacks::generateContacts() Too many triangles.\n");
 		for (PxU32 i = 0; i < triangleCount; ++i)
 		{
 			PxTriangle tri; PxU32 adjacent[3];
@@ -455,7 +455,7 @@ bool PxCustomGeometryExt::BaseConvexCallbacks::sweep(const PxVec3& unitDir, cons
 			PxMeshQuery::findOverlapTriangleMesh(sweepGeom.any(), sweepGeomPose, static_cast<const PxTriangleMeshGeometry&>(geom1), pose1, triangles, MAX_TRIANGLES, 0, overflow) :
 			PxMeshQuery::findOverlapHeightField(sweepGeom.any(), sweepGeomPose, static_cast<const PxHeightFieldGeometry&>(geom1), pose1, triangles, MAX_TRIANGLES, 0, overflow);
 		if(overflow)
-			PxGetFoundation().error(PxErrorCode::eDEBUG_INFO, PX_FL, "PxCustomGeometryExt::BaseConvexCallbacks::sweep() Too many triangles.\n");
+			ev4sio_PxGetFoundation().error(PxErrorCode::eDEBUG_INFO, PX_FL, "PxCustomGeometryExt::BaseConvexCallbacks::sweep() Too many triangles.\n");
 		sweepHit.distance = PX_MAX_F32;
 		const PxTransform identityPose(PxIdentity);
 		for (PxU32 i = 0; i < triangleCount; ++i)

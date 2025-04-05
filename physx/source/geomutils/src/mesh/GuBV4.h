@@ -36,19 +36,19 @@
 #include "foundation/PxVecMath.h"
 #include "common/PxPhysXCommonConfig.h"
 
-#define V4LoadU_Safe	physx::aos::V4LoadU	// PT: prefix needed on Linux. Sigh.
+#define V4LoadU_Safe	ev4sio_physx::aos::V4LoadU	// PT: prefix needed on Linux. Sigh.
 #define V4LoadA_Safe	V4LoadA
 #define V4StoreA_Safe	V4StoreA
 #define V4StoreU_Safe	V4StoreU
 
-namespace physx
+namespace ev4sio_physx
 {
 	class PxSerializationContext;
 	class PxDeserializationContext;
 	class PxOutputStream;
 	class PxInputStream;
 
-namespace Gu
+namespace ev4sio_Gu
 {
 	struct VertexPointers
 	{
@@ -61,7 +61,7 @@ namespace Gu
 	};
 
 	// PT: TODO: make this more generic, rename to IndQuad32, refactor with GRB's int4
-	class IndTetrahedron32 : public physx::PxUserAllocated
+	class IndTetrahedron32 : public ev4sio_physx::PxUserAllocated
 	{
 	public:
 	public:
@@ -80,7 +80,7 @@ namespace Gu
 	PX_COMPILE_TIME_ASSERT(sizeof(IndTetrahedron32) == 16);
 
 	// PT: TODO: make this more generic, rename to IndQuad16
-	class IndTetrahedron16 : public physx::PxUserAllocated
+	class IndTetrahedron16 : public ev4sio_physx::PxUserAllocated
 	{
 	public:
 	public:
@@ -139,7 +139,7 @@ namespace Gu
 		}
 	}
 
-	class SourceMeshBase : public physx::PxUserAllocated
+	class SourceMeshBase : public ev4sio_physx::PxUserAllocated
 	{
 		public:
 		enum MeshType
@@ -170,7 +170,7 @@ namespace Gu
 		// PT: TODO: check whether adding these vcalls affected build & runtime performance
 		virtual			PxU32			getNbPrimitives()	const = 0;
 		virtual			void			remapTopology(const PxU32* order) = 0;
-		virtual			void			getPrimitiveBox(const PxU32 primitiveInd, physx::aos::Vec4V& minV, physx::aos::Vec4V& maxV) = 0;
+		virtual			void			getPrimitiveBox(const PxU32 primitiveInd, ev4sio_physx::aos::Vec4V& minV, ev4sio_physx::aos::Vec4V& maxV) = 0;
 		virtual			void			refit(const PxU32 primitiveInd, PxBounds3& refitBox) = 0;
 		
 		protected:
@@ -203,7 +203,7 @@ namespace Gu
 		// SourceMeshBase
 		virtual			PxU32			getNbPrimitives()	const	{ return  getNbTriangles(); }
 		virtual			void			remapTopology(const PxU32* order);
-		virtual			void			getPrimitiveBox(const PxU32 primitiveInd, physx::aos::Vec4V& minV, physx::aos::Vec4V& maxV);
+		virtual			void			getPrimitiveBox(const PxU32 primitiveInd, ev4sio_physx::aos::Vec4V& minV, ev4sio_physx::aos::Vec4V& maxV);
 		virtual			void			refit(const PxU32 primitiveInd, PxBounds3& refitBox);
 		//~SourceMeshBase
 
@@ -251,7 +251,7 @@ namespace Gu
 		// SourceMeshBase
 		virtual			PxU32					getNbPrimitives()			const	{ return  getNbTetrahedrons(); }
 		virtual			void					remapTopology(const PxU32* order);
-		virtual			void					getPrimitiveBox(const PxU32 primitiveInd, physx::aos::Vec4V& minV, physx::aos::Vec4V& maxV);
+		virtual			void					getPrimitiveBox(const PxU32 primitiveInd, ev4sio_physx::aos::Vec4V& minV, ev4sio_physx::aos::Vec4V& maxV);
 		virtual			void					refit(const PxU32 primitiveInd, PxBounds3& refitBox);
 		//~SourceMeshBase
 
@@ -336,7 +336,7 @@ namespace Gu
 	typedef BVDataPackedT<CenterExtents>	BVDataPackedNQ;
 
 	// PT: TODO: align class to 16? (TA34704)
-	class BV4Tree : public physx::PxUserAllocated
+	class BV4Tree : public ev4sio_physx::PxUserAllocated
 	{
 		public:
 		// PX_SERIALIZATION
@@ -374,7 +374,7 @@ namespace Gu
 				bool			mPadding;
 	};
 
-} // namespace Gu
+} // namespace ev4sio_Gu
 }
 
 #endif // GU_BV4_H

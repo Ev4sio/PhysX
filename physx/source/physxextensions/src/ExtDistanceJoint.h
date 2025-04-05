@@ -36,10 +36,10 @@
 #include "foundation/PxUserAllocated.h"
 #include "CmUtils.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 struct PxDistanceJointGeneratedValues;
-namespace Ext
+namespace ev4sio_Ext
 {
 	struct DistanceJointData : public JointData
 	{
@@ -87,8 +87,8 @@ namespace Ext
 		//~PxConstraintConnector
 	};
 
-} // namespace Ext
+} // namespace ev4sio_Ext
 
-} // namespace physx
+} // namespace ev4sio_physx
 
 #endif

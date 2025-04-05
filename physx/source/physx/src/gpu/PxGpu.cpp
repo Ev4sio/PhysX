@@ -32,18 +32,18 @@
 
 #ifndef PX_PHYSX_GPU_STATIC
 
-namespace physx
+namespace ev4sio_physx
 {
 	//forward declare stuff from PxPhysXGpuModuleLoader.cpp
 	void PxLoadPhysxGPUModule(const char* appGUID);
 
-	typedef physx::PxCudaContextManager* (PxCreateCudaContextManager_FUNC)(physx::PxFoundation& foundation, const physx::PxCudaContextManagerDesc& desc, physx::PxProfilerCallback* profilerCallback, bool launchSynchronous);
-	typedef int (PxGetSuggestedCudaDeviceOrdinal_FUNC)(physx::PxErrorCallback& errc);
-	typedef void (PxSetPhysXGpuProfilerCallback_FUNC)(physx::PxProfilerCallback* cbk);
-	typedef void (PxSetPhysXGpuFoundationInstance_FUNC)(physx::PxFoundation& foundation);
+	typedef ev4sio_physx::PxCudaContextManager* (PxCreateCudaContextManager_FUNC)(ev4sio_physx::PxFoundation& foundation, const ev4sio_physx::PxCudaContextManagerDesc& desc, ev4sio_physx::PxProfilerCallback* profilerCallback, bool launchSynchronous);
+	typedef int (PxGetSuggestedCudaDeviceOrdinal_FUNC)(ev4sio_physx::PxErrorCallback& errc);
+	typedef void (PxSetPhysXGpuProfilerCallback_FUNC)(ev4sio_physx::PxProfilerCallback* cbk);
+	typedef void (PxSetPhysXGpuFoundationInstance_FUNC)(ev4sio_physx::PxFoundation& foundation);
 	typedef void (PxCudaRegisterFunction_FUNC)(int, const char*);
 	typedef void** (PxCudaRegisterFatBinary_FUNC)(void*);
-	typedef physx::PxKernelIndex* (PxGetCudaFunctionTable_FUNC)();
+	typedef ev4sio_physx::PxKernelIndex* (PxGetCudaFunctionTable_FUNC)();
 	typedef PxU32 (PxGetCudaFunctionTableSize_FUNC)();
 	typedef void** PxGetCudaModuleTable_FUNC();
 	typedef PxPhysicsGpu* PxCreatePhysicsGpu_FUNC();
@@ -64,109 +64,109 @@ namespace physx
 
 
 
-physx::PxCudaContextManager* PxCreateCudaContextManager(physx::PxFoundation& foundation, const physx::PxCudaContextManagerDesc& desc, physx::PxProfilerCallback* profilerCallback, bool launchSynchronous)
+ev4sio_physx::PxCudaContextManager* ev4sio_PxCreateCudaContextManager(ev4sio_physx::PxFoundation& foundation, const ev4sio_physx::PxCudaContextManagerDesc& desc, ev4sio_physx::PxProfilerCallback* profilerCallback, bool launchSynchronous)
 {
-	physx::PxLoadPhysxGPUModule(desc.appGUID);
+	ev4sio_physx::PxLoadPhysxGPUModule(desc.appGUID);
 
-	if (physx::g_PxCreateCudaContextManager_Func)
-		return physx::g_PxCreateCudaContextManager_Func(foundation, desc, profilerCallback, launchSynchronous);
+	if (ev4sio_physx::g_PxCreateCudaContextManager_Func)
+		return ev4sio_physx::g_PxCreateCudaContextManager_Func(foundation, desc, profilerCallback, launchSynchronous);
 	else
 		return NULL;
 }
 
-int PxGetSuggestedCudaDeviceOrdinal(physx::PxErrorCallback& errc)
+int ev4sio_PxGetSuggestedCudaDeviceOrdinal(ev4sio_physx::PxErrorCallback& errc)
 {
-	physx::PxLoadPhysxGPUModule(NULL);
+	ev4sio_physx::PxLoadPhysxGPUModule(NULL);
 
-	if (physx::g_PxGetSuggestedCudaDeviceOrdinal_Func)
-		return physx::g_PxGetSuggestedCudaDeviceOrdinal_Func(errc);
+	if (ev4sio_physx::g_PxGetSuggestedCudaDeviceOrdinal_Func)
+		return ev4sio_physx::g_PxGetSuggestedCudaDeviceOrdinal_Func(errc);
 	else
 		return -1;
 }
 
-void PxSetPhysXGpuProfilerCallback(physx::PxProfilerCallback* profilerCallback)
+void ev4sio_PxSetPhysXGpuProfilerCallback(ev4sio_physx::PxProfilerCallback* profilerCallback)
 {
-	physx::PxLoadPhysxGPUModule(NULL);
+	ev4sio_physx::PxLoadPhysxGPUModule(NULL);
 
-	if (physx::g_PxSetPhysXGpuProfilerCallback_Func)
-		physx::g_PxSetPhysXGpuProfilerCallback_Func(profilerCallback);
+	if (ev4sio_physx::g_PxSetPhysXGpuProfilerCallback_Func)
+		ev4sio_physx::g_PxSetPhysXGpuProfilerCallback_Func(profilerCallback);
 }
 
-void PxSetPhysXGpuFoundationInstance(physx::PxFoundation& foundation)
+void ev4sio_PxSetPhysXGpuFoundationInstance(ev4sio_physx::PxFoundation& foundation)
 {
-	physx::PxLoadPhysxGPUModule(NULL);
+	ev4sio_physx::PxLoadPhysxGPUModule(NULL);
 
-	if (physx::g_PxSetPhysXGpuFoundationInstance_Func)
-		physx::g_PxSetPhysXGpuFoundationInstance_Func(foundation);
+	if (ev4sio_physx::g_PxSetPhysXGpuFoundationInstance_Func)
+		ev4sio_physx::g_PxSetPhysXGpuFoundationInstance_Func(foundation);
 }
 
-void PxCudaRegisterFunction(int moduleIndex, const char* functionName)
+void ev4sio_PxCudaRegisterFunction(int moduleIndex, const char* functionName)
 {
-	physx::PxLoadPhysxGPUModule(NULL);
+	ev4sio_physx::PxLoadPhysxGPUModule(NULL);
 
-	if (physx::g_PxCudaRegisterFunction_Func)
-		physx::g_PxCudaRegisterFunction_Func(moduleIndex, functionName);
+	if (ev4sio_physx::g_PxCudaRegisterFunction_Func)
+		ev4sio_physx::g_PxCudaRegisterFunction_Func(moduleIndex, functionName);
 }
 
-void** PxCudaRegisterFatBinary(void* fatBin)
+void** ev4sio_PxCudaRegisterFatBinary(void* fatBin)
 {
-	physx::PxLoadPhysxGPUModule(NULL);
+	ev4sio_physx::PxLoadPhysxGPUModule(NULL);
 
-	if (physx::g_PxCudaRegisterFatBinary_Func)
-		return physx::g_PxCudaRegisterFatBinary_Func(fatBin);
+	if (ev4sio_physx::g_PxCudaRegisterFatBinary_Func)
+		return ev4sio_physx::g_PxCudaRegisterFatBinary_Func(fatBin);
 
 	return NULL;
 }
 
 
-physx::PxKernelIndex* PxGetCudaFunctionTable()
+ev4sio_physx::PxKernelIndex* ev4sio_PxGetCudaFunctionTable()
 {
-	physx::PxLoadPhysxGPUModule(NULL);
+	ev4sio_physx::PxLoadPhysxGPUModule(NULL);
 
-	if(physx::g_PxGetCudaFunctionTable_Func)
-		return physx::g_PxGetCudaFunctionTable_Func();
+	if(ev4sio_physx::g_PxGetCudaFunctionTable_Func)
+		return ev4sio_physx::g_PxGetCudaFunctionTable_Func();
 
 	return NULL;
 }
 
-physx::PxU32 PxGetCudaFunctionTableSize()
+ev4sio_physx::PxU32 ev4sio_PxGetCudaFunctionTableSize()
 {
-	physx::PxLoadPhysxGPUModule(NULL);
+	ev4sio_physx::PxLoadPhysxGPUModule(NULL);
 
-	if(physx::g_PxGetCudaFunctionTableSize_Func)
-		return physx::g_PxGetCudaFunctionTableSize_Func();
+	if(ev4sio_physx::g_PxGetCudaFunctionTableSize_Func)
+		return ev4sio_physx::g_PxGetCudaFunctionTableSize_Func();
 
 	return 0;
 }
 
-void** PxGetCudaModuleTable() 
+void** ev4sio_PxGetCudaModuleTable() 
 {
-	physx::PxLoadPhysxGPUModule(NULL);
+	ev4sio_physx::PxLoadPhysxGPUModule(NULL);
 
-	if(physx::g_PxGetCudaModuleTable_Func)
-		return physx::g_PxGetCudaModuleTable_Func();
+	if(ev4sio_physx::g_PxGetCudaModuleTable_Func)
+		return ev4sio_physx::g_PxGetCudaModuleTable_Func();
 
 	return NULL;
 }
 
 
-physx::PxU32 PxGetCudaModuleTableSize()
+ev4sio_physx::PxU32 ev4sio_PxGetCudaModuleTableSize()
 {
-	physx::PxLoadPhysxGPUModule(NULL);
+	ev4sio_physx::PxLoadPhysxGPUModule(NULL);
 
-	if(physx::g_PxGetCudaModuleTableSize_Func)
-		return physx::g_PxGetCudaModuleTableSize_Func();
+	if(ev4sio_physx::g_PxGetCudaModuleTableSize_Func)
+		return ev4sio_physx::g_PxGetCudaModuleTableSize_Func();
 
 	return 0;
 }
 
 
-physx::PxPhysicsGpu* PxGetPhysicsGpu()
+ev4sio_physx::PxPhysicsGpu* ev4sio_PxGetPhysicsGpu()
 {
-	physx::PxLoadPhysxGPUModule(NULL);
+	ev4sio_physx::PxLoadPhysxGPUModule(NULL);
 
-	if (physx::g_PxCreatePhysicsGpu_Func)
-		return physx::g_PxCreatePhysicsGpu_Func();
+	if (ev4sio_physx::g_PxCreatePhysicsGpu_Func)
+		return ev4sio_physx::g_PxCreatePhysicsGpu_Func();
 
 	return NULL;
 }

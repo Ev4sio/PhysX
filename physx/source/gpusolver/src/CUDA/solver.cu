@@ -40,7 +40,7 @@
 #include "assert.h"
 #include "PxgArticulationCoreDesc.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 extern "C" __host__ void initSolverKernels7() {}
 
@@ -59,7 +59,7 @@ void artiSolveBlockPartition(PxgSolverCoreDesc* PX_RESTRICT solverDesc, const Px
 
 	const PxU32 maxLinks = artiDesc->mMaxLinksPerArticulation;
 
-	Cm::UnAlignedSpatialVector* deferredZ = sharedDesc->articulationDeferredZ;
+	ev4sio_Cm::UnAlignedSpatialVector* deferredZ = sharedDesc->articulationDeferredZ;
 
 	const PxU32 startPartitionIndex = island.mStartPartitionIndex;
 
@@ -122,25 +122,25 @@ void artiSolveBlockPartition(PxgSolverCoreDesc* PX_RESTRICT solverDesc, const Px
 
 		//printf("responseIndex %i\n", responseIndex);
 
-		//Cm::UnAlignedSpatialVector v0, v1;
+		//ev4sio_Cm::UnAlignedSpatialVector v0, v1;
 		PxU32 linkIndexA = igNodeIndexA.articulationLinkId(); 
 		PxU32 linkIndexB = igNodeIndexB.articulationLinkId();
 
-		Cm::UnAlignedSpatialVector vel0, vel1;
+		ev4sio_Cm::UnAlignedSpatialVector vel0, vel1;
 		{
 			float4 lin = Pxldcg(msIterativeData.solverBodyVelPool[readIndex]);
 			float4 ang = Pxldcg(msIterativeData.solverBodyVelPool[readIndex + 32]);
-			vel0 = Cm::UnAlignedSpatialVector(PxVec3(ang.x, ang.y, ang.z), PxVec3(lin.x, lin.y, lin.z));
+			vel0 = ev4sio_Cm::UnAlignedSpatialVector(PxVec3(ang.x, ang.y, ang.z), PxVec3(lin.x, lin.y, lin.z));
 		}
 
 		{
 			float4 lin = Pxldcg(msIterativeData.solverBodyVelPool[readIndex + 64]);
 			float4 ang = Pxldcg(msIterativeData.solverBodyVelPool[readIndex + 96]);
-			vel1 = Cm::UnAlignedSpatialVector(PxVec3(ang.x, ang.y, ang.z), PxVec3(lin.x, lin.y, lin.z));
+			vel1 = ev4sio_Cm::UnAlignedSpatialVector(PxVec3(ang.x, ang.y, ang.z), PxVec3(lin.x, lin.y, lin.z));
 		}
 
-		Cm::UnAlignedSpatialVector impulse0 = Cm::UnAlignedSpatialVector::Zero();
-		Cm::UnAlignedSpatialVector impulse1 = Cm::UnAlignedSpatialVector::Zero();
+		ev4sio_Cm::UnAlignedSpatialVector impulse0 = ev4sio_Cm::UnAlignedSpatialVector::Zero();
+		ev4sio_Cm::UnAlignedSpatialVector impulse1 = ev4sio_Cm::UnAlignedSpatialVector::Zero();
 
 		PxReal curRef0 = 1.f;
 		PxReal curRef1 = 1.f;

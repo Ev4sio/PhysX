@@ -38,17 +38,17 @@
 #include "PxcNpWorkUnit.h"
 #include "PxsMaterialManager.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-	namespace Dy
+	namespace ev4sio_Dy
 	{
 		FloatV setupExtSolverContact(const SolverExtBody& b0, const SolverExtBody& b1,
 			const FloatV& d0, const FloatV& d1, const FloatV& angD0, const FloatV& angD1, const Vec3V& bodyFrame0p, const Vec3V& bodyFrame1p,
 			const Vec3VArg normal, const FloatVArg invDt, const FloatVArg invDtp8, const FloatVArg dt, const FloatVArg restDistance, const FloatVArg maxPenBias, const FloatVArg restitution,
 			const FloatVArg bounceThreshold, const PxContactPoint& contact, SolverContactPointExt& solverContact, const FloatVArg ccdMaxSeparation,
-			Cm::SpatialVectorF* Z, const Cm::SpatialVectorV& v0, const Cm::SpatialVectorV& v1, const FloatV& cfm, const Vec3VArg solverOffsetSlop,
+			ev4sio_Cm::SpatialVectorF* Z, const ev4sio_Cm::SpatialVectorV& v0, const ev4sio_Cm::SpatialVectorV& v1, const FloatV& cfm, const Vec3VArg solverOffsetSlop,
 			const FloatVArg norVel0, const FloatVArg norVel1, const FloatVArg damping, const BoolVArg accelerationSpring);
-	} //namespace Dy
+	} //namespace ev4sio_Dy
 }
 
 #endif

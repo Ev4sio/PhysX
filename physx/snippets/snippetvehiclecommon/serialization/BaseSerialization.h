@@ -54,8 +54,8 @@
 namespace snippetvehicle
 {
 
-using namespace physx;
-using namespace physx::vehicle2;
+using namespace ev4sio_physx;
+using namespace ev4sio_physx::vehicle2;
 
 bool readAxleDescription(const rapidjson::Document& config, PxVehicleAxleDescription& axleDesc);
 bool writeAxleDescription(const PxVehicleAxleDescription& axleDesc, rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer);

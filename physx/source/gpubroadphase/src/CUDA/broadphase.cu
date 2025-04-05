@@ -46,7 +46,7 @@
 #define	TOTAL_REGION_SIZE		64
 #define	WARP_PERBLOCK_SIZE_16	16
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 extern "C" __host__ void initBroadphaseKernels0() {}
 
@@ -2265,7 +2265,7 @@ extern "C" __global__ void accumulateReportsStage_1(const PxgBroadPhaseDesc* bpD
 	const PxU32 maxPairs = bpDesc->max_found_lost_pairs;
 	const PxU32 nbPairsSafe = PxMin(nbPairs, maxPairs);
 
-	const Bp::VolumeData* volumeData = bpDesc->aabbMngr_volumeData;
+	const ev4sio_Bp::VolumeData* volumeData = bpDesc->aabbMngr_volumeData;
 	//if(!volumeData)
 	//	printf("volumeData null\n");
 
@@ -2444,7 +2444,7 @@ extern "C" __global__ void accumulateReportsStage_2(PxgBroadPhaseDesc* bpDesc)	/
 
 	const PxU32 nbPairsSafe = PxMin(nbPairs, bpDesc->max_found_lost_pairs); // AD: pairs buffer is sized according to this, aggregate count is not considered.
 	
-	const Bp::VolumeData* volumeData = bpDesc->aabbMngr_volumeData;
+	const ev4sio_Bp::VolumeData* volumeData = bpDesc->aabbMngr_volumeData;
 
 	const PxU32 totalBlockRequired = (nbPairs + (blockDim.x - 1)) / blockDim.x;
 

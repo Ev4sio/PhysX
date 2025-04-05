@@ -32,7 +32,7 @@
 #include "PxProfileDataParsing.h"
 #include "PxProfileEvents.h"
 
-namespace physx { namespace profile {
+namespace ev4sio_physx { namespace profile {
 
 	/**
 	 *	Array type must be a pxu8 container.  Templated so that this object can write

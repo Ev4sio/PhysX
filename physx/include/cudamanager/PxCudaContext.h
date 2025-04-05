@@ -34,7 +34,7 @@
 #include "PxCudaTypes.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 	struct PxCudaKernelParam
@@ -184,7 +184,7 @@ namespace physx
 	};
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif // PX_SUPPORT_GPU_PHYSX

@@ -60,7 +60,7 @@
 #include "../snippetcommon/SnippetPrint.h"
 #include "../snippetcommon/SnippetPVD.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 static PxDefaultAllocator						gAllocator;
 static PxDefaultErrorCallback					gErrorCallback;
@@ -180,14 +180,14 @@ static PxArticulationReducedCoordinate* createArticulation(PxArticulationJointRe
 void initPhysics(bool /*interactive*/)
 {
 	// Create a PxFoundation instance
-	gFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, gAllocator, gErrorCallback);
-	gPvd = PxCreatePvd(*gFoundation);
-	PxPvdTransport* transport = PxDefaultPvdSocketTransportCreate(PVD_HOST, 5425, 10);
+	gFoundation = ev4sio_PxCreateFoundation(ev4sio_PX_PHYSICS_VERSION, gAllocator, gErrorCallback);
+	gPvd = ev4sio_PxCreatePvd(*gFoundation);
+	PxPvdTransport* transport = ev4sio_PxDefaultPvdSocketTransportCreate(PVD_HOST, 5425, 10);
 	gPvd->connect(*transport,PxPvdInstrumentationFlag::eALL);
 
 	// Create a PxPhysics instance
-	gPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *gFoundation, PxTolerancesScale(), true, gPvd);
-	PxInitExtensions(*gPhysics, gPvd);
+	gPhysics = ev4sio_PxCreatePhysics(ev4sio_PX_PHYSICS_VERSION, *gFoundation, PxTolerancesScale(), true, gPvd);
+	ev4sio_PxInitExtensions(*gPhysics, gPvd);
 
 	//Create a PxMaterial instance
 	gMaterial = gPhysics->createMaterial(0.5f, 0.5f, 0.f);
@@ -245,7 +245,7 @@ void cleanupPhysics(bool /*interactive*/)
 	PxPvdTransport* transport = gPvd->getTransport();
 	PX_RELEASE(gPvd);
 	PX_RELEASE(transport);
-	PxCloseExtensions();  
+	ev4sio_PxCloseExtensions();  
 	PX_RELEASE(gFoundation);
 
 	printf("SnippetMimicJoint done.\n");

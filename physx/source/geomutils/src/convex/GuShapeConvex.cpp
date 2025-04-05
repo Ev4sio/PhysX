@@ -35,10 +35,10 @@
 #include "GuHillClimbing.h"
 #include "foundation/PxFPU.h"
 
-using namespace physx;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
 
-static PX_FORCE_INLINE PxU32 selectClosestPolygon(PxReal& maxDp_, PxU32 numPolygons, const Gu::HullPolygonData* polys, const PxVec3& axis)
+static PX_FORCE_INLINE PxU32 selectClosestPolygon(PxReal& maxDp_, PxU32 numPolygons, const ev4sio_Gu::HullPolygonData* polys, const PxVec3& axis)
 {
 	float maxDp = polys[0].mPlane.n.dot(axis);
 	PxU32 closest = 0;
@@ -58,13 +58,13 @@ static PX_FORCE_INLINE PxU32 selectClosestPolygon(PxReal& maxDp_, PxU32 numPolyg
 	return closest;
 }
 
-static PxU32 SelectClosestEdgeCB_Convex(const PolygonalData& data, const Cm::FastVertex2ShapeScaling& scaling, const PxVec3& localSpaceDirection)
+static PxU32 SelectClosestEdgeCB_Convex(const PolygonalData& data, const ev4sio_Cm::FastVertex2ShapeScaling& scaling, const PxVec3& localSpaceDirection)
 {
 	//vertex1TOShape1Skew is a symmetric matrix.  
 	//it has the property that (vertex1TOShape1Skew * v)|localSpaceDirection == (vertex1TOShape1Skew * localSpaceDirection)|v 
 	const PxVec3 vertexSpaceDirection = scaling * localSpaceDirection;
 
-	const Gu::HullPolygonData* PX_RESTRICT polys = data.mPolygons;
+	const ev4sio_Gu::HullPolygonData* PX_RESTRICT polys = data.mPolygons;
 
 	PxReal maxDp;
 	// ##might not be needed
@@ -116,7 +116,7 @@ static PxU32 SelectClosestEdgeCB_Convex(const PolygonalData& data, const Cm::Fas
 // Hull projection callback for "small" hulls
 static void HullProjectionCB_SmallConvex(const PolygonalData& data, const PxVec3& dir,
 										 const PxMat34& world,
-										 const Cm::FastVertex2ShapeScaling& scaling,
+										 const ev4sio_Cm::FastVertex2ShapeScaling& scaling,
 										 PxReal& min, PxReal& max)
 {
 	const PxVec3 localSpaceDirection = world.rotateTranspose(dir);
@@ -135,8 +135,8 @@ static void HullProjectionCB_SmallConvex(const PolygonalData& data, const PxVec3
 		while(numVerts--)
 		{
 			const PxReal dp = (*verts++).dot(vertexSpaceDirection);
-			minimum = physx::intrinsics::selectMin(minimum, dp);
-			maximum = physx::intrinsics::selectMax(maximum, dp);
+			minimum = ev4sio_physx::intrinsics::selectMin(minimum, dp);
+			maximum = ev4sio_physx::intrinsics::selectMax(maximum, dp);
 		}
 
 	}
@@ -213,7 +213,7 @@ static PxU32 computeNearestOffset(const PxU32 subdiv, const PxVec3& dir)
 }
 
 // Hull projection callback for "big" hulls
-static void HullProjectionCB_BigConvex(const PolygonalData& data, const PxVec3& dir, const PxMat34& world, const Cm::FastVertex2ShapeScaling& scaling, PxReal& minimum, PxReal& maximum)
+static void HullProjectionCB_BigConvex(const PolygonalData& data, const PxVec3& dir, const PxMat34& world, const ev4sio_Cm::FastVertex2ShapeScaling& scaling, PxReal& minimum, PxReal& maximum)
 {
 	const PxVec3* PX_RESTRICT verts = data.mVerts;
 
@@ -223,7 +223,7 @@ static void HullProjectionCB_BigConvex(const PolygonalData& data, const PxVec3& 
 	const PxVec3 vertexSpaceDirection = scaling * localSpaceDirection;	//NB: triangles are always shape 1! eek!
 
 	// This version is better for objects with a lot of vertices
-	const Gu::BigConvexRawData* bigData = data.mBigData;
+	const ev4sio_Gu::BigConvexRawData* bigData = data.mBigData;
 	PxU32 minID = 0, maxID = 0;
 	{
 		const PxU32 offset = computeNearestOffset(bigData->mSubdiv, -vertexSpaceDirection);
@@ -241,7 +241,7 @@ static void HullProjectionCB_BigConvex(const PolygonalData& data, const PxVec3& 
 	PX_ASSERT(maximum >= minimum);
 }
 
-void Gu::getPolygonalData_Convex(PolygonalData* PX_RESTRICT dst, const Gu::ConvexHullData* PX_RESTRICT src, const Cm::FastVertex2ShapeScaling& scaling)
+void ev4sio_Gu::getPolygonalData_Convex(PolygonalData* PX_RESTRICT dst, const ev4sio_Gu::ConvexHullData* PX_RESTRICT src, const ev4sio_Cm::FastVertex2ShapeScaling& scaling)
 {
 	dst->mCenter			= scaling * src->mCenterOfMass;
 	dst->mNbVerts			= src->mNbHullVertices;
@@ -317,19 +317,19 @@ static PxVec3 gPxcBoxEdgeNormals[] =
 
 // ### needs serious checkings
 	// Flags(16), Count(16), Offset(32);
-static Gu::EdgeDescData gPxcBoxEdgeDesc[] = {
-	{Gu::PX_EDGE_ACTIVE, 2, 0},
-	{Gu::PX_EDGE_ACTIVE, 2, 2},
-	{Gu::PX_EDGE_ACTIVE, 2, 4},
-	{Gu::PX_EDGE_ACTIVE, 2, 6},
-	{Gu::PX_EDGE_ACTIVE, 2, 8},
-	{Gu::PX_EDGE_ACTIVE, 2, 10},
-	{Gu::PX_EDGE_ACTIVE, 2, 12},
-	{Gu::PX_EDGE_ACTIVE, 2, 14},
-	{Gu::PX_EDGE_ACTIVE, 2, 16},
-	{Gu::PX_EDGE_ACTIVE, 2, 18},
-	{Gu::PX_EDGE_ACTIVE, 2, 20},
-	{Gu::PX_EDGE_ACTIVE, 2, 22},
+static ev4sio_Gu::EdgeDescData gPxcBoxEdgeDesc[] = {
+	{ev4sio_Gu::PX_EDGE_ACTIVE, 2, 0},
+	{ev4sio_Gu::PX_EDGE_ACTIVE, 2, 2},
+	{ev4sio_Gu::PX_EDGE_ACTIVE, 2, 4},
+	{ev4sio_Gu::PX_EDGE_ACTIVE, 2, 6},
+	{ev4sio_Gu::PX_EDGE_ACTIVE, 2, 8},
+	{ev4sio_Gu::PX_EDGE_ACTIVE, 2, 10},
+	{ev4sio_Gu::PX_EDGE_ACTIVE, 2, 12},
+	{ev4sio_Gu::PX_EDGE_ACTIVE, 2, 14},
+	{ev4sio_Gu::PX_EDGE_ACTIVE, 2, 16},
+	{ev4sio_Gu::PX_EDGE_ACTIVE, 2, 18},
+	{ev4sio_Gu::PX_EDGE_ACTIVE, 2, 20},
+	{ev4sio_Gu::PX_EDGE_ACTIVE, 2, 22},
 };
 
 // ### needs serious checkings
@@ -348,7 +348,7 @@ static PxU8 gPxcBoxFaceByEdge[] = {
 	3,5, 	// Edge 4-0
 };
 
-static PxU32 SelectClosestEdgeCB_Box(const PolygonalData& data, const Cm::FastVertex2ShapeScaling& scaling, const PxVec3& localDirection)
+static PxU32 SelectClosestEdgeCB_Box(const PolygonalData& data, const ev4sio_Cm::FastVertex2ShapeScaling& scaling, const PxVec3& localDirection)
 {
 	PX_UNUSED(scaling);
 
@@ -374,7 +374,7 @@ static PxU32 SelectClosestEdgeCB_Box(const PolygonalData& data, const Cm::FastVe
 
 	if(closestEdge!=0xffffffff)
 	{
-		const Gu::EdgeDescData* PX_RESTRICT ED = gPxcBoxEdgeDesc;
+		const ev4sio_Gu::EdgeDescData* PX_RESTRICT ED = gPxcBoxEdgeDesc;
 		const PxU8* PX_RESTRICT FBE = gPxcBoxFaceByEdge;
 
 		PX_ASSERT(ED[closestEdge].Count==2);
@@ -398,12 +398,12 @@ static PX_FORCE_INLINE void projectBox(PxVec3& p, const PxVec3& localDir, const 
 //	p.x = (localDir.x >= 0) ? extents.x : -extents.x;
 //	p.y = (localDir.y >= 0) ? extents.y : -extents.y;
 //	p.z = (localDir.z >= 0) ? extents.z : -extents.z;
-	p.x = physx::intrinsics::fsel(localDir.x, extents.x, -extents.x);
-	p.y = physx::intrinsics::fsel(localDir.y, extents.y, -extents.y);
-	p.z = physx::intrinsics::fsel(localDir.z, extents.z, -extents.z);
+	p.x = ev4sio_physx::intrinsics::fsel(localDir.x, extents.x, -extents.x);
+	p.y = ev4sio_physx::intrinsics::fsel(localDir.y, extents.y, -extents.y);
+	p.z = ev4sio_physx::intrinsics::fsel(localDir.z, extents.z, -extents.z);
 }
 
-static void	HullProjectionCB_Box(const PolygonalData& data, const PxVec3& dir, const PxMat34& world, const Cm::FastVertex2ShapeScaling& scaling, PxReal& minimum, PxReal& maximum)
+static void	HullProjectionCB_Box(const PolygonalData& data, const PxVec3& dir, const PxMat34& world, const ev4sio_Cm::FastVertex2ShapeScaling& scaling, PxReal& minimum, PxReal& maximum)
 {
 	PX_UNUSED(scaling);
 

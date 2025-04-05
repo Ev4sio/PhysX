@@ -46,7 +46,7 @@
 #include "geometry/PxConvexCoreGeometry.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -181,7 +181,7 @@ public:
 PX_ALIGN_SUFFIX(8);
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

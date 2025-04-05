@@ -37,7 +37,7 @@
 #include "../snippetcommon/SnippetPVD.h"
 #include "../snippetutils/SnippetUtils.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 static PxDefaultAllocator		gAllocator;
 static PxDefaultErrorCallback	gErrorCallback;
@@ -139,20 +139,20 @@ public:
 
 void initPhysics(bool interactive)
 {
-	gFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, gAllocator, gErrorCallback);
+	gFoundation = ev4sio_PxCreateFoundation(ev4sio_PX_PHYSICS_VERSION, gAllocator, gErrorCallback);
 
-	gPvd = PxCreatePvd(*gFoundation);
-	PxPvdTransport* transport = PxDefaultPvdSocketTransportCreate(PVD_HOST, 5425, 10);
+	gPvd = ev4sio_PxCreatePvd(*gFoundation);
+	PxPvdTransport* transport = ev4sio_PxDefaultPvdSocketTransportCreate(PVD_HOST, 5425, 10);
 
 	// During the "connect" call, PVD sets itself up as the profiler if PxPvdInstrumentationFlag::ePROFILE is used.
-	// That is, it internally calls PxSetProfilerCallback() to setup its own profiling callback. Any calls to
-	// PxSetProfilerCallback() prior to calling "connect" is thus lost.
+	// That is, it internally calls ev4sio_PxSetProfilerCallback() to setup its own profiling callback. Any calls to
+	// ev4sio_PxSetProfilerCallback() prior to calling "connect" is thus lost.
 	gPvd->connect(*transport, PxPvdInstrumentationFlag::eALL);
 
 	// This call should be performed after PVD is initialized, otherwise it will have no effect.
-	PxSetProfilerCallback(&gCustomProfilerCallback);
+	ev4sio_PxSetProfilerCallback(&gCustomProfilerCallback);
 
-	gPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *gFoundation, PxTolerancesScale(), true, gPvd);
+	gPhysics = ev4sio_PxCreatePhysics(ev4sio_PX_PHYSICS_VERSION, *gFoundation, PxTolerancesScale(), true, gPvd);
 
 	PxSceneDesc sceneDesc(gPhysics->getTolerancesScale());
 	sceneDesc.gravity = PxVec3(0.0f, -9.81f, 0.0f);

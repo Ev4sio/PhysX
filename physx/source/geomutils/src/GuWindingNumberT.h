@@ -39,11 +39,11 @@
 #include "GuAABBTreeNode.h"
 #include "GuWindingNumberCluster.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Gu
+namespace ev4sio_Gu
 {
-	using Triangle = Gu::IndexedTriangleT<PxI32>;
+	using Triangle = ev4sio_Gu::IndexedTriangleT<PxI32>;
 	
 	template<typename R, typename V3>
 	struct SecondOrderClusterApproximationT : public ClusterApproximationT<R, V3>
@@ -289,14 +289,14 @@ namespace Gu
 			: mTriangles(triangles), mPoints(points), mClusters(clusters), mQueryPoint(queryPoint), mDistanceThresholdBeta(distanceThresholdBeta)
 		{ }
 
-		PX_FORCE_INLINE Gu::TraversalControl::Enum analyze(const BVHNode& node, PxI32 nodeIndex)
+		PX_FORCE_INLINE ev4sio_Gu::TraversalControl::Enum analyze(const BVHNode& node, PxI32 nodeIndex)
 		{
 			if (node.isLeaf())
 			{
 				PX_ASSERT(node.getNbPrimitives() == 1);
 				const PxU32* tri = &mTriangles[3 * node.getPrimitiveIndex()];
 				mWindingNumber += evaluateExact<R, V3>(mPoints[tri[0]], mPoints[tri[1]], mPoints[tri[2]], mQueryPoint);
-				return Gu::TraversalControl::eDontGoDeeper;
+				return ev4sio_Gu::TraversalControl::eDontGoDeeper;
 			}
 			const ClusterApproximationT<R, V3>& cluster = mClusters.find(nodeIndex)->second;
 			const R distSquared = (mQueryPoint - cluster.WeightedCentroid).magnitudeSquared();
@@ -305,9 +305,9 @@ namespace Gu
 			{
 				//mWindingNumber += secondOrderClusterApproximation(cluster.WeightedCentroid, cluster.WeightedNormalSum, cluster.WeightedOuterProductSum, mQueryPoint);
 				mWindingNumber += firstOrderClusterApproximation<R, V3>(cluster.WeightedCentroid, cluster.WeightedNormalSum, mQueryPoint); // secondOrderClusterApproximation(cluster.WeightedCentroid, cluster.WeightedNormalSum, cluster.WeightedOuterProductSum, mQueryPoint);
-				return Gu::TraversalControl::eDontGoDeeper;
+				return ev4sio_Gu::TraversalControl::eDontGoDeeper;
 			}
-			return Gu::TraversalControl::eGoDeeper;
+			return ev4sio_Gu::TraversalControl::eGoDeeper;
 		}
 
 	private:

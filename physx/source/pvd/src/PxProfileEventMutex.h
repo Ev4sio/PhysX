@@ -28,7 +28,7 @@
 #define PX_PROFILE_EVENT_MUTEX_H
 
 
-namespace physx { namespace profile {
+namespace ev4sio_physx { namespace profile {
 	
 	/**
 	 *	Mutex interface that hides implementation around lock and unlock.

@@ -34,12 +34,12 @@
 #include "GuPrunerPayload.h"
 #include "GuPrunerTypedef.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	class PxRenderOutput;
 	class PxBounds3;
 
-namespace Gu
+namespace ev4sio_Gu
 {
 	class ShapeData;
 
@@ -153,8 +153,8 @@ namespace Gu
 		 *			currently it is still used for the dynamic pruner internally (to decide if added objects must be queried)
 		 */
 		virtual	bool					raycast(const PxVec3& origin, const PxVec3& unitDir, PxReal& inOutDistance, PrunerRaycastCallback&) const = 0;
-		virtual	bool					overlap(const Gu::ShapeData& queryVolume, PrunerOverlapCallback&) const = 0;
-		virtual	bool					sweep(const Gu::ShapeData& queryVolume, const PxVec3& unitDir, PxReal& inOutDistance, PrunerRaycastCallback&) const = 0;
+		virtual	bool					overlap(const ev4sio_Gu::ShapeData& queryVolume, PrunerOverlapCallback&) const = 0;
+		virtual	bool					sweep(const ev4sio_Gu::ShapeData& queryVolume, const PxVec3& unitDir, PxReal& inOutDistance, PrunerRaycastCallback&) const = 0;
 
 		/**
 		\brief	Retrieves the object's payload and data associated with the handle.

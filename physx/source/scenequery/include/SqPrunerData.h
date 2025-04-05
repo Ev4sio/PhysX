@@ -36,9 +36,9 @@
 // PT: this file is part of a "high-level" set of files within Sq. The SqPruner API doesn't rely on them.
 // PT: this should really be at Np level but moving it to Sq allows us to share it.
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Sq
+namespace ev4sio_Sq
 {
 	struct PruningIndex
 	{
@@ -51,9 +51,9 @@ namespace Sq
 		};
 	};
 
-	PX_FORCE_INLINE PrunerData createPrunerData(PxU32 index, Gu::PrunerHandle h)	{ return PrunerData((h << 1) | index);	}
+	PX_FORCE_INLINE PrunerData createPrunerData(PxU32 index, ev4sio_Gu::PrunerHandle h)	{ return PrunerData((h << 1) | index);	}
 	PX_FORCE_INLINE PxU32 getPrunerIndex(PrunerData data)							{ return PxU32(data & 1);				}
-	PX_FORCE_INLINE Gu::PrunerHandle getPrunerHandle(PrunerData data)				{ return Gu::PrunerHandle(data >> 1);	}
+	PX_FORCE_INLINE ev4sio_Gu::PrunerHandle getPrunerHandle(PrunerData data)				{ return ev4sio_Gu::PrunerHandle(data >> 1);	}
 }
 }
 

@@ -36,7 +36,7 @@
 #include "geometry/PxReportCallback.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -273,10 +273,10 @@ protected:
 
 	\see PxBVH PxReportCallback
 	*/
-	PX_C_EXPORT PX_PHYSX_COMMON_API bool PX_CALL_CONV PxFindOverlap(PxReportCallback<PxGeomIndexPair>& callback, const PxBVH& bvh0, const PxBVH& bvh1);
+	PX_C_EXPORT PX_PHYSX_COMMON_API bool PX_CALL_CONV ev4sio_PxFindOverlap(PxReportCallback<PxGeomIndexPair>& callback, const PxBVH& bvh0, const PxBVH& bvh1);
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

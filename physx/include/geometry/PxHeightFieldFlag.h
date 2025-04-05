@@ -32,7 +32,7 @@
 #include "foundation/PxFlags.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -150,7 +150,7 @@ typedef PxFlags<PxHeightFieldFlag::Enum,PxU16> PxHeightFieldFlags;
 PX_FLAGS_OPERATORS(PxHeightFieldFlag::Enum,PxU16)
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

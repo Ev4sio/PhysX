@@ -30,11 +30,11 @@
 #include "GuIntersectionRaySphere.h"
 #include "GuIntersectionRay.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 // Based on GD Mag code, but now works correctly when origin is inside the sphere.
 // This version has limited accuracy.
-bool Gu::intersectRaySphereBasic(const PxVec3& origin, const PxVec3& dir, PxReal length, const PxVec3& center, PxReal radius, PxReal& dist, PxVec3* hit_pos)
+bool ev4sio_Gu::intersectRaySphereBasic(const PxVec3& origin, const PxVec3& dir, PxReal length, const PxVec3& center, PxReal radius, PxReal& dist, PxVec3* hit_pos)
 {
 	// get the offset vector
 	const PxVec3 offset = center - origin;
@@ -85,14 +85,14 @@ bool Gu::intersectRaySphereBasic(const PxVec3& origin, const PxVec3& dir, PxReal
 // PT: modified version calls the previous function, but moves the ray origin closer to the sphere. The test accuracy is
 // greatly improved as a result. This is an idea proposed on the GD-Algorithms list by Eddie Edwards.
 // See: http://www.codercorner.com/blog/?p=321
-bool Gu::intersectRaySphere(const PxVec3& origin, const PxVec3& dir, PxReal length, const PxVec3& center, PxReal radius, PxReal& dist, PxVec3* hit_pos)
+bool ev4sio_Gu::intersectRaySphere(const PxVec3& origin, const PxVec3& dir, PxReal length, const PxVec3& center, PxReal radius, PxReal& dist, PxVec3* hit_pos)
 {
 	const PxVec3 x = origin - center;
 	PxReal l = PxSqrt(x.dot(x)) - radius - GU_RAY_SURFACE_OFFSET;
 
 //	if(l<0.0f)
 //		l=0.0f;
-	l = physx::intrinsics::selectMax(l, 0.0f);
+	l = ev4sio_physx::intrinsics::selectMax(l, 0.0f);
 
 	bool status = intersectRaySphereBasic(origin + l*dir, dir, length - l, center, radius, dist, hit_pos);
 	if(status)

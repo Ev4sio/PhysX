@@ -41,9 +41,9 @@
 #include "geomutils/PxContactPoint.h"
 #include "PxContact.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Gu
+namespace ev4sio_Gu
 {
 
 const float PATCH_ACCEPT_DOTP = 0.9995f;
@@ -461,8 +461,8 @@ public:
 				if (c == NULL)
 				{
 #if PX_CHECKED
-					PxGetFoundation().error(
-						physx::PxErrorCode::eDEBUG_WARNING,
+					ev4sio_PxGetFoundation().error(
+						ev4sio_physx::PxErrorCode::eDEBUG_WARNING,
 						PX_FL,
 						"Dropping contacts in contact reduction due to full contact buffer.");
 #endif

@@ -37,7 +37,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-namespace physx
+namespace ev4sio_physx
 {
 namespace vehicle2
 {
@@ -1886,4 +1886,4 @@ void PxVehiclePvdPhysXSteerStateWrite
 #endif
 
 } // namespace vehicle2
-} // namespace physx
+} // namespace ev4sio_physx

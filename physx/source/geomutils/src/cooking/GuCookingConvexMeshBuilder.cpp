@@ -39,8 +39,8 @@
 #include "foundation/PxVecMath.h"
 #include "GuCookingSDF.h"
 
-using namespace physx;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
 using namespace aos;
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -63,7 +63,7 @@ ConvexMeshBuilder::~ConvexMeshBuilder()
 bool ConvexMeshBuilder::build(const PxConvexMeshDesc& desc, PxU32 gaussMapVertexLimit, bool validateOnly, ConvexHullLib* hullLib)
 {
 	if(!desc.isValid())
-		return outputError<PxErrorCode::eINVALID_PARAMETER>(__LINE__, "Gu::ConvexMesh::loadFromDesc: desc.isValid() failed!");
+		return outputError<PxErrorCode::eINVALID_PARAMETER>(__LINE__, "ev4sio_Gu::ConvexMesh::loadFromDesc: desc.isValid() failed!");
 
 	if(!loadConvexHull(desc, hullLib))
 		return false;
@@ -177,8 +177,8 @@ bool ConvexMeshBuilder::save(PxOutputStream& stream, bool platformMismatch) cons
 }
 
 //////////////////////////////////////////////////////////////////////////
-// instead of saving the data into stream, we copy the mesh data into internal Gu::ConvexMesh. 
-bool ConvexMeshBuilder::copy(Gu::ConvexHullInitData& hullData)
+// instead of saving the data into stream, we copy the mesh data into internal ev4sio_Gu::ConvexMesh. 
+bool ConvexMeshBuilder::copy(ev4sio_Gu::ConvexHullInitData& hullData)
 {
 	// hull builder data copy
 	PxU32 nb = 0;
@@ -236,7 +236,7 @@ void ConvexMeshBuilder::computeMassInfo(bool lowerPrecision)
 		meshDesc.points.stride = sizeof(PxVec3);
 
 		meshDesc.polygons.data = hullBuilder.mHullDataPolygons;
-		meshDesc.polygons.stride = sizeof(Gu::HullPolygonData);
+		meshDesc.polygons.stride = sizeof(ev4sio_Gu::HullPolygonData);
 		meshDesc.polygons.count = hullBuilder.mHull->mNbPolygons;
 
 		meshDesc.indices.data = hullBuilder.mHullDataVertexData8;
@@ -260,7 +260,7 @@ void ConvexMeshBuilder::computeMassInfo(bool lowerPrecision)
 			{
 				if (integrals.mass < 0)
 				{
-					outputError<PxErrorCode::eDEBUG_WARNING>(__LINE__, "Gu::ConvexMesh: Mesh has a negative volume! Is it open or do (some) faces have reversed winding? (Taking absolute value.)");
+					outputError<PxErrorCode::eDEBUG_WARNING>(__LINE__, "ev4sio_Gu::ConvexMesh: Mesh has a negative volume! Is it open or do (some) faces have reversed winding? (Taking absolute value.)");
 					integrals.mass = -integrals.mass;
 					mInertia = -mInertia;
 				}
@@ -269,7 +269,7 @@ void ConvexMeshBuilder::computeMassInfo(bool lowerPrecision)
 				return;
 			}
 		}
-		outputError<PxErrorCode::eINTERNAL_ERROR>(__LINE__, "Gu::ConvexMesh: Error computing mesh mass properties!\n");
+		outputError<PxErrorCode::eINTERNAL_ERROR>(__LINE__, "ev4sio_Gu::ConvexMesh: Error computing mesh mass properties!\n");
 	}
 }
 
@@ -337,7 +337,7 @@ bool ConvexMeshBuilder::loadConvexHull(const PxConvexMeshDesc& desc, ConvexHullL
 	
 	const bool doValidation = desc.flags & PxConvexFlag::eDISABLE_MESH_VALIDATION ? false : true;
   	if(!hullBuilder.init(desc.points.count, geometry, topology, desc.indices.count, desc.polygons.count, hullPolygons, doValidation, hullLib))
-		return outputError<PxErrorCode::eINTERNAL_ERROR>(__LINE__, "Gu::ConvexMesh::loadConvexHull: convex hull init failed!");
+		return outputError<PxErrorCode::eINTERNAL_ERROR>(__LINE__, "ev4sio_Gu::ConvexMesh::loadConvexHull: convex hull init failed!");
 
 	computeMassInfo(desc.flags & PxConvexFlag::eFAST_INERTIA_COMPUTATION);
   
@@ -377,7 +377,7 @@ bool ConvexMeshBuilder::computeHullPolygons(const PxU32& nbVerts,const PxVec3* v
 
 	for (PxU32 i = 0; i < nbPolygons; i++)
 	{
-		const Gu::HullPolygonData& polygonData = hullBuilder.mHullDataPolygons[i];
+		const ev4sio_Gu::HullPolygonData& polygonData = hullBuilder.mHullDataPolygons[i];
 		PxHullPolygon& outPolygon = polygons[i];
 		outPolygon.mPlane[0] = polygonData.mPlane.n.x;
 		outPolygon.mPlane[1] = polygonData.mPlane.n.y;
@@ -418,7 +418,7 @@ bool ConvexMeshBuilder::computeGaussMaps()
 
 // TEST_INTERNAL_OBJECTS
 
-static void ComputeInternalExtent(Gu::ConvexHullData& data, const Gu::HullPolygonData* hullPolys)
+static void ComputeInternalExtent(ev4sio_Gu::ConvexHullData& data, const ev4sio_Gu::HullPolygonData* hullPolys)
 {	
 	const PxVec3 e = data.mAABB.getMax() - data.mAABB.getMin();
 
@@ -514,8 +514,8 @@ static void ComputeInternalExtent(Gu::ConvexHullData& data, const Gu::HullPolygo
 // compute internal objects, get the internal extent and radius
 void ConvexMeshBuilder::computeInternalObjects()
 {
-	const Gu::HullPolygonData* hullPolys = hullBuilder.mHullDataPolygons;
-	Gu::ConvexHullData& data = mHullData;
+	const ev4sio_Gu::HullPolygonData* hullPolys = hullBuilder.mHullDataPolygons;
+	ev4sio_Gu::ConvexHullData& data = mHullData;
 
 	// compute the internal radius
 	float internalRadius = FLT_MAX;
@@ -548,7 +548,7 @@ void ConvexMeshBuilder::computeSDF(const PxConvexMeshDesc& desc)
 	const PxU32 nbPolygons = mHullData.mNbPolygons;
 	PxU32 nbVerts = mHullData.mNbHullVertices;
 
-	const Gu::HullPolygonData* hullPolys = hullBuilder.mHullDataPolygons;
+	const ev4sio_Gu::HullPolygonData* hullPolys = hullBuilder.mHullDataPolygons;
 	const PxU8* polygons = hullBuilder.mHullDataVertexData8;
 	const PxVec3* verts = hullBuilder.mHullDataHullVertices;
 	
@@ -556,7 +556,7 @@ void ConvexMeshBuilder::computeSDF(const PxConvexMeshDesc& desc)
 	PxU32 numTotalTriangles = 0;
 	for (PxU32 i = 0; i < nbPolygons; ++i)
 	{
-		const Gu::HullPolygonData& polyData = hullPolys[i];
+		const ev4sio_Gu::HullPolygonData& polyData = hullPolys[i];
 		const PxU32 nbTriangles = polyData.mNbVerts - 2;
 		numTotalTriangles += nbTriangles;
 	}
@@ -566,7 +566,7 @@ void ConvexMeshBuilder::computeSDF(const PxConvexMeshDesc& desc)
 	PxU32 startIndex = 0;
 	for (PxU32 i = 0; i < nbPolygons; ++i)
 	{
-		const Gu::HullPolygonData& polyData = hullPolys[i];
+		const ev4sio_Gu::HullPolygonData& polyData = hullPolys[i];
 		const PxU32 nbTriangles = polyData.mNbVerts - 2;
 		const PxU8 vref0 = polygons[polyData.mVRef8];
 		

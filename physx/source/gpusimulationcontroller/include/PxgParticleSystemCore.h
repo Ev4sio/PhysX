@@ -47,7 +47,7 @@
 
 #include <vector_types.h>
 
-namespace physx
+namespace ev4sio_physx
 {
 	//this is needed to force PhysXSimulationControllerGpu linkage as Static Library!
 	void createPxgParticleSystem();
@@ -107,8 +107,8 @@ namespace physx
 
 		virtual void getMaxIterationCount(PxgBodySimManager& bodySimManager, PxI32& maxPosIters, PxI32& maxVelIters) = 0;
 		
-		void updateParticleSystemData(PxgParticleSystem& sys, Dy::ParticleSystemCore& dyParticleSystemCore);
-		//void updateSparseGridParams(PxSparseGridParams& params, Dy::ParticleSystemCore& dyParticleSystemCore);
+		void updateParticleSystemData(PxgParticleSystem& sys, ev4sio_Dy::ParticleSystemCore& dyParticleSystemCore);
+		//void updateSparseGridParams(PxSparseGridParams& params, ev4sio_Dy::ParticleSystemCore& dyParticleSystemCore);
 
 		PxgTypedCudaBuffer<PxgParticleSystem>& getParticleSystemBuffer() { return mParticleSystemBuffer;  }
 		PxgTypedCudaBuffer<PxU32>& getActiveParticleSystemBuffer() { return mActiveParticleSystemBuffer; }

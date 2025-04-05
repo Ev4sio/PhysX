@@ -42,13 +42,13 @@
 
 #define EPA_DEBUG	0
 
-namespace physx
+namespace ev4sio_physx
 {
 #define MaxEdges 32
 #define MaxFacets 64
 #define MaxSupportPoints 64
 
-namespace Gu
+namespace ev4sio_Gu
 {
 	const PxU32 lookUp[3] = {1, 2, 0};
 	
@@ -56,7 +56,7 @@ namespace Gu
 	
 	class EdgeBuffer;
 	class Edge;
-	typedef Cm::InlineDeferredIDPool<MaxFacets>	EPAFacetManager;
+	typedef ev4sio_Cm::InlineDeferredIDPool<MaxFacets>	EPAFacetManager;
 
 	class Facet	
 	{

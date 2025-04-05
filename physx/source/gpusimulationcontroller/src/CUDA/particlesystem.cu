@@ -70,7 +70,7 @@ template <typename T> __device__ inline T fetch(T* t) { return *t;}
 #endif
 
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 #define kGlobalRelax  0.125f
 
@@ -1329,9 +1329,9 @@ extern "C" __global__ void ps_contactPrepareLaunch(
 			PxVec3 raXF0 = ra.cross(t0);
 			PxVec3 raXF1 = ra.cross(t1);
 
-			const Cm::UnAlignedSpatialVector deltaV0 = spatialResponse * Cm::UnAlignedSpatialVector(normal, raXn);
-			const Cm::UnAlignedSpatialVector deltaV1 = spatialResponse * Cm::UnAlignedSpatialVector(t0, raXF0);
-			const Cm::UnAlignedSpatialVector deltaV2 = spatialResponse * Cm::UnAlignedSpatialVector(t1, raXF1);
+			const ev4sio_Cm::UnAlignedSpatialVector deltaV0 = spatialResponse * ev4sio_Cm::UnAlignedSpatialVector(normal, raXn);
+			const ev4sio_Cm::UnAlignedSpatialVector deltaV1 = spatialResponse * ev4sio_Cm::UnAlignedSpatialVector(t0, raXF0);
+			const ev4sio_Cm::UnAlignedSpatialVector deltaV2 = spatialResponse * ev4sio_Cm::UnAlignedSpatialVector(t1, raXF1);
 
 			const PxReal resp0 = deltaV0.top.dot(raXn) + deltaV0.bottom.dot(normal);
 			const PxReal respF0 = deltaV0.top.dot(raXF0) + deltaV0.bottom.dot(t0);

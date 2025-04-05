@@ -49,10 +49,10 @@
 static const bool gVisualizeTouchedTris = false;
 static const float gDebugVisOffset = 0.01f;
 
-using namespace physx;
+using namespace ev4sio_physx;
 using namespace Cct;
-using namespace Gu;
-using namespace Cm;
+using namespace ev4sio_Gu;
+using namespace ev4sio_Cm;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

@@ -33,9 +33,9 @@
 #include "GuSegment.h"
 #include "foundation/PxVecMath.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Gu
+namespace ev4sio_Gu
 {
 	// This version fixes accuracy issues (e.g.  TTP 4617), but needs to do 2 square roots in order
 	// to find the normalized direction and length of the segments, and then
@@ -49,8 +49,8 @@ namespace Gu
 																const PxVec3& origin1, const PxVec3& extent1,
 																PxReal* s=NULL, PxReal* t=NULL);
 
-	PX_FORCE_INLINE	PxReal	distanceSegmentSegmentSquared(	const Gu::Segment& segment0,
-															const Gu::Segment& segment1,
+	PX_FORCE_INLINE	PxReal	distanceSegmentSegmentSquared(	const ev4sio_Gu::Segment& segment0,
+															const ev4sio_Gu::Segment& segment1,
 															PxReal* s=NULL, PxReal* t=NULL)
 	{
 		return distanceSegmentSegmentSquared(	segment0.p0, segment0.computeDirection(),
@@ -70,7 +70,7 @@ namespace Gu
 												const aos::Vec3VArg p32, const aos::Vec3VArg d32,
 												aos::Vec4V& s, aos::Vec4V& t);
 
-} // namespace Gu
+} // namespace ev4sio_Gu
 }
 
 #endif

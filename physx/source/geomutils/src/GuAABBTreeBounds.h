@@ -31,10 +31,10 @@
 
 #include "common/PxPhysXCommonConfig.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 class PxBounds3;
-namespace Gu
+namespace ev4sio_Gu
 {
 	class PX_PHYSX_COMMON_API AABBTreeBounds
 	{
@@ -64,7 +64,7 @@ namespace Gu
 						PxU32				mUserAllocated;
 	};
 
-} // namespace Gu
+} // namespace ev4sio_Gu
 }
 
 #endif // GU_AABBTREE_BOUNDS_H

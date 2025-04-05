@@ -29,7 +29,7 @@
 #ifndef PXG_SOLVER_FLAGS_H
 #define PXG_SOLVER_FLAGS_H
 
-namespace physx
+namespace ev4sio_physx
 {
 struct PxgSolverContactFlags
 {
@@ -54,6 +54,6 @@ struct PxgSolverContactFlags
 };
 PX_COMPILE_TIME_ASSERT(PxgSolverContactFlags::eLAST <= ((1 << 7) + 1)); // we store these Flags as PxU8
 
-} // namespace physx
+} // namespace ev4sio_physx
 
 #endif

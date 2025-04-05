@@ -41,10 +41,10 @@
 
 #include "SqTypedef.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
-namespace Sq
+namespace ev4sio_Sq
 {
 	class PruningStructure;
 	class PrunerManager;
@@ -55,7 +55,7 @@ class NpScene;
 	// PT: if we go through an SQ virtual interface then the implementation can be different from our internal version,
 	// and nothing says it uses the same types as what we have internally in SQ. So we need a separate set of types.
 	typedef PxSQCompoundHandle		NpCompoundId;
-	static const NpCompoundId NP_INVALID_COMPOUND_ID = NpCompoundId(Sq::INVALID_COMPOUND_ID);
+	static const NpCompoundId NP_INVALID_COMPOUND_ID = NpCompoundId(ev4sio_Sq::INVALID_COMPOUND_ID);
 
 class NpShapeManager : public PxUserAllocated
 {
@@ -77,10 +77,10 @@ public:
 					bool					detachShape(NpShape& s, PxRigidActor& actor, bool wakeOnLostTouch);
 					void					detachAll(PxSceneQuerySystem* pxsq, const PxRigidActor& actor);
 
-					void					setupSQShape(PxSceneQuerySystem& pxsq, const NpShape& shape, const NpActor& npActor, const PxRigidActor& actor, bool dynamic, const PxBounds3* bounds, const Sq::PruningStructure* ps);
+					void					setupSQShape(PxSceneQuerySystem& pxsq, const NpShape& shape, const NpActor& npActor, const PxRigidActor& actor, bool dynamic, const PxBounds3* bounds, const ev4sio_Sq::PruningStructure* ps);
 					void					setupSceneQuery(PxSceneQuerySystem& pxsq, const NpActor& npActor, const PxRigidActor& actor, const NpShape& shape);
-					void					setupAllSceneQuery(PxSceneQuerySystem& pxsq, const NpActor& npActor, const PxRigidActor& actor, const Sq::PruningStructure* ps, const PxBounds3* bounds, bool isDynamic);
-					void					setupAllSceneQuery(PxSceneQuerySystem& pxsq, const PxRigidActor& actor, const Sq::PruningStructure* ps, const PxBounds3* bounds=NULL, const Gu::BVH* bvh = NULL);
+					void					setupAllSceneQuery(PxSceneQuerySystem& pxsq, const NpActor& npActor, const PxRigidActor& actor, const ev4sio_Sq::PruningStructure* ps, const PxBounds3* bounds, bool isDynamic);
+					void					setupAllSceneQuery(PxSceneQuerySystem& pxsq, const PxRigidActor& actor, const ev4sio_Sq::PruningStructure* ps, const PxBounds3* bounds=NULL, const ev4sio_Gu::BVH* bvh = NULL);
 					void					teardownAllSceneQuery(PxSceneQuerySystem& pxsq, const PxRigidActor& actor);
 					void					teardownSceneQuery(PxSceneQuerySystem& pxsq, const PxRigidActor& actor, const NpShape& shape);
 					void					markShapeForSQUpdate(PxSceneQuerySystem& pxsq, const PxShape& shape, const PxRigidActor& actor);
@@ -88,8 +88,8 @@ public:
 
 					PxBounds3				getWorldBounds_(const PxRigidActor&) const;
 
-	PX_FORCE_INLINE	void					setPruningStructure(Sq::PruningStructure* ps) { mPruningStructure = ps;		}
-	PX_FORCE_INLINE	Sq::PruningStructure*	getPruningStructure()					const { return mPruningStructure;	}
+	PX_FORCE_INLINE	void					setPruningStructure(ev4sio_Sq::PruningStructure* ps) { mPruningStructure = ps;		}
+	PX_FORCE_INLINE	ev4sio_Sq::PruningStructure*	getPruningStructure()					const { return mPruningStructure;	}
 
 //	PX_FORCE_INLINE	bool					isSqCompound()				const	{ return mSqCompoundId != NP_INVALID_COMPOUND_ID;	}
 //	PX_FORCE_INLINE	NpCompoundId			getCompoundID()				const	{ return mSqCompoundId;	}
@@ -108,16 +108,16 @@ public:
 					PX_CATCH_UNDEFINED_ENABLE_DEBUG_VISUALIZATION
 #endif
 					// for batching
-	PX_FORCE_INLINE	const Cm::PtrTable&		getShapeTable() const 		{	return mShapes; }
+	PX_FORCE_INLINE	const ev4sio_Cm::PtrTable&		getShapeTable() const 		{	return mShapes; }
 	static PX_FORCE_INLINE size_t			getShapeTableOffset()		{	return PX_OFFSET_OF_RT(NpShapeManager, mShapes); }
 private:
-					Cm::PtrTable			mShapes;
-					Sq::PruningStructure*	mPruningStructure;  // Shape scene query data are pre-build in pruning structure
+					ev4sio_Cm::PtrTable			mShapes;
+					ev4sio_Sq::PruningStructure*	mPruningStructure;  // Shape scene query data are pre-build in pruning structure
 //					NpCompoundId			mSqCompoundId;
 
 					void					releaseExclusiveUserReferences();
 					void					setupSceneQuery_(PxSceneQuerySystem& pxsq, const NpActor& npActor, const PxRigidActor& actor, const NpShape& shape);
-					void					addBVHShapes(PxSceneQuerySystem& pxsq, const PxRigidActor& actor, const Gu::BVH& bvh);
+					void					addBVHShapes(PxSceneQuerySystem& pxsq, const PxRigidActor& actor, const ev4sio_Gu::BVH& bvh);
 };
 
 }

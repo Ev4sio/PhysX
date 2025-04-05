@@ -40,7 +40,7 @@
 #include "CmUtils.h"
 #include "../SnSerialUtils.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	namespace Sn
 	{
@@ -161,8 +161,8 @@ namespace physx
 			SerialObjectIndex objIndex;
 		};
 
-		typedef Cm::CollectionHashMap<size_t, SerialObjectIndex> InternalPtrRefMap;
-		typedef Cm::CollectionHashMap<PxU16, SerialObjectIndex> InternalHandle16RefMap;
+		typedef ev4sio_Cm::CollectionHashMap<size_t, SerialObjectIndex> InternalPtrRefMap;
+		typedef ev4sio_Cm::CollectionHashMap<PxU16, SerialObjectIndex> InternalHandle16RefMap;
 
 		class DeserializationContext : public PxDeserializationContext, public PxUserAllocated
 		{
@@ -174,7 +174,7 @@ namespace physx
 								   PxU8* objectDataAddress, 
 								   const InternalPtrRefMap& internalPtrReferencesMap, 
 								   const InternalHandle16RefMap& internalHandle16ReferencesMap, 
-								   const Cm::Collection* externalRefs,
+								   const ev4sio_Cm::Collection* externalRefs,
 								   PxU8* extraData)
 			: mManifestTable(manifestTable)
 			, mImportReferences(importReferences)
@@ -199,7 +199,7 @@ namespace physx
 			const InternalHandle16RefMap& mInternalHandle16ReferencesMap;
 
 			//external collection for resolving import references.
-			const Cm::Collection* mExternalRefs;
+			const ev4sio_Cm::Collection* mExternalRefs;
 			//const PxU32 mPhysXVersion;
 		};
 
@@ -207,7 +207,7 @@ namespace physx
 		{
 			PX_NOCOPY(SerializationContext)
 		public:
-			SerializationContext(const Cm::Collection& collection, const Cm::Collection* externalRefs) 
+			SerializationContext(const ev4sio_Cm::Collection& collection, const ev4sio_Cm::Collection* externalRefs) 
 			: mCollection(collection)
 			, mExternalRefs(externalRefs) 
 			{
@@ -239,7 +239,7 @@ namespace physx
 
 			virtual void writeName(const char*)
 			{
-				PxGetFoundation().error(physx::PxErrorCode::eINVALID_OPERATION, PX_FL, 
+				ev4sio_PxGetFoundation().error(ev4sio_physx::PxErrorCode::eINVALID_OPERATION, PX_FL, 
 					"Cannot export names during exportData.");
 			}
 
@@ -269,8 +269,8 @@ namespace physx
 			PxHashMap<const PxBase*, PxU32> mObjToCollectionIndexMap;
 
 			//collection and externalRefs collection for assigning references.
-			const Cm::Collection& mCollection;
-			const Cm::Collection* mExternalRefs;
+			const ev4sio_Cm::Collection& mCollection;
+			const ev4sio_Cm::Collection* mExternalRefs;
 
 			PxDefaultMemoryOutputStream mMemStream;
 

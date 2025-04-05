@@ -28,8 +28,8 @@
 #include "CmRandom.h"
 #include "ExtTetUnionFind.h"
 
-using namespace physx;
-using namespace Ext;
+using namespace ev4sio_physx;
+using namespace ev4sio_Ext;
 
 // -------------------------------------------------------------------------------------
 static PxI32 cubeNeighbors[6][3] = { { -1,0,0 }, {1,0,0}, {0,-1,0}, {0,1,0}, {0,0,-1}, {0,0,1} };

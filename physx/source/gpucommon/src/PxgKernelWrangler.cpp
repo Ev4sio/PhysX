@@ -31,7 +31,7 @@
 #include "foundation/PxAllocator.h"
 #include "cudamanager/PxCudaContext.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 static const char* kernelNames[]
 {

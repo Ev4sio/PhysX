@@ -28,7 +28,7 @@
 
 #include "PxgBroadPhase.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 	extern "C" void initNarrowphaseKernels0();

@@ -45,9 +45,9 @@
 // PrunerPayload. The whole API is available, it uses the same number of "pruners" for the queries, etc. This is a good working
 // starting point for users who want to start tinkering with the system without starting from scratch.
 
-using namespace physx;
-using namespace Sq;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Sq;
+using namespace ev4sio_Gu;
 
 #define EXT_PRUNER_EPSILON	0.005f
 
@@ -455,7 +455,7 @@ static Pruner* create(PxPruningStructureType::Enum type, PxU64 contextID, PxDyna
 	return pruner;
 }
 
-PxSceneQuerySystem* physx::PxCreateExternalSceneQuerySystem(const PxSceneQueryDesc& desc, PxU64 contextID)
+PxSceneQuerySystem* ev4sio_physx::PxCreateExternalSceneQuerySystem(const PxSceneQueryDesc& desc, PxU64 contextID)
 {
 	PVDCapture* pvd = NULL;
 	Pruner* staticPruner = create(desc.staticStructure, contextID, desc.dynamicTreeSecondaryPruner, desc.staticBVHBuildStrategy, desc.staticNbObjectsPerNode);

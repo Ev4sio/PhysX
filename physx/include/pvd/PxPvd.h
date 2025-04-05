@@ -33,7 +33,7 @@
 #include "foundation/PxProfiler.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -64,7 +64,7 @@ struct PxPvdInstrumentationFlag
 			cost compared to Debug information and makes PVD *much* more useful so it is quite
 			highly recommended.
 
-			This flag works together with a PxCreatePhysics parameter.
+			This flag works together with a ev4sio_PxCreatePhysics parameter.
 			Using it allows the SDK to send profile events to PVD.
 	    */
 		ePROFILE = 1 << 1,
@@ -78,7 +78,7 @@ struct PxPvdInstrumentationFlag
 			once it hits a steady state.  This information also has a fairly negligible
 			impact and thus is also highly recommended.
 
-			This flag works together with a PxCreatePhysics parameter,
+			This flag works together with a ev4sio_PxCreatePhysics parameter,
 			trackOutstandingAllocations.  Using both of them together allows users to have
 			an accurate view of the overall memory usage of the simulation at the cost of
 			a hashtable lookup per allocation/deallocation.  Again, PhysX makes a best effort
@@ -107,7 +107,7 @@ PX_FLAGS_OPERATORS(PxPvdInstrumentationFlag::Enum, uint8_t)
 \brief PxPvd is the top-level class for the PVD framework, and the main customer interface for PVD
 configuration.It is a singleton class, instantiated and owned by the application.
 */
-class PxPvd : public physx::PxProfilerCallback
+class PxPvd : public ev4sio_physx::PxProfilerCallback
 {
   public:
 	/**
@@ -164,10 +164,10 @@ class PxPvd : public physx::PxProfilerCallback
 	\brief Create a pvd instance. 	
 	\param foundation is the foundation instance that stores the allocator and error callbacks.
 */
-PX_C_EXPORT PxPvd* PX_CALL_CONV PxCreatePvd(PxFoundation& foundation);
+PX_C_EXPORT PxPvd* PX_CALL_CONV ev4sio_PxCreatePvd(PxFoundation& foundation);
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

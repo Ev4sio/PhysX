@@ -42,7 +42,7 @@
 #include "DyFeatherstoneArticulation.h"
 #include "solverBlock.cuh"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 static __device__ PX_FORCE_INLINE PxU32 articulationLowestSetBit(ArticulationBitField val)
 {
@@ -56,22 +56,22 @@ static __device__ PX_FORCE_INLINE PxU32 articulationHighestSetBit(ArticulationBi
 	return 63 - nbZeros;
 }
 
-static __device__ Cm::UnAlignedSpatialVector propagateAccelerationWNoJVelUpdate(
+static __device__ ev4sio_Cm::UnAlignedSpatialVector propagateAccelerationWNoJVelUpdate(
 	const PxgArticulationBlockLinkData& linkData,
 	const PxgArticulationBlockDofData* const dofData,
 	const PxU32 dofCount,
-	const Cm::UnAlignedSpatialVector& hDeltaV,
+	const ev4sio_Cm::UnAlignedSpatialVector& hDeltaV,
 	const PxU32 threadIndexInWarp)
 {
 	const float c2px = linkData.mRw_x[threadIndexInWarp];
 	const float c2py = linkData.mRw_y[threadIndexInWarp];
 	const float c2pz = linkData.mRw_z[threadIndexInWarp];
-	Cm::UnAlignedSpatialVector pDeltaV = Dy::FeatherstoneArticulation::translateSpatialVector(PxVec3(-c2px, -c2py, -c2pz), hDeltaV); //parent velocity change
+	ev4sio_Cm::UnAlignedSpatialVector pDeltaV = ev4sio_Dy::FeatherstoneArticulation::translateSpatialVector(PxVec3(-c2px, -c2py, -c2pz), hDeltaV); //parent velocity change
 
 	float3 invStIsT[3];
 	PxReal tJointDelta[3] = { 0.f, 0.f, 0.f };
-	Cm::UnAlignedSpatialVector isW[3];
-	Cm::UnAlignedSpatialVector motionMatrix[3];
+	ev4sio_Cm::UnAlignedSpatialVector isW[3];
+	ev4sio_Cm::UnAlignedSpatialVector motionMatrix[3];
 
 // the split into three separate loops is an optimization that allows dispatching the loads as early as possible.
 #pragma unroll 3
@@ -111,7 +111,7 @@ static __device__ Cm::UnAlignedSpatialVector propagateAccelerationWNoJVelUpdate(
 }
 
 
-static __device__ PX_FORCE_INLINE void averageLinkImpulsesAndPropagate(uint2* PX_RESTRICT isSlabDirty, const Cm::UnAlignedSpatialVector* PX_RESTRICT impulses,
+static __device__ PX_FORCE_INLINE void averageLinkImpulsesAndPropagate(uint2* PX_RESTRICT isSlabDirty, const ev4sio_Cm::UnAlignedSpatialVector* PX_RESTRICT impulses,
 	PxgArticulationBlockData& PX_RESTRICT articulationBlock, PxgArticulationBlockLinkData* PX_RESTRICT artiLinks, 
 	PxgArticulationBlockDofData* const PX_RESTRICT artiDofs,
 	const PxU32 articulationId, const PxU32 maxLinks, const PxU32 nbArticulations, const PxU32 nbSlabs,
@@ -147,13 +147,13 @@ static __device__ PX_FORCE_INLINE void averageLinkImpulsesAndPropagate(uint2* PX
 			//PxU32 dirtyIndex = i == 0 ? dirtyIndex2.x : dirtyIndex2.y;
 			if (dirtyIndex != 0xFFFFFFFF)
 			{
-				const Cm::UnAlignedSpatialVector preloadedScratchImpulse = loadSpatialVector(artiLinks[dirtyIndex].mScratchImpulse, threadIndexInWarp);
+				const ev4sio_Cm::UnAlignedSpatialVector preloadedScratchImpulse = loadSpatialVector(artiLinks[dirtyIndex].mScratchImpulse, threadIndexInWarp);
 
 				//Get the index of the dirty slab...
 				const PxU32 deltaIdx = slabOffset + dirtyIndex * nbArticulations;
 
-				//Cm::UnAlignedSpatialVector impulse = impulses[deltaIdx] * scale;
-				Cm::UnAlignedSpatialVector impulse;
+				//ev4sio_Cm::UnAlignedSpatialVector impulse = impulses[deltaIdx] * scale;
+				ev4sio_Cm::UnAlignedSpatialVector impulse;
 
 				float4* f4;
 				float2* f2;
@@ -184,7 +184,7 @@ static __device__ PX_FORCE_INLINE void averageLinkImpulsesAndPropagate(uint2* PX
 				*f4 = make_float4(0.f);
 				*f2 = make_float2(0.f);
 
-				//impulses[deltaIdx] = Cm::UnAlignedSpatialVector::Zero();
+				//impulses[deltaIdx] = ev4sio_Cm::UnAlignedSpatialVector::Zero();
 				storeSpatialVector(artiLinks[dirtyIndex].mScratchImpulse, preloadedScratchImpulse + impulse*scale, threadIndexInWarp);
 				maxIndex = PxMax(dirtyIndex, maxIndex);
 			}
@@ -193,7 +193,7 @@ static __device__ PX_FORCE_INLINE void averageLinkImpulsesAndPropagate(uint2* PX
 	}
 
 	{
-		const Cm::UnAlignedSpatialVector preloadedRootDeferredZ = loadSpatialVector(articulationBlock.mRootDeferredZ, threadIndexInWarp);
+		const ev4sio_Cm::UnAlignedSpatialVector preloadedRootDeferredZ = loadSpatialVector(articulationBlock.mRootDeferredZ, threadIndexInWarp);
 
 		if (maxIndex)
 		{
@@ -204,23 +204,23 @@ static __device__ PX_FORCE_INLINE void averageLinkImpulsesAndPropagate(uint2* PX
 			float nextChild2Parentx = artiLinks[maxIndex].mRw_x[threadIndexInWarp];
 			float nextChild2Parenty = artiLinks[maxIndex].mRw_y[threadIndexInWarp];
 			float nextChild2Parentz = artiLinks[maxIndex].mRw_z[threadIndexInWarp];
-			//Cm::UnAlignedSpatialVector nextDeferredZ = loadSpatialVector(artiLinks[maxIndex].mDeferredZ, threadIndexInWarp);
+			//ev4sio_Cm::UnAlignedSpatialVector nextDeferredZ = loadSpatialVector(artiLinks[maxIndex].mDeferredZ, threadIndexInWarp);
 
 			for (PxU32 linkID = maxIndex; linkID > 0; linkID--)
 			{
 				PxgArticulationBlockLinkData& linkData = artiLinks[linkID];
 
 				//Can't preload because this could have been written to
-				const Cm::UnAlignedSpatialVector Z = loadSpatialVector(linkData.mScratchImpulse, threadIndexInWarp);
-				const Cm::UnAlignedSpatialVector solverSpatialImpulse = loadSpatialVector(linkData.mSolverSpatialImpulse, threadIndexInWarp);
+				const ev4sio_Cm::UnAlignedSpatialVector Z = loadSpatialVector(linkData.mScratchImpulse, threadIndexInWarp);
+				const ev4sio_Cm::UnAlignedSpatialVector solverSpatialImpulse = loadSpatialVector(linkData.mSolverSpatialImpulse, threadIndexInWarp);
 
 				const PxU32 parent = nextParent;
-				const Cm::UnAlignedSpatialVector parentScratchImpulse = loadSpatialVector(artiLinks[parent].mScratchImpulse, threadIndexInWarp);
+				const ev4sio_Cm::UnAlignedSpatialVector parentScratchImpulse = loadSpatialVector(artiLinks[parent].mScratchImpulse, threadIndexInWarp);
 				const float child2Parentx = nextChild2Parentx;
 				const float child2Parenty = nextChild2Parenty;
 				const float child2Parentz = nextChild2Parentz;
 				const PxU32 dofCount = nextDofs;
-				//Cm::UnAlignedSpatialVector deferredZ = nextDeferredZ;
+				//ev4sio_Cm::UnAlignedSpatialVector deferredZ = nextDeferredZ;
 
 				if (linkID > 1)
 				{
@@ -233,7 +233,7 @@ static __device__ PX_FORCE_INLINE void averageLinkImpulsesAndPropagate(uint2* PX
 					//nextDeferredZ = loadSpatialVector(artiLinks[nextIndex].mDeferredZ, threadIndexInWarp);
 				}
 
-				const Cm::UnAlignedSpatialVector propagatedZ = propagateImpulseW_0(PxVec3(child2Parentx, child2Parenty, child2Parentz),
+				const ev4sio_Cm::UnAlignedSpatialVector propagatedZ = propagateImpulseW_0(PxVec3(child2Parentx, child2Parenty, child2Parentz),
 					dofData, Z,
 					dofCount, threadIndexInWarp);
 
@@ -242,15 +242,15 @@ static __device__ PX_FORCE_INLINE void averageLinkImpulsesAndPropagate(uint2* PX
 
 				//KS - we should be able to remove mImpulses once we are 100% certain that we will not have any deferredZ residuals 
 				storeSpatialVector(artiLinks[parent].mScratchImpulse, parentScratchImpulse + propagatedZ, threadIndexInWarp);
-				storeSpatialVector(linkData.mScratchImpulse, Cm::UnAlignedSpatialVector::Zero(), threadIndexInWarp);
+				storeSpatialVector(linkData.mScratchImpulse, ev4sio_Cm::UnAlignedSpatialVector::Zero(), threadIndexInWarp);
 
 				dofData -= nextDofs;
 
 			}
 		}
 		// PT: we can't preload artiLinks[0].mScratchImpulse, as it's modified by the above loop
-		const Cm::UnAlignedSpatialVector preloadedRootScratchImpulse = loadSpatialVector(artiLinks[0].mScratchImpulse, threadIndexInWarp);
-		storeSpatialVector(artiLinks[0].mScratchImpulse, Cm::UnAlignedSpatialVector::Zero(), threadIndexInWarp);
+		const ev4sio_Cm::UnAlignedSpatialVector preloadedRootScratchImpulse = loadSpatialVector(artiLinks[0].mScratchImpulse, threadIndexInWarp);
+		storeSpatialVector(artiLinks[0].mScratchImpulse, ev4sio_Cm::UnAlignedSpatialVector::Zero(), threadIndexInWarp);
 		storeSpatialVector(articulationBlock.mRootDeferredZ, preloadedRootScratchImpulse + preloadedRootDeferredZ, threadIndexInWarp);
 	}
 }
@@ -260,7 +260,7 @@ static __device__ PX_FORCE_INLINE void averageLinkImpulsesAndPropagate(uint2* PX
 //The subsequent kernel requesting velocities uses this cached information to compute the velocity for the desired link.
 //It is hoped that spatial locality of contacts in many cases will result in this avoiding doing a brute force propagate
 //to all links in the articulation
-static __device__ void averageLinkImpulsesAndPropagate2(uint2* PX_RESTRICT isSlabDirty, Cm::UnAlignedSpatialVector* PX_RESTRICT impulses,
+static __device__ void averageLinkImpulsesAndPropagate2(uint2* PX_RESTRICT isSlabDirty, ev4sio_Cm::UnAlignedSpatialVector* PX_RESTRICT impulses,
 	PxgArticulationBlockData& PX_RESTRICT articulationBlock, PxgArticulationBlockLinkData* PX_RESTRICT artiLinks,
 	PxgArticulationBlockDofData* const PX_RESTRICT artiDofs,
 	const PxU32 articulationId, const PxU32 maxLinks, const PxU32 nbArticulations, const PxU32 nbSlabs,
@@ -281,11 +281,11 @@ static __device__ void averageLinkImpulsesAndPropagate2(uint2* PX_RESTRICT isSla
 				//PxU32 dirtyIndex = i == 0 ? dirtyIndex2.x : dirtyIndex2.y;
 				if (dirtyIndex != 0xFFFFFFFF)
 				{
-					const Cm::UnAlignedSpatialVector preloadedScratchImpulse = loadSpatialVector(artiLinks[dirtyIndex].mScratchImpulse, threadIndexInWarp);
+					const ev4sio_Cm::UnAlignedSpatialVector preloadedScratchImpulse = loadSpatialVector(artiLinks[dirtyIndex].mScratchImpulse, threadIndexInWarp);
 
 					//Get the index of the dirty slab...
 					const PxU32 deltaIdx = slabOffset + dirtyIndex * nbArticulations;
-					Cm::UnAlignedSpatialVector impulse;
+					ev4sio_Cm::UnAlignedSpatialVector impulse;
 
 					float4* f4;
 					float2* f2;
@@ -352,16 +352,16 @@ static __device__ void averageLinkImpulsesAndPropagate2(uint2* PX_RESTRICT isSla
 				const float child2Parentz = linkData.mRw_z[threadIndexInWarp];
 				const PxU32 dofCount = linkData.mDofs[threadIndexInWarp];
 
-				const Cm::UnAlignedSpatialVector Z = loadSpatialVector(linkData.mScratchImpulse, threadIndexInWarp);
-				const Cm::UnAlignedSpatialVector parentScratchImpulse = loadSpatialVector(artiLinks[parent].mScratchImpulse, threadIndexInWarp);
+				const ev4sio_Cm::UnAlignedSpatialVector Z = loadSpatialVector(linkData.mScratchImpulse, threadIndexInWarp);
+				const ev4sio_Cm::UnAlignedSpatialVector parentScratchImpulse = loadSpatialVector(artiLinks[parent].mScratchImpulse, threadIndexInWarp);
 
-				const Cm::UnAlignedSpatialVector propagatedZ = propagateImpulseW_0(PxVec3(child2Parentx, child2Parenty, child2Parentz),
+				const ev4sio_Cm::UnAlignedSpatialVector propagatedZ = propagateImpulseW_0(PxVec3(child2Parentx, child2Parenty, child2Parentz),
 					dofData, Z,
 					dofCount, threadIndexInWarp);
 
 				//KS - we should be able to remove mImpulses once we are 100% certain that we will not have any deferredZ residuals 
 				storeSpatialVector(artiLinks[parent].mScratchImpulse, parentScratchImpulse + propagatedZ, threadIndexInWarp);
-				storeSpatialVector(linkData.mScratchImpulse, Cm::UnAlignedSpatialVector::Zero(), threadIndexInWarp);
+				storeSpatialVector(linkData.mScratchImpulse, ev4sio_Cm::UnAlignedSpatialVector::Zero(), threadIndexInWarp);
 			}
 		}
 	}
@@ -370,7 +370,7 @@ static __device__ void averageLinkImpulsesAndPropagate2(uint2* PX_RESTRICT isSla
 	PxSpatialMatrix mat;
 	loadSpatialMatrix(artiLinks[commonNode].mSpatialResponseMatrix, threadIndexInWarp, mat);
 
-	const Cm::UnAlignedSpatialVector deltaV = mat * (-loadSpatialVector(artiLinks[commonNode].mScratchImpulse, threadIndexInWarp));
+	const ev4sio_Cm::UnAlignedSpatialVector deltaV = mat * (-loadSpatialVector(artiLinks[commonNode].mScratchImpulse, threadIndexInWarp));
 	// It is important that we DO NOT reset the artiLinks[commonNode].mScratchImpulse to zero here because it has not been propagated 
 	// to the root (contrary to the subtree of the commonNode, whose impulses we just propagated).
 	// The resetting of the artiLinks[commonNode].mScratchImpulse will be done eventually by the averageLinkImpulsesAndPropagate function

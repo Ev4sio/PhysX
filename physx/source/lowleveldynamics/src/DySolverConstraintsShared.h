@@ -41,14 +41,14 @@
 #include "foundation/PxAtomic.h"
 
 
-namespace physx
+namespace ev4sio_physx
 {
 
-namespace Dy
+namespace ev4sio_Dy
 {
 	PX_FORCE_INLINE static FloatV solveDynamicContacts(const SolverContactPoint* PX_RESTRICT contacts, PxU32 nbContactPoints, const Vec3VArg contactNormal,
 	const FloatVArg invMassA, const FloatVArg invMassB, const FloatVArg angDom0, const FloatVArg angDom1, Vec3V& linVel0_, Vec3V& angState0_, 
-	Vec3V& linVel1_, Vec3V& angState1_, PxF32* PX_RESTRICT forceBuffer, Dy::ErrorAccumulator* PX_RESTRICT error)
+	Vec3V& linVel1_, Vec3V& angState1_, PxF32* PX_RESTRICT forceBuffer, ev4sio_Dy::ErrorAccumulator* PX_RESTRICT error)
 {
 	Vec3V linVel0 = linVel0_;
 	Vec3V angState0 = angState0_;
@@ -109,7 +109,7 @@ namespace Dy
 }
 
 PX_FORCE_INLINE static FloatV solveStaticContacts(const SolverContactPoint* PX_RESTRICT contacts, PxU32 nbContactPoints, const Vec3VArg contactNormal,
-	const FloatVArg invMassA, const FloatVArg angDom0, Vec3V& linVel0_, Vec3V& angState0_, PxF32* PX_RESTRICT forceBuffer, Dy::ErrorAccumulator* PX_RESTRICT globalError)
+	const FloatVArg invMassA, const FloatVArg angDom0, Vec3V& linVel0_, Vec3V& angState0_, PxF32* PX_RESTRICT forceBuffer, ev4sio_Dy::ErrorAccumulator* PX_RESTRICT globalError)
 {
 	Vec3V linVel0 = linVel0_;
 	Vec3V angState0 = angState0_;
@@ -117,7 +117,7 @@ PX_FORCE_INLINE static FloatV solveStaticContacts(const SolverContactPoint* PX_R
 
 	const Vec3V delLinVel0 = V3Scale(contactNormal, invMassA);
 	
-	Dy::ErrorAccumulator error;
+	ev4sio_Dy::ErrorAccumulator error;
 
 	for(PxU32 i=0;i<nbContactPoints;i++)
 	{
@@ -173,7 +173,7 @@ FloatV solveExtContacts(const SolverContactPointExt* PX_RESTRICT contacts, PxU32
 	Vec3V& li0, Vec3V& ai0,
 	Vec3V& li1, Vec3V& ai1,
 	PxF32* PX_RESTRICT appliedForceBuffer,
-	Dy::ErrorAccumulator* PX_RESTRICT error);
+	ev4sio_Dy::ErrorAccumulator* PX_RESTRICT error);
 
 }
 

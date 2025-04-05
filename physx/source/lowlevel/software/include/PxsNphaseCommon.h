@@ -32,7 +32,7 @@
 #include "foundation/PxSimpleTypes.h"
 #include "foundation/PxAssert.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 	struct PxsContactManagerBase

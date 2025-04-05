@@ -33,11 +33,11 @@
 
 #include "PxsIslandSim.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	class PxsRigidBody;
 
-	namespace Dy
+	namespace ev4sio_Dy
 	{
 		class FeatherstoneArticulation;
 #if PX_SUPPORT_GPU_PHYSX
@@ -50,34 +50,34 @@ namespace physx
 	template <typename T>
 	struct IGNodeTraits
 	{
-		enum {TypeID = IG::Node::eTYPE_COUNT };
+		enum {TypeID = ev4sio_IG::Node::eTYPE_COUNT };
 	};
 	template <typename T> struct IGNodeTraits<const T> { enum { TypeID = IGNodeTraits<T>::TypeID }; };
 
-	template <> struct IGNodeTraits<PxsRigidBody>					{ enum { TypeID = IG::Node::eRIGID_BODY_TYPE };			};
-	template <> struct IGNodeTraits<Dy::FeatherstoneArticulation>	{ enum { TypeID = IG::Node::eARTICULATION_TYPE };		};
+	template <> struct IGNodeTraits<PxsRigidBody>					{ enum { TypeID = ev4sio_IG::Node::eRIGID_BODY_TYPE };			};
+	template <> struct IGNodeTraits<ev4sio_Dy::FeatherstoneArticulation>	{ enum { TypeID = ev4sio_IG::Node::eARTICULATION_TYPE };		};
 
 #if PX_SUPPORT_GPU_PHYSX
-	template <> struct IGNodeTraits<Dy::DeformableSurface>			{ enum { TypeID = IG::Node::eDEFORMABLE_SURFACE_TYPE };	};
-	template <> struct IGNodeTraits<Dy::DeformableVolume>			{ enum { TypeID = IG::Node::eDEFORMABLE_VOLUME_TYPE };	};
-	template <> struct IGNodeTraits<Dy::ParticleSystem>				{ enum { TypeID = IG::Node::ePARTICLESYSTEM_TYPE };		};
+	template <> struct IGNodeTraits<ev4sio_Dy::DeformableSurface>			{ enum { TypeID = ev4sio_IG::Node::eDEFORMABLE_SURFACE_TYPE };	};
+	template <> struct IGNodeTraits<ev4sio_Dy::DeformableVolume>			{ enum { TypeID = ev4sio_IG::Node::eDEFORMABLE_VOLUME_TYPE };	};
+	template <> struct IGNodeTraits<ev4sio_Dy::ParticleSystem>				{ enum { TypeID = ev4sio_IG::Node::ePARTICLESYSTEM_TYPE };		};
 #endif
 
 	template<class T>
-	PX_FORCE_INLINE T* getObjectFromIG(const IG::Node& node)
+	PX_FORCE_INLINE T* getObjectFromIG(const ev4sio_IG::Node& node)
 	{
 		PX_ASSERT(PxU32(node.mType) == PxU32(IGNodeTraits<T>::TypeID));
 		return reinterpret_cast<T*>(node.mObject);
 	}
 
-	PX_FORCE_INLINE PxsRigidBody* getRigidBodyFromIG(const IG::IslandSim& islandSim, PxNodeIndex nodeIndex)
+	PX_FORCE_INLINE PxsRigidBody* getRigidBodyFromIG(const ev4sio_IG::IslandSim& islandSim, PxNodeIndex nodeIndex)
 	{
-		return reinterpret_cast<PxsRigidBody*>(islandSim.getObject(nodeIndex, IG::Node::eRIGID_BODY_TYPE));
+		return reinterpret_cast<PxsRigidBody*>(islandSim.getObject(nodeIndex, ev4sio_IG::Node::eRIGID_BODY_TYPE));
 	}
 
-	PX_FORCE_INLINE Dy::FeatherstoneArticulation* getArticulationFromIG(const IG::IslandSim& islandSim, PxNodeIndex nodeIndex)
+	PX_FORCE_INLINE ev4sio_Dy::FeatherstoneArticulation* getArticulationFromIG(const ev4sio_IG::IslandSim& islandSim, PxNodeIndex nodeIndex)
 	{
-		return reinterpret_cast<Dy::FeatherstoneArticulation*>(islandSim.getObject(nodeIndex, IG::Node::eARTICULATION_TYPE));
+		return reinterpret_cast<ev4sio_Dy::FeatherstoneArticulation*>(islandSim.getObject(nodeIndex, ev4sio_IG::Node::eARTICULATION_TYPE));
 	}
 }
 

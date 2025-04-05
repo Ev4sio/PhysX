@@ -32,7 +32,7 @@
 #include "PxDeformableVolumeExt.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -43,7 +43,7 @@ namespace physx
 typedef PX_DEPRECATED PxDeformableVolumeExt PxSoftBodyExt;
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

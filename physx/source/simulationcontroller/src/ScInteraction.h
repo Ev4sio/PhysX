@@ -34,12 +34,12 @@
 #include "foundation/PxUserAllocated.h"
 #include "foundation/PxUtilities.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 #define PX_INVALID_INTERACTION_ACTOR_ID 0xffffffff
 #define PX_INVALID_INTERACTION_SCENE_ID 0xffffffff
 
-namespace Sc
+namespace ev4sio_Sc
 {
 	struct InteractionType
 	{
@@ -130,23 +130,23 @@ namespace Sc
 						PxU8			mPadding8;
 	};
 
-} // namespace Sc
+} // namespace ev4sio_Sc
 
 //////////////////////////////////////////////////////////////////////////
 
-PX_FORCE_INLINE void Sc::Interaction::registerInActors()
+PX_FORCE_INLINE void ev4sio_Sc::Interaction::registerInActors()
 {
 	mActor0.registerInteractionInActor(this);
 	mActor1.registerInteractionInActor(this);
 }
 
-PX_FORCE_INLINE void Sc::Interaction::unregisterFromActors()
+PX_FORCE_INLINE void ev4sio_Sc::Interaction::unregisterFromActors()
 {
 	mActor0.unregisterInteractionFromActor(this);
 	mActor1.unregisterInteractionFromActor(this);
 }
 
-PX_FORCE_INLINE	void Sc::Interaction::setActorId(ActorSim* actor, PxU32 id)
+PX_FORCE_INLINE	void ev4sio_Sc::Interaction::setActorId(ActorSim* actor, PxU32 id)
 {
 	PX_ASSERT(id != PX_INVALID_INTERACTION_ACTOR_ID);
 	PX_ASSERT(&mActor0 == actor || &mActor1 == actor);
@@ -156,13 +156,13 @@ PX_FORCE_INLINE	void Sc::Interaction::setActorId(ActorSim* actor, PxU32 id)
 		mActorId1 = id;
 }
 
-PX_FORCE_INLINE	PxU32 Sc::Interaction::getActorId(const ActorSim* actor) const
+PX_FORCE_INLINE	PxU32 ev4sio_Sc::Interaction::getActorId(const ActorSim* actor) const
 {
 	PX_ASSERT(&mActor0 == actor || &mActor1 == actor);
 	return &mActor0 == actor ? mActorId0 : mActorId1;
 }
 
-PX_FORCE_INLINE PxIntBool Sc::Interaction::isElementInteraction() const
+PX_FORCE_INLINE PxIntBool ev4sio_Sc::Interaction::isElementInteraction() const
 {
 	const PxIntBool res = readInteractionFlag(InteractionFlag::eRB_ELEMENT);
 	PX_ASSERT(	(res && 
@@ -176,7 +176,7 @@ PX_FORCE_INLINE PxIntBool Sc::Interaction::isElementInteraction() const
 	return res;
 }
 
-PX_FORCE_INLINE void Sc::Interaction::setDirty(PxU32 dirtyFlags)
+PX_FORCE_INLINE void ev4sio_Sc::Interaction::setDirty(PxU32 dirtyFlags)
 {
 	PX_ASSERT(getType() != InteractionType::eARTICULATION);
 
@@ -188,7 +188,7 @@ PX_FORCE_INLINE void Sc::Interaction::setDirty(PxU32 dirtyFlags)
 	}
 }
 
-//PX_FORCE_INLINE void Sc::Interaction::setClean(bool removeFromList)
+//PX_FORCE_INLINE void ev4sio_Sc::Interaction::setClean(bool removeFromList)
 //{
 //	if (readInteractionFlag(InteractionFlag::eIN_DIRTY_LIST))
 //	{

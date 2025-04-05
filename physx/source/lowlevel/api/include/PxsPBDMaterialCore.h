@@ -32,7 +32,7 @@
 #include "PxParticleGpu.h"
 #include "PxsMaterialShared.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	struct PxsPBDMaterialData : public PxsParticleMaterialData
 	{

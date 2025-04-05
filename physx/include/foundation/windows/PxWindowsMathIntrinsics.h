@@ -39,7 +39,7 @@
 #include <float.h>
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 namespace intrinsics
 {
@@ -171,7 +171,7 @@ PX_FORCE_INLINE void* memMove(void* dest, const void* src, uint32_t count)
 
 #if !PX_DOXYGEN
 } // namespace intrinsics
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

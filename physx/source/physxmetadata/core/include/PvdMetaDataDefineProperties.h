@@ -37,11 +37,11 @@
 #include "PxPvdDataStreamHelpers.h"
 #include "PxPvdDataStream.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 namespace Vd
 {	
-	using namespace physx::pvdsdk;
+	using namespace ev4sio_physx::pvdsdk;
 
 	template<typename TPropType>
 	struct PropertyDefinitionOp

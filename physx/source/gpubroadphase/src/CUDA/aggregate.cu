@@ -45,7 +45,7 @@
 #include "BpVolumeData.h"
 #include "PxgAggregateDesc.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 extern "C" __host__ void initBroadphaseKernels1() {}
 
@@ -949,7 +949,7 @@ extern "C" __global__ void doAggPairCollisions(
 		if (!pair.isDead)
 		{
 			const PxgIntegerAABB* bounds = desc->newIntegerBounds;
-			Bp::VolumeData* volumeData = desc->aabbMngr_volumeData;
+			ev4sio_Bp::VolumeData* volumeData = desc->aabbMngr_volumeData;
 			PxgAggregate* aggregates = aggDesc->aggregates;
 
 			// This whole kernel also processes lost pairs, because if we lose an aggregate pair, we still
@@ -1027,7 +1027,7 @@ extern "C" __global__ void doAggPairCollisions(
 
 			if (isAggregate0)
 			{
-				const Bp::AggregateHandle aggHandle0 = volumeData[pair.actorHandle0].getAggregate();
+				const ev4sio_Bp::AggregateHandle aggHandle0 = volumeData[pair.actorHandle0].getAggregate();
 				PxgAggregate& agg = aggregates[aggHandle0];
 				sortedProjections0[0] = agg.sortedProjections[0];
 				sortedProjections0[1] = agg.sortedProjections[1];
@@ -1063,7 +1063,7 @@ extern "C" __global__ void doAggPairCollisions(
 
 			if (isAggregate1)
 			{
-				const Bp::AggregateHandle aggHandle1 = volumeData[pair.actorHandle1].getAggregate();
+				const ev4sio_Bp::AggregateHandle aggHandle1 = volumeData[pair.actorHandle1].getAggregate();
 				PxgAggregate& agg = aggregates[aggHandle1];
 				sortedProjections1[0] = agg.sortedProjections[0];
 				sortedProjections1[1] = agg.sortedProjections[1];

@@ -31,7 +31,7 @@
 
 #include "PxgSolverCore.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	// PT: TODO: rename to just PxgTGSSolverCore ?
 	class PxgTGSCudaSolverCore : public PxgSolverCore
@@ -54,8 +54,8 @@ namespace physx
 		//an additional buffer for the response vectors
 		PxgTypedCudaBuffer<PxgArticulationBlockResponse>		mArtiConstraintBlockResponse;
 		
-		PxgTypedCudaBuffer<Dy::ThresholdStreamElement>		mForceThresholdStream;
-		PxgTypedCudaBuffer<Dy::ThresholdStreamElement>		mTmpForceThresholdStream;
+		PxgTypedCudaBuffer<ev4sio_Dy::ThresholdStreamElement>		mForceThresholdStream;
+		PxgTypedCudaBuffer<ev4sio_Dy::ThresholdStreamElement>		mTmpForceThresholdStream;
 
 		PxgTypedCudaBuffer<PxU32>		mConstraint1DBatchIndices;
 		PxgTypedCudaBuffer<PxU32>		mContactBatchIndices;
@@ -64,7 +64,7 @@ namespace physx
 
 		PxgTypedCudaBuffer<PxReal>		mAccumulatedForceObjectPairs; //store the accumulated force for a pair of objects
 		PxgCudaBufferN<2>	mExceededForceElements;
-		PxgTypedCudaBuffer<Dy::ThresholdStreamElement>		mForceChangeThresholdElements;
+		PxgTypedCudaBuffer<ev4sio_Dy::ThresholdStreamElement>		mForceChangeThresholdElements;
 
 		PxgTypedCudaBuffer<PxReal>		mThresholdStreamAccumulatedForce;
 		PxgTypedCudaBuffer<PxReal>		mBlocksThresholdStreamAccumulatedForce;
@@ -89,7 +89,7 @@ namespace physx
 		~PxgTGSCudaSolverCore();
 
 		void constructSolverSharedDesc(PxgSolverSharedDesc<IterativeSolveDataTGS>& desc, const PxgConstantData& cData,
-			const PxU32 numIters, const PxReal lengthScale, Cm::UnAlignedSpatialVector* deferredZ, PxU32* articulationDirty,
+			const PxU32 numIters, const PxReal lengthScale, ev4sio_Cm::UnAlignedSpatialVector* deferredZ, PxU32* articulationDirty,
 			uint4* articulationSlabMask);
 
 		void constructConstraitPrepareDesc(PxgConstraintPrepareDesc& desc, const PxU32 numDynamicConstraintBatchHeader,
@@ -157,8 +157,8 @@ namespace physx
 			const PxU32 numArtiContacts, const PxU32 numArtiFrictions,
 			const PxU32 totalCurrentEdges, const PxU32 totalPreviousEdges, const PxU32 numSlabs, const PxU32 maxNbPartitions,
 			const bool enableStabilization, PxU8* cpuContactPatchStreamBase, PxU8* cpuContactStreamBase, PxU8* cpuForceStreamBase, PxsContactManagerOutputIterator& outputIterator,
-			const PxU32 totalActiveBodyCount, const PxU32 activeBodyStartIndex, const PxU32 nbArticulations, Cm::UnAlignedSpatialVector* deferredZ,
-			PxU32* articulationDirty, uint4* articulationSlabMask, Sc::ShapeInteraction** shapeInteractions, PxReal* restDistances,
+			const PxU32 totalActiveBodyCount, const PxU32 activeBodyStartIndex, const PxU32 nbArticulations, ev4sio_Cm::UnAlignedSpatialVector* deferredZ,
+			PxU32* articulationDirty, uint4* articulationSlabMask, ev4sio_Sc::ShapeInteraction** shapeInteractions, PxReal* restDistances,
 			PxsTorsionalFrictionData* torsionalData,
 			PxU32* artiStaticContactIndices, const PxU32 artiContactIndSize, PxU32* artiStaticJointIndices, PxU32 artiStaticJointSize,
 			PxU32* artiStaticContactCounts, PxU32* artiStaticJointCounts,
@@ -168,8 +168,8 @@ namespace physx
 			PxU32* rigidStaticContactCounts, PxU32* rigidSaticJointCounts, const PxReal lengthScale, bool hasForceThresholds);
 
 		void gpuMemDMAbackSolverData(PxU8* forceBufferPool, PxU32 forceBufferOffset, PxU32 forceBufferUpperPartSize,
-			PxU32 forceBufferLowerPartSize, Dy::ThresholdStreamElement* changedElems, bool hasForceThresholds, Dy::ConstraintWriteback* constraintWriteBack,
-			const PxU32 writeBackSize, bool copyAllToHost, Dy::ErrorAccumulator*& contactError);
+			PxU32 forceBufferLowerPartSize, ev4sio_Dy::ThresholdStreamElement* changedElems, bool hasForceThresholds, ev4sio_Dy::ConstraintWriteback* constraintWriteBack,
+			const PxU32 writeBackSize, bool copyAllToHost, ev4sio_Dy::ErrorAccumulator*& contactError);
 
 		void syncDmaBack(PxU32& nbChangedThresholdElements);
 
@@ -186,8 +186,8 @@ namespace physx
 
 		void solveContactMultiBlockParallel(PxgIslandContext* islandContexts, const PxU32 numIslands, const PxU32 maxPartitions,
 			PxInt32ArrayPinned& constraintsPerPartition, PxInt32ArrayPinned& artiConstraintsPerPartition, const PxVec3& gravity,
-			PxReal* posIterResidualSharedMem, PxU32 posIterResidualSharedMemSize, Dy::ErrorAccumulator* posIterError, PxPinnedArray<Dy::ErrorAccumulator>& artiContactPosIterError,
-			PxPinnedArray<Dy::ErrorAccumulator>& perArticulationInternalError);
+			PxReal* posIterResidualSharedMem, PxU32 posIterResidualSharedMemSize, ev4sio_Dy::ErrorAccumulator* posIterError, PxPinnedArray<ev4sio_Dy::ErrorAccumulator>& artiContactPosIterError,
+			PxPinnedArray<ev4sio_Dy::ErrorAccumulator>& perArticulationInternalError);
 
 		void writeBackBlock(PxU32 a, PxgIslandContext& context);
 

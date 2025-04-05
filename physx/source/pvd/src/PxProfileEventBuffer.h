@@ -36,7 +36,7 @@
 
 #include "foundation/PxTime.h"
 
-namespace physx { namespace profile {
+namespace ev4sio_physx { namespace profile {
 
 	/**
 	 *	An event buffer maintains an in-memory buffer of events.  When this buffer is full
@@ -129,7 +129,7 @@ namespace physx { namespace profile {
 					, const TContextProvider& inProvider
 					, TMutexType* inBufferMutex
 					, const TEventFilterType& inEventFilter )
-					: TBaseType( inFoundation, inBufferFullAmount, inBufferMutex, "struct physx::profile::ProfileEvent" )
+					: TBaseType( inFoundation, inBufferFullAmount, inBufferMutex, "struct ev4sio_physx::profile::ProfileEvent" )
 			, mLastTimestamp( 0 )
 			, mContextProvider( inProvider )
 			, mEventFilter( inEventFilter )

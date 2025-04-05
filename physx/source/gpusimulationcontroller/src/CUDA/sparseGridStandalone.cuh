@@ -41,7 +41,7 @@
 #define OUT_OF_BOUNDS -1
 #define SUBGRID_CENTER_IDX 13
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 PX_FORCE_INLINE __device__ __host__ int clampValue(int f, int a, int b)
 {

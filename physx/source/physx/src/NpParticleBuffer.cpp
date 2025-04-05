@@ -40,9 +40,9 @@
 #define PARTICLE_MAX_NUM_PARTITIONS_TEMP	32
 #define PARTICLE_MAX_NUM_PARTITIONS_FINAL   8
 
-using namespace physx;
+using namespace ev4sio_physx;
 
-namespace physx
+namespace ev4sio_physx
 {
 	////////////////////////////////////////////////////////////////////////////////////////
 
@@ -180,7 +180,7 @@ namespace physx
 		// at this point all of the springs are partitioned and in the ordered list.
 	}
 
-	void NpParticleClothPreProcessor::classifySprings(const PxParticleSpring* springs, PxU32* partitionProgresses, PxU32* tempSprings, physx::PxArray<PxU32>& tempSpringsPerPartition)
+	void NpParticleClothPreProcessor::classifySprings(const PxParticleSpring* springs, PxU32* partitionProgresses, PxU32* tempSprings, ev4sio_physx::PxArray<PxU32>& tempSpringsPerPartition)
 	{
 		//initialize the partition progress counter to be zero
 		PxMemZero(partitionProgresses, sizeof(PxU32) * mNumParticles);
@@ -702,9 +702,9 @@ namespace physx
 
 } // physx
 
-physx::PxParticleClothPreProcessor* PxCreateParticleClothPreProcessor(physx::PxCudaContextManager* cudaContextManager)
+ev4sio_physx::PxParticleClothPreProcessor* ev4sio_PxCreateParticleClothPreProcessor(ev4sio_physx::PxCudaContextManager* cudaContextManager)
 {
-	physx::PxParticleClothPreProcessor* processor = PX_NEW(physx::NpParticleClothPreProcessor)(cudaContextManager);
+	ev4sio_physx::PxParticleClothPreProcessor* processor = PX_NEW(ev4sio_physx::NpParticleClothPreProcessor)(cudaContextManager);
 	return processor;
 }
 

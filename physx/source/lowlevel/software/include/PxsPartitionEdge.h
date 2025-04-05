@@ -35,7 +35,7 @@
 #include "PxsIslandSim.h"
 #include "PxcNpWorkUnit.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	// PT: TODO: mNextPatch is almost always null so it would make sense to store that cold data somewhere else, e.g:
 	// - use one bit to mark the general case where mNextPatch is null
@@ -74,11 +74,11 @@ namespace physx
 		PxNodeIndex		mNode1;			//! The node index for node 1. Can be obtained from the edge index alternatively
 		PartitionEdge*	mNextPatch;		//! for the contact manager has more than 1 patch, we have next patch's edge and previous patch's edge to connect to this edge
 		private:
-		IG::EdgeIndex	mEdgeIndex;		//! The edge index into the island manager. Used to identify the contact manager/constraint
+		ev4sio_IG::EdgeIndex	mEdgeIndex;		//! The edge index into the island manager. Used to identify the contact manager/constraint
 		public:
 		PxU32			mUniqueIndex;	//! a unique ID for this edge
 
-		PX_FORCE_INLINE	IG::EdgeIndex	getEdgeIndex()		const	{ return mEdgeIndex >> NB_BITS;	}
+		PX_FORCE_INLINE	ev4sio_IG::EdgeIndex	getEdgeIndex()		const	{ return mEdgeIndex >> NB_BITS;	}
 
 		PX_FORCE_INLINE	PxU32			isArticulation0()	const	{ return mNode0.isArticulation();	}
 		PX_FORCE_INLINE	PxU32			isArticulation1()	const	{ return mNode1.isArticulation();	}
@@ -101,7 +101,7 @@ namespace physx
 
 		//KS - This constructor explicitly does not set mUniqueIndex. It is filled in by the pool allocator and this constructor
 		//is called afterwards. We do not want to stomp the uniqueIndex value
-		PartitionEdge(IG::EdgeIndex index) :
+		PartitionEdge(ev4sio_IG::EdgeIndex index) :
 			mNextPatch(NULL),
 			mEdgeIndex(index << NB_BITS)
 		{
@@ -110,7 +110,7 @@ namespace physx
 	};
 	PX_COMPILE_TIME_ASSERT(sizeof(PartitionEdge)<=32);	// PT: 2 of them per cache-line
 
-	static PX_FORCE_INLINE void processPartitionEdges(const IG::GPUExternalData* gpuData, const PxcNpWorkUnit& unit)
+	static PX_FORCE_INLINE void processPartitionEdges(const ev4sio_IG::GPUExternalData* gpuData, const PxcNpWorkUnit& unit)
 	{
 		if(gpuData && !(unit.mFlags & PxcNpWorkUnitFlag::eDISABLE_RESPONSE))
 		{

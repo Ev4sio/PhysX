@@ -39,9 +39,9 @@
 #include "DyParticleSystem.h"
 #include "ScParticleSystemShapeCore.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-	namespace Sc
+	namespace ev4sio_Sc
 	{
 		class ParticleSystemSim;
 		class BodyCore;
@@ -127,9 +127,9 @@ namespace physx
 			PxSparseGridParams			getSparseGridParams() const { return mShapeCore.getLLCore().sparseGridParams; }
 			void						setSparseGridParams(const PxSparseGridParams& params) { mShapeCore.getLLCore().sparseGridParams = params; }
 
-			void						addRigidAttachment(Sc::BodyCore* core);
+			void						addRigidAttachment(ev4sio_Sc::BodyCore* core);
 
-			void						removeRigidAttachment(Sc::BodyCore* core);
+			void						removeRigidAttachment(ev4sio_Sc::BodyCore* core);
 
 			//---------------------------------------------------------------------------------
 			// Internal API
@@ -147,7 +147,7 @@ namespace physx
 			ParticleSystemShapeCore					mShapeCore;
 		};
 
-	} // namespace Sc
+	} // namespace ev4sio_Sc
 }
 #endif
 

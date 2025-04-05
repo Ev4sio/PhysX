@@ -36,7 +36,7 @@
 #include "PxvConfig.h"
 #include "PxvGeometry.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 /*!

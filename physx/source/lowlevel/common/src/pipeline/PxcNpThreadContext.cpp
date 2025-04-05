@@ -29,7 +29,7 @@
 #include "PxcConstraintBlockStream.h"
 #include "PxcNpThreadContext.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 PxcNpThreadContext::PxcNpThreadContext(PxcNpContext* params) : 
 	mRenderOutput						(params->mRenderBuffer),

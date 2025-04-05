@@ -40,7 +40,7 @@
 #include "foundation/PxVec4.h"
 #include "foundation/PxPinnedArray.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	class PxCudaContext;
 	class PxgCudaKernelWranglerManager;

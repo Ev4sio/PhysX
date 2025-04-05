@@ -32,7 +32,7 @@
 #include "foundation/PxMath.h"
 #include "foundation/PxFlags.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 // requirement: has to return 0 for input 0
@@ -692,6 +692,6 @@ struct MFTireDataT
 	PxFlags<MFTireDataFlag::Enum, PxU32> flags;
 };
 
-} // namespace physx
+} // namespace ev4sio_physx
 
 #endif //VEHICLE_MF_TIRE_DATA_H

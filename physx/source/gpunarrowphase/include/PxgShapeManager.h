@@ -41,7 +41,7 @@
 #include "PxsPBDMaterialCore.h"
 #include "PxgConvexConvexShape.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	class PxCudaContext;
 	class PxgHeapMemoryAllocatorManager;
@@ -69,7 +69,7 @@ namespace physx
 
 		void releaseIDs() { mIdPool.processDeferredIds(); }
 
-		Cm::DeferredIDPool				mIdPool;
+		ev4sio_Cm::DeferredIDPool				mIdPool;
 		PxgHeapMemoryAllocatorManager*	mHeapManager;
 		PxPinnedArray<PxgShape>			mHostShapes;
 		PxPinnedArray<PxNodeIndex>		mHostShapesRemapTable;//remap table from shape to node index
@@ -115,7 +115,7 @@ namespace physx
 		PxgCudaBuffer					mGpuMaterialBuffer;
 
 	protected:
-		Cm::DeferredIDPool				mIdPool;
+		ev4sio_Cm::DeferredIDPool				mIdPool;
 		PxgHeapMemoryAllocatorManager*	mHeapManager;
 		PxInt8ArrayPinned				mHostMaterial;
 		PxBitMap						mDirtyMaterialMap;

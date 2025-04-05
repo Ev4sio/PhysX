@@ -35,7 +35,7 @@
 
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -340,7 +340,7 @@ typedef PxVec2T<float>	PxVec2;
 typedef PxVec2T<double>	PxVec2d;
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

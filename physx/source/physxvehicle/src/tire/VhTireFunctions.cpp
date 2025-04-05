@@ -41,7 +41,7 @@
 
 #include "vehicle2/wheel/PxVehicleWheelHelpers.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 namespace vehicle2
 {
@@ -716,5 +716,5 @@ void PxVehicleTireForcesUpdate
 }
 
 } //namespace vehicle2
-} //namespace physx
+} //namespace ev4sio_physx
 

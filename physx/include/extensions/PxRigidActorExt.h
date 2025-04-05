@@ -34,7 +34,7 @@
 #include "PxRigidActor.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -55,7 +55,7 @@ public:
 	
 	This is equivalent to the following
 
-	PxShape* shape(...) = PxGetPhysics().createShape(...);	// reference count is 1
+	PxShape* shape(...) = ev4sio_PxGetPhysics().createShape(...);	// reference count is 1
 	actor->attachShape(shape);								// increments reference count
 	shape->release();										// releases user reference, leaving reference count at 1
 
@@ -82,7 +82,7 @@ public:
 	static PxShape* createExclusiveShape(PxRigidActor& actor, const PxGeometry& geometry, PxMaterial*const* materials, PxU16 materialCount, 
 								         PxShapeFlags shapeFlags = PxShapeFlag::eVISUALIZATION | PxShapeFlag::eSCENE_QUERY_SHAPE | PxShapeFlag::eSIMULATION_SHAPE)
 	{
-		PxShape* shape = PxGetPhysics().createShape(geometry, materials, materialCount, true, shapeFlags);
+		PxShape* shape = ev4sio_PxGetPhysics().createShape(geometry, materials, materialCount, true, shapeFlags);
 		if(shape)
 		{
 			bool status = actor.attachShape(*shape);	// attach can fail, if e.g. we try and attach a trimesh simulation shape to a dynamic actor
@@ -98,7 +98,7 @@ public:
 
 	This is equivalent to the following
 
-	PxShape* shape(...) = PxGetPhysics().createShape(...);	// reference count is 1
+	PxShape* shape(...) = ev4sio_PxGetPhysics().createShape(...);	// reference count is 1
 	actor->attachShape(shape);								// increments reference count
 	shape->release();										// releases user reference, leaving reference count at 1
 
@@ -156,7 +156,7 @@ public:
 };
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

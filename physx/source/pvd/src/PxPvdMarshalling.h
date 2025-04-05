@@ -32,7 +32,7 @@
 #include "PxPvdObjectModelBaseTypes.h"
 #include "PxPvdBits.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 namespace pvdsdk
 {
@@ -53,9 +53,9 @@ static inline void marshalSingleT(const uint8_t* srcData, uint8_t* destData)
 {
 	smtype incoming;
 
-	physx::intrinsics::memCopy(&incoming, srcData, sizeof(smtype));
+	ev4sio_physx::intrinsics::memCopy(&incoming, srcData, sizeof(smtype));
 	lgtype outgoing = static_cast<lgtype>(incoming);
-	physx::intrinsics::memCopy(destData, &outgoing, sizeof(lgtype));
+	ev4sio_physx::intrinsics::memCopy(destData, &outgoing, sizeof(lgtype));
 }
 
 template <typename smtype, typename lgtype>

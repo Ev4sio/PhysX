@@ -31,10 +31,10 @@
 
 #include "GuSweepTriangleUtils.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
-namespace Gu
+namespace ev4sio_Gu
 {
 	/**
 	Sweeps a sphere against a triangle.
@@ -148,7 +148,7 @@ namespace Gu
 								PxGeomSweepHit& hit, PxVec3& triNormalOut,										// Results
 								bool isDoubleSided, bool meshBothSides, bool anyHit, bool testInitialOverlap);	// Query modifiers
 
-} // namespace Gu
+} // namespace ev4sio_Gu
 
 }
 

@@ -35,11 +35,11 @@
 #include "GuAABBTreeUpdateMap.h"
 #include "foundation/PxHashMap.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	class PxRenderOutput;
 
-namespace Gu
+namespace ev4sio_Gu
 {
 	typedef PxHashMap<PoolIndex, IncrementalAABBTreeNode*>	IncrementalPrunerMap;
 

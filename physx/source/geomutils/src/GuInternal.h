@@ -39,10 +39,10 @@
 
 #define GU_EPSILON_SAME_DISTANCE 1e-3f
 
-namespace physx
+namespace ev4sio_physx
 {
 class PxBounds3;
-namespace Gu
+namespace ev4sio_Gu
 {
 	class Box;
 
@@ -62,20 +62,20 @@ namespace Gu
 										return transform.q.getBasisVector0() * capsuleGeom.halfHeight;
 									}
 
-	PX_FORCE_INLINE		void		getCapsuleSegment(const PxTransform& transform, const PxCapsuleGeometry& capsuleGeom, Gu::Segment& segment)
+	PX_FORCE_INLINE		void		getCapsuleSegment(const PxTransform& transform, const PxCapsuleGeometry& capsuleGeom, ev4sio_Gu::Segment& segment)
 									{
 										const PxVec3 tmp = getCapsuleHalfHeightVector(transform, capsuleGeom);
 										segment.p0 = transform.p + tmp;
 										segment.p1 = transform.p - tmp;
 									}
 
-	PX_FORCE_INLINE		void		getCapsule(Gu::Capsule& capsule, const PxCapsuleGeometry& capsuleGeom, const PxTransform& pose)
+	PX_FORCE_INLINE		void		getCapsule(ev4sio_Gu::Capsule& capsule, const PxCapsuleGeometry& capsuleGeom, const PxTransform& pose)
 									{
 										getCapsuleSegment(pose, capsuleGeom, capsule);
 										capsule.radius = capsuleGeom.radius;
 									}
 
-						void		computeSweptBox(Gu::Box& box, const PxVec3& extents, const PxVec3& center, const PxMat33& rot, const PxVec3& unitDir, PxReal distance);
+						void		computeSweptBox(ev4sio_Gu::Box& box, const PxVec3& extents, const PxVec3& center, const PxMat33& rot, const PxVec3& unitDir, PxReal distance);
 
 	/**
 	*	PT: computes "alignment value" used to select the "best" triangle in case of identical impact distances (for sweeps).
@@ -307,7 +307,7 @@ namespace Gu
 		return true;
 	}
 
-}  // namespace Gu
+}  // namespace ev4sio_Gu
 
 }
 

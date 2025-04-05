@@ -38,7 +38,7 @@
 #include "PxgFEMCore.h"
 #include "PxgShapeSimManager.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	class PxCudaContextManager;
 	class PxCudaContext;
@@ -75,14 +75,14 @@ namespace physx
 			PxPinnedArray<PxgBodySim>& newBodySim,
 			PxPinnedArray<PxgArticulationLink>& newLinkPool,
 			PxFloatArrayPinned& newLinkWakeCounterPool,
-			PxPinnedArray<Cm::UnAlignedSpatialVector>& newLinkExtAccelPool,
+			PxPinnedArray<ev4sio_Cm::UnAlignedSpatialVector>& newLinkExtAccelPool,
 			PxPinnedArray<PxgArticulationLinkProp>& newLinkPropPool,
 			PxInt32ArrayPinned& newLinkParentsPool,
-			PxPinnedArray<Dy::ArticulationBitField>& newLinkChildPool,
+			PxPinnedArray<ev4sio_Dy::ArticulationBitField>& newLinkChildPool,
 			PxPinnedArray<PxTransform>& newLinkBody2WorldsPool,
 			PxPinnedArray<PxTransform>& newLinkBody2ActorsPool,
-			PxPinnedArray<Dy::ArticulationJointCore>& newJointCorePool,
-			PxPinnedArray<Dy::ArticulationJointCoreData>& newJointDataPool,
+			PxPinnedArray<ev4sio_Dy::ArticulationJointCore>& newJointCorePool,
+			PxPinnedArray<ev4sio_Dy::ArticulationJointCoreData>& newJointDataPool,
 			PxPinnedArray<PxgArticulationSimUpdate>& newLinkJointIndexPool,
 			PxPinnedArray<PxgArticulation>& newArticulationPool,
 			PxPinnedArray<PxGpuSpatialTendonData>& newSpatialTendonParamsPool,
@@ -95,7 +95,7 @@ namespace physx
 			PxPinnedArray<PxgArticulationTendonElementFixedData>& newTendonJointFixedPool,
 			PxPinnedArray<PxGpuTendonJointCoefficientData>& newTendonJointCoefficientPool,
 			PxInt32ArrayPinned& newTendonToTendonJointRemapPool,
-			PxPinnedArray<Dy::ArticulationMimicJointCore>& newMimicJointPool,
+			PxPinnedArray<ev4sio_Dy::ArticulationMimicJointCore>& newMimicJointPool,
 			PxInt32ArrayPinned& newPathToRootPool,
 			PxU32 nbTotalBodies, PxU32 nbTotalArticulations, PxU32 maxLinks, 
 			PxU32 maxDofs, PxU32 maxMimicJoints, PxU32 maxSpatialTendons, 
@@ -148,7 +148,7 @@ namespace physx
 			PxInt32ArrayPinned& deactiveArray,
 			PxCachedTransformArrayPinned* cachedTransform,
 			const PxU32 cachedCapacity,
-			Bp::BoundsArray& boundArray, PxBitMapPinned& changedAABBMgrHandles,
+			ev4sio_Bp::BoundsArray& boundArray, PxBitMapPinned& changedAABBMgrHandles,
 			const PxU32 numShapes, const PxU32 numActiveBodies, bool enableDirectGPUAPI);
 
 		void syncDmaback(PxU32& nbFrozenShapesThisFrame, PxU32& nbUnfrozenShapesThisFrame, bool didSimulate);
@@ -170,7 +170,7 @@ namespace physx
 
 		void update(bool enableDirectGPUAPI);
 
-		void setBounds(Bp::BoundsArray* boundArray);
+		void setBounds(ev4sio_Bp::BoundsArray* boundArray);
 
 		PxgArticulationBuffer** getArticulationDataBuffer() { return mArticulationDataBuffer.begin(); }
 		PxgTypedCudaBuffer<PxBounds3>*	getBoundArrayBuffer();
@@ -344,7 +344,7 @@ namespace physx
 		PxCudaContextManager*					mCudaContextManager;
 		PxCudaContext*							mCudaContext;
 		PxgHeapMemoryAllocatorManager*			mHeapMemoryManager;
-		Bp::BoundsArray*						mBoundArray;
+		ev4sio_Bp::BoundsArray*						mBoundArray;
 		bool									mUseGpuBp;
 
 	private:
@@ -436,18 +436,18 @@ namespace physx
 		PxgTypedCudaBuffer<PxgArticulation>	mNewArticulationBuffer;
 		PxgTypedCudaBuffer<PxgArticulationLink>	mNewLinkBuffer;
 		PxgTypedCudaBuffer<PxReal>	mNewLinkWakeCounterBuffer;
-		PxgTypedCudaBuffer<Cm::UnAlignedSpatialVector>	mNewLinkExtAccelBuffer;
+		PxgTypedCudaBuffer<ev4sio_Cm::UnAlignedSpatialVector>	mNewLinkExtAccelBuffer;
 		PxgTypedCudaBuffer<PxgArticulationLinkProp>	mNewLinkPropBuffer;
 		PxgTypedCudaBuffer<PxU32>	mNewLinkParentBuffer;
 		PxgTypedCudaBuffer<ArticulationBitField>	mNewLinkChildBuffer;
 		PxgTypedCudaBuffer<PxTransform>   mNewLinkBody2WorldsBuffer;
 		PxgTypedCudaBuffer<PxTransform>	mNewLinkBody2ActorsBuffer;
-		PxgTypedCudaBuffer<Dy::ArticulationJointCore>	mNewJointCoreBuffer;
-		PxgTypedCudaBuffer<Dy::ArticulationJointCoreData>	mNewJointDataBuffer;
+		PxgTypedCudaBuffer<ev4sio_Dy::ArticulationJointCore>	mNewJointCoreBuffer;
+		PxgTypedCudaBuffer<ev4sio_Dy::ArticulationJointCoreData>	mNewJointDataBuffer;
 		PxgTypedCudaBuffer<PxgArticulationSimUpdate>	mNewLinkIndexBuffer;
 		PxgTypedCudaBuffer<PxGpuSpatialTendonData>	mNewSpatialTendonParamsBuffer;
 		PxgTypedCudaBuffer<PxgArticulationTendon>	mNewSpatialTendonsBuffer;
-		PxgTypedCudaBuffer<Dy::ArticulationMimicJointCore>	mNewMimicJointBuffer;
+		PxgTypedCudaBuffer<ev4sio_Dy::ArticulationMimicJointCore>	mNewMimicJointBuffer;
 		PxgTypedCudaBuffer<PxU32>	mNewPathToRootBuffer;
 		PxgTypedCudaBuffer<PxgArticulationTendonElementFixedData>	mNewAttachmentFixedBuffer;
 		PxgTypedCudaBuffer<PxGpuTendonAttachmentData>	mNewAttachmentModBuffer;

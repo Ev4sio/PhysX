@@ -45,16 +45,16 @@
 #include "solverBlockTGS.cuh"
 #include "utils.cuh"
 
-using namespace physx;
-using namespace Dy;
+using namespace ev4sio_physx;
+using namespace ev4sio_Dy;
 
 extern "C" __host__ void initArticulationKernels2() {}
 
-static __device__ Cm::UnAlignedSpatialVector propagateImpulseDofAligned(const Cm::UnAlignedSpatialVector& isInvD, const PxVec3& childToParent,
-	const Cm::UnAlignedSpatialVector& sa, const Cm::UnAlignedSpatialVector& Z, PxReal& qstZ)
+static __device__ ev4sio_Cm::UnAlignedSpatialVector propagateImpulseDofAligned(const ev4sio_Cm::UnAlignedSpatialVector& isInvD, const PxVec3& childToParent,
+	const ev4sio_Cm::UnAlignedSpatialVector& sa, const ev4sio_Cm::UnAlignedSpatialVector& Z, PxReal& qstZ)
 {
 	const PxReal stZ = sa.innerProduct(Z);
-	const Cm::UnAlignedSpatialVector temp = isInvD * stZ;
+	const ev4sio_Cm::UnAlignedSpatialVector temp = isInvD * stZ;
 	qstZ = -stZ;
 
 	//parent space's spatial zero acceleration impulse
@@ -62,30 +62,30 @@ static __device__ Cm::UnAlignedSpatialVector propagateImpulseDofAligned(const Cm
 }
 
 static __device__ void getImpulseSelfResponseDofAligned(
-	const Cm::UnAlignedSpatialVector& impulse0,
-	const Cm::UnAlignedSpatialVector& impulse1,
-	Cm::UnAlignedSpatialVector& deltaV0,
-	Cm::UnAlignedSpatialVector& deltaV1,
+	const ev4sio_Cm::UnAlignedSpatialVector& impulse0,
+	const ev4sio_Cm::UnAlignedSpatialVector& impulse1,
+	ev4sio_Cm::UnAlignedSpatialVector& deltaV0,
+	ev4sio_Cm::UnAlignedSpatialVector& deltaV1,
 	const PxgArticulationBlockDofData& thisDof,
 	const PxgArticulationBlockDofData* dofData,
 	const PxVec3& childToParent,
 	const PxSpatialMatrix& parentSpatialResponse,
-	const Cm::UnAlignedSpatialVector& thisMotionVector,
+	const ev4sio_Cm::UnAlignedSpatialVector& thisMotionVector,
 	const PxU32 dofCount,
 	const PxU32 dofIndex,
 	const PxU32 threadIndexInWarp)
 {
 
-	Cm::UnAlignedSpatialVector Z1W(-impulse1.top, -impulse1.bottom);
+	ev4sio_Cm::UnAlignedSpatialVector Z1W(-impulse1.top, -impulse1.bottom);
 
-	const Cm::UnAlignedSpatialVector isInvD = loadSpatialVector(thisDof.mIsInvDW, threadIndexInWarp);
+	const ev4sio_Cm::UnAlignedSpatialVector isInvD = loadSpatialVector(thisDof.mIsInvDW, threadIndexInWarp);
 
 	PxReal qstZ[3] = { 0.f, 0.f, 0.f };
-	Cm::UnAlignedSpatialVector Z0W = propagateImpulseDofAligned(isInvD, childToParent, thisMotionVector, Z1W, qstZ[dofIndex]);
+	ev4sio_Cm::UnAlignedSpatialVector Z0W = propagateImpulseDofAligned(isInvD, childToParent, thisMotionVector, Z1W, qstZ[dofIndex]);
 
-	const Cm::UnAlignedSpatialVector impulseDifW = impulse0 - Z0W;
+	const ev4sio_Cm::UnAlignedSpatialVector impulseDifW = impulse0 - Z0W;
 
-	const Cm::UnAlignedSpatialVector deltaV0W = (parentSpatialResponse * impulseDifW);
+	const ev4sio_Cm::UnAlignedSpatialVector deltaV0W = (parentSpatialResponse * impulseDifW);
 
 	deltaV1 = propagateAccelerationW(childToParent, dofData, deltaV0W, dofCount, threadIndexInWarp, qstZ);
 
@@ -93,10 +93,10 @@ static __device__ void getImpulseSelfResponseDofAligned(
 }
 
 static __device__ void getImpulseSelfResponse(
-	const Cm::UnAlignedSpatialVector& impulse0,
-	const Cm::UnAlignedSpatialVector& impulse1,
-	Cm::UnAlignedSpatialVector& deltaV0,
-	Cm::UnAlignedSpatialVector& deltaV1,
+	const ev4sio_Cm::UnAlignedSpatialVector& impulse0,
+	const ev4sio_Cm::UnAlignedSpatialVector& impulse1,
+	ev4sio_Cm::UnAlignedSpatialVector& deltaV0,
+	ev4sio_Cm::UnAlignedSpatialVector& deltaV1,
 	const PxgArticulationBlockDofData* dofData,
 	const PxVec3& childToParent,
 	const PxSpatialMatrix& parentSpatialResponse,
@@ -104,14 +104,14 @@ static __device__ void getImpulseSelfResponse(
 	const PxU32 threadIndexInWarp)
 {
 
-	Cm::UnAlignedSpatialVector Z1W(-impulse1.top, -impulse1.bottom);
+	ev4sio_Cm::UnAlignedSpatialVector Z1W(-impulse1.top, -impulse1.bottom);
 
 	PxReal qstZ[3] = { 0.f, 0.f, 0.f };
-	Cm::UnAlignedSpatialVector Z0W = propagateImpulseW_1(childToParent, dofData, Z1W, NULL, dofCount, threadIndexInWarp, qstZ);
+	ev4sio_Cm::UnAlignedSpatialVector Z0W = propagateImpulseW_1(childToParent, dofData, Z1W, NULL, dofCount, threadIndexInWarp, qstZ);
 
-	const Cm::UnAlignedSpatialVector impulseDifW = impulse0 - Z0W;
+	const ev4sio_Cm::UnAlignedSpatialVector impulseDifW = impulse0 - Z0W;
 
-	const Cm::UnAlignedSpatialVector deltaV0W = (parentSpatialResponse * impulseDifW);
+	const ev4sio_Cm::UnAlignedSpatialVector deltaV0W = (parentSpatialResponse * impulseDifW);
 
 	deltaV1 = propagateAccelerationW(childToParent, dofData, deltaV0W, dofCount, threadIndexInWarp, qstZ);
 
@@ -238,7 +238,7 @@ static __device__ void setupInternalConstraints(PxgArticulationBlockData& artiBl
 					if (!loaded)
 					{
 						loadSpatialMatrix(artiLinks[parent].mSpatialResponseMatrix, threadIndexInWarp, parentResponse);
-						Cm::UnAlignedSpatialVector bias = loadSpatialVector(link.mBiasForce, threadIndexInWarp);
+						ev4sio_Cm::UnAlignedSpatialVector bias = loadSpatialVector(link.mBiasForce, threadIndexInWarp);
 						transmissionForce = bias.magnitude() * frictionCoefficient;
 						cfm = PxMax(artiLinks[parent].mCfm[threadIndexInWarp], link.mCfm[threadIndexInWarp]);
 						loaded = true;
@@ -246,9 +246,9 @@ static __device__ void setupInternalConstraints(PxgArticulationBlockData& artiBl
 
 					//Generate the response vectors...
 
-					Cm::UnAlignedSpatialVector worldMotionVector;
+					ev4sio_Cm::UnAlignedSpatialVector worldMotionVector;
 
-					Cm::UnAlignedSpatialVector axis0, axis1;
+					ev4sio_Cm::UnAlignedSpatialVector axis0, axis1;
 					bool isLinear = dofId >= PxArticulationAxis::eX;
 					PxReal position = dofs[i].mJointPositions[threadIndexInWarp];
 					PxReal error;
@@ -286,7 +286,7 @@ static __device__ void setupInternalConstraints(PxgArticulationBlockData& artiBl
 						error = dofs[0].mConstraintData.mDriveTargetPos[threadIndexInWarp] - position;
 					}
 
-					Cm::UnAlignedSpatialVector deltaVA, deltaVB;
+					ev4sio_Cm::UnAlignedSpatialVector deltaVA, deltaVB;
 
 					getImpulseSelfResponseDofAligned(axis0, axis1,
 						deltaVA, deltaVB, dofs[i], dofs, child2Parent, parentResponse,
@@ -351,7 +351,7 @@ static __device__ void setupInternalConstraints(PxgArticulationBlockData& artiBl
 
 static __device__ void loadSpatialVectorsForPropagationInwardsAndOutwards
 (const PxgArticulationBlockDofData* PX_RESTRICT artiDofs, const PxU32 jointOffset, const PxU32 nbDofs, const PxU32 threadIndexInWarp,
- Cm::UnAlignedSpatialVector* PX_RESTRICT motionMatrixW, Cm::SpatialVectorF* PX_RESTRICT IsInvSTISW, Cm::SpatialVectorF* PX_RESTRICT ISW, InvStIs& invSTISW)
+ ev4sio_Cm::UnAlignedSpatialVector* PX_RESTRICT motionMatrixW, ev4sio_Cm::SpatialVectorF* PX_RESTRICT IsInvSTISW, ev4sio_Cm::SpatialVectorF* PX_RESTRICT ISW, InvStIs& invSTISW)
 {
 	//Gather some important terms in the form we need.
 	//Note propagateAccelerationW cpu/gpu computes jAccel[i] = invSTISW[0][i] * j[0] + invSTISW[1][i] * j[1] + invSTISW[2][i] * j[2]. 
@@ -370,7 +370,7 @@ static __device__ void loadSpatialVectorsForPropagationInwardsAndOutwards
 
 static __device__ void loadSpatialVectorsForPropagationInwards
 (const PxgArticulationBlockDofData* PX_RESTRICT artiDofs, const PxU32 jointOffset, const PxU32 nbDofs, const PxU32 threadIndexInWarp,
- Cm::UnAlignedSpatialVector* PX_RESTRICT motionMatrixW, Cm::SpatialVectorF* IsInvSTISW)
+ ev4sio_Cm::UnAlignedSpatialVector* PX_RESTRICT motionMatrixW, ev4sio_Cm::SpatialVectorF* IsInvSTISW)
 {
 	for(PxU32 i = 0; i < nbDofs; i++)
 	{
@@ -381,7 +381,7 @@ static __device__ void loadSpatialVectorsForPropagationInwards
 
 static __device__ void loadSpatialVectorsForPropagationOutwards
 (const PxgArticulationBlockDofData* PX_RESTRICT artiDofs, const PxU32 jointOffset, const PxU32 nbDofs, const PxU32 threadIndexInWarp,
- Cm::UnAlignedSpatialVector* PX_RESTRICT motionMatrixW, Cm::SpatialVectorF* ISW, InvStIs& invSTISW)
+ ev4sio_Cm::UnAlignedSpatialVector* PX_RESTRICT motionMatrixW, ev4sio_Cm::SpatialVectorF* ISW, InvStIs& invSTISW)
 {
 	//Note propagateAccelerationW cpu/gpu computes jAccel[i] = invSTISW[0][i] * j[0] + invSTISW[1][i] * j[1] + invSTISW[2][i] * j[2]. 
 	//Note 	propagateAccelerationWNoJVelUpdate computes jAccel[i] = invStIsT[i].x * j[0] + invStIsT[i].y * j[1] + invStIsT[i].z * j[2]
@@ -423,28 +423,28 @@ static __device__ PxReal computeMimicJointSelfResponse
 	const PxReal* testJointImpulse = testJointImpulses[dof];
 
 	//Gather terms from the gpu data layout.
-	Cm::UnAlignedSpatialVector motionMatrixW[3];
-	Cm::SpatialVectorF IsInvSTISW[3];
-	Cm::SpatialVectorF ISW[3];
+	ev4sio_Cm::UnAlignedSpatialVector motionMatrixW[3];
+	ev4sio_Cm::SpatialVectorF IsInvSTISW[3];
+	ev4sio_Cm::SpatialVectorF ISW[3];
 	InvStIs invSTISW;
 	loadSpatialVectorsForPropagationInwardsAndOutwards(artiDofs, jointOffset, dofCount, threadIndexInWarp, motionMatrixW, IsInvSTISW, ISW, invSTISW);
 
 	//(1) Propagate joint impulse (and zero link impulse) to parent
 	PxReal QMinusStZ[3] = { 0.f, 0.f, 0.f };
-	const Cm::SpatialVectorF Zp = propagateImpulseW(
+	const ev4sio_Cm::SpatialVectorF Zp = propagateImpulseW(
 		PxVec3(parentLinkToChildLinkx, parentLinkToChildLinky, parentLinkToChildLinkz),
-		Cm::SpatialVectorF(PxVec3(0, 0, 0), PxVec3(0, 0, 0)), 
+		ev4sio_Cm::SpatialVectorF(PxVec3(0, 0, 0), PxVec3(0, 0, 0)), 
 		testJointImpulse, IsInvSTISW, motionMatrixW, dofCount,
 		QMinusStZ);
 
 	//(2) Get deltaV response for parent
-	 Cm::SpatialVectorF deltaVParent;
+	 ev4sio_Cm::SpatialVectorF deltaVParent;
 	{
 		PxSpatialMatrix mat;
 		loadSpatialMatrix(artiLinks[parentLinkIndex].mSpatialResponseMatrix, threadIndexInWarp, mat);
-		const Cm::UnAlignedSpatialVector ZpUnaligned(Zp.top, Zp.bottom);
-		const Cm::UnAlignedSpatialVector deltaVParentUnagligned = mat * (-ZpUnaligned);
-		deltaVParent = Cm::SpatialVectorF(deltaVParentUnagligned.top, deltaVParentUnagligned.bottom);
+		const ev4sio_Cm::UnAlignedSpatialVector ZpUnaligned(Zp.top, Zp.bottom);
+		const ev4sio_Cm::UnAlignedSpatialVector deltaVParentUnagligned = mat * (-ZpUnaligned);
+		deltaVParent = ev4sio_Cm::SpatialVectorF(deltaVParentUnagligned.top, deltaVParentUnagligned.bottom);
 	}
 		
 	//(3) Propagate parent deltaV and apply test impulse (encoded in QMinusStZ).
@@ -491,7 +491,7 @@ static __device__ PxReal computeMimicJointCrossResponse
 		artiDofs[i].mDeferredQstZ[threadIndexInWarp] = 0.0f;
 
 	//Iterate from linkA to root.
-	Cm::SpatialVectorF Zp;
+	ev4sio_Cm::SpatialVectorF Zp;
 	for (PxI32 j = artiPathToRootBitFieldWordCount-1, bitOffset = (artiPathToRootBitFieldWordCount-1)*64; j >= 0; j--, bitOffset -= 64)
 	{
 		ArticulationBitField word = artiPathToRootBitFields[linkA*artiPathToRootBitFieldWordCount + j].bitField[threadIndexInWarp];
@@ -505,12 +505,12 @@ static __device__ PxReal computeMimicJointCrossResponse
 			if(0 != linkIndex)
 			{
 				const PxReal* jointImpulse = NULL;
-				Cm::SpatialVectorF linkImpulse(PxVec3(0,0,0), PxVec3(0,0,0));
+				ev4sio_Cm::SpatialVectorF linkImpulse(PxVec3(0,0,0), PxVec3(0,0,0));
 				if(linkA == linkIndex)
 				{
 					//Propagate joint impulse to parent
 					jointImpulse = testJointImpulses[dofA];
-					linkImpulse = Cm::SpatialVectorF(PxVec3(0,0,0), PxVec3(0,0,0));
+					linkImpulse = ev4sio_Cm::SpatialVectorF(PxVec3(0,0,0), PxVec3(0,0,0));
 				}
 				else
 				{
@@ -527,8 +527,8 @@ static __device__ PxReal computeMimicJointCrossResponse
 				const PxU32 jointOffset = artiLinks[linkIndex].mJointOffset[threadIndexInWarp];
 				const PxU8 dofCount = artiLinks[linkIndex].mDofs[threadIndexInWarp];
 
-				Cm::UnAlignedSpatialVector motionMatrixW[3];
-				Cm::SpatialVectorF IsInvSTISW[3];
+				ev4sio_Cm::UnAlignedSpatialVector motionMatrixW[3];
+				ev4sio_Cm::SpatialVectorF IsInvSTISW[3];
 				loadSpatialVectorsForPropagationInwards(artiDofs, jointOffset, dofCount, threadIndexInWarp, motionMatrixW, IsInvSTISW);
 
 				PxReal QMinusSTZ[3] = {0, 0, 0};
@@ -546,18 +546,18 @@ static __device__ PxReal computeMimicJointCrossResponse
 	}
 
 	//(2) Get deltaV response for root
-	 Cm::SpatialVectorF deltaVRoot;
+	 ev4sio_Cm::SpatialVectorF deltaVRoot;
 	{
 		PxSpatialMatrix mat;
 		loadSpatialMatrix(artiLinks[0].mSpatialResponseMatrix, threadIndexInWarp, mat);
-		const Cm::UnAlignedSpatialVector ZpUnaligned(Zp.top, Zp.bottom);
-		const Cm::UnAlignedSpatialVector deltaVRootUnagligned = mat * (-ZpUnaligned);
-		deltaVRoot = Cm::SpatialVectorF(deltaVRootUnagligned.top, deltaVRootUnagligned.bottom);
+		const ev4sio_Cm::UnAlignedSpatialVector ZpUnaligned(Zp.top, Zp.bottom);
+		const ev4sio_Cm::UnAlignedSpatialVector deltaVRootUnagligned = mat * (-ZpUnaligned);
+		deltaVRoot = ev4sio_Cm::SpatialVectorF(deltaVRootUnagligned.top, deltaVRootUnagligned.bottom);
 	}
 
 	//Propagate deltaVRoot from root to linkB.
 	PxReal jointVelocity[3] = {0, 0, 0};
-	Cm::SpatialVectorF deltaVParent = deltaVRoot;
+	ev4sio_Cm::SpatialVectorF deltaVParent = deltaVRoot;
 	for (PxI32 j = 0, bitOffset = 0; j < artiPathToRootBitFieldWordCount; j++, bitOffset += 64)
 	{
 		ArticulationBitField word = artiPathToRootBitFields[linkB*artiPathToRootBitFieldWordCount + j].bitField[threadIndexInWarp];
@@ -578,8 +578,8 @@ static __device__ PxReal computeMimicJointCrossResponse
 				const PxU32 jointOffset = artiLinks[linkIndex].mJointOffset[threadIndexInWarp];
 				const PxU8 dofCount = artiLinks[linkIndex].mDofs[threadIndexInWarp];
 
-				Cm::UnAlignedSpatialVector motionMatrixW[3];
-				Cm::SpatialVectorF ISW[3];
+				ev4sio_Cm::UnAlignedSpatialVector motionMatrixW[3];
+				ev4sio_Cm::SpatialVectorF ISW[3];
 				InvStIs invSTISW;
 				loadSpatialVectorsForPropagationOutwards(artiDofs, jointOffset, dofCount, threadIndexInWarp, motionMatrixW, ISW, invSTISW);
 
@@ -656,10 +656,10 @@ static  __device__ void setupInternalMimicJointConstraints
 static __device__ void getImpulseSelfResponseSlow(
 	const PxU32 linkID0_,
 	const PxU32 linkID1_,
-	const Cm::UnAlignedSpatialVector& impulse0,
-	const Cm::UnAlignedSpatialVector& impulse1,
-	Cm::UnAlignedSpatialVector& deltaV0,
-	Cm::UnAlignedSpatialVector& deltaV1,
+	const ev4sio_Cm::UnAlignedSpatialVector& impulse0,
+	const ev4sio_Cm::UnAlignedSpatialVector& impulse1,
+	ev4sio_Cm::UnAlignedSpatialVector& deltaV0,
+	ev4sio_Cm::UnAlignedSpatialVector& deltaV1,
 	const PxgArticulationBlockData& artiBlock,
 	const PxgArticulationBlockLinkData* linkData,
 	PxgArticulationBlockDofData* dofData,
@@ -683,8 +683,8 @@ static __device__ void getImpulseSelfResponseSlow(
 
 	PxU32 common = i0;
 
-	Cm::UnAlignedSpatialVector Z0(-impulse0.top, -impulse0.bottom);
-	Cm::UnAlignedSpatialVector Z1(-impulse1.top, -impulse1.bottom);
+	ev4sio_Cm::UnAlignedSpatialVector Z0(-impulse0.top, -impulse0.bottom);
+	ev4sio_Cm::UnAlignedSpatialVector Z1(-impulse1.top, -impulse1.bottom);
 
 	//initialize tmp qstz to be zero
 	const PxU32 numLinks = artiBlock.mNumLinks[threadIndexInWarp];
@@ -733,18 +733,18 @@ static __device__ void getImpulseSelfResponseSlow(
 		stack[i1++] = linkID1;
 	}
 
-	Cm::UnAlignedSpatialVector ZZ = Z0 + Z1;
+	ev4sio_Cm::UnAlignedSpatialVector ZZ = Z0 + Z1;
 
 	PxSpatialMatrix spatialResponse;
 
 	loadSpatialMatrix(linkData[common].mSpatialResponseMatrix, threadIndexInWarp, spatialResponse);
 
-	const Cm::UnAlignedSpatialVector v = (spatialResponse * (-ZZ));
+	const ev4sio_Cm::UnAlignedSpatialVector v = (spatialResponse * (-ZZ));
 
-	Cm::UnAlignedSpatialVector dv1 = v;
+	ev4sio_Cm::UnAlignedSpatialVector dv1 = v;
 	for (PxU32 index = i1; (index--) > i0;)
 	{
-		//Dy::ArticulationLinkData& tLinkDatum = data.getLinkData(stack[index]);
+		//ev4sio_Dy::ArticulationLinkData& tLinkDatum = data.getLinkData(stack[index]);
 		const PxU32 id = stack[index];
 		const PxU32 jointOffset = linkData[id].mJointOffset[threadIndexInWarp];
 		const PxU32 dofCount = linkData[id].mDofs[threadIndexInWarp];
@@ -758,7 +758,7 @@ static __device__ void getImpulseSelfResponseSlow(
 		dv1 = propagateAccelerationWTemp(childToParent, dofData + jointOffset, dv1, dofCount, threadIndexInWarp);
 	}
 
-	Cm::UnAlignedSpatialVector dv0 = v;
+	ev4sio_Cm::UnAlignedSpatialVector dv0 = v;
 	for (PxU32 index = i0; (index--) > 0;)
 	{
 		const PxU32 id = stack[index];
@@ -787,10 +787,10 @@ static __device__ void getImpulseSelfResponse(
 	const PxU32 linkId1,
 	PxgArticulationBlockLinkData& link0,
 	PxgArticulationBlockLinkData& link1,
-	const Cm::UnAlignedSpatialVector& impulse0,
-	const Cm::UnAlignedSpatialVector& impulse1,
-	Cm::UnAlignedSpatialVector& deltaV0,
-	Cm::UnAlignedSpatialVector& deltaV1,
+	const ev4sio_Cm::UnAlignedSpatialVector& impulse0,
+	const ev4sio_Cm::UnAlignedSpatialVector& impulse1,
+	ev4sio_Cm::UnAlignedSpatialVector& deltaV0,
+	ev4sio_Cm::UnAlignedSpatialVector& deltaV1,
 	const PxgArticulationBlockData& artiBlock,
 	const PxgArticulationBlockLinkData* linkData,
 	PxgArticulationBlockDofData* dofData,
@@ -930,10 +930,10 @@ static __device__ void setupInternalSpatialTendonConstraints(
 
 				const PxVec3 rbXn = rb.cross(axis);
 
-				Cm::UnAlignedSpatialVector axis0(rAxis, rRaXn);
-				Cm::UnAlignedSpatialVector axis1(-axis, -rbXn);
+				ev4sio_Cm::UnAlignedSpatialVector axis0(rAxis, rRaXn);
+				ev4sio_Cm::UnAlignedSpatialVector axis1(-axis, -rbXn);
 
-				Cm::UnAlignedSpatialVector deltaV0, deltaV1;
+				ev4sio_Cm::UnAlignedSpatialVector deltaV0, deltaV1;
 
 				getImpulseSelfResponse(rAttachmentLinkIndex, linkInd, rAttachmentLink, cLink, axis0, axis1,
 					deltaV0, deltaV1, artiBlock, artiLinks, artiDofs, threadIndexInWarp);
@@ -1070,7 +1070,7 @@ static __device__ void setupInternalFixedTendonConstraints(
 			const PxU8 dofIndex = cLink.mInvDofIds[tjAxis][threadIndexInWarp];
 			PxgArticulationBlockDofData& dofData = artiDofs[jointOffset + dofIndex];
 			
-			const Cm::UnAlignedSpatialVector worldMotionVector = loadSpatialVector(dofData.mWorldMotionMatrix, threadIndexInWarp);
+			const ev4sio_Cm::UnAlignedSpatialVector worldMotionVector = loadSpatialVector(dofData.mWorldMotionMatrix, threadIndexInWarp);
 
 			//if the current tendon joint's parent is the root, we need to compute root axis and root raXn
 			if (parent == 0)
@@ -1118,10 +1118,10 @@ static __device__ void setupInternalFixedTendonConstraints(
 			
 
 			//create constraint
-			Cm::UnAlignedSpatialVector axis0(sAxis, sRaXn);
-			Cm::UnAlignedSpatialVector axis1(-axis, -rbXn);
+			ev4sio_Cm::UnAlignedSpatialVector axis0(sAxis, sRaXn);
+			ev4sio_Cm::UnAlignedSpatialVector axis1(-axis, -rbXn);
 
-			Cm::UnAlignedSpatialVector deltaV0, deltaV1;
+			ev4sio_Cm::UnAlignedSpatialVector deltaV0, deltaV1;
 
 			getImpulseSelfResponse(sLinkIndex, cLinkInd, sLink, cLink, axis0, axis1,
 				deltaV0, deltaV1, artiBlock, artiLinks, artiDofs, threadIndexInWarp);
@@ -1265,7 +1265,7 @@ extern "C" __global__ void setupInternalConstraintLaunch1T(
 //This is for PGS solver
 static __device__ PX_FORCE_INLINE void solveStaticConstraints(PxgArticulationCoreDesc* PX_RESTRICT scDesc, PxgArticulationBlockLinkData& PX_RESTRICT data,
 	const PxgSolverSharedDesc<IterativeSolveData>* const PX_RESTRICT sharedDesc,
-	Cm::UnAlignedSpatialVector& PX_RESTRICT vel, Cm::UnAlignedSpatialVector& PX_RESTRICT impulse, Cm::UnAlignedSpatialVector& PX_RESTRICT deltaV, PxU32 threadIndexInWarp, bool doFriction,
+	ev4sio_Cm::UnAlignedSpatialVector& PX_RESTRICT vel, ev4sio_Cm::UnAlignedSpatialVector& PX_RESTRICT impulse, ev4sio_Cm::UnAlignedSpatialVector& PX_RESTRICT deltaV, PxU32 threadIndexInWarp, bool doFriction,
 	PxReal /*minPen*/, PxReal /*elapsedTime*/, PxU32 linkID, PxU32 constraintCounts, PxgErrorAccumulator* PX_RESTRICT error)
 {
 
@@ -1276,8 +1276,8 @@ static __device__ PX_FORCE_INLINE void solveStaticConstraints(PxgArticulationCor
 	const PxU32 contactBatchOffset = data.mStaticContactStartIndex[threadIndexInWarp];
 	const PxU32 contactCounts = data.mNbStaticContacts[threadIndexInWarp];
 
-	Cm::UnAlignedSpatialVector oldVel = vel;
-	Cm::UnAlignedSpatialVector vel0, vel1;
+	ev4sio_Cm::UnAlignedSpatialVector oldVel = vel;
+	ev4sio_Cm::UnAlignedSpatialVector vel0, vel1;
 		
 	for (PxU32 i = 0; i < constraintCounts; ++i)
 	{
@@ -1294,12 +1294,12 @@ static __device__ PX_FORCE_INLINE void solveStaticConstraints(PxgArticulationCor
 		if (igNodeIndexA.isArticulation())
 		{
 			vel0 = vel;
-			vel1 = Cm::UnAlignedSpatialVector::Zero();
+			vel1 = ev4sio_Cm::UnAlignedSpatialVector::Zero();
 		}
 		else
 		{
 			assert(batch.bodyBNodeIndex[offset].isArticulation());
-			vel0 = Cm::UnAlignedSpatialVector::Zero();
+			vel0 = ev4sio_Cm::UnAlignedSpatialVector::Zero();
 			vel1 = vel;
 		}
 
@@ -1307,8 +1307,8 @@ static __device__ PX_FORCE_INLINE void solveStaticConstraints(PxgArticulationCor
 		const PxU32 responseIndex = batch.mArticulationResponseIndex;
 
 		
-		Cm::UnAlignedSpatialVector impulse0 = Cm::UnAlignedSpatialVector::Zero();
-		Cm::UnAlignedSpatialVector impulse1 = Cm::UnAlignedSpatialVector::Zero();
+		ev4sio_Cm::UnAlignedSpatialVector impulse0 = ev4sio_Cm::UnAlignedSpatialVector::Zero();
+		ev4sio_Cm::UnAlignedSpatialVector impulse1 = ev4sio_Cm::UnAlignedSpatialVector::Zero();
 
 		{
 			assert(batch.constraintType == PxgSolverConstraintDesc::eARTICULATION_CONSTRAINT_1D);
@@ -1347,18 +1347,18 @@ static __device__ PX_FORCE_INLINE void solveStaticConstraints(PxgArticulationCor
 		if (igNodeIndexA.isArticulation())
 		{
 			vel0 = vel;
-			vel1 = Cm::UnAlignedSpatialVector::Zero();
+			vel1 = ev4sio_Cm::UnAlignedSpatialVector::Zero();
 		}
 		else
 		{
 			assert(batch.bodyBNodeIndex[offset].isArticulation());
-			vel0 = Cm::UnAlignedSpatialVector::Zero();
+			vel0 = ev4sio_Cm::UnAlignedSpatialVector::Zero();
 			vel1 = vel;
 		}
 
 
-		Cm::UnAlignedSpatialVector impulse0 = Cm::UnAlignedSpatialVector::Zero();
-		Cm::UnAlignedSpatialVector impulse1 = Cm::UnAlignedSpatialVector::Zero();
+		ev4sio_Cm::UnAlignedSpatialVector impulse0 = ev4sio_Cm::UnAlignedSpatialVector::Zero();
+		ev4sio_Cm::UnAlignedSpatialVector impulse1 = ev4sio_Cm::UnAlignedSpatialVector::Zero();
 
 		{
 			assert(batch.constraintType == PxgSolverConstraintDesc::eARTICULATION_CONTACT);
@@ -1392,7 +1392,7 @@ static __device__ PX_FORCE_INLINE void solveStaticConstraints(PxgArticulationCor
 //This is for TGS solver
 static __device__ PX_FORCE_INLINE void solveStaticConstraints(PxgArticulationCoreDesc* PX_RESTRICT scDesc, const PxgArticulationBlockLinkData& PX_RESTRICT data, 
 	const PxgSolverSharedDesc<IterativeSolveDataTGS>* const PX_RESTRICT sharedDesc,
-	Cm::UnAlignedSpatialVector& PX_RESTRICT vel, Cm::UnAlignedSpatialVector& PX_RESTRICT impulse, Cm::UnAlignedSpatialVector& PX_RESTRICT deltaV, PxU32 threadIndexInWarp, bool doFriction, 
+	ev4sio_Cm::UnAlignedSpatialVector& PX_RESTRICT vel, ev4sio_Cm::UnAlignedSpatialVector& PX_RESTRICT impulse, ev4sio_Cm::UnAlignedSpatialVector& PX_RESTRICT deltaV, PxU32 threadIndexInWarp, bool doFriction, 
 	PxReal minPen, PxReal elapsedTime, PxU32 linkID, PxU32 constraintCounts, PxgErrorAccumulator* PX_RESTRICT error)
 {
 
@@ -1402,16 +1402,16 @@ static __device__ PX_FORCE_INLINE void solveStaticConstraints(PxgArticulationCor
 	const PxU32 contactBatchOffset = data.mStaticContactStartIndex[threadIndexInWarp];
 	const PxU32 contactCounts = data.mNbStaticContacts[threadIndexInWarp];
 
-	Cm::UnAlignedSpatialVector oldVel = vel;
+	ev4sio_Cm::UnAlignedSpatialVector oldVel = vel;
 
-	Cm::UnAlignedSpatialVector delta = loadSpatialVector(data.mDeltaMotion, threadIndexInWarp);
+	ev4sio_Cm::UnAlignedSpatialVector delta = loadSpatialVector(data.mDeltaMotion, threadIndexInWarp);
 
 	PxQuat deltaQ;
 	if(constraintCounts > 0)
 		deltaQ = loadQuat(data.mDeltaQ, threadIndexInWarp);
 
-	Cm::UnAlignedSpatialVector vel0, vel1;
-	Cm::UnAlignedSpatialVector delta0, delta1;
+	ev4sio_Cm::UnAlignedSpatialVector vel0, vel1;
+	ev4sio_Cm::UnAlignedSpatialVector delta0, delta1;
 	PxQuat deltaQ0, deltaQ1;
 
 	for (PxU32 i = 0; i < constraintCounts; ++i)
@@ -1430,16 +1430,16 @@ static __device__ PX_FORCE_INLINE void solveStaticConstraints(PxgArticulationCor
 			delta0 = delta;
 			deltaQ0 = deltaQ;
 
-			vel1 = Cm::UnAlignedSpatialVector::Zero();
-			delta1 = Cm::UnAlignedSpatialVector::Zero();
+			vel1 = ev4sio_Cm::UnAlignedSpatialVector::Zero();
+			delta1 = ev4sio_Cm::UnAlignedSpatialVector::Zero();
 			deltaQ1 = PxQuat(PxIdentity);
 
 		}
 		else
 		{
 			assert(batch.bodyBNodeIndex[offset].isArticulation());
-			vel0 = Cm::UnAlignedSpatialVector::Zero();
-			delta0 = Cm::UnAlignedSpatialVector::Zero();
+			vel0 = ev4sio_Cm::UnAlignedSpatialVector::Zero();
+			delta0 = ev4sio_Cm::UnAlignedSpatialVector::Zero();
 			deltaQ0 = PxQuat(PxIdentity);
 
 			vel1 = vel;
@@ -1448,8 +1448,8 @@ static __device__ PX_FORCE_INLINE void solveStaticConstraints(PxgArticulationCor
 		}
 
 
-		Cm::UnAlignedSpatialVector impulse0 = Cm::UnAlignedSpatialVector::Zero();
-		Cm::UnAlignedSpatialVector impulse1 = Cm::UnAlignedSpatialVector::Zero();
+		ev4sio_Cm::UnAlignedSpatialVector impulse0 = ev4sio_Cm::UnAlignedSpatialVector::Zero();
+		ev4sio_Cm::UnAlignedSpatialVector impulse1 = ev4sio_Cm::UnAlignedSpatialVector::Zero();
 
 		{
 			assert(batch.constraintType == PxgSolverConstraintDesc::eARTICULATION_CONSTRAINT_1D);
@@ -1497,15 +1497,15 @@ static __device__ PX_FORCE_INLINE void solveStaticConstraints(PxgArticulationCor
 			delta0 = delta;
 			deltaQ0 = deltaQ;
 
-			vel1 = Cm::UnAlignedSpatialVector::Zero();
-			delta1 = Cm::UnAlignedSpatialVector::Zero();
+			vel1 = ev4sio_Cm::UnAlignedSpatialVector::Zero();
+			delta1 = ev4sio_Cm::UnAlignedSpatialVector::Zero();
 			deltaQ1 = PxQuat(PxIdentity);
 		}
 		else
 		{
 			assert(batch.bodyBNodeIndex[offset].isArticulation());
-			vel0 = Cm::UnAlignedSpatialVector::Zero();
-			delta0 = Cm::UnAlignedSpatialVector::Zero();
+			vel0 = ev4sio_Cm::UnAlignedSpatialVector::Zero();
+			delta0 = ev4sio_Cm::UnAlignedSpatialVector::Zero();
 			deltaQ0 = PxQuat(PxIdentity);
 
 			vel1 = vel;
@@ -1513,8 +1513,8 @@ static __device__ PX_FORCE_INLINE void solveStaticConstraints(PxgArticulationCor
 			deltaQ1 = deltaQ;
 		}
 
-		Cm::UnAlignedSpatialVector impulse0 = Cm::UnAlignedSpatialVector::Zero();
-		Cm::UnAlignedSpatialVector impulse1 = Cm::UnAlignedSpatialVector::Zero();
+		ev4sio_Cm::UnAlignedSpatialVector impulse0 = ev4sio_Cm::UnAlignedSpatialVector::Zero();
+		ev4sio_Cm::UnAlignedSpatialVector impulse1 = ev4sio_Cm::UnAlignedSpatialVector::Zero();
 
 		{
 			assert(batch.constraintType == PxgSolverConstraintDesc::eARTICULATION_CONTACT);
@@ -1600,24 +1600,24 @@ static __device__ void artiSolveInternalConstraints1T(PxgArticulationCoreDesc* P
 
 		const bool fixBase = blockData.mFlags[threadIdx.x] & PxArticulationFlag::eFIX_BASE;
 
-		const Cm::UnAlignedSpatialVector rootDeferredZ = loadSpatialVector(blockData.mRootDeferredZ, threadIdx.x);
+		const ev4sio_Cm::UnAlignedSpatialVector rootDeferredZ = loadSpatialVector(blockData.mRootDeferredZ, threadIdx.x);
 
-		Cm::UnAlignedSpatialVector parentDeltaV(PxVec3(0.f), PxVec3(0.f)), storeParentDeltaV(PxVec3(0.f), PxVec3(0.f));
-		Cm::UnAlignedSpatialVector parentImp(PxVec3(0.f), PxVec3(0.f));
+		ev4sio_Cm::UnAlignedSpatialVector parentDeltaV(PxVec3(0.f), PxVec3(0.f)), storeParentDeltaV(PxVec3(0.f), PxVec3(0.f));
+		ev4sio_Cm::UnAlignedSpatialVector parentImp(PxVec3(0.f), PxVec3(0.f));
 		
 
 		if (!fixBase)
 		{
 			const PxU32 constraintCounts0 = data[0].mNbStaticJoints[threadIdx.x];
 
-			Dy::SpatialMatrix spatialMatrix;
+			ev4sio_Dy::SpatialMatrix spatialMatrix;
 			loadSpatialMatrix(blockData.mInvSpatialArticulatedInertia, threadIdx.x, spatialMatrix);
 
-			const Cm::UnAlignedSpatialVector motionVelocity0 = loadSpatialVector(data[0].mMotionVelocity, threadIdx.x);
+			const ev4sio_Cm::UnAlignedSpatialVector motionVelocity0 = loadSpatialVector(data[0].mMotionVelocity, threadIdx.x);
 
 			parentDeltaV = spatialMatrix * -rootDeferredZ;
 
-			Cm::UnAlignedSpatialVector rootVel = motionVelocity0 + parentDeltaV;
+			ev4sio_Cm::UnAlignedSpatialVector rootVel = motionVelocity0 + parentDeltaV;
 			storeParentDeltaV = parentDeltaV;
 			
 			//Solve constraints...
@@ -1663,16 +1663,16 @@ static __device__ void artiSolveInternalConstraints1T(PxgArticulationCoreDesc* P
 			{
 				parent = linkData.mParents[threadIdx.x];
 
-				const Cm::UnAlignedSpatialVector solverSpatialImpulse = loadSpatialVector(linkData.mSolverSpatialImpulse, threadIdx.x);
+				const ev4sio_Cm::UnAlignedSpatialVector solverSpatialImpulse = loadSpatialVector(linkData.mSolverSpatialImpulse, threadIdx.x);
 
-				const Cm::UnAlignedSpatialVector ZInternalConstraint = loadSpatialVector(linkData.mSolverSpatialInternalConstraintImpulse, threadIdx.x);
+				const ev4sio_Cm::UnAlignedSpatialVector ZInternalConstraint = loadSpatialVector(linkData.mSolverSpatialInternalConstraintImpulse, threadIdx.x);
 
 				PxSpatialMatrix spatialResponse;
 				loadSpatialMatrix(data[parent].mSpatialResponseMatrix, threadIdx.x, spatialResponse);
 
 				stackCount--;
 	
-				Cm::UnAlignedSpatialVector impulse = parentImp;
+				ev4sio_Cm::UnAlignedSpatialVector impulse = parentImp;
 
 				parentDeltaV = loadSpatialVector(stack[parent].deltaVStack, threadIdx.x); 
 				parentImp = loadSpatialVector(stack[parent].impulseStack, threadIdx.x);
@@ -1683,12 +1683,12 @@ static __device__ void artiSolveInternalConstraints1T(PxgArticulationCoreDesc* P
 				//We're finished with this link so we can move to the next one.
 				linkID = stackCount > 0 ? stack[stackCount - 1].indices[threadIdx.x] : 0xffffffff;
 
-				const Cm::UnAlignedSpatialVector propagateImp = propagateImpulseW_0(PxVec3(c2px, c2py, c2pz), dofData + jointOffset, impulse, dofCount, threadIdx.x);
+				const ev4sio_Cm::UnAlignedSpatialVector propagateImp = propagateImpulseW_0(PxVec3(c2px, c2py, c2pz), dofData + jointOffset, impulse, dofCount, threadIdx.x);
 
 				parentImp += propagateImp;
 
 
-				Cm::UnAlignedSpatialVector deltaV = spatialResponse * -parentImp;
+				ev4sio_Cm::UnAlignedSpatialVector deltaV = spatialResponse * -parentImp;
 
 				parentDeltaV += deltaV;
 
@@ -1696,19 +1696,19 @@ static __device__ void artiSolveInternalConstraints1T(PxgArticulationCoreDesc* P
 			}
 			else
 			{
-				Cm::UnAlignedSpatialVector parentV = parentDeltaV + loadSpatialVector(data[parent].mMotionVelocity, threadIdx.x);
-				const Cm::UnAlignedSpatialVector childDelta = loadSpatialVector(linkData.mDeltaMotion, threadIdx.x);
-				const Cm::UnAlignedSpatialVector parentDelta = loadSpatialVector(data[parent].mDeltaMotion, threadIdx.x);
+				ev4sio_Cm::UnAlignedSpatialVector parentV = parentDeltaV + loadSpatialVector(data[parent].mMotionVelocity, threadIdx.x);
+				const ev4sio_Cm::UnAlignedSpatialVector childDelta = loadSpatialVector(linkData.mDeltaMotion, threadIdx.x);
+				const ev4sio_Cm::UnAlignedSpatialVector parentDelta = loadSpatialVector(data[parent].mDeltaMotion, threadIdx.x);
 				
 
-				Cm::UnAlignedSpatialVector deltaV = propagateAccelerationW(PxVec3(c2px, c2py, c2pz), dofData + jointOffset,
+				ev4sio_Cm::UnAlignedSpatialVector deltaV = propagateAccelerationW(PxVec3(c2px, c2py, c2pz), dofData + jointOffset,
 					parentDeltaV, dofCount, NULL, threadIdx.x);
 
-				Cm::UnAlignedSpatialVector childV = deltaV + loadSpatialVector(linkData.mMotionVelocity, threadIdx.x);
+				ev4sio_Cm::UnAlignedSpatialVector childV = deltaV + loadSpatialVector(linkData.mMotionVelocity, threadIdx.x);
 
 				storeSpatialVector(stack[linkID].deltaVStack, deltaV, threadIdx.x);
 
-				Cm::UnAlignedSpatialVector impulse = Cm::UnAlignedSpatialVector(PxVec3(0.f), PxVec3(0.f));
+				ev4sio_Cm::UnAlignedSpatialVector impulse = ev4sio_Cm::UnAlignedSpatialVector(PxVec3(0.f), PxVec3(0.f));
 
 				for (PxU32 dof = 0; dof < dofCount; ++dof)
 				{
@@ -1718,15 +1718,15 @@ static __device__ void artiSolveInternalConstraints1T(PxgArticulationCoreDesc* P
 					{
 						const PxReal maxJointVel = thisDof.mConstraintData.mMaxJointVelocity[threadIdx.x];
 						// PT: preload as much data as we can
-						const Cm::UnAlignedSpatialVector row0 = loadSpatialVector(thisDof.mConstraintData.mRow0, threadIdx.x);
-						const Cm::UnAlignedSpatialVector row1 = loadSpatialVector(thisDof.mConstraintData.mRow1, threadIdx.x);
+						const ev4sio_Cm::UnAlignedSpatialVector row0 = loadSpatialVector(thisDof.mConstraintData.mRow0, threadIdx.x);
+						const ev4sio_Cm::UnAlignedSpatialVector row1 = loadSpatialVector(thisDof.mConstraintData.mRow1, threadIdx.x);
 						const PxReal maxDriveForce = thisDof.mConstraintData.mConstraintMaxForce[threadIdx.x];
 						const PxReal driveForce = thisDof.mConstraintData.mDriveForce[threadIdx.x];
 						const PxReal recipResponse = thisDof.mConstraintData.mRecipResponse[threadIdx.x];
 						const PxReal response = thisDof.mConstraintData.mResponse[threadIdx.x];
 						const PxReal maxFrictionForce = thisDof.mConstraintData.mMaxFrictionForce[threadIdx.x];
-						const Cm::UnAlignedSpatialVector deltaVA = loadSpatialVector(thisDof.mConstraintData.mDeltaVA, threadIdx.x);
-						const Cm::UnAlignedSpatialVector deltaVB = loadSpatialVector(thisDof.mConstraintData.mDeltaVB, threadIdx.x);
+						const ev4sio_Cm::UnAlignedSpatialVector deltaVA = loadSpatialVector(thisDof.mConstraintData.mDeltaVA, threadIdx.x);
+						const ev4sio_Cm::UnAlignedSpatialVector deltaVB = loadSpatialVector(thisDof.mConstraintData.mDeltaVB, threadIdx.x);
 
 						const PxReal effectiveDt = isTGS && isExternalForceEveryStep && !isVelIter ? dt : scDesc->dt;
 
@@ -1813,8 +1813,8 @@ static __device__ void artiSolveInternalConstraints1T(PxgArticulationCoreDesc* P
 						//if (deltaF != 0.f)
 						{
 							// the signs look suspicious here
-							const Cm::UnAlignedSpatialVector pDelta = deltaVA * -deltaF;
-							const Cm::UnAlignedSpatialVector cDelta = deltaVB * -deltaF;
+							const ev4sio_Cm::UnAlignedSpatialVector pDelta = deltaVA * -deltaF;
+							const ev4sio_Cm::UnAlignedSpatialVector cDelta = deltaVB * -deltaF;
 
 							parentDeltaV += pDelta;
 							deltaV += cDelta;
@@ -1976,7 +1976,7 @@ static __device__ void updateSolveInternalTendonConstraintsTGS(
 	}
 }
 
-static __device__ Cm::UnAlignedSpatialVector pxcFsGetVelocity(
+static __device__ ev4sio_Cm::UnAlignedSpatialVector pxcFsGetVelocity(
 	PxgArticulationBlockData& artiBlock,
 	PxgArticulationBlockLinkData* linkData, 
 	PxgArticulationBlockDofData* dofData,
@@ -1985,13 +1985,13 @@ static __device__ Cm::UnAlignedSpatialVector pxcFsGetVelocity(
 	PxReal* jointDofSpeeds,
 	const PxU32 threadIndexInWarp)
 {
-	Cm::UnAlignedSpatialVector deltaV(PxVec3(0.f), PxVec3(0.f));
+	ev4sio_Cm::UnAlignedSpatialVector deltaV(PxVec3(0.f), PxVec3(0.f));
 
 	if (!fixBase)
 	{
-		const Cm::UnAlignedSpatialVector rootDeferredZ = loadSpatialVector(artiBlock.mRootDeferredZ, threadIndexInWarp);
+		const ev4sio_Cm::UnAlignedSpatialVector rootDeferredZ = loadSpatialVector(artiBlock.mRootDeferredZ, threadIndexInWarp);
 
-		Dy::SpatialMatrix spatialMatrix;
+		ev4sio_Dy::SpatialMatrix spatialMatrix;
 
 		loadSpatialMatrix(artiBlock.mInvSpatialArticulatedInertia, threadIndexInWarp, spatialMatrix);
 
@@ -2045,7 +2045,7 @@ static __device__ Cm::UnAlignedSpatialVector pxcFsGetVelocity(
 		}
 	}
 
-	Cm::UnAlignedSpatialVector motionVelocity = loadSpatialVector(link.mMotionVelocity, threadIndexInWarp);
+	ev4sio_Cm::UnAlignedSpatialVector motionVelocity = loadSpatialVector(link.mMotionVelocity, threadIndexInWarp);
 
 	return motionVelocity + deltaV;
 }
@@ -2073,8 +2073,8 @@ static __device__ void pxcFsApplyImpulses(PxgArticulationBlockData& blockData,
 	}
 	
 
-	Cm::UnAlignedSpatialVector Z0(-linear0, -angular0);
-	Cm::UnAlignedSpatialVector Z1(-linear1, -angular1);
+	ev4sio_Cm::UnAlignedSpatialVector Z0(-linear0, -angular0);
+	ev4sio_Cm::UnAlignedSpatialVector Z1(-linear1, -angular1);
 	
 	//The common link will either be linkID1, or its ancestors.
 	//The common link cannot be an index before either linkID1 or linkID0
@@ -2124,7 +2124,7 @@ static __device__ void pxcFsApplyImpulses(PxgArticulationBlockData& blockData,
 		Z0 = propagateImpulseW_0(child2Parent, dofData + jointOffset, Z0, dofCount, threadIndexInWarp, jointImpulseToApply, 1.0f);
 	}
 
-	Cm::UnAlignedSpatialVector ZCommon = Z0 + Z1;
+	ev4sio_Cm::UnAlignedSpatialVector ZCommon = Z0 + Z1;
 
 	//If either linkID0 (or linkID1) are the common link then we will not yet have applied 
 	//jointImpulse0 (or jointImpulse1) to the inbound joint of the link.  
@@ -2225,7 +2225,7 @@ static __device__ void solveInternalSpatialConstraints(
 
 			PxgArticulationInternalTendonConstraintData& constraintData = tendonConstraintBlock[numConstraints - 1];
 			const PxU32 parentID = constraintData.mLink0[threadIndexInWarp];
-			Cm::UnAlignedSpatialVector parentVel = pxcFsGetVelocity(blockData, data, dofData, linkBitFieldsData, wordSize, parentID, fixBase, NULL, threadIndexInWarp);
+			ev4sio_Cm::UnAlignedSpatialVector parentVel = pxcFsGetVelocity(blockData, data, dofData, linkBitFieldsData, wordSize, parentID, fixBase, NULL, threadIndexInWarp);
 
 			PxReal parentV = loadSpatialVector(tendonConstraintBlock[0].mRow0, threadIndexInWarp).innerProduct(parentVel);
 
@@ -2237,7 +2237,7 @@ static __device__ void solveInternalSpatialConstraints(
 				assert(parentID == constraintData.mLink0[threadIndexInWarp]);
 				const PxU32 childID = constraintData.mLink1[threadIndexInWarp];
 
-				Cm::UnAlignedSpatialVector childVel = pxcFsGetVelocity(blockData, data, dofData, linkBitFieldsData, wordSize, childID, fixBase, NULL, threadIndexInWarp);
+				ev4sio_Cm::UnAlignedSpatialVector childVel = pxcFsGetVelocity(blockData, data, dofData, linkBitFieldsData, wordSize, childID, fixBase, NULL, threadIndexInWarp);
 			
 				const PxReal accumLength = constraintData.mAccumulatedLength[threadIndexInWarp];
 				const PxReal error = constraintData.mRestDistance[threadIndexInWarp] - accumLength;
@@ -2251,8 +2251,8 @@ static __device__ void solveInternalSpatialConstraints(
 				else if (accumLength < lowLimit)
 					error2 = lowLimit - accumLength;
 
-				const Cm::UnAlignedSpatialVector row1 = loadSpatialVector(constraintData.mRow1, threadIndexInWarp);
-				const Cm::UnAlignedSpatialVector row0 = loadSpatialVector(constraintData.mRow0, threadIndexInWarp);
+				const ev4sio_Cm::UnAlignedSpatialVector row1 = loadSpatialVector(constraintData.mRow1, threadIndexInWarp);
+				const ev4sio_Cm::UnAlignedSpatialVector row0 = loadSpatialVector(constraintData.mRow0, threadIndexInWarp);
 
 				const PxReal jointV = row1.innerProduct(childVel) - parentV;
 
@@ -2279,8 +2279,8 @@ static __device__ void solveInternalSpatialConstraints(
 
 				if (deltaF != 0.f)
 				{
-					Cm::UnAlignedSpatialVector i0 = row0 * (-deltaF);
-					Cm::UnAlignedSpatialVector i1 = row1 * deltaF;
+					ev4sio_Cm::UnAlignedSpatialVector i0 = row0 * (-deltaF);
+					ev4sio_Cm::UnAlignedSpatialVector i1 = row1 * deltaF;
 
 					pxcFsApplyImpulses(
 						blockData, data, dofData, 
@@ -2340,11 +2340,11 @@ static __device__ void solveInternalFixedConstraints(
 		PxgArticulationBlockLinkData& sLink = artiLinks[sLinkIndex];
 		const PxTransform sBody2World = loadSpatialTransform(sLink.mAccumulatedPose, threadIndexInWarp);
 
-		Cm::UnAlignedSpatialVector parentVel = pxcFsGetVelocity(blockData, artiLinks, artiDofs, linkBitFields, wordSize, sLinkIndex, fixBase, NULL, threadIndexInWarp);
-		Cm::UnAlignedSpatialVector velA = loadSpatialVector(sLink.mMotionVelocity, threadIndexInWarp);
+		ev4sio_Cm::UnAlignedSpatialVector parentVel = pxcFsGetVelocity(blockData, artiLinks, artiDofs, linkBitFields, wordSize, sLinkIndex, fixBase, NULL, threadIndexInWarp);
+		ev4sio_Cm::UnAlignedSpatialVector velA = loadSpatialVector(sLink.mMotionVelocity, threadIndexInWarp);
 
-		Cm::UnAlignedSpatialVector delta = parentVel - velA;
-		storeSpatialVector(sLink.mScratchImpulse, Cm::UnAlignedSpatialVector::Zero(), threadIndexInWarp);
+		ev4sio_Cm::UnAlignedSpatialVector delta = parentVel - velA;
+		storeSpatialVector(sLink.mScratchImpulse, ev4sio_Cm::UnAlignedSpatialVector::Zero(), threadIndexInWarp);
 		storeSpatialVector(sLink.mScratchDeltaV, delta, threadIndexInWarp);
 
 
@@ -2395,26 +2395,26 @@ static __device__ void solveInternalFixedConstraints(
 
 			const PxReal jointPose = dofData.mJointPositions[threadIndexInWarp];
 
-			Cm::UnAlignedSpatialVector parentDeltaV = loadSpatialVector(pLink.mScratchDeltaV, threadIndexInWarp);
-			Cm::UnAlignedSpatialVector parentV = loadSpatialVector(pLink.mMotionVelocity, threadIndexInWarp) + parentDeltaV;
+			ev4sio_Cm::UnAlignedSpatialVector parentDeltaV = loadSpatialVector(pLink.mScratchDeltaV, threadIndexInWarp);
+			ev4sio_Cm::UnAlignedSpatialVector parentV = loadSpatialVector(pLink.mMotionVelocity, threadIndexInWarp) + parentDeltaV;
 
-			Cm::UnAlignedSpatialVector cDeltaV = propagateAccelerationW(c2p, artiDofs + jointOffset, parentDeltaV, dofCount, NULL, threadIndexInWarp);
+			ev4sio_Cm::UnAlignedSpatialVector cDeltaV = propagateAccelerationW(c2p, artiDofs + jointOffset, parentDeltaV, dofCount, NULL, threadIndexInWarp);
 
 			storeSpatialVector(cLink.mScratchDeltaV, cDeltaV, threadIndexInWarp);
 
 
-			Cm::UnAlignedSpatialVector velB = loadSpatialVector(cLink.mMotionVelocity, threadIndexInWarp);
-			Cm::UnAlignedSpatialVector childVel = velB + cDeltaV;
+			ev4sio_Cm::UnAlignedSpatialVector velB = loadSpatialVector(cLink.mMotionVelocity, threadIndexInWarp);
+			ev4sio_Cm::UnAlignedSpatialVector childVel = velB + cDeltaV;
 
-			storeSpatialVector(cLink.mScratchImpulse, Cm::UnAlignedSpatialVector(PxVec3(0.f), PxVec3(0.f)), threadIndexInWarp);
+			storeSpatialVector(cLink.mScratchImpulse, ev4sio_Cm::UnAlignedSpatialVector(PxVec3(0.f), PxVec3(0.f)), threadIndexInWarp);
 
 
 
 			PxU64 children = tjData.mChildrens[threadIndexInWarp];
 
 			//KS - constraint.row0.innerProduct(rootVel) is a known so we can replace it with a dynamically updated scalar value...
-			Cm::UnAlignedSpatialVector row0 = loadSpatialVector(constraint.mRow0, threadIndexInWarp);
-			Cm::UnAlignedSpatialVector row1 = loadSpatialVector(constraint.mRow1, threadIndexInWarp);
+			ev4sio_Cm::UnAlignedSpatialVector row0 = loadSpatialVector(constraint.mRow0, threadIndexInWarp);
+			ev4sio_Cm::UnAlignedSpatialVector row1 = loadSpatialVector(constraint.mRow1, threadIndexInWarp);
 			PxReal jointV = row1.innerProduct(childVel) - row0.innerProduct(parentV);
 
 
@@ -2500,16 +2500,16 @@ static __device__ void solveInternalFixedConstraints(
 
 			rootImp += deltaF;
 
-			const Cm::UnAlignedSpatialVector cImpulse = loadSpatialVector(cLink.mScratchImpulse, threadIndexInWarp);
+			const ev4sio_Cm::UnAlignedSpatialVector cImpulse = loadSpatialVector(cLink.mScratchImpulse, threadIndexInWarp);
 
-			const Cm::UnAlignedSpatialVector impulse = loadSpatialVector(constraint.mRow1, threadIndexInWarp) * -deltaF + cImpulse;
+			const ev4sio_Cm::UnAlignedSpatialVector impulse = loadSpatialVector(constraint.mRow1, threadIndexInWarp) * -deltaF + cImpulse;
 
 			//Store (impulse - YInt)
 			//but YInt = constraint.mRow1 * -deltaF
 			//so (impulse - YInt) = cImpulse.			
 			addSpatialVector(cLink.mSolverSpatialImpulse, cImpulse, threadIndexInWarp);
 
-			Cm::UnAlignedSpatialVector propagatedImpulse = propagateImpulseW_0(c2p, artiDofs + jointOffset, impulse, dofCount, threadIndexInWarp);
+			ev4sio_Cm::UnAlignedSpatialVector propagatedImpulse = propagateImpulseW_0(c2p, artiDofs + jointOffset, impulse, dofCount, threadIndexInWarp);
 
 			addSpatialVector(pLink.mScratchImpulse, propagatedImpulse, threadIndexInWarp);
 
@@ -2520,9 +2520,9 @@ static __device__ void solveInternalFixedConstraints(
 		const PxU32 firstConstraint = tendonJointBlock[firstChild].mConstraintId[threadIndexInWarp];
 		const PxgArticulationInternalTendonConstraintData& constraint = constraintBlock[firstConstraint];
 
-		const Cm::UnAlignedSpatialVector propagatedImpulse = loadSpatialVector(sLink.mScratchImpulse, threadIndexInWarp);
+		const ev4sio_Cm::UnAlignedSpatialVector propagatedImpulse = loadSpatialVector(sLink.mScratchImpulse, threadIndexInWarp);
 
-		Cm::UnAlignedSpatialVector Z = propagatedImpulse + loadSpatialVector(constraint.mRow0, threadIndexInWarp) * rootImp;
+		ev4sio_Cm::UnAlignedSpatialVector Z = propagatedImpulse + loadSpatialVector(constraint.mRow0, threadIndexInWarp) * rootImp;
 
 
 		for (PxU32 linkID = sLinkIndex; linkID; linkID = artiLinks[linkID].mParents[threadIndexInWarp])
@@ -2548,7 +2548,7 @@ static __device__ void solveInternalFixedConstraints(
 		const PxU32 nbLinks = blockData.mNumLinks[threadIndexInWarp];
 		for (PxU32 i = 0; i < nbLinks; ++i)
 		{
-			storeSpatialVector(artiLinks[i].mScratchImpulse, Cm::UnAlignedSpatialVector::Zero(), threadIndexInWarp);
+			storeSpatialVector(artiLinks[i].mScratchImpulse, ev4sio_Cm::UnAlignedSpatialVector::Zero(), threadIndexInWarp);
 		}
 	}
 }
@@ -3608,9 +3608,9 @@ void artiSumSelfContactAndJointBatches(
 }
 
 static __device__ void solveConstraints(PxgArticulationCoreDesc* PX_RESTRICT scDesc, const IterativeSolveData& msIterativeData,
-	const PxgBlockConstraintBatch& batch, Cm::UnAlignedSpatialVector& vel0, Cm::UnAlignedSpatialVector& vel1,
-	const PxgArticulationBlockLinkData& link0, const PxgArticulationBlockLinkData& link1, Cm::UnAlignedSpatialVector& impulse0,
-	Cm::UnAlignedSpatialVector& impulse1, const bool doFriction, const PxReal elapsedTime, const PxReal minPen, const PxU32 offset, PxgErrorAccumulator* errorAccumulator)
+	const PxgBlockConstraintBatch& batch, ev4sio_Cm::UnAlignedSpatialVector& vel0, ev4sio_Cm::UnAlignedSpatialVector& vel1,
+	const PxgArticulationBlockLinkData& link0, const PxgArticulationBlockLinkData& link1, ev4sio_Cm::UnAlignedSpatialVector& impulse0,
+	ev4sio_Cm::UnAlignedSpatialVector& impulse1, const bool doFriction, const PxReal elapsedTime, const PxReal minPen, const PxU32 offset, PxgErrorAccumulator* errorAccumulator)
 {
 	// For internal constraints, mass-splitting is not used; thus, reference counts are 1 (default).
 	if (batch.constraintType == PxgSolverConstraintDesc::eARTICULATION_CONTACT)
@@ -3631,12 +3631,12 @@ static __device__ void solveConstraints(PxgArticulationCoreDesc* PX_RESTRICT scD
 }
 
 static __device__ void solveConstraints(PxgArticulationCoreDesc* PX_RESTRICT scDesc, const IterativeSolveDataTGS& msIterativeData,
-	const PxgBlockConstraintBatch& batch, Cm::UnAlignedSpatialVector& vel0, Cm::UnAlignedSpatialVector& vel1,
-	const PxgArticulationBlockLinkData& link0, const PxgArticulationBlockLinkData& link1, Cm::UnAlignedSpatialVector& impulse0,
-	Cm::UnAlignedSpatialVector& impulse1, const bool doFriction, const PxReal elapsedTime, const PxReal minPen, const PxU32 offset, PxgErrorAccumulator* errorAccumulator)
+	const PxgBlockConstraintBatch& batch, ev4sio_Cm::UnAlignedSpatialVector& vel0, ev4sio_Cm::UnAlignedSpatialVector& vel1,
+	const PxgArticulationBlockLinkData& link0, const PxgArticulationBlockLinkData& link1, ev4sio_Cm::UnAlignedSpatialVector& impulse0,
+	ev4sio_Cm::UnAlignedSpatialVector& impulse1, const bool doFriction, const PxReal elapsedTime, const PxReal minPen, const PxU32 offset, PxgErrorAccumulator* errorAccumulator)
 {
-	const Cm::UnAlignedSpatialVector delta0 = loadSpatialVector(link0.mDeltaMotion, threadIdx.x);
-	const Cm::UnAlignedSpatialVector delta1 = loadSpatialVector(link1.mDeltaMotion, threadIdx.x);
+	const ev4sio_Cm::UnAlignedSpatialVector delta0 = loadSpatialVector(link0.mDeltaMotion, threadIdx.x);
+	const ev4sio_Cm::UnAlignedSpatialVector delta1 = loadSpatialVector(link1.mDeltaMotion, threadIdx.x);
 
 	// For internal constraints, mass-splitting is not used; thus, reference counts are 1 (default).
 	if (batch.constraintType == PxgSolverConstraintDesc::eARTICULATION_CONTACT)
@@ -3726,8 +3726,8 @@ static __device__ void artiPropagateRigidImpulsesAndSolveSelfConstraints1T(PxgAr
 		PxgArticulationBitFieldStackData* pathToRootBitFieldB = scDesc->mTempRootBitFieldBlocks + wordSize * blockIdx.x;
 		PxgArticulationBitFieldStackData* commonBitField = scDesc->mTempPathToRootBitFieldBlocks + wordSize * blockIdx.x;
 
-		Cm::UnAlignedSpatialVector rootDeferredZ = loadSpatialVector(articulation.mRootDeferredZ, threadIdx.x);
-		Dy::SpatialMatrix rootInvArticulatedInertia;
+		ev4sio_Cm::UnAlignedSpatialVector rootDeferredZ = loadSpatialVector(articulation.mRootDeferredZ, threadIdx.x);
+		ev4sio_Dy::SpatialMatrix rootInvArticulatedInertia;
 		loadSpatialMatrix(articulation.mInvSpatialArticulatedInertia, threadIdx.x, rootInvArticulatedInertia);
 
 		if(nbSelfConstraints)
@@ -3746,7 +3746,7 @@ static __device__ void artiPropagateRigidImpulsesAndSolveSelfConstraints1T(PxgAr
 				if (mask & (1 << threadIdx.x))
 				{
 
-					const Cm::UnAlignedSpatialVector commonDelta = rootInvArticulatedInertia * -rootDeferredZ;
+					const ev4sio_Cm::UnAlignedSpatialVector commonDelta = rootInvArticulatedInertia * -rootDeferredZ;
 
 					const PxU32 offset = warpScanExclusive(mask, threadIdx.x);
 
@@ -3771,10 +3771,10 @@ static __device__ void artiPropagateRigidImpulsesAndSolveSelfConstraints1T(PxgAr
 						commonBitField[i].bitField[threadIdx.x] = wordA & wordB;
 					}
 
-					Cm::UnAlignedSpatialVector velA = loadSpatialVector(linkA.mMotionVelocity, threadIdx.x);
-					Cm::UnAlignedSpatialVector velB = loadSpatialVector(linkB.mMotionVelocity, threadIdx.x);
+					ev4sio_Cm::UnAlignedSpatialVector velA = loadSpatialVector(linkA.mMotionVelocity, threadIdx.x);
+					ev4sio_Cm::UnAlignedSpatialVector velB = loadSpatialVector(linkB.mMotionVelocity, threadIdx.x);
 
-					Cm::UnAlignedSpatialVector deltaVA = commonDelta;
+					ev4sio_Cm::UnAlignedSpatialVector deltaVA = commonDelta;
 
 					for (PxU32 i = 0, wordOffset = 0; i < wordSize; ++i, wordOffset += 64)
 					{
@@ -3797,7 +3797,7 @@ static __device__ void artiPropagateRigidImpulsesAndSolveSelfConstraints1T(PxgAr
 
 
 					//Now prop to linkA and linkB...
-					Cm::UnAlignedSpatialVector deltaVB = deltaVA;
+					ev4sio_Cm::UnAlignedSpatialVector deltaVB = deltaVA;
 			
 					for (PxU32 i = 0; i < wordSize; ++i)
 					{
@@ -3850,8 +3850,8 @@ static __device__ void artiPropagateRigidImpulsesAndSolveSelfConstraints1T(PxgAr
 
 					//Now do the solve
 
-					Cm::UnAlignedSpatialVector impulse0(PxVec3(0.f), PxVec3(0.f));
-					Cm::UnAlignedSpatialVector impulse1(PxVec3(0.f), PxVec3(0.f));
+					ev4sio_Cm::UnAlignedSpatialVector impulse0(PxVec3(0.f), PxVec3(0.f));
+					ev4sio_Cm::UnAlignedSpatialVector impulse1(PxVec3(0.f), PxVec3(0.f));
 
 					__syncwarp(mask);
 

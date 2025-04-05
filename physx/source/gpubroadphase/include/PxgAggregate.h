@@ -34,7 +34,7 @@
 #include "PxgCudaBuffer.h"
 #include "foundation/PxUserAllocated.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	class PxgHeapMemoryAllocatorManager;
 	class PxgSapBox1D;

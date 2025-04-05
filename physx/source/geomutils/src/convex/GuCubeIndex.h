@@ -32,7 +32,7 @@
 #include "foundation/PxVec3.h"
 #include "foundation/PxFPU.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 	enum CubeIndex

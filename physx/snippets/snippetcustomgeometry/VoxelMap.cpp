@@ -32,7 +32,7 @@
 #include "common/PxRenderOutput.h"
 #include "geomutils/PxContactBuffer.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 void VoxelMap::setDimensions(int x, int y, int z)
 {
@@ -190,7 +190,7 @@ void VoxelMap::getVoxelRegion(const PxBounds3& b, int& sx, int& sy, int& sz, int
 	pointCoords(b.maximum, ex, ey, ez);
 }
 
-// physx::PxCustomGeometry::Callbacks overrides
+// ev4sio_physx::PxCustomGeometry::Callbacks overrides
 
 IMPLEMENT_CUSTOM_GEOMETRY_TYPE(VoxelMap)
 
@@ -416,7 +416,7 @@ bool VoxelMap::sweep(const PxVec3& unitDir, const PxReal maxDist,
 	return sweepHit.distance < FLT_MAX;
 }
 
-void VoxelMap::visualize(const physx::PxGeometry& /*geom*/, physx::PxRenderOutput& render, const physx::PxTransform& transform, const physx::PxBounds3& /*bound*/) const
+void VoxelMap::visualize(const ev4sio_physx::PxGeometry& /*geom*/, ev4sio_physx::PxRenderOutput& render, const ev4sio_physx::PxTransform& transform, const ev4sio_physx::PxBounds3& /*bound*/) const
 {
 	PxVec3 extents = voxelSize() * 0.5f;
 
@@ -439,7 +439,7 @@ void VoxelMap::visualize(const physx::PxGeometry& /*geom*/, physx::PxRenderOutpu
 
 					PxBounds3 bounds(pos - extents, pos + extents);
 
-					physx::PxDebugBox box(bounds, true);
+					ev4sio_physx::PxDebugBox box(bounds, true);
 					render << box;
 				}
 }

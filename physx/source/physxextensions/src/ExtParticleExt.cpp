@@ -37,7 +37,7 @@
 #include "cudamanager/PxCudaContextManager.h"
 #include "cudamanager/PxCudaContext.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 namespace ExtGpu
 {
@@ -75,14 +75,14 @@ void PxDmaDataToDevice(PxCudaContextManager* cudaContextManager, PxParticleBuffe
 
 PxParticleBuffer* PxCreateAndPopulateParticleBuffer(const PxParticleBufferDesc& desc, PxCudaContextManager* cudaContextManager)
 {
-	PxParticleBuffer* particleBuffer = PxGetPhysics().createParticleBuffer(desc.maxParticles, desc.maxVolumes, cudaContextManager);
+	PxParticleBuffer* particleBuffer = ev4sio_PxGetPhysics().createParticleBuffer(desc.maxParticles, desc.maxVolumes, cudaContextManager);
 	PxDmaDataToDevice(cudaContextManager, particleBuffer, desc);
 	return particleBuffer;
 }
 
 PxParticleAndDiffuseBuffer* PxCreateAndPopulateParticleAndDiffuseBuffer(const PxParticleAndDiffuseBufferDesc& desc, PxCudaContextManager* cudaContextManager)
 {
-	PxParticleAndDiffuseBuffer* particleBuffer = PxGetPhysics().createParticleAndDiffuseBuffer(desc.maxParticles, desc.maxVolumes, desc.maxDiffuseParticles, cudaContextManager);
+	PxParticleAndDiffuseBuffer* particleBuffer = ev4sio_PxGetPhysics().createParticleAndDiffuseBuffer(desc.maxParticles, desc.maxVolumes, desc.maxDiffuseParticles, cudaContextManager);
 	PxDmaDataToDevice(cudaContextManager, particleBuffer, desc);
 	particleBuffer->setMaxActiveDiffuseParticles(desc.maxActiveDiffuseParticles);
 	return particleBuffer;
@@ -94,7 +94,7 @@ PxParticleClothBuffer* PxCreateAndPopulateParticleClothBuffer(const PxParticleBu
 #if PX_SUPPORT_GPU_PHYSX
 	cudaContextManager->acquireContext();
 
-	PxParticleClothBuffer* clothBuffer = PxGetPhysics().createParticleClothBuffer(desc.maxParticles, desc.maxVolumes, clothDesc.nbCloths, clothDesc.nbTriangles, clothDesc.nbSprings, cudaContextManager);
+	PxParticleClothBuffer* clothBuffer = ev4sio_PxGetPhysics().createParticleClothBuffer(desc.maxParticles, desc.maxVolumes, clothDesc.nbCloths, clothDesc.nbTriangles, clothDesc.nbSprings, cudaContextManager);
 
 	PxVec4* posInvMass = clothBuffer->getPositionInvMasses();
 	PxVec4* velocities = clothBuffer->getVelocities();
@@ -137,7 +137,7 @@ PxParticleRigidBuffer* PxCreateAndPopulateParticleRigidBuffer(const PxParticleBu
 #if PX_SUPPORT_GPU_PHYSX
 	cudaContextManager->acquireContext();
 
-	PxParticleRigidBuffer* rigidBuffer = PxGetPhysics().createParticleRigidBuffer(desc.maxParticles, desc.maxVolumes, rigidDesc.maxRigids, cudaContextManager);
+	PxParticleRigidBuffer* rigidBuffer = ev4sio_PxGetPhysics().createParticleRigidBuffer(desc.maxParticles, desc.maxVolumes, rigidDesc.maxRigids, cudaContextManager);
 
 	PxVec4* posInvMassd = rigidBuffer->getPositionInvMasses();
 	PxVec4* velocitiesd = rigidBuffer->getVelocities();
@@ -275,7 +275,7 @@ void PxParticleAttachmentBuffer::addRigidAttachment(PxRigidActor* rigidActor, co
 
 	if (rigidActor == NULL)
 	{
-		PxGetFoundation().error(physx::PxErrorCode::eINVALID_PARAMETER, PX_FL,
+		ev4sio_PxGetFoundation().error(ev4sio_physx::PxErrorCode::eINVALID_PARAMETER, PX_FL,
 				"PxParticleAttachmentBuffer::addRigidAttachment: rigidActor cannot be NULL.");
 			return;
 	}
@@ -344,7 +344,7 @@ bool PxParticleAttachmentBuffer::removeRigidAttachment(PxRigidActor* rigidActor,
 
 	if (rigidActor == NULL)
 	{
-		PxGetFoundation().error(physx::PxErrorCode::eINVALID_PARAMETER, PX_FL,
+		ev4sio_PxGetFoundation().error(ev4sio_physx::PxErrorCode::eINVALID_PARAMETER, PX_FL,
 				"PxParticleAttachmentBuffer::removeRigidAttachment: rigidActor cannot be NULL.");
 		return false;
 	}
@@ -509,28 +509,28 @@ struct ParticleClothBuffersImpl : public PxParticleClothBufferHelper, public PxU
 	{
 		if (mClothDesc.nbCloths + 1 > mMaxCloths)
 		{
-			PxGetFoundation().error(physx::PxErrorCode::eINVALID_PARAMETER, PX_FL,
+			ev4sio_PxGetFoundation().error(ev4sio_physx::PxErrorCode::eINVALID_PARAMETER, PX_FL,
 				"PxParticleClothBufferHelper::addCloth: exceeding maximal number of cloths that can be added.");
 			return;
 		}
 
 		if (mClothDesc.nbSprings + numSprings > mMaxSprings)
 		{
-			PxGetFoundation().error(physx::PxErrorCode::eINVALID_PARAMETER, PX_FL,
+			ev4sio_PxGetFoundation().error(ev4sio_physx::PxErrorCode::eINVALID_PARAMETER, PX_FL,
 				"PxParticleClothBufferHelper::addCloth: exceeding maximal number of springs that can be added.");
 			return;
 		}
 
 		if (mClothDesc.nbTriangles + numTriangles > mMaxTriangles)
 		{
-			PxGetFoundation().error(physx::PxErrorCode::eINVALID_PARAMETER, PX_FL,
+			ev4sio_PxGetFoundation().error(ev4sio_physx::PxErrorCode::eINVALID_PARAMETER, PX_FL,
 				"PxParticleClothBufferHelper::addCloth: exceeding maximal number of triangles that can be added.");
 			return;
 		}
 
 		if (mClothDesc.nbParticles + numParticles > mMaxParticles)
 		{
-			PxGetFoundation().error(physx::PxErrorCode::eINVALID_PARAMETER, PX_FL,
+			ev4sio_PxGetFoundation().error(ev4sio_physx::PxErrorCode::eINVALID_PARAMETER, PX_FL,
 				"PxParticleClothBufferHelper::addCloth: exceeding maximal number of particles that can be added.");
 			return;
 		}
@@ -823,4 +823,4 @@ PxParticleRigidBufferHelper* PxCreateParticleRigidBufferHelper(const PxU32 maxRi
 }
 
 } //namespace ExtGpu
-} //namespace physx
+} //namespace ev4sio_physx

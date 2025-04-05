@@ -34,10 +34,10 @@
 #include "foundation/PxBitUtils.h"
 #include "foundation/PxMemory.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
-namespace Dy
+namespace ev4sio_Dy
 {
 	static const size_t DY_MAX_DOF = 6;
 
@@ -49,8 +49,8 @@ namespace Dy
 #if !PX_CUDA_COMPILER
 		PX_CUDA_CALLABLE PX_FORCE_INLINE SpatialSubspaceMatrix() :numColumns(0)
 		{
-			//PxMemZero(columns, sizeof(Cm::SpatialVectorF) * 6);
-			PxMemSet(columns, 0, sizeof(Cm::UnAlignedSpatialVector) * MaxColumns);
+			//PxMemZero(columns, sizeof(ev4sio_Cm::SpatialVectorF) * 6);
+			PxMemSet(columns, 0, sizeof(ev4sio_Cm::UnAlignedSpatialVector) * MaxColumns);
 		}
 #endif
 
@@ -64,16 +64,16 @@ namespace Dy
 			return numColumns;
 		}
 
-		PX_CUDA_CALLABLE PX_FORCE_INLINE Cm::SpatialVectorF transposeMultiply(Cm::SpatialVectorF& v) const
+		PX_CUDA_CALLABLE PX_FORCE_INLINE ev4sio_Cm::SpatialVectorF transposeMultiply(ev4sio_Cm::SpatialVectorF& v) const
 		{
 			PxReal result[6];
 			for (PxU32 i = 0; i < numColumns; ++i)
 			{
-				const Cm::UnAlignedSpatialVector& row = columns[i];
+				const ev4sio_Cm::UnAlignedSpatialVector& row = columns[i];
 				result[i] = row.dot(v);
 			}
 
-			Cm::SpatialVectorF res;
+			ev4sio_Cm::SpatialVectorF res;
 			res.top.x = result[0]; res.top.y = result[1]; res.top.z = result[2];
 			res.bottom.x = result[3]; res.bottom.y = result[4]; res.bottom.z = result[5];
 
@@ -84,29 +84,29 @@ namespace Dy
 		PX_CUDA_CALLABLE PX_FORCE_INLINE void setColumn(const PxU32 index, const PxVec3& top, const PxVec3& bottom)
 		{
 			PX_ASSERT(index < MaxColumns);
-			columns[index] = Cm::SpatialVectorF(top, bottom);
+			columns[index] = ev4sio_Cm::SpatialVectorF(top, bottom);
 		}
 
-		PX_CUDA_CALLABLE PX_FORCE_INLINE Cm::UnAlignedSpatialVector& operator[](unsigned int num)
+		PX_CUDA_CALLABLE PX_FORCE_INLINE ev4sio_Cm::UnAlignedSpatialVector& operator[](unsigned int num)
 		{
 			PX_ASSERT(num < MaxColumns);
 			return columns[num];
 		}
 
-		PX_CUDA_CALLABLE PX_FORCE_INLINE const Cm::UnAlignedSpatialVector& operator[](unsigned int num)  const
+		PX_CUDA_CALLABLE PX_FORCE_INLINE const ev4sio_Cm::UnAlignedSpatialVector& operator[](unsigned int num)  const
 		{
 			PX_ASSERT(num < MaxColumns);
 			return columns[num];
 		}
 
-		PX_CUDA_CALLABLE PX_FORCE_INLINE const Cm::UnAlignedSpatialVector* getColumns() const
+		PX_CUDA_CALLABLE PX_FORCE_INLINE const ev4sio_Cm::UnAlignedSpatialVector* getColumns() const
 		{
 			return columns;
 		}
 
 
 	//private:
-		Cm::UnAlignedSpatialVector columns[MaxColumns];			//3x24 = 72
+		ev4sio_Cm::UnAlignedSpatialVector columns[MaxColumns];			//3x24 = 72
 		PxU32	numColumns;										//76
 		PxU32	padding;										//80
 
@@ -137,16 +137,16 @@ namespace Dy
 		}
 
 		//This assume angular is the top vector and linear is the bottom vector
-		/*PX_CUDA_CALLABLE PX_FORCE_INLINE Cm::SpatialVector operator *(const Cm::SpatialVector& s) const
+		/*PX_CUDA_CALLABLE PX_FORCE_INLINE ev4sio_Cm::SpatialVector operator *(const ev4sio_Cm::SpatialVector& s) const
 		{
 			const PxVec3 angular = R * s.angular;
 			const PxVec3 linear = T * s.angular + R * s.linear;
-			return Cm::SpatialVector(linear, angular);
+			return ev4sio_Cm::SpatialVector(linear, angular);
 		}*/
 
 
 		////This assume angular is the top vector and linear is the bottom vector
-		//PX_FORCE_INLINE Cm::SpatialVectorF operator *(Cm::SpatialVectorF& s) const
+		//PX_FORCE_INLINE ev4sio_Cm::SpatialVectorF operator *(ev4sio_Cm::SpatialVectorF& s) const
 		//{
 		//	const PxVec3 top = R * s.top;
 		//	const PxVec3 bottom = T * s.top + R * s.bottom;
@@ -159,11 +159,11 @@ namespace Dy
 		//	const PxReal eps = 0.001f;
 		//	PX_ASSERT(tDif.x < eps && tDif.y < eps && tDif.z < eps);
 		//	PX_ASSERT(bDif.x < eps && bDif.y < eps && bDif.z < eps);*/
-		//	return Cm::SpatialVectorF(top1, bottom1);
+		//	return ev4sio_Cm::SpatialVectorF(top1, bottom1);
 		//}
 
 		//This assume angular is the top vector and linear is the bottom vector
-		PX_CUDA_CALLABLE PX_FORCE_INLINE Cm::SpatialVectorF operator *(const Cm::SpatialVectorF& s) const
+		PX_CUDA_CALLABLE PX_FORCE_INLINE ev4sio_Cm::SpatialVectorF operator *(const ev4sio_Cm::SpatialVectorF& s) const
 		{
 			//const PxVec3 top = R * s.top;
 			//const PxVec3 bottom = T * s.top + R * s.bottom;
@@ -171,10 +171,10 @@ namespace Dy
 			const PxVec3 top1 = q.rotate(s.top);
 			const PxVec3 bottom1 = T * s.top + q.rotate(s.bottom);
 
-			return Cm::SpatialVectorF(top1, bottom1);
+			return ev4sio_Cm::SpatialVectorF(top1, bottom1);
 		}
 
-		PX_CUDA_CALLABLE PX_FORCE_INLINE Cm::UnAlignedSpatialVector operator *(const Cm::UnAlignedSpatialVector& s) const
+		PX_CUDA_CALLABLE PX_FORCE_INLINE ev4sio_Cm::UnAlignedSpatialVector operator *(const ev4sio_Cm::UnAlignedSpatialVector& s) const
 		{
 			//const PxVec3 top = R * s.top;
 			//const PxVec3 bottom = T * s.top + R * s.bottom;
@@ -182,7 +182,7 @@ namespace Dy
 			const PxVec3 top1 = q.rotate(s.top);
 			const PxVec3 bottom1 = T * s.top + q.rotate(s.bottom);
 
-			return Cm::UnAlignedSpatialVector(top1, bottom1);
+			return ev4sio_Cm::UnAlignedSpatialVector(top1, bottom1);
 		}
 
 		//transpose is the same as inverse, R(inverse) = R(transpose)
@@ -257,28 +257,28 @@ namespace Dy
 
 
 		//This assume angular is the top vector and linear is the bottom vector
-		PX_CUDA_CALLABLE PX_FORCE_INLINE Cm::SpatialVector operator *(const Cm::SpatialVector& s) const
+		PX_CUDA_CALLABLE PX_FORCE_INLINE ev4sio_Cm::SpatialVector operator *(const ev4sio_Cm::SpatialVector& s) const
 		{
 			const PxVec3 angular = topLeft * s.angular + topRight * s.linear;
 			const PxVec3 linear = bottomLeft * s.angular + topLeft.transformTranspose(s.linear);
-			return Cm::SpatialVector(linear, angular);
+			return ev4sio_Cm::SpatialVector(linear, angular);
 		}
 
 		//This assume angular is the top vector and linear is the bottom vector
-		PX_CUDA_CALLABLE PX_FORCE_INLINE Cm::SpatialVectorF operator *(const Cm::SpatialVectorF& s) const
+		PX_CUDA_CALLABLE PX_FORCE_INLINE ev4sio_Cm::SpatialVectorF operator *(const ev4sio_Cm::SpatialVectorF& s) const
 		{
 			const PxVec3 top = topLeft * s.top + topRight * s.bottom;
 			const PxVec3 bottom = bottomLeft * s.top + topLeft.transformTranspose(s.bottom);
 
-			return Cm::SpatialVectorF(top, bottom);
+			return ev4sio_Cm::SpatialVectorF(top, bottom);
 		}
 
-		PX_CUDA_CALLABLE PX_FORCE_INLINE Cm::UnAlignedSpatialVector operator *(const Cm::UnAlignedSpatialVector& s) const
+		PX_CUDA_CALLABLE PX_FORCE_INLINE ev4sio_Cm::UnAlignedSpatialVector operator *(const ev4sio_Cm::UnAlignedSpatialVector& s) const
 		{
 			const PxVec3 top = topLeft * s.top + topRight * s.bottom;
 			const PxVec3 bottom = bottomLeft * s.top + topLeft.transformTranspose(s.bottom);
 
-			return Cm::UnAlignedSpatialVector(top, bottom);
+			return ev4sio_Cm::UnAlignedSpatialVector(top, bottom);
 		}
 
 
@@ -337,7 +337,7 @@ namespace Dy
 			return SpatialMatrix(newTopLeft, newTopRight, newBottomLeft);
 		}
 
-		static SpatialMatrix constructSpatialMatrix(const Cm::SpatialVector& Is, const Cm::SpatialVector& stI)
+		static SpatialMatrix constructSpatialMatrix(const ev4sio_Cm::SpatialVector& Is, const ev4sio_Cm::SpatialVector& stI)
 		{
 			//construct top left
 			const PxVec3 tLeftC0 = Is.angular * stI.angular.x;
@@ -361,7 +361,7 @@ namespace Dy
 			return SpatialMatrix(topLeft, topRight, bottomLeft);
 		}
 
-		static PX_CUDA_CALLABLE SpatialMatrix constructSpatialMatrix(const Cm::SpatialVectorF& Is, const Cm::SpatialVectorF& stI)
+		static PX_CUDA_CALLABLE SpatialMatrix constructSpatialMatrix(const ev4sio_Cm::SpatialVectorF& Is, const ev4sio_Cm::SpatialVectorF& stI)
 		{
 			//construct top left
 			const PxVec3 tLeftC0 = Is.top * stI.top.x;
@@ -617,20 +617,20 @@ namespace Dy
 	struct TestImpulseResponse
 	{
 		//Link deltaV responses to 6 test link impulses { [(1,0,0),(0,0,0)], [(0,1,0),(0,0,0)] ......[(0,0,0),(0,1,0)], [(0,0,0),(0,0,1)] }
-		Cm::SpatialVectorF linkDeltaVTestImpulseResponses[6];
+		ev4sio_Cm::SpatialVectorF linkDeltaVTestImpulseResponses[6];
 
-		Cm::SpatialVectorF getLinkDeltaVImpulseResponse(const Cm::SpatialVectorF& impulse) const
+		ev4sio_Cm::SpatialVectorF getLinkDeltaVImpulseResponse(const ev4sio_Cm::SpatialVectorF& impulse) const
 		{
 			/*return rows[0] * impulse.top.x + rows[1] * impulse.top.y + rows[2] * impulse.top.z
 			+ rows[3] * impulse.bottom.x + rows[4] * impulse.bottom.y + rows[5] * impulse.bottom.z;*/
 
 			using namespace aos;
-			const Cm::SpatialVectorV row0(V3LoadA(&linkDeltaVTestImpulseResponses[0].top.x), V3LoadA(&linkDeltaVTestImpulseResponses[0].bottom.x));
-			const Cm::SpatialVectorV row1(V3LoadA(&linkDeltaVTestImpulseResponses[1].top.x), V3LoadA(&linkDeltaVTestImpulseResponses[1].bottom.x));
-			const Cm::SpatialVectorV row2(V3LoadA(&linkDeltaVTestImpulseResponses[2].top.x), V3LoadA(&linkDeltaVTestImpulseResponses[2].bottom.x));
-			const Cm::SpatialVectorV row3(V3LoadA(&linkDeltaVTestImpulseResponses[3].top.x), V3LoadA(&linkDeltaVTestImpulseResponses[3].bottom.x));
-			const Cm::SpatialVectorV row4(V3LoadA(&linkDeltaVTestImpulseResponses[4].top.x), V3LoadA(&linkDeltaVTestImpulseResponses[4].bottom.x));
-			const Cm::SpatialVectorV row5(V3LoadA(&linkDeltaVTestImpulseResponses[5].top.x), V3LoadA(&linkDeltaVTestImpulseResponses[5].bottom.x));
+			const ev4sio_Cm::SpatialVectorV row0(V3LoadA(&linkDeltaVTestImpulseResponses[0].top.x), V3LoadA(&linkDeltaVTestImpulseResponses[0].bottom.x));
+			const ev4sio_Cm::SpatialVectorV row1(V3LoadA(&linkDeltaVTestImpulseResponses[1].top.x), V3LoadA(&linkDeltaVTestImpulseResponses[1].bottom.x));
+			const ev4sio_Cm::SpatialVectorV row2(V3LoadA(&linkDeltaVTestImpulseResponses[2].top.x), V3LoadA(&linkDeltaVTestImpulseResponses[2].bottom.x));
+			const ev4sio_Cm::SpatialVectorV row3(V3LoadA(&linkDeltaVTestImpulseResponses[3].top.x), V3LoadA(&linkDeltaVTestImpulseResponses[3].bottom.x));
+			const ev4sio_Cm::SpatialVectorV row4(V3LoadA(&linkDeltaVTestImpulseResponses[4].top.x), V3LoadA(&linkDeltaVTestImpulseResponses[4].bottom.x));
+			const ev4sio_Cm::SpatialVectorV row5(V3LoadA(&linkDeltaVTestImpulseResponses[5].top.x), V3LoadA(&linkDeltaVTestImpulseResponses[5].bottom.x));
 
 			const Vec4V top = V4LoadA(&impulse.top.x);
 			const Vec4V bottom = V4LoadA(&impulse.bottom.x);
@@ -642,24 +642,24 @@ namespace Dy
 			const FloatV ib = V4GetY(bottom);
 			const FloatV ic = V4GetZ(bottom);
 
-			Cm::SpatialVectorV res =  row0 * ix + row1 * iy + row2 * iz + row3 * ia + row4 * ib + row5 * ic;
+			ev4sio_Cm::SpatialVectorV res =  row0 * ix + row1 * iy + row2 * iz + row3 * ia + row4 * ib + row5 * ic;
 
-			Cm::SpatialVectorF returnVal;
+			ev4sio_Cm::SpatialVectorF returnVal;
 			V4StoreA(Vec4V_From_Vec3V(res.linear), &returnVal.top.x);
 			V4StoreA(Vec4V_From_Vec3V(res.angular), &returnVal.bottom.x);
 
 			return returnVal;
 		}
 
-		Cm::SpatialVectorV getLinkDeltaVImpulseResponse(const Cm::SpatialVectorV& impulse) const
+		ev4sio_Cm::SpatialVectorV getLinkDeltaVImpulseResponse(const ev4sio_Cm::SpatialVectorV& impulse) const
 		{
 			using namespace aos;
-			const Cm::SpatialVectorV row0(V3LoadA(&linkDeltaVTestImpulseResponses[0].top.x), V3LoadA(&linkDeltaVTestImpulseResponses[0].bottom.x));
-			const Cm::SpatialVectorV row1(V3LoadA(&linkDeltaVTestImpulseResponses[1].top.x), V3LoadA(&linkDeltaVTestImpulseResponses[1].bottom.x));
-			const Cm::SpatialVectorV row2(V3LoadA(&linkDeltaVTestImpulseResponses[2].top.x), V3LoadA(&linkDeltaVTestImpulseResponses[2].bottom.x));
-			const Cm::SpatialVectorV row3(V3LoadA(&linkDeltaVTestImpulseResponses[3].top.x), V3LoadA(&linkDeltaVTestImpulseResponses[3].bottom.x));
-			const Cm::SpatialVectorV row4(V3LoadA(&linkDeltaVTestImpulseResponses[4].top.x), V3LoadA(&linkDeltaVTestImpulseResponses[4].bottom.x));
-			const Cm::SpatialVectorV row5(V3LoadA(&linkDeltaVTestImpulseResponses[5].top.x), V3LoadA(&linkDeltaVTestImpulseResponses[5].bottom.x));
+			const ev4sio_Cm::SpatialVectorV row0(V3LoadA(&linkDeltaVTestImpulseResponses[0].top.x), V3LoadA(&linkDeltaVTestImpulseResponses[0].bottom.x));
+			const ev4sio_Cm::SpatialVectorV row1(V3LoadA(&linkDeltaVTestImpulseResponses[1].top.x), V3LoadA(&linkDeltaVTestImpulseResponses[1].bottom.x));
+			const ev4sio_Cm::SpatialVectorV row2(V3LoadA(&linkDeltaVTestImpulseResponses[2].top.x), V3LoadA(&linkDeltaVTestImpulseResponses[2].bottom.x));
+			const ev4sio_Cm::SpatialVectorV row3(V3LoadA(&linkDeltaVTestImpulseResponses[3].top.x), V3LoadA(&linkDeltaVTestImpulseResponses[3].bottom.x));
+			const ev4sio_Cm::SpatialVectorV row4(V3LoadA(&linkDeltaVTestImpulseResponses[4].top.x), V3LoadA(&linkDeltaVTestImpulseResponses[4].bottom.x));
+			const ev4sio_Cm::SpatialVectorV row5(V3LoadA(&linkDeltaVTestImpulseResponses[5].top.x), V3LoadA(&linkDeltaVTestImpulseResponses[5].bottom.x));
 
 			const Vec3V top = impulse.linear;
 			const Vec3V bottom = impulse.angular;
@@ -671,7 +671,7 @@ namespace Dy
 			const FloatV ib = V3GetY(bottom);
 			const FloatV ic = V3GetZ(bottom);
 
-			Cm::SpatialVectorV res = row0 * ix + row1 * iy + row2 * iz + row3 * ia + row4 * ib + row5 * ic;
+			ev4sio_Cm::SpatialVectorV res = row0 * ix + row1 * iy + row2 * iz + row3 * ia + row4 * ib + row5 * ic;
 			return res;
 		}
 	};
@@ -688,14 +688,14 @@ namespace Dy
 
 		}
 
-		Temp6x3Matrix(const Cm::SpatialVectorF* spatialAxis)
+		Temp6x3Matrix(const ev4sio_Cm::SpatialVectorF* spatialAxis)
 		{
 			constructColumn(column[0], spatialAxis[0]);
 			constructColumn(column[1], spatialAxis[1]);
 			constructColumn(column[2], spatialAxis[2]);
 		}
 
-		void constructColumn(PxReal* dest, const Cm::SpatialVectorF& v)
+		void constructColumn(PxReal* dest, const ev4sio_Cm::SpatialVectorF& v)
 		{
 			dest[0] = v.top.x;
 			dest[1] = v.top.y;
@@ -752,7 +752,7 @@ namespace Dy
 			return temp;
 		}
 
-		PX_FORCE_INLINE bool isColumnEqual(const PxU32 ind, const Cm::SpatialVectorF& col)
+		PX_FORCE_INLINE bool isColumnEqual(const PxU32 ind, const ev4sio_Cm::SpatialVectorF& col)
 		{
 			PxReal temp[6];
 			constructColumn(temp, col);
@@ -822,7 +822,7 @@ namespace Dy
 			return temp;
 		}
 
-		PX_FORCE_INLINE Cm::SpatialVector operator * (const Cm::SpatialVector& s) const
+		PX_FORCE_INLINE ev4sio_Cm::SpatialVector operator * (const ev4sio_Cm::SpatialVector& s) const
 		{
 			Temp6x6Matrix tempMatrix = getTranspose();
 			PxReal st[6];
@@ -840,14 +840,14 @@ namespace Dy
 			}
 
 
-			Cm::SpatialVector temp;
+			ev4sio_Cm::SpatialVector temp;
 			temp.angular.x = result[0]; temp.angular.y = result[1]; temp.angular.z = result[2];
 			temp.linear.x = result[3]; temp.linear.y = result[4]; temp.linear.z = result[5];
 			return temp;
 		}
 
 
-		PX_FORCE_INLINE Cm::SpatialVectorF operator * (const Cm::SpatialVectorF& s) const
+		PX_FORCE_INLINE ev4sio_Cm::SpatialVectorF operator * (const ev4sio_Cm::SpatialVectorF& s) const
 		{
 			PxReal st[6];
 			st[0] = s.top.x; st[1] = s.top.y; st[2] = s.top.z;
@@ -863,7 +863,7 @@ namespace Dy
 				}
 			}
 
-			Cm::SpatialVectorF temp;
+			ev4sio_Cm::SpatialVectorF temp;
 			temp.top.x = result[0]; temp.top.y = result[1]; temp.top.z = result[2];
 			temp.bottom.x = result[3]; temp.bottom.y = result[4]; temp.bottom.z = result[5];
 			return temp;
@@ -892,7 +892,7 @@ namespace Dy
 
 		}
 
-		PX_FORCE_INLINE Cm::SpatialVector spatialVectorMul(const Cm::SpatialVector& s)
+		PX_FORCE_INLINE ev4sio_Cm::SpatialVector spatialVectorMul(const ev4sio_Cm::SpatialVector& s)
 		{
 			PxReal st[6];
 			st[0] = s.angular.x; st[1] = s.angular.y; st[2] = s.angular.z;
@@ -908,13 +908,13 @@ namespace Dy
 				}
 			}
 
-			Cm::SpatialVector temp;
+			ev4sio_Cm::SpatialVector temp;
 			temp.angular.x = result[0]; temp.angular.y = result[1]; temp.angular.z = result[2];
 			temp.linear.x = result[3]; temp.linear.y = result[4]; temp.linear.z = result[5];
 			return temp;
 		}
 
-		PX_FORCE_INLINE bool isEqual(const Cm::SpatialVectorF* m)
+		PX_FORCE_INLINE bool isEqual(const ev4sio_Cm::SpatialVectorF* m)
 		{
 			PxReal temp[6];
 			const PxReal eps = 0.00001f;
@@ -996,7 +996,7 @@ namespace Dy
 	}
 
 
-} //namespace Dy
+} //namespace ev4sio_Dy
 
 }
 

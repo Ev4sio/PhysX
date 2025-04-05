@@ -37,8 +37,8 @@
 #include "GuPCMShapeConvex.h"
 #include "GuPCMContactGenUtil.h"
 
-using namespace physx;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
 using namespace aos;
 
 static void addToContactBuffer(PxContactBuffer& contactBuffer, const Vec3VArg worldNormal, const Vec3VArg worldPoint, const FloatVArg penDep)
@@ -88,7 +88,7 @@ static bool fullContactsGenerationSphereConvex(const CapsuleV& capsule, const Co
 	return false;
 }
 
-bool Gu::pcmContactSphereConvex(GU_CONTACT_METHOD_ARGS)
+bool ev4sio_Gu::pcmContactSphereConvex(GU_CONTACT_METHOD_ARGS)
 {
 	PX_ASSERT(transform1.q.isSane());
 	PX_ASSERT(transform0.q.isSane());

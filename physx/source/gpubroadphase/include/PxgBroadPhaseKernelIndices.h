@@ -29,7 +29,7 @@
 #ifndef PXG_BP_KERNEL_INDICES_H
 #define PXG_BP_KERNEL_INDICES_H
 
-namespace physx
+namespace ev4sio_physx
 {
 
 struct PxgBPKernelBlockDim

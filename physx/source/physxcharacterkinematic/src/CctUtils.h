@@ -33,7 +33,7 @@
 #include "extensions/PxShapeExt.h"
 #include "characterkinematic/PxExtended.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 PX_FORCE_INLINE	bool testSlope(const PxVec3& normal, const PxVec3& upDirection, PxF32 slopeLimit)
@@ -197,10 +197,10 @@ PX_FORCE_INLINE bool isAlmostZero(const PxVec3& v)
 	#include "GuCapsule.h"
 	#include "GuPlane.h"
 
-	typedef	Gu::Box		PxExtendedBox;
-	typedef	Gu::Sphere	PxExtendedSphere;
-	typedef Gu::Segment	PxExtendedSegment;
-	typedef Gu::Capsule	PxExtendedCapsule;
+	typedef	ev4sio_Gu::Box		PxExtendedBox;
+	typedef	ev4sio_Gu::Sphere	PxExtendedSphere;
+	typedef ev4sio_Gu::Segment	PxExtendedSegment;
+	typedef ev4sio_Gu::Capsule	PxExtendedCapsule;
 	typedef	PxBounds3	PxExtendedBounds3;
 
 	PX_INLINE void	getCenter(const PxBounds3& b, PxVec3& center)

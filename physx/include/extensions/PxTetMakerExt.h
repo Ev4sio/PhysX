@@ -37,7 +37,7 @@
 #include "PxTetrahedronMeshAnalysisResult.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -64,7 +64,7 @@ public:
 	\param[in] volumeThreshold Tetrahedra with a volume smaller than the specified threshold will be removed from the mesh
 	\return True if success
 	*/
-	static bool createConformingTetrahedronMesh(const PxSimpleTriangleMesh& triangleMesh, physx::PxArray<physx::PxVec3>& outVertices, physx::PxArray<physx::PxU32>& outTetIndices, 
+	static bool createConformingTetrahedronMesh(const PxSimpleTriangleMesh& triangleMesh, ev4sio_physx::PxArray<ev4sio_physx::PxVec3>& outVertices, ev4sio_physx::PxArray<ev4sio_physx::PxU32>& outTetIndices, 
 		const bool validate = true, PxReal volumeThreshold = 0.0f);
 
 	/**
@@ -80,7 +80,7 @@ public:
 	\return True if success
 	*/
 	static bool createVoxelTetrahedronMesh(const PxTetrahedronMeshDesc& tetMesh, const PxU32 numVoxelsAlongLongestBoundingBoxAxis,
-		physx::PxArray<physx::PxVec3>& outVertices, physx::PxArray<physx::PxU32>& outTetIndices, PxI32* inputPointToOutputTetIndex = NULL, const PxU32* anchorNodeIndices = NULL, PxU32 numTetsPerVoxel = 5);
+		ev4sio_physx::PxArray<ev4sio_physx::PxVec3>& outVertices, ev4sio_physx::PxArray<ev4sio_physx::PxU32>& outTetIndices, PxI32* inputPointToOutputTetIndex = NULL, const PxU32* anchorNodeIndices = NULL, PxU32 numTetsPerVoxel = 5);
 
 	/**
 	\brief Create voxel-based tetrahedron mesh using TetMaker
@@ -95,7 +95,7 @@ public:
 	\return True if success
 	*/
 	static bool createVoxelTetrahedronMeshFromEdgeLength(const PxTetrahedronMeshDesc& tetMesh, const PxReal voxelEdgeLength,
-		 physx::PxArray<physx::PxVec3>& outVertices, physx::PxArray<physx::PxU32>& outTetIndices, PxI32* inputPointToOutputTetIndex = NULL, const PxU32* anchorNodeIndices = NULL, PxU32 numTetsPerVoxel = 5);
+		 ev4sio_physx::PxArray<ev4sio_physx::PxVec3>& outVertices, ev4sio_physx::PxArray<ev4sio_physx::PxU32>& outTetIndices, PxI32* inputPointToOutputTetIndex = NULL, const PxU32* anchorNodeIndices = NULL, PxU32 numTetsPerVoxel = 5);
 
 	/**
 	\brief Analyzes the triangle mesh to get a report about deficiencies. Some deficiencies can be handled by the tetmesher, others cannot.

@@ -35,9 +35,9 @@
 #include "GuAABBTreeNode.h"
 #include "GuBVH.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 using namespace aos;
-using namespace Gu;
+using namespace ev4sio_Gu;
 
 #define SUPPORT_TREE_ROTATION 1
 #define DEALLOCATE_RESET 0

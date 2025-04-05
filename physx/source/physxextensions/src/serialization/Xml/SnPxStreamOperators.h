@@ -36,7 +36,7 @@
 #include "PxFiltering.h"
 
 
-namespace physx
+namespace ev4sio_physx
 {
 	static inline PxU32 strLenght( const char* inStr )
 	{
@@ -44,7 +44,7 @@ namespace physx
 	}
 }
 
-namespace physx // ADL requires we put the operators in the same namespace as the underlying type of PxOutputStream
+namespace ev4sio_physx // ADL requires we put the operators in the same namespace as the underlying type of PxOutputStream
 {
 	inline PxOutputStream& operator << ( PxOutputStream& ioStream, const char* inString )
 	{

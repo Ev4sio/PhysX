@@ -31,15 +31,15 @@
 #include "ScShapeSim.h"
 #include "PxsSimulationController.h"
 
-using namespace physx;
-using namespace Sc;
+using namespace ev4sio_physx;
+using namespace ev4sio_Sc;
 
 /*
 	PT:
 
-	The BP group ID comes from a Cm::IDPool, and ActorSim is the only class releasing the ID.
+	The BP group ID comes from a ev4sio_Cm::IDPool, and ActorSim is the only class releasing the ID.
 
-	The rigid tracker ID comes from a Cm::IDPool internal to an ObjectIDTracker, and ActorSim
+	The rigid tracker ID comes from a ev4sio_Cm::IDPool internal to an ObjectIDTracker, and ActorSim
 	is the only class using it.
 
 	Thus we should:

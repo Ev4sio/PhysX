@@ -32,7 +32,7 @@
 #include "CmUtils.h"
 #include "foundation/PxAllocator.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 bool PxSceneQueryExt::raycastAny(	const PxScene& scene,
 									const PxVec3& origin, const PxVec3& unitDir, const PxReal distance,
@@ -534,7 +534,7 @@ PxBatchQueryExt* create
 		computeByteSize<PxSweepHit, Sweep>(sweepDesc) +
 		computeByteSize<PxOverlapHit, Overlap>(overlapDesc);
 
-	PxAllocatorCallback& allocator = *PxGetAllocatorCallback();
+	PxAllocatorCallback& allocator = *ev4sio_PxGetAllocatorCallback();
 
 	PxU8* buf = reinterpret_cast<PxU8*>(allocator.allocate(byteSize, "NpBatchQueryExt", PX_FL));
 	PX_CHECK_AND_RETURN_NULL(buf, "PxCreateBatchQueryExt - alllocation failed");
@@ -573,7 +573,7 @@ PxBatchQueryExt* create
 	return bq;
 }
 
-PxBatchQueryExt* physx::PxCreateBatchQueryExt(
+PxBatchQueryExt* ev4sio_physx::PxCreateBatchQueryExt(
 	const PxScene& scene, PxQueryFilterCallback* queryFilterCallback,
 	const PxU32 maxNbRaycasts, const PxU32 maxNbRaycastTouches,
 	const PxU32 maxNbSweeps, const PxU32 maxNbSweepTouches,
@@ -592,7 +592,7 @@ PxBatchQueryExt* physx::PxCreateBatchQueryExt(
 		ExtBatchQueryDesc<PxOverlapHit>(maxNbOverlaps, maxNbOverlapTouches));
 }
 
-PxBatchQueryExt* physx::PxCreateBatchQueryExt(
+PxBatchQueryExt* ev4sio_physx::PxCreateBatchQueryExt(
 	const PxScene& scene, PxQueryFilterCallback* queryFilterCallback,
 	PxRaycastBuffer* raycastBuffers, const PxU32 maxNbRaycasts, PxRaycastHit* raycastTouches, const PxU32 maxNbRaycastTouches,
 	PxSweepBuffer* sweepBuffers, const PxU32 maxNbSweeps, PxSweepHit* sweepTouches, const PxU32 maxNbSweepTouches,
@@ -644,7 +644,7 @@ ExtBatchQuery::ExtBatchQuery
 
 void ExtBatchQuery::release()
 {
-	PxGetAllocatorCallback()->deallocate(this);
+	ev4sio_PxGetAllocatorCallback()->deallocate(this);
 }
 
 PxRaycastBuffer* ExtBatchQuery::raycast

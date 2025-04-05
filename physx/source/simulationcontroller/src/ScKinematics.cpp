@@ -33,8 +33,8 @@
 #include "PxsSimulationController.h"
 #include "BpAABBManagerBase.h"
 
-using namespace physx;
-using namespace Sc;
+using namespace ev4sio_physx;
+using namespace ev4sio_Sc;
 
 //PX_IMPLEMENT_OUTPUT_ERROR
 
@@ -101,9 +101,9 @@ void BodySim::calculateKinematicVelocity(PxReal oneOverDt)
 
 namespace
 {
-class ScKinematicUpdateTask : public Cm::Task
+class ScKinematicUpdateTask : public ev4sio_Cm::Task
 {
-	Sc::BodyCore*const*	mKinematics;
+	ev4sio_Sc::BodyCore*const*	mKinematics;
 	const PxU32			mNbKinematics;
 	const PxReal		mOneOverDt;
 
@@ -112,20 +112,20 @@ public:
 
 	static const PxU32 NbKinematicsPerTask = 1024;
 	
-	ScKinematicUpdateTask(Sc::BodyCore*const* kinematics, PxU32 nbKinematics, PxReal oneOverDt, PxU64 contextID) :
-		Cm::Task(contextID), mKinematics(kinematics), mNbKinematics(nbKinematics), mOneOverDt(oneOverDt)
+	ScKinematicUpdateTask(ev4sio_Sc::BodyCore*const* kinematics, PxU32 nbKinematics, PxReal oneOverDt, PxU64 contextID) :
+		ev4sio_Cm::Task(contextID), mKinematics(kinematics), mNbKinematics(nbKinematics), mOneOverDt(oneOverDt)
 	{
 	}
 
 	virtual void runInternal()
 	{
-		Sc::BodyCore*const*	kinematics = mKinematics;
+		ev4sio_Sc::BodyCore*const*	kinematics = mKinematics;
 		PxU32 nb = mNbKinematics;
 		const float oneOverDt = mOneOverDt;
 
 		while(nb--)
 		{
-			Sc::BodyCore* b = *kinematics++;
+			ev4sio_Sc::BodyCore* b = *kinematics++;
 			PX_ASSERT(b->getSim()->isKinematic());
 			PX_ASSERT(b->getSim()->isActive());
 
@@ -140,7 +140,7 @@ public:
 };
 }
 
-void Sc::Scene::kinematicsSetup(PxBaseTask* continuation)
+void ev4sio_Sc::Scene::kinematicsSetup(PxBaseTask* continuation)
 {
 	const PxU32 nbKinematics = getActiveKinematicBodiesCount();
 	if(!nbKinematics)
@@ -153,13 +153,13 @@ void Sc::Scene::kinematicsSetup(PxBaseTask* continuation)
 	if(mActiveKinematicsCopyCapacity<nbKinematics)
 	{
 		PX_FREE(mActiveKinematicsCopy);
-		mActiveKinematicsCopy = PX_ALLOCATE(BodyCore*, nbKinematics, "Sc::Scene::mActiveKinematicsCopy");
+		mActiveKinematicsCopy = PX_ALLOCATE(BodyCore*, nbKinematics, "ev4sio_Sc::Scene::mActiveKinematicsCopy");
 		mActiveKinematicsCopyCapacity = nbKinematics;
 	}
 	PxMemCopy(mActiveKinematicsCopy, kinematics, nbKinematics*sizeof(BodyCore*));
 	kinematics = mActiveKinematicsCopy;
 
-	Cm::FlushPool& flushPool = mLLContext->getTaskPool();
+	ev4sio_Cm::FlushPool& flushPool = mLLContext->getTaskPool();
 
 	// PT: TASK-CREATION TAG
 	// PT: TODO: better load balancing? This will be single threaded for less than 1K kinematics
@@ -179,8 +179,8 @@ void Sc::Scene::kinematicsSetup(PxBaseTask* continuation)
 		PxU32 nb = nbKinematics;
 		while(nb--)
 		{
-			Sc::BodyCore* b = *kinematics++;
-			Sc::BodySim* bodySim = b->getSim();
+			ev4sio_Sc::BodyCore* b = *kinematics++;
+			ev4sio_Sc::BodySim* bodySim = b->getSim();
 			PX_ASSERT(!bodySim->getArticulation());
 			mSimulationController->updateDynamic(NULL, bodySim->getNodeIndex());
 		}
@@ -219,17 +219,17 @@ void BodySim::updateKinematicPose()
 
 namespace
 {
-class ScKinematicPoseUpdateTask : public Cm::Task
+class ScKinematicPoseUpdateTask : public ev4sio_Cm::Task
 {
-	Sc::BodyCore*const*	mKinematics;
+	ev4sio_Sc::BodyCore*const*	mKinematics;
 	const PxU32			mNbKinematics;
 
 	PX_NOCOPY(ScKinematicPoseUpdateTask)
 public:
 	static const PxU32 NbKinematicsPerTask = 1024;
 
-	ScKinematicPoseUpdateTask(Sc::BodyCore*const* kinematics, PxU32 nbKinematics, PxU64 contextID) :
-		Cm::Task(contextID), mKinematics(kinematics), mNbKinematics(nbKinematics)
+	ScKinematicPoseUpdateTask(ev4sio_Sc::BodyCore*const* kinematics, PxU32 nbKinematics, PxU64 contextID) :
+		ev4sio_Cm::Task(contextID), mKinematics(kinematics), mNbKinematics(nbKinematics)
 	{
 	}
 
@@ -241,15 +241,15 @@ public:
 		{
 			if ((a + 16) < nb)
 			{
-				PxPrefetchLine(static_cast<Sc::BodyCore* const>(mKinematics[a + 16]));
+				PxPrefetchLine(static_cast<ev4sio_Sc::BodyCore* const>(mKinematics[a + 16]));
 
 				if ((a + 4) < nb)
 				{
-					PxPrefetchLine(static_cast<Sc::BodyCore* const>(mKinematics[a + 4])->getSim());
-					PxPrefetchLine(static_cast<Sc::BodyCore* const>(mKinematics[a + 4])->getSim()->getSimStateData_Unchecked());
+					PxPrefetchLine(static_cast<ev4sio_Sc::BodyCore* const>(mKinematics[a + 4])->getSim());
+					PxPrefetchLine(static_cast<ev4sio_Sc::BodyCore* const>(mKinematics[a + 4])->getSim()->getSimStateData_Unchecked());
 				}
 			}
-			Sc::BodyCore* b = static_cast<Sc::BodyCore* const>(mKinematics[a]);
+			ev4sio_Sc::BodyCore* b = static_cast<ev4sio_Sc::BodyCore* const>(mKinematics[a]);
 			PX_ASSERT(b->getSim()->isKinematic());
 			PX_ASSERT(b->getSim()->isActive());
 			b->getSim()->updateKinematicPose();
@@ -263,14 +263,14 @@ public:
 };
 }
 
-void Sc::Scene::integrateKinematicPose()
+void ev4sio_Sc::Scene::integrateKinematicPose()
 {
 	PX_PROFILE_ZONE("Sim.integrateKinematicPose", mContextId);
 
 	const PxU32 nbKinematics = getActiveKinematicBodiesCount();
 	BodyCore*const* kinematics = getActiveKinematicBodies();
 
-	Cm::FlushPool& flushPool = mLLContext->getTaskPool();
+	ev4sio_Cm::FlushPool& flushPool = mLLContext->getTaskPool();
 
 	// PT: TASK-CREATION TAG
 	for(PxU32 i=0; i<nbKinematics; i+= ScKinematicPoseUpdateTask::NbKinematicsPerTask)
@@ -286,19 +286,19 @@ void Sc::Scene::integrateKinematicPose()
 
 namespace
 {
-class ScKinematicShapeUpdateTask : public Cm::Task
+class ScKinematicShapeUpdateTask : public ev4sio_Cm::Task
 {
-	Sc::BodyCore*const*		mKinematics;
+	ev4sio_Sc::BodyCore*const*		mKinematics;
 	const PxU32				mNbKinematics;
 	PxsTransformCache&		mCache;
-	Bp::BoundsArray&		mBoundsArray;
+	ev4sio_Bp::BoundsArray&		mBoundsArray;
 
 	PX_NOCOPY(ScKinematicShapeUpdateTask)
 public:
 	static const PxU32 NbKinematicsShapesPerTask = 1024;
 
-	ScKinematicShapeUpdateTask(Sc::BodyCore*const* kinematics, PxU32 nbKinematics, PxsTransformCache& cache, Bp::BoundsArray& boundsArray, PxU64 contextID) :
-		Cm::Task(contextID), mKinematics(kinematics), mNbKinematics(nbKinematics), mCache(cache), mBoundsArray(boundsArray)
+	ScKinematicShapeUpdateTask(ev4sio_Sc::BodyCore*const* kinematics, PxU32 nbKinematics, PxsTransformCache& cache, ev4sio_Bp::BoundsArray& boundsArray, PxU64 contextID) :
+		ev4sio_Cm::Task(contextID), mKinematics(kinematics), mNbKinematics(nbKinematics), mCache(cache), mBoundsArray(boundsArray)
 	{
 	}
 
@@ -307,7 +307,7 @@ public:
 		const PxU32 nb = mNbKinematics;
 		for(PxU32 a=0; a<nb; ++a)
 		{
-			Sc::BodyCore* b = static_cast<Sc::BodyCore*>(mKinematics[a]);
+			ev4sio_Sc::BodyCore* b = static_cast<ev4sio_Sc::BodyCore*>(mKinematics[a]);
 			PX_ASSERT(b->getSim()->isKinematic());
 			PX_ASSERT(b->getSim()->isActive());
 
@@ -322,7 +322,7 @@ public:
 };
 }
 
-void Sc::Scene::updateKinematicCached(PxBaseTask* continuation)
+void ev4sio_Sc::Scene::updateKinematicCached(PxBaseTask* continuation)
 {
 	PX_PROFILE_ZONE("Sim.updateKinematicCached", mContextId);
 
@@ -332,7 +332,7 @@ void Sc::Scene::updateKinematicCached(PxBaseTask* continuation)
 
 	BodyCore*const* kinematics = getActiveKinematicBodies();
 
-	Cm::FlushPool& flushPool = mLLContext->getTaskPool();
+	ev4sio_Cm::FlushPool& flushPool = mLLContext->getTaskPool();
 	
 	PxU32 startIndex = 0;
 	PxU32 nbShapes = 0;
@@ -343,7 +343,7 @@ void Sc::Scene::updateKinematicCached(PxBaseTask* continuation)
 		// PT: TASK-CREATION TAG
 		for(PxU32 i=0; i<nbKinematics; i++)
 		{
-			Sc::BodySim* sim = static_cast<Sc::BodyCore*>(kinematics[i])->getSim();
+			ev4sio_Sc::BodySim* sim = static_cast<ev4sio_Sc::BodyCore*>(kinematics[i])->getSim();
 			PX_ASSERT(sim->isKinematic());
 			PX_ASSERT(sim->isActive());
 
@@ -377,7 +377,7 @@ void Sc::Scene::updateKinematicCached(PxBaseTask* continuation)
 		mBoundsArray->setChangedState();
 		for (PxU32 i = 0; i < nbKinematics; ++i)
 		{
-			Sc::BodySim* bodySim = static_cast<Sc::BodyCore*>(kinematics[i])->getSim();
+			ev4sio_Sc::BodySim* bodySim = static_cast<ev4sio_Sc::BodyCore*>(kinematics[i])->getSim();
 
 			if ((i+16) < nbKinematics)
 			{
@@ -390,10 +390,10 @@ void Sc::Scene::updateKinematicCached(PxBaseTask* continuation)
 
 			// PT: ### changedMap pattern #1
 			PxU32 nbElems = bodySim->getNbElements();
-			Sc::ElementSim** elems = bodySim->getElements();
+			ev4sio_Sc::ElementSim** elems = bodySim->getElements();
 			while (nbElems--)
 			{
-				Sc::ShapeSim* sim = static_cast<Sc::ShapeSim*>(*elems++);
+				ev4sio_Sc::ShapeSim* sim = static_cast<ev4sio_Sc::ShapeSim*>(*elems++);
 				//KS - TODO - can we parallelize this? The problem with parallelizing is that it's a bit operation,
 				//so we would either need to use atomic operations or have some high-level concept that guarantees 
 				//that threads don't write to the same word in the map simultaneously
@@ -435,7 +435,7 @@ bool BodySim::deactivateKinematic()
 }
 
 // PT: called during fetchResults()
-void Sc::Scene::postCallbacksPreSyncKinematics()
+void ev4sio_Sc::Scene::postCallbacksPreSyncKinematics()
 {
 	PX_PROFILE_ZONE("Sim.postCallbacksPreSyncKinematics", mContextId);
 

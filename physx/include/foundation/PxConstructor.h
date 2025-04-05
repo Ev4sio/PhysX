@@ -30,7 +30,7 @@
 #define PX_CONSTRUCTOR_H
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -48,7 +48,7 @@ enum PxIDENTITY
 };
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif //PX_CONSTRUCTOR_H

@@ -32,9 +32,9 @@
 #include "GuSDF.h"
 #include "foundation/PxPreprocessor.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Gu
+namespace ev4sio_Gu
 {
 
 // SDF wrapper for collision computations

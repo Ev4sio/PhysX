@@ -31,13 +31,13 @@
 #include "GuPCMContactGen.h"
 #include "common/PxRenderOutput.h"
 
-using namespace physx;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
 using namespace aos;
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Gu
+namespace ev4sio_Gu
 {
 const PxU8 gPCMBoxPolygonData[24] = 
 {
@@ -162,7 +162,7 @@ static void getPCMPolygonalData_Convex(PolygonalData* PX_RESTRICT dst, const Con
 }
 
 static void getPCMPolygonalData_Convex(PolygonalData* PX_RESTRICT dst, const ConvexHullData* PX_RESTRICT src, 
-	const Cm::FastVertex2ShapeScaling& scaling, const PxMeshScale& convexScale)
+	const ev4sio_Cm::FastVertex2ShapeScaling& scaling, const PxMeshScale& convexScale)
 {
 	dst->mCenter			= scaling * src->mCenterOfMass;
 	dst->mNbVerts			= src->mNbHullVertices;
@@ -179,7 +179,7 @@ static void getPCMPolygonalData_Convex(PolygonalData* PX_RESTRICT dst, const Con
 	dst->mScale				= convexScale;
 }
 
-void Gu::getPCMConvexData(const ConvexHullV& convexHull, bool idtScale, PolygonalData& polyData)
+void ev4sio_Gu::getPCMConvexData(const ConvexHullV& convexHull, bool idtScale, PolygonalData& polyData)
 {
 	PX_ASSERT(!convexHull.hullData->mAABB.isEmpty());  
 
@@ -190,7 +190,7 @@ void Gu::getPCMConvexData(const ConvexHullV& convexHull, bool idtScale, Polygona
 		polyData.mInternal.reset();
 }
      
-bool Gu::getPCMConvexData(const PxConvexMeshGeometry& shapeConvex, Cm::FastVertex2ShapeScaling& scaling, PxBounds3& bounds, PolygonalData& polyData)
+bool ev4sio_Gu::getPCMConvexData(const PxConvexMeshGeometry& shapeConvex, ev4sio_Cm::FastVertex2ShapeScaling& scaling, PxBounds3& bounds, PolygonalData& polyData)
 {
 	const bool idtScale = shapeConvex.scale.isIdentity();
 	if(!idtScale)

@@ -29,7 +29,7 @@
 #ifndef PXG_NARROWPHASE_H
 #define PXG_NARROWPHASE_H
 
-namespace physx
+namespace ev4sio_physx
 {
 	
 	//this is needed to force PhysXNarrowphaseGpu linkage as Static Library!

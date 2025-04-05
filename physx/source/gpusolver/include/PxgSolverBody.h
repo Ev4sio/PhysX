@@ -42,7 +42,7 @@
 #include "PxNodeIndex.h"
 #include "PxSpatialMatrix.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 class PxsRigidBody;
@@ -124,7 +124,7 @@ public:
 struct PxgSolverExtBody2
 {
 	PxSpatialMatrix mSpatialResponse;		//144
-	Cm::UnAlignedSpatialVector velocity;	//168
+	ev4sio_Cm::UnAlignedSpatialVector velocity;	//168
 	PxTransform body2World;					//196
 	PxReal penBiasClamp;					//200
 	PxReal maxImpulse;						//204

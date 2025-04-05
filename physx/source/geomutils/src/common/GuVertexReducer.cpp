@@ -30,9 +30,9 @@
 #include "foundation/PxAllocator.h"
 #include "CmRadixSort.h"
 
-using namespace physx;
-using namespace Gu;
-using namespace Cm;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
+using namespace ev4sio_Cm;
 
 // PT: code archeology: this initially came from ICE (IceVertexCloud.h/cpp). Consider dropping it.
 

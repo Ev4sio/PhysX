@@ -31,9 +31,9 @@
 #include "foundation/windows/PxWindowsInclude.h"
 #include "windows/CmWindowsLoadLibrary.h"
 
-static const physx::PxDelayLoadHook* gCookingDelayLoadHook = NULL;
+static const ev4sio_physx::PxDelayLoadHook* gCookingDelayLoadHook = NULL;
 
-void physx::PxSetPhysXCookingDelayLoadHook(const physx::PxDelayLoadHook* hook)
+void ev4sio_physx::PxSetPhysXCookingDelayLoadHook(const ev4sio_physx::PxDelayLoadHook* hook)
 {
 	gCookingDelayLoadHook = hook;
 }
@@ -45,7 +45,7 @@ void physx::PxSetPhysXCookingDelayLoadHook(const physx::PxDelayLoadHook* hook)
 #define DELAYIMP_INSECURE_WRITABLE_HOOKS
 #include <delayimp.h>
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 #pragma comment(lib, "delayimp")
 
@@ -57,7 +57,7 @@ FARPROC WINAPI cookingDelayHook(unsigned dliNotify, PDelayLoadInfo pdli)
 
 	case dliNotePreLoadLibrary :
 		{
-			return Cm::physXCommonDliNotePreLoadLibrary(pdli->szDll,gCookingDelayLoadHook);
+			return ev4sio_Cm::physXCommonDliNotePreLoadLibrary(pdli->szDll,gCookingDelayLoadHook);
 		}
 		break;
 

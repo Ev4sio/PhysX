@@ -27,8 +27,8 @@
 #include "ExtMeshSimplificator.h"
 #include "foundation/PxSort.h"
 
-using namespace physx;
-using namespace Ext;
+using namespace ev4sio_physx;
+using namespace ev4sio_Ext;
 
 // -------------------------------------------------------------------------------------
 MeshSimplificator::MeshSimplificator()
@@ -514,7 +514,7 @@ void MeshSimplificator::init(const PxSimpleTriangleMesh& inputMesh, PxReal edgeL
 		scaledOriginalVertices.resize(inputMesh.points.count);
 		for (PxU32 i = 0; i < inputMesh.points.count; i++)
 			scaledOriginalVertices[i] = vertices[i].p;
-		projector = Gu::PxCreatePointOntoTriangleMeshProjector(scaledOriginalVertices.begin(), originalTriIds.begin(), inputMesh.triangles.count);
+		projector = ev4sio_Gu::PxCreatePointOntoTriangleMeshProjector(scaledOriginalVertices.begin(), originalTriIds.begin(), inputMesh.triangles.count);
 	}
 	else
 		projector = NULL;
@@ -547,7 +547,7 @@ void MeshSimplificator::init(const PxArray<PxVec3> &inputVertices, const PxArray
 		scaledOriginalVertices.resize(inputVertices.size());
 		for (PxU32 i = 0; i < inputVertices.size(); i++)
 			scaledOriginalVertices[i] = vertices[i].p;
-		projector = Gu::PxCreatePointOntoTriangleMeshProjector(scaledOriginalVertices.begin(), inputTriIds.begin(), inputTriIds.size() / 3);
+		projector = ev4sio_Gu::PxCreatePointOntoTriangleMeshProjector(scaledOriginalVertices.begin(), inputTriIds.begin(), inputTriIds.size() / 3);
 	}
 	else
 		projector = NULL;

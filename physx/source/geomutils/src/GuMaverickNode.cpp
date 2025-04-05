@@ -28,8 +28,8 @@
 
 #include "GuMaverickNode.h"
 
-using namespace physx;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
 
 const PxU32 MaverickNode::mIndices[16] = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15};
 

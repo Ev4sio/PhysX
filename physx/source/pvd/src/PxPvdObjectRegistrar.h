@@ -34,7 +34,7 @@
 #include "foundation/PxMutex.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 namespace pvdsdk
 {
@@ -55,8 +55,8 @@ class ObjectRegistrar
 	void clear();
 
   private:
-	physx::PxHashMap<const void*, uint32_t> mRefCountMap;
-	physx::PxMutex mRefCountMapLock;
+	ev4sio_physx::PxHashMap<const void*, uint32_t> mRefCountMap;
+	ev4sio_physx::PxMutex mRefCountMapLock;
 };
 #if !PX_DOXYGEN
 } // pvdsdk

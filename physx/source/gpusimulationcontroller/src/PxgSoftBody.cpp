@@ -35,18 +35,18 @@
 #include "PxgArticulation.h"
 #include "PxsDeformableVolumeMaterialCore.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
-PxU32 PxgSoftBodyUtil::computeTetMeshByteSize(const Gu::BVTetrahedronMesh* tetMesh)
+PxU32 PxgSoftBodyUtil::computeTetMeshByteSize(const ev4sio_Gu::BVTetrahedronMesh* tetMesh)
 {
 	const PxU32 meshDataSize =
 		sizeof(uint4);									// (nbVerts, numTets, maxDepth, nbBv32TreeNodes)
 		//+ sizeof(PxU8) * numTets						// meshTetrahedronSurfaceHint	
 
 	//ML: don't know whether we need to have local bound
-	Gu::BV32Tree* bv32Tree = tetMesh->mGRB_BV32Tree;
-	const PxU32 bv32Size = bv32Tree->mNbPackedNodes * sizeof(Gu::BV32DataPacked)
-		+ bv32Tree->mMaxTreeDepth * sizeof(Gu::BV32DataDepthInfo)
+	ev4sio_Gu::BV32Tree* bv32Tree = tetMesh->mGRB_BV32Tree;
+	const PxU32 bv32Size = bv32Tree->mNbPackedNodes * sizeof(ev4sio_Gu::BV32DataPacked)
+		+ bv32Tree->mMaxTreeDepth * sizeof(ev4sio_Gu::BV32DataDepthInfo)
 		+ bv32Tree->mNbPackedNodes * sizeof(PxU32);
 
 	return meshDataSize + bv32Size;
@@ -121,26 +121,26 @@ static void copyTetraRestPoses(PxU16* destOrderedMaterialIndices, PxU16* destMat
 	}
 }*/
 
-PxU32 PxgSoftBodyUtil::loadOutTetMesh(void* mem, const Gu::BVTetrahedronMesh* tetMesh)
+PxU32 PxgSoftBodyUtil::loadOutTetMesh(void* mem, const ev4sio_Gu::BVTetrahedronMesh* tetMesh)
 {
 	const PxU32 numTets = tetMesh->getNbTetrahedronsFast();
 	const PxU32 numVerts = tetMesh->getNbVerticesFast();
 	//const PxU32 numSurfaceTriangles = tetMesh->getNbTrianglesFast();
 
-	Gu::BV32Tree* bv32Tree = tetMesh->mGRB_BV32Tree;
+	ev4sio_Gu::BV32Tree* bv32Tree = tetMesh->mGRB_BV32Tree;
 
 	PxU8* m = (PxU8*)mem;
 	*((uint4*)m) = make_uint4(numVerts, numTets, bv32Tree->mMaxTreeDepth, bv32Tree->mNbPackedNodes);
 	m += sizeof(uint4);
 
 	//Midphase
-	PxMemCopy(m, bv32Tree->mPackedNodes, sizeof(Gu::BV32DataPacked) * bv32Tree->mNbPackedNodes);
-	m += sizeof(Gu::BV32DataPacked) * bv32Tree->mNbPackedNodes;
+	PxMemCopy(m, bv32Tree->mPackedNodes, sizeof(ev4sio_Gu::BV32DataPacked) * bv32Tree->mNbPackedNodes);
+	m += sizeof(ev4sio_Gu::BV32DataPacked) * bv32Tree->mNbPackedNodes;
 
 	PX_ASSERT(bv32Tree->mNbPackedNodes > 0);
 
-	PxMemCopy(m, bv32Tree->mTreeDepthInfo, sizeof(Gu::BV32DataDepthInfo) * bv32Tree->mMaxTreeDepth);
-	m += sizeof(Gu::BV32DataDepthInfo) * bv32Tree->mMaxTreeDepth;
+	PxMemCopy(m, bv32Tree->mTreeDepthInfo, sizeof(ev4sio_Gu::BV32DataDepthInfo) * bv32Tree->mMaxTreeDepth);
+	m += sizeof(ev4sio_Gu::BV32DataDepthInfo) * bv32Tree->mMaxTreeDepth;
 
 	PxMemCopy(m, bv32Tree->mRemapPackedNodeIndexWithDepth, sizeof(PxU32) * bv32Tree->mNbPackedNodes);
 	m += sizeof(PxU32) * bv32Tree->mNbPackedNodes;
@@ -166,7 +166,7 @@ PxU32 PxgSoftBodyUtil::loadOutTetMesh(void* mem, const Gu::BVTetrahedronMesh* te
 		for (PxU32 j = 0; j < iCount; ++j)
 		{
 			const PxU32 nodeIndex = iRempapNodeIndex[j];
-			Gu::BV32DataPacked& currentNode = bv32Tree->mPackedNodes[nodeIndex];
+			ev4sio_Gu::BV32DataPacked& currentNode = bv32Tree->mPackedNodes[nodeIndex];
 			PX_ASSERT(currentNode.mDepth == i - 1);
 
 			PxVec3 min(PX_MAX_F32);
@@ -281,8 +281,8 @@ PxU32 PxgSoftBodyUtil::loadOutTetMesh(void* mem, const Gu::BVTetrahedronMesh* te
 	return bv32Tree->mNbPackedNodes;
 }
 
-void PxgSoftBodyUtil::initialTetData(PxgSoftBody& softbody, const Gu::BVTetrahedronMesh* colTetMesh, 
-	const Gu::TetrahedronMesh* simTetMesh, const Gu::DeformableVolumeAuxData* softBodyAuxData, const PxU16* materialsHandles,
+void PxgSoftBodyUtil::initialTetData(PxgSoftBody& softbody, const ev4sio_Gu::BVTetrahedronMesh* colTetMesh, 
+	const ev4sio_Gu::TetrahedronMesh* simTetMesh, const ev4sio_Gu::DeformableVolumeAuxData* softBodyAuxData, const PxU16* materialsHandles,
 	PxsHeapMemoryAllocator* alloc)
 {	
 	const PxU32 numTets = colTetMesh->getNbTetrahedronsFast();
@@ -534,7 +534,7 @@ void PxgSoftBodyUtil::initialTetData(PxgSoftBody& softbody, const Gu::BVTetrahed
 #endif
 }
 
-void PxgSoftBodyUtil::computeBasisMatrix(PxMat33* restPoses, const Gu::DeformableVolumeMesh* tetMesh)
+void PxgSoftBodyUtil::computeBasisMatrix(PxMat33* restPoses, const ev4sio_Gu::DeformableVolumeMesh* tetMesh)
 {
 	const PxVec3* positions = tetMesh->getCollisionMeshFast()->getVerticesFast();
 	const PxU32 numTets = tetMesh->getCollisionMeshFast()->getNbTetrahedronsFast();

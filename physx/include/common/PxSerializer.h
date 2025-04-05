@@ -37,7 +37,7 @@
 
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -188,7 +188,7 @@ public:
 
 	virtual void exportData(PxBase& obj, PxSerializationContext& s) const
 	{
-		PxAllocatorCallback& allocator = *PxGetAllocatorCallback();
+		PxAllocatorCallback& allocator = *ev4sio_PxGetAllocatorCallback();
 		T* copy = reinterpret_cast<T*>(allocator.allocate(sizeof(T), "TmpAllocExportData", PX_FL));
 		PxMemCopy(copy, &obj, sizeof(T));
 		copy->preExportDataReset();
@@ -206,7 +206,7 @@ public:
 		{
 			RequiresCallback(PxSerializationContext& c) : context(c) {}
 			RequiresCallback& operator=(RequiresCallback&) { PX_ASSERT(0); return *this; }
-			void process(physx::PxBase& base)
+			void process(ev4sio_physx::PxBase& base)
 			{				
 				context.registerReference(base, PX_SERIAL_REF_KIND_PXBASE, size_t(&base));
 			}
@@ -243,17 +243,17 @@ private:
  Note: that the allocator used for creation needs to match with the one used in PX_DELETE_SERIALIZER_ADAPTER.
 */
 #define PX_NEW_SERIALIZER_ADAPTER(x) \
-	*new( PxGetAllocatorCallback()->allocate(sizeof(PxSerializerDefaultAdapter<x>), \
+	*new( ev4sio_PxGetAllocatorCallback()->allocate(sizeof(PxSerializerDefaultAdapter<x>), \
 	"PxSerializerDefaultAdapter", PX_FL)) PxSerializerDefaultAdapter<x>(#x)
 
 /** 
  \brief Preprocessor Macro to simplify adapter deletion.
 */
 #define PX_DELETE_SERIALIZER_ADAPTER(x) \
-	{ PxSerializer* s = x; if (s) { s->~PxSerializer(); PxGetAllocatorCallback()->deallocate(s); } }
+	{ PxSerializer* s = x; if (s) { s->~PxSerializer(); ev4sio_PxGetAllocatorCallback()->deallocate(s); } }
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

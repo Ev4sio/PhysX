@@ -38,7 +38,7 @@
 class OmniPvdWriter;
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 class PxConvexMesh;
 class PxScene;
@@ -902,7 +902,7 @@ public:
 
 #if !PX_DOXYGEN
 } // namespace vehicle2
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 

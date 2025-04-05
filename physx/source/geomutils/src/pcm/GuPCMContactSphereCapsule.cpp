@@ -32,7 +32,7 @@
 #include "GuContactMethodImpl.h"
 #include "GuPCMContactGenUtil.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 using namespace aos;
 
 static PX_FORCE_INLINE FloatV distancePointSegmentSquared(const Vec3VArg a, const Vec3VArg b, const Vec3VArg p, FloatV& param)
@@ -53,7 +53,7 @@ static PX_FORCE_INLINE FloatV distancePointSegmentSquared(const Vec3VArg a, cons
 	return V3Dot(v, v);
 }
 
-bool Gu::pcmContactSphereCapsule(GU_CONTACT_METHOD_ARGS)
+bool ev4sio_Gu::pcmContactSphereCapsule(GU_CONTACT_METHOD_ARGS)
 {
 	PX_UNUSED(cache);
 	PX_UNUSED(renderOutput);

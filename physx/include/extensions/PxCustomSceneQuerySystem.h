@@ -32,7 +32,7 @@
 #include "PxSceneQuerySystem.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -181,7 +181,7 @@ namespace physx
 	PxCustomSceneQuerySystem* PxCreateCustomSceneQuerySystem(PxSceneQueryUpdateMode::Enum sceneQueryUpdateMode, PxU64 contextID, const PxCustomSceneQuerySystemAdapter& adapter, bool usesTreeOfPruners=false);
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

@@ -33,16 +33,16 @@
 #include "PxsSimulationController.h"
 #include "ScArticulationSim.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
-static void updateBodySim(Sc::BodyCore& bodyCore)
+static void updateBodySim(ev4sio_Sc::BodyCore& bodyCore)
 {
-	Sc::BodySim* bodySim = bodyCore.getSim();
+	ev4sio_Sc::BodySim* bodySim = bodyCore.getSim();
 	if(bodySim)
 		bodySim->getScene().updateBodySim(*bodySim);
 }
 
-Sc::BodyCore::BodyCore(PxActorType::Enum type, const PxTransform& bodyPose) : RigidCore(type)
+ev4sio_Sc::BodyCore::BodyCore(PxActorType::Enum type, const PxTransform& bodyPose) : RigidCore(type)
 {
 	const PxTolerancesScale& scale = Physics::getInstance().getTolerancesScale();
 
@@ -51,21 +51,21 @@ Sc::BodyCore::BodyCore(PxActorType::Enum type, const PxTransform& bodyPose) : Ri
 	const float maxLinearVelocitySq = isDynamic ? 1e32f /*PX_MAX_F32*/ : 100.f * 100.f * scale.length * scale.length;
 	const float maxAngularVelocitySq = isDynamic ? 100.0f * 100.0f : 50.0f * 50.0f;
 
-	mCore.init(bodyPose, PxVec3(1.0f), 1.0f, Sc::Physics::sWakeCounterOnCreation, scale.speed, linearDamping, 0.05f, maxLinearVelocitySq, maxAngularVelocitySq,
+	mCore.init(bodyPose, PxVec3(1.0f), 1.0f, ev4sio_Sc::Physics::sWakeCounterOnCreation, scale.speed, linearDamping, 0.05f, maxLinearVelocitySq, maxAngularVelocitySq,
 		type);
 }
 
-Sc::BodyCore::~BodyCore()
+ev4sio_Sc::BodyCore::~BodyCore()
 {
 	PX_ASSERT(getSim() == 0);
 }
 
-Sc::BodySim* Sc::BodyCore::getSim() const
+ev4sio_Sc::BodySim* ev4sio_Sc::BodyCore::getSim() const
 {
-	return static_cast<BodySim*>(Sc::ActorCore::getSim());
+	return static_cast<BodySim*>(ev4sio_Sc::ActorCore::getSim());
 }
 
-void Sc::BodyCore::restoreDynamicData()
+void ev4sio_Sc::BodyCore::restoreDynamicData()
 {
 	BodySim* sim = getSim();
 	PX_ASSERT(sim);
@@ -81,7 +81,7 @@ void Sc::BodyCore::restoreDynamicData()
 //
 //--------------------------------------------------------------
 
-void Sc::BodyCore::setBody2World(const PxTransform& p)
+void ev4sio_Sc::BodyCore::setBody2World(const PxTransform& p)
 {
 	mCore.body2World = p;
 	PX_ASSERT(p.p.isFinite());
@@ -95,7 +95,7 @@ void Sc::BodyCore::setBody2World(const PxTransform& p)
 	}
 }
 
-void Sc::BodyCore::setCMassLocalPose(const PxTransform& newBody2Actor)
+void ev4sio_Sc::BodyCore::setCMassLocalPose(const PxTransform& newBody2Actor)
 {
 	const PxTransform oldActor2World = mCore.body2World * mCore.getBody2Actor().getInverse();
 	const PxTransform newBody2World = oldActor2World * newBody2Actor;
@@ -107,7 +107,7 @@ void Sc::BodyCore::setCMassLocalPose(const PxTransform& newBody2Actor)
 	setBody2Actor(newBody2Actor);
 }
 
-void Sc::BodyCore::setLinearVelocity(const PxVec3& v, bool skipBodySimUpdate)
+void ev4sio_Sc::BodyCore::setLinearVelocity(const PxVec3& v, bool skipBodySimUpdate)
 {
 	mCore.linearVelocity = v;
 
@@ -117,7 +117,7 @@ void Sc::BodyCore::setLinearVelocity(const PxVec3& v, bool skipBodySimUpdate)
 		updateBodySim(*this);
 }
 
-void Sc::BodyCore::setAngularVelocity(const PxVec3& v, bool skipBodySimUpdate)
+void ev4sio_Sc::BodyCore::setAngularVelocity(const PxVec3& v, bool skipBodySimUpdate)
 {
 	mCore.angularVelocity = v;
 
@@ -127,14 +127,14 @@ void Sc::BodyCore::setAngularVelocity(const PxVec3& v, bool skipBodySimUpdate)
 		updateBodySim(*this);
 }
 
-void Sc::BodyCore::setCfmScale(PxReal cfmScale)
+void ev4sio_Sc::BodyCore::setCfmScale(PxReal cfmScale)
 {
 	mCore.cfmScale = cfmScale;
 
 	updateBodySim(*this);
 }
 
-void Sc::BodyCore::setBody2Actor(const PxTransform& p)
+void ev4sio_Sc::BodyCore::setBody2Actor(const PxTransform& p)
 {
 	PX_ASSERT(p.p.isFinite());
 	PX_ASSERT(p.q.isFinite());
@@ -144,21 +144,21 @@ void Sc::BodyCore::setBody2Actor(const PxTransform& p)
 	updateBodySim(*this);
 }
 
-void Sc::BodyCore::addSpatialAcceleration(const PxVec3* linAcc, const PxVec3* angAcc)
+void ev4sio_Sc::BodyCore::addSpatialAcceleration(const PxVec3* linAcc, const PxVec3* angAcc)
 {
 	BodySim* sim = getSim();
 	PX_ASSERT(sim);
 	sim->addSpatialAcceleration(linAcc, angAcc);
 }
 
-void Sc::BodyCore::setSpatialAcceleration(const PxVec3* linAcc, const PxVec3* angAcc)
+void ev4sio_Sc::BodyCore::setSpatialAcceleration(const PxVec3* linAcc, const PxVec3* angAcc)
 {
 	BodySim* sim = getSim();
 	PX_ASSERT(sim);
 	sim->setSpatialAcceleration(linAcc, angAcc);
 }
 
-void Sc::BodyCore::clearSpatialAcceleration(bool force, bool torque)
+void ev4sio_Sc::BodyCore::clearSpatialAcceleration(bool force, bool torque)
 {
 	PX_ASSERT(force || torque);
 	BodySim* sim = getSim();
@@ -166,14 +166,14 @@ void Sc::BodyCore::clearSpatialAcceleration(bool force, bool torque)
 	sim->clearSpatialAcceleration(force, torque);
 }
 
-void Sc::BodyCore::addSpatialVelocity(const PxVec3* linVelDelta, const PxVec3* angVelDelta)
+void ev4sio_Sc::BodyCore::addSpatialVelocity(const PxVec3* linVelDelta, const PxVec3* angVelDelta)
 {
 	BodySim* sim = getSim();
 	PX_ASSERT(sim);
 	sim->addSpatialVelocity(linVelDelta, angVelDelta);
 }
 
-void Sc::BodyCore::clearSpatialVelocity(bool force, bool torque)
+void ev4sio_Sc::BodyCore::clearSpatialVelocity(bool force, bool torque)
 {
 	PX_ASSERT(force || torque);
 	BodySim* sim = getSim();
@@ -181,7 +181,7 @@ void Sc::BodyCore::clearSpatialVelocity(bool force, bool torque)
 	sim->clearSpatialVelocity(force, torque);
 }
 
-PxReal Sc::BodyCore::getInverseMass() const
+PxReal ev4sio_Sc::BodyCore::getInverseMass() const
 {
 	BodySim* sim = getSim();
 	if(!sim || (!(getFlags() & PxRigidBodyFlag::eKINEMATIC)))
@@ -197,7 +197,7 @@ PxReal Sc::BodyCore::getInverseMass() const
 	}
 }
 
-void Sc::BodyCore::setInverseMass(PxReal m)
+void ev4sio_Sc::BodyCore::setInverseMass(PxReal m)
 {
 	BodySim* sim = getSim();
 	if (!sim || (!(getFlags() & PxRigidBodyFlag::eKINEMATIC)))
@@ -214,7 +214,7 @@ void Sc::BodyCore::setInverseMass(PxReal m)
 	}
 }
 
-const PxVec3& Sc::BodyCore::getInverseInertia() const
+const PxVec3& ev4sio_Sc::BodyCore::getInverseInertia() const
 {
 	BodySim* sim = getSim();
 	if (!sim || (!(getFlags() & PxRigidBodyFlag::eKINEMATIC)))
@@ -230,7 +230,7 @@ const PxVec3& Sc::BodyCore::getInverseInertia() const
 	}
 }
 
-void Sc::BodyCore::setInverseInertia(const PxVec3& i)
+void ev4sio_Sc::BodyCore::setInverseInertia(const PxVec3& i)
 {
 	BodySim* sim = getSim();
 	if (!sim || (!(getFlags() & PxRigidBodyFlag::eKINEMATIC)))
@@ -247,7 +247,7 @@ void Sc::BodyCore::setInverseInertia(const PxVec3& i)
 	}
 }
 
-PxReal Sc::BodyCore::getLinearDamping() const
+PxReal ev4sio_Sc::BodyCore::getLinearDamping() const
 {
 	BodySim* sim = getSim();
 	if (!sim || (!(getFlags() & PxRigidBodyFlag::eKINEMATIC)))
@@ -263,7 +263,7 @@ PxReal Sc::BodyCore::getLinearDamping() const
 	}
 }
 
-void Sc::BodyCore::setLinearDamping(PxReal d)
+void ev4sio_Sc::BodyCore::setLinearDamping(PxReal d)
 {
 	BodySim* sim = getSim();
 	if (!sim || (!(getFlags() & PxRigidBodyFlag::eKINEMATIC)))
@@ -280,7 +280,7 @@ void Sc::BodyCore::setLinearDamping(PxReal d)
 	}
 }
 
-PxReal Sc::BodyCore::getAngularDamping() const
+PxReal ev4sio_Sc::BodyCore::getAngularDamping() const
 {
 	BodySim* sim = getSim();
 	if (!sim || (!(getFlags() & PxRigidBodyFlag::eKINEMATIC)))
@@ -296,7 +296,7 @@ PxReal Sc::BodyCore::getAngularDamping() const
 	}
 }
 
-void Sc::BodyCore::setAngularDamping(PxReal v)
+void ev4sio_Sc::BodyCore::setAngularDamping(PxReal v)
 {
 	BodySim* sim = getSim();
 	if (!sim || (!(getFlags() & PxRigidBodyFlag::eKINEMATIC)))
@@ -313,7 +313,7 @@ void Sc::BodyCore::setAngularDamping(PxReal v)
 	}
 }
 
-PxReal Sc::BodyCore::getMaxAngVelSq() const
+PxReal ev4sio_Sc::BodyCore::getMaxAngVelSq() const
 {
 	BodySim* sim = getSim();
 	if (!sim || (!(getFlags() & PxRigidBodyFlag::eKINEMATIC)))
@@ -329,7 +329,7 @@ PxReal Sc::BodyCore::getMaxAngVelSq() const
 	}
 }
 
-void Sc::BodyCore::setMaxAngVelSq(PxReal v)
+void ev4sio_Sc::BodyCore::setMaxAngVelSq(PxReal v)
 {
 	BodySim* sim = getSim();
 	if (!sim || (!(getFlags() & PxRigidBodyFlag::eKINEMATIC)))
@@ -346,7 +346,7 @@ void Sc::BodyCore::setMaxAngVelSq(PxReal v)
 	}
 }
 
-PxReal Sc::BodyCore::getMaxLinVelSq() const
+PxReal ev4sio_Sc::BodyCore::getMaxLinVelSq() const
 {
 	BodySim* sim = getSim();
 	if (!sim || (!(getFlags() & PxRigidBodyFlag::eKINEMATIC)))
@@ -362,7 +362,7 @@ PxReal Sc::BodyCore::getMaxLinVelSq() const
 	}
 }
 
-void Sc::BodyCore::setMaxLinVelSq(PxReal v)
+void ev4sio_Sc::BodyCore::setMaxLinVelSq(PxReal v)
 {
 	BodySim* sim = getSim();
 	if (!sim || (!(getFlags() & PxRigidBodyFlag::eKINEMATIC)))
@@ -379,7 +379,7 @@ void Sc::BodyCore::setMaxLinVelSq(PxReal v)
 	}
 }
 
-void Sc::BodyCore::setFlags(PxRigidBodyFlags f)
+void ev4sio_Sc::BodyCore::setFlags(PxRigidBodyFlags f)
 {
 	const PxRigidBodyFlags old = mCore.mFlags;
 	if(f != old)
@@ -474,25 +474,25 @@ void Sc::BodyCore::setFlags(PxRigidBodyFlags f)
 	}
 }
 
-void Sc::BodyCore::setMaxContactImpulse(PxReal m)	
+void ev4sio_Sc::BodyCore::setMaxContactImpulse(PxReal m)	
 { 
 	mCore.maxContactImpulse = m; 
 	updateBodySim(*this);
 }
 
-void Sc::BodyCore::setOffsetSlop(PxReal slop)
+void ev4sio_Sc::BodyCore::setOffsetSlop(PxReal slop)
 {
 	mCore.offsetSlop = slop;
 	updateBodySim(*this);
 }
 
-PxNodeIndex Sc::BodyCore::getInternalIslandNodeIndex() const
+PxNodeIndex ev4sio_Sc::BodyCore::getInternalIslandNodeIndex() const
 {
 	BodySim* sim = getSim();
 	return sim ? sim->getNodeIndex() : PxNodeIndex(PX_INVALID_NODE);
 }
 
-void Sc::BodyCore::setWakeCounter(PxReal wakeCounter, bool forceWakeUp)
+void ev4sio_Sc::BodyCore::setWakeCounter(PxReal wakeCounter, bool forceWakeUp)
 {
 	mCore.wakeCounter = wakeCounter;
 	BodySim* sim = getSim();
@@ -506,25 +506,25 @@ void Sc::BodyCore::setWakeCounter(PxReal wakeCounter, bool forceWakeUp)
 	}
 }
 
-void Sc::BodyCore::setSleepThreshold(PxReal t)
+void ev4sio_Sc::BodyCore::setSleepThreshold(PxReal t)
 {
 	mCore.sleepThreshold = t;
 	updateBodySim(*this);
 }
 
-void Sc::BodyCore::setFreezeThreshold(PxReal t)
+void ev4sio_Sc::BodyCore::setFreezeThreshold(PxReal t)
 {
 	mCore.freezeThreshold = t;
 	updateBodySim(*this);
 }
 
-bool Sc::BodyCore::isSleeping() const
+bool ev4sio_Sc::BodyCore::isSleeping() const
 {
 	BodySim* sim = getSim();
 	return sim ? !sim->isActive() : true;
 }
 
-void Sc::BodyCore::putToSleep()
+void ev4sio_Sc::BodyCore::putToSleep()
 {
 	mCore.linearVelocity = PxVec3(0.0f);
 	mCore.angularVelocity = PxVec3(0.0f);
@@ -538,7 +538,7 @@ void Sc::BodyCore::putToSleep()
 		sim->putToSleep();
 }
 
-void Sc::BodyCore::onOriginShift(const PxVec3& shift)
+void ev4sio_Sc::BodyCore::onOriginShift(const PxVec3& shift)
 {
 	mCore.body2World.p -= shift;
 
@@ -548,15 +548,15 @@ void Sc::BodyCore::onOriginShift(const PxVec3& shift)
 }
 
 // PT: TODO: why do we test against NULL everywhere but not in 'isFrozen' ?
-PxIntBool Sc::BodyCore::isFrozen() const
+PxIntBool ev4sio_Sc::BodyCore::isFrozen() const
 {
 	return getSim()->isFrozen();
 }
 
-void Sc::BodyCore::setSolverIterationCounts(PxU16 c)	
+void ev4sio_Sc::BodyCore::setSolverIterationCounts(PxU16 c)	
 { 
 	mCore.solverIterationCounts = c;	
-	Sc::BodySim* sim = getSim();
+	ev4sio_Sc::BodySim* sim = getSim();
 	if (sim)
 	{
 		sim->getLowLevelBody().mSolverIterationCounts = c;
@@ -566,14 +566,14 @@ void Sc::BodyCore::setSolverIterationCounts(PxU16 c)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-bool Sc::BodyCore::getKinematicTarget(PxTransform& p) const
+bool ev4sio_Sc::BodyCore::getKinematicTarget(PxTransform& p) const
 {
 	PX_ASSERT(mCore.mFlags & PxRigidBodyFlag::eKINEMATIC);
 	const BodySim* sim = getSim();
 	return (sim && simStateGetKinematicTarget(sim->getSimStateData_Unchecked(), p));
 }
 
-bool Sc::BodyCore::getHasValidKinematicTarget() const
+bool ev4sio_Sc::BodyCore::getHasValidKinematicTarget() const
 {
 	//The use pattern for this is that we should only look for kinematic data if we know it is kinematic.
 	//We might look for velmod data even if it is kinematic.
@@ -581,23 +581,23 @@ bool Sc::BodyCore::getHasValidKinematicTarget() const
 	return (sim && simStateGetHasValidKinematicTarget(sim->getSimStateData_Unchecked()));
 }
 
-void Sc::BodyCore::setKinematicTarget(const PxTransform& p, PxReal wakeCounter)
+void ev4sio_Sc::BodyCore::setKinematicTarget(const PxTransform& p, PxReal wakeCounter)
 {
 	PX_ASSERT(mCore.mFlags & PxRigidBodyFlag::eKINEMATIC);
-	Sc::BodySim* sim = getSim();
+	ev4sio_Sc::BodySim* sim = getSim();
 	PX_ASSERT(sim);
 	sim->setKinematicTarget(p);
 	wakeUp(wakeCounter);
 }
 
-void Sc::BodyCore::invalidateKinematicTarget()
+void ev4sio_Sc::BodyCore::invalidateKinematicTarget()
 { 
-	Sc::BodySim* sim = getSim();
+	ev4sio_Sc::BodySim* sim = getSim();
 	PX_ASSERT(sim);
 	simStateInvalidateKinematicTarget(sim->getSimStateData_Unchecked());
 }
 
-void Sc::BodyCore::setFixedBaseLink(bool value)
+void ev4sio_Sc::BodyCore::setFixedBaseLink(bool value)
 {
 	BodySim* sim = getSim();
 
@@ -605,7 +605,7 @@ void Sc::BodyCore::setFixedBaseLink(bool value)
 		sim->getLowLevelBody().mCore->fixedBaseLink = PxU8(value);
 }
 
-void Sc::BodyCore::onRemoveKinematicFromScene()
+void ev4sio_Sc::BodyCore::onRemoveKinematicFromScene()
 {
 	PX_ASSERT(mCore.mFlags & PxRigidBodyFlag::eKINEMATIC);
 	PX_ASSERT(getSim() && getSim()->checkSimStateKinematicStatus(true));

@@ -31,22 +31,22 @@
 #include "ScDeformableVolumeSim.h"
 #include "geometry/PxTetrahedronMesh.h"
 
-using namespace physx;
-using namespace Dy;
+using namespace ev4sio_physx;
+using namespace ev4sio_Dy;
 
-Sc::DeformableVolumeSim::DeformableVolumeSim(DeformableVolumeCore& core, Scene& scene) :
+ev4sio_Sc::DeformableVolumeSim::DeformableVolumeSim(DeformableVolumeCore& core, Scene& scene) :
 	GPUActorSim(scene, core, NULL)
 {
 	mLLDeformableVolume = scene.createLLDeformableVolume(this);
 
-	mNodeIndex = scene.getSimpleIslandManager()->addNode(false, false, IG::Node::eDEFORMABLE_VOLUME_TYPE, mLLDeformableVolume);
+	mNodeIndex = scene.getSimpleIslandManager()->addNode(false, false, ev4sio_IG::Node::eDEFORMABLE_VOLUME_TYPE, mLLDeformableVolume);
 
 	scene.getSimpleIslandManager()->activateNode(mNodeIndex);
 
 	mLLDeformableVolume->setElementId(mShapeSim.getElementID());
 }
 
-Sc::DeformableVolumeSim::~DeformableVolumeSim()
+ev4sio_Sc::DeformableVolumeSim::~DeformableVolumeSim()
 {
 	if (!mLLDeformableVolume)
 		return;
@@ -58,13 +58,13 @@ Sc::DeformableVolumeSim::~DeformableVolumeSim()
 	mCore.setSim(NULL);
 }
 
-bool Sc::DeformableVolumeSim::isSleeping() const
+bool ev4sio_Sc::DeformableVolumeSim::isSleeping() const
 {
-	IG::IslandSim& sim = mScene.getSimpleIslandManager()->getAccurateIslandSim();
+	ev4sio_IG::IslandSim& sim = mScene.getSimpleIslandManager()->getAccurateIslandSim();
 	return sim.getActiveNodeIndex(mNodeIndex) == PX_INVALID_NODE;
 }
 
-void Sc::DeformableVolumeSim::onSetWakeCounter()
+void ev4sio_Sc::DeformableVolumeSim::onSetWakeCounter()
 {
 	mScene.getSimulationController()->setSoftBodyWakeCounter(mLLDeformableVolume);
 	if (mLLDeformableVolume->getCore().wakeCounter > 0.f)
@@ -73,7 +73,7 @@ void Sc::DeformableVolumeSim::onSetWakeCounter()
 		mScene.getSimpleIslandManager()->deactivateNode(mNodeIndex);
 }
 
-void Sc::DeformableVolumeSim::attachShapeCore(ShapeCore* core)
+void ev4sio_Sc::DeformableVolumeSim::attachShapeCore(ShapeCore* core)
 {
 	mShapeSim.setCore(core);
 	{
@@ -83,41 +83,41 @@ void Sc::DeformableVolumeSim::attachShapeCore(ShapeCore* core)
 
 		mScene.getBoundsArray().setBounds(getWorldBounds(), index);
 
-		addToAABBMgr(Bp::FilterType::DEFORMABLE_VOLUME);
+		addToAABBMgr(ev4sio_Bp::FilterType::DEFORMABLE_VOLUME);
 	}
 
 	PxsShapeCore* shapeCore = const_cast<PxsShapeCore*>(&core->getCore());
 	mLLDeformableVolume->setShapeCore(shapeCore);
 }
 
-PxBounds3 Sc::DeformableVolumeSim::getWorldBounds() const
+PxBounds3 ev4sio_Sc::DeformableVolumeSim::getWorldBounds() const
 {
 	const PxTetrahedronMeshGeometry& tetGeom = static_cast<const PxTetrahedronMeshGeometry&>(mShapeSim.getCore().getGeometry());
 
 	return tetGeom.tetrahedronMesh->getLocalBounds();
 }
 
-void Sc::DeformableVolumeSim::attachSimulationMesh(PxTetrahedronMesh* simulationMesh, PxDeformableVolumeAuxData* simulationState)
+void ev4sio_Sc::DeformableVolumeSim::attachSimulationMesh(PxTetrahedronMesh* simulationMesh, PxDeformableVolumeAuxData* simulationState)
 {
 	mLLDeformableVolume->setSimShapeCore(simulationMesh, simulationState);
 }
 
-PxTetrahedronMesh* Sc::DeformableVolumeSim::getSimulationMesh()
+PxTetrahedronMesh* ev4sio_Sc::DeformableVolumeSim::getSimulationMesh()
 {
 	return mLLDeformableVolume->getSimulationMesh();
 }
 
-PxDeformableVolumeAuxData* Sc::DeformableVolumeSim::getAuxData()
+PxDeformableVolumeAuxData* ev4sio_Sc::DeformableVolumeSim::getAuxData()
 {
 	return mLLDeformableVolume->getAuxData();
 }
 
-PxTetrahedronMesh* Sc::DeformableVolumeSim::getCollisionMesh()
+PxTetrahedronMesh* ev4sio_Sc::DeformableVolumeSim::getCollisionMesh()
 {
 	return mLLDeformableVolume->getCollisionMesh();
 }
 
-void Sc::DeformableVolumeSim::enableSelfCollision()
+void ev4sio_Sc::DeformableVolumeSim::enableSelfCollision()
 {
 	if (isActive())
 	{
@@ -125,7 +125,7 @@ void Sc::DeformableVolumeSim::enableSelfCollision()
 	}
 }
 
-void Sc::DeformableVolumeSim::disableSelfCollision()
+void ev4sio_Sc::DeformableVolumeSim::disableSelfCollision()
 {
 	if (isActive())
 	{
@@ -133,7 +133,7 @@ void Sc::DeformableVolumeSim::disableSelfCollision()
 	}
 }
 
-/*void Sc::DeformableVolumeSim::activate()
+/*void ev4sio_Sc::DeformableVolumeSim::activate()
 {
 	// Activate body
 	//{
@@ -158,7 +158,7 @@ void Sc::DeformableVolumeSim::disableSelfCollision()
 	activateInteractions(*this);
 }
 
-void Sc::DeformableVolumeSim::deactivate()
+void ev4sio_Sc::DeformableVolumeSim::deactivate()
 {
 	deactivateInteractions(*this);
 
@@ -191,7 +191,7 @@ void Sc::DeformableVolumeSim::deactivate()
 	//}
 }*/
 
-PxU32 Sc::DeformableVolumeSim::getGpuIndex() const
+PxU32 ev4sio_Sc::DeformableVolumeSim::getGpuIndex() const
 {
 	return mLLDeformableVolume->getGpuIndex();
 }

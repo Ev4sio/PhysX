@@ -34,9 +34,9 @@
 #include "common/PxPhysXCommonConfig.h"
 #include "foundation/PxIO.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Gu
+namespace ev4sio_Gu
 {
 #ifdef MSH_ADJACENCIES_INCLUDE_CONVEX_BITS
 	#define ADJ_TRIREF_MASK		0x1fffffff				//!< Masks 3 bits

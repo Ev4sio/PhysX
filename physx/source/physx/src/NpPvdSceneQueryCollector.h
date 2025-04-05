@@ -39,7 +39,7 @@
 
 #if PX_SUPPORT_PVD
 
-namespace physx
+namespace ev4sio_physx
 {
 namespace Vd
 {

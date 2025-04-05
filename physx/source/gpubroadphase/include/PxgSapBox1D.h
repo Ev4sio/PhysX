@@ -31,7 +31,7 @@
 
 #include "PxgBroadPhaseCommonDefines.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 class PxgSapBox1D

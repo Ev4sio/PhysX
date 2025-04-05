@@ -37,7 +37,7 @@
 // PT: TODO: refactor/share remaining code. One reason for the duplication is that the CPU code uses
 // SIMD here and there, while the GPU code doesn't. But we could still merge the two eventually.
 
-namespace physx
+namespace ev4sio_physx
 {
 	// PT: TODO: this is a duplicate of the one in Extensions, but less robust?
 	PX_CUDA_CALLABLE PX_INLINE void computeJacobianAxes(PxVec3 row[3], const PxQuat& qa, const PxQuat& qb)

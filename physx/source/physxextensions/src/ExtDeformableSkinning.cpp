@@ -31,7 +31,7 @@
 #include "foundation/PxMathUtils.h"
 #include "foundation/PxFPU.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 
 void PxDeformableSkinningExt::initializeInterpolatedVertices(
@@ -44,10 +44,10 @@ void PxDeformableSkinningExt::initializeInterpolatedVertices(
 
 	PX_SIMD_GUARD
 
-	Gu::TinyBVH bvh;
-	Gu::TinyBVH::constructFromTriangles(guideTriangles, numGuideTriangles, guideVertices, bvh);
+	ev4sio_Gu::TinyBVH bvh;
+	ev4sio_Gu::TinyBVH::constructFromTriangles(guideTriangles, numGuideTriangles, guideVertices, bvh);
 
-	Gu::ClosestDistanceToTrimeshTraversalController traversalController(guideTriangles, guideVertices, bvh.mTree.begin());
+	ev4sio_Gu::ClosestDistanceToTrimeshTraversalController traversalController(guideTriangles, guideVertices, bvh.mTree.begin());
 
 	//Implements to most basic variant - lots of room for improvements
 	for (PxU32 i = 0; i < numEmbeddedVertices; ++i)
@@ -87,10 +87,10 @@ void PxDeformableSkinningExt::initializeInterpolatedVertices(
 {
 	PX_SIMD_GUARD
 
-	Gu::TinyBVH bvh;
-	Gu::TinyBVH::constructFromTetrahedra(guideTetrahedra, numGuideTetrahedra, guideVertices, bvh);
+	ev4sio_Gu::TinyBVH bvh;
+	ev4sio_Gu::TinyBVH::constructFromTetrahedra(guideTetrahedra, numGuideTetrahedra, guideVertices, bvh);
 
-	Gu::ClosestDistanceToTetmeshTraversalController traversalController(guideTetrahedra, guideVertices, bvh.mTree.begin());
+	ev4sio_Gu::ClosestDistanceToTetmeshTraversalController traversalController(guideTetrahedra, guideVertices, bvh.mTree.begin());
 
 	//Implements to most basic variant - lots of room for improvements
 	for (PxU32 i = 0; i < numEmbeddedVertices; ++i)

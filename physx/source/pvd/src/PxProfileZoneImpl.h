@@ -36,7 +36,7 @@
 #include "PxProfileEventBufferAtomic.h"
 #include "foundation/PxMutex.h"
 
-namespace physx { namespace profile {
+namespace ev4sio_physx { namespace profile {
 
 	/**
 	\brief Simple event filter that enables all events.

@@ -32,7 +32,7 @@
 #include "PxgCudaUtils.h"
 #include "PxNodeIndex.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 PxgShapeManager::PxgShapeManager(PxgHeapMemoryAllocatorManager* heapManager) :
 	mHeapManager(heapManager),

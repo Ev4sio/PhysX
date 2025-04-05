@@ -32,11 +32,11 @@
 #include "foundation/PxSimpleTypes.h"
 #include "foundation/PxTransform.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	class PxBounds3;
 
-namespace Gu
+namespace ev4sio_Gu
 {
 	// PT: anonymous payload structure used by the pruners. This is similar in spirit to a userData pointer.
 	struct PrunerPayload

@@ -40,8 +40,8 @@
 #include "GuPCMContactMeshCallback.h"
 #include "foundation/PxVecMath.h"
 
-using namespace physx;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
 using namespace aos;
 
 namespace
@@ -58,7 +58,7 @@ struct PCMConvexVsHeightfieldContactGenerationCallback
 		const FloatVArg replaceBreakingThreshold,
 		const PolygonalData& polyData,
 		const SupportLocal* polyMap,
-		const Cm::FastVertex2ShapeScaling& convexScaling,
+		const ev4sio_Cm::FastVertex2ShapeScaling& convexScaling,
 		bool idtConvexScale,
 		const PxTransformV& convexTransform, 
 		const PxTransformV& heightfieldTransform,
@@ -84,12 +84,12 @@ struct PCMConvexVsHeightfieldContactGenerationCallback
 };
 }
 
-bool Gu::PCMContactConvexHeightfield(
+bool ev4sio_Gu::PCMContactConvexHeightfield(
 	const PolygonalData& polyData, const SupportLocal* polyMap, const FloatVArg minMargin,
 	const PxBounds3& hullAABB, const PxHeightFieldGeometry& shapeHeightfield,
 	const PxTransform& transform0, const PxTransform& transform1,
 	PxReal contactDistance, PxContactBuffer& contactBuffer,
-	const Cm::FastVertex2ShapeScaling& convexScaling, bool idtConvexScale,
+	const ev4sio_Cm::FastVertex2ShapeScaling& convexScaling, bool idtConvexScale,
 	MultiplePersistentContactManifold& multiManifold, PxRenderOutput* renderOutput)
 {
 	const QuatV q0 = QuatVLoadA(&transform0.q.x);
@@ -117,8 +117,8 @@ bool Gu::PCMContactConvexHeightfield(
 
 		////////////////////
 
-		/*const Cm::Matrix34 world0(transform0);
-		const Cm::Matrix34 world1(transform1);
+		/*const ev4sio_Cm::Matrix34 world0(transform0);
+		const ev4sio_Cm::Matrix34 world1(transform1);
 
 		const PxU8* PX_RESTRICT extraData = meshData->mExtraTrigData;*/
 
@@ -162,7 +162,7 @@ bool Gu::PCMContactConvexHeightfield(
 	return multiManifold.addManifoldContactsToContactBuffer(contactBuffer, heightfieldTransform);
 }
 
-bool Gu::pcmContactConvexHeightField(GU_CONTACT_METHOD_ARGS)
+bool ev4sio_Gu::pcmContactConvexHeightField(GU_CONTACT_METHOD_ARGS)
 {
 	const PxConvexMeshGeometry& shapeConvex = checkedCast<PxConvexMeshGeometry>(shape0);
 	const PxHeightFieldGeometry& shapeHeightField = checkedCast<PxHeightFieldGeometry>(shape1);
@@ -177,11 +177,11 @@ bool Gu::pcmContactConvexHeightField(GU_CONTACT_METHOD_ARGS)
 
 	//const bool idtScaleMesh = shapeMesh.scale.isIdentity();
 
-	//Cm::FastVertex2ShapeScaling meshScaling;
+	//ev4sio_Cm::FastVertex2ShapeScaling meshScaling;
 	//if(!idtScaleMesh)
 	//	meshScaling.init(shapeMesh.scale);
 
-	Cm::FastVertex2ShapeScaling convexScaling;
+	ev4sio_Cm::FastVertex2ShapeScaling convexScaling;
 	PxBounds3 hullAABB;
 	PolygonalData polyData;
 	const bool idtScaleConvex = getPCMConvexData(shapeConvex, convexScaling, hullAABB, polyData);
@@ -208,7 +208,7 @@ bool Gu::pcmContactConvexHeightField(GU_CONTACT_METHOD_ARGS)
 	}
 }  
 
-bool Gu::pcmContactBoxHeightField(GU_CONTACT_METHOD_ARGS)
+bool ev4sio_Gu::pcmContactBoxHeightField(GU_CONTACT_METHOD_ARGS)
 {
 	MultiplePersistentContactManifold& multiManifold = cache.getMultipleManifold();
 
@@ -218,7 +218,7 @@ bool Gu::pcmContactBoxHeightField(GU_CONTACT_METHOD_ARGS)
 	const PxVec3 ext = shapeBox.halfExtents + PxVec3(params.mContactDistance);
 	const PxBounds3 hullAABB(-ext, ext);
 
-	const Cm::FastVertex2ShapeScaling idtScaling;
+	const ev4sio_Cm::FastVertex2ShapeScaling idtScaling;
 
 	const QuatV q0 = QuatVLoadA(&transform0.q.x);
 	const Vec3V p0 = V3LoadA(&transform0.p.x);

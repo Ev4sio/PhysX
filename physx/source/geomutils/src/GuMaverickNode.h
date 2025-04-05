@@ -39,9 +39,9 @@
 
 #ifdef FREE_PRUNER_SIZE
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Gu
+namespace ev4sio_Gu
 {
 	class MaverickNode
 	{

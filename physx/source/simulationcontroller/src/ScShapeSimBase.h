@@ -31,9 +31,9 @@
 #include "ScShapeCore.h"
 #include "ScRigidSim.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-	namespace Sc
+	namespace ev4sio_Sc
 	{
 		PX_FORCE_INLINE PxU32 isBroadPhase(PxShapeFlags flags) { return PxU32(flags) & PxU32(PxShapeFlag::eTRIGGER_SHAPE | PxShapeFlag::eSIMULATION_SHAPE); }
 
@@ -97,7 +97,7 @@ namespace physx
 							void					destroySqBounds();
 
 							void					updateCached(PxU32 transformCacheFlags, PxBitMapPinned* shapeChangedMap);
-							void					updateCached(PxsTransformCache& transformCache, Bp::BoundsArray& boundsArray);
+							void					updateCached(PxsTransformCache& transformCache, ev4sio_Bp::BoundsArray& boundsArray);
 							void					updateBPGroup();
 		protected:
 
@@ -117,10 +117,10 @@ namespace physx
 
 		PX_FORCE_INLINE const ShapeCore& ShapeSimBase::getCore() const
 		{
-			return Sc::ShapeCore::getCore(*mShapeCore);
+			return ev4sio_Sc::ShapeCore::getCore(*mShapeCore);
 		}
 
-	} // namespace Sc
+	} // namespace ev4sio_Sc
 }
 
 #endif

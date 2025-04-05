@@ -40,9 +40,9 @@
 #include "DyArticulationJointCore.h"
 #include <stdio.h>
 
-namespace physx
+namespace ev4sio_physx
 {
-	namespace Dy
+	namespace ev4sio_Dy
 	{	
 		class ArticulationJointCoreData
 		{
@@ -67,7 +67,7 @@ namespace physx
 				return tDof;
 			}
 
-			PX_FORCE_INLINE PxU8 configureJointDofs(ArticulationJointCore* joint, Cm::UnAlignedSpatialVector* jointAxis)
+			PX_FORCE_INLINE PxU8 configureJointDofs(ArticulationJointCore* joint, ev4sio_Cm::UnAlignedSpatialVector* jointAxis)
 			{
 					nbDof = 0;
 					dofLimitMask = 0;
@@ -79,7 +79,7 @@ namespace physx
 					{
 						if (joint->motion[i] != PxArticulationMotion::eLOCKED)
 						{
-							Cm::UnAlignedSpatialVector axis = Cm::UnAlignedSpatialVector::Zero();
+							ev4sio_Cm::UnAlignedSpatialVector axis = ev4sio_Cm::UnAlignedSpatialVector::Zero();
 							//axis is in the local space of joint
 							axis[i] = 1.f;
 
@@ -105,7 +105,7 @@ namespace physx
 
 		};
 
-	}//namespace Dy
+	}//namespace ev4sio_Dy
 }
 
 #endif

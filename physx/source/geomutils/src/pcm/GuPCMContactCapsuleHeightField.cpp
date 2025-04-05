@@ -38,8 +38,8 @@
 #include "GuInternal.h"
 #include "GuPCMContactMeshCallback.h"
 
-using namespace physx;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
 using namespace aos;
 
 struct PCMCapsuleVsHeightfieldContactGenerationCallback : PCMHeightfieldContactGenerationCallback<PCMCapsuleVsHeightfieldContactGenerationCallback>
@@ -73,7 +73,7 @@ struct PCMCapsuleVsHeightfieldContactGenerationCallback : PCMHeightfieldContactG
 	}
 };
 
-bool Gu::pcmContactCapsuleHeightField(GU_CONTACT_METHOD_ARGS)
+bool ev4sio_Gu::pcmContactCapsuleHeightField(GU_CONTACT_METHOD_ARGS)
 {
 	PX_UNUSED(renderOutput);
 

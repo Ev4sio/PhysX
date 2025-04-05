@@ -32,11 +32,11 @@
 #include "foundation/PxVec3.h"
 #include "foundation/PxPlane.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	class PxTriangle;
 	
-	namespace Gu
+	namespace ev4sio_Gu
 	{
 		/**
 		Sweeps a box against a triangle, using a 'feature-based' approach.
@@ -59,7 +59,7 @@ namespace physx
 		bool sweepBoxTriangle(	const PxTriangle& tri, const PxBounds3& box,
 								const PxVec3& motion, const PxVec3& oneOverMotion,
 								PxVec3& hit, PxVec3& normal, PxReal& d, bool isDoubleSided=false);
-	} // namespace Gu
+	} // namespace ev4sio_Gu
 }
 
 #endif

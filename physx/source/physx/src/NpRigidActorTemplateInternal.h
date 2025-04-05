@@ -29,7 +29,7 @@
 #ifndef NP_RIGID_ACTOR_TEMPLATE_INTERNAL_H
 #define NP_RIGID_ACTOR_TEMPLATE_INTERNAL_H
 
-namespace physx
+namespace ev4sio_physx
 {
 
 template<class APIClass, class T>

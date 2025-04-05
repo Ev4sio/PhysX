@@ -34,8 +34,8 @@
 #include "GuSweepTriangleUtils.h"
 #include "GuInternal.h"
 
-using namespace physx;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
 
 #define LOCAL_EPSILON 0.00001f	// PT: this value makes the 'basicAngleTest' pass. Fails because of a ray almost parallel to a triangle
 
@@ -252,7 +252,7 @@ static PX_FORCE_INLINE int intersectRayAABB2(const PxVec3& minimum, const PxVec3
 			tnear = t1y;
 			ret = by;
 		}
-		tfar = physx::intrinsics::selectMin(tfar, t2y);
+		tfar = ev4sio_physx::intrinsics::selectMin(tfar, t2y);
 	}
 
 	if(!fbz)
@@ -262,7 +262,7 @@ static PX_FORCE_INLINE int intersectRayAABB2(const PxVec3& minimum, const PxVec3
 			tnear = t1z;
 			ret = bz;
 		}
-		tfar = physx::intrinsics::selectMin(tfar, t2z);
+		tfar = ev4sio_physx::intrinsics::selectMin(tfar, t2z);
 	}
 
 	if(tnear>tfar || tfar<LOCAL_EPSILON_RAY_BOX)
@@ -344,9 +344,9 @@ static const PxVec3* getBoxLocalEdgeNormals()
 static PX_FORCE_INLINE void closestAxis2(const PxVec3& v, PxU32& j, PxU32& k)
 {
 	// find largest 2D plane projection
-	const PxF32 absPx = physx::intrinsics::abs(v.x);
-	const PxF32 absPy = physx::intrinsics::abs(v.y);
-	const PxF32 absPz = physx::intrinsics::abs(v.z);
+	const PxF32 absPx = ev4sio_physx::intrinsics::abs(v.x);
+	const PxF32 absPy = ev4sio_physx::intrinsics::abs(v.y);
+	const PxF32 absPz = ev4sio_physx::intrinsics::abs(v.z);
 	//PxU32 m = 0;	//x biggest axis
 	j = 1;
 	k = 2;
@@ -367,7 +367,7 @@ static PX_FORCE_INLINE void closestAxis2(const PxVec3& v, PxU32& j, PxU32& k)
 //		return m;
 }
 
-bool Gu::sweepBoxTriangle(	const PxTriangle& tri, const PxBounds3& box,
+bool ev4sio_Gu::sweepBoxTriangle(	const PxTriangle& tri, const PxBounds3& box,
 							const PxVec3& motion, const PxVec3& oneOverMotion,
 							PxVec3& hit, PxVec3& normal, PxReal& d, bool isDoubleSided)
 {
@@ -497,9 +497,9 @@ bool Gu::sweepBoxTriangle(	const PxTriangle& tri, const PxBounds3& box,
 		// - doing this outside of the ray-box function gets rid of 3 fabs/fcmp per call
 		// - doing this with integer code removes the 3 remaining fabs/fcmps totally
 		// - doing this outside reduces the LHS
-		const bool b0 = physx::intrinsics::abs(negMotion.x)<LOCAL_EPSILON_RAY_BOX;
-		const bool b1 = physx::intrinsics::abs(negMotion.y)<LOCAL_EPSILON_RAY_BOX;
-		const bool b2 = physx::intrinsics::abs(negMotion.z)<LOCAL_EPSILON_RAY_BOX;
+		const bool b0 = ev4sio_physx::intrinsics::abs(negMotion.x)<LOCAL_EPSILON_RAY_BOX;
+		const bool b1 = ev4sio_physx::intrinsics::abs(negMotion.y)<LOCAL_EPSILON_RAY_BOX;
+		const bool b2 = ev4sio_physx::intrinsics::abs(negMotion.z)<LOCAL_EPSILON_RAY_BOX;
 
 		// ### have this as a param ?
 		const PxVec3& Min = box.minimum;

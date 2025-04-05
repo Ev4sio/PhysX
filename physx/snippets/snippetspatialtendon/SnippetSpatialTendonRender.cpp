@@ -33,7 +33,7 @@
 #include "../snippetrender/SnippetRender.h"
 #include "../snippetrender/SnippetCamera.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 extern PxRigidStatic** getAttachments();
 extern void initPhysics(bool interactive);
@@ -55,7 +55,7 @@ void renderCallback()
 	const PxVec3 baseLinkColor(0.5f, 0.25f, 1.0f);
 
 	PxScene* scene;
-	PxGetPhysics().getScenes(&scene, 1);
+	ev4sio_PxGetPhysics().getScenes(&scene, 1);
 
 	PxU32 nbArticulations = scene->getNbArticulations();
 	for(PxU32 i = 0; i < nbArticulations; i++)

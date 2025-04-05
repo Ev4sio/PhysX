@@ -32,7 +32,7 @@
 #include "CmSpatialVector.h"
 #include "DySolverConstraintDesc.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 struct PxcNpWorkUnit;
 class PxsConstraintBlockManager;
@@ -44,7 +44,7 @@ struct PxSolverBodyData;
 struct PxSolverConstraintDesc;
 class PxsContactManager;
 
-namespace Dy
+namespace ev4sio_Dy
 {
 	class ThreadContext;
 	struct CorrelationBuffer;
@@ -59,7 +59,7 @@ namespace Dy
 	PxReal frictionOffsetThreshold,					\
 	PxReal correlationDistance,						\
 	PxConstraintAllocator& constraintAllocator,		\
-	Cm::SpatialVectorF* Z
+	ev4sio_Cm::SpatialVectorF* Z
 
 #define CREATE_FINALIZE_SOLVER_CONTACT_METHOD_ARGS_4	\
 	PxsContactManagerOutput** outputs,					\
@@ -89,7 +89,7 @@ bool createFinalizeSolverContacts(	PxSolverContactDesc& contactDesc,
 									PxReal frictionOffsetThreshold,
 									PxReal correlationDistance,
 									PxConstraintAllocator& constraintAllocator,
-									Cm::SpatialVectorF* Z);
+									ev4sio_Cm::SpatialVectorF* Z);
 
 bool createFinalizeSolverContacts(	PxSolverContactDesc& contactDesc,
 									CorrelationBuffer& c,
@@ -99,7 +99,7 @@ bool createFinalizeSolverContacts(	PxSolverContactDesc& contactDesc,
 									PxReal frictionOffsetThreshold,
 									PxReal correlationDistance,
 									PxConstraintAllocator& constraintAllocator,
-									Cm::SpatialVectorF* Z);
+									ev4sio_Cm::SpatialVectorF* Z);
 
 SolverConstraintPrepState::Enum createFinalizeSolverContacts4(	PxsContactManagerOutput** outputs,
 																 ThreadContext& threadContext,
@@ -111,7 +111,7 @@ SolverConstraintPrepState::Enum createFinalizeSolverContacts4(	PxsContactManager
 																 PxReal correlationDistance,
 																 PxConstraintAllocator& constraintAllocator);
 
-SolverConstraintPrepState::Enum createFinalizeSolverContacts4(	Dy::CorrelationBuffer& c,
+SolverConstraintPrepState::Enum createFinalizeSolverContacts4(	ev4sio_Dy::CorrelationBuffer& c,
 																PxSolverContactDesc* blockDescs,
 																const PxReal invDtF32,
 																const PxReal dtF32,
@@ -129,7 +129,7 @@ bool createFinalizeSolverContactsCoulomb1D(PxSolverContactDesc& contactDesc,
 											 PxReal frictionOffsetThreshold,
 											 PxReal correlationDistance,
 											 PxConstraintAllocator& constraintAllocator,
-											 Cm::SpatialVectorF* Z);
+											 ev4sio_Cm::SpatialVectorF* Z);
 
 bool createFinalizeSolverContactsCoulomb2D(PxSolverContactDesc& contactDesc,
 											PxsContactManagerOutput& output,
@@ -140,7 +140,7 @@ bool createFinalizeSolverContactsCoulomb2D(PxSolverContactDesc& contactDesc,
 											PxReal frictionOffsetThreshold,
 											PxReal correlationDistance,
 											PxConstraintAllocator& constraintAllocator,
-											Cm::SpatialVectorF* Z);
+											ev4sio_Cm::SpatialVectorF* Z);
 
 SolverConstraintPrepState::Enum createFinalizeSolverContacts4Coulomb1D(	PxsContactManagerOutput** outputs,
 																		ThreadContext& threadContext,

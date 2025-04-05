@@ -30,16 +30,16 @@
 #include "PxsIslandSim.h"
 #include "common/PxProfileZone.h"
 
-using namespace physx;
-using namespace Dy;
+using namespace ev4sio_physx;
+using namespace ev4sio_Dy;
 
 DynamicsContextBase::DynamicsContextBase(
 	PxcNpMemBlockPool* memBlockPool,
-	Cm::FlushPool& taskPool,
+	ev4sio_Cm::FlushPool& taskPool,
 	PxvSimStats& simStats,
 	PxVirtualAllocatorCallback* allocatorCallback,
 	PxsMaterialManager* materialManager,
-	IG::SimpleIslandManager& islandManager,
+	ev4sio_IG::SimpleIslandManager& islandManager,
 	PxU64 contextID,
 	PxReal maxBiasCoefficient,
 	PxReal lengthScale,
@@ -47,7 +47,7 @@ DynamicsContextBase::DynamicsContextBase(
 	bool useEnhancedDeterminism,
 	bool isResidualReportingEnabled
 	) :
-	Dy::Context			(islandManager, allocatorCallback, simStats, enableStabilization, useEnhancedDeterminism, maxBiasCoefficient, lengthScale, contextID, isResidualReportingEnabled),
+	ev4sio_Dy::Context			(islandManager, allocatorCallback, simStats, enableStabilization, useEnhancedDeterminism, maxBiasCoefficient, lengthScale, contextID, isResidualReportingEnabled),
 	mThreadContextPool	(memBlockPool),
 	mMaterialManager	(materialManager),
 	mTaskPool			(taskPool),
@@ -73,18 +73,18 @@ void DynamicsContextBase::resetThreadContexts()
 	}
 }
 
-PxU32 DynamicsContextBase::reserveSharedSolverConstraintsArrays(const IG::IslandSim& islandSim, PxU32 maxArticulationLinks)
+PxU32 DynamicsContextBase::reserveSharedSolverConstraintsArrays(const ev4sio_IG::IslandSim& islandSim, PxU32 maxArticulationLinks)
 {
 	PX_PROFILE_ZONE("reserveSharedSolverConstraintsArrays", mContextID);
 
-	const PxU32 bodyCount = islandSim.getNbActiveNodes(IG::Node::eRIGID_BODY_TYPE);
+	const PxU32 bodyCount = islandSim.getNbActiveNodes(ev4sio_IG::Node::eRIGID_BODY_TYPE);
 
-	const PxU32 numArtics = islandSim.getNbActiveNodes(IG::Node::eARTICULATION_TYPE);
+	const PxU32 numArtics = islandSim.getNbActiveNodes(ev4sio_IG::Node::eARTICULATION_TYPE);
 
 	const PxU32 numArticulationConstraints = numArtics * maxArticulationLinks; //Just allocate enough memory to fit worst-case maximum size articulations...
 
-	const PxU32 nbActiveContactManagers = islandSim.getNbActiveEdges(IG::Edge::eCONTACT_MANAGER);
-	const PxU32 nbActiveConstraints = islandSim.getNbActiveEdges(IG::Edge::eCONSTRAINT);
+	const PxU32 nbActiveContactManagers = islandSim.getNbActiveEdges(ev4sio_IG::Edge::eCONTACT_MANAGER);
+	const PxU32 nbActiveConstraints = islandSim.getNbActiveEdges(ev4sio_IG::Edge::eCONSTRAINT);
 
 	const PxU32 totalConstraintCount = nbActiveConstraints + nbActiveContactManagers + numArticulationConstraints;
 

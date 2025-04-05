@@ -29,9 +29,9 @@
 #include "DyThreadContext.h"
 #include "foundation/PxBitUtils.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Dy
+namespace ev4sio_Dy
 {
 
 ThreadContext::ThreadContext(PxcNpMemBlockPool* memBlockPool) :

@@ -34,11 +34,11 @@
 #include "foundation/PxHashMap.h"
 #include "foundation/PxSort.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Gu
+namespace ev4sio_Gu
 {
-	using Triangle = Gu::IndexedTriangleT<PxI32>;
+	using Triangle = ev4sio_Gu::IndexedTriangleT<PxI32>;
 
 	
 	class MeshAnalyzer

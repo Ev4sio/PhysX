@@ -40,7 +40,7 @@
 #include <stdio.h>
 #include "PxgSolverKernelIndices.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 extern "C" __host__ void initSolverKernels0() {}
 
@@ -69,7 +69,7 @@ extern "C" __global__ void bodyInputAndRanksBlocksLaunch(const PxgSolverCoreDesc
 
 extern "C" __global__ void initialRanksAndBodyIndexB(const PxgSolverCoreDesc* solverDesc, const PxgRadixSortDesc* rsDesc)
 {
-	Dy::ThresholdStreamElement* thresholdStream = solverDesc->thresholdStream;
+	ev4sio_Dy::ThresholdStreamElement* thresholdStream = solverDesc->thresholdStream;
 	const PxU32 nbThresholdElements = solverDesc->sharedThresholdStreamIndex;
 
 	PxU32* gInputKeys = rsDesc->inputKeys;
@@ -79,7 +79,7 @@ extern "C" __global__ void initialRanksAndBodyIndexB(const PxgSolverCoreDesc* so
 
 	for(PxU32 i=globalThreadIndex; i<nbThresholdElements; i+=blockDim.x*gridDim.x)
 	{
-		Dy::ThresholdStreamElement& elements =  thresholdStream[i];
+		ev4sio_Dy::ThresholdStreamElement& elements =  thresholdStream[i];
 		gInputKeys[i] = elements.nodeIndexB.index();
 		gInputRanks[i] = i;
 	}
@@ -98,7 +98,7 @@ extern "C" __global__ void initialRanksAndBodyIndexB(const PxgSolverCoreDesc* so
 
 extern "C" __global__ void initialRanksAndBodyIndexA(const PxgSolverCoreDesc* solverDesc, const PxgRadixSortDesc* rsDesc)
 {
-	Dy::ThresholdStreamElement* thresholdStream = solverDesc->thresholdStream;
+	ev4sio_Dy::ThresholdStreamElement* thresholdStream = solverDesc->thresholdStream;
 	const PxU32 nbThresholdElements = solverDesc->sharedThresholdStreamIndex;
 
 	//we need to use the inputRanks from the bodyAIndex to reorganize the threshold stream
@@ -109,7 +109,7 @@ extern "C" __global__ void initialRanksAndBodyIndexA(const PxgSolverCoreDesc* so
 
 	for(PxU32 i=globalThreadIndex; i<nbThresholdElements; i+=blockDim.x*gridDim.x)
 	{
-		Dy::ThresholdStreamElement& elements =  thresholdStream[gInputRanks[i]];
+		ev4sio_Dy::ThresholdStreamElement& elements =  thresholdStream[gInputRanks[i]];
 		gInputKeys[i] = elements.nodeIndexA.index();
 	}
 
@@ -126,8 +126,8 @@ extern "C" __global__ void initialRanksAndBodyIndexA(const PxgSolverCoreDesc* so
 
 extern "C" __global__ void reorganizeThresholdElements(const PxgSolverCoreDesc* solverDesc, const PxgRadixSortDesc* rsDesc)
 {
-	Dy::ThresholdStreamElement* thresholdStream = solverDesc->thresholdStream;
-	Dy::ThresholdStreamElement* tmpThresholdStream = solverDesc->tmpThresholdStream;
+	ev4sio_Dy::ThresholdStreamElement* thresholdStream = solverDesc->thresholdStream;
+	ev4sio_Dy::ThresholdStreamElement* tmpThresholdStream = solverDesc->tmpThresholdStream;
 
 	const PxU32 nbThresholdElements = solverDesc->sharedThresholdStreamIndex;
 
@@ -165,7 +165,7 @@ extern "C" __global__ void computeAccumulateThresholdStream(PxgSolverCoreDesc* s
 	//same bodyAIndex and bodyBIndex
 
 	//The threshold stream has been sorted based on the bodyAIndex and bodyBIndex, therefore, if pairs have the same bodyAIndex and bodyBIndex, they will laied in continuously memory
-	Dy::ThresholdStreamElement* gThresholdStream = solverDesc->thresholdStream;
+	ev4sio_Dy::ThresholdStreamElement* gThresholdStream = solverDesc->thresholdStream;
 
 	PxReal* gThresholdStreamAccumulatedForce = solverDesc->thresholdStreamAccumulatedForce;
 	PxReal* gThresholdStreamAccumulatedForceBetweenBlocks = solverDesc->thresholdStreamAccumulatedForceBetweenBlocks;
@@ -211,7 +211,7 @@ extern "C" __global__ void computeAccumulateThresholdStream(PxgSolverCoreDesc* s
 
 			if(workIndex+1 < nbThresholdElements)
 			{
-				Dy::ThresholdStreamElement& nElement = gThresholdStream[workIndex+1];
+				ev4sio_Dy::ThresholdStreamElement& nElement = gThresholdStream[workIndex+1];
 				if(!(nodeIndexA == nElement.nodeIndexA && nodeIndexB == nElement.nodeIndexB))
 				{
 					isNewPair = true;
@@ -390,7 +390,7 @@ extern "C" __global__ void computeExceededForceThresholdElementIndice(PxgSolverC
 
 	const PxReal dt = sharedDesc->dt;
 
-	Dy::ThresholdStreamElement* gThresholdStream = solverDesc->thresholdStream;
+	ev4sio_Dy::ThresholdStreamElement* gThresholdStream = solverDesc->thresholdStream;
 	PxReal* gAccumulatedForceObjectPairs = solverDesc->accumulatedForceObjectPairs;
 
 	PxU32* gThresholdStreamWriteIndex = solverDesc->thresholdStreamWriteIndex;
@@ -423,7 +423,7 @@ extern "C" __global__ void computeExceededForceThresholdElementIndice(PxgSolverC
 	
 		if(workIndex < nbThresholdElements)
 		{
-			Dy::ThresholdStreamElement& element = gThresholdStream[workIndex];
+			ev4sio_Dy::ThresholdStreamElement& element = gThresholdStream[workIndex];
 
 			//we are reusing the write index buffer. However, because the work index is the same, so as long as we read before we write, it should be safe
 			const PxU32 writeIndex = gThresholdStreamWriteIndex[workIndex];
@@ -497,8 +497,8 @@ extern "C" __global__ void outputExceededForceThresholdElementIndice(PxgSolverCo
 
 	const PxU32 nbThresholdElements = solverDesc->sharedThresholdStreamIndex;
 	bool* gThresholdStreamWriteable = solverDesc->thresholdStreamWriteable;
-	Dy::ThresholdStreamElement* gThresholdElements = solverDesc->thresholdStream;
-	Dy::ThresholdStreamElement* gExceededForceElements = solverDesc->exceededForceElements;
+	ev4sio_Dy::ThresholdStreamElement* gThresholdElements = solverDesc->thresholdStream;
+	ev4sio_Dy::ThresholdStreamElement* gExceededForceElements = solverDesc->exceededForceElements;
 
 	__shared__ PxU32 sBlockWriteIndexAccum[nbBlocks];
 
@@ -540,8 +540,8 @@ extern "C" __global__ void outputExceededForceThresholdElementIndice(PxgSolverCo
 
 			if(isExceededForce)
 			{
-				Dy::ThresholdStreamElement& element = gThresholdElements[workIndex];
-				Dy::ThresholdStreamElement tempElement;
+				ev4sio_Dy::ThresholdStreamElement& element = gThresholdElements[workIndex];
+				ev4sio_Dy::ThresholdStreamElement tempElement;
 				tempElement.shapeInteraction = element.shapeInteraction;
 				tempElement.nodeIndexA = element.nodeIndexA;
 				tempElement.nodeIndexB = element.nodeIndexB;
@@ -569,8 +569,8 @@ extern "C" __global__ void outputExceededForceThresholdElementIndice(PxgSolverCo
 //previous exceeded force element. 
 extern "C" __global__ void setThresholdElementsMask(PxgSolverCoreDesc* solverDesc)
 {
-	Dy::ThresholdStreamElement* gExceededForceElements = solverDesc->exceededForceElements;
-	Dy::ThresholdStreamElement* gPrevExceededForceElements = solverDesc->prevExceededForceElements;
+	ev4sio_Dy::ThresholdStreamElement* gExceededForceElements = solverDesc->exceededForceElements;
+	ev4sio_Dy::ThresholdStreamElement* gPrevExceededForceElements = solverDesc->prevExceededForceElements;
 	PxU32* gExceededForceElementMask = solverDesc->thresholdStreamWriteIndex;
 
 	const PxU32 nbExceededThresholdElements = solverDesc->nbExceededThresholdElements;
@@ -580,11 +580,11 @@ extern "C" __global__ void setThresholdElementsMask(PxgSolverCoreDesc* solverDes
 
 	for(PxU32 workIndex = globalThreadIdx; workIndex < nbExceededThresholdElements; workIndex+=(blockDim.x*gridDim.x))
 	{
-		Dy::ThresholdStreamElement& element = gExceededForceElements[workIndex];
+		ev4sio_Dy::ThresholdStreamElement& element = gExceededForceElements[workIndex];
 
 		//this will find the last element match the element if value exist in the array 
-		PxU32 pos = binarySearch<Dy::ThresholdStreamElement>(gPrevExceededForceElements, nbPrevExceededThresholdElements, element);
-		Dy::ThresholdStreamElement* prePair = &gPrevExceededForceElements[pos];
+		PxU32 pos = binarySearch<ev4sio_Dy::ThresholdStreamElement>(gPrevExceededForceElements, nbPrevExceededThresholdElements, element);
+		ev4sio_Dy::ThresholdStreamElement* prePair = &gPrevExceededForceElements[pos];
 
 		bool done = false;
 
@@ -787,9 +787,9 @@ extern "C" __global__ void outputThresholdPairsMaskIndices(PxgSolverCoreDesc* so
 extern "C" __global__ void createForceChangeThresholdElements(PxgSolverCoreDesc* solverDesc)
 {
 	PxU32* gExceededForceElementMask = solverDesc->thresholdStreamWriteIndex;
-	Dy::ThresholdStreamElement* gExceededForceElements = solverDesc->exceededForceElements;
-	Dy::ThresholdStreamElement* gPrevExceededForceElements = solverDesc->prevExceededForceElements;
-	Dy::ThresholdStreamElement* gForceChangeElements = solverDesc->forceChangeThresholdElements;
+	ev4sio_Dy::ThresholdStreamElement* gExceededForceElements = solverDesc->exceededForceElements;
+	ev4sio_Dy::ThresholdStreamElement* gPrevExceededForceElements = solverDesc->prevExceededForceElements;
+	ev4sio_Dy::ThresholdStreamElement* gForceChangeElements = solverDesc->forceChangeThresholdElements;
 
 	//we copy the original mask value to thresholdStreamWriteable in computeThresholdElementMaskIndices so it corresponding with mask
 	bool* gThresholdStreamWriteable = solverDesc->thresholdStreamWriteable;
@@ -812,7 +812,7 @@ extern "C" __global__ void createForceChangeThresholdElements(PxgSolverCoreDesc*
 			bool lostPair = workIndex < nbPrevExceededThresholdElements;
 			bool foundPair = (workIndex < persistentExceededStart) && !lostPair;
 
-			Dy::ThresholdStreamElement* pair = NULL;
+			ev4sio_Dy::ThresholdStreamElement* pair = NULL;
 			if (lostPair)
 			{
 				pair = &gPrevExceededForceElements[workIndex];
@@ -827,9 +827,9 @@ extern "C" __global__ void createForceChangeThresholdElements(PxgSolverCoreDesc*
 				pair = &gPrevExceededForceElements[workIndex - persistentExceededStart];
 			}
 
-			//Dy::ThresholdStreamElement& pair = lostPair ? gPrevExceededForceElements[workIndex] : gExceededForceElements[workIndex - nbPrevExceededThresholdElements];
+			//ev4sio_Dy::ThresholdStreamElement& pair = lostPair ? gPrevExceededForceElements[workIndex] : gExceededForceElements[workIndex - nbPrevExceededThresholdElements];
 		
-			Dy::ThresholdStreamElement tempPair;
+			ev4sio_Dy::ThresholdStreamElement tempPair;
 			tempPair.shapeInteraction = pair->shapeInteraction;
 			tempPair.nodeIndexA = pair->nodeIndexA;
 			tempPair.nodeIndexB = pair->nodeIndexB;

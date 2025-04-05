@@ -34,28 +34,28 @@
 #include "GuConvexMeshData.h"
 #include "foundation/PxUserAllocated.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	struct PxHullPolygon;
 	class ConvexHullLib;
 
-	namespace Gu
+	namespace ev4sio_Gu
 	{
 		struct EdgeDescData;
 		struct ConvexHullData;
-	} // namespace Gu
+	} // namespace ev4sio_Gu
 
 	class ConvexHullBuilder : public PxUserAllocated
 	{
 		public:
-												ConvexHullBuilder(Gu::ConvexHullData* hull, const bool buildGRBData);
+												ConvexHullBuilder(ev4sio_Gu::ConvexHullData* hull, const bool buildGRBData);
 												~ConvexHullBuilder();
 
 					bool						init(PxU32 nbVerts, const PxVec3* verts, const PxU32* indices, const PxU32 nbIndices, const PxU32 nbPolygons, 
 													const PxHullPolygon* hullPolygons, bool doValidation = true, ConvexHullLib* hullLib = NULL);
 
 					bool						save(PxOutputStream& stream, bool platformMismatch)	const;
-					bool						copy(Gu::ConvexHullData& hullData, PxU32& nb);
+					bool						copy(ev4sio_Gu::ConvexHullData& hullData, PxU32& nb);
 					
 					bool						createEdgeList(bool doValidation, PxU32 nbEdges);
 					bool						checkHullPolygons()	const;										
@@ -69,7 +69,7 @@ namespace physx
 												}
 
 					PxVec3*						mHullDataHullVertices;
-					Gu::HullPolygonData*		mHullDataPolygons;
+					ev4sio_Gu::HullPolygonData*		mHullDataPolygons;
 					PxU8*						mHullDataVertexData8;
 					PxU8*						mHullDataFacesByEdges8;
 					PxU8*						mHullDataFacesByVertices8;
@@ -77,7 +77,7 @@ namespace physx
 					PxU16*						mEdgeData16;	//!< Edge indices indexed by hull polygons
 					PxU16*						mEdges;			//!< Edge to vertex mapping
 
-					Gu::ConvexHullData*			mHull;
+					ev4sio_Gu::ConvexHullData*			mHull;
 					bool						mBuildGRBData;
 	};
 }

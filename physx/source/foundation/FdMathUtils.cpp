@@ -34,10 +34,10 @@
 #include "foundation/PxUtilities.h"
 #include "foundation/PxTransform.h"
 
-using namespace physx;
-using namespace physx::intrinsics;
+using namespace ev4sio_physx;
+using namespace ev4sio_physx::intrinsics;
 
-PX_FOUNDATION_API PxTransform physx::PxTransformFromPlaneEquation(const PxPlane& plane)
+PX_FOUNDATION_API PxTransform ev4sio_physx::PxTransformFromPlaneEquation(const PxPlane& plane)
 {
 	PxPlane p = plane; 
 	p.normalize();
@@ -56,7 +56,7 @@ PX_FOUNDATION_API PxTransform physx::PxTransformFromPlaneEquation(const PxPlane&
 	return PxTransform(-p.n * p.d, q);
 }
 
-PX_FOUNDATION_API PxTransform physx::PxTransformFromSegment(const PxVec3& p0, const PxVec3& p1, PxReal* halfHeight)
+PX_FOUNDATION_API PxTransform ev4sio_physx::PxTransformFromSegment(const PxVec3& p0, const PxVec3& p1, PxReal* halfHeight)
 {
 	const PxVec3 axis = p1-p0;
 	const PxReal height = axis.magnitude();
@@ -67,7 +67,7 @@ PX_FOUNDATION_API PxTransform physx::PxTransformFromSegment(const PxVec3& p0, co
 						height<1e-6f ? PxQuat(PxIdentity) : PxShortestRotation(PxVec3(1.f,0,0), axis/height));		
 }
 
-PX_FOUNDATION_API PxQuat physx::PxShortestRotation(const PxVec3& v0, const PxVec3& v1)
+PX_FOUNDATION_API PxQuat ev4sio_physx::PxShortestRotation(const PxVec3& v0, const PxVec3& v1)
 {
 	const PxReal d = v0.dot(v1);
 	const PxVec3 cross = v0.cross(v1);
@@ -86,7 +86,7 @@ static PxQuat indexedRotation(PxU32 axis, PxReal s, PxReal c)
 	return PxQuat(v[0], v[1], v[2], c);
 }
 
-PX_FOUNDATION_API PxVec3 physx::PxDiagonalize(const PxMat33& m, PxQuat& massFrame)
+PX_FOUNDATION_API PxVec3 ev4sio_physx::PxDiagonalize(const PxMat33& m, PxQuat& massFrame)
 {
 	// jacobi rotation using quaternions (from an idea of Stan Melax, with fix for precision issues)
 
@@ -136,7 +136,7 @@ PX_FOUNDATION_API PxVec3 physx::PxDiagonalize(const PxMat33& m, PxQuat& massFram
 \param basis Input = skewed basis, Output = (normalized) orthogonal basis.
 \return Bounding box extent.
 */
-PxVec3 physx::PxOptimizeBoundingBox(PxMat33& basis)
+PxVec3 ev4sio_physx::PxOptimizeBoundingBox(PxMat33& basis)
 {
 	PxVec3* PX_RESTRICT vec = &basis[0]; // PT: don't copy vectors if not needed...
 
@@ -174,12 +174,12 @@ PxVec3 physx::PxOptimizeBoundingBox(PxMat33& basis)
 	return magnitude;
 }
 
-void physx::PxIntegrateTransform(const PxTransform& curTrans, const PxVec3& linvel, const PxVec3& angvel,
+void ev4sio_physx::PxIntegrateTransform(const PxTransform& curTrans, const PxVec3& linvel, const PxVec3& angvel,
 	PxReal timeStep, PxTransform& result)
 {
 	result.p = curTrans.p + linvel * timeStep;
 
-	// from void DynamicsContext::integrateAtomPose(PxsRigidBody* atom, Cm::BitMap &shapeChangedMap) const:
+	// from void DynamicsContext::integrateAtomPose(PxsRigidBody* atom, ev4sio_Cm::BitMap &shapeChangedMap) const:
 	// Integrate the rotation using closed form quaternion integrator
 	PxReal w = angvel.magnitudeSquared();
 

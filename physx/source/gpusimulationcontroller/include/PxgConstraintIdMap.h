@@ -36,7 +36,7 @@
 #include "assert.h"
 #endif
 
-namespace physx
+namespace ev4sio_physx
 {
 	// maps the constraint/joint ID to the internal joint data ID. This is used for direct GPU API
 	// operations to use the same constraint/joint ID on the public interface level as long as the

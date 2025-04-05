@@ -32,7 +32,7 @@
 #include "PxDeformableSurfaceMaterial.h"
 #include "PxsMaterialShared.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	PX_ALIGN_PREFIX(16) 
 	struct PxsDeformableSurfaceMaterialData

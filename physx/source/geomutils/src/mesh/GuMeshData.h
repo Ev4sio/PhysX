@@ -42,9 +42,9 @@
 #include "GuBV32.h"
 #include "GuSDF.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Gu {
+namespace ev4sio_Gu {
 	
 // 1: support stackless collision trees for non-recursive collision queries
 // 2: height field functionality not supported anymore
@@ -180,7 +180,7 @@ enum InternalMeshSerialFlag
 
 		// GRB data -------------------------
 		void*			mGRB_primAdjacencies;	//!< GRB: adjacency data, with BOUNDARY and NONCONVEX flags (flags replace adj indices where applicable) [uin4]
-		Gu::BV32Tree*	mGRB_BV32Tree;
+		ev4sio_Gu::BV32Tree*	mGRB_BV32Tree;
 		// End of GRB data ------------------
 
 		TriangleMeshData() :
@@ -266,7 +266,7 @@ enum InternalMeshSerialFlag
 								RTreeTriangleData()		{ mType = PxMeshMidPhase::eBVH33; }
 		virtual					~RTreeTriangleData()	{}
 
-				Gu::RTree		mRTree;
+				ev4sio_Gu::RTree		mRTree;
 	};
 
 	class BV4TriangleData : public TriangleMeshData
@@ -275,8 +275,8 @@ enum InternalMeshSerialFlag
 								BV4TriangleData()	{ mType = PxMeshMidPhase::eBVH34;	}
 		virtual					~BV4TriangleData()	{}
 
-				Gu::SourceMesh	mMeshInterface;
-				Gu::BV4Tree		mBV4Tree;
+				ev4sio_Gu::SourceMesh	mMeshInterface;
+				ev4sio_Gu::BV4Tree		mBV4Tree;
 	};
 
 	// PT: TODO: the following classes should probably be in their own specific files (e.g. GuTetrahedronMeshData.h, GuDeformableVolumeMeshData.h)
@@ -370,13 +370,13 @@ enum InternalMeshSerialFlag
 		void *					mGRB_primIndices;				//!< GRB: GPU-friendly primitive indices(either triangle or tetrahedron)
 		PxU32*					mGRB_faceRemap;					//!< GRB: this remap the GPU triangle indices to CPU triangle indices
 		PxU32*					mGRB_faceRemapInverse;
-		Gu::BV32Tree*			mGRB_BV32Tree;
+		ev4sio_Gu::BV32Tree*			mGRB_BV32Tree;
 		PxU8*					mGRB_tetraSurfaceHint;
 
 
 		// End of GRB data ------------------
-		Gu::TetrahedronSourceMesh	mMeshInterface;
-		Gu::BV4Tree					mBV4Tree;
+		ev4sio_Gu::TetrahedronSourceMesh	mMeshInterface;
+		ev4sio_Gu::BV4Tree					mBV4Tree;
 
 		PxMat33*				mTetraRestPoses;
 
@@ -642,7 +642,7 @@ enum InternalMeshSerialFlag
 #endif
 
 
-} // namespace Gu
+} // namespace ev4sio_Gu
 
 }
 

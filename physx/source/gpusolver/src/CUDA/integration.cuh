@@ -35,7 +35,7 @@
 #include "DySleepingConfigulation.h"
 #include "stdio.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 static __device__ void updateWakeCounter(bool& freeze, float4& solverBodyLinVel, float4& solverBodyAngVel, const PxAlignedTransform& body2World, 
 	PxgBodySim& bodySim, PxgSolverBodySleepData& sleepData,

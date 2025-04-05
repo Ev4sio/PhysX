@@ -33,11 +33,11 @@
 #include "GuPersistentContactManifold.h"
 #include "GuShapeConvex.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	class PxConvexMeshGeometry;
 
-namespace Gu
+namespace ev4sio_Gu
 {
 	extern const PxU8 gPCMBoxPolygonData[24];
 	
@@ -46,17 +46,17 @@ namespace Gu
 	public:
 									PCMPolygonalBox(const PxVec3& halfSide);
 
-			void					getPolygonalData(Gu::PolygonalData* PX_RESTRICT dst)	const;
+			void					getPolygonalData(ev4sio_Gu::PolygonalData* PX_RESTRICT dst)	const;
 
 			const PxVec3&			mHalfSide;
 			PxVec3					mVertices[8];
-			Gu::HullPolygonData		mPolygons[6];
+			ev4sio_Gu::HullPolygonData		mPolygons[6];
 	private:
 			PCMPolygonalBox& operator=(const PCMPolygonalBox&);
 	};
 
-	void getPCMConvexData(const Gu::ConvexHullV& convexHull, bool idtScale, Gu::PolygonalData& polyData);
-	bool getPCMConvexData(const PxConvexMeshGeometry& shapeConvex, Cm::FastVertex2ShapeScaling& scaling, PxBounds3& bounds, Gu::PolygonalData& polyData);
+	void getPCMConvexData(const ev4sio_Gu::ConvexHullV& convexHull, bool idtScale, ev4sio_Gu::PolygonalData& polyData);
+	bool getPCMConvexData(const PxConvexMeshGeometry& shapeConvex, ev4sio_Cm::FastVertex2ShapeScaling& scaling, PxBounds3& bounds, ev4sio_Gu::PolygonalData& polyData);
 }
 }
 

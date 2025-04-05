@@ -40,24 +40,24 @@
 
 #define INVALID_REPORT_PAIR_ID	0xffffffff
 
-namespace physx
+namespace ev4sio_physx
 {
 
 class PxsContactManagerOutputIterator;
-namespace Sc
+namespace ev4sio_Sc
 {
 	class ContactReportAllocationManager;
 
-	PX_FORCE_INLINE IG::Edge::EdgeType getInteractionEdgeType(PxActorType::Enum actorTypeLargest)
+	PX_FORCE_INLINE ev4sio_IG::Edge::EdgeType getInteractionEdgeType(PxActorType::Enum actorTypeLargest)
 	{
-		IG::Edge::EdgeType type = IG::Edge::eCONTACT_MANAGER;
+		ev4sio_IG::Edge::EdgeType type = ev4sio_IG::Edge::eCONTACT_MANAGER;
 #if PX_SUPPORT_GPU_PHYSX
 		if(actorTypeLargest == PxActorType::eDEFORMABLE_VOLUME)
-			type = IG::Edge::eSOFT_BODY_CONTACT;
+			type = ev4sio_IG::Edge::eSOFT_BODY_CONTACT;
 		else if(actorTypeLargest == PxActorType::eDEFORMABLE_SURFACE)
-			type = IG::Edge::eFEM_CLOTH_CONTACT;
+			type = ev4sio_IG::Edge::eFEM_CLOTH_CONTACT;
 		else if(actorTypeLargest == PxActorType::ePBD_PARTICLESYSTEM)
-			type = IG::Edge::ePARTICLE_SYSTEM_CONTACT;
+			type = ev4sio_IG::Edge::ePARTICLE_SYSTEM_CONTACT;
 #else
 		PX_UNUSED(actorTypeLargest);
 #endif
@@ -157,15 +157,15 @@ namespace Sc
 
 					const PxsContactManager*	getContactManager() const { return mManager; }
 
-						void					clearIslandGenData(IG::SimpleIslandManager& islandManager);
+						void					clearIslandGenData(ev4sio_IG::SimpleIslandManager& islandManager);
 
-		PX_FORCE_INLINE IG::EdgeIndex			getEdgeIndex() const { return mEdgeIndex;  }
+		PX_FORCE_INLINE ev4sio_IG::EdgeIndex			getEdgeIndex() const { return mEdgeIndex;  }
 
-		PX_FORCE_INLINE	Sc::ShapeSimBase&		getShape0()	const { return static_cast<ShapeSimBase&>(getElement0()); }
-		PX_FORCE_INLINE	Sc::ShapeSimBase&		getShape1()	const { return static_cast<ShapeSimBase&>(getElement1()); }
+		PX_FORCE_INLINE	ev4sio_Sc::ShapeSimBase&		getShape0()	const { return static_cast<ShapeSimBase&>(getElement0()); }
+		PX_FORCE_INLINE	ev4sio_Sc::ShapeSimBase&		getShape1()	const { return static_cast<ShapeSimBase&>(getElement1()); }
 
-		PX_FORCE_INLINE	Sc::ActorSim&			getActor0()	{ return getActorSim0();			}
-		PX_FORCE_INLINE	Sc::ActorSim&			getActor1()	{ return getActorSim1();			}
+		PX_FORCE_INLINE	ev4sio_Sc::ActorSim&			getActor0()	{ return getActorSim0();			}
+		PX_FORCE_INLINE	ev4sio_Sc::ActorSim&			getActor1()	{ return getActorSim1();			}
 
 	private:
 						ActorPair*				mActorPair;
@@ -198,14 +198,14 @@ namespace Sc
 
 		// Certain SiFlag cache properties of the pair. If these properties change then the flags have to be updated.
 		// For example: is collision enabled for this pair? are contact points requested for this pair?
-		PX_FORCE_INLINE	void					updateFlags(const Sc::Scene&, const Sc::ActorSim&, const Sc::ActorSim&, const PxU32 pairFlags);
+		PX_FORCE_INLINE	void					updateFlags(const ev4sio_Sc::Scene&, const ev4sio_Sc::ActorSim&, const ev4sio_Sc::ActorSim&, const PxU32 pairFlags);
 
-		friend class Sc::Scene;
+		friend class ev4sio_Sc::Scene;
 	};
 
-} // namespace Sc
+} // namespace ev4sio_Sc
 
-PX_FORCE_INLINE void Sc::ShapeInteraction::setPairFlags(PxPairFlags flags)
+PX_FORCE_INLINE void ev4sio_Sc::ShapeInteraction::setPairFlags(PxPairFlags flags)
 {
 	PX_ASSERT(PxU32(flags) < PxPairFlag::eNEXT_FREE);  // to find out if a new PxPairFlag has been added after eLAST instead of in front
 
@@ -218,12 +218,12 @@ PX_FORCE_INLINE void Sc::ShapeInteraction::setPairFlags(PxPairFlags flags)
 }
 
 // PT: returning PxU32 instead of PxPairFlags to remove LHS. Please do not undo this.
-PX_FORCE_INLINE PxU32 Sc::ShapeInteraction::getPairFlags() const
+PX_FORCE_INLINE PxU32 ev4sio_Sc::ShapeInteraction::getPairFlags() const
 {
 	return (mFlags & PAIR_FLAGS_MASK);
 }
 
-PX_INLINE void Sc::ShapeInteraction::swapAndClearForceThresholdExceeded()
+PX_INLINE void ev4sio_Sc::ShapeInteraction::swapAndClearForceThresholdExceeded()
 {
 	PxU32 flags = mFlags;
 
@@ -236,7 +236,7 @@ PX_INLINE void Sc::ShapeInteraction::swapAndClearForceThresholdExceeded()
 	mFlags = flags;
 }
 
-PX_FORCE_INLINE	void Sc::ShapeInteraction::removeFromReportPairList()
+PX_FORCE_INLINE	void ev4sio_Sc::ShapeInteraction::removeFromReportPairList()
 {
 	// this method should only get called if the pair is in the list for
 	// persistent or force based contact reports
@@ -254,7 +254,7 @@ PX_FORCE_INLINE	void Sc::ShapeInteraction::removeFromReportPairList()
 	}
 }
 
-PX_INLINE bool Sc::ShapeInteraction::updateManager(PxsContactManager* contactManager)
+PX_INLINE bool ev4sio_Sc::ShapeInteraction::updateManager(PxsContactManager* contactManager)
 {
 	if (activeManagerAllowed())
 	{
@@ -267,7 +267,7 @@ PX_INLINE bool Sc::ShapeInteraction::updateManager(PxsContactManager* contactMan
 		return false;
 }
 
-PX_INLINE void Sc::ShapeInteraction::destroyManager()
+PX_INLINE void ev4sio_Sc::ShapeInteraction::destroyManager()
 {
 	PX_ASSERT(mManager);
 
@@ -283,7 +283,7 @@ PX_INLINE void Sc::ShapeInteraction::destroyManager()
 	mManager = 0;
 }
 
-PX_FORCE_INLINE bool Sc::ShapeInteraction::activeManagerAllowed() const
+PX_FORCE_INLINE bool ev4sio_Sc::ShapeInteraction::activeManagerAllowed() const
 {
 	ActorSim& bodySim0 = getActorSim0();
 	ActorSim& bodySim1 = getActorSim1();
@@ -298,35 +298,35 @@ PX_FORCE_INLINE bool Sc::ShapeInteraction::activeManagerAllowed() const
 	// PT: try to prevent OM-103695 / PX-4509
 	// ### DEFENSIVE
 	if(!bodySim0.getNodeIndex().isValid())
-		return PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "ShapeInteraction::activeManagerAllowed: found invalid node!");
+		return ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "ShapeInteraction::activeManagerAllowed: found invalid node!");
 
-	const IG::IslandSim& islandSim = getScene().getSimpleIslandManager()->getSpeculativeIslandSim();
+	const ev4sio_IG::IslandSim& islandSim = getScene().getSimpleIslandManager()->getSpeculativeIslandSim();
 
 	//check whether active in the speculative sim!
 	return (islandSim.getNode(bodySim0.getNodeIndex()).isActive() ||
 		(!bodySim1.isStaticRigid() && islandSim.getNode(bodySim1.getNodeIndex()).isActive()));
 }
 
-PX_FORCE_INLINE void Sc::ShapeInteraction::sendCCDRetouch(PxU32 ccdPass, PxsContactManagerOutputIterator& outputs)
+PX_FORCE_INLINE void ev4sio_Sc::ShapeInteraction::sendCCDRetouch(PxU32 ccdPass, PxsContactManagerOutputIterator& outputs)
 {
 	const PxU32 pairFlags = getPairFlags();
 	if (pairFlags & PxPairFlag::eNOTIFY_TOUCH_CCD)
 		processUserNotification(PxPairFlag::eNOTIFY_TOUCH_CCD, 0, false, ccdPass, false, outputs);
 }
 
-PX_FORCE_INLINE void Sc::ShapeInteraction::adjustCountersOnLostTouch()
+PX_FORCE_INLINE void ev4sio_Sc::ShapeInteraction::adjustCountersOnLostTouch()
 {
 	PX_ASSERT(mActorPair->getTouchCount());
 
 	mActorPair->decTouchCount();
 }
 
-PX_FORCE_INLINE void Sc::ShapeInteraction::adjustCountersOnNewTouch()
+PX_FORCE_INLINE void ev4sio_Sc::ShapeInteraction::adjustCountersOnNewTouch()
 {
 	mActorPair->incTouchCount();
 }
 
-PX_FORCE_INLINE PxIntBool Sc::ShapeInteraction::hasKnownTouchState() const
+PX_FORCE_INLINE PxIntBool ev4sio_Sc::ShapeInteraction::hasKnownTouchState() const
 {
 	// For a pair where the bodies were added asleep, the touch state is not known until narrowphase runs on the pair for the first time.
 	// If such a pair looses AABB overlap before, the conservative approach is to wake the bodies up. This method provides an indicator that

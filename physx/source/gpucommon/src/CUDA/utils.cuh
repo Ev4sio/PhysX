@@ -32,7 +32,7 @@
 #include "foundation/PxVec3.h"
 #include "foundation/PxVec4.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	__device__ PX_FORCE_INLINE PxVec3 PxLoad3(const float4& v) { float4 tmp = v; return PxVec3(tmp.x, tmp.y, tmp.z); }
 	__device__ PX_FORCE_INLINE PxVec3 PxLoad3(const float4& v, float& w) { float4 tmp = v; w = tmp.w; return PxVec3(tmp.x, tmp.y, tmp.z); }

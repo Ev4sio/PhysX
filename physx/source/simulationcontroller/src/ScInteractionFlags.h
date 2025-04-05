@@ -30,10 +30,10 @@
 #define SC_INTERACTION_FLAGS_H
 
 
-namespace physx
+namespace ev4sio_physx
 {
 
-namespace Sc
+namespace ev4sio_Sc
 {
 	struct InteractionFlag	// PT: TODO: use PxFlags
 	{
@@ -61,10 +61,10 @@ namespace Sc
 	};
 
 
-} // namespace Sc
+} // namespace ev4sio_Sc
 
 
-} // namespace physx
+} // namespace ev4sio_physx
 
 
 #endif

@@ -32,10 +32,10 @@
 #include "GuMidphaseInterface.h"
 #include "GuVecConvexHull.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
-namespace Gu
+namespace ev4sio_Gu
 {
 	// PT: intermediate class containing shared bits of code & members
 	struct SweepShapeMeshHitCallback : MeshHitCallback<PxGeomRaycastHit>
@@ -84,15 +84,15 @@ namespace Gu
 	{		
 		const PxMat34Padded&	mMeshToBox;
 		PxReal					mDist, mDist0;
-		physx::aos::FloatV		mDistV;
+		ev4sio_physx::aos::FloatV		mDistV;
 		const Box&				mBox;
 		const PxVec3&			mLocalDir;
 		const PxVec3&			mWorldUnitDir;
 		PxReal					mInflation;
 		PxTriangle				mHitTriangle;
-		physx::aos::Vec3V		mMinClosestA;
-		physx::aos::Vec3V		mMinNormal;
-		physx::aos::Vec3V		mLocalMotionV;
+		ev4sio_physx::aos::Vec3V		mMinClosestA;
+		ev4sio_physx::aos::Vec3V		mMinNormal;
+		ev4sio_physx::aos::Vec3V		mLocalMotionV;
 		PxU32					mMinTriangleIndex;
 		PxVec3					mOneOverDir;
 		const bool				mBothTriangleSidesCollide;	// PT: true if PxMeshGeometryFlag::eDOUBLE_SIDED || PxHitFlag::eMESH_BOTH_SIDES
@@ -117,19 +117,19 @@ namespace Gu
 	{
 		PxTriangle							mHitTriangle;
 		ConvexHullV							mConvexHull;
-		physx::aos::PxMatTransformV			mMeshToConvex;
-		physx::aos::PxTransformV			mConvexPoseV;
-		const Cm::FastVertex2ShapeScaling&	mMeshScale;
+		ev4sio_physx::aos::PxMatTransformV			mMeshToConvex;
+		ev4sio_physx::aos::PxTransformV			mConvexPoseV;
+		const ev4sio_Cm::FastVertex2ShapeScaling&	mMeshScale;
 		PxGeomSweepHit						mSweepHit; // stores either the closest or any hit depending on value of mAnyHit
-		physx::aos::FloatV					mInitialDistance;
-		physx::aos::Vec3V					mConvexSpaceDir; // convexPose.rotateInv(-unit*distance)
+		ev4sio_physx::aos::FloatV					mInitialDistance;
+		ev4sio_physx::aos::Vec3V					mConvexSpaceDir; // convexPose.rotateInv(-unit*distance)
 		PxVec3								mUnitDir;
 		PxVec3								mMeshSpaceUnitDir;
 		PxReal								mInflation;
 		const bool							mAnyHit;
 		const bool							mBothTriangleSidesCollide;	// PT: true if PxMeshGeometryFlag::eDOUBLE_SIDED || PxHitFlag::eMESH_BOTH_SIDES
 
-		SweepConvexMeshHitCallback(	const ConvexHullData& hull, const PxMeshScale& convexScale, const Cm::FastVertex2ShapeScaling& meshScale,
+		SweepConvexMeshHitCallback(	const ConvexHullData& hull, const PxMeshScale& convexScale, const ev4sio_Cm::FastVertex2ShapeScaling& meshScale,
 									const PxTransform& convexPose, const PxTransform& meshPose,
 									const PxVec3& unitDir, PxReal distance, PxHitFlags hitFlags, bool bothTriangleSidesCollide, PxReal inflation,
 									bool anyHit, float distCoef);

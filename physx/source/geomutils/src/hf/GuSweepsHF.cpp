@@ -39,9 +39,9 @@
 #include "GuGJKRaycast.h"
 #include "CmMatrix34.h"
 
-using namespace physx;
-using namespace Gu;
-using namespace Cm;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
+using namespace ev4sio_Cm;
 using namespace aos;
 
 #include "GuSweepConvexTri.h"
@@ -97,12 +97,12 @@ public:
 	{
 	}
 
-	bool underFaceHit(const Gu::HeightFieldUtil&, const PxVec3&, const PxVec3&, PxF32, PxF32, PxF32, PxU32)
+	bool underFaceHit(const ev4sio_Gu::HeightFieldUtil&, const PxVec3&, const PxVec3&, PxF32, PxF32, PxF32, PxU32)
 	{
 		return true;
 	}
 
-	bool faceHit(const Gu::HeightFieldUtil&, const PxVec3&, PxU32, PxReal, PxReal)
+	bool faceHit(const ev4sio_Gu::HeightFieldUtil&, const PxVec3&, PxU32, PxReal, PxReal)
 	{
 		return true;
 	}

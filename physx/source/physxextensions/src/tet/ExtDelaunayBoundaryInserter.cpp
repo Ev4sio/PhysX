@@ -47,9 +47,9 @@
 
 #define PI 3.141592653589793238462643383
 
-using namespace physx;
-using namespace Ext;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Ext;
+using namespace ev4sio_Gu;
 
 template<typename T>
 static bool contains(const PxArray<T>& list, const T& value)
@@ -515,7 +515,7 @@ namespace
 }*/
 
 static const PxI32 tetFaces[4][3] = { {0, 1, 2},  {0, 3, 1},  {0, 2, 3}, {1, 3, 2} };
-void physx::Ext::extractTetmeshSurface(const PxArray<PxI32>& tets, PxArray<PxI32>& triangles)
+void ev4sio_physx::ev4sio_Ext::extractTetmeshSurface(const PxArray<PxI32>& tets, PxArray<PxI32>& triangles)
 {
 	PxHashMap<SortedTriangle, PxI32, TriangleHash> tris;
 
@@ -797,7 +797,7 @@ static void improveTetmesh(PxArray<PxVec3d>& points, PxArray<Tetrahedron>& final
 	}
 }
 
-PxU32 physx::Ext::removeDisconnectedIslands(PxI32* finalTets, PxU32 numTets)
+PxU32 ev4sio_physx::ev4sio_Ext::removeDisconnectedIslands(PxI32* finalTets, PxU32 numTets)
 {
 	//Detect islands
 	PxArray<PxI32> neighborhood;
@@ -1179,7 +1179,7 @@ namespace
 	}
 }
 
-void physx::Ext::generateTetmesh(const PxBoundedData& inputPoints, const PxBoundedData& inputTriangles, const bool has16bitIndices,
+void ev4sio_physx::ev4sio_Ext::generateTetmesh(const PxBoundedData& inputPoints, const PxBoundedData& inputTriangles, const bool has16bitIndices,
 	PxArray<PxVec3>& tetPoints, PxArray<PxU32>& finalTets)
 {
 	//writeOFF("c:\\tmp\\debug.off", trianglePoints, triangles);
@@ -1238,7 +1238,7 @@ void physx::Ext::generateTetmesh(const PxBoundedData& inputPoints, const PxBound
 			PxF64 scaling = 1.0 / PxMax(size.x, PxMax(size.y, size.z));
 
 			//Add some noise to avoid geometric degeneracies
-			Cm::RandomR250 r(0);
+			ev4sio_Cm::RandomR250 r(0);
 			PxF64 randomMagnitude = 1e-6;
 			for (PxU32 i = 0; i < points.size(); ++i)
 			{
@@ -1277,7 +1277,7 @@ static PX_FORCE_INLINE PxF32 tetVolume(const PxVec3& a, const PxVec3& b, const P
 	return (-1.0f / 6.0f) * (a - d).dot((b - d).cross(c - d));
 }
 
-void physx::Ext::pointMasses(const PxArray<PxVec3>& tetVerts, const PxArray<PxU32>& tets, PxF32 density, PxArray<PxF32>& mass)
+void ev4sio_physx::ev4sio_Ext::pointMasses(const PxArray<PxVec3>& tetVerts, const PxArray<PxU32>& tets, PxF32 density, PxArray<PxF32>& mass)
 {
 	mass.resize(tetVerts.size());
 	for (PxU32 i = 0; i < mass.size(); ++i)
@@ -1294,7 +1294,7 @@ void physx::Ext::pointMasses(const PxArray<PxVec3>& tetVerts, const PxArray<PxU3
 	}
 }
 
-void physx::Ext::restPoses(const PxArray<PxVec3>& tetVerts, const PxArray<PxU32>& tets, PxArray<PxMat33>& restPoses)
+void ev4sio_physx::ev4sio_Ext::restPoses(const PxArray<PxVec3>& tetVerts, const PxArray<PxU32>& tets, PxArray<PxMat33>& restPoses)
 {
 	restPoses.resize(tets.size() / 4);
 
@@ -1311,7 +1311,7 @@ void physx::Ext::restPoses(const PxArray<PxVec3>& tetVerts, const PxArray<PxU32>
 	}
 }
 
-void physx::Ext::tetFibers(const PxArray<PxVec3>& /*tetVerts*/, const PxArray<PxU32>& tets, PxArray<PxVec3>& tetFibers)
+void ev4sio_physx::ev4sio_Ext::tetFibers(const PxArray<PxVec3>& /*tetVerts*/, const PxArray<PxU32>& tets, PxArray<PxVec3>& tetFibers)
 {
 	//Just use dummy data for the moment. Could solve a heat equation on the tetmesh to get better fibers but the boundary conditions of the heat quations need to be known
 	tetFibers.resize(tets.size() / 4);
@@ -1921,7 +1921,7 @@ static PxI32 getVoxelId(PxArray<PxI32> voxelIds, const PxVec3& p, const PxVec3& 
 	return result;
 }
 
-void physx::Ext::generateVoxelTetmesh(const PxBoundedData& inputPointsOrig, const PxBoundedData& inputTets, PxU32 numVoxelsX, PxU32 numVoxelsY, PxU32 numVoxelsZ,
+void ev4sio_physx::ev4sio_Ext::generateVoxelTetmesh(const PxBoundedData& inputPointsOrig, const PxBoundedData& inputTets, PxU32 numVoxelsX, PxU32 numVoxelsY, PxU32 numVoxelsZ,
 	PxArray<PxVec3>& voxelPoints, PxArray<PxU32>& voxelTets, PxI32* intputPointToOutputTetIndex, const PxU32* anchorNodeIndices, PxU32 numTetsPerVoxel,
 	bool avoidVoxelDuplication)
 {
@@ -2100,7 +2100,7 @@ void physx::Ext::generateVoxelTetmesh(const PxBoundedData& inputPointsOrig, cons
 		voxelPoints[i] = voxelPoints[i] * scaling + origMin;
 }
 
-void physx::Ext::generateVoxelTetmesh(const PxBoundedData& inputPoints, const PxBoundedData& inputTets, PxReal voxelEdgeLength,
+void ev4sio_physx::ev4sio_Ext::generateVoxelTetmesh(const PxBoundedData& inputPoints, const PxBoundedData& inputTets, PxReal voxelEdgeLength,
 	PxArray<PxVec3>& voxelPoints, PxArray<PxU32>& voxelTets, PxI32* intputPointToOutputTetIndex, const PxU32* anchorNodeIndices, PxU32 numTetsPerVoxel,
 	bool avoidVoxelDuplication)
 {
@@ -2114,7 +2114,7 @@ void physx::Ext::generateVoxelTetmesh(const PxBoundedData& inputPoints, const Px
 	generateVoxelTetmesh(inputPoints, inputTets, numCellsX, numCellsY, numCellsZ, voxelPoints, voxelTets, intputPointToOutputTetIndex, anchorNodeIndices, numTetsPerVoxel, avoidVoxelDuplication);
 }
 
-void physx::Ext::generateVoxelTetmesh(const PxBoundedData& inputPoints, const PxBoundedData& inputTets, PxU32 numVoxelsAlongLongestBoundingBoxAxis,
+void ev4sio_physx::ev4sio_Ext::generateVoxelTetmesh(const PxBoundedData& inputPoints, const PxBoundedData& inputTets, PxU32 numVoxelsAlongLongestBoundingBoxAxis,
 	PxArray<PxVec3>& voxelPoints, PxArray<PxU32>& voxelTets, PxI32* intputPointToOutputTetIndex, const PxU32* anchorNodeIndices, PxU32 numTetsPerVoxel,
 	bool avoidVoxelDuplication)
 {
@@ -2180,7 +2180,7 @@ static bool trianglesIntersect(const Triangle& tri1, const Triangle& tri2, const
 	if (counter > 0)
 		return false; //Triangles share at leat one point
 
-	return Gu::intersectTriangleTriangle(points[tri1[0]], points[tri1[1]], points[tri1[2]], points[tri2[0]], points[tri2[1]], points[tri2[2]]);
+	return ev4sio_Gu::intersectTriangleTriangle(points[tri1[0]], points[tri1[1]], points[tri1[2]], points[tri2[0]], points[tri2[1]], points[tri2[2]]);
 }
 
 static PxBounds3 triBounds(const PxArray<PxVec3>& points, const Triangle& tri, PxReal enlargement)
@@ -2203,8 +2203,8 @@ static bool meshContainsSelfIntersections(const PxArray<PxVec3>& points, const P
 		boxes.getBounds()[i] = triBounds(points, triangles[i], enlargement);
 	}
 
-	PxArray<Gu::BVHNode> tree;
-	Gu::buildAABBTree(triangles.size(), boxes, tree);
+	PxArray<ev4sio_Gu::BVHNode> tree;
+	ev4sio_Gu::buildAABBTree(triangles.size(), boxes, tree);
 
 	PxArray<PxI32> candidateTriangleIndices;
 	IntersectionCollectingTraversalController tc(candidateTriangleIndices);
@@ -2258,7 +2258,7 @@ static PxReal minimumAngle(const PxArray<PxVec3>& points, const PxArray<Triangle
 	return PxAcos(maxDot); //Converts to the minimal angle
 }
 
-PxTetrahedronMeshAnalysisResults physx::Ext::validateTetrahedronMesh(const PxBoundedData& points, const PxBoundedData& tetrahedra, const bool has16BitIndices, const PxReal minTetVolumeThreshold)
+PxTetrahedronMeshAnalysisResults ev4sio_physx::ev4sio_Ext::validateTetrahedronMesh(const PxBoundedData& points, const PxBoundedData& tetrahedra, const bool has16BitIndices, const PxReal minTetVolumeThreshold)
 {
 	PxTetrahedronMeshAnalysisResults result = PxTetrahedronMeshAnalysisResult::eVALID;
 
@@ -2295,7 +2295,7 @@ PxTetrahedronMeshAnalysisResults physx::Ext::validateTetrahedronMesh(const PxBou
 	return result;
 }
 
-PxTriangleMeshAnalysisResults physx::Ext::validateTriangleMesh(const PxBoundedData& points, const PxBoundedData& triangles, const bool has16BitIndices, const PxReal minVolumeThreshold, const PxReal minTriangleAngleRadians)
+PxTriangleMeshAnalysisResults ev4sio_physx::ev4sio_Ext::validateTriangleMesh(const PxBoundedData& points, const PxBoundedData& triangles, const bool has16BitIndices, const PxReal minVolumeThreshold, const PxReal minTriangleAngleRadians)
 {
 	PxVec3 min, max;
 	minMax(points, min, max);

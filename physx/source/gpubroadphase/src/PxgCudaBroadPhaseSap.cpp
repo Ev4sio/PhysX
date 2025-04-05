@@ -88,12 +88,12 @@
 	#define EPILOG				mStream, kernelParams, sizeof(kernelParams), PX_FL
 #endif
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 PX_IMPLEMENT_OUTPUT_ERROR
 
 PxgCudaBroadPhaseSap::PxgCudaBroadPhaseSap(PxgCudaKernelWranglerManager* gpuKernelWrangler, PxCudaContextManager* cudaContextManager, const PxGpuDynamicsMemoryConfig& init, PxgHeapMemoryAllocatorManager* heapMemoryManager, PxU64 contextID) :
-	Bp::BroadPhase						(),
+	ev4sio_Bp::BroadPhase						(),
 
 	mContextID							(contextID),
 
@@ -262,7 +262,7 @@ void PxgCudaBroadPhaseSap::releaseGpuStreamsAndEvents()
 	mEvent = NULL;
 }
 
-void PxgCudaBroadPhaseSap::gpuDMAUp(const Bp::BroadPhaseUpdateData& updateData, PxgBroadPhaseDesc& bpDesc, PxgRadixSortDesc* rsDescs)
+void PxgCudaBroadPhaseSap::gpuDMAUp(const ev4sio_Bp::BroadPhaseUpdateData& updateData, PxgBroadPhaseDesc& bpDesc, PxgRadixSortDesc* rsDescs)
 {
 	PX_PROFILE_ZONE("PxgCudaBroadPhaseSap.gpuDMAUp", mContextID);
 
@@ -492,7 +492,7 @@ void PxgCudaBroadPhaseSap::gpuDMABack(const PxgBroadPhaseDesc& desc)
 
 	if (desc.found_lost_pairs_overflow_flags)
 	{
-		PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL,
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL,
 			"The application needs to increase PxGpuDynamicsMemoryConfig::foundLostPairsCapacity to %i, otherwise, the simulation will miss interactions\n", foundLostPairsNeeded);
 	}
 
@@ -1004,7 +1004,7 @@ void PxgCudaBroadPhaseSap::updateDescriptor(PxgBroadPhaseDesc& desc)
 		// - doAggPairCollisions (AGG_PAIR_COLLISION)
 		// - accumulateReportsStage_1 (BP_ACCUMULATE_REPORT_STAGE_1)
 		// - accumulateReportsStage_2 (BP_ACCUMULATE_REPORT_STAGE_2)
-		desc.aabbMngr_volumeData = reinterpret_cast<Bp::VolumeData*>(mAABBManager->mVolumDataBuf.getDevicePtr());
+		desc.aabbMngr_volumeData = reinterpret_cast<ev4sio_Bp::VolumeData*>(mAABBManager->mVolumDataBuf.getDevicePtr());
 	}
 #ifdef SUPPORT_UPDATE_HANDLES_ARRAY_FOR_GPU
 	else
@@ -1108,7 +1108,7 @@ void PxgCudaBroadPhaseSap::updateDescriptor(PxgBroadPhaseDesc& desc)
 	desc.max_found_lost_agg_pairs = mMaxAggFoundLostPairs;
 }
 
-void PxgCudaBroadPhaseSap::update(PxcScratchAllocator* /*scratchAllocator*/, const Bp::BroadPhaseUpdateData& updateData, PxBaseTask* /*continuation*/)
+void PxgCudaBroadPhaseSap::update(PxcScratchAllocator* /*scratchAllocator*/, const ev4sio_Bp::BroadPhaseUpdateData& updateData, PxBaseTask* /*continuation*/)
 {
 	PX_PROFILE_ZONE("PxgCudaBroadPhaseSap.update", mContextID);
 
@@ -1205,7 +1205,7 @@ void PxgCudaBroadPhaseSap::update(PxcScratchAllocator* /*scratchAllocator*/, con
 }
 
 // PT: called from PxgAABBManager::preBpUpdate_GPU
-void PxgCudaBroadPhaseSap::preBroadPhase(const Bp::BroadPhaseUpdateData& updateData)
+void PxgCudaBroadPhaseSap::preBroadPhase(const ev4sio_Bp::BroadPhaseUpdateData& updateData)
 {
 	PX_PROFILE_ZONE("PxgCudaBroadPhaseSap.preBroadPhase", mContextID);
 

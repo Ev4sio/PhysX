@@ -36,13 +36,13 @@
 #include "DyCpuGpu1dConstraint.h"
 
 
-namespace physx
+namespace ev4sio_physx
 {
-	namespace Sc
+	namespace ev4sio_Sc
 	{
 		class ShapeInteraction;
 	}
-	namespace Dy
+	namespace ev4sio_Dy
 	{
 		struct SolverContactHeaderStep
 		{
@@ -68,7 +68,7 @@ namespace physx
 			PxReal	minNormalForce;													//60
 			PxU32 broken;															//64
 			PxU8* frictionBrokenWritebackByte;										//68	72
-			Sc::ShapeInteraction* shapeInteraction;									//72	80
+			ev4sio_Sc::ShapeInteraction* shapeInteraction;									//72	80
 #if !PX_P64_FAMILY
 			PxU32 pad[2];															//80
 #endif		
@@ -252,8 +252,8 @@ namespace physx
 		struct SolverConstraint1DExtStep : public SolverConstraint1DStep
 		{
 		public:
-			Cm::SpatialVectorV deltaVA;
-			Cm::SpatialVectorV deltaVB;
+			ev4sio_Cm::SpatialVectorV deltaVA;
+			ev4sio_Cm::SpatialVectorV deltaVB;
 		};
 
 		PX_FORCE_INLINE void init(SolverConstraint1DStep& c,
@@ -276,7 +276,7 @@ namespace physx
 			c.setPositionIterationResidual(0.0f);
 		}
 
-	}//namespace Dy
+	}//namespace ev4sio_Dy
 }
 
 #endif

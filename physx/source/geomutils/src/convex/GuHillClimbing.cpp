@@ -32,10 +32,10 @@
 #include "GuHillClimbing.h"
 #include "GuBigConvexData2.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
-void localSearch(PxU32& id, const PxVec3& dir, const PxVec3* verts, const Gu::BigConvexRawData* val)
+void localSearch(PxU32& id, const PxVec3& dir, const PxVec3* verts, const ev4sio_Gu::BigConvexRawData* val)
 {
 	// WARNING: there is a problem on x86 with a naive version of this code, where truncation
 	// of values from 80 bits to 32 bits as they're stored in memory means that iteratively moving to 
@@ -57,7 +57,7 @@ void localSearch(PxU32& id, const PxVec3& dir, const PxVec3* verts, const Gu::Bi
 
 	TinyBitMap visited;
 
-	const Gu::Valency* Valencies	= val->mValencies;
+	const ev4sio_Gu::Valency* Valencies	= val->mValencies;
 	const PxU8* Adj					= val->mAdjacentVerts;
 
 	PX_ASSERT(Valencies && Adj);

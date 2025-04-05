@@ -39,7 +39,7 @@
 
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -634,7 +634,7 @@ PX_DEPRECATED struct Interpolation
 	*/
 	PX_DEPRECATED PX_INLINE PX_CUDA_CALLABLE static float PxLerp(float a, float b, float t)
 	{
-		return ::physx::PxLerp(a, b, t);
+		return ::ev4sio_physx::PxLerp(a, b, t);
 	}
 
 	/**
@@ -657,7 +657,7 @@ PX_DEPRECATED struct Interpolation
 		const PxReal f11,
 		const PxReal tx, const PxReal ty)
 	{
-		return ::physx::PxBiLerp(f00, f10, f01, f11, tx, ty);
+		return ::ev4sio_physx::PxBiLerp(f00, f10, f01, f11, tx, ty);
 	}
 
 	/**
@@ -691,7 +691,7 @@ PX_DEPRECATED struct Interpolation
 		const PxReal ty,
 		const PxReal tz)
 	{
-		return ::physx::PxTriLerp(f000, f100, f010, f110, f001, f101, f011, f111, tx, ty, tz);
+		return ::ev4sio_physx::PxTriLerp(f000, f100, f010, f110, f001, f101, f011, f111, tx, ty, tz);
 	}
 
 	/**
@@ -708,7 +708,7 @@ PX_DEPRECATED struct Interpolation
 	*/
 	PX_DEPRECATED PX_INLINE PX_CUDA_CALLABLE static PxU32 PxSDFIdx(PxU32 i, PxU32 j, PxU32 k, PxU32 nbX, PxU32 nbY)
 	{
-		return ::physx::PxSDFIdx(i, j, k, nbX, nbY);
+		return ::ev4sio_physx::PxSDFIdx(i, j, k, nbX, nbY);
 	}
 
 	/**
@@ -733,7 +733,7 @@ PX_DEPRECATED struct Interpolation
 	PX_DEPRECATED PX_INLINE PX_CUDA_CALLABLE static PxReal PxSDFSampleImpl(const PxReal* PX_RESTRICT sdf, const PxVec3& localPos, const PxVec3& sdfBoxLower,
 		const PxVec3& sdfBoxHigher, const PxReal sdfDx, const PxReal invSdfDx, const PxU32 dimX, const PxU32 dimY, const PxU32 dimZ, PxReal tolerance)
 	{
-		return ::physx::PxSDFSample(sdf, localPos, sdfBoxLower, sdfBoxHigher, sdfDx, invSdfDx, dimX, dimY, dimZ, tolerance);
+		return ::ev4sio_physx::PxSDFSample(sdf, localPos, sdfBoxLower, sdfBoxHigher, sdfDx, invSdfDx, dimX, dimY, dimZ, tolerance);
 	}
 };
 #endif // !PX_DOXYGEN // remove due to failing references
@@ -779,7 +779,7 @@ PX_DEPRECATED PX_INLINE PX_CUDA_CALLABLE PxReal PxSdfSample(const PxReal* PX_RES
 }
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

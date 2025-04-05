@@ -37,7 +37,7 @@
 #include "GuSDF.h"
 #include "utils.cuh"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 extern "C" __host__ void initSdfConstructionKernels0() {}
 
@@ -316,7 +316,7 @@ PX_FORCE_INLINE __device__ bool traceInteriorRay(const PxgBvhTriangleMesh& mesh,
 }
 
 extern "C" __global__ __launch_bounds__(256, 1) void sdfCalculateDenseGridHybrid(PxgBvhTriangleMesh mesh, const PxgWindingClusterApproximation* PX_RESTRICT windingNumberClusters,
-	Gu::GridQueryPointSampler sampler, PxU32 sizeX, PxU32 sizeY, PxU32 sizeZ, PxReal* PX_RESTRICT sdfData)
+	ev4sio_Gu::GridQueryPointSampler sampler, PxU32 sizeX, PxU32 sizeY, PxU32 sizeZ, PxReal* PX_RESTRICT sdfData)
 {
 	const PxU32 stackSize = 47;
 	//__shared__ PxI32 stackMem[256 * stackSize];
@@ -396,13 +396,13 @@ extern "C" __global__ __launch_bounds__(256, 1) void sdfCalculateDenseGridHybrid
 				sign = -1.0f;
 		}			
 
-		sdfData[Gu::idx3D(x, y, z, sizeX, sizeY)] = d * sign;
+		sdfData[ev4sio_Gu::idx3D(x, y, z, sizeX, sizeY)] = d * sign;
 	}
 	__syncthreads();
 }
 
 extern "C" __global__ __launch_bounds__(256, 1) void sdfCalculateDenseGridBlocks(PxgBvhTriangleMesh mesh, const PxgWindingClusterApproximation* PX_RESTRICT windingNumberClusters,
-	Gu::GridQueryPointSampler sampler, PxU32 sizeX, PxU32 sizeY, PxU32 sizeZ, PxReal* PX_RESTRICT sdfData, PxReal* PX_RESTRICT windingNumbers)
+	ev4sio_Gu::GridQueryPointSampler sampler, PxU32 sizeX, PxU32 sizeY, PxU32 sizeZ, PxReal* PX_RESTRICT sdfData, PxReal* PX_RESTRICT windingNumbers)
 {
 	const PxU32 stackSize = 47;
 	//__shared__ PxI32 stackMem[256 * stackSize];
@@ -428,7 +428,7 @@ extern "C" __global__ __launch_bounds__(256, 1) void sdfCalculateDenseGridBlocks
 		queryBVH(mesh.mBvh, windingNumber, stack, stackSize);
 
 		
-		PxU32 resultIndex = Gu::idx3D(x, y, z, sizeX, sizeY);
+		PxU32 resultIndex = ev4sio_Gu::idx3D(x, y, z, sizeX, sizeY);
 
 		bool inside = windingNumber.mWindingNumber > 0.5f;
 		sdfData[resultIndex] = (inside ? -1.0f : 1.0f) * closestDistance;
@@ -456,9 +456,9 @@ extern "C" __global__ void sdfPopulateBackgroundSDF(PxU32 cellsPerSubgrid, PxRea
 	if (id < backgroundSizeX * backgroundSizeY * backgroundSizeZ)
 	{
 		PxU32 xBlock, yBlock, zBlock;
-		Gu::idToXYZ(id, backgroundSizeX, backgroundSizeY, xBlock, yBlock, zBlock);
+		ev4sio_Gu::idToXYZ(id, backgroundSizeX, backgroundSizeY, xBlock, yBlock, zBlock);
 
-		const PxU32 index = Gu::idx3D(xBlock * cellsPerSubgrid, yBlock * cellsPerSubgrid, zBlock * cellsPerSubgrid, width + 1, height + 1);
+		const PxU32 index = ev4sio_Gu::idx3D(xBlock * cellsPerSubgrid, yBlock * cellsPerSubgrid, zBlock * cellsPerSubgrid, width + 1, height + 1);
 		backgroundSDF[id] = sdf[index];
 	}
 }
@@ -473,7 +473,7 @@ sdfMarkRequiredSdfSubgrids(PxReal* PX_RESTRICT backgroundSDF, const PxReal* PX_R
 	__shared__ PxReal sharedMemoryY[PxgBVHKernelBlockDim::BUILD_SDF / WARP_SIZE];
 	__shared__ PxReal sharedMemoryZ[PxgBVHKernelBlockDim::BUILD_SDF / WARP_SIZE];
 
-	Gu::DenseSDF coarseEval(backgroundSizeX, backgroundSizeY, backgroundSizeZ, backgroundSDF); //TODO: Replace with 3d texture?
+	ev4sio_Gu::DenseSDF coarseEval(backgroundSizeX, backgroundSizeY, backgroundSizeZ, backgroundSDF); //TODO: Replace with 3d texture?
 	PxReal s = 1.0f / cellsPerSubgrid;
 
 	//A subgrid has pow3(cellsPerSubgrid) cells but pow3(cellsPerSubgrid + 1) samples
@@ -486,13 +486,13 @@ sdfMarkRequiredSdfSubgrids(PxReal* PX_RESTRICT backgroundSDF, const PxReal* PX_R
 	for (PxU32 i = threadIdx.x; i < numSamplesPerSubgrid; i += blockDim.x)
 	{
 		PxU32 xLocal, yLocal, zLocal;
-		Gu::idToXYZ(i, cellsPerSubgrid + 1, cellsPerSubgrid + 1, xLocal, yLocal, zLocal);
+		ev4sio_Gu::idToXYZ(i, cellsPerSubgrid + 1, cellsPerSubgrid + 1, xLocal, yLocal, zLocal);
 
 		PxU32 x = blockIdx.x * cellsPerSubgrid + xLocal;
 		PxU32 y = blockIdx.y * cellsPerSubgrid + yLocal;
 		PxU32 z = blockIdx.z * cellsPerSubgrid + zLocal;
 
-		const PxU32 index = Gu::idx3D(x, y, z, width + 1, height + 1);
+		const PxU32 index = ev4sio_Gu::idx3D(x, y, z, width + 1, height + 1);
 		PxReal sdfValue = sdf[index];
 
 		sdfMin = PxMin(sdfMin, sdfValue);
@@ -515,7 +515,7 @@ sdfMarkRequiredSdfSubgrids(PxReal* PX_RESTRICT backgroundSDF, const PxReal* PX_R
 		if (maxAbsError < errorThreshold)
 			subgridRequired = false; //No need for a subgrid if the coarse SDF is already almost exact
 
-		PxU32 index = Gu::idx3D(blockIdx.x, blockIdx.y, blockIdx.z, backgroundSizeX - 1, backgroundSizeY - 1);
+		PxU32 index = ev4sio_Gu::idx3D(blockIdx.x, blockIdx.y, blockIdx.z, backgroundSizeX - 1, backgroundSizeY - 1);
 
 		if (subgridRequired)
 		{
@@ -561,7 +561,7 @@ void sdfPopulateSdfSubgrids(const PxReal* PX_RESTRICT denseSDF, PxU32 width, PxU
 	void* PX_RESTRICT quantizedSparseSDFIn3DTextureFormat, PxU32 numSubgridsX, PxU32 numSubgridsY, PxU32 numSubgridsZ, const PxReal* subgridsMinSdfValue,
 	const PxReal* subgridsMaxSdfValue, PxU32 bytesPerSubgridPixel, PxU32 outputSize)
 {
-	const PxU32 idx = Gu::idx3D(blockIdx.x, blockIdx.y, blockIdx.z, w, h);
+	const PxU32 idx = ev4sio_Gu::idx3D(blockIdx.x, blockIdx.y, blockIdx.z, w, h);
 	//if (idx >= w*h*d)
 	//	printf("out of range 1\n");
 
@@ -579,10 +579,10 @@ void sdfPopulateSdfSubgrids(const PxReal* PX_RESTRICT denseSDF, PxU32 width, PxU
 	//	printf("address %i   %i      %i %i\n", addressInfo, PxU32(activeSubgrids[idx]), w, h);
 
 	PxU32 addressX, addressY, addressZ;
-	Gu::idToXYZ(addressInfo, numSubgridsX, numSubgridsY, addressX, addressY, addressZ);
+	ev4sio_Gu::idToXYZ(addressInfo, numSubgridsX, numSubgridsY, addressX, addressY, addressZ);
 
 	if (threadIdx.x == 0)
-		subgridInfo[idx] = Gu::encodeTriple(addressX, addressY, addressZ);
+		subgridInfo[idx] = ev4sio_Gu::encodeTriple(addressX, addressY, addressZ);
 
 	//if (addressX >= numSubgridsX || addressY >= numSubgridsY || addressZ >= numSubgridsZ)
 	//	printf("kernel, subgrid index out of bounds %i %i %i %i\n", addressX, addressY, addressZ, addressInfo);
@@ -601,9 +601,9 @@ void sdfPopulateSdfSubgrids(const PxReal* PX_RESTRICT denseSDF, PxU32 width, PxU
 	for (PxU32 i = threadIdx.x; i < numSamplesPerSubgrid; i += blockDim.x)
 	{
 		PxU32 xLocal, yLocal, zLocal;
-		Gu::idToXYZ(i, subgridSize + 1, subgridSize + 1, xLocal, yLocal, zLocal);
+		ev4sio_Gu::idToXYZ(i, subgridSize + 1, subgridSize + 1, xLocal, yLocal, zLocal);
 
-		const PxU32 index = Gu::idx3D(
+		const PxU32 index = ev4sio_Gu::idx3D(
 			blockIdx.x * subgridSize + xLocal, 
 			blockIdx.y * subgridSize + yLocal,
 			blockIdx.z * subgridSize + zLocal,
@@ -613,7 +613,7 @@ void sdfPopulateSdfSubgrids(const PxReal* PX_RESTRICT denseSDF, PxU32 width, PxU
 			printf("out of range 2\n");*/
 
 		PxReal sdfValue = denseSDF[index];	
-		PxU32 outputIndex = Gu::idx3D(addressX + xLocal, addressY + yLocal, addressZ + zLocal, tex3DsizeX, tex3DsizeY);
+		PxU32 outputIndex = ev4sio_Gu::idx3D(addressX + xLocal, addressY + yLocal, addressZ + zLocal, tex3DsizeX, tex3DsizeY);
 
 		if (outputIndex * bytesPerSubgridPixel < outputSize)
 		{
@@ -638,7 +638,7 @@ void sdfPopulateSdfSubgrids(const PxReal* PX_RESTRICT denseSDF, PxU32 width, PxU
 }
 
 __device__ void findHoles(const PxReal* PX_RESTRICT sdf, const PxU32 width, const PxU32 height, const PxU32 depth, const PxVec3 cellSize,
-	PxU32* atomicCounter, const Gu::GridQueryPointSampler* sampler, float4* PX_RESTRICT itemLowers, float4* PX_RESTRICT itemUppers, PxU32 capacity)
+	PxU32* atomicCounter, const ev4sio_Gu::GridQueryPointSampler* sampler, float4* PX_RESTRICT itemLowers, float4* PX_RESTRICT itemUppers, PxU32 capacity)
 {
 	PxI32 id = ((blockIdx.x * blockDim.x) + threadIdx.x);
 
@@ -651,7 +651,7 @@ __device__ void findHoles(const PxReal* PX_RESTRICT sdf, const PxU32 width, cons
 		PxReal initialValue = sdf[id];
 		newValue = PxAbs(initialValue);
 
-		Gu::idToXYZ(id, width, height, px, py, pz);
+		ev4sio_Gu::idToXYZ(id, width, height, px, py, pz);
 
 		for (PxU32 z = PxMax(1u, pz) - 1; z <= PxMin(depth - 1, pz + 1); ++z)
 			for (PxU32 y = PxMax(1u, py) - 1; y <= PxMin(height - 1, py + 1); ++y)
@@ -660,7 +660,7 @@ __device__ void findHoles(const PxReal* PX_RESTRICT sdf, const PxU32 width, cons
 					if (x == px && y == py && z == pz)
 						continue;
 
-					PxU32 index = Gu::idx3D(x, y, z, width, height);
+					PxU32 index = ev4sio_Gu::idx3D(x, y, z, width, height);
 					if (index >= width * height * depth)
 						continue;
 
@@ -723,14 +723,14 @@ void sdfCountHoles(const PxReal* PX_RESTRICT sdf, const PxU32 width, const PxU32
 extern "C" __global__ 
 __launch_bounds__(PxgBVHKernelBlockDim::SDF_FIX_HOLES, 1)
 void sdfFindHoles(const PxReal* PX_RESTRICT sdf, const PxU32 width, const PxU32 height, const PxU32 depth, const PxVec3 cellSize,
-	PxU32* atomicCounter, const Gu::GridQueryPointSampler sampler,
+	PxU32* atomicCounter, const ev4sio_Gu::GridQueryPointSampler sampler,
 	float4* PX_RESTRICT itemLowers, float4* PX_RESTRICT itemUppers, PxU32 capacity)
 {
 	findHoles(sdf, width, height, depth, cellSize, atomicCounter, &sampler, itemLowers, itemUppers, capacity);
 }
 
 extern "C" __global__ void sdfApplyHoleCorrections(PxReal* PX_RESTRICT sdf, PxU32 width, PxU32 height, PxU32 depth, 
-	Gu::GridQueryPointSampler sampler,
+	ev4sio_Gu::GridQueryPointSampler sampler,
 	PxVec4* PX_RESTRICT itemUppers, PxU32 numCorrections)
 {
 	PxI32 id = ((blockIdx.x * blockDim.x) + threadIdx.x);
@@ -744,7 +744,7 @@ extern "C" __global__ void sdfApplyHoleCorrections(PxReal* PX_RESTRICT sdf, PxU3
 
 		const PxVec3 p = sampler.getPoint(x, y, z);
 
-		sdf[Gu::idx3D(x, y, z, width, height)] = upper.w;
+		sdf[ev4sio_Gu::idx3D(x, y, z, width, height)] = upper.w;
 
 		itemUppers[id] = PxVec4(p.x, p.y, p.z, upper.w);
 	}
@@ -754,7 +754,7 @@ extern "C" __global__ void sdfApplyHoleCorrections(PxReal* PX_RESTRICT sdf, PxU3
 //These kind of gaps can occur at places where the input triangle mesh has holes. Watertight meshes don't need this kind of post process repair.
 //The fast marching method or jump flood could be used as well to fix those defects but they need either many kernel launches or much more memory compared to the point cloud tree.
 extern "C" __global__ __launch_bounds__(256, 1) void sdfCalculateDenseGridPointCloud(PxgBVH bvh, 
-	Gu::GridQueryPointSampler sampler, PxU32 sizeX, PxU32 sizeY, PxU32 sizeZ, PxReal* PX_RESTRICT sdfData)
+	ev4sio_Gu::GridQueryPointSampler sampler, PxU32 sizeX, PxU32 sizeY, PxU32 sizeZ, PxReal* PX_RESTRICT sdfData)
 {
 	const PxU32 stackSize = 47;
 	//__shared__ PxI32 stackMem[256 * stackSize];
@@ -769,7 +769,7 @@ extern "C" __global__ __launch_bounds__(256, 1) void sdfCalculateDenseGridPointC
 
 	if (x < sizeX && y < sizeY && z < sizeZ)
 	{
-		const PxReal prevSdfValue = sdfData[Gu::idx3D(x, y, z, sizeX, sizeY)];
+		const PxReal prevSdfValue = sdfData[ev4sio_Gu::idx3D(x, y, z, sizeX, sizeY)];
 
 		const PxVec3 p = sampler.getPoint(x, y, z); 
 
@@ -784,7 +784,7 @@ extern "C" __global__ __launch_bounds__(256, 1) void sdfCalculateDenseGridPointC
 			if (prevSdfValue < 0.0f)
 				d = -d;
 
-			sdfData[Gu::idx3D(x, y, z, sizeX, sizeY)] = d;
+			sdfData[ev4sio_Gu::idx3D(x, y, z, sizeX, sizeY)] = d;
 		}
 	}
 }

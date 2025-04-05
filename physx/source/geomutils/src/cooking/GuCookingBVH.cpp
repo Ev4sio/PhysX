@@ -32,13 +32,13 @@
 #include "cooking/PxBVHDesc.h"
 #include "common/PxInsertionCallback.h"
 
-using namespace physx;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
 
 static bool buildBVH(const PxBVHDesc& desc, BVHData& data, const char* errorMessage)
 {
 	if(!desc.isValid())
-		return PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, errorMessage);
+		return ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, errorMessage);
 
 	BVHBuildStrategy bs;
 	if(desc.buildStrategy==PxBVHBuildStrategy::eFAST)

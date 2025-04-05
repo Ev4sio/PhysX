@@ -43,10 +43,10 @@
 #include "foundation/PxSync.h"
 #include "task/PxTask.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 using namespace aos;
-using namespace Bp;
-using namespace Cm;
+using namespace ev4sio_Bp;
+using namespace ev4sio_Cm;
 
 /*
 PT: to try:
@@ -921,7 +921,7 @@ static ABP_Index* resizeMapping(PxU32 oldNbBoxes, PxU32 newNbBoxes, ABP_Index* m
 						void							addDelayedPairs2(PxArray<BroadPhasePair>& createdPairs, const PxArray<DelayedPair>& delayedPairs);
 						void							resizeForNewPairs(PxU32 nbDelayedPairs);
 #endif
-						const Bp::FilterGroup::Enum*	mGroups;
+						const ev4sio_Bp::FilterGroup::Enum*	mGroups;
 						const ABP_Index*				mInToOut0;
 						const ABP_Index*				mInToOut1;
 						const bool*						mLUT;
@@ -1931,7 +1931,7 @@ static PX_FORCE_INLINE void outputPair(PairManagerMT& pairManager, PxU32 index0,
 						void					addKinematicObjects(const BpHandle* userIDs, PxU32 nb, PxU32 maxID);
 						void					removeObject(BpHandle userID);
 						void					updateObject(BpHandle userID);
-						void					findOverlaps(PxBaseTask* continuation, const Bp::FilterGroup::Enum* PX_RESTRICT groups, const bool* PX_RESTRICT lut);
+						void					findOverlaps(PxBaseTask* continuation, const ev4sio_Bp::FilterGroup::Enum* PX_RESTRICT groups, const bool* PX_RESTRICT lut);
 						PxU32					finalize(PxArray<BroadPhasePair>& createdPairs, PxArray<BroadPhasePair>& deletedPairs);
 						void					shiftOrigin(const PxVec3& shift, const PxBounds3* boundsArray, const PxReal* contactDistances);
 
@@ -2046,7 +2046,7 @@ void ABP_PairManager::addDelayedPair(PxArray<DelayedPair>& delayedPairs, const A
 		mHashTable[hashValue] = pairIndex;
 		return p;*/
 
-		DelayedPair* newPair = Cm::reserveContainerMemory(delayedPairs, 1);
+		DelayedPair* newPair = ev4sio_Cm::reserveContainerMemory(delayedPairs, 1);
 		newPair->mID0 = id0;
 		newPair->mID1 = id1;
 		newPair->mHash = fullHashValue;
@@ -2174,7 +2174,7 @@ void ABP_PairManager::addDelayedPairs2(PxArray<BroadPhasePair>& createdPairs, co
 	PxU32 currentNbPairs = mNbActivePairs;
 	//resizeForNewPairs(nbDelayedPairs);
 
-	BroadPhasePair* newPair = Cm::reserveContainerMemory(createdPairs, nbDelayedPairs);
+	BroadPhasePair* newPair = ev4sio_Cm::reserveContainerMemory(createdPairs, nbDelayedPairs);
 
 	{
 		const PxU32 mask = mMask;
@@ -3734,7 +3734,7 @@ void ABP_PairManager::computeCreatedDeletedPairs(PxArray<BroadPhasePair>& create
 			PX_ASSERT(id0!=INVALID_ID);
 			PX_ASSERT(id1!=INVALID_ID);
 			//createdPairs.pushBack(BroadPhasePair(id0, id1));
-			BroadPhasePair* newPair = Cm::reserveContainerMemory(createdPairs, 1);
+			BroadPhasePair* newPair = ev4sio_Cm::reserveContainerMemory(createdPairs, 1);
 			newPair->mVolA = id0;
 			newPair->mVolB = id1;
 			// PT: TODO: replace this with bitmaps?
@@ -3778,7 +3778,7 @@ void ABP_PairManager::computeCreatedDeletedPairs(PxArray<BroadPhasePair>& create
 					// PT: doing the group-based filtering here is useless. The pair should not have
 					// been added in the first place.
 					//deletedPairs.pushBack(BroadPhasePair(id0, id1));
-					BroadPhasePair* lostPair = Cm::reserveContainerMemory(deletedPairs, 1);
+					BroadPhasePair* lostPair = ev4sio_Cm::reserveContainerMemory(deletedPairs, 1);
 					lostPair->mVolA = id0;
 					lostPair->mVolB = id1;
 				}
@@ -3794,7 +3794,7 @@ void ABP_PairManager::computeCreatedDeletedPairs(PxArray<BroadPhasePair>& create
 	shrinkMemory();
 }
 
-void ABP::findOverlaps(PxBaseTask* continuation, const Bp::FilterGroup::Enum* PX_RESTRICT groups, const bool* PX_RESTRICT lut)
+void ABP::findOverlaps(PxBaseTask* continuation, const ev4sio_Bp::FilterGroup::Enum* PX_RESTRICT groups, const bool* PX_RESTRICT lut)
 {
 	PX_PROFILE_ZONE("ABP - findOverlaps", mContextID);
 
@@ -3807,8 +3807,8 @@ void ABP::findOverlaps(PxBaseTask* continuation, const Bp::FilterGroup::Enum* PX
 	bool doKineKine = true;
 	bool doStaticKine = true;
 	{
-		doStaticKine = lut[Bp::FilterType::KINEMATIC*Bp::FilterType::COUNT + Bp::FilterType::STATIC];
-		doKineKine = lut[Bp::FilterType::KINEMATIC*Bp::FilterType::COUNT + Bp::FilterType::KINEMATIC];
+		doStaticKine = lut[ev4sio_Bp::FilterType::KINEMATIC*ev4sio_Bp::FilterType::COUNT + ev4sio_Bp::FilterType::STATIC];
+		doKineKine = lut[ev4sio_Bp::FilterType::KINEMATIC*ev4sio_Bp::FilterType::COUNT + ev4sio_Bp::FilterType::KINEMATIC];
 	}
 
 	// Static-vs-dynamic (bipartite) and dynamic-vs-dynamic (complete)
@@ -4188,7 +4188,7 @@ void BroadPhaseABP::addObjects()
 	if(!nbAdded || !created)
 		return;
 
-	const Bp::FilterGroup::Enum* PX_RESTRICT groups = mGroups;
+	const ev4sio_Bp::FilterGroup::Enum* PX_RESTRICT groups = mGroups;
 
 	struct Batch
 	{

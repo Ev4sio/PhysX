@@ -36,7 +36,7 @@
 #include "NpFactory.h"
 #include "GuTetrahedronMesh.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	class NpPhysicsInsertionCallback : public PxInsertionCallback
 	{
@@ -63,7 +63,7 @@ namespace physx
 			if (type == PxConcreteType::eDEFORMABLE_VOLUME_MESH)
 				return NpFactory::getInstance().createDeformableVolumeMesh(data);
 
-			PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "Inserting object failed: "
+			ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "Inserting object failed: "
 				"Object type not supported for buildObjectFromData.");
 
 			return NULL;

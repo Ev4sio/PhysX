@@ -30,10 +30,10 @@
 #include "GuTriangleMeshBV4.h"
 #include "geometry/PxGeometryInternal.h"
 
-using namespace physx;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
 
-namespace physx
+namespace ev4sio_physx
 {
 
 // PT: temporary for Kit
@@ -149,7 +149,7 @@ PxBounds3 BV4TriangleMesh::refitBVH()
 	{
 		newBounds = PxBounds3::centerExtents(mAABB.mCenter, mAABB.mExtents);
 
-		PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "BVH34 trees: refit operation only available on non-quantized trees.\n");
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "BVH34 trees: refit operation only available on non-quantized trees.\n");
 	}
 
 	// PT: copied from RTreeTriangleMesh::refitBVH()
@@ -163,4 +163,4 @@ PxBounds3 BV4TriangleMesh::refitBVH()
 	return newBounds;
 }
 
-} // namespace physx
+} // namespace ev4sio_physx

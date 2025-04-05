@@ -39,11 +39,11 @@
 #include "GuTriangle.h"
 #include "ExtVec3.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Ext
+namespace ev4sio_Ext
 {
-	using Triangle = Gu::IndexedTriangleT<PxI32>;
+	using Triangle = ev4sio_Gu::IndexedTriangleT<PxI32>;
 
 	//Creates an unique 64bit bit key out of two 32bit values, the key is order independent, useful as hash key for edges
 	//Use this functions to compute the edge keys used in the edgesToSplit parameter of the split function below.
@@ -55,16 +55,16 @@ namespace Ext
 			return ((PxU64(b)) << 32) | (PxU64(a));
 	}
 
-	void buildTree(const PxU32* triangles, const PxU32 numTriangles, const PxVec3d* points, PxArray<Gu::BVHNode>& tree, PxF32 enlargement = 1e-4f);
+	void buildTree(const PxU32* triangles, const PxU32 numTriangles, const PxVec3d* points, PxArray<ev4sio_Gu::BVHNode>& tree, PxF32 enlargement = 1e-4f);
 	
 	//Builds a BVH from a set of triangles
-	PX_FORCE_INLINE void buildTree(const PxArray<Triangle>& triangles, const PxArray<PxVec3d>& points, PxArray<Gu::BVHNode>& tree, PxF32 enlargement = 1e-4f)
+	PX_FORCE_INLINE void buildTree(const PxArray<Triangle>& triangles, const PxArray<PxVec3d>& points, PxArray<ev4sio_Gu::BVHNode>& tree, PxF32 enlargement = 1e-4f)
 	{
 		buildTree(reinterpret_cast<const PxU32*>(triangles.begin()), triangles.size(), points.begin(), tree, enlargement);
 	}
 
 	template<typename T>
-	void traverseBVH(const PxArray<Gu::BVHNode>& nodes, T& traversalController, PxI32 rootNodeIndex = 0)
+	void traverseBVH(const PxArray<ev4sio_Gu::BVHNode>& nodes, T& traversalController, PxI32 rootNodeIndex = 0)
 	{
 		traverseBVH(nodes.begin(), traversalController, rootNodeIndex);
 	}
@@ -89,17 +89,17 @@ namespace Ext
 			candidateTriangleIndices.clear();
 		}
 
-		Gu::TraversalControl::Enum analyze(const Gu::BVHNode& node, PxI32)
+		ev4sio_Gu::TraversalControl::Enum analyze(const ev4sio_Gu::BVHNode& node, PxI32)
 		{
 			if (node.isLeaf())
 			{
 				candidateTriangleIndices.pushBack(node.getPrimitiveIndex());
-				return Gu::TraversalControl::eDontGoDeeper;
+				return ev4sio_Gu::TraversalControl::eDontGoDeeper;
 			}
 
 			if (node.mBV.intersects(box))
-				return Gu::TraversalControl::eGoDeeper;
-			return Gu::TraversalControl::eDontGoDeeper;
+				return ev4sio_Gu::TraversalControl::eGoDeeper;
+			return ev4sio_Gu::TraversalControl::eDontGoDeeper;
 		}
 	private:
 		PX_NOCOPY(IntersectionCollectingTraversalController)

@@ -46,7 +46,7 @@
 	#include "../snippetrender/SnippetRender.h"
 #endif
 
-using namespace physx;
+using namespace ev4sio_physx;
 using namespace immediate;
 
 static PxDefaultAllocator		gAllocator;
@@ -119,8 +119,8 @@ void CustomScene::addGeom(const PxGeometry& geom, const PxTransform& pose)
 void CustomScene::createBroadphase()
 {
 	PxBroadPhaseDesc bpDesc(PxBroadPhaseType::eABP);
-	mBroadphase = PxCreateBroadPhase(bpDesc);
-	mAABBManager = PxCreateAABBManager(*mBroadphase);
+	mBroadphase = ev4sio_PxCreateBroadPhase(bpDesc);
+	mAABBManager = ev4sio_PxCreateAABBManager(*mBroadphase);
 
 	const PxU32 nbObjects = mObjects.size();
 	for(PxU32 i=0;i<nbObjects;i++)
@@ -131,7 +131,7 @@ void CustomScene::createBroadphase()
 
 		PxBounds3 bounds;
 		PxGeometryQuery::computeGeomBounds(bounds, obj.mGeom.any(), obj.mPose);
-		mAABBManager->addObject(i, bounds, PxGetBroadPhaseDynamicFilterGroup(i));
+		mAABBManager->addObject(i, bounds, ev4sio_PxGetBroadPhaseDynamicFilterGroup(i));
 	}
 
 	runBroadphase();
@@ -222,7 +222,7 @@ void renderScene()
 
 void initPhysics(bool /*interactive*/)
 {
-	gFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, gAllocator, gErrorCallback);
+	gFoundation = ev4sio_PxCreateFoundation(ev4sio_PX_PHYSICS_VERSION, gAllocator, gErrorCallback);
 
 	gScene = new CustomScene;
 	for(PxU32 i=0;i<gNbObjects;i++)

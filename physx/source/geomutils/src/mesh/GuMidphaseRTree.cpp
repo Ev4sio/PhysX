@@ -44,9 +44,9 @@
 
 // This file contains code specific to the RTree midphase.
 
-using namespace physx;
-using namespace Cm;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Cm;
+using namespace ev4sio_Gu;
 using namespace aos;
 
 struct MeshRayCollider
@@ -88,7 +88,7 @@ public:
 	PxReal	mGeomEpsilon;
 };
 
-using Gu::RTree;
+using ev4sio_Gu::RTree;
 
 // This callback comes from RTree and decodes LeafTriangle indices stored in rtree into actual triangles
 // This callback is needed because RTree doesn't know that it stores triangles since it's a general purpose spatial index
@@ -402,7 +402,7 @@ private:
 	RayMeshColliderCallback& operator=(const RayMeshColliderCallback&);
 };
 
-PxU32 physx::Gu::raycast_triangleMesh_RTREE(const TriangleMesh* mesh, const PxTriangleMeshGeometry& meshGeom, const PxTransform& pose,
+PxU32 ev4sio_physx::ev4sio_Gu::raycast_triangleMesh_RTREE(const TriangleMesh* mesh, const PxTriangleMeshGeometry& meshGeom, const PxTransform& pose,
 											const PxVec3& rayOrigin, const PxVec3& rayDir, PxReal maxDist,
 											PxHitFlags hitFlags, PxU32 maxHits, PxGeomRaycastHit* PX_RESTRICT hits, PxU32 stride)
 {
@@ -760,28 +760,28 @@ static bool intersectAnyVsMesh(
 		return intersectAnyVsMeshT<tSCB, false>(worldSphere, worldCapsule, worldOBB, triMesh, meshTransform, meshScale, results);
 }
 
-bool physx::Gu::intersectSphereVsMesh_RTREE(const Sphere& sphere, const TriangleMesh& triMesh, const PxTransform& meshTransform, const PxMeshScale& meshScale, LimitedResults* results)
+bool ev4sio_physx::ev4sio_Gu::intersectSphereVsMesh_RTREE(const Sphere& sphere, const TriangleMesh& triMesh, const PxTransform& meshTransform, const PxMeshScale& meshScale, LimitedResults* results)
 {
 	return intersectAnyVsMesh<eSPHERE>(&sphere, NULL, NULL, triMesh, meshTransform, meshScale, results);
 }
 
-bool physx::Gu::intersectBoxVsMesh_RTREE(const Box& box, const TriangleMesh& triMesh, const PxTransform& meshTransform, const PxMeshScale& meshScale, LimitedResults* results)
+bool ev4sio_physx::ev4sio_Gu::intersectBoxVsMesh_RTREE(const Box& box, const TriangleMesh& triMesh, const PxTransform& meshTransform, const PxMeshScale& meshScale, LimitedResults* results)
 {
 	return intersectAnyVsMesh<eBOX>(NULL, NULL, &box, triMesh, meshTransform, meshScale, results);
 }
 
-bool physx::Gu::intersectCapsuleVsMesh_RTREE(const Capsule& capsule, const TriangleMesh& triMesh, const PxTransform& meshTransform, const PxMeshScale& meshScale, LimitedResults* results)
+bool ev4sio_physx::ev4sio_Gu::intersectCapsuleVsMesh_RTREE(const Capsule& capsule, const TriangleMesh& triMesh, const PxTransform& meshTransform, const PxMeshScale& meshScale, LimitedResults* results)
 {
 	return intersectAnyVsMesh<eCAPSULE>(NULL, &capsule, NULL, triMesh, meshTransform, meshScale, results);
 }
 
-void physx::Gu::intersectOBB_RTREE(const TriangleMesh* mesh, const Box& obb, MeshHitCallback<PxGeomRaycastHit>& callback, bool bothTriangleSidesCollide, bool checkObbIsAligned)
+void ev4sio_physx::ev4sio_Gu::intersectOBB_RTREE(const TriangleMesh* mesh, const Box& obb, MeshHitCallback<PxGeomRaycastHit>& callback, bool bothTriangleSidesCollide, bool checkObbIsAligned)
 {
 	MeshRayCollider::collideOBB(obb, bothTriangleSidesCollide, static_cast<const RTreeTriangleMesh*>(mesh), callback, checkObbIsAligned);
 }
 
 // PT: TODO: refactor/share bits of this
-bool physx::Gu::sweepCapsule_MeshGeom_RTREE(const TriangleMesh* mesh, const PxTriangleMeshGeometry& triMeshGeom, const PxTransform& pose,
+bool ev4sio_physx::ev4sio_Gu::sweepCapsule_MeshGeom_RTREE(const TriangleMesh* mesh, const PxTriangleMeshGeometry& triMeshGeom, const PxTransform& pose,
 											const Capsule& lss, const PxVec3& unitDir, PxReal distance,
 											PxGeomSweepHit& sweepHit, PxHitFlags hitFlags, PxReal inflation)
 {
@@ -824,7 +824,7 @@ bool physx::Gu::sweepCapsule_MeshGeom_RTREE(const TriangleMesh* mesh, const PxTr
 #include "GuSweepSharedTests.h"
 
 // PT: TODO: refactor/share bits of this
-bool physx::Gu::sweepBox_MeshGeom_RTREE(const TriangleMesh* mesh, const PxTriangleMeshGeometry& triMeshGeom, const PxTransform& pose,
+bool ev4sio_physx::ev4sio_Gu::sweepBox_MeshGeom_RTREE(const TriangleMesh* mesh, const PxTriangleMeshGeometry& triMeshGeom, const PxTransform& pose,
 										const Box& box, const PxVec3& unitDir, PxReal distance,
 										PxGeomSweepHit& sweepHit, PxHitFlags hitFlags, PxReal inflation)
 {
@@ -902,7 +902,7 @@ bool physx::Gu::sweepBox_MeshGeom_RTREE(const TriangleMesh* mesh, const PxTriang
 }
 
 #include "GuInternal.h"
-void physx::Gu::sweepConvex_MeshGeom_RTREE(const TriangleMesh* mesh, const Box& hullBox, const PxVec3& localDir, PxReal distance, SweepConvexMeshHitCallback& callback, bool)
+void ev4sio_physx::ev4sio_Gu::sweepConvex_MeshGeom_RTREE(const TriangleMesh* mesh, const Box& hullBox, const PxVec3& localDir, PxReal distance, SweepConvexMeshHitCallback& callback, bool)
 {
 	PX_ASSERT(mesh->getConcreteType()==PxConcreteType::eTRIANGLE_MESH_BVH33);
 	const RTreeTriangleMesh* meshData = static_cast<const RTreeTriangleMesh*>(mesh);
@@ -914,7 +914,7 @@ void physx::Gu::sweepConvex_MeshGeom_RTREE(const TriangleMesh* mesh, const Box& 
 	MeshRayCollider::collideOBB(querySweptBox, true, meshData, callback);
 }
 
-void physx::Gu::pointMeshDistance_RTREE(const TriangleMesh*, const PxTriangleMeshGeometry&, const PxTransform&, const PxVec3&, float, PxU32&, float&, PxVec3&)
+void ev4sio_physx::ev4sio_Gu::pointMeshDistance_RTREE(const TriangleMesh*, const PxTriangleMeshGeometry&, const PxTransform&, const PxVec3&, float, PxU32&, float&, PxVec3&)
 {
-	PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "Point-mesh distance query not supported for BVH33. Please use a BVH34 mesh.\n");
+	ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "Point-mesh distance query not supported for BVH33. Please use a BVH34 mesh.\n");
 }

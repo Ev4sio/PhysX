@@ -43,7 +43,7 @@
 #include "PxgSolverCoreDesc.h"
 #include "PxgArticulationCoreDesc.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 struct PxgVelocityPackPGS
 {

@@ -30,9 +30,9 @@
 #include "ScInteraction.h"
 #include "ScNPhaseCore.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
-Sc::Interaction::Interaction(ActorSim& actor0, ActorSim& actor1, InteractionType::Enum type, PxU8 flags) :
+ev4sio_Sc::Interaction::Interaction(ActorSim& actor0, ActorSim& actor1, InteractionType::Enum type, PxU8 flags) :
 	mActor0				(actor0),
 	mActor1				(actor1), 
 	mSceneId			(PX_INVALID_INTERACTION_SCENE_ID), 
@@ -46,17 +46,17 @@ Sc::Interaction::Interaction(ActorSim& actor0, ActorSim& actor1, InteractionType
 	PX_ASSERT(PxU32(type)<256);	// PT: type is now stored on a byte
 }
 
-void Sc::Interaction::addToDirtyList()
+void ev4sio_Sc::Interaction::addToDirtyList()
 {
 	getActorSim0().getScene().getNPhaseCore()->addToDirtyInteractionList(this);		
 }
 
-void Sc::Interaction::removeFromDirtyList()
+void ev4sio_Sc::Interaction::removeFromDirtyList()
 {
 	getActorSim0().getScene().getNPhaseCore()->removeFromDirtyInteractionList(this);
 }
 
-void Sc::Interaction::setClean(bool removeFromList)
+void ev4sio_Sc::Interaction::setClean(bool removeFromList)
 {
 	if (readInteractionFlag(InteractionFlag::eIN_DIRTY_LIST))
 	{

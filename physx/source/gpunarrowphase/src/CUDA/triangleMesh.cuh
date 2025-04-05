@@ -33,7 +33,7 @@
 #include "PxgConvexConvexShape.h"
 #include "foundation/PxVec3.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 struct PxgTriangleMesh
@@ -43,7 +43,7 @@ struct PxgTriangleMesh
 	PxU32 numBv32TreeNodes;
 	PxU32 nbPackedNodes;
 
-	const Gu::BV32DataPacked* bv32PackedNodes;
+	const ev4sio_Gu::BV32DataPacked* bv32PackedNodes;
 
 	const float4* trimeshVerts;
 	const uint4* indices;
@@ -66,14 +66,14 @@ struct PxgTriangleMesh
 };
 
 static PX_FORCE_INLINE __device__ uint4 readTriangleMesh(const PxU8* PX_RESTRICT & trimeshGeomPtr,
-	const Gu::BV32DataPacked* PX_RESTRICT & bv32PackedNodes, const float4* PX_RESTRICT & trimeshVerts)
+	const ev4sio_Gu::BV32DataPacked* PX_RESTRICT & bv32PackedNodes, const float4* PX_RESTRICT & trimeshVerts)
 {
 	const uint4 trimesh_nbVerts_nbTris_nbAdjVertsTotal = *reinterpret_cast<const uint4 *>(trimeshGeomPtr);
 	trimeshGeomPtr += sizeof(uint4);
 
-	bv32PackedNodes = reinterpret_cast<const Gu::BV32DataPacked*>(trimeshGeomPtr);
+	bv32PackedNodes = reinterpret_cast<const ev4sio_Gu::BV32DataPacked*>(trimeshGeomPtr);
 
-	trimeshGeomPtr += sizeof(const Gu::BV32DataPacked)* trimesh_nbVerts_nbTris_nbAdjVertsTotal.w;
+	trimeshGeomPtr += sizeof(const ev4sio_Gu::BV32DataPacked)* trimesh_nbVerts_nbTris_nbAdjVertsTotal.w;
 
 	trimeshVerts = reinterpret_cast<const float4 *>(trimeshGeomPtr);
 
@@ -81,7 +81,7 @@ static PX_FORCE_INLINE __device__ uint4 readTriangleMesh(const PxU8* PX_RESTRICT
 }
 
 static PX_FORCE_INLINE __device__ uint4 readTriangleMesh(const PxU8 * PX_RESTRICT & trimeshGeomPtr,
-	const Gu::BV32DataPacked* PX_RESTRICT & bv32PackedNodes, const float4* PX_RESTRICT & trimeshVerts, const uint4* PX_RESTRICT & trimeshTriIndices)
+	const ev4sio_Gu::BV32DataPacked* PX_RESTRICT & bv32PackedNodes, const float4* PX_RESTRICT & trimeshVerts, const uint4* PX_RESTRICT & trimeshTriIndices)
 {
 	uint4 result = readTriangleMesh(trimeshGeomPtr, bv32PackedNodes, trimeshVerts);
 
@@ -94,7 +94,7 @@ static PX_FORCE_INLINE __device__ uint4 readTriangleMesh(const PxU8 * PX_RESTRIC
 static PX_FORCE_INLINE __device__ uint4 readTriangleMesh(const PxU8 * PX_RESTRICT & trimeshGeomPtr, const float4* PX_RESTRICT & trimeshVerts, const uint4* PX_RESTRICT & trimeshTriIndices,
 	const uint4* PX_RESTRICT & trimeshTriAdjacencies)
 {
-	const Gu::BV32DataPacked* bv32PackedNodes;
+	const ev4sio_Gu::BV32DataPacked* bv32PackedNodes;
 
 	uint4 result = readTriangleMesh(trimeshGeomPtr, bv32PackedNodes, trimeshVerts, trimeshTriIndices);
 
@@ -129,8 +129,8 @@ static __device__ void readTriangleMesh(const PxgShape& trimeshShape, PxgTriangl
 	triangleMesh.numBv32TreeNodes = nbVerts_nbTris_nbAdjVertsTotal_nbBv32TreeNodes.z;
 	triangleMesh.nbPackedNodes = nbVerts_nbTris_nbAdjVertsTotal_nbBv32TreeNodes.w;
 
-	triangleMesh.bv32PackedNodes = reinterpret_cast<const Gu::BV32DataPacked*>(trimeshGeomPtr);
-	trimeshGeomPtr += sizeof(const Gu::BV32DataPacked)* nbVerts_nbTris_nbAdjVertsTotal_nbBv32TreeNodes.w;
+	triangleMesh.bv32PackedNodes = reinterpret_cast<const ev4sio_Gu::BV32DataPacked*>(trimeshGeomPtr);
+	trimeshGeomPtr += sizeof(const ev4sio_Gu::BV32DataPacked)* nbVerts_nbTris_nbAdjVertsTotal_nbBv32TreeNodes.w;
 
 	triangleMesh.trimeshVerts = reinterpret_cast<const float4 *>(trimeshGeomPtr);
 	trimeshGeomPtr += sizeof(float4) * nbVerts_nbTris_nbAdjVertsTotal_nbBv32TreeNodes.x;

@@ -37,12 +37,12 @@
 
 #define PGS_SUPPORT_COMPOUND_CONSTRAINTS	0
 
-namespace physx
+namespace ev4sio_physx
 {
 struct PxcNpWorkUnit;
 struct PxsContactManagerOutput;
 
-namespace Dy
+namespace ev4sio_Dy
 {
 class FeatherstoneArticulation;
 
@@ -99,14 +99,14 @@ PX_FORCE_INLINE PxU32 getConstraintLength(const PxSolverConstraintDesc& desc)
 	return PxU32(desc.constraintLengthOver16 << 4);
 }
 
-PX_FORCE_INLINE Dy::FeatherstoneArticulation* getArticulationA(const PxSolverConstraintDesc& desc)
+PX_FORCE_INLINE ev4sio_Dy::FeatherstoneArticulation* getArticulationA(const PxSolverConstraintDesc& desc)
 {
-	return reinterpret_cast<Dy::FeatherstoneArticulation*>(desc.articulationA);
+	return reinterpret_cast<ev4sio_Dy::FeatherstoneArticulation*>(desc.articulationA);
 }
 
-PX_FORCE_INLINE Dy::FeatherstoneArticulation* getArticulationB(const PxSolverConstraintDesc& desc)
+PX_FORCE_INLINE ev4sio_Dy::FeatherstoneArticulation* getArticulationB(const PxSolverConstraintDesc& desc)
 {
-	return reinterpret_cast<Dy::FeatherstoneArticulation*>(desc.articulationB);
+	return reinterpret_cast<ev4sio_Dy::FeatherstoneArticulation*>(desc.articulationB);
 }
 
 PX_COMPILE_TIME_ASSERT(0 == (0x0f & sizeof(PxSolverConstraintDesc)));

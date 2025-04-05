@@ -27,7 +27,7 @@
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 
 #include "PxPvdImpl.h"
-namespace physx
+namespace ev4sio_physx
 {
 namespace pvdsdk
 {
@@ -35,11 +35,11 @@ ForwardingAllocator gForwardingAllocator;
 PxAllocatorCallback* gPvdAllocatorCallback = &gForwardingAllocator;
 } // namespace pvdsdk
 
-PxPvd* PxCreatePvd(PxFoundation& foundation)
+PxPvd* ev4sio_PxCreatePvd(PxFoundation& foundation)
 {
 	pvdsdk::gPvdAllocatorCallback = &foundation.getAllocatorCallback();
 	pvdsdk::PvdImpl::initialize();
 	return pvdsdk::PvdImpl::getInstance();
 }
 
-} // namespace physx
+} // namespace ev4sio_physx

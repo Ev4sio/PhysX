@@ -35,9 +35,9 @@
 #include "foundation/PxVec3.h"
 #include "foundation/PxUserAllocated.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Gu
+namespace ev4sio_Gu
 {
 	enum EdgeType
 	{
@@ -170,7 +170,7 @@ namespace Gu
 						bool					computeActiveEdges(PxU32 nb_faces, const PxU32* dfaces, const PxU16* wfaces, const PxVec3* verts, float epsilon);
 	};
 
-} // namespace Gu
+} // namespace ev4sio_Gu
 
 }
 

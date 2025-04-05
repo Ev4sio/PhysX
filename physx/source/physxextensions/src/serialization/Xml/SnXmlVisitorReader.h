@@ -39,14 +39,14 @@
 #include "SnXmlMemoryAllocator.h"
 #include "SnXmlStringToType.h"
 
-namespace physx { namespace Sn {
+namespace ev4sio_physx { namespace Sn {
 	
 	
 	inline PxU32 findEnumByName( const char* inName, const PxU32ToName* inTable )
 	{
 		for ( PxU32 idx = 0; inTable[idx].mName != NULL; ++idx )
 		{
-			if ( physx::Pxstricmp( inTable[idx].mName, inName ) == 0 )
+			if ( ev4sio_physx::Pxstricmp( inTable[idx].mName, inName ) == 0 )
 				return inTable[idx].mValue;
 		}
 		return 0;
@@ -105,7 +105,7 @@ namespace physx { namespace Sn {
 		TObjType* outObject = static_cast<TObjType*>(const_cast<PxBase*>(collection.find(id)));
 		if (outObject == NULL)
 		{
-			PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, 
+			ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, 
 				"PxSerialization::createCollectionFromXml: "
 				"Reference to ID %d cannot be resolved. Make sure externalRefs collection is specified if required and "
 				"check Xml file for completeness.",
@@ -214,13 +214,13 @@ namespace physx { namespace Sn {
 				{
 					const char* geomTypeName = visitor.getCurrentItemName();
 
-					if ( physx::Pxstricmp( geomTypeName, "PxSphereGeometry" ) == 0 ) outResult = parseGeometry(visitor, sphere);
-					else if ( physx::Pxstricmp( geomTypeName, "PxPlaneGeometry" ) == 0 ) outResult = parseGeometry(visitor, plane);
-					else if ( physx::Pxstricmp( geomTypeName, "PxCapsuleGeometry" ) == 0 ) outResult = parseGeometry(visitor, capsule);
-					else if ( physx::Pxstricmp( geomTypeName, "PxBoxGeometry" ) == 0 ) outResult = parseGeometry(visitor, box);
-					else if ( physx::Pxstricmp( geomTypeName, "PxConvexMeshGeometry" ) == 0 ) outResult = parseGeometry(visitor, convex);
-					else if ( physx::Pxstricmp( geomTypeName, "PxTriangleMeshGeometry" ) == 0 ) outResult = parseGeometry(visitor, mesh);
-					else if ( physx::Pxstricmp( geomTypeName, "PxHeightFieldGeometry" ) == 0 ) outResult = parseGeometry(visitor, heightField);
+					if ( ev4sio_physx::Pxstricmp( geomTypeName, "PxSphereGeometry" ) == 0 ) outResult = parseGeometry(visitor, sphere);
+					else if ( ev4sio_physx::Pxstricmp( geomTypeName, "PxPlaneGeometry" ) == 0 ) outResult = parseGeometry(visitor, plane);
+					else if ( ev4sio_physx::Pxstricmp( geomTypeName, "PxCapsuleGeometry" ) == 0 ) outResult = parseGeometry(visitor, capsule);
+					else if ( ev4sio_physx::Pxstricmp( geomTypeName, "PxBoxGeometry" ) == 0 ) outResult = parseGeometry(visitor, box);
+					else if ( ev4sio_physx::Pxstricmp( geomTypeName, "PxConvexMeshGeometry" ) == 0 ) outResult = parseGeometry(visitor, convex);
+					else if ( ev4sio_physx::Pxstricmp( geomTypeName, "PxTriangleMeshGeometry" ) == 0 ) outResult = parseGeometry(visitor, mesh);
+					else if ( ev4sio_physx::Pxstricmp( geomTypeName, "PxHeightFieldGeometry" ) == 0 ) outResult = parseGeometry(visitor, heightField);
 					else
 						PX_ASSERT( false );
 				}
@@ -249,7 +249,7 @@ namespace physx { namespace Sn {
 			for ( bool success = visitor.gotoFirstChild(); success; 
 					success = visitor.gotoNextSibling() )
 			{
-				if( 0 == physx::Pxstricmp( visitor.getCurrentItemName(), "PxShapeRef" ) )
+				if( 0 == ev4sio_physx::Pxstricmp( visitor.getCurrentItemName(), "PxShapeRef" ) )
 				{
 					PxShape* shape = NULL;
 					if(!readReference<PxShape>( theReader, collection, shape ))
@@ -497,7 +497,7 @@ namespace physx { namespace Sn {
 		template<typename TRefType>
 		bool readReference(TRefType*& outRef)
 		{
-			return physx::Sn::readReference<TRefType>( mReader, mCollection, topName(), outRef );
+			return ev4sio_physx::Sn::readReference<TRefType>( mReader, mCollection, topName(), outRef );
 		}
 		
 		inline bool readProperty(const char*& outProp )
@@ -661,7 +661,7 @@ namespace physx { namespace Sn {
 
 		void handleShapes( const PxRigidActorShapeCollection& inProp )
 		{
-			physx::Sn::readShapesProperty( *this, mObj, &inProp );		
+			ev4sio_physx::Sn::readShapesProperty( *this, mObj, &inProp );		
 		}
 
 		void handleRigidActorGlobalPose(const PxRigidActorGlobalPosePropertyInfo& inProp)
@@ -720,7 +720,7 @@ namespace physx { namespace Sn {
 					}
 				}
 			}
-			physx::Sn::readShapesProperty( *this, mObj, &inProp );		
+			ev4sio_physx::Sn::readShapesProperty( *this, mObj, &inProp );		
 			parentReader->release();
 		}
 
@@ -848,7 +848,7 @@ namespace physx { namespace Sn {
 
 		void handleArticulationLinks(const PxArticulationLinkCollectionProp& inProp)
 		{
-			physx::Sn::readProperty(*this, mObj, inProp);
+			ev4sio_physx::Sn::readProperty(*this, mObj, inProp);
 		}
 	};
 

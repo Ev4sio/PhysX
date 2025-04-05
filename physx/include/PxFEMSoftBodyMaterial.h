@@ -33,7 +33,7 @@
 #include "PxFEMMaterial.h" // deprecated
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -50,7 +50,7 @@ typedef PX_DEPRECATED PxDeformableVolumeMaterialModel PxFEMSoftBodyMaterialModel
 typedef PX_DEPRECATED PxDeformableVolumeMaterial PxFEMSoftBodyMaterial;
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif // PX_FEM_SOFT_BODY_MATERIAL_H

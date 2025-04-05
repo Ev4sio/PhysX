@@ -33,11 +33,11 @@
 #include "PxsRigidBody.h"
 #include "DySleepingConfigulation.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Dy
+namespace ev4sio_Dy
 {
-	void sleepCheck(PxsRigidBody* originalBody, PxReal dt, bool enableStabilization, const Cm::SpatialVector& motionVelocity, PxIntBool hasStaticTouch);
+	void sleepCheck(PxsRigidBody* originalBody, PxReal dt, bool enableStabilization, const ev4sio_Cm::SpatialVector& motionVelocity, PxIntBool hasStaticTouch);
 }
 }
 

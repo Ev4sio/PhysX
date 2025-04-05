@@ -33,7 +33,7 @@
 #include "foundation/PxMat33.h"
 #include "CmSpatialVector.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	struct PxSpatialMatrix33
 	{
@@ -55,7 +55,7 @@ namespace physx
 	public:
 		PxReal column[6][6];
 
-		PX_CUDA_CALLABLE PX_FORCE_INLINE Cm::UnAlignedSpatialVector operator * (const Cm::UnAlignedSpatialVector& s) const
+		PX_CUDA_CALLABLE PX_FORCE_INLINE ev4sio_Cm::UnAlignedSpatialVector operator * (const ev4sio_Cm::UnAlignedSpatialVector& s) const
 		{
 			PxReal st[6];
 			st[0] = s.top.x; st[1] = s.top.y; st[2] = s.top.z;
@@ -71,7 +71,7 @@ namespace physx
 				}
 			}
 
-			Cm::UnAlignedSpatialVector temp;
+			ev4sio_Cm::UnAlignedSpatialVector temp;
 			temp.top.x = result[0]; temp.top.y = result[1]; temp.top.z = result[2];
 			temp.bottom.x = result[3]; temp.bottom.y = result[4]; temp.bottom.z = result[5];
 			return temp;

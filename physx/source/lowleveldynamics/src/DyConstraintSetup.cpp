@@ -40,9 +40,9 @@
 #include "DyArticulationUtils.h"
 #include "DyAllocator.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Dy
+namespace ev4sio_Dy
 {
 	// dsequeira:
 	//
@@ -712,8 +712,8 @@ PxReal simDt, PxReal recipSimDt)
 			init(s, c.linear0, c.linear1, c.angular0, c.angular1, minImpulse, maxImpulse);
 			SolverConstraint1DExt& e = static_cast<SolverConstraint1DExt&>(s);
 
-			const Cm::SpatialVector resp0 = createImpulseResponseVector(e.lin0, e.ang0, eb0);
-			const Cm::SpatialVector resp1 = createImpulseResponseVector(-e.lin1, -e.ang1, eb1);
+			const ev4sio_Cm::SpatialVector resp0 = createImpulseResponseVector(e.lin0, e.ang0, eb0);
+			const ev4sio_Cm::SpatialVector resp1 = createImpulseResponseVector(-e.lin1, -e.ang1, eb1);
 			unitResponse = getImpulseResponse(eb0, resp0, unsimdRef(e.deltaVA), prepDesc.invMassScales.linear0, prepDesc.invMassScales.angular0,
 				eb1, resp1, unsimdRef(e.deltaVB), prepDesc.invMassScales.linear1, prepDesc.invMassScales.angular1, false);
 
@@ -736,7 +736,7 @@ PxReal simDt, PxReal recipSimDt)
 				vel0 = eb0.projectVelocity(c.linear0, c.angular0);
 				vel1 = eb1.projectVelocity(c.linear1, c.angular1);
 
-				Dy::computeJointSpeedPGS(vel0, b0IsRigidDynamic, vel1, b1IsRigidDynamic, jointSpeedForRestitutionBounce, initJointSpeed);
+				ev4sio_Dy::computeJointSpeedPGS(vel0, b0IsRigidDynamic, vel1, b1IsRigidDynamic, jointSpeedForRestitutionBounce, initJointSpeed);
 			}
 
 			//minResponseThreshold = PxMax(minResponseThreshold, DY_ARTICULATION_MIN_RESPONSE);

@@ -32,7 +32,7 @@
 #include "foundation/PxSimpleTypes.h"
 #include "foundation/PxUserAllocated.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	struct PxsHeapStats
 	{

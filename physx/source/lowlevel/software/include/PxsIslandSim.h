@@ -36,11 +36,11 @@
 #include "CmBlockArray.h"
 #include "PxNodeIndex.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 struct PartitionEdge;
 
-namespace IG
+namespace ev4sio_IG
 {
 #define IG_INVALID_ISLAND 0xFFFFFFFFu
 #define IG_INVALID_EDGE 0xFFFFFFFFu
@@ -325,12 +325,12 @@ class CPUExternalData
 {
 	public:
 
-	PX_FORCE_INLINE PxNodeIndex	getNodeIndex1(IG::EdgeIndex index) const { return mEdgeNodeIndices[2 * index];		}
-	PX_FORCE_INLINE PxNodeIndex	getNodeIndex2(IG::EdgeIndex index) const { return mEdgeNodeIndices[2 * index + 1];	}
+	PX_FORCE_INLINE PxNodeIndex	getNodeIndex1(ev4sio_IG::EdgeIndex index) const { return mEdgeNodeIndices[2 * index];		}
+	PX_FORCE_INLINE PxNodeIndex	getNodeIndex2(ev4sio_IG::EdgeIndex index) const { return mEdgeNodeIndices[2 * index + 1];	}
 
 	//KS - stores node indices for a given edge. Node index 0 is at 2* edgeId and NodeIndex1 is at 2*edgeId + 1
 	//can also be used for edgeInstance indexing so there's no need to figure out outboundNode ID either!
-	Cm::BlockArray<PxNodeIndex>	mEdgeNodeIndices;
+	ev4sio_Cm::BlockArray<PxNodeIndex>	mEdgeNodeIndices;
 };
 
 // PT: island-manager data only needed for the GPU version, but stored in CPU code.
@@ -348,8 +348,8 @@ class GPUExternalData
 
 	///////////////////////////////////////////////////////////////////////////
 
-	PX_FORCE_INLINE PartitionEdge*				getFirstPartitionEdge(IG::EdgeIndex edgeIndex)							const { return mFirstPartitionEdges[edgeIndex];				}
-	PX_FORCE_INLINE void						setFirstPartitionEdge(IG::EdgeIndex edgeIndex, PartitionEdge* partitionEdge)  { mFirstPartitionEdges[edgeIndex] = partitionEdge;	}
+	PX_FORCE_INLINE PartitionEdge*				getFirstPartitionEdge(ev4sio_IG::EdgeIndex edgeIndex)							const { return mFirstPartitionEdges[edgeIndex];				}
+	PX_FORCE_INLINE void						setFirstPartitionEdge(ev4sio_IG::EdgeIndex edgeIndex, PartitionEdge* partitionEdge)  { mFirstPartitionEdges[edgeIndex] = partitionEdge;	}
 
 					PxArray<PartitionEdge*>		mFirstPartitionEdges;
 
@@ -391,8 +391,8 @@ class IslandSim
 	PxArray<IslandId>								mIslandIds;									//! The array of per-node island ids
 	//
 
-	Cm::BlockArray<Edge>							mEdges;
-	Cm::BlockArray<EdgeInstance>					mEdgeInstances;								//! Edges used to connect nodes in the constraint graph
+	ev4sio_Cm::BlockArray<Edge>							mEdges;
+	ev4sio_Cm::BlockArray<EdgeInstance>					mEdgeInstances;								//! Edges used to connect nodes in the constraint graph
 	PxArray<Island>									mIslands;									//! The array of islands
 	PxArray<PxU32>									mIslandStaticTouchCount;					//! Array of static touch counts per-island
 
@@ -427,7 +427,7 @@ class IslandSim
 
 	//Temporary, transient data used for traversals. TODO - move to PxsSimpleIslandManager. Or if we keep it here, we can 
 	//process multiple island simulations in parallel
-	Cm::PriorityQueue<QueueElement, NodeComparator>	mPriorityQueue;								//! Priority queue used for graph traversal
+	ev4sio_Cm::PriorityQueue<QueueElement, NodeComparator>	mPriorityQueue;								//! Priority queue used for graph traversal
 	PxArray<TraversalState>							mVisitedNodes;								//! The list of nodes visited in the current traversal
 	PxBitMap										mVisitedState;								//! Indicates whether a node has been visited
 	PxArray<EdgeIndex>								mIslandSplitEdges[Edge::eEDGE_TYPE_COUNT];
@@ -488,22 +488,22 @@ public:
 		}
 	}
 
-	PX_FORCE_INLINE const Island&				getIsland(IG::IslandId islandIndex)		const { return mIslands[islandIndex]; }
+	PX_FORCE_INLINE const Island&				getIsland(ev4sio_IG::IslandId islandIndex)		const { return mIslands[islandIndex]; }
 	PX_FORCE_INLINE const Island&				getIsland(const PxNodeIndex& nodeIndex)	const { PX_ASSERT(mIslandIds[nodeIndex.index()] != IG_INVALID_ISLAND); return mIslands[mIslandIds[nodeIndex.index()]]; }
 
 	PX_FORCE_INLINE PxU32						getNbActiveIslands()	const	{ return mActiveIslands.size();		}
 	PX_FORCE_INLINE const IslandId*				getActiveIslands()		const	{ return mActiveIslands.begin();	}
 
-	PX_FORCE_INLINE PxU32						getNbDeactivatingEdges(const IG::Edge::EdgeType edgeType)	const	{ return mDeactivatingEdges[edgeType].size();	}
-	PX_FORCE_INLINE const EdgeIndex*			getDeactivatingEdges(const IG::Edge::EdgeType edgeType)		const	{ return mDeactivatingEdges[edgeType].begin();	}
+	PX_FORCE_INLINE PxU32						getNbDeactivatingEdges(const ev4sio_IG::Edge::EdgeType edgeType)	const	{ return mDeactivatingEdges[edgeType].size();	}
+	PX_FORCE_INLINE const EdgeIndex*			getDeactivatingEdges(const ev4sio_IG::Edge::EdgeType edgeType)		const	{ return mDeactivatingEdges[edgeType].begin();	}
 
 	// PT: this is not actually used externally
 	//PX_FORCE_INLINE PxU32						getNbDestroyedEdges()	const	{ return mDestroyedEdges.size();	}
 	//PX_FORCE_INLINE const EdgeIndex*			getDestroyedEdges()		const	{ return mDestroyedEdges.begin();	}
 
 	// PT: this is not actually used externally. Still used internally in IslandSim.
-	//PX_FORCE_INLINE PxU32						getNbDirtyEdges(IG::Edge::EdgeType type)	const	{ return mDirtyEdges[type].size();	}
-	//PX_FORCE_INLINE const EdgeIndex*			getDirtyEdges(IG::Edge::EdgeType type)		const	{ return mDirtyEdges[type].begin();	}
+	//PX_FORCE_INLINE PxU32						getNbDirtyEdges(ev4sio_IG::Edge::EdgeType type)	const	{ return mDirtyEdges[type].size();	}
+	//PX_FORCE_INLINE const EdgeIndex*			getDirtyEdges(ev4sio_IG::Edge::EdgeType type)		const	{ return mDirtyEdges[type].begin();	}
 
 	PX_FORCE_INLINE PxU32						getNbEdges()					const	{ return mEdges.size();		}
 	PX_FORCE_INLINE const Edge&					getEdge(EdgeIndex edgeIndex)	const	{ return mEdges[edgeIndex];	}
@@ -524,7 +524,7 @@ public:
 													return mIslandStaticTouchCount[mIslandIds[nodeIndex.index()]];
 												}
 
-	PX_FORCE_INLINE	const IG::IslandId*			getIslandIds()				const { return mIslandIds.begin(); }
+	PX_FORCE_INLINE	const ev4sio_IG::IslandId*			getIslandIds()				const { return mIslandIds.begin(); }
 
 	PX_FORCE_INLINE	PxU64						getContextId()				const { return mContextId;	}
 
@@ -536,16 +536,16 @@ public:
 
 	PX_INLINE void activateNode_ForGPUSolver(PxNodeIndex index)
 	{
-		IG::Node& node = mNodes[index.index()];
+		ev4sio_IG::Node& node = mNodes[index.index()];
 		node.clearIsReadyForSleeping(); //Clear the "isReadyForSleeping" flag. Just in case it was set
 	}
 	PX_INLINE void deactivateNode_ForGPUSolver(PxNodeIndex index)
 	{
-		IG::Node& node = mNodes[index.index()];
+		ev4sio_IG::Node& node = mNodes[index.index()];
 		node.setIsReadyForSleeping();
 	}
 
-	// PT: these three functions added for multithreaded implementation of Sc::Scene::islandInsertion
+	// PT: these three functions added for multithreaded implementation of ev4sio_Sc::Scene::islandInsertion
 	void preallocateConnections(EdgeIndex handle);
 	bool addConnectionPreallocated(PxNodeIndex nodeHandle1, PxNodeIndex nodeHandle2, Edge::EdgeType edgeType, EdgeIndex handle);
 	void addDelayedDirtyEdges(PxU32 nbHandles, const EdgeIndex* handles);
@@ -751,7 +751,7 @@ private:
 
 		if (index1 != PX_INVALID_NODE && index2 != PX_INVALID_NODE)
 		{
-			PX_ASSERT((!mNodes[index1].isKinematic()) || (!mNodes[index2].isKinematic()) || edge.getEdgeType() == IG::Edge::eCONTACT_MANAGER);
+			PX_ASSERT((!mNodes[index1].isKinematic()) || (!mNodes[index2].isKinematic()) || edge.getEdgeType() == ev4sio_IG::Edge::eCONTACT_MANAGER);
 			{
 				Node& node = mNodes[index1];
 				if(node.mActiveRefCount == 0 && node.isKinematic() && !node.isActiveOrActivating())

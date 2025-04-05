@@ -33,9 +33,9 @@
 #include "GuConvexSupportTable.h"
 #include "GuDistancePointTriangle.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Gu
+namespace ev4sio_Gu
 {
 
 	
@@ -94,7 +94,7 @@ namespace Gu
 
 		\param[in] triangle Tri to copy
 		*/
-		PX_FORCE_INLINE			TriangleV(const Gu::TriangleV& triangle) : ConvexV(ConvexType::eTRIANGLE)
+		PX_FORCE_INLINE			TriangleV(const ev4sio_Gu::TriangleV& triangle) : ConvexV(ConvexType::eTRIANGLE)
 		{
 			using namespace aos;
 			verts[0] = triangle.verts[0];

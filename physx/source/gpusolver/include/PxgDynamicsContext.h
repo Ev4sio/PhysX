@@ -31,9 +31,9 @@
 
 #include "PxgContext.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-	namespace Cm
+	namespace ev4sio_Cm
 	{
 		class FlushPool;
 	}
@@ -50,8 +50,8 @@ namespace physx
 		PX_NOCOPY(PxgDynamicsContext)
 
 	public:
-		PxgDynamicsContext(Cm::FlushPool& flushPool, PxsKernelWranglerManager* gpuKernelWrangler, PxCudaContextManager* cudaContextManager,
-			const PxGpuDynamicsMemoryConfig& config, IG::SimpleIslandManager& islandManager, PxU32 maxNumPartitions, PxU32 maxNumStaticPartitions,
+		PxgDynamicsContext(ev4sio_Cm::FlushPool& flushPool, PxsKernelWranglerManager* gpuKernelWrangler, PxCudaContextManager* cudaContextManager,
+			const PxGpuDynamicsMemoryConfig& config, ev4sio_IG::SimpleIslandManager& islandManager, PxU32 maxNumPartitions, PxU32 maxNumStaticPartitions,
 			bool enableStabilization, bool useEnhancedDeterminism, PxReal maxBiasCoefficient, PxvSimStats& simStats,
 			PxgHeapMemoryAllocatorManager* heapMemoryManager, bool frictionEveryIteration, PxReal lengthScale, bool enableDirectGPUAPI, PxU64 contextID, bool isResidualReportingEnabled);
 

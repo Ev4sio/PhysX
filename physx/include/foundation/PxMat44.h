@@ -35,7 +35,7 @@
 #include "foundation/PxTransform.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -380,7 +380,7 @@ typedef PxMat44T<float>		PxMat44;
 typedef PxMat44T<double>	PxMat44d;
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

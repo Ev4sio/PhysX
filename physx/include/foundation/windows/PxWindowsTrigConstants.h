@@ -29,7 +29,7 @@
 #ifndef PX_WINDOWS_TRIG_CONSTANTS_H
 #define PX_WINDOWS_TRIG_CONSTANTS_H
 
-namespace physx
+namespace ev4sio_physx
 {
 namespace aos
 {
@@ -55,6 +55,6 @@ PX_GLOBALCONST PX_VECTORF32 g_PXReciprocalTwoPi = { { PxInvTwoPi, PxInvTwoPi, Px
 PX_GLOBALCONST PX_VECTORF32 g_PXTwoPi = { { PxTwoPi, PxTwoPi, PxTwoPi, PxTwoPi } };
 
 } // namespace aos
-} // namespace physx
+} // namespace ev4sio_physx
 
 #endif

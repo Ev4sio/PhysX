@@ -37,7 +37,7 @@
 #include "foundation/PxArray.h"
 #include "foundation/PxMutex.h"
 
-namespace physx { namespace profile {
+namespace ev4sio_physx { namespace profile {
 
 	struct NullEventNameProvider : public PxProfileNameProvider
 	{

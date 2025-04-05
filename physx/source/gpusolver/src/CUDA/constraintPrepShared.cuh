@@ -48,26 +48,26 @@
 
 #define PXC_SAME_NORMAL 0.999f
 
-static __device__ physx::PxU32 computeRemapIndexRigidBody(bool isSecondBody, 
-	const physx::PxU32* const PX_RESTRICT partitionStartIndices, 
-	const physx::PxU32* const PX_RESTRICT partitionArticStartIndices, 
-	const physx::PxU32* const PX_RESTRICT partitionJointCounts,
-	const physx::PxU32* const PX_RESTRICT partitionArticulationJointCounts, 
-	const physx::PartitionIndexData& indexData, 
-	physx::PxgSolverReferences* solverBodyReferences, 
-	physx::PxU32 currPartition, 
-	physx::PxU32 maxNbPartitions, 
-	const physx::PxU32 totalActiveBodyCount,
-	const physx::PxU32 bodyId,
-	const physx::PxU32 activeBodyOffset, 
-	const physx::PxU32 totalRigidBatches, 
-	const physx::PxU32 totalArticBatches,
-	const physx::PxU32 nbElemsPerBody,
-	const physx::PxU32 nbSlabs,
-	const physx::PxU32 solverBodyOutputVelocityOffset //Only used for assert
+static __device__ ev4sio_physx::PxU32 computeRemapIndexRigidBody(bool isSecondBody, 
+	const ev4sio_physx::PxU32* const PX_RESTRICT partitionStartIndices, 
+	const ev4sio_physx::PxU32* const PX_RESTRICT partitionArticStartIndices, 
+	const ev4sio_physx::PxU32* const PX_RESTRICT partitionJointCounts,
+	const ev4sio_physx::PxU32* const PX_RESTRICT partitionArticulationJointCounts, 
+	const ev4sio_physx::PartitionIndexData& indexData, 
+	ev4sio_physx::PxgSolverReferences* solverBodyReferences, 
+	ev4sio_physx::PxU32 currPartition, 
+	ev4sio_physx::PxU32 maxNbPartitions, 
+	const ev4sio_physx::PxU32 totalActiveBodyCount,
+	const ev4sio_physx::PxU32 bodyId,
+	const ev4sio_physx::PxU32 activeBodyOffset, 
+	const ev4sio_physx::PxU32 totalRigidBatches, 
+	const ev4sio_physx::PxU32 totalArticBatches,
+	const ev4sio_physx::PxU32 nbElemsPerBody,
+	const ev4sio_physx::PxU32 nbSlabs,
+	const ev4sio_physx::PxU32 solverBodyOutputVelocityOffset //Only used for assert
 )
 {
-	using namespace physx;
+	using namespace ev4sio_physx;
 	//Computes the remapped index for the rigid body being referenced by this constraint.
 	//This is quite complicated. For rigid body constraints, there are up to 32 pairs of rigid bodies referenced
 	//by each constraint batch.
@@ -161,11 +161,11 @@ static __device__ physx::PxU32 computeRemapIndexRigidBody(bool isSecondBody,
 }
 
 
-static __device__ PX_FORCE_INLINE bool pointsAreClose(const physx::PxAlignedTransform& body1ToBody0,
+static __device__ PX_FORCE_INLINE bool pointsAreClose(const ev4sio_physx::PxAlignedTransform& body1ToBody0,
 	const float4& localAnchor0, const float4& localAnchor1,
 	const float4& axis, float correlDist)
 {
-	using namespace physx;
+	using namespace ev4sio_physx;
 
 	const float4 body0PatchPoint1 = body1ToBody0.transform(localAnchor1);
 
@@ -204,7 +204,7 @@ static __device__ PX_FORCE_INLINE void queryReduced1dConstraintSolverConstantsPG
 		// coeff0: constant (to be scaled by recipUnitResponse)
 		// coeff1: unbiasedConstant (to be scaled by recipUnitResponse)
 
-		const PxReal bounceVel = Dy::computeBounceVelocity(constraintFlags, jointSpeedForRestitutionBounce, bounceThreshold, restitution, geometricError);
+		const PxReal bounceVel = ev4sio_Dy::computeBounceVelocity(constraintFlags, jointSpeedForRestitutionBounce, bounceThreshold, restitution, geometricError);
 		if (bounceVel != 0.0f)
 		{
 			coeff0 = bounceVel;

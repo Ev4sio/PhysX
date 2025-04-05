@@ -32,7 +32,7 @@
 #include "PxvConfig.h"
 #include "foundation/PxBasicTemplates.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 /*!

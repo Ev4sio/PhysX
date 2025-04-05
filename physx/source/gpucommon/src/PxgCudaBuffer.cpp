@@ -38,7 +38,7 @@
 
 #define MEMCHECK_SUPPORT 0
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 void PxgCudaBuffer::allocate(const PxU64 size, const char* filename, PxI32 line)
 {
@@ -85,7 +85,7 @@ void PxgCudaBuffer::allocate(const PxU64 size, const char* filename, PxI32 line)
 			}
 			else
 			{
-				PxGetFoundation().error(physx::PxErrorCode::eDEBUG_WARNING, PX_FL,
+				ev4sio_PxGetFoundation().error(ev4sio_physx::PxErrorCode::eDEBUG_WARNING, PX_FL,
 					"Not possible to stomp PxgCudaBufferMemory because not cuda context manager is available.");
 			}
 		}

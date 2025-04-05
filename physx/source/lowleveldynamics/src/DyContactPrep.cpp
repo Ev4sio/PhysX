@@ -33,7 +33,7 @@
 #include "DyConstraintPrep.h"
 #include "DyAllocator.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 #include "DyContactPrepShared.h"
 
@@ -41,9 +41,9 @@ using namespace physx;
 
 using namespace aos;
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Dy
+namespace ev4sio_Dy
 {
 
 static void setupFinalizeSolverConstraints(
@@ -410,7 +410,7 @@ PX_FORCE_INLINE void computeBlockStreamByteSizes(const bool useExtContacts, cons
 	PX_ASSERT(0 == (_frictionPatchByteSize & 0x0f));
 }
 
-static bool reserveBlockStreams(const bool useExtContacts, Dy::CorrelationBuffer& cBuffer,
+static bool reserveBlockStreams(const bool useExtContacts, ev4sio_Dy::CorrelationBuffer& cBuffer,
 						PxU8*& solverConstraint,
 						FrictionPatch*& _frictionPatches,
 						PxU32& numFrictionPatches, PxU32& solverConstraintByteSize,
@@ -478,7 +478,7 @@ bool createFinalizeSolverContacts(
 	PxReal frictionOffsetThreshold,
 	PxReal correlationDistance,
 	PxConstraintAllocator& constraintAllocator,
-	Cm::SpatialVectorF* Z)
+	ev4sio_Cm::SpatialVectorF* Z)
 {
 	PxPrefetchLine(contactDesc.body0);
 	PxPrefetchLine(contactDesc.body1);
@@ -518,7 +518,7 @@ bool createFinalizeSolverContacts(
 
 #if PX_CHECKED
 	if (overflow)
-		PxGetFoundation().error(physx::PxErrorCode::eDEBUG_WARNING, PX_FL, "Dropping contacts in solver because we exceeded limit of 32 friction patches.");
+		ev4sio_PxGetFoundation().error(ev4sio_physx::PxErrorCode::eDEBUG_WARNING, PX_FL, "Dropping contacts in solver because we exceeded limit of 32 friction patches.");
 #endif
 
 	growPatches(c, contactDesc.contacts, contactDesc.bodyFrame0, contactDesc.bodyFrame1, 0, frictionOffsetThreshold + contactDesc.restDistance);
@@ -609,8 +609,8 @@ bool createFinalizeSolverContacts(
 FloatV setupExtSolverContact(const SolverExtBody& b0, const SolverExtBody& b1,
 	const FloatV& d0, const FloatV& d1, const FloatV& angD0, const FloatV& angD1, const Vec3V& bodyFrame0p, const Vec3V& bodyFrame1p,
 	const Vec3VArg normal, const FloatVArg invDt, const FloatVArg invDtp8, const FloatVArg dt, const FloatVArg restDistance, 
-	const FloatVArg maxPenBias, const FloatVArg restitution,const FloatVArg bounceThreshold, const PxContactPoint& contact, SolverContactPointExt& solverContact, const FloatVArg ccdMaxSeparation, Cm::SpatialVectorF* zVector,
-	const Cm::SpatialVectorV& v0, const Cm::SpatialVectorV& v1, const FloatV& cfm, const Vec3VArg solverOffsetSlop,
+	const FloatVArg maxPenBias, const FloatVArg restitution,const FloatVArg bounceThreshold, const PxContactPoint& contact, SolverContactPointExt& solverContact, const FloatVArg ccdMaxSeparation, ev4sio_Cm::SpatialVectorF* zVector,
+	const ev4sio_Cm::SpatialVectorV& v0, const ev4sio_Cm::SpatialVectorV& v1, const FloatV& cfm, const Vec3VArg solverOffsetSlop,
 	const FloatVArg norVel0, const FloatVArg norVel1, const FloatVArg damping, const BoolVArg accelerationSpring)
 {
 	const FloatV zero = FZero();
@@ -642,13 +642,13 @@ FloatV setupExtSolverContact(const SolverExtBody& b0, const SolverExtBody& b1,
 
 	relAngVel = FSub(aVel0, aVel1);
 
-	Cm::SpatialVectorV deltaV0, deltaV1;
+	ev4sio_Cm::SpatialVectorV deltaV0, deltaV1;
 
-	const Cm::SpatialVectorV resp0 = createImpulseResponseVector(normal, raXn, b0);
-	const Cm::SpatialVectorV resp1 = createImpulseResponseVector(V3Neg(normal), V3Neg(rbXn), b1);
+	const ev4sio_Cm::SpatialVectorV resp0 = createImpulseResponseVector(normal, raXn, b0);
+	const ev4sio_Cm::SpatialVectorV resp1 = createImpulseResponseVector(V3Neg(normal), V3Neg(rbXn), b1);
 
 	const FloatV unitResponse = getImpulseResponse(b0, resp0, deltaV0, d0, angD0,
-		b1, resp1, deltaV1, d1, angD1, reinterpret_cast<Cm::SpatialVectorV*>(zVector));
+		b1, resp1, deltaV1, d1, angD1, reinterpret_cast<ev4sio_Cm::SpatialVectorV*>(zVector));
 
 	const FloatV vrel = FAdd(relLinVel, relAngVel);
 
@@ -718,7 +718,7 @@ bool createFinalizeSolverContacts(PxSolverContactDesc& contactDesc,
 								 PxReal frictionOffsetThreshold,
 								 PxReal correlationDistance,
 								 PxConstraintAllocator& constraintAllocator,
-								 Cm::SpatialVectorF* Z)
+								 ev4sio_Cm::SpatialVectorF* Z)
 {
 	PxContactBuffer& buffer = threadContext.mContactBuffer;
 

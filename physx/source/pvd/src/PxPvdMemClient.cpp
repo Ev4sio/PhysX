@@ -29,7 +29,7 @@
 #include "PxPvdImpl.h"
 #include "PxPvdMemClient.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 namespace pvdsdk
 {

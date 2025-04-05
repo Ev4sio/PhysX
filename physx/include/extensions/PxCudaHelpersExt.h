@@ -41,9 +41,9 @@
 #include "cudamanager/PxCudaTypes.h"
 
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Ext
+namespace ev4sio_Ext
 {
 
 class PxCudaHelpersExt
@@ -68,7 +68,7 @@ static T* allocDeviceBuffer(PxCudaContextManager& cudaContextManager, PxU64 numE
     CUdeviceptr ptr = 0;
 	PxCUresult result = cudaContextManager.getCudaContext()->memAlloc(&ptr, numElements * sizeof(T));
     if (result != 0)
-	    PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "allocDeviceBuffer failed with error code %i!\n", PxI32(result));
+	    ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "allocDeviceBuffer failed with error code %i!\n", PxI32(result));
 
 	return reinterpret_cast<T*>(ptr);
 }
@@ -89,7 +89,7 @@ static void freeDeviceBuffer(PxCudaContextManager& cudaContextManager, T*& devic
         PxScopedCudaLock lock(cudaContextManager);
         PxCUresult result = cudaContextManager.getCudaContext()->memFree(reinterpret_cast<CUdeviceptr>(deviceBuffer));
         if (result != 0)
-	        PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "freeDeviceBuffer failed with error code %i!\n", PxI32(result));
+	        ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "freeDeviceBuffer failed with error code %i!\n", PxI32(result));
 
         deviceBuffer = NULL;
     }
@@ -116,7 +116,7 @@ static T* allocPinnedHostBuffer(PxCudaContextManager& cudaContextManager, PxU64 
 	const unsigned int cuMemhostallocPortable = 0x01;
 	PxCUresult result = cudaContextManager.getCudaContext()->memHostAlloc(&ptr, numElements * sizeof(T), cuMemhostallocDevicemap | cuMemhostallocPortable);
     if (result != 0)
-	    PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "allocPinnedHostBuffer failed with error code %i!\n", PxI32(result));
+	    ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "allocPinnedHostBuffer failed with error code %i!\n", PxI32(result));
 
 	return reinterpret_cast<T*>(ptr);
 }
@@ -137,7 +137,7 @@ static void freePinnedHostBuffer(PxCudaContextManager& cudaContextManager, T*& p
         PxScopedCudaLock lock(cudaContextManager);
         PxCUresult result = cudaContextManager.getCudaContext()->memFreeHost(pinnedHostBuffer);
         if (result != 0)
-	        PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "freePinnedHostBuffer failed with error code %i!\n", PxI32(result));
+	        ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "freePinnedHostBuffer failed with error code %i!\n", PxI32(result));
 
         pinnedHostBuffer = NULL;
     }
@@ -164,7 +164,7 @@ static void copyDToH(PxCudaContextManager& cudaContextManager, T* hostBuffer, co
 
 	PxCUresult result = cudaContextManager.getCudaContext()->memcpyDtoH(hostBuffer, CUdeviceptr(deviceBuffer), numBytes);
 	if (result != 0)
-	    PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "copyDToH failed with error code %i!\n", PxI32(result));
+	    ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "copyDToH failed with error code %i!\n", PxI32(result));
 }
 
 /**
@@ -188,7 +188,7 @@ static void copyHToD(PxCudaContextManager& cudaContextManager, T* deviceBuffer, 
 
 	PxCUresult result = cudaContextManager.getCudaContext()->memcpyHtoD(CUdeviceptr(deviceBuffer), hostBuffer, numBytes);
 	if (result != 0)
-	    PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "copyHtoD failed with error code %i!\n", PxI32(result));
+	    ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "copyHtoD failed with error code %i!\n", PxI32(result));
 }
 
 /**
@@ -213,7 +213,7 @@ static void copyDToHAsync(PxCudaContextManager& cudaContextManager, T* hostBuffe
 
 	PxCUresult result = cudaContextManager.getCudaContext()->memcpyDtoHAsync(hostBuffer, CUdeviceptr(deviceBuffer), numBytes, stream);
 	if (result != 0)
-	    PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "copyDtoHAsync failed with error code %i!\n", PxI32(result));
+	    ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "copyDtoHAsync failed with error code %i!\n", PxI32(result));
 }
 
 /**
@@ -238,7 +238,7 @@ static void copyHToDAsync(PxCudaContextManager& cudaContextManager, T* deviceBuf
 
 	PxCUresult result = cudaContextManager.getCudaContext()->memcpyHtoDAsync(CUdeviceptr(deviceBuffer), hostBuffer, numBytes, stream);
 	if (result != 0)
-	    PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "copyHtoDAsync failed with error code %i!\n", PxI32(result));
+	    ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "copyHtoDAsync failed with error code %i!\n", PxI32(result));
 }
 
 /**
@@ -263,7 +263,7 @@ static void copyDToDAsync(PxCudaContextManager& cudaContextManager, T* dstDevice
 
 	PxCUresult result = cudaContextManager.getCudaContext()->memcpyDtoDAsync(CUdeviceptr(dstDeviceBuffer), CUdeviceptr(srcDeviceBuffer), numBytes, stream);
 	if (result != 0)
-	    PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "copyDtoDAsync failed with error code %i!\n", PxI32(result));
+	    ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "copyDtoDAsync failed with error code %i!\n", PxI32(result));
 }
 
 /**
@@ -292,22 +292,22 @@ static void memsetAsync(PxCudaContextManager& cudaContextManager, T* dstDeviceBu
     {
         PxCUresult result = cudaContextManager.getCudaContext()->memsetD32Async(CUdeviceptr(dstDeviceBuffer), reinterpret_cast<const PxU32&>(value), numBytes >> 2, stream);
         if (result != 0)
-	        PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "memsetAsync failed with error code %i!\n", PxI32(result));
+	        ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "memsetAsync failed with error code %i!\n", PxI32(result));
     }
 	else
     {
         PxCUresult result = cudaContextManager.getCudaContext()->memsetD8Async(CUdeviceptr(dstDeviceBuffer), reinterpret_cast<const PxU8&>(value), numBytes, stream);
         if (result != 0)
-	        PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "memsetAsync failed with error code %i!\n", PxI32(result));
+	        ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "memsetAsync failed with error code %i!\n", PxI32(result));
     }  
 }
 };
 
-#define PX_EXT_DEVICE_MEMORY_ALLOC(T, cudaContextManager, numElements) physx::Ext::PxCudaHelpersExt::allocDeviceBuffer<T>(cudaContextManager, numElements)
-#define PX_EXT_DEVICE_MEMORY_FREE(cudaContextManager, deviceBuffer) physx::Ext::PxCudaHelpersExt::freeDeviceBuffer(cudaContextManager, deviceBuffer);
+#define PX_EXT_DEVICE_MEMORY_ALLOC(T, cudaContextManager, numElements) ev4sio_physx::ev4sio_Ext::PxCudaHelpersExt::allocDeviceBuffer<T>(cudaContextManager, numElements)
+#define PX_EXT_DEVICE_MEMORY_FREE(cudaContextManager, deviceBuffer) ev4sio_physx::ev4sio_Ext::PxCudaHelpersExt::freeDeviceBuffer(cudaContextManager, deviceBuffer);
 
-#define PX_EXT_PINNED_MEMORY_ALLOC(T, cudaContextManager, numElements) physx::Ext::PxCudaHelpersExt::allocPinnedHostBuffer<T>(cudaContextManager, numElements)
-#define PX_EXT_PINNED_MEMORY_FREE(cudaContextManager, pinnedHostBuffer) physx::Ext::PxCudaHelpersExt::freePinnedHostBuffer(cudaContextManager, pinnedHostBuffer);
+#define PX_EXT_PINNED_MEMORY_ALLOC(T, cudaContextManager, numElements) ev4sio_physx::ev4sio_Ext::PxCudaHelpersExt::allocPinnedHostBuffer<T>(cudaContextManager, numElements)
+#define PX_EXT_PINNED_MEMORY_FREE(cudaContextManager, pinnedHostBuffer) ev4sio_physx::ev4sio_Ext::PxCudaHelpersExt::freePinnedHostBuffer(cudaContextManager, pinnedHostBuffer);
 
 }
 }

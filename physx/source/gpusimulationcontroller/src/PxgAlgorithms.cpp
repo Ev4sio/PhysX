@@ -42,7 +42,7 @@
 #include "foundation/PxErrors.h"
 #include "foundation/PxFoundation.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 	void scanPerBlockLaunch(PxgKernelLauncher& launcher, const PxU32* data, PxU32* result, PxU32* partialSums, const PxU32 length, const PxU32 numBlocks,
@@ -158,7 +158,7 @@ namespace physx
 			if (!mValueReorderBuffer)
 			{
 				// the allocation above can fail, and if we just continue we're getting a mess with the pointers because of the swap below.		
-				PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "PxGpuRadixSort: failed to allocate reorder buffer, aborting sort!\n");
+				ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "PxGpuRadixSort: failed to allocate reorder buffer, aborting sort!\n");
 				return;
 			}
 		}

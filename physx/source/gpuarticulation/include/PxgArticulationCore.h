@@ -42,7 +42,7 @@
 #include "DyFeatherstoneArticulation.h"
 #include "PxgArticulation.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	//this is needed to force PhysXArticulationGpu linkage as Static Library!
 	void createPxgArticulation();
@@ -96,7 +96,7 @@ namespace physx
 		void saveVelocities();
 		void updateBodies(PxReal dt, bool integrate, bool enableDirectGPUAPI);
 		void gpuMemDMAbackArticulation(PxInt8ArrayPinned& linkAndJointAndRootStateData,
-			PxPinnedArray<PxgSolverBodySleepData>& wakeCounterPool, PxPinnedArray<Dy::ErrorAccumulator>& internalResidualPerArticulation, PxPinnedArray<Dy::ErrorAccumulator>& contactResidual);
+			PxPinnedArray<PxgSolverBodySleepData>& wakeCounterPool, PxPinnedArray<ev4sio_Dy::ErrorAccumulator>& internalResidualPerArticulation, PxPinnedArray<ev4sio_Dy::ErrorAccumulator>& contactResidual);
 
 		void setSolverStream(CUstream& solverStream) { mSolverStream = &solverStream; }
 		
@@ -165,7 +165,7 @@ namespace physx
 		PxgTypedCudaBuffer<PxgArticulationOutputDesc> mArticulationOutputDescd;
 		PxU32								mNbActiveArticulation;
 
-		PxgTypedCudaBuffer<Cm::UnAlignedSpatialVector> mDeltaVs;
+		PxgTypedCudaBuffer<ev4sio_Cm::UnAlignedSpatialVector> mDeltaVs;
 		PxgTypedCudaBuffer<uint2>			mSlabHasChanges;
 		PxgTypedCudaBuffer<uint4>			mSlabDirtyMasks;
 

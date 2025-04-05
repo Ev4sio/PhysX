@@ -32,8 +32,8 @@
 #include "GuIntersectionTriangleBox.h"
 #include "GuBox.h"
 
-using namespace physx;
-using namespace Ext;
+using namespace ev4sio_physx;
+using namespace ev4sio_Ext;
 
 // -------------------------------------------------------------------------------------
 void Remesher::clear()
@@ -112,7 +112,7 @@ void Remesher::remesh(const PxVec3* inputVerts, PxU32 nbVertices, const PxU32* i
 
 	PxU32 numTris = nbTriangleIndices / 3;
 	PxBounds3 triBounds, cellBounds;
-	Gu::BoxPadded box;
+	ev4sio_Gu::BoxPadded box;
 	box.rot = PxMat33(PxIdentity);
 
 	firstCell.clear();
@@ -154,7 +154,7 @@ void Remesher::remesh(const PxVec3* inputVerts, PxU32 nbVertices, const PxU32* i
 					box.center = cellBounds.getCenter();
 					box.extents = cellBounds.getExtents();
 
-					if (!Gu::intersectTriangleBox(box, p0, p1, p2))
+					if (!ev4sio_Gu::intersectTriangleBox(box, p0, p1, p2))
 						continue;
 
 					if (!cellExists(xi, yi, zi))

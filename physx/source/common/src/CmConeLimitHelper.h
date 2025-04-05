@@ -37,9 +37,9 @@
 
 #include "foundation/PxMathUtils.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Cm
+namespace ev4sio_Cm
 {
 	PX_CUDA_CALLABLE PX_FORCE_INLINE PxReal tanAdd(PxReal tan1, PxReal tan2)
 	{
@@ -181,7 +181,7 @@ namespace Cm
 		PxReal mYMax, mZMax;
 	};
 
-} // namespace Cm
+} // namespace ev4sio_Cm
 
 }
 

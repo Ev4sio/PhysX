@@ -41,32 +41,32 @@
 #include "geometry/PxTetrahedronMesh.h"
 
 
-using namespace physx;
+using namespace ev4sio_physx;
 
-Sc::DeformableVolumeCore::DeformableVolumeCore() :
+ev4sio_Sc::DeformableVolumeCore::DeformableVolumeCore() :
 	ActorCore(PxActorType::eDEFORMABLE_VOLUME, PxActorFlag::eVISUALIZATION, PX_DEFAULT_CLIENT, 0),
 	mGpuMemStat(0)
 {
 	const PxTolerancesScale& scale = Physics::getInstance().getTolerancesScale();
 
-	// Dy::DeformableCore
+	// ev4sio_Dy::DeformableCore
 	mCore.sleepThreshold = 5e-5f * scale.speed * scale.speed;
 	mCore.solverIterationCounts = (1 << 8) | 4;
 	mCore.wakeCounter = Physics::sWakeCounterOnCreation;
 	mCore.dirty = true;
 	
-	// Dy::DeformableVolumeCore
+	// ev4sio_Dy::DeformableVolumeCore
 	mCore.freezeThreshold = 5e-6f * scale.speed * scale.speed;
 }
 
 
-Sc::DeformableVolumeCore::~DeformableVolumeCore() { }
+ev4sio_Sc::DeformableVolumeCore::~DeformableVolumeCore() { }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 // PxActor API
 /////////////////////////////////////////////////////////////////////////////////////////
 
-void Sc::DeformableVolumeCore::setActorFlags(PxActorFlags flags)
+void ev4sio_Sc::DeformableVolumeCore::setActorFlags(PxActorFlags flags)
 {
 	mCore.actorFlags = flags;
 	mCore.dirty = true;
@@ -76,9 +76,9 @@ void Sc::DeformableVolumeCore::setActorFlags(PxActorFlags flags)
 // PxDeformableBody API
 /////////////////////////////////////////////////////////////////////////////////////////
 
-void Sc::DeformableVolumeCore::setBodyFlags(PxDeformableBodyFlags flags)
+void ev4sio_Sc::DeformableVolumeCore::setBodyFlags(PxDeformableBodyFlags flags)
 {
-	Sc::DeformableVolumeSim* sim = getSim();
+	ev4sio_Sc::DeformableVolumeSim* sim = getSim();
 	if (sim)
 	{
 		const bool wasDisabledSelfCollision = mCore.bodyFlags & PxDeformableBodyFlag::eDISABLE_SELF_COLLISION;
@@ -97,65 +97,65 @@ void Sc::DeformableVolumeCore::setBodyFlags(PxDeformableBodyFlags flags)
 	mCore.dirty = true;
 }
 
-void Sc::DeformableVolumeCore::setLinearDamping(const PxReal v)
+void ev4sio_Sc::DeformableVolumeCore::setLinearDamping(const PxReal v)
 {
 	mCore.linearDamping = v;
 	mCore.dirty = true;
 }
 
-void Sc::DeformableVolumeCore::setMaxLinearVelocity(const PxReal v)
+void ev4sio_Sc::DeformableVolumeCore::setMaxLinearVelocity(const PxReal v)
 {
 	mCore.maxLinearVelocity = v;
 	mCore.dirty = true;
 }
 
-void Sc::DeformableVolumeCore::setMaxPenetrationBias(const PxReal v)
+void ev4sio_Sc::DeformableVolumeCore::setMaxPenetrationBias(const PxReal v)
 {
 	mCore.maxPenetrationBias = v;
 	mCore.dirty = true;
 }
 
-void Sc::DeformableVolumeCore::setSolverIterationCounts(const PxU16 c)
+void ev4sio_Sc::DeformableVolumeCore::setSolverIterationCounts(const PxU16 c)
 {
 	mCore.solverIterationCounts = c;
 	mCore.dirty = true;
 }
 
-void Sc::DeformableVolumeCore::setSleepThreshold(const PxReal v)
+void ev4sio_Sc::DeformableVolumeCore::setSleepThreshold(const PxReal v)
 {
 	mCore.sleepThreshold = v;
 	mCore.dirty = true;
 }
 
-void Sc::DeformableVolumeCore::setSettlingThreshold(const PxReal v)
+void ev4sio_Sc::DeformableVolumeCore::setSettlingThreshold(const PxReal v)
 {
 	mCore.settlingThreshold = v;
 	mCore.dirty = true;
 }
 
-void Sc::DeformableVolumeCore::setSettlingDamping(const PxReal v)
+void ev4sio_Sc::DeformableVolumeCore::setSettlingDamping(const PxReal v)
 {
 	mCore.settlingDamping = v;
 	mCore.dirty = true;
 }
 
-void Sc::DeformableVolumeCore::setSelfCollisionFilterDistance(const PxReal v)
+void ev4sio_Sc::DeformableVolumeCore::setSelfCollisionFilterDistance(const PxReal v)
 {
 	mCore.selfCollisionFilterDistance = v;
 	mCore.dirty = true;
 }
 
-void Sc::DeformableVolumeCore::setWakeCounter(const PxReal v)
+void ev4sio_Sc::DeformableVolumeCore::setWakeCounter(const PxReal v)
 {
 	setWakeCounterInternal(v);
 }
 
-void Sc::DeformableVolumeCore::setWakeCounterInternal(const PxReal v)
+void ev4sio_Sc::DeformableVolumeCore::setWakeCounterInternal(const PxReal v)
 {
 	mCore.wakeCounter = v;
 	mCore.dirty = true;
 
-	Sc::DeformableVolumeSim* sim = getSim();
+	ev4sio_Sc::DeformableVolumeSim* sim = getSim();
 	if (sim)
 	{
 		sim->onSetWakeCounter();
@@ -166,49 +166,49 @@ void Sc::DeformableVolumeCore::setWakeCounterInternal(const PxReal v)
 // PxDeformableVolume API
 /////////////////////////////////////////////////////////////////////////////////////////
 
-void Sc::DeformableVolumeCore::setVolumeFlags(PxDeformableVolumeFlags flags)
+void ev4sio_Sc::DeformableVolumeCore::setVolumeFlags(PxDeformableVolumeFlags flags)
 {
 	mCore.volumeFlags = flags;
 	mCore.dirty = true;
 }
 
-void Sc::DeformableVolumeCore::setSelfCollisionStressTolerance(const PxReal v)
+void ev4sio_Sc::DeformableVolumeCore::setSelfCollisionStressTolerance(const PxReal v)
 {
 	mCore.selfCollisionStressTolerance = v;
 	mCore.dirty = true;
 }
 
-void Sc::DeformableVolumeCore::setKinematicTargets(const PxVec4* positions)
+void ev4sio_Sc::DeformableVolumeCore::setKinematicTargets(const PxVec4* positions)
 {
 	mCore.kinematicTarget = positions;
 	mCore.dirty = true;
 }
 
-PxU32 Sc::DeformableVolumeCore::getGpuIndex() const
+PxU32 ev4sio_Sc::DeformableVolumeCore::getGpuIndex() const
 {
-	const Sc::DeformableVolumeSim* sim = getSim();
+	const ev4sio_Sc::DeformableVolumeSim* sim = getSim();
 	return sim ? sim->getGpuIndex() : 0xffffffff;
 }
 
-void Sc::DeformableVolumeCore::addParticleFilter(Sc::ParticleSystemCore* core, PxU32 particleId, PxU32 userBufferId, PxU32 tetId)
+void ev4sio_Sc::DeformableVolumeCore::addParticleFilter(ev4sio_Sc::ParticleSystemCore* core, PxU32 particleId, PxU32 userBufferId, PxU32 tetId)
 {
-	Sc::DeformableVolumeSim* sim = getSim();
+	ev4sio_Sc::DeformableVolumeSim* sim = getSim();
 
 	if (sim)
 		sim->getScene().addParticleFilter(core, *sim, particleId, userBufferId, tetId);
 }
 
-void Sc::DeformableVolumeCore::removeParticleFilter(Sc::ParticleSystemCore* core, PxU32 particleId, PxU32 userBufferId, PxU32 tetId)
+void ev4sio_Sc::DeformableVolumeCore::removeParticleFilter(ev4sio_Sc::ParticleSystemCore* core, PxU32 particleId, PxU32 userBufferId, PxU32 tetId)
 {
-	Sc::DeformableVolumeSim* sim = getSim();
+	ev4sio_Sc::DeformableVolumeSim* sim = getSim();
 
 	if (sim)
 		sim->getScene().removeParticleFilter(core, *sim, particleId, userBufferId, tetId);
 }
 
-PxU32 Sc::DeformableVolumeCore::addParticleAttachment(Sc::ParticleSystemCore* core, PxU32 particleId, PxU32 userBufferId, PxU32 tetId, const PxVec4& barycentric)
+PxU32 ev4sio_Sc::DeformableVolumeCore::addParticleAttachment(ev4sio_Sc::ParticleSystemCore* core, PxU32 particleId, PxU32 userBufferId, PxU32 tetId, const PxVec4& barycentric)
 {
-	Sc::DeformableVolumeSim* sim = getSim();
+	ev4sio_Sc::DeformableVolumeSim* sim = getSim();
 	PxU32 handle = 0xFFFFFFFF;
 	if (sim)
 		handle = sim->getScene().addParticleAttachment(core, *sim, particleId, userBufferId, tetId, barycentric);
@@ -216,9 +216,9 @@ PxU32 Sc::DeformableVolumeCore::addParticleAttachment(Sc::ParticleSystemCore* co
 	return handle;
 }
 
-void Sc::DeformableVolumeCore::removeParticleAttachment(Sc::ParticleSystemCore* core, PxU32 handle)
+void ev4sio_Sc::DeformableVolumeCore::removeParticleAttachment(ev4sio_Sc::ParticleSystemCore* core, PxU32 handle)
 {
-	Sc::DeformableVolumeSim* sim = getSim();
+	ev4sio_Sc::DeformableVolumeSim* sim = getSim();
 	if (sim)
 	{
 		sim->getScene().removeParticleAttachment(core, *sim, handle);
@@ -226,25 +226,25 @@ void Sc::DeformableVolumeCore::removeParticleAttachment(Sc::ParticleSystemCore* 
 	}
 }
 
-void Sc::DeformableVolumeCore::addRigidFilter(Sc::BodyCore* core, PxU32 vertId)
+void ev4sio_Sc::DeformableVolumeCore::addRigidFilter(ev4sio_Sc::BodyCore* core, PxU32 vertId)
 {
-	Sc::DeformableVolumeSim* sim = getSim();
+	ev4sio_Sc::DeformableVolumeSim* sim = getSim();
 
 	if (sim)
 		sim->getScene().addRigidFilter(core, *sim, vertId);
 
 }
 
-void Sc::DeformableVolumeCore::removeRigidFilter(Sc::BodyCore* core, PxU32 vertId)
+void ev4sio_Sc::DeformableVolumeCore::removeRigidFilter(ev4sio_Sc::BodyCore* core, PxU32 vertId)
 {
-	Sc::DeformableVolumeSim* sim = getSim();
+	ev4sio_Sc::DeformableVolumeSim* sim = getSim();
 	if (sim)
 		sim->getScene().removeRigidFilter(core, *sim, vertId);
 }
 
-PxU32 Sc::DeformableVolumeCore::addRigidAttachment(Sc::BodyCore* core, PxU32 particleId, const PxVec3& actorSpacePose, PxConeLimitedConstraint* constraint, bool doConversion)
+PxU32 ev4sio_Sc::DeformableVolumeCore::addRigidAttachment(ev4sio_Sc::BodyCore* core, PxU32 particleId, const PxVec3& actorSpacePose, PxConeLimitedConstraint* constraint, bool doConversion)
 {
-	Sc::DeformableVolumeSim* sim = getSim();
+	ev4sio_Sc::DeformableVolumeSim* sim = getSim();
 	PxU32 handle = 0xFFFFFFFF;
 	if(sim)
 		handle = sim->getScene().addRigidAttachment(core, *sim, particleId, actorSpacePose, constraint, doConversion);
@@ -252,9 +252,9 @@ PxU32 Sc::DeformableVolumeCore::addRigidAttachment(Sc::BodyCore* core, PxU32 par
 	return handle;
 }
 
-void Sc::DeformableVolumeCore::removeRigidAttachment(Sc::BodyCore* core, PxU32 handle)
+void ev4sio_Sc::DeformableVolumeCore::removeRigidAttachment(ev4sio_Sc::BodyCore* core, PxU32 handle)
 {
-	Sc::DeformableVolumeSim* sim = getSim();
+	ev4sio_Sc::DeformableVolumeSim* sim = getSim();
 	if (sim)
 	{
 		sim->getScene().removeRigidAttachment(core, *sim, handle);
@@ -263,26 +263,26 @@ void Sc::DeformableVolumeCore::removeRigidAttachment(Sc::BodyCore* core, PxU32 h
 }
 
 
-void Sc::DeformableVolumeCore::addTetRigidFilter(Sc::BodyCore* core, PxU32 tetIdx)
+void ev4sio_Sc::DeformableVolumeCore::addTetRigidFilter(ev4sio_Sc::BodyCore* core, PxU32 tetIdx)
 {
-	Sc::DeformableVolumeSim* sim = getSim();
+	ev4sio_Sc::DeformableVolumeSim* sim = getSim();
 	if (sim)
 		sim->getScene().addTetRigidFilter(core, *sim, tetIdx);
 }
 
-void Sc::DeformableVolumeCore::removeTetRigidFilter(Sc::BodyCore* core, PxU32 tetIdx)
+void ev4sio_Sc::DeformableVolumeCore::removeTetRigidFilter(ev4sio_Sc::BodyCore* core, PxU32 tetIdx)
 {
-	Sc::DeformableVolumeSim* sim = getSim();
+	ev4sio_Sc::DeformableVolumeSim* sim = getSim();
 	if (sim)
 	{
 		sim->getScene().removeTetRigidFilter(core, *sim, tetIdx);
 	}
 }
 
-PxU32 Sc::DeformableVolumeCore::addTetRigidAttachment(Sc::BodyCore* core, PxU32 tetIdx, const PxVec4& barycentric,
+PxU32 ev4sio_Sc::DeformableVolumeCore::addTetRigidAttachment(ev4sio_Sc::BodyCore* core, PxU32 tetIdx, const PxVec4& barycentric,
 	const PxVec3& actorSpacePose, PxConeLimitedConstraint* constraint, bool doConversion)
 {
-	Sc::DeformableVolumeSim* sim = getSim();
+	ev4sio_Sc::DeformableVolumeSim* sim = getSim();
 	PxU32 handle = 0xFFFFFFFF;
 	if (sim)
 		handle = sim->getScene().addTetRigidAttachment(core, *sim, tetIdx, barycentric, actorSpacePose, constraint, doConversion);
@@ -290,39 +290,39 @@ PxU32 Sc::DeformableVolumeCore::addTetRigidAttachment(Sc::BodyCore* core, PxU32 
 	return handle;
 }
 
-void Sc::DeformableVolumeCore::addSoftBodyFilter(Sc::DeformableVolumeCore& core, PxU32 tetIdx0, PxU32 tetIdx1)
+void ev4sio_Sc::DeformableVolumeCore::addSoftBodyFilter(ev4sio_Sc::DeformableVolumeCore& core, PxU32 tetIdx0, PxU32 tetIdx1)
 {
-	Sc::DeformableVolumeSim* sim = getSim();
+	ev4sio_Sc::DeformableVolumeSim* sim = getSim();
 	if (sim)
 		sim->getScene().addSoftBodyFilter(core, tetIdx0, *sim, tetIdx1);
 }
 
-void Sc::DeformableVolumeCore::removeSoftBodyFilter(Sc::DeformableVolumeCore& core, PxU32 tetIdx0, PxU32 tetIdx1)
+void ev4sio_Sc::DeformableVolumeCore::removeSoftBodyFilter(ev4sio_Sc::DeformableVolumeCore& core, PxU32 tetIdx0, PxU32 tetIdx1)
 {
-	Sc::DeformableVolumeSim* sim = getSim();
+	ev4sio_Sc::DeformableVolumeSim* sim = getSim();
 	if (sim)
 		sim->getScene().removeSoftBodyFilter(core, tetIdx0, *sim, tetIdx1);
 }
 
-void Sc::DeformableVolumeCore::addSoftBodyFilters(Sc::DeformableVolumeCore& core, PxU32* tetIndices0, PxU32* tetIndices1, PxU32 tetIndicesSize)
+void ev4sio_Sc::DeformableVolumeCore::addSoftBodyFilters(ev4sio_Sc::DeformableVolumeCore& core, PxU32* tetIndices0, PxU32* tetIndices1, PxU32 tetIndicesSize)
 {
-	Sc::DeformableVolumeSim* sim = getSim();
+	ev4sio_Sc::DeformableVolumeSim* sim = getSim();
 	if (sim)
 		sim->getScene().addSoftBodyFilters(core, *sim, tetIndices0, tetIndices1, tetIndicesSize);
 }
 
-void Sc::DeformableVolumeCore::removeSoftBodyFilters(Sc::DeformableVolumeCore& core, PxU32* tetIndices0, PxU32* tetIndices1, PxU32 tetIndicesSize)
+void ev4sio_Sc::DeformableVolumeCore::removeSoftBodyFilters(ev4sio_Sc::DeformableVolumeCore& core, PxU32* tetIndices0, PxU32* tetIndices1, PxU32 tetIndicesSize)
 {
-	Sc::DeformableVolumeSim* sim = getSim();
+	ev4sio_Sc::DeformableVolumeSim* sim = getSim();
 	if (sim)
 		sim->getScene().removeSoftBodyFilters(core, *sim, tetIndices0, tetIndices1, tetIndicesSize);
 }
 
 
-PxU32 Sc::DeformableVolumeCore::addSoftBodyAttachment(Sc::DeformableVolumeCore& core, PxU32 tetIdx0, const PxVec4& triBarycentric0, PxU32 tetIdx1, const PxVec4& tetBarycentric1,
+PxU32 ev4sio_Sc::DeformableVolumeCore::addSoftBodyAttachment(ev4sio_Sc::DeformableVolumeCore& core, PxU32 tetIdx0, const PxVec4& triBarycentric0, PxU32 tetIdx1, const PxVec4& tetBarycentric1,
 	PxConeLimitedConstraint* constraint, PxReal constraintOffset, bool doConversion)
 {
-	Sc::DeformableVolumeSim* sim = getSim();
+	ev4sio_Sc::DeformableVolumeSim* sim = getSim();
 	PxU32 handle = 0xFFFFFFFF;
 	if (sim)
 		handle = sim->getScene().addSoftBodyAttachment(core, tetIdx0, triBarycentric0, *sim, tetIdx1, tetBarycentric1, constraint, constraintOffset, doConversion);
@@ -330,9 +330,9 @@ PxU32 Sc::DeformableVolumeCore::addSoftBodyAttachment(Sc::DeformableVolumeCore& 
 	return handle;
 }
 
-void Sc::DeformableVolumeCore::removeSoftBodyAttachment(Sc::DeformableVolumeCore& core, PxU32 handle)
+void ev4sio_Sc::DeformableVolumeCore::removeSoftBodyAttachment(ev4sio_Sc::DeformableVolumeCore& core, PxU32 handle)
 {
-	Sc::DeformableVolumeSim* sim = getSim();
+	ev4sio_Sc::DeformableVolumeSim* sim = getSim();
 	setWakeCounterInternal(ScInternalWakeCounterResetValue);
 	core.setWakeCounterInternal(ScInternalWakeCounterResetValue);
 	if (sim)
@@ -340,25 +340,25 @@ void Sc::DeformableVolumeCore::removeSoftBodyAttachment(Sc::DeformableVolumeCore
 }
 
 
-void Sc::DeformableVolumeCore::addClothFilter(Sc::DeformableSurfaceCore& core, PxU32 triIdx, PxU32 tetIdx)
+void ev4sio_Sc::DeformableVolumeCore::addClothFilter(ev4sio_Sc::DeformableSurfaceCore& core, PxU32 triIdx, PxU32 tetIdx)
 {
-	Sc::DeformableVolumeSim* sim = getSim();
+	ev4sio_Sc::DeformableVolumeSim* sim = getSim();
 
 	if (sim)
 		sim->getScene().addClothFilter(core, triIdx, *sim, tetIdx);
 }
 
-void Sc::DeformableVolumeCore::removeClothFilter(Sc::DeformableSurfaceCore& core, PxU32 triIdx, PxU32 tetIdx)
+void ev4sio_Sc::DeformableVolumeCore::removeClothFilter(ev4sio_Sc::DeformableSurfaceCore& core, PxU32 triIdx, PxU32 tetIdx)
 {
-	Sc::DeformableVolumeSim* sim = getSim();
+	ev4sio_Sc::DeformableVolumeSim* sim = getSim();
 	if (sim)
 		sim->getScene().removeClothFilter(core, triIdx, *sim, tetIdx);
 }
 
-PxU32 Sc::DeformableVolumeCore::addClothAttachment(Sc::DeformableSurfaceCore& core, PxU32 triIdx, const PxVec4& triBarycentric, PxU32 tetIdx, const PxVec4& tetBarycentric,
+PxU32 ev4sio_Sc::DeformableVolumeCore::addClothAttachment(ev4sio_Sc::DeformableSurfaceCore& core, PxU32 triIdx, const PxVec4& triBarycentric, PxU32 tetIdx, const PxVec4& tetBarycentric,
 	PxConeLimitedConstraint* constraint, PxReal constraintOffset, bool doConversion)
 {
-	Sc::DeformableVolumeSim* sim = getSim();
+	ev4sio_Sc::DeformableVolumeSim* sim = getSim();
 	PxU32 handle = 0xFFFFFFFF;
 	if (sim)
 		handle = sim->getScene().addClothAttachment(core, triIdx, triBarycentric, *sim, tetIdx, tetBarycentric, constraint, constraintOffset, doConversion);
@@ -366,9 +366,9 @@ PxU32 Sc::DeformableVolumeCore::addClothAttachment(Sc::DeformableSurfaceCore& co
 	return handle;
 }
 
-void Sc::DeformableVolumeCore::removeClothAttachment(Sc::DeformableSurfaceCore& core, PxU32 handle)
+void ev4sio_Sc::DeformableVolumeCore::removeClothAttachment(ev4sio_Sc::DeformableSurfaceCore& core, PxU32 handle)
 {
-	Sc::DeformableVolumeSim* sim = getSim();
+	ev4sio_Sc::DeformableVolumeSim* sim = getSim();
 	setWakeCounterInternal(ScInternalWakeCounterResetValue);
 	core.setWakeCounterInternal(ScInternalWakeCounterResetValue);
 	if (sim)
@@ -379,26 +379,26 @@ void Sc::DeformableVolumeCore::removeClothAttachment(Sc::DeformableSurfaceCore& 
 // Internal API
 //---------------------------------------------------------------------------------
 
-void Sc::DeformableVolumeCore::addMaterial(const PxU16 handle)
+void ev4sio_Sc::DeformableVolumeCore::addMaterial(const PxU16 handle)
 {
 	mCore.materialHandles.pushBack(handle);
 	mCore.dirty = true;
 }
 
-void Sc::DeformableVolumeCore::clearMaterials()
+void ev4sio_Sc::DeformableVolumeCore::clearMaterials()
 {
 	mCore.materialHandles.clear();
 	mCore.dirty = true;
 }
 
-PxActor* Sc::DeformableVolumeCore::getPxActor() const
+PxActor* ev4sio_Sc::DeformableVolumeCore::getPxActor() const
 {
 	return PxPointerOffset<PxActor*>(const_cast<DeformableVolumeCore*>(this), gOffsetTable.scCore2PxActor[getActorCoreType()]);
 }
 
-void Sc::DeformableVolumeCore::attachShapeCore(ShapeCore* shapeCore)
+void ev4sio_Sc::DeformableVolumeCore::attachShapeCore(ShapeCore* shapeCore)
 {
-	Sc::DeformableVolumeSim* sim = getSim();
+	ev4sio_Sc::DeformableVolumeSim* sim = getSim();
 	if (sim)
 	{
 		sim->attachShapeCore(shapeCore);
@@ -406,9 +406,9 @@ void Sc::DeformableVolumeCore::attachShapeCore(ShapeCore* shapeCore)
 	}
 }
 
-void Sc::DeformableVolumeCore::attachSimulationMesh(PxTetrahedronMesh* simulationMesh, PxDeformableVolumeAuxData* simulationState)
+void ev4sio_Sc::DeformableVolumeCore::attachSimulationMesh(PxTetrahedronMesh* simulationMesh, PxDeformableVolumeAuxData* simulationState)
 {
-	Sc::DeformableVolumeSim* sim = getSim();
+	ev4sio_Sc::DeformableVolumeSim* sim = getSim();
 	if (sim)
 	{
 		sim->attachSimulationMesh(simulationMesh, simulationState);
@@ -416,7 +416,7 @@ void Sc::DeformableVolumeCore::attachSimulationMesh(PxTetrahedronMesh* simulatio
 	}
 }
 
-void Sc::DeformableVolumeCore::onShapeChange(ShapeCore& shape, ShapeChangeNotifyFlags notifyFlags)
+void ev4sio_Sc::DeformableVolumeCore::onShapeChange(ShapeCore& shape, ShapeChangeNotifyFlags notifyFlags)
 {
 	PX_UNUSED(shape);
 	DeformableVolumeSim* sim = getSim();
@@ -438,9 +438,9 @@ void Sc::DeformableVolumeCore::onShapeChange(ShapeCore& shape, ShapeChangeNotify
 		s.onRestOffsetChange();
 }
 
-Sc::DeformableVolumeSim* Sc::DeformableVolumeCore::getSim() const
+ev4sio_Sc::DeformableVolumeSim* ev4sio_Sc::DeformableVolumeCore::getSim() const
 {
-	return static_cast<Sc::DeformableVolumeSim*>(ActorCore::getSim());
+	return static_cast<ev4sio_Sc::DeformableVolumeSim*>(ActorCore::getSim());
 }
 
 #endif //PX_SUPPORT_GPU_PHYSX

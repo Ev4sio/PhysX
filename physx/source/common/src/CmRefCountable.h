@@ -34,9 +34,9 @@
 #include "foundation/PxAllocator.h"
 #include "common/PxBase.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Cm
+namespace ev4sio_Cm
 {
 	// PT: this is used to re-implement RefCountable using the ref-counter in PxBase, i.e. to dissociate
 	// the RefCountable data from the RefCountable code. The goal is to be able to store the ref counter
@@ -64,7 +64,7 @@ namespace Cm
 		{
 			PX_ASSERT(mBuiltInRefCount>0);
 			volatile PxI32* val = reinterpret_cast<volatile PxI32*>(&mBuiltInRefCount);
-			if(physx::PxAtomicDecrement(val) == 0)
+			if(ev4sio_physx::PxAtomicDecrement(val) == 0)
 				onRefCountZero();
 		}
 
@@ -99,7 +99,7 @@ namespace Cm
 
 		/**
 		Calls 'delete this;'. It needs to be overloaded for classes also deriving from 
-		PxBase and call 'Cm::deletePxBase(this);' instead.
+		PxBase and call 'ev4sio_Cm::deletePxBase(this);' instead.
 		*/
 		virtual	void onRefCountZero()
 		{
@@ -108,7 +108,7 @@ namespace Cm
 
 		void incRefCount()
 		{
-			physx::PxAtomicIncrement(&mRefCount);
+			ev4sio_physx::PxAtomicIncrement(&mRefCount);
 			// value better be greater than 1, or we've created a ref to an undefined object
 			PX_ASSERT(mRefCount>1);
 		}
@@ -116,7 +116,7 @@ namespace Cm
 		void decRefCount()
 		{
 			PX_ASSERT(mRefCount>0);
-			if(physx::PxAtomicDecrement(&mRefCount) == 0)
+			if(ev4sio_physx::PxAtomicDecrement(&mRefCount) == 0)
 				onRefCountZero();
 		}
 
@@ -129,7 +129,7 @@ namespace Cm
 	};
 
 
-} // namespace Cm
+} // namespace ev4sio_Cm
 
 }
 

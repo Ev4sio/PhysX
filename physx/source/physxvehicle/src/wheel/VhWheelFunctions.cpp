@@ -36,7 +36,7 @@
 #include "vehicle2/wheel/PxVehicleWheelStates.h"
 #include "vehicle2/wheel/PxVehicleWheelParams.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 namespace vehicle2
 {
@@ -89,4 +89,4 @@ void PxVehicleWheelRotationAngleUpdate
 }
 
 } //namespace vehicle2
-} //namespace physx
+} //namespace ev4sio_physx

@@ -30,7 +30,7 @@
 #include "NpRigidActorTemplateInternal.h"
 #include "omnipvd/NpOmniPvdSetData.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 NpRigidStatic::NpRigidStatic(const PxTransform& pose) :
 	NpRigidStaticT	(PxConcreteType::eRIGID_STATIC, PxBaseFlag::eOWNS_MEMORY | PxBaseFlag::eIS_RELEASABLE, NpType::eRIGID_STATIC),
@@ -94,7 +94,7 @@ void NpRigidStatic::setGlobalPose(const PxTransform& pose, bool /*wake*/)
 	// invalidate the pruning structure if the actor bounds changed
 	if(mShapeManager.getPruningStructure())
 	{
-		PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxRigidStatic::setGlobalPose: Actor is part of a pruning structure, pruning structure is now invalid!");
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxRigidStatic::setGlobalPose: Actor is part of a pruning structure, pruning structure is now invalid!");
 		mShapeManager.getPruningStructure()->invalidate(this);
 	}
 
@@ -107,7 +107,7 @@ PxTransform NpRigidStatic::getGlobalPose() const
 	return mCore.getActor2World();
 }
 
-PxU32 physx::NpRigidStaticGetShapes(NpRigidStatic& rigid, NpShape* const *&shapes)
+PxU32 ev4sio_physx::NpRigidStaticGetShapes(NpRigidStatic& rigid, NpShape* const *&shapes)
 {
 	NpShapeManager& sm = rigid.getShapeManager();
 	shapes = sm.getShapes();

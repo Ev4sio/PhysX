@@ -57,7 +57,7 @@
 #include "sdfCollision.cuh"
 #include "gridCal.cuh"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 extern "C" __host__ void initNarrowphaseKernels11() {}
 
@@ -83,7 +83,7 @@ struct PsMidphaseScratch
 	PxMeshScale trimeshScale;
 	
 	//bv32 tree
-	const Gu::BV32DataPacked* bv32PackedNodes;
+	const ev4sio_Gu::BV32DataPacked* bv32PackedNodes;
 
 	//stack for traversal
 	int sBv32Nodes[192]; //6 depth of the bv32 tree

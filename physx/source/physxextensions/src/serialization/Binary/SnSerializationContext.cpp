@@ -29,7 +29,7 @@
 #include "common/PxBase.h"
 #include "SnSerializationContext.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 using namespace Sn;
 
 PxBase* DeserializationContext::resolveReference(PxU32 kind, size_t reference) const
@@ -74,7 +74,7 @@ void SerializationContext::registerReference(PxBase& serializable, PxU32 kind, s
 #if PX_CHECKED
 	if ((kind & PX_SERIAL_REF_KIND_PTR_TYPE_BIT) == 0 && reference > 0xffff)
 	{
-		PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "PxSerializationContext::registerReference: only 16 bit handles supported.");
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "PxSerializationContext::registerReference: only 16 bit handles supported.");
 		return;
 	}
 #endif

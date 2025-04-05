@@ -42,9 +42,9 @@
 #include "GuBox.h"
 #include "CmMatrix34.h"
 
-using namespace physx;
-using namespace Gu;
-using namespace Cm;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
+using namespace ev4sio_Cm;
 
 #define DEBUG_RENDER_MESHCONTACTS 0
 
@@ -101,11 +101,11 @@ static bool PxcTestAxis(const PxVec3& axis, const Segment& segment, PxReal radiu
 	{
 		Min1 = Max1 = triVerts[0].dot(axis);
 		const PxReal dp1 = triVerts[1].dot(axis);
-		Min1 = physx::intrinsics::selectMin(Min1, dp1);
-		Max1 = physx::intrinsics::selectMax(Max1, dp1);
+		Min1 = ev4sio_physx::intrinsics::selectMin(Min1, dp1);
+		Max1 = ev4sio_physx::intrinsics::selectMax(Max1, dp1);
 		const PxReal dp2 = triVerts[2].dot(axis);
-		Min1 = physx::intrinsics::selectMin(Min1, dp2);
-		Max1 = physx::intrinsics::selectMax(Max1, dp2);
+		Min1 = ev4sio_physx::intrinsics::selectMin(Min1, dp2);
+		Max1 = ev4sio_physx::intrinsics::selectMax(Max1, dp2);
 	}
 
 	// Test projections
@@ -116,7 +116,7 @@ static bool PxcTestAxis(const PxVec3& axis, const Segment& segment, PxReal radiu
 	PX_ASSERT(d0>=0.0f);
 	const PxReal d1 = Max1 - min0;
 	PX_ASSERT(d1>=0.0f);
-	depth = physx::intrinsics::selectMin(d0, d1);
+	depth = ev4sio_physx::intrinsics::selectMin(d0, d1);
 	return true;
 }
 
@@ -202,7 +202,7 @@ static void PxcGenerateVFContacts(	const PxMat34& meshAbsPose, PxContactBuffer& 
 			
 			contactBuffer.contact(Hit, wn, t-radius, triangleIndex);
 			#if DEBUG_RENDER_MESHCONTACTS
-			PxScene *s; PxGetPhysics().getScenes(&s, 1, 0);
+			PxScene *s; ev4sio_PxGetPhysics().getScenes(&s, 1, 0);
 			PxRenderOutput((PxRenderBufferImpl&)s->getRenderBuffer()) << PxRenderOutput::LINES << PxDebugColor::eARGB_BLUE // red
 				<< Hit << (Hit + wn * 10.0f);
 			#endif
@@ -231,7 +231,7 @@ static void PxcGenerateEEContacts(	const PxMat34& meshAbsPose, PxContactBuffer& 
 
 			contactBuffer.contact(ip, wn, - (radius + dist), triangleIndex);
 			#if DEBUG_RENDER_MESHCONTACTS
-			PxScene *s; PxGetPhysics().getScenes(&s, 1, 0);
+			PxScene *s; ev4sio_PxGetPhysics().getScenes(&s, 1, 0);
 			PxRenderOutput((PxRenderBufferImpl&)s->getRenderBuffer()) << PxRenderOutput::LINES << PxDebugColor::eARGB_BLUE // red
 				<< ip << (ip + wn * 10.0f);
 			#endif
@@ -257,7 +257,7 @@ static void PxcGenerateEEContacts2(	const PxMat34& meshAbsPose, PxContactBuffer&
 
 			contactBuffer.contact(ip, wn, dist - radius, triangleIndex);
 			#if DEBUG_RENDER_MESHCONTACTS
-			PxScene *s; PxGetPhysics().getScenes(&s, 1, 0);
+			PxScene *s; ev4sio_PxGetPhysics().getScenes(&s, 1, 0);
 			PxRenderOutput((PxRenderBufferImpl&)s->getRenderBuffer()) << PxRenderOutput::LINES << PxDebugColor::eARGB_BLUE // red
 				<< ip << (ip + wn * 10.0f);
 			#endif
@@ -484,7 +484,7 @@ static PX_FORCE_INLINE Segment computeLocalCapsule(const PxTransform& transform0
 		transform1.rotateInv(-halfHeight - delta));
 }
 
-bool Gu::contactCapsuleMesh(GU_CONTACT_METHOD_ARGS)
+bool ev4sio_Gu::contactCapsuleMesh(GU_CONTACT_METHOD_ARGS)
 {
 	PX_UNUSED(cache);
 	PX_UNUSED(renderOutput);
@@ -608,7 +608,7 @@ private:
 };
 }
 
-bool Gu::contactCapsuleHeightfield(GU_CONTACT_METHOD_ARGS)
+bool ev4sio_Gu::contactCapsuleHeightfield(GU_CONTACT_METHOD_ARGS)
 {
 	PX_UNUSED(cache);
 	PX_UNUSED(renderOutput);

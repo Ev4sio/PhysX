@@ -30,7 +30,7 @@
 #include "vehicle2/PxVehicleMaths.h"
 #include "vehicle2/suspension/PxVehicleSuspensionHelpers.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 namespace vehicle2
 {
@@ -211,4 +211,4 @@ namespace vehicle2
 		return true;
 	}
 } //namespace vehicle2
-} //namespace physx
+} //namespace ev4sio_physx

@@ -34,7 +34,7 @@
 #include "cudamanager/PxCudaContextManager.h"
 #include "extensions/PxCudaHelpersExt.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 void PxDeformableSurfaceExt::copyToDevice(PxDeformableSurface& fm, PxDeformableSurfaceDataFlags flags, PxU32 nbVertices,
 										  PxVec4* positionInvMassPinned, PxVec4* velocityPinned, PxVec4* restPositionPinned,

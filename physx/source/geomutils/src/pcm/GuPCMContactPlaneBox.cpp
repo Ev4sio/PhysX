@@ -31,9 +31,9 @@
 #include "GuContactMethodImpl.h"
 #include "GuPersistentContactManifold.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
-bool Gu::pcmContactPlaneBox(GU_CONTACT_METHOD_ARGS)
+bool ev4sio_Gu::pcmContactPlaneBox(GU_CONTACT_METHOD_ARGS)
 {
 	PX_UNUSED(shape0);
 	PX_UNUSED(renderOutput);

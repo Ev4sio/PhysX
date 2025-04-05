@@ -37,9 +37,9 @@
 #include "foundation/PxIntrinsics.h"
 #include "foundation/PxArray.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Cm
+namespace ev4sio_Cm
 {
 
 template <typename T, PxU32 SlabSize = 4096>

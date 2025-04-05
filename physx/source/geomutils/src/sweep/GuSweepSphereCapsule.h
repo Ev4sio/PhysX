@@ -32,16 +32,16 @@
 #include "foundation/PxVec3.h"
 #include "PxQueryReport.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Gu
+namespace ev4sio_Gu
 {
 	class Sphere;
 	class Capsule;
 
 	bool sweepSphereCapsule(const Sphere& sphere, const Capsule& lss, const PxVec3& dir, PxReal length, PxReal& d, PxVec3& ip, PxVec3& nrm, PxHitFlags hitFlags);
 
-} // namespace Gu
+} // namespace ev4sio_Gu
 
 }
 

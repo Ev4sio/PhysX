@@ -34,13 +34,13 @@
 #include "collision/PxCollisionDefs.h"
 #include "GuGeometryChecks.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	class PxGeometry;
 	class PxRenderOutput;
 	class PxContactBuffer;
 
-namespace Gu
+namespace ev4sio_Gu
 {
 	class PersistentContactManifold;
 	class MultiplePersistentContactManifold;
@@ -122,8 +122,8 @@ template<class Geom> PX_CUDA_CALLABLE PX_FORCE_INLINE const Geom& checkedCast(co
 	const PxGeometry& shape1,				\
 	const PxTransform32& transform0,		\
 	const PxTransform32& transform1,		\
-	const Gu::NarrowPhaseParams& params,	\
-	Gu::Cache& cache,						\
+	const ev4sio_Gu::NarrowPhaseParams& params,	\
+	ev4sio_Gu::Cache& cache,						\
 	PxContactBuffer& contactBuffer,			\
 	PxRenderOutput* renderOutput
 
@@ -132,12 +132,12 @@ template<class Geom> PX_CUDA_CALLABLE PX_FORCE_INLINE const Geom& checkedCast(co
 	const PxGeometry&,					\
 	const PxTransform32&,				\
 	const PxTransform32&,				\
-	const Gu::NarrowPhaseParams&,		\
-	Gu::Cache&,							\
+	const ev4sio_Gu::NarrowPhaseParams&,		\
+	ev4sio_Gu::Cache&,							\
 	PxContactBuffer&,					\
 	PxRenderOutput*
 
-namespace Gu
+namespace ev4sio_Gu
 {
 	PX_PHYSX_COMMON_API bool contactSphereSphere(GU_CONTACT_METHOD_ARGS);
 	PX_PHYSX_COMMON_API bool contactSphereCapsule(GU_CONTACT_METHOD_ARGS);

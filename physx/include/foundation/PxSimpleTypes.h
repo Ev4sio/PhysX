@@ -53,7 +53,7 @@
 #endif
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 typedef int64_t PxI64;
@@ -84,7 +84,7 @@ typedef PxConstraintGPUIndex PxD6JointGPUIndex;
 #define PX_INVALID_D6_JOINT_GPU_INDEX PX_INVALID_CONSTRAINT_GPU_INDEX
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #define PX_SIGN_BITMASK 0x80000000

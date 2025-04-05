@@ -32,7 +32,7 @@
 
 #include "foundation/PxSimpleTypes.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 class NpOmniPvdMetaData
@@ -40,11 +40,11 @@ class NpOmniPvdMetaData
 public:
 	NpOmniPvdMetaData();
 	~NpOmniPvdMetaData();
-	physx::PxU32 physxVersionMajor;
-	physx::PxU32 physxVersionMinor;
-	physx::PxU32 physxVersionBugfix;
-	physx::PxU32 ovdIntegrationVersionMajor;
-	physx::PxU32 ovdIntegrationVersionMinor;
+	ev4sio_physx::PxU32 physxVersionMajor;
+	ev4sio_physx::PxU32 physxVersionMinor;
+	ev4sio_physx::PxU32 physxVersionBugfix;
+	ev4sio_physx::PxU32 ovdIntegrationVersionMajor;
+	ev4sio_physx::PxU32 ovdIntegrationVersionMinor;
 };
 
 }

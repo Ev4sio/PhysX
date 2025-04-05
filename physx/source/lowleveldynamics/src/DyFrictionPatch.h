@@ -34,10 +34,10 @@
 #include "foundation/PxIntrinsics.h"
 #include "PxvConfig.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
-namespace Dy
+namespace ev4sio_Dy
 {
 
 struct FrictionPatch

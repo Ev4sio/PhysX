@@ -33,9 +33,9 @@
 #include "common/PxPhysXCommonConfig.h"
 #include "foundation/PxVecMath.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Gu
+namespace ev4sio_Gu
 {
 	// PT: special version:
 	// - inlined
@@ -119,7 +119,7 @@ namespace Gu
 	}
 
 	// Given the point `c`, return the closest point on the triangle (1, 0, 0), (0, 1, 0), (0, 0, 1).
-	// This function is a specialization of `Gu::closestPtPointTriangle2` for this specific triangle.
+	// This function is a specialization of `ev4sio_Gu::closestPtPointTriangle2` for this specific triangle.
 	PX_FORCE_INLINE PX_CUDA_CALLABLE PxVec3 closestPtPointBaryTriangle(PxVec3 c)
 	{
 		const PxReal third = 1.0f / 3.0f; // constexpr
@@ -209,7 +209,7 @@ namespace Gu
 		aos::FloatV& v,
 		aos::Vec3V& closestP);
 
-} // namespace Gu
+} // namespace ev4sio_Gu
 }
 
 #endif

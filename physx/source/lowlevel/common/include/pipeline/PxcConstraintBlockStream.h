@@ -34,7 +34,7 @@
 #include "foundation/PxMutex.h"
 #include "PxcNpMemBlockPool.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 class PxsConstraintBlockManager
 {

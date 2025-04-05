@@ -34,9 +34,9 @@
 #include "foundation/PxUserAllocated.h"
 #include "GuPrunerMergeData.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-	namespace Sq
+	namespace ev4sio_Sq
 	{
 		class PruningStructure : public PxPruningStructure, public PxUserAllocated
 		{
@@ -70,7 +70,7 @@ namespace physx
 			PX_FORCE_INLINE	bool					isValid()					const	{ return mValid;	}
 							void					invalidate(PxActor* actor);
 		private:
-							Gu::AABBPrunerMergeData	mData[2];
+							ev4sio_Gu::AABBPrunerMergeData	mData[2];
 							PxU32					mNbActors;	// Nb actors from which the pruner structure was build
 							PxActor**				mActors;	// actors used for pruner structure build, used later for serialization
 							bool					mValid;		// pruning structure validity

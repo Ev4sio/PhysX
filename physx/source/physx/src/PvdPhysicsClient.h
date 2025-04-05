@@ -37,7 +37,7 @@
 #include "foundation/PxMutex.h"
 #include "PsPvd.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 class PxProfileMemoryEventBuffer;
 
@@ -56,7 +56,7 @@ class PvdPhysicsClient : public PvdClient, public PxErrorCallback, public NpFact
 	void onPvdDisconnected();
 	void flush();
 
-	physx::pvdsdk::PvdDataStream* getDataStream();
+	ev4sio_physx::pvdsdk::PvdDataStream* getDataStream();
 	
 	void sendEntireSDK();	
 	void destroyPvdInstance(const PxPhysics* physics);
@@ -101,7 +101,7 @@ class PvdPhysicsClient : public PvdClient, public PxErrorCallback, public NpFact
 };
 
 } // namespace Vd
-} // namespace physx
+} // namespace ev4sio_physx
 
 #endif // PX_SUPPORT_PVD
 #endif // PVD_PHYSICS_CLIENT_H

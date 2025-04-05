@@ -32,7 +32,7 @@
 #include "foundation/PxPreprocessor.h"
 #include "vector_types.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	struct PxgConstraintWriteback
 	{

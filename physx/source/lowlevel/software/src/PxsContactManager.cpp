@@ -28,7 +28,7 @@
 
 #include "PxsContactManager.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 PxsContactManager::PxsContactManager(PxU32 index) : mFlags(0), mCmIndex(index)
 {

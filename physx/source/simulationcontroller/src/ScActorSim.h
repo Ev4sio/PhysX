@@ -38,12 +38,12 @@
 #include "PxsSimpleIslandManager.h"
 #include "PxFiltering.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 class PxActor;
 
-namespace Sc
+namespace ev4sio_Sc
 {
 
 #define SC_NOT_IN_SCENE_INDEX		0xffffffff  // the body is not in the scene yet
@@ -92,7 +92,7 @@ namespace Sc
 		//					void			onElementAttach(ElementSim& element);
 							void			onElementDetach(ElementSim& element);
 
-		Cm::PtrTable	mShapes;
+		ev4sio_Cm::PtrTable	mShapes;
 	};
 
 	class ActorSim : public ShapeManager
@@ -189,7 +189,7 @@ namespace Sc
 		//These are called from interaction creation/destruction
 						void				registerInteractionInActor(Interaction* interaction);
 						void				unregisterInteractionFromActor(Interaction* interaction);
-						void				reallocInteractions(Sc::Interaction**& mem, PxU32& capacity, PxU32 size, PxU32 requiredMinCapacity);
+						void				reallocInteractions(ev4sio_Sc::Interaction**& mem, PxU32& capacity, PxU32 size, PxU32 requiredMinCapacity);
 	protected:
 		// dsequeira: interaction arrays are a major cause of small allocations, so we don't want to delegate them to the heap allocator
 		// it's not clear this inline array is really needed, we should take it out and see whether the cache perf is worse
@@ -197,7 +197,7 @@ namespace Sc
 		static const PxU32 INLINE_INTERACTION_CAPACITY = 4;
 						Interaction*		mInlineInteractionMem[INLINE_INTERACTION_CAPACITY];
 
-		Cm::OwnedArray<Sc::Interaction*, Sc::ActorSim, PxU32, &Sc::ActorSim::reallocInteractions>
+		ev4sio_Cm::OwnedArray<ev4sio_Sc::Interaction*, ev4sio_Sc::ActorSim, PxU32, &ev4sio_Sc::ActorSim::reallocInteractions>
 											mInteractions;
 
 						Scene&				mScene;
@@ -209,14 +209,14 @@ namespace Sc
 		// Island manager
 						PxNodeIndex			mNodeIndex;
 
-						PxU32				mId;	// PT: ID provided by Sc::Scene::mActorIDTracker
+						PxU32				mId;	// PT: ID provided by ev4sio_Sc::Scene::mActorIDTracker
 
 						PxU16				mInternalFlags;
 						PxU16				mFilterFlags;	// PT: PxFilterObjectAttributes. Capturing the type information in local flags here is redundant
 															// but avoids reading the Core memory from the Sim object, and is also faster to test multiple types at once.
 	};
 
-} // namespace Sc
+} // namespace ev4sio_Sc
 
 }
 

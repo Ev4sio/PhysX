@@ -57,7 +57,7 @@
 #include "triangleMesh.cuh"
 #include "deformableCollision.cuh"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 extern "C" __host__ void initNarrowphaseKernels18() {}
 
@@ -157,7 +157,7 @@ __device__ static inline void femClothMidphaseCore(
 			s_warpScratch->meshVerts = femCloth.mPosition_InvMass;
 			s_warpScratch->meshVertsIndices = femCloth.mTriangleVertexIndices;
 			
-			Gu::BV32DataPacked* bv32PackedNodes = reinterpret_cast<Gu::BV32DataPacked*>(trimeshGeomPtr);
+			ev4sio_Gu::BV32DataPacked* bv32PackedNodes = reinterpret_cast<ev4sio_Gu::BV32DataPacked*>(trimeshGeomPtr);
 			s_warpScratch->bv32PackedNodes = bv32PackedNodes;
 		}
 
@@ -456,11 +456,11 @@ void cloth_psMidphaseGeneratePairsLaunch(
 
 			//printf("maxDepth %i numVerts %i numTets %i nbBv32TreeNodes %i\n", maxDepth, numVerts, numTets, nbBv32TreeNodes);
 
-			Gu::BV32DataPacked* bv32PackedNodes = reinterpret_cast<Gu::BV32DataPacked*>(tetmeshGeomPtr);
+			ev4sio_Gu::BV32DataPacked* bv32PackedNodes = reinterpret_cast<ev4sio_Gu::BV32DataPacked*>(tetmeshGeomPtr);
 			s_warpScratch->bv32PackedNodes = bv32PackedNodes;
 
-			/*tetmeshGeomPtr += sizeof(const Gu::BV32DataPacked)* nbBv32PackedNodes
-				+ sizeof(const Gu::BV32DataDepthInfo) * nbVerts_nbTets_maxDepth_nbBv32TreeNodes.z
+			/*tetmeshGeomPtr += sizeof(const ev4sio_Gu::BV32DataPacked)* nbBv32PackedNodes
+				+ sizeof(const ev4sio_Gu::BV32DataDepthInfo) * nbVerts_nbTets_maxDepth_nbBv32TreeNodes.z
 				+ sizeof(PxU32) * nbVerts_nbTets_maxDepth_nbBv32TreeNodes.w;*/
 
 			/*const PxU8* surfaceHint = reinterpret_cast<const PxU8*>(tetmeshGeomPtr);

@@ -38,9 +38,9 @@
 Pool used to allocate variable sized tasks. It's intended to be cleared after a short period (time step).
 */
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Cm
+namespace ev4sio_Cm
 {
 	static const PxU32 sSpareChunkCount = 2;
 
@@ -147,7 +147,7 @@ namespace Cm
 	};
 
 	
-} // namespace Cm
+} // namespace ev4sio_Cm
 
 }
 

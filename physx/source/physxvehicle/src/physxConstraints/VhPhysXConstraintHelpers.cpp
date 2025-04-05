@@ -41,7 +41,7 @@
 #include "PxRigidDynamic.h"
 #include "PxArticulationLink.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 namespace vehicle2
 {
@@ -109,4 +109,4 @@ void PxVehicleConstraintsDestroy(
 }
 
 } //namespace vehicle2
-} //namespace physx
+} //namespace ev4sio_physx

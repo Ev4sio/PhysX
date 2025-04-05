@@ -33,10 +33,10 @@
 namespace snippetvehicle
 {
 
-physx::PxFilterFlags VehicleFilterShader(
-	physx::PxFilterObjectAttributes attributes0, physx::PxFilterData filterData0,
-	physx::PxFilterObjectAttributes attributes1, physx::PxFilterData filterData1,
-	physx::PxPairFlags& pairFlags, const void* constantBlock, physx::PxU32 constantBlockSize);
+ev4sio_physx::PxFilterFlags VehicleFilterShader(
+	ev4sio_physx::PxFilterObjectAttributes attributes0, ev4sio_physx::PxFilterData filterData0,
+	ev4sio_physx::PxFilterObjectAttributes attributes1, ev4sio_physx::PxFilterData filterData1,
+	ev4sio_physx::PxPairFlags& pairFlags, const void* constantBlock, ev4sio_physx::PxU32 constantBlockSize);
 
 
 bool parseVehicleDataPath(int argc, const char *const* argv, const char* snippetName,

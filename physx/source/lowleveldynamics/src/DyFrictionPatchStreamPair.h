@@ -50,7 +50,7 @@
 
 #include "PxcNpMemBlockPool.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 class FrictionPatchStreamPair

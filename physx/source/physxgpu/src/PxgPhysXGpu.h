@@ -40,7 +40,7 @@
 #include "CmIDPool.h"
 #include "CudaKernelWrangler.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 struct PxvSimStats;
@@ -65,19 +65,19 @@ public:
 
 	virtual PxsKernelWranglerManager*				getGpuKernelWranglerManager(PxCudaContextManager* cudaContextManager)	PX_OVERRIDE;
 
-	virtual Bp::BroadPhase*							createGpuBroadPhase(PxsKernelWranglerManager* gpuKernelWrangler,
+	virtual ev4sio_Bp::BroadPhase*							createGpuBroadPhase(PxsKernelWranglerManager* gpuKernelWrangler,
 														PxCudaContextManager* cudaContextManager,
 														const PxU32 gpuComputeVersion,
 														const PxGpuDynamicsMemoryConfig& config,
 														PxsHeapMemoryAllocatorManager* heapMemoryManager, PxU64 contextID)	PX_OVERRIDE;
 
-	virtual Bp::AABBManagerBase*					createGpuAABBManager(PxsKernelWranglerManager* gpuKernelWrangler,
+	virtual ev4sio_Bp::AABBManagerBase*					createGpuAABBManager(PxsKernelWranglerManager* gpuKernelWrangler,
 														PxCudaContextManager* cudaContextManager,
 														const PxU32 gpuComputeVersion,
 														const PxGpuDynamicsMemoryConfig& config,
 														PxsHeapMemoryAllocatorManager* heapMemoryManager,
-														Bp::BroadPhase& bp,
-														Bp::BoundsArray& boundsArray,
+														ev4sio_Bp::BroadPhase& bp,
+														ev4sio_Bp::BoundsArray& boundsArray,
 														PxFloatArrayPinned& contactDistance,
 														PxU32 maxNbAggregates, PxU32 maxNbShapes,
 														PxVirtualAllocator& allocator,
@@ -85,27 +85,27 @@ public:
 														PxPairFilteringMode::Enum kineKineFilteringMode,
 														PxPairFilteringMode::Enum staticKineFilteringMode)	PX_OVERRIDE;
 
-	virtual Bp::BoundsArray* 						createGpuBounds(PxVirtualAllocator& allocator)  PX_OVERRIDE;
+	virtual ev4sio_Bp::BoundsArray* 						createGpuBounds(PxVirtualAllocator& allocator)  PX_OVERRIDE;
 
 	virtual PxvNphaseImplementationContext*			createGpuNphaseImplementationContext(PxsContext& context,
 														PxsKernelWranglerManager* gpuKernelWrangler,
 														PxvNphaseImplementationFallback* fallbackForUnsupportedCMs,
 														const PxGpuDynamicsMemoryConfig& gpuDynamicsConfig, void* contactStreamBase,
 														void* patchStreamBase, void* forceAndIndiceStreamBase,
-														PxBoundsArrayPinned& bounds, IG::IslandSim* islandSim,
-														physx::Dy::Context* dynamicsContext, const PxU32 gpuComputeVersion,
+														PxBoundsArrayPinned& bounds, ev4sio_IG::IslandSim* islandSim,
+														ev4sio_physx::ev4sio_Dy::Context* dynamicsContext, const PxU32 gpuComputeVersion,
 														PxsHeapMemoryAllocatorManager* heapMemoryManager, bool useGPUBP)	PX_OVERRIDE;
 	virtual PxsSimulationController*				createGpuSimulationController(PxsKernelWranglerManager* gpuWranglerManagers, 
 														PxCudaContextManager* cudaContextManager,
-														Dy::Context* dynamicContext, PxvNphaseImplementationContext* npContext, Bp::BroadPhase* bp, 
+														ev4sio_Dy::Context* dynamicContext, PxvNphaseImplementationContext* npContext, ev4sio_Bp::BroadPhase* bp, 
 														bool useGpuBroadphase,
 														PxsSimulationControllerCallback* callback, PxU32 gpuComputeVersion,
 														PxsHeapMemoryAllocatorManager* heapMemoryManager, PxU32 maxSoftBodyContacts,
 														PxU32 maxFemClothContacts, PxU32 maxParticleContacts,
 														PxU32 collisionStackSizeBytes, bool enableBodyAccelerations)	PX_OVERRIDE;
-	virtual Dy::Context*							createGpuDynamicsContext(Cm::FlushPool& taskPool, PxsKernelWranglerManager* gpuKernelWragler, 
+	virtual ev4sio_Dy::Context*							createGpuDynamicsContext(ev4sio_Cm::FlushPool& taskPool, PxsKernelWranglerManager* gpuKernelWragler, 
 														PxCudaContextManager* cudaContextManager,
-														const PxGpuDynamicsMemoryConfig& config, IG::SimpleIslandManager& islandManager, const PxU32 maxNumPartitions, const PxU32 maxNumStaticPartitions,
+														const PxGpuDynamicsMemoryConfig& config, ev4sio_IG::SimpleIslandManager& islandManager, const PxU32 maxNumPartitions, const PxU32 maxNumStaticPartitions,
 														const bool enableStabilization, const bool useEnhancedDeterminism, const PxReal maxBiasCoefficient,
 														const PxU32 gpuComputeVersion, PxvSimStats& simStats, PxsHeapMemoryAllocatorManager* heapMemoryManager,
 														const bool frictionEveryIteration, const bool externalForcesEveryTgsIterationEnabled, PxSolverType::Enum solverType,
@@ -126,6 +126,6 @@ private:
 
 }
 
-void PxgSetPhysXGpuDelayLoadHook(const physx::PxDelayLoadHook* hook);
+void PxgSetPhysXGpuDelayLoadHook(const ev4sio_physx::PxDelayLoadHook* hook);
 
 #endif // PXG_PHYSX_GPU_H

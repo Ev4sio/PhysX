@@ -38,7 +38,7 @@
 #include "foundation/PxAssert.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -401,7 +401,7 @@ public:
 PX_ALIGN_SUFFIX(16);
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif // PX_FOUNDATION_PX_QUAT_H

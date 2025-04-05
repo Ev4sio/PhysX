@@ -31,7 +31,7 @@
 #include "foundation/PxPinnedArray.h"
 #include "PxgCudaBuffer.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	class PxCudaContext;
 	class KernelWrangler;

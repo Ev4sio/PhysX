@@ -35,7 +35,7 @@
 #include "../snippetrender/SnippetRender.h"
 #include "../snippetrender/SnippetCamera.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 extern void initPhysicsWithOmniPvd();
 extern void stepPhysics();	
@@ -53,7 +53,7 @@ void renderCallback()
 	Snippets::startRender(sCamera);
 
 	PxScene* scene;
-	PxGetPhysics().getScenes(&scene,1);
+	ev4sio_PxGetPhysics().getScenes(&scene,1);
 	PxU32 nbActors = scene->getNbActors(PxActorTypeFlag::eRIGID_DYNAMIC | PxActorTypeFlag::eRIGID_STATIC);
 	if(nbActors)
 	{

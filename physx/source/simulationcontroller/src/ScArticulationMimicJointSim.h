@@ -34,9 +34,9 @@
 #include "DyFeatherstoneArticulation.h"
 #include "DyArticulationMimicJointCore.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Sc
+namespace ev4sio_Sc
 {
 class Scene;
 class ArticulationMimicJointCore;
@@ -50,30 +50,30 @@ class ArticulationMimicJointSim : public PxUserAllocated
 
 	
 public:
-	ArticulationMimicJointSim(Sc::ArticulationMimicJointCore& core, Sc::Scene& scene);
+	ArticulationMimicJointSim(ev4sio_Sc::ArticulationMimicJointCore& core, ev4sio_Sc::Scene& scene);
 
 	~ArticulationMimicJointSim();
 
-	PX_FORCE_INLINE Sc::Scene& getScene() { return mScene; }
-	PX_FORCE_INLINE const Sc::Scene& getScene() const { return mScene; }
+	PX_FORCE_INLINE ev4sio_Sc::Scene& getScene() { return mScene; }
+	PX_FORCE_INLINE const ev4sio_Sc::Scene& getScene() const { return mScene; }
 
 	PX_FORCE_INLINE void setLowLevelIndex(const PxU32 llIndex) { mLLIndex = llIndex;}
 	PX_FORCE_INLINE PxU32 getLowLevelIndex() const { return mLLIndex; }
 	
-	PX_FORCE_INLINE Sc::ArticulationMimicJointCore& getCore() { return mCore; }
-	PX_FORCE_INLINE const Sc::ArticulationMimicJointCore& getCore() const { return mCore; }
+	PX_FORCE_INLINE ev4sio_Sc::ArticulationMimicJointCore& getCore() { return mCore; }
+	PX_FORCE_INLINE const ev4sio_Sc::ArticulationMimicJointCore& getCore() const { return mCore; }
 
-	PX_FORCE_INLINE Dy::ArticulationMimicJointCore& getLLMimicJoint() { return mLLMimicJoint; }
+	PX_FORCE_INLINE ev4sio_Dy::ArticulationMimicJointCore& getLLMimicJoint() { return mLLMimicJoint; }
 
 	void setGearRatio(const PxReal gearRatio);
 	void setOffset(const PxReal offset);
 	void setNaturalFrequency(const PxReal naturalFrequency);
 	void setDampingRatio(const PxReal dampingRatio);
 
-	Sc::Scene&							mScene;
-	Sc::ArticulationMimicJointCore&		mCore;
-	Sc::ArticulationSim*				mArticulationSim;
-	Dy::ArticulationMimicJointCore		mLLMimicJoint;
+	ev4sio_Sc::Scene&							mScene;
+	ev4sio_Sc::ArticulationMimicJointCore&		mCore;
+	ev4sio_Sc::ArticulationSim*				mArticulationSim;
+	ev4sio_Dy::ArticulationMimicJointCore		mLLMimicJoint;
 	PxU32								mLLIndex;
 };
 

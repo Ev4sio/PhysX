@@ -39,12 +39,12 @@
 #include "foundation/PxUserAllocated.h"
 #include "vector_types.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	class PxGpuSpatialTendonData;
 	class PxGpuFixedTendonData;
 
-	namespace Dy
+	namespace ev4sio_Dy
 	{
 		struct ArticulationJointCore;
 		class ArticulationJointCoreData;
@@ -52,7 +52,7 @@ namespace physx
 		struct SpatialSubspaceMatrix;
 	}
 
-	//We load/store to Cm::SpatialMatrix rather than PxSpatialMatrix.
+	//We load/store to ev4sio_Cm::SpatialMatrix rather than PxSpatialMatrix.
 	//This exploits the symmetry of the spatial matrix to avoid storing/loading the bottom-right,
 	//which is the transpose of the top-left
 	struct PxgSpatialMatrixBlock
@@ -87,7 +87,7 @@ namespace physx
 	};
 
 
-	PX_FORCE_INLINE PX_CUDA_CALLABLE void loadSpatialMatrix(const PxgSpatialMatrixBlock& block, const PxU32 threadIndexInWarp, Dy::SpatialMatrix& mat)
+	PX_FORCE_INLINE PX_CUDA_CALLABLE void loadSpatialMatrix(const PxgSpatialMatrixBlock& block, const PxU32 threadIndexInWarp, ev4sio_Dy::SpatialMatrix& mat)
 	{
 		float4 val = block.columns[0][threadIndexInWarp];
 		mat.topLeft[0][0] = val.x; mat.topLeft[0][1] = val.y; mat.topLeft[0][2] = val.z; mat.topLeft[1][0] = val.w;
@@ -127,7 +127,7 @@ namespace physx
 		mat.column[5][0] = val.x; mat.column[5][1] = val.y; mat.column[5][2] = val.z;
 	}
 
-	PX_FORCE_INLINE PX_CUDA_CALLABLE void storeSpatialMatrix(PxgSpatialMatrixBlock& block, const PxU32 threadIndexInWarp, const Dy::SpatialMatrix& mat)
+	PX_FORCE_INLINE PX_CUDA_CALLABLE void storeSpatialMatrix(PxgSpatialMatrixBlock& block, const PxU32 threadIndexInWarp, const ev4sio_Dy::SpatialMatrix& mat)
 	{
 		block.columns[0][threadIndexInWarp] = make_float4(mat.topLeft[0][0], mat.topLeft[0][1], mat.topLeft[0][2], mat.topLeft[1][0]);
 		block.columns[1][threadIndexInWarp] = make_float4(mat.topLeft[1][1], mat.topLeft[1][2], mat.topLeft[2][0], mat.topLeft[2][1]);
@@ -186,23 +186,23 @@ namespace physx
 		block.columns[8][threadIndexInWarp] = make_float4(0.f, 0.f, 0.f, 0.f);
 	}
 
-	PX_FORCE_INLINE PX_CUDA_CALLABLE Cm::SpatialVectorF loadSpatialVectorF(const PxgSpatialVectorBlock& block, const PxU32 threadIndexInWarp)
+	PX_FORCE_INLINE PX_CUDA_CALLABLE ev4sio_Cm::SpatialVectorF loadSpatialVectorF(const PxgSpatialVectorBlock& block, const PxU32 threadIndexInWarp)
 	{
 		float4 top = block.mTopxyz_bx[threadIndexInWarp];
 		float2 bottom = block.mbyz[threadIndexInWarp];
 
-		return Cm::SpatialVectorF(PxVec3(top.x, top.y, top.z), PxVec3(top.w, bottom.x, bottom.y));
+		return ev4sio_Cm::SpatialVectorF(PxVec3(top.x, top.y, top.z), PxVec3(top.w, bottom.x, bottom.y));
 	}
 
-	PX_FORCE_INLINE PX_CUDA_CALLABLE Cm::UnAlignedSpatialVector loadSpatialVector(const PxgSpatialVectorBlock& block, const PxU32 threadIndexInWarp)
+	PX_FORCE_INLINE PX_CUDA_CALLABLE ev4sio_Cm::UnAlignedSpatialVector loadSpatialVector(const PxgSpatialVectorBlock& block, const PxU32 threadIndexInWarp)
 	{
 		float4 top = block.mTopxyz_bx[threadIndexInWarp];
 		float2 bottom = block.mbyz[threadIndexInWarp];
 
-		return Cm::UnAlignedSpatialVector(PxVec3(top.x, top.y, top.z), PxVec3(top.w, bottom.x, bottom.y));
+		return ev4sio_Cm::UnAlignedSpatialVector(PxVec3(top.x, top.y, top.z), PxVec3(top.w, bottom.x, bottom.y));
 	}
 
-	PX_FORCE_INLINE PX_CUDA_CALLABLE void storeSpatialVector(PxgSpatialVectorBlock& block, const Cm::UnAlignedSpatialVector& v, const PxU32 threadIndexInWarp)
+	PX_FORCE_INLINE PX_CUDA_CALLABLE void storeSpatialVector(PxgSpatialVectorBlock& block, const ev4sio_Cm::UnAlignedSpatialVector& v, const PxU32 threadIndexInWarp)
 	{
 		block.mTopxyz_bx[threadIndexInWarp] = make_float4(v.top.x, v.top.y, v.top.z, v.bottom.x);
 		block.mbyz[threadIndexInWarp] = make_float2(v.bottom.y, v.bottom.z);
@@ -211,7 +211,7 @@ namespace physx
 		Pxstcg(&block.mbyz[threadIndexInWarp], make_float2(v.bottom.y, v.bottom.z));*/
 	}
 
-	PX_FORCE_INLINE PX_CUDA_CALLABLE void addSpatialVector(PxgSpatialVectorBlock& block, const Cm::UnAlignedSpatialVector& v, const PxU32 threadIndexInWarp)
+	PX_FORCE_INLINE PX_CUDA_CALLABLE void addSpatialVector(PxgSpatialVectorBlock& block, const ev4sio_Cm::UnAlignedSpatialVector& v, const PxU32 threadIndexInWarp)
 	{
 		block.mTopxyz_bx[threadIndexInWarp] += make_float4(v.top.x, v.top.y, v.top.z, v.bottom.x);
 		block.mbyz[threadIndexInWarp] += make_float2(v.bottom.y, v.bottom.z);
@@ -221,7 +221,7 @@ namespace physx
 	}
 
 #if PX_CUDA_COMPILER
-	PX_FORCE_INLINE __device__ void atomicAddSpatialVector(PxgSpatialVectorBlock& block, const Cm::UnAlignedSpatialVector& v, const PxU32 threadIndexInWarp)
+	PX_FORCE_INLINE __device__ void atomicAddSpatialVector(PxgSpatialVectorBlock& block, const ev4sio_Cm::UnAlignedSpatialVector& v, const PxU32 threadIndexInWarp)
 	{
 #if __CUDA_ARCH__ >= 200
 		atomicAdd(&block.mTopxyz_bx[threadIndexInWarp].x, v.top.x);
@@ -286,7 +286,7 @@ namespace physx
 		block.mCol2[threadIndexInWarp] = mat.column2.z;
 	}
 
-	PX_FORCE_INLINE PX_CUDA_CALLABLE Cm::UnAlignedSpatialVector loadSpatialVector(const Cm::UnAlignedSpatialVector* PX_RESTRICT vector)
+	PX_FORCE_INLINE PX_CUDA_CALLABLE ev4sio_Cm::UnAlignedSpatialVector loadSpatialVector(const ev4sio_Cm::UnAlignedSpatialVector* PX_RESTRICT vector)
 	{
 		size_t ptr = size_t(vector);
 		if (ptr & 0xf)
@@ -295,7 +295,7 @@ namespace physx
 			float2 val = *top;
 			float4 val2 = *(reinterpret_cast<float4*>(top+1));
 
-			return Cm::UnAlignedSpatialVector(PxVec3(val.x, val.y, val2.x), PxVec3(val2.y, val2.z, val2.w));
+			return ev4sio_Cm::UnAlignedSpatialVector(PxVec3(val.x, val.y, val2.x), PxVec3(val2.y, val2.z, val2.w));
 		}
 		else
 		{
@@ -303,12 +303,12 @@ namespace physx
 			float4 val = *top;
 			float2 val2 = *(reinterpret_cast<float2*>(top + 1));
 
-			return Cm::UnAlignedSpatialVector(PxVec3(val.x, val.y, val.z), PxVec3(val.w, val2.x, val2.y));
+			return ev4sio_Cm::UnAlignedSpatialVector(PxVec3(val.x, val.y, val.z), PxVec3(val.w, val2.x, val2.y));
 		}
 	}
 
-	PX_FORCE_INLINE PX_CUDA_CALLABLE void storeSpatialVector(Cm::UnAlignedSpatialVector* PX_RESTRICT vector,
-		const Cm::UnAlignedSpatialVector& src)
+	PX_FORCE_INLINE PX_CUDA_CALLABLE void storeSpatialVector(ev4sio_Cm::UnAlignedSpatialVector* PX_RESTRICT vector,
+		const ev4sio_Cm::UnAlignedSpatialVector& src)
 	{
 		size_t ptr = size_t(vector);
 		if (ptr & 0xf)
@@ -460,7 +460,7 @@ namespace physx
 		//This one is a bit of a hack - it's the common link velocity. 
 		PxgSpatialVectorBlock mCommonLinkDeltaVelocity;
 		PxU32 mLinkWithDeferredImpulse[32];
-		Cm::UnAlignedSpatialVector* mMotionVelocitiesPtr[32];
+		ev4sio_Cm::UnAlignedSpatialVector* mMotionVelocitiesPtr[32];
 		PxgSpatialVectorBlock mRootDeferredZ;
 
 		float4	mCOM_TotalInvMassW[32];
@@ -515,15 +515,15 @@ namespace physx
 		PxReal						mViscousFrictionCoefficient[32];
 
 		PX_FORCE_INLINE void PX_CUDA_CALLABLE setImplicitDriveDesc
-			(const PxU32 threadIndexInWarp,const Dy::ArticulationImplicitDriveDesc& driveDesc)
+			(const PxU32 threadIndexInWarp,const ev4sio_Dy::ArticulationImplicitDriveDesc& driveDesc)
 		{
 		    mTargetVelPlusInitialBiasX_DriveBiasCoefficientY_VelMultiplierZ_ImpulseMultiplierW[threadIndexInWarp] =
 		        make_float4(driveDesc.driveTargetVelPlusInitialBias, driveDesc.driveBiasCoefficient, driveDesc.driveVelMultiplier, driveDesc.driveImpulseMultiplier);
 		    mTargetPosBias[threadIndexInWarp] = driveDesc.driveTargetPosBias;
 		}
-		PX_FORCE_INLINE PX_CUDA_CALLABLE Dy::ArticulationImplicitDriveDesc getImplicitDriveDesc(const PxU32 threadIndexInWarp) const
+		PX_FORCE_INLINE PX_CUDA_CALLABLE ev4sio_Dy::ArticulationImplicitDriveDesc getImplicitDriveDesc(const PxU32 threadIndexInWarp) const
 		{
-			const Dy::ArticulationImplicitDriveDesc driveDesc
+			const ev4sio_Dy::ArticulationImplicitDriveDesc driveDesc
 			(
 		        mTargetVelPlusInitialBiasX_DriveBiasCoefficientY_VelMultiplierZ_ImpulseMultiplierW[threadIndexInWarp].x,
 		        mTargetVelPlusInitialBiasX_DriveBiasCoefficientY_VelMultiplierZ_ImpulseMultiplierW[threadIndexInWarp].y,
@@ -675,18 +675,18 @@ namespace physx
 		PxgArticulationData						data;							
 
 		PxgArticulationLink*					links;							
-		Dy::ArticulationJointCore*				joints;							
-		Dy::ArticulationJointCoreData*			jointData;						
+		ev4sio_Dy::ArticulationJointCore*				joints;							
+		ev4sio_Dy::ArticulationJointCoreData*			jointData;						
 		
-		Cm::UnAlignedSpatialVector*				motionVelocities;				
-		Cm::UnAlignedSpatialVector*				motionAccelerations;			
-		Cm::UnAlignedSpatialVector*				linkIncomingJointForces;	
-		Cm::UnAlignedSpatialVector*				corioliseVectors;				
-		Cm::UnAlignedSpatialVector*				zAForces; // used as temporary propagation buffer in inverseDynamics and to store TGS per substep isolated forces while the solver runs. Not cleared after use.
+		ev4sio_Cm::UnAlignedSpatialVector*				motionVelocities;				
+		ev4sio_Cm::UnAlignedSpatialVector*				motionAccelerations;			
+		ev4sio_Cm::UnAlignedSpatialVector*				linkIncomingJointForces;	
+		ev4sio_Cm::UnAlignedSpatialVector*				corioliseVectors;				
+		ev4sio_Cm::UnAlignedSpatialVector*				zAForces; // used as temporary propagation buffer in inverseDynamics and to store TGS per substep isolated forces while the solver runs. Not cleared after use.
 		
-		Cm::UnAlignedSpatialVector*				externalAccelerations;			
+		ev4sio_Cm::UnAlignedSpatialVector*				externalAccelerations;			
 
-		Cm::UnAlignedSpatialVector*				rootPreMotionVelocity;
+		ev4sio_Cm::UnAlignedSpatialVector*				rootPreMotionVelocity;
 
 		PxReal*									jointPositions;					
 		PxReal*									jointVelocities;				
@@ -704,11 +704,11 @@ namespace physx
 		PxTransform*							linkBody2Actors;
 		PxU32*									parents;						
 		//Local space motion matrix - constant unless properties are changed
-		Dy::SpatialSubspaceMatrix*				motionMatrix;					
+		ev4sio_Dy::SpatialSubspaceMatrix*				motionMatrix;					
 		//World space motion matrix - computed from local matrix each frame
-		Dy::SpatialSubspaceMatrix*				worldMotionMatrix; // AD: only inverse dynamics now.				
+		ev4sio_Dy::SpatialSubspaceMatrix*				worldMotionMatrix; // AD: only inverse dynamics now.				
 
-		Cm::UnAlignedSpatialVector*				jointAxis;
+		ev4sio_Cm::UnAlignedSpatialVector*				jointAxis;
 
 		PxReal*									linkWakeCounters;
 		PxgArticulationLinkSleepData*			linkSleepData;
@@ -730,12 +730,12 @@ namespace physx
 		PxReal*									cfms;
 		PxReal*									cfmScale;
 
-		Dy::ArticulationMimicJointCore*			mimicJointCores;
+		ev4sio_Dy::ArticulationMimicJointCore*			mimicJointCores;
 
 		PX_ALIGN(16, PxSpatialMatrix)			invSpatialArticulatedInertiaW;
 
-		Dy::ErrorAccumulator					internalResidualAccumulator; //Internal residual means no errors introduces by contacts or non-articulation joints connected to this instance will be included
-		Dy::ErrorAccumulator					contactResidualAccumulator;
+		ev4sio_Dy::ErrorAccumulator					internalResidualAccumulator; //Internal residual means no errors introduces by contacts or non-articulation joints connected to this instance will be included
+		ev4sio_Dy::ErrorAccumulator					contactResidualAccumulator;
 	}
 	PX_ALIGN_SUFFIX(16);
 #if PX_VC
@@ -772,11 +772,11 @@ namespace physx
 		(const PxU32 maxNbLinks, const PxU32 maxNbDofs)
 		{
 			PxU32 byteSizePerArt =
-				(sizeof(PxTransform) + 3 * sizeof(Cm::UnAlignedSpatialVector)) * maxNbLinks;		//link pose + link velocity + link acceleration + link incoming joint force
+				(sizeof(PxTransform) + 3 * sizeof(ev4sio_Cm::UnAlignedSpatialVector)) * maxNbLinks;		//link pose + link velocity + link acceleration + link incoming joint force
 			byteSizePerArt += sizeof(PxReal) * maxNbDofs; //joint pos
 			byteSizePerArt += sizeof(PxReal) * maxNbDofs; //joint vel
 			byteSizePerArt += sizeof(PxReal) * maxNbDofs; //joint accel
-			byteSizePerArt += sizeof(Cm::UnAlignedSpatialVector);											//root pre-sim vel
+			byteSizePerArt += sizeof(ev4sio_Cm::UnAlignedSpatialVector);											//root pre-sim vel
 			return byteSizePerArt;
 		}
 
@@ -836,29 +836,29 @@ namespace physx
 		static PX_CUDA_CALLABLE PX_FORCE_INLINE void decomposeArticulationStateDataBuffer
 		(PxU8* singleArticulationStateBuffer,
 		 const PxU32 nbLinks, const PxU32 nbDofs,
-		 PxTransform*& linkBody2Worlds, Cm::UnAlignedSpatialVector*& linkVels, Cm::UnAlignedSpatialVector*& linkAccels, Cm::UnAlignedSpatialVector*& linkIncomingJointForces,
+		 PxTransform*& linkBody2Worlds, ev4sio_Cm::UnAlignedSpatialVector*& linkVels, ev4sio_Cm::UnAlignedSpatialVector*& linkAccels, ev4sio_Cm::UnAlignedSpatialVector*& linkIncomingJointForces,
 		 PxReal*& jointPositions, PxReal*& jointVelocities, PxReal*& jointAccelerations,
-		 Cm::UnAlignedSpatialVector*& rootPreVel)
+		 ev4sio_Cm::UnAlignedSpatialVector*& rootPreVel)
 		{
 			PxU8* buffer = singleArticulationStateBuffer;
 			linkBody2Worlds = reinterpret_cast<PxTransform*>(buffer);
 			buffer += sizeof(PxTransform) * nbLinks;
-			linkVels = reinterpret_cast<Cm::UnAlignedSpatialVector*>(buffer);
-			buffer += sizeof(Cm::UnAlignedSpatialVector) * nbLinks;
-			linkAccels = reinterpret_cast<Cm::UnAlignedSpatialVector*>(buffer);
-			buffer += sizeof(Cm::UnAlignedSpatialVector) * nbLinks;
-			linkIncomingJointForces = reinterpret_cast<Cm::UnAlignedSpatialVector*>(buffer);
-			buffer += sizeof(Cm::UnAlignedSpatialVector) * nbLinks;
+			linkVels = reinterpret_cast<ev4sio_Cm::UnAlignedSpatialVector*>(buffer);
+			buffer += sizeof(ev4sio_Cm::UnAlignedSpatialVector) * nbLinks;
+			linkAccels = reinterpret_cast<ev4sio_Cm::UnAlignedSpatialVector*>(buffer);
+			buffer += sizeof(ev4sio_Cm::UnAlignedSpatialVector) * nbLinks;
+			linkIncomingJointForces = reinterpret_cast<ev4sio_Cm::UnAlignedSpatialVector*>(buffer);
+			buffer += sizeof(ev4sio_Cm::UnAlignedSpatialVector) * nbLinks;
 			jointPositions = reinterpret_cast<PxReal*>(buffer);
 			buffer += sizeof(PxReal) * nbDofs;
 			jointVelocities = reinterpret_cast<PxReal*>(buffer);
 			buffer += sizeof(PxReal) * nbDofs;
 			jointAccelerations = reinterpret_cast<PxReal*>(buffer);
 			buffer += sizeof(PxReal) * nbDofs;
-			rootPreVel =  reinterpret_cast<Cm::UnAlignedSpatialVector*>(buffer);
+			rootPreVel =  reinterpret_cast<ev4sio_Cm::UnAlignedSpatialVector*>(buffer);
 			PX_ASSERT(
 				singleArticulationStateBuffer + computeStateDataBufferByteSizeAligned16(nbLinks, nbDofs, 1) == 
-				reinterpret_cast<PxU8*>(((reinterpret_cast<size_t>(buffer) + sizeof(Cm::UnAlignedSpatialVector) + 15) & ~15)));
+				reinterpret_cast<PxU8*>(((reinterpret_cast<size_t>(buffer) + sizeof(ev4sio_Cm::UnAlignedSpatialVector) + 15) & ~15)));
 		}
 
 		/**
@@ -874,13 +874,13 @@ namespace physx
 		 const PxU32 nbLinks, const PxU32 nbDofs)
 		{
 			PxTransform* linkBody2Worlds;
-			Cm::UnAlignedSpatialVector* linkVels;
-			Cm::UnAlignedSpatialVector* linkAccels;
-			Cm::UnAlignedSpatialVector* linkIncomingJointForces;
+			ev4sio_Cm::UnAlignedSpatialVector* linkVels;
+			ev4sio_Cm::UnAlignedSpatialVector* linkAccels;
+			ev4sio_Cm::UnAlignedSpatialVector* linkIncomingJointForces;
 			PxReal* jointPositions;
 			PxReal* jointVelocities;
 			PxReal* jointAccelerations;
-			Cm::UnAlignedSpatialVector* rootPreVel;
+			ev4sio_Cm::UnAlignedSpatialVector* rootPreVel;
 
 			decomposeArticulationStateDataBuffer(
 				singleArticulationStateBuffer,
@@ -906,10 +906,10 @@ namespace physx
 		PxgTypedCudaBuffer<PxReal>								linkWakeCounters;       //original set to the same as articulation wakeCounter
 		PxgTypedCudaBuffer<PxgArticulationLinkSleepData>		linkSleepData;
 		PxgTypedCudaBuffer<PxgArticulationLinkProp>				linkProps;
-		PxgTypedCudaBuffer<Dy::ArticulationJointCore>			joints;
-		PxgTypedCudaBuffer<Dy::ArticulationJointCoreData>		jointData;
-		PxgTypedCudaBuffer<Cm::UnAlignedSpatialVector>			corioliseVectors;       //link coriolise vector
-		PxgTypedCudaBuffer<Cm::UnAlignedSpatialVector>			zAForces;               //link spatial zero acceleration force/ spatical articulate 
+		PxgTypedCudaBuffer<ev4sio_Dy::ArticulationJointCore>			joints;
+		PxgTypedCudaBuffer<ev4sio_Dy::ArticulationJointCoreData>		jointData;
+		PxgTypedCudaBuffer<ev4sio_Cm::UnAlignedSpatialVector>			corioliseVectors;       //link coriolise vector
+		PxgTypedCudaBuffer<ev4sio_Cm::UnAlignedSpatialVector>			zAForces;               //link spatial zero acceleration force/ spatical articulate 
 		PxgTypedCudaBuffer<PxU32>								pathToRoots;            //global array store path to root for each link in continuous. Each link should have a start index and numberOfElems
 
 		PxgTypedCudaBuffer<PxGpuSpatialTendonData>				spatialTendonParams;
@@ -922,18 +922,18 @@ namespace physx
 		PxArray<PxgCudaBuffer*>									tendonJointFixData;
 		PxArray<PxgCudaBuffer*>									tendonJointCoefficientData;
 
-		PxgTypedCudaBuffer<Dy::ArticulationMimicJointCore>		mimicJoints;
+		PxgTypedCudaBuffer<ev4sio_Dy::ArticulationMimicJointCore>		mimicJoints;
 
-		PxgTypedCudaBuffer<Cm::UnAlignedSpatialVector>			externalAccelerations;
+		PxgTypedCudaBuffer<ev4sio_Cm::UnAlignedSpatialVector>			externalAccelerations;
 
 		PxgTypedCudaBuffer<PxReal>								jointForce;
 		PxgTypedCudaBuffer<PxReal>								jointTargetPositions;
 		PxgTypedCudaBuffer<PxReal>								jointTargetVelocities;
 		PxgTypedCudaBuffer<PxU32>								jointOffsets;
 		PxgTypedCudaBuffer<PxU32>								parents;
-		PxgTypedCudaBuffer<Dy::SpatialSubspaceMatrix>			motionMatrix;
-		PxgTypedCudaBuffer<Dy::SpatialSubspaceMatrix>			motionMatrixW;
-		PxgTypedCudaBuffer<Cm::UnAlignedSpatialVector>			jointAxis;
+		PxgTypedCudaBuffer<ev4sio_Dy::SpatialSubspaceMatrix>			motionMatrix;
+		PxgTypedCudaBuffer<ev4sio_Dy::SpatialSubspaceMatrix>			motionMatrixW;
+		PxgTypedCudaBuffer<ev4sio_Cm::UnAlignedSpatialVector>			jointAxis;
 
 		PxgTypedCudaBuffer<PxSpatialMatrix>						spatialArticulatedInertiaW;
 		PxgTypedCudaBuffer<PxSpatialMatrix>						spatialImpulseResponseW;

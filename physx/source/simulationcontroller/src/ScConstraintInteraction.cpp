@@ -33,8 +33,8 @@
 #include "PxsRigidBody.h"
 #include "PxsSimpleIslandManager.h"
 
-using namespace physx;
-using namespace Sc;
+using namespace ev4sio_physx;
+using namespace ev4sio_Sc;
 
 ConstraintInteraction::ConstraintInteraction(ConstraintSim* constraint, RigidSim& r0, RigidSim& r1) :
 	Interaction	(r0, r1, InteractionType::eCONSTRAINTSHADER, InteractionFlag::eCONSTRAINT),
@@ -53,7 +53,7 @@ ConstraintInteraction::ConstraintInteraction(ConstraintSim* constraint, RigidSim
 	if(b1)
 		b1->onConstraintAttach();
 
-	IG::SimpleIslandManager* simpleIslandManager = getScene().getSimpleIslandManager();
+	ev4sio_IG::SimpleIslandManager* simpleIslandManager = getScene().getSimpleIslandManager();
 	mEdgeIndex = simpleIslandManager->addConstraint(&mConstraint->getLowLevelConstraint(), b0 ? b0->getNodeIndex() : PxNodeIndex(), b1 ? b1->getNodeIndex() : PxNodeIndex(), this);
 }
 

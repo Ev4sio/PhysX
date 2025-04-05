@@ -47,7 +47,7 @@
 // Assume they are the same for now. This can potentially change in the future.
 PX_COMPILE_TIME_ASSERT(PX_ELEMENT_FILTER_ALL == PX_MAX_NB_DEFORMABLE_VOLUME_TET && PX_ELEMENT_FILTER_ALL == PX_MAX_NB_DEFORMABLE_SURFACE_TRI);
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 NpInternalAttachmentType::Enum getInternalAttachmentType(const PxDeformableElementFilterData& data, PxU32 actorIndex[2])
 {
@@ -173,7 +173,7 @@ void NpDeformableElementFilter::addElementFilter()
 			PxActor* actor0 = mActor[mActorIndex[0]];
 
 			PxRigidActor* actor1 = mActor[mActorIndex[1]]->is<PxRigidActor>();
-			Sc::BodyCore* core1 = getBodyCore(actor1);
+			ev4sio_Sc::BodyCore* core1 = getBodyCore(actor1);
 
 			for (PxU32 i = 0; i < mPairwiseIndices[mActorIndex[0]].size(); i++)
 			{
@@ -247,7 +247,7 @@ void NpDeformableElementFilter::removeElementFilter()
 			const PxArray<PxU32>& indices = mPairwiseIndices[mActorIndex[0]];
 
 			PxRigidActor* actor1 = mActor[mActorIndex[1]]->is<PxRigidActor>();
-			Sc::BodyCore* core1 = getBodyCore(actor1);
+			ev4sio_Sc::BodyCore* core1 = getBodyCore(actor1);
 
 			for (PxU32 i = 0; i < indices.size(); i++)
 			{

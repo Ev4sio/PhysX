@@ -29,9 +29,9 @@
 #ifndef PXG_EDGE_TYPE_H
 #define PXG_EDGE_TYPE_H
 
-namespace physx
+namespace ev4sio_physx
 {
-//This is the same as IG::Edge::EdgeType, but we have more enum type so we can represent articulation
+//This is the same as ev4sio_IG::Edge::EdgeType, but we have more enum type so we can represent articulation
 //contacts and joints
 
 struct PxgEdgeType

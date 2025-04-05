@@ -36,9 +36,9 @@
 
 #include <stdio.h>
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Dy
+namespace ev4sio_Dy
 {
 
 /**
@@ -828,7 +828,7 @@ PX_FORCE_INLINE aos::Vec4V computeMinBiasTGSBlock(const aos::VecU32VArg flags, c
 #endif
 
 
-} //namespace Dy
-} //namespace physx
+} //namespace ev4sio_Dy
+} //namespace ev4sio_physx
 #endif //DY_1DCONSTRAINT_CPUGPU_H
 

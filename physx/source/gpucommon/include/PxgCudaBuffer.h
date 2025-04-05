@@ -43,7 +43,7 @@
 #include "PxgHeapMemAllocator.h"
 #include "PxgDevicePointer.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	class PxCudaContext;
 	

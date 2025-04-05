@@ -32,7 +32,7 @@
 #include "NpArticulationReducedCoordinate.h"
 #include "ScArticulationMimicJointSim.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 // PX_SERIALIZATION
@@ -75,7 +75,7 @@ void NpArticulationMimicJoint::release()
 {
 	if (getNpScene())
 	{
-		PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "NpArticulationMimicJoint::release() not allowed while the articulation is in a scene. Call will be ignored.");
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "NpArticulationMimicJoint::release() not allowed while the articulation is in a scene. Call will be ignored.");
 		return;
 	}
 

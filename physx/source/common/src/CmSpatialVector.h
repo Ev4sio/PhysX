@@ -37,9 +37,9 @@
 Combination of two R3 vectors.
 */
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Cm
+namespace ev4sio_Cm
 {
 PX_ALIGN_PREFIX(16)
 class SpatialVector
@@ -117,9 +117,9 @@ public:
 		return linear.isFinite() && angular.isFinite();
 	}
 
-	PX_CUDA_CALLABLE PX_FORCE_INLINE Cm::SpatialVector scale(PxReal l, PxReal a) const
+	PX_CUDA_CALLABLE PX_FORCE_INLINE ev4sio_Cm::SpatialVector scale(PxReal l, PxReal a) const
 	{
-		return Cm::SpatialVector(linear*l, angular*a);
+		return ev4sio_Cm::SpatialVector(linear*l, angular*a);
 	}
 
 	PxVec3 linear;
@@ -273,9 +273,9 @@ public:
 		return tValid && bValid;
 	}
 
-	PX_CUDA_CALLABLE PX_FORCE_INLINE Cm::SpatialVectorF scale(PxReal l, PxReal a) const
+	PX_CUDA_CALLABLE PX_FORCE_INLINE ev4sio_Cm::SpatialVectorF scale(PxReal l, PxReal a) const
 	{
-		return Cm::SpatialVectorF(top*l, bottom*a);
+		return ev4sio_Cm::SpatialVectorF(top*l, bottom*a);
 	}
 
 	PX_CUDA_CALLABLE PX_FORCE_INLINE void assignTo(PxReal* val) const
@@ -451,9 +451,9 @@ public:
 		return tValid && bValid;
 	}
 
-	PX_CUDA_CALLABLE PX_FORCE_INLINE Cm::UnAlignedSpatialVector scale(PxReal l, PxReal a) const
+	PX_CUDA_CALLABLE PX_FORCE_INLINE ev4sio_Cm::UnAlignedSpatialVector scale(PxReal l, PxReal a) const
 	{
-		return Cm::UnAlignedSpatialVector(top*l, bottom*a);
+		return ev4sio_Cm::UnAlignedSpatialVector(top*l, bottom*a);
 	}
 
 	PX_CUDA_CALLABLE PX_FORCE_INLINE void assignTo(PxReal* val) const
@@ -486,7 +486,7 @@ struct SpatialVectorV
 
 	PX_FORCE_INLINE SpatialVectorV() {}
 	PX_FORCE_INLINE SpatialVectorV(PxZERO): linear(aos::V3Zero()), angular(aos::V3Zero()) {}
-	PX_FORCE_INLINE SpatialVectorV(const Cm::SpatialVector& v): linear(aos::V3LoadA(&v.linear.x)), angular(aos::V3LoadA(&v.angular.x)) {}
+	PX_FORCE_INLINE SpatialVectorV(const ev4sio_Cm::SpatialVector& v): linear(aos::V3LoadA(&v.linear.x)), angular(aos::V3LoadA(&v.angular.x)) {}
 	PX_FORCE_INLINE SpatialVectorV(const aos::Vec3VArg l, const aos::Vec3VArg a): linear(l), angular(a) {}
 	PX_FORCE_INLINE SpatialVectorV(const SpatialVectorV& other): linear(other.linear), angular(other.angular) {}
 
@@ -522,10 +522,10 @@ struct SpatialVectorV
 
 }PX_ALIGN_SUFFIX(16);
 
-} // namespace Cm
+} // namespace ev4sio_Cm
 
-PX_COMPILE_TIME_ASSERT(sizeof(Cm::SpatialVector) == 32);
-PX_COMPILE_TIME_ASSERT(sizeof(Cm::SpatialVectorV) == 32);
+PX_COMPILE_TIME_ASSERT(sizeof(ev4sio_Cm::SpatialVector) == 32);
+PX_COMPILE_TIME_ASSERT(sizeof(ev4sio_Cm::SpatialVectorV) == 32);
 
 }
 

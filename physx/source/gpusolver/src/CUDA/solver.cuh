@@ -46,20 +46,20 @@
 #include <stdio.h>
 #include <assert.h>
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 // This function is for contacts involving articulations.
 // To apply mass-splitting, different data is stored and used when computing impulses.
 // Apart from mass-splitting, the formulation is the same as the previous implementation, see "setupFinalizeExtSolverConstraintsBlock"
-static __device__ void solveExtContactsBlock(const PxgBlockConstraintBatch& batch, Cm::UnAlignedSpatialVector& vel0,
-	Cm::UnAlignedSpatialVector& vel1, const bool doFriction, PxgBlockSolverContactHeader* contactHeaders,
+static __device__ void solveExtContactsBlock(const PxgBlockConstraintBatch& batch, ev4sio_Cm::UnAlignedSpatialVector& vel0,
+	ev4sio_Cm::UnAlignedSpatialVector& vel1, const bool doFriction, PxgBlockSolverContactHeader* contactHeaders,
 	PxgBlockSolverFrictionHeader* frictionHeaders, PxgBlockSolverContactPoint* contactPoints,
-	PxgBlockSolverContactFriction* frictionPoints, const PxgArticulationBlockResponse* const PX_RESTRICT responses, Cm::UnAlignedSpatialVector& impulse0,
-	Cm::UnAlignedSpatialVector& impulse1, const PxU32 threadIndexInWarp, PxgErrorAccumulator* error, 
+	PxgBlockSolverContactFriction* frictionPoints, const PxgArticulationBlockResponse* const PX_RESTRICT responses, ev4sio_Cm::UnAlignedSpatialVector& impulse0,
+	ev4sio_Cm::UnAlignedSpatialVector& impulse1, const PxU32 threadIndexInWarp, PxgErrorAccumulator* error, 
 	PxReal ref0 = 1.f, PxReal ref1 = 1.f)
 {
-	Cm::UnAlignedSpatialVector imp0(PxVec3(0.f), PxVec3(0.f));
-	Cm::UnAlignedSpatialVector imp1(PxVec3(0.f), PxVec3(0.f));
+	ev4sio_Cm::UnAlignedSpatialVector imp0(PxVec3(0.f), PxVec3(0.f));
+	ev4sio_Cm::UnAlignedSpatialVector imp1(PxVec3(0.f), PxVec3(0.f));
 
 	PxgBlockSolverContactHeader& contactHeader = contactHeaders[batch.mConstraintBatchIndex];
 	PxgBlockSolverFrictionHeader& frictionHeader = frictionHeaders[batch.mConstraintBatchIndex];
@@ -80,8 +80,8 @@ static __device__ void solveExtContactsBlock(const PxgBlockConstraintBatch& batc
 
 	PxReal accumulatedNormalImpulse = 0.f;
 
-	Cm::UnAlignedSpatialVector v0 = vel0;
-	Cm::UnAlignedSpatialVector v1 = vel1;
+	ev4sio_Cm::UnAlignedSpatialVector v0 = vel0;
+	ev4sio_Cm::UnAlignedSpatialVector v1 = vel1;
 
 	const float4 normal_staticFriction = Pxldcg(contactHeader.normal_staticFriction[threadIndexInWarp]);
 
@@ -171,10 +171,10 @@ static __device__ void solveExtContactsBlock(const PxgBlockConstraintBatch& batc
 		computeContactCoefficients(flags, restitution, unitResponse, recipResponse, targetVelocity, coeff0, coeff1,
 			velMultiplier, impulseMul, unbiasedError, biasedErr);
 
-		const Cm::UnAlignedSpatialVector deltaVA(ref0 * PxVec3(deltaRAAng.x, deltaRAAng.y, deltaRAAng.z),
+		const ev4sio_Cm::UnAlignedSpatialVector deltaVA(ref0 * PxVec3(deltaRAAng.x, deltaRAAng.y, deltaRAAng.z),
 												 ref0 * PxVec3(deltaRALin.x, deltaRALin.y, deltaRALin.z));
 
-		const Cm::UnAlignedSpatialVector deltaVB(ref1 * PxVec3(deltaRBAng.x, deltaRBAng.y, deltaRBAng.z),
+		const ev4sio_Cm::UnAlignedSpatialVector deltaVB(ref1 * PxVec3(deltaRBAng.x, deltaRBAng.y, deltaRBAng.z),
 												 ref1 * PxVec3(deltaRBLin.x, deltaRBLin.y, deltaRBLin.z));
 
 		const float v0_ = v0.bottom.dot(normal) + v0.top.dot(raXn);//V3MulAdd(linVel0, normal, V3Mul(angVel0, raXn));
@@ -264,10 +264,10 @@ static __device__ void solveExtContactsBlock(const PxgBlockConstraintBatch& batc
 			const float bias = raXn_extraCoeff.w;
 			const float targetVel = rbXn_targetVelW.w;
 
-			const Cm::UnAlignedSpatialVector deltaVA(ref0 * PxVec3(deltaRAAng.x, deltaRAAng.y, deltaRAAng.z),
+			const ev4sio_Cm::UnAlignedSpatialVector deltaVA(ref0 * PxVec3(deltaRAAng.x, deltaRAAng.y, deltaRAAng.z),
 													 ref0 * PxVec3(deltaRALin.x, deltaRALin.y, deltaRALin.z));
 
-			const Cm::UnAlignedSpatialVector deltaVB(ref1 * PxVec3(deltaRBAng.x, deltaRBAng.y, deltaRBAng.z),
+			const ev4sio_Cm::UnAlignedSpatialVector deltaVB(ref1 * PxVec3(deltaRBAng.x, deltaRBAng.y, deltaRBAng.z),
 													 ref1 * PxVec3(deltaRBLin.x, deltaRBLin.y, deltaRBLin.z));
 
 			const PxVec3 normal = PxVec3(frictionNormal.x, frictionNormal.y, frictionNormal.z);
@@ -320,8 +320,8 @@ static __device__ void solveExtContactsBlock(const PxgBlockConstraintBatch& batc
 }
 
 // A light version of the function "solveExtContactsBlock" to quickly check if there is any active contact.
-static __device__ bool checkExtActiveContactBlock(const PxgBlockConstraintBatch& batch, const Cm::UnAlignedSpatialVector& vel0,
-	const Cm::UnAlignedSpatialVector& vel1, PxgBlockSolverContactHeader* contactHeaders,
+static __device__ bool checkExtActiveContactBlock(const PxgBlockConstraintBatch& batch, const ev4sio_Cm::UnAlignedSpatialVector& vel0,
+	const ev4sio_Cm::UnAlignedSpatialVector& vel1, PxgBlockSolverContactHeader* contactHeaders,
 	PxgBlockSolverContactPoint* contactPoints, const PxgArticulationBlockResponse* const PX_RESTRICT responses, 
 	const PxU32 threadIndexInWarp)
 {
@@ -336,8 +336,8 @@ static __device__ bool checkExtActiveContactBlock(const PxgBlockConstraintBatch&
 
 	PxgBlockSolverContactPoint* contacts = &contactPoints[batch.startConstraintIndex];
 
-	Cm::UnAlignedSpatialVector v0 = vel0;
-	Cm::UnAlignedSpatialVector v1 = vel1;
+	ev4sio_Cm::UnAlignedSpatialVector v0 = vel0;
+	ev4sio_Cm::UnAlignedSpatialVector v1 = vel1;
 
 	const float4 normal_staticFriction = Pxldcg(contactHeader.normal_staticFriction[threadIndexInWarp]);
 	const PxVec3 normal = PxVec3(normal_staticFriction.x, normal_staticFriction.y, normal_staticFriction.z);
@@ -427,10 +427,10 @@ static __device__ bool checkExtActiveContactBlock(const PxgBlockConstraintBatch&
 
 // To apply mass-splitting, different data is stored and used when computing impulses.
 // Apart from mass-splitting, the formulation is the same as the previous implementation, see "setupFinalizeExtSolverConstraintsBlock"
-static __device__ PX_FORCE_INLINE void solveExtContactBlockTGS(const PxgBlockConstraintBatch& batch, Cm::UnAlignedSpatialVector& vel0, Cm::UnAlignedSpatialVector& vel1, const Cm::UnAlignedSpatialVector& delta0, const Cm::UnAlignedSpatialVector& delta1,
+static __device__ PX_FORCE_INLINE void solveExtContactBlockTGS(const PxgBlockConstraintBatch& batch, ev4sio_Cm::UnAlignedSpatialVector& vel0, ev4sio_Cm::UnAlignedSpatialVector& vel1, const ev4sio_Cm::UnAlignedSpatialVector& delta0, const ev4sio_Cm::UnAlignedSpatialVector& delta1,
 	const PxU32 threadIndex, PxgTGSBlockSolverContactHeader* PX_RESTRICT contactHeaders, PxgTGSBlockSolverFrictionHeader* PX_RESTRICT frictionHeaders, PxgTGSBlockSolverContactPoint* PX_RESTRICT contactPoints, PxgTGSBlockSolverContactFriction* PX_RESTRICT frictionPoints,
 	PxgArticulationBlockResponse* PX_RESTRICT responses, const PxReal elapsedTime, const PxReal minPen,
-	Cm::UnAlignedSpatialVector& impulse0, Cm::UnAlignedSpatialVector& impulse1, PxgErrorAccumulator* error,
+	ev4sio_Cm::UnAlignedSpatialVector& impulse0, ev4sio_Cm::UnAlignedSpatialVector& impulse1, PxgErrorAccumulator* error,
 	PxReal ref0 = 1.f, PxReal ref1 = 1.f)
 {
 	PxVec3 linVel0 = vel0.bottom;
@@ -440,7 +440,7 @@ static __device__ PX_FORCE_INLINE void solveExtContactBlockTGS(const PxgBlockCon
 
 	float accumulatedNormalImpulse = 0.f;
 
-	Cm::UnAlignedSpatialVector imp0(PxVec3(0.f), PxVec3(0.f)), imp1(PxVec3(0.f), PxVec3(0.f));
+	ev4sio_Cm::UnAlignedSpatialVector imp0(PxVec3(0.f), PxVec3(0.f)), imp1(PxVec3(0.f), PxVec3(0.f));
 	{
 		PxgTGSBlockSolverContactHeader* PX_RESTRICT contactHeader = &contactHeaders[batch.mConstraintBatchIndex];
 		PxgTGSBlockSolverFrictionHeader* PX_RESTRICT frictionHeader = &frictionHeaders[batch.mConstraintBatchIndex];
@@ -736,7 +736,7 @@ static __device__ PX_FORCE_INLINE void solveExtContactBlockTGS(const PxgBlockCon
 
 // A light version of the function "solveExtContactBlockTGS" to quickly check if there is any active contact.
 static __device__ PX_FORCE_INLINE bool checkExtActiveContactBlockTGS(const PxgBlockConstraintBatch& batch,
-	const Cm::UnAlignedSpatialVector& vel0, const Cm::UnAlignedSpatialVector& vel1, const Cm::UnAlignedSpatialVector& delta0, const Cm::UnAlignedSpatialVector& delta1,
+	const ev4sio_Cm::UnAlignedSpatialVector& vel0, const ev4sio_Cm::UnAlignedSpatialVector& vel1, const ev4sio_Cm::UnAlignedSpatialVector& delta0, const ev4sio_Cm::UnAlignedSpatialVector& delta1,
 	const PxU32 threadIndex, PxgTGSBlockSolverContactHeader* PX_RESTRICT contactHeaders, PxgTGSBlockSolverContactPoint* PX_RESTRICT contactPoints, 
 	PxgArticulationBlockResponse* PX_RESTRICT responses, const PxReal elapsedTime, const PxReal minPen)
 {

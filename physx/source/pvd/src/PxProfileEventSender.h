@@ -28,7 +28,7 @@
 #define PX_PROFILE_EVENT_SENDER_H
 
 
-namespace physx { namespace profile {
+namespace ev4sio_physx { namespace profile {
 
 	/**
 	\brief Tagging interface to indicate an object that is capable of flushing a profile

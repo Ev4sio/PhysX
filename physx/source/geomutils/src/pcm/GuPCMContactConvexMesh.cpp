@@ -41,9 +41,9 @@
 #include "GuBox.h"
 #include "CmMatrix34.h"
 
-using namespace physx;
-using namespace Gu;
-using namespace Cm;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
+using namespace ev4sio_Cm;
 using namespace aos;
 
 namespace
@@ -95,7 +95,7 @@ struct PCMConvexVsMeshContactGenerationCallback : PCMMeshContactGenerationCallba
 };
 }
 
-bool Gu::PCMContactConvexMesh(const PolygonalData& polyData, const SupportLocal* polyMap, const FloatVArg minMargin, const PxBounds3& hullAABB, const PxTriangleMeshGeometry& shapeMesh,
+bool ev4sio_Gu::PCMContactConvexMesh(const PolygonalData& polyData, const SupportLocal* polyMap, const FloatVArg minMargin, const PxBounds3& hullAABB, const PxTriangleMeshGeometry& shapeMesh,
 						const PxTransform& transform0, const PxTransform& transform1,
 						PxReal contactDistance, PxContactBuffer& contactBuffer,
 						const FastVertex2ShapeScaling& convexScaling, const FastVertex2ShapeScaling& meshScaling,
@@ -161,7 +161,7 @@ bool Gu::PCMContactConvexMesh(const PolygonalData& polyData, const SupportLocal*
 	return multiManifold.addManifoldContactsToContactBuffer(contactBuffer, meshTransform);
 }
 
-bool Gu::pcmContactConvexMesh(GU_CONTACT_METHOD_ARGS)
+bool ev4sio_Gu::pcmContactConvexMesh(GU_CONTACT_METHOD_ARGS)
 {
 	PX_UNUSED(renderOutput);
 
@@ -206,7 +206,7 @@ bool Gu::pcmContactConvexMesh(GU_CONTACT_METHOD_ARGS)
 	}
 }
 
-bool Gu::pcmContactBoxMesh(GU_CONTACT_METHOD_ARGS)
+bool ev4sio_Gu::pcmContactBoxMesh(GU_CONTACT_METHOD_ARGS)
 {
 	PX_UNUSED(renderOutput);
 

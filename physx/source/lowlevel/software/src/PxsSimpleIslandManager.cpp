@@ -33,12 +33,12 @@
 #include "CmTask.h"
 #include "DyVArticulation.h"
 
-using namespace physx;
-using namespace IG;
+using namespace ev4sio_physx;
+using namespace ev4sio_IG;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-ThirdPassTask::ThirdPassTask(PxU64 contextID, SimpleIslandManager& islandManager, IslandSim& islandSim) : Cm::Task(contextID), mIslandManager(islandManager), mIslandSim(islandSim)
+ThirdPassTask::ThirdPassTask(PxU64 contextID, SimpleIslandManager& islandManager, IslandSim& islandSim) : ev4sio_Cm::Task(contextID), mIslandManager(islandManager), mIslandSim(islandSim)
 {
 }
 
@@ -52,7 +52,7 @@ void ThirdPassTask::runInternal()
 
 ///////////////////////////////////////////////////////////////////////////////
 
-PostThirdPassTask::PostThirdPassTask(PxU64 contextID, SimpleIslandManager& islandManager) : Cm::Task(contextID), mIslandManager(islandManager)
+PostThirdPassTask::PostThirdPassTask(PxU64 contextID, SimpleIslandManager& islandManager) : ev4sio_Cm::Task(contextID), mIslandManager(islandManager)
 {
 }
 
@@ -110,7 +110,7 @@ void SimpleIslandManager::removeNode(const PxNodeIndex index)
 	mDestroyedNodes.pushBack(index);
 }
 
-EdgeIndex SimpleIslandManager::addEdge(void* edge, PxNodeIndex nodeHandle1, PxNodeIndex nodeHandle2, Sc::Interaction* interaction)
+EdgeIndex SimpleIslandManager::addEdge(void* edge, PxNodeIndex nodeHandle1, PxNodeIndex nodeHandle2, ev4sio_Sc::Interaction* interaction)
 {
 	const EdgeIndex handle = mEdgeHandles.getHandle();
 
@@ -191,7 +191,7 @@ void SimpleIslandManager::preallocateContactManagers(PxU32 nb, EdgeIndex* handle
 		mGpuData.mFirstPartitionEdges.resize(2 * (maxHandle + 1));
 }
 
-bool SimpleIslandManager::addPreallocatedContactManager(EdgeIndex handle, PxsContactManager* manager, PxNodeIndex nodeHandle1, PxNodeIndex nodeHandle2, Sc::Interaction* interaction, Edge::EdgeType edgeType)
+bool SimpleIslandManager::addPreallocatedContactManager(EdgeIndex handle, PxsContactManager* manager, PxNodeIndex nodeHandle1, PxNodeIndex nodeHandle2, ev4sio_Sc::Interaction* interaction, Edge::EdgeType edgeType)
 {
 	// PT: part of SimpleIslandManager::addEdge that can be multi-threaded
 	{
@@ -220,7 +220,7 @@ bool SimpleIslandManager::addPreallocatedContactManager(EdgeIndex handle, PxsCon
 
 ///////////////////////////////////////////////////////////////////////////////
 
-EdgeIndex SimpleIslandManager::addContactManager(PxsContactManager* manager, PxNodeIndex nodeHandle1, PxNodeIndex nodeHandle2, Sc::Interaction* interaction, Edge::EdgeType edgeType)
+EdgeIndex SimpleIslandManager::addContactManager(PxsContactManager* manager, PxNodeIndex nodeHandle1, PxNodeIndex nodeHandle2, ev4sio_Sc::Interaction* interaction, Edge::EdgeType edgeType)
 {
 	const EdgeIndex handle = addEdge(manager, nodeHandle1, nodeHandle2, interaction);
 
@@ -232,7 +232,7 @@ EdgeIndex SimpleIslandManager::addContactManager(PxsContactManager* manager, PxN
 	return resizeEdgeArrays(handle, true);
 }
 
-EdgeIndex SimpleIslandManager::addConstraint(Dy::Constraint* constraint, PxNodeIndex nodeHandle1, PxNodeIndex nodeHandle2, Sc::Interaction* interaction)
+EdgeIndex SimpleIslandManager::addConstraint(ev4sio_Dy::Constraint* constraint, PxNodeIndex nodeHandle1, PxNodeIndex nodeHandle2, ev4sio_Sc::Interaction* interaction)
 {
 	const EdgeIndex handle = addEdge(constraint, nodeHandle1, nodeHandle2, interaction);
 

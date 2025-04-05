@@ -36,7 +36,7 @@
 
 #include <stdio.h>
 
-namespace physx
+namespace ev4sio_physx
 {
 namespace sn
 {
@@ -54,13 +54,13 @@ PX_INLINE PxI32 fopen_s(FILE** file, const char* name, const char* mode)
 };
 
 } // namespace sn
-} // namespace physx
+} // namespace ev4sio_physx
 
 #elif PX_UNIX_FAMILY || PX_SWITCH
 
 #include <stdio.h>
 
-namespace physx
+namespace ev4sio_physx
 {
 namespace sn
 {
@@ -75,7 +75,7 @@ PX_INLINE PxI32 fopen_s(FILE** file, const char* name, const char* mode)
 	return -1;
 }
 } // namespace sn
-} // namespace physx
+} // namespace ev4sio_physx
 #else
 #error "Platform not supported!"
 #endif

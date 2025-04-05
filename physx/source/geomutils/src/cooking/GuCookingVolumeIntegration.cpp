@@ -41,7 +41,7 @@
 
 // PT: code archeology: this initially came from ICE (IceVolumeIntegration.h/cpp). Consider revisiting.
 
-namespace physx
+namespace ev4sio_physx
 {
 	using namespace aos;
 
@@ -501,11 +501,11 @@ namespace
 		const FloatV zeroV = FLoad(0.0f); 
 
 		const PxVec3* hullVerts = static_cast<const PxVec3*> (mDesc.points.data);
-		const Gu::HullPolygonData* hullPolygons = static_cast<const Gu::HullPolygonData*> (mDesc.polygons.data); 
+		const ev4sio_Gu::HullPolygonData* hullPolygons = static_cast<const ev4sio_Gu::HullPolygonData*> (mDesc.polygons.data); 
 
 		for (PxU32 i = 0; i < mDesc.polygons.count; i++)
 		{
-			const Gu::HullPolygonData& polygon = hullPolygons[i];
+			const ev4sio_Gu::HullPolygonData& polygon = hullPolygons[i];
 			const PxU8* data = static_cast<const PxU8*>(mDesc.indices.data) + polygon.mVRef8;
 			const PxU32 nbVerts = polygon.mNbVerts;
 
@@ -625,7 +625,7 @@ namespace
 
 		for (PxU32 i = 0; i < mDesc.polygons.count; i++)
 		{
-			const Gu::HullPolygonData& polygon = (static_cast<const Gu::HullPolygonData*> (mDesc.polygons.data))[i];
+			const ev4sio_Gu::HullPolygonData& polygon = (static_cast<const ev4sio_Gu::HullPolygonData*> (mDesc.polygons.data))[i];
 			const PxU8* Data = static_cast<const PxU8*>(mDesc.indices.data) + polygon.mVRef8;
 			const PxU32 NbVerts = polygon.mNbVerts;
 			for (PxU32 j = 0; j < NbVerts - 2; j++)

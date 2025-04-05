@@ -31,8 +31,8 @@
 #include "CmUtils.h"
 
 #if PX_SUPPORT_GPU_PHYSX
-using namespace physx;
-using namespace Cm;
+using namespace ev4sio_physx;
+using namespace ev4sio_Cm;
 
 NpDeformableSurfaceMaterial::NpDeformableSurfaceMaterial(const PxsDeformableSurfaceMaterialCore& desc) :
 	PxDeformableSurfaceMaterial(PxConcreteType::eDEFORMABLE_SURFACE_MATERIAL, PxBaseFlag::eOWNS_MEMORY | PxBaseFlag::eIS_RELEASABLE),

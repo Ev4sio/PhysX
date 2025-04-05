@@ -32,9 +32,9 @@
 #include "ScInteraction.h"
 #include "ScElementSim.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Sc
+namespace ev4sio_Sc
 {
 	class ElementSimInteraction : public Interaction
 	{
@@ -52,14 +52,14 @@ namespace Sc
 						ElementSim&		mElement1;
 						PxU32			mFlags;		// PT: moved there in padding bytes, from ShapeInteraction
 	public:
-						IG::EdgeIndex	mEdgeIndex;	// PT: moved there in padding bytes, from ShapeInteraction
+						ev4sio_IG::EdgeIndex	mEdgeIndex;	// PT: moved there in padding bytes, from ShapeInteraction
 	};
 
-} // namespace Sc
+} // namespace ev4sio_Sc
 
 //////////////////////////////////////////////////////////////////////////
 
-PX_INLINE Sc::ElementSimInteraction::ElementSimInteraction(ElementSim& element0, ElementSim& element1, InteractionType::Enum type, PxU8 flags) :
+PX_INLINE ev4sio_Sc::ElementSimInteraction::ElementSimInteraction(ElementSim& element0, ElementSim& element1, InteractionType::Enum type, PxU8 flags) :
 	Interaction		(element0.getActor(), element1.getActor(), type, flags),
 	mElement0		(element0),
 	mElement1		(element1)

@@ -37,10 +37,10 @@
 #include "foundation/PxArray.h"
 
 
-namespace physx
+namespace ev4sio_physx
 {
 
-namespace Cm { class Collection; }
+namespace ev4sio_Cm { class Collection; }
 
 namespace Sn {
 	
@@ -77,7 +77,7 @@ namespace Sn {
 		RepXSerializerMap								mRepXSerializers;
 	};
 
-	void  sortCollection(Cm::Collection& collection, SerializationRegistry& sr, bool isRepx);
+	void  sortCollection(ev4sio_Cm::Collection& collection, SerializationRegistry& sr, bool isRepx);
 } // Sn
 
 } // physx

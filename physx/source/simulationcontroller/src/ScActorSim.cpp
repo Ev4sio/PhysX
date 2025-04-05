@@ -32,8 +32,8 @@
 #include "ScScene.h"
 #include "ScInteraction.h"
 
-using namespace physx;
-using namespace Sc;
+using namespace ev4sio_physx;
+using namespace ev4sio_Sc;
 
 static const PxFilterObjectType::Enum gFilterType[PxActorType::eACTOR_COUNT] =
 {
@@ -61,7 +61,7 @@ PX_COMPILE_TIME_ASSERT(PxActorType::eACTOR_COUNT==6);
 // PT: make sure that the highest flag fits into 16bit
 PX_COMPILE_TIME_ASSERT(PxFilterObjectFlagEx::eLAST<=0xffff);
 
-Sc::ActorSim::ActorSim(Scene& scene, ActorCore& core) :
+ev4sio_Sc::ActorSim::ActorSim(Scene& scene, ActorCore& core) :
 	mScene					(scene),
 	mCore					(core),
 	mActiveListIndex		(SC_NOT_IN_SCENE_INDEX),
@@ -91,21 +91,21 @@ Sc::ActorSim::ActorSim(Scene& scene, ActorCore& core) :
 	}
 }
 
-Sc::ActorSim::~ActorSim()
+ev4sio_Sc::ActorSim::~ActorSim()
 {
 	mInteractions.releaseMem(*this);
 
 	mScene.getActorIDTracker().releaseID(mId);
 }
 
-void Sc::ActorSim::registerInteractionInActor(Interaction* interaction)
+void ev4sio_Sc::ActorSim::registerInteractionInActor(Interaction* interaction)
 {
 	const PxU32 id = mInteractions.size();
 	mInteractions.pushBack(interaction, *this);
 	interaction->setActorId(this, id);
 }
 
-void Sc::ActorSim::unregisterInteractionFromActor(Interaction* interaction)
+void ev4sio_Sc::ActorSim::unregisterInteractionFromActor(Interaction* interaction)
 {
 	const PxU32 i = interaction->getActorId(this);
 	PX_ASSERT(i < mInteractions.size());
@@ -115,11 +115,11 @@ void Sc::ActorSim::unregisterInteractionFromActor(Interaction* interaction)
 		if(mInteractions[i])	// ### DEFENSIVE  PT: for OM-122969
 			mInteractions[i]->setActorId(this, i);
 		else
-			PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "Sc::ActorSim::unregisterInteractionFromActor: found null interaction!");
+			ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "ev4sio_Sc::ActorSim::unregisterInteractionFromActor: found null interaction!");
 	}
 }
 
-void Sc::ActorSim::reallocInteractions(Sc::Interaction**& mem, PxU32& capacity, PxU32 size, PxU32 requiredMinCapacity)
+void ev4sio_Sc::ActorSim::reallocInteractions(ev4sio_Sc::Interaction**& mem, PxU32& capacity, PxU32 size, PxU32 requiredMinCapacity)
 {
 	Interaction** newMem;
 	PxU32 newCapacity;
@@ -154,7 +154,7 @@ void Sc::ActorSim::reallocInteractions(Sc::Interaction**& mem, PxU32& capacity, 
 	mem = newMem;
 }
 
-void Sc::ActorSim::setActorsInteractionsDirty(InteractionDirtyFlag::Enum flag, const ActorSim* other, PxU8 interactionFlag)
+void ev4sio_Sc::ActorSim::setActorsInteractionsDirty(InteractionDirtyFlag::Enum flag, const ActorSim* other, PxU8 interactionFlag)
 {
 	PxU32 size = getActorInteractionCount();
 	Interaction** interactions = getActorInteractions();

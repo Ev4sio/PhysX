@@ -35,7 +35,7 @@
 #include "foundation/PxInlineArray.h"
 #include "foundation/PxMemory.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 /*!
@@ -260,6 +260,6 @@ class PxPool2 : public PxPoolBase<T, Alloc>
 	}
 };
 
-} // namespace physx
+} // namespace ev4sio_physx
 
 #endif

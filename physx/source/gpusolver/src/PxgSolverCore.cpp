@@ -48,7 +48,7 @@
 
 #define GPU_CORE_DEBUG 0
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 PxgRadixSortBuffers::PxgRadixSortBuffers(PxgHeapMemoryAllocatorManager* heapMemoryManager) :
 	mInputKeys(heapMemoryManager, PxsHeapStats::eSOLVER),
@@ -273,7 +273,7 @@ void PxgSolverCore::constructConstraintPrePrepDesc(PxgPrePrepDesc& preDesc, PxU3
 	PxU32 numArtiSelfBatches, const PxgPartitionData& pData, PxContact* cpuCompressedContactsBase, PxContactPatch* cpuCompressedPatchesBase, PxReal* cpuForceBufferBase,
 	PxU32 nbD6RigidJoint, PxU32 nbD6ArtiJoint, PxU32 nbTotalArtiJoints,
 	PxsContactManagerOutputIterator& outputIterator, PxU32 maxConstraintPartitions, PxU32 totalActiveBodies, PxU32 nbArticulations,
-	PxU32 activeBodyStartOffset, Sc::ShapeInteraction** shapeInteractions, PxReal* restDistances, PxsTorsionalFrictionData* torsionalData,
+	PxU32 activeBodyStartOffset, ev4sio_Sc::ShapeInteraction** shapeInteractions, PxReal* restDistances, PxsTorsionalFrictionData* torsionalData,
 	PxU32 nbElementsPerBody, PxU32 numSlabs)
 {
 	preDesc.blockBatches = reinterpret_cast<PxgBlockConstraintBatch*>(mBlockConstraintBatches.getDevicePtr());
@@ -399,7 +399,7 @@ void PxgSolverCore::constructConstraintPrePrepDesc(PxgPrePrepDesc& preDesc, PxU3
 }
 
 void PxgSolverCore::constructSolverSharedDescCommon(PxgSolverSharedDescBase& sharedDesc, const PxgConstantData& cData,
-	Cm::UnAlignedSpatialVector* deferredZ, PxU32* articulationDirty, uint4* articulationSlabMask)
+	ev4sio_Cm::UnAlignedSpatialVector* deferredZ, PxU32* articulationDirty, uint4* articulationSlabMask)
 {
 	sharedDesc.dt = cData.dt;
 	sharedDesc.invDtF32 = cData.invDtF32;
@@ -482,14 +482,14 @@ void PxgSolverCore::gpuMemDMAUpJointData(const PxPinnedArray<PxgConstraintData>&
 	PxU32 nbCpuJoints, PxU32 nbGpuJoints, PxU32 totalCpuRows)
 {
 	CUdeviceptr startPtr = mConstraintDataPool.getDevicePtr() + nbGpuJoints * sizeof(PxgConstraintData);
-	CUdeviceptr startRowPtr = mConstraintRowPool.getDevicePtr() + nbGpuJoints * sizeof(Px1DConstraint)*Dy::MAX_CONSTRAINT_ROWS;
+	CUdeviceptr startRowPtr = mConstraintRowPool.getDevicePtr() + nbGpuJoints * sizeof(Px1DConstraint)*ev4sio_Dy::MAX_CONSTRAINT_ROWS;
 	mCudaContext->memcpyHtoDAsync(startPtr, cpuJointDataPool.begin(), nbCpuJoints * sizeof(PxgConstraintData), mStream);
 	mCudaContext->memcpyHtoDAsync(startRowPtr, cpuJointRowPool.begin(), totalCpuRows * sizeof(Px1DConstraint), mStream);
 
 #if GPU_CORE_DEBUG
 	CUresult result = mCudaContext->streamSynchronize(mStream);
 	if (result != CUDA_SUCCESS)
-		PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU DMA up cpu joint data fail!!\n");
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU DMA up cpu joint data fail!!\n");
 #endif
 }
 
@@ -497,7 +497,7 @@ void PxgSolverCore::gpuMemDMAUpArtiJointData(const PxPinnedArray<PxgConstraintDa
 	PxU32 nbCpuArtiJoints, PxU32 nbGpuArtiJoints, PxU32 totalArtiRows)
 {
 	CUdeviceptr startPtr = mArtiConstraintDataPool.getDevicePtr() + nbGpuArtiJoints * sizeof(PxgConstraintData);
-	CUdeviceptr startRowPtr = mArtiConstraintRowPool.getDevicePtr() + nbGpuArtiJoints * sizeof(Px1DConstraint)*Dy::MAX_CONSTRAINT_ROWS;
+	CUdeviceptr startRowPtr = mArtiConstraintRowPool.getDevicePtr() + nbGpuArtiJoints * sizeof(Px1DConstraint)*ev4sio_Dy::MAX_CONSTRAINT_ROWS;
 
 	mCudaContext->memcpyHtoDAsync(startPtr, cpuArtiJointDataPool.begin(), nbCpuArtiJoints * sizeof(PxgConstraintData), mStream);
 	mCudaContext->memcpyHtoDAsync(startRowPtr, cpuArtiJointRowPool.begin(), totalArtiRows * sizeof(Px1DConstraint), mStream);
@@ -505,7 +505,7 @@ void PxgSolverCore::gpuMemDMAUpArtiJointData(const PxPinnedArray<PxgConstraintDa
 #if GPU_CORE_DEBUG
 	CUresult result = mCudaContext->streamSynchronize(mStream);
 	if (result != CUDA_SUCCESS)
-		PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU DMA up articulation joint data fail!!\n");
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU DMA up articulation joint data fail!!\n");
 #endif
 }
 
@@ -536,7 +536,7 @@ void PxgSolverCore::constraintPrePrepParallel(PxU32 nbConstraintBatches, PxU32 n
 		CUresult result = mCudaContext->streamSynchronize(mStream);
 		PX_ASSERT(result == CUDA_SUCCESS);
 		if (result != CUDA_SUCCESS)
-			PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU rigidSumInternalContactAndJointBatches1 kernel fail!\n");
+			ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU rigidSumInternalContactAndJointBatches1 kernel fail!\n");
 #endif
 	}
 
@@ -561,7 +561,7 @@ void PxgSolverCore::constraintPrePrepParallel(PxU32 nbConstraintBatches, PxU32 n
 		CUresult result = mCudaContext->streamSynchronize(mStream);
 		PX_ASSERT(result == CUDA_SUCCESS);
 		if (result != CUDA_SUCCESS)
-			PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU rigidSumInternalContactAndJointBatches1 kernel fail!\n");
+			ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU rigidSumInternalContactAndJointBatches1 kernel fail!\n");
 #endif
 	}
 
@@ -589,7 +589,7 @@ void PxgSolverCore::constraintPrePrepParallel(PxU32 nbConstraintBatches, PxU32 n
 		CUresult result = mCudaContext->streamSynchronize(mStream);
 		PX_ASSERT(result == CUDA_SUCCESS);
 		if (result != CUDA_SUCCESS)
-			PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU constraintContactBlockPrePrepLaunch kernel fail!\n");
+			ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU constraintContactBlockPrePrepLaunch kernel fail!\n");
 #endif
 	}
 
@@ -607,7 +607,7 @@ void PxgSolverCore::constraintPrePrepParallel(PxU32 nbConstraintBatches, PxU32 n
 #if GPU_CORE_DEBUG
 		result = mCudaContext->streamSynchronize(mStream);
 		if (result != CUDA_SUCCESS)
-			PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU constraintPrePrepare kernel fail!\n");
+			ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU constraintPrePrepare kernel fail!\n");
 #endif
 	}
 }
@@ -627,12 +627,12 @@ void PxgSolverCore::resetVelocities(bool isTGS)
 		};
 		CUresult result = mCudaContext->launchKernel(zeroBodiesFunction, PxgKernelGridDim::ZERO_BODIES, 1, 1, PxgKernelBlockDim::ZERO_BODIES, 1, 1, 0, mStream, kernelParams, sizeof(kernelParams), 0, PX_FL);
 		if (result != CUDA_SUCCESS)
-			PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU zero bodies fail to launch kernel!!\n");
+			ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU zero bodies fail to launch kernel!!\n");
 
 #if GPU_DEBUG
 		result = mCudaContext->streamSynchronize(mStream);
 		if (result != CUDA_SUCCESS)
-			PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU zero bodies kernel fail!\n");
+			ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU zero bodies kernel fail!\n");
 #endif
 	}
 }
@@ -688,13 +688,13 @@ void PxgSolverCore::precomputeReferenceCount(PxgIslandContext* islandContext, Px
 						                                             kernelParamsTGS, sizeof(kernelParamsTGS), 0, PX_FL);
 
 						if (result != CUDA_SUCCESS)
-							PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL,
+							ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL,
 								"GPU markActiveSlab fail to launch kernel!!\n");
 
 #if GPU_DEBUG
 						result = mCudaContext->streamSynchronize(mStream);
 						if (result != CUDA_SUCCESS)
-							PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL,
+							ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL,
 								"GPU markActiveSlab kernel fail!\n");
 #endif
 					}
@@ -737,13 +737,13 @@ void PxgSolverCore::precomputeReferenceCount(PxgIslandContext* islandContext, Px
 						                                             kernelParamsPGS, sizeof(kernelParamsPGS), 0, PX_FL);
 
 						if (result != CUDA_SUCCESS)
-							PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL,
+							ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL,
 								"GPU markActiveSlab fail to launch kernel!!\n");
 
 #if GPU_DEBUG
 						result = mCudaContext->streamSynchronize(mStream);
 						if (result != CUDA_SUCCESS)
-							PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL,
+							ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL,
 								"GPU markActiveSlab kernel fail!\n");
 #endif
 					}

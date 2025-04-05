@@ -31,8 +31,8 @@
 
 #include "omnipvd/ExtOmniPvdSetData.h"
 
-using namespace physx;
-using namespace Ext;
+using namespace ev4sio_physx;
+using namespace ev4sio_Ext;
 
 RevoluteJoint::RevoluteJoint(const PxTolerancesScale& /*scale*/, PxRigidActor* actor0, const PxTransform& localFrame0, PxRigidActor* actor1, const PxTransform& localFrame1) :
 	RevoluteJointT(PxJointConcreteType::eREVOLUTE, actor0, localFrame0, actor1, localFrame1, "RevoluteJointData")
@@ -266,7 +266,7 @@ PxConstraintSolverPrep RevoluteJoint::getPrep()	const	{ return gRevoluteJointSha
 // PT: for tests / benchmarks
 PxConstraintSolverPrep getRevoluteJointPrep()	{ return gRevoluteJointShaders.solverPrep; }
 
-PxRevoluteJoint* physx::PxRevoluteJointCreate(PxPhysics& physics, PxRigidActor* actor0, const PxTransform& localFrame0, PxRigidActor* actor1, const PxTransform& localFrame1)
+PxRevoluteJoint* ev4sio_physx::PxRevoluteJointCreate(PxPhysics& physics, PxRigidActor* actor0, const PxTransform& localFrame0, PxRigidActor* actor1, const PxTransform& localFrame1)
 {
 	PX_CHECK_AND_RETURN_NULL(localFrame0.isSane(), "PxRevoluteJointCreate: local frame 0 is not a valid transform"); 
 	PX_CHECK_AND_RETURN_NULL(localFrame1.isSane(), "PxRevoluteJointCreate: local frame 1 is not a valid transform"); 
@@ -297,7 +297,7 @@ void RevoluteJoint::updateOmniPvdProperties() const
 }
 
 template<>
-void physx::Ext::omniPvdInitJoint<RevoluteJoint>(RevoluteJoint& joint)
+void ev4sio_physx::ev4sio_Ext::omniPvdInitJoint<RevoluteJoint>(RevoluteJoint& joint)
 {
 	OMNI_PVD_WRITE_SCOPE_BEGIN(pvdWriter, pvdRegData)
 

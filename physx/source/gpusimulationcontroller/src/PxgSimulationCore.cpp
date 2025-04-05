@@ -80,7 +80,7 @@
 
 #define GPU_VERIFY_JOINT_UPDATE	0
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 PxgArticulationBuffer::PxgArticulationBuffer(PxgHeapMemoryAllocatorManager* heapMemoryManager) :
 	links(heapMemoryManager, PxsHeapStats::eSIMULATION_ARTICULATION),
@@ -644,14 +644,14 @@ void PxgSimulationCore::gpuMemDmaUpBodySim(PxPinnedArray<PxgBodySimVelocityUpdat
 	PxPinnedArray<PxgBodySim>& newBodySimPool,
 	PxPinnedArray<PxgArticulationLink>& newLinkPool,
 	PxFloatArrayPinned& newLinkWakeCounterPool,
-	PxPinnedArray<Cm::UnAlignedSpatialVector>& newLinkExtAccelPool,
+	PxPinnedArray<ev4sio_Cm::UnAlignedSpatialVector>& newLinkExtAccelPool,
 	PxPinnedArray<PxgArticulationLinkProp>& newLinkPropPool,
 	PxInt32ArrayPinned& newLinkParentsPool,
-	PxPinnedArray<Dy::ArticulationBitField>& newLinkChildPool,
+	PxPinnedArray<ev4sio_Dy::ArticulationBitField>& newLinkChildPool,
 	PxPinnedArray<PxTransform>& newLinkBody2WorldsPool,
 	PxPinnedArray<PxTransform>& newLinkBody2ActorsPool,
-	PxPinnedArray<Dy::ArticulationJointCore>& newJointCorePool,
-	PxPinnedArray<Dy::ArticulationJointCoreData>& newJointDataPool,
+	PxPinnedArray<ev4sio_Dy::ArticulationJointCore>& newJointCorePool,
+	PxPinnedArray<ev4sio_Dy::ArticulationJointCoreData>& newJointDataPool,
 	PxPinnedArray<PxgArticulationSimUpdate>& newLinkJointIndexPool,
 	PxPinnedArray<PxgArticulation>& newArticulationPool,
 	PxPinnedArray<PxGpuSpatialTendonData>& newSpatialTendonParamPool,
@@ -664,7 +664,7 @@ void PxgSimulationCore::gpuMemDmaUpBodySim(PxPinnedArray<PxgBodySimVelocityUpdat
 	PxPinnedArray<PxgArticulationTendonElementFixedData>& newTendonJointFixedPool,
 	PxPinnedArray<PxGpuTendonJointCoefficientData>& newTendonJointCoefficientPool,
 	PxInt32ArrayPinned& newTendonToTendonJointRemapPool,
-	PxPinnedArray<Dy::ArticulationMimicJointCore>& newMimicJointPool,
+	PxPinnedArray<ev4sio_Dy::ArticulationMimicJointCore>& newMimicJointPool,
 	PxInt32ArrayPinned& newPathToRootPool,
 	PxU32 nbTotalBodies, PxU32 nbTotalArticulations, PxU32 maxLinks,
 	PxU32 maxDofs, PxU32 maxMimicJoints, PxU32 maxSpatialTendons,
@@ -770,8 +770,8 @@ void PxgSimulationCore::gpuMemDmaUpBodySim(PxPinnedArray<PxgBodySimVelocityUpdat
 			buffer->linkWakeCounters.allocate(sizeof(PxReal) * numLinks, PX_FL);
 			buffer->linkSleepData.allocate(sizeof(PxgArticulationLinkSleepData) * numLinks, PX_FL);
 			buffer->linkProps.allocate(sizeof(PxgArticulationLinkProp) * numLinks, PX_FL);
-			buffer->joints.allocate(sizeof(Dy::ArticulationJointCore) * numLinks, PX_FL);
-			buffer->jointData.allocate(sizeof(Dy::ArticulationJointCoreData) * numLinks, PX_FL);
+			buffer->joints.allocate(sizeof(ev4sio_Dy::ArticulationJointCore) * numLinks, PX_FL);
+			buffer->jointData.allocate(sizeof(ev4sio_Dy::ArticulationJointCoreData) * numLinks, PX_FL);
 			buffer->spatialTendonParams.allocate(sizeof(PxGpuSpatialTendonData) * numSpatialTendons, PX_FL);
 			buffer->spatialTendons.allocate(sizeof(PxgArticulationTendon) * numSpatialTendons, PX_FL);
 
@@ -828,9 +828,9 @@ void PxgSimulationCore::gpuMemDmaUpBodySim(PxPinnedArray<PxgBodySimVelocityUpdat
 				buffer->tendonJointCoefficientData.pushBack(tendonJointCoefficientDataBuffer);
 			}
 
-			buffer->mimicJoints.allocate(numMimicJoints*sizeof(Dy::ArticulationMimicJointCore), PX_FL);
+			buffer->mimicJoints.allocate(numMimicJoints*sizeof(ev4sio_Dy::ArticulationMimicJointCore), PX_FL);
 				
-			const PxU32 linkSize = sizeof(Cm::UnAlignedSpatialVector) * numLinks;
+			const PxU32 linkSize = sizeof(ev4sio_Cm::UnAlignedSpatialVector) * numLinks;
 			buffer->corioliseVectors.allocate(linkSize, PX_FL);
 			buffer->zAForces.allocate(linkSize, PX_FL);
 
@@ -853,10 +853,10 @@ void PxgSimulationCore::gpuMemDmaUpBodySim(PxPinnedArray<PxgBodySimVelocityUpdat
 				
 			buffer->jointOffsets.allocate(sizeof(PxU32) * numLinks, PX_FL);
 			buffer->parents.allocate(sizeof(PxU32) * numLinks, PX_FL);
-			buffer->motionMatrix.allocate(sizeof(Dy::SpatialSubspaceMatrix)*numLinks, PX_FL);
-			buffer->motionMatrixW.allocate(sizeof(Dy::SpatialSubspaceMatrix)*numLinks, PX_FL);
+			buffer->motionMatrix.allocate(sizeof(ev4sio_Dy::SpatialSubspaceMatrix)*numLinks, PX_FL);
+			buffer->motionMatrixW.allocate(sizeof(ev4sio_Dy::SpatialSubspaceMatrix)*numLinks, PX_FL);
 
-			buffer->jointAxis.allocate(sizeof(Cm::UnAlignedSpatialVector)*numDofs, PX_FL);
+			buffer->jointAxis.allocate(sizeof(ev4sio_Cm::UnAlignedSpatialVector)*numDofs, PX_FL);
 
 			buffer->spatialArticulatedInertiaW.allocate(sizeof(PxSpatialMatrix) * numLinks, PX_FL);
 			buffer->spatialImpulseResponseW.allocate(sizeof(PxSpatialMatrix)*numLinks, PX_FL);
@@ -943,8 +943,8 @@ void PxgSimulationCore::gpuMemDmaUpBodySim(PxPinnedArray<PxgBodySimVelocityUpdat
 		mNewLinkWakeCounterBuffer.allocate(sizeof(PxReal) * nbNewLinks, PX_FL);
 		mCudaContext->memcpyHtoDAsync(mNewLinkWakeCounterBuffer.getDevicePtr(), newLinkWakeCounterPool.begin(), sizeof(PxReal) * nbNewLinks, mStream);
 
-		mNewLinkExtAccelBuffer.allocate(sizeof(Cm::UnAlignedSpatialVector) * nbNewLinks, PX_FL);
-		mCudaContext->memcpyHtoDAsync(mNewLinkExtAccelBuffer.getDevicePtr(), newLinkExtAccelPool.begin(), sizeof(Cm::UnAlignedSpatialVector) * nbNewLinks, mStream);
+		mNewLinkExtAccelBuffer.allocate(sizeof(ev4sio_Cm::UnAlignedSpatialVector) * nbNewLinks, PX_FL);
+		mCudaContext->memcpyHtoDAsync(mNewLinkExtAccelBuffer.getDevicePtr(), newLinkExtAccelPool.begin(), sizeof(ev4sio_Cm::UnAlignedSpatialVector) * nbNewLinks, mStream);
 			
 		mNewLinkPropBuffer.allocate(sizeof(PxgArticulationLinkProp) * nbNewLinks, PX_FL);
 		mCudaContext->memcpyHtoDAsync(mNewLinkPropBuffer.getDevicePtr(), newLinkPropPool.begin(), sizeof(PxgArticulationLinkProp) * nbNewLinks, mStream);
@@ -961,18 +961,18 @@ void PxgSimulationCore::gpuMemDmaUpBodySim(PxPinnedArray<PxgBodySimVelocityUpdat
 		mNewLinkBody2ActorsBuffer.allocate(sizeof(PxTransform) * nbNewLinks, PX_FL);
 		mCudaContext->memcpyHtoDAsync(mNewLinkBody2ActorsBuffer.getDevicePtr(), newLinkBody2ActorsPool.begin(), sizeof(PxTransform) * nbNewLinks, mStream);
 
-		mNewJointCoreBuffer.allocate(sizeof(Dy::ArticulationJointCore) * nbNewLinks, PX_FL);
-		mCudaContext->memcpyHtoDAsync(mNewJointCoreBuffer.getDevicePtr(), newJointCorePool.begin(), sizeof(Dy::ArticulationJointCore) * nbNewLinks, mStream);
+		mNewJointCoreBuffer.allocate(sizeof(ev4sio_Dy::ArticulationJointCore) * nbNewLinks, PX_FL);
+		mCudaContext->memcpyHtoDAsync(mNewJointCoreBuffer.getDevicePtr(), newJointCorePool.begin(), sizeof(ev4sio_Dy::ArticulationJointCore) * nbNewLinks, mStream);
 
-		mNewJointDataBuffer.allocate(sizeof(Dy::ArticulationJointCoreData) * nbNewLinks, PX_FL);
-		mCudaContext->memcpyHtoDAsync(mNewJointDataBuffer.getDevicePtr(), newJointDataPool.begin(), sizeof(Dy::ArticulationJointCoreData) * nbNewLinks, mStream);
+		mNewJointDataBuffer.allocate(sizeof(ev4sio_Dy::ArticulationJointCoreData) * nbNewLinks, PX_FL);
+		mCudaContext->memcpyHtoDAsync(mNewJointDataBuffer.getDevicePtr(), newJointDataPool.begin(), sizeof(ev4sio_Dy::ArticulationJointCoreData) * nbNewLinks, mStream);
 	}
 
 	const PxU32 nbNewMimicJoints = newMimicJointPool.size();
 	if(nbNewMimicJoints)
 	{
-		mNewMimicJointBuffer.allocate(sizeof(Dy::ArticulationMimicJointCore) * nbNewMimicJoints, PX_FL);
-		mCudaContext->memcpyHtoDAsync(mNewMimicJointBuffer.getDevicePtr(), newMimicJointPool.begin(), sizeof(Dy::ArticulationMimicJointCore)*nbNewMimicJoints, mStream);
+		mNewMimicJointBuffer.allocate(sizeof(ev4sio_Dy::ArticulationMimicJointCore) * nbNewMimicJoints, PX_FL);
+		mCudaContext->memcpyHtoDAsync(mNewMimicJointBuffer.getDevicePtr(), newMimicJointPool.begin(), sizeof(ev4sio_Dy::ArticulationMimicJointCore)*nbNewMimicJoints, mStream);
 	}
 
 	const PxU32 nbNewPathToRoot = newPathToRootPool.size();
@@ -1189,8 +1189,8 @@ void PxgSimulationCore::gpuMemDmaUpSoftBodies(PxPinnedArray<PxgSoftBody>& newSof
 		mSoftBodiesToFree.pushBack(newSoftBody);
 
 		PxU32 nodeIndex = newSoftBodyNodeIndexPool[i];
-		Dy::DeformableVolume* dyDeformableVolume = reinterpret_cast<Dy::DeformableVolume*>(bodySimsLL[nodeIndex]);
-		const Dy::DeformableVolumeCore& dySoftbodyCore = dyDeformableVolume->getCore();
+		ev4sio_Dy::DeformableVolume* dyDeformableVolume = reinterpret_cast<ev4sio_Dy::DeformableVolume*>(bodySimsLL[nodeIndex]);
+		const ev4sio_Dy::DeformableVolumeCore& dySoftbodyCore = dyDeformableVolume->getCore();
 
 		softBodyNodeIndexPool[gpuRemapIndex] = nodeIndex;
 
@@ -1419,15 +1419,15 @@ void PxgSimulationCore::gpuMemDmaUpSoftBodies(PxPinnedArray<PxgSoftBody>& newSof
 		mSBWakeCounts[gpuRemapIndex] = dySoftbodyCore.wakeCounter;
 	}
 		
-	PxArray<Dy::DeformableVolume*>& dirtyDeformableVolumeForFilterPairs = *data.dirtyDeformableVolumeForFilterPairs;
+	PxArray<ev4sio_Dy::DeformableVolume*>& dirtyDeformableVolumeForFilterPairs = *data.dirtyDeformableVolumeForFilterPairs;
 
 	const PxU32 nbDirtyFilterPairs = dirtyDeformableVolumeForFilterPairs.size();
 	for (PxU32 i = 0; i < nbDirtyFilterPairs; ++i)
 	{
-		Dy::DeformableVolume* deformableVolume = dirtyDeformableVolumeForFilterPairs[i];
+		ev4sio_Dy::DeformableVolume* deformableVolume = dirtyDeformableVolumeForFilterPairs[i];
 		if (deformableVolume)
 		{
-			PX_COMPILE_TIME_ASSERT(sizeof(Dy::VolumeVolumeFilter) == sizeof(PxgNonRigidFilterPair));
+			PX_COMPILE_TIME_ASSERT(sizeof(ev4sio_Dy::VolumeVolumeFilter) == sizeof(PxgNonRigidFilterPair));
 			PxArray<PxgNonRigidFilterPair, PxVirtualAllocator >& filterPairs = reinterpret_cast<PxArray<PxgNonRigidFilterPair, PxVirtualAllocator >&>(*deformableVolume->mVolumeVolumeFilterPairs);
 
 			const PxU32 gpuRemapIndex = deformableVolume->getGpuRemapId();
@@ -1717,8 +1717,8 @@ void PxgSimulationCore::gpuMemDmaUpFEMCloths(PxPinnedArray<PxgFEMCloth>& newFEMC
 		const PxU32 gpuRemapIndex = newFEMCloth.mGpuRemapIndex;
 
 		PxU32 nodeIndex = newFEMClothNodeIndexPool[i];
-		Dy::DeformableSurface* dyDeformableSurface = reinterpret_cast<Dy::DeformableSurface*>(bodySimsLL[nodeIndex]);
-		const Dy::DeformableSurfaceCore& dyDeformableSurfaceCore = dyDeformableSurface->getCore();
+		ev4sio_Dy::DeformableSurface* dyDeformableSurface = reinterpret_cast<ev4sio_Dy::DeformableSurface*>(bodySimsLL[nodeIndex]);
+		const ev4sio_Dy::DeformableSurfaceCore& dyDeformableSurfaceCore = dyDeformableSurface->getCore();
 
 		femClothNodeIndexPool[gpuRemapIndex] = nodeIndex;
 
@@ -2201,7 +2201,7 @@ void PxgSimulationCore::gpuMemDmaBack(PxInt32ArrayPinned& frozenArray,
 	PxInt32ArrayPinned& activateArray,
 	PxInt32ArrayPinned& deactiveArray,
 	PxCachedTransformArrayPinned* cachedTransform,
-	const PxU32 cachedCapacity, Bp::BoundsArray& boundArray,
+	const PxU32 cachedCapacity, ev4sio_Bp::BoundsArray& boundArray,
 	PxBitMapPinned&  changedAABBMgrHandles,
 	const PxU32 numShapes, const PxU32 numActiveBodies,
 	bool enableDirectGPUAPI)
@@ -2317,7 +2317,7 @@ void PxgSimulationCore::updateBodies(const PxU32 nbUpdatedBodies, const PxU32 nb
 #if SC_GPU_DEBUG
 			result = mCudaContext->streamSynchronize(mStream);
 			if (result != CUDA_SUCCESS)
-				PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU update bodies velocities kernel fail!\n");
+				ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU update bodies velocities kernel fail!\n");
 #endif
 		}
 	}
@@ -2347,7 +2347,7 @@ void PxgSimulationCore::updateBodies(const PxU32 nbUpdatedBodies, const PxU32 nb
 #if SC_GPU_DEBUG
 			result = mCudaContext->streamSynchronize(mStream);
 			if (result != CUDA_SUCCESS)
-				PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "updateBodiesLaunch kernel fail!\n");
+				ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "updateBodiesLaunch kernel fail!\n");
 #endif
 		}
 	}
@@ -2379,21 +2379,21 @@ void PxgSimulationCore::updateArticulations(const PxU32 nbNewArticulations, PxgA
 #if SC_GPU_DEBUG
 		result = mCudaContext->streamSynchronize(mStream);
 		if (result != CUDA_SUCCESS)
-			PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU update articulation links and joints kernel fail!\n");
+			ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU update articulation links and joints kernel fail!\n");
 #endif
 		/*const PxU32 numLinks = 10;
 		const PxU32 numDofs = 27;
 		PxgArticulation articulation;
 		PxgArticulationLink links[numLinks];
 		PxTransform body2Worlds[numLinks];
-		Dy::ArticulationJointCoreBase jointCores[numLinks];
-		Dy::ArticulationJointCoreData jointData[numLinks];
+		ev4sio_Dy::ArticulationJointCoreBase jointCores[numLinks];
+		ev4sio_Dy::ArticulationJointCoreData jointData[numLinks];
 
 		mCudaContext->memcpyDtoH(&articulation, mArticulationBuffer.getDevicePtr(), sizeof(PxgArticulation));
 		mCudaContext->memcpyDtoH(links, (CUdeviceptr)articulation.links, sizeof(PxgArticulationLink) * numLinks);
 		mCudaContext->memcpyDtoH(body2Worlds, (CUdeviceptr)articulation.linkBody2Worlds, sizeof(PxTransform) * numLinks);
-		mCudaContext->memcpyDtoH(jointCores, (CUdeviceptr)articulation.joints, sizeof(Dy::ArticulationJointCoreBase) * numLinks);
-		mCudaContext->memcpyDtoH(jointData, (CUdeviceptr)articulation.jointData, sizeof(Dy::ArticulationJointCoreData) * numLinks);
+		mCudaContext->memcpyDtoH(jointCores, (CUdeviceptr)articulation.joints, sizeof(ev4sio_Dy::ArticulationJointCoreBase) * numLinks);
+		mCudaContext->memcpyDtoH(jointData, (CUdeviceptr)articulation.jointData, sizeof(ev4sio_Dy::ArticulationJointCoreData) * numLinks);
 	
 			
 		PxReal jointPosition[numDofs];
@@ -2444,7 +2444,7 @@ void PxgSimulationCore::updateArticulations(const PxU32 nbNewArticulations, PxgA
 #if SC_GPU_DEBUG
 		result = mCudaContext->streamSynchronize(mStream);
 		if (result != CUDA_SUCCESS)
-			PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU update articulation links and joints kernel fail!\n");
+			ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU update articulation links and joints kernel fail!\n");
 #endif
 	}
 }
@@ -2572,7 +2572,7 @@ void PxgSimulationCore::updateJointsAndSyncData(
 #if SC_GPU_DEBUG
 		result = mCudaContext->streamSynchronize(mStream);
 		if (result != CUDA_SUCCESS)
-			PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU updateJointsLaunch fail!\n");
+			ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU updateJointsLaunch fail!\n");
 
 #endif
 
@@ -2665,7 +2665,7 @@ void PxgSimulationCore::update(bool enableDirectGPUAPI)
 #if SC_GPU_DEBUG
 	result = mCudaContext->streamSynchronize(mStream);
 	if(result != CUDA_SUCCESS)
-		PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU updateTransformCacheAndBoundArray kernel fail!\n");
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU updateTransformCacheAndBoundArray kernel fail!\n");
 #endif
 
 	// AD: this could theoretically be pushed to the start of the next sim step, but we need to figure out what happens if we don't have this info on CPU!
@@ -2676,7 +2676,7 @@ void PxgSimulationCore::update(bool enableDirectGPUAPI)
 #if SC_GPU_DEBUG
 	result = mCudaContext->streamSynchronize(mStream);
 	if(result != CUDA_SUCCESS)
-		PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU updateTransformCacheAndBoundArray kernel fail!\n");
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU updateTransformCacheAndBoundArray kernel fail!\n");
 #endif
 
 	// AD: frozen/unfrozen arrays are only needed for SQ tree updates.
@@ -2702,11 +2702,11 @@ void PxgSimulationCore::update(bool enableDirectGPUAPI)
 #if SC_GPU_DEBUG
 	result = mCudaContext->streamSynchronize(mStream);
 	if(result != CUDA_SUCCESS)
-		PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU create frozen/unfrozen array kernel fail!\n");
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU create frozen/unfrozen array kernel fail!\n");
 #endif
 }
 
-void PxgSimulationCore::setBounds(Bp::BoundsArray* boundArray)
+void PxgSimulationCore::setBounds(ev4sio_Bp::BoundsArray* boundArray)
 {
 	mBoundArray = boundArray;
 }
@@ -2842,7 +2842,7 @@ bool PxgSimulationCore::getRigidDynamicData(void* data, const PxRigidDynamicGPUI
 	{
 		result = mCudaContext->streamSynchronize(mStream);
 		if(result != CUDA_SUCCESS)
-			PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "getRigidDynamicData: CUDA error, code %u\n", result);
+			ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "getRigidDynamicData: CUDA error, code %u\n", result);
 
 		success = (result == CUDA_SUCCESS);
 	}
@@ -3049,7 +3049,7 @@ bool PxgSimulationCore::setRigidDynamicData(const void* PX_RESTRICT data, const 
 	{
 		result = mCudaContext->streamSynchronize(mStream);
 		if(result != CUDA_SUCCESS)
-			PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "setRigidDynamicData: CUDA error, code %u\n", result);
+			ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "setRigidDynamicData: CUDA error, code %u\n", result);
 
 		success = (result == CUDA_SUCCESS);
 	}
@@ -3111,7 +3111,7 @@ bool PxgSimulationCore::getD6JointData(void* data, const PxD6JointGPUIndex* gpuI
 	{
 		result = mCudaContext->streamSynchronize(mStream);
 		if(result != CUDA_SUCCESS)
-			PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "getD6JointData: CUDA error, code %u\n", result);
+			ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "getD6JointData: CUDA error, code %u\n", result);
 
 		success = (result == CUDA_SUCCESS);
 	}

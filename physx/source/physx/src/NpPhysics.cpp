@@ -86,8 +86,8 @@
 #	define OMNI_PVD_NOTIFY_REMOVE(OBJECT)
 #endif
 
-using namespace physx;
-using namespace Cm;
+using namespace ev4sio_physx;
+using namespace ev4sio_Cm;
 
 bool		NpPhysics::apiReentryLock	= false;
 NpPhysics*	NpPhysics::mInstance		= NULL;
@@ -244,7 +244,7 @@ void NpPhysics::initOffsetTables(PxvOffsetTable& pxvOffsetTable)
 {
 	// init offset tables for Pxs/Sc/Px conversions
 	{
-		Sc::OffsetTable& offsetTable =  Sc::gOffsetTable;
+		ev4sio_Sc::OffsetTable& offsetTable =  ev4sio_Sc::gOffsetTable;
 		offsetTable.scRigidStatic2PxActor			= -ptrdiff_t(NpRigidStatic::getCoreOffset());
 		offsetTable.scRigidDynamic2PxActor			= -ptrdiff_t(NpRigidDynamic::getCoreOffset());
 		offsetTable.scArticulationLink2PxActor		= -ptrdiff_t(NpArticulationLink::getCoreOffset());
@@ -268,10 +268,10 @@ void NpPhysics::initOffsetTables(PxvOffsetTable& pxvOffsetTable)
 		offsetTable.scCore2PxActor[PxActorType::ePBD_PARTICLESYSTEM] = offsetTable.scPBDParticleSystem2PxActor;
 	}
 	{
-		Sc::OffsetTable& scOffsetTable = Sc::gOffsetTable;
-		pxvOffsetTable.pxsShapeCore2PxShape			= scOffsetTable.scShape2Px				- ptrdiff_t(Sc::ShapeCore::getCoreOffset());
-		pxvOffsetTable.pxsRigidCore2PxRigidBody		= scOffsetTable.scRigidDynamic2PxActor	- ptrdiff_t(Sc::BodyCore::getCoreOffset());
-		pxvOffsetTable.pxsRigidCore2PxRigidStatic	= scOffsetTable.scRigidStatic2PxActor	- ptrdiff_t(Sc::StaticCore::getCoreOffset());
+		ev4sio_Sc::OffsetTable& scOffsetTable = ev4sio_Sc::gOffsetTable;
+		pxvOffsetTable.pxsShapeCore2PxShape			= scOffsetTable.scShape2Px				- ptrdiff_t(ev4sio_Sc::ShapeCore::getCoreOffset());
+		pxvOffsetTable.pxsRigidCore2PxRigidBody		= scOffsetTable.scRigidDynamic2PxActor	- ptrdiff_t(ev4sio_Sc::BodyCore::getCoreOffset());
+		pxvOffsetTable.pxsRigidCore2PxRigidStatic	= scOffsetTable.scRigidStatic2PxActor	- ptrdiff_t(ev4sio_Sc::StaticCore::getCoreOffset());
 	}
 }
 
@@ -281,10 +281,10 @@ NpPhysics* NpPhysics::createInstance(PxU32 version, PxFoundation& foundation, co
 	NpSetMiddlewareInfo();  // register middleware info such that PhysX usage can be tracked
 #endif
 	
-	if (version!=PX_PHYSICS_VERSION) 
+	if (version!=ev4sio_PX_PHYSICS_VERSION) 
 	{
 		char buffer[256];
-		Pxsnprintf(buffer, 256, "Wrong version: PhysX version is 0x%08x, tried to create 0x%08x", PX_PHYSICS_VERSION, version);
+		Pxsnprintf(buffer, 256, "Wrong version: PhysX version is 0x%08x, tried to create 0x%08x", ev4sio_PX_PHYSICS_VERSION, version);
 		foundation.getErrorCallback().reportError(PxErrorCode::eINVALID_PARAMETER, buffer, PX_FL);
 		return NULL;
 	}
@@ -297,9 +297,9 @@ NpPhysics* NpPhysics::createInstance(PxU32 version, PxFoundation& foundation, co
 
 	if(0 == mRefCount)
 	{
-		PX_ASSERT(&foundation == &PxGetFoundation());
+		PX_ASSERT(&foundation == &ev4sio_PxGetFoundation());
 
-		PxIncFoundationRefCount();
+		ev4sio_PxIncFoundationRefCount();
 
 		// init offset tables for Pxs/Sc/Px conversions
 		PxvOffsetTable pxvOffsetTable;
@@ -347,7 +347,7 @@ PxU32 NpPhysics::releaseInstance()
 	PX_ASSERT(mInstance);
 	PX_DELETE(mInstance);
 
-	PxDecFoundationRefCount();
+	ev4sio_PxDecFoundationRefCount();
 
 	return mRefCount;
 }
@@ -442,7 +442,7 @@ PxU32 NpPhysics::getNbScenes() const
 PxU32 NpPhysics::getScenes(PxScene** userBuffer, PxU32 bufferSize, PxU32 startIndex) const
 {
 	PxMutex::ScopedLock lock(const_cast<PxMutex&>(mSceneAndMaterialMutex));
-	return Cm::getArrayOfPointers(userBuffer, bufferSize, startIndex, mSceneArray.begin(), mSceneArray.size());
+	return ev4sio_Cm::getArrayOfPointers(userBuffer, bufferSize, startIndex, mSceneArray.begin(), mSceneArray.size());
 }
 
 PxRigidStatic* NpPhysics::createRigidStatic(const PxTransform& globalPose)
@@ -631,7 +631,7 @@ static NpMaterialT* addMaterial(
 	}
 	else
 	{
-		PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, error);
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, error);
 		m->release();
 		return NULL;
 	}
@@ -1004,7 +1004,7 @@ PxPruningStructure* NpPhysics::createPruningStructure(PxRigidActor*const* actors
 	PX_ASSERT(actors);
 	PX_ASSERT(nbActors > 0);
 
-	Sq::PruningStructure* ps = PX_NEW(Sq::PruningStructure)();	
+	ev4sio_Sq::PruningStructure* ps = PX_NEW(ev4sio_Sq::PruningStructure)();	
 	if(!ps->build(actors, nbActors))
 	{
 		PX_DELETE(ps);		
@@ -1151,19 +1151,19 @@ PxFoundation& NpPhysics::getFoundation()
 	return mFoundation;
 }
 
-PxPhysics& PxGetPhysics()
+PxPhysics& ev4sio_PxGetPhysics()
 {
 	return NpPhysics::getInstance();
 }
 
-PxPhysics* PxCreatePhysics(PxU32 version, PxFoundation& foundation, const physx::PxTolerancesScale& scale, bool trackOutstandingAllocations, PxPvd* pvd, PxOmniPvd* omniPvd)
+PxPhysics* ev4sio_PxCreatePhysics(PxU32 version, PxFoundation& foundation, const ev4sio_physx::PxTolerancesScale& scale, bool trackOutstandingAllocations, PxPvd* pvd, PxOmniPvd* omniPvd)
 {
 	return NpPhysics::createInstance(version, foundation, scale, trackOutstandingAllocations, static_cast<pvdsdk::PsPvd*>(pvd), omniPvd);
 }
 
-void PxAddCollectionToPhysics(const PxCollection& collection)
+void ev4sio_PxAddCollectionToPhysics(const PxCollection& collection)
 {
 	NpFactory& factory = NpFactory::getInstance();
-	const Cm::Collection& c = static_cast<const Cm::Collection&>(collection);	
+	const ev4sio_Cm::Collection& c = static_cast<const ev4sio_Cm::Collection&>(collection);	
     factory.addCollection(c);
 }

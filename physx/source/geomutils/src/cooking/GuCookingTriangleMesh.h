@@ -32,9 +32,9 @@
 #include "GuMeshData.h"
 #include "cooking/PxCooking.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-	namespace Gu
+	namespace ev4sio_Gu
 	{
 		class EdgeList;
 	}
@@ -42,7 +42,7 @@ namespace physx
 	class TriangleMeshBuilder
 	{
 		public:
-											TriangleMeshBuilder(Gu::TriangleMeshData& mesh, const PxCookingParams& params);
+											TriangleMeshBuilder(ev4sio_Gu::TriangleMeshData& mesh, const PxCookingParams& params);
 		virtual								~TriangleMeshBuilder();
 
 		virtual	PxMeshMidPhase::Enum		getMidphaseID()									const	= 0;
@@ -68,7 +68,7 @@ namespace physx
 				
 				bool						save(PxOutputStream& stream, bool platformMismatch, const PxCookingParams& params) const;
 				void						checkMeshIndicesSize();
-	PX_FORCE_INLINE	Gu::TriangleMeshData&	getMeshData()	{ return mMeshData;	}
+	PX_FORCE_INLINE	ev4sio_Gu::TriangleMeshData&	getMeshData()	{ return mMeshData;	}
 	protected:
 				bool						importMesh(const PxTriangleMeshDesc& desc, PxTriangleMeshCookingResult::Enum* condition, bool validate = false);
 
@@ -78,9 +78,9 @@ namespace physx
 				void						buildInertiaTensorFromSDF();
 
 				TriangleMeshBuilder& operator=(const TriangleMeshBuilder&);
-				Gu::EdgeList*				mEdgeList;
+				ev4sio_Gu::EdgeList*				mEdgeList;
 				const PxCookingParams&		mParams;
-				Gu::TriangleMeshData&		mMeshData;
+				ev4sio_Gu::TriangleMeshData&		mMeshData;
 	};
 
 	class RTreeTriangleMeshBuilder : public TriangleMeshBuilder
@@ -93,7 +93,7 @@ namespace physx
 		virtual	bool						createMidPhaseStructure()	PX_OVERRIDE;
 		virtual	void						saveMidPhaseStructure(PxOutputStream& stream, bool mismatch)	const	PX_OVERRIDE;
 
-				Gu::RTreeTriangleData		mData;
+				ev4sio_Gu::RTreeTriangleData		mData;
 	};
 
 	class BV4TriangleMeshBuilder : public TriangleMeshBuilder
@@ -107,14 +107,14 @@ namespace physx
 		virtual	void						saveMidPhaseStructure(PxOutputStream& stream, bool mismatch)	const	PX_OVERRIDE;
 		virtual	void						onMeshIndexFormatChange();
 
-				Gu::BV4TriangleData			mData;
+				ev4sio_Gu::BV4TriangleData			mData;
 	};
 
 	class BV32TriangleMeshBuilder
 	{
 	public:
-		static	bool						createMidPhaseStructure(const PxCookingParams& params, Gu::TriangleMeshData& meshData, Gu::BV32Tree& bv32Tree);
-		static	void						saveMidPhaseStructure(Gu::BV32Tree* tree, PxOutputStream& stream, bool mismatch);
+		static	bool						createMidPhaseStructure(const PxCookingParams& params, ev4sio_Gu::TriangleMeshData& meshData, ev4sio_Gu::BV32Tree& bv32Tree);
+		static	void						saveMidPhaseStructure(ev4sio_Gu::BV32Tree* tree, PxOutputStream& stream, bool mismatch);
 	};
 
 }

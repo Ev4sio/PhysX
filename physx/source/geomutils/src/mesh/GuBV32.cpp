@@ -33,9 +33,9 @@
 #include "foundation/PxUtilities.h"
 #include "foundation/PxVecMath.h"
 
-using namespace physx;
-using namespace Gu;
-using namespace Cm;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
+using namespace ev4sio_Cm;
 
 BV32Tree::BV32Tree(SourceMesh* meshInterface, const PxBounds3& localBounds)
 {

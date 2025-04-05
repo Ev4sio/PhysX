@@ -34,7 +34,7 @@
 #include "PxgConvexConvexShape.h"
 #include "geometry/PxGeometry.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 static __device__ PxTransform getAbsPose(const PxTransform& body2World, const PxTransform& shape2Actor, const PxTransform& body2Actor)

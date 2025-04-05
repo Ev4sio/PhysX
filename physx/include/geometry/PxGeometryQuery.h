@@ -45,7 +45,7 @@ The reason for this is GJK support cannot be evaluated near infinity. A viable a
 #include "geometry/PxGeometryQueryContext.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 

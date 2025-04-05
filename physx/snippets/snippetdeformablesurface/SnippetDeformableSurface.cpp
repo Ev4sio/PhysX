@@ -38,7 +38,7 @@
 #include "../snippetutils/SnippetUtils.h"
 #include "../snippetdeformablesurface/SnippetDeformableSurface.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 static PxDefaultAllocator		gAllocator;
 static PxDefaultErrorCallback	gErrorCallback;
@@ -119,7 +119,7 @@ static PxDeformableSurface* createDeformableSurface(PxPhysics& physics, const Px
 		meshDesc.materialIndices.data = materialIndices;
 	}
 
-	PxTriangleMesh* triangleMesh = PxCreateTriangleMesh(ckParams, meshDesc, physics.getPhysicsInsertionCallback());
+	PxTriangleMesh* triangleMesh = ev4sio_PxCreateTriangleMesh(ckParams, meshDesc, physics.getPhysicsInsertionCallback());
 
 	return createDeformableSurface(physics, triangleMesh, materials, nbMaterials, cudaContextManager);
 }
@@ -240,14 +240,14 @@ static void createScene(PxCookingParams& cookingParams)
 
 void initPhysics(bool /*interactive*/)
 {
-	gFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, gAllocator, gErrorCallback);
-	gPvd = PxCreatePvd(*gFoundation);
-	PxPvdTransport* transport = PxDefaultPvdSocketTransportCreate(PVD_HOST, 5425, 10);
+	gFoundation = ev4sio_PxCreateFoundation(ev4sio_PX_PHYSICS_VERSION, gAllocator, gErrorCallback);
+	gPvd = ev4sio_PxCreatePvd(*gFoundation);
+	PxPvdTransport* transport = ev4sio_PxDefaultPvdSocketTransportCreate(PVD_HOST, 5425, 10);
 	gPvd->connect(*transport,PxPvdInstrumentationFlag::eALL);
 	
 	// initialize cuda
 	PxCudaContextManagerDesc cudaContextManagerDesc;
-	gCudaContextManager = PxCreateCudaContextManager(*gFoundation, cudaContextManagerDesc, PxGetProfilerCallback());
+	gCudaContextManager = ev4sio_PxCreateCudaContextManager(*gFoundation, cudaContextManagerDesc, ev4sio_PxGetProfilerCallback());
 	if (gCudaContextManager && !gCudaContextManager->contextIsValid())
 	{
 		PX_RELEASE(gCudaContextManager);
@@ -256,8 +256,8 @@ void initPhysics(bool /*interactive*/)
 	}
 
 	PxTolerancesScale scale;
-	gPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *gFoundation, scale, true, gPvd);
-	PxInitExtensions(*gPhysics, gPvd);
+	gPhysics = ev4sio_PxCreatePhysics(ev4sio_PX_PHYSICS_VERSION, *gFoundation, scale, true, gPvd);
+	ev4sio_PxInitExtensions(*gPhysics, gPvd);
 
 	PxCookingParams params(scale);
 	params.meshWeldTolerance = 0.001f;
@@ -347,7 +347,7 @@ void cleanupPhysics(bool /*interactive*/)
 		PX_RELEASE(gPvd);
 		PX_RELEASE(transport);
 	}
-	PxCloseExtensions();
+	ev4sio_PxCloseExtensions();
 	PX_RELEASE(gCudaContextManager);
 	PX_RELEASE(gFoundation);
 

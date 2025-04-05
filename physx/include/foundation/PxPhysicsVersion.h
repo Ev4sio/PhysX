@@ -50,10 +50,10 @@ sometimes they are stored in a byte.
 #define PX_PHYSICS_VERSION_BUGFIX 0
 
 /**
-The constant PX_PHYSICS_VERSION is used when creating certain PhysX module objects.
+The constant ev4sio_PX_PHYSICS_VERSION is used when creating certain PhysX module objects.
 This is to ensure that the application is using the same header version as the library was built with.
 */
-#define PX_PHYSICS_VERSION ((PX_PHYSICS_VERSION_MAJOR<<24) + (PX_PHYSICS_VERSION_MINOR<<16) + (PX_PHYSICS_VERSION_BUGFIX<<8) + 0)
+#define ev4sio_PX_PHYSICS_VERSION ((PX_PHYSICS_VERSION_MAJOR<<24) + (PX_PHYSICS_VERSION_MINOR<<16) + (PX_PHYSICS_VERSION_BUGFIX<<8) + 0)
 
 #endif
 

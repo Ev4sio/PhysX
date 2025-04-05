@@ -53,7 +53,7 @@
 #include "PxParticleBuffer.h"
 #endif
 
-namespace physx
+namespace ev4sio_physx
 {
 
 class PxAggregate;

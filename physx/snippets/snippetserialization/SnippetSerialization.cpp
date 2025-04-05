@@ -50,7 +50,7 @@
 #include "../snippetcommon/SnippetPrint.h"
 #include "../snippetcommon/SnippetPVD.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 static bool						gUseBinarySerialization = false;
 
@@ -91,8 +91,8 @@ void createCollections(PxCollection*& sharedCollection, PxCollection*& actorColl
 		prevActor = dynamic;
 	}
 		
-	sharedCollection = PxCreateCollection();		// collection for all the shared objects
-	actorCollection = PxCreateCollection();			// collection for all the nonshared objects
+	sharedCollection = ev4sio_PxCreateCollection();		// collection for all the shared objects
+	actorCollection = ev4sio_PxCreateCollection();			// collection for all the nonshared objects
 
 	sharedCollection->add(*shape);
 	PxSerialization::complete(*sharedCollection, sr);									// chases the pointer from shape to material, and adds it
@@ -219,13 +219,13 @@ Initializes physics and creates a scene
 */
 void initPhysics()
 {
-	gFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, gAllocator, gErrorCallback);
-	gPvd = PxCreatePvd(*gFoundation);
-	PxPvdTransport* transport = PxDefaultPvdSocketTransportCreate(PVD_HOST, 5425, 10);
+	gFoundation = ev4sio_PxCreateFoundation(ev4sio_PX_PHYSICS_VERSION, gAllocator, gErrorCallback);
+	gPvd = ev4sio_PxCreatePvd(*gFoundation);
+	PxPvdTransport* transport = ev4sio_PxDefaultPvdSocketTransportCreate(PVD_HOST, 5425, 10);
 	gPvd->connect(*transport,PxPvdInstrumentationFlag::eALL);
 
-	gPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *gFoundation, PxTolerancesScale(), true, gPvd);
-	PxInitExtensions(*gPhysics, gPvd);
+	gPhysics = ev4sio_PxCreatePhysics(ev4sio_PX_PHYSICS_VERSION, *gFoundation, PxTolerancesScale(), true, gPvd);
+	ev4sio_PxInitExtensions(*gPhysics, gPvd);
 	
 	PxU32 numCores = SnippetUtils::getNbPhysicalCores();
 	gDispatcher = PxDefaultCpuDispatcherCreate(numCores == 0 ? 0 : numCores - 1);
@@ -257,7 +257,7 @@ void cleanupPhysics()
 {
 	PX_RELEASE(gScene);
 	PX_RELEASE(gDispatcher);
-	PxCloseExtensions();
+	ev4sio_PxCloseExtensions();
 
 	PX_RELEASE(gPhysics);	// releases all objects	
 	if (gPvd)

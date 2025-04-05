@@ -40,15 +40,15 @@
 
 #define DEBUG_RENDER_MESHCONTACTS	0
 
-using namespace physx;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
 
 static const bool gDrawTouchedTriangles = false;
 
 static void outputErrorMessage()
 {
 #if PX_CHECKED
-	PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "Dropping contacts in sphere vs mesh: exceeded limit of 256 ");
+	ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "Dropping contacts in sphere vs mesh: exceeded limit of 256 ");
 #endif
 }
 
@@ -457,10 +457,10 @@ protected:
 
 struct SphereMeshContactGenerationCallback_Scale : SphereMeshContactGenerationCallback_NoScale
 {
-	const Cm::FastVertex2ShapeScaling&	mMeshScaling;
+	const ev4sio_Cm::FastVertex2ShapeScaling&	mMeshScaling;
 
 	SphereMeshContactGenerationCallback_Scale(const TriangleMesh& meshData, const PxSphereGeometry& shapeSphere,
-		const PxTransform& transform0, const PxTransform& transform1, const Cm::FastVertex2ShapeScaling& meshScaling,
+		const PxTransform& transform0, const PxTransform& transform1, const ev4sio_Cm::FastVertex2ShapeScaling& meshScaling,
 		PxContactBuffer& contactBuffer, const PxVec3& sphereCenterShape1Space, PxF32 inflatedRadius, PxRenderOutput* renderOutput
 	) : SphereMeshContactGenerationCallback_NoScale(meshData, shapeSphere,
 		transform0, transform1, contactBuffer, sphereCenterShape1Space, inflatedRadius, renderOutput),
@@ -508,7 +508,7 @@ protected:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-bool Gu::contactSphereMesh(GU_CONTACT_METHOD_ARGS)
+bool ev4sio_Gu::contactSphereMesh(GU_CONTACT_METHOD_ARGS)
 {
 	PX_UNUSED(cache);
 
@@ -533,7 +533,7 @@ bool Gu::contactSphereMesh(GU_CONTACT_METHOD_ARGS)
 	}
 	else
 	{
-		const Cm::FastVertex2ShapeScaling meshScaling(shapeMesh.scale);
+		const ev4sio_Cm::FastVertex2ShapeScaling meshScaling(shapeMesh.scale);
 
 		SphereMeshContactGenerationCallback_Scale callback(
 			*meshData, shapeSphere, transform0, transform1,
@@ -594,7 +594,7 @@ protected:
 };
 }
 
-bool Gu::contactSphereHeightfield(GU_CONTACT_METHOD_ARGS)
+bool ev4sio_Gu::contactSphereHeightfield(GU_CONTACT_METHOD_ARGS)
 {
 	PX_UNUSED(cache);
 	PX_UNUSED(renderOutput);

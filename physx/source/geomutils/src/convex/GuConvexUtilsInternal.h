@@ -33,33 +33,33 @@
 #include "foundation/PxBounds3.h"
 #include "common/PxPhysXCommonConfig.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 class PxMeshScale;
 class PxConvexMeshGeometry;
 class PxConvexMesh;
 
-namespace Cm
+namespace ev4sio_Cm
 {
 	class FastVertex2ShapeScaling;
 }
 
-namespace Gu
+namespace ev4sio_Gu
 {
 	class Box;
 
 	void computeHullOBB(
-		Gu::Box& hullOBB, const PxBounds3& hullAABB, float offset, const PxMat34& world0,
-		const PxMat34& world1, const Cm::FastVertex2ShapeScaling& meshScaling, bool idtScaleMesh);
+		ev4sio_Gu::Box& hullOBB, const PxBounds3& hullAABB, float offset, const PxMat34& world0,
+		const PxMat34& world1, const ev4sio_Cm::FastVertex2ShapeScaling& meshScaling, bool idtScaleMesh);
 
 	// src = input
 	// computes a box in vertex space (including skewed scale) from src world box
-	void computeVertexSpaceOBB(Gu::Box& dst, const Gu::Box& src, const PxTransform& meshPose, const PxMeshScale& meshScale);
+	void computeVertexSpaceOBB(ev4sio_Gu::Box& dst, const ev4sio_Gu::Box& src, const PxTransform& meshPose, const PxMeshScale& meshScale);
 
 	PX_PHYSX_COMMON_API void computeOBBAroundConvex(
-		Gu::Box& obb, const PxConvexMeshGeometry& convexGeom, const PxConvexMesh* cm, const PxTransform& convexPose);
+		ev4sio_Gu::Box& obb, const PxConvexMeshGeometry& convexGeom, const PxConvexMesh* cm, const PxTransform& convexPose);
 
-}  // namespace Gu
+}  // namespace ev4sio_Gu
 
 }
 

@@ -218,7 +218,7 @@ __device__ static PxReal distancePointTriangleSquared(const PxVec3 p, const PxVe
 {
 	const PxVec3 ab = b - a;
 	const PxVec3 ac = c - a;
-	closestP = Gu::closestPtPointTriangle2(p, a, b, c, ab, ac);
+	closestP = ev4sio_Gu::closestPtPointTriangle2(p, a, b, c, ab, ac);
 	return (p - closestP).magnitudeSquared();
 }
 

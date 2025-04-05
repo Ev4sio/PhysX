@@ -33,9 +33,9 @@
 #include "GuDistancePointSegment.h"
 #include "GuIntersectionRay.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Gu
+namespace ev4sio_Gu
 {
 	PxU32 intersectRayCapsuleInternal(const PxVec3& origin, const PxVec3& dir, const PxVec3& p0, const PxVec3& p1, float radius, PxReal s[2]);
 
@@ -66,7 +66,7 @@ namespace Gu
 
 		// PT: move origin closer to capsule and do the raycast
 		PxReal s[2];
-		const PxU32 nbHits = Gu::intersectRayCapsuleInternal(origin + l*dir, dir, p0, p1, radius, s);
+		const PxU32 nbHits = ev4sio_Gu::intersectRayCapsuleInternal(origin + l*dir, dir, p0, p1, radius, s);
 		if(!nbHits)
 			return false;
 
@@ -81,9 +81,9 @@ namespace Gu
 		return true;
 	}
 
-	PX_FORCE_INLINE bool intersectRayCapsule(const PxVec3& origin, const PxVec3& dir, const Gu::Capsule& capsule, PxReal& t)
+	PX_FORCE_INLINE bool intersectRayCapsule(const PxVec3& origin, const PxVec3& dir, const ev4sio_Gu::Capsule& capsule, PxReal& t)
 	{
-		return Gu::intersectRayCapsule(origin, dir, capsule.p0, capsule.p1, capsule.radius, t);
+		return ev4sio_Gu::intersectRayCapsule(origin, dir, capsule.p0, capsule.p1, capsule.radius, t);
 	}
 }
 }

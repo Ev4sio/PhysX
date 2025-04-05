@@ -34,7 +34,7 @@
 #include <string.h>
 #include <stdarg.h>
 
-void physx::PxPrintString(const char* str)
+void ev4sio_physx::PxPrintString(const char* str)
 {
 	puts(str); // do not use printf here, since str can contain multiple % signs that will not be printed
 	OutputDebugStringA(str);

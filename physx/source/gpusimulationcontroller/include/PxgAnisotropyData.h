@@ -34,7 +34,7 @@
 #include "foundation/PxVec4.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 	/**
 	\brief Data and settings to apply smoothing to an array of particle positions
@@ -62,7 +62,7 @@ namespace physx
 #endif	
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

@@ -31,13 +31,13 @@
 
 #include "foundation/PxVec3.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Gu
+namespace ev4sio_Gu
 {
 	bool sweepSphereSphere(const PxVec3& center0, PxReal radius0, const PxVec3& center1, PxReal radius1, const PxVec3& motion, PxReal& d, PxVec3& nrm);
 
-} // namespace Gu
+} // namespace ev4sio_Gu
 
 }
 

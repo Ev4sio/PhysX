@@ -32,7 +32,7 @@
 #include "PxRigidDynamic.h"
 #include "NpRigidBodyTemplate.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 typedef NpRigidBodyTemplate<PxRigidDynamic> NpRigidDynamicT;
 
@@ -61,7 +61,7 @@ public:
 	// PxRigidActor
 	PX_FORCE_INLINE	PxTransform		getGlobalPoseFast() const
 	{
-		const Sc::BodyCore& body = getCore();
+		const ev4sio_Sc::BodyCore& body = getCore();
 		// PT:: tag: scalar transform*transform
 		return body.getBody2World() * body.getBody2Actor().getInverse();
 	}
@@ -149,7 +149,7 @@ PX_FORCE_INLINE void NpRigidDynamic::wakeUpInternal()
 {
 	PX_ASSERT(getNpScene());
 
-	const Sc::BodyCore& body = getCore();
+	const ev4sio_Sc::BodyCore& body = getCore();
 
 	const PxRigidBodyFlags currentFlags = body.getFlags();
 

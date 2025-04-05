@@ -41,7 +41,7 @@
 #include "foundation/PxPreprocessor.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -75,9 +75,9 @@ class PxInputStream;
 In addition you can use PxPhysics to set global parameters which will effect all scenes and create
 objects that can be shared across multiple scenes.
 
-You can get an instance of this class by calling PxCreatePhysics().
+You can get an instance of this class by calling ev4sio_PxCreatePhysics().
 
-\see PxCreatePhysics() PxScene
+\see ev4sio_PxCreatePhysics() PxScene
 */
 class PxPhysics
 {
@@ -96,7 +96,7 @@ public:
 	to not keep a reference to this object after calling release.
 	Avoid release calls while a scene is simulating (in between simulate() and fetchResults() calls).
 
-	Note that this must be called once for each prior call to PxCreatePhysics, as
+	Note that this must be called once for each prior call to ev4sio_PxCreatePhysics, as
 	there is a reference counter. Also note that you mustn't destroy the PxFoundation instance (holding the allocator, error callback etc.)
 	until after the reference count reaches 0 and the SDK is actually removed.
 
@@ -105,7 +105,7 @@ public:
 
 	\note Releasing the PxPhysics instance is a prerequisite to releasing the PxFoundation instance.
 
-	\see PxCreatePhysics() PxFoundation
+	\see ev4sio_PxCreatePhysics() PxFoundation
 	*/
 	virtual	void release() = 0;
 
@@ -118,9 +118,9 @@ public:
 	/**
 	\brief Gets PxPhysics object insertion interface.
 
-	The insertion interface is needed for PxCreateTriangleMesh, PxCooking::createTriangleMesh etc., this allows runtime mesh creation.
+	The insertion interface is needed for ev4sio_PxCreateTriangleMesh, PxCooking::createTriangleMesh etc., this allows runtime mesh creation.
 
-	\see PxCreateTriangleMesh PxCreateHeightField PxCreateTetrahedronMesh PxCreateBVH
+	\see ev4sio_PxCreateTriangleMesh ev4sio_PxCreateHeightField ev4sio_PxCreateTetrahedronMesh ev4sio_PxCreateBVH
 	     PxCooking::createTriangleMesh PxCooking::createHeightfield PxCooking::createTetrahedronMesh PxCooking::createBVH
 	*/
 	virtual PxInsertionCallback& getPhysicsInsertionCallback() = 0;
@@ -1075,18 +1075,18 @@ public:
 };
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 /**
 \brief Creates an instance of the physics SDK.
 
 Creates an instance of this class. May not be a class member to avoid name mangling.
-Pass the constant #PX_PHYSICS_VERSION as the argument.
+Pass the constant #ev4sio_PX_PHYSICS_VERSION as the argument.
 There may be only one instance of this class per process. Calling this method after an instance
 has been created already will result in an error message and NULL will be returned.
 
-\param version Version number we are expecting (should be #PX_PHYSICS_VERSION)
+\param version Version number we are expecting (should be #ev4sio_PX_PHYSICS_VERSION)
 \param foundation Foundation instance (see PxFoundation)
 \param scale values used to determine default tolerances for objects at creation time
 \param trackOutstandingAllocations true if you want to track memory allocations
@@ -1101,17 +1101,17 @@ has been created already will result in an error message and NULL will be return
 
 \see PxPhysics
 */
-PX_C_EXPORT PX_PHYSX_CORE_API  physx::PxPhysics* PxCreatePhysics(physx::PxU32 version,
-																physx::PxFoundation& foundation,
-																const physx::PxTolerancesScale& scale,
+PX_C_EXPORT PX_PHYSX_CORE_API  ev4sio_physx::PxPhysics* ev4sio_PxCreatePhysics(ev4sio_physx::PxU32 version,
+																ev4sio_physx::PxFoundation& foundation,
+																const ev4sio_physx::PxTolerancesScale& scale,
 																bool trackOutstandingAllocations = false,
-																physx::PxPvd* pvd = NULL,
-																physx::PxOmniPvd* omniPvd = NULL);
+																ev4sio_physx::PxPvd* pvd = NULL,
+																ev4sio_physx::PxOmniPvd* omniPvd = NULL);
 
 /**
 \brief Retrieves the Physics SDK after it has been created.
 
-Before using this function the user must call #PxCreatePhysics().
+Before using this function the user must call #ev4sio_PxCreatePhysics().
 
 \note The behavior of this method is undefined if the Physics SDK instance has not been created already.
 */
@@ -1120,7 +1120,7 @@ Before using this function the user must call #PxCreatePhysics().
 #pragma clang diagnostic ignored "-Wreturn-type-c-linkage"
 #endif
 
-PX_C_EXPORT PX_PHYSX_CORE_API physx::PxPhysics& PX_CALL_CONV PxGetPhysics();
+PX_C_EXPORT PX_PHYSX_CORE_API ev4sio_physx::PxPhysics& PX_CALL_CONV ev4sio_PxGetPhysics();
 
 #ifdef __clang__
 #pragma clang diagnostic pop

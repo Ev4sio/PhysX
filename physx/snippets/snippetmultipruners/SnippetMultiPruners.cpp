@@ -61,7 +61,7 @@
 	#include "../snippetrender/SnippetRender.h"
 #endif
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 // Define this to use a custom pruner. Undefine to use the default PxScene code.
 #define USE_CUSTOM_PRUNER
@@ -613,7 +613,7 @@ void renderScene()
 	if(0)	// Disabled, this is too slow
 	{
 		PxScene* scene;
-		PxGetPhysics().getScenes(&scene,1);
+		ev4sio_PxGetPhysics().getScenes(&scene,1);
 		PxU32 nbActors = scene->getNbActors(PxActorTypeFlag::eRIGID_DYNAMIC | PxActorTypeFlag::eRIGID_STATIC);
 		if(nbActors)
 		{
@@ -651,17 +651,17 @@ void renderScene()
 
 void initPhysics(bool /*interactive*/)
 {
-	gFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, gAllocator, gErrorCallback);
+	gFoundation = ev4sio_PxCreateFoundation(ev4sio_PX_PHYSICS_VERSION, gAllocator, gErrorCallback);
 
 	if(1)
 	{
-		gPvd = PxCreatePvd(*gFoundation);
-		PxPvdTransport* transport = PxDefaultPvdSocketTransportCreate(PVD_HOST, 5425, 10);
+		gPvd = ev4sio_PxCreatePvd(*gFoundation);
+		PxPvdTransport* transport = ev4sio_PxDefaultPvdSocketTransportCreate(PVD_HOST, 5425, 10);
 		//gPvd->connect(*transport,PxPvdInstrumentationFlag::eALL);
 		gPvd->connect(*transport,PxPvdInstrumentationFlag::ePROFILE);
 	}
 
-	gPhysics	= PxCreatePhysics(PX_PHYSICS_VERSION, *gFoundation, PxTolerancesScale(), false, gPvd);
+	gPhysics	= ev4sio_PxCreatePhysics(ev4sio_PX_PHYSICS_VERSION, *gFoundation, PxTolerancesScale(), false, gPvd);
 	gDispatcher	= PxDefaultCpuDispatcherCreate(NUM_WORKER_THREADS);
 
 	PxSceneDesc sceneDesc(gPhysics->getTolerancesScale());

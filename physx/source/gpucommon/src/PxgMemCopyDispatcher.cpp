@@ -30,7 +30,7 @@
 #include "CudaKernelWrangler.h"
 #include "PxgKernelIndices.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	void PxgMemCopyDispatcher::flushCommands(CUstream stream, PxCudaContext* cudaContext, KernelWrangler* kernelWrangler)
 	{

@@ -42,9 +42,9 @@
 #endif
 
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Sc
+namespace ev4sio_Sc
 {
 	class ActorPairContactReportData
 	{
@@ -155,22 +155,22 @@ namespace Sc
 		public:
 			ActorPairContactReportData* mReportData;
 	};
-} // namespace Sc
+} // namespace ev4sio_Sc
 
-//// Sc::ActorPair implementations
+//// ev4sio_Sc::ActorPair implementations
 
-PX_FORCE_INLINE void Sc::ActorPair::setTouchCount(PxU32 count)
+PX_FORCE_INLINE void ev4sio_Sc::ActorPair::setTouchCount(PxU32 count)
 {
 	PX_ASSERT(count <= (PX_MAX_U32 >> sTouchCountShift));
 	if (count == (PX_MAX_U32 >> sTouchCountShift)) // we rely on inc/dec behaviour here which means we'll always pass the max value before overflowing.
 	{
-		PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "Sc::ActorPair: maximum count of touching shapes per pair reached, any additional touch will introduce undefined behavior.");
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "ev4sio_Sc::ActorPair: maximum count of touching shapes per pair reached, any additional touch will introduce undefined behavior.");
 	}
 
 	mTouchCount_internalFlags = (mTouchCount_internalFlags & sFlagMask) | (count << sTouchCountShift);
 }
 
-PX_FORCE_INLINE void Sc::ActorPair::clearFlags(PxU32 flags)
+PX_FORCE_INLINE void ev4sio_Sc::ActorPair::clearFlags(PxU32 flags)
 {
 	PX_ASSERT(flags < ActorPairFlags::eMAX);
 
@@ -180,9 +180,9 @@ PX_FORCE_INLINE void Sc::ActorPair::clearFlags(PxU32 flags)
 	raiseFlags(tmpFlags);
 }
 
-//// Sc::ActorPairReport implementations
+//// ev4sio_Sc::ActorPairReport implementations
 
-PX_FORCE_INLINE Sc::ActorPairReport::ActorPairReport(ActorSim& actor0, ActorSim& actor1) : ActorPair(),
+PX_FORCE_INLINE ev4sio_Sc::ActorPairReport::ActorPairReport(ActorSim& actor0, ActorSim& actor1) : ActorPair(),
 mActorA			(actor0),
 mActorB			(actor1),
 mReportData		(NULL)
@@ -191,12 +191,12 @@ mReportData		(NULL)
 	raiseFlags(ActorPair::eIS_REPORT_PAIR);
 }
 
-PX_FORCE_INLINE Sc::ActorPairReport::~ActorPairReport()
+PX_FORCE_INLINE ev4sio_Sc::ActorPairReport::~ActorPairReport()
 {
 	PX_ASSERT(mReportData == NULL);
 }
 
-PX_INLINE bool Sc::ActorPairReport::streamResetStamp(PxU32 cmpStamp) 
+PX_INLINE bool ev4sio_Sc::ActorPairReport::streamResetStamp(PxU32 cmpStamp) 
 {
 	PX_ASSERT(mReportData);
 	const bool ret = (cmpStamp != mReportData->mStrmResetStamp);
@@ -204,7 +204,7 @@ PX_INLINE bool Sc::ActorPairReport::streamResetStamp(PxU32 cmpStamp)
 	return ret; 
 }
 
-PX_INLINE Sc::ContactStreamManager&	Sc::ActorPairReport::createContactStreamManager(NPhaseCore& npCore)
+PX_INLINE ev4sio_Sc::ContactStreamManager&	ev4sio_Sc::ActorPairReport::createContactStreamManager(NPhaseCore& npCore)
 {
 	// Lazy create report data
 	if(!mReportData)
@@ -213,10 +213,10 @@ PX_INLINE Sc::ContactStreamManager&	Sc::ActorPairReport::createContactStreamMana
 	return mReportData->mContactStreamManager;
 }
 
-PX_FORCE_INLINE void Sc::ActorPairReport::createContactReportData(NPhaseCore& npCore)
+PX_FORCE_INLINE void ev4sio_Sc::ActorPairReport::createContactReportData(NPhaseCore& npCore)
 {
 	PX_ASSERT(!mReportData);
-	Sc::ActorPairContactReportData* reportData = npCore.createActorPairContactReportData(); 
+	ev4sio_Sc::ActorPairContactReportData* reportData = npCore.createActorPairContactReportData(); 
 	mReportData = reportData;
 
 	if(reportData)

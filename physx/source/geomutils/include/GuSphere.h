@@ -31,13 +31,13 @@
 
 #include "foundation/PxVec3.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 /**
 \brief Represents a sphere defined by its center point and radius.
 */
-namespace Gu
+namespace ev4sio_Gu
 {
 	class Sphere
 	{

@@ -34,9 +34,9 @@
 
 struct Triangle
 {
-	physx::PxVec3 verts[3];
-	physx::PxPlane triPlane;
-	physx::PxVec3 centroid; //mShapeCoMInTrimeshVertexSpace
+	ev4sio_physx::PxVec3 verts[3];
+	ev4sio_physx::PxPlane triPlane;
+	ev4sio_physx::PxVec3 centroid; //mShapeCoMInTrimeshVertexSpace
 };
 
 

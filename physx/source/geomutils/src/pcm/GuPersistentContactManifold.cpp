@@ -35,9 +35,9 @@
 #include "GuGJKUtil.h"
 #include "GuPCMContactGenUtil.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 using namespace aos;
-using namespace Gu;
+using namespace ev4sio_Gu;
 
 //	This local function is to avoid DLL call
 static FloatV distancePointSegmentSquaredLocal(const Vec3VArg a, const Vec3VArg b, const Vec3VArg p)
@@ -166,9 +166,9 @@ static FloatV distancePointTriangleSquaredLocal(const Vec3VArg p,
 	return V3Dot(vv, vv);
 }
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Gu
+namespace ev4sio_Gu
 {
 //This is the translational threshold used in invalidate_BoxConvexHull. 0.5 is 50% of the object margin. we use different threshold between
 //0 and 4 points. This threashold is a scale that is multiplied by the objects' margins.
@@ -286,7 +286,7 @@ static PxU32 gColors[8] = { 0xff0000ff, 0xff00ff00, 0xffff0000,
 #endif
 
 //	SIMD version 
-Mat33V Gu::findRotationMatrixFromZAxis(const Vec3VArg to)
+Mat33V ev4sio_Gu::findRotationMatrixFromZAxis(const Vec3VArg to)
 {
 	const FloatV one = FOne();
 	const FloatV threshold = FLoad(0.9999f);
@@ -2275,7 +2275,7 @@ void MultiplePersistentContactManifold::toBuffer(PxU8* PX_RESTRICT buffer) const
 	}
 }
 
-void Gu::addManifoldPoint(PersistentContact* manifoldContacts, PersistentContactManifold& manifold, GjkOutput& output,
+void ev4sio_Gu::addManifoldPoint(PersistentContact* manifoldContacts, PersistentContactManifold& manifold, GjkOutput& output,
 	const PxMatTransformV& aToB, const FloatV replaceBreakingThreshold)
 {
 	const Vec3V localPointA = aToB.transformInv(output.closestA);

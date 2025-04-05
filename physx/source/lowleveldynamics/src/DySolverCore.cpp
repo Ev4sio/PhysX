@@ -31,17 +31,17 @@
 #include "DyArticulationPImpl.h"
 #include "DyCpuGpuArticulation.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 using namespace aos;
-using namespace Dy;
+using namespace ev4sio_Dy;
 
 // PT: TODO: ideally we could reuse this in immediate mode as well, but the code currently uses separate arrays of PxVec3s instead of
 // spatial vectors so the SIMD code won't work there. Switching to spatial vectors requires a change in the immediate mode API (PxSolveConstraints).
-void Dy::saveMotionVelocities(PxU32 nbBodies, const PxSolverBody* PX_RESTRICT solverBodies, Cm::SpatialVector* PX_RESTRICT motionVelocityArray)
+void ev4sio_Dy::saveMotionVelocities(PxU32 nbBodies, const PxSolverBody* PX_RESTRICT solverBodies, ev4sio_Cm::SpatialVector* PX_RESTRICT motionVelocityArray)
 {
 	for(PxU32 i=0; i<nbBodies; i++)
 	{
-		Cm::SpatialVector& motionVel = motionVelocityArray[i];
+		ev4sio_Cm::SpatialVector& motionVel = motionVelocityArray[i];
 		const PxSolverBody& body = solverBodies[i];
 
 		V4StoreA(V4LoadA(&body.linearVelocity.x), &motionVel.linear.x);
@@ -54,8 +54,8 @@ void Dy::saveMotionVelocities(PxU32 nbBodies, const PxSolverBody* PX_RESTRICT so
 
 // PT: this case is reached when e.g. a lot of objects falling but not touching yet. So there are no contacts but potentially a lot of bodies.
 // See LegacyBenchmark/falling_spheres for example.
-void Dy::solveNoContactsCase(	PxU32 nbBodies, const PxSolverBody* PX_RESTRICT solverBodies, Cm::SpatialVector* PX_RESTRICT motionVelocityArray,
-								PxU32 nbArticulations, ArticulationSolverDesc* PX_RESTRICT articulationListStart, Cm::SpatialVectorF* PX_RESTRICT deltaV,
+void ev4sio_Dy::solveNoContactsCase(	PxU32 nbBodies, const PxSolverBody* PX_RESTRICT solverBodies, ev4sio_Cm::SpatialVector* PX_RESTRICT motionVelocityArray,
+								PxU32 nbArticulations, ArticulationSolverDesc* PX_RESTRICT articulationListStart, ev4sio_Cm::SpatialVectorF* PX_RESTRICT deltaV,
 								PxU32 nbPosIter, PxU32 nbVelIter, PxF32 dt, PxF32 invDt, bool residualReportingActive)
 {
 	saveMotionVelocities(nbBodies, solverBodies, motionVelocityArray);

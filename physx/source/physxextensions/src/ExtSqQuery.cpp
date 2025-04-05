@@ -28,8 +28,8 @@
 
 #include "ExtSqQuery.h"
 
-using namespace physx;
-using namespace Sq;
+using namespace ev4sio_physx;
+using namespace ev4sio_Sq;
 
 #include "common/PxProfileZone.h"
 #include "foundation/PxFPU.h"
@@ -48,9 +48,9 @@ using namespace Sq;
 #include "PxQueryFiltering.h"
 #include "PxRigidActor.h"
 
-using namespace physx;
-using namespace Sq;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Sq;
+using namespace ev4sio_Gu;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -58,7 +58,7 @@ PX_IMPLEMENT_OUTPUT_ERROR
 
 ///////////////////////////////////////////////////////////////////////////////
 
-// PT: this is a customized version of physx::Sq::SceneQueries that supports more than 2 hardcoded pruners.
+// PT: this is a customized version of ev4sio_physx::ev4sio_Sq::SceneQueries that supports more than 2 hardcoded pruners.
 // It might not be possible to support the whole PxSceneQuerySystem API with an arbitrary number of pruners.
 
 // See #MODIFIED tag for what changed in this file compared to the initial code in SqQuery.cpp
@@ -129,9 +129,9 @@ static PxU32 clipHitsToNewMaxDist(HitType* ppuHits, PxU32 count, PxReal newMaxDi
 	return count;
 }
 
-namespace physx
+namespace ev4sio_physx
 {
-	namespace Sq
+	namespace ev4sio_Sq
 	{
 	struct ExtMultiQueryInput
 	{
@@ -187,12 +187,12 @@ template<typename HitType>
 struct ExtGeomQueryAny
 {
 	static PX_FORCE_INLINE PxU32 geomHit(
-		const CachedFuncs& funcs, const ExtMultiQueryInput& input, const Gu::ShapeData* sd,
+		const CachedFuncs& funcs, const ExtMultiQueryInput& input, const ev4sio_Gu::ShapeData* sd,
 		const PxGeometry& sceneGeom, const PxTransform& pose, PxHitFlags hitFlags,
 		PxU32 maxHits, HitType* hits, const PxReal shrunkMaxDistance, const PxBounds3* precomputedBounds,
 		PxQueryThreadContext* context)
 	{
-		using namespace Gu;
+		using namespace ev4sio_Gu;
 
 		const PxGeometry& geom0 = *input.geometry;
 		const PxTransform& pose0 = *input.pose;
@@ -231,7 +231,7 @@ struct ExtGeomQueryAny
 			PxBounds3 b0 = *precomputedBounds, b1;
 			// compute the scene geometry bounds
 			// PT: TODO: avoid recomputing the bounds here
-			Gu::computeBounds(b1, sceneGeom, pose, 0.0f, 1.0f);
+			ev4sio_Gu::computeBounds(b1, sceneGeom, pose, 0.0f, 1.0f);
 			const PxVec3 combExt = (b0.getExtents() + b1.getExtents())*1.01f;
 
 			PxF32 tnear, tfar;
@@ -248,7 +248,7 @@ struct ExtGeomQueryAny
 			const bool offsetPos = (tnear > GU_RAY_SURFACE_OFFSET);
 			const PxReal offset = offsetPos ? (tnear - GU_RAY_SURFACE_OFFSET) : 0.0f;
 			const PxVec3 offsetVec(offsetPos ? (unitDir*offset) : PxVec3(0.0f));
-			// we move the geometry we sweep against, so that we avoid the Gu::Capsule/Box recomputation
+			// we move the geometry we sweep against, so that we avoid the ev4sio_Gu::Capsule/Box recomputation
 			const PxTransform pose1Offset(pose1.p - offsetVec, pose1.q);
             
 			const PxReal distance = PxMin(tfar, shrunkMaxDistance) - offset;
@@ -299,7 +299,7 @@ struct ExtGeomQueryAny
 				}
 				break;
 				default:
-					outputError<physx::PxErrorCode::eINVALID_PARAMETER>(__LINE__, "PxScene::sweep(): first geometry object parameter must be sphere, capsule, box or convex geometry.");
+					outputError<ev4sio_physx::PxErrorCode::eINVALID_PARAMETER>(__LINE__, "PxScene::sweep(): first geometry object parameter must be sphere, capsule, box or convex geometry.");
 				break;
 			}
 			if (retVal)
@@ -315,7 +315,7 @@ struct ExtGeomQueryAny
 		else if(HitTypeSupport<HitType>::IsOverlap)
 		{
 			const GeomOverlapTable* overlapFuncs = funcs.mCachedOverlapFuncs;
-			return PxU32(Gu::overlap(geom0, pose0, geom1, pose1, overlapFuncs, context));
+			return PxU32(ev4sio_Gu::overlap(geom0, pose0, geom1, pose1, overlapFuncs, context));
 		}
 		else
 		{
@@ -797,7 +797,7 @@ static PX_FORCE_INLINE bool prunerFilter(const ExtQueryAdapter& adapter, PxU32 p
 template<typename HitType>
 struct LocalBaseCallback
 {
-	LocalBaseCallback(ExtMultiQueryCallback<HitType>& pcb, const Sq::ExtPrunerManager& manager, const ExtQueryAdapter& adapter, PxHitCallback<HitType>& hits, const PxQueryFilterData& filterData, PxQueryFilterCallback* filterCall) :
+	LocalBaseCallback(ExtMultiQueryCallback<HitType>& pcb, const ev4sio_Sq::ExtPrunerManager& manager, const ExtQueryAdapter& adapter, PxHitCallback<HitType>& hits, const PxQueryFilterData& filterData, PxQueryFilterCallback* filterCall) :
 		mPCB		(pcb),
 		mSQManager	(manager),
 		mAdapter	(adapter),
@@ -807,7 +807,7 @@ struct LocalBaseCallback
 	{}
 
 	ExtMultiQueryCallback<HitType>&	mPCB;
-	const Sq::ExtPrunerManager&		mSQManager;
+	const ev4sio_Sq::ExtPrunerManager&		mSQManager;
 	const ExtQueryAdapter&			mAdapter;
 	PxHitCallback<HitType>&			mHits;
 	const PxQueryFilterData&		mFilterData;
@@ -827,7 +827,7 @@ struct LocalBaseCallback
 template<typename HitType>
 struct LocalRaycastCallback : LocalBaseCallback<HitType>, PxBVH::RaycastCallback
 {
-	LocalRaycastCallback(const ExtMultiQueryInput& input, ExtMultiQueryCallback<HitType>& pcb, const Sq::ExtPrunerManager& manager, const ExtQueryAdapter& adapter, PxHitCallback<HitType>& hits, const PxQueryFilterData& filterData, PxQueryFilterCallback* filterCall) :
+	LocalRaycastCallback(const ExtMultiQueryInput& input, ExtMultiQueryCallback<HitType>& pcb, const ev4sio_Sq::ExtPrunerManager& manager, const ExtQueryAdapter& adapter, PxHitCallback<HitType>& hits, const PxQueryFilterData& filterData, PxQueryFilterCallback* filterCall) :
 		LocalBaseCallback<HitType>(pcb, manager, adapter, hits, filterData, filterCall), mInput(input)	{}
 
 	virtual bool	reportHit(PxU32 boundsIndex, PxReal& distance)
@@ -846,7 +846,7 @@ struct LocalRaycastCallback : LocalBaseCallback<HitType>, PxBVH::RaycastCallback
 template<typename HitType>
 struct LocalOverlapCallback : LocalBaseCallback<HitType>, PxBVH::OverlapCallback
 {
-	LocalOverlapCallback(const ShapeData& shapeData, ExtMultiQueryCallback<HitType>& pcb, const Sq::ExtPrunerManager& manager, const ExtQueryAdapter& adapter, PxHitCallback<HitType>& hits, const PxQueryFilterData& filterData, PxQueryFilterCallback* filterCall) :
+	LocalOverlapCallback(const ShapeData& shapeData, ExtMultiQueryCallback<HitType>& pcb, const ev4sio_Sq::ExtPrunerManager& manager, const ExtQueryAdapter& adapter, PxHitCallback<HitType>& hits, const PxQueryFilterData& filterData, PxQueryFilterCallback* filterCall) :
 		LocalBaseCallback<HitType>(pcb, manager, adapter, hits, filterData, filterCall), mShapeData(shapeData)	{}
 
 	virtual bool	reportHit(PxU32 boundsIndex)
@@ -865,7 +865,7 @@ struct LocalOverlapCallback : LocalBaseCallback<HitType>, PxBVH::OverlapCallback
 template<typename HitType>
 struct LocalSweepCallback : LocalBaseCallback<HitType>, PxBVH::RaycastCallback
 {
-	LocalSweepCallback(const ShapeData& shapeData, const PxVec3& dir, ExtMultiQueryCallback<HitType>& pcb, const Sq::ExtPrunerManager& manager, const ExtQueryAdapter& adapter, PxHitCallback<HitType>& hits, const PxQueryFilterData& filterData, PxQueryFilterCallback* filterCall) :
+	LocalSweepCallback(const ShapeData& shapeData, const PxVec3& dir, ExtMultiQueryCallback<HitType>& pcb, const ev4sio_Sq::ExtPrunerManager& manager, const ExtQueryAdapter& adapter, PxHitCallback<HitType>& hits, const PxQueryFilterData& filterData, PxQueryFilterCallback* filterCall) :
 		LocalBaseCallback<HitType>(pcb, manager, adapter, hits, filterData, filterCall), mShapeData(shapeData), mDir(dir)	{}
 
 	virtual bool	reportHit(PxU32 boundsIndex, PxReal& distance)

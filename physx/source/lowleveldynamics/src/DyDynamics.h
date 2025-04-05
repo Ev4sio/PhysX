@@ -37,7 +37,7 @@
 #include "PxcConstraintBlockStream.h"
 #include "DySolverBody.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 class PxsRigidBody;
 
@@ -47,12 +47,12 @@ struct PxsIndexedInteraction;
 struct PxsIndexedContactManager;
 struct PxSolverConstraintDesc;
 
-namespace Cm
+namespace ev4sio_Cm
 {
 	class SpatialVector;
 }
 
-namespace Dy
+namespace ev4sio_Dy
 {
 	struct SolverIslandParams;
 	class DynamicsContext;
@@ -60,7 +60,7 @@ namespace Dy
 #define SOLVER_PARALLEL_METHOD_ARGS	\
 	DynamicsContext&	context,	\
 	SolverIslandParams& params,		\
-	IG::IslandSim& islandSim
+	ev4sio_IG::IslandSim& islandSim
 
 /**
 \brief Solver body pool (array) that enforces 128-byte alignment for base address of array.
@@ -118,12 +118,12 @@ public:
 	
 										DynamicsContext(PxcNpMemBlockPool* memBlockPool,
 														PxcScratchAllocator& scratchAllocator,
-														Cm::FlushPool& taskPool,
+														ev4sio_Cm::FlushPool& taskPool,
 														PxvSimStats& simStats,
 														PxTaskManager* taskManager,
 														PxVirtualAllocatorCallback* allocatorCallback,
 														PxsMaterialManager* materialManager,
-														IG::SimpleIslandManager& islandManager,
+														ev4sio_IG::SimpleIslandManager& islandManager,
 														PxU64 contextID,
 														bool enableStabilization,
 														bool useEnhancedDeterminism,
@@ -137,14 +137,14 @@ public:
 
 	// Context
 	virtual	void						destroy()	PX_OVERRIDE;
-	virtual void						update(	Cm::FlushPool& flushPool, PxBaseTask* continuation, PxBaseTask* postPartitioningTask, PxBaseTask* lostTouchTask,
+	virtual void						update(	ev4sio_Cm::FlushPool& flushPool, PxBaseTask* continuation, PxBaseTask* postPartitioningTask, PxBaseTask* lostTouchTask,
 												PxvNphaseImplementationContext* nPhase, PxU32 maxPatchesPerCM, PxU32 maxArticulationLinks, PxReal dt, const PxVec3& gravity, PxBitMapPinned& changedHandleMap)	PX_OVERRIDE;
 	virtual void						mergeResults()	PX_OVERRIDE;
 	virtual void						setSimulationController(PxsSimulationController* simulationController )	PX_OVERRIDE	{ mSimulationController = simulationController; }
 	virtual PxSolverType::Enum			getSolverType()	const	PX_OVERRIDE	{ return PxSolverType::ePGS;	}
 	//~Context
 
-					void				updatePostKinematic(IG::SimpleIslandManager& simpleIslandManager, PxBaseTask* continuation, PxBaseTask* lostTouchTask, PxU32 maxLinks);
+					void				updatePostKinematic(ev4sio_IG::SimpleIslandManager& simpleIslandManager, PxBaseTask* continuation, PxBaseTask* lostTouchTask, PxU32 maxLinks);
 
 	PX_FORCE_INLINE bool				solveFrictionEveryIteration() const { return mSolveFrictionEveryIteration; }
 
@@ -163,10 +163,10 @@ protected:
 	*/
 	void								computeUnconstrainedVelocity(PxsRigidBody* atom)	const;
 
-	void								setDescFromIndices_Contacts(PxSolverConstraintDesc& desc, const IG::IslandSim& islandSim,
+	void								setDescFromIndices_Contacts(PxSolverConstraintDesc& desc, const ev4sio_IG::IslandSim& islandSim,
 																	const PxsIndexedInteraction& constraint, PxU32 solverBodyOffset);
 
-	void								setDescFromIndices_Constraints(	PxSolverConstraintDesc& desc, const IG::IslandSim& islandSim, IG::EdgeIndex edgeIndex,
+	void								setDescFromIndices_Constraints(	PxSolverConstraintDesc& desc, const ev4sio_IG::IslandSim& islandSim, ev4sio_IG::EdgeIndex edgeIndex,
 																		const PxU32* bodyRemapTable, PxU32 solverBodyOffset);
 
 	/**
@@ -191,7 +191,7 @@ protected:
 											   PxU32 bodyCount,									// IN: body count
 											   PxSolverBody* solverBodyPool,					// IN: solver atom pool (space preallocated)
 											   PxSolverBodyData* solverBodyDataPool,
-											   Cm::SpatialVector* motionVelocityArray,			// OUT: motion velocities
+											   ev4sio_Cm::SpatialVector* motionVelocityArray,			// OUT: motion velocities
 											   PxU32& maxSolverPositionIterations,
 											   PxU32& maxSolverVelocityIterations,
 											   PxBaseTask& integrateTask
@@ -203,9 +203,9 @@ protected:
 	\param[in] params Solver parameter structure
 	*/
 
-	void								solveParallel(SolverIslandParams& params, IG::IslandSim& islandSim, Cm::SpatialVectorF* deltaV, Dy::ErrorAccumulatorEx* errorAccumulator);
+	void								solveParallel(SolverIslandParams& params, ev4sio_IG::IslandSim& islandSim, ev4sio_Cm::SpatialVectorF* deltaV, ev4sio_Dy::ErrorAccumulatorEx* errorAccumulator);
 
-	void								integrateCoreParallel(SolverIslandParams& params, Cm::SpatialVectorF* deltaV, IG::IslandSim& islandSim);
+	void								integrateCoreParallel(SolverIslandParams& params, ev4sio_Cm::SpatialVectorF* deltaV, ev4sio_IG::IslandSim& islandSim);
 
 	/**
 	\brief Body to represent the world static body.

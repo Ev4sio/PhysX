@@ -37,9 +37,9 @@
 #include "GuAABBTreeUpdateMap.h"
 #include "GuAABBTreeBuildStats.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Gu
+namespace ev4sio_Gu
 {
 	// PT: we build the new tree over a number of frames/states, in order to limit perf spikes in 'updatePruningTrees'.
 	// The states are as follows:

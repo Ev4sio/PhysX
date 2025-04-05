@@ -38,9 +38,9 @@
 #include "foundation/PxQuat.h"
 #include "CmRandom.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-	namespace Ext
+	namespace ev4sio_Ext
 	{
 
 		// ----------------------------------------------------------
@@ -66,7 +66,7 @@ namespace physx
 				PxArray<PxI32> tris;
 				PxArray<int> next;
 
-				Cm::RandomR250 rnd = Cm::RandomR250(0);
+				ev4sio_Cm::RandomR250 rnd = ev4sio_Cm::RandomR250(0);
 			};
 			Grid2d mGrids[3];
 		};

@@ -64,12 +64,12 @@ General notes:
 #include "stdio.h"
 #endif
 
-using namespace physx;
+using namespace ev4sio_physx;
 using namespace aos;
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Gu {
+namespace ev4sio_Gu {
 
 using namespace aos;
 
@@ -172,7 +172,7 @@ void RTree::traverseAABB(const PxVec3& boxMin, const PxVec3& boxMax, const PxU32
 template <int inflate>
 void RTree::traverseRay(
 	const PxVec3& rayOrigin, const PxVec3& rayDir,
-	const PxU32 maxResults, PxU32* resultsPtr, Gu::RTree::CallbackRaycast* callback,
+	const PxU32 maxResults, PxU32* resultsPtr, ev4sio_Gu::RTree::CallbackRaycast* callback,
 	const PxVec3* fattenAABBs, PxF32 maxT) const
 {
 	// implements Kay-Kajiya 4-way SIMD test
@@ -318,13 +318,13 @@ void RTree::traverseRay(
 }
 
 //explicit template instantiation
-template void RTree::traverseRay<0>(const PxVec3&, const PxVec3&, const PxU32, PxU32*, Gu::RTree::CallbackRaycast*, const PxVec3*, PxF32) const;
+template void RTree::traverseRay<0>(const PxVec3&, const PxVec3&, const PxU32, PxU32*, ev4sio_Gu::RTree::CallbackRaycast*, const PxVec3*, PxF32) const;
 
-template void RTree::traverseRay<1>(const PxVec3&, const PxVec3&, const PxU32, PxU32*, Gu::RTree::CallbackRaycast*, const PxVec3*, PxF32) const;
+template void RTree::traverseRay<1>(const PxVec3&, const PxVec3&, const PxU32, PxU32*, ev4sio_Gu::RTree::CallbackRaycast*, const PxVec3*, PxF32) const;
 
 /////////////////////////////////////////////////////////////////////////
 void RTree::traverseOBB(
-	const Gu::Box& obb, const PxU32 maxResults, PxU32* resultsPtr, Gu::RTree::Callback* callback) const
+	const ev4sio_Gu::Box& obb, const PxU32 maxResults, PxU32* resultsPtr, ev4sio_Gu::RTree::Callback* callback) const
 {
 	PX_UNUSED(resultsPtr);
 	PX_UNUSED(maxResults);
@@ -348,7 +348,7 @@ void RTree::traverseOBB(
 
 	Vec4V obbO = Vec4V_From_PxVec3_WUndefined(obb.center);
 	Vec4V obbE = Vec4V_From_PxVec3_WUndefined(obb.extents);
-	// Gu::Box::rot matrix columns are the OBB axes
+	// ev4sio_Gu::Box::rot matrix columns are the OBB axes
 	Vec4V obbX = Vec4V_From_PxVec3_WUndefined(obb.rot.column0);
 	Vec4V obbY = Vec4V_From_PxVec3_WUndefined(obb.rot.column1);
 	Vec4V obbZ = Vec4V_From_PxVec3_WUndefined(obb.rot.column2);
@@ -566,6 +566,6 @@ void RTree::traverseOBB(
 	} while (stackPtr > stack);
 }
 
-} // namespace Gu
+} // namespace ev4sio_Gu
 
 }

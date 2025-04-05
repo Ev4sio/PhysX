@@ -35,11 +35,11 @@
 #include "ScStaticSim.h"
 #include "ScBodySim.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	class PxShape;
 
-namespace Sc
+namespace ev4sio_Sc
 {
 	class ActorPair;
 
@@ -136,7 +136,7 @@ namespace Sc
 		PX_FORCE_INLINE PxU32 getMaxExtraDataSize() const;
 		PX_FORCE_INLINE void setMaxExtraDataSize(PxU32 size);  // size in bytes (will translate into blocks internally)
 
-		PX_FORCE_INLINE Sc::ContactShapePair* getShapePairs(PxU8* contactReportPairData) const;
+		PX_FORCE_INLINE ev4sio_Sc::ContactShapePair* getShapePairs(PxU8* contactReportPairData) const;
 
 		PX_FORCE_INLINE static void convertDeletedShapesInContactStream(ContactShapePair*, PxU32 pairCount, const ObjectIDTracker&);
 		
@@ -163,10 +163,10 @@ namespace Sc
 		PX_COMPILE_TIME_ASSERT(ContactStreamManagerFlag::eNEXT_FREE_FLAG == (1 << sMaxExtraDataShift));
 	};
 
-} // namespace Sc
+} // namespace ev4sio_Sc
 
 
-PX_FORCE_INLINE void Sc::ContactStreamManager::reset()
+PX_FORCE_INLINE void ev4sio_Sc::ContactStreamManager::reset()
 {
 	currentPairCount = 0;
 	extraDataSize = 0;
@@ -174,13 +174,13 @@ PX_FORCE_INLINE void Sc::ContactStreamManager::reset()
 }
 
 
-PX_FORCE_INLINE PxU16 Sc::ContactStreamManager::getFlags() const
+PX_FORCE_INLINE PxU16 ev4sio_Sc::ContactStreamManager::getFlags() const
 {
 	return (flags_and_maxExtraDataBlocks & sFlagMask);
 }
 
 
-PX_FORCE_INLINE void Sc::ContactStreamManager::raiseFlags(PxU16 flags)
+PX_FORCE_INLINE void ev4sio_Sc::ContactStreamManager::raiseFlags(PxU16 flags)
 {
 	PX_ASSERT(flags < ContactStreamManagerFlag::eNEXT_FREE_FLAG);
 
@@ -188,7 +188,7 @@ PX_FORCE_INLINE void Sc::ContactStreamManager::raiseFlags(PxU16 flags)
 }
 
 
-PX_FORCE_INLINE void Sc::ContactStreamManager::clearFlags(PxU16 flags)
+PX_FORCE_INLINE void ev4sio_Sc::ContactStreamManager::clearFlags(PxU16 flags)
 {
 	PX_ASSERT(flags < ContactStreamManagerFlag::eNEXT_FREE_FLAG);
 
@@ -199,26 +199,26 @@ PX_FORCE_INLINE void Sc::ContactStreamManager::clearFlags(PxU16 flags)
 }
 
 
-PX_FORCE_INLINE PxU32 Sc::ContactStreamManager::getMaxExtraDataSize() const
+PX_FORCE_INLINE PxU32 ev4sio_Sc::ContactStreamManager::getMaxExtraDataSize() const
 {
 	return PxU32((flags_and_maxExtraDataBlocks >> sMaxExtraDataShift) << sExtraDataBlockSizePow2);
 }
 
 
-PX_FORCE_INLINE void Sc::ContactStreamManager::setMaxExtraDataSize(PxU32 size)
+PX_FORCE_INLINE void ev4sio_Sc::ContactStreamManager::setMaxExtraDataSize(PxU32 size)
 {
 	const PxU32 nbBlocks = computeExtraDataBlockCount(size);
 	flags_and_maxExtraDataBlocks = PxTo16((flags_and_maxExtraDataBlocks & sFlagMask) | (nbBlocks << sMaxExtraDataShift));
 }
 
 
-PX_FORCE_INLINE Sc::ContactShapePair* Sc::ContactStreamManager::getShapePairs(PxU8* contactReportPairData) const
+PX_FORCE_INLINE ev4sio_Sc::ContactShapePair* ev4sio_Sc::ContactStreamManager::getShapePairs(PxU8* contactReportPairData) const
 {
-	return reinterpret_cast<Sc::ContactShapePair*>(contactReportPairData + getMaxExtraDataSize());
+	return reinterpret_cast<ev4sio_Sc::ContactShapePair*>(contactReportPairData + getMaxExtraDataSize());
 }
 
 
-PX_FORCE_INLINE void Sc::ContactStreamManager::convertDeletedShapesInContactStream(ContactShapePair* shapePairs, PxU32 pairCount, const ObjectIDTracker& tracker)
+PX_FORCE_INLINE void ev4sio_Sc::ContactStreamManager::convertDeletedShapesInContactStream(ContactShapePair* shapePairs, PxU32 pairCount, const ObjectIDTracker& tracker)
 {
 	for(PxU32 i=0; i < pairCount; i++)
 	{
@@ -240,7 +240,7 @@ PX_FORCE_INLINE void Sc::ContactStreamManager::convertDeletedShapesInContactStre
 }
 
 
-PX_FORCE_INLINE PxU32 Sc::ContactStreamManager::computeExtraDataBlockCount(PxU32 extraDataSize_)
+PX_FORCE_INLINE PxU32 ev4sio_Sc::ContactStreamManager::computeExtraDataBlockCount(PxU32 extraDataSize_)
 {
 	PxU32 nbBlocks;
 	if (extraDataSize_ & ((1 << sExtraDataBlockSizePow2) - 1))  // not a multiple of block size -> need one block more
@@ -252,13 +252,13 @@ PX_FORCE_INLINE PxU32 Sc::ContactStreamManager::computeExtraDataBlockCount(PxU32
 }
 
 
-PX_FORCE_INLINE PxU32 Sc::ContactStreamManager::computeExtraDataBlockSize(PxU32 extraDataSize_)
+PX_FORCE_INLINE PxU32 ev4sio_Sc::ContactStreamManager::computeExtraDataBlockSize(PxU32 extraDataSize_)
 {
 	return (computeExtraDataBlockCount(extraDataSize_) << sExtraDataBlockSizePow2);
 }
 
 
-PX_FORCE_INLINE PxU16 Sc::ContactStreamManager::computeContactReportExtraDataSize(PxU32 extraDataFlags, bool addHeader)
+PX_FORCE_INLINE PxU16 ev4sio_Sc::ContactStreamManager::computeContactReportExtraDataSize(PxU32 extraDataFlags, bool addHeader)
 {
 	PX_ASSERT(extraDataFlags);
 
@@ -275,7 +275,7 @@ PX_FORCE_INLINE PxU16 Sc::ContactStreamManager::computeContactReportExtraDataSiz
 }
 
 
-PX_FORCE_INLINE void Sc::ContactStreamManager::fillInContactReportExtraData(PxContactPairVelocity* cpVel, PxU32 index, const ActorSim& rs, bool isCCDPass)
+PX_FORCE_INLINE void ev4sio_Sc::ContactStreamManager::fillInContactReportExtraData(PxContactPairVelocity* cpVel, PxU32 index, const ActorSim& rs, bool isCCDPass)
 {
 	if (rs.getActorType() != PxActorType::eRIGID_STATIC)
 	{
@@ -289,7 +289,7 @@ PX_FORCE_INLINE void Sc::ContactStreamManager::fillInContactReportExtraData(PxCo
 		else
 		{
 			PX_ASSERT(cpVel->type == PxContactPairExtraDataType::ePRE_SOLVER_VELOCITY);
-			const Cm::SpatialVector& vel = bs.getLowLevelBody().getPreSolverVelocities();
+			const ev4sio_Cm::SpatialVector& vel = bs.getLowLevelBody().getPreSolverVelocities();
 			cpVel->linearVelocity[index] = vel.linear;
 			cpVel->angularVelocity[index] = vel.angular;
 		}
@@ -302,7 +302,7 @@ PX_FORCE_INLINE void Sc::ContactStreamManager::fillInContactReportExtraData(PxCo
 }
 
 
-PX_FORCE_INLINE void Sc::ContactStreamManager::fillInContactReportExtraData(PxContactPairPose* cpPose, PxU32 index, const ActorSim& rs, bool isCCDPass, const bool useCurrentTransform)
+PX_FORCE_INLINE void ev4sio_Sc::ContactStreamManager::fillInContactReportExtraData(PxContactPairPose* cpPose, PxU32 index, const ActorSim& rs, bool isCCDPass, const bool useCurrentTransform)
 {
 	if(rs.getActorType() != PxActorType::eRIGID_STATIC)
 	{
@@ -321,7 +321,7 @@ PX_FORCE_INLINE void Sc::ContactStreamManager::fillInContactReportExtraData(PxCo
 }
 
 
-PX_FORCE_INLINE void Sc::ContactStreamManager::fillInContactReportExtraData(PxU8* stream, PxU32 extraDataFlags, const ActorSim& rs0, const ActorSim& rs1, PxU32 ccdPass, const bool useCurrentTransform,
+PX_FORCE_INLINE void ev4sio_Sc::ContactStreamManager::fillInContactReportExtraData(PxU8* stream, PxU32 extraDataFlags, const ActorSim& rs0, const ActorSim& rs1, PxU32 ccdPass, const bool useCurrentTransform,
 	PxU32 pairIndex, PxU32 sizeOffset)
 {
 	ContactStreamHeader* strHeader = reinterpret_cast<ContactStreamHeader*>(stream);
@@ -383,7 +383,7 @@ PX_FORCE_INLINE void Sc::ContactStreamManager::fillInContactReportExtraData(PxU8
 }
 
 
-PX_FORCE_INLINE void Sc::ContactStreamManager::setContactReportPostSolverVelocity(PxU8* stream, const ActorSim& rs0, const ActorSim& rs1)
+PX_FORCE_INLINE void ev4sio_Sc::ContactStreamManager::setContactReportPostSolverVelocity(PxU8* stream, const ActorSim& rs0, const ActorSim& rs1)
 {
 	PX_ASSERT(extraDataSize > (sizeof(ContactStreamHeader) + sizeof(PxContactPairIndex)));
 	PxContactPairVelocity* cpVel = reinterpret_cast<PxContactPairVelocity*>(stream + sizeof(ContactStreamHeader) + sizeof(PxContactPairIndex));

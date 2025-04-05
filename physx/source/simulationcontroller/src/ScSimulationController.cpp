@@ -37,18 +37,18 @@
 #include "BpAABBManager.h"
 #include "DyVArticulation.h"
 
-using namespace physx;
-using namespace IG;
-using namespace Sc;
+using namespace ev4sio_physx;
+using namespace ev4sio_IG;
+using namespace ev4sio_Sc;
 
-void SimulationController::updateScBodyAndShapeSim(PxsTransformCache& /*cache*/, Bp::BoundsArray& /*boundArray*/, PxBaseTask* continuation)
+void SimulationController::updateScBodyAndShapeSim(PxsTransformCache& /*cache*/, ev4sio_Bp::BoundsArray& /*boundArray*/, PxBaseTask* continuation)
 {
 	mCallback->updateScBodyAndShapeSim(continuation);
 }
 
 namespace
 {
-class UpdateArticulationAfterIntegrationTask : public Cm::Task
+class UpdateArticulationAfterIntegrationTask : public ev4sio_Cm::Task
 {
 	IslandSim&								mIslandSim;
 	const PxNodeIndex* const PX_RESTRICT	mNodeIndices;
@@ -60,7 +60,7 @@ public:
 	static const PxU32 NbArticulationsPerTask = 64;
 
 	UpdateArticulationAfterIntegrationTask(PxU64 contextId, PxU32 nbArticulations, PxReal dt, const PxNodeIndex* nodeIndices, IslandSim& islandSim) :
-		Cm::Task(contextId),
+		ev4sio_Cm::Task(contextId),
 		mIslandSim(islandSim),
 		mNodeIndices(nodeIndices),
 		mNbArticulations(nbArticulations),
@@ -86,7 +86,7 @@ public:
 //KS - TODO - parallelize this bit!!!!!
 void SimulationController::updateArticulationAfterIntegration(
 	PxsContext*	llContext,
-	Bp::AABBManagerBase* aabbManager,
+	ev4sio_Bp::AABBManagerBase* aabbManager,
 	PxArray<BodySim*>& ccdBodies,
 	PxBaseTask* continuation,
 	IslandSim& islandSim,
@@ -95,7 +95,7 @@ void SimulationController::updateArticulationAfterIntegration(
 {
 	const PxU32 nbActiveArticulations = islandSim.getNbActiveNodes(Node::eARTICULATION_TYPE);
 
-	Cm::FlushPool& flushPool = llContext->getTaskPool();
+	ev4sio_Cm::FlushPool& flushPool = llContext->getTaskPool();
 
 	const PxNodeIndex* activeArticulations = islandSim.getActiveNodes(Node::eARTICULATION_TYPE);
 

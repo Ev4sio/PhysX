@@ -28,7 +28,7 @@
 #include "foundation/PxHashMap.h"
 #include "DyFeatherstoneArticulation.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 // PT: notes:
 // - there was a prefetch in one codepath, not in the other. It was completely wrong anyway. Removed.
@@ -61,9 +61,9 @@ PX_COMPILE_TIME_ASSERT(PX_OFFSET_OF(PxSolverBody, maxSolverNormalProgress)==PX_O
 PX_COMPILE_TIME_ASSERT(PX_OFFSET_OF(PxSolverBody, maxSolverFrictionProgress)==PX_OFFSET_OF(PxTGSSolverBodyVel, nbStaticInteractions));
 PX_COMPILE_TIME_ASSERT(PX_OFFSET_OF(PxSolverBody, solverProgress)==PX_OFFSET_OF(PxTGSSolverBodyVel, partitionMask));
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Dy
+namespace ev4sio_Dy
 {
 namespace
 {
@@ -144,7 +144,7 @@ PX_FORCE_INLINE void reserveSpaceForStaticConstraints_(PxArray<PxU32>& numConstr
 
 // PT: "extended" version with articulations
 PX_FORCE_INLINE void reserveSpaceForStaticConstraints_(PxArray<PxU32>& numConstraintsPerPartition, PxU32 bodyCount, PxU32 bodyStride, PxU8* bodies,
-														PxU32 numArticulations, Dy::FeatherstoneArticulation** articulations)
+														PxU32 numArticulations, ev4sio_Dy::FeatherstoneArticulation** articulations)
 {
 	reserveSpaceForStaticConstraints_(numConstraintsPerPartition, bodyCount, bodyStride, bodies);
 
@@ -293,14 +293,14 @@ class ExtendedRigidBodyClassification : public ClassificationBase
 	PX_NOCOPY(ExtendedRigidBodyClassification)
 
 public:
-	Dy::FeatherstoneArticulation** mArticulations;
+	ev4sio_Dy::FeatherstoneArticulation** mArticulations;
 	const PxU32 mNumArticulations;
 
 	// PT: only used for point-friction, which is not available in immediate mode.
 	// Immediate mode version should use "true" for this, in order to match the previous imm mode batching code.
 	const bool mForceStaticCollisionsToSolver;
 
-	ExtendedRigidBodyClassification(PxU8* bodies, PxU32 numBodies, PxU32 stride, Dy::FeatherstoneArticulation** articulations, PxU32 numArticulations, bool forceStaticCollisionsToSolver) :
+	ExtendedRigidBodyClassification(PxU8* bodies, PxU32 numBodies, PxU32 stride, ev4sio_Dy::FeatherstoneArticulation** articulations, PxU32 numArticulations, bool forceStaticCollisionsToSolver) :
 		ClassificationBase				(bodies, numBodies, stride),
 		mArticulations					(articulations),
 		mNumArticulations				(numArticulations),
@@ -338,7 +338,7 @@ public:
 
 		for(PxU32 a=0; a<mNumArticulations; ++a)
 		{
-			Dy::FeatherstoneArticulation* articulation = mArticulations[a];
+			ev4sio_Dy::FeatherstoneArticulation* articulation = mArticulations[a];
 			articulation->solverProgress = 0;
 			articulation->maxSolverFrictionProgress = 0;
 			articulation->maxSolverNormalProgress = 0;
@@ -351,7 +351,7 @@ public:
 
 		for(PxU32 a=0; a<mNumArticulations; ++a)
 		{
-			Dy::FeatherstoneArticulation* articulation = mArticulations[a];
+			ev4sio_Dy::FeatherstoneArticulation* articulation = mArticulations[a];
 			articulation->solverProgress = 0;
 			articulation->maxSolverFrictionProgress = 0;
 		}
@@ -954,7 +954,7 @@ static PX_FORCE_INLINE void getProgressRequirementsExtended(const PxSolverConstr
 	}
 }
 
-void processOverflowConstraints(PxU8* bodies, PxU32 bodyStride, PxU32 numBodies, Dy::ArticulationSolverDesc* articulationDescs, PxU32 numArticulations,
+void processOverflowConstraints(PxU8* bodies, PxU32 bodyStride, PxU32 numBodies, ev4sio_Dy::ArticulationSolverDesc* articulationDescs, PxU32 numArticulations,
 	PxSolverConstraintDesc* constraints, PxU32 numConstraints)
 {
 	// PT: TODO: resetSolverProgress + the articulation reset below is the same as afterClassification()
@@ -976,8 +976,8 @@ void processOverflowConstraints(PxU8* bodies, PxU32 bodyStride, PxU32 numBodies,
 	}
 	else
 	{
-		PX_ALLOCA(_eaArticulations, Dy::FeatherstoneArticulation*, numArticulations);
-		Dy::FeatherstoneArticulation** eaArticulations = _eaArticulations;
+		PX_ALLOCA(_eaArticulations, ev4sio_Dy::FeatherstoneArticulation*, numArticulations);
+		ev4sio_Dy::FeatherstoneArticulation** eaArticulations = _eaArticulations;
 		for (PxU32 i = 0; i<numArticulations; i++)
 		{
 			FeatherstoneArticulation* articulation = articulationDescs[i].articulation;

@@ -38,8 +38,8 @@
 
 #include "foundation/PxVec3.h"
 
-namespace physx {
-	namespace Gu {
+namespace ev4sio_physx {
+	namespace ev4sio_Gu {
 		PX_FORCE_INLINE PX_CUDA_CALLABLE void getSubTriangle4(int id, PxVec3& baryA, PxVec3& baryB, PxVec3& baryC)
 		{
 
@@ -116,6 +116,6 @@ namespace physx {
 			getSubTriangle(a, b, c, subTriangleIndex, subdivisionLevel);
 		}
 
-	} // namespace Gu
-} // namespace physx
+	} // namespace ev4sio_Gu
+} // namespace ev4sio_physx
 #endif // GU_TRIANGLE_REFINEMENT_H

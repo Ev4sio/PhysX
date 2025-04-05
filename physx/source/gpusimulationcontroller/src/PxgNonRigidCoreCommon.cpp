@@ -33,7 +33,7 @@
 #include "PxgRadixSortKernelIndices.h"
 #include "common/PxPhysXCommonConfig.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 PxgEssentialCore::PxgEssentialCore(PxgCudaKernelWranglerManager* gpuKernelWrangler, PxCudaContextManager* cudaContextManager,
 	PxgHeapMemoryAllocatorManager* heapMemoryManager, PxgSimulationController* simController, PxgGpuContext* gpuContext) :

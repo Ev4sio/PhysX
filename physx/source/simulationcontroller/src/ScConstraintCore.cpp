@@ -30,9 +30,9 @@
 #include "ScPhysics.h"
 #include "ScConstraintSim.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
-Sc::ConstraintCore::ConstraintCore(PxConstraintConnector& connector, const PxConstraintShaderTable& shaders, PxU32 dataSize) :
+ev4sio_Sc::ConstraintCore::ConstraintCore(PxConstraintConnector& connector, const PxConstraintShaderTable& shaders, PxU32 dataSize) :
 	mFlags					(PxConstraintFlag::eDRIVE_LIMITS_ARE_FORCES),
 	mIsDirty				(1),
 	mAppliedForce			(PxVec3(0.0f)),
@@ -49,7 +49,7 @@ Sc::ConstraintCore::ConstraintCore(PxConstraintConnector& connector, const PxCon
 {
 }
 
-void Sc::ConstraintCore::setFlags(PxConstraintFlags flags)
+void ev4sio_Sc::ConstraintCore::setFlags(PxConstraintFlags flags)
 {
 	PxConstraintFlags old = mFlags;
 	flags = flags | (old & PxConstraintFlag::eGPU_COMPATIBLE);  // eGPU_COMPATIBLE is for internal use only and should keep its initial state
@@ -61,7 +61,7 @@ void Sc::ConstraintCore::setFlags(PxConstraintFlags flags)
 	}
 }
 
-void Sc::ConstraintCore::getForce(PxVec3& force, PxVec3& torque) const
+void ev4sio_Sc::ConstraintCore::getForce(PxVec3& force, PxVec3& torque) const
 {
 	if(!mSim)
 	{
@@ -72,13 +72,13 @@ void Sc::ConstraintCore::getForce(PxVec3& force, PxVec3& torque) const
 		mSim->getForce(force, torque);
 }
 
-void Sc::ConstraintCore::setBodies(RigidCore* r0v, RigidCore* r1v)
+void ev4sio_Sc::ConstraintCore::setBodies(RigidCore* r0v, RigidCore* r1v)
 {
 	if(mSim)
 		mSim->setBodies(r0v, r1v);
 }
 
-void Sc::ConstraintCore::setBreakForce(PxReal linear, PxReal angular)
+void ev4sio_Sc::ConstraintCore::setBreakForce(PxReal linear, PxReal angular)
 {
 	mLinearBreakForce = linear;
 	mAngularBreakForce = angular;
@@ -87,7 +87,7 @@ void Sc::ConstraintCore::setBreakForce(PxReal linear, PxReal angular)
 		mSim->setBreakForceLL(linear, angular);
 }
 
-void Sc::ConstraintCore::setMinResponseThreshold(PxReal threshold)
+void ev4sio_Sc::ConstraintCore::setMinResponseThreshold(PxReal threshold)
 {
 	mMinResponseThreshold = threshold;
 
@@ -95,17 +95,17 @@ void Sc::ConstraintCore::setMinResponseThreshold(PxReal threshold)
 		mSim->setMinResponseThresholdLL(threshold);
 }
 
-PxConstraint* Sc::ConstraintCore::getPxConstraint()
+PxConstraint* ev4sio_Sc::ConstraintCore::getPxConstraint()
 {
 	return gOffsetTable.convertScConstraint2Px(this);
 }
 
-const PxConstraint* Sc::ConstraintCore::getPxConstraint() const
+const PxConstraint* ev4sio_Sc::ConstraintCore::getPxConstraint() const
 {
 	return gOffsetTable.convertScConstraint2Px(this);
 }
 
-void Sc::ConstraintCore::breakApart()
+void ev4sio_Sc::ConstraintCore::breakApart()
 {
 	// TODO: probably want to do something with the interaction here
 	// as well as remove the constraint from LL.

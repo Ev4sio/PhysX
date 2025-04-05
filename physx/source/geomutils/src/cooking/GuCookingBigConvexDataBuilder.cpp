@@ -43,14 +43,14 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-using namespace physx;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
 using namespace aos;
 
 static const PxU32 gSupportVersion = 0;
 static const PxU32 gVersion = 0;
 
-BigConvexDataBuilder::BigConvexDataBuilder(const Gu::ConvexHullData* hull, BigConvexData* gm, const PxVec3* hullVerts) : mHullVerts(hullVerts)
+BigConvexDataBuilder::BigConvexDataBuilder(const ev4sio_Gu::ConvexHullData* hull, BigConvexData* gm, const PxVec3* hullVerts) : mHullVerts(hullVerts)
 {
 	mSVM = gm;
 	mHull = hull;
@@ -74,13 +74,13 @@ bool BigConvexDataBuilder::initialize()
 bool BigConvexDataBuilder::save(PxOutputStream& stream, bool platformMismatch) const
 {
 	// Export header
-	if(!Cm::WriteHeader('S', 'U', 'P', 'M', gSupportVersion, platformMismatch, stream))
+	if(!ev4sio_Cm::WriteHeader('S', 'U', 'P', 'M', gSupportVersion, platformMismatch, stream))
 		return false;
 
 	// Save base gaussmap
 //	if(!GaussMapBuilder::Save(stream, platformMismatch))	return false;
 	// Export header
-	if(!Cm::WriteHeader('G', 'A', 'U', 'S', gVersion, platformMismatch, stream))
+	if(!ev4sio_Cm::WriteHeader('G', 'A', 'U', 'S', gVersion, platformMismatch, stream))
 		return false;
 
 	// Export basic info
@@ -110,12 +110,12 @@ bool BigConvexDataBuilder::computeValencies(const ConvexHullBuilder& meshBuilder
 
 	// Get ram for valencies and adjacent verts
 	const PxU32 numAlignedVerts = (numVertices+3)&~3;
-	const PxU32 TotalSize = sizeof(Gu::Valency)*numAlignedVerts + sizeof(PxU8)*meshBuilder.mHull->mNbEdges*2u;
+	const PxU32 TotalSize = sizeof(ev4sio_Gu::Valency)*numAlignedVerts + sizeof(PxU8)*meshBuilder.mHull->mNbEdges*2u;
 	mSVM->mVBuffer = PX_ALLOC(TotalSize, "BigConvexData data");
-	mSVM->mData.mValencies		= reinterpret_cast<Gu::Valency*>(mSVM->mVBuffer);
-	mSVM->mData.mAdjacentVerts	= (reinterpret_cast<PxU8*>(mSVM->mVBuffer)) + sizeof(Gu::Valency)*numAlignedVerts;
+	mSVM->mData.mValencies		= reinterpret_cast<ev4sio_Gu::Valency*>(mSVM->mVBuffer);
+	mSVM->mData.mAdjacentVerts	= (reinterpret_cast<PxU8*>(mSVM->mVBuffer)) + sizeof(ev4sio_Gu::Valency)*numAlignedVerts;
 
-	PxMemZero(mSVM->mData.mValencies, numVertices*sizeof(Gu::Valency));
+	PxMemZero(mSVM->mData.mValencies, numVertices*sizeof(ev4sio_Gu::Valency));
 	PxU8 vertexMarker[256];
 	PxMemZero(vertexMarker,numVertices);
 
@@ -331,7 +331,7 @@ static const PxU32 gValencyVersion = 2;
 bool BigConvexDataBuilder::saveValencies(PxOutputStream& stream, bool platformMismatch) const
 {
 	// Export header
-	if(!Cm::WriteHeader('V', 'A', 'L', 'E', gValencyVersion, platformMismatch, stream))
+	if(!ev4sio_Cm::WriteHeader('V', 'A', 'L', 'E', gValencyVersion, platformMismatch, stream))
 		return false;
 
 	writeDword(mSVM->mData.mNbVerts, platformMismatch, stream);
@@ -344,7 +344,7 @@ bool BigConvexDataBuilder::saveValencies(PxOutputStream& stream, bool platformMi
 
 		const PxU32 maxIndex = computeMaxIndex(temp, mSVM->mData.mNbVerts);
 		writeDword(maxIndex, platformMismatch, stream);
-		Cm::StoreIndices(PxTo16(maxIndex), mSVM->mData.mNbVerts, temp, stream, platformMismatch);
+		ev4sio_Cm::StoreIndices(PxTo16(maxIndex), mSVM->mData.mNbVerts, temp, stream, platformMismatch);
 
 		PX_FREE(temp);
 	}

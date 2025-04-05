@@ -43,8 +43,8 @@
 #include "GuCapsule.h"
 #include "GuQuery.h"
 
-using namespace physx;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
 
 // PT: TODO: this is copied from SqBounds.h, should be either moved to Gu and shared or passed as a user parameter
 	#define SQ_PRUNER_EPSILON	0.005f

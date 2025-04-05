@@ -30,7 +30,7 @@
 #define PXG_SOLVER_H
 
 
-namespace physx
+namespace ev4sio_physx
 {
 	
 	//this is needed to force PhysXSolverGpu linkage as Static Library!

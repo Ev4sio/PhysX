@@ -33,7 +33,7 @@
 #include "foundation/PxUserAllocated.h"
 #include "foundation/PxUtilities.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 static PxReal computeAngle(const PxVec3* verts, const PxU32* refs, PxU32 vref)
 {
@@ -63,7 +63,7 @@ static PxReal computeAngle(const PxVec3* verts, const PxU32* refs, PxU32 vref)
 	return PxComputeAngle(edge0, edge1);
 }
 
-bool PxBuildSmoothNormals(PxU32 nbTris, PxU32 nbVerts, const PxVec3* verts, const PxU32* dFaces, const PxU16* wFaces, PxVec3* normals, bool flip)
+bool ev4sio_PxBuildSmoothNormals(PxU32 nbTris, PxU32 nbVerts, const PxVec3* verts, const PxU32* dFaces, const PxU16* wFaces, PxVec3* normals, bool flip)
 {
 	if(!verts || !normals || !nbTris || !nbVerts)	
 		return false;

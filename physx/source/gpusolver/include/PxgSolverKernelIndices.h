@@ -29,7 +29,7 @@
 #ifndef PXG_SOLVER_KERNEL_INDICES_H
 #define PXG_SOLVER_KERNEL_INDICES_H
 
-namespace physx
+namespace ev4sio_physx
 {
 
 #define PXG_USE_SHARED_MEMORY_PRE_PREP 0

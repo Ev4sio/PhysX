@@ -33,8 +33,8 @@
 #include "GuTriangleMesh.h"
 #include "GuHeightField.h"
 
-using namespace physx;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
 
 // PT: moved these functions to same file for improving code locality and easily reusing code (calling smaller functions from larger ones, see below)
 
@@ -65,7 +65,7 @@ static void PxcGetMaterialShapeShape(const PxsShapeCore* shape0, const PxsShapeC
 
 static PX_FORCE_INLINE const PxU16* getMaterialIndicesLL(const PxTriangleMeshGeometry& meshGeom)
 {
-	return static_cast<const Gu::TriangleMesh*>(meshGeom.triangleMesh)->getMaterials();
+	return static_cast<const ev4sio_Gu::TriangleMesh*>(meshGeom.triangleMesh)->getMaterials();
 }
 
 static void PxcGetMaterialMesh(const PxsShapeCore* shape, const PxU32 index, const PxContactBuffer& contactBuffer, PxsMaterialInfo* materialInfo)
@@ -142,7 +142,7 @@ static void PxcGetMaterialSoftBodyMesh(const PxsShapeCore* shape0, const PxsShap
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static PxU32 getMaterialIndex(const Gu::HeightFieldData* hfData, PxU32 triangleIndex)
+static PxU32 getMaterialIndex(const ev4sio_Gu::HeightFieldData* hfData, PxU32 triangleIndex)
 {
 	const PxU32 sampleIndex = triangleIndex >> 1;
 	const bool isFirstTriangle = (triangleIndex & 0x1) == 0;
@@ -165,7 +165,7 @@ static void PxcGetMaterialHeightField(const PxsShapeCore* shape, const PxU32 ind
 		const PxU32 count = contactBuffer.count;
 		const PxU16* materialIndices = hfGeom.materialsLL.indices;
 			
-		const Gu::HeightFieldData* hf = &static_cast<const Gu::HeightField*>(hfGeom.heightField)->getData();
+		const ev4sio_Gu::HeightFieldData* hf = &static_cast<const ev4sio_Gu::HeightField*>(hfGeom.heightField)->getData();
 		
 		for(PxU32 i=0; i<count; i++)
 		{
@@ -188,7 +188,7 @@ static void PxcGetMaterialShapeHeightField(const PxsShapeCore* shape0, const Pxs
 		const PxU32 count = contactBuffer.count;
 		const PxU16* materialIndices = hfGeom.materialsLL.indices;
 			
-		const Gu::HeightFieldData* hf = &static_cast<const Gu::HeightField*>(hfGeom.heightField)->getData();
+		const ev4sio_Gu::HeightFieldData* hf = &static_cast<const ev4sio_Gu::HeightField*>(hfGeom.heightField)->getData();
 		
 		for(PxU32 i=0; i<count; i++)
 		{
@@ -215,7 +215,7 @@ static void PxcGetMaterialSoftBodyHeightField(const PxsShapeCore* shape0, const 
 		const PxU32 count = contactBuffer.count;
 		const PxU16* materialIndices = hfGeom.materialsLL.indices;
 
-		const Gu::HeightFieldData* hf = &static_cast<const Gu::HeightField*>(hfGeom.heightField)->getData();
+		const ev4sio_Gu::HeightFieldData* hf = &static_cast<const ev4sio_Gu::HeightField*>(hfGeom.heightField)->getData();
 
 		for(PxU32 i=0; i<count; i++)
 		{
@@ -251,7 +251,7 @@ static void PxcGetMaterialSoftBodySoftBody(const PxsShapeCore* shape0, const Pxs
 
 ///////////////////////////////////////////////////////////////////////////////
 
-namespace physx
+namespace ev4sio_physx
 {
 PxcGetSingleMaterialMethod g_GetSingleMaterialMethodTable[] = 
 {

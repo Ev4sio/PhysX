@@ -29,7 +29,7 @@
 #include "GuIntersectionRayCapsule.h"
 #include "foundation/PxBasicTemplates.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 static bool intersectRaySphere(const PxVec3& rayOrigin, const PxVec3& rayDir, const PxVec3& sphereCenter, float radius2, float& tmin, float& tmax)
 {
@@ -53,7 +53,7 @@ static bool intersectRaySphere(const PxVec3& rayOrigin, const PxVec3& rayDir, co
 	return true;
 }
 
-PxU32 Gu::intersectRayCapsuleInternal(const PxVec3& rayOrigin, const PxVec3& rayDir, const PxVec3& capsuleP0, const PxVec3& capsuleP1, float radius, PxReal s[2])
+PxU32 ev4sio_Gu::intersectRayCapsuleInternal(const PxVec3& rayOrigin, const PxVec3& rayDir, const PxVec3& capsuleP0, const PxVec3& capsuleP1, float radius, PxReal s[2])
 {
 	const float radius2 = radius * radius;
 

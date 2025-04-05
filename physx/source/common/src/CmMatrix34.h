@@ -32,9 +32,9 @@
 #include "foundation/PxMat34.h"
 #include "foundation/PxVecMath.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Cm
+namespace ev4sio_Cm
 {
 
 #if !PX_CUDA_COMPILER
@@ -62,7 +62,7 @@ public:
 };
 #endif
 
-} // namespace Cm
+} // namespace ev4sio_Cm
 
 }
 

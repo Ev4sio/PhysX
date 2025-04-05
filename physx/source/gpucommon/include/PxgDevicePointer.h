@@ -31,7 +31,7 @@
 
 #include "foundation/PxPreprocessor.h"
 
-namespace physx
+namespace ev4sio_physx
 {
     
 	//This should be a basic pointer wrapper that has the same memory footprint as a raw pointer. Please don't add additional members to the struct.

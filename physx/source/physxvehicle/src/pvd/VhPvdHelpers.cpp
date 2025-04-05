@@ -31,7 +31,7 @@
 #include "VhPvdAttributeHandles.h"
 #include "VhPvdObjectHandles.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 namespace vehicle2
 {
@@ -443,4 +443,4 @@ void PxVehiclePvdObjectRelease
 
 
 } // namespace vehicle2
-} // namespace physx
+} // namespace ev4sio_physx

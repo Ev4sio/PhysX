@@ -38,12 +38,12 @@
 #include "GuAABBTreeBounds.h"
 #include "GuAABBTree.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	struct PxBVHInternalData;
 	class PxInputStream;
 
-namespace Gu
+namespace ev4sio_Gu
 {
 	class MeshFactory;
 	struct BVHNode;
@@ -87,7 +87,7 @@ namespace Gu
 	/**
 	\brief Represents a BVH.
 	*/
-	class BVH : public PxBVH, public PxUserAllocated, public Cm::RefCountable
+	class BVH : public PxBVH, public PxUserAllocated, public ev4sio_Cm::RefCountable
 	{
 		public:
 		// PT: TODO: revisit these PX_PHYSX_COMMON_API calls. At the end of the day the issue is that things like PxUserAllocated aren't exported.
@@ -116,9 +116,9 @@ namespace Gu
 		virtual				bool				traverse(TraversalCallback& cb)	const	PX_OVERRIDE;
 		//~PxBVH
 
-		// Cm::RefCountable
+		// ev4sio_Cm::RefCountable
 		virtual				void				onRefCountZero()	PX_OVERRIDE;
-		//~Cm::RefCountable
+		//~ev4sio_Cm::RefCountable
 
 		PX_FORCE_INLINE		const BVHNode*		getNodes()		const	{ return mData.mNodes;		}
 		PX_FORCE_INLINE		const PxU32*		getIndices()	const	{ return mData.mIndices;	}

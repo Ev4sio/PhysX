@@ -40,10 +40,10 @@
 #pragma warning(disable : 4706) // assignment within conditional expression
 #endif
 
-physx::AllocFreeTable& getTempAllocFreeTable();
-physx::Mutex& getTempAllocMutex();
+ev4sio_physx::AllocFreeTable& getTempAllocFreeTable();
+ev4sio_physx::Mutex& getTempAllocMutex();
 
-namespace physx
+namespace ev4sio_physx
 {
 union PxTempAllocatorChunk
 {
@@ -125,9 +125,9 @@ void PxTempAllocator::deallocate(void* ptr)
 	freeTable[index] = chunk;
 }
 
-} // namespace physx
+} // namespace ev4sio_physx
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 void deallocateTempBufferAllocations(AllocFreeTable& mTempAllocFreeTable)
 {

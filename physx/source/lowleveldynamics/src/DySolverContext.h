@@ -31,11 +31,11 @@
 
 #include "DyResidualAccumulator.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	struct PxSolverBodyData;
 
-namespace Dy
+namespace ev4sio_Dy
 {
 	struct ThresholdStreamElement;
 	
@@ -54,9 +54,9 @@ struct SolverContext
 	ThresholdStreamElement* PX_RESTRICT		mSharedThresholdStream;
 	PxU32									mSharedThresholdStreamLength;
 	PxI32*									mSharedOutThresholdPairs;
-	Cm::SpatialVectorF*						deltaV; // used temporarily in PxcFsFlushVelocities
+	ev4sio_Cm::SpatialVectorF*						deltaV; // used temporarily in PxcFsFlushVelocities
 
-	Dy::ErrorAccumulator*					contactErrorAccumulator;
+	ev4sio_Dy::ErrorAccumulator*					contactErrorAccumulator;
 
 	SolverContext() : contactErrorAccumulator(NULL) { }
 };

@@ -33,7 +33,7 @@
 #include "common/PxPhysXCommonConfig.h"
 #include "GuBigConvexData.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	class PxSerializationContext;
 	class PxDeserializationContext;
@@ -60,7 +60,7 @@ namespace physx
 		// Valencies
 		// Data access
 		PX_INLINE	PxU32					GetNbVerts()							const	{ return mData.mNbVerts;										}
-		PX_INLINE	const Gu::Valency*		GetValencies()							const	{ return mData.mValencies;										}
+		PX_INLINE	const ev4sio_Gu::Valency*		GetValencies()							const	{ return mData.mValencies;										}
 		PX_INLINE	PxU16					GetValency(PxU32 i)						const	{ return mData.mValencies[i].mCount;							}
 		PX_INLINE	PxU16					GetOffset(PxU32 i)						const	{ return mData.mValencies[i].mOffset;							}
 		PX_INLINE	const PxU8*				GetAdjacentVerts()						const	{ return mData.mAdjacentVerts;									}
@@ -72,7 +72,7 @@ namespace physx
 					void					exportExtraData(PxSerializationContext& stream);
 					void					importExtraData(PxDeserializationContext& context);
 //~PX_SERIALIZATION
-					Gu::BigConvexRawData	mData;
+					ev4sio_Gu::BigConvexRawData	mData;
 		protected:
 					void*					mVBuffer;
 		// Internal methods

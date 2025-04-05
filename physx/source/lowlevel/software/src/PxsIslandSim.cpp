@@ -31,8 +31,8 @@
 #include "foundation/PxUtilities.h"
 #include "common/PxProfileZone.h"
 
-using namespace physx;
-using namespace IG;
+using namespace ev4sio_physx;
+using namespace ev4sio_IG;
 
 IslandSim::IslandSim(const CPUExternalData& cpuData, GPUExternalData* gpuData, PxU64 contextID) :
 	mNodes					("IslandSim::mNodes"),
@@ -254,7 +254,7 @@ void IslandSim::addConnectionToGraph(EdgeIndex handle)
 
 	struct Local
 	{
-		static PX_FORCE_INLINE void connectEdge(Cm::BlockArray<EdgeInstance>& edgeInstances, EdgeInstanceIndex edgeIndex, Node& source)
+		static PX_FORCE_INLINE void connectEdge(ev4sio_Cm::BlockArray<EdgeInstance>& edgeInstances, EdgeInstanceIndex edgeIndex, Node& source)
 		{
 			EdgeInstance& instance = edgeInstances[edgeIndex];
 
@@ -291,7 +291,7 @@ void IslandSim::addConnectionToGraph(EdgeIndex handle)
 		kinematicKinematicEdge = kinematicKinematicEdge && node.isKinematic();
 	}
 
-	if(activeEdge && (!kinematicKinematicEdge || edge.getEdgeType() == IG::Edge::eCONTACT_MANAGER))
+	if(activeEdge && (!kinematicKinematicEdge || edge.getEdgeType() == ev4sio_IG::Edge::eCONTACT_MANAGER))
 	{				
 		markEdgeActive(handle, nodeIndex1, nodeIndex2);
 		edge.activateEdge();
@@ -353,7 +353,7 @@ void IslandSim::removeConnectionInternal(EdgeIndex edgeIndex)
 
 	struct Local
 	{
-		static void disconnectEdge(Cm::BlockArray<EdgeInstance>& edgeInstances, EdgeInstanceIndex edgeIndex, Node& node)
+		static void disconnectEdge(ev4sio_Cm::BlockArray<EdgeInstance>& edgeInstances, EdgeInstanceIndex edgeIndex, Node& node)
 		{
 			EdgeInstance& instance = edgeInstances[edgeIndex];
 
@@ -482,7 +482,7 @@ PX_FORCE_INLINE void IslandSim::makeEdgeActive(EdgeInstanceIndex index, bool tes
 {
 	const EdgeIndex idx = index / 2;
 	Edge& edge = mEdges[idx];
-	if (!edge.isActive() && (!testEdgeType || (edge.getEdgeType() != IG::Edge::eCONSTRAINT)))
+	if (!edge.isActive() && (!testEdgeType || (edge.getEdgeType() != ev4sio_IG::Edge::eCONSTRAINT)))
 	{
 		//Make the edge active...
 		const PxNodeIndex nodeIndex1 = mCpuData.mEdgeNodeIndices[idx * 2];
@@ -688,7 +688,7 @@ void IslandSim::wakeIslandsInternal(bool flag)
 		{
 			for (PxU32 i = 0, count = mActivatedEdges[a].size(); i < count; ++i)
 			{
-				IG::Edge& edge = mEdges[mActivatedEdges[a][i]];
+				ev4sio_IG::Edge& edge = mEdges[mActivatedEdges[a][i]];
 				edge.mEdgeState &= (~Edge::eACTIVATING);
 			}
 
@@ -1492,7 +1492,7 @@ void IslandSim::processLostEdges(const PxArray<PxNodeIndex>& destroyedNodes, boo
 
 						PX_ASSERT(mNodes[newIsland.mLastNode.index()].mNextNode.index() == PX_INVALID_NODE);
 
-						for (PxU32 j = 0; j < IG::Edge::eEDGE_TYPE_COUNT; ++j)
+						for (PxU32 j = 0; j < ev4sio_IG::Edge::eEDGE_TYPE_COUNT; ++j)
 						{
 							PxArray<EdgeIndex>& splitEdges = mIslandSplitEdges[j];
 							const PxU32 splitEdgeSize = splitEdges.size();
@@ -1868,7 +1868,7 @@ void IslandSim::mergeIslandsInternal(Island& island0, Island& island1, IslandId 
 	mIslandStaticTouchCount[islandId0] += mIslandStaticTouchCount[islandId1];
 
 	//Merge the edge list for the islands...
-	for(PxU32 a = 0; a < IG::Edge::eEDGE_TYPE_COUNT; ++a)
+	for(PxU32 a = 0; a < ev4sio_IG::Edge::eEDGE_TYPE_COUNT; ++a)
 	{
 		if(island0.mLastEdge[a] != IG_INVALID_EDGE)
 		{
@@ -1893,7 +1893,7 @@ void IslandSim::mergeIslandsInternal(Island& island0, Island& island1, IslandId 
 		island1.mEdgeCount[a] = 0;
 	}
 
-	for (PxU32 a = 0; a < IG::Node::eTYPE_COUNT; ++a)
+	for (PxU32 a = 0; a < ev4sio_IG::Node::eTYPE_COUNT; ++a)
 	{
 		island0.mNodeCount[a] += island1.mNodeCount[a];
 		island1.mNodeCount[a] = 0;
@@ -2009,7 +2009,7 @@ void IslandSim::setKinematic(PxNodeIndex nodeIndex)
 				const EdgeInstanceIndex nextId = instance.mNextEdge;
 
 				const PxU32 idx = edgeId/2;
-				IG::Edge& edge = mEdges[edgeId/2];
+				ev4sio_IG::Edge& edge = mEdges[edgeId/2];
 
 				removeEdgeFromIsland(island, idx);
 
@@ -2094,7 +2094,7 @@ void IslandSim::setDynamic(PxNodeIndex nodeIndex)
 			const PxNodeIndex otherNode = mCpuData.mEdgeNodeIndices[edgeId^1];
 
 			const PxU32 idx = edgeId/2;
-			IG::Edge& edge = mEdges[edgeId/2];
+			ev4sio_IG::Edge& edge = mEdges[edgeId/2];
 
 			if(!otherNode.isStaticBody())
 			{

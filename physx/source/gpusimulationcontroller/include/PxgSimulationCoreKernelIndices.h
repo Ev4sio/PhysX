@@ -29,7 +29,7 @@
 #ifndef PXG_SIMULATION_CORE_KERNEL_INDICES_H
 #define PXG_SIMULATION_CORE_KERNEL_INDICES_H
 
-namespace physx
+namespace ev4sio_physx
 {
 
 struct PxgSimulationCoreKernelBlockDim

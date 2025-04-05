@@ -80,9 +80,9 @@
 
 // PT: TODO: don't indent the whole damn file
 
-using namespace physx;
+using namespace ev4sio_physx;
 
-static PX_FORCE_INLINE void getGRBVertexIndices(PxU32& vref0, PxU32& vref1, PxU32& vref2, PxU32 triIndex, const Gu::TriangleMesh* triangleMesh)
+static PX_FORCE_INLINE void getGRBVertexIndices(PxU32& vref0, PxU32& vref1, PxU32& vref2, PxU32 triIndex, const ev4sio_Gu::TriangleMesh* triangleMesh)
 {
 	const PxU32 offset = triIndex * 3;
 	if(triangleMesh->has16BitIndices())
@@ -101,7 +101,7 @@ static PX_FORCE_INLINE void getGRBVertexIndices(PxU32& vref0, PxU32& vref1, PxU3
 	}
 }
 
-namespace physx
+namespace ev4sio_physx
 {
 	extern "C" void initSimulationControllerKernels0();
 	extern "C" void initSimulationControllerKernels1();
@@ -118,7 +118,7 @@ namespace physx
 	}
 
 	PxgSimulationController::PxgSimulationController(PxsKernelWranglerManager* gpuWranglerManager, PxCudaContextManager* cudaContextManager, PxgGpuContext* dynamicContext,
-		PxgNphaseImplementationContext* npContext, Bp::BroadPhase* bp, bool useGpuBroadphase, PxsSimulationControllerCallback* callback,
+		PxgNphaseImplementationContext* npContext, ev4sio_Bp::BroadPhase* bp, bool useGpuBroadphase, PxsSimulationControllerCallback* callback,
 		PxgHeapMemoryAllocatorManager* heapMemoryManager, PxU32 maxSoftBodyContacts, PxU32 maxFemClothContacts, PxU32 maxParticleContacts,
 		PxU32 collisionStackSizeBytes, bool enableBodyAccelerations) :
 		PxsSimulationController(callback, PxIntTrue),
@@ -237,7 +237,7 @@ namespace physx
 		}
 	}
 
-	void PxgSimulationController::addPxgShape(Sc::ShapeSimBase* shapeSimBase, const PxsShapeCore* shapeCore, PxNodeIndex nodeIndex, PxU32 index)
+	void PxgSimulationController::addPxgShape(ev4sio_Sc::ShapeSimBase* shapeSimBase, const PxsShapeCore* shapeCore, PxNodeIndex nodeIndex, PxU32 index)
 	{
 		mSimulationCore->mPxgShapeSimManager.addPxgShape(shapeSimBase, shapeCore, nodeIndex, index);
 	}
@@ -265,15 +265,15 @@ namespace physx
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////articulation
 
-	void PxgSimulationController::addArticulation(Dy::FeatherstoneArticulation* artBase, const PxNodeIndex& nodeIndex)
+	void PxgSimulationController::addArticulation(ev4sio_Dy::FeatherstoneArticulation* artBase, const PxNodeIndex& nodeIndex)
 	{
-		Dy::FeatherstoneArticulation* articulation = static_cast<Dy::FeatherstoneArticulation*>(artBase);
+		ev4sio_Dy::FeatherstoneArticulation* articulation = static_cast<ev4sio_Dy::FeatherstoneArticulation*>(artBase);
 		mBodySimManager.addArticulation(articulation, nodeIndex.index(), getEnableOVDReadback());
 	}
 
-	void PxgSimulationController::releaseArticulation(Dy::FeatherstoneArticulation* artBase, const PxNodeIndex& nodeIndex)
+	void PxgSimulationController::releaseArticulation(ev4sio_Dy::FeatherstoneArticulation* artBase, const PxNodeIndex& nodeIndex)
 	{
-		Dy::FeatherstoneArticulation* articulation = static_cast<Dy::FeatherstoneArticulation*>(artBase);
+		ev4sio_Dy::FeatherstoneArticulation* articulation = static_cast<ev4sio_Dy::FeatherstoneArticulation*>(artBase);
 		mBodySimManager.releaseArticulation(articulation, nodeIndex.index());
 	}
 
@@ -296,13 +296,13 @@ namespace physx
 		}
 	}
 
-	void PxgSimulationController::addSoftBody(Dy::DeformableVolume* deformableVolume, const PxNodeIndex& nodeIndex)
+	void PxgSimulationController::addSoftBody(ev4sio_Dy::DeformableVolume* deformableVolume, const PxNodeIndex& nodeIndex)
 	{
 		createDeformableVolumeCore();
 		mBodySimManager.addSoftBody(deformableVolume, nodeIndex.index());
 	}
 
-	void PxgSimulationController::releaseSoftBody(Dy::DeformableVolume* deformableVolume)
+	void PxgSimulationController::releaseSoftBody(ev4sio_Dy::DeformableVolume* deformableVolume)
 	{
 		mBodySimManager.releaseSoftBody(deformableVolume);
 	}
@@ -312,7 +312,7 @@ namespace physx
 		mBodySimManager.releaseDeferredSoftBodyIds();
 	}
 
-	void PxgSimulationController::activateSoftbody(Dy::DeformableVolume* deformableVolume)
+	void PxgSimulationController::activateSoftbody(ev4sio_Dy::DeformableVolume* deformableVolume)
 	{
 		if (mBodySimManager.activateSoftbody(deformableVolume))
 		{
@@ -341,7 +341,7 @@ namespace physx
 		}
 	}
 
-	void PxgSimulationController::deactivateSoftbody(Dy::DeformableVolume* deformableVolume)
+	void PxgSimulationController::deactivateSoftbody(ev4sio_Dy::DeformableVolume* deformableVolume)
 	{
 		if (mBodySimManager.deactivateSoftbody(deformableVolume))
 		{
@@ -367,17 +367,17 @@ namespace physx
 		}
 	}
 
-	void PxgSimulationController::activateSoftbodySelfCollision(Dy::DeformableVolume* deformableVolume)
+	void PxgSimulationController::activateSoftbodySelfCollision(ev4sio_Dy::DeformableVolume* deformableVolume)
 	{
 		mBodySimManager.activateSoftbodySelfCollision(deformableVolume);
 	}
 
-	void PxgSimulationController::deactivateSoftbodySelfCollision(Dy::DeformableVolume* deformableVolume)
+	void PxgSimulationController::deactivateSoftbodySelfCollision(ev4sio_Dy::DeformableVolume* deformableVolume)
 	{
 		mBodySimManager.deactivateSoftbodySelfCollision(deformableVolume);
 	}
 
-	void PxgSimulationController::setSoftBodyWakeCounter(Dy::DeformableVolume* deformableVolume)
+	void PxgSimulationController::setSoftBodyWakeCounter(ev4sio_Dy::DeformableVolume* deformableVolume)
 	{
 		PxReal wakeCounter = deformableVolume->getCore().wakeCounter;
 		const PxU32 numSoftBodies = mBodySimManager.mTotalNumSoftBodies;
@@ -404,13 +404,13 @@ namespace physx
 		}
 	}
 
-	void PxgSimulationController::addFEMCloth(Dy::DeformableSurface* deformableSurface, const PxNodeIndex& nodeIndex)
+	void PxgSimulationController::addFEMCloth(ev4sio_Dy::DeformableSurface* deformableSurface, const PxNodeIndex& nodeIndex)
 	{
 		createDeformableSurfaceCore();
 		mBodySimManager.addFEMCloth(deformableSurface, nodeIndex.index());
 	}
 
-	void PxgSimulationController::releaseFEMCloth(Dy::DeformableSurface* deformableSurface)
+	void PxgSimulationController::releaseFEMCloth(ev4sio_Dy::DeformableSurface* deformableSurface)
 	{
 		mBodySimManager.releaseFEMCloth(deformableSurface);
 	}
@@ -420,7 +420,7 @@ namespace physx
 		mBodySimManager.releaseDeferredFEMClothIds();
 	}
 
-	void PxgSimulationController::activateCloth(Dy::DeformableSurface* deformableSurface)
+	void PxgSimulationController::activateCloth(ev4sio_Dy::DeformableSurface* deformableSurface)
 	{
 		if (mBodySimManager.activateCloth(deformableSurface))
 		{
@@ -438,7 +438,7 @@ namespace physx
 		}
 	}
 
-	void PxgSimulationController::deactivateCloth(Dy::DeformableSurface* deformableSurface)
+	void PxgSimulationController::deactivateCloth(ev4sio_Dy::DeformableSurface* deformableSurface)
 	{
 		if (mBodySimManager.deactivateCloth(deformableSurface))
 		{
@@ -454,7 +454,7 @@ namespace physx
 		}
 	}
 
-	void PxgSimulationController::setClothWakeCounter(Dy::DeformableSurface* deformableSurface)
+	void PxgSimulationController::setClothWakeCounter(ev4sio_Dy::DeformableSurface* deformableSurface)
 	{
 		PxReal wakeCounter = deformableSurface->getCore().wakeCounter;
 		const PxU32 numClothes = mBodySimManager.mTotalNumFEMCloths;
@@ -469,7 +469,7 @@ namespace physx
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////particle system
 
-	void PxgSimulationController::addParticleSystem(Dy::ParticleSystem* particleSystem, const PxNodeIndex& nodeIndex)
+	void PxgSimulationController::addParticleSystem(ev4sio_Dy::ParticleSystem* particleSystem, const PxNodeIndex& nodeIndex)
 	{
 		if (!mPBDParticleSystemCore)
 		{
@@ -481,7 +481,7 @@ namespace physx
 		mBodySimManager.addPBDParticleSystem(particleSystem, nodeIndex.index());
 	}
 
-	void PxgSimulationController::releaseParticleSystem(Dy::ParticleSystem* particleSystem)
+	void PxgSimulationController::releaseParticleSystem(ev4sio_Dy::ParticleSystem* particleSystem)
 	{
 		mBodySimManager.releasePBDParticleSystem(particleSystem);
 	}
@@ -493,45 +493,45 @@ namespace physx
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////soft body
 
-	void PxgSimulationController::updateDynamic(Dy::FeatherstoneArticulation* articulation, const PxNodeIndex& nodeIndex)
+	void PxgSimulationController::updateDynamic(ev4sio_Dy::FeatherstoneArticulation* articulation, const PxNodeIndex& nodeIndex)
 	{
 		if (articulation)
 		{
-			Dy::FeatherstoneArticulation* featherstoneArtic = static_cast<Dy::FeatherstoneArticulation*>(articulation);
-			featherstoneArtic->raiseGPUDirtyFlag(Dy::ArticulationDirtyFlag::eDIRTY_LINKS);
+			ev4sio_Dy::FeatherstoneArticulation* featherstoneArtic = static_cast<ev4sio_Dy::FeatherstoneArticulation*>(articulation);
+			featherstoneArtic->raiseGPUDirtyFlag(ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_LINKS);
 			mBodySimManager.updateArticulation(featherstoneArtic, nodeIndex.index());
 		}
 		else
 			mBodySimManager.updateBody(nodeIndex);
 	}
 
-	void PxgSimulationController::addJoint(const Dy::Constraint& constraint)
+	void PxgSimulationController::addJoint(const ev4sio_Dy::Constraint& constraint)
 	{
 		mJointManager.registerJoint(constraint);
 	}
 
-	void PxgSimulationController::updateJoint(const PxU32 edgeIndex, Dy::Constraint* constraint)
+	void PxgSimulationController::updateJoint(const PxU32 edgeIndex, ev4sio_Dy::Constraint* constraint)
 	{
 		mJointManager.updateJoint(edgeIndex, constraint);
 	}
 
-	void PxgSimulationController::updateArticulation(Dy::FeatherstoneArticulation* articulation, const PxNodeIndex& nodeIndex)
+	void PxgSimulationController::updateArticulation(ev4sio_Dy::FeatherstoneArticulation* articulation, const PxNodeIndex& nodeIndex)
 	{
-		Dy::FeatherstoneArticulation* featherstoneArtic = static_cast<Dy::FeatherstoneArticulation*>(articulation);
+		ev4sio_Dy::FeatherstoneArticulation* featherstoneArtic = static_cast<ev4sio_Dy::FeatherstoneArticulation*>(articulation);
 		mBodySimManager.updateArticulation(featherstoneArtic, nodeIndex.index());
 	}
 
-	void PxgSimulationController::updateArticulationJoint(Dy::FeatherstoneArticulation* articulation, const PxNodeIndex& nodeIndex)
+	void PxgSimulationController::updateArticulationJoint(ev4sio_Dy::FeatherstoneArticulation* articulation, const PxNodeIndex& nodeIndex)
 	{
-		Dy::FeatherstoneArticulation* featherstoneArtic = static_cast<Dy::FeatherstoneArticulation*>(articulation);
-		featherstoneArtic->raiseGPUDirtyFlag(Dy::ArticulationDirtyFlag::eDIRTY_JOINTS);
+		ev4sio_Dy::FeatherstoneArticulation* featherstoneArtic = static_cast<ev4sio_Dy::FeatherstoneArticulation*>(articulation);
+		featherstoneArtic->raiseGPUDirtyFlag(ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_JOINTS);
 		mBodySimManager.updateArticulation(featherstoneArtic, nodeIndex.index());
 	}
 
-	void PxgSimulationController::updateArticulationExtAccel(Dy::FeatherstoneArticulation* articulation, const PxNodeIndex& nodeIndex)
+	void PxgSimulationController::updateArticulationExtAccel(ev4sio_Dy::FeatherstoneArticulation* articulation, const PxNodeIndex& nodeIndex)
 	{
-		Dy::FeatherstoneArticulation* featherstoneArtic = static_cast<Dy::FeatherstoneArticulation*>(articulation);
-		featherstoneArtic->raiseGPUDirtyFlag(Dy::ArticulationDirtyFlag::eDIRTY_EXT_ACCEL);
+		ev4sio_Dy::FeatherstoneArticulation* featherstoneArtic = static_cast<ev4sio_Dy::FeatherstoneArticulation*>(articulation);
+		featherstoneArtic->raiseGPUDirtyFlag(ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_EXT_ACCEL);
 		mBodySimManager.updateArticulation(featherstoneArtic, nodeIndex.index());
 	}
 
@@ -671,14 +671,14 @@ namespace physx
 			CUresult syncResult = mPBDParticleSystemCore->mCudaContext->streamSynchronize(mPBDParticleSystemCore->getFinalizeStream());
 			
 			if (syncResult != CUDA_SUCCESS)
-				PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "PhysX Internal CUDA error. Simulation can not continue! Error code %i!\n", PxI32(syncResult));
+				ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "PhysX Internal CUDA error. Simulation can not continue! Error code %i!\n", PxI32(syncResult));
 
 			contactCountNeeded = mPBDParticleSystemCore->getHostContactCount();
 		}
 
 		if (contactCountNeeded > mMaxParticleContacts)
 		{
-			PxGetFoundation().error(::physx::PxErrorCode::eINTERNAL_ERROR, PX_FL, "Particle system contact buffer overflow detected, please increase PxGpuDynamicsMemoryConfig::maxParticleContacts to at least %u\n", contactCountNeeded);
+			ev4sio_PxGetFoundation().error(::ev4sio_physx::PxErrorCode::eINTERNAL_ERROR, PX_FL, "Particle system contact buffer overflow detected, please increase PxGpuDynamicsMemoryConfig::maxParticleContacts to at least %u\n", contactCountNeeded);
 		}
 
 		// add to sim stats
@@ -691,10 +691,10 @@ namespace physx
 		mPBDParticleSystemCore->applyParticleBufferDataDEPRECATED(indices, indexPairs, flags, nbUpdatedBuffers, waitEvent, signalEvent);
 	}
 
-	void PxgSimulationController::updateBoundsAndTransformCache(Bp::AABBManagerBase& aabbManager, CUstream npStream,
+	void PxgSimulationController::updateBoundsAndTransformCache(ev4sio_Bp::AABBManagerBase& aabbManager, CUstream npStream,
 																PxsTransformCache& transformCache, PxgCudaBuffer& gpuTransformCache)
 	{
-		Bp::BoundsArray& boundsArray = aabbManager.getBoundsArray();
+		ev4sio_Bp::BoundsArray& boundsArray = aabbManager.getBoundsArray();
 		const PxU32 numBounds = boundsArray.size();
 		const PxU32 boundsArraySize = numBounds * sizeof(PxBounds3);
 		PxU32 totalTransformCacheSize = transformCache.getTotalSize();
@@ -763,7 +763,7 @@ namespace physx
 		PX_ASSERT(result == CUDA_SUCCESS);
 	}
 
-	void PxgSimulationController::copyBoundsAndTransforms(Bp::BoundsArray& boundsArray, PxsTransformCache& transformCache,
+	void PxgSimulationController::copyBoundsAndTransforms(ev4sio_Bp::BoundsArray& boundsArray, PxsTransformCache& transformCache,
 															   PxgCudaBuffer& gpuTransformCache, PxU32 boundsArraySize,
 															   PxU32 totalTransformCacheSize, CUstream npStream)
 	{
@@ -786,7 +786,7 @@ namespace physx
 		}
 	}
 
-	void PxgSimulationController::updateBoundsAndShapes(Bp::AABBManagerBase& aabbManager, bool isDirectApiInitialized)
+	void PxgSimulationController::updateBoundsAndShapes(ev4sio_Bp::AABBManagerBase& aabbManager, bool isDirectApiInitialized)
 	{
 		PxScopedCudaLock _lock(*mCudaContextManager);
 
@@ -879,9 +879,9 @@ namespace physx
 		{
 			const PxgArticulationIndices& index = mBodySimManager.mNewArticulationSims[i];
 
-			Dy::FeatherstoneArticulation* articulation = reinterpret_cast<Dy::FeatherstoneArticulation*>(bodies[index.nodeIndex]);
+			ev4sio_Dy::FeatherstoneArticulation* articulation = reinterpret_cast<ev4sio_Dy::FeatherstoneArticulation*>(bodies[index.nodeIndex]);
 
-			Dy::ArticulationData& data = articulation->getArticulationData();
+			ev4sio_Dy::ArticulationData& data = articulation->getArticulationData();
 
 			const PxU32 nbLinks = data.getLinkCount();
 			const PxU32 nbDofs = data.getDofs();
@@ -897,22 +897,22 @@ namespace physx
 			const PxU32 nbPathToRootElems = data.getPathToRootElementCount();
 			nbNewPathToRoots += nbPathToRootElems;
 
-			Dy::ArticulationSpatialTendon** tendons = data.getSpatialTendons();
+			ev4sio_Dy::ArticulationSpatialTendon** tendons = data.getSpatialTendons();
 
 			for (PxU32 j = 0; j < nbSpatialTendons; ++j)
 			{
-				Dy::ArticulationSpatialTendon* tendon = tendons[j];
+				ev4sio_Dy::ArticulationSpatialTendon* tendon = tendons[j];
 				const PxU32 nbAttachements = tendon->getNumAttachments();
 				nbNewAttachments += nbAttachements;
 
 				maxAttachments = PxMax(maxAttachments, nbAttachements);
 			}
 
-			Dy::ArticulationFixedTendon** fixedTendons = data.getFixedTendons();
+			ev4sio_Dy::ArticulationFixedTendon** fixedTendons = data.getFixedTendons();
 
 			for (PxU32 j = 0; j < nbFixedTendons; ++j)
 			{
-				Dy::ArticulationFixedTendon* tendon = fixedTendons[j];
+				ev4sio_Dy::ArticulationFixedTendon* tendon = fixedTendons[j];
 				const PxU32 nbTendonJoints = tendon->getNumJoints();
 				nbNewTendonJoints += nbTendonJoints;
 
@@ -947,9 +947,9 @@ namespace physx
 		const PxU32 nbUpdatedArticulations = mBodySimManager.mUpdatedArticulations.size();
 		for (PxU32 i = 0; i < nbUpdatedArticulations; ++i)
 		{
-			Dy::FeatherstoneArticulation* articulation = mBodySimManager.mUpdatedArticulations[i].articulation;
+			ev4sio_Dy::FeatherstoneArticulation* articulation = mBodySimManager.mUpdatedArticulations[i].articulation;
 
-			Dy::ArticulationData& data = articulation->getArticulationData();
+			ev4sio_Dy::ArticulationData& data = articulation->getArticulationData();
 			const PxU32 nbLinks = data.getLinkCount();
 			const PxU32 nbDofs = data.getDofs();
 			const PxU32 nbSpatialTendons = data.getSpatialTendonCount();
@@ -963,20 +963,20 @@ namespace physx
 			nbNewFixedTendons += nbFixedTendons;
 			nbNewMimicJoints += nbMimicJoints;
 			
-			Dy::ArticulationSpatialTendon** tendons = data.getSpatialTendons();
+			ev4sio_Dy::ArticulationSpatialTendon** tendons = data.getSpatialTendons();
 
 			for (PxU32 j = 0; j < nbSpatialTendons; ++j)
 			{
-				Dy::ArticulationSpatialTendon* tendon = tendons[j];
+				ev4sio_Dy::ArticulationSpatialTendon* tendon = tendons[j];
 				const PxU32 nbAttachements = tendon->getNumAttachments();
 				nbNewAttachments += nbAttachements;
 			}
 
-			Dy::ArticulationFixedTendon** fixedTendons = data.getFixedTendons();
+			ev4sio_Dy::ArticulationFixedTendon** fixedTendons = data.getFixedTendons();
 
 			for (PxU32 j = 0; j < nbFixedTendons; ++j)
 			{
-				Dy::ArticulationFixedTendon* tendon = fixedTendons[j];
+				ev4sio_Dy::ArticulationFixedTendon* tendon = fixedTendons[j];
 				const PxU32 nbTendonJoints = tendon->getNumJoints();
 				nbNewTendonJoints += nbTendonJoints;
 			}
@@ -1084,7 +1084,7 @@ namespace physx
 
 		const PxU32 maxElementsPerTask = 1024;
 
-		Cm::FlushPool& flushPool = mDynamicContext->getFlushPool();
+		ev4sio_Cm::FlushPool& flushPool = mDynamicContext->getFlushPool();
 
 		PxU32 bodySimOffset = 0;
 
@@ -1154,7 +1154,7 @@ namespace physx
 			mPBDParticleSystemCore->mNewParticleSystemNodeIndexPool.forceSize_Unsafe(nbNewPBDParticleSystems);
 		}
 
-		Cm::FlushPool& flushPool = mDynamicContext->getFlushPool();
+		ev4sio_Cm::FlushPool& flushPool = mDynamicContext->getFlushPool();
 
 		const PxU32 maxParticleSystemPerTask = 50;
 
@@ -1195,7 +1195,7 @@ namespace physx
 		mNewTetMeshByteSizePool.reserve(nbNewSoftBodies);
 		mNewTetMeshByteSizePool.forceSize_Unsafe(nbNewSoftBodies);
 
-		Cm::FlushPool& flushPool = mDynamicContext->getFlushPool();
+		ev4sio_Cm::FlushPool& flushPool = mDynamicContext->getFlushPool();
 
 		const PxU32 maxSoftBodyPerTask = PxgCopyToSoftBodySimTask::NbSoftBodiesPerTask;
 
@@ -1236,7 +1236,7 @@ namespace physx
 		mNewTriangleMeshByteSizePool.reserve(nbNewFEMCloths);
 		mNewTriangleMeshByteSizePool.forceSize_Unsafe(nbNewFEMCloths);
 
-		Cm::FlushPool& flushPool = mDynamicContext->getFlushPool();
+		ev4sio_Cm::FlushPool& flushPool = mDynamicContext->getFlushPool();
 
 		const PxU32 maxFEMClothsPerTask = PxgCopyToFEMClothSimTask::NbFEMClothsPerTask;
 
@@ -1284,9 +1284,9 @@ namespace physx
 
 			PxgArticulation& arti = mArticulationPool[i];
 
-			Dy::FeatherstoneArticulation* articulation = reinterpret_cast<Dy::FeatherstoneArticulation*>(bodySimsLL[index.nodeIndex]);
+			ev4sio_Dy::FeatherstoneArticulation* articulation = reinterpret_cast<ev4sio_Dy::FeatherstoneArticulation*>(bodySimsLL[index.nodeIndex]);
 
-			const Dy::ArticulationCore* core = articulation->getCore();
+			const ev4sio_Dy::ArticulationCore* core = articulation->getCore();
 			//fill in body sim data
 			bodySim.freezeThresholdX_wakeCounterY_sleepThresholdZ_bodySimIndex = make_float4(0.f, core->wakeCounter, core->sleepThreshold, reinterpret_cast<const PxReal&>(index.nodeIndex));
 			bodySim.articulationRemapId = index.remapIndex;
@@ -1296,7 +1296,7 @@ namespace physx
 			//There is no equivalent for rigid dynamics because it processes new and updated bodies into a single function.
 
 			//need to know how many links are in the articulations
-			const Dy::ArticulationData& data = articulation->getArticulationData();
+			const ev4sio_Dy::ArticulationData& data = articulation->getArticulationData();
 			const PxU32 linkCount = data.getLinkCount();
 			const PxU32 spatialTendonCount = data.getSpatialTendonCount();
 			const PxU32 fixedTendonCount = data.getFixedTendonCount();
@@ -1317,7 +1317,7 @@ namespace physx
 			// AD: these comments don't really make sense anymore but leaving them here until we clean up jcalc for real, maybe it'll help understanding things.
 			artiData.confiDirty = true; //when the articulation inserts into the scene, raised this flag will trigger the whole logic in jcal
 			artiData.gpuDirtyFlag = 0; //this flag will trigger copying articulation data to the block format in jcalc in the GPU
-			artiData.updateDirty = 0;// Dy::ArticulationDirtyFlag::eALL;
+			artiData.updateDirty = 0;// ev4sio_Dy::ArticulationDirtyFlag::eALL;
 
 			artiData.flags = data.getArticulationFlags();
 
@@ -1330,13 +1330,13 @@ namespace physx
 
 			for (PxU32 b = 0; b < spatialTendonCount; ++b)
 			{
-				Dy::ArticulationSpatialTendon* tendon = data.getSpatialTendon(b);
+				ev4sio_Dy::ArticulationSpatialTendon* tendon = data.getSpatialTendon(b);
 				nbAttachments += tendon->getNumAttachments();
 			}
 
 			for (PxU32 b = 0; b < fixedTendonCount; ++b)
 			{
-				Dy::ArticulationFixedTendon* tendon = data.getFixedTendon(b);
+				ev4sio_Dy::ArticulationFixedTendon* tendon = data.getFixedTendon(b);
 				nbTendonJoints += tendon->getNumJoints();
 			}
 
@@ -1345,36 +1345,36 @@ namespace physx
 			PxU32 dirtyFlags = articulation->mGPUDirtyFlags;
 
 			//For each dof-based info that is dirty, we must reserve a number of dofs
-			if (dirtyFlags & Dy::ArticulationDirtyFlag::eDIRTY_FORCES)
+			if (dirtyFlags & ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_FORCES)
 				totalDofNeeded += dofs;
-			if (dirtyFlags & Dy::ArticulationDirtyFlag::eDIRTY_VELOCITIES)
+			if (dirtyFlags & ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_VELOCITIES)
 				totalDofNeeded += dofs;
-			if (dirtyFlags & Dy::ArticulationDirtyFlag::eDIRTY_POSITIONS)
+			if (dirtyFlags & ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_POSITIONS)
 				totalDofNeeded += dofs;
-			if (dirtyFlags & Dy::ArticulationDirtyFlag::eDIRTY_JOINT_TARGET_POS)
+			if (dirtyFlags & ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_JOINT_TARGET_POS)
 				totalDofNeeded += dofs;
-			if (dirtyFlags & Dy::ArticulationDirtyFlag::eDIRTY_JOINT_TARGET_VEL)
+			if (dirtyFlags & ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_JOINT_TARGET_VEL)
 				totalDofNeeded += dofs;
 		}
 
-		int32_t linkBegin = physx::PxAtomicAdd(sharedArticulationLinksIndex, int(nbLinks)) - int32_t(nbLinks);
-		PxU32 dofBegin = totalDofNeeded ? PxU32(physx::PxAtomicAdd(sharedArticulationDofIndex, PxI32(totalDofNeeded)) - PxI32(totalDofNeeded)) : 0;
-		int32_t spatialTendonBegin = physx::PxAtomicAdd(sharedArticulationSpatialTendonIndex, int(nbSpatialTendons)) - int32_t(nbSpatialTendons);
-		int32_t attachmentBegin = physx::PxAtomicAdd(sharedArticulationAttachmentIndex, int(nbAttachments)) - int32_t(nbAttachments);
-		int32_t fixedTendonBegin = physx::PxAtomicAdd(sharedArticulationFixedTendonIndex, int(nbFixedTendons)) - int32_t(nbFixedTendons);
-		int32_t tendonJointBegin = physx::PxAtomicAdd(sharedArticulationTendonJointIndex, int(nbTendonJoints)) - int32_t(nbTendonJoints);
-		int32_t mimicJointBegin = physx::PxAtomicAdd(sharedArticulationMimicJointIndex, int(nbMimicJoints)) - int32_t(nbMimicJoints);
-		int32_t pathToRootBegin = physx::PxAtomicAdd(sharedArticulationPathToRootIndex, int(nbPathToRoot)) - int32_t(nbPathToRoot);
+		int32_t linkBegin = ev4sio_physx::PxAtomicAdd(sharedArticulationLinksIndex, int(nbLinks)) - int32_t(nbLinks);
+		PxU32 dofBegin = totalDofNeeded ? PxU32(ev4sio_physx::PxAtomicAdd(sharedArticulationDofIndex, PxI32(totalDofNeeded)) - PxI32(totalDofNeeded)) : 0;
+		int32_t spatialTendonBegin = ev4sio_physx::PxAtomicAdd(sharedArticulationSpatialTendonIndex, int(nbSpatialTendons)) - int32_t(nbSpatialTendons);
+		int32_t attachmentBegin = ev4sio_physx::PxAtomicAdd(sharedArticulationAttachmentIndex, int(nbAttachments)) - int32_t(nbAttachments);
+		int32_t fixedTendonBegin = ev4sio_physx::PxAtomicAdd(sharedArticulationFixedTendonIndex, int(nbFixedTendons)) - int32_t(nbFixedTendons);
+		int32_t tendonJointBegin = ev4sio_physx::PxAtomicAdd(sharedArticulationTendonJointIndex, int(nbTendonJoints)) - int32_t(nbTendonJoints);
+		int32_t mimicJointBegin = ev4sio_physx::PxAtomicAdd(sharedArticulationMimicJointIndex, int(nbMimicJoints)) - int32_t(nbMimicJoints);
+		int32_t pathToRootBegin = ev4sio_physx::PxAtomicAdd(sharedArticulationPathToRootIndex, int(nbPathToRoot)) - int32_t(nbPathToRoot);
 
 		for (PxU32 i = startIndex; i < endIndex; ++i)
 		{
 			//index is the node index
 			const PxU32 nodeIndex = newArticulationSims[i].nodeIndex;
 
-			Dy::FeatherstoneArticulation* articulation = reinterpret_cast<Dy::FeatherstoneArticulation*>(bodySimsLL[nodeIndex]);
+			ev4sio_Dy::FeatherstoneArticulation* articulation = reinterpret_cast<ev4sio_Dy::FeatherstoneArticulation*>(bodySimsLL[nodeIndex]);
 
 			//need to know how many links are in the articulations
-			const Dy::ArticulationData& data = articulation->getArticulationData();
+			const ev4sio_Dy::ArticulationData& data = articulation->getArticulationData();
 
 			PxgArticulationSimUpdate& update = mLinkJointIndexPool[i];
 
@@ -1390,7 +1390,7 @@ namespace physx
 			const PxU32 spatialTendonCount = data.getSpatialTendonCount();
 			for (PxU32 a = 0; a < spatialTendonCount; ++a)
 			{
-				Dy::ArticulationSpatialTendon* cpuTendon = data.getSpatialTendon(a);
+				ev4sio_Dy::ArticulationSpatialTendon* cpuTendon = data.getSpatialTendon(a);
 				const PxU32 index = spatialTendonBegin + a;
 
 				PxGpuSpatialTendonData& tendonParam = mSpatialTendonParamPool[index];
@@ -1407,7 +1407,7 @@ namespace physx
 
 				for (PxU32 b = 0; b < numAttachments; ++b)
 				{
-					Dy::ArticulationAttachment& cpuAttachment = cpuTendon->getAttachment(b);
+					ev4sio_Dy::ArticulationAttachment& cpuAttachment = cpuTendon->getAttachment(b);
 					const PxU32 attachIndex = attachmentBegin + b;
 					PxgArticulationTendonElementFixedData& fData = mAttachmentFixedPool[attachIndex];
 					PxGpuTendonAttachmentData& mData = mAttachmentModPool[attachIndex];
@@ -1432,7 +1432,7 @@ namespace physx
 			const PxU32 fixedTendonCount = data.getFixedTendonCount();
 			for (PxU32 a = 0; a < fixedTendonCount; ++a)
 			{
-				Dy::ArticulationFixedTendon* cpuTendon = data.getFixedTendon(a);
+				ev4sio_Dy::ArticulationFixedTendon* cpuTendon = data.getFixedTendon(a);
 				const PxU32 index = fixedTendonBegin + a;
 
 				PxGpuFixedTendonData& tendonParam = mFixedTendonParamPool[index];
@@ -1452,7 +1452,7 @@ namespace physx
 
 				for (PxU32 b = 0; b < numJoints; ++b)
 				{
-					Dy::ArticulationTendonJoint& cpuTendonJoint = cpuTendon->getTendonJoint(b);
+					ev4sio_Dy::ArticulationTendonJoint& cpuTendonJoint = cpuTendon->getTendonJoint(b);
 					const PxU32 tendonJointIndex = tendonJointBegin + b;
 					PxgArticulationTendonElementFixedData& fixedData = mTendonJointFixedDataPool[tendonJointIndex];
 
@@ -1475,7 +1475,7 @@ namespace physx
 			const PxU32 linkCount = data.getLinkCount();
 			for (PxU32 a = 0; a < linkCount; ++a)
 			{
-				Dy::ArticulationLink& cpuLink = data.getLink(a);
+				ev4sio_Dy::ArticulationLink& cpuLink = data.getLink(a);
 
 				const PxU32 index = linkBegin + a;
 				PxgArticulationLink& link = mLinksPool[index];
@@ -1483,8 +1483,8 @@ namespace physx
 				PxReal& linkWakeCounter = mLinkWakeCounterPool[index];
 				PxTransform& body2World = mLinkBody2WorldPool[index];
 				PxTransform& body2Actor = mLinkBody2ActorPool[index];
-				Cm::UnAlignedSpatialVector& accel = mLinkAccelPool[index];
-				const Cm::SpatialVector& inAccel = data.getExternalAcceleration(a);
+				ev4sio_Cm::UnAlignedSpatialVector& accel = mLinkAccelPool[index];
+				const ev4sio_Cm::SpatialVector& inAccel = data.getExternalAcceleration(a);
 				accel.top = inAccel.linear;
 				accel.bottom = inAccel.angular;
 
@@ -1524,8 +1524,8 @@ namespace physx
 				linkProp.invInertia = core.inverseInertia;
 				linkProp.invMass = core.inverseMass;
 
-				Dy::ArticulationJointCore* joint = cpuLink.inboundJoint;
-				Dy::ArticulationJointCoreData& jointDatum = data.getJointData(a);
+				ev4sio_Dy::ArticulationJointCore* joint = cpuLink.inboundJoint;
+				ev4sio_Dy::ArticulationJointCoreData& jointDatum = data.getJointData(a);
 
 				if (joint)
 				{
@@ -1545,27 +1545,27 @@ namespace physx
 
 			if (dofs)
 			{
-				if (dirtyFlags & Dy::ArticulationDirtyFlag::eDIRTY_POSITIONS)
+				if (dirtyFlags & ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_POSITIONS)
 				{
 					PxMemCopy(&mArticulationDofDataPool[dofBegin], data.getJointPositions(), dofs * sizeof(PxReal));
 					dofBegin += dofs;
 				}
-				if (dirtyFlags & Dy::ArticulationDirtyFlag::eDIRTY_VELOCITIES)
+				if (dirtyFlags & ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_VELOCITIES)
 				{
 					PxMemCopy(&mArticulationDofDataPool[dofBegin], data.getJointVelocities(), dofs * sizeof(PxReal));
 					dofBegin += dofs;
 				}
-				if (dirtyFlags & Dy::ArticulationDirtyFlag::eDIRTY_FORCES)
+				if (dirtyFlags & ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_FORCES)
 				{
 					PxMemCopy(&mArticulationDofDataPool[dofBegin], data.getJointForces(), dofs * sizeof(PxReal));
 					dofBegin += dofs;
 				}
-				if (dirtyFlags & Dy::ArticulationDirtyFlag::eDIRTY_JOINT_TARGET_POS)
+				if (dirtyFlags & ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_JOINT_TARGET_POS)
 				{
 					PxMemCopy(&mArticulationDofDataPool[dofBegin], data.getJointTargetPositions(), dofs * sizeof(PxReal));
 					dofBegin += dofs;
 				}
-				if (dirtyFlags & Dy::ArticulationDirtyFlag::eDIRTY_JOINT_TARGET_VEL)
+				if (dirtyFlags & ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_JOINT_TARGET_VEL)
 				{
 					PxMemCopy(&mArticulationDofDataPool[dofBegin], data.getJointTargetVelocities(), dofs * sizeof(PxReal));
 					dofBegin += dofs;
@@ -1575,10 +1575,10 @@ namespace physx
 			const PxU32 mimicJointCount = data.getMimicJointCount();
 			if(mimicJointCount)
 			{
-				Dy::ArticulationMimicJointCore** cpuMimicJointCores = data.getMimicJointCores();
+				ev4sio_Dy::ArticulationMimicJointCore** cpuMimicJointCores = data.getMimicJointCores();
 				for(PxU32 a = 0; a < mimicJointCount; a++)
 				{
-					const Dy::ArticulationMimicJointCore& cpuMimicJointCore = *cpuMimicJointCores[a];
+					const ev4sio_Dy::ArticulationMimicJointCore& cpuMimicJointCore = *cpuMimicJointCores[a];
 					mMimicJointPool[a + mimicJointBegin] = cpuMimicJointCore;
 				}
 				mimicJointBegin += mimicJointCount;
@@ -1616,17 +1616,17 @@ namespace physx
 
 			mNewSoftBodyNodeIndexPool[i] = index.nodeIndex;
 
-			Dy::DeformableVolume* deformableVolume = reinterpret_cast<Dy::DeformableVolume*>(bodySimsLL[index.nodeIndex]);
+			ev4sio_Dy::DeformableVolume* deformableVolume = reinterpret_cast<ev4sio_Dy::DeformableVolume*>(bodySimsLL[index.nodeIndex]);
 
 			PxTetrahedronMeshGeometryLL& tetGeom = deformableVolume->getShapeCore().mGeometry.get<PxTetrahedronMeshGeometryLL>();
-			const Gu::BVTetrahedronMesh* colTetMesh = static_cast<const Gu::BVTetrahedronMesh*>(Gu::_getTetraMeshData(tetGeom));
+			const ev4sio_Gu::BVTetrahedronMesh* colTetMesh = static_cast<const ev4sio_Gu::BVTetrahedronMesh*>(ev4sio_Gu::_getTetraMeshData(tetGeom));
 
 			//copy tetMesh data to mapped memory
 			PxU32 byteSize = PxgSoftBodyUtil::computeTetMeshByteSize(colTetMesh);
 			byteSize = (byteSize + 255) & ~255;
 
-			const Gu::TetrahedronMesh* simTetMesh = static_cast<const Gu::TetrahedronMesh*>(deformableVolume->getSimulationMesh());
-			const Gu::DeformableVolumeAuxData* softBodyAuxData = static_cast<const Gu::DeformableVolumeAuxData*>(deformableVolume->getAuxData());
+			const ev4sio_Gu::TetrahedronMesh* simTetMesh = static_cast<const ev4sio_Gu::TetrahedronMesh*>(deformableVolume->getSimulationMesh());
+			const ev4sio_Gu::DeformableVolumeAuxData* softBodyAuxData = static_cast<const ev4sio_Gu::DeformableVolumeAuxData*>(deformableVolume->getAuxData());
 
 			const PxU32 nbTets = colTetMesh->getNbTetrahedronsFast();
 			gpuSoftBody.mTetIndices = reinterpret_cast<uint4*>( alloc->allocate(sizeof(uint4) * nbTets, PxsHeapStats::eSIMULATION_SOFTBODY, PX_FL));
@@ -1676,7 +1676,7 @@ namespace physx
 				gpuSoftBody.mSimAccumulatedCopiesCP = reinterpret_cast<PxU32*>(alloc->allocate(sizeof(PxU32) * nbVertsGM, PxsHeapStats::eSIMULATION_SOFTBODY, PX_FL));
 			}
 
-			const Dy::DeformableVolumeCore& core = deformableVolume->getCore();
+			const ev4sio_Dy::DeformableVolumeCore& core = deformableVolume->getCore();
 
 			PxgSoftBodyUtil::initialTetData(gpuSoftBody, colTetMesh, simTetMesh, softBodyAuxData, 
 				core.materialHandles.begin(), alloc);
@@ -1754,9 +1754,9 @@ namespace physx
 
 			mNewFEMClothNodeIndexPool[i] = index.nodeIndex;
 
-			Dy::DeformableSurface* deformableSurface = reinterpret_cast<Dy::DeformableSurface*>(bodySimsLL[index.nodeIndex]);
+			ev4sio_Dy::DeformableSurface* deformableSurface = reinterpret_cast<ev4sio_Dy::DeformableSurface*>(bodySimsLL[index.nodeIndex]);
 
-			const Dy::DeformableSurfaceCore& core = deformableSurface->getCore();
+			const ev4sio_Dy::DeformableSurfaceCore& core = deformableSurface->getCore();
 
 			gpuFEMCloth.mLinearDamping = core.linearDamping;
 			gpuFEMCloth.mMaxLinearVelocity = core.maxLinearVelocity;
@@ -1774,7 +1774,7 @@ namespace physx
 			gpuFEMCloth.mNbCollisionSubsteps = core.nbCollisionSubsteps;
 
 			PxTriangleMeshGeometryLL& triangleGeom = deformableSurface->getShapeCore().mGeometry.get<PxTriangleMeshGeometryLL>();
-			const Gu::TriangleMesh* const triangleMesh = _getMeshData(triangleGeom);
+			const ev4sio_Gu::TriangleMesh* const triangleMesh = _getMeshData(triangleGeom);
 
 			// copy triangleMesh data to mapped memory
 			PxU32 byteSize = PxgFEMClothUtil::computeTriangleMeshByteSize(triangleMesh);
@@ -1918,38 +1918,38 @@ namespace physx
 		{
 			//Sum up number of links
 
-			Dy::FeatherstoneArticulation* artic = updatedArtics[i].articulation;
-			Dy::ArticulationData& data = artic->getArticulationData();
+			ev4sio_Dy::FeatherstoneArticulation* artic = updatedArtics[i].articulation;
+			ev4sio_Dy::ArticulationData& data = artic->getArticulationData();
 
 			PxU32 dirtyFlags = artic->mGPUDirtyFlags;
 
 			//If we have dirty joints or dirty root link, we need to reserve space for the links in the articulation
-			if (dirtyFlags & Dy::ArticulationDirtyFlag::eDIRTY_JOINTS || dirtyFlags & Dy::ArticulationDirtyFlag::eDIRTY_LINKS
-				|| dirtyFlags & Dy::ArticulationDirtyFlag::eDIRTY_POSITIONS || dirtyFlags & Dy::ArticulationDirtyFlag::eDIRTY_EXT_ACCEL)
+			if (dirtyFlags & ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_JOINTS || dirtyFlags & ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_LINKS
+				|| dirtyFlags & ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_POSITIONS || dirtyFlags & ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_EXT_ACCEL)
 				totalLinks += data.getLinkCount();
-			else if (dirtyFlags & Dy::ArticulationDirtyFlag::eDIRTY_ROOT_TRANSFORM
-				|| dirtyFlags & Dy::ArticulationDirtyFlag::eDIRTY_ROOT_VELOCITIES)
+			else if (dirtyFlags & ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_ROOT_TRANSFORM
+				|| dirtyFlags & ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_ROOT_VELOCITIES)
 				totalLinks++; //We need space for the root
 
 			// need to check for tendon flags individually as combinations of them may be raised:
-			if(dirtyFlags & Dy::ArticulationDirtyFlag::eDIRTY_SPATIAL_TENDON)
+			if(dirtyFlags & ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_SPATIAL_TENDON)
 				totalSpatialTendon += data.getSpatialTendonCount();
-			if(dirtyFlags & Dy::ArticulationDirtyFlag::eDIRTY_SPATIAL_TENDON_ATTACHMENT)
+			if(dirtyFlags & ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_SPATIAL_TENDON_ATTACHMENT)
 			{
 				PxU32 numAttachments = 0u;
-				Dy::ArticulationSpatialTendon** spatialTendons = data.getSpatialTendons();
+				ev4sio_Dy::ArticulationSpatialTendon** spatialTendons = data.getSpatialTendons();
 				for(PxU32 j = 0u; j < data.getSpatialTendonCount(); ++j)
 				{
 					numAttachments += spatialTendons[j]->getNumAttachments();
 				}
 				totalAttachments += numAttachments;
 			}
-			if(dirtyFlags & Dy::ArticulationDirtyFlag::eDIRTY_FIXED_TENDON)
+			if(dirtyFlags & ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_FIXED_TENDON)
 				totalFixedTendon += data.getFixedTendonCount();
-			if(dirtyFlags & Dy::ArticulationDirtyFlag::eDIRTY_FIXED_TENDON_JOINT)
+			if(dirtyFlags & ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_FIXED_TENDON_JOINT)
 			{
 				PxU32 numTendonJoints = 0u;
-				Dy::ArticulationFixedTendon** fixedTendons = data.getFixedTendons();
+				ev4sio_Dy::ArticulationFixedTendon** fixedTendons = data.getFixedTendons();
 				for(PxU32 j = 0u; j < data.getFixedTendonCount(); ++j)
 				{
 					numTendonJoints += fixedTendons[j]->getNumJoints();
@@ -1957,36 +1957,36 @@ namespace physx
 				totalTendonJoints += numTendonJoints;
 			}
 
-			if(dirtyFlags & Dy::ArticulationDirtyFlag::eDIRTY_MIMIC_JOINT)
+			if(dirtyFlags & ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_MIMIC_JOINT)
 				totalMimicJoints += data.getMimicJointCount();
 
 			const PxU32 dofs = artic->getArticulationData().getDofs();
 
 			//For each dof-based info that is dirty, we must reserve a number of dofs
-			if (dirtyFlags & Dy::ArticulationDirtyFlag::eDIRTY_FORCES)
+			if (dirtyFlags & ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_FORCES)
 				totalDofNeeded += dofs;
-			if (dirtyFlags & Dy::ArticulationDirtyFlag::eDIRTY_VELOCITIES)
+			if (dirtyFlags & ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_VELOCITIES)
 				totalDofNeeded += dofs;
-			if (dirtyFlags & Dy::ArticulationDirtyFlag::eDIRTY_POSITIONS)
+			if (dirtyFlags & ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_POSITIONS)
 				totalDofNeeded += dofs;
-			if (dirtyFlags & Dy::ArticulationDirtyFlag::eDIRTY_JOINT_TARGET_POS)
+			if (dirtyFlags & ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_JOINT_TARGET_POS)
 				totalDofNeeded += dofs;
-			if (dirtyFlags & Dy::ArticulationDirtyFlag::eDIRTY_JOINT_TARGET_VEL)
+			if (dirtyFlags & ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_JOINT_TARGET_VEL)
 				totalDofNeeded += dofs;
 		}
 
 		//Output index in dirty buffer...
-		PxU32 linkBegin = totalLinks ? PxU32(physx::PxAtomicAdd(sharedArticulationLinksIndex, PxI32(totalLinks)) - PxI32(totalLinks)) : 0;
-		PxU32 dofBegin = totalDofNeeded ? PxU32(physx::PxAtomicAdd(sharedArticulationDofIndex, PxI32(totalDofNeeded)) - PxI32(totalDofNeeded)) : 0;
-		PxU32 spatialTendonBegin = totalSpatialTendon ? PxU32(physx::PxAtomicAdd(sharedSpatialIndex, PxI32(totalSpatialTendon)) - PxI32(totalSpatialTendon)) : 0;
-		PxU32 spatialTendonAttachmentBegin = totalAttachments ? PxU32(physx::PxAtomicAdd(sharedAttachmentIndex, PxI32(totalAttachments)) - PxI32(totalAttachments)) : 0;
-		PxU32 fixedTendonBegin = totalFixedTendon ? PxU32(physx::PxAtomicAdd(sharedFixedIndex, PxI32(totalFixedTendon)) - PxI32(totalFixedTendon)) : 0;
-		PxU32 fixedTendonJointBegin = totalTendonJoints ? PxU32(physx::PxAtomicAdd(sharedFixedTendonJointIndex, PxI32(totalTendonJoints)) - PxI32(totalTendonJoints)) : 0;
-		PxU32 mimicJointBegin = totalMimicJoints ? PxU32(physx::PxAtomicAdd(sharedMimicJointIndex, PxI32(totalMimicJoints)) - PxI32(totalMimicJoints)) : 0;
+		PxU32 linkBegin = totalLinks ? PxU32(ev4sio_physx::PxAtomicAdd(sharedArticulationLinksIndex, PxI32(totalLinks)) - PxI32(totalLinks)) : 0;
+		PxU32 dofBegin = totalDofNeeded ? PxU32(ev4sio_physx::PxAtomicAdd(sharedArticulationDofIndex, PxI32(totalDofNeeded)) - PxI32(totalDofNeeded)) : 0;
+		PxU32 spatialTendonBegin = totalSpatialTendon ? PxU32(ev4sio_physx::PxAtomicAdd(sharedSpatialIndex, PxI32(totalSpatialTendon)) - PxI32(totalSpatialTendon)) : 0;
+		PxU32 spatialTendonAttachmentBegin = totalAttachments ? PxU32(ev4sio_physx::PxAtomicAdd(sharedAttachmentIndex, PxI32(totalAttachments)) - PxI32(totalAttachments)) : 0;
+		PxU32 fixedTendonBegin = totalFixedTendon ? PxU32(ev4sio_physx::PxAtomicAdd(sharedFixedIndex, PxI32(totalFixedTendon)) - PxI32(totalFixedTendon)) : 0;
+		PxU32 fixedTendonJointBegin = totalTendonJoints ? PxU32(ev4sio_physx::PxAtomicAdd(sharedFixedTendonJointIndex, PxI32(totalTendonJoints)) - PxI32(totalTendonJoints)) : 0;
+		PxU32 mimicJointBegin = totalMimicJoints ? PxU32(ev4sio_physx::PxAtomicAdd(sharedMimicJointIndex, PxI32(totalMimicJoints)) - PxI32(totalMimicJoints)) : 0;
 
 		for (PxU32 i = 0; i < nbToCopy; ++i)
 		{
-			Dy::FeatherstoneArticulation* artic = updatedArtics[i].articulation;
+			ev4sio_Dy::FeatherstoneArticulation* artic = updatedArtics[i].articulation;
 
 			//Copy data...
 			PxU32 dirtyFlags = artic->mGPUDirtyFlags;
@@ -2003,17 +2003,17 @@ namespace physx
 			update.fixedTendonJointStartIndex = fixedTendonJointBegin;
 			update.mimicJointStartIndex = mimicJointBegin;
 
-			const Dy::ArticulationData& data = artic->getArticulationData();
+			const ev4sio_Dy::ArticulationData& data = artic->getArticulationData();
 			const PxU32 dofs = data.getDofs();
 			//If we have dirty joints or dirty root link, we need to reserve space for the links in the articulation
-			if (dirtyFlags & (Dy::ArticulationDirtyFlag::eDIRTY_JOINTS | Dy::ArticulationDirtyFlag::eDIRTY_LINKS))
+			if (dirtyFlags & (ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_JOINTS | ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_LINKS))
 			{
 				const PxU32 linkCount = data.getLinkCount();
 				for (PxU32 a = 0; a < linkCount; ++a)
 				{
-					Dy::ArticulationLink& cpuLink = data.getLink(a);
+					ev4sio_Dy::ArticulationLink& cpuLink = data.getLink(a);
 
-					if (dirtyFlags & Dy::ArticulationDirtyFlag::eDIRTY_LINKS)
+					if (dirtyFlags & ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_LINKS)
 					{
 						const PxU32 index = linkBegin + a;
 						PxgArticulationLink& link = mLinksPool[index];
@@ -2049,10 +2049,10 @@ namespace physx
 					}
 
 					//Skip root link because it doesn't have any joints
-					if ((dirtyFlags & Dy::ArticulationDirtyFlag::eDIRTY_JOINTS) && a != 0)
+					if ((dirtyFlags & ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_JOINTS) && a != 0)
 					{
-						Dy::ArticulationJointCore* joint = cpuLink.inboundJoint;
-						Dy::ArticulationJointCoreData& jointDatum = data.getJointData(a);
+						ev4sio_Dy::ArticulationJointCore* joint = cpuLink.inboundJoint;
+						ev4sio_Dy::ArticulationJointCoreData& jointDatum = data.getJointData(a);
 
 						// AD hack/remove again: if we have dirty joints, we always raise the frame flag because we might have to recompute motionMatrix and RelativeQuats. 
 						// this could have been lowered again already though because we might have done jcalc on CPU.
@@ -2070,12 +2070,12 @@ namespace physx
 
 			//KS - if we didn't update links above, we need to check to see if root transforms or joint positions changed, in which case
 			//link states still need updating...
-			if (!(dirtyFlags & (Dy::ArticulationDirtyFlag::eDIRTY_LINKS)))
+			if (!(dirtyFlags & (ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_LINKS)))
 			{
-				if (dirtyFlags & Dy::ArticulationDirtyFlag::eDIRTY_ROOT_TRANSFORM
-					|| dirtyFlags & Dy::ArticulationDirtyFlag::eDIRTY_ROOT_VELOCITIES)
+				if (dirtyFlags & ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_ROOT_TRANSFORM
+					|| dirtyFlags & ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_ROOT_VELOCITIES)
 				{
-					Dy::ArticulationLink& cpuLink = data.getLink(0);
+					ev4sio_Dy::ArticulationLink& cpuLink = data.getLink(0);
 
 					const PxU32 index = linkBegin;
 					PxgArticulationLink& link = mLinksPool[index];
@@ -2103,18 +2103,18 @@ namespace physx
 					linkProp.invInertia = core.inverseInertia;
 					linkProp.invMass = core.inverseMass;
 
-					if (!(dirtyFlags & Dy::ArticulationDirtyFlag::eDIRTY_POSITIONS))
+					if (!(dirtyFlags & ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_POSITIONS))
 						linkBegin++;
 				}
 
-				if (dirtyFlags & Dy::ArticulationDirtyFlag::eDIRTY_POSITIONS)
+				if (dirtyFlags & ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_POSITIONS)
 				{
 					const PxU32 linkCount = data.getLinkCount();
 					PxU32 index = update.linkStartIndex;
 
 					for (PxU32 a = 0; a < linkCount; ++a)
 					{
-						Dy::ArticulationLink& cpuLink = data.getLink(a);
+						ev4sio_Dy::ArticulationLink& cpuLink = data.getLink(a);
 
 						PxTransform& body2World = mLinkBody2WorldPool[index++];
 						PxsBodyCore& core = *cpuLink.bodyCore;
@@ -2125,7 +2125,7 @@ namespace physx
 				}
 			}
 
-			if (dirtyFlags & Dy::ArticulationDirtyFlag::eDIRTY_WAKECOUNTER)
+			if (dirtyFlags & ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_WAKECOUNTER)
 			{
 				const PxU32 linkCount = data.getLinkCount();
 				PxU32 index = update.linkStartIndex;
@@ -2138,34 +2138,34 @@ namespace physx
 				}
 			}
 
-			if (dirtyFlags & Dy::ArticulationDirtyFlag::eDIRTY_USER_FLAGS)
+			if (dirtyFlags & ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_USER_FLAGS)
 			{
 				update.userFlags = artic->getCore()->flags;
 			}
 
-			if(dirtyFlags & Dy::ArticulationDirtyFlag::eDIRTY_MIMIC_JOINT)
+			if(dirtyFlags & ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_MIMIC_JOINT)
 			{
-				Dy::ArticulationMimicJointCore** cpuMimicJointCores = data.getMimicJointCores(); 
+				ev4sio_Dy::ArticulationMimicJointCore** cpuMimicJointCores = data.getMimicJointCores(); 
 				const PxU32 mimicJointCount = data.getMimicJointCount();
 				PxU32 index = update.mimicJointStartIndex;
 				for(PxU32 a = 0; a < mimicJointCount; a++)
 				{
-					const Dy::ArticulationMimicJointCore& cpuMimicJointCore = *cpuMimicJointCores[a];
-					Dy::ArticulationMimicJointCore& mimicJointCore = mMimicJointPool[index++];
+					const ev4sio_Dy::ArticulationMimicJointCore& cpuMimicJointCore = *cpuMimicJointCores[a];
+					ev4sio_Dy::ArticulationMimicJointCore& mimicJointCore = mMimicJointPool[index++];
 					mimicJointCore = cpuMimicJointCore;
 				}
 				mimicJointBegin += mimicJointCount;
 			}
 
-			if (dirtyFlags & Dy::ArticulationDirtyFlag::eDIRTY_SPATIAL_TENDON)
+			if (dirtyFlags & ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_SPATIAL_TENDON)
 			{
 				const PxU32 tendonCount = data.getSpatialTendonCount();
 				PxU32 index = update.spatialTendonStartIndex;
-				Dy::ArticulationSpatialTendon** spatialTendons = data.getSpatialTendons();
+				ev4sio_Dy::ArticulationSpatialTendon** spatialTendons = data.getSpatialTendons();
 
 				for (PxU32 a = 0; a < tendonCount; ++a)
 				{
-					Dy::ArticulationSpatialTendon* cpuTendon = spatialTendons[a];
+					ev4sio_Dy::ArticulationSpatialTendon* cpuTendon = spatialTendons[a];
 					PxGpuSpatialTendonData& tendon = mSpatialTendonParamPool[index++];
 					tendon.damping = cpuTendon->mDamping;
 					tendon.stiffness = cpuTendon->mStiffness;
@@ -2175,21 +2175,21 @@ namespace physx
 				spatialTendonBegin += tendonCount;
 			}
 
-			if (dirtyFlags & Dy::ArticulationDirtyFlag::eDIRTY_SPATIAL_TENDON_ATTACHMENT)
+			if (dirtyFlags & ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_SPATIAL_TENDON_ATTACHMENT)
 			{
 				const PxU32 tendonCount = data.getSpatialTendonCount();
 				PxU32 index = update.spatialTendonAttachmentStartIndex;
-				Dy::ArticulationSpatialTendon** spatialTendons = data.getSpatialTendons();
+				ev4sio_Dy::ArticulationSpatialTendon** spatialTendons = data.getSpatialTendons();
 
 				for (PxU32 a = 0; a < tendonCount; ++a)
 				{
-					Dy::ArticulationSpatialTendon* cpuTendon = spatialTendons[a];
+					ev4sio_Dy::ArticulationSpatialTendon* cpuTendon = spatialTendons[a];
 
 					const PxU32 numAttachments = cpuTendon->getNumAttachments();
 
 					for (PxU32 b = 0; b < numAttachments; ++b)
 					{
-						Dy::ArticulationAttachment& cpuAttachment = cpuTendon->getAttachment(b);
+						ev4sio_Dy::ArticulationAttachment& cpuAttachment = cpuTendon->getAttachment(b);
 						const PxU32 tendonJointIndex = index + b;
 
 						PxGpuTendonAttachmentData& cData = mAttachmentModPool[tendonJointIndex];
@@ -2205,15 +2205,15 @@ namespace physx
 				spatialTendonAttachmentBegin = index;
 			}
 
-			if (dirtyFlags & Dy::ArticulationDirtyFlag::eDIRTY_FIXED_TENDON)
+			if (dirtyFlags & ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_FIXED_TENDON)
 			{
 				const PxU32 tendonCount = data.getFixedTendonCount();
 				PxU32 index = update.fixedTendonStartIndex;
-				Dy::ArticulationFixedTendon** fixedTendons = data.getFixedTendons();
+				ev4sio_Dy::ArticulationFixedTendon** fixedTendons = data.getFixedTendons();
 
 				for (PxU32 a = 0; a < tendonCount; ++a)
 				{
-					Dy::ArticulationFixedTendon* cpuTendon = fixedTendons[a];
+					ev4sio_Dy::ArticulationFixedTendon* cpuTendon = fixedTendons[a];
 					PxGpuFixedTendonData& tendon = mFixedTendonParamPool[index++];
 					tendon.damping = cpuTendon->mDamping;
 					tendon.stiffness = cpuTendon->mStiffness;
@@ -2226,22 +2226,22 @@ namespace physx
 				fixedTendonBegin += tendonCount;
 			}
 
-			if (dirtyFlags & Dy::ArticulationDirtyFlag::eDIRTY_FIXED_TENDON_JOINT)
+			if (dirtyFlags & ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_FIXED_TENDON_JOINT)
 			{
 				const PxU32 tendonCount = data.getFixedTendonCount();
 				PxU32 index = update.fixedTendonJointStartIndex;
-				Dy::ArticulationFixedTendon** fixedTendons = data.getFixedTendons();
+				ev4sio_Dy::ArticulationFixedTendon** fixedTendons = data.getFixedTendons();
 
 
 				for (PxU32 a = 0; a < tendonCount; ++a)
 				{
-					Dy::ArticulationFixedTendon* cpuTendon = fixedTendons[a];
+					ev4sio_Dy::ArticulationFixedTendon* cpuTendon = fixedTendons[a];
 
 					const PxU32 numJoints = cpuTendon->getNumJoints();
 
 					for (PxU32 b = 0; b < numJoints; ++b)
 					{
-						Dy::ArticulationTendonJoint& cpuTendonJoint = cpuTendon->getTendonJoint(b);
+						ev4sio_Dy::ArticulationTendonJoint& cpuTendonJoint = cpuTendon->getTendonJoint(b);
 						const PxU32 tendonJointIndex = index + b;
 
 						PxGpuTendonJointCoefficientData& cData = mTendonJointCoefficientDataPool[tendonJointIndex];
@@ -2255,16 +2255,16 @@ namespace physx
 				fixedTendonJointBegin = index;
 			}
 
-			if (dirtyFlags & Dy::ArticulationDirtyFlag::eDIRTY_EXT_ACCEL)
+			if (dirtyFlags & ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_EXT_ACCEL)
 			{
 				const PxU32 linkCount = data.getLinkCount();
 				PxU32 index = update.linkStartIndex;
 
 				for (PxU32 a = 0; a < linkCount; ++a)
 				{
-					Cm::UnAlignedSpatialVector& accel = mLinkAccelPool[index++];
+					ev4sio_Cm::UnAlignedSpatialVector& accel = mLinkAccelPool[index++];
 
-					const Cm::SpatialVector& inAccel = data.getExternalAcceleration(a);
+					const ev4sio_Cm::SpatialVector& inAccel = data.getExternalAcceleration(a);
 					accel.top = inAccel.linear;
 					accel.bottom = inAccel.angular;
 				}
@@ -2274,28 +2274,28 @@ namespace physx
 
 			if (dofs)
 			{
-				if (dirtyFlags & Dy::ArticulationDirtyFlag::eDIRTY_POSITIONS)
+				if (dirtyFlags & ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_POSITIONS)
 				{
 					PxMemCopy(&mArticulationDofDataPool[dofBegin], data.getJointPositions(), dofs * sizeof(PxReal));
 					dofBegin += dofs;
 				}
 
-				if (dirtyFlags & Dy::ArticulationDirtyFlag::eDIRTY_VELOCITIES)
+				if (dirtyFlags & ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_VELOCITIES)
 				{
 					PxMemCopy(&mArticulationDofDataPool[dofBegin], data.getJointVelocities(), dofs * sizeof(PxReal));
 					dofBegin += dofs;
 				}
-				if (dirtyFlags & Dy::ArticulationDirtyFlag::eDIRTY_FORCES)
+				if (dirtyFlags & ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_FORCES)
 				{
 					PxMemCopy(&mArticulationDofDataPool[dofBegin], data.getJointForces(), dofs * sizeof(PxReal));
 					dofBegin += dofs;
 				}
-				if (dirtyFlags & Dy::ArticulationDirtyFlag::eDIRTY_JOINT_TARGET_POS)
+				if (dirtyFlags & ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_JOINT_TARGET_POS)
 				{
 					PxMemCopy(&mArticulationDofDataPool[dofBegin], data.getJointTargetPositions(), dofs * sizeof(PxReal));
 					dofBegin += dofs;
 				}
-				if (dirtyFlags & Dy::ArticulationDirtyFlag::eDIRTY_JOINT_TARGET_VEL)
+				if (dirtyFlags & ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_JOINT_TARGET_VEL)
 				{
 					PxMemCopy(&mArticulationDofDataPool[dofBegin], data.getJointTargetVelocities(), dofs * sizeof(PxReal));
 					dofBegin += dofs;
@@ -2326,8 +2326,8 @@ namespace physx
 
 			newPBDParticleSystemNodeIndexPool[i] = index.nodeIndex;
 
-			Dy::ParticleSystem* dyParticleSystem = reinterpret_cast<Dy::ParticleSystem*>(bodySimsLL[index.nodeIndex]);
-			Dy::ParticleSystemCore& dyParticleSystemCore = dyParticleSystem->getCore();
+			ev4sio_Dy::ParticleSystem* dyParticleSystem = reinterpret_cast<ev4sio_Dy::ParticleSystem*>(bodySimsLL[index.nodeIndex]);
+			ev4sio_Dy::ParticleSystemCore& dyParticleSystemCore = dyParticleSystem->getCore();
 
 			//need to fill in PxgParticleSystem data
 			PxgParticleSystemData& data = newParticleSystem.mData;
@@ -2847,7 +2847,7 @@ namespace physx
 		mSimulationCore->mergeChangedAABBMgHandle();
 	}
 
-	void PxgSimulationController::gpuDmabackData(PxsTransformCache& cache, Bp::BoundsArray& boundArray, PxBitMapPinned&  changedAABBMgrHandles,
+	void PxgSimulationController::gpuDmabackData(PxsTransformCache& cache, ev4sio_Bp::BoundsArray& boundArray, PxBitMapPinned&  changedAABBMgrHandles,
 		bool enableDirectGPUAPI)
 	{
 		if (mHasBeenSimulated)
@@ -2887,7 +2887,7 @@ namespace physx
 		}
 	}
 
-	void PxgSimulationController::updateScBodyAndShapeSim(PxsTransformCache& cache, Bp::BoundsArray& boundArray, PxBaseTask* continuation)
+	void PxgSimulationController::updateScBodyAndShapeSim(PxsTransformCache& cache, ev4sio_Bp::BoundsArray& boundArray, PxBaseTask* continuation)
 	{
 		PX_UNUSED(cache);
 		PX_UNUSED(boundArray);
@@ -2960,7 +2960,7 @@ namespace physx
 		return mFrozenPool.begin();
 	}
 
-	Sc::ShapeSimBase** PxgSimulationController::getShapeSims()
+	ev4sio_Sc::ShapeSimBase** PxgSimulationController::getShapeSims()
 	{
 		return mSimulationCore->mPxgShapeSimManager.getShapeSims();
 	}
@@ -2980,7 +2980,7 @@ namespace physx
 		return mSimulationCore->mPxgShapeSimManager.getTotalNbShapes();
 	}
 
-	void PxgSimulationController::setBounds(Bp::BoundsArray* boundArray)
+	void PxgSimulationController::setBounds(ev4sio_Bp::BoundsArray* boundArray)
 	{
 		mSimulationCore->setBounds(boundArray);
 	}
@@ -3146,17 +3146,17 @@ namespace physx
 		}
 	}
 
-	void PxgSimulationController::computeSoftBodySimMeshData(Dy::DeformableVolume* deformableVolume, PxU32 tetId, const PxVec4& tetBarycentric, PxU32& outTetId, PxVec4& outTetBarycentric)
+	void PxgSimulationController::computeSoftBodySimMeshData(ev4sio_Dy::DeformableVolume* deformableVolume, PxU32 tetId, const PxVec4& tetBarycentric, PxU32& outTetId, PxVec4& outTetBarycentric)
 	{
 		//Convert from coll mesh to sim mesh now...
-		const Gu::BVTetrahedronMesh* tetMesh = static_cast<const Gu::BVTetrahedronMesh*>(deformableVolume->getCollisionMesh());
-		const Gu::TetrahedronMesh* simMesh = static_cast<const Gu::TetrahedronMesh*>(deformableVolume->getSimulationMesh());
-		const Gu::DeformableVolumeAuxData* simulationState = static_cast<const Gu::DeformableVolumeAuxData*>(deformableVolume->getAuxData());
+		const ev4sio_Gu::BVTetrahedronMesh* tetMesh = static_cast<const ev4sio_Gu::BVTetrahedronMesh*>(deformableVolume->getCollisionMesh());
+		const ev4sio_Gu::TetrahedronMesh* simMesh = static_cast<const ev4sio_Gu::TetrahedronMesh*>(deformableVolume->getSimulationMesh());
+		const ev4sio_Gu::DeformableVolumeAuxData* simulationState = static_cast<const ev4sio_Gu::DeformableVolumeAuxData*>(deformableVolume->getAuxData());
 
-		Gu::convertDeformableVolumeCollisionToSimMeshTets(*simMesh, *simulationState, *tetMesh, tetId, tetBarycentric, outTetId, outTetBarycentric, false);
+		ev4sio_Gu::convertDeformableVolumeCollisionToSimMeshTets(*simMesh, *simulationState, *tetMesh, tetId, tetBarycentric, outTetId, outTetBarycentric, false);
 	}
 
-	void PxgSimulationController::addTetRigidFilter(Dy::DeformableVolume* deformableVolume,
+	void PxgSimulationController::addTetRigidFilter(ev4sio_Dy::DeformableVolume* deformableVolume,
 		const PxNodeIndex& rigidNodeIndex, PxU32 tetId)
 	{
 		if (tetId == PX_MAX_NB_DEFORMABLE_VOLUME_TET)
@@ -3167,7 +3167,7 @@ namespace physx
 		PxU32 softBodyId = deformableVolume->getGpuRemapId();
 
 		//Convert from coll mesh to sim mesh now...
-		const Gu::BVTetrahedronMesh* tetMesh = static_cast<const Gu::BVTetrahedronMesh*>(deformableVolume->getCollisionMesh());
+		const ev4sio_Gu::BVTetrahedronMesh* tetMesh = static_cast<const ev4sio_Gu::BVTetrahedronMesh*>(deformableVolume->getCollisionMesh());
 		//Map from CPU tet ID (corresponds to the ID in the BV4 mesh) to the GPU tet ID (corresponds to the ID in the BV32 mesh)
 		tetId = (tetId == PX_MAX_NB_DEFORMABLE_VOLUME_TET) ? tetId : static_cast<PxU32*>(tetMesh->mGRB_faceRemapInverse)[tetId];
 
@@ -3180,7 +3180,7 @@ namespace physx
 		addFilterPairInternal(pair, mSoftBodyRigidFilterPairs, mSoftBodyRigidFilterRefs, mRigidSoftBodyAttachments.mAttachmentsDirty);
 	}
 
-	void PxgSimulationController::removeTetRigidFilter(Dy::DeformableVolume* deformableVolume, const PxNodeIndex& rigidNodeIndex,
+	void PxgSimulationController::removeTetRigidFilter(ev4sio_Dy::DeformableVolume* deformableVolume, const PxNodeIndex& rigidNodeIndex,
 		PxU32 tetId)
 	{
 		if (tetId == PX_MAX_NB_DEFORMABLE_VOLUME_TET)
@@ -3190,7 +3190,7 @@ namespace physx
 
 		PxU32 softBodyId = deformableVolume->getGpuRemapId();
 		//Convert from coll mesh to sim mesh now...
-		const Gu::BVTetrahedronMesh* tetMesh = static_cast<const Gu::BVTetrahedronMesh*>(deformableVolume->getCollisionMesh());
+		const ev4sio_Gu::BVTetrahedronMesh* tetMesh = static_cast<const ev4sio_Gu::BVTetrahedronMesh*>(deformableVolume->getCollisionMesh());
 		//Map from CPU tet ID (corresponds to the ID in the BV4 mesh) to the GPU tet ID (corresponds to the ID in the BV32 mesh)
 		tetId = (tetId == PX_MAX_NB_DEFORMABLE_VOLUME_TET) ? tetId : static_cast<PxU32*>(tetMesh->mGRB_faceRemapInverse)[tetId];
 
@@ -3202,7 +3202,7 @@ namespace physx
 		releaseFilterPairInternal(pair, mSoftBodyRigidFilterPairs, mSoftBodyRigidFilterRefs, mRigidSoftBodyAttachments.mAttachmentsDirty);
 	}
 
-	PxU32 PxgSimulationController::addTetRigidAttachment(Dy::DeformableVolume* deformableVolume, PxsRigidBody* rigidBody, const PxNodeIndex& rigidNodeIndex, PxU32 tetId, const PxVec4& barycentric,
+	PxU32 PxgSimulationController::addTetRigidAttachment(ev4sio_Dy::DeformableVolume* deformableVolume, PxsRigidBody* rigidBody, const PxNodeIndex& rigidNodeIndex, PxU32 tetId, const PxVec4& barycentric,
 		const PxVec3& actorSpacePose, PxConeLimitedConstraint* constraint, const bool isActive, bool doConversion)
 	{
 		PxU32 simTetIdx = tetId;
@@ -3219,34 +3219,34 @@ namespace physx
 		return handle;
 	}
 
-	void PxgSimulationController::addSoftBodyFilter(Dy::DeformableVolume* deformableVolume0, Dy::DeformableVolume* deformableVolume1, PxU32 tetId0,
+	void PxgSimulationController::addSoftBodyFilter(ev4sio_Dy::DeformableVolume* deformableVolume0, ev4sio_Dy::DeformableVolume* deformableVolume1, PxU32 tetId0,
 		PxU32 tetId1)
 	{
-		PX_COMPILE_TIME_ASSERT(sizeof(Dy::VolumeVolumeFilter) == sizeof(PxgNonRigidFilterPair));
+		PX_COMPILE_TIME_ASSERT(sizeof(ev4sio_Dy::VolumeVolumeFilter) == sizeof(PxgNonRigidFilterPair));
 		const PxU32 softBodyId0 = deformableVolume0->getGpuRemapId();
 		const PxU32 softBodyId1 = deformableVolume1->getGpuRemapId();
 
 		if (deformableVolume0->mVolumeVolumeFilterPairs == NULL)
 		{
-			deformableVolume0->mVolumeVolumeFilterPairs = PX_PLACEMENT_NEW(PX_ALLOCATE(Dy::VolumeVolumeFilterArray, 1, "VolumeVolumeFilterArray"), Dy::VolumeVolumeFilterArray)(mHeapMemoryManager->mMappedMemoryAllocators);
+			deformableVolume0->mVolumeVolumeFilterPairs = PX_PLACEMENT_NEW(PX_ALLOCATE(ev4sio_Dy::VolumeVolumeFilterArray, 1, "VolumeVolumeFilterArray"), ev4sio_Dy::VolumeVolumeFilterArray)(mHeapMemoryManager->mMappedMemoryAllocators);
 		
 			deformableVolume0->mDirtyVolumeForFilterPairs = &mDirtyDeformableVolumeForFilterPairs;
 		}
 
 		if (deformableVolume1->mVolumeVolumeFilterPairs == NULL)
 		{
-			deformableVolume1->mVolumeVolumeFilterPairs = PX_PLACEMENT_NEW(PX_ALLOCATE(Dy::VolumeVolumeFilterArray, 1, "VolumeVolumeFilterArray"), Dy::VolumeVolumeFilterArray)(mHeapMemoryManager->mMappedMemoryAllocators);
+			deformableVolume1->mVolumeVolumeFilterPairs = PX_PLACEMENT_NEW(PX_ALLOCATE(ev4sio_Dy::VolumeVolumeFilterArray, 1, "VolumeVolumeFilterArray"), ev4sio_Dy::VolumeVolumeFilterArray)(mHeapMemoryManager->mMappedMemoryAllocators);
 		
 			deformableVolume1->mDirtyVolumeForFilterPairs = &mDirtyDeformableVolumeForFilterPairs;
 		}
 
 		//Convert from coll mesh to sim mesh now...
-		const Gu::BVTetrahedronMesh* tetMesh0 = static_cast<const Gu::BVTetrahedronMesh*>(deformableVolume0->getCollisionMesh());
+		const ev4sio_Gu::BVTetrahedronMesh* tetMesh0 = static_cast<const ev4sio_Gu::BVTetrahedronMesh*>(deformableVolume0->getCollisionMesh());
 		//Map from CPU tet ID (corresponds to the ID in the BV4 mesh) to the GPU tet ID (corresponds to the ID in the BV32 mesh)
 		tetId0 = (tetId0 == PX_MAX_NB_DEFORMABLE_VOLUME_TET) ? tetId0: static_cast<PxU32*>(tetMesh0->mGRB_faceRemapInverse)[tetId0];
 
 		//Convert from coll mesh to sim mesh now...
-		const Gu::BVTetrahedronMesh* tetMesh1 = static_cast<const Gu::BVTetrahedronMesh*>(deformableVolume1->getCollisionMesh());
+		const ev4sio_Gu::BVTetrahedronMesh* tetMesh1 = static_cast<const ev4sio_Gu::BVTetrahedronMesh*>(deformableVolume1->getCollisionMesh());
 		//Map from CPU tet ID (corresponds to the ID in the BV4 mesh) to the GPU tet ID (corresponds to the ID in the BV32 mesh)
 		tetId1 = (tetId1 == PX_MAX_NB_DEFORMABLE_VOLUME_TET) ? tetId1 : static_cast<PxU32*>(tetMesh1->mGRB_faceRemapInverse)[tetId1];
 
@@ -3304,20 +3304,20 @@ namespace physx
 		}
 	}
 
-	void PxgSimulationController::removeSoftBodyFilter(Dy::DeformableVolume* deformableVolume0, Dy::DeformableVolume* deformableVolume1, PxU32 tetId0, PxU32 tetId1)
+	void PxgSimulationController::removeSoftBodyFilter(ev4sio_Dy::DeformableVolume* deformableVolume0, ev4sio_Dy::DeformableVolume* deformableVolume1, PxU32 tetId0, PxU32 tetId1)
 	{
-		PX_COMPILE_TIME_ASSERT(sizeof(Dy::VolumeVolumeFilter) == sizeof(PxgNonRigidFilterPair));
+		PX_COMPILE_TIME_ASSERT(sizeof(ev4sio_Dy::VolumeVolumeFilter) == sizeof(PxgNonRigidFilterPair));
 		PxU32 softBodyId0 = deformableVolume0->getGpuRemapId();
 		
 		PxU32 softBodyId1 = deformableVolume1->getGpuRemapId();
 		
 		//Convert from coll mesh to sim mesh now...
-		const Gu::BVTetrahedronMesh* tetMesh0 = static_cast<const Gu::BVTetrahedronMesh*>(deformableVolume0->getCollisionMesh());
+		const ev4sio_Gu::BVTetrahedronMesh* tetMesh0 = static_cast<const ev4sio_Gu::BVTetrahedronMesh*>(deformableVolume0->getCollisionMesh());
 		//Map from CPU tet ID (corresponds to the ID in the BV4 mesh) to the GPU tet ID (corresponds to the ID in the BV32 mesh)
 		tetId0 = (tetId0 == PX_MAX_NB_DEFORMABLE_VOLUME_TET) ? tetId0 : static_cast<PxU32*>(tetMesh0->mGRB_faceRemapInverse)[tetId0];
 
 		//Convert from coll mesh to sim mesh now...
-		const Gu::BVTetrahedronMesh* tetMesh1 = static_cast<const Gu::BVTetrahedronMesh*>(deformableVolume1->getCollisionMesh());
+		const ev4sio_Gu::BVTetrahedronMesh* tetMesh1 = static_cast<const ev4sio_Gu::BVTetrahedronMesh*>(deformableVolume1->getCollisionMesh());
 		//Map from CPU tet ID (corresponds to the ID in the BV4 mesh) to the GPU tet ID (corresponds to the ID in the BV32 mesh)
 		tetId1 = (tetId1 == PX_MAX_NB_DEFORMABLE_VOLUME_TET) ? tetId1 : static_cast<PxU32*>(tetMesh1->mGRB_faceRemapInverse)[tetId1];
 		
@@ -3386,16 +3386,16 @@ namespace physx
 		}
 	};
 
-	void PxgSimulationController::addSoftBodyFiltersInternal(Dy::DeformableVolume* deformableVolume0, Dy::DeformableVolume* deformableVolume1, PxU32* tetIndices, PxU32 size)
+	void PxgSimulationController::addSoftBodyFiltersInternal(ev4sio_Dy::DeformableVolume* deformableVolume0, ev4sio_Dy::DeformableVolume* deformableVolume1, PxU32* tetIndices, PxU32 size)
 	{
-		PX_COMPILE_TIME_ASSERT(sizeof(Dy::VolumeVolumeFilter) == sizeof(PxgNonRigidFilterPair));
+		PX_COMPILE_TIME_ASSERT(sizeof(ev4sio_Dy::VolumeVolumeFilter) == sizeof(PxgNonRigidFilterPair));
 		const PxU32 softBodyId0 = deformableVolume0->getGpuRemapId();
 		const PxU32 softBodyId1 = deformableVolume1->getGpuRemapId();
 		const PxU32 colTetHandle1 = PxEncodeSoftBodyIndex(softBodyId1, PX_MAX_NB_DEFORMABLE_VOLUME_TET);
 
 		if (deformableVolume0->mVolumeVolumeFilterPairs == NULL)
 		{
-			deformableVolume0->mVolumeVolumeFilterPairs = PX_PLACEMENT_NEW(PX_ALLOCATE(Dy::VolumeVolumeFilterArray, 1, "VolumeVolumeFilterArray"), Dy::VolumeVolumeFilterArray)(mHeapMemoryManager->mMappedMemoryAllocators);
+			deformableVolume0->mVolumeVolumeFilterPairs = PX_PLACEMENT_NEW(PX_ALLOCATE(ev4sio_Dy::VolumeVolumeFilterArray, 1, "VolumeVolumeFilterArray"), ev4sio_Dy::VolumeVolumeFilterArray)(mHeapMemoryManager->mMappedMemoryAllocators);
 
 			deformableVolume0->mDirtyVolumeForFilterPairs = &mDirtyDeformableVolumeForFilterPairs;
 
@@ -3415,7 +3415,7 @@ namespace physx
 		}
 
 		//Convert from coll mesh to sim mesh now...
-		const Gu::BVTetrahedronMesh* tetMesh0 = static_cast<const Gu::BVTetrahedronMesh*>(deformableVolume0->getCollisionMesh());
+		const ev4sio_Gu::BVTetrahedronMesh* tetMesh0 = static_cast<const ev4sio_Gu::BVTetrahedronMesh*>(deformableVolume0->getCollisionMesh());
 		uint4* collInds0 = reinterpret_cast<uint4*>(tetMesh0->mGRB_tetraIndices);
 		PxPinnedArray<PxgNonRigidFilterPair>* softBody0FilterPairs = reinterpret_cast<PxPinnedArray<PxgNonRigidFilterPair>*>(deformableVolume0->mVolumeVolumeFilterPairs);
 
@@ -3479,7 +3479,7 @@ namespace physx
 		}
 	}
 
-	void PxgSimulationController::addSoftBodyFilters(Dy::DeformableVolume* deformableVolume0, Dy::DeformableVolume* deformableVolume1, PxU32* tetIndices0, PxU32* tetIndices1, PxU32 tetIndicesSize)
+	void PxgSimulationController::addSoftBodyFilters(ev4sio_Dy::DeformableVolume* deformableVolume0, ev4sio_Dy::DeformableVolume* deformableVolume1, PxU32* tetIndices0, PxU32* tetIndices1, PxU32 tetIndicesSize)
 	{
 		PxArray<unsigned int> tetraFilter0Ids;
 		PxArray<unsigned int> tetraFilter1Ids;
@@ -3516,15 +3516,15 @@ namespace physx
 		}
 	}
 
-	void PxgSimulationController::removeSoftBodyFiltersInternal(Dy::DeformableVolume* deformableVolume0, Dy::DeformableVolume* deformableVolume1, PxU32* tetIndices, PxU32 size)
+	void PxgSimulationController::removeSoftBodyFiltersInternal(ev4sio_Dy::DeformableVolume* deformableVolume0, ev4sio_Dy::DeformableVolume* deformableVolume1, PxU32* tetIndices, PxU32 size)
 	{
-		PX_COMPILE_TIME_ASSERT(sizeof(Dy::VolumeVolumeFilter) == sizeof(PxgNonRigidFilterPair));
+		PX_COMPILE_TIME_ASSERT(sizeof(ev4sio_Dy::VolumeVolumeFilter) == sizeof(PxgNonRigidFilterPair));
 		const PxU32 softBodyId0 = deformableVolume0->getGpuRemapId();
 		const PxU32 softBodyId1 = deformableVolume1->getGpuRemapId();
 		const PxU32 colTetHandle1 = PxEncodeSoftBodyIndex(softBodyId1, PX_MAX_NB_DEFORMABLE_VOLUME_TET);
 
 		//Convert from coll mesh to sim mesh now...
-		const Gu::BVTetrahedronMesh* tetMesh0 = static_cast<const Gu::BVTetrahedronMesh*>(deformableVolume0->getCollisionMesh());
+		const ev4sio_Gu::BVTetrahedronMesh* tetMesh0 = static_cast<const ev4sio_Gu::BVTetrahedronMesh*>(deformableVolume0->getCollisionMesh());
 		uint4* collInds0 = reinterpret_cast<uint4*>(tetMesh0->mGRB_tetraIndices);
 		PxPinnedArray<PxgNonRigidFilterPair>* softBody0FilterPairs = reinterpret_cast<PxPinnedArray<PxgNonRigidFilterPair>*>(deformableVolume0->mVolumeVolumeFilterPairs);
 
@@ -3592,7 +3592,7 @@ namespace physx
 		}
 	}
 
-	void PxgSimulationController::removeSoftBodyFilters(Dy::DeformableVolume* deformableVolume0, Dy::DeformableVolume* deformableVolume1, PxU32* tetIndices0, PxU32* tetIndices1, PxU32 tetIndicesSize)
+	void PxgSimulationController::removeSoftBodyFilters(ev4sio_Dy::DeformableVolume* deformableVolume0, ev4sio_Dy::DeformableVolume* deformableVolume1, PxU32* tetIndices0, PxU32* tetIndices1, PxU32 tetIndicesSize)
 	{
 		PxArray<unsigned int> tetraFilter0Ids;
 		PxArray<unsigned int> tetraFilter1Ids;
@@ -3629,7 +3629,7 @@ namespace physx
 		}
 	}
 
-	PxU32 PxgSimulationController::addSoftBodyAttachment(Dy::DeformableVolume* deformableVolume0, Dy::DeformableVolume* deformableVolume1, PxU32 tetId0, PxU32 tetId1,
+	PxU32 PxgSimulationController::addSoftBodyAttachment(ev4sio_Dy::DeformableVolume* deformableVolume0, ev4sio_Dy::DeformableVolume* deformableVolume1, PxU32 tetId0, PxU32 tetId1,
 		const PxVec4& tetBarycentric0, const PxVec4& tetBarycentric1, PxConeLimitedConstraint* constraint, PxReal constraintOffset, const bool addToActive, bool doConversion)
 	{
 		// Convert from coll mesh to sim mesh now...
@@ -3684,8 +3684,8 @@ namespace physx
 
 			if (constraint->mAngle >= 0.f)
 			{
-				const Gu::TetrahedronMesh* simMesh = static_cast<const Gu::TetrahedronMesh*>(deformableVolume0->getSimulationMesh());
-				PxVec4 barycentric = Gu::addAxisToSimMeshBarycentric(*simMesh, outTetIdx0, outBarycentric0, constraint->mAxis.getNormalized());
+				const ev4sio_Gu::TetrahedronMesh* simMesh = static_cast<const ev4sio_Gu::TetrahedronMesh*>(deformableVolume0->getSimulationMesh());
+				PxVec4 barycentric = ev4sio_Gu::addAxisToSimMeshBarycentric(*simMesh, outTetIdx0, outBarycentric0, constraint->mAxis.getNormalized());
 				attachment.coneLimitParams.barycentric = make_float4(barycentric.x, barycentric.y, barycentric.z, barycentric.w);
 			}
 			else
@@ -3708,13 +3708,13 @@ namespace physx
 		return handle;
 	}
 
-	void PxgSimulationController::removeSoftBodyAttachment(Dy::DeformableVolume* deformableVolume0, PxU32 handle)
+	void PxgSimulationController::removeSoftBodyAttachment(ev4sio_Dy::DeformableVolume* deformableVolume0, PxU32 handle)
 	{
 		if (mSoftBodySoftBodyAttachments.removeAttachment(handle))
 			deformableVolume0->mVolumeVolumeAttachments.findAndReplaceWithLast(handle);
 	}
 
-	void PxgSimulationController::addClothFilter(Dy::DeformableVolume* deformableVolume, Dy::DeformableSurface* deformableSurface, PxU32 triIdx, PxU32 tetId)
+	void PxgSimulationController::addClothFilter(ev4sio_Dy::DeformableVolume* deformableVolume, ev4sio_Dy::DeformableSurface* deformableSurface, PxU32 triIdx, PxU32 tetId)
 	{
 		if (triIdx == PX_MAX_NB_DEFORMABLE_SURFACE_TRI && tetId == PX_MAX_NB_DEFORMABLE_VOLUME_TET)
 		{
@@ -3722,12 +3722,12 @@ namespace physx
 		}
 		PxU32 softBodyId = deformableVolume->getGpuRemapId();
 		PxU32 clothId = deformableSurface->getGpuRemapId();
-		const Gu::BVTetrahedronMesh* tetMesh = static_cast<const Gu::BVTetrahedronMesh*>(deformableVolume->getCollisionMesh());
+		const ev4sio_Gu::BVTetrahedronMesh* tetMesh = static_cast<const ev4sio_Gu::BVTetrahedronMesh*>(deformableVolume->getCollisionMesh());
 		//Map from CPU tet ID (corresponds to the ID in the BV4 mesh) to the GPU tet ID (corresponds to the ID in the BV32 mesh)
 		tetId = (tetId == PX_MAX_NB_DEFORMABLE_VOLUME_TET) ? tetId : static_cast<PxU32*>(tetMesh->mGRB_faceRemapInverse)[tetId];
 
 		PxsShapeCore& shapeCore = deformableSurface->getShapeCore();
-		const Gu::TriangleMesh* triangleMesh = _getMeshData(shapeCore.mGeometry.get<PxTriangleMeshGeometry>());
+		const ev4sio_Gu::TriangleMesh* triangleMesh = _getMeshData(shapeCore.mGeometry.get<PxTriangleMeshGeometry>());
 
 		//Map from CPU triangle ID (corresponds to the ID in the BV4 mesh) to GPU triangle ID (corresponds to the ID in the BV32 mesh)
 		triIdx = (triIdx == PX_MAX_NB_DEFORMABLE_SURFACE_TRI) ? triIdx : static_cast<PxU32*>(triangleMesh->mGRB_faceRemapInverse)[triIdx];
@@ -3758,18 +3758,18 @@ namespace physx
 		}
 	}
 
-	void PxgSimulationController::removeClothFilter(Dy::DeformableVolume* deformableVolume, Dy::DeformableSurface* deformableSurface, PxU32 triId, PxU32 tetId)
+	void PxgSimulationController::removeClothFilter(ev4sio_Dy::DeformableVolume* deformableVolume, ev4sio_Dy::DeformableSurface* deformableSurface, PxU32 triId, PxU32 tetId)
 	{
 		if (triId == PX_MAX_NB_DEFORMABLE_SURFACE_TRI && tetId == PX_MAX_NB_DEFORMABLE_VOLUME_TET)
 		{
 			return;
 		}
-		const Gu::BVTetrahedronMesh* tetMesh = static_cast<const Gu::BVTetrahedronMesh*>(deformableVolume->getCollisionMesh());
+		const ev4sio_Gu::BVTetrahedronMesh* tetMesh = static_cast<const ev4sio_Gu::BVTetrahedronMesh*>(deformableVolume->getCollisionMesh());
 		//Map from CPU tet ID (corresponds to the ID in the BV4 mesh) to the GPU tet ID (corresponds to the ID in the BV32 mesh)
 		tetId = (tetId == PX_MAX_NB_DEFORMABLE_VOLUME_TET) ? tetId : static_cast<PxU32*>(tetMesh->mGRB_faceRemapInverse)[tetId];
 
 		PxsShapeCore& shapeCore = deformableSurface->getShapeCore();
-		const Gu::TriangleMesh* triangleMesh = _getMeshData(shapeCore.mGeometry.get<PxTriangleMeshGeometry>());
+		const ev4sio_Gu::TriangleMesh* triangleMesh = _getMeshData(shapeCore.mGeometry.get<PxTriangleMeshGeometry>());
 
 		//Map from CPU triangle ID (corresponds to the ID in the BV4 mesh) to GPU triangle ID (corresponds to the ID in the BV32 mesh)
 		//PxU32 originalTriIdx = triIdx;
@@ -3803,7 +3803,7 @@ namespace physx
 		}
 	}
 
-	PxU32 PxgSimulationController::addClothAttachment(Dy::DeformableVolume* deformableVolume, Dy::DeformableSurface* deformableSurface, PxU32 triIdx,
+	PxU32 PxgSimulationController::addClothAttachment(ev4sio_Dy::DeformableVolume* deformableVolume, ev4sio_Dy::DeformableSurface* deformableSurface, PxU32 triIdx,
 		const PxVec4& triBary, PxU32 tetId, const PxVec4& tetBary, PxConeLimitedConstraint* constraint, PxReal constraintOffset, const bool isActive, bool doConversion)
 	{
 		PxU32 simTetIdx = 0xFFFFFFFF;
@@ -3820,7 +3820,7 @@ namespace physx
 		}
 		
 		PxsShapeCore& shapeCore = deformableSurface->getShapeCore();
-		const Gu::TriangleMesh* triangleMesh = _getMeshData(shapeCore.mGeometry.get<PxTriangleMeshGeometry>());
+		const ev4sio_Gu::TriangleMesh* triangleMesh = _getMeshData(shapeCore.mGeometry.get<PxTriangleMeshGeometry>());
 
 		//Map from CPU triangle ID (corresponds to the ID in the BV4 mesh) to GPU triangle ID (corresponds to the ID in the BV32 mesh)
 		triIdx = static_cast<PxU32*>(triangleMesh->mGRB_faceRemapInverse)[triIdx];
@@ -3847,8 +3847,8 @@ namespace physx
 			attachment.coneLimitParams.low_high_angle = make_float4(constraint->mLowLimit, constraint->mHighLimit, constraint->mAngle, 0.f);
 			if (constraint->mAngle >= 0.f)
 			{
-				const Gu::TetrahedronMesh* simMesh = static_cast<const Gu::TetrahedronMesh*>(deformableVolume->getSimulationMesh());
-				PxVec4 barycentric = Gu::addAxisToSimMeshBarycentric(*simMesh, simTetIdx, simTetBary, constraint->mAxis.getNormalized());
+				const ev4sio_Gu::TetrahedronMesh* simMesh = static_cast<const ev4sio_Gu::TetrahedronMesh*>(deformableVolume->getSimulationMesh());
+				PxVec4 barycentric = ev4sio_Gu::addAxisToSimMeshBarycentric(*simMesh, simTetIdx, simTetBary, constraint->mAxis.getNormalized());
 				attachment.coneLimitParams.barycentric = make_float4(barycentric.x, barycentric.y, barycentric.z, barycentric.w);
 			}
 			else
@@ -3870,19 +3870,19 @@ namespace physx
 		return handle;
 	}
 
-	void PxgSimulationController::removeClothAttachment(Dy::DeformableVolume* deformableVolume, PxU32 handle)
+	void PxgSimulationController::removeClothAttachment(ev4sio_Dy::DeformableVolume* deformableVolume, PxU32 handle)
 	{
 		if(mSoftBodyClothAttachments.removeAttachment(handle))
 			deformableVolume->mSurfaceVolumeAttachments.findAndReplaceWithLast(handle);
 	}
 
-	void PxgSimulationController::addParticleFilter(Dy::DeformableVolume* deformableVolume, Dy::ParticleSystem* particleSystem,
+	void PxgSimulationController::addParticleFilter(ev4sio_Dy::DeformableVolume* deformableVolume, ev4sio_Dy::ParticleSystem* particleSystem,
 		PxU32 particleId, PxU32 userBufferId, PxU32 tetId)
 	{
 		const PxU32 softBodyId = deformableVolume->getGpuRemapId();
 		const PxU32 particleSystemId = particleSystem->getGpuRemapId();
 
-		const Gu::BVTetrahedronMesh* tetMesh = static_cast<const Gu::BVTetrahedronMesh*>(deformableVolume->getCollisionMesh());
+		const ev4sio_Gu::BVTetrahedronMesh* tetMesh = static_cast<const ev4sio_Gu::BVTetrahedronMesh*>(deformableVolume->getCollisionMesh());
 		
 		//Map from CPU tet ID (corresponds to the ID in the BV4 mesh) to the GPU tet ID (corresponds to the ID in the BV32 mesh)
 		tetId = (tetId == PX_MAX_NB_DEFORMABLE_VOLUME_TET ? tetId : static_cast<PxU32*>(tetMesh->mGRB_faceRemapInverse)[tetId]);
@@ -3897,13 +3897,13 @@ namespace physx
 		addFilterPairInternal(pair, mSoftBodyParticleFilterPairs, mSoftBodyParticleFilterRefs, mParticleSoftBodyAttachments.mAttachmentsDirty);
 	}
 
-	void PxgSimulationController::removeParticleFilter(Dy::DeformableVolume* deformableVolume,
-		const Dy::ParticleSystem* particleSystem, PxU32 particleId, PxU32 userBufferId, PxU32 tetId)
+	void PxgSimulationController::removeParticleFilter(ev4sio_Dy::DeformableVolume* deformableVolume,
+		const ev4sio_Dy::ParticleSystem* particleSystem, PxU32 particleId, PxU32 userBufferId, PxU32 tetId)
 	{
 		const PxU32 softBodyId = deformableVolume->getGpuRemapId();
 		const PxU32 particleSystemId = particleSystem->getGpuRemapId();
 
-		const Gu::BVTetrahedronMesh* tetMesh = static_cast<const Gu::BVTetrahedronMesh*>(deformableVolume->getCollisionMesh());
+		const ev4sio_Gu::BVTetrahedronMesh* tetMesh = static_cast<const ev4sio_Gu::BVTetrahedronMesh*>(deformableVolume->getCollisionMesh());
 
 		//Map from CPU tet ID (corresponds to the ID in the BV4 mesh) to the GPU tet ID (corresponds to the ID in the BV32 mesh)
 		tetId = (tetId == PX_MAX_NB_DEFORMABLE_VOLUME_TET ? tetId : static_cast<PxU32*>(tetMesh->mGRB_faceRemapInverse)[tetId]);
@@ -3918,7 +3918,7 @@ namespace physx
 		releaseFilterPairInternal(pair, mSoftBodyParticleFilterPairs, mSoftBodyParticleFilterRefs, mParticleSoftBodyAttachments.mAttachmentsDirty);
 	}
 
-	PxU32 PxgSimulationController::addParticleAttachment(Dy::DeformableVolume* deformableVolume, const Dy::ParticleSystem* particleSystem,
+	PxU32 PxgSimulationController::addParticleAttachment(ev4sio_Dy::DeformableVolume* deformableVolume, const ev4sio_Dy::ParticleSystem* particleSystem,
 		PxU32 particleId, PxU32 userBufferId, PxU32 tetId, const PxVec4& barycentric, const bool isActive)
 	{
 		PxU32 outTetIdx = 0xFFFFFFFF;
@@ -3948,19 +3948,19 @@ namespace physx
 		return handle;
 	}
 
-	void PxgSimulationController::removeParticleAttachment(Dy::DeformableVolume* deformableVolume, PxU32 handle)
+	void PxgSimulationController::removeParticleAttachment(ev4sio_Dy::DeformableVolume* deformableVolume, PxU32 handle)
 	{
 		if (mParticleSoftBodyAttachments.removeAttachment(handle))
 			deformableVolume->mParticleVolumeAttachments.findAndReplaceWithLast(handle);
 	}
 
 	//DEPRECATED
-	void PxgSimulationController::addRigidFilter(Dy::DeformableVolume* deformableVolume, const PxNodeIndex& rigidNodeIndex, PxU32 vertIndex)
+	void PxgSimulationController::addRigidFilter(ev4sio_Dy::DeformableVolume* deformableVolume, const PxNodeIndex& rigidNodeIndex, PxU32 vertIndex)
 	{
 		PxU32 softBodyId = deformableVolume->getGpuRemapId();
 
-		const Gu::BVTetrahedronMesh* tetMesh = static_cast<const Gu::BVTetrahedronMesh*>(deformableVolume->getCollisionMesh());
-		const Gu::DeformableVolumeAuxData* softBodyAuxData = static_cast<const Gu::DeformableVolumeAuxData*>(deformableVolume->getAuxData());
+		const ev4sio_Gu::BVTetrahedronMesh* tetMesh = static_cast<const ev4sio_Gu::BVTetrahedronMesh*>(deformableVolume->getCollisionMesh());
+		const ev4sio_Gu::DeformableVolumeAuxData* softBodyAuxData = static_cast<const ev4sio_Gu::DeformableVolumeAuxData*>(deformableVolume->getAuxData());
 
 		PxU32* accumulatedTetRefs = softBodyAuxData->getCollisionAccumulatedTetrahedronRefs();
 		PxU32* tetRefs = softBodyAuxData->getCollisionTetrahedronRefs();
@@ -3984,11 +3984,11 @@ namespace physx
 	}
 
 	//DEPRECATED
-	void PxgSimulationController::removeRigidFilter(Dy::DeformableVolume* deformableVolume, const PxNodeIndex& rigidNodeIndex, PxU32 vertIndex)
+	void PxgSimulationController::removeRigidFilter(ev4sio_Dy::DeformableVolume* deformableVolume, const PxNodeIndex& rigidNodeIndex, PxU32 vertIndex)
 	{
 		PxU32 softBodyId = deformableVolume->getGpuRemapId();
-		const Gu::TetrahedronMesh* tetMesh = static_cast<const Gu::TetrahedronMesh*>(deformableVolume->getCollisionMesh());
-		const Gu::DeformableVolumeAuxData* softBodyAuxData = static_cast<const Gu::DeformableVolumeAuxData*>(deformableVolume->getAuxData());
+		const ev4sio_Gu::TetrahedronMesh* tetMesh = static_cast<const ev4sio_Gu::TetrahedronMesh*>(deformableVolume->getCollisionMesh());
+		const ev4sio_Gu::DeformableVolumeAuxData* softBodyAuxData = static_cast<const ev4sio_Gu::DeformableVolumeAuxData*>(deformableVolume->getAuxData());
 
 		{
 			PxU32* accumulatedTetRefs = softBodyAuxData->getCollisionAccumulatedTetrahedronRefs();
@@ -4013,15 +4013,15 @@ namespace physx
 		}
 	}
 
-	PxU32 PxgSimulationController::addRigidAttachment(Dy::DeformableVolume* deformableVolume, const PxNodeIndex& softBodyNodeIndex,
+	PxU32 PxgSimulationController::addRigidAttachment(ev4sio_Dy::DeformableVolume* deformableVolume, const PxNodeIndex& softBodyNodeIndex,
 		PxsRigidBody* rigidBody, const PxNodeIndex& rigidNodeIndex, PxU32 vertIndex, const PxVec3& actorSpacePose,
 		PxConeLimitedConstraint* constraint, const bool isActive, bool doConversion)
 	{
 		PX_UNUSED(softBodyNodeIndex);
 		//PxU32 softBodyId = deformableVolume->getGpuRemapId();
 
-		//const Gu::BVTetrahedronMesh* tetMesh = static_cast<const Gu::BVTetrahedronMesh*>(deformableVolume->getCollisionMesh());
-		const Gu::DeformableVolumeAuxData* softBodyAuxData = static_cast<const Gu::DeformableVolumeAuxData*>(deformableVolume->getAuxData());
+		//const ev4sio_Gu::BVTetrahedronMesh* tetMesh = static_cast<const ev4sio_Gu::BVTetrahedronMesh*>(deformableVolume->getCollisionMesh());
+		const ev4sio_Gu::DeformableVolumeAuxData* softBodyAuxData = static_cast<const ev4sio_Gu::DeformableVolumeAuxData*>(deformableVolume->getAuxData());
 		
 		//Now we make sure that the bodies are sorted...
 		PxU32 handle = 0xFFFFFFFF;
@@ -4044,13 +4044,13 @@ namespace physx
 		return handle;
 	}
 
-	void PxgSimulationController::removeRigidAttachment(Dy::DeformableVolume* deformableVolume, PxU32 handle)
+	void PxgSimulationController::removeRigidAttachment(ev4sio_Dy::DeformableVolume* deformableVolume, PxU32 handle)
 	{
 		if(mRigidSoftBodyAttachments.removeAttachment(handle))
 			deformableVolume->mRigidVolumeAttachments.findAndReplaceWithLast(handle);
 	}
 
-	PxU32 PxgSimulationController::addRigidAttachment(Dy::DeformableSurface* deformableSurface, const PxNodeIndex& clothNodeIndex,
+	PxU32 PxgSimulationController::addRigidAttachment(ev4sio_Dy::DeformableSurface* deformableSurface, const PxNodeIndex& clothNodeIndex,
 		PxsRigidBody* rigidBody, const PxNodeIndex& rigidNodeIndex, PxU32 vertIndex, const PxVec3& actorSpacePose,
 		PxConeLimitedConstraint* constraint, const bool addToActive)
 	{
@@ -4065,13 +4065,13 @@ namespace physx
 		return handle;
 	}
 
-	void PxgSimulationController::removeRigidAttachment(Dy::DeformableSurface* deformableSurface, PxU32 handle)
+	void PxgSimulationController::removeRigidAttachment(ev4sio_Dy::DeformableSurface* deformableSurface, PxU32 handle)
 	{
 		if(mClothRigidAttachments.removeAttachment(handle))
 			deformableSurface->removeAttachmentHandle(handle);
 	}
 
-	void PxgSimulationController::addTriRigidFilter(Dy::DeformableSurface* deformableSurface, const PxNodeIndex& rigidNodeIndex, PxU32 triIdx)
+	void PxgSimulationController::addTriRigidFilter(ev4sio_Dy::DeformableSurface* deformableSurface, const PxNodeIndex& rigidNodeIndex, PxU32 triIdx)
 	{
 		if (triIdx == PX_MAX_NB_DEFORMABLE_SURFACE_TRI)
 		{
@@ -4081,7 +4081,7 @@ namespace physx
 		const PxU32 clothId = deformableSurface->getGpuRemapId();
 
 		PxsShapeCore& shapeCore = deformableSurface->getShapeCore();
-		const Gu::TriangleMesh* triangleMesh = _getMeshData(shapeCore.mGeometry.get<PxTriangleMeshGeometry>());
+		const ev4sio_Gu::TriangleMesh* triangleMesh = _getMeshData(shapeCore.mGeometry.get<PxTriangleMeshGeometry>());
 
 		//Map from CPU triangle ID (corresponds to the ID in the BV4 mesh) to GPU triangle ID (corresponds to the ID in the BV32 mesh)
 		triIdx = static_cast<PxU32*>(triangleMesh->mGRB_faceRemapInverse)[triIdx];
@@ -4101,7 +4101,7 @@ namespace physx
 		}
 	}
 
-	void PxgSimulationController::removeTriRigidFilter(Dy::DeformableSurface* deformableSurface, const PxNodeIndex& rigidNodeIndex, PxU32 triIdx)
+	void PxgSimulationController::removeTriRigidFilter(ev4sio_Dy::DeformableSurface* deformableSurface, const PxNodeIndex& rigidNodeIndex, PxU32 triIdx)
 	{
 		if (triIdx == PX_MAX_NB_DEFORMABLE_SURFACE_TRI)
 		{
@@ -4111,7 +4111,7 @@ namespace physx
 		PxU32 clothId = deformableSurface->getGpuRemapId();
 
 		PxsShapeCore& shapeCore = deformableSurface->getShapeCore();
-		const Gu::TriangleMesh* triangleMesh = _getMeshData(shapeCore.mGeometry.get<PxTriangleMeshGeometry>());
+		const ev4sio_Gu::TriangleMesh* triangleMesh = _getMeshData(shapeCore.mGeometry.get<PxTriangleMeshGeometry>());
 
 		//Map from CPU triangle ID (corresponds to the ID in the BV4 mesh) to GPU triangle ID (corresponds to the ID in the BV32 mesh)
 		triIdx = static_cast<PxU32*>(triangleMesh->mGRB_faceRemapInverse)[triIdx];
@@ -4130,11 +4130,11 @@ namespace physx
 		}
 	}
 
-	PxU32 PxgSimulationController::addTriRigidAttachment(Dy::DeformableSurface* deformableSurface, PxsRigidBody* rigidBody, const PxNodeIndex& rigidNodeIndex, PxU32 triIdx, const PxVec4& barycentric,
+	PxU32 PxgSimulationController::addTriRigidAttachment(ev4sio_Dy::DeformableSurface* deformableSurface, PxsRigidBody* rigidBody, const PxNodeIndex& rigidNodeIndex, PxU32 triIdx, const PxVec4& barycentric,
 		const PxVec3& actorSpacePose, PxConeLimitedConstraint* constraint, const bool isActive)
 	{
 		PxsShapeCore& shapeCore = deformableSurface->getShapeCore();
-		const Gu::TriangleMesh* triangleMesh = _getMeshData(shapeCore.mGeometry.get<PxTriangleMeshGeometry>());
+		const ev4sio_Gu::TriangleMesh* triangleMesh = _getMeshData(shapeCore.mGeometry.get<PxTriangleMeshGeometry>());
 
 		//Map from CPU triangle ID (corresponds to the ID in the BV4 mesh) to GPU triangle ID (corresponds to the ID in the BV32 mesh)
 		triIdx = static_cast<PxU32*>(triangleMesh->mGRB_faceRemapInverse)[triIdx];
@@ -4147,13 +4147,13 @@ namespace physx
 		return handle;
 	}
 
-	void PxgSimulationController::removeTriRigidAttachment(Dy::DeformableSurface* deformableSurface, PxU32 handle)
+	void PxgSimulationController::removeTriRigidAttachment(ev4sio_Dy::DeformableSurface* deformableSurface, PxU32 handle)
 	{
 		if(mClothRigidAttachments.removeAttachment(handle))
 			deformableSurface->removeAttachmentHandle(handle);
 	 }
 
-	void PxgSimulationController::addClothFilter(Dy::DeformableSurface* deformableSurface0, Dy::DeformableSurface* deformableSurface1, PxU32 triIdx0, PxU32 triIdx1)
+	void PxgSimulationController::addClothFilter(ev4sio_Dy::DeformableSurface* deformableSurface0, ev4sio_Dy::DeformableSurface* deformableSurface1, PxU32 triIdx0, PxU32 triIdx1)
 	{
 		if (triIdx0 == PX_MAX_NB_DEFORMABLE_SURFACE_TRI && triIdx1 == PX_MAX_NB_DEFORMABLE_SURFACE_TRI)
 		{
@@ -4161,7 +4161,7 @@ namespace physx
 		}
 
 		PxsShapeCore& shapeCore0 = deformableSurface0->getShapeCore();
-		const Gu::TriangleMesh* triangleMesh0 = _getMeshData(shapeCore0.mGeometry.get<PxTriangleMeshGeometry>());
+		const ev4sio_Gu::TriangleMesh* triangleMesh0 = _getMeshData(shapeCore0.mGeometry.get<PxTriangleMeshGeometry>());
 
 		//Map from CPU triangle ID (corresponds to the ID in the BV4 mesh) to GPU triangle ID (corresponds to the ID in the BV32 mesh)
 		//PxU32 originalTriIdx = triIdx;
@@ -4171,7 +4171,7 @@ namespace physx
 		PxU32 triHandle0 = PxEncodeClothIndex(clothId0, triIdx0);
 
 		PxsShapeCore& shapeCore1 = deformableSurface1->getShapeCore();
-		const Gu::TriangleMesh* triangleMesh1 = _getMeshData(shapeCore1.mGeometry.get<PxTriangleMeshGeometry>());
+		const ev4sio_Gu::TriangleMesh* triangleMesh1 = _getMeshData(shapeCore1.mGeometry.get<PxTriangleMeshGeometry>());
 
 		//Map from CPU triangle ID (corresponds to the ID in the BV4 mesh) to GPU triangle ID (corresponds to the ID in the BV32 mesh)
 		//PxU32 originalTriIdx = triIdx;
@@ -4230,10 +4230,10 @@ namespace physx
 		}
 	}
 
-	void PxgSimulationController::removeClothFilter(Dy::DeformableSurface* deformableSurface0, Dy::DeformableSurface* deformableSurface1, PxU32 triIdx0, PxU32 triIdx1)
+	void PxgSimulationController::removeClothFilter(ev4sio_Dy::DeformableSurface* deformableSurface0, ev4sio_Dy::DeformableSurface* deformableSurface1, PxU32 triIdx0, PxU32 triIdx1)
 	{
 		PxsShapeCore& shapeCore0 = deformableSurface0->getShapeCore();
-		const Gu::TriangleMesh* triangleMesh0 = _getMeshData(shapeCore0.mGeometry.get<PxTriangleMeshGeometry>());
+		const ev4sio_Gu::TriangleMesh* triangleMesh0 = _getMeshData(shapeCore0.mGeometry.get<PxTriangleMeshGeometry>());
 
 		//Map from CPU triangle ID (corresponds to the ID in the BV4 mesh) to GPU triangle ID (corresponds to the ID in the BV32 mesh)
 		//PxU32 originalTriIdx = triIdx;
@@ -4243,7 +4243,7 @@ namespace physx
 		PxU32 triHandle0 = PxEncodeClothIndex(clothId0, triIdx0);
 
 		PxsShapeCore& shapeCore1 = deformableSurface1->getShapeCore();
-		const Gu::TriangleMesh* triangleMesh1 = _getMeshData(shapeCore1.mGeometry.get<PxTriangleMeshGeometry>());
+		const ev4sio_Gu::TriangleMesh* triangleMesh1 = _getMeshData(shapeCore1.mGeometry.get<PxTriangleMeshGeometry>());
 
 		//Map from CPU triangle ID (corresponds to the ID in the BV4 mesh) to GPU triangle ID (corresponds to the ID in the BV32 mesh)
 		//PxU32 originalTriIdx = triIdx;
@@ -4301,11 +4301,11 @@ namespace physx
 		}
 	}
 
-	PxU32 PxgSimulationController::addTriClothAttachment(Dy::DeformableSurface* deformableSurface0, Dy::DeformableSurface* deformableSurface1, PxU32 triIdx0, PxU32 triIdx1,
+	PxU32 PxgSimulationController::addTriClothAttachment(ev4sio_Dy::DeformableSurface* deformableSurface0, ev4sio_Dy::DeformableSurface* deformableSurface1, PxU32 triIdx0, PxU32 triIdx1,
 		const PxVec4& triBarycentric0, const PxVec4& triBarycentric1, const bool addToActive)
 	{	
 		PxsShapeCore& shapeCore0 = deformableSurface0->getShapeCore();
-		const Gu::TriangleMesh* triangleMesh0 = _getMeshData(shapeCore0.mGeometry.get<PxTriangleMeshGeometry>());
+		const ev4sio_Gu::TriangleMesh* triangleMesh0 = _getMeshData(shapeCore0.mGeometry.get<PxTriangleMeshGeometry>());
 
 		//Map from CPU triangle ID (corresponds to the ID in the BV4 mesh) to GPU triangle ID (corresponds to the ID in the BV32 mesh)
 		triIdx0 = static_cast<PxU32*>(triangleMesh0->mGRB_faceRemapInverse)[triIdx0];
@@ -4314,7 +4314,7 @@ namespace physx
 		PxU32 triHandle0 = PxEncodeClothIndex(clothId0, triIdx0);
 
 		PxsShapeCore& shapeCore1 = deformableSurface1->getShapeCore();
-		const Gu::TriangleMesh* triangleMesh1 = _getMeshData(shapeCore1.mGeometry.get<PxTriangleMeshGeometry>());
+		const ev4sio_Gu::TriangleMesh* triangleMesh1 = _getMeshData(shapeCore1.mGeometry.get<PxTriangleMeshGeometry>());
 
 		//Map from CPU triangle ID (corresponds to the ID in the BV4 mesh) to GPU triangle ID (corresponds to the ID in the BV32 mesh)
 		triIdx1 = static_cast<PxU32*>(triangleMesh1->mGRB_faceRemapInverse)[triIdx1];
@@ -4343,7 +4343,7 @@ namespace physx
 		return handle;
 	}
 
-	void PxgSimulationController::removeTriClothAttachment(Dy::DeformableSurface* deformableSurface0, PxU32 handle)
+	void PxgSimulationController::removeTriClothAttachment(ev4sio_Dy::DeformableSurface* deformableSurface0, PxU32 handle)
 	{
 		if (mClothClothAttachments.removeAttachment(handle))
 		{
@@ -4362,12 +4362,12 @@ namespace physx
 		return mFEMClothCore->mActivatingDeformableSurfaces.size();
 	}
 
-	Dy::DeformableSurface** PxgSimulationController::getDeactivatedDeformableSurfaces() const
+	ev4sio_Dy::DeformableSurface** PxgSimulationController::getDeactivatedDeformableSurfaces() const
 	{
 		return mFEMClothCore->mDeactivatingDeformableSurfaces.begin();
 	}
 
-	Dy::DeformableSurface** PxgSimulationController::getActivatedDeformableSurfaces() const
+	ev4sio_Dy::DeformableSurface** PxgSimulationController::getActivatedDeformableSurfaces() const
 	{
 		return mFEMClothCore->mActivatingDeformableSurfaces.begin();
 	}
@@ -4382,11 +4382,11 @@ namespace physx
 		return mSoftBodyCore->mActivatingDeformableVolumes.size();
 	}
 
-	Dy::DeformableVolume** PxgSimulationController::getDeactivatedDeformableVolumes() const
+	ev4sio_Dy::DeformableVolume** PxgSimulationController::getDeactivatedDeformableVolumes() const
 	{
 		return mSoftBodyCore->mDeactivatingDeformableVolumes.begin();
 	}
-	Dy::DeformableVolume** PxgSimulationController::getActivatedDeformableVolumes() const
+	ev4sio_Dy::DeformableVolume** PxgSimulationController::getActivatedDeformableVolumes() const
 	{
 		return mSoftBodyCore->mActivatingDeformableVolumes.begin();
 	}

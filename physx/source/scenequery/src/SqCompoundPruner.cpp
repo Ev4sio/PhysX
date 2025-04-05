@@ -42,9 +42,9 @@
 #include "common/PxRenderOutput.h"
 #include "CmVisualization.h"
 
-using namespace physx;
-using namespace Gu;
-using namespace Sq;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
+using namespace ev4sio_Sq;
 
 // PT: TODO: this is copied from SqBounds.h, should be either moved to Gu and shared or passed as a user parameter
 	#define SQ_PRUNER_EPSILON	0.005f
@@ -497,7 +497,7 @@ bool BVHCompoundPruner::overlap(const ShapeData& queryVolume, CompoundPrunerOver
 
 	bool again = true;
 
-	const Gu::AABBTreeBounds& bounds = mCompoundTreePool.getCurrentAABBTreeBounds();
+	const ev4sio_Gu::AABBTreeBounds& bounds = mCompoundTreePool.getCurrentAABBTreeBounds();
 
 	switch (queryVolume.getType())
 	{
@@ -699,7 +699,7 @@ namespace
 		{
 			if(0)
 			{
-				Cm::renderOutputDebugBox(mOut, PxBounds3::transformSafe(mPose, bounds));
+				ev4sio_Cm::renderOutputDebugBox(mOut, PxBounds3::transformSafe(mPose, bounds));
 			}
 			else
 			{

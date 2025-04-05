@@ -32,21 +32,21 @@
 #include "GuConvexGeometry.h"
 #include "GuConvexSupport.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
-bool Gu::contactPlaneConvexCore(GU_CONTACT_METHOD_ARGS)
+bool ev4sio_Gu::contactPlaneConvexCore(GU_CONTACT_METHOD_ARGS)
 {
 	PX_UNUSED(shape0);
 	PX_UNUSED(renderOutput);
 	PX_UNUSED(cache);
 
 	PxPlane plane0(transform0.p, transform0.q.getBasisVector0());
-	Gu::ConvexShape convex1; Gu::makeConvexShape(shape1, transform1, convex1);
+	ev4sio_Gu::ConvexShape convex1; ev4sio_Gu::makeConvexShape(shape1, transform1, convex1);
 	PX_ASSERT(convex1.isValid());
 
-	PxVec3 normal, points[Gu::MAX_CONVEX_CONTACTS];
-	PxReal dists[Gu::MAX_CONVEX_CONTACTS];
-	if (PxU32 count = Gu::generateContacts(plane0, convex1, params.mContactDistance, normal, points, dists))
+	PxVec3 normal, points[ev4sio_Gu::MAX_CONVEX_CONTACTS];
+	PxReal dists[ev4sio_Gu::MAX_CONVEX_CONTACTS];
+	if (PxU32 count = ev4sio_Gu::generateContacts(plane0, convex1, params.mContactDistance, normal, points, dists))
 		for (PxU32 i = 0; i < count; ++i)
 			contactBuffer.contact(points[i], normal, dists[i]);
 

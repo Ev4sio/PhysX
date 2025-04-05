@@ -31,9 +31,9 @@
 #include "GuBox.h"
 #include "foundation/PxVecMath.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
-PxIntBool Gu::intersectTriangleBox_ReferenceCode(const PxVec3& boxcenter, const PxVec3& extents, const PxVec3& tp0, const PxVec3& tp1, const PxVec3& tp2)
+PxIntBool ev4sio_Gu::intersectTriangleBox_ReferenceCode(const PxVec3& boxcenter, const PxVec3& extents, const PxVec3& tp0, const PxVec3& tp1, const PxVec3& tp2)
 {
 	return intersectTriangleBox_RefImpl(boxcenter, extents, tp0, tp1, tp2);
 }
@@ -141,7 +141,7 @@ static PX_FORCE_INLINE PxIntBool intersectTriangleBoxInternal(const Vec4V v0V, c
 }
 
 // PT: a SIMD version of Tomas Moller's triangle-box SAT code
-PxIntBool Gu::intersectTriangleBox_Unsafe(const PxVec3& center, const PxVec3& extents, const PxVec3& p0, const PxVec3& p1, const PxVec3& p2)
+PxIntBool ev4sio_Gu::intersectTriangleBox_Unsafe(const PxVec3& center, const PxVec3& extents, const PxVec3& p0, const PxVec3& p1, const PxVec3& p2)
 {
 	// Move everything so that the boxcenter is in (0,0,0)
 	const Vec4V BoxCenterV = V4LoadU(&center.x);
@@ -152,7 +152,7 @@ PxIntBool Gu::intersectTriangleBox_Unsafe(const PxVec3& center, const PxVec3& ex
 	return intersectTriangleBoxInternal(v0V, v1V, v2V, extents);
 }
 
-PxIntBool Gu::intersectTriangleBox(const BoxPadded& box, const PxVec3& p0_, const PxVec3& p1_, const PxVec3& p2_)
+PxIntBool ev4sio_Gu::intersectTriangleBox(const BoxPadded& box, const PxVec3& p0_, const PxVec3& p1_, const PxVec3& p2_)
 {
 	// PT: TODO: SIMDify this part
 

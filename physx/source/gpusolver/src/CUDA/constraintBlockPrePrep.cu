@@ -57,8 +57,8 @@
 #include "constraintPrepShared.cuh"
 #include "copy.cuh"
 
-using namespace physx;
-using namespace Cm;
+using namespace ev4sio_physx;
+using namespace ev4sio_Cm;
 
 extern "C" __host__ void initSolverKernels2() {}
 
@@ -805,8 +805,8 @@ extern "C" __global__ void constraintContactBlockPrePrepLaunch(PxgPrePrepDesc* g
 
 				/*uint4 nodeData = reinterpret_cast<uint4*>(shDesc.mPartitionNodeData)[uniqueIndex];
 
-				IG::NodeIndex igNodeIndexA = *reinterpret_cast<IG::NodeIndex*>(&nodeData.x);
-				IG::NodeIndex igNodeIndexB = *reinterpret_cast<IG::NodeIndex*>(&nodeData.y);*/
+				ev4sio_IG::NodeIndex igNodeIndexA = *reinterpret_cast<ev4sio_IG::NodeIndex*>(&nodeData.x);
+				ev4sio_IG::NodeIndex igNodeIndexB = *reinterpret_cast<ev4sio_IG::NodeIndex*>(&nodeData.y);*/
 
 				const PxU32 nodeIndexA = igNodeIndexA.index();
 				const PxU32 nodeIndexB = igNodeIndexB.index();
@@ -1092,7 +1092,7 @@ static PX_FORCE_INLINE __device__  void constraint1DPrePrep(PxU32 jointDataIndex
 			pose1 = pose1_.getTransform();
 		}
 
-		const PxU32 constraintsStartIndex = jointDataIndex * Dy::MAX_CONSTRAINT_ROWS;
+		const PxU32 constraintsStartIndex = jointDataIndex * ev4sio_Dy::MAX_CONSTRAINT_ROWS;
 		Px1DConstraint* constraintRowStart = constraintRows + constraintsStartIndex;
 		PxU32 numRows;
 		PxVec3 ra, rb;
@@ -1245,7 +1245,7 @@ extern "C" __global__ void constraint1DBlockPrePrepLaunch(
 			batch.mStartPartitionIndex = batchHeader.mStartPartitionIndex;
 			batch.mask = batchHeader.mask;
 
-			PxU32 outputRowStartIndex = batchHeader.mConstraintBatchIndex*physx::Dy::MAX_CONSTRAINT_ROWS;
+			PxU32 outputRowStartIndex = batchHeader.mConstraintBatchIndex*ev4sio_physx::ev4sio_Dy::MAX_CONSTRAINT_ROWS;
 
 			//for joint
 			PxgConstraintData*	gPrepData = shDesc.constraintData; // GPU input data
@@ -1271,8 +1271,8 @@ extern "C" __global__ void constraint1DBlockPrePrepLaunch(
 
 				/*uint4 nodeData = reinterpret_cast<uint4*>(shDesc.mPartitionNodeData)[uniqueId];
 
-				IG::NodeIndex igNodeIndexA = *reinterpret_cast<IG::NodeIndex*>(&nodeData.x);
-				IG::NodeIndex igNodeIndexB = *reinterpret_cast<IG::NodeIndex*>(&nodeData.y);*/
+				ev4sio_IG::NodeIndex igNodeIndexA = *reinterpret_cast<ev4sio_IG::NodeIndex*>(&nodeData.x);
+				ev4sio_IG::NodeIndex igNodeIndexB = *reinterpret_cast<ev4sio_IG::NodeIndex*>(&nodeData.y);*/
 
 				const bool isArticulationA = igNodeIndexA.isArticulation();
 				const bool isArticulationB = igNodeIndexB.isArticulation();

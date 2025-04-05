@@ -35,8 +35,8 @@
 #include "foundation/PxAllocator.h"
 #include "foundation/PxArray.h"
 
-using namespace physx;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
 
 PxU32	kmeans_cluster3d(const PxVec3* input,	// an array of input 3d data points.
 		PxU32 inputSize,						// the number of input data points.
@@ -326,7 +326,7 @@ private:
 		PxArray<PxVec3>		mQuantizedOutput;
 };
 
-Quantizer* physx::Gu::createQuantizer()
+Quantizer* ev4sio_physx::ev4sio_Gu::createQuantizer()
 {
 	return PX_NEW(QuantizerImpl);
 }

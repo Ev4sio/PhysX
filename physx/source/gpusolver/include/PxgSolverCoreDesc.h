@@ -34,14 +34,14 @@
 
 struct float4;
 
-namespace physx
+namespace ev4sio_physx
 {
-	namespace Cm
+	namespace ev4sio_Cm
 	{
 		struct UnAlignedSpatialVector;
 	}
 
-	namespace Sc
+	namespace ev4sio_Sc
 	{
 		class ShapeInteraction;
 	}
@@ -132,7 +132,7 @@ namespace physx
 
 	struct PxsTorsionalFrictionData;
 
-	namespace Dy
+	namespace ev4sio_Dy
 	{
 		struct ThresholdStreamElement;
 		class ThresholdStream;
@@ -205,7 +205,7 @@ namespace physx
 		PxgBodySim*					mBodySimBufferDeviceData; //If the body is articulation, we will have a remap index to the articulation array
 		PxgArticulation*			articulations;
 
-		Cm::UnAlignedSpatialVector* articulationDeferredZ;
+		ev4sio_Cm::UnAlignedSpatialVector* articulationDeferredZ;
 		PxU32*						articulationDirty;
 		uint4*						articulationSlabMask;
 		PxU32						deltaOutOffset;
@@ -239,11 +239,11 @@ namespace physx
 		float4* motionVelocityArray; // first numSolverBodies float4s are linear velocity, last numSolverBodies float4s are angular velocity
 		PxU32* constraintsPerPartition;
 		PxU32* artiConstraintsPerPartition;
-		Dy::ThresholdStreamElement* thresholdStream;
-		Dy::ThresholdStreamElement* tmpThresholdStream;
-		Dy::ThresholdStreamElement*	exceededForceElements;
-		Dy::ThresholdStreamElement*	prevExceededForceElements;
-		Dy::ThresholdStreamElement*	forceChangeThresholdElements; //this is store all pairs which will trigger force exceeded or lost events
+		ev4sio_Dy::ThresholdStreamElement* thresholdStream;
+		ev4sio_Dy::ThresholdStreamElement* tmpThresholdStream;
+		ev4sio_Dy::ThresholdStreamElement*	exceededForceElements;
+		ev4sio_Dy::ThresholdStreamElement*	prevExceededForceElements;
+		ev4sio_Dy::ThresholdStreamElement*	forceChangeThresholdElements; //this is store all pairs which will trigger force exceeded or lost events
 		PxReal* thresholdStreamAccumulatedForce;
 		PxReal* thresholdStreamAccumulatedForceBetweenBlocks;
 		PxU32* thresholdStreamWriteIndex;
@@ -283,7 +283,7 @@ namespace physx
 
 		PxU32 maxLinksPerArticulation;
 
-		Dy::ErrorAccumulator contactErrorAccumulator;
+		ev4sio_Dy::ErrorAccumulator contactErrorAccumulator;
 	};
 
 	struct PxgConstraintPrepareDesc
@@ -461,7 +461,7 @@ namespace physx
 		PxU32								mActiveBodyStartOffset;
 		PxU32								nbElementsPerBody;
 
-		Sc::ShapeInteraction**				mShapeInteractions;
+		ev4sio_Sc::ShapeInteraction**				mShapeInteractions;
 		PxReal*								mRestDistances;
 		PxsTorsionalFrictionData*			mTorsionalFrictionData;
 

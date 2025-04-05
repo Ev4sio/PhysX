@@ -50,7 +50,7 @@
 
 #define PARALLEL_CALLBACKS 1
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 static PxDefaultAllocator		gAllocator;
 static PxDefaultErrorCallback	gErrorCallback;
@@ -131,7 +131,7 @@ class ContactReportCallback : public PxSimulationEventCallback
 			{
 				pairs[i].extractContacts(&contactPoints[0], contactCount);
 
-				PxI32 startIdx = physx::PxAtomicAdd(&gSharedIndex, int32_t(contactCount));
+				PxI32 startIdx = ev4sio_physx::PxAtomicAdd(&gSharedIndex, int32_t(contactCount));
 				for (PxU32 j = 0; j<contactCount; j++)
 				{
 					gContactPositions[startIdx+j] = contactPoints[j].position;
@@ -169,12 +169,12 @@ void initPhysics(bool /*interactive*/)
 	gContactImpulses = new PxVec3[maxCount];
 	gContactVertices = new PxVec3[2*maxCount];
 
-	gFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, gAllocator, gErrorCallback);
-	gPvd = PxCreatePvd(*gFoundation);
-	PxPvdTransport* transport = PxDefaultPvdSocketTransportCreate(PVD_HOST, 5425, 10);
+	gFoundation = ev4sio_PxCreateFoundation(ev4sio_PX_PHYSICS_VERSION, gAllocator, gErrorCallback);
+	gPvd = ev4sio_PxCreatePvd(*gFoundation);
+	PxPvdTransport* transport = ev4sio_PxDefaultPvdSocketTransportCreate(PVD_HOST, 5425, 10);
 	gPvd->connect(*transport, PxPvdInstrumentationFlag::eALL);
-	gPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *gFoundation, PxTolerancesScale(), true, gPvd);
-	PxInitExtensions(*gPhysics, gPvd);
+	gPhysics = ev4sio_PxCreatePhysics(ev4sio_PX_PHYSICS_VERSION, *gFoundation, PxTolerancesScale(), true, gPvd);
+	ev4sio_PxInitExtensions(*gPhysics, gPvd);
 	PxU32 numCores = SnippetUtils::getNbPhysicalCores();
 	gDispatcher = PxDefaultCpuDispatcherCreate(numCores == 0 ? 0 : numCores - 1);
 	PxSceneDesc sceneDesc(gPhysics->getTolerancesScale());
@@ -237,7 +237,7 @@ void cleanupPhysics(bool /*interactive*/)
 {
 	PX_RELEASE(gScene);
 	PX_RELEASE(gDispatcher);
-	PxCloseExtensions();
+	ev4sio_PxCloseExtensions();
 	PX_RELEASE(gPhysics);
 	if (gPvd)
 	{

@@ -32,11 +32,11 @@
 #include "foundation/PxVec3.h"
 #include "PxQueryReport.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	class PxTriangle;
 
-namespace Gu
+namespace ev4sio_Gu
 {
 	class BoxPadded;
 	class Capsule;
@@ -66,7 +66,7 @@ namespace Gu
 										PxHitFlags hitFlags, bool isDoubleSided,				// Query modifiers
 										const BoxPadded* cullBox=NULL);							// Cull data
 
-} // namespace Gu
+} // namespace ev4sio_Gu
 
 }
 

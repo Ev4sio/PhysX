@@ -35,27 +35,27 @@
 #include "CmPool.h"
 #include "CmTask.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 class PxcScratchAllocator;
 
-namespace Gu
+namespace ev4sio_Gu
 {
 	class Axes;
 }
 
-namespace Bp
+namespace ev4sio_Bp
 {
 
 class SapEndPoint;
 class IntegerAABB;
 
-class BroadPhaseBatchUpdateWorkTask: public Cm::Task
+class BroadPhaseBatchUpdateWorkTask: public ev4sio_Cm::Task
 {
 public:
 
 	BroadPhaseBatchUpdateWorkTask(PxU64 contextId=0) :
-		Cm::Task		(contextId), 
+		ev4sio_Cm::Task		(contextId), 
 		mSap			(NULL),
 		mAxis			(0xffffffff),
 		mPairs			(NULL),
@@ -111,8 +111,8 @@ public:
 	// BroadPhase
 	virtual	PxBroadPhaseType::Enum		getType()					const	PX_OVERRIDE	PX_FINAL	{ return PxBroadPhaseType::eSAP;	}
 	virtual	void						release()							PX_OVERRIDE	PX_FINAL;
-	virtual	void						update(PxcScratchAllocator* scratchAllocator, const BroadPhaseUpdateData& updateData, physx::PxBaseTask* continuation)	PX_OVERRIDE	PX_FINAL;
-	virtual	void						preBroadPhase(const Bp::BroadPhaseUpdateData&)	PX_OVERRIDE	PX_FINAL	{}
+	virtual	void						update(PxcScratchAllocator* scratchAllocator, const BroadPhaseUpdateData& updateData, ev4sio_physx::PxBaseTask* continuation)	PX_OVERRIDE	PX_FINAL;
+	virtual	void						preBroadPhase(const ev4sio_Bp::BroadPhaseUpdateData&)	PX_OVERRIDE	PX_FINAL	{}
 	virtual void						fetchBroadPhaseResults()	PX_OVERRIDE	PX_FINAL	{}
 	virtual const BroadPhasePair*		getCreatedPairs(PxU32& nbCreatedPairs)	const	PX_OVERRIDE	PX_FINAL	{ nbCreatedPairs = mCreatedPairsSize;	return mCreatedPairsArray;	}
 	virtual const BroadPhasePair*		getDeletedPairs(PxU32& nbDeletedPairs)	const	PX_OVERRIDE	PX_FINAL	{ nbDeletedPairs = mDeletedPairsSize;	return mDeletedPairsArray;	}
@@ -136,7 +136,7 @@ private:
 			const BpHandle*				mUpdated;				
 			PxU32						mUpdatedSize;				
 			const PxBounds3*			mBoxBoundsMinMax;			
-			const Bp::FilterGroup::Enum*mBoxGroups;
+			const ev4sio_Bp::FilterGroup::Enum*mBoxGroups;
 			const BpFilter*				mFilter;
 			const PxReal*				mContactDistance;
 			PxU32						mBoxesCapacity;
@@ -204,8 +204,8 @@ private:
 #endif
 };
 
-} //namespace Bp
+} //namespace ev4sio_Bp
 
-} //namespace physx
+} //namespace ev4sio_physx
 
 #endif //BP_BROADPHASE_SAP_H

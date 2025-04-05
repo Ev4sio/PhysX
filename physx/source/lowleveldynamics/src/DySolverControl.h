@@ -31,9 +31,9 @@
 
 #include "DySolverCore.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Dy
+namespace ev4sio_Dy
 {
 
 /*
@@ -43,7 +43,7 @@ the solution forces are saved in a vector.
 
 state should not be stored, this function is safe to call from multiple threads.
 */
-void solveVParallelAndWriteBack(SolverIslandParams& params, Cm::SpatialVectorF* deltaV, Dy::ErrorAccumulatorEx* errorAccumulator, 
+void solveVParallelAndWriteBack(SolverIslandParams& params, ev4sio_Cm::SpatialVectorF* deltaV, ev4sio_Dy::ErrorAccumulatorEx* errorAccumulator, 
 	bool solveFrictionEveryIteration);
 
 void solveV_Blocks(SolverIslandParams& params, bool solveFrictionEveryIteration);

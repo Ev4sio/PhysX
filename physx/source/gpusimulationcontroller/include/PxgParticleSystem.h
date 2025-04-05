@@ -47,7 +47,7 @@
 #include "PxNodeIndex.h"
 #include "PxgSimulationCoreDesc.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 #define	EMPTY_CELL	0xffffffff
 #define NUM_SPRING_PER_BLOCK			4

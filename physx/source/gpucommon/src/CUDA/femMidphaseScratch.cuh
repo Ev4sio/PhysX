@@ -34,9 +34,9 @@
 
 #define	FEM_MIDPHASE_SCRATCH_SIZE 224 // 192 (WARP SIZE * 6) < 198 (sizeof(femMidphaseScratch)/sizeof(unsigned int)) < 224 (WARP SIZE * 7)
 
-namespace physx
+namespace ev4sio_physx
 {
-	namespace Gu
+	namespace ev4sio_Gu
 	{
 		struct BV32DataDepthInfo;
 		struct BV32DataPacked;
@@ -48,10 +48,10 @@ struct femMidphaseScratch
 	const float4* PX_RESTRICT meshVerts;       // either tetrahedron mesh or triangle mesh
 	const uint4* PX_RESTRICT meshVertsIndices; // either tetrahedron mesh or triangle mesh
 
-	// const physx::Gu::BV32DataDepthInfo* PX_RESTRICT bv32DepthInfo;
+	// const ev4sio_physx::ev4sio_Gu::BV32DataDepthInfo* PX_RESTRICT bv32DepthInfo;
 	// const unsigned int* PX_RESTRICT bv32RemapPackedNodeIndex;
 	// bv32 tree
-	const physx::Gu::BV32DataPacked* bv32PackedNodes;
+	const ev4sio_physx::ev4sio_Gu::BV32DataPacked* bv32PackedNodes;
 
 	// stack for traversal
 	int sBv32Nodes[192]; // 6 depth of the bv32 tree
@@ -61,7 +61,7 @@ PX_COMPILE_TIME_ASSERT(sizeof(femMidphaseScratch) <= WARP_SIZE * 7 * sizeof(unsi
 class femClothRefitMidphaseScratch : public femMidphaseScratch
 {
 public:
-	const physx::Gu::BV32DataDepthInfo* PX_RESTRICT bv32DepthInfo;
+	const ev4sio_physx::ev4sio_Gu::BV32DataDepthInfo* PX_RESTRICT bv32DepthInfo;
 	const unsigned int* PX_RESTRICT bv32RemapPackedNodeIndex;
 	
 };

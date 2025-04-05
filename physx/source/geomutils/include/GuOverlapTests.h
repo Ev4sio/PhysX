@@ -38,9 +38,9 @@
 #include "geometry/PxGeometryHit.h"
 #include "geometry/PxGeometryQueryContext.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Gu
+namespace ev4sio_Gu
 {
 	class Capsule;
 	class Sphere;
@@ -74,7 +74,7 @@ namespace Gu
 	// \param[in]	threadContext	optional per-thread context
 	#define GU_OVERLAP_FUNC_PARAMS	const PxGeometry& geom0, const PxTransform& pose0,	\
 									const PxGeometry& geom1, const PxTransform& pose1,	\
-									Gu::TriggerCache* cache, PxOverlapThreadContext* threadContext
+									ev4sio_Gu::TriggerCache* cache, PxOverlapThreadContext* threadContext
 
 	// PT: function pointer for Geom-indexed overlap functions
 	// See GU_OVERLAP_FUNC_PARAMS for function parameters details.
@@ -91,8 +91,8 @@ namespace Gu
 									const PxGeometry& geom1, const PxTransform& pose1,
 									const GeomOverlapTable* PX_RESTRICT overlapFuncs, PxOverlapThreadContext* threadContext)
 	{
-		PX_CHECK_AND_RETURN_VAL(pose0.isValid(), "Gu::overlap(): pose0 is not valid.", false);
-		PX_CHECK_AND_RETURN_VAL(pose1.isValid(), "Gu::overlap(): pose1 is not valid.", false);
+		PX_CHECK_AND_RETURN_VAL(pose0.isValid(), "ev4sio_Gu::overlap(): pose0 is not valid.", false);
+		PX_CHECK_AND_RETURN_VAL(pose1.isValid(), "ev4sio_Gu::overlap(): pose1 is not valid.", false);
 		
 		if(geom0.getType() > geom1.getType())
 		{
@@ -108,7 +108,7 @@ namespace Gu
 		}
 	}
 
-}  // namespace Gu
+}  // namespace ev4sio_Gu
 
 }
 

@@ -38,17 +38,17 @@
 #include "CmBlockArray.h"
 #include "foundation/PxHashMap.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	class PxsRigidBody;
 	struct PxsExternalAccelerationProvider;
 
-	namespace IG
+	namespace ev4sio_IG
 	{
 		class NodeIndex;
 	}
 
-	namespace Dy
+	namespace ev4sio_Dy
 	{
 		class FeatherstoneArticulation;
 		class DeformableSurface;
@@ -66,7 +66,7 @@ namespace physx
 	struct PxgArticulationUpdate
 	{
 		PxU32 articulationIndex; //Which articulation on GPU
-		Dy::FeatherstoneArticulation* articulation; //Which articulation on CPU
+		ev4sio_Dy::FeatherstoneArticulation* articulation; //Which articulation on CPU
 	};
 	struct PxgArticulationIndices	: public PxgRemapIndices {};
 	struct PxgSoftBodyIndices		: public PxgRemapIndices {};
@@ -136,34 +136,34 @@ namespace physx
 
 		void	addBody(PxsRigidBody* bodyCore, const PxU32 nodeIndex);
 
-		void	addArticulation(Dy::FeatherstoneArticulation* articulation, const PxU32 nodeIndex, bool OmniPVDRecordDirectGPUAPI);
-		void	releaseArticulation(Dy::FeatherstoneArticulation* articulation, const PxU32 nodeIndex);
+		void	addArticulation(ev4sio_Dy::FeatherstoneArticulation* articulation, const PxU32 nodeIndex, bool OmniPVDRecordDirectGPUAPI);
+		void	releaseArticulation(ev4sio_Dy::FeatherstoneArticulation* articulation, const PxU32 nodeIndex);
 		void	releaseDeferredArticulationIds();
 
-		void	addSoftBody(Dy::DeformableVolume* deformableVolume, const PxU32 nodeIndex);
-		void	releaseSoftBody(Dy::DeformableVolume* deformableVolume);
+		void	addSoftBody(ev4sio_Dy::DeformableVolume* deformableVolume, const PxU32 nodeIndex);
+		void	releaseSoftBody(ev4sio_Dy::DeformableVolume* deformableVolume);
 		void	releaseDeferredSoftBodyIds();
-		bool	activateSoftbody(Dy::DeformableVolume* deformableVolume);
-		bool	deactivateSoftbody(Dy::DeformableVolume* deformableVolume);
+		bool	activateSoftbody(ev4sio_Dy::DeformableVolume* deformableVolume);
+		bool	deactivateSoftbody(ev4sio_Dy::DeformableVolume* deformableVolume);
 
-		bool	activateSoftbodySelfCollision(Dy::DeformableVolume* deformableVolume);
-		bool	deactivateSoftbodySelfCollision(Dy::DeformableVolume* deformableVolume);
+		bool	activateSoftbodySelfCollision(ev4sio_Dy::DeformableVolume* deformableVolume);
+		bool	deactivateSoftbodySelfCollision(ev4sio_Dy::DeformableVolume* deformableVolume);
 
-		void	addFEMCloth(Dy::DeformableSurface*, const PxU32 nodeIndex);
-		void	releaseFEMCloth(Dy::DeformableSurface*);
+		void	addFEMCloth(ev4sio_Dy::DeformableSurface*, const PxU32 nodeIndex);
+		void	releaseFEMCloth(ev4sio_Dy::DeformableSurface*);
 		void	releaseDeferredFEMClothIds();
-		bool	activateCloth(Dy::DeformableSurface*);
-		bool	deactivateCloth(Dy::DeformableSurface*);
+		bool	activateCloth(ev4sio_Dy::DeformableSurface*);
+		bool	deactivateCloth(ev4sio_Dy::DeformableSurface*);
 
-		void	addPBDParticleSystem(Dy::ParticleSystem* particleSystem, const PxU32 nodeIndex);
-		void	releasePBDParticleSystem(Dy::ParticleSystem* particleSystem);
+		void	addPBDParticleSystem(ev4sio_Dy::ParticleSystem* particleSystem, const PxU32 nodeIndex);
+		void	releasePBDParticleSystem(ev4sio_Dy::ParticleSystem* particleSystem);
 		void	releaseDeferredPBDParticleSystemIds();
 
 		void	updateBodies(PxsRigidBody** rigidBodies, PxU32* nodeIndices, const PxU32 nbBodies, PxsExternalAccelerationProvider* externalAccelerations);
 		void	updateBody(const PxNodeIndex&);
 		void	destroy();
 
-		void	updateArticulation(Dy::FeatherstoneArticulation* articulation, const PxU32 nodeIndex);
+		void	updateArticulation(ev4sio_Dy::FeatherstoneArticulation* articulation, const PxU32 nodeIndex);
 
 		void	reset();
 		void	reserve(const PxU32 nbBodies);
@@ -200,15 +200,15 @@ namespace physx
 		PxArray<PxgArticulationIndices>							mNewArticulationSims;
 		PxArray<PxgSoftBodyIndices>								mNewSoftBodySims;
 		PxArray<PxgFEMClothIndices>								mNewFEMClothSims;
-		PxArray<Dy::DeformableSurface*>							mDeformableSurfaces;
-		PxArray<Dy::DeformableVolume*>							mDeformableVolumes;
+		PxArray<ev4sio_Dy::DeformableSurface*>							mDeformableSurfaces;
+		PxArray<ev4sio_Dy::DeformableVolume*>							mDeformableVolumes;
 		PxArray<PxgParticleSystemIndices>						mNewPBDParticleSystemSims;
 
 
-		Cm::DeferredIDPool										mArticulationIdPool; //generate the remap id between pxgbodysim and pxgarticulation
-		Cm::DeferredIDPool										mSoftBodyIdPool; //generate the remap id between pxgbodysim and pxgsoftbody
-		Cm::DeferredIDPool										mFEMClothIdPool; //generate the remap id between pxgbodysim and pxgfemcloth
-		Cm::DeferredIDPool										mPBDParticleSystemIdPool; //generate the remap id between pxgbodysim and pxgparticlesystem
+		ev4sio_Cm::DeferredIDPool										mArticulationIdPool; //generate the remap id between pxgbodysim and pxgarticulation
+		ev4sio_Cm::DeferredIDPool										mSoftBodyIdPool; //generate the remap id between pxgbodysim and pxgsoftbody
+		ev4sio_Cm::DeferredIDPool										mFEMClothIdPool; //generate the remap id between pxgbodysim and pxgfemcloth
+		ev4sio_Cm::DeferredIDPool										mPBDParticleSystemIdPool; //generate the remap id between pxgbodysim and pxgparticlesystem
 
 
 		PxPinnedArray<PxgBodySimVelocityUpdate>					mNewUpdatedBodies;
@@ -241,8 +241,8 @@ namespace physx
 #endif
 		PxArray<PxU32>											mDeferredFreeNodeIDs;
 
-		Cm::BlockArray<PxgStaticConstraints, 1024>				mStaticConstraints;
-		Cm::BlockArray<PxgArticulationSelfConstraints, 1024>	mArticulationSelfConstraints;
+		ev4sio_Cm::BlockArray<PxgStaticConstraints, 1024>				mStaticConstraints;
+		ev4sio_Cm::BlockArray<PxgArticulationSelfConstraints, 1024>	mArticulationSelfConstraints;
 
 		PxU32													mTotalStaticArticContacts;
 		PxU32													mTotalStaticArticJoints;

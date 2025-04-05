@@ -28,7 +28,7 @@
 #define PX_PROFILE_CONTEXT_PROVIDER_H
 
 
-namespace physx { namespace profile {
+namespace ev4sio_physx { namespace profile {
 
 	struct PxProfileEventExecutionContext
 	{

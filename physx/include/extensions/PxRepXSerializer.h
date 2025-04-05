@@ -33,7 +33,7 @@
 #include "extensions/PxRepXSimpleType.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 	
@@ -100,7 +100,7 @@ namespace physx
 	};
 	
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 /**
@@ -108,19 +108,19 @@ namespace physx
 \deprecated Xml serialization is deprecated. An alternative serialization system is provided through USD Physics.
 */
 template<typename TDataType>
-PX_DEPRECATED PX_INLINE physx::PxRepXObject PxCreateRepXObject(const TDataType* inType, const physx::PxSerialObjectId inId)
+PX_DEPRECATED PX_INLINE ev4sio_physx::PxRepXObject PxCreateRepXObject(const TDataType* inType, const ev4sio_physx::PxSerialObjectId inId)
 {
-	return physx::PxRepXObject(physx::PxTypeInfo<TDataType>::name(), inType, inId);
+	return ev4sio_physx::PxRepXObject(ev4sio_physx::PxTypeInfo<TDataType>::name(), inType, inId);
 }
 
 /**
 \brief Inline helper function to create PxRepXObject from a PxBase instance.
 \deprecated Xml serialization is deprecated. An alternative serialization system is provided through USD Physics.
 */
-PX_DEPRECATED PX_INLINE physx::PxRepXObject PxCreateRepXObject(const physx::PxBase* inType, const physx::PxSerialObjectId inId)
+PX_DEPRECATED PX_INLINE ev4sio_physx::PxRepXObject PxCreateRepXObject(const ev4sio_physx::PxBase* inType, const ev4sio_physx::PxSerialObjectId inId)
 {
 	PX_ASSERT(inType);
-	return physx::PxRepXObject(inType->getConcreteTypeName(), inType, inId);
+	return ev4sio_physx::PxRepXObject(inType->getConcreteTypeName(), inType, inId);
 }
 
 /**
@@ -128,9 +128,9 @@ PX_DEPRECATED PX_INLINE physx::PxRepXObject PxCreateRepXObject(const physx::PxBa
 \deprecated Xml serialization is deprecated. An alternative serialization system is provided through USD Physics.
 */
 template<typename TDataType>
-PX_DEPRECATED PX_INLINE physx::PxRepXObject PxCreateRepXObject(const TDataType* inType)
+PX_DEPRECATED PX_INLINE ev4sio_physx::PxRepXObject PxCreateRepXObject(const TDataType* inType)
 {
-	return PxCreateRepXObject(inType, static_cast<physx::PxSerialObjectId>(size_t(inType)));
+	return PxCreateRepXObject(inType, static_cast<ev4sio_physx::PxSerialObjectId>(size_t(inType)));
 }
 
 /**
@@ -138,14 +138,14 @@ PX_DEPRECATED PX_INLINE physx::PxRepXObject PxCreateRepXObject(const TDataType* 
 \deprecated Xml serialization is deprecated. An alternative serialization system is provided through USD Physics.
 */
 #define PX_NEW_REPX_SERIALIZER(T) \
-		*PX_PLACEMENT_NEW(PxGetAllocatorCallback()->allocate(sizeof(T), "PxRepXSerializer", PX_FL), T)(*PxGetAllocatorCallback())
+		*PX_PLACEMENT_NEW(ev4sio_PxGetAllocatorCallback()->allocate(sizeof(T), "PxRepXSerializer", PX_FL), T)(*ev4sio_PxGetAllocatorCallback())
 
 /**
 \brief Preprocessor Macro to simplify RepX serializer delete.
 \deprecated Xml serialization is deprecated. An alternative serialization system is provided through USD Physics.
 */
 #define PX_DELETE_REPX_SERIALIZER(x) \
-		{ PxRepXSerializer* s = x; if (s) { PxGetAllocatorCallback()->deallocate(s); } }
+		{ PxRepXSerializer* s = x; if (s) { ev4sio_PxGetAllocatorCallback()->deallocate(s); } }
 
 
 #endif

@@ -31,14 +31,14 @@
 
 #include "common/PxPhysXCommonConfig.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-	namespace Gu
+	namespace ev4sio_Gu
 	{
 		struct BigConvexRawData;
 	}
 
-	void localSearch(PxU32& id, const PxVec3& dir, const PxVec3* verts, const Gu::BigConvexRawData* val);
+	void localSearch(PxU32& id, const PxVec3& dir, const PxVec3* verts, const ev4sio_Gu::BigConvexRawData* val);
 }
 
 #endif

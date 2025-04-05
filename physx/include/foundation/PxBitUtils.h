@@ -35,7 +35,7 @@
 #include "foundation/PxMathIntrinsics.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 PX_INLINE uint32_t PxBitCount(uint32_t v)
@@ -121,7 +121,7 @@ PX_INLINE uint32_t PxILog2(uint32_t num)
 }
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

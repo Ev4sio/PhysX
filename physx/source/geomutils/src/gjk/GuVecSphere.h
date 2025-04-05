@@ -36,9 +36,9 @@
 /**
 \brief Represents a sphere defined by its center point and radius.
 */
-namespace physx
+namespace ev4sio_physx
 {
-namespace Gu
+namespace ev4sio_Gu
 {
 	class SphereV : public ConvexV
 	{

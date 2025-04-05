@@ -36,7 +36,7 @@
 #include "foundation/PxMemory.h"
 #include "foundation/PxIO.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 /*!
@@ -718,7 +718,7 @@ PX_INLINE void swap(PxArray<T, Alloc>& x, PxArray<T, Alloc>& y)
 	x.swap(y);
 }
 
-} // namespace physx
+} // namespace ev4sio_physx
 
 #endif
 

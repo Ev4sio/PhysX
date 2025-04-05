@@ -57,7 +57,7 @@
 
 #include "bv32Traversal.cuh"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 extern "C" __host__ void initNarrowphaseKernels13() {}
 
@@ -167,11 +167,11 @@ __device__ static inline void sbMidphaseCore(
 
 			//printf("maxDepth %i numVerts %i numTets %i nbBv32TreeNodes %i\n", maxDepth, numVerts, numTets, nbBv32TreeNodes);
 
-			Gu::BV32DataPacked* bv32PackedNodes = reinterpret_cast<Gu::BV32DataPacked*>(tetmeshGeomPtr);
+			ev4sio_Gu::BV32DataPacked* bv32PackedNodes = reinterpret_cast<ev4sio_Gu::BV32DataPacked*>(tetmeshGeomPtr);
 			s_warpScratch->bv32PackedNodes = bv32PackedNodes;
 
-			tetmeshGeomPtr += sizeof(const Gu::BV32DataPacked)* nbBv32PackedNodes
-				+ sizeof(const Gu::BV32DataDepthInfo) * nbVerts_nbTets_maxDepth_nbBv32TreeNodes.z
+			tetmeshGeomPtr += sizeof(const ev4sio_Gu::BV32DataPacked)* nbBv32PackedNodes
+				+ sizeof(const ev4sio_Gu::BV32DataDepthInfo) * nbVerts_nbTets_maxDepth_nbBv32TreeNodes.z
 				+ sizeof(PxU32) * nbVerts_nbTets_maxDepth_nbBv32TreeNodes.w;
 		}
 
@@ -236,10 +236,10 @@ void sb_midphaseGeneratePairsLaunch(
 //	const uint4 * PX_RESTRICT tetmeshTetIndices;
 //	const PxU8* PX_RESTRICT tetmeshSurfaceHint;
 //
-//	const Gu::BV32DataDepthInfo* PX_RESTRICT bv32DepthInfo;
+//	const ev4sio_Gu::BV32DataDepthInfo* PX_RESTRICT bv32DepthInfo;
 //	const PxU32* PX_RESTRICT bv32RemapPackedNodeIndex;
 //	//bv32 tree
-//	Gu::BV32DataPacked* bv32PackedNodes;
+//	ev4sio_Gu::BV32DataPacked* bv32PackedNodes;
 //	int nbPackedNodes;
 //	//statck for traversal
 //	int sBv32Nodes[192]; //6 depth of the bv32 tree
@@ -361,7 +361,7 @@ void sb_psMidphaseGeneratePairsLaunch(
 			s_warpScratch->meshVerts = softbody.mPosition_InvMass;
 			s_warpScratch->meshVertsIndices = softbody.mTetIndices;
 	
-			Gu::BV32DataPacked* bv32PackedNodes = reinterpret_cast<Gu::BV32DataPacked*>(tetmeshGeomPtr);
+			ev4sio_Gu::BV32DataPacked* bv32PackedNodes = reinterpret_cast<ev4sio_Gu::BV32DataPacked*>(tetmeshGeomPtr);
 			s_warpScratch->bv32PackedNodes = bv32PackedNodes;
 
 		}
@@ -446,7 +446,7 @@ __device__ static inline void sb_clothVertMidphaseCore(
 			s_warpScratch->meshVerts = softbody.mPosition_InvMass;
 			s_warpScratch->meshVertsIndices = softbody.mTetIndices;
 
-			Gu::BV32DataPacked* bv32PackedNodes = reinterpret_cast<Gu::BV32DataPacked*>(tetmeshGeomPtr);
+			ev4sio_Gu::BV32DataPacked* bv32PackedNodes = reinterpret_cast<ev4sio_Gu::BV32DataPacked*>(tetmeshGeomPtr);
 			s_warpScratch->bv32PackedNodes = bv32PackedNodes;
 		}
 		

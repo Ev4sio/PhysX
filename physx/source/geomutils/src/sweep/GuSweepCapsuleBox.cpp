@@ -38,8 +38,8 @@
 #include "GuInternal.h"
 #include "foundation/PxAlloca.h"
 
-using namespace physx;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
 
 /**
 *	Returns triangles.
@@ -169,7 +169,7 @@ static PxU32 extrudeBox(const PxBounds3& localBox, const PxTransform* world, con
 // of the capsule) against the extruded triangles of the box. The box triangles are extruded along the
 // capsule segment axis.
 //
-bool Gu::sweepCapsuleBox(const Capsule& capsule, const PxTransform& boxWorldPose, const PxVec3& boxDim, const PxVec3& dir, PxReal length, PxVec3& hit, PxReal& min_dist, PxVec3& normal, PxHitFlags hitFlags)
+bool ev4sio_Gu::sweepCapsuleBox(const Capsule& capsule, const PxTransform& boxWorldPose, const PxVec3& boxDim, const PxVec3& dir, PxReal length, PxVec3& hit, PxReal& min_dist, PxVec3& normal, PxHitFlags hitFlags)
 {
 	if(!(hitFlags & PxHitFlag::eASSUME_NO_INITIAL_OVERLAP))
 	{

@@ -37,7 +37,7 @@
 
 #define CUDA_SUCCESS 0
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 extern void initPhysics(bool interactive);
 extern void stepPhysics(bool interactive);	
@@ -115,7 +115,7 @@ void onBeforeRenderParticles()
 		const PxU32 numParticles = userBuffer->getNbActiveParticles();
 
 		PxScene* scene;
-		PxGetPhysics().getScenes(&scene, 1);
+		ev4sio_PxGetPhysics().getScenes(&scene, 1);
 		PxCudaContextManager* cudaContextManager = scene->getCudaContextManager();
 
 		cudaContextManager->acquireContext();
@@ -173,7 +173,7 @@ void renderCallback()
 	Snippets::startRender(sCamera);
 
 	PxScene* scene;
-	PxGetPhysics().getScenes(&scene,1);
+	ev4sio_PxGetPhysics().getScenes(&scene,1);
 	PxU32 nbActors = scene->getNbActors(PxActorTypeFlag::eRIGID_DYNAMIC | PxActorTypeFlag::eRIGID_STATIC);
 	if(nbActors)
 	{

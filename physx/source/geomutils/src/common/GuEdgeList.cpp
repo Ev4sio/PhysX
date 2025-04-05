@@ -37,9 +37,9 @@
 // PT: code archeology: this initially came from ICE (IceEdgeList.h/cpp). Consider putting it back the way it was initially.
 // It makes little sense that something like EdgeList is in GeomUtils but some equivalent class like Adjacencies in is Cooking.
 
-using namespace physx;
-using namespace Gu;
-using namespace Cm;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
+using namespace ev4sio_Cm;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -173,7 +173,7 @@ bool EdgeList::createFacesToEdges(PxU32 nb_faces, const PxU32* dfaces, const PxU
 	}
 
 	// 3) Sort the list according to both keys (VRefs0 and VRefs1)
-	Cm::RadixSortBuffered Sorter;
+	ev4sio_Cm::RadixSortBuffered Sorter;
 	const PxU32* Sorted = Sorter.Sort(VRefs1, nb_faces*3).Sort(VRefs0, nb_faces*3).GetRanks();
 
 	// 4) Loop through all possible edges

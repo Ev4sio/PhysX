@@ -32,7 +32,7 @@
 #include "foundation/PxVec3.h"
 #include "foundation/PxMat33.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 class PxSimpleTriangleMesh;
 class PxConvexMeshDesc;

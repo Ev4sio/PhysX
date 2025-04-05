@@ -40,9 +40,9 @@
 //The largest epsilon we will permit (scaled by PxTolerancesScale.length)
 #define	PCM_WITNESS_POINT_UPPER_EPS		5e-2f
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Gu
+namespace ev4sio_Gu
 {
 	enum FeatureStatus
 	{
@@ -65,9 +65,9 @@ namespace Gu
 		return FSub(t0, t1);
 	}
 
-	PxI32 getPolygonIndex(const Gu::PolygonalData& polyData, const SupportLocal* map, const aos::Vec3VArg normal, PxI32& polyIndex2);
+	PxI32 getPolygonIndex(const ev4sio_Gu::PolygonalData& polyData, const SupportLocal* map, const aos::Vec3VArg normal, PxI32& polyIndex2);
 
-	PX_FORCE_INLINE PxI32 getPolygonIndex(const Gu::PolygonalData& polyData, const SupportLocal* map, const aos::Vec3VArg normal)
+	PX_FORCE_INLINE PxI32 getPolygonIndex(const ev4sio_Gu::PolygonalData& polyData, const SupportLocal* map, const aos::Vec3VArg normal)
 	{
 		using namespace aos;
 
@@ -75,7 +75,7 @@ namespace Gu
 		return getPolygonIndex(polyData, map, normal, index2);
 	}
 
-	PxU32 getWitnessPolygonIndex(	const Gu::PolygonalData& polyData, const SupportLocal* map, const aos::Vec3VArg normal,
+	PxU32 getWitnessPolygonIndex(	const ev4sio_Gu::PolygonalData& polyData, const SupportLocal* map, const aos::Vec3VArg normal,
 									const aos::Vec3VArg closest, PxReal tolerance);
 
 	PX_FORCE_INLINE void outputPCMContact(PxContactBuffer& contactBuffer, PxU32& contactCount, const aos::Vec3VArg point, const aos::Vec3VArg normal,

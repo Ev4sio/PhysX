@@ -48,7 +48,7 @@
 #include "solver.cuh"
 #include "PxgArticulationCoreDesc.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 extern "C" __host__ void initSolverKernels6() {}
 
@@ -248,7 +248,7 @@ static __device__ void markActiveSlab_articulationPGS(
 			PxU32 linkIndexA = igNodeIndexA.articulationLinkId();
 			PxU32 linkIndexB = igNodeIndexB.articulationLinkId();
 
-			Cm::UnAlignedSpatialVector vel0, vel1;
+			ev4sio_Cm::UnAlignedSpatialVector vel0, vel1;
 
 			const PxU32 numArticulations = solverDesc->islandContextPool->mArticulationCount;
 			const PxU32 numTotalBodies = bodyOffset + numDynamicBodies + numArticulations;
@@ -274,13 +274,13 @@ static __device__ void markActiveSlab_articulationPGS(
 				const PxU32 outputOffset = solverDesc->accumulatedBodyDeltaVOffset;
 				const PxU32 totalBodiesIncKinematics = numDynamicBodies + bodyOffset;
 
-				Cm::UnAlignedSpatialVector vel0, vel1;
+				ev4sio_Cm::UnAlignedSpatialVector vel0, vel1;
 				if (igNodeIndexA.isArticulation())
 				{
 					// For articulations, read velocities using readIndex as done in artiSolveBlockPartition.
 					const float4 lin = Pxldcg(iterativeData.solverBodyVelPool[readIndex]);
 					const float4 ang = Pxldcg(iterativeData.solverBodyVelPool[readIndex + 32]);
-					vel0 = Cm::UnAlignedSpatialVector(PxVec3(ang.x, ang.y, ang.z), PxVec3(lin.x, lin.y, lin.z));
+					vel0 = ev4sio_Cm::UnAlignedSpatialVector(PxVec3(ang.x, ang.y, ang.z), PxVec3(lin.x, lin.y, lin.z));
 				}
 				else
 				{
@@ -289,7 +289,7 @@ static __device__ void markActiveSlab_articulationPGS(
 					const PxU32 finalIdA = outputOffset + bodyIdA;
 					const float4 lin = Pxldcg(iterativeData.solverBodyVelPool[finalIdA]);
 					const float4 ang = Pxldcg(iterativeData.solverBodyVelPool[finalIdA + totalBodiesIncKinematics]);
-					vel0 = Cm::UnAlignedSpatialVector(PxVec3(ang.x, ang.y, ang.z), PxVec3(lin.x, lin.y, lin.z));
+					vel0 = ev4sio_Cm::UnAlignedSpatialVector(PxVec3(ang.x, ang.y, ang.z), PxVec3(lin.x, lin.y, lin.z));
 				}
 
 				if (igNodeIndexB.isArticulation())
@@ -297,7 +297,7 @@ static __device__ void markActiveSlab_articulationPGS(
 					// For articulations, read velocities using readIndex as done in artiSolveBlockPartition.
 					const float4 lin = Pxldcg(iterativeData.solverBodyVelPool[readIndex + 64]);
 					const float4 ang = Pxldcg(iterativeData.solverBodyVelPool[readIndex + 96]);
-					vel1 = Cm::UnAlignedSpatialVector(PxVec3(ang.x, ang.y, ang.z), PxVec3(lin.x, lin.y, lin.z));
+					vel1 = ev4sio_Cm::UnAlignedSpatialVector(PxVec3(ang.x, ang.y, ang.z), PxVec3(lin.x, lin.y, lin.z));
 				}
 				else
 				{
@@ -306,7 +306,7 @@ static __device__ void markActiveSlab_articulationPGS(
 					const PxU32 finalIdB = outputOffset + bodyIdB;
 					const float4 lin = Pxldcg(iterativeData.solverBodyVelPool[finalIdB]);
 					const float4 ang = Pxldcg(iterativeData.solverBodyVelPool[finalIdB + totalBodiesIncKinematics]);
-					vel1 = Cm::UnAlignedSpatialVector(PxVec3(ang.x, ang.y, ang.z), PxVec3(lin.x, lin.y, lin.z));
+					vel1 = ev4sio_Cm::UnAlignedSpatialVector(PxVec3(ang.x, ang.y, ang.z), PxVec3(lin.x, lin.y, lin.z));
 				}
 
 				// Check if the contact/normal constraint is active.
@@ -569,12 +569,12 @@ extern "C" __global__ void writebackBlocks(
 
 	PxgFrictionPatchGPU* frictionPatches = reinterpret_cast<PxgFrictionPatchGPU*>(constraintPrepDesc->frictionPatches);
 
-	//__shared__  Dy::ThresholdStreamElement elems[PxgKernelBlockDim::WRITEBACK_BLOCKS];
-	__shared__  PxU8 elemsMem[sizeof(Dy::ThresholdStreamElement)*PxgKernelBlockDim::WRITEBACK_BLOCKS];
-	Dy::ThresholdStreamElement* elems = reinterpret_cast<Dy::ThresholdStreamElement*>(elemsMem);
+	//__shared__  ev4sio_Dy::ThresholdStreamElement elems[PxgKernelBlockDim::WRITEBACK_BLOCKS];
+	__shared__  PxU8 elemsMem[sizeof(ev4sio_Dy::ThresholdStreamElement)*PxgKernelBlockDim::WRITEBACK_BLOCKS];
+	ev4sio_Dy::ThresholdStreamElement* elems = reinterpret_cast<ev4sio_Dy::ThresholdStreamElement*>(elemsMem);
 	__shared__  PxI32 index[PxgKernelBlockDim::WRITEBACK_BLOCKS/warpSize];
 
-	Dy::ThresholdStreamElement* startAddress = &elems[32*warpIndexInBlock];
+	ev4sio_Dy::ThresholdStreamElement* startAddress = &elems[32*warpIndexInBlock];
 
 	//for(uint k = startIndex + warpIndex; k < endIndex; k+=blockStride)
 	uint k = startIndex + warpIndex;
@@ -888,12 +888,12 @@ extern "C" __global__ void propagateSolverBodyVelocity(
 	}
 }
 
-extern "C" __global__ void dmaBackChangedElems(const PxgSolverCoreDesc* solverDesc, Dy::ThresholdStreamElement* hostChangedElems)
+extern "C" __global__ void dmaBackChangedElems(const PxgSolverCoreDesc* solverDesc, ev4sio_Dy::ThresholdStreamElement* hostChangedElems)
 {
-	Dy::ThresholdStreamElement* changeElems = solverDesc->forceChangeThresholdElements;
+	ev4sio_Dy::ThresholdStreamElement* changeElems = solverDesc->forceChangeThresholdElements;
 	PxU32 nbElemsChanges = solverDesc->nbForceChangeElements;
 
-	PxU32 nbThreadsRequired = (sizeof(Dy::ThresholdStreamElement) * nbElemsChanges)/sizeof(PxU32);
+	PxU32 nbThreadsRequired = (sizeof(ev4sio_Dy::ThresholdStreamElement) * nbElemsChanges)/sizeof(PxU32);
 
 	PxU32* src = reinterpret_cast<PxU32*>(changeElems);
 	PxU32* dst = reinterpret_cast<PxU32*>(hostChangedElems);

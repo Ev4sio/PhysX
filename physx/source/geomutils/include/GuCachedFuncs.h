@@ -33,22 +33,22 @@
 #include "GuSweepTests.h"
 #include "GuOverlapTests.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Gu
+namespace ev4sio_Gu
 {
 	struct CachedFuncs
 	{
 		CachedFuncs() :
-			mCachedRaycastFuncs	(Gu::getRaycastFuncTable()),
-			mCachedSweepFuncs	(Gu::getSweepFuncTable()),
-			mCachedOverlapFuncs	(Gu::getOverlapFuncTable())
+			mCachedRaycastFuncs	(ev4sio_Gu::getRaycastFuncTable()),
+			mCachedSweepFuncs	(ev4sio_Gu::getSweepFuncTable()),
+			mCachedOverlapFuncs	(ev4sio_Gu::getOverlapFuncTable())
 		{
 		}
 
-		const Gu::GeomRaycastTable&	mCachedRaycastFuncs;
-		const Gu::GeomSweepFuncs&	mCachedSweepFuncs;
-		const Gu::GeomOverlapTable*	mCachedOverlapFuncs;
+		const ev4sio_Gu::GeomRaycastTable&	mCachedRaycastFuncs;
+		const ev4sio_Gu::GeomSweepFuncs&	mCachedSweepFuncs;
+		const ev4sio_Gu::GeomOverlapTable*	mCachedOverlapFuncs;
 
 		PX_NOCOPY(CachedFuncs)
 	};

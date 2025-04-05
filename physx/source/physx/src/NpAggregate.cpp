@@ -36,8 +36,8 @@
 #include "NpArticulationReducedCoordinate.h"
 #include "omnipvd/NpOmniPvdSetData.h"
 
-using namespace physx;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
 
 namespace
 {
@@ -117,7 +117,7 @@ void NpAggregate::scRemoveActor(NpActor& actor, bool reinsert)
 {
 	PX_ASSERT(!isAPIWriteForbidden());
 
-	Sc::ActorCore& ac = actor.getActorCore();
+	ev4sio_Sc::ActorCore& ac = actor.getActorCore();
 	ac.setAggregateID(PX_INVALID_U32);
 		
 	if(getNpScene() && reinsert)
@@ -483,7 +483,7 @@ PxU32 NpAggregate::getMaxNbShapes() const
 PxU32 NpAggregate::getActors(PxActor** userBuffer, PxU32 bufferSize, PxU32 startIndex) const
 {
 	NP_READ_CHECK(getNpScene());
-	return Cm::getArrayOfPointers(userBuffer, bufferSize, startIndex, mActors, getCurrentSizeFast());
+	return ev4sio_Cm::getArrayOfPointers(userBuffer, bufferSize, startIndex, mActors, getCurrentSizeFast());
 }
 
 PxScene* NpAggregate::getScene()

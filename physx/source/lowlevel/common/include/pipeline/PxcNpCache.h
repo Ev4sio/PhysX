@@ -39,10 +39,10 @@
 
 #include "GuContactMethodImpl.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
-PX_FORCE_INLINE void PxcNpCacheReserve(PxcNpCacheStreamPair& streams, Gu::Cache& cache, PxU32 bytes)
+PX_FORCE_INLINE void PxcNpCacheReserve(PxcNpCacheStreamPair& streams, ev4sio_Gu::Cache& cache, PxU32 bytes)
 {
 	bool sizeTooLarge;
 	PxU8* ls = streams.reserve(bytes, sizeTooLarge);
@@ -66,7 +66,7 @@ PX_FORCE_INLINE void PxcNpCacheReserve(PxcNpCacheStreamPair& streams, Gu::Cache&
 
 template <typename T>
 void PxcNpCacheWrite(PxcNpCacheStreamPair& streams,
-					 Gu::Cache& cache,
+					 ev4sio_Gu::Cache& cache,
 					 const T& payload,
 					 PxU32 bytes, 
 					 const PxU8* data)
@@ -81,7 +81,7 @@ void PxcNpCacheWrite(PxcNpCacheStreamPair& streams,
 
 
 template <typename T>
-PxU8* PxcNpCacheWriteInitiate(PxcNpCacheStreamPair& streams, Gu::Cache& cache, const T& payload, PxU32 bytes)
+PxU8* PxcNpCacheWriteInitiate(PxcNpCacheStreamPair& streams, ev4sio_Gu::Cache& cache, const T& payload, PxU32 bytes)
 {
 	const PxU32 payloadSize = (sizeof(payload)+3)&~3;
 	cache.mCachedSize = PxTo16((payloadSize + 4 + bytes + 0xF)&~0xF);
@@ -102,7 +102,7 @@ PX_FORCE_INLINE void PxcNpCacheWriteFinalize(PxU8* ls, const T& payload, PxU32 b
 }
 
 template <typename T>
-PX_FORCE_INLINE PxU8* PxcNpCacheRead(Gu::Cache& cache, T*& payload)
+PX_FORCE_INLINE PxU8* PxcNpCacheRead(ev4sio_Gu::Cache& cache, T*& payload)
 {
 	PxU8* ls = cache.mCachedData;
 	payload = reinterpret_cast<T*>(ls);
@@ -111,7 +111,7 @@ PX_FORCE_INLINE PxU8* PxcNpCacheRead(Gu::Cache& cache, T*& payload)
 }
 
 template <typename T>
-const PxU8* PxcNpCacheRead2(Gu::Cache& cache, T& payload, PxU32& bytes)
+const PxU8* PxcNpCacheRead2(ev4sio_Gu::Cache& cache, T& payload, PxU32& bytes)
 {
 	const PxU8* ls = cache.mCachedData;
 	if(ls==NULL)

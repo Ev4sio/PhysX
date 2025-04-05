@@ -65,9 +65,9 @@
 //KS - used to specifically turn on/off batches 1D SIMD constraints.
 #define DY_BATCH_1D 1
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Dy
+namespace ev4sio_Dy
 {
 // PT: TODO: what is const and what is not?
 struct SolverIslandObjects
@@ -76,7 +76,7 @@ struct SolverIslandObjects
 	FeatherstoneArticulation**	articulations;
 	PxsIndexedContactManager*	contactManagers;	// PT: points to DynamicsContext::mContactList
 
-	const IG::IslandId*			islandIds;
+	const ev4sio_IG::IslandId*			islandIds;
 	PxU32						numIslands;
 	PxU32*						bodyRemapTable;
 	PxU32*						nodeIndexArray;
@@ -85,7 +85,7 @@ struct SolverIslandObjects
 	PxSolverConstraintDesc*		orderedConstraintDescs;
 	PxSolverConstraintDesc*		tempConstraintDescs;
 	PxConstraintBatchHeader*	constraintBatchHeaders;
-	Cm::SpatialVector*			motionVelocities;
+	ev4sio_Cm::SpatialVector*			motionVelocities;
 	PxsBodyCore**				bodyCoreArray;
 
 	SolverIslandObjects() : bodies(NULL), articulations(NULL), 
@@ -95,9 +95,9 @@ struct SolverIslandObjects
 	}
 };
 
-Context* createDynamicsContext(	PxcNpMemBlockPool* memBlockPool, PxcScratchAllocator& scratchAllocator, Cm::FlushPool& taskPool,
+Context* createDynamicsContext(	PxcNpMemBlockPool* memBlockPool, PxcScratchAllocator& scratchAllocator, ev4sio_Cm::FlushPool& taskPool,
 								PxvSimStats& simStats, PxTaskManager* taskManager, PxVirtualAllocatorCallback* allocatorCallback, 
-								PxsMaterialManager* materialManager, IG::SimpleIslandManager& islandManager, PxU64 contextID,
+								PxsMaterialManager* materialManager, ev4sio_IG::SimpleIslandManager& islandManager, PxU64 contextID,
 								bool enableStabilization, bool useEnhancedDeterminism,
 								PxReal maxBiasCoefficient, bool frictionEveryIteration, PxReal lengthScale, bool isResidualReportingEnabled)
 {
@@ -113,12 +113,12 @@ void DynamicsContext::destroy()
 
 DynamicsContext::DynamicsContext(	PxcNpMemBlockPool* memBlockPool,
 									PxcScratchAllocator& /*scratchAllocator*/,
-									Cm::FlushPool& taskPool,
+									ev4sio_Cm::FlushPool& taskPool,
 									PxvSimStats& simStats,
 									PxTaskManager* /*taskManager*/,
 									PxVirtualAllocatorCallback* allocatorCallback,
 									PxsMaterialManager* materialManager,
-									IG::SimpleIslandManager& islandManager,
+									ev4sio_IG::SimpleIslandManager& islandManager,
 									PxU64 contextID,
 									bool enableStabilization,
 									bool useEnhancedDeterminism,
@@ -170,7 +170,7 @@ void DynamicsContext::addThreadStats(const ThreadContext::ThreadSimStats& stats)
 PX_COMPILE_TIME_ASSERT(PxsIndexedInteraction::eBODY == 0);
 PX_COMPILE_TIME_ASSERT(PxsIndexedInteraction::eKINEMATIC == 1);
 
-void DynamicsContext::setDescFromIndices_Contacts(PxSolverConstraintDesc& desc, const IG::IslandSim& islandSim, const PxsIndexedInteraction& constraint, PxU32 solverBodyOffset)
+void DynamicsContext::setDescFromIndices_Contacts(PxSolverConstraintDesc& desc, const ev4sio_IG::IslandSim& islandSim, const PxsIndexedInteraction& constraint, PxU32 solverBodyOffset)
 {
 	const PxU32 offsetMap[] = {solverBodyOffset, 0};
 	//const PxU32 offsetMap[] = {mKinematicCount, 0};
@@ -178,7 +178,7 @@ void DynamicsContext::setDescFromIndices_Contacts(PxSolverConstraintDesc& desc, 
 	if(constraint.indexType0 == PxsIndexedInteraction::eARTICULATION)
 	{
 		const PxNodeIndex nodeIndex0(constraint.articulation0);
-		const IG::Node& node0 = islandSim.getNode(nodeIndex0);
+		const ev4sio_IG::Node& node0 = islandSim.getNode(nodeIndex0);
 		desc.articulationA = node0.mObject;
 		desc.linkIndexA = nodeIndex0.articulationLinkId();
 	}
@@ -195,7 +195,7 @@ void DynamicsContext::setDescFromIndices_Contacts(PxSolverConstraintDesc& desc, 
 	if(constraint.indexType1 == PxsIndexedInteraction::eARTICULATION)
 	{
 		const PxNodeIndex nodeIndex1(constraint.articulation1);
-		const IG::Node& node1 = islandSim.getNode(nodeIndex1);
+		const ev4sio_IG::Node& node1 = islandSim.getNode(nodeIndex1);
 		desc.articulationB = node1.mObject;
 		desc.linkIndexB = nodeIndex1.articulationLinkId();// PxTo8(getLinkIndex(constraint.articulation1));
 	}
@@ -210,7 +210,7 @@ void DynamicsContext::setDescFromIndices_Contacts(PxSolverConstraintDesc& desc, 
 	}
 }
 
-void DynamicsContext::setDescFromIndices_Constraints(PxSolverConstraintDesc& desc, const IG::IslandSim& islandSim, IG::EdgeIndex edgeIndex, const PxU32* bodyRemap, PxU32 solverBodyOffset)
+void DynamicsContext::setDescFromIndices_Constraints(PxSolverConstraintDesc& desc, const ev4sio_IG::IslandSim& islandSim, ev4sio_IG::EdgeIndex edgeIndex, const PxU32* bodyRemap, PxU32 solverBodyOffset)
 {
 	const PxNodeIndex node1 = islandSim.mCpuData.getNodeIndex1(edgeIndex);
 	if (node1.isStaticBody())
@@ -221,8 +221,8 @@ void DynamicsContext::setDescFromIndices_Constraints(PxSolverConstraintDesc& des
 	}
 	else
 	{
-		const IG::Node& node = islandSim.getNode(node1);
-		if (node.getNodeType() == IG::Node::eARTICULATION_TYPE)
+		const ev4sio_IG::Node& node = islandSim.getNode(node1);
+		if (node.getNodeType() == ev4sio_IG::Node::eARTICULATION_TYPE)
 		{
 			desc.articulationA = getArticulationFromIG(islandSim, node1);
 			desc.linkIndexA = node1.articulationLinkId();
@@ -246,8 +246,8 @@ void DynamicsContext::setDescFromIndices_Constraints(PxSolverConstraintDesc& des
 	}
 	else
 	{
-		const IG::Node& node = islandSim.getNode(node2);
-		if (node.getNodeType() == IG::Node::eARTICULATION_TYPE)
+		const ev4sio_IG::Node& node = islandSim.getNode(node2);
+		if (node.getNodeType() == ev4sio_IG::Node::eARTICULATION_TYPE)
 		{
 			desc.articulationB = getArticulationFromIG(islandSim, node2);
 			desc.linkIndexB = node2.articulationLinkId();
@@ -263,7 +263,7 @@ void DynamicsContext::setDescFromIndices_Constraints(PxSolverConstraintDesc& des
 	}
 }
 
-class PxsPreIntegrateTask : public Cm::Task
+class PxsPreIntegrateTask : public ev4sio_Cm::Task
 {
 	PxsPreIntegrateTask& operator=(const PxsPreIntegrateTask&);
 public:
@@ -279,7 +279,7 @@ public:
 							PxU32				startIndex,
 							PxU32				numToIntegrate,
 							const PxVec3&		gravity) :
-		Cm::Task					(context.getContextId()),
+		ev4sio_Cm::Task					(context.getContextId()),
 		mContext					(context),
 		mBodyArray					(bodyArray),
 		mOriginalBodyArray			(originalBodyArray),
@@ -317,13 +317,13 @@ public:
 	const PxVec3			mGravity;
 };
 
-class PxsParallelSolverTask : public Cm::Task
+class PxsParallelSolverTask : public ev4sio_Cm::Task
 {
 	PxsParallelSolverTask& operator=(PxsParallelSolverTask&);
 public:
 
-	PxsParallelSolverTask(SolverIslandParams& params, DynamicsContext& context, IG::IslandSim& islandSim)
-		: Cm::Task(context.getContextId()), mParams(params), mContext(context), mIslandSim(islandSim)
+	PxsParallelSolverTask(SolverIslandParams& params, DynamicsContext& context, ev4sio_IG::IslandSim& islandSim)
+		: ev4sio_Cm::Task(context.getContextId()), mParams(params), mContext(context), mIslandSim(islandSim)
 	{
 	}
 
@@ -339,13 +339,13 @@ public:
 
 	SolverIslandParams&		mParams;
 	DynamicsContext&		mContext;
-	IG::IslandSim&			mIslandSim;
+	ev4sio_IG::IslandSim&			mIslandSim;
 };
 
 #if PGS_SUPPORT_COMPOUND_CONSTRAINTS
 #define PX_CONTACT_REDUCTION 1
 
-class PxsSolverConstraintPostProcessTask : public Cm::Task
+class PxsSolverConstraintPostProcessTask : public ev4sio_Cm::Task
 {
 	PxsSolverConstraintPostProcessTask& operator=(const PxsSolverConstraintPostProcessTask&);
 public:
@@ -358,7 +358,7 @@ public:
 		PxU32 stride,
 		PxsMaterialManager* materialManager,
 		PxsContactManagerOutputIterator& iterator) :
-		Cm::Task			(context.getContextId()),
+		ev4sio_Cm::Task			(context.getContextId()),
 		mContext			(context), 
 		mThreadContext		(threadContext),
 		mObjects			(objects),
@@ -469,7 +469,7 @@ public:
 
 		PxU16 compressedContactSize;
 
-		physx::writeCompressedContact(buffer.contacts, size, NULL, output.nbContacts, output.contactPatches, output.contactPoints, compressedContactSize,
+		ev4sio_physx::writeCompressedContact(buffer.contacts, size, NULL, output.nbContacts, output.contactPatches, output.contactPoints, compressedContactSize,
 			reinterpret_cast<PxReal*&>(output.contactForces), contactForceByteSize,
 			output.frictionPatches, NULL,
 			mMaterialManager, false,
@@ -507,14 +507,14 @@ public:
 };
 #endif
 
-class PxsForceThresholdTask  : public Cm::Task
+class PxsForceThresholdTask  : public ev4sio_Cm::Task
 {
 	DynamicsContext&		mDynamicsContext;
 
 	PxsForceThresholdTask& operator=(const PxsForceThresholdTask&);
 public:
 
-	PxsForceThresholdTask(DynamicsContext& context): Cm::Task(context.getContextId()), mDynamicsContext(context) 
+	PxsForceThresholdTask(DynamicsContext& context): ev4sio_Cm::Task(context.getContextId()), mDynamicsContext(context) 
 	{
 	}
 
@@ -636,20 +636,20 @@ struct ArticulationSortPredicate
 	}
 };
 
-class SolverArticulationUpdateTask : public Cm::Task
+class SolverArticulationUpdateTask : public ev4sio_Cm::Task
 {
 	ThreadContext&				mIslandThreadContext;
 	FeatherstoneArticulation**	mArticulations;
 	ArticulationSolverDesc*		mArticulationDescArray;
 	const PxU32					mNbToProcess;
-	Dy::DynamicsContext&		mContext;
+	ev4sio_Dy::DynamicsContext&		mContext;
 
 public:
 
 	static const PxU32 NbArticulationsPerTask = 32;
 
-	SolverArticulationUpdateTask(ThreadContext& islandThreadContext, FeatherstoneArticulation** articulations, ArticulationSolverDesc* articulationDescArray, PxU32 nbToProcess, Dy::DynamicsContext& context) :
-		Cm::Task(context.getContextId()), mIslandThreadContext(islandThreadContext), mArticulations(articulations), mArticulationDescArray(articulationDescArray), mNbToProcess(nbToProcess), mContext(context)
+	SolverArticulationUpdateTask(ThreadContext& islandThreadContext, FeatherstoneArticulation** articulations, ArticulationSolverDesc* articulationDescArray, PxU32 nbToProcess, ev4sio_Dy::DynamicsContext& context) :
+		ev4sio_Cm::Task(context.getContextId()), mIslandThreadContext(islandThreadContext), mArticulations(articulations), mArticulationDescArray(articulationDescArray), mNbToProcess(nbToProcess), mContext(context)
 	{
 	}
 
@@ -718,7 +718,7 @@ struct EnhancedSortPredicate
 	}
 };
 
-class PxsSolverStartTask : public Cm::Task
+class PxsSolverStartTask : public ev4sio_Cm::Task
 {
 	PxsSolverStartTask& operator=(const PxsSolverStartTask&);
 public:
@@ -728,13 +728,13 @@ public:
 		const SolverIslandObjects& objects,
 		PxU32 solverBodyOffset,
 		PxU32 kinematicCount,
-		IG::SimpleIslandManager& islandManager,
+		ev4sio_IG::SimpleIslandManager& islandManager,
 		PxU32* bodyRemapTable,
 		PxsMaterialManager* materialManager,
 		PxsContactManagerOutputIterator& iterator,
 		bool enhancedDeterminism
 		) :
-		Cm::Task				(context.getContextId()),
+		ev4sio_Cm::Task				(context.getContextId()),
 		mContext				(context), 
 		mIslandContext			(islandContext),
 		mObjects				(objects),
@@ -794,9 +794,9 @@ public:
 		PxU32* PX_RESTRICT nodeIndexArray = mThreadContext.mNodeIndexArray;
 
 		PxU32 nbIslands = mObjects.numIslands;
-		const IG::IslandId* const islandIds = mObjects.islandIds;
+		const ev4sio_IG::IslandId* const islandIds = mObjects.islandIds;
 
-		const IG::IslandSim& islandSim = mIslandManager.getAccurateIslandSim();
+		const ev4sio_IG::IslandSim& islandSim = mIslandManager.getAccurateIslandSim();
 
 		PxU32 bodyIndex = 0, articIndex = 0;
 
@@ -805,15 +805,15 @@ public:
 
 			for (PxU32 i = 0; i < nbIslands; ++i)
 			{
-				const IG::Island& island = islandSim.getIsland(islandIds[i]);
+				const ev4sio_IG::Island& island = islandSim.getIsland(islandIds[i]);
 
 				PxNodeIndex currentIndex = island.mRootNode;
 
 				while (currentIndex.isValid())
 				{
-					const IG::Node& node = islandSim.getNode(currentIndex);
+					const ev4sio_IG::Node& node = islandSim.getNode(currentIndex);
 
-					if (node.getNodeType() == IG::Node::eARTICULATION_TYPE)
+					if (node.getNodeType() == ev4sio_IG::Node::eARTICULATION_TYPE)
 					{
 						articulationPtr[articIndex++] = getObjectFromIG<FeatherstoneArticulation>(node);
 					}
@@ -850,13 +850,13 @@ public:
 			PxU32 currentContactIndex = 0;
 			for(PxU32 i = 0; i < nbIslands; ++i)
 			{
-				const IG::Island& island = islandSim.getIsland(islandIds[i]);
+				const ev4sio_IG::Island& island = islandSim.getIsland(islandIds[i]);
 
-				IG::EdgeIndex contactEdgeIndex = island.mFirstEdge[IG::Edge::eCONTACT_MANAGER];
+				ev4sio_IG::EdgeIndex contactEdgeIndex = island.mFirstEdge[ev4sio_IG::Edge::eCONTACT_MANAGER];
 
 				while(contactEdgeIndex != IG_INVALID_EDGE)
 				{
-					const IG::Edge& edge = islandSim.getEdge(contactEdgeIndex);
+					const ev4sio_IG::Edge& edge = islandSim.getEdge(contactEdgeIndex);
 
 					PxsContactManager* contactManager = mIslandManager.getContactManager(contactEdgeIndex);
 
@@ -870,10 +870,10 @@ public:
 
 						PX_ASSERT(!nodeIndex1.isStaticBody());
 						{
-							const IG::Node& node1 = islandSim.getNode(nodeIndex1);
+							const ev4sio_IG::Node& node1 = islandSim.getNode(nodeIndex1);
 
 							//Is it an articulation or not???
-							if(node1.getNodeType() == IG::Node::eARTICULATION_TYPE)
+							if(node1.getNodeType() == ev4sio_IG::Node::eARTICULATION_TYPE)
 							{
 								indexedManager.articulation0 = nodeIndex1.getInd();
 								indexedManager.indexType0 = PxsIndexedInteraction::eARTICULATION;
@@ -900,10 +900,10 @@ public:
 						}
 						else
 						{
-							const IG::Node& node2 = islandSim.getNode(nodeIndex2);
+							const ev4sio_IG::Node& node2 = islandSim.getNode(nodeIndex2);
 
 							//Is it an articulation or not???
-							if(node2.getNodeType() == IG::Node::eARTICULATION_TYPE)
+							if(node2.getNodeType() == ev4sio_IG::Node::eARTICULATION_TYPE)
 							{
 								indexedManager.articulation1 = nodeIndex2.getInd();
 								indexedManager.indexType1 = PxsIndexedInteraction::eARTICULATION;
@@ -987,25 +987,25 @@ public:
 		//PxU32 constraintCount = mCounts.constraints + mCounts.contactManagers;
 
 		PxU32 nbIslands = mObjects.numIslands;
-		const IG::IslandId* const islandIds = mObjects.islandIds;
+		const ev4sio_IG::IslandId* const islandIds = mObjects.islandIds;
 
-		const IG::IslandSim& islandSim = mIslandManager.getAccurateIslandSim();
+		const ev4sio_IG::IslandSim& islandSim = mIslandManager.getAccurateIslandSim();
 
 		{
 			PX_PROFILE_ZONE("IterateIslandsConstraintEdges", mContextID);
 
 			for(PxU32 i = 0; i < nbIslands; ++i)
 			{
-				const IG::Island& island = islandSim.getIsland(islandIds[i]);
+				const ev4sio_IG::Island& island = islandSim.getIsland(islandIds[i]);
 
-				IG::EdgeIndex edgeId = island.mFirstEdge[IG::Edge::eCONSTRAINT];
+				ev4sio_IG::EdgeIndex edgeId = island.mFirstEdge[ev4sio_IG::Edge::eCONSTRAINT];
 
 				while(edgeId != IG_INVALID_EDGE)
 				{
 					PxSolverConstraintDesc& desc = *contactDescPtr;
 				
-					const IG::Edge& edge = islandSim.getEdge(edgeId);
-					Dy::Constraint* constraint = mIslandManager.getConstraint(edgeId);
+					const ev4sio_IG::Edge& edge = islandSim.getEdge(edgeId);
+					ev4sio_Dy::Constraint* constraint = mIslandManager.getConstraint(edgeId);
 					mContext.setDescFromIndices_Constraints(desc, islandSim, edgeId, mBodyRemapTable, mSolverBodyOffset);
 					desc.constraint = reinterpret_cast<PxU8*>(constraint);
 					desc.constraintType = DY_SC_TYPE_RB_1D;
@@ -1316,20 +1316,20 @@ private:
 	const SolverIslandObjects	mObjects;
 	const PxU32					mSolverBodyOffset;
 	const PxU32					mKinematicCount;
-	IG::SimpleIslandManager&	mIslandManager;
+	ev4sio_IG::SimpleIslandManager&	mIslandManager;
 	PxU32*						mBodyRemapTable;
 	PxsMaterialManager*			mMaterialManager;
 	PxsContactManagerOutputIterator& mOutputs;
 	const bool					mEnhancedDeterminism;
 };
 
-class PxsSolverConstraintPartitionTask : public Cm::Task
+class PxsSolverConstraintPartitionTask : public ev4sio_Cm::Task
 {
 	PxsSolverConstraintPartitionTask& operator=(const PxsSolverConstraintPartitionTask&);
 public:
 
 	PxsSolverConstraintPartitionTask(DynamicsContext& context, IslandContext& islandContext, const SolverIslandObjects& objects, PxU32 solverBodyOffset, bool enhancedDeterminism) :
-		Cm::Task			(context.getContextId()),
+		ev4sio_Cm::Task			(context.getContextId()),
 		mContext			(context), 
 		mIslandContext		(islandContext),
 		mObjects			(objects),
@@ -1360,8 +1360,8 @@ public:
 			if(descCount > 0)
 			{
 				const PxU32 numArticulations = mThreadContext.getArticulations().size();
-				PX_ALLOCA(_eaArticulations, Dy::FeatherstoneArticulation*, numArticulations);
-				Dy::FeatherstoneArticulation** eaArticulations = _eaArticulations;
+				PX_ALLOCA(_eaArticulations, ev4sio_Dy::FeatherstoneArticulation*, numArticulations);
+				ev4sio_Dy::FeatherstoneArticulation** eaArticulations = _eaArticulations;
 				for(PxU32 i=0;i<numArticulations;i++)
 					eaArticulations[i] = artics[i].articulation;
 
@@ -1394,8 +1394,8 @@ public:
 };
 
 // PT: 368 => 367 => 351 lines of assembly
-static void integrate(	const IG::IslandSim& islandSim, PxSolverBodyData* PX_RESTRICT solverBodyData, PxsRigidBody** PX_RESTRICT rigidBodies,
-						Cm::SpatialVector* PX_RESTRICT motionVelocityArray, PxSolverBody* PX_RESTRICT solverBodies, 
+static void integrate(	const ev4sio_IG::IslandSim& islandSim, PxSolverBodyData* PX_RESTRICT solverBodyData, PxsRigidBody** PX_RESTRICT rigidBodies,
+						ev4sio_Cm::SpatialVector* PX_RESTRICT motionVelocityArray, PxSolverBody* PX_RESTRICT solverBodies, 
 						PxU32 count, PxF32 dt, bool enableStabilization)
 {
 	for(PxU32 i=0; i<count; i++)
@@ -1419,13 +1419,13 @@ static void integrate(	const IG::IslandSim& islandSim, PxSolverBodyData* PX_REST
 	}
 }
 
-class PxsSolverSetupSolveTask : public Cm::Task
+class PxsSolverSetupSolveTask : public ev4sio_Cm::Task
 {
 	PxsSolverSetupSolveTask& operator=(const PxsSolverSetupSolveTask&);
 public:
 
-	PxsSolverSetupSolveTask(DynamicsContext& context, IslandContext& islandContext, const SolverIslandObjects& objects, PxU32 solverBodyOffset, IG::IslandSim& islandSim) :
-		Cm::Task			(context.getContextId()),
+	PxsSolverSetupSolveTask(DynamicsContext& context, IslandContext& islandContext, const SolverIslandObjects& objects, PxU32 solverBodyOffset, ev4sio_IG::IslandSim& islandSim) :
+		ev4sio_Cm::Task			(context.getContextId()),
 		mContext			(context), 
 		mIslandContext		(islandContext),
 		mObjects			(objects),
@@ -1624,16 +1624,16 @@ public:
 	IslandContext&				mIslandContext;
 	const SolverIslandObjects	mObjects;
 	const PxU32					mSolverBodyOffset;
-	IG::IslandSim&				mIslandSim;
+	ev4sio_IG::IslandSim&				mIslandSim;
 };
 
-class PxsSolverEndTask : public Cm::Task
+class PxsSolverEndTask : public ev4sio_Cm::Task
 {
 	PxsSolverEndTask& operator=(const PxsSolverEndTask&);
 public:
 
 	PxsSolverEndTask(DynamicsContext& context, IslandContext& islandContext, const SolverIslandObjects& objects, PxU32 solverBodyOffset, PxsContactManagerOutputIterator& cmOutputs) :
-		Cm::Task			(context.getContextId()),
+		ev4sio_Cm::Task			(context.getContextId()),
 		mContext			(context), 
 		mIslandContext		(islandContext),
 		mObjects			(objects),
@@ -1731,13 +1731,13 @@ public:
 	PxsContactManagerOutputIterator&	mOutputs;
 };
 
-class PxsSolverCreateFinalizeConstraintsTask : public Cm::Task
+class PxsSolverCreateFinalizeConstraintsTask : public ev4sio_Cm::Task
 {
 	PxsSolverCreateFinalizeConstraintsTask& operator=(const PxsSolverCreateFinalizeConstraintsTask&);
 public:
 
 	PxsSolverCreateFinalizeConstraintsTask(DynamicsContext& context, IslandContext& islandContext, PxU32 solverDataOffset, PxsContactManagerOutputIterator& outputs, bool enhancedDeterminism) : 
-		Cm::Task				(context.getContextId()),
+		ev4sio_Cm::Task				(context.getContextId()),
 		mContext				(context),
 		mIslandContext			(islandContext),
 		mSolverDataOffset		(solverDataOffset),
@@ -1768,11 +1768,11 @@ static void createSolverTaskChain(	DynamicsContext& dynamicContext,
 									const SolverIslandObjects& objects,				  
 									const PxsIslandIndices& counts,
 									PxU32 solverBodyOffset, 
-									IG::SimpleIslandManager& islandManager, 
+									ev4sio_IG::SimpleIslandManager& islandManager, 
 									PxU32* bodyRemapTable, PxsMaterialManager* materialManager, PxBaseTask* continuation,
 									PxsContactManagerOutputIterator& iterator, bool useEnhancedDeterminism)
 {
-	Cm::FlushPool& taskPool = dynamicContext.getTaskPool();
+	ev4sio_Cm::FlushPool& taskPool = dynamicContext.getTaskPool();
 	taskPool.lock();
 
 	IslandContext* islandContext = reinterpret_cast<IslandContext*>(taskPool.allocate(sizeof(IslandContext)));
@@ -1804,10 +1804,10 @@ static void createSolverTaskChain(	DynamicsContext& dynamicContext,
 
 namespace
 {
-class UpdateContinuationTask : public Cm::Task
+class UpdateContinuationTask : public ev4sio_Cm::Task
 {
 	DynamicsContext& mContext;
-	IG::SimpleIslandManager& mSimpleIslandManager;
+	ev4sio_IG::SimpleIslandManager& mSimpleIslandManager;
 	PxBaseTask* mLostTouchTask;
 	PxU32 mMaxArticulationLinks;
 
@@ -1815,9 +1815,9 @@ class UpdateContinuationTask : public Cm::Task
 public:
 
 	UpdateContinuationTask(DynamicsContext& context,
-		IG::SimpleIslandManager& simpleIslandManager,
+		ev4sio_IG::SimpleIslandManager& simpleIslandManager,
 		PxBaseTask* lostTouchTask, PxU64 contextID, PxU32 maxLinks) :
-		Cm::Task(contextID), mContext(context), mSimpleIslandManager(simpleIslandManager),
+		ev4sio_Cm::Task(contextID), mContext(context), mSimpleIslandManager(simpleIslandManager),
 		mLostTouchTask(lostTouchTask), mMaxArticulationLinks(maxLinks)
 	{
 	}
@@ -1832,11 +1832,11 @@ public:
 	}
 };
 
-class KinematicCopyTask : public Cm::Task
+class KinematicCopyTask : public ev4sio_Cm::Task
 {
 	const PxNodeIndex* const	mKinematicIndices;
 	const PxU32					mNbKinematics;
-	const IG::IslandSim&		mIslandSim;
+	const ev4sio_IG::IslandSim&		mIslandSim;
 	PxSolverBodyData*			mBodyData;
 
 	PX_NOCOPY(KinematicCopyTask)
@@ -1846,8 +1846,8 @@ public:
 	static const PxU32 NbKinematicsPerTask = 1024;
 
 	KinematicCopyTask(const PxNodeIndex* const kinematicIndices,
-		PxU32 nbKinematics, const IG::IslandSim& islandSim, 
-		PxSolverBodyData* datas, PxU64 contextID) : Cm::Task(contextID),
+		PxU32 nbKinematics, const ev4sio_IG::IslandSim& islandSim, 
+		PxSolverBodyData* datas, PxU64 contextID) : ev4sio_Cm::Task(contextID),
 		mKinematicIndices(kinematicIndices), mNbKinematics(nbKinematics),
 		mIslandSim(islandSim), mBodyData(datas)
 	{
@@ -1870,7 +1870,7 @@ public:
 };
 }
 
-void DynamicsContext::update(Cm::FlushPool& /*flushPool*/, PxBaseTask* continuation, PxBaseTask* /*postPartitioningTask*/, PxBaseTask* lostTouchTask,
+void DynamicsContext::update(ev4sio_Cm::FlushPool& /*flushPool*/, PxBaseTask* continuation, PxBaseTask* /*postPartitioningTask*/, PxBaseTask* lostTouchTask,
 	PxvNphaseImplementationContext* nphase, PxU32 /*maxPatches*/, PxU32 maxArticulationLinks,
 	PxReal dt, const PxVec3& gravity, PxBitMapPinned& /*changedHandleMap*/)
 {
@@ -1882,12 +1882,12 @@ void DynamicsContext::update(Cm::FlushPool& /*flushPool*/, PxBaseTask* continuat
 	mInvDt = dt == 0.0f ? 0.0f : 1.0f / dt;
 	mGravity = gravity;
 
-	const IG::IslandSim& islandSim = mIslandManager.getAccurateIslandSim();
+	const ev4sio_IG::IslandSim& islandSim = mIslandManager.getAccurateIslandSim();
 
 	const PxU32 islandCount = islandSim.getNbActiveIslands();
 
-	const PxU32 activatedContactCount = islandSim.getNbActivatedEdges(IG::Edge::eCONTACT_MANAGER);
-	const IG::EdgeIndex* const activatingEdges = islandSim.getActivatedEdges(IG::Edge::eCONTACT_MANAGER);
+	const PxU32 activatedContactCount = islandSim.getNbActivatedEdges(ev4sio_IG::Edge::eCONTACT_MANAGER);
+	const ev4sio_IG::EdgeIndex* const activatingEdges = islandSim.getActivatedEdges(ev4sio_IG::Edge::eCONTACT_MANAGER);
 
 	{
 		PX_PROFILE_ZONE("resetFrictionPatchCount", mContextID);
@@ -1904,8 +1904,8 @@ void DynamicsContext::update(Cm::FlushPool& /*flushPool*/, PxBaseTask* continuat
 	if (islandCount > 0)
 	{
 		mSimStats.mNbActiveKinematicBodies = islandSim.getNbActiveKinematics();
-		mSimStats.mNbActiveDynamicBodies = islandSim.getNbActiveNodes(IG::Node::eRIGID_BODY_TYPE);
-		mSimStats.mNbActiveConstraints = islandSim.getNbActiveEdges(IG::Edge::eCONSTRAINT);
+		mSimStats.mNbActiveDynamicBodies = islandSim.getNbActiveNodes(ev4sio_IG::Node::eRIGID_BODY_TYPE);
+		mSimStats.mNbActiveConstraints = islandSim.getNbActiveEdges(ev4sio_IG::Edge::eCONSTRAINT);
 	}
 	else
 	{
@@ -1947,7 +1947,7 @@ void DynamicsContext::update(Cm::FlushPool& /*flushPool*/, PxBaseTask* continuat
 	mKinematicCount = kinematicCount;
 
 	{
-		const PxU32 bodyCount = islandSim.getNbActiveNodes(IG::Node::eRIGID_BODY_TYPE);
+		const PxU32 bodyCount = islandSim.getNbActiveNodes(ev4sio_IG::Node::eRIGID_BODY_TYPE);
 
 		if (kinematicCount + bodyCount > mSolverBodyPool.capacity())
 		{
@@ -2015,9 +2015,9 @@ void DynamicsContext::update(Cm::FlushPool& /*flushPool*/, PxBaseTask* continuat
 	task->removeReference();
 }
 
-void DynamicsContext::updatePostKinematic(IG::SimpleIslandManager& simpleIslandManager, PxBaseTask* /*continuation*/, PxBaseTask* lostTouchTask, PxU32 maxLinks)
+void DynamicsContext::updatePostKinematic(ev4sio_IG::SimpleIslandManager& simpleIslandManager, PxBaseTask* /*continuation*/, PxBaseTask* lostTouchTask, PxU32 maxLinks)
 {
-	const IG::IslandSim& islandSim = simpleIslandManager.getAccurateIslandSim();
+	const ev4sio_IG::IslandSim& islandSim = simpleIslandManager.getAccurateIslandSim();
 
 	const PxU32 islandCount = islandSim.getNbActiveIslands();
 
@@ -2031,7 +2031,7 @@ void DynamicsContext::updatePostKinematic(IG::SimpleIslandManager& simpleIslandM
 	PxsForceThresholdTask* forceThresholdTask = PX_PLACEMENT_NEW(getTaskPool().allocate(sizeof(PxsForceThresholdTask)), PxsForceThresholdTask)(*this);
 	forceThresholdTask->setContinuation(lostTouchTask);
 
-	const IG::IslandId*const islandIds = islandSim.getActiveIslands();
+	const ev4sio_IG::IslandId*const islandIds = islandSim.getActiveIslands();
 
 	PxU32 currentIsland = 0;
 	PxU32 currentBodyIndex = 0;
@@ -2069,11 +2069,11 @@ void DynamicsContext::updatePostKinematic(IG::SimpleIslandManager& simpleIslandM
 		while((currentIsland < islandCount && (nbBodies < solverBatchMax || constraintCount < minimumConstraintCount)) && 
 			nbArticulations < articulationBatchMax)
 		{
-			const IG::Island& island = islandSim.getIsland(islandIds[currentIsland]);
-			nbBodies += island.mNodeCount[IG::Node::eRIGID_BODY_TYPE];
-			nbArticulations += island.mNodeCount[IG::Node::eARTICULATION_TYPE];
-			nbConstraints += island.mEdgeCount[IG::Edge::eCONSTRAINT];
-			nbContactManagers += island.mEdgeCount[IG::Edge::eCONTACT_MANAGER];
+			const ev4sio_IG::Island& island = islandSim.getIsland(islandIds[currentIsland]);
+			nbBodies += island.mNodeCount[ev4sio_IG::Node::eRIGID_BODY_TYPE];
+			nbArticulations += island.mNodeCount[ev4sio_IG::Node::eARTICULATION_TYPE];
+			nbConstraints += island.mEdgeCount[ev4sio_IG::Edge::eCONSTRAINT];
+			nbContactManagers += island.mEdgeCount[ev4sio_IG::Edge::eCONTACT_MANAGER];
 			constraintCount = nbConstraints + nbContactManagers;
 			currentIsland++;
 		}
@@ -2170,7 +2170,7 @@ static void preIntegrationParallel(
 		localMaxPosIter = PxMax<PxU32>(PxU32(iterWord & 0xff), localMaxPosIter);
 		localMaxVelIter = PxMax<PxU32>(PxU32(iterWord >> 8), localMaxVelIter);
 
-		//const Cm::SpatialVector& accel = originalBodyArray[i]->getAccelerationV();
+		//const ev4sio_Cm::SpatialVector& accel = originalBodyArray[i]->getAccelerationV();
 		bodyCoreComputeUnconstrainedVelocity(gravity, dt, core.linearDamping, core.angularDamping, rBody.mAccelScale, core.maxLinearVelocitySq, core.maxAngularVelocitySq, 
 			core.linearVelocity, core.angularVelocity, core.disableGravity!=0);
 
@@ -2191,8 +2191,8 @@ static void preIntegrationParallel(
 	copyToSolverBodyData(core.linearVelocity, core.angularVelocity, core.inverseMass, core.inverseInertia, core.body2World, core.maxPenBias, core.maxContactImpulse, nodeIndexArray[i], 
 		core.contactReportThreshold, solverBodyDataPool[i + 1], core.lockFlags, dt, core.mFlags & PxRigidBodyFlag::eENABLE_GYROSCOPIC_FORCES);
 
-	physx::PxAtomicMax(reinterpret_cast<volatile PxI32*>(maxSolverPositionIterations), PxI32(localMaxPosIter));
-	physx::PxAtomicMax(reinterpret_cast<volatile PxI32*>(maxSolverVelocityIterations), PxI32(localMaxVelIter));
+	ev4sio_physx::PxAtomicMax(reinterpret_cast<volatile PxI32*>(maxSolverPositionIterations), PxI32(localMaxPosIter));
+	ev4sio_physx::PxAtomicMax(reinterpret_cast<volatile PxI32*>(maxSolverVelocityIterations), PxI32(localMaxVelIter));
 }
 
 void PxsPreIntegrateTask::runInternal()
@@ -2211,7 +2211,7 @@ void DynamicsContext::preIntegrationParallel(
 	PxU32 bodyCount,								// IN: body count
 	PxSolverBody* solverBodyPool,					// IN: solver body pool (space preallocated)
 	PxSolverBodyData* solverBodyDataPool,			// IN: solver body data pool (space preallocated)
-	Cm::SpatialVector* /*motionVelocityArray*/,		// OUT: motion velocities
+	ev4sio_Cm::SpatialVector* /*motionVelocityArray*/,		// OUT: motion velocities
 	PxU32& maxSolverPositionIterations,
 	PxU32& maxSolverVelocityIterations,
 	PxBaseTask& task
@@ -2246,7 +2246,7 @@ void DynamicsContext::preIntegrationParallel(
 
 void solveParallel(SOLVER_PARALLEL_METHOD_ARGS)
 {
-	Dy::ThreadContext& threadContext = *context.getThreadContext();
+	ev4sio_Dy::ThreadContext& threadContext = *context.getThreadContext();
 
 	threadContext.mDeltaV.forceSize_Unsafe(0);
 	threadContext.mDeltaV.reserve(params.mMaxArticulationLinks);
@@ -2257,25 +2257,25 @@ void solveParallel(SOLVER_PARALLEL_METHOD_ARGS)
 	context.putThreadContext(&threadContext);
 }
 
-void DynamicsContext::solveParallel(SolverIslandParams& params, IG::IslandSim& islandSim, 
-	Cm::SpatialVectorF* deltaV, Dy::ErrorAccumulatorEx* errorAccumulator)
+void DynamicsContext::solveParallel(SolverIslandParams& params, ev4sio_IG::IslandSim& islandSim, 
+	ev4sio_Cm::SpatialVectorF* deltaV, ev4sio_Dy::ErrorAccumulatorEx* errorAccumulator)
 {
 	solveVParallelAndWriteBack(params, deltaV, errorAccumulator, mSolveFrictionEveryIteration);
 	integrateCoreParallel(params, deltaV, islandSim);
 }
 
-void DynamicsContext::integrateCoreParallel(SolverIslandParams& params, Cm::SpatialVectorF* deltaV, IG::IslandSim& islandSim)
+void DynamicsContext::integrateCoreParallel(SolverIslandParams& params, ev4sio_Cm::SpatialVectorF* deltaV, ev4sio_IG::IslandSim& islandSim)
 {
 	const PxI32 unrollCount = 128;
 
 	PxI32* bodyIntegrationListIndex = &params.bodyIntegrationListIndex;
 
-	PxI32 index = physx::PxAtomicAdd(bodyIntegrationListIndex, unrollCount) - unrollCount;
+	PxI32 index = ev4sio_physx::PxAtomicAdd(bodyIntegrationListIndex, unrollCount) - unrollCount;
 
 	const PxI32 numBodies = PxI32(params.bodyListSize);
 	const PxI32 numArtics = PxI32(params.articulationListSize);
 
-	Cm::SpatialVector* PX_RESTRICT motionVelocityArray = params.motionVelocityArray;
+	ev4sio_Cm::SpatialVector* PX_RESTRICT motionVelocityArray = params.motionVelocityArray;
 	PxsRigidBody** PX_RESTRICT rigidBodies = params.rigidBodies;
 	ArticulationSolverDesc* PX_RESTRICT articulationListStart = params.articulationListStart;
 
@@ -2301,7 +2301,7 @@ void DynamicsContext::integrateCoreParallel(SolverIslandParams& params, Cm::Spat
 		}
 		if(bodyRemainder == 0)
 		{
-			index = physx::PxAtomicAdd(bodyIntegrationListIndex, unrollCount) - unrollCount;
+			index = ev4sio_physx::PxAtomicAdd(bodyIntegrationListIndex, unrollCount) - unrollCount;
 			bodyRemainder = unrollCount;
 		}
 	}	
@@ -2321,13 +2321,13 @@ void DynamicsContext::integrateCoreParallel(SolverIslandParams& params, Cm::Spat
 		numIntegrated += remainder;
 
 		{
-			index = physx::PxAtomicAdd(bodyIntegrationListIndex, unrollCount) - unrollPlusArtics;
+			index = ev4sio_physx::PxAtomicAdd(bodyIntegrationListIndex, unrollCount) - unrollPlusArtics;
 			bodyRemainder = unrollCount;
 		}
 	}
 
 	PxMemoryBarrier();
-	physx::PxAtomicAdd(&params.numObjectsIntegrated, numIntegrated);
+	ev4sio_physx::PxAtomicAdd(&params.numObjectsIntegrated, numIntegrated);
 }
 
 static PxU32 createFinalizeContacts_Parallel(PxSolverBodyData* solverBodyData, ThreadContext& mThreadContext, DynamicsContext& context,
@@ -2356,7 +2356,7 @@ static PxU32 createFinalizeContacts_Parallel(PxSolverBodyData* solverBodyData, T
 	//threadContext->mDeltaV.reserve(mThreadContext.mMaxArticulationLinks);
 	//threadContext->mDeltaV.forceSize_Unsafe(mThreadContext.mMaxArticulationLinks);
 
-	Cm::SpatialVectorF* Z = threadContext->mZVector.begin();
+	ev4sio_Cm::SpatialVectorF* Z = threadContext->mZVector.begin();
 
 	const PxTransform idt(PxIdentity);
 
@@ -2554,13 +2554,13 @@ static PxU32 createFinalizeContacts_Parallel(PxSolverBodyData* solverBodyData, T
 	return PxU32(axisConstraintCount); //Can't write to mThreadContext as it's shared!!!!
 }
 
-class PxsCreateFinalizeContactsTask : public Cm::Task
+class PxsCreateFinalizeContactsTask : public ev4sio_Cm::Task
 {
 	PxsCreateFinalizeContactsTask& operator=(const PxsCreateFinalizeContactsTask&);
 public:
 	PxsCreateFinalizeContactsTask( const PxU32 numConstraints, PxSolverConstraintDesc* descArray, PxSolverBodyData* solverBodyData,
 		ThreadContext& threadContext, DynamicsContext& context, PxU32 startIndex, PxU32 endIndex, PxsContactManagerOutputIterator& outputs) :
-			Cm::Task(context.getContextId()),
+			ev4sio_Cm::Task(context.getContextId()),
 			mNumConstraints(numConstraints), mDescArray(descArray), mSolverBodyData(solverBodyData),
 			mThreadContext(threadContext), mDynamicsContext(context),
 			mOutputs(outputs),
@@ -2599,7 +2599,7 @@ PxU8* BlockAllocator::reserveFrictionData(const PxU32 size)
 	return mFrictionPatchStreamPair.reserve<PxU8>(size);
 }
 
-class PxsCreateArticConstraintsTask : public Cm::Task
+class PxsCreateArticConstraintsTask : public ev4sio_Cm::Task
 {
 	PxsCreateArticConstraintsTask& operator=(const PxsCreateArticConstraintsTask&);	
 
@@ -2607,9 +2607,9 @@ public:
 
 	static const PxU32 NbArticsPerTask = 32;
 
-	PxsCreateArticConstraintsTask(Dy::FeatherstoneArticulation** articulations, const PxU32 nbArticulations, PxSolverBodyData* solverBodyData, ThreadContext& threadContext, DynamicsContext& context,
+	PxsCreateArticConstraintsTask(ev4sio_Dy::FeatherstoneArticulation** articulations, const PxU32 nbArticulations, PxSolverBodyData* solverBodyData, ThreadContext& threadContext, DynamicsContext& context,
 		PxsContactManagerOutputIterator& outputs) :
-		Cm::Task(context.getContextId()),
+		ev4sio_Cm::Task(context.getContextId()),
 		mArticulations(articulations),
 		mNbArticulations(nbArticulations),
 		mSolverBodyData(solverBodyData),
@@ -2649,7 +2649,7 @@ public:
 
 public:
 
-	Dy::FeatherstoneArticulation** mArticulations;
+	ev4sio_Dy::FeatherstoneArticulation** mArticulations;
 	PxU32 mNbArticulations;
 	PxSolverBodyData* mSolverBodyData;
 	ThreadContext& mThreadContext;

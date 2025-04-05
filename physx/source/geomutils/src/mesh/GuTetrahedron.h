@@ -33,9 +33,9 @@
 #include "foundation/PxUtilities.h"
 #include "GuTriangle.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-	namespace Gu
+	namespace ev4sio_Gu
 	{
 		/**
 		\brief Structure used to store indices for a triangles points. T is either PxU32 or PxU16
@@ -85,12 +85,12 @@ namespace physx
 				if (v[1] > v[2]) PxSwap(v[1], v[2]);
 			}
 
-			PX_INLINE bool containsFace(const Gu::IndexedTriangleT<T>& triangle) const
+			PX_INLINE bool containsFace(const ev4sio_Gu::IndexedTriangleT<T>& triangle) const
 			{
 				return contains(triangle[0]) && contains(triangle[1]) && contains(triangle[2]);
 			}
 
-			PX_INLINE static bool identical(Gu::TetrahedronT<T> x, Gu::TetrahedronT<T> y)
+			PX_INLINE static bool identical(ev4sio_Gu::TetrahedronT<T> x, ev4sio_Gu::TetrahedronT<T> y)
 			{
 				x.sort();
 				y.sort();

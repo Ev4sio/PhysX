@@ -32,9 +32,9 @@
 #include "foundation/PxPlane.h"
 #include "common/PxPhysXCommonConfig.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-	namespace Gu
+	namespace ev4sio_Gu
 	{
 		struct Tetrahedron
 		{
@@ -167,7 +167,7 @@ namespace physx
 
 			return sep;
 		}
-	} // namespace Gu
+	} // namespace ev4sio_Gu
 }
 
 #endif

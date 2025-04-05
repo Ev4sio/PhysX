@@ -32,7 +32,7 @@
 #include "foundation/PxSimpleTypes.h"
 #include "PxvConfig.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 enum SolverConstraintType
