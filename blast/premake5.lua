@@ -2,6 +2,10 @@ newoption {
     trigger     = "platform-host",
     description = "(Optional) Specify host platform for cross-compilation"
 }
+newoption {
+    trigger     = "build-tests",
+    description = "Build UnitTests project."
+}
 
 -- Include omni.repo.build premake tools
 local repo_build = require('omni/repo/build')
@@ -254,7 +258,9 @@ workspace (workspace_name)
     filter {}
 
 function blast_sdklib_bare_setup(name)
-    kind "SharedLib"
+    kind "StaticLib"
+    -- dkind "SharedLib"
+
     location (workspaceDir.."/%{prj.name}")
 
     filter { "system:windows" }
@@ -584,100 +590,102 @@ group "sdk"
         }
 
 
-group "tests"
-    project "UnitTests"
-        kind "ConsoleApp"
-        location (workspaceDir.."/%{prj.name}")
-        link_dependents({"NvBlast", "NvBlastGlobals", "NvBlastExtAssetUtils", "NvBlastExtShaders", "NvBlastTk", "NvBlastExtSerialization", "NvBlastExtTkSerialization"})
+if _OPTIONS["build-tests"] then
+	group "tests"
+		project "UnitTests"
+			kind "ConsoleApp"
+			location (workspaceDir.."/%{prj.name}")
+			link_dependents({"NvBlast", "NvBlastGlobals", "NvBlastExtAssetUtils", "NvBlastExtShaders", "NvBlastTk", "NvBlastExtSerialization", "NvBlastExtTkSerialization"})
 
-        filter { "system:windows" }
-            -- defines { "ISOLATION_AWARE_ENABLED=1" }
-        filter { "system:linux" }
-            buildoptions { "-fPIC" }
-            links { "rt" }
-        filter{}
+			filter { "system:windows" }
+				-- defines { "ISOLATION_AWARE_ENABLED=1" }
+			filter { "system:linux" }
+				buildoptions { "-fPIC" }
+				links { "rt" }
+			filter{}
 
-        blast_sdklib_common_files()
+			blast_sdklib_common_files()
 
-        add_files("source/test/src/unit", {
-            "AssetTests.cpp",
-            "ActorTests.cpp",
-            "APITests.cpp",
-            "CoreTests.cpp",
-            "FamilyGraphTests.cpp",
-            "MultithreadingTests.cpp",
-            "TkCompositeTests.cpp",
-            "TkTests.cpp",
-        })
+			add_files("source/test/src/unit", {
+				"AssetTests.cpp",
+				"ActorTests.cpp",
+				"APITests.cpp",
+				"CoreTests.cpp",
+				"FamilyGraphTests.cpp",
+				"MultithreadingTests.cpp",
+				"TkCompositeTests.cpp",
+				"TkTests.cpp",
+			})
 
-        add_files("source/test/src/utils", {
-            "TestAssets.cpp",
-        })
+			add_files("source/test/src/utils", {
+				"TestAssets.cpp",
+			})
 
-        add_files("source/sdk/lowlevel", {
-            "NvBlastActor.cpp",
-            "NvBlastFamilyGraph.cpp",
-            "NvBlastActorSerializationBlock.cpp",
-            "NvBlastAsset.cpp",
-            "NvBlastFamily.cpp",
-        })
+			add_files("source/sdk/lowlevel", {
+				"NvBlastActor.cpp",
+				"NvBlastFamilyGraph.cpp",
+				"NvBlastActorSerializationBlock.cpp",
+				"NvBlastAsset.cpp",
+				"NvBlastFamily.cpp",
+			})
 
-        add_files("source/sdk/toolkit", {
-            "NvBlastTkTaskManager.cpp",
-        })
+			add_files("source/sdk/toolkit", {
+				"NvBlastTkTaskManager.cpp",
+			})
 
-        add_files("source/shared/utils", {
-            "AssetGenerator.cpp",
-        })
+			add_files("source/shared/utils", {
+				"AssetGenerator.cpp",
+			})
 
-        includedirs {
-            "include/globals",
-            "include/lowlevel",
-            "include/toolkit",
-            "include/extensions/assetutils",
-            "include/extensions/shaders",
-            "include/extensions/serialization",
-            "source/sdk/common",
-            "source/sdk/globals",
-            "source/sdk/lowlevel",
-            "source/sdk/extensions/serialization",
-            "source/test/src",
-            "source/test/src/unit",
-            "source/test/src/utils",
-            "source/shared/filebuf/include",
-            "source/shared/utils",
-            "include/shared/NvFoundation",
-            "source/shared/NsFoundation/include",
-            "source/shared/NsFileBuffer/include",
-            "source/shared/NvTask/include",
-            target_deps.."/googletest/include",
-        }
+			includedirs {
+				"include/globals",
+				"include/lowlevel",
+				"include/toolkit",
+				"include/extensions/assetutils",
+				"include/extensions/shaders",
+				"include/extensions/serialization",
+				"source/sdk/common",
+				"source/sdk/globals",
+				"source/sdk/lowlevel",
+				"source/sdk/extensions/serialization",
+				"source/test/src",
+				"source/test/src/unit",
+				"source/test/src/utils",
+				"source/shared/filebuf/include",
+				"source/shared/utils",
+				"include/shared/NvFoundation",
+				"source/shared/NsFoundation/include",
+				"source/shared/NsFileBuffer/include",
+				"source/shared/NvTask/include",
+				target_deps.."/googletest/include",
+			}
 
-    filter { "system:windows", "configurations:debug" }
-        libdirs { target_deps.."/googletest/lib/vc14win64-cmake/Debug" }
-    filter { "system:windows", "configurations:release" }
-        libdirs { target_deps.."/googletest/lib/vc14win64-cmake/Release" }
-    filter { "system:linux" }
-        libdirs { target_deps.."/googletest/lib/gcc-4.8" }
-    filter{}
+		filter { "system:windows", "configurations:debug" }
+			libdirs { target_deps.."/googletest/lib/vc14win64-cmake/Debug" }
+		filter { "system:windows", "configurations:release" }
+			libdirs { target_deps.."/googletest/lib/vc14win64-cmake/Release" }
+		filter { "system:linux" }
+			libdirs { target_deps.."/googletest/lib/gcc-4.8" }
+		filter{}
 
-    links { "gtest_main", "gtest" }
+		links { "gtest_main", "gtest" }
 
-    filter { "system:windows" }
-        -- links { "PhysXFoundation_64", "PhysXTask_static_64" }
-        disablewarnings {
-            "4002", -- too many actual parameters for macro 'identifier'
-            "4100", -- unreferenced formal parameter
-            "4127", -- conditional expression is constant
-            "4189", -- 'identifier' : local variable is initialized but not referenced
-            "4244", -- conversion from 'type1' to 'type2', possible loss of data
-            "4456", -- declaration of 'identifier' hides previous local declaration
-            "4996", -- code uses a function, class member, variable, or typedef that's marked deprecated
-        }
-    filter { "system:linux"}
-        -- links { "PhysXFoundation_static_64" }
-        disablewarnings {
-            "undef",
-            "sign-compare"
-        }
-    filter {}
+		filter { "system:windows" }
+			-- links { "PhysXFoundation_64", "PhysXTask_static_64" }
+			disablewarnings {
+				"4002", -- too many actual parameters for macro 'identifier'
+				"4100", -- unreferenced formal parameter
+				"4127", -- conditional expression is constant
+				"4189", -- 'identifier' : local variable is initialized but not referenced
+				"4244", -- conversion from 'type1' to 'type2', possible loss of data
+				"4456", -- declaration of 'identifier' hides previous local declaration
+				"4996", -- code uses a function, class member, variable, or typedef that's marked deprecated
+			}
+		filter { "system:linux"}
+			-- links { "PhysXFoundation_static_64" }
+			disablewarnings {
+				"undef",
+				"sign-compare"
+			}
+		filter {}
+end
