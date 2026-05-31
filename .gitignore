@@ -1,0 +1,18 @@
+# PhysX generated build outputs
+physx/bin/
+physx/compiler/vc18win64/
+physx/compiler/vc17win64/
+physx/compiler/*/
+physx/**/CMakeFiles/
+physx/**/CMakeCache.txt
+physx/**/cmake_install.cmake
+physx/**/*.dir/
+
+# Binaries
+*.exe
+*.dll
+*.lib
+*.pdb
+*.obj
+*.ilk
+*.exp

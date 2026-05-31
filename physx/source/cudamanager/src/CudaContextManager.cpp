@@ -571,7 +571,12 @@ CudaCtxMgr::CudaCtxMgr(const PxCudaContextManagerDesc& desc, PxErrorCallback& er
 				return;
 			}
 			
+#if CUDA_VERSION >= 13000
+			CUctxCreateParams contextCreateParams = {};
+			status = cuCtxCreate(&mCtx, &contextCreateParams, (unsigned int)flags, mDevHandle);
+#else
 			status = cuCtxCreate(&mCtx, (unsigned int)flags, mDevHandle);
+#endif
 			if (CUDA_SUCCESS != status)
 			{
 				const size_t bufferSize = 128;
