@@ -36,12 +36,12 @@ namespace internal
 namespace sidecar
 {
 
-omni::physx::IPhysx* tryGetInjectedPhysxInterface()
+omni::ev4sio_physx::IPhysx* tryGetInjectedPhysxInterface()
 {
     return g_getPhysxInterface ? g_getPhysxInterface() : nullptr;
 }
 
-omni::physx::IPhysxVisualization* tryGetInjectedPhysxVisualizationInterface()
+omni::ev4sio_physx::IPhysxVisualization* tryGetInjectedPhysxVisualizationInterface()
 {
     return g_getPhysxVisualizationInterface ? g_getPhysxVisualizationInterface() : nullptr;
 }

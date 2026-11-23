@@ -18,10 +18,10 @@
 #include "foundation/PxAtomic.h"
 
 
-namespace physx
+namespace ev4sio_physx
 {
 
-namespace Dy
+namespace ev4sio_Dy
 {
 	PX_FORCE_INLINE static FloatV solveDynamicContacts(const SolverContactPoint* PX_RESTRICT contacts, PxU32 nbContactPoints, const Vec3VArg contactNormal,
 	const FloatVArg invMassA, const FloatVArg invMassB, const FloatVArg angDom0, const FloatVArg angDom1, Vec3V& linVel0_, Vec3V& angState0_, 

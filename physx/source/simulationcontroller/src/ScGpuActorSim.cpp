@@ -11,21 +11,21 @@
 #include "cudamanager/PxCudaContext.h"
 #endif
 
-using namespace physx;
-using namespace Sc;
+using namespace ev4sio_physx;
+using namespace ev4sio_Sc;
 
-Sc::GPUActorSim::GPUActorSim(Scene& scene, ActorCore& core, const ShapeCore* shapeCore) :
+ev4sio_Sc::GPUActorSim::GPUActorSim(Scene& scene, ActorCore& core, const ShapeCore* shapeCore) :
 	ActorSim	(scene, core),
 	mShapeSim	(*this, shapeCore)
 {
 }
 
-Sc::GPUActorSim::~GPUActorSim()
+ev4sio_Sc::GPUActorSim::~GPUActorSim()
 {
 	destroyLowLevelVolume();
 }
 
-void Sc::GPUActorSim::addToAABBMgr(Bp::FilterType::Enum type)
+void ev4sio_Sc::GPUActorSim::addToAABBMgr(ev4sio_Bp::FilterType::Enum type)
 {
 	const PxReal contactOffset = mShapeSim.getContactOffset();
 	mShapeSim.addToAABBMgr(contactOffset, type);
@@ -41,8 +41,8 @@ void Sc::GPUActorSim::addToAABBMgr(Bp::FilterType::Enum type)
 	}
 	else
 	{
-		PxGetFoundation().error(PxErrorCode::eOUT_OF_MEMORY, PX_FL,
-								"Sc::GPUActorSim::addToAABBMgr: failed to allocate pinned memory transform cache");
+		ev4sio_PxGetFoundation().error(PxErrorCode::eOUT_OF_MEMORY, PX_FL,
+								"ev4sio_Sc::GPUActorSim::addToAABBMgr: failed to allocate pinned memory transform cache");
 		mScene.getCudaContextManager()->getCudaContext()->setAbortMode(true);
 	}
 #else
@@ -50,7 +50,7 @@ void Sc::GPUActorSim::addToAABBMgr(Bp::FilterType::Enum type)
 #endif
 }
 
-void Sc::GPUActorSim::destroyLowLevelVolume()
+void ev4sio_Sc::GPUActorSim::destroyLowLevelVolume()
 {
 	if(mShapeSim.isInBroadPhase())
 	{

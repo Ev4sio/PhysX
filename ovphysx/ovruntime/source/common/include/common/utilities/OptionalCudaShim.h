@@ -6,7 +6,7 @@
 //
 // Rationale:
 // - Consumers (tensors) want to call cu* driver API functions without linking libcuda.
-// - The driver API is accessed via omni::physx::IOptionalCuda (implemented by foundation).
+// - The driver API is accessed via omni::ev4sio_physx::IOptionalCuda (implemented by foundation).
 // - Some code paths may call into GPU helpers before foundation is fully started.
 //   Also, caching a nullptr interface pointer is a footgun.
 //
@@ -29,7 +29,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace optionalCuda
 {
@@ -37,7 +37,7 @@ namespace optionalCuda
 static constexpr int kCudaSuccess = 0;
 static constexpr int kCudaErrorNotInitialized = 3;
 
-using ProviderFn = omni::physx::IOptionalCuda* (*)();
+using ProviderFn = omni::ev4sio_physx::IOptionalCuda* (*)();
 
 namespace detail
 {
@@ -48,7 +48,7 @@ namespace detail
 // OptionalCudaShim.cpp; keeping it out of this header is important because the
 // static runtime includes this shim from multiple translation units.
 std::atomic<ProviderFn>& getProviderSlot();
-std::atomic<omni::physx::IOptionalCuda*>& getCachedSlot();
+std::atomic<omni::ev4sio_physx::IOptionalCuda*>& getCachedSlot();
 
 } // namespace detail
 
@@ -292,10 +292,10 @@ static inline bool CARB_ABI stub_driverGetVersion(int* outVersion, int* outStatu
     return false;
 }
 
-static inline omni::physx::IOptionalCuda& getStubInterface()
+static inline omni::ev4sio_physx::IOptionalCuda& getStubInterface()
 {
-    static omni::physx::IOptionalCuda iface = [] {
-        omni::physx::IOptionalCuda i{};
+    static omni::ev4sio_physx::IOptionalCuda iface = [] {
+        omni::ev4sio_physx::IOptionalCuda i{};
         i.cudaAvailable = stub_cudaAvailable;
         i.ctxGetCurrent = stub_ctxGetCurrent;
         i.ctxPushCurrent = stub_ctxPushCurrent;
@@ -328,11 +328,11 @@ static inline omni::physx::IOptionalCuda& getStubInterface()
     return iface;
 }
 
-static inline omni::physx::IOptionalCuda* get()
+static inline omni::ev4sio_physx::IOptionalCuda* get()
 {
     // Cache only a successfully acquired interface pointer. Do not cache
     // "unavailable": the runtime may install the provider later.
-    omni::physx::IOptionalCuda* cached = detail::getCachedSlot().load(std::memory_order_acquire);
+    omni::ev4sio_physx::IOptionalCuda* cached = detail::getCachedSlot().load(std::memory_order_acquire);
     if (cached)
     {
         return cached;
@@ -341,7 +341,7 @@ static inline omni::physx::IOptionalCuda* get()
     ProviderFn provider = detail::getProviderSlot().load(std::memory_order_acquire);
     if (provider)
     {
-        omni::physx::IOptionalCuda* optionalCuda = provider();
+        omni::ev4sio_physx::IOptionalCuda* optionalCuda = provider();
         if (optionalCuda)
         {
             detail::getCachedSlot().store(optionalCuda, std::memory_order_release);
@@ -352,5 +352,5 @@ static inline omni::physx::IOptionalCuda* get()
 }
 
 } // namespace optionalCuda
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

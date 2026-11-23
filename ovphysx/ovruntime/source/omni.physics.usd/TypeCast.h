@@ -27,21 +27,21 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 
 // physx to pxr
-inline PXR_NS::GfVec2f toVec2f(const ::physx::PxVec2& v) { return PXR_NS::GfVec2f{ v.x, v.y }; }
+inline PXR_NS::GfVec2f toVec2f(const ::ev4sio_physx::PxVec2& v) { return PXR_NS::GfVec2f{ v.x, v.y }; }
 
-inline PXR_NS::GfVec2d toVec2d(const ::physx::PxVec2& v) { return PXR_NS::GfVec2d{ (double) v.x, (double) v.y }; }
+inline PXR_NS::GfVec2d toVec2d(const ::ev4sio_physx::PxVec2& v) { return PXR_NS::GfVec2d{ (double) v.x, (double) v.y }; }
 
-inline PXR_NS::GfVec3f toVec3f(const ::physx::PxVec3& v) { return PXR_NS::GfVec3f{ v.x, v.y, v.z }; }
+inline PXR_NS::GfVec3f toVec3f(const ::ev4sio_physx::PxVec3& v) { return PXR_NS::GfVec3f{ v.x, v.y, v.z }; }
 
-inline PXR_NS::GfVec3d toVec3d(const ::physx::PxVec3& v) { return PXR_NS::GfVec3d{ (double) v.x, (double) v.y, (double) v.z }; }
+inline PXR_NS::GfVec3d toVec3d(const ::ev4sio_physx::PxVec3& v) { return PXR_NS::GfVec3d{ (double) v.x, (double) v.y, (double) v.z }; }
 
-inline PXR_NS::GfVec4f toVec4f(const ::physx::PxVec4& v) { return PXR_NS::GfVec4f{ v.x, v.y, v.z, v.w }; }
+inline PXR_NS::GfVec4f toVec4f(const ::ev4sio_physx::PxVec4& v) { return PXR_NS::GfVec4f{ v.x, v.y, v.z, v.w }; }
 
-inline PXR_NS::GfVec4d toVec4d(const ::physx::PxVec4& v) { return PXR_NS::GfVec4d{ (double) v.x, (double) v.y, (double) v.z, (double) v.w }; }
+inline PXR_NS::GfVec4d toVec4d(const ::ev4sio_physx::PxVec4& v) { return PXR_NS::GfVec4d{ (double) v.x, (double) v.y, (double) v.z, (double) v.w }; }
 
 // pxr to carb
 inline carb::Float4 toFloat4(const PXR_NS::GfQuaternion& v) { return carb::Float4{ float(v.GetImaginary()[0]), float(v.GetImaginary()[1]), float(v.GetImaginary()[2]), float(v.GetReal()) }; }
@@ -118,50 +118,50 @@ inline PXR_NS::GfQuatd toQuatd(const carb::Float4& v) { return PXR_NS::GfQuatd{ 
 inline PXR_NS::GfQuatd toQuatd(const carb::Double4& v) { return PXR_NS::GfQuatd{ v.w, PXR_NS::GfVec3d { v.x, v.y, v.z } }; }
 
 // pxr to physx
-inline ::physx::PxQuat toPhysX(const PXR_NS::GfQuatf& q)
+inline ::ev4sio_physx::PxQuat toPhysX(const PXR_NS::GfQuatf& q)
 {
-    return ::physx::PxQuat{ q.GetImaginary()[0], q.GetImaginary()[1], q.GetImaginary()[2], q.GetReal() };
+    return ::ev4sio_physx::PxQuat{ q.GetImaginary()[0], q.GetImaginary()[1], q.GetImaginary()[2], q.GetReal() };
 }
 
-inline ::physx::PxQuat toPhysX(const PXR_NS::GfQuaternion& q)
+inline ::ev4sio_physx::PxQuat toPhysX(const PXR_NS::GfQuaternion& q)
 {
-    return ::physx::PxQuat{ float(q.GetImaginary()[0]), float(q.GetImaginary()[1]), float(q.GetImaginary()[2]), float(q.GetReal()) };
+    return ::ev4sio_physx::PxQuat{ float(q.GetImaginary()[0]), float(q.GetImaginary()[1]), float(q.GetImaginary()[2]), float(q.GetReal()) };
 }
 
-inline ::physx::PxQuat toPhysX(const PXR_NS::GfQuatd& q)
+inline ::ev4sio_physx::PxQuat toPhysX(const PXR_NS::GfQuatd& q)
 {
-    return ::physx::PxQuat{ float(q.GetImaginary()[0]), float(q.GetImaginary()[1]), float(q.GetImaginary()[2]), float(q.GetReal()) };
+    return ::ev4sio_physx::PxQuat{ float(q.GetImaginary()[0]), float(q.GetImaginary()[1]), float(q.GetImaginary()[2]), float(q.GetReal()) };
 }
 
-inline ::physx::PxVec2 toPhysX(const PXR_NS::GfVec2f& v) { return ::physx::PxVec2{ v[0], v[1] }; }
+inline ::ev4sio_physx::PxVec2 toPhysX(const PXR_NS::GfVec2f& v) { return ::ev4sio_physx::PxVec2{ v[0], v[1] }; }
 
-inline ::physx::PxVec2 toPhysX(const PXR_NS::GfVec2d& v) { return ::physx::PxVec2{ (float)v[0], (float)v[1] }; }
+inline ::ev4sio_physx::PxVec2 toPhysX(const PXR_NS::GfVec2d& v) { return ::ev4sio_physx::PxVec2{ (float)v[0], (float)v[1] }; }
 
-inline ::physx::PxVec3 toPhysX(const PXR_NS::GfVec3f& v) { return ::physx::PxVec3{ v[0], v[1], v[2] }; }
+inline ::ev4sio_physx::PxVec3 toPhysX(const PXR_NS::GfVec3f& v) { return ::ev4sio_physx::PxVec3{ v[0], v[1], v[2] }; }
 
-inline ::physx::PxVec3 toPhysX(const PXR_NS::GfVec3d& v) { return ::physx::PxVec3{ (float)v[0], (float)v[1], (float)v[2] }; }
+inline ::ev4sio_physx::PxVec3 toPhysX(const PXR_NS::GfVec3d& v) { return ::ev4sio_physx::PxVec3{ (float)v[0], (float)v[1], (float)v[2] }; }
 
-inline ::physx::PxVec4 toPhysX(const PXR_NS::GfVec4f& v) { return ::physx::PxVec4{ v[0], v[1], v[2], v[3] }; }
+inline ::ev4sio_physx::PxVec4 toPhysX(const PXR_NS::GfVec4f& v) { return ::ev4sio_physx::PxVec4{ v[0], v[1], v[2], v[3] }; }
 
-inline ::physx::PxVec4 toPhysX(const PXR_NS::GfVec4d& v) { return ::physx::PxVec4{ (float)v[0], (float)v[1], (float)v[2], (float)v[3] }; }
+inline ::ev4sio_physx::PxVec4 toPhysX(const PXR_NS::GfVec4d& v) { return ::ev4sio_physx::PxVec4{ (float)v[0], (float)v[1], (float)v[2], (float)v[3] }; }
 
-inline ::physx::PxQuat toPhysXQuat(const PXR_NS::GfVec4f& v) { return ::physx::PxQuat{ v[0], v[1], v[2], v[3] }; }
+inline ::ev4sio_physx::PxQuat toPhysXQuat(const PXR_NS::GfVec4f& v) { return ::ev4sio_physx::PxQuat{ v[0], v[1], v[2], v[3] }; }
 
-inline ::physx::PxQuat toPhysXQuat(const PXR_NS::GfVec4d& v) { return ::physx::PxQuat{ (float)v[0], (float)v[1], (float)v[2], (float)v[3] }; }
+inline ::ev4sio_physx::PxQuat toPhysXQuat(const PXR_NS::GfVec4d& v) { return ::ev4sio_physx::PxQuat{ (float)v[0], (float)v[1], (float)v[2], (float)v[3] }; }
 
-inline ::physx::PxTransform toPhysX(const PXR_NS::GfTransform& usd)
+inline ::ev4sio_physx::PxTransform toPhysX(const PXR_NS::GfTransform& usd)
 {
     const PXR_NS::GfVec3d& usdPos = usd.GetTranslation();
     const PXR_NS::GfQuatd usdRot = usd.GetRotation().GetQuat();
 
-    return ::physx::PxTransform(::physx::PxVec3((float)usdPos[0], (float)usdPos[1], (float)usdPos[2]),
-                                ::physx::PxQuat((float)usdRot.GetImaginary()[0], (float)usdRot.GetImaginary()[1],
+    return ::ev4sio_physx::PxTransform(::ev4sio_physx::PxVec3((float)usdPos[0], (float)usdPos[1], (float)usdPos[2]),
+                                ::ev4sio_physx::PxQuat((float)usdRot.GetImaginary()[0], (float)usdRot.GetImaginary()[1],
                                                 (float)usdRot.GetImaginary()[2], (float)usdRot.GetReal()));
 }
 
-inline ::physx::PxTransform toPhysX(const PXR_NS::GfVec3d& pos, const PXR_NS::GfQuatd& rot)
+inline ::ev4sio_physx::PxTransform toPhysX(const PXR_NS::GfVec3d& pos, const PXR_NS::GfQuatd& rot)
 {
-    return ::physx::PxTransform(toPhysX(pos), toPhysX(rot));
+    return ::ev4sio_physx::PxTransform(toPhysX(pos), toPhysX(rot));
 }
 
 // ---------------------------------------------------------------------------
@@ -177,22 +177,22 @@ inline ::physx::PxTransform toPhysX(const PXR_NS::GfVec3d& pos, const PXR_NS::Gf
 // decomposition).
 // ---------------------------------------------------------------------------
 
-inline ::physx::PxMat44d toPhysX(const PXR_NS::GfMatrix4d& m)
+inline ::ev4sio_physx::PxMat44d toPhysX(const PXR_NS::GfMatrix4d& m)
 {
     double values[16];
     for (int i = 0; i < 16; ++i)
         values[i] = m.GetArray()[i];
-    return ::physx::PxMat44d(values);
+    return ::ev4sio_physx::PxMat44d(values);
 }
 
-inline PXR_NS::GfMatrix4d toMatrix4d(const ::physx::PxMat44d& m)
+inline PXR_NS::GfMatrix4d toMatrix4d(const ::ev4sio_physx::PxMat44d& m)
 {
     const double* v = m.front();
     return PXR_NS::GfMatrix4d(v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7],
                               v[8], v[9], v[10], v[11], v[12], v[13], v[14], v[15]);
 }
 
-inline PXR_NS::GfMatrix4f toMatrix4f(const ::physx::PxMat44d& m)
+inline PXR_NS::GfMatrix4f toMatrix4f(const ::ev4sio_physx::PxMat44d& m)
 {
     const double* v = m.front();
     return PXR_NS::GfMatrix4f(float(v[0]), float(v[1]), float(v[2]), float(v[3]),
@@ -206,17 +206,17 @@ inline PXR_NS::GfMatrix4f toMatrix4f(const ::physx::PxMat44d& m)
 // so transforming float mesh points by a double world matrix needs these --
 // otherwise the composition silently drops to float.
 
-inline ::physx::PxVec3d toPhysXd(const PXR_NS::GfVec3f& v)
+inline ::ev4sio_physx::PxVec3d toPhysXd(const PXR_NS::GfVec3f& v)
 {
-    return ::physx::PxVec3d(double(v[0]), double(v[1]), double(v[2]));
+    return ::ev4sio_physx::PxVec3d(double(v[0]), double(v[1]), double(v[2]));
 }
 
-inline ::physx::PxVec3d toPhysXd(const PXR_NS::GfVec3d& v)
+inline ::ev4sio_physx::PxVec3d toPhysXd(const PXR_NS::GfVec3d& v)
 {
-    return ::physx::PxVec3d(v[0], v[1], v[2]);
+    return ::ev4sio_physx::PxVec3d(v[0], v[1], v[2]);
 }
 
-inline PXR_NS::GfVec3f toVec3f(const ::physx::PxVec3d& v)
+inline PXR_NS::GfVec3f toVec3f(const ::ev4sio_physx::PxVec3d& v)
 {
     return PXR_NS::GfVec3f(float(v.x), float(v.y), float(v.z));
 }
@@ -264,9 +264,9 @@ inline PXR_NS::GfQuath toQuath(const carb::Float4& v)
 // PhysX quaternion <-> carb, so a site that drops Gf does not have to route
 // through a Gf type to get between the two.
 
-inline ::physx::PxQuat toPhysXQuat(const PXR_NS::GfQuath& v)
+inline ::ev4sio_physx::PxQuat toPhysXQuat(const PXR_NS::GfQuath& v)
 {
-    return ::physx::PxQuat{ float(v.GetImaginary()[0]), float(v.GetImaginary()[1]),
+    return ::ev4sio_physx::PxQuat{ float(v.GetImaginary()[0]), float(v.GetImaginary()[1]),
                             float(v.GetImaginary()[2]), float(v.GetReal()) };
 }
 

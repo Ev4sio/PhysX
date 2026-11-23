@@ -9,9 +9,9 @@
 #include "foundation/PxUserAllocated.h"
 #include "DyArticulationTendon.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Sc
+namespace ev4sio_Sc
 {
 
 	class ArticulationFixedTendonCore;
@@ -50,7 +50,7 @@ namespace Sc
 		void addAttachment(ArticulationAttachmentCore& core);
 		void removeAttachment(ArticulationAttachmentCore& core);
 
-		Dy::ArticulationSpatialTendon						mLLTendon;
+		ev4sio_Dy::ArticulationSpatialTendon						mLLTendon;
 		ArticulationSpatialTendonCore&						mTendonCore;
 
 		ArticulationSim*									mArtiSim;
@@ -89,12 +89,12 @@ namespace Sc
 
 		void							setTendonJointCoefficient(ArticulationTendonJointCore& core, const PxArticulationAxis::Enum axis, const float coefficient, const float recipCoefficient);
 
-		Dy::ArticulationFixedTendon						mLLTendon; 
+		ev4sio_Dy::ArticulationFixedTendon						mLLTendon;
 		ArticulationFixedTendonCore&					mTendonCore;
 
 		ArticulationSim*								mArtiSim;
 		Scene& mScene;
 	};
-}//namespace Sc
-}//namespace physx
+}//namespace ev4sio_Sc
+}//namespace ev4sio_physx
 #endif

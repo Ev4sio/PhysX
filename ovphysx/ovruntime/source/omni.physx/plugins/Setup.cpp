@@ -144,22 +144,22 @@ bool addLastSlash(std::string& fileDirectory)
     return false;
 }
 
-using namespace physx;
-using namespace omni::physx::internal;
-using namespace omni::physx;
-using namespace omni::physx::usdparser;
+using namespace ev4sio_physx;
+using namespace omni::ev4sio_physx::internal;
+using namespace omni::ev4sio_physx;
+using namespace omni::ev4sio_physx::usdparser;
 
-void omni::physx::omniPvdAppendCaptureObjects(
-    PhysXType type, void* pointer, std::vector<const ::physx::PxBase*>& objects)
+void omni::ev4sio_physx::omniPvdAppendCaptureObjects(
+    PhysXType type, void* pointer, std::vector<const ::ev4sio_physx::PxBase*>& objects)
 {
-    const ::physx::PxBase* object = omniPvdCaptureObject(type, pointer);
+    const ::ev4sio_physx::PxBase* object = omniPvdCaptureObject(type, pointer);
     if (object)
         objects.push_back(object);
 }
 
-RuntimeResult omni::physx::omniPvdResolveCaptureObjects(
+RuntimeResult omni::ev4sio_physx::omniPvdResolveCaptureObjects(
     omni::physics::AttachHandle attach, const std::vector<std::string>& paths,
-    std::vector<const ::physx::PxBase*>& objects)
+    std::vector<const ::ev4sio_physx::PxBase*>& objects)
 {
     RuntimeExecutionScope operation(attach);
     if (!operation)
@@ -190,10 +190,10 @@ RuntimeResult omni::physx::omniPvdResolveCaptureObjects(
         if (found != recordsByKey.end())
             found->second.push_back(&record);
     }
-    std::unordered_set<const ::physx::PxBase*> uniqueObjects;
+    std::unordered_set<const ::ev4sio_physx::PxBase*> uniqueObjects;
     for (const ObjectKey key : keys)
     {
-        std::vector<const ::physx::PxBase*> pathObjects;
+        std::vector<const ::ev4sio_physx::PxBase*> pathObjects;
         const auto appendRecord = [&pathObjects](const Record& record) {
             omniPvdAppendCaptureObjects(record.mType, record.mPtr, pathObjects);
             if (record.mType == ePTActor && record.mInternalPtr)
@@ -220,7 +220,7 @@ RuntimeResult omni::physx::omniPvdResolveCaptureObjects(
             appendRecord(*record);
         if (pathObjects.empty())
             return RuntimeResult::eInvalidArgument;
-        for (const ::physx::PxBase* object : pathObjects)
+        for (const ::ev4sio_physx::PxBase* object : pathObjects)
             if (uniqueObjects.insert(object).second)
                 objects.push_back(object);
     }
@@ -247,12 +247,12 @@ bool isOmniPvdRecordingCapable(carb::settings::ISettings& settings)
     return settings.getAsBool(kOmniPvdRecordingCapable);
 }
 
-omni::physx::ICookingComputeService* getOwnedCookingService()
+omni::ev4sio_physx::ICookingComputeService* getOwnedCookingService()
 {
-    return omni::physx::OmniPhysX::getInstance().getPhysXSetup().getCookingComputeService();
+    return omni::ev4sio_physx::OmniPhysX::getInstance().getPhysXSetup().getCookingComputeService();
 }
 
-uint32_t CARB_ABI cookingPumpAsyncContext(omni::physx::PhysxCookingAsyncContext context)
+uint32_t CARB_ABI cookingPumpAsyncContext(omni::ev4sio_physx::PhysxCookingAsyncContext context)
 {
     if (auto* service = getOwnedCookingService())
     {
@@ -261,7 +261,7 @@ uint32_t CARB_ABI cookingPumpAsyncContext(omni::physx::PhysxCookingAsyncContext 
     return 0;
 }
 
-bool CARB_ABI cookingCancelTask(omni::physx::PhysxCookingOperationHandle handle, bool invokeCallbackAnyway)
+bool CARB_ABI cookingCancelTask(omni::ev4sio_physx::PhysxCookingOperationHandle handle, bool invokeCallbackAnyway)
 {
     if (auto* service = getOwnedCookingService())
     {
@@ -270,7 +270,7 @@ bool CARB_ABI cookingCancelTask(omni::physx::PhysxCookingOperationHandle handle,
     return false;
 }
 
-uint32_t CARB_ABI cookingCancelAllTasks(omni::physx::PhysxCookingAsyncContext context)
+uint32_t CARB_ABI cookingCancelAllTasks(omni::ev4sio_physx::PhysxCookingAsyncContext context)
 {
     if (auto* service = getOwnedCookingService())
     {
@@ -279,7 +279,7 @@ uint32_t CARB_ABI cookingCancelAllTasks(omni::physx::PhysxCookingAsyncContext co
     return 0;
 }
 
-bool CARB_ABI cookingWaitForTaskToFinish(omni::physx::PhysxCookingOperationHandle handle, int64_t timeoutMs)
+bool CARB_ABI cookingWaitForTaskToFinish(omni::ev4sio_physx::PhysxCookingOperationHandle handle, int64_t timeoutMs)
 {
     if (auto* service = getOwnedCookingService())
     {
@@ -288,8 +288,8 @@ bool CARB_ABI cookingWaitForTaskToFinish(omni::physx::PhysxCookingOperationHandl
     return false;
 }
 
-omni::physx::PhysxCookingAsyncContext CARB_ABI cookingCreateAsyncContext(
-    omni::physx::PhysxCookingAsyncContextParameters& parameters)
+omni::ev4sio_physx::PhysxCookingAsyncContext CARB_ABI cookingCreateAsyncContext(
+    omni::ev4sio_physx::PhysxCookingAsyncContextParameters& parameters)
 {
     if (auto* service = getOwnedCookingService())
     {
@@ -298,7 +298,7 @@ omni::physx::PhysxCookingAsyncContext CARB_ABI cookingCreateAsyncContext(
     return nullptr;
 }
 
-void CARB_ABI cookingDestroyAsyncContext(omni::physx::PhysxCookingAsyncContext context)
+void CARB_ABI cookingDestroyAsyncContext(omni::ev4sio_physx::PhysxCookingAsyncContext context)
 {
     if (auto* service = getOwnedCookingService())
     {
@@ -306,14 +306,14 @@ void CARB_ABI cookingDestroyAsyncContext(omni::physx::PhysxCookingAsyncContext c
     }
 }
 
-omni::physx::PhysxCookingOperationHandle CARB_ABI cookingRequestTriangleMeshCookedData(
-    omni::physx::PhysxCookingAsyncContext context,
-    const omni::physx::PhysxCookingComputeRequest& request,
-    const omni::physx::TriangleMeshCookingParams& triangleMeshCookingParams)
+omni::ev4sio_physx::PhysxCookingOperationHandle CARB_ABI cookingRequestTriangleMeshCookedData(
+    omni::ev4sio_physx::PhysxCookingAsyncContext context,
+    const omni::ev4sio_physx::PhysxCookingComputeRequest& request,
+    const omni::ev4sio_physx::TriangleMeshCookingParams& triangleMeshCookingParams)
 {
     if (auto* service = getOwnedCookingService())
     {
-        omni::physx::SdfMeshCookingParams sdfMeshCookingParams;
+        omni::ev4sio_physx::SdfMeshCookingParams sdfMeshCookingParams;
         sdfMeshCookingParams.sdfResolution = 0;
         return service->requestTriangleMeshCookedData(context, request, triangleMeshCookingParams, sdfMeshCookingParams,
                                                       nullptr);
@@ -321,11 +321,11 @@ omni::physx::PhysxCookingOperationHandle CARB_ABI cookingRequestTriangleMeshCook
     return nullptr;
 }
 
-omni::physx::PhysxCookingOperationHandle CARB_ABI cookingRequestSdfMeshCookedData(
-    omni::physx::PhysxCookingAsyncContext context,
-    const omni::physx::PhysxCookingComputeRequest& request,
-    const omni::physx::TriangleMeshCookingParams& triangleMeshCookingParams,
-    const omni::physx::SdfMeshCookingParams& sdfMeshCookingParams)
+omni::ev4sio_physx::PhysxCookingOperationHandle CARB_ABI cookingRequestSdfMeshCookedData(
+    omni::ev4sio_physx::PhysxCookingAsyncContext context,
+    const omni::ev4sio_physx::PhysxCookingComputeRequest& request,
+    const omni::ev4sio_physx::TriangleMeshCookingParams& triangleMeshCookingParams,
+    const omni::ev4sio_physx::SdfMeshCookingParams& sdfMeshCookingParams)
 {
     if (auto* service = getOwnedCookingService())
     {
@@ -335,10 +335,10 @@ omni::physx::PhysxCookingOperationHandle CARB_ABI cookingRequestSdfMeshCookedDat
     return nullptr;
 }
 
-omni::physx::PhysxCookingOperationHandle CARB_ABI cookingRequestConvexMeshCookedData(
-    omni::physx::PhysxCookingAsyncContext context,
-    const omni::physx::PhysxCookingComputeRequest& request,
-    const omni::physx::ConvexMeshCookingParams& desc)
+omni::ev4sio_physx::PhysxCookingOperationHandle CARB_ABI cookingRequestConvexMeshCookedData(
+    omni::ev4sio_physx::PhysxCookingAsyncContext context,
+    const omni::ev4sio_physx::PhysxCookingComputeRequest& request,
+    const omni::ev4sio_physx::ConvexMeshCookingParams& desc)
 {
     if (auto* service = getOwnedCookingService())
     {
@@ -347,10 +347,10 @@ omni::physx::PhysxCookingOperationHandle CARB_ABI cookingRequestConvexMeshCooked
     return nullptr;
 }
 
-omni::physx::PhysxCookingOperationHandle CARB_ABI cookingRequestConvexMeshDecompositionCookedData(
-    omni::physx::PhysxCookingAsyncContext context,
-    const omni::physx::PhysxCookingComputeRequest& request,
-    const omni::physx::ConvexDecompositionCookingParams& desc)
+omni::ev4sio_physx::PhysxCookingOperationHandle CARB_ABI cookingRequestConvexMeshDecompositionCookedData(
+    omni::ev4sio_physx::PhysxCookingAsyncContext context,
+    const omni::ev4sio_physx::PhysxCookingComputeRequest& request,
+    const omni::ev4sio_physx::ConvexDecompositionCookingParams& desc)
 {
     if (auto* service = getOwnedCookingService())
     {
@@ -359,10 +359,10 @@ omni::physx::PhysxCookingOperationHandle CARB_ABI cookingRequestConvexMeshDecomp
     return nullptr;
 }
 
-omni::physx::PhysxCookingOperationHandle CARB_ABI cookingRequestSphereFillCookedData(
-    omni::physx::PhysxCookingAsyncContext context,
-    const omni::physx::PhysxCookingComputeRequest& request,
-    const omni::physx::SphereFillCookingParams& desc)
+omni::ev4sio_physx::PhysxCookingOperationHandle CARB_ABI cookingRequestSphereFillCookedData(
+    omni::ev4sio_physx::PhysxCookingAsyncContext context,
+    const omni::ev4sio_physx::PhysxCookingComputeRequest& request,
+    const omni::ev4sio_physx::SphereFillCookingParams& desc)
 {
     if (auto* service = getOwnedCookingService())
     {
@@ -371,7 +371,7 @@ omni::physx::PhysxCookingOperationHandle CARB_ABI cookingRequestSphereFillCooked
     return nullptr;
 }
 
-uint32_t CARB_ABI cookingGetActiveTaskCount(omni::physx::PhysxCookingAsyncContext context)
+uint32_t CARB_ABI cookingGetActiveTaskCount(omni::ev4sio_physx::PhysxCookingAsyncContext context)
 {
     if (auto* service = getOwnedCookingService())
     {
@@ -398,33 +398,33 @@ void CARB_ABI cookingResetMeshCacheContents()
 }
 
 bool CARB_ABI cookingComputeConformingTetrahedralMesh(
-    const omni::physx::PhysxCookingTetrahedralMeshInput& meshInput,
-    omni::physx::PhysxCookingTetrahedralMeshOutput& meshOutput)
+    const omni::ev4sio_physx::PhysxCookingTetrahedralMeshInput& meshInput,
+    omni::ev4sio_physx::PhysxCookingTetrahedralMeshOutput& meshOutput)
 {
-    return omni::physx::computeConformingTetrahedralMeshInternal(
+    return omni::ev4sio_physx::computeConformingTetrahedralMeshInternal(
         meshOutput.dstTetPoints, meshOutput.dstTetPointsSize, meshOutput.dstTetIndices, meshOutput.dstTetIndicesSize,
         meshInput.srcTriPoints, meshInput.srcTriPointsSize, meshInput.srcTriIndices, meshInput.srcTriIndicesSize,
         meshOutput.allocateBytes);
 }
 
 bool CARB_ABI cookingComputeVoxelTetrahedralMesh(
-    const omni::physx::PhysxCookingTetrahedralMeshInput& meshInput,
-    omni::physx::PhysxCookingTetrahedralMeshOutput& meshOutput,
-    omni::physx::PhysxCookingTetrahedralVoxelMeshParameters parameters)
+    const omni::ev4sio_physx::PhysxCookingTetrahedralMeshInput& meshInput,
+    omni::ev4sio_physx::PhysxCookingTetrahedralMeshOutput& meshOutput,
+    omni::ev4sio_physx::PhysxCookingTetrahedralVoxelMeshParameters parameters)
 {
-    return omni::physx::computeVoxelTetrahedralMeshInternal(
+    return omni::ev4sio_physx::computeVoxelTetrahedralMeshInternal(
         meshOutput.dstTetPoints, meshOutput.dstTetPointsSize, meshOutput.dstTetIndices, meshOutput.dstTetIndicesSize,
         meshOutput.dstEmbedding, meshOutput.dstEmbeddingSize, meshInput.srcTriPoints, meshInput.srcTriPointsSize,
         meshInput.srcTriIndices, meshInput.srcTriIndicesSize, parameters.voxelResolution, parameters.numTetsPerVoxel,
         parameters.anchorNodes, meshOutput.allocateBytes);
 }
 
-omni::physx::PhysxCookingOperationHandle CARB_ABI cookingRequestSdfMeshCookedDataPrivate(
-    omni::physx::PhysxCookingAsyncContext context,
-    const omni::physx::PhysxCookingComputeRequest& request,
-    const omni::physx::TriangleMeshCookingParams& triangleMeshCookingParams,
-    const omni::physx::SdfMeshCookingParams& sdfMeshCookingParams,
-    ::physx::PxCudaContextManager* cudaContextManager)
+omni::ev4sio_physx::PhysxCookingOperationHandle CARB_ABI cookingRequestSdfMeshCookedDataPrivate(
+    omni::ev4sio_physx::PhysxCookingAsyncContext context,
+    const omni::ev4sio_physx::PhysxCookingComputeRequest& request,
+    const omni::ev4sio_physx::TriangleMeshCookingParams& triangleMeshCookingParams,
+    const omni::ev4sio_physx::SdfMeshCookingParams& sdfMeshCookingParams,
+    ::ev4sio_physx::PxCudaContextManager* cudaContextManager)
 {
     if (auto* service = getOwnedCookingService())
     {
@@ -434,10 +434,10 @@ omni::physx::PhysxCookingOperationHandle CARB_ABI cookingRequestSdfMeshCookedDat
     return nullptr;
 }
 
-omni::physx::PhysxCookingOperationHandle CARB_ABI cookingRequestParticlePoissonSamplingCookedData(
-    omni::physx::PhysxCookingAsyncContext context,
-    const omni::physx::PhysxCookingComputeRequest& request,
-    const omni::physx::ParticlePoissonSamplingCookingParams& params)
+omni::ev4sio_physx::PhysxCookingOperationHandle CARB_ABI cookingRequestParticlePoissonSamplingCookedData(
+    omni::ev4sio_physx::PhysxCookingAsyncContext context,
+    const omni::ev4sio_physx::PhysxCookingComputeRequest& request,
+    const omni::ev4sio_physx::ParticlePoissonSamplingCookingParams& params)
 {
     if (auto* service = getOwnedCookingService())
     {
@@ -447,8 +447,8 @@ omni::physx::PhysxCookingOperationHandle CARB_ABI cookingRequestParticlePoissonS
 }
 
 void CARB_ABI cookingReadParticlePoissonSamplingData(
-    omni::physx::PhysxCookingParticlePoissonSamplingData& out,
-    const omni::physx::PhysxCookedDataSpan& cookedData)
+    omni::ev4sio_physx::PhysxCookingParticlePoissonSamplingData& out,
+    const omni::ev4sio_physx::PhysxCookedDataSpan& cookedData)
 {
     cookingtask::readParticlePoissonSamplingData(out, cookedData);
 }
@@ -460,10 +460,10 @@ bool CARB_ABI cookingIsOVCNodeDeprecated()
     return settings && settings->getAsBool("/app/ovc_deployment");
 }
 
-omni::physx::PhysxCookingOperationHandle CARB_ABI cookingRequestDeformableVolumeMeshCookedData(
-    omni::physx::PhysxCookingAsyncContext context,
-    const omni::physx::PhysxCookingComputeRequest& request,
-    const omni::physx::DeformableVolumeMeshCookingParams& params)
+omni::ev4sio_physx::PhysxCookingOperationHandle CARB_ABI cookingRequestDeformableVolumeMeshCookedData(
+    omni::ev4sio_physx::PhysxCookingAsyncContext context,
+    const omni::ev4sio_physx::PhysxCookingComputeRequest& request,
+    const omni::ev4sio_physx::DeformableVolumeMeshCookingParams& params)
 {
     if (auto* service = getOwnedCookingService())
     {
@@ -472,10 +472,10 @@ omni::physx::PhysxCookingOperationHandle CARB_ABI cookingRequestDeformableVolume
     return nullptr;
 }
 
-omni::physx::PhysxCookingOperationHandle CARB_ABI cookingRequestVolumeDeformableBodyCookedData(
-    omni::physx::PhysxCookingAsyncContext context,
-    const omni::physx::PhysxCookingComputeRequest& request,
-    const omni::physx::VolumeDeformableBodyCookingParams& params)
+omni::ev4sio_physx::PhysxCookingOperationHandle CARB_ABI cookingRequestVolumeDeformableBodyCookedData(
+    omni::ev4sio_physx::PhysxCookingAsyncContext context,
+    const omni::ev4sio_physx::PhysxCookingComputeRequest& request,
+    const omni::ev4sio_physx::VolumeDeformableBodyCookingParams& params)
 {
     if (auto* service = getOwnedCookingService())
     {
@@ -484,10 +484,10 @@ omni::physx::PhysxCookingOperationHandle CARB_ABI cookingRequestVolumeDeformable
     return nullptr;
 }
 
-omni::physx::PhysxCookingOperationHandle CARB_ABI cookingRequestSurfaceDeformableBodyCookedData(
-    omni::physx::PhysxCookingAsyncContext context,
-    const omni::physx::PhysxCookingComputeRequest& request,
-    const omni::physx::SurfaceDeformableBodyCookingParams& params)
+omni::ev4sio_physx::PhysxCookingOperationHandle CARB_ABI cookingRequestSurfaceDeformableBodyCookedData(
+    omni::ev4sio_physx::PhysxCookingAsyncContext context,
+    const omni::ev4sio_physx::PhysxCookingComputeRequest& request,
+    const omni::ev4sio_physx::SurfaceDeformableBodyCookingParams& params)
 {
     if (auto* service = getOwnedCookingService())
     {
@@ -496,20 +496,20 @@ omni::physx::PhysxCookingOperationHandle CARB_ABI cookingRequestSurfaceDeformabl
     return nullptr;
 }
 
-void CARB_ABI cookingReadVolumeDeformableBodyData(omni::physx::PhysxCookingVolumeDeformableBodyData& out,
-                                                  const omni::physx::PhysxCookedDataSpan& cookedData)
+void CARB_ABI cookingReadVolumeDeformableBodyData(omni::ev4sio_physx::PhysxCookingVolumeDeformableBodyData& out,
+                                                  const omni::ev4sio_physx::PhysxCookedDataSpan& cookedData)
 {
     cookingtask::readVolumeDeformableBodyData(out, cookedData);
 }
 
-void CARB_ABI cookingReadSurfaceDeformableBodyData(omni::physx::PhysxCookingSurfaceDeformableBodyData& out,
-                                                   const omni::physx::PhysxCookedDataSpan& cookedData)
+void CARB_ABI cookingReadSurfaceDeformableBodyData(omni::ev4sio_physx::PhysxCookingSurfaceDeformableBodyData& out,
+                                                   const omni::ev4sio_physx::PhysxCookedDataSpan& cookedData)
 {
     cookingtask::readSurfaceDeformableBodyData(out, cookedData);
 }
 
-void fillCookingServiceInterfaces(omni::physx::IPhysxCookingService& service,
-                                  omni::physx::IPhysxCookingServicePrivate& privateService)
+void fillCookingServiceInterfaces(omni::ev4sio_physx::IPhysxCookingService& service,
+                                  omni::ev4sio_physx::IPhysxCookingServicePrivate& privateService)
 {
     service.pumpAsyncContext = cookingPumpAsyncContext;
     service.cancelTask = cookingCancelTask;
@@ -550,11 +550,11 @@ void fillCookingServiceInterfaces(omni::physx::IPhysxCookingService& service,
 #endif
 
 
-static const ::physx::PxF32 tConeOrCylinderWidth = 2.0f;
-static const ::physx::PxF32 tConeOrCylinderRadius = 1.0f;
+static const ::ev4sio_physx::PxF32 tConeOrCylinderWidth = 2.0f;
+static const ::ev4sio_physx::PxF32 tConeOrCylinderRadius = 1.0f;
 
-static const ::physx::PxU32 tCylinderNumCirclePoints = 30;  // with 32 it crashes on GPU
-static const ::physx::PxU32 tConeNumCirclePoints = 30;
+static const ::ev4sio_physx::PxU32 tCylinderNumCirclePoints = 30;  // with 32 it crashes on GPU
+static const ::ev4sio_physx::PxU32 tConeNumCirclePoints = 30;
 
 
 // Bridges the PhysX SDK profile zones to carb::profiler, which is the only sink:
@@ -627,15 +627,15 @@ void installProfilerCallback(carb::settings::ISettings* iSettings)
         return;
     }
 
-    // Idempotent: PxSetProfilerCallback replaces whatever was installed, so turning
+    // Idempotent: ev4sio_PxSetProfilerCallback replaces whatever was installed, so turning
     // the sink back off also uninstalls.
     if (iSettings->getAsBool(kSettingExposeProfilerData))
     {
-        PxSetProfilerCallback(&gProfilerCallback);
+        ev4sio_PxSetProfilerCallback(&gProfilerCallback);
     }
     else
     {
-        PxSetProfilerCallback(nullptr);
+        ev4sio_PxSetProfilerCallback(nullptr);
     }
 }
 
@@ -747,11 +747,11 @@ static PvdRecordingTime gLastPvdTime;
 
 namespace omni
 {
-    namespace physx
+    namespace ev4sio_physx
     {
         PhysXSetup::PhysXSetup()
         {
-            mPhysxFoundation = &omni::physx::foundation::getInterface();
+            mPhysxFoundation = &omni::ev4sio_physx::foundation::getInterface();
             initializeCookingServiceInterfaces();
 
             mErrorCallback = new RuntimePhysXErrorCallback();
@@ -857,9 +857,9 @@ namespace omni
             releaseCookingAsyncContext();
 
             // ### DEFENSIVE OMPE-102186
-            // createPhysics() returns without creating a foundation if PxCreateFoundation fails,
-            // and CARB_ASSERT compiles out in release, so everything below - PxCreatePvd,
-            // PxCreatePhysics - would dereference a null foundation. Bail out with an
+            // createPhysics() returns without creating a foundation if ev4sio_PxCreateFoundation fails,
+            // and CARB_ASSERT compiles out in release, so everything below - ev4sio_PxCreatePvd,
+            // ev4sio_PxCreatePhysics - would dereference a null foundation. Bail out with an
             // error instead; the underlying failure is already reported by createPhysics().
             CARB_ASSERT(mFoundation);
             if (!mFoundation)
@@ -877,7 +877,7 @@ namespace omni
 
             if (iSettings->getAsBool(kSettingPVDEnabled) && !mVisualDebugger)
             {
-                mVisualDebugger = PxCreatePvd(*mFoundation);
+                mVisualDebugger = ev4sio_PxCreatePvd(*mFoundation);
             }
             if (!iSettings->getAsBool(kSettingPVDEnabled) && mVisualDebugger)
             {
@@ -892,7 +892,7 @@ namespace omni
             const bool omniPVDRecordingCapable = isOmniPvdRecordingCapable(*iSettings);
             if (omniPVDRecordingCapable && !mOmniPvd)
             {
-                mOmniPvd = PxCreateOmniPvd(*mFoundation);
+                mOmniPvd = ev4sio_PxCreateOmniPvd(*mFoundation);
                 if (!mOmniPvd || !mOmniPvd->getWriter())
                 {
                     CARB_LOG_ERROR("OmniPvd writer not created");
@@ -906,7 +906,7 @@ namespace omni
             // context at startup. Nothing to do here.
 #endif
 
-            mPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *mFoundation, tolerances, true, mVisualDebugger, mOmniPvd);
+            mPhysics = ev4sio_PxCreatePhysics(ev4sio_PX_PHYSICS_VERSION, *mFoundation, tolerances, true, mVisualDebugger, mOmniPvd);
             if (!mPhysics)
             {
                 CARB_LOG_ERROR("PhysX SDK creation failed (length=%g, speed=%g). See the preceding PhysX errors.",
@@ -920,7 +920,7 @@ namespace omni
 
             if (!mExtensionsInitialized)
             {
-                if (!PxInitExtensions(*mPhysics, mVisualDebugger))
+                if (!ev4sio_PxInitExtensions(*mPhysics, mVisualDebugger))
                 {
                     CARB_LOG_ERROR("PhysX extension initialization failed.");
                     cleanupPhysics();
@@ -968,7 +968,7 @@ namespace omni
                 return;
             }
 
-            omni::physx::PhysxCookingAsyncContextParameters contextParams;
+            omni::ev4sio_physx::PhysxCookingAsyncContextParameters contextParams;
             contextParams.contextName = { "omni.physx", strlen("omni.physx") };
             mCookingServiceContext = cookingService->createAsyncContext(contextParams);
         }
@@ -1034,7 +1034,7 @@ namespace omni
 
         OmniPvdRecordingResult PhysXSetup::startOmniPvdRecording(
             const OmniPvdDestination& destination,
-            const ::physx::PxOmniPvdFilterDesc* capture, AttachHandle selectionOwner, bool discovery)
+            const ::ev4sio_physx::PxOmniPvdFilterDesc* capture, AttachHandle selectionOwner, bool discovery)
         {
             if (!mPhysics || UsdLoad::getUsdLoad()->getAttachedStages().empty())
             {
@@ -1052,8 +1052,8 @@ namespace omni
             if (capture && !mOmniPvd->validateFilterDesc(*capture))
                 return OmniPvdRecordingResult::eError;
 
-            ::physx::PxOmniPvdFilterDesc discoveryScope = capture ? *capture : ::physx::PxOmniPvdFilterDesc();
-            std::vector<const ::physx::PxScene*> discoveryScenes;
+            ::ev4sio_physx::PxOmniPvdFilterDesc discoveryScope = capture ? *capture : ::ev4sio_physx::PxOmniPvdFilterDesc();
+            std::vector<const ::ev4sio_physx::PxScene*> discoveryScenes;
             if (discovery && (!restrictOmniPvdCaptureToOwner(discoveryScope, selectionOwner, discoveryScenes) ||
                               !mOmniPvd->validateFilterDesc(discoveryScope)))
                 return OmniPvdRecordingResult::eInvalidState;
@@ -1257,15 +1257,15 @@ namespace omni
             }
         }
 
-        bool PhysXSetup::filterCaptureRequest(::physx::PxOmniPvdFilterDesc& filter)
+        bool PhysXSetup::filterCaptureRequest(::ev4sio_physx::PxOmniPvdFilterDesc& filter)
         {
             return restrictOmniPvdCaptureToOwner(filter, getOmniPvdCaptureOwner(), mOmniPvdCaptureScenes,
                                                !mOmniPvd->isCaptureDiscoveryActive());
         }
 
         bool PhysXSetup::restrictOmniPvdCaptureToOwner(
-            ::physx::PxOmniPvdFilterDesc& filter, AttachHandle owner,
-            std::vector<const ::physx::PxScene*>& sceneStorage, bool expandEmpty)
+            ::ev4sio_physx::PxOmniPvdFilterDesc& filter, AttachHandle owner,
+            std::vector<const ::ev4sio_physx::PxScene*>& sceneStorage, bool expandEmpty)
         {
             if (owner == omni::physics::kNoAttach)
                 return false;
@@ -1275,12 +1275,12 @@ namespace omni
                     sceneStorage.push_back(entry.second->getScene());
             if (sceneStorage.empty())
                 return false;
-            const std::unordered_set<const ::physx::PxScene*> ownedScenes(
+            const std::unordered_set<const ::ev4sio_physx::PxScene*> ownedScenes(
                 sceneStorage.begin(), sceneStorage.end());
-            const auto ownsScene = [&ownedScenes](const ::physx::PxScene* scene) {
+            const auto ownsScene = [&ownedScenes](const ::ev4sio_physx::PxScene* scene) {
                 return ownedScenes.find(scene) != ownedScenes.end();
             };
-            for (::physx::PxU32 index = 0; index < filter.nbScenes; ++index)
+            for (::ev4sio_physx::PxU32 index = 0; index < filter.nbScenes; ++index)
                 if (!ownsScene(filter.scenes[index]))
                     return false;
             if (filter.nbObjects)
@@ -1288,22 +1288,22 @@ namespace omni
                 const std::shared_ptr<AttachedStage> attachment = UsdLoad::getUsdLoad()->acquireAttachment(owner);
                 if (!attachment)
                     return false;
-                std::unordered_set<const ::physx::PxBase*> ownedBuffers;
+                std::unordered_set<const ::ev4sio_physx::PxBase*> ownedBuffers;
                 for (const InternalDatabase::Record& record : attachment->getInternalPhysXDatabase().getRecords())
                     if (record.mType == ePTParticleSet && record.mPtr)
                         ownedBuffers.insert(omniPvdCaptureObject(record.mType, record.mPtr));
-                for (::physx::PxU32 index = 0; index < filter.nbObjects; ++index)
+                for (::ev4sio_physx::PxU32 index = 0; index < filter.nbObjects; ++index)
                 {
                     // The native API has already resolved each handle against live SDK objects.
                     // Actor and whole-articulation roots must belong to this attachment's scenes.
-                    const ::physx::PxBase& object = *filter.objects[index];
-                    if (const ::physx::PxActor* actor = object.is<::physx::PxActor>())
+                    const ::ev4sio_physx::PxBase& object = *filter.objects[index];
+                    if (const ::ev4sio_physx::PxActor* actor = object.is<::ev4sio_physx::PxActor>())
                     {
                         if (!ownsScene(actor->getScene()))
                             return false;
                     }
-                    else if (const ::physx::PxArticulationReducedCoordinate* articulation =
-                                 object.is<::physx::PxArticulationReducedCoordinate>())
+                    else if (const ::ev4sio_physx::PxArticulationReducedCoordinate* articulation =
+                                 object.is<::ev4sio_physx::PxArticulationReducedCoordinate>())
                     {
                         if (!ownsScene(articulation->getScene()))
                             return false;
@@ -1316,12 +1316,12 @@ namespace omni
             if (expandEmpty && filter.nbScenes == 0 && filter.nbObjects == 0)
             {
                 filter.scenes = sceneStorage.data();
-                filter.nbScenes = static_cast<::physx::PxU32>(sceneStorage.size());
+                filter.nbScenes = static_cast<::ev4sio_physx::PxU32>(sceneStorage.size());
             }
             return true;
         }
 
-        void PhysXSetup::onCaptureReset(::physx::PxOmniPvd& omniPvd, const ::physx::PxOmniPvdFilterDesc& /*filter*/)
+        void PhysXSetup::onCaptureReset(::ev4sio_physx::PxOmniPvd& omniPvd, const ::ev4sio_physx::PxOmniPvdFilterDesc& /*filter*/)
         {
             CARB_ASSERT(&omniPvd == mOmniPvd);
             if (&omniPvd == mOmniPvd)
@@ -1330,7 +1330,7 @@ namespace omni
             }
         }
 
-        void PhysXSetup::onStartSampling(::physx::PxOmniPvd& omniPvd, const ::physx::PxOmniPvdFilterDesc* filter)
+        void PhysXSetup::onStartSampling(::ev4sio_physx::PxOmniPvd& omniPvd, const ::ev4sio_physx::PxOmniPvdFilterDesc* filter)
         {
             mVehiclePvdSnapshotSucceeded = false;
             CARB_ASSERT(&omniPvd == mOmniPvd);
@@ -1344,13 +1344,13 @@ namespace omni
                 return;
             }
 
-            ::physx::PxOmniPvd::ScopedExclusiveWriter writerScope(&omniPvd);
+            ::ev4sio_physx::PxOmniPvd::ScopedExclusiveWriter writerScope(&omniPvd);
             OmniPvdWriter* writer = writerScope.getWriter();
             CARB_ASSERT(!mVehiclePvdRegistrationHandles);
             if (!writer || mVehiclePvdRegistrationHandles)
                 return;
 
-            mVehiclePvdRegistrationHandles = ::physx::PxVehiclePvdAttributesCreate(mAllocator, *writer);
+            mVehiclePvdRegistrationHandles = ::ev4sio_physx::PxVehiclePvdAttributesCreate(mAllocator, *writer);
             if (!mVehiclePvdRegistrationHandles)
                 return;
 
@@ -1358,7 +1358,7 @@ namespace omni
             for (PhysXScenesMap::reference ref : mPhysXScenes)
             {
                 InternalScene* scene = ref.second->getInternalScene();
-                ::physx::PxVehiclePhysXSimulationContext& context = scene->getVehicleContext().getContext();
+                ::ev4sio_physx::PxVehiclePhysXSimulationContext& context = scene->getVehicleContext().getContext();
                 context.pvdContext.attributeHandles = mVehiclePvdRegistrationHandles;
                 context.pvdContext.writer = writer;
 
@@ -1375,8 +1375,8 @@ namespace omni
                     }
 
                     vehicle->mPhysXVehicle->createPvdObjectHandles(mAllocator);
-                    ::physx::PxVehiclePVDComponent* component =
-                        static_cast<::physx::PxVehiclePVDComponent*>(vehicle->mPhysXVehicle);
+                    ::ev4sio_physx::PxVehiclePVDComponent* component =
+                        static_cast<::ev4sio_physx::PxVehiclePVDComponent*>(vehicle->mPhysXVehicle);
                     snapshotSucceeded = component->update(0.0f, context) && snapshotSucceeded;
                 }
             }
@@ -1400,7 +1400,7 @@ namespace omni
         {
             if (mVehiclePvdRegistrationHandles)
             {
-                ::physx::PxVehiclePvdAttributesRelease(mAllocator, *mVehiclePvdRegistrationHandles);
+                ::ev4sio_physx::PxVehiclePvdAttributesRelease(mAllocator, *mVehiclePvdRegistrationHandles);
                 mVehiclePvdRegistrationHandles = nullptr;
             }
         }
@@ -1410,7 +1410,7 @@ namespace omni
             if (!mVehiclePvdRegistrationHandles)
                 return;
 
-            ::physx::PxOmniPvd::ScopedExclusiveWriter writerScope(mOmniPvd);
+            ::ev4sio_physx::PxOmniPvd::ScopedExclusiveWriter writerScope(mOmniPvd);
             OmniPvdWriter* writer = writerScope.getWriter();
             CARB_ASSERT(writer);
             if (!writer)
@@ -1424,7 +1424,7 @@ namespace omni
                     if (vehicle->mPhysXVehicle && vehicle->mPhysXVehicle->getPvdObjectHandles())
                         vehicle->mPhysXVehicle->releasePvdObjectHandles(*writer, mAllocator);
                 }
-                ::physx::PxVehiclePhysXSimulationContext& context = scene->getVehicleContext().getContext();
+                ::ev4sio_physx::PxVehiclePhysXSimulationContext& context = scene->getVehicleContext().getContext();
                 context.pvdContext.attributeHandles = nullptr;
                 context.pvdContext.writer = nullptr;
             }
@@ -1451,7 +1451,7 @@ namespace omni
 
             if (mExtensionsInitialized)
             {
-                PxCloseExtensions();
+                ev4sio_PxCloseExtensions();
                 mExtensionsInitialized = false;
             }
 
@@ -1480,7 +1480,7 @@ namespace omni
 
             // A.B. TODO
             // we really should have a common memory manager and pass it to PhysX too
-            mFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, mAllocator, *mErrorCallback);
+            mFoundation = ev4sio_PxCreateFoundation(ev4sio_PX_PHYSICS_VERSION, mAllocator, *mErrorCallback);
             if (!mFoundation)
             {
                 CARB_LOG_ERROR("Unable to create PhysX foundation.");
@@ -1491,7 +1491,7 @@ namespace omni
             // Initialize the vehicle SDK.
             if (!mVehicleSDKInitialized)
             {
-                mVehicleSDKInitialized = ::physx::PxInitVehicleExtension(*mFoundation);
+                mVehicleSDKInitialized = ::ev4sio_physx::PxInitVehicleExtension(*mFoundation);
             }
         }
 
@@ -1500,7 +1500,7 @@ namespace omni
         {
             mPhysicsReleased = true;
             omni::sampling::notifyPhysXSceneRelease();
-            omni::physx::particles::notifyAllPhysXRelease();
+            omni::ev4sio_physx::particles::notifyAllPhysXRelease();
             releaseCookingService();
 
             // Wait for all stepper tasks to complete before destroying scenes
@@ -1529,13 +1529,13 @@ namespace omni
 
             if (mVehicleSDKInitialized)
             {
-                ::physx::PxCloseVehicleExtension();
+                ::ev4sio_physx::PxCloseVehicleExtension();
                 mVehicleSDKInitialized = false;
             }
 
             if (mExtensionsInitialized)
             {
-                PxCloseExtensions();
+                ev4sio_PxCloseExtensions();
                 mExtensionsInitialized = false;
             }
 
@@ -1669,7 +1669,7 @@ namespace omni
             {
                 const PhysxSharedSettings& settings = owner.getSharedSettings();
                 int deviceCount = 0;
-                omni::physx::foundation::getOptionalCudaInterface().deviceGetCount(&deviceCount, nullptr);
+                omni::ev4sio_physx::foundation::getOptionalCudaInterface().deviceGetCount(&deviceCount, nullptr);
                 const bool multi = settings.sceneMultiGpuMode != 0 && deviceCount > 1;
                 const int first = multi && settings.sceneMultiGpuMode == 2 ? 1 : 0;
                 const int count = multi ? deviceCount : 1;
@@ -1684,7 +1684,7 @@ namespace omni
                                                      PhysxFoundationDeviceOrdinal::eMODE_PHYSX_DEFAULTS);
                     uintptr_t externalContext = 0;
                     if (ordinal.mode == PhysxFoundationDeviceOrdinal::eMODE_ACTIVE_CONTEXT &&
-                        (!omni::physx::foundation::getOptionalCudaInterface().ctxGetCurrent(&externalContext, nullptr) ||
+                        (!omni::ev4sio_physx::foundation::getOptionalCudaInterface().ctxGetCurrent(&externalContext, nullptr) ||
                          externalContext == 0))
                         return nullptr;
                     auto compatible = std::find_if(mAttachmentCudaResources.begin(), mAttachmentCudaResources.end(),
@@ -1797,10 +1797,10 @@ namespace omni
                     std::string outputFilePath = iSettings->getStringBuffer(kSettingPVDOutputDirectory);
                     addLastSlash(outputFilePath);
                     outputFilePath += "tmp.pvd";
-                    mPvdTransport = PxDefaultPvdFileTransportCreate(outputFilePath.c_str());
+                    mPvdTransport = ev4sio_PxDefaultPvdFileTransportCreate(outputFilePath.c_str());
                 }
                 else
-                    mPvdTransport = PxDefaultPvdSocketTransportCreate(iSettings->getStringBuffer(kSettingPVDIPAddress), 5425, 10);
+                    mPvdTransport = ev4sio_PxDefaultPvdSocketTransportCreate(iSettings->getStringBuffer(kSettingPVDIPAddress), 5425, 10);
 
                 PxPvdInstrumentationFlags instrumentationFlags(0);
                 if (iSettings->getAsBool(kSettingPVDProfile))
@@ -1873,7 +1873,7 @@ namespace omni
             }
         }
 
-        ::physx::PxCookingParams PhysXSetup::getCookingParams(const ::physx::PxTolerancesScale& tolerances)
+        ::ev4sio_physx::PxCookingParams PhysXSetup::getCookingParams(const ::ev4sio_physx::PxTolerancesScale& tolerances)
         {
             PxCookingParams params(tolerances);
             params.buildGPUData = false;
@@ -1881,7 +1881,7 @@ namespace omni
             return params;
         }
 
-        ::physx::PxTolerancesScale    PhysXSetup::getDefaultTolerances(double metersPerUnit)
+        ::ev4sio_physx::PxTolerancesScale    PhysXSetup::getDefaultTolerances(double metersPerUnit)
         {
             if (std::isfinite(metersPerUnit) && metersPerUnit > 0.0)
             {
@@ -1890,14 +1890,14 @@ namespace omni
                 // Check before narrowing: a finite double can exceed the float range.
                 if (std::isfinite(length) && std::isfinite(speed) && length <= PX_MAX_F32 && speed <= PX_MAX_F32)
                 {
-                    const ::physx::PxTolerancesScale tolerances{ float(length), float(speed) };
+                    const ::ev4sio_physx::PxTolerancesScale tolerances{ float(length), float(speed) };
                     if (tolerances.isValid() && tolerances.speed > 0.0f)
                         return tolerances;
                 }
             }
             CARB_LOG_ERROR("Invalid stage metersPerUnit (%g): expected a finite positive value producing "
                 "finite positive PhysX tolerance scales.", metersPerUnit);
-            return ::physx::PxTolerancesScale(0.0f, 0.0f);
+            return ::ev4sio_physx::PxTolerancesScale(0.0f, 0.0f);
         }
 
 
@@ -2026,24 +2026,24 @@ namespace omni
                     throw;
                 }
 
-                getCylinderConvexMesh(omni::physx::usdparser::eX);
-                getCylinderConvexMesh(omni::physx::usdparser::eY);
-                getCylinderConvexMesh(omni::physx::usdparser::eZ);
+                getCylinderConvexMesh(omni::ev4sio_physx::usdparser::eX);
+                getCylinderConvexMesh(omni::ev4sio_physx::usdparser::eY);
+                getCylinderConvexMesh(omni::ev4sio_physx::usdparser::eZ);
 
-                getConeConvexMesh(omni::physx::usdparser::eX);
-                getConeConvexMesh(omni::physx::usdparser::eY);
-                getConeConvexMesh(omni::physx::usdparser::eZ);
+                getConeConvexMesh(omni::ev4sio_physx::usdparser::eX);
+                getConeConvexMesh(omni::ev4sio_physx::usdparser::eY);
+                getConeConvexMesh(omni::ev4sio_physx::usdparser::eZ);
 
-                getVehicleWheelCylinderConvexMesh(omni::physx::usdparser::eX);
-                getVehicleWheelCylinderConvexMesh(omni::physx::usdparser::eY);
-                getVehicleWheelCylinderConvexMesh(omni::physx::usdparser::eZ);
+                getVehicleWheelCylinderConvexMesh(omni::ev4sio_physx::usdparser::eX);
+                getVehicleWheelCylinderConvexMesh(omni::ev4sio_physx::usdparser::eY);
+                getVehicleWheelCylinderConvexMesh(omni::ev4sio_physx::usdparser::eZ);
             }
 
             return scene;
         }
 
 
-        ::physx::PxConvexMesh* PhysXSetup::getConeConvexMesh(omni::physx::usdparser::Axis axis) const
+        ::ev4sio_physx::PxConvexMesh* PhysXSetup::getConeConvexMesh(omni::ev4sio_physx::usdparser::Axis axis) const
         {
             if (axis == eX)
             {
@@ -2071,7 +2071,7 @@ namespace omni
             }
         }
 
-        ::physx::PxConvexMesh* PhysXSetup::getCylinderConvexMesh(Axis axis) const
+        ::ev4sio_physx::PxConvexMesh* PhysXSetup::getCylinderConvexMesh(Axis axis) const
         {
             if (axis == eX)
             {
@@ -2099,7 +2099,7 @@ namespace omni
             }
         }
 
-        ::physx::PxConvexMesh* PhysXSetup::getVehicleWheelCylinderConvexMesh(Axis axis) const
+        ::ev4sio_physx::PxConvexMesh* PhysXSetup::getVehicleWheelCylinderConvexMesh(Axis axis) const
         {
             constexpr float cylinderWidth = 2.0f;
             constexpr float cylinderRadius = 1.0f;
@@ -2130,12 +2130,12 @@ namespace omni
                 return mVehicleWheelCylinderMeshZ;
             }
         }
-    } // namespace physx
+    } // namespace ev4sio_physx
 } // namespace omni
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace runtime
 {
@@ -2148,5 +2148,5 @@ void refreshProfilerCallback()
 }
 
 } // namespace runtime
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

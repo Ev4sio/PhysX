@@ -33,9 +33,9 @@
 #include "extensions/PxParticleExt.h"
 #endif
 
-using namespace physx;
+using namespace ev4sio_physx;
 using namespace carb;
-using namespace omni::physx;
+using namespace omni::ev4sio_physx;
 
 const float kPickDistance=1000000.0f; // distance to raycast to do object 'picking'
 
@@ -82,18 +82,18 @@ std::atomic<uint32_t> gPreFilterCallCount{ 0 };
 std::atomic<uint32_t> gRaycastQueryInternCount{ 0 };
 } // namespace
 
-void omni::physx::resetRaycastQueryTestCounters()
+void omni::ev4sio_physx::resetRaycastQueryTestCounters()
 {
     gPreFilterCallCount.store(0, std::memory_order_relaxed);
     gRaycastQueryInternCount.store(0, std::memory_order_relaxed);
 }
 
-uint32_t omni::physx::getRaycastPreFilterCallCount()
+uint32_t omni::ev4sio_physx::getRaycastPreFilterCallCount()
 {
     return gPreFilterCallCount.load(std::memory_order_relaxed);
 }
 
-uint32_t omni::physx::getRaycastQueryInternCount()
+uint32_t omni::ev4sio_physx::getRaycastQueryInternCount()
 {
     return gRaycastQueryInternCount.load(std::memory_order_relaxed);
 }
@@ -167,10 +167,10 @@ void RaycastManager::clearCommandBuffer()
 }
 
 
-::physx::PxQueryHitType::Enum omni::physx::raycastFilterExcludeInvisible::preFilter(const ::physx::PxFilterData& filterData0,
-                                                         const ::physx::PxShape* shape,
-                                                         const ::physx::PxRigidActor* actor,
-                                                         ::physx::PxHitFlags& flag)
+::ev4sio_physx::PxQueryHitType::Enum omni::ev4sio_physx::raycastFilterExcludeInvisible::preFilter(const ::ev4sio_physx::PxFilterData& filterData0,
+                                                         const ::ev4sio_physx::PxShape* shape,
+                                                         const ::ev4sio_physx::PxRigidActor* actor,
+                                                         ::ev4sio_physx::PxHitFlags& flag)
 {
     gPreFilterCallCount.fetch_add(1, std::memory_order_relaxed);
 
@@ -220,7 +220,7 @@ static bool raycastSingle(const usdparser::AttachedStage& owner, const PxVec3& o
         tok.intern(*source);
         gRaycastQueryInternCount.fetch_add(1, std::memory_order_relaxed);
     }
-    const omni::physx::raycastFilterExcludeInvisible filter = raycastFilterExcludeInvisible(db, source, tok);
+    const omni::ev4sio_physx::raycastFilterExcludeInvisible filter = raycastFilterExcludeInvisible(db, source, tok);
     for (usdparser::AttachedStage::SceneMap::const_reference ref : physXScenes)
     {
         PxScene* scene = ref.second->getScene();
@@ -641,10 +641,10 @@ void RaycastManager::applyManipCmd(const ManipCmd& cmd, float delta_time)
                     *picker.hitRigidActor, grabbingForce * picker.hitRigidActor->getMass() * action * delta_time,
                                               newWorldPt, PxForceMode::eIMPULSE);
 
-                if(!(picker.hitRigidActor->getActorFlags() & ::physx::PxActorFlag::eDISABLE_GRAVITY))
+                if(!(picker.hitRigidActor->getActorFlags() & ::ev4sio_physx::PxActorFlag::eDISABLE_GRAVITY))
                 {
                     // Compensate for some of the scene gravity to assist in lifting the object when it is close to the screen / gravity is high.
-                    const ::physx::PxScene* scene = picker.physXScene->getScene();
+                    const ::ev4sio_physx::PxScene* scene = picker.physXScene->getScene();
                     const PxVec3 gravity = scene->getGravity();
                     float fGravityMagnitude = gravity.magnitude();
                     if(fGravityMagnitude > 0.0f)
@@ -770,7 +770,7 @@ void RaycastManager::applyManipCmd(const ManipCmd& cmd, float delta_time)
                                 PxPhysics* physics = OmniPhysX::getInstance().getPhysXSetup().getPhysics();
                                 PxRigidDynamic* rd = physics->createRigidDynamic(PxTransform(position));
 
-                                ::physx::PxScene* scene = picker.physXScene->getScene();
+                                ::ev4sio_physx::PxScene* scene = picker.physXScene->getScene();
                                 if (rd && scene)
                                 {
                                     scene->addActor(*rd);
@@ -785,12 +785,12 @@ void RaycastManager::applyManipCmd(const ManipCmd& cmd, float delta_time)
                                     rd->setMass(0.f);
                                     rd->setMassSpaceInertiaTensor(PxVec3(0.f));
                                     rd->setRigidBodyFlag(PxRigidBodyFlag::eKINEMATIC, true);
-                                    rd->setRigidDynamicLockFlag(::physx::PxRigidDynamicLockFlag::eLOCK_LINEAR_X, false);
-                                    rd->setRigidDynamicLockFlag(::physx::PxRigidDynamicLockFlag::eLOCK_LINEAR_Y, false);
-                                    rd->setRigidDynamicLockFlag(::physx::PxRigidDynamicLockFlag::eLOCK_LINEAR_Z, false);
-                                    rd->setRigidDynamicLockFlag(::physx::PxRigidDynamicLockFlag::eLOCK_ANGULAR_X, false);
-                                    rd->setRigidDynamicLockFlag(::physx::PxRigidDynamicLockFlag::eLOCK_ANGULAR_Y, false);
-                                    rd->setRigidDynamicLockFlag(::physx::PxRigidDynamicLockFlag::eLOCK_ANGULAR_Z, false);
+                                    rd->setRigidDynamicLockFlag(::ev4sio_physx::PxRigidDynamicLockFlag::eLOCK_LINEAR_X, false);
+                                    rd->setRigidDynamicLockFlag(::ev4sio_physx::PxRigidDynamicLockFlag::eLOCK_LINEAR_Y, false);
+                                    rd->setRigidDynamicLockFlag(::ev4sio_physx::PxRigidDynamicLockFlag::eLOCK_LINEAR_Z, false);
+                                    rd->setRigidDynamicLockFlag(::ev4sio_physx::PxRigidDynamicLockFlag::eLOCK_ANGULAR_X, false);
+                                    rd->setRigidDynamicLockFlag(::ev4sio_physx::PxRigidDynamicLockFlag::eLOCK_ANGULAR_Y, false);
+                                    rd->setRigidDynamicLockFlag(::ev4sio_physx::PxRigidDynamicLockFlag::eLOCK_ANGULAR_Z, false);
 
                                     picker.targetActor = rd;
 
@@ -798,12 +798,12 @@ void RaycastManager::applyManipCmd(const ManipCmd& cmd, float delta_time)
 
                                     d6->setAngularDriveConfig(PxD6AngularDriveConfig::eSWING_TWIST);
 
-                                    d6->setMotion(::physx::PxD6Axis::eX, ::physx::PxD6Motion::eFREE);
-                                    d6->setMotion(::physx::PxD6Axis::eY, ::physx::PxD6Motion::eFREE);
-                                    d6->setMotion(::physx::PxD6Axis::eZ, ::physx::PxD6Motion::eFREE);
-                                    d6->setMotion(::physx::PxD6Axis::eSWING1, ::physx::PxD6Motion::eFREE);
-                                    d6->setMotion(::physx::PxD6Axis::eSWING2, ::physx::PxD6Motion::eFREE);
-                                    d6->setMotion(::physx::PxD6Axis::eTWIST, ::physx::PxD6Motion::eFREE);
+                                    d6->setMotion(::ev4sio_physx::PxD6Axis::eX, ::ev4sio_physx::PxD6Motion::eFREE);
+                                    d6->setMotion(::ev4sio_physx::PxD6Axis::eY, ::ev4sio_physx::PxD6Motion::eFREE);
+                                    d6->setMotion(::ev4sio_physx::PxD6Axis::eZ, ::ev4sio_physx::PxD6Motion::eFREE);
+                                    d6->setMotion(::ev4sio_physx::PxD6Axis::eSWING1, ::ev4sio_physx::PxD6Motion::eFREE);
+                                    d6->setMotion(::ev4sio_physx::PxD6Axis::eSWING2, ::ev4sio_physx::PxD6Motion::eFREE);
+                                    d6->setMotion(::ev4sio_physx::PxD6Axis::eTWIST, ::ev4sio_physx::PxD6Motion::eFREE);
 
                                     //spring damper
                                     const float m = picker.hitRigidActor->getMass();
@@ -811,24 +811,24 @@ void RaycastManager::applyManipCmd(const ManipCmd& cmd, float delta_time)
                                     float stiffness = damping * damping / (4 * m);
 
                                     //max force
-                                    const ::physx::PxU32 nbConstraints = picker.hitRigidActor->getNbConstraints();
+                                    const ::ev4sio_physx::PxU32 nbConstraints = picker.hitRigidActor->getNbConstraints();
                                     const float kJointed = nbConstraints > 1 ? kMouseGrabJointMaxForceJointedMultiplier : 1.0f;
                                     float maxForce = kJointed * m * kMouseGrabJointMaxLinearAcceleration;
 
-                                    ::physx::PxD6JointDrive linearDrive = ::physx::PxD6JointDrive(stiffness, damping, maxForce);
-                                    d6->setDrive(::physx::PxD6Drive::eX, linearDrive);
-                                    d6->setDrive(::physx::PxD6Drive::eY, linearDrive);
-                                    d6->setDrive(::physx::PxD6Drive::eZ, linearDrive);
+                                    ::ev4sio_physx::PxD6JointDrive linearDrive = ::ev4sio_physx::PxD6JointDrive(stiffness, damping, maxForce);
+                                    d6->setDrive(::ev4sio_physx::PxD6Drive::eX, linearDrive);
+                                    d6->setDrive(::ev4sio_physx::PxD6Drive::eY, linearDrive);
+                                    d6->setDrive(::ev4sio_physx::PxD6Drive::eZ, linearDrive);
 
                                     //spring damper
                                     const float inertia = picker.hitRigidActor->getMassSpaceInertiaTensor().magnitude();
                                     //max force
                                     maxForce = kJointed * inertia * kMouseGrabJointMaxAngularAcceleration;
 
-                                    ::physx::PxD6JointDrive angularDrive = ::physx::PxD6JointDrive(stiffness, damping, maxForce);
-                                    d6->setDrive(::physx::PxD6Drive::eTWIST, angularDrive);
-                                    d6->setDrive(::physx::PxD6Drive::eSWING1, angularDrive);
-                                    d6->setDrive(::physx::PxD6Drive::eSWING2, angularDrive);
+                                    ::ev4sio_physx::PxD6JointDrive angularDrive = ::ev4sio_physx::PxD6JointDrive(stiffness, damping, maxForce);
+                                    d6->setDrive(::ev4sio_physx::PxD6Drive::eTWIST, angularDrive);
+                                    d6->setDrive(::ev4sio_physx::PxD6Drive::eSWING1, angularDrive);
+                                    d6->setDrive(::ev4sio_physx::PxD6Drive::eSWING2, angularDrive);
 
                                     picker.joint = d6;
                                 }
@@ -907,7 +907,7 @@ void RaycastManager::applyManipCmd(const ManipCmd& cmd, float delta_time)
     }
 }
 
-void RaycastManager::clearPicker(const ::physx::PxRigidActor* rb)
+void RaycastManager::clearPicker(const ::ev4sio_physx::PxRigidActor* rb)
 {
     if (picker.hitRigidActor == rb)
     {
@@ -917,7 +917,7 @@ void RaycastManager::clearPicker(const ::physx::PxRigidActor* rb)
     }
 }
 
-void RaycastManager::clearPickerForScene(const ::physx::PxScene* scene)
+void RaycastManager::clearPickerForScene(const ::ev4sio_physx::PxScene* scene)
 {
     // Called at the start of InternalScene::release(), while physXScene is still valid.
     // Resets the entire Picker so applyManipCmd never touches freed PhysX objects.
@@ -1155,7 +1155,7 @@ bool RaycastManager::interactiveActorRaycast(const carb::Float3* origin, const c
     return false;
 }
 
-void omni::physx::handleRaycast(AttachHandle attach, const float* orig, const float* dir, bool input)
+void omni::ev4sio_physx::handleRaycast(AttachHandle attach, const float* orig, const float* dir, bool input)
 {
     RuntimeExecutionScope operation(attach);
     if (!operation)

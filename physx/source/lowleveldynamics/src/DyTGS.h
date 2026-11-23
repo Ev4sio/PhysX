@@ -8,7 +8,7 @@
 
 #include "foundation/PxPreprocessor.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	struct PxConstraintBatchHeader;
 	struct PxSolverConstraintDesc;
@@ -16,7 +16,7 @@ namespace physx
 	struct PxTGSSolverBodyData;
 	struct PxTGSSolverBodyVel;
 
-	namespace Dy
+	namespace ev4sio_Dy
 	{
 		// PT: using defines like we did in Gu (GU_OVERLAP_FUNC_PARAMS, etc). Additionally this gives a
 		// convenient way to find the TGS solver methods, which are scattered in different files and use

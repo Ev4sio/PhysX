@@ -10,7 +10,7 @@
 
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -72,7 +72,7 @@ For example the code may look like this:
 	registry->release();																			// step 6)
 \endcode
 
-\see PxBase, PxCreateCollection()
+\see PxBase, ev4sio_PxCreateCollection()
 */
 class PxCollection
 {
@@ -219,7 +219,7 @@ public:
 	This function only deletes the collection object, i.e. the container class. It doesn't delete objects
 	that are part of the collection.
 
-	\see PxCreateCollection() 
+	\see ev4sio_PxCreateCollection()
 	*/
 
 	virtual void						release() = 0;
@@ -230,7 +230,7 @@ protected:
 };
     
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 /**
@@ -244,7 +244,7 @@ For deserialization, the system gives back a collection of deserialized objects 
 
 \see PxCollection, PxCollection::release()
 */
-PX_C_EXPORT PX_PHYSX_COMMON_API physx::PxCollection* PX_CALL_CONV PxCreateCollection();
+PX_C_EXPORT PX_PHYSX_COMMON_API ev4sio_physx::PxCollection* PX_CALL_CONV ev4sio_PxCreateCollection();
 
 
 #endif

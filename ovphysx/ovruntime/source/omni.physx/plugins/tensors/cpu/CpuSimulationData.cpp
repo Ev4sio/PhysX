@@ -14,11 +14,11 @@
 
 #include <PxRigidBody.h>
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace tensors
 {
@@ -128,9 +128,9 @@ void CpuSimulationData::updateContactReports()
     }
     mCurrentContactData = nullptr;
 
-    const ::omni::physx::ContactEventHeader* contactHeaders = nullptr;
-    const ::omni::physx::ContactData* contactData = nullptr;
-    const ::omni::physx::FrictionAnchor* frictionAnchorData = nullptr;
+    const ::omni::ev4sio_physx::ContactEventHeader* contactHeaders = nullptr;
+    const ::omni::ev4sio_physx::ContactData* contactData = nullptr;
+    const ::omni::ev4sio_physx::FrictionAnchor* frictionAnchorData = nullptr;
     PxU32 numContacts = 0;
     PxU32 numFrictionAnchorData = 0;
     PxU32 numHeaders = attachmentContact::full(*owner, &contactHeaders, &contactData, numContacts, &frictionAnchorData, numFrictionAnchorData);

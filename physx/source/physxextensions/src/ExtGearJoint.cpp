@@ -11,8 +11,8 @@
 #include "omnipvd/ExtOmniPvdSetData.h"
 //#include <stdio.h>
 
-using namespace physx;
-using namespace Ext;
+using namespace ev4sio_physx;
+using namespace ev4sio_Ext;
 
 PX_IMPLEMENT_OUTPUT_ERROR
 
@@ -262,7 +262,7 @@ static PxConstraintShaderTable gGearJointShaders = { GearJointSolverPrep, GearJo
 
 PxConstraintSolverPrep GearJoint::getPrep()	const	{ return gGearJointShaders.solverPrep;  }
 
-PxGearJoint* physx::PxGearJointCreate(PxPhysics& physics, PxRigidActor* actor0, const PxTransform& localFrame0, PxRigidActor* actor1, const PxTransform& localFrame1)
+PxGearJoint* ev4sio_physx::PxGearJointCreate(PxPhysics& physics, PxRigidActor* actor0, const PxTransform& localFrame0, PxRigidActor* actor1, const PxTransform& localFrame1)
 {
 	PX_CHECK_AND_RETURN_NULL(localFrame0.isSane(), "PxGearJointCreate: local frame 0 is not a valid transform"); 
 	PX_CHECK_AND_RETURN_NULL(localFrame1.isSane(), "PxGearJointCreate: local frame 1 is not a valid transform"); 
@@ -285,9 +285,9 @@ void GearJoint::resolveReferences(PxDeserializationContext& context)
 
 #if PX_SUPPORT_OMNI_PVD
 
-template<> void physx::Ext::omniPvdInitJoint<GearJoint>(OmniPvdWriter* pvdWriter, const OmniPvdPxExtensionsRegistrationData* pvdRegData, GearJoint& joint); // declared before the wrapper so the wrapper binds the explicit form below instead of implicitly instantiating it
+template<> void ev4sio_physx::ev4sio_Ext::omniPvdInitJoint<GearJoint>(OmniPvdWriter* pvdWriter, const OmniPvdPxExtensionsRegistrationData* pvdRegData, GearJoint& joint); // declared before the wrapper so the wrapper binds the explicit form below instead of implicitly instantiating it
 template<>
-void physx::Ext::omniPvdInitJoint<GearJoint>(GearJoint& joint)
+void ev4sio_physx::ev4sio_Ext::omniPvdInitJoint<GearJoint>(GearJoint& joint)
 {
 	OMNI_PVD_WRITE_SCOPE_BEGIN(pvdWriter, pvdRegData)
 	omniPvdInitJoint(pvdWriter, pvdRegData, joint);
@@ -295,7 +295,7 @@ void physx::Ext::omniPvdInitJoint<GearJoint>(GearJoint& joint)
 }
 
 template<>
-void physx::Ext::omniPvdInitJoint<GearJoint>(OmniPvdWriter* pvdWriter, const OmniPvdPxExtensionsRegistrationData* pvdRegData, GearJoint& joint)
+void ev4sio_physx::ev4sio_Ext::omniPvdInitJoint<GearJoint>(OmniPvdWriter* pvdWriter, const OmniPvdPxExtensionsRegistrationData* pvdRegData, GearJoint& joint)
 {
 	PxGearJoint& j = static_cast<PxGearJoint&>(joint);
 	OMNI_PVD_CREATE_EXPLICIT(pvdWriter, pvdRegData, OMNI_PVD_CONTEXT_HANDLE, PxGearJoint, j);

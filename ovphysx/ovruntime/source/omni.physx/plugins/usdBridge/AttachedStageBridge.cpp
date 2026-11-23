@@ -44,7 +44,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace usdparser
 {
@@ -116,7 +116,7 @@ bool AttachedStage::rebuildUsdSource()
         // The cooking driver also observes this feed for recook scheduling; the interest is
         // owned by mChangeFeed and released when the feed is rebuilt.
         if (cookingdataasync::CookingDataAsync* cookingDataAsync =
-                omni::physx::OmniPhysX::getInstance().getPhysXSetup().getCookingDataAsync())
+                omni::ev4sio_physx::OmniPhysX::getInstance().getPhysXSetup().getCookingDataAsync())
         {
             cookingDataAsync->registerOnChangeFeed(*this);
         }
@@ -249,5 +249,5 @@ AttachedStageUsdHandle::operator bool() const noexcept
 }
 
 } // namespace usdparser
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

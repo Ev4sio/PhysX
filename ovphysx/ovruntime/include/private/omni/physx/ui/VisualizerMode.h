@@ -5,7 +5,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace ui
 {
@@ -21,5 +21,5 @@ enum class VisualizerMode : int
 };
 
 } // namespace ui
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

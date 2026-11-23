@@ -18,11 +18,11 @@
 #include <omni/physx/IPhysx.h>
 
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace tensors
 {
@@ -78,7 +78,7 @@ bool BaseSdfShapeView::check() const
     {
         const omni::physics::parse::ObjectKey key =
             attachedStage ? attachedStage->keyFor(entry.path) : omni::physics::parse::ObjectKey{};
-        void* ptr = BaseSimulationView::resolvePhysXPtr(attachedStage, key, omni::physx::PhysXType::ePTShape);
+        void* ptr = BaseSimulationView::resolvePhysXPtr(attachedStage, key, omni::ev4sio_physx::PhysXType::ePTShape);
         if (ptr != entry.shape)
         {
            return false;

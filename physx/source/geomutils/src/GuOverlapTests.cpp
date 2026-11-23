@@ -29,9 +29,9 @@
 #include "GuHeightFieldUtil.h"
 #include "GuEntityReport.h"
 
-using namespace physx;
-using namespace Cm;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Cm;
+using namespace ev4sio_Gu;
 
 // PT: TODO: why don't we use ShapeData for overlaps?
 
@@ -58,7 +58,7 @@ static PxVec3 projectHull_(	const ConvexHullData& hull,
 		while(NbVerts--)
 		{
 			const float dp = (*Verts).dot(vertexSpaceDir);
-			min_ = physx::intrinsics::selectMin(min_, dp);
+			min_ = ev4sio_physx::intrinsics::selectMin(min_, dp);
 			if(dp > max_)	{ max_ = dp; bestVert = Verts; }
 
 			Verts++;
@@ -400,7 +400,7 @@ static bool GeomOverlapCallback_PlaneConvexCore(GU_OVERLAP_FUNC_PARAMS)
 
 	const PxPlane plane = getPlane(pose0);
 	const PxConvexCoreGeometry& convexCore = static_cast<const PxConvexCoreGeometry&>(geom1);
-	Gu::ConvexShape shape; Gu::makeConvexShape(convexCore, pose1, shape);
+	ev4sio_Gu::ConvexShape shape; ev4sio_Gu::makeConvexShape(convexCore, pose1, shape);
 
 	PxVec3 closestPoint = shape.support(-plane.n);
 	PxReal closestDist = plane.distance(closestPoint);
@@ -625,15 +625,15 @@ static bool GeomOverlapCallback_ConvexCoreGeometry(GU_OVERLAP_FUNC_PARAMS)
 	PX_UNUSED(threadContext);
 	PX_UNUSED(cache);
 
-	Gu::ConvexShape shape0, shape1;
-	Gu::makeConvexShape(geom0, pose0, shape0);
-	Gu::makeConvexShape(geom1, pose1, shape1);
+	ev4sio_Gu::ConvexShape shape0, shape1;
+	ev4sio_Gu::makeConvexShape(geom0, pose0, shape0);
+	ev4sio_Gu::makeConvexShape(geom1, pose1, shape1);
 
 	if (!shape0.isValid() || !shape1.isValid())
 		return false;
 
 	PxVec3 point0, point1, axis;
-	PxReal dist = Gu::RefGjkEpa::computeGjkDistance(shape0, shape1, shape0.pose, shape1.pose, shape0.margin + shape1.margin, point0, point1, axis);
+	PxReal dist = ev4sio_Gu::RefGjkEpa::computeGjkDistance(shape0, shape1, shape0.pose, shape1.pose, shape0.margin + shape1.margin, point0, point1, axis);
 
 	return dist <= shape0.margin + shape1.margin + FLT_EPSILON;
 }
@@ -648,15 +648,15 @@ bool GeomOverlapCallback_ConvexCoreHeightfield(GU_OVERLAP_FUNC_PARAMS)
 	const PxConvexCoreGeometry& convexGeom = static_cast<const PxConvexCoreGeometry&>(geom0);
 	const PxHeightFieldGeometry& hfGeom = static_cast<const PxHeightFieldGeometry&>(geom1);
 
-	struct ConvexCoreOverlapReport : Gu::OverlapReport
+	struct ConvexCoreOverlapReport : ev4sio_Gu::OverlapReport
 	{
-		const Gu::ConvexShape& mConvex;
+		const ev4sio_Gu::ConvexShape& mConvex;
 		const PxTransform& mTransform;
-		const Gu::HeightFieldUtil mHfUtil;
+		const ev4sio_Gu::HeightFieldUtil mHfUtil;
 		const PxTransform& mHFPose;
 		PxIntBool mOverlap;
 
-		ConvexCoreOverlapReport(const PxHeightFieldGeometry& hfGeom_, const PxTransform& hfPose, const Gu::ConvexShape& convex, const PxTransform& transform)
+		ConvexCoreOverlapReport(const PxHeightFieldGeometry& hfGeom_, const PxTransform& hfPose, const ev4sio_Gu::ConvexShape& convex, const PxTransform& transform)
 			: mConvex(convex), mTransform(transform), mHfUtil(hfGeom_), mHFPose(hfPose), mOverlap(PxIntFalse) {}
 
 		virtual bool reportTouchedTris(PxU32 nb, const PxU32* indices) PX_OVERRIDE
@@ -668,10 +668,10 @@ bool GeomOverlapCallback_ConvexCoreHeightfield(GU_OVERLAP_FUNC_PARAMS)
 				PxTrianglePadded currentTriangle;
 				mHfUtil.getTriangle(mHFPose, currentTriangle, NULL, NULL, triangleIndex, false, false);
 
-				Gu::ConvexShape tri;
-				tri.coreType = Gu::ConvexCore::Type::ePOINTS;
+				ev4sio_Gu::ConvexShape tri;
+				tri.coreType = ev4sio_Gu::ConvexCore::Type::ePOINTS;
 				tri.pose = PxTransform(PxIdentity);
-				Gu::ConvexCore::PointsCore& core = *reinterpret_cast<Gu::ConvexCore::PointsCore*>(tri.coreData);
+				ev4sio_Gu::ConvexCore::PointsCore& core = *reinterpret_cast<ev4sio_Gu::ConvexCore::PointsCore*>(tri.coreData);
 				core.points = currentTriangle.verts;
 				core.numPoints = 3;
 				core.stride = sizeof(PxVec3);
@@ -680,7 +680,7 @@ bool GeomOverlapCallback_ConvexCoreHeightfield(GU_OVERLAP_FUNC_PARAMS)
 				tri.margin = 0.0f;
 
 				PxVec3 point0, point1, axis;
-				PxReal dist = Gu::RefGjkEpa::computeGjkDistance(mConvex, tri, mConvex.pose, tri.pose, mConvex.margin + tri.margin, point0, point1, axis);
+				PxReal dist = ev4sio_Gu::RefGjkEpa::computeGjkDistance(mConvex, tri, mConvex.pose, tri.pose, mConvex.margin + tri.margin, point0, point1, axis);
 				if(dist <= mConvex.margin + tri.margin + FLT_EPSILON)
 				{
 					mOverlap = PxIntTrue;
@@ -691,15 +691,15 @@ bool GeomOverlapCallback_ConvexCoreHeightfield(GU_OVERLAP_FUNC_PARAMS)
 		}
 	};
 
-	Gu::ConvexShape convexShape;
-	Gu::makeConvexShape(convexGeom, pose0, convexShape);
+	ev4sio_Gu::ConvexShape convexShape;
+	ev4sio_Gu::makeConvexShape(convexGeom, pose0, convexShape);
 
 	if (!convexShape.isValid())
 		return false;
 
 	ConvexCoreOverlapReport report(hfGeom, pose1, convexShape, pose0);
 
-	PxBounds3 bounds = Gu::computeBounds(convexGeom, pose0);
+	PxBounds3 bounds = ev4sio_Gu::computeBounds(convexGeom, pose0);
 	report.mHfUtil.overlapAABBTriangles(bounds, report, 4);
 
 	return report.mOverlap!=PxIntFalse;
@@ -874,7 +874,7 @@ GeomOverlapTable gGeomOverlapMethodTable[] =
 };
 PX_COMPILE_TIME_ASSERT(sizeof(gGeomOverlapMethodTable) / sizeof(gGeomOverlapMethodTable[0]) == PxGeometryType::eGEOMETRY_COUNT);
 
-const GeomOverlapTable* Gu::getOverlapFuncTable()
+const GeomOverlapTable* ev4sio_Gu::getOverlapFuncTable()
 {
 	return gGeomOverlapMethodTable;
 }

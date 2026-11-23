@@ -24,7 +24,7 @@
 #include "extensions/PxDefaultStreams.h"
 
 
-namespace physx
+namespace ev4sio_physx
 {
 
 void createShapes(
@@ -75,7 +75,7 @@ void createShapes(
 
 		PxConvexMesh* convexMesh = NULL;
 		PxDefaultMemoryOutputStream buf;
-		if (PxCookConvexMesh(params, convexDesc, buf))
+		if (ev4sio_PxCookConvexMesh(params, convexDesc, buf))
 		{
 			PxDefaultMemoryInputData id(buf.getData(), buf.getSize());
 			convexMesh = physics.createConvexMesh(id);
@@ -159,4 +159,4 @@ void PxVehiclePhysXActorDestroy
 	}
 }
 
-} //namespace physx
+} //namespace ev4sio_physx

@@ -20,7 +20,7 @@
 // unit -- `omni.physx` compiles exactly one way, and USD parsing is a runtime-installed
 // backend rather than a compile fork.
 //
-// omni::physx::queryPrim / PhysXPropertyQueryManager is genuinely Kit/USD-authoring-only:
+// omni::ev4sio_physx::queryPrim / PhysXPropertyQueryManager is genuinely Kit/USD-authoring-only:
 // arbitrary live-stage-by-id property/mass query ("select a prim in the viewport, compute
 // its mass without simulating"). It is never reachable from ovphysx's own ovstage attach
 // path, so USD authoring is intrinsic to it, not incidental.
@@ -40,7 +40,7 @@
 //     the mechanism parseRigidBodyNative uses with its transient native scanStage result.
 //   - Path/ObjectKey resolution routes through IPhysicsSource::sourceKeyToString/findByPath
 //     and AttachedStage::keyFor/textFor.
-//   - The public SdfPath-bits fields (omni::physx::queryPrim request primPath / response usdPath
+//   - The public SdfPath-bits fields (omni::ev4sio_physx::queryPrim request primPath / response usdPath
 //     / ArticulationLink rigidBody+joint) are the deliberately-retained legacy asInt(SdfPath)
 //     encoding; they cross the seam through IUsdReparse::legacyPathBitsToString (decode) and
 //     stringToLegacyPathBits (encode).
@@ -86,11 +86,11 @@
 #include <utility>
 #include <vector>
 
-using namespace ::physx;
+using namespace ::ev4sio_physx;
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 
 namespace
@@ -152,7 +152,7 @@ struct RigidBodyRequest : public BaseRequest
     // descs (cooking, createShapeOrComputeMass, mass compute) must be handed THIS instance,
     // not the registry's attach for the same stage id. shared_ptr because the request is
     // copied into `rigidBodyRequests` and outlives executeQueryRigidBody's frame.
-    std::shared_ptr<omni::physx::usdparser::AttachedStage> parseStage;
+    std::shared_ptr<omni::ev4sio_physx::usdparser::AttachedStage> parseStage;
 
     virtual void releaseParsedData() override;
     virtual void sendRigidBodyResponse(const PhysxPropertyQueryRigidBodyResponse& response) override;
@@ -314,7 +314,7 @@ bool PhysXPropertyQueryManagerImpl::allCollidersHaveBeenComputed(const RigidBody
                                                              PhysxPropertyQueryResult::Enum& errorCode)
 {
     errorCode = PhysxPropertyQueryResult::eVALID;
-    using namespace omni::physx::usdparser;
+    using namespace omni::ev4sio_physx::usdparser;
     cookingdataasync::CookingDataAsync* cookingDataAsync = OmniPhysX::getInstance().getPhysXSetup().getCookingDataAsync();
     if (!cookingDataAsync)
     {
@@ -1169,5 +1169,5 @@ void queryPrim(uint64_t stageId,
     }
     OmniPhysX::getInstance().getPropertyQueryManager().queryPrim(stageId, primKey, queryMode, callbacks);
 }
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

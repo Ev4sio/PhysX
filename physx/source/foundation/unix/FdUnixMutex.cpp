@@ -12,7 +12,7 @@
 
 #include <pthread.h>
 
-namespace physx
+namespace ev4sio_physx
 {
 
 #if PX_LINUX
@@ -107,7 +107,7 @@ void PxMutexImpl::unlock()
 #if PX_DEBUG
 	if(getMutex(this)->owner != PxThread::getId())
 	{
-		PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, __FILE__, __LINE__,
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, __FILE__, __LINE__,
 		                              "Mutex must be unlocked only by thread that has already acquired lock");
 		return;
 	}
@@ -173,4 +173,4 @@ void PxReadWriteLock::unlockWriter()
 	mImpl->mutex.unlock();
 }
 
-} // namespace physx
+} // namespace ev4sio_physx

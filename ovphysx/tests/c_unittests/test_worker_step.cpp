@@ -604,9 +604,9 @@ TEST_F(WorkerStep, IdleStepRunsNothingInTheCallWithZeroSolverThreads)
     } restore{ m_handle, threads };
     loadScene();
     ASSERT_EQ(ovphysx_step_sync(m_handle, kDt).status, OVPHYSX_API_SUCCESS);
-    physx::PxScene* const scene = static_cast<physx::PxScene*>(
+    ev4sio_physx::PxScene* const scene = static_cast<ev4sio_physx::PxScene*>(
         test_utils::read_physx_pointer(m_handle, OVPHYSX_QUERY_TARGET_SCENE, "/World/physicsScene"));
-    physx::PxRigidDynamic* const cube = static_cast<physx::PxRigidDynamic*>(
+    ev4sio_physx::PxRigidDynamic* const cube = static_cast<ev4sio_physx::PxRigidDynamic*>(
         test_utils::read_physx_pointer(m_handle, OVPHYSX_QUERY_TARGET_RIGID_ACTOR, "/World/Cube1"));
     ASSERT_NE(scene, nullptr);
     ASSERT_NE(cube, nullptr);

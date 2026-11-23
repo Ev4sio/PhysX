@@ -28,9 +28,9 @@
 #include "PxcNpContactPrepShared.h"
 #include "PxcNpCache.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
-PxsContext::PxsContext(const PxSceneDesc& desc, PxTaskManager* taskManager, Cm::FlushPool& taskPool, PxCudaContextManager* cudaContextManager, PxU32 poolSlabSize, PxU64 contextID) :
+PxsContext::PxsContext(const PxSceneDesc& desc, PxTaskManager* taskManager, ev4sio_Cm::FlushPool& taskPool, PxCudaContextManager* cudaContextManager, PxU32 poolSlabSize, PxU64 contextID) :
 	mNpThreadContextPool			(this),
 	mContactManagerPool				("mContactManagerPool", poolSlabSize),
 	mManifoldPool					("mManifoldPool", poolSlabSize),
@@ -62,7 +62,7 @@ PxsContext::~PxsContext()
 }
 
 // =========================== Create methods
-namespace physx
+namespace ev4sio_physx
 {
 	const bool gEnablePCMCaching[][PxGeometryType::eGEOMETRY_COUNT] =
 	{
@@ -234,7 +234,7 @@ namespace physx
 	PX_COMPILE_TIME_ASSERT(sizeof(gEnablePCMCaching) / sizeof(gEnablePCMCaching[0]) == PxGeometryType::eGEOMETRY_COUNT);
 }
 
-void PxsContext::createTransformCache(Cm::VirtualAllocatorCallback& allocator, Cm::PinnableAllocatorFallback::Enum fallback)
+void PxsContext::createTransformCache(ev4sio_Cm::VirtualAllocatorCallback& allocator, ev4sio_Cm::PinnableAllocatorFallback::Enum fallback)
 {
 	mTransformCache = PX_NEW(PxsTransformCache)(allocator, fallback);
 }
@@ -257,7 +257,7 @@ PxsContactManager* PxsContext::createContactManager(PxsContactManager* contactMa
 	return cm;
 }
 
-void PxsContext::createCache(Gu::Cache& cache, PxGeometryType::Enum geomType0, PxGeometryType::Enum geomType1)
+void PxsContext::createCache(ev4sio_Gu::Cache& cache, PxGeometryType::Enum geomType0, PxGeometryType::Enum geomType1)
 {
 	if(mPCM)
 	{
@@ -267,14 +267,14 @@ void PxsContext::createCache(Gu::Cache& cache, PxGeometryType::Enum geomType0, P
 			{
 				if(geomType0 == PxGeometryType::eSPHERE || geomType1 == PxGeometryType::eSPHERE)
 				{
-					Gu::PersistentContactManifold* manifold = mSphereManifoldPool.allocate();
-					PX_PLACEMENT_NEW(manifold, Gu::SpherePersistentContactManifold());
+					ev4sio_Gu::PersistentContactManifold* manifold = mSphereManifoldPool.allocate();
+					PX_PLACEMENT_NEW(manifold, ev4sio_Gu::SpherePersistentContactManifold());
 					cache.setManifold(manifold);
 				}
 				else
 				{
-					Gu::PersistentContactManifold* manifold = mManifoldPool.allocate();
-					PX_PLACEMENT_NEW(manifold, Gu::LargePersistentContactManifold());
+					ev4sio_Gu::PersistentContactManifold* manifold = mManifoldPool.allocate();
+					PX_PLACEMENT_NEW(manifold, ev4sio_Gu::LargePersistentContactManifold());
 					cache.setManifold(manifold);
 
 				}
@@ -310,15 +310,15 @@ void PxsContext::destroyContactManager(PxU32 cmIndex, bool ccd)
 	mContactManagerPool.putByIndex(cmIndex);
 }
 
-void PxsContext::destroyManifold(Gu::PersistentContactManifold* manifold)
+void PxsContext::destroyManifold(ev4sio_Gu::PersistentContactManifold* manifold)
 {
 	if(manifold->mCapacity == GU_SPHERE_MANIFOLD_CACHE_SIZE)
-		mSphereManifoldPool.deallocate(static_cast<Gu::SpherePersistentContactManifold*>(manifold));
+		mSphereManifoldPool.deallocate(static_cast<ev4sio_Gu::SpherePersistentContactManifold*>(manifold));
 	else
-		mManifoldPool.deallocate(static_cast<Gu::LargePersistentContactManifold*>(manifold));
+		mManifoldPool.deallocate(static_cast<ev4sio_Gu::LargePersistentContactManifold*>(manifold));
 }
 
-void PxsContext::destroyCache(Gu::Cache& cache)
+void PxsContext::destroyCache(ev4sio_Gu::Cache& cache)
 {
 	if(cache.isManifold())
 	{
@@ -462,7 +462,7 @@ void PxsContext::mergeCMDiscreteUpdateResults(PxBaseTask* /*continuation*/)
 }
 
 void PxsContext::updateContactManager(PxReal dt, bool hasContactDistanceChanged, PxBaseTask* continuation, PxBaseTask* firstPassContinuation,
-	Cm::FanoutTask* updateBoundAndShapeTask)
+	ev4sio_Cm::FanoutTask* updateBoundAndShapeTask)
 {
 	PX_ASSERT(mNpImplementationContext);
 	mNpImplementationContext->updateContactManager(dt, hasContactDistanceChanged, continuation, firstPassContinuation, updateBoundAndShapeTask);
@@ -564,7 +564,7 @@ void PxsContext::fillManagerTouchEvents(PxArray<PxvContactManagerTouchEvent>& ne
 	if(newTouchEvents.size() > expectedNewCapacity || lostTouchEvents.size() > expectedLostCapacity
 		|| (ccdTouchEvents && ccdTouchEvents->size() > expectedCcdCapacity))
 	{
-		PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL,
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL,
 			"PxsContext::fillManagerTouchEvents: touch event bitmap contains more events than cached counters indicated "
 			"(new: %u vs %u, lost: %u vs %u, ccd: %u vs %u). Counters may be out of sync.",
 			newTouchEvents.size(), expectedNewCapacity,

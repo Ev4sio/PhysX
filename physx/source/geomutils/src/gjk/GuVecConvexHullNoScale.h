@@ -10,9 +10,9 @@
 #include "common/PxPhysXCommonConfig.h"
 #include "GuVecConvexHull.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Gu
+namespace ev4sio_Gu
 {
 	class ConvexHullNoScaleV : public ConvexHullV
 	{

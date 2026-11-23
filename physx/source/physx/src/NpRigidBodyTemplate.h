@@ -28,7 +28,7 @@
 	#define UPDATE_PVD_PROPERTY_BODY
 #endif
 
-namespace physx
+namespace ev4sio_physx
 {
 	class NpArticulationLink;
 
@@ -121,8 +121,8 @@ public:
 	//---------------------------------------------------------------------------------
 										NpRigidBodyTemplate(PxType concreteType, PxBaseFlags baseFlags, const PxActorType::Enum type, NpType::Enum npType, const PxTransform& bodyPose);
 
-	PX_FORCE_INLINE	const Sc::BodyCore&	getCore()		const	{ return mCore;			}
-	PX_FORCE_INLINE	Sc::BodyCore&		getCore()				{ return mCore;			}
+	PX_FORCE_INLINE	const ev4sio_Sc::BodyCore&	getCore()		const	{ return mCore;			}
+	PX_FORCE_INLINE	ev4sio_Sc::BodyCore&		getCore()				{ return mCore;			}
 
 	// Flags
 	virtual			void				setRigidBodyFlag(PxRigidBodyFlag::Enum, bool value)	PX_OVERRIDE PX_FINAL;
@@ -316,7 +316,7 @@ public:
 										{
 											PxMat33 inverseInertiaWorldSpace;
 											const PxVec3p invInertia = mCore.getInverseInertia();
-											Cm::transformInertiaTensor(invInertia, mCore.getBody2World().q, inverseInertiaWorldSpace);
+											ev4sio_Cm::transformInertiaTensor(invInertia, mCore.getBody2World().q, inverseInertiaWorldSpace);
 											return inverseInertiaWorldSpace;
 										}
 
@@ -327,7 +327,7 @@ public:
 										}
 
 protected:
-					Sc::BodyCore		mCore;
+					ev4sio_Sc::BodyCore		mCore;
 };
 
 template<class APIClass>
@@ -351,7 +351,7 @@ namespace
 		if (t == PxGeometryType::eTRIANGLEMESH)
 		{
 			const PxTriangleMeshGeometry& triGeom = static_cast<const PxTriangleMeshGeometry&>(geom);
-			const Gu::TriangleMesh* mesh = static_cast<const Gu::TriangleMesh*>(triGeom.triangleMesh);
+			const ev4sio_Gu::TriangleMesh* mesh = static_cast<const ev4sio_Gu::TriangleMesh*>(triGeom.triangleMesh);
 			return mesh->getSdfDataFast().mSdf != NULL && mesh->getMass() < 0.f;
 		}
 		return false;
@@ -361,7 +361,7 @@ namespace
 	{
 		PX_ASSERT(geom.getType() == PxGeometryType::eTRIANGLEMESH);
 		const PxTriangleMeshGeometry& triGeom = static_cast<const PxTriangleMeshGeometry&>(geom);
-		const Gu::TriangleMesh* mesh = static_cast<const Gu::TriangleMesh*>(triGeom.triangleMesh);
+		const ev4sio_Gu::TriangleMesh* mesh = static_cast<const ev4sio_Gu::TriangleMesh*>(triGeom.triangleMesh);
 		return mesh->getSdfDataFast().mSdf != NULL;
 		// Note: We're not testing for (mesh->getMass() > 0.f) here because
 		// a) we cannot infer the mass of the rigid body from the mesh volume and
@@ -671,13 +671,13 @@ PX_FORCE_INLINE void NpRigidBodyTemplate<APIClass>::setRigidBodyFlagsInternal(co
 	//Test to ensure we are not enabling both CCD and kinematic state on a body. This is unsupported
 	if((filteredNewFlags & PxRigidBodyFlag::eENABLE_CCD) && (filteredNewFlags & PxRigidBodyFlag::eKINEMATIC))
 	{
-		PxGetFoundation().error(physx::PxErrorCode::eINVALID_PARAMETER, PX_FL, 
+		ev4sio_PxGetFoundation().error(ev4sio_physx::PxErrorCode::eINVALID_PARAMETER, PX_FL,
 			"PxRigidBody::setRigidBodyFlag(): kinematic bodies with CCD enabled are not supported! CCD will be ignored.");
 		filteredNewFlags &= PxRigidBodyFlags(~PxRigidBodyFlag::eENABLE_CCD);
 	}
 
 	NpScene* scene = RigidActorTemplateClass::getNpScene();
-	Sc::Scene* scScene = scene ? &scene->getScScene() : NULL;
+	ev4sio_Sc::Scene* scScene = scene ? &scene->getScScene() : NULL;
 
 	const bool isKinematic = currentFlags & PxRigidBodyFlag::eKINEMATIC;
 	const bool willBeKinematic = filteredNewFlags & PxRigidBodyFlag::eKINEMATIC;
@@ -706,7 +706,7 @@ PX_FORCE_INLINE void NpRigidBodyTemplate<APIClass>::setRigidBodyFlagsInternal(co
 		}
 		if(hasIllegalShape)
 		{
-			PxGetFoundation().error(physx::PxErrorCode::eINVALID_PARAMETER, PX_FL, "PxRigidBody::setRigidBodyFlag(): dynamic meshes (without SDF)/planes/heightfields are not supported!");
+			ev4sio_PxGetFoundation().error(ev4sio_physx::PxErrorCode::eINVALID_PARAMETER, PX_FL, "PxRigidBody::setRigidBodyFlag(): dynamic meshes (without SDF)/planes/heightfields are not supported!");
 			return;
 		}
 
@@ -725,7 +725,7 @@ PX_FORCE_INLINE void NpRigidBodyTemplate<APIClass>::setRigidBodyFlagsInternal(co
 		if (this->getType() == PxActorType::eARTICULATION_LINK)
 		{
 			//We're an articulation, raise an issue
-			PxGetFoundation().error(physx::PxErrorCode::eINVALID_PARAMETER, PX_FL, "PxRigidBody::setRigidBodyFlag(): kinematic articulation links are not supported!");
+			ev4sio_PxGetFoundation().error(ev4sio_physx::PxErrorCode::eINVALID_PARAMETER, PX_FL, "PxRigidBody::setRigidBodyFlag(): kinematic articulation links are not supported!");
 			return;
 		}
 

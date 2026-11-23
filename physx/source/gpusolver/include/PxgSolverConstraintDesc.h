@@ -12,7 +12,7 @@
 #include "PxNodeIndex.h"
 
 
-namespace physx
+namespace ev4sio_physx
 {
 
 #if PX_VC
@@ -118,7 +118,7 @@ struct PxgConstraintInvMassScale
 }PX_ALIGN_SUFFIX(16);
 
 
-namespace Sc
+namespace ev4sio_Sc
 {
 	class ShapeInteraction;
 }
@@ -156,7 +156,7 @@ struct PxgBlockConstraintBatch
 
 	PX_ALIGN(128, PxU32 slabId[32]);
 	
-	PX_ALIGN(128, Sc::ShapeInteraction* shapeInteraction[32]); // used for force-threshold reporting
+	PX_ALIGN(128, ev4sio_Sc::ShapeInteraction* shapeInteraction[32]); // used for force-threshold reporting
 };
 
 struct PxgBlockWorkUnit

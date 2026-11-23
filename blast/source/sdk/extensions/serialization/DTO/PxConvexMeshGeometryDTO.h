@@ -31,4 +31,4 @@
 #include "PxConvexMeshGeometry.h"
 #include "PxCooking.h"
 
-DTO_CLASS(PxConvexMeshGeometry, physx::PxConvexMeshGeometry, Nv::Blast::Serialization::PxConvexMeshGeometry)
+DTO_CLASS(PxConvexMeshGeometry, ev4sio_physx::PxConvexMeshGeometry, Nv::Blast::Serialization::PxConvexMeshGeometry)

@@ -10,7 +10,7 @@
 #include "foundation/PxUserAllocated.h"
 #include "foundation/PxArray.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	struct PxgArticulationLink;
 	struct PxgArticulationLinkSleepData;
@@ -19,7 +19,7 @@ namespace physx
 	class PxGpuSpatialTendonData;
 	class PxGpuFixedTendonData;
 
-	namespace Dy
+	namespace ev4sio_Dy
 	{
 		struct ArticulationJointCore;
 		class ArticulationJointCoreData;
@@ -27,7 +27,7 @@ namespace physx
 		struct ArticulationMimicJointCore;
 	}
 
-	namespace Cm
+	namespace ev4sio_Cm
 	{
 		struct UnAlignedSpatialVector;
 	}
@@ -44,10 +44,10 @@ namespace physx
 		PxgTypedCudaBuffer<PxReal>								linkWakeCounters;       //original set to the same as articulation wakeCounter
 		PxgTypedCudaBuffer<PxgArticulationLinkSleepData>		linkSleepData;
 		PxgTypedCudaBuffer<PxgArticulationLinkProp>				linkProps;
-		PxgTypedCudaBuffer<Dy::ArticulationJointCore>			joints;
-		PxgTypedCudaBuffer<Dy::ArticulationJointCoreData>		jointData;
-		PxgTypedCudaBuffer<Cm::UnAlignedSpatialVector>			coriolisVectors;        //link coriolis vector
-		PxgTypedCudaBuffer<Cm::UnAlignedSpatialVector>			zAForces;               //link spatial zero acceleration force/ spatical articulate 
+		PxgTypedCudaBuffer<ev4sio_Dy::ArticulationJointCore>			joints;
+		PxgTypedCudaBuffer<ev4sio_Dy::ArticulationJointCoreData>		jointData;
+		PxgTypedCudaBuffer<ev4sio_Cm::UnAlignedSpatialVector>			coriolisVectors;        //link coriolis vector
+		PxgTypedCudaBuffer<ev4sio_Cm::UnAlignedSpatialVector>			zAForces;               //link spatial zero acceleration force/ spatical articulate
 		PxgTypedCudaBuffer<PxU32>								pathToRoots;            //global array store path to root for each link in continuous. Each link should have a start index and numberOfElems
 
 		PxgTypedCudaBuffer<PxGpuSpatialTendonData>				spatialTendonParams;
@@ -60,17 +60,17 @@ namespace physx
 		PxArray<PxgCudaBuffer*>									tendonJointFixData;
 		PxArray<PxgCudaBuffer*>									tendonJointCoefficientData;
 
-		PxgTypedCudaBuffer<Dy::ArticulationMimicJointCore>		mimicJoints;
+		PxgTypedCudaBuffer<ev4sio_Dy::ArticulationMimicJointCore>		mimicJoints;
 
-		PxgTypedCudaBuffer<Cm::UnAlignedSpatialVector>			externalAccelerations;
+		PxgTypedCudaBuffer<ev4sio_Cm::UnAlignedSpatialVector>			externalAccelerations;
 
 		PxgTypedCudaBuffer<PxReal>								jointForce;
 		PxgTypedCudaBuffer<PxReal>								jointTargetPositions;
 		PxgTypedCudaBuffer<PxReal>								jointTargetVelocities;
 		PxgTypedCudaBuffer<PxU32>								jointOffsets;
 		PxgTypedCudaBuffer<PxU32>								parents;
-		PxgTypedCudaBuffer<Dy::SpatialSubspaceMatrix>			motionMatrix;
-		PxgTypedCudaBuffer<Dy::SpatialSubspaceMatrix>			motionMatrixW;
+		PxgTypedCudaBuffer<ev4sio_Dy::SpatialSubspaceMatrix>			motionMatrix;
+		PxgTypedCudaBuffer<ev4sio_Dy::SpatialSubspaceMatrix>			motionMatrixW;
 
 		PxgTypedCudaBuffer<PxSpatialMatrix>						spatialArticulatedInertiaW;
 		PxgTypedCudaBuffer<PxSpatialMatrix>						spatialImpulseResponseW;

@@ -33,8 +33,8 @@
 #	include "omnipvd/OmniPvdPxExtensionsSampler.h"
 #endif
 
-using namespace physx;
-using namespace physx::pvdsdk;
+using namespace ev4sio_physx;
+using namespace ev4sio_physx::pvdsdk;
 
 #if PX_SUPPORT_PVD
 struct JointConnectionHandler : public PvdClient
@@ -52,7 +52,7 @@ struct JointConnectionHandler : public PvdClient
 		if(stream)
 		{
 			mConnected = true;
-			Ext::Pvd::sendClassDescriptions(*stream);	
+			ev4sio_Ext::Pvd::sendClassDescriptions(*stream);
 			stream->release();
 		}
 	}
@@ -78,12 +78,12 @@ struct JointConnectionHandler : public PvdClient
 static JointConnectionHandler gPvdHandler;
 #endif
 
-bool PxInitExtensions(PxPhysics& physics, PxPvd* pvd)
+bool ev4sio_PxInitExtensions(PxPhysics& physics, PxPvd* pvd)
 {
-	PX_ASSERT(&physics.getFoundation() == &PxGetFoundation());
+	PX_ASSERT(&physics.getFoundation() == &ev4sio_PxGetFoundation());
 	PX_UNUSED(physics);
 	PX_UNUSED(pvd);
-	PxIncFoundationRefCount();
+	ev4sio_PxIncFoundationRefCount();
 
 #if PX_SUPPORT_PVD
 	if(pvd)
@@ -94,11 +94,11 @@ bool PxInitExtensions(PxPhysics& physics, PxPvd* pvd)
 #endif
 
 #if PX_SUPPORT_OMNI_PVD
-	// If OmniPVD is bound (it is created up front and passed to PxCreatePhysics), create the
+	// If OmniPVD is bound (it is created up front and passed to ev4sio_PxCreatePhysics), create the
 	// extensions callback, capture the PxPhysics, and register it with the PxOmniPvd. Its
 	// onStartSampling() then fires whenever PxOmniPvd::startSampling() takes a full-state
 	// snapshot, re-emitting the live extension joints onto the bound stream -- including the
-	// late-attach case, where startSampling() runs long after PxInitExtensions.
+	// late-attach case, where startSampling() runs long after ev4sio_PxInitExtensions.
 	PxOmniPvd* omniPvd = physics.getOmniPvd();
 	if (omniPvd && omniPvd->getWriter())
 	{
@@ -160,11 +160,11 @@ static void releaseExternalSQ()
 	}
 }
 
-void PxCloseExtensions()
+void ev4sio_PxCloseExtensions()
 {
 	releaseExternalSQ();
 
-	PxDecFoundationRefCount();
+	ev4sio_PxDecFoundationRefCount();
 
 #if PX_SUPPORT_PVD
 	if(gPvdHandler.mConnected)
@@ -188,7 +188,7 @@ void PxCloseExtensions()
 #endif
 }
 
-void Ext::RegisterExtensionsSerializers(PxSerializationRegistry& sr)
+void ev4sio_Ext::RegisterExtensionsSerializers(PxSerializationRegistry& sr)
 {
 	//for repx serialization
 	sr.registerRepXSerializer(PxConcreteType::eMATERIAL,						PX_NEW_REPX_SERIALIZER( PxMaterialRepXSerializer ));
@@ -220,7 +220,7 @@ void Ext::RegisterExtensionsSerializers(PxSerializationRegistry& sr)
 	sr.registerSerializer(PxJointConcreteType::eRACK_AND_PINION,				PX_NEW_SERIALIZER_ADAPTER( RackAndPinionJoint ));
 }
 
-void Ext::UnregisterExtensionsSerializers(PxSerializationRegistry& sr)
+void ev4sio_Ext::UnregisterExtensionsSerializers(PxSerializationRegistry& sr)
 {
 	PX_DELETE_SERIALIZER_ADAPTER(sr.unregisterSerializer(PxJointConcreteType::eFIXED));
 	PX_DELETE_SERIALIZER_ADAPTER(sr.unregisterSerializer(PxJointConcreteType::eDISTANCE));

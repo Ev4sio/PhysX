@@ -10,7 +10,7 @@
 #include "vehicle/PxVehicleParams.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -240,7 +240,7 @@ void PxVehicleTireForcesUpdate
  PxVehicleTireForce& tireForce);
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

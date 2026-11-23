@@ -14,7 +14,7 @@
 #include "foundation/PxMathUtils.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 	PX_FORCE_INLINE PX_CUDA_CALLABLE PxQuat rotateAroundAxis(const PxQuat& q, PxVec3 rotationAxis, PxReal angle)
@@ -183,7 +183,7 @@ namespace physx
 
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

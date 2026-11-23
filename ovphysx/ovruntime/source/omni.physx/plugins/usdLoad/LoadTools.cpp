@@ -23,7 +23,7 @@ using namespace carb;
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace usdparser
 {
@@ -38,11 +38,11 @@ void getCollisionShapeLocalTransform(const AttachedStage& attachedStage,
     // World transforms via the physics source. The replaced load-time xform
     // cache was pinned to EarliestTime, so use the time-independent
     // (EarliestTime, cached) overload to match it exactly.
-    const ::physx::PxMat44d bodyWorld = internal::getWorldTransform(attachedStage, bodyKey);
-    ::physx::PxMat44d shapeToBody(::physx::PxIdentity);
+    const ::ev4sio_physx::PxMat44d bodyWorld = internal::getWorldTransform(attachedStage, bodyKey);
+    ::ev4sio_physx::PxMat44d shapeToBody(::ev4sio_physx::PxIdentity);
     if (collisionKey != bodyKey)
     {
-        const ::physx::PxMat44d collWorld = internal::getWorldTransform(attachedStage, collisionKey);
+        const ::ev4sio_physx::PxMat44d collWorld = internal::getWorldTransform(attachedStage, collisionKey);
         // Collision prim's transform relative to the body: collWorld * bodyWorld^-1
         // in the USD row-vector convention, which is the reversed product here.
         shapeToBody = affineInverse(bodyWorld) * collWorld;
@@ -152,5 +152,5 @@ void ObjectDb::removeEntry(omni::physics::parse::ObjectKey key, ObjectCategory c
 
 
 } // namespace usdparser
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

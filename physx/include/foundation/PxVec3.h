@@ -10,7 +10,7 @@
 #include "foundation/PxConstructor.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -391,7 +391,7 @@ PX_COMPILE_TIME_ASSERT(sizeof(PxVec3Padded) == 16);
 typedef PxVec3Padded	PxVec3p;
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

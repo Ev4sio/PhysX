@@ -40,16 +40,16 @@
 #include <omni/physx/PhysxTokens.h>
 
 
-using namespace ::physx;
-using namespace omni::physx;
-using namespace omni::physx::internal;
-using namespace omni::physx::usdparser;
+using namespace ::ev4sio_physx;
+using namespace omni::ev4sio_physx;
+using namespace omni::ev4sio_physx::internal;
+using namespace omni::ev4sio_physx::usdparser;
 using namespace cookingdataasync;
 using namespace carb;
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 
 // `tok` must already be interned by the caller (AttachedStage::getKnownTokens(),
@@ -203,13 +203,13 @@ static PxConvexMeshGeometry usdToPxConvexMeshGeometry(AttachedStage& owner, omni
     {
         const Float3 mesh_scale = toFloat3(scale);
         convexMeshDesc.meshScale = mesh_scale;
-        convexMeshDesc.convexCookingParams.signScale = omni::physx::usdparser::scaleToSignScale(mesh_scale);
+        convexMeshDesc.convexCookingParams.signScale = omni::ev4sio_physx::usdparser::scaleToSignScale(mesh_scale);
         PhysXSetup& physxSetup = OmniPhysX::getInstance().getPhysXSetup();
         CookingDataAsync* cookingDataAsync = physxSetup.getCookingDataAsync();
 
         if (!cookingDataAsync)
         {
-            CARB_LOG_ERROR("omni::physx::usdToPxConvexMeshGeometry: Failed to cook convex mesh data for prim: %s - cooking service unavailable", primText);
+            CARB_LOG_ERROR("omni::ev4sio_physx::usdToPxConvexMeshGeometry: Failed to cook convex mesh data for prim: %s - cooking service unavailable", primText);
             return PxConvexMeshGeometry();
         }
 
@@ -222,13 +222,13 @@ static PxConvexMeshGeometry usdToPxConvexMeshGeometry(AttachedStage& owner, omni
         }
         else
         {
-            CARB_LOG_ERROR("omni::physx::usdToPxConvexMeshGeometry: Failed to cook convex mesh data for prim: %s", primText);
+            CARB_LOG_ERROR("omni::ev4sio_physx::usdToPxConvexMeshGeometry: Failed to cook convex mesh data for prim: %s", primText);
             return PxConvexMeshGeometry();
         }
     }
     else
     {
-        CARB_LOG_ERROR("omni::physx::usdToPxConvexMeshGeometry: Provided mesh is not a valid mesh: %s", primText);
+        CARB_LOG_ERROR("omni::ev4sio_physx::usdToPxConvexMeshGeometry: Provided mesh is not a valid mesh: %s", primText);
         return PxConvexMeshGeometry();
     }
 }
@@ -278,7 +278,7 @@ static bool doShapeSceneQuery(AttachHandle attach, omni::physics::parse::ObjectK
     const omni::physics::parse::IPhysicsSource* src = attachedStage.getSource();
     if (!src || !src->exists(key))
     {
-        CARB_LOG_ERROR("omni::physx::doShapeSceneQuery: Provided prim is invalid: %s", attachedStage.textFor(key));
+        CARB_LOG_ERROR("omni::ev4sio_physx::doShapeSceneQuery: Provided prim is invalid: %s", attachedStage.textFor(key));
         return false;
     }
     // Interned once per attach and cached on AttachedStage (REQ-SIM-SCENEQUERY-001)
@@ -288,7 +288,7 @@ static bool doShapeSceneQuery(AttachHandle attach, omni::physics::parse::ObjectK
     const bool isMeshMerge = src->hasSchema(key, tok.physxMeshMergeCollisionAPI);
     if (!src->isA(key, tok.gprimType) && !isMeshMerge)
     {
-        CARB_LOG_ERROR("omni::physx::doShapeSceneQuery: Provided prim is not a UsdGeomGPrim: %s", attachedStage.textFor(key));
+        CARB_LOG_ERROR("omni::ev4sio_physx::doShapeSceneQuery: Provided prim is not a UsdGeomGPrim: %s", attachedStage.textFor(key));
         return false;
     }
 
@@ -351,7 +351,7 @@ static bool doShapeSceneQuery(AttachHandle attach, omni::physics::parse::ObjectK
     {
         return queryFn(geom, transform);
     }
-    CARB_LOG_ERROR("omni::physx::doShapeSceneQuery: Provided prim is not a valid UsdGeom type (supported types are: box, sphere, capsule, convex): %s", attachedStage.textFor(key));
+    CARB_LOG_ERROR("omni::ev4sio_physx::doShapeSceneQuery: Provided prim is not a valid UsdGeom type (supported types are: box, sphere, capsule, convex): %s", attachedStage.textFor(key));
     return false;
 }
 
@@ -442,7 +442,7 @@ static bool doMeshSceneQuery(AttachHandle attach, omni::physics::parse::ObjectKe
         }
 
         convexMeshDesc.meshScale = scale;
-        convexMeshDesc.convexCookingParams.signScale = omni::physx::usdparser::scaleToSignScale(scale);
+        convexMeshDesc.convexCookingParams.signScale = omni::ev4sio_physx::usdparser::scaleToSignScale(scale);
 
         convexMesh = cookingDataAsync->getConvexMesh(convexMeshDesc, key, *attachedStage, false);
     }
@@ -743,29 +743,29 @@ struct SceneQueryFilterCallbackIgnorePrim : PxQueryFilterCallback
         shapePrim = (PxShape *)(getObjectDataOrID<ObjectDataQueryType::ePHYSX_PTR>(primKey, ePTShape, attachedStage.getInternalPhysXDatabase(), attachedStage));
     }
 
-    virtual ::physx::PxQueryHitType::Enum preFilter(const ::physx::PxFilterData& filterData0,
-                                            const ::physx::PxShape* shape,
-                                            const ::physx::PxRigidActor* actor,
-                                            ::physx::PxHitFlags&) override
+    virtual ::ev4sio_physx::PxQueryHitType::Enum preFilter(const ::ev4sio_physx::PxFilterData& filterData0,
+                                            const ::ev4sio_physx::PxShape* shape,
+                                            const ::ev4sio_physx::PxRigidActor* actor,
+                                            ::ev4sio_physx::PxHitFlags&) override
     {
         if(shapePrim && shape == shapePrim)
         {
-            return ::physx::PxQueryHitType::eNONE;
+            return ::ev4sio_physx::PxQueryHitType::eNONE;
         }
-        return (bMultiple ? ::physx::PxQueryHitType::eTOUCH : ::physx::PxQueryHitType::eBLOCK);
+        return (bMultiple ? ::ev4sio_physx::PxQueryHitType::eTOUCH : ::ev4sio_physx::PxQueryHitType::eBLOCK);
     }
     
-    virtual ::physx::PxQueryHitType::Enum postFilter(const ::physx::PxFilterData&, const ::physx::PxQueryHit&,
-                                                    const ::physx::PxShape* shape, const ::physx::PxRigidActor* actor) 
+    virtual ::ev4sio_physx::PxQueryHitType::Enum postFilter(const ::ev4sio_physx::PxFilterData&, const ::ev4sio_physx::PxQueryHit&,
+                                                    const ::ev4sio_physx::PxShape* shape, const ::ev4sio_physx::PxRigidActor* actor)
     {
         if(shapePrim && shape == shapePrim)
         {
-            return ::physx::PxQueryHitType::eNONE;
+            return ::ev4sio_physx::PxQueryHitType::eNONE;
         }
-        return (bMultiple ? ::physx::PxQueryHitType::eTOUCH : ::physx::PxQueryHitType::eBLOCK);
+        return (bMultiple ? ::ev4sio_physx::PxQueryHitType::eTOUCH : ::ev4sio_physx::PxQueryHitType::eBLOCK);
     }
 
-    const ::physx::PxShape* shapePrim = nullptr;
+    const ::ev4sio_physx::PxShape* shapePrim = nullptr;
     bool bMultiple = false;
 };
 
@@ -1650,7 +1650,7 @@ uint32_t reportCollisionShapes(AttachHandle attach, omni::physics::parse::Object
 }
 
 
-void fillInterface(omni::physx::IPhysxSceneQuery& iface)
+void fillInterface(omni::ev4sio_physx::IPhysxSceneQuery& iface)
 {
     iface.raycastClosest = raycastClosest;
     iface.sweepSphereClosest = sweepSphereClosest;

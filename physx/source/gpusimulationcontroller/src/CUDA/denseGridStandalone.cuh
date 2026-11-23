@@ -10,7 +10,7 @@
 //Should have the same value as the same define in sparseGrid.cuh
 #define EMPTY_SUBGRID 0xffffffff 
 
-namespace physx
+namespace ev4sio_physx
 {
 
 PX_FORCE_INLINE __device__ __host__ int getCellNr(int numCellsX, int numCellsY, int xi, int yi, int zi)
@@ -108,4 +108,4 @@ PX_FORCE_INLINE __device__ int4 getCellIndexFromParticleAndTransformToLocalCoord
 	return make_int4(cxi, cyi, czi, -1);
 }
 
-} // namespace physx
+} // namespace ev4sio_physx

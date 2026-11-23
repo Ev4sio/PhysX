@@ -93,7 +93,7 @@ struct TensorBindingState
     std::vector<std::string> deformableBodyPrimPathCache;
 
     // Scratch GPU buffer used by ovphysx wrench AoS->SoA conversion.
-    // Allocated via omni::physx::IOptionalCuda within the PhysX CUDA context.
+    // Allocated via omni::ev4sio_physx::IOptionalCuda within the PhysX CUDA context.
     uintptr_t wrenchSoaScratchDev = 0;
     size_t wrenchSoaScratchBytes = 0;
 };

@@ -16,7 +16,7 @@
 #include <omni/physics/AttachHandle.h>
 #include <internal/Internal.h>
 
-namespace omni::physx::usdparser { class AttachedStage; }
+namespace omni::ev4sio_physx::usdparser { class AttachedStage; }
 
 namespace omni
 {
@@ -26,7 +26,7 @@ namespace sampling
 uint64_t createSurfaceSampler(omni::physics::AttachHandle attach, omni::physics::parse::ObjectKey colliderKey, float samplingDistance);
 void releaseSurfaceSampler(const uint64_t surfaceSampler);
 void notifyPhysXSceneRelease();
-void releaseAttachmentSurfaceSamplers(omni::physx::usdparser::AttachedStage& owner);
+void releaseAttachmentSurfaceSamplers(omni::ev4sio_physx::usdparser::AttachedStage& owner);
 void addSurfaceSamplerPoints(const uint64_t surfaceSampler, const carb::Float3* points, const uint32_t pointsSize);
 void removeSurfaceSamplerPoints(const uint64_t surfaceSampler, const carb::Float3* points, const uint32_t pointsSize);
 void sampleSurface(carb::Float3*& points,

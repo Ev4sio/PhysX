@@ -24,7 +24,7 @@ using namespace carb;
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace usdparser
 {
@@ -36,7 +36,7 @@ namespace usdparser
 template <typename T>
 static bool srcGet(const AttachedStage& as, omni::physics::parse::ObjectKey key, omni::physics::parse::TokenId attr, T& out)
 {
-    return omni::physx::internal::getValue(as, key, attr, omni::physics::parse::ReadTime::defaultTime(), out);
+    return omni::ev4sio_physx::internal::getValue(as, key, attr, omni::physics::parse::ReadTime::defaultTime(), out);
 }
 
 // Source-read mirror of SafeGetAuthoredAttribute (authored-only).
@@ -49,7 +49,7 @@ static bool srcGetAuthored(const AttachedStage& as, omni::physics::parse::Object
     const omni::physics::parse::IPhysicsSource* src = as.getSource();
     if (!src || !src->hasAuthoredAttribute(key, attr))
         return false;
-    return omni::physx::internal::getValue(as, key, attr, omni::physics::parse::ReadTime::defaultTime(), out);
+    return omni::ev4sio_physx::internal::getValue(as, key, attr, omni::physics::parse::ReadTime::defaultTime(), out);
 }
 
 template <typename T>
@@ -672,5 +672,5 @@ bool parseVehicle(AttachedStage& attachedStage,
 }
 
 } // namespace usdparser
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

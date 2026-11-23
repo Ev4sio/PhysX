@@ -30,7 +30,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace usdparser
 {
@@ -79,5 +79,5 @@ void defineElementCollisionFilterPrim(const usdparser::AttachedStage& stage,
                                       omni::physics::parse::ObjectKey body1);
 
 } // namespace attachmentauthoring
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

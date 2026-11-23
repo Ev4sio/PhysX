@@ -6,7 +6,7 @@
 // PhysX Compound Shape definition, helper class
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 class PhysXCompoundShape
 {
@@ -19,13 +19,13 @@ public:
     {
     }
 
-    const std::vector<::physx::PxShape*>& getShapes() const
+    const std::vector<::ev4sio_physx::PxShape*>& getShapes() const
     {
         return mShapes;
     }
 
 private:
-    std::vector<::physx::PxShape*> mShapes;
+    std::vector<::ev4sio_physx::PxShape*> mShapes;
 };
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

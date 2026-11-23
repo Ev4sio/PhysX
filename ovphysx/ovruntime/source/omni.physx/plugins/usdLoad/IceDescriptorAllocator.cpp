@@ -13,7 +13,7 @@
 #include <cassert>
 #include <cstdint>
 
-namespace omni::physx::usdparser
+namespace omni::ev4sio_physx::usdparser
 {
 
 namespace
@@ -86,4 +86,4 @@ omni::physics::parse::IDescriptorAllocator& iceDescriptorAllocator()
     return s_instance;
 }
 
-} // namespace omni::physx::usdparser
+} // namespace omni::ev4sio_physx::usdparser

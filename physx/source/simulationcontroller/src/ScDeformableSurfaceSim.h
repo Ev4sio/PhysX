@@ -11,9 +11,9 @@
 #include "ScDeformableSurfaceCore.h" 
 #include "ScGpuActorSim.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Sc
+namespace ev4sio_Sc
 {
 
 class Scene;
@@ -25,7 +25,7 @@ public:
 	DeformableSurfaceSim(DeformableSurfaceCore& core, Scene& scene);
 	~DeformableSurfaceSim();
 
-	PX_INLINE	Dy::DeformableSurface*	getLowLevelDeformableSurface() const { return mLLDeformableSurface; }
+	PX_INLINE	ev4sio_Dy::DeformableSurface*	getLowLevelDeformableSurface() const { return mLLDeformableSurface; }
 	PX_INLINE	DeformableSurfaceCore&	getCore() const { return static_cast<DeformableSurfaceCore&>(mCore); }
 	virtual		PxActor*				getPxActor() const PX_OVERRIDE { return getCore().getPxActor(); }
 
@@ -40,7 +40,7 @@ public:
 	PxBounds3						getWorldBounds()	const;
 
 private:
-	Dy::DeformableSurface*			mLLDeformableSurface;
+	ev4sio_Dy::DeformableSurface*			mLLDeformableSurface;
 
 	PxU32							mIslandNodeIndex;
 
@@ -48,8 +48,8 @@ private:
 					void			deactivate();
 };
 
-} // namespace Sc
-} // namespace physx
+} // namespace ev4sio_Sc
+} // namespace ev4sio_physx
 
 #endif // PX_SUPPORT_GPU_PHYSX
 #endif // SC_DEFORMABLE_SURFACE_SIM_H

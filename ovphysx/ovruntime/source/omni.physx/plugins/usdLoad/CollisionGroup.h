@@ -8,7 +8,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace usdparser
 {
@@ -25,5 +25,5 @@ void appendCollisionGroupFromPath(AttachedStage& attachedStage,
 ObjectId getCollisionGroup(AttachedStage& attachedStage, omni::physics::parse::ObjectKey colliderKey);
 
 } // namespace usdparser
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

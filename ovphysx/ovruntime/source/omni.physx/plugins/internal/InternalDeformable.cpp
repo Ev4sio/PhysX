@@ -29,12 +29,12 @@
 #include "extensions/PxCudaHelpersExt.h"
 #endif
 
-using namespace omni::physx;
-using namespace omni::physx::internal;
-using namespace omni::physx::usdparser;
+using namespace omni::ev4sio_physx;
+using namespace omni::ev4sio_physx::internal;
+using namespace omni::ev4sio_physx::usdparser;
 using namespace carb;
-using namespace ::physx;
-using namespace physx::Ext;
+using namespace ::ev4sio_physx;
+using namespace ev4sio_physx::ev4sio_Ext;
 
 InternalDeformableBody::InternalDeformableBody()
     : mMaterialId(usdparser::kInvalidObjectId)

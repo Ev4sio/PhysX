@@ -8,7 +8,7 @@
 
 #include "reduction.cuh"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 /**
@@ -82,6 +82,6 @@ static __device__ void getSwapIndices(const PxU32* PX_RESTRICT globalRunSumBuffe
 	srcIndex = binarySearch(globalRunSumBuffer, totalSize, indexToFind+totalSwapsRequired);
 }
 
-} // namespace physx
+} // namespace ev4sio_physx
 
 #endif

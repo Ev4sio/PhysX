@@ -40,7 +40,7 @@ class ISimulationView;
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace usdparser
 {
@@ -51,7 +51,7 @@ class AttachedStage;
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace tensors
 {
@@ -84,9 +84,9 @@ public:
     // UsdStageCache stage, so an ovstage-only attach can still source bulk reads from the backend.
     // The view carries a null UsdStage and never dereferences it on the rigid/articulation read
     // path. Returns nullptr on a null scene / GPU-data init failure.
-    ISimulationView* createSimulationViewForScene(::physx::PxScene* scene);
+    ISimulationView* createSimulationViewForScene(::ev4sio_physx::PxScene* scene);
 
-    void onSceneDestroyed(const ::physx::PxScene* scene);
+    void onSceneDestroyed(const ::ev4sio_physx::PxScene* scene);
 
     void shutdown();
 
@@ -113,7 +113,7 @@ public:
     // Drop this scene's cached simulation data so the next createSimulationViewForScene rebuilds it.
     // For staleness the entry's own validation cannot see -- notably a PxScene* recycled to a
     // different scene with identical topology.
-    void invalidateSceneCache(::physx::PxScene* scene);
+    void invalidateSceneCache(::ev4sio_physx::PxScene* scene);
 
     // The cached simulation view for a scene, built once and BACKEND-OWNED -- the caller must not
     // release it. Ask it for the superset rigid/articulation views; they are its children.
@@ -122,25 +122,25 @@ public:
     //
     // GPU-typed because it is GPU-only: returns null unless the scene has eENABLE_DIRECT_GPU_API.
     // Saying so in the signature keeps callers from reaching for a static_cast.
-    GpuSimulationView* acquireSceneView(::physx::PxScene* scene, uint64_t* outGeneration = nullptr);
+    GpuSimulationView* acquireSceneView(::ev4sio_physx::PxScene* scene, uint64_t* outGeneration = nullptr);
 
     // The cached view acquireSceneView would return, when it is built and current; null when acquireSceneView would
     // build or rebuild it. Builds, releases and calls into CUDA for nothing, so a call being captured into a CUDA
     // graph can use it in place of acquireSceneView (ADR-0055).
-    GpuSimulationView* currentSceneView(::physx::PxScene* scene, uint64_t* outGeneration = nullptr);
+    GpuSimulationView* currentSceneView(::ev4sio_physx::PxScene* scene, uint64_t* outGeneration = nullptr);
 
     // The CPU counterpart, with the same ownership and generation contract. Separate entry point
     // rather than one returning a base pointer, for the reason above: the caller needs the concrete
     // type to reach supersetRigidView(). Returns null when the scene runs the GPU pipeline.
-    CpuSimulationView* acquireCpuSceneView(::physx::PxScene* scene, uint64_t* outGeneration = nullptr);
+    CpuSimulationView* acquireCpuSceneView(::ev4sio_physx::PxScene* scene, uint64_t* outGeneration = nullptr);
 
     // Conservative O(1) "might this scene hold a rigid dynamic with no DirectGPU row?", for callers
     // deciding whether to run a per-body actor-flag scan. True when the answer is unknown -- no GPU
     // data for the scene yet -- so a false is always something that saw the whole scene.
-    bool sceneMayHaveDisabledRigidDynamics(::physx::PxScene* scene);
+    bool sceneMayHaveDisabledRigidDynamics(::ev4sio_physx::PxScene* scene);
 
 private:
-    ::physx::PxScene* findPhysicsScene(const usdparser::AttachedStage& attachedStage) const;
+    ::ev4sio_physx::PxScene* findPhysicsScene(const usdparser::AttachedStage& attachedStage) const;
 
     // Lock ordering: mStageDataMutex must be held to access any of the maps/sets
     // below. Views must NOT call back into removeSimulationView() during invalidate()
@@ -162,7 +162,7 @@ private:
     struct SceneKey
     {
         AttachHandle attach = omni::physics::kNoAttach;
-        const ::physx::PxScene* scene = nullptr;
+        const ::ev4sio_physx::PxScene* scene = nullptr;
 
         bool operator==(const SceneKey& o) const
         {
@@ -206,12 +206,12 @@ private:
     // change in any of these means the cached data is the wrong shape.
     struct SceneTopology
     {
-        ::physx::PxU32 numRds = 0;
-        ::physx::PxU32 numArtis = 0;
-        ::physx::PxU32 maxLinks = 0;
-        ::physx::PxU32 maxDofs = 0;
-        ::physx::PxU32 maxFixedTendons = 0;
-        ::physx::PxU32 maxSpatialTendons = 0;
+        ::ev4sio_physx::PxU32 numRds = 0;
+        ::ev4sio_physx::PxU32 numArtis = 0;
+        ::ev4sio_physx::PxU32 maxLinks = 0;
+        ::ev4sio_physx::PxU32 maxDofs = 0;
+        ::ev4sio_physx::PxU32 maxFixedTendons = 0;
+        ::ev4sio_physx::PxU32 maxSpatialTendons = 0;
 
         bool operator==(const SceneTopology& o) const
         {
@@ -225,8 +225,8 @@ private:
     {
         CpuSimulationDataPtr cpuData;
         GpuSimulationDataPtr gpuData;
-        ::physx::PxScene* scene = nullptr;
-        ::physx::PxCudaContextManager* ctxMgr = nullptr;
+        ::ev4sio_physx::PxScene* scene = nullptr;
+        ::ev4sio_physx::PxCudaContextManager* ctxMgr = nullptr;
         bool gpuPipeline = false;
         SceneTopology topology;
 
@@ -266,40 +266,40 @@ private:
 
     // True when `entry` still describes `scene` as it is now. Cheap: PxScene's counts are O(1)
     // accessors and the per-articulation loop only runs when articulations are present.
-    static bool sceneCacheEntryValid(const SceneCacheEntry& entry, ::physx::PxScene* scene);
+    static bool sceneCacheEntryValid(const SceneCacheEntry& entry, ::ev4sio_physx::PxScene* scene);
 
     // Recompute the topology GpuSimulationData::init() sizes its buffers from.
-    static void sceneTopology(::physx::PxScene* scene, SceneTopology& t);
+    static void sceneTopology(::ev4sio_physx::PxScene* scene, SceneTopology& t);
 
     // True when `data`'s buffers are still the right shape for `scene`. Compares against the sizes
     // the data actually holds rather than a remembered copy of them, so the two cannot drift.
-    static bool gpuSimDataShapeMatches(const GpuSimulationData& data, ::physx::PxScene* scene);
+    static bool gpuSimDataShapeMatches(const GpuSimulationData& data, ::ev4sio_physx::PxScene* scene);
 
     // The attach that owns `scene`. The backend keys by attach; the ovstage read enumerates scenes
     // out of the object database, which carries no attach column, so the resolution lives here
     // rather than at every read call site.
-    AttachHandle attachOwning(const ::physx::PxScene* scene) const;
+    AttachHandle attachOwning(const ::ev4sio_physx::PxScene* scene) const;
 
     // The AttachedStage behind that attach, or null when there is none.
-    usdparser::AttachedStage* attachedStageFor(const ::physx::PxScene* scene) const;
+    usdparser::AttachedStage* attachedStageFor(const ::ev4sio_physx::PxScene* scene) const;
 
     // The scene's GPU simulation data, rebuilt when the scene no longer matches the topology its
     // buffers were sized from or a record was created or removed since it was built. Every path that
     // hands this data to a view must go through here.
     // Caller must hold mStageDataMutex. Returns null if the data could not be built.
-    GpuSimulationDataPtr ensureGpuSimDataLocked(AttachHandle attachHandle, ::physx::PxScene* scene);
+    GpuSimulationDataPtr ensureGpuSimDataLocked(AttachHandle attachHandle, ::ev4sio_physx::PxScene* scene);
 
     // The scene's cache entry, validated and rebuilt if stale. Caller must hold mStageDataMutex,
     // and must release anything appended to `pendingRelease` only after dropping it. Returns null
     // if the simulation data could not be built. Separate from view construction so the read path
     // can reach a validated entry without creating a view it does not need.
-    SceneCacheEntry* ensureSceneCacheEntryLocked(::physx::PxScene* scene,
+    SceneCacheEntry* ensureSceneCacheEntryLocked(::ev4sio_physx::PxScene* scene,
                                                  std::vector<ISimulationView*>& pendingRelease);
 
 
-    omni::physx::SubscriptionId mObjectChangeSubscriptionId = omni::physx::kInvalidSubscriptionId;
+    omni::ev4sio_physx::SubscriptionId mObjectChangeSubscriptionId = omni::ev4sio_physx::kInvalidSubscriptionId;
 };
 
 } // namespace tensors
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

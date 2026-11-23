@@ -20,9 +20,9 @@
 #include "GuConvexSupport.h"
 #include "GuConvexGeometry.h"
 
-using namespace physx;
-using namespace Cm;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Cm;
+using namespace ev4sio_Gu;
 using namespace aos;
 
 bool GeomOverlapCallback_SphereMesh(GU_OVERLAP_FUNC_PARAMS)
@@ -235,7 +235,7 @@ bool GeomOverlapCallback_MeshMesh(GU_OVERLAP_FUNC_PARAMS)
 
 	// PT: only implemented for BV4
 	if(!tm0 || !tm1 || tm0->getConcreteType()!=PxConcreteType::eTRIANGLE_MESH_BVH34 || tm1->getConcreteType()!=PxConcreteType::eTRIANGLE_MESH_BVH34)
-		return PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxGeometryQuery::overlap(): only available between two BVH34 triangles meshes.");
+		return ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxGeometryQuery::overlap(): only available between two BVH34 triangles meshes.");
 
 	class AnyHitReportCallback : public PxReportCallback<PxGeomIndexPair>
 	{
@@ -270,7 +270,7 @@ bool GeomOverlapCallback_ConvexCoreMesh(GU_OVERLAP_FUNC_PARAMS)
 
 	struct Callback : MeshHitCallback<PxGeomRaycastHit>
 	{
-		Gu::ConvexShape convex;
+		ev4sio_Gu::ConvexShape convex;
 		PxMeshScale scale;
 		bool hit;
 
@@ -279,17 +279,17 @@ bool GeomOverlapCallback_ConvexCoreMesh(GU_OVERLAP_FUNC_PARAMS)
 			MeshHitCallback<PxGeomRaycastHit>(CallbackMode::eMULTIPLE),
 			scale(s), hit(false)
 		{
-			Gu::makeConvexShape(geom, pose, convex);
+			ev4sio_Gu::makeConvexShape(geom, pose, convex);
 		}
 
 		virtual PxAgain processHit(const PxGeomRaycastHit& /*hit*/, const PxVec3& v0, const PxVec3& v1, const PxVec3& v2, PxReal&, const PxU32*) PX_OVERRIDE
 		{
 			const PxVec3 verts[] = { v0, v1, v2 };
 
-			Gu::ConvexShape tri;
-			tri.coreType = Gu::ConvexCore::Type::ePOINTS;
+			ev4sio_Gu::ConvexShape tri;
+			tri.coreType = ev4sio_Gu::ConvexCore::Type::ePOINTS;
 			tri.pose = PxTransform(PxIdentity);
-			Gu::ConvexCore::PointsCore& core = *reinterpret_cast<Gu::ConvexCore::PointsCore*>(tri.coreData);
+			ev4sio_Gu::ConvexCore::PointsCore& core = *reinterpret_cast<ev4sio_Gu::ConvexCore::PointsCore*>(tri.coreData);
 			core.points = verts;
 			core.numPoints = 3;
 			core.stride = sizeof(PxVec3);
@@ -298,7 +298,7 @@ bool GeomOverlapCallback_ConvexCoreMesh(GU_OVERLAP_FUNC_PARAMS)
 			tri.margin = 0;
 
 			PxVec3 point0, point1, axis;
-			PxReal dist = Gu::RefGjkEpa::computeGjkDistance(convex, tri, convex.pose, tri.pose, convex.margin + tri.margin, point0, point1, axis);
+			PxReal dist = ev4sio_Gu::RefGjkEpa::computeGjkDistance(convex, tri, convex.pose, tri.pose, convex.margin + tri.margin, point0, point1, axis);
 			hit = (dist <= convex.margin + tri.margin);
 
 			return !hit;
@@ -313,7 +313,7 @@ bool GeomOverlapCallback_ConvexCoreMesh(GU_OVERLAP_FUNC_PARAMS)
 	const TriangleMesh* meshData = _getMeshData(shapeMesh);
 
 	const PxTransform pose0in1 = pose1.transformInv(pose0);
-	const PxBounds3 bounds = Gu::computeBounds(geom0, PxTransform(PxIdentity));
+	const PxBounds3 bounds = ev4sio_Gu::computeBounds(geom0, PxTransform(PxIdentity));
 
 	Box queryBox;
 	queryBox.extents = bounds.getExtents();

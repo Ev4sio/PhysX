@@ -17,7 +17,7 @@
 	#include "../snippetrender/SnippetRender.h"
 #endif
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 static PxDefaultAllocator		gAllocator;
 static PxDefaultErrorCallback	gErrorCallback;
@@ -120,17 +120,17 @@ void initPhysics(bool /*interactive*/)
 #endif
 	printf("\n");
 
-	gFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, gAllocator, gErrorCallback);
+	gFoundation = ev4sio_PxCreateFoundation(ev4sio_PX_PHYSICS_VERSION, gAllocator, gErrorCallback);
 
-	gPvd = PxCreatePvd(*gFoundation);
-	PxPvdTransport* transport = PxDefaultPvdSocketTransportCreate(PVD_HOST, 5425, 10);
+	gPvd = ev4sio_PxCreatePvd(*gFoundation);
+	PxPvdTransport* transport = ev4sio_PxDefaultPvdSocketTransportCreate(PVD_HOST, 5425, 10);
 	gPvd->connect(*transport,PxPvdInstrumentationFlag::eALL);
 
-	gPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *gFoundation, PxTolerancesScale(), true, gPvd);
+	gPhysics = ev4sio_PxCreatePhysics(ev4sio_PX_PHYSICS_VERSION, *gFoundation, PxTolerancesScale(), true, gPvd);
 
 #if PX_SUPPORT_GPU_PHYSX
 	PxCudaContextManagerDesc cudaContextManagerDesc;
-	gCudaContextManager = PxCreateCudaContextManager(*gFoundation, cudaContextManagerDesc, PxGetProfilerCallback());
+	gCudaContextManager = ev4sio_PxCreateCudaContextManager(*gFoundation, cudaContextManagerDesc, ev4sio_PxGetProfilerCallback());
 	if( gCudaContextManager )
 	{
 		if( !gCudaContextManager->contextIsValid() )

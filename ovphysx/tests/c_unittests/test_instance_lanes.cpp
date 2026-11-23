@@ -276,9 +276,9 @@ TEST_F(Lanes, OutputNotRejectedWhileWorkerRuns)
     if (!ovphysxInstancesHaveWorkers())
         GTEST_SKIP() << kNoWorkerThread;
     loadScene(m_handle);
-    physx::PxScene* const scene = static_cast<physx::PxScene*>(
+    ev4sio_physx::PxScene* const scene = static_cast<ev4sio_physx::PxScene*>(
         test_utils::read_physx_pointer(m_handle, OVPHYSX_QUERY_TARGET_SCENE, "/World/physicsScene"));
-    physx::PxRigidDynamic* const actor = static_cast<physx::PxRigidDynamic*>(
+    ev4sio_physx::PxRigidDynamic* const actor = static_cast<ev4sio_physx::PxRigidDynamic*>(
         test_utils::read_physx_pointer(m_handle, OVPHYSX_QUERY_TARGET_RIGID_ACTOR, "/World/Cube1"));
     ASSERT_NE(scene, nullptr);
     ASSERT_NE(actor, nullptr);

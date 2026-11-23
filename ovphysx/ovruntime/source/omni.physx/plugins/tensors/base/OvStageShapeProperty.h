@@ -20,7 +20,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace tensors
 {
@@ -90,10 +90,10 @@ struct OvStageShapeColumn
 // The count a reader may index: the declared count clamped against the vector backing it. Also what
 // `shapeCount` reports, so the number a consumer uses to find where the real values stop is the same
 // number that bounded the write -- padding cannot mark the end on its own, since 0.0 is a legal offset.
-inline ::physx::PxU32 effectiveOvStageShapeCount(::physx::PxU32 declaredCount,
-                                                 const std::vector<::physx::PxShape*>& shapes)
+inline ::ev4sio_physx::PxU32 effectiveOvStageShapeCount(::ev4sio_physx::PxU32 declaredCount,
+                                                 const std::vector<::ev4sio_physx::PxShape*>& shapes)
 {
-    return std::min(declaredCount, static_cast<::physx::PxU32>(shapes.size()));
+    return std::min(declaredCount, static_cast<::ev4sio_physx::PxU32>(shapes.size()));
 }
 
 // The SET form: one walk of a body's shapes fills every requested column, resolving the material once
@@ -103,10 +103,10 @@ inline ::physx::PxU32 effectiveOvStageShapeCount(::physx::PxU32 declaredCount,
 // The caller owns tensor validation and supplies zero-initialized rows. Only real shapes are written,
 // so missing shapes/materials and the padded tail remain deterministic zeros.
 inline void gatherOvStageShapeRows(const OvStageShapeColumn* columns,
-                                   ::physx::PxU32 numColumns,
-                                   ::physx::PxU32 width,
-                                   ::physx::PxU32 declaredCount,
-                                   const std::vector<::physx::PxShape*>& shapes)
+                                   ::ev4sio_physx::PxU32 numColumns,
+                                   ::ev4sio_physx::PxU32 width,
+                                   ::ev4sio_physx::PxU32 declaredCount,
+                                   const std::vector<::ev4sio_physx::PxShape*>& shapes)
 {
     if (!columns || numColumns == 0)
     {
@@ -114,27 +114,27 @@ inline void gatherOvStageShapeRows(const OvStageShapeColumn* columns,
     }
 
     bool anyNeedsMaterial = false;
-    for (::physx::PxU32 c = 0; c < numColumns && !anyNeedsMaterial; ++c)
+    for (::ev4sio_physx::PxU32 c = 0; c < numColumns && !anyNeedsMaterial; ++c)
     {
         anyNeedsMaterial = ovStageShapePropertyNeedsMaterial(columns[c].property);
     }
 
-    const ::physx::PxU32 shapeCount = std::min(effectiveOvStageShapeCount(declaredCount, shapes), width);
-    for (::physx::PxU32 shapeIndex = 0; shapeIndex < shapeCount; ++shapeIndex)
+    const ::ev4sio_physx::PxU32 shapeCount = std::min(effectiveOvStageShapeCount(declaredCount, shapes), width);
+    for (::ev4sio_physx::PxU32 shapeIndex = 0; shapeIndex < shapeCount; ++shapeIndex)
     {
-        ::physx::PxShape* const shape = shapes[shapeIndex];
+        ::ev4sio_physx::PxShape* const shape = shapes[shapeIndex];
         if (!shape)
             continue;
 
         // A multi-material shape reports material 0, matching TensorBindingsAPI. Null is not an error:
         // the material columns keep their zero for this shape, the offset columns are unaffected.
-        ::physx::PxMaterial* material = nullptr;
+        ::ev4sio_physx::PxMaterial* material = nullptr;
         if (anyNeedsMaterial && shape->getMaterials(&material, 1) == 0)
         {
             material = nullptr;
         }
 
-        for (::physx::PxU32 c = 0; c < numColumns; ++c)
+        for (::ev4sio_physx::PxU32 c = 0; c < numColumns; ++c)
         {
             float& value = columns[c].dst[shapeIndex];
             // Every enumerator is listed rather than closed with a default: an unlisted property must
@@ -170,14 +170,14 @@ inline void gatherOvStageShapeRows(const OvStageShapeColumn* columns,
 // rule have a single implementation.
 inline void gatherOvStageShapeRow(OvStageShapeProperty property,
                                   float* dst,
-                                  ::physx::PxU32 width,
-                                  ::physx::PxU32 declaredCount,
-                                  const std::vector<::physx::PxShape*>& shapes)
+                                  ::ev4sio_physx::PxU32 width,
+                                  ::ev4sio_physx::PxU32 declaredCount,
+                                  const std::vector<::ev4sio_physx::PxShape*>& shapes)
 {
     const OvStageShapeColumn column{ property, dst };
     gatherOvStageShapeRows(&column, 1, width, declaredCount, shapes);
 }
 
 } // namespace tensors
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

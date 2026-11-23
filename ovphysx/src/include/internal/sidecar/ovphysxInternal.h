@@ -9,11 +9,11 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 struct IPhysx;
 struct IPhysxVisualization;
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni
 
 // Sidecar lifecycle entry points (libovphysx_internal): the version probe the
@@ -57,8 +57,8 @@ struct IPhysxVisualization;
 #define OVPHYSX_INTERNAL_LIB_NAME "libovphysx_internal.so"
 #endif
 
-using OvphysxInternalGetPhysxInterfaceFn = omni::physx::IPhysx* (*)();
-using OvphysxInternalGetPhysxVisualizationInterfaceFn = omni::physx::IPhysxVisualization* (*)();
+using OvphysxInternalGetPhysxInterfaceFn = omni::ev4sio_physx::IPhysx* (*)();
+using OvphysxInternalGetPhysxVisualizationInterfaceFn = omni::ev4sio_physx::IPhysxVisualization* (*)();
 
 extern "C" {
 
@@ -74,7 +74,7 @@ OVPHYSX_INTERNAL_API void ovphysx_internal_set_physx_runtime_accessors(
     OvphysxInternalGetPhysxInterfaceFn getPhysxInterface,
     OvphysxInternalGetPhysxVisualizationInterfaceFn getPhysxVisualizationInterface);
 
-// Inject the ovstage-native output-read entry points (omni::physx::ovx*). They live
+// Inject the ovstage-native output-read entry points (omni::ev4sio_physx::ovx*). They live
 // in the owner library's statically linked OvruntimePhysX. The sidecar has no copy
 // of its own and the owner's symbols are not exported, so the owner passes their
 // addresses here at load time, as void* to keep this header free of the ovx/ovstage
@@ -86,7 +86,7 @@ OVPHYSX_INTERNAL_API void ovphysx_internal_set_ovx_read_accessors(
 OVPHYSX_INTERNAL_API void ovphysx_internal_set_ovx_write_accessors(
     void* write, void* fetch, void* commit, void* releaseWrite);
 
-// The contact query entry point (omni::physx::ovxQueryContacts), injected by the same handshake. A setter of
+// The contact query entry point (omni::ev4sio_physx::ovxQueryContacts), injected by the same handshake. A setter of
 // its own, so the read setter's positional ABI is unchanged.
 OVPHYSX_INTERNAL_API void ovphysx_internal_set_ovx_contact_accessors(void* queryContacts);
 // The masked commit and the commit check (ADR-0052), injected by their own setter so the write setter's ABI is

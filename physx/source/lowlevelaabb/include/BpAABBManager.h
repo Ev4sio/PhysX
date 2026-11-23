@@ -11,14 +11,14 @@
 #include "BpAABBManagerTasks.h"
 #include "BpAABBManagerBase.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Cm
+namespace ev4sio_Cm
 {
 	class FlushPool;
 }
 
-namespace Bp
+namespace ev4sio_Bp
 {
 	struct BroadPhasePair;
 
@@ -75,21 +75,21 @@ namespace Bp
 
 	class AABBManager;
 
-	class PostBroadPhaseStage2Task : public Cm::Task
+	class PostBroadPhaseStage2Task : public ev4sio_Cm::Task
 	{
-		Cm::FlushPool* mFlushPool;
+		ev4sio_Cm::FlushPool* mFlushPool;
 		AABBManager& mManager;
 
 		PX_NOCOPY(PostBroadPhaseStage2Task)
 	public:
 
-		PostBroadPhaseStage2Task(PxU64 contextID, AABBManager& manager) : Cm::Task(contextID), mFlushPool(NULL), mManager(manager)
+		PostBroadPhaseStage2Task(PxU64 contextID, AABBManager& manager) : ev4sio_Cm::Task(contextID), mFlushPool(NULL), mManager(manager)
 		{
 		}
 
 		virtual const char* getName() const PX_OVERRIDE { return "PostBroadPhaseStage2Task"; }
 
-		void setFlushPool(Cm::FlushPool* pool) { mFlushPool = pool; }
+		void setFlushPool(ev4sio_Cm::FlushPool* pool) { mFlushPool = pool; }
 
 		virtual void runInternal() PX_OVERRIDE;
 	};
@@ -108,21 +108,21 @@ namespace Bp
 	{
 													PX_NOCOPY(AABBManager)
 	public:
-														AABBManager(BroadPhase& bp, BoundsArray& boundsArray, Cm::PinnableArray<PxReal>& contactDistance,
-																	PxU32 maxNbAggregates, PxU32 maxNbShapes, Cm::VirtualAllocatorCallback& allocator, PxU64 contextID,
+														AABBManager(BroadPhase& bp, BoundsArray& boundsArray, ev4sio_Cm::PinnableArray<PxReal>& contactDistance,
+																	PxU32 maxNbAggregates, PxU32 maxNbShapes, ev4sio_Cm::VirtualAllocatorCallback& allocator, PxU64 contextID,
 																	PxPairFilteringMode::Enum kineKineFilteringMode, PxPairFilteringMode::Enum staticKineFilteringMode);
 
 		virtual											~AABBManager() {}
 
 		// AABBManagerBase
 		virtual			void							destroy()	PX_OVERRIDE	PX_FINAL;
-		virtual			AggregateHandle					createAggregate(BoundsIndex index, Bp::FilterGroup::Enum group, void* userData, PxU32 maxNumShapes, PxAggregateFilterHint filterHint, PxU32 envID)	PX_OVERRIDE	PX_FINAL;
-		virtual			bool							destroyAggregate(BoundsIndex& index, Bp::FilterGroup::Enum& group, AggregateHandle aggregateHandle)	PX_OVERRIDE	PX_FINAL;
-		virtual			bool							addBounds(BoundsIndex index, PxReal contactDistance, Bp::FilterGroup::Enum group, void* userdata, AggregateHandle aggregateHandle, ElementType::Enum volumeType, PxU32 envID)	PX_OVERRIDE	PX_FINAL;
+		virtual			AggregateHandle					createAggregate(BoundsIndex index, ev4sio_Bp::FilterGroup::Enum group, void* userData, PxU32 maxNumShapes, PxAggregateFilterHint filterHint, PxU32 envID)	PX_OVERRIDE	PX_FINAL;
+		virtual			bool							destroyAggregate(BoundsIndex& index, ev4sio_Bp::FilterGroup::Enum& group, AggregateHandle aggregateHandle)	PX_OVERRIDE	PX_FINAL;
+		virtual			bool							addBounds(BoundsIndex index, PxReal contactDistance, ev4sio_Bp::FilterGroup::Enum group, void* userdata, AggregateHandle aggregateHandle, ElementType::Enum volumeType, PxU32 envID)	PX_OVERRIDE	PX_FINAL;
 		virtual			bool							removeBounds(BoundsIndex index)	PX_OVERRIDE	PX_FINAL;
-		virtual			void							updateBPFirstPass(PxU32 numCpuTasks, Cm::FlushPool& flushPool, bool hasContactDistanceUpdated, PxBaseTask* continuation)	PX_OVERRIDE	PX_FINAL;
-		virtual			void							updateBPSecondPass(PxU32 numCpuTasks, Cm::FlushPool& flushPool, PxcScratchAllocator* scratchAllocator, PxBaseTask* continuation)	PX_OVERRIDE	PX_FINAL;
-		virtual			void							postBroadPhase(PxBaseTask*, Cm::FlushPool& flushPool)	PX_OVERRIDE	PX_FINAL;
+		virtual			void							updateBPFirstPass(PxU32 numCpuTasks, ev4sio_Cm::FlushPool& flushPool, bool hasContactDistanceUpdated, PxBaseTask* continuation)	PX_OVERRIDE	PX_FINAL;
+		virtual			void							updateBPSecondPass(PxU32 numCpuTasks, ev4sio_Cm::FlushPool& flushPool, PxcScratchAllocator* scratchAllocator, PxBaseTask* continuation)	PX_OVERRIDE	PX_FINAL;
+		virtual			void							postBroadPhase(PxBaseTask*, ev4sio_Cm::FlushPool& flushPool)	PX_OVERRIDE	PX_FINAL;
 		virtual			void							reallocateChangedAABBMgActorHandleMap(const PxU32 size)	PX_OVERRIDE	PX_FINAL;
 		virtual			bool							getOutOfBoundsObjects(OutOfBoundsData& data)			PX_OVERRIDE	PX_FINAL;
 		virtual			void							clearOutOfBoundsObjects()								PX_OVERRIDE	PX_FINAL;
@@ -141,11 +141,11 @@ namespace Bp
 	private:
 						//void reserveShapeSpace(PxU32 nbShapes);
 
-						void							postBpStage2(PxBaseTask*, Cm::FlushPool&);
+						void							postBpStage2(PxBaseTask*, ev4sio_Cm::FlushPool&);
 						void							postBpStage3(PxBaseTask*);
 
 						PostBroadPhaseStage2Task									mPostBroadPhase2;
-						Cm::DelegateTask<AABBManager, &AABBManager::postBpStage3>	mPostBroadPhase3;
+						ev4sio_Cm::DelegateTask<AABBManager, &AABBManager::postBpStage3>	mPostBroadPhase3;
 
 						PreBpUpdateTask					mPreBpUpdateTask;
 
@@ -172,7 +172,7 @@ namespace Bp
 															return mAggregates[handle];
 														}
 
-						void							startAggregateBoundsComputationTasks(PxU32 nbToGo, PxU32 numCpuTasks, Cm::FlushPool& flushPool);
+						void							startAggregateBoundsComputationTasks(PxU32 nbToGo, PxU32 numCpuTasks, ev4sio_Cm::FlushPool& flushPool);
 						PersistentActorAggregatePair*	createPersistentActorAggregatePair(ShapeHandle volA, ShapeHandle volB);
 					PersistentAggregateAggregatePair*	createPersistentAggregateAggregatePair(ShapeHandle volA, ShapeHandle volB);
 						void							updatePairs(PersistentPairs& p, BpCacheData* data = NULL);
@@ -188,7 +188,7 @@ namespace Bp
 		friend class PostBroadPhaseStage2Task;
 	};
 
-} //namespace Bp
-} //namespace physx
+} //namespace ev4sio_Bp
+} //namespace ev4sio_physx
 
 #endif //BP_AABBMANAGER_H

@@ -7,7 +7,7 @@
 #define PXG_BROADPHASE_H
 
 
-namespace physx
+namespace ev4sio_physx
 {
 	
 	//this is needed to force PhysXBroadphaseGpu linkage as Static Library!

@@ -26,7 +26,7 @@
 #include "utils.cuh"
 
 
-namespace physx
+namespace ev4sio_physx
 {
 
 
@@ -685,6 +685,6 @@ void
 	bendingEnergySolvePerTrianglePair(shFEMCloth, x0, x1, x2, x3, vertexRefCount, dt, trianglePairIndex, true, isTGS);
 }
 
-} // namespace physx
+} // namespace ev4sio_physx
 
 #endif  // FEMCLOTHUTIL

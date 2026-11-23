@@ -11,7 +11,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 PhysxCollisionRepresentationTask requestConvexCollisionRepresentation(
     const PhysxCollisionRepresentationRequest& request, PhysxCollisionRepresentationConvexResult::CallbackType onResult);
@@ -19,5 +19,5 @@ void retireCollisionRepresentationTasks(AttachHandle attach);
 // Internal diagnostic: opaque token membership, without borrowing native task storage.
 bool isCollisionRepresentationTaskLive(PhysxCollisionRepresentationTask task);
 RuntimeResult cancelCollisionRepresentationTask(PhysxCollisionRepresentationTask task, bool invokeCallbackAnyway);
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

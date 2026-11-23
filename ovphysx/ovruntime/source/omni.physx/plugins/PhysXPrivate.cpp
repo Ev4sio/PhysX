@@ -19,11 +19,11 @@
 
 #include <usdLoad/LoadUsd.h>
 
-using namespace ::physx;
+using namespace ::ev4sio_physx;
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 
 PxScene* privGetPhysXScene(AttachHandle attach)
@@ -95,5 +95,5 @@ PxCudaContextManager* privGetCudaContextManager(AttachHandle attach, uint64_t sc
     return nullptr;
 }
 
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

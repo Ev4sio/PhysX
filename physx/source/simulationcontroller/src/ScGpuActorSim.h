@@ -9,9 +9,9 @@
 #include "ScActorSim.h"
 #include "ScShapeSimBase.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Sc
+namespace ev4sio_Sc
 {
 	class GPUActorSim : public ActorSim
 	{
@@ -24,7 +24,7 @@ namespace Sc
 		const ShapeSimBase&	getShapeSim() const	 { return mShapeSim; }
 		ShapeSimBase&		getShapeSim()		 { return mShapeSim; }
 
-		void	addToAABBMgr(Bp::FilterType::Enum type);
+		void	addToAABBMgr(ev4sio_Bp::FilterType::Enum type);
 		void	destroyLowLevelVolume();
 	};
 }

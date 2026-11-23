@@ -21,7 +21,7 @@ using namespace carb::datastore;
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 
 
@@ -296,5 +296,5 @@ void UjitsoResourceManager::ResourceRequest::reset()
     m_callback = nullptr;
 }
 
-}   // namespace physx
+}   // namespace ev4sio_physx
 }   // namespace omni

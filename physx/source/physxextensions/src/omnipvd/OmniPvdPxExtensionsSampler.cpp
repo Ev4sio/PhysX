@@ -23,7 +23,7 @@
 #include "extensions/PxJoint.h"
 #include "extensions/PxConstraintExt.h"
 
-// The joint dispatch needs the internal concrete joint classes (physx::Ext::D6Joint, ...)
+// The joint dispatch needs the internal concrete joint classes (ev4sio_physx::ev4sio_Ext::D6Joint, ...)
 // and brings in the omniPvdInitJoint<T> friend declarations specialized per joint .cpp.
 #include "ExtD6Joint.h"
 #include "ExtRevoluteJoint.h"
@@ -35,12 +35,12 @@
 #include "ExtRackAndPinionJoint.h"
 
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 // Shared per-type custom-geometry-ext emitters, defined in ExtCustomGeometryExt.cpp next to the
 // constructors that also use them (the same sharing the joints use via omniPvdInitJoint). The
 // snapshot pass below switches on the callbacks' custom type and calls the matching one.
-namespace physx { namespace Ext {
+namespace ev4sio_physx { namespace ev4sio_Ext {
 	void omniPvdInitCustomGeometryExt(OmniPvdWriter* pvdWriter, const OmniPvdPxExtensionsRegistrationData* pvdRegData, const PxCustomGeometryExt::CylinderCallbacks& c);
 	void omniPvdInitCustomGeometryExt(OmniPvdWriter* pvdWriter, const OmniPvdPxExtensionsRegistrationData* pvdRegData, const PxCustomGeometryExt::ConeCallbacks& c);
 } }
@@ -56,7 +56,7 @@ void OmniPvdPxExtensionsSampler::registerClasses()
 	}
 }
 
-OmniPvdPxExtensionsSampler::OmniPvdPxExtensionsSampler(physx::PxPhysics& physics)
+OmniPvdPxExtensionsSampler::OmniPvdPxExtensionsSampler(ev4sio_physx::PxPhysics& physics)
 	: mPhysics(physics), mRecordSecondaryData(true), mRecordAllObjects(true)
 {
 	mOmniPvdInstance = NULL;
@@ -66,16 +66,16 @@ OmniPvdPxExtensionsSampler::~OmniPvdPxExtensionsSampler()
 {
 }
 
-void OmniPvdPxExtensionsSampler::setOmniPvdInstance(physx::PxOmniPvd* omniPvdInstance)
+void OmniPvdPxExtensionsSampler::setOmniPvdInstance(ev4sio_physx::PxOmniPvd* omniPvdInstance)
 {
 	mOmniPvdInstance = omniPvdInstance;
 }
 
-void OmniPvdPxExtensionsSampler::onStartSampling(physx::PxOmniPvd& omniPvd, const physx::PxOmniPvdFilterDesc* filter)
+void OmniPvdPxExtensionsSampler::onStartSampling(ev4sio_physx::PxOmniPvd& omniPvd, const ev4sio_physx::PxOmniPvdFilterDesc* filter)
 {
 	// PxOmniPvdEventCallback entry: startSampling() calls this after the core world is emitted.
 	// Re-emit the live extension joints of the captured PxPhysics onto the bound stream.
-	// PxInitExtensions bound the instance via setOmniPvdInstance(); startSampling() passes the
+	// ev4sio_PxInitExtensions bound the instance via setOmniPvdInstance(); startSampling() passes the
 	// same PxOmniPvd, so assert it matches rather than silently adopting it.
 	PX_ASSERT(mOmniPvdInstance == &omniPvd);
 	PX_UNUSED(omniPvd); // only read by the assert (compiled out in release)
@@ -188,12 +188,12 @@ void OmniPvdPxExtensionsSampler::snapshotConstraint(PxConstraint& constraint, Om
 		{
 			// D6 drive objects use synthetic handles owned by the joint.
 			if (joint.getConcreteType() == PxJointConcreteType::eD6)
-				static_cast<physx::Ext::D6Joint&>(joint).omniPvdDestroyDrives(pvdWriter, &mRegistrationData);
+				static_cast<ev4sio_physx::ev4sio_Ext::D6Joint&>(joint).omniPvdDestroyDrives(pvdWriter, &mRegistrationData);
 			pvdWriter->destroyObject(1, reinterpret_cast<PxU64>(&joint));
 		}
 		return;
 	}
-	const physx::Ext::OmniPvdPxExtensionsRegistrationData* pvdRegData = &mRegistrationData;
+	const ev4sio_physx::ev4sio_Ext::OmniPvdPxExtensionsRegistrationData* pvdRegData = &mRegistrationData;
 	// Keep the recorded identity, but refresh configuration that may have changed while excluded.
 	// Gear/rack references can recurse into this pass. Only the outer refresh emits each joint.
 	const PxU64 handle = reinterpret_cast<PxU64>(&joint);
@@ -201,21 +201,21 @@ void OmniPvdPxExtensionsSampler::snapshotConstraint(PxConstraint& constraint, Om
 	switch (joint.getConcreteType())
 	{
 	case PxJointConcreteType::eD6:
-		physx::Ext::omniPvdInitJoint(pvdWriter, pvdRegData, static_cast<physx::Ext::D6Joint&>(joint)); break;
+		ev4sio_physx::ev4sio_Ext::omniPvdInitJoint(pvdWriter, pvdRegData, static_cast<ev4sio_physx::ev4sio_Ext::D6Joint&>(joint)); break;
 	case PxJointConcreteType::eREVOLUTE:
-		physx::Ext::omniPvdInitJoint(pvdWriter, pvdRegData, static_cast<physx::Ext::RevoluteJoint&>(joint)); break;
+		ev4sio_physx::ev4sio_Ext::omniPvdInitJoint(pvdWriter, pvdRegData, static_cast<ev4sio_physx::ev4sio_Ext::RevoluteJoint&>(joint)); break;
 	case PxJointConcreteType::ePRISMATIC:
-		physx::Ext::omniPvdInitJoint(pvdWriter, pvdRegData, static_cast<physx::Ext::PrismaticJoint&>(joint)); break;
+		ev4sio_physx::ev4sio_Ext::omniPvdInitJoint(pvdWriter, pvdRegData, static_cast<ev4sio_physx::ev4sio_Ext::PrismaticJoint&>(joint)); break;
 	case PxJointConcreteType::eFIXED:
-		physx::Ext::omniPvdInitJoint(pvdWriter, pvdRegData, static_cast<physx::Ext::FixedJoint&>(joint)); break;
+		ev4sio_physx::ev4sio_Ext::omniPvdInitJoint(pvdWriter, pvdRegData, static_cast<ev4sio_physx::ev4sio_Ext::FixedJoint&>(joint)); break;
 	case PxJointConcreteType::eDISTANCE:
-		physx::Ext::omniPvdInitJoint(pvdWriter, pvdRegData, static_cast<physx::Ext::DistanceJoint&>(joint)); break;
+		ev4sio_physx::ev4sio_Ext::omniPvdInitJoint(pvdWriter, pvdRegData, static_cast<ev4sio_physx::ev4sio_Ext::DistanceJoint&>(joint)); break;
 	case PxJointConcreteType::eSPHERICAL:
-		physx::Ext::omniPvdInitJoint(pvdWriter, pvdRegData, static_cast<physx::Ext::SphericalJoint&>(joint)); break;
+		ev4sio_physx::ev4sio_Ext::omniPvdInitJoint(pvdWriter, pvdRegData, static_cast<ev4sio_physx::ev4sio_Ext::SphericalJoint&>(joint)); break;
 	case PxJointConcreteType::eGEAR:
-		physx::Ext::omniPvdInitJoint(pvdWriter, pvdRegData, static_cast<physx::Ext::GearJoint&>(joint)); break;
+		ev4sio_physx::ev4sio_Ext::omniPvdInitJoint(pvdWriter, pvdRegData, static_cast<ev4sio_physx::ev4sio_Ext::GearJoint&>(joint)); break;
 	case PxJointConcreteType::eRACK_AND_PINION:
-		physx::Ext::omniPvdInitJoint(pvdWriter, pvdRegData, static_cast<physx::Ext::RackAndPinionJoint&>(joint)); break;
+		ev4sio_physx::ev4sio_Ext::omniPvdInitJoint(pvdWriter, pvdRegData, static_cast<ev4sio_physx::ev4sio_Ext::RackAndPinionJoint&>(joint)); break;
 	default: break;
 	}
 	mRefreshingJoints.erase(handle);
@@ -252,12 +252,12 @@ void OmniPvdPxExtensionsSampler::snapshotCustomGeometry(const PxShape& shape, Om
 	if (!cb || mEmittedObjects.contains(reinterpret_cast<PxU64>(cb)))
 		return;
 	mSelectedCustomCallbacks.insert(cb);
-	const physx::Ext::OmniPvdPxExtensionsRegistrationData* pvdRegData = &mRegistrationData;
+	const ev4sio_physx::ev4sio_Ext::OmniPvdPxExtensionsRegistrationData* pvdRegData = &mRegistrationData;
 	const PxCustomGeometry::Type type = cb->getCustomType();
 	if (type == PxCustomGeometryExt::CylinderCallbacks::TYPE())
-		physx::Ext::omniPvdInitCustomGeometryExt(pvdWriter, pvdRegData, static_cast<const PxCustomGeometryExt::CylinderCallbacks&>(*cb));
+		ev4sio_physx::ev4sio_Ext::omniPvdInitCustomGeometryExt(pvdWriter, pvdRegData, static_cast<const PxCustomGeometryExt::CylinderCallbacks&>(*cb));
 	else if (type == PxCustomGeometryExt::ConeCallbacks::TYPE())
-		physx::Ext::omniPvdInitCustomGeometryExt(pvdWriter, pvdRegData, static_cast<const PxCustomGeometryExt::ConeCallbacks&>(*cb));
+		ev4sio_physx::ev4sio_Ext::omniPvdInitCustomGeometryExt(pvdWriter, pvdRegData, static_cast<const PxCustomGeometryExt::ConeCallbacks&>(*cb));
 	mSelectedCustomCallbacks.erase(cb);
 }
 
@@ -324,7 +324,7 @@ bool OmniPvdPxExtensionsSampler::shouldRecordCreation(const char* className, PxU
 		if (!mRecordSecondaryData)
 			return false;
 	}
-	else if (!physx::Ext::OmniPvdCaptureJoint(*reinterpret_cast<const PxJoint*>(objectHandle)))
+	else if (!ev4sio_physx::ev4sio_Ext::OmniPvdCaptureJoint(*reinterpret_cast<const PxJoint*>(objectHandle)))
 		return false;
 	return mEmittedObjects.insert(objectHandle);
 }
@@ -344,7 +344,7 @@ bool OmniPvdPxExtensionsSampler::shouldRecordValue(const char* className, const 
 	if (Pxstrncmp(className, "PxCustomGeometryExt", sizeof("PxCustomGeometryExt") - 1) == 0)
 		return true;
 	if (Pxstrcmp(className, "PxD6JointDrive") &&
-		!physx::Ext::OmniPvdCaptureJoint(*reinterpret_cast<const PxJoint*>(objectHandle)))
+		!ev4sio_physx::ev4sio_Ext::OmniPvdCaptureJoint(*reinterpret_cast<const PxJoint*>(objectHandle)))
 		return false;
 	static const char* const primaryAttributes[] = { "constraint", "type", "actor0", "actor1", "name", "concreteTypeName",
 		"actor0LocalPose", "actor1LocalPose", "angle", "position", "velocity", "twistAngle", "distance", "swingYAngle",
@@ -355,7 +355,7 @@ bool OmniPvdPxExtensionsSampler::shouldRecordValue(const char* className, const 
 	return mRecordSecondaryData;
 }
 
-physx::PxOmniPvd* OmniPvdPxExtensionsSampler::getOmniPvdInstance() {
+ev4sio_physx::PxOmniPvd* OmniPvdPxExtensionsSampler::getOmniPvdInstance() {
 	return mOmniPvdInstance;
 }
 
@@ -364,7 +364,7 @@ physx::PxOmniPvd* OmniPvdPxExtensionsSampler::getOmniPvdInstance() {
 
 static OmniPvdPxExtensionsSampler* gOmniPvdPxExtensionsSampler = NULL;
 
-bool OmniPvdPxExtensionsSampler::createInstance(physx::PxPhysics& physics)
+bool OmniPvdPxExtensionsSampler::createInstance(ev4sio_physx::PxPhysics& physics)
 {
 	gOmniPvdPxExtensionsSampler = PX_NEW(OmniPvdPxExtensionsSampler)(physics);
 	return gOmniPvdPxExtensionsSampler != NULL;
@@ -381,9 +381,9 @@ void OmniPvdPxExtensionsSampler::destroyInstance()
 }
 
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Ext
+namespace ev4sio_Ext
 {
 
 bool OmniPvdCaptureJoint(const PxJoint& joint)

@@ -42,9 +42,9 @@ class IPhysicsSource;
 struct ChangeBatch;
 } // namespace omni::physics::parse
 
-namespace omni::physx::usdparser { class AttachedStage; }
+namespace omni::ev4sio_physx::usdparser { class AttachedStage; }
 
-namespace omni::physx
+namespace omni::ev4sio_physx
 {
 
 // One parent write session owns every requested attribute's plans. Each fetched
@@ -313,4 +313,4 @@ OMNI_OVX_WRITE_API DrainResult applyOvstageValueBatch(usdparser::AttachedStage& 
 // read straight from that device (device-resident, zero host copy).
 OMNI_OVX_WRITE_API int ovxDirectGpuDeviceOrdinal(usdparser::AttachedStage& owner);
 
-} // namespace omni::physx
+} // namespace omni::ev4sio_physx

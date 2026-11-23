@@ -45,7 +45,7 @@ extern "C" {
         OVPHYSX_OBJECT_TYPE_ARTICULATION_LINK      = 3,
         OVPHYSX_OBJECT_TYPE_ARTICULATION_ROOT_LINK = 4,
         OVPHYSX_OBJECT_TYPE_ARTICULATION_JOINT     = 5, /**< Reduced-coordinate articulation joint */
-        OVPHYSX_OBJECT_TYPE_JOINT                  = 6, /**< Maximal-coordinate standalone joint (physx::PxJoint) */
+        OVPHYSX_OBJECT_TYPE_JOINT                  = 6, /**< Maximal-coordinate standalone joint (ev4sio_physx::PxJoint) */
         OVPHYSX_OBJECT_TYPE_CUSTOM_JOINT           = 7, /**< Plugin-registered custom joint (CustomPhysXJoint) */
     } ovphysx_object_type_t;
 

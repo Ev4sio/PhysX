@@ -8,11 +8,11 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 
 PhysicsTriangulationInputContainer::PhysicsTriangulationInputContainer(
-    const omni::physx::PhysxCookingComputeResult& result, const omni::physx::PhysxCookingComputeRequest& request)
+    const omni::ev4sio_physx::PhysxCookingComputeResult& result, const omni::ev4sio_physx::PhysxCookingComputeRequest& request)
     : PhysicsInputContainerBase(result, request)
 {
     CARB_PROFILE_ZONE(0, "PhysicsTriangulationInputContainer::PhysicsTriangulationInputContainer");
@@ -128,17 +128,17 @@ void PhysicsTriangulationInputContainer::copyOrComputeHash()
 {
     CARB_PROFILE_ZONE(0, "PhysicsTriangulationInputContainer::copyOrComputeHash");
 
-    omni::physx::usdparser::MeshKey meshKey = m_result.meshKey;
-    if (meshKey == omni::physx::usdparser::MeshKey())
+    omni::ev4sio_physx::usdparser::MeshKey meshKey = m_result.meshKey;
+    if (meshKey == omni::ev4sio_physx::usdparser::MeshKey())
     {
         // ask omni.physics to build the hash for us if it isn't already valid
         // needs to match what would be passed in if it is pre-computed
-        meshKey = omni::physx::MeshKeyComputation::computeMeshKey(m_request.primMeshView);
+        meshKey = omni::ev4sio_physx::MeshKeyComputation::computeMeshKey(m_request.primMeshView);
     }
     else
     {
         // in debug builds, check that the supplied hash matches what we would compute
-        CARB_ASSERT(meshKey == omni::physx::MeshKeyComputation::computeMeshKey(m_request.primMeshView));
+        CARB_ASSERT(meshKey == omni::ev4sio_physx::MeshKeyComputation::computeMeshKey(m_request.primMeshView));
     }
 
     // roll the winding order in to the hash (it isn't included by default)
@@ -149,5 +149,5 @@ void PhysicsTriangulationInputContainer::copyOrComputeHash()
     m_hash = { value.d[0], value.d[1] };
 }
 
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

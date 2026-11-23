@@ -12,7 +12,7 @@
 #include "DySleepingConfigulation.h"
 #include "stdio.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 static __device__ void updateWakeCounter(bool& freeze, float4& solverBodyLinVel, float4& solverBodyAngVel, const PxAlignedTransform& body2World, 
@@ -408,4 +408,4 @@ static __device__ void integrateCoreTGS(const float4 motionLinVelXYZW, const flo
 	}
 }
 
-} // namespace physx
+} // namespace ev4sio_physx

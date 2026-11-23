@@ -21,7 +21,7 @@
 
 #include <vector>
 
-namespace physx
+namespace ev4sio_physx
 {
 class PxRigidBody;
 class PxScene;
@@ -29,7 +29,7 @@ class PxScene;
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace usdparser
 {
@@ -39,12 +39,12 @@ namespace tensors
 {
 
 // Creation-time controller actor to prim frame correction; identity for other bodies.
-::physx::PxQuat bodyOrientationFixup(const usdparser::AttachedStage* owner, const ::physx::PxRigidBody* body);
+::ev4sio_physx::PxQuat bodyOrientationFixup(const usdparser::AttachedStage* owner, const ::ev4sio_physx::PxRigidBody* body);
 
 // The signed world scale `body` was created with, from its owning database record (rigid actor,
 // articulation link, or character-controller proxy); unit for an unmanaged actor. Fills
 // RigidBodyEntry::worldScale for both entry builders, so a superset and a pattern view agree.
-::physx::PxVec3 bodyWorldScale(const usdparser::AttachedStage* owner, const ::physx::PxRigidBody* body);
+::ev4sio_physx::PxVec3 bodyWorldScale(const usdparser::AttachedStage* owner, const ::ev4sio_physx::PxRigidBody* body);
 
 // Every rigid dynamic and articulation link in the scene, in a stable order: rigid dynamics in
 // PxScene actor order, then each articulation's links in link order.
@@ -52,9 +52,9 @@ namespace tensors
 // Shared by the CPU and GPU backends: both must enumerate the same bodies in the same order, or a
 // row index taken against one would silently address a different body in the other.
 // Diagnostic paths come from the scene owner's database, independent of optional PhysX actor names.
-void collectSupersetRigidEntries(::physx::PxScene* scene, const usdparser::AttachedStage* owner,
+void collectSupersetRigidEntries(::ev4sio_physx::PxScene* scene, const usdparser::AttachedStage* owner,
                                 std::vector<RigidBodyEntry>& entries);
 
 } // namespace tensors
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

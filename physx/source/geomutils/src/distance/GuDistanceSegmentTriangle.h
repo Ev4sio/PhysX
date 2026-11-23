@@ -10,9 +10,9 @@
 #include "GuSegment.h"
 #include "foundation/PxVecMath.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Gu
+namespace ev4sio_Gu
 {
 	PX_PHYSX_COMMON_API PxReal distanceSegmentTriangleSquared(
 		const PxVec3& segmentOrigin, const PxVec3& segmentExtent,
@@ -20,7 +20,7 @@ namespace Gu
 		PxReal* t=NULL, PxReal* u=NULL, PxReal* v=NULL);
 
 	PX_INLINE PxReal distanceSegmentTriangleSquared(
-		const Gu::Segment& segment, 
+		const ev4sio_Gu::Segment& segment,
 		const PxVec3& triangleOrigin, const PxVec3& triangleEdge0, const PxVec3& triangleEdge1,
 		PxReal* t=NULL, PxReal* u=NULL, PxReal* v=NULL)
 	{
@@ -35,7 +35,7 @@ namespace Gu
 		const aos::Vec3VArg a, const aos::Vec3VArg b, const aos::Vec3VArg c,
 		aos::Vec3V& closest0, aos::Vec3V& closest1);
 
-} // namespace Gu
+} // namespace ev4sio_Gu
 }
 
 #endif

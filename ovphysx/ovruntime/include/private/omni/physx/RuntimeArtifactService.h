@@ -17,7 +17,7 @@
 #include <mutex>
 #include <vector>
 
-namespace omni::physx::cache
+namespace omni::ev4sio_physx::cache
 {
 // Tests give every case its own datastore; null restores UJITSO's default. The
 // local-only rule applies to it with the configurator features given (Local
@@ -128,4 +128,4 @@ private:
     mutable std::mutex mPendingMutex;
     mutable std::vector<carb::tasking::Future<bool>> mPending;
 };
-} // namespace omni::physx::cache
+} // namespace omni::ev4sio_physx::cache

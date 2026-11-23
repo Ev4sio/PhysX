@@ -24,15 +24,15 @@
 #include <foundation/PxVec3.h>
 #include <foundation/PxMat44.h>
 #include <foundation/PxSimpleTypes.h>
-namespace physx
+namespace ev4sio_physx
 {
 class PxScene;
 class PxCudaContextManager;
-} // namespace physx
+} // namespace ev4sio_physx
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 
 /// Instanced data struct, holding information for point instanced objects
@@ -64,17 +64,17 @@ struct InternalDeformableBodyData
     // World-to-mesh-local inverses, double precision (mirrors
     // InternalDeformableBody). ABI note: these were GfMatrix4f; a consumer that
     // needs a float Gf matrix must convert explicitly now.
-    ::physx::PxMat44d worldToSimMesh;
+    ::ev4sio_physx::PxMat44d worldToSimMesh;
     std::vector<omni::physics::parse::ObjectKey> skinMeshKeys;
-    omni::span<::physx::PxMat44d> worldToSkinMeshTransforms;
+    omni::span<::ev4sio_physx::PxMat44d> worldToSkinMeshTransforms;
     omni::span<carb::Uint2> skinMeshRanges;
     uint32_t numSkinMeshVertices; // all skin mesh vertices
     uint32_t numSimMeshVertices; // physx sim mesh
 
-    ::physx::PxVec4* simMeshPositionInvMassH; // physx sim mesh, pinned host memory
+    ::ev4sio_physx::PxVec4* simMeshPositionInvMassH; // physx sim mesh, pinned host memory
 
-    ::physx::PxVec3* allSkinnedVerticesH;     // deformable skinning mesh data, pinned host memory
-    ::physx::PxVec3* allSkinnedVerticesD;     // deformable skinning mesh data, device memory
+    ::ev4sio_physx::PxVec3* allSkinnedVerticesH;     // deformable skinning mesh data, pinned host memory
+    ::ev4sio_physx::PxVec3* allSkinnedVerticesD;     // deformable skinning mesh data, device memory
 };
 
 struct InternalSurfaceDeformableBodyData : InternalDeformableBodyData
@@ -84,10 +84,10 @@ struct InternalSurfaceDeformableBodyData : InternalDeformableBodyData
 struct InternalVolumeDeformableBodyData : InternalDeformableBodyData
 {
     omni::physics::parse::ObjectKey collMeshKey;
-    ::physx::PxMat44d worldToCollMesh;
+    ::ev4sio_physx::PxMat44d worldToCollMesh;
     uint32_t numCollMeshVertices; // physx coll mesh!
 
-    ::physx::PxVec4* collMeshPositionInvMassH; // physx coll mesh, pinned host memory
+    ::ev4sio_physx::PxVec4* collMeshPositionInvMassH; // physx coll mesh, pinned host memory
 };
 
 /// A private interface for physics extensions that need to be tightly coupled with omni.physx.
@@ -110,7 +110,7 @@ struct IPhysxPrivate
     /// An explicit attachment is required; invalid identity never selects a peer.
     ///
     /// \return The PxScene pointer, or null for an invalid owner, no default scene, or busy execution.
-    ::physx::PxScene*(CARB_ABI* getPhysXScene)(omni::physics::AttachHandle attach);
+    ::ev4sio_physx::PxScene*(CARB_ABI* getPhysXScene)(omni::physics::AttachHandle attach);
 
     /// Get the point instancer information for given ids.
     ///
@@ -123,7 +123,7 @@ struct IPhysxPrivate
     /// Get the CUDA manager of an exact scene on the selected attachment.
     /// The borrowed pointer remains valid only while that scene is alive.
     /// Returns null for an unknown owner/scene or conflicting runtime entry.
-    ::physx::PxCudaContextManager*(CARB_ABI* getCudaContextManager)(omni::physics::AttachHandle attach, uint64_t sceneKey);
+    ::ev4sio_physx::PxCudaContextManager*(CARB_ABI* getCudaContextManager)(omni::physics::AttachHandle attach, uint64_t sceneKey);
 
     /// Get the instanced PhysX pointers
     ///
@@ -152,5 +152,5 @@ struct IPhysxPrivate
                                                         InternalVolumeDeformableBodyData& data);
 };
 
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

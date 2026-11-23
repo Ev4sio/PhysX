@@ -8,7 +8,7 @@
 
 #include "foundation/PxSimpleTypes.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 PX_FORCE_INLINE static __device__ int3 calcGridPos(const float4& particlePos, const PxReal cellWidth)
@@ -119,6 +119,6 @@ PX_FORCE_INLINE static __device__ void calcGridRange(int3& gridPosMin, int3& gri
 	return cVolumeOffset.magnitude() + contactDist;
 }
 
-} // namespace physx
+} // namespace ev4sio_physx
 
 #endif

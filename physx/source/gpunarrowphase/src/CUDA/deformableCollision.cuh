@@ -11,7 +11,7 @@
 #include "GuDistancePointTriangle.h"
 #include "PxgFEMCloth.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 #define DEFORMABLE_BARYCENTRIC_THRESHOLD (1.0e-6f)
@@ -204,7 +204,7 @@ __device__ static PxReal distancePointTriangleSquared(const PxVec3 p, const PxVe
 {
 	const PxVec3 ab = b - a;
 	const PxVec3 ac = c - a;
-	closestP = Gu::closestPtPointTriangle2(p, a, b, c, ab, ac);
+	closestP = ev4sio_Gu::closestPtPointTriangle2(p, a, b, c, ab, ac);
 	return (p - closestP).magnitudeSquared();
 }
 
@@ -341,6 +341,6 @@ PX_FORCE_INLINE __device__ static bool ownsEdge(PxU32 triangleEdgeOwnership, PxU
 	return (triangleEdgeOwnership & (1U << localEdgeIndex)) != 0;
 }
 
-} // namespace physx
+} // namespace ev4sio_physx
 
 #endif // __DEFORMABLE_COLLISION_CUH__

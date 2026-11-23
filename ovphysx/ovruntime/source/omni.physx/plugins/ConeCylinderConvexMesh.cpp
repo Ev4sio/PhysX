@@ -10,12 +10,12 @@
 #include "OmniPhysX.h"
 #include "ConeCylinderConvexMesh.h"
 
-using namespace omni::physx;
-using namespace physx;
-using namespace omni::physx::usdparser;
+using namespace omni::ev4sio_physx;
+using namespace ev4sio_physx;
+using namespace omni::ev4sio_physx::usdparser;
 
-PxConvexMesh* omni::physx::createCylinderConvexMesh(const float width, const float radius, const uint32_t numCirclePoints,
-    omni::physx::usdparser::Axis axis)
+PxConvexMesh* omni::ev4sio_physx::createCylinderConvexMesh(const float width, const float radius, const uint32_t numCirclePoints,
+    omni::ev4sio_physx::usdparser::Axis axis)
 {
 #define MAX_NUM_VERTS_IN_CIRCLE 64
     CARB_ASSERT(numCirclePoints <= MAX_NUM_VERTS_IN_CIRCLE);
@@ -72,7 +72,7 @@ PxConvexMesh* omni::physx::createCylinderConvexMesh(const float width, const flo
     PxDefaultMemoryOutputStream buf;
     PhysXSetup& physxSetup = OmniPhysX::getInstance().getPhysXSetup();
     PxConvexMeshCookingResult::Enum condition;
-    if (PxCookConvexMesh(physxSetup.getDefaultCookingParams(), convexDesc, buf, &condition))
+    if (ev4sio_PxCookConvexMesh(physxSetup.getDefaultCookingParams(), convexDesc, buf, &condition))
     {
         if (condition == PxConvexMeshCookingResult::ePOLYGONS_LIMIT_REACHED)
             CARB_LOG_INFO("CreateCylinderConvexMesh: polygon limit reached, resulting convex hull may be suboptimal.");
@@ -83,8 +83,8 @@ PxConvexMesh* omni::physx::createCylinderConvexMesh(const float width, const flo
     return convexMesh;
 }
 
-PxConvexMesh* omni::physx::createConeConvexMesh(const float width, const float radius, const uint32_t numCirclePoints,
-    omni::physx::usdparser::Axis axis)
+PxConvexMesh* omni::ev4sio_physx::createConeConvexMesh(const float width, const float radius, const uint32_t numCirclePoints,
+    omni::ev4sio_physx::usdparser::Axis axis)
 {
 #define MAX_NUM_VERTS_IN_CIRCLE 64
     CARB_ASSERT(numCirclePoints <= MAX_NUM_VERTS_IN_CIRCLE);
@@ -140,7 +140,7 @@ PxConvexMesh* omni::physx::createConeConvexMesh(const float width, const float r
     PxDefaultMemoryOutputStream buf;
     PhysXSetup& physxSetup = OmniPhysX::getInstance().getPhysXSetup();
     PxConvexMeshCookingResult::Enum condition;
-    if (PxCookConvexMesh(physxSetup.getDefaultCookingParams(), convexDesc, buf, &condition))
+    if (ev4sio_PxCookConvexMesh(physxSetup.getDefaultCookingParams(), convexDesc, buf, &condition))
     {
         if (condition == PxConvexMeshCookingResult::ePOLYGONS_LIMIT_REACHED)
             CARB_LOG_INFO("CreateConeConvexMesh: polygon limit reached, resulting convex hull may be suboptimal.");
@@ -151,8 +151,8 @@ PxConvexMesh* omni::physx::createConeConvexMesh(const float width, const float r
     return convexMesh;
 }
 
-::physx::PxVec3 omni::physx::getConeOrCylinderScale(const ::physx::PxF32 halfWidth, const ::physx::PxF32 radius,
-    omni::physx::usdparser::Axis axis)
+::ev4sio_physx::PxVec3 omni::ev4sio_physx::getConeOrCylinderScale(const ::ev4sio_physx::PxF32 halfWidth, const ::ev4sio_physx::PxF32 radius,
+    omni::ev4sio_physx::usdparser::Axis axis)
 {
     PxVec3 scale;
     if (axis == eX)
@@ -177,7 +177,7 @@ PxConvexMesh* omni::physx::createConeConvexMesh(const float width, const float r
     return scale;
 }
 
-void omni::physx::getConeOrCylinderSize(const ::physx::PxVec3& scale, omni::physx::usdparser::Axis axis, ::physx::PxF32& halfWidth, ::physx::PxF32& radius)
+void omni::ev4sio_physx::getConeOrCylinderSize(const ::ev4sio_physx::PxVec3& scale, omni::ev4sio_physx::usdparser::Axis axis, ::ev4sio_physx::PxF32& halfWidth, ::ev4sio_physx::PxF32& radius)
 {
     if (axis == eX)
     {

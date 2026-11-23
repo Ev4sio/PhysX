@@ -105,11 +105,11 @@
 #include <extensions/PxParticleExt.h>
 #endif
 
-using namespace omni::physx;
-using namespace omni::physx::internal;
-using namespace omni::physx::usdparser;
+using namespace omni::ev4sio_physx;
+using namespace omni::ev4sio_physx::internal;
+using namespace omni::ev4sio_physx::usdparser;
 using namespace carb;
-using namespace ::physx;
+using namespace ::ev4sio_physx;
 
 OMNI_LOG_DECLARE_CHANNEL(kRoboticsLogChannel)
 
@@ -136,7 +136,7 @@ void MirrorActor::release(bool trackReleasedActor)
 {
     if (trackReleasedActor && internalScene)
         internalScene->trackReleasedActiveActor(actor);
-    ::physx::PxCollectionExt::releaseObjects(*collection);
+    ::ev4sio_physx::PxCollectionExt::releaseObjects(*collection);
     collection->release();
     free(mirrorMemory);
 }
@@ -146,7 +146,7 @@ void InternalScene::setVehicleContext(const VehicleContextDesc& contextDesc)
     mVehicleContext.init(contextDesc, *mScene);
 }
 
-omni::physx::usdparser::ObjectId InternalScene::addVehicle(InternalVehicle& vehicle,
+omni::ev4sio_physx::usdparser::ObjectId InternalScene::addVehicle(InternalVehicle& vehicle,
     const uint32_t wheelCount, omni::physics::parse::ObjectKey vehicleKey, const bool enabled)
 {
     const uint32_t oldVehicleCount = static_cast<uint32_t>(mVehicles.size());
@@ -372,7 +372,7 @@ void InternalScene::removeDeformableAttachments(ObjectId objId)
     }
 }
 
-void InternalScene::swapDeformableAttachmentsRigidActor(::physx::PxRigidActor* sourceActor, ::physx::PxRigidActor* destActor)
+void InternalScene::swapDeformableAttachmentsRigidActor(::ev4sio_physx::PxRigidActor* sourceActor, ::ev4sio_physx::PxRigidActor* destActor)
 {
     for (size_t i = 0; i < mDeformableAttachments.size(); i++)
     {
@@ -452,7 +452,7 @@ void InternalScene::removeDeformableCollisionFilters(ObjectId objId)
     }
 }
 
-void InternalScene::swapDeformableCollisionFiltersRigidActor(::physx::PxRigidActor* sourceActor, ::physx::PxRigidActor* destActor)
+void InternalScene::swapDeformableCollisionFiltersRigidActor(::ev4sio_physx::PxRigidActor* sourceActor, ::ev4sio_physx::PxRigidActor* destActor)
 {
     for (size_t i = 0; i < mDeformableCollisionFilters.size(); i++)
     {
@@ -463,7 +463,7 @@ void InternalScene::swapDeformableCollisionFiltersRigidActor(::physx::PxRigidAct
     }
 }
 
-InternalScene::InternalScene(AttachedStage& attachedStage, const PhysxSceneDesc& desc, ::physx::PxScene* scene)
+InternalScene::InternalScene(AttachedStage& attachedStage, const PhysxSceneDesc& desc, ::ev4sio_physx::PxScene* scene)
     : mAttachedStage(attachedStage), mEnabledVehicleCount(0), mVehicleSetEpoch(1),
       mScene(scene), mVolumeDeformablePostSolveCallback(nullptr), mSurfaceDeformablePostSolveCallback(nullptr)
 {
@@ -625,7 +625,7 @@ namespace
 // Forward declaration: defined in the sink-helper anonymous namespace below,
 // but used here by resetStartProperties (which precedes that block).
 void writeLocalTransformMatrixToSink(AttachedStage& as, omni::physics::parse::ObjectKey key,
-                                     const ::physx::PxMat44d& localMatrix, bool setScale);
+                                     const ::ev4sio_physx::PxMat44d& localMatrix, bool setScale);
 void writeArrayToSink(AttachedStage& owner, omni::physics::parse::ObjectKey key, omni::physics::parse::TokenId attr, const void* data,
                       size_t count, omni::physics::parse::DataType type);
 void writeMeshPointsToSink(AttachedStage& owner, omni::physics::parse::ObjectKey key, const carb::Float3* points, size_t count);
@@ -770,7 +770,7 @@ void InternalScene::resetStartProperties(bool useUsdUpdate, bool useVelocitiesUS
             {
                 if (sourceHasArray(as, particleKey, tok.orientations))
                 {
-                    std::vector<::physx::PxQuat> orientations(particleSet->mNumParticles, ::physx::PxQuat(0.0f, 0.0f, 0.0f, 1.0f));
+                    std::vector<::ev4sio_physx::PxQuat> orientations(particleSet->mNumParticles, ::ev4sio_physx::PxQuat(0.0f, 0.0f, 0.0f, 1.0f));
                     writeArrayToSink(mAttachedStage, particleKey, tok.orientations, orientations.data(), orientations.size(),
                                      omni::physics::parse::DataType::e32Bit);
                 }
@@ -943,7 +943,7 @@ void InternalScene::resetStartProperties(bool useUsdUpdate, bool useVelocitiesUS
     }
 }
 
-InternalVehicle* InternalScene::getVehicleBody(const ::physx::PxRigidDynamic& rigidDynamic) const
+InternalVehicle* InternalScene::getVehicleBody(const ::ev4sio_physx::PxRigidDynamic& rigidDynamic) const
 {
     if (!mVehicles.size())
         return nullptr;
@@ -960,7 +960,7 @@ InternalVehicle* InternalScene::getVehicleBody(const ::physx::PxRigidDynamic& ri
 }
 
 void InternalScene::updateVehicleOnMassChange(const PxRigidDynamic& rigidDynamic, const float mass,
-    const ::physx::PxVec3& massSpaceInertiaTensor, const ::physx::PxTransform& centerOfMassFrame)
+    const ::ev4sio_physx::PxVec3& massSpaceInertiaTensor, const ::ev4sio_physx::PxTransform& centerOfMassFrame)
 {
     InternalVehicle* internalVehicle = getVehicleBody(rigidDynamic);
     if (internalVehicle)
@@ -1099,19 +1099,19 @@ namespace
 {
 // Component-wise divide of a body-local velocity by the actor's scale. PxVec3 has no
 // component-wise divide operator, and the scale arrives as a carb::Float3.
-inline ::physx::PxVec3 divideByScale(const ::physx::PxVec3& v, const carb::Float3& scale)
+inline ::ev4sio_physx::PxVec3 divideByScale(const ::ev4sio_physx::PxVec3& v, const carb::Float3& scale)
 {
-    return ::physx::PxVec3(v.x / scale.x, v.y / scale.y, v.z / scale.z);
+    return ::ev4sio_physx::PxVec3(v.x / scale.x, v.y / scale.y, v.z / scale.z);
 }
 
 // Append an actor's WORLD pose to the transform batch. The sink owns the
 // world->local conversion (parent frame) and the residual extra-transform, so
 // the engine just emits the physics-native world pose -- no USD hierarchy math.
-void accumulateSinkTransform(const ::physx::PxTransform& worldPose,
+void accumulateSinkTransform(const ::ev4sio_physx::PxTransform& worldPose,
                              omni::physics::parse::ObjectKey key,
                              std::vector<omni::physics::parse::ObjectKey>& keys,
-                             std::vector<::physx::PxVec3>& positions,
-                             std::vector<::physx::PxQuat>& orientations)
+                             std::vector<::ev4sio_physx::PxVec3>& positions,
+                             std::vector<::ev4sio_physx::PxQuat>& orientations)
 {
     keys.push_back(key);
     positions.push_back(worldPose.p);
@@ -1120,8 +1120,8 @@ void accumulateSinkTransform(const ::physx::PxTransform& worldPose,
 
 // Publish an accumulated transform batch through IPhysicsDataWrite in one call.
 void flushSinkTransforms(AttachedStage& owner, const std::vector<omni::physics::parse::ObjectKey>& keys,
-                         const std::vector<::physx::PxVec3>& positions,
-                         const std::vector<::physx::PxQuat>& orientations)
+                         const std::vector<::ev4sio_physx::PxVec3>& positions,
+                         const std::vector<::ev4sio_physx::PxQuat>& orientations)
 {
     if (keys.empty())
         return;
@@ -1148,8 +1148,8 @@ void flushSinkTransforms(AttachedStage& owner, const std::vector<omni::physics::
 // Publish an accumulated velocity batch (already transformed: local-space and
 // deg/s as appropriate) through IPhysicsDataWrite in one call.
 void flushSinkVelocities(AttachedStage& owner, const std::vector<omni::physics::parse::ObjectKey>& keys,
-                         const std::vector<::physx::PxVec3>& linear,
-                         const std::vector<::physx::PxVec3>& angular)
+                         const std::vector<::ev4sio_physx::PxVec3>& linear,
+                         const std::vector<::ev4sio_physx::PxVec3>& angular)
 {
     if (keys.empty())
         return;
@@ -1192,7 +1192,7 @@ void flushSinkVelocities(AttachedStage& owner, const std::vector<omni::physics::
 // before this can see it.
 //
 bool readInstancerArray(AttachedStage& as, omni::physics::parse::ObjectKey key, omni::physics::parse::TokenId attr,
-                        std::vector<::physx::PxVec3>& out, bool promoteTimeSamplesToDefault)
+                        std::vector<::ev4sio_physx::PxVec3>& out, bool promoteTimeSamplesToDefault)
 {
     if (promoteTimeSamplesToDefault)
     {
@@ -1205,12 +1205,12 @@ bool readInstancerArray(AttachedStage& as, omni::physics::parse::ObjectKey key, 
         return false;
     out.resize(authored.size());
     for (size_t i = 0; i < authored.size(); ++i)
-        out[i] = ::physx::PxVec3(authored[i].x, authored[i].y, authored[i].z);
+        out[i] = ::ev4sio_physx::PxVec3(authored[i].x, authored[i].y, authored[i].z);
     return true;
 }
 
 bool readInstancerArray(AttachedStage& as, omni::physics::parse::ObjectKey key, omni::physics::parse::TokenId attr,
-                        std::vector<::physx::PxQuat>& out, bool promoteTimeSamplesToDefault)
+                        std::vector<::ev4sio_physx::PxQuat>& out, bool promoteTimeSamplesToDefault)
 {
     if (promoteTimeSamplesToDefault)
     {
@@ -1225,7 +1225,7 @@ bool readInstancerArray(AttachedStage& as, omni::physics::parse::ObjectKey key, 
     for (size_t i = 0; i < authored.size(); ++i)
         // The array-read decode ladder (PhysXTools.h) already produces xyzw
         // (PxQuat order) for a quath source -- see its halfBitsToFloat comment.
-        out[i] = ::physx::PxQuat(authored[i].x, authored[i].y, authored[i].z, authored[i].w);
+        out[i] = ::ev4sio_physx::PxQuat(authored[i].x, authored[i].y, authored[i].z, authored[i].w);
     return true;
 }
 
@@ -1235,11 +1235,11 @@ bool readInstancerArray(AttachedStage& as, omni::physics::parse::ObjectKey key, 
 // instancer schema's quath[]. have*/writeVel gate which channels this
 // instancer actually had a resolvable value for (see the call site).
 void flushInstancerArrays(AttachedStage& owner, omni::physics::parse::ObjectKey instancerKey,
-                          bool havePositions, const std::vector<::physx::PxVec3>& positions,
-                          bool haveOrientations, const std::vector<::physx::PxQuat>& orientations,
+                          bool havePositions, const std::vector<::ev4sio_physx::PxVec3>& positions,
+                          bool haveOrientations, const std::vector<::ev4sio_physx::PxQuat>& orientations,
                           bool writeVel,
-                          bool haveLinearVel, const std::vector<::physx::PxVec3>& linVels,
-                          bool haveAngularVel, const std::vector<::physx::PxVec3>& angVels)
+                          bool haveLinearVel, const std::vector<::ev4sio_physx::PxVec3>& linVels,
+                          bool haveAngularVel, const std::vector<::ev4sio_physx::PxVec3>& angVels)
 {
     if (!instancerKey.valid())
         return;
@@ -1286,7 +1286,7 @@ void flushInstancerArrays(AttachedStage& owner, omni::physics::parse::ObjectKey 
 // carry shear a TRS triple cannot represent.
 void writeLocalTransformMatrixToSink(AttachedStage& as,
                                      omni::physics::parse::ObjectKey key,
-                                     const ::physx::PxMat44d& localMatrix,
+                                     const ::ev4sio_physx::PxMat44d& localMatrix,
                                      bool setScale)
 {
     if (omni::physics::parse::IPhysicsDataWrite* dw = as.getDataWrite())
@@ -1363,8 +1363,8 @@ void writeMeshExtentToSink(AttachedStage& owner, omni::physics::parse::ObjectKey
 void InternalScene::updateCctTransforms(bool updateToUsd)
 {
     std::vector<omni::physics::parse::ObjectKey> sinkKeys;
-    std::vector<::physx::PxVec3> sinkPositions;
-    std::vector<::physx::PxQuat> sinkOrientations;
+    std::vector<::ev4sio_physx::PxVec3> sinkPositions;
+    std::vector<::ev4sio_physx::PxQuat> sinkOrientations;
 
     CctMap::iterator it = mCctMap.begin();
     while (it != mCctMap.end())
@@ -1423,10 +1423,10 @@ void InternalScene::updateRigidBodyTransforms(bool updateToUsd,
     // the sink's element types (vec3 float, quat xyzw float). Seeded from the
     // authored arrays on each instancer switch, so instances this scene does not
     // simulate keep their authored values.
-    std::vector<::physx::PxVec3> positionValues;
-    std::vector<::physx::PxQuat> orientationValues;
-    std::vector<::physx::PxVec3> linearVelocityValues;
-    std::vector<::physx::PxVec3> angularVelocityValues;
+    std::vector<::ev4sio_physx::PxVec3> positionValues;
+    std::vector<::ev4sio_physx::PxQuat> orientationValues;
+    std::vector<::ev4sio_physx::PxVec3> linearVelocityValues;
+    std::vector<::ev4sio_physx::PxVec3> angularVelocityValues;
 
     SimulationCallbacks* cb = &mAttachedStage.getSimulationCallbacks();
     const bool skipWriteTransforms = cb->checkGlobalSimulationFlags(GlobalSimulationFlag::eTRANSFORMATION | GlobalSimulationFlag::eSKIP_WRITE);
@@ -1452,14 +1452,14 @@ void InternalScene::updateRigidBodyTransforms(bool updateToUsd,
         // IPhysicsDataWrite, flushed in one call after the loop. The sink authors
         // ancestor-first, so nested bodies don't need a separate deferred pass.
         std::vector<omni::physics::parse::ObjectKey> sinkKeys;
-        std::vector<::physx::PxVec3> sinkPositions;
-        std::vector<::physx::PxQuat> sinkOrientations;
+        std::vector<::ev4sio_physx::PxVec3> sinkPositions;
+        std::vector<::ev4sio_physx::PxQuat> sinkOrientations;
 
         // Velocity batch (values already transformed to local-space / deg-s as
         // needed), flushed through the sink after the loop.
         std::vector<omni::physics::parse::ObjectKey> velKeys;
-        std::vector<::physx::PxVec3> velLinear;
-        std::vector<::physx::PxVec3> velAngular;
+        std::vector<::ev4sio_physx::PxVec3> velLinear;
+        std::vector<::ev4sio_physx::PxVec3> velAngular;
         const bool hasReleasedActors = hasReleasedActiveActors();
 
         for (PxU32 i = 0; i < nbActors; i++)
@@ -2047,7 +2047,7 @@ void InternalScene::updateDeformableTransforms(bool updateToUsd, bool updateVelo
         // update skin meshes
         if (mVolumeDeformablePostSolveCallback && deformableBody->mNumSkinMeshVertices > 0)
         {
-            const ::physx::PxVec3* srcPtr = deformableBody->mAllSkinnedVerticesH;
+            const ::ev4sio_physx::PxVec3* srcPtr = deformableBody->mAllSkinnedVerticesH;
             for (size_t i = 0; i < deformableBody->mSkinMeshKeys.size(); ++i)
             {
                 const omni::physics::parse::ObjectKey skinKey = deformableBody->mSkinMeshKeys[i];
@@ -2072,7 +2072,7 @@ void InternalScene::updateDeformableTransforms(bool updateToUsd, bool updateVelo
             const PxMat44d& worldToSimMesh = deformableBody->mWorldToSimMesh;
             std::vector<carb::Float3> points;
             {
-                const ::physx::PxVec4* srcPtr = deformableBody->mSimMeshPositionInvMassH;
+                const ::ev4sio_physx::PxVec4* srcPtr = deformableBody->mSimMeshPositionInvMassH;
                 const uint32_t srcSize = deformableBody->mNumSimMeshVertices;
                 getArrayValue(*attachedStage, simKey, tok.points, omni::physics::parse::ReadTime::defaultTime(), points);
                 if (points.size() == srcSize)
@@ -2085,7 +2085,7 @@ void InternalScene::updateDeformableTransforms(bool updateToUsd, bool updateVelo
 
             if (updateVelocitiesToUsd)
             {
-                const ::physx::PxVec4* srcPtr = deformableBody->mSimMeshVelocityH;
+                const ::ev4sio_physx::PxVec4* srcPtr = deformableBody->mSimMeshVelocityH;
                 const uint32_t srcSize = deformableBody->mNumSimMeshVertices;
                 if (points.size() == srcSize)
                 {
@@ -2099,7 +2099,7 @@ void InternalScene::updateDeformableTransforms(bool updateToUsd, bool updateVelo
             const PxMat44d& worldToCollMesh = deformableBody->mWorldToCollMesh;
             if (collKey != simKey)
             {
-                const ::physx::PxVec4* srcPtr = deformableBody->mCollMeshPositionInvMassH;
+                const ::ev4sio_physx::PxVec4* srcPtr = deformableBody->mCollMeshPositionInvMassH;
                 const uint32_t srcSize = deformableBody->mNumCollMeshVertices;
                 std::vector<carb::Float3> collPoints;
                 getArrayValue(*attachedStage, collKey, tok.points, omni::physics::parse::ReadTime::defaultTime(), collPoints);
@@ -2132,7 +2132,7 @@ void InternalScene::updateDeformableTransforms(bool updateToUsd, bool updateVelo
         // update skin meshes
         if (mSurfaceDeformablePostSolveCallback && deformableBody->mNumSkinMeshVertices > 0)
         {
-            const ::physx::PxVec3* srcPtr = deformableBody->mAllSkinnedVerticesH;
+            const ::ev4sio_physx::PxVec3* srcPtr = deformableBody->mAllSkinnedVerticesH;
             for (size_t i = 0; i < deformableBody->mSkinMeshKeys.size(); ++i)
             {
                 const omni::physics::parse::ObjectKey skinKey = deformableBody->mSkinMeshKeys[i];
@@ -2155,7 +2155,7 @@ void InternalScene::updateDeformableTransforms(bool updateToUsd, bool updateVelo
             const PxMat44d& worldToSimMesh = deformableBody->mWorldToSimMesh;
             std::vector<carb::Float3> points;
             {
-                const ::physx::PxVec4* srcPtr = deformableBody->mSimMeshPositionInvMassH;
+                const ::ev4sio_physx::PxVec4* srcPtr = deformableBody->mSimMeshPositionInvMassH;
                 const uint32_t srcSize = deformableBody->mNumSimMeshVertices;
                 getArrayValue(*attachedStage, simKey, tok.points, omni::physics::parse::ReadTime::defaultTime(), points);
                 if (points.size() == srcSize)
@@ -2168,7 +2168,7 @@ void InternalScene::updateDeformableTransforms(bool updateToUsd, bool updateVelo
 
             if (updateVelocitiesToUsd)
             {
-                const ::physx::PxVec4* srcPtr = deformableBody->mSimMeshVelocityH;
+                const ::ev4sio_physx::PxVec4* srcPtr = deformableBody->mSimMeshVelocityH;
                 const uint32_t srcSize = deformableBody->mNumSimMeshVertices;
                 if (points.size() == srcSize)
                 {
@@ -2189,9 +2189,9 @@ void InternalScene::updateDeformableTransforms(bool updateToUsd, bool updateVelo
 }
 
 // Declared in InternalScene.h. The definition must be namespace-qualified: a
-// "using namespace omni::physx::internal;" in scope would silently define an unrelated
+// "using namespace omni::ev4sio_physx::internal;" in scope would silently define an unrelated
 // global-scope function and leave the declared one undefined at link time.
-const char* omni::physx::internal::jointStateAxisName(usdparser::ObjectType jointType, ::physx::PxArticulationAxis::Enum physxAxis)
+const char* omni::ev4sio_physx::internal::jointStateAxisName(usdparser::ObjectType jointType, ::ev4sio_physx::PxArticulationAxis::Enum physxAxis)
 {
     switch (jointType)
     {
@@ -2200,11 +2200,11 @@ const char* omni::physx::internal::jointStateAxisName(usdparser::ObjectType join
         case usdparser::eJointD6:
             switch (physxAxis)
             {
-                case ::physx::PxArticulationAxis::eX: return "transX";
-                case ::physx::PxArticulationAxis::eY: return "transY";
-                case ::physx::PxArticulationAxis::eZ: return "transZ";
-                case ::physx::PxArticulationAxis::eSWING1: return "rotY";
-                case ::physx::PxArticulationAxis::eSWING2: return "rotZ";
+                case ::ev4sio_physx::PxArticulationAxis::eX: return "transX";
+                case ::ev4sio_physx::PxArticulationAxis::eY: return "transY";
+                case ::ev4sio_physx::PxArticulationAxis::eZ: return "transZ";
+                case ::ev4sio_physx::PxArticulationAxis::eSWING1: return "rotY";
+                case ::ev4sio_physx::PxArticulationAxis::eSWING2: return "rotZ";
                 default: return "rotX"; // eTWIST and any other axis
             }
         case usdparser::eJointRevolute:
@@ -2223,7 +2223,7 @@ void InternalScene::updateJointState(AttachedStage* attachedStage, const Interna
     omni::physics::parse::IPhysicsSource* src = attachedStage->getSource();
 
     InternalJoint* intJoint = (InternalJoint*)record.mInternalPtr;
-    ::physx::PxArticulationJointReducedCoordinate* joint = (::physx::PxArticulationJointReducedCoordinate*)record.mPtr;
+    ::ev4sio_physx::PxArticulationJointReducedCoordinate* joint = (::ev4sio_physx::PxArticulationJointReducedCoordinate*)record.mPtr;
 
     for (size_t idx = 0; idx < 6; ++idx)
     {
@@ -2349,7 +2349,7 @@ void InternalScene::removeMimicJointMapEntries(InternalMimicJoint& mimicJoint)
     removeMimicJointMapEntry(mimicJoint.getReferenceJoint(), &mimicJoint);
 }
 
-void InternalScene::releasePhysXMimicJoints(const ::physx::PxArticulationJointReducedCoordinate& pxJoint)
+void InternalScene::releasePhysXMimicJoints(const ::ev4sio_physx::PxArticulationJointReducedCoordinate& pxJoint)
 {
     std::pair<JointToMimicJointMap::iterator, JointToMimicJointMap::iterator> pairIter = mJointToMimicJointMap.equal_range(&pxJoint);
 
@@ -2357,14 +2357,14 @@ void InternalScene::releasePhysXMimicJoints(const ::physx::PxArticulationJointRe
 
     if (it != pairIter.second)
     {
-        std::vector<std::pair<const ::physx::PxArticulationJointReducedCoordinate*, InternalMimicJoint*> > otherJointPairList;
+        std::vector<std::pair<const ::ev4sio_physx::PxArticulationJointReducedCoordinate*, InternalMimicJoint*> > otherJointPairList;
         // in theory, a joint can have an arbitrary number of mimic joints (even though the behavior would be
         // arbitrary), thus using an array that can grow and not something of fixed size
 
         do
         {
             InternalMimicJoint* mimicJoint = it->second;
-            const ::physx::PxArticulationJointReducedCoordinate* targetJoint = mimicJoint->getTargetJoint();
+            const ::ev4sio_physx::PxArticulationJointReducedCoordinate* targetJoint = mimicJoint->getTargetJoint();
 
             // since both joints of a mimic have an entry in the map, the other joint is temporarily stored
             // such that it can get removed after this loop
@@ -2382,14 +2382,14 @@ void InternalScene::releasePhysXMimicJoints(const ::physx::PxArticulationJointRe
         }
         while (it != pairIter.second);
 
-        for (const std::pair<const ::physx::PxArticulationJointReducedCoordinate*, InternalMimicJoint*>& pair : otherJointPairList)
+        for (const std::pair<const ::ev4sio_physx::PxArticulationJointReducedCoordinate*, InternalMimicJoint*>& pair : otherJointPairList)
         {
             removeMimicJointMapEntry(pair.first, pair.second);
         }
     }
 }
 
-bool InternalScene::hasMimicJoint(const ::physx::PxArticulationJointReducedCoordinate& pxJoint) const
+bool InternalScene::hasMimicJoint(const ::ev4sio_physx::PxArticulationJointReducedCoordinate& pxJoint) const
 {
     std::pair<JointToMimicJointMap::const_iterator, JointToMimicJointMap::const_iterator> pairIter = mJointToMimicJointMap.equal_range(&pxJoint);
 
@@ -2422,11 +2422,11 @@ PxQuat InternalJoint::getLocalPoseFixupQuat() const
     PxQuat ret = PxQuat(PxIdentity);
 
     // no fix required for eX
-    if (mAxis == omni::physx::usdparser::Axis::eX)
+    if (mAxis == omni::ev4sio_physx::usdparser::Axis::eX)
         return ret;
 
     const float hRt2 = sqrt(2.0f) / 2.0f;
-    if (mAxis == omni::physx::usdparser::Axis::eY)
+    if (mAxis == omni::ev4sio_physx::usdparser::Axis::eY)
     {
         // rotate x-axis to y-axis with a +90 deg rot around z
         ret = PxQuat(0.0f, 0.0f, hRt2, hRt2);
@@ -2434,7 +2434,7 @@ PxQuat InternalJoint::getLocalPoseFixupQuat() const
         if (mJointType == usdparser::eJointSpherical)
             ret *= PxQuat(hRt2, 0.0f, 0.0f, hRt2);
     }
-    else if (mAxis == omni::physx::usdparser::Axis::eZ)
+    else if (mAxis == omni::ev4sio_physx::usdparser::Axis::eZ)
     {
         // rotate x-axis to z-axis with a -90 deg rot around y
         ret = PxQuat(0.0f, -hRt2, 0.0f, hRt2);
@@ -2446,12 +2446,12 @@ PxQuat InternalJoint::getLocalPoseFixupQuat() const
     return ret;
 }
 
-void InternalJoint::fixupLocalPose(::physx::PxTransform& localPose) const
+void InternalJoint::fixupLocalPose(::ev4sio_physx::PxTransform& localPose) const
 {
     localPose.q *= getLocalPoseFixupQuat();
 }
 
-void InternalJoint::setArticulationJointLimits(::physx::PxArticulationJointReducedCoordinate* joint, ::physx::PxArticulationAxis::Enum axis, float usdLowLimit, float usdHighLimit) const
+void InternalJoint::setArticulationJointLimits(::ev4sio_physx::PxArticulationJointReducedCoordinate* joint, ::ev4sio_physx::PxArticulationAxis::Enum axis, float usdLowLimit, float usdHighLimit) const
 {
     if (usdLowLimit > usdHighLimit)
         return;
@@ -2471,7 +2471,7 @@ void InternalJoint::setArticulationJointLimits(::physx::PxArticulationJointReduc
     }
 }
 
-void InternalJoint::updateArticulationJointLimitLow(::physx::PxArticulationJointReducedCoordinate* joint, ::physx::PxArticulationAxis::Enum axis, float usdLowLimit) const
+void InternalJoint::updateArticulationJointLimitLow(::ev4sio_physx::PxArticulationJointReducedCoordinate* joint, ::ev4sio_physx::PxArticulationAxis::Enum axis, float usdLowLimit) const
 {
     // Same conversion as setArticulationJointLimits, so an open bound applies as on creation.
     usdLowLimit = toArticulationLimitBound(joint->getJointType(), usdLowLimit);
@@ -2495,7 +2495,7 @@ void InternalJoint::updateArticulationJointLimitLow(::physx::PxArticulationJoint
     }
 }
 
-void InternalJoint::updateArticulationJointLimitHigh(::physx::PxArticulationJointReducedCoordinate* joint, ::physx::PxArticulationAxis::Enum axis, float usdHighLimit) const
+void InternalJoint::updateArticulationJointLimitHigh(::ev4sio_physx::PxArticulationJointReducedCoordinate* joint, ::ev4sio_physx::PxArticulationAxis::Enum axis, float usdHighLimit) const
 {
     // Same conversion as setArticulationJointLimits, so an open bound applies as on creation.
     usdHighLimit = toArticulationLimitBound(joint->getJointType(), usdHighLimit);
@@ -2520,7 +2520,7 @@ void InternalJoint::updateArticulationJointLimitHigh(::physx::PxArticulationJoin
 }
 
 
-void InternalJoint::setArticulationDrivePositionTarget(::physx::PxArticulationJointReducedCoordinate* joint, ::physx::PxArticulationAxis::Enum axis, float positionTarget, const usdparser::AttachedStage* owner, omni::physics::parse::ObjectKey jointKey) const
+void InternalJoint::setArticulationDrivePositionTarget(::ev4sio_physx::PxArticulationJointReducedCoordinate* joint, ::ev4sio_physx::PxArticulationAxis::Enum axis, float positionTarget, const usdparser::AttachedStage* owner, omni::physics::parse::ObjectKey jointKey) const
 {
     if (positionTarget >= (2.0f * M_PI) || positionTarget <= -(2.0f * M_PI))
     {
@@ -2541,34 +2541,34 @@ void InternalJoint::setArticulationDrivePositionTarget(::physx::PxArticulationJo
     joint->setDriveTarget(axis, mBody0IsParentLink ? positionTarget : -positionTarget);
 }
 
-void InternalJoint::setArticulationDriveVelocityTarget(::physx::PxArticulationJointReducedCoordinate* joint, ::physx::PxArticulationAxis::Enum axis, float velocityTarget) const
+void InternalJoint::setArticulationDriveVelocityTarget(::ev4sio_physx::PxArticulationJointReducedCoordinate* joint, ::ev4sio_physx::PxArticulationAxis::Enum axis, float velocityTarget) const
 {
     joint->setDriveVelocity(axis, mBody0IsParentLink ? velocityTarget : -velocityTarget);
 }
 
-void InternalJoint::setArticulationJointPosition(::physx::PxArticulationJointReducedCoordinate* joint, ::physx::PxArticulationAxis::Enum axis, float position) const
+void InternalJoint::setArticulationJointPosition(::ev4sio_physx::PxArticulationJointReducedCoordinate* joint, ::ev4sio_physx::PxArticulationAxis::Enum axis, float position) const
 {
     joint->setJointPosition(axis, mBody0IsParentLink ? position : -position);
 }
 
-void InternalJoint::setArticulationJointVelocity(::physx::PxArticulationJointReducedCoordinate* joint, ::physx::PxArticulationAxis::Enum axis, float velocity) const
+void InternalJoint::setArticulationJointVelocity(::ev4sio_physx::PxArticulationJointReducedCoordinate* joint, ::ev4sio_physx::PxArticulationAxis::Enum axis, float velocity) const
 {
     joint->setJointVelocity(axis, mBody0IsParentLink ? velocity : -velocity);
 }
 
-float InternalJoint::getArticulationJointPosition(::physx::PxArticulationJointReducedCoordinate* joint, ::physx::PxArticulationAxis::Enum axis) const
+float InternalJoint::getArticulationJointPosition(::ev4sio_physx::PxArticulationJointReducedCoordinate* joint, ::ev4sio_physx::PxArticulationAxis::Enum axis) const
 {
     const float position = joint->getJointPosition(axis);
     return mBody0IsParentLink ? position : -position;
 }
 
-float InternalJoint::getArticulationJointVelocity(::physx::PxArticulationJointReducedCoordinate* joint, ::physx::PxArticulationAxis::Enum axis) const
+float InternalJoint::getArticulationJointVelocity(::ev4sio_physx::PxArticulationJointReducedCoordinate* joint, ::ev4sio_physx::PxArticulationAxis::Enum axis) const
 {
     const float velocity = joint->getJointVelocity(axis);
     return mBody0IsParentLink ? velocity : -velocity;
 }
 
-void InternalScene::debugDraw(omni::physx::OmniRenderBuffer& renderBuffer, uint64_t debugDrawFlags)
+void InternalScene::debugDraw(omni::ev4sio_physx::OmniRenderBuffer& renderBuffer, uint64_t debugDrawFlags)
 {
     if (debugDrawFlags & InternalDebugDrawFlags::eDEBUG_DRAW_SPLINES_SEGMENTS)
     {
@@ -2607,7 +2607,7 @@ void InternalScene::moveForcesForActor(const PxRigidActor* actor, InternalScene&
     }
 }
 
-void omni::physx::internal::swapForceActorsAllScenes(const usdparser::AttachedStage& attachedStage, PxRigidActor* actor0, PxRigidActor* actor1)
+void omni::ev4sio_physx::internal::swapForceActorsAllScenes(const usdparser::AttachedStage& attachedStage, PxRigidActor* actor0, PxRigidActor* actor1)
 {
     if (!actor0)
     {

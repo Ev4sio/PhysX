@@ -23,7 +23,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace tensors
 {
@@ -227,7 +227,7 @@ inline const char* dofPropertyLabel(DofProperty prop)
 }
 
 } // namespace tensors
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni
 
 // Scoped to this header, as InstancerReframe.h does with OVX_INSTANCER_HD: every use is above, and

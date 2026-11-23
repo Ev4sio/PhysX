@@ -9,7 +9,7 @@
 #include <cmath>
 #include <limits>
 
-namespace omni::physx::authoring
+namespace omni::ev4sio_physx::authoring
 {
 namespace {
 struct Vec {
@@ -18,7 +18,7 @@ struct Vec {
     Vec operator-(Vec b) const { return {x-b.x,y-b.y,z-b.z}; }
     Vec operator*(double s) const { return {x*s,y*s,z*s}; }
 };
-Vec toVec(const ::physx::PxVec3& v) { return {v.x,v.y,v.z}; }
+Vec toVec(const ::ev4sio_physx::PxVec3& v) { return {v.x,v.y,v.z}; }
 double dot(Vec a, Vec b) { return a.x*b.x+a.y*b.y+a.z*b.z; }
 Vec cross(Vec a, Vec b) { return {a.y*b.z-a.z*b.y,a.z*b.x-a.x*b.z,a.x*b.y-a.y*b.x}; }
 using Weights = std::array<double, 4>;
@@ -53,7 +53,7 @@ Vec evaluate(const std::array<Vec,4>& v, const Weights& w, uint32_t width) {
     for (uint32_t k=0;k<width;++k) result=result+v[k]*w[k];
     return result;
 }
-bool topology(const ::physx::PxVec3* vertices, uint32_t vertexCount,
+bool topology(const ::ev4sio_physx::PxVec3* vertices, uint32_t vertexCount,
               const uint32_t* indices, uint32_t elementCount, uint32_t width, uint32_t& invalid, bool checkDegeneracy=true) {
     invalid=UINT32_MAX;
     if ((width!=3 && width!=4) || (!vertices && vertexCount) || (!indices && elementCount) ||
@@ -79,9 +79,9 @@ bool topology(const ::physx::PxVec3* vertices, uint32_t vertexCount,
 }
 }
 
-bool embedPoints(const ::physx::PxVec3* vertices, uint32_t vertexCount,
+bool embedPoints(const ::ev4sio_physx::PxVec3* vertices, uint32_t vertexCount,
     const uint32_t* indices, uint32_t elementCount, uint32_t width,
-    const ::physx::PxVec3* points, uint32_t pointCount, float maxDistance,
+    const ::ev4sio_physx::PxVec3* points, uint32_t pointCount, float maxDistance,
     ElementMapping& output, uint32_t& invalidElement)
 {
     invalidElement=UINT32_MAX;
@@ -142,15 +142,15 @@ bool embedPoints(const ::physx::PxVec3* vertices, uint32_t vertexCount,
     return true;
 }
 
-bool interpolateElements(const ::physx::PxVec3* vertices, uint32_t vertexCount,
+bool interpolateElements(const ::ev4sio_physx::PxVec3* vertices, uint32_t vertexCount,
     const uint32_t* indices, uint32_t elementCount, uint32_t width,
     const int32_t* elements, const float* weights, const float* normalOffsets,
-    uint32_t pointCount, std::vector<::physx::PxVec3>& output)
+    uint32_t pointCount, std::vector<::ev4sio_physx::PxVec3>& output)
 {
     uint32_t invalid;
     if ((pointCount && (!elements || !weights || !normalOffsets)) ||
         !topology(vertices,vertexCount,indices,elementCount,width,invalid,false)) return false;
-    std::vector<::physx::PxVec3> result;
+    std::vector<::ev4sio_physx::PxVec3> result;
     result.reserve(pointCount);
     for (uint32_t i=0;i<pointCount;++i) {
         if (elements[i]<0 || uint32_t(elements[i])>=elementCount || !std::isfinite(normalOffsets[i]) ||
@@ -181,14 +181,14 @@ bool interpolateElements(const ::physx::PxVec3* vertices, uint32_t vertexCount,
     return true;
 }
 
-bool interpolateElementVelocities(const ::physx::PxVec3* vertices,
-    const ::physx::PxVec3* velocities, uint32_t vertexCount,
+bool interpolateElementVelocities(const ::ev4sio_physx::PxVec3* vertices,
+    const ::ev4sio_physx::PxVec3* velocities, uint32_t vertexCount,
     const uint32_t* indices, uint32_t elementCount, uint32_t width,
     const int32_t* elements, const float* weights, const float* normalOffsets,
-    uint32_t pointCount, std::vector<::physx::PxVec3>& output)
+    uint32_t pointCount, std::vector<::ev4sio_physx::PxVec3>& output)
 {
     // Validate geometry, topology, mapping and vector fields before publishing.
-    std::vector<::physx::PxVec3> result;
+    std::vector<::ev4sio_physx::PxVec3> result;
     if (!interpolateElements(vertices, vertexCount, indices, elementCount, width,
             elements, weights, normalOffsets, pointCount, result)) return false;
     std::vector<float> zeroOffsets(pointCount, 0);
@@ -211,7 +211,7 @@ bool interpolateElementVelocities(const ::physx::PxVec3* vertices,
         const double limit=std::numeric_limits<float>::max();
         if (!std::isfinite(value.x) || !std::isfinite(value.y) || !std::isfinite(value.z) ||
             std::abs(value.x)>limit || std::abs(value.y)>limit || std::abs(value.z)>limit) return false;
-        result[i] = ::physx::PxVec3(float(value.x),float(value.y),float(value.z));
+        result[i] = ::ev4sio_physx::PxVec3(float(value.x),float(value.y),float(value.z));
     }
     output=std::move(result);
     return true;
@@ -252,9 +252,9 @@ double triangleDistanceSquared(const std::array<Vec,4>& a, const std::array<Vec,
 }
 }
 
-bool triangleFilterPairs(const ::physx::PxVec3* vertices0, uint32_t vertexCount0,
+bool triangleFilterPairs(const ::ev4sio_physx::PxVec3* vertices0, uint32_t vertexCount0,
     const uint32_t* triangles0, uint32_t triangleCount0,
-    const ::physx::PxVec3* vertices1, uint32_t vertexCount1,
+    const ::ev4sio_physx::PxVec3* vertices1, uint32_t vertexCount1,
     const uint32_t* triangles1, uint32_t triangleCount1,
     float maxDistance, uint32_t maxPairs, std::vector<uint32_t>& output)
 {

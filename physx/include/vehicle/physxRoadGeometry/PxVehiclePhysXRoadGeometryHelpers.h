@@ -9,7 +9,7 @@
 #include "foundation/PxPreprocessor.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 
 class PxConvexMesh;
@@ -38,7 +38,7 @@ PxConvexMesh* PxVehicleUnitCylinderSweepMeshCreate(const PxVehicleFrame& vehicle
 void PxVehicleUnitCylinderSweepMeshDestroy(PxConvexMesh* mesh);
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

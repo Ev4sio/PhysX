@@ -28,7 +28,7 @@
 namespace snippetvehicle
 {
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 bool openDocument(const char* directory, const char* filename, rapidjson::Document&);
 

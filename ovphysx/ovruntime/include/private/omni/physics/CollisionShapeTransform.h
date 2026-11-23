@@ -24,7 +24,7 @@ namespace omni::physics
 
 // Shared descriptor math; callers provide matrices from their own source.
 //
-// Matrices are ::physx::PxMat44d -- the same sixteen doubles a GfMatrix4d holds,
+// Matrices are ::ev4sio_physx::PxMat44d -- the same sixteen doubles a GfMatrix4d holds,
 // read column-major (see common/foundation/MatrixTools.h). This header is
 // deliberately Gf-free: it is included by both the USD and the ovstage walker,
 // and the ovstage backend must not pull in pxr. A USD caller converts at the
@@ -41,23 +41,23 @@ namespace omni::physics
 // (`gfmath::decomposeWithPivot`) throughout to keep collision-shape local
 // pose/scale numerically unchanged from the pre-port behaviour instead of
 // switching to the polar-style factor.
-inline void decomposeCollisionShapeLocalTransform(const ::physx::PxMat44d& shapeToBody,
-                                                  const ::physx::PxMat44d& bodyToWorld,
+inline void decomposeCollisionShapeLocalTransform(const ::ev4sio_physx::PxMat44d& shapeToBody,
+                                                  const ::ev4sio_physx::PxMat44d& bodyToWorld,
                                                   carb::Float3& outLocalPos,
                                                   carb::Float4& outLocalRot,
                                                   carb::Float3& outLocalScale)
 {
-    const omni::physx::gfmath::PivotTransform shapeLocal = omni::physx::gfmath::decomposeWithPivot(shapeToBody);
-    const ::physx::PxQuatd shapeLocalRot = omni::physx::gfmath::getQuat(shapeLocal.rotation);
+    const omni::ev4sio_physx::gfmath::PivotTransform shapeLocal = omni::ev4sio_physx::gfmath::decomposeWithPivot(shapeToBody);
+    const ::ev4sio_physx::PxQuatd shapeLocalRot = omni::ev4sio_physx::gfmath::getQuat(shapeLocal.rotation);
 
     // PhysX actors carry no body scale, so bake it into the child offset.
     // `bodyToWorld` can carry shear (non-uniform ancestor scale plus a
     // rotation below it in the chain to the body), so this must go through
     // the same pivot decomposition as the shape-local part above, not
-    // `omni::physx::getScale` (MatrixTools.h documents ~40% scale divergence
+    // `omni::ev4sio_physx::getScale` (MatrixTools.h documents ~40% scale divergence
     // between the two on sheared input).
-    const ::physx::PxVec3d bodyScaleD = omni::physx::gfmath::decomposeWithPivot(bodyToWorld).scale;
-    const ::physx::PxVec3 bodyScale(float(bodyScaleD.x), float(bodyScaleD.y), float(bodyScaleD.z));
+    const ::ev4sio_physx::PxVec3d bodyScaleD = omni::ev4sio_physx::gfmath::decomposeWithPivot(bodyToWorld).scale;
+    const ::ev4sio_physx::PxVec3 bodyScale(float(bodyScaleD.x), float(bodyScaleD.y), float(bodyScaleD.z));
 
     outLocalPos = { float(shapeLocal.translation.x * bodyScale.x), float(shapeLocal.translation.y * bodyScale.y),
                     float(shapeLocal.translation.z * bodyScale.z) };

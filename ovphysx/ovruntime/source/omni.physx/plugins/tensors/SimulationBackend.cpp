@@ -56,11 +56,11 @@
 #include <common/utilities/PhysXErrorCallback.h>
 static CarbPhysXErrorCallback gErrorCallback;
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace tensors
 {
@@ -70,14 +70,14 @@ namespace
 // Backend-level destruction hook. Distinct from the per-view subscriptions, which only invalidate
 // the view that owns them: this one exists so the per-stage data is dropped even when no view is
 // alive to observe the deletion.
-void onPhysXObjectDestroyedCallback(const omni::physx::PhysicsObjectChangeEvent& event, void* userData)
+void onPhysXObjectDestroyedCallback(const omni::ev4sio_physx::PhysicsObjectChangeEvent& event, void* userData)
 {
-    const omni::physx::PhysXType type = event.type;
+    const omni::ev4sio_physx::PhysXType type = event.type;
     if (!userData || !g_physx)
         return;
 
     SimulationBackend* backend = static_cast<SimulationBackend*>(userData);
-    if (type == omni::physx::ePTScene)
+    if (type == omni::ev4sio_physx::ePTScene)
     {
         backend->onSceneDestroyed(static_cast<PxScene*>(event.nativeObject));
     }
@@ -89,7 +89,7 @@ SimulationBackend::SimulationBackend()
 {
     if (g_physx)
     {
-        omni::physx::IPhysicsObjectChangeCallback callback;
+        omni::ev4sio_physx::IPhysicsObjectChangeCallback callback;
         callback.objectDestructionNotifyFn = onPhysXObjectDestroyedCallback;
         callback.allObjectsDestructionNotifyFn = [](omni::physics::AttachHandle attach, void* userData) {
             static_cast<SimulationBackend*>(userData)->resetStage(attach);
@@ -99,7 +99,7 @@ SimulationBackend::SimulationBackend()
         mObjectChangeSubscriptionId = getPhysXUsdPhysicsInterface().subscribeToObjectChangeNotifications(callback);
     }
 
-    if (mObjectChangeSubscriptionId == omni::physx::kInvalidSubscriptionId)
+    if (mObjectChangeSubscriptionId == omni::ev4sio_physx::kInvalidSubscriptionId)
     {
         CARB_LOG_ERROR(
             "Failed to subscribe to physics object change notifications; simulation data for a replaced physics scene will not be rebuilt");
@@ -108,11 +108,11 @@ SimulationBackend::SimulationBackend()
 
 void SimulationBackend::shutdown()
 {
-    if (g_physx && mObjectChangeSubscriptionId != omni::physx::kInvalidSubscriptionId)
+    if (g_physx && mObjectChangeSubscriptionId != omni::ev4sio_physx::kInvalidSubscriptionId)
     {
         g_physx->unsubscribeObjectChangeNotifications(mObjectChangeSubscriptionId);
     }
-    mObjectChangeSubscriptionId = omni::physx::kInvalidSubscriptionId;
+    mObjectChangeSubscriptionId = omni::ev4sio_physx::kInvalidSubscriptionId;
 
     // ~SimulationBackend calls only this, never reset(), so for a backend torn down without a reset
     // this is the last chance to free the views it owns. Safe to run twice: takeOwnedViews() clears
@@ -296,7 +296,7 @@ bool SimulationBackend::updateArticulationsKinematic(AttachHandle attachHandle)
 // from articulationStrides, the function GpuSimulationData::init sizes its buffers with, so the two cannot
 // diverge: a divergence would either never match (the cache silently never hits) or match when the buffers were
 // sized differently (the crash this validation exists to prevent).
-void SimulationBackend::sceneTopology(::physx::PxScene* scene, SceneTopology& t)
+void SimulationBackend::sceneTopology(::ev4sio_physx::PxScene* scene, SceneTopology& t)
 {
     t = SceneTopology{};
     t.numRds = scene->getNbActors(PxActorTypeFlag::eRIGID_DYNAMIC);
@@ -306,7 +306,7 @@ void SimulationBackend::sceneTopology(::physx::PxScene* scene, SceneTopology& t)
     articulationStrides(scene, t.maxLinks, t.maxDofs, t.maxFixedTendons, t.maxSpatialTendons);
 }
 
-bool SimulationBackend::gpuSimDataShapeMatches(const GpuSimulationData& data, ::physx::PxScene* scene)
+bool SimulationBackend::gpuSimDataShapeMatches(const GpuSimulationData& data, ::ev4sio_physx::PxScene* scene)
 {
     SceneTopology now;
     sceneTopology(scene, now);
@@ -317,7 +317,7 @@ bool SimulationBackend::gpuSimDataShapeMatches(const GpuSimulationData& data, ::
 
 // The AttachedStage that owns `scene`. Null for a scene with no live attach, which the view
 // constructors accept -- a stageless attach has no UsdStage behind it and never dereferences one.
-usdparser::AttachedStage* SimulationBackend::attachedStageFor(const ::physx::PxScene* scene) const
+usdparser::AttachedStage* SimulationBackend::attachedStageFor(const ::ev4sio_physx::PxScene* scene) const
 {
     const AttachHandle handle = attachOwning(scene);
     return handle == omni::physics::kNoAttach ?
@@ -326,13 +326,13 @@ usdparser::AttachedStage* SimulationBackend::attachedStageFor(const ::physx::PxS
 }
 
 // A scene's actual owner supplies the cache identity. Foreign native scenes have none.
-AttachHandle SimulationBackend::attachOwning(const ::physx::PxScene* scene) const
+AttachHandle SimulationBackend::attachOwning(const ::ev4sio_physx::PxScene* scene) const
 {
     const PhysXScene* owner = OmniPhysX::getInstance().getPhysXSetup().findPhysXScene(scene);
     return owner ? owner->getAttachedStage().getAttachHandle() : omni::physics::kNoAttach;
 }
 
-GpuSimulationDataPtr SimulationBackend::ensureGpuSimDataLocked(AttachHandle attachHandle, ::physx::PxScene* scene)
+GpuSimulationDataPtr SimulationBackend::ensureGpuSimDataLocked(AttachHandle attachHandle, ::ev4sio_physx::PxScene* scene)
 {
     // init() sizes every device buffer from the scene's counts and there is no resize path, so data
     // built for a smaller scene must not be reused for a grown one: a view passes its own larger
@@ -368,7 +368,7 @@ GpuSimulationDataPtr SimulationBackend::ensureGpuSimDataLocked(AttachHandle atta
     return data;
 }
 
-bool SimulationBackend::sceneCacheEntryValid(const SceneCacheEntry& entry, ::physx::PxScene* scene)
+bool SimulationBackend::sceneCacheEntryValid(const SceneCacheEntry& entry, ::ev4sio_physx::PxScene* scene)
 {
     if (entry.scene != scene)
         return false;
@@ -445,7 +445,7 @@ void SimulationBackend::takeSceneCacheViews(SceneCacheEntry& entry, std::vector<
     entry.supersetView = nullptr; // the superset rigid/articulation views are its children
 }
 
-void SimulationBackend::invalidateSceneCache(::physx::PxScene* scene)
+void SimulationBackend::invalidateSceneCache(::ev4sio_physx::PxScene* scene)
 {
     std::vector<ISimulationView*> pendingRelease;
     {
@@ -476,7 +476,7 @@ void SimulationBackend::invalidateSceneCache(::physx::PxScene* scene)
 
 
 SimulationBackend::SceneCacheEntry* SimulationBackend::ensureSceneCacheEntryLocked(
-    ::physx::PxScene* scene, std::vector<ISimulationView*>& pendingRelease)
+    ::ev4sio_physx::PxScene* scene, std::vector<ISimulationView*>& pendingRelease)
 {
     // Guarded here rather than at each caller: everything below dereferences `scene`.
     if (!scene)
@@ -550,7 +550,7 @@ SimulationBackend::SceneCacheEntry* SimulationBackend::ensureSceneCacheEntryLock
     return &entry;
 }
 
-ISimulationView* SimulationBackend::createSimulationViewForScene(::physx::PxScene* scene)
+ISimulationView* SimulationBackend::createSimulationViewForScene(::ev4sio_physx::PxScene* scene)
 {
     if (!scene)
     {

@@ -8,9 +8,9 @@
 
 #include "GuBox.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Gu
+namespace ev4sio_Gu
 {
 	/**
 	Return the square of the minimum distance from the surface of the box to the given point.
@@ -33,13 +33,13 @@ namespace Gu
 	\param boxParam Set to coordinates of the closest point on the box in its local space
 	*/
 	PX_FORCE_INLINE PxReal distancePointBoxSquared(	const PxVec3& point, 
-													const Gu::Box& box, 
+													const ev4sio_Gu::Box& box,
 													PxVec3* boxParam=NULL)
 	{
 		return distancePointBoxSquared(point, box.center, box.extents, box.rot, boxParam);
 	}
 
-} // namespace Gu
+} // namespace ev4sio_Gu
 
 }
 

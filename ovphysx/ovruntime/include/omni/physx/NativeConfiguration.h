@@ -5,7 +5,7 @@
 // @covers AC-1 AC-2 AC-3
 #pragma once
 #include <omni/physx/AttachOptions.h>
-namespace omni::physx::native
+namespace omni::ev4sio_physx::native
 {
 enum class ConfigurationResult : uint32_t { Success, Invalid, Stale, Busy, Error };
 struct ConfigurationSnapshot

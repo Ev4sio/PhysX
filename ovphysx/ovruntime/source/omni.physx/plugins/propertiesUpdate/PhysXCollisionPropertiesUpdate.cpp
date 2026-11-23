@@ -22,15 +22,15 @@
 #include <PxPhysicsAPI.h>
 
 
-using namespace ::physx;
+using namespace ::ev4sio_physx;
 using namespace carb;
-using namespace omni::physx;
-using namespace omni::physx::usdparser;
-using namespace omni::physx::internal;
+using namespace omni::ev4sio_physx;
+using namespace omni::ev4sio_physx::usdparser;
+using namespace omni::ev4sio_physx::internal;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 // shape
-bool omni::physx::updateShapeEnabled(AttachedStage& attachedStage, ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
+bool omni::ev4sio_physx::updateShapeEnabled(AttachedStage& attachedStage, ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     const internal::InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
 
@@ -88,7 +88,7 @@ bool omni::physx::updateShapeEnabled(AttachedStage& attachedStage, ObjectId obje
 }
 
 
-bool omni::physx::updateShapeDensity(AttachedStage& attachedStage, ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
+bool omni::ev4sio_physx::updateShapeDensity(AttachedStage& attachedStage, ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     internal::InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
 
@@ -110,7 +110,7 @@ bool omni::physx::updateShapeDensity(AttachedStage& attachedStage, ObjectId obje
 }
 
 // physx shape
-bool omni::physx::updateShapeContactOffset(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateShapeContactOffset(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     const internal::InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
@@ -161,7 +161,7 @@ bool omni::physx::updateShapeContactOffset(AttachedStage& attachedStage, omni::p
     return true;
 }
 
-bool omni::physx::updateShapeRestOffset(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
+bool omni::ev4sio_physx::updateShapeRestOffset(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     const internal::InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
 
@@ -230,7 +230,7 @@ bool omni::physx::updateShapeRestOffset(AttachedStage& attachedStage, omni::phys
 // each a separate local copy (different modules, no shared header).
 //
 // Declared in PhysXPropertiesUpdate.h; the deformable handlers use it too.
-bool omni::physx::isPhysxOffsetAuthored(const AttachedStage& attachedStage,
+bool omni::ev4sio_physx::isPhysxOffsetAuthored(const AttachedStage& attachedStage,
                                         const omni::physics::parse::ObjectKey& key,
                                         omni::physics::parse::TokenId attr)
 {
@@ -271,7 +271,7 @@ static bool getCurrentRestOffset(const InternalDatabase::Record* objectRecord,
 // margin so the parse-time invariant `contactOffset = restOffset + gap` stays true
 // at runtime — otherwise PxShape can reject the new rest because the stale contact
 // offset is no longer greater than it.
-bool omni::physx::updateNewtonShapeContactMargin(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateNewtonShapeContactMargin(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     const internal::InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
@@ -350,7 +350,7 @@ bool omni::physx::updateNewtonShapeContactMargin(AttachedStage& attachedStage, o
 
 // Newton fallback: newton:contactGap -> physxCollision:contactOffset, where
 // contactOffset = restOffset + gap (Newton's gap is additive on top of the margin).
-bool omni::physx::updateNewtonShapeContactGap(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateNewtonShapeContactGap(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     const internal::InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
@@ -406,7 +406,7 @@ bool omni::physx::updateNewtonShapeContactGap(AttachedStage& attachedStage, omni
     return true;
 }
 
-bool omni::physx::updateShapeTorsionalPatchRadius(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateShapeTorsionalPatchRadius(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     const internal::InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
@@ -440,7 +440,7 @@ bool omni::physx::updateShapeTorsionalPatchRadius(AttachedStage& attachedStage, 
     return true;
 }
 
-bool omni::physx::updateShapeMinTorsionalPatchRadius(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateShapeMinTorsionalPatchRadius(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     const internal::InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
@@ -476,7 +476,7 @@ bool omni::physx::updateShapeMinTorsionalPatchRadius(AttachedStage& attachedStag
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 // material
-bool omni::physx::updateMaterialDynamicFriction(AttachedStage& attachedStage, ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
+bool omni::ev4sio_physx::updateMaterialDynamicFriction(AttachedStage& attachedStage, ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     const internal::InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
 
@@ -498,7 +498,7 @@ bool omni::physx::updateMaterialDynamicFriction(AttachedStage& attachedStage, Ob
     return true;
 }
 
-bool omni::physx::updateMaterialStaticFriction(AttachedStage& attachedStage, ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
+bool omni::ev4sio_physx::updateMaterialStaticFriction(AttachedStage& attachedStage, ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     const internal::InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
 
@@ -523,7 +523,7 @@ bool omni::physx::updateMaterialStaticFriction(AttachedStage& attachedStage, Obj
     return true;
 }
 
-bool omni::physx::updateMaterialRestitution(AttachedStage& attachedStage, ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
+bool omni::ev4sio_physx::updateMaterialRestitution(AttachedStage& attachedStage, ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     const internal::InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
 

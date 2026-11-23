@@ -17,7 +17,7 @@
 
 #include <omni/physics/parse/Allocator.h>
 
-namespace omni::physx::usdparser
+namespace omni::ev4sio_physx::usdparser
 {
 
 // Singleton accessor.  Safe to call from any thread.  The returned
@@ -25,4 +25,4 @@ namespace omni::physx::usdparser
 // `GetAllocator()->malloc` and `ICE_FREE_BASIC`.
 omni::physics::parse::IDescriptorAllocator& iceDescriptorAllocator();
 
-} // namespace omni::physx::usdparser
+} // namespace omni::ev4sio_physx::usdparser

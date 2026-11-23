@@ -25,7 +25,7 @@
 #include "deformableAndParticleUtils.cuh"
 #include "FEMClothUtil.cuh"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 // Refcount-bump scheme for cloth-cloth pre-counts.
 //   0 (default): magnitude weighting, .w += |bc_i| per touched vertex. The

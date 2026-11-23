@@ -17,7 +17,7 @@
 #include "GuAABBTreeBounds.h"
 #include "GuAABBTreeQuery.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 namespace
 {
@@ -90,7 +90,7 @@ namespace
 					return true;
 				}
 
-				PxVec3 closest = Gu::closestPtPointTetrahedron(mQueryPoint, mVertices[tet[0]], mVertices[tet[1]], mVertices[tet[2]], mVertices[tet[3]]);
+				PxVec3 closest = ev4sio_Gu::closestPtPointTetrahedron(mQueryPoint, mVertices[tet[0]], mVertices[tet[1]], mVertices[tet[2]], mVertices[tet[3]]);
 				PxReal distSq = (closest - mQueryPoint).magnitudeSquared();
 				if (distSq < mDist * mDist)
 				{
@@ -118,7 +118,7 @@ namespace
 }
 
 template<typename T, PxU32 i>
-static int process(PxU32* stack, PxU32& stackSize, const Gu::BVDataSwizzledNQ* node, T& callback)
+static int process(PxU32* stack, PxU32& stackSize, const ev4sio_Gu::BVDataSwizzledNQ* node, T& callback)
 {
 	if (callback.testBox(node->mMinX[i], node->mMinY[i], node->mMinZ[i], node->mMaxX[i], node->mMaxY[i], node->mMaxZ[i]))
 	{
@@ -126,7 +126,7 @@ static int process(PxU32* stack, PxU32& stackSize, const Gu::BVDataSwizzledNQ* n
 		{
 			PxU32 primitiveIndex = node->getPrimitive(i);
 			// getNbPrimitives returns one less than the count, for the SDK's own do { } while(nbToGo--) leaf loops.
-			const PxU32 numPrimitives = Gu::getNbPrimitives(primitiveIndex) + 1;
+			const PxU32 numPrimitives = ev4sio_Gu::getNbPrimitives(primitiveIndex) + 1;
 			if(callback.testPrimitive(primitiveIndex, numPrimitives)) //Returns true if the query should be terminated immediately
 				return 1;
 		}
@@ -137,9 +137,9 @@ static int process(PxU32* stack, PxU32& stackSize, const Gu::BVDataSwizzledNQ* n
 }
 
 template<typename T>
-static void traverseBVH(const Gu::BV4Tree& tree, T& callback)
+static void traverseBVH(const ev4sio_Gu::BV4Tree& tree, T& callback)
 {
-	const Gu::BVDataPackedNQ* root = static_cast<const Gu::BVDataPackedNQ*>(tree.mNodes);
+	const ev4sio_Gu::BVDataPackedNQ* root = static_cast<const ev4sio_Gu::BVDataPackedNQ*>(tree.mNodes);
 
 	PxU32 stack[GU_BV4_STACK_SIZE];
 	PxU32 stackSize = 0;
@@ -148,9 +148,9 @@ static void traverseBVH(const Gu::BV4Tree& tree, T& callback)
 	while (stackSize > 0)
 	{
 		const PxU32 childData = stack[--stackSize];
-		const Gu::BVDataSwizzledNQ* node = reinterpret_cast<const Gu::BVDataSwizzledNQ*>(root + Gu::getChildOffset(childData));
+		const ev4sio_Gu::BVDataSwizzledNQ* node = reinterpret_cast<const ev4sio_Gu::BVDataSwizzledNQ*>(root + ev4sio_Gu::getChildOffset(childData));
 			
-		const PxU32 nodeType = Gu::getChildType(childData);
+		const PxU32 nodeType = ev4sio_Gu::getChildType(childData);
 
 		if (nodeType > 1)
 			if (process<T, 3>(stack, stackSize, node, callback)) return;
@@ -163,15 +163,15 @@ static void traverseBVH(const Gu::BV4Tree& tree, T& callback)
 
 // Only a PxDeformableVolumeMesh's collision mesh owns a tree. A single-point query on any other mesh could only
 // be a linear scan, so those are rejected. createPointsToTetrahedronMap builds a tree of its own for that case.
-static const Gu::BVTetrahedronMesh* getCollisionMesh(const PxTetrahedronMesh& mesh)
+static const ev4sio_Gu::BVTetrahedronMesh* getCollisionMesh(const PxTetrahedronMesh& mesh)
 {
-	return static_cast<const Gu::TetrahedronMesh&>(mesh).getBVTetrahedronMesh();
+	return static_cast<const ev4sio_Gu::TetrahedronMesh&>(mesh).getBVTetrahedronMesh();
 }
 
 // A collision mesh of 15 or fewer tetrahedra fits in one leaf and is cooked without any tree node, so the scan is
 // its only path, as in BV4_OverlapBoxCB. Larger meshes always get a tree.
 template<typename T>
-static void traverseOrScan(const Gu::BVTetrahedronMesh& mesh, T& callback)
+static void traverseOrScan(const ev4sio_Gu::BVTetrahedronMesh& mesh, T& callback)
 {
 	if (mesh.getBV4Tree().mNbNodes)
 		traverseBVH(mesh.getBV4Tree(), callback);
@@ -182,10 +182,10 @@ static void traverseOrScan(const Gu::BVTetrahedronMesh& mesh, T& callback)
 PxI32 PxTetrahedronMeshExt::findTetrahedronContainingPoint(const PxTetrahedronMesh* mesh, const PxVec3& point, PxVec4& bary, PxReal tolerance)
 {
 	PX_CHECK_AND_RETURN_VAL(mesh, "PxTetrahedronMeshExt::findTetrahedronContainingPoint: mesh is NULL", -1);
-	const Gu::BVTetrahedronMesh* collisionMesh = getCollisionMesh(*mesh);
+	const ev4sio_Gu::BVTetrahedronMesh* collisionMesh = getCollisionMesh(*mesh);
 	if (!collisionMesh)
 	{
-		PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "PxTetrahedronMeshExt::findTetrahedronContainingPoint: requires the collision mesh of a PxDeformableVolumeMesh, see PxDeformableVolumeMesh::getCollisionMesh(). For a mesh without a bounding volume hierarchy use createPointsToTetrahedronMap()");
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "PxTetrahedronMeshExt::findTetrahedronContainingPoint: requires the collision mesh of a PxDeformableVolumeMesh, see PxDeformableVolumeMesh::getCollisionMesh(). For a mesh without a bounding volume hierarchy use createPointsToTetrahedronMap()");
 		return -1;
 	}
 	TetrahedronFinderCallback callback(point, mesh->getVertices(), static_cast<const PxU32*>(mesh->getTetrahedrons()), tolerance);
@@ -197,10 +197,10 @@ PxI32 PxTetrahedronMeshExt::findTetrahedronContainingPoint(const PxTetrahedronMe
 PxI32 PxTetrahedronMeshExt::findTetrahedronClosestToPoint(const PxTetrahedronMesh* mesh, const PxVec3& point, PxVec4& bary)
 {
 	PX_CHECK_AND_RETURN_VAL(mesh, "PxTetrahedronMeshExt::findTetrahedronClosestToPoint: mesh is NULL", -1);
-	const Gu::BVTetrahedronMesh* collisionMesh = getCollisionMesh(*mesh);
+	const ev4sio_Gu::BVTetrahedronMesh* collisionMesh = getCollisionMesh(*mesh);
 	if (!collisionMesh)
 	{
-		PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "PxTetrahedronMeshExt::findTetrahedronClosestToPoint: requires the collision mesh of a PxDeformableVolumeMesh, see PxDeformableVolumeMesh::getCollisionMesh(). For a mesh without a bounding volume hierarchy use createPointsToTetrahedronMap()");
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "PxTetrahedronMeshExt::findTetrahedronClosestToPoint: requires the collision mesh of a PxDeformableVolumeMesh, see PxDeformableVolumeMesh::getCollisionMesh(). For a mesh without a bounding volume hierarchy use createPointsToTetrahedronMap()");
 		return -1;
 	}
 	ClosestTetrahedronFinderCallback callback(point, mesh->getVertices(), static_cast<const PxU32*>(mesh->getTetrahedrons()));
@@ -217,7 +217,7 @@ namespace
 		PxReal mClosestDistanceSquared;
 		const PxU32* mTetrahedra;
 		const PxVec3* mPoints;
-		const Gu::BVHNode* mNodes;
+		const ev4sio_Gu::BVHNode* mNodes;
 		PxVec3 mQueryPoint;
 		PxVec3 mClosestPoint;
 		PxI32 mClosestTetId;
@@ -225,13 +225,13 @@ namespace
 	public:
 		PX_FORCE_INLINE ClosestDistanceToTetmeshTraversalController() {}
 
-		PX_FORCE_INLINE ClosestDistanceToTetmeshTraversalController(const PxU32* tetrahedra, const PxVec3* points, Gu::BVHNode* nodes) :
+		PX_FORCE_INLINE ClosestDistanceToTetmeshTraversalController(const PxU32* tetrahedra, const PxVec3* points, ev4sio_Gu::BVHNode* nodes) :
 			mTetrahedra(tetrahedra), mPoints(points), mNodes(nodes), mQueryPoint(0.0f), mClosestPoint(0.0f), mClosestTetId(-1)
 		{
 			initialize(tetrahedra, points, nodes);
 		}
 
-		void initialize(const PxU32* tetrahedra, const PxVec3* points, Gu::BVHNode* nodes)
+		void initialize(const PxU32* tetrahedra, const PxVec3* points, ev4sio_Gu::BVHNode* nodes)
 		{
 			mTetrahedra = tetrahedra;
 			mPoints = points;
@@ -261,10 +261,10 @@ namespace
 			return (closestPt - point).magnitudeSquared();
 		}
 
-		PX_FORCE_INLINE Gu::TraversalControl::Enum analyze(const Gu::BVHNode& node, PxI32)
+		PX_FORCE_INLINE ev4sio_Gu::TraversalControl::Enum analyze(const ev4sio_Gu::BVHNode& node, PxI32)
 		{
 			if (distancePointBoxSquared(node.mBV, mQueryPoint) >= mClosestDistanceSquared)
-				return Gu::TraversalControl::eDontGoDeeper;
+				return ev4sio_Gu::TraversalControl::eDontGoDeeper;
 
 			if (node.isLeaf())
 			{
@@ -281,10 +281,10 @@ namespace
 					mClosestDistanceSquared = 0;
 					mClosestTetId = j;
 					mClosestPoint = mQueryPoint;
-					return Gu::TraversalControl::eAbort;
+					return ev4sio_Gu::TraversalControl::eAbort;
 				}
 
-				PxVec3 closest = Gu::closestPtPointTetrahedron(mQueryPoint, mPoints[tet[0]], mPoints[tet[1]], mPoints[tet[2]], mPoints[tet[3]]);
+				PxVec3 closest = ev4sio_Gu::closestPtPointTetrahedron(mQueryPoint, mPoints[tet[0]], mPoints[tet[1]], mPoints[tet[2]], mPoints[tet[3]]);
 				PxReal d2 = (closest - mQueryPoint).magnitudeSquared();
 				if (d2 < mClosestDistanceSquared)
 				{
@@ -292,25 +292,25 @@ namespace
 					mClosestTetId = j;
 					mClosestPoint = closest;
 				}
-				return Gu::TraversalControl::eDontGoDeeper;
+				return ev4sio_Gu::TraversalControl::eDontGoDeeper;
 			}
 
-			const Gu::BVHNode& nodePos = mNodes[node.getPosIndex()];
+			const ev4sio_Gu::BVHNode& nodePos = mNodes[node.getPosIndex()];
 			const PxReal distSquaredPos = distancePointBoxSquared(nodePos.mBV, mQueryPoint);
-			const Gu::BVHNode& nodeNeg = mNodes[node.getNegIndex()];
+			const ev4sio_Gu::BVHNode& nodeNeg = mNodes[node.getNegIndex()];
 			const PxReal distSquaredNeg = distancePointBoxSquared(nodeNeg.mBV, mQueryPoint);
 
 			if (distSquaredPos < distSquaredNeg)
 			{
 				if (distSquaredPos < mClosestDistanceSquared)
-					return Gu::TraversalControl::eGoDeeper;
+					return ev4sio_Gu::TraversalControl::eGoDeeper;
 			}
 			else
 			{
 				if (distSquaredNeg < mClosestDistanceSquared)
-					return Gu::TraversalControl::eGoDeeperNegFirst;
+					return ev4sio_Gu::TraversalControl::eGoDeeperNegFirst;
 			}
-			return Gu::TraversalControl::eDontGoDeeper;
+			return ev4sio_Gu::TraversalControl::eDontGoDeeper;
 		}
 
 		PxI32 getClosestTetId() const { return mClosestTetId; }
@@ -327,10 +327,10 @@ namespace
 	};
 }
 
-static void buildTree(const PxU32* tetrahedra, const PxU32 numTetrahedra, const PxVec3* points, PxArray<Gu::BVHNode>& tree, PxF32 enlargement = 1e-4f)
+static void buildTree(const PxU32* tetrahedra, const PxU32 numTetrahedra, const PxVec3* points, PxArray<ev4sio_Gu::BVHNode>& tree, PxF32 enlargement = 1e-4f)
 {
 	//Computes a bounding box for every triangle in triangles
-	Gu::AABBTreeBounds boxes;
+	ev4sio_Gu::AABBTreeBounds boxes;
 	boxes.init(numTetrahedra);
 	for (PxU32 i = 0; i < numTetrahedra; ++i)
 	{
@@ -344,7 +344,7 @@ static void buildTree(const PxU32* tetrahedra, const PxU32 numTetrahedra, const 
 		boxes.getBounds()[i] = box;
 	}
 
-	Gu::buildAABBTree(numTetrahedra, boxes, tree);
+	ev4sio_Gu::buildAABBTree(numTetrahedra, boxes, tree);
 }
 
 void PxTetrahedronMeshExt::createPointsToTetrahedronMap(const PxArray<PxVec3>& tetMeshVertices, const PxArray<PxU32>& tetMeshIndices, 
@@ -355,14 +355,14 @@ void PxTetrahedronMeshExt::createPointsToTetrahedronMap(const PxArray<PxVec3>& t
 
 	if (tetMeshVertices.size() == 0 || tetMeshIndices.size() == 0) 
 	{
-		PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "Point in Tetmesh embedding: Input mesh does not have any tetrahedra or points.");
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "Point in Tetmesh embedding: Input mesh does not have any tetrahedra or points.");
 		return;
 	}
 
 	if (pointsToEmbed.size() == 0)
 		return;
 
-	PxArray<Gu::BVHNode> tree;
+	PxArray<ev4sio_Gu::BVHNode> tree;
 	buildTree(tetMeshIndices.begin(), tetMeshIndices.size() / 4, tetMeshVertices.begin(), tree);
 
 	if (tree.size() == 0)
@@ -375,7 +375,7 @@ void PxTetrahedronMeshExt::createPointsToTetrahedronMap(const PxArray<PxVec3>& t
 	for (PxU32 i = 0; i < pointsToEmbed.size(); ++i)
 	{
 		cd.setQueryPoint(pointsToEmbed[i]);
-		Gu::traverseBVH(tree.begin(), cd);
+		ev4sio_Gu::traverseBVH(tree.begin(), cd);
 
 		const PxU32* tet = &tetMeshIndices[4 * cd.getClosestTetId()];
 		PxVec4 bary;

@@ -19,7 +19,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 class PhysXReplicator;
 class PhysXUsdPhysicsInterface;
@@ -71,5 +71,5 @@ private:
     std::vector<float> mCloneTransforms;
     std::vector<uint32_t> mCloneEnvIds;
 };
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

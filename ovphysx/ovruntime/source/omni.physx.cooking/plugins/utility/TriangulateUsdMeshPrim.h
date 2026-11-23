@@ -18,7 +18,7 @@ namespace triangulateusd
 class TriangulateUSDPrim
 {
 public:
-    static TriangulateUSDPrim* create(const omni::physx::PhysxCookingMeshView& meshView);
+    static TriangulateUSDPrim* create(const omni::ev4sio_physx::PhysxCookingMeshView& meshView);
 
     virtual const uint32_t* getFaceIndices(uint32_t& indexCount) const = 0;
     virtual const uint32_t* getFaceBuffer(uint32_t& faceCount) const = 0;

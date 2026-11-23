@@ -21,16 +21,16 @@
 #include <PxPhysicsAPI.h>
 
 
-using namespace ::physx;
+using namespace ::ev4sio_physx;
 using namespace carb;
-using namespace omni::physx;
-using namespace omni::physx::usdparser;
-using namespace omni::physx::internal;
+using namespace omni::ev4sio_physx;
+using namespace omni::ev4sio_physx::usdparser;
+using namespace omni::ev4sio_physx::internal;
 
 // A relationship edit changes the shape's material, not the material's coefficients.
 // Use the source resolver so physics-purpose precedence and default fallback agree
 // with initial parsing. Only collider records are handled by this callback.
-bool omni::physx::updateShapeMaterialBinding(AttachedStage& attachedStage, ObjectId objectId,
+bool omni::ev4sio_physx::updateShapeMaterialBinding(AttachedStage& attachedStage, ObjectId objectId,
     omni::physics::parse::TokenId, omni::physics::parse::ReadTime)
 {
     InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
@@ -114,7 +114,7 @@ bool omni::physx::updateShapeMaterialBinding(AttachedStage& attachedStage, Objec
 }
 
 // physx material
-bool omni::physx::updateMaterialFrictionCombineMode(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateMaterialFrictionCombineMode(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     const internal::InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
@@ -150,7 +150,7 @@ bool omni::physx::updateMaterialFrictionCombineMode(AttachedStage& attachedStage
     return true;
 }
 
-bool omni::physx::updateMaterialRestitutionCombineMode(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateMaterialRestitutionCombineMode(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     const internal::InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
@@ -186,7 +186,7 @@ bool omni::physx::updateMaterialRestitutionCombineMode(AttachedStage& attachedSt
     return true;
 }
 
-bool omni::physx::updateMaterialDampingCombineMode(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateMaterialDampingCombineMode(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     const internal::InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
@@ -222,7 +222,7 @@ bool omni::physx::updateMaterialDampingCombineMode(AttachedStage& attachedStage,
     return true;
 }
 
-bool omni::physx::updateCompliantMaterial(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateCompliantMaterial(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
                                           omni::physics::parse::TokenId property,
                                           omni::physics::parse::ReadTime timeCode)
 {

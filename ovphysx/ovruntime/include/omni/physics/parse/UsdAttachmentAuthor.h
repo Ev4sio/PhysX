@@ -15,7 +15,7 @@ namespace omni::physics::parse
 {
 
 // Which OmniPhysics*Attachment prim type to define. Mirrors the pxr-free
-// omni::physx::attachmentauthoring::AttachmentPrimKind on the omni.physx side,
+// omni::ev4sio_physx::attachmentauthoring::AttachmentPrimKind on the omni.physx side,
 // which the facade maps onto this one before crossing the seam (the two enums
 // are kept in step but not shared, so this pxr-free parse header takes no
 // dependency on an omni.physx plugin header).

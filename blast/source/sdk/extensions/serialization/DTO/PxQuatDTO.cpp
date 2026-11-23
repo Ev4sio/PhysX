@@ -33,7 +33,7 @@ namespace Nv
 namespace Blast
 {
 
-bool PxQuatDTO::serialize(Nv::Blast::Serialization::PxQuat::Builder builder, const physx::PxQuat * poco)
+bool PxQuatDTO::serialize(Nv::Blast::Serialization::PxQuat::Builder builder, const ev4sio_physx::PxQuat * poco)
 {
     builder.setX(poco->x);
     builder.setY(poco->y);
@@ -44,14 +44,14 @@ bool PxQuatDTO::serialize(Nv::Blast::Serialization::PxQuat::Builder builder, con
 }
 
 
-physx::PxQuat* PxQuatDTO::deserialize(Nv::Blast::Serialization::PxQuat::Reader reader)
+ev4sio_physx::PxQuat* PxQuatDTO::deserialize(Nv::Blast::Serialization::PxQuat::Reader reader)
 {
     NV_UNUSED(reader);
     return nullptr;
 }
 
 
-bool PxQuatDTO::deserializeInto(Nv::Blast::Serialization::PxQuat::Reader reader, physx::PxQuat * poco)
+bool PxQuatDTO::deserializeInto(Nv::Blast::Serialization::PxQuat::Reader reader, ev4sio_physx::PxQuat * poco)
 {
     poco->x = reader.getX();
     poco->y = reader.getY();

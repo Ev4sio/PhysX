@@ -1866,7 +1866,7 @@ TEST_F(SessionPhysicsGpuTest, GpuDeformableBodyReadWriteAndReadOnly) {
 // no CUDA context current on the caller's thread, leave none behind.
 TEST_F(SessionPhysicsGpuTest, SessionReadWriteLeaveNoCallerCudaContext) {
     using namespace session_test;
-    omni::physx::IOptionalCuda* cuda = ovphysx::test_cuda::getCuda();
+    omni::ev4sio_physx::IOptionalCuda* cuda = ovphysx::test_cuda::getCuda();
     ASSERT_NE(cuda, nullptr);
     ASSERT_TRUE(cuda->cudaAvailable());
 

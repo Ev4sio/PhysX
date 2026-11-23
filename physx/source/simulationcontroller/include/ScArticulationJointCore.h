@@ -9,9 +9,9 @@
 #include "foundation/PxTransform.h"
 #include "DyVArticulation.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Sc
+namespace ev4sio_Sc
 {
 	class BodyCore;
 	class ArticulationJointSim;
@@ -85,7 +85,7 @@ namespace Sc
 																	mSim = sim;
 																}
 
-		PX_FORCE_INLINE	Dy::ArticulationJointCore&				getCore()											{ return mCore;					}
+		PX_FORCE_INLINE	ev4sio_Dy::ArticulationJointCore&				getCore()											{ return mCore;					}
 
 		PX_FORCE_INLINE void									setArticulation(ArticulationCore* articulation)		{ mArticulation = articulation;	}
 		PX_FORCE_INLINE	const ArticulationCore*					getArticulation()							const	{ return mArticulation;			}
@@ -102,7 +102,7 @@ namespace Sc
 																	setSimDirty();
 																}
 
-						Dy::ArticulationJointCore				mCore;
+						ev4sio_Dy::ArticulationJointCore				mCore;
 						ArticulationJointSim*					mSim;
 						ArticulationCore*						mArticulation;
 						PxArticulationJointReducedCoordinate*	mRootType;
@@ -112,7 +112,7 @@ namespace Sc
 #endif
 	};
 
-} // namespace Sc
+} // namespace ev4sio_Sc
 
 }
 

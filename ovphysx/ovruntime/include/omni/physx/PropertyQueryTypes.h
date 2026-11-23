@@ -12,7 +12,7 @@
 namespace omni
 {
 
-namespace physx
+namespace ev4sio_physx
 {
 struct PhysxPropertyQueryResult
 {
@@ -99,5 +99,5 @@ struct PhysxPropertyQueryCallbacks
     PhysxPropertyQueryArticulationCallback articulationCallback = { nullptr }; // Called when articulation is found
 };
 
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

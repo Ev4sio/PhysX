@@ -9,9 +9,9 @@
 #include "ScRigidCore.h"
 #include "PxvDynamics.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Sc
+namespace ev4sio_Sc
 {
 	class StaticSim;
 
@@ -40,7 +40,7 @@ namespace Sc
 						PxsRigidCore		mCore;
 	};
 
-} // namespace Sc
+} // namespace ev4sio_Sc
 
 }
 

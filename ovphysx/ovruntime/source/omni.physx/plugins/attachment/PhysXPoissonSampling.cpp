@@ -37,9 +37,9 @@
 #include <Setup.h>
 
 using namespace carb;
-using namespace ::physx;
-using namespace omni::physx;
-using namespace omni::physx::usdparser;
+using namespace ::ev4sio_physx;
+using namespace omni::ev4sio_physx;
+using namespace omni::ev4sio_physx::usdparser;
 
 namespace omni
 {
@@ -151,7 +151,7 @@ usdparser::ScannedCollision parseSurfaceSamplerShape(
     return {};
 }
 
-void createSamplerCallback(const ::physx::PxGeometry& geom, const ::physx::PxTransform& geomPos, void* userData)
+void createSamplerCallback(const ::ev4sio_physx::PxGeometry& geom, const ::ev4sio_physx::PxTransform& geomPos, void* userData)
 {
     UserDataInfo* info = (UserDataInfo*)userData;
 
@@ -218,7 +218,7 @@ uint64_t createSurfaceSampler(AttachHandle attach, omni::physics::parse::ObjectK
     RuntimeExecutionScope operation(attach);
     if (!operation || gNextSurfaceSampler == std::numeric_limits<uint64_t>::max())
         return 0;
-    omni::physx::OmniPhysX& omniPhysX = omni::physx::OmniPhysX::getInstance();
+    omni::ev4sio_physx::OmniPhysX& omniPhysX = omni::ev4sio_physx::OmniPhysX::getInstance();
     usdparser::AttachedStage* attachedStage = usdparser::UsdLoad::getUsdLoad()->getAttachedStageByHandle(attach);
     if (!attachedStage)
         return 0;
@@ -229,10 +229,10 @@ uint64_t createSurfaceSampler(AttachHandle attach, omni::physics::parse::ObjectK
     if (!shapeDesc)
         return 0;
 
-    const PxMat44d mat = omni::physx::internal::getWorldTransform(*attachedStage, colliderKey, omni::physics::parse::ReadTime::defaultTime());
+    const PxMat44d mat = omni::ev4sio_physx::internal::getWorldTransform(*attachedStage, colliderKey, omni::physics::parse::ReadTime::defaultTime());
     PxTransform pose;
     PxVec3 scale;
-    omni::physx::decomposeMatrix(pose, scale, mat);
+    omni::ev4sio_physx::decomposeMatrix(pose, scale, mat);
 
     shapeDesc->localPos = { pose.p.x, pose.p.y, pose.p.z };
     shapeDesc->localRot = { pose.q.x, pose.q.y, pose.q.z, pose.q.w };
@@ -298,7 +298,7 @@ SurfaceSampler* getSurfaceSampler(const uint64_t surfaceSampler)
         return nullptr;
     SurfaceSampler* s = found->second.get();
 
-    omni::physx::OmniPhysX& omniPhysX = omni::physx::OmniPhysX::getInstance();
+    omni::ev4sio_physx::OmniPhysX& omniPhysX = omni::ev4sio_physx::OmniPhysX::getInstance();
 
     if (s->physicsPtr != omniPhysX.getPhysXSetup().getPhysics())
     {
@@ -319,10 +319,10 @@ SurfaceSampler* getSurfaceSampler(const uint64_t surfaceSampler)
             return nullptr;
         }
 
-        const PxMat44d mat = omni::physx::internal::getWorldTransform(*attachedStage, s->colliderKey, omni::physics::parse::ReadTime::defaultTime());
+        const PxMat44d mat = omni::ev4sio_physx::internal::getWorldTransform(*attachedStage, s->colliderKey, omni::physics::parse::ReadTime::defaultTime());
         PxTransform pose;
         PxVec3 scale;
-        omni::physx::decomposeMatrix(pose, scale, mat);
+        omni::ev4sio_physx::decomposeMatrix(pose, scale, mat);
 
         shapeDesc->localPos = { pose.p.x, pose.p.y, pose.p.z };
         shapeDesc->localRot = { pose.q.x, pose.q.y, pose.q.z, pose.q.w };

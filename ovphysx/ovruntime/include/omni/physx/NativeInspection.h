@@ -7,7 +7,7 @@
 #include <cstdint>
 #include <vector>
 #include <string>
-namespace omni::physx::native
+namespace omni::ev4sio_physx::native
 {
 enum class InspectionResult : uint32_t { Success, Invalid, Stale, Busy, NotFound, Unavailable, Error };
 enum class ObjectKind : uint32_t { Body=1, Joint=2, Material=3, Articulation=4, Shape=5 };

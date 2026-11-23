@@ -28,7 +28,7 @@ extern "C"
 // Installs ONLY the two stateless opaque-handle op tables (ADR-0027 seam #3:
 // parse::setAttachedStageUsdHandleOps / setSimulationLayerHandleOps). Idempotent: the
 // tables are process-constant, so repeated calls store the same pointers. Must run before
-// the first handle owner exists -- i.e. before omni::physx::runtime::startup(), whose
+// the first handle owner exists -- i.e. before omni::ev4sio_physx::runtime::startup(), whose
 // OmniPhysX instance owns a SimulationLayerHandle -- and the tables are never removed for
 // the rest of the process: a table change while an owner lives would alter the owner's
 // representation under it. Only test executables link this library (production never

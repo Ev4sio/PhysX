@@ -13,7 +13,7 @@
 #include <mutex>
 #include <carb/tasking/TaskingUtils.h>
 
-namespace omni::physx
+namespace omni::ev4sio_physx
 {
 template <class Entry>
 class CallbackRegistry

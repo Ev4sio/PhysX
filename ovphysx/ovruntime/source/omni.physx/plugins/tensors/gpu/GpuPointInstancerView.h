@@ -12,7 +12,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace tensors
 {
@@ -30,7 +30,7 @@ public:
     GpuPointInstancerView(GpuSimulationView* sim, const std::vector<PointInstancerEntry>& entries);
     ~GpuPointInstancerView() override;
 
-    bool setWorldInverses(const ::physx::PxMat44d* inverses, ::physx::PxU32 numInstancers) override;
+    bool setWorldInverses(const ::ev4sio_physx::PxMat44d* inverses, ::ev4sio_physx::PxU32 numInstancers) override;
 
     // Refresh the sibling superset's DirectGPU indices after an instance is disabled or re-enabled,
     // including actor-flag changes that did not pass through a tensor view.
@@ -41,8 +41,8 @@ public:
     // offsets -- and the scratch's size. Uploads the instancer frames and the GPU index map first when they
     // changed, which a read being captured cannot do: `capturing` refuses instead, reporting why.
     bool planOvStageRead(const InstancerColumn* columns,
-                         const ::physx::PxU32* const* offsets,
-                         ::physx::PxU32 columnCount,
+                         const ::ev4sio_physx::PxU32* const* offsets,
+                         ::ev4sio_physx::PxU32 columnCount,
                          bool capturing,
                          std::vector<uint8_t>& head,
                          size_t& scratchBytes) const;
@@ -51,23 +51,23 @@ public:
     bool readOvStageColumns(const OvStageDeviceReadArgs& args,
                             const InstancerColumn* columns,
                             float* const* dsts,
-                            ::physx::PxU32 columnCount) const;
+                            ::ev4sio_physx::PxU32 columnCount) const;
 
     // The device write (ADR-0012). One instancer per call, launched over that instancer's record
     // range, so the packed pair handed to PhysX is exactly its live instances -- count known on the
     // host, no compaction and no host block.
     bool setInstancerColumnOvStage(InstancerColumn column,
-                                   ::physx::PxU32 instancerIndex,
+                                   ::ev4sio_physx::PxU32 instancerIndex,
                                    const void* src,
-                                   ::physx::PxU32 arrayLength,
+                                   ::ev4sio_physx::PxU32 arrayLength,
                                    const uint8_t* hostMask,
                                    const OvStageDeviceWriteArgs* deviceArgs) override;
     // The host work a session write does once, at open, so its commit only enqueues: uploads the instancer
     // transforms when they changed. Returns this instancer's
     // live instance count and record rows (owned by the view), or false when it cannot write.
-    bool prepareInstancerWriteOvStage(::physx::PxU32 instancerIndex,
-                                      const ::physx::PxU32*& outRows,
-                                      ::physx::PxU32& outCount);
+    bool prepareInstancerWriteOvStage(::ev4sio_physx::PxU32 instancerIndex,
+                                      const ::ev4sio_physx::PxU32*& outRows,
+                                      ::ev4sio_physx::PxU32& outCount);
 
     // False when this view cannot serve reads at all: an instance whose body has no row in the scene's
     // superset rigid view, or a device allocation that failed during construction. The caller must drop
@@ -100,21 +100,21 @@ private:
     // record loop groups by instancer anyway; it is what lets a write launch over ONE instancer.
     struct InstancerRange
     {
-        ::physx::PxU32 begin = 0;
-        ::physx::PxU32 count = 0;
+        ::ev4sio_physx::PxU32 begin = 0;
+        ::ev4sio_physx::PxU32 count = 0;
     };
     std::vector<InstancerRange> mRanges;
 
     // The record rows, host-side, for the write's packed index build. Filled when the view is built
     // and never changed: the records it mirrors are immutable for this view's lifetime, and a rebuild
     // takes a new view.
-    std::vector<::physx::PxU32> mWriteRows;
+    std::vector<::ev4sio_physx::PxU32> mWriteRows;
     // One row-cache token per instancer range, minted from the shared ovstage counter with mWriteRows.
     // Stored so repeated writes to the same range reuse the device copy, yet a rebuilt view gets fresh
     // tokens -- unlike an address-derived token, these never alias a freed view reused at the old
     // pointer, which the superset row cache would otherwise serve as this range's rows.
     std::vector<uint64_t> mWriteRowsTokens;
-    ::physx::PxU32 mNumInstances = 0;
+    ::ev4sio_physx::PxU32 mNumInstances = 0;
 
     // Mutable for the same reason the rigid view's caches are: the ovstage reads are const by the
     // convention that "const" means the VIEW is unchanged, not the device scratch behind it.
@@ -127,5 +127,5 @@ private:
 };
 
 } // namespace tensors
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

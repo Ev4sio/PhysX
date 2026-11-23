@@ -14,19 +14,19 @@
 #include "PxsIslandSim.h"
 #include "solver/PxSolverDefs.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Cm
+namespace ev4sio_Cm
 {
 	class FlushPool;
 }
 
-namespace IG
+namespace ev4sio_IG
 {
 	class SimpleIslandManager;
 }
 
-namespace Dy
+namespace ev4sio_Dy
 {
 struct ConstraintLess
 {
@@ -43,11 +43,11 @@ class DynamicsContextBase : public Context
 	PX_NOCOPY(DynamicsContextBase)
 public:
 	DynamicsContextBase(PxcNpMemBlockPool* memBlockPool,
-						Cm::FlushPool& taskPool,
+						ev4sio_Cm::FlushPool& taskPool,
 						PxvSimStats& simStats,
-						Cm::VirtualAllocatorCallback& allocator,
+						ev4sio_Cm::VirtualAllocatorCallback& allocator,
 						PxsMaterialManager* materialManager,
-						IG::SimpleIslandManager& islandManager,
+						ev4sio_IG::SimpleIslandManager& islandManager,
 						PxU64 contextID,
 						PxReal maxBiasCoefficient,
 						PxReal lengthScale,
@@ -70,17 +70,17 @@ public:
 	PX_FORCE_INLINE ThresholdStream&	getThresholdStream()			{ return mThresholdStream; }
 
 	PX_FORCE_INLINE PxvSimStats&		getSimStats()					{ return mSimStats;			}
-	PX_FORCE_INLINE Cm::FlushPool&		getTaskPool()					{ return mTaskPool;			}
+	PX_FORCE_INLINE ev4sio_Cm::FlushPool&		getTaskPool()					{ return mTaskPool;			}
 	PX_FORCE_INLINE	PxU32				getKinematicCount()		const	{ return mKinematicCount;	}
 
 	PxcThreadCoherentCache<ThreadContext, PxcNpMemBlockPool> mThreadContextPool;	// A thread context pool
 
 	PxsMaterialManager*					mMaterialManager;
-	Cm::FlushPool&						mTaskPool;
+	ev4sio_Cm::FlushPool&						mTaskPool;
 	PxsContactManagerOutputIterator		mOutputIterator;
 
 	PxArray<PxConstraintBatchHeader>	mContactConstraintBatchHeaders;	// An array of contact constraint batch headers
-	PxArray<Cm::SpatialVector>			mMotionVelocityArray;			// Array of motion velocities for all bodies in the scene.
+	PxArray<ev4sio_Cm::SpatialVector>			mMotionVelocityArray;			// Array of motion velocities for all bodies in the scene.
 	PxArray<PxsBodyCore*>				mBodyCoreArray;					// Array of body core pointers for all bodies in the scene.
 	PxArray<PxsRigidBody*>				mRigidBodyArray;				// Array of rigid body pointers for all bodies in the scene.
 	PxArray<FeatherstoneArticulation*>	mArticulationArray;				// Array of articulation pointers for all articulations in the scene.
@@ -96,13 +96,13 @@ public:
 	PxU32	mCurrentIndex;			// this is the index point to the current exceeded force threshold stream
 
 protected:
-	PxU32	reserveSharedSolverConstraintsArrays(const IG::IslandSim& islandSim, PxU32 maxArticulationLinks);
+	PxU32	reserveSharedSolverConstraintsArrays(const ev4sio_IG::IslandSim& islandSim, PxU32 maxArticulationLinks);
 
 	bool	updateShared(PxvNphaseImplementationContext* nphase, PxReal dt, const PxVec3& gravity);
 
-	PxU32	iterateIslandsContactEdges(	const PxsIslandIndices& counts, PxU32 nbIslands, const IG::IslandId* PX_RESTRICT const islandIds,
+	PxU32	iterateIslandsContactEdges(	const PxsIslandIndices& counts, PxU32 nbIslands, const ev4sio_IG::IslandId* PX_RESTRICT const islandIds,
 										PxsIndexedContactManager* PX_RESTRICT indexedManagers, const PxU32* PX_RESTRICT bodyRemapTable);
-	void	iterateIslandsNodes(const PxsIslandIndices& counts, PxU32 nbIslands, const IG::IslandId* PX_RESTRICT const islandIds,
+	void	iterateIslandsNodes(const PxsIslandIndices& counts, PxU32 nbIslands, const ev4sio_IG::IslandId* PX_RESTRICT const islandIds,
 								PxsBodyCore** PX_RESTRICT bodyArrayPtr, PxsRigidBody** PX_RESTRICT rigidBodyPtr,
 								FeatherstoneArticulation** PX_RESTRICT articulationPtr,
 								PxU32* PX_RESTRICT bodyRemapTable, PxU32* PX_RESTRICT nodeIndexArray);

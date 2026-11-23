@@ -7,9 +7,9 @@
 #include <ovphysx_companion/events.hpp>
 #include <type_traits>
 static_assert(std::is_same_v<decltype(ovphysx::companion::native::CustomInterfaces::joints),
-    omni::physx::IPhysxCustomJoint*>);
+    omni::ev4sio_physx::IPhysxCustomJoint*>);
 static_assert(std::is_same_v<decltype(ovphysx::companion::native::CustomInterfaces::geometry),
-    omni::physx::IPhysxCustomGeometry*>);
+    omni::ev4sio_physx::IPhysxCustomGeometry*>);
 int main()
 {
     // This installed-header consumer has only the packaged SDK and PhysX include

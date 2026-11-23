@@ -39,7 +39,7 @@ namespace omni::physics::parse
 ///      `ObjectDb::findEntry`.
 ///
 /// Distinct from `parse::ObjectId` (re-exported from
-/// `omni::physx::usdparser::ObjectId` — see `omni/physx/ObjectId.h`).
+/// `omni::ev4sio_physx::usdparser::ObjectId` — see `omni/physx/ObjectId.h`).
 /// Two conceptually different namespaces: `ObjectKey` lives inside the
 /// IPhysicsSource boundary (a key into the source's vocabulary);
 /// `ObjectId` lives inside the simulation engine (an id for a registered
@@ -99,7 +99,7 @@ struct TokenId
 ///
 /// Names describe the layout, not the source type. `eVec2/3/4` denote
 /// 2/3/4 packed `float` lanes per element (layout-compatible with both
-/// `carb::Float2/3/4` and `physx::PxVec2/3/4`), `eQuat` denotes 4 packed
+/// `carb::Float2/3/4` and `ev4sio_physx::PxVec2/3/4`), `eQuat` denotes 4 packed
 /// floats in (x,y,z,w) order, `eTransform` denotes a 4x4 row-major double
 /// matrix per element.
 enum class BufferElemType : uint16_t

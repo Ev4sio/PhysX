@@ -12,7 +12,7 @@
 #include <string>
 #include <vector>
 
-namespace omni::physx::debug_render {
+namespace omni::ev4sio_physx::debug_render {
 
 constexpr int kDebugParamCount = 28;
 
@@ -80,4 +80,4 @@ bool commit(uint64_t instanceId, const WritePlan& plan, const DLTensor& tensor, 
 
 SavedState copyState(uint64_t instanceId);
 
-} // namespace omni::physx::debug_render
+} // namespace omni::ev4sio_physx::debug_render

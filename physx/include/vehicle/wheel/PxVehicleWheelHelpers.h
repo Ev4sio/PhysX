@@ -15,7 +15,7 @@
 #include "PxVehicleWheelStates.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -186,7 +186,7 @@ PX_FORCE_INLINE bool PxVehicleIsWheelOnGround(const PxVehicleSuspensionState& su
 }
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

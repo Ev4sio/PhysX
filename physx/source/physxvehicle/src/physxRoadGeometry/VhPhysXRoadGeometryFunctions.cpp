@@ -24,7 +24,7 @@
 #include "geometry/PxConvexMeshGeometry.h"
 #include "geometry/PxGeometryQuery.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 PX_FORCE_INLINE PxF32 computeMaterialFriction(const PxShape* hitShape, const PxU32 hitFaceIndex, 
@@ -202,4 +202,4 @@ void PxVehiclePhysXRoadGeometryQueryUpdate
 
 }
 
-} //namespace physx
+} //namespace ev4sio_physx

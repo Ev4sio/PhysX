@@ -1085,7 +1085,7 @@ TEST(OmniPvdColdCreation, DefaultInstanceHasNoProviderAndRejectsLateStart)
     ASSERT_EQ(ovphysx_step_sync(handle, 1.0f / 60.0f).status, OVPHYSX_API_SUCCESS);
     void* physicsPtr = test_utils::read_physics_singleton(handle);
     ASSERT_NE(physicsPtr, nullptr);
-    EXPECT_EQ(static_cast<physx::PxPhysics*>(physicsPtr)->getOmniPvd(), nullptr);
+    EXPECT_EQ(static_cast<ev4sio_physx::PxPhysics*>(physicsPtr)->getOmniPvd(), nullptr);
 
     startResult = start_file_recording(handle, capturePath);
     EXPECT_EQ(startResult.status, OVPHYSX_API_INVALID_STATE);
@@ -1112,7 +1112,7 @@ TEST(OmniPvdColdCreation, DirectoryStartRequiresCapabilityWithoutCreatingOutput)
     ASSERT_EQ(ovphysx_step_sync(scope.handle, 1.0f / 60.0f).status, OVPHYSX_API_SUCCESS);
     void* physics = test_utils::read_physics_singleton(scope.handle);
     ASSERT_NE(physics, nullptr);
-    EXPECT_EQ(static_cast<physx::PxPhysics*>(physics)->getOmniPvd(), nullptr);
+    EXPECT_EQ(static_cast<ev4sio_physx::PxPhysics*>(physics)->getOmniPvd(), nullptr);
     EXPECT_EQ(start_file_recording(scope.handle, directory).status, OVPHYSX_API_INVALID_STATE);
     const ovphysx_string_t error = ovphysx_get_last_error();
     EXPECT_NE(std::string(error.ptr, error.length).find("OVD_RECORDING_CAPABLE"), std::string::npos);
@@ -2320,11 +2320,11 @@ protected:
     {
         ASSERT_TRUE(attach_usd_with_ovstage(handle, asset));
         ASSERT_EQ(ovphysx_step_sync(handle, 1.0f / 60.0f).status, OVPHYSX_API_SUCCESS);
-        const ::physx::PxScene* scene = static_cast<const ::physx::PxScene*>(
+        const ::ev4sio_physx::PxScene* scene = static_cast<const ::ev4sio_physx::PxScene*>(
             read_physx_pointer(handle, OVPHYSX_QUERY_TARGET_SCENE, scenePath));
         ASSERT_NE(scene, nullptr);
-        ASSERT_TRUE(scene->getFlags().isSet(::physx::PxSceneFlag::eENABLE_GPU_DYNAMICS));
-        ASSERT_EQ(scene->getFlags().isSet(::physx::PxSceneFlag::eENABLE_DIRECT_GPU_API), GetParam());
+        ASSERT_TRUE(scene->getFlags().isSet(::ev4sio_physx::PxSceneFlag::eENABLE_GPU_DYNAMICS));
+        ASSERT_EQ(scene->getFlags().isSet(::ev4sio_physx::PxSceneFlag::eENABLE_DIRECT_GPU_API), GetParam());
     }
 
     void* nativeActor(ovphysx_instance_handle_t owner, ovphysx_query_target_t type, const char* actorPath)
@@ -2333,17 +2333,17 @@ protected:
         // These one-body fixtures have public native scene enumerators.
         if (type == OVPHYSX_QUERY_TARGET_DEFORMABLE_SURFACE || type == OVPHYSX_QUERY_TARGET_DEFORMABLE_VOLUME)
         {
-            const ::physx::PxScene* scene = static_cast<const ::physx::PxScene*>(
+            const ::ev4sio_physx::PxScene* scene = static_cast<const ::ev4sio_physx::PxScene*>(
                 read_physx_pointer(owner, OVPHYSX_QUERY_TARGET_SCENE, "/World/PhysicsScene"));
             if (!scene)
                 return nullptr;
             if (type == OVPHYSX_QUERY_TARGET_DEFORMABLE_SURFACE)
             {
-                ::physx::PxDeformableSurface* surface = nullptr;
+                ::ev4sio_physx::PxDeformableSurface* surface = nullptr;
                 return scene->getNbDeformableSurfaces() == 1 && scene->getDeformableSurfaces(&surface, 1) == 1 ?
                     surface : nullptr;
             }
-            ::physx::PxDeformableVolume* volume = nullptr;
+            ::ev4sio_physx::PxDeformableVolume* volume = nullptr;
             return scene->getNbDeformableVolumes() == 1 && scene->getDeformableVolumes(&volume, 1) == 1 ?
                 volume : nullptr;
         }
@@ -2500,7 +2500,7 @@ TEST_P(OmniPvdSelectiveCaptureGpuTest, DeformableSurfaceIncludesLiveVertices)
 {
     loadGpuScene("tests/data/surface_deformable_simple.usda", "/World/PhysicsScene");
     ASSERT_FALSE(::testing::Test::HasFatalFailure());
-    const ::physx::PxDeformableSurface* surface = static_cast<const ::physx::PxDeformableSurface*>(
+    const ::ev4sio_physx::PxDeformableSurface* surface = static_cast<const ::ev4sio_physx::PxDeformableSurface*>(
         nativeActor(handle, OVPHYSX_QUERY_TARGET_DEFORMABLE_SURFACE, "/World/DeformableBody"));
     ASSERT_NE(surface, nullptr);
     const ovphysx_string_t actor = OVPHYSX_LITERAL("/World/DeformableBody");
@@ -2521,7 +2521,7 @@ TEST_P(OmniPvdSelectiveCaptureGpuTest, DeformableVolumeIncludesLiveVertices)
 {
     loadGpuScene("tests/data/volume_deformable_simple.usda", "/World/PhysicsScene");
     ASSERT_FALSE(::testing::Test::HasFatalFailure());
-    const ::physx::PxDeformableVolume* volume = static_cast<const ::physx::PxDeformableVolume*>(
+    const ::ev4sio_physx::PxDeformableVolume* volume = static_cast<const ::ev4sio_physx::PxDeformableVolume*>(
         nativeActor(handle, OVPHYSX_QUERY_TARGET_DEFORMABLE_VOLUME, "/World/DeformableBody"));
     ASSERT_NE(volume, nullptr);
     const ovphysx_string_t actor = OVPHYSX_LITERAL("/World/DeformableBody");
@@ -2643,30 +2643,30 @@ TEST_F(OmniPvdSelectiveCapture, SharedBodyPathIncludesMirrorsInEveryScene)
 {
     ASSERT_TRUE(destroy_ovstage_test_attachments(handle));
     ASSERT_TRUE(attach_usd_with_ovstage(handle, "tests/data/omnipvd_selective_mirrors.usda"));
-    std::vector<const ::physx::PxRigidActor*> actors;
+    std::vector<const ::ev4sio_physx::PxRigidActor*> actors;
     const char* scenePaths[] = { "/World/SceneA", "/World/SceneB" };
     for (const char* scenePath : scenePaths)
     {
-        const ::physx::PxScene* scene = static_cast<const ::physx::PxScene*>(
+        const ::ev4sio_physx::PxScene* scene = static_cast<const ::ev4sio_physx::PxScene*>(
             read_physx_pointer(handle, OVPHYSX_QUERY_TARGET_SCENE, scenePath));
         ASSERT_NE(scene, nullptr);
-        const ::physx::PxActorTypeFlags types =
-            ::physx::PxActorTypeFlag::eRIGID_STATIC | ::physx::PxActorTypeFlag::eRIGID_DYNAMIC;
-        std::vector<::physx::PxActor*> sceneActors(scene->getNbActors(types));
-        ASSERT_EQ(scene->getActors(types, sceneActors.data(), static_cast<::physx::PxU32>(sceneActors.size())),
+        const ::ev4sio_physx::PxActorTypeFlags types =
+            ::ev4sio_physx::PxActorTypeFlag::eRIGID_STATIC | ::ev4sio_physx::PxActorTypeFlag::eRIGID_DYNAMIC;
+        std::vector<::ev4sio_physx::PxActor*> sceneActors(scene->getNbActors(types));
+        ASSERT_EQ(scene->getActors(types, sceneActors.data(), static_cast<::ev4sio_physx::PxU32>(sceneActors.size())),
                   sceneActors.size());
-        for (const ::physx::PxActor* actor : sceneActors)
-            actors.push_back(static_cast<const ::physx::PxRigidActor*>(actor));
+        for (const ::ev4sio_physx::PxActor* actor : sceneActors)
+            actors.push_back(static_cast<const ::ev4sio_physx::PxRigidActor*>(actor));
     }
     const char* selectedPaths[] = { "/World/SharedDynamic", "/World/SharedStatic" };
     for (const char* selectedPath : selectedPaths)
     {
-        const ::physx::PxRigidActor* primary = reinterpret_cast<const ::physx::PxRigidActor*>(
+        const ::ev4sio_physx::PxRigidActor* primary = reinterpret_cast<const ::ev4sio_physx::PxRigidActor*>(
             object(handle, OVPHYSX_QUERY_TARGET_RIGID_ACTOR, selectedPath));
         ASSERT_NE(primary, nullptr);
-        std::vector<const ::physx::PxRigidActor*> selected;
-        std::vector<const ::physx::PxRigidActor*> excluded;
-        for (const ::physx::PxRigidActor* actor : actors)
+        std::vector<const ::ev4sio_physx::PxRigidActor*> selected;
+        std::vector<const ::ev4sio_physx::PxRigidActor*> excluded;
+        for (const ::ev4sio_physx::PxRigidActor* actor : actors)
         {
             if (actor->getGlobalPose().p.x == primary->getGlobalPose().p.x)
                 selected.push_back(actor);
@@ -2680,15 +2680,15 @@ TEST_F(OmniPvdSelectiveCapture, SharedBodyPathIncludesMirrorsInEveryScene)
         capture.record_secondary_data = false;
         capture.object_paths = &root;
         capture.object_count = 1;
-        const fs::path file = path(primary->getType() == ::physx::PxActorType::eRIGID_DYNAMIC ?
+        const fs::path file = path(primary->getType() == ::ev4sio_physx::PxActorType::eRIGID_DYNAMIC ?
                                    "dynamic_mirrors" : "static_mirrors");
         ASSERT_EQ(start(handle, file, &capture).status, OVPHYSX_API_SUCCESS);
         finish(handle);
         OvdCommandSummary summary;
         ASSERT_TRUE(read_ovd_commands(file, summary));
-        for (const ::physx::PxRigidActor* actor : selected)
+        for (const ::ev4sio_physx::PxRigidActor* actor : selected)
             EXPECT_EQ(summary.createdObjects.count(reinterpret_cast<OmniPvdObjectHandle>(actor)), 1u);
-        for (const ::physx::PxRigidActor* actor : excluded)
+        for (const ::ev4sio_physx::PxRigidActor* actor : excluded)
             EXPECT_EQ(summary.createdObjects.count(reinterpret_cast<OmniPvdObjectHandle>(actor)), 0u);
     }
 }
@@ -2698,12 +2698,12 @@ TEST_F(OmniPvdSelectiveCapture, GenericPrototypePathIncludesEveryNativeInstance)
     ASSERT_TRUE(destroy_ovstage_test_attachments(handle));
     ASSERT_TRUE(attach_usd_with_ovstage(handle, "tests/data/ovstage_output_instancer.usda"));
     ASSERT_EQ(ovphysx_step_sync(handle, 1.0f / 60.0f).status, OVPHYSX_API_SUCCESS);
-    const ::physx::PxScene* scene = static_cast<const ::physx::PxScene*>(
+    const ::ev4sio_physx::PxScene* scene = static_cast<const ::ev4sio_physx::PxScene*>(
         read_physx_pointer(handle, OVPHYSX_QUERY_TARGET_SCENE, "/World/Scene"));
     ASSERT_NE(scene, nullptr);
-    const ::physx::PxActorTypeFlags actorTypes(::physx::PxActorTypeFlag::eRIGID_DYNAMIC);
-    std::vector<::physx::PxActor*> actors(scene->getNbActors(actorTypes));
-    ASSERT_EQ(scene->getActors(actorTypes, actors.data(), static_cast<::physx::PxU32>(actors.size())), 3u);
+    const ::ev4sio_physx::PxActorTypeFlags actorTypes(::ev4sio_physx::PxActorTypeFlag::eRIGID_DYNAMIC);
+    std::vector<::ev4sio_physx::PxActor*> actors(scene->getNbActors(actorTypes));
+    ASSERT_EQ(scene->getActors(actorTypes, actors.data(), static_cast<::ev4sio_physx::PxU32>(actors.size())), 3u);
     const OmniPvdObjectHandle excluded = object(handle, OVPHYSX_QUERY_TARGET_RIGID_ACTOR, "/World/Fixed");
     ASSERT_NE(excluded, 0u);
     const ovphysx_string_t prototype = OVPHYSX_LITERAL("/World/Instances/Prototype");
@@ -2715,7 +2715,7 @@ TEST_F(OmniPvdSelectiveCapture, GenericPrototypePathIncludesEveryNativeInstance)
     finish(handle);
     OvdCommandSummary summary;
     ASSERT_TRUE(read_ovd_commands(file, summary));
-    for (const ::physx::PxActor* actor : actors)
+    for (const ::ev4sio_physx::PxActor* actor : actors)
     {
         const OmniPvdObjectHandle identity = reinterpret_cast<OmniPvdObjectHandle>(actor);
         if (identity != excluded)
@@ -2732,12 +2732,12 @@ TEST_F(OmniPvdSelectiveCapture, PrimaryPrototypePathIncludesEveryNativeInstance)
     ASSERT_TRUE(destroy_ovstage_test_attachments(handle));
     ASSERT_TRUE(attach_usd_with_ovstage(handle, "tests/data/ovstage_output_instancer.usda"));
     ASSERT_EQ(ovphysx_step_sync(handle, 1.0f / 60.0f).status, OVPHYSX_API_SUCCESS);
-    const ::physx::PxScene* scene = static_cast<const ::physx::PxScene*>(
+    const ::ev4sio_physx::PxScene* scene = static_cast<const ::ev4sio_physx::PxScene*>(
         read_physx_pointer(handle, OVPHYSX_QUERY_TARGET_SCENE, "/World/Scene"));
     ASSERT_NE(scene, nullptr);
-    const ::physx::PxActorTypeFlags actorTypes(::physx::PxActorTypeFlag::eRIGID_DYNAMIC);
-    std::vector<::physx::PxActor*> actors(scene->getNbActors(actorTypes));
-    ASSERT_EQ(scene->getActors(actorTypes, actors.data(), static_cast<::physx::PxU32>(actors.size())), 3u);
+    const ::ev4sio_physx::PxActorTypeFlags actorTypes(::ev4sio_physx::PxActorTypeFlag::eRIGID_DYNAMIC);
+    std::vector<::ev4sio_physx::PxActor*> actors(scene->getNbActors(actorTypes));
+    ASSERT_EQ(scene->getActors(actorTypes, actors.data(), static_cast<::ev4sio_physx::PxU32>(actors.size())), 3u);
     const OmniPvdObjectHandle excluded = object(handle, OVPHYSX_QUERY_TARGET_RIGID_ACTOR, "/World/Fixed");
     ASSERT_NE(excluded, 0u);
     const ovphysx_string_t prototype = OVPHYSX_LITERAL("/World/Instances/Prototype");
@@ -2751,7 +2751,7 @@ TEST_F(OmniPvdSelectiveCapture, PrimaryPrototypePathIncludesEveryNativeInstance)
     OvdCommandSummary summary;
     ASSERT_TRUE(read_ovd_commands(file, summary));
     uint32_t capturedInstances = 0;
-    for (const ::physx::PxActor* actor : actors)
+    for (const ::ev4sio_physx::PxActor* actor : actors)
     {
         const OmniPvdObjectHandle identity = reinterpret_cast<OmniPvdObjectHandle>(actor);
         if (identity != excluded)
@@ -3143,8 +3143,8 @@ TEST_F(OmniPvdSelectiveCapture, TcpDiscoveryCatalogIsOwnedAndHasNoSimulationPayl
             const ovphysx_api_status_t started = start_discovery(
                 handle, &destination, scoped ? &scope : nullptr).status;
             if (started != OVPHYSX_API_SUCCESS) return started;
-            const ::physx::PxRigidActor* actor = reinterpret_cast<const ::physx::PxRigidActor*>(selected);
-            ::physx::PxOmniPvd* native = actor->getScene()->getPhysics().getOmniPvd();
+            const ::ev4sio_physx::PxRigidActor* actor = reinterpret_cast<const ::ev4sio_physx::PxRigidActor*>(selected);
+            ::ev4sio_physx::PxOmniPvd* native = actor->getScene()->getPhysics().getOmniPvd();
             EXPECT_FALSE(native->isSampling());
             EXPECT_TRUE(native->isCaptureDiscoveryActive());
             bool active = false;
@@ -3268,8 +3268,8 @@ TEST_F(OmniPvdSelectiveCapture, TcpDiscoverySelectionCannotWidenInitialScope)
         while (!sent->load() && std::chrono::steady_clock::now() < deadline)
             std::this_thread::yield();
         if (!sent->load()) status = OVPHYSX_API_ERROR;
-        const ::physx::PxRigidActor* actor = reinterpret_cast<const ::physx::PxRigidActor*>(selected);
-        ::physx::PxOmniPvd* native = actor->getScene()->getPhysics().getOmniPvd();
+        const ::ev4sio_physx::PxRigidActor* actor = reinterpret_cast<const ::ev4sio_physx::PxRigidActor*>(selected);
+        ::ev4sio_physx::PxOmniPvd* native = actor->getScene()->getPhysics().getOmniPvd();
         bool pending = false;
         while (!pending && std::chrono::steady_clock::now() < deadline)
         {
@@ -3406,10 +3406,10 @@ TEST_F(OmniPvdSelectiveCapture, TcpPendingRequestWaitsForQueuedPeerWithoutCollec
     ASSERT_TRUE(attach_usd_with_ovstage(peer, "tests/data/simple_physics_scene.usda"));
     ASSERT_EQ(ovphysx_step_sync(handle, 0.01f).status, OVPHYSX_API_SUCCESS);
     ASSERT_EQ(ovphysx_step_sync(peer, 0.01f).status, OVPHYSX_API_SUCCESS);
-    const auto* actor = static_cast<const ::physx::PxRigidActor*>(
+    const auto* actor = static_cast<const ::ev4sio_physx::PxRigidActor*>(
         read_physx_pointer(handle, OVPHYSX_QUERY_TARGET_RIGID_ACTOR, "/World/Cube1"));
     ASSERT_NE(actor, nullptr);
-    ::physx::PxOmniPvd* omniPvd = actor->getScene()->getPhysics().getOmniPvd();
+    ::ev4sio_physx::PxOmniPvd* omniPvd = actor->getScene()->getPhysics().getOmniPvd();
     ASSERT_NE(omniPvd, nullptr);
     const OmniPvdObjectHandle selected = reinterpret_cast<OmniPvdObjectHandle>(actor);
     const auto control = std::make_shared<std::vector<uint8_t>>();
@@ -3465,7 +3465,7 @@ TEST_F(OmniPvdSelectiveCapture, TcpPendingRequestWaitsForQueuedPeerWithoutCollec
         EXPECT_EQ(heldState, OVPHYSX_TASK_STATUS_PENDING);
         permit->store(true);
         {
-            ::physx::PxOmniPvd::ScopedExclusiveWriter lock(omniPvd);
+            ::ev4sio_physx::PxOmniPvd::ScopedExclusiveWriter lock(omniPvd);
             omniPvd->getWriter()->startFrame(1, 0);
             omniPvd->getWriter()->stopFrame(1, 0);
             omniPvd->getWriter()->getWriteStream()->flush();
@@ -3523,18 +3523,18 @@ TEST_F(OmniPvdSelectiveCapture, TcpMaterialsFollowActorSelectionAndRejectStandal
     ASSERT_EQ(ovphysx_create_instance(&peer).status, OVPHYSX_API_SUCCESS);
     ASSERT_TRUE(attach_usd_with_ovstage(peer, "tests/data/simple_physics_scene.usda"));
     ASSERT_EQ(ovphysx_step_sync(peer, 1.0f / 60.0f).status, OVPHYSX_API_SUCCESS);
-    const ::physx::PxRigidActor* ownActor = static_cast<const ::physx::PxRigidActor*>(
+    const ::ev4sio_physx::PxRigidActor* ownActor = static_cast<const ::ev4sio_physx::PxRigidActor*>(
         read_physx_pointer(handle, OVPHYSX_QUERY_TARGET_RIGID_ACTOR, "/World/Cube1"));
-    const ::physx::PxRigidActor* peerActor = static_cast<const ::physx::PxRigidActor*>(
+    const ::ev4sio_physx::PxRigidActor* peerActor = static_cast<const ::ev4sio_physx::PxRigidActor*>(
         read_physx_pointer(peer, OVPHYSX_QUERY_TARGET_RIGID_ACTOR, "/World/Cube1"));
     ASSERT_NE(ownActor, nullptr);
     ASSERT_NE(peerActor, nullptr);
-    ::physx::PxShape* ownShape = nullptr;
-    ::physx::PxShape* peerShape = nullptr;
+    ::ev4sio_physx::PxShape* ownShape = nullptr;
+    ::ev4sio_physx::PxShape* peerShape = nullptr;
     ASSERT_EQ(ownActor->getShapes(&ownShape, 1), 1u);
     ASSERT_EQ(peerActor->getShapes(&peerShape, 1), 1u);
-    ::physx::PxMaterial* ownMaterial = nullptr;
-    ::physx::PxMaterial* peerMaterial = nullptr;
+    ::ev4sio_physx::PxMaterial* ownMaterial = nullptr;
+    ::ev4sio_physx::PxMaterial* peerMaterial = nullptr;
     ASSERT_EQ(ownShape->getMaterials(&ownMaterial, 1), 1u);
     ASSERT_EQ(peerShape->getMaterials(&peerMaterial, 1), 1u);
     ASSERT_NE(ownMaterial, nullptr);
@@ -3616,7 +3616,7 @@ TEST_P(OmniPvdSelectiveCaptureGpuTest, TcpGpuMaterialsFollowActorSelectionAndRej
         ASSERT_FALSE(::testing::Test::HasFatalFailure());
         ASSERT_TRUE(attach_usd_with_ovstage(peer, fixtureName.c_str()));
         ASSERT_EQ(ovphysx_step_sync(peer, 1.0f / 60.0f).status, OVPHYSX_API_SUCCESS);
-        const ::physx::PxBase* materials[2] = {};
+        const ::ev4sio_physx::PxBase* materials[2] = {};
         const ovphysx_instance_handle_t owners[] = { handle, peer };
         for (uint32_t ownerIndex = 0; ownerIndex < 2; ++ownerIndex)
         {
@@ -3624,21 +3624,21 @@ TEST_P(OmniPvdSelectiveCaptureGpuTest, TcpGpuMaterialsFollowActorSelectionAndRej
             ASSERT_NE(actor, nullptr);
             if (index == 0)
             {
-                ::physx::PxPBDMaterial* material = nullptr;
-                ASSERT_EQ(static_cast<::physx::PxPBDParticleSystem*>(actor)->getParticleMaterials(&material, 1), 1u);
+                ::ev4sio_physx::PxPBDMaterial* material = nullptr;
+                ASSERT_EQ(static_cast<::ev4sio_physx::PxPBDParticleSystem*>(actor)->getParticleMaterials(&material, 1), 1u);
                 materials[ownerIndex] = material;
             }
             else if (index == 1)
             {
-                ::physx::PxDeformableSurfaceMaterial* material = nullptr;
-                ASSERT_EQ(static_cast<::physx::PxDeformableSurface*>(actor)->getShape()->getDeformableSurfaceMaterials(
+                ::ev4sio_physx::PxDeformableSurfaceMaterial* material = nullptr;
+                ASSERT_EQ(static_cast<::ev4sio_physx::PxDeformableSurface*>(actor)->getShape()->getDeformableSurfaceMaterials(
                               &material, 1), 1u);
                 materials[ownerIndex] = material;
             }
             else
             {
-                ::physx::PxDeformableVolumeMaterial* material = nullptr;
-                ASSERT_EQ(static_cast<::physx::PxDeformableVolume*>(actor)->getShape()->getDeformableVolumeMaterials(
+                ::ev4sio_physx::PxDeformableVolumeMaterial* material = nullptr;
+                ASSERT_EQ(static_cast<::ev4sio_physx::PxDeformableVolume*>(actor)->getShape()->getDeformableVolumeMaterials(
                               &material, 1), 1u);
                 materials[ownerIndex] = material;
             }
@@ -3697,17 +3697,17 @@ TEST_P(OmniPvdSelectiveCaptureGpuTest, TcpDeformableTransitionsUseCurrentActorLo
         ASSERT_FALSE(::testing::Test::HasFatalFailure());
         const OmniPvdObjectHandle actor = object(handle, types[index], "/World/DeformableBody");
         ASSERT_NE(actor, 0u);
-        std::vector<const ::physx::PxBase*> meshes;
+        std::vector<const ::ev4sio_physx::PxBase*> meshes;
         if (index == 0)
         {
-            ::physx::PxDeformableSurface* surface = static_cast<::physx::PxDeformableSurface*>(
+            ::ev4sio_physx::PxDeformableSurface* surface = static_cast<::ev4sio_physx::PxDeformableSurface*>(
                 nativeActor(handle, types[index], "/World/DeformableBody"));
-            meshes.push_back(static_cast<const ::physx::PxTriangleMeshGeometry&>(
+            meshes.push_back(static_cast<const ::ev4sio_physx::PxTriangleMeshGeometry&>(
                 surface->getShape()->getGeometry()).triangleMesh);
         }
         else
         {
-            const ::physx::PxDeformableVolume* volume = static_cast<const ::physx::PxDeformableVolume*>(
+            const ::ev4sio_physx::PxDeformableVolume* volume = static_cast<const ::ev4sio_physx::PxDeformableVolume*>(
                 nativeActor(handle, types[index], "/World/DeformableBody"));
             meshes = { volume->getSimulationMesh(), volume->getCollisionMesh() };
         }
@@ -3743,7 +3743,7 @@ TEST_P(OmniPvdSelectiveCaptureGpuTest, TcpDeformableTransitionsUseCurrentActorLo
         expectMovingPoints(summary, actor, index == 0 ? "positions" : "simulationPositions", index == 0 ? 16 : 20);
         expectMovingPoints(summary, actor, "velocities", index == 0 ? 16 : 20);
         // Primary-only epochs retain the geometry needed to interpret the selected actor.
-        for (const ::physx::PxBase* mesh : meshes)
+        for (const ::ev4sio_physx::PxBase* mesh : meshes)
         {
             const OmniPvdObjectHandle identity = reinterpret_cast<OmniPvdObjectHandle>(mesh);
             EXPECT_EQ(summary.writtenAttributes[identity].count("verts"), 1u);
@@ -3776,9 +3776,9 @@ TEST_P(OmniPvdSelectiveCaptureGpuTest, TcpVolumeMeshesFollowActorSelectionAndRej
     ASSERT_EQ(ovphysx_create_instance(&peer).status, OVPHYSX_API_SUCCESS);
     ASSERT_TRUE(attach_usd_with_ovstage(peer, peerFixture.string().c_str()));
     ASSERT_EQ(ovphysx_step_sync(peer, 1.0f / 60.0f).status, OVPHYSX_API_SUCCESS);
-    const ::physx::PxDeformableVolume* ownVolume = static_cast<const ::physx::PxDeformableVolume*>(
+    const ::ev4sio_physx::PxDeformableVolume* ownVolume = static_cast<const ::ev4sio_physx::PxDeformableVolume*>(
         nativeActor(handle, OVPHYSX_QUERY_TARGET_DEFORMABLE_VOLUME, "/World/DeformableBody"));
-    const ::physx::PxDeformableVolume* peerVolume = static_cast<const ::physx::PxDeformableVolume*>(
+    const ::ev4sio_physx::PxDeformableVolume* peerVolume = static_cast<const ::ev4sio_physx::PxDeformableVolume*>(
         nativeActor(peer, OVPHYSX_QUERY_TARGET_DEFORMABLE_VOLUME, "/World/DeformableBody"));
     ASSERT_NE(ownVolume, nullptr);
     ASSERT_NE(peerVolume, nullptr);
@@ -3833,7 +3833,7 @@ TEST_P(OmniPvdSelectiveCaptureGpuTest, TcpVolumeMeshesFollowActorSelectionAndRej
     EXPECT_EQ(summary.currentAttributes[ownSimulationMesh].count("tets"), 1u);
     // The initial actor selection and subsequent requests must never expose
     // the peer's dense mesh payload.
-    for (const ::physx::PxTetrahedronMesh* mesh : { peerVolume->getSimulationMesh(), peerVolume->getCollisionMesh() })
+    for (const ::ev4sio_physx::PxTetrahedronMesh* mesh : { peerVolume->getSimulationMesh(), peerVolume->getCollisionMesh() })
     {
         const OmniPvdObjectHandle identity = reinterpret_cast<OmniPvdObjectHandle>(mesh);
         EXPECT_EQ(summary.writtenAttributes[identity].count("verts"), 0u);
@@ -3932,11 +3932,11 @@ TEST_F(OmniPvdSelectiveCapture, TcpReceiverRequestsApplyOnlyToRecordingAttachmen
 {
     ASSERT_EQ(ovphysx_create_instance(&peer).status, OVPHYSX_API_SUCCESS);
     ASSERT_TRUE(attach_usd_with_ovstage(peer, "tests/data/simple_physics_scene.usda"));
-    const ::physx::PxActor* first = static_cast<const ::physx::PxActor*>(
+    const ::ev4sio_physx::PxActor* first = static_cast<const ::ev4sio_physx::PxActor*>(
         read_physx_pointer(handle, OVPHYSX_QUERY_TARGET_RIGID_ACTOR, "/World/Cube1"));
-    const ::physx::PxActor* second = static_cast<const ::physx::PxActor*>(
+    const ::ev4sio_physx::PxActor* second = static_cast<const ::ev4sio_physx::PxActor*>(
         read_physx_pointer(handle, OVPHYSX_QUERY_TARGET_RIGID_ACTOR, "/World/Cube2"));
-    const ::physx::PxActor* peerActor = static_cast<const ::physx::PxActor*>(
+    const ::ev4sio_physx::PxActor* peerActor = static_cast<const ::ev4sio_physx::PxActor*>(
         read_physx_pointer(peer, OVPHYSX_QUERY_TARGET_RIGID_ACTOR, "/World/Cube1"));
     ASSERT_NE(first, nullptr);
     ASSERT_NE(second, nullptr);
@@ -3985,7 +3985,7 @@ TEST_F(OmniPvdSelectiveCapture, TcpReceiverRequestsApplyOnlyToRecordingAttachmen
             ovphysx_ovd_stop_recording(handle);
             return OVPHYSX_API_ERROR;
         }
-        ::physx::PxOmniPvd* native = static_cast<::physx::PxPhysics*>(
+        ::ev4sio_physx::PxOmniPvd* native = static_cast<::ev4sio_physx::PxPhysics*>(
             test_utils::read_physics_singleton(handle))->getOmniPvd();
         for (uint32_t step = 0; step < 4 && status == OVPHYSX_API_SUCCESS; ++step)
         {
@@ -4407,7 +4407,7 @@ TEST_F(OmniPvdSelectiveCapture, StagelessTcpOwnerStaysDeniedAfterAttaching)
     ASSERT_EQ(ovphysx_create_instance(&peer).status, OVPHYSX_API_SUCCESS);
     void* physics = test_utils::read_physics_singleton(handle);
     ASSERT_NE(physics, nullptr);
-    ::physx::PxOmniPvd* omniPvd = static_cast<::physx::PxPhysics*>(physics)->getOmniPvd();
+    ::ev4sio_physx::PxOmniPvd* omniPvd = static_cast<::ev4sio_physx::PxPhysics*>(physics)->getOmniPvd();
     ASSERT_NE(omniPvd, nullptr);
     const std::shared_ptr<std::vector<uint8_t>> control = std::make_shared<std::vector<uint8_t>>();
     CaptureWireRequest request;
@@ -4436,7 +4436,7 @@ TEST_F(OmniPvdSelectiveCapture, StagelessTcpOwnerStaysDeniedAfterAttaching)
         // Send only now. A valid empty frame wakes the reader if it already consumed the stream.
         permit->store(true);
         {
-            ::physx::PxOmniPvd::ScopedExclusiveWriter lock(omniPvd);
+            ::ev4sio_physx::PxOmniPvd::ScopedExclusiveWriter lock(omniPvd);
             omniPvd->getWriter()->startFrame(1, 0);
             omniPvd->getWriter()->stopFrame(1, 0);
             omniPvd->getWriter()->getWriteStream()->flush();

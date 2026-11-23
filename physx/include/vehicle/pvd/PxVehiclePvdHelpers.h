@@ -9,7 +9,7 @@
 #include "foundation/PxSimpleTypes.h"
 
 class OmniPvdWriter;
-namespace physx
+namespace ev4sio_physx
 {
 class PxAllocatorCallback;
 struct PxVehiclePvdAttributeHandles;
@@ -17,7 +17,7 @@ struct PxVehiclePvdObjectHandles;
 } 
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -69,7 +69,7 @@ void PxVehiclePvdObjectRelease
 (OmniPvdWriter& omniWriter, PxAllocatorCallback& allocator, PxVehiclePvdObjectHandles& objectHandles);
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

@@ -10,7 +10,7 @@
 
 #include <cstdio>
 
-namespace omni::physx
+namespace omni::ev4sio_physx
 {
 namespace
 {
@@ -41,4 +41,4 @@ void recordRuntimeError(const char* message) noexcept
     std::snprintf(t_activeScope->mMessage, sizeof(t_activeScope->mMessage), "%s", message);
 }
 
-} // namespace omni::physx
+} // namespace omni::ev4sio_physx

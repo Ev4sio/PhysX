@@ -11,7 +11,7 @@
 
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 	/**
@@ -21,10 +21,10 @@ namespace physx
 	If a PhysXCommon dll or PhysXFoundation dll with a non-default file name needs to be loaded, 
 	PxDelayLoadHook can be sub-classed to provide the custom filenames.
 
-	Once the names are set, the instance must be set for use by PhysX.dll using PxSetPhysXDelayLoadHook(), 
-	or by PhysXCommon.dll using PxSetPhysXCommonDelayLoadHook().
+	Once the names are set, the instance must be set for use by PhysX.dll using ev4sio_PxSetPhysXDelayLoadHook(),
+	or by PhysXCommon.dll using ev4sio_PxSetPhysXCommonDelayLoadHook().
 
-	\see PxSetPhysXDelayLoadHook(), PxSetPhysXCommonDelayLoadHook()
+	\see ev4sio_PxSetPhysXDelayLoadHook(), ev4sio_PxSetPhysXCommonDelayLoadHook()
  	*/
 	class PxDelayLoadHook
 	{
@@ -47,7 +47,7 @@ namespace physx
 
 	\see PxDelayLoadHook
 	*/
-	PX_C_EXPORT PX_PHYSX_CORE_API void PX_CALL_CONV PxSetPhysXDelayLoadHook(const physx::PxDelayLoadHook* hook);
+	PX_C_EXPORT PX_PHYSX_CORE_API void PX_CALL_CONV ev4sio_PxSetPhysXDelayLoadHook(const ev4sio_physx::PxDelayLoadHook* hook);
 
 	/**
 	\brief Sets delay load hook instance for PhysXCommon dll.
@@ -56,9 +56,9 @@ namespace physx
 
 	\see PxDelayLoadHook
 	*/
-	PX_C_EXPORT PX_PHYSX_COMMON_API void PX_CALL_CONV PxSetPhysXCommonDelayLoadHook(const physx::PxDelayLoadHook* hook);
+	PX_C_EXPORT PX_PHYSX_COMMON_API void PX_CALL_CONV ev4sio_PxSetPhysXCommonDelayLoadHook(const ev4sio_physx::PxDelayLoadHook* hook);
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 #endif

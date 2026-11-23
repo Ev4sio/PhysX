@@ -68,12 +68,12 @@ using omni::physics::tensors::checkTensorSizeExact;
 using omni::physics::tensors::checkTensorSizeMinimum;
 using omni::physics::tensors::getTensorTotalSize;
 
-using namespace physx;
+using namespace ev4sio_physx;
 using omni::physics::tensors::DofDriveType;
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace tensors
 {
@@ -2772,7 +2772,7 @@ bool BaseArticulationView::check() const
     {
         const omni::physics::parse::ObjectKey key =
             attachedStage ? attachedStage->keyFor(entry.path) : omni::physics::parse::ObjectKey{};
-        void* ptr = BaseSimulationView::resolvePhysXPtr(attachedStage, key, omni::physx::PhysXType::ePTArticulation);
+        void* ptr = BaseSimulationView::resolvePhysXPtr(attachedStage, key, omni::ev4sio_physx::PhysXType::ePTArticulation);
         if (ptr != entry.arti)
         {
             result = false;

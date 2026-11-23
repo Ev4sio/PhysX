@@ -13,7 +13,7 @@
 
 #define LOCK()  PxMutex::ScopedLock _lock_(mMutex)
 
-namespace physx
+namespace ev4sio_physx
 {
     const int EOL = -1;
 	typedef PxHashMap<const char *, PxTaskID> PxTaskNameToIDMap;
@@ -405,7 +405,7 @@ void PxTaskMgr::dispatchTask( PxTaskID taskID )
     case PxTaskType::eNOT_PRESENT:
 		/* No task registered with this taskID, resolve its dependencies */
 		PX_ASSERT(!tt.mTask);
-		//PxGetFoundation().error(PX_INFO, "unregistered task resolved");
+		//ev4sio_PxGetFoundation().error(PX_INFO, "unregistered task resolved");
         resolveRow( taskID );
 		break;
 	case PxTaskType::eCOMPLETED:

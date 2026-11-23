@@ -15,8 +15,8 @@
 #include "cudamanager/PxCudaContext.h"
 #include "extensions/PxCudaHelpersExt.h"
 
-using namespace physx;
-using namespace Cm;
+using namespace ev4sio_physx;
+using namespace ev4sio_Cm;
 
 //Computes the volume of the simulation mesh defined as the sum of the volumes of all tetrahedra
 static PxReal computeSimulationMeshVolume(PxDeformableVolume& deformableVolume, PxVec4* simPositions)
@@ -80,7 +80,7 @@ static void updateNodeInverseVolumes(PxDeformableVolume& deformableVolume, PxVec
 		const PxReal det = Q.getDeterminant();
 
 		if (det <= 1.e-9f)
-			PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "updateNodeInverseVolumes(): tetrahedron is degenerate or inverted");
+			ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "updateNodeInverseVolumes(): tetrahedron is degenerate or inverted");
 
 		//Distribute one quarter of the volume to each vertex the tetrahedron is connected to
 		const PxReal volume = det / 6.0f;
@@ -171,7 +171,7 @@ void PxDeformableVolumeExt::transform(PxDeformableVolume& deformableVolume, cons
 		collPositionsPinned[i] = PxVec4(vert.x, vert.y, vert.z, tpInvMass.w);
 	}
 
-	PxMat33* tetraRestPosesGM = static_cast<Gu::DeformableVolumeAuxData*>(deformableVolume.getDeformableVolumeAuxData())->getGridModelRestPosesFast(); // reinterpret_cast<PxMat33*>(simMeshData->deformableVolumeAuxData.getGridModelRestPosesFast());
+	PxMat33* tetraRestPosesGM = static_cast<ev4sio_Gu::DeformableVolumeAuxData*>(deformableVolume.getDeformableVolumeAuxData())->getGridModelRestPosesFast(); // reinterpret_cast<PxMat33*>(simMeshData->deformableVolumeAuxData.getGridModelRestPosesFast());
 	const PxU32 nbTetraGM = deformableVolume.getSimulationMesh()->getNbTetrahedrons();
 
 	const PxReal invScale = 1.0f / scale;
@@ -194,7 +194,7 @@ void PxDeformableVolumeExt::transform(PxDeformableVolume& deformableVolume, cons
 	}
 
 
-	PxMat33* tetraRestPoses = static_cast<Gu::DeformableVolumeAuxData*>(deformableVolume.getDeformableVolumeAuxData())->getRestPosesFast(); // reinterpret_cast<PxMat33*>(simMeshData->deformableVolumeAuxData.getGridModelRestPosesFast());
+	PxMat33* tetraRestPoses = static_cast<ev4sio_Gu::DeformableVolumeAuxData*>(deformableVolume.getDeformableVolumeAuxData())->getRestPosesFast(); // reinterpret_cast<PxMat33*>(simMeshData->deformableVolumeAuxData.getGridModelRestPosesFast());
 	const PxU32 nbTetra = deformableVolume.getCollisionMesh()->getNbTetrahedrons();
 
 	for (PxU32 i = 0; i < nbTetra; ++i)
@@ -219,7 +219,7 @@ void PxDeformableVolumeExt::transform(PxDeformableVolume& deformableVolume, cons
 
 void PxDeformableVolumeExt::updateEmbeddedCollisionMesh(PxDeformableVolume& deformableVolume, PxVec4* simPositionsPinned, PxVec4* collPositionsPinned)
 {
-	Gu::DeformableVolumeAuxData* deformableVolumeAuxData = static_cast<Gu::DeformableVolumeAuxData*>(deformableVolume.getDeformableVolumeAuxData());
+	ev4sio_Gu::DeformableVolumeAuxData* deformableVolumeAuxData = static_cast<ev4sio_Gu::DeformableVolumeAuxData*>(deformableVolume.getDeformableVolumeAuxData());
 	const PxU32* remapTable = deformableVolumeAuxData->mVertsRemapInGridModel;
 	PxReal* barycentricCoordinates = deformableVolumeAuxData->mVertsBarycentricInGridModel;
 
@@ -289,22 +289,22 @@ void PxDeformableVolumeExt::copyToDevice(PxDeformableVolume& deformableVolume, P
 PxDeformableVolumeMesh* PxDeformableVolumeExt::createDeformableVolumeMesh(const PxCookingParams& params, const PxSimpleTriangleMesh& surfaceMesh, PxU32 numVoxelsAlongLongestAABBAxis, PxInsertionCallback& insertionCallback, const bool validate)
 {
 	//Compute collision mesh
-	physx::PxArray<physx::PxVec3> collisionMeshVertices;
-	physx::PxArray<physx::PxU32> collisionMeshIndices;
+	ev4sio_physx::PxArray<ev4sio_physx::PxVec3> collisionMeshVertices;
+	ev4sio_physx::PxArray<ev4sio_physx::PxU32> collisionMeshIndices;
 	if (!PxTetMaker::createConformingTetrahedronMesh(surfaceMesh, collisionMeshVertices, collisionMeshIndices, validate))
 		return NULL;
 	PxTetrahedronMeshDesc meshDesc(collisionMeshVertices, collisionMeshIndices);
 	
 	//Compute simulation mesh
-	physx::PxArray<physx::PxI32> vertexToTet;
+	ev4sio_physx::PxArray<ev4sio_physx::PxI32> vertexToTet;
 	vertexToTet.resize(meshDesc.points.count);
-	physx::PxArray<physx::PxVec3> simulationMeshVertices;
-	physx::PxArray<physx::PxU32> simulationMeshIndices;
+	ev4sio_physx::PxArray<ev4sio_physx::PxVec3> simulationMeshVertices;
+	ev4sio_physx::PxArray<ev4sio_physx::PxU32> simulationMeshIndices;
 	PxTetMaker::createVoxelTetrahedronMesh(meshDesc, numVoxelsAlongLongestAABBAxis, simulationMeshVertices, simulationMeshIndices, vertexToTet.begin());
 	PxTetrahedronMeshDesc simMeshDesc(simulationMeshVertices, simulationMeshIndices, PxTetrahedronMeshDesc::PxMeshFormat::eHEX_MESH);
 	PxDeformableVolumeSimulationDataDesc simDesc(vertexToTet);
 
-	physx::PxDeformableVolumeMesh* deformableVolumeMesh = PxCreateDeformableVolumeMesh(params, simMeshDesc, meshDesc, simDesc, insertionCallback);
+	ev4sio_physx::PxDeformableVolumeMesh* deformableVolumeMesh = ev4sio_PxCreateDeformableVolumeMesh(params, simMeshDesc, meshDesc, simDesc, insertionCallback);
 	
 	return deformableVolumeMesh;
 }
@@ -314,14 +314,14 @@ PxDeformableVolumeMesh* PxDeformableVolumeExt::createDeformableVolumeMeshNoVoxel
 	PxCookingParams p = params;
 	p.maxWeightRatioInTet = maxWeightRatioInTet;
 
-	physx::PxArray<physx::PxVec3> collisionMeshVertices;
-	physx::PxArray<physx::PxU32> collisionMeshIndices;
+	ev4sio_physx::PxArray<ev4sio_physx::PxVec3> collisionMeshVertices;
+	ev4sio_physx::PxArray<ev4sio_physx::PxU32> collisionMeshIndices;
 	if (!PxTetMaker::createConformingTetrahedronMesh(surfaceMesh, collisionMeshVertices, collisionMeshIndices, validate))
 		return NULL;
 	PxTetrahedronMeshDesc meshDesc(collisionMeshVertices, collisionMeshIndices);
 	PxDeformableVolumeSimulationDataDesc simDesc;
 
-	physx::PxDeformableVolumeMesh* deformableVolumeMesh = PxCreateDeformableVolumeMesh(p, meshDesc, meshDesc, simDesc, insertionCallback);
+	ev4sio_physx::PxDeformableVolumeMesh* deformableVolumeMesh = ev4sio_PxCreateDeformableVolumeMesh(p, meshDesc, meshDesc, simDesc, insertionCallback);
 
 	return deformableVolumeMesh;
 }
@@ -332,7 +332,7 @@ PxDeformableVolume* PxDeformableVolumeExt::createDeformableVolumeFromMesh(PxDefo
 	if (!deformableVolumeMesh)
 		return NULL;
 
-	PxDeformableVolume* deformableVolume = PxGetPhysics().createDeformableVolume(cudaContextManager);
+	PxDeformableVolume* deformableVolume = ev4sio_PxGetPhysics().createDeformableVolume(cudaContextManager);
 	if (deformableVolume)
 	{
 		PxShapeFlags shapeFlags = PxShapeFlag::eVISUALIZATION | PxShapeFlag::eSCENE_QUERY_SHAPE | PxShapeFlag::eSIMULATION_SHAPE;
@@ -340,7 +340,7 @@ PxDeformableVolume* PxDeformableVolumeExt::createDeformableVolumeFromMesh(PxDefo
 
 		PxTetrahedronMeshGeometry geometry(deformableVolumeMesh->getCollisionMesh());
 		PxDeformableVolumeMaterial* materialPointer = const_cast<PxDeformableVolumeMaterial*>(&material);
-		PxShape* shape = PxGetPhysics().createShape(geometry, &materialPointer, 1, true, shapeFlags);
+		PxShape* shape = ev4sio_PxGetPhysics().createShape(geometry, &materialPointer, 1, true, shapeFlags);
 		if (shape)
 		{
 			deformableVolume->attachShape(*shape);
@@ -425,7 +425,7 @@ PxDeformableVolume* PxDeformableVolumeExt::createDeformableVolumeBox(const PxTra
 	params.buildGPUData = true;
 	params.midphaseDesc = PxMeshMidPhase::eBVH34;
 
-	PxDeformableVolumeMesh* deformableVolumeMesh = createDeformableVolumeMesh(params, surfaceMesh, numVoxelsAlongLongestAABBAxis, PxGetPhysics().getPhysicsInsertionCallback());
+	PxDeformableVolumeMesh* deformableVolumeMesh = createDeformableVolumeMesh(params, surfaceMesh, numVoxelsAlongLongestAABBAxis, ev4sio_PxGetPhysics().getPhysicsInsertionCallback());
 	if (!deformableVolumeMesh)
 		return NULL;
 
@@ -632,9 +632,9 @@ void PxDeformableVolumeExt::relaxDeformableVolumeMesh(const PxVec4* verticesOrig
 void PxDeformableVolumeExt::convertCollisionToSimulationTet(PxDeformableVolume& deformableVolume, PxU32 tetId, const PxVec4& tetBarycentric, PxU32& outTetId, PxVec4& outTetBarycentric)
 {
 	const PxTetrahedronMesh* simulationMesh = deformableVolume.getSimulationMesh();
-	const Gu::DeformableVolumeAuxData* deformableVolumeAuxData = static_cast<const Gu::DeformableVolumeAuxData*>(deformableVolume.getDeformableVolumeAuxData());
-	const Gu::BVTetrahedronMesh* collisionMesh = static_cast<const Gu::BVTetrahedronMesh*>(deformableVolume.getCollisionMesh());
+	const ev4sio_Gu::DeformableVolumeAuxData* deformableVolumeAuxData = static_cast<const ev4sio_Gu::DeformableVolumeAuxData*>(deformableVolume.getDeformableVolumeAuxData());
+	const ev4sio_Gu::BVTetrahedronMesh* collisionMesh = static_cast<const ev4sio_Gu::BVTetrahedronMesh*>(deformableVolume.getCollisionMesh());
 
-	// Sim mesh uses the same ordering for both CPU and GPU tet ids so we can use Gu::convertDeformableVolumeCollisionToSimMeshTets to convert from CPU collision tet id to CPU/GPU sim tet id.
-	Gu::convertDeformableVolumeCollisionToSimMeshTets(*simulationMesh, *deformableVolumeAuxData, *collisionMesh, tetId, tetBarycentric, outTetId, outTetBarycentric, false);
+	// Sim mesh uses the same ordering for both CPU and GPU tet ids so we can use ev4sio_Gu::convertDeformableVolumeCollisionToSimMeshTets to convert from CPU collision tet id to CPU/GPU sim tet id.
+	ev4sio_Gu::convertDeformableVolumeCollisionToSimMeshTets(*simulationMesh, *deformableVolumeAuxData, *collisionMesh, tetId, tetBarycentric, outTetId, outTetBarycentric, false);
 }

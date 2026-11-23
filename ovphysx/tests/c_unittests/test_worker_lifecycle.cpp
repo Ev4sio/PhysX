@@ -853,7 +853,7 @@ struct BoolSettingScope
     bool applied = false;
 };
 
-bool skipWithoutCuda(omni::physx::IOptionalCuda* cuda)
+bool skipWithoutCuda(omni::ev4sio_physx::IOptionalCuda* cuda)
 {
     return !cuda || !cuda->cudaAvailable();
 }
@@ -865,7 +865,7 @@ TEST_F(WorkerLifecycle, ActiveContextAttachWithoutWorkerGpuTest)
 {
     OwnedInstance gpu;
     ASSERT_EQ(createInstanceWithWorkerThread(false, &gpu.handle).status, OVPHYSX_API_SUCCESS);
-    omni::physx::IOptionalCuda* cuda = ovphysx::test_cuda::getCuda();
+    omni::ev4sio_physx::IOptionalCuda* cuda = ovphysx::test_cuda::getCuda();
     if (skipWithoutCuda(cuda))
     {
         if (ovphysxTestRequireCuda())
@@ -914,7 +914,7 @@ TEST_F(WorkerLifecycle, ActiveContextAttachGpuTest)
     // The runtime's CUDA interface exists once an instance does.
     OwnedInstance gpu;
     ASSERT_EQ(ovphysx_create_instance(&gpu.handle).status, OVPHYSX_API_SUCCESS);
-    omni::physx::IOptionalCuda* cuda = ovphysx::test_cuda::getCuda();
+    omni::ev4sio_physx::IOptionalCuda* cuda = ovphysx::test_cuda::getCuda();
     if (skipWithoutCuda(cuda))
     {
         if (ovphysxTestRequireCuda())
@@ -997,7 +997,7 @@ TEST_F(WorkerLifecycle, NoContextOrdinalAttachRestoresCallerGpuTest)
         GTEST_SKIP() << kNoWorkerThread;
     OwnedInstance gpu;
     ASSERT_EQ(ovphysx_create_instance(&gpu.handle).status, OVPHYSX_API_SUCCESS);
-    omni::physx::IOptionalCuda* cuda = ovphysx::test_cuda::getCuda();
+    omni::ev4sio_physx::IOptionalCuda* cuda = ovphysx::test_cuda::getCuda();
     if (skipWithoutCuda(cuda))
     {
         if (ovphysxTestRequireCuda())
@@ -1054,7 +1054,7 @@ TEST_F(WorkerLifecycle, WaitInsideACaptureLeavesTheJobToTheWorkerGpuTest)
     // The runtime's CUDA interface exists once an instance does.
     OwnedInstance instance;
     ASSERT_EQ(ovphysx_create_instance(&instance.handle).status, OVPHYSX_API_SUCCESS);
-    omni::physx::IOptionalCuda* cuda = ovphysx::test_cuda::getCuda();
+    omni::ev4sio_physx::IOptionalCuda* cuda = ovphysx::test_cuda::getCuda();
     if (skipWithoutCuda(cuda))
     {
         if (ovphysxTestRequireCuda())
@@ -1118,7 +1118,7 @@ TEST_F(WorkerLifecycle, WaitInsideANonBlockingCaptureRunsTheJobRelaxedGpuTest)
 {
     OwnedInstance instance;
     ASSERT_EQ(ovphysx_create_instance(&instance.handle).status, OVPHYSX_API_SUCCESS);
-    omni::physx::IOptionalCuda* cuda = ovphysx::test_cuda::getCuda();
+    omni::ev4sio_physx::IOptionalCuda* cuda = ovphysx::test_cuda::getCuda();
     if (skipWithoutCuda(cuda))
     {
         if (ovphysxTestRequireCuda())
@@ -1136,7 +1136,7 @@ TEST_F(WorkerLifecycle, WaitInsideANonBlockingCaptureRunsTheJobRelaxedGpuTest)
 
     struct Allocation
     {
-        omni::physx::IOptionalCuda* cuda = nullptr;
+        omni::ev4sio_physx::IOptionalCuda* cuda = nullptr;
         std::thread::id thread;
         uintptr_t pointer = 0;
         int status = -1;
@@ -1181,7 +1181,7 @@ TEST_F(WorkerLifecycle, UpdateFromOvstageInsideACaptureIsRefusedGpuTest)
     // The runtime's CUDA interface exists once an instance does.
     OwnedInstance instance;
     ASSERT_EQ(ovphysx_create_instance(&instance.handle).status, OVPHYSX_API_SUCCESS);
-    omni::physx::IOptionalCuda* cuda = ovphysx::test_cuda::getCuda();
+    omni::ev4sio_physx::IOptionalCuda* cuda = ovphysx::test_cuda::getCuda();
     if (skipWithoutCuda(cuda))
     {
         if (ovphysxTestRequireCuda())
@@ -1263,7 +1263,7 @@ TEST_F(WorkerLifecycle, TwoInstancesOneContextCaptureGpuTest)
     OwnedInstance b;
     ASSERT_EQ(ovphysx_create_instance(&a.handle).status, OVPHYSX_API_SUCCESS);
     ASSERT_EQ(ovphysx_create_instance(&b.handle).status, OVPHYSX_API_SUCCESS);
-    omni::physx::IOptionalCuda* cuda = ovphysx::test_cuda::getCuda();
+    omni::ev4sio_physx::IOptionalCuda* cuda = ovphysx::test_cuda::getCuda();
     if (skipWithoutCuda(cuda))
     {
         if (ovphysxTestRequireCuda())

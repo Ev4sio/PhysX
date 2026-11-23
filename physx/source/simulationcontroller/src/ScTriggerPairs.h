@@ -11,11 +11,11 @@
 #include "PxClient.h"
 #include "PxSimulationEventCallback.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 class PxShape;
 
-namespace Sc
+namespace ev4sio_Sc
 {
 	struct TriggerPairFlag
 	{
@@ -63,7 +63,7 @@ namespace Sc
 	typedef	PxArray<TriggerPairExtraData>	TriggerBufferExtraData;
 	typedef	PxArray<PxTriggerPair>		TriggerBufferAPI;
 
-} // namespace Sc
+} // namespace ev4sio_Sc
 
 }
 

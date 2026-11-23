@@ -9,7 +9,7 @@
 
 #include "PxMetaDataObjects.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 namespace {
 
@@ -46,7 +46,7 @@ PX_PHYSX_CORE_API PxShape* PxRigidActorShapeCollectionHelper::createShape(PxRigi
 														PxShapeFlags shapeFlags ) const
 {
 	PxMaterial* materialPtr = const_cast<PxMaterial*>(&material);
-	PxShape* shape = PxGetPhysics().createShape(geometry, &materialPtr, 1, true, shapeFlags);
+	PxShape* shape = ev4sio_PxGetPhysics().createShape(geometry, &materialPtr, 1, true, shapeFlags);
 	if (shape)
 	{
 		inActor->attachShape(*shape);	// attach can fail, if e.g. we try and attach a trimesh simulation shape to a dynamic actor
@@ -57,7 +57,7 @@ PX_PHYSX_CORE_API PxShape* PxRigidActorShapeCollectionHelper::createShape(PxRigi
 PX_PHYSX_CORE_API PxShape* PxRigidActorShapeCollectionHelper::createShape(PxRigidActor* inActor, const PxGeometry& geometry, PxMaterial *const* materials,
 														PxU16 materialCount, PxShapeFlags shapeFlags ) const
 {
-	PxShape* shape = PxGetPhysics().createShape(geometry, materials, materialCount, true, shapeFlags);
+	PxShape* shape = ev4sio_PxGetPhysics().createShape(geometry, materials, materialCount, true, shapeFlags);
 	if (shape)
 	{
 		inActor->attachShape(*shape);	// attach can fail, if e.g. we try and attach a trimesh simulation shape to a dynamic actor

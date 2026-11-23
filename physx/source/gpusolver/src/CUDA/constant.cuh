@@ -9,11 +9,11 @@
 
 #include "PxgSolverCoreDesc.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 __constant__ PxgSolverCoreDesc constraintSolverCoreDescC;
 
-} // namespace physx
+} // namespace ev4sio_physx
 
 #endif

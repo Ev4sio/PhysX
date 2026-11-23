@@ -16,7 +16,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace cudaShim
 {
@@ -60,5 +60,5 @@ CUresult cuDeviceGetCount_(int* count);
 CUresult cuThreadExchangeStreamCaptureMode_(CUstreamCaptureMode* mode);
 
 } // namespace cudaShim
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

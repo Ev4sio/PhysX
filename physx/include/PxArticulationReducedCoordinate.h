@@ -18,7 +18,7 @@
 #include "PxArticulationFlag.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -373,7 +373,7 @@ namespace physx
 		};
 	};
 
-	typedef physx::PxFlags<PxArticulationKinematicFlag::Enum, PxU8> PxArticulationKinematicFlags;
+	typedef ev4sio_physx::PxFlags<PxArticulationKinematicFlag::Enum, PxU8> PxArticulationKinematicFlags;
 	PX_FLAGS_OPERATORS(PxArticulationKinematicFlag::Enum, PxU8)
 
 #if PX_VC
@@ -1446,7 +1446,7 @@ namespace physx
 #endif
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

@@ -14,9 +14,9 @@
 
 #include "omnipvd/NpOmniPvdSetData.h"
 
-using namespace physx;
-using namespace Sq;
-using namespace Cm;
+using namespace ev4sio_physx;
+using namespace ev4sio_Sq;
+using namespace ev4sio_Cm;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -155,7 +155,7 @@ void NpShape::requiresObjects(PxProcessPxBaseCallback& c)
 		if(!mat)
 		{
 			PX_ASSERT(0);
-			PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL,
+			ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL,
 				"NpShape::requiresObjects: material %u of %u is not registered with the material manager; "
 				"skipping it.", i, nbMaterials); // OMPE-109162
 			continue;
@@ -197,7 +197,7 @@ bool NpShape::resolveReferences(PxDeserializationContext& context)
 			//later sweep of workarounds must not take it out.
 			if(!base || !base->is<PxMaterial>())
 			{
-				PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL,
+				ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL,
 					"NpShape::resolveReferences: material reference %u of %u did not resolve to a material.", i, nbIndices); // OMPE-109162
 
 				//Just leaving the slot alone is not safe: it still holds an index into the *source* SDK's
@@ -227,7 +227,7 @@ bool NpShape::resolveReferences(PxDeserializationContext& context)
 			//shape without ~NpShape() releasing counts we never took.
 			if(!anyResolved)
 			{
-				PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL,
+				ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL,
 					"NpShape::resolveReferences: none of the shape's material references resolved; "
 					"failing the deserialization of this shape."); // OMPE-109162
 				return false;
@@ -261,7 +261,7 @@ bool NpShape::resolveReferences(PxDeserializationContext& context)
 		if(!material)
 		{
 			PX_ASSERT(0);
-			PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL,
+			ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL,
 				"NpShape::resolveReferences: material %u of %u is not registered with the material manager; "
 				"skipping its reference count.", i, nbMaterials); // OMPE-109162
 			continue;
@@ -285,7 +285,7 @@ NpShape* NpShape::createObject(PxU8*& address, PxDeserializationContext& context
 	const PxGeometryType::Enum type = obj->mCore.getGeometryType();
 	if(type == PxGeometryType::eTETRAHEDRONMESH || type == PxGeometryType::ePARTICLESYSTEM)
 	{
-		PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL,
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL,
 			"NpShape::createObject: shapes with tetrahedron-mesh or particle-system geometry require GPU support; "
 			"failing the deserialization of this shape.");
 		return NULL;
@@ -330,7 +330,7 @@ void NpShape::releaseInternal()
 	RefCountable_decRefCount(*this);
 }
 
-Sc::RigidCore& NpShape::getScRigidObjectExclusive() const
+ev4sio_Sc::RigidCore& NpShape::getScRigidObjectExclusive() const
 {
 	const PxType actorType = mExclusiveShapeActor->getConcreteType();
 
@@ -401,7 +401,7 @@ void NpShape::setGeometry(const PxGeometry& g)
 	PxRefCounted* mesh = getMeshRefCountable();
 
 	{
-		Sc::RigidCore* rigidCore = getScRigidObjectSLOW();
+		ev4sio_Sc::RigidCore* rigidCore = getScRigidObjectSLOW();
 
 		if(rigidCore)
 			rigidCore->unregisterShapeFromNphase(mCore);
@@ -411,7 +411,7 @@ void NpShape::setGeometry(const PxGeometry& g)
 		if (rigidCore)
 		{
 			rigidCore->registerShapeInNphase(mCore);
-			rigidCore->onShapeChange(mCore, Sc::ShapeChangeNotifyFlag::eGEOMETRY);
+			rigidCore->onShapeChange(mCore, ev4sio_Sc::ShapeChangeNotifyFlag::eGEOMETRY);
 		}
 
 #if PX_SUPPORT_PVD
@@ -459,7 +459,7 @@ void NpShape::setLocalPose(const PxTransform& newShape2Actor)
 	PxTransform normalizedTransform = newShape2Actor.getNormalized();
 	mCore.setShape2Actor(normalizedTransform);
 
-	notifyActorAndUpdatePVD(Sc::ShapeChangeNotifyFlag::eSHAPE2BODY);
+	notifyActorAndUpdatePVD(ev4sio_Sc::ShapeChangeNotifyFlag::eSHAPE2BODY);
 
 	OMNI_PVD_WRITE_SCOPE_BEGIN(pvdWriter, pvdRegData)
 	OMNI_PVD_SET_EXPLICIT(pvdWriter, pvdRegData, OMNI_PVD_CONTEXT_HANDLE, PxShape, localPose, static_cast<PxShape &>(*this), normalizedTransform)
@@ -486,7 +486,7 @@ void NpShape::setSimulationFilterData(const PxFilterData& data)
 
 	mCore.setSimulationFilterData(data);
 
-	notifyActorAndUpdatePVD(Sc::ShapeChangeNotifyFlag::eFILTERDATA);
+	notifyActorAndUpdatePVD(ev4sio_Sc::ShapeChangeNotifyFlag::eFILTERDATA);
 
 	OMNI_PVD_SET(OMNI_PVD_CONTEXT_HANDLE, PxShape, simulationFilterData, static_cast<PxShape&>(*this), data);
 }
@@ -520,12 +520,12 @@ PxFilterData NpShape::getQueryFilterData() const
 ///////////////////////////////////////////////////////////////////////////////
 
 template <typename PxMaterialType, typename NpMaterialType>
-static PX_INLINE PxU32 scGetMaterials(const Sc::ShapeCore& mCore, PxMaterialType** buffer, PxU32 bufferSize, PxU32 startIndex=0)
+static PX_INLINE PxU32 scGetMaterials(const ev4sio_Sc::ShapeCore& mCore, PxMaterialType** buffer, PxU32 bufferSize, PxU32 startIndex=0)
 {
 	NpMaterialManager<NpMaterialType>& matManager = NpMaterialAccessor<NpMaterialType>::getMaterialManager(NpPhysics::getInstance());
 	const PxU16* materialIndices = mCore.getMaterialIndices();
 
-	// PT: this is copied from Cm::getArrayOfPointers(). We cannot use the Cm function here
+	// PT: this is copied from ev4sio_Cm::getArrayOfPointers(). We cannot use the Cm function here
 	// because of the extra indirection needed to access the materials.
 	PxU32 size = mCore.getNbMaterialIndices();
 	const PxU32 remainder = PxU32(PxMax<PxI32>(PxI32(size - startIndex), 0));
@@ -583,7 +583,7 @@ void NpShape::setMaterialsInternal(PxMaterialType* const * materials, PxU16 mate
 			if(!oldMaterials[i])
 			{
 				PX_ASSERT(0);
-				PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL,
+				ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL,
 					"PxShape::setMaterials: previous material %u of %u is not registered with the material "
 					"manager; skipping its reference count.", i, oldMaterialCount); // OMPE-109162
 				continue;
@@ -718,7 +718,7 @@ PxBaseMaterial* NpShape::getMaterialFromInternalFaceIndex(PxU32 faceIndex) const
 	{
 		const PxTriangleMeshGeometry& triGeo = static_cast<const PxTriangleMeshGeometry&>(geom);
 
-		Gu::TriangleMesh* tm = static_cast<Gu::TriangleMesh*>(triGeo.triangleMesh);
+		ev4sio_Gu::TriangleMesh* tm = static_cast<ev4sio_Gu::TriangleMesh*>(triGeo.triangleMesh);
 		if(tm->hasPerTriangleMaterials())
 			hitMatTableId = triGeo.triangleMesh->getTriangleMaterialIndex(faceIndex);
 	}
@@ -739,7 +739,7 @@ void NpShape::setContactOffset(PxReal contactOffset)
 
 	mCore.setContactOffset(contactOffset);
 
-	notifyActorAndUpdatePVD(Sc::ShapeChangeNotifyFlag::eCONTACTOFFSET);
+	notifyActorAndUpdatePVD(ev4sio_Sc::ShapeChangeNotifyFlag::eCONTACTOFFSET);
 
 	OMNI_PVD_SET(OMNI_PVD_CONTEXT_HANDLE, PxShape, contactOffset, static_cast<PxShape&>(*this), contactOffset)
 }
@@ -762,7 +762,7 @@ void NpShape::setRestOffset(PxReal restOffset)
 
 	mCore.setRestOffset(restOffset);
 
-	notifyActorAndUpdatePVD(Sc::ShapeChangeNotifyFlag::eRESTOFFSET);
+	notifyActorAndUpdatePVD(ev4sio_Sc::ShapeChangeNotifyFlag::eRESTOFFSET);
 
 	OMNI_PVD_SET(OMNI_PVD_CONTEXT_HANDLE, PxShape, restOffset, static_cast<PxShape&>(*this), restOffset)
 }
@@ -784,7 +784,7 @@ void NpShape::setDensityForFluid(PxReal densityForFluid)
 
 	mCore.setDensityForFluid(densityForFluid);
 
-	///notifyActorAndUpdatePVD(Sc::ShapeChangeNotifyFlag::eRESTOFFSET);
+	///notifyActorAndUpdatePVD(ev4sio_Sc::ShapeChangeNotifyFlag::eRESTOFFSET);
 
 	OMNI_PVD_SET(OMNI_PVD_CONTEXT_HANDLE, PxShape, densityForFluid, static_cast<PxShape &>(*this), densityForFluid);
 }
@@ -810,9 +810,9 @@ void NpShape::setTorsionalPatchRadius(PxReal radius)
 	OMNI_PVD_SET(OMNI_PVD_CONTEXT_HANDLE, PxShape, torsionalPatchRadius, static_cast<PxShape &>(*this), radius);
 
 // shared shapes return NULL. But shared shapes aren't mutable when attached to an actor, so no notification needed.
-//	Sc::RigidCore* rigidCore = NpShapeGetScRigidObjectFromScSLOW();
+//	ev4sio_Sc::RigidCore* rigidCore = NpShapeGetScRigidObjectFromScSLOW();
 //	if(rigidCore)
-//		rigidCore->onShapeChange(mShape, Sc::ShapeChangeNotifyFlag::eFLAGS, oldShapeFlags);
+//		rigidCore->onShapeChange(mShape, ev4sio_Sc::ShapeChangeNotifyFlag::eFLAGS, oldShapeFlags);
 
 	UPDATE_PVD_PROPERTY
 }
@@ -837,9 +837,9 @@ void NpShape::setMinTorsionalPatchRadius(PxReal radius)
 
 	OMNI_PVD_SET(OMNI_PVD_CONTEXT_HANDLE, PxShape, minTorsionalPatchRadius, static_cast<PxShape &>(*this), radius);
 
-//	Sc::RigidCore* rigidCore = NpShapeGetScRigidObjectFromSbSLOW();
+//	ev4sio_Sc::RigidCore* rigidCore = NpShapeGetScRigidObjectFromSbSLOW();
 //	if(rigidCore)
-//		rigidCore->onShapeChange(mShape, Sc::ShapeChangeNotifyFlag::eFLAGS, oldShapeFlags);
+//		rigidCore->onShapeChange(mShape, ev4sio_Sc::ShapeChangeNotifyFlag::eFLAGS, oldShapeFlags);
 
 	UPDATE_PVD_PROPERTY
 }
@@ -1110,12 +1110,12 @@ bool NpShape::setMaterialsHelper(PxMaterialType* const* materials, PxU16 materia
 	return true;
 }
 
-void NpShape::notifyActorAndUpdatePVD(Sc::ShapeChangeNotifyFlags notifyFlags)
+void NpShape::notifyActorAndUpdatePVD(ev4sio_Sc::ShapeChangeNotifyFlags notifyFlags)
 {
 	// shared shapes return NULL. But shared shapes aren't mutable when attached to an actor, so no notification needed.
 	if(mExclusiveShapeActor)
 	{
-		Sc::RigidCore* rigidCore = getScRigidObjectSLOW();
+		ev4sio_Sc::RigidCore* rigidCore = getScRigidObjectSLOW();
 		if(rigidCore)
 			rigidCore->onShapeChange(mCore, notifyFlags);
 
@@ -1136,7 +1136,7 @@ void NpShape::notifyActorAndUpdatePVD(Sc::ShapeChangeNotifyFlags notifyFlags)
 void NpShape::notifyActorAndUpdatePVD(const PxShapeFlags oldShapeFlags)
 {
 	// shared shapes return NULL. But shared shapes aren't mutable when attached to an actor, so no notification needed.
-	Sc::RigidCore* rigidCore = getScRigidObjectSLOW();
+	ev4sio_Sc::RigidCore* rigidCore = getScRigidObjectSLOW();
 	if(rigidCore)
 		rigidCore->onShapeFlagsChange(mCore, oldShapeFlags);
 

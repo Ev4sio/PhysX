@@ -14,8 +14,8 @@
 
 struct InstanceData;
 namespace ovphysx { class CarboniteLoader; }
-namespace omni::physx::native { struct DebugFrame; }
-namespace omni::physx::diagnostics { struct OvdDocument; }
+namespace omni::ev4sio_physx::native { struct DebugFrame; }
+namespace omni::ev4sio_physx::diagnostics { struct OvdDocument; }
 namespace ovphysx::companion {
 namespace sessions { struct Session; }
 namespace previews { struct Preview; }
@@ -129,8 +129,8 @@ public:
     CompanionRegistry<ovphysx::companion::native_modules::Module>& modules() { return m_modules; }
     CompanionRegistry<ovphysx::companion::events::Queue>& eventQueues() { return m_eventQueues; }
     CompanionRegistry<ovphysx::companion::interaction::Session>& interactions() { return m_interactions; }
-    CompanionRegistry<const omni::physx::native::DebugFrame>& debugFrames() { return m_debugFrames; }
-    CompanionRegistry<const omni::physx::diagnostics::OvdDocument>& ovdDocuments() { return m_ovdDocuments; }
+    CompanionRegistry<const omni::ev4sio_physx::native::DebugFrame>& debugFrames() { return m_debugFrames; }
+    CompanionRegistry<const omni::ev4sio_physx::diagnostics::OvdDocument>& ovdDocuments() { return m_ovdDocuments; }
 
 private:
     mutable std::mutex m_admissionMutex;
@@ -148,8 +148,8 @@ private:
     CompanionRegistry<ovphysx::companion::custom_interfaces::Lease> m_customInterfaces;
     CompanionRegistry<ovphysx::companion::events::Queue> m_eventQueues;
     CompanionRegistry<ovphysx::companion::interaction::Session> m_interactions;
-    CompanionRegistry<const omni::physx::native::DebugFrame> m_debugFrames;
-    CompanionRegistry<const omni::physx::diagnostics::OvdDocument> m_ovdDocuments;
+    CompanionRegistry<const omni::ev4sio_physx::native::DebugFrame> m_debugFrames;
+    CompanionRegistry<const omni::ev4sio_physx::diagnostics::OvdDocument> m_ovdDocuments;
 };
 
 // The C ABI resolves its SDK lifecycle owner here. Guards take that owner

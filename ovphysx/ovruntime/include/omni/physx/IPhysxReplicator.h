@@ -25,7 +25,7 @@
 namespace omni
 {
 
-namespace physx
+namespace ev4sio_physx
 {
 
 static constexpr char kScenePartitionPrimvar[] = "primvars:omni:scenePartition";
@@ -104,5 +104,5 @@ struct IPhysxReplicator
 
 };
 
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

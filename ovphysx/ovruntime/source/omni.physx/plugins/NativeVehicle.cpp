@@ -14,7 +14,7 @@
 #include <vehicle/suspension/PxVehicleSuspensionHelpers.h>
 #include <algorithm>
 #include <cmath>
-namespace omni::physx::native
+namespace omni::ev4sio_physx::native
 {
 namespace
 {
@@ -29,50 +29,50 @@ VehicleIdentity identity(const internal::InternalDatabase::Record* record)
 VehicleResult controlVehicle(uint64_t attachment, const char* path, const VehicleCommand& command, VehicleState& output) noexcept
 try
 {
-    using namespace ::physx;
+    using namespace ::ev4sio_physx;
     if (!path || path[0]!='/' || command.action>2 || (command.action && !command.generation) ||
         (command.action==1 && (!range(command.throttle,0,1) || !range(command.brake0,0,1) ||
          !range(command.brake1,0,1) || !range(command.steer,-1,1) || command.direction < -2 || command.direction > 1)))
         return VehicleResult::Invalid;
     if (!runtime::tryGetPhysxInterface()) return VehicleResult::Stale;
-    std::shared_ptr<omni::physx::usdparser::AttachedStage> owner=usdparser::UsdLoad::getUsdLoad()->acquireAttachment(attachment);
+    std::shared_ptr<omni::ev4sio_physx::usdparser::AttachedStage> owner=usdparser::UsdLoad::getUsdLoad()->acquireAttachment(attachment);
     if (!owner) return VehicleResult::Stale;
     RuntimeExecutionScope admission(attachment);
     if (!admission) return VehicleResult::Busy;
     const omni::physics::parse::IPhysicsSource * source=owner->getSource();
     if (!source) return VehicleResult::NotFound;
     const omni::physics::parse::ObjectKey key=source->findByPath(path);
-    const omni::physx::usdparser::ObjectDb * objects=owner->getObjectDatabase();
-    omni::physx::internal::InternalPhysXDatabase & db=owner->getInternalPhysXDatabase();
-    const omni::physx::internal::InternalDatabase::Record * record=db.getFullTypedRecord(ePTVehicleController, objects->findEntry(key,usdparser::eVehicleController));
+    const omni::ev4sio_physx::usdparser::ObjectDb * objects=owner->getObjectDatabase();
+    omni::ev4sio_physx::internal::InternalPhysXDatabase & db=owner->getInternalPhysXDatabase();
+    const omni::ev4sio_physx::internal::InternalDatabase::Record * record=db.getFullTypedRecord(ePTVehicleController, objects->findEntry(key,usdparser::eVehicleController));
     if (!record || !record->mInternalPtr || record->mKey!=key)
     {
         if (command.generation) return VehicleResult::Stale;
-        const omni::physx::internal::InternalDatabase::Record * vehicleRecord=db.getFullTypedRecord(ePTVehicle,objects->findEntry(key,usdparser::eVehicle));
+        const omni::ev4sio_physx::internal::InternalDatabase::Record * vehicleRecord=db.getFullTypedRecord(ePTVehicle,objects->findEntry(key,usdparser::eVehicle));
         if (vehicleRecord && vehicleRecord->mInternalPtr &&
             static_cast<internal::InternalVehicle*>(vehicleRecord->mInternalPtr)->isRawWheelControl())
             return VehicleResult::Unavailable;
         return VehicleResult::NotFound;
     }
     if (command.generation && command.generation!=record->mGeneration) return VehicleResult::Stale;
-    omni::physx::internal::InternalVehicle * vehicle=static_cast<internal::InternalVehicle*>(record->mInternalPtr);
+    omni::ev4sio_physx::internal::InternalVehicle * vehicle=static_cast<internal::InternalVehicle*>(record->mInternalPtr);
     // ObjectDb indexes controller categories, so the record can also belong to a tank.
     if (!vehicle->mPhysXVehicle || vehicle->isRawWheelControl() || vehicle->isTank()) return VehicleResult::Unavailable;
     const bool engine=vehicle->mPhysXVehicle->getType()==PhysXVehicleType::eENGINE_DRIVE;
-    ::physx::PxRigidDynamic * actor=vehicle->getRigidDynamicActor();
-    ::physx::PxScene * scene=actor ? actor->getScene() : nullptr;
+    ::ev4sio_physx::PxRigidDynamic * actor=vehicle->getRigidDynamicActor();
+    ::ev4sio_physx::PxScene * scene=actor ? actor->getScene() : nullptr;
     if (!scene || scene->getFlags().isSet(PxSceneFlag::eENABLE_GPU_DYNAMICS) ||
         scene->getFlags().isSet(PxSceneFlag::eENABLE_DIRECT_GPU_API)) return VehicleResult::Unavailable;
     static_assert(PxVehicleLimits::eMAX_NB_WHEELS==20);
     VehicleState result{};
     result.identity=identity(record); result.step=owner->simulationTimestamp(); result.engineFields=engine ? 1 : 0;
     // Resolve all wheel identities and validate bounds before mutating controls.
-    for (omni::physx::internal::InternalVehicleWheelAttachment * wheel : vehicle->mWheelAttachments)
+    for (omni::ev4sio_physx::internal::InternalVehicleWheelAttachment * wheel : vehicle->mWheelAttachments)
     {
         if (!wheel) continue;
         const unsigned int i=wheel->mWheelIndex;
         if (i>=20 || result.wheelCount>=20 || i>=vehicle->mWheelTransformManagementEntries.size()) return VehicleResult::Error;
-        omni::physx::native::VehicleWheel & out=result.wheels[result.wheelCount++];
+        omni::ev4sio_physx::native::VehicleWheel & out=result.wheels[result.wheelCount++];
         out.index=i;
         const omni::physics::parse::ObjectKey wheelKey=vehicle->mWheelTransformManagementEntries[i].wheelRootKey;
         out.identity=identity(db.getFullTypedRecord(ePTVehicleWheelAttachment,objects->findEntry(wheelKey,usdparser::eVehicleWheelAttachment)));
@@ -105,7 +105,7 @@ try
     }
     VehicleDriveState drive{}; vehicle->getDriveState(drive);
     result.throttle=drive.accelerator; result.brake0=drive.brake0; result.brake1=drive.brake1; result.steer=drive.steer;
-    const ::physx::PxVec3T<float> forward=(actor->getGlobalPose()*actor->getCMassLocalPose()).q.rotate(vehicle->mInternalScene.getVehicleContext().getFrame().getLngAxis());
+    const ::ev4sio_physx::PxVec3T<float> forward=(actor->getGlobalPose()*actor->getCMassLocalPose()).q.rotate(vehicle->mInternalScene.getVehicleContext().getFrame().getLngAxis());
     result.forwardVelocity=actor->getLinearVelocity().dot(forward);
     if (engine)
     {
@@ -120,7 +120,7 @@ catch (...) { return VehicleResult::Error; }
 
 bool vehicleSprungMasses(uint32_t count, const float* xyz, float mass, uint32_t axis, float* output) noexcept
 {
-    using namespace ::physx;
+    using namespace ::ev4sio_physx;
     if (!count || count>20 || !xyz || !output || !std::isfinite(mass) || mass<=0 || axis>2) return false;
     PxVec3 points[20]; float result[20]{};
     for (uint32_t i=0;i<count;++i)
@@ -136,12 +136,12 @@ bool vehicleSprungMasses(uint32_t count, const float* xyz, float mass, uint32_t 
 }
 bool vehicleSuspensionFrame(const float* body, const float* wheel, float* output) noexcept
 {
-    using namespace ::physx;
+    using namespace ::ev4sio_physx;
     if (!body || !wheel || !output) return false;
     for (unsigned i=0;i<7;++i) if (!std::isfinite(body[i]) || !std::isfinite(wheel[i])) return false;
     const PxQuat bq(body[3],body[4],body[5],body[6]), wq(wheel[3],wheel[4],wheel[5],wheel[6]);
     if (!bq.isUnit() || !wq.isUnit()) return false;
-    const ::physx::PxTransformT<float> value=PxTransform(PxVec3(body[0],body[1],body[2]),bq).transformInv(PxTransform(PxVec3(wheel[0],wheel[1],wheel[2]),wq));
+    const ::ev4sio_physx::PxTransformT<float> value=PxTransform(PxVec3(body[0],body[1],body[2]),bq).transformInv(PxTransform(PxVec3(wheel[0],wheel[1],wheel[2]),wq));
     if (!value.isValid()) return false;
     const float result[]={value.p.x,value.p.y,value.p.z,value.q.x,value.q.y,value.q.z,value.q.w};
     std::copy_n(result,7,output); return true;

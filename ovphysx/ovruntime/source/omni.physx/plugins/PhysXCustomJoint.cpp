@@ -30,11 +30,11 @@
 
 #include <omni/physics/parse/CustomTokens.h>
 
-using namespace ::physx;
+using namespace ::ev4sio_physx;
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 
 namespace
@@ -66,8 +66,8 @@ const void* CustomPhysXJoint::wrapConstantBlock(const void* data) const
     return bytes;
 }
 
-CustomPhysXJoint::CustomPhysXJoint(const usdparser::AttachedStage& owner, omni::physics::parse::ObjectKey key, const usdparser::CustomPhysxJointDesc& jointDesc,::physx::PxPhysics& physics, const CustomJointInfo& jointInfo, PxConstraintFlag::Enum flags,
-    ::physx::PxRigidActor* actor0, ::physx::PxRigidActor* actor1)
+CustomPhysXJoint::CustomPhysXJoint(const usdparser::AttachedStage& owner, omni::physics::parse::ObjectKey key, const usdparser::CustomPhysxJointDesc& jointDesc,::ev4sio_physx::PxPhysics& physics, const CustomJointInfo& jointInfo, PxConstraintFlag::Enum flags,
+    ::ev4sio_physx::PxRigidActor* actor0, ::ev4sio_physx::PxRigidActor* actor1)
     : mAttachedStage(owner), mJointKey(key), mCustomJointInfo(jointInfo)
 {
     RuntimeCallbackScope callbackScope;
@@ -78,7 +78,7 @@ CustomPhysXJoint::CustomPhysXJoint(const usdparser::AttachedStage& owner, omni::
         constraintFlags &= ~(uint16_t)PxConstraintFlag::eCOLLISION_ENABLED;
 
     PxConstraintShaderTable shaderTable = { guardedSolverPrep, nullptr, (PxConstraintFlag::Enum)constraintFlags };
-    mConstraint = physics.createConstraint(actor0, actor1, *this, shaderTable, ::physx::PxU32(kShaderHeaderSize + jointInfo.jointDataSize));
+    mConstraint = physics.createConstraint(actor0, actor1, *this, shaderTable, ::ev4sio_physx::PxU32(kShaderHeaderSize + jointInfo.jointDataSize));
 
     if (mConstraint)
         mConstraint->setBreakForce(isfinite(jointDesc.breakForce) ? jointDesc.breakForce : FLT_MAX,
@@ -113,26 +113,26 @@ void  CustomPhysXJoint::onConstraintRelease()
     delete this;
 }
 
-void  CustomPhysXJoint::onComShift(::physx::PxU32 actor)
+void  CustomPhysXJoint::onComShift(::ev4sio_physx::PxU32 actor)
 {
     RuntimeCallbackScope callbackScope;
     mCustomJointInfo.customJointCb.onComShiftFn(mJointKey, mAttachedStage.getAttachHandle(), actor, mCustomJointInfo.customJointCb.userData);
 }
 
-void  CustomPhysXJoint::onOriginShift(const ::physx::PxVec3& shift)
+void  CustomPhysXJoint::onOriginShift(const ::ev4sio_physx::PxVec3& shift)
 {
     RuntimeCallbackScope callbackScope;
     mCustomJointInfo.customJointCb.onOriginShift(mJointKey, mAttachedStage.getAttachHandle(), shift, mCustomJointInfo.customJointCb.userData);
 }
 
-void* CustomPhysXJoint::getExternalReference(::physx::PxU32& typeID)
+void* CustomPhysXJoint::getExternalReference(::ev4sio_physx::PxU32& typeID)
 {
     RuntimeCallbackScope callbackScope;
     typeID = mCustomJointInfo.typeId;
     return this;
 }
 
-::physx::PxConstraintSolverPrep CustomPhysXJoint::getPrep() const
+::ev4sio_physx::PxConstraintSolverPrep CustomPhysXJoint::getPrep() const
 {
     RuntimeCallbackScope callbackScope;
     return guardedSolverPrep;
@@ -173,8 +173,8 @@ PhysXCustomJointManager::~PhysXCustomJointManager()
 {
 }
 
-CustomPhysXJoint* PhysXCustomJointManager::createCustomJoint(const usdparser::AttachedStage& attachedStage, omni::physics::parse::ObjectKey primKey, const usdparser::CustomPhysxJointDesc& jointDesc,::physx::PxRigidActor* actor0, const ::physx::PxTransform& localFrame0,
-    ::physx::PxRigidActor* actor1, const ::physx::PxTransform& localFrame1)
+CustomPhysXJoint* PhysXCustomJointManager::createCustomJoint(const usdparser::AttachedStage& attachedStage, omni::physics::parse::ObjectKey primKey, const usdparser::CustomPhysxJointDesc& jointDesc,::ev4sio_physx::PxRigidActor* actor0, const ::ev4sio_physx::PxTransform& localFrame0,
+    ::ev4sio_physx::PxRigidActor* actor1, const ::ev4sio_physx::PxTransform& localFrame1)
 {
     if (attachedStage.customJoints.count(primKey))
         return nullptr;
@@ -262,7 +262,7 @@ void PhysXCustomJointManager::removeCustomJoint(const usdparser::AttachedStage& 
     }
 }
 
-size_t PhysXCustomJointManager::registerCustomJoint(const char* jointPrimType, ICustomJointCallback& jointCallback, ::physx::PxConstraintSolverPrep jointPrepFn, size_t jointDataSize)
+size_t PhysXCustomJointManager::registerCustomJoint(const char* jointPrimType, ICustomJointCallback& jointCallback, ::ev4sio_physx::PxConstraintSolverPrep jointPrepFn, size_t jointDataSize)
 {
     std::lock_guard<carb::tasking::MutexWrapper> lock(mRegistryMutex);
     const std::string jointPrimTypeStr(jointPrimType);
@@ -286,7 +286,7 @@ size_t PhysXCustomJointManager::registerCustomJoint(const char* jointPrimType, I
     }
 
     const size_t currentRegistryCounter = mJointRegistryCounter;
-    const ::physx::PxU32 typeId = OmniPhysX::getInstance().getFreeTypeId();
+    const ::ev4sio_physx::PxU32 typeId = OmniPhysX::getInstance().getFreeTypeId();
     CustomJointInfo info = { jointPrimTypeStr, jointCallback, jointPrepFn, jointDataSize, typeId,
         std::make_shared<unsigned char>(0) };
     try
@@ -326,7 +326,7 @@ bool PhysXCustomJointManager::tryUnregisterCustomJoint(size_t id)
     if (getRuntimeCallbackDepth())
         return false;
     std::lock_guard<carb::tasking::MutexWrapper> lock(mRegistryMutex);
-    const std::unordered_map<uint64_t, omni::physx::CustomJointInfo>::iterator found = mCustomJointRegistryMap.find(id);
+    const std::unordered_map<uint64_t, omni::ev4sio_physx::CustomJointInfo>::iterator found = mCustomJointRegistryMap.find(id);
     // Exactly two references belong to the registry and type index. A copied
     // index pins even the interval before create enters the plugin callback.
     if (found == mCustomJointRegistryMap.end() || found->second.lifetime.use_count() != 2)
@@ -372,7 +372,7 @@ CustomJointFlag::Enum PhysXCustomJointManager::getJointFlags(const usdparser::At
     return CustomJointFlag::Enum(0);
 }
 
-size_t registerCustomJoint(const char* jointPrimType, ICustomJointCallback& jointCallback, ::physx::PxConstraintSolverPrep jointPrepFn, size_t jointDataSize)
+size_t registerCustomJoint(const char* jointPrimType, ICustomJointCallback& jointCallback, ::ev4sio_physx::PxConstraintSolverPrep jointPrepFn, size_t jointDataSize)
 {
     return OmniPhysX::getInstance().getCustomJointManager().registerCustomJoint(jointPrimType, jointCallback, jointPrepFn, jointDataSize);
 }
@@ -423,12 +423,12 @@ CustomJointFlag::Enum getJointFlags(AttachHandle attachHandle, omni::physics::pa
 }
 }
 
-void fillInterface(omni::physx::IPhysxCustomJoint& iface)
+void fillInterface(omni::ev4sio_physx::IPhysxCustomJoint& iface)
 {
-    iface.registerCustomJoint = omni::physx::registerCustomJoint;
-    iface.unregisterCustomJoint = omni::physx::unregisterCustomJoint;
-    iface.markJointDirty = omni::physx::markJointDirty;
-    iface.setJointFlags = omni::physx::setJointFlags;
-    iface.getJointFlags = omni::physx::getJointFlags;
-    iface.tryUnregisterCustomJoint = omni::physx::tryUnregisterCustomJoint;
+    iface.registerCustomJoint = omni::ev4sio_physx::registerCustomJoint;
+    iface.unregisterCustomJoint = omni::ev4sio_physx::unregisterCustomJoint;
+    iface.markJointDirty = omni::ev4sio_physx::markJointDirty;
+    iface.setJointFlags = omni::ev4sio_physx::setJointFlags;
+    iface.getJointFlags = omni::ev4sio_physx::getJointFlags;
+    iface.tryUnregisterCustomJoint = omni::ev4sio_physx::tryUnregisterCustomJoint;
 }

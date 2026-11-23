@@ -12,7 +12,7 @@
 #error Vector intrinsics should not be included when using scalar implementation.
 #endif
 
-namespace physx
+namespace ev4sio_physx
 {
 namespace aos
 {
@@ -159,6 +159,6 @@ struct Mat44V
 } PX_ALIGN_SUFFIX(16);
 
 } // namespace aos
-} // namespace physx
+} // namespace ev4sio_physx
 
 #endif // PXFOUNDATION_PXUNIXSSE2AOS_H

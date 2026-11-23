@@ -690,7 +690,7 @@ AttrValue UsdSource::getAttributeAtTime(ObjectKey key, TokenId attr, ReadTime ti
     // Some per-prim physics knobs (e.g. `physics:localSpaceVelocities`)
     // are authored as USD customData dictionary entries rather than
     // schema-applied attributes (see
-    // `omni::physx::utils::set_custom_metadata`). Callers don't need to
+    // `omni::ev4sio_physx::utils::set_custom_metadata`). Callers don't need to
     // know which mechanism the source uses — getAttribute checks both.
     // Precedence is attribute first; an attribute and a customData
     // entry of the same name resolve to the attribute. This matches

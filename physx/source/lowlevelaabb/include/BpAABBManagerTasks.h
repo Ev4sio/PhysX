@@ -8,19 +8,19 @@
 
 #include "CmTask.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Bp
+namespace ev4sio_Bp
 {
 	class AABBManager;
 	class Aggregate;
 
-	class AggregateBoundsComputationTask : public Cm::Task
+	class AggregateBoundsComputationTask : public ev4sio_Cm::Task
 	{
 		PX_NOCOPY(AggregateBoundsComputationTask)
 		public:
 								AggregateBoundsComputationTask(PxU64 contextId) :
-									Cm::Task	(contextId),
+									ev4sio_Cm::Task	(contextId),
 									mManager	(NULL),
 									mStart		(0),
 									mNbToGo		(0),
@@ -44,11 +44,11 @@ namespace Bp
 				Aggregate**		mAggregates;
 	};
 
-	class PreBpUpdateTask : public Cm::Task
+	class PreBpUpdateTask : public ev4sio_Cm::Task
 	{
 		PX_NOCOPY(PreBpUpdateTask)
 	public:
-								PreBpUpdateTask(PxU64 contextId) : Cm::Task(contextId), mManager(NULL), mNumCpuTasks(0)	{}
+								PreBpUpdateTask(PxU64 contextId) : ev4sio_Cm::Task(contextId), mManager(NULL), mNumCpuTasks(0)	{}
 
 		virtual const char*		getName() const PX_OVERRIDE { return "PreBpUpdateTask"; }
 		virtual void			runInternal() PX_OVERRIDE;
@@ -64,6 +64,6 @@ namespace Bp
 	};
 
 }
-} //namespace physx
+} //namespace ev4sio_physx
 
 #endif // BP_AABB_MANAGER_TASKS_H

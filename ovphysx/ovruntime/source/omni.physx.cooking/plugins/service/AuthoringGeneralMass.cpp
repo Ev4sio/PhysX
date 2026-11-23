@@ -11,11 +11,11 @@
 #include <limits>
 #include <map>
 #include <vector>
-namespace omni::physx::authoring
+namespace omni::ev4sio_physx::authoring
 {
 namespace
 {
-using namespace ::physx;
+using namespace ::ev4sio_physx;
 struct Part
 {
     double mass = 0, volume = 0, center[3]{}, tensor[3][3]{};
@@ -38,7 +38,7 @@ bool diagonalize(const Part& part, PxVec3& diagonal, PxQuat& axes)
     PxMat33 normalized(PxZero);
     for (uint32_t r = 0; r < 3; ++r) for (uint32_t c = 0; c < 3; ++c)
         normalized[c][r] = float(part.tensor[r][c]/scale);
-    const ::physx::PxVec3T<float> values = PxMassProperties::getMassSpaceInertia(normalized, axes);
+    const ::ev4sio_physx::PxVec3T<float> values = PxMassProperties::getMassSpaceInertia(normalized, axes);
     for (uint32_t i = 0; i < 3; ++i)
     {
         if (!positive(double(values[i])*scale)) return false;
@@ -179,7 +179,7 @@ bool meshPart(const GeneralMassShape& shape, Part& part)
 bool computeGeneralMass(const GeneralMassShape* shapes, uint32_t count, const MassOverrides& body,
                         MassResult& output, uint32_t& invalidShape)
 {
-    using namespace ::physx;
+    using namespace ::ev4sio_physx;
     invalidShape = UINT32_MAX;
     if (!shapes || !count || count > 65536) return false;
     std::vector<Part> parts;
@@ -188,7 +188,7 @@ bool computeGeneralMass(const GeneralMassShape* shapes, uint32_t count, const Ma
     for (uint32_t i = 0; i < count; ++i)
     {
         invalidShape = i;
-        const omni::physx::authoring::GeneralMassShape & shape = shapes[i];
+        const omni::ev4sio_physx::authoring::GeneralMassShape & shape = shapes[i];
         if (!shape.pose.isValid() || !shape.pose.q.isUnit() || !positive(shape.density)) return false;
         Part part;
         if (shape.kind == 3)
@@ -237,7 +237,7 @@ bool computeGeneralMass(const GeneralMassShape* shapes, uint32_t count, const Ma
     invalidShape = UINT32_MAX;
     if (!positive(total.mass) || !positive(total.volume)) return false;
     for (double& value : total.center) value /= total.mass;
-    for (omni::physx::authoring::Part & part : parts)
+    for (omni::ev4sio_physx::authoring::Part & part : parts)
     {
         shift(part,total.center);
         for (uint32_t r = 0; r < 3; ++r) for (uint32_t c = 0; c < 3; ++c) total.tensor[r][c] += part.tensor[r][c];

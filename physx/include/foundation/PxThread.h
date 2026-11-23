@@ -20,7 +20,7 @@
 #endif
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -339,7 +339,7 @@ PX_FOUNDATION_API PxU32 PxTlsSetValue(PxU32 index, size_t value);
 
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

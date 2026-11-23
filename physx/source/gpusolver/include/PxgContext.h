@@ -13,7 +13,7 @@
 #include "PxgConstraintPrep.h"
 #include "PxvNphaseImplementationContext.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	class PxgCudaBroadPhaseSap;
 	class PxgSolverCore;
@@ -30,11 +30,11 @@ namespace physx
 
 	// PT: TODO: all these tasks are missing a proper context ID for the profiler...
 
-	class PxgCpuJointPrePrepTask : public Cm::Task
+	class PxgCpuJointPrePrepTask : public ev4sio_Cm::Task
 	{
 		PxgSimulationController& mSimController;
 
-		const Dy::Constraint*const* mConstraints;
+		const ev4sio_Dy::Constraint*const* mConstraints;
 		PxgConstraintData* mConstraintData;
 		Px1DConstraint* mConstraintRows;
 
@@ -48,8 +48,8 @@ namespace physx
 
 	public:
 		PxgCpuJointPrePrepTask(PxgSimulationController& simConstroller, PxU32 startIndex, PxU32 nbToProcess, PxU32 gpuJointOffset,
-			const Dy::Constraint*const* constraints, PxgConstraintData* constraintData, Px1DConstraint* constraintRows, PxI32* rowCounts) :
-			Cm::Task(0), mSimController(simConstroller), mConstraints(constraints), mConstraintData(constraintData), mConstraintRows(constraintRows),
+			const ev4sio_Dy::Constraint*const* constraints, PxgConstraintData* constraintData, Px1DConstraint* constraintRows, PxI32* rowCounts) :
+			ev4sio_Cm::Task(0), mSimController(simConstroller), mConstraints(constraints), mConstraintData(constraintData), mConstraintRows(constraintRows),
 			mStartIndex(startIndex), mNbToProcess(nbToProcess), mGpuJointOffset(gpuJointOffset), mRowCounts(rowCounts)
 		{
 		}
@@ -64,7 +64,7 @@ namespace physx
 
 	class PxgGpuContext;
 
-	class PxgCpuPreIntegrationTask : public Cm::Task
+	class PxgCpuPreIntegrationTask : public ev4sio_Cm::Task
 	{
 		PxgGpuContext& mContext;
 
@@ -72,7 +72,7 @@ namespace physx
 
 	public:
 
-		PxgCpuPreIntegrationTask(PxgGpuContext& context) : Cm::Task(0), mContext(context)
+		PxgCpuPreIntegrationTask(PxgGpuContext& context) : ev4sio_Cm::Task(0), mContext(context)
 		{
 		}
 
@@ -84,7 +84,7 @@ namespace physx
 		}
 	};
 
-	class PxgCpuContactPrePrepTask : public Cm::Task
+	class PxgCpuContactPrePrepTask : public ev4sio_Cm::Task
 	{
 		//From the below, we should be able to iterate over the partitions, process contact pairs
 		const PxgIncrementalPartition& mPartition;
@@ -114,7 +114,7 @@ namespace physx
 			const PxU32* startSlabIter, PxU32 startSlabOffset, const PxU32* contactStartIndices,
 			PxgConstraintBatchHeader* batchHeaders, PxU32 nbBatches, PxU32 workUnitStartIndex,
 			PxU32* pinnedEdgeIds, PxsContactManagerOutputIterator& outputIter,
-			const PxU8* baseContactPatch, const PxU8* baseContactPointer) : Cm::Task(0),
+			const PxU8* baseContactPatch, const PxU8* baseContactPointer) : ev4sio_Cm::Task(0),
 			mPartition(partition), mPartitionIndex(partitionIndex), mStartIndexWithinPartition(startIndexWithinPartition), mNbToProcess(nbToProcess),
 			mStartSlabIter(startSlabIter), mStartSlabOffset(startSlabOffset), mContactStartIndices(contactStartIndices),
 			mBatchHeaders(batchHeaders), mNumBatches(nbBatches), mWorkUnitStartIndex(workUnitStartIndex),
@@ -131,7 +131,7 @@ namespace physx
 		}
 	};
 
-	class PxgCpuConstraintPrePrepTask : public Cm::Task
+	class PxgCpuConstraintPrePrepTask : public ev4sio_Cm::Task
 	{
 		const PartitionIndices& mEdgeIds;
 		const PxU32 mStartEdgeIdx;
@@ -155,7 +155,7 @@ namespace physx
 
 		PxgCpuConstraintPrePrepTask(const PartitionIndices& edgeIds, PxU32 startEdgeIdx, PxU32 nbEdges, PxgConstraintBatchHeader* batchHeaders, PxU32 nbBatches,
 			PxU32 constraintBlockStartIndex, PxU32 uniqueIdStartIndex, PxU32* pinnedEdgeIds,
-			const PxgConstraintPrePrep* constraintPrePrep) : Cm::Task(0),
+			const PxgConstraintPrePrep* constraintPrePrep) : ev4sio_Cm::Task(0),
 			mEdgeIds(edgeIds), mStartEdgeIdx(startEdgeIdx), mNumEdges(nbEdges), mBatchHeaders(batchHeaders), mNumBatches(nbBatches),
 			mConstraintBlockStartIndex(constraintBlockStartIndex), mUniqueIdStartIndex(uniqueIdStartIndex), mPinnedEdgeIds(pinnedEdgeIds)
 			, mConstraintPrePrep(constraintPrePrep)
@@ -171,7 +171,7 @@ namespace physx
 	};
 
 	//this include contact and constraint
-	class PxgCpuArtiConstraintPrePrepTask : public Cm::Task
+	class PxgCpuArtiConstraintPrePrepTask : public ev4sio_Cm::Task
 	{
 		const PartitionIndices&		mEdgeIds;
 		const PxU32					mStartEdgeIdx;
@@ -196,7 +196,7 @@ namespace physx
 
 		PxgCpuArtiConstraintPrePrepTask(const PartitionIndices& edgeIds, PxU32 startEdgeIdx, PxU32 nbEdges, PxgConstraintBatchHeader* batchHeaders,
 			PxU32 nbBatches, PxU32 constraintBlockStartIndex, PxU32 uniqueIdStartIndex, PxU32* pinnedEdgeIds,
-			const PxgConstraintPrePrep* constraintPrePrep, bool isContact) : Cm::Task(0),
+			const PxgConstraintPrePrep* constraintPrePrep, bool isContact) : ev4sio_Cm::Task(0),
 			mEdgeIds(edgeIds), mStartEdgeIdx(startEdgeIdx), mNumEdges(nbEdges), mBatchHeaders(batchHeaders), mNumBatches(nbBatches),
 			mConstraintBlockStartIndex(constraintBlockStartIndex), mUniqueIdStartIndex(uniqueIdStartIndex), mPinnedEdgeIds(pinnedEdgeIds)
 			, mConstraintPrePrep(constraintPrePrep), mIsContact(isContact)
@@ -211,14 +211,14 @@ namespace physx
 		}
 	};
 
-	class PxgCpuPrepTask : public Cm::Task
+	class PxgCpuPrepTask : public ev4sio_Cm::Task
 	{
 		PxgGpuContext& mContext;
 		
 		PX_NOCOPY(PxgCpuPrepTask)
 
 	public:
-							PxgCpuPrepTask(PxgGpuContext& context) : Cm::Task(0), mContext(context)	{}
+							PxgCpuPrepTask(PxgGpuContext& context) : ev4sio_Cm::Task(0), mContext(context)	{}
 
 		virtual void		runInternal() PX_OVERRIDE PX_FINAL;
 		virtual const char*	getName() const PX_OVERRIDE PX_FINAL
@@ -227,14 +227,14 @@ namespace physx
 		}
 	};
 
-	class PxgGpuPrePrepTask : public Cm::Task
+	class PxgGpuPrePrepTask : public ev4sio_Cm::Task
 	{
 		PxgGpuContext& mContext;
 
 		PX_NOCOPY(PxgGpuPrePrepTask)
 
 	public:
-							PxgGpuPrePrepTask(PxgGpuContext& context) : Cm::Task(0), mContext(context)	{}
+							PxgGpuPrePrepTask(PxgGpuContext& context) : ev4sio_Cm::Task(0), mContext(context)	{}
 
 		virtual void		runInternal() PX_OVERRIDE PX_FINAL;
 		virtual const char* getName() const PX_OVERRIDE PX_FINAL
@@ -243,14 +243,14 @@ namespace physx
 		}
 	};
 
-	class PxgPostSolveTask : public Cm::Task
+	class PxgPostSolveTask : public ev4sio_Cm::Task
 	{
 		PxgGpuContext& mContext;
 	
 		PX_NOCOPY(PxgPostSolveTask)
 
 	public:
-							PxgPostSolveTask(PxgGpuContext& context) : Cm::Task(0), mContext(context)	{}
+							PxgPostSolveTask(PxgGpuContext& context) : ev4sio_Cm::Task(0), mContext(context)	{}
 
 		virtual void		runInternal() PX_OVERRIDE PX_FINAL;
 		virtual const char*	getName() const PX_OVERRIDE PX_FINAL
@@ -259,18 +259,18 @@ namespace physx
 		}
 	};
 
-	class PxgGpuTask : public Cm::Task
+	class PxgGpuTask : public ev4sio_Cm::Task
 	{
 		PxgGpuContext&		mContext;
 		PxU32				mMaxNodes;
-		Cm::PinnableBitMap*	mChangedHandleMap;//this is for the simulation controller
+		ev4sio_Cm::PinnableBitMap*	mChangedHandleMap;//this is for the simulation controller
 		
 		PX_NOCOPY(PxgGpuTask)
 
 	public:
-							PxgGpuTask(PxgGpuContext& context) : Cm::Task(0), mContext(context), mMaxNodes(0), mChangedHandleMap(NULL)	{}
+							PxgGpuTask(PxgGpuContext& context) : ev4sio_Cm::Task(0), mContext(context), mMaxNodes(0), mChangedHandleMap(NULL)	{}
 
-				void		setMaxNodesAndWordCounts(const PxU32 maxNodes, Cm::PinnableBitMap& changedHandleMap) { mMaxNodes = maxNodes; mChangedHandleMap = &changedHandleMap; }
+				void		setMaxNodesAndWordCounts(const PxU32 maxNodes, ev4sio_Cm::PinnableBitMap& changedHandleMap) { mMaxNodes = maxNodes; mChangedHandleMap = &changedHandleMap; }
 
 		virtual void		runInternal() PX_OVERRIDE PX_FINAL;
 		virtual const char*	getName() const PX_OVERRIDE PX_FINAL
@@ -279,13 +279,13 @@ namespace physx
 		}
 	};
 
-	class PxgGpuIntegrationTask : public Cm::Task
+	class PxgGpuIntegrationTask : public ev4sio_Cm::Task
 	{
 		PxgGpuContext& mContext;
 
 		PX_NOCOPY(PxgGpuIntegrationTask)
 	public:
-							PxgGpuIntegrationTask(PxgGpuContext& context) : Cm::Task(0), mContext(context)	{}
+							PxgGpuIntegrationTask(PxgGpuContext& context) : ev4sio_Cm::Task(0), mContext(context)	{}
 
 		virtual void		runInternal() PX_OVERRIDE PX_FINAL;
 		virtual const char*	getName() const PX_OVERRIDE PX_FINAL
@@ -294,13 +294,13 @@ namespace physx
 		}
 	};
 
-	class PxgGpuContext : public Dy::Context
+	class PxgGpuContext : public ev4sio_Dy::Context
 	{
 		PX_NOCOPY(PxgGpuContext)
 
 	public:
 
-		PxgGpuContext(Cm::FlushPool& flushPool, IG::SimpleIslandManager& islandManager, 
+		PxgGpuContext(ev4sio_Cm::FlushPool& flushPool, ev4sio_IG::SimpleIslandManager& islandManager,
 			PxU32 maxNumPartitions, PxU32 maxNumStaticPartitions,
 			PxReal maxBiasCoefficient, PxvSimStats& simStats, PxgAllocatorDesc& allocDesc,
 			PxReal lengthScale, PxU64 contextID, bool isTGS, PxSceneFlags sceneFlags);
@@ -336,7 +336,7 @@ namespace physx
 
 		PX_FORCE_INLINE PxU32 getCurrentContactStreamIndex() { return mCurrentContactStream; }
 
-		PX_FORCE_INLINE Cm::FlushPool&	getFlushPool() { return mFlushPool; }
+		PX_FORCE_INLINE ev4sio_Cm::FlushPool&	getFlushPool() { return mFlushPool; }
 
 		PX_FORCE_INLINE PxU8* getPatchStream(const PxU32 index) { return mPatchStreamAllocators[index]->mStart; }
 		PX_FORCE_INLINE PxU8* getContactStream(const PxU32 index) { return mContactStreamAllocators[index]->mStart; }
@@ -353,13 +353,13 @@ namespace physx
 		
 		virtual void						updateBodyCore(PxBaseTask* continuation)	PX_OVERRIDE;
 
-		virtual void						update(	Cm::FlushPool& flushPool, PxBaseTask* continuation, PxBaseTask* postPartitioningTask, PxBaseTask* lostTouchTask,
+		virtual void						update(	ev4sio_Cm::FlushPool& flushPool, PxBaseTask* continuation, PxBaseTask* postPartitioningTask, PxBaseTask* lostTouchTask,
 													PxvNphaseImplementationContext* nphase, PxU32 maxPatchesPerCM, PxU32 maxArticulationLinks, PxReal dt,
-													const PxVec3& gravity, Cm::PinnableBitMap& changedHandleMap)	PX_OVERRIDE;
+													const PxVec3& gravity, ev4sio_Cm::PinnableBitMap& changedHandleMap)	PX_OVERRIDE;
 
 		virtual void						updatePostPartitioning(	PxBaseTask* lostTouchTask,
 																	PxvNphaseImplementationContext* nphase, PxU32 maxPatchesPerCM, PxU32 maxArticulationLinks, PxReal dt,
-																	const PxVec3& gravity, Cm::PinnableBitMap& changedHandleMap)	PX_OVERRIDE;
+																	const PxVec3& gravity, ev4sio_Cm::PinnableBitMap& changedHandleMap)	PX_OVERRIDE;
 
 		virtual void setActiveBreakableConstraintCount(PxU32 activeBreakableConstraintCount) PX_OVERRIDE
 		{
@@ -369,27 +369,27 @@ namespace physx
 		//this is the pre-prepare code for block format joints loaded from the non-block format joints
 		void								doConstraintJointBlockPrePrepGPU();
 
-		void								doStaticArticulationConstraintPrePrep(physx::PxBaseTask* continuation, const PxU32 articulationConstraintBatchIndex, const PxU32 articulationContactBatchIndex);
+		void								doStaticArticulationConstraintPrePrep(ev4sio_physx::PxBaseTask* continuation, const PxU32 articulationConstraintBatchIndex, const PxU32 articulationContactBatchIndex);
 
-		void								doStaticRigidConstraintPrePrep(physx::PxBaseTask* continuation);
+		void								doStaticRigidConstraintPrePrep(ev4sio_physx::PxBaseTask* continuation);
 		
-		void								doConstraintSolveGPU(PxU32 maxNodes, Cm::PinnableBitMap& changedHandleMap);
+		void								doConstraintSolveGPU(PxU32 maxNodes, ev4sio_Cm::PinnableBitMap& changedHandleMap);
 
-		void								doPostSolveTask(physx::PxBaseTask* continuation);
+		void								doPostSolveTask(ev4sio_physx::PxBaseTask* continuation);
 
-		virtual void						processPatches(	Cm::FlushPool& flushPool, PxBaseTask* continuation,
+		virtual void						processPatches(	ev4sio_Cm::FlushPool& flushPool, PxBaseTask* continuation,
 															PxsContactManager** lostFoundPatchManagers, PxU32 nbLostFoundPatchManagers, PxsContactManagerOutputCounts* outCounts)	PX_OVERRIDE;
 
 		bool								isTGS() const { return mIsTGS; }
 		bool								isExternalForcesEveryTgsIterationEnabled() const { return mIsExternalForcesEveryTgsIterationEnabled; }
 
-		void								doPreIntegrationTaskCommon(physx::PxBaseTask* continuation);
+		void								doPreIntegrationTaskCommon(ev4sio_physx::PxBaseTask* continuation);
 
-		void 								doConstraintPrePrepCommon(physx::PxBaseTask* continuation);
+		void 								doConstraintPrePrepCommon(ev4sio_physx::PxBaseTask* continuation);
 
 		void								doConstraintPrePrepGPUCommon(bool hasForceThresholds);
 
-		void								cpuJointPrePrepTask(physx::PxBaseTask* continuation);
+		void								cpuJointPrePrepTask(ev4sio_physx::PxBaseTask* continuation);
 
 		void 								allocateTempPinnedSolverMemoryCommon();
 
@@ -405,41 +405,41 @@ namespace physx
 		PxsContactManagerOutputIterator			mOutputIterator;
 
 		PxReal*									mGPURestDistances;
-		Sc::ShapeInteraction**					mGPUShapeInteractions;
+		ev4sio_Sc::ShapeInteraction**					mGPUShapeInteractions;
 		PxsTorsionalFrictionData*				mGPUTorsionalData;
 
-		Cm::FlushPool&							mFlushPool;
+		ev4sio_Cm::FlushPool&							mFlushPool;
 		bool									mSolvedThisFrame;
 		PxgIncrementalPartition					mIncrementalPartition;
 
-		Cm::PinnableArray<PxNodeIndex>			mActiveNodeIndex;	//this will change everyframe, include rigid bodies and articulation
+		ev4sio_Cm::PinnableArray<PxNodeIndex>			mActiveNodeIndex;	//this will change everyframe, include rigid bodies and articulation
 		
 		PxgSolverBody							mWorldSolverBody;
 		PxgSolverBodyData						mWorldSolverBodyData;
 		PxgSolverBodySleepData					mWorldSolverBodySleepData;
 		PxgSolverTxIData						mWorldTxIData;
 
-		Cm::PinnableArray<PxgSolverBody>		mSolverBodyPool;
-		Cm::PinnableArray<PxAlignedTransform>	mBody2WorldPool;
+		ev4sio_Cm::PinnableArray<PxgSolverBody>		mSolverBodyPool;
+		ev4sio_Cm::PinnableArray<PxAlignedTransform>	mBody2WorldPool;
 
 		//write back from the active articulation
 		//each articulation has max 64 links and max 3 * 63 dofsnd 1 wake counter
 		//see PxgArticulationLinkJointRootStateData
-		Cm::PinnableArray<PxU8>					mLinkAndJointAndRootStateDataPool;
+		ev4sio_Cm::PinnableArray<PxU8>					mLinkAndJointAndRootStateDataPool;
 
-		Cm::PinnableArray<PxgSolverBodySleepData>	mArticulationSleepDataPool;
+		ev4sio_Cm::PinnableArray<PxgSolverBodySleepData>	mArticulationSleepDataPool;
 
-		Cm::PinnableArray<PxU32>					m1dConstraintBatchIndices;
-		Cm::PinnableArray<PxU32>					mContactConstraintBatchIndices;
-		Cm::PinnableArray<PxU32>					mArti1dConstraintBatchIndices;
-		Cm::PinnableArray<PxU32>					mArtiContactConstraintBatchIndices;
+		ev4sio_Cm::PinnableArray<PxU32>					m1dConstraintBatchIndices;
+		ev4sio_Cm::PinnableArray<PxU32>					mContactConstraintBatchIndices;
+		ev4sio_Cm::PinnableArray<PxU32>					mArti1dConstraintBatchIndices;
+		ev4sio_Cm::PinnableArray<PxU32>					mArtiContactConstraintBatchIndices;
 
-		Cm::PinnableArray<PxU32>					mConstraintsPerPartition;
-		Cm::PinnableArray<PxU32>					mArtiConstraintsPerPartition;
+		ev4sio_Cm::PinnableArray<PxU32>					mConstraintsPerPartition;
+		ev4sio_Cm::PinnableArray<PxU32>					mArtiConstraintsPerPartition;
 
-		Cm::PinnableArray<PxgSolverBodyData>		mSolverBodyDataPool;
-		Cm::PinnableArray<PxgSolverBodySleepData>	mSolverBodySleepDataPool;
-		Cm::PinnableArray<PxgSolverTxIData>			mSolverTxIDataPool;
+		ev4sio_Cm::PinnableArray<PxgSolverBodyData>		mSolverBodyDataPool;
+		ev4sio_Cm::PinnableArray<PxgSolverBodySleepData>	mSolverBodySleepDataPool;
+		ev4sio_Cm::PinnableArray<PxgSolverTxIData>			mSolverTxIDataPool;
 
 		PxgPinnedHostLinearMemoryAllocator*		mPinnedMemoryAllocator;
 
@@ -510,27 +510,27 @@ namespace physx
 		PxI32									mCachedPositionIterations;
 		PxI32									mCachedVelocityIterations;
 
-		Cm::PinnableArray<PxU32>				mArtiStaticContactCounts;
-		Cm::PinnableArray<PxU32>				mArtiStaticJointCounts;
+		ev4sio_Cm::PinnableArray<PxU32>				mArtiStaticContactCounts;
+		ev4sio_Cm::PinnableArray<PxU32>				mArtiStaticJointCounts;
 
-		Cm::PinnableArray<PxU32>				mArtiStaticContactIndices;
-		Cm::PinnableArray<PxU32>				mArtiStaticJointIndices;
+		ev4sio_Cm::PinnableArray<PxU32>				mArtiStaticContactIndices;
+		ev4sio_Cm::PinnableArray<PxU32>				mArtiStaticJointIndices;
 
-		Cm::PinnableArray<PxU32>				mArtiSelfContactCounts;
-		Cm::PinnableArray<PxU32>				mArtiSelfJointCounts;
+		ev4sio_Cm::PinnableArray<PxU32>				mArtiSelfContactCounts;
+		ev4sio_Cm::PinnableArray<PxU32>				mArtiSelfJointCounts;
 
-		Cm::PinnableArray<PxU32>				mArtiSelfContactIndices;
-		Cm::PinnableArray<PxU32>				mArtiSelfJointIndices;
+		ev4sio_Cm::PinnableArray<PxU32>				mArtiSelfContactIndices;
+		ev4sio_Cm::PinnableArray<PxU32>				mArtiSelfJointIndices;
 
-		Cm::PinnableArray<PxU32>				mRigidStaticContactCounts;
-		Cm::PinnableArray<PxU32>				mRigidStaticJointCounts;
+		ev4sio_Cm::PinnableArray<PxU32>				mRigidStaticContactCounts;
+		ev4sio_Cm::PinnableArray<PxU32>				mRigidStaticJointCounts;
 
-		Cm::PinnableArray<PxU32>				mRigidStaticContactIndices;
-		Cm::PinnableArray<PxU32>				mRigidStaticJointIndices;
+		ev4sio_Cm::PinnableArray<PxU32>				mRigidStaticContactIndices;
+		ev4sio_Cm::PinnableArray<PxU32>				mRigidStaticJointIndices;
 
-		Cm::PinnableArray<PxU32>				mNodeIndicesStagingBuffer;
-		Cm::PinnableArray<PxU32>				mIslandIds;
-		Cm::PinnableArray<PxU32>				mIslandStaticTouchCounts;
+		ev4sio_Cm::PinnableArray<PxU32>				mNodeIndicesStagingBuffer;
+		ev4sio_Cm::PinnableArray<PxU32>				mIslandIds;
+		ev4sio_Cm::PinnableArray<PxU32>				mIslandStaticTouchCounts;
 
 		//other joint type(not d6) cpu constraints
 		PxgConstraintBatchHeader*				mConstraintBatchHeaders;

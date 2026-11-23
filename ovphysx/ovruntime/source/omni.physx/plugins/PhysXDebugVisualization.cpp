@@ -46,10 +46,10 @@
 
 
 
-using namespace ::physx;
+using namespace ::ev4sio_physx;
 using namespace carb;
-using namespace omni::physx;
-using namespace omni::physx::usdparser;
+using namespace omni::ev4sio_physx;
+using namespace omni::ev4sio_physx::usdparser;
 using namespace cookingdataasync;
 
 PX_COMPILE_TIME_ASSERT(sizeof(PxDebugPoint) == sizeof(DebugPoint));
@@ -67,7 +67,7 @@ static constexpr uint32_t gDynamicShapeColor = PxU32(PxDebugColor::eARGB_GREEN);
 static constexpr uint32_t gKinematicShapeColor = PxU32(PxDebugColor::eARGB_YELLOW);
 static constexpr uint32_t gDynamicTriMeshShapeColor = PxU32(PxDebugColor::eARGB_DARKRED);
 
-uint32_t omni::physx::getDebugDrawCollShapeColor(usdparser::AttachedStage& owner, omni::physics::parse::ObjectKey key)
+uint32_t omni::ev4sio_physx::getDebugDrawCollShapeColor(usdparser::AttachedStage& owner, omni::physics::parse::ObjectKey key)
 {
     uint32_t collColor = gStaticShapeColor;
 
@@ -157,20 +157,20 @@ static omni::physics::parse::ObjectKey vizActorKey(const usdparser::AttachedStag
 {
     if (!actor)
         return {};
-    const std::vector<omni::physx::internal::InternalDatabase::Record>& records =
+    const std::vector<omni::ev4sio_physx::internal::InternalDatabase::Record>& records =
         owner.getInternalPhysXDatabase().getRecords();
     const size_t recordIndex = reinterpret_cast<size_t>(actor->userData);
     if (recordIndex >= records.size())
         return {};
-    const omni::physx::internal::InternalDatabase::Record& record = records[recordIndex];
+    const omni::ev4sio_physx::internal::InternalDatabase::Record& record = records[recordIndex];
     if (record.mType == ePTActor || record.mType == ePTLink)
     {
-        const omni::physx::internal::InternalActor* internalActor =
-            static_cast<const omni::physx::internal::InternalActor*>(record.mInternalPtr);
+        const omni::ev4sio_physx::internal::InternalActor* internalActor =
+            static_cast<const omni::ev4sio_physx::internal::InternalActor*>(record.mInternalPtr);
         bool matchesActor = internalActor && internalActor->mActor == actor;
         if (internalActor && !matchesActor)
         {
-            for (const omni::physx::internal::MirrorActor& mirror : internalActor->mMirrors)
+            for (const omni::ev4sio_physx::internal::MirrorActor& mirror : internalActor->mMirrors)
             {
                 if (mirror.actor == actor)
                 {
@@ -184,8 +184,8 @@ static omni::physics::parse::ObjectKey vizActorKey(const usdparser::AttachedStag
     }
     else if (record.mType == ePTCct)
     {
-        const omni::physx::internal::InternalActor* internalActor =
-            static_cast<const omni::physx::internal::InternalActor*>(record.mInternalPtr);
+        const omni::ev4sio_physx::internal::InternalActor* internalActor =
+            static_cast<const omni::ev4sio_physx::internal::InternalActor*>(record.mInternalPtr);
         if (!internalActor || internalActor->mActor != actor)
             return {};
     }
@@ -200,12 +200,12 @@ static omni::physics::parse::ObjectKey vizShapeKey(const usdparser::AttachedStag
 {
     if (!shape)
         return {};
-    const std::vector<omni::physx::internal::InternalDatabase::Record>& records =
+    const std::vector<omni::ev4sio_physx::internal::InternalDatabase::Record>& records =
         owner.getInternalPhysXDatabase().getRecords();
     const size_t recordIndex = reinterpret_cast<size_t>(shape->userData);
     if (recordIndex >= records.size())
         return {};
-    const omni::physx::internal::InternalDatabase::Record& record = records[recordIndex];
+    const omni::ev4sio_physx::internal::InternalDatabase::Record& record = records[recordIndex];
     if (record.mType != ePTShape && record.mType != ePTCompoundShape)
         return {};
     return record.mKey;
@@ -233,13 +233,13 @@ static bool vizScopeContains(const usdparser::AttachedStage& owner, const omni::
 }
 
 static bool vizActorInScope(const usdparser::AttachedStage& owner, const omni::physics::parse::IPhysicsSource* source,
-                            const ::physx::PxActor* actor)
+                            const ::ev4sio_physx::PxActor* actor)
 {
     return vizScopeContains(owner, source, vizActorKey(owner, actor));
 }
 
 static bool vizShapeInScope(const usdparser::AttachedStage& owner, const omni::physics::parse::IPhysicsSource* source,
-                            const ::physx::PxShape* shape)
+                            const ::ev4sio_physx::PxShape* shape)
 {
     return vizScopeContains(owner, source, vizShapeKey(owner, shape));
 }
@@ -270,7 +270,7 @@ static void enableActorVisualization(const usdparser::AttachedStage& owner, PxAc
     actor->setActorFlag(PxActorFlag::eVISUALIZATION, actorInScope || shapeInScope);
 }
 
-void omni::physx::enableVisualization(usdparser::AttachedStage& owner, bool enableVis)
+void omni::ev4sio_physx::enableVisualization(usdparser::AttachedStage& owner, bool enableVis)
 {
     owner.setDebugVisualizationEnabled(enableVis);
     const omni::physics::parse::IPhysicsSource* scopeSource =
@@ -359,12 +359,12 @@ void omni::physx::enableVisualization(usdparser::AttachedStage& owner, bool enab
     }
 }
 
-void omni::physx::enableNormalsVisualization(usdparser::AttachedStage& owner, bool enableNormalsVis)
+void omni::ev4sio_physx::enableNormalsVisualization(usdparser::AttachedStage& owner, bool enableNormalsVis)
 {
     owner.setNormalsVisualizationEnabled(enableNormalsVis);
 }
 
-void omni::physx::setVisualizationScale(usdparser::AttachedStage& owner, float scale)
+void omni::ev4sio_physx::setVisualizationScale(usdparser::AttachedStage& owner, float scale)
 {
 
     owner.setVisualizationScale(scale);
@@ -382,7 +382,7 @@ void omni::physx::setVisualizationScale(usdparser::AttachedStage& owner, float s
     }
 }
 
-void omni::physx::setVisualizationCullingBox(usdparser::AttachedStage& owner, const carb::Float3& min, const carb::Float3& max)
+void omni::ev4sio_physx::setVisualizationCullingBox(usdparser::AttachedStage& owner, const carb::Float3& min, const carb::Float3& max)
 {
 
     PxBounds3 bounds;
@@ -405,7 +405,7 @@ void omni::physx::setVisualizationCullingBox(usdparser::AttachedStage& owner, co
  * @implements REQ-PUBLICAPI-004
  * @covers AC-1 AC-2 AC-3
  */
-void omni::physx::applyDebugRenderForAttach(uint64_t attachHandle,
+void omni::ev4sio_physx::applyDebugRenderForAttach(uint64_t attachHandle,
                                            bool enabled,
                                            float scale,
                                            const float* params,
@@ -428,7 +428,7 @@ void omni::physx::applyDebugRenderForAttach(uint64_t attachHandle,
     applyDebugRenderToOwner(*owner, enabled, scale, params, paramCount, hasCull, cullMin, cullMax, scopeTokens, scopeCount);
 }
 
-void omni::physx::applyDebugRenderToOwner(usdparser::AttachedStage& owner,
+void omni::ev4sio_physx::applyDebugRenderToOwner(usdparser::AttachedStage& owner,
                                          bool enabled,
                                          float scale,
                                          const float* params,
@@ -474,7 +474,7 @@ void omni::physx::applyDebugRenderToOwner(usdparser::AttachedStage& owner,
     enableVisualization(owner, enabled);
 }
 
-void omni::physx::copyDebugPrimitivesFromOwner(usdparser::AttachedStage& owner,
+void omni::ev4sio_physx::copyDebugPrimitivesFromOwner(usdparser::AttachedStage& owner,
                                               std::vector<DebugPoint>& points,
                                               std::vector<DebugLine>& lines,
                                               std::vector<DebugTriangle>& triangles)
@@ -523,7 +523,7 @@ void omni::physx::copyDebugPrimitivesFromOwner(usdparser::AttachedStage& owner,
  * @implements REQ-PUBLICAPI-004
  * @covers AC-2 AC-3 AC-4
  */
-bool omni::physx::copyDebugPrimitivesForAttach(uint64_t attachHandle,
+bool omni::ev4sio_physx::copyDebugPrimitivesForAttach(uint64_t attachHandle,
                                               std::vector<DebugPoint>& points,
                                               std::vector<DebugLine>& lines,
                                               std::vector<DebugTriangle>& triangles)
@@ -545,7 +545,7 @@ bool omni::physx::copyDebugPrimitivesForAttach(uint64_t attachHandle,
     return true;
 }
 
-void omni::physx::applyDebugRenderForAttachRequest(const DebugRenderAttachRequest* request)
+void omni::ev4sio_physx::applyDebugRenderForAttachRequest(const DebugRenderAttachRequest* request)
 {
     if (!request)
         return;
@@ -561,7 +561,7 @@ void omni::physx::applyDebugRenderForAttachRequest(const DebugRenderAttachReques
                               request->scopeCount);
 }
 
-void omni::physx::copyDebugPrimitivesForAttachBuffers(uint64_t attachHandle,
+void omni::ev4sio_physx::copyDebugPrimitivesForAttachBuffers(uint64_t attachHandle,
                                                      DebugPoint* points,
                                                      uint32_t* pointCount,
                                                      DebugLine* lines,
@@ -590,7 +590,7 @@ void omni::physx::copyDebugPrimitivesForAttachBuffers(uint64_t attachHandle,
     publish(triangles, triangleCount, copiedTriangles);
 }
 
-void omni::physx::setVisualizationParameter(usdparser::AttachedStage& owner, PhysXVisualizationParameter par, bool val)
+void omni::ev4sio_physx::setVisualizationParameter(usdparser::AttachedStage& owner, PhysXVisualizationParameter par, bool val)
 {
     if (par <= eNone || par >= eNumValues)
         return;
@@ -620,7 +620,7 @@ void omni::physx::setVisualizationParameter(usdparser::AttachedStage& owner, Phy
     }
 }
 
-void omni::physx::setVisualizationParameterValue(usdparser::AttachedStage& owner, PhysXVisualizationParameter par, float value)
+void omni::ev4sio_physx::setVisualizationParameterValue(usdparser::AttachedStage& owner, PhysXVisualizationParameter par, float value)
 {
     // Records the magnitude this parameter applies when enabled and re-applies it live
     // if currently on. Does not change the enabled state. Values must be finite and >= 0.
@@ -644,7 +644,7 @@ void omni::physx::setVisualizationParameterValue(usdparser::AttachedStage& owner
     }
 }
 
-bool omni::physx::setVisualizationScopeTokens(usdparser::AttachedStage& owner, const ovx_primpath_t* tokens, uint32_t count)
+bool omni::ev4sio_physx::setVisualizationScopeTokens(usdparser::AttachedStage& owner, const ovx_primpath_t* tokens, uint32_t count)
 {
     // Restrict eVISUALIZATION flag authoring to a set of interned prim paths, exact
     // membership (empty = every object). The caller expanded any hierarchy into its
@@ -666,11 +666,11 @@ bool omni::physx::setVisualizationScopeTokens(usdparser::AttachedStage& owner, c
     // Re-author the flags live so a scope change applies without a disable/enable
     // cycle, drawn on the next step. enableVisualization waits for completion itself.
     if (owner.isDebugVisualizationEnabled())
-        omni::physx::enableVisualization(owner, true);
+        omni::ev4sio_physx::enableVisualization(owner, true);
     return true;
 }
 
-uint32_t omni::physx::getNbPoints(usdparser::AttachedStage& owner)
+uint32_t omni::ev4sio_physx::getNbPoints(usdparser::AttachedStage& owner)
 {
     uint32_t numPoints = 0;
 
@@ -684,7 +684,7 @@ uint32_t omni::physx::getNbPoints(usdparser::AttachedStage& owner)
     return numPoints;
 }
 
-const DebugPoint* omni::physx::getPoints(usdparser::AttachedStage& owner)
+const DebugPoint* omni::ev4sio_physx::getPoints(usdparser::AttachedStage& owner)
 {
 
     if (owner.getPhysXScenes().empty())
@@ -709,7 +709,7 @@ const DebugPoint* omni::physx::getPoints(usdparser::AttachedStage& owner)
     return owner.getDebugVisualizationCache().mPointsBuffer.data();
 }
 
-uint32_t omni::physx::getNbLines(usdparser::AttachedStage& owner)
+uint32_t omni::ev4sio_physx::getNbLines(usdparser::AttachedStage& owner)
 {
     uint32_t numLines = 0;
 
@@ -724,7 +724,7 @@ uint32_t omni::physx::getNbLines(usdparser::AttachedStage& owner)
     return numLines;
 }
 
-const DebugLine* omni::physx::getLines(usdparser::AttachedStage& owner)
+const DebugLine* omni::ev4sio_physx::getLines(usdparser::AttachedStage& owner)
 {
 
     if (owner.getPhysXScenes().empty())
@@ -758,7 +758,7 @@ const DebugLine* omni::physx::getLines(usdparser::AttachedStage& owner)
     return owner.getDebugVisualizationCache().mLinesBuffer.data();
 }
 
-uint32_t omni::physx::getNbTriangles(usdparser::AttachedStage& owner)
+uint32_t omni::ev4sio_physx::getNbTriangles(usdparser::AttachedStage& owner)
 {    
     uint32_t numTris = 0;
 
@@ -772,7 +772,7 @@ uint32_t omni::physx::getNbTriangles(usdparser::AttachedStage& owner)
     return numTris;
 }
 
-const DebugTriangle* omni::physx::getTriangles(usdparser::AttachedStage& owner)
+const DebugTriangle* omni::ev4sio_physx::getTriangles(usdparser::AttachedStage& owner)
 {    
 
     if (owner.getPhysXScenes().empty())
@@ -1253,7 +1253,7 @@ namespace
     };
 }
 
-const DebugLine* omni::physx::getShapeDebugDraw(usdparser::AttachedStage& owner, omni::physics::parse::ObjectKey key,
+const DebugLine* omni::ev4sio_physx::getShapeDebugDraw(usdparser::AttachedStage& owner, omni::physics::parse::ObjectKey key,
                                                 const usdparser::PhysxShapeDesc* desc,
                                                 uint32_t& numLines)
 {
@@ -1706,12 +1706,12 @@ const DebugLine* omni::physx::getShapeDebugDraw(usdparser::AttachedStage& owner,
     return outLines;
 }
 
-void omni::physx::clearDebugVisualizationData(usdparser::AttachedStage& owner)
+void omni::ev4sio_physx::clearDebugVisualizationData(usdparser::AttachedStage& owner)
 {
     owner.getDebugVisualizationCache().release();
 }
 
-const omni::physx::CollisionRepresentation* omni::physx::getCollisionRepresentation(usdparser::AttachedStage& owner, omni::physics::parse::ObjectKey key,const usdparser::PhysxShapeDesc* desc)
+const omni::ev4sio_physx::CollisionRepresentation* omni::ev4sio_physx::getCollisionRepresentation(usdparser::AttachedStage& owner, omni::physics::parse::ObjectKey key,const usdparser::PhysxShapeDesc* desc)
 {
     const CollisionRepresentation *ret = nullptr;
 
@@ -1723,7 +1723,7 @@ const omni::physx::CollisionRepresentation* omni::physx::getCollisionRepresentat
 
     return ret;
 }
-void omni::physx::releaseCollisionRepresentation(const CollisionRepresentation* cr)
+void omni::ev4sio_physx::releaseCollisionRepresentation(const CollisionRepresentation* cr)
 {
     // A representation is an independent heap copy. Its release neither resolves
     // physics nor requires the SDK/cooking service to remain alive.
@@ -1738,7 +1738,7 @@ void omni::physx::releaseCollisionRepresentation(const CollisionRepresentation* 
     delete cr;
 }
 
-bool omni::physx::getMeshKey(const omni::physx::usdparser::PhysxShapeDesc &desc,omni::physx::usdparser::MeshKey &meshKey)
+bool omni::ev4sio_physx::getMeshKey(const omni::ev4sio_physx::usdparser::PhysxShapeDesc &desc,omni::ev4sio_physx::usdparser::MeshKey &meshKey)
 {
     RuntimeExecutionScope execution(kNoAttach);
     if (!execution)
@@ -1771,7 +1771,7 @@ void addTriangleMesh(EdgeSet& edgeSet, const T* triangles, uint32_t nbTriangles)
 }
 
 // Public admission boundaries. Private overloads above never acquire nested admission.
-void omni::physx::enableVisualization(AttachHandle attachHandle, bool enableVis)
+void omni::ev4sio_physx::enableVisualization(AttachHandle attachHandle, bool enableVis)
 {
     RuntimeExecutionScope execution(attachHandle);
     if (!execution)
@@ -1782,7 +1782,7 @@ void omni::physx::enableVisualization(AttachHandle attachHandle, bool enableVis)
     enableVisualization(*owner, enableVis);
 }
 
-void omni::physx::enableNormalsVisualization(AttachHandle attachHandle, bool enableNormalsVis)
+void omni::ev4sio_physx::enableNormalsVisualization(AttachHandle attachHandle, bool enableNormalsVis)
 {
     RuntimeExecutionScope execution(attachHandle);
     if (!execution)
@@ -1793,7 +1793,7 @@ void omni::physx::enableNormalsVisualization(AttachHandle attachHandle, bool ena
     enableNormalsVisualization(*owner, enableNormalsVis);
 }
 
-void omni::physx::setVisualizationScale(AttachHandle attachHandle, float scale)
+void omni::ev4sio_physx::setVisualizationScale(AttachHandle attachHandle, float scale)
 {
     RuntimeExecutionScope execution(attachHandle);
     if (!execution)
@@ -1804,7 +1804,7 @@ void omni::physx::setVisualizationScale(AttachHandle attachHandle, float scale)
     setVisualizationScale(*owner, scale);
 }
 
-void omni::physx::setVisualizationCullingBox(AttachHandle attachHandle, const carb::Float3& min, const carb::Float3& max)
+void omni::ev4sio_physx::setVisualizationCullingBox(AttachHandle attachHandle, const carb::Float3& min, const carb::Float3& max)
 {
     RuntimeExecutionScope execution(attachHandle);
     if (!execution)
@@ -1815,7 +1815,7 @@ void omni::physx::setVisualizationCullingBox(AttachHandle attachHandle, const ca
     setVisualizationCullingBox(*owner, min, max);
 }
 
-void omni::physx::setVisualizationParameter(AttachHandle attachHandle, PhysXVisualizationParameter par, bool val)
+void omni::ev4sio_physx::setVisualizationParameter(AttachHandle attachHandle, PhysXVisualizationParameter par, bool val)
 {
     RuntimeExecutionScope execution(attachHandle);
     if (!execution)
@@ -1826,7 +1826,7 @@ void omni::physx::setVisualizationParameter(AttachHandle attachHandle, PhysXVisu
     setVisualizationParameter(*owner, par, val);
 }
 
-void omni::physx::setVisualizationParameterValue(AttachHandle attachHandle, PhysXVisualizationParameter par, float value)
+void omni::ev4sio_physx::setVisualizationParameterValue(AttachHandle attachHandle, PhysXVisualizationParameter par, float value)
 {
     RuntimeExecutionScope execution(attachHandle);
     if (!execution)
@@ -1837,7 +1837,7 @@ void omni::physx::setVisualizationParameterValue(AttachHandle attachHandle, Phys
     setVisualizationParameterValue(*owner, par, value);
 }
 
-bool omni::physx::setVisualizationScopeTokens(AttachHandle attachHandle, const ovx_primpath_t* tokens, uint32_t count)
+bool omni::ev4sio_physx::setVisualizationScopeTokens(AttachHandle attachHandle, const ovx_primpath_t* tokens, uint32_t count)
 {
     RuntimeExecutionScope execution(attachHandle);
     if (!execution)
@@ -1848,7 +1848,7 @@ bool omni::physx::setVisualizationScopeTokens(AttachHandle attachHandle, const o
     return setVisualizationScopeTokens(*owner, tokens, count);
 }
 
-uint32_t omni::physx::getNbPoints(AttachHandle attachHandle)
+uint32_t omni::ev4sio_physx::getNbPoints(AttachHandle attachHandle)
 {
     RuntimeExecutionScope execution(attachHandle);
     if (!execution)
@@ -1859,7 +1859,7 @@ uint32_t omni::physx::getNbPoints(AttachHandle attachHandle)
     return getNbPoints(*owner);
 }
 
-const DebugPoint* omni::physx::getPoints(AttachHandle attachHandle)
+const DebugPoint* omni::ev4sio_physx::getPoints(AttachHandle attachHandle)
 {
     RuntimeExecutionScope execution(attachHandle);
     if (!execution)
@@ -1870,7 +1870,7 @@ const DebugPoint* omni::physx::getPoints(AttachHandle attachHandle)
     return getPoints(*owner);
 }
 
-uint32_t omni::physx::getNbLines(AttachHandle attachHandle)
+uint32_t omni::ev4sio_physx::getNbLines(AttachHandle attachHandle)
 {
     RuntimeExecutionScope execution(attachHandle);
     if (!execution)
@@ -1881,7 +1881,7 @@ uint32_t omni::physx::getNbLines(AttachHandle attachHandle)
     return getNbLines(*owner);
 }
 
-const DebugLine* omni::physx::getLines(AttachHandle attachHandle)
+const DebugLine* omni::ev4sio_physx::getLines(AttachHandle attachHandle)
 {
     RuntimeExecutionScope execution(attachHandle);
     if (!execution)
@@ -1892,7 +1892,7 @@ const DebugLine* omni::physx::getLines(AttachHandle attachHandle)
     return getLines(*owner);
 }
 
-uint32_t omni::physx::getNbTriangles(AttachHandle attachHandle)
+uint32_t omni::ev4sio_physx::getNbTriangles(AttachHandle attachHandle)
 {
     RuntimeExecutionScope execution(attachHandle);
     if (!execution)
@@ -1903,7 +1903,7 @@ uint32_t omni::physx::getNbTriangles(AttachHandle attachHandle)
     return getNbTriangles(*owner);
 }
 
-const DebugTriangle* omni::physx::getTriangles(AttachHandle attachHandle)
+const DebugTriangle* omni::ev4sio_physx::getTriangles(AttachHandle attachHandle)
 {
     RuntimeExecutionScope execution(attachHandle);
     if (!execution)
@@ -1914,7 +1914,7 @@ const DebugTriangle* omni::physx::getTriangles(AttachHandle attachHandle)
     return getTriangles(*owner);
 }
 
-const DebugLine* omni::physx::getShapeDebugDraw(AttachHandle attachHandle, omni::physics::parse::ObjectKey key,
+const DebugLine* omni::ev4sio_physx::getShapeDebugDraw(AttachHandle attachHandle, omni::physics::parse::ObjectKey key,
                                                 const usdparser::PhysxShapeDesc* desc,
                                                 uint32_t& numLines)
 {
@@ -1927,7 +1927,7 @@ const DebugLine* omni::physx::getShapeDebugDraw(AttachHandle attachHandle, omni:
     return getShapeDebugDraw(*owner, key, desc, numLines);
 }
 
-void omni::physx::clearDebugVisualizationData(AttachHandle attachHandle)
+void omni::ev4sio_physx::clearDebugVisualizationData(AttachHandle attachHandle)
 {
     RuntimeExecutionScope execution(attachHandle);
     if (!execution)
@@ -1938,7 +1938,7 @@ void omni::physx::clearDebugVisualizationData(AttachHandle attachHandle)
     clearDebugVisualizationData(*owner);
 }
 
-uint32_t omni::physx::getDebugDrawCollShapeColor(AttachHandle attachHandle, omni::physics::parse::ObjectKey key)
+uint32_t omni::ev4sio_physx::getDebugDrawCollShapeColor(AttachHandle attachHandle, omni::physics::parse::ObjectKey key)
 {
     RuntimeExecutionScope execution(attachHandle);
     if (!execution)
@@ -1949,7 +1949,7 @@ uint32_t omni::physx::getDebugDrawCollShapeColor(AttachHandle attachHandle, omni
     return getDebugDrawCollShapeColor(*owner, key);
 }
 
-const omni::physx::CollisionRepresentation* omni::physx::getCollisionRepresentation(AttachHandle attachHandle, omni::physics::parse::ObjectKey key,const usdparser::PhysxShapeDesc* desc)
+const omni::ev4sio_physx::CollisionRepresentation* omni::ev4sio_physx::getCollisionRepresentation(AttachHandle attachHandle, omni::physics::parse::ObjectKey key,const usdparser::PhysxShapeDesc* desc)
 {
     RuntimeExecutionScope execution(attachHandle);
     if (!execution)

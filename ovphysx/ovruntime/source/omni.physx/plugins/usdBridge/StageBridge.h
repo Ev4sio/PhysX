@@ -27,7 +27,7 @@ struct PhysxShapeDesc;
 class ScannedStage;
 }
 
-namespace omni::physx::usdparser
+namespace omni::ev4sio_physx::usdparser
 {
 class AttachedStage;
 using PhysxShapeDesc = ::omni::physics::parse::PhysxShapeDesc;
@@ -86,4 +86,4 @@ ScannedCollision bridgeParseForeignStageCollision(uint64_t stageId,
                                                  AttachedStage& outStorage,
                                                  ::omni::physics::parse::ObjectKey& outCollisionKey);
 
-} // namespace omni::physx::usdparser
+} // namespace omni::ev4sio_physx::usdparser

@@ -20,7 +20,7 @@
 
 #include "NpBounds.h"	// PT: for SQ_PRUNER_EPSILON
 
-namespace physx
+namespace ev4sio_physx
 {
 	class PxScene;
 	class PxSceneDesc;
@@ -30,9 +30,9 @@ namespace Vd
 	class PvdSceneClient;
 }
 
-class NpSceneQueries : public Sc::SqBoundsSync
+class NpSceneQueries : public ev4sio_Sc::SqBoundsSync
 #if PX_SUPPORT_PVD
-	, public Sq::PVDCapture
+	, public ev4sio_Sq::PVDCapture
 #endif
 {
 												PX_NOCOPY(NpSceneQueries)
@@ -68,6 +68,6 @@ class NpSceneQueries : public Sc::SqBoundsSync
 #endif // PX_SUPPORT_PVD
 };
 
-} // namespace physx, sq
+} // namespace ev4sio_physx, sq
 
 #endif

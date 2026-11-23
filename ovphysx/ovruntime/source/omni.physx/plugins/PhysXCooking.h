@@ -20,7 +20,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 
 // IPhysxCooking
@@ -41,5 +41,5 @@ bool cookAutoDeformableBody(omni::physics::AttachHandle attach, omni::physics::p
 
 
 
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

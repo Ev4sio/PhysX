@@ -8,8 +8,8 @@
 #include "GuConvexEdgeFlags.h"
 #include "GuEdgeList.h"
 
-using namespace physx;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -242,19 +242,19 @@ void TriangleMesh::onRefCountZero()
 
 void TriangleMesh::release()
 {
-	Cm::RefCountable_decRefCount(*this);
+	ev4sio_Cm::RefCountable_decRefCount(*this);
 }
 
 PxVec3* TriangleMesh::getVerticesForModification()
 {
-	PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxTriangleMesh::getVerticesForModification() is not supported for this type of meshes.");
+	ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxTriangleMesh::getVerticesForModification() is not supported for this type of meshes.");
 
 	return NULL;
 }
 
 PxBounds3 TriangleMesh::refitBVH()
 {
-	PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxTriangleMesh::refitBVH() is not supported for this type of meshes.");
+	ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxTriangleMesh::refitBVH() is not supported for this type of meshes.");
 
 	return PxBounds3(mAABB.getMin(), mAABB.getMax());
 }

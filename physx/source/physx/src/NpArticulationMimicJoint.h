@@ -13,7 +13,7 @@
 #ifndef NP_ARTICULATION_MIMIC_JOINT_H
 #define NP_ARTICULATION_MIMIC_JOINT_H
 
-namespace physx
+namespace ev4sio_physx
 {
 
 typedef PxU32	ArticulationMimicJointHandle;
@@ -64,7 +64,7 @@ public:
 
 	PX_FORCE_INLINE	void setHandle(ArticulationMimicJointHandle handle) { mHandle = handle; }
 
-	PX_FORCE_INLINE Sc::ArticulationMimicJointCore& getMimicJointCore() {return mCore;}
+	PX_FORCE_INLINE ev4sio_Sc::ArticulationMimicJointCore& getMimicJointCore() {return mCore;}
 	PxArticulationLink* getLinkA() {return mLinkA;}
 	PxArticulationLink* getLinkB() {return mLinkB;}
 
@@ -73,7 +73,7 @@ private:
 	PxArticulationLink* mLinkA;
 	PxArticulationLink* mLinkB;
 
-	Sc::ArticulationMimicJointCore mCore;
+	ev4sio_Sc::ArticulationMimicJointCore mCore;
 
 	//mHandle is the index into the array of mimic joints owned by NpArticulationReducedCoordinate.
 	//Releasing a mimic joint will lead to the last mimic joint filling the array entry of the released

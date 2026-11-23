@@ -16,7 +16,7 @@
 namespace omni
 {
 
-namespace physx
+namespace ev4sio_physx
 {
 enum class PhysXStat
 {
@@ -288,5 +288,5 @@ struct PhysicsSceneStats
 /// \return True if the scene was found and statistics were filled.
 bool getPhysXSceneStatistics(AttachHandle attachHandle, uint64_t path, PhysicsSceneStats& sceneStats);
 
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

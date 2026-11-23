@@ -5,7 +5,7 @@
 
 #include "DySleep.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 // PT: TODO: refactor this, parts of the two codepaths are very similar
 
@@ -18,7 +18,7 @@ static PX_FORCE_INLINE void setSleepingFlags(PxsRigidBody* originalBody, PxU16 s
 	originalBody->mInternalFlags = flags;
 }
 
-static PX_FORCE_INLINE PxReal updateWakeCounter(PxsRigidBody* originalBody, PxReal dt, bool enableStabilization, const Cm::SpatialVector& motionVelocity, PxIntBool hasStaticTouch)
+static PX_FORCE_INLINE PxReal updateWakeCounter(PxsRigidBody* originalBody, PxReal dt, bool enableStabilization, const ev4sio_Cm::SpatialVector& motionVelocity, PxIntBool hasStaticTouch)
 {
 	PxsBodyCore& bodyCore = originalBody->getCore();
 
@@ -209,7 +209,7 @@ static PX_FORCE_INLINE PxReal updateWakeCounter(PxsRigidBody* originalBody, PxRe
 	return wc;
 }
 
-void Dy::sleepCheck(PxsRigidBody* originalBody, PxReal dt, bool enableStabilization, const Cm::SpatialVector& motionVelocity, PxIntBool hasStaticTouch)
+void ev4sio_Dy::sleepCheck(PxsRigidBody* originalBody, PxReal dt, bool enableStabilization, const ev4sio_Cm::SpatialVector& motionVelocity, PxIntBool hasStaticTouch)
 {
 	const PxReal wc = updateWakeCounter(originalBody, dt, enableStabilization, motionVelocity, hasStaticTouch);
 	if(wc == 0.0f)

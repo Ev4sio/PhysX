@@ -17,14 +17,14 @@
 #include "PxgPartitionNode.h"
 #include "PxsPartitionEdge.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 class PxsContactManagerOutputIterator;
 class PxgBodySimManager;
 class PxgJointManager;
 struct PxsContactManagerOutputCounts;
 
-namespace Cm
+namespace ev4sio_Cm
 {
 	class FlushPool;
 }
@@ -76,7 +76,7 @@ namespace Cm
 	PX_FORCE_INLINE	PxU32	getNode0Index(const PartitionEdge* edge)			{ return edge->mNode0.index();	}
 #endif
 
-typedef	Cm::BlockArray<PxU32>	PartitionIndices;
+typedef	ev4sio_Cm::BlockArray<PxU32>	PartitionIndices;
 //typedef	PxArray<PxU32>	PartitionIndices;
 
 struct PartitionEdgeSlab
@@ -98,7 +98,7 @@ public:
 	PartitionEdgeManager();
 	~PartitionEdgeManager();
 
-	PX_FORCE_INLINE PartitionEdge*	getEdge(IG::EdgeIndex index);
+	PX_FORCE_INLINE PartitionEdge*	getEdge(ev4sio_IG::EdgeIndex index);
 	PX_FORCE_INLINE void			putEdge(PartitionEdge* edge);
 
 	PX_FORCE_INLINE const PartitionEdge*	getPartitionEdge(PxU32 uniqueId)	const
@@ -124,7 +124,7 @@ struct Partition
 		return true;
 	}
 
-	void removeFromPartition(PxU32 uniqueIndex, Cm::PinnableArray<PartitionIndexData>& iterator)
+	void removeFromPartition(PxU32 uniqueIndex, ev4sio_Cm::PinnableArray<PartitionIndexData>& iterator)
 	{
 		const PartitionIndexData& indexData = iterator[uniqueIndex];
 		PartitionIndices& indices = mPartitionIndices[indexData.mCType];
@@ -133,7 +133,7 @@ struct Partition
 		PxU32 size = indices.size();
 		if (size == 0)
 		{
-			PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "PxgConstraintPartition: attempting to remove an edge from an empty partition. Skipping.");
+			ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "PxgConstraintPartition: attempting to remove an edge from an empty partition. Skipping.");
 			PX_ASSERT(false);
 			return;
 		}
@@ -241,17 +241,17 @@ public:	// PT: TODO: revisit after the dust settles
 	PxBitMap mIsDirtyNode;
 
 	PxArray<PxU32>											mNpIndexArray;
-	Cm::PinnableArray<PartitionIndexData>					mPartitionIndexArray;
-	Cm::PinnableArray<PartitionNodeData>					mPartitionNodeArray;
-	Cm::PinnableArray<PxgSolverConstraintManagerConstants>	mSolverConstants;
-	Cm::PinnableArray<PxU32>								mNodeInteractionCountArray;
+	ev4sio_Cm::PinnableArray<PartitionIndexData>					mPartitionIndexArray;
+	ev4sio_Cm::PinnableArray<PartitionNodeData>					mPartitionNodeArray;
+	ev4sio_Cm::PinnableArray<PxgSolverConstraintManagerConstants>	mSolverConstants;
+	ev4sio_Cm::PinnableArray<PxU32>								mNodeInteractionCountArray;
 
-	Cm::PinnableArray<PxU32>		mDestroyedContactEdgeIndices;
+	ev4sio_Cm::PinnableArray<PxU32>		mDestroyedContactEdgeIndices;
 
-	Cm::PinnableArray<PxU32>		mStartSlabPerPartition;
-	Cm::PinnableArray<PxU32>		mArticStartSlabPerPartition;
-	Cm::PinnableArray<PxU32>		mNbJointsPerPartition;
-	Cm::PinnableArray<PxU32>		mNbArtiJointsPerPartition;
+	ev4sio_Cm::PinnableArray<PxU32>		mStartSlabPerPartition;
+	ev4sio_Cm::PinnableArray<PxU32>		mArticStartSlabPerPartition;
+	ev4sio_Cm::PinnableArray<PxU32>		mNbJointsPerPartition;
+	ev4sio_Cm::PinnableArray<PxU32>		mNbArtiJointsPerPartition;
 
 	PxArray<PxU32>				mJointStartIndices;
 	PxArray<PxU32>				mContactStartIndices;
@@ -264,45 +264,45 @@ public:	// PT: TODO: revisit after the dust settles
 
 public:
 
-	PxgIncrementalPartition(Cm::VirtualAllocatorCallback& hostAlloc, PxU32 maxNumPartitions, PxU64 contextID);
+	PxgIncrementalPartition(ev4sio_Cm::VirtualAllocatorCallback& hostAlloc, PxU32 maxNumPartitions, PxU64 contextID);
 	~PxgIncrementalPartition();
 
-	void processLostFoundPatches(	Cm::FlushPool& flushPool, PxBaseTask* continuation,
-									IG::IslandSim& islandSim, PxgBodySimManager& bodySimManager, PxgJointManager& jointManager,
+	void processLostFoundPatches(	ev4sio_Cm::FlushPool& flushPool, PxBaseTask* continuation,
+									ev4sio_IG::IslandSim& islandSim, PxgBodySimManager& bodySimManager, PxgJointManager& jointManager,
 									PxsContactManager** lostFoundPatchManagers, PxU32 nbLostFoundPatchManagers, const PxsContactManagerOutputCounts* lostFoundPairOutputs);
 
-	void updateIncrementalIslands(	IG::IslandSim& islandSim, const IG::AuxCpuData& islandManagerData,
-									Cm::FlushPool* flushPool, PxBaseTask* continuation,
+	void updateIncrementalIslands(	ev4sio_IG::IslandSim& islandSim, const ev4sio_IG::AuxCpuData& islandManagerData,
+									ev4sio_Cm::FlushPool* flushPool, PxBaseTask* continuation,
 									PxsContactManagerOutputIterator& iterator, PxgBodySimManager& bodySimManager, PxgJointManager& jointManager);
 
 	// PT: internal reference versions, exposed for UTs
-	void processLostPatches_Reference(	IG::IslandSim& islandSim, PxgBodySimManager& bodySimManager, PxgJointManager& jointManager,
+	void processLostPatches_Reference(	ev4sio_IG::IslandSim& islandSim, PxgBodySimManager& bodySimManager, PxgJointManager& jointManager,
 										PxsContactManager** lostFoundPatchManagers, PxU32 nbLostFoundPatchManagers, const PxsContactManagerOutputCounts* lostFoundPairOutputs);
 
-	void processFoundPatches_Reference(	IG::IslandSim& islandSim, PxgBodySimManager& bodySimManager,
+	void processFoundPatches_Reference(	ev4sio_IG::IslandSim& islandSim, PxgBodySimManager& bodySimManager,
 										PxsContactManager** lostFoundPatchManagers, PxU32 nbLostFoundPatchManagers, const PxsContactManagerOutputCounts* lostFoundPairOutputs);
 
-	void updateIncrementalIslands_Reference(IG::IslandSim& islandSim, const IG::AuxCpuData& islandManagerData,
+	void updateIncrementalIslands_Reference(ev4sio_IG::IslandSim& islandSim, const ev4sio_IG::AuxCpuData& islandManagerData,
 											PxsContactManagerOutputIterator& iterator,
 											PxgBodySimManager& bodySimManager, PxgJointManager& jointManager);
 
 	// PT: edge data
-	PX_FORCE_INLINE	const Cm::PinnableArray<PxgSolverConstraintManagerConstants>&	getSolverConstants()	const	{ return mSolverConstants;	}
+	PX_FORCE_INLINE	const ev4sio_Cm::PinnableArray<PxgSolverConstraintManagerConstants>&	getSolverConstants()	const	{ return mSolverConstants;	}
 
 	// PT: TODO: what's the difference between mNbPartitions and mCSlab.mNbPartitions ?
 	PX_FORCE_INLINE	PxU32	getNbPartitions()					const	{ return mNbPartitions;				}
 	PX_FORCE_INLINE	PxU32	getCombinedSlabMaxNbPartitions()	const	{ return mCSlab.mNbMaxPartitions;	}
 	PX_FORCE_INLINE	PxU32	getCombinedSlabNbPartitions()		const	{ return mCSlab.mNbPartitions;		}
 
-	PX_FORCE_INLINE	const Cm::PinnableArray<PartitionIndexData>&	getPartitionIndexArray()	const	{ return mPartitionIndexArray;	}
-	PX_FORCE_INLINE	const Cm::PinnableArray<PartitionNodeData>&	getPartitionNodeArray()			const	{ return mPartitionNodeArray;	}
+	PX_FORCE_INLINE	const ev4sio_Cm::PinnableArray<PartitionIndexData>&	getPartitionIndexArray()	const	{ return mPartitionIndexArray;	}
+	PX_FORCE_INLINE	const ev4sio_Cm::PinnableArray<PartitionNodeData>&	getPartitionNodeArray()			const	{ return mPartitionNodeArray;	}
 
-	PX_FORCE_INLINE	const Cm::PinnableArray<PxU32>&	getStartSlabPerPartition()			const	{ return mStartSlabPerPartition;		}
-	PX_FORCE_INLINE	const Cm::PinnableArray<PxU32>&	getArticStartSlabPerPartition()		const	{ return mArticStartSlabPerPartition;	}
-	PX_FORCE_INLINE	const Cm::PinnableArray<PxU32>&	getNbJointsPerPartition()			const	{ return mNbJointsPerPartition;			}
-	PX_FORCE_INLINE	const Cm::PinnableArray<PxU32>&	getNbArticJointsPerPartition()		const	{ return mNbArtiJointsPerPartition;		}
-	PX_FORCE_INLINE	const Cm::PinnableArray<PxU32>&	getNodeInteractionCountArray()		const	{ return mNodeInteractionCountArray;	}
-	PX_FORCE_INLINE	const Cm::PinnableArray<PxU32>&	getDestroyedContactEdgeIndices()	const	{ return mDestroyedContactEdgeIndices;	}
+	PX_FORCE_INLINE	const ev4sio_Cm::PinnableArray<PxU32>&	getStartSlabPerPartition()			const	{ return mStartSlabPerPartition;		}
+	PX_FORCE_INLINE	const ev4sio_Cm::PinnableArray<PxU32>&	getArticStartSlabPerPartition()		const	{ return mArticStartSlabPerPartition;	}
+	PX_FORCE_INLINE	const ev4sio_Cm::PinnableArray<PxU32>&	getNbJointsPerPartition()			const	{ return mNbJointsPerPartition;			}
+	PX_FORCE_INLINE	const ev4sio_Cm::PinnableArray<PxU32>&	getNbArticJointsPerPartition()		const	{ return mNbArtiJointsPerPartition;		}
+	PX_FORCE_INLINE	const ev4sio_Cm::PinnableArray<PxU32>&	getNodeInteractionCountArray()		const	{ return mNodeInteractionCountArray;	}
+	PX_FORCE_INLINE	const ev4sio_Cm::PinnableArray<PxU32>&	getDestroyedContactEdgeIndices()	const	{ return mDestroyedContactEdgeIndices;	}
 
 	PX_FORCE_INLINE	const PxArray<PxU32>&			getNpIndexArray()					const	{ return mNpIndexArray;					}
 	PX_FORCE_INLINE	const PxArray<PartitionSlab*>&	getPartitionSlabs()					const	{ return mPartitionSlabs;				}
@@ -351,16 +351,16 @@ public:
 
 	void getPreviousAndNextReferencesInSlab(NodeEntryDecoded& prev, NodeEntryDecoded& next, PxU32 index, PxU32 uniqueId, const PartitionSlab* slab, PxU32 slabMask) const;
 
-	PartitionEdge* addEdge_Stage1(const IG::IslandSim& islandSim, IG::EdgeIndex edgeIndex, PxU32 patchIndex, PxU32 npIndex, PxNodeIndex node1, PxNodeIndex node2);
+	PartitionEdge* addEdge_Stage1(const ev4sio_IG::IslandSim& islandSim, ev4sio_IG::EdgeIndex edgeIndex, PxU32 patchIndex, PxU32 npIndex, PxNodeIndex node1, PxNodeIndex node2);
 
-	void addEdge_Stage2(IG::GPUExternalData& islandSimGpuData, IG::EdgeIndex edgeIndex, PartitionEdge* partitionEdge, bool specialHandled, bool doPart1, bool doPart2);
+	void addEdge_Stage2(ev4sio_IG::GPUExternalData& islandSimGpuData, ev4sio_IG::EdgeIndex edgeIndex, PartitionEdge* partitionEdge, bool specialHandled, bool doPart1, bool doPart2);
 
 	bool addJointManager(const PartitionEdge* edge, PxgBodySimManager& bodySimManager);
 	bool addContactManager(PartitionEdge* edge, const PxcNpWorkUnit& unit, PxgBodySimManager& bodySimManager);
 
-	void removeEdge(PartitionEdge* edge, IG::GPUExternalData& islandSimGpuData, PxgBodySimManager& manager);
-	PX_FORCE_INLINE void removeAllEdges(IG::GPUExternalData& islandSimGpuData, PxgBodySimManager& bodySimManager, PartitionEdge* partitionEdge);
-	void destroyEdges(const IG::CPUExternalData& islandSimCpuData, IG::GPUExternalData& islandSimGpuData, PxgBodySimManager& bodySimManager, PxgJointManager& jointManager, bool clearDestroyedEdges, bool recordDestroyedEdges);
+	void removeEdge(PartitionEdge* edge, ev4sio_IG::GPUExternalData& islandSimGpuData, PxgBodySimManager& manager);
+	PX_FORCE_INLINE void removeAllEdges(ev4sio_IG::GPUExternalData& islandSimGpuData, PxgBodySimManager& bodySimManager, PartitionEdge* partitionEdge);
+	void destroyEdges(const ev4sio_IG::CPUExternalData& islandSimCpuData, ev4sio_IG::GPUExternalData& islandSimGpuData, PxgBodySimManager& bodySimManager, PxgJointManager& jointManager, bool clearDestroyedEdges, bool recordDestroyedEdges);
 
 	void addEdgeInternal(const PartitionEdge* PX_RESTRICT partitionEdge, PartitionSlab* PX_RESTRICT slab, PxU16 id, PxU16 baseId);
 	void removeEdgeInternal(PartitionSlab* PX_RESTRICT slab, const PartitionEdge* PX_RESTRICT edge, PxU32 id);
@@ -373,12 +373,12 @@ public:
 public:	// PT: TODO: revisit after the dust settles
 
 	void updateIncrementalIslands_Part1(
-		IG::IslandSim& islandSim, const IG::AuxCpuData& islandManagerData,
+		ev4sio_IG::IslandSim& islandSim, const ev4sio_IG::AuxCpuData& islandManagerData,
 		PxsContactManagerOutputIterator& iterator,
 		PxgBodySimManager& bodySimManager, PxgJointManager& jointManager);
 
 	void updateIncrementalIslands_Part2(
-		IG::IslandSim& islandSim, const IG::AuxCpuData& islandManagerData,
+		ev4sio_IG::IslandSim& islandSim, const ev4sio_IG::AuxCpuData& islandManagerData,
 		PxsContactManagerOutputIterator& iterator,
 		PxgBodySimManager& bodySimManager);
 
@@ -402,17 +402,17 @@ public:	// PT: TODO: revisit after the dust settles
 	PxArray<Part2WorkItem>	mPart2WorkItems;
 	PxArray<PxU32>			mPart2EdgeCases;	// PT: indices into mPart2WorkItems
 
-	void updateIncrementalIslands_Part2_0(IG::IslandSim& islandSim, const IG::AuxCpuData& islandManagerData, PxsContactManagerOutputIterator& iterator);
+	void updateIncrementalIslands_Part2_0(ev4sio_IG::IslandSim& islandSim, const ev4sio_IG::AuxCpuData& islandManagerData, PxsContactManagerOutputIterator& iterator);
 
-	void updateIncrementalIslands_Part2_1(PxU32 startIndex, PxU32 nbToProcess, IG::IslandSim& islandSim, const IG::AuxCpuData& islandManagerData);
+	void updateIncrementalIslands_Part2_1(PxU32 startIndex, PxU32 nbToProcess, ev4sio_IG::IslandSim& islandSim, const ev4sio_IG::AuxCpuData& islandManagerData);
 
-	void updateIncrementalIslands_Part2_2(IG::IslandSim& islandSim, PxgBodySimManager& bodySimManager, bool dopart1, bool dopart2, bool dopart3);
+	void updateIncrementalIslands_Part2_2(ev4sio_IG::IslandSim& islandSim, PxgBodySimManager& bodySimManager, bool dopart1, bool dopart2, bool dopart3);
 
-	void updateIncrementalIslands_Part2_2_ProcessEdgeCases(IG::IslandSim& islandSim);
+	void updateIncrementalIslands_Part2_2_ProcessEdgeCases(ev4sio_IG::IslandSim& islandSim);
 
-	void updateIncrementalIslands_Part3(IG::IslandSim& islandSim, PxgJointManager& jointManager);
+	void updateIncrementalIslands_Part3(ev4sio_IG::IslandSim& islandSim, PxgJointManager& jointManager);
 
-	void processLostPatchesMT(	IG::IslandSim& islandSim, Cm::FlushPool& flushPool, PxBaseTask* continuation,
+	void processLostPatchesMT(	ev4sio_IG::IslandSim& islandSim, ev4sio_Cm::FlushPool& flushPool, PxBaseTask* continuation,
 								PxsContactManager** lostFoundPatchManagers, PxU32 nbLostFoundPatchManagers, const PxsContactManagerOutputCounts* lostFoundPairOutputs,
 								PxgBodySimManager& bodySimManager, PxgJointManager& jointManager);
 

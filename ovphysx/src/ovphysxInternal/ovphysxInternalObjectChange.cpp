@@ -14,7 +14,7 @@
 
 // Sidecar object-change subscription bridge.
 //
-// Translates omni::physx's std::function-based IPhysicsObjectChangeCallback
+// Translates omni::ev4sio_physx's std::function-based IPhysicsObjectChangeCallback
 // into the C-friendly function-pointer signatures declared in
 // ovphysxInternalObjectChange.h. The IPhysx subscription registry copies the
 // callback struct (including the std::functions) into its own storage when
@@ -41,14 +41,14 @@ OVPHYSX_INTERNAL_API uint64_t ovphysx_internal_subscribe_object_changes(
     void* lifetime_keep)
 {
     // Failure sentinel matches OVPHYSX_INVALID_SUBSCRIPTION_ID in the public
-    // ABI (UINT64_MAX), not omni::physx::kInvalidSubscriptionId (0xFFffFFffFF).
+    // ABI (UINT64_MAX), not omni::ev4sio_physx::kInvalidSubscriptionId (0xFFffFFffFF).
     // The latter is only 40 bits and could be confused with a real IPhysx ID by
     // the ovphysx-side check.
     constexpr uint64_t kInvalid = UINT64_MAX;
 
     try
     {
-        omni::physx::IPhysx* physx = ovphysx::internal::sidecar::tryGetInjectedPhysxInterface();
+        omni::ev4sio_physx::IPhysx* physx = ovphysx::internal::sidecar::tryGetInjectedPhysxInterface();
         if (!physx)
         {
             CARB_LOG_ERROR("Internal sidecar: ovphysx_internal_subscribe_object_changes failed to resolve IPhysx runtime interface");
@@ -64,7 +64,7 @@ OVPHYSX_INTERNAL_API uint64_t ovphysx_internal_subscribe_object_changes(
             *static_cast<const std::shared_ptr<OvphysxObjectChangeLifetime>*>(lifetime_keep);
         const OvphysxObjectChangeKeep keep(lifetime);
 
-        omni::physx::IPhysicsObjectChangeCallback callback;
+        omni::ev4sio_physx::IPhysicsObjectChangeCallback callback;
         callback.userData = user_data;
         // ovphysx has no Kit-style "simulation stopped" mode. omni.physx gates
         // notifications behind mObjectChangeNotificationsEnabled unless this
@@ -76,7 +76,7 @@ OVPHYSX_INTERNAL_API uint64_t ovphysx_internal_subscribe_object_changes(
         if (on_created)
         {
             callback.objectCreationNotifyFn =
-                [on_created, keep](const omni::physx::PhysicsObjectChangeEvent& event, void* userData) {
+                [on_created, keep](const omni::ev4sio_physx::PhysicsObjectChangeEvent& event, void* userData) {
                     const std::string path(event.path ? event.path : "");
                     on_created(path.data(), path.size(), static_cast<int>(event.type), userData);
                 };
@@ -84,7 +84,7 @@ OVPHYSX_INTERNAL_API uint64_t ovphysx_internal_subscribe_object_changes(
         if (on_destroyed)
         {
             callback.objectDestructionNotifyFn =
-                [on_destroyed, keep](const omni::physx::PhysicsObjectChangeEvent& event, void* userData) {
+                [on_destroyed, keep](const omni::ev4sio_physx::PhysicsObjectChangeEvent& event, void* userData) {
                     const std::string path(event.path ? event.path : "");
                     on_destroyed(path.data(), path.size(), static_cast<int>(event.type), userData);
                 };
@@ -97,12 +97,12 @@ OVPHYSX_INTERNAL_API uint64_t ovphysx_internal_subscribe_object_changes(
                 };
         }
 
-        // omni::physx does not return kInvalidSubscriptionId from a successful
+        // omni::ev4sio_physx does not return kInvalidSubscriptionId from a successful
         // registry add, but passing that 40-bit value through would let the
         // ovphysx side mistake it for a live subscription ID. Map it to kInvalid
         // (UINT64_MAX) at the boundary.
-        const omni::physx::SubscriptionId id = physx->subscribeObjectChangeNotifications(attach, callback);
-        if (id == omni::physx::kInvalidSubscriptionId)
+        const omni::ev4sio_physx::SubscriptionId id = physx->subscribeObjectChangeNotifications(attach, callback);
+        if (id == omni::ev4sio_physx::kInvalidSubscriptionId)
             return kInvalid;
         return static_cast<uint64_t>(id);
     }
@@ -123,14 +123,14 @@ OVPHYSX_INTERNAL_API int ovphysx_internal_unsubscribe_object_changes(
 {
     try
     {
-        omni::physx::IPhysx* physx = ovphysx::internal::sidecar::tryGetInjectedPhysxInterface();
+        omni::ev4sio_physx::IPhysx* physx = ovphysx::internal::sidecar::tryGetInjectedPhysxInterface();
         if (!physx)
         {
             CARB_LOG_ERROR("Internal sidecar: ovphysx_internal_unsubscribe_object_changes failed to resolve IPhysx runtime interface");
             return 1;
         }
 
-        physx->unsubscribeObjectChangeNotifications(static_cast<omni::physx::SubscriptionId>(subscription_id));
+        physx->unsubscribeObjectChangeNotifications(static_cast<omni::ev4sio_physx::SubscriptionId>(subscription_id));
         return 0;
     }
     catch (const std::exception& e)

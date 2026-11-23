@@ -15,9 +15,9 @@ namespace internalMBP
 	class MBP;
 }
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Bp
+namespace ev4sio_Bp
 {
 	class BroadPhaseMBP : public BroadPhase
 	{
@@ -46,8 +46,8 @@ namespace Bp
 	// BroadPhase
 		virtual	PxBroadPhaseType::Enum		getType()					const	PX_OVERRIDE	PX_FINAL	{ return PxBroadPhaseType::eMBP;	}
 		virtual	void						release()							PX_OVERRIDE	PX_FINAL	{ PX_DELETE_THIS;					}
-		virtual	void						update(PxU32 numCpuTasks, Cm::FlushPool* flushPool, PxcScratchAllocator* scratchAllocator, const BroadPhaseUpdateData& updateData, physx::PxBaseTask* continuation)	PX_OVERRIDE;
-		virtual	void						preBroadPhase(const Bp::BroadPhaseUpdateData&) PX_OVERRIDE	PX_FINAL	{}
+		virtual	void						update(PxU32 numCpuTasks, ev4sio_Cm::FlushPool* flushPool, PxcScratchAllocator* scratchAllocator, const BroadPhaseUpdateData& updateData, ev4sio_physx::PxBaseTask* continuation)	PX_OVERRIDE;
+		virtual	void						preBroadPhase(const ev4sio_Bp::BroadPhaseUpdateData&) PX_OVERRIDE	PX_FINAL	{}
 		virtual void						fetchBroadPhaseResults()		PX_OVERRIDE	PX_FINAL	{}
 		virtual const BroadPhasePair*		getCreatedPairs(PxU32&)	const	PX_OVERRIDE	PX_FINAL;
 		virtual const BroadPhasePair*		getDeletedPairs(PxU32&)	const	PX_OVERRIDE	PX_FINAL;
@@ -65,7 +65,7 @@ namespace Bp
 				PxArray<BroadPhasePair>		mCreated;
 				PxArray<BroadPhasePair>		mDeleted;
 
-				const Bp::FilterGroup::Enum*mGroups;
+				const ev4sio_Bp::FilterGroup::Enum*mGroups;
 				const BpFilter*				mFilter;
 
 				const PxU64					mContextID;
@@ -82,8 +82,8 @@ namespace Bp
 				PxU32						getCurrentNbPairs()	const;
 	};
 
-} //namespace Bp
+} //namespace ev4sio_Bp
 
-} //namespace physx
+} //namespace ev4sio_physx
 
 #endif // BP_BROADPHASE_MBP_H

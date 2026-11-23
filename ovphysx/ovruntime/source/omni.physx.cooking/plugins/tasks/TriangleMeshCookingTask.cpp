@@ -19,8 +19,8 @@
 
 #include "extensions/PxTetMakerExt.h"
 
-using namespace ::physx;
-using namespace omni::physx;
+using namespace ::ev4sio_physx;
+using namespace omni::ev4sio_physx;
 
 namespace cookingtask
 {
@@ -39,9 +39,9 @@ public:
      *
      * @param desc : The descriptor for this triangle mesh we are cooking
      */
-    TriangleMeshCookingTask(const omni::physx::TriangleMeshCookingParams& triangleDesc,
-                            const omni::physx::SdfMeshCookingParams& sdfDesc,
-                            omni::physx::PhysxCookingComputeResult& result)
+    TriangleMeshCookingTask(const omni::ev4sio_physx::TriangleMeshCookingParams& triangleDesc,
+                            const omni::ev4sio_physx::SdfMeshCookingParams& sdfDesc,
+                            omni::ev4sio_physx::PhysxCookingComputeResult& result)
         : CookingTask(result)
     {
         triangleMeshCookingParams = triangleDesc;
@@ -209,7 +209,7 @@ public:
                     {
                         CARB_LOG_WARN("Limited the SDF resolution to 1250 for prim(%s).", CookingTask::getPrimPathText().c_str());
                     }
-                    const float spacing = maxExtent / float(::physx::PxMin(maxSDFResolution, sdfMeshCookingParams.sdfResolution));
+                    const float spacing = maxExtent / float(::ev4sio_physx::PxMin(maxSDFResolution, sdfMeshCookingParams.sdfResolution));
 
                     PxBounds3 sdfBounds(PxVec3(min.x, min.y, min.z), PxVec3(max.x, max.y, max.z));
                     sdfBounds.fattenFast(sdfMeshCookingParams.sdfMargin * (sdfBounds.maximum - sdfBounds.minimum).magnitude());
@@ -222,7 +222,7 @@ public:
                     sdfDesc.numThreadsForSdfConstruction = 16;
 
                     PxCudaContextManager* cudaContextManager = CookingTask::getPxCudaContextManager();
-                    physx::PxPhysicsGpu* gpu = CookingTask::getPxPhysicsGPU();
+                    ev4sio_physx::PxPhysicsGpu* gpu = CookingTask::getPxPhysicsGPU();
                     if (cudaContextManager && gpu)
                     {
                         gpuSdfBuilder = gpu->createSDFBuilder(cudaContextManager);
@@ -273,7 +273,7 @@ public:
                     meshDesc.triangles.data = indices;
                     meshDesc.sdfDesc = &sdfDesc;
                     CARB_LOG_INFO("Cooking SDF for triangle mesh %s with resolution %u and spacing %f - this may take a while\n", CookingTask::getPrimPathText().c_str(), sdfMeshCookingParams.sdfResolution, spacing);
-                    cookingSucceeded = PxCookTriangleMesh(cookingParams, meshDesc, outputStream);
+                    cookingSucceeded = ev4sio_PxCookTriangleMesh(cookingParams, meshDesc, outputStream);
 
                 }
                 CookingTask::setSucceeded(cookingSucceeded);
@@ -293,10 +293,10 @@ public:
                     meshDesc.materialIndices.stride = sizeof(PxU16);
                 }
                 {
-                    CARB_PROFILE_ZONE(0, "TriangleMeshCookingTask::performTask: PxCookTriangleMesh");
+                    CARB_PROFILE_ZONE(0, "TriangleMeshCookingTask::performTask: ev4sio_PxCookTriangleMesh");
                     if (!cookingSucceeded)
                     {
-                        cookingSucceeded = PxCookTriangleMesh(cookingParams, meshDesc, outputStream);
+                        cookingSucceeded = ev4sio_PxCookTriangleMesh(cookingParams, meshDesc, outputStream);
                     }
                     CookingTask::setSucceeded(cookingSucceeded);
                 }
@@ -325,12 +325,12 @@ public:
         // If the task was canceled or already finalized, skip the saving step
         if (CookingTask::isCanceled() || CookingTask::isFinalized())
         {
-            CookingTask::fireFinishedCallback(omni::physx::PhysxCookingResult::eERROR_CANCELED);
+            CookingTask::fireFinishedCallback(omni::ev4sio_physx::PhysxCookingResult::eERROR_CANCELED);
         }
         else if(!CookingTask::isSucceeded())
         {
             CookingTask::setFinalized(true);
-            CookingTask::fireFinishedCallback(omni::physx::PhysxCookingResult::eERROR_COOKING_FAILED);
+            CookingTask::fireFinishedCallback(omni::ev4sio_physx::PhysxCookingResult::eERROR_COOKING_FAILED);
         }
         else
         {
@@ -345,25 +345,25 @@ public:
             usdparser::MeshKey crc;
             CookingTask::getCRC(crc);
 
-            omni::physx::PhysxCookingComputeResult& result = CookingTask::getResultObject();
+            omni::ev4sio_physx::PhysxCookingComputeResult& result = CookingTask::getResultObject();
             PxDefaultMemoryOutputStream& cookDataStream = outputStream;
             PhysxCookedDataSpan cookedDataSpan;
             result.cookedData = &cookedDataSpan;
             result.cookedDataNumElements = 1;
             cookedDataSpan.data = cookDataStream.getData();
             cookedDataSpan.sizeInBytes = cookDataStream.getSize();
-            CookingTask::fireFinishedCallback(omni::physx::PhysxCookingResult::eVALID);
+            CookingTask::fireFinishedCallback(omni::ev4sio_physx::PhysxCookingResult::eVALID);
 
         }
     }
     
-    omni::physx::TriangleMeshCookingParams triangleMeshCookingParams;
-    omni::physx::SdfMeshCookingParams sdfMeshCookingParams;
+    omni::ev4sio_physx::TriangleMeshCookingParams triangleMeshCookingParams;
+    omni::ev4sio_physx::SdfMeshCookingParams sdfMeshCookingParams;
 };
 
-CookingTask* createTriangleMeshCookingTask(const omni::physx::TriangleMeshCookingParams& triangleDesc,
-                                           const omni::physx::SdfMeshCookingParams& sdfDesc,
-                                           omni::physx::PhysxCookingComputeResult& result)
+CookingTask* createTriangleMeshCookingTask(const omni::ev4sio_physx::TriangleMeshCookingParams& triangleDesc,
+                                           const omni::ev4sio_physx::SdfMeshCookingParams& sdfDesc,
+                                           omni::ev4sio_physx::PhysxCookingComputeResult& result)
 {
     return new TriangleMeshCookingTask(triangleDesc, sdfDesc, result);
 }

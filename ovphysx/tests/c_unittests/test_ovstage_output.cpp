@@ -40,8 +40,8 @@ namespace
 {
 using Matrix = std::array<double, 16>;
 using Matrices = std::map<std::string, Matrix>;
-using Poses = std::map<std::string, physx::PxTransform>;
-using Scales = std::map<std::string, physx::PxVec3>;
+using Poses = std::map<std::string, ev4sio_physx::PxTransform>;
+using Scales = std::map<std::string, ev4sio_physx::PxVec3>;
 using ovphysx::utils::OvStageOutputCache;
 using ovphysx::utils::OvStageOutputResult;
 using ovphysx::utils::writeWorldTransformsToOvstage;
@@ -164,7 +164,7 @@ void copyRow(const ovstage_read_group_t& group, size_t row, void* destination, s
         return;
     }
     ASSERT_EQ(tensor.device.device_type, kDLCUDA);
-    omni::physx::IOptionalCuda* cuda = ovphysx::test_cuda::getCuda();
+    omni::ev4sio_physx::IOptionalCuda* cuda = ovphysx::test_cuda::getCuda();
     ovphysx::test_cuda::ScopedCudaContextPush context(cuda, cudaContext);
     ASSERT_TRUE(context.ok());
     if (group.columns[0].data.cuda_sync.wait_event)
@@ -286,13 +286,13 @@ Poses readPoses(ovphysx_instance_handle_t handle, ovphysx_query_target_t type, u
             const std::vector<std::string> paths = groupPaths(dictionary, *group);
             for (size_t row = 0; row < paths.size(); ++row)
             {
-                result.try_emplace(paths[row], physx::PxIdentity);
+                result.try_emplace(paths[row], ev4sio_physx::PxIdentity);
                 float values[4]{};
                 copyRow(*group, row, values, tensor.dtype.lanes * sizeof(float), cudaContext);
                 if (tensor.dtype.lanes == 3)
-                    result.at(paths[row]).p = physx::PxVec3(values[0], values[1], values[2]);
+                    result.at(paths[row]).p = ev4sio_physx::PxVec3(values[0], values[1], values[2]);
                 else
-                    result.at(paths[row]).q = physx::PxQuat(values[0], values[1], values[2], values[3]);
+                    result.at(paths[row]).q = ev4sio_physx::PxQuat(values[0], values[1], values[2], values[3]);
             }
         }
         EXPECT_EQ(test_utils::complete_task(handle, ovphysx_release_group(handle, read, group->read_group_id)).status, OVPHYSX_API_SUCCESS);
@@ -336,7 +336,7 @@ Scales readWorldScales(ovphysx_instance_handle_t handle, ovphysx_query_target_t 
             {
                 float values[3]{};
                 copyRow(*group, row, values, sizeof(values), cudaContext);
-                result[paths[row]] = physx::PxVec3(values[0], values[1], values[2]);
+                result[paths[row]] = ev4sio_physx::PxVec3(values[0], values[1], values[2]);
             }
         }
         EXPECT_EQ(test_utils::complete_task(handle, ovphysx_release_group(handle, read, group->read_group_id)).status, OVPHYSX_API_SUCCESS);
@@ -349,28 +349,28 @@ Scales readWorldScales(ovphysx_instance_handle_t handle, ovphysx_query_target_t 
 std::vector<std::string> posePaths(const Poses& poses)
 {
     std::vector<std::string> paths;
-    for (const std::pair<const std::string, physx::PxTransform>& item : poses)
+    for (const std::pair<const std::string, ev4sio_physx::PxTransform>& item : poses)
         paths.push_back(item.first);
     return paths;
 }
 
-physx::PxVec3 decomposedScale(const Matrix& matrix)
+ev4sio_physx::PxVec3 decomposedScale(const Matrix& matrix)
 {
-    physx::PxTransform ignored;
-    physx::PxVec3 scale;
-    omni::physx::decomposeMatrix(ignored, scale, matrix.data());
+    ev4sio_physx::PxTransform ignored;
+    ev4sio_physx::PxVec3 scale;
+    omni::ev4sio_physx::decomposeMatrix(ignored, scale, matrix.data());
     return scale;
 }
 
-void expectScale(const physx::PxVec3& actual, const physx::PxVec3& expected)
+void expectScale(const ev4sio_physx::PxVec3& actual, const ev4sio_physx::PxVec3& expected)
 {
     for (uint32_t axis = 0; axis < 3; ++axis)
         EXPECT_NEAR(actual[axis], expected[axis], 1e-5f) << "scale axis " << axis;
 }
 
-void expectPoseAndScale(const Matrix& actual, const physx::PxTransform& pose, const physx::PxVec3& scale)
+void expectPoseAndScale(const Matrix& actual, const ev4sio_physx::PxTransform& pose, const ev4sio_physx::PxVec3& scale)
 {
-    const physx::PxMat44 rotation(pose);
+    const ev4sio_physx::PxMat44 rotation(pose);
     for (size_t i = 0; i < 16; ++i)
     {
         const double expected = rotation.front()[i] * (i < 12 ? scale[static_cast<uint32_t>(i / 4)] : 1.0);
@@ -382,7 +382,7 @@ void expectPoseAndScale(const Matrix& actual, const physx::PxTransform& pose, co
 void expectStoredScalesMatch(const Scales& scales, const Matrices& baseline)
 {
     ASSERT_EQ(scales.size(), baseline.size());
-    for (const std::pair<const std::string, physx::PxVec3>& item : scales)
+    for (const std::pair<const std::string, ev4sio_physx::PxVec3>& item : scales)
     {
         SCOPED_TRACE(item.first);
         expectScale(item.second, decomposedScale(baseline.at(item.first)));
@@ -412,8 +412,8 @@ TEST_F(OvStageOutputTest, RigidBodiesAcrossScenesPreserveSignedScaleAndNestedWor
     EXPECT_DOUBLE_EQ(baseline.at("/World/Parent/Body")[10], 1.0);
     // Stored at creation: a mirror reads all-negative, a nested body its parent-composed scale.
     expectStoredScalesMatch(scales, baseline);
-    expectScale(scales.at("/World/Mirrored"), physx::PxVec3(-2.0f, -3.0f, -4.0f));
-    expectScale(scales.at("/World/Parent/Body"), physx::PxVec3(1.0f, 6.0f, 1.0f));
+    expectScale(scales.at("/World/Mirrored"), ev4sio_physx::PxVec3(-2.0f, -3.0f, -4.0f));
+    expectScale(scales.at("/World/Parent/Body"), ev4sio_physx::PxVec3(1.0f, 6.0f, 1.0f));
 
     const OvStageOutputResult result = writeWorldTransformsToOvstage(m_handle, stage, 3);
     ASSERT_TRUE(result.ok()) << result.message;
@@ -423,12 +423,12 @@ TEST_F(OvStageOutputTest, RigidBodiesAcrossScenesPreserveSignedScaleAndNestedWor
     ASSERT_TRUE(seal(stage, 3));
     const Matrices output = readMatrices(stage, posePaths(poses), 3);
     ASSERT_EQ(output.size(), poses.size());
-    for (const std::pair<const std::string, physx::PxTransform>& item : poses)
+    for (const std::pair<const std::string, ev4sio_physx::PxTransform>& item : poses)
         expectPoseAndScale(output.at(item.first), item.second, scales.at(item.first));
 
     // Publishing does not advance the simulation.
     const Poses after = readPoses(m_handle, OVPHYSX_QUERY_TARGET_RIGID_BODY);
-    for (const std::pair<const std::string, physx::PxTransform>& item : poses)
+    for (const std::pair<const std::string, ev4sio_physx::PxTransform>& item : poses)
         EXPECT_EQ(after.at(item.first).p, item.second.p);
 }
 
@@ -492,7 +492,7 @@ TEST_F(OvStageOutputTest, ParentEditAfterPublicationMovesKinematicChild)
     ASSERT_EQ(test_utils::complete_task(m_handle, ovphysx_update_from_ovstage(m_handle, { 4, 4, true })).status,
               OVPHYSX_API_SUCCESS);
     ASSERT_EQ(ovphysx_step_sync(m_handle, 1.0f / 60.0f).status, OVPHYSX_API_SUCCESS);
-    const physx::PxVec3 position = readPoses(m_handle, OVPHYSX_QUERY_TARGET_RIGID_BODY).at(body).p;
+    const ev4sio_physx::PxVec3 position = readPoses(m_handle, OVPHYSX_QUERY_TARGET_RIGID_BODY).at(body).p;
     EXPECT_NEAR(position.x, 42.0f, 1e-4f);
     EXPECT_NEAR(position.y, 6.0f, 1e-4f);
     EXPECT_NEAR(position.z, 8.0f, 1e-4f);
@@ -509,14 +509,14 @@ TEST_F(OvStageOutputTest, ArticulationLinksMatchCurrentPhysicsPosesAndStoredScal
     const Matrices baseline = readMatrices(stage, posePaths(poses), 1);
     ASSERT_EQ(baseline.size(), poses.size());
     expectStoredScalesMatch(scales, baseline);
-    expectScale(scales.at("/World/articulation/articulationLink0"), physx::PxVec3(2.0f));
+    expectScale(scales.at("/World/articulation/articulationLink0"), ev4sio_physx::PxVec3(2.0f));
     const OvStageOutputResult result = writeWorldTransformsToOvstage(m_handle, stage, 2);
     ASSERT_TRUE(result.ok()) << result.message;
     EXPECT_EQ(result.matricesWritten, poses.size());
     ASSERT_TRUE(seal(stage, 2));
     const Matrices output = readMatrices(stage, posePaths(poses), 2);
     ASSERT_EQ(output.size(), poses.size());
-    for (const std::pair<const std::string, physx::PxTransform>& item : poses)
+    for (const std::pair<const std::string, ev4sio_physx::PxTransform>& item : poses)
         expectPoseAndScale(output.at(item.first), item.second, scales.at(item.first));
 }
 
@@ -821,9 +821,9 @@ TEST_F(OvStageOutputGpuTest, DirectGpuCachedAndUncachedMatricesUseDeviceScaleAnd
     ovstage_instance_t* stage = attachedStage(m_handle);
     ASSERT_EQ(ovphysx_step_sync(m_handle, 1.0f / 60.0f).status, OVPHYSX_API_SUCCESS);
     void* actorPointer = test_utils::read_physx_pointer(m_handle, OVPHYSX_QUERY_TARGET_RIGID_ACTOR, "/World/Mirrored");
-    physx::PxRigidActor* actor = static_cast<physx::PxRigidActor*>(actorPointer);
+    ev4sio_physx::PxRigidActor* actor = static_cast<ev4sio_physx::PxRigidActor*>(actorPointer);
     ASSERT_NE(actor, nullptr);
-    physx::PxCudaContextManager* manager = actor->getScene()->getCudaContextManager();
+    ev4sio_physx::PxCudaContextManager* manager = actor->getScene()->getCudaContextManager();
     ASSERT_NE(manager, nullptr);
     const uintptr_t context = reinterpret_cast<uintptr_t>(manager->getContext());
     const Poses poses = readPoses(m_handle, OVPHYSX_QUERY_TARGET_RIGID_BODY, context);
@@ -832,8 +832,8 @@ TEST_F(OvStageOutputGpuTest, DirectGpuCachedAndUncachedMatricesUseDeviceScaleAnd
     const Scales scales = readWorldScales(m_handle, OVPHYSX_QUERY_TARGET_RIGID_BODY, context);
     const Matrices baseline = readMatrices(stage, posePaths(poses), 1, context);
     expectStoredScalesMatch(scales, baseline);
-    expectScale(scales.at("/World/Mirrored"), physx::PxVec3(-2.0f, -3.0f, -4.0f));
-    expectScale(scales.at("/World/Parent/Body"), physx::PxVec3(1.0f, 6.0f, 1.0f));
+    expectScale(scales.at("/World/Mirrored"), ev4sio_physx::PxVec3(-2.0f, -3.0f, -4.0f));
+    expectScale(scales.at("/World/Parent/Body"), ev4sio_physx::PxVec3(1.0f, 6.0f, 1.0f));
 
     ovphysx::test_cuda::ScopedCudaContextDetach detached(ovphysx::test_cuda::getCuda());
     ASSERT_TRUE(ovphysx::test_cuda::noCudaContextCurrent(ovphysx::test_cuda::getCuda()));
@@ -851,7 +851,7 @@ TEST_F(OvStageOutputGpuTest, DirectGpuCachedAndUncachedMatricesUseDeviceScaleAnd
         ASSERT_TRUE(seal(stage, ordinal));
         const Matrices output = readMatrices(stage, posePaths(poses), ordinal, context);
         ASSERT_EQ(output.size(), poses.size());
-        for (const std::pair<const std::string, physx::PxTransform>& item : poses)
+        for (const std::pair<const std::string, ev4sio_physx::PxTransform>& item : poses)
             expectPoseAndScale(output.at(item.first), item.second, scales.at(item.first));
         EXPECT_TRUE(ovphysx::test_cuda::noCudaContextCurrent(ovphysx::test_cuda::getCuda()));
     }
@@ -865,8 +865,8 @@ TEST_F(OvStageOutputGpuTest, DirectGpuArticulationLinksMatchPoseAndStoredScale)
     const char* path = "/World/articulation/articulationLink0";
     void* pointer = test_utils::read_physx_pointer(m_handle, OVPHYSX_QUERY_TARGET_ARTICULATION_LINK, path);
     ASSERT_NE(pointer, nullptr);
-    physx::PxArticulationLink* link = static_cast<physx::PxArticulationLink*>(pointer);
-    physx::PxCudaContextManager* manager = link->getScene()->getCudaContextManager();
+    ev4sio_physx::PxArticulationLink* link = static_cast<ev4sio_physx::PxArticulationLink*>(pointer);
+    ev4sio_physx::PxCudaContextManager* manager = link->getScene()->getCudaContextManager();
     ASSERT_NE(manager, nullptr);
     const uintptr_t context = reinterpret_cast<uintptr_t>(manager->getContext());
     const Poses poses = readPoses(m_handle, OVPHYSX_QUERY_TARGET_ARTICULATION_LINK, context);
@@ -874,7 +874,7 @@ TEST_F(OvStageOutputGpuTest, DirectGpuArticulationLinksMatchPoseAndStoredScale)
     const Scales scales = readWorldScales(m_handle, OVPHYSX_QUERY_TARGET_ARTICULATION_LINK, context);
     const Matrices baseline = readMatrices(stage, posePaths(poses), 1, context);
     expectStoredScalesMatch(scales, baseline);
-    expectScale(scales.at(path), physx::PxVec3(2.0f));
+    expectScale(scales.at(path), ev4sio_physx::PxVec3(2.0f));
 
     OvStageOutputCache cache;
     for (ovstage_ordinal_t ordinal = 2; ordinal <= 3; ++ordinal)
@@ -886,7 +886,7 @@ TEST_F(OvStageOutputGpuTest, DirectGpuArticulationLinksMatchPoseAndStoredScale)
         ASSERT_TRUE(seal(stage, ordinal));
         const Matrices output = readMatrices(stage, posePaths(poses), ordinal, context);
         ASSERT_EQ(output.size(), poses.size());
-        for (const std::pair<const std::string, physx::PxTransform>& item : poses)
+        for (const std::pair<const std::string, ev4sio_physx::PxTransform>& item : poses)
             expectPoseAndScale(output.at(item.first), item.second, scales.at(item.first));
     }
 }
@@ -899,7 +899,7 @@ TEST_F(OvStageOutputGpuTest, DirectGpuPublicationRestoresForeignCallerContext)
     ForeignCudaContext foreign;
     ASSERT_EQ(foreign.status(), 0);
     ASSERT_NE(foreign.context(), 0u);
-    omni::physx::IOptionalCuda* cuda = ovphysx::test_cuda::getCuda();
+    omni::ev4sio_physx::IOptionalCuda* cuda = ovphysx::test_cuda::getCuda();
     OvStageOutputCache cache;
     for (ovstage_ordinal_t ordinal = 2; ordinal <= 3; ++ordinal)
     {
@@ -924,12 +924,12 @@ TEST_F(OvStageOutputGpuTest, CpuPublicationOverGpuAuthoredMatricesKeepsStoredSca
     ASSERT_EQ(ovphysx_step_sync(m_handle, 1.0f / 60.0f).status, OVPHYSX_API_SUCCESS);
     void* pointer = test_utils::read_physx_pointer(m_handle, OVPHYSX_QUERY_TARGET_RIGID_ACTOR, "/World/Cube1");
     ASSERT_NE(pointer, nullptr);
-    physx::PxCudaContextManager* manager =
-        static_cast<physx::PxRigidActor*>(pointer)->getScene()->getCudaContextManager();
+    ev4sio_physx::PxCudaContextManager* manager =
+        static_cast<ev4sio_physx::PxRigidActor*>(pointer)->getScene()->getCudaContextManager();
     ASSERT_NE(manager, nullptr);
     manager->acquireReference();
-    std::unique_ptr<physx::PxCudaContextManager, void (*)(physx::PxCudaContextManager*)> retained(
-        manager, [](physx::PxCudaContextManager* value) { value->release(); });
+    std::unique_ptr<ev4sio_physx::PxCudaContextManager, void (*)(ev4sio_physx::PxCudaContextManager*)> retained(
+        manager, [](ev4sio_physx::PxCudaContextManager* value) { value->release(); });
     const uintptr_t context = reinterpret_cast<uintptr_t>(manager->getContext());
     ASSERT_TRUE(test_utils::destroy_ovstage_test_attachments(m_handle));
 
@@ -949,7 +949,7 @@ TEST_F(OvStageOutputGpuTest, CpuPublicationOverGpuAuthoredMatricesKeepsStoredSca
     baseline[5] = 3;
     baseline[10] = 4;
 
-    omni::physx::IOptionalCuda* cuda = ovphysx::test_cuda::getCuda();
+    omni::ev4sio_physx::IOptionalCuda* cuda = ovphysx::test_cuda::getCuda();
     ovphysx::test_cuda::CudaOps ops;
     ops.reset(cuda, context);
     struct DeviceMatrix

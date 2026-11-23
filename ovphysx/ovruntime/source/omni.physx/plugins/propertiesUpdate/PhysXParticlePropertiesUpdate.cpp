@@ -27,15 +27,15 @@
 
 #include <PxPhysicsAPI.h>
 
-using namespace ::physx;
+using namespace ::ev4sio_physx;
 using namespace carb;
-using namespace omni::physx;
-using namespace omni::physx::usdparser;
-using namespace omni::physx::internal;
+using namespace omni::ev4sio_physx;
+using namespace omni::ev4sio_physx::usdparser;
+using namespace omni::ev4sio_physx::internal;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 // PARTICLE SYSTEM
-bool omni::physx::updateParticleSystemAttribute(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
+bool omni::ev4sio_physx::updateParticleSystemAttribute(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     const internal::InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
 
@@ -172,7 +172,7 @@ bool omni::physx::updateParticleSystemAttribute(AttachedStage& attachedStage, om
     return true;
 }
 
-bool omni::physx::updateParticleSmoothingEnabledAttribute(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
+bool omni::ev4sio_physx::updateParticleSmoothingEnabledAttribute(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     const internal::InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
 
@@ -206,7 +206,7 @@ bool omni::physx::updateParticleSmoothingEnabledAttribute(AttachedStage& attache
     return true;
 }
 
-bool omni::physx::updateParticleAnisotropyEnabledAttribute(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
+bool omni::ev4sio_physx::updateParticleAnisotropyEnabledAttribute(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     const internal::InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
 
@@ -240,7 +240,7 @@ bool omni::physx::updateParticleAnisotropyEnabledAttribute(AttachedStage& attach
     return true;
 }
 
-bool omni::physx::updateParticleIsosurfaceEnabledAttribute(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
+bool omni::ev4sio_physx::updateParticleIsosurfaceEnabledAttribute(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     const internal::InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
 
@@ -274,7 +274,7 @@ bool omni::physx::updateParticleIsosurfaceEnabledAttribute(AttachedStage& attach
     return true;
 }
 
-bool omni::physx::updateParticleIsosurfaceAttribute(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
+bool omni::ev4sio_physx::updateParticleIsosurfaceAttribute(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     const internal::InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
 
@@ -323,7 +323,7 @@ bool omni::physx::updateParticleIsosurfaceAttribute(AttachedStage& attachedStage
                 /*ExtGpu::PxIsosurfaceParams p = internalPS->mIsosurface->mIsosurfaceBuffer->getParams();
                 std::vector<ParticleSystemDesc::GridFilteringPass> passes;
                 ParseGridFilteringPasses(data, passes); 
-                omni::physx::particle::setIsosurfaceGridFilteringPasses(p, passes);
+                omni::ev4sio_physx::particle::setIsosurfaceGridFilteringPasses(p, passes);
                 internalPS->mIsosurface->mIsosurfaceBuffer->setParams(p);*/
             }
             else if (property == tok.physxParticleIsosurfaceGridSmoothingRadius)
@@ -362,7 +362,7 @@ bool omni::physx::updateParticleIsosurfaceAttribute(AttachedStage& attachedStage
     return true;
 }
 
-bool omni::physx::updateDiffuseParticlesEnabledAttribute(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
+bool omni::ev4sio_physx::updateDiffuseParticlesEnabledAttribute(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     const internal::InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
 
@@ -395,7 +395,7 @@ bool omni::physx::updateDiffuseParticlesEnabledAttribute(AttachedStage& attached
     return true;
 }
 
-bool omni::physx::updateDiffuseParticlesAttribute(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
+bool omni::ev4sio_physx::updateDiffuseParticlesAttribute(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     const internal::InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
 
@@ -500,7 +500,7 @@ bool omni::physx::updateDiffuseParticlesAttribute(AttachedStage& attachedStage, 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 // PARTICLE SET
-bool omni::physx::updateParticleSetEnabled(AttachedStage& attachedStage, ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
+bool omni::ev4sio_physx::updateParticleSetEnabled(AttachedStage& attachedStage, ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     const internal::InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
 
@@ -519,7 +519,7 @@ bool omni::physx::updateParticleSetEnabled(AttachedStage& attachedStage, ObjectI
     return true;
 }
 
-bool omni::physx::updateParticleSetSelfCollision(AttachedStage& attachedStage, ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
+bool omni::ev4sio_physx::updateParticleSetSelfCollision(AttachedStage& attachedStage, ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     const internal::InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
 
@@ -555,7 +555,7 @@ bool omni::physx::updateParticleSetSelfCollision(AttachedStage& attachedStage, O
     return true;
 }
 
-bool omni::physx::updateParticleSetFluid(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
+bool omni::ev4sio_physx::updateParticleSetFluid(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     const internal::InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
 
@@ -598,7 +598,7 @@ bool omni::physx::updateParticleSetFluid(AttachedStage& attachedStage, omni::phy
     return true;
 }
 
-bool omni::physx::updateParticleSetParticleGroup(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
+bool omni::ev4sio_physx::updateParticleSetParticleGroup(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     const internal::InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
 
@@ -705,7 +705,7 @@ static void updateParticlePositions(AttachedStage& attachedStage, InternalPartic
 }
 
 
-bool omni::physx::updateParticlePositions(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
+bool omni::ev4sio_physx::updateParticlePositions(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     const internal::InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
 
@@ -747,7 +747,7 @@ bool omni::physx::updateParticlePositions(AttachedStage& attachedStage, omni::ph
     return true;
 }
 
-bool omni::physx::updateParticleSimPositions(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
+bool omni::ev4sio_physx::updateParticleSimPositions(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     const internal::InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
 
@@ -769,7 +769,7 @@ bool omni::physx::updateParticleSimPositions(AttachedStage& attachedStage, omni:
     return true;
 }
 
-bool omni::physx::updateParticleVelocities(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
+bool omni::ev4sio_physx::updateParticleVelocities(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     const internal::InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
 
@@ -826,7 +826,7 @@ bool omni::physx::updateParticleVelocities(AttachedStage& attachedStage, omni::p
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 // material
-bool omni::physx::updatePBDMaterialAttribute(AttachedStage& attachedStage, ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
+bool omni::ev4sio_physx::updatePBDMaterialAttribute(AttachedStage& attachedStage, ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     const internal::InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
 
@@ -960,7 +960,7 @@ bool omni::physx::updatePBDMaterialAttribute(AttachedStage& attachedStage, Objec
     return true;
 }
 
-bool omni::physx::updateParticleDensity(AttachedStage& attachedStage, ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
+bool omni::ev4sio_physx::updateParticleDensity(AttachedStage& attachedStage, ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     internal::InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
 

@@ -24,14 +24,14 @@
 #include "PxDirectGPUAPI.h"
 #include "foundation/PxUserAllocated.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-	namespace Bp
+	namespace ev4sio_Bp
 	{
 		class BoundsArray;
 	}
 
-	namespace Dy
+	namespace ev4sio_Dy
 	{
 		class DeformableVolume;
 	}
@@ -78,45 +78,45 @@ namespace physx
 
 		~PxgSimulationCore();
 
-		void gpuMemDmaUpBodySim(Cm::PinnableArray<PxgBodySimVelocityUpdate>& updatedBodySim,
-			Cm::PinnableArray<PxgBodySim>& newBodySim,
-			Cm::PinnableArray<PxgArticulationLink>& newLinkPool,
-			Cm::PinnableArray<PxReal>& newLinkWakeCounterPool,
-			Cm::PinnableArray<Cm::UnAlignedSpatialVector>& newLinkExtAccelPool,
-			Cm::PinnableArray<PxgArticulationLinkProp>& newLinkPropPool,
-			Cm::PinnableArray<PxU32>& newLinkParentsPool,
-			Cm::PinnableArray<Dy::ArticulationBitField>& newLinkChildPool,
-			Cm::PinnableArray<PxTransform>& newLinkBody2WorldsPool,
-			Cm::PinnableArray<PxTransform>& newLinkBody2ActorsPool,
-			Cm::PinnableArray<Dy::ArticulationJointCore>& newJointCorePool,
-			Cm::PinnableArray<Dy::ArticulationJointCoreData>& newJointDataPool,
-			Cm::PinnableArray<PxgArticulationSimUpdate>& newLinkJointIndexPool,
-			Cm::PinnableArray<PxgArticulation>& newArticulationPool,
-			Cm::PinnableArray<PxGpuSpatialTendonData>& newSpatialTendonParamsPool,
-			Cm::PinnableArray<PxgArticulationTendon>& newSpatialTendonPool,
-			Cm::PinnableArray<PxgArticulationTendonElementFixedData>& newAttachmentFixedPool,
-			Cm::PinnableArray<PxGpuTendonAttachmentData>& newAttachmentModPool,
-			Cm::PinnableArray<PxU32>& newTendonToAttachmentRemapPool,
-			Cm::PinnableArray<PxGpuFixedTendonData>& newFixedTendonParamsPool,
-			Cm::PinnableArray<PxgArticulationTendon>& newFixedTendonPool,
-			Cm::PinnableArray<PxgArticulationTendonElementFixedData>& newTendonJointFixedPool,
-			Cm::PinnableArray<PxGpuTendonJointCoefficientData>& newTendonJointCoefficientPool,
-			Cm::PinnableArray<PxU32>& newTendonToTendonJointRemapPool,
-			Cm::PinnableArray<Dy::ArticulationMimicJointCore>& newMimicJointPool,
-			Cm::PinnableArray<PxU32>& newPathToRootPool,
+		void gpuMemDmaUpBodySim(ev4sio_Cm::PinnableArray<PxgBodySimVelocityUpdate>& updatedBodySim,
+			ev4sio_Cm::PinnableArray<PxgBodySim>& newBodySim,
+			ev4sio_Cm::PinnableArray<PxgArticulationLink>& newLinkPool,
+			ev4sio_Cm::PinnableArray<PxReal>& newLinkWakeCounterPool,
+			ev4sio_Cm::PinnableArray<ev4sio_Cm::UnAlignedSpatialVector>& newLinkExtAccelPool,
+			ev4sio_Cm::PinnableArray<PxgArticulationLinkProp>& newLinkPropPool,
+			ev4sio_Cm::PinnableArray<PxU32>& newLinkParentsPool,
+			ev4sio_Cm::PinnableArray<ev4sio_Dy::ArticulationBitField>& newLinkChildPool,
+			ev4sio_Cm::PinnableArray<PxTransform>& newLinkBody2WorldsPool,
+			ev4sio_Cm::PinnableArray<PxTransform>& newLinkBody2ActorsPool,
+			ev4sio_Cm::PinnableArray<ev4sio_Dy::ArticulationJointCore>& newJointCorePool,
+			ev4sio_Cm::PinnableArray<ev4sio_Dy::ArticulationJointCoreData>& newJointDataPool,
+			ev4sio_Cm::PinnableArray<PxgArticulationSimUpdate>& newLinkJointIndexPool,
+			ev4sio_Cm::PinnableArray<PxgArticulation>& newArticulationPool,
+			ev4sio_Cm::PinnableArray<PxGpuSpatialTendonData>& newSpatialTendonParamsPool,
+			ev4sio_Cm::PinnableArray<PxgArticulationTendon>& newSpatialTendonPool,
+			ev4sio_Cm::PinnableArray<PxgArticulationTendonElementFixedData>& newAttachmentFixedPool,
+			ev4sio_Cm::PinnableArray<PxGpuTendonAttachmentData>& newAttachmentModPool,
+			ev4sio_Cm::PinnableArray<PxU32>& newTendonToAttachmentRemapPool,
+			ev4sio_Cm::PinnableArray<PxGpuFixedTendonData>& newFixedTendonParamsPool,
+			ev4sio_Cm::PinnableArray<PxgArticulationTendon>& newFixedTendonPool,
+			ev4sio_Cm::PinnableArray<PxgArticulationTendonElementFixedData>& newTendonJointFixedPool,
+			ev4sio_Cm::PinnableArray<PxGpuTendonJointCoefficientData>& newTendonJointCoefficientPool,
+			ev4sio_Cm::PinnableArray<PxU32>& newTendonToTendonJointRemapPool,
+			ev4sio_Cm::PinnableArray<ev4sio_Dy::ArticulationMimicJointCore>& newMimicJointPool,
+			ev4sio_Cm::PinnableArray<PxU32>& newPathToRootPool,
 			PxU32 nbTotalBodies, PxU32 nbTotalArticulations, PxU32 maxLinks, 
 			PxU32 maxDofs, PxU32 maxMimicJoints, PxU32 maxSpatialTendons, 
 			PxU32 maxAttachments, PxU32 maxFixedTendons, PxU32 maxTendonJoints,
 			bool enableBodyAccelerations);
 
-		void gpuMemDmaUpSoftBodies(Cm::PinnableArray<PxgSoftBody>& newSoftBodyPool,
+		void gpuMemDmaUpSoftBodies(ev4sio_Cm::PinnableArray<PxgSoftBody>& newSoftBodyPool,
 			PxU32* newTetMeshByteSizePool,
 			PxArray<PxgSoftBodyData>& newSoftBodyDataPool,
 			PxArray<PxU32>& newSoftBodyNodeIndexPool,
 			PxArray<PxU32>& newSoftBodyElememtIndexPool,
-			Cm::PinnableArray<PxgSoftBody>& softBodyPool,
+			ev4sio_Cm::PinnableArray<PxgSoftBody>& softBodyPool,
 			PxArray<PxgSoftBodyData>& softBodyDataPool,
-			Cm::PinnableArray<PxU32>& softBodyElementIndexPool,
+			ev4sio_Cm::PinnableArray<PxU32>& softBodyElementIndexPool,
 			PxArray<PxU32>& softBodyNodeIndexPool,
 			PxgBodySimManager& bodySimManager,
 			PxgAttachmentManager& rigidAttachments,
@@ -126,14 +126,14 @@ namespace physx
 			const PxgDeformableFilterManager& volumeVolumeFilters,
 			const PxgDeformableFilterManager& volumeSurfaceFilters);
 
-		void gpuMemDmaUpFEMCloths(Cm::PinnableArray<PxgFEMCloth>& newFEMClothPool,
+		void gpuMemDmaUpFEMCloths(ev4sio_Cm::PinnableArray<PxgFEMCloth>& newFEMClothPool,
 			PxU32* newTriangleMeshByteSizePool,
 			PxArray<PxgFEMClothData>& newFEMClothDataPool,
 			PxArray<PxU32>& newFEMClothNodeIndexPool,
 			PxArray<PxU32>& newFEMClothElememtIndexPool,
-			Cm::PinnableArray<PxgFEMCloth>& femClothPool,
+			ev4sio_Cm::PinnableArray<PxgFEMCloth>& femClothPool,
 			PxArray<PxgFEMClothData>& femClothDataPool,
-			Cm::PinnableArray<PxU32>& femClothElementIndexPool,
+			ev4sio_Cm::PinnableArray<PxU32>& femClothElementIndexPool,
 			PxArray<PxU32>& femClothNodeIndexPool,
 			PxgBodySimManager& bodySimManager,
 			PxgAttachmentManager& rigidAttachments,
@@ -147,14 +147,14 @@ namespace physx
 		void mergeChangedAABBMgHandle();
 
 		void gpuMemDmaUp(const PxU32 nbTotalBodies, const PxU32 nbTotalShapes,
-			Cm::PinnableBitMap& changedHandleMap, const bool enableDirectGPUAPI);
-		void gpuMemDmaBack(Cm::PinnableArray<PxU32>& frozenArray,
-			Cm::PinnableArray<PxU32>& unfrozenArray,
-			Cm::PinnableArray<PxU32>& activateArray,
-			Cm::PinnableArray<PxU32>& deactiveArray,
+			ev4sio_Cm::PinnableBitMap& changedHandleMap, const bool enableDirectGPUAPI);
+		void gpuMemDmaBack(ev4sio_Cm::PinnableArray<PxU32>& frozenArray,
+			ev4sio_Cm::PinnableArray<PxU32>& unfrozenArray,
+			ev4sio_Cm::PinnableArray<PxU32>& activateArray,
+			ev4sio_Cm::PinnableArray<PxU32>& deactiveArray,
 			PxsCachedTransform* cachedTransforms,
 			const PxU32 cachedCapacity,
-			Bp::BoundsArray& boundArray, Cm::PinnableBitMap& changedAABBMgrHandles,
+			ev4sio_Bp::BoundsArray& boundArray, ev4sio_Cm::PinnableBitMap& changedAABBMgrHandles,
 			const PxU32 numShapes, const PxU32 numActiveBodies, bool enableDirectGPUAPI);
 
 		void syncDmaback(PxU32& nbFrozenShapesThisFrame, PxU32& nbUnfrozenShapesThisFrame, bool didSimulate);
@@ -166,19 +166,19 @@ namespace physx
 
 		void markRemovedArticulationSlotsEmpty(const PxgBodySimManager& bodySimManager);
 
-		void updateJointsAndSyncData(const Cm::PinnableArray<PxgD6JointData>& rigidJointData,
-			const Cm::PinnableArray<PxU32>& dirtyRigidJointIndices,
-			const Cm::PinnableArray<PxgD6JointData>& artiJointData,
-			const Cm::PinnableArray<PxU32>& dirtyArtiJointIndices,
-			const Cm::PinnableArray<PxgConstraintPrePrep>& rigidJointPrePrep,
-			const Cm::PinnableArray<PxgConstraintPrePrep>& artiJointPrePrep, 
-			const Cm::PinnableArray<PxgConstraintIdMapEntry>& gpuConstraintIdMapHost,
+		void updateJointsAndSyncData(const ev4sio_Cm::PinnableArray<PxgD6JointData>& rigidJointData,
+			const ev4sio_Cm::PinnableArray<PxU32>& dirtyRigidJointIndices,
+			const ev4sio_Cm::PinnableArray<PxgD6JointData>& artiJointData,
+			const ev4sio_Cm::PinnableArray<PxU32>& dirtyArtiJointIndices,
+			const ev4sio_Cm::PinnableArray<PxgConstraintPrePrep>& rigidJointPrePrep,
+			const ev4sio_Cm::PinnableArray<PxgConstraintPrePrep>& artiJointPrePrep,
+			const ev4sio_Cm::PinnableArray<PxgConstraintIdMapEntry>& gpuConstraintIdMapHost,
 			bool isGpuConstraintIdMapDirty,
 			PxU32 nbTotalRigidJoints, PxU32 nbTotalArtiJoints);
 
 		void update(bool enableDirectGPUAPI);
 
-		void setBounds(Bp::BoundsArray* boundArray);
+		void setBounds(ev4sio_Bp::BoundsArray* boundArray);
 
 		PxgArticulationBuffer** getArticulationDataBuffer() { return mArticulationDataBuffer.begin(); }
 		PxgTypedCudaBuffer<PxBounds3>*	getBoundArrayBuffer();
@@ -334,11 +334,11 @@ namespace physx
 		PX_FORCE_INLINE PxgDevicePointer<PxgDbDbAttachmentBlock> getClothClothAttachmentBlocks() { return mClothClothAttachmentBlocks.getTypedDevicePtr(); }
 		PX_FORCE_INLINE PxgDevicePointer<PxU32> getGpuClothClothCounter() { return mNumClothClothAttachments.getTypedDevicePtr(); }
 
-		PX_FORCE_INLINE Cm::PinnableBitMap& getActiveClothStateChangedMap() { return mActiveFEMClothStateChangedMap; }
+		PX_FORCE_INLINE ev4sio_Cm::PinnableBitMap& getActiveClothStateChangedMap() { return mActiveFEMClothStateChangedMap; }
 		PX_FORCE_INLINE PxReal* getActiveClothWakeCountsCPU() { return mFEMClothWakeCounts.begin(); }
 		PX_FORCE_INLINE PxgDevicePointer<PxReal> getActiveClothWakeCountsGPU() { return mFEMClothWakeCountsGPU.getTypedDevicePtr(); }
 
-		PX_FORCE_INLINE Cm::PinnableBitMap& getActiveSBStateChangedMap() { return mActiveSBStateChangedMap; }
+		PX_FORCE_INLINE ev4sio_Cm::PinnableBitMap& getActiveSBStateChangedMap() { return mActiveSBStateChangedMap; }
 		PX_FORCE_INLINE const PxReal* getActiveSBWakeCountsCPU() const { return mSBWakeCounts.begin(); }
 		PX_FORCE_INLINE const PxgDevicePointer<PxReal> getActiveSBWakeCountsGPU() const { return mSBWakeCountsGPU.getTypedDevicePtr(); }
 		PX_FORCE_INLINE PxReal* getActiveSBWakeCountsCPU() { return mSBWakeCounts.begin(); }
@@ -366,7 +366,7 @@ namespace physx
 		PxCudaContextManager*					mCudaContextManager;
 		PxCudaContext*							mCudaContext;
 		PxgAllocatorDesc						mAllocDesc;
-		Bp::BoundsArray*						mBoundArray;
+		ev4sio_Bp::BoundsArray*						mBoundArray;
 		bool									mUseGpuBp;
 
 	private:
@@ -376,12 +376,12 @@ namespace physx
 		void releaseGpuStreamsAndEvents();
 		void syncData();
 		
-		Cm::PinnableObject<PxgSimulationCoreDesc>		mUpdatedCacheAndBoundsDesc;
-		Cm::PinnableObject<PxgNewBodiesDesc>			mNewBodiesDesc;
-		Cm::PinnableObject<PxgUpdateArticulationDesc>	mUpdateArticulationDesc;
-		Cm::PinnableObject<PxgUpdatedBodiesDesc>		mUpdatedBodiesDesc;
-		Cm::PinnableObject<PxgUpdatedJointsDesc>		mUpdatedJointsDesc;
-		Cm::PinnableObject<PxgUpdateActorDataDesc>		mUpdatedActorDataDesc;
+		ev4sio_Cm::PinnableObject<PxgSimulationCoreDesc>		mUpdatedCacheAndBoundsDesc;
+		ev4sio_Cm::PinnableObject<PxgNewBodiesDesc>			mNewBodiesDesc;
+		ev4sio_Cm::PinnableObject<PxgUpdateArticulationDesc>	mUpdateArticulationDesc;
+		ev4sio_Cm::PinnableObject<PxgUpdatedBodiesDesc>		mUpdatedBodiesDesc;
+		ev4sio_Cm::PinnableObject<PxgUpdatedJointsDesc>		mUpdatedJointsDesc;
+		ev4sio_Cm::PinnableObject<PxgUpdateActorDataDesc>		mUpdatedActorDataDesc;
 
 		PxgTypedCudaBuffer<PxU32>	mFrozenBuffer;
 		PxgTypedCudaBuffer<PxU32>	mUnfrozenBuffer;
@@ -398,7 +398,7 @@ namespace physx
 		PxgTypedCudaBuffer<PxgBodySim>	mBodySimCudaBuffer;						// PT: contains PxgBodySim structs.
 		PxgTypedCudaBuffer<PxgBodySimVelocities>	mBodySimPreviousVelocitiesCudaBuffer;	// PdHC: previous frame velocities for acceleration computation (used by both DirectGPU and non-DirectGPU).
 		PxgTypedCudaBuffer<PxgRigidBodyAcceleration> mBodySimAccelerationsCudaBuffer;
-		Cm::PinnableArray<PxgRigidBodyAcceleration> mBodySimAccelerationsPinned;
+		ev4sio_Cm::PinnableArray<PxgRigidBodyAcceleration> mBodySimAccelerationsPinned;
 
 		public:
 		PxgShapeSimManager	mPxgShapeSimManager;
@@ -425,7 +425,7 @@ namespace physx
 		PxgTypedCudaBuffer<PxgArticulationBlockTendonJointData>	mArticulationTendonJointBatchBuffer;
 
 		PxArray<PxgArticulationBuffer*>	mArticulationDataBuffer;// persistent data, map with mArticulationBuffer
-		Cm::PinnableArray<PxU32>		mRemovedArticulationSlots; //mapped, slots of the articulations removed since the last step
+		ev4sio_Cm::PinnableArray<PxU32>		mRemovedArticulationSlots; //mapped, slots of the articulations removed since the last step
 		//PxU32			mMaxLinks;
 		//PxU32			mMaxDofs;
 
@@ -440,12 +440,12 @@ namespace physx
 		PxArray<PxgSoftBodyBuffer*>		mSoftBodyDataBuffer; //persistent data, map with mSoftBodyBuffer
 		PxArray<PxgFEMClothBuffer*>		mFEMClothDataBuffer; //persistent data, map with mFEMClothBuffer
 		
-		Cm::PinnableBitMap				mActiveFEMClothStateChangedMap;
-		Cm::PinnableArray<PxReal>		mFEMClothWakeCounts;
+		ev4sio_Cm::PinnableBitMap				mActiveFEMClothStateChangedMap;
+		ev4sio_Cm::PinnableArray<PxReal>		mFEMClothWakeCounts;
 		PxgTypedCudaBuffer<PxReal>		mFEMClothWakeCountsGPU;
 
-		Cm::PinnableBitMap				mActiveSBStateChangedMap;
-		Cm::PinnableArray<PxReal>		mSBWakeCounts;
+		ev4sio_Cm::PinnableBitMap				mActiveSBStateChangedMap;
+		ev4sio_Cm::PinnableArray<PxReal>		mSBWakeCounts;
 		PxgTypedCudaBuffer<PxReal>		mSBWakeCountsGPU;
 
 		PxgTypedCudaBuffer<PxgD6JointData>	mRigidJointBuffer;
@@ -462,18 +462,18 @@ namespace physx
 		PxgTypedCudaBuffer<PxgArticulation>	mNewArticulationBuffer;
 		PxgTypedCudaBuffer<PxgArticulationLink>	mNewLinkBuffer;
 		PxgTypedCudaBuffer<PxReal>	mNewLinkWakeCounterBuffer;
-		PxgTypedCudaBuffer<Cm::UnAlignedSpatialVector>	mNewLinkExtAccelBuffer;
+		PxgTypedCudaBuffer<ev4sio_Cm::UnAlignedSpatialVector>	mNewLinkExtAccelBuffer;
 		PxgTypedCudaBuffer<PxgArticulationLinkProp>	mNewLinkPropBuffer;
 		PxgTypedCudaBuffer<PxU32>	mNewLinkParentBuffer;
 		PxgTypedCudaBuffer<ArticulationBitField>	mNewLinkChildBuffer;
 		PxgTypedCudaBuffer<PxTransform>   mNewLinkBody2WorldsBuffer;
 		PxgTypedCudaBuffer<PxTransform>	mNewLinkBody2ActorsBuffer;
-		PxgTypedCudaBuffer<Dy::ArticulationJointCore>	mNewJointCoreBuffer;
-		PxgTypedCudaBuffer<Dy::ArticulationJointCoreData>	mNewJointDataBuffer;
+		PxgTypedCudaBuffer<ev4sio_Dy::ArticulationJointCore>	mNewJointCoreBuffer;
+		PxgTypedCudaBuffer<ev4sio_Dy::ArticulationJointCoreData>	mNewJointDataBuffer;
 		PxgTypedCudaBuffer<PxgArticulationSimUpdate>	mNewLinkIndexBuffer;
 		PxgTypedCudaBuffer<PxGpuSpatialTendonData>	mNewSpatialTendonParamsBuffer;
 		PxgTypedCudaBuffer<PxgArticulationTendon>	mNewSpatialTendonsBuffer;
-		PxgTypedCudaBuffer<Dy::ArticulationMimicJointCore>	mNewMimicJointBuffer;
+		PxgTypedCudaBuffer<ev4sio_Dy::ArticulationMimicJointCore>	mNewMimicJointBuffer;
 		PxgTypedCudaBuffer<PxU32>	mNewPathToRootBuffer;
 		PxgTypedCudaBuffer<PxgArticulationTendonElementFixedData>	mNewAttachmentFixedBuffer;
 		PxgTypedCudaBuffer<PxGpuTendonAttachmentData>	mNewAttachmentModBuffer;
@@ -594,23 +594,23 @@ namespace physx
 		PxArray<PxgFEMCloth>	mClothsToFree;
 
 		PxgCopyManager							mKinematicTargetCopyManager;
-		Cm::PinnableArray<PxAlignedTransform>	mKinematicTargets;		// host-mapped, the sources of the copies
+		ev4sio_Cm::PinnableArray<PxAlignedTransform>	mKinematicTargets;		// host-mapped, the sources of the copies
 		PxArray<PxU32>							mKinematicTargetNodes;	// the node index of each staged target
 #if PX_SUPPORT_OMNI_PVD
 		PxU64 getRigidBodyDataTypeElementSize(PxRigidDynamicGPUAPIWriteType::Enum dataType);
 		void ovdRigidBodyCallback(const void* PX_RESTRICT data, const PxRigidDynamicGPUIndex* PX_RESTRICT gpuIndices, PxRigidDynamicGPUAPIWriteType::Enum dataType, PxU32 nbElements);		
 		
-		Cm::PinnableArray<PxU8>	mOvdDataBuffer;
-		Cm::PinnableArray<PxU8>	mOvdIndexBuffer;
+		ev4sio_Cm::PinnableArray<PxU8>	mOvdDataBuffer;
+		ev4sio_Cm::PinnableArray<PxU8>	mOvdIndexBuffer;
 		PxArray<PxU32> mOvdBatchPositions;
 		PxgTypedCudaBuffer<PxU8> mOvdReadbackDataBuffer;
 
 		// Scratch for the full-state snapshot force/torque readback (ovdSnapshotRigidDynamicForces).
 		PxgTypedCudaBuffer<PxRigidDynamicGPUIndex>	mOvdSnapshotIndexBuffer;	// device: gathered node indices, uploaded once per readback
 		PxgTypedCudaBuffer<PxVec3>					mOvdSnapshotDataBuffer;		// device: kernel output, one PxVec3 per index
-		Cm::PinnableArray<PxRigidDynamicGPUIndex> mOvdSnapshotValidIndices; // host: indices uploaded on the gather stream
-		Cm::PinnableArray<PxVec3>	mOvdSnapshotForce;			// host (pinned): force read back
-		Cm::PinnableArray<PxVec3>	mOvdSnapshotTorque;			// host (pinned): torque read back
+		ev4sio_Cm::PinnableArray<PxRigidDynamicGPUIndex> mOvdSnapshotValidIndices; // host: indices uploaded on the gather stream
+		ev4sio_Cm::PinnableArray<PxVec3>	mOvdSnapshotForce;			// host (pinned): force read back
+		ev4sio_Cm::PinnableArray<PxVec3>	mOvdSnapshotTorque;			// host (pinned): torque read back
 		PxArray<PxVec3>			mOvdSnapshotCompactData;	// host: non-zero values, compacted for emit
 		PxArray<PxRigidDynamicGPUIndex>	mOvdSnapshotCompactIndices;	// host: indices matching mOvdSnapshotCompactData
 #endif

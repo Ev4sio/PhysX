@@ -11,7 +11,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 
 // @implements REQ-ATTACH-IO-001
@@ -54,5 +54,5 @@ private:
 };
 
 
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

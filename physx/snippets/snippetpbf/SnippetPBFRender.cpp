@@ -15,7 +15,7 @@
 #define CUDA_SUCCESS 0
 #define SHOW_SOLID_SDF_SLICE 0
 #define IDX(i, j, k, offset) ((i) + dimX * ((j) + dimY * ((k) + dimZ * (offset))))
-using namespace physx;
+using namespace ev4sio_physx;
 
 extern void initPhysics(bool interactive);
 extern void stepPhysics(bool interactive);	
@@ -52,7 +52,7 @@ void renderParticles()
 		const PxU32 numDiffuseParticles = userBuffer->getNbActiveDiffuseParticles();
 
 		PxScene* scene;
-		PxGetPhysics().getScenes(&scene, 1);
+		ev4sio_PxGetPhysics().getScenes(&scene, 1);
 		PxCudaContextManager* cudaContextManager = scene->getCudaContextManager();
 
 		cudaContextManager->acquireContext();
@@ -93,7 +93,7 @@ void renderParticles()
 void allocParticleBuffers()
 {
 	PxScene* scene;
-	PxGetPhysics().getScenes(&scene, 1);
+	ev4sio_PxGetPhysics().getScenes(&scene, 1);
 	PxCudaContextManager* cudaContextManager = scene->getCudaContextManager();
 	if (cudaContextManager)
 	{
@@ -125,7 +125,7 @@ void renderCallback()
 	Snippets::startRender(sCamera);
 
 	PxScene* scene;
-	PxGetPhysics().getScenes(&scene,1);
+	ev4sio_PxGetPhysics().getScenes(&scene,1);
 	PxU32 nbActors = scene->getNbActors(PxActorTypeFlag::eRIGID_DYNAMIC | PxActorTypeFlag::eRIGID_STATIC);
 	if(nbActors)
 	{

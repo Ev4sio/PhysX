@@ -9,7 +9,7 @@
 #pragma once
 #include <omni/physx/IPhysx.h>
 #include <map>
-namespace omni::physx
+namespace omni::ev4sio_physx
 {
 struct StepEventSub
 {

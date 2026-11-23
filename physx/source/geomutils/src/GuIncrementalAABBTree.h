@@ -15,11 +15,11 @@
 #include "GuAABBTree.h"
 #include "GuPrunerTypedef.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	using namespace aos;
 
-	namespace Gu
+	namespace ev4sio_Gu
 	{
 		struct BVHNode;
 		class BVH;
@@ -70,7 +70,7 @@ namespace physx
 			PX_FORCE_INLINE	IncrementalAABBTreeNode*		getNeg(IncrementalAABBTreeNode*)				{ return mChilds[1];			}
 
 			// PT: TODO: these functions are duplicates from the regular AABB tree node
-			PX_FORCE_INLINE	void							getAABBCenterExtentsV(physx::aos::Vec3V* center, physx::aos::Vec3V* extents) const
+			PX_FORCE_INLINE	void							getAABBCenterExtentsV(ev4sio_physx::aos::Vec3V* center, ev4sio_physx::aos::Vec3V* extents) const
 															{
 																const float half = 0.5f;
 																const FloatV halfV = FLoad(half);
@@ -79,7 +79,7 @@ namespace physx
 																*center = Vec3V_From_Vec4V((V4Scale(V4Add(mBVMax, mBVMin), halfV)));
 															}
 
-			PX_FORCE_INLINE	void							getAABBCenterExtentsV2(physx::aos::Vec3V* center, physx::aos::Vec3V* extents) const
+			PX_FORCE_INLINE	void							getAABBCenterExtentsV2(ev4sio_physx::aos::Vec3V* center, ev4sio_physx::aos::Vec3V* extents) const
 															{
 																*extents = Vec3V_From_Vec4V((V4Sub(mBVMax, mBVMin)));
 																*center = Vec3V_From_Vec4V((V4Add(mBVMax, mBVMin)));

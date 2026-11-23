@@ -43,7 +43,7 @@ struct OpaquePxrHandleOps
 //
 // Lifetime contract: a table selects the storage's representation, so once installed it must
 // stay installed, and unchanged, for the lifetime of every handle owner -- install before the
-// first owner exists (before omni::physx::runtime::startup()) and never clear or swap while the
+// first owner exists (before omni::ev4sio_physx::runtime::startup()) and never clear or swap while the
 // process lives. The tables are stateless, so re-storing the same pointer is harmless. The
 // functional seams (parse/scan backends, reparse, authors, stage lifecycle) toggle
 // independently of these. Production never installs a table: every handle there is a zeroed

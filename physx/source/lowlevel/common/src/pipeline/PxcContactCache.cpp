@@ -9,9 +9,9 @@
 #include "PxcNpCache.h"
 #include "CmMatrix34.h"
 
-using namespace physx;
-using namespace Gu;
-using namespace Cm;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
+using namespace ev4sio_Cm;
 
 //#define ENABLE_CONTACT_CACHE_STATS
 
@@ -35,7 +35,7 @@ void PxcDisplayContactCacheStats()
 #endif
 }
 
-namespace physx
+namespace ev4sio_physx
 {
 	const bool g_CanUseContactCache[][PxGeometryType::eGEOMETRY_COUNT] =
 	{
@@ -273,7 +273,7 @@ static PX_FORCE_INLINE PxReal maxComponentDeltaRot(const PxTransform& t0, const 
 	return delta;
 }
 
-bool physx::PxcCacheLocalContacts(	PxcNpThreadContext& context, Cache& pairContactCache,
+bool ev4sio_physx::PxcCacheLocalContacts(	PxcNpThreadContext& context, Cache& pairContactCache,
 									const PxTransform32& tm0, const PxTransform32& tm1,
 									const PxcContactMethod conMethod,
 									const PxGeometry& shape0, const PxGeometry& shape1)

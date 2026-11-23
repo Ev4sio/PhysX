@@ -56,17 +56,17 @@ class CookingDataAsync;
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 struct ICookingComputeService;
 struct IPhysxFoundation;
 typedef void* PhysxCookingAsyncContext;
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 // word3 flags for filtering shader
 const uint32_t CONTACT_MODIFY_SURFACE_VELOCITY = 1 << 1;
@@ -74,10 +74,10 @@ const uint32_t CONTACT_SOLVE_DISABLE = 1 << 2;
 
 const size_t kDefaultPhysXSceneId = 0;
 
-using PhysXScenesMap = std::unordered_map<const ::physx::PxScene*, PhysXScene*>;
+using PhysXScenesMap = std::unordered_map<const ::ev4sio_physx::PxScene*, PhysXScene*>;
 
 // Class holding and handling PhysX global objects like PxPhysics, PxFoundation
-class PhysXSetup : private ::physx::PxOmniPvdEventCallback, private ::physx::PxOmniPvdCaptureFilter
+class PhysXSetup : private ::ev4sio_physx::PxOmniPvdEventCallback, private ::ev4sio_physx::PxOmniPvdCaptureFilter
 {
 public:
     PhysXSetup();
@@ -86,12 +86,12 @@ public:
     ///////////////////////////////////////////////////////////////////////////////////////
     // Tolerances scales
     // Invalid stage units return an invalid scale and log an error; callers must reject it.
-    ::physx::PxTolerancesScale getDefaultTolerances(double metersPerUnit);
+    ::ev4sio_physx::PxTolerancesScale getDefaultTolerances(double metersPerUnit);
 
     ///////////////////////////////////////////////////////////////////////////////////////
     // Cooking params
-    ::physx::PxCookingParams getCookingParams(const ::physx::PxTolerancesScale& tolerances);
-    const ::physx::PxCookingParams& getDefaultCookingParams()
+    ::ev4sio_physx::PxCookingParams getCookingParams(const ::ev4sio_physx::PxTolerancesScale& tolerances);
+    const ::ev4sio_physx::PxCookingParams& getDefaultCookingParams()
     {
         return mDefaultCookingParams;
     }
@@ -99,30 +99,30 @@ public:
     ///////////////////////////////////////////////////////////////////////////////////////
     // Pointer acceses
     // Lazily initializes the SDK; returns nullptr when initialization fails.
-    ::physx::PxPhysics* getPhysics();
+    ::ev4sio_physx::PxPhysics* getPhysics();
     // Acquire before realization, including empty candidates. Release only after
     // native objects and deferred work are retired, at attachment destruction.
     bool acquireAttachmentResources(usdparser::AttachedStage& attachment);
-    ::physx::PxCudaContextManager* acquireAttachmentCudaContext(usdparser::AttachedStage& attachment);
+    ::ev4sio_physx::PxCudaContextManager* acquireAttachmentCudaContext(usdparser::AttachedStage& attachment);
     void releaseAttachmentResources(const usdparser::AttachedStage& attachment);
     bool hasResourceBorrowers() const;
     PhysxSharedSettings getSharedSettingsDefaults() const;
-    ::physx::PxDefaultAllocator& getAllocator()
+    ::ev4sio_physx::PxDefaultAllocator& getAllocator()
     {
         return mAllocator;
     }
-    void reportCudaContextError(const usdparser::AttachedStage& owner, ::physx::PxCudaContextManager* manager);
+    void reportCudaContextError(const usdparser::AttachedStage& owner, ::ev4sio_physx::PxCudaContextManager* manager);
 
     // Attachments on different threads (compiled cache, replicator) share one registry.
-    ::physx::PxSerializationRegistry* getSerializationRegistry()
+    ::ev4sio_physx::PxSerializationRegistry* getSerializationRegistry()
     {
         std::lock_guard<std::mutex> lock(mSerializationRegistryMutex);
         if (!mSerializationRegistry)
         {
-            ::physx::PxPhysics* physics = getPhysics();
+            ::ev4sio_physx::PxPhysics* physics = getPhysics();
             if (!physics)
                 return nullptr;
-            mSerializationRegistry = ::physx::PxSerialization::createSerializationRegistry(*physics);
+            mSerializationRegistry = ::ev4sio_physx::PxSerialization::createSerializationRegistry(*physics);
         }
         return mSerializationRegistry;
     }
@@ -138,7 +138,7 @@ public:
     ///////////////////////////////////////////////////////////////////////////////////////
     // PxScene handling
     // Exact native-scene ownership lookup; foreign and retired scenes return null.
-    PhysXScene* findPhysXScene(const ::physx::PxScene* scene) const
+    PhysXScene* findPhysXScene(const ::ev4sio_physx::PxScene* scene) const
     {
         std::lock_guard<std::mutex> lock(mSceneRegistryMutex);
         const auto it = mPhysXScenes.find(scene);
@@ -177,11 +177,11 @@ public:
     void notePvdSimulation() { mPvdHasSimulation.store(true); }
     void connectPVD();
     void disconnectPVD();
-    ::physx::PxPvd* getPvd()
+    ::ev4sio_physx::PxPvd* getPvd()
     {
         return mVisualDebugger;
     }
-    ::physx::PxOmniPvd* getOmniPvd()
+    ::ev4sio_physx::PxOmniPvd* getOmniPvd()
     {
         return mOmniPvd;
     }
@@ -205,7 +205,7 @@ public:
 
     OmniPvdRecordingResult startOmniPvdRecording(
         const OmniPvdDestination& destination,
-        const ::physx::PxOmniPvdFilterDesc* capture = nullptr,
+        const ::ev4sio_physx::PxOmniPvdFilterDesc* capture = nullptr,
         AttachHandle selectionOwner = omni::physics::kNoAttach, bool discovery = false);
     OmniPvdRecordingResult stopOmniPvdRecording();
     bool isOmniPvdRecording() const;
@@ -224,14 +224,14 @@ public:
     bool hasPendingOmniPvdCaptureRequest(AttachHandle attach);
     void processOmniPvdCaptureRequests(AttachHandle attach);
 
-    inline const ::physx::PxVehiclePvdAttributeHandles* getVehiclePvdRegistrationHandles() const
+    inline const ::ev4sio_physx::PxVehiclePvdAttributeHandles* getVehiclePvdRegistrationHandles() const
     {
         return mVehiclePvdRegistrationHandles;
     }
 
-    ::physx::PxConvexMesh* getCylinderConvexMesh(omni::physx::usdparser::Axis axis) const;
-    ::physx::PxConvexMesh* getConeConvexMesh(omni::physx::usdparser::Axis axis) const;
-    ::physx::PxConvexMesh* getVehicleWheelCylinderConvexMesh(omni::physx::usdparser::Axis axis) const;
+    ::ev4sio_physx::PxConvexMesh* getCylinderConvexMesh(omni::ev4sio_physx::usdparser::Axis axis) const;
+    ::ev4sio_physx::PxConvexMesh* getConeConvexMesh(omni::ev4sio_physx::usdparser::Axis axis) const;
+    ::ev4sio_physx::PxConvexMesh* getVehicleWheelCylinderConvexMesh(omni::ev4sio_physx::usdparser::Axis axis) const;
 
     ///////////////////////////////////////////////////////////////////////////////////////
     // If any scene is async return true
@@ -249,7 +249,7 @@ public:
     ///////////////////////////////////////////////////////////////////////////////////////
     // create base PhysX classses
     // A.B. this should be optimized, we dont have to create this with every simulation start
-    void createPhysics(const ::physx::PxTolerancesScale& tolerances);
+    void createPhysics(const ::ev4sio_physx::PxTolerancesScale& tolerances);
 
     bool hasBeenInitiallyCreated() const
     {
@@ -269,39 +269,39 @@ private:
     void cleanupPhysics(); // called with scene destruction, this should not be required in the end
     bool releaseOmniPvdWriteStream();
     bool closeOmniPvdWriteStream();
-    void onStartSampling(::physx::PxOmniPvd& omniPvd, const ::physx::PxOmniPvdFilterDesc* filter) override;
-    void onCaptureReset(::physx::PxOmniPvd& omniPvd, const ::physx::PxOmniPvdFilterDesc& filter) override;
-    bool filterCaptureRequest(::physx::PxOmniPvdFilterDesc& filter) override;
-    bool restrictOmniPvdCaptureToOwner(::physx::PxOmniPvdFilterDesc& filter, AttachHandle owner,
-                                     std::vector<const ::physx::PxScene*>& sceneStorage, bool expandEmpty = true);
+    void onStartSampling(::ev4sio_physx::PxOmniPvd& omniPvd, const ::ev4sio_physx::PxOmniPvdFilterDesc* filter) override;
+    void onCaptureReset(::ev4sio_physx::PxOmniPvd& omniPvd, const ::ev4sio_physx::PxOmniPvdFilterDesc& filter) override;
+    bool filterCaptureRequest(::ev4sio_physx::PxOmniPvdFilterDesc& filter) override;
+    bool restrictOmniPvdCaptureToOwner(::ev4sio_physx::PxOmniPvdFilterDesc& filter, AttachHandle owner,
+                                     std::vector<const ::ev4sio_physx::PxScene*>& sceneStorage, bool expandEmpty = true);
     void registerVehiclePvdCallback();
     void unregisterVehiclePvdCallback();
     void releaseVehiclePvdRegistrationHandles();
     void releaseVehiclePvdTelemetry();
-    ::physx::PxFoundation* mFoundation{ nullptr };
-    ::physx::PxPhysics* mPhysics{ nullptr };
+    ::ev4sio_physx::PxFoundation* mFoundation{ nullptr };
+    ::ev4sio_physx::PxPhysics* mPhysics{ nullptr };
     std::unordered_set<const usdparser::AttachedStage*> mAttachmentBorrowers;
-    ::physx::PxSerializationRegistry* mSerializationRegistry{ nullptr };
+    ::ev4sio_physx::PxSerializationRegistry* mSerializationRegistry{ nullptr };
     std::mutex mSerializationRegistryMutex;
     carb::settings::ISettings* mISettings{ nullptr };
 
-    ::physx::PxDefaultAllocator mAllocator;
+    ::ev4sio_physx::PxDefaultAllocator mAllocator;
     CarbPhysXErrorCallback* mErrorCallback{ nullptr };
 
-    ::physx::PxTolerancesScale mDefaultScale;
-    ::physx::PxCookingParams mDefaultCookingParams{ mDefaultScale };
+    ::ev4sio_physx::PxTolerancesScale mDefaultScale;
+    ::ev4sio_physx::PxCookingParams mDefaultCookingParams{ mDefaultScale };
     cookingdataasync::CookingDataAsync* mCookingDataAsync{ nullptr };
-    omni::physx::ICookingComputeService* mCookingComputeService{ nullptr };
-    omni::physx::IPhysxCookingServicePrivate mCookingServicePrivate{};
-    omni::physx::IPhysxCookingService mCookingService{};
-    omni::physx::PhysxCookingAsyncContext mCookingServiceContext{ nullptr };
+    omni::ev4sio_physx::ICookingComputeService* mCookingComputeService{ nullptr };
+    omni::ev4sio_physx::IPhysxCookingServicePrivate mCookingServicePrivate{};
+    omni::ev4sio_physx::IPhysxCookingService mCookingService{};
+    omni::ev4sio_physx::PhysxCookingAsyncContext mCookingServiceContext{ nullptr };
     bool mPhysicsReleased{ false };
-    omni::physx::IPhysxFoundation* mPhysxFoundation{ nullptr };
+    omni::ev4sio_physx::IPhysxFoundation* mPhysxFoundation{ nullptr };
 
-    ::physx::PxPvd* mVisualDebugger{ nullptr };
-    ::physx::PxPvdTransport* mPvdTransport{ nullptr };
+    ::ev4sio_physx::PxPvd* mVisualDebugger{ nullptr };
+    ::ev4sio_physx::PxPvdTransport* mPvdTransport{ nullptr };
     std::atomic<bool> mPvdHasSimulation{ false };
-    ::physx::PxOmniPvd* mOmniPvd{ nullptr };
+    ::ev4sio_physx::PxOmniPvd* mOmniPvd{ nullptr };
     enum class OmniPvdStreamKind : uint8_t
     {
         eNone,
@@ -312,8 +312,8 @@ private:
     OmniPvdStreamKind mOmniPvdStreamKind{ OmniPvdStreamKind::eNone };
     std::atomic<AttachHandle> mOmniPvdCaptureOwner{ omni::physics::kNoAttach };
     std::atomic<bool> mOmniPvdCaptureControlEnabled{ false };
-    std::vector<const ::physx::PxScene*> mOmniPvdCaptureScenes;
-    ::physx::PxVehiclePvdAttributeHandles* mVehiclePvdRegistrationHandles{ nullptr };
+    std::vector<const ::ev4sio_physx::PxScene*> mOmniPvdCaptureScenes;
+    ::ev4sio_physx::PxVehiclePvdAttributeHandles* mVehiclePvdRegistrationHandles{ nullptr };
     bool mVehiclePvdSnapshotSucceeded{ false };
     bool mOmniPvdRecordSecondaryData{ true };
 
@@ -325,7 +325,7 @@ private:
         int ordinal;
         uintptr_t externalContext;
         bool synchronous;
-        std::shared_ptr<::physx::PxCudaContextManager> manager;
+        std::shared_ptr<::ev4sio_physx::PxCudaContextManager> manager;
     };
     // PhysX caches GPU kernel wranglers by manager address until PxPhysics dies.
     // Retain compatible managers for that whole SDK generation, including gaps
@@ -343,19 +343,19 @@ private:
                                           // though that hasn't been observed.
     PhysXScenesMap mPhysXScenes;
 
-    mutable ::physx::PxConvexMesh* mCylinderMeshX{ nullptr };
-    mutable ::physx::PxConvexMesh* mCylinderMeshY{ nullptr };
-    mutable ::physx::PxConvexMesh* mCylinderMeshZ{ nullptr };
-    mutable ::physx::PxConvexMesh* mConeMeshX{ nullptr };
-    mutable ::physx::PxConvexMesh* mConeMeshY{ nullptr };
-    mutable ::physx::PxConvexMesh* mConeMeshZ{ nullptr };
-    mutable ::physx::PxConvexMesh* mVehicleWheelCylinderMeshX{ nullptr };
-    mutable ::physx::PxConvexMesh* mVehicleWheelCylinderMeshY{ nullptr };
-    mutable ::physx::PxConvexMesh* mVehicleWheelCylinderMeshZ{ nullptr };
+    mutable ::ev4sio_physx::PxConvexMesh* mCylinderMeshX{ nullptr };
+    mutable ::ev4sio_physx::PxConvexMesh* mCylinderMeshY{ nullptr };
+    mutable ::ev4sio_physx::PxConvexMesh* mCylinderMeshZ{ nullptr };
+    mutable ::ev4sio_physx::PxConvexMesh* mConeMeshX{ nullptr };
+    mutable ::ev4sio_physx::PxConvexMesh* mConeMeshY{ nullptr };
+    mutable ::ev4sio_physx::PxConvexMesh* mConeMeshZ{ nullptr };
+    mutable ::ev4sio_physx::PxConvexMesh* mVehicleWheelCylinderMeshX{ nullptr };
+    mutable ::ev4sio_physx::PxConvexMesh* mVehicleWheelCylinderMeshY{ nullptr };
+    mutable ::ev4sio_physx::PxConvexMesh* mVehicleWheelCylinderMeshZ{ nullptr };
 
     // Subscriptions to settings changes
     std::vector<carb::dictionary::SubscriptionId*> mSubscribedSettings;
 };
 
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

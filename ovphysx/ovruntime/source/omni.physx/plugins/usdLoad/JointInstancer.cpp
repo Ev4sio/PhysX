@@ -35,7 +35,7 @@
 #include <PhysXTools.h>
 // pxr-free half of TypeCast.h: this file only ever names the carb <-> PhysX
 // overloads (toPhysX/toPhysXQuat/toFloat3/toFloat4), never a Gf type. Must
-// follow a PhysX header: (Carb)PhysXCast.h assumes ::physx is declared.
+// follow a PhysX header: (Carb)PhysXCast.h assumes ::ev4sio_physx is declared.
 #include <common/foundation/CarbPhysXCast.h>
 #include <OmniPhysX.h>
 #include <PhysXScene.h>
@@ -43,11 +43,11 @@
 #include "IceDescriptorAllocator.h"
 
 using namespace carb;
-using namespace ::physx;
+using namespace ::ev4sio_physx;
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace usdparser
 {
@@ -75,7 +75,7 @@ void parseJointPrototype(AttachedStage& attachedStage,
     omni::physics::parse::ScanOptions scanOptions = attachedStage.descriptorScanOptions();
     auto scanned = std::make_unique<omni::physics::parse::ScannedStage>();
     *scanned = attachedStage.scanStage(scanRoots, kNoExclude, scanOptions,
-                                               omni::physx::usdparser::iceDescriptorAllocator());
+                                               omni::ev4sio_physx::usdparser::iceDescriptorAllocator());
 
     if (scanned->joints.empty())
     {

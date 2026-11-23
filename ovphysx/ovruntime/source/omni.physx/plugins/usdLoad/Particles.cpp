@@ -29,7 +29,7 @@ using namespace carb;
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace usdparser
 {
@@ -303,5 +303,5 @@ float completeParticleContactOffset(float metersPerUnit, float particleContactOf
     return particleContactOffset;
 }
 } // namespace usdparser
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

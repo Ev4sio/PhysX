@@ -11,19 +11,19 @@
 #include "common/PxProfileZone.h"
 #include "ScShapeSimBase.h"
 
-using namespace physx;
-using namespace IG;
-using namespace Sc;
-using namespace Cm;
+using namespace ev4sio_physx;
+using namespace ev4sio_IG;
+using namespace ev4sio_Sc;
+using namespace ev4sio_Cm;
 
-void SimulationController::updateScBodyAndShapeSim(PxsTransformCache& /*cache*/, Bp::BoundsArray& /*boundArray*/, PxBaseTask* continuation)
+void SimulationController::updateScBodyAndShapeSim(PxsTransformCache& /*cache*/, ev4sio_Bp::BoundsArray& /*boundArray*/, PxBaseTask* continuation)
 {
 	mCallback->updateScBodyAndShapeSim(continuation);
 }
 
 namespace
 {
-class UpdateArticulationAfterIntegrationTask : public Cm::Task
+class UpdateArticulationAfterIntegrationTask : public ev4sio_Cm::Task
 {
 	const UpdateCachedParams				mParams;
 	PinnableBitMap*							mChangedAABBMgrActorHandles;
@@ -48,7 +48,7 @@ public:
 		const PxNodeIndex* nodeIndices, IslandSim& islandSim, PinnableBitMap* changedAABBMgrActorHandles,
 		bool isSleepingDisabled, PxMutex& articulationSleepLock, volatile PxU32* current
 	) :
-		Cm::Task(islandSim.getContextId()),
+		ev4sio_Cm::Task(islandSim.getContextId()),
 		mParams(params),
 		mChangedAABBMgrActorHandles(changedAABBMgrActorHandles),
 		mIslandSim(islandSim),
@@ -87,7 +87,7 @@ public:
 			if(!isGPU)
 #endif
 			{
-				const Bp::AggregateHandle aggregateHandle = articSim->getAggregateHandle();
+				const ev4sio_Bp::AggregateHandle aggregateHandle = articSim->getAggregateHandle();
 
 				// PT: we can skip the bitmap updates when the articulation is in an aggregate, as in this case the only
 				// thing we do when parsing the updated bitmap is fetch the aggregate from the articulation link and mark
@@ -111,18 +111,18 @@ public:
 };
 }
 
-void updateCCDLinks(Sc::ArticulationSim& artic, PxArray<BodySim*>& sims);
+void updateCCDLinks(ev4sio_Sc::ArticulationSim& artic, PxArray<BodySim*>& sims);
 
 // PT: warning, this runs in parallel with ScAfterIntegrationTask and updateKinematicCached, and all of these touch the getChangedAABBMgActorHandleMap() bitmap.
 // ScAfterIntegrationTask also writes to the "ccdBodies" array we get passed here, so that one needs the context lock as well (see below).
-void SimulationController::updateArticulationAfterIntegration(PxsContext* llContext, Bp::AABBManagerBase* aabbManager,
+void SimulationController::updateArticulationAfterIntegration(PxsContext* llContext, ev4sio_Bp::AABBManagerBase* aabbManager,
 	PxArray<BodySim*>& ccdBodies, PxBaseTask* continuation, IslandSim& islandSim, float dt, bool isSleepingDisabled)
 {
 	const PxU32 nbActiveArticulations = islandSim.getNbActiveNodes(Node::eARTICULATION_TYPE);
 	if(!nbActiveArticulations)
 		return;
 
-	Cm::FlushPool& flushPool = llContext->getTaskPool();
+	ev4sio_Cm::FlushPool& flushPool = llContext->getTaskPool();
 	UpdateCachedParams params(llContext->getTransformCache(), aabbManager->getBoundsArray());
 	params.mTransformCache.setChangedState();
 	params.mBoundsArray.setChangedState();
@@ -170,13 +170,13 @@ void SimulationController::updateArticulationAfterIntegration(PxsContext* llCont
 		// is usually low.
 
 		// PT: this cast is ok because the function is only executed for CPU sim
-		Bp::AABBManager& aabbMan = static_cast<Bp::AABBManager&>(*aabbManager);
+		ev4sio_Bp::AABBManager& aabbMan = static_cast<ev4sio_Bp::AABBManager&>(*aabbManager);
 
 		for (PxU32 i = 0; i < nbActiveArticulations; i++)
 		{
 			const ArticulationSim* articSim = getArticulationSim(islandSim, activeArticulations[i]);
 
-			const Bp::AggregateHandle handle = articSim->getAggregateHandle();
+			const ev4sio_Bp::AggregateHandle handle = articSim->getAggregateHandle();
 
 			if(handle != PX_INVALID_U32)
 				aabbMan.markAggregateAsDirty(handle);

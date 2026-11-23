@@ -8,7 +8,7 @@
 
 #include "foundation/PxArray.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	namespace cudaMappedMemAllocatorInternal
 	{
@@ -228,7 +228,7 @@ static PX_FORCE_INLINE cudaMappedMemAllocatorInternal::Pointer<PointedToT> castT
 
 }
 
-namespace physx
+namespace ev4sio_physx
 {
 	namespace cudaPagedFirstFitHoleAllocatorInternal
 	{

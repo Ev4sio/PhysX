@@ -12,7 +12,7 @@
 #include "GuDistancePointTriangle.h"
 #include "foundation/PxMath.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 PX_FORCE_INLINE __device__ PxU32 part1by2(PxU32 n)
@@ -652,7 +652,7 @@ public:
 			const PxVec3 c = mPoints[tri[2]];
 
 			//PxReal s, t;
-			PxVec3 closestPt = Gu::closestPtPointTriangle2UnitBox(mQueryPoint, a, b, c); // closestPtPointTriangle(mQueryPoint, a, b, c, s, t);
+			PxVec3 closestPt = ev4sio_Gu::closestPtPointTriangle2UnitBox(mQueryPoint, a, b, c); // closestPtPointTriangle(mQueryPoint, a, b, c, s, t);
 			PxReal distSq = (closestPt - mQueryPoint).magnitudeSquared();
 			if (distSq < mClosestDistanceSquared)
 			{
@@ -700,7 +700,7 @@ public:
 		mWindingNumber += windingNumberForTriangle(a, b, c, mQueryPoint);
 
 		//PxReal s, t;
-		PxVec3 closestPt = Gu::closestPtPointTriangle2UnitBox(mQueryPoint, a, b, c); //closestPtPointTriangle(mQueryPoint, a, b, c, s, t);
+		PxVec3 closestPt = ev4sio_Gu::closestPtPointTriangle2UnitBox(mQueryPoint, a, b, c); //closestPtPointTriangle(mQueryPoint, a, b, c, s, t);
 		PxReal distSq = (closestPt - mQueryPoint).magnitudeSquared();
 		if (distSq < mClosestDistance * mClosestDistance)
 		{
@@ -737,6 +737,6 @@ public:
 	}
 };
 
-} // namespace physx
+} // namespace ev4sio_physx
 
 #endif

@@ -23,7 +23,7 @@
 #include "PxvGlobals.h"
 #include "PxgKernelIndices.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 PxgParticleNeighborhoodProvider::PxgParticleNeighborhoodProvider(PxgKernelLauncher& cudaContextManager, const PxU32 maxNumParticles, const PxReal particleContactOffset, const PxU32 maxNumSparseGridCells)
 {

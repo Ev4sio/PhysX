@@ -17,15 +17,15 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace usdparser
 {
-::physx::PxQuat indexedRotation(uint32_t axis, float s, float c)
+::ev4sio_physx::PxQuat indexedRotation(uint32_t axis, float s, float c)
 {
     float v[3] = { 0, 0, 0 };
     v[axis] = s;
-    return ::physx::PxQuat(v[0], v[1], v[2], c);
+    return ::ev4sio_physx::PxQuat(v[0], v[1], v[2], c);
 }
 
 uint32_t getNextIndex3(uint32_t i)
@@ -34,21 +34,21 @@ uint32_t getNextIndex3(uint32_t i)
 }
 
 
-::physx::PxVec3 diagonalize(const ::physx::PxMat33& m, ::physx::PxQuat& massFrame)
+::ev4sio_physx::PxVec3 diagonalize(const ::ev4sio_physx::PxMat33& m, ::ev4sio_physx::PxQuat& massFrame)
 {
     // jacobi rotation using quaternions (from an idea of Stan Melax, with fix for precision issues)
 
     const uint32_t MAX_ITERS = 24;
 
-    ::physx::PxQuat q = ::physx::PxQuat(::physx::PxIdentity);
+    ::ev4sio_physx::PxQuat q = ::ev4sio_physx::PxQuat(::ev4sio_physx::PxIdentity);
 
-    ::physx::PxMat33 d(::physx::PxZero);
+    ::ev4sio_physx::PxMat33 d(::ev4sio_physx::PxZero);
     for (uint32_t i = 0; i < MAX_ITERS; i++)
     {
         // PxMat33(q) uses the column-vector convention, i.e. it is the transpose of the
         // matrix GfMatrix3f(q) used to produce, but PhysX multiplies column-vector
         // style, so the conjugation transposes swap sides to match.
-        const ::physx::PxMat33 axes(q);
+        const ::ev4sio_physx::PxMat33 axes(q);
         d = axes.getTranspose() * m * axes;
 
         // d holds the same nine floats the Gf version did, so the operator[]
@@ -65,7 +65,7 @@ uint32_t getNextIndex3(uint32_t i)
         float w = (d[a1][a1] - d[a2][a2]) / (2.0f * d[a1][a2]); // cot(2 * phi), where phi is the rotation angle
         float absw = fabs(w);
 
-        ::physx::PxQuat r;
+        ::ev4sio_physx::PxQuat r;
         if (absw > 1000)
             r = indexedRotation(a, 1 / (4 * w), 1.0f); // h will be very close to 1, so use small angle approx instead
         else
@@ -80,20 +80,20 @@ uint32_t getNextIndex3(uint32_t i)
     }
 
     massFrame = q;
-    return ::physx::PxVec3(d[0][0], d[1][1], d[2][2]);
+    return ::ev4sio_physx::PxVec3(d[0][0], d[1][1], d[2][2]);
 }
 
 class MassProperties
 {
 public:
-    MassProperties() : inertiaTensor(::physx::PxIdentity), centerOfMass(0.0f), mass(1.0f)
+    MassProperties() : inertiaTensor(::ev4sio_physx::PxIdentity), centerOfMass(0.0f), mass(1.0f)
     {
     }
 
     /**
     \brief Construct from individual elements.
     */
-    MassProperties(const float m, const ::physx::PxMat33& inertiaT, const ::physx::PxVec3& com)
+    MassProperties(const float m, const ::ev4sio_physx::PxMat33& inertiaT, const ::ev4sio_physx::PxVec3& com)
         : inertiaTensor(inertiaT), centerOfMass(com), mass(m)
     {
     }
@@ -114,7 +114,7 @@ public:
 
     \param[in] t The translation vector for the center of mass.
     */
-    void translate(const ::physx::PxVec3& t)
+    void translate(const ::ev4sio_physx::PxVec3& t)
     {
         inertiaTensor = translateInertia(inertiaTensor, mass, t);
         centerOfMass += t;
@@ -127,10 +127,10 @@ public:
     \param[out] massFrame The frame the diagonalized tensor refers to.
     \return The entries of the diagonalized inertia tensor.
     */
-    static ::physx::PxVec3 getMassSpaceInertia(const ::physx::PxMat33& inertia, ::physx::PxQuat& massFrame)
+    static ::ev4sio_physx::PxVec3 getMassSpaceInertia(const ::ev4sio_physx::PxMat33& inertia, ::ev4sio_physx::PxQuat& massFrame)
     {
 
-        ::physx::PxVec3 diagT = diagonalize(inertia, massFrame);
+        ::ev4sio_physx::PxVec3 diagT = diagonalize(inertia, massFrame);
         return diagT;
     }
 
@@ -142,12 +142,12 @@ public:
     \param[in] t The relative frame to translate the inertia tensor to.
     \return The translated inertia tensor.
     */
-    static ::physx::PxMat33 translateInertia(const ::physx::PxMat33& inertia, const float mass, const ::physx::PxVec3& t)
+    static ::ev4sio_physx::PxMat33 translateInertia(const ::ev4sio_physx::PxMat33& inertia, const float mass, const ::ev4sio_physx::PxVec3& t)
     {
-        const ::physx::PxMat33 s(::physx::PxVec3(0, t[2], -t[1]), ::physx::PxVec3(-t[2], 0, t[0]),
-                                 ::physx::PxVec3(t[1], -t[0], 0));
+        const ::ev4sio_physx::PxMat33 s(::ev4sio_physx::PxVec3(0, t[2], -t[1]), ::ev4sio_physx::PxVec3(-t[2], 0, t[0]),
+                                 ::ev4sio_physx::PxVec3(t[1], -t[0], 0));
 
-        ::physx::PxMat33 translatedIT = s * s.getTranspose() * mass + inertia;
+        ::ev4sio_physx::PxMat33 translatedIT = s * s.getTranspose() * mass + inertia;
         return translatedIT;
     }
 
@@ -158,12 +158,12 @@ public:
     \param[in] q The rotation to apply to the inertia tensor.
     \return The rotated inertia tensor.
     */
-    static ::physx::PxMat33 rotateInertia(const ::physx::PxMat33& inertia, const ::physx::PxQuat& q)
+    static ::ev4sio_physx::PxMat33 rotateInertia(const ::ev4sio_physx::PxMat33& inertia, const ::ev4sio_physx::PxQuat& q)
     {
         // PxMat33(q) holds the same floats as GfMatrix3f(q), but PhysX multiplies
         // column-vector style, so the operands and transposes swap places.
-        const ::physx::PxMat33 m(q);
-        ::physx::PxMat33 rotatedIT = m * inertia * m.getTranspose();
+        const ::ev4sio_physx::PxMat33 m(q);
+        ::ev4sio_physx::PxMat33 rotatedIT = m * inertia * m.getTranspose();
         return rotatedIT;
     }
 
@@ -175,16 +175,16 @@ public:
     \param[in] count The number of mass properties to sum up.
     \return The summed up mass properties.
     */
-    static MassProperties sum(const MassProperties* props, const ::physx::PxTransform* transforms, const uint32_t count)
+    static MassProperties sum(const MassProperties* props, const ::ev4sio_physx::PxTransform* transforms, const uint32_t count)
     {
         float combinedMass = 0.0f;
-        ::physx::PxVec3 combinedCoM(0.0f);
-        ::physx::PxMat33 combinedInertiaT = ::physx::PxMat33(::physx::PxZero);
+        ::ev4sio_physx::PxVec3 combinedCoM(0.0f);
+        ::ev4sio_physx::PxMat33 combinedInertiaT = ::ev4sio_physx::PxMat33(::ev4sio_physx::PxZero);
 
         for (uint32_t i = 0; i < count; i++)
         {
             combinedMass += props[i].mass;
-            const ::physx::PxVec3 comTm = transforms[i].transform(props[i].centerOfMass);
+            const ::ev4sio_physx::PxVec3 comTm = transforms[i].transform(props[i].centerOfMass);
             combinedCoM += comTm * props[i].mass;
         }
 
@@ -193,7 +193,7 @@ public:
 
         for (uint32_t i = 0; i < count; i++)
         {
-            const ::physx::PxVec3 comTm = transforms[i].transform(props[i].centerOfMass);
+            const ::ev4sio_physx::PxVec3 comTm = transforms[i].transform(props[i].centerOfMass);
             combinedInertiaT += translateInertia(rotateInertia(props[i].inertiaTensor, transforms[i].q), props[i].mass,
                                                  combinedCoM - comTm);
         }
@@ -202,11 +202,11 @@ public:
     }
 
 
-    ::physx::PxMat33 inertiaTensor; //!< The inertia tensor of the object.
-    ::physx::PxVec3 centerOfMass; //!< The center of mass of the object.
+    ::ev4sio_physx::PxMat33 inertiaTensor; //!< The inertia tensor of the object.
+    ::ev4sio_physx::PxVec3 centerOfMass; //!< The center of mass of the object.
     float mass; //!< The mass of the object.
 };
 
 } // namespace usdparser
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

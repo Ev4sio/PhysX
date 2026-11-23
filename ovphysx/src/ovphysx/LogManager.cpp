@@ -334,7 +334,7 @@ void ovphysx::UserCallbackLogger::handleMessage(const carb::logging::LogMessage&
             try
             {
                 // Errors from application code belong to its nested calls, not the operation logging here.
-                omni::physx::RuntimeErrorScope callbackErrors;
+                omni::ev4sio_physx::RuntimeErrorScope callbackErrors;
                 registration->callback(
                     level,
                     ovphysx_cstr(message),

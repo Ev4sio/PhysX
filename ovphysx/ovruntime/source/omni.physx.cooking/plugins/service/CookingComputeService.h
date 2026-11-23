@@ -10,13 +10,13 @@
 #include <cstdint>
 #include <vector>
 
-namespace physx
+namespace ev4sio_physx
 {
 class PxFoundation;
 class PxCudaContextManager;
 class PxPhysicsGpu;
 class PxDefaultMemoryOutputStream;
-} // namespace physx
+} // namespace ev4sio_physx
 namespace cookedcache
 {
 class CookedCache;
@@ -28,7 +28,7 @@ class CookingTask;
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 
 /**
@@ -46,7 +46,7 @@ namespace physx
  * @implements REQ-COOK-CUDACTX-001
  * @covers AC-1
  */
-using AcquireSharedCudaContextManagerFn = ::physx::PxCudaContextManager* (*)();
+using AcquireSharedCudaContextManagerFn = ::ev4sio_physx::PxCudaContextManager* (*)();
 
 struct ICookingComputeService
 {
@@ -58,42 +58,42 @@ struct ICookingComputeService
     virtual PhysxCookingOperationHandle requestTriangleMeshCookedData(
         PhysxCookingAsyncContext context,
         const PhysxCookingComputeRequest& request,
-        const omni::physx::TriangleMeshCookingParams& triangleMeshCookingParams,
-        const omni::physx::SdfMeshCookingParams& sdfMeshCookingParams,
-        ::physx::PxCudaContextManager* cudaContextManager) = 0;
+        const omni::ev4sio_physx::TriangleMeshCookingParams& triangleMeshCookingParams,
+        const omni::ev4sio_physx::SdfMeshCookingParams& sdfMeshCookingParams,
+        ::ev4sio_physx::PxCudaContextManager* cudaContextManager) = 0;
 
     virtual PhysxCookingOperationHandle requestConvexMeshCookedData(PhysxCookingAsyncContext context,
                                                                     const PhysxCookingComputeRequest& request,
-                                                                    const omni::physx::ConvexMeshCookingParams& desc) = 0;
+                                                                    const omni::ev4sio_physx::ConvexMeshCookingParams& desc) = 0;
 
     virtual PhysxCookingOperationHandle requestConvexMeshDecompositionCookedData(
         PhysxCookingAsyncContext context,
         const PhysxCookingComputeRequest& request,
-        const omni::physx::ConvexDecompositionCookingParams& desc) = 0;
+        const omni::ev4sio_physx::ConvexDecompositionCookingParams& desc) = 0;
 
     virtual PhysxCookingOperationHandle requestSphereFillCookedData(PhysxCookingAsyncContext context,
                                                                     const PhysxCookingComputeRequest& request,
-                                                                    const omni::physx::SphereFillCookingParams& desc) = 0;
+                                                                    const omni::ev4sio_physx::SphereFillCookingParams& desc) = 0;
 
     virtual PhysxCookingOperationHandle requestDeformableVolumeMeshCookedData(
         PhysxCookingAsyncContext context,
         const PhysxCookingComputeRequest& request,
-        const omni::physx::DeformableVolumeMeshCookingParams& params) = 0;
+        const omni::ev4sio_physx::DeformableVolumeMeshCookingParams& params) = 0;
 
     virtual PhysxCookingOperationHandle requestVolumeDeformableBodyCookedData(
         PhysxCookingAsyncContext context,
         const PhysxCookingComputeRequest& request,
-        const omni::physx::VolumeDeformableBodyCookingParams& params) = 0;
+        const omni::ev4sio_physx::VolumeDeformableBodyCookingParams& params) = 0;
 
     virtual PhysxCookingOperationHandle requestSurfaceDeformableBodyCookedData(
         PhysxCookingAsyncContext context,
         const PhysxCookingComputeRequest& request,
-        const omni::physx::SurfaceDeformableBodyCookingParams& params) = 0;
+        const omni::ev4sio_physx::SurfaceDeformableBodyCookingParams& params) = 0;
 
     virtual PhysxCookingOperationHandle requestParticlePoissonSamplingCookedData(
         PhysxCookingAsyncContext context,
         const PhysxCookingComputeRequest& request,
-        const omni::physx::ParticlePoissonSamplingCookingParams& params) = 0;
+        const omni::ev4sio_physx::ParticlePoissonSamplingCookingParams& params) = 0;
 
     virtual PhysxCookingAsyncContext createAsyncContext(PhysxCookingAsyncContextParameters& parameters) = 0;
 
@@ -136,20 +136,20 @@ struct ICookingComputeService
      */
     virtual bool acquireCudaContextManager(PhysxCookingDataType::Enum dataType,
                                            const PhysxCookingComputeRequest& request,
-                                           ::physx::PxCudaContextManager*& cudaContextManager,
-                                           ::physx::PxPhysicsGpu*& physicsGPU) = 0;
+                                           ::ev4sio_physx::PxCudaContextManager*& cudaContextManager,
+                                           ::ev4sio_physx::PxPhysicsGpu*& physicsGPU) = 0;
 
     static bool computeMeshKeyIfNeeded(PhysxCookingComputeResult& result, PhysxCookingComputeRequest& request);
     static uint16_t getMaxMaterialIndex(const PhysxCookingMeshView& meshView);
 };
 
 ICookingComputeService* createCookingComputingService(
-    ::physx::PxFoundation& foundation,
+    ::ev4sio_physx::PxFoundation& foundation,
     AcquireSharedCudaContextManagerFn acquireSharedCudaContextManagerFn = nullptr);
 ICookingComputeService* createDefaultCookingComputingService(
-    ::physx::PxFoundation& foundation,
+    ::ev4sio_physx::PxFoundation& foundation,
     AcquireSharedCudaContextManagerFn acquireSharedCudaContextManagerFn = nullptr);
 void releaseCookingComputingService(ICookingComputeService*);
 
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

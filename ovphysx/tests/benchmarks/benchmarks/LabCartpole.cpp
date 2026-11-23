@@ -295,7 +295,7 @@ private:
         }
 
         requireSuccess(mPhysX->clone("/World/envs/env_0", targets, transforms.data()).status, "clone Cartpole environments");
-        ovphysx::physx::WaitResult cloneWait = mPhysX->waitAll();
+        ovphysx::ev4sio_physx::WaitResult cloneWait = mPhysX->waitAll();
         if (cloneWait.status() != OVPHYSX_API_SUCCESS)
         {
             throw std::runtime_error("Cartpole environment clone completed with asynchronous errors");
@@ -737,7 +737,7 @@ private:
 
     void waitForAll(const char* operation)
     {
-        ovphysx::physx::WaitResult waitResult;
+        ovphysx::ev4sio_physx::WaitResult waitResult;
         requireSuccess(
             waitResult.waitAll(mPhysX->handle(), OVPHYSX_TIMEOUT_INFINITE),
             operation);

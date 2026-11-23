@@ -32,7 +32,7 @@
 #include "PxgDynamicsConfiguration.h"
 #include "DyCpuGpu1dConstraint.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 PX_FORCE_INLINE static __device__ uint32_t nextPowerOfTwo(uint32_t x)
@@ -131,14 +131,14 @@ static __device__ void solve1DBlock(const PxgBlockConstraintBatch& batch, PxVec3
 
 		// JIRA: PX-4383
 		const PxReal minRowResponse = DY_MIN_RESPONSE;
-		const PxReal recipResponse = Dy::computeRecipUnitResponse(unitResponse, minRowResponse);
+		const PxReal recipResponse = ev4sio_Dy::computeRecipUnitResponse(unitResponse, minRowResponse);
 
 		PxReal constant, unbiasedConstant, vMul, iMul;
 
 		bool isSpring = flags & DY_SC_FLAG_SPRING;
 		bool isAccelerationSpring = flags & DY_SC_FLAG_ACCELERATION_SPRING;
 
-		Dy::compute1dConstraintSolverConstantsPGS(isSpring, isAccelerationSpring, coeff0, coeff1, initJointSpeed, unitResponse,
+		ev4sio_Dy::compute1dConstraintSolverConstantsPGS(isSpring, isAccelerationSpring, coeff0, coeff1, initJointSpeed, unitResponse,
 												  recipResponse, constant, unbiasedConstant, vMul, iMul);
 
 		// For velocity iterations, "constant" is overwritten by "unbiasedConstant".
@@ -176,15 +176,15 @@ static __device__ void solve1DBlock(const PxgBlockConstraintBatch& batch, PxVec3
 // Mass-splitting version of 1D constraints; mass-related terms are computed at every sub-timestep. See "setupArtiSolverConstraintBlockGPU".
 // Refer to "Mass Splitting for Jitter-Free Parallel Rigid Body Simulation" for the general mass-splitting concept.
 static __device__ void solveExt1DBlock(const PxgBlockConstraintBatch& batch,
-	Cm::UnAlignedSpatialVector& vel0,
-	Cm::UnAlignedSpatialVector& vel1,
+	ev4sio_Cm::UnAlignedSpatialVector& vel0,
+	ev4sio_Cm::UnAlignedSpatialVector& vel1,
 	const PxU32 threadIndex,
 	const PxgBlockSolverConstraint1DHeader* PX_RESTRICT headers,
 	PxgBlockSolverConstraint1DCon* PX_RESTRICT rowsCon,
 	PxgBlockSolverConstraint1DMod* PX_RESTRICT rowsMod,
 	PxgArticulationBlockResponse* PX_RESTRICT artiResponse,
-	Cm::UnAlignedSpatialVector& impulse0,
-	Cm::UnAlignedSpatialVector& impulse1,
+	ev4sio_Cm::UnAlignedSpatialVector& impulse0,
+	ev4sio_Cm::UnAlignedSpatialVector& impulse1,
 	PxReal ref0 = 1.f, PxReal ref1 = 1.f)
 {
 	const PxgBlockSolverConstraint1DHeader* PX_RESTRICT  header = &headers[batch.mConstraintBatchIndex];
@@ -238,7 +238,7 @@ static __device__ void solveExt1DBlock(const PxgBlockConstraintBatch& batch,
 
 		// JIRA: PX-4383
 		const PxReal minRowResponse = DY_MIN_RESPONSE;
-		const PxReal recipResponse = Dy::computeRecipUnitResponse(unitResponse, minRowResponse);
+		const PxReal recipResponse = ev4sio_Dy::computeRecipUnitResponse(unitResponse, minRowResponse);
 
 		PxReal constant, unbiasedConstant, vMul, iMul;
 
@@ -669,7 +669,7 @@ static __device__ void concludeContactBlock(const PxgBlockConstraintBatch& batch
 }
 
 static __device__ void writeBackContactBlock(const PxgBlockConstraintBatch& batch, const PxU32 threadIndex,
-											 const PxgSolverBodyData* bodies, Dy::ThresholdStreamElement* thresholdStream,
+											 const PxgSolverBodyData* bodies, ev4sio_Dy::ThresholdStreamElement* thresholdStream,
 											 PxI32* sharedThresholdStreamIndex, PxgBlockSolverContactHeader* contactHeaders, PxgBlockSolverFrictionHeader* frictionHeaders, 
 											PxgBlockSolverContactPoint* contactPoints, PxgBlockSolverContactFriction* frictions,
 											PxF32* forcewritebackBuffer, PxgBlockFrictionPatch& frictionPatchBlock,
@@ -722,7 +722,7 @@ static __device__ void writeBackContactBlock(const PxgBlockConstraintBatch& batc
 	if((forceThreshold && normalForce !=0 && (reportThreshold0 < PX_MAX_REAL  || reportThreshold1 < PX_MAX_REAL)))
 	{
 		//ToDo : support PxgThresholdStreamElement
-		Dy::ThresholdStreamElement elt;
+		ev4sio_Dy::ThresholdStreamElement elt;
 		elt.normalForce = normalForce;
 		elt.threshold = PxMin<float>(reportThreshold0, reportThreshold1);
 		
@@ -785,6 +785,6 @@ static __device__ void writeBack1DBlock(const PxgBlockConstraintBatch& batch, co
 }
 
 
-} // namespace physx
+} // namespace ev4sio_physx
 
 #endif

@@ -8,7 +8,7 @@
 
 #include "PxgFEMCore.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 #define FEMCLOTH_MAX_NUM_PARTITIONS 32
@@ -16,7 +16,7 @@ namespace physx
 	// this is needed to force PhysXSimulationControllerGpu linkage as Static Library!
 	void createPxgFEMCloth();
 
-	namespace Dy
+	namespace ev4sio_Dy
 	{
 		class DeformableSurface;
 	}
@@ -79,7 +79,7 @@ namespace physx
 							PxReal invDt, PxgDevicePointer<PxgSolverSharedDescBase> sharedDescd, CUstream solverStream,
 							PxU32 nbSolverBodies, PxU32 nbArticulations);
 
-		bool updateUserData(Cm::PinnableArray<PxgFEMCloth>& femClothPool, PxArray<PxU32>& femClothNodeIndexPool, const PxU32* activeFEMCloths,
+		bool updateUserData(ev4sio_Cm::PinnableArray<PxgFEMCloth>& femClothPool, PxArray<PxU32>& femClothNodeIndexPool, const PxU32* activeFEMCloths,
 							PxU32 nbActiveFEMCloths, void** bodySimsLL);
 
 		CUstream getStream() { return mStream; }
@@ -114,11 +114,11 @@ namespace physx
 		//surface vs surface collision contacts, split by feature pair: vertex-triangle and edge-edge
 		PxgTypedCudaBuffer<PxgDeformablePairInfo>	mSurfaceSurfaceVTContactInfoBuffer;
 		PxgTypedCudaBuffer<PxU32>					mSurfaceSurfaceVTContactCountBuffer;
-		Cm::PinnableObject<PxU32>					mSurfaceSurfaceVTPrevContactCountPinned;
+		ev4sio_Cm::PinnableObject<PxU32>					mSurfaceSurfaceVTPrevContactCountPinned;
 
 		PxgTypedCudaBuffer<PxgDeformablePairInfo>	mSurfaceSurfaceEEContactInfoBuffer;
 		PxgTypedCudaBuffer<PxU32>					mSurfaceSurfaceEEContactCountBuffer;
-		Cm::PinnableObject<PxU32>					mSurfaceSurfaceEEPrevContactCountPinned;
+		ev4sio_Cm::PinnableObject<PxU32>					mSurfaceSurfaceEEPrevContactCountPinned;
 
 		void preIntegrateSystem(PxgFEMCloth* femClothsd, PxU32* activeFemCloths, PxU32 nbActiveFemCloths, PxU32 maxVertices,
 								const PxVec3& gravity, PxReal dt, CUstream bpStream);
@@ -189,8 +189,8 @@ namespace physx
 											  // before we call applyExternalTetraDelta
 
 	  public:
-		PxArray<Dy::DeformableSurface*> mActivatingDeformableSurfaces;
-		PxArray<Dy::DeformableSurface*> mDeactivatingDeformableSurfaces;
+		PxArray<ev4sio_Dy::DeformableSurface*> mActivatingDeformableSurfaces;
+		PxArray<ev4sio_Dy::DeformableSurface*> mDeactivatingDeformableSurfaces;
 		PxPostSolveCallback* mPostSolveCallback;
 	};
 }

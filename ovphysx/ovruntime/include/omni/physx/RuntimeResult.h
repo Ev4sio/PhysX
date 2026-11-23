@@ -5,7 +5,7 @@
 // @covers AC-3 AC-4
 #pragma once
 #include <cstdint>
-namespace omni::physx
+namespace omni::ev4sio_physx
 {
 /// Result of an explicit simulation dispatch. Busy means no work was submitted
 /// or fetched. It signals a conflicting operation/pending interval on the selected

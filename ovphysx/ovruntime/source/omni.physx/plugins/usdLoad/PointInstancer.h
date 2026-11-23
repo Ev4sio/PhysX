@@ -24,7 +24,7 @@ class ScannedStage;
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace usdparser
 {
@@ -79,5 +79,5 @@ bool isOutsideInstancer(const omni::physics::parse::IPhysicsSource* src,
                         omni::physics::parse::ObjectKey primKey,
                         omni::physics::parse::ObjectKey instancerKey);
 } // namespace usdparser
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

@@ -9,7 +9,7 @@
 #include <foundation/PxBounds3.h>
 #include <cstdint>
 
-namespace omni::physx::authoring
+namespace omni::ev4sio_physx::authoring
 {
 enum class PrimitiveKind : uint32_t { Box, Sphere, Capsule };
 struct MassShape
@@ -17,18 +17,18 @@ struct MassShape
     PrimitiveKind kind;
     // Box half extents; sphere radius in x; capsule radius/half height in x/y.
     // Capsule axis is local X, following PhysX. All lengths are meters.
-    ::physx::PxVec3 dimensions;
-    ::physx::PxTransform pose;
+    ::ev4sio_physx::PxVec3 dimensions;
+    ::ev4sio_physx::PxTransform pose;
     float density; // kg / m^3
 };
 struct MassResult
 {
     float mass; // kg
     float volume; // m^3 (sum of collider volumes, including overlap)
-    ::physx::PxVec3 centerOfMass; // body-local meters
-    ::physx::PxVec3 diagonalInertia; // kg m^2
-    ::physx::PxQuat principalAxes; // inertia frame to body-local frame
-    ::physx::PxBounds3 bounds; // body-local meters
+    ::ev4sio_physx::PxVec3 centerOfMass; // body-local meters
+    ::ev4sio_physx::PxVec3 diagonalInertia; // kg m^2
+    ::ev4sio_physx::PxQuat principalAxes; // inertia frame to body-local frame
+    ::ev4sio_physx::PxBounds3 bounds; // body-local meters
 };
 
 // Pure stopped computation: no SDK singleton, scene, USD or runtime initialization.

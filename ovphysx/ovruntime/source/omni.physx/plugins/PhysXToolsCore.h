@@ -44,7 +44,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 
 inline float degToRad(const float a)
@@ -57,14 +57,14 @@ inline float radToDeg(const float a)
     return 57.29577951308232286465f * a;
 }
 
-inline ::physx::PxVec3 degToRad(const ::physx::PxVec3& a)
+inline ::ev4sio_physx::PxVec3 degToRad(const ::ev4sio_physx::PxVec3& a)
 {
-    return ::physx::PxVec3(0.01745329251994329547f * a);
+    return ::ev4sio_physx::PxVec3(0.01745329251994329547f * a);
 }
 
-inline ::physx::PxVec3 radToDeg(const ::physx::PxVec3& a)
+inline ::ev4sio_physx::PxVec3 radToDeg(const ::ev4sio_physx::PxVec3& a)
 {
-    return ::physx::PxVec3(57.29577951308232286465f * a);
+    return ::ev4sio_physx::PxVec3(57.29577951308232286465f * a);
 }
 
 // carb-typed forms of the PxVec3 pair above, so a site that has migrated its angular
@@ -96,15 +96,15 @@ inline carb::Float3 radToDeg(const carb::Float3& a)
 // rotate. Angular velocity is a pseudovector along a local axis, so it is rotated
 // without scaling. `InternalScene.cpp`'s velocity write-back inverts exactly this
 // (`rotateInv` + `divideByScale`), which makes the round trip the identity.
-inline ::physx::PxVec3 localToWorldLinearVelocity(const ::physx::PxQuat& worldRotation,
+inline ::ev4sio_physx::PxVec3 localToWorldLinearVelocity(const ::ev4sio_physx::PxQuat& worldRotation,
                                                   const carb::Float3& worldScale,
-                                                  const ::physx::PxVec3& localVelocity)
+                                                  const ::ev4sio_physx::PxVec3& localVelocity)
 {
-    return worldRotation.rotate(localVelocity.multiply(::physx::PxVec3(worldScale.x, worldScale.y, worldScale.z)));
+    return worldRotation.rotate(localVelocity.multiply(::ev4sio_physx::PxVec3(worldScale.x, worldScale.y, worldScale.z)));
 }
 
-inline ::physx::PxVec3 localToWorldAngularVelocity(const ::physx::PxQuat& worldRotation,
-                                                   const ::physx::PxVec3& localAngularVelocity)
+inline ::ev4sio_physx::PxVec3 localToWorldAngularVelocity(const ::ev4sio_physx::PxQuat& worldRotation,
+                                                   const ::ev4sio_physx::PxVec3& localAngularVelocity)
 {
     return worldRotation.rotate(localAngularVelocity);
 }
@@ -170,26 +170,26 @@ inline uint32_t convertToCollisionGroup(const usdparser::ObjectId collisionGroup
     return collisionGroup;
 }
 
-inline void convertCollisionGroupToPxFilterData(const uint32_t collisionGroup, ::physx::PxFilterData& filterData)
+inline void convertCollisionGroupToPxFilterData(const uint32_t collisionGroup, ::ev4sio_physx::PxFilterData& filterData)
 {
     filterData.word2 = collisionGroup;
     // in word1 we store pair filtering information
     // in word3 we store contact modify information
 }
 
-inline uint32_t convertCollisionGroupFromPxFilterData(const ::physx::PxFilterData& fd)
+inline uint32_t convertCollisionGroupFromPxFilterData(const ::ev4sio_physx::PxFilterData& fd)
 {
     return fd.word2;
 }
 
-inline void convertFilterPairToPxFilterData(const uint32_t filterPair, ::physx::PxFilterData& filterData)
+inline void convertFilterPairToPxFilterData(const uint32_t filterPair, ::ev4sio_physx::PxFilterData& filterData)
 {
     filterData.word1 = filterPair;
     // in word2 we store collision group
     // in word3 we store contact modify information
 }
 
-inline uint32_t convertFilterPairFromPxFilterData(const ::physx::PxFilterData& fd)
+inline uint32_t convertFilterPairFromPxFilterData(const ::ev4sio_physx::PxFilterData& fd)
 {
     return fd.word1;
 }
@@ -207,15 +207,15 @@ void sendErrorEvent(carb::events::IEventStreamPtr eventStream, ErrorEvent type, 
 // column-major with a column-vector convention, so the bytes copy straight
 // across and only the multiplication order flips (Gf A*B == PhysX B*A).
 // See common/foundation/MatrixTools.h for the full mapping table.
-inline ::physx::PxMat44d toPxMat44d(const omni::physics::parse::Matrix4d& m)
+inline ::ev4sio_physx::PxMat44d toPxMat44d(const omni::physics::parse::Matrix4d& m)
 {
     double values[16];
     for (int i = 0; i < 16; ++i)
         values[i] = m.data[i];
-    return ::physx::PxMat44d(values);
+    return ::ev4sio_physx::PxMat44d(values);
 }
 
-inline omni::physics::parse::Matrix4d toParseMatrix4d(const ::physx::PxMat44d& m)
+inline omni::physics::parse::Matrix4d toParseMatrix4d(const ::ev4sio_physx::PxMat44d& m)
 {
     omni::physics::parse::Matrix4d out;
     const double* values = m.front();
@@ -466,5 +466,5 @@ inline bool isCookedGeometryAttribute(std::string_view attributeName)
 } // namespace physxtools_detail
 
 } // namespace internal
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

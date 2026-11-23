@@ -16,12 +16,12 @@
 #include "usdLoad/LoadUsd.h"
 #include "ObjectDataQuery.h"
 
-using namespace ::physx;
+using namespace ::ev4sio_physx;
 
 namespace omni
 {
 
-namespace physx
+namespace ev4sio_physx
 {
 bool getPhysXSceneStatistics(AttachHandle attachHandle, uint64_t path, PhysicsSceneStats& sceneStats)
 {

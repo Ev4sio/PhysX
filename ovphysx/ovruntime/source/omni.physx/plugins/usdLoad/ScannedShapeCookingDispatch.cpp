@@ -42,7 +42,7 @@
 #include <omni/physx/IPhysxCookingService.h>
 #include <private/omni/physx/PhysxUsd.h>
 
-namespace omni::physx::usdparser::scan
+namespace omni::ev4sio_physx::usdparser::scan
 {
 
 // ShapeCookingCache is header-only — see ScannedShapeCookingDispatch.h.
@@ -121,7 +121,7 @@ namespace
 
 // Build a PhysxCookingComputeRequest from the attached source identity, without
 // resolving a UsdPrim.
-void buildCookingRequest(omni::physx::PhysxCookingComputeRequest& request,
+void buildCookingRequest(omni::ev4sio_physx::PhysxCookingComputeRequest& request,
                          const AttachedStage& attachedStage,
                          omni::physics::parse::ObjectKey meshKey)
 {
@@ -135,12 +135,12 @@ void buildCookingRequest(omni::physx::PhysxCookingComputeRequest& request,
     // Mirrors CookingDataAsync.cpp's keyToLegacyPathInt.
     request.primId = meshKey.handle;
     request.options.setFlag(
-        omni::physx::PhysxCookingComputeRequest::Options::kComputeAsynchronously, false);
+        omni::ev4sio_physx::PhysxCookingComputeRequest::Options::kComputeAsynchronously, false);
     request.options.setFlag(
-        omni::physx::PhysxCookingComputeRequest::Options::kComputeGPUCookingData, true);
+        omni::ev4sio_physx::PhysxCookingComputeRequest::Options::kComputeGPUCookingData, true);
     request.options.setFlag(
-        omni::physx::PhysxCookingComputeRequest::Options::kExecuteCookingOnGPU, false);
-    request.mode = omni::physx::PhysxCookingComputeRequest::eMODE_COMPUTE_CRC;
+        omni::ev4sio_physx::PhysxCookingComputeRequest::Options::kExecuteCookingOnGPU, false);
+    request.mode = omni::ev4sio_physx::PhysxCookingComputeRequest::eMODE_COMPUTE_CRC;
 }
 
 bool isMeshCookableType(omni::physics::parse::ObjectType t)
@@ -181,11 +181,11 @@ void dispatchScannedShapeCooking(
         return;
     const bool sourceIsUsdGeomMesh = src->isA(meshKey, attachedStage.getKnownTokens().meshType);
 
-    auto* cookingService = omni::physx::OmniPhysX::getInstance().getPhysXSetup().getCookingServiceInterface();
+    auto* cookingService = omni::ev4sio_physx::OmniPhysX::getInstance().getPhysXSetup().getCookingServiceInterface();
     if (!cookingService)
         return;
 
-    omni::physx::PhysxCookingComputeRequest request;
+    omni::ev4sio_physx::PhysxCookingComputeRequest request;
     buildCookingRequest(request, attachedStage, meshKey);
 
     // Only multi-material triangle/SDF cooking needs per-face material indices; skip the
@@ -234,8 +234,8 @@ void dispatchScannedShapeCooking(
     case omni::physics::parse::eConvexMeshShape:
     {
         auto* d = static_cast<ConvexMeshPhysxShapeDesc*>(desc);
-        request.onFinished = [d](const omni::physx::PhysxCookingComputeResult& result) {
-            if (result.result != omni::physx::PhysxCookingResult::eVALID)
+        request.onFinished = [d](const omni::ev4sio_physx::PhysxCookingComputeResult& result) {
+            if (result.result != omni::ev4sio_physx::PhysxCookingResult::eVALID)
                 return;
             d->crc = result.cookedDataCRC;
             d->meshKey = result.meshKey;
@@ -247,8 +247,8 @@ void dispatchScannedShapeCooking(
     case omni::physics::parse::eConvexMeshDecompositionShape:
     {
         auto* d = static_cast<ConvexMeshDecompositionPhysxShapeDesc*>(desc);
-        request.onFinished = [d](const omni::physx::PhysxCookingComputeResult& result) {
-            if (result.result != omni::physx::PhysxCookingResult::eVALID)
+        request.onFinished = [d](const omni::ev4sio_physx::PhysxCookingComputeResult& result) {
+            if (result.result != omni::ev4sio_physx::PhysxCookingResult::eVALID)
                 return;
             d->crc = result.cookedDataCRC;
             d->meshKey = result.meshKey;
@@ -260,8 +260,8 @@ void dispatchScannedShapeCooking(
     case omni::physics::parse::eSpherePointsShape:
     {
         auto* d = static_cast<SpherePointsPhysxShapeDesc*>(desc);
-        request.onFinished = [d](const omni::physx::PhysxCookingComputeResult& result) {
-            if (result.result != omni::physx::PhysxCookingResult::eVALID)
+        request.onFinished = [d](const omni::ev4sio_physx::PhysxCookingComputeResult& result) {
+            if (result.result != omni::ev4sio_physx::PhysxCookingResult::eVALID)
                 return;
             d->crc = result.cookedDataCRC;
             d->meshKey = result.meshKey;
@@ -273,8 +273,8 @@ void dispatchScannedShapeCooking(
     case omni::physics::parse::eTriangleMeshShape:
     {
         auto* d = static_cast<TriangleMeshPhysxShapeDesc*>(desc);
-        request.onFinished = [d](const omni::physx::PhysxCookingComputeResult& result) {
-            if (result.result != omni::physx::PhysxCookingResult::eVALID)
+        request.onFinished = [d](const omni::ev4sio_physx::PhysxCookingComputeResult& result) {
+            if (result.result != omni::ev4sio_physx::PhysxCookingResult::eVALID)
                 return;
             d->crc = result.cookedDataCRC;
             d->meshKey = result.meshKey;
@@ -305,4 +305,4 @@ void dispatchScannedShapeCooking(
     }
 }
 
-} // namespace omni::physx::usdparser::scan
+} // namespace omni::ev4sio_physx::usdparser::scan

@@ -22,7 +22,7 @@ namespace schema
 struct ShapeDesc;
 }
 } // namespace physics
-namespace physx
+namespace ev4sio_physx
 {
 namespace usdparser
 {
@@ -53,24 +53,24 @@ PhysxRigidBodyDesc* createShape(AttachedStage& attachedStage,
 // `attachedStage` or an invalid `meshKey`.
 bool fillConvexMeshDesc(AttachedStage* attachedStage,
                         omni::physics::parse::ObjectKey meshKey,
-                        omni::physx::usdparser::ConvexMeshPhysxShapeDesc& desc,
-                        const omni::physx::ConvexMeshCookingParams& cookingParams);
+                        omni::ev4sio_physx::usdparser::ConvexMeshPhysxShapeDesc& desc,
+                        const omni::ev4sio_physx::ConvexMeshCookingParams& cookingParams);
 bool fillTriangleMeshDesc(AttachedStage* attachedStage,
                           omni::physics::parse::ObjectKey meshKey,
-                          omni::physx::usdparser::TriangleMeshPhysxShapeDesc& desc,
-                          const omni::physx::TriangleMeshCookingParams& cookingParams);
+                          omni::ev4sio_physx::usdparser::TriangleMeshPhysxShapeDesc& desc,
+                          const omni::ev4sio_physx::TriangleMeshCookingParams& cookingParams);
 bool fillSdfTriangleMeshDesc(AttachedStage* attachedStage,
                              omni::physics::parse::ObjectKey meshKey,
-                             omni::physx::usdparser::TriangleMeshPhysxShapeDesc& desc,
-                             const omni::physx::SdfMeshCookingParams& cookingParams);
+                             omni::ev4sio_physx::usdparser::TriangleMeshPhysxShapeDesc& desc,
+                             const omni::ev4sio_physx::SdfMeshCookingParams& cookingParams);
 bool fillConvexDecompositionDesc(AttachedStage* attachedStage,
                                  omni::physics::parse::ObjectKey meshKey,
-                                 omni::physx::usdparser::ConvexMeshDecompositionPhysxShapeDesc& desc,
-                                 const omni::physx::ConvexDecompositionCookingParams& cookingParams);
+                                 omni::ev4sio_physx::usdparser::ConvexMeshDecompositionPhysxShapeDesc& desc,
+                                 const omni::ev4sio_physx::ConvexDecompositionCookingParams& cookingParams);
 bool fillSphereFillDesc(AttachedStage* attachedStage,
                         omni::physics::parse::ObjectKey meshKey,
-                        omni::physx::usdparser::SpherePointsPhysxShapeDesc& desc,
-                        const omni::physx::SphereFillCookingParams& cookingParams);
+                        omni::ev4sio_physx::usdparser::SpherePointsPhysxShapeDesc& desc,
+                        const omni::ev4sio_physx::SphereFillCookingParams& cookingParams);
 
 // Cooking-input de-USD (Stage C). RAII holder that keeps the source-owned mesh
 // buffers alive while a cooking request's primMeshView points into them; releases
@@ -93,7 +93,7 @@ struct SourceMeshGeometryScope
 // falls back to the prim-id path).
 // includeFaceMaterials=false skips the per-mesh GeomSubset face-material walk
 // (single-material cooking: convex / decomposition / sphere-fill).
-bool fillCookingMeshViewFromSource(omni::physx::PhysxCookingComputeRequest& request,
+bool fillCookingMeshViewFromSource(omni::ev4sio_physx::PhysxCookingComputeRequest& request,
                                    SourceMeshGeometryScope& scope,
                                    const AttachedStage& attachedStage,
                                    omni::physics::parse::ObjectKey meshKey,
@@ -119,5 +119,5 @@ void notifyStageReset(const AttachedStage& owner);
 // materialized a PXR_NS::SdfPath purely to call this.
 void invalidateMeshKeyCache(const AttachedStage& owner, omni::physics::parse::ObjectKey key);
 } // namespace usdparser
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

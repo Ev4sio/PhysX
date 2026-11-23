@@ -12,8 +12,8 @@
 #include "GuVecCapsule.h"
 #include "GuVecBox.h"
 
-using namespace physx;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
 using namespace aos;
 
 //ML: this function is shared by the sphere/capsule vs convex hulls full contact gen, capsule in the local space of polyData
@@ -353,7 +353,7 @@ static void generatedContactsEEContacts(const CapsuleV& capsule, const Polygonal
 	}
 }
 
-bool Gu::generateCapsuleBoxFullContactManifold(const CapsuleV& capsule, const PolygonalData& polyData, const SupportLocal* map, const PxMatTransformV& aToB, PersistentContact* manifoldContacts, PxU32& numContacts,
+bool ev4sio_Gu::generateCapsuleBoxFullContactManifold(const CapsuleV& capsule, const PolygonalData& polyData, const SupportLocal* map, const PxMatTransformV& aToB, PersistentContact* manifoldContacts, PxU32& numContacts,
 	const FloatVArg contactDist, Vec3V& normal, const Vec3VArg closest, PxReal margin, bool doOverlapTest, PxReal toleranceScale, PxRenderOutput* renderOutput)
 {
 	PX_UNUSED(renderOutput);
@@ -397,7 +397,7 @@ bool Gu::generateCapsuleBoxFullContactManifold(const CapsuleV& capsule, const Po
 }
 
 //capsule is in the local space of polyData
-bool Gu::generateFullContactManifold(const CapsuleV& capsule, const PolygonalData& polyData, const SupportLocal* map, const PxMatTransformV& aToB, PersistentContact* manifoldContacts, PxU32& numContacts,
+bool ev4sio_Gu::generateFullContactManifold(const CapsuleV& capsule, const PolygonalData& polyData, const SupportLocal* map, const PxMatTransformV& aToB, PersistentContact* manifoldContacts, PxU32& numContacts,
 	const FloatVArg contactDist, Vec3V& normal, const Vec3VArg closest, PxReal margin, bool doOverlapTest, PxReal toleranceLength)
 {
 	const PxU32 originalContacts = numContacts;
@@ -444,7 +444,7 @@ bool Gu::generateFullContactManifold(const CapsuleV& capsule, const PolygonalDat
 }
 
 //sphere is in the local space of polyData, we treate sphere as capsule
-bool Gu::generateSphereFullContactManifold(const CapsuleV& capsule, const PolygonalData& polyData, const SupportLocal* map, PersistentContact* manifoldContacts, PxU32& numContacts,
+bool ev4sio_Gu::generateSphereFullContactManifold(const CapsuleV& capsule, const PolygonalData& polyData, const SupportLocal* map, PersistentContact* manifoldContacts, PxU32& numContacts,
 	const FloatVArg contactDist, Vec3V& normal, bool doOverlapTest)
 {
 	if(doOverlapTest)
@@ -473,7 +473,7 @@ bool Gu::generateSphereFullContactManifold(const CapsuleV& capsule, const Polygo
 }
 
 //capsule is in the shape space of polyData 
-bool Gu::computeMTD(const CapsuleV& capsule, const PolygonalData& polyData, const SupportLocal* map, FloatV& penDepth, Vec3V& normal)
+bool ev4sio_Gu::computeMTD(const CapsuleV& capsule, const PolygonalData& polyData, const SupportLocal* map, FloatV& penDepth, Vec3V& normal)
 {
 	const FloatV contactDist = FZero();
 	Vec3V separatingAxis;

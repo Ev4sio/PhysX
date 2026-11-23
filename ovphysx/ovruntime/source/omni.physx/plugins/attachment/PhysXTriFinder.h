@@ -7,7 +7,7 @@
 #include "foundation/PxTransform.h"
 #include "geometry/PxGeometry.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 class PxGeometry;
 }
@@ -40,8 +40,8 @@ void triMeshLocalToPoints(carb::Float3* points,
 void overlapTriMeshGeom(int32_t*& triIds,
                         uint32_t& triIdsSize,
                         const uint64_t triFinder,
-                        const ::physx::PxGeometry& geom,
-                        const ::physx::PxTransform& geomPos,
+                        const ::ev4sio_physx::PxGeometry& geom,
+                        const ::ev4sio_physx::PxTransform& geomPos,
                         const float overlapOffset,
                         void* (*allocateBytes)(size_t),
                         void* triMeshSampler = nullptr);

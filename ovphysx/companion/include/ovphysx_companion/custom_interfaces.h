@@ -26,8 +26,8 @@ struct CustomInterfaces
     uint32_t size;
     uint32_t version;
     uint64_t lease;
-    omni::physx::IPhysxCustomJoint* joints;
-    omni::physx::IPhysxCustomGeometry* geometry;
+    omni::ev4sio_physx::IPhysxCustomJoint* joints;
+    omni::ev4sio_physx::IPhysxCustomGeometry* geometry;
 };
 }
 

@@ -12,7 +12,7 @@
 #include "PxgSimulationCoreDesc.h"
 #include <vector_types.h>
 
-namespace physx
+namespace ev4sio_physx
 {
 
 // Deformable-deformable contact writer, for the volume-volume and volume-surface streams - data and device
@@ -245,6 +245,6 @@ struct PxgParticleDbContactWriter
 	}
 };
 
-} // namespace physx
+} // namespace ev4sio_physx
 
 #endif // PXG_DEFORMABLE_CONTACT_WRITERS_H

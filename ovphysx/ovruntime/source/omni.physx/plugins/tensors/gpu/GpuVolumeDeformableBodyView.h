@@ -12,7 +12,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace tensors
 {
@@ -59,9 +59,9 @@ private:
     bool mUsable = false;
     using checkTensorType = std::function<bool(const TensorDesc& tensor, const char* tensorName, const char* funcName)>;
 
-    void resizeDeviceBuffer(::physx::PxU32 previousSize,
-                            ::physx::PxU32 currentSize,
-                            ::physx::PxU32 dataSize,
+    void resizeDeviceBuffer(::ev4sio_physx::PxU32 previousSize,
+                            ::ev4sio_physx::PxU32 currentSize,
+                            ::ev4sio_physx::PxU32 dataSize,
                             void* previousBufferDev);
 
     bool fetchData(const TensorDesc* dstTensor,
@@ -81,15 +81,15 @@ private:
                     const char* callingFunctionName,
                     const checkTensorType checkTensorBaseType);
 
-    bool resolveMask(const TensorDesc* maskTensor, ::physx::PxU32& outK) const;
+    bool resolveMask(const TensorDesc* maskTensor, ::ev4sio_physx::PxU32& outK) const;
 
     // indexing data for all deformable body buffers
     std::vector<GpuDeformableBodyRecord> mDeformableBodyRecords;
     GpuDeformableBodyRecord* mDeformableBodyRecordsD = nullptr;
 
     // all indices in this view
-    ::physx::PxU32* mViewIndicesD = nullptr;
-    std::vector<::physx::PxU32> mViewIndices;
+    ::ev4sio_physx::PxU32* mViewIndicesD = nullptr;
+    std::vector<::ev4sio_physx::PxU32> mViewIndices;
 
     DeformableBodyBufferManager mCollElementIndices;
     DeformableBodyBufferManager mSimElementIndices;
@@ -101,11 +101,11 @@ private:
     // const by pre-existing TensorAPI convention ("const" = view object unchanged,
     // simulation state may be mutated via pointer indirection). These buffers are
     // internal caching state, not logical view state.
-    mutable ::physx::PxU32* mMaskIndicesDev = nullptr;
-    mutable ::physx::PxU32 mMaskIndicesCapacity = 0;
+    mutable ::ev4sio_physx::PxU32* mMaskIndicesDev = nullptr;
+    mutable ::ev4sio_physx::PxU32 mMaskIndicesCapacity = 0;
     mutable SingleAllocPolicy mMaskAllocPolicy;
 };
 
 } // namespace tensors
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

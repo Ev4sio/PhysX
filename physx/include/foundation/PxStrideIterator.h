@@ -10,7 +10,7 @@
 
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -318,7 +318,7 @@ PX_INLINE PxStrideIterator<const T> PxMakeIterator(const T* ptr, PxU32 stride = 
 }
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

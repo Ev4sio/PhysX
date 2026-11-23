@@ -14,7 +14,7 @@
 #include "PxgCudaBuffer.h"
 #include "PxgCudaPagedLinearAllocator.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	struct PxgRadixSortBlockDesc;
 
@@ -43,13 +43,13 @@ namespace physx
 		PxgCudaPagedLinearAllocator		mIntermStackAlloc;
 		PxgTypedCudaBuffer<PxU32>		mStackSizeNeededOnDevice;
 
-		Cm::PinnableObject<PxU32>		mStackSizeNeededPinned;
+		ev4sio_Cm::PinnableObject<PxU32>		mStackSizeNeededPinned;
 
 		PxU32							mMaxContacts;
 		PxU32							mCollisionStackSizeBytes;
 		
 		//for sorting contacts
-		Cm::PinnableArray<PxgRadixSortBlockDesc>	mRSDesc;
+		ev4sio_Cm::PinnableArray<PxgRadixSortBlockDesc>	mRSDesc;
 		PxgCudaBufferN<2>							mRadixSortDescBuf; //radix sort with rank
 		PxgCudaBuffer								mRadixCountTotalBuf;
 		PxU32										mRadixCountSize;

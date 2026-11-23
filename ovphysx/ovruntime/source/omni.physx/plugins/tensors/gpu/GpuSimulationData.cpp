@@ -43,11 +43,11 @@
 
 #include <algorithm>
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace tensors
 {
@@ -1133,7 +1133,7 @@ bool DeformableBodyBufferManager::allocDevMemAndCopyH2D(void** dst, const void* 
 {
     if (!CHECK_CUDA(cudaMalloc(dst, size)))
     {
-        CARB_LOG_ERROR("Unable to allocate memory of size %u for %s", (::physx::PxU32)size, name);
+        CARB_LOG_ERROR("Unable to allocate memory of size %u for %s", (::ev4sio_physx::PxU32)size, name);
         cudaGetLastError(); // reported through the result, as prepareDeviceData does
         return false;
     }
@@ -1186,7 +1186,7 @@ bool DeformableBodyBufferManager::uploadDeviceData(std::string debugMessage)
         CHECK_CUDA(cudaFree(bufferSizesD));
     bufferSizesD = nullptr;
     return allocDevMemAndCopyH2D((void**)&bufferSizesD, bufferSizesH.data(),
-                                 sizeof(::physx::PxU32) * bufferSizesH.size(), (debugMessage + " sizes").c_str());
+                                 sizeof(::ev4sio_physx::PxU32) * bufferSizesH.size(), (debugMessage + " sizes").c_str());
 }
 
 void DeformableBodyBufferManager::releaseDeviceMem()

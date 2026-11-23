@@ -9,10 +9,10 @@
 #include "foundation/PxVec3.h"
 #include "common/PxPhysXCommonConfig.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
-namespace Gu
+namespace ev4sio_Gu
 {
 	// PT: this is used for backface culling. It existed in Moller's original code already. Basically this is only to avoid dividing by zero.
 	// This should not depend on what units are used, and neither should it depend on the size of triangles. A large triangle with the same
@@ -147,7 +147,7 @@ namespace Gu
 		return intersectRayTriangle(orig, dir, vert0, vert1, vert2, t, u, v, false, enlarge);
 	}
 
-} // namespace Gu
+} // namespace ev4sio_Gu
 
 }
 

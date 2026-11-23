@@ -11,7 +11,7 @@
 #include "foundation/PxUtilities.h"
 #include "CmUtils.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 struct NpConnectorType

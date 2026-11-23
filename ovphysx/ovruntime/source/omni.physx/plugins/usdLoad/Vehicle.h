@@ -16,7 +16,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace usdparser
 {
@@ -196,5 +196,5 @@ bool parseVehicle(AttachedStage& attachedStage,
                   VehicleComponentTracker&);
 } // namespace usdparser
 
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

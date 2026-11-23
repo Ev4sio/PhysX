@@ -11,7 +11,7 @@
 #define PAUSE()
 #endif
 
-namespace physx
+namespace ev4sio_physx
 {
 
 void* PxAtomicCompareExchangePointer(volatile void** dest, void* exch, void* comp)
@@ -145,4 +145,4 @@ PxI64 PxAtomicAnd(volatile PxI64* val, PxI64 mask)
 	return __sync_fetch_and_and(val, mask);
 }
 
-} // namespace physx
+} // namespace ev4sio_physx

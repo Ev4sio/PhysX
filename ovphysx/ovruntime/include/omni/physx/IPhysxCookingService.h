@@ -16,7 +16,7 @@
 #include "MeshKey.h"
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 struct PhysxCookingComputeResult;
 
@@ -158,7 +158,7 @@ struct PhysxCookingComputeRequest
     double primMeshMetersPerUnit = 1.0; //!< Meters per unit
     omni::span<const char> primMeshText; //!< Prim path used in debug messages
 
-    omni::physx::usdparser::MeshKey meshKey; //!< OPTIONAL but if provided, it will skip hash recomputation for
+    omni::ev4sio_physx::usdparser::MeshKey meshKey; //!< OPTIONAL but if provided, it will skip hash recomputation for
                                              //!< vertices, triangles etc.
                                              //!< This value is provided from a previous call to IPhysxCooking, in the
                                              //!< response object (PhysxCookingComputeResponse::meshKey).
@@ -247,8 +247,8 @@ struct PhysxCookingMeshTriangulationView
 struct PhysxCookingComputeResult
 {
     PhysxCookingResult::Enum result = PhysxCookingResult::eERROR_COOKING_FAILED; //!< Return code for success or error
-    omni::physx::usdparser::MeshKey meshKey; //!< Hash of mesh vertices, indices etc. excluding orientation
-    omni::physx::usdparser::MeshKey cookedDataCRC; //!< meshKey + orientation + collision parameters
+    omni::ev4sio_physx::usdparser::MeshKey meshKey; //!< Hash of mesh vertices, indices etc. excluding orientation
+    omni::ev4sio_physx::usdparser::MeshKey cookedDataCRC; //!< meshKey + orientation + collision parameters
 
     const PhysxCookingComputeRequest* request = nullptr; //!< The request object that was used when requesting cooking
 
@@ -333,32 +333,32 @@ struct IPhysxCookingService
     PhysxCookingOperationHandle(CARB_ABI* requestTriangleMeshCookedData)(
         PhysxCookingAsyncContext context,
         const PhysxCookingComputeRequest& request,
-        const omni::physx::TriangleMeshCookingParams& triangleMeshCookingParams);
+        const omni::ev4sio_physx::TriangleMeshCookingParams& triangleMeshCookingParams);
 
     /// Get cooked data for sdf mesh. Context must not be null if kComputeAsynchronously is set
     /// If kExecuteCookingOnGPU is set, a global CUDA context manager will be used.
     PhysxCookingOperationHandle(CARB_ABI* requestSdfMeshCookedData)(
         PhysxCookingAsyncContext context,
         const PhysxCookingComputeRequest& request,
-        const omni::physx::TriangleMeshCookingParams& triangleMeshCookingParams,
-        const omni::physx::SdfMeshCookingParams& sdfMeshCookingParams);
+        const omni::ev4sio_physx::TriangleMeshCookingParams& triangleMeshCookingParams,
+        const omni::ev4sio_physx::SdfMeshCookingParams& sdfMeshCookingParams);
 
     /// Get cooked data for convex mesh. Context must not be null if kComputeAsynchronously is set
     PhysxCookingOperationHandle(CARB_ABI* requestConvexMeshCookedData)(PhysxCookingAsyncContext context,
                                                                        const PhysxCookingComputeRequest& request,
-                                                                       const omni::physx::ConvexMeshCookingParams& desc);
+                                                                       const omni::ev4sio_physx::ConvexMeshCookingParams& desc);
 
     /// Get cooked data for convex mesh decomposition. Context must not be null if kComputeAsynchronously is set
     PhysxCookingOperationHandle(CARB_ABI* requestConvexMeshDecompositionCookedData)(
         PhysxCookingAsyncContext context,
         const PhysxCookingComputeRequest& request,
-        const omni::physx::ConvexDecompositionCookingParams& desc);
+        const omni::ev4sio_physx::ConvexDecompositionCookingParams& desc);
 
     /// Get cooked data for sphere fill decomposition. Context must not be null if kComputeAsynchronously is set
     PhysxCookingOperationHandle(CARB_ABI* requestSphereFillCookedData)(PhysxCookingAsyncContext context,
                                                                        const PhysxCookingComputeRequest& request,
-                                                                       const omni::physx::SphereFillCookingParams& desc);
+                                                                       const omni::ev4sio_physx::SphereFillCookingParams& desc);
 };
-} // namespace physx
+} // namespace ev4sio_physx
 
 } // namespace omni

@@ -8,9 +8,9 @@
 
 #include "extensions/PxJointLimit.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Ext
+namespace ev4sio_Ext
 {
 	struct JointData
 	{
@@ -20,7 +20,7 @@ namespace Ext
 		        ~JointData()	{}
 	};
 
-} // namespace Ext
+} // namespace ev4sio_Ext
 }
 
 #endif

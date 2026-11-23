@@ -32,7 +32,7 @@
 
 #include "CudaKernelWrangler.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 const char* KernelWrangler::getCuFunctionName(uint16_t funcIndex) const
 {
@@ -58,8 +58,8 @@ KernelWrangler::KernelWrangler(PxCudaContextManager& cudaContextManager, PxError
 
 	// matchup funcNames to CUDA modules, get CUfunction handles
 	CUmodule* cuModules = cudaContextManager.getCuModules();
-	PxKernelIndex* cuFunctionTable = PxGpuGetCudaFunctionTable();
-	const PxU32 cuFunctionTableSize = PxGpuGetCudaFunctionTableSize();
+	PxKernelIndex* cuFunctionTable = ev4sio_PxGpuGetCudaFunctionTable();
+	const PxU32 cuFunctionTableSize = ev4sio_PxGpuGetCudaFunctionTableSize();
 
 	mCuFunctions.resize(numFuncs, NULL);
 
@@ -128,7 +128,7 @@ struct dim3;
 extern "C"
 void** CUDARTAPI __cudaRegisterFatBinary(void* fatBin)
 {
-	return PxGpuCudaRegisterFatBinary(fatBin);
+	return ev4sio_PxGpuCudaRegisterFatBinary(fatBin);
 }
 
 extern "C"
@@ -140,7 +140,7 @@ extern "C"
 void CUDARTAPI __cudaUnregisterFatBinary(void** fatCubinHandle)
 {
 	// jcarius: not ideal because the module may still be loaded
-	PxGpuGetCudaModuleTable()[(int)(size_t) fatCubinHandle] = 0;
+	ev4sio_PxGpuGetCudaModuleTable()[(int)(size_t) fatCubinHandle] = 0;
 }
 
 extern "C"
@@ -161,7 +161,7 @@ extern "C"
 void CUDARTAPI __cudaRegisterFunction(void** fatCubinHandle, const char*, 
 	char*, const char* deviceName, int, uint3*, uint3*, dim3*, dim3*, int*)
 {
-	PxGpuCudaRegisterFunction((int)(size_t) fatCubinHandle, deviceName);
+	ev4sio_PxGpuCudaRegisterFunction((int)(size_t) fatCubinHandle, deviceName);
 }
 
 /* These functions are implemented just to resolve link dependencies */

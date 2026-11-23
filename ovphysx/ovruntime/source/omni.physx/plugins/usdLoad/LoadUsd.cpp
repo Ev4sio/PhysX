@@ -99,7 +99,7 @@ using namespace omni::physics::schema;
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace usdparser
 {
@@ -147,7 +147,7 @@ UsdLoad::~UsdLoad()
 uint64_t UsdLoad::allocateAttachHandle()
 {
     uint64_t current = mNextAttachHandle.load(std::memory_order_relaxed);
-    while (current != omni::physx::kActiveAttach)
+    while (current != omni::ev4sio_physx::kActiveAttach)
     {
         if (mNextAttachHandle.compare_exchange_weak(current, current + 1, std::memory_order_relaxed))
             return current;
@@ -562,7 +562,7 @@ ScannedCollision parseCollision(AttachedStage& attachedStage,
                                omni::physics::parse::ObjectKey collisionKey,
                                omni::physics::parse::ObjectKey gPrimKey)
 {
-    CARB_PROFILE_ZONE(0, "physx::usdparser::parseCollision");
+    CARB_PROFILE_ZONE(0, "ev4sio_physx::usdparser::parseCollision");
     const omni::physics::parse::IPhysicsSource* src = attachedStage.getSource();
     if (!src || !src->exists(collisionKey))
         return {};
@@ -588,5 +588,5 @@ void UsdLoad::updateRigidBodyMass()
 }
 
 } // namespace usdparser
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

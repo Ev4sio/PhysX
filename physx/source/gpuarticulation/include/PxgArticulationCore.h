@@ -17,18 +17,18 @@
 #include <vector_types.h>
 #endif
 
-namespace physx
+namespace ev4sio_physx
 {
 	//this is needed to force PhysXArticulationGpu linkage as Static Library!
 	void createPxgArticulation();
 
 	// Forward declarations to avoid heavy header includes
-	namespace Dy
+	namespace ev4sio_Dy
 	{
 		struct ArticulationConstraintProcessingConfigGPU;
 	}
 
-	namespace Cm
+	namespace ev4sio_Cm
 	{
 		struct UnAlignedSpatialVector;
 	}
@@ -68,7 +68,7 @@ namespace physx
 
 		void propagateRigidBodyImpulsesAndSolveInternalConstraints(const PxReal dt, const PxReal invDt, const bool velocityIteration, const PxReal elapsedTime,
 			const PxReal articulationBiasCoefficient, const PxReal rigidContactBiasCoefficient, 
-			const Dy::ArticulationConstraintProcessingConfigGPU& articulationConstraintProcessingConfig, PxU32* staticContactUniqueIndices, PxU32* staticJointUniqueIndices, 
+			const ev4sio_Dy::ArticulationConstraintProcessingConfigGPU& articulationConstraintProcessingConfig, PxU32* staticContactUniqueIndices, PxU32* staticJointUniqueIndices,
 			CUdeviceptr sharedDesc, bool doFriction, bool isTGS, bool isExternalForcesEveryTgsIterationEnabled = false);
 
 		//These two methods are for articulation vs soft body interaction
@@ -81,8 +81,8 @@ namespace physx
 		void applyTgsSubstepForces(PxReal stepDt, CUstream stream);
 		void saveVelocities();
 		void updateBodies(PxReal dt, bool integrate, bool enableDirectGPUAPI);
-		void gpuMemDMAbackArticulation(Cm::PinnableArray<PxU8>& linkAndJointAndRootStateData,
-			Cm::PinnableArray<PxgSolverBodySleepData>& wakeCounterPool);
+		void gpuMemDMAbackArticulation(ev4sio_Cm::PinnableArray<PxU8>& linkAndJointAndRootStateData,
+			ev4sio_Cm::PinnableArray<PxgSolverBodySleepData>& wakeCounterPool);
 
 		void setSolverStream(CUstream& solverStream) { mSolverStream = &solverStream; }
 		
@@ -156,15 +156,15 @@ namespace physx
 
 		PxgGpuContext*						mGpuContext;
 
-		Cm::PinnableObject<PxgArticulationCoreDesc>		mArticulationCoreDesc;
-		Cm::PinnableObject<PxgArticulationOutputDesc>	mArticulationOutputDesc;
+		ev4sio_Cm::PinnableObject<PxgArticulationCoreDesc>		mArticulationCoreDesc;
+		ev4sio_Cm::PinnableObject<PxgArticulationOutputDesc>	mArticulationOutputDesc;
 
 		PxgTypedCudaBuffer<PxgArticulationCoreDesc>		mArticulationCoreDescd;
 		PxgTypedCudaBuffer<PxgArticulationOutputDesc>	mArticulationOutputDescd;
 
 		PxU32								mNbActiveArticulation;
 
-		PxgTypedCudaBuffer<Cm::UnAlignedSpatialVector> mDeltaVs;
+		PxgTypedCudaBuffer<ev4sio_Cm::UnAlignedSpatialVector> mDeltaVs;
 		PxgTypedCudaBuffer<uint2>			mSlabHasChanges;
 		PxgTypedCudaBuffer<uint4>			mSlabDirtyMasks;
 
@@ -190,12 +190,12 @@ namespace physx
 		void ovdArticulationCallback(const void* PX_RESTRICT data, const PxRigidDynamicGPUIndex* PX_RESTRICT gpuIndices,
 			PxArticulationGPUAPIWriteType::Enum dataType, PxU32 nbElements,
 			PxU32 maxLinks, PxU32 maxDofs, PxU32 maxFixedTendons, PxU32 maxTendonJoints, PxU32 maxSpatialTendons, PxU32 maxSpatialTendonAttachments);				
-		Cm::PinnableArray<PxU8> mOvdDataBuffer;
-		Cm::PinnableArray<PxU8> mOvdIndexBuffer;
+		ev4sio_Cm::PinnableArray<PxU8> mOvdDataBuffer;
+		ev4sio_Cm::PinnableArray<PxU8> mOvdIndexBuffer;
 		PxArray<PxU32> mOvdBatchPositions;
 		PxgTypedCudaBuffer<PxU8> mOvdReadbackDataBuffer;
 		// Scratch for the full-state snapshot link force/torque readback (ovdSnapshotArticulationForces).
-		Cm::PinnableArray<PxArticulationGPUIndex> mOvdSnapshotValidIndices; // host: indices uploaded on the gather stream
+		ev4sio_Cm::PinnableArray<PxArticulationGPUIndex> mOvdSnapshotValidIndices; // host: indices uploaded on the gather stream
 		PxgTypedCudaBuffer<PxArticulationGPUIndex>	mOvdSnapshotIndexBuffer;	// device: gathered articulation GPU indices
 		PxgTypedCudaBuffer<PxVec3>					mOvdSnapshotDataBuffer;		// device: kernel output, nbValid * maxLinks PxVec3
 #endif

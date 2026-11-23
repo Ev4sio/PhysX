@@ -9,14 +9,14 @@
 #include "foundation/PxPlane.h"
 #include "foundation/PxVec3.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 struct Triangle
 {
-	physx::PxVec3 verts[3];
-	physx::PxPlane triPlane;
-	physx::PxVec3 centroid; //mShapeCoMInTrimeshVertexSpace
+	ev4sio_physx::PxVec3 verts[3];
+	ev4sio_physx::PxPlane triPlane;
+	ev4sio_physx::PxVec3 centroid; //mShapeCoMInTrimeshVertexSpace
 };
 
 
@@ -98,6 +98,6 @@ __device__ inline PxReal satIntersect(const Triangle& triangle0, const Triangle&
 	return sep;
 }
 
-} // namespace physx
+} // namespace ev4sio_physx
 
 #endif

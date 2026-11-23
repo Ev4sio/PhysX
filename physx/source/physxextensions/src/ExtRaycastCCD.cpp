@@ -15,9 +15,9 @@
 
 #include "foundation/PxArray.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
-namespace physx
+namespace ev4sio_physx
 {
 class RaycastCCDManagerInternal
 {
@@ -41,7 +41,7 @@ class RaycastCCDManagerInternal
 
 	private:
 		PxScene*						mScene;
-		physx::PxArray<CCDObject>	mObjects;
+		ev4sio_physx::PxArray<CCDObject>	mObjects;
 };
 }
 

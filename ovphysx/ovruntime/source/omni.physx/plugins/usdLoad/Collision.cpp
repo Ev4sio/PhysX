@@ -74,7 +74,7 @@ using namespace omni::physics::schema;
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace usdparser
 {
@@ -139,7 +139,7 @@ static bool isSameSignScale(const carb::Float3& a, const carb::Float3& b)
 // same source mesh dispatchScannedShapeCooking computed the source CRC from. The source's mesh key
 // is reused, so the mesh is not hashed again. The CRC is cleared first, so if it can't be computed
 // the copy misses the mesh cache and cooks its own mesh.
-static bool fillScaledMeshCrcRequest(omni::physx::PhysxCookingComputeRequest& request,
+static bool fillScaledMeshCrcRequest(omni::ev4sio_physx::PhysxCookingComputeRequest& request,
                                      SourceMeshGeometryScope& geomScope,
                                      const AttachedStage& attachedStage,
                                      omni::physics::parse::ObjectKey meshPrimKey,
@@ -154,18 +154,18 @@ static bool fillScaledMeshCrcRequest(omni::physx::PhysxCookingComputeRequest& re
     request.primStageId = uint64_t(attachedStage.getStageId());
     request.attachHandle = attachedStage.getAttachHandle();
     request.primId = meshPrimKey.handle;
-    request.options.setFlag(omni::physx::PhysxCookingComputeRequest::Options::kComputeAsynchronously, false);
-    request.options.setFlag(omni::physx::PhysxCookingComputeRequest::Options::kComputeGPUCookingData, true);
-    request.options.setFlag(omni::physx::PhysxCookingComputeRequest::Options::kExecuteCookingOnGPU, false);
-    request.mode = omni::physx::PhysxCookingComputeRequest::eMODE_COMPUTE_CRC;
+    request.options.setFlag(omni::ev4sio_physx::PhysxCookingComputeRequest::Options::kComputeAsynchronously, false);
+    request.options.setFlag(omni::ev4sio_physx::PhysxCookingComputeRequest::Options::kComputeGPUCookingData, true);
+    request.options.setFlag(omni::ev4sio_physx::PhysxCookingComputeRequest::Options::kExecuteCookingOnGPU, false);
+    request.mode = omni::ev4sio_physx::PhysxCookingComputeRequest::eMODE_COMPUTE_CRC;
     // The mesh view carries the unit scale and the orientation the CRC folds in.
     if (!fillCookingMeshViewFromSource(request, geomScope, attachedStage, meshPrimKey, false))
         return false;
 
     request.meshKey = meshKey;
-    request.onFinished = [&crc](const omni::physx::PhysxCookingComputeResult& result)
+    request.onFinished = [&crc](const omni::ev4sio_physx::PhysxCookingComputeResult& result)
     {
-        if (result.result == omni::physx::PhysxCookingResult::eVALID)
+        if (result.result == omni::ev4sio_physx::PhysxCookingResult::eVALID)
             crc = result.cookedDataCRC;
     };
     return true;
@@ -177,7 +177,7 @@ PhysxShapeDesc* scaleShapeDesc(const AttachedStage& attachedStage, const PhysxSh
 
     // The incoming scale is source-neutral; everything below is internal math on
     // descriptor fields, so convert once here (ADR-0001 section 8).
-    const ::physx::PxVec3 s = toPhysX(scale);
+    const ::ev4sio_physx::PxVec3 s = toPhysX(scale);
 
     switch (inDesc.type)
     {
@@ -185,7 +185,7 @@ PhysxShapeDesc* scaleShapeDesc(const AttachedStage& attachedStage, const PhysxSh
     {
         // The callback contract has no scale parameter. Never silently share or
         // resize plugin state for a scaled instance; that needs a new provider.
-        if (s != ::physx::PxVec3(1.0f))
+        if (s != ::ev4sio_physx::PxVec3(1.0f))
         {
             CARB_LOG_ERROR("Scaled custom-geometry point instances are unsupported.");
             return nullptr;
@@ -289,10 +289,10 @@ PhysxShapeDesc* scaleShapeDesc(const AttachedStage& attachedStage, const PhysxSh
         convexDesc = (const ConvexMeshPhysxShapeDesc&)inDesc;
 
         convexDesc.meshScale = fromPhysX(toPhysX(convexDesc.meshScale).multiply(s));
-        convexDesc.convexCookingParams.signScale = omni::physx::usdparser::scaleToSignScale(convexDesc.meshScale);
+        convexDesc.convexCookingParams.signScale = omni::ev4sio_physx::usdparser::scaleToSignScale(convexDesc.meshScale);
 
         const carb::Float3& inSignScale = ((const ConvexMeshPhysxShapeDesc&)inDesc).convexCookingParams.signScale;
-        omni::physx::PhysxCookingComputeRequest request;
+        omni::ev4sio_physx::PhysxCookingComputeRequest request;
         SourceMeshGeometryScope geomScope;
         if (!isSameSignScale(convexDesc.convexCookingParams.signScale, inSignScale) &&
             fillScaledMeshCrcRequest(request, geomScope, attachedStage, convexDesc.sourceGprim, convexDesc.meshKey, convexDesc.crc))
@@ -310,10 +310,10 @@ PhysxShapeDesc* scaleShapeDesc(const AttachedStage& attachedStage, const PhysxSh
         convexDecDesc = (const ConvexMeshDecompositionPhysxShapeDesc&)inDesc;
 
         convexDecDesc.meshScale = fromPhysX(toPhysX(convexDecDesc.meshScale).multiply(s));
-        convexDecDesc.convexDecompositionCookingParams.signScale = omni::physx::usdparser::scaleToSignScale(convexDecDesc.meshScale);
+        convexDecDesc.convexDecompositionCookingParams.signScale = omni::ev4sio_physx::usdparser::scaleToSignScale(convexDecDesc.meshScale);
 
         const carb::Float3& inSignScale = ((const ConvexMeshDecompositionPhysxShapeDesc&)inDesc).convexDecompositionCookingParams.signScale;
-        omni::physx::PhysxCookingComputeRequest request;
+        omni::ev4sio_physx::PhysxCookingComputeRequest request;
         SourceMeshGeometryScope geomScope;
         if (!isSameSignScale(convexDecDesc.convexDecompositionCookingParams.signScale, inSignScale) &&
             fillScaledMeshCrcRequest(request, geomScope, attachedStage, convexDecDesc.sourceGprim, convexDecDesc.meshKey, convexDecDesc.crc))
@@ -470,7 +470,7 @@ SourceMeshGeometryScope::~SourceMeshGeometryScope()
     if (geom.faceMaterials.valid()) src->releaseBuffer(geom.faceMaterials);
 }
 
-bool fillCookingMeshViewFromSource(omni::physx::PhysxCookingComputeRequest& request,
+bool fillCookingMeshViewFromSource(omni::ev4sio_physx::PhysxCookingComputeRequest& request,
                                    SourceMeshGeometryScope& scope,
                                    const AttachedStage& attachedStage,
                                    omni::physics::parse::ObjectKey meshKey,
@@ -531,7 +531,7 @@ static uint64_t keyToLegacyPathInt(const AttachedStage& attachedStage, omni::phy
     return key.handle;
 }
 
-static bool fillCookingRequestFromSourceMesh(omni::physx::PhysxCookingComputeRequest& request,
+static bool fillCookingRequestFromSourceMesh(omni::ev4sio_physx::PhysxCookingComputeRequest& request,
                                              SourceMeshGeometryScope& geomScope,
                                              AttachedStage* attachedStage,
                                              omni::physics::parse::ObjectKey meshKey,
@@ -556,15 +556,15 @@ static bool fillCookingRequestFromSourceMesh(omni::physx::PhysxCookingComputeReq
     request.primStageId = uint64_t(attachedStage->getStageId());
     request.attachHandle = attachedStage->getAttachHandle();
     request.primId = keyToLegacyPathInt(*attachedStage, meshKey);
-    request.options.setFlag(omni::physx::PhysxCookingComputeRequest::Options::kComputeAsynchronously, false);
-    request.options.setFlag(omni::physx::PhysxCookingComputeRequest::Options::kComputeGPUCookingData, true);
-    request.options.setFlag(omni::physx::PhysxCookingComputeRequest::Options::kExecuteCookingOnGPU, false);
-    request.mode = omni::physx::PhysxCookingComputeRequest::eMODE_COMPUTE_CRC;
+    request.options.setFlag(omni::ev4sio_physx::PhysxCookingComputeRequest::Options::kComputeAsynchronously, false);
+    request.options.setFlag(omni::ev4sio_physx::PhysxCookingComputeRequest::Options::kComputeGPUCookingData, true);
+    request.options.setFlag(omni::ev4sio_physx::PhysxCookingComputeRequest::Options::kExecuteCookingOnGPU, false);
+    request.mode = omni::ev4sio_physx::PhysxCookingComputeRequest::eMODE_COMPUTE_CRC;
 
     return fillCookingMeshViewFromSource(request, geomScope, *attachedStage, meshKey);
 }
 
-bool fillConvexMeshDesc(AttachedStage* attachedStage, omni::physics::parse::ObjectKey meshKey, omni::physx::usdparser::ConvexMeshPhysxShapeDesc& desc, const omni::physx::ConvexMeshCookingParams& cookingParams)
+bool fillConvexMeshDesc(AttachedStage* attachedStage, omni::physics::parse::ObjectKey meshKey, omni::ev4sio_physx::usdparser::ConvexMeshPhysxShapeDesc& desc, const omni::ev4sio_physx::ConvexMeshCookingParams& cookingParams)
 {
     if (!attachedStage || !meshKey.valid())
         return false;
@@ -581,14 +581,14 @@ bool fillConvexMeshDesc(AttachedStage* attachedStage, omni::physics::parse::Obje
     const omni::physics::parse::ReadTime time = omni::physics::parse::ReadTime::defaultTime();
     desc.meshPrimKey = meshKey;
 
-    const ::physx::PxMat44d worldXf = internal::getWorldTransform(*attachedStage, desc.meshPrimKey, time);
+    const ::ev4sio_physx::PxMat44d worldXf = internal::getWorldTransform(*attachedStage, desc.meshPrimKey, time);
     // Signed per-axis scale, matching the GfTransform::GetScale() this replaced --
     // scaleToSignScale() below depends on the sign for mirrored prims.
     desc.meshScale = toFloat3(getScale(worldXf));
-    desc.convexCookingParams.signScale = omni::physx::usdparser::scaleToSignScale(desc.meshScale);
+    desc.convexCookingParams.signScale = omni::ev4sio_physx::usdparser::scaleToSignScale(desc.meshScale);
 
     desc.convexCookingParams = cookingParams;
-    omni::physx::PhysxCookingComputeRequest request;
+    omni::ev4sio_physx::PhysxCookingComputeRequest request;
     const auto cached = attachedStage->getMeshKeyCache().find(meshKey);
     if (cached != attachedStage->getMeshKeyCache().end())
         request.meshKey = cached->second;
@@ -597,18 +597,18 @@ bool fillConvexMeshDesc(AttachedStage* attachedStage, omni::physics::parse::Obje
     request.primStageId = uint64_t(attachedStage->getStageId());
     request.attachHandle = attachedStage->getAttachHandle();
     request.primId = keyToLegacyPathInt(*attachedStage, meshKey);
-    request.options.setFlag(omni::physx::PhysxCookingComputeRequest::Options::kComputeAsynchronously, false);
-    request.options.setFlag(omni::physx::PhysxCookingComputeRequest::Options::kComputeGPUCookingData, true);
-    request.options.setFlag(omni::physx::PhysxCookingComputeRequest::Options::kExecuteCookingOnGPU, false);
-    request.mode = omni::physx::PhysxCookingComputeRequest::eMODE_COMPUTE_CRC;
+    request.options.setFlag(omni::ev4sio_physx::PhysxCookingComputeRequest::Options::kComputeAsynchronously, false);
+    request.options.setFlag(omni::ev4sio_physx::PhysxCookingComputeRequest::Options::kComputeGPUCookingData, true);
+    request.options.setFlag(omni::ev4sio_physx::PhysxCookingComputeRequest::Options::kExecuteCookingOnGPU, false);
+    request.mode = omni::ev4sio_physx::PhysxCookingComputeRequest::eMODE_COMPUTE_CRC;
 
     SourceMeshGeometryScope geomScope;
     if (!fillCookingMeshViewFromSource(request, geomScope, *attachedStage, desc.meshPrimKey))
         return false;
 
     bool meshCRCComputedSuccessfully = false;
-    request.onFinished = [&](const omni::physx::PhysxCookingComputeResult& result) {
-        if (result.result != omni::physx::PhysxCookingResult::eVALID)
+    request.onFinished = [&](const omni::ev4sio_physx::PhysxCookingComputeResult& result) {
+        if (result.result != omni::ev4sio_physx::PhysxCookingResult::eVALID)
             return;
         meshCRCComputedSuccessfully = true;
         desc.crc = result.cookedDataCRC;
@@ -620,7 +620,7 @@ bool fillConvexMeshDesc(AttachedStage* attachedStage, omni::physics::parse::Obje
     return meshCRCComputedSuccessfully;
 }
 
-bool fillConvexDecompositionDesc(AttachedStage* attachedStage, omni::physics::parse::ObjectKey meshKey, omni::physx::usdparser::ConvexMeshDecompositionPhysxShapeDesc& desc, const omni::physx::ConvexDecompositionCookingParams& cookingParams)
+bool fillConvexDecompositionDesc(AttachedStage* attachedStage, omni::physics::parse::ObjectKey meshKey, omni::ev4sio_physx::usdparser::ConvexMeshDecompositionPhysxShapeDesc& desc, const omni::ev4sio_physx::ConvexDecompositionCookingParams& cookingParams)
 {
     if (!attachedStage || !meshKey.valid())
         return false;
@@ -629,22 +629,22 @@ bool fillConvexDecompositionDesc(AttachedStage* attachedStage, omni::physics::pa
     desc.meshPrimKey = meshKey;
     desc.sdfMeshCookingParams.sdfResolution = 0;
 
-    const ::physx::PxMat44d worldXf = internal::getWorldTransform(*attachedStage, desc.meshPrimKey, time);
+    const ::ev4sio_physx::PxMat44d worldXf = internal::getWorldTransform(*attachedStage, desc.meshPrimKey, time);
     // Signed per-axis scale, matching the GfTransform::GetScale() this replaced --
     // scaleToSignScale() below depends on the sign for mirrored prims.
     desc.meshScale = toFloat3(getScale(worldXf));
-    desc.convexDecompositionCookingParams.signScale = omni::physx::usdparser::scaleToSignScale(desc.meshScale);
+    desc.convexDecompositionCookingParams.signScale = omni::ev4sio_physx::usdparser::scaleToSignScale(desc.meshScale);
 
     desc.convexDecompositionCookingParams = cookingParams;
 
-    omni::physx::PhysxCookingComputeRequest request;
+    omni::ev4sio_physx::PhysxCookingComputeRequest request;
     SourceMeshGeometryScope geomScope;
     if (!fillCookingRequestFromSourceMesh(request, geomScope, attachedStage, meshKey, time))
         return false;
 
     bool meshCRCComputedSuccessfully = false;
-    request.onFinished = [&](const omni::physx::PhysxCookingComputeResult& result) {
-        if (result.result != omni::physx::PhysxCookingResult::eVALID)
+    request.onFinished = [&](const omni::ev4sio_physx::PhysxCookingComputeResult& result) {
+        if (result.result != omni::ev4sio_physx::PhysxCookingResult::eVALID)
             return;
         meshCRCComputedSuccessfully = true;
         desc.crc = result.cookedDataCRC;
@@ -658,7 +658,7 @@ bool fillConvexDecompositionDesc(AttachedStage* attachedStage, omni::physics::pa
     return meshCRCComputedSuccessfully;
 }
 
-bool fillSphereFillDesc(AttachedStage* attachedStage, omni::physics::parse::ObjectKey meshKey, omni::physx::usdparser::SpherePointsPhysxShapeDesc& desc, const omni::physx::SphereFillCookingParams& cookingParams)
+bool fillSphereFillDesc(AttachedStage* attachedStage, omni::physics::parse::ObjectKey meshKey, omni::ev4sio_physx::usdparser::SpherePointsPhysxShapeDesc& desc, const omni::ev4sio_physx::SphereFillCookingParams& cookingParams)
 {
     if (!attachedStage || !meshKey.valid())
         return false;
@@ -667,21 +667,21 @@ bool fillSphereFillDesc(AttachedStage* attachedStage, omni::physics::parse::Obje
     desc.meshPrimKey = meshKey;
     desc.sdfMeshCookingParams.sdfResolution = 0;
 
-    const ::physx::PxMat44d worldXf = internal::getWorldTransform(*attachedStage, desc.meshPrimKey, time);
+    const ::ev4sio_physx::PxMat44d worldXf = internal::getWorldTransform(*attachedStage, desc.meshPrimKey, time);
     // Signed per-axis scale, matching the GfTransform::GetScale() this replaced --
     // scaleToSignScale() below depends on the sign for mirrored prims.
     desc.meshScale = toFloat3(getScale(worldXf));
-    desc.sphereFillCookingParams.signScale = omni::physx::usdparser::scaleToSignScale(desc.meshScale);
+    desc.sphereFillCookingParams.signScale = omni::ev4sio_physx::usdparser::scaleToSignScale(desc.meshScale);
     desc.sphereFillCookingParams = cookingParams;
 
-    omni::physx::PhysxCookingComputeRequest request;
+    omni::ev4sio_physx::PhysxCookingComputeRequest request;
     SourceMeshGeometryScope geomScope;
     if (!fillCookingRequestFromSourceMesh(request, geomScope, attachedStage, meshKey, time))
         return false;
 
     bool meshCRCComputedSuccessfully = false;
-    request.onFinished = [&](const omni::physx::PhysxCookingComputeResult& result) {
-        if (result.result != omni::physx::PhysxCookingResult::eVALID)
+    request.onFinished = [&](const omni::ev4sio_physx::PhysxCookingComputeResult& result) {
+        if (result.result != omni::ev4sio_physx::PhysxCookingResult::eVALID)
             return;
         meshCRCComputedSuccessfully = true;
         desc.crc = result.cookedDataCRC;
@@ -695,7 +695,7 @@ bool fillSphereFillDesc(AttachedStage* attachedStage, omni::physics::parse::Obje
     return meshCRCComputedSuccessfully;
 }
 
-bool fillTriangleMeshDesc(AttachedStage* attachedStage, omni::physics::parse::ObjectKey meshKey, omni::physx::usdparser::TriangleMeshPhysxShapeDesc& desc, const omni::physx::TriangleMeshCookingParams& cookingParams)
+bool fillTriangleMeshDesc(AttachedStage* attachedStage, omni::physics::parse::ObjectKey meshKey, omni::ev4sio_physx::usdparser::TriangleMeshPhysxShapeDesc& desc, const omni::ev4sio_physx::TriangleMeshCookingParams& cookingParams)
 {
     if (!attachedStage || !meshKey.valid())
         return false;
@@ -705,14 +705,14 @@ bool fillTriangleMeshDesc(AttachedStage* attachedStage, omni::physics::parse::Ob
     desc.sdfMeshCookingParams.sdfResolution = 0;
     desc.triangleMeshCookingParams = cookingParams;
 
-    omni::physx::PhysxCookingComputeRequest request;
+    omni::ev4sio_physx::PhysxCookingComputeRequest request;
     SourceMeshGeometryScope geomScope;
     if (!fillCookingRequestFromSourceMesh(request, geomScope, attachedStage, meshKey, time))
         return false;
 
     bool meshCRCComputedSuccessfully = false;
-    request.onFinished = [&](const omni::physx::PhysxCookingComputeResult& result) {
-        if (result.result != omni::physx::PhysxCookingResult::eVALID)
+    request.onFinished = [&](const omni::ev4sio_physx::PhysxCookingComputeResult& result) {
+        if (result.result != omni::ev4sio_physx::PhysxCookingResult::eVALID)
             return;
         meshCRCComputedSuccessfully = true;
         desc.crc = result.cookedDataCRC;
@@ -726,7 +726,7 @@ bool fillTriangleMeshDesc(AttachedStage* attachedStage, omni::physics::parse::Ob
     return meshCRCComputedSuccessfully;
 }
 
-bool fillSdfTriangleMeshDesc(AttachedStage* attachedStage, omni::physics::parse::ObjectKey meshKey, omni::physx::usdparser::TriangleMeshPhysxShapeDesc& desc, const omni::physx::SdfMeshCookingParams& cookingParams)
+bool fillSdfTriangleMeshDesc(AttachedStage* attachedStage, omni::physics::parse::ObjectKey meshKey, omni::ev4sio_physx::usdparser::TriangleMeshPhysxShapeDesc& desc, const omni::ev4sio_physx::SdfMeshCookingParams& cookingParams)
 {
     if (!attachedStage || !meshKey.valid())
         return false;
@@ -735,14 +735,14 @@ bool fillSdfTriangleMeshDesc(AttachedStage* attachedStage, omni::physics::parse:
     desc.meshPrimKey = meshKey;
     desc.sdfMeshCookingParams = cookingParams;
 
-    omni::physx::PhysxCookingComputeRequest request;
+    omni::ev4sio_physx::PhysxCookingComputeRequest request;
     SourceMeshGeometryScope geomScope;
     if (!fillCookingRequestFromSourceMesh(request, geomScope, attachedStage, meshKey, time))
         return false;
 
     bool meshCRCComputedSuccessfully = false;
-    request.onFinished = [&](const omni::physx::PhysxCookingComputeResult& result) {
-        if (result.result != omni::physx::PhysxCookingResult::eVALID)
+    request.onFinished = [&](const omni::ev4sio_physx::PhysxCookingComputeResult& result) {
+        if (result.result != omni::ev4sio_physx::PhysxCookingResult::eVALID)
             return;
         meshCRCComputedSuccessfully = true;
         desc.crc = result.cookedDataCRC;
@@ -767,5 +767,5 @@ void invalidateMeshKeyCache(const AttachedStage& owner, omni::physics::parse::Ob
 }
 
 } // namespace usdparser
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

@@ -12,7 +12,7 @@
 
 // Internal harness helpers. Callers initialize and retain the runtime owner.
 // Stage loading and stepping use the native bridge/update entries included above.
-namespace omni::physx::benchmarks
+namespace omni::ev4sio_physx::benchmarks
 {
 // Change defaults for future attachments; live attachments retain their snapshots.
 void setThreadCount(uint32_t threadCount);
@@ -23,4 +23,4 @@ void enableProfile(bool enableProfile);
 void getProfileStats(std::vector<PhysicsProfileStats>& stats);
 SubscriptionId subscribeProfileStatsEvents(ProfileStatsNotificationFn onEvent, void* userData);
 void unsubscribeProfileStatsEvents(SubscriptionId id);
-} // namespace omni::physx::benchmarks
+} // namespace omni::ev4sio_physx::benchmarks

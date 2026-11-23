@@ -11,7 +11,7 @@
 #include "../snippetrender/SnippetRender.h"
 #include "../snippetrender/SnippetCamera.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 using namespace immediate;
 
 extern void initPhysics(bool interactive);
@@ -89,7 +89,7 @@ void renderCallback()
 		for(PxU32 j=0;j<nbArticulations;j++)
 		{
 			immediate::PxArticulationLinkDerivedDataRC data[64];
-			const PxU32 nbLinks = immediate::PxGetAllLinkData(articulations[j], data);
+			const PxU32 nbLinks = immediate::ev4sio_PxGetAllLinkData(articulations[j], data);
 			for(PxU32 i=0;i<nbLinks;i++)
 			{
 				Snippets::DrawFrame(data[i].pose.p, 1.0f);

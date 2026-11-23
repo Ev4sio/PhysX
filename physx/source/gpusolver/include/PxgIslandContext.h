@@ -10,7 +10,7 @@
 
 #include "DyCpuGpuBiasCoefficient.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	struct PxgIslandContext
 	{
@@ -38,7 +38,7 @@ namespace physx
 
 		PxU32 mStaticRigidBatchCount;
 
-		Dy::BiasCoefficientCollection mBiasCoefficients;
+		ev4sio_Dy::BiasCoefficientCollection mBiasCoefficients;
 	};
 }
 #endif

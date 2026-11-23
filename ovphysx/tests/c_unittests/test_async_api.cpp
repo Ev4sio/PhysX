@@ -218,14 +218,14 @@ TEST_F(AsyncApiTest, RejectionHasNoTaskAndAnAcceptedFailureSurvivesOtherWaits)
     ASSERT_TRUE(completed(m_handle, ovphysx_release_read(m_handle, read)));
     ASSERT_TRUE(completed(m_handle, ovphysx_release_query(m_handle, query)));
 
-    ovphysx::physx::WaitResult result;
+    ovphysx::ev4sio_physx::WaitResult result;
     EXPECT_EQ(result.waitTask(m_handle, failed), OVPHYSX_API_ERROR);
     ASSERT_EQ(result.errorCount(), 1u);
     EXPECT_EQ(result.errorTaskAt(0).op_index, failed.op_index);
     const ovphysx_string_t error = ovphysx_get_last_task_error(m_handle, result.errorTaskAt(0));
     const std::string message(error.ptr ? error.ptr : "", error.length);
     EXPECT_NE(message.find("notAnAttribute"), std::string::npos) << message;
-    ovphysx::physx::WaitResult repeated;
+    ovphysx::ev4sio_physx::WaitResult repeated;
     EXPECT_EQ(repeated.waitTask(m_handle, failed), OVPHYSX_API_NOT_FOUND);
     EXPECT_TRUE(completed(m_handle, ovphysx_release_write(m_handle, invalidWrite)));
 }
@@ -307,7 +307,7 @@ TEST_F(AsyncApiTest, InlineOperationsRespectStepsStartedAfterSessionCreation)
     ASSERT_TRUE(completed(m_handle, stepBeforeCommit));
     const ovphysx_enqueue_result_t spent = ovphysx_commit_group(m_handle, write, group, {});
     ASSERT_EQ(spent.status, OVPHYSX_API_SUCCESS);
-    ovphysx::physx::WaitResult failed;
+    ovphysx::ev4sio_physx::WaitResult failed;
     EXPECT_EQ(failed.waitTask(m_handle, spent), OVPHYSX_API_ERROR);
     ASSERT_EQ(failed.errorCount(), 1u);
     ASSERT_TRUE(completed(m_handle, ovphysx_release_write(m_handle, write)));

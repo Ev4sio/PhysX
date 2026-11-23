@@ -12,7 +12,7 @@
 #define ETD_CONVEX_EDGE_12  (1 << 4)	// PT: important value, don't change
 #define ETD_CONVEX_EDGE_20  (1 << 5)	// PT: important value, don't change
 
-namespace physx
+namespace ev4sio_physx
 {
 
 __device__ __forceinline__ bool selectNormal(const PxReal u,
@@ -453,6 +453,6 @@ __device__ __forceinline__ void generateEEContacts(const PxVec3& a, const PxVec3
 		generateEE(p, q, sqInflatedRadius, normal, a, c, outContacts, outPens, numContacts);
 }
 
-} // namespace physx
+} // namespace ev4sio_physx
 
 #endif

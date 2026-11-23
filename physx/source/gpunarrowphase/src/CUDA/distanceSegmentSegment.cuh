@@ -6,7 +6,7 @@
 #ifndef __DIS_SEG_SEG_CUH__
 #define __DIS_SEG_SEG_CUH__
 
-namespace physx
+namespace ev4sio_physx
 {
 
 __device__ __forceinline__ static
@@ -66,6 +66,6 @@ void distanceSegmentSegmentSquared(
 	t = t2;
 }
 
-} // namespace physx
+} // namespace ev4sio_physx
 
 #endif

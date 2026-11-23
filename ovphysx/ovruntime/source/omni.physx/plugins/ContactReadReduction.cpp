@@ -26,14 +26,14 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace contactread
 {
 namespace
 {
 using omni::physics::parse::ObjectKey;
-using omni::physx::tensors::ForceComponent;
+using omni::ev4sio_physx::tensors::ForceComponent;
 
 // Sensor rows of a header side: its actor's row AND its colliding shape's row, among the rows' keys. A
 // reporting body and its reporting collider are distinct rows, so a pair is attributed to BOTH -- the body
@@ -547,5 +547,5 @@ ContactEvents reduceContactEvents(const std::vector<ObjectKey>& sensors, const C
 }
 
 } // namespace contactread
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

@@ -21,7 +21,7 @@ struct SourceUnits;
 }
 } // namespace physics
 
-namespace physx
+namespace ev4sio_physx
 {
 namespace usdparser
 {
@@ -43,7 +43,7 @@ void parsePBDMaterialForPrim(AttachedStage& attachedStage,
 ObjectId getMaterial(AttachedStage& attachedStage, omni::physics::parse::ObjectKey materialKey);
 ObjectId getMaterial(AttachedStage& attachedStage,
                      omni::physics::parse::ObjectKey materialKey,
-                     const omni::physx::usdparser::ObjectCategory objCategory);
+                     const omni::ev4sio_physx::usdparser::ObjectCategory objCategory);
 void setToDefault(PhysxMaterialDesc& desc);
 // Units-based defaults (backend-agnostic — no USD stage).
 void setToDefault(const omni::physics::parse::SourceUnits& units, PhysxDeformableMaterialDesc& desc);
@@ -51,5 +51,5 @@ void setToDefault(const omni::physics::parse::SourceUnits& units, PhysxSurfaceDe
 void setToDefault(PBDMaterialDesc& desc);
 
 } // namespace usdparser
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

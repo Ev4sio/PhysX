@@ -29,7 +29,7 @@ namespace ovphysx::companion::cooking
 using Status = ovphysx_companion_status_t;
 using Options = ovphysx_companion_cook_options_t;
 using Mesh = ovphysx_companion_cook_mesh_t;
-namespace rt = omni::physx;
+namespace rt = omni::ev4sio_physx;
 struct Service {
     CompanionServiceLease lease{companionRuntime()};
     std::shared_ptr<ovphysx::CarboniteLoader> runtime;
@@ -236,7 +236,7 @@ try {
      service=found->second;}
     rt::native::SamplingOptions params{options->radius,options->volume_radius,options->max_samples,options->attempts};
     rt::native::SampledPoints result;
-    const omni::physx::native::InspectionResult status=rt::native::samplePoints(points,pointCount,triangles,triangleCount,params,result);
+    const omni::ev4sio_physx::native::InspectionResult status=rt::native::samplePoints(points,pointCount,triangles,triangleCount,params,result);
     using R=rt::native::InspectionResult;
     if(status!=R::Success) {
         if(status==R::Invalid)return OVPHYSX_COMPANION_INVALID_ARGUMENT;

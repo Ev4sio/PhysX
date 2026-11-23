@@ -21,11 +21,11 @@
 #include <omni/physx/IPhysx.h>
 #include <omni/physics/tensors/TensorUtils.h>
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace tensors
 {
@@ -75,7 +75,7 @@ bool BaseDeformableMaterialView::check() const
     {
         const omni::physics::parse::ObjectKey key =
             attachedStage ? attachedStage->keyFor(entry.path) : omni::physics::parse::ObjectKey{};
-        void* ptr = BaseSimulationView::resolvePhysXPtr(attachedStage, key, omni::physx::PhysXType::ePTDeformableVolumeMaterial);
+        void* ptr = BaseSimulationView::resolvePhysXPtr(attachedStage, key, omni::ev4sio_physx::PhysXType::ePTDeformableVolumeMaterial);
         if (ptr != entry.material)
         {
             result = false;
@@ -401,5 +401,5 @@ bool BaseDeformableMaterialView::setSurfaceProperty(const TensorDesc* srcTensor,
 
 
 } // namespace tensors
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

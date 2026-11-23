@@ -20,9 +20,9 @@ static_assert(OVPHYSX_INTERNAL_INTERFACE_VERSION == 18,
 
 namespace
 {
-omni::physx::IPhysxVisualization* g_visualization = nullptr;
+omni::ev4sio_physx::IPhysxVisualization* g_visualization = nullptr;
 
-omni::physx::IPhysxVisualization* fakeGetVisualization()
+omni::ev4sio_physx::IPhysxVisualization* fakeGetVisualization()
 {
     return g_visualization;
 }
@@ -59,20 +59,20 @@ size_t g_writeReleaseCalls = 0;
 size_t g_groupReleaseCalls = 0;
 bool g_groupReleaseBusy = false;
 
-omni::physx::OvxReadHandle fakeRead(uint64_t, const ovx_token_or_string_t*, size_t,
-                                 omni::physx::OvxReadResult* summary, ovstage_cuda_sync_t)
+omni::ev4sio_physx::OvxReadHandle fakeRead(uint64_t, const ovx_token_or_string_t*, size_t,
+                                 omni::ev4sio_physx::OvxReadResult* summary, ovstage_cuda_sync_t)
 {
-    static const omni::physx::OvxReadAttributeResult attribute{101, 1, 0};
+    static const omni::ev4sio_physx::OvxReadAttributeResult attribute{101, 1, 0};
     if (summary)
         *summary = {1, 1, &attribute};
     return kReadHandle;
 }
 
-omni::physx::OvxReadStatus fakeFetchRead(uint64_t, ovstage_read_group_t* group)
+omni::ev4sio_physx::OvxReadStatus fakeFetchRead(uint64_t, ovstage_read_group_t* group)
 {
     *group = {};
     group->read_group_id = ovstage_read_group_id_t{ 23 };
-    return omni::physx::kOvxReadStatusOk;
+    return omni::ev4sio_physx::kOvxReadStatusOk;
 }
 
 bool fakeReleaseRead(uint64_t)
@@ -87,10 +87,10 @@ bool fakeReleaseGroup(uint64_t, const ovstage_read_group_t*)
     return !g_groupReleaseBusy;
 }
 
-omni::physx::OvxWriteHandle fakeWrite(uint64_t, const ovx_token_or_string_t*, size_t,
-                                   omni::physx::OvxWriteResult* summary)
+omni::ev4sio_physx::OvxWriteHandle fakeWrite(uint64_t, const ovx_token_or_string_t*, size_t,
+                                   omni::ev4sio_physx::OvxWriteResult* summary)
 {
-    static const omni::physx::OvxWriteAttributeResult attribute{102, 1};
+    static const omni::ev4sio_physx::OvxWriteAttributeResult attribute{102, 1};
     if (summary)
         *summary = {1, 1, &attribute};
     return kWriteHandle;
@@ -174,7 +174,7 @@ TEST(SidecarTokenScope, MissingInjectedInterfaceFails)
 TEST(SidecarTokenScope, NullAppendedSlotFails)
 {
     AccessorGuard guard;
-    omni::physx::IPhysxVisualization visualization{};
+    omni::ev4sio_physx::IPhysxVisualization visualization{};
     g_visualization = &visualization;
     ovphysx_internal_set_physx_runtime_accessors(nullptr, &fakeGetVisualization);
     const ovx_primpath_t token{1u};
@@ -184,7 +184,7 @@ TEST(SidecarTokenScope, NullAppendedSlotFails)
 TEST(SidecarTokenScope, PluginFalsePropagates)
 {
     AccessorGuard guard;
-    omni::physx::IPhysxVisualization visualization{};
+    omni::ev4sio_physx::IPhysxVisualization visualization{};
     visualization.setVisualizationScopeTokens = &pluginFalse;
     g_visualization = &visualization;
     ovphysx_internal_set_physx_runtime_accessors(nullptr, &fakeGetVisualization);
@@ -195,7 +195,7 @@ TEST(SidecarTokenScope, PluginFalsePropagates)
 TEST(SidecarTokenScope, ThrowingPluginFails)
 {
     AccessorGuard guard;
-    omni::physx::IPhysxVisualization visualization{};
+    omni::ev4sio_physx::IPhysxVisualization visualization{};
     visualization.setVisualizationScopeTokens = &pluginThrow;
     g_visualization = &visualization;
     ovphysx_internal_set_physx_runtime_accessors(nullptr, &fakeGetVisualization);

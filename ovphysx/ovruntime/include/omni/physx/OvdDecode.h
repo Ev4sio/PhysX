@@ -7,7 +7,7 @@
 #include <cstdint>
 #include <string>
 #include <vector>
-namespace omni::physx::diagnostics
+namespace omni::ev4sio_physx::diagnostics
 {
 enum class DecodeResult : uint32_t { Success, Invalid, Unsupported, Malformed, Limit, Error };
 struct DecodeLimits

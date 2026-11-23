@@ -20,7 +20,7 @@
 #include <mutex>
 #include <unordered_map>
 
-namespace omni::physx::debug_render {
+namespace omni::ev4sio_physx::debug_render {
 
 static_assert(kDebugParamCount == static_cast<int>(ePhysXNumValues),
               "debug-render parameter array must match the PhysX visualization parameter count");
@@ -588,4 +588,4 @@ bool commit(uint64_t instanceId, const WritePlan& plan, const DLTensor& tensor, 
     return true;
 }
 
-} // namespace omni::physx::debug_render
+} // namespace omni::ev4sio_physx::debug_render

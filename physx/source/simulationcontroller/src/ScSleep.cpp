@@ -18,16 +18,16 @@
 
 #include "common/PxProfileZone.h"
 
-using namespace physx;
-using namespace Cm;
-using namespace Dy;
-using namespace Sc;
+using namespace ev4sio_physx;
+using namespace ev4sio_Cm;
+using namespace ev4sio_Dy;
+using namespace ev4sio_Sc;
 
 /*static*/ bool deactivateInteraction(Interaction* interaction, const InteractionType::Enum type);
 
 // PT: "setActive()" moved from ActorSim to BodySim because GPU classes silently re-implement this in a very different way (see below),
 // i.e. it defeats the purpose of the virtual activate()/deactivate() functions.
-void Sc::BodySim::setActive(bool active, bool asPartOfCreation)
+void ev4sio_Sc::BodySim::setActive(bool active, bool asPartOfCreation)
 {
 	PX_ASSERT(!active || isDynamicRigid());  // Currently there should be no need to activate an actor that does not take part in island generation
 
@@ -56,7 +56,7 @@ void Sc::BodySim::setActive(bool active, bool asPartOfCreation)
 	}
 }
 
-void Sc::ArticulationSim::setActive(bool b, bool asPartOfCreation)
+void ev4sio_Sc::ArticulationSim::setActive(bool b, bool asPartOfCreation)
 {
 	const PxReal wakeCounter = mCore.getWakeCounter();
 	const PxU32 nbBodies = mBodies.size();
@@ -76,25 +76,25 @@ void Sc::ArticulationSim::setActive(bool b, bool asPartOfCreation)
 
 // PT: moving all the sleeping-related implementations to the same file clearly exposes the inconsistencies between them
 #if PX_SUPPORT_GPU_PHYSX
-void Sc::ParticleSystemSim::setActive(bool /*active*/, bool /*asPartOfCreation*/)
+void ev4sio_Sc::ParticleSystemSim::setActive(bool /*active*/, bool /*asPartOfCreation*/)
 {
 }
 
-void Sc::DeformableSurfaceSim::activate()
+void ev4sio_Sc::DeformableSurfaceSim::activate()
 {
 	mScene.getSimulationController()->activateCloth(mLLDeformableSurface);
 
 	activateInteractions(*this);
 }
 
-void Sc::DeformableSurfaceSim::deactivate()
+void ev4sio_Sc::DeformableSurfaceSim::deactivate()
 {
 	mScene.getSimulationController()->deactivateCloth(mLLDeformableSurface);
 
 	deactivateInteractions(*this);
 }
 
-void Sc::DeformableSurfaceSim::setActive(bool active, bool /*asPartOfCreation*/)
+void ev4sio_Sc::DeformableSurfaceSim::setActive(bool active, bool /*asPartOfCreation*/)
 {
 	if(active)
 		activate();
@@ -102,7 +102,7 @@ void Sc::DeformableSurfaceSim::setActive(bool active, bool /*asPartOfCreation*/)
 		deactivate();
 }
 
-void Sc::DeformableVolumeSim::setActive(bool active, bool /*asPartOfCreation*/)
+void ev4sio_Sc::DeformableVolumeSim::setActive(bool active, bool /*asPartOfCreation*/)
 {
 	if(active)
 		getScene().getSimulationController()->activateSoftbody(mLLDeformableVolume);
@@ -114,11 +114,11 @@ void Sc::DeformableVolumeSim::setActive(bool active, bool /*asPartOfCreation*/)
 
 namespace
 {
-struct GetRigidSim	{ static PX_FORCE_INLINE BodySim* getSim(const IG::Node& node)			{ return reinterpret_cast<BodySim*>(reinterpret_cast<PxU8*>(node.mObject) - BodySim::getRigidBodyOffset());		}	};
-struct GetArticSim	{ static PX_FORCE_INLINE ArticulationSim* getSim(const IG::Node& node)	{ return static_cast<ArticulationSim*>(getObjectFromIG<FeatherstoneArticulation>(node));	}	};
+struct GetRigidSim	{ static PX_FORCE_INLINE BodySim* getSim(const ev4sio_IG::Node& node)			{ return reinterpret_cast<BodySim*>(reinterpret_cast<PxU8*>(node.mObject) - BodySim::getRigidBodyOffset());		}	};
+struct GetArticSim	{ static PX_FORCE_INLINE ArticulationSim* getSim(const ev4sio_IG::Node& node)	{ return static_cast<ArticulationSim*>(getObjectFromIG<FeatherstoneArticulation>(node));	}	};
 #if PX_SUPPORT_GPU_PHYSX
-struct GetDeformableSurfaceSim	{ static PX_FORCE_INLINE DeformableSurfaceSim* getSim(const IG::Node& node)	{ return getObjectFromIG<DeformableSurface>(node)->getSim();	}	};
-struct GetDeformableVolumeSim	{ static PX_FORCE_INLINE DeformableVolumeSim* getSim(const IG::Node& node)	{ return getObjectFromIG<DeformableVolume>(node)->getSim();		}	};
+struct GetDeformableSurfaceSim	{ static PX_FORCE_INLINE DeformableSurfaceSim* getSim(const ev4sio_IG::Node& node)	{ return getObjectFromIG<DeformableSurface>(node)->getSim();	}	};
+struct GetDeformableVolumeSim	{ static PX_FORCE_INLINE DeformableVolumeSim* getSim(const ev4sio_IG::Node& node)	{ return getObjectFromIG<DeformableVolume>(node)->getSim();		}	};
 #endif
 }
 
@@ -126,10 +126,10 @@ struct GetDeformableVolumeSim	{ static PX_FORCE_INLINE DeformableVolumeSim* getS
 // few bodies ahead of the deactivation, each one fetching what the next one dereferences: the island node, the sim,
 // the body core and the interaction and shape arrays, then the shapes, and the interactions of the bodies that have
 // some to deactivate.
-static void deactivateRigidBodies(PxU32& nbModified, const IG::IslandSim& islandSim)
+static void deactivateRigidBodies(PxU32& nbModified, const ev4sio_IG::IslandSim& islandSim)
 {
-	const PxU32 nbToProcess = islandSim.getNbNodesToDeactivate(IG::Node::eRIGID_BODY_TYPE);
-	const PxNodeIndex* indices = islandSim.getNodesToDeactivate(IG::Node::eRIGID_BODY_TYPE);
+	const PxU32 nbToProcess = islandSim.getNbNodesToDeactivate(ev4sio_IG::Node::eRIGID_BODY_TYPE);
+	const PxNodeIndex* indices = islandSim.getNodesToDeactivate(ev4sio_IG::Node::eRIGID_BODY_TYPE);
 
 	const PxU32 nodeDistance = 8;
 	const PxU32 simDistance = 6;
@@ -152,8 +152,8 @@ static void deactivateRigidBodies(PxU32& nbModified, const IG::IslandSim& island
 			sim->prefetchShapes();
 		}
 
-		const IG::Node& node = islandSim.getNode(indices[i]);
-		PX_ASSERT(node.mType == IG::Node::eRIGID_BODY_TYPE);
+		const ev4sio_IG::Node& node = islandSim.getNode(indices[i]);
+		PX_ASSERT(node.mType == ev4sio_IG::Node::eRIGID_BODY_TYPE);
 		if(!node.isActive())
 		{
 			BodySim* sim = GetRigidSim::getSim(node);
@@ -167,14 +167,14 @@ static void deactivateRigidBodies(PxU32& nbModified, const IG::IslandSim& island
 }
 
 template<class SimT, class SimAccessT, const bool active>
-static void setActive(PxU32& nbModified, const IG::IslandSim& islandSim, IG::Node::NodeType type)
+static void setActive(PxU32& nbModified, const ev4sio_IG::IslandSim& islandSim, ev4sio_IG::Node::NodeType type)
 {
 	PxU32 nbToProcess = active ? islandSim.getNbNodesToActivate(type) : islandSim.getNbNodesToDeactivate(type);
 	const PxNodeIndex* indices = active ? islandSim.getNodesToActivate(type) : islandSim.getNodesToDeactivate(type);
 
 	while(nbToProcess--)
 	{
-		const IG::Node& node = islandSim.getNode(*indices++);
+		const ev4sio_IG::Node& node = islandSim.getNode(*indices++);
 		PX_ASSERT(node.mType == type);
 		if((!!node.isActive())==active)
 		{
@@ -224,7 +224,7 @@ struct SetActiveRigidSim
 }
 
 template<class SimT, class SimAccessT, class SetActiveBatchedT, const bool active>
-static void setActiveBatched(Scene& scene, PxU32& nbModified, const IG::IslandSim& islandSim, IG::Node::NodeType type)
+static void setActiveBatched(Scene& scene, PxU32& nbModified, const ev4sio_IG::IslandSim& islandSim, ev4sio_IG::Node::NodeType type)
 {
 	PxU32 nbToProcess = active ? islandSim.getNbNodesToActivate(type) : islandSim.getNbNodesToDeactivate(type);
 	const PxNodeIndex* indices = active ? islandSim.getNodesToActivate(type) : islandSim.getNodesToDeactivate(type);
@@ -234,7 +234,7 @@ static void setActiveBatched(Scene& scene, PxU32& nbModified, const IG::IslandSi
 	PxU32 nb = 0;
 	while(nbToProcess--)
 	{
-		const IG::Node& node = islandSim.getNode(*indices++);
+		const ev4sio_IG::Node& node = islandSim.getNode(*indices++);
 		PX_ASSERT(node.mType == type);
 		if(node.isActive()==active)
 		{
@@ -254,7 +254,7 @@ Batched version would be just:
 a) addToActiveList(batched objects)
 b) activate(batched objects)
 
-void Sc::ActorSim::setActive(bool active)
+void ev4sio_Sc::ActorSim::setActive(bool active)
 {
 	PX_ASSERT(!active || isDynamicRigid());  // Currently there should be no need to activate an actor that does not take part in island generation
 
@@ -283,25 +283,25 @@ void Sc::ActorSim::setActive(bool active)
 */
 #endif
 
-void Sc::Scene::putObjectsToSleep()
+void ev4sio_Sc::Scene::putObjectsToSleep()
 {
 	if(mPublicFlags & PxSceneFlag::eDISABLE_SLEEPING)
 		return;
 
-	PX_PROFILE_ZONE("Sc::Scene::putObjectsToSleep", mContextId);
+	PX_PROFILE_ZONE("ev4sio_Sc::Scene::putObjectsToSleep", mContextId);
 
 	//Set to sleep all bodies that were in awake islands that have just been put to sleep.
 
-	const IG::IslandSim& islandSim = mSimpleIslandManager->getAccurateIslandSim();
+	const ev4sio_IG::IslandSim& islandSim = mSimpleIslandManager->getAccurateIslandSim();
 
 	PxU32 nbBodiesDeactivated = 0;
-	//setActiveBatched<BodySim, GetRigidSim, SetActiveRigidSim, false>(*this, nbBodiesDeactivated, islandSim, IG::Node::eRIGID_BODY_TYPE);
+	//setActiveBatched<BodySim, GetRigidSim, SetActiveRigidSim, false>(*this, nbBodiesDeactivated, islandSim, ev4sio_IG::Node::eRIGID_BODY_TYPE);
 	deactivateRigidBodies(nbBodiesDeactivated, islandSim);
-	setActive<ArticulationSim, GetArticSim, false>(nbBodiesDeactivated, islandSim, IG::Node::eARTICULATION_TYPE);
+	setActive<ArticulationSim, GetArticSim, false>(nbBodiesDeactivated, islandSim, ev4sio_IG::Node::eARTICULATION_TYPE);
 
 #if PX_SUPPORT_GPU_PHYSX
-	setActive<DeformableSurfaceSim, GetDeformableSurfaceSim, false>(nbBodiesDeactivated, islandSim, IG::Node::eDEFORMABLE_SURFACE_TYPE);
-	setActive<DeformableVolumeSim, GetDeformableVolumeSim, false>(nbBodiesDeactivated, islandSim, IG::Node::eDEFORMABLE_VOLUME_TYPE);
+	setActive<DeformableSurfaceSim, GetDeformableSurfaceSim, false>(nbBodiesDeactivated, islandSim, ev4sio_IG::Node::eDEFORMABLE_SURFACE_TYPE);
+	setActive<DeformableVolumeSim, GetDeformableVolumeSim, false>(nbBodiesDeactivated, islandSim, ev4sio_IG::Node::eDEFORMABLE_VOLUME_TYPE);
 #endif
 
 	if(nbBodiesDeactivated)
@@ -309,12 +309,12 @@ void Sc::Scene::putObjectsToSleep()
 }
 
 // Deactivates the interactions of the contact edges that island generation deactivated this step, for one edge type.
-void Sc::Scene::deactivateEdgeInteractions(IG::Edge::EdgeType edgeType)
+void ev4sio_Sc::Scene::deactivateEdgeInteractions(ev4sio_IG::Edge::EdgeType edgeType)
 {
-	const IG::IslandSim& islandSim = mSimpleIslandManager->getSpeculativeIslandSim();
+	const ev4sio_IG::IslandSim& islandSim = mSimpleIslandManager->getSpeculativeIslandSim();
 
 	const PxU32 nbDeactivatingEdges = islandSim.getNbDeactivatingEdges(edgeType);
-	const IG::EdgeIndex* deactivatingEdgeIds = islandSim.getDeactivatingEdges(edgeType);
+	const ev4sio_IG::EdgeIndex* deactivatingEdgeIds = islandSim.getDeactivatingEdges(edgeType);
 
 	// Three prefetch stages run ahead of the loop. Each one resolves the pointers the next stage needs: the
 	// interaction table slot and the edge, then the interaction, then the actors and contact manager that
@@ -327,7 +327,7 @@ void Sc::Scene::deactivateEdgeInteractions(IG::Edge::EdgeType edgeType)
 	{
 		if(i + slotDistance < nbDeactivatingEdges)
 		{
-			const IG::EdgeIndex edgeId = deactivatingEdgeIds[i + slotDistance];
+			const ev4sio_IG::EdgeIndex edgeId = deactivatingEdgeIds[i + slotDistance];
 			mSimpleIslandManager->prefetchInteractionFromEdgeIndex(edgeId);
 			PxPrefetchLine(&islandSim.getEdge(edgeId));
 		}
@@ -364,24 +364,24 @@ void Sc::Scene::deactivateEdgeInteractions(IG::Edge::EdgeType edgeType)
 	}
 }
 
-void Sc::Scene::putInteractionsToSleep()
+void ev4sio_Sc::Scene::putInteractionsToSleep()
 {
-	PX_PROFILE_ZONE("Sc::Scene::putInteractionsToSleep", mContextId);
+	PX_PROFILE_ZONE("ev4sio_Sc::Scene::putInteractionsToSleep", mContextId);
 
 	//KS - only deactivate contact managers based on speculative state to trigger contact gen. When the actors were deactivated based on accurate state
 	//joints should have been deactivated.
 
 	// Shape interactions only mark their contact managers for removal here. The narrowphase then compacts its pair
 	// arrays once for the whole island, instead of removing the pairs one at a time.
-	for(PxU32 t = 0; t < IG::Edge::eEDGE_TYPE_COUNT; ++t)
+	for(PxU32 t = 0; t < ev4sio_IG::Edge::eEDGE_TYPE_COUNT; ++t)
 	{
-		const IG::Edge::EdgeType edgeType = IG::Edge::EdgeType(t);
-		if(edgeType != IG::Edge::eCONSTRAINT)
+		const ev4sio_IG::Edge::EdgeType edgeType = ev4sio_IG::Edge::EdgeType(t);
+		if(edgeType != ev4sio_IG::Edge::eCONSTRAINT)
 			deactivateEdgeInteractions(edgeType);
 	}
 
 	{
-		PX_PROFILE_ZONE("Sc::Scene::flushDeferredUnregisters", mContextId);
+		PX_PROFILE_ZONE("ev4sio_Sc::Scene::flushDeferredUnregisters", mContextId);
 		mLLContext->getNphaseImplementationContext()->flushDeferredUnregisters();
 	}
 }
@@ -414,7 +414,7 @@ namespace
 
 	// Same prefetch pipeline as deactivateRigidBodies(), without the interactions: the finish pass only visits them
 	// for the bodies that have some to deactivate.
-	void deactivateRigidBodiesThreadSafe(const IG::IslandSim& islandSim, const PxNodeIndex* indices, PxU32 nbBodies, Scene::BodySleepRecord* records)
+	void deactivateRigidBodiesThreadSafe(const ev4sio_IG::IslandSim& islandSim, const PxNodeIndex* indices, PxU32 nbBodies, Scene::BodySleepRecord* records)
 	{
 		const PxU32 nodeDistance = 8;
 		const PxU32 simDistance = 6;
@@ -436,8 +436,8 @@ namespace
 			record.mActiveListIndex = PX_INVALID_U32;
 			record.mPendingWork = 0;
 
-			const IG::Node& node = islandSim.getNode(indices[i]);
-			PX_ASSERT(node.mType == IG::Node::eRIGID_BODY_TYPE);
+			const ev4sio_IG::Node& node = islandSim.getNode(indices[i]);
+			PX_ASSERT(node.mType == ev4sio_IG::Node::eRIGID_BODY_TYPE);
 			if(!node.isActive())
 			{
 				BodySim* sim = GetRigidSim::getSim(node);
@@ -447,11 +447,11 @@ namespace
 		}
 	}
 
-	class PutBodiesToSleepTask : public Cm::Task
+	class PutBodiesToSleepTask : public ev4sio_Cm::Task
 	{
 	public:
-		PutBodiesToSleepTask(PxU64 contextID, const IG::IslandSim& islandSim, const PxNodeIndex* indices, PxU32 nbBodies, Scene::BodySleepRecord* records) :
-			Cm::Task	(contextID),
+		PutBodiesToSleepTask(PxU64 contextID, const ev4sio_IG::IslandSim& islandSim, const PxNodeIndex* indices, PxU32 nbBodies, Scene::BodySleepRecord* records) :
+			ev4sio_Cm::Task	(contextID),
 			mIslandSim	(islandSim),
 			mIndices	(indices),
 			mRecords	(records),
@@ -461,14 +461,14 @@ namespace
 
 		virtual void runInternal() PX_OVERRIDE
 		{
-			PX_PROFILE_ZONE("Sc::Scene::putBodiesToSleepTask", mContextID);
+			PX_PROFILE_ZONE("ev4sio_Sc::Scene::putBodiesToSleepTask", mContextID);
 			deactivateRigidBodiesThreadSafe(mIslandSim, mIndices, mNbBodies, mRecords);
 		}
 
 		virtual const char* getName() const PX_OVERRIDE { return "ScScene.putBodiesToSleepTask"; }
 
 	private:
-		const IG::IslandSim&			mIslandSim;
+		const ev4sio_IG::IslandSim&			mIslandSim;
 		const PxNodeIndex* const		mIndices;
 		Scene::BodySleepRecord* const	mRecords;
 		const PxU32						mNbBodies;
@@ -477,9 +477,9 @@ namespace
 	};
 
 	// Same prefetch pipeline as Scene::deactivateEdgeInteractions(), plus the narrowphase slot of each pair's contact manager.
-	void deactivatePairsThreadSafe(Scene& scene, const IG::IslandSim& islandSim, const IG::EdgeIndex* edgeIds, PxU32 nbEdges, Scene::PairSleepRecord* records)
+	void deactivatePairsThreadSafe(Scene& scene, const ev4sio_IG::IslandSim& islandSim, const ev4sio_IG::EdgeIndex* edgeIds, PxU32 nbEdges, Scene::PairSleepRecord* records)
 	{
-		IG::SimpleIslandManager* islandManager = scene.getSimpleIslandManager();
+		ev4sio_IG::SimpleIslandManager* islandManager = scene.getSimpleIslandManager();
 		PxvNphaseImplementationContext* nphase = scene.getLowLevelContext()->getNphaseImplementationContext();
 
 		PxU32 nbRemoved = 0;
@@ -493,7 +493,7 @@ namespace
 		{
 			if(i + slotDistance < nbEdges)
 			{
-				const IG::EdgeIndex edgeId = edgeIds[i + slotDistance];
+				const ev4sio_IG::EdgeIndex edgeId = edgeIds[i + slotDistance];
 				islandManager->prefetchInteractionFromEdgeIndex(edgeId);
 				PxPrefetchLine(&islandSim.getEdge(edgeId));
 			}
@@ -528,7 +528,7 @@ namespace
 			record.mManagerIndex = 0;
 			record.mFlags = 0;
 
-			const IG::EdgeIndex edgeId = edgeIds[i];
+			const ev4sio_IG::EdgeIndex edgeId = edgeIds[i];
 			Interaction* interaction = islandManager->getInteractionFromEdgeIndex(edgeId);
 			if(interaction && interaction->readInteractionFlag(InteractionFlag::eIS_ACTIVE) && !islandSim.getEdge(edgeId).isActive())
 			{
@@ -560,11 +560,11 @@ namespace
 		nphase->addDeferredUnregisters(nbRemoved);
 	}
 
-	class PutPairsToSleepTask : public Cm::Task
+	class PutPairsToSleepTask : public ev4sio_Cm::Task
 	{
 	public:
-		PutPairsToSleepTask(Scene& scene, const IG::EdgeIndex* edgeIds, PxU32 nbEdges, Scene::PairSleepRecord* records) :
-			Cm::Task	(scene.getContextId()),
+		PutPairsToSleepTask(Scene& scene, const ev4sio_IG::EdgeIndex* edgeIds, PxU32 nbEdges, Scene::PairSleepRecord* records) :
+			ev4sio_Cm::Task	(scene.getContextId()),
 			mScene		(scene),
 			mEdgeIds	(edgeIds),
 			mRecords	(records),
@@ -574,7 +574,7 @@ namespace
 
 		virtual void runInternal() PX_OVERRIDE
 		{
-			PX_PROFILE_ZONE("Sc::Scene::putPairsToSleepTask", mContextID);
+			PX_PROFILE_ZONE("ev4sio_Sc::Scene::putPairsToSleepTask", mContextID);
 			deactivatePairsThreadSafe(mScene, mScene.getSimpleIslandManager()->getSpeculativeIslandSim(), mEdgeIds, mNbEdges, mRecords);
 		}
 
@@ -582,7 +582,7 @@ namespace
 
 	private:
 		Scene&							mScene;
-		const IG::EdgeIndex* const		mEdgeIds;
+		const ev4sio_IG::EdgeIndex* const		mEdgeIds;
 		Scene::PairSleepRecord* const	mRecords;
 		const PxU32						mNbEdges;
 
@@ -590,7 +590,7 @@ namespace
 	};
 }
 
-bool Sc::Scene::putObjectsAndInteractionsToSleepParallel(PxBaseTask* continuation)
+bool ev4sio_Sc::Scene::putObjectsAndInteractionsToSleepParallel(PxBaseTask* continuation)
 {
 	PX_ASSERT(!(mPublicFlags & PxSceneFlag::eDISABLE_SLEEPING));
 
@@ -598,13 +598,13 @@ bool Sc::Scene::putObjectsAndInteractionsToSleepParallel(PxBaseTask* continuatio
 	if(isUsingGpuDynamicsOrBp())
 		return false;
 
-	const IG::IslandSim& accurateSim = mSimpleIslandManager->getAccurateIslandSim();
-	const PxU32 nbBodies = accurateSim.getNbNodesToDeactivate(IG::Node::eRIGID_BODY_TYPE);
-	const PxU32 nbPairs = mSimpleIslandManager->getSpeculativeIslandSim().getNbDeactivatingEdges(IG::Edge::eCONTACT_MANAGER);
+	const ev4sio_IG::IslandSim& accurateSim = mSimpleIslandManager->getAccurateIslandSim();
+	const PxU32 nbBodies = accurateSim.getNbNodesToDeactivate(ev4sio_IG::Node::eRIGID_BODY_TYPE);
+	const PxU32 nbPairs = mSimpleIslandManager->getSpeculativeIslandSim().getNbDeactivatingEdges(ev4sio_IG::Edge::eCONTACT_MANAGER);
 	if(nbBodies < gMinBodiesForParallelSleep && nbPairs < gMinPairsForParallelSleep)
 		return false;
 
-	PX_PROFILE_ZONE("Sc::Scene::startPutObjectsToSleep", mContextId);
+	PX_PROFILE_ZONE("ev4sio_Sc::Scene::startPutObjectsToSleep", mContextId);
 
 	// The chain runs the body tasks, finishPutObjectsToSleep(), the pair tasks, finishPutInteractionsToSleep() and then
 	// the continuation of postThirdPassIslandGen().
@@ -614,8 +614,8 @@ bool Sc::Scene::putObjectsAndInteractionsToSleepParallel(PxBaseTask* continuatio
 	mBodySleepRecords.resizeUninitialized(nbBodies);
 	if(nbBodies)
 	{
-		const PxNodeIndex* indices = accurateSim.getNodesToDeactivate(IG::Node::eRIGID_BODY_TYPE);
-		Cm::FlushPool& flushPool = mLLContext->getTaskPool();
+		const PxNodeIndex* indices = accurateSim.getNodesToDeactivate(ev4sio_IG::Node::eRIGID_BODY_TYPE);
+		ev4sio_Cm::FlushPool& flushPool = mLLContext->getTaskPool();
 		for(PxU32 start = 0; start < nbBodies; start += gMaxBodiesPerSleepTask)
 		{
 			const PxU32 nb = PxMin(gMaxBodiesPerSleepTask, nbBodies - start);
@@ -629,13 +629,13 @@ bool Sc::Scene::putObjectsAndInteractionsToSleepParallel(PxBaseTask* continuatio
 	return true;
 }
 
-void Sc::Scene::finishPutObjectsToSleep(PxBaseTask* continuation)
+void ev4sio_Sc::Scene::finishPutObjectsToSleep(PxBaseTask* continuation)
 {
 	{
-		PX_PROFILE_ZONE("Sc::Scene::finishPutObjectsToSleep", mContextId);
+		PX_PROFILE_ZONE("ev4sio_Sc::Scene::finishPutObjectsToSleep", mContextId);
 
-		const IG::IslandSim& islandSim = mSimpleIslandManager->getAccurateIslandSim();
-		const PxNodeIndex* indices = islandSim.getNodesToDeactivate(IG::Node::eRIGID_BODY_TYPE);
+		const ev4sio_IG::IslandSim& islandSim = mSimpleIslandManager->getAccurateIslandSim();
+		const PxNodeIndex* indices = islandSim.getNodesToDeactivate(ev4sio_IG::Node::eRIGID_BODY_TYPE);
 		const PxU32 nbBodies = mBodySleepRecords.size();
 		const BodySleepRecord* records = mBodySleepRecords.begin();
 
@@ -673,10 +673,10 @@ void Sc::Scene::finishPutObjectsToSleep(PxBaseTask* continuation)
 
 		mBodySleepRecords.reset();
 
-		setActive<ArticulationSim, GetArticSim, false>(nbDeactivated, islandSim, IG::Node::eARTICULATION_TYPE);
+		setActive<ArticulationSim, GetArticSim, false>(nbDeactivated, islandSim, ev4sio_IG::Node::eARTICULATION_TYPE);
 #if PX_SUPPORT_GPU_PHYSX
-		setActive<DeformableSurfaceSim, GetDeformableSurfaceSim, false>(nbDeactivated, islandSim, IG::Node::eDEFORMABLE_SURFACE_TYPE);
-		setActive<DeformableVolumeSim, GetDeformableVolumeSim, false>(nbDeactivated, islandSim, IG::Node::eDEFORMABLE_VOLUME_TYPE);
+		setActive<DeformableSurfaceSim, GetDeformableSurfaceSim, false>(nbDeactivated, islandSim, ev4sio_IG::Node::eDEFORMABLE_SURFACE_TYPE);
+		setActive<DeformableVolumeSim, GetDeformableVolumeSim, false>(nbDeactivated, islandSim, ev4sio_IG::Node::eDEFORMABLE_VOLUME_TYPE);
 #endif
 
 		if(nbDeactivated)
@@ -685,15 +685,15 @@ void Sc::Scene::finishPutObjectsToSleep(PxBaseTask* continuation)
 
 	// The pairs can only be deactivated once all the bodies are, since each pair checks the state of its two actors.
 	{
-		const IG::IslandSim& islandSim = mSimpleIslandManager->getSpeculativeIslandSim();
-		const PxU32 nbPairs = islandSim.getNbDeactivatingEdges(IG::Edge::eCONTACT_MANAGER);
+		const ev4sio_IG::IslandSim& islandSim = mSimpleIslandManager->getSpeculativeIslandSim();
+		const PxU32 nbPairs = islandSim.getNbDeactivatingEdges(ev4sio_IG::Edge::eCONTACT_MANAGER);
 		mPairSleepRecords.resizeUninitialized(nbPairs);
 		if(nbPairs)
 		{
 			mLLContext->getNphaseImplementationContext()->beginDeferredUnregistersThreadSafe();
 
-			const IG::EdgeIndex* edgeIds = islandSim.getDeactivatingEdges(IG::Edge::eCONTACT_MANAGER);
-			Cm::FlushPool& flushPool = mLLContext->getTaskPool();
+			const ev4sio_IG::EdgeIndex* edgeIds = islandSim.getDeactivatingEdges(ev4sio_IG::Edge::eCONTACT_MANAGER);
+			ev4sio_Cm::FlushPool& flushPool = mLLContext->getTaskPool();
 			for(PxU32 start = 0; start < nbPairs; start += gMaxPairsPerSleepTask)
 			{
 				const PxU32 nb = PxMin(gMaxPairsPerSleepTask, nbPairs - start);
@@ -704,13 +704,13 @@ void Sc::Scene::finishPutObjectsToSleep(PxBaseTask* continuation)
 	}
 }
 
-void Sc::Scene::finishPutInteractionsToSleep(PxBaseTask*)
+void ev4sio_Sc::Scene::finishPutInteractionsToSleep(PxBaseTask*)
 {
 	{
-		PX_PROFILE_ZONE("Sc::Scene::finishPutInteractionsToSleep", mContextId);
+		PX_PROFILE_ZONE("ev4sio_Sc::Scene::finishPutInteractionsToSleep", mContextId);
 
-		const IG::IslandSim& islandSim = mSimpleIslandManager->getSpeculativeIslandSim();
-		const IG::EdgeIndex* edgeIds = islandSim.getDeactivatingEdges(IG::Edge::eCONTACT_MANAGER);
+		const ev4sio_IG::IslandSim& islandSim = mSimpleIslandManager->getSpeculativeIslandSim();
+		const ev4sio_IG::EdgeIndex* edgeIds = islandSim.getDeactivatingEdges(ev4sio_IG::Edge::eCONTACT_MANAGER);
 		const PxU32 nbPairs = mPairSleepRecords.size();
 		const PairSleepRecord* records = mPairSleepRecords.begin();
 
@@ -721,7 +721,7 @@ void Sc::Scene::finishPutInteractionsToSleep(PxBaseTask*)
 		{
 			if(i + manifoldDistance < nbPairs)
 			{
-				const Gu::PersistentContactManifold* manifold = records[i + manifoldDistance].mManifold;
+				const ev4sio_Gu::PersistentContactManifold* manifold = records[i + manifoldDistance].mManifold;
 				if(manifold)
 				{
 					PxPrefetchLine(manifold);
@@ -758,15 +758,15 @@ void Sc::Scene::finishPutInteractionsToSleep(PxBaseTask*)
 		mPairSleepRecords.reset();
 
 		// The tasks only cover the contact edges.
-		for(PxU32 t = 0; t < IG::Edge::eEDGE_TYPE_COUNT; ++t)
+		for(PxU32 t = 0; t < ev4sio_IG::Edge::eEDGE_TYPE_COUNT; ++t)
 		{
-			const IG::Edge::EdgeType edgeType = IG::Edge::EdgeType(t);
-			if(edgeType != IG::Edge::eCONSTRAINT && edgeType != IG::Edge::eCONTACT_MANAGER)
+			const ev4sio_IG::Edge::EdgeType edgeType = ev4sio_IG::Edge::EdgeType(t);
+			if(edgeType != ev4sio_IG::Edge::eCONSTRAINT && edgeType != ev4sio_IG::Edge::eCONTACT_MANAGER)
 				deactivateEdgeInteractions(edgeType);
 		}
 
 		{
-			PX_PROFILE_ZONE("Sc::Scene::flushDeferredUnregisters", mContextId);
+			PX_PROFILE_ZONE("ev4sio_Sc::Scene::flushDeferredUnregisters", mContextId);
 			mLLContext->getNphaseImplementationContext()->flushDeferredUnregisters();
 		}
 	}
@@ -776,21 +776,21 @@ void Sc::Scene::finishPutInteractionsToSleep(PxBaseTask*)
 	mNPhaseCore->processPersistentContactEvents(outputs);
 }
 
-void Sc::Scene::wakeObjectsUp()
+void ev4sio_Sc::Scene::wakeObjectsUp()
 {
-	PX_PROFILE_ZONE("Sc::Scene::wakeObjectsUp", mContextId);
+	PX_PROFILE_ZONE("ev4sio_Sc::Scene::wakeObjectsUp", mContextId);
 
 	//Wake up all bodies that were in sleeping islands that have just been hit by a moving object.
 
-	const IG::IslandSim& islandSim = mSimpleIslandManager->getAccurateIslandSim();
+	const ev4sio_IG::IslandSim& islandSim = mSimpleIslandManager->getAccurateIslandSim();
 
 	PxU32 nbBodiesWoken = 0;
-	setActive<BodySim, GetRigidSim, true>(nbBodiesWoken, islandSim, IG::Node::eRIGID_BODY_TYPE);
-	setActive<ArticulationSim, GetArticSim, true>(nbBodiesWoken, islandSim, IG::Node::eARTICULATION_TYPE);
+	setActive<BodySim, GetRigidSim, true>(nbBodiesWoken, islandSim, ev4sio_IG::Node::eRIGID_BODY_TYPE);
+	setActive<ArticulationSim, GetArticSim, true>(nbBodiesWoken, islandSim, ev4sio_IG::Node::eARTICULATION_TYPE);
 
 #if PX_SUPPORT_GPU_PHYSX
-	setActive<DeformableSurfaceSim, GetDeformableSurfaceSim, true>(nbBodiesWoken, islandSim, IG::Node::eDEFORMABLE_SURFACE_TYPE);
-	setActive<DeformableVolumeSim, GetDeformableVolumeSim, true>(nbBodiesWoken, islandSim, IG::Node::eDEFORMABLE_VOLUME_TYPE);
+	setActive<DeformableSurfaceSim, GetDeformableSurfaceSim, true>(nbBodiesWoken, islandSim, ev4sio_IG::Node::eDEFORMABLE_SURFACE_TYPE);
+	setActive<DeformableVolumeSim, GetDeformableVolumeSim, true>(nbBodiesWoken, islandSim, ev4sio_IG::Node::eDEFORMABLE_VOLUME_TYPE);
 #endif
 
 	if(nbBodiesWoken)

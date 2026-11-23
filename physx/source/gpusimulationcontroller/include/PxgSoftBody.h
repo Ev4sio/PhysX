@@ -18,9 +18,9 @@
 
 #define SB_PARTITION_LIMIT 8 // max # partitions allowed. This value SHOULD NOT change. See also GuCookingTetrahedronMesh.cpp.
 
-namespace physx
+namespace ev4sio_physx
 {
-	namespace Gu
+	namespace ev4sio_Gu
 	{
 		class DeformableVolumeMesh;
 		class BVTetrahedronMesh;
@@ -28,7 +28,7 @@ namespace physx
 		class DeformableVolumeAuxData;
 	}
 
-	namespace Cm
+	namespace ev4sio_Cm
 	{
 		class VirtualAllocatorCallback;
 	}
@@ -60,7 +60,7 @@ namespace physx
 
 		// AD: We only use this for the host mirror as the GPU-side are PxgCudaBuffers and we only assign the pointers. 
 		// Make sure to pass the right allocator in here!
-		void deallocate(Cm::VirtualAllocatorCallback& hostAlloc); 
+		void deallocate(ev4sio_Cm::VirtualAllocatorCallback& hostAlloc);
 
 		void*					mTetMeshData;
 		PxU8*					mTetMeshSurfaceHint;
@@ -177,11 +177,11 @@ namespace physx
 	class PxgSoftBodyUtil
 	{
 	public:
-		static PxU32 computeTetMeshByteSize(const Gu::BVTetrahedronMesh* tetMesh);
-		static PxU32 loadOutTetMesh(void* mem, const Gu::BVTetrahedronMesh* tetMesh);
-		static void initialTetData(PxgSoftBody& softbody, const Gu::BVTetrahedronMesh* colTetMesh, const Gu::TetrahedronMesh* simTetMesh, 
-			const Gu::DeformableVolumeAuxData* softBodyAuxData, const PxU16* materialsHandles, Cm::VirtualAllocatorCallback& hostAlloc);
-		static void computeBasisMatrix(PxMat33* restPoses, const Gu::DeformableVolumeMesh* tetMesh);
+		static PxU32 computeTetMeshByteSize(const ev4sio_Gu::BVTetrahedronMesh* tetMesh);
+		static PxU32 loadOutTetMesh(void* mem, const ev4sio_Gu::BVTetrahedronMesh* tetMesh);
+		static void initialTetData(PxgSoftBody& softbody, const ev4sio_Gu::BVTetrahedronMesh* colTetMesh, const ev4sio_Gu::TetrahedronMesh* simTetMesh,
+			const ev4sio_Gu::DeformableVolumeAuxData* softBodyAuxData, const PxU16* materialsHandles, ev4sio_Cm::VirtualAllocatorCallback& hostAlloc);
+		static void computeBasisMatrix(PxMat33* restPoses, const ev4sio_Gu::DeformableVolumeMesh* tetMesh);
 
 	};
 }

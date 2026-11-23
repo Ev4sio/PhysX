@@ -5,7 +5,7 @@
 // @covers AC-1 AC-2 AC-3
 #pragma once
 #include "NativeParameters.h"
-namespace omni::physx::native
+namespace omni::ev4sio_physx::native
 {
 enum class JointAction : uint32_t { MarkDirty, SetFlags, GetFlags, Refresh };
 enum class JointResult : uint32_t { Success, Busy, Stale, NotFound, Invalid, Rejected };

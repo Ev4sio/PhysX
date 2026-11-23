@@ -8,8 +8,8 @@
 
 #include "omnipvd/ExtOmniPvdSetData.h"
 
-using namespace physx;
-using namespace Ext;
+using namespace ev4sio_physx;
+using namespace ev4sio_Ext;
 
 FixedJoint::FixedJoint(const PxTolerancesScale& /*scale*/, PxRigidActor* actor0, const PxTransform& localFrame0, PxRigidActor* actor1, const PxTransform& localFrame1) :
 	FixedJointT(PxJointConcreteType::eFIXED, actor0, localFrame0, actor1, localFrame1, "FixedJointData")
@@ -61,7 +61,7 @@ static PxConstraintShaderTable gFixedJointShaders = { FixedJointSolverPrep, Fixe
 
 PxConstraintSolverPrep FixedJoint::getPrep()	const	{ return gFixedJointShaders.solverPrep;  }
 
-PxFixedJoint* physx::PxFixedJointCreate(PxPhysics& physics, PxRigidActor* actor0, const PxTransform& localFrame0, PxRigidActor* actor1, const PxTransform& localFrame1)
+PxFixedJoint* ev4sio_physx::PxFixedJointCreate(PxPhysics& physics, PxRigidActor* actor0, const PxTransform& localFrame0, PxRigidActor* actor1, const PxTransform& localFrame1)
 {
 	PX_CHECK_AND_RETURN_NULL(localFrame0.isSane(), "PxFixedJointCreate: local frame 0 is not a valid transform"); 
 	PX_CHECK_AND_RETURN_NULL(localFrame1.isSane(), "PxFixedJointCreate: local frame 1 is not a valid transform"); 
@@ -80,9 +80,9 @@ void FixedJoint::resolveReferences(PxDeserializationContext& context)
 
 #if PX_SUPPORT_OMNI_PVD
 
-template<> void physx::Ext::omniPvdInitJoint<FixedJoint>(OmniPvdWriter* pvdWriter, const OmniPvdPxExtensionsRegistrationData* pvdRegData, FixedJoint& joint); // declared before the wrapper so the wrapper binds the explicit form below instead of implicitly instantiating it
+template<> void ev4sio_physx::ev4sio_Ext::omniPvdInitJoint<FixedJoint>(OmniPvdWriter* pvdWriter, const OmniPvdPxExtensionsRegistrationData* pvdRegData, FixedJoint& joint); // declared before the wrapper so the wrapper binds the explicit form below instead of implicitly instantiating it
 template<>
-void physx::Ext::omniPvdInitJoint<FixedJoint>(FixedJoint& joint)
+void ev4sio_physx::ev4sio_Ext::omniPvdInitJoint<FixedJoint>(FixedJoint& joint)
 {
 	OMNI_PVD_WRITE_SCOPE_BEGIN(pvdWriter, pvdRegData)
 	omniPvdInitJoint(pvdWriter, pvdRegData, joint);
@@ -90,7 +90,7 @@ void physx::Ext::omniPvdInitJoint<FixedJoint>(FixedJoint& joint)
 }
 
 template<>
-void physx::Ext::omniPvdInitJoint<FixedJoint>(OmniPvdWriter* pvdWriter, const OmniPvdPxExtensionsRegistrationData* pvdRegData, FixedJoint& joint)
+void ev4sio_physx::ev4sio_Ext::omniPvdInitJoint<FixedJoint>(OmniPvdWriter* pvdWriter, const OmniPvdPxExtensionsRegistrationData* pvdRegData, FixedJoint& joint)
 {
 	PxFixedJoint& j = static_cast<PxFixedJoint&>(joint);
 	OMNI_PVD_CREATE_EXPLICIT(pvdWriter, pvdRegData, OMNI_PVD_CONTEXT_HANDLE, PxFixedJoint, j);

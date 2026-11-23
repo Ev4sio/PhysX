@@ -27,8 +27,8 @@
 #include "PxsRigidBody.h"
 #include <stdio.h>
 
-using namespace physx;
-using namespace Dy;
+using namespace ev4sio_physx;
+using namespace ev4sio_Dy;
 
 extern "C" __host__ void initArticulationKernels4() {}
 
@@ -43,7 +43,7 @@ static __device__ PX_FORCE_INLINE PxVec3 computeLinkRwInvDyn(
     const PxQuat& parentQW,
     const PxQuat& childQW)
 {
-    const Dy::ArticulationJointCore& joint = arti.joints[linkID];
+    const ev4sio_Dy::ArticulationJointCore& joint = arti.joints[linkID];
     const PxVec3 parentOffset = joint.parentPose.p;
     const PxVec3 childOffset  = joint.childPose.p;
 
@@ -54,7 +54,7 @@ static __device__ PX_FORCE_INLINE PxVec3 computeLinkRwInvDyn(
         const PxReal jPos = arti.jointPositions[dofOffset];
         slide = arti.motionMatrix[linkID][0].bottom * jPos;
     }
-    return Dy::computeLinkRw(parentQW, childQW, parentOffset, childOffset, slide);
+    return ev4sio_Dy::computeLinkRw(parentQW, childQW, parentOffset, childOffset, slide);
 }
 
 // VR: Old version for reference
@@ -197,7 +197,7 @@ extern "C" __global__ void computeArtiDenseJacobians(
 			//diagonal block:
 			for (PxU32 ind = 0; ind < jointDatum.dof; ++ind)
 			{
-				const Cm::UnAlignedSpatialVector& v = arti.motionMatrix[linkID][ind];
+				const ev4sio_Cm::UnAlignedSpatialVector& v = arti.motionMatrix[linkID][ind];
 
 				const PxVec3 ang = body2World.rotate(v.top);
 				const PxVec3 lin = body2World.rotate(v.bottom);
@@ -302,7 +302,7 @@ extern "C" __global__ void computeArtiDenseJacobians(
 				}
 				else if (dof >= linkOffset && dof < linkOffset + linkDofs)
 				{
-					const Cm::UnAlignedSpatialVector& v = arti.motionMatrix[link][dof - linkOffset];
+					const ev4sio_Cm::UnAlignedSpatialVector& v = arti.motionMatrix[link][dof - linkOffset];
 
 					linkLin = body2World.rotate(v.bottom);
 					linkAng = body2World.rotate(v.top);
@@ -322,7 +322,7 @@ extern "C" __global__ void computeArtiDenseJacobians(
 	}
 }
 
-__device__ static void translateInertia(const PxMat33& sTod, Dy::SpatialMatrix& inertia)
+__device__ static void translateInertia(const PxMat33& sTod, ev4sio_Dy::SpatialMatrix& inertia)
 {
 	const PxMat33 dTos = sTod.getTranspose();
 
@@ -354,9 +354,9 @@ extern "C" __global__ void computeArtiMassMatrices(
 		const PxgArticulation& arti = articulations[artiIndex];
 
 		// I use this as a tmp buffer to store world space spatial inertias of all links
-		Dy::SpatialMatrix* PX_RESTRICT spatialInertias = reinterpret_cast<Dy::SpatialMatrix*>(arti.worldSpatialArticulatedInertia); // ???
+		ev4sio_Dy::SpatialMatrix* PX_RESTRICT spatialInertias = reinterpret_cast<ev4sio_Dy::SpatialMatrix*>(arti.worldSpatialArticulatedInertia); // ???
 		// I use this as a tmp buffer to store world space motiom vectors multiplied by their links inertias
-		Cm::UnAlignedSpatialVector* PX_RESTRICT worldMotionMatrices = reinterpret_cast<Cm::UnAlignedSpatialVector*>(arti.worldMotionMatrix); // ???
+		ev4sio_Cm::UnAlignedSpatialVector* PX_RESTRICT worldMotionMatrices = reinterpret_cast<ev4sio_Cm::UnAlignedSpatialVector*>(arti.worldMotionMatrix); // ???
 
 		const PxU32 linkCount = arti.data.numLinks;
 		const PxU32 dofCount = arti.data.numJointDofs;
@@ -377,11 +377,11 @@ extern "C" __global__ void computeArtiMassMatrices(
 			const PxVec3 localInertia = PxVec3(invIM.x == 0.f ? 0.f : (1.f / invIM.x),
 												invIM.y == 0.f ? 0.f : (1.f / invIM.y),
 												invIM.z == 0.f ? 0.f : (1.f / invIM.z));
-			Dy::SpatialMatrix spatialInertia;
+			ev4sio_Dy::SpatialMatrix spatialInertia;
 			spatialInertia.topLeft = PxMat33(PxZero);
 			spatialInertia.topRight = PxMat33::createDiagonal(PxVec3(mass));
 			spatialInertia.padding = 0; // VR: I use this to store the order to compute combined inertias
-			Cm::transformInertiaTensor(localInertia, PxMat33(arti.linkBody2Worlds[link].q), spatialInertia.bottomLeft);
+			ev4sio_Cm::transformInertiaTensor(localInertia, PxMat33(arti.linkBody2Worlds[link].q), spatialInertia.bottomLeft);
 			spatialInertias[link] = spatialInertia;
 		}
 
@@ -415,7 +415,7 @@ extern "C" __global__ void computeArtiMassMatrices(
 					const PxTransform& parentBody2World = arti.linkBody2Worlds[parentLink];
 					const PxVec3 rw = computeLinkRwInvDyn(arti, link, parentBody2World.q, body2World.q);
 					PxMat33 skewSymmetric(PxVec3(0, rw.z, -rw.y), PxVec3(-rw.z, 0, rw.x), PxVec3(rw.y, -rw.x, 0));
-					Dy::SpatialMatrix parentSpaceSpatialInertia = spatialInertias[link];
+					ev4sio_Dy::SpatialMatrix parentSpaceSpatialInertia = spatialInertias[link];
 					translateInertia(skewSymmetric, parentSpaceSpatialInertia);
 					spatialInertias[parentLink] += parentSpaceSpatialInertia;
 				}
@@ -432,7 +432,7 @@ extern "C" __global__ void computeArtiMassMatrices(
 				const PxTransform& parentBody2World = arti.linkBody2Worlds[parentLink];
 				const PxVec3 rw = computeLinkRwInvDyn(arti, link, parentBody2World.q, body2World.q);
 				PxMat33 skewSymmetric(PxVec3(0, rw.z, -rw.y), PxVec3(-rw.z, 0, rw.x), PxVec3(rw.y, -rw.x, 0));
-				Dy::SpatialMatrix parentSpaceSpatialInertia = spatialInertias[link];
+				ev4sio_Dy::SpatialMatrix parentSpaceSpatialInertia = spatialInertias[link];
 				translateInertia(skewSymmetric, parentSpaceSpatialInertia);
 				spatialInertias[parentLink] += parentSpaceSpatialInertia;
 			}
@@ -445,13 +445,13 @@ extern "C" __global__ void computeArtiMassMatrices(
 		{
 			const PxTransform& body2World = arti.linkBody2Worlds[link];
 			const ArticulationJointCoreData& jointData = arti.jointData[link];
-			const Dy::SpatialMatrix& spatialInertia = spatialInertias[link];
+			const ev4sio_Dy::SpatialMatrix& spatialInertia = spatialInertias[link];
 
-			Cm::UnAlignedSpatialVector worldMotionMatrix[3];
-			Cm::UnAlignedSpatialVector* spatialInertia_worldMotionMatrix = &worldMotionMatrices[jointData.jointOffset];
+			ev4sio_Cm::UnAlignedSpatialVector worldMotionMatrix[3];
+			ev4sio_Cm::UnAlignedSpatialVector* spatialInertia_worldMotionMatrix = &worldMotionMatrices[jointData.jointOffset];
 			for (PxU32 dof = 0; dof < jointData.nbDof; ++dof)
 			{
-				const Cm::UnAlignedSpatialVector& m = arti.motionMatrix[link][dof];
+				const ev4sio_Cm::UnAlignedSpatialVector& m = arti.motionMatrix[link][dof];
 				worldMotionMatrix[dof] = m.rotate(body2World);
 				spatialInertia_worldMotionMatrix[dof] = spatialInertia * worldMotionMatrix[dof];
 			}
@@ -461,11 +461,11 @@ extern "C" __global__ void computeArtiMassMatrices(
 			// the force applied to the considered dof due to the applied unit joint acceleration
 			for (PxU32 dof0 = 0; dof0 < jointData.nbDof; ++dof0)
 			{
-				const Cm::UnAlignedSpatialVector& Im0 = spatialInertia_worldMotionMatrix[dof0];
+				const ev4sio_Cm::UnAlignedSpatialVector& Im0 = spatialInertia_worldMotionMatrix[dof0];
 				const PxU32 row = jointData.jointOffset + dof0 + rootDof;
 				for (PxU32 dof1 = 0; dof1 < jointData.nbDof; ++dof1)
 				{
-					const Cm::UnAlignedSpatialVector& m1 = worldMotionMatrix[dof1];
+					const ev4sio_Cm::UnAlignedSpatialVector& m1 = worldMotionMatrix[dof1];
 					const PxU32 col = jointData.jointOffset + dof1 + rootDof;
 					massMatrix[row * matSize + col] = m1.innerProduct(Im0);
 				}
@@ -497,7 +497,7 @@ extern "C" __global__ void computeArtiMassMatrices(
 					{
 						for (PxU32 dof0 = 0; dof0 < jointData.nbDof; ++dof0)
 						{
-							const Cm::UnAlignedSpatialVector& Im0 = spatialInertia_worldMotionMatrix[dof0];
+							const ev4sio_Cm::UnAlignedSpatialVector& Im0 = spatialInertia_worldMotionMatrix[dof0];
 							const PxU32 col = jointData.jointOffset + dof0 + rootDof;
 							for (PxU32 row = 0; row < 6; ++row)
 							{
@@ -511,10 +511,10 @@ extern "C" __global__ void computeArtiMassMatrices(
 
 				const ArticulationJointCoreData& parentJointData = arti.jointData[parentLink];
 
-				Cm::UnAlignedSpatialVector parentWorldMotionMatrix[3];
+				ev4sio_Cm::UnAlignedSpatialVector parentWorldMotionMatrix[3];
 				for (PxU32 dof = 0; dof < parentJointData.nbDof; ++dof)
 				{
-					const Cm::UnAlignedSpatialVector& m = arti.motionMatrix[parentLink][dof];
+					const ev4sio_Cm::UnAlignedSpatialVector& m = arti.motionMatrix[parentLink][dof];
 					parentWorldMotionMatrix[dof].top = parentBody2World.rotate(m.top);
 					parentWorldMotionMatrix[dof].bottom = parentBody2World.rotate(m.bottom);
 				}
@@ -522,11 +522,11 @@ extern "C" __global__ void computeArtiMassMatrices(
 				// The joint force is calculated from the zero acceleration force
 				for (PxU32 dof0 = 0; dof0 < jointData.nbDof; ++dof0)
 				{
-					const Cm::UnAlignedSpatialVector& Im0 = spatialInertia_worldMotionMatrix[dof0];
+					const ev4sio_Cm::UnAlignedSpatialVector& Im0 = spatialInertia_worldMotionMatrix[dof0];
 					const PxU32 row = jointData.jointOffset + dof0 + rootDof;
 					for (PxU32 dof1 = 0; dof1 < parentJointData.nbDof; ++dof1)
 					{
-						const Cm::UnAlignedSpatialVector& m1 = parentWorldMotionMatrix[dof1];
+						const ev4sio_Cm::UnAlignedSpatialVector& m1 = parentWorldMotionMatrix[dof1];
 						const PxU32 col = parentJointData.jointOffset + dof1 + rootDof;
 						float m = m1.innerProduct(Im0);
 						massMatrix[row * matSize + col] = m;
@@ -572,9 +572,9 @@ extern "C" __global__ void computeArtiMassMatrices(
 	}
 }
 
-__device__ static Cm::UnAlignedSpatialVector translateSpatialVector(const PxVec3& offset, const Cm::UnAlignedSpatialVector& vec)
+__device__ static ev4sio_Cm::UnAlignedSpatialVector translateSpatialVector(const PxVec3& offset, const ev4sio_Cm::UnAlignedSpatialVector& vec)
 {
-	return Cm::UnAlignedSpatialVector(vec.top, vec.bottom + offset.cross(vec.top));
+	return ev4sio_Cm::UnAlignedSpatialVector(vec.top, vec.bottom + offset.cross(vec.top));
 }
 
 // This is an optimized port of FeatherstoneArticulation::getGeneralizedGravityForce.
@@ -603,7 +603,7 @@ extern "C" __global__ void computeArtiGravityForces(
 		float* PX_RESTRICT gravityCompensationForces = &data[jobIndex * (maxDofs + 6)];
 
 		// I use this as a tmp buffer to store ZAForce vectors of all links
-		Cm::UnAlignedSpatialVector* PX_RESTRICT zAForces = reinterpret_cast<Cm::UnAlignedSpatialVector*>(arti.zAForces); // ???
+		ev4sio_Cm::UnAlignedSpatialVector* PX_RESTRICT zAForces = reinterpret_cast<ev4sio_Cm::UnAlignedSpatialVector*>(arti.zAForces); // ???
 
 		for (PxU32 link = threadIndex; link < linkCount; link += WARP_SIZE)
 		{
@@ -638,7 +638,7 @@ extern "C" __global__ void computeArtiGravityForces(
 			PxU32 link = (PxU32)gravityCompensationForces[dof + rootDof];
 			const ArticulationJointCoreData& jointData = arti.jointData[link];
 			const PxTransform& body2World = arti.linkBody2Worlds[link];
-			Cm::UnAlignedSpatialVector dofMotion = arti.motionMatrix[link][dof - jointData.jointOffset].rotate(body2World);
+			ev4sio_Cm::UnAlignedSpatialVector dofMotion = arti.motionMatrix[link][dof - jointData.jointOffset].rotate(body2World);
 			gravityCompensationForces[dof + rootDof] = dofMotion.innerProduct(zAForces[link]);
 		}
 
@@ -674,14 +674,14 @@ extern "C" __global__ void computeArtiCentrifugalForces(
 		const PxU32 artiIndex = gpuIndices[jobIndex];
 		const PxgArticulation& arti = articulations[artiIndex];
 
-		Dy::SpatialMatrix* PX_RESTRICT spatialInertias = reinterpret_cast<Dy::SpatialMatrix*>(arti.worldSpatialArticulatedInertia);
+		ev4sio_Dy::SpatialMatrix* PX_RESTRICT spatialInertias = reinterpret_cast<ev4sio_Dy::SpatialMatrix*>(arti.worldSpatialArticulatedInertia);
 		PxReal* PX_RESTRICT jointVelocities = reinterpret_cast<PxReal*>(arti.jointVelocities);
-		Cm::UnAlignedSpatialVector* PX_RESTRICT motionVelocities = reinterpret_cast<Cm::UnAlignedSpatialVector*>(arti.motionVelocities);
-		Cm::UnAlignedSpatialVector* PX_RESTRICT coriolisVectors = reinterpret_cast<Cm::UnAlignedSpatialVector*>(arti.coriolisVectors);
+		ev4sio_Cm::UnAlignedSpatialVector* PX_RESTRICT motionVelocities = reinterpret_cast<ev4sio_Cm::UnAlignedSpatialVector*>(arti.motionVelocities);
+		ev4sio_Cm::UnAlignedSpatialVector* PX_RESTRICT coriolisVectors = reinterpret_cast<ev4sio_Cm::UnAlignedSpatialVector*>(arti.coriolisVectors);
 		// coriolisVectors is used as a tmp buffer to store motion accelerations of all links
 		// arti.motionAccelerations cannot be used because it stores important information that should not be erased
-		Cm::UnAlignedSpatialVector* PX_RESTRICT motionAccelerations = reinterpret_cast<Cm::UnAlignedSpatialVector*>(arti.coriolisVectors);
-		Cm::UnAlignedSpatialVector* PX_RESTRICT zAForces = reinterpret_cast<Cm::UnAlignedSpatialVector*>(arti.zAForces);
+		ev4sio_Cm::UnAlignedSpatialVector* PX_RESTRICT motionAccelerations = reinterpret_cast<ev4sio_Cm::UnAlignedSpatialVector*>(arti.coriolisVectors);
+		ev4sio_Cm::UnAlignedSpatialVector* PX_RESTRICT zAForces = reinterpret_cast<ev4sio_Cm::UnAlignedSpatialVector*>(arti.zAForces);
 
 		const PxU32 linkCount = arti.data.numLinks;
 		const PxU32 dofCount = arti.data.numJointDofs;
@@ -700,21 +700,21 @@ extern "C" __global__ void computeArtiCentrifugalForces(
 				const PxTransform& body2World = arti.linkBody2Worlds[link];
 				const PxU32 parentLink = arti.parents[link];
 				const ArticulationJointCoreData& jointData = arti.jointData[link];
-				const Dy::ArticulationJointCore& joint = arti.joints[link];
+				const ev4sio_Dy::ArticulationJointCore& joint = arti.joints[link];
 				const PxTransform& parentBody2World = arti.linkBody2Worlds[parentLink];
 				const PxVec3 rw = computeLinkRwInvDyn(arti, link, parentBody2World.q, body2World.q);
-				const Cm::UnAlignedSpatialVector pVel = motionVelocities[parentLink];
+				const ev4sio_Cm::UnAlignedSpatialVector pVel = motionVelocities[parentLink];
 
-				Cm::UnAlignedSpatialVector vel = translateSpatialVector(-rw, pVel);
+				ev4sio_Cm::UnAlignedSpatialVector vel = translateSpatialVector(-rw, pVel);
 
-				Cm::UnAlignedSpatialVector deltaV = Cm::UnAlignedSpatialVector::Zero();
+				ev4sio_Cm::UnAlignedSpatialVector deltaV = ev4sio_Cm::UnAlignedSpatialVector::Zero();
 				for (PxU32 dof = 0; dof < jointData.nbDof; ++dof)
 				{
 					// The limits are stored per axis, and dofIds maps each dof of the joint to its axis.
 					const PxReal maxJointVelocity = joint.maxJointVelocity[joint.dofIds[dof]];
 					const PxReal jointVelocity = jointVelocities[jointData.jointOffset + dof];
 					const PxReal jVel = PxMin(jointVelocity, maxJointVelocity);
-					Cm::UnAlignedSpatialVector dofMotion = arti.motionMatrix[link][dof].rotate(body2World);
+					ev4sio_Cm::UnAlignedSpatialVector dofMotion = arti.motionMatrix[link][dof].rotate(body2World);
 					deltaV += dofMotion * jVel;
 				}
 
@@ -726,7 +726,7 @@ extern "C" __global__ void computeArtiCentrifugalForces(
 				const PxVec3 lVel = deltaV.bottom;
 				const PxVec3 torque = pVel.top.cross(pVel.top.cross(rw)) + 2.f * pVel.top.cross(lVel) + aVec.cross(lVel);
 
-				coriolisVectors[link] = Cm::SpatialVectorF(force, torque);
+				coriolisVectors[link] = ev4sio_Cm::SpatialVectorF(force, torque);
 				motionVelocities[link] = vel;
 			}
 		}
@@ -735,7 +735,7 @@ extern "C" __global__ void computeArtiCentrifugalForces(
 
 		if (threadIndex == 0)
 		{
-			motionAccelerations[0] = Cm::SpatialVectorF::Zero();
+			motionAccelerations[0] = ev4sio_Cm::SpatialVectorF::Zero();
 
 			for (PxU32 link = 1; link < linkCount; ++link)
 			{
@@ -744,7 +744,7 @@ extern "C" __global__ void computeArtiCentrifugalForces(
 				const PxTransform& parentBody2World = arti.linkBody2Worlds[parentLink];
 				const PxVec3 rw = computeLinkRwInvDyn(arti, link, parentBody2World.q, body2World.q);
 
-				Cm::UnAlignedSpatialVector pMotionAcceleration = translateSpatialVector(-rw, motionAccelerations[parentLink]);
+				ev4sio_Cm::UnAlignedSpatialVector pMotionAcceleration = translateSpatialVector(-rw, motionAccelerations[parentLink]);
 
 				motionAccelerations[link] = pMotionAcceleration + coriolisVectors[link];
 			}
@@ -758,7 +758,7 @@ extern "C" __global__ void computeArtiCentrifugalForces(
 			const float4 invIM = arti.linkProps[link].invInertiaXYZ_invMass;
 			const PxReal mass = invIM.w == 0.f ? 0.f : (1.f / invIM.w);
 			const PxVec3 localInertia = PxVec3(invIM.x == 0.f ? 0.f : (1.f / invIM.x), invIM.y == 0.f ? 0.f : (1.f / invIM.y), invIM.z == 0.f ? 0.f : (1.f / invIM.z));
-			PxMat33 I; Cm::transformInertiaTensor(localInertia, PxMat33(body2World.q), I);
+			PxMat33 I; ev4sio_Cm::transformInertiaTensor(localInertia, PxMat33(body2World.q), I);
 			const PxVec3& vA = motionVelocities[link].top;
 			zAForces[link].top = motionAccelerations[link].bottom * mass;
 			zAForces[link].bottom = vA.cross(I * vA) + I * motionAccelerations[link].top;
@@ -795,10 +795,10 @@ extern "C" __global__ void computeArtiCentrifugalForces(
 				const float4 invIM = arti.linkProps[link].invInertiaXYZ_invMass;
 				const PxReal mass = invIM.w == 0.f ? 0.f : (1.f / invIM.w);
 				const PxVec3 localInertia = PxVec3(invIM.x == 0.f ? 0.f : (1.f / invIM.x), invIM.y == 0.f ? 0.f : (1.f / invIM.y), invIM.z == 0.f ? 0.f : (1.f / invIM.z));
-				Dy::SpatialMatrix spatialInertia;
+				ev4sio_Dy::SpatialMatrix spatialInertia;
 				spatialInertia.topLeft = PxMat33(PxZero);
 				spatialInertia.topRight = PxMat33::createDiagonal(PxVec3(mass));
-				Cm::transformInertiaTensor(localInertia, PxMat33(arti.linkBody2Worlds[link].q), spatialInertia.bottomLeft);
+				ev4sio_Cm::transformInertiaTensor(localInertia, PxMat33(arti.linkBody2Worlds[link].q), spatialInertia.bottomLeft);
 				spatialInertias[link] = spatialInertia;
 			}
 
@@ -813,7 +813,7 @@ extern "C" __global__ void computeArtiCentrifugalForces(
 					const PxTransform& parentBody2World = arti.linkBody2Worlds[parentLink];
 					const PxVec3 rw = computeLinkRwInvDyn(arti, link, parentBody2World.q, body2World.q);
 					PxMat33 skewSymmetric(PxVec3(0, rw.z, -rw.y), PxVec3(-rw.z, 0, rw.x), PxVec3(rw.y, -rw.x, 0));
-					Dy::SpatialMatrix parentSpaceSpatialInertia = spatialInertias[link];
+					ev4sio_Dy::SpatialMatrix parentSpaceSpatialInertia = spatialInertias[link];
 					translateInertia(skewSymmetric, parentSpaceSpatialInertia);
 					spatialInertias[parentLink] += parentSpaceSpatialInertia;
 				}
@@ -845,7 +845,7 @@ extern "C" __global__ void computeArtiCentrifugalForces(
 			PxU32 link = (PxU32)coriolisForces[dof + rootDof];
 			const ArticulationJointCoreData& jointData = arti.jointData[link];
 			const PxTransform& body2World = arti.linkBody2Worlds[link];
-			Cm::UnAlignedSpatialVector dofMotion = arti.motionMatrix[link][dof - jointData.jointOffset].rotate(body2World);
+			ev4sio_Cm::UnAlignedSpatialVector dofMotion = arti.motionMatrix[link][dof - jointData.jointOffset].rotate(body2World);
 			coriolisForces[dof + rootDof] = dofMotion.innerProduct(zAForces[link]);
 		}
 

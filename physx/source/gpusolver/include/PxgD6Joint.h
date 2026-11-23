@@ -8,7 +8,7 @@
 
 #include "PxConstraintDesc.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	struct PxgD6Drive  // equivalent of PxD6Drive
 	{

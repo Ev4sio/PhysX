@@ -14,9 +14,9 @@
 #include "ExtJointData.h"
 #include "foundation/PxVecMath.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Ext
+namespace ev4sio_Ext
 {
 	namespace joint
 	{

@@ -37,7 +37,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace usdparser
 {
@@ -51,43 +51,43 @@ struct CustomJointInfo
     // plain string identifier incidentally shaped like a token.
     std::string jointPrimType;
     ICustomJointCallback customJointCb;
-    ::physx::PxConstraintSolverPrep solverPrepFn;
+    ::ev4sio_physx::PxConstraintSolverPrep solverPrepFn;
     size_t jointDataSize;
-    ::physx::PxU32 typeId;
+    ::ev4sio_physx::PxU32 typeId;
     // Copies held by a parser snapshot or a live constraint pin registration.
     std::shared_ptr<unsigned char> lifetime;
 };
 
-class CustomPhysXJoint : public ::physx::PxConstraintConnector, public Allocateable
+class CustomPhysXJoint : public ::ev4sio_physx::PxConstraintConnector, public Allocateable
 {
 public:
     CustomPhysXJoint(const usdparser::AttachedStage& owner, omni::physics::parse::ObjectKey key,
                      const usdparser::CustomPhysxJointDesc& jointDesc,
-                     ::physx::PxPhysics& physics,
+                     ::ev4sio_physx::PxPhysics& physics,
                      const CustomJointInfo& jointInfo,
-                     ::physx::PxConstraintFlag::Enum flags,
-                     ::physx::PxRigidActor* actor0,
-                     ::physx::PxRigidActor* actor1);
+                     ::ev4sio_physx::PxConstraintFlag::Enum flags,
+                     ::ev4sio_physx::PxRigidActor* actor0,
+                     ::ev4sio_physx::PxRigidActor* actor1);
 
     void release();
 
     // PxConstraintConnector boilerplate
     void* prepareData();
     void onConstraintRelease();
-    void onComShift(::physx::PxU32 actor);
-    void onOriginShift(const ::physx::PxVec3& shift);
-    void* getExternalReference(::physx::PxU32& typeID);
+    void onComShift(::ev4sio_physx::PxU32 actor);
+    void onOriginShift(const ::ev4sio_physx::PxVec3& shift);
+    void* getExternalReference(::ev4sio_physx::PxU32& typeID);
 
-    ::physx::PxBase* getSerializable()
+    ::ev4sio_physx::PxBase* getSerializable()
     {
         return NULL;
     }
 
-    virtual ::physx::PxConstraintSolverPrep getPrep() const;
+    virtual ::ev4sio_physx::PxConstraintSolverPrep getPrep() const;
     virtual const void* getConstantBlock() const;
-    virtual bool updatePvdProperties(::physx::pvdsdk::PvdDataStream& pvdConnection,
-                                     const ::physx::PxConstraint* c,
-                                     ::physx::PxPvdUpdateType::Enum updateType) const
+    virtual bool updatePvdProperties(::ev4sio_physx::pvdsdk::PvdDataStream& pvdConnection,
+                                     const ::ev4sio_physx::PxConstraint* c,
+                                     ::ev4sio_physx::PxPvdUpdateType::Enum updateType) const
     {
         return true;
     }
@@ -99,7 +99,7 @@ public:
 
     void* callbackContext() const { return mCustomJointInfo.customJointCb.userData; }
 
-    ::physx::PxConstraint* getConstraint()
+    ::ev4sio_physx::PxConstraint* getConstraint()
     {
         return mConstraint;
     }
@@ -109,7 +109,7 @@ private:
     struct alignas(16) ShaderDataChunk { unsigned char bytes[16]; };
     mutable std::vector<ShaderDataChunk> mShaderData;
     const usdparser::AttachedStage& mAttachedStage;
-    ::physx::PxConstraint* mConstraint;
+    ::ev4sio_physx::PxConstraint* mConstraint;
 
     omni::physics::parse::ObjectKey mJointKey;
     CustomJointInfo mCustomJointInfo;
@@ -127,7 +127,7 @@ public:
 
     size_t registerCustomJoint(const char* jointPrimType,
                                ICustomJointCallback& jointCallback,
-                               ::physx::PxConstraintSolverPrep jointPrepFn,
+                               ::ev4sio_physx::PxConstraintSolverPrep jointPrepFn,
                                size_t jointDataSize);
     void unregisterCustomJoint(size_t id);
     bool tryUnregisterCustomJoint(size_t id);
@@ -141,10 +141,10 @@ public:
     CustomPhysXJoint* createCustomJoint(const usdparser::AttachedStage& attachedStage,
                                         omni::physics::parse::ObjectKey primKey,
                                         const usdparser::CustomPhysxJointDesc& jointDesc,
-                                        ::physx::PxRigidActor* actor0,
-                                        const ::physx::PxTransform& localFrame0,
-                                        ::physx::PxRigidActor* actor1,
-                                        const ::physx::PxTransform& localFrame1);
+                                        ::ev4sio_physx::PxRigidActor* actor0,
+                                        const ::ev4sio_physx::PxTransform& localFrame0,
+                                        ::ev4sio_physx::PxRigidActor* actor1,
+                                        const ::ev4sio_physx::PxTransform& localFrame1);
 
     void removeCustomJoint(const usdparser::AttachedStage& owner, omni::physics::parse::ObjectKey primKey, const CustomPhysXJoint* joint);
 
@@ -165,24 +165,24 @@ private:
 // Clamps both bounds of a revolute limit into [-180, 180] degrees, so a pair beyond one end, such
 // as [200, 250] degrees, stays ordered and valid (REQ-LOAD-JOINTLIMIT-001 AC-8). Only a bound
 // clearly outside that range is reported.
-inline void checkRevoluteJointLimits(::physx::PxJointAngularLimitPair& limitPair, const char* primKey)
+inline void checkRevoluteJointLimits(::ev4sio_physx::PxJointAngularLimitPair& limitPair, const char* primKey)
 {
-    const float ANGLE_CLAMP_THRESHOLD = ::physx::PxPi * 1.0001f;
-    if (::physx::PxAbs(limitPair.lower) > ANGLE_CLAMP_THRESHOLD)
+    const float ANGLE_CLAMP_THRESHOLD = ::ev4sio_physx::PxPi * 1.0001f;
+    if (::ev4sio_physx::PxAbs(limitPair.lower) > ANGLE_CLAMP_THRESHOLD)
     {
         CARB_LOG_WARN("Lower angle limit on a revolute D6 joint was clamped to %s180 degrees. %s",
                       limitPair.lower < 0.0f ? "-" : "", primKey);
     }
 
-    if (::physx::PxAbs(limitPair.upper) > ANGLE_CLAMP_THRESHOLD)
+    if (::ev4sio_physx::PxAbs(limitPair.upper) > ANGLE_CLAMP_THRESHOLD)
     {
         CARB_LOG_WARN("Upper angle limit on a revolute D6 joint was clamped to %s180 degrees. %s",
                       limitPair.upper < 0.0f ? "-" : "", primKey);
     }
 
-    limitPair.lower = ::physx::PxClamp(limitPair.lower, -::physx::PxPi, ::physx::PxPi);
-    limitPair.upper = ::physx::PxClamp(limitPair.upper, -::physx::PxPi, ::physx::PxPi);
+    limitPair.lower = ::ev4sio_physx::PxClamp(limitPair.lower, -::ev4sio_physx::PxPi, ::ev4sio_physx::PxPi);
+    limitPair.upper = ::ev4sio_physx::PxClamp(limitPair.upper, -::ev4sio_physx::PxPi, ::ev4sio_physx::PxPi);
 }
 
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

@@ -15,7 +15,7 @@
 #include <memory>
 #include <shared_mutex>
 
-namespace omni::physx
+namespace omni::ev4sio_physx
 {
 namespace usdparser { class AttachedStage; }
 

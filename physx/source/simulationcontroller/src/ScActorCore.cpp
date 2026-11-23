@@ -9,9 +9,9 @@
 #include "ScShapeSim.h"
 #include "ScBodySim.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
-Sc::ActorCore::ActorCore(PxActorType::Enum actorType, PxU8 actorFlags, PxClientID owner, PxDominanceGroup dominanceGroup) :
+ev4sio_Sc::ActorCore::ActorCore(PxActorType::Enum actorType, PxU8 actorFlags, PxClientID owner, PxDominanceGroup dominanceGroup) :
 	mSim			(NULL),
 	mPackedIDs		((PxU32(owner)<<SC_FILTERING_ID_SHIFT_BIT)|SC_FILTERING_ID_MASK),
 	mActorFlags		(actorFlags),
@@ -22,11 +22,11 @@ Sc::ActorCore::ActorCore(PxActorType::Enum actorType, PxU8 actorFlags, PxClientI
 	PX_ASSERT(!hasAggregateID());
 }
 
-Sc::ActorCore::~ActorCore()
+ev4sio_Sc::ActorCore::~ActorCore()
 {
 }
 
-void Sc::ActorCore::setActorFlags(PxActorFlags af)	
+void ev4sio_Sc::ActorCore::setActorFlags(PxActorFlags af)
 { 
 	const PxActorFlags old = mActorFlags;
 	if(af!=old)
@@ -42,7 +42,7 @@ void Sc::ActorCore::setActorFlags(PxActorFlags af)
 	}
 }
 
-void Sc::ActorCore::setDominanceGroup(PxDominanceGroup g)
+void ev4sio_Sc::ActorCore::setDominanceGroup(PxDominanceGroup g)
 {
 	PX_ASSERT(g<32);
 
@@ -56,7 +56,7 @@ void Sc::ActorCore::setDominanceGroup(PxDominanceGroup g)
 	}
 }
 
-void Sc::ActorCore::setAggregateID(PxU32 id)
+void ev4sio_Sc::ActorCore::setAggregateID(PxU32 id)
 {
 	if(id==0xffffffff)
 	{
@@ -94,7 +94,7 @@ void Sc::ActorCore::setAggregateID(PxU32 id)
 	}
 }
 
-void Sc::ActorCore::setEnvID(PxU32 id)
+void ev4sio_Sc::ActorCore::setEnvID(PxU32 id)
 {
 	if(id==0xffffffff)
 	{
@@ -126,7 +126,7 @@ void Sc::ActorCore::setEnvID(PxU32 id)
 	}
 }
 
-void Sc::ActorCore::reinsertShapes()
+void ev4sio_Sc::ActorCore::reinsertShapes()
 {
 	PX_ASSERT(mSim);
 	if(!mSim)

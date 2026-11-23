@@ -24,7 +24,7 @@
 * `PxSerialization::createCollectionFromXml()` now rejects invalid triangle and convex mesh descriptors before cooking and skips mesh creation when cooking fails. Malformed mesh data without usable cooked data could previously trigger an assertion in debug builds.
 * Rigid dynamic actors and materials deserialized with `PxSerialization::createCollectionFromBinary()` now keep their `PxRigidDynamicLockFlags` and `PxMaterialFlags`. Previously, both were cleared, so that, for example, a locked axis was free again and `PxMaterialFlag::eCOMPLIANT_ACCELERATION_SPRING` was lost.
 * `PHYSX_PRESET` cpu-only presets (`linux-gcc-cpu-only`, `vc17win64-cpu-only`, ...) were ignored when configuring with CMake directly (top level, `add_subdirectory()` or FetchContent): `PX_GENERATE_GPU_PROJECTS` stayed ON, CUDA was enabled and configuring failed with "Failed to find nvcc" on machines without the CUDA toolkit. The cpu-only presets now disable CUDA as documented; an explicit `-DPX_GENERATE_GPU_PROJECTS=...` on the command line still takes precedence over the preset.
-* The GPU entry points in `gpu/PxGpu.h`, such as `PxCreateCudaContextManager()`, kept calling into a PhysXGpu library after reporting it as incompatible with this version of PhysX, for example an older `PhysXGpu_64.dll` installed by another application. Such a library received this SDK's objects and returned objects that do not match this SDK's interfaces. An incompatible library is now handled like a missing one: the error is still reported, and the entry points behave as if no PhysXGpu library had been found. On Linux, a library that lacks `PxSetPhysXGpuProfilerCallback` or `PxSetPhysXGpuFoundationInstance` is now rejected, as on Windows.
+* The GPU entry points in `gpu/PxGpu.h`, such as `ev4sio_PxCreateCudaContextManager()`, kept calling into a PhysXGpu library after reporting it as incompatible with this version of PhysX, for example an older `PhysXGpu_64.dll` installed by another application. Such a library received this SDK's objects and returned objects that do not match this SDK's interfaces. An incompatible library is now handled like a missing one: the error is still reported, and the entry points behave as if no PhysXGpu library had been found. On Linux, a library that lacks `ev4sio_PxSetPhysXGpuProfilerCallback` or `ev4sio_PxSetPhysXGpuFoundationInstance` is now rejected, as on Windows.
 * In a scene with `PxSceneFlag::eENABLE_DIRECT_GPU_API`, `PxScene::shiftOrigin()` reports an error and no longer shifts the origin. Previously it shifted the actor poses and the scene query structures on the CPU anyway, while the simulation on the GPU kept the old origin.
 * A `PxBroadPhase` created with `PxBroadPhaseType::eGPU`, and a `PxAABBManager` using one, could report the same pair twice in the created or deleted pairs of `PxBroadPhaseResults`, for example when both objects of the pair moved a long distance in the same update. Each pair is now reported once.
 
@@ -173,7 +173,7 @@
 * Adding a rigid body during an OmniPVD recording in a regular GPU scene with `PxSceneFlag::eENABLE_BODY_ACCELERATIONS` no longer overwrites acceleration storage when an earlier GPU acceleration copy is pending.
 * `PxOmniPvd::startSampling()` now includes current body accelerations in CPU and regular GPU scenes with `PxSceneFlag::eENABLE_BODY_ACCELERATIONS`, without requiring another simulation step.
 * Selective OmniPVD recordings retain a joint's counterpart actor while the other endpoint is selected but belongs to no scene. Previously, fetching results for the counterpart's scene could remove it while the recorded joint still referred to it.
-* `PxPhysicsAPI.h` now includes `omnipvd/PxOmniPvd.h`, making `PxOmniPvd`, `PxOmniPvdEventCallback` and `PxCreateOmniPvd()` available without a separate include. Previously, code that included only `PxPhysicsAPI.h` saw `PxOmniPvd` as an incomplete type.
+* `PxPhysicsAPI.h` now includes `omnipvd/PxOmniPvd.h`, making `PxOmniPvd`, `PxOmniPvdEventCallback` and `ev4sio_PxCreateOmniPvd()` available without a separate include. Previously, code that included only `PxPhysicsAPI.h` saw `PxOmniPvd` as an incomplete type.
 * The Windows OVD workflow builds with Ninja in `checked` and `profile` configurations and deploys the GPU library alongside the recorder when the CPU SDK is static. CMake GPU builds use the DLL name expected by the SDK loader.
 * PVD and OmniPVD recordings could miss contacts in a simulation step in which a contact pair had both discrete and CCD contacts, or CCD contacts from more than one CCD pass. Contact pairs processed after that pair in the same step lost their discrete contacts and could lose CCD contacts, so pairs with only discrete contacts were missing from the recording. This affected scenes with `PxSceneFlag::eENABLE_CCD` in which CCD kept that pair's contacts, for example because the pair requested `PxPairFlag::eNOTIFY_CONTACT_POINTS`, or because the scene had `PxSceneFlag::eENABLE_GPU_DYNAMICS` and was recorded with OmniPVD.
 * OmniPVD now preserves recorded DirectGPU articulation joint forces across simulation steps until they are changed, matching their lifetime in the simulation.
@@ -227,7 +227,7 @@
 
 * Windows 64-bit DLL version resources now identify the correct architecture and filenames when built with CMake.
 * On Windows, releasing a PxThread object triggered an ERROR_INVALID_HANDLE error if the thread was not started.
-* The `PX_EXT_DEVICE_MEMORY_*` and `PX_EXT_PINNED_MEMORY_*` macros in `PxCudaHelpersExt.h` failed to compile from a namespace holding a nested `physx`. They now name `::physx::Ext` explicitly.
+* The `PX_EXT_DEVICE_MEMORY_*` and `PX_EXT_PINNED_MEMORY_*` macros in `PxCudaHelpersExt.h` failed to compile from a namespace holding a nested `physx`. They now name `::ev4sio_physx::ev4sio_Ext` explicitly.
 * Fixed a rare crash during simulation when the broadphase reported an overlap referencing an invalid object index. Such overlaps are now discarded and reported through the error callback as `PxErrorCode::eINTERNAL_ERROR`.
 * Fixed the SDK's material table being corrupted when a material could not be registered - in practice, when the limit of 64K materials is reached. Shapes referencing the affected material could silently change material or destroy one that was still in use.
 * Fixed `PxPhysics::getNbMaterials()` climbing past the number of materials that actually exist, once a material has been rejected.
@@ -242,7 +242,7 @@
 
 ### Changed
 
-* The cooking functions declared in `cooking/PxCooking.h` (`PxCookTriangleMesh()`, `PxCreateConvexMesh()`, `PxGetStandaloneInsertionCallback()`, ...) are now exported from PhysXCommon. Applications no longer need to link against, or redistribute, a separate cooking library.
+* The cooking functions declared in `cooking/PxCooking.h` (`ev4sio_PxCookTriangleMesh()`, `ev4sio_PxCreateConvexMesh()`, `ev4sio_PxGetStandaloneInsertionCallback()`, ...) are now exported from PhysXCommon. Applications no longer need to link against, or redistribute, a separate cooking library.
 * `PxSceneDesc::flags` now defaults to `PxSceneFlag::eENABLE_PCM | PxSceneFlag::eENABLE_EXTERNAL_FORCES_EVERY_ITERATION_TGS`, so a scene using the TGS solver applies gravity and other external forces in every position iteration unless the flag is cleared. This changes the simulation behavior of TGS scenes that did not raise the flag before. See the migration guide. `PxSceneDesc::isValid()` no longer rejects the flag together with `PxSolverType::ePGS`. A PGS scene retains the flag but ignores it.
 * On Windows, `PxIsFinite()` is now fully inlined instead of calling into the C runtime, which removes a function call per component from the checks built on it, such as `PxVec3::isFinite()` and `PxTransform::isValid()`. Builds that enable finite-math optimizations, such as clang-cl with `/fp:fast`, keep the C runtime call so that these checks are not optimized away.
 
@@ -254,7 +254,7 @@
 
 * The PhysXCooking library has been removed (`PhysXCooking_*.dll`, `PhysXCooking_static_*.lib`, `libPhysXCooking_static_*.a`, and the `PhysX::PhysXCooking` CMake target). Its functionality is now part of PhysXCommon; remove `PhysXCooking` from your link line.
 * The `cooking/Pxc.h` header and the `PX_PHYSX_COOKING_API` macro it defined have been removed. `PxPhysicsAPI.h` no longer includes it.
-* `PxSetPhysXCookingDelayLoadHook()` has been removed. `PxSetPhysXDelayLoadHook()` and `PxSetPhysXCommonDelayLoadHook()` cover all remaining delay-loaded DLLs.
+* `PxSetPhysXCookingDelayLoadHook()` has been removed. `ev4sio_PxSetPhysXDelayLoadHook()` and `ev4sio_PxSetPhysXCommonDelayLoadHook()` cover all remaining delay-loaded DLLs.
 * Removed the deprecated `PxStridedData` and `PxTypedStridedData<T>`. Use `PxBoundedData` and `PxTypedBoundedData<T>` instead.
 * Removed the deprecated helpers in `PxMathUtils.h`: the `Interpolation` struct with `PxLerp()`, `PxBiLerp()`, `PxTriLerp()`, `PxSDFIdx()` and `PxSDFSampleImpl()`, and the two `computeBarycentric()` overloads. Use the free functions `PxLerp()`, `PxBiLerp()`, `PxTriLerp()`, `PxSDFIdx()` and `PxSDFSample()` in the same header, and `PxComputeBarycentric()`.
 * Removed the deprecated `PxSdfSample()`. Use the alternative function `PxSDFSample()` instead, but note that it returns the distance only. The migration guide shows how to compute the gradient the removed function also provided.
@@ -352,7 +352,7 @@
   * Contacts between a `PxDeformableSurface` and a `PxConvexCoreGeometry` shape applied their impulse to the wrong vertices of the contacting triangle.
 * Various `PxDeformableVolume` mesh related fixes:
   * Releasing a `PxDeformableVolumeMesh` destroyed its collision mesh, simulation mesh and auxiliary data outright, freeing a collision mesh still referenced by a `PxShape`, or a simulation mesh and auxiliary data still referenced by a `PxDeformableVolume`. All three are now reference counted, so the `PxDeformableVolumeMesh` can be released before or after them.
-  * A `PxTetrahedronMesh` or `PxDeformableVolumeMesh` may have been leaked, if created through `PxCreateTetrahedronMesh()` or `PxCreateDeformableVolumeMesh()` when called without specifying a `PxInsertionCallback`. Releasing the last reference now destroys it.
+  * A `PxTetrahedronMesh` or `PxDeformableVolumeMesh` may have been leaked, if created through `ev4sio_PxCreateTetrahedronMesh()` or `ev4sio_PxCreateDeformableVolumeMesh()` when called without specifying a `PxInsertionCallback`. Releasing the last reference now destroys it.
   * `PxTetrahedronMeshExt::findTetrahedronContainingPoint()` and `PxTetrahedronMeshExt::findTetrahedronClosestToPoint()` crashed on a tetrahedron mesh without a bounding volume hierarchy, such as the simulation mesh of a `PxDeformableVolumeMesh`. Such a mesh is now rejected with an error. `PxTetrahedronMeshExt::createPointsToTetrahedronMap()` builds its own hierarchy and covers that case.
   * The same two functions did not return the correct tetrahedron in all cases, and `PxTetrahedronMeshExt::findTetrahedronContainingPoint()` crashed on very small meshes.
   * `PxDeformableBody::attachShape()` accepted a shape whose tetrahedron mesh was not the collision mesh of a `PxDeformableVolumeMesh`, such as its simulation mesh or a mesh from `PxPhysics::createTetrahedronMesh()`, and the mismatch surfaced later as out-of-bounds reads in the GPU pipeline. Such a shape is now rejected. Checked builds only.
@@ -402,7 +402,7 @@
 * OmniPVD socket write stream: `openStream()` now bounds the socket connect by the configured send timeout, so a connection to an unreachable or non-listening host fails within that timeout instead of stalling on the OS connect timeout.
 * PvdDom: fixed object lifespans across repeated sampling segments and scene membership changes.
 * PvdDom: restored integration-version validation and per-scene frame tracking.
-* `Cm::FanoutTask` called `PxCpuDispatcher::submitTask()` while holding its own mutex. A dispatcher that migrates a running task between OS threads can leave that mutex locked by a stale thread id, which aborts the process inside glibc on the next lock attempt on Linux. The task is now submitted after the lock is released.
+* `ev4sio_Cm::FanoutTask` called `PxCpuDispatcher::submitTask()` while holding its own mutex. A dispatcher that migrates a running task between OS threads can leave that mutex locked by a stale thread id, which aborts the process inside glibc on the next lock attempt on Linux. The task is now submitted after the lock is released.
 * Fixed `PxScene::fetchResultsFinish()` to safely return without post-processing when it is not paired with a successful `fetchResultsStart()`, including when the start encounters a non-abort CUDA error.
 * Fixed PxCudaContextManager releasing an uninitialized thread-local storage key when creation fails, which could destroy a TLS slot owned by another part of the application. Using the context on a manager that failed to initialize is now rejected and reported.
 * Fixed an out-of-bounds read in the GPU heap memory allocator that could crash while creating a `PxScene`.
@@ -456,7 +456,7 @@
 
 * PxDeformableBody::setSolverIterationCounts now takes effect when lowering the count. Previously, in a scene with no rigid-body solver-state change, a reduced count was ignored and the solver kept running the previous (higher) count.
 * PxPBDParticleSystem contacts with PxDeformableVolume and PxDeformableSurface were solved using a rest distance which incorporated the deformable rest offset twice.
-* PxCreateTetrahedronMesh() and PxCookTetrahedronMesh() never copied the descriptor's vertices and tetrahedra into the mesh, so the result held uninitialized memory and its local bounds were derived from it.
+* ev4sio_PxCreateTetrahedronMesh() and ev4sio_PxCookTetrahedronMesh() never copied the descriptor's vertices and tetrahedra into the mesh, so the result held uninitialized memory and its local bounds were derived from it.
 
 ### Changed
 
@@ -670,7 +670,7 @@
   * PxShape::setSoftBodyMaterials(), getSoftBodyMaterials()
   * PxDeformableVolume: setSoftBodyFlag(), getSoftBodyFlag(), addSoftBodyFilter(), removeSoftBodyFilter(), addSoftBodyAttachment(), removeSoftBodyAttachment(), getGpuSoftBodyIndex() and related deprecated methods
   * PxDeformableVolumeExt: createSoftBody(), createSoftBodyMesh(), relaxSoftBodyMesh() and related deprecated methods
-  * PxCookSoftBodyMesh(), PxCreateSoftBodyMesh(), PxAssembleSoftBodyMesh() and related deprecated functions
+  * ev4sio_PxCookSoftBodyMesh(), ev4sio_PxCreateSoftBodyMesh(), ev4sio_PxAssembleSoftBodyMesh() and related deprecated functions
   * PxGpuDynamicsMemoryConfig: maxSoftBodyContacts, maxFemClothContacts (use maxDeformableVolumeContacts, maxDeformableSurfaceContacts)
   * PxSimulationStatistics: gpuMemSoftBodies, gpuMemHeapSimulationSoftBody, gpuMemHeapSoftBodies (use deformable volume equivalents)
 
@@ -707,7 +707,7 @@
 
   * PxParticleSpring, PxParticleCloth, PxParticleClothDesc, PxPartitionedParticleCloth, PxParticleClothBuffer, PxParticleClothPreProcessor
   * extensions/PxParticleClothCooker.h (PxCreateParticleClothCooker and related types)
-  * PxParticleClothBufferHelper, PxCreateParticleClothBufferHelper(), PxCreateAndPopulateParticleClothBuffer(), PxCreateParticleClothPreProcessor()
+  * PxParticleClothBufferHelper, PxCreateParticleClothBufferHelper(), PxCreateAndPopulateParticleClothBuffer(), ev4sio_PxCreateParticleClothPreProcessor()
   * PxPhysics::createParticleClothBuffer()
   * PxConcreteType::ePARTICLE_CLOTH_BUFFER
   * PxParticleBufferFlag::eUPDATE_CLOTH
@@ -800,7 +800,7 @@
 
 ### Added
 * Added PxPinnedHostAllocatorCallback mainly to test out-of-pinned-host-memory situations.
-* Added PxCudaContextManagerDesc::pinnedHostAllocator, which may be NULL, to pass user allocator when calling PxCreateCudaContextManager.
+* Added PxCudaContextManagerDesc::pinnedHostAllocator, which may be NULL, to pass user allocator when calling ev4sio_PxCreateCudaContextManager.
 * Added PxCudaContext::getDeviceAllocatorCallback() and deprecated PxCudaContext::getAllocatorCallback().
 
 ### Removed
@@ -1039,7 +1039,7 @@
 
 ### Fixed
 
-* A rare crash in PxConvexCoreGeometry contact generation in Gu::FaceClipper::makePlanes() function has been fixed.
+* A rare crash in PxConvexCoreGeometry contact generation in ev4sio_Gu::FaceClipper::makePlanes() function has been fixed.
 * A bug when PxPhysics::createMaterial() allowed to create materials with invalid restitution values. The accepted values now are [0, 1] for restitution and (-PX_MAX_REAL, 0) if it's the compliant contact stiffness.
 * Pairs of triangle mesh colliders (where both have no SDF) are filtered out from the collision pipeline, avoiding a crash when e.g. kinematic triangle meshes collide.
 * A regression in the GPU geometry code that could cause ghost contacts between a sphere and a triangle mesh has been fixed.
@@ -1183,7 +1183,7 @@
 * Binary data conversion and binary meta data have been removed.
   * PxBinaryConverter
   * PxConverterReportMode
-  * PxGetPhysicsBinaryMetaData()
+  * ev4sio_PxGetPhysicsBinaryMetaData()
   * PxSerialization::serializeCollectionToBinaryDeterministic()
   * PxSerialization::dumpBinaryMetaData()
   * PxSerialization::createBinaryConverter()
@@ -1490,7 +1490,7 @@
 ### Changed
 
 * Rename PxgDynamicsMemoryConfig to PxGpuDynamicsMemoryConfig
-* The signature for PxIntegrateSolverBodies() has changed. It will now return the updated linearMotionVelocity and angularMotionState values, which facilitates implementing the PhysX sleeping algorithm for immediate mode.
+* The signature for ev4sio_PxIntegrateSolverBodies() has changed. It will now return the updated linearMotionVelocity and angularMotionState values, which facilitates implementing the PhysX sleeping algorithm for immediate mode.
 * PxGpuDynamicsMemoryConfig::tempBufferCapacity has been changed to PxU64.
 * An error message was added when attempting to add any PxConstraint other than a D6 joint to a scene with direct-GPU API. Before it did not work silently.
 
@@ -1754,7 +1754,7 @@
 
 ### Fixed
 
-* You can now only create one PxCreateControllerManager per PxScene. This avoids filtering-related issues when multiple controller managers are created for the same PxScene.
+* You can now only create one ev4sio_PxCreateControllerManager per PxScene. This avoids filtering-related issues when multiple controller managers are created for the same PxScene.
 
 ## Particles
 
@@ -2107,7 +2107,7 @@ detection will fall back to CPU for these meshes.
 
 ### Removed
 
-* The deprecated PxCooking class has been removed. Use the standalone "immediate cooking" functions instead (e.g. PxCookBVH, PxCreateBVH...)
+* The deprecated PxCooking class has been removed. Use the standalone "immediate cooking" functions instead (e.g. ev4sio_PxCookBVH, ev4sio_PxCreateBVH...)
 * PxCooking::cookBVHStructure() has been removed. Use PxCooking::cookBVH()
 * PxCooking::createBVHStructure() has been removed. Use PxCooking::createBVH()
 
@@ -2285,7 +2285,7 @@ detection will fall back to CPU for these meshes.
 ### Fixed:
 
 * Binary serialization of materials' userData.
-* Fixed precision issue in index computation in Gu::HeightField::computeCellCoordinates [Issue #52](https://github.com/NVIDIA-Omniverse/PhysX/issues/52)
+* Fixed precision issue in index computation in ev4sio_Gu::HeightField::computeCellCoordinates [Issue #52](https://github.com/NVIDIA-Omniverse/PhysX/issues/52)
 * Performance for SnippetCustomGeometry is now much better, particularly on Linux
 * Compiler errors on Linux - [Issue #25](https://github.com/NVIDIA-Omniverse/PhysX/issues/25)
 
@@ -2380,7 +2380,7 @@ detection will fall back to CPU for these meshes.
 * Binary data conversion and binary meta data have been deprecated.
     * PxBinaryConverter
     * PxConverterReportMode
-    * PxGetPhysicsBinaryMetaData()
+    * ev4sio_PxGetPhysicsBinaryMetaData()
     * PxSerialization::serializeCollectionToBinaryDeterministic()
     * PxSerialization::dumpBinaryMetaData()
     * PxSerialization::createBinaryConverter()
@@ -2433,7 +2433,7 @@ detection will fall back to CPU for these meshes.
 * A new set of API functions PxGjkQuery have been added. This is intended for spatial queries on custom shapes represented by their GJK Support Mapping.
 * PxMeshGeometryFlag::eTIGHT_BOUNDS has been added. This is similar to PxConvexMeshGeometryFlag::eTIGHT_BOUNDS, but for triangle meshes.
 * A new broadphase has been added (PxBroadPhaseType::ePABP).
-* A standalone broadphase interface has been added (see PxCreateBroadPhase and PxCreateAABBManager).
+* A standalone broadphase interface has been added (see ev4sio_PxCreateBroadPhase and ev4sio_PxCreateAABBManager).
 * A compliant contact model has been added. Users can now customize spring-stiffness and damping for a soft contact response.
 * Triangle mesh colliders are now supported on dynamic rigid bodies if a SDF (Signed Distance Field) gets generated during cooking.
 * PxSceneDesc::frictionCorrelationDistance allows to configure the distance for merging contact points into a single anchor point.
@@ -2502,7 +2502,7 @@ detection will fall back to CPU for these meshes.
 * PxBVH now has a culling function (PxBVH::cull()) that can be used to implement view-frustum culling. See SnippetFrustumQuery for an example.
 * PxBVH now has refit functions (PxBVH::refit(), PxBVH::partialRefit()) that can be used for dynamic trees. See SnippetStandaloneBVH for an example.
 * PxBVH now has a generic traversal function (PxBVH::traverse()) that can be used for arbitrary purposes, like e.g. debug-visualizing the tree bounds. See SnippetStandaloneBVH for an example.
-* There is a new PxFindOverlap function to find overlaps between two PxBVH objects.
+* There is a new ev4sio_PxFindOverlap function to find overlaps between two PxBVH objects.
 * The PxRigidActorExt::createBVHFromActor() helper function has been added.
 * PxSceneDesc::dynamicTreeSecondaryPruner has been added. The new PxDynamicTreeSecondaryPruner enum lets users choose which implementation to use in dynamic trees.
 * PxSceneDesc::staticBVHBuildStrategy and PxSceneDesc::dynamicBVHBuildStrategy have been added. This lets users control the build strategy of the static & dynamic pruning structures.
@@ -2555,7 +2555,7 @@ detection will fall back to CPU for these meshes.
 
 ### Added:
 
-* The Vehicle SDK has been refactored into a completely new form to allow rapid customization and prototyping. SnippetVehicle2Customization, SnippetVehicle2DirectDrive, SnippetVehicle2FourWheelDrive etc. demonstrate use of the new Vehicle SDK. The public API for the new Vehicle SDK may be found under "physxRoot/include/vehicle2". All functions, structs and classes in the new Vehicle SDK are inside the physx::vehicle2 namespace. A migration guide may be found in the PhysX 5.1 SDK Guide under the subsection "Migrating From PhysX SDK 4.0 to 5.1/Vehicles".
+* The Vehicle SDK has been refactored into a completely new form to allow rapid customization and prototyping. SnippetVehicle2Customization, SnippetVehicle2DirectDrive, SnippetVehicle2FourWheelDrive etc. demonstrate use of the new Vehicle SDK. The public API for the new Vehicle SDK may be found under "physxRoot/include/vehicle2". All functions, structs and classes in the new Vehicle SDK are inside the ev4sio_physx::vehicle2 namespace. A migration guide may be found in the PhysX 5.1 SDK Guide under the subsection "Migrating From PhysX SDK 4.0 to 5.1/Vehicles".
 
 ## Vehicles
 
@@ -2589,7 +2589,7 @@ detection will fall back to CPU for these meshes.
 ### Deprecated:
 
 * The PxCooking object is deprecated. Please use the new standalone cooking functions instead (in the cooking library) or the low-level cooking functions (in the GeomUtils library).
-* PxCooking::cookBVHStructure() is deprecated. Please use PxCookBVH() instead.
+* PxCooking::cookBVHStructure() is deprecated. Please use ev4sio_PxCookBVH() instead.
 
 ### Added:
 
@@ -2616,8 +2616,8 @@ detection will fall back to CPU for these meshes.
   * Adds the OmniPVDWriter exposing serialization through OmniPVDWriteStream, OmniPVDFileWriteStream.
   * Adds the OmniPVDReader exposing de-serialization through OmniPVReadStream, OmniPVDFileReadStream.
 * Adds an OmniPVD API user in the PhysX SDK, exposed through PxOmniPVD, which streams PhysX debug data into an OmniPVD API write stream.
-  * PxOmniPVD is now an optional argument to the PxCreatePhysics() function, allowing for the parallel inclusion of both PVD and OVD debug streams.
-  * Adds PxPhysics::getOmniPvd() which returns the PxOmnipVD instance used in the call to PxCreatePhysics()
+  * PxOmniPVD is now an optional argument to the ev4sio_PxCreatePhysics() function, allowing for the parallel inclusion of both PVD and OVD debug streams.
+  * Adds PxPhysics::getOmniPvd() which returns the PxOmnipVD instance used in the call to ev4sio_PxCreatePhysics()
   * Exports : Rigid Static, Rigid Dynamic, Joints, Articulations, Contacts and more into the OmniPVD stream.
 * Possibility to serialize and save out, as well as read and parse OVD files (through the usage of OmniPVD API), which constain an OmniPVD command stream of PhysX debug data.
 * Comes with a viewer in Omniverse Create, in the form of an extension called omni.physx.pvd also known as the OmniPVD extension.
@@ -2762,7 +2762,7 @@ April 2021
 * Removed duplicate closing cross-thread event for Basic.narrowPhase event.
 * Fixed buffer over-read in CmPool.h
 * Replaced all custom offsetof expressions that seem to dereference a null pointer with the PX_OFFSET_OF_RT macro.
-* Replaced run-time assert on sizeof(PxHeightFieldSample::height) with compile-time assert in physx::Gu::HeightFieldUtil constructor.
+* Replaced run-time assert on sizeof(PxHeightFieldSample::height) with compile-time assert in ev4sio_physx::ev4sio_Gu::HeightFieldUtil constructor.
 * Various minor issues (doc typos, const correctness, compilation warnings, etc) reported on GitHub have been fixed.
         
     
@@ -2929,7 +2929,7 @@ March 2019
 ### Changed:
         
 * Removed PxGpuDispatcher class. Instead of querying the GPU dispatcher with PxCudaContextManager::getGpuDispatcher() and providing it to the PxScene with PxSceneDesc::gpuDispatcher, please provide the CUDA context manager directly using PxSceneDesc::cudaContextManager.
-* PxCreateCudaContextManager does have an additional parameter PxProfilerCallback, that is required in order to get profiling events from the GPU dll.
+* ev4sio_PxCreateCudaContextManager does have an additional parameter PxProfilerCallback, that is required in order to get profiling events from the GPU dll.
 * FastXml project is now compiled as OBJECT on win platforms and is linked into PhysXExtensions library.
 * Removed PxArticulationBase::getType(), PxArticulationBase::eReducedCoordinate, PxArticulationBase::eMaximumCoordinate and added PxConcreteType::eARTICULATION_REDUCED_COORDINATE, PxConcreteType::eARTICULATION_JOINT_REDUCED_COORDINATE.
         
@@ -2972,7 +2972,7 @@ March 2019
         
 ### Changed:
         
-* PX_BINARY_SERIAL_VERSION has been changed to a global unique identifier string. PX_PHYSICS_VERSION is no longer part of binary data versioning.
+* PX_BINARY_SERIAL_VERSION has been changed to a global unique identifier string. ev4sio_PX_PHYSICS_VERSION is no longer part of binary data versioning.
         
     
 
@@ -3329,7 +3329,7 @@ September 2018
 ### Fixed:
         
 * PxMeshQuery::getTriangle adjacency information for heightfield geometry fixed.
-* Removed PxSetPhysXGpuDelayLoadHook from API. Delay loaded dynamically linked library names are now provided through PxSetPhysXDelayLoadHook.
+* Removed PxSetPhysXGpuDelayLoadHook from API. Delay loaded dynamically linked library names are now provided through ev4sio_PxSetPhysXDelayLoadHook.
 * Fixed a source of non-determinism with GPU rigid bodies.
         
     
@@ -3906,7 +3906,7 @@ February 2017
   * PxCloneShape has been added to enable cloning of shapes.
   * acquireReference() has been added to increment the reference count of shapes, materials, triangle meshes, convex meshes heightfields and cloth fabrics.
   * The global filter shader data block can now be set through PxScene::setFilterShaderData().
-  * PxGpuLoadHook and PxSetPhysXGpuLoadHook has been added to support loading of GPU dll with a different name than the default.
+  * PxGpuLoadHook and ev4sio_PxSetPhysXGpuLoadHook has been added to support loading of GPU dll with a different name than the default.
   * A new profile zone has been added for debug visualization.
             
 * Changed:
@@ -3915,9 +3915,9 @@ February 2017
   * GPU support requires SM2.x (Fermi architecture, GeForce 400 series) or later hardware. SM1.x is no longer supported.
   * Windows XP 64-bit and Windows Vista no longer support GPU acceleration. Windows XP 32-bit still supports GPU acceleration.
   * PxTaskManager::createTaskManager requires error callback and does not accept SPU task manager.
-  * PxCreatePhysics and  PxCreateBasePhysics now take an optional pointer to an  physx::PxPvd instance.  
-  * PxConstraintConnector::updatePvdProperties now takes an optional pointer to an physx::pvdsdk::PvdDataStream instance.
-  * PxInitExtensions now takes an optional pointer to an physx::PxPvd instance.
+  * ev4sio_PxCreatePhysics and  PxCreateBasePhysics now take an optional pointer to an  ev4sio_physx::PxPvd instance.
+  * PxConstraintConnector::updatePvdProperties now takes an optional pointer to an ev4sio_physx::pvdsdk::PvdDataStream instance.
+  * ev4sio_PxInitExtensions now takes an optional pointer to an ev4sio_physx::PxPvd instance.
   * Shared objects (triangle mesh, convex mesh, heightfield, material, shape, cloth fabric) no longer issue an eUSER_RELEASE event when their release() method is called
   * PxBase::isReleasable() is now a property only of the type of an object, not the object state. In particular, isReleasable() returns true for PxShape objects whose only counted reference belongs to their owning actor.
   * PxCollection::releaseObjects() now calls release() even on shapes whose only counted reference belongs to their owning actor. An optional parameter releaseExclusiveShapes, which defaults to true, has been added to this method to assist with common scenarios in which all shapes are created with the deprecated method PxRigidActor::createShape() or its replacement PxRigidActorExt::createExclusiveShape()
@@ -4127,7 +4127,7 @@ APEX 1.4 can now be used independently of PhysX. In order to achieve that a new 
             
 * Changed:
             
-  * In checked build the functions PxVehicleDrive4W::allocate, PxVehicleDriveNW::allocate, PxVehicleDriveTank::allocate, PxVehicleNoDrive::allocate all return NULL and issue a warning if called before PxInitVehicleSDK.
+  * In checked build the functions PxVehicleDrive4W::allocate, PxVehicleDriveNW::allocate, PxVehicleDriveTank::allocate, PxVehicleNoDrive::allocate all return NULL and issue a warning if called before ev4sio_PxInitVehicleSDK.
                 
   * Tire width is no longer accounted for when computing the suspension compression from raycasts (PxVehicleSuspensionRaycasts).  Instead, tire width is incorporated into the suspension compression arising from swept wheels (PxVehicleSuspensionSweeps).  It is recommended to use PxVehicleSuspensionSweeps if there is a strict requirement that the inside and outside of the wheel don't visibly penetrate geometry.
             
@@ -4234,7 +4234,7 @@ APEX 1.4 can now be used independently of PhysX. In order to achieve that a new 
 ## Physx Visual Debugger
         
 * PhysXVisualDebuggerSDK, PvdRuntime projects replaced with PxPvdSDK.
-* PxPvdSceneClient::drawPoints now takes physx::pvdsdk::PvdDebugPoint as input parameter instead of PxDebugPoint. drawLines, drawTriangles, drawText and so on.
+* PxPvdSceneClient::drawPoints now takes ev4sio_physx::pvdsdk::PvdDebugPoint as input parameter instead of PxDebugPoint. drawLines, drawTriangles, drawText and so on.
 * The SDK's Debug visualization data is not sent to PVD anymore in ePROFILE mode.
 * PxPvdSceneFlag::eTRANSMIT_CONTACTS (instead of PxPvdSceneFlag::eTRANSMIT_CONSTRAINTS) was sometimes incorrectly used to control the transmission of constraint-related data. This has been fixed. In addition, the PxPvdSceneFlag flags are now consistently ignored when PxPvdInstrumentationFlag::eDEBUG is not set.
         
@@ -4437,7 +4437,7 @@ January 2015
             
 * Added:
             
-  * added lockingEnabled parameter to PxCreateControllerManager(), to support thread-safe release of objects while the character controller's move() routine is executing.
+  * added lockingEnabled parameter to ev4sio_PxCreateControllerManager(), to support thread-safe release of objects while the character controller's move() routine is executing.
             
         
 
@@ -4597,7 +4597,7 @@ September 2014
         
 #### Added:
             
-*  In profile config the functions PxVehicleUpdates, PxVehiclePostUpdates and PxVehicleSuspensionRaycasts are now tracked with profile events (provided that a PxProfileZoneManager instance was passed to PxCreatePhysics).  These profile events can be viewed in profile view in pvd, where the names of the profile events match the names of the tracked vehicle functions.
+*  In profile config the functions PxVehicleUpdates, PxVehiclePostUpdates and PxVehicleSuspensionRaycasts are now tracked with profile events (provided that a PxProfileZoneManager instance was passed to ev4sio_PxCreatePhysics).  These profile events can be viewed in profile view in pvd, where the names of the profile events match the names of the tracked vehicle functions.
             
 #### Fixed:
             
@@ -4617,7 +4617,7 @@ September 2014
         
 #### Fixed:
             
-*  The version number written to the fabric stream changed from PX_PHYSICS_VERSION to 1. A fabric can be created from streams written with version 3.3.0 and later until the stream format changes. Previously, the version of the producer and the consumer of the stream needed to match.
+*  The version number written to the fabric stream changed from ev4sio_PX_PHYSICS_VERSION to 1. A fabric can be created from streams written with version 3.3.0 and later until the stream format changes. Previously, the version of the producer and the consumer of the stream needed to match.
 *  GPU cloth friction against convexes has been fixed.
 *  A crash resulting from deleting a shape in proximity of a cloth with scene collision enabled has been fixed.
             
@@ -4729,7 +4729,7 @@ December 2013
 *  PxDefaultSimulationFilterShader now supports particles and cloth as well.
 *  PxSimulationFilterCallback: the provided actor and shape pointers are now defined as const. Note: this is no behavior change, it was never allowed to write to those objects from within the callback.
 *  The PxTriangleMeshFlag::eHAS_16BIT_TRIANGLE_INDICES and PxTriangleMeshFlag::eHAS_ADJACENCY_INFO enums have been deprecated. Please use PxTriangleMeshFlag::e16_BIT_INDICES and PxTriangleMeshFlag::eADJACENCY_INFO instead.
-*  Removed following functions from the API for platforms which do not support CUDA: PxGetSuggestedCudaDeviceOrdinal, PxCreateCudaContextManager, PxLoadPhysxGPUModule.
+*  Removed following functions from the API for platforms which do not support CUDA: ev4sio_PxGetSuggestedCudaDeviceOrdinal, ev4sio_PxCreateCudaContextManager, PxLoadPhysxGPUModule.
             
 #### Fixed:
             
@@ -5032,7 +5032,7 @@ September 2013
 *  SweepEpsilonDistance has been replaced by meshContactMargin and marked as deprecated. Please read the API documentation for details.
 *  PxShape::resetFiltering() and PxParticleBase::resetFiltering() have been deprecated. Please use one of the new overloaded methods PxScene::resetFiltering() instead.
 *  The pxtask namespace has been removed and it's types have been added to the physx namespace with a Px* prefix
-*  The delay load hook PxDelayLoadHook::setPhysXInstance has been renamed to PxSetPhysXDelayLoadHook and PxDelayLoadHook::setPhysXCookingInstance has been renamed to PxSetPhysXCookingDelayLoadHook
+*  The delay load hook PxDelayLoadHook::setPhysXInstance has been renamed to ev4sio_PxSetPhysXDelayLoadHook and PxDelayLoadHook::setPhysXCookingInstance has been renamed to PxSetPhysXCookingDelayLoadHook
                 
 ####  Fixed:
                 
@@ -5062,7 +5062,7 @@ September 2013
                 
 ####  Changed:
                 
-*  The PxControllerManager is now tightly coupled to a PxScene which has to be provided on creation. See PxCreateControllerManager().
+*  The PxControllerManager is now tightly coupled to a PxScene which has to be provided on creation. See ev4sio_PxCreateControllerManager().
 *  The PxObstacleContext instances of a PxControllerManager will now get released automatically when the manager is released.
 *  PxController::reportSceneChanged() has been renamed to PxController::invalidateCache().
 *  PxControllerBehaviorFlag::eCCT_CAN_RIDE_ON_OBJECT is not the default behavior anymore.
@@ -5135,7 +5135,7 @@ September 2013
 ####  Changed:
                 
 *  PxCollection was reworked to improve reference management rendering PxUserReferences obsolete. PxCollection was also decoupled more from Serialization/Deserialization functionality. Serialization of incomplete collections fails now early at serialization as opposed to late at deserialization.
-*  Replaced PxPhysics::createCollection with PxCreateCollection.
+*  Replaced PxPhysics::createCollection with ev4sio_PxCreateCollection.
 *  Replaced RepXCollection with PxCollection, and unified corresponding interfaces.
 *  Replaced PxCollection::serialize with PxSerialization::serializeCollectionToBinary.
 *  Replaced PxCollection::deserialize with PxSerialization::createCollectionFromBinary.
@@ -5934,7 +5934,7 @@ June 2012
 #### Visual Debugger
                 
 *  Releasing of cloth fabrics is reported to the VRD.
-*  Ext::Joint::setActors() call now reported to PVD.
+*  ev4sio_Ext::Joint::setActors() call now reported to PVD.
 *  Fixed crash bug when removing an aggregate containing a PxArticulation, while PVD is running.
                 
         
@@ -5968,17 +5968,17 @@ December 2011
                 
 *  Three new sample applications:  SampleCharacterCloth (character with cloth cape and cloth flags), SampleBridges (character controller walking on dynamic bridges and moving platforms), SampleCustomGravity (character controller with arbitrary up vector).
 *  On Windows, the PxFoundation instance is now a process wide singleton and part of the new PhysX3Common.dll library
-*  PxCreatePhysics() does not create a PxFoundation instance any longer. The PxFoundation instance has to be created in advance through PxCreateFoundation().
-*  Calls to PxCreatePhysics() are not valid anymore if a PxPhysics instance already exists.
+*  ev4sio_PxCreatePhysics() does not create a PxFoundation instance any longer. The PxFoundation instance has to be created in advance through ev4sio_PxCreateFoundation().
+*  Calls to ev4sio_PxCreatePhysics() are not valid anymore if a PxPhysics instance already exists.
 *  If profiling information should be sent to the PhysX Visual Debugger, a PxProfileZoneManager instance has to be provided when creating the PxPhysics instance.
-*  The version number constant PX_PUBLIC_FOUNDATION_VERSION has been replaced with PX_PHYSICS_VERSION. Both PxFoundation and PxPhysics use the same version number now.
+*  The version number constant PX_PUBLIC_FOUNDATION_VERSION has been replaced with ev4sio_PX_PHYSICS_VERSION. Both PxFoundation and PxPhysics use the same version number now.
 *  The API now distinguishes between input and output stream types.
 *  Added mechanism to reduce code size by not linking optional components.  See PxCreateBasePhysics() and the PxRegister*() functions.
 *  Added getConcreteTypeName() to API classes to provide run time type information.
 *  Added PxScene::getTimestamp() to retrieve the simulation counter.
-*  PxGetFoundation has been moved to PxGetFoundation.h
+*  ev4sio_PxGetFoundation has been moved to ev4sio_PxGetFoundation.h
 *  Changed the functions PxPhysics::releaseUserReferences(), releaseCollection(), addCollection() and releaseCollected() to now take a reference rather than a pointer.
-*  The signature of PxCreatePhysics has changed:  The Foundation SDK instance must be passed in explicitly.  One can also hook profiling information by passing a PxProfileZoneManager.
+*  The signature of ev4sio_PxCreatePhysics has changed:  The Foundation SDK instance must be passed in explicitly.  One can also hook profiling information by passing a PxProfileZoneManager.
 *  Platform conversion for serialized data has been moved from the ConvX command line tool to the PxBinaryConverter interface in the cooking library
 *  contact data block allocation now provides statistics on usage and max usage
 *  On all platforms except PS3, contact data blocks can be progressively allocated
@@ -6138,7 +6138,7 @@ December 2011
                 
 #### Rigid Body Simulation
                 
-*  Capsules and spheres can struggle to come to rest on even perfectly flat surfaces. To ensure these objects come to rest, it is necessary to increase angular damping on rigid bodies made of these shapes. In addition, flagging the capsule/sphere's material with physx::PxMaterialFlag::eDISABLE_STRONG_FRICTION can help bring these shapes to rest.
+*  Capsules and spheres can struggle to come to rest on even perfectly flat surfaces. To ensure these objects come to rest, it is necessary to increase angular damping on rigid bodies made of these shapes. In addition, flagging the capsule/sphere's material with ev4sio_physx::PxMaterialFlag::eDISABLE_STRONG_FRICTION can help bring these shapes to rest.
                 
 #### Character Cloth Sample
                 

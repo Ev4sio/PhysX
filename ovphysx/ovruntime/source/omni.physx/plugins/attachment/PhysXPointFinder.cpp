@@ -6,7 +6,7 @@
 #include <PhysXToolsCore.h>
 #include <common/utilities/MemoryMacros.h>
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 namespace omni
 {

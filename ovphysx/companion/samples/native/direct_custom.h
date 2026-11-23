@@ -30,9 +30,9 @@ struct CustomRegistrations
 };
 inline CustomRegistrations registerCustomTypes(
     const ovphysx::companion::native::CustomInterfaces& interfaces,
-    const char* jointType, omni::physx::ICustomJointCallback& jointCallbacks,
-    physx::PxConstraintSolverPrep solver, size_t constantBlockSize,
-    const char* geometryApi, omni::physx::ICustomGeometryCallback& geometryCallbacks)
+    const char* jointType, omni::ev4sio_physx::ICustomJointCallback& jointCallbacks,
+    ev4sio_physx::PxConstraintSolverPrep solver, size_t constantBlockSize,
+    const char* geometryApi, omni::ev4sio_physx::ICustomGeometryCallback& geometryCallbacks)
 {
     CustomRegistrations registrations;
     registrations.joint = interfaces.joints->registerCustomJoint(jointType, jointCallbacks, solver, constantBlockSize);

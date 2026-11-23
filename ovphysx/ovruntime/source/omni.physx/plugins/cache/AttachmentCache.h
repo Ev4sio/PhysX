@@ -20,7 +20,7 @@
 #include <private/omni/physx/RuntimeArchive.h>
 #include <omni/physics/parse/Handles.h>
 
-namespace omni::physx::usdparser
+namespace omni::ev4sio_physx::usdparser
 {
 class AttachedStage;
 }
@@ -28,7 +28,7 @@ namespace omni::physics::ovstage
 {
 class PhysicsInputSnapshot;
 }
-namespace omni::physx::cache
+namespace omni::ev4sio_physx::cache
 {
 // Invoked under configuration admission on an unpublished candidate. A bundle
 // is checked completely before the candidate changes: one it cannot use is
@@ -91,14 +91,14 @@ struct InsertionCaptureSelection
 // selected identity snapshot of this population and supply its prototype names.
 bool captureAttachmentData(usdparser::AttachedStage& owner,
                            RuntimeArchive& archive,
-                           ::physx::PxCollection& roots,
+                           ::ev4sio_physx::PxCollection& roots,
                            std::string_view subtree,
                            const std::function<bool()>& nativeWork,
                            omni::physics::parse::cache::Bytes* runtimeBytes,
                            const InsertionCaptureSelection* selection = nullptr,
                            const omni::physics::ovstage::PhysicsInputSnapshot* inputs = nullptr);
 // Whole-attachment capture; the encoded bytes are validated and discarded.
-bool captureAttachment(usdparser::AttachedStage& owner, RuntimeArchive& archive, ::physx::PxCollection& roots);
+bool captureAttachment(usdparser::AttachedStage& owner, RuntimeArchive& archive, ::ev4sio_physx::PxCollection& roots);
 // The cooked stream that the runtime's mesh cache keeps for a triangle mesh, which
 // encodeCollection stores in place of the mesh. A mesh without one sets *missing,
 // when given, and is logged, at VERBOSE for an inserted unit, which can repeat for
@@ -140,4 +140,4 @@ Hydration hydrateAttachment(usdparser::AttachedStage& owner,
                             bool* committed = nullptr,
                             std::vector<usdparser::ObjectId>* created = nullptr,
                             bool* changing = nullptr);
-} // namespace omni::physx::cache
+} // namespace omni::ev4sio_physx::cache

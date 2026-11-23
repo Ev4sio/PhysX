@@ -5,8 +5,8 @@
 #include "ExtUtilities.h"
 #include "foundation/PxBasicTemplates.h"
 
-using namespace physx;
-using namespace Ext;
+using namespace ev4sio_physx;
+using namespace ev4sio_Ext;
 
 //Last four bits are used
 //Last bit set stands for A
@@ -752,7 +752,7 @@ static void split(PxArray<Tetrahedron>& tets, const PxArray<PxVec3d>& points, co
 	}
 }
 
-void physx::Ext::split(PxArray<Tetrahedron>& tets, const PxArray<PxVec3d>& points, const PxHashMap<PxU64, PxI32>& edgesToSplit)
+void ev4sio_physx::ev4sio_Ext::split(PxArray<Tetrahedron>& tets, const PxArray<PxVec3d>& points, const PxHashMap<PxU64, PxI32>& edgesToSplit)
 {
 	PxArray<TetSubdivisionInfo> subdivisionInfos;
 	subdivisionInfos.resize(tets.size());

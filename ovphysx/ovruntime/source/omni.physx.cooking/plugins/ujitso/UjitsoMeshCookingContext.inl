@@ -27,11 +27,11 @@
 #include <atomic>
 
 using namespace carb::ujitso;
-using namespace physx;
+using namespace ev4sio_physx;
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 
 typedef UjitsoProcessManager    UjitsoAsyncContext;
@@ -172,9 +172,9 @@ private:
         getRequestBuilder().add(TRIANGULATION_VERSION_STR, (uint32_t)PhysxCookingDataVersion_MeshTriangulation);
         getRequestBuilder().add(METERS_PER_UNIT_STR, m_cookingRequest.primMeshMetersPerUnit);
         getRequestBuilder().add(BUILD_GPU_DATA_STR, m_cookingRequest.options.hasFlag(
-            omni::physx::PhysxCookingComputeRequest::Options::kComputeGPUCookingData));
+            omni::ev4sio_physx::PhysxCookingComputeRequest::Options::kComputeGPUCookingData));
         getRequestBuilder().add(BUILD_TRIANGLE_ADJACENCIES_STR, m_cookingRequest.options.hasFlag(
-            omni::physx::PhysxCookingComputeRequest::Options::kComputeGPUCookingData));
+            omni::ev4sio_physx::PhysxCookingComputeRequest::Options::kComputeGPUCookingData));
         if (!m_cookingRequest.primMeshText.empty())
         {
             std::string primMeshString;
@@ -497,5 +497,5 @@ private:
     uint64_t                            m_contextId;
 };
 
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

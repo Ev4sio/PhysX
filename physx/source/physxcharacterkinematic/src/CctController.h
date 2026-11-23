@@ -13,7 +13,7 @@
 #include "foundation/PxUserAllocated.h"
 #include "foundation/PxMutex.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 class PxPhysics;

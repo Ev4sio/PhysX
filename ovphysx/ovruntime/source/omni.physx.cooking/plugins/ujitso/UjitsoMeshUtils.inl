@@ -37,7 +37,7 @@ using namespace carb::ujitso;
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 
 /**
@@ -47,7 +47,7 @@ namespace physx
 static inline bool buildTriangulationViewFromData(
     PhysxCookingMeshTriangulationView& view, uint16_t& maxMaterialIndex, const std::vector<uint8_t>& data)
 {
-    CARB_PROFILE_ZONE(0, "omni::physx::buildTriangulationViewFromData");
+    CARB_PROFILE_ZONE(0, "omni::ev4sio_physx::buildTriangulationViewFromData");
 
     BufferReader reader(data);
 
@@ -77,7 +77,7 @@ static inline bool buildTriangulationViewFromData(
 static inline void buildTriangulationMeshFromView(
     TriangulationMesh& mesh, const PhysxCookingMeshTriangulationView& view, uint16_t maxMaterialIndex)
 {
-    CARB_PROFILE_ZONE(0, "omni::physx::buildTriangulationMeshFromView");
+    CARB_PROFILE_ZONE(0, "omni::ev4sio_physx::buildTriangulationMeshFromView");
 
     mesh.points.assign(view.points.begin(), view.points.end());
     const uint32_t* traiangleData  = reinterpret_cast<const uint32_t*>(view.triangles.data());
@@ -326,7 +326,7 @@ bool getParamsFromRequest(SurfaceDeformableBodyCookingParams& params, DynamicReq
     return true;
 }
 
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni
 
 

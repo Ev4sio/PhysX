@@ -363,7 +363,7 @@ TEST(ActiveCudaGpusAttachTest, DirectGpuHostReadOnNonZeroOrdinal)
         ovphysx_instance_handle_t probeHandle = OVPHYSX_INVALID_HANDLE;
         ASSERT_EQ(ovphysx_create_instance(&probeHandle).status, OVPHYSX_API_SUCCESS);
 
-        omni::physx::IOptionalCuda* probeCuda = ovphysx::test_cuda::getCuda();
+        omni::ev4sio_physx::IOptionalCuda* probeCuda = ovphysx::test_cuda::getCuda();
         int deviceCount = 0;
         haveTwoDevices = probeCuda && probeCuda->cudaAvailable() &&
                          probeCuda->deviceGetCount(&deviceCount, nullptr) && deviceCount >= 2;
@@ -428,7 +428,7 @@ TEST(ActiveCudaGpusAttachTest, DirectGpuHostReadOnNonZeroOrdinal)
     // Whether the read inherits the simulation's context depends on what else the
     // process has done with CUDA. Detaching removes that dependency and makes the
     // case deterministic.
-    omni::physx::IOptionalCuda* cuda = ovphysx::test_cuda::getCuda();
+    omni::ev4sio_physx::IOptionalCuda* cuda = ovphysx::test_cuda::getCuda();
     ovphysx::test_cuda::ScopedCudaContextDetach detach(cuda);
 
     const ovphysx_result_t readResult = ovphysx_read_tensor_binding(handle, binding, &host_tensor);

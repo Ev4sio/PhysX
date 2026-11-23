@@ -44,11 +44,11 @@
 #include "extensions/PxDeformableSkinningExt.h"
 #include "extensions/PxCudaHelpersExt.h"
 
-using namespace ::physx;
-using namespace physx::Ext;
-using namespace omni::physx;
-using namespace omni::physx::internal;
-using namespace omni::physx::usdparser;
+using namespace ::ev4sio_physx;
+using namespace ev4sio_physx::ev4sio_Ext;
+using namespace omni::ev4sio_physx;
+using namespace omni::ev4sio_physx::internal;
+using namespace omni::ev4sio_physx::usdparser;
 using namespace cookingdataasync;
 
 namespace
@@ -194,7 +194,7 @@ bool setSurfaceDeformableMass(const omni::physics::parse::SourceUnits& sourceUni
 // reportPath is resolved text (AttachedStage::textFor), used only for diagnostic logging --
 // unconditional, no pxr dependency.
 void deriveCollisionOffsets(float& outRestOffset, float& outContactOffset,
-    const omni::physx::PhysXScene& scene, const PxGeometry& geometry, const float geometryScale,
+    const omni::ev4sio_physx::PhysXScene& scene, const PxGeometry& geometry, const float geometryScale,
     const float restOffset, const float contactOffset, const char* reportPath)
 {
     // TODO unify with UsdInterface.cpp, createShape()
@@ -302,7 +302,7 @@ omni::physics::parse::TokenId makeMultiApplyAttributeToken(const omni::physics::
 size_t collectSkinMeshes(const usdparser::AttachedStage& attachedStage,
                          std::vector<omni::physics::parse::ObjectKey>& skinMeshKeys,
                          std::vector<carb::Uint2>& skinMeshRanges,
-                         std::vector<::physx::PxMat44d>& worldToSkinMeshTransforms,
+                         std::vector<::ev4sio_physx::PxMat44d>& worldToSkinMeshTransforms,
                          const std::vector<omni::physics::parse::ObjectKey>& skinGeomKeys)
 {
     size_t numAllSkinMeshPoints = 0;
@@ -437,7 +437,7 @@ void parseSimBindPoints(const usdparser::AttachedStage& attachedStage,
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 
 extern bool checkScenes(const AttachedStage& attachedStage);
@@ -556,7 +556,7 @@ bool PhysXUsdPhysicsInterface::updateDeformableBodyPositions(usdparser::Attached
         tok.intern(*src);
 
     // This dispatch only fires in response to a live authored edit on `points` (see
-    // omni::physx::updateDeformableBody), so any cooked-geometry carrier entry for
+    // omni::ev4sio_physx::updateDeformableBody), so any cooked-geometry carrier entry for
     // this key is a stale bind pose the edit has already superseded. Drop it before
     // reading so a sink-less (ovstage) attach falls through to the fresh value
     // instead of serving the cook's bind pose forever (ADR-0022).
@@ -1613,19 +1613,19 @@ ObjectId PhysXUsdPhysicsInterface::createSurfaceDeformableBody(usdparser::Attach
 
         // validation, we already clean the mesh during sim mesh generation, we require
         // the simulation mesh in USD to be "clean" in terms of PhysX PxTriangleMesh standards.
-        if (!PxValidateTriangleMesh(ckParams, meshDesc))
+        if (!ev4sio_PxValidateTriangleMesh(ckParams, meshDesc))
         {
-            CARB_LOG_WARN("PxValidateTriangleMesh for PxDeformableSurface failed, %s", attachedStage.textFor(simMeshKey));
+            CARB_LOG_WARN("ev4sio_PxValidateTriangleMesh for PxDeformableSurface failed, %s", attachedStage.textFor(simMeshKey));
             SAFE_DELETE_SINGLE(internalBody);
             return kInvalidObjectId;
         }
 
         // cooking without cleaning
         PxDefaultMemoryOutputStream writeBuffer;
-        bool status = PxCookTriangleMesh(ckParams, meshDesc, writeBuffer);
+        bool status = ev4sio_PxCookTriangleMesh(ckParams, meshDesc, writeBuffer);
         if (!status)
         {
-            CARB_LOG_WARN("PxCookTriangleMesh for PxDeformableSurface failed, %s", attachedStage.textFor(simMeshKey));
+            CARB_LOG_WARN("ev4sio_PxCookTriangleMesh for PxDeformableSurface failed, %s", attachedStage.textFor(simMeshKey));
             SAFE_DELETE_SINGLE(internalBody);
             return kInvalidObjectId;
         }
@@ -1951,5 +1951,5 @@ ObjectId PhysXUsdPhysicsInterface::createSurfaceDeformableBody(usdparser::Attach
 }
 
 
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

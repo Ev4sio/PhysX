@@ -9,7 +9,7 @@
 #include "foundation/PxArray.h"
 #include "PxPvdFoundation.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 namespace pvdsdk
 {

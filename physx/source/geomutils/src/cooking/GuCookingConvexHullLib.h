@@ -9,7 +9,7 @@
 #include "cooking/PxConvexMeshDesc.h"
 #include "cooking/PxCooking.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	//////////////////////////////////////////////////////////////////////////
 	// base class for the convex hull libraries - inflation based and quickhull

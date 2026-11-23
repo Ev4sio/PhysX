@@ -23,8 +23,8 @@
 #include "internal/sidecar/ovphysxInternalInterop.h"     // interop g_sidecar* declarations
 #include "internal/sidecar/ovphysxInternalObjectChange.h" // object-change g_sidecar* declarations
 #include <omni/physx/PhysXRuntime.h>
-#include <omni/physx/IOvxPhysicsRead.h>  // omni::physx::ovx* read entry points (injected into the sidecar)
-#include <omni/physx/IOvxPhysicsWrite.h> // omni::physx::ovx* write entry points (injected into the sidecar)
+#include <omni/physx/IOvxPhysicsRead.h>  // omni::ev4sio_physx::ovx* read entry points (injected into the sidecar)
+#include <omni/physx/IOvxPhysicsWrite.h> // omni::ev4sio_physx::ovx* write entry points (injected into the sidecar)
 
 #include <carb/Framework.h>
 #include <carb/logging/Log.h>
@@ -44,25 +44,25 @@
 // The sidecar header mirrors OvxCommitFailure so the C layer can read the out-param without
 // depending on ovruntime. This is the one translation unit that sees both, so it is where the copy
 // is held to the original.
-static_assert(static_cast<uint32_t>(omni::physx::kOvxReadOmissionUnsupportedAttribute) ==
+static_assert(static_cast<uint32_t>(omni::ev4sio_physx::kOvxReadOmissionUnsupportedAttribute) ==
                   OVPHYSX_READ_OMISSION_UNSUPPORTED_ATTRIBUTE,
               "Read omission attribute values must agree across the sidecar boundary");
-static_assert(static_cast<uint32_t>(omni::physx::kOvxReadOmissionUnsupportedConfiguration) ==
+static_assert(static_cast<uint32_t>(omni::ev4sio_physx::kOvxReadOmissionUnsupportedConfiguration) ==
                   OVPHYSX_READ_OMISSION_UNSUPPORTED_CONFIGURATION,
               "Read omission configuration values must agree across the sidecar boundary");
-static_assert(static_cast<uint32_t>(omni::physx::kOvxReadOmissionNotReady) == OVPHYSX_READ_OMISSION_NOT_READY,
+static_assert(static_cast<uint32_t>(omni::ev4sio_physx::kOvxReadOmissionNotReady) == OVPHYSX_READ_OMISSION_NOT_READY,
               "Read omission readiness values must agree across the sidecar boundary");
-static_assert(static_cast<int32_t>(omni::physx::kOvxCommitFailureNotLive) == kOvphysxCommitFailureNotLive,
+static_assert(static_cast<int32_t>(omni::ev4sio_physx::kOvxCommitFailureNotLive) == kOvphysxCommitFailureNotLive,
               "OvxCommitFailure::NotLive and its sidecar mirror disagree");
-static_assert(static_cast<int32_t>(omni::physx::kOvxCommitFailurePublish) == kOvphysxCommitFailurePublish,
+static_assert(static_cast<int32_t>(omni::ev4sio_physx::kOvxCommitFailurePublish) == kOvphysxCommitFailurePublish,
               "OvxCommitFailure::Publish and its sidecar mirror disagree");
-static_assert(static_cast<int32_t>(omni::physx::kOvxCommitFailureBusy) == kOvphysxCommitFailureBusy,
+static_assert(static_cast<int32_t>(omni::ev4sio_physx::kOvxCommitFailureBusy) == kOvphysxCommitFailureBusy,
               "OvxCommitFailure::Busy and its sidecar mirror disagree");
 // Check the numeric value of each known mirrored member against its runtime counterpart; a new
 // OvxCommitFailure value still needs its mirror and consumer mapping added here.
-static_assert(static_cast<int32_t>(omni::physx::kOvxCommitFailureNone) == kOvphysxCommitFailureNone,
+static_assert(static_cast<int32_t>(omni::ev4sio_physx::kOvxCommitFailureNone) == kOvphysxCommitFailureNone,
               "OvxCommitFailure::None and its sidecar mirror disagree");
-static_assert(static_cast<int32_t>(omni::physx::kOvxCommitFailureInvalidArgument) ==
+static_assert(static_cast<int32_t>(omni::ev4sio_physx::kOvxCommitFailureInvalidArgument) ==
                   kOvphysxCommitFailureInvalidArgument,
               "OvxCommitFailure::InvalidArgument and its sidecar mirror disagree");
 
@@ -312,7 +312,7 @@ bool loadInternalSidecar() {
                     static_cast<omni::log::ILog*>(omniGetBuiltInWithoutAcquire(OmniBuiltIn::eILog)),
                     static_cast<omni::structuredlog::IStructuredLog*>(omniGetBuiltInWithoutAcquire(OmniBuiltIn::eIStructuredLog)));
 
-    omni::physx::IPhysx* ownerPhysx = omni::physx::runtime::tryGetPhysxInterface();
+    omni::ev4sio_physx::IPhysx* ownerPhysx = omni::ev4sio_physx::runtime::tryGetPhysxInterface();
     if (!ownerPhysx)
     {
         CARB_LOG_ERROR("Internal sidecar: cannot inject PhysX runtime accessors "
@@ -322,8 +322,8 @@ bool loadInternalSidecar() {
         unload();
         return false;
     }
-    setPhysxRuntimeAccessors(&omni::physx::runtime::tryGetPhysxInterface,
-                             &omni::physx::runtime::tryGetPhysxVisualizationInterface);
+    setPhysxRuntimeAccessors(&omni::ev4sio_physx::runtime::tryGetPhysxInterface,
+                             &omni::ev4sio_physx::runtime::tryGetPhysxVisualizationInterface);
 
     // Inject the ovstage-native output-read entry points (ADR-0007). They live in
     // the owner's statically-linked OvruntimePhysX; taking their address here pulls
@@ -335,13 +335,13 @@ bool loadInternalSidecar() {
         (SetOvxReadAccessorsFn)doSidecarSym(handle, "ovphysx_internal_set_ovx_read_accessors");
     if (setOvxReadAccessors)
     {
-        setOvxReadAccessors(reinterpret_cast<void*>(&omni::physx::ovxQuery),
-                            reinterpret_cast<void*>(&omni::physx::ovxQuerySelected),
-                            reinterpret_cast<void*>(&omni::physx::ovxReadAttributes),
-                            reinterpret_cast<void*>(&omni::physx::ovxFetchReadNext),
-                            reinterpret_cast<void*>(&omni::physx::ovxReleaseGroup),
-                            reinterpret_cast<void*>(&omni::physx::ovxReleaseRead),
-                            reinterpret_cast<void*>(&omni::physx::ovxReleaseQuery));
+        setOvxReadAccessors(reinterpret_cast<void*>(&omni::ev4sio_physx::ovxQuery),
+                            reinterpret_cast<void*>(&omni::ev4sio_physx::ovxQuerySelected),
+                            reinterpret_cast<void*>(&omni::ev4sio_physx::ovxReadAttributes),
+                            reinterpret_cast<void*>(&omni::ev4sio_physx::ovxFetchReadNext),
+                            reinterpret_cast<void*>(&omni::ev4sio_physx::ovxReleaseGroup),
+                            reinterpret_cast<void*>(&omni::ev4sio_physx::ovxReleaseRead),
+                            reinterpret_cast<void*>(&omni::ev4sio_physx::ovxReleaseQuery));
     }
     else
     {
@@ -355,7 +355,7 @@ bool loadInternalSidecar() {
         (SetOvxContactAccessorsFn)doSidecarSym(handle, "ovphysx_internal_set_ovx_contact_accessors");
     if (setOvxContactAccessors)
     {
-        setOvxContactAccessors(reinterpret_cast<void*>(&omni::physx::ovxQueryContacts));
+        setOvxContactAccessors(reinterpret_cast<void*>(&omni::ev4sio_physx::ovxQueryContacts));
     }
     else
     {
@@ -370,10 +370,10 @@ bool loadInternalSidecar() {
         (SetOvxWriteAccessorsFn)doSidecarSym(handle, "ovphysx_internal_set_ovx_write_accessors");
     if (setOvxWriteAccessors)
     {
-        setOvxWriteAccessors(reinterpret_cast<void*>(&omni::physx::ovxWriteAttributes),
-                             reinterpret_cast<void*>(&omni::physx::ovxFetchWriteNext),
-                             reinterpret_cast<void*>(&omni::physx::ovxCommitGroup),
-                             reinterpret_cast<void*>(&omni::physx::ovxReleaseWrite));
+        setOvxWriteAccessors(reinterpret_cast<void*>(&omni::ev4sio_physx::ovxWriteAttributes),
+                             reinterpret_cast<void*>(&omni::ev4sio_physx::ovxFetchWriteNext),
+                             reinterpret_cast<void*>(&omni::ev4sio_physx::ovxCommitGroup),
+                             reinterpret_cast<void*>(&omni::ev4sio_physx::ovxReleaseWrite));
     }
     else
     {
@@ -388,8 +388,8 @@ bool loadInternalSidecar() {
         (SetOvxMaskedCommitAccessorFn)doSidecarSym(handle, "ovphysx_internal_set_ovx_masked_commit_accessor");
     if (setOvxMaskedCommitAccessor)
     {
-        setOvxMaskedCommitAccessor(reinterpret_cast<void*>(&omni::physx::ovxCommitGroupMasked),
-                                   reinterpret_cast<void*>(&omni::physx::ovxValidateCommit));
+        setOvxMaskedCommitAccessor(reinterpret_cast<void*>(&omni::ev4sio_physx::ovxCommitGroupMasked),
+                                   reinterpret_cast<void*>(&omni::ev4sio_physx::ovxValidateCommit));
     }
     else
     {

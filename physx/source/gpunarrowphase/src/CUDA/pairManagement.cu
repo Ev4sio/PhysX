@@ -12,9 +12,9 @@
 #include "PxgContactManager.h"
 #include "PxgNpKernelIndices.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
-namespace physx
+namespace ev4sio_physx
 {
 	class PxsContactManager;
 }
@@ -51,7 +51,7 @@ extern "C" __global__ void removeContactManagers_Stage5(const PxgPairManagementD
 	PxsContactManagerOutput* outputData = pairData->mContactManagerOutputData;
 	PxgPersistentContactManifold* manifolds = reinterpret_cast<PxgPersistentContactManifold*>(pairData->mPersistentContactManagers);
 	PxsContactManager** cms = pairData->mCpuContactManagerMapping;
-	Sc::ShapeInteraction** sis = pairData->mShapeInteractions;
+	ev4sio_Sc::ShapeInteraction** sis = pairData->mShapeInteractions;
 	PxReal* rest = pairData->mRestDistances;
 	PxsTorsionalFrictionData* torsional = pairData->mTorsionalData;
 
@@ -93,7 +93,7 @@ extern "C" __global__ void removeContactManagers_Stage5_CvxTri(const PxgPairMana
 	PxsContactManagerOutput* outputData = pairData->mContactManagerOutputData;
 	PxgPersistentContactMultiManifold* manifolds = reinterpret_cast<PxgPersistentContactMultiManifold*>( pairData->mPersistentContactManagers);
 	PxsContactManager** cms = pairData->mCpuContactManagerMapping;
-	Sc::ShapeInteraction** sis = pairData->mShapeInteractions;
+	ev4sio_Sc::ShapeInteraction** sis = pairData->mShapeInteractions;
 	PxReal* rest = pairData->mRestDistances;
 	PxsTorsionalFrictionData* torsional = pairData->mTorsionalData;
 

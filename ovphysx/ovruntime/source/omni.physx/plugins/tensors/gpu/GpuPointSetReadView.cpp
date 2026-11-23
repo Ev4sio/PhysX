@@ -23,11 +23,11 @@
 
 #include <cuda_runtime_api.h>
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace tensors
 {
@@ -202,5 +202,5 @@ bool GpuPointSetReadView::readColumnOvStage(const Column column,
 }
 
 } // namespace tensors
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

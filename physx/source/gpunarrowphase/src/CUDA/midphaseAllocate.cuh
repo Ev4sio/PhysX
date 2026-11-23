@@ -10,7 +10,7 @@
 #include "convexNpCommon.h"
 #include <vector_types.h>
 
-namespace physx
+namespace ev4sio_physx
 {
 
 /*
@@ -140,6 +140,6 @@ __device__ __forceinline__ void midphaseAllocate( ConvexTriNormalAndIndex** cvxT
 	newGpuIntermStackPtr += numPairsAfterMP * sizeof(PxU32);
 }
 
-} // namespace physx
+} // namespace ev4sio_physx
 
 #endif

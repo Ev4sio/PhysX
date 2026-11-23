@@ -4,7 +4,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "PxPvdImpl.h"
-namespace physx
+namespace ev4sio_physx
 {
 namespace pvdsdk
 {
@@ -12,11 +12,11 @@ ForwardingAllocator gForwardingAllocator;
 PxAllocatorCallback* gPvdAllocatorCallback = &gForwardingAllocator;
 } // namespace pvdsdk
 
-PxPvd* PxCreatePvd(PxFoundation& foundation)
+PxPvd* ev4sio_PxCreatePvd(PxFoundation& foundation)
 {
 	pvdsdk::gPvdAllocatorCallback = &foundation.getAllocatorCallback();
 	pvdsdk::PvdImpl::initialize();
 	return pvdsdk::PvdImpl::getInstance();
 }
 
-} // namespace physx
+} // namespace ev4sio_physx

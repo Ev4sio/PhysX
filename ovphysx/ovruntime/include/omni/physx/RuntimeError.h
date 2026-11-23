@@ -12,7 +12,7 @@
 
 #include <cstdio>
 
-namespace omni::physx
+namespace omni::ev4sio_physx
 {
 
 // Each scope captures its own first nonempty runtime error, independently of logging.
@@ -46,7 +46,7 @@ private:
 // messages, later errors in the same scope, and calls without an active scope are ignored.
 void recordRuntimeError(const char* message) noexcept;
 
-} // namespace omni::physx
+} // namespace omni::ev4sio_physx
 
 // Format once for capture and logging. A macro keeps the log's source location at the failure.
 #define OVX_RUNTIME_ERROR(...)                                                                                         \
@@ -55,6 +55,6 @@ void recordRuntimeError(const char* message) noexcept;
         char ovxRuntimeErrorMessage[2048];                                                                             \
         ovxRuntimeErrorMessage[0] = '\0';                                                                              \
         std::snprintf(ovxRuntimeErrorMessage, sizeof(ovxRuntimeErrorMessage), __VA_ARGS__);                            \
-        ::omni::physx::recordRuntimeError(ovxRuntimeErrorMessage);                                                     \
+        ::omni::ev4sio_physx::recordRuntimeError(ovxRuntimeErrorMessage);                                                     \
         CARB_LOG_ERROR("%s", ovxRuntimeErrorMessage);                                                                  \
     } while (false)

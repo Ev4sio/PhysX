@@ -13,7 +13,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 
 // Lock guard with wrappable mutex class.  Default MutexBase class does nothing.
@@ -107,5 +107,5 @@ inline std::string getSettingsStringSafe(carb::settings::ISettings& settings,
 }
 
 
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

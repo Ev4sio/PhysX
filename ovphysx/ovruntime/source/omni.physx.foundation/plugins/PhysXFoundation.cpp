@@ -30,12 +30,12 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 struct PhysXFoundation;
 }
 } // namespace omni
-struct omni::physx::PhysXFoundation
+struct omni::ev4sio_physx::PhysXFoundation
 {
     inline static std::atomic<bool> s_started{ false };
     inline static std::atomic<bool> s_forceCpuMode{ false };
@@ -45,7 +45,7 @@ struct omni::physx::PhysXFoundation
     // CUDA state remains owned by PhysX context managers, not by this loader.
     // shutdownRuntime() is the explicit unload point; keep this as an object
     // rather than adding a hidden global pointer lifecycle.
-    inline static omni::physx::gpu::PhysXGpuLoader s_gpuLoader;
+    inline static omni::ev4sio_physx::gpu::PhysXGpuLoader s_gpuLoader;
 
     static void CARB_ABI setCpuMode(bool enabled)
     {
@@ -95,14 +95,14 @@ struct omni::physx::PhysXFoundation
         }
 
         // Direct CUDA Driver API query — no dependency on GPU Foundation or CudaInterop
-        if (!omni::physx::cudaShim::isCudaAvailable())
+        if (!omni::ev4sio_physx::cudaShim::isCudaAvailable())
         {
             preferences.mode = PhysxFoundationDeviceOrdinal::eMODE_PHYSX_DEFAULTS;
             preferences.deviceOrdinal = -1;
             return;
         }
 
-        preferences.deviceOrdinal = omni::physx::cudaShim::selectBestPhysicsDevice();
+        preferences.deviceOrdinal = omni::ev4sio_physx::cudaShim::selectBestPhysicsDevice();
         CARB_LOG_INFO("PhysXFoundation: Direct CUDA query selected device ordinal: %d", preferences.deviceOrdinal);
         if (preferences.deviceOrdinal >= 0)
         {
@@ -119,7 +119,7 @@ struct omni::physx::PhysXFoundation
 
         // Guard: selectBestPhysicsDevice uses the shim's dlsym-resolved function pointers.
         // Bail out early on CPU-only machines.
-        if (!omni::physx::cudaShim::isCudaAvailable())
+        if (!omni::ev4sio_physx::cudaShim::isCudaAvailable())
         {
             CARB_LOG_WARN("PhysXFoundation: cudaDeviceCheck -> isCudaAvailable() returned false (no CUDA driver or no NVIDIA GPU detected).");
             return false;
@@ -134,7 +134,7 @@ struct omni::physx::PhysXFoundation
                 return cached == 1;
         }
 
-        int deviceOrdinal = omni::physx::cudaShim::selectBestPhysicsDevice();
+        int deviceOrdinal = omni::ev4sio_physx::cudaShim::selectBestPhysicsDevice();
         bool result = (deviceOrdinal >= 0);
         if (result)
             CARB_LOG_INFO("PhysXFoundation: CUDA device %d found via Driver API.", deviceOrdinal);
@@ -156,16 +156,16 @@ struct omni::physx::PhysXFoundation
     }
 
     static bool createOrRefreshPxCudaContextManager(PhysxFoundationDeviceOrdinal preferences,
-                                                ::physx::PxFoundation* pxFoundation,
-                                                ::physx::PxCudaContextManager*& pxCudaContextManager,
+                                                ::ev4sio_physx::PxFoundation* pxFoundation,
+                                                ::ev4sio_physx::PxCudaContextManager*& pxCudaContextManager,
                                                 const bool enableSynchronousKernelLaunches)
     {
         // ### DEFENSIVE OMPE-102186
         // Checked before the environment queries below so the outcome does not depend on whether
-        // the machine has a GPU. PxCreateCudaContextManager takes the foundation by reference and
+        // the machine has a GPU. ev4sio_PxCreateCudaContextManager takes the foundation by reference and
         // dereferences it immediately (PxgPhysXGpu.cpp, foundation.getErrorCallback() is pure
         // virtual), so a null pxFoundation faults there rather than here. That is reachable
-        // whenever PxCreateFoundation has failed - PhysXSetup keeps a null mFoundation and callers
+        // whenever ev4sio_PxCreateFoundation has failed - PhysXSetup keeps a null mFoundation and callers
         // only assert on it, and CARB_ASSERT compiles out in release. Refuse rather than crash,
         // and report it: a null foundation means setup already failed and the real error is there.
         if (!pxFoundation)
@@ -179,16 +179,16 @@ struct omni::physx::PhysXFoundation
             return false;
         }
 
-        // Guard: PxCreateCudaContextManager (and the CUDA shim calls in this function)
+        // Guard: ev4sio_PxCreateCudaContextManager (and the CUDA shim calls in this function)
         // require a live CUDA driver. Bail early on CPU-only machines.
-        if (!omni::physx::cudaShim::isCudaAvailable())
+        if (!omni::ev4sio_physx::cudaShim::isCudaAvailable())
         {
             return false;
         }
 
         CUcontext desiredCtx = nullptr;
         CUcontext savedCtx = nullptr;
-        if (omni::physx::cudaShim::cuCtxGetCurrent_(&savedCtx) != CUDA_SUCCESS)
+        if (omni::ev4sio_physx::cudaShim::cuCtxGetCurrent_(&savedCtx) != CUDA_SUCCESS)
             CARB_LOG_WARN("PhysXFoundation: Could not save current CUDA context; caller's context will not be restored on exit.");
 
         bool contextChanged = false;
@@ -201,7 +201,7 @@ struct omni::physx::PhysXFoundation
         auto deferRestoreCtx = CreateDeferLambda([&] {
             if (contextChanged && savedCtx)
             {
-                CUresult r = omni::physx::cudaShim::cuCtxSetCurrent_(savedCtx);
+                CUresult r = omni::ev4sio_physx::cudaShim::cuCtxSetCurrent_(savedCtx);
                 if (r != CUDA_SUCCESS)
                     CARB_LOG_ERROR("PhysXFoundation: Failed to restore caller CUDA context %p (CUresult %d); "
                                    "thread context state is undefined.", savedCtx, static_cast<int>(r));
@@ -229,7 +229,7 @@ struct omni::physx::PhysXFoundation
             CARB_LOG_INFO("Using CUDA device ordinal %d.", preferences.deviceOrdinal);
 
             int deviceCount = 0;
-            CUresult result = omni::physx::cudaShim::cuDeviceGetCount_(&deviceCount);
+            CUresult result = omni::ev4sio_physx::cudaShim::cuDeviceGetCount_(&deviceCount);
             if (result != CUDA_SUCCESS || deviceCount == 0)
             {
                 CARB_LOG_ERROR("No CUDA devices found");
@@ -244,13 +244,13 @@ struct omni::physx::PhysXFoundation
 
             // Activate the primary context for the requested device (Driver API equivalent of cudaSetDevice),
             // so that cuCtxGetCurrent returns it and any context already set by the renderer is reused.
-            if (!omni::physx::cudaShim::setDevice(preferences.deviceOrdinal))
+            if (!omni::ev4sio_physx::cudaShim::setDevice(preferences.deviceOrdinal))
             {
                 CARB_LOG_ERROR("PhysXFoundation: Failed to activate CUDA context for device ordinal %d.", preferences.deviceOrdinal);
                 return false;
             }
             contextChanged = true;
-            if (omni::physx::cudaShim::cuCtxGetCurrent_(&desiredCtx) != CUDA_SUCCESS)
+            if (omni::ev4sio_physx::cudaShim::cuCtxGetCurrent_(&desiredCtx) != CUDA_SUCCESS)
                 CARB_LOG_WARN("PhysXFoundation: Could not read back current CUDA context after setDevice(%d); PhysX will create its own.", preferences.deviceOrdinal);
         }
         break;
@@ -281,7 +281,7 @@ struct omni::physx::PhysXFoundation
         }
         if (!pxCudaContextManager)
         {
-            ::physx::PxCudaContextManagerDesc cudaContextManagerDesc;
+            ::ev4sio_physx::PxCudaContextManagerDesc cudaContextManagerDesc;
             if (desiredCtx)
             {
                 cudaContextManagerDesc.ctx = &desiredCtx;
@@ -293,13 +293,13 @@ struct omni::physx::PhysXFoundation
             }
             // Hand the installed profiler callback to the GPU module: without it the
             // PhysX GPU profile zones are dropped and never reach the Carbonite
-            // profiler. PxGetProfilerCallback() returns null unless the sink was
+            // profiler. ev4sio_PxGetProfilerCallback() returns null unless the sink was
             // requested, which is the same as passing NULL here.
             // The callback is installed while the PhysX SDK is created, which
             // precedes every path that gets here (scene creation, cooking service).
-            pxCudaContextManager = PxCreateCudaContextManager(
-                *pxFoundation, cudaContextManagerDesc, ::PxGetProfilerCallback(), enableSynchronousKernelLaunches);
-            // PxCreateCudaContextManager creates and pushes its own context when
+            pxCudaContextManager = ev4sio_PxCreateCudaContextManager(
+                *pxFoundation, cudaContextManagerDesc, ::ev4sio_PxGetProfilerCallback(), enableSynchronousKernelLaunches);
+            // ev4sio_PxCreateCudaContextManager creates and pushes its own context when
             // no external context was supplied. Balance that creation push: pooled
             // managers can outlive many attachments, and destroying them must not
             // leave their contexts buried on the caller's CUDA stack.
@@ -308,7 +308,7 @@ struct omni::physx::PhysXFoundation
             if (!desiredCtx && pxCudaContextManager && pxCudaContextManager->getContext())
             {
                 uintptr_t popped = 0;
-                if (!omni::physx::foundation::getOptionalCudaInterface().ctxPopCurrent(&popped, nullptr))
+                if (!omni::ev4sio_physx::foundation::getOptionalCudaInterface().ctxPopCurrent(&popped, nullptr))
                 {
                     CARB_LOG_ERROR("PhysXFoundation: Failed to pop newly created CUDA context.");
                     PX_RELEASE(pxCudaContextManager);
@@ -330,7 +330,7 @@ struct omni::physx::PhysXFoundation
     {
         if (isCpuMode())
             return;
-        if (!omni::physx::cudaShim::setDevice(deviceOrdinal))
+        if (!omni::ev4sio_physx::cudaShim::setDevice(deviceOrdinal))
             CARB_LOG_WARN("PhysXFoundation: setCudaDevice(%d): failed to activate CUDA context.", deviceOrdinal);
     }
 
@@ -338,37 +338,37 @@ struct omni::physx::PhysXFoundation
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace foundation
 {
 namespace
 {
 
-void populateInterface(omni::physx::IPhysxFoundation& iface)
+void populateInterface(omni::ev4sio_physx::IPhysxFoundation& iface)
 {
-    using namespace omni::physx;
+    using namespace omni::ev4sio_physx;
 
-    iface.getSingleCudaContextManagerOrdinal = &omni::physx::PhysXFoundation::getSingleCudaContextManagerOrdinal;
-    iface.setCpuMode = &omni::physx::PhysXFoundation::setCpuMode;
-    iface.isCpuMode = &omni::physx::PhysXFoundation::isCpuMode;
-    iface.cudaDeviceCheck = &omni::physx::PhysXFoundation::cudaDeviceCheck;
-    iface.createGpuFoundation = &omni::physx::PhysXFoundation::createGpuFoundation;
-    iface.releaseGpuFoundation = &omni::physx::PhysXFoundation::releaseGpuFoundation;
-    iface.createOrRefreshPxCudaContextManager = &omni::physx::PhysXFoundation::createOrRefreshPxCudaContextManager;
-    iface.setCudaDevice = &omni::physx::PhysXFoundation::setCudaDevice;
+    iface.getSingleCudaContextManagerOrdinal = &omni::ev4sio_physx::PhysXFoundation::getSingleCudaContextManagerOrdinal;
+    iface.setCpuMode = &omni::ev4sio_physx::PhysXFoundation::setCpuMode;
+    iface.isCpuMode = &omni::ev4sio_physx::PhysXFoundation::isCpuMode;
+    iface.cudaDeviceCheck = &omni::ev4sio_physx::PhysXFoundation::cudaDeviceCheck;
+    iface.createGpuFoundation = &omni::ev4sio_physx::PhysXFoundation::createGpuFoundation;
+    iface.releaseGpuFoundation = &omni::ev4sio_physx::PhysXFoundation::releaseGpuFoundation;
+    iface.createOrRefreshPxCudaContextManager = &omni::ev4sio_physx::PhysXFoundation::createOrRefreshPxCudaContextManager;
+    iface.setCudaDevice = &omni::ev4sio_physx::PhysXFoundation::setCudaDevice;
 }
 
-void populateInterface(omni::physx::IOptionalCuda& iface)
+void populateInterface(omni::ev4sio_physx::IOptionalCuda& iface)
 {
-    omni::physx::cudaShim::fill(iface);
+    omni::ev4sio_physx::cudaShim::fill(iface);
 }
 
 } // namespace
 
 void initializeRuntime()
 {
-    using namespace omni::physx;
+    using namespace omni::ev4sio_physx;
 
     // The static foundation library has no Carbonite plugin lifecycle; its
     // current runtime owner chooses when process-level setup runs. Keep setup
@@ -396,7 +396,7 @@ void initializeRuntime()
     {
         PhysXFoundation::setCpuMode(true);
     }
-    else if (!omni::physx::cudaShim::isCudaAvailable() || !PhysXFoundation::cudaDeviceCheck())
+    else if (!omni::ev4sio_physx::cudaShim::isCudaAvailable() || !PhysXFoundation::cudaDeviceCheck())
     {
         PhysXFoundation::setCpuMode(true);
     }
@@ -422,24 +422,24 @@ void shutdownRuntime()
         return;
     }
 
-    omni::physx::PhysXFoundation::releaseGpuFoundation();
-    omni::physx::PhysXFoundation::s_gpuLoader.unload();
+    omni::ev4sio_physx::PhysXFoundation::releaseGpuFoundation();
+    omni::ev4sio_physx::PhysXFoundation::s_gpuLoader.unload();
 }
 
-omni::physx::IPhysxFoundation& getInterface()
+omni::ev4sio_physx::IPhysxFoundation& getInterface()
 {
-    static omni::physx::IPhysxFoundation iface = [] {
-        omni::physx::IPhysxFoundation table{};
+    static omni::ev4sio_physx::IPhysxFoundation iface = [] {
+        omni::ev4sio_physx::IPhysxFoundation table{};
         populateInterface(table);
         return table;
     }();
     return iface;
 }
 
-omni::physx::IOptionalCuda& getOptionalCudaInterface()
+omni::ev4sio_physx::IOptionalCuda& getOptionalCudaInterface()
 {
-    static omni::physx::IOptionalCuda iface = [] {
-        omni::physx::IOptionalCuda table{};
+    static omni::ev4sio_physx::IOptionalCuda iface = [] {
+        omni::ev4sio_physx::IOptionalCuda table{};
         populateInterface(table);
         return table;
     }();
@@ -447,5 +447,5 @@ omni::physx::IOptionalCuda& getOptionalCudaInterface()
 }
 
 } // namespace foundation
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

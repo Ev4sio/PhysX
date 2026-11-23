@@ -30,7 +30,7 @@
 #if PX_SUPPORT_OMNI_PVD
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -1001,7 +1001,7 @@ Vehicle registerVehicle(OmniPvdWriter& omniWriter);
 
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif //PX_SUPPORT_OMNI_PVD

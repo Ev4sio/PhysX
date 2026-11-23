@@ -59,13 +59,13 @@
 
 #include <PxPhysicsAPI.h>
 
-using namespace ::physx;
-using namespace omni::physx;
-using namespace omni::physx::internal;
-using namespace omni::physx::usdparser;
+using namespace ::ev4sio_physx;
+using namespace omni::ev4sio_physx;
+using namespace omni::ev4sio_physx::internal;
+using namespace omni::ev4sio_physx::usdparser;
 using omni::physics::parse::IPhysicsSource;
 
-namespace omni::physx::ovx
+namespace omni::ev4sio_physx::ovx
 {
 
 carb::tasking::RecursiveMutexWrapper& outputCacheMutex()
@@ -92,7 +92,7 @@ uint64_t mintRecordContentVersion()
 bool ensureJointRecords(ArticulationReadCacheEntry& jc,
                         IPhysicsSource& source,
                         const std::vector<JointRec>& joints,
-                        const std::vector<omni::physx::tensors::ArticulationEntry>& entries,
+                        const std::vector<omni::ev4sio_physx::tensors::ArticulationEntry>& entries,
                         const std::vector<uint32_t>& localToRow,
                         const uint64_t viewGeneration,
                         const bool enumCached)
@@ -117,7 +117,7 @@ bool ensureJointRecords(ArticulationReadCacheEntry& jc,
         for (const JointRec& jr : joints)
         {
             const uint32_t artiRow = localToRow[jr.viewArtiIdx];
-            const omni::physx::tensors::ArticulationEntry& ent = entries[artiRow];
+            const omni::ev4sio_physx::tensors::ArticulationEntry& ent = entries[artiRow];
             const uint32_t start = static_cast<uint32_t>(jc.recs.size());
             for (uint32_t dof = 0; dof < ent.dofImpls.size(); ++dof)
             {
@@ -129,10 +129,10 @@ bool ensureJointRecords(ArticulationReadCacheEntry& jc,
                 // Angular axes convert rad->deg by default; an authored JointStateAPI on the axis
                 // overrides that per-axis flag. The DirectGPU/cache DOF value is unsigned-raw, so
                 // the body0IsParent sign is folded into the scale here.
-                const ::physx::PxArticulationAxis::Enum axis = ent.dofImpls[dof].axis;
-                bool toDegrees = (axis == ::physx::PxArticulationAxis::eTWIST ||
-                                  axis == ::physx::PxArticulationAxis::eSWING1 ||
-                                  axis == ::physx::PxArticulationAxis::eSWING2);
+                const ::ev4sio_physx::PxArticulationAxis::Enum axis = ent.dofImpls[dof].axis;
+                bool toDegrees = (axis == ::ev4sio_physx::PxArticulationAxis::eTWIST ||
+                                  axis == ::ev4sio_physx::PxArticulationAxis::eSWING1 ||
+                                  axis == ::ev4sio_physx::PxArticulationAxis::eSWING2);
                 for (const InternalJoint::InternalJointState& js : jr.ij->mJointStates)
                     if (js.enabled && js.physxAxis == axis)
                     {
@@ -140,7 +140,7 @@ bool ensureJointRecords(ArticulationReadCacheEntry& jc,
                         break;
                     }
                 const float sign = (ent.metatype && ent.metatype->isDofBody0Parent(dof)) ? 1.0f : -1.0f;
-                omni::physx::tensors::ArticulationDofOvStageRecord r;
+                omni::ev4sio_physx::tensors::ArticulationDofOvStageRecord r;
                 r.viewArtiIdx = artiRow;
                 r.physxDofIdx = dof;
                 // The axis FACTS, not one folded multiply: the fold is per ATTRIBUTE while this list
@@ -153,7 +153,7 @@ bool ensureJointRecords(ArticulationReadCacheEntry& jc,
                 // Cached once here (per topology change), not per drain: a wrapped revolute joint's drive
                 // position target must be wrapped into [-360, 360] before the tensor scatter reaches PhysX.
                 r.isWrappedRevolute =
-                    jr.pxJoint && jr.pxJoint->getJointType() == ::physx::PxArticulationJointType::eREVOLUTE;
+                    jr.pxJoint && jr.pxJoint->getJointType() == ::ev4sio_physx::PxArticulationJointType::eREVOLUTE;
                 jc.recs.push_back(r);
             }
             const uint32_t count = static_cast<uint32_t>(jc.recs.size()) - start;
@@ -163,7 +163,7 @@ bool ensureJointRecords(ArticulationReadCacheEntry& jc,
     }
     // Held by reference, and built in place above: a hit is what this cache exists to make free,
     // and copying four vectors out would put an O(numDOF) copy back on it.
-    const std::vector<omni::physx::tensors::ArticulationDofOvStageRecord>& recs = jc.recs;
+    const std::vector<omni::ev4sio_physx::tensors::ArticulationDofOvStageRecord>& recs = jc.recs;
     const std::vector<JointSlice>& slices = jc.slices;
     if (recs.empty())
         return true; // no unlocked DOF on any queried joint -- nothing to emit
@@ -226,7 +226,7 @@ bool waitForCallerProducer(const ovstage_cuda_sync_t& sync, const char* who, con
 {
     if (sync.stream == 0 && sync.wait_event == 0)
         return true;
-    omni::physx::IOptionalCuda* const cuda = omni::physx::cudaShimWrappers::getCudaShim();
+    omni::ev4sio_physx::IOptionalCuda* const cuda = omni::ev4sio_physx::cudaShimWrappers::getCudaShim();
     if (!cuda || !cuda->cudaAvailable())
     {
         OVX_RUNTIME_ERROR("%s: a CUDA producer handoff (stream 0x%llx, event 0x%llx) was supplied but no CUDA driver "
@@ -325,7 +325,7 @@ ActiveActorSet collectActiveActors(AttachedStage& owner)
     // that had just been built.
     for (const InternalDatabase::Record& rec : db.getRecords())
     {
-        if (rec.mType != omni::physx::ePTScene || !rec.mInternalPtr)
+        if (rec.mType != omni::ev4sio_physx::ePTScene || !rec.mInternalPtr)
             continue;
         InternalScene* const internalScene = reinterpret_cast<InternalScene*>(rec.mInternalPtr);
         PxScene* const scene = internalScene->getScene();
@@ -348,7 +348,7 @@ ActiveActorSet collectActiveActors(AttachedStage& owner)
 // so a non-reporting scene does not drop every controller.
 bool cctRowInScope(const InternalCct& cct, uint32_t scope, const ActiveActorSet& active)
 {
-    if (scope != omni::physx::kOvxActive)
+    if (scope != omni::ev4sio_physx::kOvxActive)
         return true;
     PxRigidActor* actor = cct.mActor;
     if (!actor)
@@ -369,7 +369,7 @@ bool enumerateCctRows(usdparser::AttachedStage& owner, uint32_t scope, std::vect
     out.clear();
     InternalPhysXDatabase& db = owner.getInternalPhysXDatabase();
     const std::vector<InternalDatabase::Record>& records = db.getRecords();
-    const ActiveActorSet active = (scope == omni::physx::kOvxActive) ? collectActiveActors(owner) : ActiveActorSet{};
+    const ActiveActorSet active = (scope == omni::ev4sio_physx::kOvxActive) ? collectActiveActors(owner) : ActiveActorSet{};
 
     for (size_t i = 0; i < records.size(); ++i)
     {
@@ -404,7 +404,7 @@ bool linkInScope(const PxArticulationLink& link,
                  uint32_t scope,
                  const ActiveActorSet& activeSet)
 {
-    if (scope != omni::physx::kOvxActive)
+    if (scope != omni::ev4sio_physx::kOvxActive)
         return true;
     // A link whose articulation is not in a scene is not active -- and isSleeping() below FATAL-errors on
     // one that is not, so the scene guard has to come first (a change can be drained onto an articulation
@@ -619,4 +619,4 @@ EnabledRigidBodies::EnabledRigidBodies(const std::vector<PxRigidBody*>& bodies,
     mKeys = &mEnabledKeys;
 }
 
-} // namespace omni::physx::ovx
+} // namespace omni::ev4sio_physx::ovx

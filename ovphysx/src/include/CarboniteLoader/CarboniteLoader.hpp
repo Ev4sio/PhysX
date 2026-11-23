@@ -10,7 +10,7 @@
 #include <stdint.h>
 
 // Forward declare to avoid forcing include on consumers
-namespace omni { namespace physx { class IPhysxSimulation; } }
+namespace omni { namespace ev4sio_physx { class IPhysxSimulation; } }
 
 namespace ovphysx
 {
@@ -102,7 +102,7 @@ public:
      * Access the PhysX simulation function table from the linked runtime.
      * @return Interface pointer or nullptr if not loaded.
      */
-    omni::physx::IPhysxSimulation* getPhysxSimulation() const;
+    omni::ev4sio_physx::IPhysxSimulation* getPhysxSimulation() const;
 
 private:
     // Build plugin search paths from m->pluginsDir (always) and plugins/bin/deps (if present).

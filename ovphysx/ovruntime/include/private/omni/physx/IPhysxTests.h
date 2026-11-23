@@ -28,7 +28,7 @@
 namespace omni
 {
 
-namespace physx
+namespace ev4sio_physx
 {
 
 using TestPathArg = std::string;
@@ -142,5 +142,5 @@ struct PhysicsProfileStats
 
 typedef void (*ProfileStatsNotificationFn)(const std::vector<PhysicsProfileStats>& profileStats, void* userData);
 
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

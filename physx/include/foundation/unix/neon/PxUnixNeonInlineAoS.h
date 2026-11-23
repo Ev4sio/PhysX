@@ -10,7 +10,7 @@
 #error Vector intrinsics should not be included when using scalar implementation.
 #endif
 
-namespace physx
+namespace ev4sio_physx
 {
 namespace aos
 {
@@ -3608,6 +3608,6 @@ PX_FORCE_INLINE void QuatGetMat33V(const QuatVArg q, Vec3V& column0, Vec3V& colu
 }
 
 } // namespace aos
-} // namespace physx
+} // namespace ev4sio_physx
 
 #endif // PXFOUNDATION_PXUNIXNEONINLINEAOS_H

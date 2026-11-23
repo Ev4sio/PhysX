@@ -360,7 +360,7 @@ ovphysx_enqueue_result_t stoppedWorker(const char* api)
 bool attachmentBusy(const InstanceData& instance) noexcept
 {
     return instance.attachHandle != omni::physics::tensors::kNoAttach &&
-           omni::physx::runtime::isRuntimeBusy(instance.attachHandle, true);
+           omni::ev4sio_physx::runtime::isRuntimeBusy(instance.attachHandle, true);
 }
 
 // Takes the instance lane for the rest of an output call once its argument checks
@@ -849,7 +849,7 @@ private:
 };
 
 template <typename Output>
-ovphysx_enqueue_result_t outputFailure(Output& output, const omni::physx::RuntimeErrorScope& error,
+ovphysx_enqueue_result_t outputFailure(Output& output, const omni::ev4sio_physx::RuntimeErrorScope& error,
                                       const char* fallback)
 {
     return output.fail(error.message()[0] ? error.message() : fallback);
@@ -860,7 +860,7 @@ ovphysx_enqueue_result_t outputFailure(Output& output, const omni::physx::Runtim
 template <typename Output>
 ovphysx_enqueue_result_t releaseBackend(Output& output, uint64_t handle, uint64_t backend, int (*release)(uint64_t))
 {
-    omni::physx::RuntimeErrorScope error;
+    omni::ev4sio_physx::RuntimeErrorScope error;
     const int released = release(backend);
     if (released >= 0)
         eraseOutput(output.instance(), handle);
@@ -1120,7 +1120,7 @@ void retireOutputHandles(InstanceData& instance, bool writesOnly) noexcept
             {
                 try
                 {
-                    omni::physx::RuntimeErrorScope error;
+                    omni::ev4sio_physx::RuntimeErrorScope error;
                     if (release(backends[index]) <= 0 || error.message()[0])
                         CARB_LOG_ERROR(
                             "Output session cleanup failed: %s",
@@ -1149,7 +1149,7 @@ void cleanup_output_writes(InstanceData& instance) noexcept
 void cleanup_output_sessions(ovphysx_instance_handle_t handle, InstanceData& instance) noexcept
 {
     // Drop visualization on this instance's scenes before its sessions go away.
-    omni::physx::ovxDebugRenderForget(handle);
+    omni::ev4sio_physx::ovxDebugRenderForget(handle);
     // Release before unloading the sidecar. Read buffers retain their CUDA
     // contexts across stage detach.
     retireOutputHandles(instance, /*writesOnly=*/false);
@@ -1184,7 +1184,7 @@ ovphysx_enqueue_result_t openDebugRenderQuery(Output& output, ovphysx_instance_h
         return outputRejection(OVPHYSX_API_ERROR);
     if (!output.attachmentCurrent())
         return output.failTask(ovphysx::attachmentChangedCause(output.lifecycleTask()));
-    const uint64_t resource = omni::physx::ovxOpenDebugRenderQuery(handle, static_cast<uint32_t>(scope));
+    const uint64_t resource = omni::ev4sio_physx::ovxOpenDebugRenderQuery(handle, static_cast<uint32_t>(scope));
     if (!resource)
         return output.fail("ovphysx_query: failed to open a debug-render query");
     output.produced(resource);
@@ -1205,7 +1205,7 @@ ovphysx_enqueue_result_t openQuery(Output& output, InstanceData& instance, ovphy
     const OvphysxSidecarOutputQueryFn query = g_sidecarOutputQuery.load(std::memory_order_acquire);
     if (!query)
         return output.failTask("ovphysx_query: read API is unavailable");
-    omni::physx::RuntimeErrorScope error;
+    omni::ev4sio_physx::RuntimeErrorScope error;
     // The initial scene parse inserts parsed articulations into their scenes. Without it, a read or
     // write opened over this query before the first step finds none of them.
     if (ovphysx_ensure_physics_attached(handle) != OVPHYSX_API_SUCCESS)
@@ -1296,7 +1296,7 @@ ovphysx_enqueue_result_t openSelectedQuery(Output& output, InstanceData& instanc
         g_sidecarOutputQuerySelected.load(std::memory_order_acquire);
     if (!querySelected)
         return output.failTask("ovphysx_query_selection: read API is unavailable");
-    omni::physx::RuntimeErrorScope error;
+    omni::ev4sio_physx::RuntimeErrorScope error;
     // As in ovphysx_query: insert parsed articulations before a read or write opens over this query.
     if (ovphysx_ensure_physics_attached(handle) != OVPHYSX_API_SUCCESS)
         return outputFailure(output, error, "ovphysx_query_selection: failed to attach physics stage");
@@ -1448,7 +1448,7 @@ std::string contactSelectionError(const ovphysx_query_selection_t& selection, co
 }
 
 // The runtime's view of one validated selection: the explicit handles, or else the glob.
-omni::physx::OvxPrimSelection runtimeSelection(const ovphysx_query_selection_t& selection, ovx_string_t& glob)
+omni::ev4sio_physx::OvxPrimSelection runtimeSelection(const ovphysx_query_selection_t& selection, ovx_string_t& glob)
 {
     if (selection.prim_paths && selection.prim_paths_count > 0)
         return { selection.prim_paths, selection.prim_paths_count, nullptr };
@@ -1474,12 +1474,12 @@ ovphysx_enqueue_result_t openContactQuery(Output& output, InstanceData& instance
         g_sidecarOutputQueryContacts.load(std::memory_order_acquire);
     if (!queryContacts)
         return output.failTask("ovphysx_query_contacts: read API is unavailable");
-    omni::physx::RuntimeErrorScope error;
+    omni::ev4sio_physx::RuntimeErrorScope error;
     // The runtime's descriptors point into the selection buffers, which outlive the call; the globs and
     // filter arrays are held here for its duration.
     std::vector<ovx_string_t> globs(size_t(selectionCount) * (1u + filtersPerSensor));
-    std::vector<omni::physx::OvxPrimSelection> filters(size_t(selectionCount) * filtersPerSensor);
-    std::vector<omni::physx::OvxContactSensorSelection> runtime(selectionCount);
+    std::vector<omni::ev4sio_physx::OvxPrimSelection> filters(size_t(selectionCount) * filtersPerSensor);
+    std::vector<omni::ev4sio_physx::OvxContactSensorSelection> runtime(selectionCount);
     for (uint32_t s = 0; s < selectionCount; s++)
     {
         ovx_string_t* const slot = &globs[size_t(s) * (1u + filtersPerSensor)];
@@ -1556,7 +1556,7 @@ OVPHYSX_API ovphysx_enqueue_result_t ovphysx_query_contacts(ovphysx_instance_han
         if (!selections || selection_count == 0)
             return set_enqueue_error(OVPHYSX_API_INVALID_ARGUMENT,
                 "ovphysx_query_contacts: selections must name at least one sensor selection");
-        if (filters_per_sensor > omni::physx::kOvxMaxContactFilters)
+        if (filters_per_sensor > omni::ev4sio_physx::kOvxMaxContactFilters)
             return set_enqueue_error(OVPHYSX_API_INVALID_ARGUMENT,
                 "ovphysx_query_contacts: filters_per_sensor exceeds 21845");
         for (uint32_t s = 0; s < selection_count; s++)
@@ -1616,7 +1616,7 @@ OVPHYSX_API ovphysx_enqueue_result_t ovphysx_update_articulations_kinematic(
                                                   unusableInputCause(OutputKind::kQuery, query, input))
                                       .c_str());
         }
-        if (!omni::physx::ovxUpdateArticulationsKinematic(input.backend, 0))
+        if (!omni::ev4sio_physx::ovxUpdateArticulationsKinematic(input.backend, 0))
             return set_enqueue_error(
                 OVPHYSX_API_INVALID_ARGUMENT,
                 "ovphysx_update_articulations_kinematic: query must select live whole articulations");
@@ -1627,14 +1627,14 @@ OVPHYSX_API ovphysx_enqueue_result_t ovphysx_update_articulations_kinematic(
             return admission.fail(taskFailureText("ovphysx_update_articulations_kinematic", admission.receipt.op_index,
                                                   ovphysx::attachmentChangedCause(submitted.lifecycleTask))
                                       .c_str());
-        omni::physx::RuntimeErrorScope error;
+        omni::ev4sio_physx::RuntimeErrorScope error;
         if (!flags)
             return admission.complete();
         if (ovphysx_ensure_physics_attached(handle) != OVPHYSX_API_SUCCESS)
             return outputFailure(
                 admission, error, "ovphysx_update_articulations_kinematic: failed to attach physics stage");
         // No warmup: like a write, the refresh never steps on the caller's behalf (ADR-0052).
-        if (!omni::physx::ovxUpdateArticulationsKinematic(input.backend, flags, cuda_sync) || error.message()[0])
+        if (!omni::ev4sio_physx::ovxUpdateArticulationsKinematic(input.backend, flags, cuda_sync) || error.message()[0])
             return outputFailure(admission, error, "Failed to update articulation kinematics");
         return admission.complete();
     });
@@ -1666,10 +1666,10 @@ static std::string sdfTensorsError(const DLTensor* points, const DLTensor* out)
         return "points [N, Q, 3] and out [N, Q, 4] must agree on N and Q";
     if (descs[0].dims[1] < 1)
         return "Q must be at least 1";
-    if (descs[0].dims[0] > static_cast<int>(omni::physx::kOvxMaxSdfShapesPerEvaluation))
+    if (descs[0].dims[0] > static_cast<int>(omni::ev4sio_physx::kOvxMaxSdfShapesPerEvaluation))
         return "N exceeds 65535: one evaluation addresses at most 65535 SDF shapes (a PhysX launch limit)";
     if (static_cast<int64_t>(descs[0].dims[0]) * descs[0].dims[1] >
-        static_cast<int64_t>(omni::physx::kOvxMaxSdfPointsPerEvaluation))
+        static_cast<int64_t>(omni::ev4sio_physx::kOvxMaxSdfPointsPerEvaluation))
         return "N x Q exceeds 2147483647: one evaluation addresses at most 2^31 - 1 points (a PhysX limit)";
     if (descs[0].device != descs[1].device)
         return "points and out must be on the same CUDA device";
@@ -1709,12 +1709,12 @@ OVPHYSX_API ovphysx_enqueue_result_t ovphysx_evaluate_sdf_shapes(ovphysx_instanc
             return admission.fail(taskFailureText("ovphysx_evaluate_sdf_shapes", admission.receipt.op_index,
                                                   unusableInputCause(OutputKind::kQuery, query, input))
                                       .c_str());
-        omni::physx::RuntimeErrorScope error;
+        omni::ev4sio_physx::RuntimeErrorScope error;
         if (ovphysx_ensure_physics_attached(handle) != OVPHYSX_API_SUCCESS)
             return outputFailure(admission, error, "ovphysx_evaluate_sdf_shapes: failed to attach physics stage");
         // A call that will be refused -- a stale, wrong-type or empty query, mismatched rows, a CPU scene -- is refused
         // before the warmup, which steps the simulation, as the SDF view refused a stale view before its own.
-        if (!omni::physx::ovxCheckSdfShapes(input.backend, points, out) || error.message()[0])
+        if (!omni::ev4sio_physx::ovxCheckSdfShapes(input.backend, points, out) || error.message()[0])
             return outputFailure(admission, error, "SDF shape evaluation failed");
         const ovphysx_result_t warmup = ovphysx_warmup_if_needed(handle, false);
         if (warmup.status != OVPHYSX_API_SUCCESS)
@@ -1722,7 +1722,7 @@ OVPHYSX_API ovphysx_enqueue_result_t ovphysx_evaluate_sdf_shapes(ovphysx_instanc
             const ovphysx_string_t cause = ovphysx_get_last_error();
             return admission.fail(cause.ptr ? cause.ptr : "SDF evaluation warmup failed");
         }
-        if (!omni::physx::ovxEvaluateSdfShapes(input.backend, points, out, points_ready) || error.message()[0])
+        if (!omni::ev4sio_physx::ovxEvaluateSdfShapes(input.backend, points, out, points_ready) || error.message()[0])
             return outputFailure(admission, error, "SDF shape evaluation failed");
         return admission.complete();
     });
@@ -1758,7 +1758,7 @@ extern "C" OVPHYSX_API ovphysx_result_t ovphysx_internal_is_query_valid(ovphysx_
         return set_error(OVPHYSX_API_INVALID_STATE, "Output metadata cannot reenter runtime execution");
 
     // A query whose producer failed was never opened.
-    *out_valid = input.status == OutputStatus::kLive && omni::physx::ovxQueryDictionary(input.backend) != nullptr;
+    *out_valid = input.status == OutputStatus::kLive && omni::ev4sio_physx::ovxQueryDictionary(input.backend) != nullptr;
     return success();
 }
 
@@ -1783,7 +1783,7 @@ ovphysx_enqueue_result_t openRead(Output& output, ovphysx_instance_handle_t hand
         return output.failTask("ovphysx_read: read API is unavailable");
     if (input.status != OutputStatus::kLive)
         return output.failTask(unusableInputCause(OutputKind::kQuery, query, input));
-    omni::physx::RuntimeErrorScope error;
+    omni::ev4sio_physx::RuntimeErrorScope error;
     ovphysx_read_result_t result{};
     const uint64_t resource = read(input.backend, attributes, attributeCount, cudaSync,
                                    outSummary ? &result : nullptr);
@@ -1827,7 +1827,7 @@ ovphysx_enqueue_result_t fetchReadGroup(Output& output, ovphysx_instance_handle_
     if (input.status != OutputStatus::kLive)
         return output.failTask(unusableInputCause(OutputKind::kRead, read, input));
     output.start();
-    omni::physx::RuntimeErrorScope error;
+    omni::ev4sio_physx::RuntimeErrorScope error;
     if (fetch(input.backend, outGroup) < 0)
         return outputFailure(output, error, "ovphysx_fetch_read_next: read failed");
     return output.complete();
@@ -1865,7 +1865,7 @@ ovphysx_enqueue_result_t releaseReadGroup(Output& output, ovphysx_instance_handl
     if (!release)
         return output.failTask("ovphysx_release_group: release API is unavailable");
     output.start();
-    omni::physx::RuntimeErrorScope error;
+    omni::ev4sio_physx::RuntimeErrorScope error;
     if (release(input.backend, groupId) <= 0 || error.message()[0])
         return outputFailure(output, error, "ovphysx_release_group: release failed");
     return output.complete();
@@ -2014,7 +2014,7 @@ ovphysx_enqueue_result_t openWrite(Output& output, ovphysx_instance_handle_t han
         return output.failTask("ovphysx_write: write API is unavailable");
     if (input.status != OutputStatus::kLive)
         return output.failTask(unusableInputCause(OutputKind::kQuery, query, input));
-    omni::physx::RuntimeErrorScope error;
+    omni::ev4sio_physx::RuntimeErrorScope error;
     ovphysx_write_result_t result{};
     const uint64_t resource = write(input.backend, attributes, attributeCount, outSummary ? &result : nullptr);
     if (!resource)
@@ -2177,7 +2177,7 @@ ovphysx_enqueue_result_t fetchWriteGroup(Output& output, ovphysx_instance_handle
     if (input.status != OutputStatus::kLive)
         return output.failTask(unusableInputCause(OutputKind::kWrite, write, input));
     output.start();
-    omni::physx::RuntimeErrorScope error;
+    omni::ev4sio_physx::RuntimeErrorScope error;
     if (fetch(input.backend, outGroup) < 0)
         return outputFailure(output, error, "ovphysx_fetch_write_next: fetch failed");
     // From the first group in device memory on, the session's commits run on the calling
@@ -2225,7 +2225,7 @@ ovphysx_enqueue_result_t commitGroup(Output& output, ovphysx_instance_handle_t h
     // rules: a row's meaning depends on the group's kind.
     {
         const OvphysxSidecarValidateCommitFn validate = g_sidecarValidateCommit.load(std::memory_order_acquire);
-        omni::physx::RuntimeErrorScope refusal;
+        omni::ev4sio_physx::RuntimeErrorScope refusal;
         if (validate && validate(session, group, rowMask, writeDoneSync) == 0)
         {
             const char* const why =
@@ -2235,7 +2235,7 @@ ovphysx_enqueue_result_t commitGroup(Output& output, ovphysx_instance_handle_t h
     }
     output.start();
     int32_t why = kOvphysxCommitFailureNone;
-    omni::physx::RuntimeErrorScope error;
+    omni::ev4sio_physx::RuntimeErrorScope error;
     const int committed = rowMask ? commitMasked(session, group, rowMask, writeDoneSync, &why) :
                                     commit(session, group, writeDoneSync, &why);
     if (!committed)
@@ -2391,7 +2391,7 @@ extern "C" OVPHYSX_API ovphysx_result_t ovphysx_internal_cuda_stream_wait_event(
     if (event == 0)
         return success();
 
-    omni::physx::IOptionalCuda* cuda = omni::physx::runtime::tryGetOptionalCudaInterface();
+    omni::ev4sio_physx::IOptionalCuda* cuda = omni::ev4sio_physx::runtime::tryGetOptionalCudaInterface();
     if (!cuda || !cuda->streamWaitEvent)
         return set_error(OVPHYSX_API_ERROR,
                          "ovphysx_internal_cuda_stream_wait_event: CUDA is not available in this process");

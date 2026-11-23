@@ -12,9 +12,9 @@
 #include "DyCpuGpuArticulation.h"
 #include "cutil_math.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-	//We load/store to Cm::SpatialMatrix rather than PxSpatialMatrix.
+	//We load/store to ev4sio_Cm::SpatialMatrix rather than PxSpatialMatrix.
 	//This exploits the symmetry of the spatial matrix to avoid storing/loading the bottom-right,
 	//which is the transpose of the top-left
 	struct PxgSpatialMatrixBlock
@@ -49,7 +49,7 @@ namespace physx
 	};
 
 
-	PX_FORCE_INLINE PX_CUDA_CALLABLE void loadSpatialMatrix(const PxgSpatialMatrixBlock& block, const PxU32 threadIndexInWarp, Dy::SpatialMatrix& mat)
+	PX_FORCE_INLINE PX_CUDA_CALLABLE void loadSpatialMatrix(const PxgSpatialMatrixBlock& block, const PxU32 threadIndexInWarp, ev4sio_Dy::SpatialMatrix& mat)
 	{
 		float4 val = block.columns[0][threadIndexInWarp];
 		mat.topLeft[0][0] = val.x; mat.topLeft[0][1] = val.y; mat.topLeft[0][2] = val.z; mat.topLeft[1][0] = val.w;
@@ -89,7 +89,7 @@ namespace physx
 		mat.column[5][0] = val.x; mat.column[5][1] = val.y; mat.column[5][2] = val.z;
 	}
 
-	PX_FORCE_INLINE PX_CUDA_CALLABLE void storeSpatialMatrix(PxgSpatialMatrixBlock& block, const PxU32 threadIndexInWarp, const Dy::SpatialMatrix& mat)
+	PX_FORCE_INLINE PX_CUDA_CALLABLE void storeSpatialMatrix(PxgSpatialMatrixBlock& block, const PxU32 threadIndexInWarp, const ev4sio_Dy::SpatialMatrix& mat)
 	{
 		block.columns[0][threadIndexInWarp] = make_float4(mat.topLeft[0][0], mat.topLeft[0][1], mat.topLeft[0][2], mat.topLeft[1][0]);
 		block.columns[1][threadIndexInWarp] = make_float4(mat.topLeft[1][1], mat.topLeft[1][2], mat.topLeft[2][0], mat.topLeft[2][1]);
@@ -148,23 +148,23 @@ namespace physx
 		block.columns[8][threadIndexInWarp] = make_float4(0.f, 0.f, 0.f, 0.f);
 	}
 
-	PX_FORCE_INLINE PX_CUDA_CALLABLE Cm::SpatialVectorF loadSpatialVectorF(const PxgSpatialVectorBlock& block, const PxU32 threadIndexInWarp)
+	PX_FORCE_INLINE PX_CUDA_CALLABLE ev4sio_Cm::SpatialVectorF loadSpatialVectorF(const PxgSpatialVectorBlock& block, const PxU32 threadIndexInWarp)
 	{
 		float4 top = block.mTopxyz_bx[threadIndexInWarp];
 		float2 bottom = block.mbyz[threadIndexInWarp];
 
-		return Cm::SpatialVectorF(PxVec3(top.x, top.y, top.z), PxVec3(top.w, bottom.x, bottom.y));
+		return ev4sio_Cm::SpatialVectorF(PxVec3(top.x, top.y, top.z), PxVec3(top.w, bottom.x, bottom.y));
 	}
 
-	PX_FORCE_INLINE PX_CUDA_CALLABLE Cm::UnAlignedSpatialVector loadSpatialVector(const PxgSpatialVectorBlock& block, const PxU32 threadIndexInWarp)
+	PX_FORCE_INLINE PX_CUDA_CALLABLE ev4sio_Cm::UnAlignedSpatialVector loadSpatialVector(const PxgSpatialVectorBlock& block, const PxU32 threadIndexInWarp)
 	{
 		float4 top = block.mTopxyz_bx[threadIndexInWarp];
 		float2 bottom = block.mbyz[threadIndexInWarp];
 
-		return Cm::UnAlignedSpatialVector(PxVec3(top.x, top.y, top.z), PxVec3(top.w, bottom.x, bottom.y));
+		return ev4sio_Cm::UnAlignedSpatialVector(PxVec3(top.x, top.y, top.z), PxVec3(top.w, bottom.x, bottom.y));
 	}
 
-	PX_FORCE_INLINE PX_CUDA_CALLABLE void storeSpatialVector(PxgSpatialVectorBlock& block, const Cm::UnAlignedSpatialVector& v, const PxU32 threadIndexInWarp)
+	PX_FORCE_INLINE PX_CUDA_CALLABLE void storeSpatialVector(PxgSpatialVectorBlock& block, const ev4sio_Cm::UnAlignedSpatialVector& v, const PxU32 threadIndexInWarp)
 	{
 		block.mTopxyz_bx[threadIndexInWarp] = make_float4(v.top.x, v.top.y, v.top.z, v.bottom.x);
 		block.mbyz[threadIndexInWarp] = make_float2(v.bottom.y, v.bottom.z);
@@ -173,7 +173,7 @@ namespace physx
 		Pxstcg(&block.mbyz[threadIndexInWarp], make_float2(v.bottom.y, v.bottom.z));*/
 	}
 
-	PX_FORCE_INLINE PX_CUDA_CALLABLE void addSpatialVector(PxgSpatialVectorBlock& block, const Cm::UnAlignedSpatialVector& v, const PxU32 threadIndexInWarp)
+	PX_FORCE_INLINE PX_CUDA_CALLABLE void addSpatialVector(PxgSpatialVectorBlock& block, const ev4sio_Cm::UnAlignedSpatialVector& v, const PxU32 threadIndexInWarp)
 	{
 		block.mTopxyz_bx[threadIndexInWarp] += make_float4(v.top.x, v.top.y, v.top.z, v.bottom.x);
 		block.mbyz[threadIndexInWarp] += make_float2(v.bottom.y, v.bottom.z);
@@ -183,7 +183,7 @@ namespace physx
 	}
 
 #if PX_CUDA_COMPILER
-	PX_FORCE_INLINE __device__ void atomicAddSpatialVector(PxgSpatialVectorBlock& block, const Cm::UnAlignedSpatialVector& v, const PxU32 threadIndexInWarp)
+	PX_FORCE_INLINE __device__ void atomicAddSpatialVector(PxgSpatialVectorBlock& block, const ev4sio_Cm::UnAlignedSpatialVector& v, const PxU32 threadIndexInWarp)
 	{
 #if __CUDA_ARCH__ >= 200
 		atomicAdd(&block.mTopxyz_bx[threadIndexInWarp].x, v.top.x);
@@ -248,7 +248,7 @@ namespace physx
 		block.mCol2[threadIndexInWarp] = mat.column2.z;
 	}
 
-	PX_FORCE_INLINE PX_CUDA_CALLABLE Cm::UnAlignedSpatialVector loadSpatialVector(const Cm::UnAlignedSpatialVector* PX_RESTRICT vector)
+	PX_FORCE_INLINE PX_CUDA_CALLABLE ev4sio_Cm::UnAlignedSpatialVector loadSpatialVector(const ev4sio_Cm::UnAlignedSpatialVector* PX_RESTRICT vector)
 	{
 		size_t ptr = size_t(vector);
 		if (ptr & 0xf)
@@ -257,7 +257,7 @@ namespace physx
 			float2 val = *top;
 			float4 val2 = *(reinterpret_cast<float4*>(top+1));
 
-			return Cm::UnAlignedSpatialVector(PxVec3(val.x, val.y, val2.x), PxVec3(val2.y, val2.z, val2.w));
+			return ev4sio_Cm::UnAlignedSpatialVector(PxVec3(val.x, val.y, val2.x), PxVec3(val2.y, val2.z, val2.w));
 		}
 		else
 		{
@@ -265,12 +265,12 @@ namespace physx
 			float4 val = *top;
 			float2 val2 = *(reinterpret_cast<float2*>(top + 1));
 
-			return Cm::UnAlignedSpatialVector(PxVec3(val.x, val.y, val.z), PxVec3(val.w, val2.x, val2.y));
+			return ev4sio_Cm::UnAlignedSpatialVector(PxVec3(val.x, val.y, val.z), PxVec3(val.w, val2.x, val2.y));
 		}
 	}
 
-	PX_FORCE_INLINE PX_CUDA_CALLABLE void storeSpatialVector(Cm::UnAlignedSpatialVector* PX_RESTRICT vector,
-		const Cm::UnAlignedSpatialVector& src)
+	PX_FORCE_INLINE PX_CUDA_CALLABLE void storeSpatialVector(ev4sio_Cm::UnAlignedSpatialVector* PX_RESTRICT vector,
+		const ev4sio_Cm::UnAlignedSpatialVector& src)
 	{
 		size_t ptr = size_t(vector);
 		if (ptr & 0xf)
@@ -421,7 +421,7 @@ namespace physx
 		//This one is a bit of a hack - it's the common link velocity. 
 		PxgSpatialVectorBlock mCommonLinkDeltaVelocity;
 		PxU32 mLinkWithDeferredImpulse[32];
-		Cm::UnAlignedSpatialVector* mMotionVelocitiesPtr[32];
+		ev4sio_Cm::UnAlignedSpatialVector* mMotionVelocitiesPtr[32];
 		PxgSpatialVectorBlock mRootDeferredZ;
 
 		float4	mCOM_TotalInvMassW[32];
@@ -476,15 +476,15 @@ namespace physx
 		PxReal						mViscousFrictionCoefficient[32];
 
 		PX_FORCE_INLINE void PX_CUDA_CALLABLE setImplicitDriveDesc
-			(const PxU32 threadIndexInWarp,const Dy::ArticulationImplicitDriveDesc& driveDesc)
+			(const PxU32 threadIndexInWarp,const ev4sio_Dy::ArticulationImplicitDriveDesc& driveDesc)
 		{
 		    mTargetVelPlusInitialBiasX_DriveBiasCoefficientY_VelMultiplierZ_ImpulseMultiplierW[threadIndexInWarp] =
 		        make_float4(driveDesc.driveTargetVelPlusInitialBias, driveDesc.driveBiasCoefficient, driveDesc.driveVelMultiplier, driveDesc.driveImpulseMultiplier);
 		    mTargetPosBias[threadIndexInWarp] = driveDesc.driveTargetPosBias;
 		}
-		PX_FORCE_INLINE PX_CUDA_CALLABLE Dy::ArticulationImplicitDriveDesc getImplicitDriveDesc(const PxU32 threadIndexInWarp) const
+		PX_FORCE_INLINE PX_CUDA_CALLABLE ev4sio_Dy::ArticulationImplicitDriveDesc getImplicitDriveDesc(const PxU32 threadIndexInWarp) const
 		{
-			const Dy::ArticulationImplicitDriveDesc driveDesc
+			const ev4sio_Dy::ArticulationImplicitDriveDesc driveDesc
 			(
 		        mTargetVelPlusInitialBiasX_DriveBiasCoefficientY_VelMultiplierZ_ImpulseMultiplierW[threadIndexInWarp].x,
 		        mTargetVelPlusInitialBiasX_DriveBiasCoefficientY_VelMultiplierZ_ImpulseMultiplierW[threadIndexInWarp].y,
@@ -523,7 +523,7 @@ namespace physx
 		PxReal						mLowLimit[32];
 		PxReal						mHighLimit[32];
 
-		PX_CUDA_CALLABLE PX_FORCE_INLINE void setTendonImplicitSpringParams(const Dy::TendonImplicitSpringParams& springParams, const PxU32 threadIndexInWarp)
+		PX_CUDA_CALLABLE PX_FORCE_INLINE void setTendonImplicitSpringParams(const ev4sio_Dy::TendonImplicitSpringParams& springParams, const PxU32 threadIndexInWarp)
 		{
 			mBiasCoefficient[threadIndexInWarp] = springParams.biasCoefficient;
 			mVelMultiplier[threadIndexInWarp] = springParams.velMultiplier;
@@ -532,9 +532,9 @@ namespace physx
 			mLimitImpulseMultiplier[threadIndexInWarp] = springParams.limitImpulseMultiplier;
 		}
 
-		PX_CUDA_CALLABLE PX_FORCE_INLINE Dy::TendonImplicitSpringParams	getTendonImplicitSpringParams(const PxU32 threadIndexInWarp) const
+		PX_CUDA_CALLABLE PX_FORCE_INLINE ev4sio_Dy::TendonImplicitSpringParams	getTendonImplicitSpringParams(const PxU32 threadIndexInWarp) const
 		{
-			Dy::TendonImplicitSpringParams springParams(
+			ev4sio_Dy::TendonImplicitSpringParams springParams(
 				mBiasCoefficient[threadIndexInWarp], mVelMultiplier[threadIndexInWarp], mImpulseMultiplier[threadIndexInWarp], 
 				mLimitBiasCoefficient[threadIndexInWarp], mLimitImpulseMultiplier[threadIndexInWarp]);
 			return springParams;

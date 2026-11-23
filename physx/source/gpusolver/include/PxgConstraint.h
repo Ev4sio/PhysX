@@ -11,7 +11,7 @@
 #include "foundation/PxVec3.h"
 #include "vector_types.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 struct PxgSolverBodyData;

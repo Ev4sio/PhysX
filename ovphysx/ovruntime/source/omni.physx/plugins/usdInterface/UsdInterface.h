@@ -42,7 +42,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 class PhysXScene;
 namespace internal
@@ -348,7 +348,7 @@ private:
 
     void changeParticleDiffuseParticles(usdparser::AttachedStage& attachedStage, omni::physics::parse::ObjectKey key, bool removed);
 
-    void removeArticulationFromSceneAndScheduleForReAdd(const usdparser::AttachedStage&, const ::physx::PxArticulationReducedCoordinate&);
+    void removeArticulationFromSceneAndScheduleForReAdd(const usdparser::AttachedStage&, const ::ev4sio_physx::PxArticulationReducedCoordinate&);
 
 private:
     /**
@@ -417,7 +417,7 @@ private:
 
 void applyRigidDynamicPhysxDesc(PhysXScene* ps,
                                 const usdparser::DynamicPhysxRigidBodyDesc& desc,
-                                ::physx::PxRigidDynamic& rigidDynamic);
+                                ::ev4sio_physx::PxRigidDynamic& rigidDynamic);
 
 /**
  * Environment id that a dynamic body or articulation aggregate keyed by \p key receives
@@ -427,5 +427,5 @@ void applyRigidDynamicPhysxDesc(PhysXScene* ps,
  */
 uint32_t creationEnvironmentId(const usdparser::AttachedStage& attachedStage, omni::physics::parse::ObjectKey key);
 
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

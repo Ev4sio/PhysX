@@ -31,12 +31,12 @@
 namespace ovphysx::companion::native_modules
 {
 namespace sdk = ovphysx::companion::native;
-namespace rt = omni::physx;
+namespace rt = omni::ev4sio_physx;
 using Status = ovphysx_companion_status_t;
 using Key = omni::physics::parse::ObjectKey;
 using Id = std::pair<uint64_t, uint64_t>;
-const sdk::HostApi host{sizeof(sdk::HostApi), 1, &physx::PxGeometryQuery::raycast,
-    &physx::PxGeometryQuery::overlap, &physx::PxGeometryQuery::sweep};
+const sdk::HostApi host{sizeof(sdk::HostApi), 1, &ev4sio_physx::PxGeometryQuery::raycast,
+    &ev4sio_physx::PxGeometryQuery::overlap, &ev4sio_physx::PxGeometryQuery::sweep};
 
 struct Module
 {
@@ -82,7 +82,7 @@ bool validParameter(const sdk::ParameterSpec& spec)
     static const char kOutputNamespace[] = "companion:output:";
     if (!std::strncmp(spec.name, kOutputNamespace, sizeof(kOutputNamespace) - 1))
         return false;
-    const omni::physx::native::ParameterValue & v = spec.fallback;
+    const omni::ev4sio_physx::native::ParameterValue & v = spec.fallback;
     switch (spec.kind) {
     case sdk::ParameterKind::Float: return std::isfinite(v.scalar);
     case sdk::ParameterKind::Double: return std::isfinite(v.real);
@@ -120,13 +120,13 @@ Status validate(const sdk::Plugin* p)
     return OVPHYSX_COMPANION_OK;
 }
 
-bool createJoint(Key key, rt::AttachHandle owner, physx::PxRigidActor* a, const physx::PxTransform& fa,
-    physx::PxRigidActor* b, const physx::PxTransform& fb, rt::CustomJointFlag::Enum& flags, void* user)
+bool createJoint(Key key, rt::AttachHandle owner, ev4sio_physx::PxRigidActor* a, const ev4sio_physx::PxTransform& fa,
+    ev4sio_physx::PxRigidActor* b, const ev4sio_physx::PxTransform& fb, rt::CustomJointFlag::Enum& flags, void* user)
 {
     // v1 is an ordinary CPU rigid-constraint provider. Reject unsupported link
     // integration before parameters or any consumer callback is evaluated.
-    if ((a && a->getType()==physx::PxActorType::eARTICULATION_LINK) ||
-        (b && b->getType()==physx::PxActorType::eARTICULATION_LINK)) return false;
+    if ((a && a->getType()==ev4sio_physx::PxActorType::eARTICULATION_LINK) ||
+        (b && b->getType()==ev4sio_physx::PxActorType::eARTICULATION_LINK)) return false;
     Module & m = *static_cast<Module*>(user);
     void* object = nullptr;
     try {
@@ -185,12 +185,12 @@ void comJoint(Key key, rt::AttachHandle owner, uint32_t actor, void* user)
     Module & m = *static_cast<Module*>(user);
     m.plugin->joint.comShift(m.object(owner, key.handle), actor);
 }
-void originJoint(Key key, rt::AttachHandle owner, const physx::PxVec3& shift, void* user)
+void originJoint(Key key, rt::AttachHandle owner, const ev4sio_physx::PxVec3& shift, void* user)
 {
     Module & m = *static_cast<Module*>(user);
     m.plugin->joint.originShift(m.object(owner, key.handle), shift);
 }
-void* createGeometry(Key key, rt::AttachHandle owner, const physx::PxCustomGeometry::Type& type, void* user)
+void* createGeometry(Key key, rt::AttachHandle owner, const ev4sio_physx::PxCustomGeometry::Type& type, void* user)
 {
     Module & m = *static_cast<Module*>(user);
     try {

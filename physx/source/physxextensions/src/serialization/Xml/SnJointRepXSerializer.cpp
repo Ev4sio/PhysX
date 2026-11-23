@@ -8,7 +8,7 @@
 #include "ExtJointMetaDataExtensions.h" 
 #include "SnJointRepXSerializer.h"
 
-namespace physx { 
+namespace ev4sio_physx {
 
 	template<typename TJointType>
 	inline TJointType* createJoint( PxPhysics& physics, 

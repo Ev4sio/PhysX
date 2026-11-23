@@ -18,7 +18,7 @@
 
 #include "vehicle/wheel/PxVehicleWheelHelpers.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 PX_FORCE_INLINE PxF32 computeFilteredNormalisedTireLoad
@@ -690,5 +690,5 @@ void PxVehicleTireForcesUpdate
 	trForce.wheelTorque = wheelTorque;
 }
 
-} //namespace physx
+} //namespace ev4sio_physx
 

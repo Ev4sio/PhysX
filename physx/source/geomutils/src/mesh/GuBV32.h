@@ -14,11 +14,11 @@
 #include "foundation/PxArray.h"
 #include "GuBV4.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-	namespace Gu
+	namespace ev4sio_Gu
 	{
-		struct BV32Data : public physx::PxUserAllocated
+		struct BV32Data : public ev4sio_physx::PxUserAllocated
 		{
 			PxVec3		mMin;
 			PxVec3		mMax;
@@ -95,7 +95,7 @@ namespace physx
 			PxU32 count;
 		};
 
-		class BV32Tree : public physx::PxUserAllocated
+		class BV32Tree : public ev4sio_physx::PxUserAllocated
 		{
 		public:
 			// PX_SERIALIZATION
@@ -135,7 +135,7 @@ namespace physx
 			bool				mPadding[2];
 		};
 
-	} // namespace Gu
+	} // namespace ev4sio_Gu
 }
 
 #endif // GU_BV32_H

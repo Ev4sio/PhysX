@@ -31,7 +31,7 @@ namespace omni { namespace physics { namespace parse { struct ChangeBatch; class
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace usdparser
 {
@@ -200,5 +200,5 @@ bool flushBufferedChanges(AttachedStage& attachedStage, float currentTime);
 void processChangeMap(AttachedStage& attachedStage, bool includeFlushChanges = false);
 
 } // namespace usdparser
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

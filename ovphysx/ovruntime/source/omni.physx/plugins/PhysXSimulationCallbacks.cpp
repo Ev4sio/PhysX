@@ -25,11 +25,11 @@
 #include "OmniPhysX.h"
 #include "Trigger.h"
 
-using namespace omni::physx::internal;
+using namespace omni::ev4sio_physx::internal;
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 
 uint32_t getGlobalSimulationFlags(uint32_t type, uint32_t flag)
@@ -146,7 +146,7 @@ uint64_t physxGetSimulationStepCount(AttachHandle attachHandle)
     return owner ? owner->simulationStepCount() : 0;
 }
 
-void physxSetSimulationCallback(AttachHandle attachHandle, const omni::physx::ISimulationCallback& cb)
+void physxSetSimulationCallback(AttachHandle attachHandle, const omni::ev4sio_physx::ISimulationCallback& cb)
 {
     RuntimeExecutionScope operation(attachHandle);
     if (!operation)
@@ -254,7 +254,7 @@ void SimulationCallbacks::setGlobalSimulationFlags(uint32_t flags)
     for (const usdparser::AttachedStage::SceneMap::value_type& entry : mAttachedStage.getPhysXScenes())
     {
         PhysXScene* scene = entry.second;
-        scene->getScene()->setFlag(::physx::PxSceneFlag::eENABLE_ACTIVE_ACTORS,
+        scene->getScene()->setFlag(::ev4sio_physx::PxSceneFlag::eENABLE_ACTIVE_ACTORS,
                                   needActive && !scene->isReadbackSuppressed());
     }
 }

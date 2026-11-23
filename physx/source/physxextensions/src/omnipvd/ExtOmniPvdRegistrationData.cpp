@@ -7,9 +7,9 @@
 
 #if PX_SUPPORT_OMNI_PVD
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Ext
+namespace ev4sio_Ext
 {
 
 void OmniPvdPxExtensionsRegistrationData::registerData(OmniPvdWriter& writer)

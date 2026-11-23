@@ -5,12 +5,12 @@
 
 #include "CmVisualization.h"
 
-using namespace physx;
-using namespace Cm;
+using namespace ev4sio_physx;
+using namespace ev4sio_Cm;
 
 static const PxU32 gLimitColor = PxU32(PxDebugColor::eARGB_YELLOW);
 
-void Cm::visualizeJointFrames(PxRenderOutput& out, PxReal scale, const PxTransform& parent, const PxTransform& child)
+void ev4sio_Cm::visualizeJointFrames(PxRenderOutput& out, PxReal scale, const PxTransform& parent, const PxTransform& child)
 {
 	if(scale==0.0f)
 		return;
@@ -20,7 +20,7 @@ void Cm::visualizeJointFrames(PxRenderOutput& out, PxReal scale, const PxTransfo
 	out << child << PxDebugBasis(PxVec3(scale, scale, scale));	
 }
 
-void Cm::visualizeLinearLimit(PxRenderOutput& out, PxReal scale, const PxTransform& t0, const PxTransform& /*t1*/, PxReal value)
+void ev4sio_Cm::visualizeLinearLimit(PxRenderOutput& out, PxReal scale, const PxTransform& t0, const PxTransform& /*t1*/, PxReal value)
 {
 	if(scale==0.0f)
 		return;
@@ -34,7 +34,7 @@ void Cm::visualizeLinearLimit(PxRenderOutput& out, PxReal scale, const PxTransfo
 	out << r << PxDebugCircle(20, scale*0.3f);
 }
 
-void Cm::visualizeAngularLimit(PxRenderOutput& out, PxReal scale, const PxTransform& t, PxReal lower, PxReal upper)
+void ev4sio_Cm::visualizeAngularLimit(PxRenderOutput& out, PxReal scale, const PxTransform& t, PxReal lower, PxReal upper)
 {
 	if(scale==0.0f)
 		return;
@@ -52,7 +52,7 @@ void Cm::visualizeAngularLimit(PxRenderOutput& out, PxReal scale, const PxTransf
 		out << PxVec3(0, PxCos(angle), PxSin(angle)) * scale;
 }
 
-void Cm::visualizeLimitCone(PxRenderOutput& out, PxReal scale, const PxTransform& t, PxReal tanQSwingY, PxReal tanQSwingZ)
+void ev4sio_Cm::visualizeLimitCone(PxRenderOutput& out, PxReal scale, const PxTransform& t, PxReal tanQSwingY, PxReal tanQSwingZ)
 {
 	if(scale==0.0f)
 		return;
@@ -78,7 +78,7 @@ void Cm::visualizeLimitCone(PxRenderOutput& out, PxReal scale, const PxTransform
 	}
 }
 
-void Cm::visualizeDoubleCone(PxRenderOutput& out, PxReal scale, const PxTransform& t, PxReal angle)
+void ev4sio_Cm::visualizeDoubleCone(PxRenderOutput& out, PxReal scale, const PxTransform& t, PxReal angle)
 {
 	if(scale==0.0f)
 		return;
@@ -110,22 +110,22 @@ void Cm::visualizeDoubleCone(PxRenderOutput& out, PxReal scale, const PxTransfor
 	}
 }
 
-void Cm::renderOutputDebugBox(PxRenderOutput& out, const PxBounds3& box)
+void ev4sio_Cm::renderOutputDebugBox(PxRenderOutput& out, const PxBounds3& box)
 {
 	out << PxDebugBox(box, true);
 }
 
-void Cm::renderOutputDebugCircle(PxRenderOutput& out, PxU32 s, PxReal r)
+void ev4sio_Cm::renderOutputDebugCircle(PxRenderOutput& out, PxU32 s, PxReal r)
 {
 	out << PxDebugCircle(s, r);
 }
 
-void Cm::renderOutputDebugBasis(PxRenderOutput& out, const PxDebugBasis& basis)
+void ev4sio_Cm::renderOutputDebugBasis(PxRenderOutput& out, const PxDebugBasis& basis)
 {
 	out << basis;
 }
 
-void Cm::renderOutputDebugArrow(PxRenderOutput& out, const PxDebugArrow& arrow)
+void ev4sio_Cm::renderOutputDebugArrow(PxRenderOutput& out, const PxDebugArrow& arrow)
 {
 	out << arrow;
 }

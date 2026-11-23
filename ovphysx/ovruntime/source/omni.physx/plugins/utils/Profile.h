@@ -19,7 +19,7 @@ class ScopedProfile
 public:
     ScopedProfile(const char* profileZone) : mProfileZone(profileZone)
     {
-        if (omni::physx::OmniPhysX::getInstance().isOmniPhysXProfilingEnabled())
+        if (omni::ev4sio_physx::OmniPhysX::getInstance().isOmniPhysXProfilingEnabled())
         {
             mStartTime = Time::getCurrentCounterValue();
         }
@@ -28,12 +28,12 @@ public:
     ~ScopedProfile()
     {
 
-        if (omni::physx::OmniPhysX::getInstance().isOmniPhysXProfilingEnabled())
+        if (omni::ev4sio_physx::OmniPhysX::getInstance().isOmniPhysXProfilingEnabled())
         {
             const uint64_t endTime = Time::getCurrentCounterValue();
             const float timeInMs = Time::getCounterFrequency().toTensOfNanos(endTime - mStartTime) / (100.0f * 1000.0f);
-            std::lock_guard<carb::tasking::MutexWrapper> lock(omni::physx::OmniPhysX::getInstance().profileMutex);
-            omni::physx::OmniPhysX::getInstance().getOmniPhysXProfileStats().push_back({ mProfileZone, timeInMs });
+            std::lock_guard<carb::tasking::MutexWrapper> lock(omni::ev4sio_physx::OmniPhysX::getInstance().profileMutex);
+            omni::ev4sio_physx::OmniPhysX::getInstance().getOmniPhysXProfileStats().push_back({ mProfileZone, timeInMs });
         }
     }
 
@@ -44,25 +44,25 @@ public:
 #define PHYSICS_PROFILE(zoneName) ScopedProfile scopedProfileZone(zoneName)
 
 #define PHYSICS_CROSS_THREAD_PROFILE_START(zoneName)                                                                   \
-    if (omni::physx::OmniPhysX::getInstance().isOmniPhysXProfilingEnabled())                                           \
+    if (omni::ev4sio_physx::OmniPhysX::getInstance().isOmniPhysXProfilingEnabled())                                           \
     {                                                                                                                  \
-        std::lock_guard<carb::tasking::MutexWrapper> lock(omni::physx::OmniPhysX::getInstance().profileMutex); \
-        omni::physx::OmniPhysX::getInstance().getOmniPhysXCrossThreadProfileMap()[zoneName] =                          \
+        std::lock_guard<carb::tasking::MutexWrapper> lock(omni::ev4sio_physx::OmniPhysX::getInstance().profileMutex); \
+        omni::ev4sio_physx::OmniPhysX::getInstance().getOmniPhysXCrossThreadProfileMap()[zoneName] =                          \
             Time::getCurrentCounterValue();                                                                            \
     }
 
 #define PHYSICS_CROSS_THREAD_PROFILE_END(zoneName)                                                                     \
-    if (omni::physx::OmniPhysX::getInstance().isOmniPhysXProfilingEnabled())                                           \
+    if (omni::ev4sio_physx::OmniPhysX::getInstance().isOmniPhysXProfilingEnabled())                                           \
     {                                                                                                                  \
-        std::lock_guard<carb::tasking::MutexWrapper> lock(omni::physx::OmniPhysX::getInstance().profileMutex); \
+        std::lock_guard<carb::tasking::MutexWrapper> lock(omni::ev4sio_physx::OmniPhysX::getInstance().profileMutex); \
         CrossThreadProfileMap::const_iterator fit =                                                                    \
-            omni::physx::OmniPhysX::getInstance().getOmniPhysXCrossThreadProfileMap().find(zoneName);                  \
-        if (fit != omni::physx::OmniPhysX::getInstance().getOmniPhysXCrossThreadProfileMap().end())                    \
+            omni::ev4sio_physx::OmniPhysX::getInstance().getOmniPhysXCrossThreadProfileMap().find(zoneName);                  \
+        if (fit != omni::ev4sio_physx::OmniPhysX::getInstance().getOmniPhysXCrossThreadProfileMap().end())                    \
         {                                                                                                              \
             const uint64_t endTime = Time::getCurrentCounterValue();                                                   \
             const float timeInMs =                                                                                     \
                 Time::getCounterFrequency().toTensOfNanos(endTime - fit->second) / (100.0f * 1000.0f);                 \
-            omni::physx::OmniPhysX::getInstance().getOmniPhysXProfileStats().push_back({ zoneName, timeInMs });        \
+            omni::ev4sio_physx::OmniPhysX::getInstance().getOmniPhysXProfileStats().push_back({ zoneName, timeInMs });        \
         }                                                                                                              \
     }
 
@@ -71,7 +71,7 @@ class ScopedPrintfProfile
 public:
     ScopedPrintfProfile(const char* profileZone) : mProfileZone(profileZone)
     {
-        if (omni::physx::OmniPhysX::getInstance().isOmniPhysXProfilingEnabled())
+        if (omni::ev4sio_physx::OmniPhysX::getInstance().isOmniPhysXProfilingEnabled())
         {
             mStartTime = Time::getCurrentCounterValue();
         }
@@ -80,7 +80,7 @@ public:
     ~ScopedPrintfProfile()
     {
 
-        if (omni::physx::OmniPhysX::getInstance().isOmniPhysXProfilingEnabled())
+        if (omni::ev4sio_physx::OmniPhysX::getInstance().isOmniPhysXProfilingEnabled())
         {
             const uint64_t endTime = Time::getCurrentCounterValue();
             const float timeInMs = Time::getCounterFrequency().toTensOfNanos(endTime - mStartTime) / (100.0f * 1000.0f);

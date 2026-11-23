@@ -5,7 +5,7 @@
 // @covers AC-1 AC-2 AC-3 AC-4
 #pragma once
 #include <cstdint>
-namespace omni::physx::native
+namespace omni::ev4sio_physx::native
 {
 enum class VehicleResult : uint32_t { Success, Invalid, Stale, Busy, NotFound, Unavailable, Error };
 struct VehicleIdentity

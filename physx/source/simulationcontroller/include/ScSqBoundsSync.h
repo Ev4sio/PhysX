@@ -11,7 +11,7 @@
 
 #include "PxSceneQuerySystem.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	class PxBounds3;
 	class PxRigidBody;
@@ -19,7 +19,7 @@ namespace physx
 
 	typedef PxSQPrunerHandle	ScPrunerHandle;
 
-namespace Sc
+namespace ev4sio_Sc
 {
 	// PT: TODO: revisit the need for a virtual interface
 	struct SqRefFinder

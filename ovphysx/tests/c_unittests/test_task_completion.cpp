@@ -94,18 +94,18 @@ TEST_F(PhysXTestFixture, TaskWaitReportsOnlyItsTargetAndWaitAllRetainsPriorFailu
     const ovphysx_enqueue_result_t succeeded = ovphysx_detach_ovstage(m_handle);
     ASSERT_EQ(succeeded.status, OVPHYSX_API_SUCCESS);
 
-    ovphysx::physx::WaitResult target;
+    ovphysx::ev4sio_physx::WaitResult target;
     EXPECT_EQ(target.waitTask(m_handle, succeeded), OVPHYSX_API_SUCCESS);
     EXPECT_FALSE(target.hasErrors());
 
-    ovphysx::physx::WaitResult all;
+    ovphysx::ev4sio_physx::WaitResult all;
     ASSERT_EQ(all.waitAll(m_handle), OVPHYSX_API_ERROR);
     ASSERT_EQ(all.errorCount(), 1u);
     EXPECT_EQ(all.errorTaskAt(0).op_index, failed.op_index);
     EXPECT_EQ(all.errorTaskAt(0).instance, m_handle);
     EXPECT_FALSE(task_error(m_handle, all.errorTaskAt(0)).empty());
 
-    ovphysx::physx::WaitResult repeated;
+    ovphysx::ev4sio_physx::WaitResult repeated;
     EXPECT_EQ(repeated.waitAll(m_handle), OVPHYSX_API_SUCCESS);
     EXPECT_FALSE(repeated.hasErrors());
     EXPECT_EQ(repeated.waitTask(m_handle, failed, 0), OVPHYSX_API_NOT_FOUND);
@@ -129,7 +129,7 @@ TEST_F(PhysXTestFixture, TaskDetachReturnsAcceptedIdentityWhenAlreadyDetached)
     EXPECT_FALSE(attached);
     EXPECT_TRUE(waitForTaskSuccess(m_handle, second));
     EXPECT_TRUE(waitForTaskSuccess(m_handle, first));
-    ovphysx::physx::WaitResult collected;
+    ovphysx::ev4sio_physx::WaitResult collected;
     EXPECT_EQ(collected.waitTask(m_handle, first, 0), OVPHYSX_API_NOT_FOUND);
 
     const ovphysx_string_t error = ovphysx_get_last_task_error(m_handle, second);
@@ -174,7 +174,7 @@ TEST_F(PhysXTestFixture, LifecycleInvalidArgumentsAndMissingAttachmentRejectWith
     EXPECT_NE(stageless.op_index, 0u);
     EXPECT_EQ(stageless.instance, m_handle);
     EXPECT_TRUE(waitForTaskFailure(m_handle, stageless, "No stage attached"));
-    ovphysx::physx::WaitResult all;
+    ovphysx::ev4sio_physx::WaitResult all;
     EXPECT_EQ(all.waitAll(m_handle), OVPHYSX_API_SUCCESS);
     EXPECT_FALSE(all.hasErrors());
 }
@@ -186,7 +186,7 @@ TEST_F(PhysXTestFixture, TaskWaitAllFindsDiscardedReceiptsInSubmissionOrder)
     const ovphysx_op_index_t second = completed_task(m_handle, true).op_index;
     ASSERT_NE(first, 0u);
     ASSERT_GT(second, first);
-    ovphysx::physx::WaitResult result;
+    ovphysx::ev4sio_physx::WaitResult result;
     ASSERT_EQ(result.waitAll(m_handle), OVPHYSX_API_ERROR);
     ASSERT_EQ(result.errorCount(), 2u);
     EXPECT_EQ(result.errorTaskAt(0).op_index, first);
@@ -200,18 +200,18 @@ TEST_F(PhysXTestFixture, TaskOutOfOrderCollectionPreservesEarlierOutcomesAndErro
     const ovphysx_enqueue_result_t first = completed_task(m_handle, true);
     const ovphysx_enqueue_result_t middle = completed_task(m_handle, false);
     const ovphysx_enqueue_result_t last = completed_task(m_handle, true);
-    ovphysx::physx::WaitResult last_result;
+    ovphysx::ev4sio_physx::WaitResult last_result;
     ASSERT_EQ(last_result.waitTask(m_handle, last), OVPHYSX_API_ERROR);
     ASSERT_EQ(last_result.errorCount(), 1u);
     const ovphysx_string_t borrowed = ovphysx_get_last_task_error(m_handle, last);
     ASSERT_GT(borrowed.length, 0u);
     const std::string expected(borrowed.ptr, borrowed.length);
     EXPECT_TRUE(waitForTaskSuccess(m_handle, middle));
-    ovphysx::physx::WaitResult first_result;
+    ovphysx::ev4sio_physx::WaitResult first_result;
     ASSERT_EQ(first_result.waitTask(m_handle, first), OVPHYSX_API_ERROR);
     EXPECT_EQ(std::string(borrowed.ptr, borrowed.length), expected);
     EXPECT_EQ(task_error(m_handle, last), expected);
-    ovphysx::physx::WaitResult all;
+    ovphysx::ev4sio_physx::WaitResult all;
     EXPECT_EQ(all.waitAll(m_handle), OVPHYSX_API_SUCCESS);
     EXPECT_EQ(std::string(borrowed.ptr, borrowed.length), expected);
 }
@@ -222,7 +222,7 @@ TEST_F(PhysXTestFixture, TaskErrorLookupIsSafeWhileRetainedResultsGrow)
         GTEST_SKIP() << kNoWorkerThread;
     const ovphysx_enqueue_result_t first = enqueue_missing_source_clone(m_handle);
     ASSERT_EQ(first.status, OVPHYSX_API_SUCCESS);
-    ovphysx::physx::WaitResult firstResult;
+    ovphysx::ev4sio_physx::WaitResult firstResult;
     ASSERT_EQ(firstResult.waitTask(m_handle, first), OVPHYSX_API_ERROR);
     const std::string expected = task_error(m_handle, first);
     ASSERT_FALSE(expected.empty());
@@ -246,7 +246,7 @@ TEST_F(PhysXTestFixture, TaskErrorLookupIsSafeWhileRetainedResultsGrow)
     while (!probe.started.load(std::memory_order_acquire))
         std::this_thread::yield();
 
-    std::vector<ovphysx::physx::WaitResult> retained;
+    std::vector<ovphysx::ev4sio_physx::WaitResult> retained;
     retained.reserve(count);
     for (const ovphysx_enqueue_result_t task : failed)
     {
@@ -264,7 +264,7 @@ TEST_F(PhysXTestFixture, TaskErrorLifetimeEndsAtResultDestruction)
     const ovphysx_enqueue_result_t task = completed_task(m_handle, true);
     EXPECT_TRUE(task_error(m_handle, task).empty());
     {
-        ovphysx::physx::WaitResult result;
+        ovphysx::ev4sio_physx::WaitResult result;
         ASSERT_EQ(result.waitTask(m_handle, task), OVPHYSX_API_ERROR);
         EXPECT_FALSE(task_error(m_handle, task).empty());
     }
@@ -277,7 +277,7 @@ TEST_F(PhysXTestFixture, TaskErrorTextAndResultDestructionSurviveInstanceTeardow
     ASSERT_EQ(ovphysx_create_instance(&handle).status, OVPHYSX_API_SUCCESS);
     ovphysx::PhysX instance(handle);
     const ovphysx_enqueue_result_t task = completed_task(handle, true);
-    ovphysx::physx::WaitResult result = instance.waitTask(task);
+    ovphysx::ev4sio_physx::WaitResult result = instance.waitTask(task);
     ASSERT_EQ(result.status(), OVPHYSX_API_ERROR);
     const ovphysx_string_t borrowed = ovphysx_get_last_task_error(handle, task);
     ASSERT_GT(borrowed.length, 0u);
@@ -287,7 +287,7 @@ TEST_F(PhysXTestFixture, TaskErrorTextAndResultDestructionSurviveInstanceTeardow
     EXPECT_EQ(std::string(borrowed.ptr, borrowed.length), expected);
     EXPECT_EQ(ovphysx_get_last_task_error(handle, task).length, 0u);
     EXPECT_GT(ovphysx_get_last_error().length, 0u);
-    ovphysx::physx::WaitResult invalid;
+    ovphysx::ev4sio_physx::WaitResult invalid;
     EXPECT_EQ(invalid.waitTask(handle, task), OVPHYSX_API_NOT_FOUND);
 }
 
@@ -308,7 +308,7 @@ TEST_F(PhysXTestFixture, TaskWaitAllArrayOwnershipSurvivesGrowthMoveAndTeardown)
         completed_task(handle, false);
     }
 
-    ovphysx::physx::WaitResult original = instance.waitAll();
+    ovphysx::ev4sio_physx::WaitResult original = instance.waitAll();
     ASSERT_EQ(original.status(), OVPHYSX_API_ERROR);
     ASSERT_EQ(original.errorCount(), count);
     const ovphysx_enqueue_result_t* const receipts = original.get()->error_tasks;
@@ -324,7 +324,7 @@ TEST_F(PhysXTestFixture, TaskWaitAllArrayOwnershipSurvivesGrowthMoveAndTeardown)
         EXPECT_NE(expected.back().find(missing_sources[index]), std::string::npos);
     }
 
-    ovphysx::physx::WaitResult moved(std::move(original));
+    ovphysx::ev4sio_physx::WaitResult moved(std::move(original));
     EXPECT_EQ(original.waitAll(handle), OVPHYSX_API_SUCCESS);
     EXPECT_EQ(original.get()->error_tasks, nullptr);
     test_utils::destroy_ovstage_test_attachments(handle);
@@ -334,7 +334,7 @@ TEST_F(PhysXTestFixture, TaskWaitAllArrayOwnershipSurvivesGrowthMoveAndTeardown)
         EXPECT_EQ(receipts[index].op_index, failed[index].op_index);
         EXPECT_EQ(std::string(messages[index].ptr, messages[index].length), expected[index]);
     }
-    moved = ovphysx::physx::WaitResult{};
+    moved = ovphysx::ev4sio_physx::WaitResult{};
     EXPECT_EQ(moved.get()->error_tasks, nullptr);
     EXPECT_EQ(moved.errorCount(), 0u);
 }
@@ -378,7 +378,7 @@ TEST_F(PhysXTestFixture, TaskReceiptFromAnotherLiveInstanceIsRejected)
     ASSERT_EQ(ovphysx_create_instance(&other_handle).status, OVPHYSX_API_SUCCESS);
     ovphysx::PhysX other(other_handle);
     const ovphysx_enqueue_result_t task = ovphysx_detach_ovstage(other_handle);
-    ovphysx::physx::WaitResult result;
+    ovphysx::ev4sio_physx::WaitResult result;
     EXPECT_EQ(result.waitTask(m_handle, task), OVPHYSX_API_INVALID_ARGUMENT);
     EXPECT_EQ(ovphysx_get_last_task_error(m_handle, task).length, 0u);
     EXPECT_GT(ovphysx_get_last_error().length, 0u);
@@ -398,7 +398,7 @@ TEST_F(PhysXTestFixture, TaskExecutionFailureIsAcceptedButInvalidSubmissionHasNo
     ASSERT_EQ(accepted.status, OVPHYSX_API_SUCCESS);
     EXPECT_EQ(accepted.instance, m_handle);
     EXPECT_NE(accepted.op_index, 0u);
-    ovphysx::physx::WaitResult result;
+    ovphysx::ev4sio_physx::WaitResult result;
     EXPECT_EQ(result.waitTask(m_handle, accepted), OVPHYSX_API_ERROR);
     EXPECT_FALSE(task_error(m_handle, accepted).empty());
 }
@@ -412,7 +412,7 @@ TEST_F(PhysXTestFixture, StepWaitSucceedsWhilePriorCloneFailureRemainsUncollecte
     const ovphysx_enqueue_result_t step = ovphysx_step(m_handle, 1.0f / 60.0f);
     ASSERT_EQ(step.status, OVPHYSX_API_SUCCESS);
     ASSERT_TRUE(waitForTaskSuccess(m_handle, step));
-    ovphysx::physx::WaitResult all;
+    ovphysx::ev4sio_physx::WaitResult all;
     ASSERT_EQ(all.waitAll(m_handle), OVPHYSX_API_ERROR);
     ASSERT_EQ(all.errorCount(), 1u);
     EXPECT_EQ(all.errorTaskAt(0).op_index, failed.op_index);
@@ -421,16 +421,16 @@ TEST_F(PhysXTestFixture, StepWaitSucceedsWhilePriorCloneFailureRemainsUncollecte
 
 TEST_F(PhysXTestFixture, CppTaskWaitResultMovesStatusAndOwnership)
 {
-    static_assert(!std::is_copy_constructible<ovphysx::physx::WaitResult>::value, "Result owns its storage");
-    static_assert(!std::is_copy_assignable<ovphysx::physx::WaitResult>::value, "Result owns its storage");
+    static_assert(!std::is_copy_constructible<ovphysx::ev4sio_physx::WaitResult>::value, "Result owns its storage");
+    static_assert(!std::is_copy_assignable<ovphysx::ev4sio_physx::WaitResult>::value, "Result owns its storage");
     const ovphysx_enqueue_result_t task = completed_task(m_handle, true);
-    ovphysx::physx::WaitResult first;
+    ovphysx::ev4sio_physx::WaitResult first;
     ASSERT_EQ(first.waitTask(m_handle, task), OVPHYSX_API_ERROR);
-    ovphysx::physx::WaitResult second(std::move(first));
+    ovphysx::ev4sio_physx::WaitResult second(std::move(first));
     EXPECT_EQ(first.errorCount(), 0u);
     EXPECT_EQ(second.status(), OVPHYSX_API_ERROR);
     EXPECT_EQ(second.errorTaskAt(0).op_index, task.op_index);
-    ovphysx::physx::WaitResult third;
+    ovphysx::ev4sio_physx::WaitResult third;
     third = std::move(second);
     EXPECT_EQ(second.errorCount(), 0u);
     EXPECT_EQ(third.status(), OVPHYSX_API_ERROR);
@@ -447,7 +447,7 @@ TEST_F(PhysXTestFixture, TaskCloneFailureIsCollectedWithLoggingDisabled)
     ASSERT_EQ(ovphysx_set_log_level(OVPHYSX_LOG_NONE).status, OVPHYSX_API_SUCCESS);
     EXPECT_EQ(ovphysx_clone(m_handle, {}, nullptr, 0, nullptr, nullptr).status, OVPHYSX_API_INVALID_ARGUMENT);
     const ovphysx_enqueue_result_t task = enqueue_missing_source_clone(m_handle);
-    ovphysx::physx::WaitResult result;
+    ovphysx::ev4sio_physx::WaitResult result;
     const ovphysx_api_status_t status = result.waitTask(m_handle, task);
     const std::string error = task_error(m_handle, task);
     EXPECT_EQ(ovphysx_set_log_level(previous_level).status, OVPHYSX_API_SUCCESS);
@@ -460,7 +460,7 @@ TEST_F(PhysXTestFixture, TaskCloneFailureIsCollectedWithLoggingDisabled)
 TEST_F(PhysXTestFixture, TaskWaitAndErrorLookupMayMoveAcrossSerializedThreads)
 {
     const ovphysx_enqueue_result_t task = completed_task(m_handle, true);
-    ovphysx::physx::WaitResult result;
+    ovphysx::ev4sio_physx::WaitResult result;
     std::thread worker([this, task, &result] {
         result.waitTask(m_handle, task);
     });
@@ -468,7 +468,7 @@ TEST_F(PhysXTestFixture, TaskWaitAndErrorLookupMayMoveAcrossSerializedThreads)
     ASSERT_EQ(result.status(), OVPHYSX_API_ERROR);
     ASSERT_EQ(result.errorCount(), 1u);
     EXPECT_FALSE(task_error(m_handle, result.errorTaskAt(0)).empty());
-    ovphysx::physx::WaitResult all;
+    ovphysx::ev4sio_physx::WaitResult all;
     EXPECT_EQ(all.waitAll(m_handle), OVPHYSX_API_SUCCESS);
 }
 
@@ -482,10 +482,10 @@ TEST_F(PhysXTestFixture, TaskSparseCollectionKeepsHolesAndCompactsAtWaitAll)
     // Filling holes merges neighboring ranges without losing their single-use state.
     for (size_t index = 0; index < tasks.size() / 2; index += 2)
         ASSERT_TRUE(waitForTaskSuccess(m_handle, tasks[index]));
-    ovphysx::physx::WaitResult all;
+    ovphysx::ev4sio_physx::WaitResult all;
     ASSERT_EQ(all.waitAll(m_handle), OVPHYSX_API_SUCCESS);
     for (const auto task : tasks) {
-        ovphysx::physx::WaitResult repeated;
+        ovphysx::ev4sio_physx::WaitResult repeated;
         EXPECT_EQ(repeated.waitTask(m_handle, task, 0), OVPHYSX_API_NOT_FOUND);
     }
     ASSERT_TRUE(waitForTaskSuccess(m_handle, ovphysx_release_query(m_handle, 0)));
@@ -515,7 +515,7 @@ TEST_F(PhysXTestFixture, AttachmentStateHasNoRuntimeIdentityAndRejectsInvalidArg
     ASSERT_EQ(ovphysx_is_stage_attached(m_handle, nullptr, &attached).status, OVPHYSX_API_SUCCESS);
     EXPECT_FALSE(attached);
     // Draining for teardown preserves the uncollected task's execution error.
-    ovphysx::physx::WaitResult result;
+    ovphysx::ev4sio_physx::WaitResult result;
     EXPECT_EQ(result.waitTask(m_handle, failed), OVPHYSX_API_ERROR);
     EXPECT_TRUE(result.hasErrors());
 }

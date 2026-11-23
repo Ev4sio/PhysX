@@ -15,9 +15,9 @@
 #include "PxPhysXConfig.h"
 #include "DyFrictionPatch.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Dy
+namespace ev4sio_Dy
 {
 struct CorrelationBuffer
 {

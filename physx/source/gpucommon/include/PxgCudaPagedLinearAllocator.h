@@ -11,7 +11,7 @@
 #include "foundation/PxMutex.h"
 #include "PxgHeapMemAllocator.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 class PxgHeapMemoryAllocator;
 

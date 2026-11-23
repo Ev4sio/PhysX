@@ -32,12 +32,12 @@
 #include <utility>
 #include <vector>
 
-namespace physx
+namespace ev4sio_physx
 {
 class PxScene;
 }
 
-namespace omni::physx::ovx
+namespace omni::ev4sio_physx::ovx
 {
 
 // The read buffer pool (ADR-0027), defined beside the read. `takeFromReadPool` hands out an idle device allocation of
@@ -46,12 +46,12 @@ namespace omni::physx::ovx
 // back with the version of the list at its head, and a nonzero `version` asked for prefers a scratch still holding
 // it, so that list need not be uploaded again; `versionOut` is the version the allocation came back with, 0 for
 // none. Call both under `ctxMgr`'s lock.
-CUdeviceptr takeFromReadPool(::physx::PxCudaContextManager* ctxMgr,
+CUdeviceptr takeFromReadPool(::ev4sio_physx::PxCudaContextManager* ctxMgr,
                              size_t bytes,
                              size_t& capacityOut,
                              uint64_t version = 0,
                              uint64_t* versionOut = nullptr);
-bool returnToReadPool(::physx::PxCudaContextManager* ctxMgr,
+bool returnToReadPool(::ev4sio_physx::PxCudaContextManager* ctxMgr,
                       CUdeviceptr ptr,
                       size_t bytes,
                       uint64_t version = 0) noexcept;
@@ -135,7 +135,7 @@ struct QueryDeviceBuffers
     // Whether `take` would hand out a buffer for `key` on `ctxMgr`'s context spanning `bytes` and holding content
     // version `recsVersion`. Changes nothing and calls no CUDA API, so a call being captured into a CUDA graph can
     // ask before taking.
-    bool holds(const Key& key, ::physx::PxCudaContextManager* ctxMgr, size_t bytes, uint64_t recsVersion)
+    bool holds(const Key& key, ::ev4sio_physx::PxCudaContextManager* ctxMgr, size_t bytes, uint64_t recsVersion)
     {
         std::lock_guard<std::mutex> lock(mMutex);
         const std::unordered_map<Key, Parked, KeyHash>::const_iterator it = mIdle.find(key);
@@ -155,7 +155,7 @@ struct QueryDeviceBuffers
     // `orLarger` at least `bytes`; anything else parked there is freed, and `freeFailed` reports whether that free
     // failed. Call under `ctxMgr`'s lock.
     bool take(const Key& key,
-              ::physx::PxCudaContextManager* ctxMgr,
+              ::ev4sio_physx::PxCudaContextManager* ctxMgr,
               size_t bytes,
               Buffer& out,
               bool& freeFailed,
@@ -187,7 +187,7 @@ struct QueryDeviceBuffers
     // failed; the buffer is then neither parked nor reusable. Never throws, since a destructor hands buffers back
     // through it. Call under `ctxMgr`'s lock, once the device no longer uses the buffer or `buffer.ready` is
     // recorded after its last queued use.
-    bool give(const Key& key, ::physx::PxCudaContextManager* ctxMgr, size_t bytes, const Buffer& buffer) noexcept
+    bool give(const Key& key, ::ev4sio_physx::PxCudaContextManager* ctxMgr, size_t bytes, const Buffer& buffer) noexcept
     {
         Parked parked{ ctxMgr, bytes, buffer };
         ctxMgr->acquireReference();
@@ -206,7 +206,7 @@ struct QueryDeviceBuffers
     // Frees every parked buffer whose scene is not in `liveScenes`. No later take can match one, so it would
     // otherwise stay parked until the query is released. False when a free failed. Call without any context
     // lock held.
-    bool dropRetiredScenes(const std::vector<::physx::PxScene*>& liveScenes)
+    bool dropRetiredScenes(const std::vector<::ev4sio_physx::PxScene*>& liveScenes)
     {
         std::vector<Parked> retired;
         {
@@ -290,7 +290,7 @@ struct QueryDeviceBuffers
 private:
     struct Parked
     {
-        ::physx::PxCudaContextManager* ctxMgr = nullptr; // referenced while parked
+        ::ev4sio_physx::PxCudaContextManager* ctxMgr = nullptr; // referenced while parked
         size_t bytes = 0;
         Buffer buffer;
     };
@@ -300,9 +300,9 @@ public:
     // results reach the caller; a read's column and scratch go back to `ctxMgr`'s read buffer pool instead. False
     // when the wait or a free failed; the memory is then lost rather than freed while in use or freed twice.
     // Cannot throw. Call under the buffer's context lock.
-    static bool freeBuffer(const Buffer& buffer, ::physx::PxCudaContextManager* ctxMgr = nullptr) noexcept
+    static bool freeBuffer(const Buffer& buffer, ::ev4sio_physx::PxCudaContextManager* ctxMgr = nullptr) noexcept
     {
-        omni::physx::IOptionalCuda* const cuda = omni::physx::cudaShimWrappers::getCudaShim();
+        omni::ev4sio_physx::IOptionalCuda* const cuda = omni::ev4sio_physx::cudaShimWrappers::getCudaShim();
         if (!cuda)
             return false;
         if (buffer.ready && !cuda->eventSynchronize(buffer.ready, nullptr))
@@ -334,7 +334,7 @@ private:
             }
             else
             {
-                ::physx::PxScopedCudaLock lock(*parked.ctxMgr);
+                ::ev4sio_physx::PxScopedCudaLock lock(*parked.ctxMgr);
                 freed = freeBuffer(parked.buffer, parked.ctxMgr);
             }
         }
@@ -346,4 +346,4 @@ private:
     std::unordered_map<Key, Parked, KeyHash> mIdle;
 };
 
-} // namespace omni::physx::ovx
+} // namespace omni::ev4sio_physx::ovx

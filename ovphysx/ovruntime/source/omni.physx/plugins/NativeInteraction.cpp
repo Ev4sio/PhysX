@@ -16,9 +16,9 @@
 #include <cmath>
 #include <algorithm>
 #include <limits>
-namespace omni::physx::native
+namespace omni::ev4sio_physx::native
 {
-using namespace ::physx;
+using namespace ::ev4sio_physx;
 using Owner=usdparser::AttachedStage;
 class Drag
 {
@@ -73,11 +73,11 @@ template<class Fn> InspectionResult withObject(const ObjectReference& ref,Fn fn)
 try
 {
     if(!runtime::tryGetPhysxInterface())return InspectionResult::Stale;
-    std::shared_ptr<omni::physx::usdparser::AttachedStage> owner=usdparser::UsdLoad::getUsdLoad()->acquireAttachment(ref.attachment);
+    std::shared_ptr<omni::ev4sio_physx::usdparser::AttachedStage> owner=usdparser::UsdLoad::getUsdLoad()->acquireAttachment(ref.attachment);
     if(!owner)return InspectionResult::Stale;
     RuntimeExecutionScope admission(ref.attachment);if(!admission)return InspectionResult::Busy;
     if(usdparser::UsdLoad::getUsdLoad()->getAttachedStageByHandle(ref.attachment)!=owner.get())return InspectionResult::Stale;
-    const omni::physx::internal::InternalDatabase::Record * record=objectRecord(*owner,ref);if(!record)return InspectionResult::Stale;
+    const omni::ev4sio_physx::internal::InternalDatabase::Record * record=objectRecord(*owner,ref);if(!record)return InspectionResult::Stale;
     return fn(owner,*record);
 }
 catch(...){return InspectionResult::Error;}
@@ -86,7 +86,7 @@ void cleanup(Drag& drag,bool restore) noexcept
 {
     if(drag.closed)return;
     if(drag.joint){drag.joint->release();drag.joint=nullptr;}
-    if(std::shared_ptr<omni::physx::usdparser::AttachedStage> owner=drag.owner.lock()) {
+    if(std::shared_ptr<omni::ev4sio_physx::usdparser::AttachedStage> owner=drag.owner.lock()) {
         const internal::InternalDatabase::Record* record=restore?objectRecord(*owner,drag.body):nullptr;
         PxRigidActor* actor=record && matchesObjectKind(record->mType,ObjectKind::Body)?static_cast<PxRigidActor*>(record->mPtr):nullptr;
         PxRigidBody* grabbed=actor?actor->is<PxRigidBody>():nullptr;
@@ -140,7 +140,7 @@ InspectionResult visitNativeObject(const ObjectReference& ref,LeaseKind kind,Nat
     return withObject(ref,[&](const std::shared_ptr<Owner>&,const internal::InternalDatabase::Record& record) {
         const void* pointer=nullptr;
         if(matchesObjectKind(record.mType,ObjectKind::Body)) {
-            ::physx::PxRigidActor * actor=static_cast<PxRigidActor*>(record.mPtr);
+            ::ev4sio_physx::PxRigidActor * actor=static_cast<PxRigidActor*>(record.mPtr);
             if(!cpu(actor->getScene()))return InspectionResult::Unavailable;
             if(kind==LeaseKind::RigidActor)pointer=actor;
             else if(kind==LeaseKind::Dynamic)pointer=actor->is<PxRigidDynamic>();
@@ -148,12 +148,12 @@ InspectionResult visitNativeObject(const ObjectReference& ref,LeaseKind kind,Nat
             else if(kind==LeaseKind::Link)pointer=actor->is<PxArticulationLink>();
         }
         else if(kind==LeaseKind::Joint && record.mType==ePTJoint) {
-            ::physx::PxJoint * joint=static_cast<PxJoint*>(record.mPtr);
+            ::ev4sio_physx::PxJoint * joint=static_cast<PxJoint*>(record.mPtr);
             if(!cpu(joint->getScene()))return InspectionResult::Unavailable;
             pointer=joint;
         }
         else if(kind==LeaseKind::Articulation && record.mType==ePTArticulation) {
-            ::physx::PxArticulationReducedCoordinate * articulation=static_cast<PxArticulationReducedCoordinate*>(record.mPtr);
+            ::ev4sio_physx::PxArticulationReducedCoordinate * articulation=static_cast<PxArticulationReducedCoordinate*>(record.mPtr);
             if(!cpu(articulation->getScene()))return InspectionResult::Unavailable;
             pointer=articulation;
         }
@@ -169,10 +169,10 @@ InspectionResult applyBodyForce(const ObjectReference& ref,const BodyForce& comm
     if(ref.kind!=uint32_t(ObjectKind::Body) || command.mode>1 || command.frame>1 || command.atPoint>1 ||
         command.wake>1 || !finite(command.force) || !finite(command.point))return InspectionResult::Invalid;
     return withObject(ref,[&](const std::shared_ptr<Owner>& owner,const internal::InternalDatabase::Record& ) {
-        ::physx::PxRigidDynamic * body=dynamic(*owner,ref);if(!body)return InspectionResult::Unavailable;
+        ::ev4sio_physx::PxRigidDynamic * body=dynamic(*owner,ref);if(!body)return InspectionResult::Unavailable;
         const PxTransform pose=body->getGlobalPose();
         const PxVec3 force=command.frame?pose.q.rotate(vec(command.force)):vec(command.force);
-        const ::physx::PxForceMode::Enum mode=command.mode?PxForceMode::eIMPULSE:PxForceMode::eFORCE;
+        const ::ev4sio_physx::PxForceMode::Enum mode=command.mode?PxForceMode::eIMPULSE:PxForceMode::eFORCE;
         if(command.atPoint)PxRigidBodyExt::addForceAtPos(*body,force,
             command.frame?pose.transform(vec(command.point)):vec(command.point),mode,command.wake!=0);
         else body->addForce(force,mode,command.wake!=0);
@@ -185,12 +185,12 @@ InspectionResult beginDrag(const ObjectReference& ref,const DragOptions& options
        !std::isfinite(options.damping) || options.damping<0 || !std::isfinite(options.maxForce) || options.maxForce<=0 ||
        options.flags&~3u || options.velocityPolicy>2)return InspectionResult::Invalid;
     return withObject(ref,[&](const std::shared_ptr<Owner>& owner,const internal::InternalDatabase::Record& ) {
-        ::physx::PxRigidDynamic * body=dynamic(*owner,ref);if(!body)return InspectionResult::Unavailable;
+        ::ev4sio_physx::PxRigidDynamic * body=dynamic(*owner,ref);if(!body)return InspectionResult::Unavailable;
         const std::unordered_map<uint64_t, std::weak_ptr<Drag>>::iterator found = owner->interactionDrags.find(ref.object);
         if (found != owner->interactionDrags.end())
             if (std::shared_ptr<Drag> existing = found->second.lock())
                 if (!existing->closed) return InspectionResult::Busy;
-        std::shared_ptr<omni::physx::native::Drag> drag=std::make_shared<Drag>();drag->body=ref;drag->owner=owner;drag->flags=options.flags;
+        std::shared_ptr<omni::ev4sio_physx::native::Drag> drag=std::make_shared<Drag>();drag->body=ref;drag->owner=owner;drag->flags=options.flags;
         drag->velocityPolicy=options.velocityPolicy;drag->target=vec(options.target);
         drag->savedLocks=body->getRigidDynamicLockFlags();drag->savedCcd=body->getRigidBodyFlags().isSet(PxRigidBodyFlag::eENABLE_SPECULATIVE_CCD);
         drag->linear=body->getLinearVelocity();drag->angular=body->getAngularVelocity();
@@ -284,7 +284,7 @@ InspectionResult moveDrag(const std::shared_ptr<Drag>& drag,const float target[3
 {
     if(!finite(target))return InspectionResult::Invalid;
     return withDrag(drag,[&](Drag& value) {
-        std::shared_ptr<omni::physx::usdparser::AttachedStage> owner=value.owner.lock();
+        std::shared_ptr<omni::ev4sio_physx::usdparser::AttachedStage> owner=value.owner.lock();
         if(!owner || !(value.forceGrab?forceBody(*owner,value.body):dynamic(*owner,value.body)))return InspectionResult::Unavailable;
         if(value.joint) {
             value.joint->setLocalPose(PxJointActorIndex::eACTOR0,PxTransform(vec(target)));

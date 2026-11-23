@@ -14,7 +14,7 @@
 #include <foundation/PxTransform.h>
 #include <foundation/PxVec3.h>
 
-// Double-precision 4x4 affine helpers on ::physx::PxMat44d, replacing the
+// Double-precision 4x4 affine helpers on ::ev4sio_physx::PxMat44d, replacing the
 // GfMatrix4d operations the runtime used to depend on. ADR-0001 §8: internal
 // math is PhysX foundation math; Gf* belongs only at the USD boundary.
 //
@@ -35,7 +35,7 @@
 //   m.ExtractTranslation()            m.getPosition()
 //   m.ExtractRotationQuat()           toTransform(m).q
 //   GfTransform(m).GetScale()         getScale(m)
-//   m.SetIdentity()                   m = PxMat44d(::physx::PxIdentity)
+//   m.SetIdentity()                   m = PxMat44d(::ev4sio_physx::PxIdentity)
 //
 // The operand swap is the trap: element-copying between the two types is
 // correct and needs no transpose, but a *product* written in Gf order computes
@@ -51,7 +51,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 
 // Factor a 4x4 affine matrix into a rigid pose plus a per-axis scale.
@@ -79,19 +79,19 @@ namespace physx
 //     by ~2e-2, scale by ~40%). A pose+diagonal-scale pair cannot represent
 //     shear at all. Do NOT convert a site whose matrix can carry shear on the
 //     strength of this function; report it instead.
-void decomposeMatrix(::physx::PxTransform& pose, ::physx::PxVec3& scale, const double* m);
+void decomposeMatrix(::ev4sio_physx::PxTransform& pose, ::ev4sio_physx::PxVec3& scale, const double* m);
 
-inline void decomposeMatrix(::physx::PxTransform& pose, ::physx::PxVec3& scale, const ::physx::PxMat44d& m)
+inline void decomposeMatrix(::ev4sio_physx::PxTransform& pose, ::ev4sio_physx::PxVec3& scale, const ::ev4sio_physx::PxMat44d& m)
 {
     decomposeMatrix(pose, scale, m.front());
 }
 
 // Rigid part of `m`; any scale is computed and discarded.
 // Gf equivalent: GfTransform(m).GetRotation() + m.ExtractTranslation().
-inline ::physx::PxTransform toTransform(const ::physx::PxMat44d& m)
+inline ::ev4sio_physx::PxTransform toTransform(const ::ev4sio_physx::PxMat44d& m)
 {
-    ::physx::PxTransform pose;
-    ::physx::PxVec3 scale;
+    ::ev4sio_physx::PxTransform pose;
+    ::ev4sio_physx::PxVec3 scale;
     decomposeMatrix(pose, scale, m);
     return pose;
 }
@@ -100,10 +100,10 @@ inline ::physx::PxTransform toTransform(const ::physx::PxMat44d& m)
 // Note this is signed: a mirrored transform reports all three components
 // negative, exactly as GfTransform does. Callers feeding PhysX geometry must
 // take PxAbs.
-inline ::physx::PxVec3 getScale(const ::physx::PxMat44d& m)
+inline ::ev4sio_physx::PxVec3 getScale(const ::ev4sio_physx::PxMat44d& m)
 {
-    ::physx::PxTransform pose;
-    ::physx::PxVec3 scale;
+    ::ev4sio_physx::PxTransform pose;
+    ::ev4sio_physx::PxVec3 scale;
     decomposeMatrix(pose, scale, m);
     return scale;
 }
@@ -111,8 +111,8 @@ inline ::physx::PxVec3 getScale(const ::physx::PxMat44d& m)
 // Compose a matrix from a rigid pose and a per-axis scale (scale applied first,
 // in the object's own frame). Gf equivalent: GfMatrix4d().SetTransform(rot, pos)
 // pre-multiplied by a scale matrix.
-::physx::PxMat44d makeMatrix(const ::physx::PxTransform& pose,
-                             const ::physx::PxVec3& scale = ::physx::PxVec3(1.0f, 1.0f, 1.0f));
+::ev4sio_physx::PxMat44d makeMatrix(const ::ev4sio_physx::PxTransform& pose,
+                             const ::ev4sio_physx::PxVec3& scale = ::ev4sio_physx::PxVec3(1.0f, 1.0f, 1.0f));
 
 // `m` with scale and shear removed, translation preserved. Equivalent to
 // GfMatrix4d::RemoveScaleShear() for any matrix WITHOUT shear (measured to
@@ -127,7 +127,7 @@ inline ::physx::PxVec3 getScale(const ::physx::PxMat44d& m)
 // spelling for. Sites that depend on that -- the deformable cooking transform
 // and the particle Poisson sampler both do, deliberately -- must stay on
 // GfTransform and convert at their boundary instead.
-inline ::physx::PxMat44d removeScaleShear(const ::physx::PxMat44d& m)
+inline ::ev4sio_physx::PxMat44d removeScaleShear(const ::ev4sio_physx::PxMat44d& m)
 {
     return makeMatrix(toTransform(m));
 }
@@ -139,17 +139,17 @@ inline ::physx::PxMat44d removeScaleShear(const ::physx::PxMat44d& m)
 //
 // Inversion commutes with transposition, so this is layout-agnostic: the same
 // sixteen doubles in, the correct inverse out, under either reading.
-::physx::PxMat44d affineInverse(const ::physx::PxMat44d& m);
+::ev4sio_physx::PxMat44d affineInverse(const ::ev4sio_physx::PxMat44d& m);
 
 // The upper-left 3x3 of `m` as a float PxMat33 (basis vectors preserved as
 // columns, i.e. the PhysX reading). Gf equivalent: GfMatrix4d::ExtractRotationMatrix()
 // when the matrix carries no scale, or the raw 3x3 block when it does.
-inline ::physx::PxMat33 getBasis(const ::physx::PxMat44d& m)
+inline ::ev4sio_physx::PxMat33 getBasis(const ::ev4sio_physx::PxMat44d& m)
 {
     const double* d = m.front();
-    return ::physx::PxMat33(::physx::PxVec3(float(d[0]), float(d[1]), float(d[2])),
-                            ::physx::PxVec3(float(d[4]), float(d[5]), float(d[6])),
-                            ::physx::PxVec3(float(d[8]), float(d[9]), float(d[10])));
+    return ::ev4sio_physx::PxMat33(::ev4sio_physx::PxVec3(float(d[0]), float(d[1]), float(d[2])),
+                            ::ev4sio_physx::PxVec3(float(d[4]), float(d[5]), float(d[6])),
+                            ::ev4sio_physx::PxVec3(float(d[8]), float(d[9]), float(d[10])));
 }
 
 // ===========================================================================
@@ -233,7 +233,7 @@ namespace gfmath
 // separately, so a quaternion round-trip would move bits.
 struct Rotation
 {
-    ::physx::PxVec3d axis{ 1.0, 0.0, 0.0 };
+    ::ev4sio_physx::PxVec3d axis{ 1.0, 0.0, 0.0 };
     double angle{ 0.0 };
 };
 
@@ -242,11 +242,11 @@ struct Rotation
 // S = scale, R = rotation, T = translation (all in Gf's row-vector order).
 struct PivotTransform
 {
-    ::physx::PxVec3d scale{ 1.0, 1.0, 1.0 };
+    ::ev4sio_physx::PxVec3d scale{ 1.0, 1.0, 1.0 };
     Rotation pivotOrientation{};
     Rotation rotation{};
-    ::physx::PxVec3d pivotPosition{ 0.0, 0.0, 0.0 };
-    ::physx::PxVec3d translation{ 0.0, 0.0, 0.0 };
+    ::ev4sio_physx::PxVec3d pivotPosition{ 0.0, 0.0, 0.0 };
+    ::ev4sio_physx::PxVec3d translation{ 0.0, 0.0, 0.0 };
 };
 
 // GfRange3d, for the deformable cooking `computeFitBounds` accumulator. Three
@@ -256,14 +256,14 @@ struct PivotTransform
 // the min/max update is the order pxr writes.
 struct Range3d
 {
-    ::physx::PxVec3d min;
-    ::physx::PxVec3d max;
+    ::ev4sio_physx::PxVec3d min;
+    ::ev4sio_physx::PxVec3d max;
 };
 
 Range3d emptyRange();                                          // GfRange3d()
-void unionWith(Range3d& r, const ::physx::PxVec3d& p);         // GfRange3d::UnionWith
-::physx::PxVec3d getSize(const Range3d& r);                    // GfRange3d::GetSize
-::physx::PxVec3d getMidpoint(const Range3d& r);                // GfRange3d::GetMidpoint
+void unionWith(Range3d& r, const ::ev4sio_physx::PxVec3d& p);         // GfRange3d::UnionWith
+::ev4sio_physx::PxVec3d getSize(const Range3d& r);                    // GfRange3d::GetSize
+::ev4sio_physx::PxVec3d getMidpoint(const Range3d& r);                // GfRange3d::GetMidpoint
 
 // --- the headline routine -------------------------------------------------
 
@@ -275,8 +275,8 @@ void unionWith(Range3d& r, const ::physx::PxVec3d& p);         // GfRange3d::Uni
 // The returned `pivotOrientation` is the component PhysX has no spelling for and
 // the reason this function exists: it is left identity when the scale is exactly
 // (1,1,1), matching Gf's `if (_scale != GfVec3d(1.0, 1.0, 1.0))` guard.
-PivotTransform decomposeWithPivot(const ::physx::PxMat44d& m,
-                                  const ::physx::PxVec3d& pivotPosition = ::physx::PxVec3d(0.0, 0.0, 0.0));
+PivotTransform decomposeWithPivot(const ::ev4sio_physx::PxMat44d& m,
+                                  const ::ev4sio_physx::PxVec3d& pivotPosition = ::ev4sio_physx::PxVec3d(0.0, 0.0, 0.0));
 
 // GfTransform::GetMatrix(), bit-exact -- including the `_GF_ACCUM` skip logic,
 // which is load-bearing: whether a component matrix is multiplied in at all
@@ -286,17 +286,17 @@ PivotTransform decomposeWithPivot(const ::physx::PxMat44d& m,
 // This is `decomposeWithPivot`'s twin and MUST ship with it: the deformable
 // cooking path quantizes the five components and then rebuilds a matrix from
 // them, so without the composition direction the island cannot be retired.
-::physx::PxMat44d composeWithPivot(const PivotTransform& t);
+::ev4sio_physx::PxMat44d composeWithPivot(const PivotTransform& t);
 
 // The five-component constructor, in the argument order of GfTransform's "3x"
 // constructor (`GfTransform(translation, rotation, scale, pivotPosition,
 // pivotOrientation)`), which is the one the deformable cooking path uses. It is
 // a plain field assignment -- Gf's `Set` does no arithmetic -- but it is spelled
 // out so a port cannot silently transpose two same-typed arguments.
-PivotTransform makePivotTransform(const ::physx::PxVec3d& translation,
+PivotTransform makePivotTransform(const ::ev4sio_physx::PxVec3d& translation,
                                   const Rotation& rotation,
-                                  const ::physx::PxVec3d& scale,
-                                  const ::physx::PxVec3d& pivotPosition,
+                                  const ::ev4sio_physx::PxVec3d& scale,
+                                  const ::ev4sio_physx::PxVec3d& pivotPosition,
                                   const Rotation& pivotOrientation);
 
 // --- the primitives the islands also need ---------------------------------
@@ -305,72 +305,72 @@ PivotTransform makePivotTransform(const ::physx::PxVec3d& translation,
 // null; all five are required, matching the Gf signature. Returns false when the
 // matrix is singular (Gf still fills the outputs in that case, and both callers
 // use them regardless).
-bool factor(const ::physx::PxMat44d& m,
-            ::physx::PxMat44d* r,
-            ::physx::PxVec3d* s,
-            ::physx::PxMat44d* u,
-            ::physx::PxVec3d* t,
-            ::physx::PxMat44d* p,
+bool factor(const ::ev4sio_physx::PxMat44d& m,
+            ::ev4sio_physx::PxMat44d* r,
+            ::ev4sio_physx::PxVec3d* s,
+            ::ev4sio_physx::PxMat44d* u,
+            ::ev4sio_physx::PxVec3d* t,
+            ::ev4sio_physx::PxMat44d* p,
             double eps = 1e-10);
 
 // GfMatrix4d::Orthonormalize(issueWarning=false), bit-exact. Modifies `m` in
 // place and returns the convergence flag (GF ISLAND #1 branches on it). The
 // warning is dropped because the runtime has no TF_WARN.
-bool orthonormalize(::physx::PxMat44d& m);
+bool orthonormalize(::ev4sio_physx::PxMat44d& m);
 
 // GfMatrix4d::RemoveScaleShear(), bit-exact. NOT an orthonormalization -- see
-// the note on the PhysX-semantics `omni::physx::removeScaleShear` above, which
+// the note on the PhysX-semantics `omni::ev4sio_physx::removeScaleShear` above, which
 // is a different function with a different answer on sheared input.
 //
 // The `Gf` suffix is deliberate and is the reason this is not spelled
 // `removeScaleShear`: the two took identical `(const PxMat44d&) -> PxMat44d`
-// signatures, so an unqualified call from inside `namespace omni::physx` bound
+// signatures, so an unqualified call from inside `namespace omni::ev4sio_physx` bound
 // silently to the PhysX-semantics twin -- no warning, no ADL rescue, and the
 // wrong answer lands in a hashed cooking-cache key. Unqualified calls to the
 // PhysX one are live today (InternalActor.cpp, PointInstancer.cpp), so the
 // collision was reachable. Keep the names distinct.
-::physx::PxMat44d removeScaleShearGf(const ::physx::PxMat44d& m);
+::ev4sio_physx::PxMat44d removeScaleShearGf(const ::ev4sio_physx::PxMat44d& m);
 
 // GfMatrix4d::GetInverse(), bit-exact -- a cofactor expansion, NOT the pivoted
-// Gauss-Jordan that `omni::physx::affineInverse` uses. The two agree to ~1e-9
+// Gauss-Jordan that `omni::ev4sio_physx::affineInverse` uses. The two agree to ~1e-9
 // but not to the bit, and the islands feed the result into a hashed transform.
-::physx::PxMat44d inverse(const ::physx::PxMat44d& m, double eps = 0.0);
+::ev4sio_physx::PxMat44d inverse(const ::ev4sio_physx::PxMat44d& m, double eps = 0.0);
 
 // Gf's `a * b` on the shared bytes (== PhysX's `b * a`). Present so a caller
 // transcribing an island keeps Gf's accumulation order verbatim.
-::physx::PxMat44d multiply(const ::physx::PxMat44d& a, const ::physx::PxMat44d& b);
+::ev4sio_physx::PxMat44d multiply(const ::ev4sio_physx::PxMat44d& a, const ::ev4sio_physx::PxMat44d& b);
 
 // GfMatrix4d::Transform(v) -- Gf's row-vector transform with the homogeneous
 // divide, on the shared bytes.
-::physx::PxVec3d transformPoint(const ::physx::PxMat44d& m, const ::physx::PxVec3d& v);
+::ev4sio_physx::PxVec3d transformPoint(const ::ev4sio_physx::PxMat44d& m, const ::ev4sio_physx::PxVec3d& v);
 
 // GfMatrix4d::ExtractRotation() / ExtractRotationQuat().
-Rotation extractRotation(const ::physx::PxMat44d& m);
+Rotation extractRotation(const ::ev4sio_physx::PxMat44d& m);
 
 // Matrix builders, each the corresponding GfMatrix4d::SetXxx() applied to a
 // default-constructed (all-zero) GfMatrix4d, so the untouched elements match.
-::physx::PxMat44d setScale(const ::physx::PxVec3d& s);
-::physx::PxMat44d setScale(double s);
-::physx::PxMat44d setTranslate(const ::physx::PxVec3d& t);
-::physx::PxMat44d setRotate(const Rotation& r);
+::ev4sio_physx::PxMat44d setScale(const ::ev4sio_physx::PxVec3d& s);
+::ev4sio_physx::PxMat44d setScale(double s);
+::ev4sio_physx::PxMat44d setTranslate(const ::ev4sio_physx::PxVec3d& t);
+::ev4sio_physx::PxMat44d setRotate(const Rotation& r);
 // GfMatrix4d(rotate, translate) == SetRotate(r) then SetTranslateOnly(t).
-::physx::PxMat44d setTransform(const Rotation& r, const ::physx::PxVec3d& t);
+::ev4sio_physx::PxMat44d setTransform(const Rotation& r, const ::ev4sio_physx::PxVec3d& t);
 
 // GfRotation operations.
-Rotation makeRotation(const ::physx::PxVec3d& axis, double angleInDegrees); // GfRotation(axis, angle)
+Rotation makeRotation(const ::ev4sio_physx::PxVec3d& axis, double angleInDegrees); // GfRotation(axis, angle)
 Rotation identityRotation();                                                // GfRotation().SetIdentity()
 Rotation inverse(const Rotation& r);                                        // GfRotation::GetInverse()
 Rotation multiply(const Rotation& a, const Rotation& b);                    // Gf `a * b`
-::physx::PxQuatd getQuat(const Rotation& r);                                // GfRotation::GetQuat()
+::ev4sio_physx::PxQuatd getQuat(const Rotation& r);                                // GfRotation::GetQuat()
 
 // GfVec3d::Normalize() -- multiplies by the reciprocal and clamps at
 // GF_MIN_VECTOR_LENGTH, returning the length BEFORE normalization. Exposed
 // because the deformable cooking path uses the returned length as `scaleAbs`.
-double normalize(::physx::PxVec3d& v);
-::physx::PxVec3d getNormalized(const ::physx::PxVec3d& v); // GfVec3d::GetNormalized()
+double normalize(::ev4sio_physx::PxVec3d& v);
+::ev4sio_physx::PxVec3d getNormalized(const ::ev4sio_physx::PxVec3d& v); // GfVec3d::GetNormalized()
 
 } // namespace gfmath
 // SPDX-SnippetEnd
 
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

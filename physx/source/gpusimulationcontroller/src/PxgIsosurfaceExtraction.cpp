@@ -14,7 +14,7 @@
 #include "PxgCudaHelpers.h"
 
 
-namespace physx
+namespace ev4sio_physx
 {
 #if ENABLE_KERNEL_LAUNCH_ERROR_CHECK
 #define checkCudaError() { cudaError_t err = cudaDeviceSynchronize(); if (err != 0) printf("Cuda error file: %s, line: %i, error: %i\n", PX_FL, err); }
@@ -333,7 +333,7 @@ namespace physx
 		if (!initialize(mShared.mKernelLauncher, sparseGridParams, mShared.mIsosurfaceParams, maxParticles, mData.maxVerts, mData.maxTriIds / 3))
 		{
 			mShared.mEnabled = false;
-			PxGetFoundation().error(PxErrorCode::eOUT_OF_MEMORY, PX_FL, "PxSparseGridIsosurfaceExtractor::setMaxParticles failed!"
+			ev4sio_PxGetFoundation().error(PxErrorCode::eOUT_OF_MEMORY, PX_FL, "PxSparseGridIsosurfaceExtractor::setMaxParticles failed!"
 																		"Disabled isosurface extractor.");
 			mShared.mKernelLauncher.getCudaContextManager()->getCudaContext()->setAbortMode(true);
 		}
@@ -474,7 +474,7 @@ namespace physx
 		mShared.mNumVerticesNumIndices = PX_PINNED_MEMORY_ALLOC_FLAGS(PxU32, *kernelLauncher.getCudaContextManager(), 2, CU_MEMHOSTALLOC_PORTABLE);
 		if(!mShared.mNumVerticesNumIndices)
 		{
-			PxGetFoundation().error(PxErrorCode::eOUT_OF_MEMORY, PX_FL,
+			ev4sio_PxGetFoundation().error(PxErrorCode::eOUT_OF_MEMORY, PX_FL,
 									"PxgDenseGridIsosurfaceExtractor::initialize: failed to allocate host buffer mNumVerticesNumIndices");
 			return false;
 		}
@@ -568,7 +568,7 @@ namespace physx
 		mShared.mNumVerticesNumIndices = PX_PINNED_MEMORY_ALLOC_FLAGS(PxU32, *kernelLauncher.getCudaContextManager(), 2, CU_MEMHOSTALLOC_PORTABLE);
 		if(!mShared.mNumVerticesNumIndices)
 		{
-			PxGetFoundation().error(PxErrorCode::eOUT_OF_MEMORY, PX_FL,
+			ev4sio_PxGetFoundation().error(PxErrorCode::eOUT_OF_MEMORY, PX_FL,
 									"PxgSparseGridIsosurfaceExtractor::initialize: failed to allocate host buffer mNumVerticesNumIndices");
 			return false;
 		}

@@ -10,7 +10,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 
 struct ObjectDataQueryType
@@ -30,7 +30,7 @@ template <ObjectDataQueryType::Enum queryType>
 size_t getObjectDataOrID(omni::physics::parse::ObjectKey key,
                          PhysXType type,
                          const internal::InternalPhysXDatabase& internalDatabase,
-                         const omni::physx::usdparser::AttachedStage& attachedStage)
+                         const omni::ev4sio_physx::usdparser::AttachedStage& attachedStage)
 {
     if (key.valid())
     {
@@ -70,7 +70,7 @@ size_t getObjectDataOrID(omni::physics::parse::ObjectKey key,
     {
         if ((queryType == ObjectDataQueryType::ePHYSX_PTR) && (type == ePTPhysics))
         {
-            return size_t(omni::physx::OmniPhysX::getInstance().getPhysXSetup().getPhysics());
+            return size_t(omni::ev4sio_physx::OmniPhysX::getInstance().getPhysXSetup().getPhysics());
         }
     }
 
@@ -80,5 +80,5 @@ size_t getObjectDataOrID(omni::physics::parse::ObjectKey key,
         return size_t(NULL);
 }
 
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

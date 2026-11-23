@@ -11,10 +11,10 @@
 #include "ExtJoint.h"
 #include "CmUtils.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 struct PxFixedJointGeneratedValues;
-namespace Ext
+namespace ev4sio_Ext
 {
 	struct FixedJointData : public JointData
 	{
@@ -38,8 +38,8 @@ namespace Ext
 		virtual PxConstraintSolverPrep	getPrep()	const	PX_OVERRIDE;
 		//~PxConstraintConnector
 	};
-} // namespace Ext
+} // namespace ev4sio_Ext
 
-} // namespace physx
+} // namespace ev4sio_physx
 
 #endif

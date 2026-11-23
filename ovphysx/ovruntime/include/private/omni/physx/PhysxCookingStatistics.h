@@ -6,7 +6,7 @@
 #pragma once
 #include <cstdint>
 
-namespace omni::physx
+namespace omni::ev4sio_physx
 {
 struct PhysxCookingStatistics
 {
@@ -17,4 +17,4 @@ struct PhysxCookingStatistics
     int32_t totalWarningsFailedGPUCompatibility = 0; /// How many failed gpu compatibility warnings have been issued
     int32_t totalWarningsConvexPolygonLimitsReached = 0; /// How many times convex polygon limits have been reached
 };
-} // namespace omni::physx
+} // namespace omni::ev4sio_physx

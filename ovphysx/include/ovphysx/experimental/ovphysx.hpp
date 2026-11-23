@@ -243,12 +243,12 @@ public:
     //------------------------------------------------------------------------------------------------------------
     
     /// Collect only this task; inspect the returned status, errors and pending task.
-    physx::WaitResult waitTask(
+    ev4sio_physx::WaitResult waitTask(
         ovphysx_enqueue_result_t task,
         ovphysx_timeout_t timeout_ns = OVPHYSX_TIMEOUT_INFINITE);
     
     /// Collect all uncollected tasks accepted before this call.
-    physx::WaitResult waitAll(ovphysx_timeout_t timeout_ns = OVPHYSX_TIMEOUT_INFINITE);
+    ev4sio_physx::WaitResult waitAll(ovphysx_timeout_t timeout_ns = OVPHYSX_TIMEOUT_INFINITE);
 
     //------------------------------------------------------------------------------------------------------------
     // Tensor Bindings

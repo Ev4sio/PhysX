@@ -19,7 +19,7 @@
 #define PX_MESH_SCALE_MAX 1e6f
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -133,7 +133,7 @@ public:
 };
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

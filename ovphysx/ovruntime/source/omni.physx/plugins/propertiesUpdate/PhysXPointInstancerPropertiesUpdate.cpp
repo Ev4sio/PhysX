@@ -27,11 +27,11 @@
 #include <PxPhysicsAPI.h>
 
 
-using namespace ::physx;
+using namespace ::ev4sio_physx;
 using namespace carb;
-using namespace omni::physx;
-using namespace omni::physx::usdparser;
-using namespace omni::physx::internal;
+using namespace omni::ev4sio_physx;
+using namespace omni::ev4sio_physx::usdparser;
+using namespace omni::ev4sio_physx::internal;
 
 
 // point instancer
@@ -269,12 +269,12 @@ bool updateBodyInstancedTransform(AttachedStage& attachedStage, ObjectId objectI
     return true;
 }
 
-bool omni::physx::updateBodyInstancedPositions(AttachedStage& attachedStage, ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
+bool omni::ev4sio_physx::updateBodyInstancedPositions(AttachedStage& attachedStage, ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     return updateBodyInstancedTransform(attachedStage, objectId, property, timeCode, true);
 }
 
-bool omni::physx::updateBodyInstancedOrientations(AttachedStage& attachedStage, ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
+bool omni::ev4sio_physx::updateBodyInstancedOrientations(AttachedStage& attachedStage, ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     return updateBodyInstancedTransform(attachedStage, objectId, property, timeCode, false);
 }
@@ -372,12 +372,12 @@ bool updateBodyInstancedVelocitiesInternal(AttachedStage& attachedStage, ObjectI
     return true;
 }
 
-bool omni::physx::updateBodyInstancedVelocities(AttachedStage& attachedStage, ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
+bool omni::ev4sio_physx::updateBodyInstancedVelocities(AttachedStage& attachedStage, ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     return updateBodyInstancedVelocitiesInternal(attachedStage, objectId, property, timeCode, true);
 }
 
-bool omni::physx::updateBodyInstancedAngularVelocities(AttachedStage& attachedStage, ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
+bool omni::ev4sio_physx::updateBodyInstancedAngularVelocities(AttachedStage& attachedStage, ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     return updateBodyInstancedVelocitiesInternal(attachedStage, objectId, property, timeCode, false);
 }

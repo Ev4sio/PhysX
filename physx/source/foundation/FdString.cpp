@@ -19,7 +19,7 @@
 #pragma clang diagnostic ignored "-Wformat-nonliteral"
 #endif
 
-namespace physx
+namespace ev4sio_physx
 {
 // cross-platform implementations
 
@@ -136,7 +136,7 @@ int32_t Pxstrnicmp(const char* str, const char* str1, size_t n)
 #endif
 }
 
-}//namespace physx
+}//namespace ev4sio_physx
 
 #if PX_APPLE_FAMILY
 #pragma clang diagnostic pop

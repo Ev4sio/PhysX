@@ -15,7 +15,7 @@
 #include <limits>
 namespace ovphysx::companion::ovd
 {
-using namespace omni::physx::diagnostics;
+using namespace omni::ev4sio_physx::diagnostics;
 using Status=ovphysx_companion_status_t;
 
 Status convert(DecodeResult r) {
@@ -35,7 +35,7 @@ Status decode(const void* data,uint64_t bytes,const ovphysx_companion_ovd_limits
         return OVPHYSX_COMPANION_INVALID_ARGUMENT;
     try {
         DecodeLimits limits{input->input_bytes,input->records,input->payload_bytes,input->string_bytes};
-        std::shared_ptr<omni::physx::diagnostics::OvdDocument> document=std::make_shared<OvdDocument>();
+        std::shared_ptr<omni::ev4sio_physx::diagnostics::OvdDocument> document=std::make_shared<OvdDocument>();
         DecodeDiagnostic error;
         const Status status=convert(decodeOvd(data,bytes,limits,*document,error));
         ovphysx_companion_ovd_diagnostic_t message{};
@@ -55,7 +55,7 @@ template<typename Fn> Status withDocument(uint64_t handle,Fn fn) noexcept {
     try {
         std::shared_ptr<const OvdDocument> document;
         {std::lock_guard<std::mutex> lock(companionRuntime().ovdDocuments().mutex);
-         std::map<uint64_t, std::shared_ptr<const omni::physx::diagnostics::OvdDocument>>::iterator it=companionRuntime().ovdDocuments().entries.find(handle);if (it==companionRuntime().ovdDocuments().entries.end()) return OVPHYSX_COMPANION_NOT_FOUND;
+         std::map<uint64_t, std::shared_ptr<const omni::ev4sio_physx::diagnostics::OvdDocument>>::iterator it=companionRuntime().ovdDocuments().entries.find(handle);if (it==companionRuntime().ovdDocuments().entries.end()) return OVPHYSX_COMPANION_NOT_FOUND;
          document=it->second;}
         return fn(*document);
     } catch(...) {return OVPHYSX_COMPANION_ERROR;}
@@ -71,7 +71,7 @@ Status record(uint64_t handle,uint64_t index,uint32_t size,ovphysx_companion_ovd
     if (!output || size!=sizeof(*output)) return OVPHYSX_COMPANION_INVALID_ARGUMENT;
     return withDocument(handle,[&](const OvdDocument& doc)->Status {
         if (index>=doc.records.size()) return OVPHYSX_COMPANION_INVALID_ARGUMENT;
-        const omni::physx::diagnostics::OvdRecord & r=doc.records[index];
+        const omni::ev4sio_physx::diagnostics::OvdRecord & r=doc.records[index];
         *output={sizeof(*output),1,r.command,0,r.offset,r.context,r.object,r.timestamp,
             r.classHandle,r.baseClass,r.attribute,r.dataType,r.elements,r.attributeClass,r.enumValue,r.line,r.messageType,
             uint32_t(r.name.size()),uint32_t(r.file.size()),uint32_t(r.attributePath.size()),uint32_t(r.payload.size())};
@@ -82,7 +82,7 @@ Status copy(uint64_t handle,uint64_t index,uint32_t kind,void* data,uint64_t cap
     if (!required || kind>3 || (!data && capacity)) return OVPHYSX_COMPANION_INVALID_ARGUMENT;
     return withDocument(handle,[&](const OvdDocument& doc)->Status {
         if (index>=doc.records.size()) return OVPHYSX_COMPANION_INVALID_ARGUMENT;
-        const omni::physx::diagnostics::OvdRecord & r=doc.records[index];
+        const omni::ev4sio_physx::diagnostics::OvdRecord & r=doc.records[index];
         const void* source=nullptr;uint64_t size=0;
         switch(kind) {
         case 0:source=r.name.data();size=r.name.size();break;

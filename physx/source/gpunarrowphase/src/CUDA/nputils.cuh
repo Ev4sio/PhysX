@@ -12,7 +12,7 @@
 #include "PxgCommonDefines.h"
 #include "utils.cuh"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 template <typename T> __device__ static inline T ldS(const volatile T& val) { return val; }
@@ -170,6 +170,6 @@ PxU32 minIndex4(PxReal v, PxU32 mask, PxU32 threadIndexInGroup)
 	return lowestSetIndex(__ballot_sync(mask, minV == v)&mask);
 }
 
-} // namespace physx
+} // namespace ev4sio_physx
 
 #endif

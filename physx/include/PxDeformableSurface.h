@@ -13,7 +13,7 @@
 #include "foundation/PxVec4.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -258,7 +258,7 @@ protected:
 
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif // PX_PHYSICS_DEFORMABLE_SURFACE_H

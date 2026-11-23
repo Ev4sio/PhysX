@@ -22,7 +22,7 @@
 #include "../pvdruntime/include/OmniPvdWriter.h"
 #include "../pvdruntime/include/OmniPvdFileWriteStream.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 static PxDefaultAllocator       gAllocator;
 static PxDefaultErrorCallback   gErrorCallback;
@@ -61,7 +61,7 @@ static PxConvexMesh* createTetrahedronConvex()
 
     PxTolerancesScale tol;
     PxCookingParams params(tol);
-    return PxCreateConvexMesh(params, desc, gPhysics->getPhysicsInsertionCallback());
+    return ev4sio_PxCreateConvexMesh(params, desc, gPhysics->getPhysicsInsertionCallback());
 }
 
 static PxTriangleMesh* createGridTriangleMesh()
@@ -100,7 +100,7 @@ static PxTriangleMesh* createGridTriangleMesh()
 
     PxTolerancesScale tol;
     PxCookingParams params(tol);
-    return PxCreateTriangleMesh(params, desc, gPhysics->getPhysicsInsertionCallback());
+    return ev4sio_PxCreateTriangleMesh(params, desc, gPhysics->getPhysicsInsertionCallback());
 }
 
 static PxHeightField* createPlateHeightField()
@@ -123,7 +123,7 @@ static PxHeightField* createPlateHeightField()
     desc.samples.data = samples;
     desc.samples.stride = sizeof(PxHeightFieldSample);
 
-    return PxCreateHeightField(desc, gPhysics->getPhysicsInsertionCallback());
+    return ev4sio_PxCreateHeightField(desc, gPhysics->getPhysicsInsertionCallback());
 }
 
 static void buildMeshScene()
@@ -202,11 +202,11 @@ static void buildMeshScene()
 
 static bool initPhysicsWithOmniPvd()
 {
-    gFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, gAllocator, gErrorCallback);
-    if (!gFoundation) { printf("Error: PxCreateFoundation\n"); return false; }
+    gFoundation = ev4sio_PxCreateFoundation(ev4sio_PX_PHYSICS_VERSION, gAllocator, gErrorCallback);
+    if (!gFoundation) { printf("Error: ev4sio_PxCreateFoundation\n"); return false; }
 
-    gOmniPvd = PxCreateOmniPvd(*gFoundation);
-    if (!gOmniPvd) { printf("Error: PxCreateOmniPvd\n"); return false; }
+    gOmniPvd = ev4sio_PxCreateOmniPvd(*gFoundation);
+    if (!gOmniPvd) { printf("Error: ev4sio_PxCreateOmniPvd\n"); return false; }
 
     OmniPvdWriter* writer = gOmniPvd->getWriter();
     if (!writer) { printf("Error: OmniPvd writer\n"); return false; }
@@ -221,8 +221,8 @@ static bool initPhysicsWithOmniPvd()
     }
     writer->setWriteStream(*gOmniPvdFileStream);
 
-    gPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *gFoundation, PxTolerancesScale(), true, NULL, gOmniPvd);
-    if (!gPhysics) { printf("Error: PxCreatePhysics\n"); return false; }
+    gPhysics = ev4sio_PxCreatePhysics(ev4sio_PX_PHYSICS_VERSION, *gFoundation, PxTolerancesScale(), true, NULL, gOmniPvd);
+    if (!gPhysics) { printf("Error: ev4sio_PxCreatePhysics\n"); return false; }
 
     if (!gPhysics->getOmniPvd() || !gPhysics->getOmniPvd()->startSampling())
     {

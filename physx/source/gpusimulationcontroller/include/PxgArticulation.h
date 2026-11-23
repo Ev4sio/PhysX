@@ -11,12 +11,12 @@
 #include "PxgArticulationTendon.h"
 #include "DyFeatherstoneArticulation.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	class PxGpuSpatialTendonData;
 	class PxGpuFixedTendonData;
 
-	namespace Dy
+	namespace ev4sio_Dy
 	{
 		struct ArticulationJointCore;
 		class ArticulationJointCoreData;
@@ -35,16 +35,16 @@ namespace physx
 		PxgArticulationData						data;							
 
 		PxgArticulationLink*					links;							
-		Dy::ArticulationJointCore*				joints;							
-		Dy::ArticulationJointCoreData*			jointData;						
+		ev4sio_Dy::ArticulationJointCore*				joints;
+		ev4sio_Dy::ArticulationJointCoreData*			jointData;
 		
-		Cm::UnAlignedSpatialVector*				motionVelocities;				
-		Cm::UnAlignedSpatialVector*				motionAccelerations;			
-		Cm::UnAlignedSpatialVector*				linkIncomingJointForces;	
-		Cm::UnAlignedSpatialVector*				coriolisVectors;				
-		Cm::UnAlignedSpatialVector*				zAForces; // used as temporary propagation buffer in inverseDynamics and to store TGS per substep isolated forces while the solver runs. Not cleared after use.
+		ev4sio_Cm::UnAlignedSpatialVector*				motionVelocities;
+		ev4sio_Cm::UnAlignedSpatialVector*				motionAccelerations;
+		ev4sio_Cm::UnAlignedSpatialVector*				linkIncomingJointForces;
+		ev4sio_Cm::UnAlignedSpatialVector*				coriolisVectors;
+		ev4sio_Cm::UnAlignedSpatialVector*				zAForces; // used as temporary propagation buffer in inverseDynamics and to store TGS per substep isolated forces while the solver runs. Not cleared after use.
 		
-		Cm::UnAlignedSpatialVector*				externalAccelerations;			
+		ev4sio_Cm::UnAlignedSpatialVector*				externalAccelerations;
 
 		PxReal*									jointPositions;					
 		PxReal*									jointVelocities;				
@@ -62,9 +62,9 @@ namespace physx
 		PxTransform*							linkBody2Actors;
 		PxU32*									parents;						
 		//Local space motion matrix - constant unless properties are changed
-		Dy::SpatialSubspaceMatrix*				motionMatrix;					
+		ev4sio_Dy::SpatialSubspaceMatrix*				motionMatrix;
 		//World space motion matrix - computed from local matrix each frame
-		Dy::SpatialSubspaceMatrix*				worldMotionMatrix; // AD: only inverse dynamics now.				
+		ev4sio_Dy::SpatialSubspaceMatrix*				worldMotionMatrix; // AD: only inverse dynamics now.
 
 		PxReal*									linkWakeCounters;
 		PxgArticulationLinkSleepData*			linkSleepData;
@@ -86,7 +86,7 @@ namespace physx
 		PxReal*									cfms;
 		PxReal*									cfmScale;
 
-		Dy::ArticulationMimicJointCore*			mimicJointCores;
+		ev4sio_Dy::ArticulationMimicJointCore*			mimicJointCores;
 
 		PX_ALIGN(16, PxSpatialMatrix)			invSpatialArticulatedInertiaW;
 	}
@@ -99,7 +99,7 @@ namespace physx
 	// Zeroes the root velocity in the root link record and in motionVelocities, the copies that jcalc loads into the solver block data.
 	PX_FORCE_INLINE __device__ void clearRootVelocity(const PxgArticulation& articulation)
 	{
-		articulation.motionVelocities[0] = Cm::UnAlignedSpatialVector::Zero();
+		articulation.motionVelocities[0] = ev4sio_Cm::UnAlignedSpatialVector::Zero();
 		PxgArticulationLink& rootLink = articulation.links[0];
 		rootLink.initialAngVelXYZ_penBiasClamp = make_float4(0.0f, 0.0f, 0.0f, rootLink.initialAngVelXYZ_penBiasClamp.w);
 		rootLink.initialLinVelXYZ_invMassW = make_float4(0.0f, 0.0f, 0.0f, rootLink.initialLinVelXYZ_invMassW.w);
@@ -136,7 +136,7 @@ namespace physx
 		(const PxU32 maxNbLinks, const PxU32 maxNbDofs)
 		{
 			PxU32 byteSizePerArt =
-				(sizeof(PxTransform) + 3 * sizeof(Cm::UnAlignedSpatialVector)) * maxNbLinks;		//link pose + link velocity + link acceleration + link incoming joint force
+				(sizeof(PxTransform) + 3 * sizeof(ev4sio_Cm::UnAlignedSpatialVector)) * maxNbLinks;		//link pose + link velocity + link acceleration + link incoming joint force
 			byteSizePerArt += sizeof(PxReal) * maxNbDofs; //joint pos
 			byteSizePerArt += sizeof(PxReal) * maxNbDofs; //joint vel
 			byteSizePerArt += sizeof(PxReal) * maxNbDofs; //joint accel
@@ -198,18 +198,18 @@ namespace physx
 		static PX_CUDA_CALLABLE PX_FORCE_INLINE void decomposeArticulationStateDataBuffer
 		(PxU8* singleArticulationStateBuffer,
 		 const PxU32 nbLinks, const PxU32 nbDofs,
-		 PxTransform*& linkBody2Worlds, Cm::UnAlignedSpatialVector*& linkVels, Cm::UnAlignedSpatialVector*& linkAccels, Cm::UnAlignedSpatialVector*& linkIncomingJointForces,
+		 PxTransform*& linkBody2Worlds, ev4sio_Cm::UnAlignedSpatialVector*& linkVels, ev4sio_Cm::UnAlignedSpatialVector*& linkAccels, ev4sio_Cm::UnAlignedSpatialVector*& linkIncomingJointForces,
 		 PxReal*& jointPositions, PxReal*& jointVelocities, PxReal*& jointAccelerations)
 		{
 			PxU8* buffer = singleArticulationStateBuffer;
 			linkBody2Worlds = reinterpret_cast<PxTransform*>(buffer);
 			buffer += sizeof(PxTransform) * nbLinks;
-			linkVels = reinterpret_cast<Cm::UnAlignedSpatialVector*>(buffer);
-			buffer += sizeof(Cm::UnAlignedSpatialVector) * nbLinks;
-			linkAccels = reinterpret_cast<Cm::UnAlignedSpatialVector*>(buffer);
-			buffer += sizeof(Cm::UnAlignedSpatialVector) * nbLinks;
-			linkIncomingJointForces = reinterpret_cast<Cm::UnAlignedSpatialVector*>(buffer);
-			buffer += sizeof(Cm::UnAlignedSpatialVector) * nbLinks;
+			linkVels = reinterpret_cast<ev4sio_Cm::UnAlignedSpatialVector*>(buffer);
+			buffer += sizeof(ev4sio_Cm::UnAlignedSpatialVector) * nbLinks;
+			linkAccels = reinterpret_cast<ev4sio_Cm::UnAlignedSpatialVector*>(buffer);
+			buffer += sizeof(ev4sio_Cm::UnAlignedSpatialVector) * nbLinks;
+			linkIncomingJointForces = reinterpret_cast<ev4sio_Cm::UnAlignedSpatialVector*>(buffer);
+			buffer += sizeof(ev4sio_Cm::UnAlignedSpatialVector) * nbLinks;
 			jointPositions = reinterpret_cast<PxReal*>(buffer);
 			buffer += sizeof(PxReal) * nbDofs;
 			jointVelocities = reinterpret_cast<PxReal*>(buffer);
@@ -234,9 +234,9 @@ namespace physx
 		 const PxU32 nbLinks, const PxU32 nbDofs)
 		{
 			PxTransform* linkBody2Worlds;
-			Cm::UnAlignedSpatialVector* linkVels;
-			Cm::UnAlignedSpatialVector* linkAccels;
-			Cm::UnAlignedSpatialVector* linkIncomingJointForces;
+			ev4sio_Cm::UnAlignedSpatialVector* linkVels;
+			ev4sio_Cm::UnAlignedSpatialVector* linkAccels;
+			ev4sio_Cm::UnAlignedSpatialVector* linkIncomingJointForces;
 			PxReal* jointPositions;
 			PxReal* jointVelocities;
 			PxReal* jointAccelerations;

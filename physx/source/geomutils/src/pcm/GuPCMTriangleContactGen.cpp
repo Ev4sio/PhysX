@@ -17,8 +17,8 @@
 #define EDGE_EDGE_GAUSS_MAP		0
 #define BRUTE_FORCE_EDGE_EDGE	0
 
-using namespace physx;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
 using namespace aos;
 
 static bool testPolyFaceNormal(const PolygonalData& polyData, const SupportLocalImpl<TriangleV>* triMap, const SupportLocal* polyMap, const FloatVArg contactDist, 
@@ -1006,7 +1006,7 @@ static void generatedPolyContacts(const PolygonalData& polyData0, const HullPoly
 	}
 }
 
-bool Gu::PCMConvexVsMeshContactGeneration::generateTriangleFullContactManifold(const TriangleV& localTriangle, PxU32 triangleIndex, const PxU32* triIndices, PxU8 triFlags, const PolygonalData& polyData, const SupportLocalImpl<TriangleV>* localTriMap, const SupportLocal* polyMap, MeshPersistentContact* manifoldContacts, PxU32& numContacts,
+bool ev4sio_Gu::PCMConvexVsMeshContactGeneration::generateTriangleFullContactManifold(const TriangleV& localTriangle, PxU32 triangleIndex, const PxU32* triIndices, PxU8 triFlags, const PolygonalData& polyData, const SupportLocalImpl<TriangleV>* localTriMap, const SupportLocal* polyMap, MeshPersistentContact* manifoldContacts, PxU32& numContacts,
 	const FloatVArg contactDist, Vec3V& patchNormal)
 {
 	FeatureStatus status = POLYDATA0;
@@ -1103,7 +1103,7 @@ bool Gu::PCMConvexVsMeshContactGeneration::generateTriangleFullContactManifold(c
 	return true;
 }
 
-bool Gu::PCMConvexVsMeshContactGeneration::generateTriangleFullContactManifold(const TriangleV& localTriangle, PxU32 triangleIndex, PxU8 triFlags, const PolygonalData& polyData, const SupportLocalImpl<TriangleV>* localTriMap, const SupportLocal* polyMap, MeshPersistentContact* manifoldContacts, PxU32& numContacts,
+bool ev4sio_Gu::PCMConvexVsMeshContactGeneration::generateTriangleFullContactManifold(const TriangleV& localTriangle, PxU32 triangleIndex, PxU8 triFlags, const PolygonalData& polyData, const SupportLocalImpl<TriangleV>* localTriMap, const SupportLocal* polyMap, MeshPersistentContact* manifoldContacts, PxU32& numContacts,
 	const FloatVArg contactDist, Vec3V& patchNormal, PxRenderOutput* renderOutput)
 {
 	const FloatV threshold = FLoad(0.7071f);//about 45 degree
@@ -1135,7 +1135,7 @@ bool Gu::PCMConvexVsMeshContactGeneration::generateTriangleFullContactManifold(c
 	return true;
 }
 
-bool Gu::PCMConvexVsMeshContactGeneration::generatePolyDataContactManifold(const TriangleV& localTriangle, PxU32 featureIndex, PxU32 triangleIndex, PxU8 triFlags, MeshPersistentContact* manifoldContacts, PxU32& numContacts, const FloatVArg contactDist, Vec3V& patchNormal)
+bool ev4sio_Gu::PCMConvexVsMeshContactGeneration::generatePolyDataContactManifold(const TriangleV& localTriangle, PxU32 featureIndex, PxU32 triangleIndex, PxU8 triFlags, MeshPersistentContact* manifoldContacts, PxU32& numContacts, const FloatVArg contactDist, Vec3V& patchNormal)
 {
 	const HullPolygonData* referencePolygon = &mPolyData.mPolygons[featureIndex];
 		

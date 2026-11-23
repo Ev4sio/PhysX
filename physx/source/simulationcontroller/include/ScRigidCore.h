@@ -11,9 +11,9 @@
 #include "PxvDynamics.h"
 #include "PxShape.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Sc
+namespace ev4sio_Sc
 {
 	class RigidSim;
 	class ShapeCore;
@@ -58,7 +58,7 @@ namespace Sc
 								~RigidCore();
 	};
 
-} // namespace Sc
+} // namespace ev4sio_Sc
 
 }
 

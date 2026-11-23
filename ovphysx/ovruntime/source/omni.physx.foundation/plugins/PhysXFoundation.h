@@ -8,7 +8,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace foundation
 {
@@ -28,5 +28,5 @@ IPhysxFoundation& getInterface();
 IOptionalCuda& getOptionalCudaInterface();
 
 } // namespace foundation
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

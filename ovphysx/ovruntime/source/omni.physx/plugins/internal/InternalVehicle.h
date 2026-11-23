@@ -24,7 +24,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace usdparser { class AttachedStage; }
 namespace internal
@@ -46,25 +46,25 @@ public:
     {
     }
 
-    void init(const usdparser::VehicleContextDesc&, ::physx::PxScene&);
+    void init(const usdparser::VehicleContextDesc&, ::ev4sio_physx::PxScene&);
 
-    ::physx::PxVehiclePhysXSimulationContext& getContext()
+    ::ev4sio_physx::PxVehiclePhysXSimulationContext& getContext()
     {
         return mPhysXContext;
     }
-    const ::physx::PxVehiclePhysXSimulationContext& getContext() const
+    const ::ev4sio_physx::PxVehiclePhysXSimulationContext& getContext() const
     {
         return mPhysXContext;
     }
 
-    const ::physx::PxVehicleFrame& getFrame() const
+    const ::ev4sio_physx::PxVehicleFrame& getFrame() const
     {
         return mPhysXContext.frame;
     }
 
 
 private:
-    ::physx::PxVehiclePhysXSimulationContext mPhysXContext;
+    ::ev4sio_physx::PxVehiclePhysXSimulationContext mPhysXContext;
 };
 
 
@@ -95,12 +95,12 @@ public:
                                              InternalPhysXDatabase&);
     static void release(InternalTireFrictionTable&);
 
-    static const ::physx::PxVehiclePhysXMaterialFrictionParams* getDefault()
+    static const ::ev4sio_physx::PxVehiclePhysXMaterialFrictionParams* getDefault()
     {
         return &sDefaultMaterialFrictionTable;
     }
 
-    ::physx::PxVehiclePhysXMaterialFrictionParams* getMaterialFrictionTable()
+    ::ev4sio_physx::PxVehiclePhysXMaterialFrictionParams* getMaterialFrictionTable()
     {
         return &mMaterialFrictionTable;
     }
@@ -113,8 +113,8 @@ public:
     void update(const std::vector<float>& frictionValues);
 
 private:
-    ::physx::PxVehiclePhysXMaterialFrictionParams mMaterialFrictionTable;
-    static ::physx::PxVehiclePhysXMaterialFrictionParams sDefaultMaterialFrictionTable;
+    ::ev4sio_physx::PxVehiclePhysXMaterialFrictionParams mMaterialFrictionTable;
+    static ::ev4sio_physx::PxVehiclePhysXMaterialFrictionParams sDefaultMaterialFrictionTable;
     static DefaultInitializer sDefaultInitializer;
 };
 
@@ -167,14 +167,14 @@ public:
         // UsdPrims (USD xform-op authoring only) are resolved internally, narrowly
         // fenced -- see InternalVehicle.cpp.
         void init(usdparser::AttachedStage& attachedStage, omni::physics::parse::ObjectKey wheelRootKey_, omni::physics::parse::ObjectKey shapeKey_,
-                  const ::physx::PxShape*, usdparser::ObjectId shapeId);
+                  const ::ev4sio_physx::PxShape*, usdparser::ObjectId shapeId);
 
         // Object-local transforms captured at load through
         // internal::getLocalTransform(), kept in the runtime's own double-precision
         // matrix type; they are converted to Gf only where they are authored back
         // into USD xform ops (InternalScene.cpp::restoreStartProperties).
-        ::physx::PxMat44d initialTransform;
-        ::physx::PxMat44d initialShapeTransform; // not used if there is no collision shape or if it is
+        ::ev4sio_physx::PxMat44d initialTransform;
+        ::ev4sio_physx::PxMat44d initialShapeTransform; // not used if there is no collision shape or if it is
                                                // the same as the wheel root
 
         carb::Float3 scale;
@@ -190,7 +190,7 @@ public:
         omni::physics::parse::ObjectKey wheelRootParentXformKey;
 
         omni::physics::parse::ObjectKey shapeKey; // invalid if there is no collision shape
-        const ::physx::PxShape* shape; // NULL if there is no collision shape
+        const ::ev4sio_physx::PxShape* shape; // NULL if there is no collision shape
         usdparser::Axis cylinderAxis;
     };
 
@@ -237,13 +237,13 @@ public:
     void removeWheelAttachment(const uint32_t wheelIndex, const bool disableWheel);
 
     void updateMassProperties(const float mass,
-                              const ::physx::PxVec3& massSpaceInertiaTensor,
-                              const ::physx::PxTransform& vehicleMassFrame);
-    void updateShapeMappings(const ::physx::PxShape* removedShape);
+                              const ::ev4sio_physx::PxVec3& massSpaceInertiaTensor,
+                              const ::ev4sio_physx::PxTransform& vehicleMassFrame);
+    void updateShapeMappings(const ::ev4sio_physx::PxShape* removedShape);
 
     InitialControllerValues* allocateInitialControllerValues();
 
-    ::physx::PxRigidDynamic* getRigidDynamicActor()
+    ::ev4sio_physx::PxRigidDynamic* getRigidDynamicActor()
     {
         return mPhysXVehicle->getRigidDynamicActor();
     }
@@ -318,7 +318,7 @@ private:
     // conversion because PhysX starts with 0 for reverse, while our USD schema starts with -1
     inline int toPhysXGear(const int targetGear) const
     {
-        if (targetGear != ::physx::PxVehicleEngineDriveTransmissionCommandState::eAUTOMATIC_GEAR)
+        if (targetGear != ::ev4sio_physx::PxVehicleEngineDriveTransmissionCommandState::eAUTOMATIC_GEAR)
             return targetGear + 1;
         else
             return targetGear;
@@ -326,7 +326,7 @@ private:
 
     inline int fromPhysXGear(const uint32_t targetGear) const
     {
-        if (targetGear != ::physx::PxVehicleEngineDriveTransmissionCommandState::eAUTOMATIC_GEAR)
+        if (targetGear != ::ev4sio_physx::PxVehicleEngineDriveTransmissionCommandState::eAUTOMATIC_GEAR)
             return static_cast<int>(targetGear) - 1;
         else
             return static_cast<int>(targetGear);
@@ -387,7 +387,7 @@ public:
 
 class InternalVehicleWheelReferenceList : public Allocateable
 {
-    static_assert(::physx::PxVehicleLimits::eMAX_NB_WHEELS <= 32, ""); // using bits of uint32 to mark wheel
+    static_assert(::ev4sio_physx::PxVehicleLimits::eMAX_NB_WHEELS <= 32, ""); // using bits of uint32 to mark wheel
                                                                                  // indices
 
 public:
@@ -512,5 +512,5 @@ public:
 };
 
 } // namespace internal
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

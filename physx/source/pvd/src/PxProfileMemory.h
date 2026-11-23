@@ -10,7 +10,7 @@
 #include "PxProfileEventSender.h"
 #include "foundation/PxBroadcast.h"
 
-namespace physx { namespace profile {
+namespace ev4sio_physx { namespace profile {
 
 	/**
 	\brief Record events so a late-connecting client knows about
@@ -59,7 +59,7 @@ namespace physx { namespace profile {
 
 
 
-} } // namespace physx
+} } // namespace ev4sio_physx
 
 
 #endif

@@ -12,9 +12,9 @@
 #include "foundation/PxArray.h"
 #include "DyDeformableBodyCore.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Dy
+namespace ev4sio_Dy
 {
 
 struct DeformableVolumeCore : public DeformableBodyCore
@@ -49,8 +49,8 @@ public:
 	}
 };
 
-} // namespace Dy
-} // namespace physx
+} // namespace ev4sio_Dy
+} // namespace ev4sio_physx
 
 #endif // DY_DEFORMABLE_VOLUME_CORE_H
 

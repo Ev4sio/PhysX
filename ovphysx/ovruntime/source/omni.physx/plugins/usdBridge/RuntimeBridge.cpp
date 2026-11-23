@@ -50,12 +50,12 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 
-// UsdLoad / AttachedStage / AttachedStageUsdHandle live in omni::physx::usdparser; mirror the
+// UsdLoad / AttachedStage / AttachedStageUsdHandle live in omni::ev4sio_physx::usdparser; mirror the
 // _usd arm's using-directive so those names resolve unqualified here.
-using namespace omni::physx::usdparser;
+using namespace omni::ev4sio_physx::usdparser;
 
 AttachHandle OmniPhysX::physXAttach(long int stageId, bool loadPhysics, const PhysxAttachOptions& options)
 {
@@ -183,7 +183,7 @@ bool bridgeIsValidClonePath(const char* str, const char* role)
         OVX_RUNTIME_ERROR("clone: %s is empty.", role);
         return false;
     }
-    if (!omni::physx::looksLikeAbsolutePrimPath(std::string_view(str), /*allowRoot=*/false))
+    if (!omni::ev4sio_physx::looksLikeAbsolutePrimPath(std::string_view(str), /*allowRoot=*/false))
     {
         OVX_RUNTIME_ERROR("clone: %s '%s' must be a non-root absolute prim path (e.g. '/World/env0') "
                        "with identifier-shaped name segments (UTF-8 allowed).", role, str);
@@ -297,5 +297,5 @@ SimulationLayerHandle SimulationLayerHandle::fromRawLayer(void* layer) noexcept
     return handle;
 }
 
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

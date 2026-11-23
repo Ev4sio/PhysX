@@ -10,9 +10,9 @@
 #include "ScBodyCore.h"
 #include "PxsRigidBody.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Sc
+namespace ev4sio_Sc
 {
 	struct KinematicTransform
 	{
@@ -185,9 +185,9 @@ namespace Sc
 		PX_ASSERT(simStateData && simStateData->isKine());
 		simStateData->getKinematicData()->targetValid = 0;
 	}
-} // namespace Sc
+} // namespace ev4sio_Sc
 
-}  // namespace physx
+}  // namespace ev4sio_physx
 
 #endif
 

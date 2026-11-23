@@ -15,7 +15,7 @@
 #include "GuConvexSupport.h"
 #include "GuConvexGeometry.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -98,22 +98,22 @@ PxGjkQueryExt::ConvexCoreSupport::ConvexCoreSupport()
 
 PxGjkQueryExt::ConvexCoreSupport::ConvexCoreSupport(const PxConvexCoreGeometry& geom, PxReal margin)
 {
-	PX_COMPILE_TIME_ASSERT(sizeof(shapeData) >= sizeof(Gu::ConvexShape));
+	PX_COMPILE_TIME_ASSERT(sizeof(shapeData) >= sizeof(ev4sio_Gu::ConvexShape));
 
-	Gu::ConvexShape& convex = *reinterpret_cast<Gu::ConvexShape*>(shapeData);
-	Gu::makeConvexShape(geom, PxTransform(PxIdentity), convex);
+	ev4sio_Gu::ConvexShape& convex = *reinterpret_cast<ev4sio_Gu::ConvexShape*>(shapeData);
+	ev4sio_Gu::makeConvexShape(geom, PxTransform(PxIdentity), convex);
 	convex.margin += margin;
 }
 
 PxReal PxGjkQueryExt::ConvexCoreSupport::getMargin() const
 {
-	const Gu::ConvexShape& convex = *reinterpret_cast<const Gu::ConvexShape*>(shapeData);
+	const ev4sio_Gu::ConvexShape& convex = *reinterpret_cast<const ev4sio_Gu::ConvexShape*>(shapeData);
 	return convex.margin;
 }
 
 PxVec3 PxGjkQueryExt::ConvexCoreSupport::supportLocal(const PxVec3& dir) const
 {
-	const Gu::ConvexShape& convex = *reinterpret_cast<const Gu::ConvexShape*>(shapeData);
+	const ev4sio_Gu::ConvexShape& convex = *reinterpret_cast<const ev4sio_Gu::ConvexShape*>(shapeData);
 	return convex.supportLocal(dir);
 }
 

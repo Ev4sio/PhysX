@@ -11,7 +11,7 @@
 #include <algorithm>
 namespace
 {
-using namespace omni::physx::native;
+using namespace omni::ev4sio_physx::native;
 ovphysx_companion_vehicle_identity_t convert(const VehicleIdentity& v) { return {v.key,v.generation}; }
 ovphysx_companion_vehicle_wheel_t convert(const VehicleWheel& v)
 {

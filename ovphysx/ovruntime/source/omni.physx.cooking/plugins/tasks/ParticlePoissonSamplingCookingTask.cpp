@@ -15,8 +15,8 @@
 #include "../service/CookingComputeService.h"
 
 
-using namespace ::physx;
-using namespace omni::physx;
+using namespace ::ev4sio_physx;
+using namespace omni::ev4sio_physx;
 namespace cookingtask
 {
 
@@ -47,7 +47,7 @@ class PoissonSamplingCookingTask : public CookingTask
 public:
     PoissonSamplingCookingTask(
         const ParticlePoissonSamplingCookingParams& params,
-        omni::physx::PhysxCookingComputeResult& result)
+        omni::ev4sio_physx::PhysxCookingComputeResult& result)
         : CookingTask(result)
         , m_samplingDistance(params.samplingDistance)
         , m_sampleVolume(params.sampleVolume)
@@ -58,7 +58,7 @@ public:
         // holds the same nine doubles column by column, and Gf row i is PhysX column
         // i, so this is an element copy with no transpose -- see the mapping table in
         // common/foundation/MatrixTools.h.
-        static_assert(sizeof(params.shearScale) == sizeof(::physx::PxMat33d));
+        static_assert(sizeof(params.shearScale) == sizeof(::ev4sio_physx::PxMat33d));
         const carb::Double3* ss = params.shearScale;
         m_shearScale = PxMat33d(PxVec3d(ss[0].x, ss[0].y, ss[0].z), PxVec3d(ss[1].x, ss[1].y, ss[1].z),
                                 PxVec3d(ss[2].x, ss[2].y, ss[2].z));
@@ -138,12 +138,12 @@ public:
         // If the task was canceled or already finalized, skip the saving step
         if (CookingTask::isCanceled() || CookingTask::isFinalized())
         {
-            CookingTask::fireFinishedCallback(omni::physx::PhysxCookingResult::eERROR_CANCELED);
+            CookingTask::fireFinishedCallback(omni::ev4sio_physx::PhysxCookingResult::eERROR_CANCELED);
         }
         else if (!CookingTask::isSucceeded())
         {
             CookingTask::setFinalized(true);
-            CookingTask::fireFinishedCallback(omni::physx::PhysxCookingResult::eERROR_COOKING_FAILED);
+            CookingTask::fireFinishedCallback(omni::ev4sio_physx::PhysxCookingResult::eERROR_COOKING_FAILED);
         }
         else
         {
@@ -162,7 +162,7 @@ public:
             PxDefaultMemoryOutputStream& outputStream = *CookingTask::getCookedDataOutputStreams()[0].get();
             writeParticlePoissonSamplingData(outputStream, (const carb::Float3*)m_positions.begin(), m_positions.size());
 
-            omni::physx::PhysxCookingComputeResult& result = CookingTask::getResultObject();
+            omni::ev4sio_physx::PhysxCookingComputeResult& result = CookingTask::getResultObject();
             PxDefaultMemoryOutputStream& cookDataStream = outputStream;
             PhysxCookedDataSpan cookedDataSpan;
             result.cookedData = &cookedDataSpan;
@@ -186,7 +186,7 @@ public:
 
 CookingTask* createPoissonSamplingCookingTask(
     const ParticlePoissonSamplingCookingParams& params,
-    omni::physx::PhysxCookingComputeResult& result
+    omni::ev4sio_physx::PhysxCookingComputeResult& result
 )
 {
     return new PoissonSamplingCookingTask(params,

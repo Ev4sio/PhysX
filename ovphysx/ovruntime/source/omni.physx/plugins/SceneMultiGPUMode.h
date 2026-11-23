@@ -5,7 +5,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 
 /**
@@ -18,5 +18,5 @@ enum class SceneMultiGPUMode : int
     eSkipFirst = 2 //!< Assign all CUDA devices to scenes in a rotating fashion except the first device.
 };
 
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

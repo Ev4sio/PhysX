@@ -15,7 +15,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 
 // Construction of the deformable cooking space, formerly "GF ISLAND #1" in
@@ -28,10 +28,10 @@ namespace physx
 // CACHE KEY. `simToCookingTransform`'s sixteen doubles are memcpy'd verbatim
 // into three `*CookingParams` structs and hashed into the persistent **Ujitso**
 // deformable cooking cache key (omni.physx.cooking/.../CookingHashing.h). The
-// body is therefore written entirely in `omni::physx::gfmath` -- the bit-exact
+// body is therefore written entirely in `omni::ev4sio_physx::gfmath` -- the bit-exact
 // pxr transcriptions -- and not in the PhysX-semantics helpers that sit beside
 // them in MatrixTools.h. `gfmath::inverse` is NOT `affineInverse`, and
-// `gfmath::removeScaleShearGf` is NOT `omni::physx::removeScaleShear`; swapping
+// `gfmath::removeScaleShearGf` is NOT `omni::ev4sio_physx::removeScaleShear`; swapping
 // either in produces a mathematically equivalent, numerically different matrix,
 // which invalidates every cached entry for every user. Read the gfmath banner in
 // MatrixTools.h before touching the implementation.
@@ -52,12 +52,12 @@ namespace physx
 //
 // Returns false when `simToWorld` fails to orthonormalize; the outputs are then
 // untouched.
-bool computeDeformableCookingTransform(::physx::PxMat44d* simToCookingTransform,
-                                       ::physx::PxMat44d* cookingToWorldTransform,
+bool computeDeformableCookingTransform(::ev4sio_physx::PxMat44d* simToCookingTransform,
+                                       ::ev4sio_physx::PxMat44d* cookingToWorldTransform,
                                        double* cookingToWorldScale,
-                                       const ::physx::PxMat44d& simToWorld,
+                                       const ::ev4sio_physx::PxMat44d& simToWorld,
                                        const carb::Float3* boundsFitPoints,
                                        size_t boundsFitPointCount);
 
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

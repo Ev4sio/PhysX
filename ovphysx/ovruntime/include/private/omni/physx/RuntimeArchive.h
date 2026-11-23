@@ -11,7 +11,7 @@
 #include <utility>
 #include <vector>
 
-namespace omni::physx::cache
+namespace omni::ev4sio_physx::cache
 {
 using SerialId = uint64_t;
 // Archive-local, 1-based index into paths. Zero denotes an absent optional path.
@@ -272,4 +272,4 @@ bool decodeRuntimeArchive(const omni::physics::parse::cache::Bytes& bytes,
                           bool compactJoints = false);
 // Input bytes are borrowed only during this call; output owns all metadata.
 bool decodeRuntimeArchive(const uint8_t* bytes, size_t size, RuntimeArchive& output, bool compactJoints = false);
-} // namespace omni::physx::cache
+} // namespace omni::ev4sio_physx::cache

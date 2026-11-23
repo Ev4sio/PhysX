@@ -10,12 +10,12 @@
 
 #include "GuConvexSupport.h"
 
-using namespace physx;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
 
 PX_CUDA_CALLABLE
 // generates contacts between a plane and a convex
-PxU32 physx::Gu::generateContacts(const PxPlane& plane0, const ConvexShape& convex1, const PxReal contactDist,
+PxU32 ev4sio_physx::ev4sio_Gu::generateContacts(const PxPlane& plane0, const ConvexShape& convex1, const PxReal contactDist,
 	PxVec3& normal, PxVec3 points[MAX_CONVEX_CONTACTS], PxReal dists[MAX_CONVEX_CONTACTS])
 {
 	normal = -plane0.n;
@@ -27,7 +27,7 @@ PxU32 physx::Gu::generateContacts(const PxPlane& plane0, const ConvexShape& conv
 
 	if (dist < contactDist)
 	{
-		PxVec3 faceNormal, facePoints[Gu::ConvexCore::MAX_FACE_POINTS];
+		PxVec3 faceNormal, facePoints[ev4sio_Gu::ConvexCore::MAX_FACE_POINTS];
 		const PxU32 numPoints = convex1.contactFace(normal, point1, faceNormal, facePoints);
 				
 		if (numPoints == 0)

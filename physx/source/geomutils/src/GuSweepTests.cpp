@@ -22,9 +22,9 @@
 #include "GuEntityReport.h"
 #include "GuHeightFieldUtil.h"
 
-using namespace physx;
-using namespace Gu;
-using namespace Cm;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
+using namespace ev4sio_Cm;
 using namespace aos;
 
 //#define USE_VIRTUAL_GJK
@@ -336,7 +336,7 @@ bool sweepBox_BoxGeom(GU_BOX_SWEEP_FUNC_PARAMS)
 	return true;
 }
 
-bool Gu::sweepBoxTriangles(GU_SWEEP_TRIANGLES_FUNC_PARAMS(PxBoxGeometry))
+bool ev4sio_Gu::sweepBoxTriangles(GU_SWEEP_TRIANGLES_FUNC_PARAMS(PxBoxGeometry))
 {
 	PX_UNUSED(hitFlags);
 
@@ -631,9 +631,9 @@ static bool sweepCapsule_ConvexCoreGeom(GU_CAPSULE_SWEEP_FUNC_PARAMS)
 
 	struct ConvexCoreSupport : PxGjkQuery::Support
 	{
-		Gu::ConvexShape shape;
+		ev4sio_Gu::ConvexShape shape;
 		ConvexCoreSupport(const PxConvexCoreGeometry& g)
-			{ Gu::makeConvexShape(g, PxTransform(PxIdentity), shape); }
+			{ ev4sio_Gu::makeConvexShape(g, PxTransform(PxIdentity), shape); }
 		virtual PxReal getMargin() const PX_OVERRIDE
 			{ return shape.margin; }
 		virtual PxVec3 supportLocal(const PxVec3& dir) const PX_OVERRIDE
@@ -643,8 +643,8 @@ static bool sweepCapsule_ConvexCoreGeom(GU_CAPSULE_SWEEP_FUNC_PARAMS)
 	const PxConvexCoreGeometry& convex = static_cast<const PxConvexCoreGeometry&>(geom);
 	if (convex.isValid())
 	{
-		PxBounds3 bounds = Gu::computeBounds(convex, pose);
-		bounds.include(Gu::computeBounds(capsuleGeom_, capsulePose_));
+		PxBounds3 bounds = ev4sio_Gu::computeBounds(convex, pose);
+		bounds.include(ev4sio_Gu::computeBounds(capsuleGeom_, capsulePose_));
 		PxReal wiseDist = PxMin(distance, bounds.getDimensions().magnitude());
 		PxReal t;
 		PxVec3 n, p;
@@ -690,9 +690,9 @@ static bool sweepBox_ConvexCoreGeom(GU_BOX_SWEEP_FUNC_PARAMS)
 
 	struct ConvexCoreSupport : PxGjkQuery::Support
 	{
-		Gu::ConvexShape shape;
+		ev4sio_Gu::ConvexShape shape;
 		ConvexCoreSupport(const PxConvexCoreGeometry& g)
-			{ Gu::makeConvexShape(g, PxTransform(PxIdentity), shape); }
+			{ ev4sio_Gu::makeConvexShape(g, PxTransform(PxIdentity), shape); }
 		virtual PxReal getMargin() const PX_OVERRIDE
 			{ return shape.margin; }
 		virtual PxVec3 supportLocal(const PxVec3& dir) const PX_OVERRIDE
@@ -702,8 +702,8 @@ static bool sweepBox_ConvexCoreGeom(GU_BOX_SWEEP_FUNC_PARAMS)
 	const PxConvexCoreGeometry& convex = static_cast<const PxConvexCoreGeometry&>(geom);
 	if (convex.isValid())
 	{
-		PxBounds3 bounds = Gu::computeBounds(convex, pose);
-		bounds.include(Gu::computeBounds(boxGeom_, boxPose_));
+		PxBounds3 bounds = ev4sio_Gu::computeBounds(convex, pose);
+		bounds.include(ev4sio_Gu::computeBounds(boxGeom_, boxPose_));
 		PxReal wiseDist = PxMin(distance, bounds.getDimensions().magnitude());
 		PxReal t;
 		PxVec3 n, p;
@@ -736,8 +736,8 @@ static bool sweepConvexCore_Plane(GU_CONVEXCORE_SWEEP_FUNC_PARAMS)
 
 	PxPlane plane = getPlane(pose);
 
-	Gu::ConvexShape shape;
-	Gu::makeConvexShape(convexGeom, convexPose, shape);
+	ev4sio_Gu::ConvexShape shape;
+	ev4sio_Gu::makeConvexShape(convexGeom, convexPose, shape);
 	shape.margin += inflation;
 
 	PxVec3 closestPoint = shape.support(-plane.n);
@@ -801,15 +801,15 @@ static bool sweepConvexCore_Convex(GU_CONVEXCORE_SWEEP_FUNC_PARAMS)
 	{
 		case PxGeometryType::eSPHERE:
 			res = sweepCapsule_ConvexCoreGeom(convexGeom, convexPose, PxCapsuleGeometry(static_cast<const PxSphereGeometry&>(geom).radius, 0),
-				pose, Gu::Capsule(), -unitDir, distance, sweepHit, hitFlags, inflation, threadContext);
+				pose, ev4sio_Gu::Capsule(), -unitDir, distance, sweepHit, hitFlags, inflation, threadContext);
 			break;
 		case PxGeometryType::eCAPSULE:
 			res = sweepCapsule_ConvexCoreGeom(convexGeom, convexPose, static_cast<const PxCapsuleGeometry&>(geom), pose,
-				Gu::Capsule(), -unitDir, distance, sweepHit, hitFlags, inflation, threadContext);
+				ev4sio_Gu::Capsule(), -unitDir, distance, sweepHit, hitFlags, inflation, threadContext);
 			break;
 		case PxGeometryType::eBOX:
 			res = sweepBox_ConvexCoreGeom(convexGeom, convexPose, static_cast<const PxBoxGeometry&>(geom), pose,
-				Gu::Box(), -unitDir, distance, sweepHit, hitFlags, inflation, threadContext);
+				ev4sio_Gu::Box(), -unitDir, distance, sweepHit, hitFlags, inflation, threadContext);
 			break;
 		case PxGeometryType::eCONVEXMESH:
 			res = sweepConvex_ConvexCoreGeom(convexGeom, convexPose, static_cast<const PxConvexMeshGeometry&>(geom), pose,
@@ -846,9 +846,9 @@ static bool sweepConvexCore_ConvexCore(GU_CONVEXCORE_SWEEP_FUNC_PARAMS)
 
 	struct ConvexCoreSupport : PxGjkQuery::Support
 	{
-		Gu::ConvexShape shape;
+		ev4sio_Gu::ConvexShape shape;
 		ConvexCoreSupport(const PxConvexCoreGeometry& g)
-			{ Gu::makeConvexShape(g, PxTransform(PxIdentity), shape); }
+			{ ev4sio_Gu::makeConvexShape(g, PxTransform(PxIdentity), shape); }
 		virtual PxReal getMargin() const PX_OVERRIDE
 			{ return shape.margin; }
 		virtual PxVec3 supportLocal(const PxVec3& dir) const PX_OVERRIDE
@@ -858,8 +858,8 @@ static bool sweepConvexCore_ConvexCore(GU_CONVEXCORE_SWEEP_FUNC_PARAMS)
 	const PxConvexCoreGeometry& convex = static_cast<const PxConvexCoreGeometry&>(geom);
 	if (convex.isValid())
 	{
-		PxBounds3 bounds = Gu::computeBounds(convex, pose);
-		bounds.include(Gu::computeBounds(convexGeom, convexPose));
+		PxBounds3 bounds = ev4sio_Gu::computeBounds(convex, pose);
+		bounds.include(ev4sio_Gu::computeBounds(convexGeom, convexPose));
 		PxReal wiseDist = PxMin(distance, bounds.getDimensions().magnitude());
 		PxReal t;
 		PxVec3 n, p;
@@ -907,12 +907,12 @@ static bool sweepConvexCore_MeshGeom(GU_CONVEXCORE_SWEEP_FUNC_PARAMS)
 
 	struct ConvexCoreSupport : PxGjkQuery::Support
 	{
-		Gu::ConvexShape shape;
+		ev4sio_Gu::ConvexShape shape;
 		PxReal inflation;
 
 		ConvexCoreSupport(const PxConvexCoreGeometry& g, PxReal inf)
 			: inflation(inf)
-			{ Gu::makeConvexShape(g, PxTransform(PxIdentity), shape); }
+			{ ev4sio_Gu::makeConvexShape(g, PxTransform(PxIdentity), shape); }
 
 		virtual PxReal getMargin() const PX_OVERRIDE
 			{ return shape.margin + inflation; }
@@ -962,8 +962,8 @@ static bool sweepConvexCore_MeshGeom(GU_CONVEXCORE_SWEEP_FUNC_PARAMS)
 
 	PxTransform localPose = pose.transformInv(convexPose);
 	PxVec3 localDir = pose.transformInv(unitDir);
-	PxBounds3 bounds = Gu::computeBounds(convexGeom, localPose);
-	bounds.include(Gu::computeBounds(convexGeom, PxTransform(localPose.p + localDir * distance, localPose.q)));
+	PxBounds3 bounds = ev4sio_Gu::computeBounds(convexGeom, localPose);
+	bounds.include(ev4sio_Gu::computeBounds(convexGeom, PxTransform(localPose.p + localDir * distance, localPose.q)));
 
 	Box queryBox;
 	queryBox.extents = bounds.getExtents() + PxVec3(inflation);
@@ -1017,12 +1017,12 @@ bool sweepConvexCore_HeightFieldGeom(GU_CONVEXCORE_SWEEP_FUNC_PARAMS)
 
 	struct ConvexCoreSupport : PxGjkQuery::Support
 	{
-		Gu::ConvexShape shape;
+		ev4sio_Gu::ConvexShape shape;
 		PxReal inflation;
 
 		ConvexCoreSupport(const PxConvexCoreGeometry& g, PxReal inf)
 			: inflation(inf)
-			{ Gu::makeConvexShape(g, PxTransform(PxIdentity), shape); }
+			{ ev4sio_Gu::makeConvexShape(g, PxTransform(PxIdentity), shape); }
 
 		virtual PxReal getMargin() const PX_OVERRIDE
 			{ return shape.margin + inflation; }
@@ -1031,13 +1031,13 @@ bool sweepConvexCore_HeightFieldGeom(GU_CONVEXCORE_SWEEP_FUNC_PARAMS)
 			{ return shape.supportLocal(dir); }
 	};
 
-	struct Callback : Gu::OverlapReport
+	struct Callback : ev4sio_Gu::OverlapReport
 	{
 		ConvexCoreSupport convexSupport;
 		PxTransform convexPose;
 		PxVec3 unitDir;
 		PxReal maxDist;
-		const Gu::HeightFieldUtil mHfUtil;
+		const ev4sio_Gu::HeightFieldUtil mHfUtil;
 		const PxTransform& mHFPose;
 
 		PxGeomSweepHit closestHit;
@@ -1085,8 +1085,8 @@ bool sweepConvexCore_HeightFieldGeom(GU_CONVEXCORE_SWEEP_FUNC_PARAMS)
 
 	PxTransform localPose = pose.transformInv(convexPose);
 	PxVec3 localDir = pose.rotateInv(unitDir);
-	PxBounds3 bounds = Gu::computeBounds(convexGeom, localPose);
-	bounds.include(Gu::computeBounds(convexGeom, PxTransform(localPose.p + localDir * distance, localPose.q)));
+	PxBounds3 bounds = ev4sio_Gu::computeBounds(convexGeom, localPose);
+	bounds.include(ev4sio_Gu::computeBounds(convexGeom, PxTransform(localPose.p + localDir * distance, localPose.q)));
 
 	Callback callback(convexGeom, localPose, localDir, distance, inflation, hfGeom, pose);
 	callback.mHfUtil.overlapAABBTriangles(bounds, callback, 4);
@@ -1158,9 +1158,9 @@ bool sweepConvex_ConvexCoreGeom(GU_CONVEX_SWEEP_FUNC_PARAMS)
 
 	struct ConvexCoreSupport : PxGjkQuery::Support
 	{
-		Gu::ConvexShape shape;
+		ev4sio_Gu::ConvexShape shape;
 		ConvexCoreSupport(const PxConvexCoreGeometry& g)
-			{ Gu::makeConvexShape(g, PxTransform(PxIdentity), shape); }
+			{ ev4sio_Gu::makeConvexShape(g, PxTransform(PxIdentity), shape); }
 		virtual PxReal getMargin() const PX_OVERRIDE
 			{ return shape.margin; }
 		virtual PxVec3 supportLocal(const PxVec3& dir) const PX_OVERRIDE
@@ -1170,8 +1170,8 @@ bool sweepConvex_ConvexCoreGeom(GU_CONVEX_SWEEP_FUNC_PARAMS)
 	const PxConvexCoreGeometry& convex = static_cast<const PxConvexCoreGeometry&>(geom);
 	if (convex.isValid())
 	{
-		PxBounds3 bounds = Gu::computeBounds(convex, pose);
-		bounds.include(Gu::computeBounds(convexGeom, convexPose));
+		PxBounds3 bounds = ev4sio_Gu::computeBounds(convex, pose);
+		bounds.include(ev4sio_Gu::computeBounds(convexGeom, convexPose));
 		PxReal wiseDist = PxMin(distance, bounds.getDimensions().magnitude());
 		PxReal t;
 		PxVec3 n, p;
@@ -1190,7 +1190,7 @@ bool sweepConvex_ConvexCoreGeom(GU_CONVEX_SWEEP_FUNC_PARAMS)
 	return false;
 }
 
-Gu::GeomSweepFuncs gGeomSweepFuncs =
+ev4sio_Gu::GeomSweepFuncs gGeomSweepFuncs =
 {
 	{
 		sweepCapsule_SphereGeom,
@@ -1272,7 +1272,7 @@ Gu::GeomSweepFuncs gGeomSweepFuncs =
 	}
 };
 
-PX_PHYSX_COMMON_API const GeomSweepFuncs& Gu::getSweepFuncTable()
+PX_PHYSX_COMMON_API const GeomSweepFuncs& ev4sio_Gu::getSweepFuncTable()
 {
 	return gGeomSweepFuncs;
 }

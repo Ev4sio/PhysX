@@ -17,8 +17,8 @@
 
 #define SAVE_SOURCE_MESH_AS_OBJ 0
 
-using namespace ::physx;
-using namespace omni::physx;
+using namespace ::ev4sio_physx;
+using namespace omni::ev4sio_physx;
 
 namespace cookingtask
 {
@@ -88,8 +88,8 @@ public:
     * The constructor for a convex decomposition cooking task instance
     * @param desc : The descriptor for this convex decomposition operation
     */
-    ConvexDecompositionCookingTask(const omni::physx::ConvexDecompositionCookingParams& desc,
-                                   omni::physx::PhysxCookingComputeResult& result,
+    ConvexDecompositionCookingTask(const omni::ev4sio_physx::ConvexDecompositionCookingParams& desc,
+                                   omni::ev4sio_physx::PhysxCookingComputeResult& result,
                                    omni::convexdecomposition::ConvexDecomposition& convexDecomposition)
         : CookingTask(result), mConvexDecomposition(convexDecomposition)
     {
@@ -256,7 +256,7 @@ public:
                 {
                     PxConvexMeshCookingResult::Enum condition;
                     const PxCookingParams cookingParams = CookingTask::getDefaultCookingParams();
-                    res = PxCookConvexMesh(cookingParams, convexMeshDesc, *outStream, &condition);
+                    res = ev4sio_PxCookConvexMesh(cookingParams, convexMeshDesc, *outStream, &condition);
                     if (condition == PxConvexMeshCookingResult::ePOLYGONS_LIMIT_REACHED)
                     {
                         CookingTask::getResultObject().resultWarnings.setFlag(PhysxCookingComputeResult::ResultWarning::CONVEX_POLYGON_LIMITS_REACHED, true);
@@ -296,12 +296,12 @@ public:
         // If the task was canceled or already finalized, skip the saving step
         if (CookingTask::isCanceled() || CookingTask::isFinalized())
         {
-            CookingTask::fireFinishedCallback(omni::physx::PhysxCookingResult::eERROR_CANCELED);
+            CookingTask::fireFinishedCallback(omni::ev4sio_physx::PhysxCookingResult::eERROR_CANCELED);
         }
         else if(!CookingTask::isSucceeded())
         {
             CookingTask::setFinalized(true);
-            CookingTask::fireFinishedCallback(omni::physx::PhysxCookingResult::eERROR_COOKING_FAILED);
+            CookingTask::fireFinishedCallback(omni::ev4sio_physx::PhysxCookingResult::eERROR_COOKING_FAILED);
         }
         else
         {
@@ -322,26 +322,26 @@ public:
             usdparser::MeshKey crc;
             CookingTask::getCRC(crc);
 
-            omni::physx::PhysxCookingComputeResult& result = CookingTask::getResultObject();
-            std::vector<omni::physx::PhysxCookedDataSpan> cookedDataSpans;
+            omni::ev4sio_physx::PhysxCookingComputeResult& result = CookingTask::getResultObject();
+            std::vector<omni::ev4sio_physx::PhysxCookedDataSpan> cookedDataSpans;
             cookedDataSpans.reserve(CookingTask::getCookedDataOutputStreams().size());
             for (auto &i : CookingTask::getCookedDataOutputStreams())
             {
-                cookedDataSpans.push_back(omni::physx::PhysxCookedDataSpan(i->getData(), i->getSize()));
+                cookedDataSpans.push_back(omni::ev4sio_physx::PhysxCookedDataSpan(i->getData(), i->getSize()));
             }
             result.cookedData = cookedDataSpans.data();
             result.cookedDataNumElements = cookedDataSpans.size();
 
-            CookingTask::fireFinishedCallback(omni::physx::PhysxCookingResult::eVALID);
+            CookingTask::fireFinishedCallback(omni::ev4sio_physx::PhysxCookingResult::eVALID);
         }
     }
 
-    omni::physx::ConvexDecompositionCookingParams m_desc;
+    omni::ev4sio_physx::ConvexDecompositionCookingParams m_desc;
     omni::convexdecomposition::ConvexDecomposition& mConvexDecomposition;
 };
 
-CookingTask* createConvexDecompositionCookingTask(const omni::physx::ConvexDecompositionCookingParams& desc,
-                                                  omni::physx::PhysxCookingComputeResult& result,
+CookingTask* createConvexDecompositionCookingTask(const omni::ev4sio_physx::ConvexDecompositionCookingParams& desc,
+                                                  omni::ev4sio_physx::PhysxCookingComputeResult& result,
                                                   omni::convexdecomposition::ConvexDecomposition& convexDecomposition)
 {
     return new ConvexDecompositionCookingTask(desc, result, convexDecomposition);

@@ -7,7 +7,7 @@
 #include "NpPvdSceneClient.h"
 
 #if PX_SUPPORT_PVD
-using namespace physx;
+using namespace ev4sio_physx;
 using namespace Vd;
 
 static const char* gName_PvdRaycast[2]			= { "SceneQueries.Raycasts",		"BatchedQueries.Raycasts" };
@@ -35,7 +35,7 @@ PvdSceneQueryCollector::PvdSceneQueryCollector(Vd::PvdSceneClient* pvd, bool isB
 
 void PvdSceneQueryCollector::release()
 {
-	physx::pvdsdk::PvdDataStream* stream = mPVD->getDataStream();
+	ev4sio_physx::pvdsdk::PvdDataStream* stream = mPVD->getDataStream();
 	if(stream && stream->isConnected())
 	{
 		const PxArray<PxGeometryHolder>& geoms = getPrevFrameGeometries();

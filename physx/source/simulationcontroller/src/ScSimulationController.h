@@ -9,9 +9,9 @@
 #include "PxsSimulationController.h"
 #include "foundation/PxMutex.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Sc
+namespace ev4sio_Sc
 {
 	class SimulationController : public PxsSimulationController
 	{
@@ -20,10 +20,10 @@ namespace Sc
 						SimulationController(PxsSimulationControllerCallback* callback) : PxsSimulationController(callback, PxIntFalse)	{}
 		virtual			~SimulationController()																							{}
 
-		virtual void	updateScBodyAndShapeSim(PxsTransformCache& cache, Bp::BoundsArray& boundArray, PxBaseTask* continuation)	PX_OVERRIDE;
+		virtual void	updateScBodyAndShapeSim(PxsTransformCache& cache, ev4sio_Bp::BoundsArray& boundArray, PxBaseTask* continuation)	PX_OVERRIDE;
 
-		virtual void	updateArticulationAfterIntegration(PxsContext*	llContext, Bp::AABBManagerBase* aabbManager,
-															PxArray<Sc::BodySim*>& ccdBodies, PxBaseTask* continuation, IG::IslandSim& islandSim, float dt, bool isSleepingDisabled)	PX_OVERRIDE;
+		virtual void	updateArticulationAfterIntegration(PxsContext*	llContext, ev4sio_Bp::AABBManagerBase* aabbManager,
+															PxArray<ev4sio_Sc::BodySim*>& ccdBodies, PxBaseTask* continuation, ev4sio_IG::IslandSim& islandSim, float dt, bool isSleepingDisabled)	PX_OVERRIDE;
 
 		// PT: initial solution to sleepCheck() running non-thread-safe code in task. We should do better eventually.
 		PxMutex	mArticulationSleepLock;

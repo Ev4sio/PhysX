@@ -7,7 +7,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace usdparser
 {
@@ -21,5 +21,5 @@ void createSpatialTendons(AttachedStage& attachedStage,
                           TendonAttachmentMap& attachmentMap,
                           SpatialTendonVector& spatialTendons);
 } // namespace usdparser
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

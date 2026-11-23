@@ -22,7 +22,7 @@ using namespace carb::datastore;
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 
 // UjitsoProcessContext methods
@@ -263,5 +263,5 @@ void UjitsoProcessContext::requestCallback(
     context->m_callbackPending.store(false, std::memory_order_release);
 }
 
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

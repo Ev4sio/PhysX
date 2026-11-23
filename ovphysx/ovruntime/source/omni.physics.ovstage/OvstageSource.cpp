@@ -8763,21 +8763,21 @@ void OvstageSource::getLocalToWorldRotationAndScale(ObjectKey key,
 
 void decomposeWorldTransform(const Matrix4d& wm, Matrix3d& outRotation, carb::Float3& outScale) noexcept
 {
-    // omni::physx::decomposeMatrix (common/foundation/MatrixTools.h) reproduces
+    // omni::ev4sio_physx::decomposeMatrix (common/foundation/MatrixTools.h) reproduces
     // GfTransform::GetRotation()/GetScale() to float precision, including the
     // sign convention on reflections: a mirror scale reports all three scale
     // components negative, matching Gf, rather than the always-non-negative
     // length a per-row normalization would give. (Shear from non-uniform
     // parent scale under rotation is still not separated by either
     // decomposition -- a pre-existing, shared limitation.)
-    ::physx::PxTransform pose;
-    ::physx::PxVec3 scale;
-    omni::physx::decomposeMatrix(pose, scale, wm.data);
+    ::ev4sio_physx::PxTransform pose;
+    ::ev4sio_physx::PxVec3 scale;
+    omni::ev4sio_physx::decomposeMatrix(pose, scale, wm.data);
 
     // PxMat33(quat) and the row-major Matrix3d this function returns hold
     // identical elements (MatrixTools.h's "PxMat33(q) vs GfMatrix3f(q)" note):
     // Px's column i is our row i, no transpose needed.
-    const ::physx::PxMat33 rot(pose.q);
+    const ::ev4sio_physx::PxMat33 rot(pose.q);
     outRotation.data[0] = rot.column0.x;
     outRotation.data[1] = rot.column0.y;
     outRotation.data[2] = rot.column0.z;

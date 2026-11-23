@@ -26,7 +26,7 @@ struct TensorApi;
 } // namespace tensors
 } // namespace physics
 
-namespace physx
+namespace ev4sio_physx
 {
 struct IOptionalCuda;
 struct IPhysx;
@@ -149,5 +149,5 @@ OMNI_PHYSX_RUNTIME_API omni::physics::tensors::TensorApi& getTensorApiInterface(
 OMNI_PHYSX_RUNTIME_API omni::physics::tensors::TensorApi* tryGetTensorApiInterface();
 
 } // namespace runtime
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

@@ -11,7 +11,7 @@ namespace triangulateusd
 class TriangulateUSDPrimImpl : public TriangulateUSDPrim
 {
 public:
-    TriangulateUSDPrimImpl(const omni::physx::PhysxCookingMeshView& meshView)
+    TriangulateUSDPrimImpl(const omni::ev4sio_physx::PhysxCookingMeshView& meshView)
     {
         m_isValid = (meshView.points.size() && meshView.indices.size() && meshView.faces.size());
         if (!m_isValid)
@@ -203,7 +203,7 @@ public:
     uint16_t    *m_faceMaterials{ nullptr };
 };
 
-TriangulateUSDPrim *TriangulateUSDPrim::create(const omni::physx::PhysxCookingMeshView& meshView)
+TriangulateUSDPrim *TriangulateUSDPrim::create(const omni::ev4sio_physx::PhysxCookingMeshView& meshView)
 {
     auto ret = new TriangulateUSDPrimImpl(meshView);
     if ( !ret->isValid() )

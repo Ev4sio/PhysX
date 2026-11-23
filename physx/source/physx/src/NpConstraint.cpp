@@ -14,8 +14,8 @@
 #include "PxsSimulationController.h"
 #include "omnipvd/NpOmniPvdSetData.h"
 
-using namespace physx;
-using namespace Sc;
+using namespace ev4sio_physx;
+using namespace ev4sio_Sc;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -105,7 +105,7 @@ PxConstraintGPUIndex NpConstraint::getGPUIndex() const
 	}
 	else
 	{
-		PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "Constraint::getGPUIndex(): constraint has to be part of a scene to return a valid index.");
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "Constraint::getGPUIndex(): constraint has to be part of a scene to return a valid index.");
 
 		return PX_INVALID_CONSTRAINT_GPU_INDEX;
 	}
@@ -214,8 +214,8 @@ void NpConstraint::getActors(PxRigidActor*& actor0, PxRigidActor*& actor1) const
 
 static PX_INLINE void scSetBodies(ConstraintCore& core, NpActor* r0, NpActor* r1)
 {
-	Sc::RigidCore* scR0 = r0 ? &r0->getScRigidCore() : NULL;
-	Sc::RigidCore* scR1 = r1 ? &r1->getScRigidCore() : NULL;
+	ev4sio_Sc::RigidCore* scR0 = r0 ? &r0->getScRigidCore() : NULL;
+	ev4sio_Sc::RigidCore* scR1 = r1 ? &r1->getScRigidCore() : NULL;
 	core.setBodies(scR0, scR1);
 }
 
@@ -334,10 +334,10 @@ void NpConstraint::updateConstants(PxsSimulationController& simController)
 
 	PX_ASSERT(!isAPIWriteForbidden());
 
-	Sc::ConstraintSim* sim = mCore.getSim();
+	ev4sio_Sc::ConstraintSim* sim = mCore.getSim();
 	if(sim)
 	{
-		Dy::Constraint& LLC = sim->getLowLevelConstraint();
+		ev4sio_Dy::Constraint& LLC = sim->getLowLevelConstraint();
 		PxMemCopy(LLC.constantBlock, mCore.getPxConnector()->prepareData(), LLC.constantBlockSize);
 		simController.updateJoint(sim->getInteraction()->getEdgeIndex(), &LLC);
 	}

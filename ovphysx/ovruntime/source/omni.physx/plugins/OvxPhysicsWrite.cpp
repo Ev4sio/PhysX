@@ -149,11 +149,11 @@
 #include <utility>
 #include <vector>
 
-using namespace ::physx;
-using omni::physx::usdparser::AttachedStage;
-using omni::physx::usdparser::UsdLoad;
-using omni::physx::internal::InternalScene;
-using omni::physx::cudaShimWrappers::getCudaShim;
+using namespace ::ev4sio_physx;
+using omni::ev4sio_physx::usdparser::AttachedStage;
+using omni::ev4sio_physx::usdparser::UsdLoad;
+using omni::ev4sio_physx::internal::InternalScene;
+using omni::ev4sio_physx::cudaShimWrappers::getCudaShim;
 using omni::physics::parse::IPhysicsSource;
 using omni::physics::parse::ObjectKey;
 
@@ -161,12 +161,12 @@ using omni::physics::parse::ObjectKey;
 // drain wraps a wrapped-revolute drive target and warns on it here, matching the parse path.
 OMNI_LOG_DECLARE_CHANNEL(kRoboticsLogChannel)
 
-namespace omni::physx
+namespace omni::ev4sio_physx
 {
 namespace
 {
 
-using omni::physx::ovx::ObjectKey;
+using omni::ev4sio_physx::ovx::ObjectKey;
 
 // The rigid-body attributes a session can write, one row each: the column width, and whether the
 // engine can set it on its own. Mirrors kRigidAttributes in OvxPhysicsRead.cpp -- adding an
@@ -208,18 +208,18 @@ struct WriteAttributeRow
     // kOvxAll, no selection, no disabled/controller filtering), so a setter that confirms this covers its
     // own view can skip subset bookkeeping. Only the link-wrench/force path reads it today; the others
     // accept and ignore it.
-    bool (omni::physx::tensors::GpuRigidBodyView::*gpuWrite)(const omni::physics::tensors::TensorDesc*,
+    bool (omni::ev4sio_physx::tensors::GpuRigidBodyView::*gpuWrite)(const omni::physics::tensors::TensorDesc*,
                                                              const PxU32*,
                                                              PxU32,
                                                              uint64_t,
                                                              bool,
-                                                             const omni::physx::tensors::OvStageDeviceWriteArgs&);
-    bool (omni::physx::tensors::CpuRigidBodyView::*cpuWrite)(const omni::physics::tensors::TensorDesc*,
+                                                             const omni::ev4sio_physx::tensors::OvStageDeviceWriteArgs&);
+    bool (omni::ev4sio_physx::tensors::CpuRigidBodyView::*cpuWrite)(const omni::physics::tensors::TensorDesc*,
                                                              const PxU32*,
                                                              PxU32,
                                                              uint64_t,
                                                              bool);
-    bool (omni::physx::tensors::BaseRigidBodyView::*baseWrite)(const omni::physics::tensors::TensorDesc*,
+    bool (omni::ev4sio_physx::tensors::BaseRigidBodyView::*baseWrite)(const omni::physics::tensors::TensorDesc*,
                                                               const PxU32*,
                                                               PxU32,
                                                               uint64_t,
@@ -238,11 +238,11 @@ constexpr WriteAttributeRow kRigidWriteAttributes[] = {
 struct JointWriteAttributeRow
 {
     const char* token;
-    bool (omni::physx::tensors::GpuArticulationView::*gpuWrite)(
-        const omni::physics::tensors::TensorDesc*, const omni::physx::tensors::ArticulationDofOvStageRecord*, PxU32,
-        const omni::physx::tensors::OvStageDeviceWriteArgs&);
-    bool (omni::physx::tensors::CpuArticulationView::*cpuWrite)(
-        const omni::physics::tensors::TensorDesc*, const omni::physx::tensors::ArticulationDofOvStageRecord*, PxU32);
+    bool (omni::ev4sio_physx::tensors::GpuArticulationView::*gpuWrite)(
+        const omni::physics::tensors::TensorDesc*, const omni::ev4sio_physx::tensors::ArticulationDofOvStageRecord*, PxU32,
+        const omni::ev4sio_physx::tensors::OvStageDeviceWriteArgs&);
+    bool (omni::ev4sio_physx::tensors::CpuArticulationView::*cpuWrite)(
+        const omni::physics::tensors::TensorDesc*, const omni::ev4sio_physx::tensors::ArticulationDofOvStageRecord*, PxU32);
 };
 
 constexpr JointWriteAttributeRow kJointWriteAttributes[] = {
@@ -259,7 +259,7 @@ constexpr JointWriteAttributeRow kJointWriteAttributes[] = {
 struct JointPropertyWriteRow
 {
     const char* token;
-    omni::physx::tensors::DofProperty prop;
+    omni::ev4sio_physx::tensors::DofProperty prop;
 };
 
 constexpr JointPropertyWriteRow kJointPropertyWriteAttributes[] = {
@@ -298,10 +298,10 @@ struct ArtiWriteAttributeRow
 {
     const char* token;
     int components;
-    bool (omni::physx::tensors::GpuArticulationView::*gpuWrite)(
+    bool (omni::ev4sio_physx::tensors::GpuArticulationView::*gpuWrite)(
         const omni::physics::tensors::TensorDesc*, const PxU32*, PxU32, uint64_t,
-        const omni::physx::tensors::OvStageDeviceWriteArgs&);
-    bool (omni::physx::tensors::CpuArticulationView::*cpuWrite)(
+        const omni::ev4sio_physx::tensors::OvStageDeviceWriteArgs&);
+    bool (omni::ev4sio_physx::tensors::CpuArticulationView::*cpuWrite)(
         const omni::physics::tensors::TensorDesc*, const PxU32*, PxU32, uint64_t);
 };
 
@@ -320,7 +320,7 @@ constexpr ArtiWriteAttributeRow kArtiWriteAttributes[] = {
 struct TendonWriteAttributeRow
 {
     const char* token;
-    omni::physx::tensors::TendonProperty prop;
+    omni::ev4sio_physx::tensors::TendonProperty prop;
     bool fixedOnly;
 };
 
@@ -340,16 +340,16 @@ struct DeformableMaterialWriteRow
 {
     const char* token;
     bool surfaceOnly;
-    void (*write)(::physx::PxDeformableMaterial&, float);
+    void (*write)(::ev4sio_physx::PxDeformableMaterial&, float);
 };
 
-constexpr auto ioWriteDeformableDynamicFriction = [](::physx::PxDeformableMaterial& m, float v) { m.setDynamicFriction(v); };
-constexpr auto ioWriteDeformableYoungsModulus = [](::physx::PxDeformableMaterial& m, float v) { m.setYoungsModulus(v); };
-constexpr auto ioWriteDeformablePoissonsRatio = [](::physx::PxDeformableMaterial& m, float v) { m.setPoissons(v); };
-constexpr auto ioWriteDeformableElasticityDamping = [](::physx::PxDeformableMaterial& m, float v) { m.setElasticityDamping(v); };
-constexpr auto ioWriteDeformableBendingStiffness = [](::physx::PxDeformableMaterial& m, float v) { static_cast<::physx::PxDeformableSurfaceMaterial&>(m).setBendingStiffness(v); };
-constexpr auto ioWriteDeformableThickness = [](::physx::PxDeformableMaterial& m, float v) { static_cast<::physx::PxDeformableSurfaceMaterial&>(m).setThickness(v); };
-constexpr auto ioWriteDeformableBendingDamping = [](::physx::PxDeformableMaterial& m, float v) { static_cast<::physx::PxDeformableSurfaceMaterial&>(m).setBendingDamping(v); };
+constexpr auto ioWriteDeformableDynamicFriction = [](::ev4sio_physx::PxDeformableMaterial& m, float v) { m.setDynamicFriction(v); };
+constexpr auto ioWriteDeformableYoungsModulus = [](::ev4sio_physx::PxDeformableMaterial& m, float v) { m.setYoungsModulus(v); };
+constexpr auto ioWriteDeformablePoissonsRatio = [](::ev4sio_physx::PxDeformableMaterial& m, float v) { m.setPoissons(v); };
+constexpr auto ioWriteDeformableElasticityDamping = [](::ev4sio_physx::PxDeformableMaterial& m, float v) { m.setElasticityDamping(v); };
+constexpr auto ioWriteDeformableBendingStiffness = [](::ev4sio_physx::PxDeformableMaterial& m, float v) { static_cast<::ev4sio_physx::PxDeformableSurfaceMaterial&>(m).setBendingStiffness(v); };
+constexpr auto ioWriteDeformableThickness = [](::ev4sio_physx::PxDeformableMaterial& m, float v) { static_cast<::ev4sio_physx::PxDeformableSurfaceMaterial&>(m).setThickness(v); };
+constexpr auto ioWriteDeformableBendingDamping = [](::ev4sio_physx::PxDeformableMaterial& m, float v) { static_cast<::ev4sio_physx::PxDeformableSurfaceMaterial&>(m).setBendingDamping(v); };
 
 constexpr DeformableMaterialWriteRow kDeformableMaterialWriteAttributes[] = {
 #include "generated/kDeformableMaterialWriteAttributes.inc"
@@ -367,7 +367,7 @@ const DeformableMaterialWriteRow* findDeformableMaterialWriteAttribute(std::stri
 struct VehicleWriteAttributeRow
 {
     const char* token;
-    omni::physx::tensors::BaseVehicleView::WheelControl control;
+    omni::ev4sio_physx::tensors::BaseVehicleView::WheelControl control;
 };
 
 constexpr VehicleWriteAttributeRow kVehicleWriteAttributes[] = {
@@ -406,7 +406,7 @@ const CctWriteAttributeRow* findCctWriteAttribute(std::string_view token)
 struct VehicleControlAttributeRow
 {
     const char* token;
-    omni::physx::tensors::BaseVehicleView::VehicleControl control;
+    omni::ev4sio_physx::tensors::BaseVehicleView::VehicleControl control;
     omni::physics::tensors::TensorDataType dtype;
 };
 
@@ -510,7 +510,7 @@ struct GroupSlot
     uint64_t disableEpoch = 0;
     // True when the rows are rigid dynamics, whose DirectGPU index a disable or re-enable moves.
     bool rigidDynamicRows = false;
-    omni::physx::tensors::OvStageDeviceWriteArgs prepared;
+    omni::ev4sio_physx::tensors::OvStageDeviceWriteArgs prepared;
     // Set once a commit was queued on a capturing stream: the graph, not this session, runs its device
     // work, so no completion was recorded for it.
     bool captured = false;
@@ -561,7 +561,7 @@ struct GroupSlot
     // When a prim-set selection compacted the joint records, the CPU scatter re-derives the shared cache
     // by default and would mismatch the compacted column; this holds the filtered records so the scatter
     // applies exactly the selected DOFs. Empty for a whole-set write (the scatter keeps re-deriving).
-    std::vector<omni::physx::tensors::ArticulationDofOvStageRecord> recsHost;
+    std::vector<omni::ev4sio_physx::tensors::ArticulationDofOvStageRecord> recsHost;
 
     // Articulation-root groups only. `artis` names what to re-resolve at commit, exactly as `bodies`
     // does for a rigid group and for the same reason: a superset row resolved at plan time addresses
@@ -577,13 +577,13 @@ struct GroupSlot
     // instead of re-reading the full shared cache by row index; empty for a whole-set write.
     const TendonWriteAttributeRow* tendonRow = nullptr;
     bool tendonFixed = false;
-    std::vector<omni::physx::tensors::ArticulationTendonOvStageRecord> tendonRecsHost;
+    std::vector<omni::ev4sio_physx::tensors::ArticulationTendonOvStageRecord> tendonRecsHost;
 
     // Vehicle groups capture their selected wheel records or whole-vehicle indices at planning.
     // Commit validates the captured epoch and generation before using these row mappings.
     const VehicleWriteAttributeRow* vehicleRow = nullptr;
     const VehicleControlAttributeRow* vehicleControlRow = nullptr;
-    std::vector<omni::physx::tensors::VehicleWheelOvStageRecord> vehicleRecsHost;
+    std::vector<omni::ev4sio_physx::tensors::VehicleWheelOvStageRecord> vehicleRecsHost;
     std::vector<uint32_t> wholeVehicleRecs;
     std::vector<int32_t> vehicleGears;
     std::vector<uint8_t> vehicleCommands;
@@ -604,9 +604,9 @@ struct GroupSlot
     // of that scene view deletes it, while the session is still live: an articulation the stage drain created
     // enters its scene at the next step, and that rebuilds the scene view. So it is used only while the scene
     // view still reports `instancerGeneration` (instancerViewCurrent).
-    omni::physx::tensors::BasePointInstancerView* instancerView = nullptr;
+    omni::ev4sio_physx::tensors::BasePointInstancerView* instancerView = nullptr;
     uint64_t instancerGeneration = 0;
-    omni::physx::tensors::BasePointInstancerView::InstancerColumn instancerColumn{};
+    omni::ev4sio_physx::tensors::BasePointInstancerView::InstancerColumn instancerColumn{};
     uint32_t instancerIdx = 0;
 
     // Deformable sim-mesh groups only (ADR-0012). One group per BODY, device-resident: the
@@ -619,8 +619,8 @@ struct GroupSlot
     // tensor each sharing a single allocation -- the shape the read emits, so a column can be read
     // and handed straight back. A group per body cost 128 device allocations, fills and frees where
     // this costs one, and could not take the read's own output at all.
-    std::vector<::physx::PxDeformableBody*> deformableBodies;
-    std::vector<omni::physx::internal::InternalDeformableBody*> deformableInternals;
+    std::vector<::ev4sio_physx::PxDeformableBody*> deformableBodies;
+    std::vector<omni::ev4sio_physx::internal::InternalDeformableBody*> deformableInternals;
     std::vector<uint32_t> deformableCounts;      // vertices per body
     std::vector<size_t> deformableFloatOffsets;  // where each body's slice starts in the column
     // Kinematic-target groups only: the most nodes of any body, which sizes the commit's launch.
@@ -629,7 +629,7 @@ struct GroupSlot
     // Deformable-material groups only (ADR-0012). Host-resident and scene-less: a material belongs
     // to no scene, so this slot's `scene` stays null.
     const DeformableMaterialWriteRow* deformableMatRow = nullptr;
-    std::vector<::physx::PxDeformableMaterial*> materials; // one per row, parallel to `keys`
+    std::vector<::ev4sio_physx::PxDeformableMaterial*> materials; // one per row, parallel to `keys`
 
     // Particle groups only (ADR-0012). HOST-resident by construction, unlike the read's particle
     // columns, which are device-resident on a GPU scene. The asymmetry is the destination's: the
@@ -637,7 +637,7 @@ struct GroupSlot
     // staging pair, which PhysX uploads at the next step.
     // Parallel, one entry per SET. One group carries every set, as the deformable and read groups
     // do -- the interchange property is the point: the read hands back one group of N tensors.
-    std::vector<omni::physx::internal::InternalParticleSet*> particleSets;
+    std::vector<omni::ev4sio_physx::internal::InternalParticleSet*> particleSets;
     std::vector<uint32_t> particleCounts;
     std::vector<size_t> particleFloatOffsets;
     bool isParticle = false;
@@ -865,10 +865,10 @@ uint64_t selectedRecordsVersion(uint64_t shared, const std::vector<size_t>& kept
 
 // The DirectGPU data of a group's scene, which holds the tables its views share across operations; null when the
 // scene has no DirectGPU view.
-omni::physx::tensors::GpuSimulationDataPtr sceneGpuData(const GroupSlot& slot)
+omni::ev4sio_physx::tensors::GpuSimulationDataPtr sceneGpuData(const GroupSlot& slot)
 {
-    omni::physx::tensors::SimulationBackend* const backend = omni::physx::tensors::GetSimulationBackend();
-    omni::physx::tensors::GpuSimulationView* const sv = backend ? backend->acquireSceneView(slot.scene) : nullptr;
+    omni::ev4sio_physx::tensors::SimulationBackend* const backend = omni::ev4sio_physx::tensors::GetSimulationBackend();
+    omni::ev4sio_physx::tensors::GpuSimulationView* const sv = backend ? backend->acquireSceneView(slot.scene) : nullptr;
     return sv ? sv->getGpuSimulationData() : nullptr;
 }
 
@@ -937,7 +937,7 @@ bool planRigidGroup(WriteSession& s,
     // costs an actor-flag read per matched body, and on a scene with nothing disabled the filter can
     // only conclude that it has nothing to drop. Conservative, so only a whole-scene "none disabled"
     // skips the scan.
-    omni::physx::tensors::SimulationBackend* disableHintBackend = omni::physx::tensors::GetSimulationBackend();
+    omni::ev4sio_physx::tensors::SimulationBackend* disableHintBackend = omni::ev4sio_physx::tensors::GetSimulationBackend();
     const bool filterDisabled = scene->getFlags().isSet(PxSceneFlag::eENABLE_DIRECT_GPU_API) &&
                                 std::string_view(row.token) != OvxAttr::kDisableSimulation &&
                                 (!disableHintBackend || disableHintBackend->sceneMayHaveDisabledRigidDynamics(scene));
@@ -965,7 +965,7 @@ bool planRigidGroup(WriteSession& s,
     PhysXScene* cctScene = OmniPhysX::getInstance().getPhysXSetup().findPhysXScene(scene);
     const bool sceneMayHoldControllers =
         !cctScene || !cctScene->getInternalScene() || !cctScene->getInternalScene()->mCctMap.empty();
-    const std::vector<omni::physx::internal::InternalDatabase::Record>* cctRecords =
+    const std::vector<omni::ev4sio_physx::internal::InternalDatabase::Record>* cctRecords =
         cctOwner && sceneMayHoldControllers ? &cctOwner->getInternalPhysXDatabase().getRecords() : nullptr;
     std::vector<PxRigidBody*> withoutControllers;
     std::vector<ObjectKey> withoutControllerKeys;
@@ -980,7 +980,7 @@ bool planRigidGroup(WriteSession& s,
             const size_t id = body ? reinterpret_cast<size_t>(body->userData) : static_cast<size_t>(-1);
             if (id < cctRecords->size() && (*cctRecords)[id].mType == ePTCct)
             {
-                auto* cct = static_cast<omni::physx::internal::InternalCct*>((*cctRecords)[id].mInternalPtr);
+                auto* cct = static_cast<omni::ev4sio_physx::internal::InternalCct*>((*cctRecords)[id].mInternalPtr);
                 if (cct && cct->mActor == body)
                     continue;
             }
@@ -1066,7 +1066,7 @@ bool planRigidGroup(WriteSession& s,
     // cacheable feed the scatter's device-row cache (g_rigidReadCache), so they are set even when the
     // output group below is skipped.
     const ovx::RigidReadCacheKey cacheKey{
-        scene, static_cast<int>(omni::physx::tensors::RigidBodyType::eRigidDynamic), scope
+        scene, static_cast<int>(omni::ev4sio_physx::tensors::RigidBodyType::eRigidDynamic), scope
     };
     // Keep the cache's structural census intact while membership is temporarily filtered: a prim-set
     // selection plans only its subset, so folding that subset into the shared g_rigidReadCache would make
@@ -1100,7 +1100,7 @@ bool planRigidGroup(WriteSession& s,
         bool built = false;
         if (cacheable)
         {
-            omni::physx::tensors::SimulationBackend* backend = omni::physx::tensors::GetSimulationBackend();
+            omni::ev4sio_physx::tensors::SimulationBackend* backend = omni::ev4sio_physx::tensors::GetSimulationBackend();
             uint64_t generation = 0;
             if (backend && backend->acquireSceneView(scene, &generation))
             {
@@ -1109,7 +1109,7 @@ bool planRigidGroup(WriteSession& s,
                     ce.handles.size() != outputKeys.size())
                 {
                     ce.generation = generation;
-                    ce.dbEpoch = omni::physx::internal::recordLifetimeEpoch(scene);
+                    ce.dbEpoch = omni::ev4sio_physx::internal::recordLifetimeEpoch(scene);
                     ce.keys = outputKeys;
                     ce.bodies = outputBodies;
                     ce.handles.clear();
@@ -1170,15 +1170,15 @@ bool planRigidGroup(WriteSession& s,
 // The superset articulation view of `scene` and the view row of each articulation in `artis`. A cached view
 // built while an articulation awaited scene insertion does not describe it, and the insertion does not retire
 // the view, so a view that misses one of `artis` is rebuilt once, as the read does in acquireArticulationBinding.
-bool acquireArticulationRows(omni::physx::tensors::SimulationBackend& backend,
+bool acquireArticulationRows(omni::ev4sio_physx::tensors::SimulationBackend& backend,
                              PxScene* scene,
                              bool gpu,
                              const std::vector<PxArticulationReducedCoordinate*>& artis,
                              uint64_t& generation,
-                             const std::vector<omni::physx::tensors::ArticulationEntry>*& entries,
+                             const std::vector<omni::ev4sio_physx::tensors::ArticulationEntry>*& entries,
                              std::vector<uint32_t>& localToRow,
-                             omni::physx::tensors::GpuArticulationView** gpuView = nullptr,
-                             omni::physx::tensors::CpuArticulationView** cpuView = nullptr)
+                             omni::ev4sio_physx::tensors::GpuArticulationView** gpuView = nullptr,
+                             omni::ev4sio_physx::tensors::CpuArticulationView** cpuView = nullptr)
 {
     for (int attempt = 0; attempt < 2; ++attempt)
     {
@@ -1189,8 +1189,8 @@ bool acquireArticulationRows(omni::physx::tensors::SimulationBackend& backend,
         generation = 0;
         if (gpu)
         {
-            omni::physx::tensors::GpuSimulationView* sv = backend.acquireSceneView(scene, &generation);
-            omni::physx::tensors::GpuArticulationView* view =
+            omni::ev4sio_physx::tensors::GpuSimulationView* sv = backend.acquireSceneView(scene, &generation);
+            omni::ev4sio_physx::tensors::GpuArticulationView* view =
                 sv ? sv->supersetArticulationView(&artiRowMap, &entries) : nullptr;
             if (!view)
                 return false;
@@ -1199,8 +1199,8 @@ bool acquireArticulationRows(omni::physx::tensors::SimulationBackend& backend,
         }
         else
         {
-            omni::physx::tensors::CpuSimulationView* sv = backend.acquireCpuSceneView(scene, &generation);
-            omni::physx::tensors::CpuArticulationView* view =
+            omni::ev4sio_physx::tensors::CpuSimulationView* sv = backend.acquireCpuSceneView(scene, &generation);
+            omni::ev4sio_physx::tensors::CpuArticulationView* view =
                 sv ? sv->supersetArticulationView(&artiRowMap, &entries) : nullptr;
             if (!view)
                 return false;
@@ -1232,7 +1232,7 @@ bool acquireArticulationRows(omni::physx::tensors::SimulationBackend& backend,
 // (REQ-READ-SELECT-001 AC-4/AC-5), so the joints left out stay bit-identical.
 std::vector<size_t> selectJointRows(const WriteSession& s,
                                     const ovx::ArticulationReadCacheEntry& jc,
-                                    std::vector<omni::physx::tensors::ArticulationDofOvStageRecord>& recs,
+                                    std::vector<omni::ev4sio_physx::tensors::ArticulationDofOvStageRecord>& recs,
                                     std::vector<ObjectKey>& rowKeys,
                                     std::vector<ovx_primpath_t>& rowHandles)
 {
@@ -1261,7 +1261,7 @@ bool planJointGroup(WriteSession& s,
     if (!owningScene)
         return false;
     AttachedStage& owner = owningScene->getAttachedStage();
-    omni::physx::tensors::SimulationBackend* backend = omni::physx::tensors::GetSimulationBackend();
+    omni::ev4sio_physx::tensors::SimulationBackend* backend = omni::ev4sio_physx::tensors::GetSimulationBackend();
     if (!backend)
         return false;
 
@@ -1283,7 +1283,7 @@ bool planJointGroup(WriteSession& s,
     const bool enumCached = true; // just refreshed above, by definition
 
     uint64_t generation = 0;
-    const std::vector<omni::physx::tensors::ArticulationEntry>* entriesPtr = nullptr;
+    const std::vector<omni::ev4sio_physx::tensors::ArticulationEntry>* entriesPtr = nullptr;
     std::vector<uint32_t> localToRow;
     if (!acquireArticulationRows(*backend, scene, gpu, jc.artis, generation, entriesPtr, localToRow))
         return false;
@@ -1292,10 +1292,10 @@ bool planJointGroup(WriteSession& s,
     if (jc.slices.empty())
         return true;
 
-    std::vector<omni::physx::tensors::ArticulationDofOvStageRecord> selRecs;
+    std::vector<omni::ev4sio_physx::tensors::ArticulationDofOvStageRecord> selRecs;
     std::vector<ObjectKey> selRowKeys;
     std::vector<ovx_primpath_t> selRowHandles;
-    const std::vector<omni::physx::tensors::ArticulationDofOvStageRecord>* jRecs = &jc.recs;
+    const std::vector<omni::ev4sio_physx::tensors::ArticulationDofOvStageRecord>* jRecs = &jc.recs;
     // Each row's joint, which makes the group's prim list.
     const std::vector<ObjectKey>* rowKeys = &jc.dofKeys;
     const std::vector<ovx_primpath_t>* rowHandles = &jc.dofHandles;
@@ -1330,7 +1330,7 @@ bool planJointGroup(WriteSession& s,
         allocateColumn(s, *slot, cu, &row, size_t(numOut) * sizeof(float));
         // A reused column brings its uploaded records along. They stay valid while they hold the current contents
         // of the shared records, or of the selection's slices of them.
-        const size_t recsBytes = size_t(numOut) * sizeof(omni::physx::tensors::ArticulationDofOvStageRecord);
+        const size_t recsBytes = size_t(numOut) * sizeof(omni::ev4sio_physx::tensors::ArticulationDofOvStageRecord);
         // The DOF column (allocateColumn, above) already marks t_devicePrepFailed on OOM; the records buffer and
         // its upload are the joint path's other transient device-prep steps, so a failure of either is retryable
         // too, not a NotHandled fall-back to the inert-on-DirectGPU parse path (AC-12).
@@ -1497,7 +1497,7 @@ bool planTendonGroup(WriteSession& s,
                      bool fixed,
                      const TendonWriteAttributeRow& row)
 {
-    omni::physx::tensors::SimulationBackend* backend = omni::physx::tensors::GetSimulationBackend();
+    omni::ev4sio_physx::tensors::SimulationBackend* backend = omni::ev4sio_physx::tensors::GetSimulationBackend();
     if (!backend)
         return false;
 
@@ -1509,17 +1509,17 @@ bool planTendonGroup(WriteSession& s,
 
     const bool gpu = scene->getFlags().isSet(PxSceneFlag::eENABLE_DIRECT_GPU_API);
     uint64_t generation = 0;
-    const std::vector<omni::physx::tensors::ArticulationEntry>* entriesPtr = nullptr;
+    const std::vector<omni::ev4sio_physx::tensors::ArticulationEntry>* entriesPtr = nullptr;
     const std::unordered_map<const PxArticulationReducedCoordinate*, PxU32>* artiRowMap = nullptr;
     if (gpu)
     {
-        omni::physx::tensors::GpuSimulationView* sv = backend->acquireSceneView(scene, &generation);
+        omni::ev4sio_physx::tensors::GpuSimulationView* sv = backend->acquireSceneView(scene, &generation);
         if (!sv || !sv->supersetArticulationView(&artiRowMap, &entriesPtr))
             return false;
     }
     else
     {
-        omni::physx::tensors::CpuSimulationView* sv = backend->acquireCpuSceneView(scene, &generation);
+        omni::ev4sio_physx::tensors::CpuSimulationView* sv = backend->acquireCpuSceneView(scene, &generation);
         if (!sv || !sv->supersetArticulationView(&artiRowMap, &entriesPtr))
             return false;
     }
@@ -1549,7 +1549,7 @@ bool planTendonGroup(WriteSession& s,
         {
             if (tr.viewArtiIdx >= tc.artis.size())
                 return false;
-            omni::physx::tensors::ArticulationTendonOvStageRecord r;
+            omni::ev4sio_physx::tensors::ArticulationTendonOvStageRecord r;
             r.viewArtiIdx = localToRow[tr.viewArtiIdx];
             r.tendonIdx = tr.tendonIdx;
             tc.recs.push_back(r);
@@ -1565,7 +1565,7 @@ bool planTendonGroup(WriteSession& s,
     // or write over the same scene (REQ-READ-SELECT-001 AC-5). The compacted records ride on the slot:
     // recsDev for the GPU scatter, tendonRecsHost for the host one, both indexed [0, numOut) against the
     // caller's compacted column.
-    std::vector<omni::physx::tensors::ArticulationTendonOvStageRecord> selRecs;
+    std::vector<omni::ev4sio_physx::tensors::ArticulationTendonOvStageRecord> selRecs;
     std::vector<ObjectKey> selKeys;
     std::vector<ovx_primpath_t> selHandles;
     const bool cacheHaveHandles = tc.handles.size() == tc.keys.size();
@@ -1579,7 +1579,7 @@ bool planTendonGroup(WriteSession& s,
         if (cacheHaveHandles)
             selHandles = ovx::gatherByIndices(tc.handles, keep);
     }
-    const std::vector<omni::physx::tensors::ArticulationTendonOvStageRecord>& recsUse =
+    const std::vector<omni::ev4sio_physx::tensors::ArticulationTendonOvStageRecord>& recsUse =
         s.hasSelection ? selRecs : tc.recs;
     const std::vector<ObjectKey>& keysUse = s.hasSelection ? selKeys : tc.keys;
     const std::vector<ovx_primpath_t>& handlesUse = s.hasSelection ? selHandles : tc.handles;
@@ -1587,7 +1587,7 @@ bool planTendonGroup(WriteSession& s,
     const uint32_t numOut = static_cast<uint32_t>(recsUse.size());
     if (numOut == 0)
         return true; // a selection that admits none of this scene's tendons emits no group -- not a failure
-    const uint32_t comp = omni::physx::tensors::tendonPropertyComponents(row.prop);
+    const uint32_t comp = omni::ev4sio_physx::tensors::tendonPropertyComponents(row.prop);
 
     std::unique_ptr<GroupSlot> slot(new GroupSlot(s.attach));
     slot->scene = scene;
@@ -1611,7 +1611,7 @@ bool planTendonGroup(WriteSession& s,
         slot->deviceOrdinal = ctxMgr->getDevice();
         PxScopedCudaLock _lock(*ctxMgr);
         allocateColumn(s, *slot, cu, &row, bytes, fixed ? 1 : 0);
-        const size_t recsBytes = size_t(numOut) * sizeof(omni::physx::tensors::ArticulationTendonOvStageRecord);
+        const size_t recsBytes = size_t(numOut) * sizeof(omni::ev4sio_physx::tensors::ArticulationTendonOvStageRecord);
         if (!slot->recsDev)
             cu->memAlloc(&slot->recsDev, recsBytes);
         if (!slot->deviceData || !slot->recsDev)
@@ -1672,7 +1672,7 @@ bool planVehicleDataGroup(WriteSession& s, IPhysicsSource& source, PxScene* scen
                           const VehicleWriteAttributeRow* wheel,
                           const VehicleControlAttributeRow* vehicle)
 {
-    omni::physx::tensors::BaseVehicleView* view = nullptr;
+    omni::ev4sio_physx::tensors::BaseVehicleView* view = nullptr;
     ovx::VehicleReadCacheEntry* cache = ovx::refreshVehicleCache(source, scene, &view);
     if (!cache)
     {
@@ -1686,12 +1686,12 @@ bool planVehicleDataGroup(WriteSession& s, IPhysicsSource& source, PxScene* scen
         return true;
     if (!view)
         return false;
-    using VehicleControl = omni::physx::tensors::BaseVehicleView::VehicleControl;
-    const std::vector<omni::physx::tensors::VehicleEntry>& entries = view->getEntries();
+    using VehicleControl = omni::ev4sio_physx::tensors::BaseVehicleView::VehicleControl;
+    const std::vector<omni::ev4sio_physx::tensors::VehicleEntry>& entries = view->getEntries();
     for (size_t index : selected)
     {
         const uint32_t row = vehicle ? static_cast<uint32_t>(index) : cache->recs[index].viewVehicleIdx;
-        const omni::physx::internal::InternalVehicle& target = *entries[row].vehicle;
+        const omni::ev4sio_physx::internal::InternalVehicle& target = *entries[row].vehicle;
         const bool compatible = wheel ? !target.hasDrive() :
             vehicle->control == VehicleControl::eResetToRestState ? true :
             (vehicle->control == VehicleControl::eThrust0 || vehicle->control == VehicleControl::eThrust1) ?
@@ -1764,9 +1764,9 @@ bool planVehicleDataGroup(WriteSession& s, IPhysicsSource& source, PxScene* scen
 
 // PxController::move drives the proxy with setKinematicTarget. That CPU target is not
 // uploaded on a DirectGPU scene, so the write is refused before a group exists.
-bool cctMoveRejectedOnDirectGpu(const std::vector<omni::physx::ovx::CctOvStageRow>& rows, const char* api)
+bool cctMoveRejectedOnDirectGpu(const std::vector<omni::ev4sio_physx::ovx::CctOvStageRow>& rows, const char* api)
 {
-    for (const omni::physx::ovx::CctOvStageRow& cctRow : rows)
+    for (const omni::ev4sio_physx::ovx::CctOvStageRow& cctRow : rows)
     {
         const PxRigidActor* actor = cctRow.internal ? cctRow.internal->mActor : nullptr;
         const PxScene* scene = actor ? actor->getScene() : nullptr;
@@ -1786,14 +1786,14 @@ bool cctMoveRejectedOnDirectGpu(const std::vector<omni::physx::ovx::CctOvStageRo
 bool planCctGroup(WriteSession& s, AttachedStage& owner, IPhysicsSource& source, uint32_t scope,
                   const CctWriteAttributeRow& row)
 {
-    std::vector<omni::physx::ovx::CctOvStageRow> rows;
-    if (!omni::physx::ovx::enumerateCctRows(owner, scope, rows))
+    std::vector<omni::ev4sio_physx::ovx::CctOvStageRow> rows;
+    if (!omni::ev4sio_physx::ovx::enumerateCctRows(owner, scope, rows))
         return false;
     if (s.hasSelection)
     {
-        std::vector<omni::physx::ovx::CctOvStageRow> admitted;
+        std::vector<omni::ev4sio_physx::ovx::CctOvStageRow> admitted;
         admitted.reserve(rows.size());
-        for (const omni::physx::ovx::CctOvStageRow& cctRow : rows)
+        for (const omni::ev4sio_physx::ovx::CctOvStageRow& cctRow : rows)
             if (s.admits(cctRow.key))
                 admitted.push_back(cctRow);
         rows.swap(admitted);
@@ -1809,7 +1809,7 @@ bool planCctGroup(WriteSession& s, AttachedStage& owner, IPhysicsSource& source,
     slot->numOut = numOut;
     slot->comp = row.components;
     slot->keys.reserve(numOut);
-    for (const omni::physx::ovx::CctOvStageRow& cctRow : rows)
+    for (const omni::ev4sio_physx::ovx::CctOvStageRow& cctRow : rows)
         slot->keys.push_back(cctRow.key);
 
     slot->floats.assign(size_t(numOut) * row.components, 0.0f);
@@ -1852,12 +1852,12 @@ bool planCctGroup(WriteSession& s, AttachedStage& owner, IPhysicsSource& source,
 bool planInstancerGroup(WriteSession& s,
                         IPhysicsSource& source,
                         PxScene* scene,
-                        omni::physx::tensors::BasePointInstancerView* view,
+                        omni::ev4sio_physx::tensors::BasePointInstancerView* view,
                         uint64_t viewGeneration,
                         const ObjectKey& key,
                         uint32_t arrayLength,
                         uint32_t instancerIdx,
-                        omni::physx::tensors::BasePointInstancerView::InstancerColumn column,
+                        omni::ev4sio_physx::tensors::BasePointInstancerView::InstancerColumn column,
                         uint32_t comp,
                         const WriteAttributeRow& row)
 {
@@ -2066,7 +2066,7 @@ bool scatterDeformableGroup(GroupSlot& slot)
     for (uint32_t i = 0; i < slot.numOut; ++i)
     {
         PxDeformableBody* body = slot.deformableBodies[i];
-        omni::physx::internal::InternalDeformableBody* internalBody = slot.deformableInternals[i];
+        omni::ev4sio_physx::internal::InternalDeformableBody* internalBody = slot.deformableInternals[i];
         if (!body || !internalBody)
             continue;
 
@@ -2098,10 +2098,10 @@ bool scatterDeformableGroup(GroupSlot& slot)
         // Points arrive SIM-MESH-LOCAL, the frame the read publishes them in, so the stored world
         // value is the read's reframe inverted. affineInverse rather than a rigid inverse: the
         // transform may carry scale. Velocities are world on both directions and pass through.
-        omni::physx::tensors::PointSetTransform xf{};
+        omni::ev4sio_physx::tensors::PointSetTransform xf{};
         if (!slot.deformableVelocity)
         {
-            const PxMat44d l2w = omni::physx::affineInverse(internalBody->mWorldToSimMesh);
+            const PxMat44d l2w = omni::ev4sio_physx::affineInverse(internalBody->mWorldToSimMesh);
             // Element-wise narrow of PhysX's own storage, which is what the read's
             // toPointSetTransform does. Spelling the column layout out by hand would restate an
             // assumption that only has to be wrong once, and a transposed reframe is a
@@ -2113,7 +2113,7 @@ bool scatterDeformableGroup(GroupSlot& slot)
 
         const float* const src =
             reinterpret_cast<const float*>(slot.deviceData) + slot.deformableFloatOffsets[i];
-        if (!omni::physx::tensors::submitPointSetColumnOvStage(dst, src, xf, slot.deformableCounts[i],
+        if (!omni::ev4sio_physx::tensors::submitPointSetColumnOvStage(dst, src, xf, slot.deformableCounts[i],
                                                               !slot.deformableVelocity))
         {
             OVX_RUNTIME_ERROR("ovxCommitGroup: deformable column scatter failed.");
@@ -2138,9 +2138,9 @@ bool scatterDeformableGroup(GroupSlot& slot)
 struct KinematicTargetScratchLayout
 {
     explicit KinematicTargetScratchLayout(uint32_t bodies)
-        : recordBytes(size_t(bodies) * sizeof(omni::physx::tensors::KinematicTargetBodyRecord)),
-          mask(omni::physx::tensors::OvStageScratch::alignUp(recordBytes)),
-          keptPinned(mask + omni::physx::tensors::OvStageScratch::alignUp(bodies)),
+        : recordBytes(size_t(bodies) * sizeof(omni::ev4sio_physx::tensors::KinematicTargetBodyRecord)),
+          mask(omni::ev4sio_physx::tensors::OvStageScratch::alignUp(recordBytes)),
+          keptPinned(mask + omni::ev4sio_physx::tensors::OvStageScratch::alignUp(bodies)),
           bytes(keptPinned + sizeof(unsigned long long))
     {
     }
@@ -2155,7 +2155,7 @@ struct KinematicTargetScratchLayout
 // ePARTIALLY_KINEMATIC raised by something else, such as the tensor binding's GpuVolumeDeformableBodyView. The
 // flags and the adopted buffer are one per-body slot, which this write must not take over.
 bool kinematicTargetDrivenElsewhere(const PxDeformableVolume& volume,
-                                    const omni::physx::internal::InternalVolumeDeformableBody& internal)
+                                    const omni::ev4sio_physx::internal::InternalVolumeDeformableBody& internal)
 {
     return volume.getDeformableBodyFlags().isSet(PxDeformableBodyFlag::eKINEMATIC) ||
            (!internal.mKinematicTargetActive &&
@@ -2177,7 +2177,7 @@ bool kinematicTargetDrivenElsewhere(const PxDeformableVolume& volume,
 // the step waits for that stream before simulating. Elsewhere it runs on the legacy default stream, reads the count
 // back at once, and wakes the bodies it wrote: PhysX skips a sleeping body, and setting a target does not wake it.
 bool scatterKinematicTargetGroup(GroupSlot& slot,
-                                 const omni::physx::tensors::OvStageDeviceWriteArgs* deviceArgs,
+                                 const omni::ev4sio_physx::tensors::OvStageDeviceWriteArgs* deviceArgs,
                                  const uint8_t* hostMask)
 {
     if (!slot.ctxMgr || slot.deformableBodies.size() != slot.numOut)
@@ -2189,8 +2189,8 @@ bool scatterKinematicTargetGroup(GroupSlot& slot,
     for (uint32_t i = 0; i < slot.numOut; ++i)
     {
         PxDeformableBody* body = slot.deformableBodies[i];
-        omni::physx::internal::InternalVolumeDeformableBody* internal =
-            static_cast<omni::physx::internal::InternalVolumeDeformableBody*>(slot.deformableInternals[i]);
+        omni::ev4sio_physx::internal::InternalVolumeDeformableBody* internal =
+            static_cast<omni::ev4sio_physx::internal::InternalVolumeDeformableBody*>(slot.deformableInternals[i]);
         PxDeformableVolume* volume = body ? body->is<PxDeformableVolume>() : nullptr;
         if (!body || !internal || !volume)
         {
@@ -2222,14 +2222,14 @@ bool scatterKinematicTargetGroup(GroupSlot& slot,
         return false;
     PxScopedCudaLock lock(*slot.ctxMgr);
     const KinematicTargetScratchLayout layout(slot.numOut);
-    const omni::physx::tensors::KinematicTargetBodyRecord* const records =
-        reinterpret_cast<const omni::physx::tensors::KinematicTargetBodyRecord*>(slot.scratchDev);
+    const omni::ev4sio_physx::tensors::KinematicTargetBodyRecord* const records =
+        reinterpret_cast<const omni::ev4sio_physx::tensors::KinematicTargetBodyRecord*>(slot.scratchDev);
     const float* const column = reinterpret_cast<const float*>(slot.deviceData);
 
     if (deviceArgs)
     {
         // Allocated when the session opened, so a captured commit allocates nothing here.
-        const omni::physx::tensors::GpuSimulationDataPtr gpuData = sceneGpuData(slot);
+        const omni::ev4sio_physx::tensors::GpuSimulationDataPtr gpuData = sceneGpuData(slot);
         unsigned long long* const keptPinned = gpuData ? gpuData->keptPinnedTargetsCounter() : nullptr;
         PhysXScene* const physxScene = OmniPhysX::getInstance().getPhysXSetup().findPhysXScene(slot.scene);
         const CUstream copy = physxScene ? physxScene->getInternalScene()->getDeformableCopyStream() : nullptr;
@@ -2240,7 +2240,7 @@ bool scatterKinematicTargetGroup(GroupSlot& slot,
             return false;
         }
         gpuData->reportKeptPinnedTargets();
-        return omni::physx::tensors::physxOnStream(
+        return omni::ev4sio_physx::tensors::physxOnStream(
             *deviceArgs,
             [&](CUevent fork, CUevent join)
             {
@@ -2253,7 +2253,7 @@ bool scatterKinematicTargetGroup(GroupSlot& slot,
                                       "caller's stream (CUresult %d); nothing was written.",
                                       status);
                 const bool submitted =
-                    ordered && omni::physx::tensors::submitKinematicTargetsOvStage(
+                    ordered && omni::ev4sio_physx::tensors::submitKinematicTargetsOvStage(
                                    records, slot.numOut, slot.kinematicTargetMaxNodes, column, deviceArgs->mask,
                                    keptPinned, copy);
                 // Recorded even when nothing was launched, so the caller's stream never waits on an earlier commit's.
@@ -2281,7 +2281,7 @@ bool scatterKinematicTargetGroup(GroupSlot& slot,
         return false;
     }
     unsigned long long kept = 0;
-    if (!omni::physx::tensors::submitKinematicTargetsOvStage(
+    if (!omni::ev4sio_physx::tensors::submitKinematicTargetsOvStage(
             records, slot.numOut, slot.kinematicTargetMaxNodes, column,
             hostMask ? reinterpret_cast<const uint8_t*>(maskDev) : nullptr, keptPinned, nullptr) ||
         cu->memcpyDtoH(&kept, reinterpret_cast<CUdeviceptr>(keptPinned), sizeof(kept)) != CUDA_SUCCESS)
@@ -2289,7 +2289,7 @@ bool scatterKinematicTargetGroup(GroupSlot& slot,
         OVX_RUNTIME_ERROR("ovxCommitGroup: kinematic-target scatter failed.");
         return false;
     }
-    omni::physx::tensors::logKeptPinnedTargets(kept);
+    omni::ev4sio_physx::tensors::logKeptPinnedTargets(kept);
     if (slot.scene && slot.scene->getFlags().isSet(PxSceneFlag::eDISABLE_SLEEPING))
         return true;
     for (uint32_t i = 0; i < slot.numOut; ++i)
@@ -2321,12 +2321,12 @@ bool planDeformableMaterialGroup(WriteSession& s, IPhysicsSource& source, const 
     std::vector<ObjectKey> keys;
     std::vector<PxDeformableMaterial*> materials;
 
-    omni::physx::internal::InternalPhysXDatabase& db =
+    omni::ev4sio_physx::internal::InternalPhysXDatabase& db =
         context.stage->getInternalPhysXDatabase();
-    for (const omni::physx::internal::InternalDatabase::Record& rec : db.getRecords())
+    for (const omni::ev4sio_physx::internal::InternalDatabase::Record& rec : db.getRecords())
     {
-        const bool recordSaysSurface = rec.mType == omni::physx::ePTDeformableSurfaceMaterial;
-        if ((rec.mType != omni::physx::ePTDeformableVolumeMaterial && !recordSaysSurface) || !rec.mPtr)
+        const bool recordSaysSurface = rec.mType == omni::ev4sio_physx::ePTDeformableSurfaceMaterial;
+        if ((rec.mType != omni::ev4sio_physx::ePTDeformableVolumeMaterial && !recordSaysSurface) || !rec.mPtr)
             continue;
         PxDeformableMaterial* material = static_cast<PxDeformableMaterial*>(rec.mPtr);
 
@@ -2492,7 +2492,7 @@ bool scatterParticleGroup(GroupSlot& slot)
 
     for (uint32_t g = 0; g < slot.numOut; ++g)
     {
-        omni::physx::internal::InternalParticleSet* ps = slot.particleSets[g];
+        omni::ev4sio_physx::internal::InternalParticleSet* ps = slot.particleSets[g];
         if (!ps)
             continue;
         // Checked HERE and not at plan, matching where the read checks it: mEnabled is
@@ -2501,7 +2501,7 @@ bool scatterParticleGroup(GroupSlot& slot)
         if (!ps->mEnabled)
             continue;
 
-        ::physx::PxVec4* const dst = slot.particleVelocity ? ps->mVelocities : ps->mPositions;
+        ::ev4sio_physx::PxVec4* const dst = slot.particleVelocity ? ps->mVelocities : ps->mPositions;
         if (!dst)
         {
             OVX_RUNTIME_ERROR("ovxCommitGroup: particle set has no staging buffer for '%s'.",
@@ -2529,14 +2529,14 @@ bool scatterParticleGroup(GroupSlot& slot)
                 dst[i].y = src[i * 3 + 1];
                 dst[i].z = src[i * 3 + 2];
             }
-            ps->mUploadDirtyFlags |= omni::physx::internal::ParticleBufferFlags::eVELOCITIES;
+            ps->mUploadDirtyFlags |= omni::ev4sio_physx::internal::ParticleBufferFlags::eVELOCITIES;
             continue;
         }
 
         // Points arrive PRIM-LOCAL, because that is the frame the read publishes them in. The stored
         // array is world, so this is the read's reframe inverted -- and inverted with affineInverse
         // rather than a rigid inverse, since a prim transform may carry scale.
-        const ::physx::PxMat44d l2w = omni::physx::affineInverse(ps->mWorldToLocal);
+        const ::ev4sio_physx::PxMat44d l2w = omni::ev4sio_physx::affineInverse(ps->mWorldToLocal);
         for (uint32_t i = 0; i < n; ++i)
         {
             const double x = double(src[i * 3 + 0]);
@@ -2553,7 +2553,7 @@ bool scatterParticleGroup(GroupSlot& slot)
         }
         // The flag is what makes the write visible: updateParticles copies the staging array into the
         // device buffer and raises PxParticleBufferFlag::eUPDATE_POSITION only when this is set.
-        ps->mUploadDirtyFlags |= omni::physx::internal::ParticleBufferFlags::ePOSITIONS;
+        ps->mUploadDirtyFlags |= omni::ev4sio_physx::internal::ParticleBufferFlags::ePOSITIONS;
     }
     return true;
 }
@@ -2562,10 +2562,10 @@ bool scatterParticleGroup(GroupSlot& slot)
 // accepts -- it publishes the instancer group under the plural one, but a caller asks with the
 // singular, and the write mirrors that.
 bool instancerColumnForWrite(std::string_view name,
-                             omni::physx::tensors::BasePointInstancerView::InstancerColumn& out,
+                             omni::ev4sio_physx::tensors::BasePointInstancerView::InstancerColumn& out,
                              uint32_t& comp)
 {
-    using Column = omni::physx::tensors::BasePointInstancerView::InstancerColumn;
+    using Column = omni::ev4sio_physx::tensors::BasePointInstancerView::InstancerColumn;
     if (name == OvxAttr::kPosition)
     {
         out = Column::eLocalPosition;
@@ -2606,7 +2606,7 @@ bool planJointPropertyGroup(WriteSession& s,
     if (!owningScene)
         return false;
     AttachedStage& owner = owningScene->getAttachedStage();
-    omni::physx::tensors::SimulationBackend* backend = omni::physx::tensors::GetSimulationBackend();
+    omni::ev4sio_physx::tensors::SimulationBackend* backend = omni::ev4sio_physx::tensors::GetSimulationBackend();
     if (!backend)
         return false;
 
@@ -2625,7 +2625,7 @@ bool planJointPropertyGroup(WriteSession& s,
     // slot is. The properties are host-sourced, but the RECORDS are not: they still index the view.
     const bool gpu = scene->getFlags().isSet(PxSceneFlag::eENABLE_DIRECT_GPU_API);
     uint64_t generation = 0;
-    const std::vector<omni::physx::tensors::ArticulationEntry>* entriesPtr = nullptr;
+    const std::vector<omni::ev4sio_physx::tensors::ArticulationEntry>* entriesPtr = nullptr;
     std::vector<uint32_t> localToRow;
     if (!acquireArticulationRows(*backend, scene, gpu, jc.artis, generation, entriesPtr, localToRow))
         return false;
@@ -2636,7 +2636,7 @@ bool planJointPropertyGroup(WriteSession& s,
 
     // Prim-set selection: plan/scatter only the admitted joints. Host-only, so the compacted records ride on
     // recsHost.
-    std::vector<omni::physx::tensors::ArticulationDofOvStageRecord> selRecs;
+    std::vector<omni::ev4sio_physx::tensors::ArticulationDofOvStageRecord> selRecs;
     std::vector<ObjectKey> selRowKeys;
     std::vector<ovx_primpath_t> selRowHandles;
     // Each row's joint, which makes the group's prim list.
@@ -2653,8 +2653,8 @@ bool planJointPropertyGroup(WriteSession& s,
 
     const uint32_t numOut =
         s.hasSelection ? static_cast<uint32_t>(selRecs.size()) : static_cast<uint32_t>(jc.recs.size());
-    const uint32_t comp = omni::physx::tensors::dofPropertyComponents(row.prop);
-    const bool isByte = omni::physx::tensors::dofPropertyIsByte(row.prop);
+    const uint32_t comp = omni::ev4sio_physx::tensors::dofPropertyComponents(row.prop);
+    const bool isByte = omni::ev4sio_physx::tensors::dofPropertyIsByte(row.prop);
 
     std::unique_ptr<GroupSlot> slot(new GroupSlot(s.attach));
     slot->scene = scene;
@@ -3155,7 +3155,7 @@ bool planGroups(WriteSession& s, uint32_t type, uint32_t scope, AttachedStage& o
         // with no view to acquire. The read takes the same skip for the same reason; taking it here
         // removes most of a planned session's cost.
         const ovx::RigidReadCacheKey cacheKey{
-            scene, static_cast<int>(omni::physx::tensors::RigidBodyType::eRigidDynamic), scope
+            scene, static_cast<int>(omni::ev4sio_physx::tensors::RigidBodyType::eRigidDynamic), scope
         };
         if (scope == kOvxAll)
         {
@@ -3163,7 +3163,7 @@ bool planGroups(WriteSession& s, uint32_t type, uint32_t scope, AttachedStage& o
                                      ovx::RigidReadCacheKeyHash>::iterator hit =
                 ovx::g_rigidReadCache.find(cacheKey);
             if (hit != ovx::g_rigidReadCache.end() &&
-                hit->second.dbEpoch == omni::physx::internal::recordLifetimeEpoch(scene) &&
+                hit->second.dbEpoch == omni::ev4sio_physx::internal::recordLifetimeEpoch(scene) &&
                 !hit->second.bodies.empty() && hit->second.bodies.size() == hit->second.keys.size())
             {
                 if (!planRigidGroup(s, *ctx.source, scene, hit->second.bodies, hit->second.keys, *row, scope))
@@ -3191,7 +3191,7 @@ bool planGroups(WriteSession& s, uint32_t type, uint32_t scope, AttachedStage& o
     // Attempted for every rigid attribute that HAS an instancer column; one that does not (mass, the
     // per-shape set) simply plans no instancer groups, which is not a failure -- an instancer's
     // instances have no such attribute either.
-    omni::physx::tensors::BasePointInstancerView::InstancerColumn column{};
+    omni::ev4sio_physx::tensors::BasePointInstancerView::InstancerColumn column{};
     uint32_t instComp = 0;
     if (instancerColumnForWrite(s.attribute, column, instComp))
     {
@@ -3273,11 +3273,11 @@ bool honourCallerSync(GroupSlot& slot, const char* attributeName, ovstage_cuda_s
 // rows stay valid while the session is live (the commit refuses a moved record epoch). A view rebuilt in between
 // only appends the articulations a step inserted, so the others keep their rows, and the plan refuses an
 // articulation not yet in its scene. A structural change through a native pointer is not covered (ADR-0074).
-bool scatterJointGroup(GroupSlot& slot, const omni::physx::tensors::OvStageDeviceWriteArgs* deviceArgs)
+bool scatterJointGroup(GroupSlot& slot, const omni::ev4sio_physx::tensors::OvStageDeviceWriteArgs* deviceArgs)
 {
     if (slot.numOut == 0)
         return true;
-    omni::physx::tensors::SimulationBackend* backend = omni::physx::tensors::GetSimulationBackend();
+    omni::ev4sio_physx::tensors::SimulationBackend* backend = omni::ev4sio_physx::tensors::GetSimulationBackend();
     if (!backend)
         return false;
     const bool gpu = slot.deviceOrdinal >= 0;
@@ -3290,11 +3290,11 @@ bool scatterJointGroup(GroupSlot& slot, const omni::physx::tensors::OvStageDevic
     td.data = gpu ? reinterpret_cast<void*>(slot.deviceData) : static_cast<void*>(slot.floats.data());
 
     const std::unordered_map<const PxArticulationReducedCoordinate*, PxU32>* artiRowMap = nullptr;
-    const std::vector<omni::physx::tensors::ArticulationEntry>* entries = nullptr;
+    const std::vector<omni::ev4sio_physx::tensors::ArticulationEntry>* entries = nullptr;
     if (gpu)
     {
-        omni::physx::tensors::GpuSimulationView* sv = backend->acquireSceneView(slot.scene);
-        omni::physx::tensors::GpuArticulationView* av =
+        omni::ev4sio_physx::tensors::GpuSimulationView* sv = backend->acquireSceneView(slot.scene);
+        omni::ev4sio_physx::tensors::GpuArticulationView* av =
             sv ? sv->supersetArticulationView(&artiRowMap, &entries) : nullptr;
         if (!av)
         {
@@ -3303,11 +3303,11 @@ bool scatterJointGroup(GroupSlot& slot, const omni::physx::tensors::OvStageDevic
         }
         t_scatterCommitAttempted = true; // past every pre-commit check; this setter is the commit point
         return (av->*slot.jointRow->gpuWrite)(
-            &td, reinterpret_cast<const omni::physx::tensors::ArticulationDofOvStageRecord*>(slot.recsDev),
-            slot.numOut, deviceArgs ? *deviceArgs : omni::physx::tensors::OvStageDeviceWriteArgs());
+            &td, reinterpret_cast<const omni::ev4sio_physx::tensors::ArticulationDofOvStageRecord*>(slot.recsDev),
+            slot.numOut, deviceArgs ? *deviceArgs : omni::ev4sio_physx::tensors::OvStageDeviceWriteArgs());
     }
-    omni::physx::tensors::CpuSimulationView* sv = backend->acquireCpuSceneView(slot.scene);
-    omni::physx::tensors::CpuArticulationView* av =
+    omni::ev4sio_physx::tensors::CpuSimulationView* sv = backend->acquireCpuSceneView(slot.scene);
+    omni::ev4sio_physx::tensors::CpuArticulationView* av =
         sv ? sv->supersetArticulationView(&artiRowMap, &entries) : nullptr;
     if (!av)
     {
@@ -3326,7 +3326,7 @@ bool scatterJointGroup(GroupSlot& slot, const omni::physx::tensors::OvStageDevic
     // A selected write carries its own compacted records (recsHost, snapshotted at plan time); a whole-set
     // write re-derives jc.recs here. Scatter through whichever describes this group's column.
     const bool useSlotRecs = !slot.recsHost.empty();
-    const omni::physx::tensors::ArticulationDofOvStageRecord* const recs =
+    const omni::ev4sio_physx::tensors::ArticulationDofOvStageRecord* const recs =
         useSlotRecs ? slot.recsHost.data() : jc.recs.data();
     const size_t recCount = useSlotRecs ? slot.recsHost.size() : jc.recs.size();
     if (recCount != slot.numOut)
@@ -3346,11 +3346,11 @@ bool scatterJointGroup(GroupSlot& slot, const omni::physx::tensors::OvStageDevic
 // indexes the superset view's ordering, and the backend takes a fresh generation whenever it rebuilds
 // that view, so a row cached across the caller's fill would address the view as it was when the group
 // was handed out and scatter this group's values into whatever occupies those rows now.
-bool scatterArticulationGroup(GroupSlot& slot, const omni::physx::tensors::OvStageDeviceWriteArgs* deviceArgs)
+bool scatterArticulationGroup(GroupSlot& slot, const omni::ev4sio_physx::tensors::OvStageDeviceWriteArgs* deviceArgs)
 {
     if (slot.artis.empty())
         return true; // nothing to publish -- not a failure
-    omni::physx::tensors::SimulationBackend* backend = omni::physx::tensors::GetSimulationBackend();
+    omni::ev4sio_physx::tensors::SimulationBackend* backend = omni::ev4sio_physx::tensors::GetSimulationBackend();
     if (!backend)
     {
         OVX_RUNTIME_ERROR("ovxCommitGroup: no tensor backend.");
@@ -3359,16 +3359,16 @@ bool scatterArticulationGroup(GroupSlot& slot, const omni::physx::tensors::OvSta
     const bool gpu = slot.deviceOrdinal >= 0;
 
     uint64_t generation = 0;
-    const std::vector<omni::physx::tensors::ArticulationEntry>* entries = nullptr;
-    omni::physx::tensors::GpuArticulationView* gpuView = nullptr;
-    omni::physx::tensors::CpuArticulationView* cpuView = nullptr;
+    const std::vector<omni::ev4sio_physx::tensors::ArticulationEntry>* entries = nullptr;
+    omni::ev4sio_physx::tensors::GpuArticulationView* gpuView = nullptr;
+    omni::ev4sio_physx::tensors::CpuArticulationView* cpuView = nullptr;
     // A stream-ordered group resolved its rows when the session opened (ADR-0052); the commit checked the
     // view was not rebuilt since.
     std::vector<PxU32> rows;
     if (slot.streamOrdered)
     {
         const std::unordered_map<const PxArticulationReducedCoordinate*, PxU32>* artiRowMap = nullptr;
-        omni::physx::tensors::GpuSimulationView* sv = backend->acquireSceneView(slot.scene);
+        omni::ev4sio_physx::tensors::GpuSimulationView* sv = backend->acquireSceneView(slot.scene);
         gpuView = sv ? sv->supersetArticulationView(&artiRowMap, &entries) : nullptr;
         if (!gpuView)
         {
@@ -3406,7 +3406,7 @@ bool scatterArticulationGroup(GroupSlot& slot, const omni::physx::tensors::OvSta
     if (gpu)
         return (gpuView->*slot.artiRow->gpuWrite)(
             &td, rows.data(), numOut, slot.rowsVersion,
-            deviceArgs ? *deviceArgs : omni::physx::tensors::OvStageDeviceWriteArgs());
+            deviceArgs ? *deviceArgs : omni::ev4sio_physx::tensors::OvStageDeviceWriteArgs());
     return (cpuView->*slot.artiRow->cpuWrite)(&td, rows.data(), numOut, slot.rowsVersion);
 }
 
@@ -3414,11 +3414,11 @@ bool scatterArticulationGroup(GroupSlot& slot, const omni::physx::tensors::OvSta
 // re-resolution here: a tendon record names (view row, tendon slot), derived when the write opened, and the rows
 // stay valid while the session is live, as for a joint group (scatterJointGroup); the tendon walk skips an
 // articulation not yet in its scene. A structural change through a native pointer is not covered (ADR-0074).
-bool scatterTendonGroup(GroupSlot& slot, const omni::physx::tensors::OvStageDeviceWriteArgs* deviceArgs)
+bool scatterTendonGroup(GroupSlot& slot, const omni::ev4sio_physx::tensors::OvStageDeviceWriteArgs* deviceArgs)
 {
     if (slot.numOut == 0)
         return true;
-    omni::physx::tensors::SimulationBackend* backend = omni::physx::tensors::GetSimulationBackend();
+    omni::ev4sio_physx::tensors::SimulationBackend* backend = omni::ev4sio_physx::tensors::GetSimulationBackend();
     if (!backend)
         return false;
     const bool gpu = slot.deviceOrdinal >= 0;
@@ -3431,27 +3431,27 @@ bool scatterTendonGroup(GroupSlot& slot, const omni::physx::tensors::OvStageDevi
     td.data = gpu ? reinterpret_cast<void*>(slot.deviceData) : static_cast<void*>(slot.floats.data());
 
     const std::unordered_map<const PxArticulationReducedCoordinate*, PxU32>* artiRowMap = nullptr;
-    const std::vector<omni::physx::tensors::ArticulationEntry>* entries = nullptr;
+    const std::vector<omni::ev4sio_physx::tensors::ArticulationEntry>* entries = nullptr;
     if (gpu)
     {
-        omni::physx::tensors::GpuSimulationView* sv = backend->acquireSceneView(slot.scene);
-        omni::physx::tensors::GpuArticulationView* av =
+        omni::ev4sio_physx::tensors::GpuSimulationView* sv = backend->acquireSceneView(slot.scene);
+        omni::ev4sio_physx::tensors::GpuArticulationView* av =
             sv ? sv->supersetArticulationView(&artiRowMap, &entries) : nullptr;
         if (!av)
         {
             OVX_RUNTIME_ERROR("ovxCommitGroup: superset articulation view unavailable; nothing was written.");
             return false;
         }
-        const omni::physx::tensors::ArticulationTendonOvStageRecord* recs =
-            reinterpret_cast<const omni::physx::tensors::ArticulationTendonOvStageRecord*>(slot.recsDev);
-        const omni::physx::tensors::OvStageDeviceWriteArgs run =
-            deviceArgs ? *deviceArgs : omni::physx::tensors::OvStageDeviceWriteArgs();
+        const omni::ev4sio_physx::tensors::ArticulationTendonOvStageRecord* recs =
+            reinterpret_cast<const omni::ev4sio_physx::tensors::ArticulationTendonOvStageRecord*>(slot.recsDev);
+        const omni::ev4sio_physx::tensors::OvStageDeviceWriteArgs run =
+            deviceArgs ? *deviceArgs : omni::ev4sio_physx::tensors::OvStageDeviceWriteArgs();
         return slot.tendonFixed ?
                    av->setFixedTendonPropertiesOvStage(&td, recs, slot.numOut, slot.tendonRow->prop, run) :
                    av->setSpatialTendonPropertiesOvStage(&td, recs, slot.numOut, slot.tendonRow->prop, run);
     }
-    omni::physx::tensors::CpuSimulationView* sv = backend->acquireCpuSceneView(slot.scene);
-    omni::physx::tensors::CpuArticulationView* av =
+    omni::ev4sio_physx::tensors::CpuSimulationView* sv = backend->acquireCpuSceneView(slot.scene);
+    omni::ev4sio_physx::tensors::CpuArticulationView* av =
         sv ? sv->supersetArticulationView(&artiRowMap, &entries) : nullptr;
     if (!av)
     {
@@ -3462,7 +3462,7 @@ bool scatterTendonGroup(GroupSlot& slot, const omni::physx::tensors::OvStageDevi
     // whole-set write re-reads the shared cache (the host path has no device upload to read them from).
     ovx::TendonReadCacheEntry& tc = ovx::tendonCacheEntry(slot.scene, slot.tendonFixed);
     const bool useSlotRecs = !slot.tendonRecsHost.empty();
-    const omni::physx::tensors::ArticulationTendonOvStageRecord* recs =
+    const omni::ev4sio_physx::tensors::ArticulationTendonOvStageRecord* recs =
         useSlotRecs ? slot.tendonRecsHost.data() : tc.recs.data();
     const size_t recCount = useSlotRecs ? slot.tendonRecsHost.size() : tc.recs.size();
     if (recCount != slot.numOut)
@@ -3479,10 +3479,10 @@ bool scatterTendonGroup(GroupSlot& slot, const omni::physx::tensors::OvStageDevi
 // Publish only the row mapping captured at open; equal counts do not prove identity.
 bool scatterVehicleGroup(GroupSlot& slot)
 {
-    omni::physx::tensors::SimulationBackend* backend = omni::physx::tensors::GetSimulationBackend();
-    omni::physx::internal::InternalScene* internalScene = ovx::internalSceneOf(slot.scene);
+    omni::ev4sio_physx::tensors::SimulationBackend* backend = omni::ev4sio_physx::tensors::GetSimulationBackend();
+    omni::ev4sio_physx::internal::InternalScene* internalScene = ovx::internalSceneOf(slot.scene);
     uint64_t generation = 0;
-    omni::physx::tensors::CpuSimulationView* sceneView =
+    omni::ev4sio_physx::tensors::CpuSimulationView* sceneView =
         backend ? backend->acquireCpuSceneView(slot.scene, &generation) : nullptr;
     if (!internalScene || !sceneView || generation != slot.vehicleGeneration ||
         internalScene->mVehicleSetEpoch != slot.vehicleSetEpoch)
@@ -3490,7 +3490,7 @@ bool scatterVehicleGroup(GroupSlot& slot)
         OVX_RUNTIME_ERROR("ovxCommitGroup: vehicle membership changed; nothing was written. Reopen the write.");
         return false;
     }
-    omni::physx::tensors::BaseVehicleView* view = sceneView->vehicleView(*internalScene);
+    omni::ev4sio_physx::tensors::BaseVehicleView* view = sceneView->vehicleView(*internalScene);
     if (!view)
         return false;
     omni::physics::tensors::TensorDesc tensor;
@@ -3530,7 +3530,7 @@ bool instancerViewCurrent(const GroupSlot& slot, uint64_t generation)
 // Publish one instancer's array. The view applies the hole contract -- a slot with no live body is
 // skipped -- and inverts the reframe; see BasePointInstancerView::setInstancerColumnsOvStage.
 bool scatterInstancerGroup(GroupSlot& slot,
-                           const omni::physx::tensors::OvStageDeviceWriteArgs* deviceArgs,
+                           const omni::ev4sio_physx::tensors::OvStageDeviceWriteArgs* deviceArgs,
                            const uint8_t* hostMask)
 {
     if (slot.numOut == 0 || !slot.instancerView)
@@ -3538,7 +3538,7 @@ bool scatterInstancerGroup(GroupSlot& slot,
     // A stream-ordered group was checked when its commit began (streamOrderedGroupCurrent re-prepares it).
     if (!slot.streamOrdered)
     {
-        omni::physx::tensors::SimulationBackend* const backend = omni::physx::tensors::GetSimulationBackend();
+        omni::ev4sio_physx::tensors::SimulationBackend* const backend = omni::ev4sio_physx::tensors::GetSimulationBackend();
         uint64_t generation = 0;
         if (backend)
         {
@@ -3562,7 +3562,7 @@ bool scatterJointPropertyGroup(GroupSlot& slot)
 {
     if (slot.numOut == 0)
         return true;
-    omni::physx::tensors::SimulationBackend* backend = omni::physx::tensors::GetSimulationBackend();
+    omni::ev4sio_physx::tensors::SimulationBackend* backend = omni::ev4sio_physx::tensors::GetSimulationBackend();
     if (!backend)
         return false;
 
@@ -3570,7 +3570,7 @@ bool scatterJointPropertyGroup(GroupSlot& slot)
     // A selected write carries its own compacted records (recsHost, snapshotted at plan time); a whole-set
     // write re-derives jc->recs here. Scatter through whichever describes this group's column.
     const bool useSlotRecs = !slot.recsHost.empty();
-    const omni::physx::tensors::ArticulationDofOvStageRecord* const recs =
+    const omni::ev4sio_physx::tensors::ArticulationDofOvStageRecord* const recs =
         useSlotRecs ? slot.recsHost.data() : (jc ? jc->recs.data() : nullptr);
     const size_t recCount = useSlotRecs ? slot.recsHost.size() : (jc ? jc->recs.size() : 0);
     if ((!jc && !useSlotRecs) || recCount != slot.numOut)
@@ -3585,16 +3585,16 @@ bool scatterJointPropertyGroup(GroupSlot& slot)
     // attribute means.
     const bool gpu = slot.scene->getFlags().isSet(PxSceneFlag::eENABLE_DIRECT_GPU_API);
     const std::unordered_map<const PxArticulationReducedCoordinate*, PxU32>* artiRowMap = nullptr;
-    const std::vector<omni::physx::tensors::ArticulationEntry>* entries = nullptr;
-    omni::physx::tensors::BaseArticulationView* av = nullptr;
+    const std::vector<omni::ev4sio_physx::tensors::ArticulationEntry>* entries = nullptr;
+    omni::ev4sio_physx::tensors::BaseArticulationView* av = nullptr;
     if (gpu)
     {
-        omni::physx::tensors::GpuSimulationView* sv = backend->acquireSceneView(slot.scene);
+        omni::ev4sio_physx::tensors::GpuSimulationView* sv = backend->acquireSceneView(slot.scene);
         av = sv ? sv->supersetArticulationView(&artiRowMap, &entries) : nullptr;
     }
     else
     {
-        omni::physx::tensors::CpuSimulationView* sv = backend->acquireCpuSceneView(slot.scene);
+        omni::ev4sio_physx::tensors::CpuSimulationView* sv = backend->acquireCpuSceneView(slot.scene);
         av = sv ? sv->supersetArticulationView(&artiRowMap, &entries) : nullptr;
     }
     if (!av)
@@ -3605,7 +3605,7 @@ bool scatterJointPropertyGroup(GroupSlot& slot)
 
     omni::physics::tensors::TensorDesc td;
     td.device = -1;
-    td.dtype = omni::physx::tensors::dofPropertyIsByte(slot.jointPropRow->prop) ?
+    td.dtype = omni::ev4sio_physx::tensors::dofPropertyIsByte(slot.jointPropRow->prop) ?
                    omni::physics::tensors::TensorDataType::eUint8 :
                    omni::physics::tensors::TensorDataType::eFloat32;
     td.numDims = 1;
@@ -3623,14 +3623,14 @@ bool scatterCctGroup(AttachedStage& owner, GroupSlot& slot)
     if (slot.numOut == 0 || !slot.cctRow)
         return true;
 
-    std::vector<omni::physx::ovx::CctOvStageRow> currentRows;
-    if (!omni::physx::ovx::enumerateCctRows(owner, kOvxAll, currentRows))
+    std::vector<omni::ev4sio_physx::ovx::CctOvStageRow> currentRows;
+    if (!omni::ev4sio_physx::ovx::enumerateCctRows(owner, kOvxAll, currentRows))
         return false;
     std::unordered_map<ObjectKey, uint32_t, ObjectKey::Hash> keyToRow;
     keyToRow.reserve(currentRows.size());
     for (uint32_t i = 0; i < currentRows.size(); ++i)
         keyToRow.emplace(currentRows[i].key, i);
-    std::vector<omni::physx::ovx::CctOvStageRow> resolved;
+    std::vector<omni::ev4sio_physx::ovx::CctOvStageRow> resolved;
     resolved.reserve(slot.keys.size());
     for (const ObjectKey& key : slot.keys)
     {
@@ -3661,7 +3661,7 @@ bool scatterCctGroup(AttachedStage& owner, GroupSlot& slot)
     std::vector<float> timesteps(slot.numOut, 0.0f);
     for (uint32_t i = 0; i < slot.numOut; ++i)
     {
-        const omni::physx::internal::InternalCct* cct = resolved[i].internal;
+        const omni::ev4sio_physx::internal::InternalCct* cct = resolved[i].internal;
         const PhysXScene* scene = cct ? cct->mPhysXScene : nullptr;
         const uint32_t stepsPerSecond = scene ? scene->getTimeStepsPerSeconds() : 0;
         if (!resolved[i].controller || stepsPerSecond == 0)
@@ -3716,10 +3716,10 @@ bool resolveRigidRows(GroupSlot& slot,
                       std::vector<PxU32>& rows,
                       uint64_t& rowsToken,
                       uint64_t& generationOut,
-                      omni::physx::tensors::GpuRigidBodyView*& gpuView,
-                      omni::physx::tensors::CpuRigidBodyView*& cpuView)
+                      omni::ev4sio_physx::tensors::GpuRigidBodyView*& gpuView,
+                      omni::ev4sio_physx::tensors::CpuRigidBodyView*& cpuView)
 {
-    omni::physx::tensors::SimulationBackend* backend = omni::physx::tensors::GetSimulationBackend();
+    omni::ev4sio_physx::tensors::SimulationBackend* backend = omni::ev4sio_physx::tensors::GetSimulationBackend();
     if (!backend)
     {
         OVX_RUNTIME_ERROR("ovxCommitGroup: no tensor backend.");
@@ -3752,12 +3752,12 @@ bool resolveRigidRows(GroupSlot& slot,
         uint64_t generation = 0;
         if (sceneIsGpu)
         {
-            omni::physx::tensors::GpuSimulationView* sv = backend->acquireSceneView(slot.scene, &generation);
+            omni::ev4sio_physx::tensors::GpuSimulationView* sv = backend->acquireSceneView(slot.scene, &generation);
             gpuView = sv ? sv->supersetRigidView(&rowMap) : nullptr;
         }
         else
         {
-            omni::physx::tensors::CpuSimulationView* sv = backend->acquireCpuSceneView(slot.scene, &generation);
+            omni::ev4sio_physx::tensors::CpuSimulationView* sv = backend->acquireCpuSceneView(slot.scene, &generation);
             cpuView = sv ? sv->supersetRigidView(&rowMap) : nullptr;
         }
         const bool haveView = sceneIsGpu ? (gpuView != nullptr) : (cpuView != nullptr);
@@ -3787,7 +3787,7 @@ bool resolveRigidRows(GroupSlot& slot,
                     if (ce->keys != slot.keys)
                         ce->handles.clear();
                     ce->generation = generation;
-                    ce->dbEpoch = omni::physx::internal::recordLifetimeEpoch(slot.scene);
+                    ce->dbEpoch = omni::ev4sio_physx::internal::recordLifetimeEpoch(slot.scene);
                     ce->keys = slot.keys;
                     ce->bodies = slot.bodies;
                     ce->rows = rows;
@@ -3843,8 +3843,8 @@ bool isStreamOrderedKind(const GroupSlot& slot)
     return slot.jointRow || slot.artiRow || slot.tendonRow || slot.isInstancer;
 }
 
-using OvStageRigidWrite = omni::physx::tensors::GpuRigidBodyView::OvStageRigidWrite;
-using OvStageArtiWrite = omni::physx::tensors::GpuArticulationView::OvStageArtiWrite;
+using OvStageRigidWrite = omni::ev4sio_physx::tensors::GpuRigidBodyView::OvStageRigidWrite;
+using OvStageArtiWrite = omni::ev4sio_physx::tensors::GpuArticulationView::OvStageArtiWrite;
 
 OvStageRigidWrite rigidWriteKind(const WriteAttributeRow& row, bool links)
 {
@@ -3910,15 +3910,15 @@ bool prepareKinematicTargetGroup(GroupSlot& slot)
     IOptionalCuda* const cuda = getCudaShim();
     if (!cu || !cuda)
         return false;
-    std::vector<omni::physx::tensors::KinematicTargetBodyRecord> records(slot.numOut);
+    std::vector<omni::ev4sio_physx::tensors::KinematicTargetBodyRecord> records(slot.numOut);
     std::vector<uint32_t> fresh; // filled here, adopted by PhysX once the fill has landed
     uint32_t maxNodes = 0;
     for (uint32_t i = 0; i < slot.numOut; ++i)
     {
         PxDeformableVolume* const volume =
             slot.deformableBodies[i] ? slot.deformableBodies[i]->is<PxDeformableVolume>() : nullptr;
-        omni::physx::internal::InternalVolumeDeformableBody* const internal =
-            static_cast<omni::physx::internal::InternalVolumeDeformableBody*>(slot.deformableInternals[i]);
+        omni::ev4sio_physx::internal::InternalVolumeDeformableBody* const internal =
+            static_cast<omni::ev4sio_physx::internal::InternalVolumeDeformableBody*>(slot.deformableInternals[i]);
         if (!volume || !internal || slot.deformableFloatOffsets[i] > UINT32_MAX)
             return false;
         if (kinematicTargetDrivenElsewhere(*volume, *internal))
@@ -3937,18 +3937,18 @@ bool prepareKinematicTargetGroup(GroupSlot& slot)
                 }
                 internal->mSimMeshKinematicTargetsD = reinterpret_cast<PxVec4*>(buffer);
             }
-            if (!omni::physx::tensors::initKinematicTargetBufferOvStage(internal->mSimMeshKinematicTargetsD,
+            if (!omni::ev4sio_physx::tensors::initKinematicTargetBufferOvStage(internal->mSimMeshKinematicTargetsD,
                                                                         volume->getSimPositionInvMassBufferD(),
                                                                         count))
                 return false;
             fresh.push_back(i);
         }
-        omni::physx::tensors::KinematicTargetBodyRecord& record = records[i];
+        omni::ev4sio_physx::tensors::KinematicTargetBodyRecord& record = records[i];
         record.dst = internal->mSimMeshKinematicTargetsD;
         record.floatOffset = static_cast<PxU32>(slot.deformableFloatOffsets[i]);
         record.nodeCount = count;
         // Targets arrive in the sim mesh's frame, the one the read publishes them in.
-        const PxMat44d columnToBuffer = omni::physx::affineInverse(internal->mWorldToSimMesh);
+        const PxMat44d columnToBuffer = omni::ev4sio_physx::affineInverse(internal->mWorldToSimMesh);
         for (int c = 0; c < 16; ++c)
             record.columnToBuffer.m[c] = float(columnToBuffer.front()[c]);
         maxNodes = std::max(maxNodes, count);
@@ -3958,8 +3958,8 @@ bool prepareKinematicTargetGroup(GroupSlot& slot)
     for (const uint32_t i : fresh)
     {
         PxDeformableVolume* const volume = slot.deformableBodies[i]->is<PxDeformableVolume>();
-        omni::physx::internal::InternalVolumeDeformableBody* const internal =
-            static_cast<omni::physx::internal::InternalVolumeDeformableBody*>(slot.deformableInternals[i]);
+        omni::ev4sio_physx::internal::InternalVolumeDeformableBody* const internal =
+            static_cast<omni::ev4sio_physx::internal::InternalVolumeDeformableBody*>(slot.deformableInternals[i]);
         volume->setDeformableVolumeFlag(PxDeformableVolumeFlag::ePARTIALLY_KINEMATIC, true);
         volume->setKinematicTargetBufferD(internal->mSimMeshKinematicTargetsD);
         internal->mKinematicTargetActive = true;
@@ -3992,24 +3992,24 @@ bool prepareHostKinematicTargetGroup(GroupSlot& slot)
 // session's other root attributes reuse.
 bool prepareStreamOrderedGroup(GroupSlot& slot, WriteSession::RootPlan* roots = nullptr)
 {
-    omni::physx::tensors::SimulationBackend* backend = omni::physx::tensors::GetSimulationBackend();
+    omni::ev4sio_physx::tensors::SimulationBackend* backend = omni::ev4sio_physx::tensors::GetSimulationBackend();
     IOptionalCuda* const cuda = getCudaShim();
     if (!backend || !cuda)
         return false;
     uint64_t generation = 0;
-    omni::physx::tensors::GpuSimulationView* sv = backend->acquireSceneView(slot.scene, &generation);
+    omni::ev4sio_physx::tensors::GpuSimulationView* sv = backend->acquireSceneView(slot.scene, &generation);
     if (!sv)
         return false;
     PxScopedCudaLock lock(*slot.ctxMgr);
-    slot.prepared = omni::physx::tensors::OvStageDeviceWriteArgs();
+    slot.prepared = omni::ev4sio_physx::tensors::OvStageDeviceWriteArgs();
     const auto scratchOf = [&slot]() { return reinterpret_cast<void*>(slot.scratchDev); };
 
     if (slot.row)
     {
         std::vector<PxU32> rows;
         uint64_t token = 0;
-        omni::physx::tensors::GpuRigidBodyView* rigidView = nullptr;
-        omni::physx::tensors::CpuRigidBodyView* unusedCpuView = nullptr;
+        omni::ev4sio_physx::tensors::GpuRigidBodyView* rigidView = nullptr;
+        omni::ev4sio_physx::tensors::CpuRigidBodyView* unusedCpuView = nullptr;
         if (!resolveRigidRows(slot, true, rows, token, generation, rigidView, unusedCpuView))
             return false;
         const PxU32 n = static_cast<PxU32>(rows.size());
@@ -4042,8 +4042,8 @@ bool prepareStreamOrderedGroup(GroupSlot& slot, WriteSession::RootPlan* roots = 
     else if (slot.artiRow || slot.jointRow || slot.tendonRow)
     {
         const std::unordered_map<const PxArticulationReducedCoordinate*, PxU32>* artiRowMap = nullptr;
-        const std::vector<omni::physx::tensors::ArticulationEntry>* entries = nullptr;
-        omni::physx::tensors::GpuArticulationView* av = sv->supersetArticulationView(&artiRowMap, &entries);
+        const std::vector<omni::ev4sio_physx::tensors::ArticulationEntry>* entries = nullptr;
+        omni::ev4sio_physx::tensors::GpuArticulationView* av = sv->supersetArticulationView(&artiRowMap, &entries);
         if (!av || !artiRowMap)
             return false;
         if (slot.artiRow)
@@ -4095,16 +4095,16 @@ bool prepareStreamOrderedGroup(GroupSlot& slot, WriteSession::RootPlan* roots = 
     {
         if (!instancerViewCurrent(slot, generation))
             return false;
-        omni::physx::tensors::GpuPointInstancerView* const instancerView =
-            dynamic_cast<omni::physx::tensors::GpuPointInstancerView*>(slot.instancerView);
+        omni::ev4sio_physx::tensors::GpuPointInstancerView* const instancerView =
+            dynamic_cast<omni::ev4sio_physx::tensors::GpuPointInstancerView*>(slot.instancerView);
         const std::unordered_map<const PxRigidBody*, PxU32>* rowMap = nullptr;
-        omni::physx::tensors::GpuRigidBodyView* rigidView = sv->supersetRigidView(&rowMap);
+        omni::ev4sio_physx::tensors::GpuRigidBodyView* rigidView = sv->supersetRigidView(&rowMap);
         const PxU32* rows = nullptr;
         PxU32 count = 0;
         if (!instancerView || !rigidView || !rigidView->refreshDisabledRowsOvStage() ||
             !instancerView->prepareInstancerWriteOvStage(slot.instancerIdx, rows, count))
             return false;
-        using Column = omni::physx::tensors::BasePointInstancerView::InstancerColumn;
+        using Column = omni::ev4sio_physx::tensors::BasePointInstancerView::InstancerColumn;
         const bool pose = slot.instancerColumn == Column::eLocalPosition ||
                           slot.instancerColumn == Column::eLocalOrientation;
         const std::vector<PxU32> rowList(rows, rows + count);
@@ -4121,7 +4121,7 @@ bool prepareStreamOrderedGroup(GroupSlot& slot, WriteSession::RootPlan* roots = 
     else if (slot.deformableKinematicTarget)
     {
         // The count its commit adds kept pins to, allocated here so a captured commit allocates nothing.
-        const omni::physx::tensors::GpuSimulationDataPtr gpuData = sv->getGpuSimulationData();
+        const omni::ev4sio_physx::tensors::GpuSimulationDataPtr gpuData = sv->getGpuSimulationData();
         if (!gpuData || !gpuData->keptPinnedTargetsCounter() || !prepareKinematicTargetGroup(slot))
             return false;
     }
@@ -4145,7 +4145,7 @@ bool prepareStreamOrderedGroup(GroupSlot& slot, WriteSession::RootPlan* roots = 
 // paths. `hostMask` is a masked commit's selection of a host-resident group, one byte per row.
 bool scatterGroup(AttachedStage& owner,
                   GroupSlot& slot,
-                  const omni::physx::tensors::OvStageDeviceWriteArgs* deviceArgs = nullptr,
+                  const omni::ev4sio_physx::tensors::OvStageDeviceWriteArgs* deviceArgs = nullptr,
                   const uint8_t* hostMask = nullptr)
 {
     if (slot.cctRow)
@@ -4172,7 +4172,7 @@ bool scatterGroup(AttachedStage& owner,
     if (slot.bodies.empty())
         return true; // nothing to publish -- not a failure
 
-    omni::physx::tensors::SimulationBackend* backend = omni::physx::tensors::GetSimulationBackend();
+    omni::ev4sio_physx::tensors::SimulationBackend* backend = omni::ev4sio_physx::tensors::GetSimulationBackend();
     if (!backend)
     {
         OVX_RUNTIME_ERROR("ovxCommitGroup: no tensor backend.");
@@ -4188,8 +4188,8 @@ bool scatterGroup(AttachedStage& owner,
         slot.scene && slot.scene->getFlags().isSet(PxSceneFlag::eENABLE_DIRECT_GPU_API);
 
     std::vector<PxU32> rows;
-    omni::physx::tensors::GpuRigidBodyView* gpuView = nullptr;
-    omni::physx::tensors::CpuRigidBodyView* cpuView = nullptr;
+    omni::ev4sio_physx::tensors::GpuRigidBodyView* gpuView = nullptr;
+    omni::ev4sio_physx::tensors::CpuRigidBodyView* cpuView = nullptr;
     uint64_t rowsToken = 0;
     uint64_t generation = 0;
     if (slot.streamOrdered && deviceArgs)
@@ -4197,7 +4197,7 @@ bool scatterGroup(AttachedStage& owner,
         // Rows resolved when the session opened (ADR-0052); the commit checked the view was not rebuilt
         // since. The setter refreshes the disabled rows itself, refusing under capture when that would upload.
         const std::unordered_map<const PxRigidBody*, PxU32>* rowMap = nullptr;
-        omni::physx::tensors::GpuSimulationView* sv = backend->acquireSceneView(slot.scene);
+        omni::ev4sio_physx::tensors::GpuSimulationView* sv = backend->acquireSceneView(slot.scene);
         gpuView = sv ? sv->supersetRigidView(&rowMap) : nullptr;
         if (!gpuView)
         {
@@ -4248,9 +4248,9 @@ bool scatterGroup(AttachedStage& owner,
     // device destination for them, so there is no per-backend method to choose between.
     if (slot.row->baseWrite)
     {
-        omni::physx::tensors::BaseRigidBodyView* base =
-            sceneIsGpu ? static_cast<omni::physx::tensors::BaseRigidBodyView*>(gpuView) :
-                  static_cast<omni::physx::tensors::BaseRigidBodyView*>(cpuView);
+        omni::ev4sio_physx::tensors::BaseRigidBodyView* base =
+            sceneIsGpu ? static_cast<omni::ev4sio_physx::tensors::BaseRigidBodyView*>(gpuView) :
+                  static_cast<omni::ev4sio_physx::tensors::BaseRigidBodyView*>(cpuView);
         const bool written =
             (base->*slot.row->baseWrite)(&td, rows.data(), static_cast<uint32_t>(rows.size()), rowsToken, slot.wholeSet);
         if (written && sceneIsGpu && std::string_view(slot.row->token) == OvxAttr::kDisableSimulation)
@@ -4266,7 +4266,7 @@ bool scatterGroup(AttachedStage& owner,
     if (sceneIsGpu)
         return (gpuView->*slot.row->gpuWrite)(
             &td, rows.data(), static_cast<uint32_t>(rows.size()), rowsToken, slot.wholeSet,
-            deviceArgs ? *deviceArgs : omni::physx::tensors::OvStageDeviceWriteArgs());
+            deviceArgs ? *deviceArgs : omni::ev4sio_physx::tensors::OvStageDeviceWriteArgs());
     return (cpuView->*slot.row->cpuWrite)(&td, rows.data(), static_cast<uint32_t>(rows.size()), rowsToken,
                                           slot.wholeSet);
 }
@@ -4289,7 +4289,7 @@ bool releaseGroupStorage(WriteSession& s)
     // work retains the existing context-scoped deallocation path.
     bool released = true;
     std::vector<std::pair<PxScene*, bool>> sceneCompletion;
-    omni::physx::tensors::SimulationBackend* backend = omni::physx::tensors::GetSimulationBackend();
+    omni::ev4sio_physx::tensors::SimulationBackend* backend = omni::ev4sio_physx::tensors::GetSimulationBackend();
     if (backend)
     {
         for (const std::unique_ptr<GroupSlot>& slot : s.groups)
@@ -4312,9 +4312,9 @@ bool releaseGroupStorage(WriteSession& s)
             if (sceneOwner && sceneOwner->getAttachedStage().getAttachHandle() == s.attach &&
                 sceneOwner->getAttachedStage().recordVersion.load(std::memory_order_relaxed) == s.recordEpoch)
             {
-                omni::physx::tensors::GpuSimulationView* sv = backend->acquireSceneView(slot->scene);
+                omni::ev4sio_physx::tensors::GpuSimulationView* sv = backend->acquireSceneView(slot->scene);
                 const std::unordered_map<const PxRigidBody*, PxU32>* rowMap = nullptr;
-                omni::physx::tensors::GpuRigidBodyView* view = sv ? sv->supersetRigidView(&rowMap) : nullptr;
+                omni::ev4sio_physx::tensors::GpuRigidBodyView* view = sv ? sv->supersetRigidView(&rowMap) : nullptr;
                 sceneCompletion.back().second = view && view->waitOvStageWriteDone();
             }
             else if (slot->ctxMgr && slot->ctxMgr->getCudaContext())
@@ -4382,8 +4382,8 @@ bool releaseGroupStorage(WriteSession& s)
     {
         if (!backend || !slot || !slot->committed || !slot->deformableKinematicTarget || !slot->streamOrdered)
             continue;
-        if (omni::physx::tensors::GpuSimulationView* const sv = backend->currentSceneView(slot->scene))
-            if (const omni::physx::tensors::GpuSimulationDataPtr gpuData = sv->getGpuSimulationData())
+        if (omni::ev4sio_physx::tensors::GpuSimulationView* const sv = backend->currentSceneView(slot->scene))
+            if (const omni::ev4sio_physx::tensors::GpuSimulationDataPtr gpuData = sv->getGpuSimulationData())
                 gpuData->reportKeptPinnedTargets();
     }
     for (std::unique_ptr<GroupSlot>& slot : s.groups)
@@ -4515,7 +4515,7 @@ bool releaseGroupStorage(WriteSession& s)
 
 static AttachHandle writeOwner(OvxWriteHandle write)
 {
-    std::lock_guard<carb::tasking::RecursiveMutexWrapper> lock(omni::physx::ovx::outputCacheMutex());
+    std::lock_guard<carb::tasking::RecursiveMutexWrapper> lock(omni::ev4sio_physx::ovx::outputCacheMutex());
     auto it = g_writes.find(write);
     if (it == g_writes.end())
         return omni::physics::kNoAttach;
@@ -4528,7 +4528,7 @@ static AttachHandle writeQueryOwner(OvxOutputQueryHandle query)
 {
     uint64_t attach = 0;
     uint32_t type = 0, scope = 0;
-    omni::physx::ovx::queryTypeScope(query, attach, type, scope);
+    omni::ev4sio_physx::ovx::queryTypeScope(query, attach, type, scope);
     return attach;
 }
 
@@ -4781,7 +4781,7 @@ bool applyHostRowMask(GroupSlot& slot, const uint8_t* mask)
     }
     if (slot.tendonRow)
     {
-        const std::vector<omni::physx::tensors::ArticulationTendonOvStageRecord>& recs =
+        const std::vector<omni::ev4sio_physx::tensors::ArticulationTendonOvStageRecord>& recs =
             slot.tendonRecsHost.empty() ? ovx::tendonCacheEntry(slot.scene, slot.tendonFixed).recs :
                                           slot.tendonRecsHost;
         if (recs.size() != rows)
@@ -4806,13 +4806,13 @@ bool applyHostRowMask(GroupSlot& slot, const uint8_t* mask)
         // The records a host joint scatter reads: the session's own when a selection compacted them, else the
         // shared cache's, which describe the whole column.
         const ovx::ArticulationReadCacheEntry* jc = ovx::articulationCacheEntry(slot.scene);
-        const std::vector<omni::physx::tensors::ArticulationDofOvStageRecord>* recs =
+        const std::vector<omni::ev4sio_physx::tensors::ArticulationDofOvStageRecord>* recs =
             !slot.recsHost.empty() ? &slot.recsHost : (jc ? &jc->recs : nullptr);
         if (!recs || recs->size() != rows)
             return false;
         // A row is one DOF (ADR-0059), so the kept rows are the kept outputs.
         const size_t outputBytes = slot.jointPropRow ?
-            size_t(slot.comp) * (omni::physx::tensors::dofPropertyIsByte(slot.jointPropRow->prop) ? 1u : 4u) :
+            size_t(slot.comp) * (omni::ev4sio_physx::tensors::dofPropertyIsByte(slot.jointPropRow->prop) ? 1u : 4u) :
             sizeof(float);
         slot.recsHost = ovx::gatherByIndices(*recs, keep);
         packRows(slot.floats.data(), outputBytes);
@@ -4836,9 +4836,9 @@ bool applyHostRowMask(GroupSlot& slot, const uint8_t* mask)
 // and refuses a captured commit whose rigid rows lost or regained their DirectGPU index since (ADR-0052).
 bool streamOrderedGroupCurrent(GroupSlot& slot, bool capturing, const char* attributeName)
 {
-    omni::physx::tensors::SimulationBackend* backend = omni::physx::tensors::GetSimulationBackend();
+    omni::ev4sio_physx::tensors::SimulationBackend* backend = omni::ev4sio_physx::tensors::GetSimulationBackend();
     uint64_t generation = 0;
-    omni::physx::tensors::GpuSimulationView* sv =
+    omni::ev4sio_physx::tensors::GpuSimulationView* sv =
         backend ? backend->acquireSceneView(slot.scene, &generation) : nullptr;
     if (!sv)
     {
@@ -4867,7 +4867,7 @@ bool streamOrderedGroupCurrent(GroupSlot& slot, bool capturing, const char* attr
     if (capturing && slot.rigidDynamicRows)
     {
         const std::unordered_map<const PxRigidBody*, PxU32>* rowMap = nullptr;
-        omni::physx::tensors::GpuRigidBodyView* rigidView = sv->supersetRigidView(&rowMap);
+        omni::ev4sio_physx::tensors::GpuRigidBodyView* rigidView = sv->supersetRigidView(&rowMap);
         if (!rigidView || rigidView->rdDisableEpoch() != slot.disableEpoch)
         {
             OVX_RUNTIME_ERROR("ovxCommitGroup: '%s': a rigid body was enabled or disabled since this write was "
@@ -4915,7 +4915,7 @@ bool commitGroup(OvxWriteHandle write,
         return false;
     };
 
-    std::unique_lock<carb::tasking::RecursiveMutexWrapper> lock(omni::physx::ovx::outputCacheMutex());
+    std::unique_lock<carb::tasking::RecursiveMutexWrapper> lock(omni::ev4sio_physx::ovx::outputCacheMutex());
     WriteSession* s = findSession(write);
     if (s && s->debugRender)
     {
@@ -5007,7 +5007,7 @@ bool commitGroup(OvxWriteHandle write,
         return fail(kOvxCommitFailurePublish);
     };
 
-    omni::physx::tensors::OvStageDeviceWriteArgs deviceArgs;
+    omni::ev4sio_physx::tensors::OvStageDeviceWriteArgs deviceArgs;
     std::vector<uint8_t> hostMask;
     bool unjoined = false;
     if (slot->streamOrdered)
@@ -5064,7 +5064,7 @@ bool commitGroup(OvxWriteHandle write,
     // joint-state and tendon columns scatter through the same DirectGPU state, which the first step creates.
     if ((slot->row || slot->artiRow || slot->jointRow || slot->tendonRow) && slot->deviceOrdinal >= 0)
     {
-        omni::physx::tensors::SimulationBackend* backend = omni::physx::tensors::GetSimulationBackend();
+        omni::ev4sio_physx::tensors::SimulationBackend* backend = omni::ev4sio_physx::tensors::GetSimulationBackend();
         if (backend && backend->getStepCount(s->attach) < 1)
         {
             OVX_RUNTIME_ERROR("ovxCommitGroup: request %zu ('%.128s'): DirectGPU write requires at least one "
@@ -5098,7 +5098,7 @@ bool commitGroup(OvxWriteHandle write,
                 // Recorded even after a failed scatter, which may have queued part of its work: the parked
                 // buffers' next user waits on it. Without it nothing proves when they are idle, so release
                 // keeps them. A stream that could not be made to wait for PhysX proves nothing either.
-                const omni::physx::tensors::GpuSimulationDataPtr gpuData = sceneGpuData(*slot);
+                const omni::ev4sio_physx::tensors::GpuSimulationDataPtr gpuData = sceneGpuData(*slot);
                 PxScopedCudaLock contextLock(*slot->ctxMgr);
                 int status = 0;
                 settled = !unjoined && getCudaShim()->eventRecord(
@@ -5153,7 +5153,7 @@ try
     WriteSession s;
     uint64_t debugInstance = 0;
     uint64_t debugAttach = 0;
-    if (omni::physx::ovx::debugRenderQuery(query, debugInstance, debugAttach))
+    if (omni::ev4sio_physx::ovx::debugRenderQuery(query, debugInstance, debugAttach))
     {
         if (attributeCount != 1)
         {
@@ -5399,7 +5399,7 @@ OMNI_OVX_WRITE_API OvxWriteStatus ovxFetchWriteNext(OvxWriteHandle write, OvxFet
     }
     *outGroup = {};
 
-    std::lock_guard<carb::tasking::RecursiveMutexWrapper> lock(omni::physx::ovx::outputCacheMutex());
+    std::lock_guard<carb::tasking::RecursiveMutexWrapper> lock(omni::ev4sio_physx::ovx::outputCacheMutex());
     WriteSession* s = findSession(write);
     if (s && s->debugRender)
     {
@@ -5443,7 +5443,7 @@ OMNI_OVX_WRITE_API bool ovxValidateCommit(OvxWriteHandle write,
     RuntimeExecutionScope execution = RuntimeExecutionScope::output(writeOwner(write));
     if (!execution)
         return true; // the commit reports the busy owner
-    std::lock_guard<carb::tasking::RecursiveMutexWrapper> lock(omni::physx::ovx::outputCacheMutex());
+    std::lock_guard<carb::tasking::RecursiveMutexWrapper> lock(omni::ev4sio_physx::ovx::outputCacheMutex());
     WriteSession* s = findSession(write);
     if (!s)
         return true;
@@ -5482,7 +5482,7 @@ OMNI_OVX_WRITE_API bool ovxReleaseWrite(OvxWriteHandle write)
     // from the group it was filling. Committed groups are not rolled back.
     //
     // Idempotent for an unknown or already-released handle, matching ovxReleaseRead.
-    std::lock_guard<carb::tasking::RecursiveMutexWrapper> lock(omni::physx::ovx::outputCacheMutex());
+    std::lock_guard<carb::tasking::RecursiveMutexWrapper> lock(omni::ev4sio_physx::ovx::outputCacheMutex());
     const std::unordered_map<OvxWriteHandle, WriteSession>::iterator it = g_writes.find(write);
     if (it == g_writes.end())
         return true;
@@ -5604,7 +5604,7 @@ static bool drainScatterRigidGroup(AttachedStage& owner, parse::IPhysicsSource& 
     // The disabled-body scan is O(bodies) and runs every drain. Gate it on the backend's per-scene hint,
     // exactly as planRigidGroup gates its own filter: a DirectGPU scene with nothing disabled (the steady
     // state) then pays O(1) instead of a virtual actor-flag read per body.
-    omni::physx::tensors::SimulationBackend* disableHintBackend = omni::physx::tensors::GetSimulationBackend();
+    omni::ev4sio_physx::tensors::SimulationBackend* disableHintBackend = omni::ev4sio_physx::tensors::GetSimulationBackend();
     const bool mayHaveDisabled = !disableHintBackend || disableHintBackend->sceneMayHaveDisabledRigidDynamics(scene);
     const bool willFilter = sceneGpu && mayHaveDisabled && ovx::anyDisabledRigidDynamic(bodies);
 
@@ -5635,8 +5635,8 @@ static bool drainScatterRigidGroup(AttachedStage& owner, parse::IPhysicsSource& 
     {
         DrainSlotCache& sc = drainSlotCacheFor(owner, scene, &row, static_cast<uint32_t>(keys.size()));
         borrowCache = &sc;
-        const uint64_t recEpoch = omni::physx::internal::recordLifetimeEpoch(scene);
-        const uint64_t flagEpoch = omni::physx::internal::kinematicToggleEpoch(scene);
+        const uint64_t recEpoch = omni::ev4sio_physx::internal::recordLifetimeEpoch(scene);
+        const uint64_t flagEpoch = omni::ev4sio_physx::internal::kinematicToggleEpoch(scene);
         const bool hit = sc.valid && sc.recordEpoch == recEpoch && sc.flagEpoch == flagEpoch &&
                          sc.keys.size() == keys.size() &&
                          (keys.empty() ||
@@ -5709,7 +5709,7 @@ static bool drainScatterRigidGroup(AttachedStage& owner, parse::IPhysicsSource& 
         // angular velocity while reporting Applied. The check catches launch failures, not a fault while the
         // kernel runs (which surfaces on a later sync) -- but the trivial dst=k*src kernel only faults on an
         // already-bad pointer or count, a logic bug.
-        if (!omni::physx::tensors::scaleFloatColumnOvStage(reinterpret_cast<float*>(slot.deviceData),
+        if (!omni::ev4sio_physx::tensors::scaleFloatColumnOvStage(reinterpret_cast<float*>(slot.deviceData),
                                                            static_cast<const float*>(batch.values.data), floatCount,
                                                            0.017453292519943295f, scaleStream)) // pi / 180
         {
@@ -5865,7 +5865,7 @@ static bool drainScatterRigidGroup(AttachedStage& owner, parse::IPhysicsSource& 
     // (GpuSimulationData::rewriteTable syncs for the same reason), so its copy and scatter must share one
     // stream. On the current synchronous read the producer stream is 0, the legacy default stream, so this is a
     // no-op today.
-    omni::physx::tensors::OvStageDeviceWriteArgs drainArgs;
+    omni::ev4sio_physx::tensors::OvStageDeviceWriteArgs drainArgs;
     if (borrow || deviceScaleAngular)
         drainArgs.stream = reinterpret_cast<CUstream>(static_cast<uintptr_t>(batch.values.deviceStream));
     const bool ok = scatterGroup(owner, slot, &drainArgs);
@@ -5985,14 +5985,14 @@ static DrainResult applyPoseBatch(AttachedStage& owner, parse::IPhysicsSource& s
     // planRigidGroup drops them from the write plan. Detect a proxy so the loop below treats it as NOT serviceable:
     // counting it serviceable would decompose its row into the device column and then planRigidGroup would drop it
     // from the scatter, shifting every FOLLOWING body onto the wrong (preceding) column row.
-    const std::vector<omni::physx::internal::InternalDatabase::Record>& records =
+    const std::vector<omni::ev4sio_physx::internal::InternalDatabase::Record>& records =
         owner.getInternalPhysXDatabase().getRecords();
     const auto isControllerProxy = [&records](PxRigidBody* body) -> bool
     {
         const size_t id = body ? reinterpret_cast<size_t>(body->userData) : static_cast<size_t>(-1);
         if (id >= records.size() || records[id].mType != ePTCct)
             return false;
-        const auto* cct = static_cast<omni::physx::internal::InternalCct*>(records[id].mInternalPtr);
+        const auto* cct = static_cast<omni::ev4sio_physx::internal::InternalCct*>(records[id].mInternalPtr);
         return cct && cct->mActor == body;
     };
 
@@ -6118,9 +6118,9 @@ static DrainResult applyPoseBatch(AttachedStage& owner, parse::IPhysicsSource& s
             float* const quatOut = reinterpret_cast<float*>(quatDev);
             prepared = prepared &&
                        (batch.values.type == parse::ColumnType::eFloat ?
-                            omni::physx::tensors::decomposeWorldMatrixOvStage(
+                            omni::ev4sio_physx::tensors::decomposeWorldMatrixOvStage(
                                 static_cast<const float*>(batch.values.data), srcRowDev, posOut, quatOut, rows) :
-                            omni::physx::tensors::decomposeWorldMatrixOvStage(
+                            omni::ev4sio_physx::tensors::decomposeWorldMatrixOvStage(
                                 static_cast<const double*>(batch.values.data), srcRowDev, posOut, quatOut, rows));
             if (!prepared)
             {
@@ -6401,7 +6401,7 @@ static bool applyArticulationBatch(usdparser::AttachedStage& owner, parse::IPhys
                 PxU32 packed = it->second;
                 if (wrapTargets && static_cast<size_t>(it->second) < jcPtr->recs.size() &&
                     jcPtr->recs[it->second].isWrappedRevolute)
-                    packed |= omni::physx::tensors::kScatterDofWrapBit;
+                    packed |= omni::ev4sio_physx::tensors::kScatterDofWrapBit;
                 perm[i] = packed;
             }
             if (!placed || !slot.deviceData || !slot.ctxMgr)
@@ -6439,7 +6439,7 @@ static bool applyArticulationBatch(usdparser::AttachedStage& owner, parse::IPhys
             CUdeviceptr permDev = 0;
             bool ok = cu->memAlloc(&permDev, perm.size() * sizeof(PxU32)) == 0 &&
                       cu->memcpyHtoD(permDev, perm.data(), perm.size() * sizeof(PxU32)) == 0 &&
-                      omni::physx::tensors::scatterDofColumnOvStage(
+                      omni::ev4sio_physx::tensors::scatterDofColumnOvStage(
                           reinterpret_cast<float*>(slot.deviceData),
                           static_cast<const float*>(batch.values.data),
                           reinterpret_cast<const PxU32*>(permDev), static_cast<PxU32>(batch.numChanges), nullptr);
@@ -6637,8 +6637,8 @@ static bool tendonDrainPropFor(std::string_view name, TendonDrainProp& out)
 // side). Rows carry indices into the scene's tendon cache of that kind, one value each.
 struct TendonWriteKey
 {
-    omni::physx::tensors::TendonProperty prop;
-    omni::physx::tensors::TendonFieldWrite mode;
+    omni::ev4sio_physx::tensors::TendonProperty prop;
+    omni::ev4sio_physx::tensors::TendonFieldWrite mode;
     bool operator<(const TendonWriteKey& o) const
     {
         return std::tie(prop, mode) < std::tie(o.prop, o.mode);
@@ -6663,8 +6663,8 @@ static void collectTendonWrites(usdparser::AttachedStage& owner,
                                 const TendonDrainProp prop,
                                 std::map<TendonWriteKey, TendonWriteRows>& out)
 {
-    using omni::physx::tensors::TendonFieldWrite;
-    using omni::physx::tensors::TendonProperty;
+    using omni::ev4sio_physx::tensors::TendonFieldWrite;
+    using omni::ev4sio_physx::tensors::TendonProperty;
     const parse::ReadTime t = parse::ReadTime::defaultTime();
     const auto tok = [&](const char* suffix) { return source.internToken("physxTendon:" + instance + ":" + suffix); };
     const auto readFloat = [&](parse::TokenId name, float lo, float hi, float& v) {
@@ -6749,10 +6749,10 @@ static void collectTendonWrites(usdparser::AttachedStage& owner,
 // failure is Failed (retryable): the parse fallback writes nothing on a DirectGPU scene, so falling back would drop
 // the change.
 static bool writeTendonProperty(PxScene* scene,
-                                omni::physx::tensors::GpuArticulationView& view,
+                                omni::ev4sio_physx::tensors::GpuArticulationView& view,
                                 bool fixed,
                                 const TendonWriteKey& write,
-                                const std::vector<omni::physx::tensors::ArticulationTendonOvStageRecord>& records,
+                                const std::vector<omni::ev4sio_physx::tensors::ArticulationTendonOvStageRecord>& records,
                                 const std::vector<float>& values)
 {
     PxCudaContextManager* const ctxMgr = scene->getCudaContextManager();
@@ -6775,13 +6775,13 @@ static bool writeTendonProperty(PxScene* scene,
         td.numDims = 1;
         td.dims[0] = static_cast<int>(values.size());
         td.data = reinterpret_cast<void*>(valDev);
-        const omni::physx::tensors::ArticulationTendonOvStageRecord* recs =
-            reinterpret_cast<const omni::physx::tensors::ArticulationTendonOvStageRecord*>(recDev);
+        const omni::ev4sio_physx::tensors::ArticulationTendonOvStageRecord* recs =
+            reinterpret_cast<const omni::ev4sio_physx::tensors::ArticulationTendonOvStageRecord*>(recDev);
         const PxU32 n = PxU32(records.size());
         ok = fixed ? view.setFixedTendonPropertiesOvStage(&td, recs, n, write.prop,
-                                                          omni::physx::tensors::OvStageDeviceWriteArgs(), write.mode) :
+                                                          omni::ev4sio_physx::tensors::OvStageDeviceWriteArgs(), write.mode) :
                      view.setSpatialTendonPropertiesOvStage(&td, recs, n, write.prop,
-                                                            omni::physx::tensors::OvStageDeviceWriteArgs());
+                                                            omni::ev4sio_physx::tensors::OvStageDeviceWriteArgs());
     }
     if (recDev)
         cu->memFree(recDev);
@@ -6863,7 +6863,7 @@ static DrainResult applyTendonBatch(usdparser::AttachedStage& owner,
     if (unplaced.size() == batch.numChanges || (!unplaced.empty() && !unresolvedRows))
         return DrainResult::NotHandled;
 
-    omni::physx::tensors::SimulationBackend* backend = omni::physx::tensors::GetSimulationBackend();
+    omni::ev4sio_physx::tensors::SimulationBackend* backend = omni::ev4sio_physx::tensors::GetSimulationBackend();
     for (size_t s = 0; s < gpuScenes.size(); ++s)
         for (int kind = 0; kind < 2; ++kind)
         {
@@ -6879,9 +6879,9 @@ static DrainResult applyTendonBatch(usdparser::AttachedStage& owner,
 
             // Records as the tendon write derives them: (the articulation's superset view row, the tendon index).
             uint64_t generation = 0;
-            const std::vector<omni::physx::tensors::ArticulationEntry>* entries = nullptr;
+            const std::vector<omni::ev4sio_physx::tensors::ArticulationEntry>* entries = nullptr;
             std::vector<uint32_t> localToRow;
-            omni::physx::tensors::GpuArticulationView* view = nullptr;
+            omni::ev4sio_physx::tensors::GpuArticulationView* view = nullptr;
             if (!backend ||
                 !acquireArticulationRows(*backend, gpuScenes[s], true, tc.artis, generation, entries, localToRow,
                                          &view) ||
@@ -6889,14 +6889,14 @@ static DrainResult applyTendonBatch(usdparser::AttachedStage& owner,
                 return DrainResult::Failed;
             for (const std::pair<const TendonWriteKey, TendonWriteRows>& w : writes)
             {
-                std::vector<omni::physx::tensors::ArticulationTendonOvStageRecord> records;
+                std::vector<omni::ev4sio_physx::tensors::ArticulationTendonOvStageRecord> records;
                 records.reserve(w.second.tendons.size());
                 for (const size_t ti : w.second.tendons)
                 {
                     const ovx::TendonRec& tr = tc.tendons[ti];
                     if (tr.viewArtiIdx >= localToRow.size())
                         return DrainResult::Failed;
-                    omni::physx::tensors::ArticulationTendonOvStageRecord r;
+                    omni::ev4sio_physx::tensors::ArticulationTendonOvStageRecord r;
                     r.viewArtiIdx = localToRow[tr.viewArtiIdx];
                     r.tendonIdx = tr.tendonIdx;
                     records.push_back(r);
@@ -7302,4 +7302,4 @@ OMNI_OVX_WRITE_API DrainResult applyOvstageValueBatch(usdparser::AttachedStage& 
     return ok ? DrainResult::Applied : notHandledOrFailed();
 }
 
-} // namespace omni::physx
+} // namespace omni::ev4sio_physx

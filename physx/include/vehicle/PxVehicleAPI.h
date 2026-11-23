@@ -76,7 +76,7 @@
 #include "vehicle/wheel/PxVehicleWheelComponents.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -89,11 +89,11 @@ namespace physx
 
 	\see PxCloseVehicleExtension PxFoundation 
 	*/
-	PX_FORCE_INLINE bool PxInitVehicleExtension(physx::PxFoundation& foundation)
+	PX_FORCE_INLINE bool PxInitVehicleExtension(ev4sio_physx::PxFoundation& foundation)
 	{
 		PX_UNUSED(foundation);
-		PX_CHECK_AND_RETURN_VAL(&PxGetFoundation() == &foundation, "Supplied foundation must match the one that will be used to perform allocations", false);
-		PxIncFoundationRefCount();
+		PX_CHECK_AND_RETURN_VAL(&ev4sio_PxGetFoundation() == &foundation, "Supplied foundation must match the one that will be used to perform allocations", false);
+		ev4sio_PxIncFoundationRefCount();
 		return true;
 	}
 
@@ -107,12 +107,12 @@ namespace physx
 	*/
 	PX_FORCE_INLINE void PxCloseVehicleExtension()
 	{
-		PxDecFoundationRefCount();
+		ev4sio_PxDecFoundationRefCount();
 	}
 
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

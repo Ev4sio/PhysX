@@ -15,7 +15,7 @@
 
 #include "PxgCudaBuffer.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 class PxCudaContextManager;
@@ -196,15 +196,15 @@ public:
 	PxgTypedCudaBuffer<PxU32>			user_particle_buffer_runsum_sorted_unique_ids_original_index; //PxU32*
 	PxgTypedCudaBuffer<PxgParticleDiffuseSimBuffer> user_diffuse_buffer;
 
-	Cm::PinnableArray<PxgParticleSimBuffer>			mHostParticleBuffers;
-	Cm::PinnableArray<PxgParticleDiffuseSimBuffer>	mHostDiffuseBuffers;
+	ev4sio_Cm::PinnableArray<PxgParticleSimBuffer>			mHostParticleBuffers;
+	ev4sio_Cm::PinnableArray<PxgParticleDiffuseSimBuffer>	mHostDiffuseBuffers;
 
-	Cm::PinnableArray<PxU32>						mParticleBufferRunSum;
+	ev4sio_Cm::PinnableArray<PxU32>						mParticleBufferRunSum;
 
-	Cm::PinnableArray<PxU32>						mParticleBufferSortedUniqueIds;
-	Cm::PinnableArray<PxU32>						mParticleBufferSortedUniqueIdsOriginalIndex;
-	Cm::PinnableArray<PxReal>						mRandomTable;
-	Cm::PinnableArray<PxU16>						mHostPhaseGroupToMaterialHandle;
+	ev4sio_Cm::PinnableArray<PxU32>						mParticleBufferSortedUniqueIds;
+	ev4sio_Cm::PinnableArray<PxU32>						mParticleBufferSortedUniqueIdsOriginalIndex;
+	ev4sio_Cm::PinnableArray<PxReal>						mRandomTable;
+	ev4sio_Cm::PinnableArray<PxU16>						mHostPhaseGroupToMaterialHandle;
 };
 
 class PxgParticleSystemDiffuseBuffer

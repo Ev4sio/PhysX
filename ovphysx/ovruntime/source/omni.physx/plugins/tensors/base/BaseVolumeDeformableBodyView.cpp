@@ -25,11 +25,11 @@ using omni::physics::tensors::checkTensorDevice;
 using omni::physics::tensors::checkTensorFloat32;
 using omni::physics::tensors::checkTensorSizeExact;
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace tensors
 {
@@ -173,7 +173,7 @@ bool BaseVolumeDeformableBodyView::check() const
     {
         const omni::physics::parse::ObjectKey key =
             attachedStage ? attachedStage->keyFor(entry.path) : omni::physics::parse::ObjectKey{};
-        void* ptr = BaseSimulationView::resolvePhysXPtr(attachedStage, key, omni::physx::PhysXType::ePTDeformableVolume);
+        void* ptr = BaseSimulationView::resolvePhysXPtr(attachedStage, key, omni::ev4sio_physx::PhysXType::ePTDeformableVolume);
         if (ptr != entry.body)
         {
             result = false;

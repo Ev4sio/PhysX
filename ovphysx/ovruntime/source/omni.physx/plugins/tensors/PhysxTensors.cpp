@@ -41,15 +41,15 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace tensors
 {
 
 // shared globals
-omni::physx::IPhysx* g_physx = nullptr;
-omni::physx::IPhysxSimulation* g_physxSimulation = nullptr;
-omni::physx::IPhysxPrivate* g_physxPrivate = nullptr;
+omni::ev4sio_physx::IPhysx* g_physx = nullptr;
+omni::ev4sio_physx::IPhysxSimulation* g_physxSimulation = nullptr;
+omni::ev4sio_physx::IPhysxPrivate* g_physxPrivate = nullptr;
 
 // private stuff
 namespace
@@ -63,8 +63,8 @@ class SimulationEventListener : public carb::events::IEventListener
     {
         int eventType = int(e->type);
 
-        if (eventType == omni::physx::SimulationEvent::eStopped ||
-            eventType == omni::physx::SimulationEvent::ePhysicsObjectsReleased)
+        if (eventType == omni::ev4sio_physx::SimulationEvent::eStopped ||
+            eventType == omni::ev4sio_physx::SimulationEvent::ePhysicsObjectsReleased)
         {
             carb::dictionary::IDictionary* dictionary = carb::getCachedInterface<carb::dictionary::IDictionary>();
             const carb::dictionary::Item* identity = dictionary ? dictionary->getItem(e->payload, "attachHandle") : nullptr;
@@ -133,21 +133,21 @@ void tensorsInit()
         settings->setDefaultBool(kSettingRecursiveLeafPatternMatch, kDefaultRecursiveLeafPatternMatch);
     }
 
-    g_physx = omni::physx::runtime::tryGetPhysxInterface();
+    g_physx = omni::ev4sio_physx::runtime::tryGetPhysxInterface();
     if (!g_physx)
     {
         CARB_LOG_ERROR("PhysX runtime interface is not started");
         return;
     }
 
-    g_physxSimulation = omni::physx::runtime::tryGetPhysxSimulationInterface();
+    g_physxSimulation = omni::ev4sio_physx::runtime::tryGetPhysxSimulationInterface();
     if (!g_physxSimulation)
     {
         CARB_LOG_ERROR("PhysX Simulation runtime interface is not started");
         return;
     }
 
-    g_physxPrivate = omni::physx::runtime::tryGetPhysxPrivateInterface();
+    g_physxPrivate = omni::ev4sio_physx::runtime::tryGetPhysxPrivateInterface();
     if (!g_physxPrivate)
     {
         CARB_LOG_ERROR("PhysX Private runtime interface is not started");
@@ -156,7 +156,7 @@ void tensorsInit()
 
     if (!OmniPhysX::getInstance().tensorBackend)
     {
-        OmniPhysX::getInstance().tensorBackend = std::make_shared<omni::physx::tensors::SimulationBackend>();
+        OmniPhysX::getInstance().tensorBackend = std::make_shared<omni::ev4sio_physx::tensors::SimulationBackend>();
     }
 
     g_simEventListener = new SimulationEventListener;
@@ -210,7 +210,7 @@ void tensorsPluginStartup()
 }
 
 } // namespace tensors
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni
 
 // ---------------------------------------------------------------------------
@@ -221,28 +221,28 @@ namespace
 omni::physics::tensors::ISimulationView* CARB_ABI physxCreateSimulationView(
     omni::physics::tensors::AttachHandle attachHandle)
 {
-    omni::physx::RuntimeExecutionScope execution(attachHandle);
+    omni::ev4sio_physx::RuntimeExecutionScope execution(attachHandle);
     if (!execution)
         return nullptr;
-    omni::physx::tensors::SimulationBackend* backend = omni::physx::tensors::GetSimulationBackend();
-    return backend ? omni::physx::tensors::publicViews::wrap(backend->createSimulationView(attachHandle), attachHandle) : nullptr;
+    omni::ev4sio_physx::tensors::SimulationBackend* backend = omni::ev4sio_physx::tensors::GetSimulationBackend();
+    return backend ? omni::ev4sio_physx::tensors::publicViews::wrap(backend->createSimulationView(attachHandle), attachHandle) : nullptr;
 }
 
 bool CARB_ABI physxUpdateArticulationsKinematic(omni::physics::tensors::AttachHandle attachHandle)
 {
-    omni::physx::RuntimeExecutionScope operation(attachHandle);
+    omni::ev4sio_physx::RuntimeExecutionScope operation(attachHandle);
     if (!operation)
         return false;
-    omni::physx::tensors::SimulationBackend* backend = omni::physx::tensors::GetSimulationBackend();
+    omni::ev4sio_physx::tensors::SimulationBackend* backend = omni::ev4sio_physx::tensors::GetSimulationBackend();
     return backend ? backend->updateArticulationsKinematic(attachHandle) : false;
 }
 
 bool CARB_ABI physxResetTensorsStage(omni::physics::tensors::AttachHandle attachHandle)
 {
-    omni::physx::RuntimeExecutionScope execution(attachHandle);
-    if (!execution || !omni::physx::usdparser::UsdLoad::getUsdLoad()->getAttachedStageByHandle(attachHandle))
+    omni::ev4sio_physx::RuntimeExecutionScope execution(attachHandle);
+    if (!execution || !omni::ev4sio_physx::usdparser::UsdLoad::getUsdLoad()->getAttachedStageByHandle(attachHandle))
         return false;
-    if (omni::physx::tensors::SimulationBackend* backend = omni::physx::tensors::GetSimulationBackend())
+    if (omni::ev4sio_physx::tensors::SimulationBackend* backend = omni::ev4sio_physx::tensors::GetSimulationBackend())
     {
         backend->resetStage(attachHandle);
         return true;

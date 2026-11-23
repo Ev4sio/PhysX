@@ -10,7 +10,7 @@
 #include "foundation/PxArray.h"
 #include "CmVirtualAllocatorCallback.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	class PxCudaContextManager;
 	class PxCudaContext;
@@ -19,7 +19,7 @@ namespace physx
 	PxsMemoryManager* createPxgMemoryManager(PxCudaContextManager* cudaContextManager);
 
 
-	class PxgCudaAllocatorCallbackBase : public Cm::VirtualAllocatorCallback, public PxUserAllocated
+	class PxgCudaAllocatorCallbackBase : public ev4sio_Cm::VirtualAllocatorCallback, public PxUserAllocated
 	{
 	public:
 		PxgCudaAllocatorCallbackBase(PxCudaContextManager& contextManager);
@@ -36,12 +36,12 @@ namespace physx
 		virtual ~PxgMemoryManager();
 
 		// PxsMemoryManager
-		virtual Cm::VirtualAllocatorCallback* getPinnedHostMemoryAllocator() PX_OVERRIDE
+		virtual ev4sio_Cm::VirtualAllocatorCallback* getPinnedHostMemoryAllocator() PX_OVERRIDE
 		{
 			return mPinnedHostMemoryAllocator;
 		}
 
-		virtual Cm::VirtualAllocatorCallback* getDeviceMemoryAllocator() PX_OVERRIDE
+		virtual ev4sio_Cm::VirtualAllocatorCallback* getDeviceMemoryAllocator() PX_OVERRIDE
 		{
 			return mDeviceMemoryAllocator;
 		}

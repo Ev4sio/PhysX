@@ -11,21 +11,21 @@
 #include "PxsContactManager.h"
 #include "PxvSimStats.h"
 
-using namespace physx;
-using namespace Dy;
+using namespace ev4sio_physx;
+using namespace ev4sio_Dy;
 
 DynamicsContextBase::DynamicsContextBase(
 	PxcNpMemBlockPool* memBlockPool,
-	Cm::FlushPool& taskPool,
+	ev4sio_Cm::FlushPool& taskPool,
 	PxvSimStats& simStats,
-	Cm::VirtualAllocatorCallback& allocator,
+	ev4sio_Cm::VirtualAllocatorCallback& allocator,
 	PxsMaterialManager* materialManager,
-	IG::SimpleIslandManager& islandManager,
+	ev4sio_IG::SimpleIslandManager& islandManager,
 	PxU64 contextID,
 	PxReal maxBiasCoefficient,
 	PxReal lengthScale,
 	PxSceneFlags sceneFlags) :
-	Dy::Context			(islandManager, allocator, allocator,
+	ev4sio_Dy::Context			(islandManager, allocator, allocator,
 						 simStats, maxBiasCoefficient, lengthScale, contextID, sceneFlags),
 	mThreadContextPool	(memBlockPool),
 	mMaterialManager	(materialManager),
@@ -40,18 +40,18 @@ DynamicsContextBase::~DynamicsContextBase()
 {
 }
 
-PxU32 DynamicsContextBase::reserveSharedSolverConstraintsArrays(const IG::IslandSim& islandSim, PxU32 maxArticulationLinks)
+PxU32 DynamicsContextBase::reserveSharedSolverConstraintsArrays(const ev4sio_IG::IslandSim& islandSim, PxU32 maxArticulationLinks)
 {
 	PX_PROFILE_ZONE("reserveSharedSolverConstraintsArrays", mContextID);
 
-	const PxU32 bodyCount = islandSim.getNbActiveNodes(IG::Node::eRIGID_BODY_TYPE);
+	const PxU32 bodyCount = islandSim.getNbActiveNodes(ev4sio_IG::Node::eRIGID_BODY_TYPE);
 
-	const PxU32 numArtics = islandSim.getNbActiveNodes(IG::Node::eARTICULATION_TYPE);
+	const PxU32 numArtics = islandSim.getNbActiveNodes(ev4sio_IG::Node::eARTICULATION_TYPE);
 
 	const PxU32 numArticulationConstraints = numArtics * maxArticulationLinks; //Just allocate enough memory to fit worst-case maximum size articulations...
 
-	const PxU32 nbActiveContactManagers = islandSim.getNbActiveEdges(IG::Edge::eCONTACT_MANAGER);
-	const PxU32 nbActiveConstraints = islandSim.getNbActiveEdges(IG::Edge::eCONSTRAINT);
+	const PxU32 nbActiveContactManagers = islandSim.getNbActiveEdges(ev4sio_IG::Edge::eCONTACT_MANAGER);
+	const PxU32 nbActiveConstraints = islandSim.getNbActiveEdges(ev4sio_IG::Edge::eCONSTRAINT);
 
 	const PxU32 totalConstraintCount = nbActiveConstraints + nbActiveContactManagers + numArticulationConstraints;
 
@@ -103,12 +103,12 @@ bool DynamicsContextBase::updateShared(PxvNphaseImplementationContext* nphase, P
 	mInvDt = dt == 0.0f ? 0.0f : 1.0f / dt;
 	mGravity = gravity;
 
-	const IG::IslandSim& islandSim = mIslandManager.getAccurateIslandSim();
+	const ev4sio_IG::IslandSim& islandSim = mIslandManager.getAccurateIslandSim();
 
 	const PxU32 islandCount = islandSim.getNbActiveIslands();
 
-	const PxU32 activatedContactCount = islandSim.getNbActivatedEdges(IG::Edge::eCONTACT_MANAGER);
-	const IG::EdgeIndex* const activatingEdges = islandSim.getActivatedEdges(IG::Edge::eCONTACT_MANAGER);
+	const PxU32 activatedContactCount = islandSim.getNbActivatedEdges(ev4sio_IG::Edge::eCONTACT_MANAGER);
+	const ev4sio_IG::EdgeIndex* const activatingEdges = islandSim.getActivatedEdges(ev4sio_IG::Edge::eCONTACT_MANAGER);
 
 	{
 		PX_PROFILE_ZONE("resetFrictionPatchCount", mContextID);
@@ -125,8 +125,8 @@ bool DynamicsContextBase::updateShared(PxvNphaseImplementationContext* nphase, P
 	if (islandCount > 0)
 	{
 		mSimStats.mNbActiveKinematicBodies = islandSim.getNbActiveKinematics();
-		mSimStats.mNbActiveDynamicBodies = islandSim.getNbActiveNodes(IG::Node::eRIGID_BODY_TYPE);
-		mSimStats.mNbActiveConstraints = islandSim.getNbActiveEdges(IG::Edge::eCONSTRAINT);
+		mSimStats.mNbActiveDynamicBodies = islandSim.getNbActiveNodes(ev4sio_IG::Node::eRIGID_BODY_TYPE);
+		mSimStats.mNbActiveConstraints = islandSim.getNbActiveEdges(ev4sio_IG::Edge::eCONSTRAINT);
 	}
 	else
 	{
@@ -158,9 +158,9 @@ bool DynamicsContextBase::updateShared(PxvNphaseImplementationContext* nphase, P
 	return true;
 }
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Dy
+namespace ev4sio_Dy
 {
 struct EnhancedSortPredicate
 {
@@ -175,20 +175,20 @@ struct EnhancedSortPredicate
 }
 }
 
-PxU32 DynamicsContextBase::iterateIslandsContactEdges(	const PxsIslandIndices& counts, PxU32 nbIslands, const IG::IslandId* PX_RESTRICT const islandIds,
+PxU32 DynamicsContextBase::iterateIslandsContactEdges(	const PxsIslandIndices& counts, PxU32 nbIslands, const ev4sio_IG::IslandId* PX_RESTRICT const islandIds,
 														PxsIndexedContactManager* PX_RESTRICT indexedManagers, const PxU32* PX_RESTRICT bodyRemapTable)
 {
 	PX_PROFILE_ZONE("IterateIslandsContactEdges", mContextID);
 	PX_UNUSED(counts);
 
-	const IG::IslandSim& islandSim = mIslandManager.getAccurateIslandSim();
+	const ev4sio_IG::IslandSim& islandSim = mIslandManager.getAccurateIslandSim();
 
 	PxU32 currentContactIndex = 0;
 	for(PxU32 i=0; i<nbIslands; ++i)
 	{
-		const IG::Island& island = islandSim.getIsland(islandIds[i]);
+		const ev4sio_IG::Island& island = islandSim.getIsland(islandIds[i]);
 
-		START_ENUMERATING_ISLAND_EDGES(IG::Edge::eCONTACT_MANAGER)
+		START_ENUMERATING_ISLAND_EDGES(ev4sio_IG::Edge::eCONTACT_MANAGER)
 		{
 			GET_CURRENT_ISLAND_EDGE
 
@@ -227,10 +227,10 @@ PxU32 DynamicsContextBase::iterateIslandsContactEdges(	const PxsIslandIndices& c
 				}
 #else
 				{
-					const IG::Node& node1 = islandSim.getNode(nodeIndex1);
+					const ev4sio_IG::Node& node1 = islandSim.getNode(nodeIndex1);
 
 					//Is it an articulation or not???
-					if(node1.getNodeType() == IG::Node::eARTICULATION_TYPE)
+					if(node1.getNodeType() == ev4sio_IG::Node::eARTICULATION_TYPE)
 					{
 						indexedManager.articulation0 = nodeIndex1.getInd();
 						indexedManager.indexType0 = PxsIndexedInteraction::eARTICULATION;
@@ -279,10 +279,10 @@ PxU32 DynamicsContextBase::iterateIslandsContactEdges(	const PxsIslandIndices& c
 				}
 				else
 				{
-					const IG::Node& node2 = islandSim.getNode(nodeIndex2);
+					const ev4sio_IG::Node& node2 = islandSim.getNode(nodeIndex2);
 
 					//Is it an articulation or not???
-					if(node2.getNodeType() == IG::Node::eARTICULATION_TYPE)
+					if(node2.getNodeType() == ev4sio_IG::Node::eARTICULATION_TYPE)
 					{
 						indexedManager.articulation1 = nodeIndex2.getInd();
 						indexedManager.indexType1 = PxsIndexedInteraction::eARTICULATION;
@@ -315,7 +315,7 @@ PxU32 DynamicsContextBase::iterateIslandsContactEdges(	const PxsIslandIndices& c
 	return currentContactIndex;
 }
 
-void DynamicsContextBase::iterateIslandsNodes(	const PxsIslandIndices& counts, PxU32 nbIslands, const IG::IslandId* PX_RESTRICT const islandIds,
+void DynamicsContextBase::iterateIslandsNodes(	const PxsIslandIndices& counts, PxU32 nbIslands, const ev4sio_IG::IslandId* PX_RESTRICT const islandIds,
 												PxsBodyCore** PX_RESTRICT bodyArrayPtr, PxsRigidBody** PX_RESTRICT rigidBodyPtr,
 												FeatherstoneArticulation** PX_RESTRICT articulationPtr,
 												PxU32* PX_RESTRICT bodyRemapTable, PxU32* PX_RESTRICT nodeIndexArray)
@@ -323,20 +323,20 @@ void DynamicsContextBase::iterateIslandsNodes(	const PxsIslandIndices& counts, P
 	PX_PROFILE_ZONE("IterateIslandsNodes", mContextID);
 	PX_UNUSED(counts);
 
-	const IG::IslandSim& islandSim = mIslandManager.getAccurateIslandSim();
+	const ev4sio_IG::IslandSim& islandSim = mIslandManager.getAccurateIslandSim();
 
 	PxU32 bodyIndex = 0, articIndex = 0;
 	for (PxU32 i = 0; i < nbIslands; ++i)
 	{
-		const IG::Island& island = islandSim.getIsland(islandIds[i]);
+		const ev4sio_IG::Island& island = islandSim.getIsland(islandIds[i]);
 
 		PxNodeIndex currentIndex = island.mRootNode;
 
 		while (currentIndex.isValid())
 		{
-			const IG::Node& node = islandSim.getNode(currentIndex);
+			const ev4sio_IG::Node& node = islandSim.getNode(currentIndex);
 
-			if (node.getNodeType() == IG::Node::eARTICULATION_TYPE)
+			if (node.getNodeType() == ev4sio_IG::Node::eARTICULATION_TYPE)
 			{
 				articulationPtr[articIndex++] = getObjectFromIG<FeatherstoneArticulation>(node);
 			}

@@ -13,12 +13,12 @@
 #include "DyArticulationContactPrep.h"
 #include "DyAllocator.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 using namespace aos;
 
-namespace Dy
+namespace ev4sio_Dy
 {
 
 SolverConstraintPrepState::Enum setupSolverConstraint4
@@ -292,22 +292,22 @@ PxConstraintAllocator& allocator, PxU32 maxRows)
 			PxReal minImpulse0 = 0.0f, minImpulse1 = 0.0f, minImpulse2 = 0.0f, minImpulse3 = 0.0f;
 			PxReal maxImpulse0 = 0.0f, maxImpulse1 = 0.0f, maxImpulse2 = 0.0f, maxImpulse3 = 0.0f;
 			if(a < constraintDescs[0].numRows)
-				Dy::computeMinMaxImpulseOrForceAsImpulse(
+				ev4sio_Dy::computeMinMaxImpulseOrForceAsImpulse(
 					con0->minImpulse, con0->maxImpulse,
 					con0->flags & Px1DConstraintFlag::eHAS_DRIVE_LIMIT, constraintDescs[0].driveLimitsAreForces, simDt,
 					minImpulse0, maxImpulse0);
 			if(a < constraintDescs[1].numRows)
-				Dy::computeMinMaxImpulseOrForceAsImpulse(
+				ev4sio_Dy::computeMinMaxImpulseOrForceAsImpulse(
 					con1->minImpulse, con1->maxImpulse,
 					con1->flags & Px1DConstraintFlag::eHAS_DRIVE_LIMIT, constraintDescs[1].driveLimitsAreForces, simDt,
 					minImpulse1, maxImpulse1);
 			if(a < constraintDescs[2].numRows)
-				Dy::computeMinMaxImpulseOrForceAsImpulse(
+				ev4sio_Dy::computeMinMaxImpulseOrForceAsImpulse(
 					con2->minImpulse, con2->maxImpulse,
 					con2->flags & Px1DConstraintFlag::eHAS_DRIVE_LIMIT, constraintDescs[2].driveLimitsAreForces, simDt,
 					minImpulse2, maxImpulse2);
 			if(a < constraintDescs[3].numRows)
-				Dy::computeMinMaxImpulseOrForceAsImpulse(
+				ev4sio_Dy::computeMinMaxImpulseOrForceAsImpulse(
 					con3->minImpulse, con3->maxImpulse,
 					con3->flags & Px1DConstraintFlag::eHAS_DRIVE_LIMIT, constraintDescs[3].driveLimitsAreForces, simDt,
 					minImpulse3, maxImpulse3);
@@ -446,7 +446,7 @@ PxConstraintAllocator& allocator, PxU32 maxRows)
 						const PxReal recipResponseI = computeRecipUnitResponse(unitResponseI, minRowResponseI);
 
 						const Constraint1dSolverConstantsPGS solverConstants = 
-							 Dy::compute1dConstraintSolverConstantsPGS(
+							 ev4sio_Dy::compute1dConstraintSolverConstantsPGS(
 								constraintFlagsI, 
 								stiffnessI, dampingI, 
 								restitutionI, bounceVelocityThresholdI,

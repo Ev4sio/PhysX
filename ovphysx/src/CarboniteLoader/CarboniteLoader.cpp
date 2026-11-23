@@ -282,7 +282,7 @@ struct CarboniteLoader::Impl
     bool frameworkAcquired = false;
     std::string pluginsDir;  // Path to _install/plugins/
     std::string lastError;
-    omni::physx::IPhysxSimulation* physxSim = nullptr;
+    omni::ev4sio_physx::IPhysxSimulation* physxSim = nullptr;
 };
 
 CarboniteLoader::CarboniteLoader()
@@ -329,7 +329,7 @@ bool CarboniteLoader::initialize()
             return false;
         }
 
-        m->physxSim = omni::physx::runtime::tryGetPhysxSimulationInterface();
+        m->physxSim = omni::ev4sio_physx::runtime::tryGetPhysxSimulationInterface();
         if (!m->physxSim)
         {
             CARB_LOG_INFO("[CarboniteLoader] Base bootstrap already complete; PhysX runtime is not started yet");
@@ -636,7 +636,7 @@ bool CarboniteLoader::initialize()
         // ====================================================================
         if (::isProcessGpuDisabled())
         {
-            settings->setBool(omni::physx::kSettingForceCpuMode, true);
+            settings->setBool(omni::ev4sio_physx::kSettingForceCpuMode, true);
             CARB_LOG_INFO("[CarboniteLoader] Startup /physics/forceCpuMode=true");
         }
 
@@ -793,7 +793,7 @@ void releaseProcessCacheDirAtExit()
     }
     if (carb::getFramework())
     {
-        omni::physx::runtime::shutdown();
+        omni::ev4sio_physx::runtime::shutdown();
         ovphysx::onCarboniteLoggingStopped();
         carb::releaseFrameworkAndShutdown();
     }
@@ -942,7 +942,7 @@ void configureUjitsoLocalCache(carb::settings::ISettings* settings)
 
     // Pre-seed collision cooking on so the cooking service reads `true` at construction.
     // omni.physx.cooking loads before omni.physx seeds this default.
-    settings->setDefaultBool(omni::physx::kSettingUjitsoCollisionCooking, true);
+    settings->setDefaultBool(omni::ev4sio_physx::kSettingUjitsoCollisionCooking, true);
 
     // Nothing to cache to: the app opted out of the local datastore.
     if (!settings->getAsBool("/UJITSO/datastore/allowLocalDataStore"))
@@ -954,7 +954,7 @@ void configureUjitsoLocalCache(carb::settings::ISettings* settings)
     // so local caching stays off and that cache reports itself unavailable. A host
     // that owns the framework owns its datastore settings, which every UJITSO client
     // in the process shares: leave them, and make only ovphysx's cache unavailable.
-    if (!settings->getAsBool(omni::physx::kSettingUjitsoCollisionCooking))
+    if (!settings->getAsBool(omni::ev4sio_physx::kSettingUjitsoCollisionCooking))
     {
         const char* configured = settings->getStringBuffer("/UJITSO/datastore/localCachePath");
         if (!configured || !*configured)
@@ -1019,7 +1019,7 @@ void recordDatastoreDirectory(carb::settings::ISettings* settings)
     const char* configured = settings ? settings->getStringBuffer("/UJITSO/datastore/localCachePath") : nullptr;
     if (configured && *configured && !loaderState.processCacheDirInUse.load(std::memory_order_acquire) &&
         settings->getAsBool("/UJITSO/datastore/allowLocalDataStore") &&
-        settings->getAsBool(omni::physx::kSettingUjitsoCollisionCooking))
+        settings->getAsBool(omni::ev4sio_physx::kSettingUjitsoCollisionCooking))
     {
         directory = configured;
 #ifndef _WIN32
@@ -1287,7 +1287,7 @@ void enableProfilerBackendIfRequested(carb::Framework* framework, const std::vec
                 guard.unlock();
             logs.emit();
             if (refresh)
-                omni::physx::runtime::refreshProfilerCallback();
+                omni::ev4sio_physx::runtime::refreshProfilerCallback();
         }
     } flush{logs, guard, false};
 
@@ -1519,7 +1519,7 @@ bool usesConfiguredCookedColliderCache()
         framework ? framework->tryAcquireInterface<carb::settings::ISettings>() : nullptr;
     // An application that turned UJITSO collision cooking off opted out of this datastore.
     if (!settings || !settings->getAsBool("/UJITSO/datastore/allowLocalDataStore") ||
-        !settings->getAsBool(omni::physx::kSettingUjitsoCollisionCooking))
+        !settings->getAsBool(omni::ev4sio_physx::kSettingUjitsoCollisionCooking))
         return false;
     const char* configured = settings->getStringBuffer("/UJITSO/datastore/localCachePath");
     if (!configured || configured[0] == '\0')
@@ -1595,7 +1595,7 @@ bool CarboniteLoader::loadPhysxPlugins()
     // The linked PhysX runtime is process-wide. Repeated ovphysx instances use
     // its existing function table without repeating dependency setup.
     if (!m->physxSim)
-        m->physxSim = omni::physx::runtime::tryGetPhysxSimulationInterface();
+        m->physxSim = omni::ev4sio_physx::runtime::tryGetPhysxSimulationInterface();
     if (m->physxSim)
     {
         CARB_LOG_INFO("[CarboniteLoader] PhysX runtime already started -- reusing");
@@ -1756,7 +1756,7 @@ bool CarboniteLoader::loadPhysxPlugins()
     {
         auto* ujitsoSettings = framework->tryAcquireInterface<carb::settings::ISettings>();
         const bool cookingEnabled =
-            !ujitsoSettings || ujitsoSettings->getAsBool(omni::physx::kSettingUjitsoCollisionCooking);
+            !ujitsoSettings || ujitsoSettings->getAsBool(omni::ev4sio_physx::kSettingUjitsoCollisionCooking);
         const auto pluginLoaded = [framework](const char* name) {
             const auto& d = framework->getPluginDesc(name);
             return d.impl.name && std::strcmp(d.impl.name, name) == 0;
@@ -1791,7 +1791,7 @@ bool CarboniteLoader::loadPhysxPlugins()
     size_t beforeCount = framework->getPluginCount();
     // OvruntimePhysX is statically linked into ovphysx, so ovphysx owns the
     // runtime startup explicitly after Carbonite dependencies are available.
-    omni::physx::runtime::startup();
+    omni::ev4sio_physx::runtime::startup();
 
     CARB_LOG_INFO("[CarboniteLoader] Loading runtime-dependent Carbonite plugins (before: %zu plugins)", beforeCount);
     carb::PluginLoadingDesc dependentDesc = carb::PluginLoadingDesc::getDefault();
@@ -1803,7 +1803,7 @@ bool CarboniteLoader::loadPhysxPlugins()
     size_t afterCount = framework->getPluginCount();
     CARB_LOG_INFO("[CarboniteLoader] Runtime dependencies loaded (after: %zu plugins, delta: %zu)", afterCount, afterCount - beforeCount);
 
-    if (omni::physx::runtime::tryGetTensorApiInterface())
+    if (omni::ev4sio_physx::runtime::tryGetTensorApiInterface())
     {
         CARB_LOG_INFO("[CarboniteLoader] tensor TensorApi available (PhysX backend folded into static PhysX runtime)");
     }
@@ -1812,7 +1812,7 @@ bool CarboniteLoader::loadPhysxPlugins()
         CARB_LOG_WARN("[CarboniteLoader] tensor TensorApi unavailable - TensorBinding API may not work");
     }
 
-    m->physxSim = omni::physx::runtime::tryGetPhysxSimulationInterface();
+    m->physxSim = omni::ev4sio_physx::runtime::tryGetPhysxSimulationInterface();
     CARB_LOG_INFO("[CarboniteLoader] IPhysxSimulation runtime available: %s", (m->physxSim ? "YES" : "NO"));
     if (!m->physxSim)
     {
@@ -1871,7 +1871,7 @@ void CarboniteLoader::shutdown()
     CARB_LOG_INFO("[CarboniteLoader] Shutdown complete");
 }
 
-omni::physx::IPhysxSimulation* CarboniteLoader::getPhysxSimulation() const
+omni::ev4sio_physx::IPhysxSimulation* CarboniteLoader::getPhysxSimulation() const
 {
     return m ? m->physxSim : nullptr;
 }

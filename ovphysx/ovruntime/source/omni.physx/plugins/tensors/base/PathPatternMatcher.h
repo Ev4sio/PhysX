@@ -18,7 +18,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace tensors
 {
@@ -105,5 +105,5 @@ void findMatchingObjectKeysBatch(const omni::physics::parse::IPhysicsSource& sou
                                  std::vector<std::vector<omni::physics::parse::ObjectKey>>& keysRet);
 
 } // namespace tensors
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

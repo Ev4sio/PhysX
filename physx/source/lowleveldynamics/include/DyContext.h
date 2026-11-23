@@ -18,16 +18,16 @@
 #include "CmPinnableBitMap.h"
 #include "PxsRigidBody.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 class PxcNpMemBlockPool;
 
-namespace Cm
+namespace ev4sio_Cm
 {
 	class FlushPool;
 }
 
-namespace IG
+namespace ev4sio_IG
 {
 	class SimpleIslandManager;
 }
@@ -37,7 +37,7 @@ class PxsContactManager;
 struct PxsContactManagerOutputCounts;
 class PxvNphaseImplementationContext;
 
-namespace Dy
+namespace ev4sio_Dy
 {
 
 /**
@@ -51,11 +51,11 @@ hence the pageable fallback is disabled.
 For the CPU pipeline, the stream is backed by pageable memory anyways, so no fallback 
 required either.
 */
-class ThresholdStreamMapped : public Cm::PinnableArray<ThresholdStreamElement>
+class ThresholdStreamMapped : public ev4sio_Cm::PinnableArray<ThresholdStreamElement>
 {
 public:
-	ThresholdStreamMapped(Cm::VirtualAllocatorCallback& allocator) :
-		Cm::PinnableArray<ThresholdStreamElement>(allocator, PxsHeapStats::eSOLVER, Cm::PinnableAllocatorFallback::eDISABLED)
+	ThresholdStreamMapped(ev4sio_Cm::VirtualAllocatorCallback& allocator) :
+		ev4sio_Cm::PinnableArray<ThresholdStreamElement>(allocator, PxsHeapStats::eSOLVER, ev4sio_Cm::PinnableAllocatorFallback::eDISABLED)
 	{}
 };
 
@@ -111,7 +111,7 @@ public:
 	PX_FORCE_INLINE PxcDataStreamPool&							getContactStreamPool()			{ return mContactStreamPool;		}
 	PX_FORCE_INLINE PxcDataStreamPool&							getPatchStreamPool()			{ return mPatchStreamPool;			}
 	PX_FORCE_INLINE PxcDataStreamPool&							getForceStreamPool()			{ return mForceStreamPool;			}
-	PX_FORCE_INLINE Cm::PinnableArray<Dy::ConstraintWriteback>&	getConstraintWriteBackPool()	{ return mConstraintWriteBackPool; }
+	PX_FORCE_INLINE ev4sio_Cm::PinnableArray<ev4sio_Dy::ConstraintWriteback>&	getConstraintWriteBackPool()	{ return mConstraintWriteBackPool; }
 	PX_FORCE_INLINE PxcDataStreamPool&							getFrictionPatchStreamPool()	{ return mFrictionPatchStreamPool;	}
 
 	/**
@@ -140,14 +140,14 @@ public:
 	Each island is solved as an independent solver task chain. In addition, large islands may be solved using multiple parallel tasks.
 	Island solving is asynchronous. Once all islands have been solved, the continuation task will be called.
 	*/
-	virtual void						update(	Cm::FlushPool& flushPool, PxBaseTask* continuation, PxBaseTask* postPartitioningTask, PxBaseTask* processLostTouchTask,
+	virtual void						update(	ev4sio_Cm::FlushPool& flushPool, PxBaseTask* continuation, PxBaseTask* postPartitioningTask, PxBaseTask* processLostTouchTask,
 												PxvNphaseImplementationContext* nPhaseContext, PxU32 maxPatchesPerCM, PxU32 maxArticulationLinks,
-												PxReal dt, const PxVec3& gravity, Cm::PinnableBitMap& changedHandleMap) = 0;
+												PxReal dt, const PxVec3& gravity, ev4sio_Cm::PinnableBitMap& changedHandleMap) = 0;
 	virtual void						updatePostPartitioning(PxBaseTask* /*processLostTouchTask*/,
 												PxvNphaseImplementationContext* /*nPhaseContext*/, PxU32 /*maxPatchesPerCM*/, PxU32 /*maxArticulationLinks*/,
-												PxReal /*dt*/, const PxVec3& /*gravity*/, Cm::PinnableBitMap& /*changedHandleMap*/)	{}
+												PxReal /*dt*/, const PxVec3& /*gravity*/, ev4sio_Cm::PinnableBitMap& /*changedHandleMap*/)	{}
 
-	virtual void						processPatches(	Cm::FlushPool& /*flushPool*/, PxBaseTask* /*continuation*/,
+	virtual void						processPatches(	ev4sio_Cm::FlushPool& /*flushPool*/, PxBaseTask* /*continuation*/,
 														PxsContactManager** /*lostFoundPatchManagers*/, PxU32 /*nbLostFoundPatchManagers*/, PxsContactManagerOutputCounts* /*outCounts*/)	{}
 
 	/**
@@ -174,7 +174,7 @@ public:
 
 protected:
 
-	Context(IG::SimpleIslandManager& islandManager, Cm::VirtualAllocatorCallback& allocator, Cm::VirtualAllocatorCallback& mappedAllocator,
+	Context(ev4sio_IG::SimpleIslandManager& islandManager, ev4sio_Cm::VirtualAllocatorCallback& allocator, ev4sio_Cm::VirtualAllocatorCallback& mappedAllocator,
 			PxvSimStats& simStats, PxReal maxBiasCoefficient, PxReal lengthScale, PxU64 contextID, PxSceneFlags sceneFlags) :
 		mForceChangedThresholdStream(mappedAllocator),
 		mIslandManager				(islandManager),
@@ -201,7 +201,7 @@ protected:
 	ThresholdStreamMapped			mForceChangedThresholdStream;
 	ThresholdTable					mThresholdTable;
 
-	IG::SimpleIslandManager&	mIslandManager;
+	ev4sio_IG::SimpleIslandManager&	mIslandManager;
 	PxsSimulationController*	mSimulationController;
 	/**
 	\brief Time-step.
@@ -283,7 +283,7 @@ protected:
 	/**
 	\brief Structure to encapsulate constraint write back allocations. Used by GPU/CPU solver to reference pre-allocated pinned host memory for breakable joint reports.
 	*/
-	Cm::PinnableArray<Dy::ConstraintWriteback> mConstraintWriteBackPool;
+	ev4sio_Cm::PinnableArray<ev4sio_Dy::ConstraintWriteback> mConstraintWriteBackPool;
 
 	PxvSimStats& mSimStats;
 
@@ -294,14 +294,14 @@ protected:
 	bool mBodyStateDirty;
 };
 
-Context* createDynamicsContext(	PxcNpMemBlockPool* memBlockPool, Cm::FlushPool& taskPool, PxvSimStats& simStats,
-								Cm::VirtualAllocatorCallback& allocator, PxsMaterialManager* materialManager,
-								IG::SimpleIslandManager& islandManager, PxU64 contextID, PxReal maxBiasCoefficient,
+Context* createDynamicsContext(	PxcNpMemBlockPool* memBlockPool, ev4sio_Cm::FlushPool& taskPool, PxvSimStats& simStats,
+								ev4sio_Cm::VirtualAllocatorCallback& allocator, PxsMaterialManager* materialManager,
+								ev4sio_IG::SimpleIslandManager& islandManager, PxU64 contextID, PxReal maxBiasCoefficient,
 								PxReal lengthScale, PxSceneFlags sceneFlags);
 
-Context* createTGSDynamicsContext(	PxcNpMemBlockPool* memBlockPool, Cm::FlushPool& taskPool, PxvSimStats& simStats,
-									Cm::VirtualAllocatorCallback& allocator, PxsMaterialManager* materialManager,
-									IG::SimpleIslandManager& islandManager, PxU64 contextID,
+Context* createTGSDynamicsContext(	PxcNpMemBlockPool* memBlockPool, ev4sio_Cm::FlushPool& taskPool, PxvSimStats& simStats,
+									ev4sio_Cm::VirtualAllocatorCallback& allocator, PxsMaterialManager* materialManager,
+									ev4sio_IG::SimpleIslandManager& islandManager, PxU64 contextID,
 									PxReal lengthScale, PxSceneFlags sceneFlags);
 }
 

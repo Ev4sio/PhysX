@@ -11,7 +11,7 @@
 
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -44,7 +44,7 @@ struct PxDeformableSurfaceDataFlag
 typedef PxFlags<PxDeformableSurfaceDataFlag::Enum, PxU32> PxDeformableSurfaceDataFlags;
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif // PX_PHYSICS_DEFORMABLE_SURFACE_FLAGS_H

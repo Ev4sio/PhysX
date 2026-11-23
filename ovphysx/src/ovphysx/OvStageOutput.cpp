@@ -55,7 +55,7 @@ void checkPhysics(ovphysx_result_t result)
 void waitPhysics(ovphysx_instance_handle_t instance, ovphysx_enqueue_result_t task)
 {
     checkPhysics({ task.status });
-    ovphysx::physx::WaitResult result;
+    ovphysx::ev4sio_physx::WaitResult result;
     const ovphysx_api_status_t status = result.waitTask(instance, task);
     if (status == OVPHYSX_API_SUCCESS)
         return;
@@ -66,7 +66,7 @@ void waitPhysics(ovphysx_instance_handle_t instance, ovphysx_enqueue_result_t ta
 
 void cleanupPhysics(ovphysx_instance_handle_t instance, ovphysx_enqueue_result_t task) noexcept
 {
-    ovphysx::physx::WaitResult result;
+    ovphysx::ev4sio_physx::WaitResult result;
     const ovphysx_api_status_t status = task.status == OVPHYSX_API_SUCCESS ?
         result.waitTask(instance, task) : task.status;
     if (status == OVPHYSX_API_SUCCESS)

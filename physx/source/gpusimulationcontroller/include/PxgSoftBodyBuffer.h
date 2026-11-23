@@ -14,7 +14,7 @@
 // Defines PxgDeformablePairInfo, used by a member below.
 #include "PxgSimulationCoreDesc.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 struct PxgAllocatorDesc;

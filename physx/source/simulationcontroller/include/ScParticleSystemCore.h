@@ -16,9 +16,9 @@
 #include "DyParticleSystem.h"
 #include "ScParticleSystemShapeCore.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-	namespace Sc
+	namespace ev4sio_Sc
 	{
 		class ParticleSystemSim;
 		class BodyCore;
@@ -120,7 +120,7 @@ namespace physx
 			ParticleSystemShapeCore					mShapeCore;
 		};
 
-	} // namespace Sc
+	} // namespace ev4sio_Sc
 }
 #endif
 

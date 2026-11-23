@@ -28,9 +28,9 @@
 
 #define EXTENDED_DEBUG 0
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Gu
+namespace ev4sio_Gu
 {
 	SDF::~SDF()
 	{
@@ -133,10 +133,10 @@ namespace Gu
 			mSubgridSdf = context.readExtraData<PxU8, PX_SERIAL_ALIGN>(mNumSubgridSdfs);
 	}
 
-	void buildTree(const PxU32* triangles, const PxU32 numTriangles, const PxVec3* points, PxArray<Gu::BVHNode>& tree, PxF32 enlargement = 1e-4f)
+	void buildTree(const PxU32* triangles, const PxU32 numTriangles, const PxVec3* points, PxArray<ev4sio_Gu::BVHNode>& tree, PxF32 enlargement = 1e-4f)
 	{
 		//Computes a bounding box for every triangle in triangles
-		Gu::AABBTreeBounds boxes;
+		ev4sio_Gu::AABBTreeBounds boxes;
 		boxes.init(numTriangles);
 		for (PxU32 i = 0; i < numTriangles; ++i)
 		{
@@ -149,7 +149,7 @@ namespace Gu
 			boxes.getBounds()[i] = box;
 		}
 
-		Gu::buildAABBTree(numTriangles, boxes, tree);
+		ev4sio_Gu::buildAABBTree(numTriangles, boxes, tree);
 	}
 
 	class LineSegmentTrimeshIntersectionTraversalController
@@ -181,7 +181,7 @@ namespace Gu
 			return mIntersects;
 		}
 
-		PX_FORCE_INLINE Gu::TraversalControl::Enum analyze(const Gu::BVHNode& node, PxI32)
+		PX_FORCE_INLINE ev4sio_Gu::TraversalControl::Enum analyze(const ev4sio_Gu::BVHNode& node, PxI32)
 		{
 			if (node.isLeaf())
 			{
@@ -189,7 +189,7 @@ namespace Gu
 				const PxU32* tri = &mTriangles[3 * j];
 
 				PxReal at, au, av;
-				if (Gu::intersectRayTriangle(mSegmentStart, mDirection, mPoints[tri[0]], mPoints[tri[1]], mPoints[tri[2]], at, au, av, false, 1e-4f) && at >= 0.0f && at <= 1.0f)
+				if (ev4sio_Gu::intersectRayTriangle(mSegmentStart, mDirection, mPoints[tri[0]], mPoints[tri[1]], mPoints[tri[2]], at, au, av, false, 1e-4f) && at >= 0.0f && at <= 1.0f)
 				{
 					mIntersects = true;
 					return TraversalControl::eAbort;
@@ -199,7 +199,7 @@ namespace Gu
 			}
 
 			PxReal tnear, tfar;
-			if (Gu::intersectRayAABB(node.mBV.minimum, node.mBV.maximum, mSegmentStart, mDirection, tnear, tfar) >= 0 && ((tnear >= 0.0f && tnear <= 1.0f) || (tfar >= 0.0f && tfar <= 1.0f) || node.mBV.contains(mSegmentStart)))
+			if (ev4sio_Gu::intersectRayAABB(node.mBV.minimum, node.mBV.maximum, mSegmentStart, mDirection, tnear, tfar) >= 0 && ((tnear >= 0.0f && tnear <= 1.0f) || (tfar >= 0.0f && tfar <= 1.0f) || node.mBV.contains(mSegmentStart)))
 				return TraversalControl::eGoDeeper;
 			return TraversalControl::eDontGoDeeper;
 		}
@@ -210,7 +210,7 @@ namespace Gu
 	
 	class PointOntoTriangleMeshProjector : public PxPointOntoTriangleMeshProjector, public PxUserAllocated
 	{
-		PxArray<Gu::BVHNode> mNodes;
+		PxArray<ev4sio_Gu::BVHNode> mNodes;
 		ClosestDistanceToTrimeshTraversalController mEvaluator;
 	public:
 		PointOntoTriangleMeshProjector(const PxVec3* vertices, const PxU32* indices, PxU32 numTriangles)
@@ -222,7 +222,7 @@ namespace Gu
 		virtual PxVec3 projectPoint(const PxVec3& point) PX_OVERRIDE
 		{
 			mEvaluator.setQueryPoint(point);
-			Gu::traverseBVH(mNodes.begin(), mEvaluator);
+			ev4sio_Gu::traverseBVH(mNodes.begin(), mEvaluator);
 			PxVec3 closestPoint = mEvaluator.getClosestPoint();
 			return closestPoint;
 		}
@@ -230,7 +230,7 @@ namespace Gu
 		virtual PxVec3 projectPoint(const PxVec3& point, PxU32& closetTriangleIndex) PX_OVERRIDE
 		{
 			mEvaluator.setQueryPoint(point);
-			Gu::traverseBVH(mNodes.begin(), mEvaluator);
+			ev4sio_Gu::traverseBVH(mNodes.begin(), mEvaluator);
 			PxVec3 closestPoint = mEvaluator.getClosestPoint();
 			closetTriangleIndex = mEvaluator.getClosestTriId();
 			return closestPoint;
@@ -255,11 +255,11 @@ namespace Gu
 		const PxVec3 delta(extents.x / width, extents.y / height, extents.z / depth);
 		const PxVec3 offset = min + PxVec3(0.5f * delta.x, 0.5f * delta.y, 0.5f * delta.z);
 
-		PxArray<Gu::BVHNode> tree;
+		PxArray<ev4sio_Gu::BVHNode> tree;
 		buildTree(indices, numTriangleIndices / 3, vertices, tree);
 
-		PxHashMap<PxU32, Gu::ClusterApproximation> clusters;
-		Gu::precomputeClusterInformation(tree.begin(), indices, numTriangleIndices / 3, vertices, clusters);
+		PxHashMap<PxU32, ev4sio_Gu::ClusterApproximation> clusters;
+		ev4sio_Gu::precomputeClusterInformation(tree.begin(), indices, numTriangleIndices / 3, vertices, clusters);
 
 		for (PxU32 x = 0; x < width; ++x)
 		{
@@ -268,7 +268,7 @@ namespace Gu
 				for (PxU32 z = 0; z < depth; ++z)
 				{
 					PxVec3 queryPoint(x * delta.x + offset.x, y * delta.y + offset.y, z * delta.z + offset.z);
-					PxReal windingNumber = Gu::computeWindingNumber(tree.begin(), queryPoint, clusters, indices, vertices);
+					PxReal windingNumber = ev4sio_Gu::computeWindingNumber(tree.begin(), queryPoint, clusters, indices, vertices);
 					windingNumbers[z * width * height + y * width + x] = windingNumber; // > 0.5f ? PxU32(-1) : 0;
 					if (sampleLocations)
 						sampleLocations[z * width * height + y * width + x] = queryPoint;
@@ -299,8 +299,8 @@ namespace Gu
 		PxVec3* sampleLocations;
 		GridQueryPointSampler* pointSampler;
 
-		PxArray<Gu::BVHNode>* tree;
-		PxHashMap<PxU32, Gu::ClusterApproximation>* clusters;
+		PxArray<ev4sio_Gu::BVHNode>* tree;
+		PxHashMap<PxU32, ev4sio_Gu::ClusterApproximation>* clusters;
 		PxI32 batchSize = 32;
 		PxI32 end;
 		PxI32* progress;
@@ -322,11 +322,11 @@ namespace Gu
 		const PxVec3 delta(extents.x / width, extents.y / height, extents.z / depth);
 		const PxVec3 offset = min + PxVec3(0.5f * delta.x, 0.5f * delta.y, -0.5f * delta.z);
 
-		PxArray<Gu::BVHNode> tree;
+		PxArray<ev4sio_Gu::BVHNode> tree;
 		buildTree(indices, numTriangleIndices / 3, vertices, tree);
 
-		PxHashMap<PxU32, Gu::ClusterApproximation> clusters;
-		Gu::precomputeClusterInformation(tree.begin(), indices, numTriangleIndices / 3, vertices, clusters);
+		PxHashMap<PxU32, ev4sio_Gu::ClusterApproximation> clusters;
+		ev4sio_Gu::precomputeClusterInformation(tree.begin(), indices, numTriangleIndices / 3, vertices, clusters);
 
 		LineSegmentTrimeshIntersectionTraversalController intersector(indices, vertices, PxVec3(0.0f), PxVec3(0.0f));
 
@@ -353,7 +353,7 @@ namespace Gu
 					}
 
 					PxVec3 queryPoint = PxVec3(x * delta.x + offset.x, y * delta.y + offset.y, center * delta.z + offset.z);
-					bool inside = Gu::computeWindingNumber(tree.begin(), queryPoint, clusters, indices, vertices) > 0.5f;
+					bool inside = ev4sio_Gu::computeWindingNumber(tree.begin(), queryPoint, clusters, indices, vertices) > 0.5f;
 					
 					if (inside != r.mInsideStart)
 						stack.pushBack(Range(r.mStart, center, r.mInsideStart, inside));
@@ -361,7 +361,7 @@ namespace Gu
 					{
 						PxVec3 p = PxVec3(x * delta.x + offset.x, y * delta.y + offset.y, r.mStart * delta.z + offset.z);
 						intersector.reset(p, queryPoint);
-						Gu::traverseBVH(tree.begin(), intersector);
+						ev4sio_Gu::traverseBVH(tree.begin(), intersector);
 						if (!intersector.intersectionDetected())
 						{
 							PxI32 e = PxMin(center, PxI32(depth) + 1);
@@ -383,7 +383,7 @@ namespace Gu
 					{
 						PxVec3 p = PxVec3(x * delta.x + offset.x, y * delta.y + offset.y, r.mEnd * delta.z + offset.z);
 						intersector.reset(queryPoint, p);
-						Gu::traverseBVH(tree.begin(), intersector);
+						ev4sio_Gu::traverseBVH(tree.begin(), intersector);
 						if (!intersector.intersectionDetected())
 						{
 							PxI32 e = PxMin(r.mEnd, PxI32(depth) + 1);
@@ -417,7 +417,7 @@ namespace Gu
 		PxArray<Range> stack;
 		LineSegmentTrimeshIntersectionTraversalController intersector(d.indices, d.vertices, PxVec3(0.0f), PxVec3(0.0f));
 
-		PxI32 start = physx::PxAtomicAdd(d.progress, d.batchSize) - d.batchSize;
+		PxI32 start = ev4sio_physx::PxAtomicAdd(d.progress, d.batchSize) - d.batchSize;
 		while (start < d.end)
 		{
 			PxI32 end = PxMin(d.end, start + d.batchSize);
@@ -465,7 +465,7 @@ namespace Gu
 						}
 
 						if (computeWinding)
-							inside = Gu::computeWindingNumber(d.tree->begin(), queryPoint, *d.clusters, d.indices, d.vertices) > 0.5f;
+							inside = ev4sio_Gu::computeWindingNumber(d.tree->begin(), queryPoint, *d.clusters, d.indices, d.vertices) > 0.5f;
 
 
 						if (inside != r.mInsideStart)
@@ -474,7 +474,7 @@ namespace Gu
 						{
 							PxVec3 p = d.pointSampler->getPoint(r.mStart - 1, y, z);
 							intersector.reset(p, queryPoint);
-							Gu::traverseBVH(d.tree->begin(), intersector);
+							ev4sio_Gu::traverseBVH(d.tree->begin(), intersector);
 							if (!intersector.intersectionDetected())
 							{
 								PxI32 e = PxMin(center, PxI32(d.width) + 1);
@@ -495,7 +495,7 @@ namespace Gu
 						{
 							PxVec3 p = d.pointSampler->getPoint(r.mEnd - 1, y, z); 
 							intersector.reset(queryPoint, p);
-							Gu::traverseBVH(d.tree->begin(), intersector);
+							ev4sio_Gu::traverseBVH(d.tree->begin(), intersector);
 							if (!intersector.intersectionDetected())
 							{
 								PxI32 e = PxMin(r.mEnd, PxI32(d.width) + 1);
@@ -530,7 +530,7 @@ namespace Gu
 							PxU32 i1 = d.indices[3 * lastTriangle + 1];
 							PxU32 i2 = d.indices[3 * lastTriangle + 2];
 
-							//const PxVec3 closest = Gu::closestPtPointTriangle2UnitBox(queryPoint, d.vertices[i0], d.vertices[i1], d.vertices[i2]);
+							//const PxVec3 closest = ev4sio_Gu::closestPtPointTriangle2UnitBox(queryPoint, d.vertices[i0], d.vertices[i1], d.vertices[i2]);
 							//PxReal d2 = (closest - queryPoint).magnitudeSquared();
 
 							aos::FloatV t1, t2;
@@ -539,7 +539,7 @@ namespace Gu
 							aos::Vec3V b = aos::V3LoadU(d.vertices[i1]);
 							aos::Vec3V c = aos::V3LoadU(d.vertices[i2]);
 							aos::Vec3V cp;
-							aos::FloatV dist2 = Gu::distancePointTriangleSquared2UnitBox(q, a, b, c, t1, t2, cp);
+							aos::FloatV dist2 = ev4sio_Gu::distancePointTriangleSquared2UnitBox(q, a, b, c, t1, t2, cp);
 							PxReal d2;
 							aos::FStore(dist2, &d2);
 							PxVec3 closest;
@@ -548,7 +548,7 @@ namespace Gu
 							cd.setClosestStart(d2, lastTriangle, closest);
 						}
 
-						Gu::traverseBVH(d.tree->begin(), cd);
+						ev4sio_Gu::traverseBVH(d.tree->begin(), cd);
 						PxVec3 closestPoint = cd.getClosestPoint();
 						PxReal closestDistance = (closestPoint - queryPoint).magnitude();
 
@@ -557,7 +557,7 @@ namespace Gu
 						PxReal sign = 1.f;
 						if (!d.optimizeInsideOutsideCalculation)
 						{
-							PxReal windingNumber = Gu::computeWindingNumber(d.tree->begin(), queryPoint, *d.clusters, d.indices, d.vertices);
+							PxReal windingNumber = ev4sio_Gu::computeWindingNumber(d.tree->begin(), queryPoint, *d.clusters, d.indices, d.vertices);
 							sign = windingNumber > 0.5f ? -1.f : 1.f;
 						}
 
@@ -567,7 +567,7 @@ namespace Gu
 					}
 				}
 			}
-			start = physx::PxAtomicAdd(d.progress, d.batchSize) - d.batchSize;
+			start = ev4sio_physx::PxAtomicAdd(d.progress, d.batchSize) - d.batchSize;
 		}
 		return NULL;
 	}
@@ -801,7 +801,7 @@ namespace Gu
 
 
 
-	void SDFUsingWindingNumbers(PxArray<Gu::BVHNode>& tree, PxHashMap<PxU32, Gu::ClusterApproximation>& clusters, const PxVec3* vertices, const PxU32* indices, PxU32 numTriangleIndices, PxU32 width, PxU32 height, PxU32 depth,
+	void SDFUsingWindingNumbers(PxArray<ev4sio_Gu::BVHNode>& tree, PxHashMap<PxU32, ev4sio_Gu::ClusterApproximation>& clusters, const PxVec3* vertices, const PxU32* indices, PxU32 numTriangleIndices, PxU32 width, PxU32 height, PxU32 depth,
 		PxReal* sdf, GridQueryPointSampler& sampler, PxVec3* sampleLocations, PxU32 numThreads, bool isWatertight, bool allVerticesInsideSamplingBox)
 	{
 		bool optimizeInsideOutsideCalculation = allVerticesInsideSamplingBox && isWatertight;
@@ -993,14 +993,14 @@ namespace Gu
 		else
 		{
 			//Here it is not possible to guarantee that the mesh fixing can succeed
-			PxGetFoundation().error(PxErrorCode::eDEBUG_WARNING, PX_FL, "SDF creation: Mesh is not suitable for SDF (non-manifold, not watertight, duplicated triangles, ...) and automatic repair failed. The computed SDF might not work as expected. If collisions are not good, try to improve the mesh structure e.g., by applying remeshing.");
+			ev4sio_PxGetFoundation().error(PxErrorCode::eDEBUG_WARNING, PX_FL, "SDF creation: Mesh is not suitable for SDF (non-manifold, not watertight, duplicated triangles, ...) and automatic repair failed. The computed SDF might not work as expected. If collisions are not good, try to improve the mesh structure e.g., by applying remeshing.");
 			//connectedTriangleGroups won't have any elements, so return
 			return;
 		}
 
 		if (!meshIsWatertight)
 		{
-			PxGetFoundation().error(PxErrorCode::eDEBUG_WARNING, PX_FL, "SDF creation: Input mesh is not watertight. The SDF will try to close the holes.");
+			ev4sio_PxGetFoundation().error(PxErrorCode::eDEBUG_WARNING, PX_FL, "SDF creation: Input mesh is not watertight. The SDF will try to close the holes.");
 		}
 	}
 
@@ -1028,11 +1028,11 @@ namespace Gu
 		}
 		else
 		{
-			PxArray<Gu::BVHNode> tree;
+			PxArray<ev4sio_Gu::BVHNode> tree;
 			buildTree(indices, numTriangleIndices / 3, vertices, tree);
 
-			PxHashMap<PxU32, Gu::ClusterApproximation> clusters;
-			Gu::precomputeClusterInformation(tree.begin(), indices, numTriangleIndices / 3, vertices, clusters);
+			PxHashMap<PxU32, ev4sio_Gu::ClusterApproximation> clusters;
+			ev4sio_Gu::precomputeClusterInformation(tree.begin(), indices, numTriangleIndices / 3, vertices, clusters);
 
 			const PxVec3 extents(maxExtents - minExtents);
 			GridQueryPointSampler sampler(minExtents, PxVec3(extents.x / width, extents.y / height, extents.z / depth), cellCenteredSamples);
@@ -1075,7 +1075,7 @@ namespace Gu
 				//PxReal diffOfAbs = PxAbs(sdf[i]) - PxAbs(sdf2[i]);				
 				
 				if(PxAbs(diff) > 1e-3f)
-					PxGetFoundation().error(physx::PxErrorCode::eDEBUG_WARNING, PX_FL, "SDFs don't match %f %f", PxF64(sdf[i]), PxF64(sdf2[i]));
+					ev4sio_PxGetFoundation().error(ev4sio_physx::PxErrorCode::eDEBUG_WARNING, PX_FL, "SDFs don't match %f %f", PxF64(sdf[i]), PxF64(sdf2[i]));
 			}
 		}
 #endif
@@ -1328,7 +1328,7 @@ namespace Gu
 
 			/*if (xBase >= mSdfSubgrids3DTexBlockDim.x || yBase >= mSdfSubgrids3DTexBlockDim.y || zBase >= mSdfSubgrids3DTexBlockDim.z)
 			{
-				PxGetFoundation().error(::physx::PxErrorCode::eINTERNAL_ERROR, PX_FL, "Out of bounds subgrid index\n");
+				ev4sio_PxGetFoundation().error(::ev4sio_physx::PxErrorCode::eINTERNAL_ERROR, PX_FL, "Out of bounds subgrid index\n");
 				//printf("%i %i %i %i\n", PxI32(startId), PxI32(xBase), PxI32(yBase), PxI32(zBase));
 			}*/
 
@@ -1341,7 +1341,7 @@ namespace Gu
 			const PxU32 index = idx3D(xBase + x, yBase + y, zBase + z, w, h);
 
 			//if (mBytesPerSparsePixel * index >= mNumSubgridSdfs)
-			//	PxGetFoundation().error(::physx::PxErrorCode::eINTERNAL_ERROR, PX_FL, "Out of bounds sdf subgrid access\n");
+			//	ev4sio_PxGetFoundation().error(::ev4sio_physx::PxErrorCode::eINTERNAL_ERROR, PX_FL, "Out of bounds sdf subgrid access\n");
 
 			return SDF::decodeSample(sdf.mSubgridSdf, index,
 				sdf.mBytesPerSparsePixel, sdf.mSubgridsMinSdfValue, sdf.mSubgridsMaxSdfValue);
@@ -1417,7 +1417,7 @@ namespace Gu
 		return result;
 	}
 
-	bool generatePointInCell(const Gu::SDF& sdf, PxI32 x, PxI32 y, PxI32 z, PxVec3& point, PxReal corners[2][2][2])
+	bool generatePointInCell(const ev4sio_Gu::SDF& sdf, PxI32 x, PxI32 y, PxI32 z, PxVec3& point, PxReal corners[2][2][2])
 	{
 		const PxReal threshold = 0.0f;
 
@@ -1489,7 +1489,7 @@ namespace Gu
 		return false;
 	}
 
-	PX_FORCE_INLINE bool generatePointInCell(const Gu::SDF& sdf, PxI32 x, PxI32 y, PxI32 z, PxVec3& point)
+	PX_FORCE_INLINE bool generatePointInCell(const ev4sio_Gu::SDF& sdf, PxI32 x, PxI32 y, PxI32 z, PxVec3& point)
 	{
 		PxReal corners[2][2][2];
 		for (PxI32 xx = 0; xx <= 1; ++xx) for (PxI32 yy = 0; yy <= 1; ++yy) for (PxI32 zz = 0; zz <= 1; ++zz)
@@ -1500,7 +1500,7 @@ namespace Gu
 		return generatePointInCell(sdf, x, y, z, point, corners);
 	}
 
-	PX_FORCE_INLINE bool generatePointInCellUsingCache(const Gu::SDF& sdf, PxI32 xBase, PxI32 yBase, PxI32 zBase, PxI32 x, PxI32 y, PxI32 z, PxVec3& point, const PxArray<PxReal>& cache)
+	PX_FORCE_INLINE bool generatePointInCellUsingCache(const ev4sio_Gu::SDF& sdf, PxI32 xBase, PxI32 yBase, PxI32 zBase, PxI32 x, PxI32 y, PxI32 z, PxVec3& point, const PxArray<PxReal>& cache)
 	{
 		const PxU32 s = sdf.mSubgridSize + 1;
 		PxReal corners[2][2][2];
@@ -1520,7 +1520,7 @@ namespace Gu
 		return mSdf[idx3D(x, y, z, mDims.x, mDims.y)];
 	}
 
-	PX_FORCE_INLINE bool generatePointInCellDense(const Gu::SDF& sdf, PxI32 x, PxI32 y, PxI32 z, PxVec3& point)
+	PX_FORCE_INLINE bool generatePointInCellDense(const ev4sio_Gu::SDF& sdf, PxI32 x, PxI32 y, PxI32 z, PxVec3& point)
 	{
 		PxReal corners[2][2][2];
 		for (PxI32 xx = 0; xx <= 1; ++xx) for (PxI32 yy = 0; yy <= 1; ++yy) for (PxI32 zz = 0; zz <= 1; ++zz)
@@ -1531,7 +1531,7 @@ namespace Gu
 		return generatePointInCell(sdf, x, y, z, point, corners);
 	}
 
-	PX_FORCE_INLINE bool canSkipSubgrid(const Gu::SDF& sdf, PxI32 i, PxI32 j, PxI32 k)
+	PX_FORCE_INLINE bool canSkipSubgrid(const ev4sio_Gu::SDF& sdf, PxI32 i, PxI32 j, PxI32 k)
 	{
 		const PxReal t = 0.1f * sdf.mSpacing;
 		const PxI32 nbX = sdf.mDims.x / sdf.mSubgridSize;
@@ -1672,7 +1672,7 @@ namespace Gu
 		}
 	}
 
-	PX_INLINE void populateSubgridCache(const Gu::SDF& sdf, PxArray<PxReal>& sdfCache, PxI32 i, PxI32 j, PxI32 k)
+	PX_INLINE void populateSubgridCache(const ev4sio_Gu::SDF& sdf, PxArray<PxReal>& sdfCache, PxI32 i, PxI32 j, PxI32 k)
 	{
 		const PxU32 s = sdf.mSubgridSize + 1;
 
@@ -1689,7 +1689,7 @@ namespace Gu
 		
 	struct IsosurfaceThreadData
 	{
-		const Gu::SDF& sdf;
+		const ev4sio_Gu::SDF& sdf;
 		PxArray<PxVec3> isosurfaceVertices;
 		const PxArray<PxVec3>& allIsosurfaceVertices;
 		PxArray<PxU32> isosurfaceTriangleIndices;
@@ -1702,7 +1702,7 @@ namespace Gu
 		PxI32 nbY;
 		PxI32 nbZ;
 
-		IsosurfaceThreadData(const Gu::SDF& sdf_, CellToPoint& cellToPoint_, const PxArray<PxVec3>& allIsosurfaceVertices_) : 
+		IsosurfaceThreadData(const ev4sio_Gu::SDF& sdf_, CellToPoint& cellToPoint_, const PxArray<PxVec3>& allIsosurfaceVertices_) :
 			sdf(sdf_), allIsosurfaceVertices(allIsosurfaceVertices_), cellToPoint(cellToPoint_)
 		{ }
 	};
@@ -1793,7 +1793,7 @@ namespace Gu
 		return NULL;
 	}
 
-	void extractIsosurfaceFromSDFSerial(const Gu::SDF& sdf, PxArray<PxVec3>& isosurfaceVertices, PxArray<PxU32>& isosurfaceTriangleIndices)
+	void extractIsosurfaceFromSDFSerial(const ev4sio_Gu::SDF& sdf, PxArray<PxVec3>& isosurfaceVertices, PxArray<PxU32>& isosurfaceTriangleIndices)
 	{
 		isosurfaceVertices.clear();
 		isosurfaceTriangleIndices.clear();
@@ -1918,12 +1918,12 @@ namespace Gu
 		}
 	}
 	
-	void extractIsosurfaceFromSDF(const Gu::SDF& sdf, PxArray<PxVec3>& isosurfaceVertices, PxArray<PxU32>& isosurfaceTriangleIndices, PxU32 numThreads)
+	void extractIsosurfaceFromSDF(const ev4sio_Gu::SDF& sdf, PxArray<PxVec3>& isosurfaceVertices, PxArray<PxU32>& isosurfaceTriangleIndices, PxU32 numThreads)
 	{
 		//### DEFENSIVE coding for OM-122453 and OM-112365
 		if (!sdf.mSdf)
 		{
-			PxGetFoundation().error(::physx::PxErrorCode::eINTERNAL_ERROR, PX_FL, "No distance data available (null pointer) when evaluating an SDF.");
+			ev4sio_PxGetFoundation().error(::ev4sio_physx::PxErrorCode::eINTERNAL_ERROR, PX_FL, "No distance data available (null pointer) when evaluating an SDF.");
 			return;
 		}
 
@@ -1937,7 +1937,7 @@ namespace Gu
 		//### DEFENSIVE coding for OM-122453 and OM-112365
 		if (!sdf.mSubgridSdf || !sdf.mSubgridStartSlots)
 		{
-			PxGetFoundation().error(::physx::PxErrorCode::eINTERNAL_ERROR, PX_FL, "No sparse grid data available (null pointer) when evaluating an SDF.");
+			ev4sio_PxGetFoundation().error(::ev4sio_physx::PxErrorCode::eINTERNAL_ERROR, PX_FL, "No sparse grid data available (null pointer) when evaluating an SDF.");
 			return;
 		}
 

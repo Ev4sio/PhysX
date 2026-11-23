@@ -9,7 +9,7 @@
 #include "DySolverExt.h"
 #include "foundation/PxVecMath.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 struct PxcNpWorkUnit;
 class PxContactBuffer;
@@ -17,16 +17,16 @@ struct PxContactPoint;
 
 struct PxSolverContactDesc;
 
-namespace Dy
+namespace ev4sio_Dy
 {
 	struct CorrelationBuffer;
 
-	PxReal getImpulseResponse(	const SolverExtBody& b0, const Cm::SpatialVector& impulse0, Cm::SpatialVector& deltaV0, PxReal dom0, PxReal angDom0,
-								const SolverExtBody& b1, const Cm::SpatialVector& impulse1, Cm::SpatialVector& deltaV1, PxReal dom1, PxReal angDom1,
+	PxReal getImpulseResponse(	const SolverExtBody& b0, const ev4sio_Cm::SpatialVector& impulse0, ev4sio_Cm::SpatialVector& deltaV0, PxReal dom0, PxReal angDom0,
+								const SolverExtBody& b1, const ev4sio_Cm::SpatialVector& impulse1, ev4sio_Cm::SpatialVector& deltaV1, PxReal dom1, PxReal angDom1,
 								bool allowSelfCollision = false);
 
-	Cm::SpatialVector createImpulseResponseVector(const PxVec3& linear, const PxVec3& angular, const SolverExtBody& body);
-	Cm::SpatialVectorV createImpulseResponseVector(const aos::Vec3V& linear, const aos::Vec3V& angular, const SolverExtBody& body);
+	ev4sio_Cm::SpatialVector createImpulseResponseVector(const PxVec3& linear, const PxVec3& angular, const SolverExtBody& body);
+	ev4sio_Cm::SpatialVectorV createImpulseResponseVector(const aos::Vec3V& linear, const aos::Vec3V& angular, const SolverExtBody& body);
 
 	void setupFinalizeExtSolverContacts(
 		const PxSolverContactDesc& contactDesc,
@@ -40,7 +40,7 @@ namespace Dy
 		PxReal biasCoefficient,
 		PxU8* frictionDataPtr);
 
-} //namespace Dy
+} //namespace ev4sio_Dy
 
 }
 

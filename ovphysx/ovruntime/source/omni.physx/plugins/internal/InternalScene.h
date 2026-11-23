@@ -52,7 +52,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 class PhysXScene;
 
@@ -161,14 +161,14 @@ public:
     // ObjectKey of the static root body actor (invalid when the articulation has none);
     // resolve to a path on demand via AttachedStage::pathFor.
     omni::physics::parse::ObjectKey mStaticRootBodyKey;
-    ::physx::PxAggregate* mAggregate;
+    ::ev4sio_physx::PxAggregate* mAggregate;
     PhysXScene* mPhysxScene;
 };
 
 // Axis instance-name text for PhysxJointStateAPI's multi-apply "state:<axis>:..."
 // properties. Shared so InternalScene.cpp's per-step updateJointState and
 // InternalPhysXDatabase.cpp's initial-state restore agree on one definition.
-const char* jointStateAxisName(usdparser::ObjectType jointType, ::physx::PxArticulationAxis::Enum physxAxis);
+const char* jointStateAxisName(usdparser::ObjectType jointType, ::ev4sio_physx::PxArticulationAxis::Enum physxAxis);
 
 // InternalJoint::InternalJointState's usdToken member type. Pinned to std::string: this header
 // is included directly by OvruntimeUnitTests, so the layout must match in every TU.
@@ -195,15 +195,15 @@ public:
 
     usdparser::ObjectType mJointType;
     usdparser::PhysxJointDrive mJointDrive;
-    ::physx::PxD6Drive::Enum mD6JointDrive;
+    ::ev4sio_physx::PxD6Drive::Enum mD6JointDrive;
     uint32_t mAxisIndex;
 
     // for MC D6, order is linear x,y,z then rot x,y,z
-    // for RC D6, order is rot x,y,z, indexing directly with ::physx::PxArticulationAxis::[eTWIST, eSWING1, eSWING2] =
+    // for RC D6, order is rot x,y,z, indexing directly with ::ev4sio_physx::PxArticulationAxis::[eTWIST, eSWING1, eSWING2] =
     // [0, 1, 2]
     usdparser::PhysxJointDrive mJointDrives[6];
 
-    omni::physx::usdparser::Axis mAxis = omni::physx::usdparser::Axis::eX;
+    omni::ev4sio_physx::usdparser::Axis mAxis = omni::ev4sio_physx::usdparser::Axis::eX;
     // flag for articulations that indicates if the body0-body1 rel follows the articulation topology (true) or not
     // (false)
     bool mBody0IsParentLink = true;
@@ -223,7 +223,7 @@ public:
         JointUsdTokenHandle usdToken;
         bool enabled = false;
         bool convertToDegrees = false;
-        ::physx::PxArticulationAxis::Enum physxAxis = ::physx::PxArticulationAxis::eTWIST;
+        ::ev4sio_physx::PxArticulationAxis::Enum physxAxis = ::ev4sio_physx::PxArticulationAxis::eTWIST;
         InternalJointInitialState initialState;
 
         // Position/Velocity initial-state restore goes through IPhysicsDataWrite::writeData
@@ -260,40 +260,40 @@ public:
     }
 
     // in-place fix of joint local pose given mAxis, and for articulation joints also given mBody0IsParentLink
-    ::physx::PxQuat getLocalPoseFixupQuat() const;
-    void fixupLocalPose(::physx::PxTransform& localPose) const;
+    ::ev4sio_physx::PxQuat getLocalPoseFixupQuat() const;
+    void fixupLocalPose(::ev4sio_physx::PxTransform& localPose) const;
 
     // helpers to set drive target and joint limits according to USD vs. articulation joint order, i.e.
     // mBody0IsParentLink
-    void setArticulationJointLimits(::physx::PxArticulationJointReducedCoordinate* joint,
-                                    ::physx::PxArticulationAxis::Enum axis,
+    void setArticulationJointLimits(::ev4sio_physx::PxArticulationJointReducedCoordinate* joint,
+                                    ::ev4sio_physx::PxArticulationAxis::Enum axis,
                                     float usdLowLimit,
                                     float usdHighLimit) const;
-    void updateArticulationJointLimitLow(::physx::PxArticulationJointReducedCoordinate* joint,
-                                         ::physx::PxArticulationAxis::Enum axis,
+    void updateArticulationJointLimitLow(::ev4sio_physx::PxArticulationJointReducedCoordinate* joint,
+                                         ::ev4sio_physx::PxArticulationAxis::Enum axis,
                                          float usdLowLimit) const;
-    void updateArticulationJointLimitHigh(::physx::PxArticulationJointReducedCoordinate* joint,
-                                          ::physx::PxArticulationAxis::Enum axis,
+    void updateArticulationJointLimitHigh(::ev4sio_physx::PxArticulationJointReducedCoordinate* joint,
+                                          ::ev4sio_physx::PxArticulationAxis::Enum axis,
                                           float usdHighLimit) const;
     // Resolve diagnostic text only in the warning branch.
-    void setArticulationDrivePositionTarget(::physx::PxArticulationJointReducedCoordinate* joint,
-                                            ::physx::PxArticulationAxis::Enum axis,
+    void setArticulationDrivePositionTarget(::ev4sio_physx::PxArticulationJointReducedCoordinate* joint,
+                                            ::ev4sio_physx::PxArticulationAxis::Enum axis,
                                             float positionTarget,
                                             const usdparser::AttachedStage* owner = nullptr,
                                             omni::physics::parse::ObjectKey jointKey = {}) const;
-    void setArticulationDriveVelocityTarget(::physx::PxArticulationJointReducedCoordinate* joint,
-                                            ::physx::PxArticulationAxis::Enum axis,
+    void setArticulationDriveVelocityTarget(::ev4sio_physx::PxArticulationJointReducedCoordinate* joint,
+                                            ::ev4sio_physx::PxArticulationAxis::Enum axis,
                                             float velocityTarget) const;
-    void setArticulationJointPosition(::physx::PxArticulationJointReducedCoordinate* joint,
-                                      ::physx::PxArticulationAxis::Enum axis,
+    void setArticulationJointPosition(::ev4sio_physx::PxArticulationJointReducedCoordinate* joint,
+                                      ::ev4sio_physx::PxArticulationAxis::Enum axis,
                                       float position) const;
-    void setArticulationJointVelocity(::physx::PxArticulationJointReducedCoordinate* joint,
-                                      ::physx::PxArticulationAxis::Enum axis,
+    void setArticulationJointVelocity(::ev4sio_physx::PxArticulationJointReducedCoordinate* joint,
+                                      ::ev4sio_physx::PxArticulationAxis::Enum axis,
                                       float velocity) const;
-    float getArticulationJointPosition(::physx::PxArticulationJointReducedCoordinate* joint,
-                                       ::physx::PxArticulationAxis::Enum axis) const;
-    float getArticulationJointVelocity(::physx::PxArticulationJointReducedCoordinate* joint,
-                                       ::physx::PxArticulationAxis::Enum axis) const;
+    float getArticulationJointPosition(::ev4sio_physx::PxArticulationJointReducedCoordinate* joint,
+                                       ::ev4sio_physx::PxArticulationAxis::Enum axis) const;
+    float getArticulationJointVelocity(::ev4sio_physx::PxArticulationJointReducedCoordinate* joint,
+                                       ::ev4sio_physx::PxArticulationAxis::Enum axis) const;
 };
 
 // instanceName is unconditionally TendonInstanceNameHandle (std::string) for the same
@@ -319,7 +319,7 @@ public:
     ~InternalTendonAttachment() = default;
 
     TendonInstanceNameHandle instanceName;
-    ::physx::PxVec3 globalPos;
+    ::ev4sio_physx::PxVec3 globalPos;
     float initLength;
 };
 
@@ -331,7 +331,7 @@ class InternalScene : public Allocateable
     usdparser::AttachedStage& mAttachedStage;
 
 public:
-    InternalScene(usdparser::AttachedStage& attachedStage, const usdparser::PhysxSceneDesc& desc, ::physx::PxScene* scene);
+    InternalScene(usdparser::AttachedStage& attachedStage, const usdparser::PhysxSceneDesc& desc, ::ev4sio_physx::PxScene* scene);
     ~InternalScene();
 
     void release();
@@ -353,12 +353,12 @@ public:
         mSceneDesc = inDesc;
     }
 
-    ::physx::PxScene* getScene() const
+    ::ev4sio_physx::PxScene* getScene() const
     {
         return mScene;
     }
 
-    void trackReleasedActiveActor(const ::physx::PxActor* actor)
+    void trackReleasedActiveActor(const ::ev4sio_physx::PxActor* actor)
     {
         if (actor)
             mReleasedActiveActors.insert(actor);
@@ -369,7 +369,7 @@ public:
         return !mReleasedActiveActors.empty();
     }
 
-    bool isReleasedActiveActor(const ::physx::PxActor* actor) const
+    bool isReleasedActiveActor(const ::ev4sio_physx::PxActor* actor) const
     {
         return mReleasedActiveActors.find(actor) != mReleasedActiveActors.end();
     }
@@ -381,12 +381,12 @@ public:
 
     uint32_t clampPosIterationCount(uint32_t inCount) const
     {
-        return ::physx::PxClamp(inCount, mSceneDesc.minPosIterationCount, mSceneDesc.maxPosIterationCount);
+        return ::ev4sio_physx::PxClamp(inCount, mSceneDesc.minPosIterationCount, mSceneDesc.maxPosIterationCount);
     }
 
     uint32_t clampVelIterationCount(uint32_t inCount) const
     {
-        return ::physx::PxClamp(inCount, mSceneDesc.minVelIterationCount, mSceneDesc.maxVelIterationCount);
+        return ::ev4sio_physx::PxClamp(inCount, mSceneDesc.minVelIterationCount, mSceneDesc.maxVelIterationCount);
     }
 
     void resetStartProperties(bool useUsdUpdate, bool useVelocitiesUSDUpdate, bool outputVelocitiesLocalSpace);
@@ -405,21 +405,21 @@ public:
     void addDeformableAttachment(InternalDeformableAttachment& deformableAttachment);
     bool removeDeformableAttachment(InternalDeformableAttachment& deformableAttachment);
     void removeDeformableAttachments(usdparser::ObjectId objId);
-    void swapDeformableAttachmentsRigidActor(::physx::PxRigidActor* sourceActor, ::physx::PxRigidActor* destActor);
+    void swapDeformableAttachmentsRigidActor(::ev4sio_physx::PxRigidActor* sourceActor, ::ev4sio_physx::PxRigidActor* destActor);
 
     // deformable collision filter
     void addDeformableCollisionFilter(InternalDeformableCollisionFilter& deformableCollisionFilter);
     bool removeDeformableCollisionFilter(InternalDeformableCollisionFilter& deformableCollisionFilter);
     void removeDeformableCollisionFilters(usdparser::ObjectId objId);
-    void swapDeformableCollisionFiltersRigidActor(::physx::PxRigidActor* sourceActor, ::physx::PxRigidActor* destActor);
+    void swapDeformableCollisionFiltersRigidActor(::ev4sio_physx::PxRigidActor* sourceActor, ::ev4sio_physx::PxRigidActor* destActor);
 
     // vehicles
-    InternalVehicle* getVehicleBody(const ::physx::PxRigidDynamic&) const; // returns nullptr if not part of a vehicle
-    void updateVehicleOnMassChange(const ::physx::PxRigidDynamic&,
+    InternalVehicle* getVehicleBody(const ::ev4sio_physx::PxRigidDynamic&) const; // returns nullptr if not part of a vehicle
+    void updateVehicleOnMassChange(const ::ev4sio_physx::PxRigidDynamic&,
                                    const float mass,
-                                   const ::physx::PxVec3& massSpaceInertiaTensor,
-                                   const ::physx::PxTransform& centerOfMassFrame);
-    void updateVehicleOnRemovedShape(const ::physx::PxRigidActor& rigidActor, const ::physx::PxShape* removedShape);
+                                   const ::ev4sio_physx::PxVec3& massSpaceInertiaTensor,
+                                   const ::ev4sio_physx::PxTransform& centerOfMassFrame);
+    void updateVehicleOnRemovedShape(const ::ev4sio_physx::PxRigidActor& rigidActor, const ::ev4sio_physx::PxShape* removedShape);
 
     void setVehicleContext(const usdparser::VehicleContextDesc&);
     const InternalVehicleContext& getVehicleContext() const
@@ -440,7 +440,7 @@ public:
         return (internalVehicle.mBufferIndex < mEnabledVehicleCount);
     }
 
-    void swapForceActors(::physx::PxRigidActor* actor0, ::physx::PxRigidActor* actor1)
+    void swapForceActors(::ev4sio_physx::PxRigidActor* actor0, ::ev4sio_physx::PxRigidActor* actor1)
     {
         // A.B. not great, we might need to add some additional index to the actors
         for (InternalForce* force : mForces)
@@ -455,10 +455,10 @@ public:
     // Hands every force attached to `actor` over to `target`. mForces membership has to follow the
     // body: the entry decides which scene applies the force each step, so a force left behind writes
     // to an actor another scene now simulates (NVBugs 6583666).
-    void moveForcesForActor(const ::physx::PxRigidActor* actor, InternalScene& target, PhysXScene& targetPhysXScene);
+    void moveForcesForActor(const ::ev4sio_physx::PxRigidActor* actor, InternalScene& target, PhysXScene& targetPhysXScene);
 
     CUstream getDeformableCopyStream();
-    void syncDeformableCopyStream(::physx::PxCudaContextManager* cudaContextManager);
+    void syncDeformableCopyStream(::ev4sio_physx::PxCudaContextManager* cudaContextManager);
 
     // actors
     // mActors owns the InternalActor entries of this scene. Membership has to stay in sync with
@@ -473,10 +473,10 @@ public:
     // mimic joints
     void addMimicJoint(InternalMimicJoint&);
     void removeMimicJoint(InternalMimicJoint&);
-    void releasePhysXMimicJoints(const ::physx::PxArticulationJointReducedCoordinate&);
-    bool hasMimicJoint(const ::physx::PxArticulationJointReducedCoordinate&) const;
+    void releasePhysXMimicJoints(const ::ev4sio_physx::PxArticulationJointReducedCoordinate&);
+    bool hasMimicJoint(const ::ev4sio_physx::PxArticulationJointReducedCoordinate&) const;
 
-    void debugDraw(omni::physx::OmniRenderBuffer& renderBuffer, uint64_t debugDrawFlags);
+    void debugDraw(omni::ev4sio_physx::OmniRenderBuffer& renderBuffer, uint64_t debugDrawFlags);
 
 private:
     void setVehicleAtPosition(const uint32_t index, InternalVehicle&);
@@ -489,7 +489,7 @@ private:
     void updateJointState(usdparser::AttachedStage* attachedStage, const InternalDatabase::Record& record, bool updateVelocitiesToUsd);
     void addMimicJointMapEntries(InternalMimicJoint&);
     void removeMimicJointMapEntries(InternalMimicJoint&);
-    void removeMimicJointMapEntry(const ::physx::PxArticulationJointReducedCoordinate*, InternalMimicJoint*);
+    void removeMimicJointMapEntry(const ::ev4sio_physx::PxArticulationJointReducedCoordinate*, InternalMimicJoint*);
 
 private:
     usdparser::PhysxSceneDesc mSceneDesc;
@@ -502,7 +502,7 @@ public:
     std::vector<InternalDeformableCollisionFilter*> mDeformableCollisionFilters;
     std::vector<InternalActor*> mActors;
     std::vector<InternalActor*> mMirorredActors;
-    std::vector<::physx::PxArticulationReducedCoordinate*> mArticulations;
+    std::vector<::ev4sio_physx::PxArticulationReducedCoordinate*> mArticulations;
     std::vector<InternalForce*> mForces;
 
     CctMap mCctMap;
@@ -512,7 +512,7 @@ public:
     // for the vehicle array: enabled vehicles are at the front, disabled vehicles are at the back
     std::vector<InternalVehicle*> mVehicles;
 
-    typedef std::unordered_map<const ::physx::PxRigidDynamic*, InternalVehicle*> ActorToVehicleMap;
+    typedef std::unordered_map<const ::ev4sio_physx::PxRigidDynamic*, InternalVehicle*> ActorToVehicleMap;
     ActorToVehicleMap mVehicleActorToVehicle;
 
     uint32_t mEnabledVehicleCount;
@@ -523,22 +523,22 @@ public:
     // derived from this array has no other way to learn its rows were retired.
     uint64_t mVehicleSetEpoch;
 
-    ::physx::PxVec3 mGravityDirection;
+    ::ev4sio_physx::PxVec3 mGravityDirection;
     float mGravityMagnitude;
 
     // For deformable skinning
-    omni::physx::deformables::VolumeDeformablePostSolveCallback* mVolumeDeformablePostSolveCallback;
-    omni::physx::deformables::SurfaceDeformablePostSolveCallback* mSurfaceDeformablePostSolveCallback;
+    omni::ev4sio_physx::deformables::VolumeDeformablePostSolveCallback* mVolumeDeformablePostSolveCallback;
+    omni::ev4sio_physx::deformables::SurfaceDeformablePostSolveCallback* mSurfaceDeformablePostSolveCallback;
 
 private:
     InternalVehicleContext mVehicleContext;
-    ::physx::PxScene* mScene;
-    std::unordered_set<const ::physx::PxActor*> mReleasedActiveActors;
+    ::ev4sio_physx::PxScene* mScene;
+    std::unordered_set<const ::ev4sio_physx::PxActor*> mReleasedActiveActors;
 
     typedef std::unordered_set<InternalMimicJoint*> MimicJointSet;
     MimicJointSet mMimicJointSet;
 
-    typedef std::unordered_multimap<const ::physx::PxArticulationJointReducedCoordinate*, InternalMimicJoint*> JointToMimicJointMap;
+    typedef std::unordered_multimap<const ::ev4sio_physx::PxArticulationJointReducedCoordinate*, InternalMimicJoint*> JointToMimicJointMap;
     JointToMimicJointMap mJointToMimicJointMap;
 
     CUstream mDeformableCopyStream;
@@ -555,8 +555,8 @@ private:
 // a scene. Membership originally did not follow a simulation owner change at all, which is how a
 // force ended up registered with a different scene than InternalActor::mPhysXScene named; the
 // scene-scoped fixup then missed it and left mRigidActor naming a released actor (NVBugs 6583666).
-void swapForceActorsAllScenes(const usdparser::AttachedStage& attachedStage, ::physx::PxRigidActor* actor0, ::physx::PxRigidActor* actor1);
+void swapForceActorsAllScenes(const usdparser::AttachedStage& attachedStage, ::ev4sio_physx::PxRigidActor* actor0, ::ev4sio_physx::PxRigidActor* actor1);
 
 } // namespace internal
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

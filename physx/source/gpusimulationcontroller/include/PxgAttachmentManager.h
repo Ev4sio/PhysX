@@ -11,9 +11,9 @@
 #include "PxDeformableAttachment.h"
 #include "PxgSimulationCoreDesc.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-	namespace Gu
+	namespace ev4sio_Gu
 	{
 		class TriangleMesh;
 	}
@@ -24,22 +24,22 @@ namespace physx
 	{
 	public:
 		// One entry per attachment, kept in step by addAttachment and removeAttachment.
-		Cm::PinnableArray<PxgDeformableAttachment> mAttachments;
+		ev4sio_Cm::PinnableArray<PxgDeformableAttachment> mAttachments;
 		PxArray<PxU32> mHandles;
 		PxHashMap<PxU32, PxU32> mHandleToAttachmentIndex;
 
 		// One entry per active attachment, kept in step by activateAttachment and deactivateAttachment.
 		// mActiveRigidRefCounts is the exception, rebuilt by buildRigidRefCounts.
-		Cm::PinnableArray<PxU32> mActiveAttachments;
+		ev4sio_Cm::PinnableArray<PxU32> mActiveAttachments;
 		PxHashMap<PxU32, PxU32> mHandleToActiveIndex;
-		Cm::PinnableArray<PxU32> mActiveRigidRefCounts;
+		ev4sio_Cm::PinnableArray<PxU32> mActiveRigidRefCounts;
 
 		PxU32 mBaseHandle;
 		bool mAttachmentsDirty;
 		bool mActiveAttachmentsDirty;
 		bool mActiveRigidRefCountsDirty;
 
-		PxgAttachmentManager(Cm::VirtualAllocatorCallback& hostAlloc, PxU32 statType) :
+		PxgAttachmentManager(ev4sio_Cm::VirtualAllocatorCallback& hostAlloc, PxU32 statType) :
 			mAttachments(hostAlloc, statType),
 			mActiveAttachments(hostAlloc, statType),
 			mActiveRigidRefCounts(hostAlloc, statType),
@@ -59,7 +59,7 @@ namespace physx
 			const PxNodeIndex& rigidNodeIndex, const PxTransform& frame, const PxVec4* coords, const PxU32 count,
 			const bool addToActive);
 
-		PxU32 addSurfaceRigidAttachments(const PxU32 surfaceId, const Gu::TriangleMesh& surfaceMesh,
+		PxU32 addSurfaceRigidAttachments(const PxU32 surfaceId, const ev4sio_Gu::TriangleMesh& surfaceMesh,
 			const PxDeformableAttachmentTargetType::Enum feature, const PxU32* featureIds, const PxVec4* barycentrics,
 			PxsRigidBody* rigidBody, const PxNodeIndex& rigidNodeIndex, const PxTransform& frame, const PxVec4* coords,
 			const PxU32 count, const bool addToActive);
@@ -74,12 +74,12 @@ namespace physx
 
 		PxU32 addVolumeSurfaceAttachments(const PxU32 volumeId, const PxDeformableAttachmentTargetType::Enum feature0,
 			const PxU32* featureIds0, const PxVec4* barycentrics0, const PxU32 surfaceId,
-			const Gu::TriangleMesh& surfaceMesh, const PxDeformableAttachmentTargetType::Enum feature1,
+			const ev4sio_Gu::TriangleMesh& surfaceMesh, const PxDeformableAttachmentTargetType::Enum feature1,
 			const PxU32* featureIds1, const PxVec4* barycentrics1, const PxU32 count, const bool addToActive);
 
-		PxU32 addSurfaceSurfaceAttachments(const PxU32 surfaceId0, const Gu::TriangleMesh& surfaceMesh0,
+		PxU32 addSurfaceSurfaceAttachments(const PxU32 surfaceId0, const ev4sio_Gu::TriangleMesh& surfaceMesh0,
 			const PxDeformableAttachmentTargetType::Enum feature0, const PxU32* featureIds0,
-			const PxVec4* barycentrics0, const PxU32 surfaceId1, const Gu::TriangleMesh& surfaceMesh1,
+			const PxVec4* barycentrics0, const PxU32 surfaceId1, const ev4sio_Gu::TriangleMesh& surfaceMesh1,
 			const PxDeformableAttachmentTargetType::Enum feature1, const PxU32* featureIds1,
 			const PxVec4* barycentrics1, const PxU32 count, const bool addToActive);
 
@@ -128,6 +128,6 @@ namespace physx
 		}
 	};
 
-} // namespace physx
+} // namespace ev4sio_physx
 
 #endif // PXG_ATTACHMENT_MANAGER_H

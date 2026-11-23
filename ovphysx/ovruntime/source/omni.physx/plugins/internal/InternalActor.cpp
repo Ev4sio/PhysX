@@ -45,11 +45,11 @@
 
 #include <usdLoad/LoadUsd.h>
 
-using namespace omni::physx;
-using namespace omni::physx::internal;
-using namespace omni::physx::usdparser;
+using namespace omni::ev4sio_physx;
+using namespace omni::ev4sio_physx::internal;
+using namespace omni::ev4sio_physx::usdparser;
 using namespace carb;
-using namespace ::physx;
+using namespace ::ev4sio_physx;
 
 namespace
 {
@@ -161,7 +161,7 @@ InternalActor::InternalActor(PhysXScene* ps,
                 const PxMat44d instancerWorld = getWorldTransform(
                     *as, instance->instancerKey, omni::physics::parse::ReadTime::defaultTime());
                 // Bit-exact Gf::RemoveScaleShear() (gfmath::removeScaleShearGf), not
-                // the PhysX-native omni::physx::removeScaleShear: protoWorld and
+                // the PhysX-native omni::ev4sio_physx::removeScaleShear: protoWorld and
                 // instancerWorld are world transforms of a PointInstancer prototype
                 // and its instancer, so non-uniform scale meeting rotation anywhere
                 // in either ancestor chain produces sheared input, and the two
@@ -349,7 +349,7 @@ void InternalActor::initializeDynamicActor(bool runtimeInitialization)
     }
 }
 
-void InternalActor::enableSurfaceVelocity(bool enable, ::physx::PxRigidActor& actor)
+void InternalActor::enableSurfaceVelocity(bool enable, ::ev4sio_physx::PxRigidActor& actor)
 {
     if (enable && !mSurfaceVelocityEnabled)
     {
@@ -382,8 +382,8 @@ void InternalActor::enableSurfaceVelocity(bool enable, ::physx::PxRigidActor& ac
 }
 
 void InternalActor::copySurfaceVelocityState(const InternalActor& source,
-                                             ::physx::PxRigidActor& cloneActor,
-                                             const ::physx::PxTransform& clonePivotPose)
+                                             ::ev4sio_physx::PxRigidActor& cloneActor,
+                                             const ::ev4sio_physx::PxTransform& clonePivotPose)
 {
     (void)cloneActor; // retained in the signature for symmetry with peer copy helpers
     mSurfaceVelocity = source.mSurfaceVelocity;
@@ -395,7 +395,7 @@ void InternalActor::copySurfaceVelocityState(const InternalActor& source,
 }
 
 void InternalActor::enableSplineSurfaceVelocity(bool enable,
-                                                ::physx::PxRigidActor& actor,
+                                                ::ev4sio_physx::PxRigidActor& actor,
                                                 const AttachedStage& attachedStage,
                                                 omni::physics::parse::ObjectKey splinesCurveKey)
 {
@@ -445,7 +445,7 @@ void InternalActor::enableSplineSurfaceVelocity(bool enable,
     }
 }
 
-void InternalActor::enableContactSolve(bool enable, ::physx::PxRigidActor* actor)
+void InternalActor::enableContactSolve(bool enable, ::ev4sio_physx::PxRigidActor* actor)
 {
     if (enable && !mSolveContactEnabled)
     {

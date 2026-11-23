@@ -28,12 +28,12 @@ namespace omni::physics::parse
 class ScannedStage;
 }
 
-namespace omni::physx::usdparser
+namespace omni::ev4sio_physx::usdparser
 {
 class AttachedStage;
-} // namespace omni::physx::usdparser
+} // namespace omni::ev4sio_physx::usdparser
 
-namespace omni::physx::usdparser::convert
+namespace omni::ev4sio_physx::usdparser::convert
 {
 
 // Translates the deformable-body descriptor at `index` in `scanned` to a
@@ -68,4 +68,4 @@ PhysxDeformableBodyDesc* convertScannedDeformableBody(
     const omni::physics::parse::SourceUnits& units,
     const AttachedStage& attachedStage);
 
-} // namespace omni::physx::usdparser::convert
+} // namespace omni::ev4sio_physx::usdparser::convert

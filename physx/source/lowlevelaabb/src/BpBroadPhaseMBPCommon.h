@@ -10,9 +10,9 @@
 #include "BpBroadPhaseIntegerAABB.h"
 #include "foundation/PxUserAllocated.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Bp
+namespace ev4sio_Bp
 {
 
 #define MBP_USE_WORDS
@@ -170,6 +170,6 @@ namespace Bp
 	};
 
 }
-} // namespace physx
+} // namespace ev4sio_physx
 
 #endif // BP_BROADPHASE_MBP_COMMON_H

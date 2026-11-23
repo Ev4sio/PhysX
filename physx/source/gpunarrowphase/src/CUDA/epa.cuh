@@ -11,7 +11,7 @@
 #include "nputils.cuh"
 #include "schlockShared.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 namespace squawk
@@ -504,6 +504,6 @@ __device__ inline schlock::GjkResult::Enum epa(EpaScratch& epaS,
 }
 } // namespace squawk
 
-} // namespace physx
+} // namespace ev4sio_physx
 
 #endif

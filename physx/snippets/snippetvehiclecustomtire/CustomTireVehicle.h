@@ -15,7 +15,7 @@
 namespace snippetvehicle
 {
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 
 //

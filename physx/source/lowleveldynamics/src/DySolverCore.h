@@ -16,7 +16,7 @@
 // (for patch friction). TGS doesn't use the same architecture / class hierarchy.
 #include "DyPGS.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 struct PxSolverBody;
 struct PxSolverBodyData;
@@ -25,7 +25,7 @@ struct PxConstraintBatchHeader;
 class PxsRigidBody;
 struct PxsBodyCore;
 
-namespace Dy
+namespace ev4sio_Dy
 {
 struct ThresholdStreamElement;
 
@@ -134,7 +134,7 @@ struct SolverIslandParams
 	PxU32 numConstraintHeaders;
 	const PxU32* headersPerPartition;	// PT: only used by the multi-threaded solver
 	PxU32 nbPartitions;	// PT: only used by the multi-threaded solver
-	Cm::SpatialVector* motionVelocityArray;
+	ev4sio_Cm::SpatialVector* motionVelocityArray;
 	PxU32 batchSize;	// PT: only used by the multi-threaded solver
 	PxsRigidBody** rigidBodies;	// PT: not really needed by the solvers themselves
 
@@ -164,14 +164,14 @@ struct SolverIslandParams
 	PxI32* outThresholdPairs;
 
 	PxU32 mMaxArticulationLinks;	// PT: not really needed by the solvers themselves
-	Cm::SpatialVectorF* deltaV;		// PT: only used by the single-threaded solver for temporarily storing velocities during propagation
+	ev4sio_Cm::SpatialVectorF* deltaV;		// PT: only used by the single-threaded solver for temporarily storing velocities during propagation
 };
 
-void solveNoContactsCase(	PxU32 bodyListSize, const PxSolverBody* PX_RESTRICT bodyListStart, Cm::SpatialVector* PX_RESTRICT motionVelocityArray,
-							PxU32 articulationListSize, FeatherstoneArticulation** PX_RESTRICT articulationListStart, Cm::SpatialVectorF* PX_RESTRICT deltaV,
+void solveNoContactsCase(	PxU32 bodyListSize, const PxSolverBody* PX_RESTRICT bodyListStart, ev4sio_Cm::SpatialVector* PX_RESTRICT motionVelocityArray,
+							PxU32 articulationListSize, FeatherstoneArticulation** PX_RESTRICT articulationListStart, ev4sio_Cm::SpatialVectorF* PX_RESTRICT deltaV,
 							PxU32 positionIterations, PxU32 velocityIterations, PxF32 dt, PxF32 invDt, PxReal articulationBiasCoefficient, bool solveArticulationContactLast);
 
-void saveMotionVelocities(PxU32 nbBodies, const PxSolverBody* PX_RESTRICT solverBodies, Cm::SpatialVector* PX_RESTRICT motionVelocityArray);
+void saveMotionVelocities(PxU32 nbBodies, const PxSolverBody* PX_RESTRICT solverBodies, ev4sio_Cm::SpatialVector* PX_RESTRICT motionVelocityArray);
 
 class BatchIterator
 {

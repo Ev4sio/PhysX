@@ -8,11 +8,11 @@
 
 #include "DyArticulationJointCore.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	struct PxsBodyCore;
 
-	namespace Dy
+	namespace ev4sio_Dy
 	{
 		struct Constraint;
 
@@ -23,7 +23,7 @@ namespace physx
 		public:
 			PxU32 linkIndex0;
 			PxU32 linkIndex1;
-			Dy::Constraint* constraint;
+			ev4sio_Dy::Constraint* constraint;
 		};
 
 #define DY_ARTICULATION_LINK_NONE 0xffffffff

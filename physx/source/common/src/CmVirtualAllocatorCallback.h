@@ -8,9 +8,9 @@
 
 #include "foundation/PxAllocator.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Cm
+namespace ev4sio_Cm
 {
 
 /**
@@ -25,8 +25,8 @@ class VirtualAllocatorCallback
 	virtual void deallocate(void* ptr) = 0;
 };
 
-} // namespace Cm
-} // namespace physx
+} // namespace ev4sio_Cm
+} // namespace ev4sio_physx
 
 
 #endif

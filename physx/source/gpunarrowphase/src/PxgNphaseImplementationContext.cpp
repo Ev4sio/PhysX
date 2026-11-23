@@ -39,9 +39,9 @@
 #endif
 #include "convexNpCommon.h"
 
-using namespace physx;
-using namespace Gu;
-using namespace Cm;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
+using namespace ev4sio_Cm;
 
 #define PXG_ENABLE_GPU_NP 1
 
@@ -138,7 +138,7 @@ void PxgCMGpuDiscreteUpdateBase::processContactManagers(PxgContactManagers& mana
 			mContext->mContext.mPatchStreamPool->mDataStreamSize, mContext->mContext.mContactStreamPool->mDataStreamSize,
 			mContext->mContext.mForceAndIndiceStreamPool->mDataStreamSize,
 			&renderOutput);
-		maxPatches = Gu::Contact::MAX_PATCHES;
+		maxPatches = ev4sio_Gu::Contact::MAX_PATCHES;
 		break;
 	case GPU_BUCKET_ID::eConvexCoreTetmesh:
 		mContext->mGpuNarrowphaseCore->testSDKConvexCoreTetmeshGjkEpaGpu(managersGPU,
@@ -419,7 +419,7 @@ void PxgCMGpuDiscreteSecondPassUpdateTask::runInternal()
 PxgNphaseImplementationContext::PxgNphaseImplementationContext(
 	PxsContext& context, PxsKernelWranglerManager* gpuKernelWrangler, PxvNphaseImplementationFallback* fallbackForUnsupportedCMs,
 	const PxGpuDynamicsMemoryConfig& gpuDynamicsConfig, void* contactStreamBase,  void* patchStreamBase, void* forceAndIndiceStreamBase,
-	Bp::BoundsArray& bounds,  IG::IslandSim* islandSim, physx::Dy::Context* dynamicsContext, PxgAllocatorDesc& allocDesc, bool useGPUBP) :
+	ev4sio_Bp::BoundsArray& bounds,  ev4sio_IG::IslandSim* islandSim, ev4sio_physx::ev4sio_Dy::Context* dynamicsContext, PxgAllocatorDesc& allocDesc, bool useGPUBP) :
 	PxvNphaseImplementationContext	(context),
 	mFallbackForUnsupportedCMs		(fallbackForUnsupportedCMs),
 	mUpdateCMsFirstPassTask			(this),
@@ -491,7 +491,7 @@ void PxgNphaseImplementationContext::updateNarrowPhaseShape()
 }
 
 void PxgNphaseImplementationContext::updateContactManager(PxReal dt, bool hasContactDistanceChanged, PxBaseTask* continuation,
-	PxBaseTask* firstPassNpContinuation, Cm::FanoutTask* updateBoundAndShapeTask)
+	PxBaseTask* firstPassNpContinuation, ev4sio_Cm::FanoutTask* updateBoundAndShapeTask)
 {
 	PX_PROFILE_ZONE("Sim.queueNarrowPhase", 0);
 
@@ -781,7 +781,7 @@ PxReal* PxgNphaseImplementationContext::getGPURestDistances()
 {
 	return mGpuNarrowphaseCore->getGPURestDistances();
 }
-Sc::ShapeInteraction** PxgNphaseImplementationContext::getGPUShapeInteractions()
+ev4sio_Sc::ShapeInteraction** PxgNphaseImplementationContext::getGPUShapeInteractions()
 {
 	return mGpuNarrowphaseCore->getGPUShapeInteractions();
 }
@@ -843,7 +843,7 @@ void PxgNphaseImplementationContext::preallocateNewBuffers(PxU32 nbNewPairs, PxU
 static PX_FORCE_INLINE bool isDynamicMesh(const PxsShapeCore* shapeCore)
 {
 	const PxGeometry& geom = shapeCore->mGeometry.getGeometry();
-	const Gu::TriangleMesh* mesh = static_cast<const Gu::TriangleMesh*>(static_cast<const PxTriangleMeshGeometry&>(geom).triangleMesh);
+	const ev4sio_Gu::TriangleMesh* mesh = static_cast<const ev4sio_Gu::TriangleMesh*>(static_cast<const PxTriangleMeshGeometry&>(geom).triangleMesh);
 	return mesh->getSdfDataFast().mSdf != NULL;
 }
 
@@ -854,7 +854,7 @@ static PX_FORCE_INLINE bool isGpuMesh(PxgGpuNarrowphaseCore* narrowPhaseCore, co
 }
 
 PX_FORCE_INLINE void PxgNphaseImplementationContext::registerContactManagerInternal(PxsContactManager* cm, const PxcNpWorkUnit& workUnit, PxU32 patchCount,
-	PxI32 touching, const Sc::ShapeInteraction* shapeInteraction, GPU_BUCKET_ID::Enum bucketId)
+	PxI32 touching, const ev4sio_Sc::ShapeInteraction* shapeInteraction, GPU_BUCKET_ID::Enum bucketId)
 {
 	PxsContactManagerOutput output;
 	prepGpuContactManagerOutput(output, workUnit, patchCount, touching);
@@ -893,7 +893,7 @@ namespace
 
 static PX_FORCE_INLINE bool isConvexCoreGpuCompatible(const PxsShapeCore* shapeCore)
 {
-	return Gu::isGPUCompatible(shapeCore->mGeometry.get<const PxConvexCoreGeometry>());
+	return ev4sio_Gu::isGPUCompatible(shapeCore->mGeometry.get<const PxConvexCoreGeometry>());
 }
 
 static PX_FORCE_INLINE bool isConvexGpuCompatible(const PxsShapeCore* shapeCore)
@@ -1568,7 +1568,7 @@ static internalMethod gTable[][PxGeometryType::eGEOMETRY_COUNT] =
 };
 PX_COMPILE_TIME_ASSERT(sizeof(gTable) / sizeof(gTable[0]) == PxGeometryType::eGEOMETRY_COUNT);
 
-void PxgNphaseImplementationContext::registerContactManager(PxsContactManager* cm, const Sc::ShapeInteraction* shapeInteraction, PxI32 touching, PxU32 patchCount)
+void PxgNphaseImplementationContext::registerContactManager(PxsContactManager* cm, const ev4sio_Sc::ShapeInteraction* shapeInteraction, PxI32 touching, PxU32 patchCount)
 {
 	mTotalNbPairs++;
 

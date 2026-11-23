@@ -10,7 +10,7 @@
 #include "internal/InternalPhysXDatabase.h"
 #include "usdLoad/AttachedStage.h"
 
-namespace omni::physx::attachmentLookup
+namespace omni::ev4sio_physx::attachmentLookup
 {
 // Private helpers for callers already executing against an explicit owner.
 // Public interfaces acquire runtime admission before using these functions.

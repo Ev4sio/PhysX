@@ -16,7 +16,7 @@
 
 #define MEMCHECK_SUPPORT 0
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 PxgCudaBuffer::PxgCudaBuffer(PxgHeapMemoryAllocator& deviceAlloc, PxI32 statGroup)
 : mPtr(0), mDeviceAlloc(deviceAlloc), mSize(0), mStatGroup(statGroup)

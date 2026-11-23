@@ -16,7 +16,7 @@
 #include "foundation/PxConstructor.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -696,7 +696,7 @@ namespace physx
 	using PxBitMap = PxBitMapBase<>;
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

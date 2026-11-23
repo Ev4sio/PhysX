@@ -10,7 +10,7 @@
 #include "PxPBDMaterial.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 
 /**
@@ -18,7 +18,7 @@ namespace physx
  */
 typedef PX_DEPRECATED PxPBDMaterial PxParticleMaterial;
 
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

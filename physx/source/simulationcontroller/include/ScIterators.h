@@ -9,7 +9,7 @@
 #include "foundation/PxVec3.h"
 #include "PxContact.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 class PxShape;
 class PxsContactManagerOutputIterator;
@@ -17,7 +17,7 @@ class PxsContactManagerOutputIterator;
 class PxsSimulationController;
 #endif
 
-namespace Sc
+namespace ev4sio_Sc
 {
 	class ShapeSimBase;
 	class ElementSimInteraction;
@@ -124,7 +124,7 @@ namespace Sc
 	};
 #endif
 
-}  // namespace Sc
+}  // namespace ev4sio_Sc
 
 }
 

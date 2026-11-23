@@ -44,9 +44,9 @@ namespace primutils
     // comparison below happens on this side of the boundary, so the caller need
     // not touch Gf. Element copy, no transpose -- the two types hold the same
     // sixteen doubles (see common/foundation/MatrixTools.h).
-    bool isBodyTransformEqual(  const ::physx::PxMat44d& body0World,
+    bool isBodyTransformEqual(  const ::ev4sio_physx::PxMat44d& body0World,
                                 bool body0Valid,
-                                const ::physx::PxMat44d& body1World,
+                                const ::ev4sio_physx::PxMat44d& body1World,
                                 bool body1Valid,
                                 PXR_NS::GfVec3f localPose0Position,
                                 PXR_NS::GfQuatf localPose0Orientation,

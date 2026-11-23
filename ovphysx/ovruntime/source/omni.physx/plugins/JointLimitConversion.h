@@ -16,7 +16,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 
 // Standalone linear limit (PxJointLinearLimitPair). PhysX rejects a pair whose bounds or span are
@@ -24,7 +24,7 @@ namespace physx
 inline float toLinearLimitBound(const float bound)
 {
     const float maxBound = PX_MAX_F32 / 3.0f;
-    return ::physx::PxClamp(bound, -maxBound, maxBound);
+    return ::ev4sio_physx::PxClamp(bound, -maxBound, maxBound);
 }
 
 // Standalone D6 twist limit (PxJointAngularLimitPair). PxD6Joint::setTwistLimit takes only angles
@@ -32,25 +32,25 @@ inline float toLinearLimitBound(const float bound)
 inline float toTwistLimitBound(const float bound)
 {
     const float twoPiEpsilon = float(2.0 * 3.14159265358979323846 - 0.0000001);
-    return ::physx::PxClamp(bound, -twoPiEpsilon, twoPiEpsilon);
+    return ::ev4sio_physx::PxClamp(bound, -twoPiEpsilon, twoPiEpsilon);
 }
 
 // Standalone D6 swing limit (PxJointLimitPyramid). PhysX rejects a pyramid whose angles are not
 // finite and strictly inside (-pi, pi).
 inline float toPyramidSwingLimitBound(const float bound)
 {
-    const float piEpsilon = ::physx::PxPi - 1.0e-4f;
-    return ::physx::PxClamp(bound, -piEpsilon, piEpsilon);
+    const float piEpsilon = ::ev4sio_physx::PxPi - 1.0e-4f;
+    return ::ev4sio_physx::PxClamp(bound, -piEpsilon, piEpsilon);
 }
 
 // Articulation joint limit (PxArticulationLimit). setLimitParams rejects non-finite limits, and a
 // spherical joint (which D6 articulation joints are) takes only angles within +-pi.
-inline float toArticulationLimitBound(const ::physx::PxArticulationJointType::Enum jointType, const float bound)
+inline float toArticulationLimitBound(const ::ev4sio_physx::PxArticulationJointType::Enum jointType, const float bound)
 {
     const float maxBound =
-        jointType == ::physx::PxArticulationJointType::eSPHERICAL ? ::physx::PxPi : PX_MAX_F32 / 3.0f;
-    return ::physx::PxClamp(bound, -maxBound, maxBound);
+        jointType == ::ev4sio_physx::PxArticulationJointType::eSPHERICAL ? ::ev4sio_physx::PxPi : PX_MAX_F32 / 3.0f;
+    return ::ev4sio_physx::PxClamp(bound, -maxBound, maxBound);
 }
 
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

@@ -106,7 +106,7 @@
 #include <usdInterface/UsdInterface.h>
 
 // Forward-declared rather than pulling in PhysXScene.h, a heavy header, for one function.
-namespace omni { namespace physx { bool isRigidBodyDynamic(const omni::physx::usdparser::AttachedStage& attachedStage, omni::physx::usdparser::ObjectId id); } }
+namespace omni { namespace ev4sio_physx { bool isRigidBodyDynamic(const omni::ev4sio_physx::usdparser::AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId id); } }
 
 #include "LoadUsd.h"
 #include "PhysXTools.h"
@@ -176,7 +176,7 @@ using namespace omni::physics::schema;
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace usdparser
 {
@@ -393,31 +393,31 @@ void createDeformableBody(AttachedStage& attachedStage, PhysxDeformableBodyDesc*
 // Compose each joint's local pose (scaled to remove the body's own scale) with the body's
 // world matrix, then compare the two resulting world translations/rotations within tolerance.
 // Relies on the Gf/PhysX matrix-operand-order swap documented in MatrixTools.h.
-bool isJointBodyTransformEqual(const ::physx::PxMat44d& body0World, bool body0Valid,
-                                const ::physx::PxMat44d& body1World, bool body1Valid,
-                                const ::physx::PxVec3& localPose0Position, const ::physx::PxQuat& localPose0Orientation,
-                                const ::physx::PxVec3& localPose1Position, const ::physx::PxQuat& localPose1Orientation,
+bool isJointBodyTransformEqual(const ::ev4sio_physx::PxMat44d& body0World, bool body0Valid,
+                                const ::ev4sio_physx::PxMat44d& body1World, bool body1Valid,
+                                const ::ev4sio_physx::PxVec3& localPose0Position, const ::ev4sio_physx::PxQuat& localPose0Orientation,
+                                const ::ev4sio_physx::PxVec3& localPose1Position, const ::ev4sio_physx::PxQuat& localPose1Orientation,
                                 double jointBodyTransformCheckTolerance,
                                 bool checkPosition, bool checkRotation,
                                 unsigned char axis)
 {
-    auto getJointBodyPose = [](const ::physx::PxMat44d& bodyWorld, bool bodyValid,
-                                const ::physx::PxVec3& locPos, const ::physx::PxQuat& locRot) -> ::physx::PxTransform {
+    auto getJointBodyPose = [](const ::ev4sio_physx::PxMat44d& bodyWorld, bool bodyValid,
+                                const ::ev4sio_physx::PxVec3& locPos, const ::ev4sio_physx::PxQuat& locRot) -> ::ev4sio_physx::PxTransform {
         if (!bodyValid)
         {
-            return ::physx::PxTransform(locPos, locRot);
+            return ::ev4sio_physx::PxTransform(locPos, locRot);
         }
-        const ::physx::PxVec3 scale = getScale(bodyWorld);
-        const ::physx::PxVec3 scaledPos(locPos.x / scale.x, locPos.y / scale.y, locPos.z / scale.z);
-        const ::physx::PxMat44d localPose = makeMatrix(::physx::PxTransform(scaledPos, locRot));
+        const ::ev4sio_physx::PxVec3 scale = getScale(bodyWorld);
+        const ::ev4sio_physx::PxVec3 scaledPos(locPos.x / scale.x, locPos.y / scale.y, locPos.z / scale.z);
+        const ::ev4sio_physx::PxMat44d localPose = makeMatrix(::ev4sio_physx::PxTransform(scaledPos, locRot));
         // Gf composes local*bodyWorld (row-vector convention: local applied first); the
         // PhysX (column-vector) equivalent of the same element-copied matrices swaps the
         // operand order, so bodyWorld*localPose still applies localPose first.
         return toTransform(bodyWorld * localPose);
     };
 
-    const ::physx::PxTransform body0tm = getJointBodyPose(body0World, body0Valid, localPose0Position, localPose0Orientation);
-    const ::physx::PxTransform body1tm = getJointBodyPose(body1World, body1Valid, localPose1Position, localPose1Orientation);
+    const ::ev4sio_physx::PxTransform body0tm = getJointBodyPose(body0World, body0Valid, localPose0Position, localPose0Orientation);
+    const ::ev4sio_physx::PxTransform body1tm = getJointBodyPose(body1World, body1Valid, localPose1Position, localPose1Orientation);
 
     const double eps = jointBodyTransformCheckTolerance;
 
@@ -425,7 +425,7 @@ bool isJointBodyTransformEqual(const ::physx::PxMat44d& body0World, bool body0Va
     {
         if (axis < 3)
         {
-            const ::physx::PxVec3 tran = body0tm.p - body1tm.p;
+            const ::ev4sio_physx::PxVec3 tran = body0tm.p - body1tm.p;
             static const unsigned char axes[3][2] = { { 1, 2 }, { 0, 2 }, { 0, 1 } };
             const double a1 = tran[axes[axis][0]];
             const double a2 = tran[axes[axis][1]];
@@ -436,7 +436,7 @@ bool isJointBodyTransformEqual(const ::physx::PxMat44d& body0World, bool body0Va
         }
         else
         {
-            const ::physx::PxVec3 tran = body0tm.p - body1tm.p;
+            const ::ev4sio_physx::PxVec3 tran = body0tm.p - body1tm.p;
             if (!(tran.magnitudeSquared() <= eps * eps))
             {
                 return false;
@@ -446,18 +446,18 @@ bool isJointBodyTransformEqual(const ::physx::PxMat44d& body0World, bool body0Va
 
     if (checkRotation)
     {
-        const ::physx::PxQuat& rot0 = body0tm.q;
-        const ::physx::PxQuat& rot1 = body1tm.q;
+        const ::ev4sio_physx::PxQuat& rot0 = body0tm.q;
+        const ::ev4sio_physx::PxQuat& rot1 = body1tm.q;
         // Double-cover-aware closeness (GfIsClose(GfQuatd,GfQuatd) semantics): compare
         // real+imaginary parts against +rot1 OR -rot1, both scalar-eps on the real part
         // and distance-eps on the imaginary part.
-        auto imagClose = [eps](const ::physx::PxQuat& a, const ::physx::PxQuat& b) {
-            const ::physx::PxVec3 d(a.x - b.x, a.y - b.y, a.z - b.z);
+        auto imagClose = [eps](const ::ev4sio_physx::PxQuat& a, const ::ev4sio_physx::PxQuat& b) {
+            const ::ev4sio_physx::PxVec3 d(a.x - b.x, a.y - b.y, a.z - b.z);
             return d.magnitudeSquared() <= eps * eps;
         };
         const bool same = fabs(rot0.w - rot1.w) < eps && imagClose(rot0, rot1);
         const bool opposite = fabs(rot0.w + rot1.w) < eps &&
-                               imagClose(rot0, ::physx::PxQuat(-rot1.x, -rot1.y, -rot1.z, -rot1.w));
+                               imagClose(rot0, ::ev4sio_physx::PxQuat(-rot1.x, -rot1.y, -rot1.z, -rot1.w));
         if (!(same || opposite))
         {
             return false;
@@ -514,7 +514,7 @@ void refreshAutoDeformableAttachments(AttachedStage& attachedStage,
     for (const omni::physics::parse::ObjectKey autoAttachmentKey : autoAttachmentKeys)
     {
         bool attachmentDataRecomputed = false;
-        if (!omni::physx::updateAutoDeformableAttachment(attachedStage, autoAttachmentKey, attachmentDataRecomputed))
+        if (!omni::ev4sio_physx::updateAutoDeformableAttachment(attachedStage, autoAttachmentKey, attachmentDataRecomputed))
         {
             CARB_LOG_WARN("refreshAutoDeformableAttachments: updateAutoDeformableAttachment failed for %s",
                 attachedStage.textFor(autoAttachmentKey));
@@ -536,7 +536,7 @@ void generateAutoDeformableAttachmentLayouts(AttachedStage& attachedStage,
     const KeySet& autoAttachmentKeys,
     DeformableAttachmentVector& attachments, DeformableCollisionFilterVector& collisionFilters)
 {
-    if (autoAttachmentKeys.empty() || omni::physx::attachmentauthoring::canAuthor(attachedStage))
+    if (autoAttachmentKeys.empty() || omni::ev4sio_physx::attachmentauthoring::canAuthor(attachedStage))
         return;
     const omni::physics::parse::IPhysicsSource* src = attachedStage.getSource();
     if (!src)
@@ -556,7 +556,7 @@ void generateAutoDeformableAttachmentLayouts(AttachedStage& attachedStage,
         {
             // Authored children win, but an incomplete set (interrupted or older producer) is
             // not completed here, so make the gap visible.
-            const uint32_t expected = omni::physx::expectedAutoDeformableAttachmentSubPrimCount(attachedStage, autoAttachmentKey);
+            const uint32_t expected = omni::ev4sio_physx::expectedAutoDeformableAttachmentSubPrimCount(attachedStage, autoAttachmentKey);
             if (expected != 0 && expected != authored->second)
             {
                 CARB_LOG_WARN("Auto deformable attachment %s carries %u authored sub prims where %u are expected; "
@@ -565,7 +565,7 @@ void generateAutoDeformableAttachmentLayouts(AttachedStage& attachedStage,
             }
             continue;
         }
-        if (!omni::physx::buildGeneratedAutoDeformableAttachmentLayout(attachedStage, autoAttachmentKey))
+        if (!omni::ev4sio_physx::buildGeneratedAutoDeformableAttachmentLayout(attachedStage, autoAttachmentKey))
             continue;
         const GeneratedAutoAttachmentLayout* layout = attachedStage.getGeneratedAutoAttachmentLayout(autoAttachmentKey);
         for (const GeneratedAutoAttachmentChild& child : layout->children)
@@ -574,14 +574,14 @@ void generateAutoDeformableAttachmentLayouts(AttachedStage& attachedStage,
             {
                 DeformableCollisionFilterDescAndPath entry;
                 entry.path = child.key;
-                entry.desc = omni::physx::makeGeneratedDeformableCollisionFilterDesc(child);
+                entry.desc = omni::ev4sio_physx::makeGeneratedDeformableCollisionFilterDesc(child);
                 collisionFilters.push_back(entry);
             }
             else
             {
                 DeformableAttachmentDescAndPath entry;
                 entry.path = child.key;
-                entry.desc = omni::physx::makeGeneratedDeformableAttachmentDesc(child);
+                entry.desc = omni::ev4sio_physx::makeGeneratedDeformableAttachmentDesc(child);
                 attachments.push_back(entry);
             }
         }
@@ -603,7 +603,7 @@ void createDeformableAttachments(AttachedStage& attachedStage, DeformableAttachm
         {
             // A generated (in-memory) child has no prim to rescan; rebuild its desc from the layout.
             if (const GeneratedAutoAttachmentChild* generated = attachedStage.findGeneratedAutoAttachmentChild(attachments[i].path))
-                attachments[i].desc = omni::physx::makeGeneratedDeformableAttachmentDesc(*generated);
+                attachments[i].desc = omni::ev4sio_physx::makeGeneratedDeformableAttachmentDesc(*generated);
         }
         if (attachments[i].desc == nullptr)
         {
@@ -621,7 +621,7 @@ void createDeformableAttachments(AttachedStage& attachedStage, DeformableAttachm
             omni::physics::parse::ScanOptions scanOptions = attachedStage.descriptorScanOptions();
             scanOptions.descendantScope = omni::physics::parse::DescendantScope::eActive;
             omni::physics::parse::ScannedStage scanned = attachedStage.scanStage(scanRoots, kNoExclude, scanOptions,
-                omni::physx::usdparser::iceDescriptorAllocator());
+                omni::ev4sio_physx::usdparser::iceDescriptorAllocator());
             if (scanned.attachments.empty())
                 return;
 
@@ -654,7 +654,7 @@ void createDeformableCollisionFilters(AttachedStage& attachedStage, DeformableCo
         if (collisionFilters[i].desc == nullptr)
         {
             if (const GeneratedAutoAttachmentChild* generated = attachedStage.findGeneratedAutoAttachmentChild(collisionFilters[i].path))
-                collisionFilters[i].desc = omni::physx::makeGeneratedDeformableCollisionFilterDesc(*generated);
+                collisionFilters[i].desc = omni::ev4sio_physx::makeGeneratedDeformableCollisionFilterDesc(*generated);
         }
         if (collisionFilters[i].desc == nullptr)
         {
@@ -672,7 +672,7 @@ void createDeformableCollisionFilters(AttachedStage& attachedStage, DeformableCo
             omni::physics::parse::ScanOptions scanOptions = attachedStage.descriptorScanOptions();
             scanOptions.descendantScope = omni::physics::parse::DescendantScope::eActive;
             omni::physics::parse::ScannedStage scanned = attachedStage.scanStage(scanRoots, kNoExclude, scanOptions,
-                omni::physx::usdparser::iceDescriptorAllocator());
+                omni::ev4sio_physx::usdparser::iceDescriptorAllocator());
             if (scanned.deformableCollisionFilters.empty())
                 return;
 
@@ -961,7 +961,7 @@ void createParticleSystemsAndObjects(AttachedStage& attachedStage, const std::ve
     }
 }
 
-omni::physx::usdparser::ObjectId findOrCreatePhysXObject(AttachedStage& attachedStage, omni::physics::parse::ObjectKey key, PhysxObjectDesc* objectDesc,
+omni::ev4sio_physx::usdparser::ObjectId findOrCreatePhysXObject(AttachedStage& attachedStage, omni::physics::parse::ObjectKey key, PhysxObjectDesc* objectDesc,
     PhysXUsdPhysicsInterface& physicsInterface, ObjectDb& objectDb)
 {
     ObjectId objectId = objectDb.findEntry(key, objectDesc->type);
@@ -2175,7 +2175,7 @@ public:
                 // isTetMeshLike, not isA(UsdGeomTetMesh): ovstage reports a UsdGeomTetMesh as
                 // plain "Mesh" (its populator has no TetMesh mapping). See
                 // PhysXTools.h::isTetMeshLike.
-                if (!src || !omni::physx::internal::isTetMeshLike(mAttachedStage, collKey))
+                if (!src || !omni::ev4sio_physx::internal::isTetMeshLike(mAttachedStage, collKey))
                 {
                     CARB_LOG_WARN("UsdPhysics.CollisionAPI on UsdGeomPointBased that are not UsdGeomTetMesh "
                                   "is currently not supported for volume deformables. Parsing failed. Prim: %s",
@@ -2582,12 +2582,12 @@ public:
                 const bool body1Valid = jbSrc && jbSrc->exists(desc->body1);
                 // World matrices stay PhysX-typed into primutils::isBodyTransformEqual; an invalid
                 // body contributes identity (ignored there).
-                const ::physx::PxMat44d body0World =
+                const ::ev4sio_physx::PxMat44d body0World =
                     body0Valid ? internal::getWorldTransform(mAttachedStage, desc->body0) :
-                                 ::physx::PxMat44d(::physx::PxIdentity);
-                const ::physx::PxMat44d body1World =
+                                 ::ev4sio_physx::PxMat44d(::ev4sio_physx::PxIdentity);
+                const ::ev4sio_physx::PxMat44d body1World =
                     body1Valid ? internal::getWorldTransform(mAttachedStage, desc->body1) :
-                                 ::physx::PxMat44d(::physx::PxIdentity);
+                                 ::ev4sio_physx::PxMat44d(::ev4sio_physx::PxIdentity);
                 desc->validBodyTransformations = isJointBodyTransformEqual(
                     body0World, body0Valid, body1World, body1Valid,
                     toPhysX(desc->localPose0Position), toPhysXQuat(desc->localPose0Orientation),
@@ -3697,7 +3697,7 @@ public:
             // without one it silently returns an empty scan and every attach bails out
             // at `!scanned.sourcePtr()` below.
             scanned = mAttachedStage.scanStage(scanRoots,
-                excludeStrings, scanOptions, omni::physx::usdparser::iceDescriptorAllocator());
+                excludeStrings, scanOptions, omni::ev4sio_physx::usdparser::iceDescriptorAllocator());
         }
         if (!scanned.sourcePtr())
             return false;
@@ -4061,7 +4061,7 @@ public:
                 }
                 else if (candidate.kind == Kind::eParticleSampler)
                 {
-                    cookingdataasync::CookingDataAsync* cookingDataAsync = omni::physx::OmniPhysX::getInstance().getPhysXSetup().getCookingDataAsync();
+                    cookingdataasync::CookingDataAsync* cookingDataAsync = omni::ev4sio_physx::OmniPhysX::getInstance().getPhysXSetup().getCookingDataAsync();
                     // Build the engine sampling descriptor from the scanned
                     // parse descriptor (no USD re-read).
                     auto samplerIt = scannedSamplers.find(candidatePath);
@@ -4096,7 +4096,7 @@ public:
                         // tasks to finish.
                         if (mAttachedStage.simulationStepCount() == 0)
                         {
-                            omni::physx::particles::createParticleSampler(mAttachedStage, primObjKey, particleKey);
+                            omni::ev4sio_physx::particles::createParticleSampler(mAttachedStage, primObjKey, particleKey);
                             cookingDataAsync->poissonSampleMesh(primObjKey, mAttachedStage, samplingDesc, false, false);
                         }
                         else
@@ -4409,5 +4409,5 @@ bool loadPhysicsFromPrimitive(AttachedStage& attachedStage, const std::vector<st
 }
 
 } // namespace usdparser
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

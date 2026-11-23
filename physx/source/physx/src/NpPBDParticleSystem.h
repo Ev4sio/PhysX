@@ -14,7 +14,7 @@
 #include "NpActorTemplate.h"
 #include "ScParticleSystemSim.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	class PxCudaContextManager;
 	class PxRigidActor;
@@ -111,8 +111,8 @@ namespace physx
 		//~PxPBDParticleSystem
 
 	public:
-		PX_FORCE_INLINE	const Sc::ParticleSystemCore& getCore()	const { return mCore; }
-		PX_FORCE_INLINE	Sc::ParticleSystemCore& getCore() { return mCore; }
+		PX_FORCE_INLINE	const ev4sio_Sc::ParticleSystemCore& getCore()	const { return mCore; }
+		PX_FORCE_INLINE	ev4sio_Sc::ParticleSystemCore& getCore() { return mCore; }
 		static PX_FORCE_INLINE size_t getCoreOffset() { return PX_OFFSET_OF_RT(NpPBDParticleSystem, mCore); }
 
 #if PX_ENABLE_DEBUG_VISUALIZATION
@@ -129,7 +129,7 @@ namespace physx
 			NpScene* scene = NpBase::getNpScene();
 			if (scene)
 			{
-				mCore.getSim()->getLowLevelParticleSystem()->mFlag |= Dy::ParticleSystemFlag::eUPDATE_PARAMS;
+				mCore.getSim()->getLowLevelParticleSystem()->mFlag |= ev4sio_Dy::ParticleSystemFlag::eUPDATE_PARAMS;
 			}
 		}
 
@@ -287,7 +287,7 @@ namespace physx
 		PxArray<NpParticleAndDiffuseBuffer*>	mParticleDiffuseBuffers;
 
 	private:
-		Sc::ParticleSystemCore mCore;
+		ev4sio_Sc::ParticleSystemCore mCore;
 		PxCudaContextManager* mCudaContextManager;
 		PxU32 mNextPhaseGroupID;
 	};

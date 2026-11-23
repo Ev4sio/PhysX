@@ -78,7 +78,7 @@ namespace omni::physics::usd
 
 namespace
 {
-GfQuatf toQuatf(const ::physx::PxQuat& q)
+GfQuatf toQuatf(const ::ev4sio_physx::PxQuat& q)
 {
     // PxQuat stores (x, y, z, w); GfQuatf is (real=w, imaginary=(x, y, z)).
     return GfQuatf(q.w, GfVec3f(q.x, q.y, q.z));
@@ -116,7 +116,7 @@ GfMatrix4d toMatrix4d(const omni::physics::parse::Matrix4d& m)
 
 // Compose a TRS matrix (scale, then rotate, then translate) for the fallback /
 // single-transform-op paths.
-GfMatrix4d composeMatrix(const ::physx::PxVec3& p, const ::physx::PxQuat& q, const ::physx::PxVec3* s)
+GfMatrix4d composeMatrix(const ::ev4sio_physx::PxVec3& p, const ::ev4sio_physx::PxQuat& q, const ::ev4sio_physx::PxVec3* s)
 {
     GfTransform tr;
     if (s)
@@ -187,7 +187,7 @@ XformOpRole xformOpRole(const UsdGeomXformOp& op)
 // PxTransform, and DataWriteView carries nothing wider than e32Bit), so a
 // PrecisionDouble orient / rotateZYX op receives a float-rounded rotation. That
 // is the precision of the input, not a narrowing introduced here.
-void scatterTransform(UsdPrim& prim, const ::physx::PxVec3& p, const ::physx::PxQuat& q, const ::physx::PxVec3* s)
+void scatterTransform(UsdPrim& prim, const ::ev4sio_physx::PxVec3& p, const ::ev4sio_physx::PxQuat& q, const ::ev4sio_physx::PxVec3* s)
 {
     UsdGeomXformable primXform(prim);
     bool resetXformStack = false;
@@ -782,16 +782,16 @@ void UsdPhysicsDataWrite::writeTransforms(const omni::physics::parse::ObjectKey*
 
     // Columns are packed (or strided) buffers at host precision: positions/scales
     // are vec3 (PxVec3 layout), orientations are quaternion xyzw (PxQuat layout).
-    const size_t posStride = positions.stride ? positions.stride : sizeof(::physx::PxVec3);
-    const size_t orientStride = orientations.stride ? orientations.stride : sizeof(::physx::PxQuat);
-    const size_t scaleStride = scales.stride ? scales.stride : sizeof(::physx::PxVec3);
+    const size_t posStride = positions.stride ? positions.stride : sizeof(::ev4sio_physx::PxVec3);
+    const size_t orientStride = orientations.stride ? orientations.stride : sizeof(::ev4sio_physx::PxQuat);
+    const size_t scaleStride = scales.stride ? scales.stride : sizeof(::ev4sio_physx::PxVec3);
     const auto* posBase = static_cast<const uint8_t*>(positions.data);
     const auto* orientBase = static_cast<const uint8_t*>(orientations.data);
     const auto* scaleBase = static_cast<const uint8_t*>(scales.data);
     const bool hasScales = scales.data != nullptr;
-    auto posAt = [&](size_t i) { return *reinterpret_cast<const ::physx::PxVec3*>(posBase + i * posStride); };
-    auto orientAt = [&](size_t i) { return *reinterpret_cast<const ::physx::PxQuat*>(orientBase + i * orientStride); };
-    auto scaleAt = [&](size_t i) { return *reinterpret_cast<const ::physx::PxVec3*>(scaleBase + i * scaleStride); };
+    auto posAt = [&](size_t i) { return *reinterpret_cast<const ::ev4sio_physx::PxVec3*>(posBase + i * posStride); };
+    auto orientAt = [&](size_t i) { return *reinterpret_cast<const ::ev4sio_physx::PxQuat*>(orientBase + i * orientStride); };
+    auto scaleAt = [&](size_t i) { return *reinterpret_cast<const ::ev4sio_physx::PxVec3*>(scaleBase + i * scaleStride); };
 
     // Resolve prims once, then author in order of increasing prim-path depth so
     // an ancestor body is authored before any descendant body reads its
@@ -817,8 +817,8 @@ void UsdPhysicsDataWrite::writeTransforms(const omni::physics::parse::ObjectKey*
         if (!prim)
             continue;
 
-        ::physx::PxVec3 scaleVal;
-        const ::physx::PxVec3* scale = nullptr;
+        ::ev4sio_physx::PxVec3 scaleVal;
+        const ::ev4sio_physx::PxVec3* scale = nullptr;
         if (hasScales)
         {
             scaleVal = scaleAt(i);
@@ -867,9 +867,9 @@ void UsdPhysicsDataWrite::writeTransforms(const omni::physics::parse::ObjectKey*
             continue;
         }
 
-        const ::physx::PxVec3 cp{ p[0], p[1], p[2] };
+        const ::ev4sio_physx::PxVec3 cp{ p[0], p[1], p[2] };
         const GfVec3f qi = q.GetImaginary();
-        const ::physx::PxQuat cq{ qi[0], qi[1], qi[2], q.GetReal() };
+        const ::ev4sio_physx::PxQuat cq{ qi[0], qi[1], qi[2], q.GetReal() };
         scatterTransform(prim, cp, cq, scale);
     }
 }

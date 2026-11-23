@@ -10,11 +10,11 @@
 #include "foundation/PxUserAllocated.h"
 #include "PxsHeapStats.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 #if PX_SUPPORT_GPU_PHYSX
 
-	namespace Cm
+	namespace ev4sio_Cm
 	{
 		class VirtualAllocatorCallback;
 	}
@@ -28,8 +28,8 @@ namespace physx
 		virtual PxsHeapStats getDeviceHeapStats() const = 0;
 		virtual void flushDeferredDeallocs() = 0;
 
-		Cm::VirtualAllocatorCallback* mPinnedHostMemoryAllocator;
-		Cm::VirtualAllocatorCallback* mPinnedHostMappedMemoryAllocator;
+		ev4sio_Cm::VirtualAllocatorCallback* mPinnedHostMemoryAllocator;
+		ev4sio_Cm::VirtualAllocatorCallback* mPinnedHostMappedMemoryAllocator;
 	};
 #endif
 }

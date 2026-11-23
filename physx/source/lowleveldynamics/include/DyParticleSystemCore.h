@@ -13,11 +13,11 @@
 #include "CmIDPool.h"
 #include "PxSparseGridParams.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	class PxsParticleBuffer;
 
-namespace Dy
+namespace ev4sio_Dy
 {
 
 class ParticleSystemCore
@@ -90,8 +90,8 @@ public:
 
 };
 
-} // namespace Dy
-} // namespace physx
+} // namespace ev4sio_Dy
+} // namespace ev4sio_physx
 
 #endif
 

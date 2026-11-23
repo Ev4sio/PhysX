@@ -36,7 +36,7 @@
 
 #include <stdio.h>
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 PxgPhysXGpu* PxgPhysXGpu::sInstance = NULL;
 
@@ -113,14 +113,14 @@ PxsKernelWranglerManager* PxgPhysXGpu::getGpuKernelWranglerManager(PxCudaContext
 	if(entry)
 		return entry->second;
 
-	PxgCudaKernelWranglerManager* wrangler = PX_NEW(PxgCudaKernelWranglerManager)(*cudaContextManager, *PxGetErrorCallback());
+	PxgCudaKernelWranglerManager* wrangler = PX_NEW(PxgCudaKernelWranglerManager)(*cudaContextManager, *ev4sio_PxGetErrorCallback());
 	mKernelWranglerInstances.insert(cudaContextManager, wrangler);
 	return wrangler;
 }
 
 //----------------------------------------------------------------------------//
 
-Bp::BroadPhase* PxgPhysXGpu::createGpuBroadPhase(const PxGpuBroadPhaseDesc& desc, PxsKernelWranglerManager* gpuKernelWrangler, PxCudaContextManager* cudaContextManager,
+ev4sio_Bp::BroadPhase* PxgPhysXGpu::createGpuBroadPhase(const PxGpuBroadPhaseDesc& desc, PxsKernelWranglerManager* gpuKernelWrangler, PxCudaContextManager* cudaContextManager,
 	PxU32 gpuComputeVersion, const PxGpuDynamicsMemoryConfig& config, 
 	PxsHeapMemoryAllocatorManager& heapMemoryManager, PxU64 contextID)
 {
@@ -135,15 +135,15 @@ Bp::BroadPhase* PxgPhysXGpu::createGpuBroadPhase(const PxGpuBroadPhaseDesc& desc
 
 //----------------------------------------------------------------------------//
 
-Bp::AABBManagerBase* PxgPhysXGpu::createGpuAABBManager(
+ev4sio_Bp::AABBManagerBase* PxgPhysXGpu::createGpuAABBManager(
 	PxsKernelWranglerManager* gpuKernelWrangler,
 	PxCudaContextManager* cudaContextManager,
 	const PxU32 gpuComputeVersion,
 	const PxGpuDynamicsMemoryConfig& config,
 	PxsHeapMemoryAllocatorManager& heapMemoryManager,
-	Bp::BroadPhase& bp,
-	Bp::BoundsArray& boundsArray,
-	Cm::PinnableArray<PxReal>& contactDistance,
+	ev4sio_Bp::BroadPhase& bp,
+	ev4sio_Bp::BoundsArray& boundsArray,
+	ev4sio_Cm::PinnableArray<PxReal>& contactDistance,
 	PxU32 maxNbAggregates, PxU32 maxNbShapes,
 	PxU64 contextID,
 	PxPairFilteringMode::Enum kineKineFilteringMode,
@@ -160,7 +160,7 @@ Bp::AABBManagerBase* PxgPhysXGpu::createGpuAABBManager(
 
 //----------------------------------------------------------------------------//
 
-Bp::BoundsArray* PxgPhysXGpu::createGpuBounds(Cm::VirtualAllocatorCallback& allocator)
+ev4sio_Bp::BoundsArray* PxgPhysXGpu::createGpuBounds(ev4sio_Cm::VirtualAllocatorCallback& allocator)
 {
 	return PX_PLACEMENT_NEW(PX_ALLOC(sizeof(PxgBoundsArray), "PxgBoundsArray"), PxgBoundsArray)(allocator);
 }
@@ -172,7 +172,7 @@ PxvNphaseImplementationContext* PxgPhysXGpu::createGpuNphaseImplementationContex
 	PxvNphaseImplementationFallback* fallbackForUnsupportedCMs,
 	const PxGpuDynamicsMemoryConfig& gpuDynamicsConfig,
 	void* contactStreamBase, void* patchStreamBase, void* forceAndIndiceStreamBase,
-	Bp::BoundsArray& bounds, IG::IslandSim* islandSim, Dy::Context* dynamicsContext, 
+	ev4sio_Bp::BoundsArray& bounds, ev4sio_IG::IslandSim* islandSim, ev4sio_Dy::Context* dynamicsContext,
 	const PxU32 /*gpuComputeVersion*/, PxsHeapMemoryAllocatorManager& heapMemoryManager, bool useGPUBP)
 {
 	if(!gpuKernelWrangler)
@@ -187,8 +187,8 @@ PxvNphaseImplementationContext* PxgPhysXGpu::createGpuNphaseImplementationContex
 //----------------------------------------------------------------------------//
 
 PxsSimulationController* PxgPhysXGpu::createGpuSimulationController(PxsKernelWranglerManager* gpuWranglerManagers, PxCudaContextManager* cudaContextManager, 
-	Dy::Context* dynamicContext, PxvNphaseImplementationContext* npContext,
-	Bp::BroadPhase* bp, const bool useGpuBroadphase, PxsSimulationControllerCallback* callback, 
+	ev4sio_Dy::Context* dynamicContext, PxvNphaseImplementationContext* npContext,
+	ev4sio_Bp::BroadPhase* bp, const bool useGpuBroadphase, PxsSimulationControllerCallback* callback,
 	const PxU32 /*gpuComputeVersion*/, PxsHeapMemoryAllocatorManager& heapMemoryManager, const PxU32 maxDeformableVolumeContacts, const PxU32 maxDeformableSurfaceContacts,
 	const PxU32 maxParticleContacts, const PxU32 collisionStackSizeBytes, bool enableBodyAccelerations)
 {
@@ -205,8 +205,8 @@ PxsSimulationController* PxgPhysXGpu::createGpuSimulationController(PxsKernelWra
 
 //----------------------------------------------------------------------------//
 
-Dy::Context* PxgPhysXGpu::createGpuDynamicsContext(Cm::FlushPool& taskPool, PxsKernelWranglerManager* gpuKernelWrangler, PxCudaContextManager* cudaContextManager, 
-	const PxGpuDynamicsMemoryConfig& config, IG::SimpleIslandManager& islandManager, PxU32 maxNumPartitions, PxU32 maxNumStaticPartitions,
+ev4sio_Dy::Context* PxgPhysXGpu::createGpuDynamicsContext(ev4sio_Cm::FlushPool& taskPool, PxsKernelWranglerManager* gpuKernelWrangler, PxCudaContextManager* cudaContextManager,
+	const PxGpuDynamicsMemoryConfig& config, ev4sio_IG::SimpleIslandManager& islandManager, PxU32 maxNumPartitions, PxU32 maxNumStaticPartitions,
 	PxReal maxBiasCoefficient, PxU32 /*gpuComputeVersion*/, PxvSimStats& simStats, PxsHeapMemoryAllocatorManager& heapMemoryManager,
 	PxSolverType::Enum solverType, PxReal lengthScale, PxU64 contextID, PxSceneFlags sceneFlags)
 {
@@ -229,7 +229,7 @@ Dy::Context* PxgPhysXGpu::createGpuDynamicsContext(Cm::FlushPool& taskPool, PxsK
 // Implementation of exported functions
 //----------------------------------------------------------------------------//
 
-PxPhysXGpu* PxCreatePhysXGpu()
+PxPhysXGpu* ev4sio_PxCreatePhysXGpu()
 {
 	createPxgBroadphase();
 	createPxgCommon();
@@ -242,35 +242,35 @@ PxPhysXGpu* PxCreatePhysXGpu()
 
 //----------------------------------------------------------------------------//
 
-physx::PxCudaContextManager* PxCreateCudaContextManager(physx::PxFoundation& foundation, const physx::PxCudaContextManagerDesc& desc, physx::PxProfilerCallback* profilerCallback, bool launchSynchronous)
+ev4sio_physx::PxCudaContextManager* ev4sio_PxCreateCudaContextManager(ev4sio_physx::PxFoundation& foundation, const ev4sio_physx::PxCudaContextManagerDesc& desc, ev4sio_physx::PxProfilerCallback* profilerCallback, bool launchSynchronous)
 {
 	//this is only necessary for static lib configs with PhysXGpu still being a shared lib. 
-	PxSetFoundationInstance(foundation);
+	ev4sio_PxSetFoundationInstance(foundation);
 
-	PxSetProfilerCallback(profilerCallback);
+	ev4sio_PxSetProfilerCallback(profilerCallback);
 	
-	return physx::createCudaContextManager(desc, foundation.getErrorCallback(), launchSynchronous);
+	return ev4sio_physx::createCudaContextManager(desc, foundation.getErrorCallback(), launchSynchronous);
 }
 
 //----------------------------------------------------------------------------//
 
-void PxSetPhysXGpuProfilerCallback(physx::PxProfilerCallback* profilerCallback)
+void ev4sio_PxSetPhysXGpuProfilerCallback(ev4sio_physx::PxProfilerCallback* profilerCallback)
 {
-	PxSetProfilerCallback(profilerCallback);
+	ev4sio_PxSetProfilerCallback(profilerCallback);
 }
 
 //----------------------------------------------------------------------------//
 
-void PxSetPhysXGpuFoundationInstance(physx::PxFoundation& foundation)
+void ev4sio_PxSetPhysXGpuFoundationInstance(ev4sio_physx::PxFoundation& foundation)
 {
-	PxSetFoundationInstance(foundation);
+	ev4sio_PxSetFoundationInstance(foundation);
 }
 
 //----------------------------------------------------------------------------//
 
-int PxGetSuggestedCudaDeviceOrdinal(physx::PxErrorCallback& errc)
+int ev4sio_PxGetSuggestedCudaDeviceOrdinal(ev4sio_physx::PxErrorCallback& errc)
 {
-	return physx::PhysXDeviceSettings::getSuggestedCudaDeviceOrdinal(errc);
+	return ev4sio_physx::PhysXDeviceSettings::getSuggestedCudaDeviceOrdinal(errc);
 }
 
 //----------------------------------------------------------------------------//
@@ -278,7 +278,7 @@ static const PxU32 s_maxNumFunctions = 1024; // Max number of kernel entry point
 static PxKernelIndex s_FunctionTable[s_maxNumFunctions];
 static PxU32 s_numFunctions = 0;
 
-void PxGpuCudaRegisterFunction(int moduleIndex, const char* functionName)
+void ev4sio_PxGpuCudaRegisterFunction(int moduleIndex, const char* functionName)
 {
 	if(s_numFunctions < s_maxNumFunctions)
 	{
@@ -288,19 +288,19 @@ void PxGpuCudaRegisterFunction(int moduleIndex, const char* functionName)
 	}
 	else
 	{
-		if(PxIsFoundationValid()) // error callback requires foundation
-			PxGetErrorCallback()->reportError(PxErrorCode::eINTERNAL_ERROR, "Too many cuda kernels registered. Increase maxNumFunctions limit.", PX_FL);
+		if(ev4sio_PxIsFoundationValid()) // error callback requires foundation
+			ev4sio_PxGetErrorCallback()->reportError(PxErrorCode::eINTERNAL_ERROR, "Too many cuda kernels registered. Increase maxNumFunctions limit.", PX_FL);
 		else
 			fprintf(stderr, "Too many cuda kernels registered. Increase maxNumFunctions limit. (%s:%i)\n", PX_FL);
 	}
 }
 
-PxKernelIndex* PxGpuGetCudaFunctionTable()
+PxKernelIndex* ev4sio_PxGpuGetCudaFunctionTable()
 {
 	return s_FunctionTable;
 }
 
-PxU32 PxGpuGetCudaFunctionTableSize()
+PxU32 ev4sio_PxGpuGetCudaFunctionTableSize()
 {
 	return s_numFunctions;
 }
@@ -309,7 +309,7 @@ static PxU32 s_numModules = 0;
 static const PxU32 s_maxNumModules = 128; // max number of *.cu files
 static void* s_moduleTable[s_maxNumModules];
 
-void** PxGpuCudaRegisterFatBinary(void* fatBin)
+void** ev4sio_PxGpuCudaRegisterFatBinary(void* fatBin)
 {
 	//HACK to get real fatbin in CUDA 4.0
 	struct CUIfatbinStruct
@@ -331,14 +331,14 @@ void** PxGpuCudaRegisterFatBinary(void* fatBin)
 		s_moduleTable[s_numModules] = fatBin;
 
 		// what we return here will be the value that is passed in as moduleIndex
-		// in PxGpuCudaRegisterFunction. We simply use the index into s_moduleTable
+		// in ev4sio_PxGpuCudaRegisterFunction. We simply use the index into s_moduleTable
 		// as a handle
 		return (void**)(size_t) s_numModules++;
 	}
 	else
 	{
-		if(PxIsFoundationValid()) // error callback requires foundation
-			PxGetErrorCallback()->reportError(PxErrorCode::eINTERNAL_ERROR, "Too many cuda modules registered. Increase maxNumModules limit.", PX_FL);
+		if(ev4sio_PxIsFoundationValid()) // error callback requires foundation
+			ev4sio_PxGetErrorCallback()->reportError(PxErrorCode::eINTERNAL_ERROR, "Too many cuda modules registered. Increase maxNumModules limit.", PX_FL);
 		else
 			fprintf(stderr, "Too many cuda modules registered. Increase maxNumModules limit. (%s:%i)\n", PX_FL);
 
@@ -346,12 +346,12 @@ void** PxGpuCudaRegisterFatBinary(void* fatBin)
 	return NULL;
 }
 
-void** PxGpuGetCudaModuleTable()
+void** ev4sio_PxGpuGetCudaModuleTable()
 {
 	return s_moduleTable;
 }
 
-PxU32 PxGpuGetCudaModuleTableSize()
+PxU32 ev4sio_PxGpuGetCudaModuleTableSize()
 {
 	return s_numModules;
 }
@@ -397,13 +397,13 @@ PxIsosurfaceExtractor* PxgPhysicsGpu::createDenseGridIsosurfaceExtractor(PxCudaC
 	PxReal cellSize, const PxIsosurfaceParams& isosurfaceParams, PxU32 maxNumParticles, PxU32 maxNumVertices, PxU32 maxNumTriangles)
 {
 	PX_CHECK_AND_RETURN_NULL(cudaContextManager, "PxPhysicsGpu::createDenseGridIsosurfaceExtractor, PxCudaContextManager is NULL!");
-	PxgCudaKernelWranglerManager* wrangler = static_cast<PxgCudaKernelWranglerManager*>(PxCreatePhysXGpu()->getGpuKernelWranglerManager(cudaContextManager));
+	PxgCudaKernelWranglerManager* wrangler = static_cast<PxgCudaKernelWranglerManager*>(ev4sio_PxCreatePhysXGpu()->getGpuKernelWranglerManager(cudaContextManager));
 	PxgKernelLauncher kernelLauncher(cudaContextManager, wrangler);
 	PxgDenseGridIsosurfaceExtractor* extractor = PX_NEW(PxgDenseGridIsosurfaceExtractor)();
 
 	if(extractor && !extractor->initialize(kernelLauncher, worldBounds, cellSize, isosurfaceParams, maxNumParticles, maxNumVertices, maxNumTriangles))
 	{
-		PxGetFoundation().error(PxErrorCode::eDEBUG_WARNING, PX_FL, "Failed to create PxSparseGridIsosurfaceExtractor!");
+		ev4sio_PxGetFoundation().error(PxErrorCode::eDEBUG_WARNING, PX_FL, "Failed to create PxSparseGridIsosurfaceExtractor!");
 		extractor->release();
 		PX_DELETE(extractor);
 		cudaContextManager->getCudaContext()->setAbortMode(true);
@@ -416,14 +416,14 @@ PxSparseGridIsosurfaceExtractor* PxgPhysicsGpu::createSparseGridIsosurfaceExtrac
 	const PxIsosurfaceParams& isosurfaceParams, PxU32 maxNumParticles, PxU32 maxNumVertices, PxU32 maxNumTriangles)
 {
 	PX_CHECK_AND_RETURN_NULL(cudaContextManager, "PxPhysicsGpu::createSparseGridIsosurfaceExtractor, PxCudaContextManager is NULL!");
-	PxgCudaKernelWranglerManager* wrangler = static_cast<PxgCudaKernelWranglerManager*>(PxCreatePhysXGpu()->getGpuKernelWranglerManager(cudaContextManager));
+	PxgCudaKernelWranglerManager* wrangler = static_cast<PxgCudaKernelWranglerManager*>(ev4sio_PxCreatePhysXGpu()->getGpuKernelWranglerManager(cudaContextManager));
 	PxgKernelLauncher kernelLauncher(cudaContextManager, wrangler);
 	PxgSparseGridIsosurfaceExtractor* extractor = PX_NEW(PxgSparseGridIsosurfaceExtractor)();
 
 	if(extractor && !extractor->initialize(kernelLauncher, sparseGridParams, isosurfaceParams,
 		maxNumParticles, maxNumVertices, maxNumTriangles))
 	{
-		PxGetFoundation().error(PxErrorCode::eDEBUG_WARNING, PX_FL, "Failed to create PxSparseGridIsosurfaceExtractor!");
+		ev4sio_PxGetFoundation().error(PxErrorCode::eDEBUG_WARNING, PX_FL, "Failed to create PxSparseGridIsosurfaceExtractor!");
 		extractor->release();
 		PX_DELETE(extractor);
 		cudaContextManager->getCudaContext()->setAbortMode(true);
@@ -435,7 +435,7 @@ PxSparseGridIsosurfaceExtractor* PxgPhysicsGpu::createSparseGridIsosurfaceExtrac
 PxAnisotropyGenerator* PxgPhysicsGpu::createAnisotropyGenerator(PxCudaContextManager* cudaContextManager, PxU32 maxNumParticles, PxReal anisotropyScale, PxReal minAnisotropy, PxReal maxAnisotropy)
 {
 	PX_CHECK_AND_RETURN_NULL(cudaContextManager, "PxPhysicsGpu::createAnisotropyGenerator, PxCudaContextManager is NULL!");
-	PxgCudaKernelWranglerManager* wrangler = static_cast<PxgCudaKernelWranglerManager*>(PxCreatePhysXGpu()->getGpuKernelWranglerManager(cudaContextManager));
+	PxgCudaKernelWranglerManager* wrangler = static_cast<PxgCudaKernelWranglerManager*>(ev4sio_PxCreatePhysXGpu()->getGpuKernelWranglerManager(cudaContextManager));
 	PxgKernelLauncher kernelLauncher(cudaContextManager, wrangler);
 	return PX_NEW(PxgAnisotropyGenerator)(kernelLauncher, maxNumParticles, anisotropyScale, minAnisotropy, maxAnisotropy);
 }
@@ -443,7 +443,7 @@ PxAnisotropyGenerator* PxgPhysicsGpu::createAnisotropyGenerator(PxCudaContextMan
 PxSmoothedPositionGenerator* PxgPhysicsGpu::createSmoothedPositionGenerator(PxCudaContextManager* cudaContextManager, PxU32 maxNumParticles, PxReal smoothingStrength)
 {
 	PX_CHECK_AND_RETURN_NULL(cudaContextManager, "PxPhysicsGpu::createSmoothedPositionGenerator, PxCudaContextManager is NULL!");
-	PxgCudaKernelWranglerManager* wrangler = static_cast<PxgCudaKernelWranglerManager*>(PxCreatePhysXGpu()->getGpuKernelWranglerManager(cudaContextManager));
+	PxgCudaKernelWranglerManager* wrangler = static_cast<PxgCudaKernelWranglerManager*>(ev4sio_PxCreatePhysXGpu()->getGpuKernelWranglerManager(cudaContextManager));
 	PxgKernelLauncher kernelLauncher(cudaContextManager, wrangler);
 	return PX_NEW(PxgSmoothedPositionGenerator)(kernelLauncher, maxNumParticles, smoothingStrength);
 }
@@ -451,7 +451,7 @@ PxSmoothedPositionGenerator* PxgPhysicsGpu::createSmoothedPositionGenerator(PxCu
 PxParticleNeighborhoodProvider* PxgPhysicsGpu::createParticleNeighborhoodProvider(PxCudaContextManager* cudaContextManager, const PxU32 maxNumParticles, const PxReal particleContactOffset, const PxU32 maxNumSparseGridCells)
 {
 	PX_CHECK_AND_RETURN_NULL(cudaContextManager, "PxPhysicsGpu::createParticleNeighborhoodProvider, PxCudaContextManager is NULL!");
-	PxgCudaKernelWranglerManager* wrangler = static_cast<PxgCudaKernelWranglerManager*>(PxCreatePhysXGpu()->getGpuKernelWranglerManager(cudaContextManager));
+	PxgCudaKernelWranglerManager* wrangler = static_cast<PxgCudaKernelWranglerManager*>(ev4sio_PxCreatePhysXGpu()->getGpuKernelWranglerManager(cudaContextManager));
 	PxgKernelLauncher kernelLauncher(cudaContextManager, wrangler);
 	return PX_NEW(PxgParticleNeighborhoodProvider)(kernelLauncher, maxNumParticles, particleContactOffset, maxNumSparseGridCells);
 }
@@ -459,7 +459,7 @@ PxParticleNeighborhoodProvider* PxgPhysicsGpu::createParticleNeighborhoodProvide
 PxArrayConverter* PxgPhysicsGpu::createArrayConverter(PxCudaContextManager* cudaContextManager)
 {
 	PX_CHECK_AND_RETURN_NULL(cudaContextManager, "PxPhysicsGpu::createArrayConverter, PxCudaContextManager is NULL!");
-	PxgCudaKernelWranglerManager* wrangler = static_cast<PxgCudaKernelWranglerManager*>(PxCreatePhysXGpu()->getGpuKernelWranglerManager(cudaContextManager));
+	PxgCudaKernelWranglerManager* wrangler = static_cast<PxgCudaKernelWranglerManager*>(ev4sio_PxCreatePhysXGpu()->getGpuKernelWranglerManager(cudaContextManager));
 	PxgKernelLauncher kernelLauncher(cudaContextManager, wrangler);
 	return PX_NEW(PxgArrayConverter)(kernelLauncher);
 }
@@ -467,7 +467,7 @@ PxArrayConverter* PxgPhysicsGpu::createArrayConverter(PxCudaContextManager* cuda
 PxSDFBuilder* PxgPhysicsGpu::createSDFBuilder(PxCudaContextManager* cudaContextManager)
 {
 	PX_CHECK_AND_RETURN_NULL(cudaContextManager, "PxPhysicsGpu::createSDFBuilder, PxCudaContextManager is NULL!");
-	PxgCudaKernelWranglerManager* wrangler = static_cast<PxgCudaKernelWranglerManager*>(PxCreatePhysXGpu()->getGpuKernelWranglerManager(cudaContextManager));
+	PxgCudaKernelWranglerManager* wrangler = static_cast<PxgCudaKernelWranglerManager*>(ev4sio_PxCreatePhysXGpu()->getGpuKernelWranglerManager(cudaContextManager));
 	PxgKernelLauncher kernelLauncher(cudaContextManager, wrangler);
 	return PX_NEW(PxgSDFBuilder)(kernelLauncher);
 }
@@ -475,7 +475,7 @@ PxSDFBuilder* PxgPhysicsGpu::createSDFBuilder(PxCudaContextManager* cudaContextM
 PxgDeformableSkinning* PxgPhysicsGpu::createDeformableSkinning(PxCudaContextManager* cudaContextManager)
 {
 	PX_CHECK_AND_RETURN_NULL(cudaContextManager, "PxPhysicsGpu::createDeformableSkinning, PxCudaContextManager is NULL!");
-	PxgCudaKernelWranglerManager* wrangler = static_cast<PxgCudaKernelWranglerManager*>(PxCreatePhysXGpu()->getGpuKernelWranglerManager(cudaContextManager));
+	PxgCudaKernelWranglerManager* wrangler = static_cast<PxgCudaKernelWranglerManager*>(ev4sio_PxCreatePhysXGpu()->getGpuKernelWranglerManager(cudaContextManager));
 	PxgKernelLauncher kernelLauncher(cudaContextManager, wrangler);
 	return PX_NEW(PxgDeformableSkinning)(kernelLauncher);
 }
@@ -485,7 +485,7 @@ void PxgPhysicsGpu::release()
 	PX_FREE_THIS;
 }
 
-PxPhysicsGpu* PxGpuCreatePhysicsGpu()
+PxPhysicsGpu* ev4sio_PxGpuCreatePhysicsGpu()
 {
 	if (!PxgPhysicsGpu::sInstance)
 		PxgPhysicsGpu::sInstance = PX_NEW(PxgPhysicsGpu);

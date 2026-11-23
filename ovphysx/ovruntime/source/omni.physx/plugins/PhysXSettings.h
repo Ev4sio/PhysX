@@ -11,7 +11,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 
 class PhysXSettings
@@ -51,5 +51,5 @@ private:
     TStringArrayDefaults mStringArrayDefaults;
 };
 
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

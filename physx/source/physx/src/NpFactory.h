@@ -21,7 +21,7 @@
 	#include "NpDeformableSurface.h"  // to be deleted
 #endif
 
-namespace physx
+namespace ev4sio_physx
 {
 class PxCudaContextManager;
 
@@ -84,18 +84,18 @@ class NpAggregate;
 
 class NpPtrTableStorageManager;
 
-namespace Cm
+namespace ev4sio_Cm
 {
    class Collection;
 }
 
-class NpFactoryListener : public Gu::MeshFactoryListener
+class NpFactoryListener : public ev4sio_Gu::MeshFactoryListener
 {
 protected:
 	virtual ~NpFactoryListener(){}
 };
 
-class NpFactory : public Gu::MeshFactory
+class NpFactory : public ev4sio_Gu::MeshFactory
 {
 	PX_NOCOPY(NpFactory)
 public:
@@ -111,7 +111,7 @@ public:
 
 				void									release();
 
-				void									addCollection(const Cm::Collection& collection);
+				void									addCollection(const ev4sio_Cm::Collection& collection);
 
 	PX_INLINE static NpFactory&							getInstance() { return *mInstance; }
 

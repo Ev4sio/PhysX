@@ -10,7 +10,7 @@
 #include "foundation/PxMath.h"
 
 
-namespace physx
+namespace ev4sio_physx
 {
 
 /*

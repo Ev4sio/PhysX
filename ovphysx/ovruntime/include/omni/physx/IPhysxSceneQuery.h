@@ -24,7 +24,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 
 struct CollisionShapeAxis
@@ -495,5 +495,5 @@ struct IPhysxSceneQuery
                                   bool bothSides);
 };
 
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

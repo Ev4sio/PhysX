@@ -8,9 +8,9 @@
 
 #include "CmPinnableAllocator.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Cm
+namespace ev4sio_Cm
 {
 
 /*!
@@ -94,8 +94,8 @@ private:
 	T* mPtr;
 };
 
-} // namespace Cm
-} // namespace physx
+} // namespace ev4sio_Cm
+} // namespace ev4sio_physx
 
 #endif
 

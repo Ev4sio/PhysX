@@ -25,10 +25,10 @@ using namespace carb;
 namespace omni
 {
 
-namespace physx
+namespace ev4sio_physx
 {
 
-} // namespace physx
+} // namespace ev4sio_physx
 namespace physics
 {
 namespace parse
@@ -36,7 +36,7 @@ namespace parse
 struct PhysxShapeDesc;
 } // namespace parse
 } // namespace physics
-namespace physx
+namespace ev4sio_physx
 {
 
 namespace usdparser
@@ -202,8 +202,8 @@ struct IPhysxVisualization
     // Release the collision representation
     void(CARB_ABI* releaseCollisionRepresentation)(const CollisionRepresentation* cr);
 
-    bool(CARB_ABI* getMeshKey)(const omni::physx::usdparser::PhysxShapeDesc& desc,
-                               omni::physx::usdparser::MeshKey& meshKey);
+    bool(CARB_ABI* getMeshKey)(const omni::ev4sio_physx::usdparser::PhysxShapeDesc& desc,
+                               omni::ev4sio_physx::usdparser::MeshKey& meshKey);
 
     void(CARB_ABI* clearDebugVisualizationData)(omni::physics::AttachHandle attachHandle);
 
@@ -240,5 +240,5 @@ struct IPhysxVisualization
                                                  uint32_t* triangleCount);
 };
 
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

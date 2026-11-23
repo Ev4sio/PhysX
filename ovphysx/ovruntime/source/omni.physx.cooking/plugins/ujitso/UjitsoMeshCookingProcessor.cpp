@@ -26,11 +26,11 @@
 #include "../service/CookingComputeService.h"
 
 using namespace carb::ujitso;
-using namespace physx;
+using namespace ev4sio_physx;
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 
 // Cooking processor declaration
@@ -284,7 +284,7 @@ OperationResult PhysxMeshCookingProcessor::buildImpl(BuildContext& context, Buil
     }
 
     // Get the data from the task and store it
-    std::vector<std::unique_ptr<::physx::PxDefaultMemoryOutputStream>>& outputStreams =
+    std::vector<std::unique_ptr<::ev4sio_physx::PxDefaultMemoryOutputStream>>& outputStreams =
         task->getCookedDataOutputStreams();
     const uint32_t streamCount = (uint32_t)outputStreams.size();
 
@@ -416,5 +416,5 @@ cookingtask::CookingTask* PhysxMeshCookingProcessor::createCookingTask(
     return nullptr;
 }
 
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

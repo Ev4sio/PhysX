@@ -14,7 +14,7 @@
 #define MULTIMANIFOLD_MAX_MANIFOLDS	4
 #define SUBMANIFOLD_MAX_CONTACTS	6
 
-namespace physx
+namespace ev4sio_physx
 {
 
 __device__ static inline bool refreshManifolds(
@@ -101,6 +101,6 @@ __device__  static inline bool invalidateManifold(const PxTransform & aToB, PxgP
 	return false;
 }
 
-} // namespace physx
+} // namespace ev4sio_physx
 
 #endif

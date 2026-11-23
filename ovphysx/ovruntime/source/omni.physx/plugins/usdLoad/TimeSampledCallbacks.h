@@ -42,12 +42,12 @@
 
 #include <vector>
 
-namespace omni::physx::usdparser
+namespace omni::ev4sio_physx::usdparser
 {
 class AttachedStage;
 }
 
-namespace omni::physx::usdparser::callbacks
+namespace omni::ev4sio_physx::usdparser::callbacks
 {
 
 // A collected callback: the object key + attribute TokenId to register a
@@ -115,4 +115,4 @@ void collectPhysxForceTimeSampledCallbacks(const AttachedStage& attachedStage, o
 void applyTimeSampledCallbacks(AttachedStage& attachedStage,
                                const TimeSampledCallbackList& list);
 
-} // namespace omni::physx::usdparser::callbacks
+} // namespace omni::ev4sio_physx::usdparser::callbacks

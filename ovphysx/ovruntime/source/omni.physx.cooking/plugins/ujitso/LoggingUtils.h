@@ -32,7 +32,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 
 // Utility to change the logging level in the macros above
@@ -41,5 +41,5 @@ static constexpr int32_t loggingLevel(int32_t level = carb::logging::kLevelError
     return level;
 }
 
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

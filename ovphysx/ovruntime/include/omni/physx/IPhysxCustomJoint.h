@@ -24,7 +24,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 static const size_t kInvalidCustomJointRegId = 0;
 
@@ -50,10 +50,10 @@ struct CustomJointFlag
 /// \param[in] userData User data passed to ICustomJointCallback struct
 typedef bool (*CreateJointFn)(omni::physics::parse::ObjectKey key,
                               AttachHandle attachHandle,
-                              ::physx::PxRigidActor* actor0,
-                              const ::physx::PxTransform& localFrame0,
-                              ::physx::PxRigidActor* actor1,
-                              const ::physx::PxTransform& localFrame1,
+                              ::ev4sio_physx::PxRigidActor* actor0,
+                              const ::ev4sio_physx::PxTransform& localFrame0,
+                              ::ev4sio_physx::PxRigidActor* actor1,
+                              const ::ev4sio_physx::PxTransform& localFrame1,
                               CustomJointFlag::Enum& constraintFlags,
                               void* userData);
 
@@ -95,7 +95,7 @@ typedef void (*OnComShiftFn)(omni::physics::parse::ObjectKey key, AttachHandle a
 /// \param[in] key ObjectKey of the joint prim.
 /// \param[in] shift Translation vector the origin is shifted by.
 /// \param[in] userData User data passed to ICustomJointCallback struct
-typedef void (*OnOriginShift)(omni::physics::parse::ObjectKey key, AttachHandle attachHandle, const ::physx::PxVec3& shift, void* userData);
+typedef void (*OnOriginShift)(omni::physics::parse::ObjectKey key, AttachHandle attachHandle, const ::ev4sio_physx::PxVec3& shift, void* userData);
 
 /// Constant block data get function
 ///
@@ -134,7 +134,7 @@ struct IPhysxCustomJoint
     /// \return Registration id, used for unregister, return kInvalidCustomJointRegId when failed.
     size_t(* registerCustomJoint)(const char* jointPrimType,
                                           ICustomJointCallback& jointCallback,
-                                          ::physx::PxConstraintSolverPrep jointSolverPrepFn,
+                                          ::ev4sio_physx::PxConstraintSolverPrep jointSolverPrepFn,
                                           size_t jointDataSize);
 
     /// Unregister custom joint
@@ -172,5 +172,5 @@ struct IPhysxCustomJoint
     bool(* tryUnregisterCustomJoint)(size_t id);
 };
 
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

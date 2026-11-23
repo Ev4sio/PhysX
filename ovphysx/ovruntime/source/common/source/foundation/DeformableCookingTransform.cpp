@@ -13,17 +13,17 @@
 #include <algorithm>
 #include <cmath>
 
-using ::physx::PxMat44d;
-using ::physx::PxVec3d;
+using ::ev4sio_physx::PxMat44d;
+using ::ev4sio_physx::PxVec3d;
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace
 {
 
-namespace gfm = ::omni::physx::gfmath;
+namespace gfm = ::omni::ev4sio_physx::gfmath;
 
 // The 1e-7 quantization the cooking space applies to the shear/scale
 // decomposition, so that a small edit to `simToWorld` does not produce a new
@@ -151,5 +151,5 @@ bool computeDeformableCookingTransform(PxMat44d* simToCookingTransform,
     return true;
 }
 
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

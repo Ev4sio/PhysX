@@ -60,7 +60,7 @@
 #include <unordered_set>
 #include <vector>
 
-namespace omni::physx::usdparser
+namespace omni::ev4sio_physx::usdparser
 {
 class AttachedStage;
 }
@@ -69,14 +69,14 @@ namespace omni::physics::parse
 class IPhysicsSource;
 }
 
-namespace omni::physx::internal
+namespace omni::ev4sio_physx::internal
 {
 class InternalScene;
 class InternalParticleSet;
 class InternalDeformableBody;
 }
 
-namespace physx
+namespace ev4sio_physx
 {
 class PxScene;
 class PxController;
@@ -88,19 +88,19 @@ class PxArticulationReducedCoordinate;
 class PxArticulationJointReducedCoordinate;
 }
 
-namespace omni::physx::internal
+namespace omni::ev4sio_physx::internal
 {
 class InternalJoint;
 }
 
-namespace omni::physx::tensors
+namespace omni::ev4sio_physx::tensors
 {
 struct ArticulationEntry;
 class BasePointInstancerView;
 class BaseVehicleView;
 }
 
-namespace omni::physx::ovx
+namespace omni::ev4sio_physx::ovx
 {
 
 using omni::physics::parse::ObjectKey;
@@ -141,12 +141,12 @@ inline std::vector<T> gatherByIndices(const std::vector<T>& column, const std::v
 // name the prims it covers. `who` labels the error.
 struct SourceContext
 {
-    omni::physx::usdparser::AttachedStage* stage = nullptr;
+    omni::ev4sio_physx::usdparser::AttachedStage* stage = nullptr;
     omni::physics::parse::IPhysicsSource* source = nullptr;
 };
 
 bool getSourceContext(uint64_t attachHandle, const char* who, SourceContext& out);
-bool getSceneSourceContext(const ::physx::PxScene* scene, const char* who, SourceContext& out);
+bool getSceneSourceContext(const ::ev4sio_physx::PxScene* scene, const char* who, SourceContext& out);
 
 // Wait out a caller's producer handoff (ovstage's {stream, wait_event}) before its data is read: a nonzero stream is
 // drained, then a nonzero event waited on, both observed on the host. {0, 0} asserts nothing is outstanding. False,
@@ -173,7 +173,7 @@ struct ActiveActorSet
     //
     // A vector and a linear scan rather than a set: this holds one entry per reporting scene, and
     // stages have a handful of scenes at most.
-    std::vector<const ::physx::PxScene*> reportingScenes;
+    std::vector<const ::ev4sio_physx::PxScene*> reportingScenes;
 
     // Record indices the solver moved last step, one BIT each rather than a hash set.
     //
@@ -208,7 +208,7 @@ struct ActiveActorSet
         return recIdx < moved.size() && moved[recIdx];
     }
 
-    void addReportingScene(const ::physx::PxScene* scene)
+    void addReportingScene(const ::ev4sio_physx::PxScene* scene)
     {
         if (scene && !sceneReports(scene))
             reportingScenes.push_back(scene);
@@ -216,9 +216,9 @@ struct ActiveActorSet
 
     // Whether THIS scene's actors are represented in `moved`. A caller whose scene does not report
     // must use its own fallback (sleep state) rather than reading an unmarked bit as "not moving".
-    bool sceneReports(const ::physx::PxScene* scene) const
+    bool sceneReports(const ::ev4sio_physx::PxScene* scene) const
     {
-        for (const ::physx::PxScene* s : reportingScenes)
+        for (const ::ev4sio_physx::PxScene* s : reportingScenes)
             if (s == scene)
                 return true;
         return false;
@@ -249,17 +249,17 @@ ActiveActorSet collectActiveActors(usdparser::AttachedStage& owner);
 // check without the tombstone -- which is what the instancer mask did -- is a use-after-free that
 // reads as ordinary code.
 template <typename Visitor>
-void forEachLiveActiveActor(omni::physx::internal::InternalScene* internalScene, Visitor&& visit)
+void forEachLiveActiveActor(omni::ev4sio_physx::internal::InternalScene* internalScene, Visitor&& visit)
 {
-    ::physx::PxScene* const scene = internalScene ? internalScene->getScene() : nullptr;
+    ::ev4sio_physx::PxScene* const scene = internalScene ? internalScene->getScene() : nullptr;
     if (!scene)
         return;
 
     const bool hasReleased = internalScene->hasReleasedActiveActors();
 
-    ::physx::PxU32 count = 0;
-    ::physx::PxActor** active = scene->getActiveActors(count);
-    for (::physx::PxU32 i = 0; i < count; ++i)
+    ::ev4sio_physx::PxU32 count = 0;
+    ::ev4sio_physx::PxActor** active = scene->getActiveActors(count);
+    for (::ev4sio_physx::PxU32 i = 0; i < count; ++i)
     {
         if (!active[i] || (hasReleased && internalScene->isReleasedActiveActor(active[i])))
             continue;
@@ -269,23 +269,23 @@ void forEachLiveActiveActor(omni::physx::internal::InternalScene* internalScene,
 
 // The single-scene forms, for callers that already know which scene they mean. Declared beside the
 // cross-scene collector so the three cannot drift on what "active" means.
-void markActiveActorsOfScene(omni::physx::internal::InternalScene* internalScene, ActiveActorSet& out);
-ActiveActorSet collectActiveActorsForScene(::physx::PxScene* scene);
+void markActiveActorsOfScene(omni::ev4sio_physx::internal::InternalScene* internalScene, ActiveActorSet& out);
+ActiveActorSet collectActiveActorsForScene(::ev4sio_physx::PxScene* scene);
 
 // Standalone bodies of ONE scene, in database order. Emission is per-scene (each body must be
 // reached through its owning scene's view), so the scan buckets by scene as it walks rather than
 // producing one flat list that every scene then re-filters.
 struct RigidSceneBucket
 {
-    ::physx::PxScene* scene = nullptr;
-    std::vector<::physx::PxRigidBody*> bodies;
+    ::ev4sio_physx::PxScene* scene = nullptr;
+    std::vector<::ev4sio_physx::PxRigidBody*> bodies;
     std::vector<ObjectKey> keys; // parallel to `bodies`
 };
 
 struct RigidRecordScan
 {
     std::vector<RigidSceneBucket> byScene;  // only scenes owning >= 1 standalone body
-    std::vector<::physx::PxRigidDynamic*> instanced; // point-instancer instances (any scene)
+    std::vector<::ev4sio_physx::PxRigidDynamic*> instanced; // point-instancer instances (any scene)
 
 };
 
@@ -294,11 +294,11 @@ struct RigidRecordScan
 // indirection again on a working set far past L2, plus a full copy of both vectors.
 // The InternalScene that owns `scene`, or null. Here rather than in either direction's file
 // because both the read's enumerations and the shared scans resolve it.
-omni::physx::internal::InternalScene* internalSceneOf(const ::physx::PxScene* scene);
+omni::ev4sio_physx::internal::InternalScene* internalSceneOf(const ::ev4sio_physx::PxScene* scene);
 
 // Whether an articulation link is in scope. Shared by the READ's scan and by query DISCOVERY so the
 // two cannot disagree about which links a scope admits.
-bool linkInScope(const ::physx::PxArticulationLink& link,
+bool linkInScope(const ::ev4sio_physx::PxArticulationLink& link,
                  size_t recordIndex,
                  uint32_t scope,
                  const ActiveActorSet& activeSet);
@@ -312,7 +312,7 @@ void scanRigidRecords(usdparser::AttachedStage& owner, uint32_t scope, const Act
 bool scanLinkRecords(usdparser::AttachedStage& owner, uint32_t scope, const ActiveActorSet& activeSet, RigidRecordScan& out);
 
 // The scan already grouped by scene; this is a lookup, not a filter.
-const RigidSceneBucket* bucketForScene(const RigidRecordScan& scan, const ::physx::PxScene* scene);
+const RigidSceneBucket* bucketForScene(const RigidRecordScan& scan, const ::ev4sio_physx::PxScene* scene);
 
 // Articulation enumeration is NOT here. It lives in ArticulationReadCacheEntry::rootArtis below,
 // filled by the read's structural walk, which additionally detects duplicate and inconsistent
@@ -338,7 +338,7 @@ struct LazyRigidScan
     {
         if (!activeRan)
         {
-            if (scope == ::omni::physx::kOvxActive)
+            if (scope == ::omni::ev4sio_physx::kOvxActive)
                 active = collectActiveActors(owner);
             activeRan = true;
         }
@@ -364,29 +364,29 @@ struct LazyRigidScan
 // A live physics scene paired with the InternalScene that owns it. Both halves are wanted: the
 // PxScene keys every per-scene cache, while the vehicle read needs the InternalScene itself, since
 // vehicles hang off it and not off the PxScene.
-using ScenePair = std::pair<::physx::PxScene*, omni::physx::internal::InternalScene*>;
+using ScenePair = std::pair<::ev4sio_physx::PxScene*, omni::ev4sio_physx::internal::InternalScene*>;
 
 // One walk of the record database; the projections below come out of it rather than walking again,
 // so there is one definition of "a live physics scene" to keep correct instead of two that have to
 // agree.
 std::vector<ScenePair> allPhysicsScenesWithInternal(usdparser::AttachedStage& owner);
 
-std::vector<::physx::PxScene*> scenesOf(const std::vector<ScenePair>& pairs);
+std::vector<::ev4sio_physx::PxScene*> scenesOf(const std::vector<ScenePair>& pairs);
 
-std::vector<::physx::PxScene*> allPhysicsScenes(usdparser::AttachedStage& owner);
+std::vector<::ev4sio_physx::PxScene*> allPhysicsScenes(usdparser::AttachedStage& owner);
 
 // PhysX frees the DirectGPU state row of an eDISABLE_SIMULATION rigid dynamic, so a device column
 // must never source one. Statics and articulation links are never PxRigidDynamic, so this is false
 // for them and those sets never filter.
-inline bool isDisabledRigidDynamic(::physx::PxRigidBody* const body)
+inline bool isDisabledRigidDynamic(::ev4sio_physx::PxRigidBody* const body)
 {
-    ::physx::PxRigidDynamic* const dynamic = body ? body->is<::physx::PxRigidDynamic>() : nullptr;
-    return dynamic && dynamic->getActorFlags().isSet(::physx::PxActorFlag::eDISABLE_SIMULATION);
+    ::ev4sio_physx::PxRigidDynamic* const dynamic = body ? body->is<::ev4sio_physx::PxRigidDynamic>() : nullptr;
+    return dynamic && dynamic->getActorFlags().isSet(::ev4sio_physx::PxActorFlag::eDISABLE_SIMULATION);
 }
 
 // Stops at the first hit: callers use it only to decide whether to filter or to force a row
 // refresh, and it runs over a list that can hold every rigid body in the scene.
-inline bool anyDisabledRigidDynamic(const std::vector<::physx::PxRigidBody*>& bodies)
+inline bool anyDisabledRigidDynamic(const std::vector<::ev4sio_physx::PxRigidBody*>& bodies)
 {
     return std::any_of(bodies.begin(), bodies.end(), isDisabledRigidDynamic);
 }
@@ -409,7 +409,7 @@ inline bool anyDisabledRigidDynamic(const std::vector<::physx::PxRigidBody*>& bo
 class EnabledRigidBodies
 {
 public:
-    EnabledRigidBodies(const std::vector<::physx::PxRigidBody*>& bodies,
+    EnabledRigidBodies(const std::vector<::ev4sio_physx::PxRigidBody*>& bodies,
                        const std::vector<ObjectKey>& keys,
                        bool apply);
     EnabledRigidBodies(const EnabledRigidBodies&) = delete;
@@ -423,7 +423,7 @@ public:
     {
         return mAnyDisabled;
     }
-    const std::vector<::physx::PxRigidBody*>& bodies() const
+    const std::vector<::ev4sio_physx::PxRigidBody*>& bodies() const
     {
         return *mBodies;
     }
@@ -433,9 +433,9 @@ public:
     }
 
 private:
-    std::vector<::physx::PxRigidBody*> mEnabledBodies; // populated only when a row is dropped
+    std::vector<::ev4sio_physx::PxRigidBody*> mEnabledBodies; // populated only when a row is dropped
     std::vector<ObjectKey> mEnabledKeys;
-    const std::vector<::physx::PxRigidBody*>* mBodies;
+    const std::vector<::ev4sio_physx::PxRigidBody*>* mBodies;
     const std::vector<ObjectKey>* mKeys;
     bool mAnyDisabled = false;
 };
@@ -491,19 +491,19 @@ struct RigidReadCacheEntry
     uint64_t kinematicEpoch = 0;
     std::vector<ObjectKey> keys;
     std::vector<ovx_primpath_t> handles; // keys canonicalised once
-    std::vector<::physx::PxU32> rows;    // superset rows for `keys`, same order; valid for `generation`
+    std::vector<::ev4sio_physx::PxU32> rows;    // superset rows for `keys`, same order; valid for `generation`
     // Identity of `rows` itself, minted whenever a new list is built (see nextRowsVersion). The device
     // upload gate compares it, so it has to change exactly when the CONTENT does -- not when some
     // proxy for the content does.
     uint64_t rowsVersion = 0;
     // This scene's standalone bodies, same order as `keys`. Dereferenced downstream, so only ever
     // served under a generation obtained from acquireSceneView for THIS scene, at the point of use.
-    std::vector<::physx::PxRigidBody*> bodies;
+    std::vector<::ev4sio_physx::PxRigidBody*> bodies;
 };
 
 struct RigidReadCacheKey
 {
-    const ::physx::PxScene* scene;
+    const ::ev4sio_physx::PxScene* scene;
     int type;
     uint32_t scope;
     bool operator==(const RigidReadCacheKey& o) const
@@ -532,7 +532,7 @@ extern std::unordered_map<RigidReadCacheKey, RigidReadCacheEntry, RigidReadCache
 // how many scenes a workload runs. Guess low and every read evicts an entry it is about to want,
 // turning the cache into a pessimisation with nothing logged to say so; guess high and dead entries
 // sit around anyway.
-void purgeDeadRigidReadCacheEntries(const std::vector<::physx::PxScene*>& scenes);
+void purgeDeadRigidReadCacheEntries(const std::vector<::ev4sio_physx::PxScene*>& scenes);
 
 // The selector `query` was opened with. A write session is opened against a read query and needs the
 // same type and scope to enumerate against, but the query table lives in OvxPhysicsRead.cpp with the
@@ -548,8 +548,8 @@ void purgeDeadRigidReadCacheEntries(const std::vector<::physx::PxScene*>& scenes
 
 struct JointRec
 {
-    ::physx::PxArticulationJointReducedCoordinate* pxJoint;
-    omni::physx::internal::InternalJoint* ij;
+    ::ev4sio_physx::PxArticulationJointReducedCoordinate* pxJoint;
+    omni::ev4sio_physx::internal::InternalJoint* ij;
     ObjectKey key;
     uint32_t viewArtiIdx;
 };
@@ -633,8 +633,8 @@ struct ArticulationReadCacheEntry
     // rootArtis so zero-joint roots do not add work or failure modes to that path, and so a
     // legacy/inconsistent joint without an ePTArticulation record retains the old behavior without
     // exposing a fabricated root row.
-    std::vector<::physx::PxArticulationReducedCoordinate*> artis;
-    std::vector<::physx::PxArticulationReducedCoordinate*> rootArtis;
+    std::vector<::ev4sio_physx::PxArticulationReducedCoordinate*> artis;
+    std::vector<::ev4sio_physx::PxArticulationReducedCoordinate*> rootArtis;
     std::vector<ObjectKey> rootKeys;
     std::vector<ArticulationRootRec> roots;
     bool duplicateRootPointers = false;
@@ -653,7 +653,7 @@ struct ArticulationReadCacheEntry
     std::vector<size_t> linkHandleOffsets;
     std::vector<ovx_primpath_t> linkPathHandles;
 
-    std::vector<omni::physx::tensors::ArticulationDofOvStageRecord> recs;
+    std::vector<omni::ev4sio_physx::tensors::ArticulationDofOvStageRecord> recs;
     std::vector<JointSlice> slices;
     std::vector<ObjectKey> sliceKeys;
     std::vector<ovx_primpath_t> sliceHandles;
@@ -670,11 +670,11 @@ struct ArticulationReadCacheEntry
 // Defined in OvxPhysicsRead.cpp. Exposed so the WRITE can fill the cache itself rather than
 // requiring the caller to have issued a read first: that precondition was real while the write had
 // no way to run the walk, and it is not something a write API should impose.
-bool refreshArticulationCache(usdparser::AttachedStage& owner, const std::vector<::physx::PxScene*>& scenes);
+bool refreshArticulationCache(usdparser::AttachedStage& owner, const std::vector<::ev4sio_physx::PxScene*>& scenes);
 
 // This scene's entry, or null when the walk has not covered it. Never re-runs the walk; call
 // refreshArticulationCache first.
-ArticulationReadCacheEntry* articulationCacheEntry(const ::physx::PxScene* scene);
+ArticulationReadCacheEntry* articulationCacheEntry(const ::ev4sio_physx::PxScene* scene);
 
 // A process-global content version, bumped every time a reader rebuilds one of its ovstage record
 // vectors. Used as the device-upload token so a re-uploaded buffer tracks the EXACT host records
@@ -687,7 +687,7 @@ uint64_t mintRecordContentVersion();
 void ovxDrainColumnPools();
 
 // Retire only this scene's cached views before its context or native objects die.
-void ovxRetireSceneCaches(const ::physx::PxScene* scene, uint64_t attach);
+void ovxRetireSceneCaches(const ::ev4sio_physx::PxScene* scene, uint64_t attach);
 
 // Derive `jc`'s per-output DOF records, per-joint slices and interned handles against the
 // articulation view that numbered `entries` / `localToRow`, or serve them from the cache when
@@ -702,7 +702,7 @@ void ovxRetireSceneCaches(const ::physx::PxScene* scene, uint64_t attach);
 bool ensureJointRecords(ArticulationReadCacheEntry& jc,
                         omni::physics::parse::IPhysicsSource& source,
                         const std::vector<JointRec>& joints,
-                        const std::vector<omni::physx::tensors::ArticulationEntry>& entries,
+                        const std::vector<omni::ev4sio_physx::tensors::ArticulationEntry>& entries,
                         const std::vector<uint32_t>& localToRow,
                         uint64_t generation,
                         bool enumCached);
@@ -742,8 +742,8 @@ struct TendonReadCacheEntry
     // change rebuilds records under a same-shape view, which served stale device records.
     uint64_t recsVersion = 0;
     std::vector<TendonRec> tendons;
-    std::vector<::physx::PxArticulationReducedCoordinate*> artis;
-    std::vector<omni::physx::tensors::ArticulationTendonOvStageRecord> recs;
+    std::vector<::ev4sio_physx::PxArticulationReducedCoordinate*> artis;
+    std::vector<omni::ev4sio_physx::tensors::ArticulationTendonOvStageRecord> recs;
     std::vector<ObjectKey> keys;
     std::vector<ovx_primpath_t> handles;
 };
@@ -756,7 +756,7 @@ struct TendonReadCacheEntry
 // Defined in OvxPhysicsRead.cpp beside the walk that fills it, and exposed here so the WRITE runs
 // the same walk rather than a second one -- and so it does not have to require the caller to issue a
 // read first, which is a precondition a write API has no business imposing.
-TendonReadCacheEntry& tendonCacheEntry(::physx::PxScene* scene, bool fixed);
+TendonReadCacheEntry& tendonCacheEntry(::ev4sio_physx::PxScene* scene, bool fixed);
 
 // ---------------------------------------------------------------------------
 // Vehicle wheels, shared by the read and the write for the reason the caches above are: a write
@@ -774,7 +774,7 @@ struct VehicleReadCacheEntry
 {
     uint64_t setEpoch = 0;
     uint64_t generation = 0;
-    std::vector<omni::physx::tensors::VehicleWheelOvStageRecord> recs;
+    std::vector<omni::ev4sio_physx::tensors::VehicleWheelOvStageRecord> recs;
     std::vector<ObjectKey> keys;
     std::vector<ovx_primpath_t> handles;
     std::vector<ObjectKey> vehicleKeys;
@@ -785,11 +785,11 @@ struct VehicleReadCacheEntry
 // has a valid empty entry; null means its backend view could not be acquired. The optional view is
 // the same one used to number the records, so a read can gather without reacquiring it.
 VehicleReadCacheEntry* refreshVehicleCache(omni::physics::parse::IPhysicsSource& source,
-                                         ::physx::PxScene* scene,
-                                         omni::physx::tensors::BaseVehicleView** outView = nullptr);
+                                         ::ev4sio_physx::PxScene* scene,
+                                         omni::ev4sio_physx::tensors::BaseVehicleView** outView = nullptr);
 
 // Inspect the existing entry without refreshing it. Commit uses the enumeration from session open.
-VehicleReadCacheEntry* vehicleCacheEntry(const ::physx::PxScene* scene);
+VehicleReadCacheEntry* vehicleCacheEntry(const ::ev4sio_physx::PxScene* scene);
 
 // ---------------------------------------------------------------------------
 // Character controllers. One walk for the read and the write: a write session
@@ -798,8 +798,8 @@ VehicleReadCacheEntry* vehicleCacheEntry(const ::physx::PxScene* scene);
 
 struct CctOvStageRow
 {
-    ::physx::PxController* controller = nullptr;
-    omni::physx::internal::InternalCct* internal = nullptr;
+    ::ev4sio_physx::PxController* controller = nullptr;
+    omni::ev4sio_physx::internal::InternalCct* internal = nullptr;
     ObjectKey key;
 };
 
@@ -834,7 +834,7 @@ struct InstancerWriteTargets
     // The BASE type, so one struct serves both devices: a DirectGPU scene yields the GPU view the
     // read already caches, a host scene the CPU one. The scatter is virtual, so the write does not
     // branch on which it got.
-    omni::physx::tensors::BasePointInstancerView* view = nullptr;
+    omni::ev4sio_physx::tensors::BasePointInstancerView* view = nullptr;
     // The scene-view generation `view` was taken under. `view` is a child of that scene view, and a rebuild of the
     // scene view deletes it, so whoever keeps `view` checks this generation before every use.
     uint64_t generation = 0;
@@ -849,7 +849,7 @@ struct InstancerWriteTargets
 // backend generation moves, which is what the cache compares.
 //
 // Returns false only on a genuine failure. A scene with no instancers yields true and a null view.
-bool instancerWriteTargets(::physx::PxScene* scene, uint32_t scope, InstancerWriteTargets& out);
+bool instancerWriteTargets(::ev4sio_physx::PxScene* scene, uint32_t scope, InstancerWriteTargets& out);
 
 // What the WRITE needs to publish a deformable simulation-mesh group (ADR-0012).
 //
@@ -863,8 +863,8 @@ struct DeformableWriteTargets
     // Parallel to `keys`. Both pointers are opaque here: the concrete PhysX type carries the buffer
     // getters and markDirty, and the internal body carries the sim-mesh reframe -- and this header
     // is PhysX-SDK-free, so the write includes what it needs to dereference them.
-    std::vector<::physx::PxDeformableBody*> bodies;
-    std::vector<omni::physx::internal::InternalDeformableBody*> internals;
+    std::vector<::ev4sio_physx::PxDeformableBody*> bodies;
+    std::vector<omni::ev4sio_physx::internal::InternalDeformableBody*> internals;
     std::vector<uint32_t> counts; // sim-mesh vertex count per body
 };
 
@@ -872,7 +872,7 @@ struct DeformableWriteTargets
 // its order. `isVolume` picks the kind, exactly as the read's own type dispatch does.
 //
 // Defined in OvxPhysicsRead.cpp beside particleWriteTargets, and for the same reason.
-bool deformableWriteTargets(::physx::PxScene* scene, bool isVolume, DeformableWriteTargets& out);
+bool deformableWriteTargets(::ev4sio_physx::PxScene* scene, bool isVolume, DeformableWriteTargets& out);
 
 // What the WRITE needs to publish a particle group (ADR-0012).
 //
@@ -890,7 +890,7 @@ struct ParticleWriteTargets
     std::vector<ObjectKey> keys; // one per set, in the read's enumeration order
     // Parallel to `keys`. The pointer is opaque to this header on purpose -- InternalParticle.h
     // carries PxVec4 members, and this header is included by both directions.
-    std::vector<omni::physx::internal::InternalParticleSet*> sets;
+    std::vector<omni::ev4sio_physx::internal::InternalParticleSet*> sets;
     std::vector<uint32_t> counts; // particle count per set, parallel to `keys`
 };
 
@@ -903,7 +903,7 @@ struct ParticleWriteTargets
 //
 // Returns false only on a genuine failure. A scene with no particle sets yields true and empty
 // vectors.
-bool particleWriteTargets(::physx::PxScene* scene, uint32_t scope, ParticleWriteTargets& out);
+bool particleWriteTargets(::ev4sio_physx::PxScene* scene, uint32_t scope, ParticleWriteTargets& out);
 
 bool queryTypeScope(uint64_t query, uint64_t& outAttach, uint32_t& outType, uint32_t& outScope);
 
@@ -944,9 +944,9 @@ std::shared_ptr<QueryDeviceBuffers> queryDeviceBuffers(uint64_t query);
 // where a new list is genuinely built.
 uint64_t nextRowsVersion();
 
-} // namespace omni::physx::ovx
+} // namespace omni::ev4sio_physx::ovx
 
-namespace omni::physx::ovx
+namespace omni::ev4sio_physx::ovx
 {
 // Terminal metadata retirement requires the source dictionary to remain alive.
 // Ordinary scene rebuilds leave read snapshots and their prim lists intact.
@@ -963,4 +963,4 @@ uint64_t contactReducerBuildCount();
 inline constexpr uint32_t kContactReducerIdleReads = 4;
 }
 
-namespace omni::physx::ovx { carb::tasking::RecursiveMutexWrapper& outputCacheMutex(); }
+namespace omni::ev4sio_physx::ovx { carb::tasking::RecursiveMutexWrapper& outputCacheMutex(); }

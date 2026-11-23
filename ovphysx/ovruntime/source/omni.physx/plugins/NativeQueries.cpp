@@ -14,11 +14,11 @@
 #include <cmath>
 #include <tuple>
 #include <type_traits>
-namespace omni::physx::native
+namespace omni::ev4sio_physx::native
 {
 namespace
 {
-using namespace ::physx;
+using namespace ::ev4sio_physx;
 using Owner=usdparser::AttachedStage;
 bool less(const SceneQueryHit& a,const SceneQueryHit& b)
 {
@@ -67,8 +67,8 @@ template<class Hit> struct Collector:PxHitCallback<Hit>
                     value.validFields|=8;value.normal[0]=h.normal.x;value.normal[1]=h.normal.y;value.normal[2]=h.normal.z;
                 }
                 if(h.shape->getGeometry().getType()==PxGeometryType::eTRIANGLEMESH && h.faceIndex!=UINT32_MAX) {
-                    const ::physx::PxTriangleMeshGeometry & meshGeometry=static_cast<const PxTriangleMeshGeometry&>(h.shape->getGeometry());
-                    const ::physx::PxTriangleMesh * mesh=meshGeometry.triangleMesh;
+                    const ::ev4sio_physx::PxTriangleMeshGeometry & meshGeometry=static_cast<const PxTriangleMeshGeometry&>(h.shape->getGeometry());
+                    const ::ev4sio_physx::PxTriangleMesh * mesh=meshGeometry.triangleMesh;
                     const unsigned int * remap=mesh?mesh->getTrianglesRemap():nullptr;
                     const unsigned int * faces=mesh?getMeshCache()->getTriangleMeshFaceMap(mesh):nullptr;
                     if(remap && faces && h.faceIndex<mesh->getNbTriangles()) {
@@ -115,18 +115,18 @@ try
         if(!direction.isNormalized())return InspectionResult::Invalid;
     }
     if(!runtime::tryGetPhysxInterface())return InspectionResult::Stale;
-    std::shared_ptr<omni::physx::usdparser::AttachedStage> owner=usdparser::UsdLoad::getUsdLoad()->acquireAttachment(attachment);
+    std::shared_ptr<omni::ev4sio_physx::usdparser::AttachedStage> owner=usdparser::UsdLoad::getUsdLoad()->acquireAttachment(attachment);
     if(!owner)return InspectionResult::Stale;
     RuntimeExecutionScope admission(attachment);if(!admission)return InspectionResult::Busy;
     if(usdparser::UsdLoad::getUsdLoad()->getAttachedStageByHandle(attachment)!=owner.get())return InspectionResult::Stale;
-    for(const std::vector<omni::physx::native::ObjectReference> * refs:{&query.include,&query.exclude})for(const omni::physx::native::ObjectReference & ref:*refs) {
+    for(const std::vector<omni::ev4sio_physx::native::ObjectReference> * refs:{&query.include,&query.exclude})for(const omni::ev4sio_physx::native::ObjectReference & ref:*refs) {
         if(ref.kind!=uint32_t(ObjectKind::Body) && ref.kind!=uint32_t(ObjectKind::Shape))return InspectionResult::Invalid;
         if(!objectRecord(*owner,ref))return InspectionResult::Stale;
     }
     if(owner->getPhysXScenes().empty())return InspectionResult::Unavailable;
     // GPU dynamics reads poses back into the scene-query structures; DirectGPU leaves them stale.
-    for(const std::pair<const uint64_t, omni::physx::PhysXScene *> & item:owner->getPhysXScenes()) {
-        const ::physx::PxScene * scene=item.second->getScene();
+    for(const std::pair<const uint64_t, omni::ev4sio_physx::PhysXScene *> & item:owner->getPhysXScenes()) {
+        const ::ev4sio_physx::PxScene * scene=item.second->getScene();
         if(scene && scene->getFlags().isSet(PxSceneFlag::eENABLE_DIRECT_GPU_API))return InspectionResult::Unavailable;
     }
     PxGeometryHolder geometry;
@@ -138,10 +138,10 @@ try
         case 3: {PxCapsuleGeometry g(query.dimensions[0],query.dimensions[1]);if(!g.isValid())return InspectionResult::Invalid;geometry.storeAny(g);break;}
         case 4: {
             if(query.shape.kind!=uint32_t(ObjectKind::Shape))return InspectionResult::Invalid;
-            const omni::physx::internal::InternalDatabase::Record * record=objectRecord(*owner,query.shape);if(!record)return InspectionResult::Stale;
+            const omni::ev4sio_physx::internal::InternalDatabase::Record * record=objectRecord(*owner,query.shape);if(!record)return InspectionResult::Stale;
             if(record->mType!=ePTShape)return InspectionResult::Unavailable;
             geometry.storeAny(static_cast<const PxShape*>(record->mPtr)->getGeometry());
-            const ::physx::PxGeometryType::Enum type=geometry.getType();
+            const ::ev4sio_physx::PxGeometryType::Enum type=geometry.getType();
             if(type!=PxGeometryType::eSPHERE && type!=PxGeometryType::eBOX && type!=PxGeometryType::eCAPSULE &&
                 type!=PxGeometryType::eCONVEXMESH)return InspectionResult::Unavailable;
             break;
@@ -157,8 +157,8 @@ try
     if(query.flags&2)data.flags|=PxQueryFlag::eDYNAMIC;
     Filter filter(query);PxHitFlags flags=PxHitFlag::eDEFAULT;
     if(query.flags&4)flags|=PxHitFlag::eMESH_BOTH_SIDES;
-    for(const std::pair<const uint64_t, omni::physx::PhysXScene *> & item:owner->getPhysXScenes()) {
-        const ::physx::PxScene * scene=item.second->getScene();if(!scene)continue;
+    for(const std::pair<const uint64_t, omni::ev4sio_physx::PhysXScene *> & item:owner->getPhysXScenes()) {
+        const ::ev4sio_physx::PxScene * scene=item.second->getScene();if(!scene)continue;
         // SDK queries can invoke custom geometry; reject reentrant owner work.
         RuntimeCallbackScope callbacks(attachment);
         if(query.kind==0) {

@@ -7,7 +7,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace gpu
 {
@@ -39,5 +39,5 @@ private:
 };
 
 } // namespace gpu
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

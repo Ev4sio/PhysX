@@ -7,11 +7,11 @@
 #include "common/PxProfileZone.h"
 #include "foundation/PxBitMap.h"
 
-using namespace physx;
-using namespace Bp;
+using namespace ev4sio_physx;
+using namespace ev4sio_Bp;
 
 #if PX_CHECKED
-static BroadPhaseUpdateError::Enum testHandles(PxU32 size, const BpHandle* handles, const PxU32 capacity, const Bp::FilterGroup::Enum* groups, const PxBounds3* bounds, PxBitMap& bitmap)
+static BroadPhaseUpdateError::Enum testHandles(PxU32 size, const BpHandle* handles, const PxU32 capacity, const ev4sio_Bp::FilterGroup::Enum* groups, const PxBounds3* bounds, PxBitMap& bitmap)
 {
 	if(!handles && size)
 		return BroadPhaseUpdateError::eMISSING_DATA;
@@ -82,7 +82,7 @@ static bool testBitmap(const PxBitMap& bitmap, PxU32 size, const BpHandle* handl
 
 static BroadPhaseUpdateError::Enum outputErrorMessage(BroadPhaseUpdateError::Enum error)
 {
-	PxFoundation& foundation = PxGetFoundation();
+	PxFoundation& foundation = ev4sio_PxGetFoundation();
 
 	switch(error)
 	{
@@ -90,55 +90,55 @@ static BroadPhaseUpdateError::Enum outputErrorMessage(BroadPhaseUpdateError::Enu
 			break;
 
 		case BroadPhaseUpdateError::eINVALID:
-			foundation.error(physx::PxErrorCode::eINVALID_PARAMETER, PX_FL, "Illegal BroadPhaseUpdateData\n");
+			foundation.error(ev4sio_physx::PxErrorCode::eINVALID_PARAMETER, PX_FL, "Illegal BroadPhaseUpdateData\n");
 			break;
 
 		case BroadPhaseUpdateError::eMISSING_DATA:
-			foundation.error(physx::PxErrorCode::eINVALID_PARAMETER, PX_FL, "Illegal BroadPhaseUpdateData - missing data\n");
+			foundation.error(ev4sio_physx::PxErrorCode::eINVALID_PARAMETER, PX_FL, "Illegal BroadPhaseUpdateData - missing data\n");
 			break;
 
 		case BroadPhaseUpdateError::eOUT_OF_BOUNDS:
-			foundation.error(physx::PxErrorCode::eINVALID_PARAMETER, PX_FL, "Illegal BroadPhaseUpdateData - out of bounds indices\n");
+			foundation.error(ev4sio_physx::PxErrorCode::eINVALID_PARAMETER, PX_FL, "Illegal BroadPhaseUpdateData - out of bounds indices\n");
 			break;
 
 		case BroadPhaseUpdateError::eINVALID_ORDER:
-			foundation.error(physx::PxErrorCode::eINVALID_PARAMETER, PX_FL, "Illegal BroadPhaseUpdateData - invalid order\n");
+			foundation.error(ev4sio_physx::PxErrorCode::eINVALID_PARAMETER, PX_FL, "Illegal BroadPhaseUpdateData - invalid order\n");
 			break;
 
 		case BroadPhaseUpdateError::eINVALID_GROUP:
-			foundation.error(physx::PxErrorCode::eINVALID_PARAMETER, PX_FL, "Illegal BroadPhaseUpdateData - invalid groups\n");
+			foundation.error(ev4sio_physx::PxErrorCode::eINVALID_PARAMETER, PX_FL, "Illegal BroadPhaseUpdateData - invalid groups\n");
 			break;
 
 		case BroadPhaseUpdateError::eNON_FINITE_BOUNDS:
-			foundation.error(physx::PxErrorCode::eINVALID_PARAMETER, PX_FL, "Illegal BroadPhaseUpdateData - non-finite bounds\n");
+			foundation.error(ev4sio_physx::PxErrorCode::eINVALID_PARAMETER, PX_FL, "Illegal BroadPhaseUpdateData - non-finite bounds\n");
 			break;
 
 		case BroadPhaseUpdateError::eINVALID_BOUNDS:
-			foundation.error(physx::PxErrorCode::eINVALID_PARAMETER, PX_FL, "Illegal BroadPhaseUpdateData - invalid bounds\n");
+			foundation.error(ev4sio_physx::PxErrorCode::eINVALID_PARAMETER, PX_FL, "Illegal BroadPhaseUpdateData - invalid bounds\n");
 			break;
 
 		case BroadPhaseUpdateError::eCREATED_AND_UPDATED:
-			foundation.error(physx::PxErrorCode::eINVALID_PARAMETER, PX_FL, "Illegal BroadPhaseUpdateData - created and updated\n");
+			foundation.error(ev4sio_physx::PxErrorCode::eINVALID_PARAMETER, PX_FL, "Illegal BroadPhaseUpdateData - created and updated\n");
 			break;
 
 		case BroadPhaseUpdateError::eCREATED_AND_REMOVED:
-			foundation.error(physx::PxErrorCode::eINVALID_PARAMETER, PX_FL, "Illegal BroadPhaseUpdateData - created and removed\n");
+			foundation.error(ev4sio_physx::PxErrorCode::eINVALID_PARAMETER, PX_FL, "Illegal BroadPhaseUpdateData - created and removed\n");
 			break;
 
 		case BroadPhaseUpdateError::eUPDATED_AND_REMOVED:
-			foundation.error(physx::PxErrorCode::eINVALID_PARAMETER, PX_FL, "Illegal BroadPhaseUpdateData - updated and removed\n");
+			foundation.error(ev4sio_physx::PxErrorCode::eINVALID_PARAMETER, PX_FL, "Illegal BroadPhaseUpdateData - updated and removed\n");
 			break;
 
 		case BroadPhaseUpdateError::eALREADY_ADDED:
-			foundation.error(physx::PxErrorCode::eINVALID_PARAMETER, PX_FL, "Illegal BroadPhaseUpdateData - already added\n");
+			foundation.error(ev4sio_physx::PxErrorCode::eINVALID_PARAMETER, PX_FL, "Illegal BroadPhaseUpdateData - already added\n");
 			break;
 
 		case BroadPhaseUpdateError::eALREADY_REMOVED:
-			foundation.error(physx::PxErrorCode::eINVALID_PARAMETER, PX_FL, "Illegal BroadPhaseUpdateData - already removed\n");
+			foundation.error(ev4sio_physx::PxErrorCode::eINVALID_PARAMETER, PX_FL, "Illegal BroadPhaseUpdateData - already removed\n");
 			break;
 
 		case BroadPhaseUpdateError::eNOT_IN_DATABASE:
-			foundation.error(physx::PxErrorCode::eINVALID_PARAMETER, PX_FL, "Illegal BroadPhaseUpdateData - not in database\n");
+			foundation.error(ev4sio_physx::PxErrorCode::eINVALID_PARAMETER, PX_FL, "Illegal BroadPhaseUpdateData - not in database\n");
 			break;
 	}
 
@@ -157,7 +157,7 @@ BroadPhaseUpdateError::Enum BroadPhaseUpdateData::isValid(PxU64 contextID, const
 
 	{
 		const PxBounds3* bounds = skipBoundValidation ? NULL : getAABBs();
-		const Bp::FilterGroup::Enum* groups = getGroups();
+		const ev4sio_Bp::FilterGroup::Enum* groups = getGroups();
 
 		BroadPhaseUpdateError::Enum state;
 

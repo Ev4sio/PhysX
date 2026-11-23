@@ -26,7 +26,7 @@
 
 #include "PxgCommonDefines.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 extern "C" __host__ void initNarrowphaseKernels4() {}
 
@@ -95,7 +95,7 @@ struct MidphaseTreeTraverser
 				PxVec3 worldSpaceP1 = meshToWorld.transform(vertex2Shape(triV1, trimeshScale.scale, trimeshScale.rotation));
 				PxVec3 worldSpaceP2 = meshToWorld.transform(vertex2Shape(triV2, trimeshScale.scale, trimeshScale.rotation));
 
-				primitiveIntersects = Gu::intersectTriangleBox_RefImpl<true>(s_warpScratch->center, s_warpScratch->inflatedExtents,
+				primitiveIntersects = ev4sio_Gu::intersectTriangleBox_RefImpl<true>(s_warpScratch->center, s_warpScratch->inflatedExtents,
 					worldSpaceP0, worldSpaceP1, worldSpaceP2);
 			}
 		}

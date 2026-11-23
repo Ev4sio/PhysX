@@ -13,7 +13,7 @@
 #include "GuTetrahedronMesh.h"
 #include "NpActorTemplate.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 class NpScene;
@@ -114,8 +114,8 @@ public:
 	PX_FORCE_INLINE const NpShape* getShapeInternal() const { return mShape; }
 #endif
 
-	PX_FORCE_INLINE	const Sc::DeformableVolumeCore&		getCore()	const { return mCore; }
-	PX_FORCE_INLINE	Sc::DeformableVolumeCore&			getCore() { return mCore; }
+	PX_FORCE_INLINE	const ev4sio_Sc::DeformableVolumeCore&		getCore()	const { return mCore; }
+	PX_FORCE_INLINE	ev4sio_Sc::DeformableVolumeCore&			getCore() { return mCore; }
 	static PX_FORCE_INLINE size_t						getCoreOffset() { return PX_OFFSET_OF_RT(NpDeformableVolume, mCore); }
 
 	void									updateMaterials();
@@ -125,17 +125,17 @@ private:
 	void 									releaseAllocator();
 
 	NpShape*								mShape; //deformable volume can only have one tetrahedron mesh shape.
-	Gu::TetrahedronMesh*					mSimulationMesh;
-	Gu::DeformableVolumeAuxData*			mAuxData;
-	Sc::DeformableVolumeCore				mCore;
+	ev4sio_Gu::TetrahedronMesh*					mSimulationMesh;
+	ev4sio_Gu::DeformableVolumeAuxData*			mAuxData;
+	ev4sio_Sc::DeformableVolumeCore				mCore;
 	PxCudaContextManager*					mCudaContextManager;
 	PxsMemoryManager*						mMemoryManager;
-	Cm::VirtualAllocatorCallback*				mDeviceMemoryAllocator;
+	ev4sio_Cm::VirtualAllocatorCallback*				mDeviceMemoryAllocator;
 };
 
-Sc::DeformableVolumeCore* getDeformableVolumeCore(PxActor* actor);
+ev4sio_Sc::DeformableVolumeCore* getDeformableVolumeCore(PxActor* actor);
 
-} // namespace physx
+} // namespace ev4sio_physx
 
 #endif //PX_SUPPORT_GPU_PHYSX
 #endif // NP_DEFORMABLE_VOLUME_H

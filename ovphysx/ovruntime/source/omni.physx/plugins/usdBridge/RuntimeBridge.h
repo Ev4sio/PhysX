@@ -22,7 +22,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 
 // Benchmark-only stage loaders. Producing or resolving a UsdUtilsStageCache id goes
@@ -64,5 +64,5 @@ void bridgeInstallStartupParseBackend();
 // stage-lifecycle seam. No-op with no seam installed.
 void bridgeSetSimulationLayer(const char* layerIdentifier);
 
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

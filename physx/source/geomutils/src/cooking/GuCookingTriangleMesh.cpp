@@ -25,9 +25,9 @@
 #include "GuCookingSDF.h"
 #include "GuMeshAnalysis.h"
 
-using namespace physx;
-using namespace Gu;
-using namespace Cm;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
+using namespace ev4sio_Cm;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -550,7 +550,7 @@ void TriangleMeshBuilder::buildInertiaTensor(bool flipNormals)
 
 void TriangleMeshBuilder::buildInertiaTensorFromSDF()
 {
-	if (MeshAnalyzer::checkMeshWatertightness(reinterpret_cast<const Gu::Triangle*>(mMeshData.mTriangles), mMeshData.mNbTriangles))
+	if (MeshAnalyzer::checkMeshWatertightness(reinterpret_cast<const ev4sio_Gu::Triangle*>(mMeshData.mTriangles), mMeshData.mNbTriangles))
 	{
 		buildInertiaTensor();
 		if (mMeshData.mMass < 0.0f)
@@ -592,7 +592,7 @@ void TriangleMeshBuilder::buildInertiaTensorFromSDF()
 // choice either way.
 void TriangleMeshBuilder::normalizeSDFCollisionMeshWinding(bool flipNormalsRequested)
 {
-	Gu::Triangle* triangles = reinterpret_cast<Gu::Triangle*>(mMeshData.mTriangles);
+	ev4sio_Gu::Triangle* triangles = reinterpret_cast<ev4sio_Gu::Triangle*>(mMeshData.mTriangles);
 	const PxU32 numTriangles = mMeshData.mNbTriangles;
 
 	PxArray<bool> flipTriangle;
@@ -613,7 +613,7 @@ void TriangleMeshBuilder::normalizeSDFCollisionMeshWinding(bool flipNormalsReque
 	if (MeshAnalyzer::orientTrianglesOutward(triangles, numTriangles, mMeshData.mVertices, flipTriangle))
 	{
 		const char* note = flipNormalsRequested ? "PxMeshFlag::eFLIPNORMALS was ignored because an SDF collider is always wound outward. " : "";
-		PxGetFoundation().error(PxErrorCode::eDEBUG_WARNING, PX_FL,
+		ev4sio_PxGetFoundation().error(PxErrorCode::eDEBUG_WARNING, PX_FL,
 			"Triangle mesh orientation was adjusted to align with the SDF. %s"
 			"Author SDF collision meshes with consistent, outward-facing triangle winding to avoid this.", note);
 	}
@@ -833,7 +833,7 @@ bool checkInputFloats(PxU32 nb, const float* values, const char* file, PxU32 lin
 	while(nb--)
 	{
 		if(!PxIsFinite(*values++))
-			return PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, file, line, errorMsg);
+			return ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, file, line, errorMsg);
 	}
 	return true;
 }

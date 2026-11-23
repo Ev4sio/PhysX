@@ -54,7 +54,7 @@
 
 
 using namespace schlock;
-using namespace physx;
+using namespace ev4sio_physx;
 
 extern "C" __host__ void initNarrowphaseKernels10() {}
 
@@ -332,8 +332,8 @@ __device__ bool particlePrimitiveCollision(
 	}
 	case PxGeometryType::eCONVEXCORE:
 	{
-		Gu::ConvexShape convex;
-		convex.coreType = Gu::ConvexCore::Type::Enum(shape.hullOrMeshPtr);
+		ev4sio_Gu::ConvexShape convex;
+		convex.coreType = ev4sio_Gu::ConvexCore::Type::Enum(shape.hullOrMeshPtr);
 		memcpy(convex.coreData, &shape.scale.scale.x, PxConvexCoreGeometry::MAX_CORE_SIZE);
 		convex.margin = shape.scale.rotation.w;
 		convex.pose = shapeTransform;
@@ -1442,7 +1442,7 @@ extern "C" __global__ void ps_convexCollisionLaunch(
 	const PxU32* PX_RESTRICT					startIndices,					//the run sum for cells
 	const PxU32*								totalNumPairs,
 	PxgParticleSystem* PX_RESTRICT				particleSystems,
-	const PxNodeIndex*							shapeToRigidRemapTable,			//IG::NodeIndex
+	const PxNodeIndex*							shapeToRigidRemapTable,			//ev4sio_IG::NodeIndex
 	PxgDeformablePairInfo* PX_RESTRICT			particleContactInfos,			//output
 	float4* PX_RESTRICT							particleContactNormalPens,		//output
 	PxI32*										numParticleContacts,			//output
@@ -1560,7 +1560,7 @@ extern "C" __global__ void ps_convexDiffuseCollisionLaunch(
 	const PxU32 * PX_RESTRICT					startIndices,					//the run sum for cells
 	const PxU32 * totalNumPairs,
 	PxgParticleSystem * PX_RESTRICT				particleSystems,
-	const PxNodeIndex *							shapeToRigidRemapTable			//IG::NodeIndex
+	const PxNodeIndex *							shapeToRigidRemapTable			//ev4sio_IG::NodeIndex
 )
 {
 	const PxU32 numWarpPerBlock = PxgParticleSystemKernelBlockDim::PS_COLLISION / WARP_SIZE;

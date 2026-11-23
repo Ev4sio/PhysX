@@ -9,7 +9,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace tensors
 {
@@ -30,23 +30,23 @@ private:
     GpuSimulationDataPtr mGpuSimData;
 
     int mDevice = -1;
-    std::unordered_map<::physx::PxShapeGPUIndex, ::physx::PxU32> mShapeToViewIndexMap;
+    std::unordered_map<::ev4sio_physx::PxShapeGPUIndex, ::ev4sio_physx::PxU32> mShapeToViewIndexMap;
 
     // indexing data for all sdf shapes
     std::vector<GpuSdfShapeRecord> mSdfRecords;
     GpuSdfShapeRecord* mSdfRecordsDev = nullptr;
 
     // phyx shape indices
-    ::physx::PxShapeGPUIndex* mShapeIndicesD;
-    std::vector<::physx::PxShapeGPUIndex> mShapeIndices;
+    ::ev4sio_physx::PxShapeGPUIndex* mShapeIndicesD;
+    std::vector<::ev4sio_physx::PxShapeGPUIndex> mShapeIndices;
 
     // phyx sample points per shapes
-    ::physx::PxU32* samplePointCountsD;
-    std::vector<::physx::PxU32> samplePointCounts;
+    ::ev4sio_physx::PxU32* samplePointCountsD;
+    std::vector<::ev4sio_physx::PxU32> samplePointCounts;
 
-    ::physx::PxU32 mMaxNumPoints = 0;
-    ::physx::PxVec4* samplePointsPerShape;
+    ::ev4sio_physx::PxU32 mMaxNumPoints = 0;
+    ::ev4sio_physx::PxVec4* samplePointsPerShape;
 };
 } // namespace tensors
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

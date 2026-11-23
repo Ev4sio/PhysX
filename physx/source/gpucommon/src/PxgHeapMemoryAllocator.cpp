@@ -12,7 +12,7 @@
 #include "cudamanager/PxCudaContext.h"
 #include "cudamanager/PxCudaTypes.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 #define EXCEPTIONAL_ALLOC_FACTOR 2
 
@@ -31,7 +31,7 @@ using namespace physx;
 static void reportDuplicateAllocation(PxgCudaAllocatorCallbackBase* allocator, const void* address, PxU32 blockIndex)
 {
 	PX_ASSERT(0);
-	PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL,
+	ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL,
 		"PxgHeapMemoryAllocator: block %u handed out address %p, which is already a live allocation. Heap bookkeeping is corrupt.",
 		blockIndex, address);
 
@@ -478,7 +478,7 @@ void PxgHeapMemoryAllocator::deallocate(void* ptr)
 		//un-charged by its first release.
 		// ### DEFENSIVE (OMPE-104415/NvBugs 6558251)
 		PX_ASSERT(0);
-		PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL,
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL,
 			"PxgHeapMemoryAllocator::deallocate: %p is not a live allocation of this heap - foreign or "
 			"already-freed pointer, or corrupt heap bookkeeping; ignoring it.", ptr);
 		return;

@@ -4726,7 +4726,7 @@ TEST_F(TensorBindingGpuTest, CrossDeviceReadCpuTensorFromGpuBinding) {
 TEST_F(TensorBindingGpuTest, CrossDeviceStagingWithoutCallerCudaContext) {
     // Cross-device staging must push the binding's CUDA context instead of inheriting
     // the caller's.
-    omni::physx::IOptionalCuda* cuda = ovphysx::test_cuda::getCuda();
+    omni::ev4sio_physx::IOptionalCuda* cuda = ovphysx::test_cuda::getCuda();
     ASSERT_NE(cuda, nullptr);
     ASSERT_TRUE(cuda->cudaAvailable());
 

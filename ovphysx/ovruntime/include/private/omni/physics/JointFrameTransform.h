@@ -24,7 +24,7 @@ namespace omni::physics
 // resolved body's local frame. PhysX actors carry no body scale, so the body's
 // world scale is baked into the resulting translation.
 //
-// Matrices are ::physx::PxMat44d -- the same sixteen doubles a GfMatrix4d holds,
+// Matrices are ::ev4sio_physx::PxMat44d -- the same sixteen doubles a GfMatrix4d holds,
 // read column-major (see common/foundation/MatrixTools.h). Products are written
 // in PhysX operand order, i.e. the Gf `A * B` of the previous revision is
 // `B * A` here. This header is Gf-free because it is shared by the USD and the
@@ -40,8 +40,8 @@ namespace omni::physics
 // MatrixTools.h). This uses the bit-exact Gf transcription
 // (`gfmath::removeScaleShearGf`) to keep joint-frame local pose numerically
 // unchanged from the pre-port behaviour.
-inline void transformJointFrameToBody(const ::physx::PxMat44d& relationshipToWorld,
-                                      const ::physx::PxMat44d& bodyToWorld,
+inline void transformJointFrameToBody(const ::ev4sio_physx::PxMat44d& relationshipToWorld,
+                                      const ::ev4sio_physx::PxMat44d& bodyToWorld,
                                       bool relationshipTargetsBody,
                                       carb::Float3& inOutLocalPosition,
                                       carb::Float4& inOutLocalOrientation)
@@ -49,25 +49,25 @@ inline void transformJointFrameToBody(const ::physx::PxMat44d& relationshipToWor
     if (!relationshipTargetsBody)
     {
         // GfMatrix4d::SetTranslate + SetRotateOnly, i.e. a rigid pose matrix.
-        const ::physx::PxMat44d localAnchor = omni::physx::makeMatrix(::physx::PxTransform(
-            ::physx::PxVec3(inOutLocalPosition.x, inOutLocalPosition.y, inOutLocalPosition.z),
-            ::physx::PxQuat(inOutLocalOrientation.x, inOutLocalOrientation.y, inOutLocalOrientation.z,
+        const ::ev4sio_physx::PxMat44d localAnchor = omni::ev4sio_physx::makeMatrix(::ev4sio_physx::PxTransform(
+            ::ev4sio_physx::PxVec3(inOutLocalPosition.x, inOutLocalPosition.y, inOutLocalPosition.z),
+            ::ev4sio_physx::PxQuat(inOutLocalOrientation.x, inOutLocalOrientation.y, inOutLocalOrientation.z,
                             inOutLocalOrientation.w)));
 
         // Gf: localAnchor * relationshipToWorld  -> operands swap in PhysX order.
-        const ::physx::PxMat44d worldAnchor = relationshipToWorld * localAnchor;
+        const ::ev4sio_physx::PxMat44d worldAnchor = relationshipToWorld * localAnchor;
         // Gf: worldAnchor * bodyToWorld.GetInverse(), then RemoveScaleShear().
         // toTransform() is the rigid part of that product, which is exactly what
         // ExtractTranslation()/ExtractRotationQuat() read back off the
         // scale-and-shear-removed matrix.
-        const ::physx::PxMat44d bodyAnchor = omni::physx::affineInverse(bodyToWorld) * worldAnchor;
+        const ::ev4sio_physx::PxMat44d bodyAnchor = omni::ev4sio_physx::affineInverse(bodyToWorld) * worldAnchor;
         // Bit-exact Gf::RemoveScaleShear() first, then extract the rigid pose
         // from the now shear-free result -- decomposeMatrix/toTransform agrees
         // with Gf's ExtractTranslation/ExtractRotationQuat to float precision
         // once shear is gone, so this reproduces the pre-port answer instead of
         // the PhysX-native polar factor on the (possibly sheared) input.
-        const ::physx::PxMat44d bodyAnchorNoShear = omni::physx::gfmath::removeScaleShearGf(bodyAnchor);
-        ::physx::PxTransform bodyLocalAnchor = omni::physx::toTransform(bodyAnchorNoShear);
+        const ::ev4sio_physx::PxMat44d bodyAnchorNoShear = omni::ev4sio_physx::gfmath::removeScaleShearGf(bodyAnchor);
+        ::ev4sio_physx::PxTransform bodyLocalAnchor = omni::ev4sio_physx::toTransform(bodyAnchorNoShear);
         bodyLocalAnchor.q.normalize();
 
         inOutLocalPosition = { bodyLocalAnchor.p.x, bodyLocalAnchor.p.y, bodyLocalAnchor.p.z };
@@ -78,10 +78,10 @@ inline void transformJointFrameToBody(const ::physx::PxMat44d& relationshipToWor
     // `bodyToWorld` can carry shear (non-uniform ancestor scale plus a
     // rotation below it in the chain to the body), so this must go through
     // the bit-exact Gf transcription (`gfmath::decomposeWithPivot`), not
-    // `omni::physx::getScale` (MatrixTools.h documents ~40% scale divergence
+    // `omni::ev4sio_physx::getScale` (MatrixTools.h documents ~40% scale divergence
     // between the two on sheared input).
-    const ::physx::PxVec3d bodyScaleD = omni::physx::gfmath::decomposeWithPivot(bodyToWorld).scale;
-    const ::physx::PxVec3 bodyScale(float(bodyScaleD.x), float(bodyScaleD.y), float(bodyScaleD.z));
+    const ::ev4sio_physx::PxVec3d bodyScaleD = omni::ev4sio_physx::gfmath::decomposeWithPivot(bodyToWorld).scale;
+    const ::ev4sio_physx::PxVec3 bodyScale(float(bodyScaleD.x), float(bodyScaleD.y), float(bodyScaleD.z));
     inOutLocalPosition = { inOutLocalPosition.x * bodyScale.x, inOutLocalPosition.y * bodyScale.y,
                            inOutLocalPosition.z * bodyScale.z };
 }

@@ -9,9 +9,9 @@
 #include "foundation/PxPreprocessor.h"
 #include "foundation/PxUserAllocated.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-	namespace Cm
+	namespace ev4sio_Cm
 	{
 		class VirtualAllocatorCallback;
 	}
@@ -20,8 +20,8 @@ namespace physx
 	{
 	public:
 		virtual								~PxsMemoryManager(){}
-		virtual	Cm::VirtualAllocatorCallback* getPinnedHostMemoryAllocator()	= 0;
-		virtual	Cm::VirtualAllocatorCallback* getDeviceMemoryAllocator()	= 0;
+		virtual	ev4sio_Cm::VirtualAllocatorCallback* getPinnedHostMemoryAllocator()	= 0;
+		virtual	ev4sio_Cm::VirtualAllocatorCallback* getDeviceMemoryAllocator()	= 0;
 	};
 
 	// PT: this is for CPU, see createPxgMemoryManager for GPU

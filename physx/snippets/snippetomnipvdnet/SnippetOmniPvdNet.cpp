@@ -29,7 +29,7 @@
 #include "../pvdruntime/include/OmniPvdCommands.h"
 #include "../pvdruntime/include/OmniPvdDefines.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 static const PxU16 gPort = 5425;          // loopback TCP port the reader listens on
 static const PxU32 gPrerollFrames = 30;   // frames simulated with no recording before the attach
@@ -184,11 +184,11 @@ static bool attachAndStartSampling()
 // does not begin until startSampling().
 static bool createPhysics()
 {
-	gFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, gAllocator, gErrorCallback);
+	gFoundation = ev4sio_PxCreateFoundation(ev4sio_PX_PHYSICS_VERSION, gAllocator, gErrorCallback);
 	if (!gFoundation) { printf("[producer] Error : could not create PxFoundation!\n"); return false; }
-	gOmniPvd = PxCreateOmniPvd(*gFoundation);
+	gOmniPvd = ev4sio_PxCreateOmniPvd(*gFoundation);
 	if (!gOmniPvd) { printf("[producer] Error : could not create PxOmniPvd!\n"); return false; }
-	gPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *gFoundation, PxTolerancesScale(), true, NULL, gOmniPvd);
+	gPhysics = ev4sio_PxCreatePhysics(ev4sio_PX_PHYSICS_VERSION, *gFoundation, PxTolerancesScale(), true, NULL, gOmniPvd);
 	if (!gPhysics) { printf("[producer] Error : could not create a PhysX instance!\n"); return false; }
 	return true;
 }

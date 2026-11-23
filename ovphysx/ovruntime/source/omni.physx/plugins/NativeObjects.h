@@ -7,7 +7,7 @@
 #include <omni/physx/NativeInspection.h>
 #include "internal/InternalPhysXDatabase.h"
 #include "usdLoad/AttachedStage.h"
-namespace omni::physx::native
+namespace omni::ev4sio_physx::native
 {
 // Private helpers: caller already holds exact-owner runtime admission. Never
 // acquire it recursively and never retain a returned record after releasing it.

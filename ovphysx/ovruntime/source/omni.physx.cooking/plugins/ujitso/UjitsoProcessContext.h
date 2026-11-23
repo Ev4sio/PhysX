@@ -10,7 +10,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 
 struct UjitsoProcessManager;
@@ -234,5 +234,5 @@ private:
     friend struct UjitsoProcessManager;
 };
 
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

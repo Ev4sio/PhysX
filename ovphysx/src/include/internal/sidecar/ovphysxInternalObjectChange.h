@@ -119,7 +119,7 @@ struct OvphysxObjectChangeKeep
     }
 };
 
-// Sidecar object-change subscription bridge. Translates omni::physx's
+// Sidecar object-change subscription bridge. Translates omni::ev4sio_physx's
 // std::function-based IPhysicsObjectChangeCallback into the C-friendly
 // function-pointer signatures below so the main library can forward user
 // callbacks without depending on USD/omni.physx types.
@@ -134,7 +134,7 @@ extern "C" {
 //                                prim_path_ptr[prim_path_len] == '\0'. Use len
 //                                for content. Storage is owned by the sidecar
 //                                and valid only for the callback duration.
-// physx_type:                    omni::physx::PhysXType integer value.
+// physx_type:                    omni::ev4sio_physx::PhysXType integer value.
 // user_data:                     opaque caller pointer passed through unchanged.
 typedef void (*ovphysx_internal_object_created_fn)(
     const char* prim_path_ptr, size_t prim_path_len, int physx_type, void* user_data);
@@ -144,15 +144,15 @@ typedef void (*ovphysx_internal_object_destroyed_fn)(
 
 typedef void (*ovphysx_internal_all_objects_destroyed_fn)(void* user_data);
 
-// Subscribe to omni::physx object change notifications.
+// Subscribe to omni::ev4sio_physx object change notifications.
 //
 // Any of the function-pointer parameters may be NULL. The sidecar skips NULL
 // callbacks rather than invoking them. At least one of the three must be
 // non-NULL, which the caller checks. The sidecar itself does not validate.
 //
-// Returns the omni::physx SubscriptionId on success, or UINT64_MAX on failure,
+// Returns the omni::ev4sio_physx SubscriptionId on success, or UINT64_MAX on failure,
 // matching OVPHYSX_INVALID_SUBSCRIPTION_ID in the public ABI. This is intentionally
-// not the omni::physx kInvalidSubscriptionId value, which is only 40 bits and
+// not the omni::ev4sio_physx kInvalidSubscriptionId value, which is only 40 bits and
 // would otherwise be a valid IPhysx ID on the ovphysx side. Pair with
 // ovphysx_internal_unsubscribe_object_changes().
 //
@@ -168,7 +168,7 @@ OVPHYSX_INTERNAL_API uint64_t ovphysx_internal_subscribe_object_changes(
     void* lifetime_keep);
 
 // Unsubscribe a previously-registered object-change subscription.
-// Returns 0 on success, non-zero on failure (e.g. omni::physx unavailable).
+// Returns 0 on success, non-zero on failure (e.g. omni::ev4sio_physx unavailable).
 OVPHYSX_INTERNAL_API int ovphysx_internal_unsubscribe_object_changes(
     uint64_t subscription_id);
 

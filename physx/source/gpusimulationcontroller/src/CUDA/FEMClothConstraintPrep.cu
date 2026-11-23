@@ -22,7 +22,7 @@
 #include "deformableUtils.cuh"
 #include "deformableCollision.cuh"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 extern "C" __host__ void initFEMClothKernels0() {}
 
@@ -217,7 +217,7 @@ void cloth_clothContactPrepareLaunch(
 			const PxVec3 r13 = r3 - r1;
 
 			// Apply exact (non-approximated) rest distance filtering.
-			const PxVec3 closest = Gu::closestPtPointTriangle2(r0, r1, r2, r3, r12, r13);
+			const PxVec3 closest = ev4sio_Gu::closestPtPointTriangle2(r0, r1, r2, r3, r12, r13);
 
 			const PxReal restDistSq = (r0 - closest).magnitudeSquared();
 			if(restDistSq <= cloth0.mSelfCollisionFilterDistance * cloth0.mSelfCollisionFilterDistance)

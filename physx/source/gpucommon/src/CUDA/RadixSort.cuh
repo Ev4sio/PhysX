@@ -16,7 +16,7 @@
 #include "foundation/PxMath.h"
 #include <assert.h>
 
-namespace physx
+namespace ev4sio_physx
 {
 
 #define		RADIX_SIZE			16
@@ -737,6 +737,6 @@ PX_FORCE_INLINE __device__ void bitonicSortWarp(const PxU32 mask, PxU32& key, Px
 	}
 }
 
-} // namespace physx
+} // namespace ev4sio_physx
 
 #endif // !PXG_RADIX_SORT_CUH

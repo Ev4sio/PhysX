@@ -14,7 +14,7 @@
 //
 // Measurement: the CUDA driver primary-context active flag for device 0, read via
 // dlopen so the test needs no build-time CUDA dependency and skips on CPU-only
-// runners. PxCreateCudaContextManager retains the primary context, so its
+// runners. ev4sio_PxCreateCudaContextManager retains the primary context, so its
 // creation flips this flag 0 -> 1.
 //
 // Routing: runs in its own isolated gtest pass (scripts/test_cpp.cmake:

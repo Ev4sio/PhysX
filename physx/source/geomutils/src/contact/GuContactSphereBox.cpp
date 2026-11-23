@@ -6,7 +6,7 @@
 #include "geomutils/PxContactBuffer.h"
 #include "GuContactMethodImpl.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 //This version is ported 1:1 from novodex
 static PX_FORCE_INLINE bool ContactSphereBox(const PxVec3& sphereOrigin, 
@@ -131,7 +131,7 @@ static PX_FORCE_INLINE bool ContactSphereBox(const PxVec3& sphereOrigin,
 	}
 }
 
-bool Gu::contactSphereBox(GU_CONTACT_METHOD_ARGS)
+bool ev4sio_Gu::contactSphereBox(GU_CONTACT_METHOD_ARGS)
 {
 	PX_UNUSED(renderOutput);
 	PX_UNUSED(cache);

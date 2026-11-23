@@ -11,7 +11,7 @@
 #include "GuTriangleMesh.h"
 #include "PxgFEMCloth.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	namespace
 	{
@@ -59,7 +59,7 @@ namespace physx
 		bool mergeFilterPairs(const PxArray<PxgDeformablePairInfo>& stagedPairs, const PxArray<PxU32>& stagedCounts,
 			PxgDeformableFilterPairs& filters)
 		{
-			Cm::PinnableArray<PxgDeformablePairInfo>& pairs = filters.mPairs;
+			ev4sio_Cm::PinnableArray<PxgDeformablePairInfo>& pairs = filters.mPairs;
 			PxArray<PxU32>& references = filters.mReferences;
 
 			const PxU32 nbPairs = pairs.size();
@@ -119,7 +119,7 @@ namespace physx
 		bool unmergeFilterPairs(const PxArray<PxgDeformablePairInfo>& stagedPairs, const PxArray<PxU32>& stagedCounts,
 			PxgDeformableFilterPairs& filters)
 		{
-			Cm::PinnableArray<PxgDeformablePairInfo>& pairs = filters.mPairs;
+			ev4sio_Cm::PinnableArray<PxgDeformablePairInfo>& pairs = filters.mPairs;
 			PxArray<PxU32>& references = filters.mReferences;
 
 			const PxU32 nbPairs = pairs.size();
@@ -157,19 +157,19 @@ namespace physx
 		// Maps a collision mesh element from the BV4 numbering the API uses to the BV32 numbering the GPU
 		// mesh carries. The wildcard passes through unchanged.
 
-		PxU32 toCollisionGpuTetIndex(const Gu::BVTetrahedronMesh& tetMesh, PxU32 tetId)
+		PxU32 toCollisionGpuTetIndex(const ev4sio_Gu::BVTetrahedronMesh& tetMesh, PxU32 tetId)
 		{
 			return tetId == PxgDeformableRef::ANY_FEATURE ? tetId : tetMesh.mGRB_faceRemapInverse[tetId];
 		}
 
-		PxU32 toCollisionGpuTriIndex(const Gu::TriangleMesh& triangleMesh, PxU32 triId)
+		PxU32 toCollisionGpuTriIndex(const ev4sio_Gu::TriangleMesh& triangleMesh, PxU32 triId)
 		{
 			return triId == PxgDeformableRef::ANY_FEATURE ? triId : triangleMesh.mGRB_faceRemapInverse[triId];
 		}
 
 		// Reads the three vertex indices of a triangle in the GPU mesh's numbering.
 		void getGRBVertexIndices(PxU32& vref0, PxU32& vref1, PxU32& vref2, PxU32 triIndex,
-			const Gu::TriangleMesh* triangleMesh)
+			const ev4sio_Gu::TriangleMesh* triangleMesh)
 		{
 			const PxU32 offset = triIndex * 3;
 			if(triangleMesh->has16BitIndices())
@@ -191,7 +191,7 @@ namespace physx
 		// Converts source tetrahedron indices to GPU mesh indices and adds rigid-tetrahedron pairs to the
 		// output array. Wildcards are skipped as a safeguard (already checked in NpDeformableElementFilter).
 		// The rigid is passed as its filter reference, a node or a static's shape. See PxgEncodeRigidFilterRef.
-		void appendRigidVolumeFilterPairs(const Gu::BVTetrahedronMesh& volumeMesh, PxU32 volumeId,
+		void appendRigidVolumeFilterPairs(const ev4sio_Gu::BVTetrahedronMesh& volumeMesh, PxU32 volumeId,
 			PxU64 rigidRef, const PxU32* tetIndices, PxU32 tetIndicesSize,
 			PxArray<PxgDeformablePairInfo>& appended)
 		{
@@ -212,7 +212,7 @@ namespace physx
 		// Expands a tetrahedron-tetrahedron pair to four vertex-tetrahedron pairs and appends them to the
 		// output array. A wildcard tetrahedron contributes one entry standing for the whole volume.
 		// Expects GPU indices.
-		void appendTetVertexPairs(const Gu::BVTetrahedronMesh& volumeMesh, PxU32 volumeId, PxU32 tetId, PxU64 otherTetRef,
+		void appendTetVertexPairs(const ev4sio_Gu::BVTetrahedronMesh& volumeMesh, PxU32 volumeId, PxU32 tetId, PxU64 otherTetRef,
 			PxArray<PxgDeformablePairInfo>& pairs)
 		{
 			if (tetId == PxgDeformableRef::ANY_FEATURE)
@@ -235,8 +235,8 @@ namespace physx
 
 		// Converts source tetrahedron indices to GPU mesh indices and adds vertex-tetrahedron pairs to the
 		// per-volume output arrays.
-		void appendVolumeVolumeFilterPairs(const Gu::BVTetrahedronMesh& volumeMesh0, PxU32 volumeId0,
-			const Gu::BVTetrahedronMesh& volumeMesh1, PxU32 volumeId1,
+		void appendVolumeVolumeFilterPairs(const ev4sio_Gu::BVTetrahedronMesh& volumeMesh0, PxU32 volumeId0,
+			const ev4sio_Gu::BVTetrahedronMesh& volumeMesh1, PxU32 volumeId1,
 			const PxU32* tetIndices0, const PxU32* tetIndices1, PxU32 tetIndicesSize,
 			PxArray<PxgDeformablePairInfo>& appended0, PxArray<PxgDeformablePairInfo>& appended1)
 		{
@@ -263,8 +263,8 @@ namespace physx
 		// triangle contributes one triangle entry for the face paths and one vertex entry per corner for the
 		// vertex paths. A wildcard triangle contributes one entry of each kind standing for the whole
 		// surface.
-		void appendVolumeSurfaceFilterPairs(const Gu::BVTetrahedronMesh& volumeMesh, PxU32 volumeId,
-			const Gu::TriangleMesh* surfaceMesh, PxU32 surfaceId,
+		void appendVolumeSurfaceFilterPairs(const ev4sio_Gu::BVTetrahedronMesh& volumeMesh, PxU32 volumeId,
+			const ev4sio_Gu::TriangleMesh* surfaceMesh, PxU32 surfaceId,
 			const PxU32* triIndices, const PxU32* tetIndices, PxU32 indicesSize, PxArray<PxgDeformablePairInfo>& appended)
 		{
 			appended.reserve(indicesSize * 4); // 3 verts and one tri
@@ -305,7 +305,7 @@ namespace physx
 		// Converts source triangle indices to GPU mesh indices and adds the pairs the filter expands to. A
 		// filtered triangle contributes one triangle entry for the face paths and one vertex entry per
 		// corner for the vertex paths.
-		void appendRigidSurfaceFilterPairs(const Gu::TriangleMesh* surfaceMesh, PxU32 surfaceId,
+		void appendRigidSurfaceFilterPairs(const ev4sio_Gu::TriangleMesh* surfaceMesh, PxU32 surfaceId,
 			PxU64 rigidRef,
 			const PxU32* triIndices, PxU32 triIndicesSize, PxArray<PxgDeformablePairInfo>& appended)
 		{
@@ -335,7 +335,7 @@ namespace physx
 		// Expands a triangle-triangle pair to three vertex-triangle pairs and appends them to the output
 		// array. A wildcard triangle contributes one entry standing for the whole surface. Expects GPU
 		// indices.
-		void appendTriangleVertexPairs(const Gu::TriangleMesh& surfaceMesh, PxU32 surfaceId, PxU32 surfaceTriId,
+		void appendTriangleVertexPairs(const ev4sio_Gu::TriangleMesh& surfaceMesh, PxU32 surfaceId, PxU32 surfaceTriId,
 			PxU64 otherSurfaceTriRef, PxArray<PxgDeformablePairInfo>& pairs)
 		{
 			if (surfaceTriId == PxgDeformableRef::ANY_FEATURE)
@@ -357,7 +357,7 @@ namespace physx
 		}
 
 		// Local index of the edge between two vertices, or 3 if the triangle does not have that edge.
-		PxU32 findLocalEdge(const Gu::TriangleMesh& surfaceMesh, PxU32 surfaceTriId, PxU32 vertexA, PxU32 vertexB)
+		PxU32 findLocalEdge(const ev4sio_Gu::TriangleMesh& surfaceMesh, PxU32 surfaceTriId, PxU32 vertexA, PxU32 vertexB)
 		{
 			PxU32 vertexIds[3];
 			getGRBVertexIndices(vertexIds[0], vertexIds[1], vertexIds[2], surfaceTriId, &surfaceMesh);
@@ -377,7 +377,7 @@ namespace physx
 		// For each of the three edges of a triangle, collects the reference identifying the triangle that
 		// edge is tested from, and returns the number of references written. A wildcard triangle contributes
 		// a single reference for the whole surface. Expects GPU indices.
-		PxU32 collectTriangleEdgeRefs(const Gu::TriangleMesh& surfaceMesh, const PxgDeformableSurfaceTopology& topology,
+		PxU32 collectTriangleEdgeRefs(const ev4sio_Gu::TriangleMesh& surfaceMesh, const PxgDeformableSurfaceTopology& topology,
 			PxU32 surfaceId, PxU32 surfaceTriId, PxU64 edgeRefs[3])
 		{
 			if (surfaceTriId == PxgDeformableRef::ANY_FEATURE)
@@ -449,9 +449,9 @@ namespace physx
 		// Converts source triangle indices to GPU mesh indices and adds vertex-triangle pairs to the
 		// per-surface output arrays. Collision runs in both directions, testing a vertex of one surface
 		// against a triangle of the other, so each direction needs its own entries.
-		void appendSurfaceSurfaceFilterPairs(const Gu::TriangleMesh* surfaceMesh0,
+		void appendSurfaceSurfaceFilterPairs(const ev4sio_Gu::TriangleMesh* surfaceMesh0,
 			const PxgDeformableSurfaceTopology& topology0, PxU32 surfaceId0,
-			const Gu::TriangleMesh* surfaceMesh1, const PxgDeformableSurfaceTopology& topology1, PxU32 surfaceId1,
+			const ev4sio_Gu::TriangleMesh* surfaceMesh1, const PxgDeformableSurfaceTopology& topology1, PxU32 surfaceId1,
 			const PxU32* triIndices0, const PxU32* triIndices1, PxU32 triIndicesSize,
 			PxArray<PxgDeformablePairInfo>& appended0, PxArray<PxgDeformablePairInfo>& appended1)
 		{
@@ -560,7 +560,7 @@ namespace physx
 		}
 	}
 
-	void PxgDeformableFilterManager::updateVolumeRigid(const Gu::BVTetrahedronMesh& volumeMesh, PxU32 volumeId,
+	void PxgDeformableFilterManager::updateVolumeRigid(const ev4sio_Gu::BVTetrahedronMesh& volumeMesh, PxU32 volumeId,
 		const PxNodeIndex& rigidNodeIndex, const PxU32* tetIndices, PxU32 tetIndicesSize, bool add)
 	{
 		PxArray<PxgDeformablePairInfo> appended;
@@ -569,7 +569,7 @@ namespace physx
 		update(appended, volumeId, add);
 	}
 
-	void PxgDeformableFilterManager::updateVolumeStaticShapes(const Gu::BVTetrahedronMesh& volumeMesh, PxU32 volumeId,
+	void PxgDeformableFilterManager::updateVolumeStaticShapes(const ev4sio_Gu::BVTetrahedronMesh& volumeMesh, PxU32 volumeId,
 		const PxU32* shapeCacheIds, PxU32 nbShapes, const PxU32* tetIndices, PxU32 tetIndicesSize, bool add)
 	{
 		PxArray<PxgDeformablePairInfo> appended;
@@ -580,8 +580,8 @@ namespace physx
 		update(appended, volumeId, add);
 	}
 
-	void PxgDeformableFilterManager::updateVolumeVolume(const Gu::BVTetrahedronMesh& volumeMesh0, PxU32 volumeId0,
-		const Gu::BVTetrahedronMesh& volumeMesh1, PxU32 volumeId1, const PxU32* tetIndices0, const PxU32* tetIndices1,
+	void PxgDeformableFilterManager::updateVolumeVolume(const ev4sio_Gu::BVTetrahedronMesh& volumeMesh0, PxU32 volumeId0,
+		const ev4sio_Gu::BVTetrahedronMesh& volumeMesh1, PxU32 volumeId1, const PxU32* tetIndices0, const PxU32* tetIndices1,
 		PxU32 tetIndicesSize, bool add)
 	{
 		PxArray<PxgDeformablePairInfo> appended0, appended1;
@@ -592,8 +592,8 @@ namespace physx
 		update(appended1, volumeId1, add);
 	}
 
-	void PxgDeformableFilterManager::updateVolumeSurface(const Gu::BVTetrahedronMesh& volumeMesh, PxU32 volumeId,
-		const Gu::TriangleMesh& surfaceMesh, PxU32 surfaceId, const PxU32* triIndices, const PxU32* tetIndices,
+	void PxgDeformableFilterManager::updateVolumeSurface(const ev4sio_Gu::BVTetrahedronMesh& volumeMesh, PxU32 volumeId,
+		const ev4sio_Gu::TriangleMesh& surfaceMesh, PxU32 surfaceId, const PxU32* triIndices, const PxU32* tetIndices,
 		PxU32 indicesSize, bool add)
 	{
 		PxArray<PxgDeformablePairInfo> appended;
@@ -603,7 +603,7 @@ namespace physx
 		update(appended, volumeId, add);
 	}
 
-	void PxgDeformableFilterManager::updateSurfaceRigid(const Gu::TriangleMesh& surfaceMesh, PxU32 surfaceId,
+	void PxgDeformableFilterManager::updateSurfaceRigid(const ev4sio_Gu::TriangleMesh& surfaceMesh, PxU32 surfaceId,
 		const PxNodeIndex& rigidNodeIndex, const PxU32* triIndices, PxU32 triIndicesSize, bool add)
 	{
 		PxArray<PxgDeformablePairInfo> appended;
@@ -612,7 +612,7 @@ namespace physx
 		update(appended, surfaceId, add);
 	}
 
-	void PxgDeformableFilterManager::updateSurfaceStaticShapes(const Gu::TriangleMesh& surfaceMesh, PxU32 surfaceId,
+	void PxgDeformableFilterManager::updateSurfaceStaticShapes(const ev4sio_Gu::TriangleMesh& surfaceMesh, PxU32 surfaceId,
 		const PxU32* shapeCacheIds, PxU32 nbShapes, const PxU32* triIndices, PxU32 triIndicesSize, bool add)
 	{
 		PxArray<PxgDeformablePairInfo> appended;
@@ -623,8 +623,8 @@ namespace physx
 		update(appended, surfaceId, add);
 	}
 
-	void PxgDeformableFilterManager::updateSurfaceSurface(const Gu::TriangleMesh& surfaceMesh0,
-		const PxgDeformableSurfaceTopology& topology0, PxU32 surfaceId0, const Gu::TriangleMesh& surfaceMesh1,
+	void PxgDeformableFilterManager::updateSurfaceSurface(const ev4sio_Gu::TriangleMesh& surfaceMesh0,
+		const PxgDeformableSurfaceTopology& topology0, PxU32 surfaceId0, const ev4sio_Gu::TriangleMesh& surfaceMesh1,
 		const PxgDeformableSurfaceTopology& topology1, PxU32 surfaceId1, const PxU32* triIndices0,
 		const PxU32* triIndices1, PxU32 triIndicesSize, bool add)
 	{

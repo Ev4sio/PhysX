@@ -16,8 +16,8 @@
 #include "PvdPhysicsClient.h"
 #include "PvdTypeNames.h"
 
-using namespace physx;
-using namespace physx::Vd;
+using namespace ev4sio_physx;
+using namespace ev4sio_physx::Vd;
 
 PvdPhysicsClient::PvdPhysicsClient(PsPvd* pvd)
 : mPvd(pvd), mPvdDataStream(NULL), mIsConnected(false)
@@ -65,7 +65,7 @@ void PvdPhysicsClient::flush()
 
 void PvdPhysicsClient::sendEntireSDK()
 {
-	PxPhysics& physics = PxGetPhysics();
+	PxPhysics& physics = ev4sio_PxGetPhysics();
 	
 	mMetaDataBinding.registerSDKProperties(*mPvdDataStream);
 	mPvdDataStream->createInstance(&physics);
@@ -75,7 +75,7 @@ void PvdPhysicsClient::sendEntireSDK()
 
 #define SEND_BUFFER_GROUP(type, name)                   \
 	{                                                   \
-		physx::PxArray<type*> buffers;            \
+		ev4sio_physx::PxArray<type*> buffers;            \
 		PxU32 numBuffers = physics.getNb##name();       \
 		buffers.resize(numBuffers);                     \
 		physics.get##name(buffers.begin(), numBuffers);	\
@@ -101,47 +101,47 @@ void PvdPhysicsClient::destroyPvdInstance(const PxPhysics* physics)
 
 void PvdPhysicsClient::createPvdInstance(const PxTriangleMesh* triMesh)
 {
-	mMetaDataBinding.createInstance(*mPvdDataStream, *triMesh, PxGetPhysics());
+	mMetaDataBinding.createInstance(*mPvdDataStream, *triMesh, ev4sio_PxGetPhysics());
 }
 
 void PvdPhysicsClient::destroyPvdInstance(const PxTriangleMesh* triMesh)
 {
-	mMetaDataBinding.destroyInstance(*mPvdDataStream, *triMesh, PxGetPhysics());
+	mMetaDataBinding.destroyInstance(*mPvdDataStream, *triMesh, ev4sio_PxGetPhysics());
 }
 
 void PvdPhysicsClient::createPvdInstance(const PxTetrahedronMesh* tetMesh)
 {
-	mMetaDataBinding.createInstance(*mPvdDataStream, *tetMesh, PxGetPhysics());
+	mMetaDataBinding.createInstance(*mPvdDataStream, *tetMesh, ev4sio_PxGetPhysics());
 }
 
 void PvdPhysicsClient::destroyPvdInstance(const PxTetrahedronMesh* tetMesh)
 {
-	mMetaDataBinding.destroyInstance(*mPvdDataStream, *tetMesh, PxGetPhysics());
+	mMetaDataBinding.destroyInstance(*mPvdDataStream, *tetMesh, ev4sio_PxGetPhysics());
 }
 
 void PvdPhysicsClient::createPvdInstance(const PxConvexMesh* convexMesh)
 {
-	mMetaDataBinding.createInstance(*mPvdDataStream, *convexMesh, PxGetPhysics());
+	mMetaDataBinding.createInstance(*mPvdDataStream, *convexMesh, ev4sio_PxGetPhysics());
 }
 
 void PvdPhysicsClient::destroyPvdInstance(const PxConvexMesh* convexMesh)
 {
-	mMetaDataBinding.destroyInstance(*mPvdDataStream, *convexMesh, PxGetPhysics());
+	mMetaDataBinding.destroyInstance(*mPvdDataStream, *convexMesh, ev4sio_PxGetPhysics());
 }
 
 void PvdPhysicsClient::createPvdInstance(const PxHeightField* heightField)
 {
-	mMetaDataBinding.createInstance(*mPvdDataStream, *heightField, PxGetPhysics());
+	mMetaDataBinding.createInstance(*mPvdDataStream, *heightField, ev4sio_PxGetPhysics());
 }
 
 void PvdPhysicsClient::destroyPvdInstance(const PxHeightField* heightField)
 {
-	mMetaDataBinding.destroyInstance(*mPvdDataStream, *heightField, PxGetPhysics());
+	mMetaDataBinding.destroyInstance(*mPvdDataStream, *heightField, ev4sio_PxGetPhysics());
 }
 
 void PvdPhysicsClient::createPvdInstance(const PxMaterial* mat)
 {
-	mMetaDataBinding.createInstance(*mPvdDataStream, *mat, PxGetPhysics());
+	mMetaDataBinding.createInstance(*mPvdDataStream, *mat, ev4sio_PxGetPhysics());
 }
 
 void PvdPhysicsClient::updatePvdProperties(const PxMaterial* mat)
@@ -151,12 +151,12 @@ void PvdPhysicsClient::updatePvdProperties(const PxMaterial* mat)
 
 void PvdPhysicsClient::destroyPvdInstance(const PxMaterial* mat)
 {
-	mMetaDataBinding.destroyInstance(*mPvdDataStream, *mat, PxGetPhysics());
+	mMetaDataBinding.destroyInstance(*mPvdDataStream, *mat, ev4sio_PxGetPhysics());
 }
 #if PX_SUPPORT_GPU_PHYSX
 void PvdPhysicsClient::createPvdInstance(const PxDeformableSurfaceMaterial* mat)
 {
-	mMetaDataBinding.createInstance(*mPvdDataStream, *mat, PxGetPhysics());
+	mMetaDataBinding.createInstance(*mPvdDataStream, *mat, ev4sio_PxGetPhysics());
 }
 
 void PvdPhysicsClient::updatePvdProperties(const PxDeformableSurfaceMaterial* mat)
@@ -166,12 +166,12 @@ void PvdPhysicsClient::updatePvdProperties(const PxDeformableSurfaceMaterial* ma
 
 void PvdPhysicsClient::destroyPvdInstance(const PxDeformableSurfaceMaterial* mat)
 {
-	mMetaDataBinding.destroyInstance(*mPvdDataStream, *mat, PxGetPhysics());
+	mMetaDataBinding.destroyInstance(*mPvdDataStream, *mat, ev4sio_PxGetPhysics());
 }
 
 void PvdPhysicsClient::createPvdInstance(const PxDeformableVolumeMaterial* mat)
 {
-	mMetaDataBinding.createInstance(*mPvdDataStream, *mat, PxGetPhysics());
+	mMetaDataBinding.createInstance(*mPvdDataStream, *mat, ev4sio_PxGetPhysics());
 }
 
 void PvdPhysicsClient::updatePvdProperties(const PxDeformableVolumeMaterial* mat)
@@ -181,12 +181,12 @@ void PvdPhysicsClient::updatePvdProperties(const PxDeformableVolumeMaterial* mat
 
 void PvdPhysicsClient::destroyPvdInstance(const PxDeformableVolumeMaterial* mat)
 {
-	mMetaDataBinding.destroyInstance(*mPvdDataStream, *mat, PxGetPhysics());
+	mMetaDataBinding.destroyInstance(*mPvdDataStream, *mat, ev4sio_PxGetPhysics());
 }
 
 void PvdPhysicsClient::createPvdInstance(const PxPBDMaterial* mat)
 {
-	mMetaDataBinding.createInstance(*mPvdDataStream, *mat, PxGetPhysics());
+	mMetaDataBinding.createInstance(*mPvdDataStream, *mat, ev4sio_PxGetPhysics());
 }
 
 void PvdPhysicsClient::updatePvdProperties(const PxPBDMaterial* mat)
@@ -196,7 +196,7 @@ void PvdPhysicsClient::updatePvdProperties(const PxPBDMaterial* mat)
 
 void PvdPhysicsClient::destroyPvdInstance(const PxPBDMaterial* mat)
 {
-	mMetaDataBinding.destroyInstance(*mPvdDataStream, *mat, PxGetPhysics());
+	mMetaDataBinding.destroyInstance(*mPvdDataStream, *mat, ev4sio_PxGetPhysics());
 }
 #endif
 

@@ -10,7 +10,7 @@
 
 #define COPY_KERNEL_WARPS_PER_BLOCK 4
 
-namespace physx
+namespace ev4sio_physx
 {
 
 // Lightweight struct for GPU copy operations - extracted from PxgCopyManager

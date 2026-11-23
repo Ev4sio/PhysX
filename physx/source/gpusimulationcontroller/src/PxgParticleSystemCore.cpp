@@ -36,7 +36,7 @@
 #define PS_SUBGRIDS_VERBOSE_DEBUG 0
 
 
-namespace physx
+namespace ev4sio_physx
 {
 	namespace
 	{
@@ -317,7 +317,7 @@ namespace physx
 		if(!mNumActiveDiffuseParticlesH)
 		{
 			cudaContext->setAbortMode(true);
-			PxGetFoundation().error(PxErrorCode::eOUT_OF_MEMORY, PX_FL, "PxgParticleAndDiffuseBuffer: failed to allocate pinned host buffers");
+			ev4sio_PxGetFoundation().error(PxErrorCode::eOUT_OF_MEMORY, PX_FL, "PxgParticleAndDiffuseBuffer: failed to allocate pinned host buffers");
 		}
 		else
 		{
@@ -546,7 +546,7 @@ namespace physx
 #if PS_GPU_DEBUG
 				result = mCudaContext->streamSynchronize(mStream);
 				if (result != CUDA_SUCCESS)
-					PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU calculateHash kernel fail!\n");
+					ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU calculateHash kernel fail!\n");
 #endif
 			}
 		}
@@ -590,12 +590,12 @@ namespace physx
 
 			/*result = mCudaContext->streamSynchronize(mStream);
 			if (result != CUDA_SUCCESS)
-				PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU reorderDataAndFindCellStartD kernel fail!\n");*/
+				ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU reorderDataAndFindCellStartD kernel fail!\n");*/
 
 #if PS_GPU_DEBUG
 			result = mCudaContext->streamSynchronize(mStream);
 			if (result != CUDA_SUCCESS)
-				PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU reorderDataAndFindCellStartD kernel fail!\n");
+				ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU reorderDataAndFindCellStartD kernel fail!\n");
 
 
 			/*CUdeviceptr sortedPosd = reinterpret_cast<CUdeviceptr>(particleSystem.mSortedPostion_Mass);
@@ -667,7 +667,7 @@ namespace physx
 			result = mCudaContext->streamSynchronize(bpStream);
 			PX_ASSERT(result == CUDA_SUCCESS);
 			if (result != CUDA_SUCCESS)
-				PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU ps_updateUnsortedArrayLaunch kernel fail!\n");
+				ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU ps_updateUnsortedArrayLaunch kernel fail!\n");
 #endif
 		}
 
@@ -700,7 +700,7 @@ namespace physx
 				result = mCudaContext->streamSynchronize(bpStream);
 				PX_ASSERT(result == CUDA_SUCCESS);
 				if (result != CUDA_SUCCESS)
-					PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU ps_updateUnsortedDiffuseArrayLaunch kernel fail!\n");
+					ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU ps_updateUnsortedDiffuseArrayLaunch kernel fail!\n");
 #endif
 			}
 		}
@@ -739,7 +739,7 @@ namespace physx
 				result = mCudaContext->streamSynchronize(bpStream);
 				PX_ASSERT(result == CUDA_SUCCESS);
 				if (result != CUDA_SUCCESS)
-					PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU preIntegrateSystem kernel fail!\n");
+					ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU preIntegrateSystem kernel fail!\n");
 #endif
 			}
 		}
@@ -778,14 +778,14 @@ namespace physx
 			/*result = mCudaContext->streamSynchronize(mStream);
 			PX_ASSERT(result == CUDA_SUCCESS);
 			if (result != CUDA_SUCCESS)
-				PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU updateBound first pass kernel fail!\n");*
+				ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU updateBound first pass kernel fail!\n");*
 				*/
 
 #if PS_GPU_DEBUG
 			result = mCudaContext->streamSynchronize(bpStream);
 			PX_ASSERT(result == CUDA_SUCCESS);
 			if (result != CUDA_SUCCESS)
-				PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU updateBound first pass kernel fail!\n");
+				ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU updateBound first pass kernel fail!\n");
 
 			////Dma back the bound
 			//PxBounds3 bounds;
@@ -816,13 +816,13 @@ namespace physx
 			/*result = mCudaContext->streamSynchronize(mStream);
 			PX_ASSERT(result == CUDA_SUCCESS);
 			if (result != CUDA_SUCCESS)
-				PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU updateBound second pass kernel fail!\n");*/
+				ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU updateBound second pass kernel fail!\n");*/
 
 #if PS_GPU_DEBUG
 			result = mCudaContext->streamSynchronize(bpStream);
 			PX_ASSERT(result == CUDA_SUCCESS);
 			if (result != CUDA_SUCCESS)
-				PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU updateBound second pass kernel fail!\n");
+				ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU updateBound second pass kernel fail!\n");
 
 			
 			//Dma back the bound
@@ -951,12 +951,12 @@ namespace physx
 
 				/*result = mCudaContext->streamSynchronize(mStream);
 				if (result != CUDA_SUCCESS)
-					PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU selfCollisionFirst kernel fail!\n");*/
+					ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU selfCollisionFirst kernel fail!\n");*/
 
 #if PS_GPU_DEBUG
 				result = mCudaContext->streamSynchronize(mStream);
 				if (result != CUDA_SUCCESS)
-					PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU selfCollisionFirst kernel fail!\n");
+					ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU selfCollisionFirst kernel fail!\n");
 
 
 				/*PxArray<PxgParticleCollisionHeader> headers;
@@ -1000,12 +1000,12 @@ namespace physx
 
 			CUresult  resultR = mCudaContext->launchKernel(clampFunction, 1, 2, 1, 1, 1, 1, 0, mStream, radixSortKernelParams, sizeof(radixSortKernelParams), 0, PX_FL);
 			if (resultR != CUDA_SUCCESS)
-				PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU clampMaxValue fail to launch kernel!!\n");
+				ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU clampMaxValue fail to launch kernel!!\n");
 
 #if PS_GPU_DEBUG
 			resultR = mCudaContext->streamSynchronize(mStream);
 			if (resultR != CUDA_SUCCESS)
-				PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU clampMaxValue fail!!\n");
+				ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU clampMaxValue fail!!\n");
 #endif
 
 		}
@@ -1055,23 +1055,23 @@ namespace physx
 
 					CUresult  resultR = mCudaContext->launchKernel(radixFunction, PxgRadixSortKernelGridDim::RADIX_SORT, 2, 1, PxgRadixSortKernelBlockDim::RADIX_SORT, 1, 1, 0, mStream, radixSortKernelParams, sizeof(radixSortKernelParams), 0, PX_FL);
 					if (resultR != CUDA_SUCCESS)
-						PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU sortParticleContacts fail to launch kernel!!\n");
+						ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU sortParticleContacts fail to launch kernel!!\n");
 
 					resultR = mCudaContext->launchKernel(calculateRanksFunction, PxgRadixSortKernelGridDim::RADIX_SORT, 2, 1, PxgRadixSortKernelBlockDim::RADIX_SORT, 1, 1, 0, mStream, radixSortKernelParams, sizeof(radixSortKernelParams), 0, PX_FL);
 					if (resultR != CUDA_SUCCESS)
-						PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU sortParticleContacts fail to launch kernel!!\n");
+						ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU sortParticleContacts fail to launch kernel!!\n");
 
 					startBit += 4;
 				}
 
 				/*CUresult result = mCudaContext->streamSynchronize(mStream);
 				if (result != CUDA_SUCCESS)
-					PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU sortParticleContacts fail!!\n");*/
+					ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU sortParticleContacts fail!!\n");*/
 
 #if PS_GPU_DEBUG
 				CUresult result = mCudaContext->streamSynchronize(mStream);
 				if (result != CUDA_SUCCESS)
-					PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU sortParticleContacts fail!!\n");
+					ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU sortParticleContacts fail!!\n");
 #endif
 			}
 
@@ -1102,12 +1102,12 @@ namespace physx
 
 				CUresult resultR = mCudaContext->launchKernel(copyFunction, 32, 1, 1, PxgRadixSortKernelBlockDim::RADIX_SORT, 1, 1, 0, mStream, copyKernelParams, sizeof(copyKernelParams), 0, PX_FL);
 				if (resultR != CUDA_SUCCESS)
-					PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU radixSortCopyBits fail to launch kernel!!\n");
+					ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU radixSortCopyBits fail to launch kernel!!\n");
 
 #if PS_GPU_DEBUG
 				resultR = mCudaContext->streamSynchronize(mStream);
 				if (resultR != CUDA_SUCCESS)
-					PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU radixSortCopyBits fail!!\n");
+					ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU radixSortCopyBits fail!!\n");
 #endif
 			}
 
@@ -1130,11 +1130,11 @@ namespace physx
 
 					CUresult  resultR = mCudaContext->launchKernel(radixFunction, PxgRadixSortKernelGridDim::RADIX_SORT, 2, 1, PxgRadixSortKernelBlockDim::RADIX_SORT, 1, 1, 0, mStream, radixSortKernelParams, sizeof(radixSortKernelParams), 0, PX_FL);
 					if (resultR != CUDA_SUCCESS)
-						PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU sortParticleContacts fail to launch kernel!!\n");
+						ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU sortParticleContacts fail to launch kernel!!\n");
 
 					resultR = mCudaContext->launchKernel(calculateRanksFunction, PxgRadixSortKernelGridDim::RADIX_SORT, 2, 1, PxgRadixSortKernelBlockDim::RADIX_SORT, 1, 1, 0, mStream, radixSortKernelParams, sizeof(radixSortKernelParams), 0, PX_FL);
 					if (resultR != CUDA_SUCCESS)
-						PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU sortParticleContacts fail to launch kernel!!\n");
+						ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU sortParticleContacts fail to launch kernel!!\n");
 
 					startBit += 4;
 				}
@@ -1163,12 +1163,12 @@ namespace physx
 
 				CUresult resultR = mCudaContext->launchKernel(copyFunction, 32, 1, 1, PxgRadixSortKernelBlockDim::RADIX_SORT, 1, 1, 0, mStream, copyKernelParams, sizeof(copyKernelParams), 0, PX_FL);
 				if (resultR != CUDA_SUCCESS)
-					PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU radixSortCopy fail to launch kernel!!\n");
+					ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU radixSortCopy fail to launch kernel!!\n");
 
 #if PS_GPU_DEBUG
 				resultR = mCudaContext->streamSynchronize(mStream);
 				if (resultR != CUDA_SUCCESS)
-					PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU radixSortCopy fail!!\n");
+					ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU radixSortCopy fail!!\n");
 #endif
 			}
 		}
@@ -1203,12 +1203,12 @@ namespace physx
 
 			CUresult  resultR = mCudaContext->launchKernel(reorderContactsFunction, PxgParticleSystemKernelGridDim::BOUNDCELLUPDATE, 1, 1, PxgParticleSystemKernelBlockDim::BOUNDCELLUPDATE, 1, 1, 0, mStream, kernelParams, sizeof(kernelParams), 0, PX_FL);
 			if (resultR != CUDA_SUCCESS)
-				PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU sortParticles fail to launch kernel!!\n");
+				ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU sortParticles fail to launch kernel!!\n");
 
 #if PS_GPU_DEBUG
 			CUresult result = mCudaContext->streamSynchronize(mStream);
 			if (result != CUDA_SUCCESS)
-				PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU sortParticles fail!!\n");
+				ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU sortParticles fail!!\n");
 
 #endif
 		}
@@ -1222,7 +1222,7 @@ namespace physx
 
 		/*CUresult result = mCudaContext->streamSynchronize(mStream);
 		if (result != CUDA_SUCCESS)
-			PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU sortParticles fail!!\n");*/
+			ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU sortParticles fail!!\n");*/
 	}
 
 	void PxgParticleSystemCore::solveOneWayCollision(CUdeviceptr particleSystemsd, CUdeviceptr activeParticleSystemsd,
@@ -1256,7 +1256,7 @@ namespace physx
 #if PS_GPU_DEBUG
 				result = mCudaContext->streamSynchronize(mStream);
 				if (result != CUDA_SUCCESS)
-					PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU solveOneWayCollision kernel fail!\n");
+					ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU solveOneWayCollision kernel fail!\n");
 #endif
 			}
 
@@ -1335,7 +1335,7 @@ namespace physx
 #if PS_GPU_DEBUG
 				result = mCudaContext->streamSynchronize(mStream);
 				if (result != CUDA_SUCCESS)
-					PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU ps_updateParticleIntermittentLaunch kernel fail!\n");
+					ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU ps_updateParticleIntermittentLaunch kernel fail!\n");
 
 				int bob = 0;
 				PX_UNUSED(bob);
@@ -1387,7 +1387,7 @@ namespace physx
 #if PS_GPU_DEBUG
 			result = mCudaContext->streamSynchronize(solverStream);
 			if (result != CUDA_SUCCESS)
-				PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU ps_contactPrepareLaunch kernel fail!\n");
+				ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU ps_contactPrepareLaunch kernel fail!\n");
 #endif
 		}
 
@@ -1420,7 +1420,7 @@ namespace physx
 #if PS_GPU_DEBUG
 				result = mCudaContext->streamSynchronize(mStream);
 				if (result != CUDA_SUCCESS)
-					PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU ps_findStartEndParticleFirst kernel fail!\n");
+					ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU ps_findStartEndParticleFirst kernel fail!\n");
 
 				/*PxU32 totalNumContacts;
 				mCudaContext->memcpyDtoH(&totalNumContacts, totalContactCountsd, sizeof(PxU32));
@@ -1464,7 +1464,7 @@ namespace physx
 #if PS_GPU_DEBUG
 				result = mCudaContext->streamSynchronize(mStream);
 				if (result != CUDA_SUCCESS)
-					PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU ps_findStartEndParticleSecond kernel fail!\n");
+					ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU ps_findStartEndParticleSecond kernel fail!\n");
 
 				/*PxU32 pairCount;
 				mCudaContext->memcpyDtoH(&pairCount, pairCountd, sizeof(PxU32));
@@ -1585,7 +1585,7 @@ namespace physx
 			}
 			if (!compPassed)
 			{
-				PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU accumRigidDeltas first kernel fail!\n");
+				ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU accumRigidDeltas first kernel fail!\n");
 			}
 		}
 
@@ -1638,7 +1638,7 @@ namespace physx
 #if PS_GPU_DEBUG
 			result = mCudaContext->streamSynchronize(stream);
 			if (result != CUDA_SUCCESS)
-				PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU accumRigidDeltas first kernel fail!\n");
+				ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU accumRigidDeltas first kernel fail!\n");
 
 			debugCompareAccumulateRigidDeltasPass1(debugDeltaVRef, debugBlockDeltaVRef, debugBlockRigidIdRef,
 				numBlocks, debugNumIds, deltaVd, blockDeltaVd, blockRigidIdd);
@@ -1675,7 +1675,7 @@ namespace physx
 #if PS_GPU_DEBUG
 			result = mCudaContext->streamSynchronize(stream);
 			if (result != CUDA_SUCCESS)
-				PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU accumRigidDeltas second kernel fail!\n");
+				ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU accumRigidDeltas second kernel fail!\n");
 #endif
 		}
 	}
@@ -1744,7 +1744,7 @@ namespace physx
 #if PS_GPU_DEBUG
 			result = mCudaContext->streamSynchronize(mStream);
 			if (result != CUDA_SUCCESS)
-				PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU ps_queryPCContactReferenceCountLaunch kernel fail!\n");
+				ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU ps_queryPCContactReferenceCountLaunch kernel fail!\n");
 #endif
 			// Make the rigid refcount visible to the rigid solve on solverStream.
 			mCudaContext->eventRecord(mPreCountParticleRigidEvent, mStream);
@@ -1789,7 +1789,7 @@ namespace physx
 #if PS_GPU_DEBUG
 				result = mCudaContext->streamSynchronize(mStream);
 				if (result != CUDA_SUCCESS)
-					PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU solvePrimitiveCollisionFirst kernel fail!\n");
+					ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU solvePrimitiveCollisionFirst kernel fail!\n");
 
 				PxU32 totalNumContacts;
 
@@ -1839,7 +1839,7 @@ namespace physx
 #if PS_GPU_DEBUG
 					result = mCudaContext->streamSynchronize(mStream);
 					if (result != CUDA_SUCCESS)
-						PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU ps_accumulateDeltaVParticleLaunch kernel fail!\n");
+						ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU ps_accumulateDeltaVParticleLaunch kernel fail!\n");
 
 					/*PxU32 totalNumContacts;
 
@@ -1921,7 +1921,7 @@ namespace physx
 #if PS_GPU_DEBUG
 			result = mCudaContext->streamSynchronize(solverStream);
 			if (result != CUDA_SUCCESS)
-				PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU ps_solvePCOutputRigidDeltaVLaunch kernel fail!\n");
+				ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU ps_solvePCOutputRigidDeltaVLaunch kernel fail!\n");
 
 			/*PxU32 totalNumContacts;
 
@@ -1995,7 +1995,7 @@ namespace physx
 #if PS_GPU_DEBUG
 			result = mCudaContext->streamSynchronize(mStream);
 			if (result != CUDA_SUCCESS)
-				PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU prepParticleConstraint ps_contactPrepareLaunch kernel fail!\n");
+				ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU prepParticleConstraint ps_contactPrepareLaunch kernel fail!\n");
 			PX_ASSERT(result == CUDA_SUCCESS);
 #endif
 		}
@@ -2034,7 +2034,7 @@ namespace physx
 			CUresult result = mCudaContext->streamSynchronize(mStream);
 			PX_ASSERT(result == CUDA_SUCCESS);
 			if (result != CUDA_SUCCESS)
-				PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU ps_stepParticleSystemLaunch kernel fail!\n");
+				ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU ps_stepParticleSystemLaunch kernel fail!\n");
 #endif
 		}
 
@@ -2068,7 +2068,7 @@ namespace physx
 				result = mCudaContext->streamSynchronize(mFinalizeStream);
 				PX_ASSERT(result == CUDA_SUCCESS);
 				if (result != CUDA_SUCCESS)
-					PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU integrateSystem kernel fail!\n");
+					ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU integrateSystem kernel fail!\n");
 #endif
 			}
 		}
@@ -2102,7 +2102,7 @@ namespace physx
 			result = mCudaContext->streamSynchronize(mFinalizeStream);
 			PX_ASSERT(result == CUDA_SUCCESS);
 			if (result != CUDA_SUCCESS)
-				PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU ps_updateBufferLaunch kernel fail!\n");
+				ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU ps_updateBufferLaunch kernel fail!\n");
 #endif
 		}
 	}
@@ -2117,7 +2117,7 @@ namespace physx
 		{
 			const PxU32 index = activeParticles[i];
 			const PxU32 nodeIdex = particleNodeIndex[index];
-			Dy::ParticleSystem* dyParticleSystem = reinterpret_cast<Dy::ParticleSystem*>(bodySimsLL[nodeIdex]);
+			ev4sio_Dy::ParticleSystem* dyParticleSystem = reinterpret_cast<ev4sio_Dy::ParticleSystem*>(bodySimsLL[nodeIdex]);
 
 			PxU16 solverIterationCounts = dyParticleSystem->getIterationCounts();
 
@@ -2126,7 +2126,7 @@ namespace physx
 		}
 	}
 
-	void PxgParticleSystemCore::updateParticleSystemData(PxgParticleSystem& sys, Dy::ParticleSystemCore& dyParticleSystemCore)
+	void PxgParticleSystemCore::updateParticleSystemData(PxgParticleSystem& sys, ev4sio_Dy::ParticleSystemCore& dyParticleSystemCore)
 	{
 		const PxReal particleContactDistance = 2.f * dyParticleSystemCore.particleContactOffset;
 		const PxReal fluidRestDistance = 2.f * dyParticleSystemCore.fluidRestOffset;
@@ -2260,7 +2260,7 @@ namespace physx
 				result = mEssentialCore->mCudaContext->streamSynchronize(bpStream);
 				PX_ASSERT(result == CUDA_SUCCESS);
 				if (result != CUDA_SUCCESS)
-					PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU ps_preDiffuseIntegrateLaunch kernel fail!\n");
+					ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU ps_preDiffuseIntegrateLaunch kernel fail!\n");
 #endif
 			}
 		}

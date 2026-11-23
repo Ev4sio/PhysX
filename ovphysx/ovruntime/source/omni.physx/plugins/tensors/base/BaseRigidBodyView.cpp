@@ -71,11 +71,11 @@
 
 #include <algorithm>
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace tensors
 {
@@ -1285,7 +1285,7 @@ bool BaseRigidBodyView::check() const
             attachedStage ? attachedStage->keyFor(entry.path) : omni::physics::parse::ObjectKey{};
         if (entry.type == RigidBodyType::eRigidDynamic)
         {
-            void* ptr = BaseSimulationView::resolvePhysXPtr(attachedStage, key, omni::physx::PhysXType::ePTActor);
+            void* ptr = BaseSimulationView::resolvePhysXPtr(attachedStage, key, omni::ev4sio_physx::PhysXType::ePTActor);
             if (ptr != entry.body)
             {
                 result = false;
@@ -1293,7 +1293,7 @@ bool BaseRigidBodyView::check() const
         }
         else if (entry.type == RigidBodyType::eArticulationLink)
         {
-            void* ptr = BaseSimulationView::resolvePhysXPtr(attachedStage, key, omni::physx::PhysXType::ePTLink);
+            void* ptr = BaseSimulationView::resolvePhysXPtr(attachedStage, key, omni::ev4sio_physx::PhysXType::ePTLink);
             if (ptr != entry.body)
             {
                 result = false;
@@ -2117,7 +2117,7 @@ bool BaseRigidBodyView::setWakeStatesOvStage(const TensorDesc* srcTensor,
     }
 
     // eDISABLE_SLEEPING scene: NpRigidDynamic::putToSleep() rejects with a release-firing error LOG
-    // ("...Call ignored.") -- a plain PxGetFoundation().error(), not a debug-only PX_CHECK -- so a bulk
+    // ("...Call ignored.") -- a plain ev4sio_PxGetFoundation().error(), not a debug-only PX_CHECK -- so a bulk
     // sleep-all would log once per dynamic per commit, defeating the silent-bulk-control design above.
     // Drop the sleep lane silently on such a scene (wakeUp has no such restriction, so the wake lane is
     // untouched). Scene-level flag, so checked once from the first entry, matching setKinematicTargets'

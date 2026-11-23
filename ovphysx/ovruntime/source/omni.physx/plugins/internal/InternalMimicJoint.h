@@ -15,7 +15,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace internal
 {
@@ -31,8 +31,8 @@ private:
 
 public:
     InternalMimicJoint(InternalScene&,
-                       const ::physx::PxArticulationJointReducedCoordinate& targetJoint,
-                       const ::physx::PxArticulationJointReducedCoordinate& referenceJoint,
+                       const ::ev4sio_physx::PxArticulationJointReducedCoordinate& targetJoint,
+                       const ::ev4sio_physx::PxArticulationJointReducedCoordinate& referenceJoint,
                        int targetJointAxis,
                        int referenceJointAxis,
                        float gearing,
@@ -51,7 +51,7 @@ public:
 
     // Adopt a deserialized native joint; the caller registers scene trackers.
     InternalMimicJoint(InternalScene&,
-                       ::physx::PxArticulationMimicJoint&,
+                       ::ev4sio_physx::PxArticulationMimicJoint&,
                        usdparser::ObjectType,
                        float gearingSign = 1.0f,
                        float offsetSign = 1.0f);
@@ -73,14 +73,14 @@ public:
         return mObjectType;
     }
 
-    ::physx::PxArticulationMimicJoint* getPhysXMimicJoint() const
+    ::ev4sio_physx::PxArticulationMimicJoint* getPhysXMimicJoint() const
     {
         return mPhysXMimicJoint;
     }
 
-    ::physx::PxArticulationReducedCoordinate* getArticulation() const;
+    ::ev4sio_physx::PxArticulationReducedCoordinate* getArticulation() const;
 
-    __forceinline const ::physx::PxArticulationJointReducedCoordinate* getTargetJoint()
+    __forceinline const ::ev4sio_physx::PxArticulationJointReducedCoordinate* getTargetJoint()
     {
         if (mPhysXMimicJoint)
             return &mPhysXMimicJoint->getJointA();
@@ -88,7 +88,7 @@ public:
             return nullptr;
     }
 
-    __forceinline const ::physx::PxArticulationJointReducedCoordinate* getReferenceJoint()
+    __forceinline const ::ev4sio_physx::PxArticulationJointReducedCoordinate* getReferenceJoint()
     {
         if (mPhysXMimicJoint)
             return &mPhysXMimicJoint->getJointB();
@@ -103,7 +103,7 @@ public:
 
 private:
     InternalScene& mInternalScene;
-    ::physx::PxArticulationMimicJoint* mPhysXMimicJoint;
+    ::ev4sio_physx::PxArticulationMimicJoint* mPhysXMimicJoint;
     usdparser::ObjectType mObjectType; // for PhysXReplicator only
     // see the constructor doc; applied to gearing/offset (incl. runtime updates) so the authored
     // relationship holds regardless of the referenced joints' body order
@@ -113,5 +113,5 @@ private:
 
 
 } // namespace internal
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

@@ -33,13 +33,13 @@
 
 #include <iostream>
 
-using namespace physx;
-using namespace omni::physx::internal;
-using namespace omni::physx::usdparser;
+using namespace ev4sio_physx;
+using namespace omni::ev4sio_physx::internal;
+using namespace omni::ev4sio_physx::usdparser;
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 
 namespace
@@ -61,7 +61,7 @@ void TriggerManager::release()
     mTriggerSubscriptions.clear();
 }
 
-void TriggerManager::onTriggerEnterEvent(const usdparser::AttachedStage& attachedStage, const ::physx::PxShape* triggerShape, const ::physx::PxShape* otherShape, uint64_t triggerActorId, uint64_t otherActorId)
+void TriggerManager::onTriggerEnterEvent(const usdparser::AttachedStage& attachedStage, const ::ev4sio_physx::PxShape* triggerShape, const ::ev4sio_physx::PxShape* otherShape, uint64_t triggerActorId, uint64_t otherActorId)
 {
     const InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
 
@@ -83,8 +83,8 @@ void TriggerManager::onTriggerEnterEvent(const usdparser::AttachedStage& attache
     if (!otherActorId && otherShape->getActor()) otherActorId = uint64_t(otherShape->getActor()->userData);
     if (triggerActorId && otherActorId && triggerActorId < db.getRecords().size() && otherActorId < db.getRecords().size())
     {
-        const omni::physx::internal::InternalDatabase::Record & triggerBodyRecord = db.getRecords()[triggerActorId];
-        const omni::physx::internal::InternalDatabase::Record & otherBodyRecord = db.getRecords()[otherActorId];
+        const omni::ev4sio_physx::internal::InternalDatabase::Record & triggerBodyRecord = db.getRecords()[triggerActorId];
+        const omni::ev4sio_physx::internal::InternalDatabase::Record & otherBodyRecord = db.getRecords()[otherActorId];
         processNativeEvent(attachedStage, triggerRecord->mKey, otherRecord->mKey, TriggerEventType::eTRIGGER_ON_ENTER,
             triggerBodyRecord.mKey, otherBodyRecord.mKey,
             triggerInstanceIndex(&triggerBodyRecord), triggerInstanceIndex(&otherBodyRecord));
@@ -94,7 +94,7 @@ void TriggerManager::onTriggerEnterEvent(const usdparser::AttachedStage& attache
 void TriggerManager::processTriggerStateApiEnterEvent(const usdparser::AttachedStage& attachedStage,
                                                       omni::physics::parse::ObjectKey triggerKey,
                                                       omni::physics::parse::ObjectKey otherKey,
-                                                      const ::physx::PxShape* otherShape)
+                                                      const ::ev4sio_physx::PxShape* otherShape)
 {
     (void)attachedStage;
     TriggerUsdOutputMap::iterator fit = attachedStage.getTriggerState().output.find(triggerKey);
@@ -116,7 +116,7 @@ void TriggerManager::processTriggerStateApiEnterEvent(const usdparser::AttachedS
     }
 }
 
-void TriggerManager::onTriggerLeaveEvent(const usdparser::AttachedStage& attachedStage, const ::physx::PxShape* triggerShape, const ::physx::PxShape* otherShape, uint64_t triggerActorId, uint64_t otherActorId)
+void TriggerManager::onTriggerLeaveEvent(const usdparser::AttachedStage& attachedStage, const ::ev4sio_physx::PxShape* triggerShape, const ::ev4sio_physx::PxShape* otherShape, uint64_t triggerActorId, uint64_t otherActorId)
 {
     const InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
 
@@ -156,7 +156,7 @@ void TriggerManager::onTriggerLeaveEvent(const usdparser::AttachedStage& attache
 void TriggerManager::processTriggerStateApiLeaveEvent(const usdparser::AttachedStage& attachedStage,
                                                       omni::physics::parse::ObjectKey triggerKey,
                                                       omni::physics::parse::ObjectKey otherKey,
-                                                      const ::physx::PxShape* otherShape)
+                                                      const ::ev4sio_physx::PxShape* otherShape)
 {
     (void)attachedStage;
     TriggerUsdOutputMap::iterator fit = attachedStage.getTriggerState().output.find(triggerKey);
@@ -204,12 +204,12 @@ void TriggerManager::processTriggerStateApiLeaveEvent(const usdparser::AttachedS
     }
 }
 
-void TriggerManager::bufferTriggerEvent(const usdparser::AttachedStage& attachedStage, const ::physx::PxShape* triggerShape, const ::physx::PxShape* otherShape, TriggerEventType::Enum triggerEvent, uint64_t triggerActorId, uint64_t otherActorId)
+void TriggerManager::bufferTriggerEvent(const usdparser::AttachedStage& attachedStage, const ::ev4sio_physx::PxShape* triggerShape, const ::ev4sio_physx::PxShape* otherShape, TriggerEventType::Enum triggerEvent, uint64_t triggerActorId, uint64_t otherActorId)
 {
     attachedStage.getTriggerState().invoked.push_back({ triggerShape, otherShape, triggerEvent, triggerActorId, otherActorId });
 }
 
-void TriggerManager::clearBufferedShape(const usdparser::AttachedStage& attachedStage, const ::physx::PxShape* shape)
+void TriggerManager::clearBufferedShape(const usdparser::AttachedStage& attachedStage, const ::ev4sio_physx::PxShape* shape)
 {
     for (size_t i = attachedStage.getTriggerState().invoked.size(); i-- ;)
     {
@@ -288,12 +288,12 @@ void TriggerManager::clearTriggers(const usdparser::AttachedStage& attachedStage
     attachedStage.getTriggerState().output.clear();
 }
 
-omni::physx::SubscriptionId TriggerManager::registerNativeCallback(TriggerSubscriptionEntry subscription)
+omni::ev4sio_physx::SubscriptionId TriggerManager::registerNativeCallback(TriggerSubscriptionEntry subscription)
 {
     return mTriggerSubscriptions.addEvent(subscription);
 }
 
-void TriggerManager::unregisterNativeCallback(omni::physx::SubscriptionId id)
+void TriggerManager::unregisterNativeCallback(omni::ev4sio_physx::SubscriptionId id)
 {
     mTriggerSubscriptions.removeEvent(id);
 }
@@ -342,6 +342,6 @@ void TriggerManager::processNativeEvent(const usdparser::AttachedStage& attached
     }
 }
 
-} // namespace physx
+} // namespace ev4sio_physx
 
 } // namespace omni

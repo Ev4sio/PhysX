@@ -23,7 +23,7 @@
 #include <assert.h>
 #include <stdio.h>
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 extern "C" __host__ void initSimulationControllerKernels1() {}
 
@@ -227,7 +227,7 @@ extern "C" __global__ void mergeChangedAABBMgrHandlesLaunch(const PxU32* updated
 	for (PxU32 i = idx; i < gNumElements; i += blockDim.x * gridDim.x)
 	{
 		// A shape with neither the simulation nor the trigger flag has no bounds in the broadphase.
-		const PxU32 updateBit = updated[i] && i < nbGroups && groups[i] != PxU32(Bp::FilterGroup::eINVALID);
+		const PxU32 updateBit = updated[i] && i < nbGroups && groups[i] != PxU32(ev4sio_Bp::FilterGroup::eINVALID);
 
 		const PxU32 word = __ballot_sync(FULL_MASK, updateBit);
 

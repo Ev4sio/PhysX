@@ -23,16 +23,16 @@
 #include <PxPhysicsAPI.h>
 
 
-using namespace ::physx;
+using namespace ::ev4sio_physx;
 using namespace carb;
-using namespace omni::physx;
-using namespace omni::physx::usdparser;
-using namespace omni::physx::internal;
+using namespace omni::ev4sio_physx;
+using namespace omni::ev4sio_physx::usdparser;
+using namespace omni::ev4sio_physx::internal;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 // force
 
-bool omni::physx::updatePhysxForceEnabled(AttachedStage& attachedStage, ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
+bool omni::ev4sio_physx::updatePhysxForceEnabled(AttachedStage& attachedStage, ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     internal::InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
 
@@ -53,7 +53,7 @@ bool omni::physx::updatePhysxForceEnabled(AttachedStage& attachedStage, ObjectId
     return true;
 }
 
-bool omni::physx::updatePhysxForceWorldFrameEnabled(AttachedStage& attachedStage, ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
+bool omni::ev4sio_physx::updatePhysxForceWorldFrameEnabled(AttachedStage& attachedStage, ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     internal::InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
 
@@ -74,7 +74,7 @@ bool omni::physx::updatePhysxForceWorldFrameEnabled(AttachedStage& attachedStage
     return true;
 }
 
-bool omni::physx::updatePhysxForce(AttachedStage& attachedStage, ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
+bool omni::ev4sio_physx::updatePhysxForce(AttachedStage& attachedStage, ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     internal::InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
 
@@ -95,7 +95,7 @@ bool omni::physx::updatePhysxForce(AttachedStage& attachedStage, ObjectId object
     return true;
 }
 
-bool omni::physx::updatePhysxTorque(AttachedStage& attachedStage, ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
+bool omni::ev4sio_physx::updatePhysxTorque(AttachedStage& attachedStage, ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     internal::InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
 
@@ -116,7 +116,7 @@ bool omni::physx::updatePhysxTorque(AttachedStage& attachedStage, ObjectId objec
     return true;
 }
 
-bool omni::physx::updatePhysxForceMode(AttachedStage& attachedStage, ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
+bool omni::ev4sio_physx::updatePhysxForceMode(AttachedStage& attachedStage, ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     internal::InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
 

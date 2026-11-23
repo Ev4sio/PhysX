@@ -21,9 +21,9 @@
 #define PX_USE_BLOCK_SOLVER 1
 #define PX_USE_BLOCK_1D 1
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Dy
+namespace ev4sio_Dy
 {
 constexpr bool tUpdateDeltaMotion = true;
 constexpr bool tSaveVelocity = true;
@@ -45,7 +45,7 @@ constexpr bool tIsLastPosIter = true;
 			(*reinterpret_cast<volatile PxU32*>(&body.partitionMask))++;
 	}
 
-	static inline void waitForArticulationProgress(Dy::FeatherstoneArticulation& artic, PxU32 desiredProgress, PxU32 iteration)
+	static inline void waitForArticulationProgress(ev4sio_Dy::FeatherstoneArticulation& artic, PxU32 desiredProgress, PxU32 iteration)
 	{
 		const PxI32 target = PxI32(desiredProgress + artic.mMaxSolverFrictionProgress * iteration);
 
@@ -54,7 +54,7 @@ constexpr bool tIsLastPosIter = true;
 		WAIT_FOR_PROGRESS(progress, target);
 	}
 
-	static inline void incrementArticulationProgress(Dy::FeatherstoneArticulation& artic)
+	static inline void incrementArticulationProgress(ev4sio_Dy::FeatherstoneArticulation& artic)
 	{
 		(*reinterpret_cast<volatile PxU32*>(&artic.mSolverProgress))++;
 	}
@@ -85,9 +85,9 @@ constexpr bool tIsLastPosIter = true;
 			incrementArticulationProgress(*getArticulationB(desc));
 	}
 
-Context* createTGSDynamicsContext(	PxcNpMemBlockPool* memBlockPool, Cm::FlushPool& taskPool, PxvSimStats& simStats,
-									Cm::VirtualAllocatorCallback& allocator, PxsMaterialManager* materialManager,
-									IG::SimpleIslandManager& islandManager, PxU64 contextID, PxReal lengthScale, PxSceneFlags sceneFlags)
+Context* createTGSDynamicsContext(	PxcNpMemBlockPool* memBlockPool, ev4sio_Cm::FlushPool& taskPool, PxvSimStats& simStats,
+									ev4sio_Cm::VirtualAllocatorCallback& allocator, PxsMaterialManager* materialManager,
+									ev4sio_IG::SimpleIslandManager& islandManager, PxU64 contextID, PxReal lengthScale, PxSceneFlags sceneFlags)
 {
 	return PX_NEW(DynamicsTGSContext)(memBlockPool, taskPool, simStats, allocator, materialManager, islandManager, contextID, lengthScale, sceneFlags);
 }
@@ -108,24 +108,24 @@ void copyToSolverBodyDataStep(const PxVec3& linearVelocity, const PxVec3& angula
 
 	const PxVec3 sqrtInvInertia = computeSafeSqrtInertia(invInertia);
 
-	const PxVec3 sqrtBodySpaceInertia = Cm::safeRecip<PxVec3>(sqrtInvInertia);
+	const PxVec3 sqrtBodySpaceInertia = ev4sio_Cm::safeRecip<PxVec3>(sqrtInvInertia);
 
 	// PT: we reuse rotation below so here we call the initial transformInertiaTensor code.
 	// We could probably do better, perhaps merging the two transformInertiaTensor calls.
-	Cm::transformInertiaTensor(sqrtInvInertia, rotation, solverBodyTxInertia.sqrtInvInertia);	
+	ev4sio_Cm::transformInertiaTensor(sqrtInvInertia, rotation, solverBodyTxInertia.sqrtInvInertia);
 
 	solverBodyTxInertia.body2WorldP = globalPose.p;
 	solverBodyTxInertia.deltaBody2WorldQ = PxQuat(PxIdentity);
 
 	PxMat33 sqrtInertia;
-	Cm::transformInertiaTensor(sqrtBodySpaceInertia, rotation, sqrtInertia);
+	ev4sio_Cm::transformInertiaTensor(sqrtBodySpaceInertia, rotation, sqrtInertia);
 
 	PxVec3 lv = linearVelocity;
 	PxVec3 av = angularVelocity;
 
 	if (gyroscopicForces)
 	{
-		const PxVec3 localInertia = Cm::safeRecip<PxVec3>(invInertia);
+		const PxVec3 localInertia = ev4sio_Cm::safeRecip<PxVec3>(invInertia);
 
 		PxVec3 localAngVel = globalPose.q.rotateInv(av);
 		PxVec3 origMom = localInertia.multiply(localAngVel);
@@ -220,11 +220,11 @@ static void copyToSolverBodyDataStepKinematic(const PxVec3& linearVelocity, cons
 }
 
 DynamicsTGSContext::DynamicsTGSContext(	PxcNpMemBlockPool* memBlockPool,
-										Cm::FlushPool& taskPool,
+										ev4sio_Cm::FlushPool& taskPool,
 										PxvSimStats& simStats,
-										Cm::VirtualAllocatorCallback& allocator,
+										ev4sio_Cm::VirtualAllocatorCallback& allocator,
 										PxsMaterialManager* materialManager,
-										IG::SimpleIslandManager& islandManager,
+										ev4sio_IG::SimpleIslandManager& islandManager,
 										PxU64 contextID,
 										PxReal lengthScale,
 										PxSceneFlags sceneFlags) :
@@ -252,7 +252,7 @@ DynamicsTGSContext::~DynamicsTGSContext() {}
 PX_COMPILE_TIME_ASSERT(PxsIndexedInteraction::eBODY == 0);
 PX_COMPILE_TIME_ASSERT(PxsIndexedInteraction::eKINEMATIC == 1);
 
-void DynamicsTGSContext::setDescFromIndices_Contacts(PxSolverConstraintDesc& desc, const IG::IslandSim& islandSim,
+void DynamicsTGSContext::setDescFromIndices_Contacts(PxSolverConstraintDesc& desc, const ev4sio_IG::IslandSim& islandSim,
 	const PxsIndexedInteraction& constraint, PxU32 solverBodyOffset, PxTGSSolverBodyVel* solverBodies)
 {
 	const PxU32 offsetMap[] = { solverBodyOffset, 0 };
@@ -261,7 +261,7 @@ void DynamicsTGSContext::setDescFromIndices_Contacts(PxSolverConstraintDesc& des
 	if (constraint.indexType0 == PxsIndexedInteraction::eARTICULATION)
 	{
 		const PxNodeIndex nodeIndex0(constraint.articulation0);
-		const IG::Node& node0 = islandSim.getNode(nodeIndex0);
+		const ev4sio_IG::Node& node0 = islandSim.getNode(nodeIndex0);
 		desc.articulationA = node0.mObject;
 		desc.linkIndexA = nodeIndex0.articulationLinkId();
 		desc.bodyADataIndex = 0;
@@ -280,7 +280,7 @@ void DynamicsTGSContext::setDescFromIndices_Contacts(PxSolverConstraintDesc& des
 	if (constraint.indexType1 == PxsIndexedInteraction::eARTICULATION)
 	{
 		const PxNodeIndex nodeIndex1(constraint.articulation1);
-		const IG::Node& node1 = islandSim.getNode(nodeIndex1);
+		const ev4sio_IG::Node& node1 = islandSim.getNode(nodeIndex1);
 		desc.articulationB = node1.mObject;
 		desc.linkIndexB = nodeIndex1.articulationLinkId();// PxTo8(getLinkIndex(constraint.articulation1));
 		desc.bodyBDataIndex = 0;
@@ -297,7 +297,7 @@ void DynamicsTGSContext::setDescFromIndices_Contacts(PxSolverConstraintDesc& des
 	}
 }
 
-void DynamicsTGSContext::setDescFromIndices_Constraints(PxSolverConstraintDesc& desc, const IG::IslandSim& islandSim, IG::EdgeIndex edgeIndex,
+void DynamicsTGSContext::setDescFromIndices_Constraints(PxSolverConstraintDesc& desc, const ev4sio_IG::IslandSim& islandSim, ev4sio_IG::EdgeIndex edgeIndex,
 	const PxU32* bodyRemap, PxU32 solverBodyOffset, PxTGSSolverBodyVel* solverBodies)
 {
 	const PxNodeIndex node1 = islandSim.mCpuData.getNodeIndex1(edgeIndex);
@@ -309,9 +309,9 @@ void DynamicsTGSContext::setDescFromIndices_Constraints(PxSolverConstraintDesc& 
 	}
 	else
 	{
-		const IG::Node& node = islandSim.getNode(node1);
+		const ev4sio_IG::Node& node = islandSim.getNode(node1);
 
-		if (node.getNodeType() == IG::Node::eARTICULATION_TYPE)
+		if (node.getNodeType() == ev4sio_IG::Node::eARTICULATION_TYPE)
 		{
 			PX_ASSERT(node1.isArticulation());
 			desc.articulationA = getArticulationFromIG(islandSim, node1);
@@ -338,8 +338,8 @@ void DynamicsTGSContext::setDescFromIndices_Constraints(PxSolverConstraintDesc& 
 	}
 	else
 	{
-		const IG::Node& node = islandSim.getNode(node2);
-		if (node.getNodeType() == IG::Node::eARTICULATION_TYPE)
+		const ev4sio_IG::Node& node = islandSim.getNode(node2);
+		if (node.getNodeType() == ev4sio_IG::Node::eARTICULATION_TYPE)
 		{
 			PX_ASSERT(node2.isArticulation());
 			desc.articulationB = getArticulationFromIG(islandSim, node2);
@@ -360,12 +360,12 @@ void DynamicsTGSContext::setDescFromIndices_Constraints(PxSolverConstraintDesc& 
 
 namespace
 {
-class DynamicsMergeTask : public Cm::Task 
+class DynamicsMergeTask : public ev4sio_Cm::Task
 {
 	PxBaseTask* mSecondContinuation;
 
 public:
-	DynamicsMergeTask(PxU64 contextId) : Cm::Task(contextId), mSecondContinuation(NULL)
+	DynamicsMergeTask(PxU64 contextId) : ev4sio_Cm::Task(contextId), mSecondContinuation(NULL)
 	{
 	}
 
@@ -380,15 +380,15 @@ public:
 	virtual void release() PX_OVERRIDE
 	{
 		mSecondContinuation->removeReference();
-		Cm::Task::release();
+		ev4sio_Cm::Task::release();
 	}
 };
 
-class KinematicCopyTGSTask : public Cm::Task 
+class KinematicCopyTGSTask : public ev4sio_Cm::Task
 {
 	const PxNodeIndex* const mKinematicIndices;
 	const PxU32 mNbKinematics;
-	const IG::IslandSim& mIslandSim;
+	const ev4sio_IG::IslandSim& mIslandSim;
 	PxTGSSolverBodyVel* mVels;
 	PxTGSSolverBodyTxInertia* mInertia;
 	PxTGSSolverBodyData* mBodyData;
@@ -400,8 +400,8 @@ public:
 	static const PxU32 NbKinematicsPerTask = 1024;
 
 	KinematicCopyTGSTask(const PxNodeIndex* const kinematicIndices,
-		PxU32 nbKinematics, const IG::IslandSim& islandSim, PxTGSSolverBodyVel* vels,
-		PxTGSSolverBodyTxInertia* inertias, PxTGSSolverBodyData* datas, PxU64 contextID) : Cm::Task(contextID), 
+		PxU32 nbKinematics, const ev4sio_IG::IslandSim& islandSim, PxTGSSolverBodyVel* vels,
+		PxTGSSolverBodyTxInertia* inertias, PxTGSSolverBodyData* datas, PxU64 contextID) : ev4sio_Cm::Task(contextID),
 		mKinematicIndices(kinematicIndices), mNbKinematics(nbKinematics),
 		mIslandSim(islandSim), mVels(vels), mInertia(inertias), mBodyData(datas)
 	{
@@ -424,7 +424,7 @@ public:
 	}
 };
 
-class UpdateContinuationTGSTask : public Cm::Task
+class UpdateContinuationTGSTask : public ev4sio_Cm::Task
 {
 	DynamicsTGSContext& mContext;
 	PxBaseTask* mLostTouchTask;
@@ -435,7 +435,7 @@ public:
 
 	UpdateContinuationTGSTask(DynamicsTGSContext& context,
 	PxBaseTask* lostTouchTask, PxU64 contextID, PxU32 maxLinks) :
-		Cm::Task(contextID), mContext(context),
+		ev4sio_Cm::Task(contextID), mContext(context),
 		mLostTouchTask(lostTouchTask), mMaxArticulationLinks(maxLinks)
 	{
 	}
@@ -451,9 +451,9 @@ public:
 };
 }
 
-void DynamicsTGSContext::update(Cm::FlushPool& /*flushPool*/, PxBaseTask* continuation, PxBaseTask* /*postPartitioningTask*/, PxBaseTask* lostTouchTask,
+void DynamicsTGSContext::update(ev4sio_Cm::FlushPool& /*flushPool*/, PxBaseTask* continuation, PxBaseTask* /*postPartitioningTask*/, PxBaseTask* lostTouchTask,
 	PxvNphaseImplementationContext* nphase, PxU32 /*maxPatchesPerCM*/, PxU32 maxArticulationLinks,
-	PxReal dt, const PxVec3& gravity, Cm::PinnableBitMap& /*changedHandleMap*/)
+	PxReal dt, const PxVec3& gravity, ev4sio_Cm::PinnableBitMap& /*changedHandleMap*/)
 {
 	if(!updateShared(nphase, dt, gravity))
 		return;
@@ -477,13 +477,13 @@ void DynamicsTGSContext::update(Cm::FlushPool& /*flushPool*/, PxBaseTask* contin
 
 	mWorldSolverBodyVel.linearVelocity = mWorldSolverBodyVel.angularVelocity = PxVec3(0.f);
 
-	const IG::IslandSim& islandSim = mIslandManager.getAccurateIslandSim();
+	const ev4sio_IG::IslandSim& islandSim = mIslandManager.getAccurateIslandSim();
 	const PxU32 kinematicCount = islandSim.getNbActiveKinematics();
 	const PxNodeIndex* const kinematicIndices = islandSim.getActiveKinematics();
 	mKinematicCount = kinematicCount;
 
 	{
-		const PxU32 bodyCount = islandSim.getNbActiveNodes(IG::Node::eRIGID_BODY_TYPE);
+		const PxU32 bodyCount = islandSim.getNbActiveNodes(ev4sio_IG::Node::eRIGID_BODY_TYPE);
 
 		if (kinematicCount + bodyCount > mSolverBodyVelPool.capacity())
 		{
@@ -553,9 +553,9 @@ void DynamicsTGSContext::update(Cm::FlushPool& /*flushPool*/, PxBaseTask* contin
 
 void DynamicsTGSContext::updatePostKinematic(PxBaseTask* continuation, PxBaseTask* lostTouchTask, PxU32 maxLinks)
 {
-	const IG::IslandSim& islandSim = mIslandManager.getAccurateIslandSim();
+	const ev4sio_IG::IslandSim& islandSim = mIslandManager.getAccurateIslandSim();
 
-	const IG::IslandId*const islandIds = islandSim.getActiveIslands();
+	const ev4sio_IG::IslandId*const islandIds = islandSim.getActiveIslands();
 
 	DynamicsMergeTask* mergeTask = PX_PLACEMENT_NEW(mTaskPool.allocate(sizeof(DynamicsMergeTask)), DynamicsMergeTask)(mContextID);
 
@@ -603,12 +603,12 @@ void DynamicsTGSContext::updatePostKinematic(PxBaseTask* continuation, PxBaseTas
 		// PT: TODO: why is this sequence of code different from PGS?
 		while (nbBodies < minIslandSize && currentIsland < islandCount && nbArticulations < articulationBatchSize)
 		{
-			const IG::Island& island = islandSim.getIsland(islandIds[currentIsland]);
+			const ev4sio_IG::Island& island = islandSim.getIsland(islandIds[currentIsland]);
 
-			nbBodies += island.mNodeCount[IG::Node::eRIGID_BODY_TYPE];
-			nbArticulations += island.mNodeCount[IG::Node::eARTICULATION_TYPE];
-			nbConstraints += island.mEdges.getCount(IG::Edge::eCONSTRAINT);
-			nbContactManagers += island.mEdges.getCount(IG::Edge::eCONTACT_MANAGER);
+			nbBodies += island.mNodeCount[ev4sio_IG::Node::eRIGID_BODY_TYPE];
+			nbArticulations += island.mNodeCount[ev4sio_IG::Node::eARTICULATION_TYPE];
+			nbConstraints += island.mEdges.getCount(ev4sio_IG::Edge::eCONSTRAINT);
+			nbContactManagers += island.mEdges.getCount(ev4sio_IG::Edge::eCONTACT_MANAGER);
 			constraintCount = nbConstraints + nbContactManagers;
 			currentIsland++;
 
@@ -641,7 +641,7 @@ void DynamicsTGSContext::updatePostKinematic(PxBaseTask* continuation, PxBaseTas
 
 void DynamicsTGSContext::prepareBodiesAndConstraints(const SolverIslandObjectsStep& objects, IslandContextStep& islandContext)
 {
-	Dy::ThreadContext& threadContext = *islandContext.mThreadContext;
+	ev4sio_Dy::ThreadContext& threadContext = *islandContext.mThreadContext;
 
 	threadContext.mMaxSolverPositionIterations	= 0;
 	threadContext.mMaxSolverVelocityIterations	= 0;
@@ -662,7 +662,7 @@ void DynamicsTGSContext::prepareBodiesAndConstraints(const SolverIslandObjectsSt
 	threadContext.resizeArrays(islandContext.mCounts.articulations);
 
 	const PxU32 nbIslands = objects.numIslands;
-	const IG::IslandId* const islandIds = objects.islandIds;
+	const ev4sio_IG::IslandId* const islandIds = objects.islandIds;
 	PxU32* PX_RESTRICT bodyRemapTable = threadContext.bodyRemapTable;
 
 	iterateIslandsNodes(islandContext.mCounts, nbIslands, islandIds, threadContext.mBodyCoreArray, threadContext.mRigidBodyArray, threadContext.mArticulationArray, bodyRemapTable, threadContext.mNodeIndexArray);
@@ -681,9 +681,9 @@ void DynamicsTGSContext::setupDescs(IslandContextStep& mIslandContext, const Sol
 	//PxU32 constraintCount = mCounts.constraints + mCounts.contactManagers;
 
 	PxU32 nbIslands = mObjects.numIslands;
-	const IG::IslandId* const islandIds = mObjects.islandIds;
+	const ev4sio_IG::IslandId* const islandIds = mObjects.islandIds;
 
-	const IG::IslandSim& islandSim = mIslandManager.getAccurateIslandSim();
+	const ev4sio_IG::IslandSim& islandSim = mIslandManager.getAccurateIslandSim();
 
 	{
 		// PT: TODO: refactor with PGS
@@ -691,15 +691,15 @@ void DynamicsTGSContext::setupDescs(IslandContextStep& mIslandContext, const Sol
 
 		for (PxU32 i = 0; i < nbIslands; ++i)
 		{
-			const IG::Island& island = islandSim.getIsland(islandIds[i]);
+			const ev4sio_IG::Island& island = islandSim.getIsland(islandIds[i]);
 
-			START_ENUMERATING_ISLAND_EDGES(IG::Edge::eCONSTRAINT)
+			START_ENUMERATING_ISLAND_EDGES(ev4sio_IG::Edge::eCONSTRAINT)
 			{
 				GET_CURRENT_ISLAND_EDGE
 
 				PxSolverConstraintDesc& desc = *contactDescPtr;
 
-				Dy::Constraint* constraint = mIslandManager.getConstraint(edgeId);
+				ev4sio_Dy::Constraint* constraint = mIslandManager.getConstraint(edgeId);
 				setDescFromIndices_Constraints(desc, islandSim, edgeId, mBodyRemapTable, mSolverBodyOffset, mSolverBodyVelPool.begin());
 				desc.constraint = reinterpret_cast<PxU8*>(constraint);
 				desc.constraintType = DY_SC_TYPE_RB_1D;
@@ -774,7 +774,7 @@ void DynamicsTGSContext::preIntegrateBodies(PxsBodyCore** bodyArray, PxsRigidBod
 }
 
 void DynamicsTGSContext::createSolverConstraints(PxSolverConstraintDesc* contactDescPtr, PxConstraintBatchHeader* headers, PxU32 nbHeaders,
-	PxsContactManagerOutputIterator& outputs, Dy::ThreadContext& islandThreadContext, Dy::ThreadContext& threadContext, PxReal stepDt, PxReal totalDt, PxReal invStepDt,
+	PxsContactManagerOutputIterator& outputs, ev4sio_Dy::ThreadContext& islandThreadContext, ev4sio_Dy::ThreadContext& threadContext, PxReal stepDt, PxReal totalDt, PxReal invStepDt,
 	const PxReal rigidContactBiasCoefficient, const PxReal jointBiasCoefficient)
 {
 	PX_UNUSED(totalDt);
@@ -1298,7 +1298,7 @@ static void parallelIntegrateBodies(PxTGSSolverBodyVel* vels, PxTGSSolverBodyTxI
 
 void DynamicsTGSContext::copyBackBodies(const SolverIslandObjectsStep& objects,
 	PxTGSSolverBodyVel* vels, PxTGSSolverBodyTxInertia* txInertias,
-	PxTGSSolverBodyData* solverBodyDatas, PxReal invDt, IG::IslandSim& islandSim,
+	PxTGSSolverBodyData* solverBodyDatas, PxReal invDt, ev4sio_IG::IslandSim& islandSim,
 	PxU32 startIdx, PxU32 endIdx)
 {
 	const bool sleepingDisabled = isSleepingDisabled();
@@ -1310,7 +1310,7 @@ void DynamicsTGSContext::copyBackBodies(const SolverIslandObjectsStep& objects,
 		PxTGSSolverBodyTxInertia& solverBodyTxI = txInertias[k + 1];
 		PxTGSSolverBodyData& solverBodyData = solverBodyDatas[k + 1];
 
-		const Cm::SpatialVector motionVel(solverBodyVel.deltaLinDt*invDt, solverBodyTxI.sqrtInvInertia*(solverBodyVel.deltaAngDt*invDt));
+		const ev4sio_Cm::SpatialVector motionVel(solverBodyVel.deltaLinDt*invDt, solverBodyTxI.sqrtInvInertia*(solverBodyVel.deltaAngDt*invDt));
 
 		PxsRigidBody& rBody = *objects.bodies[k];
 		PxsBodyCore& core = rBody.getCore();
@@ -1334,7 +1334,7 @@ void DynamicsTGSContext::copyBackBodies(const SolverIslandObjectsStep& objects,
 	}
 }
 
-void DynamicsTGSContext::stepArticulations(Dy::ThreadContext& threadContext, const PxsIslandIndices& counts, PxReal dt)
+void DynamicsTGSContext::stepArticulations(ev4sio_Dy::ThreadContext& threadContext, const PxsIslandIndices& counts, PxReal dt)
 {
 	for (PxU32 a = 0; a < counts.articulations; ++a)
 	{
@@ -1344,13 +1344,13 @@ void DynamicsTGSContext::stepArticulations(Dy::ThreadContext& threadContext, con
 	}
 }
 
-void DynamicsTGSContext::updateArticulations(Dy::ThreadContext& threadContext, PxU32 startIdx, PxU32 endIdx, PxReal dt)
+void DynamicsTGSContext::updateArticulations(ev4sio_Dy::ThreadContext& threadContext, PxU32 startIdx, PxU32 endIdx, PxReal dt)
 {
 	for (PxU32 a = startIdx; a < endIdx; ++a)
 		FeatherstoneArticulation::updateBodiesTGS(threadContext.mArticulationArray[a], threadContext.mDeltaV.begin(), dt);
 }
 
-void DynamicsTGSContext::applyArticulationTgsSubstepForces(Dy::ThreadContext& threadContext, PxU32 numArticulations, PxReal stepDt)
+void DynamicsTGSContext::applyArticulationTgsSubstepForces(ev4sio_Dy::ThreadContext& threadContext, PxU32 numArticulations, PxReal stepDt)
 {
 	for(PxU32 i = 0; i < numArticulations; ++i)
 	{
@@ -1365,9 +1365,9 @@ void DynamicsTGSContext::applyArticulationTgsSubstepForces(Dy::ThreadContext& th
 
 namespace
 {
-class ArticulationTask : public Cm::Task
+class ArticulationTask : public ev4sio_Cm::Task
 {
-	Dy::DynamicsTGSContext& mContext;
+	ev4sio_Dy::DynamicsTGSContext& mContext;
 	FeatherstoneArticulation** const mDescs;
 	const PxU32 mNbDescs;
 	const PxVec3 mGravity;
@@ -1379,9 +1379,9 @@ class ArticulationTask : public Cm::Task
 public:
 	static const PxU32 MaxNbPerTask = 32;
 
-	ArticulationTask(Dy::DynamicsTGSContext& context, FeatherstoneArticulation** descs, PxU32 nbDescs,
+	ArticulationTask(ev4sio_Dy::DynamicsTGSContext& context, FeatherstoneArticulation** descs, PxU32 nbDescs,
 	                 const PxVec3& gravity, PxReal dt, PxU64 contextId, bool externalForcesEveryTgsIterationEnabled)
-	: Cm::Task(contextId)
+	: ev4sio_Cm::Task(contextId)
 	, mContext(context)
 	, mDescs(descs)
 	, mNbDescs(nbDescs)
@@ -1399,7 +1399,7 @@ public:
 		for (PxU32 i = 0; i < mNbDescs; i++)
 			maxLinks = PxMax(maxLinks, mDescs[i]->getBodyCount());
 
-		Dy::ThreadContext& threadContext = *mContext.getThreadContext();
+		ev4sio_Dy::ThreadContext& threadContext = *mContext.getThreadContext();
 
 		threadContext.mDeltaV.forceSize_Unsafe(0);
 		threadContext.mDeltaV.reserve(maxLinks);
@@ -1421,8 +1421,8 @@ public:
 void DynamicsTGSContext::setupArticulations(IslandContextStep& islandContext, const PxVec3& gravity, PxReal dt, PxU32& posIters,
 	PxU32& velIters, PxBaseTask* continuation)
 {
-	Dy::ThreadContext* threadContext = islandContext.mThreadContext;
-	Dy::FeatherstoneArticulation** articulations = threadContext->mArticulationArray;
+	ev4sio_Dy::ThreadContext* threadContext = islandContext.mThreadContext;
+	ev4sio_Dy::FeatherstoneArticulation** articulations = threadContext->mArticulationArray;
 	PxU32 nbArticulations = islandContext.mCounts.articulations;
 
 	PxU32 maxVelIters = 0;
@@ -1452,7 +1452,7 @@ void DynamicsTGSContext::setupArticulations(IslandContextStep& islandContext, co
 
 void DynamicsTGSContext::setupArticulationInternalConstraints(IslandContextStep& islandContext, PxReal dt, PxReal invStepDt)
 {
-	Dy::FeatherstoneArticulation** articulations = islandContext.mThreadContext->mArticulationArray;
+	ev4sio_Dy::FeatherstoneArticulation** articulations = islandContext.mThreadContext->mArticulationArray;
 	PxU32 nbArticulations = islandContext.mCounts.articulations;
 
 	ThreadContext* threadContext = getThreadContext();
@@ -1464,9 +1464,9 @@ void DynamicsTGSContext::setupArticulationInternalConstraints(IslandContextStep&
 	putThreadContext(threadContext);
 }
 
-class SetupDescsTask : public Cm::Task
+class SetupDescsTask : public ev4sio_Cm::Task
 {
-	Dy::IslandContextStep& mIslandContext;
+	ev4sio_Dy::IslandContextStep& mIslandContext;
 	const SolverIslandObjectsStep& mObjects;
 	PxU32* mBodyRemapTable; 
 	PxU32 mSolverBodyOffset; 
@@ -1478,7 +1478,7 @@ class SetupDescsTask : public Cm::Task
 public:
 
 	SetupDescsTask(IslandContextStep& islandContext, const SolverIslandObjectsStep& objects,
-		PxU32* bodyRemapTable, PxU32 solverBodyOffset, PxsContactManagerOutputIterator& outputs, DynamicsTGSContext& context) : Cm::Task(context.getContextId()),
+		PxU32* bodyRemapTable, PxU32 solverBodyOffset, PxsContactManagerOutputIterator& outputs, DynamicsTGSContext& context) : ev4sio_Cm::Task(context.getContextId()),
 		mIslandContext(islandContext), mObjects(objects), mBodyRemapTable(bodyRemapTable), mSolverBodyOffset(solverBodyOffset),
 		mOutputs(outputs), mContext(context)
 	{
@@ -1493,7 +1493,7 @@ public:
 	}
 };
 
-class PreIntegrateParallelTask : public Cm::Task
+class PreIntegrateParallelTask : public ev4sio_Cm::Task
 {
 	PxsBodyCore** mBodyArray;
 	PxsRigidBody** mOriginalBodyArray;
@@ -1515,7 +1515,7 @@ public:
 	PreIntegrateParallelTask(PxsBodyCore** bodyArray, PxsRigidBody** originalBodyArray,
 		PxTGSSolverBodyVel* solverBodyVelPool, PxTGSSolverBodyTxInertia* solverBodyTxInertia, PxTGSSolverBodyData* solverBodyDataPool2,
 		PxU32* nodeIndexArray, PxU32 bodyCount, const PxVec3& gravity, PxReal dt, PxU32& posIters, PxU32& velIters,
-		DynamicsTGSContext& context) : Cm::Task(context.getContextId()),
+		DynamicsTGSContext& context) : ev4sio_Cm::Task(context.getContextId()),
 		mBodyArray(bodyArray), mOriginalBodyArray(originalBodyArray), mSolverBodyVelPool(solverBodyVelPool),
 		mSolverBodyTxInertia(solverBodyTxInertia), mSolverBodyDataPool2(solverBodyDataPool2), mNodeIndexArray(nodeIndexArray),
 		mBodyCount(bodyCount), mGravity(gravity), mDt(dt), mPosIters(posIters), mVelIters(velIters), mContext(context)
@@ -1535,7 +1535,7 @@ public:
 	}
 };
 
-class PreIntegrateTask : public Cm::Task
+class PreIntegrateTask : public ev4sio_Cm::Task
 {
 	PxsBodyCore** mBodyArray;
 	PxsRigidBody** mOriginalBodyArray;
@@ -1557,7 +1557,7 @@ public:
 	PreIntegrateTask(PxsBodyCore** bodyArray, PxsRigidBody** originalBodyArray,
 		PxTGSSolverBodyVel* solverBodyVelPool, PxTGSSolverBodyTxInertia* solverBodyTxInertia, PxTGSSolverBodyData* solverBodyDataPool2,
 		PxU32* nodeIndexArray, PxU32 bodyCount, const PxVec3& gravity, PxReal dt, PxU32& posIters, PxU32& velIters,
-		DynamicsTGSContext& context) : Cm::Task(context.getContextId()),
+		DynamicsTGSContext& context) : ev4sio_Cm::Task(context.getContextId()),
 		mBodyArray(bodyArray), mOriginalBodyArray(originalBodyArray), mSolverBodyVelPool(solverBodyVelPool),
 		mSolverBodyTxInertia(solverBodyTxInertia), mSolverBodyDataPool2(solverBodyDataPool2), mNodeIndexArray(nodeIndexArray), 
 		mBodyCount(bodyCount), mGravity(gravity), mDt(dt), mPosIters(posIters), mVelIters(velIters), mContext(context)
@@ -1595,10 +1595,10 @@ public:
 	}
 };
 
-class SetStepperTask : public Cm::Task
+class SetStepperTask : public ev4sio_Cm::Task
 {
-	Dy::IslandContextStep& mIslandContext;
-	Dy::DynamicsTGSContext& mContext;
+	ev4sio_Dy::IslandContextStep& mIslandContext;
+	ev4sio_Dy::DynamicsTGSContext& mContext;
 
 	PxBaseTask* mAdditionalContinuation;
 
@@ -1606,8 +1606,8 @@ class SetStepperTask : public Cm::Task
 
 public:
 
-	SetStepperTask(Dy::IslandContextStep& islandContext,
-		DynamicsTGSContext& context) : Cm::Task(context.getContextId()),
+	SetStepperTask(ev4sio_Dy::IslandContextStep& islandContext,
+		DynamicsTGSContext& context) : ev4sio_Cm::Task(context.getContextId()),
 		mIslandContext(islandContext), mContext(context),
 		mAdditionalContinuation(NULL)
 	{
@@ -1632,12 +1632,12 @@ public:
 
 	virtual void release() PX_OVERRIDE
 	{
-		Cm::Task::release();
+		ev4sio_Cm::Task::release();
 		mAdditionalContinuation->removeReference();
 	}
 };
 
-class SetupArticulationTask : public Cm::Task
+class SetupArticulationTask : public ev4sio_Cm::Task
 {
 	IslandContextStep& mIslandContext;
 	const PxVec3& mGravity;
@@ -1652,7 +1652,7 @@ class SetupArticulationTask : public Cm::Task
 public:
 
 	SetupArticulationTask(IslandContextStep& islandContext, const PxVec3& gravity, PxReal dt, PxU32& posIters,
-		PxU32& velIters, DynamicsTGSContext& context) : Cm::Task(context.getContextId()),
+		PxU32& velIters, DynamicsTGSContext& context) : ev4sio_Cm::Task(context.getContextId()),
 		mIslandContext(islandContext), mGravity(gravity), mDt(dt), mPosIters(posIters), mVelIters(velIters), mContext(context)
 	{
 	}
@@ -1669,7 +1669,7 @@ public:
 	}
 };
 
-class SetupArticulationInternalConstraintsTask : public Cm::Task
+class SetupArticulationInternalConstraintsTask : public ev4sio_Cm::Task
 {
 	IslandContextStep& mIslandContext;
 	const PxReal mDt;
@@ -1681,7 +1681,7 @@ class SetupArticulationInternalConstraintsTask : public Cm::Task
 
 public:
 
-	SetupArticulationInternalConstraintsTask(IslandContextStep& islandContext, PxReal dt, PxReal invDt, DynamicsTGSContext& context) : Cm::Task(context.getContextId()),
+	SetupArticulationInternalConstraintsTask(IslandContextStep& islandContext, PxReal dt, PxReal invDt, DynamicsTGSContext& context) : ev4sio_Cm::Task(context.getContextId()),
 		mIslandContext(islandContext), mDt(dt), mInvDt(invDt), mContext(context)
 	{
 	}
@@ -1694,7 +1694,7 @@ public:
 	}
 };
 
-class SetupSolverConstraintsSubTask : public Cm::Task
+class SetupSolverConstraintsSubTask : public ev4sio_Cm::Task
 {
 	PxSolverConstraintDesc* mContactDescPtr;
 	PxConstraintBatchHeader* mHeaders;
@@ -1717,7 +1717,7 @@ public:
 
 	SetupSolverConstraintsSubTask(PxSolverConstraintDesc* contactDescPtr, PxConstraintBatchHeader* headers, PxU32 nbHeaders,
 		PxsContactManagerOutputIterator& outputs, PxReal stepDt, PxReal totalDt, PxReal invStepDt, PxReal invDtTotal, 
-		PxReal rigidContactBiasCoefficient, PxReal jointBiasCoefficient, ThreadContext& islandThreadContext, DynamicsTGSContext& context) : Cm::Task(context.getContextId()),
+		PxReal rigidContactBiasCoefficient, PxReal jointBiasCoefficient, ThreadContext& islandThreadContext, DynamicsTGSContext& context) : ev4sio_Cm::Task(context.getContextId()),
 		mContactDescPtr(contactDescPtr), mHeaders(headers), mNbHeaders(nbHeaders), mOutputs(outputs), mStepDt(stepDt), mTotalDt(totalDt), mInvStepDt(invStepDt),
 		mInvDtTotal(invDtTotal), mRigidContactBiasCoefficient(rigidContactBiasCoefficient), mJointBiasCoefficient(jointBiasCoefficient),
 		mContext(context), mIslandThreadContext(islandThreadContext)
@@ -1736,7 +1736,7 @@ public:
 	}
 };
 
-class PxsCreateArticConstraintsSubTask : public Cm::Task
+class PxsCreateArticConstraintsSubTask : public ev4sio_Cm::Task
 {
 	PxsCreateArticConstraintsSubTask& operator=(const PxsCreateArticConstraintsSubTask&);
 
@@ -1744,11 +1744,11 @@ public:
 
 	static const PxU32 NbArticsPerTask = 64;
 
-	PxsCreateArticConstraintsSubTask(Dy::FeatherstoneArticulation** articulations, const PxU32 nbArticulations,
+	PxsCreateArticConstraintsSubTask(ev4sio_Dy::FeatherstoneArticulation** articulations, const PxU32 nbArticulations,
 		PxTGSSolverBodyData* solverBodyData, PxTGSSolverBodyTxInertia* solverBodyTxInertia, 
 		ThreadContext& threadContext, DynamicsTGSContext& context, PxsContactManagerOutputIterator& outputs,
-		Dy::IslandContextStep& islandContext) :
-		Cm::Task(context.getContextId()),
+		ev4sio_Dy::IslandContextStep& islandContext) :
+		ev4sio_Cm::Task(context.getContextId()),
 		mArticulations(articulations),
 		mNbArticulations(nbArticulations),
 		mSolverBodyData(solverBodyData),
@@ -1793,7 +1793,7 @@ public:
 
 public:
 
-	Dy::FeatherstoneArticulation** mArticulations;
+	ev4sio_Dy::FeatherstoneArticulation** mArticulations;
 	PxU32 mNbArticulations;
 	PxTGSSolverBodyData* mSolverBodyData;
 	PxTGSSolverBodyTxInertia* mSolverBodyTxInertia;
@@ -1803,7 +1803,7 @@ public:
 	IslandContextStep& mIslandContext;
 };
 
-class SetupSolverConstraintsTask : public Cm::Task
+class SetupSolverConstraintsTask : public ev4sio_Cm::Task
 {
 	IslandContextStep& mIslandContext;
 	PxSolverConstraintDesc* mContactDescPtr;
@@ -1816,7 +1816,7 @@ class SetupSolverConstraintsTask : public Cm::Task
 public:
 
 	SetupSolverConstraintsTask(IslandContextStep& islandContext, PxSolverConstraintDesc* contactDescPtr,
-		PxsContactManagerOutputIterator& outputs, PxReal totalDt, DynamicsTGSContext& context) : Cm::Task(context.getContextId()),
+		PxsContactManagerOutputIterator& outputs, PxReal totalDt, DynamicsTGSContext& context) : ev4sio_Cm::Task(context.getContextId()),
 		mIslandContext(islandContext), mContactDescPtr(contactDescPtr), mOutputs(outputs),
 		mTotalDt(totalDt), mContext(context)
 	{
@@ -1826,7 +1826,7 @@ public:
 
 	virtual void runInternal() PX_OVERRIDE
 	{
-		Dy::ThreadContext& threadContext = *mIslandContext.mThreadContext;
+		ev4sio_Dy::ThreadContext& threadContext = *mIslandContext.mThreadContext;
 		const PxU32 nbBatches = threadContext.numContactConstraintBatches;
 		PxConstraintBatchHeader* hdr = mIslandContext.mObjects.constraintBatchHeaders;
 		//for (PxU32 a = 0; a < mIslandContext.mArticulationOffset; a += SetupSolverConstraintsSubTask::MaxPerTask)
@@ -1857,7 +1857,7 @@ public:
 	}
 };
 
-class PartitionTask : public Cm::Task
+class PartitionTask : public ev4sio_Cm::Task
 {
 	IslandContextStep& mIslandContext;
 	const PxSolverConstraintDesc* mContactDescPtr;
@@ -1869,7 +1869,7 @@ class PartitionTask : public Cm::Task
 public:
 
 	PartitionTask(IslandContextStep& islandContext, PxSolverConstraintDesc* contactDescPtr, PxTGSSolverBodyVel* solverBodyData, DynamicsTGSContext& context) :
-		Cm::Task(context.getContextId()),
+		ev4sio_Cm::Task(context.getContextId()),
 		mIslandContext(islandContext),
 		mContactDescPtr(contactDescPtr),
 		mSolverBodyData(solverBodyData),
@@ -1881,7 +1881,7 @@ public:
 
 	virtual void runInternal() PX_OVERRIDE
 	{
-		Dy::ThreadContext& threadContext = *mIslandContext.mThreadContext;
+		ev4sio_Dy::ThreadContext& threadContext = *mIslandContext.mThreadContext;
 
 		const PxU32 totalDescCount = threadContext.contactDescArraySize;
 
@@ -1890,7 +1890,7 @@ public:
 		threadContext.mConstraintsPerPartition[0] = 0;
 
 		const PxU32 numArticulations = threadContext.mNbArticulations;
-		Dy::FeatherstoneArticulation** eaArticulations = threadContext.mArticulationArray;
+		ev4sio_Dy::FeatherstoneArticulation** eaArticulations = threadContext.mArticulationArray;
 
 		// PT: maxPartitions = PX_MAX_U32 in PGS. Was there a reason to limit it for TGS?
 		const ConstraintPartitionIn in(	reinterpret_cast<PxU8*>(mSolverBodyData), mIslandContext.mCounts.bodies, sizeof(PxTGSSolverBodyVel),
@@ -1979,7 +1979,7 @@ public:
 	}
 };
 
-class ParallelSolveTask : public Cm::Task
+class ParallelSolveTask : public ev4sio_Cm::Task
 {
 	IslandContextStep& mIslandContext;
 	const SolverIslandObjectsStep& mObjects;
@@ -1992,7 +1992,7 @@ class ParallelSolveTask : public Cm::Task
 public:
 
 	ParallelSolveTask(IslandContextStep& islandContext, const SolverIslandObjectsStep& objects, const PxsIslandIndices& counts, PxReal totalDt,
-		DynamicsTGSContext& context) : Cm::Task(context.getContextId()),
+		DynamicsTGSContext& context) : ev4sio_Cm::Task(context.getContextId()),
 		mIslandContext(islandContext), mObjects(objects), mCounts(counts), mTotalDt(totalDt), mContext(context)
 	{
 	}
@@ -2009,7 +2009,7 @@ public:
 	}
 };
 
-class SolveIslandTask : public Cm::Task
+class SolveIslandTask : public ev4sio_Cm::Task
 {
 	IslandContextStep& mIslandContext;
 	const SolverIslandObjectsStep& mObjects;
@@ -2022,7 +2022,7 @@ class SolveIslandTask : public Cm::Task
 public:
 
 	SolveIslandTask(IslandContextStep& islandContext, const SolverIslandObjectsStep& objects, const PxsIslandIndices& counts, PxReal totalDt,
-		DynamicsTGSContext& context) : Cm::Task(context.getContextId()),
+		DynamicsTGSContext& context) : ev4sio_Cm::Task(context.getContextId()),
 		mIslandContext(islandContext), mObjects(objects), mCounts(counts), mTotalDt(totalDt), mContext(context)
 	{
 	}
@@ -2040,7 +2040,7 @@ public:
 
 		// PT: TODO: share with PGS
 
-		Dy::ThreadContext& threadContext = *mIslandContext.mThreadContext;
+		ev4sio_Dy::ThreadContext& threadContext = *mIslandContext.mThreadContext;
 
 		PxSolverConstraintDesc* PX_RESTRICT contactDescBegin = mObjects.orderedConstraintDescs;
 		PxConstraintBatchHeader* PX_RESTRICT headers = mObjects.constraintBatchHeaders;
@@ -2188,7 +2188,7 @@ public:
 	}
 };
 
-class EndIslandTask : public Cm::Task
+class EndIslandTask : public ev4sio_Cm::Task
 {
 	ThreadContext& mThreadContext;
 	DynamicsTGSContext& mContext;
@@ -2197,7 +2197,7 @@ class EndIslandTask : public Cm::Task
 
 public:
 
-	EndIslandTask(ThreadContext& threadContext, DynamicsTGSContext& context) : Cm::Task(context.getContextId()),
+	EndIslandTask(ThreadContext& threadContext, DynamicsTGSContext& context) : ev4sio_Cm::Task(context.getContextId()),
 		mThreadContext(threadContext), mContext(context)
 	{
 	}
@@ -2210,12 +2210,12 @@ public:
 	}
 };
 
-class FinishSolveIslandTask : public Cm::Task
+class FinishSolveIslandTask : public ev4sio_Cm::Task
 {
 	ThreadContext& mThreadContext;
 	const SolverIslandObjectsStep& mObjects;
 	const PxsIslandIndices& mCounts;
-	IG::SimpleIslandManager& mIslandManager;
+	ev4sio_IG::SimpleIslandManager& mIslandManager;
 
 	DynamicsTGSContext& mContext;
 
@@ -2224,7 +2224,7 @@ class FinishSolveIslandTask : public Cm::Task
 public:
 
 	FinishSolveIslandTask(ThreadContext& threadContext, const SolverIslandObjectsStep& objects,
-		const PxsIslandIndices& counts, IG::SimpleIslandManager& islandManager, DynamicsTGSContext& context) : Cm::Task(context.getContextId()),
+		const PxsIslandIndices& counts, ev4sio_IG::SimpleIslandManager& islandManager, DynamicsTGSContext& context) : ev4sio_Cm::Task(context.getContextId()),
 		mThreadContext(threadContext), mObjects(objects), mCounts(counts), mIslandManager(islandManager), mContext(context)
 	{
 	}
@@ -2647,7 +2647,7 @@ struct SolverDt
 
 template<bool isVelocityIteration, bool updateDeltaMotion, bool saveVelocity>
 static void parallelSolveInternalConstraintsAndWaitForCompletion
-(Cm::SpatialVectorF* deltaV, ThreadContext& threadContext,
+(ev4sio_Cm::SpatialVectorF* deltaV, ThreadContext& threadContext,
  const PxU32 nbArticulations,
  const bool isExternalForcesEveryTgsIterationEnabled,
  const SolverDt& solverDt, const PxReal elapsedTime, 
@@ -2695,7 +2695,7 @@ template<bool updateDeltaMotion, bool saveVelocity, bool isVelocityIteration, bo
 static void processSolverIterationParallel
 (const bool solveArticulationContactLast, const bool isExternalForcesEveryTgsIterationEnabled,
  PxU32& iterCount, const SolverDt& solverDt, const PxReal elapsedTime, 
- Cm::SpatialVectorF* deltaV, ThreadContext& threadContext,
+ ev4sio_Cm::SpatialVectorF* deltaV, ThreadContext& threadContext,
  //artic solve:
  const PxU32 nbArticulations,
  const PxReal articulationBiasCoefficient,
@@ -2802,7 +2802,7 @@ void DynamicsTGSContext::iterativeSolveIslandParallel(const SolverIslandObjectsS
 	PxI32* solverProgressCount, PxI32* integrationProgressCount, PxI32* articulationProgressCount, PxI32* gravityProgressCount, PxU32 solverUnrollSize, PxU32 integrationUnrollSize)
 {
 	PX_PROFILE_ZONE("Dynamics:solveIslandParallel", mContextID);
-	Dy::ThreadContext& threadContextLocal = *getThreadContext();
+	ev4sio_Dy::ThreadContext& threadContextLocal = *getThreadContext();
 	PxU32 startSolveIdx = PxU32(PxAtomicAdd(solverCounts, PxI32(solverUnrollSize))) - solverUnrollSize;
 	PxU32 nbSolveRemaining = solverUnrollSize;
 	
@@ -2835,7 +2835,7 @@ void DynamicsTGSContext::iterativeSolveIslandParallel(const SolverIslandObjectsS
 	threadContextLocal.mDeltaV.reserve(threadContext.mDeltaV.size());
 	threadContextLocal.mZVector.resizeUninitialized(threadContext.mZVector.size());
 	
-	Cm::SpatialVectorF* deltaV = threadContextLocal.mDeltaV.begin();
+	ev4sio_Cm::SpatialVectorF* deltaV = threadContextLocal.mDeltaV.begin();
 
 	PxReal elapsedTime = 0.0f;
 
@@ -3045,14 +3045,14 @@ void DynamicsTGSContext::iterativeSolveIslandParallel(const SolverIslandObjectsS
 	}
 }
 
-class CopyBackTask : public Cm::Task
+class CopyBackTask : public ev4sio_Cm::Task
 {
 	const SolverIslandObjectsStep& mObjects;
 	PxTGSSolverBodyVel* mVels;
 	PxTGSSolverBodyTxInertia* mTxInertias;
 	PxTGSSolverBodyData* mSolverBodyDatas;
 	const PxReal mInvDt;
-	IG::IslandSim& mIslandSim;
+	ev4sio_IG::IslandSim& mIslandSim;
 	const PxU32 mStartIdx;
 	const PxU32 mEndIdx;
 	DynamicsTGSContext& mContext;
@@ -3063,8 +3063,8 @@ public:
 
 	CopyBackTask(const SolverIslandObjectsStep& objects,
 		PxTGSSolverBodyVel* vels, PxTGSSolverBodyTxInertia* txInertias,
-		PxTGSSolverBodyData* solverBodyDatas, PxReal invDt, IG::IslandSim& islandSim,
-		PxU32 startIdx, PxU32 endIdx, DynamicsTGSContext& context) : Cm::Task(context.getContextId()),
+		PxTGSSolverBodyData* solverBodyDatas, PxReal invDt, ev4sio_IG::IslandSim& islandSim,
+		PxU32 startIdx, PxU32 endIdx, DynamicsTGSContext& context) : ev4sio_Cm::Task(context.getContextId()),
 		mObjects(objects), mVels(vels), mTxInertias(txInertias), mSolverBodyDatas(solverBodyDatas), mInvDt(invDt),
 		mIslandSim(islandSim), mStartIdx(startIdx), mEndIdx(endIdx), mContext(context)
 	{
@@ -3078,9 +3078,9 @@ public:
 	}
 };
 
-class UpdateArticTask : public Cm::Task
+class UpdateArticTask : public ev4sio_Cm::Task
 {
-	Dy::ThreadContext& mThreadContext;
+	ev4sio_Dy::ThreadContext& mThreadContext;
 	const PxU32 mStartIdx;
 	const PxU32 mEndIdx;
 	const PxReal mDt;
@@ -3090,8 +3090,8 @@ class UpdateArticTask : public Cm::Task
 
 public:
 
-	UpdateArticTask(Dy::ThreadContext& threadContext, PxU32 startIdx, PxU32 endIdx,	PxReal dt, DynamicsTGSContext& context) :
-		Cm::Task(context.getContextId()),
+	UpdateArticTask(ev4sio_Dy::ThreadContext& threadContext, PxU32 startIdx, PxU32 endIdx,	PxReal dt, DynamicsTGSContext& context) :
+		ev4sio_Cm::Task(context.getContextId()),
 		mThreadContext(threadContext), mStartIdx(startIdx), mEndIdx(endIdx), mDt(dt), mContext(context)
 	{
 	}
@@ -3105,7 +3105,7 @@ public:
 };
 
 void DynamicsTGSContext::finishSolveIsland(ThreadContext& threadContext, const SolverIslandObjectsStep& objects,
-	const PxsIslandIndices& counts, IG::SimpleIslandManager& islandManager, PxBaseTask* continuation)
+	const PxsIslandIndices& counts, ev4sio_IG::SimpleIslandManager& islandManager, PxBaseTask* continuation)
 {
 	threadContext.mConstraintBlockManager.reset();
 	threadContext.mConstraintBlockStream.reset();

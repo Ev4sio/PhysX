@@ -14,7 +14,7 @@
 #include "RuntimeExecution.h"
 #include <optional>
 
-namespace omni::physx
+namespace omni::ev4sio_physx
 {
 AttachHandle onPhysXAttach(long stageId)
 {

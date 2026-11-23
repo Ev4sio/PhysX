@@ -147,12 +147,12 @@ std::atomic_size_t& enumerateQueryCounter()
 // parse::Matrix4d is sixteen doubles in the layout PxMat44d/GfMatrix4d both use;
 // this is an element copy, not a transpose. Only the *product* order differs,
 // see common/foundation/MatrixTools.h.
-::physx::PxMat44d toPxMat44d(const Matrix4d& matrix)
+::ev4sio_physx::PxMat44d toPxMat44d(const Matrix4d& matrix)
 {
     double values[16];
     for (int i = 0; i < 16; ++i)
         values[i] = matrix.data[i];
-    return ::physx::PxMat44d(values);
+    return ::ev4sio_physx::PxMat44d(values);
 }
 
 // This local helper reports completion for strict schema reads; OvstageChangeFeed keeps its lenient copy.
@@ -2844,7 +2844,7 @@ OvstageScanResult scanOvstage(ovstage_instance_t* instance,
                 const uint64_t bodyCanonical = src.canonicalPath(info.rigidBody).raw_id;
                 if (src.canonicalPath(gprimKey).raw_id != bodyCanonical)
                 {
-                    ::physx::PxMat44d relativeTransform(::physx::PxIdentity);
+                    ::ev4sio_physx::PxMat44d relativeTransform(::ev4sio_physx::PxIdentity);
                     ObjectKey current = gprimKey;
                     for (int guard = 0; current.valid() && guard < 64; ++guard)
                     {
@@ -3245,7 +3245,7 @@ OvstageScanResult scanOvstage(ovstage_instance_t* instance,
     };
     auto transformJointFrame = [](const JointFrameInput& frame, carb::Float3& position, carb::Float4& rotation) noexcept
     {
-        ::physx::PxQuat q(rotation.x, rotation.y, rotation.z, rotation.w);
+        ::ev4sio_physx::PxQuat q(rotation.x, rotation.y, rotation.z, rotation.w);
         q.normalize();
         rotation = {q.x, q.y, q.z, q.w};
         if (frame.hasTarget)

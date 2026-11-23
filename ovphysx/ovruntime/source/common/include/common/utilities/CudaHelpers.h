@@ -11,7 +11,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace cudaHelpers
 {
@@ -178,5 +178,5 @@ static int selectBestPhysicsDevice(bool useFirstAvailable = true)
 }
 
 } // namespace cudaHelpers
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

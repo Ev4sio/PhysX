@@ -12,9 +12,9 @@
 #include <cmath>
 #include <cstring>
 #include <functional>
-namespace omni::physx::native
+namespace omni::ev4sio_physx::native
 {
-namespace rt=omni::physx;
+namespace rt=omni::ev4sio_physx;
 using Mesh=RawCookMesh;
 using Options=RawCookOptions;
 using Result=RawCookResult;
@@ -65,7 +65,7 @@ bool tetrahedral(const Mesh& mesh,const Options& p,Result& result) {
     std::vector<uint32_t> topology(mesh.indices,mesh.indices+mesh.index_count);
     for (size_t i=0;i<mesh.point_count;++i) source[i]={mesh.points[3*i],mesh.points[3*i+1],mesh.points[3*i+2]};
     void* (*allocate)(size_t)=[](size_t size)->void* { return ::operator new(size); };
-    omni::physx::IPhysxCooking & cooking=rt::runtime::getPhysxCookingInterface();
+    omni::ev4sio_physx::IPhysxCooking & cooking=rt::runtime::getPhysxCookingInterface();
     bool success;
     if (p.kind==uint32_t(RawCookKind::Conforming)) {
         if (!mesh.right_handed) for (size_t i=0;i<topology.size();i+=3) std::swap(topology[i+1],topology[i+2]);
@@ -126,7 +126,7 @@ try
                     std::memcpy(result.recipe_hash,hash.d,sizeof(result.recipe_hash));
                     result.warnings=cooked.resultWarnings.flags;
                     for (uint64_t i=0;i<cooked.cookedDataNumElements;++i) {
-                        const omni::physx::PhysxCookedDataSpan & blob=cooked.cookedData[i];
+                        const omni::ev4sio_physx::PhysxCookedDataSpan & blob=cooked.cookedData[i];
                         const unsigned char * begin=static_cast<const unsigned char*>(blob.data);
                         if (!begin || !blob.sizeInBytes) { failed=true; return; }
                         result.blobs.emplace_back(begin,begin+blob.sizeInBytes);
@@ -134,7 +134,7 @@ try
                     // The triangulation view precedes simplification; it is not
                     // the cooked surface. Export blobs only for that recipe.
                     if (p.kind==uint32_t(RawCookKind::Triangle) && p.triangle_mode==1) return;
-                    const omni::physx::PhysxCookingMeshTriangulationView & tri=cooked.triangulationView;
+                    const omni::ev4sio_physx::PhysxCookingMeshTriangulationView & tri=cooked.triangulationView;
                     for (carb::Float3 const & point:tri.points) {
                         result.points.push_back(point.x);result.points.push_back(point.y);result.points.push_back(point.z);
                     }
@@ -143,7 +143,7 @@ try
                     if (!result.indices.empty()) result.element_width=3;
                 } catch (...) { failed=true; }
             };
-            omni::physx::IPhysxCookingService & cooking=rt::runtime::getPhysxCookingServiceInterface();
+            omni::ev4sio_physx::IPhysxCookingService & cooking=rt::runtime::getPhysxCookingServiceInterface();
             rt::TriangleMeshCookingParams triangle;
             triangle.mode=rt::TriangleMeshMode::Enum(p.triangle_mode);
             triangle.simplificationMetric=p.simplification;

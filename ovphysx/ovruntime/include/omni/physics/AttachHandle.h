@@ -41,7 +41,7 @@ constexpr AttachHandle kActiveAttach = ~AttachHandle(0);
 
 } // namespace physics
 
-namespace physx
+namespace ev4sio_physx
 {
 
 // The attach identity is repo-wide, not a tensors or an omni.physx concept
@@ -51,5 +51,5 @@ using omni::physics::AttachHandle;
 using omni::physics::kActiveAttach;
 using omni::physics::kNoAttach;
 
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

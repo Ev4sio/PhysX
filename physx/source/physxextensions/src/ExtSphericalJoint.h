@@ -11,10 +11,10 @@
 #include "ExtJoint.h"
 #include "CmUtils.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 struct PxSphericalJointGeneratedValues;
-namespace Ext
+namespace ev4sio_Ext
 {
 	struct SphericalJointData: public JointData
 	{
@@ -55,8 +55,8 @@ namespace Ext
 		//~PxConstraintConnector
 	};
 
-} // namespace Ext
+} // namespace ev4sio_Ext
 
-} // namespace physx
+} // namespace ev4sio_physx
 
 #endif

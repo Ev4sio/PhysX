@@ -16,7 +16,7 @@
 
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -558,7 +558,7 @@ PX_INLINE PX_CUDA_CALLABLE static PxReal PxSDFSample(const PxReal* PX_RESTRICT s
 }
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

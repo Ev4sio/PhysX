@@ -28,11 +28,11 @@ using omni::physics::tensors::checkTensorSizeExact;
 using omni::physics::tensors::checkTensorSizeMinimum;
 using omni::physics::tensors::getTensorTotalSize;
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace tensors
 {
@@ -502,5 +502,5 @@ bool GpuSurfaceDeformableBodyView::getCollisionNodalPositions(const TensorDesc* 
 }
 
 } // namespace tensors
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

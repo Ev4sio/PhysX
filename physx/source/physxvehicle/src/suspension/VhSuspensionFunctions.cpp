@@ -13,7 +13,7 @@
 #include "vehicle/suspension/PxVehicleSuspensionFunctions.h"
 #include "vehicle/suspension/PxVehicleSuspensionHelpers.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 #define VH_SUSPENSION_NO_INTERSECTION_MARKER FLT_MIN
@@ -688,4 +688,4 @@ void PxVehicleAntiRollForceUpdate
 
 
 
-} //namespace physx
+} //namespace ev4sio_physx

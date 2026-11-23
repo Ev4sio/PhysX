@@ -9,7 +9,7 @@
 // Existing benchmark failure paths inspect the returned execution status.
 inline ovphysx_result_t bmCompleteTask(ovphysx_instance_handle_t handle, ovphysx_enqueue_result_t task)
 {
-    ovphysx::physx::WaitResult wait;
+    ovphysx::ev4sio_physx::WaitResult wait;
     const ovphysx_api_status_t status = task.status == OVPHYSX_API_SUCCESS ?
         wait.waitTask(handle, task) : task.status;
     for (size_t index = 0; index < wait.errorCount(); ++index)

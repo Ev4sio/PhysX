@@ -25,7 +25,7 @@
 // bearing rather than incidental. See PxgDeformableRef::ANY_FEATURE.
 PX_COMPILE_TIME_ASSERT(PX_ELEMENT_FILTER_ALL == PX_MAX_NB_DEFORMABLE_VOLUME_TET && PX_ELEMENT_FILTER_ALL == PX_MAX_NB_DEFORMABLE_SURFACE_TRI);
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 NpInternalAttachmentType::Enum getInternalAttachmentType(const PxDeformableElementFilterData& data, PxU32 actorIndex[2])
 {
@@ -273,7 +273,7 @@ void NpDeformableElementFilter::addElementFilter()
 			PxActor* actor0 = mActor[mActorIndex[0]];
 
 			PxRigidActor* actor1 = mActor[mActorIndex[1]]->is<PxRigidActor>();
-			Sc::RigidCore* core1 = getRigidCore(actor1);
+			ev4sio_Sc::RigidCore* core1 = getRigidCore(actor1);
 
 			PxArray<PxU32>& indices = mPairwiseIndices[mActorIndex[0]];
 
@@ -339,7 +339,7 @@ void NpDeformableElementFilter::removeElementFilter()
 			PxArray<PxU32>& indices = mPairwiseIndices[mActorIndex[0]];
 
 			PxRigidActor* actor1 = mActor[mActorIndex[1]]->is<PxRigidActor>();
-			Sc::RigidCore* core1 = getRigidCore(actor1);
+			ev4sio_Sc::RigidCore* core1 = getRigidCore(actor1);
 
 			if (mInternalAttachmentType == NpInternalAttachmentType::eVOLUME_TET_RIGID_ACTOR)
 			{

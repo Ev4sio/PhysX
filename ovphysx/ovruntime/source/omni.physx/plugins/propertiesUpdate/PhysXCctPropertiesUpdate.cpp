@@ -14,15 +14,15 @@
 #include <PxPhysicsAPI.h>
 
 
-using namespace ::physx;
+using namespace ::ev4sio_physx;
 using namespace carb;
-using namespace omni::physx;
-using namespace omni::physx::usdparser;
-using namespace omni::physx::internal;
+using namespace omni::ev4sio_physx;
+using namespace omni::ev4sio_physx::usdparser;
+using namespace omni::ev4sio_physx::internal;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CCT
-bool omni::physx::updateCctSlopeLimit(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
+bool omni::ev4sio_physx::updateCctSlopeLimit(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     const internal::InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
 
@@ -46,7 +46,7 @@ bool omni::physx::updateCctSlopeLimit(AttachedStage& attachedStage, omni::physx:
     return true;
 }
 
-bool omni::physx::updateCctHeight(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
+bool omni::ev4sio_physx::updateCctHeight(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     const internal::InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
 
@@ -70,7 +70,7 @@ bool omni::physx::updateCctHeight(AttachedStage& attachedStage, omni::physx::usd
     return true;
 }
 
-bool omni::physx::updateCctRadius(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
+bool omni::ev4sio_physx::updateCctRadius(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     const internal::InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
 
@@ -94,7 +94,7 @@ bool omni::physx::updateCctRadius(AttachedStage& attachedStage, omni::physx::usd
     return true;
 }
 
-bool omni::physx::updateCctContactOffset(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
+bool omni::ev4sio_physx::updateCctContactOffset(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     const internal::InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
 
@@ -118,7 +118,7 @@ bool omni::physx::updateCctContactOffset(AttachedStage& attachedStage, omni::phy
     return true;
 }
 
-bool omni::physx::updateCctStepOffset(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
+bool omni::ev4sio_physx::updateCctStepOffset(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     const internal::InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
 
@@ -142,7 +142,7 @@ bool omni::physx::updateCctStepOffset(AttachedStage& attachedStage, omni::physx:
     return true;
 }
 
-bool omni::physx::updateCctUpAxis(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
+bool omni::ev4sio_physx::updateCctUpAxis(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     const internal::InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
 
@@ -177,7 +177,7 @@ bool omni::physx::updateCctUpAxis(AttachedStage& attachedStage, omni::physx::usd
     return true;
 }
 
-bool omni::physx::updateCctNonWalkableMode(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateCctNonWalkableMode(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     const internal::InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
@@ -211,7 +211,7 @@ bool omni::physx::updateCctNonWalkableMode(AttachedStage& attachedStage, omni::p
     return true;
 }
 
-bool omni::physx::updateCctClimbingMode(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
+bool omni::ev4sio_physx::updateCctClimbingMode(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     const internal::InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
 

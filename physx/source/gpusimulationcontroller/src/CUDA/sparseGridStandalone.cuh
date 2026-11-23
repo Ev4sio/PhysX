@@ -18,7 +18,7 @@
 #define OUT_OF_BOUNDS -1
 #define SUBGRID_CENTER_IDX 13
 
-namespace physx
+namespace ev4sio_physx
 {
 
 PX_FORCE_INLINE __device__ __host__ int clampValue(int f, int a, int b)
@@ -294,5 +294,5 @@ PX_FORCE_INLINE __device__ int4 getCellIndexFromParticleAndTransformToLocalCoord
 	return getCellIndexFromPosition(p, data.mGridParams, data.mUniqueHashkeyPerSubgrid, data.mNumSubgridsInUse);
 }
 
-} // namespace physx
+} // namespace ev4sio_physx
 

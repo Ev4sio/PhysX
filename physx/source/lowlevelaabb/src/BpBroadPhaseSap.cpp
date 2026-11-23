@@ -16,9 +16,9 @@
 // PT: reactivated this. Ran UTs with SAP as default BP and nothing broke.
 #define TEST_DELETED_PAIRS
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Bp
+namespace ev4sio_Bp
 {
 #define DEFAULT_DATA_ARRAY_CAPACITY 1024
 #define DEFAULT_CREATEDDELETED_PAIR_ARRAY_CAPACITY 64
@@ -462,7 +462,7 @@ BroadPhaseUpdateError::Enum BroadPhaseSap::isValid(const BroadPhaseUpdateData& u
 }
 #endif
 
-void BroadPhaseSap::update(PxU32 /*numCpuTasks*/, Cm::FlushPool* /*flushPool*/, PxcScratchAllocator* scratchAllocator, const BroadPhaseUpdateData& updateData, PxBaseTask* /*continuation*/)
+void BroadPhaseSap::update(PxU32 /*numCpuTasks*/, ev4sio_Cm::FlushPool* /*flushPool*/, PxcScratchAllocator* scratchAllocator, const BroadPhaseUpdateData& updateData, PxBaseTask* /*continuation*/)
 {
 	PX_CHECK_AND_RETURN(scratchAllocator, "BroadPhaseSap::update - scratchAllocator must be non-NULL \n");
 
@@ -762,7 +762,7 @@ void BroadPhaseSap::ComputeSortedLists(	//const PxVec4& globalMin, const PxVec4&
 	const PxU32 insertAABBEnd = mCreatedSize;
 	const BpHandle* PX_RESTRICT createdAABBs = mCreated;
 	SapBox1D** PX_RESTRICT asapBoxes = mBoxEndPts;
-	const Bp::FilterGroup::Enum* PX_RESTRICT asapBoxGroupIds = mBoxGroups;
+	const ev4sio_Bp::FilterGroup::Enum* PX_RESTRICT asapBoxGroupIds = mBoxGroups;
 	BpHandle* PX_RESTRICT asapEndPointDatas = mEndPointDatas[axis0];
 	const PxU32 numSortedEndPoints = mBoxesSize*2 + NUM_SENTINELS;
 
@@ -900,7 +900,7 @@ void BroadPhaseSap::batchCreate()
 		ValType* bufferValues = bv.getBase();
 
 		// PT: TODO: use the scratch allocator
-		Cm::RadixSortBuffered RS;
+		ev4sio_Cm::RadixSortBuffered RS;
 
 		for(PxU32 Axis=0;Axis<3;Axis++)
 		{
@@ -921,7 +921,7 @@ void BroadPhaseSap::batchCreate()
 			BpHandle* bufferDatas;
 			{
 				RS.invalidateRanks();	// PT: there's no coherence between axes
-				const PxU32* Sorted = RS.Sort(newEPSortedValues, numEndPoints, Cm::RADIX_UNSIGNED).GetRanks();
+				const PxU32* Sorted = RS.Sort(newEPSortedValues, numEndPoints, ev4sio_Cm::RADIX_UNSIGNED).GetRanks();
 				bufferDatas = RS.GetRecyclable();
 
 				// PT: TODO: with two passes here we could reuse the "newEPSortedValues" buffer and drop "bufferValues"
@@ -1149,7 +1149,7 @@ void BroadPhaseSap::batchUpdate
 	const SapBox1D* PX_RESTRICT boxMinMax1=boxMinMax2D[2*Axis+1];
 
 #if BP_SAP_TEST_GROUP_ID_CREATEUPDATE 
-	const Bp::FilterGroup::Enum* PX_RESTRICT asapBoxGroupIds=mBoxGroups;
+	const ev4sio_Bp::FilterGroup::Enum* PX_RESTRICT asapBoxGroupIds=mBoxGroups;
 #endif
 
 	SapBox1D* PX_RESTRICT asapBoxes=mBoxEndPts[Axis];
@@ -1245,7 +1245,7 @@ void BroadPhaseSap::batchUpdate
 				PxU32 startIndex = ind;
 
 #if BP_SAP_TEST_GROUP_ID_CREATEUPDATE
-				const Bp::FilterGroup::Enum group = asapBoxGroupIds[handle];
+				const ev4sio_Bp::FilterGroup::Enum group = asapBoxGroupIds[handle];
 #endif
 				if(!isMax(ThisData))
 				{
@@ -1446,7 +1446,7 @@ void BroadPhaseSap::batchUpdateFewUpdates(const PxU32 Axis, BroadPhasePair*& pai
 	SapBox1D* boxMinMax2D[6]={mBoxEndPts[1],mBoxEndPts[2],mBoxEndPts[2],mBoxEndPts[0],mBoxEndPts[0],mBoxEndPts[1]};
 
 #if BP_SAP_TEST_GROUP_ID_CREATEUPDATE 
-	const Bp::FilterGroup::Enum* PX_RESTRICT asapBoxGroupIds=mBoxGroups;
+	const ev4sio_Bp::FilterGroup::Enum* PX_RESTRICT asapBoxGroupIds=mBoxGroups;
 #endif
 
 	SapBox1D* PX_RESTRICT asapBoxes=mBoxEndPts[Axis];
@@ -1576,7 +1576,7 @@ void BroadPhaseSap::batchUpdateFewUpdates(const PxU32 Axis, BroadPhasePair*& pai
 				//const BPValType* PX_RESTRICT box0MinMax0 = &boxMinMax0[twoHandle];
 				//const BPValType* PX_RESTRICT box0MinMax1 = &boxMinMax1[twoHandle];
 #if BP_SAP_TEST_GROUP_ID_CREATEUPDATE
-				const Bp::FilterGroup::Enum group = asapBoxGroupIds[handle];
+				const ev4sio_Bp::FilterGroup::Enum group = asapBoxGroupIds[handle];
 #endif
 				if(!isMax(ThisData))
 				{
@@ -1882,8 +1882,8 @@ bool BroadPhaseSap::isSelfConsistent() const
 }
 #endif
 
-} //namespace Bp
+} //namespace ev4sio_Bp
 
-} //namespace physx
+} //namespace ev4sio_physx
 
 

@@ -9,7 +9,7 @@
 #include "foundation/PxSimpleTypes.h"
 #include <vector_types.h>
 
-namespace physx
+namespace ev4sio_physx
 {
 
 // Contact block for DB-rigid pairs (SB-rigid, cloth-rigid).
@@ -68,6 +68,6 @@ struct PxgParticleDbContactBlock
 	PxReal maxPenBiasClamp[32];
 };
 
-} // namespace physx
+} // namespace ev4sio_physx
 
 #endif // PXG_DEFORMABLE_CONSTRAINTS_H

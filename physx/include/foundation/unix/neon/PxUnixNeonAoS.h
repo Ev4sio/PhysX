@@ -15,7 +15,7 @@
 // only ARM NEON compatible platforms should reach this
 #include <arm_neon.h>
 
-namespace physx
+namespace ev4sio_physx
 {
 namespace aos
 {
@@ -108,6 +108,6 @@ struct Mat44V
 } PX_ALIGN_SUFFIX(16);
 
 } // namespace aos
-} // namespace physx
+} // namespace ev4sio_physx
 
 #endif // PXFOUNDATION_PXUNIXNEONAOS_H

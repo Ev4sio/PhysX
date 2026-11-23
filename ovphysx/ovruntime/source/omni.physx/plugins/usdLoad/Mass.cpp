@@ -43,11 +43,11 @@
 #include <carb/logging/Log.h>
 
 using namespace carb;
-using namespace ::physx;
+using namespace ::ev4sio_physx;
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace usdparser
 {
@@ -74,9 +74,9 @@ struct InternalMassAccumulationData
 {
     bool accumulateMass; // if true it indicates we are summing up the mass from density/child mass calculations
     float mass = -1.0f; //-1.0 means it is not set yet
-    ::physx::PxVec3 diagonalizedInertiaTensor = { 0.0f, 0.0f, 0.0f };
-    ::physx::PxVec3 centerOfMass = { 0.0f, 0.0f, 0.0f };
-    ::physx::PxQuat principalAxes;
+    ::ev4sio_physx::PxVec3 diagonalizedInertiaTensor = { 0.0f, 0.0f, 0.0f };
+    ::ev4sio_physx::PxVec3 centerOfMass = { 0.0f, 0.0f, 0.0f };
+    ::ev4sio_physx::PxQuat principalAxes;
     float density = -1.0f;
 };
 
@@ -501,5 +501,5 @@ void RequestParticleMassUpdate(AttachedStage& attachedStage, omni::physics::pars
 
 
 } // namespace usdparser
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

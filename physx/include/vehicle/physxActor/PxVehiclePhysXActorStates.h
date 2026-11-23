@@ -14,7 +14,7 @@
 #include "vehicle/PxVehicleLimits.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 
 class PxShape;
@@ -63,7 +63,7 @@ struct PxVehiclePhysXSteerState
 };
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

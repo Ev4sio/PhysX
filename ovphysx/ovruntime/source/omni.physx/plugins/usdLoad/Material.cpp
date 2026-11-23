@@ -39,7 +39,7 @@ using namespace carb;
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace usdparser
 {
@@ -126,7 +126,7 @@ void parsePBDMaterialForPrim(AttachedStage& attachedStage,
     if (!source)
         return;
 
-    omni::physics::parse::ParseContext ctx(*source, omni::physx::usdparser::iceDescriptorAllocator());
+    omni::physics::parse::ParseContext ctx(*source, omni::ev4sio_physx::usdparser::iceDescriptorAllocator());
     ctx.adoptKnownTokens(attachedStage.getKnownTokens());
     omni::physics::parse::DescPtr<PBDMaterialDesc> parsed =
         omni::physics::parse::parsePBDMaterial(ctx, materialKey);
@@ -146,7 +146,7 @@ void parseDeformableMaterialForPrim(AttachedStage& attachedStage,
     if (!source)
         return;
 
-    omni::physics::parse::ParseContext ctx(*source, omni::physx::usdparser::iceDescriptorAllocator());
+    omni::physics::parse::ParseContext ctx(*source, omni::ev4sio_physx::usdparser::iceDescriptorAllocator());
     ctx.adoptKnownTokens(attachedStage.getKnownTokens());
     omni::physics::parse::parseDeformableMaterial(ctx, materialKey, desc);
     desc.poissonsRatio = std::min(desc.poissonsRatio, 0.4999f);
@@ -164,7 +164,7 @@ void parseSurfaceDeformableMaterialForPrim(AttachedStage& attachedStage,
     if (!source)
         return;
 
-    omni::physics::parse::ParseContext ctx(*source, omni::physx::usdparser::iceDescriptorAllocator());
+    omni::physics::parse::ParseContext ctx(*source, omni::ev4sio_physx::usdparser::iceDescriptorAllocator());
     ctx.adoptKnownTokens(attachedStage.getKnownTokens());
     omni::physics::parse::parseSurfaceDeformableMaterial(ctx, materialKey, desc);
     desc.poissonsRatio = std::min(desc.poissonsRatio, 0.4999f);
@@ -182,7 +182,7 @@ void parseMaterialForPrim(AttachedStage& attachedStage,
     if (!source)
         return;
 
-    omni::physics::parse::ParseContext ctx(*source, omni::physx::usdparser::iceDescriptorAllocator());
+    omni::physics::parse::ParseContext ctx(*source, omni::ev4sio_physx::usdparser::iceDescriptorAllocator());
     ctx.adoptKnownTokens(attachedStage.getKnownTokens());
     omni::physics::parse::DescPtr<PhysxMaterialDesc> parsed =
         omni::physics::parse::parseMaterial(ctx, materialKey);
@@ -207,5 +207,5 @@ ObjectId getMaterial(AttachedStage& attachedStage, omni::physics::parse::ObjectK
 }
 
 } // namespace usdparser
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

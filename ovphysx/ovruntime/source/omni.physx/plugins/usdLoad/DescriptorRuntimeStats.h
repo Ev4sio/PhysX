@@ -9,7 +9,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-namespace omni::physx::usdparser
+namespace omni::ev4sio_physx::usdparser
 {
 // Opt-in coordinator timing; this helper never enters a descriptor worker.
 class DescriptorRuntimeTimer

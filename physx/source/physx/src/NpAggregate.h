@@ -10,7 +10,7 @@
 #include "NpBase.h"
 #include "BpVolumeData.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 class NpScene;
 
@@ -48,8 +48,8 @@ public:
 		PX_FORCE_INLINE	PxU32					getMaxNbShapesFast()	const	{ return mMaxNbShapes;	}
 		PX_FORCE_INLINE	PxU32					getCurrentSizeFast()	const	{ return mNbActors;		}
 		PX_FORCE_INLINE	PxActor*				getActorFast(PxU32 i)	const	{ return mActors[i];	}
-		PX_FORCE_INLINE Bp::AggregateHandle		getAggregateHandle()	const	{ return mAggregateHandle;	}
-		PX_FORCE_INLINE void					setAggregateHandle(Bp::AggregateHandle h)	{ mAggregateHandle = h;		}
+		PX_FORCE_INLINE ev4sio_Bp::AggregateHandle		getAggregateHandle()	const	{ return mAggregateHandle;	}
+		PX_FORCE_INLINE void					setAggregateHandle(ev4sio_Bp::AggregateHandle h)	{ mAggregateHandle = h;		}
 
 		PX_FORCE_INLINE	bool					getSelfCollideFast()	const	{ return PxGetAggregateSelfCollisionBit(mFilterHint)!=0;	}
 		PX_FORCE_INLINE	PxAggregateFilterHint	getFilterHint()			const	{ return mFilterHint;	}
@@ -63,7 +63,7 @@ public:
 						void					incShapeCount();
 						void					decShapeCount();
 private:
-						Bp::AggregateHandle		mAggregateHandle;
+						ev4sio_Bp::AggregateHandle		mAggregateHandle;
 						PxU32					mMaxNbActors;
 						PxU32					mMaxNbShapes;
 						PxAggregateFilterHint	mFilterHint;

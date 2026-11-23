@@ -13,7 +13,7 @@
 #include "vehicle/commands/PxVehicleCommandParams.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -51,7 +51,7 @@ struct PxVehicleBrakeCommandResponseParams : public PxVehicleCommandResponsePara
 };
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

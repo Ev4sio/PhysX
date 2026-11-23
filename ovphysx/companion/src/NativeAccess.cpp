@@ -9,7 +9,7 @@
 #include "internal/sdk/CompanionRuntime.hpp"
 #include <omni/physx/NativeInteraction.h>
 namespace sdk=ovphysx::companion::native;
-namespace rt=omni::physx::native;
+namespace rt=omni::ev4sio_physx::native;
 namespace ovphysx::companion::native
 {
 struct AccessLeaseFactory

@@ -42,10 +42,10 @@
 #include <mutex>
 #include <vector>
 
-namespace omni::physx::tensors { class SimulationBackend; }
+namespace omni::ev4sio_physx::tensors { class SimulationBackend; }
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 
 class PhysXUsdPhysicsInterface;
@@ -114,13 +114,13 @@ static_assert(sizeof(SimulationLayerHandle) == sizeof(void*),
 // AttachedStageUsdHandle -- the value is forwarded straight into UsdLoad::attachOvstage().
 // Reusing the one alias (rather than declaring a layout-identical twin) avoids needing a
 // conversion shim at the call site.
-using AttachOvstageBackingStageHandle = ::omni::physx::usdparser::AttachedStageUsdHandle;
+using AttachOvstageBackingStageHandle = ::omni::ev4sio_physx::usdparser::AttachedStageUsdHandle;
 
 // OM-45822 caching these settings avoids slowing down performance of the runtime update loop (visible in OmniGym sim)
 
 
 // shift by one if someone uses an Id from outside
-static const ::physx::PxU32 kOmniPhysXTypeId = ::physx::PxConcreteType::eFIRST_USER_EXTENSION << 1;
+static const ::ev4sio_physx::PxU32 kOmniPhysXTypeId = ::ev4sio_physx::PxConcreteType::eFIRST_USER_EXTENSION << 1;
 static const int kTypeIdBatchSize = 8;
 
 class OmniPhysX : public Allocateable
@@ -415,23 +415,23 @@ public:
 
     ///////////////////////////////////////////////////////////////////////////////////////
     // Type id
-    ::physx::PxU32 getFreeTypeId()
+    ::ev4sio_physx::PxU32 getFreeTypeId()
     {
         std::lock_guard<carb::tasking::MutexWrapper> lock(mTypeIdMutex);
         if (mFreeTypeId.empty())
         {
             for (int i = 0; i < kTypeIdBatchSize; i++)
             {
-                const ::physx::PxU32 id = ::physx::PxU32(mTypeIds.size());
+                const ::ev4sio_physx::PxU32 id = ::ev4sio_physx::PxU32(mTypeIds.size());
                 mTypeIds.push_back(kOmniPhysXTypeId + id);
                 mFreeTypeId.push_back(kOmniPhysXTypeId + id);
             }
         }
-        ::physx::PxU32 typeId = mFreeTypeId.back();
+        ::ev4sio_physx::PxU32 typeId = mFreeTypeId.back();
         mFreeTypeId.pop_back();
         return typeId;
     }
-    void pushBackFreeTypeId(::physx::PxU32 id)
+    void pushBackFreeTypeId(::ev4sio_physx::PxU32 id)
     {
         std::lock_guard<carb::tasking::MutexWrapper> lock(mTypeIdMutex);
         mFreeTypeId.push_back(id);
@@ -538,9 +538,9 @@ private:
     PhysXPropertyQueryManager* mPropertyQueryManager{ nullptr };
 
     // type id
-    std::vector<::physx::PxU32> mTypeIds;
+    std::vector<::ev4sio_physx::PxU32> mTypeIds;
     carb::tasking::MutexWrapper mTypeIdMutex;
-    std::vector<::physx::PxU32> mFreeTypeId;
+    std::vector<::ev4sio_physx::PxU32> mFreeTypeId;
 
     // replicator, keyed by attach handle
     ReplicatorMap mReplicatorMap;
@@ -554,5 +554,5 @@ private:
     bool mPhysxRuntimeStarted{ false };
 };
 
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

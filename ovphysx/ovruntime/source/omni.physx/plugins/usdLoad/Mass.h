@@ -12,7 +12,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace usdparser
 {
@@ -23,7 +23,7 @@ struct MassApiData
     float mass = -1.0f;
     float density = -1.0f;
     bool hasInertia = false;
-    ::physx::PxVec3 diagonalInertia = { 1.0f, 1.0f, 1.0f };
+    ::ev4sio_physx::PxVec3 diagonalInertia = { 1.0f, 1.0f, 1.0f };
     bool hasCenterOfMass = false;
     carb::Float3 centerOfMass = { 0.0f, 0.0f, 0.0f };
     bool hasPrincipalAxes = false;
@@ -86,5 +86,5 @@ inline float getScaledDensity(const omni::physics::parse::SourceUnits& units, fl
 
 
 } // namespace usdparser
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

@@ -1115,7 +1115,7 @@ TEST_F(WorkerShortCallsGpuTest, QueuedDeviceReadMatchesTheCallingThreadRead)
     }
     EXPECT_EQ(deviceValues(queuedRead), expected);
 
-    omni::physx::IOptionalCuda* cuda = ovphysx::test_cuda::getCuda();
+    omni::ev4sio_physx::IOptionalCuda* cuda = ovphysx::test_cuda::getCuda();
     uintptr_t event = 0;
     {
         ovphysx::test_cuda::ScopedCudaContextPush context(cuda, m_context);
@@ -1224,7 +1224,7 @@ TEST_F(WorkerShortCallsGpuTest, CommitVenueFollowsDeviceMemoryAndHandoff)
         EXPECT_TRUE(waitForTaskSuccess(m_handle, commit));
     }
 
-    omni::physx::IOptionalCuda* cuda = ovphysx::test_cuda::getCuda();
+    omni::ev4sio_physx::IOptionalCuda* cuda = ovphysx::test_cuda::getCuda();
     uintptr_t event = 0;
     {
         ovphysx::test_cuda::ScopedCudaContextPush context(cuda, m_context);
@@ -1265,7 +1265,7 @@ TEST_F(WorkerShortCallsGpuTest, RefusedDeviceCommitIsRejectedWithoutATask)
     const std::vector<unsigned char> zeros(session_test::detail::elementCount(column) * sizeof(float), 0);
     ASSERT_TRUE(session_test::detail::deviceUpload(column, zeros, m_context));
 
-    omni::physx::IOptionalCuda* cuda = ovphysx::test_cuda::getCuda();
+    omni::ev4sio_physx::IOptionalCuda* cuda = ovphysx::test_cuda::getCuda();
     const size_t rows = static_cast<size_t>(column.shape[0]) + 1;
     uintptr_t maskMemory = 0;
     {

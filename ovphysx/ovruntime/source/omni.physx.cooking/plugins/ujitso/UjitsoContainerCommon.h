@@ -62,7 +62,7 @@ public:                                                                         
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 // currently needed for UJITSO_CONTAINER_DEFINITION
 // can remove once that code gets updated
@@ -129,7 +129,7 @@ using UninitVector = std::vector<T, DefaultInitAllocator<T>>;
 template <bool readOnly, typename T, typename Alloc, typename SerializerT>
 void serializeVector(std::vector<T, Alloc>& data, SerializerT& serializer)
 {
-    CARB_PROFILE_ZONE(0, "omni::physx::serializeVector");
+    CARB_PROFILE_ZONE(0, "omni::ev4sio_physx::serializeVector");
 
     size_t arraySize = data.size();
     serializer.serialize(readOnly, arraySize);
@@ -167,7 +167,7 @@ void serializeVector(std::vector<T, Alloc>& data, SerializerT& serializer)
 template <typename ToType, typename FromType, typename Alloc>
 inline bool copyVectorData(std::vector<ToType, Alloc>& to, const omni::span<const FromType>& from)
 {
-    CARB_PROFILE_ZONE(0, "omni::physx::copyVectorData");
+    CARB_PROFILE_ZONE(0, "omni::ev4sio_physx::copyVectorData");
 
     if (from.size() > 0)
     {
@@ -228,5 +228,5 @@ protected:
     bool m_inputSnapshotted = false;
 };
 
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

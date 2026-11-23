@@ -5,15 +5,15 @@
 #include "PxPhysicsAPI.h"
 #include <iostream>
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 int main() {
     std::cout << "Starting PhysX up..." << std::endl;
     PxDefaultAllocator allocator;
     PxDefaultErrorCallback error_callback;
-    auto foundation = PxCreateFoundation(PX_PHYSICS_VERSION, allocator, error_callback);
+    auto foundation = ev4sio_PxCreateFoundation(ev4sio_PX_PHYSICS_VERSION, allocator, error_callback);
     if (!foundation) {
-        std::cerr << "PxCreateFoundation failed!" << std::endl;
+        std::cerr << "ev4sio_PxCreateFoundation failed!" << std::endl;
         return 1;
     }
 
@@ -21,7 +21,7 @@ int main() {
 
 #if PX_SUPPORT_GPU_PHYSX
     PxCudaContextManagerDesc cudaContextManagerDesc;
-    cudaContextManager = PxCreateCudaContextManager(*foundation, cudaContextManagerDesc, PxGetProfilerCallback());
+    cudaContextManager = ev4sio_PxCreateCudaContextManager(*foundation, cudaContextManagerDesc, ev4sio_PxGetProfilerCallback());
 
     if(cudaContextManager && cudaContextManager->contextIsValid()) {
         std::cout << "GPU acceleration is available" << std::endl;
@@ -56,9 +56,9 @@ int main() {
     }
 #endif
 
-    auto physics_sdk = PxCreatePhysics(PX_PHYSICS_VERSION, *foundation, tolerancesScale, true, nullptr);
+    auto physics_sdk = ev4sio_PxCreatePhysics(ev4sio_PX_PHYSICS_VERSION, *foundation, tolerancesScale, true, nullptr);
     if (!physics_sdk) {
-        std::cerr << "PxCreatePhysics failed!" << std::endl;
+        std::cerr << "ev4sio_PxCreatePhysics failed!" << std::endl;
 #if PX_SUPPORT_GPU_PHYSX
         PX_RELEASE(cudaContextManager);
 #endif
@@ -81,7 +81,7 @@ int main() {
 
     std::cout << "PhysX set up" << std::endl;
 
-    // Cook a convex mesh at runtime. The cooking entry points (PxCookConvexMesh, ...)
+    // Cook a convex mesh at runtime. The cooking entry points (ev4sio_PxCookConvexMesh, ...)
     // are exported by PhysXCommon, so this also verifies that the linked PhysX
     // libraries expose them.
     const PxVec3 convexVertices[] = {
@@ -98,7 +98,7 @@ int main() {
     PxCookingParams cookingParams(tolerancesScale);
     PxDefaultMemoryOutputStream cookedData;
     PxConvexMesh* convexMesh = nullptr;
-    if (PxCookConvexMesh(cookingParams, convexDesc, cookedData)) {
+    if (ev4sio_PxCookConvexMesh(cookingParams, convexDesc, cookedData)) {
         PxDefaultMemoryInputData cookedInput(cookedData.getData(), cookedData.getSize());
         convexMesh = physics_sdk->createConvexMesh(cookedInput);
     }

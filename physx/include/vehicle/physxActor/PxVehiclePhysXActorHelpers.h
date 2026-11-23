@@ -10,7 +10,7 @@
 #include "PxShape.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 
 class PxGeometry;
@@ -173,7 +173,7 @@ void PxVehiclePhysXActorDestroy(PxVehiclePhysXActor& vehiclePhysXActor);
 
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

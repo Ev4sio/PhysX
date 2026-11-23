@@ -46,16 +46,16 @@
 #include <cooking/PxTetrahedronMeshDesc.h>
 #include <extensions/PxRemeshingExt.h>
 
-using namespace ::physx;
-using namespace omni::physx;
-using namespace omni::physx::usdparser;
-using namespace omni::physx::internal;
+using namespace ::ev4sio_physx;
+using namespace omni::ev4sio_physx;
+using namespace omni::ev4sio_physx::usdparser;
+using namespace omni::ev4sio_physx::internal;
 using namespace carb;
 using namespace cookingdataasync;
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
     //IPhysxCooking deprecated
  
@@ -74,18 +74,18 @@ namespace physx
             scaledTetPoints[v] = { point.x * srcScale.x, point.y * srcScale.y, point.z * srcScale.z };
         }
 
-        omni::physx::PhysxCookingTetrahedralMeshInput meshInput;
+        omni::ev4sio_physx::PhysxCookingTetrahedralMeshInput meshInput;
         meshInput.srcTriPoints = &scaledTetPoints[0];
         meshInput.srcTriPointsSize = uint32_t(scaledTetPoints.size());
         meshInput.srcTriIndices = srcTetIndices;
         meshInput.srcTriIndicesSize = srcTetIndicesSize;
-        omni::physx::PhysxCookingTetrahedralMeshOutput meshOutput;
+        omni::ev4sio_physx::PhysxCookingTetrahedralMeshOutput meshOutput;
         meshOutput.allocateBytes = allocateBytes;
 
         PhysxCookingTetrahedralVoxelMeshParameters parameters;
         parameters.voxelResolution = voxelResolution;
         parameters.anchorNodes = nullptr;
-        omni::physx::IPhysxCookingServicePrivate* cookingService =
+        omni::ev4sio_physx::IPhysxCookingServicePrivate* cookingService =
             OmniPhysX::getInstance().getPhysXSetup().getCookingServicePrivateInterface();
         if (!cookingService)
         {
@@ -237,7 +237,7 @@ namespace physx
                 {
                     Float3 scale = { 1.0f, 1.0f, 1.0f };
                     convexMeshDesc.meshScale = scale;
-                    convexMeshDesc.convexCookingParams.signScale = omni::physx::usdparser::scaleToSignScale(scale);
+                    convexMeshDesc.convexCookingParams.signScale = omni::ev4sio_physx::usdparser::scaleToSignScale(scale);
                     convexMeshDesc.crc.setMaxHullVertices(vertexLimit);
                     convexMeshDesc.convexCookingParams.maxHullVertices = vertexLimit;
 
@@ -249,17 +249,17 @@ namespace physx
                     }
                     else
                     {
-                        CARB_LOG_ERROR("omni::physx::createConvexMesh: Failed to cook convex mesh data.");
+                        CARB_LOG_ERROR("omni::ev4sio_physx::createConvexMesh: Failed to cook convex mesh data.");
                     }
                 }
                 else
                 {
-                    CARB_LOG_ERROR("omni::physx::createConvexMesh: Provided mesh is not a valid mesh.");
+                    CARB_LOG_ERROR("omni::ev4sio_physx::createConvexMesh: Provided mesh is not a valid mesh.");
                 }
             }
             else
             {
-                CARB_LOG_ERROR("omni::physx::createConvexMesh: Provided prim is invalid or not a UsdGeomMesh.");
+                CARB_LOG_ERROR("omni::ev4sio_physx::createConvexMesh: Provided prim is invalid or not a UsdGeomMesh.");
             }
         }
         return retVal;
@@ -309,13 +309,13 @@ namespace physx
             return success;
         }
 
-        omni::physx::usdparser::PhysxDeformableBodyDesc* deformableDesc = cookingDataAsync->parseDeformableBody(deformableBodyKey, *attachedStage);
+        omni::ev4sio_physx::usdparser::PhysxDeformableBodyDesc* deformableDesc = cookingDataAsync->parseDeformableBody(deformableBodyKey, *attachedStage);
         if (deformableDesc)
         {
             if (deformableDesc->type == ObjectType::eVolumeDeformableBody)
             {
-                const omni::physx::usdparser::PhysxVolumeDeformableBodyDesc* volumeDesc =
-                    static_cast<const omni::physx::usdparser::PhysxVolumeDeformableBodyDesc*>(deformableDesc);
+                const omni::ev4sio_physx::usdparser::PhysxVolumeDeformableBodyDesc* volumeDesc =
+                    static_cast<const omni::ev4sio_physx::usdparser::PhysxVolumeDeformableBodyDesc*>(deformableDesc);
 
                 if (volumeDesc->hasAutoAPI)
                 {
@@ -336,8 +336,8 @@ namespace physx
             }
             else if (deformableDesc->type == ObjectType::eSurfaceDeformableBody)
             {
-                const omni::physx::usdparser::PhysxSurfaceDeformableBodyDesc* surfaceDesc =
-                    static_cast<const omni::physx::usdparser::PhysxSurfaceDeformableBodyDesc*>(deformableDesc);
+                const omni::ev4sio_physx::usdparser::PhysxSurfaceDeformableBodyDesc* surfaceDesc =
+                    static_cast<const omni::ev4sio_physx::usdparser::PhysxSurfaceDeformableBodyDesc*>(deformableDesc);
 
                 if (surfaceDesc->hasAutoAPI)
                 {
@@ -480,7 +480,7 @@ namespace physx
 }
 }
 
-void fillInterface(omni::physx::IPhysxCooking& iface)
+void fillInterface(omni::ev4sio_physx::IPhysxCooking& iface)
 {
     iface.createConvexMesh = createConvexMesh;
 

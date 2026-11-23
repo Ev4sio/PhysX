@@ -13,9 +13,9 @@
 #include "PxvGlobals.h"
 #include "PxPhysXGpu.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
-namespace physx
+namespace ev4sio_physx
 {
 	///////////////////////////////////////////////////////////////////////////////////////
 

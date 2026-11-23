@@ -8,7 +8,7 @@
 
 #include "geometry/PxGeometry.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 struct PxsShapeCore;
 struct PxsMaterialInfo;

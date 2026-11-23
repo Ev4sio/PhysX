@@ -11,7 +11,7 @@
 #include "CmSpatialVector.h"
 #include <vector_types.h>
 
-namespace physx
+namespace ev4sio_physx
 {
 
 struct PxgSolverConstraint1DHeader
@@ -39,8 +39,8 @@ struct PxgSolverConstraint1DCon
 	PxVec3 lin0;							//12	24
 	PxVec3 ang1;							//12	36
 	PxVec3 lin1;							//12	48
-	Cm::UnAlignedSpatialVector deltaVA;		//24	72
-	Cm::UnAlignedSpatialVector deltaVB;		//24	96
+	ev4sio_Cm::UnAlignedSpatialVector deltaVA;		//24	72
+	ev4sio_Cm::UnAlignedSpatialVector deltaVB;		//24	96
 	PxReal minImpulse;						//4		100
 	PxReal maxImpulse;						//4		104
 	PxReal velMultiplier;					//4		108
@@ -90,8 +90,8 @@ struct PxgTGSSolverConstraint1DCon
 	PxVec3 lin0;							//12	24
 	PxVec3 ang1;							//12	36
 	PxVec3 lin1;							//12	48
-	Cm::UnAlignedSpatialVector deltaVA;		//24	72
-	Cm::UnAlignedSpatialVector deltaVB;		//24	96
+	ev4sio_Cm::UnAlignedSpatialVector deltaVA;		//24	72
+	ev4sio_Cm::UnAlignedSpatialVector deltaVB;		//24	96
 
 	PxReal minImpulse;						//4		100
 	PxReal maxImpulse;						//4		104

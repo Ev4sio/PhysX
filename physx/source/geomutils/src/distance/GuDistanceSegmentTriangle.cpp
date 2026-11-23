@@ -9,8 +9,8 @@
 #include "GuDistanceSegmentSegment.h"
 #include "GuBarycentricCoordinates.h"
 
-using namespace physx;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
 using namespace aos;
 
 // ptchernev: 
@@ -40,7 +40,7 @@ static PX_FORCE_INLINE void updateClosestHit(	PxReal fSqrDist0, PxReal fR0, PxRe
 	}
 }
 
-PxReal Gu::distanceSegmentTriangleSquared(	const PxVec3& origin, const PxVec3& dir,
+PxReal ev4sio_Gu::distanceSegmentTriangleSquared(	const PxVec3& origin, const PxVec3& dir,
 											const PxVec3& p0, const PxVec3& triEdge0, const PxVec3& triEdge1,
 											PxReal* t, PxReal* u, PxReal* v)
 {
@@ -349,12 +349,12 @@ PxReal Gu::distanceSegmentTriangleSquared(	const PxVec3& origin, const PxVec3& d
 	if(v)	*v = fT;
 
 	// account for numerical round-off error
-	return physx::intrinsics::selectMax(0.0f, fSqrDist);
+	return ev4sio_physx::intrinsics::selectMax(0.0f, fSqrDist);
 }
 
 //	closest0 is the closest point on segment pq
 //	closest1 is the closest point on triangle abc
-FloatV Gu::distanceSegmentTriangleSquared(	const Vec3VArg p, const Vec3VArg q,
+FloatV ev4sio_Gu::distanceSegmentTriangleSquared(	const Vec3VArg p, const Vec3VArg q,
 											const Vec3VArg a, const Vec3VArg b, const Vec3VArg c,
 											Vec3V& closest0, Vec3V& closest1)
 {

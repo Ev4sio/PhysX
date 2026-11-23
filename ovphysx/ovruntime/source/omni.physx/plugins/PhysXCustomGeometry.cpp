@@ -32,11 +32,11 @@
 
 #include <omni/physics/parse/CustomTokens.h>
 
-using namespace ::physx;
+using namespace ::ev4sio_physx;
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 
 
@@ -55,7 +55,7 @@ CustomPhysXGeometryCallback::~CustomPhysXGeometryCallback()
     RuntimeCallbackScope callbackScope;
     try
     {
-        const omni::physx::ICustomGeometryCallback & callback = mCustomGeometryInfo.customGeometryCb;
+        const omni::ev4sio_physx::ICustomGeometryCallback & callback = mCustomGeometryInfo.customGeometryCb;
         if (callback.releaseCustomGeometryObjectFn)
             callback.releaseCustomGeometryObjectFn(mCustomGeometryKey, mAttachedStage.getAttachHandle(),
                 mUserObject, callback.userData);
@@ -73,22 +73,22 @@ void CustomPhysXGeometryCallback::release()
     RuntimeCallbackScope callbackScope;
 }
 
-::physx::PxBounds3 CustomPhysXGeometryCallback::getLocalBounds(const ::physx::PxGeometry& geometry) const
+::ev4sio_physx::PxBounds3 CustomPhysXGeometryCallback::getLocalBounds(const ::ev4sio_physx::PxGeometry& geometry) const
 {
     RuntimeCallbackScope callbackScope;
     return mCustomGeometryInfo.customGeometryCb.computeCustomGeometryLocalBoundsFn(geometry, mUserObject);
 }
 
-bool CustomPhysXGeometryCallback::generateContacts(const ::physx::PxGeometry& geom0, const ::physx::PxGeometry& geom1, const ::physx::PxTransform& pose0, const ::physx::PxTransform& pose1,
+bool CustomPhysXGeometryCallback::generateContacts(const ::ev4sio_physx::PxGeometry& geom0, const ::ev4sio_physx::PxGeometry& geom1, const ::ev4sio_physx::PxTransform& pose0, const ::ev4sio_physx::PxTransform& pose1,
     const float contactDistance, const float meshContactMargin, const float toleranceLength,
-    ::physx::PxContactBuffer& contactBuffer) const
+    ::ev4sio_physx::PxContactBuffer& contactBuffer) const
 {
     RuntimeCallbackScope callbackScope;
     void* userObject1 = nullptr;
     if (geom1.getType() == PxGeometryType::eCUSTOM)
     {
         const PxCustomGeometry& customGeom1 = static_cast<const PxCustomGeometry&>(geom1);
-        const ::physx::PxCustomGeometry::Type customType = customGeom1.callbacks->getCustomType();
+        const ::ev4sio_physx::PxCustomGeometry::Type customType = customGeom1.callbacks->getCustomType();
         const bool knownType = OmniPhysX::getInstance().getCustomGeometryManager().isKnownType(customType);
         if (knownType)
         {
@@ -99,8 +99,8 @@ bool CustomPhysXGeometryCallback::generateContacts(const ::physx::PxGeometry& ge
     return mCustomGeometryInfo.customGeometryCb.generateCustomGeometryContactsFn(geom0, geom1, pose0, pose1, contactDistance, meshContactMargin, toleranceLength, contactBuffer, mUserObject, userObject1);
 }
 
-::physx::PxU32 CustomPhysXGeometryCallback::raycast(const ::physx::PxVec3& origin, const ::physx::PxVec3& unitDir, const ::physx::PxGeometry& geom, const ::physx::PxTransform& pose,
-    ::physx::PxReal maxDist, ::physx::PxHitFlags hitFlags, ::physx::PxU32 maxHits, ::physx::PxGeomRaycastHit* rayHits, ::physx::PxU32 stride, ::physx::PxRaycastThreadContext* threadContext) const
+::ev4sio_physx::PxU32 CustomPhysXGeometryCallback::raycast(const ::ev4sio_physx::PxVec3& origin, const ::ev4sio_physx::PxVec3& unitDir, const ::ev4sio_physx::PxGeometry& geom, const ::ev4sio_physx::PxTransform& pose,
+    ::ev4sio_physx::PxReal maxDist, ::ev4sio_physx::PxHitFlags hitFlags, ::ev4sio_physx::PxU32 maxHits, ::ev4sio_physx::PxGeomRaycastHit* rayHits, ::ev4sio_physx::PxU32 stride, ::ev4sio_physx::PxRaycastThreadContext* threadContext) const
 {
     RuntimeCallbackScope callbackScope;
     if (!mCustomGeometryInfo.customGeometryCb.raycastCustomGeometryFn)
@@ -109,7 +109,7 @@ bool CustomPhysXGeometryCallback::generateContacts(const ::physx::PxGeometry& ge
     return mCustomGeometryInfo.customGeometryCb.raycastCustomGeometryFn(origin, unitDir, geom, pose, maxDist, hitFlags, maxHits, rayHits, stride, threadContext, mUserObject);
 }
 
-bool CustomPhysXGeometryCallback::overlap(const ::physx::PxGeometry& geom0, const ::physx::PxTransform& pose0, const ::physx::PxGeometry& geom1, const ::physx::PxTransform& pose1, ::physx::PxOverlapThreadContext* threadContext) const
+bool CustomPhysXGeometryCallback::overlap(const ::ev4sio_physx::PxGeometry& geom0, const ::ev4sio_physx::PxTransform& pose0, const ::ev4sio_physx::PxGeometry& geom1, const ::ev4sio_physx::PxTransform& pose1, ::ev4sio_physx::PxOverlapThreadContext* threadContext) const
 {
     RuntimeCallbackScope callbackScope;
     if(!mCustomGeometryInfo.customGeometryCb.overlapCustomGeometryFn)
@@ -118,9 +118,9 @@ bool CustomPhysXGeometryCallback::overlap(const ::physx::PxGeometry& geom0, cons
     return mCustomGeometryInfo.customGeometryCb.overlapCustomGeometryFn(geom0, pose0, geom1, pose1, threadContext, mUserObject);
 }
 
-bool CustomPhysXGeometryCallback::sweep(const ::physx::PxVec3& unitDir, const ::physx::PxReal maxDist,
-    const ::physx::PxGeometry& geom0, const ::physx::PxTransform& pose0, const ::physx::PxGeometry& geom1, const ::physx::PxTransform& pose1,
-    ::physx::PxGeomSweepHit& sweepHit, ::physx::PxHitFlags hitFlags, const ::physx::PxReal inflation, ::physx::PxSweepThreadContext* threadContext) const
+bool CustomPhysXGeometryCallback::sweep(const ::ev4sio_physx::PxVec3& unitDir, const ::ev4sio_physx::PxReal maxDist,
+    const ::ev4sio_physx::PxGeometry& geom0, const ::ev4sio_physx::PxTransform& pose0, const ::ev4sio_physx::PxGeometry& geom1, const ::ev4sio_physx::PxTransform& pose1,
+    ::ev4sio_physx::PxGeomSweepHit& sweepHit, ::ev4sio_physx::PxHitFlags hitFlags, const ::ev4sio_physx::PxReal inflation, ::ev4sio_physx::PxSweepThreadContext* threadContext) const
 {
     RuntimeCallbackScope callbackScope;
     if (!mCustomGeometryInfo.customGeometryCb.sweepCustomGeometryFn)
@@ -129,7 +129,7 @@ bool CustomPhysXGeometryCallback::sweep(const ::physx::PxVec3& unitDir, const ::
     return mCustomGeometryInfo.customGeometryCb.sweepCustomGeometryFn(unitDir, maxDist, geom0, pose0, geom1, pose1, sweepHit, hitFlags, inflation, threadContext, mUserObject);
 }
 
-void CustomPhysXGeometryCallback::visualize(const ::physx::PxGeometry& geometry, ::physx::PxRenderOutput& out, const ::physx::PxTransform& absPose, const ::physx::PxBounds3& cullbox) const
+void CustomPhysXGeometryCallback::visualize(const ::ev4sio_physx::PxGeometry& geometry, ::ev4sio_physx::PxRenderOutput& out, const ::ev4sio_physx::PxTransform& absPose, const ::ev4sio_physx::PxBounds3& cullbox) const
 {
     RuntimeCallbackScope callbackScope;
     if (mCustomGeometryInfo.customGeometryCb.visualizeCustomGeometryFn)
@@ -138,13 +138,13 @@ void CustomPhysXGeometryCallback::visualize(const ::physx::PxGeometry& geometry,
     }
 }
 
-void CustomPhysXGeometryCallback::computeMassProperties(const ::physx::PxGeometry& geometry, ::physx::PxMassProperties& massProperties) const
+void CustomPhysXGeometryCallback::computeMassProperties(const ::ev4sio_physx::PxGeometry& geometry, ::ev4sio_physx::PxMassProperties& massProperties) const
 {
     RuntimeCallbackScope callbackScope;
     mCustomGeometryInfo.customGeometryCb.computeCustomGeometryMassPropertiesFn(geometry, massProperties, mUserObject);
 }
 
-bool CustomPhysXGeometryCallback::usePersistentContactManifold(const ::physx::PxGeometry& geometry, ::physx::PxReal& breakingThreshold) const
+bool CustomPhysXGeometryCallback::usePersistentContactManifold(const ::ev4sio_physx::PxGeometry& geometry, ::ev4sio_physx::PxReal& breakingThreshold) const
 {
     RuntimeCallbackScope callbackScope;
     return mCustomGeometryInfo.customGeometryCb.useCustomGeometryPersistentContactManifoldFn(geometry, breakingThreshold, mUserObject);
@@ -181,7 +181,7 @@ CustomPhysXGeometryCallback* PhysXCustomGeometryManager::createCustomGeometry(co
             }
             catch (...)
             {
-                const omni::physx::ICustomGeometryCallback & callback = geomInfo.customGeometryCb;
+                const omni::ev4sio_physx::ICustomGeometryCallback & callback = geomInfo.customGeometryCb;
                 if (callback.releaseCustomGeometryObjectFn)
                     callback.releaseCustomGeometryObjectFn(primKey, attachHandle, userObject, callback.userData);
                 else
@@ -226,7 +226,7 @@ void PhysXCustomGeometryManager::forgetGeometry(CustomPhysXGeometryCallback& cal
         if (callback.mTrackingKey.address) mShapes.erase(callback.mTrackingKey);
         callback.mTrackingKey = {};
     }
-    std::unordered_multimap<omni::physics::parse::ObjectKey, omni::physx::CustomPhysXGeometryCallback *, omni::physics::parse::ObjectKey::Hash> & geometries = callback.mAttachedStage.customGeometries;
+    std::unordered_multimap<omni::physics::parse::ObjectKey, omni::ev4sio_physx::CustomPhysXGeometryCallback *, omni::physics::parse::ObjectKey::Hash> & geometries = callback.mAttachedStage.customGeometries;
     using GeometryIterator = std::unordered_multimap<omni::physics::parse::ObjectKey, CustomPhysXGeometryCallback*, omni::physics::parse::ObjectKey::Hash>::iterator;
     const std::pair<GeometryIterator, GeometryIterator> range = geometries.equal_range(callback.mCustomGeometryKey);
     for (GeometryIterator it=range.first; it!=range.second; ++it)
@@ -240,7 +240,7 @@ void PhysXCustomGeometryManager::releaseUnboundGeometry(CustomPhysXGeometryCallb
     bool unbound = false;
     {
         std::lock_guard<std::mutex> lock(mShapesMutex);
-        const std::map<GeometryTrackingKey, omni::physx::CustomPhysXGeometryCallback *>::iterator found = mShapes.find({GeometryTrackingKind::Unbound,callback});
+        const std::map<GeometryTrackingKey, omni::ev4sio_physx::CustomPhysXGeometryCallback *>::iterator found = mShapes.find({GeometryTrackingKind::Unbound,callback});
         unbound = found != mShapes.end() && found->second == callback;
     }
     if (unbound) delete callback;
@@ -252,7 +252,7 @@ void PhysXCustomGeometryManager::onRelease(const PxBase* object, void*, PxDeleti
     CustomPhysXGeometryCallback* callback = nullptr;
     {
         std::lock_guard<std::mutex> lock(mShapesMutex);
-        const std::map<GeometryTrackingKey, omni::physx::CustomPhysXGeometryCallback *>::iterator found = mShapes.find({GeometryTrackingKind::Shape,object});
+        const std::map<GeometryTrackingKey, omni::ev4sio_physx::CustomPhysXGeometryCallback *>::iterator found = mShapes.find({GeometryTrackingKind::Shape,object});
         if (found == mShapes.end()) return;
         callback = found->second;
         mShapes.erase(found);
@@ -312,9 +312,9 @@ size_t PhysXCustomGeometryManager::registerCustomGeometry(const char* customGeom
     // A.B. the default typeId generate code does not really work here
     void* typeMem = ICE_ALLOC(sizeof(PxCustomGeometry::Type));
     if (!typeMem) throw std::bad_alloc();
-    const ::physx::PxU32 typeId = OmniPhysX::getInstance().getFreeTypeId();
-    PX_COMPILE_TIME_ASSERT(sizeof(PxCustomGeometry::Type) == sizeof(::physx::PxU32));
-    memcpy(typeMem, &typeId, sizeof(::physx::PxU32));
+    const ::ev4sio_physx::PxU32 typeId = OmniPhysX::getInstance().getFreeTypeId();
+    PX_COMPILE_TIME_ASSERT(sizeof(PxCustomGeometry::Type) == sizeof(::ev4sio_physx::PxU32));
+    memcpy(typeMem, &typeId, sizeof(::ev4sio_physx::PxU32));
     PxCustomGeometry::Type* uniqueType = reinterpret_cast<PxCustomGeometry::Type*>(typeMem);
     std::shared_ptr<PxCustomGeometry::Type> retainedType(uniqueType,
         [](PxCustomGeometry::Type* type) { ICE_FREE(type); });
@@ -357,7 +357,7 @@ bool PhysXCustomGeometryManager::tryUnregisterCustomGeometry(size_t id)
     if (getRuntimeCallbackDepth())
         return false;
     std::lock_guard<carb::tasking::MutexWrapper> lock(mRegistryMutex);
-    const std::unordered_map<uint64_t, omni::physx::CustomGeometryInfo>::iterator found = mCustomGeometryRegistryMap.find(id);
+    const std::unordered_map<uint64_t, omni::ev4sio_physx::CustomGeometryInfo>::iterator found = mCustomGeometryRegistryMap.find(id);
     if (found == mCustomGeometryRegistryMap.end() || found->second.typeId.use_count() != 2)
         return false;
     const std::string& token = found->second.customGeomtryAPIToken;
@@ -385,9 +385,9 @@ bool tryUnregisterCustomGeometry(size_t id)
 }
 }
 
-void fillInterface(omni::physx::IPhysxCustomGeometry& iface)
+void fillInterface(omni::ev4sio_physx::IPhysxCustomGeometry& iface)
 {
-    iface.registerCustomGeometry = omni::physx::registerCustomGeometry;
-    iface.unregisterCustomGeometry = omni::physx::unregisterCustomGeometry;
-    iface.tryUnregisterCustomGeometry = omni::physx::tryUnregisterCustomGeometry;
+    iface.registerCustomGeometry = omni::ev4sio_physx::registerCustomGeometry;
+    iface.unregisterCustomGeometry = omni::ev4sio_physx::unregisterCustomGeometry;
+    iface.tryUnregisterCustomGeometry = omni::ev4sio_physx::tryUnregisterCustomGeometry;
 }

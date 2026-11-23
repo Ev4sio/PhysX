@@ -19,7 +19,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace tensors
 {
@@ -41,7 +41,7 @@ class BaseVehicleView
 public:
     // Rebuild the entry list from the scene. Cheap and rare -- the caller gates it on
     // InternalScene::mVehicleSetEpoch, which is what says the rows below are renumbered.
-    void rebuild(omni::physx::internal::InternalScene& scene);
+    void rebuild(omni::ev4sio_physx::internal::InternalScene& scene);
 
     // The vehicle-set epoch the current entries were built from. A caller caching rows into this
     // view compares against InternalScene::mVehicleSetEpoch to learn they were renumbered.
@@ -81,7 +81,7 @@ public:
     // CHECK_VALID_DATA_SIM_RETURN: returns false, in every build, if this view was built at a
     // different epoch than the scene now reports. The contract lives HERE because the one-column form
     // below delegates -- this is where the epoch check and both record range checks run.
-    bool getWheelTransformColumnsOvStage(omni::physx::internal::InternalScene& scene,
+    bool getWheelTransformColumnsOvStage(omni::ev4sio_physx::internal::InternalScene& scene,
                                          const VehicleWheelOvStageRecord* records,
                                          uint32_t numOutputs,
                                          const WheelTransformColumn* columns,
@@ -89,7 +89,7 @@ public:
 
     // The one-column form, taken by buildVehicleWheelState when only one wheel attribute is wanted.
     // Delegates to the multi-column gather above.
-    bool getWheelTransformsOvStage(omni::physx::internal::InternalScene& scene,
+    bool getWheelTransformsOvStage(omni::ev4sio_physx::internal::InternalScene& scene,
                                    const VehicleWheelOvStageRecord* records,
                                    uint32_t numOutputs,
                                    VehicleWheelComponent component,
@@ -127,7 +127,7 @@ public:
     };
 
     // The caller selects compatible rows; each vehicle is sampled once for all columns.
-    bool getDriveStateColumnsOvStage(omni::physx::internal::InternalScene& scene,
+    bool getDriveStateColumnsOvStage(omni::ev4sio_physx::internal::InternalScene& scene,
                                      const uint32_t* vehicleRows,
                                      uint32_t numOutputs,
                                      const DriveStateColumn* columns,
@@ -164,7 +164,7 @@ public:
 
     // Identity columns carry private ObjectIds only inside the backend. The generic reader must
     // resolve them through this scene's owning database and publish canonical path handles.
-    bool getWheelStateColumnsOvStage(omni::physx::internal::InternalScene& scene,
+    bool getWheelStateColumnsOvStage(omni::ev4sio_physx::internal::InternalScene& scene,
                                      const VehicleWheelOvStageRecord* records,
                                      uint32_t numOutputs,
                                      const WheelStateColumn* columns,
@@ -184,7 +184,7 @@ public:
 
     // Validate every row and value before the first setter. Reset is an immediate 0/1 command;
     // ordinary controls remain in the runtime until another control update replaces them.
-    bool setVehicleControlOvStage(omni::physx::internal::InternalScene& scene,
+    bool setVehicleControlOvStage(omni::ev4sio_physx::internal::InternalScene& scene,
                                   const uint32_t* vehicleRows,
                                   uint32_t numOutputs,
                                   VehicleControl control,
@@ -212,21 +212,21 @@ public:
     // so the epoch check against it is what makes dereferencing the raw InternalVehicle pointers
     // safe. Returns false if this view was built at a different vehicle-set epoch than the scene now
     // reports.
-    bool setWheelControlOvStage(omni::physx::internal::InternalScene& scene,
+    bool setWheelControlOvStage(omni::ev4sio_physx::internal::InternalScene& scene,
                                 const VehicleWheelOvStageRecord* records,
                                 uint32_t numOutputs,
                                 WheelControl control,
                                 const TensorDesc* srcTensor);
 
 private:
-    bool validateScene(const omni::physx::internal::InternalScene& scene) const;
+    bool validateScene(const omni::ev4sio_physx::internal::InternalScene& scene) const;
     bool validateVehicleRow(uint32_t row) const;
     bool validateWheelRecord(const VehicleWheelOvStageRecord& record) const;
     std::vector<VehicleEntry> mEntries;
-    const omni::physx::internal::InternalScene* mScene = nullptr;
+    const omni::ev4sio_physx::internal::InternalScene* mScene = nullptr;
     uint64_t mBuiltEpoch = 0;
 };
 
 } // namespace tensors
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

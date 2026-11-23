@@ -10,7 +10,7 @@
 #include "PxParticleMaterial.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -289,7 +289,7 @@ namespace physx
 		virtual		bool	isKindOf(const char* name) const PX_OVERRIDE { PX_IS_KIND_OF(name, "PxPBDMaterial", PxBaseMaterial); }
 	};
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

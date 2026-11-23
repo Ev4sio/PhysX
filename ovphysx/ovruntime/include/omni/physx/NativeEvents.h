@@ -6,7 +6,7 @@
 #pragma once
 #include <cstdint>
 #include <memory>
-namespace omni::physx::native
+namespace omni::ev4sio_physx::native
 {
 enum class EventResult : uint32_t { Success, Invalid, Stale, Busy, Unavailable, Error };
 enum class EventKind : uint32_t

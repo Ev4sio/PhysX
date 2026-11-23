@@ -10,10 +10,10 @@
 #include "PxPhysXConfig.h"
 #include "DySolverConstraint1D.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
-namespace Dy
+namespace ev4sio_Dy
 {
 
 struct SolverConstraint1DHeader4

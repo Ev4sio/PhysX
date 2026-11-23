@@ -8,13 +8,13 @@
 
 #include "CmVirtualAllocatorCallback.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Cm
+namespace ev4sio_Cm
 {
 
 /*!
-\brief Enumeration for enabling/disabling fallback behavior of Cm::PinnableAllocator
+\brief Enumeration for enabling/disabling fallback behavior of ev4sio_Cm::PinnableAllocator
 */
 struct PinnableAllocatorFallback
 {
@@ -31,7 +31,7 @@ accessed directly by GPU kernels.
 
 This allocator serves as a base class for GPU host-memory-backed containers. Memory is allocated using a
 VirtualAllocatorCallback instance. If an allocation fails, PxReflectionAllocator is used as a fallback
-when fallback behavior is enabled via Cm::PinnableAllocatorFallback::eENABLED.
+when fallback behavior is enabled via ev4sio_Cm::PinnableAllocatorFallback::eENABLED.
 
 The allocator tracks whether VirtualAllocatorCallback or PxReflectionAllocator was used for the most
 recent allocation in order to ensure that deallocation is performed with the corresponding allocator.
@@ -41,7 +41,7 @@ by the container to supply the required allocator information.
 
 Typical usage patterns include:
 * VirtualAllocatorCallback points to a CUDA host allocator for memory that is asynchronously copied to
-  GPU device memory. In this configuration, memory is pinned (non-pageable). Cm::PinnableAllocatorFallback::eENABLED
+  GPU device memory. In this configuration, memory is pinned (non-pageable). ev4sio_Cm::PinnableAllocatorFallback::eENABLED
   is typically used, as copy operations automatically synchronize when pageable memory is supplied and
   can still complete successfully.
 * VirtualAllocatorCallback points to a CUDA host allocator for memory that may be accessed directly by
@@ -121,8 +121,8 @@ private:
 	PinnableAllocator& operator=(const PinnableAllocator&);
 };
 
-} // namespace Cm
-} // namespace physx
+} // namespace ev4sio_Cm
+} // namespace ev4sio_physx
 
 
 #endif

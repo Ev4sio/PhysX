@@ -11,9 +11,9 @@
 #include "DySolverContext.h"
 #include "DyFeatherstoneArticulation.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Dy
+namespace ev4sio_Dy
 {
 void solve1DBlock					(DY_PGS_SOLVE_METHOD_PARAMS);
 void solveContactBlock				(DY_PGS_SOLVE_METHOD_PARAMS);
@@ -189,7 +189,7 @@ void solveV_Blocks(SolverIslandParams& params, const PxReal articulationBiasCoef
 	const PxSolverBody* PX_RESTRICT bodyListStart = params.bodyListStart;
 	const PxU32 bodyListSize = params.bodyListSize;
 
-	Cm::SpatialVector* PX_RESTRICT motionVelocityArray = params.motionVelocityArray;
+	ev4sio_Cm::SpatialVector* PX_RESTRICT motionVelocityArray = params.motionVelocityArray;
 
 	const PxU32 velocityIterations = params.velocityIterations;
 	const PxU32 positionIterations = params.positionIterations;
@@ -416,7 +416,7 @@ static void solveInternalConstraintsAndWaitForCompletion
 static void saveVelocitiesAndWaitForCompletion
 (const PxI32 articulationListSize, const PxI32 saveUnrollCount, const PxI32 bodyListSize, 
  const PxSolverBody* PX_RESTRICT bodyListStart, FeatherstoneArticulation** PX_RESTRICT articulationListStart, 
- Cm::SpatialVector* PX_RESTRICT motionVelocityArray,
+ ev4sio_Cm::SpatialVector* PX_RESTRICT motionVelocityArray,
  SolverContext& cache, 
  PxI32* bodyListIndex, PxI32* bodyListIndexCompleted)
 {
@@ -553,7 +553,7 @@ static void processSolverIterationParallel
 	}
 }
 
-void solveVParallelAndWriteBack(SolverIslandParams& params, Cm::SpatialVectorF* deltaV,
+void solveVParallelAndWriteBack(SolverIslandParams& params, ev4sio_Cm::SpatialVectorF* deltaV,
 	const PxReal articulationBiasCoefficient, bool solveFrictionEveryIteration, bool solveArticulationContactLast)
 {
 #if PX_PROFILE_SOLVE_STALLS
@@ -747,6 +747,6 @@ void solveVParallelAndWriteBack(SolverIslandParams& params, Cm::SpatialVectorF* 
 #endif
 }
 
-} //namespace Dy
-} //namespace physx
+} //namespace ev4sio_Dy
+} //namespace ev4sio_physx
 

@@ -19,7 +19,7 @@
 #endif
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -225,7 +225,7 @@ class PxConstraintAllocator
 {
 public:
 	/**
-	\brief Allocates constraint data. It is the application's responsibility to release this memory after PxSolveConstraints has completed.
+	\brief Allocates constraint data. It is the application's responsibility to release this memory after ev4sio_PxSolveConstraints has completed.
 	\param[in] byteSize Allocation size in bytes
 	\return The allocated memory. This address must be 16-byte aligned.
 	*/

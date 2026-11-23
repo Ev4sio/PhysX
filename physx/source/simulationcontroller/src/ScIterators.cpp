@@ -12,11 +12,11 @@
 #include "PxsSimulationController.h"
 #endif
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-Sc::ContactIterator::Pair::Pair(const void*& contactPatches, const void*& contactPoints, const void*& frictionPatches, PxU32 /*contactDataSize*/, const PxReal*& forces, PxU32 numContacts, PxU32 numPatches,
+ev4sio_Sc::ContactIterator::Pair::Pair(const void*& contactPatches, const void*& contactPoints, const void*& frictionPatches, PxU32 /*contactDataSize*/, const PxReal*& forces, PxU32 numContacts, PxU32 numPatches,
 	ShapeSimBase& shape0, ShapeSimBase& shape1, ActorSim* actor0, ActorSim* actor1)
 : mIndex(0)
 , mNumContacts(numContacts)
@@ -31,7 +31,7 @@ Sc::ContactIterator::Pair::Pair(const void*& contactPatches, const void*& contac
 	mCurrentContact.normalForceAvailable = (forces != NULL);
 }
 
-Sc::ContactIterator::Pair* Sc::ContactIterator::getNextPair()
+ev4sio_Sc::ContactIterator::Pair* ev4sio_Sc::ContactIterator::getNextPair()
 { 
 	PX_ASSERT(mCurrent || (mCurrent == mLast));
 
@@ -89,7 +89,7 @@ Sc::ContactIterator::Pair* Sc::ContactIterator::getNextPair()
 }
 
 #if PX_SUPPORT_OMNI_PVD
-void Sc::ContactIterator::enableOmniPvdReadback(PxsSimulationController& controller)
+void ev4sio_Sc::ContactIterator::enableOmniPvdReadback(PxsSimulationController& controller)
 {
 	mOvdController = &controller;
 	if (!controller.ovdBeginContactReadback()) return;
@@ -118,7 +118,7 @@ void Sc::ContactIterator::enableOmniPvdReadback(PxsSimulationController& control
 	}
 }
 
-bool Sc::SleepingTouchIterator::getNextPair(PxActor*& actor0, PxActor*& actor1)
+bool ev4sio_Sc::SleepingTouchIterator::getNextPair(PxActor*& actor0, PxActor*& actor1)
 {
 	while (mCurrent < mLast)
 	{
@@ -132,7 +132,7 @@ bool Sc::SleepingTouchIterator::getNextPair(PxActor*& actor0, PxActor*& actor1)
 }
 #endif
 
-Sc::Contact* Sc::ContactIterator::Pair::getNextContact()
+ev4sio_Sc::Contact* ev4sio_Sc::ContactIterator::Pair::getNextContact()
 {
 	if(mIndex < mNumContacts)
 	{
@@ -157,7 +157,7 @@ Sc::Contact* Sc::ContactIterator::Pair::getNextContact()
 	return NULL;
 }
 
-Sc::FrictionAnchor* Sc::ContactIterator::Pair::getNextFrictionAnchor()
+ev4sio_Sc::FrictionAnchor* ev4sio_Sc::ContactIterator::Pair::getNextFrictionAnchor()
 {
 	if(mAnchorIter.hasNextPatch())
 	{

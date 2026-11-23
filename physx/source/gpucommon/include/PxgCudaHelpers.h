@@ -21,7 +21,7 @@
 #include "cudamanager/PxCudaContext.h"
 #include "foundation/PxFoundation.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 /**
@@ -54,7 +54,7 @@ public:
         PxU64 numBytes = numElements * sizeof(T);
 	    PxCUresult result = cudaContext.memcpyDtoH(hostBuffer, CUdeviceptr(deviceBuffer), numBytes);
 	    if (result != CUDA_SUCCESS)
-	        PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "copyDtoH set failed with error code %i!\n", PxI32(result));
+	        ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "copyDtoH set failed with error code %i!\n", PxI32(result));
 	}
 
 	/**
@@ -84,7 +84,7 @@ public:
 
 	    PxCUresult result = cudaContext.memcpyHtoD(CUdeviceptr(deviceBuffer), hostBuffer, numBytes);
 	    if (result != CUDA_SUCCESS)
-	    	PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "copyHtoD set failed with error code %i!\n", PxI32(result));
+            ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "copyHtoD set failed with error code %i!\n", PxI32(result));
 	}
 
 	/**
@@ -113,7 +113,7 @@ public:
         PxU64 numBytes = numElements * sizeof(T);
 	    PxCUresult result = cudaContext.memcpyDtoHAsync(hostBuffer, CUdeviceptr(deviceBuffer), numBytes, stream);
 	    if (result != CUDA_SUCCESS)
-	    	PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "copyDtoHAsync set failed with error code %i!\n", PxI32(result));
+            ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "copyDtoHAsync set failed with error code %i!\n", PxI32(result));
 	}
 
 	/**
@@ -143,7 +143,7 @@ public:
 
 	    PxCUresult result = cudaContext.memcpyHtoDAsync(CUdeviceptr(deviceBuffer), hostBuffer, numBytes, stream);
 	    if (result != CUDA_SUCCESS)
-	    	PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "copyHtoDAsync set failed with error code %i!\n", PxI32(result));
+            ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "copyHtoDAsync set failed with error code %i!\n", PxI32(result));
 	}
 
 	/**
@@ -173,7 +173,7 @@ public:
 
 	    PxCUresult result = cudaContext.memcpyDtoDAsync(CUdeviceptr(dstDeviceBuffer), CUdeviceptr(srcDeviceBuffer), numBytes, stream);
 	    if (result != CUDA_SUCCESS)
-		    PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "copyDtoDAsync set failed with error code %i!\n", PxI32(result));
+		    ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "copyDtoDAsync set failed with error code %i!\n", PxI32(result));
 	}
 
 	/**
@@ -210,7 +210,7 @@ public:
             result = cudaContext.memsetD8Async(CUdeviceptr(dstDeviceBuffer), reinterpret_cast<const PxU8&>(value), numBytes, stream);
 
         if (result != CUDA_SUCCESS)
-		    PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "Memset failed with error code %i!\n", PxI32(result));
+		    ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "Memset failed with error code %i!\n", PxI32(result));
 	}
 
 
@@ -227,5 +227,5 @@ public:
 	}
 };
 
-}; // namespace physx
+}; // namespace ev4sio_physx
 #endif

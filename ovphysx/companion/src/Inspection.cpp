@@ -12,7 +12,7 @@
 #include <cstring>
 namespace
 {
-using namespace omni::physx::native;
+using namespace omni::ev4sio_physx::native;
 ovphysx_companion_object_t convert(const ObjectReference& value) noexcept
 {
     return {value.attachment,value.object,value.key,value.generation,value.kind,value.instance};
@@ -120,7 +120,7 @@ ovphysx_companion_status_t read(const ovphysx_companion_object_t* reference,uint
     if (!reference || refSize!=sizeof(*reference) || !output) return OVPHYSX_COMPANION_INVALID_ARGUMENT;
     CompanionOperationGuard guard(companionRuntime());if(!guard)return OVPHYSX_COMPANION_BUSY;
     CompanionOwnerLane owner;if(!owner.tryAcquireForAttachment(reference->attachment))return OVPHYSX_COMPANION_BUSY;
-    omni::physx::native::ObjectReference const ref=convert(*reference);
+    omni::ev4sio_physx::native::ObjectReference const ref=convert(*reference);
     switch(ObjectKind(ref.kind)) {
     case ObjectKind::Body: static_assert(sizeof(BodyInspection)==sizeof(ovphysx_companion_body_t));
         return readValue<ovphysx_companion_body_t>(ref,output,size,inspectBody);

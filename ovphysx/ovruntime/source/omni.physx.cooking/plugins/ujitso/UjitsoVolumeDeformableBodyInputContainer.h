@@ -9,7 +9,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 // This data is used during the build step of the processor
 // It is not guaranteed to be valid until fill() is called
@@ -51,5 +51,5 @@ private:
     PhysicsVolumeDeformableBodyBuildData m_buildData;
 };
 
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

@@ -13,7 +13,7 @@
 #include "../snippetrender/SnippetCamera.h"
 #include "SnippetDeformableSurfaceSkinning.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 extern void initPhysics(bool interactive);
 extern void stepPhysics(bool interactive);	
@@ -37,7 +37,7 @@ void renderCallback()
 	const PxVec3 rcaColor2(0.8f * 0.75f, 0.8f * 0.75f, 0.5f * 0.75f);
 
 	PxScene* scene;
-	PxGetPhysics().getScenes(&scene,1);
+	ev4sio_PxGetPhysics().getScenes(&scene,1);
 	PxU32 nbActors = scene->getNbActors(PxActorTypeFlag::eRIGID_DYNAMIC | PxActorTypeFlag::eRIGID_STATIC);
 	if(nbActors)
 	{

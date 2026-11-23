@@ -10,9 +10,9 @@
 #include "PxPhysXConfig.h"
 #include "PxvDynamics.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-	namespace Dy
+	namespace ev4sio_Dy
 	{
 		PX_ALIGN_PREFIX(16)
 		struct ConstraintWriteback

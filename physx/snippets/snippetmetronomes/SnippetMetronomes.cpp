@@ -38,7 +38,7 @@
 	#include "../snippetrender/SnippetRender.h"
 #endif
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 static PxDefaultAllocator		gAllocator;
 static PxDefaultErrorCallback	gErrorCallback;
@@ -108,7 +108,7 @@ static PxConvexMesh* createCaseMesh()
 	desc.flags			= PxConvexFlag::eCOMPUTE_CONVEX;
 
 	const PxCookingParams params(gPhysics->getTolerancesScale());
-	return PxCreateConvexMesh(params, desc, gPhysics->getPhysicsInsertionCallback());
+	return ev4sio_PxCreateConvexMesh(params, desc, gPhysics->getPhysicsInsertionCallback());
 }
 
 // Position of a metronome along the row, relative to the center of the board.
@@ -315,13 +315,13 @@ void renderText()
 
 void initPhysics(bool /*interactive*/)
 {
-	gFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, gAllocator, gErrorCallback);
+	gFoundation = ev4sio_PxCreateFoundation(ev4sio_PX_PHYSICS_VERSION, gAllocator, gErrorCallback);
 
-	gPvd = PxCreatePvd(*gFoundation);
-	PxPvdTransport* transport = PxDefaultPvdSocketTransportCreate(PVD_HOST, 5425, 10);
+	gPvd = ev4sio_PxCreatePvd(*gFoundation);
+	PxPvdTransport* transport = ev4sio_PxDefaultPvdSocketTransportCreate(PVD_HOST, 5425, 10);
 	gPvd->connect(*transport, PxPvdInstrumentationFlag::eALL);
 
-	gPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *gFoundation, PxTolerancesScale(), true, gPvd);
+	gPhysics = ev4sio_PxCreatePhysics(ev4sio_PX_PHYSICS_VERSION, *gFoundation, PxTolerancesScale(), true, gPvd);
 
 	const PxU32 numCores = SnippetUtils::getNbPhysicalCores();
 	gDispatcher = PxDefaultCpuDispatcherCreate(numCores == 0 ? 0 : numCores - 1);

@@ -11,8 +11,8 @@
 #include "ScArticulationCore.h"
 #include "geometry/PxTriangleMesh.h"
 
-using namespace physx;
-using namespace Sc;
+using namespace ev4sio_physx;
+using namespace ev4sio_Sc;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -529,7 +529,7 @@ static PX_FORCE_INLINE bool testShapeSimCorePointers(const ShapeSimBase* s0, con
 }
 
 // PT: called from OverlapFilterTask. This revisited implementation does not use a bitmap anymore.
-void NPhaseCore::runOverlapFilters(	PxU32 nbToProcess, Bp::AABBOverlap* PX_RESTRICT pairs, FilterInfo* PX_RESTRICT filterInfo,
+void NPhaseCore::runOverlapFilters(	PxU32 nbToProcess, ev4sio_Bp::AABBOverlap* PX_RESTRICT pairs, FilterInfo* PX_RESTRICT filterInfo,
 									PxU32& nbToKeep_, PxU32& nbToSuppress_) const
 {
 	PxU32 nbToKeep = 0;
@@ -545,7 +545,7 @@ void NPhaseCore::runOverlapFilters(	PxU32 nbToProcess, Bp::AABBOverlap* PX_RESTR
 
 	for(PxU32 i=0; i<nbToProcess; i++)
 	{
-		const Bp::AABBOverlap& pair = pairs[i];
+		const ev4sio_Bp::AABBOverlap& pair = pairs[i];
 
 		const ElementSim* e0 = reinterpret_cast<const ElementSim*>(pair.mUserData0);
 		const ElementSim* e1 = reinterpret_cast<const ElementSim*>(pair.mUserData1);
@@ -606,7 +606,7 @@ ElementSimInteraction* NPhaseCore::createTriggerElementInteraction(ShapeSimBase&
 	return createRbElementInteraction(filterInfo, s0, s1, NULL, NULL, NULL, isTriggerPair);
 }
 
-void NPhaseCore::onTriggerOverlapCreated(const Bp::AABBOverlap* PX_RESTRICT pairs, PxU32 pairCount)
+void NPhaseCore::onTriggerOverlapCreated(const ev4sio_Bp::AABBOverlap* PX_RESTRICT pairs, PxU32 pairCount)
 {
 	for(PxU32 i=0; i<pairCount; i++)
 	{

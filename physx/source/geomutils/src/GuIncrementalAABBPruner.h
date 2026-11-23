@@ -12,11 +12,11 @@
 #include "GuIncrementalAABBTree.h"
 #include "GuSqInternal.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	class PxRenderOutput;
 
-namespace Gu
+namespace ev4sio_Gu
 {
 	class IncrementalAABBPruner : public Pruner
 	{

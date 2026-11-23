@@ -21,7 +21,7 @@
 #include "PxgCudaBuffer.h"
 #include "PxgConvexConvexShape.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	class PxCudaContext;
 	class PxgCopyManager;
@@ -48,13 +48,13 @@ namespace physx
 
 		void releaseIDs() { mIdPool.processDeferredIds(); }
 
-		Cm::DeferredIDPool				mIdPool;
+		ev4sio_Cm::DeferredIDPool				mIdPool;
 
 		// needs to be device mapped memory
-		Cm::PinnableArray<PxgShape>		mHostShapesMapped;
-		Cm::PinnableArray<PxNodeIndex>	mHostShapesRemapTableMapped; // remap table from shape to node index
-		Cm::PinnableArray<PxActor*>		mHostTransformCacheIdToActorTableMapped; // remap table from transformCacheId to PxActor
-		Cm::PinnableArray<PxU32>		mHostShapeIdTableMapped;
+		ev4sio_Cm::PinnableArray<PxgShape>		mHostShapesMapped;
+		ev4sio_Cm::PinnableArray<PxNodeIndex>	mHostShapesRemapTableMapped; // remap table from shape to node index
+		ev4sio_Cm::PinnableArray<PxActor*>		mHostTransformCacheIdToActorTableMapped; // remap table from transformCacheId to PxActor
+		ev4sio_Cm::PinnableArray<PxU32>		mHostShapeIdTableMapped;
 		
 		PxgCudaBuffer					mGpuShapesBuffer;
 		PxgCudaBuffer					mGpuShapesRemapTableBuffer;	// shape to rigid
@@ -98,10 +98,10 @@ namespace physx
 
 		PxgCudaBuffer					mGpuMaterialBuffer;
 	protected:
-		Cm::DeferredIDPool				mIdPool;
+		ev4sio_Cm::DeferredIDPool				mIdPool;
 
 		//needs to be device mapped memory
-		Cm::PinnableArray<PxU8>			mHostMaterialMapped;
+		ev4sio_Cm::PinnableArray<PxU8>			mHostMaterialMapped;
 
 		PxBitMap						mDirtyMaterialMap;
 		bool							mResizeRequired;

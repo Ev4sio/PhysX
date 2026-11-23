@@ -11,7 +11,7 @@
 #include "foundation/PxMutex.h"
 #include "foundation/PxArray.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 struct PxsCCDBody;
 
@@ -107,7 +107,7 @@ class PxsRigidBody
 	// PT: implemented in PxsCCD.cpp:
 					void				advanceToToi(PxReal toi, PxReal dt, bool clip);
 					void				advancePrevPoseToToi(PxReal toi);
-					Cm::SpatialVector	getPreSolverVelocities() const;
+					ev4sio_Cm::SpatialVector	getPreSolverVelocities() const;
 
 					PxTransform			mLastTransform;
 

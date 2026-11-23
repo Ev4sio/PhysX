@@ -27,8 +27,8 @@
 #include "utils.cuh"
 #include "DyArticulationMimicJointCore.h"
 
-using namespace physx;
-using namespace Dy;
+using namespace ev4sio_physx;
+using namespace ev4sio_Dy;
 
 extern "C" __host__ void initArticulationKernels1() {}
 
@@ -45,7 +45,7 @@ static __device__ void initialize(
 	const PxU32 numLinks, const PxU32 totalDofs, 
 	const PxU32 threadIndexInWarp)
 {
-	const Cm::UnAlignedSpatialVector zero = Cm::UnAlignedSpatialVector::Zero();
+	const ev4sio_Cm::UnAlignedSpatialVector zero = ev4sio_Cm::UnAlignedSpatialVector::Zero();
 
 	//KS - TODO - do we actually need deltaMotionVelocity? We will be computing motionVelocity every iteration
 	//regardless...
@@ -279,7 +279,7 @@ static __device__ void copyMimicJointsBlock(
 {
 	for (PxU32 i = 0; i < artiData.numMimicJoints; ++i)
 	{
-		const Dy::ArticulationMimicJointCore& mimicJointCore = articulation.mimicJointCores[i];
+		const ev4sio_Dy::ArticulationMimicJointCore& mimicJointCore = articulation.mimicJointCores[i];
 		PxgArticulationBlockMimicJointData& mimicJointBlock = mimicJointBlocks[i];
 		mimicJointBlock.mLinkA[threadIndexInWarp] = mimicJointCore.linkA;
 		mimicJointBlock.mLinkB[threadIndexInWarp] = mimicJointCore.linkB;
@@ -313,7 +313,7 @@ static __device__ void updateMimicJointsBlock(
 	copyMimicJointsBlock(articulation, artiData, artiBlock, mimicJointBlocks, threadIndexInWarp);
 }
 
-static __device__ PX_FORCE_INLINE void computeJointAxis(PxU32 dof, const ArticulationJointCore* PX_RESTRICT joint, Cm::UnAlignedSpatialVector* PX_RESTRICT jointAxis)
+static __device__ PX_FORCE_INLINE void computeJointAxis(PxU32 dof, const ArticulationJointCore* PX_RESTRICT joint, ev4sio_Cm::UnAlignedSpatialVector* PX_RESTRICT jointAxis)
 {
 	assert(dof<=3);
 	for (PxU32 i = 0; i < 3; ++i)
@@ -321,7 +321,7 @@ static __device__ PX_FORCE_INLINE void computeJointAxis(PxU32 dof, const Articul
 		if(i<dof)
 		{
 			const PxU32 ind = joint->dofIds[i];
-			jointAxis[i] = Cm::UnAlignedSpatialVector::Zero();
+			jointAxis[i] = ev4sio_Cm::UnAlignedSpatialVector::Zero();
 			jointAxis[i][ind] = 1.0f;	//axis is in the local space of joint
 		}
 	}
@@ -347,7 +347,7 @@ static __device__ void jcalc(const PxgArticulation& articulation, PxgArticulatio
 	const PxReal invLengthScale,
 	const bool directAPI)
 {
-	using namespace Dy;
+	using namespace ev4sio_Dy;
 
 	const bool confiDirty = artiData.confiDirty;
 	const bool dataDirty = (artiData.updateDirty != 0);
@@ -357,9 +357,9 @@ static __device__ void jcalc(const PxgArticulation& articulation, PxgArticulatio
 
 	if (confiDirty || dataDirty)
 	{
-		Cm::UnAlignedSpatialVector jointAxis[3];
+		ev4sio_Cm::UnAlignedSpatialVector jointAxis[3];
 
-		Dy::SpatialSubspaceMatrix* PX_RESTRICT motionMatrix = articulation.motionMatrix;
+		ev4sio_Dy::SpatialSubspaceMatrix* PX_RESTRICT motionMatrix = articulation.motionMatrix;
 		PxU32* PX_RESTRICT jointOffsets = articulation.jointOffsets;
 		PxQuat* PX_RESTRICT relativeQuats = articulation.relativeQuat;
 		PxReal* PX_RESTRICT cfmScale = articulation.cfmScale;
@@ -368,7 +368,7 @@ static __device__ void jcalc(const PxgArticulation& articulation, PxgArticulatio
 		const PxgArticulationLinkProp* PX_RESTRICT props = articulation.linkProps;
 
 		// The cfm scales come from the link records, which change with the configuration and with dirty links.
-		const bool cfmScaleDirty = confiDirty || (artiData.updateDirty & Dy::ArticulationDirtyFlag::eDIRTY_LINKS);
+		const bool cfmScaleDirty = confiDirty || (artiData.updateDirty & ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_LINKS);
 
 		if (cfmScaleDirty)
 			cfmScale[0] = (artiData.flags & PxArticulationFlag::eFIX_BASE) ? 0.f : links[0].cfmScale * invLengthScale;
@@ -424,7 +424,7 @@ static __device__ void jcalc(const PxgArticulation& articulation, PxgArticulatio
 		const PxReal* PX_RESTRICT jointTargetPositions = articulation.jointTargetPositions;
 		const PxReal* PX_RESTRICT jointTargetVelocities = articulation.jointTargetVelocities;
 
-		Dy::SpatialSubspaceMatrix* motionMatrix = articulation.motionMatrix;
+		ev4sio_Dy::SpatialSubspaceMatrix* motionMatrix = articulation.motionMatrix;
 
 		PxQuat* PX_RESTRICT relativeQuats = articulation.relativeQuat;
 
@@ -445,7 +445,7 @@ static __device__ void jcalc(const PxgArticulation& articulation, PxgArticulatio
 		const float4 initAngVel = rootLink.initialAngVelXYZ_penBiasClamp;
 		const float4 initLinVel = rootLink.initialLinVelXYZ_invMassW;
 
-		storeSpatialVector(rootLinkBlockData.mMotionVelocity, Cm::UnAlignedSpatialVector(PxVec3(initAngVel.x, initAngVel.y, initAngVel.z),
+		storeSpatialVector(rootLinkBlockData.mMotionVelocity, ev4sio_Cm::UnAlignedSpatialVector(PxVec3(initAngVel.x, initAngVel.y, initAngVel.z),
 			PxVec3(initLinVel.x, initLinVel.y, initLinVel.z)), threadIndexInWarp);
 
 		storeSpatialTransform(rootLinkBlockData.mAccumulatedPose, threadIndexInWarp, body2Worlds[0]);
@@ -564,10 +564,10 @@ static __device__ void jcalc(const PxgArticulation& articulation, PxgArticulatio
 	{
 		PxU32 updateDirty = artiData.updateDirty;
 
-		updateDirty &= ~(Dy::ArticulationDirtyFlag::eDIRTY_SPATIAL_TENDON
-			| Dy::ArticulationDirtyFlag::eDIRTY_SPATIAL_TENDON_ATTACHMENT
-			| Dy::ArticulationDirtyFlag::eDIRTY_FIXED_TENDON
-			| Dy::ArticulationDirtyFlag::eDIRTY_FIXED_TENDON_JOINT);
+		updateDirty &= ~(ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_SPATIAL_TENDON
+			| ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_SPATIAL_TENDON_ATTACHMENT
+			| ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_FIXED_TENDON
+			| ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_FIXED_TENDON_JOINT);
 
 
 		if (updateDirty)
@@ -579,7 +579,7 @@ static __device__ void jcalc(const PxgArticulation& articulation, PxgArticulatio
 			const PxReal* PX_RESTRICT jointVelocities = articulation.jointVelocities;
 			const PxReal* PX_RESTRICT jointTargetPositions = articulation.jointTargetPositions;
 			const PxReal* PX_RESTRICT jointTargetVelocities = articulation.jointTargetVelocities;
-			Dy::SpatialSubspaceMatrix* PX_RESTRICT motionMatrix = articulation.motionMatrix;
+			ev4sio_Dy::SpatialSubspaceMatrix* PX_RESTRICT motionMatrix = articulation.motionMatrix;
 			PxQuat* PX_RESTRICT relativeQuats = articulation.relativeQuat;
 
 			PxgArticulationBlockLinkData& rootLinkBlockData = articulationLinkBlocks[0];
@@ -594,7 +594,7 @@ static __device__ void jcalc(const PxgArticulation& articulation, PxgArticulatio
 				const float4 initAngVel = rootLink.initialAngVelXYZ_penBiasClamp;
 				const float4 initLinVel = rootLink.initialLinVelXYZ_invMassW;
 
-				storeSpatialVector(rootLinkBlockData.mMotionVelocity, Cm::UnAlignedSpatialVector(PxVec3(initAngVel.x, initAngVel.y, initAngVel.z),
+				storeSpatialVector(rootLinkBlockData.mMotionVelocity, ev4sio_Cm::UnAlignedSpatialVector(PxVec3(initAngVel.x, initAngVel.y, initAngVel.z),
 					PxVec3(initLinVel.x, initLinVel.y, initLinVel.z)), threadIndexInWarp);
 			}
 
@@ -705,15 +705,15 @@ static __device__ void jcalc(const PxgArticulation& articulation, PxgArticulatio
 			}
 		}
 
-		if (artiData.updateDirty & (Dy::ArticulationDirtyFlag::eDIRTY_SPATIAL_TENDON
-			| Dy::ArticulationDirtyFlag::eDIRTY_SPATIAL_TENDON_ATTACHMENT))
+		if (artiData.updateDirty & (ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_SPATIAL_TENDON
+			| ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_SPATIAL_TENDON_ATTACHMENT))
 			updateSpatialTendonsBlock(articulation, artiData, spatialTendonBlocks, attachmentBlocks, maxNumAttachments, threadIndexInWarp);
 
-		if (artiData.updateDirty & (Dy::ArticulationDirtyFlag::eDIRTY_FIXED_TENDON
-			| Dy::ArticulationDirtyFlag::eDIRTY_FIXED_TENDON_JOINT))
+		if (artiData.updateDirty & (ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_FIXED_TENDON
+			| ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_FIXED_TENDON_JOINT))
 			updateFixedTendonsBlock(articulation, artiData, fixedTendonBlocks, tendonJointBlocks, maxNumTendonJoints, threadIndexInWarp);
 		
-		if(artiData.updateDirty & (Dy::ArticulationDirtyFlag::eDIRTY_MIMIC_JOINT))
+		if(artiData.updateDirty & (ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_MIMIC_JOINT))
 			updateMimicJointsBlock(articulation, artiData, artiBlock, mimicJointBlocks, threadIndexInWarp);
 
 		// reset updateDirty to avoid re-running this code on next sim start
@@ -726,7 +726,7 @@ static __device__ void jcalc(const PxgArticulation& articulation, PxgArticulatio
 	{
 		const PxU32 totalDofs = artiData.numJointDofs;
 
-		if (artiGpuDirty & Dy::ArticulationDirtyFlag::eDIRTY_POSITIONS)
+		if (artiGpuDirty & ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_POSITIONS)
 		{
 			const PxReal* PX_RESTRICT jointPositions = articulation.jointPositions;
 
@@ -737,7 +737,7 @@ static __device__ void jcalc(const PxgArticulation& articulation, PxgArticulatio
 			}
 		}
 
-		if (artiGpuDirty & Dy::ArticulationDirtyFlag::eDIRTY_VELOCITIES)
+		if (artiGpuDirty & ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_VELOCITIES)
 		{
 			const PxReal* PX_RESTRICT jointVelocities = articulation.jointVelocities;
 
@@ -748,7 +748,7 @@ static __device__ void jcalc(const PxgArticulation& articulation, PxgArticulatio
 			}
 		}
 		
-		if (artiGpuDirty & (Dy::ArticulationDirtyFlag::eDIRTY_ROOT_TRANSFORM | Dy::ArticulationDirtyFlag::eDIRTY_POSITIONS))
+		if (artiGpuDirty & (ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_ROOT_TRANSFORM | ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_POSITIONS))
 		{
 			const PxTransform* body2Worlds = articulation.linkBody2Worlds;
 			for (PxU32 linkID = 0; linkID < numLinks; linkID++)
@@ -759,13 +759,13 @@ static __device__ void jcalc(const PxgArticulation& articulation, PxgArticulatio
 			}
 		}
 
-		if (artiGpuDirty &  Dy::ArticulationDirtyFlag::eDIRTY_ROOT_VELOCITIES)
+		if (artiGpuDirty &  ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_ROOT_VELOCITIES)
 		{
 			PxgArticulationBlockLinkData& linkBlockData = articulationLinkBlocks[0];
 			storeSpatialVector(linkBlockData.mMotionVelocity, articulation.motionVelocities[0], threadIndexInWarp);
 		}
 
-		if (artiGpuDirty & Dy::ArticulationDirtyFlag::eDIRTY_JOINT_TARGET_VEL)
+		if (artiGpuDirty & ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_JOINT_TARGET_VEL)
 		{
 			const PxReal* PX_RESTRICT jointTargetVelocities = articulation.jointTargetVelocities;
 
@@ -776,7 +776,7 @@ static __device__ void jcalc(const PxgArticulation& articulation, PxgArticulatio
 			}
 		}
 
-		if (artiGpuDirty & Dy::ArticulationDirtyFlag::eDIRTY_JOINT_TARGET_POS)
+		if (artiGpuDirty & ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_JOINT_TARGET_POS)
 		{
 			const PxReal* PX_RESTRICT jointTargetPositions = articulation.jointTargetPositions;
 
@@ -787,7 +787,7 @@ static __device__ void jcalc(const PxgArticulation& articulation, PxgArticulatio
 			}
 		}
 
-		if (artiGpuDirty & Dy::ArticulationDirtyFlag::eDIRTY_SPATIAL_TENDON)
+		if (artiGpuDirty & ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_SPATIAL_TENDON)
 		{
 			PxGpuSpatialTendonData* tendonParams = articulation.spatialTendonParams;
 			const PxU32 numSpatialTendons = articulation.data.numSpatialTendons;
@@ -804,7 +804,7 @@ static __device__ void jcalc(const PxgArticulation& articulation, PxgArticulatio
 			}
 		}
 
-		if (artiGpuDirty & Dy::ArticulationDirtyFlag::eDIRTY_SPATIAL_TENDON_ATTACHMENT)
+		if (artiGpuDirty & ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_SPATIAL_TENDON_ATTACHMENT)
 		{
 			PxgArticulationTendon* spatialTendons = articulation.spatialTendons;
 			const PxU32 numSpatialTendons = articulation.data.numSpatialTendons;
@@ -829,7 +829,7 @@ static __device__ void jcalc(const PxgArticulation& articulation, PxgArticulatio
 			}
 		}
 
-		if (artiGpuDirty & Dy::ArticulationDirtyFlag::eDIRTY_FIXED_TENDON)
+		if (artiGpuDirty & ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_FIXED_TENDON)
 		{
 			PxGpuFixedTendonData* tendonParam = articulation.fixedTendonParams;
 			const PxU32 numFixedTendons = articulation.data.numFixedTendons;
@@ -850,7 +850,7 @@ static __device__ void jcalc(const PxgArticulation& articulation, PxgArticulatio
 			}
 		}
 		
-		if (artiGpuDirty & Dy::ArticulationDirtyFlag::eDIRTY_FIXED_TENDON_JOINT)
+		if (artiGpuDirty & ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_FIXED_TENDON_JOINT)
 		{
 		
 			PxgArticulationTendon* fixedTendons = articulation.fixedTendons;
@@ -876,7 +876,7 @@ static __device__ void jcalc(const PxgArticulation& articulation, PxgArticulatio
 }
 
 // GPU wrapper: extract link-local anchor offsets and prismatic slide from the
-// block data structures, then delegate to the shared Dy::computeLinkRw.
+// block data structures, then delegate to the shared ev4sio_Dy::computeLinkRw.
 static __device__ PX_FORCE_INLINE PxVec3 computeLinkRwGpu(
 	const PxgArticulationBlockLinkData& link,
 	const PxQuat& parentQW,
@@ -886,18 +886,18 @@ static __device__ PX_FORCE_INLINE PxVec3 computeLinkRwGpu(
 {
 	const float4 co = link.mChildPose.p[threadIndexInWarp];
 	const float4 po = link.mParentPose.p[threadIndexInWarp];
-	const PxVec3 childOffset(co.x, co.y, co.z);   // unnegated; Dy::computeLinkRw uses slide-childOffset
+	const PxVec3 childOffset(co.x, co.y, co.z);   // unnegated; ev4sio_Dy::computeLinkRw uses slide-childOffset
 	const PxVec3 parentOffset(po.x, po.y, po.z);
 
 	PxVec3 slide(0.f);
 	if (link.mJointType[threadIndexInWarp] == PxArticulationJointType::ePRISMATIC)
 	{
 		const PxReal jPos = linkDofs[0].mJointPositions[threadIndexInWarp];
-		const Cm::UnAlignedSpatialVector motionMatrix = loadSpatialVector(linkDofs[0].mLocalMotionMatrix, threadIndexInWarp);
+		const ev4sio_Cm::UnAlignedSpatialVector motionMatrix = loadSpatialVector(linkDofs[0].mLocalMotionMatrix, threadIndexInWarp);
 		slide = motionMatrix.bottom * jPos;
 	}
 
-	return Dy::computeLinkRw(parentQW, childQW, parentOffset, childOffset, slide);
+	return ev4sio_Dy::computeLinkRw(parentQW, childQW, parentOffset, childOffset, slide);
 }
 
 static __device__ void computeUnconstrainedVelocitiesInternal1T(const PxgBodySim& bodySim,
@@ -1011,7 +1011,7 @@ static __device__ void computeUnconstrainedVelocitiesInternal1T(const PxgBodySim
 			const PxTransform body2World = loadSpatialTransform(linkBlock.mAccumulatedPose, threadIndexInWarp);
 			const PxU32 dof = linkBlock.mDofs[threadIndexInWarp];
 
-			Cm::UnAlignedSpatialVector linkVelocity = loadSpatialVector(articulationLinkBlocks[parent].mMotionVelocity, threadIndexInWarp);
+			ev4sio_Cm::UnAlignedSpatialVector linkVelocity = loadSpatialVector(articulationLinkBlocks[parent].mMotionVelocity, threadIndexInWarp);
 
 			storeSpatialTransform(linkBlock.mPreTransform, threadIndexInWarp, body2World);
 
@@ -1048,7 +1048,7 @@ static __device__ void computeUnconstrainedVelocitiesInternal1T(const PxgBodySim
 				{
 					PxgArticulationBlockDofData& dofData = *dofs++;
 
-					const Cm::UnAlignedSpatialVector worldCol = loadSpatialVector(dofData.mLocalMotionMatrix, threadIndexInWarp).rotate(body2World);
+					const ev4sio_Cm::UnAlignedSpatialVector worldCol = loadSpatialVector(dofData.mLocalMotionMatrix, threadIndexInWarp).rotate(body2World);
 					const PxReal jVel = dofData.mJointVelocities[threadIndexInWarp] * ratio;
 					linkVelocity += worldCol * jVel;
 					dofData.mJointVelocities[threadIndexInWarp] = jVel;
@@ -1125,8 +1125,8 @@ static __device__ void computeSpatialInertiaW(const PxgArticulation& msArticulat
 	PxgArticulationBlockData* PX_RESTRICT articulationBlocks,
 	PxgArticulationBlockLinkData* PX_RESTRICT linkBlockData,
 	const PxgArticulationBlockDofData* PX_RESTRICT dofBlockData,
-	Cm::UnAlignedSpatialVector * PX_RESTRICT externalAccels,
-	Cm::UnAlignedSpatialVector * PX_RESTRICT externalZIsolated,
+	ev4sio_Cm::UnAlignedSpatialVector * PX_RESTRICT externalAccels,
+	ev4sio_Cm::UnAlignedSpatialVector * PX_RESTRICT externalZIsolated,
 	const PxVec3& gravity,
 	const PxReal dt,
 	const bool isExternalForcesEveryTgsIterationEnabled
@@ -1139,7 +1139,7 @@ static __device__ void computeSpatialInertiaW(const PxgArticulation& msArticulat
 	PxVec3 COM(0.f);
 	PxReal totalMass = 0.f;
 	
-	Dy::SpatialMatrix spatialInertia;
+	ev4sio_Dy::SpatialMatrix spatialInertia;
 	spatialInertia.topLeft = PxMat33(PxZero);
 	spatialInertia.topRight = PxMat33(PxZero);
 
@@ -1168,7 +1168,7 @@ static __device__ void computeSpatialInertiaW(const PxgArticulation& msArticulat
 
 		spatialInertia.topRight[0][0] = spatialInertia.topRight[1][1] = spatialInertia.topRight[2][2] = m;	// PxMat33::createDiagonal(PxVec3(m));
 
-		Cm::transformInertiaTensor(inertiaTensor, PxMat33(t.q), spatialInertia.bottomLeft);
+		ev4sio_Cm::transformInertiaTensor(inertiaTensor, PxMat33(t.q), spatialInertia.bottomLeft);
 		//KS - TODO - can we propagate this back up as part of this process to avoid a global store/load?
 		storeSpatialMatrix(linkData.mSpatialArticulatedInertia, threadIndexInWarp, spatialInertia);
 
@@ -1177,7 +1177,7 @@ static __device__ void computeSpatialInertiaW(const PxgArticulation& msArticulat
 		COM += t.p * m;
 		totalMass += m;
 
-		const Cm::UnAlignedSpatialVector vel = loadSpatialVector(linkData.mMotionVelocity, threadIndexInWarp);
+		const ev4sio_Cm::UnAlignedSpatialVector vel = loadSpatialVector(linkData.mMotionVelocity, threadIndexInWarp);
 
 		const float4 linDampingX_AngDampingY_maxLinVelSqZ_maxAngVelSqW =
 			linkData.mLinDampingX_AngDampingY_maxLinVelSqZ_maxAngVelSqW[threadIndexInWarp];
@@ -1192,7 +1192,7 @@ static __device__ void computeSpatialInertiaW(const PxgArticulation& msArticulat
 			const PxU32 parent = linkData.mParents[threadIndexInWarp];
 			const PxgArticulationBlockLinkData& parentLink = linkBlockData[parent];
 
-			const Cm::UnAlignedSpatialVector pVel = loadSpatialVector(parentLink.mMotionVelocity, threadIndexInWarp);
+			const ev4sio_Cm::UnAlignedSpatialVector pVel = loadSpatialVector(parentLink.mMotionVelocity, threadIndexInWarp);
 
 			const float rwx = linkData.mRw_x[threadIndexInWarp];
 			const float rwy = linkData.mRw_y[threadIndexInWarp];
@@ -1208,7 +1208,7 @@ static __device__ void computeSpatialInertiaW(const PxgArticulation& msArticulat
 
 			if (nbDofs)
 			{
-				Cm::UnAlignedSpatialVector deltaV = Cm::UnAlignedSpatialVector::Zero();
+				ev4sio_Cm::UnAlignedSpatialVector deltaV = ev4sio_Cm::UnAlignedSpatialVector::Zero();
 				for (PxU32 ind = 0; ind < nbDofs; ++ind)
 				{
 					const PxReal jVel = dofs[ind].mJointVelocities[threadIndexInWarp];
@@ -1227,7 +1227,7 @@ static __device__ void computeSpatialInertiaW(const PxgArticulation& msArticulat
 			}
 		}
 
-		storeSpatialVector(linkData.mCoriolis, Cm::UnAlignedSpatialVector(force, torque), threadIndexInWarp);
+		storeSpatialVector(linkData.mCoriolis, ev4sio_Cm::UnAlignedSpatialVector(force, torque), threadIndexInWarp);
 
 		linkData.mInvInertiaXYZ_invMassW[threadIndexInWarp] = invInertiaXYZ_invMass;
 
@@ -1240,19 +1240,19 @@ static __device__ void computeSpatialInertiaW(const PxgArticulation& msArticulat
 		if (!linkData.mDisableGravity[threadIndexInWarp])
 			gravLinAccel = -gravity;
 
-		Cm::UnAlignedSpatialVector zExt(gravLinAccel*m, PxVec3(0.f));
-		Cm::UnAlignedSpatialVector zDamp = Cm::UnAlignedSpatialVector::Zero();
-		const Cm::UnAlignedSpatialVector zInt(PxVec3(0.f), vA.cross(spatialInertia.bottomLeft * vA));
+		ev4sio_Cm::UnAlignedSpatialVector zExt(gravLinAccel*m, PxVec3(0.f));
+		ev4sio_Cm::UnAlignedSpatialVector zDamp = ev4sio_Cm::UnAlignedSpatialVector::Zero();
+		const ev4sio_Cm::UnAlignedSpatialVector zInt(PxVec3(0.f), vA.cross(spatialInertia.bottomLeft * vA));
 
 		if (externalAccels)
 		{
-			const Cm::UnAlignedSpatialVector externalAccel = externalAccels[linkID];
+			const ev4sio_Cm::UnAlignedSpatialVector externalAccel = externalAccels[linkID];
 
 			zExt.top += (-externalAccel.top * m);
 			zExt.bottom += spatialInertia.bottomLeft * (-externalAccel.bottom);
 
 			if(!linkData.mRetainsAcceleration[threadIndexInWarp])
-				externalAccels[linkID] = Cm::UnAlignedSpatialVector::Zero();
+				externalAccels[linkID] = ev4sio_Cm::UnAlignedSpatialVector::Zero();
 		}
 
 		// linear damping
@@ -1286,7 +1286,7 @@ static __device__ void computeSpatialInertiaW(const PxgArticulation& msArticulat
 			}
 		}
 
-		Cm::UnAlignedSpatialVector zExtToStore;
+		ev4sio_Cm::UnAlignedSpatialVector zExtToStore;
 		if(isExternalForcesEveryTgsIterationEnabled)
 		{
 			// The isolated external Z forces are stored in the zAForces buffer, which otherwise just serves as a scratch space.
@@ -1348,8 +1348,8 @@ extern "C" __global__ void computeUnconstrainedSpatialInertiaLaunchPartial1T(
 
 static __device__ PX_FORCE_INLINE void computeIs(
 	const PxU32 dofs,
-	const Dy::SpatialMatrix& spatialInertia,
-	Cm::UnAlignedSpatialVector* Is,
+	const ev4sio_Dy::SpatialMatrix& spatialInertia,
+	ev4sio_Cm::UnAlignedSpatialVector* Is,
 	PxgArticulationBlockDofData* dofData,
 	PxgArticulationBlockLinkData& linkData,
 	const PxU32 threadIndexInWarp)
@@ -1359,14 +1359,14 @@ static __device__ PX_FORCE_INLINE void computeIs(
 	{
 		if(ind<dofs)
 		{
-			Cm::UnAlignedSpatialVector lIs = spatialInertia * loadSpatialVector(dofData[ind].mWorldMotionMatrix, threadIdx.x);
+			ev4sio_Cm::UnAlignedSpatialVector lIs = spatialInertia * loadSpatialVector(dofData[ind].mWorldMotionMatrix, threadIdx.x);
 			Is[ind] = lIs;
 			storeSpatialVector(dofData[ind].mIsW, lIs, threadIdx.x);
 		}
 	}
 }
 
-static __device__ SpatialMatrix constructSpatialMatrix(const Cm::UnAlignedSpatialVector& Is, const Cm::UnAlignedSpatialVector& stI)
+static __device__ SpatialMatrix constructSpatialMatrix(const ev4sio_Cm::UnAlignedSpatialVector& Is, const ev4sio_Cm::UnAlignedSpatialVector& stI)
 {
 	//construct top left
 	const PxVec3 tLeftC0 = Is.top * stI.top.x;
@@ -1400,15 +1400,15 @@ static __device__ SpatialMatrix constructSpatialMatrix(const Cm::UnAlignedSpatia
 // 	(I^A * s * s^T * I^A)/(s * I^A * s)
 // To complete the computation of the delta to apply to the parent articulated spatial inertia it is necessary to compute
 // 	Ii^A - computePropagateSpatialInertia_ZA_ZIc()
-static __device__ Dy::SpatialMatrix computePropagateSpatialInertia_ZA_ZIc(PxgArticulationBlockLinkData& linkData,
+static __device__ ev4sio_Dy::SpatialMatrix computePropagateSpatialInertia_ZA_ZIc(PxgArticulationBlockLinkData& linkData,
 	PxgArticulationBlockDofData* dofData,
-	const Cm::UnAlignedSpatialVector* const PX_RESTRICT msIs, 
+	const ev4sio_Cm::UnAlignedSpatialVector* const PX_RESTRICT msIs,
 	bool isExternalForcesEveryTgsIterationEnabled,
 	const PxReal* const PX_RESTRICT jF, // can be NULL in which case assume zero joint forces
-	const Cm::UnAlignedSpatialVector& Z,
-	const Cm::UnAlignedSpatialVector& ZIcInt,
-	Cm::UnAlignedSpatialVector& ZA,
-	Cm::UnAlignedSpatialVector& ZAInt,
+	const ev4sio_Cm::UnAlignedSpatialVector& Z,
+	const ev4sio_Cm::UnAlignedSpatialVector& ZIcInt,
+	ev4sio_Cm::UnAlignedSpatialVector& ZA,
+	ev4sio_Cm::UnAlignedSpatialVector& ZAInt,
 	const PxU32 threadIndexInWarp,
 	const PxU32 linkID)
 {
@@ -1420,19 +1420,19 @@ static __device__ Dy::SpatialMatrix computePropagateSpatialInertia_ZA_ZIc(PxgArt
 	case PxArticulationJointType::eREVOLUTE:
 	case PxArticulationJointType::eREVOLUTE_UNWRAPPED:
 	{
-		const Cm::UnAlignedSpatialVector sa = loadSpatialVector(dofData[0].mWorldMotionMatrix, threadIndexInWarp);
-		const Cm::UnAlignedSpatialVector& Is = msIs[0];
+		const ev4sio_Cm::UnAlignedSpatialVector sa = loadSpatialVector(dofData[0].mWorldMotionMatrix, threadIndexInWarp);
+		const ev4sio_Cm::UnAlignedSpatialVector& Is = msIs[0];
 
 		PxReal stIs = sa.innerProduct(Is) + dofData[0].mConstraintData.mArmature[threadIndexInWarp];
 		
 		const PxReal iStIs = ((stIs > 0.f) ? (1.f / stIs) : 0.f);
 		dofData[0].mInvStIsT_x[threadIndexInWarp] = iStIs;
 
-		Cm::UnAlignedSpatialVector isInvD = Is * iStIs;
+		ev4sio_Cm::UnAlignedSpatialVector isInvD = Is * iStIs;
 
 		storeSpatialVector(dofData[0].mIsInvDW, isInvD, threadIndexInWarp);
 		//(6x1)Is = [v0, v1]; (1x6)stI = [v1, v0]
-		Cm::UnAlignedSpatialVector stI(Is.bottom, Is.top);
+		ev4sio_Cm::UnAlignedSpatialVector stI(Is.bottom, Is.top);
 
 		const PxReal stZ = sa.innerProduct(Z);
 		const PxReal stZInt = sa.innerProduct(ZIcInt);
@@ -1464,7 +1464,7 @@ static __device__ Dy::SpatialMatrix computePropagateSpatialInertia_ZA_ZIc(PxgArt
 		{
 			if (ind2 < dofs)
 			{
-				const Cm::UnAlignedSpatialVector sa = loadSpatialVector(dofData[ind2].mWorldMotionMatrix, threadIndexInWarp);
+				const ev4sio_Cm::UnAlignedSpatialVector sa = loadSpatialVector(dofData[ind2].mWorldMotionMatrix, threadIndexInWarp);
 				for (PxU32 ind = 0; ind < 3; ++ind)
 				{
 					if(ind<dofs)
@@ -1499,26 +1499,26 @@ static __device__ Dy::SpatialMatrix computePropagateSpatialInertia_ZA_ZIc(PxgArt
 			}
 		}
 
-		Cm::UnAlignedSpatialVector columns[6];
-		columns[0] = Cm::UnAlignedSpatialVector(PxVec3(0.f), PxVec3(0.f));
-		columns[1] = Cm::UnAlignedSpatialVector(PxVec3(0.f), PxVec3(0.f));
-		columns[2] = Cm::UnAlignedSpatialVector(PxVec3(0.f), PxVec3(0.f));
-		columns[3] = Cm::UnAlignedSpatialVector(PxVec3(0.f), PxVec3(0.f));
-		columns[4] = Cm::UnAlignedSpatialVector(PxVec3(0.f), PxVec3(0.f));
-		columns[5] = Cm::UnAlignedSpatialVector(PxVec3(0.f), PxVec3(0.f));
+		ev4sio_Cm::UnAlignedSpatialVector columns[6];
+		columns[0] = ev4sio_Cm::UnAlignedSpatialVector(PxVec3(0.f), PxVec3(0.f));
+		columns[1] = ev4sio_Cm::UnAlignedSpatialVector(PxVec3(0.f), PxVec3(0.f));
+		columns[2] = ev4sio_Cm::UnAlignedSpatialVector(PxVec3(0.f), PxVec3(0.f));
+		columns[3] = ev4sio_Cm::UnAlignedSpatialVector(PxVec3(0.f), PxVec3(0.f));
+		columns[4] = ev4sio_Cm::UnAlignedSpatialVector(PxVec3(0.f), PxVec3(0.f));
+		columns[5] = ev4sio_Cm::UnAlignedSpatialVector(PxVec3(0.f), PxVec3(0.f));
 
 #pragma unroll (3)
 		for (PxU32 ind = 0; ind < 3; ++ind)
 		{
 			if (ind < dofs)
 			{
-				Cm::UnAlignedSpatialVector isID(PxVec3(0.f), PxVec3(0.f));
+				ev4sio_Cm::UnAlignedSpatialVector isID(PxVec3(0.f), PxVec3(0.f));
 
 				for (PxU32 ind2 = 0; ind2 < 3; ++ind2)
 				{
 					if(ind2<dofs)
 					{
-						const Cm::UnAlignedSpatialVector& Is = msIs[ind2];
+						const ev4sio_Cm::UnAlignedSpatialVector& Is = msIs[ind2];
 						isID += Is * invStIs[ind][ind2];
 					}
 				}
@@ -1547,7 +1547,7 @@ static __device__ Dy::SpatialMatrix computePropagateSpatialInertia_ZA_ZIc(PxgArt
 	}
 }
 
-static __device__ void translateInertia(const PxMat33& sTod, Dy::SpatialMatrix& inertia)
+static __device__ void translateInertia(const PxMat33& sTod, ev4sio_Dy::SpatialMatrix& inertia)
 {
 	const PxMat33 dTos = sTod.getTranspose();
 
@@ -1604,30 +1604,30 @@ static __device__ void computeArticulatedSpatialInertiaW(
 
 		PxgArticulationBlockDofData* PX_RESTRICT dofData = dofBlockData + jointOffset;
 
-		Dy::SpatialMatrix parentSpatialArticulatedInertia;
+		ev4sio_Dy::SpatialMatrix parentSpatialArticulatedInertia;
 		loadSpatialMatrix(linkBlockData[parent].mSpatialArticulatedInertia, threadIdx.x, parentSpatialArticulatedInertia);
 
-		Dy::SpatialMatrix articulatedInertia;
-		Cm::UnAlignedSpatialVector msIs[3];
+		ev4sio_Dy::SpatialMatrix articulatedInertia;
+		ev4sio_Cm::UnAlignedSpatialVector msIs[3];
 		loadSpatialMatrix(blockData.mSpatialArticulatedInertia, threadIdx.x, articulatedInertia);
 
-		const Cm::UnAlignedSpatialVector coriolis = loadSpatialVector(blockData.mCoriolis, threadIndexInWarp);
-		const Cm::UnAlignedSpatialVector spatialZA = loadSpatialVector(blockData.mZAVector, threadIndexInWarp);
-		const Cm::UnAlignedSpatialVector spatialZAInt = loadSpatialVector(blockData.mZAIntVector, threadIndexInWarp);
+		const ev4sio_Cm::UnAlignedSpatialVector coriolis = loadSpatialVector(blockData.mCoriolis, threadIndexInWarp);
+		const ev4sio_Cm::UnAlignedSpatialVector spatialZA = loadSpatialVector(blockData.mZAVector, threadIndexInWarp);
+		const ev4sio_Cm::UnAlignedSpatialVector spatialZAInt = loadSpatialVector(blockData.mZAIntVector, threadIndexInWarp);
 
-		const Cm::UnAlignedSpatialVector parentZAVector = loadSpatialVector(linkBlockData[parent].mZAVector, threadIndexInWarp);
-		const Cm::UnAlignedSpatialVector parentZAIntVector = loadSpatialVector(linkBlockData[parent].mZAIntVector, threadIndexInWarp);
+		const ev4sio_Cm::UnAlignedSpatialVector parentZAVector = loadSpatialVector(linkBlockData[parent].mZAVector, threadIndexInWarp);
+		const ev4sio_Cm::UnAlignedSpatialVector parentZAIntVector = loadSpatialVector(linkBlockData[parent].mZAIntVector, threadIndexInWarp);
 
-		const Cm::UnAlignedSpatialVector Ic = articulatedInertia * coriolis;
-		const Cm::UnAlignedSpatialVector ZIcInt = spatialZAInt + Ic;
+		const ev4sio_Cm::UnAlignedSpatialVector Ic = articulatedInertia * coriolis;
+		const ev4sio_Cm::UnAlignedSpatialVector ZIcInt = spatialZAInt + Ic;
 
-		Cm::UnAlignedSpatialVector translatedZA = spatialZA;
-		Cm::UnAlignedSpatialVector translatedZAInt = ZIcInt;
+		ev4sio_Cm::UnAlignedSpatialVector translatedZA = spatialZA;
+		ev4sio_Cm::UnAlignedSpatialVector translatedZAInt = ZIcInt;
 
 		const PxReal* const PX_RESTRICT jF = &jointForces[jointOffset];
 
 		computeIs(dof, articulatedInertia, msIs, dofData, blockData, threadIdx.x);
-		Dy::SpatialMatrix spatialInertiaW = articulatedInertia - computePropagateSpatialInertia_ZA_ZIc(blockData, dofData, msIs, isExternalForcesEveryTgsIterationEnabled, jF, spatialZA, ZIcInt, translatedZA, translatedZAInt, threadIdx.x, linkID);
+		ev4sio_Dy::SpatialMatrix spatialInertiaW = articulatedInertia - computePropagateSpatialInertia_ZA_ZIc(blockData, dofData, msIs, isExternalForcesEveryTgsIterationEnabled, jF, spatialZA, ZIcInt, translatedZA, translatedZAInt, threadIdx.x, linkID);
 
 		//accumulate childen's articulated zero acceleration force to parent's articulated zero acceleration
 		translateSpatialVectorInPlace(PxVec3(rwx, rwy, rwz), translatedZA);
@@ -1650,7 +1650,7 @@ static __device__ void computeArticulatedSpatialInertiaW(
 		storeSpatialMatrix(linkBlockData[parent].mSpatialArticulatedInertia, threadIndexInWarp, parentSpatialArticulatedInertia + spatialInertiaW);
 	}
 
-	Dy::SpatialMatrix inertia;
+	ev4sio_Dy::SpatialMatrix inertia;
 	
 	if (articulationBlock.mFlags[threadIndexInWarp] & PxArticulationFlag::eFIX_BASE)
 	{
@@ -1825,9 +1825,9 @@ extern "C" __global__ void computeMassMatrix1T(const PxgArticulationCoreDesc* co
 
 				for (PxU32 i = 0; i < 6; ++i)
 				{
-					Cm::UnAlignedSpatialVector vec = Cm::UnAlignedSpatialVector::Zero();
+					ev4sio_Cm::UnAlignedSpatialVector vec = ev4sio_Cm::UnAlignedSpatialVector::Zero();
 					vec[i] = 1.f;
-					Cm::UnAlignedSpatialVector r = inverseArticulatedInertiaW * vec;
+					ev4sio_Cm::UnAlignedSpatialVector r = inverseArticulatedInertiaW * vec;
 
 					response.column[i][0] = r.top.x; response.column[i][1] = r.top.y; response.column[i][2] = r.top.z;
 					response.column[i][3] = r.bottom.x; response.column[i][4] = r.bottom.y; response.column[i][5] = r.bottom.z;
@@ -1874,10 +1874,10 @@ extern "C" __global__ void computeMassMatrix1T(const PxgArticulationCoreDesc* co
 				const PxU32 dof = thisLink.mDofs[threadIndexInWarp];
 
 
-				Cm::UnAlignedSpatialVector motionV[3];
+				ev4sio_Cm::UnAlignedSpatialVector motionV[3];
 				float3 invStIsT[3];
-				Cm::UnAlignedSpatialVector isInvD[3];
-				Cm::UnAlignedSpatialVector isW[3];
+				ev4sio_Cm::UnAlignedSpatialVector isInvD[3];
+				ev4sio_Cm::UnAlignedSpatialVector isW[3];
 				PxSpatialMatrix parentResponse;
 
 				loadSpatialMatrix(linkBlocks[parentId].mSpatialResponseMatrix, threadIndexInWarp, parentResponse);
@@ -1900,16 +1900,16 @@ extern "C" __global__ void computeMassMatrix1T(const PxgArticulationCoreDesc* co
 				{
 					//Impulse has to be negated!
 
-					Cm::UnAlignedSpatialVector vec(PxVec3(0.f), PxVec3(0.f));
+					ev4sio_Cm::UnAlignedSpatialVector vec(PxVec3(0.f), PxVec3(0.f));
 					vec[i] = -1.f;
 
 					PxReal qstZ[3] = { 0.f, 0.f, 0.f };
 					//(1) Propagate impulse to parent
-					const Cm::UnAlignedSpatialVector Zp = propagateImpulseW_everythingPreLoaded(isInvD, rw, motionV, vec, dof, qstZ);
+					const ev4sio_Cm::UnAlignedSpatialVector Zp = propagateImpulseW_everythingPreLoaded(isInvD, rw, motionV, vec, dof, qstZ);
 
 					//(2) Get deltaV response for parent
-					const Cm::UnAlignedSpatialVector Zr = -(parentResponse * Zp);
-					const Cm::UnAlignedSpatialVector deltaV = propagateAccelerationW_everythingPreLoaded(rw, invStIsT, motionV, Zr, dof, isW, qstZ);
+					const ev4sio_Cm::UnAlignedSpatialVector Zr = -(parentResponse * Zp);
+					const ev4sio_Cm::UnAlignedSpatialVector deltaV = propagateAccelerationW_everythingPreLoaded(rw, invStIsT, motionV, Zr, dof, isW, qstZ);
 
 					response.column[i][0] = deltaV.top.x; response.column[i][1] = deltaV.top.y; response.column[i][2] = deltaV.top.z;
 					response.column[i][3] = deltaV.bottom.x; response.column[i][4] = deltaV.bottom.y; response.column[i][5] = deltaV.bottom.z;
@@ -1937,25 +1937,25 @@ static __device__ void computeLinkAcceleration(PxgArticulationBlockData& PX_REST
 	const PxU32 threadIndexInWarp)
 {
 	const bool fixBase = articulationBlock.mFlags[threadIndexInWarp] & PxArticulationFlag::eFIX_BASE;
-	Cm::UnAlignedSpatialVector* PX_RESTRICT motionVelocities = articulationBlock.mMotionVelocitiesPtr[threadIndexInWarp];
+	ev4sio_Cm::UnAlignedSpatialVector* PX_RESTRICT motionVelocities = articulationBlock.mMotionVelocitiesPtr[threadIndexInWarp];
 
 	const float4 COM_invMassW = articulationBlock.mCOM_TotalInvMassW[threadIndexInWarp];
 	const PxVec3 COM(COM_invMassW.x, COM_invMassW.y, COM_invMassW.z);
 
-	Cm::UnAlignedSpatialVector preMomentum(PxVec3(0.f), PxVec3(0.f));
-	Cm::UnAlignedSpatialVector postMomentum(PxVec3(0.f), PxVec3(0.f));
+	ev4sio_Cm::UnAlignedSpatialVector preMomentum(PxVec3(0.f), PxVec3(0.f));
+	ev4sio_Cm::UnAlignedSpatialVector postMomentum(PxVec3(0.f), PxVec3(0.f));
 	PxMat33 compoundInertia(PxZero);
 	if (!fixBase)
 	{
 
-		Dy::SpatialMatrix invInertia;
+		ev4sio_Dy::SpatialMatrix invInertia;
 		loadSpatialMatrix(articulationBlock.mInvSpatialArticulatedInertia, threadIndexInWarp, invInertia);
-		const Cm::UnAlignedSpatialVector za = loadSpatialVector(articulationLinks[0].mZAVector, threadIndexInWarp);
+		const ev4sio_Cm::UnAlignedSpatialVector za = loadSpatialVector(articulationLinks[0].mZAVector, threadIndexInWarp);
 
-		const Cm::UnAlignedSpatialVector accel = -(invInertia * za);
+		const ev4sio_Cm::UnAlignedSpatialVector accel = -(invInertia * za);
 		storeSpatialVector(articulationLinks[0].mMotionAcceleration, 
 			accel, threadIndexInWarp);
-		const Cm::UnAlignedSpatialVector motionVel = loadSpatialVector(articulationLinks[0].mMotionVelocity, threadIndexInWarp) + accel * dt;
+		const ev4sio_Cm::UnAlignedSpatialVector motionVel = loadSpatialVector(articulationLinks[0].mMotionVelocity, threadIndexInWarp) + accel * dt;
 
 		const PxReal mass = articulationLinks[0].mMass[threadIndexInWarp];
 		preMomentum.top = motionVel.bottom * mass;
@@ -1965,14 +1965,14 @@ static __device__ void computeLinkAcceleration(PxgArticulationBlockData& PX_REST
 	else
 	{
 		storeSpatialVector(articulationLinks[0].mMotionAcceleration, 
-			Cm::UnAlignedSpatialVector::Zero(), threadIndexInWarp);
+			ev4sio_Cm::UnAlignedSpatialVector::Zero(), threadIndexInWarp);
 		storeSpatialVector(articulationLinks[0].mMotionAccelerationInternal,
-			Cm::UnAlignedSpatialVector::Zero(), threadIndexInWarp);
+			ev4sio_Cm::UnAlignedSpatialVector::Zero(), threadIndexInWarp);
 		storeSpatialVector(articulationLinks[0].mMotionVelocity,
-			Cm::UnAlignedSpatialVector::Zero(), threadIndexInWarp);
+			ev4sio_Cm::UnAlignedSpatialVector::Zero(), threadIndexInWarp);
 
 		//Store motionVel in flat array (inefficient) - required by the constraint prep, which does not process block data!
-		motionVelocities[0] = Cm::UnAlignedSpatialVector::Zero();
+		motionVelocities[0] = ev4sio_Cm::UnAlignedSpatialVector::Zero();
 	}
 
 	// PT: preload next link data
@@ -1998,20 +1998,20 @@ static __device__ void computeLinkAcceleration(PxgArticulationBlockData& PX_REST
 		const float rwy = tLink.mRw_y[threadIndexInWarp];
 		const float rwz = tLink.mRw_z[threadIndexInWarp];
 
-		const Cm::UnAlignedSpatialVector linkMotionVel = loadSpatialVector(tLink.mMotionVelocity, threadIndexInWarp);
+		const ev4sio_Cm::UnAlignedSpatialVector linkMotionVel = loadSpatialVector(tLink.mMotionVelocity, threadIndexInWarp);
 
-		const Cm::UnAlignedSpatialVector pMotionAcceleration = FeatherstoneArticulation::translateSpatialVector(PxVec3(-rwx, -rwy, -rwz), 
+		const ev4sio_Cm::UnAlignedSpatialVector pMotionAcceleration = FeatherstoneArticulation::translateSpatialVector(PxVec3(-rwx, -rwy, -rwz),
 			loadSpatialVector(articulationLinks[parent].mMotionAcceleration, threadIndexInWarp));
 
-		Cm::UnAlignedSpatialVector motionAcceleration = pMotionAcceleration;
-		//Cm::UnAlignedSpatialVector motionAccelerationInternal = pMotionAccelerationInt +loadSpatialVector(tLink.mCoriolis, threadIndexInWarp);
+		ev4sio_Cm::UnAlignedSpatialVector motionAcceleration = pMotionAcceleration;
+		//ev4sio_Cm::UnAlignedSpatialVector motionAccelerationInternal = pMotionAccelerationInt +loadSpatialVector(tLink.mCoriolis, threadIndexInWarp);
 
 		const PxU32 dofs = tLink.mDofs[threadIndexInWarp];
 
-		Cm::UnAlignedSpatialVector isWs[3];
+		ev4sio_Cm::UnAlignedSpatialVector isWs[3];
 		PxReal qstZ[3];
 		PxReal jointVel[3];
-		Cm::UnAlignedSpatialVector axes[3];
+		ev4sio_Cm::UnAlignedSpatialVector axes[3];
 		float invStIsTx[3];
 		float invStIsTy[3];
 		float invStIsTz[3];
@@ -2069,7 +2069,7 @@ static __device__ void computeLinkAcceleration(PxgArticulationBlockData& PX_REST
 
 		storeSpatialVector(tLink.mMotionAcceleration, motionAcceleration, threadIndexInWarp);
 
-		const Cm::UnAlignedSpatialVector motionVel = linkMotionVel + motionAcceleration * dt;
+		const ev4sio_Cm::UnAlignedSpatialVector motionVel = linkMotionVel + motionAcceleration * dt;
 
 		//Now store the pre-momentum stuff...
 
@@ -2090,15 +2090,15 @@ static __device__ void computeLinkAcceleration(PxgArticulationBlockData& PX_REST
 	if (!fixBase)
 	{
 
-		Dy::SpatialMatrix invInertia;
+		ev4sio_Dy::SpatialMatrix invInertia;
 		loadSpatialMatrix(articulationBlock.mInvSpatialArticulatedInertia, threadIndexInWarp, invInertia);
-		const Cm::UnAlignedSpatialVector zaInt = loadSpatialVector(articulationLinks[0].mZAIntVector, threadIndexInWarp);
+		const ev4sio_Cm::UnAlignedSpatialVector zaInt = loadSpatialVector(articulationLinks[0].mZAIntVector, threadIndexInWarp);
 
-		const Cm::UnAlignedSpatialVector accel = -(invInertia * zaInt);
+		const ev4sio_Cm::UnAlignedSpatialVector accel = -(invInertia * zaInt);
 		storeSpatialVector(articulationLinks[0].mMotionAccelerationInternal,
 			accel, threadIndexInWarp);
 		addSpatialVector(articulationLinks[0].mMotionAcceleration, accel, threadIndexInWarp);
-		Cm::UnAlignedSpatialVector motionVel = loadSpatialVector(articulationLinks[0].mMotionVelocity, threadIndexInWarp);
+		ev4sio_Cm::UnAlignedSpatialVector motionVel = loadSpatialVector(articulationLinks[0].mMotionVelocity, threadIndexInWarp);
 
 		PxMat33 inertia;
 		loadPxMat33(articulationLinks[0].mIsolatedInertia, threadIndexInWarp, inertia);
@@ -2129,19 +2129,19 @@ static __device__ void computeLinkAcceleration(PxgArticulationBlockData& PX_REST
 		const float rwy = tLink.mRw_y[threadIndexInWarp];
 		const float rwz = tLink.mRw_z[threadIndexInWarp];
 
-		const Cm::UnAlignedSpatialVector pMotionAcceleration = FeatherstoneArticulation::translateSpatialVector(PxVec3(-rwx, -rwy, -rwz),
+		const ev4sio_Cm::UnAlignedSpatialVector pMotionAcceleration = FeatherstoneArticulation::translateSpatialVector(PxVec3(-rwx, -rwy, -rwz),
 			loadSpatialVector(articulationLinks[parent].mMotionAccelerationInternal, threadIndexInWarp));
 
-		Cm::UnAlignedSpatialVector motionAcceleration = pMotionAcceleration + loadSpatialVector(tLink.mCoriolis, threadIndexInWarp);
-		//Cm::UnAlignedSpatialVector motionAccelerationInternal = pMotionAccelerationInt +loadSpatialVector(tLink.mCoriolis, threadIndexInWarp);
+		ev4sio_Cm::UnAlignedSpatialVector motionAcceleration = pMotionAcceleration + loadSpatialVector(tLink.mCoriolis, threadIndexInWarp);
+		//ev4sio_Cm::UnAlignedSpatialVector motionAccelerationInternal = pMotionAccelerationInt +loadSpatialVector(tLink.mCoriolis, threadIndexInWarp);
 
 		const PxU32 dofs = tLink.mDofs[threadIndexInWarp];
 
 
-		Cm::UnAlignedSpatialVector isWs[3];
+		ev4sio_Cm::UnAlignedSpatialVector isWs[3];
 		PxReal qstZ[3];
 		PxReal jointVel[3];
-		Cm::UnAlignedSpatialVector axes[3];
+		ev4sio_Cm::UnAlignedSpatialVector axes[3];
 		float invStIsTx[3];
 		float invStIsTy[3];
 		float invStIsTz[3];
@@ -2201,7 +2201,7 @@ static __device__ void computeLinkAcceleration(PxgArticulationBlockData& PX_REST
 		storeSpatialVector(tLink.mMotionAccelerationInternal, motionAcceleration, threadIndexInWarp);
 
 		const PxVec3 pos = loadPxVec3(tLink.mAccumulatedPose.p, threadIndexInWarp);
-		Cm::UnAlignedSpatialVector motionVel = loadSpatialVector(tLink.mMotionVelocity, threadIndexInWarp);// +motionAcceleration * dt;
+		ev4sio_Cm::UnAlignedSpatialVector motionVel = loadSpatialVector(tLink.mMotionVelocity, threadIndexInWarp);// +motionAcceleration * dt;
 
 		//Now store the pre-momentum stuff...
 
@@ -2234,7 +2234,7 @@ static __device__ void computeLinkAcceleration(PxgArticulationBlockData& PX_REST
 		for (PxU32 linkID = 0; linkID < numLinks; ++linkID)
 		{
 			const PxgArticulationBlockLinkData& PX_RESTRICT tLink = articulationLinks[linkID];
-			const Cm::UnAlignedSpatialVector motionVel = loadSpatialVector(tLink.mMotionVelocity, threadIndexInWarp);// +motionAcceleration * dt;
+			const ev4sio_Cm::UnAlignedSpatialVector motionVel = loadSpatialVector(tLink.mMotionVelocity, threadIndexInWarp);// +motionAcceleration * dt;
 
 			PxMat33 inertia;
 			loadPxMat33(tLink.mIsolatedInertia, threadIndexInWarp, inertia);
@@ -2258,12 +2258,12 @@ static __device__ void computeLinkAcceleration(PxgArticulationBlockData& PX_REST
 
 		const PxVec3 angVel = (invCompoundInertia * postMomentum.bottom) + deltaAng;
 
-		//addSpatialVector(articulationLinks[0].mMotionVelocity, Cm::UnAlignedSpatialVector(deltaAng, PxVec3(0.f)), threadIndexInWarp);
+		//addSpatialVector(articulationLinks[0].mMotionVelocity, ev4sio_Cm::UnAlignedSpatialVector(deltaAng, PxVec3(0.f)), threadIndexInWarp);
 
 		for (PxU32 linkID = 0; linkID < numLinks; ++linkID)
 		{
 			const PxVec3 offset = (loadPxVec3(articulationLinks[linkID].mAccumulatedPose.p, threadIndexInWarp) - COM);
-			const Cm::UnAlignedSpatialVector velChange(deltaAng, offset.cross(deltaAng));
+			const ev4sio_Cm::UnAlignedSpatialVector velChange(deltaAng, offset.cross(deltaAng));
 			addSpatialVector(articulationLinks[linkID].mMotionVelocity, velChange, threadIndexInWarp);
 			postMomentum.top += velChange.bottom * articulationLinks[linkID].mMass[threadIndexInWarp];
 		}
@@ -2276,7 +2276,7 @@ static __device__ void computeLinkAcceleration(PxgArticulationBlockData& PX_REST
 
 		for (PxU32 linkID = 0; linkID < numLinks; ++linkID)
 		{
-			Cm::UnAlignedSpatialVector vel = loadSpatialVector(articulationLinks[linkID].mMotionVelocity, threadIndexInWarp);
+			ev4sio_Cm::UnAlignedSpatialVector vel = loadSpatialVector(articulationLinks[linkID].mMotionVelocity, threadIndexInWarp);
 			vel.bottom += deltaLin;
 			storeSpatialVector(articulationLinks[linkID].mMotionVelocity, vel, threadIndexInWarp);
 			//storeSpatialVector(&motionVelocities[linkID], vel);
@@ -2291,7 +2291,7 @@ static __device__ void computeLinkAcceleration(PxgArticulationBlockData& PX_REST
 
 			PxVec3 rootVel = postMomentum.top * COM_invMassW.w + deltaLin;
 
-			Cm::SpatialVectorF momentum2(PxVec3(0.f), PxVec3(0.f));
+			ev4sio_Cm::SpatialVectorF momentum2(PxVec3(0.f), PxVec3(0.f));
 			for (PxU32 linkID = 0; linkID < numLinks; ++linkID)
 			{
 				const PxReal mass = articulationLinks[linkID].mMass[threadIndexInWarp];
@@ -2300,7 +2300,7 @@ static __device__ void computeLinkAcceleration(PxgArticulationBlockData& PX_REST
 				PxMat33 inertia;
 				loadPxMat33(articulationLinks[linkID].mIsolatedInertia, threadIndexInWarp, inertia);
 
-				Cm::UnAlignedSpatialVector vel = loadSpatialVector(articulationLinks[linkID].mMotionVelocity, threadIndexInWarp);
+				ev4sio_Cm::UnAlignedSpatialVector vel = loadSpatialVector(articulationLinks[linkID].mMotionVelocity, threadIndexInWarp);
 
 				const PxVec3 angMom = inertia * vel.top +
 					offset.cross(vel.bottom - rootVel)*mass;
@@ -2414,7 +2414,7 @@ static __device__ void computeAndEnforceJointPositions(
 	PxgArticulationBlockDofData* dofData, const PxU32 linkCount,
 	const PxU32 threadIndexInWarp)
 {
-	using namespace Dy;
+	using namespace ev4sio_Dy;
 
 	for (PxU32 linkID = 1; linkID < linkCount; linkID ++)
 	{
@@ -2456,7 +2456,7 @@ static __device__ void computeAndEnforceJointPositions(
 	}
 }
 
-static __device__ PX_FORCE_INLINE PxTransform updateRootBody(const Cm::UnAlignedSpatialVector& motionVelocity,
+static __device__ PX_FORCE_INLINE PxTransform updateRootBody(const ev4sio_Cm::UnAlignedSpatialVector& motionVelocity,
 	const PxTransform& preTransform,
 	const PxReal dt,
 	PxU32 threadIndexInWarp)
@@ -2510,7 +2510,7 @@ static __device__ void propagateLink(PxTransform& PX_RESTRICT body2World, const 
 		dof[0].mJointPositions[threadIndexInWarp] = pos;
 
 		newParentToChild = relativeQuat;
-		const Cm::UnAlignedSpatialVector motionMatrix = loadSpatialVector(dof[0].mLocalMotionMatrix, threadIndexInWarp);
+		const ev4sio_Cm::UnAlignedSpatialVector motionMatrix = loadSpatialVector(dof[0].mLocalMotionMatrix, threadIndexInWarp);
 		offset = motionMatrix.bottom*pos;
 		break;
 	}
@@ -2564,7 +2564,7 @@ static __device__ void propagateLink(PxTransform& PX_RESTRICT body2World, const 
 		{
 			const PxTransform oldTransform = loadSpatialTransform(link.mAccumulatedPose, threadIndexInWarp);
 			
-			Cm::UnAlignedSpatialVector worldVel = isSubstep ? loadSpatialVector(link.mMotionVelocity, threadIndexInWarp) :
+			ev4sio_Cm::UnAlignedSpatialVector worldVel = isSubstep ? loadSpatialVector(link.mMotionVelocity, threadIndexInWarp) :
 				loadSpatialVector(link.mPosMotionVelocity, threadIndexInWarp);
 
 			PxVec3 worldAngVel = worldVel.top;
@@ -2633,7 +2633,7 @@ static __device__ void updatePoses(const PxgArticulationBlockData& artiData, Pxg
 {
 	if (!fixBase)
 	{
-		const Cm::UnAlignedSpatialVector posVel = loadSpatialVector(artiLinks[0].mPosMotionVelocity, threadIndexInWarp);
+		const ev4sio_Cm::UnAlignedSpatialVector posVel = loadSpatialVector(artiLinks[0].mPosMotionVelocity, threadIndexInWarp);
 		const PxTransform preTrans = loadSpatialTransform(artiLinks[0].mAccumulatedPose, threadIndexInWarp);
 
 		const PxTransform trans = updateRootBody(posVel, preTrans, dt, threadIndexInWarp);
@@ -2735,8 +2735,8 @@ static void __device__ conserveMomentum(PxgArticulationBlockData& articulation,
 		const PxVec3 preCOM(COM_invMassW.x, COM_invMassW.y, COM_invMassW.z);
 		PxVec3 postCOM(0.f);
 
-		Cm::UnAlignedSpatialVector preMomentum(PxVec3(0.f), PxVec3(0.f));
-		Cm::UnAlignedSpatialVector postMomentum(PxVec3(0.f), PxVec3(0.f));
+		ev4sio_Cm::UnAlignedSpatialVector preMomentum(PxVec3(0.f), PxVec3(0.f));
+		ev4sio_Cm::UnAlignedSpatialVector postMomentum(PxVec3(0.f), PxVec3(0.f));
 		PxVec3 posMomentum(0.f);
 
 		for (PxU32 linkID = 0; linkID < linkCount; ++linkID)
@@ -2751,7 +2751,7 @@ static void __device__ conserveMomentum(PxgArticulationBlockData& articulation,
 		PxVec3 comPreLinVel = preMomentum.top * COM_invMassW.w;
 		PxMat33 inertia;
 		loadPxMat33(artiLinks[0].mIsolatedInertia, threadIndexInWarp, inertia);
-		Cm::UnAlignedSpatialVector vel = loadSpatialVector(artiLinks[0].mMotionVelocity, threadIndexInWarp);
+		ev4sio_Cm::UnAlignedSpatialVector vel = loadSpatialVector(artiLinks[0].mMotionVelocity, threadIndexInWarp);
 		preMomentum.bottom = inertia * vel.top
 			+ (loadPxVec3(artiLinks[0].mPreTransform.p, threadIndexInWarp) - preCOM).cross(vel.bottom - comPreLinVel)*mass;
 
@@ -2782,7 +2782,7 @@ static void __device__ conserveMomentum(PxgArticulationBlockData& articulation,
 			PxU32 jointOffset = artiLinks[linkID].mJointOffset[threadIndexInWarp];
 
 			loadPxMat33(artiLinks[linkID].mIsolatedInertia, threadIndexInWarp, inertia);
-			Cm::UnAlignedSpatialVector vel = loadSpatialVector(artiLinks[linkID].mMotionVelocity, threadIndexInWarp);
+			ev4sio_Cm::UnAlignedSpatialVector vel = loadSpatialVector(artiLinks[linkID].mMotionVelocity, threadIndexInWarp);
 			preMomentum.bottom += inertia * vel.top
 				+ (loadPxVec3(artiLinks[linkID].mPreTransform.p, threadIndexInWarp) - preCOM).cross(vel.bottom - comPreLinVel)*mass;
 
@@ -2818,7 +2818,7 @@ static void __device__ conserveMomentum(PxgArticulationBlockData& articulation,
 
 		for (PxU32 linkID = 0; linkID < linkCount; ++linkID)
 		{
-			const Cm::UnAlignedSpatialVector vel = loadSpatialVector(artiLinks[linkID].mMotionVelocity, threadIndexInWarp);
+			const ev4sio_Cm::UnAlignedSpatialVector vel = loadSpatialVector(artiLinks[linkID].mMotionVelocity, threadIndexInWarp);
 
 			// PT: preload next link data
 			const PxVec3 inertiaDiag(1.f / nextInvInertiaDiag.x, 1.f / nextInvInertiaDiag.y, 1.f / nextInvInertiaDiag.z);
@@ -2836,7 +2836,7 @@ static void __device__ conserveMomentum(PxgArticulationBlockData& articulation,
 			const PxVec3 offsetMass = offset * mass;
 
 			PxMat33 inertia;
-			Cm::transformInertiaTensor(inertiaDiag, R, inertia);
+			ev4sio_Cm::transformInertiaTensor(inertiaDiag, R, inertia);
 
 			compoundInertia += translateInertia(inertia, mass, offset);
 
@@ -2855,16 +2855,16 @@ static void __device__ conserveMomentum(PxgArticulationBlockData& articulation,
 
 		for (PxU32 linkID = 0; linkID < linkCount; ++linkID)
 		{
-			const Cm::UnAlignedSpatialVector vel = loadSpatialVector(artiLinks[linkID].mMotionVelocity, threadIndexInWarp);
+			const ev4sio_Cm::UnAlignedSpatialVector vel = loadSpatialVector(artiLinks[linkID].mMotionVelocity, threadIndexInWarp);
 			const PxReal mass = artiLinks[linkID].mMass[threadIndexInWarp];
 
 			const PxVec3 offset = (loadPxVec3(artiLinks[linkID].mAccumulatedPose.p, threadIndexInWarp) - postCOM);
-			const Cm::UnAlignedSpatialVector velChange(angDelta, -offset.cross(angDelta));
+			const ev4sio_Cm::UnAlignedSpatialVector velChange(angDelta, -offset.cross(angDelta));
 			storeSpatialVector(artiLinks[linkID].mMotionVelocity, vel + velChange, threadIndexInWarp);
 			postMomentum.top += velChange.bottom * mass;
 		}
 
-		const Cm::UnAlignedSpatialVector delta(PxVec3(0.f), (preMomentum.top - postMomentum.top)*COM_invMassW.w);
+		const ev4sio_Cm::UnAlignedSpatialVector delta(PxVec3(0.f), (preMomentum.top - postMomentum.top)*COM_invMassW.w);
 
 		PxVec3 predictedCOM;
 		if (doIntegrate)
@@ -2895,7 +2895,7 @@ static void __device__ conserveMomentum(PxgArticulationBlockData& articulation,
 
 			PxVec3 rootVel = postMomentum.top * COM_invMassW.w + delta.bottom;
 
-			Cm::SpatialVectorF momentum2(PxVec3(0.f), PxVec3(0.f));
+			ev4sio_Cm::SpatialVectorF momentum2(PxVec3(0.f), PxVec3(0.f));
 			for (PxU32 linkID = 0; linkID < linkCount; ++linkID)
 			{
 				const PxReal mass = artiLinks[linkID].mMass[threadIndexInWarp];
@@ -3008,7 +3008,7 @@ static __device__ void accumulateExternalZAcrossChainW(
 	const PxU32 numLinks,
 	const PxU32 threadIndexInWarp)
 {
-	Cm::UnAlignedSpatialVector* PX_RESTRICT zAForces = articulation.zAForces;
+	ev4sio_Cm::UnAlignedSpatialVector* PX_RESTRICT zAForces = articulation.zAForces;
 	for (PxU32 linkID = numLinks - 1; linkID > 0; --linkID)
 	{
 		const PxgArticulationBlockLinkData& blockData = linkData[linkID];
@@ -3019,8 +3019,8 @@ static __device__ void accumulateExternalZAcrossChainW(
 		const PxU32 dofCount = blockData.mDofs[threadIndexInWarp];
 		const PxU32 jointOffset = blockData.mJointOffset[threadIndexInWarp];
 
-		const Cm::UnAlignedSpatialVector childZ = zAForces[linkID];
-		const Cm::UnAlignedSpatialVector translated =
+		const ev4sio_Cm::UnAlignedSpatialVector childZ = zAForces[linkID];
+		const ev4sio_Cm::UnAlignedSpatialVector translated =
 			propagateImpulseW<WriteToProvidedQstZ>(
 				PxVec3(rwx, rwy, rwz),
 				&dofData[jointOffset],
@@ -3102,7 +3102,7 @@ extern "C" __global__ void updateBodiesLaunch_Part2(
 
 			const PxgArticulation& articulation = scDesc->articulations[articulationIndex];
 			PxTransform* body2World = articulation.linkBody2Worlds;
-			Cm::UnAlignedSpatialVector* motionVelocities = articulation.motionVelocities;
+			ev4sio_Cm::UnAlignedSpatialVector* motionVelocities = articulation.motionVelocities;
 
 			const PxReal sleepThreshold = articulationBlock.mSleepThreshold[threadIndexInWarp];
 
@@ -3112,16 +3112,16 @@ extern "C" __global__ void updateBodiesLaunch_Part2(
 			PxgArticulationLinkSleepData* gSleepData = articulation.linkSleepData;
 
 			// Compute the link incoming joint force
-			Cm::UnAlignedSpatialVector* linkAccelerations = articulation.motionAccelerations;
-			Cm::UnAlignedSpatialVector* linkIncomingJointForces = articulation.linkIncomingJointForces;
+			ev4sio_Cm::UnAlignedSpatialVector* linkAccelerations = articulation.motionAccelerations;
+			ev4sio_Cm::UnAlignedSpatialVector* linkIncomingJointForces = articulation.linkIncomingJointForces;
 
 			if(linkIndex==0)
 			{
-				const Cm::SpatialVectorF linkMotionAccelerationW = loadSpatialVectorF(linkData[0].mMotionAcceleration, threadIndexInWarp);
-				const Cm::SpatialVectorF linkSpatialDeltaVelW = loadSpatialVectorF(linkData[0].mSolverSpatialDeltaVel, threadIndexInWarp);
+				const ev4sio_Cm::SpatialVectorF linkMotionAccelerationW = loadSpatialVectorF(linkData[0].mMotionAcceleration, threadIndexInWarp);
+				const ev4sio_Cm::SpatialVectorF linkSpatialDeltaVelW = loadSpatialVectorF(linkData[0].mSolverSpatialDeltaVel, threadIndexInWarp);
 
 				//Compute the acceleration
-				const Cm::SpatialVectorF accelerationW = linkMotionAccelerationW + linkSpatialDeltaVelW*invDt;
+				const ev4sio_Cm::SpatialVectorF accelerationW = linkMotionAccelerationW + linkSpatialDeltaVelW*invDt;
 
 				//Store the link accelerations.
 				linkAccelerations[0].top = accelerationW.top;
@@ -3132,7 +3132,7 @@ extern "C" __global__ void updateBodiesLaunch_Part2(
 			}
 			else
 			{
-				Cm::SpatialVectorF linkZAForceExtW = loadSpatialVectorF(linkData[linkIndex].mZAVector, threadIndexInWarp);
+				ev4sio_Cm::SpatialVectorF linkZAForceExtW = loadSpatialVectorF(linkData[linkIndex].mZAVector, threadIndexInWarp);
 				if (scDesc->isExternalForcesEveryTgsIterationEnabled)
 				{
 					// Under eENABLE_EXTERNAL_FORCES_EVERY_ITERATION_TGS, computeSpatialInertiaW
@@ -3142,27 +3142,27 @@ extern "C" __global__ void updateBodiesLaunch_Part2(
 					// accumulates descendants' contributions into articulation.zAForces[link] just
 					// before this kernel runs, so adding it back here recovers the full external-Z
 					// chain (own + propagated descendants) for the readback.
-					const Cm::UnAlignedSpatialVector zExtChain = articulation.zAForces[linkIndex];
+					const ev4sio_Cm::UnAlignedSpatialVector zExtChain = articulation.zAForces[linkIndex];
 					linkZAForceExtW.top += zExtChain.top;
 					linkZAForceExtW.bottom += zExtChain.bottom;
 				}
-				const Cm::SpatialVectorF linkZAForceIntW = loadSpatialVectorF(linkData[linkIndex].mZAIntVector, threadIndexInWarp);
-				const Cm::SpatialVectorF linkMotionAccelerationExtW = loadSpatialVectorF(linkData[linkIndex].mMotionAcceleration, threadIndexInWarp);
-				const Cm::SpatialVectorF linkMotionAccelerationIntW = loadSpatialVectorF(linkData[linkIndex].mMotionAccelerationInternal, threadIndexInWarp);
+				const ev4sio_Cm::SpatialVectorF linkZAForceIntW = loadSpatialVectorF(linkData[linkIndex].mZAIntVector, threadIndexInWarp);
+				const ev4sio_Cm::SpatialVectorF linkMotionAccelerationExtW = loadSpatialVectorF(linkData[linkIndex].mMotionAcceleration, threadIndexInWarp);
+				const ev4sio_Cm::SpatialVectorF linkMotionAccelerationIntW = loadSpatialVectorF(linkData[linkIndex].mMotionAccelerationInternal, threadIndexInWarp);
 				SpatialMatrix linkSpatialInertiaW;
 				loadSpatialMatrix(linkData[linkIndex].mSpatialArticulatedInertia, threadIndexInWarp, linkSpatialInertiaW);
-				const Cm::SpatialVectorF linkSpatialDeltaVelW = loadSpatialVectorF(linkData[linkIndex].mSolverSpatialDeltaVel, threadIndexInWarp);
-				const Cm::SpatialVectorF linkSpatialImpulseW = loadSpatialVectorF(linkData[linkIndex].mSolverSpatialImpulse, threadIndexInWarp);
+				const ev4sio_Cm::SpatialVectorF linkSpatialDeltaVelW = loadSpatialVectorF(linkData[linkIndex].mSolverSpatialDeltaVel, threadIndexInWarp);
+				const ev4sio_Cm::SpatialVectorF linkSpatialImpulseW = loadSpatialVectorF(linkData[linkIndex].mSolverSpatialImpulse, threadIndexInWarp);
 				const PxTransform Gc = loadSpatialTransform(linkData[linkIndex].mAccumulatedPose, threadIndexInWarp);		
 				const PxTransform Lc = loadSpatialTransform(linkData[linkIndex].mChildPose, threadIndexInWarp);
 				const PxTransform GcLc = Gc*Lc;
 				const PxVec3 dW = Gc.rotate(Lc.p);
 
 				//Compute the acceleration
-				const Cm::SpatialVectorF accelerationW = linkMotionAccelerationExtW + linkMotionAccelerationIntW + linkSpatialDeltaVelW*invDt;
+				const ev4sio_Cm::SpatialVectorF accelerationW = linkMotionAccelerationExtW + linkMotionAccelerationIntW + linkSpatialDeltaVelW*invDt;
 
 				//Compute the force measured at the link.
-				Cm::SpatialVectorF incomingJointForceW =
+				ev4sio_Cm::SpatialVectorF incomingJointForceW =
 					linkSpatialInertiaW*accelerationW +
 					(linkZAForceExtW + linkZAForceIntW + linkSpatialImpulseW*invDt);	// PT: at link
 
@@ -3181,13 +3181,13 @@ extern "C" __global__ void updateBodiesLaunch_Part2(
 			PxgArticulationLink& link = links[linkIndex];
 			PxgArticulationBlockLinkData& blockLinkData = linkData[linkIndex];
 
-			const Cm::UnAlignedSpatialVector motionV = loadSpatialVector(blockLinkData.mMotionVelocity, threadIndexInWarp);
+			const ev4sio_Cm::UnAlignedSpatialVector motionV = loadSpatialVector(blockLinkData.mMotionVelocity, threadIndexInWarp);
 			const float initialLinVelXYZ_invMassW = link.initialLinVelXYZ_invMassW.w;
 			const float initialAngVelXYZ_penBiasClamp = link.initialAngVelXYZ_penBiasClamp.w;
 			PxReal lwc = gLinkWakeCounters[linkIndex];
 			const PxTransform accumulatedPose = loadSpatialTransform(blockLinkData.mAccumulatedPose, threadIndexInWarp);
 
-			Cm::UnAlignedSpatialVector posMotionV = loadSpatialVector(blockLinkData.mPosMotionVelocity, threadIndexInWarp);
+			ev4sio_Cm::UnAlignedSpatialVector posMotionV = loadSpatialVector(blockLinkData.mPosMotionVelocity, threadIndexInWarp);
 			const float4 inverseInertiaXYZ_invMass = blockLinkData.mInvInertiaXYZ_invMassW[threadIndexInWarp];
 
 			motionVelocities[linkIndex] = motionV;
@@ -3506,14 +3506,14 @@ extern "C" __global__ void artiApplyTgsSubstepForces(PxgArticulationCoreDesc* sc
 		PxgArticulationBlockData& articulationBlock = scDesc->mArticulationBlocks[globalWarpIndex];
 		const PxU32 articulationIndex = articulationBlock.mArticulationIndex[threadIndexInWarp];
 		const PxgArticulation& articulation = scDesc->articulations[articulationIndex];
-		const Cm::UnAlignedSpatialVector* PX_RESTRICT zExt = articulation.zAForces;
+		const ev4sio_Cm::UnAlignedSpatialVector* PX_RESTRICT zExt = articulation.zAForces;
 		const PxReal* PX_RESTRICT jointForces = articulation.jointForce;
 		PxgArticulationBlockLinkData* artiLinks = &scDesc->mArticulationLinkBlocks[globalWarpIndex * maxLinks];
 		PxgArticulationBlockDofData* artiDofs = &scDesc->mArticulationDofBlocks[globalWarpIndex * maxDofs];
 		const PxU32 numLinks = articulationBlock.mNumLinks[threadIndexInWarp];
 		const bool isFixedBase = articulationBlock.mFlags[threadIndexInWarp] & PxArticulationFlag::eFIX_BASE;
 
-		const Cm::UnAlignedSpatialVector zero = Cm::UnAlignedSpatialVector::Zero();
+		const ev4sio_Cm::UnAlignedSpatialVector zero = ev4sio_Cm::UnAlignedSpatialVector::Zero();
 
 		// Since a link can have multiple children we're working with linkData.mScratchImpulse
 		// to accumulate the propagated gravity effect of a child to its parent link.
@@ -3537,11 +3537,11 @@ extern "C" __global__ void artiApplyTgsSubstepForces(PxgArticulationCoreDesc* sc
 			PxgArticulationBlockDofData* PX_RESTRICT dofData = &artiDofs[jointOffset];
 			const PxReal* PX_RESTRICT jointForce = &jointForces[jointOffset];
 
-			const Cm::UnAlignedSpatialVector isolatedYW = zExt[linkIdx];
-			const Cm::UnAlignedSpatialVector articulatedYW =
+			const ev4sio_Cm::UnAlignedSpatialVector isolatedYW = zExt[linkIdx];
+			const ev4sio_Cm::UnAlignedSpatialVector articulatedYW =
 			    isolatedYW * stepDt + loadSpatialVector(linkData.mScratchImpulse, threadIndexInWarp);
 
-			Cm::UnAlignedSpatialVector propagatedYWParent =
+			ev4sio_Cm::UnAlignedSpatialVector propagatedYWParent =
 			    propagateImpulseW<WriteToDeferredQstZ>(PxVec3(rwx, rwy, rwz), dofData, articulatedYW, dofCount, threadIndexInWarp, jointForce, stepDt);
 
 			if(parent > 0 || !isFixedBase)
@@ -3554,8 +3554,8 @@ extern "C" __global__ void artiApplyTgsSubstepForces(PxgArticulationCoreDesc* sc
 		if(!isFixedBase)
 		{
 			PxgArticulationBlockLinkData& linkData = artiLinks[0];
-			const Cm::UnAlignedSpatialVector isolatedYW = zExt[0];
-			const Cm::UnAlignedSpatialVector articulatedYW =
+			const ev4sio_Cm::UnAlignedSpatialVector isolatedYW = zExt[0];
+			const ev4sio_Cm::UnAlignedSpatialVector articulatedYW =
 			    isolatedYW * stepDt + loadSpatialVector(linkData.mScratchImpulse, threadIndexInWarp);
 
 			addSpatialVector(articulationBlock.mRootDeferredZ, articulatedYW, threadIndexInWarp);
@@ -3631,7 +3631,7 @@ __device__ void artiPropagateImpulses2(PxgArticulationCoreDesc* scDesc,
 
 					PxgArticulationBitFieldStackData* pathToRootPerPartition = &scDesc->mPathToRootsPerPartition[offset2];
 
-					Cm::UnAlignedSpatialVector* impulses = scDesc->impulses;
+					ev4sio_Cm::UnAlignedSpatialVector* impulses = scDesc->impulses;
 
 					averageLinkImpulsesAndPropagate2(isSlabDirty, impulses, articulation, artiLinks, artiDofs, globalThreadIndex, maxLinks,
 						nbArticulations, nbSlabs, numLinks, threadIndexInWarp, scale, pathToRootPerPartition, wordSize, dirtyLink, dirtyFlag);
@@ -3710,11 +3710,11 @@ static __device__ void artiPropagateVelocityInternal(const PxgArticulationCoreDe
 		{
 			if (dirtyIndex != 0xFFFFFFFF)
 			{
-				Cm::UnAlignedSpatialVector velocity = loadSpatialVector(artiLinks[dirtyIndex].mMotionVelocity, threadIndexInWarp);
+				ev4sio_Cm::UnAlignedSpatialVector velocity = loadSpatialVector(artiLinks[dirtyIndex].mMotionVelocity, threadIndexInWarp);
 
 				if (partitionId != 0 && dirtyLink != 0xFFFFFFFF)
 				{
-					Cm::UnAlignedSpatialVector deltaV = loadSpatialVector(articulation.mCommonLinkDeltaVelocity, threadIndexInWarp);
+					ev4sio_Cm::UnAlignedSpatialVector deltaV = loadSpatialVector(articulation.mCommonLinkDeltaVelocity, threadIndexInWarp);
 
 					for (PxU32 j = 0, wordOffset = 0; j < wordSize; ++j, wordOffset += 64)
 					{
@@ -3746,7 +3746,7 @@ static __device__ void artiPropagateVelocityInternal(const PxgArticulationCoreDe
 				//Output velocity to be read in by solver...
 				if (isTGS)
 				{
-					Cm::UnAlignedSpatialVector deltaMotion = loadSpatialVector(artiLinks[dirtyIndex].mDeltaMotion, threadIndexInWarp);
+					ev4sio_Cm::UnAlignedSpatialVector deltaMotion = loadSpatialVector(artiLinks[dirtyIndex].mDeltaMotion, threadIndexInWarp);
 					velocityOutput[writeIndex] = make_float4(velocity.bottom.x, velocity.bottom.y, velocity.bottom.z, velocity.top.x);
 					velocityOutput[writeIndex + 32] = make_float4(velocity.top.y, velocity.top.z, deltaMotion.bottom.x, deltaMotion.bottom.y);
 					velocityOutput[writeIndex + 64] = make_float4(deltaMotion.bottom.z, deltaMotion.top.x, deltaMotion.top.y, deltaMotion.top.z);
@@ -3896,10 +3896,10 @@ extern "C" __global__ void stepArticulation1TTGS(const PxgArticulationCoreDesc* 
 			PxgArticulationBlockLinkData& link = artiLinks[0];
 
 			const PxQuat prevPoseConjugate = loadSpatialTransformQuatConjugate(link.mPreTransform, threadIndexInWarp);
-			const Cm::UnAlignedSpatialVector motionVelocity = loadSpatialVector(link.mMotionVelocity, threadIndexInWarp);
+			const ev4sio_Cm::UnAlignedSpatialVector motionVelocity = loadSpatialVector(link.mMotionVelocity, threadIndexInWarp);
 
-			const Cm::UnAlignedSpatialVector deltaMotion = loadSpatialVector(link.mDeltaMotion, threadIndexInWarp);
-			const Cm::UnAlignedSpatialVector posMotionVelocity = loadSpatialVector(link.mPosMotionVelocity, threadIndexInWarp);
+			const ev4sio_Cm::UnAlignedSpatialVector deltaMotion = loadSpatialVector(link.mDeltaMotion, threadIndexInWarp);
+			const ev4sio_Cm::UnAlignedSpatialVector posMotionVelocity = loadSpatialVector(link.mPosMotionVelocity, threadIndexInWarp);
 
 			const PxTransform body2World = updateRootBody(motionVelocity, loadSpatialTransform(link.mAccumulatedPose, threadIndexInWarp),
 				stepDt, threadIndexInWarp);
@@ -3911,7 +3911,7 @@ extern "C" __global__ void stepArticulation1TTGS(const PxgArticulationCoreDesc* 
 
 			link.mDeltaQ[threadIndexInWarp] = make_float4(dq.x, dq.y, dq.z, dq.w);
 
-			const Cm::UnAlignedSpatialVector delta = motionVelocity * stepDt;
+			const ev4sio_Cm::UnAlignedSpatialVector delta = motionVelocity * stepDt;
 
 			storeSpatialVector(link.mDeltaMotion, deltaMotion + delta, threadIndexInWarp);
 			storeSpatialVector(link.mPosMotionVelocity, posMotionVelocity + delta, threadIndexInWarp);
@@ -3924,9 +3924,9 @@ extern "C" __global__ void stepArticulation1TTGS(const PxgArticulationCoreDesc* 
 			PxgArticulationBlockLinkData& link = artiLinks[linkID];
 
 			const PxQuat prevPoseConjugate = loadSpatialTransformQuatConjugate(link.mPreTransform, threadIndexInWarp);
-			Cm::UnAlignedSpatialVector deltaMotionVel = loadSpatialVector(link.mMotionVelocity, threadIndexInWarp);
-			Cm::UnAlignedSpatialVector deltaMotion = loadSpatialVector(link.mDeltaMotion, threadIndexInWarp);
-			const Cm::UnAlignedSpatialVector posMotionVelocity = loadSpatialVector(link.mPosMotionVelocity, threadIndexInWarp);
+			ev4sio_Cm::UnAlignedSpatialVector deltaMotionVel = loadSpatialVector(link.mMotionVelocity, threadIndexInWarp);
+			ev4sio_Cm::UnAlignedSpatialVector deltaMotion = loadSpatialVector(link.mDeltaMotion, threadIndexInWarp);
+			const ev4sio_Cm::UnAlignedSpatialVector posMotionVelocity = loadSpatialVector(link.mPosMotionVelocity, threadIndexInWarp);
 
 			PxTransform body2World;
 			propagateLink<true>(body2World, link, artiLinks, artiDofs, stepDt, threadIndexInWarp);
@@ -3969,12 +3969,12 @@ static void __device__ PxcFsFlushVelocity(PxgArticulationBlockData& articulation
 	PxU32 linkCount, bool fixBase, const PxU32 threadIndexInWarp,
 	float4* outVelocity, const PxU32 offset) //linear start at 0, angular start at offset
 {
-	Cm::UnAlignedSpatialVector deltaV = Cm::UnAlignedSpatialVector::Zero();
-	Cm::UnAlignedSpatialVector deferredZ = -loadSpatialVector(articulation.mRootDeferredZ, threadIndexInWarp);
+	ev4sio_Cm::UnAlignedSpatialVector deltaV = ev4sio_Cm::UnAlignedSpatialVector::Zero();
+	ev4sio_Cm::UnAlignedSpatialVector deferredZ = -loadSpatialVector(articulation.mRootDeferredZ, threadIndexInWarp);
 
 	// For fixed-base, mMotionVelocity[0] is zero by invariant; skip the load and
 	// publish zero to outVelocity below. Non-fixed-base loads + integrates.
-	Cm::UnAlignedSpatialVector vel = Cm::UnAlignedSpatialVector::Zero();
+	ev4sio_Cm::UnAlignedSpatialVector vel = ev4sio_Cm::UnAlignedSpatialVector::Zero();
 
 	if (!fixBase)
 	{
@@ -3983,9 +3983,9 @@ static void __device__ PxcFsFlushVelocity(PxgArticulationBlockData& articulation
 		// Accumulate root mSolverSpatialDeltaVel: parity with PxcFsFlushVelocity in
 		// articulationDynamic.cuh. Without it, mSolverSpatialDeltaVel stays at zero on every
 		// articulation flushed via this path, and joint-force readback returns stale data.
-		const Cm::UnAlignedSpatialVector solverSpatialDeltaVel0 = loadSpatialVector(artiLinks[0].mSolverSpatialDeltaVel, threadIndexInWarp);
+		const ev4sio_Cm::UnAlignedSpatialVector solverSpatialDeltaVel0 = loadSpatialVector(artiLinks[0].mSolverSpatialDeltaVel, threadIndexInWarp);
 
-		Dy::SpatialMatrix invInertia;
+		ev4sio_Dy::SpatialMatrix invInertia;
 		loadSpatialMatrix(articulation.mInvSpatialArticulatedInertia, threadIndexInWarp, invInertia);
 		//deltaV = invInertia * (-loadSpatialVector(artiLinks[0].mDeferredZ, threadIndexInWarp));
 
@@ -3996,7 +3996,7 @@ static void __device__ PxcFsFlushVelocity(PxgArticulationBlockData& articulation
 		//store back vel to block velocity data
 		storeSpatialVector(artiLinks[0].mMotionVelocity, vel, threadIndexInWarp);
 
-		storeSpatialVector(articulation.mRootDeferredZ, Cm::UnAlignedSpatialVector::Zero(), threadIndexInWarp);
+		storeSpatialVector(articulation.mRootDeferredZ, ev4sio_Cm::UnAlignedSpatialVector::Zero(), threadIndexInWarp);
 
 		storeSpatialVector(artiLinks[0].mSolverSpatialDeltaVel, solverSpatialDeltaVel0 + deltaV, threadIndexInWarp);
 	}
@@ -4007,13 +4007,13 @@ static void __device__ PxcFsFlushVelocity(PxgArticulationBlockData& articulation
 	storeSpatialVector(artiLinks[0].mScratchDeltaV, deltaV, threadIndexInWarp);
 	addSpatialVector(artiLinks[0].mConstraintForces, deferredZ, threadIndexInWarp);
 	
-	storeSpatialVector(articulation.mCommonLinkDeltaVelocity, Cm::UnAlignedSpatialVector::Zero(), threadIndexInWarp);
+	storeSpatialVector(articulation.mCommonLinkDeltaVelocity, ev4sio_Cm::UnAlignedSpatialVector::Zero(), threadIndexInWarp);
 
 	PxgArticulationBlockDofData* dofs = artiDofs;
 
 	if (linkCount > 1)
 	{
-		Cm::UnAlignedSpatialVector nextMotionV = loadSpatialVector(artiLinks[1].mMotionVelocity, threadIndexInWarp);
+		ev4sio_Cm::UnAlignedSpatialVector nextMotionV = loadSpatialVector(artiLinks[1].mMotionVelocity, threadIndexInWarp);
 		PxU32 nextNbDofs = artiLinks[1].mDofs[threadIndexInWarp];
 		PxU32 nextParent = artiLinks[1].mParents[threadIndexInWarp];
 
@@ -4024,9 +4024,9 @@ static void __device__ PxcFsFlushVelocity(PxgArticulationBlockData& articulation
 			const PxU32 parent = nextParent;
 
 			// Parity with PxcFsFlushVelocity in articulationDynamic.cuh.
-			const Cm::UnAlignedSpatialVector preloadedSolverSpatialDeltaVel = loadSpatialVector(tLink.mSolverSpatialDeltaVel, threadIndexInWarp);
+			const ev4sio_Cm::UnAlignedSpatialVector preloadedSolverSpatialDeltaVel = loadSpatialVector(tLink.mSolverSpatialDeltaVel, threadIndexInWarp);
 
-			Cm::UnAlignedSpatialVector motionV = nextMotionV;
+			ev4sio_Cm::UnAlignedSpatialVector motionV = nextMotionV;
 
 			if ((i + 1) < linkCount)
 			{
@@ -4109,7 +4109,7 @@ extern "C" __global__ void artiOutputVelocity(
 		{
 			for (PxU32 i = 0; i < numLinks; i++)
 			{
-				Cm::UnAlignedSpatialVector vel = loadSpatialVector(artiLinks[i].mMotionVelocity, threadIndexInWarp);
+				ev4sio_Cm::UnAlignedSpatialVector vel = loadSpatialVector(artiLinks[i].mMotionVelocity, threadIndexInWarp);
 				outArtiVelocity[i] = make_float4(vel.bottom.x, vel.bottom.y, vel.bottom.z, 0.f);
 				outArtiVelocity[i + offset] = make_float4(vel.top.x, vel.top.y, vel.top.z, 0.f);
 			}
@@ -4119,7 +4119,7 @@ extern "C" __global__ void artiOutputVelocity(
 		{
 			for (PxU32 i = 0; i < numLinks; i++)
 			{
-				Cm::UnAlignedSpatialVector delta = loadSpatialVector(artiLinks[i].mDeltaMotion, threadIndexInWarp);
+				ev4sio_Cm::UnAlignedSpatialVector delta = loadSpatialVector(artiLinks[i].mDeltaMotion, threadIndexInWarp);
 				outArtiVelocity[i + 2*offset] = make_float4(delta.bottom.x, delta.bottom.y, delta.bottom.z, 0.f);
 				outArtiVelocity[i + 3*offset] = make_float4(delta.top.x, delta.top.y, delta.top.z, 0.f);
 			}
@@ -4171,15 +4171,15 @@ extern "C" __global__ void artiPushImpulse(
 				const float rwz = linkData.mRw_z[threadIndexInWarp];
 				const PxU32 dofCount = linkData.mDofs[threadIndexInWarp];
 
-				const Cm::UnAlignedSpatialVector Z = loadSpatialVector(linkData.mScratchImpulse, threadIndexInWarp);
+				const ev4sio_Cm::UnAlignedSpatialVector Z = loadSpatialVector(linkData.mScratchImpulse, threadIndexInWarp);
 
-				Cm::UnAlignedSpatialVector propagatedZ = propagateImpulseW<WriteToDeferredQstZ>(PxVec3(rwx, rwy, rwz),
+				ev4sio_Cm::UnAlignedSpatialVector propagatedZ = propagateImpulseW<WriteToDeferredQstZ>(PxVec3(rwx, rwy, rwz),
 					dofData, Z,
 					dofCount, threadIndexInWarp);
 
 				//KS - we should be able to remove mImpulses once we are 100% certain that we will not have any deferredZ residuals 
 				addSpatialVector(artiLinks[parent].mScratchImpulse, propagatedZ, threadIndexInWarp);
-				storeSpatialVector(linkData.mScratchImpulse, Cm::UnAlignedSpatialVector::Zero(), threadIndexInWarp);
+				storeSpatialVector(linkData.mScratchImpulse, ev4sio_Cm::UnAlignedSpatialVector::Zero(), threadIndexInWarp);
 			}
 
 			// OMPE-42519: flush mScratchImpulse[0] into mRootDeferredZ.
@@ -4218,9 +4218,9 @@ extern "C" __global__ void artiPushImpulse(
 			// and never sampled by the readback path. Tracked as
 			// OMPE-93501.
 			{
-				const Cm::UnAlignedSpatialVector rootZ = loadSpatialVector(artiLinks[0].mScratchImpulse, threadIndexInWarp);
+				const ev4sio_Cm::UnAlignedSpatialVector rootZ = loadSpatialVector(artiLinks[0].mScratchImpulse, threadIndexInWarp);
 				addSpatialVector(articulation.mRootDeferredZ, rootZ, threadIndexInWarp);
-				storeSpatialVector(artiLinks[0].mScratchImpulse, Cm::UnAlignedSpatialVector::Zero(), threadIndexInWarp);
+				storeSpatialVector(artiLinks[0].mScratchImpulse, ev4sio_Cm::UnAlignedSpatialVector::Zero(), threadIndexInWarp);
 			}
 		}
 	}

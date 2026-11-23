@@ -60,7 +60,7 @@
 
 // Buffer copy/scatter helpers. These are source-neutral: the element types are
 // carb::Float2/3/4, carb::Int2/3/4 and PhysX vectors, and the transform is a
-// ::physx::PxMat44d (ADR-0001 section 8 -- internal math is PhysX foundation
+// ::ev4sio_physx::PxMat44d (ADR-0001 section 8 -- internal math is PhysX foundation
 // math, Gf* belongs only at the USD boundary).
 //
 // TRANSFORM CONVENTION. PxMat44d and GfMatrix4f/GfMatrix4d hold the same
@@ -76,10 +76,10 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 
-inline void copyBuffer(std::vector<carb::Float4>& dst, ::physx::PxVec4* src, unsigned int numElements)
+inline void copyBuffer(std::vector<carb::Float4>& dst, ::ev4sio_physx::PxVec4* src, unsigned int numElements)
 {
     const carb::Float4* srcValues = (const carb::Float4*)src;
     dst.resize(numElements);
@@ -89,64 +89,64 @@ inline void copyBuffer(std::vector<carb::Float4>& dst, ::physx::PxVec4* src, uns
     }
 }
 
-inline void copyBuffer(std::vector<carb::Float3>& dst, ::physx::PxVec4* src, unsigned int numElements)
+inline void copyBuffer(std::vector<carb::Float3>& dst, ::ev4sio_physx::PxVec4* src, unsigned int numElements)
 {
     dst.resize(numElements);
     for (unsigned int i = 0; i < numElements; ++i)
     {
-        const ::physx::PxVec4& srcValue = src[i];
+        const ::ev4sio_physx::PxVec4& srcValue = src[i];
         dst[i] = { srcValue.x, srcValue.y, srcValue.z };
     }
 }
 
-inline void copyBuffer(std::vector<::physx::PxVec3>& dst, const carb::Float3* src, unsigned int numElements)
+inline void copyBuffer(std::vector<::ev4sio_physx::PxVec3>& dst, const carb::Float3* src, unsigned int numElements)
 {
     dst.resize(numElements);
     for (unsigned int i = 0; i < numElements; ++i)
     {
         const carb::Float3& srcValue = src[i];
-        dst[i] = ::physx::PxVec3(srcValue.x, srcValue.y, srcValue.z);
+        dst[i] = ::ev4sio_physx::PxVec3(srcValue.x, srcValue.y, srcValue.z);
     }
 }
 
-inline void copyBuffer(std::vector<carb::Float4>& dst, const carb::Float3* src, unsigned int numElements, ::physx::PxVec3 scale)
+inline void copyBuffer(std::vector<carb::Float4>& dst, const carb::Float3* src, unsigned int numElements, ::ev4sio_physx::PxVec3 scale)
 {
     dst.resize(numElements);
     for (unsigned int i = 0; i < numElements; ++i)
     {
-        ::physx::PxVec3 srcValue = toPhysX(src[i]).multiply(scale);
+        ::ev4sio_physx::PxVec3 srcValue = toPhysX(src[i]).multiply(scale);
         dst[i] = { srcValue.x, srcValue.y, srcValue.z, 0.0f };
     }
 }
 
-inline void copyBuffer(::physx::PxVec4* dst, const carb::Float3* src, unsigned int numElements)
+inline void copyBuffer(::ev4sio_physx::PxVec4* dst, const carb::Float3* src, unsigned int numElements)
 {
     for (unsigned int i = 0; i < numElements; ++i)
     {
-        ::physx::PxVec4& dstValue = dst[i];
+        ::ev4sio_physx::PxVec4& dstValue = dst[i];
         const carb::Float3& srcValue = src[i];
         dstValue = { srcValue.x, srcValue.y, srcValue.z, dstValue.w };
     }
 }
 
-inline void copyBuffer(::physx::PxVec4* dst, const carb::Float3* src, unsigned int numElements, const ::physx::PxMat44d& transform)
+inline void copyBuffer(::ev4sio_physx::PxVec4* dst, const carb::Float3* src, unsigned int numElements, const ::ev4sio_physx::PxMat44d& transform)
 {
     for (unsigned int i = 0; i < numElements; ++i)
     {
         const carb::Float3& srcValue = src[i];
-        const ::physx::PxVec3d srcValueTransformed = transform.transform(toPhysXd(srcValue));
-        ::physx::PxVec4& dstValue = dst[i];
+        const ::ev4sio_physx::PxVec3d srcValueTransformed = transform.transform(toPhysXd(srcValue));
+        ::ev4sio_physx::PxVec4& dstValue = dst[i];
         dstValue = { float(srcValueTransformed.x), float(srcValueTransformed.y), float(srcValueTransformed.z), dstValue.w };
     }
 }
 
-inline void copyBuffer(::physx::PxVec3* dst, const carb::Float3* src, unsigned int numElements, const ::physx::PxMat44d& transform)
+inline void copyBuffer(::ev4sio_physx::PxVec3* dst, const carb::Float3* src, unsigned int numElements, const ::ev4sio_physx::PxMat44d& transform)
 {
     for (unsigned int i = 0; i < numElements; ++i)
     {
         const carb::Float3& srcValue = src[i];
-        const ::physx::PxVec3d srcValueTransformed = transform.transform(toPhysXd(srcValue));
-        ::physx::PxVec3& dstValue = dst[i];
+        const ::ev4sio_physx::PxVec3d srcValueTransformed = transform.transform(toPhysXd(srcValue));
+        ::ev4sio_physx::PxVec3& dstValue = dst[i];
         dstValue = { float(srcValueTransformed.x), float(srcValueTransformed.y), float(srcValueTransformed.z) };
     }
 }
@@ -163,13 +163,13 @@ void copyBuffer(std::vector<carb::Float3>& dst, const SrcVecT* src, unsigned int
 }
 
 template<typename SrcVecT>
-void copyBuffer(std::vector<carb::Float3>& dst, const SrcVecT* src, unsigned int numElements, const ::physx::PxMat44d& transform)
+void copyBuffer(std::vector<carb::Float3>& dst, const SrcVecT* src, unsigned int numElements, const ::ev4sio_physx::PxMat44d& transform)
 {
     dst.resize(numElements);
     for (unsigned int i = 0; i < numElements; i++)
     {
         const SrcVecT& srcValue = src[i];
-        const ::physx::PxVec3d p = transform.transform(::physx::PxVec3d(double(srcValue.x), double(srcValue.y), double(srcValue.z)));
+        const ::ev4sio_physx::PxVec3d p = transform.transform(::ev4sio_physx::PxVec3d(double(srcValue.x), double(srcValue.y), double(srcValue.z)));
         dst[i] = carb::Float3{ float(p.x), float(p.y), float(p.z) };
     }
 }
@@ -188,7 +188,7 @@ void copyBuffer(std::vector<carb::Float3>& dst, const SrcVecT* src, unsigned int
 }
 
 template<typename SrcVecT>
-void copyBuffer(std::vector<carb::Float3>& dst, const SrcVecT* src, unsigned int numElements, const ::physx::PxMat44d& transform, const std::vector<uint32_t>& mapping)
+void copyBuffer(std::vector<carb::Float3>& dst, const SrcVecT* src, unsigned int numElements, const ::ev4sio_physx::PxMat44d& transform, const std::vector<uint32_t>& mapping)
 {
     dst.resize(numElements);
     for (unsigned int i = 0; i < dst.size(); i++)
@@ -196,7 +196,7 @@ void copyBuffer(std::vector<carb::Float3>& dst, const SrcVecT* src, unsigned int
     for (unsigned int i = 0; i < numElements; i++)
     {
         const SrcVecT& srcValue = src[mapping[i]];
-        const ::physx::PxVec3d p = transform.transform(::physx::PxVec3d(double(srcValue.x), double(srcValue.y), double(srcValue.z)));
+        const ::ev4sio_physx::PxVec3d p = transform.transform(::ev4sio_physx::PxVec3d(double(srcValue.x), double(srcValue.y), double(srcValue.z)));
         dst[i] = carb::Float3{ float(p.x), float(p.y), float(p.z) };
     }
 }
@@ -208,10 +208,10 @@ inline bool isAligned16(const void* a)
 }
 
 template<>
-inline void copyBuffer<::physx::PxVec4>(std::vector<carb::Float3>& dst,
-                                        const ::physx::PxVec4* src,
+inline void copyBuffer<::ev4sio_physx::PxVec4>(std::vector<carb::Float3>& dst,
+                                        const ::ev4sio_physx::PxVec4* src,
                                         unsigned int numElements,
-                                        const ::physx::PxMat44d& transform)
+                                        const ::ev4sio_physx::PxMat44d& transform)
 {
     // The SSE kernel is a float kernel: source points and destination are float,
     // so only the matrix is narrowed here. The sixteen values are laid out
@@ -251,14 +251,14 @@ inline void copyBuffer<::physx::PxVec4>(std::vector<carb::Float3>& dst,
     // Narrowed-to-float matrix shared by the unaligned scalar path, the SIMD
     // main loop's remainder tail, and (via `mat`/l0..l3 above) the SIMD lanes
     // themselves, so all three agree bit-for-bit on identical input.
-    const ::physx::PxMat44 matF(mat);
+    const ::ev4sio_physx::PxMat44 matF(mat);
 
     if (!(isAligned16(dst.data()) && isAligned16(src)))
     {
         for (unsigned int i = 0; i < numElements; i++)
         {
-            const ::physx::PxVec4& srcValue = src[i];
-            const ::physx::PxVec3 p = matF.transform(::physx::PxVec3(srcValue.x, srcValue.y, srcValue.z));
+            const ::ev4sio_physx::PxVec4& srcValue = src[i];
+            const ::ev4sio_physx::PxVec3 p = matF.transform(::ev4sio_physx::PxVec3(srcValue.x, srcValue.y, srcValue.z));
             dst[i] = carb::Float3{ p.x, p.y, p.z };
         }
         return;
@@ -316,8 +316,8 @@ inline void copyBuffer<::physx::PxVec4>(std::vector<carb::Float3>& dst,
     }
     for (unsigned int i = numElements & 3; i != 0; i--)
     {
-        const ::physx::PxVec4& srcValue = *src++;
-        const ::physx::PxVec3 p = matF.transform(::physx::PxVec3(srcValue.x, srcValue.y, srcValue.z));
+        const ::ev4sio_physx::PxVec4& srcValue = *src++;
+        const ::ev4sio_physx::PxVec3 p = matF.transform(::ev4sio_physx::PxVec3(srcValue.x, srcValue.y, srcValue.z));
         *vdest++ = carb::Float3{ p.x, p.y, p.z };
     }
 }
@@ -346,13 +346,13 @@ void copyBuffer(std::vector<carb::Int2>& dst, const SrcVecT* src, unsigned int n
     }
 }
 
-inline void copyBuffer(std::vector<carb::Float3>& dst, ::physx::PxVec4* src, unsigned int numElements, const ::physx::PxMat44d& transform)
+inline void copyBuffer(std::vector<carb::Float3>& dst, ::ev4sio_physx::PxVec4* src, unsigned int numElements, const ::ev4sio_physx::PxMat44d& transform)
 {
     dst.resize(numElements);
     for (unsigned int i = 0; i < numElements; i++)
     {
-        const ::physx::PxVec4& srcValue = src[i];
-        const ::physx::PxVec3d p = transform.transform(::physx::PxVec3d(double(srcValue.x), double(srcValue.y), double(srcValue.z)));
+        const ::ev4sio_physx::PxVec4& srcValue = src[i];
+        const ::ev4sio_physx::PxVec3d p = transform.transform(::ev4sio_physx::PxVec3d(double(srcValue.x), double(srcValue.y), double(srcValue.z)));
         dst[i] = carb::Float3{ float(p.x), float(p.y), float(p.z) };
     }
 }
@@ -403,13 +403,13 @@ void scatterBuffer(std::vector<carb::Float4>& dst, const SrcQuatT* src, const st
 }
 
 template<typename SrcVecT>
-void scatterBuffer(std::vector<carb::Float3>& dst, const SrcVecT* src, const std::vector<uint32_t>& indexMap, const ::physx::PxMat44d& transform)
+void scatterBuffer(std::vector<carb::Float3>& dst, const SrcVecT* src, const std::vector<uint32_t>& indexMap, const ::ev4sio_physx::PxMat44d& transform)
 {
     for (size_t i = 0; i < indexMap.size(); i++)
     {
         const SrcVecT& p = src[i];
         uint32_t index = indexMap[i];
-        const ::physx::PxVec3d t = transform.transform(::physx::PxVec3d(double(p.x), double(p.y), double(p.z)));
+        const ::ev4sio_physx::PxVec3d t = transform.transform(::ev4sio_physx::PxVec3d(double(p.x), double(p.y), double(p.z)));
         dst[index] = carb::Float3{ float(t.x), float(t.y), float(t.z) };
     }
 }

@@ -6,7 +6,7 @@
 #pragma once
 #include "NativeInspection.h"
 #include <memory>
-namespace omni::physx::native
+namespace omni::ev4sio_physx::native
 {
 enum class LeaseKind:uint32_t {RigidActor=1,Dynamic=2,Static=3,Link=4,Joint=5,Articulation=6,Shape=7,Material=8};
 using NativeVisitor=bool(*)(LeaseKind,const void*,void*) noexcept;

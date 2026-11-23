@@ -13,8 +13,8 @@
 #include "../service/CookingTask.h"
 #include "../service/CookingComputeService.h"
 
-using namespace ::physx;
-using namespace omni::physx;
+using namespace ::ev4sio_physx;
+using namespace omni::ev4sio_physx;
 
 namespace cookingtask
 {
@@ -46,8 +46,8 @@ class ConvexMeshCookingTask : public cookingtask::CookingTask
 {
 
 public:
-    ConvexMeshCookingTask(const omni::physx::ConvexMeshCookingParams& convexCookingParams,
-                          omni::physx::PhysxCookingComputeResult& result)
+    ConvexMeshCookingTask(const omni::ev4sio_physx::ConvexMeshCookingParams& convexCookingParams,
+                          omni::ev4sio_physx::PhysxCookingComputeResult& result)
         : CookingTask(result)
     {
         m_maxConvexHullVertices = convexCookingParams.maxHullVertices;
@@ -121,7 +121,7 @@ public:
         {
             PxConvexMeshCookingResult::Enum condition;
             const PxCookingParams cookingParams = CookingTask::getDefaultCookingParams();
-            cookingSucceeded = PxCookConvexMesh(cookingParams, convexDesc, outputStream, &condition);
+            cookingSucceeded = ev4sio_PxCookConvexMesh(cookingParams, convexDesc, outputStream, &condition);
             if (condition == PxConvexMeshCookingResult::ePOLYGONS_LIMIT_REACHED)
             {
                 CookingTask::getResultObject().resultWarnings.setFlag(PhysxCookingComputeResult::ResultWarning::CONVEX_POLYGON_LIMITS_REACHED, true);
@@ -149,12 +149,12 @@ public:
         // If the task was canceled or already finalized, skip the saving step
         if (CookingTask::isCanceled() || CookingTask::isFinalized())
         {
-            CookingTask::fireFinishedCallback(omni::physx::PhysxCookingResult::eERROR_CANCELED);
+            CookingTask::fireFinishedCallback(omni::ev4sio_physx::PhysxCookingResult::eERROR_CANCELED);
         }
         else if(!CookingTask::isSucceeded())
         {
             CookingTask::setFinalized(true);
-            CookingTask::fireFinishedCallback(omni::physx::PhysxCookingResult::eERROR_COOKING_FAILED);
+            CookingTask::fireFinishedCallback(omni::ev4sio_physx::PhysxCookingResult::eERROR_COOKING_FAILED);
         }
         else
         {
@@ -168,7 +168,7 @@ public:
             usdparser::MeshKey crc;
             CookingTask::getCRC(crc);
 
-            omni::physx::PhysxCookingComputeResult& result = CookingTask::getResultObject();
+            omni::ev4sio_physx::PhysxCookingComputeResult& result = CookingTask::getResultObject();
             PxDefaultMemoryOutputStream& cookDataStream = outputStream;
             PhysxCookedDataSpan cookedDataSpan;
             result.cookedData = &cookedDataSpan;
@@ -176,7 +176,7 @@ public:
             cookedDataSpan.data = cookDataStream.getData();
             cookedDataSpan.sizeInBytes = cookDataStream.getSize();
 
-            CookingTask::fireFinishedCallback(omni::physx::PhysxCookingResult::eVALID);
+            CookingTask::fireFinishedCallback(omni::ev4sio_physx::PhysxCookingResult::eVALID);
         
         }
     }
@@ -187,8 +187,8 @@ public:
     float       m_minThickness{ 0.001f };
 };
 
-CookingTask* createConvexMeshCookingTask(const omni::physx::ConvexMeshCookingParams& desc,
-                                         omni::physx::PhysxCookingComputeResult& result)
+CookingTask* createConvexMeshCookingTask(const omni::ev4sio_physx::ConvexMeshCookingParams& desc,
+                                         omni::ev4sio_physx::PhysxCookingComputeResult& result)
 {
     return new ConvexMeshCookingTask(desc, result);
 }

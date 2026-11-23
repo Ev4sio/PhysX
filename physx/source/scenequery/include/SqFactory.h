@@ -10,9 +10,9 @@
 #include "GuFactory.h"
 #include "SqTypedef.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Sq
+namespace ev4sio_Sq
 {
 	class CompoundPruner;
 

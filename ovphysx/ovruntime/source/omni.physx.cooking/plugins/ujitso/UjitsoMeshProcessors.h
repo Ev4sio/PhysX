@@ -11,7 +11,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 
 // Forward declaration
@@ -78,5 +78,5 @@ const carb::ujitso::RequestFilter getPhysxMeshTriangulationProcessorFilter();
  */
 void releasePhysxMeshTriangulationProcessor(carb::ujitso::Processor* processor);
 
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

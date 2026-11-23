@@ -13,7 +13,7 @@
 namespace omni
 {
 
-namespace physx
+namespace ev4sio_physx
 {
 
 using SubscriptionId = size_t;
@@ -42,11 +42,11 @@ struct EventSubscriptionRegistry;
 template <class TSubscriptionEntry>
 struct EventSubscriptionRegistry<TSubscriptionEntry, UnorderedRegistryTag>
 {
-    using EventMap = std::map<omni::physx::SubscriptionId, TSubscriptionEntry>;
+    using EventMap = std::map<omni::ev4sio_physx::SubscriptionId, TSubscriptionEntry>;
 
-    omni::physx::SubscriptionId addEvent(TSubscriptionEntry entry)
+    omni::ev4sio_physx::SubscriptionId addEvent(TSubscriptionEntry entry)
     {
-        omni::physx::SubscriptionId id;
+        omni::ev4sio_physx::SubscriptionId id;
         if (freeIds.empty())
         {
             id = map.size();
@@ -60,7 +60,7 @@ struct EventSubscriptionRegistry<TSubscriptionEntry, UnorderedRegistryTag>
         return id;
     }
 
-    void removeEvent(omni::physx::SubscriptionId id)
+    void removeEvent(omni::ev4sio_physx::SubscriptionId id)
     {
         typename EventMap::iterator it = map.find(id);
         CARB_ASSERT(it != map.end());
@@ -78,18 +78,18 @@ struct EventSubscriptionRegistry<TSubscriptionEntry, UnorderedRegistryTag>
     }
 
     EventMap map;
-    std::vector<omni::physx::SubscriptionId> freeIds;
+    std::vector<omni::ev4sio_physx::SubscriptionId> freeIds;
 };
 
 template <class TSubscriptionEntry>
 struct EventSubscriptionRegistry<TSubscriptionEntry, OrderedRegistryTag>
 {
 public:
-    using EventMap = std::multimap<int, std::pair<omni::physx::SubscriptionId, TSubscriptionEntry>>;
+    using EventMap = std::multimap<int, std::pair<omni::ev4sio_physx::SubscriptionId, TSubscriptionEntry>>;
     // This class also supports an optional external id generator so two subscription registries can share
     // a single generator and have unique ids shared among them (so that an unregister(id) doesn't need to know
     // which map it should go to)
-    using IdGenerator = std::function<omni::physx::SubscriptionId()>;
+    using IdGenerator = std::function<omni::ev4sio_physx::SubscriptionId()>;
 
     explicit EventSubscriptionRegistry(IdGenerator idGenerator = nullptr)
         : idGenerator(idGenerator)
@@ -101,9 +101,9 @@ public:
         this->idGenerator = idGenerator;
     }
 
-    omni::physx::SubscriptionId getNextId()
+    omni::ev4sio_physx::SubscriptionId getNextId()
     {
-        omni::physx::SubscriptionId id;
+        omni::ev4sio_physx::SubscriptionId id;
         if (idGenerator)
         {
             id = idGenerator();
@@ -120,9 +120,9 @@ public:
         return id;
     }
 
-    omni::physx::SubscriptionId addEvent(TSubscriptionEntry entry, int order)
+    omni::ev4sio_physx::SubscriptionId addEvent(TSubscriptionEntry entry, int order)
     {
-        omni::physx::SubscriptionId id;
+        omni::ev4sio_physx::SubscriptionId id;
         if (idGenerator)
         {
             id = idGenerator();
@@ -140,7 +140,7 @@ public:
         return id;
     }
 
-    void removeEvent(omni::physx::SubscriptionId id)
+    void removeEvent(omni::ev4sio_physx::SubscriptionId id)
     {
         auto it =
             std::find_if(eventMap.begin(), eventMap.end(), [&](const auto& pair) { return pair.second.first == id; });
@@ -170,9 +170,9 @@ public:
 
 private:
     EventMap eventMap;
-    std::vector<omni::physx::SubscriptionId> freeIds;
+    std::vector<omni::ev4sio_physx::SubscriptionId> freeIds;
     IdGenerator idGenerator;
 };
 
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

@@ -16,7 +16,7 @@
 #include <limits>
 namespace ovphysx::companion::debug
 {
-using namespace omni::physx::native;
+using namespace omni::ev4sio_physx::native;
 using Status=ovphysx_companion_status_t;
 
 Status convert(DebugResult r) {
@@ -51,7 +51,7 @@ Status capture(uint64_t attachment, uint64_t limit, uint64_t* output) noexcept {
         if (!guard) return OVPHYSX_COMPANION_BUSY;
         CompanionOwnerLane owner;
         if (!owner.tryAcquireForAttachment(attachment)) return OVPHYSX_COMPANION_BUSY;
-        std::shared_ptr<omni::physx::native::DebugFrame> frame=std::make_shared<DebugFrame>();
+        std::shared_ptr<omni::ev4sio_physx::native::DebugFrame> frame=std::make_shared<DebugFrame>();
         const Status status=convert(captureDebug(attachment,limit,*frame));
         if (status!=OVPHYSX_COMPANION_OK) return status;
         std::lock_guard<std::mutex> lock(companionRuntime().debugFrames().mutex);
@@ -66,7 +66,7 @@ template<typename Fn> Status withFrame(uint64_t handle, Fn fn) noexcept {
     try {
         std::shared_ptr<const DebugFrame> frame;
         {std::lock_guard<std::mutex> lock(companionRuntime().debugFrames().mutex);
-         std::map<uint64_t, std::shared_ptr<const omni::physx::native::DebugFrame>>::iterator it=companionRuntime().debugFrames().entries.find(handle); if (it==companionRuntime().debugFrames().entries.end()) return OVPHYSX_COMPANION_NOT_FOUND;
+         std::map<uint64_t, std::shared_ptr<const omni::ev4sio_physx::native::DebugFrame>>::iterator it=companionRuntime().debugFrames().entries.find(handle); if (it==companionRuntime().debugFrames().entries.end()) return OVPHYSX_COMPANION_NOT_FOUND;
          frame=it->second;}
         return fn(*frame);
     } catch (...) {return OVPHYSX_COMPANION_ERROR;}
@@ -101,6 +101,6 @@ extern "C" OVPHYSX_API ovphysx_companion_status_t ovphysx_companion_debug_acquir
     uint32_t version,uint32_t size,ovphysx_companion_debug_api_t* output) {
     if (!output) return OVPHYSX_COMPANION_INVALID_ARGUMENT;
     if (version!=1 || size!=sizeof(*output)) return OVPHYSX_COMPANION_ABI_MISMATCH;
-    *output={sizeof(*output),1,1,omni::physx::native::debugParameterMask(),configure,capture,describe,copy,release};
+    *output={sizeof(*output),1,1,omni::ev4sio_physx::native::debugParameterMask(),configure,capture,describe,copy,release};
     return OVPHYSX_COMPANION_OK;
 }

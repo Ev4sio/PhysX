@@ -11,7 +11,7 @@
 #include "foundation/PxUserAllocated.h"
 #include "common/PxPhysXCommonConfig.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	class PxgSapBox1D;
 

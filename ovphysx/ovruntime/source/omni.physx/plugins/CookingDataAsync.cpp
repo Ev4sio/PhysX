@@ -108,15 +108,15 @@ static constexpr const char* PROGRESS_BAR_LABEL = "/physics/progressBarLabel";
 static constexpr const char* PROGRESS_BAR_VALUE = "/physics/progressBarValue";
 
 using lock_guard = std::lock_guard<carb::tasking::MutexWrapper>;
-using namespace ::physx;
+using namespace ::ev4sio_physx;
 
 // Shared PhysX<->Gf bridges (omni.physics.usd/TypeCast.h); this file's
-// namespaces sit outside omni::physx.
-using omni::physx::toPhysXd;
+// namespaces sit outside omni::ev4sio_physx.
+using omni::ev4sio_physx::toPhysXd;
 // carb::Float3 counterpart (common/foundation/CarbPhysXCast.h), overloaded on the
 // same names -- toPhysXd(carb::Float3) and toFloat3(PxVec3d) are what the
 // read-side helpers below use in place of the retired local toGfVec3f.
-using omni::physx::toFloat3;
+using omni::ev4sio_physx::toFloat3;
 
 namespace
 {
@@ -155,7 +155,7 @@ namespace
     // a real SdfPath) carry the legacy asInt(ObjectKey) encoding (key.handle). Mirrors
     // ContactReport.cpp's keyToLegacyPathInt (same class of pre-existing public/internal wire
     // format, same fix).
-    uint64_t keyToLegacyPathInt(const omni::physx::usdparser::AttachedStage* attachedStage,
+    uint64_t keyToLegacyPathInt(const omni::ev4sio_physx::usdparser::AttachedStage* attachedStage,
                                 omni::physics::parse::ObjectKey key)
     {
         return attachedStage ? key.handle : 0;
@@ -164,7 +164,7 @@ namespace
     // Inverse of keyToLegacyPathInt: reconstructs the ObjectKey a completed request's primId
     // named, for the (rare) onFinished continuations that resolve back to an object rather than
     // just logging the id.
-    omni::physics::parse::ObjectKey legacyPathIntToKey(const omni::physx::usdparser::AttachedStage& attachedStage,
+    omni::physics::parse::ObjectKey legacyPathIntToKey(const omni::ev4sio_physx::usdparser::AttachedStage& attachedStage,
                                                         uint64_t primId)
     {
         (void)attachedStage;
@@ -174,11 +174,11 @@ namespace
     /**
      * Compute mesh key based on custom mesh arrays
      */
-    omni::physx::usdparser::MeshKey computeMeshKey(const std::vector<carb::Float3>& points,
+    omni::ev4sio_physx::usdparser::MeshKey computeMeshKey(const std::vector<carb::Float3>& points,
                                                    const std::vector<int32_t>& vertexIndices,
                                                    const std::vector<int32_t>& vertexCounts)
     {
-        omni::physx::usdparser::MeshKey meshKey;
+        omni::ev4sio_physx::usdparser::MeshKey meshKey;
         meshKey.computeVerticesHash(uint32_t(points.size()), reinterpret_cast<const float*>(points.data()));
         meshKey.computeIndicesHash(
             uint32_t(vertexIndices.size()), reinterpret_cast<const uint32_t*>(vertexIndices.data()));
@@ -189,15 +189,15 @@ namespace
     // Signature binding (simPoints, simIndices, numTetsPerElement) for hex sim meshes,
     // versioned with the producer's (volume-deformable-body) cooking version.
     //
-    omni::physx::usdparser::MeshKey computeSimMeshHexCrc(const std::vector<carb::Float3>& simPoints,
+    omni::ev4sio_physx::usdparser::MeshKey computeSimMeshHexCrc(const std::vector<carb::Float3>& simPoints,
                                                          const std::vector<carb::Int4>& simIndices,
                                                          uint32_t numTetsPerElement)
     {
-        omni::physx::usdparser::MeshKey meshKey;
+        omni::ev4sio_physx::usdparser::MeshKey meshKey;
         meshKey.computeVerticesHash(uint32_t(simPoints.size()), reinterpret_cast<const float*>(simPoints.data()));
         meshKey.computeIndicesHash(uint32_t(simIndices.size()) * 4, reinterpret_cast<const uint32_t*>(simIndices.data()));
         meshKey.setMiscData(reinterpret_cast<const uint8_t*>(&numTetsPerElement), sizeof(numTetsPerElement));
-        constexpr int version = omni::physx::PhysxCookingDataVersion_VolumeDeformableBody;
+        constexpr int version = omni::ev4sio_physx::PhysxCookingDataVersion_VolumeDeformableBody;
         meshKey.setMiscData(reinterpret_cast<const uint8_t*>(&version), sizeof(version));
         return meshKey;
     }
@@ -232,12 +232,12 @@ namespace
     /**
      * Local-to-world transform of the object at `key`, read through the source.
      */
-    ::physx::PxMat44d cookingWorldTransform(const omni::physx::usdparser::AttachedStage* attachedStage,
+    ::ev4sio_physx::PxMat44d cookingWorldTransform(const omni::ev4sio_physx::usdparser::AttachedStage* attachedStage,
                                             omni::physics::parse::ObjectKey key)
     {
         return attachedStage ?
-            omni::physx::internal::getWorldTransform(*attachedStage, key, omni::physics::parse::ReadTime::defaultTime()) :
-            ::physx::PxMat44d(::physx::PxIdentity);
+            omni::ev4sio_physx::internal::getWorldTransform(*attachedStage, key, omni::physics::parse::ReadTime::defaultTime()) :
+            ::ev4sio_physx::PxMat44d(::ev4sio_physx::PxIdentity);
     }
 
     // Local carb flavours of the copyBuffer family that Algorithms.h used to
@@ -280,13 +280,13 @@ namespace
     // Source-routed cooking-input geometry read: route an array attribute through
     // AttachedStage's IPhysicsSource, keyed by ObjectKey/TokenId.
     template <typename T>
-    bool cookingReadArray(const omni::physx::usdparser::AttachedStage* attachedStage,
+    bool cookingReadArray(const omni::ev4sio_physx::usdparser::AttachedStage* attachedStage,
                           omni::physics::parse::ObjectKey key,
                           omni::physics::parse::TokenId attrTok,
                           T& out)
     {
         return attachedStage ?
-            omni::physx::internal::getArrayValue(
+            omni::ev4sio_physx::internal::getArrayValue(
                 *attachedStage, key, attrTok, omni::physics::parse::ReadTime::defaultTime(), out) :
             false;
     }
@@ -297,7 +297,7 @@ namespace
     // bindPoseToken guarantees the pose API instance is applied (the parser only
     // emits it then), so no HasAPI re-check is needed. Returns whether geometry
     // was read.
-    bool cookingReadBindPoints(const omni::physx::usdparser::AttachedStage* attachedStage,
+    bool cookingReadBindPoints(const omni::ev4sio_physx::usdparser::AttachedStage* attachedStage,
                                omni::physics::parse::ObjectKey key,
                                omni::physics::parse::TokenId bindPoseToken,
                                std::vector<carb::Float3>& out)
@@ -320,10 +320,10 @@ namespace
     // leaves `out` at its default (all-zero) value, like loadMeshKey. `crcTokenName`
     // is one of the file-local marker names below (not schema-registered, so not in
     // KnownTokens) -- interned fresh against the active source on every call.
-    bool cookingLoadMeshKey(const omni::physx::usdparser::AttachedStage* attachedStage,
+    bool cookingLoadMeshKey(const omni::ev4sio_physx::usdparser::AttachedStage* attachedStage,
                             omni::physics::parse::ObjectKey key,
                             const char* crcTokenName,
-                            omni::physx::usdparser::MeshKey& out)
+                            omni::ev4sio_physx::usdparser::MeshKey& out)
     {
         const omni::physics::parse::IPhysicsSource* src = attachedStage ? attachedStage->getSource() : nullptr;
         if (!src)
@@ -331,9 +331,9 @@ namespace
         std::vector<uint8_t> bytes;
         if (!cookingReadArray(attachedStage, key, src->internToken(crcTokenName), bytes))
             return false;
-        if (bytes.size() != sizeof(omni::physx::usdparser::MeshKey))
+        if (bytes.size() != sizeof(omni::ev4sio_physx::usdparser::MeshKey))
             return false;
-        std::memcpy(&out, bytes.data(), sizeof(omni::physx::usdparser::MeshKey));
+        std::memcpy(&out, bytes.data(), sizeof(omni::ev4sio_physx::usdparser::MeshKey));
         return true;
     }
 
@@ -343,7 +343,7 @@ namespace
     // (IPhysicsSource::hasSchema/isA), so these gates need no UsdSchemaRegistry
     // round-trip -- the KnownTokens field already holds the exact applied-schema
     // or registered-type name string the source expects.
-    bool cookingHasSchema(const omni::physx::usdparser::AttachedStage* attachedStage,
+    bool cookingHasSchema(const omni::ev4sio_physx::usdparser::AttachedStage* attachedStage,
                           omni::physics::parse::ObjectKey key,
                           omni::physics::parse::TokenId schemaToken)
     {
@@ -352,7 +352,7 @@ namespace
         return false;
     }
 
-    bool cookingIsA(const omni::physx::usdparser::AttachedStage* attachedStage,
+    bool cookingIsA(const omni::ev4sio_physx::usdparser::AttachedStage* attachedStage,
                     omni::physics::parse::ObjectKey key,
                     omni::physics::parse::TokenId typeToken)
     {
@@ -363,14 +363,14 @@ namespace
 
     // True when the source no longer knows a string for `key` (e.g. removed since the key
     // was captured) -- an extra guard beyond key.valid().
-    bool cookingKeyResolves(const omni::physx::usdparser::AttachedStage* attachedStage,
+    bool cookingKeyResolves(const omni::ev4sio_physx::usdparser::AttachedStage* attachedStage,
                             omni::physics::parse::ObjectKey key)
     {
         const omni::physics::parse::IPhysicsSource* src = attachedStage ? attachedStage->getSource() : nullptr;
         return src && !src->sourceKeyToString(key).empty();
     }
 
-    void warnTetMeshOrientation(const omni::physx::usdparser::AttachedStage* attachedStage,
+    void warnTetMeshOrientation(const omni::ev4sio_physx::usdparser::AttachedStage* attachedStage,
                                 omni::physics::parse::ObjectKey tetMeshKey,
                                 const std::vector<carb::Float3>& points,
                                 const std::vector<carb::Int4>& tetVertexIndices,
@@ -386,9 +386,9 @@ namespace
                 continue;
             }
 
-            const ::physx::PxVec3d a = toPhysXd(points[tet.y]) - toPhysXd(points[tet.x]);
-            const ::physx::PxVec3d b = toPhysXd(points[tet.z]) - toPhysXd(points[tet.x]);
-            const ::physx::PxVec3d c = toPhysXd(points[tet.w]) - toPhysXd(points[tet.x]);
+            const ::ev4sio_physx::PxVec3d a = toPhysXd(points[tet.y]) - toPhysXd(points[tet.x]);
+            const ::ev4sio_physx::PxVec3d b = toPhysXd(points[tet.z]) - toPhysXd(points[tet.x]);
+            const ::ev4sio_physx::PxVec3d c = toPhysXd(points[tet.w]) - toPhysXd(points[tet.x]);
             const double signedVolume6 = a.dot(b.cross(c));
             const bool isLeftHanded = signedVolume6 < 0.0;
             if (isLeftHanded != expectLeftHanded)
@@ -451,7 +451,7 @@ static constexpr const char* kSimMeshHexCrcTokenName = "physxVolumeDeformableSim
 // still requires it, at the point of use.
 using PrimRefreshSet = std::unordered_set< omni::physics::parse::ObjectKey, omni::physics::parse::ObjectKey::Hash>;
 
-using MeshKeySet = std::unordered_set< omni::physx::usdparser::MeshKey, omni::physx::usdparser::MeshKeyHash >;
+using MeshKeySet = std::unordered_set< omni::ev4sio_physx::usdparser::MeshKey, omni::ev4sio_physx::usdparser::MeshKeyHash >;
 
 // TokenId-keyed (not TfToken-keyed). Unlike TfToken (globally interned, valid
 // to compare across any Source), a TokenId is only valid for comparison
@@ -494,7 +494,7 @@ private:
 class CookingDataAsyncImpl : public CookingDataAsync
 {
 public:
-    CookingDataAsyncImpl(physx::PxPhysics& physics, omni::physx::IPhysxCookingServicePrivate& cookingServicePrivate, omni::physx::IPhysxCookingService& cookingService, omni::physx::PhysxCookingAsyncContext context):
+    CookingDataAsyncImpl(ev4sio_physx::PxPhysics& physics, omni::ev4sio_physx::IPhysxCookingServicePrivate& cookingServicePrivate, omni::ev4sio_physx::IPhysxCookingService& cookingService, omni::ev4sio_physx::PhysxCookingAsyncContext context):
         mPhysics(physics), m_cookingServicePrivate(cookingServicePrivate), m_cookingService(cookingService), m_asyncContext(context)
     {
         m_settings = carb::getCachedInterface<carb::settings::ISettings>();
@@ -509,9 +509,9 @@ public:
     }
 
     // Tokens and refresh queues are owned by the source attachment.
-    void ensureCollisionTokens(const omni::physx::usdparser::AttachedStage& attachedStage, const omni::physics::parse::IPhysicsSource& src)
+    void ensureCollisionTokens(const omni::ev4sio_physx::usdparser::AttachedStage& attachedStage, const omni::physics::parse::IPhysicsSource& src)
     {
-        omni::physx::usdparser::AttachedStage::CookingRefreshState& state = attachedStage.getCookingRefreshState();
+        omni::ev4sio_physx::usdparser::AttachedStage::CookingRefreshState& state = attachedStage.getCookingRefreshState();
         if (state.tokensInitialized)
             return;
         state.collisionTokens.clear();
@@ -593,9 +593,9 @@ public:
     virtual uint32_t pump(void) final
     {
         uint32_t remaining = m_asyncContext ? getComputeService().pumpAsyncContext(m_asyncContext) : 0;
-        for (const auto& entry : omni::physx::usdparser::UsdLoad::getUsdLoad()->getAttachedStages())
+        for (const auto& entry : omni::ev4sio_physx::usdparser::UsdLoad::getUsdLoad()->getAttachedStages())
         {
-            omni::physx::RuntimeExecutionScope operation(entry.first);
+            omni::ev4sio_physx::RuntimeExecutionScope operation(entry.first);
             if (operation)
                 remaining += pumpContexts(entry.second.get());
         }
@@ -607,9 +607,9 @@ public:
         }
         return remaining;
     }
-    virtual uint32_t pump(omni::physx::usdparser::AttachedStage& owner) final { return pumpContexts(&owner); }
+    virtual uint32_t pump(omni::ev4sio_physx::usdparser::AttachedStage& owner) final { return pumpContexts(&owner); }
 
-    uint32_t pumpContexts(omni::physx::usdparser::AttachedStage* selectedOwner)
+    uint32_t pumpContexts(omni::ev4sio_physx::usdparser::AttachedStage* selectedOwner)
     {
         carb::extras::Timer timer;
         timer.start();
@@ -637,10 +637,10 @@ public:
             // APIs checked here that is equivalent to HasAPI<>. Falls back to the
             // direct USD walk when no attached source is available.
             {
-                omni::physx::usdparser::AttachedStage* changeAttached = selectedOwner;
+                omni::ev4sio_physx::usdparser::AttachedStage* changeAttached = selectedOwner;
                 RefreshCountScope refreshCount{*changeAttached};
-                omni::physx::ScopedNoticeBlock blockNotices(*changeAttached, false, true);
-                omni::physx::usdparser::AttachedStage::CookingRefreshState& state = changeAttached->getCookingRefreshState();
+                omni::ev4sio_physx::ScopedNoticeBlock blockNotices(*changeAttached, false, true);
+                omni::ev4sio_physx::usdparser::AttachedStage::CookingRefreshState& state = changeAttached->getCookingRefreshState();
                 omni::physics::parse::IPhysicsSource* changeSrc =
                     changeAttached ? changeAttached->getSource() : nullptr;
 
@@ -739,34 +739,34 @@ public:
                             // Parse the fully digested PhysXShapeDesc for this prim; if it is a cookable
                             // shape, spawn a background cooking task. parseCollision keys off the stage
                             // id; the cook dispatch resolves `key` back to a path at the service boundary.
-                            omni::physx::usdparser::ScannedCollision collision =
-                                omni::physx::usdparser::parseCollision(*changeAttached, key, key);
-                            omni::physx::usdparser::PhysxShapeDesc* shapeDesc = collision.get();
+                            omni::ev4sio_physx::usdparser::ScannedCollision collision =
+                                omni::ev4sio_physx::usdparser::parseCollision(*changeAttached, key, key);
+                            omni::ev4sio_physx::usdparser::PhysxShapeDesc* shapeDesc = collision.get();
                             if (shapeDesc)
                             {
                                 switch (shapeDesc->type)
                                 {
-                                case omni::physx::usdparser::ObjectType::eConvexMeshShape:
+                                case omni::ev4sio_physx::usdparser::ObjectType::eConvexMeshShape:
                                 {
-                                    omni::physx::usdparser::ConvexMeshPhysxShapeDesc* desc = static_cast<omni::physx::usdparser::ConvexMeshPhysxShapeDesc*>(shapeDesc);
+                                    omni::ev4sio_physx::usdparser::ConvexMeshPhysxShapeDesc* desc = static_cast<omni::ev4sio_physx::usdparser::ConvexMeshPhysxShapeDesc*>(shapeDesc);
                                     getConvexMeshInternal(*desc, key, *changeAttached, true, nullptr);
                                 }
                                 break;
-                                case omni::physx::usdparser::ObjectType::eSpherePointsShape:
+                                case omni::ev4sio_physx::usdparser::ObjectType::eSpherePointsShape:
                                 {
-                                    omni::physx::usdparser::SpherePointsPhysxShapeDesc* desc = static_cast<omni::physx::usdparser::SpherePointsPhysxShapeDesc*>(shapeDesc);
+                                    omni::ev4sio_physx::usdparser::SpherePointsPhysxShapeDesc* desc = static_cast<omni::ev4sio_physx::usdparser::SpherePointsPhysxShapeDesc*>(shapeDesc);
                                     getSpherePointsInternal(*desc, key, *changeAttached, true, nullptr);
                                 }
                                 break;
-                                case omni::physx::usdparser::ObjectType::eConvexMeshDecompositionShape:
+                                case omni::ev4sio_physx::usdparser::ObjectType::eConvexMeshDecompositionShape:
                                 {
-                                    omni::physx::usdparser::ConvexMeshDecompositionPhysxShapeDesc* desc = static_cast<omni::physx::usdparser::ConvexMeshDecompositionPhysxShapeDesc*>(shapeDesc);
+                                    omni::ev4sio_physx::usdparser::ConvexMeshDecompositionPhysxShapeDesc* desc = static_cast<omni::ev4sio_physx::usdparser::ConvexMeshDecompositionPhysxShapeDesc*>(shapeDesc);
                                     getConvexMeshDecompositionInternal(*desc, key, *changeAttached, true, nullptr);
                                 }
                                 break;
-                                case omni::physx::usdparser::ObjectType::eTriangleMeshShape:
+                                case omni::ev4sio_physx::usdparser::ObjectType::eTriangleMeshShape:
                                 {
-                                    omni::physx::usdparser::TriangleMeshPhysxShapeDesc* desc = static_cast<omni::physx::usdparser::TriangleMeshPhysxShapeDesc*>(shapeDesc);
+                                    omni::ev4sio_physx::usdparser::TriangleMeshPhysxShapeDesc* desc = static_cast<omni::ev4sio_physx::usdparser::TriangleMeshPhysxShapeDesc*>(shapeDesc);
                                     getTriangleMeshInternal(*desc, key, *changeAttached, true, nullptr, nullptr);
                                 }
                                 break;
@@ -832,13 +832,13 @@ public:
     *
     * @return : Returns the pointer to the PxConvexMesh if it was available at this time.
     */
-    virtual ::physx::PxConvexMesh* getConvexMesh(const omni::physx::usdparser::ConvexMeshPhysxShapeDesc& desc, omni::physics::parse::ObjectKey primKey, const omni::physx::usdparser::AttachedStage& attachedStage, bool asynchronous, omni::physx::IPhysxCookingCallback* cb = nullptr) final
+    virtual ::ev4sio_physx::PxConvexMesh* getConvexMesh(const omni::ev4sio_physx::usdparser::ConvexMeshPhysxShapeDesc& desc, omni::physics::parse::ObjectKey primKey, const omni::ev4sio_physx::usdparser::AttachedStage& attachedStage, bool asynchronous, omni::ev4sio_physx::IPhysxCookingCallback* cb = nullptr) final
     {
-        ::physx::PxConvexMesh* ret = nullptr;
+        ::ev4sio_physx::PxConvexMesh* ret = nullptr;
 
         // Block USD notice handlers in case we write out any results during this call
         lock_guard _lock(m_mutex);
-        omni::physx::ScopedNoticeBlock blockNotices(attachedStage, false, true);
+        omni::ev4sio_physx::ScopedNoticeBlock blockNotices(attachedStage, false, true);
         return getConvexMeshInternal(desc, primKey, attachedStage, asynchronous, cb);
     }
 
@@ -846,20 +846,20 @@ public:
     // submitted, so the attach has to be named by the caller. PhysxCookingFinishedCallback reports
     // an AttachHandle, not a stage id (ADR-0016 Decision 6) -- a stage id cannot name a stageless
     // attach, and the callback's whole purpose is to tell the consumer which attach finished.
-    static void reportCookingFinished(const omni::physx::AttachHandle attachHandle,
+    static void reportCookingFinished(const omni::ev4sio_physx::AttachHandle attachHandle,
                                       const uint64_t primId,
-                                      omni::physx::IPhysxCookingCallback* cb)
+                                      omni::ev4sio_physx::IPhysxCookingCallback* cb)
     {
-        omni::physx::RuntimeCallbackScope callbackScope;
+        omni::ev4sio_physx::RuntimeCallbackScope callbackScope;
         if (cb && cb->cookingFinishedCallback)
         {
-            cb->cookingFinishedCallback(attachHandle, primId, omni::physx::PhysxCookingResult::eVALID, cb->userData);
+            cb->cookingFinishedCallback(attachHandle, primId, omni::ev4sio_physx::PhysxCookingResult::eVALID, cb->userData);
         }
     }
 
-    static void reportLegacyCookingFinishedCallbackAndResult(omni::physx::IPhysxCookingCallback* cb, const omni::physx::PhysxCookingComputeResult& result)
+    static void reportLegacyCookingFinishedCallbackAndResult(omni::ev4sio_physx::IPhysxCookingCallback* cb, const omni::ev4sio_physx::PhysxCookingComputeResult& result)
     {
-        omni::physx::RuntimeCallbackScope callbackScope;
+        omni::ev4sio_physx::RuntimeCallbackScope callbackScope;
         if(cb && cb->cookingResultCallback)
         {
             cb->cookingResultCallback(result.cookedDataCRC, result.cookedData, result.cookedDataNumElements, cb->userData);
@@ -873,9 +873,9 @@ public:
         }
     }
 
-    void fillRequestPrimMeshView(omni::physx::PhysxCookingComputeRequest& request,
-                                 const omni::physx::usdparser::AttachedStage& attachedStage,
-                                 const omni::physx::usdparser::MergeMeshDesc& mergeMeshDesc)
+    void fillRequestPrimMeshView(omni::ev4sio_physx::PhysxCookingComputeRequest& request,
+                                 const omni::ev4sio_physx::usdparser::AttachedStage& attachedStage,
+                                 const omni::ev4sio_physx::usdparser::MergeMeshDesc& mergeMeshDesc)
     {
         // Every request is mesh-view mode now (eINPUT_MODE_FROM_PRIM_ID removed); the struct
         // default for metersPerUnit is 1.0 unless it is set here.
@@ -903,22 +903,22 @@ public:
     *
     * @return : Returns the pointer to the PxConvexMesh if it was available at this time.
     */
-    virtual ::physx::PxConvexMesh* getConvexMeshInternal(const omni::physx::usdparser::ConvexMeshPhysxShapeDesc& desc,
+    virtual ::ev4sio_physx::PxConvexMesh* getConvexMeshInternal(const omni::ev4sio_physx::usdparser::ConvexMeshPhysxShapeDesc& desc,
                                                          omni::physics::parse::ObjectKey primKey,
-                                                         const omni::physx::usdparser::AttachedStage& attachedStage,
-                                                         bool asynchronous, omni::physx::IPhysxCookingCallback* cb)
+                                                         const omni::ev4sio_physx::usdparser::AttachedStage& attachedStage,
+                                                         bool asynchronous, omni::ev4sio_physx::IPhysxCookingCallback* cb)
     {
 #if !USE_ASYNC_COOKING
         asynchronous = false;
 #endif
 
-        omni::physx::usdparser::MeshKey meshKey = desc.meshKey;
-        omni::physx::usdparser::MeshKey meshCRC = desc.crc;
+        omni::ev4sio_physx::usdparser::MeshKey meshKey = desc.meshKey;
+        omni::ev4sio_physx::usdparser::MeshKey meshCRC = desc.crc;
 
-        ::physx::PxConvexMesh *ret = nullptr;
-        ret = omni::physx::getMeshCache()->getConvexMesh(meshCRC);
+        ::ev4sio_physx::PxConvexMesh *ret = nullptr;
+        ret = omni::ev4sio_physx::getMeshCache()->getConvexMesh(meshCRC);
 
-        omni::physx::PhysxCookingComputeRequest request;
+        omni::ev4sio_physx::PhysxCookingComputeRequest request;
 
         // Resolve the source key to a USD path + stage id only here, at the cooking-service boundary.
         // Two identities, two jobs (ADR-0016 Decision 6). primStageId/primId are correlation keys
@@ -934,14 +934,14 @@ public:
         // geomScope owns the mesh buffers request.primMeshView points at; safe to release once it
         // goes out of scope, since the cooking service copies the view synchronously before any
         // async task is queued (CookingTask::setupTaskFromRequest resets request.primMeshView after).
-        omni::physx::usdparser::SourceMeshGeometryScope geomScope;
+        omni::ev4sio_physx::usdparser::SourceMeshGeometryScope geomScope;
         if (ret == nullptr)
         {
             if (desc.mergedMesh)
             {
                 fillRequestPrimMeshView(request, attachedStage, *desc.mergedMesh);
             }
-            else if (!omni::physx::usdparser::fillCookingMeshViewFromSource(request, geomScope, attachedStage, primKey))
+            else if (!omni::ev4sio_physx::usdparser::fillCookingMeshViewFromSource(request, geomScope, attachedStage, primKey))
             {
                 // REQ-COOK-SOURCE-001 AC-4: unreadable input fails loudly, before any submission --
                 // no more falling back to the cooking service resolving primStageId/primId itself.
@@ -949,8 +949,8 @@ public:
                 return ret;
             }
 
-            request.options.setFlag(omni::physx::PhysxCookingComputeRequest::Options::kComputeAsynchronously, asynchronous);
-            request.options.setFlag(omni::physx::PhysxCookingComputeRequest::Options::kComputeGPUCookingData, true);
+            request.options.setFlag(omni::ev4sio_physx::PhysxCookingComputeRequest::Options::kComputeAsynchronously, asynchronous);
+            request.options.setFlag(omni::ev4sio_physx::PhysxCookingComputeRequest::Options::kComputeGPUCookingData, true);
             request.meshKey = desc.meshKey;
 
             PxPhysics* pxPhysics = &mPhysics;
@@ -959,11 +959,11 @@ public:
 
             recordStatisticsRequestFor(request);
             request.onFinished = [pxPhysics, &returnedMesh,
-                                         cb, weakPtrToThis](const omni::physx::PhysxCookingComputeResult& result) {
+                                         cb, weakPtrToThis](const omni::ev4sio_physx::PhysxCookingComputeResult& result) {
                 if(weakPtrToThis)
                     weakPtrToThis->recordStatisticsResultFor(result);
                 reportLegacyCookingFinishedCallbackAndResult(cb, result);
-                if (result.result != omni::physx::PhysxCookingResult::eVALID)
+                if (result.result != omni::ev4sio_physx::PhysxCookingResult::eVALID)
                 {
                     return;
                 }
@@ -971,7 +971,7 @@ public:
                 {
                     return; // means that CookingDataAsync destructor was called, so this task is cancelled
                 }
-                const bool res = omni::physx::getMeshCache()->createRuntimeConvexMesh(
+                const bool res = omni::ev4sio_physx::getMeshCache()->createRuntimeConvexMesh(
                     *pxPhysics, result.cookedDataCRC, result.cookedData[0],
                     result.isSynchronousResult ? &returnedMesh : nullptr);
                 if (!res)
@@ -1001,18 +1001,18 @@ public:
     *
     * @return : Returns the pointer to the PxTriangleMesh if it was available at this time.
     */
-    virtual ::physx::PxTriangleMesh* getTriangleMesh(const omni::physx::usdparser::TriangleMeshPhysxShapeDesc& desc,
+    virtual ::ev4sio_physx::PxTriangleMesh* getTriangleMesh(const omni::ev4sio_physx::usdparser::TriangleMeshPhysxShapeDesc& desc,
         omni::physics::parse::ObjectKey primKey,
-        const omni::physx::usdparser::AttachedStage& attachedStage,
+        const omni::ev4sio_physx::usdparser::AttachedStage& attachedStage,
         bool asynchronous,
-        omni::physx::IPhysxCookingCallback* cb = nullptr,
+        omni::ev4sio_physx::IPhysxCookingCallback* cb = nullptr,
         uint16_t* maxMaterialIndex = nullptr) final
     {
-        ::physx::PxTriangleMesh *ret = nullptr; // Default return is a null pointer indicating the mesh is either not found or not ready
+        ::ev4sio_physx::PxTriangleMesh *ret = nullptr; // Default return is a null pointer indicating the mesh is either not found or not ready
 
         // Disable USD notification handlers in case we should do USD writes in this call
         lock_guard _lock(m_mutex);
-        omni::physx::ScopedNoticeBlock blockNotices(attachedStage, false, true);
+        omni::ev4sio_physx::ScopedNoticeBlock blockNotices(attachedStage, false, true);
         return getTriangleMeshInternal(desc, primKey, attachedStage, asynchronous, cb, maxMaterialIndex);
     }
 
@@ -1027,24 +1027,24 @@ public:
     *
     * @return : Returns the pointer to the PxTriangleMesh if it was available at this time.
     */
-    virtual ::physx::PxTriangleMesh* getTriangleMeshInternal(const omni::physx::usdparser::TriangleMeshPhysxShapeDesc& desc,
+    virtual ::ev4sio_physx::PxTriangleMesh* getTriangleMeshInternal(const omni::ev4sio_physx::usdparser::TriangleMeshPhysxShapeDesc& desc,
                                                              omni::physics::parse::ObjectKey primKey,
-                                                             const omni::physx::usdparser::AttachedStage& attachedStage,
+                                                             const omni::ev4sio_physx::usdparser::AttachedStage& attachedStage,
                                                              bool asynchronous,
-                                                             omni::physx::IPhysxCookingCallback* cb,
+                                                             omni::ev4sio_physx::IPhysxCookingCallback* cb,
                                                              uint16_t* maxMaterialIndex)
     {
 
 #if !USE_ASYNC_COOKING
         asynchronous = false;
 #endif
-        omni::physx::usdparser::MeshKey meshKey = desc.meshKey;
-        omni::physx::usdparser::MeshKey meshCRC = desc.crc;
+        omni::ev4sio_physx::usdparser::MeshKey meshKey = desc.meshKey;
+        omni::ev4sio_physx::usdparser::MeshKey meshCRC = desc.crc;
 
-        ::physx::PxTriangleMesh* ret = nullptr;
-        ret = omni::physx::getMeshCache()->getTriangleMesh(meshCRC);
+        ::ev4sio_physx::PxTriangleMesh* ret = nullptr;
+        ret = omni::ev4sio_physx::getMeshCache()->getTriangleMesh(meshCRC);
 
-        omni::physx::PhysxCookingComputeRequest request;
+        omni::ev4sio_physx::PhysxCookingComputeRequest request;
 
         // Resolve the source key to a USD path + stage id only here, at the cooking-service boundary.
         // primStageId names the USD stage to read from; attachHandle names the attach to resolve and
@@ -1059,19 +1059,19 @@ public:
         // or UsdPrim itself
         if (ret == nullptr)
         {
-            request.options.setFlag(omni::physx::PhysxCookingComputeRequest::Options::kComputeAsynchronously, asynchronous);
-            request.options.setFlag(omni::physx::PhysxCookingComputeRequest::Options::kComputeGPUCookingData, true);
+            request.options.setFlag(omni::ev4sio_physx::PhysxCookingComputeRequest::Options::kComputeAsynchronously, asynchronous);
+            request.options.setFlag(omni::ev4sio_physx::PhysxCookingComputeRequest::Options::kComputeGPUCookingData, true);
             request.meshKey = desc.meshKey;
 
             // geomScope owns the mesh buffers request.primMeshView points at; safe to release once it
         // goes out of scope, since the cooking service copies the view synchronously before any
         // async task is queued (CookingTask::setupTaskFromRequest resets request.primMeshView after).
-        omni::physx::usdparser::SourceMeshGeometryScope geomScope;
+        omni::ev4sio_physx::usdparser::SourceMeshGeometryScope geomScope;
             if (desc.mergedMesh)
             {
                 fillRequestPrimMeshView(request, attachedStage, *desc.mergedMesh);
             }
-            else if (!omni::physx::usdparser::fillCookingMeshViewFromSource(request, geomScope, attachedStage, primKey))
+            else if (!omni::ev4sio_physx::usdparser::fillCookingMeshViewFromSource(request, geomScope, attachedStage, primKey))
             {
                 // REQ-COOK-SOURCE-001 AC-4: unreadable input fails loudly, before any submission --
                 // no more falling back to the cooking service resolving primStageId/primId itself.
@@ -1082,7 +1082,7 @@ public:
 
             PxPhysics* pxPhysics = &mPhysics;
             const bool originalTriangles =
-                desc.triangleMeshCookingParams.mode == omni::physx::TriangleMeshMode::eORIGINAL_TRIANGLES;
+                desc.triangleMeshCookingParams.mode == omni::ev4sio_physx::TriangleMeshMode::eORIGINAL_TRIANGLES;
             request.triangulation.needsTriangleFaceMap = originalTriangles;
             request.triangulation.needsMaxMaterialIndex = originalTriangles && maxMaterialIndex != nullptr;
             PxTriangleMesh*& returnedMesh = ret;
@@ -1090,12 +1090,12 @@ public:
 
             recordStatisticsRequestFor(request);
             request.onFinished = [pxPhysics, originalTriangles, &returnedMesh, cb, maxMaterialIndex,
-                                         weakPtrToThis](const omni::physx::PhysxCookingComputeResult& result) {
+                                         weakPtrToThis](const omni::ev4sio_physx::PhysxCookingComputeResult& result) {
                 if(weakPtrToThis)
                     weakPtrToThis->recordStatisticsResultFor(result);
                 reportLegacyCookingFinishedCallbackAndResult(cb, result);
 
-                if (result.result != omni::physx::PhysxCookingResult::eVALID)
+                if (result.result != omni::ev4sio_physx::PhysxCookingResult::eVALID)
                 {
                     return;
                 }
@@ -1103,7 +1103,7 @@ public:
                 {
                     return; // means that CookingDataAsync destructor was called, so this task is cancelled
                 }
-                const bool res = omni::physx::getMeshCache()->createRuntimeTriangleMesh(
+                const bool res = omni::ev4sio_physx::getMeshCache()->createRuntimeTriangleMesh(
                     *pxPhysics, result.cookedDataCRC, originalTriangles, result.cookedData[0],
                     result.triangulationView.trianglesFaceMap, result.isSynchronousResult ? &returnedMesh : nullptr);
                 if (!res)
@@ -1135,12 +1135,12 @@ public:
                 // scene init) that the ujitso service resolves to a real context; disabling
                 // GPU cooking there would needlessly move work to the CPU and change the
                 // ujitso cache key.
-                const omni::physx::IPhysxFoundation& foundation = omni::physx::foundation::getInterface();
+                const omni::ev4sio_physx::IPhysxFoundation& foundation = omni::ev4sio_physx::foundation::getInterface();
                 const bool gpuAvailable = foundation.cudaDeviceCheck && foundation.cudaDeviceCheck();
                 if (!gpuAvailable)
                 {
                     request.options.setFlag(
-                        omni::physx::PhysxCookingComputeRequest::Options::kExecuteCookingOnGPU, false);
+                        omni::ev4sio_physx::PhysxCookingComputeRequest::Options::kExecuteCookingOnGPU, false);
                 }
                 m_cookingServicePrivate.requestSdfMeshCookedData(getCookingAsyncContext(attachedStage), request, desc.triangleMeshCookingParams, desc.sdfMeshCookingParams, cudaContextManager);
             }
@@ -1168,43 +1168,43 @@ public:
     *
     * @return : Returns an std::vector of PxConvexMeshes if it was available at this time.
     */
-    virtual std::vector<::physx::PxConvexMesh*> getConvexMeshDecomposition(const omni::physx::usdparser::ConvexMeshDecompositionPhysxShapeDesc& desc, omni::physics::parse::ObjectKey primKey, const omni::physx::usdparser::AttachedStage& attachedStage,
-        bool asynchronous, omni::physx::IPhysxCookingCallback* cb = nullptr) final
+    virtual std::vector<::ev4sio_physx::PxConvexMesh*> getConvexMeshDecomposition(const omni::ev4sio_physx::usdparser::ConvexMeshDecompositionPhysxShapeDesc& desc, omni::physics::parse::ObjectKey primKey, const omni::ev4sio_physx::usdparser::AttachedStage& attachedStage,
+        bool asynchronous, omni::ev4sio_physx::IPhysxCookingCallback* cb = nullptr) final
     {
-        std::vector<::physx::PxConvexMesh*> ret; // By default returns an empty array
+        std::vector<::ev4sio_physx::PxConvexMesh*> ret; // By default returns an empty array
 
         // Block any USD notification handlers if we make any USD attribute changes in this method
         lock_guard _lock(m_mutex);
-        omni::physx::ScopedNoticeBlock blockNotices(attachedStage, false, true);
+        omni::ev4sio_physx::ScopedNoticeBlock blockNotices(attachedStage, false, true);
         return getConvexMeshDecompositionInternal(desc, primKey, attachedStage, asynchronous, cb);
     }
 
-    virtual const omni::physx::usdparser::SpherePointsPhysxShapeDesc * getSpherePoints(const omni::physx::usdparser::SpherePointsPhysxShapeDesc& desc,
-        omni::physics::parse::ObjectKey primKey, const omni::physx::usdparser::AttachedStage& attachedStage, bool asynchronous, omni::physx::IPhysxCookingCallback* cb = nullptr) final
+    virtual const omni::ev4sio_physx::usdparser::SpherePointsPhysxShapeDesc * getSpherePoints(const omni::ev4sio_physx::usdparser::SpherePointsPhysxShapeDesc& desc,
+        omni::physics::parse::ObjectKey primKey, const omni::ev4sio_physx::usdparser::AttachedStage& attachedStage, bool asynchronous, omni::ev4sio_physx::IPhysxCookingCallback* cb = nullptr) final
     {
         // Block any USD notification handlers if we make any USD attribute changes in this method
         lock_guard _lock(m_mutex);
-        omni::physx::ScopedNoticeBlock blockNotices(attachedStage, false, true);
+        omni::ev4sio_physx::ScopedNoticeBlock blockNotices(attachedStage, false, true);
         return getSpherePointsInternal(desc, primKey, attachedStage, asynchronous, cb);
     }
 
-    virtual const omni::physx::usdparser::SpherePointsPhysxShapeDesc *  getSpherePointsInternal(const omni::physx::usdparser::SpherePointsPhysxShapeDesc& desc, omni::physics::parse::ObjectKey primKey, const omni::physx::usdparser::AttachedStage& attachedStage,
-        bool asynchronous, omni::physx::IPhysxCookingCallback* cb)
+    virtual const omni::ev4sio_physx::usdparser::SpherePointsPhysxShapeDesc *  getSpherePointsInternal(const omni::ev4sio_physx::usdparser::SpherePointsPhysxShapeDesc& desc, omni::physics::parse::ObjectKey primKey, const omni::ev4sio_physx::usdparser::AttachedStage& attachedStage,
+        bool asynchronous, omni::ev4sio_physx::IPhysxCookingCallback* cb)
     {
 #if !USE_ASYNC_COOKING
         asynchronous = false;
 #endif
-        omni::physx::usdparser::MeshKey meshKey = desc.meshKey;
-        omni::physx::usdparser::MeshKey meshCRC = desc.crc;
+        omni::ev4sio_physx::usdparser::MeshKey meshKey = desc.meshKey;
+        omni::ev4sio_physx::usdparser::MeshKey meshCRC = desc.crc;
 
-        const omni::physx::usdparser::SpherePointsPhysxShapeDesc *ret = nullptr;
+        const omni::ev4sio_physx::usdparser::SpherePointsPhysxShapeDesc *ret = nullptr;
 
-        ret = omni::physx::getMeshCache()->getSphereFill(meshCRC);
+        ret = omni::ev4sio_physx::getMeshCache()->getSphereFill(meshCRC);
         // Resolve the source key to a USD path + stage id only here, at the cooking-service boundary.
         // The stage id is the service's mesh-data input; the handle is the attach identity the
         // finished callback reports (ADR-0016 Decision 6).
         const long stageId = attachedStage.getStageId();
-        const omni::physx::AttachHandle attachHandle = attachedStage.getAttachHandle();
+        const omni::ev4sio_physx::AttachHandle attachHandle = attachedStage.getAttachHandle();
         if (ret)
         {
             reportCookingFinished(attachHandle, keyToLegacyPathInt(&attachedStage, primKey), cb);
@@ -1212,25 +1212,25 @@ public:
         else
         {
 
-            omni::physx::PhysxCookingComputeRequest request;
+            omni::ev4sio_physx::PhysxCookingComputeRequest request;
 
             request.primStageId = stageId;
             request.attachHandle = attachHandle;
             request.primId = keyToLegacyPathInt(&attachedStage, primKey);
             request.meshKey = desc.meshKey;
 
-            request.options.setFlag(omni::physx::PhysxCookingComputeRequest::Options::kComputeAsynchronously, asynchronous);
-            request.options.setFlag(omni::physx::PhysxCookingComputeRequest::Options::kComputeGPUCookingData, true);
+            request.options.setFlag(omni::ev4sio_physx::PhysxCookingComputeRequest::Options::kComputeAsynchronously, asynchronous);
+            request.options.setFlag(omni::ev4sio_physx::PhysxCookingComputeRequest::Options::kComputeGPUCookingData, true);
 
             // geomScope owns the mesh buffers request.primMeshView points at; safe to release once it
         // goes out of scope, since the cooking service copies the view synchronously before any
         // async task is queued (CookingTask::setupTaskFromRequest resets request.primMeshView after).
-        omni::physx::usdparser::SourceMeshGeometryScope geomScope;
+        omni::ev4sio_physx::usdparser::SourceMeshGeometryScope geomScope;
             if (desc.mergedMesh)
             {
                 fillRequestPrimMeshView(request, attachedStage, *desc.mergedMesh);
             }
-            else if (!omni::physx::usdparser::fillCookingMeshViewFromSource(request, geomScope, attachedStage, primKey))
+            else if (!omni::ev4sio_physx::usdparser::fillCookingMeshViewFromSource(request, geomScope, attachedStage, primKey))
             {
                 // REQ-COOK-SOURCE-001 AC-4: unreadable input fails loudly, before any submission --
                 // no more falling back to the cooking service resolving primStageId/primId itself.
@@ -1239,16 +1239,16 @@ public:
             }
 
             PxPhysics* pxPhysics = &mPhysics;
-            const omni::physx::usdparser::SpherePointsPhysxShapeDesc*& returnedMesh = ret;
+            const omni::ev4sio_physx::usdparser::SpherePointsPhysxShapeDesc*& returnedMesh = ret;
             CookingDataAsyncWeakSelf weakPtrToThis(this, m_aliveFlag);
 
             recordStatisticsRequestFor(request);
             request.onFinished = [pxPhysics, &returnedMesh,
-                                         cb, weakPtrToThis](const omni::physx::PhysxCookingComputeResult& result) {
+                                         cb, weakPtrToThis](const omni::ev4sio_physx::PhysxCookingComputeResult& result) {
                 if(weakPtrToThis)
                     weakPtrToThis->recordStatisticsResultFor(result);
                 reportLegacyCookingFinishedCallbackAndResult(cb, result);
-                if (result.result != omni::physx::PhysxCookingResult::eVALID)
+                if (result.result != omni::ev4sio_physx::PhysxCookingResult::eVALID)
                 {
                     return;
                 }
@@ -1257,7 +1257,7 @@ public:
                     return; // means that CookingDataAsync destructor was called, so this task is cancelled
                 }
 
-                const bool res = omni::physx::getMeshCache()->createRuntimeSphereFill(
+                const bool res = omni::ev4sio_physx::getMeshCache()->createRuntimeSphereFill(
                     *pxPhysics, result.cookedDataCRC, result.cookedData[0],
                     result.isSynchronousResult ? &returnedMesh : nullptr);
                 if (!res)
@@ -1285,53 +1285,53 @@ public:
     *
     * @return : Returns an std::vector of PxConvexMeshes if it was available at this time.
     */
-    virtual std::vector<::physx::PxConvexMesh*> getConvexMeshDecompositionInternal(const omni::physx::usdparser::ConvexMeshDecompositionPhysxShapeDesc& desc,
+    virtual std::vector<::ev4sio_physx::PxConvexMesh*> getConvexMeshDecompositionInternal(const omni::ev4sio_physx::usdparser::ConvexMeshDecompositionPhysxShapeDesc& desc,
         omni::physics::parse::ObjectKey primKey,
-        const omni::physx::usdparser::AttachedStage& attachedStage,
+        const omni::ev4sio_physx::usdparser::AttachedStage& attachedStage,
         bool asynchronous,
-        omni::physx::IPhysxCookingCallback* cb)
+        omni::ev4sio_physx::IPhysxCookingCallback* cb)
     {
 
 #if !USE_ASYNC_COOKING
         asynchronous = false;
 #endif
 
-        omni::physx::usdparser::MeshKey meshKey = desc.meshKey;
-        omni::physx::usdparser::MeshKey meshCRC = desc.crc;
+        omni::ev4sio_physx::usdparser::MeshKey meshKey = desc.meshKey;
+        omni::ev4sio_physx::usdparser::MeshKey meshCRC = desc.crc;
 
-        std::vector<::physx::PxConvexMesh*> ret;
+        std::vector<::ev4sio_physx::PxConvexMesh*> ret;
 
-        ret = omni::physx::getMeshCache()->getConvexDecomposition(meshCRC);
+        ret = omni::ev4sio_physx::getMeshCache()->getConvexDecomposition(meshCRC);
         // Resolve the source key to a USD path + stage id only here, at the cooking-service boundary.
         // The stage id is the service's mesh-data input; the handle is the attach identity the
         // finished callback reports (ADR-0016 Decision 6).
         const long stageId = attachedStage.getStageId();
-        const omni::physx::AttachHandle attachHandle = attachedStage.getAttachHandle();
+        const omni::ev4sio_physx::AttachHandle attachHandle = attachedStage.getAttachHandle();
         if (!ret.empty())
         {
             reportCookingFinished(attachHandle, keyToLegacyPathInt(&attachedStage, primKey), cb);
         }
         else
         {
-            omni::physx::PhysxCookingComputeRequest request;
+            omni::ev4sio_physx::PhysxCookingComputeRequest request;
 
             request.primStageId = stageId;
             request.attachHandle = attachHandle;
             request.primId = keyToLegacyPathInt(&attachedStage, primKey);
             request.meshKey = desc.meshKey;
 
-            request.options.setFlag(omni::physx::PhysxCookingComputeRequest::Options::kComputeAsynchronously, asynchronous);
-            request.options.setFlag(omni::physx::PhysxCookingComputeRequest::Options::kComputeGPUCookingData, true);
+            request.options.setFlag(omni::ev4sio_physx::PhysxCookingComputeRequest::Options::kComputeAsynchronously, asynchronous);
+            request.options.setFlag(omni::ev4sio_physx::PhysxCookingComputeRequest::Options::kComputeGPUCookingData, true);
 
             // geomScope owns the mesh buffers request.primMeshView points at; safe to release once it
         // goes out of scope, since the cooking service copies the view synchronously before any
         // async task is queued (CookingTask::setupTaskFromRequest resets request.primMeshView after).
-        omni::physx::usdparser::SourceMeshGeometryScope geomScope;
+        omni::ev4sio_physx::usdparser::SourceMeshGeometryScope geomScope;
             if (desc.mergedMesh)
             {
                 fillRequestPrimMeshView(request, attachedStage, *desc.mergedMesh);
             }
-            else if (!omni::physx::usdparser::fillCookingMeshViewFromSource(request, geomScope, attachedStage, primKey))
+            else if (!omni::ev4sio_physx::usdparser::fillCookingMeshViewFromSource(request, geomScope, attachedStage, primKey))
             {
                 // REQ-COOK-SOURCE-001 AC-4: unreadable input fails loudly, before any submission --
                 // no more falling back to the cooking service resolving primStageId/primId itself.
@@ -1342,14 +1342,14 @@ public:
             PxPhysics* pxPhysics = &mPhysics;
             CookingDataAsyncWeakSelf weakPtrToThis(this, m_aliveFlag);
 
-            std::vector<::physx::PxConvexMesh*>& returnedMesh = ret;
+            std::vector<::ev4sio_physx::PxConvexMesh*>& returnedMesh = ret;
             recordStatisticsRequestFor(request);
             request.onFinished = [pxPhysics, &returnedMesh,
-                                         cb, weakPtrToThis](const omni::physx::PhysxCookingComputeResult& result) {
+                                         cb, weakPtrToThis](const omni::ev4sio_physx::PhysxCookingComputeResult& result) {
                 if(weakPtrToThis)
                     weakPtrToThis->recordStatisticsResultFor(result);
                 reportLegacyCookingFinishedCallbackAndResult(cb, result);
-                if (result.result != omni::physx::PhysxCookingResult::eVALID)
+                if (result.result != omni::ev4sio_physx::PhysxCookingResult::eVALID)
                 {
                     return;
                 }
@@ -1358,7 +1358,7 @@ public:
                     return; // means that CookingDataAsync destructor was called, so this task is cancelled
                 }
 
-                const bool res = omni::physx::getMeshCache()->createRuntimeConvexDecomposition(
+                const bool res = omni::ev4sio_physx::getMeshCache()->createRuntimeConvexDecomposition(
                     *pxPhysics, result.cookedDataCRC, result.cookedData, result.cookedDataNumElements,
                     result.isSynchronousResult ? &returnedMesh : nullptr);
                 if (!res)
@@ -1382,7 +1382,7 @@ public:
     * for the deformable-recook gap without USD.
     */
     void cookDeformableBodyInternalAsync(omni::physics::parse::ObjectKey bodyKey,
-                                         const omni::physx::usdparser::AttachedStage& attachedStage,
+                                         const omni::ev4sio_physx::usdparser::AttachedStage& attachedStage,
                                          bool xformOnly)
     {
         if (!bodyKey.valid())
@@ -1391,7 +1391,7 @@ public:
         if (attachedStage.textViewFor(bodyKey).empty())
             return;
 
-        omni::physx::usdparser::PhysxDeformableBodyDesc* deformableDesc =
+        omni::ev4sio_physx::usdparser::PhysxDeformableBodyDesc* deformableDesc =
             parseDeformableBody(bodyKey, attachedStage);
         if (!deformableDesc)
         {
@@ -1401,10 +1401,10 @@ public:
         }
 
         bool dataReady = true;
-        if (deformableDesc->type == omni::physx::usdparser::ObjectType::eVolumeDeformableBody)
+        if (deformableDesc->type == omni::ev4sio_physx::usdparser::ObjectType::eVolumeDeformableBody)
         {
-            const omni::physx::usdparser::PhysxVolumeDeformableBodyDesc* volumeDesc =
-                static_cast<const omni::physx::usdparser::PhysxVolumeDeformableBodyDesc*>(deformableDesc);
+            const omni::ev4sio_physx::usdparser::PhysxVolumeDeformableBodyDesc* volumeDesc =
+                static_cast<const omni::ev4sio_physx::usdparser::PhysxVolumeDeformableBodyDesc*>(deformableDesc);
             if (deformableDesc->hasAutoAPI)
             {
                 dataReady = cookVolumeDeformableBodyInternal(*volumeDesc, bodyKey, attachedStage, xformOnly, true);
@@ -1412,14 +1412,14 @@ public:
             if (dataReady)
             {
                 // Spawn a deformable volume mesh cooking task
-                ::physx::PxDefaultMemoryOutputStream outStream;
+                ::ev4sio_physx::PxDefaultMemoryOutputStream outStream;
                 cookDeformableVolumeMeshInternal(outStream, *volumeDesc, bodyKey, attachedStage, true);
             }
         }
-        else if (deformableDesc->type == omni::physx::usdparser::ObjectType::eSurfaceDeformableBody)
+        else if (deformableDesc->type == omni::ev4sio_physx::usdparser::ObjectType::eSurfaceDeformableBody)
         {
-            const omni::physx::usdparser::PhysxSurfaceDeformableBodyDesc* surfaceDesc =
-                static_cast<const omni::physx::usdparser::PhysxSurfaceDeformableBodyDesc*>(deformableDesc);
+            const omni::ev4sio_physx::usdparser::PhysxSurfaceDeformableBodyDesc* surfaceDesc =
+                static_cast<const omni::ev4sio_physx::usdparser::PhysxSurfaceDeformableBodyDesc*>(deformableDesc);
             if (deformableDesc->hasAutoAPI)
             {
                 cookSurfaceDeformableBodyInternal(*surfaceDesc, bodyKey, attachedStage, xformOnly, true);
@@ -1430,8 +1430,8 @@ public:
     }
 #endif // USE_ASYNC_COOKING
 
-    virtual omni::physx::usdparser::PhysxDeformableBodyDesc* parseDeformableBody(
-        omni::physics::parse::ObjectKey bodyKey, const omni::physx::usdparser::AttachedStage& attachedStage)
+    virtual omni::ev4sio_physx::usdparser::PhysxDeformableBodyDesc* parseDeformableBody(
+        omni::physics::parse::ObjectKey bodyKey, const omni::ev4sio_physx::usdparser::AttachedStage& attachedStage)
     {
         // 6C.7.4 — driven via parse-library scanStage instead of a
         // hand-rolled IUsdPhysicsListener.  The scan produces parse-lib
@@ -1458,22 +1458,22 @@ public:
         omni::physics::parse::ScanOptions scanOptions;
         scanOptions.descendantScope = omni::physics::parse::DescendantScope::eAll;
         omni::physics::parse::ScannedStage scanned = attachedStage.scanStage(scanRoots, kNoExclude, scanOptions,
-            omni::physx::usdparser::iceDescriptorAllocator());
+            omni::ev4sio_physx::usdparser::iceDescriptorAllocator());
         if (scanned.deformables.empty())
             return nullptr;
 
-        return omni::physx::usdparser::convert::convertScannedDeformableBody(scanned, 0, attachedStage.getSourceUnits(), attachedStage);
+        return omni::ev4sio_physx::usdparser::convert::convertScannedDeformableBody(scanned, 0, attachedStage.getSourceUnits(), attachedStage);
     }
 
-    virtual bool cookVolumeDeformableBody(const omni::physx::usdparser::PhysxVolumeDeformableBodyDesc& desc,
-        omni::physics::parse::ObjectKey bodyKey, const omni::physx::usdparser::AttachedStage& attachedStage, bool asynchronous) final
+    virtual bool cookVolumeDeformableBody(const omni::ev4sio_physx::usdparser::PhysxVolumeDeformableBodyDesc& desc,
+        omni::physics::parse::ObjectKey bodyKey, const omni::ev4sio_physx::usdparser::AttachedStage& attachedStage, bool asynchronous) final
     {
         if (!desc.hasAutoAPI)
             return false;
 
         // Block USD notification handlers while in this call
         lock_guard _lock(m_mutex);
-        omni::physx::ScopedNoticeBlock blockNotices(attachedStage, false, true);
+        omni::ev4sio_physx::ScopedNoticeBlock blockNotices(attachedStage, false, true);
         if (!bodyKey.valid())
             return false;
         // Extra guard beyond bodyKey.valid(): a valid key can still fail to resolve to a live
@@ -1486,15 +1486,15 @@ public:
         return cookedDataAvailable;
     }
 
-    virtual bool cookSurfaceDeformableBody(const omni::physx::usdparser::PhysxSurfaceDeformableBodyDesc& desc,
-        omni::physics::parse::ObjectKey bodyKey, const omni::physx::usdparser::AttachedStage& attachedStage, bool asynchronous) final
+    virtual bool cookSurfaceDeformableBody(const omni::ev4sio_physx::usdparser::PhysxSurfaceDeformableBodyDesc& desc,
+        omni::physics::parse::ObjectKey bodyKey, const omni::ev4sio_physx::usdparser::AttachedStage& attachedStage, bool asynchronous) final
     {
         if (!desc.hasAutoAPI)
             return false;
 
         // Block USD notification handlers while in this call
         lock_guard _lock(m_mutex);
-        omni::physx::ScopedNoticeBlock blockNotices(attachedStage, false, true);
+        omni::ev4sio_physx::ScopedNoticeBlock blockNotices(attachedStage, false, true);
         if (!bodyKey.valid())
             return false;
         // Extra guard beyond bodyKey.valid(): a valid key can still fail to resolve to a live
@@ -1514,15 +1514,15 @@ public:
     *
     * @return : Returns true if this key is already associated with an active physics object
     */
-    bool checkParsed(const omni::physx::usdparser::AttachedStage& owner, omni::physics::parse::ObjectKey key, omni::physx::usdparser::ObjectType objectType)
+    bool checkParsed(const omni::ev4sio_physx::usdparser::AttachedStage& owner, omni::physics::parse::ObjectKey key, omni::ev4sio_physx::usdparser::ObjectType objectType)
     {
-        const omni::physx::usdparser::AttachedStage* attachedStage = &owner;
+        const omni::ev4sio_physx::usdparser::AttachedStage* attachedStage = &owner;
         if (attachedStage)
         {
-            const omni::physx::usdparser::ObjectDb* db = attachedStage->getObjectDatabase();
+            const omni::ev4sio_physx::usdparser::ObjectDb* db = attachedStage->getObjectDatabase();
             if (db)
             {
-                return db->findEntry(key, objectType) != omni::physx::usdparser::kInvalidObjectId;
+                return db->findEntry(key, objectType) != omni::ev4sio_physx::usdparser::kInvalidObjectId;
             }
         }
         return false;
@@ -1541,11 +1541,11 @@ public:
     * than treating the cook as done.
     */
     bool storeVolumeDeformableBodyDataToUsd(
-        omni::physx::PhysxCookingVolumeDeformableBodyData& data,
-        const omni::physx::usdparser::PhysxVolumeDeformableBodyDesc& desc,
+        omni::ev4sio_physx::PhysxCookingVolumeDeformableBodyData& data,
+        const omni::ev4sio_physx::usdparser::PhysxVolumeDeformableBodyDesc& desc,
         omni::physics::parse::ObjectKey bodyKey,
-        omni::physx::usdparser::AttachedStage& attachedStage,
-        const omni::physx::usdparser::MeshKey& tetMeshCrc)
+        omni::ev4sio_physx::usdparser::AttachedStage& attachedStage,
+        const omni::ev4sio_physx::usdparser::MeshKey& tetMeshCrc)
     {
         // Record always, publish when possible (ADR-0022).
         //
@@ -1590,11 +1590,11 @@ public:
 
         auto setArray = [&](omni::physics::parse::ObjectKey primKey, omni::physics::parse::TokenId attrTok, const auto& arr)
         {
-            omni::physx::internal::setCookedArrayValue(attachedStage, primKey, attrTok, arr);
+            omni::ev4sio_physx::internal::setCookedArrayValue(attachedStage, primKey, attrTok, arr);
             if (!dataWrite)
                 return;
             omni::physics::parse::DataWriteView v;
-            v.data = arr.empty() ? nullptr : omni::physx::internal::physxtools_detail::arrayElemData(arr);
+            v.data = arr.empty() ? nullptr : omni::ev4sio_physx::internal::physxtools_detail::arrayElemData(arr);
             v.count = arr.size();
             v.stride = 0;
             v.device = -1;
@@ -1617,7 +1617,7 @@ public:
         // attach, with or without a backing stage, which is why no stageless A/B could see it.
         // Same remedy already applied to the cooking-params gates below. See
         // PhysXTools.h::isTetMeshLike.
-        if (!omni::physx::internal::isTetMeshLike(attachedStage, desc.simMeshKey))
+        if (!omni::ev4sio_physx::internal::isTetMeshLike(attachedStage, desc.simMeshKey))
         {
             CARB_LOG_ERROR("storeVolumeDeformableBodyDataToUsd: No UsdGeomTetMesh sim mesh defined at %s", attachedStage.textFor(desc.simMeshKey));
             return false;
@@ -1643,7 +1643,7 @@ public:
         // carrier (auto-generated, never authored as a UsdGeomTetMesh) would trip this gate on
         // every recook, since isTetMeshLike falls back to reading the very data the clear just
         // erased. See PhysXTools.h::isTetMeshLike / getArrayValue.
-        if (desc.collisionMeshKey != desc.simMeshKey && !omni::physx::internal::isTetMeshLike(attachedStage, desc.collisionMeshKey))
+        if (desc.collisionMeshKey != desc.simMeshKey && !omni::ev4sio_physx::internal::isTetMeshLike(attachedStage, desc.collisionMeshKey))
         {
             CARB_LOG_ERROR("storeVolumeDeformableBodyDataToUsd: No UsdGeomTetMesh collision mesh defined at %s",
                 attachedStage.textFor(desc.collisionMeshKey));
@@ -1684,12 +1684,12 @@ public:
             const omni::physics::parse::TokenId simMeshHexCrcTok = dataSource->internToken(kSimMeshHexCrcTokenName);
             if (data.numTetsPerElement == 5 || data.numTetsPerElement == 6)
             {
-                const omni::physx::usdparser::MeshKey hexCrc =
+                const omni::ev4sio_physx::usdparser::MeshKey hexCrc =
                     computeSimMeshHexCrc(points, indices, data.numTetsPerElement);
 
-                omni::physx::internal::setCookedUIntValue(attachedStage, simMeshKey, simMeshNumTetsPerElementTok,
+                omni::ev4sio_physx::internal::setCookedUIntValue(attachedStage, simMeshKey, simMeshNumTetsPerElementTok,
                                                           data.numTetsPerElement);
-                omni::physx::internal::setCookedBlobValue(attachedStage, simMeshKey, simMeshHexCrcTok, &hexCrc,
+                omni::ev4sio_physx::internal::setCookedBlobValue(attachedStage, simMeshKey, simMeshHexCrcTok, &hexCrc,
                                                           sizeof(hexCrc));
 
                 if (dataWrite)
@@ -1701,8 +1701,8 @@ public:
             }
             else
             {
-                omni::physx::internal::clearCookedValue(attachedStage, simMeshKey, simMeshNumTetsPerElementTok);
-                omni::physx::internal::clearCookedValue(attachedStage, simMeshKey, simMeshHexCrcTok);
+                omni::ev4sio_physx::internal::clearCookedValue(attachedStage, simMeshKey, simMeshNumTetsPerElementTok);
+                omni::ev4sio_physx::internal::clearCookedValue(attachedStage, simMeshKey, simMeshHexCrcTok);
 
                 if (dataWrite)
                 {
@@ -1781,7 +1781,7 @@ public:
         //write crc
         const omni::physics::parse::TokenId deformableBodyDataCrcTok =
             dataSource->internToken(kDeformableBodyDataCrcTokenName);
-        omni::physx::internal::setCookedBlobValue(attachedStage, bodyKey, deformableBodyDataCrcTok, &tetMeshCrc,
+        omni::ev4sio_physx::internal::setCookedBlobValue(attachedStage, bodyKey, deformableBodyDataCrcTok, &tetMeshCrc,
                                                   sizeof(tetMeshCrc));
         // Ad hoc marker outside IPhysicsSource's token vocabulary; authored through
         // writeByteArrayAttribute, as for the numTetsPerElement/hexCrc pair above.
@@ -1805,11 +1805,11 @@ public:
     * @see storeVolumeDeformableBodyDataToUsd
     */
     bool storeSurfaceDeformableBodyDataToUsd(
-        omni::physx::PhysxCookingSurfaceDeformableBodyData& data,
-        const omni::physx::usdparser::PhysxSurfaceDeformableBodyDesc& desc,
+        omni::ev4sio_physx::PhysxCookingSurfaceDeformableBodyData& data,
+        const omni::ev4sio_physx::usdparser::PhysxSurfaceDeformableBodyDesc& desc,
         omni::physics::parse::ObjectKey bodyKey,
-        omni::physx::usdparser::AttachedStage& attachedStage,
-        const omni::physx::usdparser::MeshKey& deformableBodyDataCrc)
+        omni::ev4sio_physx::usdparser::AttachedStage& attachedStage,
+        const omni::ev4sio_physx::usdparser::MeshKey& deformableBodyDataCrc)
     {
         // Record always, publish when possible — see storeVolumeDeformableBodyDataToUsd for why a
         // missing sink is a dropped side effect rather than a failure, and a missing source is not.
@@ -1839,11 +1839,11 @@ public:
 
         auto setArray = [&](omni::physics::parse::ObjectKey primKey, omni::physics::parse::TokenId attrTok, const auto& arr)
         {
-            omni::physx::internal::setCookedArrayValue(attachedStage, primKey, attrTok, arr);
+            omni::ev4sio_physx::internal::setCookedArrayValue(attachedStage, primKey, attrTok, arr);
             if (!dataWrite)
                 return;
             omni::physics::parse::DataWriteView v;
-            v.data = arr.empty() ? nullptr : omni::physx::internal::physxtools_detail::arrayElemData(arr);
+            v.data = arr.empty() ? nullptr : omni::ev4sio_physx::internal::physxtools_detail::arrayElemData(arr);
             v.count = arr.size();
             v.stride = 0;
             v.device = -1;
@@ -1860,7 +1860,7 @@ public:
         //first read crc and abort if still valid, the reason is we are consuming data from the cooking job that doesn't
         //go into USD, so we need the cooking task to return successfully to return the cached data even though
         //we don't need to update to USD.
-        omni::physx::usdparser::MeshKey storedDeformableBodyDataCrc;
+        omni::ev4sio_physx::usdparser::MeshKey storedDeformableBodyDataCrc;
         cookingLoadMeshKey(&attachedStage, bodyKey, kDeformableBodyDataCrcTokenName, storedDeformableBodyDataCrc);
         if (storedDeformableBodyDataCrc == deformableBodyDataCrc)
         {
@@ -1959,7 +1959,7 @@ public:
         //write crc
         const omni::physics::parse::TokenId deformableBodyDataCrcTok =
             dataSource->internToken(kDeformableBodyDataCrcTokenName);
-        omni::physx::internal::setCookedBlobValue(attachedStage, bodyKey, deformableBodyDataCrcTok,
+        omni::ev4sio_physx::internal::setCookedBlobValue(attachedStage, bodyKey, deformableBodyDataCrcTok,
                                                   &deformableBodyDataCrc, sizeof(deformableBodyDataCrc));
         if (dataWrite)
         {
@@ -1980,13 +1980,13 @@ public:
     */
     bool setupParticlePoissonSamplingCookingParams(
         omni::physics::parse::ObjectKey samplerKey,
-        const omni::physx::usdparser::AttachedStage& attachedStage,
-        const omni::physx::usdparser::ParticleSamplingDesc& desc,
-        ::physx::PxMat44d& rigidTransform,
-        omni::physx::ParticlePoissonSamplingCookingParams& params)
+        const omni::ev4sio_physx::usdparser::AttachedStage& attachedStage,
+        const omni::ev4sio_physx::usdparser::ParticleSamplingDesc& desc,
+        ::ev4sio_physx::PxMat44d& rigidTransform,
+        omni::ev4sio_physx::ParticlePoissonSamplingCookingParams& params)
     {
-        ::physx::PxMat33d shearScaleTransform(::physx::PxIdentity);
-        if (!omni::physx::particles::PhysxParticleFactory::getDecomposedTransform(
+        ::ev4sio_physx::PxMat33d shearScaleTransform(::ev4sio_physx::PxIdentity);
+        if (!omni::ev4sio_physx::particles::PhysxParticleFactory::getDecomposedTransform(
                 attachedStage, samplerKey, desc.particleSetKey, rigidTransform, shearScaleTransform))
         {
             return false;
@@ -2007,13 +2007,13 @@ public:
         return true;
     }
 
-    bool setupVolumeDeformableBodyCookingParams(const omni::physx::usdparser::AttachedStage* attachedStage,
+    bool setupVolumeDeformableBodyCookingParams(const omni::ev4sio_physx::usdparser::AttachedStage* attachedStage,
                                                 omni::physics::parse::ObjectKey bodyKey,
-                                                const omni::physx::usdparser::PhysxVolumeDeformableBodyDesc& desc,
-                                                omni::physx::VolumeDeformableBodyCookingParams& params,
+                                                const omni::ev4sio_physx::usdparser::PhysxVolumeDeformableBodyDesc& desc,
+                                                omni::ev4sio_physx::VolumeDeformableBodyCookingParams& params,
                                                 omni::physics::parse::ObjectKey& srcMeshKey,
                                                 std::vector<carb::Float3>& pxrSrcPointsInSim,
-                                                omni::physx::usdparser::MeshKey& customMeshCrc)
+                                                omni::ev4sio_physx::usdparser::MeshKey& customMeshCrc)
     {
         // KnownTokens field lookup for the schema/attribute-name tokens below;
         // left un-interned (all fields invalid) when there is no source -- every
@@ -2031,14 +2031,14 @@ public:
             return false;
         }
 
-        const ::physx::PxMat44d simToWorld = cookingWorldTransform(attachedStage, desc.simMeshKey);
-        const ::physx::PxMat44d worldToSim = omni::physx::affineInverse(simToWorld);
+        const ::ev4sio_physx::PxMat44d simToWorld = cookingWorldTransform(attachedStage, desc.simMeshKey);
+        const ::ev4sio_physx::PxMat44d worldToSim = omni::ev4sio_physx::affineInverse(simToWorld);
 
-        ::physx::PxMat44d simToColl(::physx::PxIdentity);
+        ::ev4sio_physx::PxMat44d simToColl(::ev4sio_physx::PxIdentity);
         if (desc.collisionMeshKey != desc.simMeshKey)
         {
-            const ::physx::PxMat44d collToWorld = cookingWorldTransform(attachedStage, desc.collisionMeshKey);
-            const ::physx::PxMat44d worldToColl = omni::physx::affineInverse(collToWorld);
+            const ::ev4sio_physx::PxMat44d collToWorld = cookingWorldTransform(attachedStage, desc.collisionMeshKey);
+            const ::ev4sio_physx::PxMat44d worldToColl = omni::ev4sio_physx::affineInverse(collToWorld);
             // Gf `simToWorld * worldToColl` -- operands swap under the PhysX convention.
             simToColl = worldToColl * simToWorld;
         }
@@ -2069,9 +2069,9 @@ public:
             cookingReadArray(attachedStage, srcMeshKey, tok.faceVertexCounts, pxrSrcVertexCounts);
 
             // Transform skin points to sim mesh space
-            const ::physx::PxMat44d srcToWorld = cookingWorldTransform(attachedStage, srcMeshKey);
+            const ::ev4sio_physx::PxMat44d srcToWorld = cookingWorldTransform(attachedStage, srcMeshKey);
             // Gf `srcToWorld * worldToSim` -- operands swap under the PhysX convention.
-            const ::physx::PxMat44d srcToSim = worldToSim * srcToWorld;
+            const ::ev4sio_physx::PxMat44d srcToSim = worldToSim * srcToWorld;
             for (size_t i = 0; i < pxrSrcPointsInSim.size(); ++i)
             {
                 carb::Float3& srcPoint = pxrSrcPointsInSim[i];
@@ -2085,8 +2085,8 @@ public:
             return false;
         }
 
-        ::physx::PxMat44d simToCookingTransform;
-        if (!omni::physx::computeDeformableCookingTransform(
+        ::ev4sio_physx::PxMat44d simToCookingTransform;
+        if (!omni::ev4sio_physx::computeDeformableCookingTransform(
                 &simToCookingTransform, nullptr, nullptr, simToWorld,
                 pxrSrcPointsInSim.data(), pxrSrcPointsInSim.size()))
         {
@@ -2126,9 +2126,9 @@ public:
     * be cooked now", which is false both when nothing needs doing and when everything failed.
     * @return : Returns true if usd data is ready and PxDeformableVolumeMesh should be cooked
     */
-    bool cookVolumeDeformableBodyInternal(const omni::physx::usdparser::PhysxVolumeDeformableBodyDesc& desc,
+    bool cookVolumeDeformableBodyInternal(const omni::ev4sio_physx::usdparser::PhysxVolumeDeformableBodyDesc& desc,
                                           omni::physics::parse::ObjectKey bodyKey,
-                                          const omni::physx::usdparser::AttachedStage& attachedStage,
+                                          const omni::ev4sio_physx::usdparser::AttachedStage& attachedStage,
                                           bool xFormOnly,
                                           bool asynchronous,
                                           bool* outCookedDataAvailable = nullptr)
@@ -2144,7 +2144,7 @@ public:
         asynchronous = false;
 #endif
         const uint64_t primStageId = uint64_t(attachedStage.getStageId());
-        const omni::physx::AttachHandle attachHandle = attachedStage.getAttachHandle();
+        const omni::ev4sio_physx::AttachHandle attachHandle = attachedStage.getAttachHandle();
         if (!bodyKey.valid())
             return false;
         // Extra guard beyond bodyKey.valid(): a valid key can still fail to resolve to a live
@@ -2152,7 +2152,7 @@ public:
         if (!cookingKeyResolves(&attachedStage, bodyKey))
             return false;
 
-        const bool isSimulated = checkParsed(attachedStage, bodyKey, omni::physx::usdparser::eVolumeDeformableBody);
+        const bool isSimulated = checkParsed(attachedStage, bodyKey, omni::ev4sio_physx::usdparser::eVolumeDeformableBody);
         if (isSimulated)
         {
             // this can be triggered while the deformable body is registered for simulation:
@@ -2173,10 +2173,10 @@ public:
             return false;
         }
 
-        omni::physx::VolumeDeformableBodyCookingParams params;
+        omni::ev4sio_physx::VolumeDeformableBodyCookingParams params;
         omni::physics::parse::ObjectKey srcMeshKey;
         std::vector<carb::Float3> pxrSrcPointsInSim;
-        omni::physx::usdparser::MeshKey customMeshCrc;
+        omni::ev4sio_physx::usdparser::MeshKey customMeshCrc;
         if (!setupVolumeDeformableBodyCookingParams(&attachedStage, bodyKey, desc, params, srcMeshKey, pxrSrcPointsInSim, customMeshCrc))
         {
             CARB_LOG_ERROR("Volume deformable body, failed to setup cooking params, prim: %s", attachedStage.textFor(bodyKey));
@@ -2207,9 +2207,9 @@ public:
         // getStageAndPrim sets primMeshText) and now carries metersPerUnit from the source rather
         // than from UsdGeomGetStageMetersPerUnit, so a warm cache misses once and re-cooks. This is
         // the same trade the already-merged collision port made.
-        omni::physx::usdparser::SourceMeshGeometryScope srcScope;
-        omni::physx::PhysxCookingComputeRequest srcInput;
-        if (!omni::physx::usdparser::fillCookingMeshViewFromSource(srcInput, srcScope, attachedStage, srcMeshKey) ||
+        omni::ev4sio_physx::usdparser::SourceMeshGeometryScope srcScope;
+        omni::ev4sio_physx::PhysxCookingComputeRequest srcInput;
+        if (!omni::ev4sio_physx::usdparser::fillCookingMeshViewFromSource(srcInput, srcScope, attachedStage, srcMeshKey) ||
             params.srcPointsInSim.empty())
         {
             CARB_LOG_ERROR("Volume deformable body, cooking source mesh %s is unreadable through the parse "
@@ -2223,28 +2223,28 @@ public:
         // the service fills it from USD on the prim-id path (fillUSDVolumeDeformableBodyMeshView),
         // and it is what the ujitso input container actually serializes -- leaving it empty here
         // would cook successfully from nothing.
-        auto applySourceInput = [&](omni::physx::PhysxCookingComputeRequest& request)
+        auto applySourceInput = [&](omni::ev4sio_physx::PhysxCookingComputeRequest& request)
         {
             request.primMeshView = srcInput.primMeshView;
             request.primMeshMetersPerUnit = srcInput.primMeshMetersPerUnit;
             request.volumeDeformableBodyView.srcPointsInSim = params.srcPointsInSim;
         };
 
-        omni::physx::usdparser::MeshKey originalCrc;
+        omni::ev4sio_physx::usdparser::MeshKey originalCrc;
         cookingLoadMeshKey(&attachedStage, bodyKey, kDeformableBodyDataCrcTokenName, originalCrc);
         {
             // compute data CRC synchronously and exit if the corresponding USD value matches.
-            omni::physx::PhysxCookingComputeRequest request;
+            omni::ev4sio_physx::PhysxCookingComputeRequest request;
             request.primStageId = primStageId;
             request.attachHandle = attachHandle;
             request.primId = keyToLegacyPathInt(&attachedStage, srcMeshKey);
             applySourceInput(request);
-            request.options.setFlag(omni::physx::PhysxCookingComputeRequest::Options::kComputeAsynchronously, false);
-            request.options.setFlag(omni::physx::PhysxCookingComputeRequest::Options::kComputeGPUCookingData, false);
+            request.options.setFlag(omni::ev4sio_physx::PhysxCookingComputeRequest::Options::kComputeAsynchronously, false);
+            request.options.setFlag(omni::ev4sio_physx::PhysxCookingComputeRequest::Options::kComputeGPUCookingData, false);
             request.meshKey = customMeshCrc;
-            request.mode = omni::physx::PhysxCookingComputeRequest::eMODE_COMPUTE_CRC;
-            omni::physx::usdparser::MeshKey cookedDataCRC;
-            request.onFinished = [&cookedDataCRC](const omni::physx::PhysxCookingComputeResult& result) {
+            request.mode = omni::ev4sio_physx::PhysxCookingComputeRequest::eMODE_COMPUTE_CRC;
+            omni::ev4sio_physx::usdparser::MeshKey cookedDataCRC;
+            request.onFinished = [&cookedDataCRC](const omni::ev4sio_physx::PhysxCookingComputeResult& result) {
                 cookedDataCRC = result.cookedDataCRC;
             };
             m_cookingServicePrivate.requestVolumeDeformableBodyCookedData(getCookingAsyncContext(attachedStage), request, params);
@@ -2256,9 +2256,9 @@ public:
             }
         }
 
-        omni::physx::PhysxCookingComputeRequest request;
-        request.options.setFlag(omni::physx::PhysxCookingComputeRequest::Options::kComputeAsynchronously, asynchronous);
-        request.options.setFlag(omni::physx::PhysxCookingComputeRequest::Options::kComputeGPUCookingData, false);
+        omni::ev4sio_physx::PhysxCookingComputeRequest request;
+        request.options.setFlag(omni::ev4sio_physx::PhysxCookingComputeRequest::Options::kComputeAsynchronously, asynchronous);
+        request.options.setFlag(omni::ev4sio_physx::PhysxCookingComputeRequest::Options::kComputeGPUCookingData, false);
         request.meshKey = customMeshCrc;
         request.primStageId = primStageId;
         // onFinished below resolves the attach from this handle, not from primStageId
@@ -2279,17 +2279,17 @@ public:
         CookingDataAsyncWeakSelf weakPtrToThis(this, m_aliveFlag);
         recordStatisticsRequestFor(request);
         request.onFinished = [ownerLifetime = attachedStage.getWeakLifetime(), weakPtrToThis, &shouldRecookPhysxMeshTooSynchronously, &published, desc,
-                              bodyPrimId](const omni::physx::PhysxCookingComputeResult& result) {
+                              bodyPrimId](const omni::ev4sio_physx::PhysxCookingComputeResult& result) {
             if (!weakPtrToThis)
             {
                 return;
             }
             weakPtrToThis->recordStatisticsResultFor(result);
-            omni::physx::IPhysxCookingServicePrivate& cookingService = weakPtrToThis->m_cookingServicePrivate;
+            omni::ev4sio_physx::IPhysxCookingServicePrivate& cookingService = weakPtrToThis->m_cookingServicePrivate;
             // The callback is bound to its constructing owner, including private
             // candidates. A retired/rebuilt source invalidates this lifetime token.
-            omni::physx::usdparser::AttachedStage* as =
-                omni::physx::usdparser::AttachedStage::resolveLifetime(ownerLifetime);
+            omni::ev4sio_physx::usdparser::AttachedStage* as =
+                omni::ev4sio_physx::usdparser::AttachedStage::resolveLifetime(ownerLifetime);
             if (as)
             {
                 const omni::physics::parse::ObjectKey bodyKey = legacyPathIntToKey(*as, bodyPrimId);
@@ -2299,11 +2299,11 @@ public:
                     tok.intern(*asSrc);
                 if (cookingHasSchema(as, bodyKey, tok.omniPhysicsDeformableBodyAPI))
                 {
-                    if (result.result == omni::physx::PhysxCookingResult::eVALID)
+                    if (result.result == omni::ev4sio_physx::PhysxCookingResult::eVALID)
                     {
                         if (result.cookedData)
                         {
-                            omni::physx::PhysxCookingVolumeDeformableBodyData data;
+                            omni::ev4sio_physx::PhysxCookingVolumeDeformableBodyData data;
                             cookingService.readVolumeDeformableBodyData(data, *result.cookedData);
                             const bool storedThisCall = weakPtrToThis->storeVolumeDeformableBodyDataToUsd(
                                 data, desc, bodyKey, *as, result.cookedDataCRC);
@@ -2322,10 +2322,10 @@ public:
                         // read it back as "cached data is still valid". Recorded in the
                         // cooked-geometry carrier as well as the USD sink, because on a sink-less
                         // backend the carrier is where the CRC lives (ADR-0022).
-                        omni::physx::usdparser::MeshKey crc_zero;
+                        omni::ev4sio_physx::usdparser::MeshKey crc_zero;
                         if (asSrc)
                         {
-                            omni::physx::internal::setCookedBlobValue(
+                            omni::ev4sio_physx::internal::setCookedBlobValue(
                                 *as, bodyKey, asSrc->internToken(kDeformableBodyDataCrcTokenName), &crc_zero,
                                 sizeof(crc_zero));
                         }
@@ -2351,13 +2351,13 @@ public:
         return shouldRecookPhysxMeshTooSynchronously;
     }
 
-    bool setupSurfaceDeformableBodyCookingParams(const omni::physx::usdparser::AttachedStage* attachedStage,
+    bool setupSurfaceDeformableBodyCookingParams(const omni::ev4sio_physx::usdparser::AttachedStage* attachedStage,
                                                  omni::physics::parse::ObjectKey bodyKey,
-                                                 const omni::physx::usdparser::PhysxSurfaceDeformableBodyDesc& desc,
-                                                 omni::physx::SurfaceDeformableBodyCookingParams& params,
+                                                 const omni::ev4sio_physx::usdparser::PhysxSurfaceDeformableBodyDesc& desc,
+                                                 omni::ev4sio_physx::SurfaceDeformableBodyCookingParams& params,
                                                  omni::physics::parse::ObjectKey& srcMeshKey,
                                                  std::vector<carb::Float3>& pxrSrcPointsInSim,
-                                                 omni::physx::usdparser::MeshKey& customMeshCrc)
+                                                 omni::ev4sio_physx::usdparser::MeshKey& customMeshCrc)
     {
         // See setupVolumeDeformableBodyCookingParams: left un-interned (all fields
         // invalid) when there is no source -- every cookingHasSchema/cookingIsA
@@ -2372,8 +2372,8 @@ public:
             return false;
         }
 
-        const ::physx::PxMat44d simToWorld = cookingWorldTransform(attachedStage, desc.simMeshKey);
-        const ::physx::PxMat44d worldToSim = omni::physx::affineInverse(simToWorld);
+        const ::ev4sio_physx::PxMat44d simToWorld = cookingWorldTransform(attachedStage, desc.simMeshKey);
+        const ::ev4sio_physx::PxMat44d worldToSim = omni::ev4sio_physx::affineInverse(simToWorld);
 
         if (desc.kinematicBody)
         {
@@ -2401,9 +2401,9 @@ public:
             cookingReadArray(attachedStage, srcMeshKey, tok.faceVertexCounts, pxrSrcVertexCounts);
 
             // Transform src points to sim mesh space
-            const ::physx::PxMat44d srcToWorld = cookingWorldTransform(attachedStage, srcMeshKey);
+            const ::ev4sio_physx::PxMat44d srcToWorld = cookingWorldTransform(attachedStage, srcMeshKey);
             // Gf `srcToWorld * worldToSim` -- operands swap under the PhysX convention.
-            const ::physx::PxMat44d srcToSim = worldToSim * srcToWorld;
+            const ::ev4sio_physx::PxMat44d srcToSim = worldToSim * srcToWorld;
             for (size_t i = 0; i < pxrSrcPointsInSim.size(); ++i)
             {
                 carb::Float3& srcPoint = pxrSrcPointsInSim[i];
@@ -2417,8 +2417,8 @@ public:
             return false;
         }
 
-        ::physx::PxMat44d simToCookingTransform;
-        if (!omni::physx::computeDeformableCookingTransform(
+        ::ev4sio_physx::PxMat44d simToCookingTransform;
+        if (!omni::ev4sio_physx::computeDeformableCookingTransform(
                 &simToCookingTransform, nullptr, nullptr, simToWorld,
                 pxrSrcPointsInSim.data(), pxrSrcPointsInSim.size()))
         {
@@ -2440,8 +2440,8 @@ public:
     /**
     * @param outCookedDataAvailable : Optional, @see cookVolumeDeformableBodyInternal.
     */
-    void cookSurfaceDeformableBodyInternal(const omni::physx::usdparser::PhysxSurfaceDeformableBodyDesc& desc,
-        omni::physics::parse::ObjectKey bodyKey, const omni::physx::usdparser::AttachedStage& attachedStage, bool xFormOnly,
+    void cookSurfaceDeformableBodyInternal(const omni::ev4sio_physx::usdparser::PhysxSurfaceDeformableBodyDesc& desc,
+        omni::physics::parse::ObjectKey bodyKey, const omni::ev4sio_physx::usdparser::AttachedStage& attachedStage, bool xFormOnly,
         bool asynchronous, bool* outCookedDataAvailable = nullptr)
     {
         auto reportCookedDataAvailable = [outCookedDataAvailable](bool available)
@@ -2455,7 +2455,7 @@ public:
         asynchronous = false;
 #endif
         const uint64_t primStageId = uint64_t(attachedStage.getStageId());
-        const omni::physx::AttachHandle attachHandle = attachedStage.getAttachHandle();
+        const omni::ev4sio_physx::AttachHandle attachHandle = attachedStage.getAttachHandle();
         if (!bodyKey.valid())
             return;
         // Extra guard beyond bodyKey.valid(): a valid key can still fail to resolve to a live
@@ -2463,7 +2463,7 @@ public:
         if (!cookingKeyResolves(&attachedStage, bodyKey))
             return;
 
-        const bool isSimulated = checkParsed(attachedStage, bodyKey, omni::physx::usdparser::eSurfaceDeformableBody);
+        const bool isSimulated = checkParsed(attachedStage, bodyKey, omni::ev4sio_physx::usdparser::eSurfaceDeformableBody);
         if (isSimulated)
         {
             // refer to cookVolumeDeformableBodyInternal why we don't warn here, and why this
@@ -2472,10 +2472,10 @@ public:
             return;
         }
 
-        omni::physx::SurfaceDeformableBodyCookingParams params;
+        omni::ev4sio_physx::SurfaceDeformableBodyCookingParams params;
         omni::physics::parse::ObjectKey srcMeshKey;
         std::vector<carb::Float3> pxrSrcPointsInSim;
-        omni::physx::usdparser::MeshKey customMeshCrc;
+        omni::ev4sio_physx::usdparser::MeshKey customMeshCrc;
         if (!setupSurfaceDeformableBodyCookingParams(&attachedStage, bodyKey, desc, params, srcMeshKey, pxrSrcPointsInSim, customMeshCrc))
         {
             CARB_LOG_ERROR(
@@ -2487,9 +2487,9 @@ public:
         // cookVolumeDeformableBodyInternal for why the prim-id path cannot work without a backing
         // USD stage and why its failure is silent rather than loud. `srcScope` owns the skin
         // buffers the view points at and must outlive both submissions.
-        omni::physx::usdparser::SourceMeshGeometryScope srcScope;
-        omni::physx::PhysxCookingComputeRequest srcInput;
-        if (!omni::physx::usdparser::fillCookingMeshViewFromSource(srcInput, srcScope, attachedStage, srcMeshKey) ||
+        omni::ev4sio_physx::usdparser::SourceMeshGeometryScope srcScope;
+        omni::ev4sio_physx::PhysxCookingComputeRequest srcInput;
+        if (!omni::ev4sio_physx::usdparser::fillCookingMeshViewFromSource(srcInput, srcScope, attachedStage, srcMeshKey) ||
             params.srcPointsInSim.empty())
         {
             CARB_LOG_ERROR("Surface deformable body, cooking source mesh %s is unreadable through the parse "
@@ -2501,28 +2501,28 @@ public:
 
         // The surface deformable body view is what the ujitso input container serializes; the
         // service fills it from USD on the prim-id path, so it has to be supplied here.
-        auto applySourceInput = [&](omni::physx::PhysxCookingComputeRequest& request)
+        auto applySourceInput = [&](omni::ev4sio_physx::PhysxCookingComputeRequest& request)
         {
             request.primMeshView = srcInput.primMeshView;
             request.primMeshMetersPerUnit = srcInput.primMeshMetersPerUnit;
             request.surfaceDeformableBodyView.srcPointsInSim = params.srcPointsInSim;
         };
 
-        omni::physx::usdparser::MeshKey originalCrc;
+        omni::ev4sio_physx::usdparser::MeshKey originalCrc;
         cookingLoadMeshKey(&attachedStage, bodyKey, kDeformableBodyDataCrcTokenName, originalCrc);
         {
             // compute data CRC synchronously and exit if the corresponding USD value matches.
-            omni::physx::PhysxCookingComputeRequest request;
+            omni::ev4sio_physx::PhysxCookingComputeRequest request;
             request.primStageId = primStageId;
             request.attachHandle = attachHandle;
             request.primId = keyToLegacyPathInt(&attachedStage, srcMeshKey);
             applySourceInput(request);
-            request.options.setFlag(omni::physx::PhysxCookingComputeRequest::Options::kComputeAsynchronously, false);
-            request.options.setFlag(omni::physx::PhysxCookingComputeRequest::Options::kComputeGPUCookingData, false);
+            request.options.setFlag(omni::ev4sio_physx::PhysxCookingComputeRequest::Options::kComputeAsynchronously, false);
+            request.options.setFlag(omni::ev4sio_physx::PhysxCookingComputeRequest::Options::kComputeGPUCookingData, false);
             request.meshKey = customMeshCrc;
-            request.mode = omni::physx::PhysxCookingComputeRequest::eMODE_COMPUTE_CRC;
-            omni::physx::usdparser::MeshKey cookedDataCRC;
-            request.onFinished = [&cookedDataCRC](const omni::physx::PhysxCookingComputeResult& result) {
+            request.mode = omni::ev4sio_physx::PhysxCookingComputeRequest::eMODE_COMPUTE_CRC;
+            omni::ev4sio_physx::usdparser::MeshKey cookedDataCRC;
+            request.onFinished = [&cookedDataCRC](const omni::ev4sio_physx::PhysxCookingComputeResult& result) {
                 cookedDataCRC = result.cookedDataCRC;
             };
             m_cookingServicePrivate.requestSurfaceDeformableBodyCookedData(getCookingAsyncContext(attachedStage), request, params);
@@ -2533,9 +2533,9 @@ public:
                 return;
             }
         }
-        omni::physx::PhysxCookingComputeRequest request;
-        request.options.setFlag(omni::physx::PhysxCookingComputeRequest::Options::kComputeAsynchronously, asynchronous);
-        request.options.setFlag(omni::physx::PhysxCookingComputeRequest::Options::kComputeGPUCookingData, false);
+        omni::ev4sio_physx::PhysxCookingComputeRequest request;
+        request.options.setFlag(omni::ev4sio_physx::PhysxCookingComputeRequest::Options::kComputeAsynchronously, asynchronous);
+        request.options.setFlag(omni::ev4sio_physx::PhysxCookingComputeRequest::Options::kComputeGPUCookingData, false);
         request.meshKey = customMeshCrc;
         request.primStageId = primStageId;
         // onFinished below resolves the attach from this handle, not from primStageId
@@ -2553,22 +2553,22 @@ public:
         bool published = false;
         CookingDataAsyncWeakSelf weakPtrToThis(this, m_aliveFlag);
         recordStatisticsRequestFor(request);
-        request.onFinished = [ownerLifetime = attachedStage.getWeakLifetime(), weakPtrToThis, &published, desc, bodyPrimId](const omni::physx::PhysxCookingComputeResult& result) {
+        request.onFinished = [ownerLifetime = attachedStage.getWeakLifetime(), weakPtrToThis, &published, desc, bodyPrimId](const omni::ev4sio_physx::PhysxCookingComputeResult& result) {
             if (!weakPtrToThis)
             {
                 return;
             }
             weakPtrToThis->recordStatisticsResultFor(result);
-            if (result.result == omni::physx::PhysxCookingResult::eERROR_CANCELED)
+            if (result.result == omni::ev4sio_physx::PhysxCookingResult::eERROR_CANCELED)
             {
                 return;
             }
 
-            omni::physx::IPhysxCookingServicePrivate& cookingService = weakPtrToThis->m_cookingServicePrivate;
+            omni::ev4sio_physx::IPhysxCookingServicePrivate& cookingService = weakPtrToThis->m_cookingServicePrivate;
             // The callback is bound to its constructing owner, including private
             // candidates. A retired/rebuilt source invalidates this lifetime token.
-            omni::physx::usdparser::AttachedStage* as =
-                omni::physx::usdparser::AttachedStage::resolveLifetime(ownerLifetime);
+            omni::ev4sio_physx::usdparser::AttachedStage* as =
+                omni::ev4sio_physx::usdparser::AttachedStage::resolveLifetime(ownerLifetime);
             if (as)
             {
                 const omni::physics::parse::ObjectKey bodyKey = legacyPathIntToKey(*as, bodyPrimId);
@@ -2578,11 +2578,11 @@ public:
                     tok.intern(*asSrc);
                 if (cookingHasSchema(as, bodyKey, tok.omniPhysicsDeformableBodyAPI))
                 {
-                    if (result.result == omni::physx::PhysxCookingResult::eVALID)
+                    if (result.result == omni::ev4sio_physx::PhysxCookingResult::eVALID)
                     {
                         if (result.cookedData)
                         {
-                            omni::physx::PhysxCookingSurfaceDeformableBodyData data;
+                            omni::ev4sio_physx::PhysxCookingSurfaceDeformableBodyData data;
                             cookingService.readSurfaceDeformableBodyData(data, *result.cookedData);
                             const bool storedThisCall = weakPtrToThis->storeSurfaceDeformableBodyDataToUsd(
                                 data, desc, bodyKey, *as, result.cookedDataCRC);
@@ -2601,10 +2601,10 @@ public:
                         // read it back as "cached data is still valid". Recorded in the
                         // cooked-geometry carrier as well as the USD sink, because on a sink-less
                         // backend the carrier is where the CRC lives (ADR-0022).
-                        omni::physx::usdparser::MeshKey crc_zero;
+                        omni::ev4sio_physx::usdparser::MeshKey crc_zero;
                         if (asSrc)
                         {
-                            omni::physx::internal::setCookedBlobValue(
+                            omni::ev4sio_physx::internal::setCookedBlobValue(
                                 *as, bodyKey, asSrc->internToken(kDeformableBodyDataCrcTokenName), &crc_zero,
                                 sizeof(crc_zero));
                         }
@@ -2624,14 +2624,14 @@ public:
         reportCookedDataAvailable(asynchronous || published);
     }
 
-    virtual bool cookDeformableVolumeMesh(::physx::PxDefaultMemoryOutputStream& outStream,
-                                          const omni::physx::usdparser::PhysxVolumeDeformableBodyDesc& desc,
+    virtual bool cookDeformableVolumeMesh(::ev4sio_physx::PxDefaultMemoryOutputStream& outStream,
+                                          const omni::ev4sio_physx::usdparser::PhysxVolumeDeformableBodyDesc& desc,
                                           omni::physics::parse::ObjectKey bodyKey,
-                                          const omni::physx::usdparser::AttachedStage& attachedStage,
+                                          const omni::ev4sio_physx::usdparser::AttachedStage& attachedStage,
                                           bool asynchronous) final
     {
         lock_guard _lock(m_mutex);
-        omni::physx::ScopedNoticeBlock blockNotices(attachedStage, false, true);
+        omni::ev4sio_physx::ScopedNoticeBlock blockNotices(attachedStage, false, true);
         if (!bodyKey.valid())
             return false;
         // Extra guard beyond bodyKey.valid(): a valid key can still fail to resolve to a live
@@ -2641,22 +2641,22 @@ public:
         return cookDeformableVolumeMeshInternal(outStream, desc, bodyKey, attachedStage, asynchronous);
     }
 
-    virtual bool computeDeformableCookingTransform(::physx::PxMat44d* simToCookingTransform,
-                                                   ::physx::PxMat44d* cookingToWorldTransform,
+    virtual bool computeDeformableCookingTransform(::ev4sio_physx::PxMat44d* simToCookingTransform,
+                                                   ::ev4sio_physx::PxMat44d* cookingToWorldTransform,
                                                    double* cookingToWorldScale,
-                                                   const ::physx::PxMat44d& simToWorld,
+                                                   const ::ev4sio_physx::PxMat44d& simToWorld,
                                                    const carb::Float3* boundsFitPoints,
                                                    size_t boundsFitPointCount) final
     {
-        return omni::physx::computeDeformableCookingTransform(simToCookingTransform, cookingToWorldTransform,
+        return omni::ev4sio_physx::computeDeformableCookingTransform(simToCookingTransform, cookingToWorldTransform,
                                                      cookingToWorldScale, simToWorld, boundsFitPoints,
                                                      boundsFitPointCount);
     }
 
-    bool setupDeformableVolumeMeshCookingParams(const omni::physx::usdparser::AttachedStage* attachedStage,
+    bool setupDeformableVolumeMeshCookingParams(const omni::ev4sio_physx::usdparser::AttachedStage* attachedStage,
                                                 omni::physics::parse::ObjectKey bodyKey,
-                                                const omni::physx::usdparser::PhysxVolumeDeformableBodyDesc& desc,
-                                                omni::physx::DeformableVolumeMeshCookingParams& params,
+                                                const omni::ev4sio_physx::usdparser::PhysxVolumeDeformableBodyDesc& desc,
+                                                omni::ev4sio_physx::DeformableVolumeMeshCookingParams& params,
                                                 std::vector<carb::Float3>& pxrSimPoints,
                                                 std::vector<carb::Float3>& pxrSimBindPoints,
                                                 std::vector<carb::Int4>& pxrSimIndices,
@@ -2685,7 +2685,7 @@ public:
         // isTetMeshLike, not cookingIsA(..., tok.tetMeshType): ovstage reports a UsdGeomTetMesh as
         // plain "Mesh" (its populator has no TetMesh mapping), so the concrete-type gate rejected
         // every volume deformable loaded from a non-USD source. See PhysXTools.h::isTetMeshLike.
-        if (!omni::physx::internal::isTetMeshLike(*attachedStage, desc.simMeshKey) ||
+        if (!omni::ev4sio_physx::internal::isTetMeshLike(*attachedStage, desc.simMeshKey) ||
             !cookingHasSchema(attachedStage, desc.simMeshKey, tok.omniPhysicsVolumeDeformableSimAPI))
         {
             CARB_LOG_WARN("Cooking failed, simulation mesh prim %s is invalid.", attachedStage->textFor(desc.simMeshKey));
@@ -2704,7 +2704,7 @@ public:
             }
         }
 
-        if (!omni::physx::internal::isTetMeshLike(*attachedStage, desc.collisionMeshKey))
+        if (!omni::ev4sio_physx::internal::isTetMeshLike(*attachedStage, desc.collisionMeshKey))
         {
             CARB_LOG_WARN("Cooking failed, collision mesh prim %s is invalid.", attachedStage->textFor(bodyKey));
             return false;
@@ -2716,8 +2716,8 @@ public:
                 "Cooking failed, kinematic deformables are currently not supported: %s.", attachedStage->textFor(bodyKey));
             return false;
         }
-        const ::physx::PxMat44d simToWorld = cookingWorldTransform(attachedStage, desc.simMeshKey);
-        const ::physx::PxMat44d worldToSim = omni::physx::affineInverse(simToWorld);
+        const ::ev4sio_physx::PxMat44d simToWorld = cookingWorldTransform(attachedStage, desc.simMeshKey);
+        const ::ev4sio_physx::PxMat44d worldToSim = omni::ev4sio_physx::affineInverse(simToWorld);
 
         // read simulation mesh rest shape for cooking (until the SDK supports a proper rest shape)
         // need to make sure the rest shape is compatible with the tetmesh topology
@@ -2742,16 +2742,16 @@ public:
             // scalar uint, the hex CRC a UCharArray blob. Both must be present (mirrors the prior
             // HasAuthoredValue gate) — storeMeshKey writes/removes them as a pair.
             uint32_t storedNumTets = 0;
-            omni::physx::usdparser::MeshKey storedHexCrc;
+            omni::ev4sio_physx::usdparser::MeshKey storedHexCrc;
             const omni::physics::parse::IPhysicsSource* tetSrc = attachedStage->getSource();
             if (tetSrc &&
-                omni::physx::internal::getValue<uint32_t>(*attachedStage, desc.simMeshKey,
+                omni::ev4sio_physx::internal::getValue<uint32_t>(*attachedStage, desc.simMeshKey,
                                                           tetSrc->internToken(kSimMeshNumTetsPerElementTokenName),
                                                           omni::physics::parse::ReadTime::defaultTime(), storedNumTets) &&
                 (storedNumTets == 5 || storedNumTets == 6) &&
                 cookingLoadMeshKey(attachedStage, desc.simMeshKey, kSimMeshHexCrcTokenName, storedHexCrc))
             {
-                omni::physx::usdparser::MeshKey expectedHexCrc =
+                omni::ev4sio_physx::usdparser::MeshKey expectedHexCrc =
                     computeSimMeshHexCrc(simRestShapePoints, simRestTetVtxIndices, storedNumTets);
                 if (expectedHexCrc == storedHexCrc)
                 {
@@ -2807,9 +2807,9 @@ public:
             }
 
             // Transform collision points to sim space
-            const ::physx::PxMat44d collToWorld = cookingWorldTransform(attachedStage, desc.collisionMeshKey);
+            const ::ev4sio_physx::PxMat44d collToWorld = cookingWorldTransform(attachedStage, desc.collisionMeshKey);
             // Gf `collToWorld * worldToSim` -- operands swap under the PhysX convention.
-            const ::physx::PxMat44d collToSim = worldToSim * collToWorld;
+            const ::ev4sio_physx::PxMat44d collToSim = worldToSim * collToWorld;
             for (size_t i = 0; i < collMeshBindPoints.size(); ++i)
             {
                 collMeshBindPoints[i] = toFloat3(collToSim.transform(toPhysXd(collMeshBindPoints[i])));
@@ -2842,8 +2842,8 @@ public:
         }
 
         const std::vector<carb::Float3>& boundsFitPoints = pxrSimBindPoints.size() > 0 ? pxrSimBindPoints : pxrSimPoints;
-        ::physx::PxMat44d simToCookingTransform;
-        if (!omni::physx::computeDeformableCookingTransform(
+        ::ev4sio_physx::PxMat44d simToCookingTransform;
+        if (!omni::ev4sio_physx::computeDeformableCookingTransform(
                 &simToCookingTransform, nullptr, nullptr, simToWorld,
                 boundsFitPoints.data(), boundsFitPoints.size()))
         {
@@ -2862,10 +2862,10 @@ public:
         return true;
     }
 
-    bool cookDeformableVolumeMeshInternal(::physx::PxDefaultMemoryOutputStream& outStream,
-                                          const omni::physx::usdparser::PhysxVolumeDeformableBodyDesc& desc,
+    bool cookDeformableVolumeMeshInternal(::ev4sio_physx::PxDefaultMemoryOutputStream& outStream,
+                                          const omni::ev4sio_physx::usdparser::PhysxVolumeDeformableBodyDesc& desc,
                                           omni::physics::parse::ObjectKey bodyKey,
-                                          const omni::physx::usdparser::AttachedStage& attachedStage,
+                                          const omni::ev4sio_physx::usdparser::AttachedStage& attachedStage,
                                           bool asynchronous)
     {
 #if !USE_ASYNC_COOKING
@@ -2878,7 +2878,7 @@ public:
         if (!cookingKeyResolves(&attachedStage, bodyKey))
             return false;
 
-        omni::physx::DeformableVolumeMeshCookingParams params;
+        omni::ev4sio_physx::DeformableVolumeMeshCookingParams params;
         std::vector<carb::Float3> pxrSimPoints;
         std::vector<carb::Float3> pxrSimBindPoints;
         std::vector<carb::Int4> pxrSimIndices;
@@ -2893,7 +2893,7 @@ public:
             return false;
         }
 
-        omni::physx::PhysxCookingComputeRequest request;
+        omni::ev4sio_physx::PhysxCookingComputeRequest request;
         request.primStageId = uint64_t(attachedStage.getStageId());
         request.attachHandle = attachedStage.getAttachHandle();
         request.primId = 0; // request without input source
@@ -2936,19 +2936,19 @@ public:
             return false;
         }
 
-        request.options.setFlag(omni::physx::PhysxCookingComputeRequest::Options::kComputeAsynchronously, asynchronous);
+        request.options.setFlag(omni::ev4sio_physx::PhysxCookingComputeRequest::Options::kComputeAsynchronously, asynchronous);
 
         bool resultSynchronous = false;
         CookingDataAsyncWeakSelf weakPtrToThis(this, m_aliveFlag);
         recordStatisticsRequestFor(request);
         request.onFinished = [&resultSynchronous,
-                                     &outStream, weakPtrToThis](const omni::physx::PhysxCookingComputeResult& result) {
+                                     &outStream, weakPtrToThis](const omni::ev4sio_physx::PhysxCookingComputeResult& result) {
             if (!weakPtrToThis)
             {
                 return; // means that CookingDataAsync destructor was called, so this task is cancelled
             }
             weakPtrToThis->recordStatisticsResultFor(result);
-            if (result.result != omni::physx::PhysxCookingResult::eVALID)
+            if (result.result != omni::ev4sio_physx::PhysxCookingResult::eVALID)
             {
                 return;
             }
@@ -2971,11 +2971,11 @@ public:
     *
     * @return : Returns the PxDeformableVolumeMesh instance. The caller of the method is responsible for releasing the PxDeformableVolumeMesh.
     */
-    ::physx::PxDeformableVolumeMesh* createDeformableVolumeMesh(
+    ::ev4sio_physx::PxDeformableVolumeMesh* createDeformableVolumeMesh(
         std::vector<uint32_t>& outCollMeshSurfaceTriToTetMap,
-        ::physx::PxDefaultMemoryInputData& inData)
+        ::ev4sio_physx::PxDefaultMemoryInputData& inData)
     {
-        ::physx::PxDeformableVolumeMesh* deformableVolumeMesh = mPhysics.createDeformableVolumeMesh(inData);
+        ::ev4sio_physx::PxDeformableVolumeMesh* deformableVolumeMesh = mPhysics.createDeformableVolumeMesh(inData);
         if (!deformableVolumeMesh)
         {
             return nullptr;
@@ -3013,19 +3013,19 @@ public:
      *  @param primKey : The UsdGeomMesh/ObjectKey we are sampling.
      *  @param asynchronous : If false, it will sample the mesh synchronously (blocking). If true, it will start a background cooking task for it.
      */
-    virtual void poissonSampleMesh(omni::physics::parse::ObjectKey primKey, const omni::physx::usdparser::AttachedStage& attachedStage, const omni::physx::usdparser::ParticleSamplingDesc& desc, bool forceResampling, bool asynchronous) final
+    virtual void poissonSampleMesh(omni::physics::parse::ObjectKey primKey, const omni::ev4sio_physx::usdparser::AttachedStage& attachedStage, const omni::ev4sio_physx::usdparser::ParticleSamplingDesc& desc, bool forceResampling, bool asynchronous) final
     {
         // Block USD notification handlers while in this call
         lock_guard _lock(m_mutex);
-        omni::physx::ScopedNoticeBlock blockNotices(attachedStage, false, true);
+        omni::ev4sio_physx::ScopedNoticeBlock blockNotices(attachedStage, false, true);
         if (!primKey.valid() || !cookingKeyResolves(&attachedStage, primKey))
             return;
         poissonSampleMeshInternal(primKey, attachedStage, desc, forceResampling, asynchronous);
     }
 
     void poissonSampleMeshInternal(omni::physics::parse::ObjectKey primKey,
-                                   const omni::physx::usdparser::AttachedStage& attachedStage,
-                                   const omni::physx::usdparser::ParticleSamplingDesc& desc,
+                                   const omni::ev4sio_physx::usdparser::AttachedStage& attachedStage,
+                                   const omni::ev4sio_physx::usdparser::ParticleSamplingDesc& desc,
                                    bool forceResampling,
                                    bool asynchronous)
     {
@@ -3038,22 +3038,22 @@ public:
         if (!cookingIsA(&attachedStage, primKey, tok.meshType))
             return;
 
-        omni::physx::ParticlePoissonSamplingCookingParams params;
-        ::physx::PxMat44d rigidTransform(::physx::PxIdentity);
+        omni::ev4sio_physx::ParticlePoissonSamplingCookingParams params;
+        ::ev4sio_physx::PxMat44d rigidTransform(::ev4sio_physx::PxIdentity);
         if (!setupParticlePoissonSamplingCookingParams(primKey, attachedStage, desc, rigidTransform, params))
         {
             CARB_LOG_ERROR("Particle sampler, failed to setup cooking params, prim: %s", attachedStage.textFor(primKey));
             return;
         }
 
-        omni::physx::usdparser::MeshKey originalCrc;
+        omni::ev4sio_physx::usdparser::MeshKey originalCrc;
         cookingLoadMeshKey(&attachedStage, primKey, kParticleSamplingCrcTokenName, originalCrc);
         if (!forceResampling)
         {
             // compute data CRC synchronously and exit if the corresponding source value matches.
             // if forceResampling is off, we skip the early out to call processSamplingResults with
             // registerOriginalCount == true
-            omni::physx::PhysxCookingComputeRequest request;
+            omni::ev4sio_physx::PhysxCookingComputeRequest request;
             // primStageId/primId stay set as the correlation keys the onFinished continuation and
             // debug logging use (ADR-0016 Decision 6) -- the actual geometry now comes from
             // IPhysicsSource via fillCookingMeshViewFromSource below, same as every other cook.
@@ -3061,18 +3061,18 @@ public:
             request.primStageId = uint64_t(attachedStage.getStageId());
             request.attachHandle = attachedStage.getAttachHandle();
             request.primId = keyToLegacyPathInt(&attachedStage, primKey);
-            request.options.setFlag(omni::physx::PhysxCookingComputeRequest::Options::kComputeAsynchronously, false);
-            request.options.setFlag(omni::physx::PhysxCookingComputeRequest::Options::kComputeGPUCookingData, false);
-            request.mode = omni::physx::PhysxCookingComputeRequest::eMODE_COMPUTE_CRC;
-            omni::physx::usdparser::SourceMeshGeometryScope probeGeomScope;
-            if (!omni::physx::usdparser::fillCookingMeshViewFromSource(request, probeGeomScope, attachedStage, primKey))
+            request.options.setFlag(omni::ev4sio_physx::PhysxCookingComputeRequest::Options::kComputeAsynchronously, false);
+            request.options.setFlag(omni::ev4sio_physx::PhysxCookingComputeRequest::Options::kComputeGPUCookingData, false);
+            request.mode = omni::ev4sio_physx::PhysxCookingComputeRequest::eMODE_COMPUTE_CRC;
+            omni::ev4sio_physx::usdparser::SourceMeshGeometryScope probeGeomScope;
+            if (!omni::ev4sio_physx::usdparser::fillCookingMeshViewFromSource(request, probeGeomScope, attachedStage, primKey))
             {
                 // REQ-COOK-SOURCE-001 AC-4: unreadable input fails loudly, before any submission.
                 CARB_LOG_ERROR("Particle Poisson sampling: could not read source geometry for prim %s", attachedStage.textFor(primKey));
                 return;
             }
-            omni::physx::usdparser::MeshKey cookedDataCRC;
-            request.onFinished = [&cookedDataCRC](const omni::physx::PhysxCookingComputeResult& result) {
+            omni::ev4sio_physx::usdparser::MeshKey cookedDataCRC;
+            request.onFinished = [&cookedDataCRC](const omni::ev4sio_physx::PhysxCookingComputeResult& result) {
                 cookedDataCRC = result.cookedDataCRC;
             };
             m_cookingServicePrivate.requestParticlePoissonSamplingCookedData(getCookingAsyncContext(attachedStage), request, params);
@@ -3082,20 +3082,20 @@ public:
             }
         }
 
-        omni::physx::PhysxCookingComputeRequest request;
+        omni::ev4sio_physx::PhysxCookingComputeRequest request;
         request.primStageId = uint64_t(attachedStage.getStageId());
         request.attachHandle = attachedStage.getAttachHandle();
         request.primId = keyToLegacyPathInt(&attachedStage, primKey);
         const std::string_view primText = attachedStage.textViewFor(primKey);
         request.primMeshText = { primText.data(), primText.size() };
-        request.options.setFlag(omni::physx::PhysxCookingComputeRequest::Options::kComputeAsynchronously, asynchronous);
-        request.options.setFlag(omni::physx::PhysxCookingComputeRequest::Options::kComputeGPUCookingData, false);
+        request.options.setFlag(omni::ev4sio_physx::PhysxCookingComputeRequest::Options::kComputeAsynchronously, asynchronous);
+        request.options.setFlag(omni::ev4sio_physx::PhysxCookingComputeRequest::Options::kComputeGPUCookingData, false);
         // geomScope owns the mesh buffers request.primMeshView points at; safe to release once it
         // goes out of scope (function return), since the cooking service copies the view
         // synchronously before any async task is queued (CookingTask::setupTaskFromRequest resets
         // request.primMeshView after).
-        omni::physx::usdparser::SourceMeshGeometryScope geomScope;
-        if (!omni::physx::usdparser::fillCookingMeshViewFromSource(request, geomScope, attachedStage, primKey))
+        omni::ev4sio_physx::usdparser::SourceMeshGeometryScope geomScope;
+        if (!omni::ev4sio_physx::usdparser::fillCookingMeshViewFromSource(request, geomScope, attachedStage, primKey))
         {
             // REQ-COOK-SOURCE-001 AC-4: unreadable input fails loudly, before any submission.
             CARB_LOG_ERROR("Particle Poisson sampling: could not read source geometry for prim %s", attachedStage.textFor(primKey));
@@ -3105,23 +3105,23 @@ public:
         CookingDataAsyncWeakSelf weakPtrToThis(this, m_aliveFlag);
         recordStatisticsRequestFor(request);
         request.onFinished = [ownerLifetime = attachedStage.getWeakLifetime(), desc, params, rigidTransform,
-                              originalCrc, weakPtrToThis](const omni::physx::PhysxCookingComputeResult& result) {
+                              originalCrc, weakPtrToThis](const omni::ev4sio_physx::PhysxCookingComputeResult& result) {
             if(!weakPtrToThis)
             {
                 return; // means that CookingDataAsync destructor was called, so this task is cancelled
             }
             weakPtrToThis->recordStatisticsResultFor(result);
 
-            if (result.result != omni::physx::PhysxCookingResult::eVALID)
+            if (result.result != omni::ev4sio_physx::PhysxCookingResult::eVALID)
             {
                 return;
             }
 
-            omni::physx::IPhysxCookingServicePrivate& cookingService = weakPtrToThis->m_cookingServicePrivate;
+            omni::ev4sio_physx::IPhysxCookingServicePrivate& cookingService = weakPtrToThis->m_cookingServicePrivate;
             // The callback is bound to its constructing owner, including private
             // candidates. A retired/rebuilt source invalidates this lifetime token.
-            omni::physx::usdparser::AttachedStage* as =
-                omni::physx::usdparser::AttachedStage::resolveLifetime(ownerLifetime);
+            omni::ev4sio_physx::usdparser::AttachedStage* as =
+                omni::ev4sio_physx::usdparser::AttachedStage::resolveLifetime(ownerLifetime);
             if (!as)
             {
                 return;
@@ -3139,7 +3139,7 @@ public:
 
             if (result.cookedData)
             {
-                omni::physx::PhysxCookingParticlePoissonSamplingData data;
+                omni::ev4sio_physx::PhysxCookingParticlePoissonSamplingData data;
                 cookingService.readParticlePoissonSamplingData(data, *result.cookedData);
 
                 // Set the sampling distance through the output sink in case cooking made a correction.
@@ -3175,16 +3175,16 @@ public:
                 const uint32_t samplesSize = data.positionsSize;
                 // Same nine doubles that were memcpy'd in above; PxMat33d is the
                 // element copy of the GfMatrix3d this used to reinterpret to.
-                static_assert(sizeof(::physx::PxMat33d) == sizeof(params.shearScale));
-                const ::physx::PxMat33d& shearScaleTransform =
-                    *reinterpret_cast<const ::physx::PxMat33d*>(params.shearScale);
+                static_assert(sizeof(::ev4sio_physx::PxMat33d) == sizeof(params.shearScale));
+                const ::ev4sio_physx::PxMat33d& shearScaleTransform =
+                    *reinterpret_cast<const ::ev4sio_physx::PxMat33d*>(params.shearScale);
 
                 // if the original source crc matches with the newly computed crc we call processSamplingResults
                 // for registering particle counts of newly instantiated samplers without writing particles, in
                 // order to avoid overwriting pre-simulated state.
                 bool registerOriginalCount = (originalCrc == result.cookedDataCRC);
 
-                omni::physx::particles::PhysxParticleFactory::processSamplingResults(
+                omni::ev4sio_physx::particles::PhysxParticleFactory::processSamplingResults(
                     *as, samplerKey, desc.particleSetKey, samples, samplesSize,
                     desc.pointWidth, rigidTransform, shearScaleTransform,
                     registerOriginalCount);
@@ -3206,7 +3206,7 @@ public:
     * detach/source-rebuild, so there is nothing to revoke. A single wildcard
     * interest delivers every batch to handleSourceChange.
     */
-    virtual void registerOnChangeFeed(omni::physx::usdparser::AttachedStage& attachedStage) final
+    virtual void registerOnChangeFeed(omni::ev4sio_physx::usdparser::AttachedStage& attachedStage) final
     {
         omni::physics::parse::IChangeFeed* feed = attachedStage.getChangeFeed();
         omni::physics::parse::IPhysicsSource* src = attachedStage.getSource();
@@ -3216,7 +3216,7 @@ public:
         // `as`/`src` stay valid for the feed's lifetime (the feed is owned by the
         // AttachedStage and owns this lambda), so they never dangle within a live
         // callback. `self` is weak so cooking-driver teardown is safe.
-        omni::physx::usdparser::AttachedStage* as = &attachedStage;
+        omni::ev4sio_physx::usdparser::AttachedStage* as = &attachedStage;
         CookingDataAsyncWeakSelf self(this, m_aliveFlag);
         feed->registerInterest(
             omni::physics::parse::ObjectKey{}, omni::physics::parse::TokenId{}, -1,
@@ -3249,7 +3249,7 @@ public:
     * a call into a not-yet-retyped helper elsewhere in the plugin).
     */
     void handleSourceChange(const omni::physics::parse::ChangeBatch& batch,
-                            omni::physx::usdparser::AttachedStage& attachedStage,
+                            omni::ev4sio_physx::usdparser::AttachedStage& attachedStage,
                             omni::physics::parse::IPhysicsSource& src)
     {
         CARB_PROFILE_ZONE(0, "CookingDataAsync::changeFeedHandler");
@@ -3266,7 +3266,7 @@ public:
 
         lock_guard _lock(m_mutex);
         RefreshCountScope refreshCount{attachedStage};
-        omni::physx::usdparser::AttachedStage::CookingRefreshState& state = attachedStage.getCookingRefreshState();
+        omni::ev4sio_physx::usdparser::AttachedStage::CookingRefreshState& state = attachedStage.getCookingRefreshState();
         ensureCollisionTokens(attachedStage, src);
 
         if (!batch.property.valid())
@@ -3327,7 +3327,7 @@ public:
                         state.parents.insert(parentKey);
                     // Be defensive: we don't know exactly what changed, so wipe the
                     // mesh-key cache to keep keys correct.
-                    omni::physx::usdparser::notifyStageReset(attachedStage);
+                    omni::ev4sio_physx::usdparser::notifyStageReset(attachedStage);
                 }
             }
         }
@@ -3368,8 +3368,8 @@ public:
     */
     virtual void addPrimRefreshSet(omni::physics::parse::ObjectKey key, omni::physics::AttachHandle attachHandle) final
     {
-        omni::physx::usdparser::AttachedStage* attachedStage =
-            omni::physx::usdparser::UsdLoad::getUsdLoad()->resolveAttach(attachHandle);
+        omni::ev4sio_physx::usdparser::AttachedStage* attachedStage =
+            omni::ev4sio_physx::usdparser::UsdLoad::getUsdLoad()->resolveAttach(attachHandle);
         if (!attachedStage)
         {
             CARB_LOG_ERROR(
@@ -3386,16 +3386,16 @@ public:
     */
     struct RefreshCountScope
     {
-        const omni::physx::usdparser::AttachedStage& owner;
+        const omni::ev4sio_physx::usdparser::AttachedStage& owner;
         ~RefreshCountScope()
         {
-            const omni::physx::usdparser::AttachedStage::CookingRefreshState& state = owner.getCookingRefreshState();
+            const omni::ev4sio_physx::usdparser::AttachedStage::CookingRefreshState& state = owner.getCookingRefreshState();
             owner.pendingCookingRefreshCount = uint32_t(state.prims.size() + state.transforms.size() +
                                                        state.schemas.size() + state.parents.size());
         }
     };
 
-    void addPrimRefreshSet(omni::physics::parse::ObjectKey key, omni::physx::usdparser::AttachedStage& attachedStage)
+    void addPrimRefreshSet(omni::physics::parse::ObjectKey key, omni::ev4sio_physx::usdparser::AttachedStage& attachedStage)
     {
         RefreshCountScope refreshCount{attachedStage};
         if (!key.valid())
@@ -3405,9 +3405,9 @@ public:
         // does not resolve on the active attached stage is a safe, pre-existing
         // no-op both here and downstream: pump()'s own consumer loop re-validates
         // `!primKey.IsEmpty()` per entry before doing anything with it.
-        omni::physx::usdparser::AttachedStage::CookingRefreshState& state = attachedStage.getCookingRefreshState();
+        omni::ev4sio_physx::usdparser::AttachedStage::CookingRefreshState& state = attachedStage.getCookingRefreshState();
         state.prims.insert(key);
-        omni::physx::usdparser::invalidateMeshKeyCache(attachedStage, key);
+        omni::ev4sio_physx::usdparser::invalidateMeshKeyCache(attachedStage, key);
     }
 
     /**
@@ -3422,7 +3422,7 @@ public:
         ret += m_cookingServicePrivate.getActiveTaskCount(m_asyncContext);
         for (const auto& entry : contextSnapshot())
             ret += m_cookingServicePrivate.getActiveTaskCount(entry.second->context);
-        for (const omni::physx::usdparser::AttachedStageMap::value_type& entry : omni::physx::usdparser::UsdLoad::getUsdLoad()->getAttachedStages())
+        for (const omni::ev4sio_physx::usdparser::AttachedStageMap::value_type& entry : omni::ev4sio_physx::usdparser::UsdLoad::getUsdLoad()->getAttachedStages())
         {
             ret += entry.second->pendingCookingRefreshCount.load();
         }
@@ -3469,30 +3469,30 @@ public:
     *
     * @return : Returns true if we could generate a hash key from this shape descriptor (only applies to convex hull, triangle mesh, and convex decomposition) other shape types are ignored as they don't have support for the solid shaded debug visualization.
     */
-    virtual bool getMeshkey(const omni::physx::usdparser::PhysxShapeDesc& desc,
-        omni::physx::usdparser::MeshKey &crc) final
+    virtual bool getMeshkey(const omni::ev4sio_physx::usdparser::PhysxShapeDesc& desc,
+        omni::ev4sio_physx::usdparser::MeshKey &crc) final
     {
         bool found = false;
 
         switch (desc.type)
         {
-            case omni::physx::usdparser::eConvexMeshShape:
+            case omni::ev4sio_physx::usdparser::eConvexMeshShape:
                 {
-                    const omni::physx::usdparser::ConvexMeshPhysxShapeDesc* convexDesc = (const omni::physx::usdparser::ConvexMeshPhysxShapeDesc*)&desc;
+                    const omni::ev4sio_physx::usdparser::ConvexMeshPhysxShapeDesc* convexDesc = (const omni::ev4sio_physx::usdparser::ConvexMeshPhysxShapeDesc*)&desc;
                     found = true;
                     crc = convexDesc->crc;
                 }
             break;
-            case omni::physx::usdparser::eConvexMeshDecompositionShape:
+            case omni::ev4sio_physx::usdparser::eConvexMeshDecompositionShape:
                 {
-                    const omni::physx::usdparser::ConvexMeshDecompositionPhysxShapeDesc* convexDecompositionDesc = (const omni::physx::usdparser::ConvexMeshDecompositionPhysxShapeDesc*)&desc;
+                    const omni::ev4sio_physx::usdparser::ConvexMeshDecompositionPhysxShapeDesc* convexDecompositionDesc = (const omni::ev4sio_physx::usdparser::ConvexMeshDecompositionPhysxShapeDesc*)&desc;
                     found = true;
                     crc = convexDecompositionDesc->crc;
                 }
                 break;
-            case omni::physx::usdparser::eTriangleMeshShape:
+            case omni::ev4sio_physx::usdparser::eTriangleMeshShape:
                 {
-                    const omni::physx::usdparser::TriangleMeshPhysxShapeDesc* meshDesc = (const omni::physx::usdparser::TriangleMeshPhysxShapeDesc*)&desc;
+                    const omni::ev4sio_physx::usdparser::TriangleMeshPhysxShapeDesc* meshDesc = (const omni::ev4sio_physx::usdparser::TriangleMeshPhysxShapeDesc*)&desc;
                     found = true;
                     crc = meshDesc->crc;
                 }
@@ -3517,14 +3517,14 @@ public:
     *
     * @return : If a graphics collision representation exists, it will return a pointer to it.
     */
-    virtual const omni::physx::CollisionRepresentation *getCollisionRepresentation(omni::physics::parse::ObjectKey key,
-                                                                                   const omni::physx::usdparser::PhysxShapeDesc& desc) final
+    virtual const omni::ev4sio_physx::CollisionRepresentation *getCollisionRepresentation(omni::physics::parse::ObjectKey key,
+                                                                                   const omni::ev4sio_physx::usdparser::PhysxShapeDesc& desc) final
     {
 
-        omni::physx::usdparser::MeshKey crc;
+        omni::ev4sio_physx::usdparser::MeshKey crc;
         if (getMeshkey(desc, crc))
         {
-            return omni::physx::getMeshCache()->getCollisionRepresentation(crc, desc);
+            return omni::ev4sio_physx::getMeshCache()->getCollisionRepresentation(crc, desc);
         }
         return nullptr;
     }
@@ -3534,14 +3534,14 @@ public:
     *
     * @param cr : A pointer to a previously retrieved collision representation. Each call to 'getCollisionRepresentation' should be paired with a call to 'releaseCollisionRepresentation' or you will get a memory leak.
     */
-    virtual void releaseCollisionRepresentation(const omni::physx::CollisionRepresentation *cr) final
+    virtual void releaseCollisionRepresentation(const omni::ev4sio_physx::CollisionRepresentation *cr) final
     {
         if ( cr )
         {
-            omni::physx::CollisionRepresentation *c = (omni::physx::CollisionRepresentation *)cr;
+            omni::ev4sio_physx::CollisionRepresentation *c = (omni::ev4sio_physx::CollisionRepresentation *)cr;
             for (uint32_t i=0; i<c->meshCount; i++)
             {
-                omni::physx::CollisionMesh &m = cr->meshes[i];
+                omni::ev4sio_physx::CollisionMesh &m = cr->meshes[i];
                 delete []m.vertices;
                 delete []m.indices;
             }
@@ -3551,7 +3551,7 @@ public:
     }
 
 
-    physx::PxPhysics& mPhysics;
+    ev4sio_physx::PxPhysics& mPhysics;
 
     // Liveness canary for CookingDataAsyncWeakSelf (see its own comment) -- every async
     // cooking-service completion callback captures a std::weak_ptr to this, not `this`
@@ -3566,15 +3566,15 @@ public:
 
     struct OwnedContext
     {
-        omni::physx::IPhysxCookingService* service;
-        omni::physx::PhysxCookingAsyncContext context;
+        omni::ev4sio_physx::IPhysxCookingService* service;
+        omni::ev4sio_physx::PhysxCookingAsyncContext context;
         ~OwnedContext()
         {
             service->cancelAllTasks(context);
             service->destroyAsyncContext(context);
         }
     };
-    using ContextMap = std::unordered_map<const omni::physx::usdparser::AttachedStage*, std::shared_ptr<OwnedContext>>;
+    using ContextMap = std::unordered_map<const omni::ev4sio_physx::usdparser::AttachedStage*, std::shared_ptr<OwnedContext>>;
     carb::tasking::MutexWrapper m_contextMutex;
     ContextMap m_attachmentContexts;
     ContextMap contextSnapshot()
@@ -3582,13 +3582,13 @@ public:
         std::lock_guard<carb::tasking::MutexWrapper> lock(m_contextMutex);
         return m_attachmentContexts;
     }
-    std::shared_ptr<OwnedContext> contextFor(const omni::physx::usdparser::AttachedStage& owner)
+    std::shared_ptr<OwnedContext> contextFor(const omni::ev4sio_physx::usdparser::AttachedStage& owner)
     {
         std::lock_guard<carb::tasking::MutexWrapper> lock(m_contextMutex);
         const auto found = m_attachmentContexts.find(&owner);
         return found == m_attachmentContexts.end() ? nullptr : found->second;
     }
-    omni::physx::PhysxCookingAsyncContext m_asyncContext = nullptr;
+    omni::ev4sio_physx::PhysxCookingAsyncContext m_asyncContext = nullptr;
 
     // Progress Bar
     bool m_progressBarEnabled = false;
@@ -3596,21 +3596,21 @@ public:
     uint32_t m_maxCookingTasks = 0;
 
     mutable carb::tasking::MutexWrapper m_statisticsMutex;
-    omni::physx::PhysxCookingStatistics m_cookingStatistics;
+    omni::ev4sio_physx::PhysxCookingStatistics m_cookingStatistics;
 
-    virtual omni::physx::PhysxCookingStatistics getCookingStatistics() const override
+    virtual omni::ev4sio_physx::PhysxCookingStatistics getCookingStatistics() const override
     {
         std::lock_guard<carb::tasking::MutexWrapper> statistics(m_statisticsMutex);
         return m_cookingStatistics;
     }
 
-    void recordStatisticsRequestFor(const omni::physx::PhysxCookingComputeRequest& request)
+    void recordStatisticsRequestFor(const omni::ev4sio_physx::PhysxCookingComputeRequest& request)
     {
         std::lock_guard<carb::tasking::MutexWrapper> statistics(m_statisticsMutex);
        m_cookingStatistics.totalScheduledTasks += 1;
     }
 
-    void recordStatisticsResultFor(const omni::physx::PhysxCookingComputeResult& result)
+    void recordStatisticsResultFor(const omni::ev4sio_physx::PhysxCookingComputeResult& result)
     {
         std::lock_guard<carb::tasking::MutexWrapper> statistics(m_statisticsMutex);
         m_cookingStatistics.totalFinishedTasks += 1;
@@ -3621,7 +3621,7 @@ public:
         }
         else
         {
-            if(result.resultSource == omni::physx::PhysxCookingComputeResult::eRESULT_CACHE_MISS)
+            if(result.resultSource == omni::ev4sio_physx::PhysxCookingComputeResult::eRESULT_CACHE_MISS)
             {
                 m_cookingStatistics.totalFinishedCacheMissTasks += 1;
             }
@@ -3629,11 +3629,11 @@ public:
             {
                 m_cookingStatistics.totalFinishedCacheHitTasks += 1;
             }
-            if(result.resultWarnings.hasFlag(omni::physx::PhysxCookingComputeResult::ResultWarning::FAILED_GPU_COMPATIBILITY))
+            if(result.resultWarnings.hasFlag(omni::ev4sio_physx::PhysxCookingComputeResult::ResultWarning::FAILED_GPU_COMPATIBILITY))
             {
                 m_cookingStatistics.totalWarningsFailedGPUCompatibility += 1;
             }
-            if(result.resultWarnings.hasFlag(omni::physx::PhysxCookingComputeResult::ResultWarning::CONVEX_POLYGON_LIMITS_REACHED))
+            if(result.resultWarnings.hasFlag(omni::ev4sio_physx::PhysxCookingComputeResult::ResultWarning::CONVEX_POLYGON_LIMITS_REACHED))
             {
                 m_cookingStatistics.totalWarningsConvexPolygonLimitsReached += 1;
             }
@@ -3651,7 +3651,7 @@ public:
             taskCount += m_cookingServicePrivate.getActiveTaskCount(entry.second->context);
         // state.prims are tasks that have not yet been submitted to the queue
         uint32_t totalTaskCount = taskCount;
-        for (const omni::physx::usdparser::AttachedStageMap::value_type& entry : omni::physx::usdparser::UsdLoad::getUsdLoad()->getAttachedStages())
+        for (const omni::ev4sio_physx::usdparser::AttachedStageMap::value_type& entry : omni::ev4sio_physx::usdparser::UsdLoad::getUsdLoad()->getAttachedStages())
             totalTaskCount += entry.second->pendingCookingRefreshCount.load();
         if (totalTaskCount)
         {
@@ -3690,7 +3690,7 @@ public:
         m_cookingServicePrivate.resetMeshCacheContents();
     }
 
-    void retireAttachment(const omni::physx::usdparser::AttachedStage& owner)
+    void retireAttachment(const omni::ev4sio_physx::usdparser::AttachedStage& owner)
     {
         std::shared_ptr<OwnedContext> retiring;
         {
@@ -3707,8 +3707,8 @@ public:
 
     }
 
-    virtual omni::physx::PhysxCookingAsyncContext getCookingAsyncContext(
-        const omni::physx::usdparser::AttachedStage& owner) final
+    virtual omni::ev4sio_physx::PhysxCookingAsyncContext getCookingAsyncContext(
+        const omni::ev4sio_physx::usdparser::AttachedStage& owner) final
     {
         {
             std::lock_guard<carb::tasking::MutexWrapper> lock(m_contextMutex);
@@ -3720,15 +3720,15 @@ public:
         static std::atomic<uint64_t> nextContextGeneration{1};
         const std::string name = "omni.physx.attach." +
             std::to_string(nextContextGeneration.fetch_add(1, std::memory_order_relaxed));
-        omni::physx::PhysxCookingAsyncContextParameters parameters;
+        omni::ev4sio_physx::PhysxCookingAsyncContextParameters parameters;
         parameters.contextName = { name.data(), name.size() };
-        const omni::physx::PhysxCookingAsyncContext context = getComputeService().createAsyncContext(parameters);
+        const omni::ev4sio_physx::PhysxCookingAsyncContext context = getComputeService().createAsyncContext(parameters);
         if (!context)
             return nullptr;
         std::shared_ptr<OwnedContext> retained = std::shared_ptr<OwnedContext>(new OwnedContext{ &getComputeService(), context });
         {
             CookingDataAsyncWeakSelf self(this, m_aliveFlag);
-            const omni::physx::usdparser::AttachedStage* ownerPtr = &owner;
+            const omni::ev4sio_physx::usdparser::AttachedStage* ownerPtr = &owner;
             owner.setCookingRetirement([self, ownerPtr] { if (self) self->retireAttachment(*ownerPtr); });
             std::lock_guard<carb::tasking::MutexWrapper> lock(m_contextMutex);
             m_attachmentContexts.emplace(&owner, std::move(retained));
@@ -3736,19 +3736,19 @@ public:
         return context;
     }
 
-    virtual omni::physx::PhysxCookingAsyncContext getCookingAsyncContext()
+    virtual omni::ev4sio_physx::PhysxCookingAsyncContext getCookingAsyncContext()
     {
         return m_asyncContext;
     }
 
-    omni::physx::IPhysxCookingService& getComputeService(){return m_cookingService; }
-    omni::physx::IPhysxCookingServicePrivate& m_cookingServicePrivate;
-    omni::physx::IPhysxCookingService& m_cookingService;
+    omni::ev4sio_physx::IPhysxCookingService& getComputeService(){return m_cookingService; }
+    omni::ev4sio_physx::IPhysxCookingServicePrivate& m_cookingServicePrivate;
+    omni::ev4sio_physx::IPhysxCookingService& m_cookingService;
 };
 
 
 // Create an instance of the CookingDataAsync implementation class
-CookingDataAsync* createCookingDataAsync(physx::PxPhysics& physics, omni::physx::IPhysxCookingServicePrivate& cookingServicePrivate, omni::physx::IPhysxCookingService& cookingService, omni::physx::PhysxCookingAsyncContext context)
+CookingDataAsync* createCookingDataAsync(ev4sio_physx::PxPhysics& physics, omni::ev4sio_physx::IPhysxCookingServicePrivate& cookingServicePrivate, omni::ev4sio_physx::IPhysxCookingService& cookingService, omni::ev4sio_physx::PhysxCookingAsyncContext context)
 {
     auto ret = new CookingDataAsyncImpl(physics, cookingServicePrivate, cookingService, context);
     return static_cast< CookingDataAsync *>(ret);

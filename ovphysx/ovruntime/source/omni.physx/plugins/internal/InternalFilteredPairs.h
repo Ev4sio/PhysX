@@ -11,7 +11,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace usdparser
 {
@@ -36,8 +36,8 @@ private:
     usdparser::AttachedStage& mAttachedStage;
 };
 
-void changeFilteredPairs(omni::physx::usdparser::AttachedStage& attachedStage, omni::physics::parse::ObjectKey key, bool removed);
+void changeFilteredPairs(omni::ev4sio_physx::usdparser::AttachedStage& attachedStage, omni::physics::parse::ObjectKey key, bool removed);
 
 } // namespace internal
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

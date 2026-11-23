@@ -12,7 +12,7 @@
 #include "foundation/PxBasicTemplates.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 PX_INLINE char PxLittleEndian()
@@ -65,7 +65,7 @@ Get number of elements in array
 */
 template <typename T, size_t N>
 char (&PxArraySizeHelper(T (&array)[N]))[N];
-#define PX_ARRAY_SIZE(_array) (sizeof(physx::PxArraySizeHelper(_array)))
+#define PX_ARRAY_SIZE(_array) (sizeof(ev4sio_physx::PxArraySizeHelper(_array)))
 //! \endcond
 
 /*!
@@ -121,7 +121,7 @@ __attribute__((noreturn))
 }
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

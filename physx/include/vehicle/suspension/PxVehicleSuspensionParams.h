@@ -15,7 +15,7 @@
 #include "vehicle/PxVehicleFunctions.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -380,7 +380,7 @@ struct PxVehicleAntiRollForceParams
 
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

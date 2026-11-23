@@ -38,7 +38,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace tensors
 {
@@ -160,20 +160,20 @@ struct DeformableBodyData
 
 struct GpuRigidBodyRecord
 {
-    ::physx::PxU32 physxRdIdx = 0xffffffff; // rigid dynamic index in the physx buffers (only set if rb is a rigid
+    ::ev4sio_physx::PxU32 physxRdIdx = 0xffffffff; // rigid dynamic index in the physx buffers (only set if rb is a rigid
                                             // dynamic)
-    ::physx::PxU32 physxLinkIdx = 0xffffffff; // articulation link index in the physx buffers (only set if rb is an
+    ::ev4sio_physx::PxU32 physxLinkIdx = 0xffffffff; // articulation link index in the physx buffers (only set if rb is an
                                               // articulation link)
-    ::physx::PxArticulationGPUIndex physxArtiIdx = 0xffffffff; // physx articulation index (only set if rb is an
+    ::ev4sio_physx::PxArticulationGPUIndex physxArtiIdx = 0xffffffff; // physx articulation index (only set if rb is an
                                                                // articulation link)
-    ::physx::PxU32 tensorRdIdx = 0xffffffff; // rigid dynamic index in the tensor buffers (only set if rb is a rigid
+    ::ev4sio_physx::PxU32 tensorRdIdx = 0xffffffff; // rigid dynamic index in the tensor buffers (only set if rb is a rigid
                                              // dynamic)
-    ::physx::PxU32 tensorArtiIdx = 0xffffffff; // rigid dynamic index in the tensor buffers (only set if rb is a rigid
+    ::ev4sio_physx::PxU32 tensorArtiIdx = 0xffffffff; // rigid dynamic index in the tensor buffers (only set if rb is a rigid
                                                // dynamic)
-    ::physx::PxU32 linkIdx = 0xffffffff; // articulation link index
+    ::ev4sio_physx::PxU32 linkIdx = 0xffffffff; // articulation link index
     bool isRootLink = false; // whether this body is an articulation root link
-    ::physx::PxVec3 origin{ 0.0f }; // subspace origin
-    ::physx::PxQuat orientationFixup{ ::physx::PxIdentity }; // controller actor to prim frame
+    ::ev4sio_physx::PxVec3 origin{ 0.0f }; // subspace origin
+    ::ev4sio_physx::PxQuat orientationFixup{ ::ev4sio_physx::PxIdentity }; // controller actor to prim frame
 };
 
 // One volume deformable as the ovstage kinematic-target commit writes it (submitKinematicTargetsOvStage): the
@@ -181,9 +181,9 @@ struct GpuRigidBodyRecord
 // column and how many there are, and the transform from the column's sim-mesh frame into the buffer's.
 struct KinematicTargetBodyRecord
 {
-    ::physx::PxVec4* dst = nullptr;
-    ::physx::PxU32 floatOffset = 0;
-    ::physx::PxU32 nodeCount = 0;
+    ::ev4sio_physx::PxVec4* dst = nullptr;
+    ::ev4sio_physx::PxU32 floatOffset = 0;
+    ::ev4sio_physx::PxU32 nodeCount = 0;
     PointSetTransform columnToBuffer;
 };
 
@@ -209,8 +209,8 @@ struct GpuPointSetReadRecord
     // PxVec3 for the runtime's skinned-vertex buffer. Decided per VIEW (fetchPointSetColumnOvStage's
     // `layout`), not per record, so the record stays 16 bytes.
     const void* src = nullptr;
-    ::physx::PxU32 numPoints = 0;        // points in this set; the kernel's per-record bounds test
-    ::physx::PxU32 dstOffsetFloats = 0;  // start of this set's slice in the destination column
+    ::ev4sio_physx::PxU32 numPoints = 0;        // points in this set; the kernel's per-record bounds test
+    ::ev4sio_physx::PxU32 dstOffsetFloats = 0;  // start of this set's slice in the destination column
 };
 
 
@@ -225,68 +225,68 @@ struct GpuPointSetReadRecord
 // already holds the matrix Gf can invert in one call. Costs 12 floats per instance.
 struct GpuPointInstancerRecord
 {
-    ::physx::PxU32 rbRow = 0xffffffff; // row in the sibling superset rigid view's record array
-    ::physx::PxU32 instancerIdx = 0; // indexes the per-read world-inverse and destination-offset arrays
-    ::physx::PxU32 slot = 0; // instance index within that instancer's instance array
-    ::physx::PxU32 pad = 0;
+    ::ev4sio_physx::PxU32 rbRow = 0xffffffff; // row in the sibling superset rigid view's record array
+    ::ev4sio_physx::PxU32 instancerIdx = 0; // indexes the per-read world-inverse and destination-offset arrays
+    ::ev4sio_physx::PxU32 slot = 0; // instance index within that instancer's instance array
+    ::ev4sio_physx::PxU32 pad = 0;
     InstancerAffine protoInverse; // InternalActor::mProtoTransformInverse, in row-vector form
     InstancerAffine proto; // the FORWARD proto transform, for the write (ADR-0012); rationale above
 };
 
 struct GpuSdfShapeRecord
 {
-    ::physx::PxShape* sdfShape = nullptr;
-    ::physx::PxShapeGPUIndex globalIndex = 0xffffffff; // gpu index
-    ::physx::PxU32 numSamplePoints = 0; // number of sample points
-    ::physx::PxVec3 origin{ 0.0f }; // subspace origin
+    ::ev4sio_physx::PxShape* sdfShape = nullptr;
+    ::ev4sio_physx::PxShapeGPUIndex globalIndex = 0xffffffff; // gpu index
+    ::ev4sio_physx::PxU32 numSamplePoints = 0; // number of sample points
+    ::ev4sio_physx::PxVec3 origin{ 0.0f }; // subspace origin
 };
 
 struct GpuArticulationRootRecord
 {
-    ::physx::PxU32 physxArtiIdx = 0xffffffff; // PhysX articulation GPU index
-    ::physx::PxVec3 origin{ 0.0f }; // subspace origin
+    ::ev4sio_physx::PxU32 physxArtiIdx = 0xffffffff; // PhysX articulation GPU index
+    ::ev4sio_physx::PxVec3 origin{ 0.0f }; // subspace origin
 };
 
 struct GpuArticulationDofRecord
 {
-    ::physx::PxU32 physxDofIdx = 0xffffffff; // DOF index in the physx buffers
-    ::physx::PxU32 physxArtiIdx = 0xffffffff; // PhysX articulation GPU index
+    ::ev4sio_physx::PxU32 physxDofIdx = 0xffffffff; // DOF index in the physx buffers
+    ::ev4sio_physx::PxU32 physxArtiIdx = 0xffffffff; // PhysX articulation GPU index
     bool body0IsParent = true;
 };
 
 struct GpuArticulationLinkRecord
 {
-    ::physx::PxU32 physxLinkIdx = 0xffffffff; // Link index in the physx buffers
-    ::physx::PxU32 physxArtiIdx = 0xffffffff; // PhysX articulation GPU index
-    ::physx::PxVec3 origin{ 0.0f }; // subspace origin
-    ::physx::PxQuat physxToUsdJointRotation = ::physx::PxQuat(0, 0, 0, 1); // inverse of the rotation that is applied to
+    ::ev4sio_physx::PxU32 physxLinkIdx = 0xffffffff; // Link index in the physx buffers
+    ::ev4sio_physx::PxU32 physxArtiIdx = 0xffffffff; // PhysX articulation GPU index
+    ::ev4sio_physx::PxVec3 origin{ 0.0f }; // subspace origin
+    ::ev4sio_physx::PxQuat physxToUsdJointRotation = ::ev4sio_physx::PxQuat(0, 0, 0, 1); // inverse of the rotation that is applied to
                                                                            // the incoming joint local pose during USD
                                                                            // parsing.
-    ::physx::PxTransform jointChild = ::physx::PxTransform(::physx::PxIdentity);
-    ::physx::PxTransform jointParent = ::physx::PxTransform(::physx::PxIdentity);
-    ::physx::PxU32 incomingLinkIdx = 0xffffffff; // Link index of the parent body
-    ::physx::PxArticulationJointType::Enum incomingJointType = ::physx::PxArticulationJointType::eUNDEFINED;
-    ::physx::PxU32 dofOffset = 0xffffffff;
+    ::ev4sio_physx::PxTransform jointChild = ::ev4sio_physx::PxTransform(::ev4sio_physx::PxIdentity);
+    ::ev4sio_physx::PxTransform jointParent = ::ev4sio_physx::PxTransform(::ev4sio_physx::PxIdentity);
+    ::ev4sio_physx::PxU32 incomingLinkIdx = 0xffffffff; // Link index of the parent body
+    ::ev4sio_physx::PxArticulationJointType::Enum incomingJointType = ::ev4sio_physx::PxArticulationJointType::eUNDEFINED;
+    ::ev4sio_physx::PxU32 dofOffset = 0xffffffff;
     FreeD6RotationAxesFlags D6RotationAxes = FreeD6RotationAxesFlags(0);
     bool body0IsParent = true;
 };
 
 struct GpuArticulationFixedTendonRecord
 {
-    ::physx::PxU32 physxTendonIdx = 0xffffffff; // Tendon index in the physx buffers
-    ::physx::PxU32 physxArtiIdx = 0xffffffff; // PhysX articulation GPU index
+    ::ev4sio_physx::PxU32 physxTendonIdx = 0xffffffff; // Tendon index in the physx buffers
+    ::ev4sio_physx::PxU32 physxArtiIdx = 0xffffffff; // PhysX articulation GPU index
 };
 
 struct GpuArticulationSpatialTendonRecord
 {
-    ::physx::PxU32 physxTendonIdx = 0xffffffff; // Tendon index in the physx buffers
-    ::physx::PxU32 physxArtiIdx = 0xffffffff; // PhysX articulation GPU index
+    ::ev4sio_physx::PxU32 physxTendonIdx = 0xffffffff; // Tendon index in the physx buffers
+    ::ev4sio_physx::PxU32 physxArtiIdx = 0xffffffff; // PhysX articulation GPU index
 };
 
 struct GpuRigidContactFilterIdPair
 {
-    ::physx::PxActor* actor = nullptr;
-    ::physx::PxU32 filterIndex = 0xffffffff;
+    ::ev4sio_physx::PxActor* actor = nullptr;
+    ::ev4sio_physx::PxU32 filterIndex = 0xffffffff;
 
     struct LessThan
     {
@@ -301,13 +301,13 @@ struct GpuRigidContactFilterIdPair
 // sensor, so bodies added after the tables were built cannot index past them.
 struct RigidContactReferentTables
 {
-    const ::physx::PxU32* nodeIdx2ArtiGpuIdx = nullptr;
-    const ::physx::PxU32* rdContactIndices = nullptr;
-    const ::physx::PxU32* linkContactIndices = nullptr;
-    ::physx::PxU32 nodeIdx2ArtiGpuIdxCount = 0;
-    ::physx::PxU32 rdContactIndexCount = 0;
-    ::physx::PxU32 linkContactIndexCount = 0;
-    ::physx::PxU32 maxLinks = 0;
+    const ::ev4sio_physx::PxU32* nodeIdx2ArtiGpuIdx = nullptr;
+    const ::ev4sio_physx::PxU32* rdContactIndices = nullptr;
+    const ::ev4sio_physx::PxU32* linkContactIndices = nullptr;
+    ::ev4sio_physx::PxU32 nodeIdx2ArtiGpuIdxCount = 0;
+    ::ev4sio_physx::PxU32 rdContactIndexCount = 0;
+    ::ev4sio_physx::PxU32 linkContactIndexCount = 0;
+    ::ev4sio_physx::PxU32 maxLinks = 0;
 };
 
 // This is almost identical to the GpuRigidContactFilterIdPair struct, but it's used for the actor-to-pathId lookup for raw contact data.
@@ -315,7 +315,7 @@ struct RigidContactReferentTables
 // TODO: Use template to avoid code duplication?
 struct GpuActorPathIdPair
 {
-    ::physx::PxActor* actor = nullptr;
+    ::ev4sio_physx::PxActor* actor = nullptr;
     uint64_t pathId = 0;
 
     struct LessThan
@@ -329,29 +329,29 @@ struct GpuActorPathIdPair
 
 struct GpuDeformableBodyRecord
 {
-    ::physx::PxDeformableBody* deformableBody;          // physX pointer (base class for PxDeformableVolume and PxDeformableSurface)
-    ::physx::PxVec3 origin{ 0.f };                      // subspace origin
+    ::ev4sio_physx::PxDeformableBody* deformableBody;          // physX pointer (base class for PxDeformableVolume and PxDeformableSurface)
+    ::ev4sio_physx::PxVec3 origin{ 0.f };                      // subspace origin
 
     // buffers are managed by tensor view or PxDeformableVolume / PxDeformableSurface instances
-    ::physx::PxU32 numSimNodes = 0;                     // number of vertices of the simulation mesh
-    ::physx::PxU32 numSimElements = 0;                  // number of elements of the simulation mesh
-    ::physx::PxU32 numRestNodes = 0;                    // number of vertices of the rest shape
-    ::physx::PxU32 numCollNodes = 0;                    // number of vertices of the collision mesh
-    ::physx::PxU32 numCollElements = 0;                 // number of elements of the collision mesh
-    ::physx::PxU32* simElementIndices = nullptr;        // managed by tensor view
-    ::physx::PxVec4* simNodalPositions = nullptr;       // managed by PxDeformableVolume/PxDeformableSurface
-    ::physx::PxVec4* simNodalVelocities = nullptr;      // managed by PxDeformableVolume/PxDeformableSurface
-    ::physx::PxVec4* simNodalKinematicTargets = nullptr;// managed by PxDeformableVolume
-    ::physx::PxVec3* restNodalPositions = nullptr;      // managed by tensor view
-    ::physx::PxVec4* collNodalPositions = nullptr;      // managed by PxDeformableVolume
-    ::physx::PxU32* collElementIndices = nullptr;       // managed by tensor view
+    ::ev4sio_physx::PxU32 numSimNodes = 0;                     // number of vertices of the simulation mesh
+    ::ev4sio_physx::PxU32 numSimElements = 0;                  // number of elements of the simulation mesh
+    ::ev4sio_physx::PxU32 numRestNodes = 0;                    // number of vertices of the rest shape
+    ::ev4sio_physx::PxU32 numCollNodes = 0;                    // number of vertices of the collision mesh
+    ::ev4sio_physx::PxU32 numCollElements = 0;                 // number of elements of the collision mesh
+    ::ev4sio_physx::PxU32* simElementIndices = nullptr;        // managed by tensor view
+    ::ev4sio_physx::PxVec4* simNodalPositions = nullptr;       // managed by PxDeformableVolume/PxDeformableSurface
+    ::ev4sio_physx::PxVec4* simNodalVelocities = nullptr;      // managed by PxDeformableVolume/PxDeformableSurface
+    ::ev4sio_physx::PxVec4* simNodalKinematicTargets = nullptr;// managed by PxDeformableVolume
+    ::ev4sio_physx::PxVec3* restNodalPositions = nullptr;      // managed by tensor view
+    ::ev4sio_physx::PxVec4* collNodalPositions = nullptr;      // managed by PxDeformableVolume
+    ::ev4sio_physx::PxU32* collElementIndices = nullptr;       // managed by tensor view
 };
 
 class DeformableBodyBufferManager
 {
 public:
     DeformableBodyBufferManager() : buffersD(nullptr), bufferSizesD(nullptr), maxBufferSize(0), dataSize(0){};
-    DeformableBodyBufferManager(::physx::PxU32 dataSize)
+    DeformableBodyBufferManager(::ev4sio_physx::PxU32 dataSize)
         : buffersD(nullptr), bufferSizesD(nullptr), maxBufferSize(0), dataSize(dataSize){};
     // Both return false when an allocation or copy failed, leaving what was allocated for the caller to free.
     static bool allocDevMemAndCopyH2D(void** dst, const void* src, size_t size, const char* name);
@@ -363,11 +363,11 @@ public:
     void resetDeviceMem();
 
     void** buffersD; // device vector of device pointers
-    ::physx::PxU32* bufferSizesD; // device vector of buffer sizes
+    ::ev4sio_physx::PxU32* bufferSizesD; // device vector of buffer sizes
     std::vector<void*> buffersH; // host vector of device pointers
-    std::vector<::physx::PxU32> bufferSizesH; // host vector of buffer sizes
-    ::physx::PxU32 maxBufferSize; // max buffer size
-    ::physx::PxU32 dataSize; // max buffer size
+    std::vector<::ev4sio_physx::PxU32> bufferSizesH; // host vector of buffer sizes
+    ::ev4sio_physx::PxU32 maxBufferSize; // max buffer size
+    ::ev4sio_physx::PxU32 dataSize; // max buffer size
 };
 
 // Does not mirror any PhysX enum (that mapping was removed); consider replacing with something better.
@@ -407,8 +407,8 @@ public:
     };
 };
 
-typedef ::physx::PxFlags<ArticulationGpuFlag::Enum, ::physx::PxU32> ArticulationGpuFlags;
-typedef ::physx::PxFlags<ActorGpuFlag::Enum, ::physx::PxU16> ActorGpuFlags;
+typedef ::ev4sio_physx::PxFlags<ArticulationGpuFlag::Enum, ::ev4sio_physx::PxU32> ArticulationGpuFlags;
+typedef ::ev4sio_physx::PxFlags<ActorGpuFlag::Enum, ::ev4sio_physx::PxU16> ActorGpuFlags;
 
 // Rigid-body disable state of one scene. SimulationBackend keeps one per scene and gives it to every
 // GpuSimulationData built for that scene, so a disable through a view on one copy reaches views on the others.
@@ -423,11 +423,11 @@ struct GpuRdDisableState
 // articulation blocks out with. GpuSimulationData::init sizes its buffers with them and
 // SimulationBackend::sceneTopology compares them to decide whether cached data still fits the scene, so both take
 // them from here.
-void articulationStrides(::physx::PxScene* scene,
-                         ::physx::PxU32& maxLinks,
-                         ::physx::PxU32& maxDofs,
-                         ::physx::PxU32& maxFixedTendons,
-                         ::physx::PxU32& maxSpatialTendons);
+void articulationStrides(::ev4sio_physx::PxScene* scene,
+                         ::ev4sio_physx::PxU32& maxLinks,
+                         ::ev4sio_physx::PxU32& maxDofs,
+                         ::ev4sio_physx::PxU32& maxFixedTendons,
+                         ::ev4sio_physx::PxU32& maxSpatialTendons);
 
 // data shared with child views that persist even if simulation view is deleted
 struct GpuSimulationData
@@ -437,7 +437,7 @@ struct GpuSimulationData
                       std::shared_ptr<GpuRdDisableState> rdDisableState);
     ~GpuSimulationData();
 
-    bool init(::physx::PxScene* scene);
+    bool init(::ev4sio_physx::PxScene* scene);
 
     // checks for illegal usage: before the first step
     bool checkApiReady(const char* function) const;
@@ -446,7 +446,7 @@ struct GpuSimulationData
     bool checkArticulationStrides(const char* function) const;
     // whether `arti` is one this data was built for (in the scene then, with the GPU index it has now); a view over
     // one it does not describe -- inserted after the data was built -- asks PhysX for more blocks than its buffers hold
-    bool describesArticulation(const ::physx::PxArticulationReducedCoordinate& arti) const;
+    bool describesArticulation(const ::ev4sio_physx::PxArticulationReducedCoordinate& arti) const;
     void clearForces();
 
     bool flush();
@@ -462,25 +462,25 @@ struct GpuSimulationData
     // Attach handle (ADR-0013), not a USD stage id.
     omni::physics::tensors::AttachHandle mAttachHandle = omni::physics::tensors::kNoAttach;
 
-    ::physx::PxScene* mScene = nullptr;
-    ::physx::PxCudaContextManager* mCudaContextManager = nullptr;
+    ::ev4sio_physx::PxScene* mScene = nullptr;
+    ::ev4sio_physx::PxCudaContextManager* mCudaContextManager = nullptr;
 
     CUcontext mCtx = 0;
     int mDevice = -1;
 
-    ::physx::PxU32 mNumArtis = 0;
-    ::physx::PxU32 mNumRds = 0;
+    ::ev4sio_physx::PxU32 mNumArtis = 0;
+    ::ev4sio_physx::PxU32 mNumRds = 0;
 
     // The strides of the DirectGPU articulation buffers (articulationStrides), not the scene's live maxima.
-    ::physx::PxU32 mMaxLinks = 0;
-    ::physx::PxU32 mMaxDofs = 0;
-    ::physx::PxU32 mMaxFixedTendons = 0;
-    ::physx::PxU32 mMaxSpatialTendons = 0;
+    ::ev4sio_physx::PxU32 mMaxLinks = 0;
+    ::ev4sio_physx::PxU32 mMaxDofs = 0;
+    ::ev4sio_physx::PxU32 mMaxFixedTendons = 0;
+    ::ev4sio_physx::PxU32 mMaxSpatialTendons = 0;
 
-    ::physx::PxU32 mLinkBufSize = 0;
-    ::physx::PxU32 mDofBufSize = 0;
-    ::physx::PxU32 mFixedTendonBufSize = 0;
-    ::physx::PxU32 mSpatialTendonBufSize = 0;
+    ::ev4sio_physx::PxU32 mLinkBufSize = 0;
+    ::ev4sio_physx::PxU32 mDofBufSize = 0;
+    ::ev4sio_physx::PxU32 mFixedTendonBufSize = 0;
+    ::ev4sio_physx::PxU32 mSpatialTendonBufSize = 0;
 
     // Record-lifetime epoch of the attach when init() ran. The per-object maps below describe the
     // records of that epoch, so the data is not reused once the epoch moves.
@@ -490,7 +490,7 @@ struct GpuSimulationData
     // is stable across disable/enable cycles (unlike the island node index which
     // PhysX invalidates when eDISABLE_SIMULATION is set), so this is the sole
     // lookup used by GpuRigidBodyView::ctor.
-    std::unordered_map<::physx::PxRigidDynamic*, uint32_t> mActor2RdIndexMap;
+    std::unordered_map<::ev4sio_physx::PxRigidDynamic*, uint32_t> mActor2RdIndexMap;
     // The scene's disable state. The two references below name its fields.
     std::shared_ptr<GpuRdDisableState> mRdDisableState;
     // Scene-wide rigid-body disable/enable generation (OMPE-94459, multi-view +
@@ -513,36 +513,36 @@ struct GpuSimulationData
     // on the disable-free steady state, which is the common case and was costing a cache miss per
     // matched body on every I/O.
     bool& mMayHaveDisabledRd;
-    ::physx::PxTransform* mRdPoseDev = nullptr;
-    ::physx::PxVec3* mRdLinearVelAccDev = nullptr;
-    ::physx::PxVec3* mRdAngularVelAccDev = nullptr;
-    ::physx::PxVec3* mRdForcesDev = nullptr;
-    ::physx::PxVec3* mRdTorquesDev = nullptr;
+    ::ev4sio_physx::PxTransform* mRdPoseDev = nullptr;
+    ::ev4sio_physx::PxVec3* mRdLinearVelAccDev = nullptr;
+    ::ev4sio_physx::PxVec3* mRdAngularVelAccDev = nullptr;
+    ::ev4sio_physx::PxVec3* mRdForcesDev = nullptr;
+    ::ev4sio_physx::PxVec3* mRdTorquesDev = nullptr;
 
     // maps articulation node indices to global articulation indices in GPU buffers
-    std::unordered_map<uint32_t, ::physx::PxArticulationGPUIndex> mNodeIdx2ArtiIdxMap;
-    ::physx::PxU32* mNodeIdx2ArtiGpuIdxDev = nullptr;
-    ::physx::PxU32 mNodeIdx2ArtiGpuIdxCount = 0;
+    std::unordered_map<uint32_t, ::ev4sio_physx::PxArticulationGPUIndex> mNodeIdx2ArtiIdxMap;
+    ::ev4sio_physx::PxU32* mNodeIdx2ArtiGpuIdxDev = nullptr;
+    ::ev4sio_physx::PxU32 mNodeIdx2ArtiGpuIdxCount = 0;
 
-    ::physx::PxTransform* mLinkOrRootTransformsDev = nullptr;
-    ::physx::PxVec3* mLinkOrRootLinearVelAccDev = nullptr;
-    ::physx::PxVec3* mLinkOrRootAngularVelAccDev = nullptr;
+    ::ev4sio_physx::PxTransform* mLinkOrRootTransformsDev = nullptr;
+    ::ev4sio_physx::PxVec3* mLinkOrRootLinearVelAccDev = nullptr;
+    ::ev4sio_physx::PxVec3* mLinkOrRootAngularVelAccDev = nullptr;
     float* mDofScalarsDev = nullptr;
 
-    ::physx::PxVec3* mLinkForcesDev = nullptr;
-    ::physx::PxVec3* mLinkTorquesDev = nullptr;
+    ::ev4sio_physx::PxVec3* mLinkForcesDev = nullptr;
+    ::ev4sio_physx::PxVec3* mLinkTorquesDev = nullptr;
     float* mDofActuationForcesDev = nullptr;
     PhysxGpuSpatialForces* mLinkIncomingJointForceDev = nullptr;
-    ::physx::PxGpuFixedTendonData* mFixedTendonPropertiesDev = nullptr;
-    ::physx::PxGpuSpatialTendonData* mSpatialTendonPropertiesDev = nullptr;
+    ::ev4sio_physx::PxGpuFixedTendonData* mFixedTendonPropertiesDev = nullptr;
+    ::ev4sio_physx::PxGpuSpatialTendonData* mSpatialTendonPropertiesDev = nullptr;
 
     // centroidal momentum/bias force buffers
     float* mCentroidalMomentumDataDev = nullptr;
 
     // jacobian buffer
     float* mJacobianDataDev = nullptr;
-    ::physx::PxU32 mJacobianMaxCols;
-    ::physx::PxU32 mJacobianMaxRows;
+    ::ev4sio_physx::PxU32 mJacobianMaxCols;
+    ::ev4sio_physx::PxU32 mJacobianMaxRows;
 
     // mass matrix buffer buffer
     float* mMassMatrixDataDev = nullptr;
@@ -553,16 +553,16 @@ struct GpuSimulationData
     // contact pairs
     // Note: actual mMaxGpuContactPairs determined from scene
     uint32_t mMaxGpuContactPairs = 512 * 1024;
-    ::physx::PxGpuContactPair* mGpuContactPairsDev = nullptr;
-    ::physx::PxU32* mGpuContactPairCountDev = nullptr;
-    ::physx::PxU32 mNumContactPairs = 0;
+    ::ev4sio_physx::PxGpuContactPair* mGpuContactPairsDev = nullptr;
+    ::ev4sio_physx::PxU32* mGpuContactPairCountDev = nullptr;
+    ::ev4sio_physx::PxU32 mNumContactPairs = 0;
 
     // Actor-to-pathId lookup for raw contact data (shared by all contact views)
     GpuActorPathIdPair* mActorPathLookupDev = nullptr;
-    ::physx::PxU32 mNumActorPathPairs = 0;
+    ::ev4sio_physx::PxU32 mNumActorPathPairs = 0;
 
     // deformable bodies
-    std::unordered_map<::physx::PxDeformableBody*, GpuDeformableBodyRecord> mDeformableBodyToRecord;
+    std::unordered_map<::ev4sio_physx::PxDeformableBody*, GpuDeformableBodyRecord> mDeformableBodyToRecord;
 
     // synchronization events
     CUevent mCopyEvents[CopyEvent::eCOUNT] = { 0 };
@@ -588,7 +588,7 @@ struct GpuSimulationData
     // The startEvent a DirectGPU call touching `buf` must be issued with. Safe before anything has
     // been recorded: CUDA treats a created-but-never-recorded event as already complete, so the
     // first DirectGPU call waits for nothing.
-    CUevent kernelDoneEvent(::physx::PxU32 buf) const
+    CUevent kernelDoneEvent(::ev4sio_physx::PxU32 buf) const
     {
         return buf < SharedDeviceBuffer::eCOUNT ? mKernelDoneEvents[buf] : nullptr;
     }
@@ -606,12 +606,12 @@ struct GpuSimulationData
     // failed too. That is the one case where the postcondition above is untrue, and it also latches
     // the buffer (see sharedBufferQuarantined) because the immediate caller cannot undo an already
     // enqueued kernel -- what must change is what happens next.
-    bool recordKernelDone(::physx::PxU32 buf);
+    bool recordKernelDone(::ev4sio_physx::PxU32 buf);
 
     // True once a buffer's ordering edge has been lost and could not be re-established. A read over
     // quarantined scratch is refused rather than served: its contents may be being overwritten by a
     // producer nothing is holding back.
-    bool sharedBufferQuarantined(::physx::PxU32 buf) const
+    bool sharedBufferQuarantined(::ev4sio_physx::PxU32 buf) const
     {
         return buf < SharedDeviceBuffer::eCOUNT && mSharedBufferQuarantined[buf];
     }
@@ -642,7 +642,7 @@ struct GpuSimulationData
     // next DirectGPU writer overwrite scratch a live kernel is still reading, which is a corrupt
     // read or a CUDA 700 somewhere else entirely.
     template <typename Gather>
-    bool gatherThenRelease(::physx::PxU32 buf, Gather&& gather)
+    bool gatherThenRelease(::ev4sio_physx::PxU32 buf, Gather&& gather)
     {
         // Refused BEFORE the gather: a quarantined buffer has no one holding its producer back, so
         // launching a kernel over it is the race, not the reporting of it.
@@ -657,7 +657,7 @@ struct GpuSimulationData
     // For a gather that reads TWO shared buffers. Recording only one of them is the same bug in
     // half: the unrecorded buffer stays open to the next DirectGPU writer while the kernel runs.
     template <typename Gather>
-    bool gatherThenRelease(::physx::PxU32 bufA, ::physx::PxU32 bufB, Gather&& gather)
+    bool gatherThenRelease(::ev4sio_physx::PxU32 bufA, ::ev4sio_physx::PxU32 bufB, Gather&& gather)
     {
         if (sharedBufferQuarantined(bufA) || sharedBufferQuarantined(bufB))
             return false;
@@ -713,12 +713,12 @@ private:
     unsigned long long* mKeptPinnedTargetsDev = nullptr;
     unsigned long long mKeptPinnedTargetsReported = 0;
 
-    void dumpGpuContactData(::physx::PxGpuContactPair* contactPairsDev, ::physx::PxU32* numContactPairsDev);
+    void dumpGpuContactData(::ev4sio_physx::PxGpuContactPair* contactPairsDev, ::ev4sio_physx::PxU32* numContactPairsDev);
     int64_t mRigidContactTimestamp = -1;
 };
 
 using GpuSimulationDataPtr = std::shared_ptr<GpuSimulationData>;
 
 } // namespace tensors
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

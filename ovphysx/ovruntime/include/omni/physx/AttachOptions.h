@@ -15,7 +15,7 @@
 #pragma once
 #include <cstdint>
 
-namespace omni::physx
+namespace omni::ev4sio_physx
 {
 enum class PhysxCompiledStageCacheMode : uint32_t
 {

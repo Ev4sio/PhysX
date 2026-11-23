@@ -8,9 +8,9 @@
 #include "ScShapeSim.h"
 #include "common/PxProfileZone.h"
 
-using namespace physx;
-using namespace Sc;
-using namespace Bp;
+using namespace ev4sio_physx;
+using namespace ev4sio_Sc;
+using namespace ev4sio_Bp;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -39,13 +39,13 @@ void BroadphaseManager::prepareOutOfBoundsCallbacks(AABBManagerBase* aabbManager
 	{
 		const ElementSim* volume = reinterpret_cast<const ElementSim*>(*outObjects++);
 
-		const Sc::ShapeSim* sim = static_cast<const Sc::ShapeSim*>(volume);
+		const ev4sio_Sc::ShapeSim* sim = static_cast<const ev4sio_Sc::ShapeSim*>(volume);
 
 		mOutOfBoundsIDs.pushBack(sim->getElementID());
 	}
 }
 
-bool BroadphaseManager::fireOutOfBoundsCallbacks(Bp::AABBManagerBase* aabbManager, const ObjectIDTracker& tracker, PxU64 contextID)
+bool BroadphaseManager::fireOutOfBoundsCallbacks(ev4sio_Bp::AABBManagerBase* aabbManager, const ObjectIDTracker& tracker, PxU64 contextID)
 {
 	PX_UNUSED(contextID);
 
@@ -66,7 +66,7 @@ bool BroadphaseManager::fireOutOfBoundsCallbacks(Bp::AABBManagerBase* aabbManage
 		{
 			ElementSim* volume = reinterpret_cast<ElementSim*>(outObjects[i]);
 
-			Sc::ShapeSim* sim = static_cast<Sc::ShapeSim*>(volume);
+			ev4sio_Sc::ShapeSim* sim = static_cast<ev4sio_Sc::ShapeSim*>(volume);
 
 			// PT: TODO: I'm not sure the split between prepareOutOfBoundsCallbacks / fireOutOfBoundsCallbacks
 			// and the test for deletion is still needed after the removal of SCB
@@ -110,7 +110,7 @@ bool BroadphaseManager::fireOutOfBoundsCallbacks(Bp::AABBManagerBase* aabbManage
 	return outputWarning;
 }
 
-void BroadphaseManager::flush(Bp::AABBManagerBase* /*aabbManager*/)
+void BroadphaseManager::flush(ev4sio_Bp::AABBManagerBase* /*aabbManager*/)
 {
 	mOutOfBoundsIDs.reset();
 }

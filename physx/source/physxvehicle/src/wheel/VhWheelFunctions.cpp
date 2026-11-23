@@ -13,7 +13,7 @@
 #include "vehicle/wheel/PxVehicleWheelStates.h"
 #include "vehicle/wheel/PxVehicleWheelParams.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 void PxVehicleWheelRotationAngleUpdate
@@ -63,4 +63,4 @@ void PxVehicleWheelRotationAngleUpdate
 	whlRigidBody1dState.rotationAngle = newRotAngle;
 }
 
-} //namespace physx
+} //namespace ev4sio_physx

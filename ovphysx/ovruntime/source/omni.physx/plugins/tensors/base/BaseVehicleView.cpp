@@ -29,16 +29,16 @@ using omni::physics::tensors::checkTensorFloat32;
 using omni::physics::tensors::checkTensorSizeExact;
 using omni::physics::tensors::TensorDataType;
 using omni::physics::tensors::TensorDesc;
-using namespace physx;
+using namespace ev4sio_physx;
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace tensors
 {
 
-void BaseVehicleView::rebuild(omni::physx::internal::InternalScene& scene)
+void BaseVehicleView::rebuild(omni::ev4sio_physx::internal::InternalScene& scene)
 {
     mEntries.clear();
     mScene = &scene;
@@ -49,7 +49,7 @@ void BaseVehicleView::rebuild(omni::physx::internal::InternalScene& scene)
     mEntries.reserve(scene.mVehicles.size());
     for (size_t i = 0; i < scene.mVehicles.size(); ++i)
     {
-        omni::physx::internal::InternalVehicle* veh = scene.mVehicles[i];
+        omni::ev4sio_physx::internal::InternalVehicle* veh = scene.mVehicles[i];
         if (!veh)
             continue;
         PxRigidDynamic* actor = veh->getRigidDynamicActor();
@@ -63,7 +63,7 @@ void BaseVehicleView::rebuild(omni::physx::internal::InternalScene& scene)
     }
 }
 
-bool BaseVehicleView::validateScene(const omni::physx::internal::InternalScene& scene) const
+bool BaseVehicleView::validateScene(const omni::ev4sio_physx::internal::InternalScene& scene) const
 {
     if (mScene != &scene || mBuiltEpoch != scene.mVehicleSetEpoch || !scene.getScene() ||
         scene.getScene()->getFlags().isSet(PxSceneFlag::eENABLE_DIRECT_GPU_API))
@@ -98,7 +98,7 @@ bool BaseVehicleView::validateWheelRecord(const VehicleWheelOvStageRecord& recor
     return true;
 }
 
-bool BaseVehicleView::getWheelTransformColumnsOvStage(omni::physx::internal::InternalScene& scene,
+bool BaseVehicleView::getWheelTransformColumnsOvStage(omni::ev4sio_physx::internal::InternalScene& scene,
                                                       const VehicleWheelOvStageRecord* const records,
                                                       const uint32_t numOutputs,
                                                       const WheelTransformColumn* const columns,
@@ -192,7 +192,7 @@ bool BaseVehicleView::getWheelTransformColumnsOvStage(omni::physx::internal::Int
             // Which source applies is a property of the wheel: a wheel with a collision shape carries
             // its pose on the shape, otherwise the vehicle SDK holds it, relative to the
             // centre-of-mass frame.
-            const omni::physx::internal::InternalVehicle::WheelTransformManagementEntry& w =
+            const omni::ev4sio_physx::internal::InternalVehicle::WheelTransformManagementEntry& w =
                 e.vehicle->mWheelTransformManagementEntries[r.wheelIdx];
             if (w.shape)
                 wheelPose = actor2World * w.shape->getLocalPose();
@@ -228,7 +228,7 @@ bool BaseVehicleView::getWheelTransformColumnsOvStage(omni::physx::internal::Int
 
 // Single-column convenience form, taken by buildVehicleWheelState when only one wheel attribute is
 // wanted. Delegates so the epoch check, range checks and composition have one implementation.
-bool BaseVehicleView::getWheelTransformsOvStage(omni::physx::internal::InternalScene& scene,
+bool BaseVehicleView::getWheelTransformsOvStage(omni::ev4sio_physx::internal::InternalScene& scene,
                                                 const VehicleWheelOvStageRecord* const records,
                                                 const uint32_t numOutputs,
                                                 const VehicleWheelComponent component,
@@ -347,7 +347,7 @@ const char* controlName(BaseVehicleView::WheelControl c)
 }
 } // namespace
 
-bool BaseVehicleView::getDriveStateColumnsOvStage(omni::physx::internal::InternalScene& scene,
+bool BaseVehicleView::getDriveStateColumnsOvStage(omni::ev4sio_physx::internal::InternalScene& scene,
                                                   const uint32_t* vehicleRows,
                                                   const uint32_t numOutputs,
                                                   const DriveStateColumn* columns,
@@ -368,7 +368,7 @@ bool BaseVehicleView::getDriveStateColumnsOvStage(omni::physx::internal::Interna
     {
         if (!validateVehicleRow(vehicleRows[i]))
             return false;
-        const omni::physx::internal::InternalVehicle& vehicle = *mEntries[vehicleRows[i]].vehicle;
+        const omni::ev4sio_physx::internal::InternalVehicle& vehicle = *mEntries[vehicleRows[i]].vehicle;
         if (!vehicle.hasDrive() || (engineOnly && !vehicle.hasEngineDrive()))
         {
             OVX_RUNTIME_ERROR("vehicle drive state: row %u does not support the requested drive state", i);
@@ -379,7 +379,7 @@ bool BaseVehicleView::getDriveStateColumnsOvStage(omni::physx::internal::Interna
         return true;
     for (uint32_t i = 0; i < numOutputs; ++i)
     {
-        omni::physx::VehicleDriveState state{};
+        omni::ev4sio_physx::VehicleDriveState state{};
         mEntries[vehicleRows[i]].vehicle->getDriveState(state);
         for (uint32_t c = 0; c < numColumns; ++c)
         {
@@ -425,7 +425,7 @@ bool BaseVehicleView::getDriveStateColumnsOvStage(omni::physx::internal::Interna
     return true;
 }
 
-bool BaseVehicleView::getWheelStateColumnsOvStage(omni::physx::internal::InternalScene& scene,
+bool BaseVehicleView::getWheelStateColumnsOvStage(omni::ev4sio_physx::internal::InternalScene& scene,
                                                   const VehicleWheelOvStageRecord* records,
                                                   const uint32_t numOutputs,
                                                   const WheelStateColumn* columns,
@@ -447,7 +447,7 @@ bool BaseVehicleView::getWheelStateColumnsOvStage(omni::physx::internal::Interna
         return true;
     for (uint32_t i = 0; i < numOutputs; ++i)
     {
-        omni::physx::VehicleWheelState state{};
+        omni::ev4sio_physx::VehicleWheelState state{};
         mEntries[records[i].viewVehicleIdx].vehicle->getWheelState(records[i].wheelIdx, state);
         if (!state.isOnGround)
         {
@@ -516,7 +516,7 @@ bool BaseVehicleView::getWheelStateColumnsOvStage(omni::physx::internal::Interna
     return true;
 }
 
-bool BaseVehicleView::setVehicleControlOvStage(omni::physx::internal::InternalScene& scene,
+bool BaseVehicleView::setVehicleControlOvStage(omni::ev4sio_physx::internal::InternalScene& scene,
                                                const uint32_t* vehicleRows,
                                                const uint32_t numOutputs,
                                                const VehicleControl control,
@@ -599,7 +599,7 @@ bool BaseVehicleView::setVehicleControlOvStage(omni::physx::internal::InternalSc
     std::vector<uint8_t> resetApplied(control == VehicleControl::eResetToRestState ? mEntries.size() : 0, 0);
     for (uint32_t i = 0; i < numOutputs; ++i)
     {
-        omni::physx::internal::InternalVehicle& vehicle = *mEntries[vehicleRows[i]].vehicle;
+        omni::ev4sio_physx::internal::InternalVehicle& vehicle = *mEntries[vehicleRows[i]].vehicle;
         switch (control)
         {
         case VehicleControl::eAccelerator:
@@ -635,7 +635,7 @@ bool BaseVehicleView::setVehicleControlOvStage(omni::physx::internal::InternalSc
     return true;
 }
 
-bool BaseVehicleView::setWheelControlOvStage(omni::physx::internal::InternalScene& scene,
+bool BaseVehicleView::setWheelControlOvStage(omni::ev4sio_physx::internal::InternalScene& scene,
                                              const VehicleWheelOvStageRecord* const records,
                                              const uint32_t numOutputs,
                                              const WheelControl control,
@@ -703,5 +703,5 @@ bool BaseVehicleView::setWheelControlOvStage(omni::physx::internal::InternalScen
 }
 
 } // namespace tensors
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

@@ -30,7 +30,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace usdparser
 {
@@ -553,5 +553,5 @@ void createArticulationLinks(AttachedStage& attachedStage,
 }
 
 } // namespace usdparser
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

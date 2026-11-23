@@ -16,8 +16,8 @@
 #include "../service/CookingTask.h"
 #include "../service/CookingComputeService.h"
 
-using namespace ::physx;
-using namespace omni::physx;
+using namespace ::ev4sio_physx;
+using namespace omni::ev4sio_physx;
 
 namespace
 {
@@ -127,7 +127,7 @@ class DeformableVolumeMeshCookingTask : public cookingtask::CookingTask
 public:
     DeformableVolumeMeshCookingTask(
                             const DeformableVolumeMeshCookingParams& params,
-                            omni::physx::PhysxCookingComputeResult& result)
+                            omni::ev4sio_physx::PhysxCookingComputeResult& result)
         : CookingTask(result)
     {
         static_assert(sizeof(PxVec3) == sizeof(carb::Float3));
@@ -186,7 +186,7 @@ public:
         const std::vector<PxVec3>& collBindPointsInSim,
         const std::vector<carb::Int4>& collIndices,
         const std::vector<carb::Int3>& collSurfaceIndices,
-        const ::physx::PxMat44d& simToCookingTransform,
+        const ::ev4sio_physx::PxMat44d& simToCookingTransform,
         uint32_t numTetsPerElement,
         const usdparser::MeshKey& crc)
     {
@@ -271,7 +271,7 @@ public:
         if (!collMeshDesc.isValid())
         {
             CARB_LOG_WARN(
-                "PxTetrahedronMeshDesc used as collision mesh input to PxCookDeformableVolumeMesh is not valid");
+                "PxTetrahedronMeshDesc used as collision mesh input to ev4sio_PxCookDeformableVolumeMesh is not valid");
             return false;
         }
 
@@ -284,7 +284,7 @@ public:
         if (!simMeshDesc.isValid())
         {
             CARB_LOG_WARN(
-                "PxTetrahedronMeshDesc used as simulation mesh input to PxCookDeformableVolumeMesh is not valid");
+                "PxTetrahedronMeshDesc used as simulation mesh input to ev4sio_PxCookDeformableVolumeMesh is not valid");
             return false;
         }
 
@@ -292,7 +292,7 @@ public:
         PxDeformableVolumeSimulationDataDesc simDesc = PxDeformableVolumeSimulationDataDesc(vertexToTet);
         if (!simDesc.isValid())
         {
-            CARB_LOG_WARN("PxDeformableVolumeSimulationDataDesc used as input to PxCookDeformableVolumeMesh is not valid");
+            CARB_LOG_WARN("PxDeformableVolumeSimulationDataDesc used as input to ev4sio_PxCookDeformableVolumeMesh is not valid");
             return false;
         }
         if (CookingTask::getCookedDataOutputStreams().empty())
@@ -304,7 +304,7 @@ public:
         bool cookingSucceeded = outputStream.getSize() != 0;
         if (!cookingSucceeded)
         {
-            cookingSucceeded = PxCookDeformableVolumeMesh(cookingParams, simMeshDesc, collMeshDesc, simDesc, outputStream);
+            cookingSucceeded = ev4sio_PxCookDeformableVolumeMesh(cookingParams, simMeshDesc, collMeshDesc, simDesc, outputStream);
         }
 
         // Append surface mesh from collision tet mesh
@@ -345,12 +345,12 @@ public:
         // If the task was canceled or already finalized, skip the saving step
         if (CookingTask::isCanceled() || CookingTask::isFinalized())
         {
-            CookingTask::fireFinishedCallback(omni::physx::PhysxCookingResult::eERROR_CANCELED);
+            CookingTask::fireFinishedCallback(omni::ev4sio_physx::PhysxCookingResult::eERROR_CANCELED);
         }
         else if (!CookingTask::isSucceeded())
         {
             CookingTask::setFinalized(true);
-            CookingTask::fireFinishedCallback(omni::physx::PhysxCookingResult::eERROR_COOKING_FAILED);
+            CookingTask::fireFinishedCallback(omni::ev4sio_physx::PhysxCookingResult::eERROR_COOKING_FAILED);
         }
         else
         {
@@ -358,7 +358,7 @@ public:
 
             PxDefaultMemoryOutputStream& outputStream = *CookingTask::getCookedDataOutputStreams()[0].get();
 
-            omni::physx::PhysxCookingComputeResult& result = CookingTask::getResultObject();
+            omni::ev4sio_physx::PhysxCookingComputeResult& result = CookingTask::getResultObject();
             PxDefaultMemoryOutputStream& cookDataStream = outputStream;
             PhysxCookedDataSpan cookedDataSpan;
             result.cookedData = &cookedDataSpan;
@@ -366,7 +366,7 @@ public:
             cookedDataSpan.data = cookDataStream.getData();
             cookedDataSpan.sizeInBytes = cookDataStream.getSize();
 
-            CookingTask::fireFinishedCallback(omni::physx::PhysxCookingResult::eVALID);
+            CookingTask::fireFinishedCallback(omni::ev4sio_physx::PhysxCookingResult::eVALID);
         }
     }
 
@@ -377,13 +377,13 @@ public:
     std::vector<PxVec3> m_collBindPointsInSim;
     std::vector<carb::Int4> m_collIndices;
     std::vector<carb::Int3> m_collSurfaceIndices;
-    ::physx::PxMat44d m_simToCookingTransform;
+    ::ev4sio_physx::PxMat44d m_simToCookingTransform;
     uint32_t m_numTetsPerElement{ 1 };
 };
 
 CookingTask* createDeformableVolumeMeshCookingTask(
     const DeformableVolumeMeshCookingParams& params,
-    omni::physx::PhysxCookingComputeResult& result)
+    omni::ev4sio_physx::PhysxCookingComputeResult& result)
 {
     return  new DeformableVolumeMeshCookingTask(params, result);
 }

@@ -19,7 +19,7 @@
 #include "OmniPvdChunkAlloc.h"
 #include "omnipvd/PxOmniPvd.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	class PxScene;
 	class PxBase;
@@ -38,7 +38,7 @@ namespace physx
 	class PxRigidBody;
 	class PxArticulationMimicJoint;
 
-	namespace Sc { class BodyCore; }
+	namespace ev4sio_Sc { class BodyCore; }
 
 	class PxDeformableBody;
 	class PxDeformableSurface;
@@ -57,30 +57,30 @@ namespace physx
 
 class OmniPvdWriter;
 
-void streamActorName(const physx::PxActor & a, const char* name);
-void streamSceneName(const physx::PxScene & s, const char* name);
-void streamArticulationName(const physx::PxArticulationReducedCoordinate & art, const char* name);
-void streamArticulationJointName(const physx::PxArticulationJointReducedCoordinate& joint, const char* name);
-void streamParticleBufferName(const physx::PxParticleBuffer& pb, const char* name);
+void streamActorName(const ev4sio_physx::PxActor & a, const char* name);
+void streamSceneName(const ev4sio_physx::PxScene & s, const char* name);
+void streamArticulationName(const ev4sio_physx::PxArticulationReducedCoordinate & art, const char* name);
+void streamArticulationJointName(const ev4sio_physx::PxArticulationJointReducedCoordinate& joint, const char* name);
+void streamParticleBufferName(const ev4sio_physx::PxParticleBuffer& pb, const char* name);
 // Explicit forms used by the full-state snapshot (caller already holds a write scope).
-void streamSceneName(OmniPvdWriter* pvdWriter, const physx::OmniPvdPxCoreRegistrationData* pvdRegData, const physx::PxScene& s, const char* name);
-void streamArticulationName(OmniPvdWriter* pvdWriter, const physx::OmniPvdPxCoreRegistrationData* pvdRegData, const physx::PxArticulationReducedCoordinate& art, const char* name);
-void streamArticulationJointName(OmniPvdWriter* pvdWriter, const physx::OmniPvdPxCoreRegistrationData* pvdRegData, const physx::PxArticulationJointReducedCoordinate& joint, const char* name);
+void streamSceneName(OmniPvdWriter* pvdWriter, const ev4sio_physx::OmniPvdPxCoreRegistrationData* pvdRegData, const ev4sio_physx::PxScene& s, const char* name);
+void streamArticulationName(OmniPvdWriter* pvdWriter, const ev4sio_physx::OmniPvdPxCoreRegistrationData* pvdRegData, const ev4sio_physx::PxArticulationReducedCoordinate& art, const char* name);
+void streamArticulationJointName(OmniPvdWriter* pvdWriter, const ev4sio_physx::OmniPvdPxCoreRegistrationData* pvdRegData, const ev4sio_physx::PxArticulationJointReducedCoordinate& joint, const char* name);
 
-void streamShapeMaterials(const physx::PxShape&, physx::PxMaterial* const * mats, physx::PxU32 nbrMaterials);
+void streamShapeMaterials(const ev4sio_physx::PxShape&, ev4sio_physx::PxMaterial* const * mats, ev4sio_physx::PxU32 nbrMaterials);
 
-void streamShapeMaterials(const physx::PxShape&, physx::PxDeformableSurfaceMaterial* const * mats, physx::PxU32 nbrMaterials);
-void streamShapeMaterials(const physx::PxShape&, physx::PxDeformableVolumeMaterial* const * mats, physx::PxU32 nbrMaterials);
-void streamShapeMaterials(const physx::PxShape&, physx::PxPBDMaterial* const * mats, physx::PxU32 nbrMaterials);
+void streamShapeMaterials(const ev4sio_physx::PxShape&, ev4sio_physx::PxDeformableSurfaceMaterial* const * mats, ev4sio_physx::PxU32 nbrMaterials);
+void streamShapeMaterials(const ev4sio_physx::PxShape&, ev4sio_physx::PxDeformableVolumeMaterial* const * mats, ev4sio_physx::PxU32 nbrMaterials);
+void streamShapeMaterials(const ev4sio_physx::PxShape&, ev4sio_physx::PxPBDMaterial* const * mats, ev4sio_physx::PxU32 nbrMaterials);
 
-void streamDiffuseParticleParamsAttributes(const physx::PxDiffuseParticleParams& diffuseParams);
+void streamDiffuseParticleParamsAttributes(const ev4sio_physx::PxDiffuseParticleParams& diffuseParams);
 
-void streamArticulationMimicJoint(const physx::PxArticulationMimicJoint& mj);
+void streamArticulationMimicJoint(const ev4sio_physx::PxArticulationMimicJoint& mj);
 
-void streamShapeUpdateGeometry(const physx::PxShape& shape);
+void streamShapeUpdateGeometry(const ev4sio_physx::PxShape& shape);
 
-void streamDeformableVolumeAttributes(const physx::PxDeformableVolume& dv);
-void streamDeformableSurfaceAttributes(const physx::PxDeformableSurface& ds);
+void streamDeformableVolumeAttributes(const ev4sio_physx::PxDeformableVolume& dv);
+void streamDeformableSurfaceAttributes(const ev4sio_physx::PxDeformableSurface& ds);
 
 enum OmniPvdSharedMeshEnum {
 	eOmniPvdTriMesh     = 0,
@@ -91,13 +91,13 @@ enum OmniPvdSharedMeshEnum {
 
 class OmniPvdWriter;
 
-namespace physx
+namespace ev4sio_physx
 {
 
-class NpOmniPvdSceneClient : public physx::PxUserAllocated
+class NpOmniPvdSceneClient : public ev4sio_physx::PxUserAllocated
 {
 public:
-	NpOmniPvdSceneClient(physx::PxScene& scene);
+	NpOmniPvdSceneClient(ev4sio_physx::PxScene& scene);
 	~NpOmniPvdSceneClient();	
 
 	////////////////////////////////////////////////////////////////////////////////
@@ -131,41 +131,41 @@ public:
 	void stopLastFrame(OmniPvdWriter& pvdWriter);
 	void resetFrameId(); // rewind mFrameId to 1 (odd = pre-sim) for a snapshot onto a fresh stream
 	
-	void addRigidDynamicReset(const physx::PxRigidDynamic* rigidDynamic);
-	void addRigidDynamicForceReset(const physx::PxRigidDynamic* rigidDynamic);
-	void addRigidDynamicTorqueReset(const physx::PxRigidDynamic* rigidDynamic);
-	void removeRigidDynamicReset(const physx::PxRigidDynamic* rigidDynamic);
+	void addRigidDynamicReset(const ev4sio_physx::PxRigidDynamic* rigidDynamic);
+	void addRigidDynamicForceReset(const ev4sio_physx::PxRigidDynamic* rigidDynamic);
+	void addRigidDynamicTorqueReset(const ev4sio_physx::PxRigidDynamic* rigidDynamic);
+	void removeRigidDynamicReset(const ev4sio_physx::PxRigidDynamic* rigidDynamic);
 	
-	void addArticulationFromLinkFlagChangeReset(const physx::PxArticulationLink* link);
-	void addArticulationLinksForceReset(const physx::PxArticulationReducedCoordinate* articulation);
-	void addArticulationLinksTorqueReset(const physx::PxArticulationReducedCoordinate* articulation);
-	void removeArticulationReset(const physx::PxArticulationReducedCoordinate* articulation);
+	void addArticulationFromLinkFlagChangeReset(const ev4sio_physx::PxArticulationLink* link);
+	void addArticulationLinksForceReset(const ev4sio_physx::PxArticulationReducedCoordinate* articulation);
+	void addArticulationLinksTorqueReset(const ev4sio_physx::PxArticulationReducedCoordinate* articulation);
+	void removeArticulationReset(const ev4sio_physx::PxArticulationReducedCoordinate* articulation);
 	
 	void resetForces();
 	bool areContactsValid() const { return mContactsValid; }
 	void setContactsValid(bool valid) { mContactsValid = valid; }
 	bool contactArraysCaptured() const { return mContactArraysCaptured; }
 	void setContactArraysCaptured(bool captured) { mContactArraysCaptured = captured; }
-	physx::PxArray<physx::PxU32>& getGpuSnapshotIndices() { return mGpuSnapshotIndices; }
+	ev4sio_physx::PxArray<ev4sio_physx::PxU32>& getGpuSnapshotIndices() { return mGpuSnapshotIndices; }
 
 private:
-	physx::PxScene& mScene;
-	physx::PxU64 mFrameId;
+	ev4sio_physx::PxScene& mScene;
+	ev4sio_physx::PxU64 mFrameId;
 	bool mFrameOpen;
 	bool mContactsValid;
 	bool mContactArraysCaptured;
-	physx::PxArray<physx::PxU32> mGpuSnapshotIndices;
+	ev4sio_physx::PxArray<ev4sio_physx::PxU32> mGpuSnapshotIndices;
 
-	physx::PxHashSet<const PxRigidDynamic*> mResetRigidDynamicForce;
-	physx::PxHashSet<const PxRigidDynamic*> mResetRigidDynamicTorque;
+	ev4sio_physx::PxHashSet<const PxRigidDynamic*> mResetRigidDynamicForce;
+	ev4sio_physx::PxHashSet<const PxRigidDynamic*> mResetRigidDynamicTorque;
 
-	physx::PxHashSet<const PxArticulationReducedCoordinate*> mResetArticulationLinksForce;
-	physx::PxHashSet<const PxArticulationReducedCoordinate*> mResetArticulationLinksTorque;
+	ev4sio_physx::PxHashSet<const PxArticulationReducedCoordinate*> mResetArticulationLinksForce;
+	ev4sio_physx::PxHashSet<const PxArticulationReducedCoordinate*> mResetArticulationLinksTorque;
 };
 
 }
 
-class OmniPvdPxSampler : public physx::PxUserAllocated, public physx::PxErrorCallback
+class OmniPvdPxSampler : public ev4sio_physx::PxUserAllocated, public ev4sio_physx::PxErrorCallback
 {
 public:
 	OmniPvdPxSampler();
@@ -191,63 +191,63 @@ public:
 	// onObjectAdd). Returns false if there is no sampler.
 	bool snapshotAll();
 	bool streamCaptureCatalog(bool initialize);
-	static void getCaptureObjectIdentity(const physx::PxBase& object, const physx::PxScene*& scene,
-		const physx::PxBase*& owner, const char*& name);
-	bool setCaptureDesc(const physx::PxOmniPvdFilterDesc& desc);
-	physx::PxU32 validateCaptureDesc(const physx::PxOmniPvdFilterDesc& desc) const;
-	static void buildCaptureObjectCatalog(physx::PxHashMap<physx::PxU64, const physx::PxBase*>& catalog);
+	static void getCaptureObjectIdentity(const ev4sio_physx::PxBase& object, const ev4sio_physx::PxScene*& scene,
+		const ev4sio_physx::PxBase*& owner, const char*& name);
+	bool setCaptureDesc(const ev4sio_physx::PxOmniPvdFilterDesc& desc);
+	ev4sio_physx::PxU32 validateCaptureDesc(const ev4sio_physx::PxOmniPvdFilterDesc& desc) const;
+	static void buildCaptureObjectCatalog(ev4sio_physx::PxHashMap<ev4sio_physx::PxU64, const ev4sio_physx::PxBase*>& catalog);
 	void resetCaptureObjects(OmniPvdWriter& writer);
 	void clearRetiredCaptureHandles();
-	bool isCaptureHandleRetired(physx::PxU64 handle) const;
-	bool isObjectRecorded(const physx::PxBase& object) const;
+	bool isCaptureHandleRetired(ev4sio_physx::PxU64 handle) const;
+	bool isObjectRecorded(const ev4sio_physx::PxBase& object) const;
 	bool isCapturingAllObjects() const;
-	void prepareSceneJointState(const physx::PxScene& scene);
-	void updateConstraintOmniPvdProperties(const physx::PxConstraint& constraint);
+	void prepareSceneJointState(const ev4sio_physx::PxScene& scene);
+	void updateConstraintOmniPvdProperties(const ev4sio_physx::PxConstraint& constraint);
 	// Skip connector updates during NpPhysics::createConstraint(): its owner is still initializing.
-	void beginConstraintCreation(const physx::PxConstraintConnector& connector);
-	void endConstraintCreation(const physx::PxConstraintConnector& connector);
-	bool isJointStateActor(const physx::PxActor& actor) const;
-	void storeJointActorPose(const physx::PxActor& actor, const physx::PxTransform& pose);
-	void storeJointActorVelocity(const physx::PxActor& actor, const physx::PxVec3& velocity, bool angular);
-	bool getJointActorPose(const physx::PxRigidActor& actor, physx::PxTransform& pose) const;
-	bool getJointActorVelocity(const physx::PxRigidActor& actor, physx::PxVec3& linear, physx::PxVec3& angular) const;
-	void streamArticulationReactions(OmniPvdWriter* writer, const physx::OmniPvdPxCoreRegistrationData* registrationData,
-		const physx::PxArticulationReducedCoordinate& articulation);
+	void beginConstraintCreation(const ev4sio_physx::PxConstraintConnector& connector);
+	void endConstraintCreation(const ev4sio_physx::PxConstraintConnector& connector);
+	bool isJointStateActor(const ev4sio_physx::PxActor& actor) const;
+	void storeJointActorPose(const ev4sio_physx::PxActor& actor, const ev4sio_physx::PxTransform& pose);
+	void storeJointActorVelocity(const ev4sio_physx::PxActor& actor, const ev4sio_physx::PxVec3& velocity, bool angular);
+	bool getJointActorPose(const ev4sio_physx::PxRigidActor& actor, ev4sio_physx::PxTransform& pose) const;
+	bool getJointActorVelocity(const ev4sio_physx::PxRigidActor& actor, ev4sio_physx::PxVec3& linear, ev4sio_physx::PxVec3& angular) const;
+	void streamArticulationReactions(OmniPvdWriter* writer, const ev4sio_physx::OmniPvdPxCoreRegistrationData* registrationData,
+		const ev4sio_physx::PxArticulationReducedCoordinate& articulation);
 #if PX_SUPPORT_GPU_PHYSX
-	void beginSceneGpuReadback(const physx::PxScene& scene);
-	bool streamDeformableState(OmniPvdWriter* writer, const physx::OmniPvdPxCoreRegistrationData* registrationData,
-		const physx::PxDeformableBody& body);
-	bool streamParticleBufferState(OmniPvdWriter* writer, const physx::OmniPvdPxCoreRegistrationData* registrationData,
-		const physx::PxParticleBuffer& buffer);
-	bool streamParticleSystemState(OmniPvdWriter* writer, const physx::OmniPvdPxCoreRegistrationData* registrationData,
-		const physx::PxPBDParticleSystem& system);
+	void beginSceneGpuReadback(const ev4sio_physx::PxScene& scene);
+	bool streamDeformableState(OmniPvdWriter* writer, const ev4sio_physx::OmniPvdPxCoreRegistrationData* registrationData,
+		const ev4sio_physx::PxDeformableBody& body);
+	bool streamParticleBufferState(OmniPvdWriter* writer, const ev4sio_physx::OmniPvdPxCoreRegistrationData* registrationData,
+		const ev4sio_physx::PxParticleBuffer& buffer);
+	bool streamParticleSystemState(OmniPvdWriter* writer, const ev4sio_physx::OmniPvdPxCoreRegistrationData* registrationData,
+		const ev4sio_physx::PxPBDParticleSystem& system);
 #endif
-	void setOmniPvdInstance(physx::NpOmniPvd* omniPvdIntance);
+	void setOmniPvdInstance(ev4sio_physx::NpOmniPvd* omniPvdIntance);
 
 	// writes all contacts to the stream
-	void streamSceneContacts(physx::NpScene& scene);
+	void streamSceneContacts(ev4sio_physx::NpScene& scene);
 
 	static OmniPvdPxSampler* getInstance();
 	static OmniPvdPxSampler* getSamplingInstance();
 
-	void onObjectAdd(const physx::PxBase& object);
+	void onObjectAdd(const ev4sio_physx::PxBase& object);
 	// Batch variant: emits the object under a caller-owned write scope (the caller holds the
 	// exclusive writer lock and provides the bound writer + registration data). snapshotAll()
 	// uses this so a whole batch of objects shares one lock acquisition instead of one per object.
 	// The single-object onObjectAdd(object) above opens exactly one scope and forwards here.
-	void onObjectAdd(OmniPvdWriter* pvdWriter, const physx::OmniPvdPxCoreRegistrationData* pvdRegData, const physx::PxBase& object);
-	void onObjectRemove(const physx::PxBase& object);
-	void onConstraintActorsChange(const physx::PxConstraint& constraint);
+	void onObjectAdd(OmniPvdWriter* pvdWriter, const ev4sio_physx::OmniPvdPxCoreRegistrationData* pvdRegData, const ev4sio_physx::PxBase& object);
+	void onObjectRemove(const ev4sio_physx::PxBase& object);
+	void onConstraintActorsChange(const ev4sio_physx::PxConstraint& constraint);
 #if PX_SUPPORT_GPU_PHYSX
-	void onParticlePhaseChange(const physx::PxPBDParticleSystem& system);
+	void onParticlePhaseChange(const ev4sio_physx::PxPBDParticleSystem& system);
 #endif
 	
 	void reportAlreadySamplingError();
-	virtual void reportError(physx::PxErrorCode::Enum code, const char* message, const char* file, int line) PX_OVERRIDE;
+	virtual void reportError(ev4sio_physx::PxErrorCode::Enum code, const char* message, const char* file, int line) PX_OVERRIDE;
 };
 
 
-namespace physx
+namespace ev4sio_physx
 {
 
 const OmniPvdPxCoreRegistrationData* NpOmniPvdGetPxCoreRegistrationData();

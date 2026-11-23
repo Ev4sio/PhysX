@@ -13,7 +13,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 
 // particle post process types
@@ -50,5 +50,5 @@ struct ParticlePostFlag
 // This header now only carries ParticlePostFlag, which is live, unrelated
 // functionality used across the particles subsystem.
 
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

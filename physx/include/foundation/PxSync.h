@@ -9,7 +9,7 @@
 #include "foundation/PxAllocator.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 /*!
@@ -109,7 +109,7 @@ class PxSyncT : protected Alloc
 typedef PxSyncT<> PxSync;
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

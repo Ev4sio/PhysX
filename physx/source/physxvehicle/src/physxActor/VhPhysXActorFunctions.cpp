@@ -25,7 +25,7 @@
 #include "PxArticulationLink.h"
 #include "PxArticulationReducedCoordinate.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 void PxVehiclePhysxActorWakeup(
@@ -321,4 +321,4 @@ void PxVehicleWriteRigidBodyStateToPhysXActor
 	}
 }
 
-} //namespace physx
+} //namespace ev4sio_physx

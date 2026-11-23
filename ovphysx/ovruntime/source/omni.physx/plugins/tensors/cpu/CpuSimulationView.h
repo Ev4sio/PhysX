@@ -24,7 +24,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace tensors
 {
@@ -34,7 +34,7 @@ class CpuSimulationView : public BaseSimulationView
 {
 public:
     explicit CpuSimulationView(usdparser::AttachedStage* attachedStage,
-                               ::physx::PxScene* scene,
+                               ::ev4sio_physx::PxScene* scene,
                                CpuSimulationDataPtr cpuSimData);
 
     ~CpuSimulationView() override;
@@ -83,7 +83,7 @@ public:
     // whose actors have changed underneath the cache, so it should invalidate the backend's cache
     // for this scene and retry once.
     CpuRigidBodyView* supersetRigidView(
-        const std::unordered_map<const ::physx::PxRigidBody*, ::physx::PxU32>** outRowMap);
+        const std::unordered_map<const ::ev4sio_physx::PxRigidBody*, ::ev4sio_physx::PxU32>** outRowMap);
 
     // Articulation view over EVERY articulation in the scene, built once and reused, with
     // `outRowMap` giving each articulation its row and `outEntries` the entries the rows index.
@@ -98,7 +98,7 @@ public:
     // whose articulations have changed underneath the cache, so it should invalidate the backend's
     // cache for this scene and retry once.
     CpuArticulationView* supersetArticulationView(
-        const std::unordered_map<const ::physx::PxArticulationReducedCoordinate*, ::physx::PxU32>** outRowMap,
+        const std::unordered_map<const ::ev4sio_physx::PxArticulationReducedCoordinate*, ::ev4sio_physx::PxU32>** outRowMap,
         const std::vector<ArticulationEntry>** outEntries);
 
     // The scene's vehicle view, built once and reused, rebuilt when the scene's vehicle set changes.
@@ -113,7 +113,7 @@ public:
     //
     // Null when the scene holds no vehicles, which the caller can act on directly: unlike the superset
     // views above, nothing here can fail for another reason, so there is no stale-cache case to retry.
-    BaseVehicleView* vehicleView(omni::physx::internal::InternalScene& scene);
+    BaseVehicleView* vehicleView(omni::ev4sio_physx::internal::InternalScene& scene);
 
     CpuVolumeDeformableBodyView* createVolumeDeformableBodyView(const char* pattern) override;
     CpuVolumeDeformableBodyView* createVolumeDeformableBodyView(const std::vector<std::string>& patterns) override;
@@ -166,13 +166,13 @@ private:
     // Backend-owned lifetime: this view is the backend's cached per-scene view, and the superset is
     // its child, released with it. Never handed out for the caller to release.
     CpuRigidBodyView* mSupersetRigidView = nullptr;
-    std::unordered_map<const ::physx::PxRigidBody*, ::physx::PxU32> mSupersetRigidRowMap;
+    std::unordered_map<const ::ev4sio_physx::PxRigidBody*, ::ev4sio_physx::PxU32> mSupersetRigidRowMap;
     CpuArticulationView* mSupersetArtiView = nullptr;
-    std::unordered_map<const ::physx::PxArticulationReducedCoordinate*, ::physx::PxU32> mSupersetArtiRowMap;
+    std::unordered_map<const ::ev4sio_physx::PxArticulationReducedCoordinate*, ::ev4sio_physx::PxU32> mSupersetArtiRowMap;
     std::vector<ArticulationEntry> mSupersetArtiEntries;
     BaseVehicleView mVehicleView;
 };
 
 } // namespace tensors
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

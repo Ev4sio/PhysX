@@ -34,7 +34,7 @@
 #include "BpAABBManagerBase.h"
 #include "omnipvd/NpOmniPvdSetData.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 // enable thread checks in all debug builds
 #if PX_DEBUG || PX_CHECKED
@@ -43,8 +43,8 @@ using namespace physx;
 	#define NP_ENABLE_THREAD_CHECKS 0
 #endif
 
-using namespace Sq;
-using namespace Gu;
+using namespace ev4sio_Sq;
+using namespace ev4sio_Gu;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -99,7 +99,7 @@ static PX_FORCE_INLINE bool removeFromSceneCheck(NpScene* npScene, PxScene* scen
 	if(scene == static_cast<PxScene*>(npScene))
 		return true;
 	else
-		return PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "%s not assigned to scene or assigned to another scene. Call will be ignored!", name);
+		return ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "%s not assigned to scene or assigned to another scene. Call will be ignored!", name);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -290,14 +290,14 @@ void NpScene::release()
 	// up the test. If we really want it on scene destruction as well, we need to either have internal and external release
 	// calls or come up with a different approach (for example using thread ID as detector variable).
 
-	if(getSimulationStage() != Sc::SimulationStage::eCOMPLETE)
+	if(getSimulationStage() != ev4sio_Sc::SimulationStage::eCOMPLETE)
 	{
 		outputError<PxErrorCode::eINVALID_OPERATION>(__LINE__, "PxScene::release(): Scene is still being simulated! PxScene::fetchResults() is called implicitly.");
 		
-		if(getSimulationStage() == Sc::SimulationStage::eCOLLIDE)
+		if(getSimulationStage() == ev4sio_Sc::SimulationStage::eCOLLIDE)
 			fetchCollision(true);
 
-		if(getSimulationStage() == Sc::SimulationStage::eFETCHCOLLIDE)  // need to call getSimulationStage() again beacause fetchCollision() might change the value.
+		if(getSimulationStage() == ev4sio_Sc::SimulationStage::eFETCHCOLLIDE)  // need to call getSimulationStage() again beacause fetchCollision() might change the value.
 		{
 			// this is for split sim
 			advance(NULL);
@@ -489,7 +489,7 @@ static PX_NOINLINE bool doRigidActorChecks(const actorT& actor, const PruningStr
 
 // PT: make sure we always add to array and set the array index properly / at the same time
 template<class T>
-static PX_FORCE_INLINE void addRigidActorToArray(T& a, PxArray<T*>& rigidActors, Cm::IDPool& idPool)
+static PX_FORCE_INLINE void addRigidActorToArray(T& a, PxArray<T*>& rigidActors, ev4sio_Cm::IDPool& idPool)
 {
 	a.setRigidActorArrayIndex(rigidActors.size());
 	rigidActors.pushBack(&a);
@@ -603,15 +603,15 @@ bool NpScene::addActorsInternal(PxActor*const* PX_RESTRICT actors, PxU32 nbActor
 
 	PX_SIMD_GUARD
 
-	if(getSimulationStage() != Sc::SimulationStage::eCOMPLETE)
+	if(getSimulationStage() != ev4sio_Sc::SimulationStage::eCOMPLETE)
 		return outputError<PxErrorCode::eINVALID_OPERATION>(__LINE__, "PxScene::addActors() not allowed while simulation is running. Call will be ignored.");
 
 	NP_CHECK_CORRUPTION_AND_RETURN_VAL(false)
 
-	Sc::Scene& scScene = mScene;
+	ev4sio_Sc::Scene& scScene = mScene;
 	PxU32 actorsDone;
 
-	Sc::BatchInsertionState scState;
+	ev4sio_Sc::BatchInsertionState scState;
 	scScene.startBatchInsertion(scState);
 
 	scState.staticActorOffset		= ptrdiff_t(NpRigidStatic::getCoreOffset());
@@ -662,7 +662,7 @@ bool NpScene::addActorsInternal(PxActor*const* PX_RESTRICT actors, PxU32 nbActor
 				addRigidActorToArray(a, mRigidDynamics, mRigidActorIndexPool);
 				if(accelEnabled)
 				{
-					const Sc::BodyCore& core = a.getCore();
+					const ev4sio_Sc::BodyCore& core = a.getCore();
 					const NpRigidDynamicAcceleration entry = { PxVec3(0.0f), PxVec3(0.0f), core.getLinearVelocity(), core.getAngularVelocity() };
 					mRigidDynamicsAccelerations.pushBack(entry);
 				}
@@ -685,7 +685,7 @@ bool NpScene::addActorsInternal(PxActor*const* PX_RESTRICT actors, PxU32 nbActor
 		}
 		else
 		{
-			PxGetFoundation().error(PxErrorCode::eDEBUG_WARNING, PX_FL, "PxScene::addActors(): Batch addition is not permitted for this actor type, aborting at index %u!", actorsDone);
+			ev4sio_PxGetFoundation().error(PxErrorCode::eDEBUG_WARNING, PX_FL, "PxScene::addActors(): Batch addition is not permitted for this actor type, aborting at index %u!", actorsDone);
 			break;
 		}
 	}
@@ -721,7 +721,7 @@ bool NpScene::addActorsInternal(PxActor*const* PX_RESTRICT actors, PxU32 nbActor
 ///////////////////////////////////////////////////////////////////////////////
 
 template<typename T>
-static PX_FORCE_INLINE void removeFromRigidActorListT(T& rigidActor, PxArray<T*>& rigidActorList, Cm::IDPool& idPool)
+static PX_FORCE_INLINE void removeFromRigidActorListT(T& rigidActor, PxArray<T*>& rigidActorList, ev4sio_Cm::IDPool& idPool)
 {
 	const PxU32 index = rigidActor.getRigidActorArrayIndex();
 	PX_ASSERT(index != 0xFFFFFFFF);
@@ -788,10 +788,10 @@ void NpScene::removeActors(PxActor*const* PX_RESTRICT actors, PxU32 nbActors, bo
 	PX_PROFILE_ZONE("API.removeActors", getContextId());
 	NP_WRITE_CHECK(this);
 	
-	Sc::Scene& scScene = mScene;
+	ev4sio_Sc::Scene& scScene = mScene;
 	// resize the bitmap so it does not allocate each remove actor call
 	scScene.resizeReleasedBodyIDMaps(mRigidDynamics.size() + mRigidStatics.size(), nbActors);
-	Sc::BatchRemoveState removeState;
+	ev4sio_Sc::BatchRemoveState removeState;
 	scScene.setBatchRemove(&removeState);
 
 	for(PxU32 actorsDone=0; actorsDone<nbActors; actorsDone++)
@@ -820,7 +820,7 @@ void NpScene::removeActors(PxActor*const* PX_RESTRICT actors, PxU32 nbActors, bo
 		}
 		else
 		{
-			PxGetFoundation().error(PxErrorCode::eDEBUG_WARNING, PX_FL, "PxScene::removeActor(): Batch removal is not supported for this actor type, aborting at index %u!", actorsDone);
+			ev4sio_PxGetFoundation().error(PxErrorCode::eDEBUG_WARNING, PX_FL, "PxScene::removeActor(): Batch removal is not supported for this actor type, aborting at index %u!", actorsDone);
 			break;
 		}
 	}
@@ -952,7 +952,7 @@ bool NpScene::addRigidDynamic(NpRigidDynamic& body, const BVH* bvh, const Prunin
 	const bool ret = addRigidActorT(body, mRigidDynamics, this, bvh, ps);
 	if(ret && (getFlagsFast() & PxSceneFlag::eENABLE_BODY_ACCELERATIONS))
 	{
-		const Sc::BodyCore& core = body.getCore();
+		const ev4sio_Sc::BodyCore& core = body.getCore();
 		const NpRigidDynamicAcceleration entry = { PxVec3(0.0f), PxVec3(0.0f), core.getLinearVelocity(), core.getAngularVelocity() };
 		mRigidDynamicsAccelerations.pushBack(entry);
 	}
@@ -1042,7 +1042,7 @@ bool NpScene::addArticulation(PxArticulationReducedCoordinate& articulation)
 	if(getFlags() & PxSceneFlag::eENABLE_GPU_DYNAMICS && articulation.getConcreteType() != PxConcreteType::eARTICULATION_REDUCED_COORDINATE)
 		return outputError<PxErrorCode::eINVALID_OPERATION>(__LINE__, "PxScene::addArticulation(): Only Reduced coordinate articulations are currently supported when PxSceneFlag::eENABLE_GPU_DYNAMICS is set!");
 
-	if(getSimulationStage() != Sc::SimulationStage::eCOMPLETE && articulation.getConcreteType() == PxConcreteType::eARTICULATION_REDUCED_COORDINATE)
+	if(getSimulationStage() != ev4sio_Sc::SimulationStage::eCOMPLETE && articulation.getConcreteType() == PxConcreteType::eARTICULATION_REDUCED_COORDINATE)
 		return outputError<PxErrorCode::eINVALID_OPERATION>(__LINE__, "PxScene::addArticulation(): this call is not allowed while the simulation is running. Call will be ignored!");
 
 	if(npa.getNpScene())
@@ -1076,7 +1076,7 @@ static void checkArticulationLink(NpScene* scene, NpArticulationLink* link)
 	}
 }
 
-bool NpScene::addSpatialTendonInternal(NpArticulationReducedCoordinate* npaRC, Sc::ArticulationSim* scArtSim)
+bool NpScene::addSpatialTendonInternal(NpArticulationReducedCoordinate* npaRC, ev4sio_Sc::ArticulationSim* scArtSim)
 {
 	const PxU32 nbTendons = npaRC->getNbSpatialTendons();
 
@@ -1101,7 +1101,7 @@ bool NpScene::addSpatialTendonInternal(NpArticulationReducedCoordinate* npaRC, S
 		scAddArticulationSpatialTendon(*tendon);
 
 		//add tendon sim to articulation sim
-		Sc::ArticulationSpatialTendonSim* tendonSim = tendon->getTendonCore().getSim();
+		ev4sio_Sc::ArticulationSpatialTendonSim* tendonSim = tendon->getTendonCore().getSim();
 		scArtSim->addTendon(tendonSim);
 
 		const PxU32 numAttachments = tendon->getNbAttachments();
@@ -1113,7 +1113,7 @@ bool NpScene::addSpatialTendonInternal(NpArticulationReducedCoordinate* npaRC, S
 
 		NpArticulationLink* pLink = static_cast<NpArticulationLink*>(attachment->mLink);
 
-		Sc::ArticulationAttachmentCore& lcore = attachment->getCore();
+		ev4sio_Sc::ArticulationAttachmentCore& lcore = attachment->getCore();
 		lcore.mLLLinkIndex = pLink->getLinkIndex();
 
 		tendonSim->addAttachment(lcore);
@@ -1136,7 +1136,7 @@ bool NpScene::addSpatialTendonInternal(NpArticulationReducedCoordinate* npaRC, S
 
 				NpArticulationLink* cLink = static_cast<NpArticulationLink*>(child->mLink);
 
-				Sc::ArticulationAttachmentCore& cCore = child->getCore();
+				ev4sio_Sc::ArticulationAttachmentCore& cCore = child->getCore();
 				cCore.mLLLinkIndex = cLink->getLinkIndex();
 
 				tendonSim->addAttachment(cCore);
@@ -1151,7 +1151,7 @@ bool NpScene::addSpatialTendonInternal(NpArticulationReducedCoordinate* npaRC, S
 	return true;
 }
 
-bool NpScene::addFixedTendonInternal(NpArticulationReducedCoordinate* npaRC, Sc::ArticulationSim* scArtSim)
+bool NpScene::addFixedTendonInternal(NpArticulationReducedCoordinate* npaRC, ev4sio_Sc::ArticulationSim* scArtSim)
 {
 	const PxU32 nbFixedTendons = npaRC->getNbFixedTendons();
 
@@ -1177,7 +1177,7 @@ bool NpScene::addFixedTendonInternal(NpArticulationReducedCoordinate* npaRC, Sc:
 		scAddArticulationFixedTendon(*tendon);
 
 		//add tendon sim to articulation sim
-		Sc::ArticulationFixedTendonSim* tendonSim = tendon->getTendonCore().getSim();
+		ev4sio_Sc::ArticulationFixedTendonSim* tendonSim = tendon->getTendonCore().getSim();
 		scArtSim->addTendon(tendonSim);
 
 		const PxU32 numTendonJoints = tendon->getNbTendonJoints();
@@ -1189,7 +1189,7 @@ bool NpScene::addFixedTendonInternal(NpArticulationReducedCoordinate* npaRC, Sc:
 
 		NpArticulationLink* pLink = static_cast<NpArticulationLink*>(tendonJoint->mLink);
 
-		Sc::ArticulationTendonJointCore& lcore = tendonJoint->getCore();
+		ev4sio_Sc::ArticulationTendonJointCore& lcore = tendonJoint->getCore();
 		lcore.mLLLinkIndex = pLink->getLinkIndex();
 
 		//add parent joint
@@ -1214,7 +1214,7 @@ bool NpScene::addFixedTendonInternal(NpArticulationReducedCoordinate* npaRC, Sc:
 
 				NpArticulationLink* cLink = static_cast<NpArticulationLink*>(child->mLink);
 
-				Sc::ArticulationTendonJointCore& cCore = child->getCore();
+				ev4sio_Sc::ArticulationTendonJointCore& cCore = child->getCore();
 				cCore.mLLLinkIndex = cLink->getLinkIndex();
 
 				tendonSim->addTendonJoint(cCore);
@@ -1229,7 +1229,7 @@ bool NpScene::addFixedTendonInternal(NpArticulationReducedCoordinate* npaRC, Sc:
 	return true;
 }
 
-bool NpScene::addArticulationMimicJointInternal(NpArticulationReducedCoordinate* npaRC, Sc::ArticulationSim* scArtSim)
+bool NpScene::addArticulationMimicJointInternal(NpArticulationReducedCoordinate* npaRC, ev4sio_Sc::ArticulationSim* scArtSim)
 {
 	const PxU32 nbMimicJoints = npaRC->getNbMimicJoints();
 	
@@ -1243,7 +1243,7 @@ bool NpScene::addArticulationMimicJointInternal(NpArticulationReducedCoordinate*
 		scAddArticulationMimicJoint(*mimicJoint);
 
 		//add mimic joint sim to articulation sim
-		Sc::ArticulationMimicJointSim* mimicJointSim = mimicJoint->getMimicJointCore().getSim();
+		ev4sio_Sc::ArticulationMimicJointSim* mimicJointSim = mimicJoint->getMimicJointCore().getSim();
 		scArtSim->addMimicJoint(mimicJointSim, mimicJoint->getLinkA()->getLinkIndex(), mimicJoint->getLinkB()->getLinkIndex());
 		
 		#if PX_SUPPORT_OMNI_PVD
@@ -1279,8 +1279,8 @@ bool NpScene::addArticulationInternal(PxArticulationReducedCoordinate& npa)
 		npaRC.mTopologyChanged = false;
 	}
 
-	Sc::ArticulationCore& scArtCore = npaRC.getCore();
-	Sc::ArticulationSim* scArtSim = scArtCore.getSim();
+	ev4sio_Sc::ArticulationCore& scArtCore = npaRC.getCore();
+	ev4sio_Sc::ArticulationSim* scArtSim = scArtCore.getSim();
 
 	PxU32 handle = scArtSim->findBodyIndex(*rootLink->getCore().getSim());
 	rootLink->setLLIndex(handle);
@@ -1306,7 +1306,7 @@ bool NpScene::addArticulationInternal(PxArticulationReducedCoordinate& npa)
 			NpArticulationLink* child = children[i];
 
 			NpArticulationJointReducedCoordinate* joint = static_cast<NpArticulationJointReducedCoordinate*>(child->getInboundJoint());
-			Sc::ArticulationJointCore& jCore = joint->getCore();
+			ev4sio_Sc::ArticulationJointCore& jCore = joint->getCore();
 
 			jCore.getCore().jCalcUpdateFrames = true;
 
@@ -1362,7 +1362,7 @@ bool NpScene::addArticulationInternal(PxArticulationReducedCoordinate& npa)
 
 	for (PxU32 i = 0; i < npaRC.mLoopJoints.size(); ++i)
 	{
-		Sc::ConstraintSim* cSim = npaRC.mLoopJoints[i]->getCore().getSim();
+		ev4sio_Sc::ConstraintSim* cSim = npaRC.mLoopJoints[i]->getCore().getSim();
 		scArtSim->addLoopConstraint(cSim);
 	}
 
@@ -1532,7 +1532,7 @@ void NpScene::removeArticulationInternal(PxArticulationReducedCoordinate& pxa, b
 bool NpScene::addDeformableSurface(PxDeformableSurface& deformableSurface)
 {
 	if (!(getFlags() & PxSceneFlag::eENABLE_GPU_DYNAMICS))
-		return PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL,
+		return ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL,
 			"PxScene::addActor(): Deformable surfaces can only be simulated by GPU-accelerated scenes!");
 
 #if PX_SUPPORT_GPU_PHYSX
@@ -1553,7 +1553,7 @@ bool NpScene::addDeformableSurface(PxDeformableSurface& deformableSurface)
 
 	scAddDeformableSurface(this, npSurface);
 
-	Sc::ShapeCore* shapeCore = &npShape->getCore();
+	ev4sio_Sc::ShapeCore* shapeCore = &npShape->getCore();
 	npSurface.getCore().attachShapeCore(shapeCore);
 
 	mDeformableSurfaces.insert(&deformableSurface);
@@ -1618,7 +1618,7 @@ bool NpScene::addDeformableVolume(PxDeformableVolume& deformableVolume)
 
 	scAddDeformableVolume(npVolume);
 
-	Sc::ShapeCore* shapeCore = &npShape->getCore();
+	ev4sio_Sc::ShapeCore* shapeCore = &npShape->getCore();
 	npVolume.getCore().attachShapeCore(shapeCore);
 	npVolume.getCore().attachSimulationMesh(deformableVolume.getSimulationMesh(), deformableVolume.getDeformableVolumeAuxData());
 
@@ -1671,7 +1671,7 @@ PxU32 NpScene::getDeformableSurfaces(PxDeformableSurface** userBuffer, PxU32 buf
 {
 #if PX_SUPPORT_GPU_PHYSX
 	NP_READ_CHECK(this);
-	return Cm::getArrayOfPointers(userBuffer, bufferSize, startIndex, mDeformableSurfaces.getEntries(), mDeformableSurfaces.size());
+	return ev4sio_Cm::getArrayOfPointers(userBuffer, bufferSize, startIndex, mDeformableSurfaces.getEntries(), mDeformableSurfaces.size());
 #else
 	PX_UNUSED(userBuffer);
 	PX_UNUSED(bufferSize);
@@ -1696,7 +1696,7 @@ PxU32 NpScene::getDeformableVolumes(PxDeformableVolume** userBuffer, PxU32 buffe
 {
 #if PX_SUPPORT_GPU_PHYSX
 	NP_READ_CHECK(this);
-	return Cm::getArrayOfPointers(userBuffer, bufferSize, startIndex, mDeformableVolumes.getEntries(), mDeformableVolumes.size());
+	return ev4sio_Cm::getArrayOfPointers(userBuffer, bufferSize, startIndex, mDeformableVolumes.getEntries(), mDeformableVolumes.size());
 #else
 	PX_UNUSED(userBuffer);
 	PX_UNUSED(bufferSize);
@@ -1757,7 +1757,7 @@ PxU32 NpScene::getPBDParticleSystems(PxPBDParticleSystem** userBuffer, PxU32 buf
 	NP_READ_CHECK(this);
 
 #if PX_SUPPORT_GPU_PHYSX
-	return Cm::getArrayOfPointers(userBuffer, bufferSize, startIndex, mPBDParticleSystems.getEntries(), mPBDParticleSystems.size());
+	return ev4sio_Cm::getArrayOfPointers(userBuffer, bufferSize, startIndex, mPBDParticleSystems.getEntries(), mPBDParticleSystems.size());
 #else
 	PX_UNUSED(userBuffer);
 	PX_UNUSED(bufferSize);
@@ -1790,10 +1790,10 @@ void NpScene::addArticulationLinkConstraint(NpArticulationLink& link)
 
 void NpScene::addArticulationLink(NpArticulationLink& link)
 {
-	Sc::ArticulationCore& scArtCore = static_cast<NpArticulationReducedCoordinate&>(link.getArticulation()).getCore();
-	Sc::ArticulationSim* scArtSim = scArtCore.getSim();
+	ev4sio_Sc::ArticulationCore& scArtCore = static_cast<NpArticulationReducedCoordinate&>(link.getArticulation()).getCore();
+	ev4sio_Sc::ArticulationSim* scArtSim = scArtCore.getSim();
 
-	Sc::ArticulationSimDirtyFlags dirtyFlags = scArtSim->getDirtyFlag();
+	ev4sio_Sc::ArticulationSimDirtyFlags dirtyFlags = scArtSim->getDirtyFlag();
 
 	addArticulationLinkBody(link);
 	addArticulationLinkConstraint(link);
@@ -1807,7 +1807,7 @@ void NpScene::addArticulationLink(NpArticulationLink& link)
 
 		j->getCore().setLLIndex(cHandle);
 		
-		const bool isDirty = (dirtyFlags & Sc::ArticulationSimDirtyFlag::eUPDATE);
+		const bool isDirty = (dirtyFlags & ev4sio_Sc::ArticulationSimDirtyFlag::eUPDATE);
 		if (j && (!isDirty))
 		{
 			getScScene().addDirtyArticulationSim(scArtSim);
@@ -1831,14 +1831,14 @@ void NpScene::removeArticulationLink(NpArticulationLink& link, bool wakeOnLostTo
 	link.removeConstraintsFromScene();
 	link.getShapeManager().teardownAllSceneQuery(getSQAPI(), link);
 
-	Sc::ArticulationCore& scArtCore = static_cast<NpArticulationReducedCoordinate&>(link.getArticulation()).getCore();
-	Sc::ArticulationSim* scArtSim = scArtCore.getSim();
+	ev4sio_Sc::ArticulationCore& scArtCore = static_cast<NpArticulationReducedCoordinate&>(link.getArticulation()).getCore();
+	ev4sio_Sc::ArticulationSim* scArtSim = scArtCore.getSim();
 
-	Sc::ArticulationSimDirtyFlags dirtyFlags = scArtSim->getDirtyFlag();
+	ev4sio_Sc::ArticulationSimDirtyFlags dirtyFlags = scArtSim->getDirtyFlag();
 
 	if (j)
 	{
-		const bool isDirty = (dirtyFlags & Sc::ArticulationSimDirtyFlag::eUPDATE);
+		const bool isDirty = (dirtyFlags & ev4sio_Sc::ArticulationSimDirtyFlag::eUPDATE);
 		if (!isDirty)
 		{
 			getScScene().addDirtyArticulationSim(scArtSim);
@@ -1857,12 +1857,12 @@ void NpScene::removeArticulationLink(NpArticulationLink& link, bool wakeOnLostTo
 ////////////////////////////////////////////////////////////////////////////////
 void NpScene::addArticulationAttachment(NpArticulationAttachment& attachment)
 {
-	Sc::ArticulationSpatialTendonCore& tendonCore = attachment.getTendon().getTendonCore();
-	Sc::ArticulationSpatialTendonSim* sim = tendonCore.getSim();
+	ev4sio_Sc::ArticulationSpatialTendonCore& tendonCore = attachment.getTendon().getTendonCore();
+	ev4sio_Sc::ArticulationSpatialTendonSim* sim = tendonCore.getSim();
 
 	if (sim)
 	{
-		Sc::ArticulationAttachmentCore& attachmentCore = attachment.getCore();
+		ev4sio_Sc::ArticulationAttachmentCore& attachmentCore = attachment.getCore();
 		attachmentCore.mLLLinkIndex = attachment.mLink->getLinkIndex();
 		sim->addAttachment(attachmentCore);
 	}
@@ -1870,12 +1870,12 @@ void NpScene::addArticulationAttachment(NpArticulationAttachment& attachment)
 
 void NpScene::removeArticulationAttachment(NpArticulationAttachment& attachment)
 {
-	Sc::ArticulationSpatialTendonCore& tendonCore = attachment.getTendon().getTendonCore();
-	Sc::ArticulationSpatialTendonSim* sim = tendonCore.getSim();
+	ev4sio_Sc::ArticulationSpatialTendonCore& tendonCore = attachment.getTendon().getTendonCore();
+	ev4sio_Sc::ArticulationSpatialTendonSim* sim = tendonCore.getSim();
 
 	if (sim)
 	{
-		Sc::ArticulationAttachmentCore& attachmentCore = attachment.getCore();
+		ev4sio_Sc::ArticulationAttachmentCore& attachmentCore = attachment.getCore();
 		sim->removeAttachment(attachmentCore);
 	}
 }
@@ -1884,12 +1884,12 @@ void NpScene::removeArticulationAttachment(NpArticulationAttachment& attachment)
 
 void NpScene::addArticulationTendonJoint(NpArticulationTendonJoint& tendonJoint)
 {
-	Sc::ArticulationFixedTendonCore& tendonCore = tendonJoint.getTendon().getTendonCore();
-	Sc::ArticulationFixedTendonSim* sim = tendonCore.getSim();
+	ev4sio_Sc::ArticulationFixedTendonCore& tendonCore = tendonJoint.getTendon().getTendonCore();
+	ev4sio_Sc::ArticulationFixedTendonSim* sim = tendonCore.getSim();
 
 	if (sim)
 	{
-		Sc::ArticulationTendonJointCore& jointCore = tendonJoint.getCore();
+		ev4sio_Sc::ArticulationTendonJointCore& jointCore = tendonJoint.getCore();
 		jointCore.mLLLinkIndex = tendonJoint.mLink->getLinkIndex();
 		sim->addTendonJoint(jointCore);
 	}
@@ -1897,12 +1897,12 @@ void NpScene::addArticulationTendonJoint(NpArticulationTendonJoint& tendonJoint)
 
 void NpScene::removeArticulationTendonJoint(NpArticulationTendonJoint& joint)
 {
-	Sc::ArticulationFixedTendonCore& tendonCore = joint.getTendon().getTendonCore();
-	Sc::ArticulationFixedTendonSim* sim = tendonCore.getSim();
+	ev4sio_Sc::ArticulationFixedTendonCore& tendonCore = joint.getTendon().getTendonCore();
+	ev4sio_Sc::ArticulationFixedTendonSim* sim = tendonCore.getSim();
 
 	if (sim)
 	{
-		Sc::ArticulationTendonJointCore& jointCore = joint.getCore();
+		ev4sio_Sc::ArticulationTendonJointCore& jointCore = joint.getCore();
 		sim->removeTendonJoint(jointCore);
 	}
 }
@@ -1952,7 +1952,7 @@ void NpScene::scAddAggregate(NpAggregate& agg)
 
 	agg.setNpScene(this);
 
-	const Bp::AggregateHandle aggregateHandle = mScene.createAggregate(&agg, agg.getMaxNbShapesFast(), agg.getFilterHint(), agg.getEnvID());
+	const ev4sio_Bp::AggregateHandle aggregateHandle = mScene.createAggregate(&agg, agg.getMaxNbShapesFast(), agg.getFilterHint(), agg.getEnvID());
 	agg.setAggregateHandle(aggregateHandle);
 #if PX_SUPPORT_PVD
 	//Sending pvd events after all aggregates's actors are inserted into scene
@@ -2083,7 +2083,7 @@ PxU32 NpScene::getNbAggregates() const
 PxU32 NpScene::getAggregates(PxAggregate** userBuffer, PxU32 bufferSize, PxU32 startIndex) const
 {
 	NP_READ_CHECK(this);
-	return Cm::getArrayOfPointers(userBuffer, bufferSize, startIndex, mAggregates.getEntries(), mAggregates.size());
+	return ev4sio_Cm::getArrayOfPointers(userBuffer, bufferSize, startIndex, mAggregates.getEntries(), mAggregates.size());
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -2094,7 +2094,7 @@ void NpScene::scSwitchRigidToNoSim(NpActor& r)
 
 	if(r.getNpScene())
 	{
-		PxInlineArray<const Sc::ShapeCore*, 64> scShapes;
+		PxInlineArray<const ev4sio_Sc::ShapeCore*, 64> scShapes;
 
 		const NpType::Enum npType = r.getNpType();
 		if(npType==NpType::eRIGID_STATIC)
@@ -2153,7 +2153,7 @@ void NpScene::scSwitchRigidFromNoSim(NpActor& r)
 bool NpScene::addCollection(const PxCollection& collection)
 {
 	PX_PROFILE_ZONE("API.addCollection", getContextId());
-	const Cm::Collection& col = static_cast<const Cm::Collection&>(collection);
+	const ev4sio_Cm::Collection& col = static_cast<const ev4sio_Cm::Collection&>(collection);
 
 	PxU32 nb = col.internalGetNbObjects();
 #if PX_CHECKED
@@ -2274,10 +2274,10 @@ PxU32 NpScene::getActors(PxActorTypeFlags types, PxActor** buffer, PxU32 bufferS
 	const bool wantsDynamic = types & PxActorTypeFlag::eRIGID_DYNAMIC;
 
 	if(wantsStatic && !wantsDynamic)
-		return Cm::getArrayOfPointers(buffer, bufferSize, startIndex, mRigidStatics.begin(), mRigidStatics.size());
+		return ev4sio_Cm::getArrayOfPointers(buffer, bufferSize, startIndex, mRigidStatics.begin(), mRigidStatics.size());
 
 	if(!wantsStatic && wantsDynamic)
-		return Cm::getArrayOfPointers(buffer, bufferSize, startIndex, mRigidDynamics.begin(), mRigidDynamics.size());
+		return ev4sio_Cm::getArrayOfPointers(buffer, bufferSize, startIndex, mRigidDynamics.begin(), mRigidDynamics.size());
 
 	if(wantsStatic && wantsDynamic)
 	{
@@ -2341,7 +2341,7 @@ PxU32 NpScene::getNbArticulations() const
 PxU32 NpScene::getArticulations(PxArticulationReducedCoordinate** userBuffer, PxU32 bufferSize, PxU32 startIndex) const
 {
 	NP_READ_CHECK(this);
-	return Cm::getArrayOfPointers(userBuffer, bufferSize, startIndex, mArticulations.getEntries(), mArticulations.size());
+	return ev4sio_Cm::getArrayOfPointers(userBuffer, bufferSize, startIndex, mArticulations.getEntries(), mArticulations.size());
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -2352,7 +2352,7 @@ PxU32 NpScene::getNbConstraints() const
 	return mScene.getNbConstraints();
 }
 
-static PX_FORCE_INLINE PxU32 getArrayOfPointers(PxConstraint** PX_RESTRICT userBuffer, PxU32 bufferSize, PxU32 startIndex, Sc::ConstraintCore*const* PX_RESTRICT src, PxU32 size)
+static PX_FORCE_INLINE PxU32 getArrayOfPointers(PxConstraint** PX_RESTRICT userBuffer, PxU32 bufferSize, PxU32 startIndex, ev4sio_Sc::ConstraintCore*const* PX_RESTRICT src, PxU32 size)
 {
 	const PxU32 remainder = PxU32(PxMax<PxI32>(PxI32(size - startIndex), 0));
 	const PxU32 writeCount = PxMin(remainder, bufferSize);
@@ -2375,9 +2375,9 @@ PxU32 NpScene::getConstraints(PxConstraint** userBuffer, PxU32 bufferSize, PxU32
 
 const PxRenderBuffer& NpScene::getRenderBuffer()
 {
-	if (getSimulationStage() != Sc::SimulationStage::eCOMPLETE) 
+	if (getSimulationStage() != ev4sio_Sc::SimulationStage::eCOMPLETE)
 	{
-		// will be reading the Sc::Scene renderable which is getting written 
+		// will be reading the ev4sio_Sc::Scene renderable which is getting written
 		// during the sim, hence, avoid call while simulation is running.
 		outputError<PxErrorCode::eINVALID_OPERATION>(__LINE__, "PxScene::getRenderBuffer() not allowed while simulation is running. Call will be ignored.");
 	}
@@ -2391,7 +2391,7 @@ void NpScene::getSimulationStatistics(PxSimulationStatistics& s) const
 {
 	NP_READ_CHECK(this);
 
-	if (getSimulationStage() == Sc::SimulationStage::eCOMPLETE)
+	if (getSimulationStage() == ev4sio_Sc::SimulationStage::eCOMPLETE)
 	{
 #if PX_ENABLE_SIM_STATS
 		mScene.getStats(s);
@@ -2556,14 +2556,14 @@ PxReal NpScene::getCCDThreshold() const
 PxBroadPhaseType::Enum NpScene::getBroadPhaseType() const
 {
 	NP_READ_CHECK(this);
-	const Bp::BroadPhase* bp = mScene.getAABBManager()->getBroadPhase();
+	const ev4sio_Bp::BroadPhase* bp = mScene.getAABBManager()->getBroadPhase();
 	return bp->getType();
 }
 
 bool NpScene::getBroadPhaseCaps(PxBroadPhaseCaps& caps) const
 {
 	NP_READ_CHECK(this);
-	const Bp::BroadPhase* bp = mScene.getAABBManager()->getBroadPhase();
+	const ev4sio_Bp::BroadPhase* bp = mScene.getAABBManager()->getBroadPhase();
 	bp->getCaps(caps);
 	return true;
 }
@@ -2571,14 +2571,14 @@ bool NpScene::getBroadPhaseCaps(PxBroadPhaseCaps& caps) const
 PxU32 NpScene::getNbBroadPhaseRegions() const
 {
 	NP_READ_CHECK(this);
-	const Bp::BroadPhase* bp = mScene.getAABBManager()->getBroadPhase();
+	const ev4sio_Bp::BroadPhase* bp = mScene.getAABBManager()->getBroadPhase();
 	return bp->getNbRegions();
 }
 
 PxU32 NpScene::getBroadPhaseRegions(PxBroadPhaseRegionInfo* userBuffer, PxU32 bufferSize, PxU32 startIndex) const
 {
 	NP_READ_CHECK(this);
-	const Bp::BroadPhase* bp = mScene.getAABBManager()->getBroadPhase();
+	const ev4sio_Bp::BroadPhase* bp = mScene.getAABBManager()->getBroadPhase();
 	return bp->getRegions(userBuffer, bufferSize, startIndex);
 }
 
@@ -2599,8 +2599,8 @@ PxU32 NpScene::addBroadPhaseRegion(const PxBroadPhaseRegion& region, bool popula
 
 	NP_CHECK_CORRUPTION_AND_RETURN_VAL(0xffffffff)
 
-	Bp::AABBManagerBase* aabbManager = mScene.getAABBManager();
-	Bp::BroadPhase* bp = aabbManager->getBroadPhase();
+	ev4sio_Bp::AABBManagerBase* aabbManager = mScene.getAABBManager();
+	ev4sio_Bp::BroadPhase* bp = aabbManager->getBroadPhase();
 	return bp->addRegion(region, populateRegion, aabbManager->getBoundsArray().begin(), aabbManager->getContactDistances());
 }
 
@@ -2610,7 +2610,7 @@ bool NpScene::removeBroadPhaseRegion(PxU32 handle)
 
 	PX_CHECK_SCENE_API_WRITE_FORBIDDEN_AND_RETURN_VAL(this, "PxScene::removeBroadPhaseRegion() not allowed while simulation is running. Call will be ignored.", false)
 
-	Bp::BroadPhase* bp = mScene.getAABBManager()->getBroadPhase();
+	ev4sio_Bp::BroadPhase* bp = mScene.getAABBManager()->getBroadPhase();
 	return bp->removeRegion(handle);
 }
 
@@ -2801,7 +2801,7 @@ void NpScene::updateDirtyShaders()
 		PxsSimulationController* simController = mScene.getSimulationController();
 		PX_ASSERT(simController);
 		const PxU32 nbConstraints = mScene.getNbConstraints();
-		Sc::ConstraintCore*const* constraints = mScene.getConstraints();
+		ev4sio_Sc::ConstraintCore*const* constraints = mScene.getConstraints();
 		for(PxU32 i=0;i<nbConstraints;i++)
 		{
 			PxConstraint* pxc = constraints[i]->getPxConstraint();
@@ -2894,7 +2894,7 @@ void NpScene::syncMaterialEvents()
 
 ///////////////////////////////////////////////////////////////////////////////
 
-bool NpScene::simulateOrCollide(PxReal elapsedTime, PxBaseTask* completionTask, void* scratchBlock, PxU32 scratchBlockSize, bool controlSimulation, const char* invalidCallMsg, Sc::SimulationStage::Enum simStage)
+bool NpScene::simulateOrCollide(PxReal elapsedTime, PxBaseTask* completionTask, void* scratchBlock, PxU32 scratchBlockSize, bool controlSimulation, const char* invalidCallMsg, ev4sio_Sc::SimulationStage::Enum simStage)
 {
 	PX_SIMD_GUARD
 
@@ -2908,7 +2908,7 @@ bool NpScene::simulateOrCollide(PxReal elapsedTime, PxBaseTask* completionTask, 
 
 		PX_PROFILE_START_CROSSTHREAD("Basic.simulate", getContextId());
 
-		if(getSimulationStage() != Sc::SimulationStage::eCOMPLETE)
+		if(getSimulationStage() != ev4sio_Sc::SimulationStage::eCOMPLETE)
 		{
 			//fetchResult doesn't get called
 			return outputError<PxErrorCode::eINVALID_OPERATION>(__LINE__, invalidCallMsg);
@@ -2958,7 +2958,7 @@ bool NpScene::simulateOrCollide(PxReal elapsedTime, PxBaseTask* completionTask, 
 			&& mScene.isUsingGpuDynamics()
 			&& !(mScene.getFlags() & PxSceneFlag::eENABLE_DIRECT_GPU_API);
 #endif
-		if (simStage == Sc::SimulationStage::eCOLLIDE)
+		if (simStage == ev4sio_Sc::SimulationStage::eCOLLIDE)
 			mScene.setElapsedTime(elapsedTime);
 
 		mControllingSimulation = controlSimulation;
@@ -2988,7 +2988,7 @@ bool NpScene::simulateOrCollide(PxReal elapsedTime, PxBaseTask* completionTask, 
 			mTaskManager->startSimulation();
 		}
 
-		if (simStage == Sc::SimulationStage::eCOLLIDE)
+		if (simStage == ev4sio_Sc::SimulationStage::eCOLLIDE)
 		{
 			mCollisionCompletion.setContinuation(*mTaskManager, completionTask);
 			mSceneCollide.setContinuation(&mCollisionCompletion);
@@ -3013,7 +3013,7 @@ bool NpScene::simulateOrCollide(PxReal elapsedTime, PxBaseTask* completionTask, 
 bool NpScene::simulate(PxReal elapsedTime, PxBaseTask* completionTask, void* scratchBlock, PxU32 scratchBlockSize, bool controlSimulation)
 {
 	return simulateOrCollide(	elapsedTime, completionTask, scratchBlock, scratchBlockSize, controlSimulation, 
-								"PxScene::simulate: Simulation is still processing last simulate call, you should call fetchResults()!", Sc::SimulationStage::eADVANCE);
+								"PxScene::simulate: Simulation is still processing last simulate call, you should call fetchResults()!", ev4sio_Sc::SimulationStage::eADVANCE);
 }
 
 bool NpScene::advance(PxBaseTask* completionTask)
@@ -3026,13 +3026,13 @@ bool NpScene::advance(PxBaseTask* completionTask)
 		return false;
 
 	//issue error if advance() doesn't get called between fetchCollision() and fetchResult()
-	if(getSimulationStage() != Sc::SimulationStage::eFETCHCOLLIDE)
+	if(getSimulationStage() != ev4sio_Sc::SimulationStage::eFETCHCOLLIDE)
 		return outputError<PxErrorCode::eINVALID_OPERATION>(__LINE__, "PxScene::advance: advance() called illegally! advance() needed to be called after fetchCollision() and before fetchResult()!!");
 
 	//if mSimulateStage == eFETCHCOLLIDE, which means collide() has been kicked off and finished running, we can run advance() safely
 	{
 		//change the mSimulateStaget to eADVANCE to indicate the next stage to run is fetchResult()
-		setSimulationStage(Sc::SimulationStage::eADVANCE);
+		setSimulationStage(ev4sio_Sc::SimulationStage::eADVANCE);
 		setAPIReadToForbidden();
 
 		{
@@ -3055,7 +3055,7 @@ bool NpScene::collide(PxReal elapsedTime, PxBaseTask* completionTask, void* scra
 								scratchBlockSize,
 								controlSimulation,
 								"PxScene::collide: collide() called illegally! If it isn't the first frame, collide() needed to be called between fetchResults() and fetchCollision(). Otherwise, collide() needed to be called before fetchCollision()", 
-								Sc::SimulationStage::eCOLLIDE);
+								ev4sio_Sc::SimulationStage::eCOLLIDE);
 }
 
 bool NpScene::checkCollisionInternal(bool block)
@@ -3068,7 +3068,7 @@ bool NpScene::fetchCollision(bool block)
 {
 	NP_CHECK_CORRUPTION_AND_RETURN_VAL(true)
 
-	if(getSimulationStage() != Sc::SimulationStage::eCOLLIDE)
+	if(getSimulationStage() != ev4sio_Sc::SimulationStage::eCOLLIDE)
 		return outputError<PxErrorCode::eINVALID_OPERATION>(__LINE__, "PxScene::fetchCollision: fetchCollision() should be called after collide() and before advance()!");
 
 	//if collision isn't finish running (and block is false), then return false
@@ -3084,7 +3084,7 @@ bool NpScene::fetchCollision(bool block)
 	// we will block fetchCollision() from using the API
 	NP_WRITE_CHECK_NOREENTRY(this);
 
-	setSimulationStage(Sc::SimulationStage::eFETCHCOLLIDE);
+	setSimulationStage(ev4sio_Sc::SimulationStage::eFETCHCOLLIDE);
 	setAPIReadToAllowed();
 
 	return true;
@@ -3101,17 +3101,17 @@ bool NpScene::checkSceneStateAndCudaErrors(bool isCollide /*= false*/)
 		PxCUresult res = mCudaContextManager->getCudaContext()->getLastError();
 		if (res)
 		{
-			if (getSimulationStage() != Sc::SimulationStage::eCOMPLETE)
-				PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "PhysX Internal CUDA error. Simulation cannot continue! Error code %i!\n", PxI32(res));
+			if (getSimulationStage() != ev4sio_Sc::SimulationStage::eCOMPLETE)
+				ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "PhysX Internal CUDA error. Simulation cannot continue! Error code %i!\n", PxI32(res));
 
-			Sc::SimulationStage::Enum compareStage = isCollide ? Sc::SimulationStage::eCOLLIDE : Sc::SimulationStage::eADVANCE;
+			ev4sio_Sc::SimulationStage::Enum compareStage = isCollide ? ev4sio_Sc::SimulationStage::eCOLLIDE : ev4sio_Sc::SimulationStage::eADVANCE;
 			if (mCudaContextManager->getCudaContext()->isInAbortMode() && (getSimulationStage() == compareStage))
 			{
 				outputError<PxErrorCode::eABORT>(__LINE__, "PhysX failed to allocate GPU memory - aborting simulation.");
 				mCorruptedState = true;
 			}
 		
-			setSimulationStage(Sc::SimulationStage::eCOMPLETE);
+			setSimulationStage(ev4sio_Sc::SimulationStage::eCOMPLETE);
 			setAPIReadToAllowed();
 			setAPIWriteToAllowed();
 			if (isCollide)
@@ -3147,9 +3147,9 @@ bool NpScene::checkGpuErrorsPreSim(bool isCollide /* = false */)
 		if (lastError)
 		{
 			if (isCollide)
-				return PxGetFoundation().error(PxErrorCode::eABORT, PX_FL, "PhysX cannot start GPU simulation because of previous CUDA errors! Error code %i!\n", PxI32(lastError));
+				return ev4sio_PxGetFoundation().error(PxErrorCode::eABORT, PX_FL, "PhysX cannot start GPU simulation because of previous CUDA errors! Error code %i!\n", PxI32(lastError));
 			else
-				return PxGetFoundation().error(PxErrorCode::eABORT, PX_FL, "PhysX cannot advance GPU simulation because of previous CUDA errors! Error code %i!\n", PxI32(lastError));
+				return ev4sio_PxGetFoundation().error(PxErrorCode::eABORT, PX_FL, "PhysX cannot advance GPU simulation because of previous CUDA errors! Error code %i!\n", PxI32(lastError));
 		}
 	}
 #else
@@ -3351,7 +3351,7 @@ PxBounds3 NpScene::getVisualizationCullingBox() const
 
 void NpScene::setNbContactDataBlocks(PxU32 numBlocks)
 {
-	PX_CHECK_AND_RETURN((getSimulationStage() == Sc::SimulationStage::eCOMPLETE), 
+	PX_CHECK_AND_RETURN((getSimulationStage() == ev4sio_Sc::SimulationStage::eCOMPLETE),
 		"PxScene::setNbContactDataBlock: This call is not allowed while the simulation is running. Call will be ignored!");
 	
 	mScene.setNbContactDataBlocks(numBlocks);
@@ -3360,7 +3360,7 @@ void NpScene::setNbContactDataBlocks(PxU32 numBlocks)
 
 PxU32 NpScene::getNbContactDataBlocksUsed() const
 {
-	PX_CHECK_AND_RETURN_VAL((getSimulationStage() == Sc::SimulationStage::eCOMPLETE), 
+	PX_CHECK_AND_RETURN_VAL((getSimulationStage() == ev4sio_Sc::SimulationStage::eCOMPLETE),
 		"PxScene::getNbContactDataBlocksUsed: This call is not allowed while the simulation is running. Returning 0.", 0);
 	
 	return mScene.getNbContactDataBlocksUsed();
@@ -3368,7 +3368,7 @@ PxU32 NpScene::getNbContactDataBlocksUsed() const
 
 PxU32 NpScene::getMaxNbContactDataBlocksUsed() const
 {
-	PX_CHECK_AND_RETURN_VAL((getSimulationStage() == Sc::SimulationStage::eCOMPLETE), 
+	PX_CHECK_AND_RETURN_VAL((getSimulationStage() == ev4sio_Sc::SimulationStage::eCOMPLETE),
 		"PxScene::getMaxNbContactDataBlocksUsed: This call is not allowed while the simulation is running. Returning 0.", 0);
 	
 	return mScene.getMaxNbContactDataBlocksUsed();
@@ -3448,7 +3448,7 @@ PxU32 NpScene::getContactReportStreamBufferSize() const
 void NpScene::checkPositionSanity(const PxRigidActor& a, const PxTransform& pose, const char* fnName) const
 {
 	if(!mSanityBounds.contains(pose.p))
-		PxGetFoundation().error(PxErrorCode::eDEBUG_WARNING, PX_FL, "%s: actor pose for %lp is outside sanity bounds\n", fnName, &a);
+		ev4sio_PxGetFoundation().error(PxErrorCode::eDEBUG_WARNING, PX_FL, "%s: actor pose for %lp is outside sanity bounds\n", fnName, &a);
 }
 #endif
 
@@ -3628,7 +3628,7 @@ void NpScene::lockWrite(const char* file, PxU32 line)
 	ThreadReadWriteCount localCounts (PxTlsGetValue(mThreadReadWriteDepth));
 	if (localCounts.writeLockDepth == 0 && localCounts.readLockDepth > 0)
 	{
-		PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, file?file:__FILE__, file?int(line):__LINE__, "PxScene::lockWrite() detected after a PxScene::lockRead(), lock upgrading is not supported, behaviour will be undefined.");
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, file?file:__FILE__, file?int(line):__LINE__, "PxScene::lockWrite() detected after a PxScene::lockRead(), lock upgrading is not supported, behaviour will be undefined.");
 		return;
 	}
 	localCounts.writeLockDepth++;
@@ -3828,7 +3828,7 @@ namespace
 		for(PxU32 i = 0; i < numBodies; i++)
 		{
 			const PxU32 idx = startIndex + i;
-			const Sc::BodyCore& core = dynamics[idx]->getCore();
+			const ev4sio_Sc::BodyCore& core = dynamics[idx]->getCore();
 
 			// For GPU dynamics, skip non-kinematic bodies: their accelerations
 			// are computed on the GPU and lazy-copied via ensureGpuAccelerationsCopied.
@@ -3836,15 +3836,15 @@ namespace
 				continue;
 
 			NpRigidDynamicAcceleration& accel = accels[idx];
-			Sc::BodySim* bodySim = core.getSim();
+			ev4sio_Sc::BodySim* bodySim = core.getSim();
 
-			if(bodySim && bodySim->readInternalFlag(Sc::ActorSim::BF_RESET_ACCELERATION))
+			if(bodySim && bodySim->readInternalFlag(ev4sio_Sc::ActorSim::BF_RESET_ACCELERATION))
 			{
 				accel.mLinAccel = PxVec3(0.0f);
 				accel.mAngAccel = PxVec3(0.0f);
 				accel.mPrevLinVel = core.getLinearVelocity();
 				accel.mPrevAngVel = core.getAngularVelocity();
-				bodySim->clearInternalFlag(Sc::ActorSim::BF_RESET_ACCELERATION);
+				bodySim->clearInternalFlag(ev4sio_Sc::ActorSim::BF_RESET_ACCELERATION);
 			}
 			else
 			{
@@ -3858,14 +3858,14 @@ namespace
 		}
 	}
 
-	class BodyAccelerationComputeTask : public Cm::Task
+	class BodyAccelerationComputeTask : public ev4sio_Cm::Task
 	{
 	public:
 		static const PxU32 MaxBodiesPerTask = 256;
 
 		BodyAccelerationComputeTask(PxU64 contextId, NpRigidDynamic*const* dynamics, NpRigidDynamicAcceleration* accels,
 									PxU32 startIndex, PxU32 numBodies, PxReal oneOverDt, bool gpuDynamics) :
-			Cm::Task		(contextId),
+			ev4sio_Cm::Task		(contextId),
 			mDynamics		(dynamics),
 			mAccels			(accels),
 			mStartIndex		(startIndex),
@@ -3941,7 +3941,7 @@ void NpScene::computeBodyAccelerations(PxBaseTask* continuation)
 			BodyAccelerationComputeTask)(getContextId(), dynamics, accels, startIndex, taskBodies,
 										 oneOverDt, gpuDynamics);
 
-		Cm::startTask(task, continuation);
+		ev4sio_Cm::startTask(task, continuation);
 
 		startIndex += taskBodies;
 	}
@@ -3974,7 +3974,7 @@ namespace
 		{
 			const PxU32 bodyIndex = startIndex + i;
 			NpRigidDynamic* current = rigidDynamics[bodyIndex];
-			const Sc::BodyCore& core = current->getCore();
+			const ev4sio_Sc::BodyCore& core = current->getCore();
 
 			// Skip kinematics - their accelerations are computed in computeBodyAccelerations
 			if(!(core.getFlags() & PxRigidBodyFlag::eKINEMATIC))
@@ -3990,7 +3990,7 @@ namespace
 		}
 	}
 
-	class GpuAccelerationCopyTask : public Cm::Task
+	class GpuAccelerationCopyTask : public ev4sio_Cm::Task
 	{
 	public:
 		static const PxU32 MaxBodiesPerTask = 256;
@@ -3998,7 +3998,7 @@ namespace
 		GpuAccelerationCopyTask(PxU64 contextId, NpRigidDynamic** rigidDynamics, NpRigidDynamicAcceleration* accels,
 								PxU32 startIndex, PxU32 numBodies,
 								const GpuRigidBodyAcceleration* gpuAccels, PxSync* completionSync, volatile PxI32* taskCounter) :
-			Cm::Task			(contextId),
+			ev4sio_Cm::Task			(contextId),
 			mRigidDynamics		(rigidDynamics),
 			mAccels				(accels),
 			mStartIndex			(startIndex),
@@ -4019,16 +4019,16 @@ namespace
 			// Finish ALL accesses to this task object BEFORE signalling completion. The owning thread
 			// (NpScene::ensureGpuAccelerationsCopied) waits on the completion sync and the stack memory
 			// backing these tasks is reclaimed the instant the final task signals, so touching 'this'
-			// afterwards is a use-after-free. mCont is NULL here so Cm::Task::release() is a no-op, but
+			// afterwards is a use-after-free. mCont is NULL here so ev4sio_Cm::Task::release() is a no-op, but
 			// keeping the order correct avoids the crash in PxLightCpuTask::release() (NvBugs 6224727).
-			Cm::Task::release();
+			ev4sio_Cm::Task::release();
 
 			// Snapshot members onto the worker stack; after the signal below 'this' may already be freed.
 			PxSync* const completionSync = mCompletionSync;
 			volatile PxI32* const taskCounter = mTaskCounter;
 
 			// Decrement and signal completion LAST. Because every task decrements only after finishing
-			// Cm::Task::release(), the decrement that reaches 0 is necessarily the last across all tasks,
+			// ev4sio_Cm::Task::release(), the decrement that reaches 0 is necessarily the last across all tasks,
 			// so every task has finished touching its object before the waiter is woken.
 			if(PxAtomicDecrement(taskCounter) == 0)
 				completionSync->set();
@@ -4186,7 +4186,7 @@ PX_FORCE_INLINE NpShape* getShape(NpShape* const* shapeArray, const PxU32 i)
 	return shapeArray[i];
 }
 
-PX_FORCE_INLINE NpShape* getShape(Sc::ShapeCore* const* shapeArray, const PxU32 i)
+PX_FORCE_INLINE NpShape* getShape(ev4sio_Sc::ShapeCore* const* shapeArray, const PxU32 i)
 {
 	return static_cast<NpShape*>(shapeArray[i]->getPxShape());
 }
@@ -4230,7 +4230,7 @@ PX_FORCE_INLINE static void removeActorShapes(T* const* shapeArray, const PxU32 
 	}
 }
 
-static void addSimActorToScScene(Sc::Scene& s, NpRigidStatic& staticObject, NpShape* const* npShapes, PxU32 nbShapes, PxBounds3* uninflatedBounds, const BVH* bvh)
+static void addSimActorToScScene(ev4sio_Sc::Scene& s, NpRigidStatic& staticObject, NpShape* const* npShapes, PxU32 nbShapes, PxBounds3* uninflatedBounds, const BVH* bvh)
 {
 	PX_UNUSED(bvh);
 	const size_t shapePtrOffset = NpShape::getCoreOffset();
@@ -4238,46 +4238,46 @@ static void addSimActorToScScene(Sc::Scene& s, NpRigidStatic& staticObject, NpSh
 }
 
 template <class T>
-static void addSimActorToScSceneT(Sc::Scene& s, NpRigidBodyTemplate<T>& dynamicObject, NpShape* const* npShapes, PxU32 nbShapes, PxBounds3* uninflatedBounds, const BVH* bvh)
+static void addSimActorToScSceneT(ev4sio_Sc::Scene& s, NpRigidBodyTemplate<T>& dynamicObject, NpShape* const* npShapes, PxU32 nbShapes, PxBounds3* uninflatedBounds, const BVH* bvh)
 {
 	const bool isCompound = bvh ? true : false;
 	const size_t shapePtrOffset = NpShape::getCoreOffset();
 	s.addBody(dynamicObject.getCore(), npShapes, nbShapes, shapePtrOffset, uninflatedBounds, isCompound);
 }
 
-static void addSimActorToScScene(Sc::Scene& s, NpRigidDynamic& dynamicObject, NpShape* const* npShapes, PxU32 nbShapes, PxBounds3* uninflatedBounds, const BVH* bvh)
+static void addSimActorToScScene(ev4sio_Sc::Scene& s, NpRigidDynamic& dynamicObject, NpShape* const* npShapes, PxU32 nbShapes, PxBounds3* uninflatedBounds, const BVH* bvh)
 {
 	addSimActorToScSceneT<PxRigidDynamic>(s, dynamicObject, npShapes, nbShapes, uninflatedBounds, bvh);
 }
 
-static void addSimActorToScScene(Sc::Scene& s, NpArticulationLink& dynamicObject, NpShape* const* npShapes, PxU32 nbShapes, PxBounds3* uninflatedBounds, const BVH* bvh)
+static void addSimActorToScScene(ev4sio_Sc::Scene& s, NpArticulationLink& dynamicObject, NpShape* const* npShapes, PxU32 nbShapes, PxBounds3* uninflatedBounds, const BVH* bvh)
 {
 	addSimActorToScSceneT<PxArticulationLink>(s, dynamicObject, npShapes, nbShapes, uninflatedBounds, bvh);
 }
 
-PX_FORCE_INLINE static void removeSimActorFromScScene(Sc::Scene& s, NpRigidStatic& staticObject, PxInlineArray<const Sc::ShapeCore*, 64>& scBatchRemovedShapes, bool wakeOnLostTouch)
+PX_FORCE_INLINE static void removeSimActorFromScScene(ev4sio_Sc::Scene& s, NpRigidStatic& staticObject, PxInlineArray<const ev4sio_Sc::ShapeCore*, 64>& scBatchRemovedShapes, bool wakeOnLostTouch)
 {
 	s.removeStatic(staticObject.getCore(), scBatchRemovedShapes, wakeOnLostTouch);
 }
 
 template <class T>
-PX_FORCE_INLINE static void removeSimActorFromScSceneT(Sc::Scene& s, NpRigidBodyTemplate<T>& dynamicObject, PxInlineArray<const Sc::ShapeCore*, 64>& scBatchRemovedShapes, bool wakeOnLostTouch)
+PX_FORCE_INLINE static void removeSimActorFromScSceneT(ev4sio_Sc::Scene& s, NpRigidBodyTemplate<T>& dynamicObject, PxInlineArray<const ev4sio_Sc::ShapeCore*, 64>& scBatchRemovedShapes, bool wakeOnLostTouch)
 {
 	s.removeBody(dynamicObject.getCore(), scBatchRemovedShapes, wakeOnLostTouch);
 }
 
-PX_FORCE_INLINE static void removeSimActorFromScScene(Sc::Scene& s, NpRigidDynamic& dynamicObject, PxInlineArray<const Sc::ShapeCore*, 64>& scBatchRemovedShapes, bool wakeOnLostTouch)
+PX_FORCE_INLINE static void removeSimActorFromScScene(ev4sio_Sc::Scene& s, NpRigidDynamic& dynamicObject, PxInlineArray<const ev4sio_Sc::ShapeCore*, 64>& scBatchRemovedShapes, bool wakeOnLostTouch)
 {
 	removeSimActorFromScSceneT<PxRigidDynamic>(s, dynamicObject, scBatchRemovedShapes, wakeOnLostTouch);
 }
 
-PX_FORCE_INLINE static void removeSimActorFromScScene(Sc::Scene& s, NpArticulationLink& dynamicObject, PxInlineArray<const Sc::ShapeCore*, 64>& scBatchRemovedShapes, bool wakeOnLostTouch)
+PX_FORCE_INLINE static void removeSimActorFromScScene(ev4sio_Sc::Scene& s, NpArticulationLink& dynamicObject, PxInlineArray<const ev4sio_Sc::ShapeCore*, 64>& scBatchRemovedShapes, bool wakeOnLostTouch)
 {
 	removeSimActorFromScSceneT<PxArticulationLink>(s, dynamicObject, scBatchRemovedShapes, wakeOnLostTouch);
 }
 
 template <class T>
-PX_FORCE_INLINE static void addSimActor(Sc::Scene& s, T& object, PxBounds3* uninflatedBounds, const BVH* bvh)
+PX_FORCE_INLINE static void addSimActor(ev4sio_Sc::Scene& s, T& object, PxBounds3* uninflatedBounds, const BVH* bvh)
 {
 	NpShape* const* npShapes = NULL;
 	const PxU32 nbShapes = getShapes(object, npShapes);
@@ -4290,14 +4290,14 @@ PX_FORCE_INLINE static void addSimActor(Sc::Scene& s, T& object, PxBounds3* unin
 }
 
 template <class T>
-PX_FORCE_INLINE static void removeSimActor(Sc::Scene& s, T& object, bool wakeOnLostTouch)
+PX_FORCE_INLINE static void removeSimActor(ev4sio_Sc::Scene& s, T& object, bool wakeOnLostTouch)
 {
 	NpScene* scScene = object.getNpScene();
 
-	PxInlineArray<const Sc::ShapeCore*, 64> localShapes;
-	PxInlineArray<const Sc::ShapeCore*, 64>& scBatchRemovedShapes = s.getBatchRemove() ? s.getBatchRemove()->removedShapes : localShapes;
+	PxInlineArray<const ev4sio_Sc::ShapeCore*, 64> localShapes;
+	PxInlineArray<const ev4sio_Sc::ShapeCore*, 64>& scBatchRemovedShapes = s.getBatchRemove() ? s.getBatchRemove()->removedShapes : localShapes;
 	removeSimActorFromScScene(s, object, scBatchRemovedShapes, wakeOnLostTouch);
-	Sc::ShapeCore* const* scShapes = const_cast<Sc::ShapeCore*const*>(scBatchRemovedShapes.begin());
+	ev4sio_Sc::ShapeCore* const* scShapes = const_cast<ev4sio_Sc::ShapeCore*const*>(scBatchRemovedShapes.begin());
 	const PxU32 nbShapes = scBatchRemovedShapes.size();
 	PX_ASSERT((0 == nbShapes) || scShapes);
 
@@ -4323,12 +4323,12 @@ template <typename T>struct ScSceneFns {};
 #if PX_SUPPORT_GPU_PHYSX
 template<> struct ScSceneFns<NpDeformableSurface>
 {
-	static PX_FORCE_INLINE void insert(Sc::Scene& s, NpDeformableSurface& v, PxBounds3*, const Gu::BVH*, bool)
+	static PX_FORCE_INLINE void insert(ev4sio_Sc::Scene& s, NpDeformableSurface& v, PxBounds3*, const ev4sio_Gu::BVH*, bool)
 	{
 		s.addDeformableSurface(v.getCore());
 	}
 
-	static PX_FORCE_INLINE void remove(Sc::Scene& s, NpDeformableSurface& v, bool /*wakeOnLostTouch*/)
+	static PX_FORCE_INLINE void remove(ev4sio_Sc::Scene& s, NpDeformableSurface& v, bool /*wakeOnLostTouch*/)
 	{
 		s.removeDeformableSurface(v.getCore());
 	}
@@ -4336,12 +4336,12 @@ template<> struct ScSceneFns<NpDeformableSurface>
 
 template<> struct ScSceneFns<NpDeformableVolume>
 {
-	static PX_FORCE_INLINE void insert(Sc::Scene& s, NpDeformableVolume& v, PxBounds3*, const BVH*, bool)
+	static PX_FORCE_INLINE void insert(ev4sio_Sc::Scene& s, NpDeformableVolume& v, PxBounds3*, const BVH*, bool)
 	{
 		s.addDeformableVolume(v.getCore());
 	}
 
-	static PX_FORCE_INLINE void remove(Sc::Scene& s, NpDeformableVolume& v, bool /*wakeOnLostTouch*/)
+	static PX_FORCE_INLINE void remove(ev4sio_Sc::Scene& s, NpDeformableVolume& v, bool /*wakeOnLostTouch*/)
 	{
 		s.removeDeformableVolume(v.getCore());
 	}
@@ -4349,12 +4349,12 @@ template<> struct ScSceneFns<NpDeformableVolume>
 
 template<> struct ScSceneFns<NpPBDParticleSystem>
 {
-	static PX_FORCE_INLINE void insert(Sc::Scene& s, NpPBDParticleSystem& v, PxBounds3*, const BVH*, bool)
+	static PX_FORCE_INLINE void insert(ev4sio_Sc::Scene& s, NpPBDParticleSystem& v, PxBounds3*, const BVH*, bool)
 	{
 		s.addParticleSystem(v.getCore());
 	}
 
-	static PX_FORCE_INLINE void remove(Sc::Scene& s, NpPBDParticleSystem& v, bool /*wakeOnLostTouch*/)
+	static PX_FORCE_INLINE void remove(ev4sio_Sc::Scene& s, NpPBDParticleSystem& v, bool /*wakeOnLostTouch*/)
 	{
 		s.removeParticleSystem(v.getCore());
 	}
@@ -4364,14 +4364,14 @@ template<> struct ScSceneFns<NpPBDParticleSystem>
 
 template<> struct ScSceneFns<NpArticulationReducedCoordinate>
 {
-	static PX_FORCE_INLINE void insert(Sc::Scene& s, NpArticulationReducedCoordinate& v, PxBounds3*, const BVH*, bool)
+	static PX_FORCE_INLINE void insert(ev4sio_Sc::Scene& s, NpArticulationReducedCoordinate& v, PxBounds3*, const BVH*, bool)
 	{
 		// PT: the sim caches the aggregate handle of the articulation. We read it from the root link's core, i.e. from the same
 		// place the link shapes get their aggregate membership from, so that the sim and the shapes cannot disagree. This ID is
 		// set on all links by NpAggregate::scAddActor when the aggregate is in a scene, and reset by NpAggregate::scRemoveActor,
 		// in particular by PxScene::removeAggregate, after which the articulation can legally be re-added to the scene on its own.
-		Sc::BodyCore& root = v.getRoot()->getCore();
-		const Bp::AggregateHandle h = root.getAggregateID();
+		ev4sio_Sc::BodyCore& root = v.getRoot()->getCore();
+		const ev4sio_Bp::AggregateHandle h = root.getAggregateID();
 
 		// PT: the Np aggregate must agree with the link cores. If this fires, some path left a stale handle in NpAggregate
 		// (see NpScene::scRemoveAggregate).
@@ -4379,7 +4379,7 @@ template<> struct ScSceneFns<NpArticulationReducedCoordinate>
 
 		s.addArticulation(v.getCore(), root, h);
 	}
-	static PX_FORCE_INLINE void remove(Sc::Scene& s, NpArticulationReducedCoordinate& v, bool /*wakeOnLostTouch*/)
+	static PX_FORCE_INLINE void remove(ev4sio_Sc::Scene& s, NpArticulationReducedCoordinate& v, bool /*wakeOnLostTouch*/)
 	{
 		s.removeArticulation(v.getCore());
 	}
@@ -4387,11 +4387,11 @@ template<> struct ScSceneFns<NpArticulationReducedCoordinate>
 
 template<> struct ScSceneFns<NpArticulationJointReducedCoordinate>
 {
-	static PX_FORCE_INLINE void insert(Sc::Scene& s, NpArticulationJointReducedCoordinate& v, PxBounds3*, const BVH*, bool)
+	static PX_FORCE_INLINE void insert(ev4sio_Sc::Scene& s, NpArticulationJointReducedCoordinate& v, PxBounds3*, const BVH*, bool)
 	{ 
 		s.addArticulationJoint(v.getCore(), v.getParent().getCore(), v.getChild().getCore());
 	}
-	static PX_FORCE_INLINE void remove(Sc::Scene& s, NpArticulationJointReducedCoordinate& v, bool /*wakeOnLostTouch*/)
+	static PX_FORCE_INLINE void remove(ev4sio_Sc::Scene& s, NpArticulationJointReducedCoordinate& v, bool /*wakeOnLostTouch*/)
 	{
 		s.removeArticulationJoint(v.getCore()); 
 	}
@@ -4399,46 +4399,46 @@ template<> struct ScSceneFns<NpArticulationJointReducedCoordinate>
 
 template<> struct ScSceneFns<NpArticulationSpatialTendon>
 {
-	static PX_FORCE_INLINE void insert(Sc::Scene& s, NpArticulationSpatialTendon& v, PxBounds3*, const BVH*, bool)
+	static PX_FORCE_INLINE void insert(ev4sio_Sc::Scene& s, NpArticulationSpatialTendon& v, PxBounds3*, const BVH*, bool)
 	{
 		s.addArticulationTendon(v.getTendonCore());
 	}
-	static PX_FORCE_INLINE void remove(Sc::Scene& s, NpArticulationSpatialTendon& v, bool /*wakeOnLostTouch*/)
+	static PX_FORCE_INLINE void remove(ev4sio_Sc::Scene& s, NpArticulationSpatialTendon& v, bool /*wakeOnLostTouch*/)
 	{
 		PX_UNUSED(s);
-		Sc::Scene::removeArticulationTendon(v.getTendonCore());
+		ev4sio_Sc::Scene::removeArticulationTendon(v.getTendonCore());
 	}
 };
 
 template<> struct ScSceneFns<NpArticulationFixedTendon>
 {
-	static PX_FORCE_INLINE void insert(Sc::Scene& s, NpArticulationFixedTendon& v, PxBounds3*, const BVH*, bool)
+	static PX_FORCE_INLINE void insert(ev4sio_Sc::Scene& s, NpArticulationFixedTendon& v, PxBounds3*, const BVH*, bool)
 	{
 		s.addArticulationTendon(v.getTendonCore());
 	}
-	static PX_FORCE_INLINE void remove(Sc::Scene& s, NpArticulationFixedTendon& v, bool /*wakeOnLostTouch*/)
+	static PX_FORCE_INLINE void remove(ev4sio_Sc::Scene& s, NpArticulationFixedTendon& v, bool /*wakeOnLostTouch*/)
 	{
 		PX_UNUSED(s);
-		Sc::Scene::removeArticulationTendon(v.getTendonCore());
+		ev4sio_Sc::Scene::removeArticulationTendon(v.getTendonCore());
 	}
 };
 
 template<> struct ScSceneFns<NpArticulationMimicJoint>
 {
-	static PX_FORCE_INLINE void insert(Sc::Scene& s, NpArticulationMimicJoint& v, PxBounds3*, const BVH*, bool)
+	static PX_FORCE_INLINE void insert(ev4sio_Sc::Scene& s, NpArticulationMimicJoint& v, PxBounds3*, const BVH*, bool)
 	{
 		s.addArticulationMimicJoint(v.getMimicJointCore());
 	}
-	static PX_FORCE_INLINE void remove(Sc::Scene& s, NpArticulationMimicJoint& v, bool /*wakeOnLostTouch*/)
+	static PX_FORCE_INLINE void remove(ev4sio_Sc::Scene& s, NpArticulationMimicJoint& v, bool /*wakeOnLostTouch*/)
 	{
 		PX_UNUSED(s);
-		Sc::Scene::removeArticulationMimicJoint(v.getMimicJointCore());
+		ev4sio_Sc::Scene::removeArticulationMimicJoint(v.getMimicJointCore());
 	}
 };
 
 template<> struct ScSceneFns<NpConstraint>
 {
-	static PX_FORCE_INLINE void insert(Sc::Scene& s, NpConstraint& v, PxBounds3*, const BVH*, bool)
+	static PX_FORCE_INLINE void insert(ev4sio_Sc::Scene& s, NpConstraint& v, PxBounds3*, const BVH*, bool)
 	{ 
 		PxRigidActor* a0, * a1;
 		v.getActors(a0, a1);
@@ -4451,7 +4451,7 @@ template<> struct ScSceneFns<NpConstraint>
 		s.addConstraint(v.getCore(), sc0 ? &sc0->getScRigidCore() : NULL, sc1 ? &sc1->getScRigidCore() : NULL);
 		OMNI_PVD_ADD(OMNI_PVD_CONTEXT_HANDLE, PxScene, constraints, static_cast<PxScene &>(*v.getNpScene()), static_cast<PxConstraint &>(v))
 	}
-	static PX_FORCE_INLINE void remove(Sc::Scene& s, NpConstraint& v, bool /*wakeOnLostTouch*/)
+	static PX_FORCE_INLINE void remove(ev4sio_Sc::Scene& s, NpConstraint& v, bool /*wakeOnLostTouch*/)
 	{
 		s.removeConstraint(v.getCore());
 		OMNI_PVD_REMOVE(OMNI_PVD_CONTEXT_HANDLE, PxScene, constraints, static_cast<PxScene &>(*v.getNpScene()), static_cast<PxConstraint &>(v))
@@ -4460,7 +4460,7 @@ template<> struct ScSceneFns<NpConstraint>
 
 template<> struct ScSceneFns<NpRigidStatic>
 {
-	static PX_FORCE_INLINE void insert(Sc::Scene& s, NpRigidStatic& v, PxBounds3* uninflatedBounds, const BVH* bvh, bool noSim)
+	static PX_FORCE_INLINE void insert(ev4sio_Sc::Scene& s, NpRigidStatic& v, PxBounds3* uninflatedBounds, const BVH* bvh, bool noSim)
 	{
 		PX_ASSERT(v.getCore().getActorFlags().isSet(PxActorFlag::eDISABLE_SIMULATION)==noSim);
 
@@ -4470,7 +4470,7 @@ template<> struct ScSceneFns<NpRigidStatic>
 			addOrRemoveNonSimActor<true>(v);
 	}
 
-	static PX_FORCE_INLINE void remove(Sc::Scene& s, NpRigidStatic& v, bool wakeOnLostTouch)
+	static PX_FORCE_INLINE void remove(ev4sio_Sc::Scene& s, NpRigidStatic& v, bool wakeOnLostTouch)
 	{
 		if(!v.getActorFlags().isSet(PxActorFlag::eDISABLE_SIMULATION))
 			removeSimActor(s, v, wakeOnLostTouch);
@@ -4481,7 +4481,7 @@ template<> struct ScSceneFns<NpRigidStatic>
 
 template<> struct ScSceneFns<NpRigidDynamic>
 {
-	static PX_FORCE_INLINE void insert(Sc::Scene& s, NpRigidDynamic& v, PxBounds3* uninflatedBounds, const BVH* bvh, bool noSim)
+	static PX_FORCE_INLINE void insert(ev4sio_Sc::Scene& s, NpRigidDynamic& v, PxBounds3* uninflatedBounds, const BVH* bvh, bool noSim)
 	{
 		PX_ASSERT(v.getCore().getActorFlags().isSet(PxActorFlag::eDISABLE_SIMULATION)==noSim);
 
@@ -4490,7 +4490,7 @@ template<> struct ScSceneFns<NpRigidDynamic>
 		else
 			addOrRemoveNonSimActor<true>(v);
 	}
-	static PX_FORCE_INLINE void remove(Sc::Scene& s, NpRigidDynamic& v, bool wakeOnLostTouch)	
+	static PX_FORCE_INLINE void remove(ev4sio_Sc::Scene& s, NpRigidDynamic& v, bool wakeOnLostTouch)
 	{
 		if(!v.getActorFlags().isSet(PxActorFlag::eDISABLE_SIMULATION))
 			removeSimActor(s, v, wakeOnLostTouch);
@@ -4501,7 +4501,7 @@ template<> struct ScSceneFns<NpRigidDynamic>
 
 template<> struct ScSceneFns<NpArticulationLink>
 {
-	static PX_FORCE_INLINE void insert(Sc::Scene& s, NpArticulationLink& v, PxBounds3* uninflatedBounds, const BVH* bvh, bool noSim)
+	static PX_FORCE_INLINE void insert(ev4sio_Sc::Scene& s, NpArticulationLink& v, PxBounds3* uninflatedBounds, const BVH* bvh, bool noSim)
 	{
 		PX_UNUSED(noSim);
 		PX_ASSERT(!noSim);	// PT: the flag isn't supported on NpArticulationLink
@@ -4512,7 +4512,7 @@ template<> struct ScSceneFns<NpArticulationLink>
 		//else
 		//	addOrRemoveNonSimActor<true>(v);
 	}
-	static PX_FORCE_INLINE void remove(Sc::Scene& s, NpArticulationLink& v, bool wakeOnLostTouch)	
+	static PX_FORCE_INLINE void remove(ev4sio_Sc::Scene& s, NpArticulationLink& v, bool wakeOnLostTouch)
 	{
 		PX_ASSERT(!v.getActorFlags().isSet(PxActorFlag::eDISABLE_SIMULATION));
 		//if(!v.getActorFlags().isSet(PxActorFlag::eDISABLE_SIMULATION))
@@ -5161,7 +5161,7 @@ bool NpScene::streamGPUStateToOmniPvd(bool snapshot)
 #undef OVD_READ_ART
 	if (!success)
 	{
-		PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "Selective OmniPVD GPU readback failed; recording stopped.");
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "Selective OmniPVD GPU readback failed; recording stopped.");
 		sampler->stopSampling();
 	}
 	return success;

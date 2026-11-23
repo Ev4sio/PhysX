@@ -8,13 +8,13 @@
 #include <cstdint>
 #include <vector>
 
-namespace omni::physx::authoring
+namespace omni::ev4sio_physx::authoring
 {
 // Same Cartesian frame/units on both inputs. One target index per source (-1
 // when outside inclusive distance). Ties choose the lowest target index; target
 // reuse is allowed. No foundation/SDK/attachment required. Failure preserves
 // output. Caller owns input arrays through return. Empty arrays are valid.
-bool matchPoints(const ::physx::PxVec3* source, uint32_t sourceCount,
-                 const ::physx::PxVec3* target, uint32_t targetCount, float distance,
+bool matchPoints(const ::ev4sio_physx::PxVec3* source, uint32_t sourceCount,
+                 const ::ev4sio_physx::PxVec3* target, uint32_t targetCount, float distance,
                  std::vector<int32_t>& output);
 }

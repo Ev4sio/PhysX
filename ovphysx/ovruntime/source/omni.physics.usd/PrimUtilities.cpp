@@ -105,9 +105,9 @@ namespace primutils
         return ret;
     }
 
-    bool isBodyTransformEqual(  const ::physx::PxMat44d& body0World,
+    bool isBodyTransformEqual(  const ::ev4sio_physx::PxMat44d& body0World,
                                 bool body0Valid,
-                                const ::physx::PxMat44d& body1World,
+                                const ::ev4sio_physx::PxMat44d& body1World,
                                 bool body1Valid,
                                 PXR_NS::GfVec3f localPose0Position,
                                 PXR_NS::GfQuatf localPose0Orientation,
@@ -119,7 +119,7 @@ namespace primutils
     {
         // Element copy, not a transpose: PxMat44d and GfMatrix4d hold the same
         // sixteen doubles for the same transform.
-        auto toMatrix4d = [](const ::physx::PxMat44d& m) {
+        auto toMatrix4d = [](const ::ev4sio_physx::PxMat44d& m) {
             const double* v = m.front();
             return PXR_NS::GfMatrix4d(v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7],
                                       v[8], v[9], v[10], v[11], v[12], v[13], v[14], v[15]);

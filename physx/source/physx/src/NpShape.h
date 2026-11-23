@@ -13,7 +13,7 @@
 #include "CmPtrTable.h"
 #include "foundation/PxSimpleTypes.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 class NpScene;
 
@@ -100,8 +100,8 @@ public:
 	PX_FORCE_INLINE PxU32						getActorCount()			const	{ return mFreeSlot;														}
 	PX_FORCE_INLINE bool						isExclusiveFast()		const	{ return mCore.mShapeCoreFlags.isSet(PxShapeCoreFlag::eIS_EXCLUSIVE);	}
 
-	PX_FORCE_INLINE	const Sc::ShapeCore&		getCore()				const	{ return mCore;	}
-	PX_FORCE_INLINE	Sc::ShapeCore&				getCore()						{ return mCore;	}
+	PX_FORCE_INLINE	const ev4sio_Sc::ShapeCore&		getCore()				const	{ return mCore;	}
+	PX_FORCE_INLINE	ev4sio_Sc::ShapeCore&				getCore()						{ return mCore;	}
 	static PX_FORCE_INLINE size_t				getCoreOffset()					{ return PX_OFFSET_OF_RT(NpShape, mCore); }
 
 	// PT: TODO: this one only used internally and by NpFactory
@@ -127,7 +127,7 @@ public:
 					void						decActorCount();
 
 	//Always returns 0xffffffff for shared shapes.
-	PX_FORCE_INLINE PxU32						getShapeManagerArrayIndex(const Cm::PtrTable& shapes)  const
+	PX_FORCE_INLINE PxU32						getShapeManagerArrayIndex(const ev4sio_Cm::PtrTable& shapes)  const
 												{
 													if(isExclusiveFast())
 													{
@@ -139,7 +139,7 @@ public:
 													else
 														return shapes.find(this);
 												}
-	PX_FORCE_INLINE bool						checkShapeManagerArrayIndex(const Cm::PtrTable& shapes)  const
+	PX_FORCE_INLINE bool						checkShapeManagerArrayIndex(const ev4sio_Cm::PtrTable& shapes)  const
 												{
 													return 
 														((!isExclusiveFast() && NP_UNUSED_BASE_INDEX==getBaseIndex()) || 
@@ -156,10 +156,10 @@ public:
 
 private:
 					PxActor*					mExclusiveShapeActor;
-					Sc::ShapeCore				mCore;
+					ev4sio_Sc::ShapeCore				mCore;
 					PxFilterData				mQueryFilterData;	// Query filter data PT: TODO: consider moving this to SQ structures
 
-					void						notifyActorAndUpdatePVD(Sc::ShapeChangeNotifyFlags notifyFlags);
+					void						notifyActorAndUpdatePVD(ev4sio_Sc::ShapeChangeNotifyFlags notifyFlags);
 					void						notifyActorAndUpdatePVD(const PxShapeFlags oldShapeFlags);	// PT: for shape flags change
 					void						incMeshRefCount();
 					void						decMeshRefCount();
@@ -169,8 +169,8 @@ private:
 	template <typename PxMaterialType, typename NpMaterialType>
 					bool						setMaterialsHelper(PxMaterialType* const* materials, PxU16 materialCount);
 					void						setFlagsInternal(PxShapeFlags inFlags);
-					Sc::RigidCore&				getScRigidObjectExclusive() const;
-	PX_FORCE_INLINE	Sc::RigidCore*				getScRigidObjectSLOW()
+					ev4sio_Sc::RigidCore&				getScRigidObjectExclusive() const;
+	PX_FORCE_INLINE	ev4sio_Sc::RigidCore*				getScRigidObjectSLOW()
 												{
 													return NpShape::getActor() ? &getScRigidObjectExclusive() : NULL;
 												}
@@ -203,7 +203,7 @@ bool NpShape::checkMaterialSetup(const PxGeometry& geom, const char* errorMsgPre
 	{
 		if(!materials[i])
 		{
-			PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL,
+			ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL,
 				"material pointer %d is NULL!", i);
 			return false;
 		}
@@ -222,12 +222,12 @@ bool NpShape::checkMaterialSetup(const PxGeometry& geom, const char* errorMsgPre
 			// do not allow SDF multi-material tri-meshes:
 			if(mesh.getSDF())
 			{
-				PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL,
+				ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL,
 					"%s: multiple materials defined for an SDF triangle-mesh geometry!", errorMsgPrefix);
 				return false;
 			}
 
-			const Gu::TriangleMesh& tmesh = static_cast<const Gu::TriangleMesh&>(mesh);
+			const ev4sio_Gu::TriangleMesh& tmesh = static_cast<const ev4sio_Gu::TriangleMesh&>(mesh);
 			if(tmesh.hasPerTriangleMaterials())
 			{
 				const PxU32 nbTris = tmesh.getNbTrianglesFast();
@@ -236,7 +236,7 @@ bool NpShape::checkMaterialSetup(const PxGeometry& geom, const char* errorMsgPre
 					const PxMaterialTableIndex meshMaterialIndex = mesh.getTriangleMaterialIndex(i);
 					if(meshMaterialIndex >= materialCount)
 					{
-						PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL,
+						ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL,
 							"%s: PxTriangleMesh material indices reference more materials than provided!", errorMsgPrefix);
 						break;
 					}
@@ -244,7 +244,7 @@ bool NpShape::checkMaterialSetup(const PxGeometry& geom, const char* errorMsgPre
 			}
 			else
 			{
-				PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL,
+				ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL,
 					"%s: multiple materials defined for a triangle-mesh that does not have per-triangle materials!", errorMsgPrefix);
 			}
 		}
@@ -261,7 +261,7 @@ bool NpShape::checkMaterialSetup(const PxGeometry& geom, const char* errorMsgPre
 					const PxMaterialTableIndex meshMaterialIndex = mesh.getTriangleMaterialIndex(i);
 					if (meshMaterialIndex >= materialCount)
 					{
-						PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL,
+						ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL,
 							"%s: PxTriangleMesh material indices reference more materials than provided!", errorMsgPrefix);
 						break;
 					}
@@ -280,7 +280,7 @@ bool NpShape::checkMaterialSetup(const PxGeometry& geom, const char* errorMsgPre
 					const PxMaterialTableIndex meshMaterialIndex = mesh.getTriangleMaterialIndex(i);
 					if (meshMaterialIndex != PxHeightFieldMaterial::eHOLE && meshMaterialIndex >= materialCount)
 					{
-						PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL,
+						ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL,
 							"%s: PxHeightField material indices reference more materials than provided!", errorMsgPrefix);
 						break;
 					}
@@ -288,14 +288,14 @@ bool NpShape::checkMaterialSetup(const PxGeometry& geom, const char* errorMsgPre
 			}
 			else
 			{
-				PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL,
+				ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL,
 					"%s: multiple materials defined for a heightfield that does not have per-triangle materials!", errorMsgPrefix);
 			}
 		}
 		else
 		{
 			// check that simple shapes don't get assigned multiple materials
-			PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL,
+			ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL,
 				"%s: multiple materials defined for single material geometry!", errorMsgPrefix);
 			return false;
 		}

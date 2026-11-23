@@ -62,11 +62,11 @@ using omni::physics::tensors::checkTensorSizeExact;
 using omni::physics::tensors::checkTensorSizeMinimum;
 using omni::physics::tensors::getTensorTotalSize;
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace tensors
 {
@@ -140,11 +140,11 @@ GpuRigidContactView::GpuRigidContactView(GpuSimulationView* sim,
                 if (insertion.second)
                 {
                     insertion.first->second = static_cast<PxActor*>(
-                        BaseSimulationView::resolvePhysXPtr(attachedStage, filterKey, omni::physx::ePTActor));
+                        BaseSimulationView::resolvePhysXPtr(attachedStage, filterKey, omni::ev4sio_physx::ePTActor));
                     if (!insertion.first->second)
                     {
                         insertion.first->second = static_cast<PxArticulationLink*>(
-                            BaseSimulationView::resolvePhysXPtr(attachedStage, filterKey, omni::physx::ePTLink));
+                            BaseSimulationView::resolvePhysXPtr(attachedStage, filterKey, omni::ev4sio_physx::ePTLink));
                     }
                 }
                 PxActor* actor = insertion.first->second;

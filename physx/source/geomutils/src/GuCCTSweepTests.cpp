@@ -17,9 +17,9 @@
 #include "GuInternal.h"
 #include "foundation/PxVecMath.h"
 
-using namespace physx;
-using namespace Gu;
-using namespace Cm;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
+using namespace ev4sio_Cm;
 using namespace aos;
 
 static const bool gValidateBoxRadiusComputation = false;
@@ -410,7 +410,7 @@ bool sweepBox_HeightFieldGeom_Precise(GU_BOX_SWEEP_FUNC_PARAMS)
 	return myReport.mStatus;
 }
 
-bool Gu::sweepBoxTriangles_Precise(GU_SWEEP_TRIANGLES_FUNC_PARAMS(PxBoxGeometry))
+bool ev4sio_Gu::sweepBoxTriangles_Precise(GU_SWEEP_TRIANGLES_FUNC_PARAMS(PxBoxGeometry))
 {
 	PX_UNUSED(inflation);
 

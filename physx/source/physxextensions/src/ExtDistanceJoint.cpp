@@ -8,8 +8,8 @@
 
 #include "omnipvd/ExtOmniPvdSetData.h"
 
-using namespace physx;
-using namespace Ext;
+using namespace ev4sio_physx;
+using namespace ev4sio_Ext;
 
 DistanceJoint::DistanceJoint(const PxTolerancesScale& scale, PxRigidActor* actor0, const PxTransform& localFrame0, PxRigidActor* actor1, const PxTransform& localFrame1) :
 	DistanceJointT(PxJointConcreteType::eDISTANCE, actor0, localFrame0, actor1, localFrame1, "DistanceJointData")
@@ -259,7 +259,7 @@ static PxConstraintShaderTable gDistanceJointShaders = { DistanceJointSolverPrep
 
 PxConstraintSolverPrep DistanceJoint::getPrep()	const	{ return gDistanceJointShaders.solverPrep;	}
 
-PxDistanceJoint* physx::PxDistanceJointCreate(PxPhysics& physics, PxRigidActor* actor0, const PxTransform& localFrame0, PxRigidActor* actor1, const PxTransform& localFrame1)
+PxDistanceJoint* ev4sio_physx::PxDistanceJointCreate(PxPhysics& physics, PxRigidActor* actor0, const PxTransform& localFrame0, PxRigidActor* actor1, const PxTransform& localFrame1)
 {
 	PX_CHECK_AND_RETURN_NULL(localFrame0.isSane(), "PxDistanceJointCreate: local frame 0 is not a valid transform"); 
 	PX_CHECK_AND_RETURN_NULL(localFrame1.isSane(), "PxDistanceJointCreate: local frame 1 is not a valid transform"); 
@@ -290,9 +290,9 @@ void DistanceJoint::updateOmniPvdProperties(const PxConstraintOmniPvdState& stat
 	OMNI_PVD_SET(OMNI_PVD_CONTEXT_HANDLE, PxDistanceJoint, distance, j, omniPvdRelativeTransform(j, state).p.magnitude())
 }
 
-template<> void physx::Ext::omniPvdInitJoint<DistanceJoint>(OmniPvdWriter* pvdWriter, const OmniPvdPxExtensionsRegistrationData* pvdRegData, DistanceJoint& joint); // declared before the wrapper so the wrapper binds the explicit form below instead of implicitly instantiating it
+template<> void ev4sio_physx::ev4sio_Ext::omniPvdInitJoint<DistanceJoint>(OmniPvdWriter* pvdWriter, const OmniPvdPxExtensionsRegistrationData* pvdRegData, DistanceJoint& joint); // declared before the wrapper so the wrapper binds the explicit form below instead of implicitly instantiating it
 template<>
-void physx::Ext::omniPvdInitJoint<DistanceJoint>(DistanceJoint& joint)
+void ev4sio_physx::ev4sio_Ext::omniPvdInitJoint<DistanceJoint>(DistanceJoint& joint)
 {
 	OMNI_PVD_WRITE_SCOPE_BEGIN(pvdWriter, pvdRegData)
 	omniPvdInitJoint(pvdWriter, pvdRegData, joint);
@@ -300,7 +300,7 @@ void physx::Ext::omniPvdInitJoint<DistanceJoint>(DistanceJoint& joint)
 }
 
 template<>
-void physx::Ext::omniPvdInitJoint<DistanceJoint>(OmniPvdWriter* pvdWriter, const OmniPvdPxExtensionsRegistrationData* pvdRegData, DistanceJoint& joint)
+void ev4sio_physx::ev4sio_Ext::omniPvdInitJoint<DistanceJoint>(OmniPvdWriter* pvdWriter, const OmniPvdPxExtensionsRegistrationData* pvdRegData, DistanceJoint& joint)
 {
 	PxDistanceJoint& j = static_cast<PxDistanceJoint&>(joint);
 	OMNI_PVD_CREATE_EXPLICIT(pvdWriter, pvdRegData, OMNI_PVD_CONTEXT_HANDLE, PxDistanceJoint, j);

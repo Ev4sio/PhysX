@@ -38,11 +38,11 @@
 
 #include <utility>
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace tensors
 {
@@ -322,7 +322,7 @@ GpuDeformableMaterialView* GpuSimulationView::createDeformableMaterialView(const
     }
 
     std::vector<DeformableMaterialEntry> entries;
-    std::unordered_set<const ::physx::PxDeformableMaterial*> seenMaterials;
+    std::unordered_set<const ::ev4sio_physx::PxDeformableMaterial*> seenMaterials;
     findMatchingDeformableMaterials(pattern, entries, seenMaterials);
 
     if (entries.empty())

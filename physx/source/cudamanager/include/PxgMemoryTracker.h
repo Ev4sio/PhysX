@@ -28,11 +28,11 @@ struct AllocInfo
 {
 	const void* mPtr;
 	bool mIsGpuPointer;
-	physx::PxU64 mNumBytes;
+	ev4sio_physx::PxU64 mNumBytes;
 	const char* mFileName;
-	physx::PxI32 mLineNumber;
+	ev4sio_physx::PxI32 mLineNumber;
 
-	AllocInfo(const void* ptr, bool isGpuPointer, physx::PxU64 numBytes, const char* fileName, physx::PxI32 lineNumber) :
+	AllocInfo(const void* ptr, bool isGpuPointer, ev4sio_physx::PxU64 numBytes, const char* fileName, ev4sio_physx::PxI32 lineNumber) :
 		mPtr(ptr), mIsGpuPointer(isGpuPointer), mNumBytes(numBytes), mFileName(fileName), mLineNumber(lineNumber)
 	{
 	}
@@ -49,19 +49,19 @@ struct AllocInfo
 
 class MemTracker
 {
-	typedef physx::PxHashMap<size_t, AllocInfo, physx::PxHash<size_t>, physx::PxRawAllocator> AllocMap;
+	typedef ev4sio_physx::PxHashMap<size_t, AllocInfo, ev4sio_physx::PxHash<size_t>, ev4sio_physx::PxRawAllocator> AllocMap;
 
 	// Indexed by the isGpuMemory flag, so that a host and a device allocation at the same address stay apart.
 	AllocMap mAllocs[2];
-	physx::PxMutexT<physx::PxRawAllocator> mMutex;
+	ev4sio_physx::PxMutexT<ev4sio_physx::PxRawAllocator> mMutex;
 
 	static void report(const char* problem, const AllocInfo& info)
 	{
-		if(PxIsFoundationValid()) // error callback requires foundation
+		if(ev4sio_PxIsFoundationValid()) // error callback requires foundation
 		{
 			char msg[512];
-			physx::Pxsnprintf(msg, 512, "%s: Ptr: %p, numBytes: %zu, file: %s, line: %i isDeviceMem %u\n", problem, info.mPtr, info.mNumBytes, info.mFileName, info.mLineNumber, info.mIsGpuPointer);
-			PxGetErrorCallback()->reportError(physx::PxErrorCode::eINTERNAL_ERROR, msg, PX_FL);
+			ev4sio_physx::Pxsnprintf(msg, 512, "%s: Ptr: %p, numBytes: %zu, file: %s, line: %i isDeviceMem %u\n", problem, info.mPtr, info.mNumBytes, info.mFileName, info.mLineNumber, info.mIsGpuPointer);
+			ev4sio_PxGetErrorCallback()->reportError(ev4sio_physx::PxErrorCode::eINTERNAL_ERROR, msg, PX_FL);
 		}
 		else
 		{
@@ -70,9 +70,9 @@ class MemTracker
 	}
 
 public:
-	void registerMemory(void* ptr, bool isGpuMemory, physx::PxU64 numBytes, const char* filename, physx::PxI32 lineNumber)
+	void registerMemory(void* ptr, bool isGpuMemory, ev4sio_physx::PxU64 numBytes, const char* filename, ev4sio_physx::PxI32 lineNumber)
 	{
-		physx::PxMutexT<physx::PxRawAllocator>::ScopedLock lock(mMutex);
+		ev4sio_physx::PxMutexT<ev4sio_physx::PxRawAllocator>::ScopedLock lock(mMutex);
 
 		AllocMap& allocs = mAllocs[isGpuMemory];
 		const AllocMap::Entry* previous = allocs.find(size_t(ptr));
@@ -87,16 +87,16 @@ public:
 
 	bool unregisterMemory(void* ptr, bool isGpuMemory)
 	{
-		physx::PxMutexT<physx::PxRawAllocator>::ScopedLock lock(mMutex);
+		ev4sio_physx::PxMutexT<ev4sio_physx::PxRawAllocator>::ScopedLock lock(mMutex);
 
 		return mAllocs[isGpuMemory].erase(size_t(ptr));
 	}
 
 	void checkForLeaks()
 	{
-		physx::PxMutexT<physx::PxRawAllocator>::ScopedLock lock(mMutex);
+		ev4sio_physx::PxMutexT<ev4sio_physx::PxRawAllocator>::ScopedLock lock(mMutex);
 
-		for (physx::PxU32 i = 0; i < 2; ++i)
+		for (ev4sio_physx::PxU32 i = 0; i < 2; ++i)
 		{
 			for (AllocMap::Iterator iter = mAllocs[i].getIterator(); !iter.done(); ++iter)
 			{

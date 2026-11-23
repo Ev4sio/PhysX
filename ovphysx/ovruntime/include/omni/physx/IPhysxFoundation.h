@@ -6,7 +6,7 @@
 #include <carb/Types.h>
 #include <cstdint>
 
-namespace physx
+namespace ev4sio_physx
 {
 class PxFoundation;
 class PxCudaContextManager;
@@ -14,7 +14,7 @@ class PxCudaContextManager;
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 
 /// PhysxFoundationDeviceOrdinal is an output filled by IPhysxFoundation::getSingleCudaContextManagerOrdinal
@@ -60,13 +60,13 @@ struct IPhysxFoundation
 
     /// Set CUDA device and create or refresh a PxCudaContextManager for a given PhysxFoundationDeviceOrdinal mode setting
     bool(CARB_ABI* createOrRefreshPxCudaContextManager)(PhysxFoundationDeviceOrdinal preferences,
-                                                        ::physx::PxFoundation* pxFoundation,
-                                                        ::physx::PxCudaContextManager*& pxCudaContextManager,
+                                                        ::ev4sio_physx::PxFoundation* pxFoundation,
+                                                        ::ev4sio_physx::PxCudaContextManager*& pxCudaContextManager,
                                                         const bool enableSynchronousKernelLaunches);
 
     /// Set a current CUDA device with cudainterop->setDevice
     void(CARB_ABI* setCudaDevice)(int deviceOrdinal);
 };
 
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

@@ -16,14 +16,14 @@
 
 #define PXG_SC_DEBUG 0
 
-namespace physx
+namespace ev4sio_physx
 {
-	namespace Cm
+	namespace ev4sio_Cm
 	{
 		class FlushPool;
 	}
 
-	namespace Sc
+	namespace ev4sio_Sc
 	{
 		class ShapeSimBase;
 	}
@@ -56,12 +56,12 @@ namespace physx
 		public:
 														PxgShapeSimManager(PxgAllocatorDesc& allocDesc);
 
-						void							addPxgShape(Sc::ShapeSimBase* shapeSimBase, const PxsShapeCore* shapeCore, PxNodeIndex nodeIndex, PxU32 index);
+						void							addPxgShape(ev4sio_Sc::ShapeSimBase* shapeSimBase, const PxsShapeCore* shapeCore, PxNodeIndex nodeIndex, PxU32 index);
 						void							setPxgShapeBodyNodeIndex(PxNodeIndex nodeIndex, PxU32 index);
 						void							removePxgShape(PxU32 index);
 
 		// PT: copies new shapes from CPU memory (mShapeSims) to GPU *host* memory (mPxgShapeSimPool)
-						void							copyToGpuShapeSim(PxgGpuNarrowphaseCore* npCore, PxBaseTask* continuation, Cm::FlushPool& flushPool);
+						void							copyToGpuShapeSim(PxgGpuNarrowphaseCore* npCore, PxBaseTask* continuation, ev4sio_Cm::FlushPool& flushPool);
 		// PT: copies new shapes from GPU *host* memory (mPxgShapeSimPool) to GPU device memory (mNewShapeSimBuffer)
 		// and *then* copies from device-to-device memory (mNewShapeSimBuffer => mShapeSimBuffer)
 						void							gpuMemDmaUpShapeSim(PxCudaContext* cudaContext, CUstream stream, KernelWrangler* kernelWrangler);
@@ -73,7 +73,7 @@ namespace physx
 
 		PX_FORCE_INLINE	CUdeviceptr						getShapeSimsDevicePtr()			const	{ return mShapeSimBuffer.getDevicePtr();	}
 		PX_FORCE_INLINE	const PxgShapeSim*				getShapeSimsDeviceTypedPtr()	const	{ return mShapeSimBuffer.getTypedPtr();		}
-		PX_FORCE_INLINE	Sc::ShapeSimBase**				getShapeSims()							{ return mShapeSimPtrs.begin();				}
+		PX_FORCE_INLINE	ev4sio_Sc::ShapeSimBase**				getShapeSims()							{ return mShapeSimPtrs.begin();				}
 
 #if PXG_SC_DEBUG
 		void											validateCacheAndBounds(const PxBounds3* bounds, const PxsCachedTransform* cachedTransforms);
@@ -81,12 +81,12 @@ namespace physx
 
 		private:
 						PxArray<PxgShapeSimData>		mShapeSims;
-						PxArray<Sc::ShapeSimBase*>		mShapeSimPtrs;
+						PxArray<ev4sio_Sc::ShapeSimBase*>		mShapeSimPtrs;
 						PxArray<PxU32>					mNewShapeSims;
 						PxU32							mTotalNumShapes;
 						PxU32							mNbTotalShapeSim;
 
-						Cm::PinnableArray<PxgNewShapeSim>	mPxgShapeSimPool;
+						ev4sio_Cm::PinnableArray<PxgNewShapeSim>	mPxgShapeSimPool;
 						PxgTypedCudaBuffer<PxgShapeSim>		mShapeSimBuffer;
 						PxgTypedCudaBuffer<PxgNewShapeSim>	mNewShapeSimBuffer;
 

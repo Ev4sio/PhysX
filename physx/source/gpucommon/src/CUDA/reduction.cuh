@@ -14,7 +14,7 @@
 #include "assert.h"
 #include "utils.cuh"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 struct MinOpFloat
@@ -729,6 +729,6 @@ static __device__ PxU32 binarySearch(const T* PX_RESTRICT data, const PxU32 numE
 	return left ? left - 1 : 0;
 }
 
-} // namespace physx
+} // namespace ev4sio_physx
 
 #endif //CU_REDUCTION_CU

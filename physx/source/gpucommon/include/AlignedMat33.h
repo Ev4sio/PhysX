@@ -13,7 +13,7 @@
 #include "mathsExtensions.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 /*!
@@ -353,7 +353,7 @@ PX_CUDA_CALLABLE PX_INLINE PxAlignedQuat::PxAlignedQuat(const PxAlignedMat33& m)
 }
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

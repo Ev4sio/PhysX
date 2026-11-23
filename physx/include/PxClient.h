@@ -9,7 +9,7 @@
 #include "foundation/PxFlags.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -28,7 +28,7 @@ typedef PxU8 PxClientID;
 static const PxClientID PX_DEFAULT_CLIENT = 0;
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

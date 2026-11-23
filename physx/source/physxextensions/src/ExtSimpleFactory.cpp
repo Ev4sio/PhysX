@@ -22,7 +22,7 @@
 #include "foundation/PxUtilities.h"
 #include "foundation/PxInlineArray.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 static bool isDynamicGeometry(PxGeometryType::Enum type)
 {
@@ -34,7 +34,7 @@ static bool isDynamicGeometry(PxGeometryType::Enum type)
 		|| type == PxGeometryType::eCONVEXMESH;
 }
 
-namespace physx
+namespace ev4sio_physx
 {
 PxRigidDynamic* PxCreateDynamic(PxPhysics& sdk, 
 								const PxTransform& transform, 
@@ -219,7 +219,7 @@ static void copyStaticProperties(PxPhysics& physics, PxRigidActor& to, const PxR
 			to.attachShape(*s);
 		else
 		{
-			PxShape* newShape = physx::PxCloneShape(physics, *s, true);
+			PxShape* newShape = ev4sio_physx::PxCloneShape(physics, *s, true);
 			to.attachShape(*newShape);
 			newShape->release();		
 		}

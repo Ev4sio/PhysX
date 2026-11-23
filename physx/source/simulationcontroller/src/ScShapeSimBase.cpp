@@ -15,9 +15,9 @@
 	#include "cudamanager/PxCudaContext.h"
 #endif
 
-using namespace physx;
-using namespace Sc;
-using namespace Cm;
+using namespace ev4sio_physx;
+using namespace ev4sio_Sc;
+using namespace ev4sio_Cm;
 
 // PT: keep local functions in cpp, no need to pollute the header. Don't force conversions to bool if not necessary.
 static PX_FORCE_INLINE PxU32 hasTriggerFlags(PxShapeFlags flags)	{ return PxU32(flags) & PxU32(PxShapeFlag::eTRIGGER_SHAPE);	}
@@ -35,7 +35,7 @@ void resetElementID(Scene& scene, ShapeSimBase& shapeSim)
 		shapeSim.destroySqBounds();
 }
 
-static PX_INLINE Bp::FilterGroup::Enum getBPGroup(const ShapeSimBase& shapeSim)
+static PX_INLINE ev4sio_Bp::FilterGroup::Enum getBPGroup(const ShapeSimBase& shapeSim)
 {
 	const BodySim* bs = shapeSim.getBodySim();
 
@@ -46,10 +46,10 @@ static PX_INLINE Bp::FilterGroup::Enum getBPGroup(const ShapeSimBase& shapeSim)
 	if (isKinematic && bs->hasForcedKinematicNotif())
 		isKinematic = false;
 
-	return Bp::getFilterGroup(rbSim.getActorType() == PxActorType::eRIGID_STATIC, rbSim.getActorID(), isKinematic);
+	return ev4sio_Bp::getFilterGroup(rbSim.getActorType() == PxActorType::eRIGID_STATIC, rbSim.getActorID(), isKinematic);
 }
 
-static void setElementInteractionsDirty(Sc::ElementSim& elementSim, InteractionDirtyFlag::Enum flag, PxU8 interactionFlag)
+static void setElementInteractionsDirty(ev4sio_Sc::ElementSim& elementSim, InteractionDirtyFlag::Enum flag, PxU8 interactionFlag)
 {
 	ElementSim::ElementInteractionIterator iter = elementSim.getElemInteractions();
 	ElementSimInteraction* interaction = iter.getNext();
@@ -126,8 +126,8 @@ void ShapeSimBase::reinsertBroadPhase()
 #if PX_SUPPORT_GPU_PHYSX
 			if (!initID())
 			{
-				PxGetFoundation().error(PxErrorCode::eOUT_OF_MEMORY, PX_FL,
-										"Sc::ElementSim::ElementSim failed to allocate pinned memory bounds array");
+				ev4sio_PxGetFoundation().error(PxErrorCode::eOUT_OF_MEMORY, PX_FL,
+										"ev4sio_Sc::ElementSim::ElementSim failed to allocate pinned memory bounds array");
 				scene.getCudaContextManager()->getCudaContext()->setAbortMode(true);
 				// code below is safe to execute after failure, as elementID is always obtained and bounds array accesses are guarded.
 			}
@@ -155,7 +155,7 @@ PX_FORCE_INLINE void ShapeSimBase::internalAddToBroadPhase()
 {
 	PX_ASSERT(!isInBroadPhase());
 
-	addToAABBMgr(getCore().getContactOffset(), getBPGroup(*this), (getCore().mShapeFlags & PxShapeFlag::eTRIGGER_SHAPE) ? Bp::ElementType::eTRIGGER : Bp::ElementType::eSHAPE);
+	addToAABBMgr(getCore().getContactOffset(), getBPGroup(*this), (getCore().mShapeFlags & PxShapeFlag::eTRIGGER_SHAPE) ? ev4sio_Bp::ElementType::eTRIGGER : ev4sio_Bp::ElementType::eSHAPE);
 }
 
 PX_FORCE_INLINE bool ShapeSimBase::internalRemoveFromBroadPhase(bool wakeOnLostTouch)
@@ -173,7 +173,7 @@ void ShapeSimBase::initSubsystemsDependingOnElementID()
 {
 	Scene& scScene = getScene();
 
-	Bp::BoundsArray& boundsArray = scScene.getBoundsArray();
+	ev4sio_Bp::BoundsArray& boundsArray = scScene.getBoundsArray();
 	const PxU32 index = getElementID();
 
 	PX_ALIGN(16, PxTransform absPos);
@@ -189,7 +189,7 @@ void ShapeSimBase::initSubsystemsDependingOnElementID()
 	
 	if(!cache.initEntry(index))
 	{
-		PxGetFoundation().error(PxErrorCode::eOUT_OF_MEMORY, PX_FL,
+		ev4sio_PxGetFoundation().error(PxErrorCode::eOUT_OF_MEMORY, PX_FL,
 			"ShapeSimBase::initSubsystemsDependingOnElementID: failed to allocate pinned memory transform cache");
 		if(ctxm)
 		{
@@ -276,12 +276,12 @@ void ShapeSimBase::getAbsPoseAligned(PxTransform* PX_RESTRICT globalPose) const
 		PxsBodyCore& core = static_cast<BodySim&>(getActor()).getBodyCore().getCore();
 		if (!core.hasIdtBody2Actor())
 		{
-			Cm::getDynamicGlobalPoseAligned(core.body2World, shape2Actor, core.getBody2Actor(), *globalPose);
+			ev4sio_Cm::getDynamicGlobalPoseAligned(core.body2World, shape2Actor, core.getBody2Actor(), *globalPose);
 			return;
 		}
 		actor2World = &core.body2World;
 	}
-	Cm::getStaticGlobalPoseAligned(*actor2World, shape2Actor, *globalPose);
+	ev4sio_Cm::getStaticGlobalPoseAligned(*actor2World, shape2Actor, *globalPose);
 }
 
 void ShapeSimBase::onFlagChange(PxShapeFlags oldFlags)
@@ -392,7 +392,7 @@ void ShapeSimBase::updateCached(const UpdateCachedParams& params, PinnableBitMap
 	// - updateBounds is now virtual, and the Pxg version is unsafe (writes to array from N threads)
 
 	// PT: we write the bounds directly to the destination address, avoiding a copy. Potential false sharing here.
-	Bp::BoundsArray& boundsArray = params.mBoundsArray;
+	ev4sio_Bp::BoundsArray& boundsArray = params.mBoundsArray;
 	if(fromTask)
 	{
 		// PT: this one bypasses the virtual call (that's why it is thread-safe) and skips the setChangedState() call
@@ -400,7 +400,7 @@ void ShapeSimBase::updateCached(const UpdateCachedParams& params, PinnableBitMap
 		// computes the shape bounds and transforms of the active bodies from their poses on the GPU. updateDirtyShapes() marks
 		// its shapes before its tasks run, and updateKinematicCached() marks the shapes of moved kinematics, for steps without
 		// a solve.
-		Gu::computeBounds(boundsArray.begin()[index], shapeCore.getGeometryUnion().getGeometry(), ct.transform, 0.0f, 1.0f);
+		ev4sio_Gu::computeBounds(boundsArray.begin()[index], shapeCore.getGeometryUnion().getGeometry(), ct.transform, 0.0f, 1.0f);
 		//boundsArray.setChangedState();
 	}
 	else
@@ -449,7 +449,7 @@ bool ShapeSimBase::updateCachedIfChanged(const UpdateCachedParams& params, Pinna
 	ct.transform = absPose;
 	ct.flags = params.mTransformFlags;
 
-	Gu::computeBounds(params.mBoundsArray.begin()[index], shapeCore.getGeometryUnion().getGeometry(), absPose, 0.0f, 1.0f);
+	ev4sio_Gu::computeBounds(params.mBoundsArray.begin()[index], shapeCore.getGeometryUnion().getGeometry(), absPose, 0.0f, 1.0f);
 
 	PX_ASSERT(isInBroadPhase() == (isBroadPhase(shapeCore.getFlags())!=0) );
 	if(shapeChangedMap && isInBroadPhase())
@@ -510,7 +510,7 @@ void BodySim::prefetchShapesForUpdateCached(const UpdateCachedParams& params, bo
 	}
 }
 
-void Sc::ArticulationSim::updateCached(const UpdateCachedParams& params, PinnableBitMap* shapeChangedMap, bool fromTask, bool useAtomics)
+void ev4sio_Sc::ArticulationSim::updateCached(const UpdateCachedParams& params, PinnableBitMap* shapeChangedMap, bool fromTask, bool useAtomics)
 {
 	const PxU32 nbBodies = mBodies.size();
 	BodySim** bodies = mBodies.begin();
@@ -618,7 +618,7 @@ void ShapeSimBase::updateBPGroup()
 {
 	if (isInBroadPhase())
 	{
-		Sc::Scene& scene = getScene();
+		ev4sio_Sc::Scene& scene = getScene();
 		scene.getAABBManager()->setBPGroup(getElementID(), getBPGroup(*this));
 
 		reinsertBroadPhase();

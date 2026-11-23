@@ -14,7 +14,7 @@
 #include "PxVehicleSuspensionParams.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -119,7 +119,7 @@ The center of mass of the masses in sprungMasses with the coordinates in sprungM
 bool PxVehicleComputeSprungMasses(const PxU32 nbSprungMasses, const PxVec3* sprungMassCoordinates, const PxReal totalMass, const PxVehicleAxes::Enum gravityDirection, PxReal* sprungMasses);
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

@@ -25,12 +25,12 @@
 #include "NpDeformableVolume.h"
 #endif
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 ///////////////////////////////////////////////////////////////////////////////
 
 #if PX_SUPPORT_GPU_PHYSX
-const Sc::RigidCore* physx::getRigidCore(const PxRigidActor* actor)
+const ev4sio_Sc::RigidCore* ev4sio_physx::getRigidCore(const PxRigidActor* actor)
 {
 	if(actor && actor->getConcreteType() == PxConcreteType::eRIGID_STATIC)
 		return &static_cast<const NpRigidStatic*>(actor)->getCore();
@@ -39,9 +39,9 @@ const Sc::RigidCore* physx::getRigidCore(const PxRigidActor* actor)
 }
 #endif
 
-const Sc::BodyCore* physx::getBodyCore(const PxRigidActor* actor)
+const ev4sio_Sc::BodyCore* ev4sio_physx::getBodyCore(const PxRigidActor* actor)
 {
-	const Sc::BodyCore* core = NULL;
+	const ev4sio_Sc::BodyCore* core = NULL;
 	if(actor)
 	{
 		const PxType type = actor->getConcreteType();
@@ -114,7 +114,7 @@ void NpActor::exportExtraData(PxSerializationContext& stream)
 
 		stream.alignData(PX_SERIAL_ALIGN);
 		stream.writeData(exportConnectorArray, sizeof(NpConnectorArray));
-		Cm::exportInlineArray(*exportConnectorArray, stream);
+		ev4sio_Cm::exportInlineArray(*exportConnectorArray, stream);
 
 		if(missedCount > 0)
 			 NpFactory::getInstance().releaseConnectorArray(exportConnectorArray);
@@ -132,7 +132,7 @@ void NpActor::importExtraData(PxDeserializationContext& context)
 		if(mConnectorArray->size() == 0)
 			mConnectorArray = NULL;
 		else
-			Cm::importInlineArray(*mConnectorArray, context);
+			ev4sio_Cm::importInlineArray(*mConnectorArray, context);
 	}
 	context.readName(mName);
 }

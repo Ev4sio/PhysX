@@ -11,7 +11,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace tensors
 {
@@ -39,37 +39,37 @@ public:
     // subset of a larger view; `rowsToken` is unused here, there being no device copy to keep current,
     // and exists so both backends share one signature.
     bool getPositionsOvStage(const TensorDesc* dstTensor,
-                             const ::physx::PxU32* outRecordIdx,
-                             ::physx::PxU32 numOutputs,
+                             const ::ev4sio_physx::PxU32* outRecordIdx,
+                             ::ev4sio_physx::PxU32 numOutputs,
                              uint64_t rowsToken) const;
     bool getOrientationsOvStage(const TensorDesc* dstTensor,
-                                const ::physx::PxU32* outRecordIdx,
-                                ::physx::PxU32 numOutputs,
+                                const ::ev4sio_physx::PxU32* outRecordIdx,
+                                ::ev4sio_physx::PxU32 numOutputs,
                                 uint64_t rowsToken) const;
     bool getLinearVelocitiesOvStage(const TensorDesc* dstTensor,
-                                    const ::physx::PxU32* outRecordIdx,
-                                    ::physx::PxU32 numOutputs,
+                                    const ::ev4sio_physx::PxU32* outRecordIdx,
+                                    ::ev4sio_physx::PxU32 numOutputs,
                                     uint64_t rowsToken) const;
     bool getAngularVelocitiesOvStage(const TensorDesc* dstTensor,
-                                     const ::physx::PxU32* outRecordIdx,
-                                     ::physx::PxU32 numOutputs,
+                                     const ::ev4sio_physx::PxU32* outRecordIdx,
+                                     ::ev4sio_physx::PxU32 numOutputs,
                                      uint64_t rowsToken) const;
     // Requires PxSceneFlag::eENABLE_BODY_ACCELERATIONS, which PhysXScene sets on every scene it
     // creates. Without it PhysX reports zero for a rigid dynamic rather than refusing, so a scene
     // built elsewhere would read as "not accelerating" instead of failing.
     bool getLinearAccelerationsOvStage(const TensorDesc* dstTensor,
-                                       const ::physx::PxU32* outRecordIdx,
-                                       ::physx::PxU32 numOutputs,
+                                       const ::ev4sio_physx::PxU32* outRecordIdx,
+                                       ::ev4sio_physx::PxU32 numOutputs,
                                        uint64_t rowsToken) const;
     bool getAngularAccelerationsOvStage(const TensorDesc* dstTensor,
-                                        const ::physx::PxU32* outRecordIdx,
-                                        ::physx::PxU32 numOutputs,
+                                        const ::ev4sio_physx::PxU32* outRecordIdx,
+                                        ::ev4sio_physx::PxU32 numOutputs,
                                         uint64_t rowsToken) const;
     // The creation-time world scale each entry carries (RigidBodyEntry::worldScale). No PhysX query:
     // PhysX has no body scale, so the entry is the source on this backend.
     bool getWorldScalesOvStage(const TensorDesc* dstTensor,
-                               const ::physx::PxU32* outRecordIdx,
-                               ::physx::PxU32 numOutputs,
+                               const ::ev4sio_physx::PxU32* outRecordIdx,
+                               ::ev4sio_physx::PxU32 numOutputs,
                                uint64_t rowsToken) const;
 
     // ovstage column WRITE (ADR-0012), the return direction of the four getters above and the host
@@ -80,19 +80,19 @@ public:
     // preserve the half it is not writing -- the host mirror of the GPU path's read-modify-write,
     // and cheap here because it is one accessor per body rather than a bulk DirectGPU read.
     bool setPositionsOvStage(const TensorDesc* srcTensor,
-                             const ::physx::PxU32* outRecordIdx,
-                             ::physx::PxU32 numOutputs,
+                             const ::ev4sio_physx::PxU32* outRecordIdx,
+                             ::ev4sio_physx::PxU32 numOutputs,
                              uint64_t rowsToken, bool wholeSet);
     bool setOrientationsOvStage(const TensorDesc* srcTensor,
-                                const ::physx::PxU32* outRecordIdx,
-                                ::physx::PxU32 numOutputs,
+                                const ::ev4sio_physx::PxU32* outRecordIdx,
+                                ::ev4sio_physx::PxU32 numOutputs,
                                 uint64_t rowsToken, bool wholeSet);
     // CPU counterpart of GpuRigidBodyView::setWrenchesOvStage. Same [N,9] layout and the same
     // torque-about-COM conversion, expressed through PxRigidBodyExt rather than by hand so the host
     // path cannot drift from PhysX's own definition of "force at a point".
     bool setWrenchesOvStage(const TensorDesc* srcTensor,
-                            const ::physx::PxU32* outRecordIdx,
-                            ::physx::PxU32 numOutputs,
+                            const ::ev4sio_physx::PxU32* outRecordIdx,
+                            ::ev4sio_physx::PxU32 numOutputs,
                             uint64_t rowsToken, bool wholeSet);
 
     // CPU counterpart of GpuRigidBodyView::setForcesOvStage. addForce, not setForce: PhysX
@@ -101,17 +101,17 @@ public:
     // Unlike the velocity setters below, this one serves articulation LINKS too -- addForce is on
     // PxRigidBody, not PxRigidDynamic.
     bool setForcesOvStage(const TensorDesc* srcTensor,
-                          const ::physx::PxU32* outRecordIdx,
-                          ::physx::PxU32 numOutputs,
+                          const ::ev4sio_physx::PxU32* outRecordIdx,
+                          ::ev4sio_physx::PxU32 numOutputs,
                           uint64_t rowsToken, bool wholeSet);
 
     bool setLinearVelocitiesOvStage(const TensorDesc* srcTensor,
-                                    const ::physx::PxU32* outRecordIdx,
-                                    ::physx::PxU32 numOutputs,
+                                    const ::ev4sio_physx::PxU32* outRecordIdx,
+                                    ::ev4sio_physx::PxU32 numOutputs,
                                     uint64_t rowsToken, bool wholeSet);
     bool setAngularVelocitiesOvStage(const TensorDesc* srcTensor,
-                                     const ::physx::PxU32* outRecordIdx,
-                                     ::physx::PxU32 numOutputs,
+                                     const ::ev4sio_physx::PxU32* outRecordIdx,
+                                     ::ev4sio_physx::PxU32 numOutputs,
                                      uint64_t rowsToken, bool wholeSet);
 
     bool setTransforms(const TensorDesc* srcTensor, const TensorDesc* indexTensor) override;
@@ -140,24 +140,24 @@ public:
 
 private:
     bool scatterPoseColumnOvStage(bool wantOrientation,
-                                  const ::physx::PxU32* outRecordIdx,
-                                  ::physx::PxU32 numOutputs,
+                                  const ::ev4sio_physx::PxU32* outRecordIdx,
+                                  ::ev4sio_physx::PxU32 numOutputs,
                                   const TensorDesc* srcTensor);
     bool scatterVelocityColumnOvStage(bool wantAngular,
-                                      const ::physx::PxU32* outRecordIdx,
-                                      ::physx::PxU32 numOutputs,
+                                      const ::ev4sio_physx::PxU32* outRecordIdx,
+                                      ::ev4sio_physx::PxU32 numOutputs,
                                       const TensorDesc* srcTensor);
 
     bool gatherPoseColumnOvStage(bool wantOrientation,
-                                 const ::physx::PxU32* outRecordIdx,
-                                 ::physx::PxU32 numOutputs,
+                                 const ::ev4sio_physx::PxU32* outRecordIdx,
+                                 ::ev4sio_physx::PxU32 numOutputs,
                                  const TensorDesc* dstTensor) const;
     // Serves all four of linear/angular x velocity/acceleration: one loop over the requested rows,
     // querying only the getter the column needs.
     bool gatherVelAccColumnOvStage(bool wantAngular,
                                    bool wantAcceleration,
-                                   const ::physx::PxU32* outRecordIdx,
-                                   ::physx::PxU32 numOutputs,
+                                   const ::ev4sio_physx::PxU32* outRecordIdx,
+                                   ::ev4sio_physx::PxU32 numOutputs,
                                    const TensorDesc* dstTensor) const;
     void prepareDirtyForceTracker();
 
@@ -166,12 +166,12 @@ private:
     CpuRigidBodyDirtyForceTrackerPtr mDirtyForceTracker;
 
     // for bodies that are root articulation links, we use the articulation cache to set transforms and velocities
-    std::vector<::physx::PxArticulationReducedCoordinate*> mArticulations;
-    std::vector<::physx::PxArticulationCache*> mArticulationCaches;
+    std::vector<::ev4sio_physx::PxArticulationReducedCoordinate*> mArticulations;
+    std::vector<::ev4sio_physx::PxArticulationCache*> mArticulationCaches;
 
     // Note: mAllIndices is inherited from BaseRigidBodyView (protected), initialized there.
 };
 
 } // namespace tensors
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

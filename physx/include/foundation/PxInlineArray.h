@@ -10,7 +10,7 @@
 #include "foundation/PxInlineAllocator.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -44,7 +44,7 @@ class PxInlineArray : public PxArray<T, PxInlineAllocator<N * sizeof(T), Alloc> 
 	}
 };
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

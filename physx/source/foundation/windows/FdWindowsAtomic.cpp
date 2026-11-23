@@ -6,7 +6,7 @@
 #include "foundation/windows/PxWindowsInclude.h"
 #include "foundation/PxAtomic.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 PxI32 PxAtomicExchange(volatile PxI32* val, PxI32 val2)
@@ -146,4 +146,4 @@ PxI64 PxAtomicAnd(volatile PxI64* val, PxI64 mask)
 	return (PxI64)InterlockedAnd64((volatile LONG64*)val, mask);
 }
 
-} // namespace physx
+} // namespace ev4sio_physx

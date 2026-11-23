@@ -9,9 +9,9 @@
 #include "ScElementSimInteraction.h"
 #include "ScNPhaseCore.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Sc
+namespace ev4sio_Sc
 {
 	class ElementInteractionMarker : public ElementSimInteraction
 	{
@@ -20,10 +20,10 @@ namespace Sc
 						~ElementInteractionMarker();
 	};
 
-} // namespace Sc
+} // namespace ev4sio_Sc
 
 
-PX_INLINE Sc::ElementInteractionMarker::ElementInteractionMarker(ElementSim& element0, ElementSim& element1, bool createParallel) :
+PX_INLINE ev4sio_Sc::ElementInteractionMarker::ElementInteractionMarker(ElementSim& element0, ElementSim& element1, bool createParallel) :
 	ElementSimInteraction(element0, element1, InteractionType::eMARKER, InteractionFlag::eRB_ELEMENT|InteractionFlag::eFILTERABLE)
 {
 	if(!createParallel)

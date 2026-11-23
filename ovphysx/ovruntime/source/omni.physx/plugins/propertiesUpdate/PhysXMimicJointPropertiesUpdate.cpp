@@ -13,22 +13,22 @@
 #include "internal/InternalMimicJoint.h"
 
 
-using namespace ::physx;
+using namespace ::ev4sio_physx;
 using namespace carb;
-using namespace omni::physx;
-using namespace omni::physx::usdparser;
-using namespace omni::physx::internal;
+using namespace omni::ev4sio_physx;
+using namespace omni::ev4sio_physx::usdparser;
+using namespace omni::ev4sio_physx::internal;
 
 
-static const InternalDatabase::Record* getObjectRecord(const AttachedStage& attachedStage, omni::physx::PhysXType type,
-    omni::physx::usdparser::ObjectId objectId)
+static const InternalDatabase::Record* getObjectRecord(const AttachedStage& attachedStage, omni::ev4sio_physx::PhysXType type,
+    omni::ev4sio_physx::usdparser::ObjectId objectId)
 {
-    omni::physx::internal::InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
+    omni::ev4sio_physx::internal::InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
 
     return db.getFullTypedRecord(type, objectId);
 }
 
-static InternalMimicJoint* getInternalMimicJoint(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+static InternalMimicJoint* getInternalMimicJoint(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::ObjectKey& key)
 {
     const InternalDatabase::Record* objectRecord = getObjectRecord(attachedStage, ePTMimicJoint, objectId);
@@ -42,7 +42,7 @@ static InternalMimicJoint* getInternalMimicJoint(AttachedStage& attachedStage, o
 }
 
 
-bool omni::physx::updateMimicJointGearing(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateMimicJointGearing(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     omni::physics::parse::ObjectKey key;
@@ -60,7 +60,7 @@ bool omni::physx::updateMimicJointGearing(AttachedStage& attachedStage, omni::ph
     return true;
 }
 
-bool omni::physx::updateMimicJointOffset(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateMimicJointOffset(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     omni::physics::parse::ObjectKey key;
@@ -78,7 +78,7 @@ bool omni::physx::updateMimicJointOffset(AttachedStage& attachedStage, omni::phy
     return true;
 }
 
-bool omni::physx::updateMimicJointNaturalFrequency(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateMimicJointNaturalFrequency(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     omni::physics::parse::ObjectKey key;
@@ -96,7 +96,7 @@ bool omni::physx::updateMimicJointNaturalFrequency(AttachedStage& attachedStage,
     return true;
 }
 
-bool omni::physx::updateMimicJointDampingRatio(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateMimicJointDampingRatio(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     omni::physics::parse::ObjectKey key;
@@ -115,7 +115,7 @@ bool omni::physx::updateMimicJointDampingRatio(AttachedStage& attachedStage, omn
 }
 
 // Newton: joint0 = coef0 + coef1 * joint1  maps to PhysX gearing = -coef1, offset = -coef0.
-bool omni::physx::updateNewtonMimicJointCoef1(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateNewtonMimicJointCoef1(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     omni::physics::parse::ObjectKey key;
@@ -133,7 +133,7 @@ bool omni::physx::updateNewtonMimicJointCoef1(AttachedStage& attachedStage, omni
     return true;
 }
 
-bool omni::physx::updateNewtonMimicJointCoef0(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateNewtonMimicJointCoef0(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     omni::physics::parse::ObjectKey key;

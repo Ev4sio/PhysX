@@ -52,7 +52,7 @@ struct PhysxShapeDesc;
 class ScannedStage;
 }
 
-namespace omni::physx::usdparser
+namespace omni::ev4sio_physx::usdparser
 {
 class AttachedStage;
 using PhysxShapeDesc = ::omni::physics::parse::PhysxShapeDesc;
@@ -61,7 +61,7 @@ using PhysxShapeDesc = ::omni::physics::parse::PhysxShapeDesc;
 // shadow here, it silently conflicts wherever both headers are included.
 }
 
-namespace omni::physx::usdparser::scan
+namespace omni::ev4sio_physx::usdparser::scan
 {
 
 // Per-batch cache mapping a source-gprim ObjectKey to its cooked desc.
@@ -139,4 +139,4 @@ bool resolveConsumerSideShapeState(
     std::vector<omni::physics::parse::ObjectKey>& outMaterials,
     CollisionPairVector& outFilteredPairs);
 
-} // namespace omni::physx::usdparser::scan
+} // namespace omni::ev4sio_physx::usdparser::scan

@@ -9,9 +9,9 @@
 #include "foundation/PxBitMap.h"
 #include "CmPinnableAllocator.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Cm
+namespace ev4sio_Cm
 {
 
 /*!
@@ -53,7 +53,7 @@ public:
 	}
 };
 
-} // namespace Cm
-} // namespace physx
+} // namespace ev4sio_Cm
+} // namespace ev4sio_physx
 
 #endif // PX_PINNED_BITMAP_H

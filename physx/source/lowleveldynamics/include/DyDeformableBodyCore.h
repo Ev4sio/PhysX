@@ -8,9 +8,9 @@
 #include "foundation/PxTransform.h"
 #include "foundation/PxArray.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Dy
+namespace ev4sio_Dy
 {
 
 struct DeformableBodyCore
@@ -41,7 +41,7 @@ public:
 		, settlingDamping(10.f)
 		, selfCollisionFilterDistance(0.1f)
 		, selfCollisionStressTolerance(0.9f)
-		, maxLinearVelocity(PX_MAX_REAL) // see Sc::BodyCore::BodyCore
+		, maxLinearVelocity(PX_MAX_REAL) // see ev4sio_Sc::BodyCore::BodyCore
 		, maxPenetrationBias(-1e32f) // see PxsBodyCore::init
 		, solverIterationCounts(0)
 		, wakeCounter(0)
@@ -52,8 +52,8 @@ public:
 	}
 };
 
-} // namespace Dy
-} // namespace physx
+} // namespace ev4sio_Dy
+} // namespace ev4sio_physx
 
 #endif
 

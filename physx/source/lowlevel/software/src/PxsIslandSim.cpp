@@ -8,14 +8,14 @@
 #include "foundation/PxUtilities.h"
 #include "common/PxProfileZone.h"
 
-using namespace physx;
-using namespace IG;
+using namespace ev4sio_physx;
+using namespace ev4sio_IG;
 
 #if IG_CACHE_CONTACT_MANAGER_DATA
 static void cacheContactManagerData(IslandEdgesData_Island::EdgeData& indexedManager, const IslandSim& islandSim, EdgeIndex contactEdgeIndex, Edge::EdgeType edgeType)
 {
 	// PT: for contact managers we cache the data that we will need later in DynamicsContextBase::iterateIslandsContactEdges().
-	// The goal is to avoid accessing the IG::IslandSim data structures while doing so. Instead we only read it once here and
+	// The goal is to avoid accessing the ev4sio_IG::IslandSim data structures while doing so. Instead we only read it once here and
 	// cache a copy of the data alongside the edge index.
 	if(edgeType == Edge::eCONTACT_MANAGER)
 	{
@@ -31,9 +31,9 @@ static void cacheContactManagerData(IslandEdgesData_Island::EdgeData& indexedMan
 		}
 		else
 		{
-			const IG::Node& node1 = islandSim.getNode(nodeIndex1);
+			const ev4sio_IG::Node& node1 = islandSim.getNode(nodeIndex1);
 
-			if(node1.getNodeType() == IG::Node::eARTICULATION_TYPE)
+			if(node1.getNodeType() == ev4sio_IG::Node::eARTICULATION_TYPE)
 			{
 				indexType0 = PxsIndexedInteraction::eARTICULATION;
 			}
@@ -56,9 +56,9 @@ static void cacheContactManagerData(IslandEdgesData_Island::EdgeData& indexedMan
 		}
 		else
 		{
-			const IG::Node& node2 = islandSim.getNode(nodeIndex2);
+			const ev4sio_IG::Node& node2 = islandSim.getNode(nodeIndex2);
 
-			if(node2.getNodeType() == IG::Node::eARTICULATION_TYPE)
+			if(node2.getNodeType() == ev4sio_IG::Node::eARTICULATION_TYPE)
 			{
 				indexType1 = PxsIndexedInteraction::eARTICULATION;
 			}
@@ -77,7 +77,7 @@ static void cacheContactManagerData(IslandEdgesData_Island::EdgeData& indexedMan
 }
 #endif
 
-static PX_FORCE_INLINE void addEdgeToIsland(const IslandSim& islandSim, Cm::BlockArray<Edge>& edges, IslandEdgesData_Island& islandEdges, EdgeIndex edgeIndex)
+static PX_FORCE_INLINE void addEdgeToIsland(const IslandSim& islandSim, ev4sio_Cm::BlockArray<Edge>& edges, IslandEdgesData_Island& islandEdges, EdgeIndex edgeIndex)
 {
 	Edge& edge = edges[edgeIndex];
 
@@ -118,7 +118,7 @@ static PX_FORCE_INLINE void addEdgeToIsland(const IslandSim& islandSim, Cm::Bloc
 #endif
 }
 
-static PX_FORCE_INLINE void removeEdgeFromIsland(Cm::BlockArray<Edge>& edges, IslandEdgesData_Island& islandEdges, EdgeIndex edgeIndex)
+static PX_FORCE_INLINE void removeEdgeFromIsland(ev4sio_Cm::BlockArray<Edge>& edges, IslandEdgesData_Island& islandEdges, EdgeIndex edgeIndex)
 {
 	Edge& edge = edges[edgeIndex];
 
@@ -170,7 +170,7 @@ static PX_FORCE_INLINE void removeEdgeFromIsland(Cm::BlockArray<Edge>& edges, Is
 #endif
 }
 
-static void mergeEdges(Cm::BlockArray<Edge>& edges, IslandEdgesData_Island& islandEdges0, IslandEdgesData_Island& islandEdges1, Edge::EdgeType a)
+static void mergeEdges(ev4sio_Cm::BlockArray<Edge>& edges, IslandEdgesData_Island& islandEdges0, IslandEdgesData_Island& islandEdges1, Edge::EdgeType a)
 {
 #if IG_STORE_ISLAND_EDGES_IN_ARRAYS
 	PxArray<IslandEdgesData_Island::EdgeData>& edgeArray1 = islandEdges1.mEdges[a];
@@ -215,7 +215,7 @@ static void mergeEdges(Cm::BlockArray<Edge>& edges, IslandEdgesData_Island& isla
 #endif
 }
 
-static void splitEdges(const IslandSim& islandSim, Cm::BlockArray<Edge>& edges, PxArray<EdgeIndex>& splitEdges, IslandEdgesData_Island& islandEdges, Edge::EdgeType j)
+static void splitEdges(const IslandSim& islandSim, ev4sio_Cm::BlockArray<Edge>& edges, PxArray<EdgeIndex>& splitEdges, IslandEdgesData_Island& islandEdges, Edge::EdgeType j)
 {
 	const PxU32 splitEdgeSize = splitEdges.size();
 	if(splitEdgeSize)
@@ -492,7 +492,7 @@ void IslandSim::addConnectionToGraph(EdgeIndex handle)
 
 	struct Local
 	{
-		static PX_FORCE_INLINE void connectEdge(Cm::BlockArray<EdgeInstance>& edgeInstances, EdgeInstanceIndex edgeIndex, Node& source)
+		static PX_FORCE_INLINE void connectEdge(ev4sio_Cm::BlockArray<EdgeInstance>& edgeInstances, EdgeInstanceIndex edgeIndex, Node& source)
 		{
 			EdgeInstance& instance = edgeInstances[edgeIndex];
 
@@ -529,7 +529,7 @@ void IslandSim::addConnectionToGraph(EdgeIndex handle)
 		kinematicKinematicEdge = kinematicKinematicEdge && node.isKinematic();
 	}
 
-	if(activeEdge && (!kinematicKinematicEdge || edge.getEdgeType() == IG::Edge::eCONTACT_MANAGER))
+	if(activeEdge && (!kinematicKinematicEdge || edge.getEdgeType() == ev4sio_IG::Edge::eCONTACT_MANAGER))
 	{
 		markEdgeActive(handle, nodeIndex1, nodeIndex2);
 		edge.activateEdge();
@@ -591,7 +591,7 @@ void IslandSim::removeConnectionInternal(EdgeIndex edgeIndex)
 
 	struct Local
 	{
-		static void disconnectEdge(Cm::BlockArray<EdgeInstance>& edgeInstances, EdgeInstanceIndex edgeIndex, Node& node)
+		static void disconnectEdge(ev4sio_Cm::BlockArray<EdgeInstance>& edgeInstances, EdgeInstanceIndex edgeIndex, Node& node)
 		{
 			EdgeInstance& instance = edgeInstances[edgeIndex];
 
@@ -720,7 +720,7 @@ PX_FORCE_INLINE void IslandSim::makeEdgeActive(EdgeInstanceIndex index, bool tes
 {
 	const EdgeIndex idx = index / 2;
 	Edge& edge = mEdges[idx];
-	if (!edge.isActive() && (!testEdgeType || (edge.getEdgeType() != IG::Edge::eCONSTRAINT)))
+	if (!edge.isActive() && (!testEdgeType || (edge.getEdgeType() != ev4sio_IG::Edge::eCONSTRAINT)))
 	{
 		//Make the edge active...
 		const PxNodeIndex nodeIndex1 = mCpuData.mEdgeNodeIndices[idx * 2];
@@ -946,7 +946,7 @@ void IslandSim::wakeIslandsInternal(bool flag)
 		{
 			for (PxU32 i = 0, count = mActivatedEdges[a].size(); i < count; ++i)
 			{
-				IG::Edge& edge = mEdges[mActivatedEdges[a][i]];
+				ev4sio_IG::Edge& edge = mEdges[mActivatedEdges[a][i]];
 				edge.mEdgeState &= (~Edge::eACTIVATING);
 			}
 
@@ -1789,7 +1789,7 @@ void IslandSim::processLostEdges(const PxArray<PxNodeIndex>& destroyedNodes, boo
 
 						PX_ASSERT(mNodes[newIsland.mLastNode.index()].mNextNode.index() == PX_INVALID_NODE);
 
-						for (PxU32 j = 0; j < IG::Edge::eEDGE_TYPE_COUNT; ++j)
+						for (PxU32 j = 0; j < ev4sio_IG::Edge::eEDGE_TYPE_COUNT; ++j)
 							splitEdges(*this, mEdges, mIslandSplitEdges[j], newIsland.mEdges, Edge::EdgeType(j));
 					}
 				}
@@ -2146,10 +2146,10 @@ void IslandSim::mergeIslandsInternal(Island& island0, Island& island1, IslandId 
 	mIslandStaticTouchCount[islandId0] += mIslandStaticTouchCount[islandId1];
 
 	//Merge the edge list for the islands...
-	for(PxU32 a = 0; a < IG::Edge::eEDGE_TYPE_COUNT; ++a)
+	for(PxU32 a = 0; a < ev4sio_IG::Edge::eEDGE_TYPE_COUNT; ++a)
 		mergeEdges(mEdges, island0.mEdges, island1.mEdges, Edge::EdgeType(a));
 
-	for (PxU32 a = 0; a < IG::Node::eTYPE_COUNT; ++a)
+	for (PxU32 a = 0; a < ev4sio_IG::Node::eTYPE_COUNT; ++a)
 	{
 		island0.mNodeCount[a] += island1.mNodeCount[a];
 		island1.mNodeCount[a] = 0;
@@ -2265,7 +2265,7 @@ void IslandSim::setKinematic(PxNodeIndex nodeIndex)
 				const EdgeInstanceIndex nextId = instance.mNextEdge;
 
 				const PxU32 idx = edgeId/2;
-				IG::Edge& edge = mEdges[edgeId/2];
+				ev4sio_IG::Edge& edge = mEdges[edgeId/2];
 
 				removeEdgeFromIsland(mEdges, island.mEdges, idx);
 
@@ -2350,7 +2350,7 @@ void IslandSim::setDynamic(PxNodeIndex nodeIndex)
 			const PxNodeIndex otherNode = mCpuData.mEdgeNodeIndices[edgeId^1];
 
 			const PxU32 idx = edgeId/2;
-			IG::Edge& edge = mEdges[edgeId/2];
+			ev4sio_IG::Edge& edge = mEdges[edgeId/2];
 
 			if(!otherNode.isStaticBody())
 			{

@@ -20,7 +20,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 
 /**
@@ -58,5 +58,5 @@ struct TriggerEventData
 */
 typedef void (*OnTriggerEventReportEventFn)(const TriggerEventData* triggerData, void* userData);
 
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

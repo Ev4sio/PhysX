@@ -1591,8 +1591,8 @@ extern "C" {
     /**
      * Wake rigid bodies in a binding.
      *
-     * Mirrors PhysX SDK's `physx::PxRigidDynamic::wakeUp`. Bodies that
-     * still have `physx::PxActorFlag::eDISABLE_SIMULATION` set are
+     * Mirrors PhysX SDK's `ev4sio_physx::PxRigidDynamic::wakeUp`. Bodies that
+     * still have `ev4sio_physx::PxActorFlag::eDISABLE_SIMULATION` set are
      * silently skipped (the engine refuses to wake disabled actors).
      *
      * Typical pair: clear the actor's `eDISABLE_SIMULATION` flag through the
@@ -1625,10 +1625,10 @@ extern "C" {
     /**
      * Force rigid bodies in a binding to sleep.
      *
-     * Mirrors PhysX SDK's `physx::PxRigidDynamic::putToSleep`. Sets the
+     * Mirrors PhysX SDK's `ev4sio_physx::PxRigidDynamic::putToSleep`. Sets the
      * sleep state on each body so it is excluded from the next solve unless
      * woken by a contact or an explicit @ref ovphysx_rigid_body_view_wake_up
-     * call. Bodies that have `physx::PxActorFlag::eDISABLE_SIMULATION` set
+     * call. Bodies that have `ev4sio_physx::PxActorFlag::eDISABLE_SIMULATION` set
      * are silently skipped.
      *
      * @param handle Instance handle

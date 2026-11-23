@@ -18,7 +18,7 @@
 #include "ovphysx/ovphysx.h"
 
 namespace ovphysx {
-namespace physx {
+namespace ev4sio_physx {
 
 /**
  * @brief Move-only owner of a task wait result and its return status.
@@ -37,7 +37,7 @@ namespace physx {
  *     ovphysx_enqueue_result_t task,
  *     ovphysx_timeout_t timeout_ns)
  * {
- *     ovphysx::physx::WaitResult result;
+ *     ovphysx::ev4sio_physx::WaitResult result;
  *     result.waitTask(handle, task, timeout_ns);
  *     for (size_t index = 0; index < result.errorCount(); ++index) {
  *         ovphysx_enqueue_result_t failed = result.errorTaskAt(index);
@@ -103,7 +103,7 @@ private:
     ovphysx_api_status_t m_status = OVPHYSX_API_SUCCESS;
 };
 
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace ovphysx
 
 #endif // OVPHYSX_EXPERIMENTAL_HELPERS_HPP

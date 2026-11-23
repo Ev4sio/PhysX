@@ -31,4 +31,4 @@
 #include "NvBlastExtPxSerialization-capn.h"
 #include "PxCooking.h"
 
-DTO_CLASS(PxMeshScale, physx::PxMeshScale, Nv::Blast::Serialization::PxMeshScale)
+DTO_CLASS(PxMeshScale, ev4sio_physx::PxMeshScale, Nv::Blast::Serialization::PxMeshScale)

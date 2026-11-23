@@ -9,12 +9,12 @@
 #include "CmSpatialVector.h"
 #include "foundation/PxVecMath.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 struct PxSolverBody;
 struct PxSolverBodyData;
 
-namespace Dy
+namespace ev4sio_Dy
 {
 class FeatherstoneArticulation;
 
@@ -39,7 +39,7 @@ public:
 	PxReal projectVelocity(const PxVec3& linear, const PxVec3& angular) const;
 	aos::FloatV projectVelocity(const aos::Vec3V& linear, const aos::Vec3V& angular) const;
 
-	Cm::SpatialVectorV getVelocity() const;
+	ev4sio_Cm::SpatialVectorV getVelocity() const;
 	PxReal getCFM() const;
 };
 

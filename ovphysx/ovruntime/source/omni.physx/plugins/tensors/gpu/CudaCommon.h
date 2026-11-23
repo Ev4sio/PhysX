@@ -20,7 +20,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 
 // Inline CUDA runtime error checker (uses cudart_static, no driver API link needed).
@@ -43,8 +43,8 @@ namespace tensors
 
 extern bool g_forceCudaDeviceSync;
 
-using omni::physx::cudaShimWrappers::getCudaShim;
-using omni::physx::cudaShimWrappers::shimCuEventCreate;
+using omni::ev4sio_physx::cudaShimWrappers::getCudaShim;
+using omni::ev4sio_physx::cudaShimWrappers::shimCuEventCreate;
 
 #define CHECK_CUDA(code) cudaHelpers::checkCuda(code, __FILE__, __LINE__)
 
@@ -200,5 +200,5 @@ private:
 };
 
 } // namespace tensors
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

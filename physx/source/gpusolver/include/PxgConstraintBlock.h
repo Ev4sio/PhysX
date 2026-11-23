@@ -10,7 +10,7 @@
 #include "foundation/PxSimpleTypes.h"
 #include <vector_types.h>
 
-namespace physx
+namespace ev4sio_physx
 {
 
 #if PX_VC

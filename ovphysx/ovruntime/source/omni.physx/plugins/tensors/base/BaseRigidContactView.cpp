@@ -36,14 +36,14 @@
 
 #include <utility>
 
-using namespace physx;
+using namespace ev4sio_physx;
 using omni::physics::tensors::checkTensorDevice;
 using omni::physics::tensors::checkTensorInt64;
 using omni::physics::tensors::getTensorTotalSize;
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace tensors
 {

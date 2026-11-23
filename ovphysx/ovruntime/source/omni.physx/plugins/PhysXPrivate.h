@@ -5,20 +5,20 @@
 
 #include <private/omni/physx/IPhysxPrivate.h>
 
-namespace physx
+namespace ev4sio_physx
 {
 class PxScene;
 class PxCudaContextManager;
-} // namespace physx
+} // namespace ev4sio_physx
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 
-::physx::PxScene* privGetPhysXScene(omni::physics::AttachHandle attach);
+::ev4sio_physx::PxScene* privGetPhysXScene(omni::physics::AttachHandle attach);
 void primGetRigidBodyInstancedData(omni::physics::AttachHandle attach, usdparser::ObjectId* ids, uint32_t numIds, InstancedData* data);
-::physx::PxCudaContextManager* privGetCudaContextManager(omni::physics::AttachHandle attach, uint64_t sceneKey);
+::ev4sio_physx::PxCudaContextManager* privGetCudaContextManager(omni::physics::AttachHandle attach, uint64_t sceneKey);
 
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

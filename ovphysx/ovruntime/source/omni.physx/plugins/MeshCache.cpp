@@ -18,13 +18,13 @@
 #include <new>
 
 
-using namespace ::physx;
-using namespace omni::physx;
+using namespace ::ev4sio_physx;
+using namespace omni::ev4sio_physx;
 
 MeshCache* gMeshCache = nullptr;
 std::mutex gMeshCacheMutex;
 
-MeshCache* omni::physx::getMeshCache()
+MeshCache* omni::ev4sio_physx::getMeshCache()
 {
     std::lock_guard<std::mutex> lock(gMeshCacheMutex);
     if (!gMeshCache)
@@ -35,7 +35,7 @@ MeshCache* omni::physx::getMeshCache()
     return gMeshCache;
 }
 
-void omni::physx::releaseMeshCache()
+void omni::ev4sio_physx::releaseMeshCache()
 {
     std::lock_guard<std::mutex> lock(gMeshCacheMutex);
     delete gMeshCache;
@@ -102,7 +102,7 @@ void MeshCache::release()
 
 PX_COMPILE_TIME_ASSERT(sizeof(PxHullPolygon) == sizeof(ConvexMeshPolygon));
 
-ConvexMeshPolygon* MeshCache::getConvexMeshPolygons(::physx::PxConvexMesh* mesh)
+ConvexMeshPolygon* MeshCache::getConvexMeshPolygons(::ev4sio_physx::PxConvexMesh* mesh)
 {
     const PxU32 numPoly = mesh->getNbPolygons();
     ConvexMeshPolygon* out = new ConvexMeshPolygon[numPoly];
@@ -116,7 +116,7 @@ ConvexMeshPolygon* MeshCache::getConvexMeshPolygons(::physx::PxConvexMesh* mesh)
     return out;
 }
 
-void MeshCache::addConvexMesh(const omni::physx::usdparser::MeshKey &crc, ::physx::PxConvexMesh* mesh)
+void MeshCache::addConvexMesh(const omni::ev4sio_physx::usdparser::MeshKey &crc, ::ev4sio_physx::PxConvexMesh* mesh)
 {
     std::lock_guard<carb::tasking::RecursiveMutexWrapper> lock(mMutex);
     mesh->acquireReference();
@@ -129,7 +129,7 @@ void MeshCache::addConvexMesh(const omni::physx::usdparser::MeshKey &crc, ::phys
                                                mesh->getIndexBuffer(), mesh->getNbPolygons(), polygons)));
 }
 
-void MeshCache::addConvexDecomposition(const omni::physx::usdparser::MeshKey &crc, const ConvexMeshVector& meshes)
+void MeshCache::addConvexDecomposition(const omni::ev4sio_physx::usdparser::MeshKey &crc, const ConvexMeshVector& meshes)
 {
     std::lock_guard<carb::tasking::RecursiveMutexWrapper> lock(mMutex);
     mConvexDecompositionMap[crc] = meshes;
@@ -148,7 +148,7 @@ void MeshCache::addConvexDecomposition(const omni::physx::usdparser::MeshKey &cr
 }
 
 
-bool loadTriangleFaceMap(omni::physx::PhysxCookedDataSpan inputTriangulationData, const uint32_t triangleMeshDataVersion, std::vector<uint8_t>& triangleFaceMap)
+bool loadTriangleFaceMap(omni::ev4sio_physx::PhysxCookedDataSpan inputTriangulationData, const uint32_t triangleMeshDataVersion, std::vector<uint8_t>& triangleFaceMap)
 {
     PxDefaultMemoryInputData idata((PxU8*)inputTriangulationData.data, (PxU32)inputTriangulationData.sizeInBytes);
     uint32_t version = 0;
@@ -195,16 +195,16 @@ bool loadTriangleFaceMap(omni::physx::PhysxCookedDataSpan inputTriangulationData
 }
 
 
-bool MeshCache::createRuntimeTriangleMesh(::physx::PxPhysics& physics,
+bool MeshCache::createRuntimeTriangleMesh(::ev4sio_physx::PxPhysics& physics,
                                           usdparser::MeshKey meshCRC,
                                           bool useOriginalTriangles,
-                                          omni::physx::PhysxCookedDataSpan inputCookedData,
+                                          omni::ev4sio_physx::PhysxCookedDataSpan inputCookedData,
                                           gsl::span<const uint32_t> inputTrianglesFaceMapping,
-                                          ::physx::PxTriangleMesh** returnedMesh)
+                                          ::ev4sio_physx::PxTriangleMesh** returnedMesh)
 {
     std::lock_guard<carb::tasking::RecursiveMutexWrapper> lock(mMutex);
     CARB_PROFILE_ZONE(0, "MeshCache::createRuntimeTriangleMesh");
-    using namespace ::physx;
+    using namespace ::ev4sio_physx;
     if (hasTriangleMesh(meshCRC))
     {
         // If this triangle mesh has already been registered with the in-memory cache, then we can delete it because
@@ -281,18 +281,18 @@ bool MeshCache::createRuntimeTriangleMesh(::physx::PxPhysics& physics,
     return false;
 }
 
-bool MeshCache::createRuntimeSphereFill(::physx::PxPhysics& physics,
+bool MeshCache::createRuntimeSphereFill(::ev4sio_physx::PxPhysics& physics,
                                 usdparser::MeshKey crc,
-                                omni::physx::PhysxCookedDataSpan inputCookedData,
-                                const omni::physx::usdparser::SpherePointsPhysxShapeDesc ** returnedMesh)
+                                omni::ev4sio_physx::PhysxCookedDataSpan inputCookedData,
+                                const omni::ev4sio_physx::usdparser::SpherePointsPhysxShapeDesc ** returnedMesh)
 {
     std::lock_guard<carb::tasking::RecursiveMutexWrapper> lock(mMutex);
     CARB_PROFILE_ZONE(0, "MeshCache::createRuntimeSphereFill");
-    using namespace ::physx;
+    using namespace ::ev4sio_physx;
 
     if(mSphereFillMap.find(crc) == mSphereFillMap.end())
     {
-        omni::physx::usdparser::SpherePointsPhysxShapeDesc sphereFill;
+        omni::ev4sio_physx::usdparser::SpherePointsPhysxShapeDesc sphereFill;
         uint32_t sphereCount = 0;
         // Sanity check for corrupted data
         if(inputCookedData.sizeInBytes < sizeof(uint32_t))
@@ -300,9 +300,9 @@ bool MeshCache::createRuntimeSphereFill(::physx::PxPhysics& physics,
         // This is not really safe if you're not sure about the alignment of the raw bytes
         const uint32_t* data = (const uint32_t*)inputCookedData.data;
         sphereCount = *data++;
-        const omni::physx::usdparser::SpherePhysxPoint* spp = (const omni::physx::usdparser::SpherePhysxPoint*)data;
+        const omni::ev4sio_physx::usdparser::SpherePhysxPoint* spp = (const omni::ev4sio_physx::usdparser::SpherePhysxPoint*)data;
         // Sanity check for corrupted data
-        if(inputCookedData.sizeInBytes != (sizeof(uint32_t) + sphereCount * sizeof(omni::physx::usdparser::SpherePhysxPoint)))
+        if(inputCookedData.sizeInBytes != (sizeof(uint32_t) + sphereCount * sizeof(omni::ev4sio_physx::usdparser::SpherePhysxPoint)))
             return false;
         for (uint32_t i = 0; i < sphereCount; i++)
         {
@@ -318,14 +318,14 @@ bool MeshCache::createRuntimeSphereFill(::physx::PxPhysics& physics,
     return true;
 }
 
-bool MeshCache::createRuntimeConvexMesh(::physx::PxPhysics& physics,
+bool MeshCache::createRuntimeConvexMesh(::ev4sio_physx::PxPhysics& physics,
                                         usdparser::MeshKey crc,
-                                        omni::physx::PhysxCookedDataSpan inputCookedData,
-                                        ::physx::PxConvexMesh** returnedMesh)
+                                        omni::ev4sio_physx::PhysxCookedDataSpan inputCookedData,
+                                        ::ev4sio_physx::PxConvexMesh** returnedMesh)
 {
     std::lock_guard<carb::tasking::RecursiveMutexWrapper> lock(mMutex);
     CARB_PROFILE_ZONE(0, "MeshCache::createRuntimeConvexMesh");
-    using namespace ::physx;
+    using namespace ::ev4sio_physx;
     if(hasConvexMesh(crc))
     {
         if(returnedMesh)
@@ -349,15 +349,15 @@ bool MeshCache::createRuntimeConvexMesh(::physx::PxPhysics& physics,
     return false;
 }
 
-bool MeshCache::createRuntimeConvexDecomposition(::physx::PxPhysics& physics,
+bool MeshCache::createRuntimeConvexDecomposition(::ev4sio_physx::PxPhysics& physics,
                                                  usdparser::MeshKey crc,
-                                                 const omni::physx::PhysxCookedDataSpan* inputCookedData,
+                                                 const omni::ev4sio_physx::PhysxCookedDataSpan* inputCookedData,
                                                  uint64_t inputCookedDataNumber,
-                                                 std::vector<::physx::PxConvexMesh*>* returnedMeshes)
+                                                 std::vector<::ev4sio_physx::PxConvexMesh*>* returnedMeshes)
 {
     std::lock_guard<carb::tasking::RecursiveMutexWrapper> lock(mMutex);
     CARB_PROFILE_ZONE(0, "MeshCache::createRuntimeConvexDecomposition");
-    using namespace ::physx;
+    using namespace ::ev4sio_physx;
     if (hasConvexDecomposition(crc))
     {
         // In the rare and unlikely event that a convex decomposition with this CRC has already been
@@ -371,7 +371,7 @@ bool MeshCache::createRuntimeConvexDecomposition(::physx::PxPhysics& physics,
     std::vector<PxConvexMesh*> outputMeshes;
     for(uint64_t idx = 0; idx < inputCookedDataNumber; ++idx)
     {
-        const omni::physx::PhysxCookedDataSpan span = inputCookedData[idx];
+        const omni::ev4sio_physx::PhysxCookedDataSpan span = inputCookedData[idx];
         PxDefaultMemoryInputData inData((PxU8*)span.data, (PxU32)span.sizeInBytes);
         // We should be probably try to handle partial failure
         outputMeshes.push_back(physics.createConvexMesh(inData));
@@ -391,7 +391,7 @@ bool MeshCache::createRuntimeConvexDecomposition(::physx::PxPhysics& physics,
     return true;
 }
 
-static void fillCollisionMeshFromConvexMesh(PxConvexMesh* pxMesh, omni::physx::CollisionMesh& mesh, carb::Float3 signScale)
+static void fillCollisionMeshFromConvexMesh(PxConvexMesh* pxMesh, omni::ev4sio_physx::CollisionMesh& mesh, carb::Float3 signScale)
 {
     uint32_t nbVertices = pxMesh->getNbVertices();
     const PxVec3* vertices = pxMesh->getVertices();
@@ -442,7 +442,7 @@ static void fillCollisionMeshFromConvexMesh(PxConvexMesh* pxMesh, omni::physx::C
     memcpy(&mesh.meshCenter.x, &meshCenter.x, sizeof(meshCenter));
 }
 
-static void fillCollisionMeshFromTriangleMesh(PxTriangleMesh* pxMesh, omni::physx::CollisionMesh& mesh)
+static void fillCollisionMeshFromTriangleMesh(PxTriangleMesh* pxMesh, omni::ev4sio_physx::CollisionMesh& mesh)
 {
     uint32_t nbVertices = pxMesh->getNbVertices();
     const PxVec3* vertices = pxMesh->getVertices();
@@ -473,22 +473,22 @@ static void fillCollisionMeshFromTriangleMesh(PxTriangleMesh* pxMesh, omni::phys
     memcpy(&mesh.meshCenter.x, &meshCenter.x, sizeof(meshCenter));
 }
 
-omni::physx::CollisionRepresentation* MeshCache::getCollisionRepresentation(usdparser::MeshKey crc,
-                                                                            const omni::physx::usdparser::PhysxShapeDesc& desc)
+omni::ev4sio_physx::CollisionRepresentation* MeshCache::getCollisionRepresentation(usdparser::MeshKey crc,
+                                                                            const omni::ev4sio_physx::usdparser::PhysxShapeDesc& desc)
 {
     std::lock_guard<carb::tasking::RecursiveMutexWrapper> lock(mMutex);
     switch (desc.type)
     {
-    case omni::physx::usdparser::eConvexMeshShape: {
-        const omni::physx::usdparser::ConvexMeshPhysxShapeDesc* convexMeshDesc = (omni::physx::usdparser::ConvexMeshPhysxShapeDesc*)&desc;
+    case omni::ev4sio_physx::usdparser::eConvexMeshShape: {
+        const omni::ev4sio_physx::usdparser::ConvexMeshPhysxShapeDesc* convexMeshDesc = (omni::ev4sio_physx::usdparser::ConvexMeshPhysxShapeDesc*)&desc;
         PxConvexMesh* pxMesh = getConvexMesh(crc);
         if (!pxMesh)
             return nullptr;
 
         carb::Float3 rootCenter = { 0, 0, 0 };
-        omni::physx::CollisionRepresentation* cr = new omni::physx::CollisionRepresentation;
+        omni::ev4sio_physx::CollisionRepresentation* cr = new omni::ev4sio_physx::CollisionRepresentation;
         cr->meshCount = 1;
-        cr->meshes = new omni::physx::CollisionMesh[cr->meshCount];
+        cr->meshes = new omni::ev4sio_physx::CollisionMesh[cr->meshCount];
         memcpy(&cr->rootCenter, &rootCenter.x, sizeof(cr->rootCenter));
         PxBounds3 bounds = pxMesh->getLocalBounds();
         memcpy(&cr->bmin.x, &bounds.minimum, sizeof(cr->bmin));
@@ -499,17 +499,17 @@ omni::physx::CollisionRepresentation* MeshCache::getCollisionRepresentation(usdp
         return cr;
     }
     break;
-    case omni::physx::usdparser::eConvexMeshDecompositionShape: {
-        omni::physx::usdparser::ConvexMeshDecompositionPhysxShapeDesc* convexDecompositionMeshDesc = (omni::physx::usdparser::ConvexMeshDecompositionPhysxShapeDesc*)&desc;
+    case omni::ev4sio_physx::usdparser::eConvexMeshDecompositionShape: {
+        omni::ev4sio_physx::usdparser::ConvexMeshDecompositionPhysxShapeDesc* convexDecompositionMeshDesc = (omni::ev4sio_physx::usdparser::ConvexMeshDecompositionPhysxShapeDesc*)&desc;
         auto it = mConvexDecompositionMap.find(crc);
         if (it == mConvexDecompositionMap.end())
             return nullptr;
         const ConvexMeshVector& convexMeshes = it->second;
 
         carb::Float3 rootCenter = { 0, 0, 0 };
-        omni::physx::CollisionRepresentation* cr = new omni::physx::CollisionRepresentation;
+        omni::ev4sio_physx::CollisionRepresentation* cr = new omni::ev4sio_physx::CollisionRepresentation;
         cr->meshCount = (uint32_t)convexMeshes.size();
-        cr->meshes = new omni::physx::CollisionMesh[cr->meshCount];
+        cr->meshes = new omni::ev4sio_physx::CollisionMesh[cr->meshCount];
         memcpy(&cr->rootCenter, &rootCenter.x, sizeof(cr->rootCenter));
 
         PxBounds3 totalBounds = PxBounds3::empty();
@@ -522,7 +522,7 @@ omni::physx::CollisionRepresentation* MeshCache::getCollisionRepresentation(usdp
         }
         memcpy(&cr->bmin.x, &totalBounds.minimum, sizeof(cr->bmin));
         memcpy(&cr->bmax.x, &totalBounds.maximum, sizeof(cr->bmax));
-        std::sort(cr->meshes, cr->meshes + cr->meshCount, [](const omni::physx::CollisionMesh& p1, const omni::physx::CollisionMesh& p2)
+        std::sort(cr->meshes, cr->meshes + cr->meshCount, [](const omni::ev4sio_physx::CollisionMesh& p1, const omni::ev4sio_physx::CollisionMesh& p2)
         {
             float distances[3];
             distances[0] = p1.meshCenter.x - p2.meshCenter.x;
@@ -542,15 +542,15 @@ omni::physx::CollisionRepresentation* MeshCache::getCollisionRepresentation(usdp
         return cr;
     }
     break;
-    case omni::physx::usdparser::eTriangleMeshShape: {
+    case omni::ev4sio_physx::usdparser::eTriangleMeshShape: {
         PxTriangleMesh* pxMesh = getTriangleMesh(crc);
         if (!pxMesh)
             return nullptr;
 
         carb::Float3 rootCenter = { 0, 0, 0 };
-        omni::physx::CollisionRepresentation* cr = new omni::physx::CollisionRepresentation;
+        omni::ev4sio_physx::CollisionRepresentation* cr = new omni::ev4sio_physx::CollisionRepresentation;
         cr->meshCount = 1;
-        cr->meshes = new omni::physx::CollisionMesh[cr->meshCount];
+        cr->meshes = new omni::ev4sio_physx::CollisionMesh[cr->meshCount];
         memcpy(&cr->rootCenter, &rootCenter.x, sizeof(cr->rootCenter));
         PxBounds3 bounds = pxMesh->getLocalBounds();
         memcpy(&cr->bmin.x, &bounds.minimum, sizeof(cr->bmin));

@@ -16,9 +16,9 @@
 #include "PxFiltering.h"
 #include "ScRigidCore.h" //KS - needed for ShapeChangeNotifyFlags. Move to a shared header
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Sc
+namespace ev4sio_Sc
 {
 
 class DeformableVolumeSim;
@@ -90,26 +90,26 @@ public:
 
 	PxU32						getGpuIndex()	const;
 
-	PxU32						addRigidAttachments(Sc::BodyCore* core, PxDeformableAttachmentTargetType::Enum feature,
+	PxU32						addRigidAttachments(ev4sio_Sc::BodyCore* core, PxDeformableAttachmentTargetType::Enum feature,
 									const PxU32* indices, const PxVec4* barycentrics, const PxTransform& frame, const PxVec4* coords, PxU32 count);
-	void						removeRigidAttachments(Sc::BodyCore* core, PxU32 handle);
+	void						removeRigidAttachments(ev4sio_Sc::BodyCore* core, PxU32 handle);
 
-	PxU32						addVolumeAttachments(Sc::DeformableVolumeCore& core, PxDeformableAttachmentTargetType::Enum feature0, const PxU32* indices0, const PxVec4* barycentrics0,
+	PxU32						addVolumeAttachments(ev4sio_Sc::DeformableVolumeCore& core, PxDeformableAttachmentTargetType::Enum feature0, const PxU32* indices0, const PxVec4* barycentrics0,
 									PxDeformableAttachmentTargetType::Enum feature1, const PxU32* indices1, const PxVec4* barycentrics1, PxU32 count);
-	void						removeVolumeAttachments(Sc::DeformableVolumeCore& core, PxU32 handle);
+	void						removeVolumeAttachments(ev4sio_Sc::DeformableVolumeCore& core, PxU32 handle);
 
-	PxU32						addSurfaceAttachments(Sc::DeformableSurfaceCore& core, PxDeformableAttachmentTargetType::Enum feature0, const PxU32* indices0, const PxVec4* barycentrics0,
+	PxU32						addSurfaceAttachments(ev4sio_Sc::DeformableSurfaceCore& core, PxDeformableAttachmentTargetType::Enum feature0, const PxU32* indices0, const PxVec4* barycentrics0,
 									PxDeformableAttachmentTargetType::Enum feature1, const PxU32* indices1, const PxVec4* barycentrics1, PxU32 count);
-	void						removeSurfaceAttachments(Sc::DeformableSurfaceCore& core, PxU32 handle);
+	void						removeSurfaceAttachments(ev4sio_Sc::DeformableSurfaceCore& core, PxU32 handle);
 
-	void						addRigidFilters(Sc::RigidCore* core, PxU32* tetIndices, PxU32 tetIndicesSize);
-	void						removeRigidFilters(Sc::RigidCore* core, PxU32* tetIndices, PxU32 tetIndicesSize);
+	void						addRigidFilters(ev4sio_Sc::RigidCore* core, PxU32* tetIndices, PxU32 tetIndicesSize);
+	void						removeRigidFilters(ev4sio_Sc::RigidCore* core, PxU32* tetIndices, PxU32 tetIndicesSize);
 
-	void						addVolumeFilters(Sc::DeformableVolumeCore& core, PxU32* tetIndices0, PxU32* tetIndices1, PxU32 tetIndicesSize);
-	void						removeVolumeFilters(Sc::DeformableVolumeCore& core, PxU32* tetIndices0, PxU32* tetIndices1, PxU32 tetIndicesSize);
+	void						addVolumeFilters(ev4sio_Sc::DeformableVolumeCore& core, PxU32* tetIndices0, PxU32* tetIndices1, PxU32 tetIndicesSize);
+	void						removeVolumeFilters(ev4sio_Sc::DeformableVolumeCore& core, PxU32* tetIndices0, PxU32* tetIndices1, PxU32 tetIndicesSize);
 
-	void						addSurfaceFilters(Sc::DeformableSurfaceCore& core, PxU32* triIndices, PxU32* tetIndices, PxU32 indicesSize);
-	void						removeSurfaceFilters(Sc::DeformableSurfaceCore& core, PxU32* triIndices, PxU32* tetIndices, PxU32 indicesSize);
+	void						addSurfaceFilters(ev4sio_Sc::DeformableSurfaceCore& core, PxU32* triIndices, PxU32* tetIndices, PxU32 indicesSize);
+	void						removeSurfaceFilters(ev4sio_Sc::DeformableSurfaceCore& core, PxU32* triIndices, PxU32* tetIndices, PxU32 indicesSize);
 
 	//---------------------------------------------------------------------------------
 	// Internal API
@@ -124,16 +124,16 @@ public:
 	PX_FORCE_INLINE	PxU64&		getGpuMemStat() { return mGpuMemStat; }
 
 	DeformableVolumeSim*								getSim() const;
-	PX_FORCE_INLINE	const Dy::DeformableVolumeCore&		getCore() const { return mCore; }
-	PX_FORCE_INLINE	Dy::DeformableVolumeCore&			getCore() { return mCore; }
+	PX_FORCE_INLINE	const ev4sio_Dy::DeformableVolumeCore&		getCore() const { return mCore; }
+	PX_FORCE_INLINE	ev4sio_Dy::DeformableVolumeCore&			getCore() { return mCore; }
 
 private:
-	Dy::DeformableVolumeCore	mCore;
+	ev4sio_Dy::DeformableVolumeCore	mCore;
 	PxU64						mGpuMemStat;
 };
 
-} // namespace Sc
-} // namespace physx
+} // namespace ev4sio_Sc
+} // namespace ev4sio_physx
 
 #endif // PX_SUPPORT_GPU_PHYSX
 #endif // SC_DEFORMABLE_VOLUME_CORE_H

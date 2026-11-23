@@ -8,9 +8,9 @@
 
 #include "GuTriangleMesh.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Gu
+namespace ev4sio_Gu
 {
 class MeshFactory;
 
@@ -37,17 +37,17 @@ class BV4TriangleMesh : public TriangleMesh
 						virtual PxVec3*					getVerticesForModification() PX_OVERRIDE;
 						virtual PxBounds3				refitBVH() PX_OVERRIDE;
 
-	PX_FORCE_INLINE				const Gu::BV4Tree&		getBV4Tree()			const	{ return mBV4Tree;				}
+	PX_FORCE_INLINE				const ev4sio_Gu::BV4Tree&		getBV4Tree()			const	{ return mBV4Tree;				}
 	private:
-								Gu::SourceMesh			mMeshInterface;
-								Gu::BV4Tree				mBV4Tree;
+								ev4sio_Gu::SourceMesh			mMeshInterface;
+								ev4sio_Gu::BV4Tree				mBV4Tree;
 };
 
 #if PX_VC
 #pragma warning(pop)
 #endif
 
-} // namespace Gu
+} // namespace ev4sio_Gu
 
 }
 

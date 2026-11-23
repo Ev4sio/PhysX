@@ -38,13 +38,13 @@
 
 // Scoped mutex lock
 using lock_guard = std::lock_guard<carb::tasking::MutexWrapper>;
-using namespace physx;
+using namespace ev4sio_physx;
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 
-using MeshHashSet = std::unordered_set<omni::physx::usdparser::MeshKey, omni::physx::usdparser::MeshKeyHash>;
+using MeshHashSet = std::unordered_set<omni::ev4sio_physx::usdparser::MeshKey, omni::ev4sio_physx::usdparser::MeshKeyHash>;
 
 // Queue of outstanding cooking tasks
 using CookingTaskQueue = std::list<cookingtask::CookingTask*>;
@@ -56,11 +56,11 @@ using CookingTaskMap = std::unordered_map<std::string, cookingtask::CookingTask*
 
 struct CookingComputeService : public ICookingComputeService
 {
-    explicit CookingComputeService(::physx::PxFoundation& foundation,
+    explicit CookingComputeService(::ev4sio_physx::PxFoundation& foundation,
                                    AcquireSharedCudaContextManagerFn acquireSharedCudaContextManagerFn)
         : mPxFoundation(&foundation), mAcquireSharedCudaContextManagerFn(acquireSharedCudaContextManagerFn)
     {
-        mPhysxFoundation = &omni::physx::foundation::getInterface();
+        mPhysxFoundation = &omni::ev4sio_physx::foundation::getInterface();
         mTasking = carb::getCachedInterface<carb::tasking::ITasking>();
 
         // List of API improvements that will be applied when the next ABI Break will become necessary:
@@ -287,8 +287,8 @@ struct CookingComputeService : public ICookingComputeService
 
     virtual bool acquireCudaContextManager(PhysxCookingDataType::Enum dataType,
                                            const PhysxCookingComputeRequest& request,
-                                           ::physx::PxCudaContextManager*& cudaContextManager,
-                                           ::physx::PxPhysicsGpu*& physicsGPU) override final
+                                           ::ev4sio_physx::PxCudaContextManager*& cudaContextManager,
+                                           ::ev4sio_physx::PxPhysicsGpu*& physicsGPU) override final
     {
 #if USE_PHYSX_GPU
         const bool executeCookingOnGPU =
@@ -313,7 +313,7 @@ struct CookingComputeService : public ICookingComputeService
                     // The provider hands back a manager with a reference already taken (see
                     // AcquireSharedCudaContextManagerFn), so mPxCudaContextManager below always
                     // holds a reference we own, whatever its origin.
-                    if (::physx::PxCudaContextManager* shared = mAcquireSharedCudaContextManagerFn())
+                    if (::ev4sio_physx::PxCudaContextManager* shared = mAcquireSharedCudaContextManagerFn())
                     {
                         if (mPxCudaContextManager == shared)
                         {
@@ -345,7 +345,7 @@ struct CookingComputeService : public ICookingComputeService
                     // createOrRefreshPxCudaContextManager() consumes the reference it is handed
                     // and may release+replace it, which would leave the provider pointing at a
                     // manager it no longer owns.
-                    omni::physx::PhysxFoundationDeviceOrdinal ordinal;
+                    omni::ev4sio_physx::PhysxFoundationDeviceOrdinal ordinal;
                     mPhysxFoundation->getSingleCudaContextManagerOrdinal(ordinal);
 
                     if (!mPhysxFoundation->createOrRefreshPxCudaContextManager(ordinal, mPxFoundation, mPxCudaContextManager, false))
@@ -382,22 +382,22 @@ struct CookingComputeService : public ICookingComputeService
         // holds identically in both build configurations.
         cudaContextManager = nullptr;
 #endif
-        physicsGPU = cudaContextManager ? PxGetPhysicsGpu() : nullptr;
+        physicsGPU = cudaContextManager ? ev4sio_PxGetPhysicsGpu() : nullptr;
         return true;
     }
 
     virtual PhysxCookingOperationHandle requestTriangleMeshCookedData(
         PhysxCookingAsyncContext context,
         const PhysxCookingComputeRequest& request,
-        const omni::physx::TriangleMeshCookingParams& triangleMeshCookingParams,
-        const omni::physx::SdfMeshCookingParams& sdfMeshCookingParams,
-        ::physx::PxCudaContextManager* cudaContextManager) override
+        const omni::ev4sio_physx::TriangleMeshCookingParams& triangleMeshCookingParams,
+        const omni::ev4sio_physx::SdfMeshCookingParams& sdfMeshCookingParams,
+        ::ev4sio_physx::PxCudaContextManager* cudaContextManager) override
     {
         CARB_PROFILE_ZONE(0, "CookingComputeService::requestTriangleMeshCookedData");
         PhysxCookingDataType::Enum dataType = sdfMeshCookingParams.sdfResolution > 0 ?
                                                   PhysxCookingDataType::eSDF_TRIANGLE_MESH :
                                                   PhysxCookingDataType::eTRIANGLE_MESH;
-        ::physx::PxPhysicsGpu* physicsGPU = nullptr;
+        ::ev4sio_physx::PxPhysicsGpu* physicsGPU = nullptr;
         if (!acquireCudaContextManager(dataType, request, cudaContextManager, physicsGPU))
             return nullptr;
 
@@ -428,7 +428,7 @@ struct CookingComputeService : public ICookingComputeService
     virtual PhysxCookingOperationHandle requestConvexMeshCookedData(
         PhysxCookingAsyncContext context,
         const PhysxCookingComputeRequest& request,
-        const omni::physx::ConvexMeshCookingParams& convexCookingParams) override
+        const omni::ev4sio_physx::ConvexMeshCookingParams& convexCookingParams) override
     {
         return requestCookedData(
             PhysxCookingDataType::eCONVEX_MESH, context, request,
@@ -443,7 +443,7 @@ struct CookingComputeService : public ICookingComputeService
     virtual PhysxCookingOperationHandle requestConvexMeshDecompositionCookedData(
         PhysxCookingAsyncContext context,
         const PhysxCookingComputeRequest& request,
-        const omni::physx::ConvexDecompositionCookingParams& convexDecompositionCookingParams) override
+        const omni::ev4sio_physx::ConvexDecompositionCookingParams& convexDecompositionCookingParams) override
     {
         return requestCookedData(
             PhysxCookingDataType::eCONVEX_DECOMPOSITION, context, request,
@@ -462,7 +462,7 @@ struct CookingComputeService : public ICookingComputeService
     virtual PhysxCookingOperationHandle requestSphereFillCookedData(
         PhysxCookingAsyncContext context,
         const PhysxCookingComputeRequest& request,
-        const omni::physx::SphereFillCookingParams& sphereFillCookingParams) override
+        const omni::ev4sio_physx::SphereFillCookingParams& sphereFillCookingParams) override
     {
         return requestCookedData(
             PhysxCookingDataType::eSPHERE_FILL, context, request,
@@ -479,7 +479,7 @@ struct CookingComputeService : public ICookingComputeService
     virtual PhysxCookingOperationHandle requestParticlePoissonSamplingCookedData(
         PhysxCookingAsyncContext context,
         const PhysxCookingComputeRequest& request,
-        const omni::physx::ParticlePoissonSamplingCookingParams& params)
+        const omni::ev4sio_physx::ParticlePoissonSamplingCookingParams& params)
     {
         return requestCookedData(
             PhysxCookingDataType::ePARTICLE_POISSON_SAMPLING, context, request,
@@ -495,7 +495,7 @@ struct CookingComputeService : public ICookingComputeService
     virtual PhysxCookingOperationHandle requestDeformableVolumeMeshCookedData(
         PhysxCookingAsyncContext context,
         const PhysxCookingComputeRequest& request,
-        const omni::physx::DeformableVolumeMeshCookingParams& params) override
+        const omni::ev4sio_physx::DeformableVolumeMeshCookingParams& params) override
     {
         const bool skipMeshProcessing = true;
         return requestCookedData(
@@ -512,7 +512,7 @@ struct CookingComputeService : public ICookingComputeService
     virtual PhysxCookingOperationHandle requestVolumeDeformableBodyCookedData(
         PhysxCookingAsyncContext context,
         const PhysxCookingComputeRequest& request,
-        const omni::physx::VolumeDeformableBodyCookingParams& params)
+        const omni::ev4sio_physx::VolumeDeformableBodyCookingParams& params)
     {
         return requestCookedData(
             PhysxCookingDataType::eVOLUME_DEFORMABLE_BODY, context, request,
@@ -527,7 +527,7 @@ struct CookingComputeService : public ICookingComputeService
     virtual PhysxCookingOperationHandle requestSurfaceDeformableBodyCookedData(
         PhysxCookingAsyncContext context,
         const PhysxCookingComputeRequest& request,
-        const omni::physx::SurfaceDeformableBodyCookingParams& params)
+        const omni::ev4sio_physx::SurfaceDeformableBodyCookingParams& params)
     {
         return requestCookedData(
             PhysxCookingDataType::eSURFACE_DEFORMABLE_BODY, context, request,
@@ -553,7 +553,7 @@ struct CookingComputeService : public ICookingComputeService
         {
             asyncContext.mTaskMap[t->getTaskKey()] = t;
             asyncContext.mTasks.push_back(t);
-            omni::physx::usdparser::MeshKey crc;
+            omni::ev4sio_physx::usdparser::MeshKey crc;
             t->getCRC(crc);
             addCookedDataCRC(asyncContext, crc);
         }
@@ -561,7 +561,7 @@ struct CookingComputeService : public ICookingComputeService
         {
             cookingtask::CookingTask* ct = (*found).second;
             ct->cancel(false); // this new one takes precedence
-            omni::physx::usdparser::MeshKey crc;
+            omni::ev4sio_physx::usdparser::MeshKey crc;
             ct->getCRC(crc);
             removeCookedDataCRC(asyncContext, crc);
             // Unregister the CRC of any previous pending task being overwritten
@@ -596,7 +596,7 @@ struct CookingComputeService : public ICookingComputeService
         CookingTaskMap::iterator found = asyncContext.mTaskMap.find(t->getTaskKey());
         if (found != asyncContext.mTaskMap.end())
         {
-            omni::physx::usdparser::MeshKey crc;
+            omni::ev4sio_physx::usdparser::MeshKey crc;
             t->getCRC(crc);
             removeCookedDataCRC(asyncContext, crc);
             asyncContext.mTaskMap.erase(found);
@@ -701,7 +701,7 @@ struct CookingComputeService : public ICookingComputeService
         return mFinishedCookingTasksCount;
     }
 
-    bool addCookedDataCRC(AsyncContext& asyncContext, const omni::physx::usdparser::MeshKey& key)
+    bool addCookedDataCRC(AsyncContext& asyncContext, const omni::ev4sio_physx::usdparser::MeshKey& key)
     {
         bool ret = false;
         MeshHashSet::iterator found = asyncContext.mCookedDataCRCSet.find(key);
@@ -713,7 +713,7 @@ struct CookingComputeService : public ICookingComputeService
         return ret;
     }
 
-    bool removeCookedDataCRC(AsyncContext& asyncContext, const omni::physx::usdparser::MeshKey& key)
+    bool removeCookedDataCRC(AsyncContext& asyncContext, const omni::ev4sio_physx::usdparser::MeshKey& key)
     {
         bool ret = false;
         MeshHashSet::iterator found = asyncContext.mCookedDataCRCSet.find(key);
@@ -725,7 +725,7 @@ struct CookingComputeService : public ICookingComputeService
         return ret;
     }
 
-    bool haveCookedDataCRC(AsyncContext* asyncContext, const omni::physx::usdparser::MeshKey& key) const
+    bool haveCookedDataCRC(AsyncContext* asyncContext, const omni::ev4sio_physx::usdparser::MeshKey& key) const
     {
         if (asyncContext)
         {
@@ -741,7 +741,7 @@ struct CookingComputeService : public ICookingComputeService
         return false;
     }
 
-    bool haveCookedDataCRCInContext(AsyncContext& asyncContext, const omni::physx::usdparser::MeshKey& key) const
+    bool haveCookedDataCRCInContext(AsyncContext& asyncContext, const omni::ev4sio_physx::usdparser::MeshKey& key) const
     {
         bool ret = false;
 
@@ -763,7 +763,7 @@ struct CookingComputeService : public ICookingComputeService
      */
     cookingtask::CookingTask* findOpenTask(AsyncContext* asyncContext,
                                            const std::string& taskKey,
-                                           const omni::physx::usdparser::MeshKey& crc,
+                                           const omni::ev4sio_physx::usdparser::MeshKey& crc,
                                            bool crcOnly = false)
     {
         if (asyncContext != nullptr)
@@ -786,7 +786,7 @@ struct CookingComputeService : public ICookingComputeService
 
     cookingtask::CookingTask* findOpenTaskInContext(AsyncContext& asyncContext,
                                                     const std::string& taskKey,
-                                                    const omni::physx::usdparser::MeshKey& crc,
+                                                    const omni::ev4sio_physx::usdparser::MeshKey& crc,
                                                     bool crcOnly)
     {
 
@@ -802,7 +802,7 @@ struct CookingComputeService : public ICookingComputeService
                 for (const auto& it : asyncContext.mTaskMap)
                 {
                     cookingtask::CookingTask* ct = it.second;
-                    omni::physx::usdparser::MeshKey ct_crc;
+                    omni::ev4sio_physx::usdparser::MeshKey ct_crc;
                     ct->getCRC(ct_crc);
                     if (ct_crc == crc && !ct->isCanceled())
                     {
@@ -814,7 +814,7 @@ struct CookingComputeService : public ICookingComputeService
         else
         {
             cookingtask::CookingTask* ct = (*found).second;
-            omni::physx::usdparser::MeshKey ct_crc;
+            omni::ev4sio_physx::usdparser::MeshKey ct_crc;
             ct->getCRC(ct_crc);
             if (ct_crc == crc && !ct->isCanceled())
             {
@@ -979,7 +979,7 @@ struct CookingComputeService : public ICookingComputeService
         return true;
     }
 
-    bool validateContext(omni::physx::PhysxCookingComputeResult& result, PhysxCookingAsyncContext context)
+    bool validateContext(omni::ev4sio_physx::PhysxCookingComputeResult& result, PhysxCookingAsyncContext context)
     {
         if (result.request->options.hasFlag(PhysxCookingComputeRequest::Options::kComputeAsynchronously))
         {
@@ -999,14 +999,14 @@ private:
     // mAcquireSharedCudaContextManagerFn. Replacing it only drops our own reference - a manager
     // an in-flight task still uses stays alive on that task's reference, which is why no
     // "retired managers" deferral list is needed here.
-    ::physx::PxCudaContextManager* mPxCudaContextManager = nullptr;
+    ::ev4sio_physx::PxCudaContextManager* mPxCudaContextManager = nullptr;
     // True while mPxCudaContextManager came from the provider. Not a lifetime flag (we hold a
     // reference either way) - it gates whether we may refresh/replace the manager in place.
     bool mUsingSharedContextManager = false;
-    ::physx::PxFoundation* mPxFoundation = nullptr;
+    ::ev4sio_physx::PxFoundation* mPxFoundation = nullptr;
 
     carb::tasking::ITasking* mTasking = nullptr;
-    omni::physx::IPhysxFoundation* mPhysxFoundation = nullptr;
+    omni::ev4sio_physx::IPhysxFoundation* mPhysxFoundation = nullptr;
     AcquireSharedCudaContextManagerFn mAcquireSharedCudaContextManagerFn = nullptr;
     std::atomic_uint32_t mFinishedCookingTasksCount = { 0 };
     carb::tasking::MutexWrapper mGlobalMutex;
@@ -1015,7 +1015,7 @@ private:
     cookedcache::CookedCache* mCookedCache = nullptr;
 };
 
-ICookingComputeService* createCookingComputingService(::physx::PxFoundation& foundation,
+ICookingComputeService* createCookingComputingService(::ev4sio_physx::PxFoundation& foundation,
                                                       AcquireSharedCudaContextManagerFn acquireSharedCudaContextManagerFn)
 {
     return new CookingComputeService(foundation, acquireSharedCudaContextManagerFn);
@@ -1035,7 +1035,7 @@ bool ICookingComputeService::computeMeshKeyIfNeeded(PhysxCookingComputeResult& r
     // for the service itself to resolve.
     result.requestSource = PhysxCookingComputeResult::eREQUEST_SOURCE_MESHVIEW;
 
-    if (request.meshKey != omni::physx::usdparser::MeshKey())
+    if (request.meshKey != omni::ev4sio_physx::usdparser::MeshKey())
     {
         result.meshKey = request.meshKey;
         return true;
@@ -1080,5 +1080,5 @@ uint16_t ICookingComputeService::getMaxMaterialIndex(const PhysxCookingMeshView&
     return 0;
 }
 
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

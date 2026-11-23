@@ -13,7 +13,7 @@
 #if PX_SUPPORT_GPU_PHYSX
 #include "PxDeformableAttachment.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 struct AttachmentInfo

@@ -9,11 +9,11 @@
 #include "common/PxPhysXCommonConfig.h"
 #include "GuPruner.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	class PxRenderOutput;
 
-namespace Gu
+namespace ev4sio_Gu
 {
 	class PruningPool;
 

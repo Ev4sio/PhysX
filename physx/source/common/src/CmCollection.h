@@ -11,9 +11,9 @@
 #include "foundation/PxUserAllocated.h"
 #include "foundation/PxAllocator.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Cm
+namespace ev4sio_Cm
 {
 	template <class Key, 
 			  class Value,
@@ -21,7 +21,7 @@ namespace Cm
 			  class Allocator = PxAllocator >
 	class CollectionHashMap : public PxCoalescedHashMap< Key, Value, HashFn, Allocator>
 	{
-		typedef physx::PxHashMapBase< Key, Value, HashFn, Allocator> MapBase;	
+		typedef ev4sio_physx::PxHashMapBase< Key, Value, HashFn, Allocator> MapBase;
 		typedef PxPair<const Key,Value> EntryData;
 
 		public:

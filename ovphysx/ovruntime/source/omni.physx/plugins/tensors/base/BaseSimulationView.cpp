@@ -108,14 +108,14 @@
 #include <omni/physx/PhysxTokens.h>
 
 
-using namespace physx;
+using namespace ev4sio_physx;
 using namespace carb;
 using omni::physics::tensors::ObjectType;
 
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace tensors
 {
@@ -463,7 +463,7 @@ BaseSimulationView::BaseSimulationView(usdparser::AttachedStage* attachedStage,
     , mSelectionReadOrdinal(attachedStage ? attachedStage->attachTarget().readOrdinal : 0)
     , mSelectionRecursiveLeafMatch(isRecursiveLeafPatternMatchEnabled())
 {
-    omni::physx::IPhysicsObjectChangeCallback callback;
+    omni::ev4sio_physx::IPhysicsObjectChangeCallback callback;
     callback.objectDestructionNotifyFn = onPhysXObjectDeletedCallback;
     callback.allObjectsDestructionNotifyFn = onAllPhysXObjectDeletedCallback;
     callback.userData = this;
@@ -590,11 +590,11 @@ BaseSimulationView::~BaseSimulationView()
     }
 }
 
-void BaseSimulationView::onPhysXObjectDeletedCallback(const omni::physx::PhysicsObjectChangeEvent& event, void* userData)
+void BaseSimulationView::onPhysXObjectDeletedCallback(const omni::ev4sio_physx::PhysicsObjectChangeEvent& event, void* userData)
 {
-    const omni::physx::PhysXType type = event.type;
+    const omni::ev4sio_physx::PhysXType type = event.type;
     auto sim = (BaseSimulationView*)userData;
-    omni::physx::IPhysx* physx = omni::physx::tensors::g_physx;
+    omni::ev4sio_physx::IPhysx* physx = omni::ev4sio_physx::tensors::g_physx;
     if (physx && sim && sim->mAttachHandle == event.attach)
     {
         // no need to check further and print warning if the sim is already invalidated
@@ -748,9 +748,9 @@ bool BaseSimulationView::setSubspaceRoots(const char* pattern)
         // gate: a matched prim that is not xformable now gets a subspace at its
         // inherited world origin instead of none. Subspace roots are environment roots
         // (Xforms) in practice, and the source answers for any prim it knows.
-        const ::physx::PxMat44d localToWorld =
+        const ::ev4sio_physx::PxMat44d localToWorld =
             internal::getWorldTransform(*mAttachedStage, keys[i], omni::physics::parse::ReadTime::defaultTime());
-        const ::physx::PxVec3d tran = localToWorld.getPosition();
+        const ::ev4sio_physx::PxVec3d tran = localToWorld.getPosition();
 
         Subspace subspace;
         subspace.origin = { float(tran[0]), float(tran[1]), float(tran[2]) };
@@ -904,7 +904,7 @@ void BaseSimulationView::processArticulationEntries(const std::vector<std::strin
     // "/envs/*/Robot" and "/envs/*/Robot/**/base_link" can resolve to the
     // same articulation, and findMatchingArticulations shares this set so
     // the second match is dropped rather than appended again.
-    std::unordered_set<const ::physx::PxArticulationReducedCoordinate*> seenArtis;
+    std::unordered_set<const ::ev4sio_physx::PxArticulationReducedCoordinate*> seenArtis;
     for (const auto& pattern : patterns)
     {
         size_t currentSize = entries.size();
@@ -924,7 +924,7 @@ void BaseSimulationView::processArticulationEntries(const std::vector<std::strin
 }
 void BaseSimulationView::findMatchingArticulations(const std::string& pattern,
                                                    std::vector<ArticulationEntry>& entriesRet,
-                                                   std::unordered_set<const ::physx::PxArticulationReducedCoordinate*>& seenArtis)
+                                                   std::unordered_set<const ::ev4sio_physx::PxArticulationReducedCoordinate*>& seenArtis)
 {
     if (!mAttachedStage)
     {
@@ -988,7 +988,7 @@ void BaseSimulationView::processRigidBodyEntries(const std::vector<std::string>&
 
     // Dedup by body identity across every pattern. An articulation root and
     // its root link, as well as overlapping patterns, can name the same body.
-    std::unordered_set<const ::physx::PxRigidBody*> seenBodies;
+    std::unordered_set<const ::ev4sio_physx::PxRigidBody*> seenBodies;
     size_t validPatternIndex = 0;
     for (const std::string& pattern : patterns)
     {
@@ -1034,7 +1034,7 @@ void BaseSimulationView::processVolumeDeformableBodyEntries(const std::vector<st
 {
     // Dedup across the full pattern list so overlapping patterns that
     // resolve to the same PxDeformableBody don't inflate the view.
-    std::unordered_set<const ::physx::PxDeformableBody*> seenBodies;
+    std::unordered_set<const ::ev4sio_physx::PxDeformableBody*> seenBodies;
     for (const auto& pattern : patterns)
     {
         size_t currentSize = entries.size();
@@ -1051,7 +1051,7 @@ void BaseSimulationView::processSurfaceDeformableBodyEntries(const std::vector<s
 {
     // Dedup across the full pattern list so overlapping patterns that
     // resolve to the same PxDeformableBody don't inflate the view.
-    std::unordered_set<const ::physx::PxDeformableBody*> seenBodies;
+    std::unordered_set<const ::ev4sio_physx::PxDeformableBody*> seenBodies;
     for (const auto& pattern : patterns)
     {
         size_t currentSize = entries.size();
@@ -1068,7 +1068,7 @@ void BaseSimulationView::processDeformableMaterialEntries(const std::vector<std:
 {
     // Dedup across the full pattern list so overlapping patterns that
     // resolve to the same PxDeformableMaterial don't inflate the view.
-    std::unordered_set<const ::physx::PxDeformableMaterial*> seenMaterials;
+    std::unordered_set<const ::ev4sio_physx::PxDeformableMaterial*> seenMaterials;
     for (const auto& pattern : patterns)
     {
         size_t currentSize = entries.size();
@@ -1082,7 +1082,7 @@ void BaseSimulationView::processDeformableMaterialEntries(const std::vector<std:
 
 void BaseSimulationView::findMatchingVolumeDeformableBodies(const std::string& pattern,
                                                             std::vector<DeformableBodyEntry>& entriesRet,
-                                                            std::unordered_set<const ::physx::PxDeformableBody*>& seenBodies)
+                                                            std::unordered_set<const ::ev4sio_physx::PxDeformableBody*>& seenBodies)
 {
     if (!mAttachedStage)
     {
@@ -1114,7 +1114,7 @@ void BaseSimulationView::findMatchingVolumeDeformableBodies(const std::string& p
 
 void BaseSimulationView::findMatchingSurfaceDeformableBodies(const std::string& pattern,
                                                              std::vector<DeformableBodyEntry>& entriesRet,
-                                                             std::unordered_set<const ::physx::PxDeformableBody*>& seenBodies)
+                                                             std::unordered_set<const ::ev4sio_physx::PxDeformableBody*>& seenBodies)
 {
     if (!mAttachedStage)
     {
@@ -1146,7 +1146,7 @@ void BaseSimulationView::findMatchingSurfaceDeformableBodies(const std::string& 
 
 void BaseSimulationView::findMatchingDeformableMaterials(const std::string& pattern,
                                                          std::vector<DeformableMaterialEntry>& entriesRet,
-                                                         std::unordered_set<const ::physx::PxDeformableMaterial*>& seenMaterials)
+                                                         std::unordered_set<const ::ev4sio_physx::PxDeformableMaterial*>& seenMaterials)
 {
     if (!mAttachedStage)
     {
@@ -1453,7 +1453,7 @@ void BaseSimulationView::findMatchingSDFShapes(const std::string& pattern, std::
 // absolute path; the lookup simply finds no object).
 static bool looksLikeValidSdfPathString(std::string_view path)
 {
-    return omni::physx::looksLikeAbsolutePrimPath(path, /*allowRoot=*/true);
+    return omni::ev4sio_physx::looksLikeAbsolutePrimPath(path, /*allowRoot=*/true);
 }
 
 ObjectType BaseSimulationView::getObjectType(const char* path)
@@ -1485,7 +1485,7 @@ ObjectType BaseSimulationView::getObjectType(const char* path)
     {
         PxArticulationReducedCoordinate* arti = nullptr;
         // check if it's an articulation link
-        PxArticulationLink* link = (PxArticulationLink*)resolvePhysXPtr(mAttachedStage, key, omni::physx::ePTLink);
+        PxArticulationLink* link = (PxArticulationLink*)resolvePhysXPtr(mAttachedStage, key, omni::ev4sio_physx::ePTLink);
         if (link)
         {
             arti = &static_cast<PxArticulationReducedCoordinate&>(link->getArticulation());
@@ -1504,7 +1504,7 @@ ObjectType BaseSimulationView::getObjectType(const char* path)
             }
         }
         // check if it's an articulation but not a link, i.e.
-        arti = (PxArticulationReducedCoordinate*)resolvePhysXPtr(mAttachedStage, key, omni::physx::ePTArticulation);
+        arti = (PxArticulationReducedCoordinate*)resolvePhysXPtr(mAttachedStage, key, omni::ev4sio_physx::ePTArticulation);
         if (arti)
         {
             return ObjectType::eArticulation;
@@ -1512,26 +1512,26 @@ ObjectType BaseSimulationView::getObjectType(const char* path)
 
         // check if it's an articulation joint
         PxArticulationJointReducedCoordinate* linkJoint =
-            (PxArticulationJointReducedCoordinate*)resolvePhysXPtr(mAttachedStage, key, omni::physx::ePTLinkJoint);
+            (PxArticulationJointReducedCoordinate*)resolvePhysXPtr(mAttachedStage, key, omni::ev4sio_physx::ePTLinkJoint);
         if (linkJoint)
         {
             return ObjectType::eArticulationJoint;
         }
 
         // check if it's a maximal-coordinate (standalone) joint
-        PxJoint* joint = static_cast<PxJoint*>(resolvePhysXPtr(mAttachedStage, key, omni::physx::ePTJoint));
+        PxJoint* joint = static_cast<PxJoint*>(resolvePhysXPtr(mAttachedStage, key, omni::ev4sio_physx::ePTJoint));
         if (joint)
         {
             return ObjectType::eJoint;
         }
 
         // check if it's a plugin-registered custom joint (CustomPhysXJoint, not PxJoint)
-        if (resolvePhysXPtr(mAttachedStage, key, omni::physx::ePTCustomJoint))
+        if (resolvePhysXPtr(mAttachedStage, key, omni::ev4sio_physx::ePTCustomJoint))
         {
             return ObjectType::eCustomJoint;
         }
 
-        PxActor* actor = static_cast<PxActor*>(resolvePhysXPtr(mAttachedStage, key, omni::physx::ePTActor));
+        PxActor* actor = static_cast<PxActor*>(resolvePhysXPtr(mAttachedStage, key, omni::ev4sio_physx::ePTActor));
         if (actor)
         {
             // check if it's a rigid dynamic
@@ -1548,17 +1548,17 @@ PxArticulationReducedCoordinate* resolveOwningArticulation(const usdparser::Atta
                                                            omni::physics::parse::ObjectKey key)
 {
     if (PxArticulationReducedCoordinate* arti = static_cast<PxArticulationReducedCoordinate*>(
-            BaseSimulationView::resolvePhysXPtr(attachedStage, key, omni::physx::ePTArticulation)))
+            BaseSimulationView::resolvePhysXPtr(attachedStage, key, omni::ev4sio_physx::ePTArticulation)))
     {
         return arti;
     }
     if (PxArticulationLink* link = static_cast<PxArticulationLink*>(
-            BaseSimulationView::resolvePhysXPtr(attachedStage, key, omni::physx::ePTLink)))
+            BaseSimulationView::resolvePhysXPtr(attachedStage, key, omni::ev4sio_physx::ePTLink)))
     {
         return &static_cast<PxArticulationReducedCoordinate&>(link->getArticulation());
     }
     if (PxArticulationJointReducedCoordinate* joint = static_cast<PxArticulationJointReducedCoordinate*>(
-            BaseSimulationView::resolvePhysXPtr(attachedStage, key, omni::physx::ePTLinkJoint)))
+            BaseSimulationView::resolvePhysXPtr(attachedStage, key, omni::ev4sio_physx::ePTLinkJoint)))
     {
         return &static_cast<PxArticulationReducedCoordinate&>(joint->getChildArticulationLink().getArticulation());
     }
@@ -1598,7 +1598,7 @@ PxShape* sdfShapeFor(const usdparser::AttachedStage* attachedStage, omni::physic
     // PhysX pointer lookup below uses `key` directly -- the same key resolves both
     // branches now.
     PxShape* shape =
-        static_cast<PxShape*>(BaseSimulationView::resolvePhysXPtr(attachedStage, key, omni::physx::ePTShape));
+        static_cast<PxShape*>(BaseSimulationView::resolvePhysXPtr(attachedStage, key, omni::ev4sio_physx::ePTShape));
     if (!shape)
     {
         if (warn)
@@ -1799,7 +1799,7 @@ bool BaseSimulationView::buildArticulationEntry(PxArticulationReducedCoordinate*
             ArticulationMetatype::JointDesc jointDesc;
             jointDesc.name = jointName;
             const usdparser::ObjectId objectId = resolveObjectId(mAttachedStage, jointKey, ePTLinkJoint);
-            omni::physx::JointStateData jointStateData;
+            omni::ev4sio_physx::JointStateData jointStateData;
             attachmentJoint::stateData(mAttachedStage, objectId, &jointStateData);
 
             // Parsed joint-drive descriptor from the internal DB (carries the
@@ -1968,7 +1968,7 @@ bool BaseSimulationView::buildArticulationEntry(PxArticulationReducedCoordinate*
         PxU32 linkNumShapes = links[i]->getNbShapes();
         if (linkNumShapes > 0)
         {
-            std::vector<::physx::PxShape*> shapes(linkNumShapes);
+            std::vector<::ev4sio_physx::PxShape*> shapes(linkNumShapes);
             links[i]->getShapes(shapes.data(), linkNumShapes);
             entryRet.shapes.insert(entryRet.shapes.end(), shapes.begin(), shapes.end());
             numShapes += linkNumShapes;
@@ -2022,7 +2022,7 @@ bool BaseSimulationView::getRigidBodyAtPath(omni::physics::parse::ObjectKey key,
     RigidBodyType type = RigidBodyType::eInvalid;
 
     // check if it's an articulation link
-    PxArticulationLink* link = static_cast<PxArticulationLink*>(resolvePhysXPtr(mAttachedStage, key, omni::physx::ePTLink));
+    PxArticulationLink* link = static_cast<PxArticulationLink*>(resolvePhysXPtr(mAttachedStage, key, omni::ev4sio_physx::ePTLink));
     if (link)
     {
         body = link;
@@ -2034,7 +2034,7 @@ bool BaseSimulationView::getRigidBodyAtPath(omni::physics::parse::ObjectKey key,
         // NOTE: This is an important edge case when we instance single-body actors as articulations with a fixed base.
         //       (We can't use kinematic bodies, because OmniPhysX does not update kinematic transforms to USD/hydra.)
         PxArticulationReducedCoordinate* arti =
-            (PxArticulationReducedCoordinate*)resolvePhysXPtr(mAttachedStage, key, omni::physx::ePTArticulation);
+            (PxArticulationReducedCoordinate*)resolvePhysXPtr(mAttachedStage, key, omni::ev4sio_physx::ePTArticulation);
         if (arti)
         {
             PxU32 numLinks = arti->getNbLinks();
@@ -2049,7 +2049,7 @@ bool BaseSimulationView::getRigidBodyAtPath(omni::physics::parse::ObjectKey key,
         else
         {
             // check if it's an actor
-            PxActor* actor = static_cast<PxActor*>(resolvePhysXPtr(mAttachedStage, key, omni::physx::ePTActor));
+            PxActor* actor = static_cast<PxActor*>(resolvePhysXPtr(mAttachedStage, key, omni::ev4sio_physx::ePTActor));
             if (actor)
             {
                 // check if it's a rigid dynamic
@@ -2119,7 +2119,7 @@ bool BaseSimulationView::getVolumeDeformableBodyAtPath(omni::physics::parse::Obj
     const std::string path = mAttachedStage->textFor(key);
 
     // check if it's a volume deformable body
-    PxDeformableVolume* deformable = static_cast<PxDeformableVolume*>(resolvePhysXPtr(mAttachedStage, key, omni::physx::ePTDeformableVolume));
+    PxDeformableVolume* deformable = static_cast<PxDeformableVolume*>(resolvePhysXPtr(mAttachedStage, key, omni::ev4sio_physx::ePTDeformableVolume));
     if (!deformable)
     {
         CARB_LOG_WARN("Failed to find volume deformable body at '%s'", path.c_str());
@@ -2145,7 +2145,7 @@ bool BaseSimulationView::getVolumeDeformableBodyAtPath(omni::physics::parse::Obj
     // without a backing USD stage and cannot disagree with what was actually simulated.
     const internal::InternalVolumeDeformableBody* internalBody =
         getInternalPtr<internal::InternalVolumeDeformableBody>(mAttachedStage->getInternalPhysXDatabase(),
-            omni::physx::ePTDeformableVolume, resolveObjectId(mAttachedStage, key, omni::physx::ePTDeformableVolume));
+            omni::ev4sio_physx::ePTDeformableVolume, resolveObjectId(mAttachedStage, key, omni::ev4sio_physx::ePTDeformableVolume));
     if (!internalBody || !internalBody->mSimMeshKey.valid() || !internalBody->mCollMeshKey.valid())
     {
         CARB_LOG_WARN("Failed to find simulation or collision mesh for volume deformable body at '%s'", path.c_str());
@@ -2235,12 +2235,12 @@ bool BaseSimulationView::getVolumeDeformableBodyAtPath(omni::physics::parse::Obj
 
     // transform restPositions into world space to account for scaling
     entryRet.restPositions.resize(restPositions.size());
-    const ::physx::PxMat44d simToWorld =
+    const ::ev4sio_physx::PxMat44d simToWorld =
         internal::getWorldTransform(*mAttachedStage, simMeshKey, omni::physics::parse::ReadTime::defaultTime());
     for (size_t i = 0; i < entryRet.restPositions.size(); ++i)
     {
         const carb::Float3& rest = restPositions[i];
-        const ::physx::PxVec3d restPoint = simToWorld.transform(::physx::PxVec3d(rest.x, rest.y, rest.z));
+        const ::ev4sio_physx::PxVec3d restPoint = simToWorld.transform(::ev4sio_physx::PxVec3d(rest.x, rest.y, rest.z));
         entryRet.restPositions[i] = { float(restPoint.x), float(restPoint.y), float(restPoint.z) };
     }
 
@@ -2261,7 +2261,7 @@ bool BaseSimulationView::getSurfaceDeformableBodyAtPath(omni::physics::parse::Ob
     const std::string path = mAttachedStage->textFor(key);
 
     // check if it's a surface deformable body
-    PxDeformableSurface* deformable = static_cast<PxDeformableSurface*>(resolvePhysXPtr(mAttachedStage, key, omni::physx::ePTDeformableSurface));
+    PxDeformableSurface* deformable = static_cast<PxDeformableSurface*>(resolvePhysXPtr(mAttachedStage, key, omni::ev4sio_physx::ePTDeformableSurface));
     if (!deformable)
     {
         CARB_LOG_WARN("Failed to find surface deformable body at '%s'", path.c_str());
@@ -2287,7 +2287,7 @@ bool BaseSimulationView::getSurfaceDeformableBodyAtPath(omni::physics::parse::Ob
     // from its sim mesh, so the body existing at all means the two coincide.
     const internal::InternalSurfaceDeformableBody* internalBody =
         getInternalPtr<internal::InternalSurfaceDeformableBody>(mAttachedStage->getInternalPhysXDatabase(),
-            omni::physx::ePTDeformableSurface, resolveObjectId(mAttachedStage, key, omni::physx::ePTDeformableSurface));
+            omni::ev4sio_physx::ePTDeformableSurface, resolveObjectId(mAttachedStage, key, omni::ev4sio_physx::ePTDeformableSurface));
     if (!internalBody || !internalBody->mSimMeshKey.valid())
     {
         CARB_LOG_WARN("Failed to find simulation or collision mesh for surface deformable body at '%s'", path.c_str());
@@ -2367,12 +2367,12 @@ bool BaseSimulationView::getSurfaceDeformableBodyAtPath(omni::physics::parse::Ob
 
     //transform restPositions into world space to account for scaling
     entryRet.restPositions.resize(restPositions.size());
-    const ::physx::PxMat44d simToWorld =
+    const ::ev4sio_physx::PxMat44d simToWorld =
         internal::getWorldTransform(*mAttachedStage, simMeshKey, omni::physics::parse::ReadTime::defaultTime());
     for (size_t i = 0; i < entryRet.restPositions.size(); ++i)
     {
         const carb::Float3& rest = restPositions[i];
-        const ::physx::PxVec3d restPoint = simToWorld.transform(::physx::PxVec3d(rest.x, rest.y, rest.z));
+        const ::ev4sio_physx::PxVec3d restPoint = simToWorld.transform(::ev4sio_physx::PxVec3d(rest.x, rest.y, rest.z));
         entryRet.restPositions[i] = { float(restPoint.x), float(restPoint.y), float(restPoint.z) };
     }
 
@@ -2388,11 +2388,11 @@ bool BaseSimulationView::getDeformableMaterialAtPath(omni::physics::parse::Objec
 
     // Only needed for the warning message and entryRet.path below.
     const std::string path = mAttachedStage ? mAttachedStage->textFor(key) : "";
-    PxDeformableMaterial* material = static_cast<PxDeformableMaterial*>(resolvePhysXPtr(mAttachedStage, key, omni::physx::ePTDeformableVolumeMaterial));
+    PxDeformableMaterial* material = static_cast<PxDeformableMaterial*>(resolvePhysXPtr(mAttachedStage, key, omni::ev4sio_physx::ePTDeformableVolumeMaterial));
     bool isSurface = false;
     if (!material)
     {
-        material = static_cast<PxDeformableMaterial*>(resolvePhysXPtr(mAttachedStage, key, omni::physx::ePTDeformableSurfaceMaterial));
+        material = static_cast<PxDeformableMaterial*>(resolvePhysXPtr(mAttachedStage, key, omni::ev4sio_physx::ePTDeformableSurfaceMaterial));
         isSurface = (material != nullptr);
     }
 
@@ -2440,17 +2440,17 @@ bool BaseSimulationView::getRigidContactSensorAtPath(omni::physics::parse::Objec
     PxArticulationLink* link = nullptr;
     PxRigidDynamic* rd = nullptr;
     PxShape* shape = nullptr;
-    link = static_cast<PxArticulationLink*>(resolvePhysXPtr(mAttachedStage, key, omni::physx::ePTLink));
+    link = static_cast<PxArticulationLink*>(resolvePhysXPtr(mAttachedStage, key, omni::ev4sio_physx::ePTLink));
     if (!link)
     {
-        PxActor* actor = static_cast<PxActor*>(resolvePhysXPtr(mAttachedStage, key, omni::physx::ePTActor));
+        PxActor* actor = static_cast<PxActor*>(resolvePhysXPtr(mAttachedStage, key, omni::ev4sio_physx::ePTActor));
         if (actor && actor->getType() == PxActorType::eRIGID_DYNAMIC)
         {
             rd = static_cast<PxRigidDynamic*>(actor);
         }
         else
         {
-            shape = static_cast<PxShape*>(resolvePhysXPtr(mAttachedStage, key, omni::physx::ePTShape));
+            shape = static_cast<PxShape*>(resolvePhysXPtr(mAttachedStage, key, omni::ev4sio_physx::ePTShape));
             if (!shape)
             {
                 return false;

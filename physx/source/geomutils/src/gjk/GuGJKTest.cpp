@@ -8,9 +8,9 @@
 #include "GuGJKPenetration.h"
 #include "GuGJKTest.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Gu
+namespace ev4sio_Gu
 {
 using namespace aos;
 

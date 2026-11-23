@@ -16,7 +16,7 @@
 // - If new wrappers are needed in the future, bump the minor version.
 //
 // Implemented by the PhysX runtime via an internal dlopen-based shim.
-// Internal ovphysx consumers use omni::physx::runtime::tryGetOptionalCudaInterface();
+// Internal ovphysx consumers use omni::ev4sio_physx::runtime::tryGetOptionalCudaInterface();
 // Carbonite plugin registration is intentionally not part of the static runtime path.
 
 #pragma once
@@ -27,7 +27,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 
 struct IOptionalCuda
@@ -95,5 +95,5 @@ struct IOptionalCuda
     bool(CARB_ABI* driverGetVersion)(int* outVersion, int* outStatus);
 };
 
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

@@ -36,11 +36,11 @@
 #include <extensions/PxCudaHelpersExt.h>
 #endif
 
-using namespace omni::physx::usdparser;
-using namespace ::physx;
-using namespace ::physx::Ext;
-using namespace omni::physx::internal;
-using namespace omni::physx;
+using namespace omni::ev4sio_physx::usdparser;
+using namespace ::ev4sio_physx;
+using namespace ::ev4sio_physx::ev4sio_Ext;
+using namespace omni::ev4sio_physx::internal;
+using namespace omni::ev4sio_physx;
 
 namespace
 {
@@ -115,7 +115,7 @@ PxPBDMaterial* getPBDMaterial(InternalPBDParticleMaterial** internalMaterial, co
     return material;
 }
 
-uint32_t allocatePhase(InternalPbdParticleSystem& particleSystem, physx::PxPBDMaterial& material,
+uint32_t allocatePhase(InternalPbdParticleSystem& particleSystem, ev4sio_physx::PxPBDMaterial& material,
     int group, bool selfCollision, bool selfCollisionFilter, bool fluid)
 {
     PxParticlePhaseFlags phaseFlags = PxParticlePhaseFlags(0);
@@ -236,7 +236,7 @@ void distributeMassOnTriangleMesh(std::vector<carb::Float3>& positions, std::vec
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 
 extern bool checkScenes(const AttachedStage& attachedStage);
@@ -478,7 +478,7 @@ ObjectId PhysXUsdPhysicsInterface::createParticleSet(usdparser::AttachedStage& a
     internalParticleSet->mParticleInvMass = computeParticleInvMass(attachedStage.getSourceUnits(), particleDesc, materialDensity);
 
     const PxMat44d localToWorld = getWorldTransform(attachedStage, primKey, omni::physics::parse::ReadTime::defaultTime());
-    const PxMat44d worldToLocal = omni::physx::affineInverse(localToWorld);
+    const PxMat44d worldToLocal = omni::ev4sio_physx::affineInverse(localToWorld);
 
     internalParticleSet->mWorldToLocal = worldToLocal;
 
@@ -660,5 +660,5 @@ void PhysXUsdPhysicsInterface::changeParticleDiffuseParticles(usdparser::Attache
     }
 }
 
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

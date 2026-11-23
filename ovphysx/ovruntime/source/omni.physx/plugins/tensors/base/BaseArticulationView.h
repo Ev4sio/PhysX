@@ -19,7 +19,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace tensors
 {
@@ -74,17 +74,17 @@ public:
     // (REQ-READ-INVDYN-001 AC-1): jacobian {R, C}, mass matrix {M, M}, Coriolis and gravity {M}, centroidal
     // momentum {6, numDofs + 7}. Empty when the row cannot serve the column at all -- today a fixed-base
     // articulation asked for centroidal momentum.
-    std::vector<int64_t> inverseDynamicsColumnShapeForRow(::physx::PxU32 row, InverseDynamicsColumn column) const;
+    std::vector<int64_t> inverseDynamicsColumnShapeForRow(::ev4sio_physx::PxU32 row, InverseDynamicsColumn column) const;
 
     // The values one row of the column holds: the product of its dimensions above, 0 where it has none.
-    ::physx::PxU32 inverseDynamicsColumnWidthForRow(::physx::PxU32 row, InverseDynamicsColumn column) const;
+    ::ev4sio_physx::PxU32 inverseDynamicsColumnWidthForRow(::ev4sio_physx::PxU32 row, InverseDynamicsColumn column) const;
 
     // One requested DOF property column: which quantity, and where its values go. Declared here rather
     // than beside DofProperty because it names a TensorDesc, and that record header is included by
     // CudaKernels.cu and must stay dependency-free.
     struct DofPropertyColumn
     {
-        omni::physx::tensors::DofProperty prop;
+        omni::ev4sio_physx::tensors::DofProperty prop;
         const TensorDesc* dst;
     };
 
@@ -93,9 +93,9 @@ public:
     // getFrictionParams, so one pass needs at most four PhysX fetches per DOF instead of one per column.
     // Host-resident on both backends -- a simulation input has no device copy to read.
     bool getDofPropertiesOvStage(const DofPropertyColumn* columns,
-                                 ::physx::PxU32 numColumns,
+                                 ::ev4sio_physx::PxU32 numColumns,
                                  const ArticulationDofOvStageRecord* records,
-                                 ::physx::PxU32 numOutputs) const;
+                                 ::ev4sio_physx::PxU32 numOutputs) const;
 
     // Which DOF STATE quantity a column carries. In-class because the .cu-facing record header stays
     // dependency-free and nothing in a kernel needs this.
@@ -119,18 +119,18 @@ public:
     // Which articulation-cache flag a quantity needs filled before the gather, or an EMPTY set for one
     // that needs none -- the two drive targets are per-joint PhysX state with no cache behind them. The
     // set form ORs these together, so this is the only place deciding which quantities are cache-backed.
-    static ::physx::PxArticulationCacheFlags dofStateCacheFlag(DofStateQuantity q)
+    static ::ev4sio_physx::PxArticulationCacheFlags dofStateCacheFlag(DofStateQuantity q)
     {
         switch (q)
         {
-        case DofStateQuantity::ePosition:        return ::physx::PxArticulationCacheFlag::ePOSITION;
-        case DofStateQuantity::eVelocity:        return ::physx::PxArticulationCacheFlag::eVELOCITY;
-        case DofStateQuantity::eActuationForce:  return ::physx::PxArticulationCacheFlag::eFORCE;
+        case DofStateQuantity::ePosition:        return ::ev4sio_physx::PxArticulationCacheFlag::ePOSITION;
+        case DofStateQuantity::eVelocity:        return ::ev4sio_physx::PxArticulationCacheFlag::eVELOCITY;
+        case DofStateQuantity::eActuationForce:  return ::ev4sio_physx::PxArticulationCacheFlag::eFORCE;
         case DofStateQuantity::ePositionTarget:
         case DofStateQuantity::eVelocityTarget:
         case DofStateQuantity::eNone:            break;
         }
-        return ::physx::PxArticulationCacheFlags(0);
+        return ::ev4sio_physx::PxArticulationCacheFlags(0);
     }
 
     // The attribute name for the check helpers' messages -- the columns share one gather, so without
@@ -299,7 +299,7 @@ public:
     // so each of those reads the struct back before overwriting its own field.
     bool setDofPropertyOvStage(DofProperty prop,
                                const ArticulationDofOvStageRecord* records,
-                               ::physx::PxU32 numOutputs,
+                               ::ev4sio_physx::PxU32 numOutputs,
                                const TensorDesc* srcTensor);
 
     bool setDofLimits(const TensorDesc* srcTensor, const TensorDesc* indexTensor) override;
@@ -334,12 +334,12 @@ public:
     // ovstage whole-articulation shape columns. Rows select articulations from this view; per-shape
     // columns use dstTensor->dims[1] as the selected set's padded width, which OvxPhysicsRead has
     // already validated -- these repeat a defensive bounds check but trust that width.
-    bool getStaticFrictionsOvStage(const TensorDesc* dstTensor, const ::physx::PxU32* rows, ::physx::PxU32 count) const;
-    bool getDynamicFrictionsOvStage(const TensorDesc* dstTensor, const ::physx::PxU32* rows, ::physx::PxU32 count) const;
-    bool getRestitutionsOvStage(const TensorDesc* dstTensor, const ::physx::PxU32* rows, ::physx::PxU32 count) const;
-    bool getContactOffsetsOvStage(const TensorDesc* dstTensor, const ::physx::PxU32* rows, ::physx::PxU32 count) const;
-    bool getRestOffsetsOvStage(const TensorDesc* dstTensor, const ::physx::PxU32* rows, ::physx::PxU32 count) const;
-    bool getShapeCountsOvStage(const TensorDesc* dstTensor, const ::physx::PxU32* rows, ::physx::PxU32 count) const;
+    bool getStaticFrictionsOvStage(const TensorDesc* dstTensor, const ::ev4sio_physx::PxU32* rows, ::ev4sio_physx::PxU32 count) const;
+    bool getDynamicFrictionsOvStage(const TensorDesc* dstTensor, const ::ev4sio_physx::PxU32* rows, ::ev4sio_physx::PxU32 count) const;
+    bool getRestitutionsOvStage(const TensorDesc* dstTensor, const ::ev4sio_physx::PxU32* rows, ::ev4sio_physx::PxU32 count) const;
+    bool getContactOffsetsOvStage(const TensorDesc* dstTensor, const ::ev4sio_physx::PxU32* rows, ::ev4sio_physx::PxU32 count) const;
+    bool getRestOffsetsOvStage(const TensorDesc* dstTensor, const ::ev4sio_physx::PxU32* rows, ::ev4sio_physx::PxU32 count) const;
+    bool getShapeCountsOvStage(const TensorDesc* dstTensor, const ::ev4sio_physx::PxU32* rows, ::ev4sio_physx::PxU32 count) const;
 
     // Whole-articulation topology metadata (replaces ovphysx_articulation_metadata_t field-for-field):
     // one int32 per articulation, derived from the metatype/entry like getShapeCountsOvStage and
@@ -354,16 +354,16 @@ public:
         eSpatialTendonCount,
         eIsFixedBase
     };
-    bool getDofCountsOvStage(const TensorDesc* dstTensor, const ::physx::PxU32* rows, ::physx::PxU32 count) const;
-    bool getLinkCountsOvStage(const TensorDesc* dstTensor, const ::physx::PxU32* rows, ::physx::PxU32 count) const;
-    bool getJointCountsOvStage(const TensorDesc* dstTensor, const ::physx::PxU32* rows, ::physx::PxU32 count) const;
-    bool getFixedTendonCountsOvStage(const TensorDesc* dstTensor, const ::physx::PxU32* rows, ::physx::PxU32 count) const;
-    bool getSpatialTendonCountsOvStage(const TensorDesc* dstTensor, const ::physx::PxU32* rows, ::physx::PxU32 count) const;
-    bool getIsFixedBaseOvStage(const TensorDesc* dstTensor, const ::physx::PxU32* rows, ::physx::PxU32 count) const;
+    bool getDofCountsOvStage(const TensorDesc* dstTensor, const ::ev4sio_physx::PxU32* rows, ::ev4sio_physx::PxU32 count) const;
+    bool getLinkCountsOvStage(const TensorDesc* dstTensor, const ::ev4sio_physx::PxU32* rows, ::ev4sio_physx::PxU32 count) const;
+    bool getJointCountsOvStage(const TensorDesc* dstTensor, const ::ev4sio_physx::PxU32* rows, ::ev4sio_physx::PxU32 count) const;
+    bool getFixedTendonCountsOvStage(const TensorDesc* dstTensor, const ::ev4sio_physx::PxU32* rows, ::ev4sio_physx::PxU32 count) const;
+    bool getSpatialTendonCountsOvStage(const TensorDesc* dstTensor, const ::ev4sio_physx::PxU32* rows, ::ev4sio_physx::PxU32 count) const;
+    bool getIsFixedBaseOvStage(const TensorDesc* dstTensor, const ::ev4sio_physx::PxU32* rows, ::ev4sio_physx::PxU32 count) const;
     bool getTopologyMetadataOvStage(TopologyMetadata property, const TensorDesc* dstTensor,
-                                    const ::physx::PxU32* rows, ::physx::PxU32 count) const;
+                                    const ::ev4sio_physx::PxU32* rows, ::ev4sio_physx::PxU32 count) const;
 
-    uint32_t maxShapesForRows(const ::physx::PxU32* rows, ::physx::PxU32 count) const;
+    uint32_t maxShapesForRows(const ::ev4sio_physx::PxU32* rows, ::ev4sio_physx::PxU32 count) const;
 
     bool setMaterialProperties(const TensorDesc* srcTensor, const TensorDesc* indexTensor) const override;
     bool setCompliantMaterialProperties(const TensorDesc* srcTensor,
@@ -399,18 +399,18 @@ protected:
     // per row, so these answer for any view (REQ-READ-INVDYN-001 AC-2). `M` is the generalized
     // coordinate count -- dofs plus six for a floating base -- the width of the force columns and the
     // side of the mass matrix.
-    ::physx::PxU32 generalizedCoordinateCountForRow(::physx::PxU32 row) const;
-    bool jacobianShapeForRow(::physx::PxU32 row, ::physx::PxU32& numRows, ::physx::PxU32& numCols) const;
+    ::ev4sio_physx::PxU32 generalizedCoordinateCountForRow(::ev4sio_physx::PxU32 row) const;
+    bool jacobianShapeForRow(::ev4sio_physx::PxU32 row, ::ev4sio_physx::PxU32& numRows, ::ev4sio_physx::PxU32& numCols) const;
 
     // Shared width check for both backends, so the CPU and GPU paths cannot drift on the rule. The
     // caller supplies the cohort's width in dstTensor.dims[1] because it depends on topology rather
     // than on the attribute; this confirms every selected row agrees with it. A mismatch means the
     // selection is not one cohort, and accepting it would stride into the next row.
     bool checkInverseDynamicsColumn(const TensorDesc& dstTensor,
-                                    const ::physx::PxU32* rows,
-                                    ::physx::PxU32 count,
+                                    const ::ev4sio_physx::PxU32* rows,
+                                    ::ev4sio_physx::PxU32 count,
                                     InverseDynamicsColumn column,
-                                    ::physx::PxU32& widthOut,
+                                    ::ev4sio_physx::PxU32& widthOut,
                                     const char* label,
                                     const char* funcName) const;
 
@@ -418,8 +418,8 @@ protected:
     // dtype, size rule and destination type -- so it stays in getShapeCountsOvStage.
     bool getShapePropertyOvStage(OvStageShapeProperty property,
                                  const TensorDesc* dstTensor,
-                                 const ::physx::PxU32* rows,
-                                 ::physx::PxU32 count) const;
+                                 const ::ev4sio_physx::PxU32* rows,
+                                 ::ev4sio_physx::PxU32 count) const;
 
     BaseSimulationView* mSim = nullptr;
     BaseSimulationDataPtr mSimData;
@@ -463,5 +463,5 @@ protected:
 };
 
 } // namespace tensors
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

@@ -16,7 +16,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace tensors
 {
@@ -66,13 +66,13 @@ public:
         // [count, width] float32 on this view's device: 3 wide, 4 for the root orientation, or the cohort's
         // flattened width for an inverse dynamics column.
         float* dst = nullptr;
-        ::physx::PxU32 width = 0;
+        ::ev4sio_physx::PxU32 width = 0;
     };
     struct OvStageArtiReadPlan
     {
-        ::physx::PxU32 count = 0;
+        ::ev4sio_physx::PxU32 count = 0;
         // The view entry of the first row, whose topology every row of an inverse dynamics read shares.
-        ::physx::PxU32 firstEntryIndex = 0;
+        ::ev4sio_physx::PxU32 firstEntryIndex = 0;
         uint32_t sources = 0;
     };
 
@@ -82,12 +82,12 @@ public:
     // dynamics column must name one cohort's rows. A nonzero `rowsToken` names the content of the row list `rows`
     // derive from (nextOvStageRowsVersion), and `rowSet` which of its derived lists they are: a plan this view
     // already made for them and the same columns is reused without walking the rows.
-    bool planOvStageRead(const ::physx::PxU32* rows,
-                         ::physx::PxU32 count,
+    bool planOvStageRead(const ::ev4sio_physx::PxU32* rows,
+                         ::ev4sio_physx::PxU32 count,
                          uint64_t rowsToken,
                          uint64_t rowSet,
                          const OvStageArtiReadColumn* columns,
-                         ::physx::PxU32 columnCount,
+                         ::ev4sio_physx::PxU32 columnCount,
                          OvStageArtiReadPlan& plan,
                          std::shared_ptr<const std::vector<uint8_t>>& head,
                          size_t& scratchBytes) const;
@@ -98,7 +98,7 @@ public:
     bool readOvStageColumns(const OvStageDeviceReadArgs& args,
                             const OvStageArtiReadPlan& plan,
                             const OvStageArtiReadColumn* columns,
-                            ::physx::PxU32 columnCount) const;
+                            ::ev4sio_physx::PxU32 columnCount) const;
 
     // The per-record device columns an ovstage joint, link or tendon read gathers from this view (ADR-0055). Their
     // records may name any articulation of the view, so each source is one PhysX copy, of the whole view or of the
@@ -130,10 +130,10 @@ public:
     };
     struct OvStageRecordReadPlan
     {
-        ::physx::PxU32 numRecords = 0;
+        ::ev4sio_physx::PxU32 numRecords = 0;
         uint32_t sources = 0;
         // How many articulations each copy fetches when the read fetches only its rows'; 0 for the whole view.
-        ::physx::PxU32 numFetched = 0;
+        ::ev4sio_physx::PxU32 numFetched = 0;
     };
 
     // Plans a read of `columns` (their kinds; destinations may still be unset) over `numRecords` records of the
@@ -144,12 +144,12 @@ public:
     // viewArtiIdx names its articulation's position in `fetchRows` rather than its view row. `fetchHead` then
     // receives their PhysX GPU indices, which follow the records in the scratch head, at the next OvStageScratch
     // boundary. Only the DOF state kinds read this way: the others gather through a pass over the whole view.
-    bool planOvStageRecordRead(::physx::PxU32 numRecords,
+    bool planOvStageRecordRead(::ev4sio_physx::PxU32 numRecords,
                                size_t recordBytes,
                                const OvStageRecordReadColumn* columns,
-                               ::physx::PxU32 columnCount,
-                               const ::physx::PxU32* fetchRows,
-                               ::physx::PxU32 fetchCount,
+                               ::ev4sio_physx::PxU32 columnCount,
+                               const ::ev4sio_physx::PxU32* fetchRows,
+                               ::ev4sio_physx::PxU32 fetchCount,
                                OvStageRecordReadPlan& plan,
                                std::vector<uint8_t>& fetchHead,
                                size_t& scratchBytes) const;
@@ -158,7 +158,7 @@ public:
     bool readOvStageRecordColumns(const OvStageDeviceReadArgs& args,
                                   const OvStageRecordReadPlan& plan,
                                   const OvStageRecordReadColumn* columns,
-                                  ::physx::PxU32 columnCount) const;
+                                  ::ev4sio_physx::PxU32 columnCount) const;
 
     bool setRootTransforms(const TensorDesc* srcTensor, const TensorDesc* indexTensor) override;
     bool setRootVelocities(const TensorDesc* srcTensor, const TensorDesc* indexTensor) override;
@@ -177,35 +177,35 @@ public:
     // carries one value per row (TendonFieldWrite).
     bool setFixedTendonPropertiesOvStage(const TensorDesc* srcTensor,
                                          const ArticulationTendonOvStageRecord* recordsDev,
-                                         ::physx::PxU32 numOutputs, TendonProperty prop,
+                                         ::ev4sio_physx::PxU32 numOutputs, TendonProperty prop,
                                          const OvStageDeviceWriteArgs& deviceArgs,
                                          TendonFieldWrite mode = TendonFieldWrite::eSet);
     bool setSpatialTendonPropertiesOvStage(const TensorDesc* srcTensor,
                                            const ArticulationTendonOvStageRecord* recordsDev,
-                                           ::physx::PxU32 numOutputs, TendonProperty prop,
+                                           ::ev4sio_physx::PxU32 numOutputs, TendonProperty prop,
                                            const OvStageDeviceWriteArgs& deviceArgs);
     // ovstage joint-DOF WRITE (ADR-0012): the return direction of the DOF record read, sharing its
     // record list, and carrying no host block.
     //
     bool setDofPositionsOvStage(const TensorDesc* srcTensor,
                                 const ArticulationDofOvStageRecord* recordsDev,
-                                ::physx::PxU32 numOutputs,
+                                ::ev4sio_physx::PxU32 numOutputs,
                                 const OvStageDeviceWriteArgs& deviceArgs);
     bool setDofVelocitiesOvStage(const TensorDesc* srcTensor,
                                  const ArticulationDofOvStageRecord* recordsDev,
-                                 ::physx::PxU32 numOutputs,
+                                 ::ev4sio_physx::PxU32 numOutputs,
                                  const OvStageDeviceWriteArgs& deviceArgs);
     bool setDofPositionTargetsOvStage(const TensorDesc* srcTensor,
                                       const ArticulationDofOvStageRecord* recordsDev,
-                                      ::physx::PxU32 numOutputs,
+                                      ::ev4sio_physx::PxU32 numOutputs,
                                       const OvStageDeviceWriteArgs& deviceArgs);
     bool setDofVelocityTargetsOvStage(const TensorDesc* srcTensor,
                                       const ArticulationDofOvStageRecord* recordsDev,
-                                      ::physx::PxU32 numOutputs,
+                                      ::ev4sio_physx::PxU32 numOutputs,
                                       const OvStageDeviceWriteArgs& deviceArgs);
     bool setDofActuationForcesOvStage(const TensorDesc* srcTensor,
                                       const ArticulationDofOvStageRecord* recordsDev,
-                                      ::physx::PxU32 numOutputs,
+                                      ::ev4sio_physx::PxU32 numOutputs,
                                       const OvStageDeviceWriteArgs& deviceArgs);
 
     // ovstage articulation-ROOT WRITE (ADR-0012). `rows` names the view articulations the
@@ -221,8 +221,8 @@ public:
     // they change -- the same contract as GpuRigidBodyView::ovStageRowsDevice.
     bool setRootAttributeOvStage(const char* attribName,
                                  const TensorDesc* srcTensor,
-                                 const ::physx::PxU32* rows,
-                                 ::physx::PxU32 numOutputs,
+                                 const ::ev4sio_physx::PxU32* rows,
+                                 ::ev4sio_physx::PxU32 numOutputs,
                                  uint64_t rowsToken,
                                  // `angular` selects the ROTATIONAL half of the pair the attribute
                                  // belongs to -- orientation within a pose, angular velocity within a
@@ -244,26 +244,26 @@ public:
         eFixedTendon,
         eSpatialTendon
     };
-    size_t ovStageWriteScratchBytes(OvStageArtiWrite kind, ::physx::PxU32 numOutputs) const;
+    size_t ovStageWriteScratchBytes(OvStageArtiWrite kind, ::ev4sio_physx::PxU32 numOutputs) const;
 
     bool setRootPositionsOvStage(const TensorDesc* srcTensor,
-                                 const ::physx::PxU32* rows,
-                                 ::physx::PxU32 numOutputs,
+                                 const ::ev4sio_physx::PxU32* rows,
+                                 ::ev4sio_physx::PxU32 numOutputs,
                                  uint64_t rowsToken,
                                  const OvStageDeviceWriteArgs& deviceArgs);
     bool setRootOrientationsOvStage(const TensorDesc* srcTensor,
-                                    const ::physx::PxU32* rows,
-                                    ::physx::PxU32 numOutputs,
+                                    const ::ev4sio_physx::PxU32* rows,
+                                    ::ev4sio_physx::PxU32 numOutputs,
                                     uint64_t rowsToken,
                                     const OvStageDeviceWriteArgs& deviceArgs);
     bool setRootLinearVelocitiesOvStage(const TensorDesc* srcTensor,
-                                        const ::physx::PxU32* rows,
-                                        ::physx::PxU32 numOutputs,
+                                        const ::ev4sio_physx::PxU32* rows,
+                                        ::ev4sio_physx::PxU32 numOutputs,
                                         uint64_t rowsToken,
                                         const OvStageDeviceWriteArgs& deviceArgs);
     bool setRootAngularVelocitiesOvStage(const TensorDesc* srcTensor,
-                                         const ::physx::PxU32* rows,
-                                         ::physx::PxU32 numOutputs,
+                                         const ::ev4sio_physx::PxU32* rows,
+                                         ::ev4sio_physx::PxU32 numOutputs,
                                          uint64_t rowsToken,
                                          const OvStageDeviceWriteArgs& deviceArgs);
 
@@ -365,7 +365,7 @@ public:
                                     const TensorDesc* indexTensor) const override;
 
 private:
-    bool resolveMask(const TensorDesc* maskTensor, ::physx::PxU32& outK) const;
+    bool resolveMask(const TensorDesc* maskTensor, ::ev4sio_physx::PxU32& outK) const;
 
     // Reads the view's current DOF scalars first. That is not an optimization to remove: PhysX writes
     // whole articulation DOF blocks, so a DOF this call does not address must already hold its
@@ -376,10 +376,10 @@ private:
     // their own current values, which is a no-op on their state.
     bool setDofAttributeOvStage(const char* attribName,
                                 const TensorDesc* srcTensor,
-                                ::physx::PxArticulationGPUAPIReadType::Enum readFlag,
-                                ::physx::PxArticulationGPUAPIWriteType::Enum writeFlag,
+                                ::ev4sio_physx::PxArticulationGPUAPIReadType::Enum readFlag,
+                                ::ev4sio_physx::PxArticulationGPUAPIWriteType::Enum writeFlag,
                                 const ArticulationDofOvStageRecord* recordsDev,
-                                ::physx::PxU32 numOutputs,
+                                ::ev4sio_physx::PxU32 numOutputs,
                                 // Index into GpuSimulationData's ApplyEvent array: the events the
                                 // drain orders the apply with.
                                 int applyEvent,
@@ -396,7 +396,7 @@ private:
     // reason GpuRigidBodyView owns its copy: this class already frees its device memory under the
     // right CUDA context in its destructor, where a caller-side buffer would have to free through a
     // context manager that may be gone by then.
-    const ::physx::PxU32* ovStageRowsDevice(const ::physx::PxU32* rows, uint32_t count, uint64_t token) const;
+    const ::ev4sio_physx::PxU32* ovStageRowsDevice(const ::ev4sio_physx::PxU32* rows, uint32_t count, uint64_t token) const;
     bool waitForDirectGpuFinish(CUevent finishEvent, const char* label) const;
     // False when the scene's shared inverse dynamics scratch was never allocated, which happens when no
     // articulation in it has a degree of freedom. Submitting a null buffer aborts the process.
@@ -404,22 +404,22 @@ private:
 
     bool getDofAttribute(const char* attribName,
                          const TensorDesc* dstTensor,
-                         const ::physx::PxArticulationGPUAPIReadType::Enum attribFlag,
+                         const ::ev4sio_physx::PxArticulationGPUAPIReadType::Enum attribFlag,
                          CUevent syncEvent) const;
 
     // Generic ovstage tendon write the two setters above pass their own engine values to, mirroring the
     // tendon record read exactly: same struct, same structFloats, same field offset.
     bool setTendonPropertyOvStage(const char* attribName,
                                   const TensorDesc* srcTensor,
-                                  ::physx::PxArticulationGPUAPIReadType::Enum readFlag,
-                                  ::physx::PxArticulationGPUAPIWriteType::Enum writeFlag,
-                                  ::physx::PxU32 buffer,
+                                  ::ev4sio_physx::PxArticulationGPUAPIReadType::Enum readFlag,
+                                  ::ev4sio_physx::PxArticulationGPUAPIWriteType::Enum writeFlag,
+                                  ::ev4sio_physx::PxU32 buffer,
                                   void* scratchDev,
-                                  ::physx::PxU32 structFloats,
-                                  ::physx::PxU32 maxTendons,
+                                  ::ev4sio_physx::PxU32 structFloats,
+                                  ::ev4sio_physx::PxU32 maxTendons,
                                   TendonProperty prop,
                                   const ArticulationTendonOvStageRecord* recordsDev,
-                                  ::physx::PxU32 numOutputs,
+                                  ::ev4sio_physx::PxU32 numOutputs,
                                   const OvStageDeviceWriteArgs& deviceArgs,
                                   TendonFieldWrite mode);
 
@@ -427,7 +427,7 @@ private:
     bool setDofAttribute(const char* attribName,
                          const TensorDesc* srcTensor,
                          const TensorDesc* indexTensor,
-                         const ::physx::PxArticulationGPUAPIWriteType::Enum attribFlag,
+                         const ::ev4sio_physx::PxArticulationGPUAPIWriteType::Enum attribFlag,
                          CUevent mApplyWaitEvents,
                          CUevent mApplySignalEvents);
     bool updateCMassData();
@@ -435,13 +435,13 @@ private:
     bool prepareGeneralizedGravityBuffers();
 
     int mDevice = -1;
-    ::physx::PxU32 mLinkBufSize = 0;
-    ::physx::PxU32 mDofBufSize = 0;
-    ::physx::PxU32 mFixedTendonBufSize = 0;
-    ::physx::PxU32 mSpatialTendonBufSize = 0;
+    ::ev4sio_physx::PxU32 mLinkBufSize = 0;
+    ::ev4sio_physx::PxU32 mDofBufSize = 0;
+    ::ev4sio_physx::PxU32 mFixedTendonBufSize = 0;
+    ::ev4sio_physx::PxU32 mSpatialTendonBufSize = 0;
     GpuSimulationDataPtr mGpuSimData;
 
-    std::vector<::physx::PxArticulationGPUIndex> mArtiIndices;
+    std::vector<::ev4sio_physx::PxArticulationGPUIndex> mArtiIndices;
 
     // The start event getArticulationMassCenter orders its zeroing ahead of the DirectGPU compute with.
     CUevent mMassCenterStartEvent = nullptr;
@@ -449,16 +449,16 @@ private:
     // The read plans planOvStageRead made for tokened row lists.
     mutable OvStageReadPlans<OvStageArtiReadPlan> mOvStageReadPlans;
 
-    ::physx::PxU32* mViewIndicesDev = nullptr; // view indices, the client can send a subset of these
-    ::physx::PxArticulationGPUIndex* mArtiGpuIndicesDev = nullptr; // Gpu indices of all view articulations
-    ::physx::PxArticulationGPUIndex* mDirtyArtiGpuIndicesDev = nullptr; // buffer for dirty GPU indices
+    ::ev4sio_physx::PxU32* mViewIndicesDev = nullptr; // view indices, the client can send a subset of these
+    ::ev4sio_physx::PxArticulationGPUIndex* mArtiGpuIndicesDev = nullptr; // Gpu indices of all view articulations
+    ::ev4sio_physx::PxArticulationGPUIndex* mDirtyArtiGpuIndicesDev = nullptr; // buffer for dirty GPU indices
 
     GpuArticulationRootRecord* mRootRecordsDev = nullptr;
 
     // The ovstage write's row list, held across writes and gated on the caller's token. Mutable and
     // const-accessed for the same reason the rigid view's copy is: uploading a device cache is not a
     // change to the view's observable state.
-    mutable ::physx::PxU32* mOvStageRowsDev = nullptr;
+    mutable ::ev4sio_physx::PxU32* mOvStageRowsDev = nullptr;
     mutable uint32_t mOvStageRowsCapacity = 0;
     mutable uint32_t mOvStageRowsCount = 0;
     mutable uint64_t mOvStageRowsToken = 0;
@@ -467,20 +467,20 @@ private:
     GpuArticulationFixedTendonRecord* mFixedTendonRecordsDev = nullptr;
     GpuArticulationSpatialTendonRecord* mSpatialTendonRecordsDev = nullptr;
 
-    std::vector<::physx::PxVec3> cMassLocalPosePos;
-    ::physx::PxVec3* cMassLocalPosePosDev = nullptr; // coms for links
+    std::vector<::ev4sio_physx::PxVec3> cMassLocalPosePos;
+    ::ev4sio_physx::PxVec3* cMassLocalPosePosDev = nullptr; // coms for links
 
     // Mask -> indices scratch (cached). Declared mutable because resolveMask()
     // is const - some interface setters (e.g. material/shape properties) are
     // const by pre-existing TensorAPI convention ("const" = view object unchanged,
     // simulation state may be mutated via pointer indirection). These buffers are
     // internal caching state, not logical view state.
-    mutable ::physx::PxU32* mMaskIndicesDev = nullptr;
-    mutable ::physx::PxU32 mMaskIndicesCapacity = 0;
+    mutable ::ev4sio_physx::PxU32* mMaskIndicesDev = nullptr;
+    mutable ::ev4sio_physx::PxU32 mMaskIndicesCapacity = 0;
     mutable SingleAllocPolicy mMaskAllocPolicy;
 
 };
 
 } // namespace tensors
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

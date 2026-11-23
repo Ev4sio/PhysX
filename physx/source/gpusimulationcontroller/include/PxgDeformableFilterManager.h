@@ -13,9 +13,9 @@
 #include "PxsHeapMemoryAllocator.h"
 #include "PxgSimulationCoreDesc.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-	namespace Gu
+	namespace ev4sio_Gu
 	{
 		class BVTetrahedronMesh;
 		class TriangleMesh;
@@ -29,11 +29,11 @@ namespace physx
 	// keeps a deformable from entering the manager's dirty list twice.
 	struct PxgDeformableFilterPairs : public PxUserAllocated
 	{
-		PxgDeformableFilterPairs(Cm::VirtualAllocatorCallback& hostAlloc, int heapStatGroup)
+		PxgDeformableFilterPairs(ev4sio_Cm::VirtualAllocatorCallback& hostAlloc, int heapStatGroup)
 			: mPairs(hostAlloc, heapStatGroup), mDirty(false), mInDirtyList(false)
 		{}
 
-		Cm::PinnableArray<PxgDeformablePairInfo> mPairs;
+		ev4sio_Cm::PinnableArray<PxgDeformablePairInfo> mPairs;
 		PxArray<PxU32> mReferences;
 		bool mDirty;
 		bool mInDirtyList;
@@ -44,7 +44,7 @@ namespace physx
 	class PxgDeformableFilterManager
 	{
 	public:
-		PxgDeformableFilterManager(Cm::VirtualAllocatorCallback& hostAlloc, PxsHeapStats::Enum heapStatGroup)
+		PxgDeformableFilterManager(ev4sio_Cm::VirtualAllocatorCallback& hostAlloc, PxsHeapStats::Enum heapStatGroup)
 			: mHostAlloc(hostAlloc), mHeapStatGroup(heapStatGroup)
 		{}
 
@@ -55,32 +55,32 @@ namespace physx
 		// collision mesh and its GPU remap id. Element indices are the API's and are mapped to the GPU
 		// mesh numbering here.
 
-		void updateVolumeRigid(const Gu::BVTetrahedronMesh& volumeMesh, PxU32 volumeId,
+		void updateVolumeRigid(const ev4sio_Gu::BVTetrahedronMesh& volumeMesh, PxU32 volumeId,
 			const PxNodeIndex& rigidNodeIndex, const PxU32* tetIndices, PxU32 tetIndicesSize, bool add);
 
 		// A PxRigidStatic is keyed on its shapes rather than on a node, with one pair per shape and element.
 		// The shapes are passed as their transform cache ids, see PxgEncodeStaticShapeRef.
-		void updateVolumeStaticShapes(const Gu::BVTetrahedronMesh& volumeMesh, PxU32 volumeId,
+		void updateVolumeStaticShapes(const ev4sio_Gu::BVTetrahedronMesh& volumeMesh, PxU32 volumeId,
 			const PxU32* shapeCacheIds, PxU32 nbShapes, const PxU32* tetIndices, PxU32 tetIndicesSize, bool add);
 
-		void updateVolumeVolume(const Gu::BVTetrahedronMesh& volumeMesh0, PxU32 volumeId0,
-			const Gu::BVTetrahedronMesh& volumeMesh1, PxU32 volumeId1,
+		void updateVolumeVolume(const ev4sio_Gu::BVTetrahedronMesh& volumeMesh0, PxU32 volumeId0,
+			const ev4sio_Gu::BVTetrahedronMesh& volumeMesh1, PxU32 volumeId1,
 			const PxU32* tetIndices0, const PxU32* tetIndices1, PxU32 tetIndicesSize, bool add);
 
-		void updateVolumeSurface(const Gu::BVTetrahedronMesh& volumeMesh, PxU32 volumeId,
-			const Gu::TriangleMesh& surfaceMesh, PxU32 surfaceId,
+		void updateVolumeSurface(const ev4sio_Gu::BVTetrahedronMesh& volumeMesh, PxU32 volumeId,
+			const ev4sio_Gu::TriangleMesh& surfaceMesh, PxU32 surfaceId,
 			const PxU32* triIndices, const PxU32* tetIndices, PxU32 indicesSize, bool add);
 
-		void updateSurfaceRigid(const Gu::TriangleMesh& surfaceMesh, PxU32 surfaceId,
+		void updateSurfaceRigid(const ev4sio_Gu::TriangleMesh& surfaceMesh, PxU32 surfaceId,
 			const PxNodeIndex& rigidNodeIndex, const PxU32* triIndices, PxU32 triIndicesSize, bool add);
 
-		void updateSurfaceStaticShapes(const Gu::TriangleMesh& surfaceMesh, PxU32 surfaceId,
+		void updateSurfaceStaticShapes(const ev4sio_Gu::TriangleMesh& surfaceMesh, PxU32 surfaceId,
 			const PxU32* shapeCacheIds, PxU32 nbShapes, const PxU32* triIndices, PxU32 triIndicesSize, bool add);
 
 		// The topologies carry the triangle edge ownership the edge-edge pairs are keyed on. The caller
 		// owns them, building one as each surface enters the scene.
-		void updateSurfaceSurface(const Gu::TriangleMesh& surfaceMesh0, const PxgDeformableSurfaceTopology& topology0,
-			PxU32 surfaceId0, const Gu::TriangleMesh& surfaceMesh1, const PxgDeformableSurfaceTopology& topology1,
+		void updateSurfaceSurface(const ev4sio_Gu::TriangleMesh& surfaceMesh0, const PxgDeformableSurfaceTopology& topology0,
+			PxU32 surfaceId0, const ev4sio_Gu::TriangleMesh& surfaceMesh1, const PxgDeformableSurfaceTopology& topology1,
 			PxU32 surfaceId1, const PxU32* triIndices0, const PxU32* triIndices1, PxU32 triIndicesSize, bool add);
 
 		// Takes the deformable off the dirty list and frees its array. The id stays reserved until
@@ -106,7 +106,7 @@ namespace physx
 		PxgDeformableFilterPairs& getOrCreate(PxU32 deformableId);
 		void markDirty(PxU32 deformableId);
 
-		Cm::VirtualAllocatorCallback& mHostAlloc;
+		ev4sio_Cm::VirtualAllocatorCallback& mHostAlloc;
 		PxsHeapStats::Enum mHeapStatGroup;
 
 		PxArray<PxgDeformableFilterPairs*> mPerActorPairs;

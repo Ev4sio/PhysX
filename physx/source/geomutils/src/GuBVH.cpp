@@ -14,9 +14,9 @@
 #include "GuQuery.h"
 #include "CmSerialize.h"
 
-using namespace physx;
-using namespace Gu;
-using namespace Cm;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
+using namespace ev4sio_Cm;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -918,7 +918,7 @@ static bool BVH_BVH(PxReportCallback<PxGeomIndexPair>& callback, const BVH& tree
 	}
 }
 
-bool physx::PxFindOverlap(PxReportCallback<PxGeomIndexPair>& callback, const PxBVH& bvh0, const PxBVH& bvh1)
+bool ev4sio_physx::ev4sio_PxFindOverlap(PxReportCallback<PxGeomIndexPair>& callback, const PxBVH& bvh0, const PxBVH& bvh1)
 {
 	PX_SIMD_GUARD
 

@@ -18,7 +18,7 @@
 
 #define PS_GPU_SPARSE_GRID_CORE_DEBUG 0
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 PxgRadixSortCore::PxgRadixSortCore(PxgEssentialCore* core) :
 	mRSDesc(core->mAllocDesc.hostAlloc, PxsHeapStats::eSHARED_PARTICLES),
@@ -86,11 +86,11 @@ void PxgRadixSortCore::sort(PxgCudaKernelWranglerManager* mGpuKernelWranglerMana
 
 		CUresult  resultR = mCudaContext->launchKernel(radixFunction, PxgRadixSortKernelGridDim::RADIX_SORT, 1, 1, PxgRadixSortKernelBlockDim::RADIX_SORT, 1, 1, 0, stream, radixSortKernelParams, sizeof(radixSortKernelParams), 0, PX_FL);
 		if (resultR != CUDA_SUCCESS)
-			PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU sortParticles fail to launch kernel!!\n");
+			ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU sortParticles fail to launch kernel!!\n");
 
 		resultR = mCudaContext->launchKernel(calculateRanksFunction, PxgRadixSortKernelGridDim::RADIX_SORT, 1, 1, PxgRadixSortKernelBlockDim::RADIX_SORT, 1, 1, 0, stream, radixSortKernelParams, sizeof(radixSortKernelParams), 0, PX_FL);
 		if (resultR != CUDA_SUCCESS)
-			PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU sortParticles fail to launch kernel!!\n");
+			ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU sortParticles fail to launch kernel!!\n");
 
 		startBit += 4;
 	}
@@ -98,7 +98,7 @@ void PxgRadixSortCore::sort(PxgCudaKernelWranglerManager* mGpuKernelWranglerMana
 #if PS_GPU_DEBUG
 	CUresult result = mCudaContext->streamSynchronize(mStream);
 	if (result != CUDA_SUCCESS)
-		PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU sort fail!!\n");
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU sort fail!!\n");
 #endif
 }
 
@@ -125,11 +125,11 @@ void PxgRadixSortCore::sort(PxgCudaKernelWranglerManager* mGpuKernelWranglerMana
 
 		CUresult  resultR = mCudaContext->launchKernel(radixFunction, PxgRadixSortKernelGridDim::RADIX_SORT, 1, 1, PxgRadixSortKernelBlockDim::RADIX_SORT, 1, 1, 0, stream, radixSortKernelParams, sizeof(radixSortKernelParams), 0, PX_FL);
 		if (resultR != CUDA_SUCCESS)
-			PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU sortParticles fail to launch kernel!!\n");
+			ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU sortParticles fail to launch kernel!!\n");
 
 		resultR = mCudaContext->launchKernel(calculateRanksFunction, PxgRadixSortKernelGridDim::RADIX_SORT, 1, 1, PxgRadixSortKernelBlockDim::RADIX_SORT, 1, 1, 0, stream, radixSortKernelParams, sizeof(radixSortKernelParams), 0, PX_FL);
 		if (resultR != CUDA_SUCCESS)
-			PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU sortParticles fail to launch kernel!!\n");
+			ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU sortParticles fail to launch kernel!!\n");
 
 		startBit += 4;
 	}
@@ -143,12 +143,12 @@ void PxgRadixSortCore::sort(PxgCudaKernelWranglerManager* mGpuKernelWranglerMana
 
 	/*CUresult result = mCudaContext->streamSynchronize(stream);
 	if (result != CUDA_SUCCESS)
-		PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU sortParticles fail!!\n");*/
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU sortParticles fail!!\n");*/
 
 #if PS_GPU_SPARSE_GRID_CORE_DEBUG
 	CUresult result = mCudaContext->streamSynchronize(stream);
 	if (result != CUDA_SUCCESS)
-		PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU sortParticles fail!!\n");
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU sortParticles fail!!\n");
 
 	/*PxgParticleSystem* particleSystems = mSimController->getParticleSystems();
 

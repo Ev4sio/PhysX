@@ -26,7 +26,7 @@
 
 
 // PhysX object change notifications: forward subscribe/unsubscribe calls to
-// the omni::physx IPhysx singleton via the internal sidecar, scoped to the
+// the omni::ev4sio_physx IPhysx singleton via the internal sidecar, scoped to the
 // ovphysx instance that registered the subscription.
 
 #include "ovphysx/ovphysx.h"

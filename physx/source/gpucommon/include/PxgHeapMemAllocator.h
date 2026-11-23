@@ -21,7 +21,7 @@
 #include "PxgMemoryTracker.h"
 #endif
 
-namespace physx
+namespace ev4sio_physx
 {
 	class PxgMemoryManager;
 	class PxgCudaAllocatorCallbackBase;
@@ -87,7 +87,7 @@ namespace physx
 		size_t size;
 	};
 
-	class PxgHeapMemoryAllocator : public Cm::VirtualAllocatorCallback, public PxUserAllocated
+	class PxgHeapMemoryAllocator : public ev4sio_Cm::VirtualAllocatorCallback, public PxUserAllocated
 	{
 	public:
 
@@ -98,10 +98,10 @@ namespace physx
 		//return a free block index
 		PxU32 getNextFreeBlock(const PxU32 blockIndex, const PxU32 allocationSize, const char* file, const int line);
 	
-		// Cm::VirtualAllocatorCallback
+		// ev4sio_Cm::VirtualAllocatorCallback
 		virtual	void* allocate(const size_t byteSize, const int group, const char* file, const int line)	PX_OVERRIDE;
 		virtual	void deallocate(void* ptr)																	PX_OVERRIDE;
-		//~Cm::VirtualAllocatorCallback
+		//~ev4sio_Cm::VirtualAllocatorCallback
 
 		void deallocateDeferred(void* ptr);
 

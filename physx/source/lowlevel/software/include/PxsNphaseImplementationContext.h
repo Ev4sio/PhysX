@@ -14,21 +14,21 @@
 
 class PxsCMDiscreteUpdateTask;
 
-namespace physx
+namespace ev4sio_physx
 {
 
 struct PxsContactManagers : PxsContactManagerBase
 {
 	PxArray<PxsContactManagerOutput>	mOutputContactManagers;
 	PxArray<PxsContactManager*>			mContactManagerMapping;
-	PxArray<Gu::Cache>					mCaches;
+	PxArray<ev4sio_Gu::Cache>					mCaches;
 
 	// PT: these buffers should be in pinned memory but may not be if pinned allocation failed.
-	Cm::PinnableArray<const Sc::ShapeInteraction*>	mShapeInteractionsGPU;
-	Cm::PinnableArray<PxReal>						mRestDistancesGPU;
-	Cm::PinnableArray<PxsTorsionalFrictionData>		mTorsionalPropertiesGPU;
+	ev4sio_Cm::PinnableArray<const ev4sio_Sc::ShapeInteraction*>	mShapeInteractionsGPU;
+	ev4sio_Cm::PinnableArray<PxReal>						mRestDistancesGPU;
+	ev4sio_Cm::PinnableArray<PxsTorsionalFrictionData>		mTorsionalPropertiesGPU;
 
-	PxsContactManagers(const PxU32 bucketId, Cm::VirtualAllocatorCallback& alloc) : PxsContactManagerBase(bucketId),
+	PxsContactManagers(const PxU32 bucketId, ev4sio_Cm::VirtualAllocatorCallback& alloc) : PxsContactManagerBase(bucketId),
 		mOutputContactManagers	("mOutputContactManagers"),
 		mContactManagerMapping	("mContactManagerMapping"),
 		mCaches					("mCaches"),
@@ -55,7 +55,7 @@ class PxsNphaseImplementationContext : public PxvNphaseImplementationFallback
 {
 	PX_NOCOPY(PxsNphaseImplementationContext)
 public:
-											PxsNphaseImplementationContext(PxsContext& context, IG::IslandSim* islandSim, Cm::VirtualAllocatorCallback& alloc, PxU32 index, bool gpu) :
+											PxsNphaseImplementationContext(PxsContext& context, ev4sio_IG::IslandSim* islandSim, ev4sio_Cm::VirtualAllocatorCallback& alloc, PxU32 index, bool gpu) :
 											PxvNphaseImplementationFallback	(context), 
 											mNarrowPhasePairs				(index, alloc), 
 											mNewNarrowPhasePairs			(index, alloc),
@@ -67,17 +67,17 @@ public:
 	// PxvNphaseImplementationContext
 	virtual void							destroy()	PX_OVERRIDE	PX_FINAL;
 	virtual void							updateContactManager(PxReal dt, bool hasContactDistanceChanged, PxBaseTask* continuation, 
-																PxBaseTask* firstPassContinuation, Cm::FanoutTask* updateBoundAndShape)	PX_OVERRIDE	PX_FINAL;
+																PxBaseTask* firstPassContinuation, ev4sio_Cm::FanoutTask* updateBoundAndShape)	PX_OVERRIDE	PX_FINAL;
 	virtual void							postBroadPhaseUpdateContactManager(PxBaseTask*) PX_OVERRIDE	PX_FINAL	{}
 	virtual void							secondPassUpdateContactManager(PxReal dt, PxBaseTask* continuation)	PX_OVERRIDE	PX_FINAL;
 	virtual void							fetchUpdateContactManager() PX_OVERRIDE	PX_FINAL	{}
-	virtual void							registerContactManager(PxsContactManager* cm, const Sc::ShapeInteraction* shapeInteraction, PxI32 touching, PxU32 numPatches)	PX_OVERRIDE	PX_FINAL;
-//	virtual void							registerContactManagers(PxsContactManager** cm, Sc::ShapeInteraction** shapeInteractions, PxU32 nbContactManagers, PxU32 maxContactManagerId);
+	virtual void							registerContactManager(PxsContactManager* cm, const ev4sio_Sc::ShapeInteraction* shapeInteraction, PxI32 touching, PxU32 numPatches)	PX_OVERRIDE	PX_FINAL;
+//	virtual void							registerContactManagers(PxsContactManager** cm, ev4sio_Sc::ShapeInteraction** shapeInteractions, PxU32 nbContactManagers, PxU32 maxContactManagerId);
 	virtual void							unregisterContactManager(PxsContactManager* cm)	PX_OVERRIDE	PX_FINAL;
 	virtual void							unregisterContactManagerDeferred(PxsContactManager* cm)	PX_OVERRIDE	PX_FINAL;
 	virtual void							flushDeferredUnregisters()	PX_OVERRIDE	PX_FINAL;
 	virtual void							beginDeferredUnregistersThreadSafe()	PX_OVERRIDE	PX_FINAL;
-	virtual bool							unregisterContactManagerDeferredThreadSafe(PxsContactManager* cm, Gu::PersistentContactManifold*& manifold)	PX_OVERRIDE	PX_FINAL;
+	virtual bool							unregisterContactManagerDeferredThreadSafe(PxsContactManager* cm, ev4sio_Gu::PersistentContactManifold*& manifold)	PX_OVERRIDE	PX_FINAL;
 	virtual void							addDeferredUnregisters(PxU32 nbPairs)	PX_OVERRIDE	PX_FINAL;
 	virtual void							prefetchUnregisterSlot(const PxsContactManager* cm)	const	PX_OVERRIDE	PX_FINAL;
 	virtual void							refreshContactManager(PxsContactManager* cm)	PX_OVERRIDE	PX_FINAL;
@@ -126,7 +126,7 @@ public:
 
 	virtual PxsContactManagerOutput*		getGPUContactManagerOutputBase()	PX_OVERRIDE	PX_FINAL	{ return NULL; }
 	virtual PxReal*							getGPURestDistances()				PX_OVERRIDE	PX_FINAL	{ return NULL; }
-	virtual Sc::ShapeInteraction**			getGPUShapeInteractions()			PX_OVERRIDE	PX_FINAL	{ return NULL; }
+	virtual ev4sio_Sc::ShapeInteraction**			getGPUShapeInteractions()			PX_OVERRIDE	PX_FINAL	{ return NULL; }
 	virtual PxsTorsionalFrictionData*		getGPUTorsionalData()				PX_OVERRIDE	PX_FINAL	{ return NULL; }
 	//~PxvNphaseImplementationContext
 
@@ -137,7 +137,7 @@ public:
 	virtual void							refreshContactManagerFallback(PxsContactManager* cm, PxsContactManagerOutput* cmOutputs)	PX_OVERRIDE	PX_FINAL;
 	virtual void							appendContactManagersFallback(PxsContactManagerOutput* cmOutputs)	PX_OVERRIDE	PX_FINAL;
 	virtual void							removeContactManagersFallback(PxsContactManagerOutput* cmOutputs)	PX_OVERRIDE	PX_FINAL;
-	virtual const Sc::ShapeInteraction*const*	getShapeInteractionsGPU()	const	PX_OVERRIDE	PX_FINAL	{ return mNarrowPhasePairs.mShapeInteractionsGPU.begin();	}
+	virtual const ev4sio_Sc::ShapeInteraction*const*	getShapeInteractionsGPU()	const	PX_OVERRIDE	PX_FINAL	{ return mNarrowPhasePairs.mShapeInteractionsGPU.begin();	}
 	virtual const PxReal*						getRestDistancesGPU()		const	PX_OVERRIDE	PX_FINAL	{ return mNarrowPhasePairs.mRestDistancesGPU.begin();		}
 	virtual const PxsTorsionalFrictionData*		getTorsionalDataGPU()		const	PX_OVERRIDE	PX_FINAL	{ return mNarrowPhasePairs.mTorsionalPropertiesGPU.begin();	}
 	//~PxvNphaseImplementationFallback
@@ -148,7 +148,7 @@ public:
 
 			PxContactModifyCallback*		mModifyCallback;
 
-			IG::IslandSim*					mIslandSim;
+			ev4sio_IG::IslandSim*					mIslandSim;
 
 			PxMutex							mContactManagerMutex;
 

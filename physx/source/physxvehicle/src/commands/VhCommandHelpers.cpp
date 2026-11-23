@@ -6,7 +6,7 @@
 #include "vehicle/commands/PxVehicleCommandParams.h"
 #include "vehicle/commands/PxVehicleCommandHelpers.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 static float interpolate(const PxReal* speedVals, const PxReal* responseVals, const PxU16 nb, const PxReal speed)
 {
@@ -131,4 +131,4 @@ PxReal PxVehicleNonLinearResponseCompute
 	return PxVehicleLinearResponseCompute(normalisedResponse, wheelId, responseParams);
 }
 
-} // namespace physx
+} // namespace ev4sio_physx

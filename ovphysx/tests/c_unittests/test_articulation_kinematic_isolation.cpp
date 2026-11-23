@@ -40,39 +40,39 @@ namespace
 
 // On CPU a cache write (the session write) already teleports the links, so these cases leave the links
 // stale through PhysX's non-cache joint API instead, which only a kinematic update propagates.
-physx::PxArticulationReducedCoordinate* articulationAt(ovphysx_instance_handle_t handle, const char* path)
+ev4sio_physx::PxArticulationReducedCoordinate* articulationAt(ovphysx_instance_handle_t handle, const char* path)
 {
     void* pointer = test_utils::read_physx_pointer(handle, OVPHYSX_QUERY_TARGET_ARTICULATION, path);
     EXPECT_NE(pointer, nullptr) << path;
-    return static_cast<physx::PxArticulationReducedCoordinate*>(pointer);
+    return static_cast<ev4sio_physx::PxArticulationReducedCoordinate*>(pointer);
 }
 
-std::vector<physx::PxArticulationLink*> linksOf(physx::PxArticulationReducedCoordinate* articulation)
+std::vector<ev4sio_physx::PxArticulationLink*> linksOf(ev4sio_physx::PxArticulationReducedCoordinate* articulation)
 {
-    std::vector<physx::PxArticulationLink*> links(articulation->getNbLinks());
-    articulation->getLinks(links.data(), static_cast<physx::PxU32>(links.size()));
+    std::vector<ev4sio_physx::PxArticulationLink*> links(articulation->getNbLinks());
+    articulation->getLinks(links.data(), static_cast<ev4sio_physx::PxU32>(links.size()));
     return links;
 }
 
-std::vector<physx::PxVec3> linkPositions(physx::PxArticulationReducedCoordinate* articulation)
+std::vector<ev4sio_physx::PxVec3> linkPositions(ev4sio_physx::PxArticulationReducedCoordinate* articulation)
 {
-    std::vector<physx::PxVec3> positions;
-    for (physx::PxArticulationLink* link : linksOf(articulation))
+    std::vector<ev4sio_physx::PxVec3> positions;
+    for (ev4sio_physx::PxArticulationLink* link : linksOf(articulation))
         positions.push_back(link->getGlobalPose().p);
     return positions;
 }
 
-void setFreeJointPositions(physx::PxArticulationReducedCoordinate* articulation, float position)
+void setFreeJointPositions(ev4sio_physx::PxArticulationReducedCoordinate* articulation, float position)
 {
-    for (physx::PxArticulationLink* link : linksOf(articulation))
+    for (ev4sio_physx::PxArticulationLink* link : linksOf(articulation))
     {
-        physx::PxArticulationJointReducedCoordinate* joint = link->getInboundJoint();
+        ev4sio_physx::PxArticulationJointReducedCoordinate* joint = link->getInboundJoint();
         if (joint == nullptr)
             continue;
-        for (int axis = 0; axis < physx::PxArticulationAxis::eCOUNT; ++axis)
+        for (int axis = 0; axis < ev4sio_physx::PxArticulationAxis::eCOUNT; ++axis)
         {
-            const physx::PxArticulationAxis::Enum a = static_cast<physx::PxArticulationAxis::Enum>(axis);
-            if (joint->getMotion(a) != physx::PxArticulationMotion::eLOCKED)
+            const ev4sio_physx::PxArticulationAxis::Enum a = static_cast<ev4sio_physx::PxArticulationAxis::Enum>(axis);
+            if (joint->getMotion(a) != ev4sio_physx::PxArticulationMotion::eLOCKED)
                 joint->setJointPosition(a, position);
         }
     }
@@ -89,13 +89,13 @@ protected:
     {
         EXPECT_TRUE(test_utils::attach_usd_with_ovstage(m_handle, "tests/data/two_articulations.usda"));
         EXPECT_EQ(ovphysx_step_sync(m_handle, 1.0f / 60.0f).status, OVPHYSX_API_SUCCESS);
-        physx::PxArticulationReducedCoordinate* a = articulationAt(m_handle, "/World/articulation");
-        physx::PxArticulationReducedCoordinate* b = articulationAt(m_handle, "/World/articulation2");
+        ev4sio_physx::PxArticulationReducedCoordinate* a = articulationAt(m_handle, "/World/articulation");
+        ev4sio_physx::PxArticulationReducedCoordinate* b = articulationAt(m_handle, "/World/articulation2");
         if (a == nullptr || b == nullptr)
             return { false, false };
 
-        const std::vector<physx::PxVec3> beforeA = linkPositions(a);
-        const std::vector<physx::PxVec3> beforeB = linkPositions(b);
+        const std::vector<ev4sio_physx::PxVec3> beforeA = linkPositions(a);
+        const std::vector<ev4sio_physx::PxVec3> beforeB = linkPositions(b);
         setFreeJointPositions(a, 0.3f);
         setFreeJointPositions(b, 0.3f);
         EXPECT_EQ(linkPositions(a), beforeA) << "the non-cache joint write must leave the links stale";
@@ -145,7 +145,7 @@ constexpr const char* kOther = "/World/Other";
 constexpr const char* kOtherLinks = "/World/Other/*";
 constexpr const char* kOtherBase = "/World/Other/base";
 constexpr const char* kOtherTip = "/World/Other/tip";
-constexpr physx::PxArticulationGPUIndex kInvalidGpuIndex = 0xffffffffu;
+constexpr ev4sio_physx::PxArticulationGPUIndex kInvalidGpuIndex = 0xffffffffu;
 constexpr float kOtherBaseX = 100.0f;
 constexpr float kWrittenRootX = 200.0f;
 constexpr float kTipForceX = 20.0f;
@@ -164,7 +164,7 @@ struct LiveQuery
 
 struct DeviceWords
 {
-    physx::PxCudaContext* cuda = nullptr;
+    ev4sio_physx::PxCudaContext* cuda = nullptr;
     CUdeviceptr address = 0;
 
     ~DeviceWords()
@@ -186,11 +186,11 @@ uint64_t articulationQueryCount(ovphysx_instance_handle_t handle)
     return summary.total_prim_count;
 }
 
-bool allocDevice(physx::PxCudaContext* cuda, DeviceWords& words, size_t bytes)
+bool allocDevice(ev4sio_physx::PxCudaContext* cuda, DeviceWords& words, size_t bytes)
 {
     words.cuda = cuda;
     words.address = 0;
-    const physx::PxCUresult allocated = cuda->memAlloc(&words.address, bytes);
+    const ev4sio_physx::PxCUresult allocated = cuda->memAlloc(&words.address, bytes);
     if (allocated != 0)
         words.address = 0;
     EXPECT_EQ(allocated, 0);
@@ -199,7 +199,7 @@ bool allocDevice(physx::PxCudaContext* cuda, DeviceWords& words, size_t bytes)
 
 // A pageable memcpyHtoD can return before its DMA lands, and DirectGPU calls with a null
 // startEvent dispatch on PhysX's own stream without waiting for it.
-bool uploadToDevice(physx::PxCudaContext* cuda, CUdeviceptr address, const void* source, size_t bytes)
+bool uploadToDevice(ev4sio_physx::PxCudaContext* cuda, CUdeviceptr address, const void* source, size_t bytes)
 {
     return cuda->memcpyHtoD(address, source, bytes) == 0 && cuda->streamSynchronize(0) == 0;
 }
@@ -207,58 +207,58 @@ bool uploadToDevice(physx::PxCudaContext* cuda, CUdeviceptr address, const void*
 // Reads the root and child link x of `articulation` through the DirectGPU API, first writing its root pose to
 // `writtenRootX` when `writeRoot` is set. Only the repeated-key roots need this: a path resolves one of them, so the
 // session API cannot address each. A root-pose write does not propagate until forward kinematics runs.
-bool readOrWriteLinkX(physx::PxArticulationReducedCoordinate* articulation,
+bool readOrWriteLinkX(ev4sio_physx::PxArticulationReducedCoordinate* articulation,
                       bool writeRoot,
                       float& rootX,
                       float& childX,
                       float writtenRootX)
 {
-    physx::PxScene* scene = articulation->getScene();
-    physx::PxCudaContextManager* manager = scene->getCudaContextManager();
+    ev4sio_physx::PxScene* scene = articulation->getScene();
+    ev4sio_physx::PxCudaContextManager* manager = scene->getCudaContextManager();
     EXPECT_NE(manager, nullptr);
     if (manager == nullptr)
         return false;
-    physx::PxScopedCudaLock lock(*manager);
-    physx::PxCudaContext* cuda = manager->getCudaContext();
+    ev4sio_physx::PxScopedCudaLock lock(*manager);
+    ev4sio_physx::PxCudaContext* cuda = manager->getCudaContext();
     EXPECT_NE(cuda, nullptr);
-    const physx::PxArticulationGPUIndex gpuIndex = articulation->getGPUIndex();
+    const ev4sio_physx::PxArticulationGPUIndex gpuIndex = articulation->getGPUIndex();
     EXPECT_NE(gpuIndex, kInvalidGpuIndex);
     if (cuda == nullptr || gpuIndex == kInvalidGpuIndex)
         return false;
 
-    const physx::PxU32 linkCount = scene->getDirectGPUAPI().getArticulationGPUAPIMaxCounts().maxLinks;
+    const ev4sio_physx::PxU32 linkCount = scene->getDirectGPUAPI().getArticulationGPUAPIMaxCounts().maxLinks;
     EXPECT_GE(linkCount, 2u);
     if (linkCount < 2u)
         return false;
 
-    std::vector<physx::PxTransform> poses(linkCount, physx::PxTransform(physx::PxIdentity));
+    std::vector<ev4sio_physx::PxTransform> poses(linkCount, ev4sio_physx::PxTransform(ev4sio_physx::PxIdentity));
     DeviceWords indices;
     DeviceWords poseBuffer;
-    if (!allocDevice(cuda, indices, sizeof(gpuIndex)) || !allocDevice(cuda, poseBuffer, linkCount * sizeof(physx::PxTransform)))
+    if (!allocDevice(cuda, indices, sizeof(gpuIndex)) || !allocDevice(cuda, poseBuffer, linkCount * sizeof(ev4sio_physx::PxTransform)))
         return false;
     if (!uploadToDevice(cuda, indices.address, &gpuIndex, sizeof(gpuIndex)))
         return false;
 
     if (writeRoot)
     {
-        poses[0] = physx::PxTransform(physx::PxVec3(writtenRootX, 0.0f, 0.0f));
-        if (!uploadToDevice(cuda, poseBuffer.address, poses.data(), sizeof(physx::PxTransform)))
+        poses[0] = ev4sio_physx::PxTransform(ev4sio_physx::PxVec3(writtenRootX, 0.0f, 0.0f));
+        if (!uploadToDevice(cuda, poseBuffer.address, poses.data(), sizeof(ev4sio_physx::PxTransform)))
             return false;
         if (!scene->getDirectGPUAPI().setArticulationData(
                 reinterpret_cast<const void*>(poseBuffer.address),
-                reinterpret_cast<const physx::PxArticulationGPUIndex*>(indices.address),
-                physx::PxArticulationGPUAPIWriteType::eROOT_GLOBAL_POSE,
+                reinterpret_cast<const ev4sio_physx::PxArticulationGPUIndex*>(indices.address),
+                ev4sio_physx::PxArticulationGPUAPIWriteType::eROOT_GLOBAL_POSE,
                 1))
             return false;
     }
 
     if (!scene->getDirectGPUAPI().getArticulationData(
             reinterpret_cast<void*>(poseBuffer.address),
-            reinterpret_cast<const physx::PxArticulationGPUIndex*>(indices.address),
-            physx::PxArticulationGPUAPIReadType::eLINK_GLOBAL_POSE,
+            reinterpret_cast<const ev4sio_physx::PxArticulationGPUIndex*>(indices.address),
+            ev4sio_physx::PxArticulationGPUAPIReadType::eLINK_GLOBAL_POSE,
             1))
         return false;
-    if (cuda->memcpyDtoH(poses.data(), poseBuffer.address, linkCount * sizeof(physx::PxTransform)) != 0)
+    if (cuda->memcpyDtoH(poses.data(), poseBuffer.address, linkCount * sizeof(ev4sio_physx::PxTransform)) != 0)
         return false;
     rootX = poses[0].p.x;
     childX = poses[1].p.x;
@@ -428,7 +428,7 @@ protected:
 
     // Attaches the fixture and steps once. Returns scene A, read through its PhysX pointer only for its timestamp
     // and articulation list, or null on failure.
-    physx::PxScene* prepareScene()
+    ev4sio_physx::PxScene* prepareScene()
     {
         if (!test_utils::attach_usd_with_ovstage(m_handle, kFixture))
         {
@@ -443,8 +443,8 @@ protected:
         // Three runtime articulations share /World/Shared; discovery counts distinct prims.
         EXPECT_EQ(articulationQueryCount(m_handle), 2u);
 
-        physx::PxScene* sceneA =
-            static_cast<physx::PxScene*>(test_utils::read_physx_pointer(m_handle, OVPHYSX_QUERY_TARGET_SCENE, "/World/sceneA"));
+        ev4sio_physx::PxScene* sceneA =
+            static_cast<ev4sio_physx::PxScene*>(test_utils::read_physx_pointer(m_handle, OVPHYSX_QUERY_TARGET_SCENE, "/World/sceneA"));
         EXPECT_NE(sceneA, nullptr);
         if (sceneA == nullptr)
             return nullptr;
@@ -462,7 +462,7 @@ std::string SelectedKinematicUpdateGpuTest::s_skipReason;
 // it, and the update does not step the scene.
 TEST_F(SelectedKinematicUpdateGpuTest, OutsideQueryChildPoseStaysAtAuthoredX)
 {
-    physx::PxScene* sceneA = prepareScene();
+    ev4sio_physx::PxScene* sceneA = prepareScene();
     ASSERT_NE(sceneA, nullptr);
 
     OtherX other;
@@ -475,7 +475,7 @@ TEST_F(SelectedKinematicUpdateGpuTest, OutsideQueryChildPoseStaysAtAuthoredX)
     EXPECT_NEAR(other.base, kWrittenRootX, 1.0e-3f);
     EXPECT_NEAR(other.tip, kOtherBaseX + 1.0f, 1.0e-3f);
 
-    const physx::PxU32 timestampBefore = sceneA->getTimestamp();
+    const ev4sio_physx::PxU32 timestampBefore = sceneA->getTimestamp();
     ASSERT_TRUE(refreshQuery(m_handle, "/World/Shared"));
     EXPECT_EQ(sceneA->getTimestamp(), timestampBefore);
 
@@ -487,7 +487,7 @@ TEST_F(SelectedKinematicUpdateGpuTest, OutsideQueryChildPoseStaysAtAuthoredX)
 // The same selection leaves /World/Other's last-step acceleration and incoming joint force as the step left them.
 TEST_F(SelectedKinematicUpdateGpuTest, OutsideQueryAccelerationAndIncomingForceStay)
 {
-    physx::PxScene* sceneA = prepareScene();
+    ev4sio_physx::PxScene* sceneA = prepareScene();
     ASSERT_NE(sceneA, nullptr);
 
     ASSERT_EQ(session_test::writeUniform(m_handle, OVPHYSX_QUERY_TARGET_ARTICULATION_LINK, OVPHYSX_ATTR_FORCE,
@@ -512,7 +512,7 @@ TEST_F(SelectedKinematicUpdateGpuTest, OutsideQueryAccelerationAndIncomingForceS
     ASSERT_TRUE(readForceState(m_handle, m_ctx, afterWrite));
     expectForceUnchanged(simulated, afterWrite);
 
-    const physx::PxU32 timestampBefore = sceneA->getTimestamp();
+    const ev4sio_physx::PxU32 timestampBefore = sceneA->getTimestamp();
     ASSERT_TRUE(refreshQuery(m_handle, "/World/Shared"));
     EXPECT_EQ(sceneA->getTimestamp(), timestampBefore);
 
@@ -561,20 +561,20 @@ TEST_F(SelectedKinematicUpdateGpuTest, HeldQueryRefreshesOnEveryCall)
 // cannot address one by one. Their roots are written through PhysX for that reason.
 TEST_F(SelectedKinematicUpdateGpuTest, RepeatedKeyRootsFollowWholeSceneRefresh)
 {
-    physx::PxScene* sceneA = prepareScene();
+    ev4sio_physx::PxScene* sceneA = prepareScene();
     ASSERT_NE(sceneA, nullptr);
-    physx::PxScene* sceneB =
-        static_cast<physx::PxScene*>(test_utils::read_physx_pointer(m_handle, OVPHYSX_QUERY_TARGET_SCENE, "/World/sceneB"));
+    ev4sio_physx::PxScene* sceneB =
+        static_cast<ev4sio_physx::PxScene*>(test_utils::read_physx_pointer(m_handle, OVPHYSX_QUERY_TARGET_SCENE, "/World/sceneB"));
     ASSERT_NE(sceneB, nullptr);
 
-    std::vector<physx::PxArticulationReducedCoordinate*> articulations(sceneA->getNbArticulations() +
+    std::vector<ev4sio_physx::PxArticulationReducedCoordinate*> articulations(sceneA->getNbArticulations() +
                                                                        sceneB->getNbArticulations());
     ASSERT_EQ(articulations.size(), 4u);
     sceneA->getArticulations(articulations.data(), sceneA->getNbArticulations());
     sceneB->getArticulations(articulations.data() + sceneA->getNbArticulations(), sceneB->getNbArticulations());
 
     std::vector<float> writtenRootX;
-    for (physx::PxArticulationReducedCoordinate* articulation : articulations)
+    for (ev4sio_physx::PxArticulationReducedCoordinate* articulation : articulations)
     {
         float rootX = 0.0f;
         float childX = 0.0f;
@@ -585,7 +585,7 @@ TEST_F(SelectedKinematicUpdateGpuTest, RepeatedKeyRootsFollowWholeSceneRefresh)
         EXPECT_GT(std::fabs(childX - (writtenRootX.back() + 1.0f)), 1.0f); // stale until the update runs
     }
 
-    const physx::PxU32 timestampBefore = sceneA->getTimestamp();
+    const ev4sio_physx::PxU32 timestampBefore = sceneA->getTimestamp();
     ASSERT_TRUE(refreshQuery(m_handle));
     EXPECT_EQ(sceneA->getTimestamp(), timestampBefore);
 

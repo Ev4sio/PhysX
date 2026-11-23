@@ -17,7 +17,7 @@
 #include "PxsIslandSim.h"
 #include "DyCpuGpuBiasCoefficient.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	class PxsRigidBody;
 
@@ -27,7 +27,7 @@ namespace physx
 	struct PxsIndexedContactManager;
 	struct PxsExternalAccelerationProvider;
 
-	namespace Dy
+	namespace ev4sio_Dy
 	{
 		struct SolverContext;
 
@@ -39,7 +39,7 @@ namespace physx
 			FeatherstoneArticulation**	articulationOwners;
 			PxsIndexedContactManager*	contactManagers;	// PT: points to DynamicsTGSContext::mContactList
 
-			const IG::IslandId*			islandIds;
+			const ev4sio_IG::IslandId*			islandIds;
 			PxU32						numIslands;
 			PxU32*						bodyRemapTable;
 			PxU32*						nodeIndexArray;
@@ -48,7 +48,7 @@ namespace physx
 			PxSolverConstraintDesc*		orderedConstraintDescs;
 			PxSolverConstraintDesc*		tempConstraintDescs;
 			PxConstraintBatchHeader*	constraintBatchHeaders;
-			Cm::SpatialVector*			motionVelocities;
+			ev4sio_Cm::SpatialVector*			motionVelocities;
 			PxsBodyCore**				bodyCoreArray;
 
 			PxU32						solverBodyOffset;
@@ -125,17 +125,17 @@ class DynamicsTGSContext : public DynamicsContextBase
 {
 	PX_NOCOPY(DynamicsTGSContext)
 public:
-										DynamicsTGSContext(	PxcNpMemBlockPool* memBlockPool, Cm::FlushPool& taskPool,
-															PxvSimStats& simStats, Cm::VirtualAllocatorCallback& allocator,
-															PxsMaterialManager* materialManager, IG::SimpleIslandManager& islandManager,
+										DynamicsTGSContext(	PxcNpMemBlockPool* memBlockPool, ev4sio_Cm::FlushPool& taskPool,
+															PxvSimStats& simStats, ev4sio_Cm::VirtualAllocatorCallback& allocator,
+															PxsMaterialManager* materialManager, ev4sio_IG::SimpleIslandManager& islandManager,
 															PxU64 contextID, PxReal lengthScale, PxSceneFlags sceneFlags);
 	virtual								~DynamicsTGSContext();
 
 	// Context
 	virtual	void						destroy()	PX_OVERRIDE;
-	virtual void						update(	Cm::FlushPool& flushPool, PxBaseTask* continuation, PxBaseTask* postPartitioningTask, PxBaseTask* lostTouchTask,
+	virtual void						update(	ev4sio_Cm::FlushPool& flushPool, PxBaseTask* continuation, PxBaseTask* postPartitioningTask, PxBaseTask* lostTouchTask,
 												PxvNphaseImplementationContext* nphase, PxU32 maxPatchesPerCM, PxU32 maxArticulationLinks,
-												PxReal dt, const PxVec3& gravity, Cm::PinnableBitMap& changedHandleMap)	PX_OVERRIDE;
+												PxReal dt, const PxVec3& gravity, ev4sio_Cm::PinnableBitMap& changedHandleMap)	PX_OVERRIDE;
 	virtual void						mergeResults()	PX_OVERRIDE;
 	virtual void						setSimulationController(PxsSimulationController* simulationController)	PX_OVERRIDE	{ mSimulationController = simulationController; }
 	virtual PxSolverType::Enum			getSolverType()	const	PX_OVERRIDE	{ return PxSolverType::eTGS;	}
@@ -159,10 +159,10 @@ protected:
 			*/
 			void								computeUnconstrainedVelocity(PxsRigidBody* atom)	const;
 
-			void								setDescFromIndices_Contacts(PxSolverConstraintDesc& desc, const IG::IslandSim& islandSim,
+			void								setDescFromIndices_Contacts(PxSolverConstraintDesc& desc, const ev4sio_IG::IslandSim& islandSim,
 																			const PxsIndexedInteraction& constraint, PxU32 solverBodyOffset, PxTGSSolverBodyVel* solverBodies);
 
-			void								setDescFromIndices_Constraints(	PxSolverConstraintDesc& desc, const IG::IslandSim& islandSim, IG::EdgeIndex edgeIndex,
+			void								setDescFromIndices_Constraints(	PxSolverConstraintDesc& desc, const ev4sio_IG::IslandSim& islandSim, ev4sio_IG::EdgeIndex edgeIndex,
 																				const PxU32* bodyRemapTable, PxU32 solverBodyOffset, PxTGSSolverBodyVel* solverBodies);
 
 			void solveIsland(const SolverIslandObjectsStep& objects,
@@ -186,7 +186,7 @@ protected:
 			void setupArticulationInternalConstraints(IslandContextStep& islandContext, PxReal dt, PxReal invStepDt);
 
 			void createSolverConstraints(PxSolverConstraintDesc* contactDescPtr, PxConstraintBatchHeader* headers, PxU32 nbHeaders,
-				PxsContactManagerOutputIterator& outputs, Dy::ThreadContext& islandThreadContext, Dy::ThreadContext& threadContext, PxReal stepDt, PxReal totalDt, 
+				PxsContactManagerOutputIterator& outputs, ev4sio_Dy::ThreadContext& islandThreadContext, ev4sio_Dy::ThreadContext& threadContext, PxReal stepDt, PxReal totalDt,
 				PxReal invStepDt, PxReal rigidContactBiasCoefficient, PxReal jointBiasCoefficient);
 
 			void writebackConstraintsIteration(const PxConstraintBatchHeader* const hdrs, const PxSolverConstraintDesc* const contactDescPtr, PxU32 nbHeaders);
@@ -210,14 +210,14 @@ protected:
 
 			void copyBackBodies(const SolverIslandObjectsStep& objects,
 				PxTGSSolverBodyVel* vels, PxTGSSolverBodyTxInertia* txInertias,
-				PxTGSSolverBodyData* solverBodyData, PxReal invDt,	IG::IslandSim& islandSim,
+				PxTGSSolverBodyData* solverBodyData, PxReal invDt,	ev4sio_IG::IslandSim& islandSim,
 				PxU32 startIdx, PxU32 endIdx);
 
-			void updateArticulations(Dy::ThreadContext& threadContext, PxU32 startIdx, PxU32 endIdx, PxReal dt);
+			void updateArticulations(ev4sio_Dy::ThreadContext& threadContext, PxU32 startIdx, PxU32 endIdx, PxReal dt);
 
-			void stepArticulations(Dy::ThreadContext& threadContext, const PxsIslandIndices& counts, PxReal dt);
+			void stepArticulations(ev4sio_Dy::ThreadContext& threadContext, const PxsIslandIndices& counts, PxReal dt);
 
-			void applyArticulationTgsSubstepForces(Dy::ThreadContext& threadContext, PxU32 numArticulations, PxReal stepDt);
+			void applyArticulationTgsSubstepForces(ev4sio_Dy::ThreadContext& threadContext, PxU32 numArticulations, PxReal stepDt);
 
 			void iterativeSolveIsland(const SolverIslandObjectsStep& objects, const PxsIslandIndices& counts, ThreadContext& mThreadContext,
 				PxReal stepDt, PxReal invStepDt, PxReal totalDt, PxU32 posIters, PxU32 velIters, PxReal articulationBiasCoefficient);
@@ -230,7 +230,7 @@ protected:
 			void endIsland(ThreadContext& mThreadContext);
 
 			void finishSolveIsland(ThreadContext& mThreadContext, const SolverIslandObjectsStep& objects,
-				const PxsIslandIndices& counts, IG::SimpleIslandManager& islandManager, PxBaseTask* continuation);
+				const PxsIslandIndices& counts, ev4sio_IG::SimpleIslandManager& islandManager, PxBaseTask* continuation);
 
 			PxTGSSolverBodyVel				mWorldSolverBodyVel;
 			PxTGSSolverBodyTxInertia		mWorldSolverBodyTxInertia;

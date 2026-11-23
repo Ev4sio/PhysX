@@ -4,11 +4,11 @@
 #include "tensors/cpu/CpuSdfShapeView.h"
 #include "tensors/cpu/CpuSimulationView.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace tensors
 {
@@ -23,5 +23,5 @@ CpuSdfShapeView::~CpuSdfShapeView()
 }
 
 } // namespace tensors
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

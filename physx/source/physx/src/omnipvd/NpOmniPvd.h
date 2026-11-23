@@ -17,7 +17,7 @@ class OmniPvdReader;
 class OmniPvdWriter;
 class OmniPvdPxSampler;
 
-namespace physx
+namespace ev4sio_physx
 {
 
 class PxPhysics;

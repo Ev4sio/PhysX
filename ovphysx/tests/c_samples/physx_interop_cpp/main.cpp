@@ -205,8 +205,8 @@ static int run(void)
         return destroy_instance_and_shutdown(handle);
     }
 
-    physx::PxRigidActor* rigid_actor = static_cast<physx::PxRigidActor*>(actor_ptr);
-    physx::PxRigidDynamic* actor = rigid_actor->is<physx::PxRigidDynamic>();
+    ev4sio_physx::PxRigidActor* rigid_actor = static_cast<ev4sio_physx::PxRigidActor*>(actor_ptr);
+    ev4sio_physx::PxRigidDynamic* actor = rigid_actor->is<ev4sio_physx::PxRigidDynamic>();
     if (!actor) {
         fprintf(stderr, "ERROR: /World/KinematicCube is not a PxRigidDynamic\n");
         return destroy_instance_and_shutdown(handle);
@@ -216,7 +216,7 @@ static int run(void)
     // 5. Set kinematic target to move the cube from (0,2,0) to (3,2,0). Structural changes (adding, removing or
     //    re-inserting objects, moving them between scenes, attaching or detaching shapes) through a native PhysX
     //    pointer are not recommended: after one, ovphysx reads and writes are not guaranteed to work.
-    physx::PxTransform target(physx::PxVec3(3.0f, 2.0f, 0.0f));
+    ev4sio_physx::PxTransform target(ev4sio_physx::PxVec3(3.0f, 2.0f, 0.0f));
     actor->setKinematicTarget(target);
     printf("Set kinematic target to (3, 2, 0)\n");
 

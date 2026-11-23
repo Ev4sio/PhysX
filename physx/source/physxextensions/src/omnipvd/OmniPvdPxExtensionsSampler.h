@@ -16,7 +16,7 @@
 
 #include "ExtOmniPvdRegistrationData.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	class PxOmniPvd;
 	class PxPhysics;
@@ -26,39 +26,39 @@ namespace physx
 
 
 // Implements PxOmniPvdEventCallback so the extensions module contributes its objects (joints)
-// to a full-state snapshot: it is registered with the bound PxOmniPvd in PxInitExtensions
+// to a full-state snapshot: it is registered with the bound PxOmniPvd in ev4sio_PxInitExtensions
 // and its onStartSampling() fires whenever PxOmniPvd::startSampling() takes a snapshot,
 // re-emitting the live extension joints and custom-geometry callbacks onto the freshly-bound
 // stream. PhysXCore owns the PxOmniPvdEventCallback interface and never references PhysXExtensions.
-class OmniPvdPxExtensionsSampler : public physx::PxOmniPvdEventCallback, public physx::PxUserAllocated
+class OmniPvdPxExtensionsSampler : public ev4sio_physx::PxOmniPvdEventCallback, public ev4sio_physx::PxUserAllocated
 {
 public:
 	// physics is the PxPhysics whose joints onStartSampling() re-emits; it is required for the
 	// sampler's whole lifetime, so it is taken here rather than through a later setter.
-	OmniPvdPxExtensionsSampler(physx::PxPhysics& physics);
+	OmniPvdPxExtensionsSampler(ev4sio_physx::PxPhysics& physics);
 	~OmniPvdPxExtensionsSampler();
-	void setOmniPvdInstance(physx::PxOmniPvd* omniPvdInstance);
-	physx::PxOmniPvd* getOmniPvdInstance();
+	void setOmniPvdInstance(ev4sio_physx::PxOmniPvd* omniPvdInstance);
+	ev4sio_physx::PxOmniPvd* getOmniPvdInstance();
 	void registerClasses();
 
 	// PxOmniPvdEventCallback: called by startSampling() after the core world is emitted. Re-registers
 	// the schema, then re-emits the live extension joints and custom-geometry callbacks onto the bound
 	// stream (registerClasses + snapshotConstraints + snapshotCustomGeometryCallbacks).
-	virtual void onStartSampling(physx::PxOmniPvd& omniPvd, const physx::PxOmniPvdFilterDesc* filter) PX_OVERRIDE;
-	virtual void onObjectCapture(physx::PxOmniPvd& omniPvd, const physx::PxBase& object) PX_OVERRIDE;
-	virtual void onCaptureReset(physx::PxOmniPvd& omniPvd, const physx::PxOmniPvdFilterDesc& filter) PX_OVERRIDE;
+	virtual void onStartSampling(ev4sio_physx::PxOmniPvd& omniPvd, const ev4sio_physx::PxOmniPvdFilterDesc* filter) PX_OVERRIDE;
+	virtual void onObjectCapture(ev4sio_physx::PxOmniPvd& omniPvd, const ev4sio_physx::PxBase& object) PX_OVERRIDE;
+	virtual void onCaptureReset(ev4sio_physx::PxOmniPvd& omniPvd, const ev4sio_physx::PxOmniPvdFilterDesc& filter) PX_OVERRIDE;
 
-	bool shouldRecordCreation(const char* className, physx::PxU64 objectHandle);
-	bool shouldRecordDestruction(physx::PxU64 objectHandle);
-	bool shouldRecordValue(const char* className, const char* attributeName, physx::PxU64 objectHandle) const;
-	const physx::PxBase* captureJointReference(const physx::PxBase* joint, OmniPvdWriter* writer);
+	bool shouldRecordCreation(const char* className, ev4sio_physx::PxU64 objectHandle);
+	bool shouldRecordDestruction(ev4sio_physx::PxU64 objectHandle);
+	bool shouldRecordValue(const char* className, const char* attributeName, ev4sio_physx::PxU64 objectHandle) const;
+	const ev4sio_physx::PxBase* captureJointReference(const ev4sio_physx::PxBase* joint, OmniPvdWriter* writer);
 
 	// Re-emit every joint the SDK tracks onto the currently bound write stream, for a full-state
 	// snapshot. Enumerates the factory's constraints (scene-less included), filters to joints, and
 	// emits each by concrete joint type. onStartSampling() re-registers the schema before calling this.
 	void snapshotConstraints();
 	// Called under the writer lock with the unfiltered references of a recorded gear or rack.
-	void cacheJointReferences(physx::PxU64 dependent, const physx::PxBase* joint0, const physx::PxBase* joint1);
+	void cacheJointReferences(ev4sio_physx::PxU64 dependent, const ev4sio_physx::PxBase* joint0, const ev4sio_physx::PxBase* joint1);
 
 	// Re-emit every live PxCustomGeometryExt callbacks object (cylinder / cone, with their base
 	// margin) onto the currently bound write stream, for a full-state snapshot. These are emitted
@@ -66,32 +66,32 @@ public:
 	// the SDK's shapes via public PxPhysics API, dedups shared callbacks, and emits each once.
 	void snapshotCustomGeometryCallbacks();
 
-	const physx::Ext::OmniPvdPxExtensionsRegistrationData& getRegistrationData() const { return mRegistrationData; }
+	const ev4sio_physx::ev4sio_Ext::OmniPvdPxExtensionsRegistrationData& getRegistrationData() const { return mRegistrationData; }
 
 	// OmniPvdPxExtensionsSampler singleton
-	static bool createInstance(physx::PxPhysics& physics);
+	static bool createInstance(ev4sio_physx::PxPhysics& physics);
 	static OmniPvdPxExtensionsSampler* getInstance();
 	static void destroyInstance();
 
 private:
-	void snapshotConstraint(physx::PxConstraint& constraint, OmniPvdWriter* writer);
-	void snapshotCustomGeometry(const physx::PxShape& shape, OmniPvdWriter* writer);
-	physx::PxOmniPvd* mOmniPvdInstance;
-	physx::PxPhysics& mPhysics;
+	void snapshotConstraint(ev4sio_physx::PxConstraint& constraint, OmniPvdWriter* writer);
+	void snapshotCustomGeometry(const ev4sio_physx::PxShape& shape, OmniPvdWriter* writer);
+	ev4sio_physx::PxOmniPvd* mOmniPvdInstance;
+	ev4sio_physx::PxPhysics& mPhysics;
 	bool mRecordSecondaryData;
 	bool mRecordAllObjects;
-	physx::Ext::OmniPvdPxExtensionsRegistrationData mRegistrationData;
-	physx::PxHashSet<physx::PxU64> mEmittedObjects;
-	physx::PxHashSet<physx::PxU64> mRefreshingJoints;
-	struct JointReferences { physx::PxU64 joint0; physx::PxU64 joint1; };
-	physx::PxHashMap<physx::PxU64, JointReferences> mJointReferences;
-	physx::PxHashSet<const void*> mSelectedCustomCallbacks;
+	ev4sio_physx::ev4sio_Ext::OmniPvdPxExtensionsRegistrationData mRegistrationData;
+	ev4sio_physx::PxHashSet<ev4sio_physx::PxU64> mEmittedObjects;
+	ev4sio_physx::PxHashSet<ev4sio_physx::PxU64> mRefreshingJoints;
+	struct JointReferences { ev4sio_physx::PxU64 joint0; ev4sio_physx::PxU64 joint1; };
+	ev4sio_physx::PxHashMap<ev4sio_physx::PxU64, JointReferences> mJointReferences;
+	ev4sio_physx::PxHashSet<const void*> mSelectedCustomCallbacks;
 };
 
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Ext
+namespace ev4sio_Ext
 {
 
 const OmniPvdPxExtensionsRegistrationData* OmniPvdGetPxExtensionsRegistrationData();

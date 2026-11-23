@@ -11,7 +11,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 
 struct UjitsoResourceManager;
@@ -180,5 +180,5 @@ private:
     static std::atomic<size_t> s_finishedProcessCount;
 };
 
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

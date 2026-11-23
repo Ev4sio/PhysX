@@ -11,7 +11,7 @@
 #include "foundation/PxSimpleTypes.h"
 #include "geometry/PxGeometry.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 /*!
 Description: contains statistics for the simulation.

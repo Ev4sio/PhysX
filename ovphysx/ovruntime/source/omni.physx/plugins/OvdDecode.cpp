@@ -7,7 +7,7 @@
 #include <cstdio>
 #include <cstring>
 #include <utility>
-namespace omni::physx::diagnostics
+namespace omni::ev4sio_physx::diagnostics
 {
 namespace
 {

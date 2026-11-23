@@ -6,11 +6,11 @@
 #include "PxsMemoryManager.h"
 #include "CmVirtualAllocatorCallback.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 namespace
 {
-	class PxsDefaultMemoryAllocator : public Cm::VirtualAllocatorCallback
+	class PxsDefaultMemoryAllocator : public ev4sio_Cm::VirtualAllocatorCallback
 	{
 	public:
 		virtual void* allocate(size_t size, int, const char*, int)	PX_OVERRIDE	PX_FINAL	{ return PX_ALLOC(size, "unused");	}
@@ -21,14 +21,14 @@ namespace
 	{
 	public:
 		// PxsMemoryManager
-		virtual Cm::VirtualAllocatorCallback* getPinnedHostMemoryAllocator()	PX_OVERRIDE	PX_FINAL	{ return &mDefaultMemoryAllocator; }
-		virtual Cm::VirtualAllocatorCallback* getDeviceMemoryAllocator()		PX_OVERRIDE	PX_FINAL	{ return NULL; }
+		virtual ev4sio_Cm::VirtualAllocatorCallback* getPinnedHostMemoryAllocator()	PX_OVERRIDE	PX_FINAL	{ return &mDefaultMemoryAllocator; }
+		virtual ev4sio_Cm::VirtualAllocatorCallback* getDeviceMemoryAllocator()		PX_OVERRIDE	PX_FINAL	{ return NULL; }
 		//~PxsMemoryManager
 		PxsDefaultMemoryAllocator	mDefaultMemoryAllocator;
 	};
 }
 
-PxsMemoryManager* physx::createDefaultMemoryManager()
+PxsMemoryManager* ev4sio_physx::createDefaultMemoryManager()
 {
 	return PX_NEW(PxsDefaultMemoryManager);
 }

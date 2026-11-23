@@ -17,7 +17,7 @@
 #endif
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -98,7 +98,7 @@ PX_FORCE_INLINE void PxPrefetch(const void* ptr, uint32_t count = 1)
 }
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

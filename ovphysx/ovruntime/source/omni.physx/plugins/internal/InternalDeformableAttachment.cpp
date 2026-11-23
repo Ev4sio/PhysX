@@ -21,10 +21,10 @@
 
 #include <common/utilities/MemoryMacros.h>
 
-using namespace omni::physx;
-using namespace omni::physx::internal;
-using namespace omni::physx::usdparser;
-using namespace ::physx;
+using namespace omni::ev4sio_physx;
+using namespace omni::ev4sio_physx::internal;
+using namespace omni::ev4sio_physx::usdparser;
+using namespace ::ev4sio_physx;
 
 static ObjectId getObjectId(const AttachedStage& attachedStage, omni::physics::parse::ObjectKey key, PhysXType type)
 {
@@ -67,7 +67,7 @@ bool matchingRigidBody(const AttachedStage& attachedStage, ObjectKey key, const 
     PxRigidActor* actor = nullptr;
 
     {
-        PxArticulationLink* ptr = omni::physx::getPtr<PxArticulationLink>(attachedStage.getInternalPhysXDatabase(), ePTLink, getObjectId(attachedStage, key, ePTLink));
+        PxArticulationLink* ptr = omni::ev4sio_physx::getPtr<PxArticulationLink>(attachedStage.getInternalPhysXDatabase(), ePTLink, getObjectId(attachedStage, key, ePTLink));
         if (ptr)
         {
             internalType = ePTLink;
@@ -76,7 +76,7 @@ bool matchingRigidBody(const AttachedStage& attachedStage, ObjectKey key, const 
     }
 
     {
-        InternalActor* internalPtr = omni::physx::getInternalPtr<InternalActor>(attachedStage.getInternalPhysXDatabase(), ePTActor, getObjectId(attachedStage, key, ePTActor));
+        InternalActor* internalPtr = omni::ev4sio_physx::getInternalPtr<InternalActor>(attachedStage.getInternalPhysXDatabase(), ePTActor, getObjectId(attachedStage, key, ePTActor));
         if (internalPtr)
         {
             internalType = ePTActor;
@@ -85,7 +85,7 @@ bool matchingRigidBody(const AttachedStage& attachedStage, ObjectKey key, const 
     }
 
     {
-        PxShape* ptr = omni::physx::getPtr<PxShape>(attachedStage.getInternalPhysXDatabase(), ePTShape, getObjectId(attachedStage, key, ePTShape));
+        PxShape* ptr = omni::ev4sio_physx::getPtr<PxShape>(attachedStage.getInternalPhysXDatabase(), ePTShape, getObjectId(attachedStage, key, ePTShape));
         if (ptr)
         {
             internalType = ePTShape;
@@ -103,7 +103,7 @@ bool matchingRigidBody(const AttachedStage& attachedStage, ObjectKey key, const 
         else
         {
             const OmniPhysX& omniPhysX = OmniPhysX::getInstance();
-            const omni::physx::internal::InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
+            const omni::ev4sio_physx::internal::InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
             const InternalDatabase::Record* objectRecord = db.getFullRecord(internalType, (ObjectId)actor->userData);
 
             InternalActor* intActor = (InternalActor*)objectRecord->mInternalPtr;
@@ -125,7 +125,7 @@ bool matchingRigidBody(const AttachedStage& attachedStage, ObjectKey key, const 
 PxActor* getPhysxActorFromPath(const AttachedStage& attachedStage, ObjectKey key, PhysXType& type)
 {
     {
-        InternalVolumeDeformableBody* internalPtr = omni::physx::getInternalPtr<InternalVolumeDeformableBody>(attachedStage.getInternalPhysXDatabase(), ePTDeformableVolume, getObjectId(attachedStage, key, ePTDeformableVolume));
+        InternalVolumeDeformableBody* internalPtr = omni::ev4sio_physx::getInternalPtr<InternalVolumeDeformableBody>(attachedStage.getInternalPhysXDatabase(), ePTDeformableVolume, getObjectId(attachedStage, key, ePTDeformableVolume));
         if (internalPtr)
         {
             type = ePTDeformableVolume;
@@ -134,7 +134,7 @@ PxActor* getPhysxActorFromPath(const AttachedStage& attachedStage, ObjectKey key
     }
 
     {
-        InternalSurfaceDeformableBody* internalPtr = omni::physx::getInternalPtr<InternalSurfaceDeformableBody>(attachedStage.getInternalPhysXDatabase(), ePTDeformableSurface, getObjectId(attachedStage, key, ePTDeformableSurface));
+        InternalSurfaceDeformableBody* internalPtr = omni::ev4sio_physx::getInternalPtr<InternalSurfaceDeformableBody>(attachedStage.getInternalPhysXDatabase(), ePTDeformableSurface, getObjectId(attachedStage, key, ePTDeformableSurface));
         if (internalPtr)
         {
             type = ePTDeformableSurface;
@@ -225,7 +225,7 @@ void InternalDeformableAttachment::setupXformAttachment()
     while (src && walkKey.valid())
     {
         {
-            PxArticulationLink* ptr = omni::physx::getPtr<PxArticulationLink>(mAttachedStage.getInternalPhysXDatabase(), ePTLink, getObjectId(mAttachedStage, walkKey, ePTLink));
+            PxArticulationLink* ptr = omni::ev4sio_physx::getPtr<PxArticulationLink>(mAttachedStage.getInternalPhysXDatabase(), ePTLink, getObjectId(mAttachedStage, walkKey, ePTLink));
             if (ptr)
             {
                 mData[1].actor = ptr;
@@ -236,7 +236,7 @@ void InternalDeformableAttachment::setupXformAttachment()
         }
 
         {
-            InternalActor* internalPtr = omni::physx::getInternalPtr<InternalActor>(mAttachedStage.getInternalPhysXDatabase(), ePTActor, getObjectId(mAttachedStage, walkKey, ePTActor));
+            InternalActor* internalPtr = omni::ev4sio_physx::getInternalPtr<InternalActor>(mAttachedStage.getInternalPhysXDatabase(), ePTActor, getObjectId(mAttachedStage, walkKey, ePTActor));
             if (internalPtr)
             {
                 mData[1].actor = internalPtr->mActor;
@@ -338,12 +338,12 @@ InternalDeformableAttachment::InternalDeformableAttachment(AttachedStage& attach
         if (actor)
         {
             if (PxScene* s = actor->getScene())
-                return getInternalPtr<InternalScene>(mAttachedStage.getInternalPhysXDatabase(), ePTScene, omni::physx::usdparser::ObjectId(s->userData));
+                return getInternalPtr<InternalScene>(mAttachedStage.getInternalPhysXDatabase(), ePTScene, omni::ev4sio_physx::usdparser::ObjectId(s->userData));
             if (actor->getConcreteType() == PxConcreteType::eARTICULATION_LINK)
             {
                 PxArticulationLink* link = static_cast<PxArticulationLink*>(actor);
                 if (PxScene* s = link->getArticulation().getScene())
-                    return getInternalPtr<InternalScene>(mAttachedStage.getInternalPhysXDatabase(), ePTScene, omni::physx::usdparser::ObjectId(s->userData));
+                    return getInternalPtr<InternalScene>(mAttachedStage.getInternalPhysXDatabase(), ePTScene, omni::ev4sio_physx::usdparser::ObjectId(s->userData));
             }
         }
         if (InternalLink* link = getInternalPtr<InternalLink>(mAttachedStage.getInternalPhysXDatabase(), ePTLink, getObjectId(mAttachedStage, key, ePTLink)))
@@ -544,7 +544,7 @@ void InternalDeformableAttachment::update()
     mDirtyEvent = eNone;
 }
 
-void InternalDeformableAttachment::swapRigidActor(::physx::PxRigidActor* sourceActor, ::physx::PxRigidActor* destActor)
+void InternalDeformableAttachment::swapRigidActor(::ev4sio_physx::PxRigidActor* sourceActor, ::ev4sio_physx::PxRigidActor* destActor)
 {
     if (hasRigidActor(sourceActor))
     {
@@ -566,7 +566,7 @@ void InternalDeformableAttachment::setCreateAttachmentEvent()
     }
 }
 
-void InternalDeformableAttachment::setRefreshAttachmentEvent(::physx::PxRigidActor* rigidActor)
+void InternalDeformableAttachment::setRefreshAttachmentEvent(::ev4sio_physx::PxRigidActor* rigidActor)
 {
     if (hasRigidActor(rigidActor))
     {
@@ -647,7 +647,7 @@ InternalDeformableCollisionFilter::InternalDeformableCollisionFilter(AttachedSta
 
     if (mData[mActorIndex[0]].actor->getScene() == mData[mActorIndex[1]].actor->getScene())
     {
-        mInternalScene = getInternalPtr<InternalScene>(mAttachedStage.getInternalPhysXDatabase(), ePTScene, omni::physx::usdparser::ObjectId(mData[mActorIndex[0]].actor->getScene()->userData));
+        mInternalScene = getInternalPtr<InternalScene>(mAttachedStage.getInternalPhysXDatabase(), ePTScene, omni::ev4sio_physx::usdparser::ObjectId(mData[mActorIndex[0]].actor->getScene()->userData));
     }
 }
 
@@ -726,7 +726,7 @@ void InternalDeformableCollisionFilter::update()
     mDirtyEvent = eNone;
 }
 
-void InternalDeformableCollisionFilter::swapRigidActor(::physx::PxRigidActor* sourceActor, ::physx::PxRigidActor* destActor)
+void InternalDeformableCollisionFilter::swapRigidActor(::ev4sio_physx::PxRigidActor* sourceActor, ::ev4sio_physx::PxRigidActor* destActor)
 {
     if (hasRigidActor(sourceActor))
     {
@@ -748,7 +748,7 @@ void InternalDeformableCollisionFilter::setCreateCollisionFilterEvent()
     }
 }
 
-void InternalDeformableCollisionFilter::setRefreshCollisionFilterEvent(::physx::PxRigidActor* rigidActor)
+void InternalDeformableCollisionFilter::setRefreshCollisionFilterEvent(::ev4sio_physx::PxRigidActor* rigidActor)
 {
     if (hasRigidActor(rigidActor))
     {

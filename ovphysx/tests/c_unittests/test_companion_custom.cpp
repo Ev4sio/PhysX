@@ -24,26 +24,26 @@ struct Release
 };
 // Raw runtime callbacks: no companion callback translation or ObjectContext.
 bool rejectJoint(omni::physics::parse::ObjectKey, omni::physics::AttachHandle,
-    physx::PxRigidActor*, const physx::PxTransform&, physx::PxRigidActor*, const physx::PxTransform&,
-    omni::physx::CustomJointFlag::Enum&, void*) { return false; }
-physx::PxU32 noRows(physx::Px1DConstraint*, physx::PxVec3p&, physx::PxU32,
-    physx::PxConstraintInvMassScale&, const void*, const physx::PxTransform&, const physx::PxTransform&,
-    bool, physx::PxVec3p&, physx::PxVec3p&) { return 0; }
+    ev4sio_physx::PxRigidActor*, const ev4sio_physx::PxTransform&, ev4sio_physx::PxRigidActor*, const ev4sio_physx::PxTransform&,
+    omni::ev4sio_physx::CustomJointFlag::Enum&, void*) { return false; }
+ev4sio_physx::PxU32 noRows(ev4sio_physx::Px1DConstraint*, ev4sio_physx::PxVec3p&, ev4sio_physx::PxU32,
+    ev4sio_physx::PxConstraintInvMassScale&, const void*, const ev4sio_physx::PxTransform&, const ev4sio_physx::PxTransform&,
+    bool, ev4sio_physx::PxVec3p&, ev4sio_physx::PxVec3p&) { return 0; }
 void* rejectGeometry(omni::physics::parse::ObjectKey, omni::physics::AttachHandle,
-    const physx::PxCustomGeometry::Type&, void*) { return nullptr; }
+    const ev4sio_physx::PxCustomGeometry::Type&, void*) { return nullptr; }
 void releaseJoint(omni::physics::parse::ObjectKey, omni::physics::AttachHandle, void*) {}
 void* prepareJoint(omni::physics::parse::ObjectKey, omni::physics::AttachHandle, void*) { return nullptr; }
 const void* jointBlock(omni::physics::parse::ObjectKey, omni::physics::AttachHandle, void*) { return nullptr; }
 void jointCom(omni::physics::parse::ObjectKey, omni::physics::AttachHandle, uint32_t, void*) {}
-void jointOrigin(omni::physics::parse::ObjectKey, omni::physics::AttachHandle, const physx::PxVec3&, void*) {}
+void jointOrigin(omni::physics::parse::ObjectKey, omni::physics::AttachHandle, const ev4sio_physx::PxVec3&, void*) {}
 void releaseGeometry(omni::physics::parse::ObjectKey, omni::physics::AttachHandle, void*) {}
-physx::PxBounds3 bounds(const physx::PxGeometry&, void*) { return physx::PxBounds3::empty(); }
-bool contacts(const physx::PxGeometry&, const physx::PxGeometry&, const physx::PxTransform&,
-    const physx::PxTransform&, float, float, float, physx::PxContactBuffer&, void*, void*) { return false; }
-void mass(const physx::PxGeometry&, physx::PxMassProperties&, void*) {}
-bool manifold(const physx::PxGeometry&, float&, void*) { return false; }
-static_assert(std::is_same_v<decltype(sdk::CustomInterfaces::joints), omni::physx::IPhysxCustomJoint*>);
-static_assert(std::is_same_v<decltype(sdk::CustomInterfaces::geometry), omni::physx::IPhysxCustomGeometry*>);
+ev4sio_physx::PxBounds3 bounds(const ev4sio_physx::PxGeometry&, void*) { return ev4sio_physx::PxBounds3::empty(); }
+bool contacts(const ev4sio_physx::PxGeometry&, const ev4sio_physx::PxGeometry&, const ev4sio_physx::PxTransform&,
+    const ev4sio_physx::PxTransform&, float, float, float, ev4sio_physx::PxContactBuffer&, void*, void*) { return false; }
+void mass(const ev4sio_physx::PxGeometry&, ev4sio_physx::PxMassProperties&, void*) {}
+bool manifold(const ev4sio_physx::PxGeometry&, float&, void*) { return false; }
+static_assert(std::is_same_v<decltype(sdk::CustomInterfaces::joints), omni::ev4sio_physx::IPhysxCustomJoint*>);
+static_assert(std::is_same_v<decltype(sdk::CustomInterfaces::geometry), omni::ev4sio_physx::IPhysxCustomGeometry*>);
 }
 TEST_F(CustomInterfacesTest, RejectedAcquisitionPreservesOutput)
 {
@@ -89,14 +89,14 @@ TEST_F(CustomInterfacesTest, OriginalTablesRegisterBeforeAttachAndRetainRuntime)
     EXPECT_NE(first.lease, second.lease);
     ASSERT_EQ(ovphysx_destroy_instance(bootstrap).status, OVPHYSX_API_SUCCESS);
     EXPECT_EQ(ovphysx_shutdown().status, OVPHYSX_API_INVALID_STATE);
-    omni::physx::ICustomJointCallback joint;
+    omni::ev4sio_physx::ICustomJointCallback joint;
     joint.createJointFn = rejectJoint;
     joint.releaseJointFn = releaseJoint;
     joint.prepareJointDataFn = prepareJoint;
     joint.getConstantBlockFn = jointBlock;
     joint.onComShiftFn = jointCom;
     joint.onOriginShift = jointOrigin;
-    omni::physx::ICustomGeometryCallback geometry;
+    omni::ev4sio_physx::ICustomGeometryCallback geometry;
     geometry.createCustomGeometryFn = rejectGeometry;
     geometry.releaseCustomGeometryFn = releaseGeometry;
     geometry.computeCustomGeometryLocalBoundsFn = bounds;

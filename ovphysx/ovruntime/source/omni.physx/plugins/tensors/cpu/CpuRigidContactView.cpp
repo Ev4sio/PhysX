@@ -38,9 +38,9 @@ using omni::physics::tensors::checkTensorInt64;
 using omni::physics::tensors::checkTensorSizeExact;
 using omni::physics::tensors::checkTensorSizeMinimum;
 using omni::physics::tensors::getTensorTotalSize;
-using omni::physx::tensors::clampContactLayoutEntry;
+using omni::ev4sio_physx::tensors::clampContactLayoutEntry;
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 namespace
 {
@@ -53,7 +53,7 @@ void clampContactLayoutHost(PxU32* counts, PxU32* startIndices, PxU32 numPairs, 
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace tensors
 {
@@ -115,25 +115,25 @@ void CpuRigidContactView::accumulatePairImpulse(PxVec3& impulse,
                                                const RigidContactHeaderRef& headerRef,
                                                ForceComponent component) const
 {
-    const ::omni::physx::ContactEventHeader& header = *headerRef.header;
+    const ::omni::ev4sio_physx::ContactEventHeader& header = *headerRef.header;
     // Accumulate directly into the caller's sum to preserve per-contact addition order.
     if (component == ForceComponent::eFriction)
     {
-        const ::omni::physx::FrictionAnchor* frictionData = mCpuSimData->getCurrentFrictionData();
+        const ::omni::ev4sio_physx::FrictionAnchor* frictionData = mCpuSimData->getCurrentFrictionData();
         for (PxU32 k = 0; k < header.numfrictionAnchorsData; ++k)
         {
-            const ::omni::physx::FrictionAnchor& anchor = frictionData[header.frictionAnchorsDataOffset + k];
+            const ::omni::ev4sio_physx::FrictionAnchor& anchor = frictionData[header.frictionAnchorsDataOffset + k];
             const PxVec3 anchorImpulse(anchor.impulse.x, anchor.impulse.y, anchor.impulse.z);
             impulse += headerRef.invert ? -anchorImpulse : anchorImpulse;
         }
     }
     else
     {
-        const ::omni::physx::ContactData* contactData =
+        const ::omni::ev4sio_physx::ContactData* contactData =
             mCpuSimData->getCurrentContactData() + header.contactDataOffset;
         for (PxU32 k = 0; k < header.numContactData; ++k)
         {
-            const ::omni::physx::ContactData& cdata = contactData[k];
+            const ::omni::ev4sio_physx::ContactData& cdata = contactData[k];
             if (!headerRef.invert)
             {
                 impulse.x += cdata.impulse.x;
@@ -230,7 +230,7 @@ bool CpuRigidContactView::getForceMatrix(const TensorDesc* dstTensor, float dt, 
         for (PxU32 j = 0; j < headerCount; ++j)
         {
             const RigidContactHeaderRef& headerRef = mBuckets[i].getHeaderRef(j);
-            const ::omni::physx::ContactEventHeader* header = headerRef.header;
+            const ::omni::ev4sio_physx::ContactEventHeader* header = headerRef.header;
             const std::unordered_map<uint64_t, uint32_t>& filterIndexMap = mEntries[i].filterIndexMap;
 
             uint64_t otherActor, otherCollider;
@@ -354,7 +354,7 @@ bool CpuRigidContactView::getNormalContactData(const TensorDesc* contactForceTen
         memset(dstContactCount, 0, getSensorCount() * getFilterCount() * sizeof(PxU32));
         memset(dstStartIndices, 0, getSensorCount() * getFilterCount() * sizeof(PxU32));
 
-        const ::omni::physx::ContactData* globalContactData = mCpuSimData->getCurrentContactData();
+        const ::omni::ev4sio_physx::ContactData* globalContactData = mCpuSimData->getCurrentContactData();
         uint32_t numSensors = getSensorCount();
         uint32_t numFilters = getFilterCount();
         // contact counting part
@@ -364,7 +364,7 @@ bool CpuRigidContactView::getNormalContactData(const TensorDesc* contactForceTen
             for (PxU32 j = 0; j < headerCount; j++)
             {
                 const RigidContactHeaderRef& headerRef = mBuckets[i].getHeaderRef(j);
-                const ::omni::physx::ContactEventHeader* header = headerRef.header;
+                const ::omni::ev4sio_physx::ContactEventHeader* header = headerRef.header;
                 auto& filterIndexMap = mEntries[i].filterIndexMap;
 
                 uint64_t otherActor, otherCollider;
@@ -391,7 +391,7 @@ bool CpuRigidContactView::getNormalContactData(const TensorDesc* contactForceTen
                 if (indexIter != filterIndexMap.end())
                 {
                     uint32_t idx = indexIter->second;
-                    const ::omni::physx::ContactData* contactData = globalContactData + header->contactDataOffset;
+                    const ::omni::ev4sio_physx::ContactData* contactData = globalContactData + header->contactDataOffset;
                     for (PxU32 k = 0; k < header->numContactData; k++)
                     {
                         dstContactCount[i * numFilters + idx]++;
@@ -429,7 +429,7 @@ bool CpuRigidContactView::getNormalContactData(const TensorDesc* contactForceTen
             for (PxU32 j = 0; j < headerCount; j++)
             {
                 const RigidContactHeaderRef& headerRef = mBuckets[i].getHeaderRef(j);
-                const ::omni::physx::ContactEventHeader* header = headerRef.header;
+                const ::omni::ev4sio_physx::ContactEventHeader* header = headerRef.header;
                 auto& filterIndexMap = mEntries[i].filterIndexMap;
 
                 uint64_t otherActor, otherCollider;
@@ -456,10 +456,10 @@ bool CpuRigidContactView::getNormalContactData(const TensorDesc* contactForceTen
                 if (indexIter != filterIndexMap.end())
                 {
                     uint32_t idx = indexIter->second;
-                    const ::omni::physx::ContactData* contactData = globalContactData + header->contactDataOffset;
+                    const ::omni::ev4sio_physx::ContactData* contactData = globalContactData + header->contactDataOffset;
                     for (PxU32 k = 0; k < header->numContactData; k++)
                     {
-                        const ::omni::physx::ContactData& cdata = contactData[k];
+                        const ::omni::ev4sio_physx::ContactData& cdata = contactData[k];
                         PxU32 currentCount = dstContactCount[i * numFilters + idx]++;
                         PxU32 elementIdx = dstStartIndices[i * numFilters + idx] + currentCount;
 
@@ -549,7 +549,7 @@ bool CpuRigidContactView::getFrictionContactData(const TensorDesc* FrictionForce
         memset(dstCounts, 0, getSensorCount() * getFilterCount() * sizeof(PxU32));
         memset(dstStartIndices, 0, getSensorCount() * getFilterCount() * sizeof(PxU32));
 
-        const ::omni::physx::FrictionAnchor* globalFrictionData = mCpuSimData->getCurrentFrictionData();
+        const ::omni::ev4sio_physx::FrictionAnchor* globalFrictionData = mCpuSimData->getCurrentFrictionData();
         uint32_t numSensors = getSensorCount();
         uint32_t numFilters = getFilterCount();
         // contact counting part
@@ -559,7 +559,7 @@ bool CpuRigidContactView::getFrictionContactData(const TensorDesc* FrictionForce
             for (PxU32 j = 0; j < headerCount; j++)
             {
                 const RigidContactHeaderRef& headerRef = mBuckets[i].getHeaderRef(j);
-                const ::omni::physx::ContactEventHeader* header = headerRef.header;
+                const ::omni::ev4sio_physx::ContactEventHeader* header = headerRef.header;
                 auto& filterIndexMap = mEntries[i].filterIndexMap;
 
                 uint64_t otherActor, otherCollider;
@@ -586,7 +586,7 @@ bool CpuRigidContactView::getFrictionContactData(const TensorDesc* FrictionForce
                 if (indexIter != filterIndexMap.end())
                 {
                     uint32_t idx = indexIter->second;
-                    const ::omni::physx::FrictionAnchor* frictionData = globalFrictionData + header->frictionAnchorsDataOffset;
+                    const ::omni::ev4sio_physx::FrictionAnchor* frictionData = globalFrictionData + header->frictionAnchorsDataOffset;
                     for (PxU32 k = 0; k < header->numfrictionAnchorsData; k++)
                     {
                         dstCounts[i * numFilters + idx]++;
@@ -624,7 +624,7 @@ bool CpuRigidContactView::getFrictionContactData(const TensorDesc* FrictionForce
             for (PxU32 j = 0; j < headerCount; j++)
             {
                 const RigidContactHeaderRef& headerRef = mBuckets[i].getHeaderRef(j);
-                const ::omni::physx::ContactEventHeader* header = headerRef.header;
+                const ::omni::ev4sio_physx::ContactEventHeader* header = headerRef.header;
                 auto& filterIndexMap = mEntries[i].filterIndexMap;
 
                 uint64_t otherActor, otherCollider;
@@ -651,10 +651,10 @@ bool CpuRigidContactView::getFrictionContactData(const TensorDesc* FrictionForce
                 if (indexIter != filterIndexMap.end())
                 {
                     uint32_t idx = indexIter->second;
-                    const ::omni::physx::FrictionAnchor* frictionData = globalFrictionData + header->frictionAnchorsDataOffset;
+                    const ::omni::ev4sio_physx::FrictionAnchor* frictionData = globalFrictionData + header->frictionAnchorsDataOffset;
                     for (PxU32 k = 0; k < header->numfrictionAnchorsData; k++)
                     {
-                        const ::omni::physx::FrictionAnchor& fdata = frictionData[k];
+                        const ::omni::ev4sio_physx::FrictionAnchor& fdata = frictionData[k];
                         PxU32 currentCount = dstCounts[i * numFilters + idx]++;
                         PxU32 elementIdx = dstStartIndices[i * numFilters + idx] + currentCount;
 
@@ -776,7 +776,7 @@ bool CpuRigidContactView::getRawContactData(const TensorDesc* contactForceTensor
         memset(dstSensorLayout, 0, getSensorCount() * 2 * sizeof(PxU32));
         memset(dstActorIds, 0, getMaxContactDataCount() * 2 * sizeof(uint64_t));
 
-        const ::omni::physx::ContactData* globalContactData = mCpuSimData->getCurrentContactData();
+        const ::omni::ev4sio_physx::ContactData* globalContactData = mCpuSimData->getCurrentContactData();
         uint32_t numSensors = getSensorCount();
 
         // First pass: count contacts per sensor
@@ -786,7 +786,7 @@ bool CpuRigidContactView::getRawContactData(const TensorDesc* contactForceTensor
             for (PxU32 j = 0; j < headerCount; j++)
             {
                 const RigidContactHeaderRef& headerRef = mBuckets[i].getHeaderRef(j);
-                const ::omni::physx::ContactEventHeader* header = headerRef.header;
+                const ::omni::ev4sio_physx::ContactEventHeader* header = headerRef.header;
                 dstContactCount[i] += header->numContactData;
             }
         }
@@ -819,15 +819,15 @@ bool CpuRigidContactView::getRawContactData(const TensorDesc* contactForceTensor
             for (PxU32 j = 0; j < headerCount; j++)
             {
                 const RigidContactHeaderRef& headerRef = mBuckets[i].getHeaderRef(j);
-                const ::omni::physx::ContactEventHeader* header = headerRef.header;
-                const ::omni::physx::ContactData* contactData = globalContactData + header->contactDataOffset;
+                const ::omni::ev4sio_physx::ContactEventHeader* header = headerRef.header;
+                const ::omni::ev4sio_physx::ContactData* contactData = globalContactData + header->contactDataOffset;
 
                 uint64_t sensorActor = headerRef.invert ? header->actor1 : header->actor0;
                 uint64_t otherActor = headerRef.invert ? header->actor0 : header->actor1;
 
                 for (PxU32 k = 0; k < header->numContactData; k++)
                 {
-                    const ::omni::physx::ContactData& cdata = contactData[k];
+                    const ::omni::ev4sio_physx::ContactData& cdata = contactData[k];
                     PxU32 elementIdx = dstStartIndices[i] + dstContactCount[i];
 
                     if (elementIdx < getMaxContactDataCount())

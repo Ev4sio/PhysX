@@ -19,7 +19,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace usdparser
 {
@@ -41,5 +41,5 @@ bool loadPhysicsFromPrimitive(AttachedStage& attachedStage, const std::vector<st
                               bool applyAttachmentExclusions = true);
 
 } // namespace usdparser
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

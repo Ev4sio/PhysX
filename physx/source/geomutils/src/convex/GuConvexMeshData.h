@@ -16,9 +16,9 @@
 
 // Data definition
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Gu
+namespace ev4sio_Gu
 {
 	struct BigConvexRawData;
 
@@ -41,7 +41,7 @@ namespace Gu
 		PX_FORCE_INLINE	PxReal getMax() const		{ return -mPlane.d; }	//maximum of projection of the hull along this plane normal
 	};
 
-	PX_FORCE_INLINE void flipData(Gu::HullPolygonData& data)
+	PX_FORCE_INLINE void flipData(ev4sio_Gu::HullPolygonData& data)
 	{
 		flip(data.mPlane.n.x);
 		flip(data.mPlane.n.y);
@@ -50,7 +50,7 @@ namespace Gu
 		flip(data.mVRef8);
 	}
 	// PT: if this one breaks, please make sure the 'flipData' function is properly updated.
-	PX_COMPILE_TIME_ASSERT(sizeof(Gu::HullPolygonData) == 20);
+	PX_COMPILE_TIME_ASSERT(sizeof(ev4sio_Gu::HullPolygonData) == 20);
 
 // TEST_INTERNAL_OBJECTS
 	struct InternalObjectsData
@@ -64,7 +64,7 @@ namespace Gu
 			mInternalRadius = 0.0f;
 		}
 	};
-	PX_COMPILE_TIME_ASSERT(sizeof(Gu::InternalObjectsData) == 16);
+	PX_COMPILE_TIME_ASSERT(sizeof(ev4sio_Gu::InternalObjectsData) == 16);
 	// PT: ensure that mInternalExtents is not the last member of InternalObjectsData, i.e. it is safe to load 4 bytes after mInternalExtents
 	PX_COMPILE_TIME_ASSERT(PX_OFFSET_OF(InternalObjectsData, mInternalExtents)+sizeof(InternalObjectsData::mInternalExtents) + 4 <= sizeof(InternalObjectsData));
 //~TEST_INTERNAL_OBJECTS
@@ -109,14 +109,14 @@ namespace Gu
 		PX_FORCE_INLINE	const PxVec3* getHullVertices()	const	//!< Convex hull vertices
 		{
 			const char* tmp = reinterpret_cast<const char*>(mPolygons);
-			tmp += sizeof(Gu::HullPolygonData) * mNbPolygons;
+			tmp += sizeof(ev4sio_Gu::HullPolygonData) * mNbPolygons;
 			return reinterpret_cast<const PxVec3*>(tmp);
 		}
 
 		PX_FORCE_INLINE	const PxU8* getFacesByEdges8()	const	//!< for each edge, gives 2 adjacent polygons; used by convex-convex code to come up with all the convex' edge normals.  
 		{
 			const char* tmp = reinterpret_cast<const char*>(mPolygons);
-			tmp += sizeof(Gu::HullPolygonData) * mNbPolygons;
+			tmp += sizeof(ev4sio_Gu::HullPolygonData) * mNbPolygons;
 			tmp += sizeof(PxVec3) * mNbHullVertices; 
 			return reinterpret_cast<const PxU8*>(tmp);
 		}
@@ -124,7 +124,7 @@ namespace Gu
 		PX_FORCE_INLINE	const PxU8* getFacesByVertices8()	const	//!< for each edge, gives 2 adjacent polygons; used by convex-convex code to come up with all the convex' edge normals.  
 		{
 			const char* tmp = reinterpret_cast<const char*>(mPolygons);
-			tmp += sizeof(Gu::HullPolygonData) * mNbPolygons;
+			tmp += sizeof(ev4sio_Gu::HullPolygonData) * mNbPolygons;
 			tmp += sizeof(PxVec3) * mNbHullVertices;
 			tmp += sizeof(PxU8) * mNbEdges * 2;
 			return reinterpret_cast<const PxU8*>(tmp);
@@ -136,7 +136,7 @@ namespace Gu
 			if (mNbEdges.isBitSet())
 			{
 				const char* tmp = reinterpret_cast<const char*>(mPolygons);
-				tmp += sizeof(Gu::HullPolygonData) * mNbPolygons;
+				tmp += sizeof(ev4sio_Gu::HullPolygonData) * mNbPolygons;
 				tmp += sizeof(PxVec3) * mNbHullVertices;
 				tmp += sizeof(PxU8) * mNbEdges * 2;
 				tmp += sizeof(PxU8) * mNbHullVertices * 3;
@@ -148,7 +148,7 @@ namespace Gu
 		PX_FORCE_INLINE	const PxU8*	getVertexData8()	const	//!< Vertex indices indexed by hull polygons
 		{
 			const char* tmp = reinterpret_cast<const char*>(mPolygons);
-			tmp += sizeof(Gu::HullPolygonData) * mNbPolygons;
+			tmp += sizeof(ev4sio_Gu::HullPolygonData) * mNbPolygons;
 			tmp += sizeof(PxVec3) * mNbHullVertices;
 			tmp += sizeof(PxU8) * mNbEdges * 2;
 			tmp += sizeof(PxU8) * mNbHullVertices * 3;
@@ -168,15 +168,15 @@ namespace Gu
 
 	};
 	#if PX_P64_FAMILY
-	PX_COMPILE_TIME_ASSERT(sizeof(Gu::ConvexHullData) == 80);
+	PX_COMPILE_TIME_ASSERT(sizeof(ev4sio_Gu::ConvexHullData) == 80);
 	#else
-	PX_COMPILE_TIME_ASSERT(sizeof(Gu::ConvexHullData) == 68);
+	PX_COMPILE_TIME_ASSERT(sizeof(ev4sio_Gu::ConvexHullData) == 68);
 	#endif
 
 	// PT: 'getPaddedBounds()' is only safe if we make sure the bounds member is followed by at least 32bits of data
-	PX_COMPILE_TIME_ASSERT(PX_OFFSET_OF(Gu::ConvexHullData, mCenterOfMass)>=PX_OFFSET_OF(Gu::ConvexHullData, mAABB)+4);
+	PX_COMPILE_TIME_ASSERT(PX_OFFSET_OF(ev4sio_Gu::ConvexHullData, mCenterOfMass)>=PX_OFFSET_OF(ev4sio_Gu::ConvexHullData, mAABB)+4);
 
-} // namespace Gu
+} // namespace ev4sio_Gu
 
 }
 

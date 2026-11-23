@@ -8,7 +8,7 @@
 
 namespace omni
 {
-    namespace physx
+    namespace ev4sio_physx
     {
 #if 0
         __global__ static void convertVec4fToVec3fKernel(float3* out, const float4* in, const size_t numVerts)

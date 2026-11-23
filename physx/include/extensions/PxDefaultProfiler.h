@@ -10,7 +10,7 @@
 
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -135,7 +135,7 @@ public:
 /**
 \brief Create default profiler.
 
-\note The PhysXExtensions SDK needs to be initialized first before using this method (see #PxInitExtensions)
+\note The PhysXExtensions SDK needs to be initialized first before using this method (see #ev4sio_PxInitExtensions)
 
 \param[in] outputStream A PxOutputStream used to write all of the recorded 
 profiler events received. Writing to the stream occurs when the 
@@ -153,7 +153,7 @@ the default setting.
 PxDefaultProfiler* PxDefaultProfilerCreate(PxOutputStream& outputStream, PxU32 numberOfBuffers = 16, PxU32 bufferSize = 32767);
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

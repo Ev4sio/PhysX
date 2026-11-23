@@ -22,7 +22,7 @@
 #include "pvd/PxPvdSceneClient.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -984,7 +984,7 @@ class PxScene : public PxSceneSQSystem
 
 	\see fetchResults() checkResults()
 	*/
-	virtual	bool				simulate(PxReal elapsedTime, physx::PxBaseTask* completionTask = NULL,
+	virtual	bool				simulate(PxReal elapsedTime, ev4sio_physx::PxBaseTask* completionTask = NULL,
 									void* scratchMemBlock = 0, PxU32 scratchMemBlockSize = 0, bool controlSimulation = true) = 0;
 
 	/**
@@ -997,7 +997,7 @@ class PxScene : public PxSceneSQSystem
 	application also calls removeReference().
 	\return True if success
 	*/
-	virtual	bool				advance(physx::PxBaseTask* completionTask = 0) = 0;
+	virtual	bool				advance(ev4sio_physx::PxBaseTask* completionTask = 0) = 0;
 
 	/**
 	\brief Performs collision detection for the scene over elapsedTime
@@ -1016,7 +1016,7 @@ class PxScene : public PxSceneSQSystem
     true unless the application is calling the PxTaskManager start/stopSimulation() methods itself.
 	\return True if success
 	*/
-	virtual	bool				collide(PxReal elapsedTime, physx::PxBaseTask* completionTask = 0, void* scratchMemBlock = 0,
+	virtual	bool				collide(PxReal elapsedTime, ev4sio_physx::PxBaseTask* completionTask = 0, void* scratchMemBlock = 0,
 									PxU32 scratchMemBlockSize = 0, bool controlSimulation = true) = 0;  
 	
 	/**
@@ -1087,7 +1087,7 @@ class PxScene : public PxSceneSQSystem
 
 	\param[in] continuation The task that will be executed once all callbacks have been processed.
 	*/
-	virtual void				processCallbacks(physx::PxBaseTask* continuation) = 0;
+	virtual void				processCallbacks(ev4sio_physx::PxBaseTask* continuation) = 0;
 
 	/**
 	This call performs the second section of fetchResults.
@@ -1661,7 +1661,7 @@ class PxScene : public PxSceneSQSystem
 };
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

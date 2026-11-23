@@ -44,7 +44,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace usdparser { class AttachedStage; }
 namespace particles
@@ -71,8 +71,8 @@ public:
                                         const carb::Float3* positions,
                                         size_t numPoints,
                                         float pointWidth,
-                                        const ::physx::PxMat44d& rigidTransform,
-                                        const ::physx::PxMat33d& shearScaleTransform,
+                                        const ::ev4sio_physx::PxMat44d& rigidTransform,
+                                        const ::ev4sio_physx::PxMat33d& shearScaleTransform,
                                         bool registerOriginalCount);
     bool empty()
     {
@@ -86,14 +86,14 @@ public:
                                        const carb::Float3* positions,
                                        size_t numPoints,
                                        float pointWidth,
-                                       const ::physx::PxMat44d& rigidTransform,
-                                       const ::physx::PxMat33d& shearScaleTransform,
+                                       const ::ev4sio_physx::PxMat44d& rigidTransform,
+                                       const ::ev4sio_physx::PxMat33d& shearScaleTransform,
                                        bool registerOriginalCount);
 
     static bool getDecomposedTransform(const usdparser::AttachedStage& owner, omni::physics::parse::ObjectKey samplerKey,
                                        omni::physics::parse::ObjectKey particleSetKey,
-                                       ::physx::PxMat44d& rigidTransform,
-                                       ::physx::PxMat33d& shearScaleTransform);
+                                       ::ev4sio_physx::PxMat44d& rigidTransform,
+                                       ::ev4sio_physx::PxMat33d& shearScaleTransform);
 
 private:
     void moveStartIndices(int firstChangedIndex, int correction);
@@ -128,14 +128,14 @@ public:
     ~PhysxParticleSampler();
 
     bool update(bool forceResampling);
-    bool getDecomposedTransform(::physx::PxMat44d& rigidTransform, ::physx::PxMat33d& shearScaleTransform) const;
-    bool checkTransforms(bool& resample, ::physx::PxMat44d& newRigidTransform);
+    bool getDecomposedTransform(::ev4sio_physx::PxMat44d& rigidTransform, ::ev4sio_physx::PxMat33d& shearScaleTransform) const;
+    bool checkTransforms(bool& resample, ::ev4sio_physx::PxMat44d& newRigidTransform);
 
     bool processSamplingResults(const carb::Float3* positions,
                                 size_t numPoints,
                                 float pointWidth,
-                                const ::physx::PxMat44d& rigidTransform,
-                                const ::physx::PxMat33d& shearScaleTransform,
+                                const ::ev4sio_physx::PxMat44d& rigidTransform,
+                                const ::ev4sio_physx::PxMat33d& shearScaleTransform,
                                 bool factoryInitialized,
                                 bool recreate,
                                 int& firstChangedIndex,
@@ -144,8 +144,8 @@ public:
 
     bool processSamplingRegistration(size_t numPoints,
                                      size_t totalRegisteredPoints,
-                                     const ::physx::PxMat44d& rigidTransform,
-                                     const ::physx::PxMat33d& shearScaleTransform);
+                                     const ::ev4sio_physx::PxMat44d& rigidTransform,
+                                     const ::ev4sio_physx::PxMat33d& shearScaleTransform);
 
     void moveStartIndex(int firstChangedIndex, int correction);
     uint32_t getStartIndex()
@@ -170,24 +170,24 @@ public:
     }
 
 private:
-    void transformPoints(::physx::PxMat44d& newRigidTransform);
+    void transformPoints(::ev4sio_physx::PxMat44d& newRigidTransform);
 
     usdparser::AttachedStage& mAttachedStage;
     omni::physics::parse::ObjectKey mSamplerKey;
     omni::physics::parse::ObjectKey mTargetKey;
     uint32_t mStartIndex;
     uint32_t mParticleCount;
-    ::physx::PxMat44d mRigidTransform;
-    ::physx::PxMat33d mShearScaleTransform;
+    ::ev4sio_physx::PxMat44d mRigidTransform;
+    ::ev4sio_physx::PxMat33d mShearScaleTransform;
 };
 
 // Split the sampler's local-to-world into the rigid part the sampled points are
 // placed with and the shear/scale remainder that is hashed into the poisson
 // sampling cache key. Exposed (rather than file-local) so the exact-bits parity
 // pin in TestMatrixTools.cpp can compare the production bytes against Gf.
-bool decomposeSamplerTransform(const ::physx::PxMat44d& l2w,
-                               ::physx::PxMat44d& rigidTransform,
-                               ::physx::PxMat33d& shearScaleTransform);
+bool decomposeSamplerTransform(const ::ev4sio_physx::PxMat44d& l2w,
+                               ::ev4sio_physx::PxMat44d& rigidTransform,
+                               ::ev4sio_physx::PxMat33d& shearScaleTransform);
 
 void releaseAttachmentSamplers(usdparser::AttachedStage& owner);
 
@@ -199,5 +199,5 @@ void updateParticleSampler(usdparser::AttachedStage& owner, omni::physics::parse
 void removeParticleSampler(usdparser::AttachedStage& owner, omni::physics::parse::ObjectKey samplerKey, omni::physics::parse::ObjectKey particlePrimKey);
 
 } // namespace particles
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

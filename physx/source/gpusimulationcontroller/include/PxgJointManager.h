@@ -13,16 +13,16 @@
 #include "PxgConstraintPrep.h"
 #include "PxgConstraintIdMap.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-	namespace IG
+	namespace ev4sio_IG
 	{
 		class IslandSim;
 		class CPUExternalData;
 		class GPUExternalData;
 	}
 
-	namespace Dy
+	namespace ev4sio_Dy
 	{
 		struct Constraint;
 	}
@@ -35,36 +35,36 @@ namespace physx
 	{
 		struct GpuJoints
 		{
-			GpuJoints(Cm::VirtualAllocatorCallback& hostMappedAlloc);
+			GpuJoints(ev4sio_Cm::VirtualAllocatorCallback& hostMappedAlloc);
 
 			PxHashMap<PxU32, PxU32>					mConstraintIndices;
-			Cm::PinnableArray<PxgD6JointData>		mJointDataMapped;				// input (PxgD6JointData) we need to DMA to GPU so that GPU can fill in PxgConstraintData
-			Cm::PinnableArray<PxgConstraintPrePrep>	mJointPrePrepMapped;			// input (PxgConstraintPrePrep) we need to DMA to GPU so that GPU can fill in PxgConstraintData
-			Cm::PinnableArray<PxU32>				mDirtyIndicesMapped;			// the dirty list indices of PxgD6JointData
-			Cm::IDPool								mIDPool;						// each PxgD6JointData has an unique id. We can recycle the id when a joint has been
+			ev4sio_Cm::PinnableArray<PxgD6JointData>		mJointDataMapped;				// input (PxgD6JointData) we need to DMA to GPU so that GPU can fill in PxgConstraintData
+			ev4sio_Cm::PinnableArray<PxgConstraintPrePrep>	mJointPrePrepMapped;			// input (PxgConstraintPrePrep) we need to DMA to GPU so that GPU can fill in PxgConstraintData
+			ev4sio_Cm::PinnableArray<PxU32>				mDirtyIndicesMapped;			// the dirty list indices of PxgD6JointData
+			ev4sio_Cm::IDPool								mIDPool;						// each PxgD6JointData has an unique id. We can recycle the id when a joint has been
 																					// removed from the joint manager
 		};
 
 		struct CpuJoints
 		{
-			CpuJoints(Cm::VirtualAllocatorCallback& hostAlloc);
+			CpuJoints(ev4sio_Cm::VirtualAllocatorCallback& hostAlloc);
 
 			PxHashMap<PxU32, PxU32>				mConstraintIndices;
-			PxArray<const Dy::Constraint*>		mConstraints;
+			PxArray<const ev4sio_Dy::Constraint*>		mConstraints;
 			PxArray<PxU32>						mUniqueIndex;
 			PxArray<PxU32>						mConstraintEdgeIndices;
-			Cm::PinnableArray<PxgConstraintData>	mConstraintData;	// (*) this need to append to the GPU result (PxgConstraintData) after
+			ev4sio_Cm::PinnableArray<PxgConstraintData>	mConstraintData;	// (*) this need to append to the GPU result (PxgConstraintData) after
 																	// the first past pre-prepare code
-			Cm::PinnableArray<Px1DConstraint>		mConstraintRows;	// (*) this need to append to the GPU result (Px1DConstraint) after the
+			ev4sio_Cm::PinnableArray<Px1DConstraint>		mConstraintRows;	// (*) this need to append to the GPU result (Px1DConstraint) after the
 																	// first past pre-prepare code
 			PxI32								mNbConstraintRows;	// PT: not sure why these are here, it's computed by PxgGpuContext at 
 																	// the same time it fills the CPU constraint data (*)
 		};
 
 	public:
-		typedef Cm::PinnableArray<PxgConstraintIdMapEntry> ConstraintIdMap;
+		typedef ev4sio_Cm::PinnableArray<PxgConstraintIdMapEntry> ConstraintIdMap;
 
-		PxgJointManager(Cm::VirtualAllocatorCallback& hostAlloc, Cm::VirtualAllocatorCallback& hostMappedAlloc,
+		PxgJointManager(ev4sio_Cm::VirtualAllocatorCallback& hostAlloc, ev4sio_Cm::VirtualAllocatorCallback& hostMappedAlloc,
 						bool isDirectGpuApiEnabled, PxCudaContext* cudaContext = NULL);
 
 		~PxgJointManager();
@@ -73,11 +73,11 @@ namespace physx
 		void	reserveMemoryPreAddRemove();  // reserveMemory() above can not be used because it gets called after 
 		                                      // joints get added/removed during constraint partitioning
 
-		void	registerJoint(const Dy::Constraint& constraint);
-		void	removeJoint(PxU32 edgeIndex, PxArray<PxU32>& jointIndices, const IG::CPUExternalData& islandSimCpuData, const IG::GPUExternalData& islandSimGpuData);
-		void	addJoint(	PxU32 edgeIndex, const Dy::Constraint* constraint, IG::IslandSim& islandSim, PxArray<PxU32>& jointIndices, 
-							Cm::PinnableArray<PxgSolverConstraintManagerConstants>& managerIter, PxU32 uniqueId);
-		void	updateJoint(PxU32 edgeIndex, const Dy::Constraint* constraint);
+		void	registerJoint(const ev4sio_Dy::Constraint& constraint);
+		void	removeJoint(PxU32 edgeIndex, PxArray<PxU32>& jointIndices, const ev4sio_IG::CPUExternalData& islandSimCpuData, const ev4sio_IG::GPUExternalData& islandSimGpuData);
+		void	addJoint(	PxU32 edgeIndex, const ev4sio_Dy::Constraint* constraint, ev4sio_IG::IslandSim& islandSim, PxArray<PxU32>& jointIndices,
+							ev4sio_Cm::PinnableArray<PxgSolverConstraintManagerConstants>& managerIter, PxU32 uniqueId);
+		void	updateJoint(PxU32 edgeIndex, const ev4sio_Dy::Constraint* constraint);
 		void	update(PxArray<PxU32>& jointOutputIndex);
 		void	reset();
 		PxU32	getGpuNbRigidConstraints();
@@ -87,23 +87,23 @@ namespace physx
 		PxU32	getGpuNbActiveRigidConstraints(); 
 		PxU32	getGpuNbActiveArtiConstraints();
 
-		PX_FORCE_INLINE	const PxArray<const Dy::Constraint*>&		getCpuRigidConstraints()			const	{ return mCpuRigidJoints.mConstraints;			}
-		PX_FORCE_INLINE	const PxArray<const Dy::Constraint*>&		getCpuArtiConstraints()				const	{ return mCpuArtiJoints.mConstraints;			}
+		PX_FORCE_INLINE	const PxArray<const ev4sio_Dy::Constraint*>&		getCpuRigidConstraints()			const	{ return mCpuRigidJoints.mConstraints;			}
+		PX_FORCE_INLINE	const PxArray<const ev4sio_Dy::Constraint*>&		getCpuArtiConstraints()				const	{ return mCpuArtiJoints.mConstraints;			}
 
-		PX_FORCE_INLINE	const Cm::PinnableArray<PxU32>&				getDirtyGPURigidJointDataIndices()	const	{ return mGpuRigidJoints.mDirtyIndicesMapped;	}
-		PX_FORCE_INLINE	const Cm::PinnableArray<PxU32>&				getDirtyGPUArtiJointDataIndices()	const	{ return mGpuArtiJoints.mDirtyIndicesMapped;	}
+		PX_FORCE_INLINE	const ev4sio_Cm::PinnableArray<PxU32>&				getDirtyGPURigidJointDataIndices()	const	{ return mGpuRigidJoints.mDirtyIndicesMapped;	}
+		PX_FORCE_INLINE	const ev4sio_Cm::PinnableArray<PxU32>&				getDirtyGPUArtiJointDataIndices()	const	{ return mGpuArtiJoints.mDirtyIndicesMapped;	}
 
-		PX_FORCE_INLINE	const Cm::PinnableArray<PxgD6JointData>&		getGpuRigidJointData()				const	{ return mGpuRigidJoints.mJointDataMapped;		}
-		PX_FORCE_INLINE	const Cm::PinnableArray<PxgD6JointData>&		getGpuArtiJointData()				const	{ return mGpuArtiJoints.mJointDataMapped;		}
+		PX_FORCE_INLINE	const ev4sio_Cm::PinnableArray<PxgD6JointData>&		getGpuRigidJointData()				const	{ return mGpuRigidJoints.mJointDataMapped;		}
+		PX_FORCE_INLINE	const ev4sio_Cm::PinnableArray<PxgD6JointData>&		getGpuArtiJointData()				const	{ return mGpuArtiJoints.mJointDataMapped;		}
 
-		PX_FORCE_INLINE	const Cm::PinnableArray<PxgConstraintPrePrep>&	getGpuRigidJointPrePrep()			const	{ return mGpuRigidJoints.mJointPrePrepMapped;	}
-		PX_FORCE_INLINE	const Cm::PinnableArray<PxgConstraintPrePrep>&	getGpuArtiJointPrePrep()			const	{ return mGpuArtiJoints.mJointPrePrepMapped;	}
+		PX_FORCE_INLINE	const ev4sio_Cm::PinnableArray<PxgConstraintPrePrep>&	getGpuRigidJointPrePrep()			const	{ return mGpuRigidJoints.mJointPrePrepMapped;	}
+		PX_FORCE_INLINE	const ev4sio_Cm::PinnableArray<PxgConstraintPrePrep>&	getGpuArtiJointPrePrep()			const	{ return mGpuArtiJoints.mJointPrePrepMapped;	}
 
 		// PT: these ones are contained in this class but actually filled by external code, PxgJointManager doesn't touch them.(*)
-		PX_FORCE_INLINE	Cm::PinnableArray<PxgConstraintData>&			getCpuRigidConstraintData()					{ return mCpuRigidJoints.mConstraintData;		}
-		PX_FORCE_INLINE	Cm::PinnableArray<PxgConstraintData>&			getCpuArtiConstraintData()					{ return mCpuArtiJoints.mConstraintData;		}
-		PX_FORCE_INLINE	Cm::PinnableArray<Px1DConstraint>&				getCpuRigidConstraintRows()					{ return mCpuRigidJoints.mConstraintRows;		}
-		PX_FORCE_INLINE	Cm::PinnableArray<Px1DConstraint>&				getCpuArtiConstraintRows()					{ return mCpuArtiJoints.mConstraintRows;		}
+		PX_FORCE_INLINE	ev4sio_Cm::PinnableArray<PxgConstraintData>&			getCpuRigidConstraintData()					{ return mCpuRigidJoints.mConstraintData;		}
+		PX_FORCE_INLINE	ev4sio_Cm::PinnableArray<PxgConstraintData>&			getCpuArtiConstraintData()					{ return mCpuArtiJoints.mConstraintData;		}
+		PX_FORCE_INLINE	ev4sio_Cm::PinnableArray<Px1DConstraint>&				getCpuRigidConstraintRows()					{ return mCpuRigidJoints.mConstraintRows;		}
+		PX_FORCE_INLINE	ev4sio_Cm::PinnableArray<Px1DConstraint>&				getCpuArtiConstraintRows()					{ return mCpuArtiJoints.mConstraintRows;		}
 
 		PX_FORCE_INLINE PxI32										getNbCpuRigidConstraintRows()		const	{ return mCpuRigidJoints.mNbConstraintRows;		}
 		PX_FORCE_INLINE PxI32										getNbCpuArtiConstraintRows()		const	{ return mCpuArtiJoints.mNbConstraintRows;		}

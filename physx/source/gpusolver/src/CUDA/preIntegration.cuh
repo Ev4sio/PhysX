@@ -12,7 +12,7 @@
 #include "PxgSolverKernelIndices.h"
 #include "stdio.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 __device__ __forceinline__ PxVec3 computeSafeSqrtInertia(const PxVec3& v)
@@ -421,5 +421,5 @@ static __device__ void preIntegration(const uint32_t offset, const uint32_t nbSo
 	}
 }
 
-} // namespace physx
+} // namespace ev4sio_physx
 

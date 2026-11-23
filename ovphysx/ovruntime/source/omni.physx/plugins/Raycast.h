@@ -19,7 +19,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 
 struct ManipCmd
@@ -46,8 +46,8 @@ struct ManipCmd
         eManipCmdExecTypeCount
     };
 
-    ::physx::PxVec3 orig;
-    ::physx::PxVec3 dir;
+    ::ev4sio_physx::PxVec3 orig;
+    ::ev4sio_physx::PxVec3 dir;
     Type type;
     State state;
     ExecutionType exec;
@@ -64,7 +64,7 @@ struct DeformableId
     int object;
     int subObject;
     int element;
-    ::physx::PxVec4 bary;
+    ::ev4sio_physx::PxVec4 bary;
 };
 
 struct PickType
@@ -84,16 +84,16 @@ struct Picker
     PickType::Enum type;
 
     // eRIGID data
-    ::physx::PxRigidBody* hitRigidActor;
-    ::physx::PxD6Joint* joint; // joint for joint grabbing.
+    ::ev4sio_physx::PxRigidBody* hitRigidActor;
+    ::ev4sio_physx::PxD6Joint* joint; // joint for joint grabbing.
 
     // deformable picking data
     DeformableId hitDeformableId;
-    ::physx::PxDeformableAttachment* deformableAttachment;
-    ::physx::PxDeformableElementFilter* deformableFilter;
+    ::ev4sio_physx::PxDeformableAttachment* deformableAttachment;
+    ::ev4sio_physx::PxDeformableElementFilter* deformableFilter;
 
     // general
-    ::physx::PxRigidDynamic* targetActor; // actor for joint grabbing.
+    ::ev4sio_physx::PxRigidDynamic* targetActor; // actor for joint grabbing.
     PhysXScene* physXScene;
 
     Picker()
@@ -120,8 +120,8 @@ public:
     void handleRaycastInput(const float* orig, const float* dir, bool input);
     void handleInteractionEvent(const float* orig, const float* dir, PhysicsInteractionEvent interactionEvent);
     bool interactiveActorRaycast(const carb::Float3* origin, const carb::Float3* direction);
-    void clearPicker(const ::physx::PxRigidActor* rb);
-    void clearPickerForScene(const ::physx::PxScene* scene);
+    void clearPicker(const ::ev4sio_physx::PxRigidActor* rb);
+    void clearPickerForScene(const ::ev4sio_physx::PxScene* scene);
     void clearCommandBuffer();
     Picker& getPicker()
     {
@@ -134,12 +134,12 @@ private:
 
 private:
     void applyManipCmd(const ManipCmd& cmd, float delta_time);
-    void startPickingDeformable(PickType::Enum type, const DeformableId& id, ::physx::PxReal distance, const ::physx::PxVec3& hitPoint);
-    void updatePickingDeformable(const ::physx::PxVec3& target);
+    void startPickingDeformable(PickType::Enum type, const DeformableId& id, ::ev4sio_physx::PxReal distance, const ::ev4sio_physx::PxVec3& hitPoint);
+    void updatePickingDeformable(const ::ev4sio_physx::PxVec3& target);
     void releasePickingDeformable();
     const usdparser::AttachedStage& mOwner;
     float manipDist = 0.0f;
-    ::physx::PxVec3 grabbingLocalPoint{0.0f};
+    ::ev4sio_physx::PxVec3 grabbingLocalPoint{0.0f};
     float grabbingDistance = 0.0f;
     float grabbingSavedAngularDamping = 0.0f;
     bool grabInProgress = false;
@@ -156,7 +156,7 @@ void handleRaycast(AttachHandle attach, const float* orig, const float* dir, boo
 // handed in by const reference -- preFilter() runs once per broad-phase
 // candidate shape, so re-interning the several-hundred-name vocabulary inside it would
 // turn a single query into hundreds of full batch-interns (see REQ-SIM-SCENEQUERY-001).
-class raycastFilterExcludeInvisible : ::physx::PxQueryFilterCallback
+class raycastFilterExcludeInvisible : ::ev4sio_physx::PxQueryFilterCallback
 {
 public:
     raycastFilterExcludeInvisible(const internal::InternalPhysXDatabase& database, const omni::physics::parse::IPhysicsSource* source,
@@ -164,17 +164,17 @@ public:
         : mDatabase(database), mSource(source), mTokens(tokens){};
     ~raycastFilterExcludeInvisible(){};
 
-    virtual ::physx::PxQueryHitType::Enum preFilter(const ::physx::PxFilterData& filterData0,
-                                                    const ::physx::PxShape* shape,
-                                                    const ::physx::PxRigidActor* actor,
-                                                    ::physx::PxHitFlags&) override;
+    virtual ::ev4sio_physx::PxQueryHitType::Enum preFilter(const ::ev4sio_physx::PxFilterData& filterData0,
+                                                    const ::ev4sio_physx::PxShape* shape,
+                                                    const ::ev4sio_physx::PxRigidActor* actor,
+                                                    ::ev4sio_physx::PxHitFlags&) override;
 
-    virtual ::physx::PxQueryHitType::Enum postFilter(const ::physx::PxFilterData&,
-                                                     const ::physx::PxQueryHit&,
-                                                     const ::physx::PxShape*,
-                                                     const ::physx::PxRigidActor*) override
+    virtual ::ev4sio_physx::PxQueryHitType::Enum postFilter(const ::ev4sio_physx::PxFilterData&,
+                                                     const ::ev4sio_physx::PxQueryHit&,
+                                                     const ::ev4sio_physx::PxShape*,
+                                                     const ::ev4sio_physx::PxRigidActor*) override
     {
-        return ::physx::PxQueryHitType::eBLOCK;
+        return ::ev4sio_physx::PxQueryHitType::eBLOCK;
     }
 
 private:
@@ -191,5 +191,5 @@ void resetRaycastQueryTestCounters();
 uint32_t getRaycastPreFilterCallCount();
 uint32_t getRaycastQueryInternCount();
 
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

@@ -5,26 +5,26 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 
-::physx::PxConvexMesh* createCylinderConvexMesh(const float width,
+::ev4sio_physx::PxConvexMesh* createCylinderConvexMesh(const float width,
                                                 const float radius,
                                                 const uint32_t numCirclePoints,
-                                                omni::physx::usdparser::Axis axis);
+                                                omni::ev4sio_physx::usdparser::Axis axis);
 
-::physx::PxConvexMesh* createConeConvexMesh(const float width,
+::ev4sio_physx::PxConvexMesh* createConeConvexMesh(const float width,
                                             const float radius,
                                             const uint32_t numCirclePoints,
-                                            omni::physx::usdparser::Axis axis);
+                                            omni::ev4sio_physx::usdparser::Axis axis);
 
-::physx::PxVec3 getConeOrCylinderScale(const ::physx::PxF32 halfWidth,
-                                       const ::physx::PxF32 radius,
-                                       omni::physx::usdparser::Axis axis);
-void getConeOrCylinderSize(const ::physx::PxVec3& scale,
-                           omni::physx::usdparser::Axis axis,
-                           ::physx::PxF32& halfWidth,
-                           ::physx::PxF32& radius);
+::ev4sio_physx::PxVec3 getConeOrCylinderScale(const ::ev4sio_physx::PxF32 halfWidth,
+                                       const ::ev4sio_physx::PxF32 radius,
+                                       omni::ev4sio_physx::usdparser::Axis axis);
+void getConeOrCylinderSize(const ::ev4sio_physx::PxVec3& scale,
+                           omni::ev4sio_physx::usdparser::Axis axis,
+                           ::ev4sio_physx::PxF32& halfWidth,
+                           ::ev4sio_physx::PxF32& radius);
 
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

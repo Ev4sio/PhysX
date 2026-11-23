@@ -17,10 +17,10 @@
 #include <cuda.h>
 
 using namespace carb;
-using namespace ::physx;
-using namespace physx::Ext;
-using namespace omni::physx;
-using namespace omni::physx::deformables;
+using namespace ::ev4sio_physx;
+using namespace ev4sio_physx::ev4sio_Ext;
+using namespace omni::ev4sio_physx;
+using namespace omni::ev4sio_physx::deformables;
 
 namespace
 {
@@ -91,10 +91,10 @@ void SurfaceDeformableSkinningData::packageSkinningData(PxTrimeshSkinningGpuData
     packagedData.nbGuideTriangles = mNumGuideTriangles;
 }
 
-DeformablePostSolveCallback::DeformablePostSolveCallback(CUstream stream, PxCudaContextManager* cudaContextManager, ::physx::PxScene* scene)
+DeformablePostSolveCallback::DeformablePostSolveCallback(CUstream stream, PxCudaContextManager* cudaContextManager, ::ev4sio_physx::PxScene* scene)
     : mSkinningStream(stream), mSkinningDoneEvent(nullptr), mCudaContextManager(cudaContextManager), mScene(scene), mCurrentSize(0), mNeedResize(false), isRegistered(false)
 {
-    mSkinning = PxGetPhysicsGpu()->createDeformableSkinning(cudaContextManager);
+    mSkinning = ev4sio_PxGetPhysicsGpu()->createDeformableSkinning(cudaContextManager);
 
     // Created once with the callback, so consumers keep the handle across launches. Timing is disabled
     // because the event only orders work.
@@ -205,7 +205,7 @@ void DeformablePostSolveCallback::synchronize()
     mCudaContextManager->getCudaContext()->streamSynchronize(mSkinningStream);
 }
 
-VolumeDeformablePostSolveCallback::VolumeDeformablePostSolveCallback(CUstream stream, PxCudaContextManager* cudaContextManager, ::physx::PxScene* scene)
+VolumeDeformablePostSolveCallback::VolumeDeformablePostSolveCallback(CUstream stream, PxCudaContextManager* cudaContextManager, ::ev4sio_physx::PxScene* scene)
     : DeformablePostSolveCallback(stream, cudaContextManager, scene), mPackagedSkinningDataH(nullptr), mPackagedSkinningDataD(nullptr) 
 {
 }
@@ -326,7 +326,7 @@ void VolumeDeformablePostSolveCallback::releaseMemory()
     }
 }
 
-SurfaceDeformablePostSolveCallback::SurfaceDeformablePostSolveCallback(CUstream stream, PxCudaContextManager* cudaContextManager, ::physx::PxScene* scene)
+SurfaceDeformablePostSolveCallback::SurfaceDeformablePostSolveCallback(CUstream stream, PxCudaContextManager* cudaContextManager, ::ev4sio_physx::PxScene* scene)
     : DeformablePostSolveCallback(stream, cudaContextManager, scene), mPackagedSkinningDataH(nullptr), mPackagedSkinningDataD(nullptr)
 {
 }

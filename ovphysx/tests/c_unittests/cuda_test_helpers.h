@@ -17,14 +17,14 @@ namespace test_cuda
 
 // Get IOptionalCuda from the linked PhysX runtime through ovphysx. The runtime
 // accessor is internal, so standalone test binaries use this test helper.
-inline omni::physx::IOptionalCuda* getCuda()
+inline omni::ev4sio_physx::IOptionalCuda* getCuda()
 {
-    return static_cast<omni::physx::IOptionalCuda*>(ovphysx_get_optional_cuda_internal());
+    return static_cast<omni::ev4sio_physx::IOptionalCuda*>(ovphysx_get_optional_cuda_internal());
 }
 
 inline bool cudaAvailable()
 {
-    omni::physx::IOptionalCuda* cuda = getCuda();
+    omni::ev4sio_physx::IOptionalCuda* cuda = getCuda();
     return cuda && cuda->cudaAvailable();
 }
 
@@ -32,7 +32,7 @@ inline bool cudaAvailable()
 // detached the stack, a call that pushes and pops symmetrically must leave it that
 // way. A stranded push is otherwise invisible, since restoring the stack simply
 // stacks the saved contexts on top of the leaked one and still succeeds.
-inline bool noCudaContextCurrent(omni::physx::IOptionalCuda* cuda)
+inline bool noCudaContextCurrent(omni::ev4sio_physx::IOptionalCuda* cuda)
 {
     uintptr_t current = 0;
     return cuda && cuda->ctxGetCurrent(&current, nullptr) && current == 0;
@@ -44,7 +44,7 @@ inline constexpr int kCudaErrorNotInitialized = 3;
 class ScopedCudaContextPush
 {
 public:
-    ScopedCudaContextPush(omni::physx::IOptionalCuda* cuda, uintptr_t ctx)
+    ScopedCudaContextPush(omni::ev4sio_physx::IOptionalCuda* cuda, uintptr_t ctx)
         : mCuda(cuda)
     {
         if (!mCuda || !ctx)
@@ -96,7 +96,7 @@ public:
     int status() const { return mStatus; }
 
 private:
-    omni::physx::IOptionalCuda* mCuda = nullptr;
+    omni::ev4sio_physx::IOptionalCuda* mCuda = nullptr;
     bool mOk = false;
     bool mPushed = false;
     int mStatus = 0;
@@ -108,7 +108,7 @@ private:
 class ScopedCudaContextDetach
 {
 public:
-    explicit ScopedCudaContextDetach(omni::physx::IOptionalCuda* cuda)
+    explicit ScopedCudaContextDetach(omni::ev4sio_physx::IOptionalCuda* cuda)
         : mCuda(cuda)
     {
         if (!mCuda)
@@ -145,7 +145,7 @@ public:
     }
 
 private:
-    omni::physx::IOptionalCuda* mCuda = nullptr;
+    omni::ev4sio_physx::IOptionalCuda* mCuda = nullptr;
     std::vector<uintptr_t> mDetached;
 };
 
@@ -153,10 +153,10 @@ private:
 // that test-side driver calls should execute under.
 struct CudaOps
 {
-    omni::physx::IOptionalCuda* cuda = nullptr;
+    omni::ev4sio_physx::IOptionalCuda* cuda = nullptr;
     uintptr_t ctx = 0;
 
-    void reset(omni::physx::IOptionalCuda* c, uintptr_t context)
+    void reset(omni::ev4sio_physx::IOptionalCuda* c, uintptr_t context)
     {
         cuda = c;
         ctx = context;

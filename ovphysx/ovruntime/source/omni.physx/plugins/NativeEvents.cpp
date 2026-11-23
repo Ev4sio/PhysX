@@ -20,7 +20,7 @@
 #include <tuple>
 #include <mutex>
 #include <vector>
-namespace omni::physx::native
+namespace omni::ev4sio_physx::native
 {
 class EventQueue
 {
@@ -45,7 +45,7 @@ public:
         QueuedEvent event;
         event.attachment=attachment; event.kind=uint32_t(kind); event.phase=phase;
         event.substep=substep;
-        if (std::shared_ptr<omni::physx::usdparser::AttachedStage> stage=owner.lock())
+        if (std::shared_ptr<omni::ev4sio_physx::usdparser::AttachedStage> stage=owner.lock())
         {
             event.step=stage->simulationTimestamp();
             event.generation=stage->recordVersion.load(std::memory_order_relaxed);
@@ -67,7 +67,7 @@ public:
     void onStep(float dt, bool before)
     {
         std::lock_guard<std::mutex> lock(mutex);
-        omni::physx::native::QueuedEvent event=base(before ? EventKind::PreStep : EventKind::PostStep,before ? 0 : 2);
+        omni::ev4sio_physx::native::QueuedEvent event=base(before ? EventKind::PreStep : EventKind::PostStep,before ? 0 : 2);
         event.dt=dt;
         if (before) ++event.step;
         if (mask & (before ? 1u : 2u)) push(event);
@@ -77,9 +77,9 @@ public:
         std::lock_guard<std::mutex> lock(mutex);
         if (closed) return;
         if (type==eSimulationStarting) ++substep;
-        const omni::physx::native::EventKind kind=type==eSimulationStarting ? EventKind::SubstepBegin :
+        const omni::ev4sio_physx::native::EventKind kind=type==eSimulationStarting ? EventKind::SubstepBegin :
             type==eSimulationEnded ? EventKind::SubstepEnd : EventKind::SimulationComplete;
-        omni::physx::native::QueuedEvent event=base(kind,type==eSimulationComplete ? 2 : 1);
+        omni::ev4sio_physx::native::QueuedEvent event=base(kind,type==eSimulationComplete ? 2 : 1);
         if (type==eSimulationStarting) ++event.step;
         if (mask & 4u) push(event);
         // Stay is derived only for pairs whose enter this subscription observed.
@@ -89,7 +89,7 @@ public:
             lastStayStep=event.step;
             for (const std::pair<const std::tuple<uint64_t, uint64_t, unsigned int, unsigned int>, TriggerMembership> & item:triggers)
             {
-                omni::physx::native::QueuedEvent stay=item.second.event;
+                omni::ev4sio_physx::native::QueuedEvent stay=item.second.event;
                 if (stay.step==event.step) continue; // enter already covers this completion
                 stay.kind=uint32_t(EventKind::TriggerStay); stay.phase=2;
                 stay.step=event.step; stay.substep=substep; stay.generation=event.generation;
@@ -104,9 +104,9 @@ public:
         if (closed) return;
         for (uint32_t i=0;i<n;++i)
         {
-            const omni::physx::ContactEventHeader & h=headers[i];
+            const omni::ev4sio_physx::ContactEventHeader & h=headers[i];
             if (h.attachHandle!=attachment || (filter && h.actor0!=filter && h.actor1!=filter && h.collider0!=filter && h.collider1!=filter)) continue;
-            omni::physx::native::QueuedEvent event=base(EventKind::Contact,2);
+            omni::ev4sio_physx::native::QueuedEvent event=base(EventKind::Contact,2);
             event.type=uint32_t(h.type);event.actor0=h.actor0;event.actor1=h.actor1;
             event.collider0=h.collider0;event.collider1=h.collider1;
             event.instance0=h.protoIndex0;event.instance1=h.protoIndex1;
@@ -116,7 +116,7 @@ public:
             if (!h.numContactData) push(event);
             for (uint32_t j=0;j<h.numContactData;++j)
             {
-                const omni::physx::ContactData & p=points[h.contactDataOffset+j];
+                const omni::ev4sio_physx::ContactData & p=points[h.contactDataOffset+j];
                 event.pointIndex=j;event.separation=p.separation;
                 event.position[0]=p.position.x;event.position[1]=p.position.y;event.position[2]=p.position.z;
                 event.normal[0]=p.normal.x;event.normal[1]=p.normal.y;event.normal[2]=p.normal.z;
@@ -131,7 +131,7 @@ public:
         if (!data || data->attachHandle!=attachment) return;
         std::lock_guard<std::mutex> lock(mutex);
         if (closed || (filter && data->triggerColliderPrimKey.handle!=filter && data->otherColliderPrimKey.handle!=filter)) return;
-        omni::physx::native::QueuedEvent event=base(EventKind::Trigger,2);
+        omni::ev4sio_physx::native::QueuedEvent event=base(EventKind::Trigger,2);
         event.type=uint32_t(data->eventType);
         event.actor0=data->triggerBodyPrimKey.handle;event.actor1=data->otherBodyPrimKey.handle;
         event.collider0=data->triggerColliderPrimKey.handle;event.collider1=data->otherColliderPrimKey.handle;
@@ -153,7 +153,7 @@ public:
     {
         std::lock_guard<std::mutex> lock(mutex);
         if (closed) return;
-        omni::physx::native::QueuedEvent event=base(create ? EventKind::ObjectCreated : EventKind::ObjectRemoved,3);
+        omni::ev4sio_physx::native::QueuedEvent event=base(create ? EventKind::ObjectCreated : EventKind::ObjectRemoved,3);
         event.type=uint32_t(data.type);event.collider0=data.key.handle;event.objectId=uint64_t(data.objectId);
         if (!create)
         {
@@ -178,7 +178,7 @@ namespace
 {
 template<class Fn> void deliver(const std::weak_ptr<EventQueue>& weak, Fn fn) noexcept
 {
-    if (std::shared_ptr<omni::physx::native::EventQueue> queue=weak.lock())
+    if (std::shared_ptr<omni::ev4sio_physx::native::EventQueue> queue=weak.lock())
     {
         try { fn(*queue); }
         catch (...)
@@ -204,14 +204,14 @@ try
     // Metadata cancellation supports in-flight dispatch. Registry snapshots own
     // std::function closures with weak state; an admitted callback cannot use a
     // released raw userdata pointer or enqueue after the closed barrier.
-    if (std::shared_ptr<omni::physx::usdparser::AttachedStage> owner=queue->owner.lock())
+    if (std::shared_ptr<omni::ev4sio_physx::usdparser::AttachedStage> owner=queue->owner.lock())
     {
         owner->getSimulationCallbacks().getContactReportRegistry().removeEvent(queue->contact);
         owner->getPhysXPhysicsInterface()->unsubscribeToObjectChangeNotifications(queue->objects);
     }
     if (runtime::tryGetPhysxInterface())
     {
-        omni::physx::OmniPhysX & physics=OmniPhysX::getInstance();
+        omni::ev4sio_physx::OmniPhysX & physics=OmniPhysX::getInstance();
         physics.removeOnStepEventSubscription(queue->pre);physics.removeOnStepEventSubscription(queue->post);
         physics.removeStatusEventSubscription(queue->status);
         physics.getTriggerManager()->unregisterNativeCallback(queue->trigger);
@@ -227,25 +227,25 @@ try
 {
     if (!mask || (mask&~127u) || !capacity || capacity>65536 || (path && path[0]!='/')) return EventResult::Invalid;
     if (!runtime::tryGetPhysxInterface()) return EventResult::Stale;
-    std::shared_ptr<omni::physx::usdparser::AttachedStage> owner=usdparser::UsdLoad::getUsdLoad()->acquireAttachment(attachment);
+    std::shared_ptr<omni::ev4sio_physx::usdparser::AttachedStage> owner=usdparser::UsdLoad::getUsdLoad()->acquireAttachment(attachment);
     if (!owner) return EventResult::Stale;
     RuntimeExecutionScope admission(attachment);
     if (!admission) return EventResult::Busy;
     if (usdparser::UsdLoad::getUsdLoad()->getAttachedStageByHandle(attachment)!=owner.get()) return EventResult::Stale;
     if (mask&(8u|16u))
-        for (const std::pair<const uint64_t, omni::physx::PhysXScene *> & item:owner->getPhysXScenes())
+        for (const std::pair<const uint64_t, omni::ev4sio_physx::PhysXScene *> & item:owner->getPhysXScenes())
         {
-            const ::physx::PxScene * scene=item.second->getScene();
-            if (scene && (scene->getFlags().isSet(::physx::PxSceneFlag::eENABLE_GPU_DYNAMICS) ||
-                          scene->getFlags().isSet(::physx::PxSceneFlag::eENABLE_DIRECT_GPU_API)))
+            const ::ev4sio_physx::PxScene * scene=item.second->getScene();
+            if (scene && (scene->getFlags().isSet(::ev4sio_physx::PxSceneFlag::eENABLE_GPU_DYNAMICS) ||
+                          scene->getFlags().isSet(::ev4sio_physx::PxSceneFlag::eENABLE_DIRECT_GPU_API)))
                 return EventResult::Unavailable;
         }
-    std::shared_ptr<omni::physx::native::EventQueue> queue=std::make_shared<EventQueue>();
+    std::shared_ptr<omni::ev4sio_physx::native::EventQueue> queue=std::make_shared<EventQueue>();
     queue->attachment=attachment;queue->owner=owner;queue->mask=mask;queue->ring.resize(capacity);
     if (path)
     {
         queue->filter=owner->keyFor(path).handle;
-        const std::vector<omni::physx::internal::InternalDatabase::Record> & records=owner->getInternalPhysXDatabase().getRecords();
+        const std::vector<omni::ev4sio_physx::internal::InternalDatabase::Record> & records=owner->getInternalPhysXDatabase().getRecords();
         const bool live=std::any_of(records.begin(),records.end(),[&](const internal::InternalDatabase::Record& record) {
             return record.mKey.handle==queue->filter &&
                 (record.mType==ePTActor || record.mType==ePTLink || record.mType==ePTShape || record.mType==ePTCompoundShape);
@@ -253,7 +253,7 @@ try
         if (!queue->filter || !live) return EventResult::Invalid;
     }
     const std::weak_ptr<EventQueue> weak=queue;
-    omni::physx::OmniPhysX & physics=OmniPhysX::getInstance();
+    omni::ev4sio_physx::OmniPhysX & physics=OmniPhysX::getInstance();
     try
     {
         if (mask&1u) queue->pre=physics.addOnStepEventSubscription(attachment,
@@ -281,12 +281,12 @@ try
         if (mask&64u) queue->errors=carb::events::createSubscriptionToPush(physics.getErrorEventStream().get(),
             [weak](carb::events::IEvent* data) {
                 if (data->type<eUsdLoadError || data->type>ePhysxTooManyErrors) return;
-                if (std::shared_ptr<omni::physx::native::EventQueue> q=weak.lock())
+                if (std::shared_ptr<omni::ev4sio_physx::native::EventQueue> q=weak.lock())
                 {
                     carb::dictionary::IDictionary * dictionary=carb::getCachedInterface<carb::dictionary::IDictionary>();
                     const carb::cpp::optional<carb::cpp::basic_zstring_view<char>> message=dictionary->getStringView(dictionary->getItem(data->payload,"errorString"));
                     std::lock_guard<std::mutex> lock(q->mutex);
-                    omni::physx::native::QueuedEvent event=q->base(EventKind::RuntimeError,4);
+                    omni::ev4sio_physx::native::QueuedEvent event=q->base(EventKind::RuntimeError,4);
                     // The legacy stream is process-scoped. Never attribute an
                     // unqualified SDK error to this queue's selected attachment.
                     event.attachment=0;event.generation=0;event.step=0;event.substep=0;event.type=uint32_t(data->type);
@@ -320,7 +320,7 @@ try
     // remains Busy even after SDK worker completion, until the host fetches it.
     RuntimeExecutionScope admission(queue->attachment);
     if (!admission) return EventResult::Busy;
-    const std::shared_ptr<omni::physx::usdparser::AttachedStage> owner=usdparser::UsdLoad::getUsdLoad()->acquireAttachment(queue->attachment);
+    const std::shared_ptr<omni::ev4sio_physx::usdparser::AttachedStage> owner=usdparser::UsdLoad::getUsdLoad()->acquireAttachment(queue->attachment);
     std::lock_guard<std::mutex> lock(queue->mutex);
     if (queue->closed) return EventResult::Stale;
     EventBatch result;

@@ -6,10 +6,10 @@
 #include <omni/physics/parse/IPhysicsSource.h>
 
 using namespace carb;
-using namespace omni::physx::usdparser;
+using namespace omni::ev4sio_physx::usdparser;
 
 
-void omni::physx::usdparser::collectFilteredPairs(AttachedStage& attachedStage, omni::physics::parse::ObjectKey primKey, const std::vector<omni::physics::parse::ObjectKey>& filterPairKeys, ObjectIdPairVector& pairVector)
+void omni::ev4sio_physx::usdparser::collectFilteredPairs(AttachedStage& attachedStage, omni::physics::parse::ObjectKey primKey, const std::vector<omni::physics::parse::ObjectKey>& filterPairKeys, ObjectIdPairVector& pairVector)
 {
     ObjectDb& objectDb = *attachedStage.getObjectDatabase();
 

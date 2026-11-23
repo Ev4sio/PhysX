@@ -14,7 +14,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace usdparser
 {
@@ -37,7 +37,7 @@ void appendCollisionGroupFromPath(AttachedStage& attachedStage,
     omni::physics::parse::ScanOptions scanOptions;
     scanOptions.descendantScope = omni::physics::parse::DescendantScope::eActive;
     omni::physics::parse::ScannedStage scanned = attachedStage.scanStage(scanRoots, kNoExclude, scanOptions,
-        omni::physx::usdparser::iceDescriptorAllocator());
+        omni::ev4sio_physx::usdparser::iceDescriptorAllocator());
 
     const omni::physics::parse::IPhysicsSource* scannedSource = scanned.sourcePtr();
     if (!scannedSource)
@@ -98,5 +98,5 @@ ObjectId getCollisionGroup(AttachedStage& attachedStage, omni::physics::parse::O
 }
 
 } // namespace usdparser
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

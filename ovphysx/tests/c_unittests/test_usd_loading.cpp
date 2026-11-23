@@ -223,7 +223,7 @@ TEST_F(PhysXTestFixture, UnsealedAttachFailsAndSealedRetrySucceeds)
     ASSERT_NE(unsealedAttach.op_index, 0u);
     ASSERT_EQ(unsealedAttach.instance, m_handle);
     stageGuard.attachedHandle = m_handle;
-    ovphysx::physx::WaitResult unsealedResult;
+    ovphysx::ev4sio_physx::WaitResult unsealedResult;
     ASSERT_EQ(unsealedResult.waitTask(m_handle, unsealedAttach), OVPHYSX_API_ERROR);
     ASSERT_EQ(unsealedResult.errorCount(), 1u);
     EXPECT_EQ(unsealedResult.errorTaskAt(0).op_index, unsealedAttach.op_index);
@@ -273,7 +273,7 @@ TEST_P(PartialSealAttachTest, FailedAttachCanRetryAfterSealingJointRelationships
     ASSERT_EQ(attach.status, OVPHYSX_API_SUCCESS);
     ASSERT_NE(attach.op_index, 0u);
     stageGuard.attachedHandle = m_handle;
-    ovphysx::physx::WaitResult result;
+    ovphysx::ev4sio_physx::WaitResult result;
     ASSERT_EQ(result.waitTask(m_handle, attach), OVPHYSX_API_ERROR);
     ASSERT_EQ(result.errorCount(), 1u);
     EXPECT_EQ(result.errorTaskAt(0).op_index, attach.op_index);
@@ -392,7 +392,7 @@ TEST_F(PhysXTestFixture, AttachAndUpdateReturnCollectableTasks)
     ASSERT_EQ(ovphysx_is_stage_attached(m_handle, stage, &attached).status, OVPHYSX_API_SUCCESS);
     EXPECT_TRUE(attached);
     ASSERT_TRUE(waitForTaskSuccess(m_handle, update));
-    ovphysx::physx::WaitResult collected;
+    ovphysx::ev4sio_physx::WaitResult collected;
     EXPECT_EQ(collected.waitTask(m_handle, attach, 0), OVPHYSX_API_NOT_FOUND);
     EXPECT_EQ(collected.waitTask(m_handle, update, 0), OVPHYSX_API_NOT_FOUND);
 }
@@ -483,7 +483,7 @@ def Xform "Added" (prepend apiSchemas = ["PhysicsArticulationRootAPI"])
     range.has_start_ordinal = true;
     const ovphysx_enqueue_result_t update = ovphysx_update_from_ovstage(m_handle, range);
     ASSERT_EQ(update.status, OVPHYSX_API_SUCCESS);
-    ovphysx::physx::WaitResult result;
+    ovphysx::ev4sio_physx::WaitResult result;
     EXPECT_EQ(result.waitTask(m_handle, update), OVPHYSX_API_ERROR);
     EXPECT_EQ(result.errorCount(), 1u);
     const ovphysx_string_t error = ovphysx_get_last_task_error(m_handle, update);

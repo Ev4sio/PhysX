@@ -16,7 +16,7 @@
 #endif
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 #if PX_VC
@@ -102,7 +102,7 @@ class PxSListT : protected Alloc
 typedef PxSListT<> PxSList;
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

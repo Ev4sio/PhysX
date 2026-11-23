@@ -19,9 +19,9 @@
 
 #include "omnipvd/ExtOmniPvdSetData.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 #if PX_SUPPORT_OMNI_PVD
-using namespace Ext;
+using namespace ev4sio_Ext;
 #endif
 
 static const PxU32 gCollisionShapeColor = PxU32(PxDebugColor::eARGB_MAGENTA);
@@ -207,7 +207,7 @@ bool PxCustomGeometryExt::BaseConvexCallbacks::generateContacts(const PxGeometry
 				const PxGeometry* pGeom1 = &geom1;
 				// PT:: tag: scalar transform*transform
 				PxTransform pose = pose0.transform(preTransform);
-				immediate::PxGenerateContacts(&pGeom0, &pGeom1, &pose, &pose1, &contactCache, 1, contactRecorder,
+				immediate::ev4sio_PxGenerateContacts(&pGeom0, &pGeom1, &pose, &pose1, &contactCache, 1, contactRecorder,
 					contactDistance, meshContactMargin, toleranceLength, contactCacheAllocator);
 			}
 			for (PxU32 i = 0; i < contactBuffer.count; ++i)
@@ -238,7 +238,7 @@ bool PxCustomGeometryExt::BaseConvexCallbacks::generateContacts(const PxGeometry
 				const PxGeometry* pGeom1 = &geom1;
 				// PT:: tag: scalar transform*transform
 				PxTransform pose = pose0.transform(preTransform);
-				immediate::PxGenerateContacts(&pGeom0, &pGeom1, &pose, &pose1, &contactCache, 1, contactRecorder,
+				immediate::ev4sio_PxGenerateContacts(&pGeom0, &pGeom1, &pose, &pose1, &contactCache, 1, contactRecorder,
 					contactDistance, meshContactMargin, toleranceLength, contactCacheAllocator);
 			}
 			for (PxU32 i = 0; i < contactBuffer.count; ++i)
@@ -261,7 +261,7 @@ bool PxCustomGeometryExt::BaseConvexCallbacks::generateContacts(const PxGeometry
 			PxMeshQuery::findOverlapTriangleMesh(boxGeom, pose0, static_cast<const PxTriangleMeshGeometry&>(geom1), pose1, triangles, MAX_TRIANGLES, 0, overflow) :
 			PxMeshQuery::findOverlapHeightField(boxGeom, pose0, static_cast<const PxHeightFieldGeometry&>(geom1), pose1, triangles, MAX_TRIANGLES, 0, overflow);
 		if (overflow)
-			PxGetFoundation().error(PxErrorCode::eDEBUG_INFO, PX_FL, "PxCustomGeometryExt::BaseConvexCallbacks::generateContacts() Too many triangles.\n");
+			ev4sio_PxGetFoundation().error(PxErrorCode::eDEBUG_INFO, PX_FL, "PxCustomGeometryExt::BaseConvexCallbacks::generateContacts() Too many triangles.\n");
 		for (PxU32 i = 0; i < triangleCount; ++i)
 		{
 			PxTriangle tri; PxU32 adjacent[3];
@@ -315,7 +315,7 @@ bool PxCustomGeometryExt::BaseConvexCallbacks::generateContacts(const PxGeometry
 					const PxGeometry* pGeom1 = &geom1;
 					// PT:: tag: scalar transform*transform
 					PxTransform pose = pose0.transform(preTransform);
-					immediate::PxGenerateContacts(&pGeom1, &pGeom0, &pose1, &pose, &contactCache, 1, contactRecorder,
+					immediate::ev4sio_PxGenerateContacts(&pGeom1, &pGeom0, &pose1, &pose, &contactCache, 1, contactRecorder,
 						contactDistance, meshContactMargin, toleranceLength, contactCacheAllocator);
 
 					for (int i = oldCount; i < int(contactBuffer.count); ++i)
@@ -327,7 +327,7 @@ bool PxCustomGeometryExt::BaseConvexCallbacks::generateContacts(const PxGeometry
 		{
 			const PxGeometry* pGeom0 = &geom0;
 			const PxGeometry* pGeom1 = &geom1;
-			immediate::PxGenerateContacts(&pGeom1, &pGeom0, &pose1, &pose0, &contactCache, 1, contactRecorder,
+			immediate::ev4sio_PxGenerateContacts(&pGeom1, &pGeom0, &pose1, &pose0, &contactCache, 1, contactRecorder,
 				contactDistance, meshContactMargin, toleranceLength, contactCacheAllocator);
 
 			for (int i = 0; i < int(contactBuffer.count); ++i)
@@ -438,7 +438,7 @@ bool PxCustomGeometryExt::BaseConvexCallbacks::sweep(const PxVec3& unitDir, cons
 			PxMeshQuery::findOverlapTriangleMesh(sweepGeom.any(), sweepGeomPose, static_cast<const PxTriangleMeshGeometry&>(geom1), pose1, triangles, MAX_TRIANGLES, 0, overflow) :
 			PxMeshQuery::findOverlapHeightField(sweepGeom.any(), sweepGeomPose, static_cast<const PxHeightFieldGeometry&>(geom1), pose1, triangles, MAX_TRIANGLES, 0, overflow);
 		if(overflow)
-			PxGetFoundation().error(PxErrorCode::eDEBUG_INFO, PX_FL, "PxCustomGeometryExt::BaseConvexCallbacks::sweep() Too many triangles.\n");
+			ev4sio_PxGetFoundation().error(PxErrorCode::eDEBUG_INFO, PX_FL, "PxCustomGeometryExt::BaseConvexCallbacks::sweep() Too many triangles.\n");
 		sweepHit.distance = PX_MAX_F32;
 		const PxTransform identityPose(PxIdentity);
 		for (PxU32 i = 0; i < triangleCount; ++i)
@@ -503,7 +503,7 @@ void PxCustomGeometryExt::BaseConvexCallbacks::setMargin(float m)
 // Shared OVD emit for one custom-geometry-ext callbacks object, used by the live constructor and by the
 // full-state snapshot (mirrors how omniPvdInitJoint is shared between joint constructors and the
 // snapshot). Explicit form: the caller already holds a write scope. Keep in sync with the schema.
-namespace physx { namespace Ext {
+namespace ev4sio_physx { namespace ev4sio_Ext {
 void omniPvdInitCustomGeometryExt(OmniPvdWriter* pvdWriter, const OmniPvdPxExtensionsRegistrationData* pvdRegData, const PxCustomGeometryExt::CylinderCallbacks& c)
 {
 	OMNI_PVD_CREATE_EXPLICIT(pvdWriter, pvdRegData, OMNI_PVD_CONTEXT_HANDLE, PxCustomGeometryExtCylinderCallbacks, c);
@@ -531,7 +531,7 @@ PxCustomGeometryExt::CylinderCallbacks::CylinderCallbacks(float _height, float _
 {
 #if PX_SUPPORT_OMNI_PVD
 	OMNI_PVD_WRITE_SCOPE_BEGIN(pvdWriter, pvdRegData)
-	physx::Ext::omniPvdInitCustomGeometryExt(pvdWriter, pvdRegData, *this);
+	ev4sio_physx::ev4sio_Ext::omniPvdInitCustomGeometryExt(pvdWriter, pvdRegData, *this);
 	OMNI_PVD_WRITE_SCOPE_END
 #endif
 }
@@ -759,7 +759,7 @@ PxCustomGeometryExt::ConeCallbacks::ConeCallbacks(float _height, float _radius, 
 {
 #if PX_SUPPORT_OMNI_PVD
 	OMNI_PVD_WRITE_SCOPE_BEGIN(pvdWriter, pvdRegData)
-	physx::Ext::omniPvdInitCustomGeometryExt(pvdWriter, pvdRegData, *this);
+	ev4sio_physx::ev4sio_Ext::omniPvdInitCustomGeometryExt(pvdWriter, pvdRegData, *this);
 	OMNI_PVD_WRITE_SCOPE_END
 #endif
 }

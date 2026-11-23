@@ -11,7 +11,7 @@
 #include "PxsSimulationController.h"
 #include "foundation/PxArray.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 class NpArticulationLink;
 class NpArticulationReducedCoordinate;
@@ -30,22 +30,22 @@ public:
 	virtual bool isArticulationReadEnabled(PxArticulationGPUAPIReadType::Enum dataType) const PX_OVERRIDE;
 	virtual bool isArticulationWriteEnabled(PxArticulationGPUAPIWriteType::Enum dataType) const PX_OVERRIDE;
 	virtual bool isRigidDynamicCaptured(const PxsRigidBody& rigidBody) const PX_OVERRIDE;
-	virtual bool isArticulationCaptured(const Dy::FeatherstoneArticulation& articulation) const PX_OVERRIDE;
+	virtual bool isArticulationCaptured(const ev4sio_Dy::FeatherstoneArticulation& articulation) const PX_OVERRIDE;
 	virtual bool isRigidDynamicStateRequired(const PxsRigidBody& rigidBody, PxRigidDynamicGPUAPIReadType::Enum dataType) const PX_OVERRIDE;
-	virtual bool isArticulationStateRequired(const Dy::FeatherstoneArticulation& articulation, PxArticulationGPUAPIReadType::Enum dataType) const PX_OVERRIDE;
+	virtual bool isArticulationStateRequired(const ev4sio_Dy::FeatherstoneArticulation& articulation, PxArticulationGPUAPIReadType::Enum dataType) const PX_OVERRIDE;
 	virtual bool isContactReadEnabled() const PX_OVERRIDE;
 	virtual bool isContactPairCaptured(const PxActor& actor0, const PxActor& actor1) const PX_OVERRIDE;
 	virtual void reportReadbackFailure() PX_OVERRIDE;
 	virtual void processRigidDynamicRead(const PxsRigidBody* const* rigids, const void* data, const PxRigidDynamicGPUIndex* indices, PxRigidDynamicGPUAPIReadType::Enum dataType, PxU32 nbElements) PX_OVERRIDE;
-	virtual void processArticulationRead(const Dy::FeatherstoneArticulation* const* articulations, const void* data, const PxArticulationGPUIndex* nodeIndices, PxArticulationGPUAPIReadType::Enum dataType, PxU32 nbElements, PxU32 maxLinks, PxU32 maxDofs) PX_OVERRIDE;
+	virtual void processArticulationRead(const ev4sio_Dy::FeatherstoneArticulation* const* articulations, const void* data, const PxArticulationGPUIndex* nodeIndices, PxArticulationGPUAPIReadType::Enum dataType, PxU32 nbElements, PxU32 maxLinks, PxU32 maxDofs) PX_OVERRIDE;
 	virtual void processRigidDynamicSet(const PxsRigidBody* const * rigids, const void* dataVec, const PxRigidDynamicGPUIndex* gpuIndices, PxRigidDynamicGPUAPIWriteType::Enum dataType, PxU32 nbElements) PX_OVERRIDE;
-	virtual void processArticulationSet(const Dy::FeatherstoneArticulation* const * articulations, const void* dataVec, const PxArticulationGPUIndex* nodeIndices, PxArticulationGPUAPIWriteType::Enum dataType, PxU32 nbElements,
+	virtual void processArticulationSet(const ev4sio_Dy::FeatherstoneArticulation* const * articulations, const void* dataVec, const PxArticulationGPUIndex* nodeIndices, PxArticulationGPUAPIWriteType::Enum dataType, PxU32 nbElements,
 			PxU32 maxLinks, PxU32 maxDofs, PxU32 maxFixedTendons, PxU32 maxTendonJoints, PxU32 maxSpatialTendons, PxU32 maxSpatialTendonAttachments) PX_OVERRIDE;
 private:
 	static const PxRigidDynamic* castPxsRigidBodyToPxRigidDynamic(const PxsRigidBody* rigidBody);
-	static const NpArticulationReducedCoordinate* castFeatherstoneToNpArticulation(const Dy::FeatherstoneArticulation* const featherstone);
+	static const NpArticulationReducedCoordinate* castFeatherstoneToNpArticulation(const ev4sio_Dy::FeatherstoneArticulation* const featherstone);
 	void setDofOffsetVec(PxArray<PxU32>& dofStarts, PxU32 nbLinks, const NpArticulationLink* const * npLinks);
-	void streamJointValues(const PxArticulationGPUAPIWriteType::Enum dataType, const Dy::FeatherstoneArticulation* const * articulations, PxReal* realsDataVec, const PxArticulationGPUIndex* nodeIndices,
+	void streamJointValues(const PxArticulationGPUAPIWriteType::Enum dataType, const ev4sio_Dy::FeatherstoneArticulation* const * articulations, PxReal* realsDataVec, const PxArticulationGPUIndex* nodeIndices,
 		PxU32 nbArticulations, PxU32 maxLinks, PxU32 maxSubElementsInBlock);
 	NpScene& mNpScene;
 	PxArray<PxU32> mDofStarts;

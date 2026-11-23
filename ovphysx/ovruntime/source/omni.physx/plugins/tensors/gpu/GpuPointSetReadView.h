@@ -25,14 +25,14 @@
 #include <cstdint>
 #include <vector>
 
-namespace physx
+namespace ev4sio_physx
 {
 class PxCudaContextManager;
 }
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace tensors
 {
@@ -58,7 +58,7 @@ struct PointSetReadEntry
 {
     const void* positions = nullptr;
     const void* velocities = nullptr;
-    ::physx::PxU32 numPoints = 0;
+    ::ev4sio_physx::PxU32 numPoints = 0;
 };
 
 // The ovstage output read's own device view over a scene's point sets.
@@ -90,7 +90,7 @@ public:
         eVelocities, // world frame, no reframe -- matching what the host path published
     };
 
-    GpuPointSetReadView(::physx::PxCudaContextManager* ctxMgr,
+    GpuPointSetReadView(::ev4sio_physx::PxCudaContextManager* ctxMgr,
                         const std::vector<PointSetReadEntry>& entries,
                         PointSetSourceLayout layout);
     ~GpuPointSetReadView();
@@ -108,7 +108,7 @@ public:
         return mUsable;
     }
 
-    ::physx::PxU32 getCount() const
+    ::ev4sio_physx::PxU32 getCount() const
     {
         return mNumSets;
     }
@@ -117,7 +117,7 @@ public:
     // sum(numPoints * 3). The layout is COMPACT even though the launch that fills it is rectangular
     // over (set, point) -- every thread addresses its destination through the record's own
     // `dstOffsetFloats`, so padding to the widest set would cost memory and buy nothing.
-    ::physx::PxU32 columnFloats() const
+    ::ev4sio_physx::PxU32 columnFloats() const
     {
         return mColumnFloats;
     }
@@ -129,14 +129,14 @@ public:
     // feed pointer arithmetic in the caller and a defaulted answer would silently aim a tensor at set
     // 0's data. The contract is on the INDEX, not a loop shape: OvxPhysicsRead reaches here through
     // `rows[r]`, which holds only because `rows` carries this view's own row indices.
-    ::physx::PxU32 setOffsetFloats(::physx::PxU32 i) const
+    ::ev4sio_physx::PxU32 setOffsetFloats(::ev4sio_physx::PxU32 i) const
     {
         return mOffsets[i];
     }
 
     // How many points set `i` has -- the length of its row, and the kernel's per-record bound.
     // Same index contract as setOffsetFloats() above.
-    ::physx::PxU32 pointCountFor(::physx::PxU32 i) const
+    ::ev4sio_physx::PxU32 pointCountFor(::ev4sio_physx::PxU32 i) const
     {
         return mPointCounts[i];
     }
@@ -152,15 +152,15 @@ public:
                            const OvStageDeviceReadArgs& args) const;
 
 private:
-    ::physx::PxCudaContextManager* mCtxMgr = nullptr;
+    ::ev4sio_physx::PxCudaContextManager* mCtxMgr = nullptr;
     PointSetSourceLayout mLayout = PointSetSourceLayout::eVec4;
     bool mUsable = false;
 
-    ::physx::PxU32 mNumSets = 0;
-    ::physx::PxU32 mMaxPoints = 0; // launch shape only; see columnFloats()
-    ::physx::PxU32 mColumnFloats = 0;
-    std::vector<::physx::PxU32> mPointCounts;
-    std::vector<::physx::PxU32> mOffsets;
+    ::ev4sio_physx::PxU32 mNumSets = 0;
+    ::ev4sio_physx::PxU32 mMaxPoints = 0; // launch shape only; see columnFloats()
+    ::ev4sio_physx::PxU32 mColumnFloats = 0;
+    std::vector<::ev4sio_physx::PxU32> mPointCounts;
+    std::vector<::ev4sio_physx::PxU32> mOffsets;
 
     // One record array per column kind, differing only in which PhysX buffer `src` names. Uploaded
     // once at construction: `src`, `numPoints` and `dstOffsetFloats` are fixed for as long as the
@@ -177,5 +177,5 @@ private:
 };
 
 } // namespace tensors
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

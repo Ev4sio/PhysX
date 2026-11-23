@@ -87,7 +87,7 @@ public:
     *
     * @param parent : The parent interface class associated with this implementation
     */
-    CookingTaskImpl(CookingTask *parent, omni::physx::PhysxCookingComputeResult& result) : mParent(parent)
+    CookingTaskImpl(CookingTask *parent, omni::ev4sio_physx::PhysxCookingComputeResult& result) : mParent(parent)
     {
         
         mRequestObject = *result.request;
@@ -194,7 +194,7 @@ public:
     * thread to avoid blocking. The final cache write happens on the main thread
     * because writing from the background thread caused thread-safety issues.
     */
-    void saveTriangulation(::physx::PxDefaultMemoryOutputStream& stream)
+    void saveTriangulation(::ev4sio_physx::PxDefaultMemoryOutputStream& stream)
     {
         CARB_PROFILE_ZONE(0, "CookingTask::saveTriangulation");
         // Write the triangle mesh data to a memory stream
@@ -204,7 +204,7 @@ public:
         // well as for the collision / cooking parameters.
         if (m_triangulate)
         {
-            uint32_t version = omni::physx::PhysxCookingDataVersion_MeshTriangulation;
+            uint32_t version = omni::ev4sio_physx::PhysxCookingDataVersion_MeshTriangulation;
             stream.write(&version, sizeof(version));
             uint32_t vertexCount;
             const float* vertices = m_triangulate->getVertices(vertexCount);
@@ -245,11 +245,11 @@ public:
             uint16_t maxMaterialIndex = mResultObject.triangulationMaxMaterialIndex;
             stream.write(&maxMaterialIndex, sizeof(uint16_t));
            
-            ::physx::PxDefaultMemoryInputData indata(stream.getData(), stream.getSize());
+            ::ev4sio_physx::PxDefaultMemoryInputData indata(stream.getData(), stream.getSize());
             auto meshKeyWithOrientation = mResultObject.meshKey;
             meshKeyWithOrientation.setRightHandedOrientation(mResultObject.request->primMeshView.rightHandedOrientation);
             auto meshTriangulationCRC = meshKeyWithOrientation;
-            meshTriangulationCRC.setCookedDataVersion(omni::physx::PhysxCookingDataVersion_MeshTriangulation);
+            meshTriangulationCRC.setCookedDataVersion(omni::ev4sio_physx::PhysxCookingDataVersion_MeshTriangulation);
 
             indata.seek(0);
             CookingTask::deserializeTriangleMesh(indata, mTriangulationMesh);
@@ -275,7 +275,7 @@ public:
     */
     void releaseTriangleMeshData(void)
     {
-        mTriangulationMesh = omni::physx::TriangulationMesh();
+        mTriangulationMesh = omni::ev4sio_physx::TriangulationMesh();
     }
 
     /**
@@ -513,7 +513,7 @@ public:
     * copy of the caller-supplied mesh view so that we can perform the actual
     * triangulation of the polygon data in a background thread
     */
-    void initTriangulation(const omni::physx::PhysxCookingMeshView& meshView)
+    void initTriangulation(const omni::ev4sio_physx::PhysxCookingMeshView& meshView)
     {
         CARB_PROFILE_ZONE(0, "CookingTask::initTriangulation");
         SAFE_RELEASE(m_triangulate);
@@ -619,10 +619,10 @@ public:
         return m_succeeded;
     }
 
-    void fireFinishedCallback(omni::physx::PhysxCookingResult::Enum result)
+    void fireFinishedCallback(omni::ev4sio_physx::PhysxCookingResult::Enum result)
     {
             CARB_PROFILE_ZONE(0, "CookingTask::fireFinishedCallback");
-            if(result == omni::physx::PhysxCookingResult::eVALID)
+            if(result == omni::ev4sio_physx::PhysxCookingResult::eVALID)
             {
                 if(mResultObject.request->triangulation.isNeeded())
                 {
@@ -630,7 +630,7 @@ public:
                 }
             }
             mResultObject.result = result;
-            if(result != omni::physx::PhysxCookingResult::eERROR_CANCELED || m_invokeCallbackAnyway)
+            if(result != omni::ev4sio_physx::PhysxCookingResult::eERROR_CANCELED || m_invokeCallbackAnyway)
             {
                 if (mResultObject.request->onFinished)
                 {
@@ -646,7 +646,7 @@ public:
             }
     }
 
-    void saveCallbackFromRequest(const omni::physx::PhysxCookingComputeRequest& request)
+    void saveCallbackFromRequest(const omni::ev4sio_physx::PhysxCookingComputeRequest& request)
     {
         mAdditionalRequestCallbacks.push_back(request.onFinished);
     }
@@ -661,8 +661,8 @@ public:
 
     // Owned reference, taken in CookingTask::setPxCudaAndGPUPointers() and released in
     // ~CookingTaskImpl(). Never a borrowed pointer: see REQ-COOK-CUDACTX-001.
-    ::physx::PxCudaContextManager* mPxCudaContextManager = nullptr;
-    ::physx::PxPhysicsGpu* mPxPhysicsGPU = nullptr;
+    ::ev4sio_physx::PxCudaContextManager* mPxCudaContextManager = nullptr;
+    ::ev4sio_physx::PxPhysicsGpu* mPxPhysicsGPU = nullptr;
     carb::Float3    mBmin{};    // The bounding box minimum for the source mesh
     carb::Float3    mBmax{};    // The bounding box maximum for the source mesh
     std::atomic<bool>   m_cancel{ false }; // Whether or not this task has been flagged to be canceled
@@ -675,13 +675,13 @@ public:
     carb::tasking::Future<> m_future; // Pointer to the counter allocated for this task
     triangulateusd::TriangulateUSDPrim  *m_triangulate{ nullptr };
     // if the triangulation was loaded from the mesh cache...
-    omni::physx::TriangulationMesh mTriangulationMesh;
+    omni::ev4sio_physx::TriangulationMesh mTriangulationMesh;
     CookingTaskImpl     *m_pending{ nullptr };
     CookingTask *mParent{nullptr};
-    ::physx::PxDefaultMemoryOutputStream mTriangulationStream;
-    omni::physx::PhysxCookingComputeRequest mRequestObject;
-    omni::physx::PhysxCookingComputeResult mResultObject;
-    std::vector< omni::function<void(const omni::physx::PhysxCookingComputeResult& result)> > mAdditionalRequestCallbacks;
+    ::ev4sio_physx::PxDefaultMemoryOutputStream mTriangulationStream;
+    omni::ev4sio_physx::PhysxCookingComputeRequest mRequestObject;
+    omni::ev4sio_physx::PhysxCookingComputeResult mResultObject;
+    std::vector< omni::function<void(const omni::ev4sio_physx::PhysxCookingComputeResult& result)> > mAdditionalRequestCallbacks;
 
     double mMetersPerUnit = 1.0;
     bool mBuildGpuData = true;
@@ -693,7 +693,7 @@ public:
 * Constructor for a CookingTask interface. We create an instance
 * of the 'implementation' class here
 */
-CookingTask::CookingTask(omni::physx::PhysxCookingComputeResult& result)
+CookingTask::CookingTask(omni::ev4sio_physx::PhysxCookingComputeResult& result)
 {
     mImpl = new CookingTaskImpl(this, result);
 }
@@ -733,8 +733,8 @@ const uint16_t* CookingTask::getMaterialIndices(uint32_t& faceCount) const
  * @implements REQ-COOK-CUDACTX-001
  * @covers AC-3
  */
-void CookingTask::setPxCudaAndGPUPointers(::physx::PxCudaContextManager* cudaContextManager,
-                                          ::physx::PxPhysicsGpu* physicsGPU)
+void CookingTask::setPxCudaAndGPUPointers(::ev4sio_physx::PxCudaContextManager* cudaContextManager,
+                                          ::ev4sio_physx::PxPhysicsGpu* physicsGPU)
 {
     // A task can outlive the call that configured it - dispatchAsyncTasks() runs queued tasks on a
     // carb::tasking worker long afterwards, and GPU SDF cooking dereferences the manager there. The
@@ -750,12 +750,12 @@ void CookingTask::setPxCudaAndGPUPointers(::physx::PxCudaContextManager* cudaCon
     mImpl->mPxPhysicsGPU = physicsGPU;
 }
 
-::physx::PxCudaContextManager* CookingTask::getPxCudaContextManager()
+::ev4sio_physx::PxCudaContextManager* CookingTask::getPxCudaContextManager()
 {
     return mImpl->mPxCudaContextManager;
 }
 
-::physx::PxPhysicsGpu* CookingTask::getPxPhysicsGPU()
+::ev4sio_physx::PxPhysicsGpu* CookingTask::getPxPhysicsGPU()
 {
     return mImpl->mPxPhysicsGPU;
 }
@@ -770,7 +770,7 @@ void CookingTask::performTriangulation(void) // called from another thread, perf
     mImpl->performTriangulation();
 }
 
-void CookingTask::saveTriangulation(::physx::PxDefaultMemoryOutputStream& stream) // called from main thread, save the triangulation results
+void CookingTask::saveTriangulation(::ev4sio_physx::PxDefaultMemoryOutputStream& stream) // called from main thread, save the triangulation results
 {
     mImpl->saveTriangulation(stream);
 }
@@ -790,7 +790,7 @@ bool CookingTask::isCanceled(void)
     return mImpl->isCanceled();
 }
 
-void CookingTask::getCRC(omni::physx::usdparser::MeshKey &crc) const
+void CookingTask::getCRC(omni::ev4sio_physx::usdparser::MeshKey &crc) const
 {
     crc = mImpl->mResultObject.cookedDataCRC;
 }
@@ -815,7 +815,7 @@ bool CookingTask::setPrimPathText(const char* primPathText)
     return false;
 }
 
-void CookingTask::fireFinishedCallback(omni::physx::PhysxCookingResult::Enum result)
+void CookingTask::fireFinishedCallback(omni::ev4sio_physx::PhysxCookingResult::Enum result)
 {
     mImpl->fireFinishedCallback(result);
 }
@@ -921,15 +921,15 @@ bool CookingTask::getBuildTriangleAdjacencies()const
     return mImpl->mBuildTriangleAdjacencies;
 }
 
-::physx::PxCookingParams CookingTask::getCookingParams(const ::physx::PxTolerancesScale& tolerances) const
+::ev4sio_physx::PxCookingParams CookingTask::getCookingParams(const ::ev4sio_physx::PxTolerancesScale& tolerances) const
 {
-    ::physx::PxCookingParams params(tolerances);
+    ::ev4sio_physx::PxCookingParams params(tolerances);
     params.buildGPUData = mImpl->mBuildGpuData;
     params.buildTriangleAdjacencies = mImpl->mBuildTriangleAdjacencies;
     return params;
 }
 
-void CookingTask::saveCallbackFromRequest(const omni::physx::PhysxCookingComputeRequest& request)
+void CookingTask::saveCallbackFromRequest(const omni::ev4sio_physx::PhysxCookingComputeRequest& request)
 {
     mImpl->saveCallbackFromRequest(request);
 }
@@ -939,22 +939,22 @@ bool CookingTask::pump(carb::tasking::ITasking* tasking)
     return mImpl->pump(tasking);
 }
 
-::physx::PxDefaultMemoryOutputStream& CookingTask::getTriangulationOutputStream()
+::ev4sio_physx::PxDefaultMemoryOutputStream& CookingTask::getTriangulationOutputStream()
 {
     return mImpl->mTriangulationStream;
 }
 
-omni::physx::PhysxCookingComputeResult& CookingTask::getResultObject()
+omni::ev4sio_physx::PhysxCookingComputeResult& CookingTask::getResultObject()
 {
     return mImpl->mResultObject;
 }
 
-omni::physx::TriangulationMesh& CookingTask::getTriangulationMesh()
+omni::ev4sio_physx::TriangulationMesh& CookingTask::getTriangulationMesh()
 {
     return mImpl->mTriangulationMesh;    
 }
 
-bool CookingTask::setupTaskFromRequest(const omni::physx::PhysxCookingComputeRequest& request, bool skipMeshProcessing)
+bool CookingTask::setupTaskFromRequest(const omni::ev4sio_physx::PhysxCookingComputeRequest& request, bool skipMeshProcessing)
 {
     CARB_PROFILE_ZONE(0, "CookingTask::setupTaskFromRequest");
     setMetersPerUnit(request.primMeshMetersPerUnit);
@@ -964,8 +964,8 @@ bool CookingTask::setupTaskFromRequest(const omni::physx::PhysxCookingComputeReq
         // we should refactor the base CookingTask to be independent of triangle meshes.
         return true;
     }
-    setBuildGpuData(request.options.hasFlag(omni::physx::PhysxCookingComputeRequest::Options::kComputeGPUCookingData));
-    setBuildTriangleAdjacencies(request.options.hasFlag(omni::physx::PhysxCookingComputeRequest::Options::kComputeGPUCookingData));
+    setBuildGpuData(request.options.hasFlag(omni::ev4sio_physx::PhysxCookingComputeRequest::Options::kComputeGPUCookingData));
+    setBuildTriangleAdjacencies(request.options.hasFlag(omni::ev4sio_physx::PhysxCookingComputeRequest::Options::kComputeGPUCookingData));
     if(!loadTriangleMesh())
     {
         mImpl->initTriangulation(request.primMeshView);
@@ -973,15 +973,15 @@ bool CookingTask::setupTaskFromRequest(const omni::physx::PhysxCookingComputeReq
     return isValid();
 }
 
-bool CookingTask::deserializeTriangleMesh(::physx::PxDefaultMemoryInputData idata, omni::physx::TriangulationMesh& triangulationMesh)
+bool CookingTask::deserializeTriangleMesh(::ev4sio_physx::PxDefaultMemoryInputData idata, omni::ev4sio_physx::TriangulationMesh& triangulationMesh)
 {
     CARB_PROFILE_ZONE(0, "CookingTask::deserializeTriangleMesh");
     // Version
     uint32_t version = 0;
     idata.read(&version, sizeof(version));
-    if (version != omni::physx::PhysxCookingDataVersion_MeshTriangulation)
+    if (version != omni::ev4sio_physx::PhysxCookingDataVersion_MeshTriangulation)
     {
-        triangulationMesh = omni::physx::TriangulationMesh();
+        triangulationMesh = omni::ev4sio_physx::TriangulationMesh();
         return false;
     }
 
@@ -997,13 +997,13 @@ bool CookingTask::deserializeTriangleMesh(::physx::PxDefaultMemoryInputData idat
         rsize = idata.read(triangulationMesh.points.data(), vsize);
         if (rsize != vsize)
         {
-            triangulationMesh = omni::physx::TriangulationMesh();
+            triangulationMesh = omni::ev4sio_physx::TriangulationMesh();
             return false;        
         }
     }
     else
     {
-        triangulationMesh = omni::physx::TriangulationMesh();
+        triangulationMesh = omni::ev4sio_physx::TriangulationMesh();
         return false;        
     }
 
@@ -1017,13 +1017,13 @@ bool CookingTask::deserializeTriangleMesh(::physx::PxDefaultMemoryInputData idat
         rsize = idata.read(triangulationMesh.indices.data(), vsize);
         if (rsize != vsize)
         {
-            triangulationMesh = omni::physx::TriangulationMesh();
+            triangulationMesh = omni::ev4sio_physx::TriangulationMesh();
             return false;        
         }
     }
     else
     {
-        triangulationMesh = omni::physx::TriangulationMesh();
+        triangulationMesh = omni::ev4sio_physx::TriangulationMesh();
         return false;        
     }
 
@@ -1037,13 +1037,13 @@ bool CookingTask::deserializeTriangleMesh(::physx::PxDefaultMemoryInputData idat
         rsize = idata.read(triangulationMesh.trianglesToFacesMapping.data(), vsize);
         if (rsize != vsize)
         {
-            triangulationMesh = omni::physx::TriangulationMesh();
+            triangulationMesh = omni::ev4sio_physx::TriangulationMesh();
             return false;        
         }
     }
     else
     {
-        triangulationMesh = omni::physx::TriangulationMesh();
+        triangulationMesh = omni::ev4sio_physx::TriangulationMesh();
         return false;        
     }
 
@@ -1051,7 +1051,7 @@ bool CookingTask::deserializeTriangleMesh(::physx::PxDefaultMemoryInputData idat
     uint32_t faceMaterialsCount = 0;
     if(idata.read(&faceMaterialsCount, sizeof(faceMaterialsCount)) != sizeof(faceMaterialsCount))
     {
-        triangulationMesh = omni::physx::TriangulationMesh();
+        triangulationMesh = omni::ev4sio_physx::TriangulationMesh();
         return false;
     }
     if (faceMaterialsCount > 0) // It's possible to get faceMaterialsCount == 0
@@ -1061,7 +1061,7 @@ bool CookingTask::deserializeTriangleMesh(::physx::PxDefaultMemoryInputData idat
         rsize = idata.read(triangulationMesh.faceMaterials.data(), vsize);
         if (rsize != vsize)
         {
-            triangulationMesh = omni::physx::TriangulationMesh();
+            triangulationMesh = omni::ev4sio_physx::TriangulationMesh();
             return false;
         }
     }
@@ -1069,14 +1069,14 @@ bool CookingTask::deserializeTriangleMesh(::physx::PxDefaultMemoryInputData idat
     // Number of used materials
     if(idata.read(&triangulationMesh.maxMaterialIndex, sizeof(uint16_t)) != sizeof(uint16_t))
     {
-        triangulationMesh = omni::physx::TriangulationMesh();
+        triangulationMesh = omni::ev4sio_physx::TriangulationMesh();
         return false;
     }
 
     return true;
 }
 
-void CookingTask::fillTriangulationView(const omni::physx::TriangulationMesh& triangulationMesh, omni::physx::PhysxCookingMeshTriangulationView& triangulationView)
+void CookingTask::fillTriangulationView(const omni::ev4sio_physx::TriangulationMesh& triangulationMesh, omni::ev4sio_physx::PhysxCookingMeshTriangulationView& triangulationView)
 {
     triangulationView.points = {triangulationMesh.points.data(), triangulationMesh.points.size()};
     using triangle_t = uint32_t[3];

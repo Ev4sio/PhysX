@@ -10,7 +10,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace usdparser
 {
@@ -37,5 +37,5 @@ void registerTendonAxisChangeParam(usdparser::AttachedStage&, const std::string&
 
 void registerDeformablePoseChangeParams(usdparser::AttachedStage&, const std::string& instanceName);
 
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

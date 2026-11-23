@@ -5,7 +5,7 @@
 
 #include "vehicle/tire/PxVehicleTireHelpers.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 bool PxVehicleAccelerationIntentCompute
@@ -35,5 +35,5 @@ void PxVehicleTireStickyStateReset
 	}
 }
 
-} //namespace physx
+} //namespace ev4sio_physx
 

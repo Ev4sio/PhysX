@@ -6,7 +6,7 @@
 
 // @implements REQ-ATTACH-SERVICES-001
 // @covers AC-3
-namespace omni::physx
+namespace omni::ev4sio_physx
 {
 // Process defaults are copied when an attachment is constructed. Stage consumers
 // read the owner's copy; process services retain their own configuration.

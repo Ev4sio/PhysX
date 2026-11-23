@@ -89,11 +89,11 @@ namespace
 
 static constexpr int kCudaErrorNotInitialized = 3;
 
-static omni::physx::IOptionalCuda* getOptionalCuda()
+static omni::ev4sio_physx::IOptionalCuda* getOptionalCuda()
 {
     if (isProcessGpuDisabled())
         return nullptr;
-    return omni::physx::runtime::tryGetOptionalCudaInterface();
+    return omni::ev4sio_physx::runtime::tryGetOptionalCudaInterface();
 }
 
 static ovphysx_result_t validateProcessTensorDevice(const DLTensor* tensor, const char* op)
@@ -110,7 +110,7 @@ static ovphysx_result_t validateProcessTensorDevice(const DLTensor* tensor, cons
 class ScopedCudaContextPush
 {
 public:
-    ScopedCudaContextPush(omni::physx::IOptionalCuda* cuda, uintptr_t ctx)
+    ScopedCudaContextPush(omni::ev4sio_physx::IOptionalCuda* cuda, uintptr_t ctx)
         : mCuda(cuda)
     {
         if (!mCuda || !ctx)
@@ -161,7 +161,7 @@ public:
     int status() const { return mStatus; }
 
 private:
-    omni::physx::IOptionalCuda* mCuda = nullptr;
+    omni::ev4sio_physx::IOptionalCuda* mCuda = nullptr;
     bool mOk = false;
     bool mPushed = false;
     int mStatus = 0;
@@ -211,7 +211,7 @@ struct WrenchSoaDescs
 // GPU AoS-to-SoA wrench conversion. Activates the PhysX CUDA context and performs
 // the strided 2D copies into a caller-provided SoA buffer.
 static ovphysx_result_t convertWrenchAoSToSoaGpu(
-    omni::physx::IOptionalCuda* cuda,
+    omni::ev4sio_physx::IOptionalCuda* cuda,
     uintptr_t dstSoaDev,
     uintptr_t srcAosDev,
     int64_t totalRows,
@@ -268,7 +268,7 @@ static ovphysx_result_t convertWrenchAoSToSoaGpu(
 
 static ovphysx_result_t ensureWrenchScratchGpu(
     TensorBindingState& binding,
-    omni::physx::IOptionalCuda* cuda,
+    omni::ev4sio_physx::IOptionalCuda* cuda,
     uintptr_t cudaCtx,
     size_t neededBytes,
     const char* errorContext)
@@ -1457,7 +1457,7 @@ struct TensorStagingInfo
 {
     uintptr_t devicePtr = 0;          // GPU staging (0 if none)
     std::vector<uint8_t> hostBuf;     // CPU staging (empty if none)
-    omni::physx::IOptionalCuda* cuda = nullptr;
+    omni::ev4sio_physx::IOptionalCuda* cuda = nullptr;
     uintptr_t cudaCtx = 0;            // PhysX CUDA context owning devicePtr (0 if none)
 
     TensorStagingInfo() = default;
@@ -2172,7 +2172,7 @@ OVPHYSX_API ovphysx_result_t ovphysx_read_tensor_binding(
         stagingByteCount = numElements * elementBytes;
 
         // Both directions need IOptionalCuda for the host<->device copy step.
-        omni::physx::IOptionalCuda* cuda = getOptionalCuda();
+        omni::ev4sio_physx::IOptionalCuda* cuda = getOptionalCuda();
         if (!cuda || !cuda->cudaAvailable())
         {
             return set_error(OVPHYSX_API_ERROR,

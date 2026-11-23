@@ -2207,7 +2207,7 @@ parse::DescPtr<parse::PhysxShapeDesc> readMeshShapeDesc(
         tmd->meshPrimKey = meshDataKey;
         tmd->doubleSided = doubleSided;
         tmd->triangleMeshCookingParams.mode =
-            omni::physx::TriangleMeshMode::eQUADRIC_SIMPLIFICATION;
+            omni::ev4sio_physx::TriangleMeshMode::eQUADRIC_SIMPLIFICATION;
         tmd->sdfMeshCookingParams.sdfResolution = 0;
         parse::parseTriangleMeshSimplificationCookingExt(ctx, shapeKey, tmd->triangleMeshCookingParams);
         return parse::descPtrCast<parse::PhysxShapeDesc>(std::move(tmd));
@@ -2364,7 +2364,7 @@ parse::DescPtr<parse::PhysxShapeDesc> buildMeshMergeCustomShape(
         parse::DescPtr<parse::TriangleMeshPhysxShapeDesc> tmd = parse::allocateDesc<parse::TriangleMeshPhysxShapeDesc>(ctx.descriptorAllocator());
         tmd->meshScale = meshScale;
         tmd->meshPrimKey = shapeKey;
-        tmd->triangleMeshCookingParams.mode = omni::physx::TriangleMeshMode::eQUADRIC_SIMPLIFICATION;
+        tmd->triangleMeshCookingParams.mode = omni::ev4sio_physx::TriangleMeshMode::eQUADRIC_SIMPLIFICATION;
         tmd->sdfMeshCookingParams.sdfResolution = 0;
         parse::parseTriangleMeshSimplificationCookingExt(ctx, shapeKey, tmd->triangleMeshCookingParams);
         typed = parse::descPtrCast<parse::MergeMeshPhysxShapeDesc>(std::move(tmd));
@@ -2588,9 +2588,9 @@ void emitShape(ScannedStage& out, UsdWalkCtx& impl,
     }
     else if (customShape)
     {
-        const size_t tokenHash = omni::physx::computeCustomGeometryHash(customTok);
+        const size_t tokenHash = omni::ev4sio_physx::computeCustomGeometryHash(customTok);
         static const size_t sMeshMergeHash =
-            omni::physx::computeCustomGeometryHash(std::string("PhysxMeshMergeCollisionAPI"));
+            omni::ev4sio_physx::computeCustomGeometryHash(std::string("PhysxMeshMergeCollisionAPI"));
         if (tokenHash == sMeshMergeHash)
         {
             desc = buildMeshMergeCustomShape(ctx, impl, key);
@@ -3266,8 +3266,8 @@ PXR_NS::SdfPath computeJointLocalPose(PXR_NS::UsdStageWeakPtr stage,
 
     carb::Float3 localPosition{ t[0], t[1], t[2] };
     carb::Float4 localOrientation{ q.GetImaginary()[0], q.GetImaginary()[1], q.GetImaginary()[2], q.GetReal() };
-    omni::physics::transformJointFrameToBody(omni::physx::toPhysX(relationshipToWorld),
-                                             omni::physx::toPhysX(bodyToWorld), relPrim == body, localPosition,
+    omni::physics::transformJointFrameToBody(omni::ev4sio_physx::toPhysX(relationshipToWorld),
+                                             omni::ev4sio_physx::toPhysX(bodyToWorld), relPrim == body, localPosition,
                                              localOrientation);
     t.Set(localPosition.x, localPosition.y, localPosition.z);
     q = PXR_NS::GfQuatf(localOrientation.w,
@@ -3833,8 +3833,8 @@ void finalizeBodiesAndShapes(WalkState& walk, UsdWalkCtx& impl)
         }
         // Matrix sourcing remains specific to the native walker.
         omni::physics::decomposeCollisionShapeLocalTransform(
-            omni::physx::toPhysX(shapeToBody),
-            omni::physx::toPhysX(walk.xfCache.GetLocalToWorldTransform(bodyPrim)), localPos, localRot, localScale);
+            omni::ev4sio_physx::toPhysX(shapeToBody),
+            omni::ev4sio_physx::toPhysX(walk.xfCache.GetLocalToWorldTransform(bodyPrim)), localPos, localRot, localScale);
 
         desc->localPos   = localPos;
         desc->localRot   = localRot;

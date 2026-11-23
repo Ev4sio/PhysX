@@ -6,7 +6,7 @@
 namespace omni
 {
 
-namespace physx
+namespace ev4sio_physx
 {
 
 static const char gWorldMatrixTokenString[] = "omni:fabric:worldMatrix";
@@ -28,5 +28,5 @@ static const char gRigidBodyWorldPositionTokenString[] = "_rigidBodyWorldPositio
 static const char gRigidBodyWorldOrientationTokenString[] = "_rigidBodyWorldOrientation";
 static const char gRigidBodyWorldScaleTokenString[] = "_rigidBodyWorldScale";
 
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

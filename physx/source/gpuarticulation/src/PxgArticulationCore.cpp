@@ -42,14 +42,14 @@
 	#define EPILOG				kernelParams, sizeof(kernelParams), 0, PX_FL
 #endif
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 #if ARTI_GPU_DEBUG
 static PX_FORCE_INLINE void gpuDebugStreamSync(PxCudaContext* context, CUstream stream, const char* errorMsg)
 {
 	const CUresult result = context->streamSynchronize(stream);
 	if(result != CUDA_SUCCESS)
-		PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, errorMsg);
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, errorMsg);
 }
 #else
 static PX_FORCE_INLINE void gpuDebugStreamSync(PxCudaContext*, CUstream, const char*)
@@ -57,7 +57,7 @@ static PX_FORCE_INLINE void gpuDebugStreamSync(PxCudaContext*, CUstream, const c
 }
 #endif
 
-namespace physx
+namespace ev4sio_physx
 {
 	extern "C" void initArticulationKernels1();
 	extern "C" void initArticulationKernels2();
@@ -151,7 +151,7 @@ namespace physx
 
 		const PxU32 maxLinks = controller->getSimulationCore()->getMaxArticulationLinks();
 
-		mDeltaVs.allocate(totalArticulations * maxLinks * nbSlabs * sizeof(Cm::UnAlignedSpatialVector), PX_FL);
+		mDeltaVs.allocate(totalArticulations * maxLinks * nbSlabs * sizeof(ev4sio_Cm::UnAlignedSpatialVector), PX_FL);
 		mSlabHasChanges.allocate(totalArticulations*nbSlabs* sizeof(uint2), PX_FL);
 		
 		const PxU32 wordSize = (maxLinks + 63) / 64;
@@ -175,13 +175,13 @@ namespace physx
 
 		const PxU32 maxLinks = mGpuContext->getSimulationCore()->getMaxArticulationLinks();
 
-		mCudaContext->memsetD32Async(mDeltaVs.getDevicePtr(), 0, (totalArticulations * maxLinks * nbSlabs * sizeof(Cm::UnAlignedSpatialVector)) / sizeof(PxU32), stream);
+		mCudaContext->memsetD32Async(mDeltaVs.getDevicePtr(), 0, (totalArticulations * maxLinks * nbSlabs * sizeof(ev4sio_Cm::UnAlignedSpatialVector)) / sizeof(PxU32), stream);
 		mCudaContext->memsetD32Async(mSlabHasChanges.getDevicePtr(), 0xFFFFFFFF, totalArticulations*nbSlabs * 2, stream);
 
 		//KS - this is a bit sucky. We already DMAd up this buffer, but now we need to do it again to get the updated deltaV impulse buffer.
 		//The previous one may have been reallocated
 		PxgArticulationCoreDesc* desc = getArticulationCoreDesc();
-		desc->impulses = reinterpret_cast<Cm::UnAlignedSpatialVector*>(mDeltaVs.getDevicePtr());
+		desc->impulses = reinterpret_cast<ev4sio_Cm::UnAlignedSpatialVector*>(mDeltaVs.getDevicePtr());
 		desc->slabHasChanges = reinterpret_cast<uint2*>(mSlabHasChanges.getDevicePtr());
 		desc->slabDirtyMasks = reinterpret_cast<uint4*>(mSlabDirtyMasks.getDevicePtr());
 		desc->nbSlabs = nbSlabs;
@@ -237,7 +237,7 @@ namespace physx
 		desc->invLengthScale = invLengthScale;
 		desc->isExternalForcesEveryTgsIterationEnabled = isExternalForcesEveryTgsIterationEnabled;
 		desc->isSleepingDisabled = isSleepingDisabled;
-		desc->impulses = reinterpret_cast<Cm::UnAlignedSpatialVector*>(mDeltaVs.getDevicePtr());
+		desc->impulses = reinterpret_cast<ev4sio_Cm::UnAlignedSpatialVector*>(mDeltaVs.getDevicePtr());
 		desc->slabHasChanges = reinterpret_cast<uint2*>(mSlabHasChanges.getDevicePtr());
 		//mArticulationCoreDesc->nbSlabs = nbSlabs;
 		//mArticulationCoreDesc->nbPartitions = nbPartitions;
@@ -534,19 +534,19 @@ namespace physx
 		PX_ASSERT(result == CUDA_SUCCESS);
 
 		if (result != CUDA_SUCCESS)
-			PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "SynchronizeStreams cuEventRecord failed\n");
+			ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "SynchronizeStreams cuEventRecord failed\n");
 
 		result = mCudaContext->streamWaitEvent(bpStream, mFlushArticulationDataEvent);
 		PX_ASSERT(result == CUDA_SUCCESS);
 
 		if (result != CUDA_SUCCESS)
-			PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "SynchronizeStreams cuStreamWaitEvent failed\n");
+			ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "SynchronizeStreams cuStreamWaitEvent failed\n");
 
 		result = mCudaContext->streamWaitEvent(npStream, mFlushArticulationDataEvent);
 		PX_ASSERT(result == CUDA_SUCCESS);
 
 		if (result != CUDA_SUCCESS)
-			PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "SynchronizeStreams cuStreamWaitEvent failed\n");
+			ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "SynchronizeStreams cuStreamWaitEvent failed\n");
 	}
 
 
@@ -575,7 +575,7 @@ namespace physx
 
 			const CUresult result = mCudaContext->launchKernel(artiSaveVelocitiesFunction, num1TBlocks, 1, 1, numThreadsPerWarp, numWarpsPerBlock, 1, 0, *mSolverStream, EPILOG);
 			if (result != CUDA_SUCCESS)
-				PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU artiSaveVelocitiesFunction fail to launch kernel!!\n");
+				ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU artiSaveVelocitiesFunction fail to launch kernel!!\n");
 
 			gpuDebugStreamSync(mCudaContext, *mSolverStream, "GPU artiSaveVelocitiesFunction kernel fail!\n");
 		}
@@ -594,7 +594,7 @@ namespace physx
 
 			const CUresult result = cuLaunchKernel(artiSaveVelocitiesFunction, numBlocks, 1, 1, numThreadsPerWarp, numWarpsPerBlock, 1, 0, *mSolverStream, artiKernelParams, 0);
 			if (result != CUDA_SUCCESS)
-				PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU artiSaveVelocitiesFunction fail to launch kernel!!\n");
+				ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU artiSaveVelocitiesFunction fail to launch kernel!!\n");
 
 			gpuDebugStreamSync(mCudaContext, *mSolverStream, "GPU artiSaveVelocitiesFunction kernel fail!\n");
 		}
@@ -609,7 +609,7 @@ namespace physx
 
 	void PxgArticulationCore::propagateRigidBodyImpulsesAndSolveInternalConstraints(const PxReal dt, const PxReal invDt, const bool velocityIteration,
 		const PxReal elapsedTime, const PxReal articulationBiasCoefficient, const PxReal rigidContactBiasCoefficient, 
-		const Dy::ArticulationConstraintProcessingConfigGPU& articulationConstraintProcessingConfig,  PxU32* staticContactUniqueIds, PxU32* staticJointUniqueIds, 
+		const ev4sio_Dy::ArticulationConstraintProcessingConfigGPU& articulationConstraintProcessingConfig,  PxU32* staticContactUniqueIds, PxU32* staticJointUniqueIds,
 		CUdeviceptr sharedDesc, bool doFriction, bool isTGS, bool isExternalForcesEveryTgsIterationEnabled)
 	{
 #if ARTI_GPU_DEBUG
@@ -653,7 +653,7 @@ namespace physx
 				// In the first kernel called, propagate rigid body impulses as well.
 				const CUresult result = mCudaContext->launchKernel(artiPropagateRigidImpulseAndSolveSelfConstraintsFunction, numBlocks, 1, 1, numThreadsPerWarp, numWarpsPerBlock, 1, 0, *mSolverStream, EPILOG);
 				if (result != CUDA_SUCCESS)
-					PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU solveSelfConstraints fail to launch kernel!!\n");
+					ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU solveSelfConstraints fail to launch kernel!!\n");
 
 				gpuDebugStreamSync(mCudaContext, *mSolverStream, "GPU solveSelfConstraints kernel fail!\n");
 			}
@@ -672,15 +672,15 @@ namespace physx
 
 				const CUresult result = mCudaContext->launchKernel(artiSolveInternalTendonAndMimicJointConstraintsFunction, numBlocks, 1, 1, numThreadsPerWarp, numWarpsPerBlock, 1, 0, *mSolverStream, EPILOG);
 				if (result != CUDA_SUCCESS)
-					PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU artiSolveInternalTendonAndMimicJointConstraints1T fail to launch kernel!!\n");
+					ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU artiSolveInternalTendonAndMimicJointConstraints1T fail to launch kernel!!\n");
 
 				gpuDebugStreamSync(mCudaContext, *mSolverStream, "GPU artiSolveInternalTendonAndMimicJointConstraints1T kernel fail!\n");
 			}
 
 			if(articulationConstraintProcessingConfig.mDoFrictionDrivePosLimit || 
 				articulationConstraintProcessingConfig.mDoStaticContactsAnd1dConstraints || 
-				Dy::ArticulationConstraintProcessingConfig::VelLimit::eAFTER_STATIC_CONSTRAINTS == articulationConstraintProcessingConfig.mDoVelLimit || 
-				Dy::ArticulationConstraintProcessingConfig::VelLimit::eBEFORE_STATIC_CONSTRAINTS == articulationConstraintProcessingConfig.mDoVelLimit)
+				ev4sio_Dy::ArticulationConstraintProcessingConfig::VelLimit::eAFTER_STATIC_CONSTRAINTS == articulationConstraintProcessingConfig.mDoVelLimit ||
+				ev4sio_Dy::ArticulationConstraintProcessingConfig::VelLimit::eBEFORE_STATIC_CONSTRAINTS == articulationConstraintProcessingConfig.mDoVelLimit)
 			{
 				KERNEL_PARAM_TYPE kernelParams[] =
 				{
@@ -703,7 +703,7 @@ namespace physx
 
 				const CUresult result = mCudaContext->launchKernel(artiSolveInternalConstraintsFunction, numBlocks, 1, 1, numThreadsPerWarp, numWarpsPerBlock, 1, 0, *mSolverStream, EPILOG);
 				if (result != CUDA_SUCCESS)
-					PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU solveInternalConstraints fail to launch kernel!!\n");
+					ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU solveInternalConstraints fail to launch kernel!!\n");
 
 				gpuDebugStreamSync(mCudaContext, *mSolverStream, "GPU solveInternalConstraints kernel fail!\n");
 			}
@@ -737,7 +737,7 @@ namespace physx
 
 				const CUresult result = mCudaContext->launchKernel(artiOutputVelocityFunction, numBlocks, 1, 1, numThreadsPerWarp, numWarpsPerBlock, 1, 0, solverStream, EPILOG);
 				if (result != CUDA_SUCCESS)
-					PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU artiOutputVelocity fail to launch kernel!!\n");
+					ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU artiOutputVelocity fail to launch kernel!!\n");
 
 				gpuDebugStreamSync(mCudaContext, solverStream, "GPU artiOutputVelocity kernel fail!\n");
 			}
@@ -765,7 +765,7 @@ namespace physx
 
 				const CUresult result = mCudaContext->launchKernel(artiPushImpulseFunction, numBlocks, 1, 1, numThreadsPerWarp, numWarpsPerBlock, 1, 0, solverStream, EPILOG);
 				if (result != CUDA_SUCCESS)
-					PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU artiPushImpulse fail to launch kernel!!\n");
+					ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU artiPushImpulse fail to launch kernel!!\n");
 
 				gpuDebugStreamSync(mCudaContext, solverStream, "GPU artiPushImpulse kernel fail!\n");
 			}
@@ -828,7 +828,7 @@ namespace physx
 				0, stream, EPILOG);
 			PX_ASSERT(result == CUDA_SUCCESS);
 			if (result != CUDA_SUCCESS)
-				PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU artiApplyTgsSubstepForces failed to launch kernel!! %i\n", result);
+				ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU artiApplyTgsSubstepForces failed to launch kernel!! %i\n", result);
 
 			gpuDebugStreamSync(mCudaContext, stream, "GPU artiApplyTgsSubstepForces kernel fail!\n");
 		}
@@ -864,7 +864,7 @@ namespace physx
 
 			const CUresult result = mCudaContext->launchKernel(propagateImpulseKernel, numBlocks, 1, 1, numThreadsPerWarp, numWarpsPerBlock, 1, 0, stream, EPILOG);
 			if (result != CUDA_SUCCESS)
-				PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU artiPropagateImpulses2 fail to launch kernel!! %i\n", result);
+				ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU artiPropagateImpulses2 fail to launch kernel!! %i\n", result);
 
 			gpuDebugStreamSync(mCudaContext, stream, "GPU artiPropagateImpulses2 kernel fail!\n");
 			}
@@ -878,7 +878,7 @@ namespace physx
 
 			const CUresult result = mCudaContext->launchKernel(propagateVelocityKernel, numBlocks, nbSlabs, 1, numThreadsPerWarp, numWarpsPerBlock, 1, 0, stream, EPILOG);
 			if (result != CUDA_SUCCESS)
-				PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU artiPropagateVelocity fail to launch kernel!! %i\n", result);
+				ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "GPU artiPropagateVelocity fail to launch kernel!! %i\n", result);
 
 			gpuDebugStreamSync(mCudaContext, stream, "GPU artiPropagateVelocity kernel fail!\n");
 			}
@@ -985,8 +985,8 @@ namespace physx
 	}
 
 	void PxgArticulationCore::gpuMemDMAbackArticulation(
-		Cm::PinnableArray<PxU8>& linkAndJointAndRootStateData,
-		Cm::PinnableArray<PxgSolverBodySleepData>& sleepPool)
+		ev4sio_Cm::PinnableArray<PxU8>& linkAndJointAndRootStateData,
+		ev4sio_Cm::PinnableArray<PxgSolverBodySleepData>& sleepPool)
 	{
 		const PxU32 numThreadsPerWarp = 32;
 		PxU32 numWarpsPerBlock = PxgArticulationCoreKernelBlockDim::COMPUTE_UNCONSTRAINED_VELOCITES / numThreadsPerWarp;
@@ -1109,7 +1109,7 @@ namespace physx
 		{
 			const CUresult result = mCudaContext->streamSynchronize(mStream);
 			if(result != CUDA_SUCCESS)
-				PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "getArticulationData: CUDA error, code %u\n", result);
+				ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "getArticulationData: CUDA error, code %u\n", result);
 
 			success = (result == CUDA_SUCCESS);
 		}
@@ -1204,7 +1204,7 @@ namespace physx
 		CUdeviceptr coreDescptr = mArticulationCoreDescd.getDevicePtr();
 
 		// 1 thread per link
-		const PxU32 numThreadsPerElement = sizeof(Cm::UnAlignedSpatialVector) / 4;
+		const PxU32 numThreadsPerElement = sizeof(ev4sio_Cm::UnAlignedSpatialVector) / 4;
 		const PxU32 numBlocks = (numThreadsPerElement * nbElements * maxLinks + PxgArticulationCoreKernelBlockDim::ARTI_GET_SPATIAL_FORCE_STATES - 1) / PxgArticulationCoreKernelBlockDim::ARTI_GET_SPATIAL_FORCE_STATES;
 
 		KERNEL_PARAM_TYPE kernelParams[] =
@@ -1255,7 +1255,7 @@ namespace physx
 				const PxHashMap<PxU32, PxU32>::Entry* mapping = manager.mRemapToNodeMap.find(indices[i]);
 				if (!mapping || mapping->second >= manager.mBodies.size() || !manager.mBodies[mapping->second])
 				{ ovdCallback->reportReadbackFailure(); return; }
-				if (!ovdCallback->isArticulationCaptured(*static_cast<Dy::FeatherstoneArticulation*>(manager.mBodies[mapping->second]))) continue;
+				if (!ovdCallback->isArticulationCaptured(*static_cast<ev4sio_Dy::FeatherstoneArticulation*>(manager.mBodies[mapping->second]))) continue;
 				indices[mOvdBatchPositions.size()] = mapping->second;
 				mOvdBatchPositions.pushBack(i);
 			}
@@ -1274,7 +1274,7 @@ namespace physx
 				controller->recordOmniPvdReadbackCopy(bytes);
 				first = end;
 			}
-			ovdCallback->processArticulationSet(reinterpret_cast<Dy::FeatherstoneArticulation**>(manager.mBodies.begin()),
+			ovdCallback->processArticulationSet(reinterpret_cast<ev4sio_Dy::FeatherstoneArticulation**>(manager.mBodies.begin()),
 				mOvdDataBuffer.begin(), indices, dataType, count,
 				maxLinks, maxDofs, maxFixedTendons, maxTendonJoints, maxSpatialTendons, maxSpatialTendonAttachments);
 		}
@@ -1317,7 +1317,7 @@ namespace physx
 			const PxHashMap<PxU32, PxU32>::Entry* mapping = manager.mRemapToNodeMap.find(gpuIndices[i]);
 			if (gpuIndices[i] >= resident || manager.mPendingArticulationUploads.boundedTest(gpuIndices[i]) ||
 				!mapping || mapping->second >= manager.mBodies.size() || !manager.mBodies[mapping->second]) continue;
-			if (callback->isArticulationStateRequired(*static_cast<Dy::FeatherstoneArticulation*>(manager.mBodies[mapping->second]), dataType))
+			if (callback->isArticulationStateRequired(*static_cast<ev4sio_Dy::FeatherstoneArticulation*>(manager.mBodies[mapping->second]), dataType))
 			{
 				nodes[mOvdSnapshotValidIndices.size()] = mapping->second;
 				mOvdSnapshotValidIndices.pushBack(gpuIndices[i]);
@@ -1342,7 +1342,7 @@ namespace physx
 			if (mCudaContext->memcpyDtoH(mOvdDataBuffer.begin(), mOvdReadbackDataBuffer.getDevicePtr(), bytes)) return false;
 		}
 		controller->recordOmniPvdReadbackCopy(bytes);
-		callback->processArticulationRead(reinterpret_cast<Dy::FeatherstoneArticulation**>(manager.mBodies.begin()),
+		callback->processArticulationRead(reinterpret_cast<ev4sio_Dy::FeatherstoneArticulation**>(manager.mBodies.begin()),
 			mOvdDataBuffer.begin(), nodes, dataType, count, maxLinks, maxDofs);
 		return true;
 	}
@@ -1371,7 +1371,7 @@ namespace physx
 			const PxHashMap<PxU32, PxU32>::Entry* mapping = manager.mRemapToNodeMap.find(gpuIndices[i]);
 			if (gpuIndices[i] < nbResidentArticulations && !manager.mPendingArticulationUploads.boundedTest(gpuIndices[i]) &&
 				mapping && mapping->second < manager.mBodies.size() && manager.mBodies[mapping->second]
-				&& controller->getOVDCallbacks()->isArticulationCaptured(*static_cast<Dy::FeatherstoneArticulation*>(manager.mBodies[mapping->second])))
+				&& controller->getOVDCallbacks()->isArticulationCaptured(*static_cast<ev4sio_Dy::FeatherstoneArticulation*>(manager.mBodies[mapping->second])))
 				mOvdSnapshotValidIndices.pushBack(gpuIndices[i]);
 		}
 		const PxU32 nbValid = mOvdSnapshotValidIndices.size();
@@ -1419,7 +1419,7 @@ namespace physx
 			if (result == CUDA_SUCCESS) result = syncResult;
 			if (result != CUDA_SUCCESS)
 			{
-				PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "ovdSnapshotArticulationForces: CUDA error, code %u\n", result);
+				ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "ovdSnapshotArticulationForces: CUDA error, code %u\n", result);
 				controller->getOVDCallbacks()->reportReadbackFailure();
 				return;
 			}
@@ -1516,7 +1516,7 @@ namespace physx
 		{
 			const CUresult result = mCudaContext->streamSynchronize(mStream);
 			if(result != CUDA_SUCCESS)
-				PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "setArticulationData: CUDA error, code %u\n", result);
+				ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "setArticulationData: CUDA error, code %u\n", result);
 
 			success = (result == CUDA_SUCCESS);
 		}
@@ -2063,7 +2063,7 @@ namespace physx
 		{
 			const CUresult result = mCudaContext->streamSynchronize(mStream);
 			if(result != CUDA_SUCCESS)
-				PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "computeArticulationData: CUDA error, code %u\n", result);
+				ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "computeArticulationData: CUDA error, code %u\n", result);
 
 			success = (result == CUDA_SUCCESS);
 		}

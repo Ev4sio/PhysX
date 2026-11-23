@@ -14,16 +14,16 @@
 #include "GuBounds.h"
 #include "common/PxRenderOutput.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 // This enums should match
-PX_COMPILE_TIME_ASSERT(PxU32(Gu::ConvexCore::Type::ePOINT) == PxU32(PxConvexCore::ePOINT));
-PX_COMPILE_TIME_ASSERT(PxU32(Gu::ConvexCore::Type::eSEGMENT) == PxU32(PxConvexCore::eSEGMENT));
-PX_COMPILE_TIME_ASSERT(PxU32(Gu::ConvexCore::Type::eBOX) == PxU32(PxConvexCore::eBOX));
-PX_COMPILE_TIME_ASSERT(PxU32(Gu::ConvexCore::Type::eELLIPSOID) == PxU32(PxConvexCore::eELLIPSOID));
-PX_COMPILE_TIME_ASSERT(PxU32(Gu::ConvexCore::Type::eCYLINDER) == PxU32(PxConvexCore::eCYLINDER));
+PX_COMPILE_TIME_ASSERT(PxU32(ev4sio_Gu::ConvexCore::Type::ePOINT) == PxU32(PxConvexCore::ePOINT));
+PX_COMPILE_TIME_ASSERT(PxU32(ev4sio_Gu::ConvexCore::Type::eSEGMENT) == PxU32(PxConvexCore::eSEGMENT));
+PX_COMPILE_TIME_ASSERT(PxU32(ev4sio_Gu::ConvexCore::Type::eBOX) == PxU32(PxConvexCore::eBOX));
+PX_COMPILE_TIME_ASSERT(PxU32(ev4sio_Gu::ConvexCore::Type::eELLIPSOID) == PxU32(PxConvexCore::eELLIPSOID));
+PX_COMPILE_TIME_ASSERT(PxU32(ev4sio_Gu::ConvexCore::Type::eCYLINDER) == PxU32(PxConvexCore::eCYLINDER));
 
-PX_COMPILE_TIME_ASSERT(Gu::ConvexCore::MAX_CORE_SIZE >= PxConvexCoreGeometry::MAX_CORE_SIZE);
+PX_COMPILE_TIME_ASSERT(ev4sio_Gu::ConvexCore::MAX_CORE_SIZE >= PxConvexCoreGeometry::MAX_CORE_SIZE);
 
 static const PxU32 GEOMETRY_COLOR = PxU32(PxDebugColor::eARGB_MAGENTA);
 static const PxU32 GEOMETRY_CORE_COLOR = PxU32(0x88880088); // dark magenta
@@ -309,7 +309,7 @@ PX_PHYSX_COMMON_API bool PxConvexCoreGeometry::isValid() const
 	return false;
 }
 
-PX_PHYSX_COMMON_API bool Gu::isGPUCompatible(const PxConvexCoreGeometry& convex)
+PX_PHYSX_COMMON_API bool ev4sio_Gu::isGPUCompatible(const PxConvexCoreGeometry& convex)
 {
 	// there's no types a.t.m. that don't support GPU,
 	// but if there will be, we'll return 'false' here.
@@ -353,7 +353,7 @@ namespace
 	}
 }
 
-PX_PHYSX_COMMON_API void Gu::computeMassInfo(const PxConvexCoreGeometry& convex, PxReal& density1Mass, PxMat33& inertiaTensor, PxVec3& centerOfMass)
+PX_PHYSX_COMMON_API void ev4sio_Gu::computeMassInfo(const PxConvexCoreGeometry& convex, PxReal& density1Mass, PxMat33& inertiaTensor, PxVec3& centerOfMass)
 {
 	PxReal margin = convex.getMargin();
 	switch (convex.getCoreType())
@@ -427,7 +427,7 @@ PX_PHYSX_COMMON_API void Gu::computeMassInfo(const PxConvexCoreGeometry& convex,
 
 		default:
 		{
-			const PxBounds3 bounds = Gu::computeBounds(convex, PxTransform(PxIdentity));
+			const PxBounds3 bounds = ev4sio_Gu::computeBounds(convex, PxTransform(PxIdentity));
 			const PxVec3 halfExtents = bounds.getDimensions() * 0.5f;
 			density1Mass = halfExtents.x * halfExtents.y * halfExtents.z * 8.0f;
 			PxVec3 d2 = halfExtents.multiply(halfExtents);
@@ -438,7 +438,7 @@ PX_PHYSX_COMMON_API void Gu::computeMassInfo(const PxConvexCoreGeometry& convex,
 	}
 }
 
-PX_PHYSX_COMMON_API void Gu::visualize(const PxConvexCoreGeometry& convex, const PxTransform& pose, bool drawCore, const PxBounds3& cullbox, PxRenderOutput& out)
+PX_PHYSX_COMMON_API void ev4sio_Gu::visualize(const PxConvexCoreGeometry& convex, const PxTransform& pose, bool drawCore, const PxBounds3& cullbox, PxRenderOutput& out)
 {
 	PX_UNUSED(cullbox);
 
@@ -561,15 +561,15 @@ PX_PHYSX_COMMON_API void Gu::visualize(const PxConvexCoreGeometry& convex, const
 		{
 			out << pose;
 			out << GEOMETRY_COLOR;
-			out << PxDebugBox(Gu::computeBounds(convex, PxTransform(PxIdentity)));
+			out << PxDebugBox(ev4sio_Gu::computeBounds(convex, PxTransform(PxIdentity)));
 			break;
 		}
 	}
 }
 
-PX_PHYSX_COMMON_API bool Gu::makeConvexShape(const PxGeometry& geom, const PxTransform& pose, ConvexShape& convex)
+PX_PHYSX_COMMON_API bool ev4sio_Gu::makeConvexShape(const PxGeometry& geom, const PxTransform& pose, ConvexShape& convex)
 {
-	convex.coreType = Gu::ConvexCore::Type::Enum(-1);
+	convex.coreType = ev4sio_Gu::ConvexCore::Type::Enum(-1);
 	convex.pose = pose;
 
 	switch (geom.getType())
@@ -577,7 +577,7 @@ PX_PHYSX_COMMON_API bool Gu::makeConvexShape(const PxGeometry& geom, const PxTra
 		case PxGeometryType::eCONVEXCORE:
 		{
 			const PxConvexCoreGeometry& g = static_cast<const PxConvexCoreGeometry&>(geom);
-			convex.coreType = Gu::ConvexCore::Type::Enum(g.getCoreType());
+			convex.coreType = ev4sio_Gu::ConvexCore::Type::Enum(g.getCoreType());
 			PxMemCopy(convex.coreData, g.getCoreData(), PxConvexCoreGeometry::MAX_CORE_SIZE);
 			convex.margin = g.getMargin();
 			return true;
@@ -585,15 +585,15 @@ PX_PHYSX_COMMON_API bool Gu::makeConvexShape(const PxGeometry& geom, const PxTra
 		case PxGeometryType::eSPHERE:
 		{
 			const PxSphereGeometry& g = static_cast<const PxSphereGeometry&>(geom);
-			convex.coreType = Gu::ConvexCore::Type::ePOINT;
+			convex.coreType = ev4sio_Gu::ConvexCore::Type::ePOINT;
 			convex.margin = g.radius;
 			return true;
 		}
 		case PxGeometryType::eCAPSULE:
 		{
 			const PxCapsuleGeometry& g = static_cast<const PxCapsuleGeometry&>(geom);
-			convex.coreType = Gu::ConvexCore::Type::eSEGMENT;
-			Gu::ConvexCore::SegmentCore& core = *reinterpret_cast<Gu::ConvexCore::SegmentCore*>(convex.coreData);
+			convex.coreType = ev4sio_Gu::ConvexCore::Type::eSEGMENT;
+			ev4sio_Gu::ConvexCore::SegmentCore& core = *reinterpret_cast<ev4sio_Gu::ConvexCore::SegmentCore*>(convex.coreData);
 			core.length = g.halfHeight * 2.0f;
 			convex.margin = g.radius;
 			return true;
@@ -601,8 +601,8 @@ PX_PHYSX_COMMON_API bool Gu::makeConvexShape(const PxGeometry& geom, const PxTra
 		case PxGeometryType::eBOX:
 		{
 			const PxBoxGeometry& g = static_cast<const PxBoxGeometry&>(geom);
-			convex.coreType = Gu::ConvexCore::Type::eBOX;
-			Gu::ConvexCore::BoxCore& core = *reinterpret_cast<Gu::ConvexCore::BoxCore*>(convex.coreData);
+			convex.coreType = ev4sio_Gu::ConvexCore::Type::eBOX;
+			ev4sio_Gu::ConvexCore::BoxCore& core = *reinterpret_cast<ev4sio_Gu::ConvexCore::BoxCore*>(convex.coreData);
 			core.extents = g.halfExtents * 2.0f;
 			convex.margin = 0;
 			return true;
@@ -610,8 +610,8 @@ PX_PHYSX_COMMON_API bool Gu::makeConvexShape(const PxGeometry& geom, const PxTra
 		case PxGeometryType::eCONVEXMESH:
 		{
 			const PxConvexMeshGeometry& g = static_cast<const PxConvexMeshGeometry&>(geom);
-			convex.coreType = Gu::ConvexCore::Type::ePOINTS;
-			Gu::ConvexCore::PointsCore& core = *reinterpret_cast<Gu::ConvexCore::PointsCore*>(convex.coreData);
+			convex.coreType = ev4sio_Gu::ConvexCore::Type::ePOINTS;
+			ev4sio_Gu::ConvexCore::PointsCore& core = *reinterpret_cast<ev4sio_Gu::ConvexCore::PointsCore*>(convex.coreData);
 			core.points = g.convexMesh->getVertices();
 			core.numPoints = PxU8(g.convexMesh->getNbVertices());
 			core.stride = sizeof(PxVec3);

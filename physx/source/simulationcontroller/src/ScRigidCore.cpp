@@ -8,8 +8,8 @@
 #include "ScShapeSim.h"
 #include "ScScene.h"
 
-using namespace physx;
-using namespace Sc;
+using namespace ev4sio_physx;
+using namespace ev4sio_Sc;
 
 PX_IMPLEMENT_OUTPUT_ERROR
 
@@ -71,7 +71,7 @@ void RigidCore::removeShapeFromScene(ShapeCore& shapeCore, bool wakeOnLostTouch)
 		sim->getScene().removeShape_(*s, wakeOnLostTouch);
 }
 
-void RigidCore::unregisterShapeFromNphase(Sc::ShapeCore& shapeCore)
+void RigidCore::unregisterShapeFromNphase(ev4sio_Sc::ShapeCore& shapeCore)
 {
 	RigidSim* sim = getSim();
 	if (!sim)
@@ -82,7 +82,7 @@ void RigidCore::unregisterShapeFromNphase(Sc::ShapeCore& shapeCore)
 		s->getScene().unregisterShapeFromNphase(shapeCore, s->getElementID());
 }
 
-void RigidCore::registerShapeInNphase(Sc::ShapeCore& shapeCore)
+void RigidCore::registerShapeInNphase(ev4sio_Sc::ShapeCore& shapeCore)
 {
 	RigidSim* sim = getSim();
 	if (!sim)

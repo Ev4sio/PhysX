@@ -8,7 +8,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace tensors
 {
@@ -24,17 +24,17 @@ public:
 
     bool getInstancerColumnsOvStage(InstancerColumn column,
                                     void* dst,
-                                    const ::physx::PxU32* offsets,
-                                    ::physx::PxU32 numInstancers) const;
+                                    const ::ev4sio_physx::PxU32* offsets,
+                                    ::ev4sio_physx::PxU32 numInstancers) const;
     bool setInstancerColumnOvStage(InstancerColumn column,
-                                   ::physx::PxU32 instancerIndex,
+                                   ::ev4sio_physx::PxU32 instancerIndex,
                                    const void* src,
-                                   ::physx::PxU32 arrayLength,
+                                   ::ev4sio_physx::PxU32 arrayLength,
                                    const uint8_t* hostMask,
                                    const OvStageDeviceWriteArgs* deviceArgs) override;
 
 };
 
 } // namespace tensors
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

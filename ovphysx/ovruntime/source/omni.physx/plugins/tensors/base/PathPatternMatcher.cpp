@@ -21,7 +21,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace tensors
 {
@@ -477,5 +477,5 @@ void findMatchingObjectKeysBatch(const IPhysicsSource& source,
 }
 
 } // namespace tensors
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

@@ -77,16 +77,16 @@
 #include <deformables/PhysXDeformablePost.h>
 
 using namespace carb;
-using namespace ::physx;
-using namespace omni::physx::usdparser;
-using namespace omni::physx::internal;
+using namespace ::ev4sio_physx;
+using namespace omni::ev4sio_physx::usdparser;
+using namespace omni::ev4sio_physx::internal;
 using namespace carb::tasking;
 
 OMNI_LOG_DECLARE_CHANNEL(kSceneMultiGPULogChannel)
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 
 static PxFilterFlags OmniFilterShader(PxFilterObjectAttributes attributes0,
@@ -194,8 +194,8 @@ PxFilterFlags OmniFilterCallback::pairFound(PxU64 pairID,
     {
         const bool kinematic0 = PxFilterObjectIsKinematic(attributes0);
         const bool kinematic1 = PxFilterObjectIsKinematic(attributes1);
-        const bool static0 = ::physx::PxGetFilterObjectType(attributes0) == ::physx::PxFilterObjectType::eRIGID_STATIC;
-        const bool static1 = ::physx::PxGetFilterObjectType(attributes1) == ::physx::PxFilterObjectType::eRIGID_STATIC;
+        const bool static0 = ::ev4sio_physx::PxGetFilterObjectType(attributes0) == ::ev4sio_physx::PxFilterObjectType::eRIGID_STATIC;
+        const bool static1 = ::ev4sio_physx::PxGetFilterObjectType(attributes1) == ::ev4sio_physx::PxFilterObjectType::eRIGID_STATIC;
 
         pairFlags = pairFlags | PxPairFlag::eNOTIFY_TOUCH_LOST
             | PxPairFlag::eNOTIFY_TOUCH_FOUND
@@ -236,7 +236,7 @@ void OmniContactReportCallback::onSleep(PxActor** actors, PxU32 count)
 {
 }
 
-bool OmniContactReportCallback::isFilteredEvent(const ::physx::PxShape* s0, const ::physx::PxShape* s1)
+bool OmniContactReportCallback::isFilteredEvent(const ::ev4sio_physx::PxShape* s0, const ::ev4sio_physx::PxShape* s1)
 {
     const PhysXSetup& physxSetup = mOmniPhysX->getPhysXSetup();
 
@@ -526,11 +526,11 @@ bool getSurfaceVelocities(internal::InternalPhysXDatabase& db,
 
             if (db.getDebugDrawFlags() & InternalDebugDrawFlags::eDEBUG_DRAW_SPLINES)
             {
-                ::physx::PxRenderBuffer& debugRenderBuffer = db.getDebugRenderBuffer();
+                ::ev4sio_physx::PxRenderBuffer& debugRenderBuffer = db.getDebugRenderBuffer();
                 for (PxU32 i = 0; i < contacts.size(); ++i)
                 {                    
                     debugRenderBuffer.addLine(PxDebugLine(contacts.getPoint(i), contacts.getPoint(i) + linearVelocities[i],
-                                                          ::physx::PxDebugColor::eARGB_YELLOW));
+                                                          ::ev4sio_physx::PxDebugColor::eARGB_YELLOW));
                 }
             }
         }
@@ -662,7 +662,7 @@ void OmniContactReportCallback::onContactModify(PxContactModifyPair* pairs, PxU3
     }
 }
 
-class VehicleUpdateTask : public ::physx::PxLightCpuTask
+class VehicleUpdateTask : public ::ev4sio_physx::PxLightCpuTask
 {
 public:
     VehicleUpdateTask()
@@ -695,7 +695,7 @@ public:
             PhysXSetup& physxSetup = omniPhysX.getPhysXSetup();
             InternalVehicle** vehicles = mInternalScene->mVehicles.data();
             const InternalVehicleContext& internalContext = mInternalScene->getVehicleContext();
-            ::physx::PxVehiclePhysXSimulationContext simContext = internalContext.getContext();
+            ::ev4sio_physx::PxVehiclePhysXSimulationContext simContext = internalContext.getContext();
 
             do
             {
@@ -741,23 +741,23 @@ PhysXStepper::~PhysXStepper()
     mVehicleUpdateTasks.clear();
 };
 
-void PhysXStepper::customizeVehicleSimulationContext(::physx::PxVehiclePhysXSimulationContext& context,
+void PhysXStepper::customizeVehicleSimulationContext(::ev4sio_physx::PxVehiclePhysXSimulationContext& context,
     const PhysXActorVehicleBase& vehicle, PhysXSetup& physxSetup)
 {
-    if (vehicle.getRoadGeometryQueryType() == ::physx::PxVehiclePhysXRoadGeometryQueryType::eSWEEP)
+    if (vehicle.getRoadGeometryQueryType() == ::ev4sio_physx::PxVehiclePhysXRoadGeometryQueryType::eSWEEP)
     {
         // to ensure the code further below stays valid
-        static_assert(::physx::PxVehicleAxes::ePosX == 0, "");
-        static_assert(::physx::PxVehicleAxes::eNegX == 1, "");
-        static_assert(::physx::PxVehicleAxes::ePosY == 2, "");
-        static_assert(::physx::PxVehicleAxes::eNegY == 3, "");
-        static_assert(::physx::PxVehicleAxes::ePosZ == 4, "");
-        static_assert(::physx::PxVehicleAxes::eNegZ == 5, "");
+        static_assert(::ev4sio_physx::PxVehicleAxes::ePosX == 0, "");
+        static_assert(::ev4sio_physx::PxVehicleAxes::eNegX == 1, "");
+        static_assert(::ev4sio_physx::PxVehicleAxes::ePosY == 2, "");
+        static_assert(::ev4sio_physx::PxVehicleAxes::eNegY == 3, "");
+        static_assert(::ev4sio_physx::PxVehicleAxes::ePosZ == 4, "");
+        static_assert(::ev4sio_physx::PxVehicleAxes::eNegZ == 5, "");
         static_assert(usdparser::Axis::eX == 0, "");
         static_assert(usdparser::Axis::eY == 1, "");
         static_assert(usdparser::Axis::eZ == 2, "");
         usdparser::Axis axisEnum = static_cast<usdparser::Axis>(context.frame.latAxis >> 1);
-        ::physx::PxConvexMesh* wheelMesh = physxSetup.getVehicleWheelCylinderConvexMesh(axisEnum);
+        ::ev4sio_physx::PxConvexMesh* wheelMesh = physxSetup.getVehicleWheelCylinderConvexMesh(axisEnum);
         CARB_ASSERT(wheelMesh);
 
         context.physxUnitCylinderSweepMesh = wheelMesh;
@@ -767,11 +767,11 @@ void PhysXStepper::customizeVehicleSimulationContext(::physx::PxVehiclePhysXSimu
 
     context.tireSlipParams = vehicle.getTireSlipParams();
 
-    const ::physx::PxVehicleTireStickyParams& tireStickyParams = vehicle.getTireStickyParams();
-    context.tireStickyParams.stickyParams[::physx::PxVehicleTireDirectionModes::eLONGITUDINAL] =
-        tireStickyParams.stickyParams[::physx::PxVehicleTireDirectionModes::eLONGITUDINAL];
-    context.tireStickyParams.stickyParams[::physx::PxVehicleTireDirectionModes::eLATERAL] =
-        tireStickyParams.stickyParams[::physx::PxVehicleTireDirectionModes::eLATERAL];
+    const ::ev4sio_physx::PxVehicleTireStickyParams& tireStickyParams = vehicle.getTireStickyParams();
+    context.tireStickyParams.stickyParams[::ev4sio_physx::PxVehicleTireDirectionModes::eLONGITUDINAL] =
+        tireStickyParams.stickyParams[::ev4sio_physx::PxVehicleTireDirectionModes::eLONGITUDINAL];
+    context.tireStickyParams.stickyParams[::ev4sio_physx::PxVehicleTireDirectionModes::eLATERAL] =
+        tireStickyParams.stickyParams[::ev4sio_physx::PxVehicleTireDirectionModes::eLATERAL];
 }
 
 void PhysXStepper::createVehicleUpdateTasks()
@@ -1019,12 +1019,12 @@ void PhysXStepper::updateVehicles()
         PhysXSetup& physxSetup = omniPhysX.getPhysXSetup();
         InternalVehicle** vehicles = internalScene.mVehicles.data();
         InternalVehicleContext& internalContext = internalScene.getVehicleContext();
-        ::physx::PxVehiclePhysXSimulationContext& simContext = internalContext.getContext();
+        ::ev4sio_physx::PxVehiclePhysXSimulationContext& simContext = internalContext.getContext();
         PxScene* pxScene = mPhysXScene->getScene();
         simContext.gravity = pxScene->getGravity();  // in case gravity is modified during simulation
 
         // creating a copy that can get modified per vehicle instance
-        ::physx::PxVehiclePhysXSimulationContext simContextMod = simContext;
+        ::ev4sio_physx::PxVehiclePhysXSimulationContext simContextMod = simContext;
 
         {
             CARB_PROFILE_ZONE(0, "PhysXVehicleSimBeginUpdate");
@@ -1256,7 +1256,7 @@ void PhysXStepper::run()
             }
             else
             {
-                mPhysXScene->getScene()->setSceneQueryUpdateMode(::physx::PxSceneQueryUpdateMode::eBUILD_DISABLED_COMMIT_DISABLED);
+                mPhysXScene->getScene()->setSceneQueryUpdateMode(::ev4sio_physx::PxSceneQueryUpdateMode::eBUILD_DISABLED_COMMIT_DISABLED);
             }
         }
 
@@ -1464,7 +1464,7 @@ bool attachmentMayUseGpu(const usdparser::AttachedStage& attachedStage)
 {
 #if USE_PHYSX_GPU
     const int gpuPipelineOverride = attachedStage.getCachedSettings().gpuPipelineOverride;
-    const auto& foundation = omni::physx::foundation::getInterface();
+    const auto& foundation = omni::ev4sio_physx::foundation::getInterface();
     return (gpuPipelineOverride > 0 || gpuPipelineOverride == -1) &&
            !(foundation.isCpuMode && foundation.isCpuMode()) && OmniPhysX::getInstance().isCudaLibPresent();
 #else
@@ -1484,7 +1484,7 @@ static PxScene* createPhysicsScene(usdparser::AttachedStage& attachedStage, Phys
 {
     OmniPhysX& omniPhysX = OmniPhysX::getInstance();
     carb::settings::ISettings* iSettings = omniPhysX.getISettings();
-    ::physx::PxTolerancesScale tolerances = physxSetup.getDefaultTolerances(metersPerUnit);
+    ::ev4sio_physx::PxTolerancesScale tolerances = physxSetup.getDefaultTolerances(metersPerUnit);
 
     PxSceneDesc sceneDesc(tolerances);
 
@@ -1526,7 +1526,7 @@ static PxScene* createPhysicsScene(usdparser::AttachedStage& attachedStage, Phys
             // Only warn when GPU was genuinely unavailable despite being wanted.
             // When CPU mode was explicitly requested (e.g. OVPHYSX_DISABLE_GPU, device=-2),
             // the user already knows GPU is off — a warning would just be noise.
-            const omni::physx::IPhysxFoundation& physxFoundation = omni::physx::foundation::getInterface();
+            const omni::ev4sio_physx::IPhysxFoundation& physxFoundation = omni::ev4sio_physx::foundation::getInterface();
             const bool explicitCpuMode = physxFoundation.isCpuMode && physxFoundation.isCpuMode();
             if (!explicitCpuMode)
             {
@@ -1872,7 +1872,7 @@ PhysXScene* PhysXScene::createPhysXScene(usdparser::AttachedStage& attachedStage
 
     scene->mSceneQueryUpdateMode = physXScene->getSceneQueryUpdateMode();
 
-    scene->mControllerManager = PxCreateControllerManager(*physXScene);
+    scene->mControllerManager = ev4sio_PxCreateControllerManager(*physXScene);
     const float mpu = float(metersPerUnit);
     const float kpu = float(kilogramsPerUnit);
 
@@ -1954,7 +1954,7 @@ void PhysXScene::resetDefaultMaterial()
     mMaterialPath = omni::physics::parse::ObjectKey();
 }
 
-bool isRigidBodyDynamic(const omni::physx::usdparser::AttachedStage& attachedStage, omni::physx::usdparser::ObjectId id)
+bool isRigidBodyDynamic(const omni::ev4sio_physx::usdparser::AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId id)
 {
     PhysXType internalType = ePTRemoved;
     const internal::InternalDatabase::Record* objectRecord = attachedStage.getInternalPhysXDatabase().getFullRecord(internalType, id);
@@ -1974,5 +1974,5 @@ bool isRigidBodyDynamic(const omni::physx::usdparser::AttachedStage& attachedSta
     return false;
 }
 
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

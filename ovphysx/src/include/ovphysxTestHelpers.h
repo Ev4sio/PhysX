@@ -39,7 +39,7 @@ OVPHYSX_API bool ovphysx_get_tensor_binding_cuda_context_internal(
  * The runtime accessor is internal to libovphysx.so. This helper exposes the
  * pointer only to tests that need to perform CUDA driver operations.
  *
- * @return Opaque pointer to omni::physx::IOptionalCuda (cast to void*), or nullptr
+ * @return Opaque pointer to omni::ev4sio_physx::IOptionalCuda (cast to void*), or nullptr
  */
 OVPHYSX_API void* ovphysx_get_optional_cuda_internal(void);
 

@@ -23,7 +23,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 class PhysXScene;
 
@@ -80,15 +80,15 @@ public:
     // World-to-mesh-local inverses. Double precision: the source world
     // transforms these are inverted from are double, so nothing is narrowed on
     // the way in any more.
-    ::physx::PxMat44d mWorldToSimMesh;
+    ::ev4sio_physx::PxMat44d mWorldToSimMesh;
     std::vector<omni::physics::parse::ObjectKey> mSkinMeshKeys;
-    std::vector<::physx::PxMat44d> mWorldToSkinMeshTransforms;
+    std::vector<::ev4sio_physx::PxMat44d> mWorldToSkinMeshTransforms;
     std::vector<carb::Uint2> mSkinMeshRanges;
     uint32_t mNumSkinMeshVertices; // all skin mesh vertices
     uint32_t mNumSimMeshVertices; // physx sim mesh!
 
-    ::physx::PxVec4* mSimMeshPositionInvMassH; // physx sim mesh, pinned host memory
-    ::physx::PxVec4* mSimMeshVelocityH; // physx sim mesh, pinned host memory
+    ::ev4sio_physx::PxVec4* mSimMeshPositionInvMassH; // physx sim mesh, pinned host memory
+    ::ev4sio_physx::PxVec4* mSimMeshVelocityH; // physx sim mesh, pinned host memory
 
     std::vector<carb::Float3> mSimMeshPointsSaveRestoreBuf;
     std::vector<carb::Float3> mSimMeshVelocitiesSaveRestoreBuf;
@@ -97,8 +97,8 @@ public:
     PhysXScene* mPhysXScene;
 
     // deformable skinning mesh data (pinned host memory and device memory)
-    ::physx::PxVec3* mAllSkinnedVerticesH;
-    ::physx::PxVec3* mAllSkinnedVerticesD;
+    ::ev4sio_physx::PxVec3* mAllSkinnedVerticesH;
+    ::ev4sio_physx::PxVec3* mAllSkinnedVerticesD;
 };
 
 class InternalVolumeDeformableBody : public InternalDeformableBody
@@ -107,40 +107,40 @@ public:
     InternalVolumeDeformableBody();
     virtual ~InternalVolumeDeformableBody();
 
-    bool findTetsFromVtxIndices(const std::vector<::physx::PxU32>& vtxIds,
-                                std::vector<::physx::PxU32>& tetIds,
-                                std::vector<::physx::PxVec4>& tetBarycentrics,
+    bool findTetsFromVtxIndices(const std::vector<::ev4sio_physx::PxU32>& vtxIds,
+                                std::vector<::ev4sio_physx::PxU32>& tetIds,
+                                std::vector<::ev4sio_physx::PxVec4>& tetBarycentrics,
                                 bool forSimMesh);
-    bool findTetsFromPoints(const std::vector<::physx::PxVec3>& points,
-                            std::vector<::physx::PxU32>& tetIds,
-                            std::vector<::physx::PxVec4>& tetBarycentrics,
+    bool findTetsFromPoints(const std::vector<::ev4sio_physx::PxVec3>& points,
+                            std::vector<::ev4sio_physx::PxU32>& tetIds,
+                            std::vector<::ev4sio_physx::PxVec4>& tetBarycentrics,
                             bool forSimMesh);
-    void convertToPhysxAttachmentTets(std::vector<::physx::PxU32>& tetIds, std::vector<::physx::PxVec4>& tetBarycentrics);
+    void convertToPhysxAttachmentTets(std::vector<::ev4sio_physx::PxU32>& tetIds, std::vector<::ev4sio_physx::PxVec4>& tetBarycentrics);
 
-    ::physx::PxDeformableAttachment* addRigidAttachments(::physx::PxActor* actor,
-                                                         std::vector<::physx::PxU32> indices,
-                                                         std::vector<::physx::PxVec4> barycentrics,
-                                                         std::vector<::physx::PxVec4> coords);
-    ::physx::PxDeformableElementFilter* addRigidFilters(::physx::PxActor* actor, std::vector<::physx::PxU32> indices);
+    ::ev4sio_physx::PxDeformableAttachment* addRigidAttachments(::ev4sio_physx::PxActor* actor,
+                                                         std::vector<::ev4sio_physx::PxU32> indices,
+                                                         std::vector<::ev4sio_physx::PxVec4> barycentrics,
+                                                         std::vector<::ev4sio_physx::PxVec4> coords);
+    ::ev4sio_physx::PxDeformableElementFilter* addRigidFilters(::ev4sio_physx::PxActor* actor, std::vector<::ev4sio_physx::PxU32> indices);
 
     omni::physics::parse::ObjectKey mCollMeshKey;
-    ::physx::PxMat44d mWorldToCollMesh;
+    ::ev4sio_physx::PxMat44d mWorldToCollMesh;
     std::vector<carb::Uint3> mCollMeshSurfaceTriangles;
     std::vector<uint32_t> mCollMeshSurfaceTriToTetMap;
 
     uint32_t mNumCollMeshVertices; // physx coll mesh!
 
-    ::physx::PxVec4* mCollMeshPositionInvMassH; // physx coll mesh, pinned host memory
+    ::ev4sio_physx::PxVec4* mCollMeshPositionInvMassH; // physx coll mesh, pinned host memory
 
     std::vector<carb::Float3> mCollMeshPointsSaveRestoreBuf;
     std::vector<carb::Float3> mCollMeshExtentSaveRestoreBuf;
 
-    ::physx::PxDeformableVolume* mDeformableVolume;
-    ::physx::PxDeformableVolumeMesh* mDeformableVolumeMesh;
+    ::ev4sio_physx::PxDeformableVolume* mDeformableVolume;
+    ::ev4sio_physx::PxDeformableVolumeMesh* mDeformableVolumeMesh;
 
     // device volume deformable skinning mesh data
-    ::physx::PxU32* mSimMeshTetIndicesD;
-    ::physx::PxTetrahedronMeshEmbeddingInfo* mSkinningEmbeddingInfoD;
+    ::ev4sio_physx::PxU32* mSimMeshTetIndicesD;
+    ::ev4sio_physx::PxTetrahedronMeshEmbeddingInfo* mSkinningEmbeddingInfoD;
 
     // Runtime-owned per-sim-node kinematic-target buffer (one PxVec4 per sim-mesh vertex: xyz target +
     // w active-flag). PhysX's setKinematicTargetBufferD ADOPTS this pointer and reads it every step, so
@@ -148,7 +148,7 @@ public:
     // than an ovstage write session (whose column is freed at release). Allocated when the first kinematic-target
     // write session over the body opens (a body no such session covers never pays); freed in the dtor. Null until
     // then. See OvxPhysicsWrite (prepareKinematicTargetGroup, the commit) and OvxPhysicsRead (gather).
-    ::physx::PxVec4* mSimMeshKinematicTargetsD;
+    ::ev4sio_physx::PxVec4* mSimMeshKinematicTargetsD;
     // True once a kinematic-target write session has set this body up (setKinematicTargetBufferD handed the buffer
     // above, every node free, and ePARTIALLY_KINEMATIC raised). Raised when the first such session opens and NEVER
     // cleared: pinning is monotonic (a node goes free->pinned but never back), so the setup stays for the body's
@@ -162,35 +162,35 @@ public:
     InternalSurfaceDeformableBody();
     virtual ~InternalSurfaceDeformableBody();
 
-    bool findTrisFromVtxIndices(const std::vector<::physx::PxU32>& vtxIds,
-                                std::vector<::physx::PxU32>& triIds,
-                                std::vector<::physx::PxVec4>& triBarycentrics);
-    bool findTrisFromPoints(const std::vector<::physx::PxVec3>& points,
-                            std::vector<::physx::PxU32>& triIds,
-                            std::vector<::physx::PxVec4>& triBarycentrics);
+    bool findTrisFromVtxIndices(const std::vector<::ev4sio_physx::PxU32>& vtxIds,
+                                std::vector<::ev4sio_physx::PxU32>& triIds,
+                                std::vector<::ev4sio_physx::PxVec4>& triBarycentrics);
+    bool findTrisFromPoints(const std::vector<::ev4sio_physx::PxVec3>& points,
+                            std::vector<::ev4sio_physx::PxU32>& triIds,
+                            std::vector<::ev4sio_physx::PxVec4>& triBarycentrics);
 
-    ::physx::PxDeformableAttachment* addRigidAttachments(::physx::PxActor* actor,
-                                                         std::vector<::physx::PxU32> indices,
-                                                         std::vector<::physx::PxVec4> barycentrics,
-                                                         std::vector<::physx::PxVec4> coords);
-    ::physx::PxDeformableElementFilter* addRigidFilters(::physx::PxActor* actor, std::vector<::physx::PxU32> indices);
+    ::ev4sio_physx::PxDeformableAttachment* addRigidAttachments(::ev4sio_physx::PxActor* actor,
+                                                         std::vector<::ev4sio_physx::PxU32> indices,
+                                                         std::vector<::ev4sio_physx::PxVec4> barycentrics,
+                                                         std::vector<::ev4sio_physx::PxVec4> coords);
+    ::ev4sio_physx::PxDeformableElementFilter* addRigidFilters(::ev4sio_physx::PxActor* actor, std::vector<::ev4sio_physx::PxU32> indices);
 
     std::vector<uint32_t> mSimToPhysxTriMap;
 
     std::vector<carb::Float3> mSimMeshExtentSaveRestoreBuf;
 
-    ::physx::PxDeformableSurface* mDeformableSurface;
-    ::physx::PxTriangleMesh* mTriangleMesh;
+    ::ev4sio_physx::PxDeformableSurface* mDeformableSurface;
+    ::ev4sio_physx::PxTriangleMesh* mTriangleMesh;
 
     // device surface deformable skinning mesh data
-    ::physx::PxU32* mSimMeshTriIndicesD;
-    ::physx::PxTriangleMeshEmbeddingInfo* mSkinningEmbeddingInfoD;
-    ::physx::PxVec3* mNormalVectorsD;
+    ::ev4sio_physx::PxU32* mSimMeshTriIndicesD;
+    ::ev4sio_physx::PxTriangleMeshEmbeddingInfo* mSkinningEmbeddingInfoD;
+    ::ev4sio_physx::PxVec3* mNormalVectorsD;
 };
 
 
 } // namespace internal
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni
 
 #ifdef _MSC_VER

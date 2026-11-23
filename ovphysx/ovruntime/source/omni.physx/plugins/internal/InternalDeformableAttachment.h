@@ -24,7 +24,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace usdparser { class AttachedStage; }
 namespace internal
@@ -69,8 +69,8 @@ public:
         omni::physics::parse::ObjectKey key;
         usdparser::ObjectId objId{ usdparser::kInvalidObjectId };
 
-        ::physx::PxActor* actor;
-        ::physx::PxDeformableAttachmentTargetType::Enum targetType;
+        ::ev4sio_physx::PxActor* actor;
+        ::ev4sio_physx::PxDeformableAttachmentTargetType::Enum targetType;
         std::vector<int> indices;
         std::vector<carb::Float4> coords;
 
@@ -86,20 +86,20 @@ public:
     void create();
     void update();
 
-    void swapRigidActor(::physx::PxRigidActor* sourceActor, ::physx::PxRigidActor* destActor);
+    void swapRigidActor(::ev4sio_physx::PxRigidActor* sourceActor, ::ev4sio_physx::PxRigidActor* destActor);
     void setCreateAttachmentEvent();
-    void setRefreshAttachmentEvent(::physx::PxRigidActor* rigidActor);
+    void setRefreshAttachmentEvent(::ev4sio_physx::PxRigidActor* rigidActor);
     void setUpdateXformEvent(usdparser::ObjectId objId);
 
     usdparser::ObjectId createXformActor(omni::physics::parse::ObjectKey key);
     void setupXformAttachment();
 
-    __forceinline bool hasRigidActor(const ::physx::PxRigidActor* rigidActor) const
+    __forceinline bool hasRigidActor(const ::ev4sio_physx::PxRigidActor* rigidActor) const
     {
         return (mData[1].actor != nullptr && mData[1].actor == rigidActor) ? true : false;
     }
 
-    __forceinline void setRigidActor(::physx::PxRigidActor* rigidActor)
+    __forceinline void setRigidActor(::ev4sio_physx::PxRigidActor* rigidActor)
     {
         if (mData[1].physxType == ePTXformActor)
             mData[1].actor = rigidActor;
@@ -113,14 +113,14 @@ public:
 
     AttachmentData mData[2];
 
-    ::physx::PxTransform mLocalTransform{ ::physx::PxTransform(::physx::PxIdentity) };
-    ::physx::PxVec3 mScale{ ::physx::PxVec3(1.0f) };
+    ::ev4sio_physx::PxTransform mLocalTransform{ ::ev4sio_physx::PxTransform(::ev4sio_physx::PxIdentity) };
+    ::ev4sio_physx::PxVec3 mScale{ ::ev4sio_physx::PxVec3(1.0f) };
 
     usdparser::ObjectType mType{ usdparser::ObjectType::eDeformableAttachment };
     omni::physics::parse::ObjectKey mKey;
     usdparser::ObjectId mObjectId{ usdparser::kInvalidObjectId };
 
-    ::physx::PxDeformableAttachment* mDeformableAttachment{ nullptr };
+    ::ev4sio_physx::PxDeformableAttachment* mDeformableAttachment{ nullptr };
     InternalScene* mInternalScene{ nullptr };
 
     // Event handling
@@ -141,7 +141,7 @@ public:
         omni::physics::parse::ObjectKey key;
         usdparser::ObjectId objId{ usdparser::kInvalidObjectId };
 
-        ::physx::PxActor* actor;
+        ::ev4sio_physx::PxActor* actor;
         std::vector<unsigned int> groupElementCounts;
         std::vector<unsigned int> groupElementIndices;
 
@@ -155,16 +155,16 @@ public:
     void create();
     void update();
 
-    void swapRigidActor(::physx::PxRigidActor* sourceActor, ::physx::PxRigidActor* destActor);
+    void swapRigidActor(::ev4sio_physx::PxRigidActor* sourceActor, ::ev4sio_physx::PxRigidActor* destActor);
     void setCreateCollisionFilterEvent();
-    void setRefreshCollisionFilterEvent(::physx::PxRigidActor* rigidActor);
+    void setRefreshCollisionFilterEvent(::ev4sio_physx::PxRigidActor* rigidActor);
 
-    __forceinline bool hasRigidActor(const ::physx::PxRigidActor* rigidActor) const
+    __forceinline bool hasRigidActor(const ::ev4sio_physx::PxRigidActor* rigidActor) const
     {
         return (mData[mActorIndex[1]].actor == rigidActor) ? true : false;
     }
 
-    __forceinline void setRigidActor(::physx::PxRigidActor* rigidActor)
+    __forceinline void setRigidActor(::ev4sio_physx::PxRigidActor* rigidActor)
     {
         if (mData[mActorIndex[1]].physxType == ePTXformActor)
             mData[mActorIndex[1]].actor = rigidActor;
@@ -176,7 +176,7 @@ public:
     omni::physics::parse::ObjectKey mKey;
     usdparser::ObjectId mObjectId{ usdparser::kInvalidObjectId };
 
-    ::physx::PxDeformableElementFilter* mDeformableElementFilter{ nullptr };
+    ::ev4sio_physx::PxDeformableElementFilter* mDeformableElementFilter{ nullptr };
     InternalScene* mInternalScene{ nullptr };
 
     // Event handling
@@ -185,7 +185,7 @@ public:
 };
 
 } // namespace internal
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni
 
 #ifdef _MSC_VER

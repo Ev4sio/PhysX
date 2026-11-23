@@ -31,4 +31,4 @@
 #include "NvBlastExtPxSerialization-capn.h"
 #include "PxCooking.h"
 
-DTO_CLASS(PxQuat, physx::PxQuat, Nv::Blast::Serialization::PxQuat)
+DTO_CLASS(PxQuat, ev4sio_physx::PxQuat, Nv::Blast::Serialization::PxQuat)

@@ -40,8 +40,8 @@
 #include "GuConvexSupport.h"
 #include "GuConvexGeometry.h"
 
-using namespace physx;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
 
 extern GeomSweepFuncs gGeomSweepFuncs;
 extern GeomOverlapTable gGeomOverlapMethodTable[];
@@ -87,10 +87,10 @@ bool PxGeometryQuery::sweep(const PxVec3& unitDir, const PxReal distance,
 		"PxGeometryQuery::sweep(): sweep distance must be >=0 or >0 with eASSUME_NO_INITIAL_OVERLAP.", 0);
 #if PX_CHECKED
 	if(!PxGeometryQuery::isValid(geom0))
-		return PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "Provided geometry 0 is not valid");
+		return ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "Provided geometry 0 is not valid");
 
 	if(!PxGeometryQuery::isValid(geom1))
-		return PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "Provided geometry 1 is not valid");
+		return ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "Provided geometry 1 is not valid");
 #endif
 
 	const GeomSweepFuncs& sf = gGeomSweepFuncs;
@@ -159,7 +159,7 @@ bool PxGeometryQuery::overlap(	const PxGeometry& geom0, const PxTransform& pose0
 								PxGeometryQueryFlags queryFlags, PxOverlapThreadContext* threadContext)
 {
 	PX_SIMD_GUARD_CNDT(queryFlags & PxGeometryQueryFlag::eSIMD_GUARD)
-	return Gu::overlap(geom0, pose0, geom1, pose1, gGeomOverlapMethodTable, threadContext);
+	return ev4sio_Gu::overlap(geom0, pose0, geom1, pose1, gGeomOverlapMethodTable, threadContext);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -225,7 +225,7 @@ PxReal PxGeometryQuery::pointDistance(const PxVec3& point, const PxGeometry& geo
 			if(sqDistance<=r*r)
 				return 0.0f;
 
-			const PxReal d = physx::intrinsics::sqrt(sqDistance);
+			const PxReal d = ev4sio_physx::intrinsics::sqrt(sqDistance);
 
 			if(closestPoint)
 			{
@@ -271,19 +271,19 @@ PxReal PxGeometryQuery::pointDistance(const PxVec3& point, const PxGeometry& geo
 			const PxConvexCoreGeometry& convexGeom = static_cast<const PxConvexCoreGeometry&>(geom);
 
 			// Create a point support
-			Gu::ConvexShape pointShape;
-			pointShape.coreType = Gu::ConvexCore::Type::ePOINT;
+			ev4sio_Gu::ConvexShape pointShape;
+			pointShape.coreType = ev4sio_Gu::ConvexCore::Type::ePOINT;
 			pointShape.pose = PxTransform(PxIdentity);
 			pointShape.margin = 0.0f;
 
 			// Create convex core shape
-			Gu::ConvexShape convexShape;
-			Gu::makeConvexShape(convexGeom, pose, convexShape);
+			ev4sio_Gu::ConvexShape convexShape;
+			ev4sio_Gu::makeConvexShape(convexGeom, pose, convexShape);
 			PX_ASSERT(convexShape.isValid());
 
 			// Compute distance using GJK
 			PxVec3 pointA, pointB, axis;
-			const PxReal distance = Gu::RefGjkEpa::computeGjkDistance(pointShape, convexShape, PxTransform(PxIdentity), pose, FLT_MAX, pointA, pointB, axis);
+			const PxReal distance = ev4sio_Gu::RefGjkEpa::computeGjkDistance(pointShape, convexShape, PxTransform(PxIdentity), pose, FLT_MAX, pointA, pointB, axis);
 
 			if(closestPoint)
 				*closestPoint = pointB;
@@ -318,7 +318,7 @@ bool PxGeometryQuery::computeGeomBounds(PxBounds3& bounds, const PxGeometry& geo
 	PX_SIMD_GUARD_CNDT(queryFlags & PxGeometryQueryFlag::eSIMD_GUARD)
 	PX_CHECK_AND_RETURN_VAL(pose.isValid(), "PxGeometryQuery::computeGeomBounds(): pose is not valid.", false);
 
-	Gu::computeBounds(bounds, geom, pose, offset, inflation);
+	ev4sio_Gu::computeBounds(bounds, geom, pose, offset, inflation);
 	PX_ASSERT(bounds.isValid());
 	return true;
 }
@@ -363,7 +363,7 @@ bool PxGeometryQuery::generateTriangleContacts(const PxGeometry& geom, const PxT
 
 	const PxU32 triangleIndices[3]{ 0, 1, 2 };
 	PxInlineArray<PxU32, LOCAL_PCM_CONTACTS_SIZE> deferredContacts;
-	Gu::MultiplePersistentContactManifold multiManifold;
+	ev4sio_Gu::MultiplePersistentContactManifold multiManifold;
 	multiManifold.initialize();
 	PxContactBuffer contactBuffer0; contactBuffer0.reset();
 	const PxTransformV geomTransform = loadTransformU(pose);
@@ -389,10 +389,10 @@ bool PxGeometryQuery::generateTriangleContacts(const PxGeometry& geom, const PxT
 
 			multiManifold.setRelativeTransform(capsuleTransform);
 
-			const Gu::CapsuleV capsuleV(V3LoadU(pose.p), V3LoadU(pose.q.rotate(PxVec3(capsule.halfHeight, 0, 0))), capsuleRadius);
+			const ev4sio_Gu::CapsuleV capsuleV(V3LoadU(pose.p), V3LoadU(pose.q.rotate(PxVec3(capsule.halfHeight, 0, 0))), capsuleRadius);
 
-			Gu::PCMCapsuleVsMeshContactGeneration contactGeneration(capsuleV, contactDist, replaceBreakingThreshold, capsuleTransform, meshTransform, multiManifold, contactBuffer0, &deferredContacts);
-			contactGeneration.processTriangle(triangleVertices, triangleIndex, Gu::ETD_CONVEX_EDGE_ALL, triangleIndices);
+			ev4sio_Gu::PCMCapsuleVsMeshContactGeneration contactGeneration(capsuleV, contactDist, replaceBreakingThreshold, capsuleTransform, meshTransform, multiManifold, contactBuffer0, &deferredContacts);
+			contactGeneration.processTriangle(triangleVertices, triangleIndex, ev4sio_Gu::ETD_CONVEX_EDGE_ALL, triangleIndices);
 			contactGeneration.processContacts(GU_CAPSULE_MANIFOLD_CACHE_SIZE, false);
 
 			break;
@@ -403,9 +403,9 @@ bool PxGeometryQuery::generateTriangleContacts(const PxGeometry& geom, const PxT
 
 			const PxBounds3 hullAABB(-box.halfExtents, box.halfExtents);
 			const Vec3V boxExtents = V3LoadU(box.halfExtents);
-			const FloatV minMargin = Gu::CalculatePCMBoxMargin(boxExtents, toleranceLength, GU_PCM_MESH_MANIFOLD_EPSILON);
+			const FloatV minMargin = ev4sio_Gu::CalculatePCMBoxMargin(boxExtents, toleranceLength, GU_PCM_MESH_MANIFOLD_EPSILON);
 
-			Cm::FastVertex2ShapeScaling idtScaling;
+			ev4sio_Cm::FastVertex2ShapeScaling idtScaling;
 
 			const FloatV contactDist = FLoad(contactDistance + meshContactMargin);
 			const FloatV replaceBreakingThreshold = FMul(minMargin, FLoad(0.05f));
@@ -422,8 +422,8 @@ bool PxGeometryQuery::generateTriangleContacts(const PxGeometry& geom, const PxT
 			const Mat33V identity = M33Identity();
 			SupportLocalImpl<BoxV> boxMap(boxV, boxTransform, identity, identity, true);
 
-			Gu::PCMConvexVsMeshContactGeneration contactGeneration(contactDist, replaceBreakingThreshold, boxTransform, meshTransform, multiManifold, contactBuffer0, polyData, &boxMap, &deferredContacts, idtScaling, true, true, NULL);
-			contactGeneration.processTriangle(triangleVertices, triangleIndex, Gu::ETD_CONVEX_EDGE_ALL, triangleIndices);
+			ev4sio_Gu::PCMConvexVsMeshContactGeneration contactGeneration(contactDist, replaceBreakingThreshold, boxTransform, meshTransform, multiManifold, contactBuffer0, polyData, &boxMap, &deferredContacts, idtScaling, true, true, NULL);
+			contactGeneration.processTriangle(triangleVertices, triangleIndex, ev4sio_Gu::ETD_CONVEX_EDGE_ALL, triangleIndices);
 			contactGeneration.generateLastContacts();
 			contactGeneration.processContacts(GU_SINGLE_MANIFOLD_CACHE_SIZE, false);
 
@@ -435,7 +435,7 @@ bool PxGeometryQuery::generateTriangleContacts(const PxGeometry& geom, const PxT
 
 			const ConvexHullData* hullData = _getHullData(convex);
 
-			Cm::FastVertex2ShapeScaling convexScaling;
+			ev4sio_Cm::FastVertex2ShapeScaling convexScaling;
 			PxBounds3 hullAABB;
 			PolygonalData polyData;
 			const bool idtConvexScale = getPCMConvexData(convex, convexScaling, hullAABB, polyData);
@@ -451,10 +451,10 @@ bool PxGeometryQuery::generateTriangleContacts(const PxGeometry& geom, const PxT
 			const PxTransformV convexTransform = geomTransform;
 			const PxTransformV meshTransform = triangleTransform;
 
-			SupportLocalImpl<Gu::ConvexHullV> convexMap(convexHull, convexTransform, convexHull.vertex2Shape, convexHull.shape2Vertex, false);
+			SupportLocalImpl<ev4sio_Gu::ConvexHullV> convexMap(convexHull, convexTransform, convexHull.vertex2Shape, convexHull.shape2Vertex, false);
 
-			Gu::PCMConvexVsMeshContactGeneration contactGeneration(contactDist, replaceBreakingThreshold, convexTransform, meshTransform, multiManifold, contactBuffer0, polyData, &convexMap, &deferredContacts, convexScaling, idtConvexScale, true, NULL);
-			contactGeneration.processTriangle(triangleVertices, triangleIndex, Gu::ETD_CONVEX_EDGE_ALL, triangleIndices);
+			ev4sio_Gu::PCMConvexVsMeshContactGeneration contactGeneration(contactDist, replaceBreakingThreshold, convexTransform, meshTransform, multiManifold, contactBuffer0, polyData, &convexMap, &deferredContacts, convexScaling, idtConvexScale, true, NULL);
+			contactGeneration.processTriangle(triangleVertices, triangleIndex, ev4sio_Gu::ETD_CONVEX_EDGE_ALL, triangleIndices);
 			contactGeneration.generateLastContacts();
 			contactGeneration.processContacts(GU_SINGLE_MANIFOLD_CACHE_SIZE, false);
 
@@ -464,29 +464,29 @@ bool PxGeometryQuery::generateTriangleContacts(const PxGeometry& geom, const PxT
 		{
 			const PxConvexCoreGeometry& convex = static_cast<const PxConvexCoreGeometry&>(geom);
 
-			Gu::ConvexShape convexShape;
-			Gu::makeConvexShape(convex, pose, convexShape);
+			ev4sio_Gu::ConvexShape convexShape;
+			ev4sio_Gu::makeConvexShape(convex, pose, convexShape);
 			PX_ASSERT(convexShape.isValid());
 
 			// Create the triangle shape as a points-based convex shape
-			Gu::ConvexShape triShape;
-			triShape.coreType = Gu::ConvexCore::Type::ePOINTS;
+			ev4sio_Gu::ConvexShape triShape;
+			triShape.coreType = ev4sio_Gu::ConvexCore::Type::ePOINTS;
 			triShape.pose = PxTransform(PxIdentity);
 			triShape.margin = meshContactMargin;
 			// Initialize the points core data
-			Gu::ConvexCore::PointsCore triCore;
+			ev4sio_Gu::ConvexCore::PointsCore triCore;
 			triCore.points = triangleVertices;
 			triCore.numPoints = 3;
 			triCore.stride = sizeof(PxVec3);
 			triCore.S = PxVec3(1.0f);
 			triCore.R = PxQuat(PxIdentity);
 			// Copy the core data into the shape's core data buffer
-			PX_ASSERT(sizeof(triCore) <= Gu::ConvexCore::MAX_CORE_SIZE);
+			PX_ASSERT(sizeof(triCore) <= ev4sio_Gu::ConvexCore::MAX_CORE_SIZE);
 			PxMemCopy(triShape.coreData, &triCore, sizeof(triCore));
 
-			PxVec3 normal, points[Gu::MAX_CONVEX_CONTACTS];
-			PxReal dists[Gu::MAX_CONVEX_CONTACTS];
-			if (PxU32 count = Gu::generateContacts(convexShape, triShape, contactDistance + meshContactMargin, normal, points, dists))
+			PxVec3 normal, points[ev4sio_Gu::MAX_CONVEX_CONTACTS];
+			PxReal dists[ev4sio_Gu::MAX_CONVEX_CONTACTS];
+			if (PxU32 count = ev4sio_Gu::generateContacts(convexShape, triShape, contactDistance + meshContactMargin, normal, points, dists))
 			{
 				for (PxU32 i = 0; i < count; ++i)
 				{
@@ -508,11 +508,11 @@ bool PxGeometryQuery::generateTriangleContacts(const PxGeometry& geom, const PxT
 
 	for (PxU32 manifoldIndex = 0; manifoldIndex < multiManifold.mNumManifolds; ++manifoldIndex)
 	{
-		Gu::SinglePersistentContactManifold& manifold = *multiManifold.getManifold(manifoldIndex);
+		ev4sio_Gu::SinglePersistentContactManifold& manifold = *multiManifold.getManifold(manifoldIndex);
 		PxVec3 normal; V3StoreU(manifold.getWorldNormal(triangleTransform), normal);
 		for (PxU32 contactIndex = 0; contactIndex < manifold.getNumContacts(); ++contactIndex)
 		{
-			Gu::MeshPersistentContact& meshContact = manifold.getContactPoint(contactIndex);
+			ev4sio_Gu::MeshPersistentContact& meshContact = manifold.getContactPoint(contactIndex);
 			PxContactPoint contact;
 			PxVec3 p0; V3StoreU(geomTransform.transform(meshContact.mLocalPointA), p0); p0 -= normal * radius0;
 			PxVec3 p1; V3StoreU(meshContact.mLocalPointB, p1); p1 += normal * radius1;

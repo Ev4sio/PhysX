@@ -8,8 +8,8 @@
 #include "CmConeLimitHelper.h"
 #include "omnipvd/ExtOmniPvdSetData.h"
 
-using namespace physx;
-using namespace Ext;
+using namespace ev4sio_physx;
+using namespace ev4sio_Ext;
 
 SphericalJoint::SphericalJoint(const PxTolerancesScale& /*scale*/, PxRigidActor* actor0, const PxTransform& localFrame0, PxRigidActor* actor1, const PxTransform& localFrame1) :
 	SphericalJointT(PxJointConcreteType::eSPHERICAL, actor0, localFrame0, actor1, localFrame1, "SphericalJointData")
@@ -125,7 +125,7 @@ static PxU32 SphericalJointSolverPrep(Px1DConstraint* constraints,
 
 		PxVec3 axis;
 		PxReal error;
-		const Cm::ConeLimitHelperTanLess coneHelper(data.limit.yAngle, data.limit.zAngle);
+		const ev4sio_Cm::ConeLimitHelperTanLess coneHelper(data.limit.yAngle, data.limit.zAngle);
 		coneHelper.getLimit(swing, axis, error);
 		ch.angularLimit(cA2w.rotate(axis), error, data.limit);
 	}
@@ -144,7 +144,7 @@ static PxConstraintShaderTable gSphericalJointShaders = { SphericalJointSolverPr
 
 PxConstraintSolverPrep SphericalJoint::getPrep()	const	{ return gSphericalJointShaders.solverPrep; }
 
-PxSphericalJoint* physx::PxSphericalJointCreate(PxPhysics& physics, PxRigidActor* actor0, const PxTransform& localFrame0, PxRigidActor* actor1, const PxTransform& localFrame1)
+PxSphericalJoint* ev4sio_physx::PxSphericalJointCreate(PxPhysics& physics, PxRigidActor* actor0, const PxTransform& localFrame0, PxRigidActor* actor1, const PxTransform& localFrame1)
 {
 	PX_CHECK_AND_RETURN_NULL(localFrame0.isSane(), "PxSphericalJointCreate: local frame 0 is not a valid transform"); 
 	PX_CHECK_AND_RETURN_NULL(localFrame1.isSane(), "PxSphericalJointCreate: local frame 1 is not a valid transform"); 
@@ -180,9 +180,9 @@ void SphericalJoint::updateOmniPvdProperties(const PxConstraintOmniPvdState& sta
 	OMNI_PVD_WRITE_SCOPE_END
 }
 
-template<> void physx::Ext::omniPvdInitJoint<SphericalJoint>(OmniPvdWriter* pvdWriter, const OmniPvdPxExtensionsRegistrationData* pvdRegData, SphericalJoint& joint); // declared before the wrapper so the wrapper binds the explicit form below instead of implicitly instantiating it
+template<> void ev4sio_physx::ev4sio_Ext::omniPvdInitJoint<SphericalJoint>(OmniPvdWriter* pvdWriter, const OmniPvdPxExtensionsRegistrationData* pvdRegData, SphericalJoint& joint); // declared before the wrapper so the wrapper binds the explicit form below instead of implicitly instantiating it
 template<>
-void physx::Ext::omniPvdInitJoint<SphericalJoint>(SphericalJoint& joint)
+void ev4sio_physx::ev4sio_Ext::omniPvdInitJoint<SphericalJoint>(SphericalJoint& joint)
 {
 	OMNI_PVD_WRITE_SCOPE_BEGIN(pvdWriter, pvdRegData)
 	omniPvdInitJoint(pvdWriter, pvdRegData, joint);
@@ -190,7 +190,7 @@ void physx::Ext::omniPvdInitJoint<SphericalJoint>(SphericalJoint& joint)
 }
 
 template<>
-void physx::Ext::omniPvdInitJoint<SphericalJoint>(OmniPvdWriter* pvdWriter, const OmniPvdPxExtensionsRegistrationData* pvdRegData, SphericalJoint& joint)
+void ev4sio_physx::ev4sio_Ext::omniPvdInitJoint<SphericalJoint>(OmniPvdWriter* pvdWriter, const OmniPvdPxExtensionsRegistrationData* pvdRegData, SphericalJoint& joint)
 {
 	PxSphericalJoint& j = static_cast<PxSphericalJoint&>(joint);
 	OMNI_PVD_CREATE_EXPLICIT(pvdWriter, pvdRegData, OMNI_PVD_CONTEXT_HANDLE, PxSphericalJoint, j);

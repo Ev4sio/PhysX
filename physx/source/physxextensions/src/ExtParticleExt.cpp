@@ -12,7 +12,7 @@
 #include "cudamanager/PxCudaContextManager.h"
 #include "cudamanager/PxCudaContext.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 namespace ExtGpu
 {
@@ -46,14 +46,14 @@ void PxDmaDataToDevice(PxCudaContextManager* cudaContextManager, PxParticleBuffe
 
 PxParticleBuffer* PxCreateAndPopulateParticleBuffer(const PxParticleBufferDesc& desc, PxCudaContextManager* cudaContextManager)
 {
-	PxParticleBuffer* particleBuffer = PxGetPhysics().createParticleBuffer(desc.maxParticles, cudaContextManager);
+	PxParticleBuffer* particleBuffer = ev4sio_PxGetPhysics().createParticleBuffer(desc.maxParticles, cudaContextManager);
 	PxDmaDataToDevice(cudaContextManager, particleBuffer, desc);
 	return particleBuffer;
 }
 
 PxParticleAndDiffuseBuffer* PxCreateAndPopulateParticleAndDiffuseBuffer(const PxParticleAndDiffuseBufferDesc& desc, PxCudaContextManager* cudaContextManager)
 {
-	PxParticleAndDiffuseBuffer* particleBuffer = PxGetPhysics().createParticleAndDiffuseBuffer(desc.maxParticles, desc.maxDiffuseParticles, cudaContextManager);
+	PxParticleAndDiffuseBuffer* particleBuffer = ev4sio_PxGetPhysics().createParticleAndDiffuseBuffer(desc.maxParticles, desc.maxDiffuseParticles, cudaContextManager);
 	PxDmaDataToDevice(cudaContextManager, particleBuffer, desc);
 	particleBuffer->setMaxActiveDiffuseParticles(desc.maxActiveDiffuseParticles);
 	return particleBuffer;
@@ -61,4 +61,4 @@ PxParticleAndDiffuseBuffer* PxCreateAndPopulateParticleAndDiffuseBuffer(const Px
 
 
 } //namespace ExtGpu
-} //namespace physx
+} //namespace ev4sio_physx

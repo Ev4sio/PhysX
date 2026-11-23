@@ -52,15 +52,15 @@ namespace omni::physics::parse
 // with the simulation backend. See `ObjectKey` (Handles.h) for the
 // parse-time / source-side counterpart, and `omni/physx/ObjectId.h`
 // for the full lifecycle doc.
-using omni::physx::usdparser::ObjectId;
-using omni::physx::usdparser::kInvalidObjectId;
-using omni::physx::usdparser::MeshKey;
-using omni::physx::usdparser::MeshKeyHash;
-using omni::physx::ConvexMeshCookingParams;
-using omni::physx::TriangleMeshCookingParams;
-using omni::physx::SdfMeshCookingParams;
-using omni::physx::ConvexDecompositionCookingParams;
-using omni::physx::SphereFillCookingParams;
+using omni::ev4sio_physx::usdparser::ObjectId;
+using omni::ev4sio_physx::usdparser::kInvalidObjectId;
+using omni::ev4sio_physx::usdparser::MeshKey;
+using omni::ev4sio_physx::usdparser::MeshKeyHash;
+using omni::ev4sio_physx::ConvexMeshCookingParams;
+using omni::ev4sio_physx::TriangleMeshCookingParams;
+using omni::ev4sio_physx::SdfMeshCookingParams;
+using omni::ev4sio_physx::ConvexDecompositionCookingParams;
+using omni::ev4sio_physx::SphereFillCookingParams;
 
 // Matrix4d lives in Math.h; both Descriptors.h and IPhysicsSource.h include it.
 
@@ -548,7 +548,7 @@ struct CustomPhysxShapeDesc : PhysxShapeDesc
     CustomPhysxShapeDesc() : customGeometryTokenHash(0) { type = eCustomShape; }
     // Stable content hash of the custom-geometry schema-API token (e.g.
     // "PhysxMeshMergeCollisionAPI"). USD callers compute this via
-    // `omni::physx::computeCustomGeometryHash(TfToken)`; non-USD callers
+    // `omni::ev4sio_physx::computeCustomGeometryHash(TfToken)`; non-USD callers
     // use the equivalent string overload. Matches the key type
     // `PhysXCustomGeometryManager::mCustomGeometryTypeMap` uses internally.
     size_t customGeometryTokenHash;
@@ -645,7 +645,7 @@ struct ConvexMeshPhysxShapeDesc : MergeMeshPhysxShapeDesc
 
     // Source-side ObjectKey for the mesh prim. Named `meshPrimKey` to
     // disambiguate from the cooking-system `meshKey` (content hash, type
-    // `omni::physx::MeshKey`) declared below.
+    // `omni::ev4sio_physx::MeshKey`) declared below.
     ObjectKey meshPrimKey;
     carb::Float3 meshScale = { 1.0f, 1.0f, 1.0f };
     MeshKey crc;

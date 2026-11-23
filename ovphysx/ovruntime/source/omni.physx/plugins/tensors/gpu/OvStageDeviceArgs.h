@@ -16,7 +16,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace tensors
 {
@@ -139,5 +139,5 @@ bool physxOnStream(const OvStageDeviceStreamArgs& deviceArgs, Call&& call)
 }
 
 } // namespace tensors
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

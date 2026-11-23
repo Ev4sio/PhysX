@@ -14,14 +14,14 @@
 #include "PxgContactManager.h"
 #include "PxgBucket.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-	namespace Bp
+	namespace ev4sio_Bp
 	{
 		class BoundsArray;
 	}
 
-	namespace Dy
+	namespace ev4sio_Dy
 	{
 		class Context;
 	}
@@ -37,14 +37,14 @@ namespace physx
 	class PxgSimulationCore;
 	struct PxgAllocatorDesc;
 	
-	class PxgCMGpuDiscreteUpdateBase: public Cm::Task
+	class PxgCMGpuDiscreteUpdateBase: public ev4sio_Cm::Task
 	{
 	private:
 		PX_NOCOPY(PxgCMGpuDiscreteUpdateBase)
 
 	public:
 		PxgCMGpuDiscreteUpdateBase(PxgNphaseImplementationContext* context):
-		   Cm::Task(0), mDt(FLT_MAX), mContext(context)
+		   ev4sio_Cm::Task(0), mDt(FLT_MAX), mContext(context)
 		{
 		}
 
@@ -63,11 +63,11 @@ namespace physx
 		PxgNphaseImplementationContext*	mContext;
 	};
 
-	class PxgCMGpuDiscreteUpdateFallbackTask : public Cm::Task
+	class PxgCMGpuDiscreteUpdateFallbackTask : public ev4sio_Cm::Task
 	{
 	public:
 		PxgCMGpuDiscreteUpdateFallbackTask(PxgNphaseImplementationContext* context) :
-			Cm::Task(0), mDt(FLT_MAX), mContext(context)
+			ev4sio_Cm::Task(0), mDt(FLT_MAX), mContext(context)
 		{
 		}
 
@@ -155,14 +155,14 @@ namespace physx
 		
 		PxgNphaseImplementationContext(PxsContext& context, PxsKernelWranglerManager* gpuKernelWrangler, PxvNphaseImplementationFallback* fallbackForUnsupportedCMs,
 			const PxGpuDynamicsMemoryConfig& gpuDynamicsConfig, void* contactStreamBase, void* patchStreamBase, void* forceAndIndiceStreamBase,
-			Bp::BoundsArray& bounds, IG::IslandSim* islandSim, 
-			physx::Dy::Context* dynamicsContext, PxgAllocatorDesc& allocDesc, 
+			ev4sio_Bp::BoundsArray& bounds, ev4sio_IG::IslandSim* islandSim,
+			ev4sio_physx::ev4sio_Dy::Context* dynamicsContext, PxgAllocatorDesc& allocDesc,
 			bool useGPUNP);
 
 		virtual ~PxgNphaseImplementationContext();
 	
 		virtual void				destroy()	PX_OVERRIDE PX_FINAL;
-		virtual void				updateContactManager(PxReal dt, bool hasContactDistanceChanged, PxBaseTask* continuation, PxBaseTask* firstPassNpContinuation, Cm::FanoutTask* updateBoundAndShapeTask)	PX_OVERRIDE PX_FINAL;
+		virtual void				updateContactManager(PxReal dt, bool hasContactDistanceChanged, PxBaseTask* continuation, PxBaseTask* firstPassNpContinuation, ev4sio_Cm::FanoutTask* updateBoundAndShapeTask)	PX_OVERRIDE PX_FINAL;
 				void				updateContactManagersFallback(PxReal dt, PxBaseTask* continuation);
 		virtual void				postBroadPhaseUpdateContactManager(PxBaseTask* continuation)	PX_OVERRIDE PX_FINAL;
 		virtual void				secondPassUpdateContactManager(PxReal dt, PxBaseTask* continuation)	PX_OVERRIDE PX_FINAL;
@@ -170,7 +170,7 @@ namespace physx
 
 		virtual void				preallocateNewBuffers(PxU32 nbNewPairs, PxU32 maxIndex)	PX_OVERRIDE PX_FINAL;
 
-		virtual void				registerContactManager(PxsContactManager* cm, const Sc::ShapeInteraction* shapeInteraction, PxI32 touching, PxU32 numPatches)	PX_OVERRIDE PX_FINAL;
+		virtual void				registerContactManager(PxsContactManager* cm, const ev4sio_Sc::ShapeInteraction* shapeInteraction, PxI32 touching, PxU32 numPatches)	PX_OVERRIDE PX_FINAL;
 		virtual void				unregisterContactManager(PxsContactManager* cm)	PX_OVERRIDE PX_FINAL;
 		virtual void				refreshContactManager(PxsContactManager* cm)	PX_OVERRIDE PX_FINAL;
 
@@ -233,7 +233,7 @@ namespace physx
 
 		virtual PxsContactManagerOutput*		getGPUContactManagerOutputBase()	PX_OVERRIDE PX_FINAL;
 		virtual PxReal*							getGPURestDistances()				PX_OVERRIDE PX_FINAL;
-		virtual Sc::ShapeInteraction**			getGPUShapeInteractions()			PX_OVERRIDE PX_FINAL;
+		virtual ev4sio_Sc::ShapeInteraction**			getGPUShapeInteractions()			PX_OVERRIDE PX_FINAL;
 		virtual PxsTorsionalFrictionData*		getGPUTorsionalData()				PX_OVERRIDE PX_FINAL;
 
 	protected:
@@ -243,7 +243,7 @@ namespace physx
 		void						removeLostPairs();
 
 		void						registerContactManagerInternal(PxsContactManager* cm, const PxcNpWorkUnit& workUnit, PxU32 patchCount, PxI32 touching,
-																   const Sc::ShapeInteraction* shapeInteraction, GPU_BUCKET_ID::Enum bucketId);
+																   const ev4sio_Sc::ShapeInteraction* shapeInteraction, GPU_BUCKET_ID::Enum bucketId);
 			
 		PxvNphaseImplementationFallback*		mFallbackForUnsupportedCMs;				
 
@@ -258,7 +258,7 @@ namespace physx
 		PxgCMGpuDiscreteSecondPassUpdateTask	mUpdateCMsSecondPassTask;
 		PxgCMGpuDiscreteUpdateFallbackTask		mUpdateFallbackPairs;
 
-		Cm::PinnableArray<PxsContactManagerOutput>	mContactManagerOutputs;
+		ev4sio_Cm::PinnableArray<PxsContactManagerOutput>	mContactManagerOutputs;
 		
 		PxBitMap								mGpuContactManagerBitMap[GPU_BUCKET_ID::eCount];
 		PxU32									mRecordedGpuPairCount[GPU_BUCKET_ID::eCount];
@@ -270,7 +270,7 @@ namespace physx
 
 		PxU32									mTotalNbPairs;
 
-		Bp::BoundsArray&						mBounds;
+		ev4sio_Bp::BoundsArray&						mBounds;
 
 		bool									mHasContactDistanceChanged;
 		bool									mUseGPUBP;

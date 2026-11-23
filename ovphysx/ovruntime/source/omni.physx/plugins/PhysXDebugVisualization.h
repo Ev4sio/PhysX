@@ -25,14 +25,14 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace usdparser { class AttachedStage; }
 
 struct CachedLines
 {
     DebugLine* mDebugLines;
-    ::physx::PxTransform mTransform;
+    ::ev4sio_physx::PxTransform mTransform;
     uint32_t mNumLines;
 };
 
@@ -64,9 +64,9 @@ public:
 
     void releaseKey(omni::physics::parse::ObjectKey key);
 
-    const DebugLine* getLines(omni::physics::parse::ObjectKey key, const ::physx::PxTransform& transform, uint32_t& numLines);
+    const DebugLine* getLines(omni::physics::parse::ObjectKey key, const ::ev4sio_physx::PxTransform& transform, uint32_t& numLines);
 
-    void addLines(omni::physics::parse::ObjectKey key, const ::physx::PxTransform& transform, DebugLine* debugLines, uint32_t numLines);
+    void addLines(omni::physics::parse::ObjectKey key, const ::ev4sio_physx::PxTransform& transform, DebugLine* debugLines, uint32_t numLines);
 
     const DebugEdge* getEdges(omni::physics::parse::ObjectKey key, uint32_t& numEdges);
 
@@ -130,10 +130,10 @@ const DebugLine* getShapeDebugDraw(usdparser::AttachedStage& owner, omni::physic
                                                 const usdparser::PhysxShapeDesc* desc,
                                                 uint32_t& numLines);
 
-const omni::physx::CollisionRepresentation* getCollisionRepresentation(AttachHandle attachHandle, omni::physics::parse::ObjectKey key,const usdparser::PhysxShapeDesc* desc);
-const omni::physx::CollisionRepresentation* getCollisionRepresentation(usdparser::AttachedStage& owner, omni::physics::parse::ObjectKey key,const usdparser::PhysxShapeDesc* desc);
+const omni::ev4sio_physx::CollisionRepresentation* getCollisionRepresentation(AttachHandle attachHandle, omni::physics::parse::ObjectKey key,const usdparser::PhysxShapeDesc* desc);
+const omni::ev4sio_physx::CollisionRepresentation* getCollisionRepresentation(usdparser::AttachedStage& owner, omni::physics::parse::ObjectKey key,const usdparser::PhysxShapeDesc* desc);
 void releaseCollisionRepresentation(const CollisionRepresentation* cr);
-bool getMeshKey(const omni::physx::usdparser::PhysxShapeDesc& desc, omni::physx::usdparser::MeshKey& meshKey);
+bool getMeshKey(const omni::ev4sio_physx::usdparser::PhysxShapeDesc& desc, omni::ev4sio_physx::usdparser::MeshKey& meshKey);
 
 void clearDebugVisualizationData(AttachHandle attachHandle);
 void clearDebugVisualizationData(usdparser::AttachedStage& owner);
@@ -191,5 +191,5 @@ void copyDebugPrimitivesForAttachBuffers(uint64_t attachHandle,
 uint32_t getDebugDrawCollShapeColor(AttachHandle attachHandle, omni::physics::parse::ObjectKey key);
 uint32_t getDebugDrawCollShapeColor(usdparser::AttachedStage& owner, omni::physics::parse::ObjectKey key);
 
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

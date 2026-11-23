@@ -10,7 +10,7 @@
 #include "PxgSoftBody.h"
 #include "foundation/PxPreprocessor.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	//this is needed to force PhysXSimulationControllerGpu linkage as Static Library!
 	void createPxgSoftBody();
@@ -18,7 +18,7 @@ namespace physx
 	struct PxgConstraintPrepareDesc;
 	class PxPostSolveCallback;
 
-	namespace Dy
+	namespace ev4sio_Dy
 	{
 		class DeformableVolume;
 	}
@@ -63,7 +63,7 @@ namespace physx
 		void constraintPrep(PxgDevicePointer<PxgPrePrepDesc> prePrepDescd, PxgDevicePointer<PxgConstraintPrepareDesc> prepDescd, const PxReal invDt, PxgDevicePointer<PxgSolverSharedDescBase> sharedDescd, CUstream solverStream,
 			const bool isTGS, PxU32 nbSolverBodies, PxU32 nbArticulations);
 
-		bool updateUserData(Cm::PinnableArray<PxgSoftBody>& softBodyPool, PxArray<PxU32>& softBodyNodeIndexPool,
+		bool updateUserData(ev4sio_Cm::PinnableArray<PxgSoftBody>& softBodyPool, PxArray<PxU32>& softBodyNodeIndexPool,
 			const PxU32* activeSoftBodies, const PxU32 nbActiveSoftBodies, void** bodySimsLL);
 
 		CUstream getStream() { return mStream; }
@@ -193,7 +193,7 @@ namespace physx
 		PxgTypedCudaBuffer<PxgDeformablePairInfo>	mVolumeVolumeContactInfoBuffer;
 		PxgTypedCudaBuffer<PxU32>					mVolumeVolumeContactCountBuffer;
 		PxgTypedCudaBuffer<PxU32>					mVolumeVolumePrevContactCountBuffer;
-		Cm::PinnableObject<PxU32>					mVolumeVolumePrevContactCountPinned;
+		ev4sio_Cm::PinnableObject<PxU32>					mVolumeVolumePrevContactCountPinned;
 		PxgTypedCudaBuffer<PxgDbDbContactBlock>		mVolumeVolumeContactBlocks;
 		PxgTypedCudaBuffer<float2>		mVolumeVolumeAppliedForcesBuffer; // accumulated (lambdaN, lambdaT) per contact
 
@@ -204,7 +204,7 @@ namespace physx
 		PxgTypedCudaBuffer<PxgDeformablePairInfo>	mSurfaceVolumeContactInfoBuffer;
 		PxgTypedCudaBuffer<PxU32>					mSurfaceVolumeContactCountBuffer;
 		PxgTypedCudaBuffer<PxU32>					mSurfaceVolumePrevContactCountBuffer;
-		Cm::PinnableObject<PxU32>					mSurfaceVolumePrevContactCountPinned;
+		ev4sio_Cm::PinnableObject<PxU32>					mSurfaceVolumePrevContactCountPinned;
 		PxgTypedCudaBuffer<PxgDbDbContactBlock>		mSurfaceVolumeContactBlocks;
 		//To do: ideally, we want to use two separate stream to solve the rigid body and soft body collision
 		PxgTypedCudaBuffer<float2>		mSurfaceVolumeAppliedForcesBuffer; // accumulated (lambdaN, lambdaT) per contact
@@ -215,8 +215,8 @@ namespace physx
 		CUevent							mSolveSoftBodyParticleEvent; //this event is used to synchronize particle system contacts (particle stream) before we call applyExternalTetraDelta
 
 		public:
-		PxArray<Dy::DeformableVolume*>	mActivatingDeformableVolumes;
-		PxArray<Dy::DeformableVolume*>	mDeactivatingDeformableVolumes;
+		PxArray<ev4sio_Dy::DeformableVolume*>	mActivatingDeformableVolumes;
+		PxArray<ev4sio_Dy::DeformableVolume*>	mDeactivatingDeformableVolumes;
 		PxPostSolveCallback*			mPostSolveCallback;
 	};
 }

@@ -12,7 +12,7 @@
 #include <carb/tasking/ITasking.h>
 #include <carb/tasking/TaskingUtils.h>
 
-namespace omni::physx::usdparser
+namespace omni::ev4sio_physx::usdparser
 {
 
 // Reuse the runtime's task scheduler. Standalone parser users without tasking
@@ -38,4 +38,4 @@ public:
 
 };
 
-} // namespace omni::physx::usdparser
+} // namespace omni::ev4sio_physx::usdparser

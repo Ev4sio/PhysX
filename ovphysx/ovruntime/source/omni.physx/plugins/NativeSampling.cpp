@@ -10,7 +10,7 @@
 #include <map>
 #include <cmath>
 #include <functional>
-namespace omni::physx::native
+namespace omni::ev4sio_physx::native
 {
 InspectionResult samplePoints(const float* points,uint32_t pointCount,const uint32_t* triangles,
     uint32_t triangleCount,const SamplingOptions& options,SampledPoints& output) noexcept
@@ -20,7 +20,7 @@ try
        !std::isfinite(options.radius) || options.radius<=0 || !std::isfinite(options.volumeRadius) || options.volumeRadius<0 ||
        !options.maxSamples || options.maxSamples>1000000 || !options.attempts || options.attempts>100)
         return InspectionResult::Invalid;
-    std::vector<::physx::PxVec3> vertices;vertices.reserve(pointCount);
+    std::vector<::ev4sio_physx::PxVec3> vertices;vertices.reserve(pointCount);
     for(uint32_t i=0;i<pointCount;++i) {
         const float * p=points+size_t(i)*3;
         if(!std::isfinite(p[0]) || !std::isfinite(p[1]) || !std::isfinite(p[2]))return InspectionResult::Invalid;
@@ -50,10 +50,10 @@ try
         // The SDK inside test requires outward winding. Reject every inward
         // connected component (including mirrored input), never empty-success.
         std::map<uint32_t,double> volumes;
-        const ::physx::PxVec3 reference=vertices[0];
+        const ::ev4sio_physx::PxVec3 reference=vertices[0];
         for(uint32_t i=0;i<triangleCount;++i) {
             const uint32_t* t=triangles+size_t(i)*3;
-            const ::physx::PxVec3 a=vertices[t[0]]-reference,b=vertices[t[1]]-reference,c=vertices[t[2]]-reference;
+            const ::ev4sio_physx::PxVec3 a=vertices[t[0]]-reference,b=vertices[t[1]]-reference,c=vertices[t[2]]-reference;
             volumes[root(i)]+=double(a.x)*(double(b.y)*c.z-double(b.z)*c.y)+
                 double(a.y)*(double(b.z)*c.x-double(b.x)*c.z)+double(a.z)*(double(b.x)*c.y-double(b.y)*c.x);
         }
@@ -63,11 +63,11 @@ try
     if(!runtime::tryGetPhysxInterface())return InspectionResult::Unavailable;
     RuntimeAuthoringScope authoring;
     if (!authoring) return InspectionResult::Busy;
-    ::physx::PxSimpleTriangleMesh mesh;
+    ::ev4sio_physx::PxSimpleTriangleMesh mesh;
     mesh.points.data=vertices.data();mesh.points.count=pointCount;mesh.points.stride=sizeof(vertices[0]);
     mesh.triangles.data=triangles;mesh.triangles.count=triangleCount;mesh.triangles.stride=3*sizeof(uint32_t);
-    ::physx::PxArray<::physx::PxVec3> sampled,weights;::physx::PxArray<::physx::PxI32> ids;
-    if(!::physx::PxSamplingExt::poissonSample(mesh,options.radius,sampled,options.volumeRadius,&ids,&weights,
+    ::ev4sio_physx::PxArray<::ev4sio_physx::PxVec3> sampled,weights;::ev4sio_physx::PxArray<::ev4sio_physx::PxI32> ids;
+    if(!::ev4sio_physx::PxSamplingExt::poissonSample(mesh,options.radius,sampled,options.volumeRadius,&ids,&weights,
          nullptr,nullptr,options.maxSamples,options.attempts))return InspectionResult::Error;
     if(weights.size()!=ids.size() || ids.size()>sampled.size())return InspectionResult::Error;
     const uint32_t count=std::min(sampled.size(),options.maxSamples);

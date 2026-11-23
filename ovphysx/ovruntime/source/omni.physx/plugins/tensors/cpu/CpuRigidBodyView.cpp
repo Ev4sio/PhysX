@@ -34,11 +34,11 @@ using omni::physics::tensors::checkTensorSizeExact;
 using omni::physics::tensors::checkTensorSizeMinimum;
 using omni::physics::tensors::getTensorTotalSize;
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace tensors
 {
@@ -338,7 +338,7 @@ bool CpuRigidBodyView::setWrenchesOvStage(const TensorDesc* srcTensor,
         // there. Using PhysX's own helper here is deliberate -- two hand-written copies of the same
         // cross product is exactly the drift the shared-derivation rule elsewhere in this API exists
         // to prevent, and this one cannot be shared because the device needs it in a kernel.
-        ::physx::PxRigidBodyExt::addForceAtPos(*body, force, point, PxForceMode::eFORCE);
+        ::ev4sio_physx::PxRigidBodyExt::addForceAtPos(*body, force, point, PxForceMode::eFORCE);
         // The torque half carries no application point by construction: a couple is
         // position-independent, so it is added as-is rather than through the helper.
         if (!torque.isZero())

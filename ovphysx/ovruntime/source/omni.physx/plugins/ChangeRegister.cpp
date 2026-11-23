@@ -43,16 +43,16 @@
 
 #include <PxPhysicsAPI.h>
 
-using namespace omni::physx::usdparser;
+using namespace omni::ev4sio_physx::usdparser;
 
 extern bool updateMaterialDensity(AttachedStage& attachedStage, ObjectId objectId, omni::physics::parse::TokenId, omni::physics::parse::ReadTime);
 
-using namespace omni::physx::internal;
-using namespace physx;
+using namespace omni::ev4sio_physx::internal;
+using namespace ev4sio_physx;
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 
 // Per-axis attribute-name tables for the rotational drive/joint axes. Kept in
@@ -1329,5 +1329,5 @@ void registerChangeParams(std::vector<usdparser::ChangeParams>& changeParams)
 
 #undef REGISTER_CHANGE
 
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

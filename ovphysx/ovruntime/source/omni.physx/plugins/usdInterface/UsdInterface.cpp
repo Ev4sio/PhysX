@@ -132,9 +132,9 @@
 
 
 
-using namespace ::physx;
-using namespace omni::physx::usdparser;
-using namespace omni::physx::internal;
+using namespace ::ev4sio_physx;
+using namespace omni::ev4sio_physx::usdparser;
+using namespace omni::ev4sio_physx::internal;
 using namespace cookingdataasync;
 
 
@@ -143,7 +143,7 @@ OMNI_LOG_DECLARE_CHANNEL(kRoboticsLogChannel)
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 
 PhysXUsdPhysicsInterface& getPhysXUsdPhysicsInterface()
@@ -311,7 +311,7 @@ ObjectId createShape(const PxGeometry& geom,
 
     if (geom.getType() == PxGeometryType::eCUSTOM)
     {
-        omni::physx::CustomPhysXGeometryCallback & callback = *static_cast<CustomPhysXGeometryCallback*>(static_cast<const PxCustomGeometry&>(geom).callbacks);
+        omni::ev4sio_physx::CustomPhysXGeometryCallback & callback = *static_cast<CustomPhysXGeometryCallback*>(static_cast<const PxCustomGeometry&>(geom).callbacks);
         OmniPhysX::getInstance().getCustomGeometryManager().bindShape(callback, *shape);
     }
 
@@ -473,7 +473,7 @@ ObjectId createShape(const PxGeometry& geom,
     {
         PhysXType internalType;
         PhysXCompoundShape* cs = (PhysXCompoundShape*)db.getRecord(internalType, *compoundId);
-        std::vector<::physx::PxShape*>& cShapes = const_cast<std::vector<::physx::PxShape*>&>(cs->getShapes());
+        std::vector<::ev4sio_physx::PxShape*>& cShapes = const_cast<std::vector<::ev4sio_physx::PxShape*>&>(cs->getShapes());
         cShapes.push_back(shape);
         rollback.shape = nullptr; // the compound now owns the creator reference
         shape->userData = (void*)(*compoundId);
@@ -617,7 +617,7 @@ void applyPhysXRigidBodyDesc(PxRigidBody& rigidDynamic, const DynamicPhysxRigidB
     rigidDynamic.setActorFlag(PxActorFlag::eDISABLE_GRAVITY, physxBodyDesc.disableGravity);
 }
 
-void applyRigidDynamicPhysxDesc(PhysXScene* ps, const DynamicPhysxRigidBodyDesc& desc, ::physx::PxRigidDynamic& rigidDynamic)
+void applyRigidDynamicPhysxDesc(PhysXScene* ps, const DynamicPhysxRigidBodyDesc& desc, ::ev4sio_physx::PxRigidDynamic& rigidDynamic)
 {
     applyPhysXRigidBodyDesc(rigidDynamic, desc);
     rigidDynamic.setRigidBodyFlag(PxRigidBodyFlag::eKINEMATIC, desc.kinematicBody);
@@ -998,18 +998,18 @@ static void createArticulationJoint(usdparser::AttachedStage& attachedStage, con
                 if (limitData.enabled)
                 {
                     pxJoint->setJointType(PxArticulationJointType::eREVOLUTE_UNWRAPPED);
-                    intJoint->setArticulationJointLimits(pxJoint, ::physx::PxArticulationAxis::eTWIST, limitData.lower, limitData.upper);
-                    pxJoint->setMotion(::physx::PxArticulationAxis::eTWIST, ::physx::PxArticulationMotion::eLIMITED);
+                    intJoint->setArticulationJointLimits(pxJoint, ::ev4sio_physx::PxArticulationAxis::eTWIST, limitData.lower, limitData.upper);
+                    pxJoint->setMotion(::ev4sio_physx::PxArticulationAxis::eTWIST, ::ev4sio_physx::PxArticulationMotion::eLIMITED);
                 }
                 else
                 {
                     pxJoint->setJointType(PxArticulationJointType::eREVOLUTE);
-                    pxJoint->setMotion(::physx::PxArticulationAxis::eTWIST, ::physx::PxArticulationMotion::eFREE);
+                    pxJoint->setMotion(::ev4sio_physx::PxArticulationAxis::eTWIST, ::ev4sio_physx::PxArticulationMotion::eFREE);
                 }
 
-                pxJoint->setArmature(::physx::PxArticulationAxis::eTWIST, revJointDesc.properties.armature);
-                pxJoint->setMaxJointVelocity(::physx::PxArticulationAxis::eTWIST, revJointDesc.properties.maxJointVelocity);
-                pxJoint->setFrictionParams(::physx::PxArticulationAxis::eTWIST, PxJointFrictionParams(revJointDesc.properties.staticFrictionEffort, revJointDesc.properties.dynamicFrictionEffort, revJointDesc.properties.viscousFrictionCoefficient));
+                pxJoint->setArmature(::ev4sio_physx::PxArticulationAxis::eTWIST, revJointDesc.properties.armature);
+                pxJoint->setMaxJointVelocity(::ev4sio_physx::PxArticulationAxis::eTWIST, revJointDesc.properties.maxJointVelocity);
+                pxJoint->setFrictionParams(::ev4sio_physx::PxArticulationAxis::eTWIST, PxJointFrictionParams(revJointDesc.properties.staticFrictionEffort, revJointDesc.properties.dynamicFrictionEffort, revJointDesc.properties.viscousFrictionCoefficient));
                 if(hasPhysxJointAxisAPI(attachedStage, jointPrimKey, jointTok.physxJointAxisAPIAngular))
                 {
                     ObjectDb* objectDb = attachedStage.getObjectDatabase();
@@ -1020,9 +1020,9 @@ static void createArticulationJoint(usdparser::AttachedStage& attachedStage, con
                 if (driveData.enabled)
                 {
                     registerDriveTimeSampledChanges(attachedStage, jointPrimKey, "drive:angular");
-                    pxJoint->setDriveParams(::physx::PxArticulationAxis::eTWIST, toPhysX(driveData));
-                    intJoint->setArticulationDrivePositionTarget(pxJoint, ::physx::PxArticulationAxis::eTWIST, driveData.targetPosition, &attachedStage, jointPrimKey);
-                    intJoint->setArticulationDriveVelocityTarget(pxJoint, ::physx::PxArticulationAxis::eTWIST, driveData.targetVelocity);
+                    pxJoint->setDriveParams(::ev4sio_physx::PxArticulationAxis::eTWIST, toPhysX(driveData));
+                    intJoint->setArticulationDrivePositionTarget(pxJoint, ::ev4sio_physx::PxArticulationAxis::eTWIST, driveData.targetPosition, &attachedStage, jointPrimKey);
+                    intJoint->setArticulationDriveVelocityTarget(pxJoint, ::ev4sio_physx::PxArticulationAxis::eTWIST, driveData.targetVelocity);
                     if(driveData.isEnvelopeUsed)
                     {
                         ObjectDb* objectDb = attachedStage.getObjectDatabase();
@@ -1043,14 +1043,14 @@ static void createArticulationJoint(usdparser::AttachedStage& attachedStage, con
                 if (tConfigurePhysXJoint)
                 {
                     internalLink->hasInboundJointWithStateAPI = true;
-                    intJoint->setArticulationJointPosition(pxJoint, ::physx::PxArticulationAxis::eTWIST, jointState.position);
-                    intJoint->setArticulationJointVelocity(pxJoint, ::physx::PxArticulationAxis::eTWIST, jointState.velocity);
+                    intJoint->setArticulationJointPosition(pxJoint, ::ev4sio_physx::PxArticulationAxis::eTWIST, jointState.position);
+                    intJoint->setArticulationJointVelocity(pxJoint, ::ev4sio_physx::PxArticulationAxis::eTWIST, jointState.velocity);
                 }
 
                 intJoint->mJointStates[0].usdToken = "angular";
                 intJoint->mJointStates[0].enabled = true;
                 intJoint->mJointStates[0].convertToDegrees = true;
-                intJoint->mJointStates[0].physxAxis = ::physx::PxArticulationAxis::eTWIST;
+                intJoint->mJointStates[0].physxAxis = ::ev4sio_physx::PxArticulationAxis::eTWIST;
                 intJoint->mJointStates[0].initialState.position = radToDeg(jointState.position);
                 intJoint->mJointStates[0].initialState.velocity = radToDeg(jointState.velocity);
             }
@@ -1070,17 +1070,17 @@ static void createArticulationJoint(usdparser::AttachedStage& attachedStage, con
                 const usdparser::PhysxJointLimit& limitData = prisJointDesc.limit;
                 if (limitData.enabled)
                 {
-                    intJoint->setArticulationJointLimits(pxJoint, ::physx::PxArticulationAxis::eX, limitData.lower, limitData.upper);
-                    pxJoint->setMotion(::physx::PxArticulationAxis::eX, ::physx::PxArticulationMotion::eLIMITED);
+                    intJoint->setArticulationJointLimits(pxJoint, ::ev4sio_physx::PxArticulationAxis::eX, limitData.lower, limitData.upper);
+                    pxJoint->setMotion(::ev4sio_physx::PxArticulationAxis::eX, ::ev4sio_physx::PxArticulationMotion::eLIMITED);
                 }
                 else
                 {
-                    pxJoint->setMotion(::physx::PxArticulationAxis::eX, ::physx::PxArticulationMotion::eFREE);
+                    pxJoint->setMotion(::ev4sio_physx::PxArticulationAxis::eX, ::ev4sio_physx::PxArticulationMotion::eFREE);
                 }
 
-                pxJoint->setArmature(::physx::PxArticulationAxis::eX, prisJointDesc.properties.armature);
-                pxJoint->setMaxJointVelocity(::physx::PxArticulationAxis::eX, prisJointDesc.properties.maxJointVelocity);
-                pxJoint->setFrictionParams(::physx::PxArticulationAxis::eX, PxJointFrictionParams(prisJointDesc.properties.staticFrictionEffort, prisJointDesc.properties.dynamicFrictionEffort, prisJointDesc.properties.viscousFrictionCoefficient));
+                pxJoint->setArmature(::ev4sio_physx::PxArticulationAxis::eX, prisJointDesc.properties.armature);
+                pxJoint->setMaxJointVelocity(::ev4sio_physx::PxArticulationAxis::eX, prisJointDesc.properties.maxJointVelocity);
+                pxJoint->setFrictionParams(::ev4sio_physx::PxArticulationAxis::eX, PxJointFrictionParams(prisJointDesc.properties.staticFrictionEffort, prisJointDesc.properties.dynamicFrictionEffort, prisJointDesc.properties.viscousFrictionCoefficient));
 
                 if(hasPhysxJointAxisAPI(attachedStage, jointPrimKey, jointTok.physxJointAxisAPILinear))
                 {
@@ -1091,9 +1091,9 @@ static void createArticulationJoint(usdparser::AttachedStage& attachedStage, con
                 if (driveData.enabled)
                 {
                     registerDriveTimeSampledChanges(attachedStage, jointPrimKey, "drive:linear");
-                    pxJoint->setDriveParams(::physx::PxArticulationAxis::eX, toPhysX(driveData));
-                    intJoint->setArticulationDrivePositionTarget(pxJoint, ::physx::PxArticulationAxis::eX, driveData.targetPosition);
-                    intJoint->setArticulationDriveVelocityTarget(pxJoint, ::physx::PxArticulationAxis::eX, driveData.targetVelocity);
+                    pxJoint->setDriveParams(::ev4sio_physx::PxArticulationAxis::eX, toPhysX(driveData));
+                    intJoint->setArticulationDrivePositionTarget(pxJoint, ::ev4sio_physx::PxArticulationAxis::eX, driveData.targetPosition);
+                    intJoint->setArticulationDriveVelocityTarget(pxJoint, ::ev4sio_physx::PxArticulationAxis::eX, driveData.targetVelocity);
                     if(driveData.isEnvelopeUsed)
                     {
                         ObjectDb* objectDb = attachedStage.getObjectDatabase();
@@ -1113,14 +1113,14 @@ static void createArticulationJoint(usdparser::AttachedStage& attachedStage, con
                 if (tConfigurePhysXJoint)
                 {
                     internalLink->hasInboundJointWithStateAPI = true;
-                    intJoint->setArticulationJointPosition(pxJoint, ::physx::PxArticulationAxis::eX, jointState.position);
-                    intJoint->setArticulationJointVelocity(pxJoint, ::physx::PxArticulationAxis::eX, jointState.velocity);
+                    intJoint->setArticulationJointPosition(pxJoint, ::ev4sio_physx::PxArticulationAxis::eX, jointState.position);
+                    intJoint->setArticulationJointVelocity(pxJoint, ::ev4sio_physx::PxArticulationAxis::eX, jointState.velocity);
                 }
 
                 intJoint->mJointStates[0].usdToken = "linear";
                 intJoint->mJointStates[0].enabled = true;
                 intJoint->mJointStates[0].convertToDegrees = false;
-                intJoint->mJointStates[0].physxAxis = ::physx::PxArticulationAxis::eX;
+                intJoint->mJointStates[0].physxAxis = ::ev4sio_physx::PxArticulationAxis::eX;
                 intJoint->mJointStates[0].initialState.position = jointState.position;
                 intJoint->mJointStates[0].initialState.velocity = jointState.velocity;
             }
@@ -1137,20 +1137,20 @@ static void createArticulationJoint(usdparser::AttachedStage& attachedStage, con
                 // for limits and motions below, consider that the joint frames will be rotated such that:
                 // 1) the joint axis is always eTWIST in PhysX
                 // 2) and the SWING1/SWING2 correspond to cone0/cone1 limits if applicable
-                pxJoint->setMotion(::physx::PxArticulationAxis::eTWIST, ::physx::PxArticulationMotion::eFREE);
+                pxJoint->setMotion(::ev4sio_physx::PxArticulationAxis::eTWIST, ::ev4sio_physx::PxArticulationMotion::eFREE);
 
                 const usdparser::PhysxJointLimit& limitData = sphJointDesc.limit;
                 if (limitData.enabled)
                 {
-                    pxJoint->setMotion(::physx::PxArticulationAxis::eSWING1, ::physx::PxArticulationMotion::eLIMITED);
-                    pxJoint->setMotion(::physx::PxArticulationAxis::eSWING2, ::physx::PxArticulationMotion::eLIMITED);
-                    pxJoint->setLimitParams(::physx::PxArticulationAxis::eSWING1, PxArticulationLimit(-limitData.angle0, limitData.angle0));
-                    pxJoint->setLimitParams(::physx::PxArticulationAxis::eSWING2, PxArticulationLimit(-limitData.angle1, limitData.angle1));
+                    pxJoint->setMotion(::ev4sio_physx::PxArticulationAxis::eSWING1, ::ev4sio_physx::PxArticulationMotion::eLIMITED);
+                    pxJoint->setMotion(::ev4sio_physx::PxArticulationAxis::eSWING2, ::ev4sio_physx::PxArticulationMotion::eLIMITED);
+                    pxJoint->setLimitParams(::ev4sio_physx::PxArticulationAxis::eSWING1, PxArticulationLimit(-limitData.angle0, limitData.angle0));
+                    pxJoint->setLimitParams(::ev4sio_physx::PxArticulationAxis::eSWING2, PxArticulationLimit(-limitData.angle1, limitData.angle1));
                 }
                 else
                 {
-                    pxJoint->setMotion(::physx::PxArticulationAxis::eSWING1, ::physx::PxArticulationMotion::eFREE);
-                    pxJoint->setMotion(::physx::PxArticulationAxis::eSWING2, ::physx::PxArticulationMotion::eFREE);
+                    pxJoint->setMotion(::ev4sio_physx::PxArticulationAxis::eSWING1, ::ev4sio_physx::PxArticulationMotion::eFREE);
+                    pxJoint->setMotion(::ev4sio_physx::PxArticulationAxis::eSWING2, ::ev4sio_physx::PxArticulationMotion::eFREE);
                 }
 
                 for (size_t i = 0; i < sphJointDesc.jointProperties.size(); i++)
@@ -1166,9 +1166,9 @@ static void createArticulationJoint(usdparser::AttachedStage& attachedStage, con
                         case eDistance:
                             break;
                         case eRotX:
-                            pxJoint->setArmature(::physx::PxArticulationAxis::eTWIST, properties.armature);
-                            pxJoint->setMaxJointVelocity(::physx::PxArticulationAxis::eTWIST, properties.maxJointVelocity);
-                            pxJoint->setFrictionParams(::physx::PxArticulationAxis::eTWIST, PxJointFrictionParams(properties.staticFrictionEffort, properties.dynamicFrictionEffort, properties.viscousFrictionCoefficient));
+                            pxJoint->setArmature(::ev4sio_physx::PxArticulationAxis::eTWIST, properties.armature);
+                            pxJoint->setMaxJointVelocity(::ev4sio_physx::PxArticulationAxis::eTWIST, properties.maxJointVelocity);
+                            pxJoint->setFrictionParams(::ev4sio_physx::PxArticulationAxis::eTWIST, PxJointFrictionParams(properties.staticFrictionEffort, properties.dynamicFrictionEffort, properties.viscousFrictionCoefficient));
                             if(hasPhysxJointAxisAPI(attachedStage, jointPrimKey, jointTok.physxJointAxisAPIRotX))
                             {
                                 ObjectDb* objectDb = attachedStage.getObjectDatabase();
@@ -1176,9 +1176,9 @@ static void createArticulationJoint(usdparser::AttachedStage& attachedStage, con
                             }
                             break;
                         case eRotY:
-                            pxJoint->setArmature(::physx::PxArticulationAxis::eSWING1, properties.armature);
-                            pxJoint->setMaxJointVelocity(::physx::PxArticulationAxis::eSWING1, properties.maxJointVelocity);
-                            pxJoint->setFrictionParams(::physx::PxArticulationAxis::eSWING1, PxJointFrictionParams(properties.staticFrictionEffort, properties.dynamicFrictionEffort, properties.viscousFrictionCoefficient));
+                            pxJoint->setArmature(::ev4sio_physx::PxArticulationAxis::eSWING1, properties.armature);
+                            pxJoint->setMaxJointVelocity(::ev4sio_physx::PxArticulationAxis::eSWING1, properties.maxJointVelocity);
+                            pxJoint->setFrictionParams(::ev4sio_physx::PxArticulationAxis::eSWING1, PxJointFrictionParams(properties.staticFrictionEffort, properties.dynamicFrictionEffort, properties.viscousFrictionCoefficient));
                             if(hasPhysxJointAxisAPI(attachedStage, jointPrimKey, jointTok.physxJointAxisAPIRotY))
                             {
                                 ObjectDb* objectDb = attachedStage.getObjectDatabase();
@@ -1186,9 +1186,9 @@ static void createArticulationJoint(usdparser::AttachedStage& attachedStage, con
                             }
                               break;
                         case eRotZ:
-                            pxJoint->setArmature(::physx::PxArticulationAxis::eSWING2, properties.armature);
-                            pxJoint->setMaxJointVelocity(::physx::PxArticulationAxis::eSWING2, properties.maxJointVelocity);
-                            pxJoint->setFrictionParams(::physx::PxArticulationAxis::eSWING2, PxJointFrictionParams(properties.staticFrictionEffort, properties.dynamicFrictionEffort, properties.viscousFrictionCoefficient));
+                            pxJoint->setArmature(::ev4sio_physx::PxArticulationAxis::eSWING2, properties.armature);
+                            pxJoint->setMaxJointVelocity(::ev4sio_physx::PxArticulationAxis::eSWING2, properties.maxJointVelocity);
+                            pxJoint->setFrictionParams(::ev4sio_physx::PxArticulationAxis::eSWING2, PxJointFrictionParams(properties.staticFrictionEffort, properties.dynamicFrictionEffort, properties.viscousFrictionCoefficient));
                             if(hasPhysxJointAxisAPI(attachedStage, jointPrimKey, jointTok.physxJointAxisAPIRotZ))
                             {
                                 ObjectDb* objectDb = attachedStage.getObjectDatabase();
@@ -1207,9 +1207,9 @@ static void createArticulationJoint(usdparser::AttachedStage& attachedStage, con
             {
                 // D6 definition, we support only custom 3 dof in rotation axis
                 pxJoint->setJointType(PxArticulationJointType::eSPHERICAL);
-                pxJoint->setMotion(::physx::PxArticulationAxis::eTWIST, ::physx::PxArticulationMotion::eFREE);
-                pxJoint->setMotion(::physx::PxArticulationAxis::eSWING1, ::physx::PxArticulationMotion::eFREE);
-                pxJoint->setMotion(::physx::PxArticulationAxis::eSWING2, ::physx::PxArticulationMotion::eFREE);
+                pxJoint->setMotion(::ev4sio_physx::PxArticulationAxis::eTWIST, ::ev4sio_physx::PxArticulationMotion::eFREE);
+                pxJoint->setMotion(::ev4sio_physx::PxArticulationAxis::eSWING1, ::ev4sio_physx::PxArticulationMotion::eFREE);
+                pxJoint->setMotion(::ev4sio_physx::PxArticulationAxis::eSWING2, ::ev4sio_physx::PxArticulationMotion::eFREE);
 
                 for (size_t i = 0; i < d6JointDesc.jointProperties.size(); i++)
                 {
@@ -1224,9 +1224,9 @@ static void createArticulationJoint(usdparser::AttachedStage& attachedStage, con
                         case eDistance:
                             break;
                         case eRotX:
-                            pxJoint->setArmature(::physx::PxArticulationAxis::eTWIST, properties.armature);
-                            pxJoint->setMaxJointVelocity(::physx::PxArticulationAxis::eTWIST, properties.maxJointVelocity);
-                            pxJoint->setFrictionParams(::physx::PxArticulationAxis::eTWIST, PxJointFrictionParams(properties.staticFrictionEffort, properties.dynamicFrictionEffort, properties.viscousFrictionCoefficient));
+                            pxJoint->setArmature(::ev4sio_physx::PxArticulationAxis::eTWIST, properties.armature);
+                            pxJoint->setMaxJointVelocity(::ev4sio_physx::PxArticulationAxis::eTWIST, properties.maxJointVelocity);
+                            pxJoint->setFrictionParams(::ev4sio_physx::PxArticulationAxis::eTWIST, PxJointFrictionParams(properties.staticFrictionEffort, properties.dynamicFrictionEffort, properties.viscousFrictionCoefficient));
                             if(hasPhysxJointAxisAPI(attachedStage, jointPrimKey, jointTok.physxJointAxisAPIRotX))
                             {
                                 ObjectDb* objectDb = attachedStage.getObjectDatabase();
@@ -1234,9 +1234,9 @@ static void createArticulationJoint(usdparser::AttachedStage& attachedStage, con
                             }
                             break;
                         case eRotY:
-                            pxJoint->setArmature(::physx::PxArticulationAxis::eSWING1, properties.armature);
-                            pxJoint->setMaxJointVelocity(::physx::PxArticulationAxis::eSWING1, properties.maxJointVelocity);
-                            pxJoint->setFrictionParams(::physx::PxArticulationAxis::eSWING1, PxJointFrictionParams(properties.staticFrictionEffort, properties.dynamicFrictionEffort, properties.viscousFrictionCoefficient));
+                            pxJoint->setArmature(::ev4sio_physx::PxArticulationAxis::eSWING1, properties.armature);
+                            pxJoint->setMaxJointVelocity(::ev4sio_physx::PxArticulationAxis::eSWING1, properties.maxJointVelocity);
+                            pxJoint->setFrictionParams(::ev4sio_physx::PxArticulationAxis::eSWING1, PxJointFrictionParams(properties.staticFrictionEffort, properties.dynamicFrictionEffort, properties.viscousFrictionCoefficient));
                             if(hasPhysxJointAxisAPI(attachedStage, jointPrimKey, jointTok.physxJointAxisAPIRotY))
                             {
                                 ObjectDb* objectDb = attachedStage.getObjectDatabase();
@@ -1244,9 +1244,9 @@ static void createArticulationJoint(usdparser::AttachedStage& attachedStage, con
                             }
                             break;
                         case eRotZ:
-                            pxJoint->setArmature(::physx::PxArticulationAxis::eSWING2, properties.armature);
-                            pxJoint->setMaxJointVelocity(::physx::PxArticulationAxis::eSWING2, properties.maxJointVelocity);
-                            pxJoint->setFrictionParams(::physx::PxArticulationAxis::eSWING2, PxJointFrictionParams(properties.staticFrictionEffort, properties.dynamicFrictionEffort, properties.viscousFrictionCoefficient));
+                            pxJoint->setArmature(::ev4sio_physx::PxArticulationAxis::eSWING2, properties.armature);
+                            pxJoint->setMaxJointVelocity(::ev4sio_physx::PxArticulationAxis::eSWING2, properties.maxJointVelocity);
+                            pxJoint->setFrictionParams(::ev4sio_physx::PxArticulationAxis::eSWING2, PxJointFrictionParams(properties.staticFrictionEffort, properties.dynamicFrictionEffort, properties.viscousFrictionCoefficient));
                             if(hasPhysxJointAxisAPI(attachedStage, jointPrimKey, jointTok.physxJointAxisAPIRotZ))
                             {
                                 ObjectDb* objectDb = attachedStage.getObjectDatabase();
@@ -1266,13 +1266,13 @@ static void createArticulationJoint(usdparser::AttachedStage& attachedStage, con
                         {
                             if (currentLimit.lower > currentLimit.upper)
                             {
-                                pxJoint->setMotion(::physx::PxArticulationAxis::eTWIST, ::physx::PxArticulationMotion::eLOCKED);
+                                pxJoint->setMotion(::ev4sio_physx::PxArticulationAxis::eTWIST, ::ev4sio_physx::PxArticulationMotion::eLOCKED);
                             }
                             else
                             {
-                                intJoint->setArticulationJointLimits(pxJoint, ::physx::PxArticulationAxis::eTWIST, currentLimit.lower, currentLimit.upper);
+                                intJoint->setArticulationJointLimits(pxJoint, ::ev4sio_physx::PxArticulationAxis::eTWIST, currentLimit.lower, currentLimit.upper);
                                 pxJoint->setMotion(
-                                    ::physx::PxArticulationAxis::eTWIST, ::physx::PxArticulationMotion::eLIMITED);
+                                    ::ev4sio_physx::PxArticulationAxis::eTWIST, ::ev4sio_physx::PxArticulationMotion::eLIMITED);
                             }
                         }
                     }
@@ -1283,13 +1283,13 @@ static void createArticulationJoint(usdparser::AttachedStage& attachedStage, con
                             if (currentLimit.lower > currentLimit.upper)
                             {
                                 pxJoint->setMotion(
-                                    ::physx::PxArticulationAxis::eSWING1, ::physx::PxArticulationMotion::eLOCKED);
+                                    ::ev4sio_physx::PxArticulationAxis::eSWING1, ::ev4sio_physx::PxArticulationMotion::eLOCKED);
                             }
                             else
                             {
-                                intJoint->setArticulationJointLimits(pxJoint, ::physx::PxArticulationAxis::eSWING1, currentLimit.lower, currentLimit.upper);
+                                intJoint->setArticulationJointLimits(pxJoint, ::ev4sio_physx::PxArticulationAxis::eSWING1, currentLimit.lower, currentLimit.upper);
                                 pxJoint->setMotion(
-                                    ::physx::PxArticulationAxis::eSWING1, ::physx::PxArticulationMotion::eLIMITED);
+                                    ::ev4sio_physx::PxArticulationAxis::eSWING1, ::ev4sio_physx::PxArticulationMotion::eLIMITED);
                             }
                         }
                     }
@@ -1300,13 +1300,13 @@ static void createArticulationJoint(usdparser::AttachedStage& attachedStage, con
                             if (currentLimit.lower > currentLimit.upper)
                             {
                                 pxJoint->setMotion(
-                                    ::physx::PxArticulationAxis::eSWING2, ::physx::PxArticulationMotion::eLOCKED);
+                                    ::ev4sio_physx::PxArticulationAxis::eSWING2, ::ev4sio_physx::PxArticulationMotion::eLOCKED);
                             }
                             else
                             {
-                                intJoint->setArticulationJointLimits(pxJoint, ::physx::PxArticulationAxis::eSWING2, currentLimit.lower, currentLimit.upper);
+                                intJoint->setArticulationJointLimits(pxJoint, ::ev4sio_physx::PxArticulationAxis::eSWING2, currentLimit.lower, currentLimit.upper);
                                 pxJoint->setMotion(
-                                    ::physx::PxArticulationAxis::eSWING2, ::physx::PxArticulationMotion::eLIMITED);
+                                    ::ev4sio_physx::PxArticulationAxis::eSWING2, ::ev4sio_physx::PxArticulationMotion::eLIMITED);
                             }
                         }
                     }
@@ -1367,7 +1367,7 @@ static void createArticulationJoint(usdparser::AttachedStage& attachedStage, con
                 case eRotX:
                     if (driveData.enabled)
                     {
-                        const ::physx::PxArticulationAxis::Enum pxAxis = ::physx::PxArticulationAxis::eTWIST;
+                        const ::ev4sio_physx::PxArticulationAxis::Enum pxAxis = ::ev4sio_physx::PxArticulationAxis::eTWIST;
                         intJoint->mJointDrives[pxAxis] = driveData;
 
                         if (tConfigurePhysXJoint)
@@ -1387,7 +1387,7 @@ static void createArticulationJoint(usdparser::AttachedStage& attachedStage, con
                 case eRotY:
                     if (driveData.enabled)
                     {
-                        const ::physx::PxArticulationAxis::Enum pxAxis = ::physx::PxArticulationAxis::eSWING1;
+                        const ::ev4sio_physx::PxArticulationAxis::Enum pxAxis = ::ev4sio_physx::PxArticulationAxis::eSWING1;
                         intJoint->mJointDrives[pxAxis] = driveData;
 
                         if (tConfigurePhysXJoint)
@@ -1407,7 +1407,7 @@ static void createArticulationJoint(usdparser::AttachedStage& attachedStage, con
                 case eRotZ:
                     if (driveData.enabled)
                     {
-                        const ::physx::PxArticulationAxis::Enum pxAxis = ::physx::PxArticulationAxis::eSWING2;
+                        const ::ev4sio_physx::PxArticulationAxis::Enum pxAxis = ::ev4sio_physx::PxArticulationAxis::eSWING2;
                         intJoint->mJointDrives[pxAxis] = driveData;
 
                         if (tConfigurePhysXJoint)
@@ -1433,14 +1433,14 @@ static void createArticulationJoint(usdparser::AttachedStage& attachedStage, con
 
             for (size_t i = 0; i < d6JointDesc.jointStates.size(); ++i)
             {
-                ::physx::PxArticulationAxis::Enum axis = ::physx::PxArticulationAxis::eTWIST;
+                ::ev4sio_physx::PxArticulationAxis::Enum axis = ::ev4sio_physx::PxArticulationAxis::eTWIST;
                 const usdparser::PhysicsJointState& jointState = d6JointDesc.jointStates[i].second;
                 bool hasUnsupportedLinearJointStates = false;
                 switch (d6JointDesc.jointStates[i].first)
                 {
-                case eRotX: axis = ::physx::PxArticulationAxis::eTWIST; break;
-                case eRotY: axis = ::physx::PxArticulationAxis::eSWING1; break;
-                case eRotZ: axis = ::physx::PxArticulationAxis::eSWING2; break;
+                case eRotX: axis = ::ev4sio_physx::PxArticulationAxis::eTWIST; break;
+                case eRotY: axis = ::ev4sio_physx::PxArticulationAxis::eSWING1; break;
+                case eRotZ: axis = ::ev4sio_physx::PxArticulationAxis::eSWING2; break;
                 default:
                     hasUnsupportedLinearJointStates = true;
                 }
@@ -2301,7 +2301,7 @@ ObjectId PhysXUsdPhysicsInterface::createObject(usdparser::AttachedStage& attach
             InternalDatabase::Record& bodyRecord = db.getRecords()[(size_t)desc.body];
             if (bodyRecord.mType == ePTActor || bodyRecord.mType == ePTLink)
             {
-                PxRigidActor* rbo = reinterpret_cast<::physx::PxRigidActor*>(bodyRecord.mPtr);
+                PxRigidActor* rbo = reinterpret_cast<::ev4sio_physx::PxRigidActor*>(bodyRecord.mPtr);
                 InternalForce* intForce = ICE_NEW(InternalForce);
 
                 intForce->mAccelerationMode = desc.accelerationMode;
@@ -2978,7 +2978,7 @@ ObjectId PhysXUsdPhysicsInterface::createShapeOrComputeMass(omni::physics::parse
                 poseOffset.p.z = sdesc->spheres[c].position.z * maxScale;
                 const float radius = sdesc->spheres[c].radius * maxScale;
 
-                omni::physx::createShape(PxSphereGeometry(radius), desc, key, physxScene, collisionGroup, rigidActor, exposePrimNames,
+                omni::ev4sio_physx::createShape(PxSphereGeometry(radius), desc, key, physxScene, collisionGroup, rigidActor, exposePrimNames,
                     &poseOffset, &outId, &massInfo, instance, &sumAabbLocalBounds);
                 massProps[c].centerOfMass = { float(massInfo.centerOfMass.x+poseOffset.p.x), float(massInfo.centerOfMass.y+poseOffset.p.y), float(massInfo.centerOfMass.z+poseOffset.p.z) };
                 massProps[c].mass = float(massInfo.volume) * maxScale;
@@ -3040,7 +3040,7 @@ ObjectId PhysXUsdPhysicsInterface::createShapeOrComputeMass(omni::physics::parse
         const SpherePhysxShapeDesc& desc = static_cast<const SpherePhysxShapeDesc&>(objectDesc);
         const uint32_t collisionGroup = convertToCollisionGroup(desc.collisionGroup);
         physxType = ePTShape;
-        outId = omni::physx::createShape(
+        outId = omni::ev4sio_physx::createShape(
             PxSphereGeometry(desc.radius), desc, key, physxScene, collisionGroup, rigidActor, exposePrimNames, nullptr, nullptr, massInfoOut, instance);
     }
     break;
@@ -3050,7 +3050,7 @@ ObjectId PhysXUsdPhysicsInterface::createShapeOrComputeMass(omni::physics::parse
         const BoxPhysxShapeDesc& desc = static_cast<const BoxPhysxShapeDesc&>(objectDesc);
         const uint32_t collisionGroup = convertToCollisionGroup(desc.collisionGroup);
         physxType = ePTShape;
-        outId = omni::physx::createShape(PxBoxGeometry(toPhysX(desc.halfExtents)), desc, key, physxScene, collisionGroup, rigidActor, exposePrimNames,
+        outId = omni::ev4sio_physx::createShape(PxBoxGeometry(toPhysX(desc.halfExtents)), desc, key, physxScene, collisionGroup, rigidActor, exposePrimNames,
                                           nullptr, nullptr, massInfoOut, instance);
     }
     break;
@@ -3061,7 +3061,7 @@ ObjectId PhysXUsdPhysicsInterface::createShapeOrComputeMass(omni::physics::parse
         const PxTransform transform(toPhysX(desc.positionOffset));
         physxType = ePTShape;
         cleanupMultipleMaterials(desc, "BoundingSphere", createShapeAttachedStage, key);
-        outId = omni::physx::createShape(
+        outId = omni::ev4sio_physx::createShape(
             PxSphereGeometry(desc.radius), desc, key, physxScene, collisionGroup, rigidActor, exposePrimNames, &transform, nullptr, massInfoOut, instance);
     }
     break;
@@ -3073,7 +3073,7 @@ ObjectId PhysXUsdPhysicsInterface::createShapeOrComputeMass(omni::physics::parse
         const PxTransform transform(toPhysX(desc.positionOffset), toPhysXQuat(desc.rotationOffset));
         physxType = ePTShape;
         cleanupMultipleMaterials(desc, "BoundingBox", createShapeAttachedStage, key);
-        outId = omni::physx::createShape(PxBoxGeometry(toPhysX(desc.halfExtents)), desc, key, physxScene, collisionGroup, rigidActor, exposePrimNames,
+        outId = omni::ev4sio_physx::createShape(PxBoxGeometry(toPhysX(desc.halfExtents)), desc, key, physxScene, collisionGroup, rigidActor, exposePrimNames,
                                           &transform, nullptr, massInfoOut, instance);
     }
     break;
@@ -3093,7 +3093,7 @@ ObjectId PhysXUsdPhysicsInterface::createShapeOrComputeMass(omni::physics::parse
         desc2.localRot.w = q.w;
 
         physxType = ePTShape;
-        outId = omni::physx::createShape(PxCapsuleGeometry(desc.radius, desc.halfHeight), desc2, key, physxScene,
+        outId = omni::ev4sio_physx::createShape(PxCapsuleGeometry(desc.radius, desc.halfHeight), desc2, key, physxScene,
                                           collisionGroup, rigidActor, exposePrimNames, nullptr, nullptr, massInfoOut, instance);
         if (massInfoOut)
         {
@@ -3128,7 +3128,7 @@ ObjectId PhysXUsdPhysicsInterface::createShapeOrComputeMass(omni::physics::parse
             PxConvexMeshGeometry convexGeom(cylinderMesh, scale, flags);
             if (convexGeom.isValid())
             {
-                outId = omni::physx::createShape(convexGeom, desc, key, physxScene,
+                outId = omni::ev4sio_physx::createShape(convexGeom, desc, key, physxScene,
                     collisionGroup, rigidActor, exposePrimNames, nullptr, nullptr, massInfoOut, instance);
             }
             else
@@ -3143,7 +3143,7 @@ ObjectId PhysXUsdPhysicsInterface::createShapeOrComputeMass(omni::physics::parse
             const PxQuat fixupQ = fixupConeAndCylinderQuat(desc.axis);
             desc2.localRot = toFloat4(toPhysXQuat(desc2.localRot) * fixupQ);
 
-            outId = omni::physx::createShape(PxConvexCoreGeometry(PxConvexCore::Cylinder(desc.halfHeight * 2.0f, desc.radius), desc.margin), desc2,
+            outId = omni::ev4sio_physx::createShape(PxConvexCoreGeometry(PxConvexCore::Cylinder(desc.halfHeight * 2.0f, desc.radius), desc.margin), desc2,
                 key, physxScene, collisionGroup, rigidActor, exposePrimNames, nullptr, nullptr, massInfoOut, instance);
 
             if (massInfoOut)
@@ -3189,7 +3189,7 @@ ObjectId PhysXUsdPhysicsInterface::createShapeOrComputeMass(omni::physics::parse
             PxConvexMeshGeometry convexGeom(coneMesh, scale, flags);
             if (convexGeom.isValid())
             {
-                outId = omni::physx::createShape(convexGeom, desc, key, physxScene, collisionGroup, rigidActor, exposePrimNames,
+                outId = omni::ev4sio_physx::createShape(convexGeom, desc, key, physxScene, collisionGroup, rigidActor, exposePrimNames,
                     nullptr, nullptr, massInfoOut, instance);
             }
             else
@@ -3204,7 +3204,7 @@ ObjectId PhysXUsdPhysicsInterface::createShapeOrComputeMass(omni::physics::parse
             const PxQuat fixupQ = fixupConeAndCylinderQuat(desc.axis);
             desc2.localRot = toFloat4(toPhysXQuat(desc2.localRot) * fixupQ);
 
-            outId = omni::physx::createShape(PxConvexCoreGeometry(PxConvexCore::Cone(desc.halfHeight * 2.0f, desc.radius), desc.margin), desc2,
+            outId = omni::ev4sio_physx::createShape(PxConvexCoreGeometry(PxConvexCore::Cone(desc.halfHeight * 2.0f, desc.radius), desc.margin), desc2,
                 key, physxScene, collisionGroup, rigidActor, exposePrimNames, nullptr, nullptr, massInfoOut, instance);
 
             if (massInfoOut)
@@ -3247,7 +3247,7 @@ ObjectId PhysXUsdPhysicsInterface::createShapeOrComputeMass(omni::physics::parse
             break;
         try
         {
-            outId = omni::physx::createShape(
+            outId = omni::ev4sio_physx::createShape(
                 PxCustomGeometry(*geometry), desc, key, physxScene, collisionGroup, rigidActor,
                 exposePrimNames, nullptr, nullptr, massInfoOut, instance);
         }
@@ -3278,7 +3278,7 @@ ObjectId PhysXUsdPhysicsInterface::createShapeOrComputeMass(omni::physics::parse
             }
 
             physxType = ePTShape;
-            outId = omni::physx::createShape(convexGeom, desc, key, physxScene, collisionGroup, rigidActor, exposePrimNames,
+            outId = omni::ev4sio_physx::createShape(convexGeom, desc, key, physxScene, collisionGroup, rigidActor, exposePrimNames,
                                               nullptr, nullptr, massInfoOut, instance);
         }
         else
@@ -3343,7 +3343,7 @@ ObjectId PhysXUsdPhysicsInterface::createShapeOrComputeMass(omni::physics::parse
             PxConvexMeshGeometry convexGeom(convexMeshes[c], meshScale);
             if (convexGeom.isValid())
             {
-                omni::physx::createShape(convexGeom, desc, key, physxScene, collisionGroup, rigidActor, exposePrimNames,
+                omni::ev4sio_physx::createShape(convexGeom, desc, key, physxScene, collisionGroup, rigidActor, exposePrimNames,
                     nullptr, &outId, &massInfo, instance, &sumAabbLocalBounds);
             }
 
@@ -3446,7 +3446,7 @@ ObjectId PhysXUsdPhysicsInterface::createShapeOrComputeMass(omni::physics::parse
             }
 
             physxType = ePTShape;
-            outId = omni::physx::createShape(PxTriangleMeshGeometry(newMesh, meshScale), desc, key, physxScene, collisionGroup, rigidActor, exposePrimNames,
+            outId = omni::ev4sio_physx::createShape(PxTriangleMeshGeometry(newMesh, meshScale), desc, key, physxScene, collisionGroup, rigidActor, exposePrimNames,
                                               nullptr, nullptr, massInfoOut, instance);
         }
         else
@@ -3485,7 +3485,7 @@ ObjectId PhysXUsdPhysicsInterface::createShapeOrComputeMass(omni::physics::parse
         }
 
         physxType = ePTShape;
-        outId = omni::physx::createShape(
+        outId = omni::ev4sio_physx::createShape(
             PxPlaneGeometry(), desc2, key, physxScene, collisionGroup, rigidActor, exposePrimNames, nullptr, nullptr, massInfoOut, instance);
     }
     break;
@@ -3494,7 +3494,7 @@ ObjectId PhysXUsdPhysicsInterface::createShapeOrComputeMass(omni::physics::parse
     {
         // World transform via the source (per-call at Default; replaces a
         // caller-supplied UsdGeomXformCache that was default-time-pinned).
-        const ::physx::PxVec3 scale = omni::physx::getScale(getWorldTransform(
+        const ::ev4sio_physx::PxVec3 scale = omni::ev4sio_physx::getScale(getWorldTransform(
             *createShapeAttachedStage, key, omni::physics::parse::ReadTime::defaultTime()));
         massInfoOut->aabbLocalMin.x /= scale[0];
         massInfoOut->aabbLocalMin.y /= scale[1];
@@ -3528,10 +3528,10 @@ ObjectId PhysXUsdPhysicsInterface::createShapeOrComputeMass(omni::physics::parse
             // xform cache will be reintroduced as a source-side cache later).
             // No direct-USD fallback: shape creation always runs with an attached
             // stage, so identity is the safe degenerate when one is somehow absent.
-            const ::physx::PxMat44d worldMatrix = createShapeAttachedStage
+            const ::ev4sio_physx::PxMat44d worldMatrix = createShapeAttachedStage
                 ? getWorldTransform(*createShapeAttachedStage, key, omni::physics::parse::ReadTime::defaultTime())
-                : ::physx::PxMat44d(::physx::PxIdentity);
-            const ::physx::PxVec3 scale = omni::physx::getScale(worldMatrix);
+                : ::ev4sio_physx::PxMat44d(::ev4sio_physx::PxIdentity);
+            const ::ev4sio_physx::PxVec3 scale = omni::ev4sio_physx::getScale(worldMatrix);
             massInfo->aabbLocalMin.x /= scale[0];
             massInfo->aabbLocalMin.y /= scale[1];
             massInfo->aabbLocalMin.z /= scale[2];
@@ -4853,7 +4853,7 @@ void PhysXUsdPhysicsInterface::releaseObject(AttachedStage& attachedStage, omni:
 
     case ePTCustomJoint:
     {
-        const std::unordered_map<omni::physics::parse::ObjectKey, omni::physx::CustomPhysXJoint *, omni::physics::parse::ObjectKey::Hash>::iterator found = attachedStage.customJoints.find(objectRecord.mKey);
+        const std::unordered_map<omni::physics::parse::ObjectKey, omni::ev4sio_physx::CustomPhysXJoint *, omni::physics::parse::ObjectKey::Hash>::iterator found = attachedStage.customJoints.find(objectRecord.mKey);
         if (found != attachedStage.customJoints.end() && found->second == objectRecord.mPtr)
             found->second->release();
         InternalJoint* intJoint = static_cast<InternalJoint*>(objectRecord.mInternalPtr);
@@ -4871,11 +4871,11 @@ void PhysXUsdPhysicsInterface::releaseObject(AttachedStage& attachedStage, omni:
             if (jointRec.mType == ePTJoint)
             {
                 PxJoint* jr = (PxJoint*)jointRec.mPtr;
-                if (jr && jr->getConcreteType() == ::physx::PxJointConcreteType::eRACK_AND_PINION)
+                if (jr && jr->getConcreteType() == ::ev4sio_physx::PxJointConcreteType::eRACK_AND_PINION)
                 {
-                    ::physx::PxRackAndPinionJoint* rpJoint = (::physx::PxRackAndPinionJoint*)jr;
-                    const ::physx::PxBase* hingeJoint = nullptr;
-                    const ::physx::PxBase* prismaticJoint = nullptr;
+                    ::ev4sio_physx::PxRackAndPinionJoint* rpJoint = (::ev4sio_physx::PxRackAndPinionJoint*)jr;
+                    const ::ev4sio_physx::PxBase* hingeJoint = nullptr;
+                    const ::ev4sio_physx::PxBase* prismaticJoint = nullptr;
                     rpJoint->getJoints(hingeJoint, prismaticJoint);
                     if (joint == hingeJoint || joint == prismaticJoint)
                     {
@@ -4886,11 +4886,11 @@ void PhysXUsdPhysicsInterface::releaseObject(AttachedStage& attachedStage, omni:
                         jointRec.setRemoved();
                     }
                 }
-                else if (jr && jr->getConcreteType() == ::physx::PxJointConcreteType::eGEAR)
+                else if (jr && jr->getConcreteType() == ::ev4sio_physx::PxJointConcreteType::eGEAR)
                 {
-                    ::physx::PxGearJoint* gearJoint = (::physx::PxGearJoint*)jr;
-                    const ::physx::PxBase* hinge0Joint = nullptr;
-                    const ::physx::PxBase* hinge1Joint = nullptr;
+                    ::ev4sio_physx::PxGearJoint* gearJoint = (::ev4sio_physx::PxGearJoint*)jr;
+                    const ::ev4sio_physx::PxBase* hinge0Joint = nullptr;
+                    const ::ev4sio_physx::PxBase* hinge1Joint = nullptr;
                     gearJoint->getHinges(hinge0Joint, hinge1Joint);
                     if (joint == hinge0Joint || joint == hinge1Joint)
                     {
@@ -4934,7 +4934,7 @@ void PhysXUsdPhysicsInterface::releaseObject(AttachedStage& attachedStage, omni:
                 }
             }
         }
-        std::vector<::physx::PxArticulationReducedCoordinate*>& articulationsList = internalScene->mArticulations;
+        std::vector<::ev4sio_physx::PxArticulationReducedCoordinate*>& articulationsList = internalScene->mArticulations;
         for (size_t i = 0; i < articulationsList.size(); i++)
         {
             if (art == articulationsList[i])
@@ -5381,7 +5381,7 @@ bool PhysXUsdPhysicsInterface::isReady(void)
     return ret;
 }
 
-::physx::PxMat44d getSourceGPrimTransform(const AttachedStage& attachedStage, omni::physics::parse::ObjectKey key)
+::ev4sio_physx::PxMat44d getSourceGPrimTransform(const AttachedStage& attachedStage, omni::physics::parse::ObjectKey key)
 {
     // Source gprim transforms are read from default-time authored state.
     return getWorldTransform(attachedStage, key, omni::physics::parse::ReadTime::defaultTime());
@@ -5409,7 +5409,7 @@ bool PhysXUsdPhysicsInterface::updateTransform(const AttachedStage& attachedStag
     if (internalType == ePTActor)
     {
         PxRigidActor* actor = (PxRigidActor*)objectRecord;
-        if (actor->getScene() && actor->getScene()->getFlags().isSet(::physx::PxSceneFlag::eENABLE_DIRECT_GPU_API))
+        if (actor->getScene() && actor->getScene()->getFlags().isSet(::ev4sio_physx::PxSceneFlag::eENABLE_DIRECT_GPU_API))
             return true;
         InternalDatabase::Record& actorRec = db.getRecords()[objectId];
         InternalActor* intActor = (InternalActor*)actorRec.mInternalPtr;
@@ -5497,7 +5497,7 @@ bool PhysXUsdPhysicsInterface::updateTransform(const AttachedStage& attachedStag
         }
         else
         {
-            if (actor->getScene() && actor->getScene()->getFlags().isSet(::physx::PxSceneFlag::eENABLE_DIRECT_GPU_API))
+            if (actor->getScene() && actor->getScene()->getFlags().isSet(::ev4sio_physx::PxSceneFlag::eENABLE_DIRECT_GPU_API))
                 return true;
             const PxTransform pose(translation, orientation);
             PxArticulationReducedCoordinate& articulation = actor->getArticulation();
@@ -5529,25 +5529,25 @@ bool PhysXUsdPhysicsInterface::updateTransform(const AttachedStage& attachedStag
         InternalParticleSet* internalParticleSet = (InternalParticleSet*)record.mInternalPtr;
 
         // get geometry transform
-        const ::physx::PxMat44d localToWorld =
+        const ::ev4sio_physx::PxMat44d localToWorld =
             getWorldTransform(attachedStage, internalParticleSet->mKey, omni::physics::parse::ReadTime::defaultTime());
-        const ::physx::PxMat44d worldToLocalOld = internalParticleSet->mWorldToLocal;
+        const ::ev4sio_physx::PxMat44d worldToLocalOld = internalParticleSet->mWorldToLocal;
 
         // Gf `localToWorld * worldToLocalOld` is PhysX `worldToLocalOld * localToWorld`
         // (same matrices, operands swap -- see MatrixTools.h).
-        const ::physx::PxMat44d deltaTransform = worldToLocalOld * localToWorld;
+        const ::ev4sio_physx::PxMat44d deltaTransform = worldToLocalOld * localToWorld;
 
         for (uint32_t index = 0; index < internalParticleSet->mNumParticles; ++index)
         {
             const PxVec4& oldPos = internalParticleSet->mPositions[index];
-            const ::physx::PxVec3d newPos =
-                deltaTransform.transform(::physx::PxVec3d(oldPos.x, oldPos.y, oldPos.z));
+            const ::ev4sio_physx::PxVec3d newPos =
+                deltaTransform.transform(::ev4sio_physx::PxVec3d(oldPos.x, oldPos.y, oldPos.z));
             internalParticleSet->mPositions[index] =
                 PxVec4(float(newPos.x), float(newPos.y), float(newPos.z), oldPos.w);
         }
 
         internalParticleSet->mUploadDirtyFlags |= ParticleBufferFlags::ePOSITIONS;
-        internalParticleSet->mWorldToLocal = omni::physx::affineInverse(localToWorld);
+        internalParticleSet->mWorldToLocal = omni::ev4sio_physx::affineInverse(localToWorld);
     }
     else if (internalType == ePTCct)
     {
@@ -5598,7 +5598,7 @@ PxArticulationJointReducedCoordinate* getJoint(usdparser::AttachedStage& attache
         return NULL;
 
     OmniPhysX& omniPhysX = OmniPhysX::getInstance();
-    omni::physx::internal::InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
+    omni::ev4sio_physx::internal::InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
     const InternalDatabase::Record* objectRecord = db.getFullTypedRecord(PhysXType::ePTLinkJoint, jointId);
     if (!objectRecord)
         return NULL;
@@ -5971,7 +5971,7 @@ bool PhysXUsdPhysicsInterface::updateMass(const usdparser::AttachedStage& attach
                     intActor->mAppliedCenterOfMass = comTr;
                     intActor->mNormalizedCenterOfMass = rigidDynamic->getCMassLocalPose();
                 }
-                omni::physx::tensors::centerOfMassChanged();
+                omni::ev4sio_physx::tensors::centerOfMassChanged();
             }
         }
     }
@@ -5983,7 +5983,7 @@ bool PhysXUsdPhysicsInterface::updateMass(const usdparser::AttachedStage& attach
             actor->setMass(mass);
             actor->setMassSpaceInertiaTensor(diagIn);
             actor->setCMassLocalPose(comTr);
-            omni::physx::tensors::centerOfMassChanged();
+            omni::ev4sio_physx::tensors::centerOfMassChanged();
         }
     }
     return true;
@@ -6185,7 +6185,7 @@ bool PhysXUsdPhysicsInterface::createOBB(const void* inputPoints,
     desc.flags = PxConvexFlag::eCOMPUTE_CONVEX;
     // desc.vertexLimit = 8;
 
-    PxConvexMesh* obb = PxCreateConvexMesh(OmniPhysX::getInstance().getPhysXSetup().getDefaultCookingParams(), desc,
+    PxConvexMesh* obb = ev4sio_PxCreateConvexMesh(OmniPhysX::getInstance().getPhysXSetup().getDefaultCookingParams(), desc,
         OmniPhysX::getInstance().getPhysXSetup().getPhysics()->getPhysicsInsertionCallback());
 
     if (!obb)
@@ -6268,7 +6268,7 @@ bool PhysXUsdPhysicsInterface::createBoundingSphere(const void* inputPoints,
     desc.flags = PxConvexFlag::eCOMPUTE_CONVEX;
 
     // generate convex hull aproximation and work on the approximation
-    PxConvexMesh* obb = PxCreateConvexMesh(OmniPhysX::getInstance().getPhysXSetup().getDefaultCookingParams(), desc,
+    PxConvexMesh* obb = ev4sio_PxCreateConvexMesh(OmniPhysX::getInstance().getPhysXSetup().getDefaultCookingParams(), desc,
         OmniPhysX::getInstance().getPhysXSetup().getPhysics()->getPhysicsInsertionCallback());
 
     if (!obb)
@@ -6479,19 +6479,19 @@ static void registerInWheelComponent(const usdparser::AttachedStage& attachedSta
     vehicle.addWheelComponent(*wheelRefList);
 }
 
-inline ::physx::PxTransform computeWheelShapeLocalPose(const ::physx::PxMat44d& wheelPose,
-                                                      const ::physx::PxMat44d& shapePose)
+inline ::ev4sio_physx::PxTransform computeWheelShapeLocalPose(const ::ev4sio_physx::PxMat44d& wheelPose,
+                                                      const ::ev4sio_physx::PxMat44d& shapePose)
 {
     // note: since world transforms are computed, scale is already taken into account
     // (toTransform() discards it, as the previous toPhysX(pose, scale, m) did).
-    return omni::physx::toTransform(wheelPose).getInverse() * omni::physx::toTransform(shapePose);
+    return omni::ev4sio_physx::toTransform(wheelPose).getInverse() * omni::ev4sio_physx::toTransform(shapePose);
 }
 
 static void prepareWheelTransforms(usdparser::AttachedStage& attachedStage,
                                    InternalVehicle::WheelTransformManagementEntry& wheelTMEntry,
                                    omni::physics::parse::ObjectKey wheelKey,
                                    omni::physics::parse::ObjectKey shapeKey,
-                                   ::physx::PxTransform& wheelShapeLocalPose)
+                                   ::ev4sio_physx::PxTransform& wheelShapeLocalPose)
 {
     bool resetsXformStack;
     wheelTMEntry.initialTransform =
@@ -6503,13 +6503,13 @@ static void prepareWheelTransforms(usdparser::AttachedStage& attachedStage,
         {
             wheelTMEntry.initialShapeTransform =
                 getLocalTransform(attachedStage, shapeKey, omni::physics::parse::ReadTime::defaultTime(), resetsXformStack);
-            const ::physx::PxMat44d wheelWorld = getWorldTransform(attachedStage, wheelKey, omni::physics::parse::ReadTime::defaultTime());
-            const ::physx::PxMat44d shapeWorld = getWorldTransform(attachedStage, shapeKey, omni::physics::parse::ReadTime::defaultTime());
+            const ::ev4sio_physx::PxMat44d wheelWorld = getWorldTransform(attachedStage, wheelKey, omni::physics::parse::ReadTime::defaultTime());
+            const ::ev4sio_physx::PxMat44d shapeWorld = getWorldTransform(attachedStage, shapeKey, omni::physics::parse::ReadTime::defaultTime());
             wheelShapeLocalPose = computeWheelShapeLocalPose(wheelWorld, shapeWorld);
         }
 
         // Apply cylinder axis fixup
-        const ::physx::PxQuat fixupQ = fixupConeAndCylinderQuat(wheelTMEntry.cylinderAxis);
+        const ::ev4sio_physx::PxQuat fixupQ = fixupConeAndCylinderQuat(wheelTMEntry.cylinderAxis);
         wheelShapeLocalPose.q = wheelShapeLocalPose.q * fixupQ;
     }
 }
@@ -6621,13 +6621,13 @@ ObjectId PhysXUsdPhysicsInterface::createVehicle(AttachedStage& attachedStage,
         }
 
         const uint32_t wheelCount = static_cast<uint32_t>(vehicleDesc.wheelAttachments.size());
-        std::vector<::physx::PxShape*> wheelShapeMapping;
+        std::vector<::ev4sio_physx::PxShape*> wheelShapeMapping;
         wheelShapeMapping.reserve(wheelCount);
-        std::vector<const ::physx::PxVehiclePhysXMaterialFrictionParams*> tireMaterialFrictionTables;
+        std::vector<const ::ev4sio_physx::PxVehiclePhysXMaterialFrictionParams*> tireMaterialFrictionTables;
         tireMaterialFrictionTables.reserve(wheelCount);
         internalVehicle->mWheelAttachments.resize(wheelCount, nullptr);
-        std::vector<::physx::PxTransform> wheelShapeLocalPoses;
-        wheelShapeLocalPoses.resize(wheelCount, ::physx::PxTransform(PxIdentity));
+        std::vector<::ev4sio_physx::PxTransform> wheelShapeLocalPoses;
+        wheelShapeLocalPoses.resize(wheelCount, ::ev4sio_physx::PxTransform(PxIdentity));
 
         // the wheels should be ordered according to the defined wheel attachment indices but
         // here we collect the data based on the parsing order. The following map will track
@@ -6652,7 +6652,7 @@ ObjectId PhysXUsdPhysicsInterface::createVehicle(AttachedStage& attachedStage,
 
             if (wheelAttachmentDesc.tire->frictionTableId != kInvalidObjectId)
             {
-                ::physx::PxVehiclePhysXMaterialFrictionParams* tireMaterialFrictionTable = getPtr<::physx::PxVehiclePhysXMaterialFrictionParams>(attachedStage.getInternalPhysXDatabase(),
+                ::ev4sio_physx::PxVehiclePhysXMaterialFrictionParams* tireMaterialFrictionTable = getPtr<::ev4sio_physx::PxVehiclePhysXMaterialFrictionParams>(attachedStage.getInternalPhysXDatabase(),
                     PhysXType::ePTVehicleTireFrictionTable, wheelAttachmentDesc.tire->frictionTableId);
                 CARB_ASSERT(tireMaterialFrictionTable);
                 tireMaterialFrictionTables.push_back(tireMaterialFrictionTable);
@@ -6714,7 +6714,7 @@ ObjectId PhysXUsdPhysicsInterface::createVehicle(AttachedStage& attachedStage,
             }
         }
 
-        if (!(vehicleBody->getActorFlags() & ::physx::PxActorFlag::eDISABLE_GRAVITY))
+        if (!(vehicleBody->getActorFlags() & ::ev4sio_physx::PxActorFlag::eDISABLE_GRAVITY))
         {
             const omni::physics::parse::IPhysicsSource* gravSrc = attachedStage.getSource();
             omni::physics::parse::KnownTokens gravTok;
@@ -6728,7 +6728,7 @@ ObjectId PhysXUsdPhysicsInterface::createVehicle(AttachedStage& attachedStage,
                     "Disabling gravity internally now.\n",
                     vehiclePath);
             }
-            vehicleBody->setActorFlag(::physx::PxActorFlag::eDISABLE_GRAVITY, true);
+            vehicleBody->setActorFlag(::ev4sio_physx::PxActorFlag::eDISABLE_GRAVITY, true);
         }
 
         const InternalVehicleContext& vehicleContext = internalScene->getVehicleContext();
@@ -6736,8 +6736,8 @@ ObjectId PhysXUsdPhysicsInterface::createVehicle(AttachedStage& attachedStage,
         const float gravityMagnitude = pxScene->getGravity().magnitude();
         PxPhysics& pxPhysics = pxScene->getPhysics();
 
-        ::physx::PxAllocatorCallback* allocatorForPvd;
-        const ::physx::PxVehiclePvdAttributeHandles* vehiclePvdAttributeHandles = physxSetup.getVehiclePvdRegistrationHandles();
+        ::ev4sio_physx::PxAllocatorCallback* allocatorForPvd;
+        const ::ev4sio_physx::PxVehiclePvdAttributeHandles* vehiclePvdAttributeHandles = physxSetup.getVehiclePvdRegistrationHandles();
         if (vehiclePvdAttributeHandles)
         {
             CARB_ASSERT(physxSetup.getOmniPvd());  // else vehiclePvdAttributeHandles should be nullptr
@@ -6947,7 +6947,7 @@ ObjectId PhysXUsdPhysicsInterface::createMimicJoint(const usdparser::AttachedSta
 
                     if (internalMimicJoint)
                     {
-                        ::physx::PxArticulationMimicJoint* pxMimicJoint = internalMimicJoint->getPhysXMimicJoint();
+                        ::ev4sio_physx::PxArticulationMimicJoint* pxMimicJoint = internalMimicJoint->getPhysXMimicJoint();
                         if (pxMimicJoint)
                         {
                             InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
@@ -7072,7 +7072,7 @@ void PhysXUsdPhysicsInterface::unsubscribeToObjectChangeNotifications(Subscripti
 }
 
 void PhysXUsdPhysicsInterface::removeArticulationFromSceneAndScheduleForReAdd(
-    const usdparser::AttachedStage& attachedStage, const ::physx::PxArticulationReducedCoordinate& pxArticulation)
+    const usdparser::AttachedStage& attachedStage, const ::ev4sio_physx::PxArticulationReducedCoordinate& pxArticulation)
 {
     if (pxArticulation.getScene() && pxArticulation.getAggregate())
     {
@@ -7082,5 +7082,5 @@ void PhysXUsdPhysicsInterface::removeArticulationFromSceneAndScheduleForReAdd(
     }
 }
 
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

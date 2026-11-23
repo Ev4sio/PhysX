@@ -10,7 +10,7 @@
 #include "foundation/PxAllocator.h"
 #include "foundation/PxSList.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 class PxsContext;

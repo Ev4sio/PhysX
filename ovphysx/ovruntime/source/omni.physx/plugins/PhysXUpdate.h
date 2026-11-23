@@ -22,7 +22,7 @@ struct StageUpdateSettings;
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 class PhysXScene;
 namespace usdparser { class AttachedStage; }
@@ -53,5 +53,5 @@ RuntimeResult physxFetchResultsScene(AttachHandle attach, uint64_t scenePath);
 bool physxCheckResultsScene(AttachHandle attach, uint64_t scenePath);
 void updateCooking();
 
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

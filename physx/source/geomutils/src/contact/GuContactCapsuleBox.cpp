@@ -13,10 +13,10 @@
 
 #include "foundation/PxUtilities.h"
 
-using namespace physx;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
 
-/*namespace Gu
+/*namespace ev4sio_Gu
 {
 const PxU8* getBoxEdges();
 }*/
@@ -115,7 +115,7 @@ static bool GuTestAxis(const PxVec3& axis, const Segment& segment, PxReal radius
 	PX_ASSERT(d0>=0.0f);
 	const PxReal d1 = Max1 - min0;
 	PX_ASSERT(d1>=0.0f);
-	depth = physx::intrinsics::selectMin(d0, d1);
+	depth = ev4sio_physx::intrinsics::selectMin(d0, d1);
 	return true;
 }
 
@@ -322,7 +322,7 @@ static void GuGenerateEEContacts2(	PxContactBuffer& contactBuffer,
 	}
 }
 
-bool Gu::contactCapsuleBox(GU_CONTACT_METHOD_ARGS)
+bool ev4sio_Gu::contactCapsuleBox(GU_CONTACT_METHOD_ARGS)
 {
 	PX_UNUSED(renderOutput);
 	PX_UNUSED(cache);

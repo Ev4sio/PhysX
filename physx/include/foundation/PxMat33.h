@@ -10,7 +10,7 @@
 #include "foundation/PxQuat.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 /*!
@@ -478,7 +478,7 @@ typedef PxMat33T<double>	PxMat33d;
 	}
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

@@ -10,7 +10,7 @@
 #ifndef PXG_FRICTION_PATCH_H
 #define PXG_FRICTION_PATCH_H
 
-namespace physx
+namespace ev4sio_physx
 {
 
 struct PxgFrictionPatch	

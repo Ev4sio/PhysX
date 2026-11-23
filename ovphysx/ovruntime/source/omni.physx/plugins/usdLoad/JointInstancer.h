@@ -8,11 +8,11 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace usdparser
 {
 void parseJointInstancer(AttachedStage& attachedStage, omni::physics::parse::ObjectKey instancerKey);
 }
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

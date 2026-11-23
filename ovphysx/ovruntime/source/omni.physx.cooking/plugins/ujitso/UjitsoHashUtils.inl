@@ -9,7 +9,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 
 /**
@@ -46,5 +46,5 @@ inline carb::extras::hash128_t generateRandomKey<carb::extras::hash128_t>()
     return ret;
 }
 
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

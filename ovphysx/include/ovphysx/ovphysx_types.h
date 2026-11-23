@@ -501,22 +501,22 @@ extern "C"
      *
      * | Enum value                         | PhysX SDK C++ type                            |
      * |------------------------------------|-----------------------------------------------|
-     * | OVPHYSX_PHYSX_TYPE_SCENE           | physx::PxScene                                |
-     * | OVPHYSX_PHYSX_TYPE_MATERIAL        | physx::PxMaterial                             |
-     * | OVPHYSX_PHYSX_TYPE_SHAPE           | physx::PxShape                                |
+     * | OVPHYSX_PHYSX_TYPE_SCENE           | ev4sio_physx::PxScene                                |
+     * | OVPHYSX_PHYSX_TYPE_MATERIAL        | ev4sio_physx::PxMaterial                             |
+     * | OVPHYSX_PHYSX_TYPE_SHAPE           | ev4sio_physx::PxShape                                |
      * | OVPHYSX_PHYSX_TYPE_COMPOUND_SHAPE  | Opaque compound-shape wrapper (see note)      |
-     * | OVPHYSX_PHYSX_TYPE_ACTOR           | physx::PxRigidDynamic/PxRigidStatic           |
-     * | OVPHYSX_PHYSX_TYPE_JOINT           | physx::PxJoint (standalone joints)            |
+     * | OVPHYSX_PHYSX_TYPE_ACTOR           | ev4sio_physx::PxRigidDynamic/PxRigidStatic           |
+     * | OVPHYSX_PHYSX_TYPE_JOINT           | ev4sio_physx::PxJoint (standalone joints)            |
      * | OVPHYSX_PHYSX_TYPE_CUSTOM_JOINT    | CustomPhysXJoint (plugin custom joints)       |
-     * | OVPHYSX_PHYSX_TYPE_ARTICULATION    | physx::PxArticulationReducedCoordinate        |
-     * | OVPHYSX_PHYSX_TYPE_LINK            | physx::PxArticulationLink                     |
-     * | OVPHYSX_PHYSX_TYPE_LINK_JOINT      | physx::PxArticulationJointReducedCoordinate   |
-     * | OVPHYSX_PHYSX_TYPE_PARTICLE_SYSTEM | physx::PxPBDParticleSystem                    |
-     * | OVPHYSX_PHYSX_TYPE_PARTICLE_SET    | physx::PxParticleBuffer                       |
-     * | OVPHYSX_PHYSX_TYPE_PHYSICS         | physx::PxPhysics                              |
+     * | OVPHYSX_PHYSX_TYPE_ARTICULATION    | ev4sio_physx::PxArticulationReducedCoordinate        |
+     * | OVPHYSX_PHYSX_TYPE_LINK            | ev4sio_physx::PxArticulationLink                     |
+     * | OVPHYSX_PHYSX_TYPE_LINK_JOINT      | ev4sio_physx::PxArticulationJointReducedCoordinate   |
+     * | OVPHYSX_PHYSX_TYPE_PARTICLE_SYSTEM | ev4sio_physx::PxPBDParticleSystem                    |
+     * | OVPHYSX_PHYSX_TYPE_PARTICLE_SET    | ev4sio_physx::PxParticleBuffer                       |
+     * | OVPHYSX_PHYSX_TYPE_PHYSICS         | ev4sio_physx::PxPhysics                              |
      *
      * COMPOUND_SHAPE returns an internal compound-shape wrapper. Use the C++
-     * helper matching the SDK build to access the underlying physx::PxShape
+     * helper matching the SDK build to access the underlying ev4sio_physx::PxShape
      * pointers.
      */
     typedef enum
@@ -1012,7 +1012,7 @@ extern "C"
 
     /**
      * PhysX debug-visualization parameter indices. Mirrors
-     * omni::physx::PhysXVisualizationParameter. A static_assert in the sidecar
+     * omni::ev4sio_physx::PhysXVisualizationParameter. A static_assert in the sidecar
      * keeps the two enums aligned. The session attribute for each index is the
      * matching OVPHYSX_ATTR_DEBUG_* name. NONE (0) and COUNT are not parameters.
      */

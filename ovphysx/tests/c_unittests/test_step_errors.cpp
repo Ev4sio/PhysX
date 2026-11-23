@@ -59,9 +59,9 @@ protected:
         void* scenePointer = test_utils::read_physx_pointer(
             m_handle, OVPHYSX_QUERY_TARGET_SCENE, "/World/physicsScene");
         ASSERT_NE(scenePointer, nullptr);
-        physx::PxScene* scene = static_cast<physx::PxScene*>(scenePointer);
-        ASSERT_TRUE(scene->getFlags().isSet(physx::PxSceneFlag::eENABLE_GPU_DYNAMICS));
-        ASSERT_EQ(scene->getFlags().isSet(physx::PxSceneFlag::eENABLE_DIRECT_GPU_API), GetParam());
+        ev4sio_physx::PxScene* scene = static_cast<ev4sio_physx::PxScene*>(scenePointer);
+        ASSERT_TRUE(scene->getFlags().isSet(ev4sio_physx::PxSceneFlag::eENABLE_GPU_DYNAMICS));
+        ASSERT_EQ(scene->getFlags().isSet(ev4sio_physx::PxSceneFlag::eENABLE_DIRECT_GPU_API), GetParam());
         ASSERT_NE(scene->getCudaContextManager(), nullptr);
         m_cudaContext = scene->getCudaContextManager()->getCudaContext();
         ASSERT_NE(m_cudaContext, nullptr);
@@ -93,7 +93,7 @@ protected:
     }
 
     ovphysx_instance_handle_t m_handle = 0;
-    physx::PxCudaContext* m_cudaContext = nullptr;
+    ev4sio_physx::PxCudaContext* m_cudaContext = nullptr;
     uint32_t m_logLevel = OVPHYSX_LOG_WARNING;
     bool m_suppressReadback = false;
     bool m_restoreReadback = false;

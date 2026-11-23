@@ -10,7 +10,7 @@
 #include <omni/physics/parse/ScannedStage.h>
 #include <utility>
 
-namespace omni::physx::usdparser
+namespace omni::ev4sio_physx::usdparser
 {
 
 // A selected collision remains owned by its scan, together with merged-mesh
@@ -47,4 +47,4 @@ private:
     omni::physics::parse::PhysxShapeDesc* mShape = nullptr;
 };
 
-} // namespace omni::physx::usdparser
+} // namespace omni::ev4sio_physx::usdparser

@@ -16,7 +16,7 @@ namespace local
 	struct QuickHullVertex;
 }
 
-namespace physx
+namespace ev4sio_physx
 {
 	class ConvexHull;
 

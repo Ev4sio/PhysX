@@ -10,13 +10,13 @@
 #include "PxsHeapStats.h"
 #include "PxNodeIndex.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 PxgShapeManager::PxgShapeManager(PxgAllocatorDesc& allocDesc) :
-	mHostShapesMapped(allocDesc.hostMappedAlloc, PxsHeapStats::eNARROWPHASE, Cm::PinnableAllocatorFallback::eDISABLED),
-	mHostShapesRemapTableMapped(allocDesc.hostMappedAlloc, PxsHeapStats::eNARROWPHASE, Cm::PinnableAllocatorFallback::eDISABLED),
-	mHostTransformCacheIdToActorTableMapped(allocDesc.hostMappedAlloc, PxsHeapStats::eNARROWPHASE, Cm::PinnableAllocatorFallback::eDISABLED),
-	mHostShapeIdTableMapped(allocDesc.hostMappedAlloc, PxsHeapStats::eNARROWPHASE, Cm::PinnableAllocatorFallback::eDISABLED),
+	mHostShapesMapped(allocDesc.hostMappedAlloc, PxsHeapStats::eNARROWPHASE, ev4sio_Cm::PinnableAllocatorFallback::eDISABLED),
+	mHostShapesRemapTableMapped(allocDesc.hostMappedAlloc, PxsHeapStats::eNARROWPHASE, ev4sio_Cm::PinnableAllocatorFallback::eDISABLED),
+	mHostTransformCacheIdToActorTableMapped(allocDesc.hostMappedAlloc, PxsHeapStats::eNARROWPHASE, ev4sio_Cm::PinnableAllocatorFallback::eDISABLED),
+	mHostShapeIdTableMapped(allocDesc.hostMappedAlloc, PxsHeapStats::eNARROWPHASE, ev4sio_Cm::PinnableAllocatorFallback::eDISABLED),
 	mGpuShapesBuffer(allocDesc.deviceAlloc, PxsHeapStats::eNARROWPHASE),
 	mGpuShapesRemapTableBuffer(allocDesc.deviceAlloc, PxsHeapStats::eNARROWPHASE),
 	mGpuTransformCacheIdToActorTableBuffer(allocDesc.deviceAlloc, PxsHeapStats::eNARROWPHASE),
@@ -31,7 +31,7 @@ PxgShapeManager::PxgShapeManager(PxgAllocatorDesc& allocDesc) :
 	const PxU32 initialSize = 128;
 	if(!mHostShapesMapped.reserve(initialSize))
 	{
-		PxGetFoundation().error(PxErrorCode::eOUT_OF_MEMORY, PX_FL, "PxgShapeManager: failed to allocate pinned host buffer for mHostShapes");
+		ev4sio_PxGetFoundation().error(PxErrorCode::eOUT_OF_MEMORY, PX_FL, "PxgShapeManager: failed to allocate pinned host buffer for mHostShapes");
 		mAllocFailed = true;
 		return;
 	}
@@ -39,7 +39,7 @@ PxgShapeManager::PxgShapeManager(PxgAllocatorDesc& allocDesc) :
 
 	if(!mHostShapesRemapTableMapped.reserve(initialSize))
 	{
-		PxGetFoundation().error(PxErrorCode::eOUT_OF_MEMORY, PX_FL, "PxgShapeManager: failed to allocate pinned host buffer for mHostShapesRemapTable");
+		ev4sio_PxGetFoundation().error(PxErrorCode::eOUT_OF_MEMORY, PX_FL, "PxgShapeManager: failed to allocate pinned host buffer for mHostShapesRemapTable");
 		mAllocFailed = true;
 		return;
 	}
@@ -47,7 +47,7 @@ PxgShapeManager::PxgShapeManager(PxgAllocatorDesc& allocDesc) :
 
 	if (!mHostShapeIdTableMapped.reserve(initialSize))
 	{
-		PxGetFoundation().error(PxErrorCode::eOUT_OF_MEMORY, PX_FL, "PxgShapeManager: failed to allocate pinned host buffer for mHostShapeIdTable");
+		ev4sio_PxGetFoundation().error(PxErrorCode::eOUT_OF_MEMORY, PX_FL, "PxgShapeManager: failed to allocate pinned host buffer for mHostShapeIdTable");
 		mAllocFailed = true;
 		return;
 	}
@@ -55,7 +55,7 @@ PxgShapeManager::PxgShapeManager(PxgAllocatorDesc& allocDesc) :
 
 	if(!mHostTransformCacheIdToActorTableMapped.reserve(initialSize))
 	{
-		PxGetFoundation().error(PxErrorCode::eOUT_OF_MEMORY, PX_FL, "PxgShapeManager: failed to allocate pinned host buffer for mHostTransformCacheIdToActorTable");
+		ev4sio_PxGetFoundation().error(PxErrorCode::eOUT_OF_MEMORY, PX_FL, "PxgShapeManager: failed to allocate pinned host buffer for mHostTransformCacheIdToActorTable");
 		mAllocFailed = true;
 		return;
 	}
@@ -107,7 +107,7 @@ PxU32 PxgShapeManager::registerShape(PxgShape& shape)
 		
 		if(!mHostShapesMapped.resize(tempCapacity))
 		{
-			PxGetFoundation().error(PxErrorCode::eOUT_OF_MEMORY, PX_FL, "PxgShapeManager: failed to allocate pinned host buffer for mHostShapes");
+			ev4sio_PxGetFoundation().error(PxErrorCode::eOUT_OF_MEMORY, PX_FL, "PxgShapeManager: failed to allocate pinned host buffer for mHostShapes");
 			mAllocFailed = true;
 			return PX_INVALID_U32;
 		}
@@ -140,21 +140,21 @@ void PxgShapeManager::registerShapeInstance(const PxNodeIndex& nodeIndex, const 
 		mTransformCacheResizeRequired = true;
 		if(!mHostShapesRemapTableMapped.resize(tempCapacity))
 		{
-			PxGetFoundation().error(PxErrorCode::eOUT_OF_MEMORY, PX_FL, "PxgShapeManager: failed to allocate pinned host buffer for mHostShapesRemapTable");
+			ev4sio_PxGetFoundation().error(PxErrorCode::eOUT_OF_MEMORY, PX_FL, "PxgShapeManager: failed to allocate pinned host buffer for mHostShapesRemapTable");
 			mAllocFailed = true;
 			return;
 		}
 
 		if(!mHostShapeIdTableMapped.resize(tempCapacity))
 		{
-			PxGetFoundation().error(PxErrorCode::eOUT_OF_MEMORY, PX_FL, "PxgShapeManager: failed to allocate pinned host buffer for mHostShapeIdTable");
+			ev4sio_PxGetFoundation().error(PxErrorCode::eOUT_OF_MEMORY, PX_FL, "PxgShapeManager: failed to allocate pinned host buffer for mHostShapeIdTable");
 			mAllocFailed = true;
 			return;
 		}
 		
 		if(!mHostTransformCacheIdToActorTableMapped.resize(tempCapacity))
 		{
-			PxGetFoundation().error(PxErrorCode::eOUT_OF_MEMORY, PX_FL, "PxgShapeManager: failed to allocate pinned host buffer for mHostTransformCacheIdToActorTable");
+			ev4sio_PxGetFoundation().error(PxErrorCode::eOUT_OF_MEMORY, PX_FL, "PxgShapeManager: failed to allocate pinned host buffer for mHostTransformCacheIdToActorTable");
 			mAllocFailed = true;
 			return;
 		}
@@ -430,12 +430,12 @@ void PxgShapeManager::updateShapeMaterial(const PxU32 materialIndex, const PxU32
 PxgMaterialManager::PxgMaterialManager(PxgAllocatorDesc& allocDesc, const PxU32 elemSize) :
 	mAllocFailed(false),
 	mGpuMaterialBuffer(allocDesc.deviceAlloc, PxsHeapStats::eNARROWPHASE),
-	mHostMaterialMapped(allocDesc.hostMappedAlloc, PxsHeapStats::eNARROWPHASE, Cm::PinnableAllocatorFallback::eDISABLED)
+	mHostMaterialMapped(allocDesc.hostMappedAlloc, PxsHeapStats::eNARROWPHASE, ev4sio_Cm::PinnableAllocatorFallback::eDISABLED)
 {
 	const PxU32 originalSize = elemSize * 128;
 	if(!mHostMaterialMapped.reserve(originalSize))
 	{
-		PxGetFoundation().error(PxErrorCode::eOUT_OF_MEMORY, PX_FL, "PxgMaterialManager: failed to allocate pinned host buffer for mHostMaterial");
+		ev4sio_PxGetFoundation().error(PxErrorCode::eOUT_OF_MEMORY, PX_FL, "PxgMaterialManager: failed to allocate pinned host buffer for mHostMaterial");
 		mAllocFailed = true;
 		return;
 	}
@@ -456,7 +456,7 @@ PxU32 PxgMaterialManager::registerMaterial(const PxU8* materialData, const PxU32
 		const PxU32 newBytes = capacity * elemSize;
 		if(!mHostMaterialMapped.resize(newBytes))
 		{
-			PxGetFoundation().error(PxErrorCode::eOUT_OF_MEMORY, PX_FL, "PxgMaterialManager: failed to allocate pinned host buffer for mHostMaterial");
+			ev4sio_PxGetFoundation().error(PxErrorCode::eOUT_OF_MEMORY, PX_FL, "PxgMaterialManager: failed to allocate pinned host buffer for mHostMaterial");
 			mAllocFailed = true;
 			return PX_INVALID_U32;
 		}

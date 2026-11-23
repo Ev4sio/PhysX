@@ -27,7 +27,7 @@
 
 */
 
-namespace physx
+namespace ev4sio_physx
 {
 struct ConvexScratch
 {
@@ -1955,6 +1955,6 @@ static __device__ void convexTriangleContactGen(
 	ConvexTriNormalAndIndex_WriteWarp(cvxTriNI + convexTriPairOffset, normalIndex);
 }
 
-} // namespace physx
+} // namespace ev4sio_physx
 
 #endif

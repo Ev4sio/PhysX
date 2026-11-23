@@ -33,8 +33,8 @@
 //#define testSeparationAxes testSeparationAxes_SIMD1
 #define testSeparationAxes testSeparationAxes_SIMD2
 
-using namespace physx;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
 using namespace aos;
 
 // PT: TODO: refactor with other versions in the codebase
@@ -719,7 +719,7 @@ TriangleProvider::TriangleProvider(const PxTriangleMeshGeometry& meshGeom, const
 void TriangleProvider::getTriangle(PxTrianglePadded& tri, const PxTransform& meshPose, PxU32 triangleIndex) const
 {
 	PxU32 vref0, vref1, vref2;
-	Gu::getVertexReferences(vref0, vref1, vref2, triangleIndex, mTriangles, m16BitIndices);
+	ev4sio_Gu::getVertexReferences(vref0, vref1, vref2, triangleIndex, mTriangles, m16BitIndices);
 
 	tri.verts[0] = meshPose.p + mRot.transform(mVerts[vref0]);
 	tri.verts[1] = meshPose.p + mRot.transform(mVerts[vref1]);
@@ -743,7 +743,7 @@ static PX_FORCE_INLINE float computeBoundsExtent(const PxTriangle& tri)
 	return extents.magnitude();
 }
 
-PxVec3 Gu::depenetrateMeshesRef(const PxTriangleMeshGeometry& meshGeom0, const PxTriangleMeshGeometry& meshGeom1, const PxTransform& pose0, const PxTransform& pose1, const PxVec3& inputDir, PxU32 maxIter, PxU32* nbIter)
+PxVec3 ev4sio_Gu::depenetrateMeshesRef(const PxTriangleMeshGeometry& meshGeom0, const PxTriangleMeshGeometry& meshGeom1, const PxTransform& pose0, const PxTransform& pose1, const PxVec3& inputDir, PxU32 maxIter, PxU32* nbIter)
 {
 	if(inputDir.isZero())
 		return PxVec3(0.0f);
@@ -930,7 +930,7 @@ static PX_FORCE_INLINE void updatePos(PxVec4& dst, const PxTransform& src, const
 	dst.z = v.z;
 }
 
-PxVec3 Gu::depenetrateMeshes(const PxTriangleMeshGeometry& meshGeom0, const PxTriangleMeshGeometry& meshGeom1, const PxTransform& pose0, const PxTransform& pose1, const PxVec3& inputDir, PxU32 maxIter, PxU32* nbIter)
+PxVec3 ev4sio_Gu::depenetrateMeshes(const PxTriangleMeshGeometry& meshGeom0, const PxTriangleMeshGeometry& meshGeom1, const PxTransform& pose0, const PxTransform& pose1, const PxVec3& inputDir, PxU32 maxIter, PxU32* nbIter)
 {
 	if(inputDir.isZero())
 		return PxVec3(0.0f);
@@ -942,7 +942,7 @@ PxVec3 Gu::depenetrateMeshes(const PxTriangleMeshGeometry& meshGeom0, const PxTr
 
 	if(!tm0 || !tm1 || tm0->getConcreteType()!=PxConcreteType::eTRIANGLE_MESH_BVH34 || tm1->getConcreteType()!=PxConcreteType::eTRIANGLE_MESH_BVH34)
 	{
-		PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "Gu::depenetrateMeshes(): only available between two BVH34 triangles meshes.");
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "ev4sio_Gu::depenetrateMeshes(): only available between two BVH34 triangles meshes.");
 		return PxVec3(0.0f);
 	}
 
@@ -1152,7 +1152,7 @@ PxVec3 Gu::depenetrateMeshes(const PxTriangleMeshGeometry& meshGeom0, const PxTr
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void Gu::computeDepenetrationVectors(PxU32 nbDirs, PxVec3* dirs)
+void ev4sio_Gu::computeDepenetrationVectors(PxU32 nbDirs, PxVec3* dirs)
 {
 	const int n = int(nbDirs);
 	const float goldenRatio = (1.0f + sqrtf(5.0f)) * 0.5f;
@@ -1164,7 +1164,7 @@ void Gu::computeDepenetrationVectors(PxU32 nbDirs, PxVec3* dirs)
 		dirs[i] = dir.getNormalized();
 	}
 
-	Cm::BasicRandom rnd(42);
+	ev4sio_Cm::BasicRandom rnd(42);
 	for(int i=0; i<n*100; i++)
 	{
 		const PxU32 j = rnd.randomize() % n;
@@ -1217,7 +1217,7 @@ static void getTriangle(PxVec3& p0, PxVec3& p1, PxVec3& p2, PxU32 triangleIndex,
 	}
 }
 
-void Gu::getTriangle(PxVec3& p0, PxVec3& p1, PxVec3& p2, PxU32 triangleIndex, const PxTriangleMeshGeometry& meshGeom, const PxTransform* meshPose)
+void ev4sio_Gu::getTriangle(PxVec3& p0, PxVec3& p1, PxVec3& p2, PxU32 triangleIndex, const PxTriangleMeshGeometry& meshGeom, const PxTransform* meshPose)
 {
 	const PxTriangleMesh* tm = meshGeom.triangleMesh;
 	::getTriangle(p0, p1, p2, triangleIndex, meshGeom.scale, meshPose, tm->getVertices(), tm->getTriangles(), tm->getTriangleMeshFlags() & PxTriangleMeshFlag::e16_BIT_INDICES);
@@ -1314,7 +1314,7 @@ static PX_FORCE_INLINE void sort3(PxU32& vref0, PxU32& vref1, PxU32& vref2)
 		PxSwap(vref0, vref1);
 }
 
-void Gu::createLocalCluster(LocalCluster& mesh, const PxTriangleMeshGeometry& meshGeom, const PxTransform* meshPose, PxU32 triIndex, const EdgeList* edgeList)
+void ev4sio_Gu::createLocalCluster(LocalCluster& mesh, const PxTriangleMeshGeometry& meshGeom, const PxTransform* meshPose, PxU32 triIndex, const EdgeList* edgeList)
 {
 	PxTriangleMesh* tm = meshGeom.triangleMesh;
 	const PxVec3* verts = tm->getVertices();
@@ -1345,7 +1345,7 @@ void Gu::createLocalCluster(LocalCluster& mesh, const PxTriangleMeshGeometry& me
 	else
 	{
 		PxU32 vref0, vref1, vref2;
-		Gu::getVertexReferences(vref0, vref1, vref2, triIndex, triangles, has16BitIndices);
+		ev4sio_Gu::getVertexReferences(vref0, vref1, vref2, triIndex, triangles, has16BitIndices);
 
 		const PxVec3& v0 = verts[vref0];
 		const PxVec3& v1 = verts[vref1];
@@ -1380,7 +1380,7 @@ void Gu::createLocalCluster(LocalCluster& mesh, const PxTriangleMeshGeometry& me
 					continue;
 
 				PxU32 vref0b, vref1b, vref2b;
-				Gu::getVertexReferences(vref0b, vref1b, vref2b, candidateTriIndex, triangles, has16BitIndices);
+				ev4sio_Gu::getVertexReferences(vref0b, vref1b, vref2b, candidateTriIndex, triangles, has16BitIndices);
 
 				sort3(vref0b, vref1b, vref2b);
 
@@ -1419,7 +1419,7 @@ static PX_FORCE_INLINE const PxTrianglePadded& getPaddedTriangle(const PxTriangl
 	return static_cast<const PxTrianglePadded&>(triangle);
 }
 
-float Gu::depenetrateLocalClusters(const LocalCluster& mesh0, const LocalCluster& mesh1, const PxVec3& inputDir, bool iterative)
+float ev4sio_Gu::depenetrateLocalClusters(const LocalCluster& mesh0, const LocalCluster& mesh1, const PxVec3& inputDir, bool iterative)
 {
 	const PxVec3 dir = inputDir.getNormalized();
 	const PxVec3 ndir = -dir;
@@ -1653,7 +1653,7 @@ static bool testAxes(const LocalCluster& mesh0, const LocalCluster& mesh1, float
 
 ///////////////////////////////////////////////////////////////////////////////
 
-float Gu::computeMaxLocalDepth(
+float ev4sio_Gu::computeMaxLocalDepth(
 	const PxTriangleMeshGeometry& meshGeom0, const PxTransform& meshPose0, const EdgeList* edgeList0,
 	const PxTriangleMeshGeometry& meshGeom1, const PxTransform& meshPose1, const EdgeList* edgeList1,
 	PxU32 nbPairs, const PxGeomIndexPair* pairs, const MaxLocalDepthContext& context)
@@ -1808,7 +1808,7 @@ static int triTriSAT(const PxTriangle& tri0, const PxTriangle& tri1, float& dept
 	return code;
 }
 
-float Gu::computeMaxLocalDepthBasic(
+float ev4sio_Gu::computeMaxLocalDepthBasic(
 	const PxTriangleMeshGeometry& meshGeom0, const PxTransform& meshPose0,
 	const PxTriangleMeshGeometry& meshGeom1, const PxTransform& meshPose1,
 	PxU32 nbPairs, const PxGeomIndexPair* pairs)
@@ -1823,8 +1823,8 @@ float Gu::computeMaxLocalDepthBasic(
 		const PxU32 id0 = pairs[k].id0;
 		const PxU32 id1 = pairs[k].id1;
 
-		Gu::getTriangle(tri0.verts[0], tri0.verts[1], tri0.verts[2], id0, meshGeom0, &meshPose0);
-		Gu::getTriangle(tri1.verts[0], tri1.verts[1], tri1.verts[2], id1, meshGeom1, &meshPose1);
+		ev4sio_Gu::getTriangle(tri0.verts[0], tri0.verts[1], tri0.verts[2], id0, meshGeom0, &meshPose0);
+		ev4sio_Gu::getTriangle(tri1.verts[0], tri1.verts[1], tri1.verts[2], id1, meshGeom1, &meshPose1);
 
 		float depth = 0.0f;
 		PxVec3 dd;

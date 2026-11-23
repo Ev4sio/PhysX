@@ -55,11 +55,11 @@
 
 #include <common/utilities/MemoryMacros.h>
 
-using namespace ::physx;
+using namespace ::ev4sio_physx;
 using namespace carb;
-using namespace omni::physx;
-using namespace omni::physx::internal;
-using namespace omni::physx::usdparser;
+using namespace omni::ev4sio_physx;
+using namespace omni::ev4sio_physx::internal;
+using namespace omni::ev4sio_physx::usdparser;
 
 static OmniPhysX* gOmniPhysXInstance;
 bool OmniPhysX::mWasStarted = false;
@@ -88,7 +88,7 @@ void OmniPhysX::sendSimulationEvent(SimulationEvent type, AttachHandle attach)
 void OmniPhysX::releasePhysXScenes()
 {
     //update postprocess before any particle sets are released
-    omni::physx::particles::notifyAllPhysXRelease();
+    omni::ev4sio_physx::particles::notifyAllPhysXRelease();
     mPhysXSetup.releasePhysXScenes();
     mCustomJointManager->clear();
     mCustomGeometryManager->clear();
@@ -162,7 +162,7 @@ void OmniPhysX::resetSimulation(AttachedStage& owner)
     AttachedStage* attachedStage = &owner;
     ScopedNoticeBlock blockNotices(*attachedStage);
 
-    omni::physx::internal::InternalPhysXDatabase& db = owner.getInternalPhysXDatabase();
+    omni::ev4sio_physx::internal::InternalPhysXDatabase& db = owner.getInternalPhysXDatabase();
     if (!settings.disableResetOnStop && settings.resetOnStop)
         db.resetStartProperties(useUsdUpdate, useUsdVelocitiesUpdate, outputVelocitiesLocalSpace);
 
@@ -400,7 +400,7 @@ void OmniPhysX::onStartup()
     // Skip loading the CUDA driver library on CPU-only machines so isCudaLibPresent()
     // correctly returns false when the foundation's device probe forced CPU mode.
     {
-        const omni::physx::IPhysxFoundation& physxFoundation = omni::physx::foundation::getInterface();
+        const omni::ev4sio_physx::IPhysxFoundation& physxFoundation = omni::ev4sio_physx::foundation::getInterface();
         const bool alreadyCpuMode = physxFoundation.isCpuMode && physxFoundation.isCpuMode();
         if (!alreadyCpuMode)
         {
@@ -437,7 +437,7 @@ void OmniPhysX::onStartup()
 
 }
 
-namespace omni::physx::ovx
+namespace omni::ev4sio_physx::ovx
 {
 // Defined in OvxPhysicsRead.cpp. Drains the read-column pool before CUDA/foundation teardown.
 void ovxDrainColumnPools();

@@ -17,7 +17,7 @@
 #include <private/omni/physx/ui/VisualizerMode.h>
 #include <private/omni/physx/ui/ParticleVisualizationModes.h>
 
-using namespace omni::physx;
+using namespace omni::ev4sio_physx;
 
 static PhysXSettings gPhysXSettings = PhysXSettings(
     // bool
@@ -124,7 +124,7 @@ static PhysXSettings gPhysXSettings = PhysXSettings(
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 
 static constexpr char kDefaultPrefix[] = DEFAULT_SETTING_PREFIX;
@@ -302,5 +302,5 @@ void PhysXSettings::resetSettingsSection(const char* path)
                      carb::dictionary::overwriteOriginalWithArrayHandling, nullptr);
 }
 
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

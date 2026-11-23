@@ -23,7 +23,7 @@
 
 #include "utils.cuh"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 struct PxgVelocityReader
@@ -356,6 +356,6 @@ void ConvexMeshPair_WriteWarp(ConvexMeshPair* outp, const ConvexMeshPair& inp)
 
 }
 
-} // namespace physx
+} // namespace ev4sio_physx
 
 #endif

@@ -68,11 +68,11 @@ using omni::physics::tensors::checkTensorSizeExact;
 using omni::physics::tensors::checkTensorSizeMinimum;
 using omni::physics::tensors::getTensorTotalSize;
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace tensors
 {
@@ -102,7 +102,7 @@ GpuArticulationView::GpuArticulationView(GpuSimulationView* sim, const std::vect
     mArtiIndices.resize(numArtis);
 
     // articulation view indices
-    std::vector<::physx::PxU32> mViewIndices;
+    std::vector<::ev4sio_physx::PxU32> mViewIndices;
     mViewIndices.resize(numArtis);
 
     for (PxU32 i = 0; i < numArtis; i++)
@@ -3858,5 +3858,5 @@ bool GpuArticulationView::setSpatialTendonPropertiesMasked(const TensorDesc* sti
 #undef GPU_ARTI_MASK_IDX_DESC
 
 } // namespace tensors
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

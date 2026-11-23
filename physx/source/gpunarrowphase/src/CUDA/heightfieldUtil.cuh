@@ -11,7 +11,7 @@
 #include "triangle.cuh"
 #include "assert.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 __device__	static inline PxU32	getMinRow(PxReal x, const PxU32 rows)
@@ -400,6 +400,6 @@ __device__ static inline void heightfieldOutputPairs(
 	}//end of totalNumProcessed
 }
 
-} // namespace physx
+} // namespace ev4sio_physx
 
 #endif

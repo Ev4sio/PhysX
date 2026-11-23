@@ -7,8 +7,8 @@
 #include "PxPvdObjectModelInternalTypes.h"
 #include "PxPvdImpl.h"
 
-using namespace physx;
-using namespace physx::pvdsdk;
+using namespace ev4sio_physx;
+using namespace ev4sio_physx::pvdsdk;
 
 namespace
 {
@@ -534,7 +534,7 @@ struct PvdOutStream : public PvdDataStream, public PxUserAllocated
 					if(offset.mOffsetType == PtrOffsetType::VoidPtrOffset)
 						continue;
 					const char* strPtr;
-					physx::intrinsics::memCopy(&strPtr, itemPtr + offset.mOffset, sizeof(char*));
+					ev4sio_physx::intrinsics::memCopy(&strPtr, itemPtr + offset.mOffset, sizeof(char*));
 					strPtr = nonNull(strPtr);
 					uint32_t len = safeStrLen(strPtr) + 1;
 					mSPVBuffer.write(strPtr, len);
@@ -621,7 +621,7 @@ struct PvdOutStream : public PvdDataStream, public PxUserAllocated
 			PVD_FOREACH(idx, desc.mStringOffsets.size())
 			{
 				const char* strPtr;
-				physx::intrinsics::memCopy(&strPtr, data.begin() + desc.mStringOffsets[idx], sizeof(char*));
+				ev4sio_physx::intrinsics::memCopy(&strPtr, data.begin() + desc.mStringOffsets[idx], sizeof(char*));
 				strPtr = nonNull(strPtr);
 				uint32_t len = safeStrLen(strPtr) + 1;
 				mSPVBuffer.write(strPtr, len);
@@ -830,7 +830,7 @@ PvdDataStream* PvdDataStream::create(PxPvd* pvd)
 {
 	if(pvd == NULL)
 	{
-        PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "PvdDataStream::create - pvd must be non-NULL!");
+        ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "PvdDataStream::create - pvd must be non-NULL!");
 	    return NULL;
 	}
 

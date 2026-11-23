@@ -20,7 +20,7 @@
 #include "PxgSolverKernelIndices.h"
 #include "jointConstraintBlockPrep.cuh"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 static __device__ PxU32 intializeBlock1DTGS
@@ -41,7 +41,7 @@ static __device__ PxU32 intializeBlock1DTGS
 	PxReal maxBiasVelocity = 0.0f;
 	PxReal recipUnitResponse = 0.0f;
 	const PxReal geometricError = rv.linear0XYZ_geometricErrorW[threadIndex].w;
-	Dy::Constraint1dSolverConstantsTGS desc = {0.0f, 0.0f, 0.0f, 0.0f};
+	ev4sio_Dy::Constraint1dSolverConstantsTGS desc = {0.0f, 0.0f, 0.0f, 0.0f};
 	{
 		const PxU16 flags = PxU16(rp.flags[threadIndex]);
 		const PxReal stiffness = rp.mods.spring.stiffness[threadIndex];
@@ -50,12 +50,12 @@ static __device__ PxU32 intializeBlock1DTGS
 		const PxReal bounceVelocityThreshold = rp.mods.bounce.velocityThreshold[threadIndex];
 		const PxReal velocityTarget = rv.angular0XYZ_velocityTargetW[threadIndex].w;
 
-		maxBiasVelocity = Dy::computeMaxBiasVelocityTGS(flags, jointSpeedForRestitutionBounce, bounceVelocityThreshold, 
+		maxBiasVelocity = ev4sio_Dy::computeMaxBiasVelocityTGS(flags, jointSpeedForRestitutionBounce, bounceVelocityThreshold,
 			restitution, geometricError, false, lengthScale, recipSimDt);
 
-		recipUnitResponse = Dy::computeRecipUnitResponse(unitResponse, minRowResponse);
+		recipUnitResponse = ev4sio_Dy::computeRecipUnitResponse(unitResponse, minRowResponse);
 
-		desc = Dy::compute1dConstraintSolverConstantsTGS(
+		desc = ev4sio_Dy::compute1dConstraintSolverConstantsTGS(
 			flags, 
 			stiffness, damping,
 			restitution, bounceVelocityThreshold,
@@ -99,14 +99,14 @@ static __device__ PxU32 intializeBlock1DTGS
 
 	const bool hasDriveLimit = rp.flags[threadIndex] & Px1DConstraintFlag::eHAS_DRIVE_LIMIT;
 	const bool driveLimitsAreForces = constraintData.mFlags[threadIndex] & PxConstraintFlag::eDRIVE_LIMITS_ARE_FORCES;
-	Dy::computeMinMaxImpulseOrForceAsImpulse(
+	ev4sio_Dy::computeMinMaxImpulseOrForceAsImpulse(
 			rv.linear1XYZ_minImpulseW[threadIndex].w, rv.angular1XYZ_maxImpulseW[threadIndex].w,
 			hasDriveLimit, driveLimitsAreForces, simDt,
 			scon.minImpulse[threadIndex], scon.maxImpulse[threadIndex]);
 
 	PxU32 outFlags = 0;
 	const PxU32 solveHint = rp.solveHint[threadIndex];
-	Dy::raiseInternalFlagsTGS(rp.flags[threadIndex], solveHint, outFlags);
+	ev4sio_Dy::raiseInternalFlagsTGS(rp.flags[threadIndex], solveHint, outFlags);
 
 	PxU32 ret = 0;
 	if (!disablePreprocessing)
@@ -183,7 +183,7 @@ static __device__ PxU32 setUp1DConstraintBlockTGS
 		{
 			const float vel0 = sBodyData0->projectVelocity(clin0, cang0);
 			const float vel1 = sBodyData1->projectVelocity(clin1, cang1);
-			Dy::computeJointSpeedTGS(
+			ev4sio_Dy::computeJointSpeedTGS(
 				vel0, isKinematic0, vel1, isKinematic1, 
 				jointSpeedForRestitutionBounce, initJointSpeed);
 		}
@@ -272,9 +272,9 @@ static __device__ void setupSolverConstraintBlockGPUTGS(PxgBlockConstraint1DData
 	}
 
 
-	__shared__ PxU32 sortedRowIndices[NbThreads][Dy::MAX_CONSTRAINT_ROWS];
-	__shared__ PxVec3 angSqrtInvInertia0[NbThreads][Dy::MAX_CONSTRAINT_ROWS];
-	__shared__ PxVec3 angSqrtInvInertia1[NbThreads][Dy::MAX_CONSTRAINT_ROWS];
+	__shared__ PxU32 sortedRowIndices[NbThreads][ev4sio_Dy::MAX_CONSTRAINT_ROWS];
+	__shared__ PxVec3 angSqrtInvInertia0[NbThreads][ev4sio_Dy::MAX_CONSTRAINT_ROWS];
+	__shared__ PxVec3 angSqrtInvInertia1[NbThreads][ev4sio_Dy::MAX_CONSTRAINT_ROWS];
 
 	bool disablePreprocessing = !!(constraintData->mFlags[threadIndex] & PxConstraintFlag::eDISABLE_PREPROCESSING);
 
@@ -287,6 +287,6 @@ static __device__ void setupSolverConstraintBlockGPUTGS(PxgBlockConstraint1DData
 }
 
 
-} // namespace physx
+} // namespace ev4sio_physx
 
 #endif

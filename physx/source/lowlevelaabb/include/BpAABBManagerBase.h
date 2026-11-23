@@ -18,18 +18,18 @@
 #include "PxFiltering.h"
 #include "PxAggregate.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 class PxcScratchAllocator;
 class PxRenderOutput;
 class PxBaseTask;
 
-namespace Cm
+namespace ev4sio_Cm
 {
 	class FlushPool;
 }
 
-namespace Bp
+namespace ev4sio_Bp
 {
 	typedef PxU32 BoundsIndex;
 	//typedef PxU32 ActorHandle;
@@ -48,9 +48,9 @@ namespace Bp
 			PX_ASSERT(userData0 != userData1);
 		}
 
-		// PT: these will eventually be the userData pointers passed to addBounds(), i.e. Sc::ElementSim pointers in PhysX. This may not be
+		// PT: these will eventually be the userData pointers passed to addBounds(), i.e. ev4sio_Sc::ElementSim pointers in PhysX. This may not be
 		// necessary at all, since in the current design the bounds indices themselves come from BP clients (they're not handles managed by the BP).
-		// So there's a 1:1 mapping between bounds-indices (which are effectively edlement IDs in PhysX) and the userData pointers (Sc::ElementSim).
+		// So there's a 1:1 mapping between bounds-indices (which are effectively edlement IDs in PhysX) and the userData pointers (ev4sio_Sc::ElementSim).
 		// Thus we could just return bounds indices directly to users - at least in the context of PhysX, maybe the standalone BP is different.
 		void*	mUserData0;
 		void*	mUserData1;
@@ -82,9 +82,9 @@ namespace Bp
 	{
 												PX_NOCOPY(BoundsArray)
 	public:
-												BoundsArray(Cm::VirtualAllocatorCallback& allocator,
+												BoundsArray(ev4sio_Cm::VirtualAllocatorCallback& allocator,
 															PxI32 group = 0,
-															Cm::PinnableAllocatorFallback::Enum fallback = Cm::PinnableAllocatorFallback::eENABLED)
+															ev4sio_Cm::PinnableAllocatorFallback::Enum fallback = ev4sio_Cm::PinnableAllocatorFallback::eENABLED)
 												:
 													mBounds(allocator, group, fallback),
 													mHasAnythingChanged(true), //needs to be set explicitly for PxgBounds first copy
@@ -108,7 +108,7 @@ namespace Bp
 
 		virtual void							updateBounds(const PxTransform& transform, const PxGeometry& geom, PxU32 index, bool /*isNew*/, bool /*isDynamicRigidShape*/)
 												{
-													Gu::computeBounds(mBounds[index], geom, transform, 0.0f, 1.0f);
+													ev4sio_Gu::computeBounds(mBounds[index], geom, transform, 0.0f, 1.0f);
 													mHasAnythingChanged = true;
 												}
 
@@ -160,7 +160,7 @@ namespace Bp
 													return true;
 												}
 
-		Cm::PinnableArray<PxBounds3>			mBounds;
+		ev4sio_Cm::PinnableArray<PxBounds3>			mBounds;
 		bool									mHasAnythingChanged;
 		bool									mAllocFailed;
 	};
@@ -177,18 +177,18 @@ namespace Bp
 	{
 												PX_NOCOPY(AABBManagerBase)
 	public:
-												AABBManagerBase(BroadPhase& bp, BoundsArray& boundsArray, Cm::PinnableArray<PxReal>& contactDistance,
-																PxU32 maxNbAggregates, PxU32 maxNbShapes, Cm::VirtualAllocatorCallback& allocator, PxU64 contextID,
+												AABBManagerBase(BroadPhase& bp, BoundsArray& boundsArray, ev4sio_Cm::PinnableArray<PxReal>& contactDistance,
+																PxU32 maxNbAggregates, PxU32 maxNbShapes, ev4sio_Cm::VirtualAllocatorCallback& allocator, PxU64 contextID,
 																PxPairFilteringMode::Enum kineKineFilteringMode, PxPairFilteringMode::Enum staticKineFilteringMode);
 
 		virtual									~AABBManagerBase() {}
 
 		virtual			void					destroy() = 0;
 
-		virtual			AggregateHandle			createAggregate(BoundsIndex index, Bp::FilterGroup::Enum group, void* userData, PxU32 maxNumShapes, PxAggregateFilterHint filterHint, PxU32 envID) = 0;
-		virtual			bool					destroyAggregate(BoundsIndex& index, Bp::FilterGroup::Enum& group, AggregateHandle aggregateHandle) = 0;
+		virtual			AggregateHandle			createAggregate(BoundsIndex index, ev4sio_Bp::FilterGroup::Enum group, void* userData, PxU32 maxNumShapes, PxAggregateFilterHint filterHint, PxU32 envID) = 0;
+		virtual			bool					destroyAggregate(BoundsIndex& index, ev4sio_Bp::FilterGroup::Enum& group, AggregateHandle aggregateHandle) = 0;
 
-		virtual			bool					addBounds(BoundsIndex index, PxReal contactDistance, Bp::FilterGroup::Enum group, void* userdata, AggregateHandle aggregateHandle, ElementType::Enum volumeType, PxU32 envID) = 0;
+		virtual			bool					addBounds(BoundsIndex index, PxReal contactDistance, ev4sio_Bp::FilterGroup::Enum group, void* userdata, AggregateHandle aggregateHandle, ElementType::Enum volumeType, PxU32 envID) = 0;
 		virtual			bool					removeBounds(BoundsIndex index) = 0;
 
 						void					reserveSpaceForBounds(BoundsIndex index);
@@ -199,7 +199,7 @@ namespace Bp
 		PX_FORCE_INLINE	BoundsArray&			getBoundsArray()								{ return mBoundsArray;							}
 		PX_FORCE_INLINE	PxU32					getNbActiveAggregates()					const	{ return mNbAggregates;							}
 		PX_FORCE_INLINE	const float*			getContactDistances()					const	{ return mContactDistance.begin();				}
-		PX_FORCE_INLINE	Cm::PinnableBitMap&		getChangedAABBMgActorHandleMap()				{ return mChangedHandleMap;						}
+		PX_FORCE_INLINE	ev4sio_Cm::PinnableBitMap&		getChangedAABBMgActorHandleMap()				{ return mChangedHandleMap;						}
 		PX_FORCE_INLINE void*					getUserData(const BoundsIndex index)	const	{ return (index<mVolumeData.size()) ? mVolumeData[index].getUserData() : NULL;	}
 
 						void					setContactDistance(BoundsIndex handle, PxReal offset)
@@ -210,17 +210,17 @@ namespace Bp
 													mChangedHandleMap.growAndSet(handle);
 												}
 
-						void					setBPGroup(BoundsIndex index, Bp::FilterGroup::Enum group)
+						void					setBPGroup(BoundsIndex index, ev4sio_Bp::FilterGroup::Enum group)
 												{
 													PX_ASSERT((index + 1) < mVolumeData.size());
-													PX_ASSERT(group != Bp::FilterGroup::eINVALID);	// PT: we use group == Bp::FilterGroup::eINVALID to mark removed/invalid entries
+													PX_ASSERT(group != ev4sio_Bp::FilterGroup::eINVALID);	// PT: we use group == ev4sio_Bp::FilterGroup::eINVALID to mark removed/invalid entries
 													mGroups[index] = group;
 												}
 
-		virtual			void					updateBPFirstPass(PxU32 numCpuTasks, Cm::FlushPool& flushPool, bool hasContactDistanceUpdated, PxBaseTask* continuation) = 0;
-		virtual			void					updateBPSecondPass(PxU32 numCpuTasks, Cm::FlushPool& flushPool, PxcScratchAllocator* scratchAllocator, PxBaseTask* continuation)	= 0;
+		virtual			void					updateBPFirstPass(PxU32 numCpuTasks, ev4sio_Cm::FlushPool& flushPool, bool hasContactDistanceUpdated, PxBaseTask* continuation) = 0;
+		virtual			void					updateBPSecondPass(PxU32 numCpuTasks, ev4sio_Cm::FlushPool& flushPool, PxcScratchAllocator* scratchAllocator, PxBaseTask* continuation)	= 0;
 
-		virtual			void					postBroadPhase(PxBaseTask*, Cm::FlushPool& flushPool) = 0;
+		virtual			void					postBroadPhase(PxBaseTask*, ev4sio_Cm::FlushPool& flushPool) = 0;
 		virtual			void					reallocateChangedAABBMgActorHandleMap(const PxU32 size) = 0;
 
 						AABBOverlap*			getCreatedOverlaps(ElementType::Enum type, PxU32& count)
@@ -271,9 +271,9 @@ namespace Bp
 
 		// PT: we have bitmaps here probably to quickly handle added/removed objects during same frame.
 		// PT: TODO: consider replacing with plain arrays (easier to parse, already existing below, etc)
-						Cm::PinnableBitMap		mAddedHandleMap;		// PT: indexed by BoundsIndex
-						Cm::PinnableBitMap		mRemovedHandleMap;		// PT: indexed by BoundsIndex
-						Cm::PinnableBitMap		mChangedHandleMap;
+						ev4sio_Cm::PinnableBitMap		mAddedHandleMap;		// PT: indexed by BoundsIndex
+						ev4sio_Cm::PinnableBitMap		mRemovedHandleMap;		// PT: indexed by BoundsIndex
+						ev4sio_Cm::PinnableBitMap		mChangedHandleMap;
 
 		//Returns true if the bounds was pending insert, false otherwise
 		PX_FORCE_INLINE bool					removeBPEntry(BoundsIndex index)	// PT: only for objects passed to the BP
@@ -296,15 +296,15 @@ namespace Bp
 														mAddedHandleMap.set(index);
 												}
 
-		//ML: we create mGroups and mContactDistance in the AABBManager constructor. PxArray will take Cm::VirtualAllocatorCallback as a parameter. Therefore, if GPU BP is using,
+		//ML: we create mGroups and mContactDistance in the AABBManager constructor. PxArray will take ev4sio_Cm::VirtualAllocatorCallback as a parameter. Therefore, if GPU BP is using,
 		//we will passed a pinned host memory allocator, otherwise, we will just pass a normal allocator.
-						Cm::PinnableArray<Bp::FilterGroup::Enum>	mGroups;	// NOTE: we stick Bp::FilterGroup::eINVALID in this slot to indicate that the entry is invalid (removed or never inserted.)
-						Cm::PinnableArray<PxU32>					mEnvIDs;	// PT: should ideally be in the GPU class
-						Cm::PinnableArray<PxReal>&					mContactDistance;
-						Cm::PinnableArray<VolumeData>				mVolumeData;
+						ev4sio_Cm::PinnableArray<ev4sio_Bp::FilterGroup::Enum>	mGroups;	// NOTE: we stick ev4sio_Bp::FilterGroup::eINVALID in this slot to indicate that the entry is invalid (removed or never inserted.)
+						ev4sio_Cm::PinnableArray<PxU32>					mEnvIDs;	// PT: should ideally be in the GPU class
+						ev4sio_Cm::PinnableArray<PxReal>&					mContactDistance;
+						ev4sio_Cm::PinnableArray<VolumeData>				mVolumeData;
 						BpFilter									mFilters;
 
-		PX_FORCE_INLINE	void					initEntry(BoundsIndex index, PxReal contactDistance, Bp::FilterGroup::Enum group, void* userData)
+		PX_FORCE_INLINE	void					initEntry(BoundsIndex index, PxReal contactDistance, ev4sio_Bp::FilterGroup::Enum group, void* userData)
 												{
 													if ((index + 1) >= mVolumeData.size())
 														reserveShapeSpace(index + 1);
@@ -312,13 +312,13 @@ namespace Bp
 													// PT: TODO: why is this needed at all? Why aren't size() and capacity() enough?
 													mUsedSize = PxMax(index + 1, mUsedSize);
 
-													PX_ASSERT(group != Bp::FilterGroup::eINVALID);	// PT: we use group == Bp::FilterGroup::eINVALID to mark removed/invalid entries
+													PX_ASSERT(group != ev4sio_Bp::FilterGroup::eINVALID);	// PT: we use group == ev4sio_Bp::FilterGroup::eINVALID to mark removed/invalid entries
 													mGroups[index] = group;
 													mContactDistance.begin()[index] = contactDistance;
 													mVolumeData[index].setUserData(userData);
 												}
 
-		PX_FORCE_INLINE	void					initEntry(BoundsIndex index, PxReal contactDistance, Bp::FilterGroup::Enum group, void* userData, ElementType::Enum volumeType)
+		PX_FORCE_INLINE	void					initEntry(BoundsIndex index, PxReal contactDistance, ev4sio_Bp::FilterGroup::Enum group, void* userData, ElementType::Enum volumeType)
 												{
 													initEntry(index, contactDistance, group, userData);
 													mVolumeData[index].setVolumeType(volumeType);	// PT: must be done after setUserData
@@ -326,7 +326,7 @@ namespace Bp
 
 		PX_FORCE_INLINE	void					resetEntry(BoundsIndex index)
 												{
-													mGroups[index] = Bp::FilterGroup::eINVALID;
+													mGroups[index] = ev4sio_Bp::FilterGroup::eINVALID;
 													mContactDistance.begin()[index] = 0.0f;
 													mVolumeData[index].reset();
 
@@ -335,9 +335,9 @@ namespace Bp
 												}
 
 		// PT: TODO: remove confusion between BoundsIndex and ShapeHandle here!
-						Cm::PinnableArray<ShapeHandle>	mAddedHandles;
-						Cm::PinnableArray<ShapeHandle>	mUpdatedHandles;	// PT: TODO: only on CPU
-						Cm::PinnableArray<ShapeHandle>	mRemovedHandles;
+						ev4sio_Cm::PinnableArray<ShapeHandle>	mAddedHandles;
+						ev4sio_Cm::PinnableArray<ShapeHandle>	mUpdatedHandles;	// PT: TODO: only on CPU
+						ev4sio_Cm::PinnableArray<ShapeHandle>	mRemovedHandles;
 
 						BroadPhase&				mBroadPhase;
 						BoundsArray&			mBoundsArray;
@@ -361,19 +361,19 @@ namespace Bp
 		// to BroadPhaseUpdateData as "ShapeHandle".
 		//Free aggregate group ids.
 						PxU32					mAggregateGroupTide;
-				PxArray<Bp::FilterGroup::Enum>	mFreeAggregateGroups;	// PT: TODO: remove this useless array
+				PxArray<ev4sio_Bp::FilterGroup::Enum>	mFreeAggregateGroups;	// PT: TODO: remove this useless array
 #endif
 						PxU64					mContextID;
 						bool					mOriginShifted;
 
 #if BP_USE_AGGREGATE_GROUP_TAIL
-		PX_FORCE_INLINE void					releaseAggregateGroup(const Bp::FilterGroup::Enum group)
+		PX_FORCE_INLINE void					releaseAggregateGroup(const ev4sio_Bp::FilterGroup::Enum group)
 												{
-													PX_ASSERT(group != Bp::FilterGroup::eINVALID);
+													PX_ASSERT(group != ev4sio_Bp::FilterGroup::eINVALID);
 													mFreeAggregateGroups.pushBack(group);
 												}
 
-		PX_FORCE_INLINE Bp::FilterGroup::Enum	getAggregateGroup()
+		PX_FORCE_INLINE ev4sio_Bp::FilterGroup::Enum	getAggregateGroup()
 												{
 													PxU32 id;
 													if (mFreeAggregateGroups.size())
@@ -384,14 +384,14 @@ namespace Bp
 														id <<= BP_FILTERING_TYPE_SHIFT_BIT;
 														id |= FilterType::AGGREGATE;
 													}
-													const Bp::FilterGroup::Enum group = Bp::FilterGroup::Enum(id);
-													PX_ASSERT(group != Bp::FilterGroup::eINVALID);
+													const ev4sio_Bp::FilterGroup::Enum group = ev4sio_Bp::FilterGroup::Enum(id);
+													PX_ASSERT(group != ev4sio_Bp::FilterGroup::eINVALID);
 													return group;
 												}
 #endif
 	};
 
-} //namespace Bp
-} //namespace physx
+} //namespace ev4sio_Bp
+} //namespace ev4sio_physx
 
 #endif //BP_AABBMANAGER_BASE_H

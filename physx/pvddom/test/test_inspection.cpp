@@ -96,7 +96,7 @@ std::string leftSampleJson(const ComparisonResult& result)
 
 TEST(PvdInspection, ReadsActualSdkTransformLayout)
 {
-    const physx::PxTransform pose(physx::PxVec3(1, 2, 3), physx::PxQuat(0, 0, 0.6f, 0.8f));
+    const ev4sio_physx::PxTransform pose(ev4sio_physx::PxVec3(1, 2, 3), ev4sio_physx::PxQuat(0, 0, 0.6f, 0.8f));
     OmniPvdAttributeSample sample;
     sample.assignData(reinterpret_cast<const uint8_t*>(&pose), sizeof(pose));
     float p[3], q[4];
@@ -1457,7 +1457,7 @@ TEST(PvdInspection, TypedReadsRejectWrongTypesWidthsAndNonfiniteValues)
     EXPECT_FALSE(PvdDomInspect::readVec3(sample, out)); sample.dataType = OmniPvdDataType::eFLOAT32;
     v[1] = std::numeric_limits<float>::infinity(); storage.assignData(reinterpret_cast<const uint8_t*>(v), 12);
     EXPECT_FALSE(PvdDomInspect::readVec3(sample, out)); EXPECT_EQ(99, out[0]);
-    const physx::PxTransform pose(physx::PxVec3(1, 2, 3), physx::PxQuat(0, 0, 0.6f, 0.8f));
+    const ev4sio_physx::PxTransform pose(ev4sio_physx::PxVec3(1, 2, 3), ev4sio_physx::PxQuat(0, 0, 0.6f, 0.8f));
     storage.assignData(reinterpret_cast<const uint8_t*>(&pose), sizeof(pose));
     double q[4]; ASSERT_TRUE(PvdDomInspect::readTransform(sample, out, q));
     EXPECT_EQ(1, out[0]); EXPECT_EQ(3, out[2]); EXPECT_NEAR(0.6, q[2], 1e-6);

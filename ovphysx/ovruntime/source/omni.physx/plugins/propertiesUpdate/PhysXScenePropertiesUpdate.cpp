@@ -19,11 +19,11 @@
 #include <PxPhysicsAPI.h>
 
 
-using namespace ::physx;
+using namespace ::ev4sio_physx;
 using namespace carb;
-using namespace omni::physx;
-using namespace omni::physx::usdparser;
-using namespace omni::physx::internal;
+using namespace omni::ev4sio_physx;
+using namespace omni::ev4sio_physx::usdparser;
+using namespace omni::ev4sio_physx::internal;
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -38,7 +38,7 @@ static const InternalDatabase::Record* getObjectRecord(const AttachedStage& atta
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 // scene
-bool omni::physx::updateGravityMagnitude(AttachedStage& attachedStage, ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
+bool omni::ev4sio_physx::updateGravityMagnitude(AttachedStage& attachedStage, ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     if (const InternalDatabase::Record* objectRecord = getObjectRecord(attachedStage, objectId))
     {
@@ -63,7 +63,7 @@ bool omni::physx::updateGravityMagnitude(AttachedStage& attachedStage, ObjectId 
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
-bool omni::physx::updateGravityDirection(AttachedStage& attachedStage, ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
+bool omni::ev4sio_physx::updateGravityDirection(AttachedStage& attachedStage, ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     if (const InternalDatabase::Record* objectRecord = getObjectRecord(attachedStage, objectId))
     {
@@ -92,7 +92,7 @@ bool omni::physx::updateGravityDirection(AttachedStage& attachedStage, ObjectId 
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
-bool omni::physx::updateTimeStepsPerSecond(AttachedStage& attachedStage, ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
+bool omni::ev4sio_physx::updateTimeStepsPerSecond(AttachedStage& attachedStage, ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     if (const InternalDatabase::Record* objectRecord = getObjectRecord(attachedStage, objectId))
     {
@@ -111,7 +111,7 @@ bool omni::physx::updateTimeStepsPerSecond(AttachedStage& attachedStage, ObjectI
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Newton fallback: newton:timeStepsPerSecond -> physxScene:timeStepsPerSecond
-bool omni::physx::updateNewtonTimeStepsPerSecond(AttachedStage& attachedStage, ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
+bool omni::ev4sio_physx::updateNewtonTimeStepsPerSecond(AttachedStage& attachedStage, ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     if (const InternalDatabase::Record* objectRecord = getObjectRecord(attachedStage, objectId))
     {
@@ -153,7 +153,7 @@ bool omni::physx::updateNewtonTimeStepsPerSecond(AttachedStage& attachedStage, O
 // (which has always applied this unconditionally), and it was expressed with
 // hasAuthoredAttribute, which a resolved-value backend cannot answer at all
 // (ADR-0020) — so on ovstage it suppressed the toggle on every stage.
-bool omni::physx::updateNewtonGravityEnabled(AttachedStage& attachedStage, ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
+bool omni::ev4sio_physx::updateNewtonGravityEnabled(AttachedStage& attachedStage, ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     if (const InternalDatabase::Record* objectRecord = getObjectRecord(attachedStage, objectId))
     {
@@ -187,7 +187,7 @@ bool omni::physx::updateNewtonGravityEnabled(AttachedStage& attachedStage, Objec
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
-bool omni::physx::updateSceneUpdateType(AttachedStage& attachedStage, ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
+bool omni::ev4sio_physx::updateSceneUpdateType(AttachedStage& attachedStage, ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     if (const InternalDatabase::Record* objectRecord = getObjectRecord(attachedStage, objectId))
     {
@@ -218,7 +218,7 @@ bool omni::physx::updateSceneUpdateType(AttachedStage& attachedStage, ObjectId o
     return true;
 }
 
-bool omni::physx::updateQuasistaticEnabled(AttachedStage& attachedStage, ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
+bool omni::ev4sio_physx::updateQuasistaticEnabled(AttachedStage& attachedStage, ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     if (const InternalDatabase::Record* objectRecord = getObjectRecord(attachedStage, objectId))
     {
@@ -235,7 +235,7 @@ bool omni::physx::updateQuasistaticEnabled(AttachedStage& attachedStage, ObjectI
     return true;
 }
 
-bool omni::physx::updateQuasistaticCollection(AttachedStage& attachedStage, ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
+bool omni::ev4sio_physx::updateQuasistaticCollection(AttachedStage& attachedStage, ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     if (const InternalDatabase::Record* objectRecord = getObjectRecord(attachedStage, objectId))
     {

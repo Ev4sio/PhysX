@@ -131,7 +131,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace usdparser
 {
@@ -305,13 +305,13 @@ cache::RuntimeArtifactService* AttachedStage::compiledInsertionStore()
 // @covers AC-12
 AttachedStage::RetainedCollection::~RetainedCollection()
 {
-    for (::physx::PxRefCounted* object : shared)
+    for (::ev4sio_physx::PxRefCounted* object : shared)
         object->release();
 }
 
 void AttachedStage::retainCompiledCollection(std::unique_ptr<cache::DecodedCollection>& collection,
                                              std::vector<ObjectId> records,
-                                             std::vector<::physx::PxRefCounted*> shared)
+                                             std::vector<::ev4sio_physx::PxRefCounted*> shared)
 {
     // Free collections whose restored objects are all gone, so repeated
     // insertion and deletion does not grow without bound. Every shape, material
@@ -322,53 +322,53 @@ void AttachedStage::retainCompiledCollection(std::unique_ptr<cache::DecodedColle
         for (const ObjectId id : retained->records)
             if (id < all.size() && all[id].mType != ePTRemoved)
                 return false;
-        const ::physx::PxCollection& remaining = retained->collection->collection();
-        std::vector<const ::physx::PxRefCounted*> owned(retained->shared.begin(), retained->shared.end());
-        for (::physx::PxU32 i = 0; i < remaining.getNbObjects(); ++i)
+        const ::ev4sio_physx::PxCollection& remaining = retained->collection->collection();
+        std::vector<const ::ev4sio_physx::PxRefCounted*> owned(retained->shared.begin(), retained->shared.end());
+        for (::ev4sio_physx::PxU32 i = 0; i < remaining.getNbObjects(); ++i)
         {
-            ::physx::PxBase& object = remaining.getObject(i);
-            if (const ::physx::PxMaterial* material = object.is<::physx::PxMaterial>())
+            ::ev4sio_physx::PxBase& object = remaining.getObject(i);
+            if (const ::ev4sio_physx::PxMaterial* material = object.is<::ev4sio_physx::PxMaterial>())
                 owned.push_back(material);
-            else if (const ::physx::PxShape* shape = object.is<::physx::PxShape>())
+            else if (const ::ev4sio_physx::PxShape* shape = object.is<::ev4sio_physx::PxShape>())
                 owned.push_back(shape);
-            else if (const ::physx::PxConvexMesh* convex = object.is<::physx::PxConvexMesh>())
+            else if (const ::ev4sio_physx::PxConvexMesh* convex = object.is<::ev4sio_physx::PxConvexMesh>())
                 owned.push_back(convex);
-            else if (const ::physx::PxTriangleMesh* triangles = object.is<::physx::PxTriangleMesh>())
+            else if (const ::ev4sio_physx::PxTriangleMesh* triangles = object.is<::ev4sio_physx::PxTriangleMesh>())
                 owned.push_back(triangles);
-            else if (const ::physx::PxHeightField* heightField = object.is<::physx::PxHeightField>())
+            else if (const ::ev4sio_physx::PxHeightField* heightField = object.is<::ev4sio_physx::PxHeightField>())
                 owned.push_back(heightField);
             else
                 return false; // any other remaining object keeps the collection until teardown
         }
-        std::unordered_map<const ::physx::PxRefCounted*, ::physx::PxU32> internal;
-        for (const ::physx::PxRefCounted* object : owned)
+        std::unordered_map<const ::ev4sio_physx::PxRefCounted*, ::ev4sio_physx::PxU32> internal;
+        for (const ::ev4sio_physx::PxRefCounted* object : owned)
         {
-            const ::physx::PxShape* shape = object->is<::physx::PxShape>();
+            const ::ev4sio_physx::PxShape* shape = object->is<::ev4sio_physx::PxShape>();
             if (!shape)
                 continue;
             if (shape->getReferenceCount() != 1)
                 return false;
-            std::vector<::physx::PxMaterial*> materials(shape->getNbMaterials());
-            shape->getMaterials(materials.data(), ::physx::PxU32(materials.size()));
-            for (const ::physx::PxMaterial* material : materials)
+            std::vector<::ev4sio_physx::PxMaterial*> materials(shape->getNbMaterials());
+            shape->getMaterials(materials.data(), ::ev4sio_physx::PxU32(materials.size()));
+            for (const ::ev4sio_physx::PxMaterial* material : materials)
                 ++internal[material];
-            const ::physx::PxGeometry& geometry = shape->getGeometry();
+            const ::ev4sio_physx::PxGeometry& geometry = shape->getGeometry();
             switch (geometry.getType())
             {
-            case ::physx::PxGeometryType::eCONVEXMESH:
-                ++internal[static_cast<const ::physx::PxConvexMeshGeometry&>(geometry).convexMesh];
+            case ::ev4sio_physx::PxGeometryType::eCONVEXMESH:
+                ++internal[static_cast<const ::ev4sio_physx::PxConvexMeshGeometry&>(geometry).convexMesh];
                 break;
-            case ::physx::PxGeometryType::eTRIANGLEMESH:
-                ++internal[static_cast<const ::physx::PxTriangleMeshGeometry&>(geometry).triangleMesh];
+            case ::ev4sio_physx::PxGeometryType::eTRIANGLEMESH:
+                ++internal[static_cast<const ::ev4sio_physx::PxTriangleMeshGeometry&>(geometry).triangleMesh];
                 break;
-            case ::physx::PxGeometryType::eHEIGHTFIELD:
-                ++internal[static_cast<const ::physx::PxHeightFieldGeometry&>(geometry).heightField];
+            case ::ev4sio_physx::PxGeometryType::eHEIGHTFIELD:
+                ++internal[static_cast<const ::ev4sio_physx::PxHeightFieldGeometry&>(geometry).heightField];
                 break;
             default:
                 break;
             }
         }
-        for (const ::physx::PxRefCounted* object : owned)
+        for (const ::ev4sio_physx::PxRefCounted* object : owned)
         {
             const auto found = internal.find(object);
             if (object->getReferenceCount() != 1 + (found == internal.end() ? 0 : found->second))
@@ -392,7 +392,7 @@ void AttachedStage::retainCompiledCollection(std::unique_ptr<cache::DecodedColle
     RetainedCollection& retained = *mCompiledCollections.back();
     retained.collection = std::move(collection);
     retained.records = std::move(records);
-    for (::physx::PxRefCounted* object : shared)
+    for (::ev4sio_physx::PxRefCounted* object : shared)
         object->acquireReference();
     retained.shared = std::move(shared);
 }

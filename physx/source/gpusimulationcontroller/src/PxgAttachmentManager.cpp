@@ -10,11 +10,11 @@
 #include "GuTriangleMesh.h"
 #include "PxsRigidBody.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	// The GPU-side kind of an element, and the table that maps it into the numbering the GPU mesh uses.
 	// Only a triangle is renumbered. A vertex and a tetrahedron use the same numbering on both sides.
-	static void resolveFeature(const PxDeformableAttachmentTargetType::Enum feature, const Gu::TriangleMesh* surfaceMesh,
+	static void resolveFeature(const PxDeformableAttachmentTargetType::Enum feature, const ev4sio_Gu::TriangleMesh* surfaceMesh,
 		PxgDeformableRef::Enum& featureType, const PxU32*& featureRemap)
 	{
 		featureRemap = NULL;
@@ -136,7 +136,7 @@ namespace physx
 			rigidNodeIndex, frame, coords, count, addToActive);
 	}
 
-	PxU32 PxgAttachmentManager::addSurfaceRigidAttachments(const PxU32 surfaceId, const Gu::TriangleMesh& surfaceMesh,
+	PxU32 PxgAttachmentManager::addSurfaceRigidAttachments(const PxU32 surfaceId, const ev4sio_Gu::TriangleMesh& surfaceMesh,
 		const PxDeformableAttachmentTargetType::Enum feature, const PxU32* featureIds, const PxVec4* barycentrics,
 		PxsRigidBody* rigidBody, const PxNodeIndex& rigidNodeIndex, const PxTransform& frame, const PxVec4* coords,
 		const PxU32 count, const bool addToActive)
@@ -204,7 +204,7 @@ namespace physx
 
 	PxU32 PxgAttachmentManager::addVolumeSurfaceAttachments(const PxU32 volumeId,
 		const PxDeformableAttachmentTargetType::Enum feature0, const PxU32* featureIds0, const PxVec4* barycentrics0,
-		const PxU32 surfaceId, const Gu::TriangleMesh& surfaceMesh, const PxDeformableAttachmentTargetType::Enum feature1,
+		const PxU32 surfaceId, const ev4sio_Gu::TriangleMesh& surfaceMesh, const PxDeformableAttachmentTargetType::Enum feature1,
 		const PxU32* featureIds1, const PxVec4* barycentrics1, const PxU32 count, const bool addToActive)
 	{
 		PX_ASSERT(feature0 == PxDeformableAttachmentTargetType::eVERTEX || feature0 == PxDeformableAttachmentTargetType::eTETRAHEDRON);
@@ -219,9 +219,9 @@ namespace physx
 			surfaceId, featureType1, featureIds1, featureRemap1, barycentrics1, count, addToActive);
 	}
 
-	PxU32 PxgAttachmentManager::addSurfaceSurfaceAttachments(const PxU32 surfaceId0, const Gu::TriangleMesh& surfaceMesh0,
+	PxU32 PxgAttachmentManager::addSurfaceSurfaceAttachments(const PxU32 surfaceId0, const ev4sio_Gu::TriangleMesh& surfaceMesh0,
 		const PxDeformableAttachmentTargetType::Enum feature0, const PxU32* featureIds0, const PxVec4* barycentrics0,
-		const PxU32 surfaceId1, const Gu::TriangleMesh& surfaceMesh1,
+		const PxU32 surfaceId1, const ev4sio_Gu::TriangleMesh& surfaceMesh1,
 		const PxDeformableAttachmentTargetType::Enum feature1, const PxU32* featureIds1, const PxVec4* barycentrics1,
 		const PxU32 count, const bool addToActive)
 	{

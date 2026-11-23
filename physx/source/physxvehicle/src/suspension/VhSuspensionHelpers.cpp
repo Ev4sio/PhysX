@@ -7,7 +7,7 @@
 #include "vehicle/PxVehicleMaths.h"
 #include "vehicle/suspension/PxVehicleSuspensionHelpers.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 #define DETERMINANT_THRESHOLD (1e-6f)
 
@@ -185,4 +185,4 @@ namespace physx
 
 		return true;
 	}
-} //namespace physx
+} //namespace ev4sio_physx

@@ -12,7 +12,7 @@
 #include "deformableCollision.cuh"
 #include "GuConvexSupport.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 /**
@@ -183,19 +183,19 @@ bool particleTriangleTest(PxVec3& normal, PxReal& distance,
 */
 __device__ __forceinline__ static
 bool particleConvexCore(PxVec3& normal, PxReal& dist, const PxVec3& particlePos,
-	const Gu::ConvexShape& convex, const PxReal maxDist)
+	const ev4sio_Gu::ConvexShape& convex, const PxReal maxDist)
 {
-	Gu::ConvexShape particle;
-	particle.coreType = Gu::ConvexCore::Type::ePOINT;
+	ev4sio_Gu::ConvexShape particle;
+	particle.coreType = ev4sio_Gu::ConvexCore::Type::ePOINT;
 	particle.pose = PxTransform(particlePos);
 	particle.margin = 0;
 
 	PxVec3 point0, point1;
-	dist = Gu::RefGjkEpa::computeGjkDistance(particle, convex, particle.pose, convex.pose,
+	dist = ev4sio_Gu::RefGjkEpa::computeGjkDistance(particle, convex, particle.pose, convex.pose,
 		convex.margin + particle.margin + maxDist, point0, point1, normal);
 
 	if (dist < FLT_EPSILON)
-		dist = Gu::RefGjkEpa::computeEpaDepth(particle, convex, particle.pose, convex.pose,
+		dist = ev4sio_Gu::RefGjkEpa::computeEpaDepth(particle, convex, particle.pose, convex.pose,
 			point0, point1, normal);
 
 	if (dist > maxDist)
@@ -204,6 +204,6 @@ bool particleConvexCore(PxVec3& normal, PxReal& dist, const PxVec3& particlePos,
 	return true;
 }
 
-} // namespace physx
+} // namespace ev4sio_physx
 
 #endif // __PARTICLE_COLLISION_CUH__

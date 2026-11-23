@@ -19,7 +19,7 @@ class ScannedStage;
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace usdparser
 {
@@ -50,5 +50,5 @@ PhysxDeformableCollisionFilterDesc* parseDeformableCollisionFilter(
     const omni::physics::parse::PhysxDeformableCollisionFilterDesc& inDesc,
     const AttachedStage& attachedStage);
 } // namespace usdparser
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

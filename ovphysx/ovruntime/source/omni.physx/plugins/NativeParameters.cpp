@@ -10,7 +10,7 @@
 #include <cmath>
 #include <vector>
 
-namespace omni::physx::native
+namespace omni::ev4sio_physx::native
 {
 namespace {
 bool valid(const ParameterValue& value)
@@ -33,7 +33,7 @@ bool copyParameters(uint64_t attachment, uint64_t objectKey, const ParameterSpec
 try
 {
     invalidParameter = UINT32_MAX;
-    const omni::physx::usdparser::AttachedStage * owner = customCreationOwner();
+    const omni::ev4sio_physx::usdparser::AttachedStage * owner = customCreationOwner();
     if (!runtime::tryGetPhysxInterface() || !attachment || !objectKey ||
         (parameterCount && (!specs || !output)) || !owner || owner->getAttachHandle() != attachment) return false;
     if (!owner || !owner->getSource()) return false;
@@ -45,7 +45,7 @@ try
     for (uint32_t i=0; i<parameterCount; ++i)
     {
         invalidParameter = i;
-        const omni::physx::native::ParameterSpec & spec = specs[i];
+        const omni::ev4sio_physx::native::ParameterSpec & spec = specs[i];
         if (!spec.name || !spec.name[0] || spec.required > 1 ||
             spec.fallback.kind != spec.kind || !valid(spec.fallback)) return false;
         const omni::physics::parse::AttrValue attr = source->getAttribute(key, source->internToken(spec.name));

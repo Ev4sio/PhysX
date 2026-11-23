@@ -16,7 +16,7 @@
 #include "cudamanager/PxCudaTypes.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -27,7 +27,7 @@ namespace physx
 Triangles must be wound consistently such that their normals, (v1 - v0).cross(v2 - v0) for a triangle
 (v0, v1, v2), point away from the enclosed volume, i.e. counter-clockwise vertex order when seen from
 outside. The builder does not analyze or repair the winding; inverted winding produces an inverted SDF.
-Cooking through #PxCreateTriangleMesh() or #PxCookTriangleMesh() with a #PxSDFDesc normalizes the winding
+Cooking through #ev4sio_PxCreateTriangleMesh() or #ev4sio_PxCookTriangleMesh() with a #PxSDFDesc normalizes the winding
 of watertight, single-component meshes automatically; clients calling the builder directly must provide
 correctly wound triangles.
 */
@@ -99,7 +99,7 @@ public:
 };
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

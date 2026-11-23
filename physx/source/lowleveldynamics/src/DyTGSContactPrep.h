@@ -11,12 +11,12 @@
 #include "PxSceneDesc.h"
 #include "DySolverContact4.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	struct PxsContactManagerOutput;
 	struct PxSolverConstraintDesc;
 
-	namespace Dy
+	namespace ev4sio_Dy
 	{
 		class ThreadContext;
 		struct CorrelationBuffer;
@@ -86,7 +86,7 @@ namespace physx
 			PxConstraintAllocator& constraintAllocator);
 
 		SolverConstraintPrepState::Enum createFinalizeSolverContacts4Step(
-			Dy::CorrelationBuffer& c,
+			ev4sio_Dy::CorrelationBuffer& c,
 			PxTGSSolverContactDesc* blockDescs,
 			const PxReal invDtF32,
 			const PxReal totalDt,

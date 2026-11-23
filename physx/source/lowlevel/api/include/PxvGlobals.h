@@ -10,7 +10,7 @@
 #include "foundation/PxBasicTemplates.h"
 #include "PxContactModifyCallback.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 class PxShape;
 class PxRigidActor;

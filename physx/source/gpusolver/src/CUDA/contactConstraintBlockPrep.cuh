@@ -19,7 +19,7 @@
 #include "PxRigidBody.h"
 #include "assert.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 static __device__ void initFrictionPatch(PxgBlockFrictionPatch& p, const PxU32 threadIndex, const PxVec3& body0Normal, const PxVec3& body1Normal)
@@ -1209,6 +1209,6 @@ static __device__ void  createFinalizeSolverContactsBlockGPUTGS(PxgBlockContactD
 
 
 
-} // namespace physx
+} // namespace ev4sio_physx
 
 #endif

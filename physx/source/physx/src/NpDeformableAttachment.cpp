@@ -17,7 +17,7 @@
 #include "NpDeformableSurface.h"
 #include "NpDeformableVolume.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 NpInternalAttachmentType::Enum getInternalAttachmentType(const PxDeformableAttachmentData& data, PxU32 actorIndex[2])
 {
@@ -372,7 +372,7 @@ void NpDeformableAttachment::addAttachment()
 			PxActor* actor0 = mActor[mActorIndex[0]];
 
 			PxRigidActor* actor1 = mActor[mActorIndex[1]] == NULL ? NULL : mActor[mActorIndex[1]]->is<PxRigidActor>();
-			Sc::BodyCore* core1 = mActor[mActorIndex[1]] == NULL ? NULL : getBodyCore(actor1);
+			ev4sio_Sc::BodyCore* core1 = mActor[mActorIndex[1]] == NULL ? NULL : getBodyCore(actor1);
 
 			const PxU32 count = mIndices[mActorIndex[0]].size();
 
@@ -481,7 +481,7 @@ void NpDeformableAttachment::removeAttachment()
 			PxActor* actor0 = mActor[mActorIndex[0]];
 
 			PxRigidActor* actor1 = mActor[mActorIndex[1]] == NULL ? NULL : mActor[mActorIndex[1]]->is<PxRigidActor>();
-			Sc::BodyCore* core1 = mActor[mActorIndex[1]] == NULL ? NULL : getBodyCore(actor1);
+			ev4sio_Sc::BodyCore* core1 = mActor[mActorIndex[1]] == NULL ? NULL : getBodyCore(actor1);
 
 			// Removal is keyed on the handle alone, so the triangle and the vertex attachment come off
 			// the same way.
@@ -671,7 +671,7 @@ void NpDeformableAttachment::updatePose(const PxTransform& pose)
 			PxActor* actor0 = mActor[mActorIndex[0]];
 
 			PxRigidActor* actor1 = mActor[mActorIndex[1]] == NULL ? NULL : mActor[mActorIndex[1]]->is<PxRigidActor>();
-			Sc::BodyCore* core1 = mActor[mActorIndex[1]] == NULL ? NULL : getBodyCore(actor1);
+			ev4sio_Sc::BodyCore* core1 = mActor[mActorIndex[1]] == NULL ? NULL : getBodyCore(actor1);
 
 			const PxU32 count = mIndices[mActorIndex[0]].size();
 
@@ -681,7 +681,7 @@ void NpDeformableAttachment::updatePose(const PxTransform& pose)
 			// the new frame.
 			if (mInternalAttachmentType & NpInternalAttachmentType::eVOLUME_TYPE)
 			{
-				Sc::DeformableVolumeCore* core0 = getDeformableVolumeCore(actor0);
+				ev4sio_Sc::DeformableVolumeCore* core0 = getDeformableVolumeCore(actor0);
 				const bool isTet = (mInternalAttachmentType == NpInternalAttachmentType::eVOLUME_TET_RIGID_ACTOR ||
 									mInternalAttachmentType == NpInternalAttachmentType::eVOLUME_TET_GLOBAL_POSE);
 
@@ -694,7 +694,7 @@ void NpDeformableAttachment::updatePose(const PxTransform& pose)
 			}
 			else
 			{
-				Sc::DeformableSurfaceCore* core0 = getDeformableSurfaceCore(actor0);
+				ev4sio_Sc::DeformableSurfaceCore* core0 = getDeformableSurfaceCore(actor0);
 				const bool isTri = (mInternalAttachmentType == NpInternalAttachmentType::eSURFACE_TRI_RIGID_ACTOR ||
 									mInternalAttachmentType == NpInternalAttachmentType::eSURFACE_TRI_GLOBAL_POSE);
 

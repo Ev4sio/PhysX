@@ -78,11 +78,11 @@
 
 #include <PxContact.h>
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace tensors
 {
@@ -285,13 +285,13 @@ private:
 } // namespace
 
 PxU32 fillRdTransforms(SingleAllocPolicy &policy, PxTransform *transformDev,
-                       ::physx::PxRigidDynamicGPUIndex *indicesRet, const PxU32 *allRdIndices,
+                       ::ev4sio_physx::PxRigidDynamicGPUIndex *indicesRet, const PxU32 *allRdIndices,
                        const ActorGpuFlags *rdDirtyFlags, const ActorGpuFlag::Enum flag, const PxU32 numRds)
 {
     thrust::device_ptr<const ActorGpuFlags> dirtyFlagsPtr(rdDirtyFlags);
     thrust::device_ptr<PxTransform> dirtyTransformPtr(transformDev);
-    thrust::device_ptr<::physx::PxRigidDynamicGPUIndex> dirtyIndicesPtr(indicesRet);
-    thrust::device_ptr<::physx::PxRigidDynamicGPUIndex> dirtyIndicesEnd = thrust::copy_if(
+    thrust::device_ptr<::ev4sio_physx::PxRigidDynamicGPUIndex> dirtyIndicesPtr(indicesRet);
+    thrust::device_ptr<::ev4sio_physx::PxRigidDynamicGPUIndex> dirtyIndicesEnd = thrust::copy_if(
         policy, allRdIndices, allRdIndices + numRds, dirtyFlagsPtr, dirtyIndicesPtr, IsRdDirtyFlagSet(flag));
     thrust::device_ptr<PxTransform> dirtyTrasnfromsEnd = thrust::copy_if(
         policy, transformDev, transformDev + numRds, dirtyFlagsPtr, dirtyTransformPtr, IsRdDirtyFlagSet(flag));
@@ -301,14 +301,14 @@ PxU32 fillRdTransforms(SingleAllocPolicy &policy, PxTransform *transformDev,
 }
 
 PxU32 fillRdVelocities(SingleAllocPolicy &policy, PxVec3 *linVelDev, PxVec3 *angVelDev,
-                       ::physx::PxRigidDynamicGPUIndex *indicesRet, const PxU32 *allRdIndices,
+                       ::ev4sio_physx::PxRigidDynamicGPUIndex *indicesRet, const PxU32 *allRdIndices,
                        const ActorGpuFlags *rdDirtyFlags, const ActorGpuFlag::Enum flag, const PxU32 numRds)
 {
     thrust::device_ptr<const ActorGpuFlags> dirtyFlagsPtr(rdDirtyFlags);
-    thrust::device_ptr<::physx::PxRigidDynamicGPUIndex> dirtyIndicesPtr(indicesRet);
+    thrust::device_ptr<::ev4sio_physx::PxRigidDynamicGPUIndex> dirtyIndicesPtr(indicesRet);
     thrust::device_ptr<PxVec3> dirtyLinVelPtr(linVelDev);
     thrust::device_ptr<PxVec3> dirtyAngVelPtr(angVelDev);
-    thrust::device_ptr<::physx::PxRigidDynamicGPUIndex> dirtyIndicesEnd = thrust::copy_if(
+    thrust::device_ptr<::ev4sio_physx::PxRigidDynamicGPUIndex> dirtyIndicesEnd = thrust::copy_if(
         policy, allRdIndices, allRdIndices + numRds, dirtyFlagsPtr, dirtyIndicesPtr, IsRdDirtyFlagSet(flag));
     thrust::device_ptr<PxVec3> dirtyLinVelEnd =
         thrust::copy_if(policy, linVelDev, linVelDev + numRds, dirtyFlagsPtr, dirtyLinVelPtr, IsRdDirtyFlagSet(flag));
@@ -320,14 +320,14 @@ PxU32 fillRdVelocities(SingleAllocPolicy &policy, PxVec3 *linVelDev, PxVec3 *ang
     return numDirtyIndices;
 }
 
-PxU32 fillRdFT(SingleAllocPolicy &policy, PxVec3 *FT, ::physx::PxRigidDynamicGPUIndex *indicesRet,
+PxU32 fillRdFT(SingleAllocPolicy &policy, PxVec3 *FT, ::ev4sio_physx::PxRigidDynamicGPUIndex *indicesRet,
                const PxU32 *allRdIndices, const ActorGpuFlags *rdDirtyFlags, const ActorGpuFlag::Enum flag,
                const PxU32 numRds)
 {
     thrust::device_ptr<const ActorGpuFlags> dirtyFlagsPtr(rdDirtyFlags);
-    thrust::device_ptr<::physx::PxRigidDynamicGPUIndex> dirtyIndicesPtr(indicesRet);
+    thrust::device_ptr<::ev4sio_physx::PxRigidDynamicGPUIndex> dirtyIndicesPtr(indicesRet);
     thrust::device_ptr<PxVec3> dirtyFTPtr(FT);
-    thrust::device_ptr<::physx::PxRigidDynamicGPUIndex> dirtyIndicesEnd = thrust::copy_if(
+    thrust::device_ptr<::ev4sio_physx::PxRigidDynamicGPUIndex> dirtyIndicesEnd = thrust::copy_if(
         policy, allRdIndices, allRdIndices + numRds, dirtyFlagsPtr, dirtyIndicesPtr, IsRdDirtyFlagSet(flag));
     thrust::device_ptr<PxVec3> dirtyLinVelEnd =
         thrust::copy_if(policy, FT, FT + numRds, dirtyFlagsPtr, dirtyFTPtr, IsRdDirtyFlagSet(flag));
@@ -2204,7 +2204,7 @@ bool submitArtiDofAttribute(float* dst,
 }
 
 __global__ static void fetchFixedTendonStiffnessKernel(float* dst,
-                                                       const ::physx::PxGpuFixedTendonData* tendonProperties,
+                                                       const ::ev4sio_physx::PxGpuFixedTendonData* tendonProperties,
                                                        const PxU32 numTendons,
                                                        const PxU32 maxTendons,
                                                        const PxU32 simMaxTendons)
@@ -2221,7 +2221,7 @@ __global__ static void fetchFixedTendonStiffnessKernel(float* dst,
 }
 
 bool fetchFixedTendonStiffness(float* dst,
-                               const ::physx::PxGpuFixedTendonData* tendonProperties,
+                               const ::ev4sio_physx::PxGpuFixedTendonData* tendonProperties,
                                const PxU32 numTendons,
                                const PxU32 maxTendons,
                                const PxU32 simMaxTendons)
@@ -2232,7 +2232,7 @@ bool fetchFixedTendonStiffness(float* dst,
 }
 
 __global__ static void fetchFixedTendonDampingKernel(float* dst,
-                                                     const ::physx::PxGpuFixedTendonData* tendonProperties,
+                                                     const ::ev4sio_physx::PxGpuFixedTendonData* tendonProperties,
                                                      const PxU32 numTendons,
                                                      const PxU32 maxTendons,
                                                      const PxU32 simMaxTendons)
@@ -2249,7 +2249,7 @@ __global__ static void fetchFixedTendonDampingKernel(float* dst,
 }
 
 bool fetchFixedTendonDamping(float* dst,
-                             const ::physx::PxGpuFixedTendonData* tendonProperties,
+                             const ::ev4sio_physx::PxGpuFixedTendonData* tendonProperties,
                              const PxU32 numTendons,
                              const PxU32 maxTendons,
                              const PxU32 simMaxTendons)
@@ -2260,7 +2260,7 @@ bool fetchFixedTendonDamping(float* dst,
 }
 
 __global__ static void fetchFixedTendonLimitStiffnessKernel(float* dst,
-                                                            const ::physx::PxGpuFixedTendonData* tendonProperties,
+                                                            const ::ev4sio_physx::PxGpuFixedTendonData* tendonProperties,
                                                             const PxU32 numTendons,
                                                             const PxU32 maxTendons,
                                                             const PxU32 simMaxTendons)
@@ -2277,7 +2277,7 @@ __global__ static void fetchFixedTendonLimitStiffnessKernel(float* dst,
 }
 
 bool fetchFixedTendonLimitStiffness(float* dst,
-                                    const ::physx::PxGpuFixedTendonData* tendonProperties,
+                                    const ::ev4sio_physx::PxGpuFixedTendonData* tendonProperties,
                                     const PxU32 numTendons,
                                     const PxU32 maxTendons,
                                     const PxU32 simMaxTendons)
@@ -2288,7 +2288,7 @@ bool fetchFixedTendonLimitStiffness(float* dst,
 }
 
 __global__ static void fetchFixedTendonLimitsKernel(float* dst,
-                                                    const ::physx::PxGpuFixedTendonData* tendonProperties,
+                                                    const ::ev4sio_physx::PxGpuFixedTendonData* tendonProperties,
                                                     const PxU32 numTendons,
                                                     const PxU32 maxTendons,
                                                     const PxU32 simMaxTendons)
@@ -2306,7 +2306,7 @@ __global__ static void fetchFixedTendonLimitsKernel(float* dst,
 }
 
 bool fetchFixedTendonLimits(float* dst,
-                            const ::physx::PxGpuFixedTendonData* tendonProperties,
+                            const ::ev4sio_physx::PxGpuFixedTendonData* tendonProperties,
                             const PxU32 numTendons,
                             const PxU32 maxTendons,
                             const PxU32 simMaxTendons)
@@ -2317,7 +2317,7 @@ bool fetchFixedTendonLimits(float* dst,
 }
 
 __global__ static void fetchFixedTendonRestLengthKernel(float* dst,
-                                                        const ::physx::PxGpuFixedTendonData* tendonProperties,
+                                                        const ::ev4sio_physx::PxGpuFixedTendonData* tendonProperties,
                                                         const PxU32 numTendons,
                                                         const PxU32 maxTendons,
                                                         const PxU32 simMaxTendons)
@@ -2334,7 +2334,7 @@ __global__ static void fetchFixedTendonRestLengthKernel(float* dst,
 }
 
 bool fetchFixedTendonRestLength(float* dst,
-                                const ::physx::PxGpuFixedTendonData* tendonProperties,
+                                const ::ev4sio_physx::PxGpuFixedTendonData* tendonProperties,
                                 const PxU32 numTendons,
                                 const PxU32 maxTendons,
                                 const PxU32 simMaxTendons)
@@ -2345,7 +2345,7 @@ bool fetchFixedTendonRestLength(float* dst,
 }
 
 __global__ static void fetchFixedTendonOffsetKernel(float* dst,
-                                                    const ::physx::PxGpuFixedTendonData* tendonProperties,
+                                                    const ::ev4sio_physx::PxGpuFixedTendonData* tendonProperties,
                                                     const PxU32 numTendons,
                                                     const PxU32 maxTendons,
                                                     const PxU32 simMaxTendons)
@@ -2362,7 +2362,7 @@ __global__ static void fetchFixedTendonOffsetKernel(float* dst,
 }
 
 bool fetchFixedTendonOffset(float* dst,
-                            const ::physx::PxGpuFixedTendonData* tendonProperties,
+                            const ::ev4sio_physx::PxGpuFixedTendonData* tendonProperties,
                             const PxU32 numTendons,
                             const PxU32 maxTendons,
                             const PxU32 simMaxTendons)
@@ -2373,7 +2373,7 @@ bool fetchFixedTendonOffset(float* dst,
 }
 
 __global__ static void fetchSpatialTendonStiffnessKernel(float* dst,
-                                                         const ::physx::PxGpuSpatialTendonData* tendonProperties,
+                                                         const ::ev4sio_physx::PxGpuSpatialTendonData* tendonProperties,
                                                          const PxU32 numTendons,
                                                          const PxU32 maxTendons,
                                                          const PxU32 simMaxTendons)
@@ -2390,7 +2390,7 @@ __global__ static void fetchSpatialTendonStiffnessKernel(float* dst,
 }
 
 bool fetchSpatialTendonStiffness(float* dst,
-                                 const ::physx::PxGpuSpatialTendonData* tendonProperties,
+                                 const ::ev4sio_physx::PxGpuSpatialTendonData* tendonProperties,
                                  const PxU32 numTendons,
                                  const PxU32 maxTendons,
                                  const PxU32 simMaxTendons)
@@ -2401,7 +2401,7 @@ bool fetchSpatialTendonStiffness(float* dst,
 }
 
 __global__ static void fetchSpatialTendonDampingKernel(float* dst,
-                                                       const ::physx::PxGpuSpatialTendonData* tendonProperties,
+                                                       const ::ev4sio_physx::PxGpuSpatialTendonData* tendonProperties,
                                                        const PxU32 numTendons,
                                                        const PxU32 maxTendons,
                                                        const PxU32 simMaxTendons)
@@ -2418,7 +2418,7 @@ __global__ static void fetchSpatialTendonDampingKernel(float* dst,
 }
 
 bool fetchSpatialTendonDamping(float* dst,
-                               const ::physx::PxGpuSpatialTendonData* tendonProperties,
+                               const ::ev4sio_physx::PxGpuSpatialTendonData* tendonProperties,
                                const PxU32 numTendons,
                                const PxU32 maxTendons,
                                const PxU32 simMaxTendons)
@@ -2429,7 +2429,7 @@ bool fetchSpatialTendonDamping(float* dst,
 }
 
 __global__ static void fetchSpatialTendonLimitStiffnessKernel(float* dst,
-                                                              const ::physx::PxGpuSpatialTendonData* tendonProperties,
+                                                              const ::ev4sio_physx::PxGpuSpatialTendonData* tendonProperties,
                                                               const PxU32 numTendons,
                                                               const PxU32 maxTendons,
                                                               const PxU32 simMaxTendons)
@@ -2446,7 +2446,7 @@ __global__ static void fetchSpatialTendonLimitStiffnessKernel(float* dst,
 }
 
 bool fetchSpatialTendonLimitStiffness(float* dst,
-                                      const ::physx::PxGpuSpatialTendonData* tendonProperties,
+                                      const ::ev4sio_physx::PxGpuSpatialTendonData* tendonProperties,
                                       const PxU32 numTendons,
                                       const PxU32 maxTendons,
                                       const PxU32 simMaxTendons)
@@ -2457,7 +2457,7 @@ bool fetchSpatialTendonLimitStiffness(float* dst,
 }
 
 __global__ static void fetchSpatialTendonOffsetKernel(float* dst,
-                                                      const ::physx::PxGpuSpatialTendonData* tendonProperties,
+                                                      const ::ev4sio_physx::PxGpuSpatialTendonData* tendonProperties,
                                                       const PxU32 numTendons,
                                                       const PxU32 maxTendons,
                                                       const PxU32 simMaxTendons)
@@ -2474,7 +2474,7 @@ __global__ static void fetchSpatialTendonOffsetKernel(float* dst,
 }
 
 bool fetchSpatialTendonOffset(float* dst,
-                              const ::physx::PxGpuSpatialTendonData* tendonProperties,
+                              const ::ev4sio_physx::PxGpuSpatialTendonData* tendonProperties,
                               const PxU32 numTendons,
                               const PxU32 maxTendons,
                               const PxU32 simMaxTendons)
@@ -2484,7 +2484,7 @@ bool fetchSpatialTendonOffset(float* dst,
     return launchOk(CHECK_CUDA(cudaGetLastError()));
 }
 
-__global__ static void submitArtiFixedTendonPropertiesKernel(::physx::PxGpuFixedTendonData* dst,
+__global__ static void submitArtiFixedTendonPropertiesKernel(::ev4sio_physx::PxGpuFixedTendonData* dst,
                                                              const float* stiffnesses,
                                                              const float* dampings,
                                                              const float* limitStiffnesses,
@@ -2523,16 +2523,16 @@ __global__ static void submitArtiFixedTendonPropertiesKernel(::physx::PxGpuFixed
     }
 }
 
-bool submitArtiFixedTendonProperties(::physx::PxGpuFixedTendonData* dst,
+bool submitArtiFixedTendonProperties(::ev4sio_physx::PxGpuFixedTendonData* dst,
                                      const float* stiffnesses,
                                      const float* dampings,
                                      const float* limitStiffnesses,
                                      const float* limits,
                                      const float* restLengths,
                                      const float* offsets,
-                                     const ::physx::PxU32* srcIndices,
+                                     const ::ev4sio_physx::PxU32* srcIndices,
                                      PxU32* dirtyArtiGpuIndices,
-                                     const ::physx::PxU32 numIndices,
+                                     const ::ev4sio_physx::PxU32 numIndices,
                                      const PxU32 maxTendons,
                                      const PxU32 simMaxTendons,
                                      const GpuArticulationFixedTendonRecord* tendonRecords)
@@ -2543,7 +2543,7 @@ bool submitArtiFixedTendonProperties(::physx::PxGpuFixedTendonData* dst,
     return launchOk(CHECK_CUDA(cudaGetLastError()));
 }
 
-__global__ static void submitArtiSpatialTendonPropertiesKernel(::physx::PxGpuSpatialTendonData* dst,
+__global__ static void submitArtiSpatialTendonPropertiesKernel(::ev4sio_physx::PxGpuSpatialTendonData* dst,
                                                                const float* stiffnesses,
                                                                const float* dampings,
                                                                const float* limitStiffnesses,
@@ -2577,14 +2577,14 @@ __global__ static void submitArtiSpatialTendonPropertiesKernel(::physx::PxGpuSpa
     }
 }
 
-bool submitArtiSpatialTendonProperties(::physx::PxGpuSpatialTendonData* dst,
+bool submitArtiSpatialTendonProperties(::ev4sio_physx::PxGpuSpatialTendonData* dst,
                                        const float* stiffnesses,
                                        const float* dampings,
                                        const float* limitStiffnesses,
                                        const float* offsets,
-                                       const ::physx::PxU32* srcIndices,
+                                       const ::ev4sio_physx::PxU32* srcIndices,
                                        PxU32* dirtyArtiGpuIndices,
-                                       const ::physx::PxU32 numIndices,
+                                       const ::ev4sio_physx::PxU32 numIndices,
                                        const PxU32 maxTendons,
                                        const PxU32 simMaxTendons,
                                        const GpuArticulationSpatialTendonRecord* tendonRecords)
@@ -4335,5 +4335,5 @@ bool compactMaskToIndices(SingleAllocPolicy& policy,
 }
 
 } // namespace tensors
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

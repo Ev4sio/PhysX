@@ -12,11 +12,11 @@
 #include <PxPhysicsAPI.h>
 #include <algorithm>
 #include <memory>
-namespace omni::physx::native
+namespace omni::ev4sio_physx::native
 {
 namespace
 {
-using namespace ::physx;
+using namespace ::ev4sio_physx;
 using Owner=usdparser::AttachedStage;
 using Record=internal::InternalDatabase::Record;
 uint32_t instanceIndex(const Record& record)
@@ -42,7 +42,7 @@ template<class Fn> InspectionResult withOwner(uint64_t attachment,Fn fn) noexcep
 try
 {
     if (!attachment || !runtime::tryGetPhysxInterface()) return InspectionResult::Stale;
-    std::shared_ptr<omni::physx::usdparser::AttachedStage> owner=usdparser::UsdLoad::getUsdLoad()->acquireAttachment(attachment);
+    std::shared_ptr<omni::ev4sio_physx::usdparser::AttachedStage> owner=usdparser::UsdLoad::getUsdLoad()->acquireAttachment(attachment);
     if (!owner) return InspectionResult::Stale;
     RuntimeExecutionScope admission(attachment);
     if (!admission) return InspectionResult::Busy;
@@ -54,34 +54,34 @@ template<class Fn> InspectionResult withObject(const ObjectReference& reference,
 {
     if (reference.kind!=uint32_t(kind) || !reference.object || !reference.key) return InspectionResult::Invalid;
     return withOwner(reference.attachment,[&](Owner& owner) {
-        const omni::physx::internal::InternalDatabase::Record * record=objectRecord(owner,reference);
+        const omni::ev4sio_physx::internal::InternalDatabase::Record * record=objectRecord(owner,reference);
         if (!record) return InspectionResult::Stale;
         return fn(owner,*record);
     });
 }
 InspectionResult bodyState(const Owner& owner,const ObjectReference& reference,BodyInspection& output)
 {
-    const omni::physx::internal::InternalDatabase::Record * record=objectRecord(owner,reference);
+    const omni::ev4sio_physx::internal::InternalDatabase::Record * record=objectRecord(owner,reference);
     if (!record || !matchesObjectKind(record->mType,ObjectKind::Body)) return InspectionResult::Stale;
-    ::physx::PxRigidActor * actor=static_cast<PxRigidActor*>(record->mPtr);
+    ::ev4sio_physx::PxRigidActor * actor=static_cast<PxRigidActor*>(record->mPtr);
     if (!cpuScene(actor->getScene())) return InspectionResult::Unavailable;
     BodyInspection value;
     value.identity=reference;value.step=owner.simulationTimestamp();
     pose(value.pose,actor->getGlobalPose());pose(value.centerOfMass,PxTransform(PxIdentity));
     if (actor->getActorFlags().isSet(PxActorFlag::eDISABLE_SIMULATION)) value.flags|=8;
-    if (::physx::PxRigidBody * body=actor->is<PxRigidBody>())
+    if (::ev4sio_physx::PxRigidBody * body=actor->is<PxRigidBody>())
     {
         value.mass=body->getMass();vector(value.inertia,body->getMassSpaceInertiaTensor());
         pose(value.centerOfMass,body->getCMassLocalPose());
         vector(value.linearVelocity,body->getLinearVelocity());vector(value.angularVelocity,body->getAngularVelocity());
         if (body->getRigidBodyFlags().isSet(PxRigidBodyFlag::eENABLE_CCD)) value.flags|=4;
-        if (::physx::PxRigidDynamic * dynamic=body->is<PxRigidDynamic>())
+        if (::ev4sio_physx::PxRigidDynamic * dynamic=body->is<PxRigidDynamic>())
         {
             value.type=1;value.locks=uint32_t(dynamic->getRigidDynamicLockFlags());
             if (dynamic->getRigidBodyFlags().isSet(PxRigidBodyFlag::eKINEMATIC)) value.flags|=1;
             if (dynamic->isSleeping()) value.flags|=2;
         }
-        else if (::physx::PxArticulationLink * link=body->is<PxArticulationLink>())
+        else if (::ev4sio_physx::PxArticulationLink * link=body->is<PxArticulationLink>())
         {
             value.type=2;if (link->getArticulation().isSleeping()) value.flags|=2;
         }
@@ -104,9 +104,9 @@ bool matchesObjectKind(PhysXType type,ObjectKind kind)
 }
 ObjectReference objectReference(const usdparser::AttachedStage& owner,uint64_t object)
 {
-    const std::vector<omni::physx::internal::InternalDatabase::Record> & records=owner.getInternalPhysXDatabase().getRecords();
+    const std::vector<omni::ev4sio_physx::internal::InternalDatabase::Record> & records=owner.getInternalPhysXDatabase().getRecords();
     if (!object || object>=records.size() || !records[object].mPtr) return {};
-    const omni::physx::internal::InternalDatabase::Record & record=records[object];
+    const omni::ev4sio_physx::internal::InternalDatabase::Record & record=records[object];
     for (uint32_t kind=1;kind<=5;++kind)
         if (matchesObjectKind(record.mType,ObjectKind(kind)))
             return {owner.getAttachHandle(),object,record.mKey.handle,record.mGeneration,kind,instanceIndex(record)};
@@ -115,7 +115,7 @@ ObjectReference objectReference(const usdparser::AttachedStage& owner,uint64_t o
 const internal::InternalDatabase::Record* objectRecord(const usdparser::AttachedStage& owner,const ObjectReference& reference)
 {
     if (reference.attachment!=owner.getAttachHandle()) return nullptr;
-    const omni::physx::native::ObjectReference actual=objectReference(owner,reference.object);
+    const omni::ev4sio_physx::native::ObjectReference actual=objectReference(owner,reference.object);
     if (!actual.object || actual.key!=reference.key || actual.generation!=reference.generation ||
         actual.kind!=reference.kind || actual.instance!=reference.instance) return nullptr;
     return &owner.getInternalPhysXDatabase().getRecords()[reference.object];
@@ -129,10 +129,10 @@ InspectionResult resolveObject(uint64_t attachment,const char* path,ObjectKind k
         const omni::physics::parse::ObjectKey key=source->findByPath(path);
         if (!key.valid()) return InspectionResult::NotFound;
         ObjectReference result;
-        const std::vector<omni::physx::internal::InternalDatabase::Record> & records=owner.getInternalPhysXDatabase().getRecords();
+        const std::vector<omni::ev4sio_physx::internal::InternalDatabase::Record> & records=owner.getInternalPhysXDatabase().getRecords();
         for (uint64_t i=1;i<records.size();++i)
         {
-            const omni::physx::internal::InternalDatabase::Record & record=records[i];
+            const omni::ev4sio_physx::internal::InternalDatabase::Record & record=records[i];
             if (!record.mPtr || record.mKey!=key || !matchesObjectKind(record.mType,kind)) continue;
             const unsigned int index=instanceIndex(record);
             if (index!=instance) continue;
@@ -146,7 +146,7 @@ InspectionResult resolveObject(uint64_t attachment,const char* path,ObjectKind k
 InspectionResult objectPath(const ObjectReference& reference,std::string& output) noexcept
 {
     return withOwner(reference.attachment,[&](Owner& owner) {
-        const omni::physx::internal::InternalDatabase::Record * record=objectRecord(owner,reference);
+        const omni::ev4sio_physx::internal::InternalDatabase::Record * record=objectRecord(owner,reference);
         if(!record)return InspectionResult::Stale;
         const char* path=owner.textFor(record->mKey);
         if(!path || !*path)return InspectionResult::NotFound;
@@ -165,14 +165,14 @@ InspectionResult inspectJoint(const ObjectReference& reference,JointInspection& 
         PxTransform local0(PxIdentity),local1(PxIdentity);
         if (record.mType==ePTLinkJoint)
         {
-            ::physx::PxArticulationJointReducedCoordinate * joint=static_cast<PxArticulationJointReducedCoordinate*>(record.mPtr);
+            ::ev4sio_physx::PxArticulationJointReducedCoordinate * joint=static_cast<PxArticulationJointReducedCoordinate*>(record.mPtr);
             a=&joint->getParentArticulationLink();b=&joint->getChildArticulationLink();
             if (!cpuScene(a->getScene())) return InspectionResult::Unavailable;
             local0=joint->getParentPose();local1=joint->getChildPose();value.type=7;
         }
         else
         {
-            ::physx::PxJoint * joint=static_cast<PxJoint*>(record.mPtr);
+            ::ev4sio_physx::PxJoint * joint=static_cast<PxJoint*>(record.mPtr);
             joint->getActors(a,b);
             if ((a && !cpuScene(a->getScene())) || (b && !cpuScene(b->getScene()))) return InspectionResult::Unavailable;
             local0=joint->getLocalPose(PxJointActorIndex::eACTOR0);local1=joint->getLocalPose(PxJointActorIndex::eACTOR1);
@@ -196,7 +196,7 @@ InspectionResult inspectJoint(const ObjectReference& reference,JointInspection& 
 InspectionResult inspectMaterial(const ObjectReference& reference,MaterialInspection& output) noexcept
 {
     return withObject(reference,ObjectKind::Material,[&](Owner& owner,const Record& record) {
-        const ::physx::PxMaterial * material=static_cast<const PxMaterial*>(record.mPtr);
+        const ::ev4sio_physx::PxMaterial * material=static_cast<const PxMaterial*>(record.mPtr);
         MaterialInspection value;value.identity=reference;value.step=owner.simulationTimestamp();
         value.staticFriction=material->getStaticFriction();value.dynamicFriction=material->getDynamicFriction();
         value.restitution=material->getRestitution();value.frictionCombine=uint32_t(material->getFrictionCombineMode());
@@ -207,7 +207,7 @@ InspectionResult inspectMaterial(const ObjectReference& reference,MaterialInspec
 InspectionResult inspectArticulation(const ObjectReference& reference,ArticulationInspection& output) noexcept
 {
     return withObject(reference,ObjectKind::Articulation,[&](Owner& owner,const Record& record) {
-        ::physx::PxArticulationReducedCoordinate * articulation=static_cast<PxArticulationReducedCoordinate*>(record.mPtr);
+        ::ev4sio_physx::PxArticulationReducedCoordinate * articulation=static_cast<PxArticulationReducedCoordinate*>(record.mPtr);
         if (!cpuScene(articulation->getScene())) return InspectionResult::Unavailable;
         const uint32_t count=articulation->getNbLinks(),dofs=articulation->getDofs();
         if (!count || count>65536 || dofs>65536) return InspectionResult::Unavailable;
@@ -227,13 +227,13 @@ InspectionResult inspectArticulation(const ObjectReference& reference,Articulati
         uint32_t offset=0;
         for (uint32_t i=0;i<count;++i)
         {
-            ::physx::PxArticulationLink * link=links[i];
+            ::ev4sio_physx::PxArticulationLink * link=links[i];
             if (link->getLinkIndex()!=i) return InspectionResult::Error;
             BodyInspection body;
-            const omni::physx::native::InspectionResult status=bodyState(owner,objectReference(owner,uint64_t(link->userData)),body);
+            const omni::ev4sio_physx::native::InspectionResult status=bodyState(owner,objectReference(owner,uint64_t(link->userData)),body);
             if (status!=InspectionResult::Success) return status;
             value.links.push_back(body);
-            if (::physx::PxArticulationJointReducedCoordinate * joint=link->getInboundJoint())
+            if (::ev4sio_physx::PxArticulationJointReducedCoordinate * joint=link->getInboundJoint())
             {
                 uint32_t active=0;
                 for (uint32_t axis=0;axis<6;++axis)

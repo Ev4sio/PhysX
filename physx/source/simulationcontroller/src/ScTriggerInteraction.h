@@ -10,9 +10,9 @@
 #include "ScShapeSim.h"
 #include "GuOverlapTests.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Sc
+namespace ev4sio_Sc
 {
 	class TriggerInteraction : public ElementSimInteraction
 	{
@@ -33,7 +33,7 @@ namespace Sc
 											TriggerInteraction(ShapeSimBase& triggerShape, ShapeSimBase& otherShape);
 											~TriggerInteraction();
 
-		PX_FORCE_INLINE	Gu::TriggerCache&	getTriggerCache()									{ return mTriggerCache;							}
+		PX_FORCE_INLINE	ev4sio_Gu::TriggerCache&	getTriggerCache()									{ return mTriggerCache;							}
 		PX_FORCE_INLINE	ShapeSimBase&		getTriggerShape()							const	{ return static_cast<ShapeSimBase&>(getElement0());	}
 		PX_FORCE_INLINE	ShapeSimBase&		getOtherShape()								const	{ return static_cast<ShapeSimBase&>(getElement1());	}
 
@@ -47,20 +47,20 @@ namespace Sc
 		PX_FORCE_INLINE void				clearFlag(TriggerFlag flag)				{ mFlags &= ~flag; }
 		PX_FORCE_INLINE	PxIntBool			readFlag(TriggerFlag flag)		const	{ return PxIntBool(mFlags & flag); }
 
-		PX_FORCE_INLINE void				forceProcessingThisFrame(Sc::Scene& scene);
+		PX_FORCE_INLINE void				forceProcessingThisFrame(ev4sio_Sc::Scene& scene);
 
 						bool				onActivate();
 						bool				onDeactivate();
 
 	protected:
-						Gu::TriggerCache	mTriggerCache;
+						ev4sio_Gu::TriggerCache	mTriggerCache;
 						bool				mLastFrameHadContacts;
 	};
 
-} // namespace Sc
+} // namespace ev4sio_Sc
 
 
-PX_FORCE_INLINE void Sc::TriggerInteraction::setTriggerFlags(PxPairFlags triggerFlags)
+PX_FORCE_INLINE void ev4sio_Sc::TriggerInteraction::setTriggerFlags(PxPairFlags triggerFlags)
 {
 	PX_ASSERT(PxU32(triggerFlags) < (PxPairFlag::eDETECT_CCD_CONTACT << 1));  // to find out if a new PxPairFlag has been added in which case PAIR_FLAGS_MASK needs to get adjusted
 
@@ -79,7 +79,7 @@ PX_FORCE_INLINE void Sc::TriggerInteraction::setTriggerFlags(PxPairFlags trigger
 	mFlags = newFlags;
 }
 
-PX_FORCE_INLINE void Sc::TriggerInteraction::forceProcessingThisFrame(Sc::Scene& scene)
+PX_FORCE_INLINE void ev4sio_Sc::TriggerInteraction::forceProcessingThisFrame(ev4sio_Sc::Scene& scene)
 {
 	raiseFlag(PROCESS_THIS_FRAME);
 

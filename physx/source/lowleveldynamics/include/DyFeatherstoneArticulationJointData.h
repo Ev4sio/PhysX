@@ -17,9 +17,9 @@
 #include "DyArticulationJointCore.h"
 #include <stdio.h>
 
-namespace physx
+namespace ev4sio_physx
 {
-	namespace Dy
+	namespace ev4sio_Dy
 	{
 		class ArticulationJointCoreData
 		{
@@ -77,7 +77,7 @@ namespace physx
 			PxU8	dofLimitMask;	//1	
 		};
 
-	}//namespace Dy
+	}//namespace ev4sio_Dy
 }
 
 #endif

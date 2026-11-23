@@ -9,7 +9,7 @@
 #include "PhysXScene.h"
 #include "usdLoad/AttachedStage.h"
 
-namespace omni::physx::attachmentContact
+namespace omni::ev4sio_physx::attachmentContact
 {
 // Private read: caller holds runtime admission and supplies valid output pointers.
 inline uint32_t full(const usdparser::AttachedStage& owner, const ContactEventHeader** contactEventBuffer, const ContactData** contactDataBuffer, uint32_t& numContactData,

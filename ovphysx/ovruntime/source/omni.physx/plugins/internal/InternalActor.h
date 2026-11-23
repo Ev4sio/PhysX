@@ -41,16 +41,16 @@
 #include <limits>
 #include <optional>
 
-namespace physx
+namespace ev4sio_physx
 {
 class PxController;
 }
 
-namespace omni { namespace physx { namespace usdparser { class AttachedStage; } } }
+namespace omni { namespace ev4sio_physx { namespace usdparser { class AttachedStage; } } }
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 class PhysXScene;
 
@@ -101,8 +101,8 @@ struct MirrorActor
     void release(bool trackReleasedActor = true);
 
     void* mirrorMemory;
-    ::physx::PxCollection* collection;
-    ::physx::PxRigidActor* actor;
+    ::ev4sio_physx::PxCollection* collection;
+    ::ev4sio_physx::PxRigidActor* actor;
     InternalScene* internalScene;
 };
 
@@ -138,12 +138,12 @@ public:
     // resolved to a prim/path on demand. Invalid for non-instanced actors.
     omni::physics::parse::ObjectKey mInstanceKey;
     uint32_t mInstanceIndex;
-    ::physx::PxRigidActor* mActor;
+    ::ev4sio_physx::PxRigidActor* mActor;
     carb::Float3 mScale;
     // Prototype-to-instancer transform, inverted. PhysX layout/convention: a
     // product written A * B in the old GfMatrix4d form is B * A here (see
     // common/foundation/MatrixTools.h).
-    ::physx::PxMat44d mProtoTransformInverse{ ::physx::PxIdentity };
+    ::ev4sio_physx::PxMat44d mProtoTransformInverse{ ::ev4sio_physx::PxIdentity };
     int mID;
     uint32_t mFlags;
 
@@ -155,12 +155,12 @@ public:
     // mAppliedCenterOfMass to PhysX. PhysX normalizes both rotations, on creation as in its pose
     // setter. It keeps each shape's world transform from the insertion until the body moves;
     // the first step reads it.
-    std::optional<::physx::PxTransform> mInsertionPose;
-    ::physx::PxTransform mAppliedCenterOfMass = ::physx::PxTransform(::physx::PxIdentity);
+    std::optional<::ev4sio_physx::PxTransform> mInsertionPose;
+    ::ev4sio_physx::PxTransform mAppliedCenterOfMass = ::ev4sio_physx::PxTransform(::ev4sio_physx::PxIdentity);
     // The center of mass PhysX stored for mAppliedCenterOfMass, as the body reported it. The
     // runtime cannot normalize that rotation again bit for bit: the SDK builds without
     // floating-point contraction, and the runtime may fuse multiply-adds, as GCC does on aarch64.
-    ::physx::PxTransform mNormalizedCenterOfMass = ::physx::PxTransform(::physx::PxIdentity);
+    ::ev4sio_physx::PxTransform mNormalizedCenterOfMass = ::ev4sio_physx::PxTransform(::ev4sio_physx::PxIdentity);
 
     bool surfaceVelocityEnabled() const
     {
@@ -170,12 +170,12 @@ public:
     {
         return mSolveContactEnabled;
     }
-    void enableSurfaceVelocity(bool enable, ::physx::PxRigidActor& actor);
+    void enableSurfaceVelocity(bool enable, ::ev4sio_physx::PxRigidActor& actor);
     void enableSplineSurfaceVelocity(bool enable,
-                                     ::physx::PxRigidActor& actor,
+                                     ::ev4sio_physx::PxRigidActor& actor,
                                      const usdparser::AttachedStage& attachedStage,
                                      omni::physics::parse::ObjectKey splinesCurveKey);
-    void enableContactSolve(bool enable, ::physx::PxRigidActor* actor);
+    void enableContactSolve(bool enable, ::ev4sio_physx::PxRigidActor* actor);
     void switchFromKinematic();
 
     // Replicates PhysxSurfaceVelocityAPI state onto a cloned actor. mirrorHierarchy
@@ -190,30 +190,30 @@ public:
     // Splines surface velocity isn't handled here -- mSplineLocalSpace would need
     // per-clone recomputation and no current caller needs it.
     void copySurfaceVelocityState(const InternalActor& source,
-                                  ::physx::PxRigidActor& cloneActor,
-                                  const ::physx::PxTransform& clonePivotPose);
+                                  ::ev4sio_physx::PxRigidActor& cloneActor,
+                                  const ::ev4sio_physx::PxTransform& clonePivotPose);
 
     bool mSurfaceVelocityLocalSpace;
     // Effective surface velocity handed to the contact-modify callback: the authored
     // value with mScale folded in when mSurfaceVelocityLocalSpace is set.
-    ::physx::PxVec3 mSurfaceVelocity = ::physx::PxVec3(::physx::PxZero);
+    ::ev4sio_physx::PxVec3 mSurfaceVelocity = ::ev4sio_physx::PxVec3(::ev4sio_physx::PxZero);
     // The same quantity as authored, before that fold. Kept in step with
     // mSurfaceVelocity so that a change to mSurfaceVelocityLocalSpace on its own can
     // re-derive mSurfaceVelocity locally. Reading the surfaceVelocity attribute back
     // from the source instead would resolve at the source's latest state, which is not
     // necessarily the state the change being processed belongs to.
-    ::physx::PxVec3 mSurfaceVelocityAuthored = ::physx::PxVec3(::physx::PxZero);
-    ::physx::PxVec3 mSurfaceAngularVelocity = ::physx::PxVec3(::physx::PxZero);
-    ::physx::PxTransform mSurfaceAngularVelocityPivot = ::physx::PxTransform(::physx::PxIdentity);
+    ::ev4sio_physx::PxVec3 mSurfaceVelocityAuthored = ::ev4sio_physx::PxVec3(::ev4sio_physx::PxZero);
+    ::ev4sio_physx::PxVec3 mSurfaceAngularVelocity = ::ev4sio_physx::PxVec3(::ev4sio_physx::PxZero);
+    ::ev4sio_physx::PxTransform mSurfaceAngularVelocityPivot = ::ev4sio_physx::PxTransform(::ev4sio_physx::PxIdentity);
 
     float mSplinesSurfaceVelocityMagnitude = 0.0f;
     SplinesCurve* mSplinesCurve;
-    ::physx::PxTransform mSplineLocalSpace = ::physx::PxTransform(::physx::PxIdentity);
+    ::ev4sio_physx::PxTransform mSplineLocalSpace = ::ev4sio_physx::PxTransform(::ev4sio_physx::PxIdentity);
 
     PhysXScene* mPhysXScene;
 
     std::vector<MirrorActor> mMirrors;
-    ::physx::PxCollection* mMirrorSharedCollection;
+    ::ev4sio_physx::PxCollection* mMirrorSharedCollection;
     uint32_t mMirrorMemsize;
     void* mMirrorMemory;
 
@@ -256,20 +256,20 @@ public:
     InternalCct(PhysXScene* ps,
                 const usdparser::ObjectInstance* instance,
                 omni::physics::parse::ObjectKey key)
-        : InternalActor(ps, true, instance, false, key), mFixupQ(::physx::PxIdentity)
+        : InternalActor(ps, true, instance, false, key), mFixupQ(::ev4sio_physx::PxIdentity)
     {
     }
 
-    ::physx::PxQuat mFixupQ;
+    ::ev4sio_physx::PxQuat mFixupQ;
     // The controller this actor was created for. Released with the record; null only
     // before that assignment.
-    ::physx::PxController* mController = nullptr;
+    ::ev4sio_physx::PxController* mController = nullptr;
 };
 
 class InternalForce : public Allocateable
 {
 public:
-    void setForce(const ::physx::PxVec3& force)
+    void setForce(const ::ev4sio_physx::PxVec3& force)
     {
         if (force.magnitudeSquared() > kAlmostZero)
         {
@@ -281,12 +281,12 @@ public:
         }
         mForce = force;
     }
-    const ::physx::PxVec3& getForce() const
+    const ::ev4sio_physx::PxVec3& getForce() const
     {
         return mForce;
     }
 
-    void setTorque(const ::physx::PxVec3& torque)
+    void setTorque(const ::ev4sio_physx::PxVec3& torque)
     {
         if (torque.magnitudeSquared() > kAlmostZero)
         {
@@ -298,7 +298,7 @@ public:
         }
         mTorque = torque;
     }
-    const ::physx::PxVec3& getTorque() const
+    const ::ev4sio_physx::PxVec3& getTorque() const
     {
         return mTorque;
     }
@@ -314,16 +314,16 @@ public:
 
     bool mBodyPrimDifferent;
 
-    ::physx::PxQuat mLocalRot;
-    ::physx::PxRigidActor* mRigidActor;
+    ::ev4sio_physx::PxQuat mLocalRot;
+    ::ev4sio_physx::PxRigidActor* mRigidActor;
     PhysXScene* mPhysXScene;
-    ::physx::PxVec3 mLocalPos;
+    ::ev4sio_physx::PxVec3 mLocalPos;
 
 private:
-    ::physx::PxVec3 mForce;
-    ::physx::PxVec3 mTorque;
+    ::ev4sio_physx::PxVec3 mForce;
+    ::ev4sio_physx::PxVec3 mTorque;
 };
 
 } // namespace internal
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

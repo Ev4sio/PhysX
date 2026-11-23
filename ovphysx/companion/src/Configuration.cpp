@@ -18,7 +18,7 @@ ovphysx_companion_status_t execute(uint64_t attachment,uint32_t action,uint32_t 
     if (!guard) return OVPHYSX_COMPANION_BUSY;
     CompanionOwnerLane owner;
     if (!owner.tryAcquireForAttachment(attachment)) return OVPHYSX_COMPANION_BUSY;
-    using namespace omni::physx::native;
+    using namespace omni::ev4sio_physx::native;
     ConfigurationSnapshot result;
     switch(configureAttachment(attachment,action,disabled!=0,result))
     {
@@ -28,8 +28,8 @@ ovphysx_companion_status_t execute(uint64_t attachment,uint32_t action,uint32_t 
     case ConfigurationResult::Error:return OVPHYSX_COMPANION_ERROR;
     case ConfigurationResult::Success:break;
     }
-    const omni::physx::PhysxAttachmentSettings & s=result.settings;
-    const omni::physx::PhysxSharedSettings & r=result.resources;
+    const omni::ev4sio_physx::PhysxAttachmentSettings & s=result.settings;
+    const omni::ev4sio_physx::PhysxSharedSettings & r=result.resources;
     uint32_t flags=(s.disableContactProcessing?1u:0u)|(s.updateToUsd?2u:0u)|(s.updateVelocitiesToUsd?4u:0u)|
         (s.updateParticlesToUsd?8u:0u)|(r.useActiveCudaContext?16u:0u)|(r.synchronousCudaLaunches?32u:0u)|
         (r.usePhysxDispatcher?64u:0u)|(s.suppressReadback?128u:0u)|(s.outputVelocitiesLocalSpace?256u:0u);

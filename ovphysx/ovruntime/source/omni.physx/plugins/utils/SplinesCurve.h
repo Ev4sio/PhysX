@@ -61,7 +61,7 @@ static constexpr float s_bezierTangentFloats[4][4] = {
 static constexpr float s_catmullRomFloats[4][4] = {
     { 0.0f, -0.5f, 1.0f, -0.5f }, { 1.0f, 0.0f, -2.5f, 1.5f }, { 0.0f, 0.5f, 2.0f, -1.5f }, { 0.0f, 0.0f, -0.5f, 0.5f }
 };
-namespace omni { namespace physx { namespace usdparser { class AttachedStage; } } }
+namespace omni { namespace ev4sio_physx { namespace usdparser { class AttachedStage; } } }
 
 static constexpr float s_catmullRomTangentFloats[4][4] = {
     { -0.5f, 2.0f, -1.5f, 0.0f }, { 0.0f, -5.0f, 4.5f, 0.0f }, { 0.5f, 4.0f, -4.5f, 0.0f }, { 0.0f, -1.0f, 1.5f, 0.0f }
@@ -78,13 +78,13 @@ static constexpr float s_bsplineTangentFloats[4][4] = {
 /// tables above with the row-major convention they are written in. PxMat44 stores columns, so
 /// column i is gathered from values[0..3][i]. The resulting matrix is used with
 /// PxMat44::transform() (column-vector convention), which yields sum_i values[row][i] * v[i].
-inline ::physx::PxMat44 basisTableToPxMat44(const float values[4][4])
+inline ::ev4sio_physx::PxMat44 basisTableToPxMat44(const float values[4][4])
 {
-    return ::physx::PxMat44(
-        ::physx::PxVec4(values[0][0], values[1][0], values[2][0], values[3][0]),
-        ::physx::PxVec4(values[0][1], values[1][1], values[2][1], values[3][1]),
-        ::physx::PxVec4(values[0][2], values[1][2], values[2][2], values[3][2]),
-        ::physx::PxVec4(values[0][3], values[1][3], values[2][3], values[3][3]));
+    return ::ev4sio_physx::PxMat44(
+        ::ev4sio_physx::PxVec4(values[0][0], values[1][0], values[2][0], values[3][0]),
+        ::ev4sio_physx::PxVec4(values[0][1], values[1][1], values[2][1], values[3][1]),
+        ::ev4sio_physx::PxVec4(values[0][2], values[1][2], values[2][2], values[3][2]),
+        ::ev4sio_physx::PxVec4(values[0][3], values[1][3], values[2][3], values[3][3]));
 }
 
 
@@ -109,7 +109,7 @@ public:
         mTangentBasis = mLinear ? basisTableToPxMat44(s_linearTangentFloats) : getTangentBasis(type);
     }
 
-    ::physx::PxMat44 getBasis(eCurveBasisType type)
+    ::ev4sio_physx::PxMat44 getBasis(eCurveBasisType type)
     {
         if (type == eCurveBasisType::Bezier)
         {
@@ -125,7 +125,7 @@ public:
         }
     }
 
-    ::physx::PxMat44 getTangentBasis(eCurveBasisType type)
+    ::ev4sio_physx::PxMat44 getTangentBasis(eCurveBasisType type)
     {
         if (type == eCurveBasisType::Bezier)
         {
@@ -258,12 +258,12 @@ public:
     /// \param tessellatedTangents
     ///         If a pointer is provided, tangents corresponding to the
     ///         tessellated points will be appended to this collection    
-    void tessellate(const ::physx::PxVec3* controlPoints,
+    void tessellate(const ::ev4sio_physx::PxVec3* controlPoints,
                     const size_t controlPointCount,
-                    std::vector<::physx::PxVec3>& tessellatedPoints,
+                    std::vector<::ev4sio_physx::PxVec3>& tessellatedPoints,
                     const size_t stepsPerSegment,
                     bool includeSegmentFinalSamples = false,
-                    std::vector<::physx::PxVec3>* tessellatedTangents = nullptr) const
+                    std::vector<::ev4sio_physx::PxVec3>* tessellatedTangents = nullptr) const
     {
         size_t tessellatedPointCount =
             getTessellationPointCount(controlPointCount, stepsPerSegment, includeSegmentFinalSamples);
@@ -274,12 +274,12 @@ public:
                    includeSegmentFinalSamples, tessellatedTangents ? tessellatedTangents->data() : nullptr);
     }
     
-    void tessellate(const ::physx::PxVec3* controlPoints,
+    void tessellate(const ::ev4sio_physx::PxVec3* controlPoints,
                     const size_t controlPointCount,
-                    ::physx::PxVec3* tessellatedPoints,
+                    ::ev4sio_physx::PxVec3* tessellatedPoints,
                     const size_t stepsPerSegment,
                     bool includeSegmentFinalSamples = false,
-                    ::physx::PxVec3* tessellatedTangents = nullptr) const
+                    ::ev4sio_physx::PxVec3* tessellatedTangents = nullptr) const
     {
         if (mLinear && controlPointCount >= 2)
         {
@@ -305,14 +305,14 @@ public:
         {
             if (controlPointCount == 0)
                 return;
-            ::physx::PxVec3 p0 = controlPoints[0];
+            ::ev4sio_physx::PxVec3 p0 = controlPoints[0];
             tessellatedPoints[0] = p0;
             if (controlPointCount == 2)
             {
                 // Straight line
                 // TODO: Should this subsample?
-                ::physx::PxVec3 p1 = controlPoints[1];
-                ::physx::PxVec3 t = p1 - p0;
+                ::ev4sio_physx::PxVec3 p1 = controlPoints[1];
+                ::ev4sio_physx::PxVec3 t = p1 - p0;
                 tessellatedPoints[1] = p1;
                 if (tessellatedTangents != nullptr)
                 {
@@ -325,7 +325,7 @@ public:
                 if (tessellatedTangents != nullptr)
                 {
                     // Single point, so arbitrarily pick zero tangent
-                    tessellatedTangents[0] = ::physx::PxVec3(0.0f);
+                    tessellatedTangents[0] = ::ev4sio_physx::PxVec3(0.0f);
                 }
             }
             return;
@@ -399,10 +399,10 @@ public:
         }
     }
 
-    void tessellateSegment(const ::physx::PxVec3* controlPoints,
+    void tessellateSegment(const ::ev4sio_physx::PxVec3* controlPoints,
                            const size_t controlPointCount,
-                           ::physx::PxVec3* tessellatedPoints,
-                           ::physx::PxVec3* tessellatedTangents,
+                           ::ev4sio_physx::PxVec3* tessellatedPoints,
+                           ::ev4sio_physx::PxVec3* tessellatedTangents,
                            size_t index,
                            const size_t stepsPerSegment,
                            bool includeFinalSample,
@@ -418,12 +418,12 @@ public:
                           tessellatedPoints, tessellatedTangents, stepsPerSegment, includeFinalSample, startT, endT);
     }
 
-    ::physx::PxVec3 evaluateSegment(const ::physx::PxVec3* controlPoints,
+    ::ev4sio_physx::PxVec3 evaluateSegment(const ::ev4sio_physx::PxVec3* controlPoints,
                             const size_t controlPointCount,
                             const size_t index,
                             float u,
                             int order = 0,
-                            ::physx::PxVec3* tangent = nullptr) const
+                            ::ev4sio_physx::PxVec3* tangent = nullptr) const
     {
         // NOTE that index is the starting control point index, *not* the segment index.
 
@@ -436,12 +436,12 @@ public:
                                controlPoints[index3], u, order, tangent);
     }
 
-    void tessellateSegment(const ::physx::PxVec3& p0,
-                           const ::physx::PxVec3& p1,
-                           const ::physx::PxVec3& p2,
-                           const ::physx::PxVec3& p3,
-                           ::physx::PxVec3* tessellatedPoints,
-                           ::physx::PxVec3* tessellatedTangents,
+    void tessellateSegment(const ::ev4sio_physx::PxVec3& p0,
+                           const ::ev4sio_physx::PxVec3& p1,
+                           const ::ev4sio_physx::PxVec3& p2,
+                           const ::ev4sio_physx::PxVec3& p3,
+                           ::ev4sio_physx::PxVec3* tessellatedPoints,
+                           ::ev4sio_physx::PxVec3* tessellatedTangents,
                            const size_t stepsPerSegment,
                            bool includeFinalSample,
                            const float startT = 0.f,
@@ -453,56 +453,56 @@ public:
             // From 0 to 1 along the segment
             const float u = startT + float(sample) / float(stepsPerSegment) * (endT - startT);
             const float u2 = u * u;
-            const ::physx::PxVec4 v(1.0f, u, u2, u * u2);
-            const ::physx::PxVec4 coeffs = mBasis.transform(v);
+            const ::ev4sio_physx::PxVec4 v(1.0f, u, u2, u * u2);
+            const ::ev4sio_physx::PxVec4 coeffs = mBasis.transform(v);
             tessellatedPoints[sample] = (p0 * coeffs[0] + p1 * coeffs[1] + p2 * coeffs[2] + p3 * coeffs[3]);
             if (tessellatedTangents != nullptr)
             {
-                const ::physx::PxVec4 tangentCoeffs = mTangentBasis.transform(v);
+                const ::ev4sio_physx::PxVec4 tangentCoeffs = mTangentBasis.transform(v);
                 tessellatedTangents[sample] =
                     (p0 * tangentCoeffs[0] + p1 * tangentCoeffs[1] + p2 * tangentCoeffs[2] + p3 * tangentCoeffs[3]);
             }
         }
     }
 
-    ::physx::PxVec3 evaluateSegment(const ::physx::PxVec3& p0,
-                                 const ::physx::PxVec3& p1,
-                                 const ::physx::PxVec3& p2,
-                                 const ::physx::PxVec3& p3,
+    ::ev4sio_physx::PxVec3 evaluateSegment(const ::ev4sio_physx::PxVec3& p0,
+                                 const ::ev4sio_physx::PxVec3& p1,
+                                 const ::ev4sio_physx::PxVec3& p2,
+                                 const ::ev4sio_physx::PxVec3& p3,
                                  float u,
                                  int order = 0,
-                                 ::physx::PxVec3* tangent = nullptr) const
+                                 ::ev4sio_physx::PxVec3* tangent = nullptr) const
     {
         const float u2 = u * u;
         const float u3 = u * u2;
-        const ::physx::PxVec4 v = (order == 0 ? ::physx::PxVec4(1.0f, u, u2, u3) :
-                                order == 1 ? ::physx::PxVec4(0.0f, 1.0f, 2 * u, 3 * u2) :
-                                order == 2 ? ::physx::PxVec4(0.0f, 0.0f, 2.0f, 6 * u) :
-                                order == 3 ? ::physx::PxVec4(0.0f, 0.0f, 0.0f, 6.0f) :
-                                             ::physx::PxVec4(0.0f));
-        const ::physx::PxVec4 coeffs = mBasis.transform(v);
+        const ::ev4sio_physx::PxVec4 v = (order == 0 ? ::ev4sio_physx::PxVec4(1.0f, u, u2, u3) :
+                                order == 1 ? ::ev4sio_physx::PxVec4(0.0f, 1.0f, 2 * u, 3 * u2) :
+                                order == 2 ? ::ev4sio_physx::PxVec4(0.0f, 0.0f, 2.0f, 6 * u) :
+                                order == 3 ? ::ev4sio_physx::PxVec4(0.0f, 0.0f, 0.0f, 6.0f) :
+                                             ::ev4sio_physx::PxVec4(0.0f));
+        const ::ev4sio_physx::PxVec4 coeffs = mBasis.transform(v);
 
         if (tangent != nullptr)
         {
-            const ::physx::PxVec4 tangentCoeffs = mTangentBasis.transform(v);
+            const ::ev4sio_physx::PxVec4 tangentCoeffs = mTangentBasis.transform(v);
             *tangent = (p0 * tangentCoeffs[0] + p1 * tangentCoeffs[1] + p2 * tangentCoeffs[2] + p3 * tangentCoeffs[3]);
         }
 
         return (p0 * coeffs[0] + p1 * coeffs[1] + p2 * coeffs[2] + p3 * coeffs[3]);
     }
 
-    void tessellateEndSegment(const ::physx::PxVec3* controlPoints,
+    void tessellateEndSegment(const ::ev4sio_physx::PxVec3* controlPoints,
                               const size_t /*controlPointCount*/,
-                              ::physx::PxVec3* tessellatedPoints,
-                              ::physx::PxVec3* tessellatedTangents,
+                              ::ev4sio_physx::PxVec3* tessellatedPoints,
+                              ::ev4sio_physx::PxVec3* tessellatedTangents,
                               size_t index,
                               const size_t stepsPerSegment,
                               bool includeFinalSample) const
     {
-        ::physx::PxVec3 p0;
-        ::physx::PxVec3 p1;
-        ::physx::PxVec3 p2;
-        ::physx::PxVec3 p3;
+        ::ev4sio_physx::PxVec3 p0;
+        ::ev4sio_physx::PxVec3 p1;
+        ::ev4sio_physx::PxVec3 p2;
+        ::ev4sio_physx::PxVec3 p3;
         if (index == 0)
         {
             p1 = controlPoints[index];
@@ -526,28 +526,28 @@ public:
     int mVstep;
     bool mLinear;
 
-    ::physx::PxMat44 mBasis;
-    ::physx::PxMat44 mTangentBasis;
+    ::ev4sio_physx::PxMat44 mBasis;
+    ::ev4sio_physx::PxMat44 mTangentBasis;
 };
 
 class SplinesCurve
 {
 public:
-    SplinesCurve(const omni::physx::usdparser::AttachedStage& attachedStage,
+    SplinesCurve(const omni::ev4sio_physx::usdparser::AttachedStage& attachedStage,
                  omni::physics::parse::ObjectKey curveKey);
     ~SplinesCurve();
 
-    bool getClosestPoint(const ::physx::PxVec3& point,
-                         ::physx::PxVec3& pointOnCurveOut,
-                         ::physx::PxVec3& tangentOut,
-                         ::physx::PxVec3& curvaturePointOut);
+    bool getClosestPoint(const ::ev4sio_physx::PxVec3& point,
+                         ::ev4sio_physx::PxVec3& pointOnCurveOut,
+                         ::ev4sio_physx::PxVec3& tangentOut,
+                         ::ev4sio_physx::PxVec3& curvaturePointOut);
 
     bool isInitialized() const
     {
         return mInitialized;
     }
 
-    void draw(omni::physx::OmniRenderBuffer& renderBuffer, const ::physx::PxTransform& tr) const;
+    void draw(omni::ev4sio_physx::OmniRenderBuffer& renderBuffer, const ::ev4sio_physx::PxTransform& tr) const;
 
 private:
     void initialize(const std::string& curvePrimPath,
@@ -563,10 +563,10 @@ private:
     bool mLinear = false;
     std::string mCurvePrimPath;
 
-    std::vector<::physx::PxVec3> mPoints;
-    std::vector<::physx::PxVec3> mTangents;
+    std::vector<::ev4sio_physx::PxVec3> mPoints;
+    std::vector<::ev4sio_physx::PxVec3> mTangents;
     std::vector<int> mCurveVertexCounts;
-    std::vector<::physx::PxVec3> mCurvaturePoints;
+    std::vector<::ev4sio_physx::PxVec3> mCurvaturePoints;
 #ifdef __AVX__
     std::vector<float> mXPoints;
     std::vector<float> mYPoints;

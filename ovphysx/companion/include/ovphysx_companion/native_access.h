@@ -27,23 +27,23 @@ public:
     ObjectLease& operator=(const ObjectLease&)=delete;
     const ovphysx_companion_object_t& identity() const noexcept{return mIdentity;}
     AccessKind kind() const noexcept{return mKind;}
-    const physx::PxRigidActor* actor() const noexcept
+    const ev4sio_physx::PxRigidActor* actor() const noexcept
     {
         switch(mKind) {
-        case AccessKind::RigidActor:return static_cast<const physx::PxRigidActor*>(mObject);
-        case AccessKind::Dynamic:return static_cast<const physx::PxRigidDynamic*>(mObject);
-        case AccessKind::Static:return static_cast<const physx::PxRigidStatic*>(mObject);
-        case AccessKind::Link:return static_cast<const physx::PxArticulationLink*>(mObject);
+        case AccessKind::RigidActor:return static_cast<const ev4sio_physx::PxRigidActor*>(mObject);
+        case AccessKind::Dynamic:return static_cast<const ev4sio_physx::PxRigidDynamic*>(mObject);
+        case AccessKind::Static:return static_cast<const ev4sio_physx::PxRigidStatic*>(mObject);
+        case AccessKind::Link:return static_cast<const ev4sio_physx::PxArticulationLink*>(mObject);
         default:return nullptr;
         }
     }
-    const physx::PxRigidDynamic* dynamic() const noexcept{return mKind==AccessKind::Dynamic?static_cast<const physx::PxRigidDynamic*>(mObject):nullptr;}
-    const physx::PxRigidStatic* rigidStatic() const noexcept{return mKind==AccessKind::Static?static_cast<const physx::PxRigidStatic*>(mObject):nullptr;}
-    const physx::PxArticulationLink* link() const noexcept{return mKind==AccessKind::Link?static_cast<const physx::PxArticulationLink*>(mObject):nullptr;}
-    const physx::PxJoint* joint() const noexcept{return mKind==AccessKind::Joint?static_cast<const physx::PxJoint*>(mObject):nullptr;}
-    const physx::PxArticulationReducedCoordinate* articulation() const noexcept{return mKind==AccessKind::Articulation?static_cast<const physx::PxArticulationReducedCoordinate*>(mObject):nullptr;}
-    const physx::PxShape* shape() const noexcept{return mKind==AccessKind::Shape?static_cast<const physx::PxShape*>(mObject):nullptr;}
-    const physx::PxMaterial* material() const noexcept{return mKind==AccessKind::Material?static_cast<const physx::PxMaterial*>(mObject):nullptr;}
+    const ev4sio_physx::PxRigidDynamic* dynamic() const noexcept{return mKind==AccessKind::Dynamic?static_cast<const ev4sio_physx::PxRigidDynamic*>(mObject):nullptr;}
+    const ev4sio_physx::PxRigidStatic* rigidStatic() const noexcept{return mKind==AccessKind::Static?static_cast<const ev4sio_physx::PxRigidStatic*>(mObject):nullptr;}
+    const ev4sio_physx::PxArticulationLink* link() const noexcept{return mKind==AccessKind::Link?static_cast<const ev4sio_physx::PxArticulationLink*>(mObject):nullptr;}
+    const ev4sio_physx::PxJoint* joint() const noexcept{return mKind==AccessKind::Joint?static_cast<const ev4sio_physx::PxJoint*>(mObject):nullptr;}
+    const ev4sio_physx::PxArticulationReducedCoordinate* articulation() const noexcept{return mKind==AccessKind::Articulation?static_cast<const ev4sio_physx::PxArticulationReducedCoordinate*>(mObject):nullptr;}
+    const ev4sio_physx::PxShape* shape() const noexcept{return mKind==AccessKind::Shape?static_cast<const ev4sio_physx::PxShape*>(mObject):nullptr;}
+    const ev4sio_physx::PxMaterial* material() const noexcept{return mKind==AccessKind::Material?static_cast<const ev4sio_physx::PxMaterial*>(mObject):nullptr;}
 private:
     friend struct AccessLeaseFactory;
     ObjectLease(const ovphysx_companion_object_t& identity,AccessKind kind,const void* object):mIdentity(identity),mKind(kind),mObject(object){}

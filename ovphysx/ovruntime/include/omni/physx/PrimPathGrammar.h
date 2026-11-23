@@ -24,7 +24,7 @@
 // and the ASCII syntax USD itself rejects for a prim path are refused.
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 
 // Structural UTF-8 check (RFC 3629 table): correct lead/continuation lengths, no overlongs
@@ -119,5 +119,5 @@ inline bool looksLikeAbsolutePrimPath(std::string_view path, bool allowRoot)
     return true;
 }
 
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

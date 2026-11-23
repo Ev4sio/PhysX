@@ -16,7 +16,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace tensors
 {
@@ -87,16 +87,16 @@ public:
     // an unselected instance left as it is. `deviceArgs` is how a GPU session write runs (its stream, device
     // mask and scratch); null for the ovstage drain. Each view ignores the other's.
     virtual bool setInstancerColumnOvStage(InstancerColumn column,
-                                           ::physx::PxU32 instancerIndex,
+                                           ::ev4sio_physx::PxU32 instancerIndex,
                                            const void* src,
-                                           ::physx::PxU32 arrayLength,
+                                           ::ev4sio_physx::PxU32 arrayLength,
                                            const uint8_t* hostMask,
                                            const OvStageDeviceWriteArgs* deviceArgs) = 0;
 
     // How many instancers this view holds, so a caller can bound `instancerIndex`.
-    ::physx::PxU32 getInstancerCount() const
+    ::ev4sio_physx::PxU32 getInstancerCount() const
     {
-        return static_cast<::physx::PxU32>(mEntries.size());
+        return static_cast<::ev4sio_physx::PxU32>(mEntries.size());
     }
 
     // The instancer's own world transform, inverted -- the frame every local pose is expressed in.
@@ -105,7 +105,7 @@ public:
     // stage query and not PhysX state: MOVING an instancer changes it while creating and destroying
     // nothing, so the epoch never bumps and a cached value would go quietly stale. The reader
     // resolves it each read and sets it here before reading any column.
-    virtual bool setWorldInverses(const ::physx::PxMat44d* inverses, ::physx::PxU32 numInstancers);
+    virtual bool setWorldInverses(const ::ev4sio_physx::PxMat44d* inverses, ::ev4sio_physx::PxU32 numInstancers);
 
     // Valid for the view's lifetime, with the instance lists fixed at construction. `worldInverse` is
     // NOT -- setWorldInverses rewrites it, and the reader calls that on every read by contract, so it is
@@ -134,25 +134,25 @@ public:
     // A single entry point rather than a position/orientation pair, unlike the read: the write
     // always has both halves of a pose to apply (PxTransform takes both), so there is no half to
     // save work by skipping.
-    static void unreframe(const ::physx::PxMat44d& proto,
-                          const ::physx::PxMat44d& instancerWorld,
-                          const ::physx::PxVec3& localPos,
-                          const ::physx::PxQuat& localRot,
-                          ::physx::PxTransform& outWorld);
+    static void unreframe(const ::ev4sio_physx::PxMat44d& proto,
+                          const ::ev4sio_physx::PxMat44d& instancerWorld,
+                          const ::ev4sio_physx::PxVec3& localPos,
+                          const ::ev4sio_physx::PxQuat& localRot,
+                          ::ev4sio_physx::PxTransform& outWorld);
 
     // Position only: the composition without the rotation extraction, which costs a double sqrt and three
     // double divides per instance and yields a quaternion the host column reads would throw away.
-    static void reframePosition(const ::physx::PxMat44d& protoInverse,
-                                const ::physx::PxMat44d& instancerWorldInverse,
-                                const ::physx::PxTransform& worldPose,
-                                ::physx::PxVec3& outPos);
+    static void reframePosition(const ::ev4sio_physx::PxMat44d& protoInverse,
+                                const ::ev4sio_physx::PxMat44d& instancerWorldInverse,
+                                const ::ev4sio_physx::PxTransform& worldPose,
+                                ::ev4sio_physx::PxVec3& outPos);
 
     // Position AND rotation, for the callers that publish both.
-    static void reframe(const ::physx::PxMat44d& protoInverse,
-                        const ::physx::PxMat44d& instancerWorldInverse,
-                        const ::physx::PxTransform& worldPose,
-                        ::physx::PxVec3& outPos,
-                        ::physx::PxQuat& outRot);
+    static void reframe(const ::ev4sio_physx::PxMat44d& protoInverse,
+                        const ::ev4sio_physx::PxMat44d& instancerWorldInverse,
+                        const ::ev4sio_physx::PxTransform& worldPose,
+                        ::ev4sio_physx::PxVec3& outPos,
+                        ::ev4sio_physx::PxQuat& outRot);
 
 protected:
     BaseSimulationView* mSim = nullptr;
@@ -166,5 +166,5 @@ protected:
 };
 
 } // namespace tensors
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

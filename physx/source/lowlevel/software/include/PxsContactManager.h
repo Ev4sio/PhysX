@@ -9,16 +9,16 @@
 #include "PxPhysXConfig.h"
 #include "PxcNpWorkUnit.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 class PxsRigidBody;
 
-namespace Dy
+namespace ev4sio_Dy
 {
 	class DynamicsContext;
 }
 
-namespace Sc
+namespace ev4sio_Sc
 {
 	class ShapeInteraction;
 }
@@ -92,7 +92,7 @@ public:
 
 	PX_FORCE_INLINE	PxsRigidBody*			getRigidBody0()				const	{ return mRigidBody0;		}
 	PX_FORCE_INLINE	PxsRigidBody*			getRigidBody1()				const	{ return mRigidBody1;		}
-	PX_FORCE_INLINE	Sc::ShapeInteraction*	getShapeInteraction()		const	{ return mShapeInteraction; }
+	PX_FORCE_INLINE	ev4sio_Sc::ShapeInteraction*	getShapeInteraction()		const	{ return mShapeInteraction; }
 	
 	// Setup solver-constraints
 	PX_FORCE_INLINE	void					resetCachedState()
@@ -107,7 +107,7 @@ private:
 					PxsRigidBody*			mRigidBody1;
 					PxU32					mFlags;
 					PxU32					mCmIndex;	// PT: moved to padding bytes from mNpUnit
-					Sc::ShapeInteraction*	mShapeInteraction;
+					ev4sio_Sc::ShapeInteraction*	mShapeInteraction;
 
 	// everything required for narrow phase to run
 					PxcNpWorkUnit			mNpUnit;
@@ -119,7 +119,7 @@ private:
 		PXS_CM_VISUALIZATION	= (1 << 3)
 	};
 
-	friend class Sc::ShapeInteraction;
+	friend class ev4sio_Sc::ShapeInteraction;
 };
 
 }

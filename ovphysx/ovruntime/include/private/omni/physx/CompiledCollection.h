@@ -24,24 +24,24 @@
 #include <functional>
 #include <unordered_set>
 
-namespace omni::physx::cache
+namespace omni::ev4sio_physx::cache
 {
 struct ReleaseCollection
 {
-    void operator()(::physx::PxCollection* p) const
+    void operator()(::ev4sio_physx::PxCollection* p) const
     {
         if (p)
             p->release();
     }
 };
-using CollectionPtr = std::unique_ptr<::physx::PxCollection, ReleaseCollection>;
+using CollectionPtr = std::unique_ptr<::ev4sio_physx::PxCollection, ReleaseCollection>;
 
 // The built-in binary registry does not serialize callback implementations or
 // GPU-only object families. Keep the self-contained closure explicit. A
 // constraint passes here by type; constraintsOwnedByJoints decides the rest.
-inline bool supportsNativeArchive(::physx::PxBase& object)
+inline bool supportsNativeArchive(::ev4sio_physx::PxBase& object)
 {
-    using namespace ::physx;
+    using namespace ::ev4sio_physx;
     const PxType type = object.getConcreteType();
     switch (type)
     {
@@ -84,11 +84,11 @@ inline bool supportsNativeArchive(::physx::PxBase& object)
 }
 
 // The extension joint object is, by concrete type rather than a name lookup.
-inline ::physx::PxJoint* asJoint(::physx::PxBase& object)
+inline ::ev4sio_physx::PxJoint* asJoint(::ev4sio_physx::PxBase& object)
 {
-    const ::physx::PxType type = object.getConcreteType();
-    return type >= ::physx::PxJointConcreteType::eSPHERICAL && type < ::physx::PxJointConcreteType::eLast ?
-               static_cast<::physx::PxJoint*>(&object) :
+    const ::ev4sio_physx::PxType type = object.getConcreteType();
+    return type >= ::ev4sio_physx::PxJointConcreteType::eSPHERICAL && type < ::ev4sio_physx::PxJointConcreteType::eLast ?
+               static_cast<::ev4sio_physx::PxJoint*>(&object) :
                nullptr;
 }
 
@@ -97,9 +97,9 @@ inline ::physx::PxJoint* asJoint(::physx::PxBase& object)
 // connector to ask until its joint resolves it. So only a constraint reached
 // through a joint is asked for its owner, which must be that joint: the joints
 // then own distinct constraints, and the counts match only when each has one.
-inline bool constraintsOwnedByJoints(const ::physx::PxCollection& collection)
+inline bool constraintsOwnedByJoints(const ::ev4sio_physx::PxCollection& collection)
 {
-    using namespace ::physx;
+    using namespace ::ev4sio_physx;
     size_t constraints = 0, owned = 0;
     for (PxU32 i = 0; i < collection.getNbObjects(); ++i)
     {
@@ -122,11 +122,11 @@ inline bool constraintsOwnedByJoints(const ::physx::PxCollection& collection)
 // The cooked stream a triangle mesh was created from, or null for a mesh that was
 // not created from one.
 using CookedTriangleMesh =
-    std::function<std::shared_ptr<const omni::physics::parse::cache::Bytes>(const ::physx::PxTriangleMesh&)>;
+    std::function<std::shared_ptr<const omni::physics::parse::cache::Bytes>(const ::ev4sio_physx::PxTriangleMesh&)>;
 
 // A native section holds the cooked stream of each triangle mesh its collection
 // uses, then the collection as PhysX serializes it to binary. PhysX binary
-// serialization does not carry a whole triangle mesh: Gu::TriangleMesh exports
+// serialization does not carry a whole triangle mesh: ev4sio_Gu::TriangleMesh exports
 // neither of the vertex-to-triangle tables that cooking with GPU data adds, so a
 // deserialized mesh keeps the addresses those tables had in the process that
 // serialized it, and the GPU narrowphase copies from them when it uploads the
@@ -142,16 +142,16 @@ using CookedTriangleMesh =
 // not acquire runtime admission or publish objects into an attachment.
 // Fails, without buffering more, once the output exceeds limit (the store's cap),
 // and for a triangle mesh without a cooked stream.
-inline bool encodeCollection(const ::physx::PxCollection& roots,
-                             ::physx::PxSerializationRegistry& registry,
+inline bool encodeCollection(const ::ev4sio_physx::PxCollection& roots,
+                             ::ev4sio_physx::PxSerializationRegistry& registry,
                              const CookedTriangleMesh& cookedTriangleMesh,
                              omni::physics::parse::cache::Bytes& output,
                              bool requireRootActors = false,
                              size_t limit = size_t(512) * 1024 * 1024)
 {
-    using namespace ::physx;
-    CollectionPtr collection(PxCreateCollection());
-    CollectionPtr meshes(PxCreateCollection()); // the external triangle meshes
+    using namespace ::ev4sio_physx;
+    CollectionPtr collection(ev4sio_PxCreateCollection());
+    CollectionPtr meshes(ev4sio_PxCreateCollection()); // the external triangle meshes
     if (!collection || !meshes)
         return false;
     PxSerialObjectId nextId = 1;
@@ -316,9 +316,9 @@ public:
         {
             // Pruning structures refer to actors and must retire first. Remove
             // them explicitly, including when one is first in collection order.
-            for (::physx::PxU32 i = 0; i < mCollection->getNbObjects();)
+            for (::ev4sio_physx::PxU32 i = 0; i < mCollection->getNbObjects();)
             {
-                auto* pruning = mCollection->getObject(i).is<::physx::PxPruningStructure>();
+                auto* pruning = mCollection->getObject(i).is<::ev4sio_physx::PxPruningStructure>();
                 if (pruning)
                 {
                     mCollection->remove(*pruning);
@@ -333,24 +333,24 @@ public:
             // list it among its actors' connectors, where its release finds it.
             if (!constraintsOwnedByJoints(*mCollection))
             {
-                std::unordered_set<const ::physx::PxBase*> owned;
-                for (::physx::PxU32 i = 0; i < mCollection->getNbObjects(); ++i)
-                    if (const ::physx::PxJoint* joint = asJoint(mCollection->getObject(i)))
+                std::unordered_set<const ::ev4sio_physx::PxBase*> owned;
+                for (::ev4sio_physx::PxU32 i = 0; i < mCollection->getNbObjects(); ++i)
+                    if (const ::ev4sio_physx::PxJoint* joint = asJoint(mCollection->getObject(i)))
                         owned.insert(joint->getConstraint());
-                for (::physx::PxU32 i = 0; i < mCollection->getNbObjects();)
+                for (::ev4sio_physx::PxU32 i = 0; i < mCollection->getNbObjects();)
                 {
-                    ::physx::PxBase& object = mCollection->getObject(i);
-                    if (object.getConcreteType() == ::physx::PxConcreteType::eCONSTRAINT && !owned.count(&object))
+                    ::ev4sio_physx::PxBase& object = mCollection->getObject(i);
+                    if (object.getConcreteType() == ::ev4sio_physx::PxConcreteType::eCONSTRAINT && !owned.count(&object))
                     {
                         mCollection->remove(object);
-                        static_cast<::physx::PxConstraint&>(object).release();
+                        static_cast<::ev4sio_physx::PxConstraint&>(object).release();
                     }
                     else
                         ++i;
                 }
             }
             // Deserialized exclusive shapes have an application reference too.
-            ::physx::PxCollectionExt::releaseObjects(*mCollection, true);
+            ::ev4sio_physx::PxCollectionExt::releaseObjects(*mCollection, true);
             mCollection->release();
         }
         std::free(mStorage);
@@ -358,16 +358,16 @@ public:
     DecodedCollection(const DecodedCollection&) = delete;
     DecodedCollection& operator=(const DecodedCollection&) = delete;
     // Valid after deserialize succeeded.
-    ::physx::PxCollection& collection() const
+    ::ev4sio_physx::PxCollection& collection() const
     {
         return *mCollection;
     }
     // Create the triangle meshes from their cooked streams, then the other native
     // objects in place in the prepared storage, once. The meshes join the
     // collection under their serial IDs, and it releases them with the others.
-    bool deserialize(::physx::PxSerializationRegistry& registry)
+    bool deserialize(::ev4sio_physx::PxSerializationRegistry& registry)
     {
-        using namespace ::physx;
+        using namespace ::ev4sio_physx;
         if (mCollection || !mAligned)
             return false;
         auto* bytes = static_cast<uint8_t*>(mAligned);
@@ -379,7 +379,7 @@ public:
         if (count > (mSize - sizeof(count)) / kEntry)
             return false;
         size_t offset = sizeof(count) + size_t(count) * kEntry;
-        CollectionPtr meshes(PxCreateCollection());
+        CollectionPtr meshes(ev4sio_PxCreateCollection());
         if (!meshes)
             return false;
         // Until the collection takes them, a failure releases the meshes created so far.
@@ -402,7 +402,7 @@ public:
                 entry[1] > std::numeric_limits<PxU32>::max())
                 return false;
             PxDefaultMemoryInputData stream(bytes + offset, PxU32(entry[1]));
-            PxTriangleMesh* mesh = PxGetPhysics().createTriangleMesh(stream);
+            PxTriangleMesh* mesh = ev4sio_PxGetPhysics().createTriangleMesh(stream);
             if (!mesh)
                 return false;
             meshes->add(*mesh, entry[0]);
@@ -458,7 +458,7 @@ public:
     static std::unique_ptr<DecodedCollection> decode(const omni::physics::parse::cache::Bytes& encoded,
                                                      const omni::physics::parse::cache::Digest& input,
                                                      const omni::physics::parse::cache::Digest& compatibility,
-                                                     ::physx::PxSerializationRegistry& registry)
+                                                     ::ev4sio_physx::PxSerializationRegistry& registry)
     {
         omni::physics::parse::cache::Bundle validated;
         if (!omni::physics::parse::cache::decodeBundle(encoded, input, compatibility, validated))
@@ -498,6 +498,6 @@ private:
     void* mStorage = nullptr;
     void* mAligned = nullptr;
     size_t mSize = 0;
-    ::physx::PxCollection* mCollection = nullptr;
+    ::ev4sio_physx::PxCollection* mCollection = nullptr;
 };
-} // namespace omni::physx::cache
+} // namespace omni::ev4sio_physx::cache

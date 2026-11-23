@@ -11,7 +11,7 @@
 #include <limits>
 #include <vector>
 
-namespace omni::physx::authoring
+namespace omni::ev4sio_physx::authoring
 {
 namespace
 {
@@ -31,7 +31,7 @@ bool positiveFloat(double value)
 bool computePrimitiveMass(const MassShape* shapes, uint32_t count, MassResult& output,
                           uint32_t& invalidShape)
 {
-    using namespace ::physx;
+    using namespace ::ev4sio_physx;
     invalidShape = UINT32_MAX;
     if (!shapes || count == 0)
         return false;
@@ -45,7 +45,7 @@ bool computePrimitiveMass(const MassShape* shapes, uint32_t count, MassResult& o
     for (uint32_t i = 0; i < count; ++i)
     {
         invalidShape = i;
-        const omni::physx::authoring::MassShape & s = shapes[i];
+        const omni::ev4sio_physx::authoring::MassShape & s = shapes[i];
         if (!s.dimensions.isFinite() || !s.pose.p.isFinite() || !s.pose.q.isUnit() ||
             !std::isfinite(s.density) || s.density <= 0)
             return false;

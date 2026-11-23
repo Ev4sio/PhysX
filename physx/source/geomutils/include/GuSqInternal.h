@@ -15,12 +15,12 @@
 #define SQ_DEBUG_VIZ_DYNAMIC_COLOR2	PxU32(PxDebugColor::eARGB_DARKRED)
 #define SQ_DEBUG_VIZ_COMPOUND_COLOR	PxU32(PxDebugColor::eARGB_MAGENTA)
 
-namespace physx
+namespace ev4sio_physx
 {
 	class PxRenderOutput;
 	class PxBounds3;
 
-	namespace Gu
+	namespace ev4sio_Gu
 	{
 		class BVH;
 		class AABBTree;
@@ -33,13 +33,13 @@ namespace physx
 		public:
 						DebugVizCallback()	{}
 		virtual			~DebugVizCallback()	{}
-		virtual	bool	visualizeNode(const physx::Gu::IncrementalAABBTreeNode& node, const physx::PxBounds3& bounds)	= 0;
+		virtual	bool	visualizeNode(const ev4sio_physx::ev4sio_Gu::IncrementalAABBTreeNode& node, const ev4sio_physx::PxBounds3& bounds)	= 0;
 	};
 }
 
-	PX_PHYSX_COMMON_API	void visualizeTree(physx::PxRenderOutput& out, physx::PxU32 color, const physx::Gu::BVH* tree);
-	PX_PHYSX_COMMON_API	void visualizeTree(physx::PxRenderOutput& out, physx::PxU32 color, const physx::Gu::AABBTree* tree);
-	PX_PHYSX_COMMON_API	void visualizeTree(physx::PxRenderOutput& out, physx::PxU32 color, const physx::Gu::IncrementalAABBTree* tree, physx::DebugVizCallback* cb=NULL);
+	PX_PHYSX_COMMON_API	void visualizeTree(ev4sio_physx::PxRenderOutput& out, ev4sio_physx::PxU32 color, const ev4sio_physx::ev4sio_Gu::BVH* tree);
+	PX_PHYSX_COMMON_API	void visualizeTree(ev4sio_physx::PxRenderOutput& out, ev4sio_physx::PxU32 color, const ev4sio_physx::ev4sio_Gu::AABBTree* tree);
+	PX_PHYSX_COMMON_API	void visualizeTree(ev4sio_physx::PxRenderOutput& out, ev4sio_physx::PxU32 color, const ev4sio_physx::ev4sio_Gu::IncrementalAABBTree* tree, ev4sio_physx::DebugVizCallback* cb=NULL);
 
 	// PT: macros to try limiting the code duplication in headers. Mostly it just redefines the
 	// SqPruner API in implementation classes, and you shouldn't have to worry about it.
@@ -56,9 +56,9 @@ namespace physx
 	virtual	void					purge() PX_OVERRIDE;																																										\
 	virtual	void					commit() PX_OVERRIDE;																																										\
 	virtual	void					merge(const void* mergeParams) PX_OVERRIDE;																																					\
-	virtual	bool					raycast(const PxVec3& origin, const PxVec3& unitDir, PxReal& inOutDistance, Gu::PrunerRaycastCallback&)				const	PX_OVERRIDE;													\
-	virtual	bool					overlap(const Gu::ShapeData& queryVolume, Gu::PrunerOverlapCallback&)												const	PX_OVERRIDE;													\
-	virtual	bool					sweep(const Gu::ShapeData& queryVolume, const PxVec3& unitDir, PxReal& inOutDistance, Gu::PrunerRaycastCallback&)	const	PX_OVERRIDE;													\
+	virtual	bool					raycast(const PxVec3& origin, const PxVec3& unitDir, PxReal& inOutDistance, ev4sio_Gu::PrunerRaycastCallback&)				const	PX_OVERRIDE;													\
+	virtual	bool					overlap(const ev4sio_Gu::ShapeData& queryVolume, ev4sio_Gu::PrunerOverlapCallback&)												const	PX_OVERRIDE;													\
+	virtual	bool					sweep(const ev4sio_Gu::ShapeData& queryVolume, const PxVec3& unitDir, PxReal& inOutDistance, ev4sio_Gu::PrunerRaycastCallback&)	const	PX_OVERRIDE;													\
 	virtual	const PrunerPayload&	getPayloadData(PrunerHandle handle, PrunerPayloadData* data)														const	PX_OVERRIDE { return mPool.getPayloadData(handle, data);	}	\
 	virtual	void					preallocate(PxU32 entries)																									PX_OVERRIDE { mPool.preallocate(entries);					}	\
 	virtual	bool					setTransform(PrunerHandle handle, const PxTransform& transform) PX_OVERRIDE { return mPool.setTransform(handle, transform);	}	\

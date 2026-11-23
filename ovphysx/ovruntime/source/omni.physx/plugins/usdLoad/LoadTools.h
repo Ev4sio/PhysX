@@ -25,7 +25,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace usdparser
 {
@@ -84,21 +84,21 @@ using KeySet = std::unordered_set<omni::physics::parse::ObjectKey, omni::physics
 
 struct BodyDescAndColliders
 {
-    omni::physx::usdparser::PhysxRigidBodyDesc* desc;
+    omni::ev4sio_physx::usdparser::PhysxRigidBodyDesc* desc;
     KeySet collisions;
 };
 
 struct ShapeDescAndMaterials
 {
     omni::physics::parse::ObjectKey path;
-    omni::physx::usdparser::PhysxShapeDesc* desc;
+    omni::ev4sio_physx::usdparser::PhysxShapeDesc* desc;
     std::vector<omni::physics::parse::ObjectKey> materials;
 };
 
 struct DeformableDescAndMaterials
 {
     omni::physics::parse::ObjectKey path;
-    omni::physx::usdparser::PhysxDeformableBodyDesc* desc;
+    omni::ev4sio_physx::usdparser::PhysxDeformableBodyDesc* desc;
     omni::physics::parse::ObjectKey simMeshMaterial;
 };
 
@@ -111,11 +111,11 @@ using JointPathIndexMap = std::unordered_map<omni::physics::parse::ObjectKey, si
 using PathSet = KeySet;
 using BodyMap = std::unordered_map<omni::physics::parse::ObjectKey, BodyDescAndColliders, omni::physics::parse::ObjectKey::Hash>;
 using BodyVector = std::vector<std::pair<omni::physics::parse::ObjectKey, BodyDescAndColliders>>;
-using JointMap = std::unordered_map<omni::physics::parse::ObjectKey, omni::physx::usdparser::PhysxJointDesc*, omni::physics::parse::ObjectKey::Hash>;
+using JointMap = std::unordered_map<omni::physics::parse::ObjectKey, omni::ev4sio_physx::usdparser::PhysxJointDesc*, omni::physics::parse::ObjectKey::Hash>;
 using JointUnorderedMap =
-    std::unordered_map<omni::physics::parse::ObjectKey, omni::physx::usdparser::PhysxJointDesc*, omni::physics::parse::ObjectKey::Hash>;
+    std::unordered_map<omni::physics::parse::ObjectKey, omni::ev4sio_physx::usdparser::PhysxJointDesc*, omni::physics::parse::ObjectKey::Hash>;
 using ArticulationMap = std::unordered_map<omni::physics::parse::ObjectKey,
-                                           std::vector<omni::physx::usdparser::PhysxArticulationDesc*>,
+                                           std::vector<omni::ev4sio_physx::usdparser::PhysxArticulationDesc*>,
                                            omni::physics::parse::ObjectKey::Hash>;
 using CollisionBlockPair = std::pair<omni::physics::parse::ObjectKey, omni::physics::parse::ObjectKey>;
 using CollisionPairVector = std::vector<CollisionBlockPair>;
@@ -133,22 +133,22 @@ using DeformableMaterialsVector =
 using ShapeDescsVector = std::vector<ShapeDescAndMaterials>;
 using DeformableBodyDescsVector = std::vector<DeformableDescAndMaterials>;
 
-using FixedTendonVector = std::vector<std::shared_ptr<omni::physx::usdparser::PhysxTendonFixedDesc>>;
-// using FixedTendonMap = PXR_NS::TfHashMap<PXR_NS::TfToken, omni::physx::usdparser::PhysxTendonFixedDesc* ,
+using FixedTendonVector = std::vector<std::shared_ptr<omni::ev4sio_physx::usdparser::PhysxTendonFixedDesc>>;
+// using FixedTendonMap = PXR_NS::TfHashMap<PXR_NS::TfToken, omni::ev4sio_physx::usdparser::PhysxTendonFixedDesc* ,
 // PXR_NS::TfToken::HashFunctor>;
 // Was PXR_NS::TfHashMap<SdfPath, ...>: retyped to std::unordered_map, both to
 // key by ObjectKey and to drop the pxr container (TfHashMap is itself a pxr
 // type, unlike std::unordered_map which merely used to be keyed by a pxr type).
 using TendonAxisMap = std::unordered_map<omni::physics::parse::ObjectKey,
-                                         std::vector<std::shared_ptr<omni::physx::usdparser::PhysxTendonAxisDesc>>,
+                                         std::vector<std::shared_ptr<omni::ev4sio_physx::usdparser::PhysxTendonAxisDesc>>,
                                          omni::physics::parse::ObjectKey::Hash>;
-using SpatialTendonVector = std::vector<std::shared_ptr<omni::physx::usdparser::PhysxTendonSpatialDesc>>;
+using SpatialTendonVector = std::vector<std::shared_ptr<omni::ev4sio_physx::usdparser::PhysxTendonSpatialDesc>>;
 using TendonAttachmentMap =
     std::unordered_map<omni::physics::parse::ObjectKey,
-                       std::vector<std::shared_ptr<omni::physx::usdparser::PhysxTendonAttachmentDesc>>,
+                       std::vector<std::shared_ptr<omni::ev4sio_physx::usdparser::PhysxTendonAttachmentDesc>>,
                        omni::physics::parse::ObjectKey::Hash>;
 
-using MimicJointVector = std::vector<omni::physx::usdparser::MimicJointDesc>;
+using MimicJointVector = std::vector<omni::ev4sio_physx::usdparser::MimicJointDesc>;
 
 using PathPhysXDescMap =
     std::unordered_map<omni::physics::parse::ObjectKey, const PhysxObjectDesc*, omni::physics::parse::ObjectKey::Hash>;
@@ -490,14 +490,14 @@ public:
     char errorMsg[4096];                                                                                               \
     sprintf_s(errorMsg, 4096, fmt, ##__VA_ARGS__);                                                                     \
     std::string s(errorMsg);                                                                                           \
-    omni::physx::PhysXUsdPhysicsInterface::reportLoadError(omni::physx::usdparser::ErrorCode::eError, s.c_str());
+    omni::ev4sio_physx::PhysXUsdPhysicsInterface::reportLoadError(omni::ev4sio_physx::usdparser::ErrorCode::eError, s.c_str());
 
 #define REPORT_PHYSICS_MESSAGE(errorCode, fmt, ...)                                                                    \
     char errorMsg[4096];                                                                                               \
     sprintf_s(errorMsg, 4096, fmt, ##__VA_ARGS__);                                                                     \
     std::string s(errorMsg);                                                                                           \
-    omni::physx::PhysXUsdPhysicsInterface::reportLoadError(errorCode, s.c_str());
+    omni::ev4sio_physx::PhysXUsdPhysicsInterface::reportLoadError(errorCode, s.c_str());
 
 } // namespace usdparser
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

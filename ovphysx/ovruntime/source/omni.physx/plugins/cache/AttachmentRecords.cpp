@@ -40,11 +40,11 @@
 #include <optional>
 #include <stdexcept>
 
-namespace omni::physx::cache
+namespace omni::ev4sio_physx::cache
 {
 namespace
 {
-using namespace ::physx;
+using namespace ::ev4sio_physx;
 using namespace internal;
 using namespace usdparser;
 using omni::physics::parse::ObjectKey;
@@ -341,7 +341,7 @@ void reserveAhead(std::vector<T>& values, size_t extra)
 
 bool captureAttachmentData(usdparser::AttachedStage& owner,
                            RuntimeArchive& archive,
-                           ::physx::PxCollection& roots,
+                           ::ev4sio_physx::PxCollection& roots,
                            std::string_view subtree,
                            const std::function<bool()>& nativeWork,
                            omni::physics::parse::cache::Bytes* runtimeBytes,
@@ -349,7 +349,7 @@ bool captureAttachmentData(usdparser::AttachedStage& owner,
                            const omni::physics::ovstage::PhysicsInputSnapshot* inputs)
 {
     CARB_PROFILE_ZONE(0, "Compiled cache: capture attachment");
-    using namespace ::physx;
+    using namespace ::ev4sio_physx;
     using namespace internal;
     using namespace usdparser;
     if (!runtimeBytes || roots.getNbObjects() != 0 || owner.getPhysXScenes().size() != 1 ||
@@ -1054,7 +1054,7 @@ size_t getParallelCompiledCaptureCountForTest()
 {
     return parallelCaptureCount.load(std::memory_order_relaxed);
 }
-bool captureAttachment(usdparser::AttachedStage& owner, RuntimeArchive& archive, ::physx::PxCollection& roots)
+bool captureAttachment(usdparser::AttachedStage& owner, RuntimeArchive& archive, ::ev4sio_physx::PxCollection& roots)
 {
     omni::physics::parse::cache::Bytes encoded;
     return captureAttachmentData(owner, archive, roots, {}, {}, &encoded);
@@ -1075,7 +1075,7 @@ Hydration hydrateAttachment(usdparser::AttachedStage& owner,
                             bool* changing)
 {
     CARB_PROFILE_ZONE(0, "Compiled cache: hydrate attachment");
-    using namespace ::physx;
+    using namespace ::ev4sio_physx;
     using namespace internal;
     using namespace usdparser;
     // Every check that can reject the bundle runs before the owner changes.
@@ -1384,7 +1384,7 @@ Hydration hydrateAttachment(usdparser::AttachedStage& owner,
                 p->release();
         }
     };
-    std::unique_ptr<PxCollection, Release> sceneObjects(PxCreateCollection());
+    std::unique_ptr<PxCollection, Release> sceneObjects(ev4sio_PxCreateCollection());
     // Out of memory is this process's failure, not a defect of the bundle.
     if (!sceneObjects)
         throw std::bad_alloc();
@@ -2278,4 +2278,4 @@ size_t getCompiledRolledBackRecordCountForTest()
 {
     return rolledBackRecordCount.load(std::memory_order_relaxed);
 }
-} // namespace omni::physx::cache
+} // namespace omni::ev4sio_physx::cache

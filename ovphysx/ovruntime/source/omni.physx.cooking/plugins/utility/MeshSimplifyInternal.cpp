@@ -11,11 +11,11 @@
 #include <extensions/PxRemeshingExt.h>
 #include <extensions/PxDeformableVolumeExt.h>
 #include "MeshSimplifyInternal.h"
-using namespace ::physx;
+using namespace ::ev4sio_physx;
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
     
     bool validateTetMesh(const PxArray<PxVec3>& tetMeshVertices, const PxArray<PxU32>& tetMeshIndices)
@@ -61,7 +61,7 @@ namespace physx
             message += "- Mesh has triangles with small angles (slivers). The vertices of the mesh might not be distributed uniformly across its surface.\n";
         if (meshAnalysis & PxTriangleMeshAnalysisResult::eEDGE_SHARED_BY_MORE_THAN_TWO_TRIANGLES)
             message += "- Mesh has non-manifold edges. The tetmesh will not match the surface accurately at those edges.\n";
-        //if (meshAnalysis & physx::PxTriangleMeshAnalysisResult::eCONTAINS_DUPLICATE_POINTS)
+        //if (meshAnalysis & ev4sio_physx::PxTriangleMeshAnalysisResult::eCONTAINS_DUPLICATE_POINTS)
         //    message += "- Mesh has duplicate points. The resulting tetmesh will only make use of first unique point that is found. This is usually not problematic.\n";
 
         if (meshAnalysis & PxTriangleMeshAnalysisResult::eMESH_IS_INVALID)

@@ -13,7 +13,7 @@
 
 #include <vector_types.h>
 
-namespace physx
+namespace ev4sio_physx
 {
 	struct PxgSolverBodySleepData;
 	struct PxgShape;
@@ -34,7 +34,7 @@ namespace physx
 	class PxgArticulationTendonElementFixedData;
 	class PxGpuTendonJointCoefficientData;
 
-	namespace Dy
+	namespace ev4sio_Dy
 	{
 		struct ArticulationJointCore;
 		struct ArticulationMimicJointCore;
@@ -397,12 +397,12 @@ namespace physx
 		PxgArticulationLinkProp*				mNewLinkProps;
 		
 		PxU32*									mNewLinkParents;
-		Dy::ArticulationBitField*				mNewLinkChildren;
+		ev4sio_Dy::ArticulationBitField*				mNewLinkChildren;
 		PxTransform*							mNewLinkBody2Worlds;
 		PxTransform*							mNewLinkBody2Actors;
-		Cm::UnAlignedSpatialVector*				mNewLinkExtAccels;
-		Dy::ArticulationJointCore*				mNewJointCores;
-		Dy::ArticulationJointCoreData*			mNewJointData;
+		ev4sio_Cm::UnAlignedSpatialVector*				mNewLinkExtAccels;
+		ev4sio_Dy::ArticulationJointCore*				mNewJointCores;
+		ev4sio_Dy::ArticulationJointCoreData*			mNewJointData;
 		PxgArticulationSimUpdate*				mIndicesOffset;
 
 		PxgArticulation*						mArticulationPool;
@@ -419,7 +419,7 @@ namespace physx
 		PxgArticulationTendonElementFixedData*	mNewTendonJointFixedPool;
 		PxGpuTendonJointCoefficientData*		mNewTendonJointCoefficientPool;
 		PxU32*									mNewTendonTendonJointRemapPool;
-		Dy::ArticulationMimicJointCore*			mNewArticulationMimicJointPool;	
+		ev4sio_Dy::ArticulationMimicJointCore*			mNewArticulationMimicJointPool;
 
 		PxU32*									mNewPathToRootPool;
 		

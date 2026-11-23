@@ -18,7 +18,7 @@
 #include <internal/Internal.h>
 #include "foundation/PxTransform.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 class PxGeometry;
 }
@@ -31,7 +31,7 @@ struct PhysxDeformableCollisionFilterDesc;
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace usdparser
 {
@@ -39,8 +39,8 @@ class AttachedStage;
 struct GeneratedAutoAttachmentChild;
 }
 
-typedef void (*getGeometryInfoCallback)(const ::physx::PxGeometry& geom,
-                                        const ::physx::PxTransform& geomPos,
+typedef void (*getGeometryInfoCallback)(const ::ev4sio_physx::PxGeometry& geom,
+                                        const ::ev4sio_physx::PxTransform& geomPos,
                                         void* userData);
 
 // Handle-based entries enforce runtime admission and retain the selected owner.
@@ -76,5 +76,5 @@ void processRigidShapeGeometry(usdparser::AttachedStage& attachedStage,
                                getGeometryInfoCallback callbackFn,
                                void* userData);
 
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

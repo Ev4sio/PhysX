@@ -20,10 +20,10 @@
 #include <PhysXDefines.h>
 #include <PhysXTools.h>
 
-using namespace omni::physx::internal;
-using namespace omni::physx::usdparser;
+using namespace omni::ev4sio_physx::internal;
+using namespace omni::ev4sio_physx::usdparser;
 using namespace carb;
-using namespace ::physx;
+using namespace ::ev4sio_physx;
 
 namespace
 {
@@ -35,7 +35,7 @@ carb::Float3 localScaleFromSource(const AttachedStage& attachedStage, omni::phys
     if (!as || !key.valid())
         return { 1.0f, 1.0f, 1.0f };
     bool resetsXformStack = false;
-    const ::physx::PxVec3 scale = omni::physx::getScale(omni::physx::internal::getLocalTransform(
+    const ::ev4sio_physx::PxVec3 scale = omni::ev4sio_physx::getScale(omni::ev4sio_physx::internal::getLocalTransform(
         *as, key, omni::physics::parse::ReadTime::defaultTime(), resetsXformStack));
     return { scale.x, scale.y, scale.z };
 }
@@ -51,21 +51,21 @@ const char* textOf(const AttachedStage& attachedStage, omni::physics::parse::Obj
 } // namespace
 
 
-static ::physx::PxVehicleAxes::Enum getAxisEnum(const PxVec3& axis)
+static ::ev4sio_physx::PxVehicleAxes::Enum getAxisEnum(const PxVec3& axis)
 {
-    ::physx::PxVehicleAxes::Enum axisEnum;
+    ::ev4sio_physx::PxVehicleAxes::Enum axisEnum;
     const float absX = PxAbs(axis.x);
     const float absY = PxAbs(axis.y);
     const float absZ = PxAbs(axis.z);
     float currentMax;
     if (absY > absZ)
     {
-        axisEnum = (axis.y >= 0.0f) ? ::physx::PxVehicleAxes::ePosY : ::physx::PxVehicleAxes::eNegY;
+        axisEnum = (axis.y >= 0.0f) ? ::ev4sio_physx::PxVehicleAxes::ePosY : ::ev4sio_physx::PxVehicleAxes::eNegY;
         currentMax = absY;
     }
     else
     {
-        axisEnum = (axis.z >= 0.0f) ? ::physx::PxVehicleAxes::ePosZ : ::physx::PxVehicleAxes::eNegZ;
+        axisEnum = (axis.z >= 0.0f) ? ::ev4sio_physx::PxVehicleAxes::ePosZ : ::ev4sio_physx::PxVehicleAxes::eNegZ;
         currentMax = absZ;
     }
 
@@ -73,20 +73,20 @@ static ::physx::PxVehicleAxes::Enum getAxisEnum(const PxVec3& axis)
         return axisEnum;
     else
     {
-        axisEnum = (axis.x >= 0.0f) ? ::physx::PxVehicleAxes::ePosX : ::physx::PxVehicleAxes::eNegX;
+        axisEnum = (axis.x >= 0.0f) ? ::ev4sio_physx::PxVehicleAxes::ePosX : ::ev4sio_physx::PxVehicleAxes::eNegX;
         return axisEnum;
     }
 }
 
-void InternalVehicleContext::init(const VehicleContextDesc& contextDesc, ::physx::PxScene& pxScene)
+void InternalVehicleContext::init(const VehicleContextDesc& contextDesc, ::ev4sio_physx::PxScene& pxScene)
 {
     // note: after this call the context is not yet ready for being used in the simulation
     //       but the frame can be queried already, for example.
 
     if (contextDesc.vehicleUpdateMode == VehicleUpdateMode::eVelocityChange)
-        mPhysXContext.physxActorUpdateMode = ::physx::PxVehiclePhysXActorUpdateMode::eAPPLY_VELOCITY;
+        mPhysXContext.physxActorUpdateMode = ::ev4sio_physx::PxVehiclePhysXActorUpdateMode::eAPPLY_VELOCITY;
     else
-        mPhysXContext.physxActorUpdateMode = ::physx::PxVehiclePhysXActorUpdateMode::eAPPLY_ACCELERATION;
+        mPhysXContext.physxActorUpdateMode = ::ev4sio_physx::PxVehiclePhysXActorUpdateMode::eAPPLY_ACCELERATION;
 
     // to ensure the code further below stays valid
     static_assert(VehicleContextDesc::ePosX == 0, "");
@@ -95,26 +95,26 @@ void InternalVehicleContext::init(const VehicleContextDesc& contextDesc, ::physx
     static_assert(VehicleContextDesc::eNegY == 3, "");
     static_assert(VehicleContextDesc::ePosZ == 4, "");
     static_assert(VehicleContextDesc::eNegZ == 5, "");
-    static_assert(VehicleContextDesc::ePosX == ::physx::PxVehicleAxes::ePosX, "");
-    static_assert(VehicleContextDesc::eNegX == ::physx::PxVehicleAxes::eNegX, "");
-    static_assert(VehicleContextDesc::ePosY == ::physx::PxVehicleAxes::ePosY, "");
-    static_assert(VehicleContextDesc::eNegY == ::physx::PxVehicleAxes::eNegY, "");
-    static_assert(VehicleContextDesc::ePosZ == ::physx::PxVehicleAxes::ePosZ, "");
-    static_assert(VehicleContextDesc::eNegZ == ::physx::PxVehicleAxes::eNegZ, "");
+    static_assert(VehicleContextDesc::ePosX == ::ev4sio_physx::PxVehicleAxes::ePosX, "");
+    static_assert(VehicleContextDesc::eNegX == ::ev4sio_physx::PxVehicleAxes::eNegX, "");
+    static_assert(VehicleContextDesc::ePosY == ::ev4sio_physx::PxVehicleAxes::ePosY, "");
+    static_assert(VehicleContextDesc::eNegY == ::ev4sio_physx::PxVehicleAxes::eNegY, "");
+    static_assert(VehicleContextDesc::ePosZ == ::ev4sio_physx::PxVehicleAxes::ePosZ, "");
+    static_assert(VehicleContextDesc::eNegZ == ::ev4sio_physx::PxVehicleAxes::eNegZ, "");
 
-    static const ::physx::PxVec3 axisToVec3Map[] = {
-        ::physx::PxVec3(1.0, 0.0, 0.0),
-        ::physx::PxVec3(-1.0, 0.0, 0.0),
-        ::physx::PxVec3(0.0, 1.0, 0.0),
-        ::physx::PxVec3(0.0, -1.0, 0.0),
-        ::physx::PxVec3(0.0, 0.0, 1.0),
-        ::physx::PxVec3(0.0, 0.0, -1.0)
+    static const ::ev4sio_physx::PxVec3 axisToVec3Map[] = {
+        ::ev4sio_physx::PxVec3(1.0, 0.0, 0.0),
+        ::ev4sio_physx::PxVec3(-1.0, 0.0, 0.0),
+        ::ev4sio_physx::PxVec3(0.0, 1.0, 0.0),
+        ::ev4sio_physx::PxVec3(0.0, -1.0, 0.0),
+        ::ev4sio_physx::PxVec3(0.0, 0.0, 1.0),
+        ::ev4sio_physx::PxVec3(0.0, 0.0, -1.0)
     };
 
-    ::physx::PxVec3 upAxis;
+    ::ev4sio_physx::PxVec3 upAxis;
     if (contextDesc.verticalAxis != VehicleContextDesc::eUndefined)
     {
-        mPhysXContext.frame.vrtAxis = static_cast<::physx::PxVehicleAxes::Enum>(contextDesc.verticalAxis);
+        mPhysXContext.frame.vrtAxis = static_cast<::ev4sio_physx::PxVehicleAxes::Enum>(contextDesc.verticalAxis);
         upAxis = axisToVec3Map[contextDesc.verticalAxis];
     }
     else
@@ -123,10 +123,10 @@ void InternalVehicleContext::init(const VehicleContextDesc& contextDesc, ::physx
         mPhysXContext.frame.vrtAxis = getAxisEnum(upAxis);
     }
 
-    ::physx::PxVec3 forwardAxis;
+    ::ev4sio_physx::PxVec3 forwardAxis;
     if (contextDesc.longitudinalAxis != VehicleContextDesc::eUndefined)
     {
-        mPhysXContext.frame.lngAxis = static_cast<::physx::PxVehicleAxes::Enum>(contextDesc.longitudinalAxis);
+        mPhysXContext.frame.lngAxis = static_cast<::ev4sio_physx::PxVehicleAxes::Enum>(contextDesc.longitudinalAxis);
         forwardAxis = axisToVec3Map[contextDesc.longitudinalAxis];
     }
     else
@@ -135,7 +135,7 @@ void InternalVehicleContext::init(const VehicleContextDesc& contextDesc, ::physx
         mPhysXContext.frame.lngAxis = getAxisEnum(forwardAxis);
     }
 
-    const ::physx::PxVec3 sideAxis = upAxis.cross(forwardAxis);
+    const ::ev4sio_physx::PxVec3 sideAxis = upAxis.cross(forwardAxis);
     mPhysXContext.frame.latAxis = getAxisEnum(sideAxis);
 
     const float lengthScale = pxScene.getPhysics().getTolerancesScale().length;
@@ -168,7 +168,7 @@ InternalVehicle::~InternalVehicle()
             CARB_ASSERT(physxSetup.getVehiclePvdRegistrationHandles());
             CARB_ASSERT(physxSetup.getOmniPvd());
 
-            ::physx::PxOmniPvd::ScopedExclusiveWriter writerScope(physxSetup.getOmniPvd());
+            ::ev4sio_physx::PxOmniPvd::ScopedExclusiveWriter writerScope(physxSetup.getOmniPvd());
             OmniPvdWriter* pvdWriter = writerScope.getWriter();
             CARB_ASSERT(pvdWriter);
             mPhysXVehicle->release(pvdWriter, &physxSetup.getAllocator());
@@ -216,11 +216,11 @@ void InternalVehicle::WheelTransformManagementEntry::init(usdparser::AttachedSta
 
         if (geom.getType() == PxGeometryType::eCONVEXCORE)
         {
-            omni::physx::internal::InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
-            const omni::physx::internal::InternalDatabase::Record& shapeRecord = db.getRecords()[shapeId];
-            if (shapeRecord.mType == omni::physx::PhysXType::ePTShape)
+            omni::ev4sio_physx::internal::InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
+            const omni::ev4sio_physx::internal::InternalDatabase::Record& shapeRecord = db.getRecords()[shapeId];
+            if (shapeRecord.mType == omni::ev4sio_physx::PhysXType::ePTShape)
             {
-                const omni::physx::internal::InternalShape* intShape = (omni::physx::internal::InternalShape*)shapeRecord.mInternalPtr;
+                const omni::ev4sio_physx::internal::InternalShape* intShape = (omni::ev4sio_physx::internal::InternalShape*)shapeRecord.mInternalPtr;
                 cylinderAxis = usdparser::Axis(intShape->mAxis);
             }
         }
@@ -378,16 +378,16 @@ void InternalVehicle::removeWheelAttachment(const uint32_t wheelIndex, const boo
     }
 }
 
-void InternalVehicle::updateMassProperties(const float mass, const ::physx::PxVec3& massSpaceInertiaTensor,
-    const ::physx::PxTransform& vehicleMassFrame)
+void InternalVehicle::updateMassProperties(const float mass, const ::ev4sio_physx::PxVec3& massSpaceInertiaTensor,
+    const ::ev4sio_physx::PxTransform& vehicleMassFrame)
 {
     const uint32_t userDefinedSprungMass = mFlags & InternalVehicleFlag::eUSER_DEFINED_SPRUNG_MASS;
     const uint32_t userDefinedMaxDroop = mFlags & InternalVehicleFlag::eUSER_DEFINED_MAX_DROOP;
     const uint32_t userDefinedRestLoad = mFlags & InternalVehicleFlag::eUSER_DEFINED_REST_LOAD;
     const uint32_t isUsingLatStiffY = mFlags & InternalVehicleFlag::eIS_USING_LAT_STIFF_Y;
 
-    const ::physx::PxTransform* centerOfMassChangeTransformPtr;
-    ::physx::PxTransform centerOfMassChangeTransform;
+    const ::ev4sio_physx::PxTransform* centerOfMassChangeTransformPtr;
+    ::ev4sio_physx::PxTransform centerOfMassChangeTransform;
     if (mFlags & InternalVehicleFlag::eREFERENCE_FRAME_IS_COM)
         centerOfMassChangeTransformPtr = nullptr;
     else
@@ -404,7 +404,7 @@ void InternalVehicle::updateMassProperties(const float mass, const ::physx::PxVe
         isUsingLatStiffY);
 }
 
-void InternalVehicle::updateShapeMappings(const ::physx::PxShape* removedShape)
+void InternalVehicle::updateShapeMappings(const ::ev4sio_physx::PxShape* removedShape)
 {
     // vehicle wheels can map to PxShape objects. If a shape is removed, the mapping has to
     // be disabled.
@@ -610,7 +610,7 @@ void InternalVehicle::setTargetGearDriveStandard(const int targetGear, const boo
 
     uint32_t pxTargetGear = static_cast<uint32_t>(toPhysXGear(targetGear));
 
-    if ((pxTargetGear == ::physx::PxVehicleEngineDriveTransmissionCommandState::eAUTOMATIC_GEAR) &&
+    if ((pxTargetGear == ::ev4sio_physx::PxVehicleEngineDriveTransmissionCommandState::eAUTOMATIC_GEAR) &&
         (!(mFlags & InternalVehicleFlag::eHAS_AUTO_GEAR_BOX)))
     {
         CARB_LOG_WARN("PhysX Vehicle: transmission set to automatic but no auto gear box was defined.\n");
@@ -629,7 +629,7 @@ void InternalVehicle::setTargetGearDriveBasic(const int targetGear)
     vehicle->setDriveMode(targetGear);
 }
 
-void InternalVehicle::getDriveState(omni::physx::VehicleDriveState& driveState) const
+void InternalVehicle::getDriveState(omni::ev4sio_physx::VehicleDriveState& driveState) const
 {
     CARB_ASSERT((mPhysXVehicle->getType() == PhysXVehicleType::eENGINE_DRIVE) ||
         (mPhysXVehicle->getType() == PhysXVehicleType::eDIRECT_DRIVE));
@@ -729,9 +729,9 @@ bool InternalVehicle::getWheelTransformations(const int* wheelIndices, const uin
     const bool addVehicleTransform,
     carb::Float3* positions, carb::Float4* orientations) const
 {
-    ::physx::PxRigidDynamic* vehicleActor = mPhysXVehicle->getRigidDynamicActor();
-    ::physx::PxTransform bodyToActor = vehicleActor->getCMassLocalPose();
-    ::physx::PxTransform body2World;
+    ::ev4sio_physx::PxRigidDynamic* vehicleActor = mPhysXVehicle->getRigidDynamicActor();
+    ::ev4sio_physx::PxTransform bodyToActor = vehicleActor->getCMassLocalPose();
+    ::ev4sio_physx::PxTransform body2World;
     uint32_t refFrameIsCoM;
 
     if (addVehicleTransform)
@@ -748,7 +748,7 @@ bool InternalVehicle::getWheelTransformations(const int* wheelIndices, const uin
         const int wheelIndex = wheelIndices[i];
         if (wheelIndex < mWheelAttachments.size())
         {
-            const ::physx::PxTransform& localPose = mPhysXVehicle->getWheelLocalPose(wheelIndex);
+            const ::ev4sio_physx::PxTransform& localPose = mPhysXVehicle->getWheelLocalPose(wheelIndex);
             if (!addVehicleTransform)
             {
                 if (refFrameIsCoM)  // deprecated
@@ -764,7 +764,7 @@ bool InternalVehicle::getWheelTransformations(const int* wheelIndices, const uin
             }
             else
             {
-                const ::physx::PxTransform worldPose = body2World * localPose;
+                const ::ev4sio_physx::PxTransform worldPose = body2World * localPose;
                 positions[i] = fromPhysX(worldPose.p);
                 orientations[i] = fromPhysX(worldPose.q);
             }
@@ -781,20 +781,20 @@ bool InternalVehicle::getWheelTransformations(const int* wheelIndices, const uin
 
 float InternalVehicle::computeVelocity(const carb::Float3& direction) const
 {
-    const ::physx::PxRigidDynamic* vehicleBody = mPhysXVehicle->getRigidDynamicActor();
-    const ::physx::PxVec3 linVel = vehicleBody->getLinearVelocity();
-    const ::physx::PxQuat vehicleBodyToWorld = vehicleBody->getGlobalPose().q * vehicleBody->getCMassLocalPose().q;
+    const ::ev4sio_physx::PxRigidDynamic* vehicleBody = mPhysXVehicle->getRigidDynamicActor();
+    const ::ev4sio_physx::PxVec3 linVel = vehicleBody->getLinearVelocity();
+    const ::ev4sio_physx::PxQuat vehicleBodyToWorld = vehicleBody->getGlobalPose().q * vehicleBody->getCMassLocalPose().q;
 
-    const ::physx::PxVec3& dir = toPhysX(direction);
-    const ::physx::PxVec3 worldDir = vehicleBodyToWorld.rotate(dir);
+    const ::ev4sio_physx::PxVec3& dir = toPhysX(direction);
+    const ::ev4sio_physx::PxVec3 worldDir = vehicleBodyToWorld.rotate(dir);
 
     const float speed = worldDir.dot(linVel);
     return speed;
 }
 
-void InternalVehicle::getWheelState(const uint32_t wheelIndex, omni::physx::VehicleWheelState& state) const
+void InternalVehicle::getWheelState(const uint32_t wheelIndex, omni::ev4sio_physx::VehicleWheelState& state) const
 {
-    const ::physx::PxTransform& localPose = mPhysXVehicle->getWheelLocalPose(wheelIndex);
+    const ::ev4sio_physx::PxTransform& localPose = mPhysXVehicle->getWheelLocalPose(wheelIndex);
 
     if (mFlags & InternalVehicleFlag::eREFERENCE_FRAME_IS_COM)  // deprecated
     {
@@ -803,8 +803,8 @@ void InternalVehicle::getWheelState(const uint32_t wheelIndex, omni::physx::Vehi
     }
     else
     {
-        ::physx::PxRigidDynamic* vehicleActor = mPhysXVehicle->getRigidDynamicActor();
-        ::physx::PxTransform bodyToActor = vehicleActor->getCMassLocalPose();
+        ::ev4sio_physx::PxRigidDynamic* vehicleActor = mPhysXVehicle->getRigidDynamicActor();
+        ::ev4sio_physx::PxTransform bodyToActor = vehicleActor->getCMassLocalPose();
 
         state.localPosePosition = fromPhysX(bodyToActor.transform(localPose.p));
         state.localPoseQuaternion = fromPhysX(bodyToActor.q * localPose.q);
@@ -815,8 +815,8 @@ void InternalVehicle::getWheelState(const uint32_t wheelIndex, omni::physx::Vehi
 
     state.steerAngle = mPhysXVehicle->getWheelSteerAngle(wheelIndex);
 
-    const ::physx::PxVehicleRoadGeometryState& roadGeomState = mPhysXVehicle->getRoadGeometryState(wheelIndex);
-    const ::physx::PxPlane& groundPlane = roadGeomState.plane;
+    const ::ev4sio_physx::PxVehicleRoadGeometryState& roadGeomState = mPhysXVehicle->getRoadGeometryState(wheelIndex);
+    const ::ev4sio_physx::PxPlane& groundPlane = roadGeomState.plane;
     state.groundPlane.x = groundPlane.n.x;
     state.groundPlane.y = groundPlane.n.y;
     state.groundPlane.z = groundPlane.n.z;
@@ -851,7 +851,7 @@ void InternalVehicle::getWheelState(const uint32_t wheelIndex, omni::physx::Vehi
     {
         CARB_ASSERT(roadGeomState.hitState);
 
-        const ::physx::PxVehiclePhysXRoadGeometryQueryState& queryState =
+        const ::ev4sio_physx::PxVehiclePhysXRoadGeometryQueryState& queryState =
             mPhysXVehicle->getPhysXRoadGeometryQueryState(wheelIndex);
 
         if (queryState.actor)
@@ -892,7 +892,7 @@ void InternalVehicle::getWheelState(const uint32_t wheelIndex, omni::physx::Vehi
 }
 
 
-::physx::PxVehiclePhysXMaterialFrictionParams InternalTireFrictionTable::sDefaultMaterialFrictionTable;
+::ev4sio_physx::PxVehiclePhysXMaterialFrictionParams InternalTireFrictionTable::sDefaultMaterialFrictionTable;
 InternalTireFrictionTable::DefaultInitializer InternalTireFrictionTable::sDefaultInitializer;
 
 InternalTireFrictionTable* InternalTireFrictionTable::create(const AttachedStage& attachedStage, const TireFrictionTableDesc& tireFrictionTableDesc,
@@ -907,8 +907,8 @@ InternalTireFrictionTable* InternalTireFrictionTable::create(const AttachedStage
     {
         if (entryCount > 0)
         {
-            ::physx::PxVehiclePhysXMaterialFriction* materialFrictionPairs = reinterpret_cast<::physx::PxVehiclePhysXMaterialFriction*>(
-                ICE_ALLOC(sizeof(::physx::PxVehiclePhysXMaterialFriction) * entryCount));
+            ::ev4sio_physx::PxVehiclePhysXMaterialFriction* materialFrictionPairs = reinterpret_cast<::ev4sio_physx::PxVehiclePhysXMaterialFriction*>(
+                ICE_ALLOC(sizeof(::ev4sio_physx::PxVehiclePhysXMaterialFriction) * entryCount));
 
             if (materialFrictionPairs)
             {
@@ -918,12 +918,12 @@ InternalTireFrictionTable* InternalTireFrictionTable::create(const AttachedStage
 
                 for (uint32_t i = 0; i < entryCount; i++)
                 {
-                    ::physx::PxMaterial* material = nullptr;
+                    ::ev4sio_physx::PxMaterial* material = nullptr;
                     const ObjectId& materialId = tireFrictionTableDesc.materialIds[i];
 
                     if (materialId != kInvalidObjectId)
                     {
-                        material = reinterpret_cast<::physx::PxMaterial*>(
+                        material = reinterpret_cast<::ev4sio_physx::PxMaterial*>(
                             internalDatabase.getTypedRecord(PhysXType::ePTMaterial, materialId));
                         if (!material)
                         {
@@ -987,7 +987,7 @@ void InternalTireFrictionTable::initDefault()
 
 void InternalTireFrictionTable::update(const std::vector<float>& frictionValues)
 {
-    ::physx::PxVehiclePhysXMaterialFriction* materialFrictionPairs = mMaterialFrictionTable.materialFrictions;
+    ::ev4sio_physx::PxVehiclePhysXMaterialFriction* materialFrictionPairs = mMaterialFrictionTable.materialFrictions;
 
     uint32_t minFrictionValueCount = CARB_MIN(mMaterialFrictionTable.nbMaterialFrictions,
         static_cast<uint32_t>(frictionValues.size()));

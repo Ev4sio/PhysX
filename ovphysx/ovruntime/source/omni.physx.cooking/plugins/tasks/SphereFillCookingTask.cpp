@@ -15,8 +15,8 @@
 #include "../service/CookingComputeService.h"
 
 
-using namespace ::physx;
-using namespace omni::physx;
+using namespace ::ev4sio_physx;
+using namespace omni::ev4sio_physx;
 
 namespace cookingtask
 {
@@ -29,8 +29,8 @@ public:
     * The constructor for a convex decomposition cooking task instance
     * @param desc : The descriptor for this convex decomposition operation
     */
-    SphereFillCookingTask(const omni::physx::SphereFillCookingParams& desc,
-                          omni::physx::PhysxCookingComputeResult& result,
+    SphereFillCookingTask(const omni::ev4sio_physx::SphereFillCookingParams& desc,
+                          omni::ev4sio_physx::PhysxCookingComputeResult& result,
                           omni::convexdecomposition::ConvexDecomposition& convexDecomposition)
         : CookingTask(result), mConvexDecomposition(convexDecomposition)
     {
@@ -147,12 +147,12 @@ public:
         // If the task was canceled or already finalized, skip the saving step
         if (CookingTask::isCanceled() || CookingTask::isFinalized())
         {
-            CookingTask::fireFinishedCallback(omni::physx::PhysxCookingResult::eERROR_CANCELED);
+            CookingTask::fireFinishedCallback(omni::ev4sio_physx::PhysxCookingResult::eERROR_CANCELED);
         }
         else if(!CookingTask::isSucceeded())
         {
             CookingTask::setFinalized(true);
-            CookingTask::fireFinishedCallback(omni::physx::PhysxCookingResult::eERROR_COOKING_FAILED);
+            CookingTask::fireFinishedCallback(omni::ev4sio_physx::PhysxCookingResult::eERROR_COOKING_FAILED);
         }
         else
         {
@@ -166,7 +166,7 @@ public:
             usdparser::MeshKey crc;
             CookingTask::getCRC(crc);
 
-            omni::physx::PhysxCookingComputeResult& result = CookingTask::getResultObject();
+            omni::ev4sio_physx::PhysxCookingComputeResult& result = CookingTask::getResultObject();
             PxDefaultMemoryOutputStream& cookDataStream = outputStream;
             PhysxCookedDataSpan cookedDataSpan;
             result.cookedData = &cookedDataSpan;
@@ -174,17 +174,17 @@ public:
             cookedDataSpan.data = cookDataStream.getData();
             cookedDataSpan.sizeInBytes = cookDataStream.getSize();
 
-            CookingTask::fireFinishedCallback(omni::physx::PhysxCookingResult::eVALID);
+            CookingTask::fireFinishedCallback(omni::ev4sio_physx::PhysxCookingResult::eVALID);
     
         }
     }
 
-    omni::physx::SphereFillCookingParams m_desc;
+    omni::ev4sio_physx::SphereFillCookingParams m_desc;
     omni::convexdecomposition::ConvexDecomposition& mConvexDecomposition;
 };
 
-CookingTask* createSphereFillCookingTask(const omni::physx::SphereFillCookingParams& desc,
-                                         omni::physx::PhysxCookingComputeResult& result,
+CookingTask* createSphereFillCookingTask(const omni::ev4sio_physx::SphereFillCookingParams& desc,
+                                         omni::ev4sio_physx::PhysxCookingComputeResult& result,
                                          omni::convexdecomposition::ConvexDecomposition& convexDecomposition)
 {
     return new SphereFillCookingTask(desc, result, convexDecomposition);

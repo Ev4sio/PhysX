@@ -10,7 +10,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 inline void* copyAlignedMemory(const void* inMemory, size_t memSize)
 {
@@ -22,30 +22,30 @@ inline void* copyAlignedMemory(const void* inMemory, size_t memSize)
     return nm;
 }
 
-void mirrorActor(::physx::PxActor& actor,
+void mirrorActor(::ev4sio_physx::PxActor& actor,
                  void*& outMemory,
                  uint32_t& memSize,
-                 ::physx::PxSerializationRegistry& sr,
-                 ::physx::PxCollection*& outSharedCol);
-::physx::PxActor* instantiateMirrorActor(void* nonalignedBlock,
-                                         ::physx::PxSerializationRegistry& sr,
-                                         ::physx::PxScene& scene,
-                                         ::physx::PxCollection*& collectionOut,
-                                         const ::physx::PxCollection* sharedCollection);
+                 ::ev4sio_physx::PxSerializationRegistry& sr,
+                 ::ev4sio_physx::PxCollection*& outSharedCol);
+::ev4sio_physx::PxActor* instantiateMirrorActor(void* nonalignedBlock,
+                                         ::ev4sio_physx::PxSerializationRegistry& sr,
+                                         ::ev4sio_physx::PxScene& scene,
+                                         ::ev4sio_physx::PxCollection*& collectionOut,
+                                         const ::ev4sio_physx::PxCollection* sharedCollection);
 
-void mirrorHierarchy(::physx::PxScene& scene,
+void mirrorHierarchy(::ev4sio_physx::PxScene& scene,
                      void*& outMemory,
                      uint32_t& memSize,
-                     ::physx::PxSerializationRegistry& sr,
-                     ::physx::PxCollection*& outSharedCol,
+                     ::ev4sio_physx::PxSerializationRegistry& sr,
+                     ::ev4sio_physx::PxCollection*& outSharedCol,
                      const std::unordered_set<void*>& inPtrs);
 
-using ProcessObjectFn = std::function<void(::physx::PxBase& object)>;
+using ProcessObjectFn = std::function<void(::ev4sio_physx::PxBase& object)>;
 
-::physx::PxCollection* instantiateHierarchy(void* nonalignedBlock,
-                                            ::physx::PxSerializationRegistry& sr,
-                                            ::physx::PxScene& scene,
-                                            const ::physx::PxCollection* sharedCollection,
+::ev4sio_physx::PxCollection* instantiateHierarchy(void* nonalignedBlock,
+                                            ::ev4sio_physx::PxSerializationRegistry& sr,
+                                            ::ev4sio_physx::PxScene& scene,
+                                            const ::ev4sio_physx::PxCollection* sharedCollection,
                                             const ProcessObjectFn& proccesObjectFn);
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

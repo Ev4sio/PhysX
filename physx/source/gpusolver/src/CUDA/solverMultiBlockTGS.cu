@@ -28,7 +28,7 @@
 #include "reduction.cuh"
 #include "PxgBodySimManager.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 extern "C" __host__ void initSolverKernels5() {}
 
@@ -117,13 +117,13 @@ extern "C" __global__ void writebackBlocksTGS(
 
 	PxgFrictionPatchGPU* frictionPatches = reinterpret_cast<PxgFrictionPatchGPU*>(constraintPrepDesc->frictionPatches);
 
-	__shared__ PxU8 blob[PxgKernelBlockDim::WRITEBACK_BLOCKS*sizeof(Dy::ThresholdStreamElement)];
+	__shared__ PxU8 blob[PxgKernelBlockDim::WRITEBACK_BLOCKS*sizeof(ev4sio_Dy::ThresholdStreamElement)];
 
 	__shared__  PxI32 index[PxgKernelBlockDim::WRITEBACK_BLOCKS/warpSize];
 
-	Dy::ThresholdStreamElement* elems = reinterpret_cast<Dy::ThresholdStreamElement*>(&blob[0]);
+	ev4sio_Dy::ThresholdStreamElement* elems = reinterpret_cast<ev4sio_Dy::ThresholdStreamElement*>(&blob[0]);
 
-	Dy::ThresholdStreamElement* startAddress = &elems[32*warpIndexInBlock];
+	ev4sio_Dy::ThresholdStreamElement* startAddress = &elems[32*warpIndexInBlock];
 
 	//for(uint k = startIndex + warpIndex; k < endIndex; k+=blockStride)
 	uint k = startIndex + warpIndex;
@@ -753,7 +753,7 @@ __device__ void artiSolveBlockPartitionTGSInternal(
 
 	const PxU32 maxLinks = artiDesc->mMaxLinksPerArticulation;
 
-	Cm::UnAlignedSpatialVector* deferredZ = sharedDesc->articulationDeferredZ;
+	ev4sio_Cm::UnAlignedSpatialVector* deferredZ = sharedDesc->articulationDeferredZ;
 
 	const PxU32 startPartitionIndex = island.mStartPartitionIndex;
 
@@ -808,8 +808,8 @@ __device__ void artiSolveBlockPartitionTGSInternal(
 		PxU32 linkIndexA = igNodeIndexA.articulationLinkId();
 		PxU32 linkIndexB = igNodeIndexB.articulationLinkId();
 
-		Cm::UnAlignedSpatialVector vel0, vel1;
-		Cm::UnAlignedSpatialVector delta0, delta1;
+		ev4sio_Cm::UnAlignedSpatialVector vel0, vel1;
+		ev4sio_Cm::UnAlignedSpatialVector delta0, delta1;
 		PxQuat deltaQ0, deltaQ1;
 
 		{
@@ -817,16 +817,16 @@ __device__ void artiSolveBlockPartitionTGSInternal(
 			float4 vec1 = Pxldcg(msIterativeData.solverBodyVelPool[readIndex + 32]);
 			float4 vec2 = Pxldcg(msIterativeData.solverBodyVelPool[readIndex + 64]);
 
-			vel0 = Cm::UnAlignedSpatialVector(PxVec3(vec0.w, vec1.x, vec1.y), PxVec3(vec0.x, vec0.y, vec0.z));
-			delta0 = Cm::UnAlignedSpatialVector(PxVec3(vec2.y, vec2.z, vec2.w), PxVec3(vec1.z, vec1.w, vec2.x));
+			vel0 = ev4sio_Cm::UnAlignedSpatialVector(PxVec3(vec0.w, vec1.x, vec1.y), PxVec3(vec0.x, vec0.y, vec0.z));
+			delta0 = ev4sio_Cm::UnAlignedSpatialVector(PxVec3(vec2.y, vec2.z, vec2.w), PxVec3(vec1.z, vec1.w, vec2.x));
 		}
 		{
 			float4 vec0 = Pxldcg(msIterativeData.solverBodyVelPool[readIndex + 96]);
 			float4 vec1 = Pxldcg(msIterativeData.solverBodyVelPool[readIndex + 128]);
 			float4 vec2 = Pxldcg(msIterativeData.solverBodyVelPool[readIndex + 160]);
 
-			vel1 = Cm::UnAlignedSpatialVector(PxVec3(vec0.w, vec1.x, vec1.y), PxVec3(vec0.x, vec0.y, vec0.z));
-			delta1 = Cm::UnAlignedSpatialVector(PxVec3(vec2.y, vec2.z, vec2.w), PxVec3(vec1.z, vec1.w, vec2.x));
+			vel1 = ev4sio_Cm::UnAlignedSpatialVector(PxVec3(vec0.w, vec1.x, vec1.y), PxVec3(vec0.x, vec0.y, vec0.z));
+			delta1 = ev4sio_Cm::UnAlignedSpatialVector(PxVec3(vec2.y, vec2.z, vec2.w), PxVec3(vec1.z, vec1.w, vec2.x));
 		}
 
 		PxReal curRef0 = 1.f;
@@ -895,7 +895,7 @@ __device__ void artiSolveBlockPartitionTGSInternal(
 			}
 		}
 
-		Cm::UnAlignedSpatialVector impulse0(PxVec3(0.0f), PxVec3(0.0f)), impulse1(PxVec3(0.0f), PxVec3(0.0f));
+		ev4sio_Cm::UnAlignedSpatialVector impulse0(PxVec3(0.0f), PxVec3(0.0f)), impulse1(PxVec3(0.0f), PxVec3(0.0f));
 
 		if (batch.constraintType == PxgSolverConstraintDesc::eARTICULATION_CONTACT)
 		{
@@ -1264,8 +1264,8 @@ static __device__ void markActiveSlab_articulationTGS(const PxgSolverCoreDesc* _
 				const PxU32 outputOffset = solverDesc->accumulatedBodyDeltaVOffset;
 				const PxU32 totalBodiesIncKinematics = numDynamicBodies + bodyOffset;
 
-				Cm::UnAlignedSpatialVector vel0, vel1;
-				Cm::UnAlignedSpatialVector delta0, delta1;
+				ev4sio_Cm::UnAlignedSpatialVector vel0, vel1;
+				ev4sio_Cm::UnAlignedSpatialVector delta0, delta1;
 				PxQuat deltaQ0, deltaQ1;
 
 				if (igNodeIndexA.isArticulation())
@@ -1275,8 +1275,8 @@ static __device__ void markActiveSlab_articulationTGS(const PxgSolverCoreDesc* _
 					const float4 vec1 = Pxldcg(iterativeData.solverBodyVelPool[readIndex + 32]);
 					const float4 vec2 = Pxldcg(iterativeData.solverBodyVelPool[readIndex + 64]);
 
-					vel0 = Cm::UnAlignedSpatialVector(PxVec3(vec0.w, vec1.x, vec1.y), PxVec3(vec0.x, vec0.y, vec0.z));
-					delta0 = Cm::UnAlignedSpatialVector(PxVec3(vec2.y, vec2.z, vec2.w), PxVec3(vec1.z, vec1.w, vec2.x));
+					vel0 = ev4sio_Cm::UnAlignedSpatialVector(PxVec3(vec0.w, vec1.x, vec1.y), PxVec3(vec0.x, vec0.y, vec0.z));
+					delta0 = ev4sio_Cm::UnAlignedSpatialVector(PxVec3(vec2.y, vec2.z, vec2.w), PxVec3(vec1.z, vec1.w, vec2.x));
 				}
 				else
 				{
@@ -1288,8 +1288,8 @@ static __device__ void markActiveSlab_articulationTGS(const PxgSolverCoreDesc* _
 					const float4 vec1 = Pxldcs(iterativeData.solverBodyVelPool[finalIdA + totalBodiesIncKinematics]);
 					const float4 vec2 = Pxldcs(iterativeData.solverBodyVelPool[finalIdA + 2 * totalBodiesIncKinematics]);
 
-					vel0 = Cm::UnAlignedSpatialVector(PxVec3(vec0.w, vec1.x, vec1.y), PxVec3(vec0.x, vec0.y, vec0.z));
-					delta0 = Cm::UnAlignedSpatialVector(PxVec3(vec2.y, vec2.z, vec2.w), PxVec3(vec1.z, vec1.w, vec2.x));
+					vel0 = ev4sio_Cm::UnAlignedSpatialVector(PxVec3(vec0.w, vec1.x, vec1.y), PxVec3(vec0.x, vec0.y, vec0.z));
+					delta0 = ev4sio_Cm::UnAlignedSpatialVector(PxVec3(vec2.y, vec2.z, vec2.w), PxVec3(vec1.z, vec1.w, vec2.x));
 				}
 
 				if (igNodeIndexB.isArticulation())
@@ -1299,8 +1299,8 @@ static __device__ void markActiveSlab_articulationTGS(const PxgSolverCoreDesc* _
 					const float4 vec1 = Pxldcg(iterativeData.solverBodyVelPool[readIndex + 128]);
 					const float4 vec2 = Pxldcg(iterativeData.solverBodyVelPool[readIndex + 160]);
 
-					vel1 = Cm::UnAlignedSpatialVector(PxVec3(vec0.w, vec1.x, vec1.y), PxVec3(vec0.x, vec0.y, vec0.z));
-					delta1 = Cm::UnAlignedSpatialVector(PxVec3(vec2.y, vec2.z, vec2.w), PxVec3(vec1.z, vec1.w, vec2.x));
+					vel1 = ev4sio_Cm::UnAlignedSpatialVector(PxVec3(vec0.w, vec1.x, vec1.y), PxVec3(vec0.x, vec0.y, vec0.z));
+					delta1 = ev4sio_Cm::UnAlignedSpatialVector(PxVec3(vec2.y, vec2.z, vec2.w), PxVec3(vec1.z, vec1.w, vec2.x));
 				}
 				else
 				{
@@ -1312,8 +1312,8 @@ static __device__ void markActiveSlab_articulationTGS(const PxgSolverCoreDesc* _
 					const float4 vec1 = Pxldcs(iterativeData.solverBodyVelPool[finalIdB + totalBodiesIncKinematics]);
 					const float4 vec2 = Pxldcs(iterativeData.solverBodyVelPool[finalIdB + 2 * totalBodiesIncKinematics]);
 
-					vel1 = Cm::UnAlignedSpatialVector(PxVec3(vec0.w, vec1.x, vec1.y), PxVec3(vec0.x, vec0.y, vec0.z));
-					delta1 = Cm::UnAlignedSpatialVector(PxVec3(vec2.y, vec2.z, vec2.w), PxVec3(vec1.z, vec1.w, vec2.x));
+					vel1 = ev4sio_Cm::UnAlignedSpatialVector(PxVec3(vec0.w, vec1.x, vec1.y), PxVec3(vec0.x, vec0.y, vec0.z));
+					delta1 = ev4sio_Cm::UnAlignedSpatialVector(PxVec3(vec2.y, vec2.z, vec2.w), PxVec3(vec1.z, vec1.w, vec2.x));
 				}
 
 				// Check if the contact/normal constraint is active.

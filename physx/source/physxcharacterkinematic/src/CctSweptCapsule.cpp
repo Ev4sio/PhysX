@@ -6,7 +6,7 @@
 #include "CctSweptCapsule.h"
 #include "CctCharacterController.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 using namespace Cct;
 
 SweptCapsule::SweptCapsule()

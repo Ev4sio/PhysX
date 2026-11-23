@@ -7,14 +7,14 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace usdparser
 {
 
 ObjectId createJoint(AttachedStage& attachedStage,
                      omni::physics::parse::ObjectKey primKey,
-                     omni::physx::usdparser::PhysxJointDesc* desc,
+                     omni::ev4sio_physx::usdparser::PhysxJointDesc* desc,
                      ObjectId body0,
                      bool body0Dynamic,
                      ObjectId body1,
@@ -22,5 +22,5 @@ ObjectId createJoint(AttachedStage& attachedStage,
 
 
 } // namespace usdparser
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

@@ -10,7 +10,7 @@
 #include "cudamanager/PxCudaTypes.h"
 #include "PxgCopyDesc.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	class PxCudaContextManager;
 	class PxCudaContext;
@@ -21,7 +21,7 @@ class PxgCopyManager
 	PX_NOCOPY(PxgCopyManager)
 public:
 
-	PxgCopyManager(Cm::VirtualAllocatorCallback& hostMappedAlloc);
+	PxgCopyManager(ev4sio_Cm::VirtualAllocatorCallback& hostMappedAlloc);
 							
 	~PxgCopyManager(){}
 
@@ -38,7 +38,7 @@ protected:
 	void resetUnsafe() { mNumDescriptors = 0; }
 	bool hasFinishedCopying(PxCudaContext* cudaContext) const;
 	
-	Cm::PinnableArray<PxU8>			mDescriptorsQueueMapped; // needs to be device mapped memory
+	ev4sio_Cm::PinnableArray<PxU8>			mDescriptorsQueueMapped; // needs to be device mapped memory
 	PxU32							mNumDescriptors;
 	CUevent							mFinishedEvent;
 	bool							mEventRecorded;

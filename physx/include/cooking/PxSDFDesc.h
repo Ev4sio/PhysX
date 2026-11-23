@@ -11,7 +11,7 @@
 #include "foundation/PxBounds3.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 	class PxSDFBuilder;
@@ -182,7 +182,7 @@ namespace physx
 	}
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

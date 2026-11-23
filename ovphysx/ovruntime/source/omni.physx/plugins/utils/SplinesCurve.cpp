@@ -25,7 +25,7 @@
 #include <immintrin.h>
 #endif
 
-using ::physx::PxVec3;
+using ::ev4sio_physx::PxVec3;
 
 static const size_t samplesPerSegment = 96;
 
@@ -85,7 +85,7 @@ std::vector<float> approximateDistanceAlongCurve(const SplineCurve& curve,
 }
 
 
-SplinesCurve::SplinesCurve(const omni::physx::usdparser::AttachedStage& attachedStage,
+SplinesCurve::SplinesCurve(const omni::ev4sio_physx::usdparser::AttachedStage& attachedStage,
                            omni::physics::parse::ObjectKey curveKey)
 {
     mInitialized = false;
@@ -97,11 +97,11 @@ SplinesCurve::SplinesCurve(const omni::physx::usdparser::AttachedStage& attached
         tok.intern(*source);
 
     std::vector<carb::Float3> pointsIn;
-    omni::physx::internal::getArrayValue(
+    omni::ev4sio_physx::internal::getArrayValue(
         attachedStage, curveKey, tok.points, omni::physics::parse::ReadTime::defaultTime(), pointsIn);
 
     std::vector<int32_t> curveVertexCounts;
-    omni::physx::internal::getArrayValue(
+    omni::ev4sio_physx::internal::getArrayValue(
         attachedStage, curveKey, tok.curveVertexCounts, omni::physics::parse::ReadTime::defaultTime(), curveVertexCounts);
 
     // basis/wrap are token-valued attributes; resolve them straight to the source-neutral
@@ -109,7 +109,7 @@ SplinesCurve::SplinesCurve(const omni::physx::usdparser::AttachedStage& attached
     // KnownTokens -- no TfToken materialization needed.
     eCurveBasisType basisType = eCurveBasisType::BSpline;
     omni::physics::parse::TokenId basisTokenId;
-    if (source && omni::physx::internal::getValue(attachedStage, curveKey, tok.basis,
+    if (source && omni::ev4sio_physx::internal::getValue(attachedStage, curveKey, tok.basis,
                                                    omni::physics::parse::ReadTime::defaultTime(), basisTokenId))
     {
         if (basisTokenId == tok.bezier)
@@ -120,7 +120,7 @@ SplinesCurve::SplinesCurve(const omni::physx::usdparser::AttachedStage& attached
 
     eBasisCurveWrap wrapType = eBasisCurveWrap::NonPeriodic;
     omni::physics::parse::TokenId wrapTokenId;
-    if (source && omni::physx::internal::getValue(attachedStage, curveKey, tok.wrap,
+    if (source && omni::ev4sio_physx::internal::getValue(attachedStage, curveKey, tok.wrap,
                                                    omni::physics::parse::ReadTime::defaultTime(), wrapTokenId))
     {
         if (wrapTokenId == tok.nonperiodic)
@@ -135,7 +135,7 @@ SplinesCurve::SplinesCurve(const omni::physx::usdparser::AttachedStage& attached
     // CVs of a cubic basis; a linear curve authored as a conveyor path must not be smoothed.
     eCurveType curveType = eCurveType::Cubic;
     omni::physics::parse::TokenId typeTokenId;
-    if (source && omni::physx::internal::getValue(attachedStage, curveKey, tok.type,
+    if (source && omni::ev4sio_physx::internal::getValue(attachedStage, curveKey, tok.type,
                                                    omni::physics::parse::ReadTime::defaultTime(), typeTokenId))
     {
         if (typeTokenId == tok.linear)
@@ -176,7 +176,7 @@ void SplinesCurve::initialize(const std::string& curvePrimPath,
         std::vector<PxVec3> controlPoints;
         for (size_t i = startIndex; i < startIndex + count; i++)
         {
-            controlPoints.push_back(omni::physx::toPhysX(pointsIn[i]));
+            controlPoints.push_back(omni::ev4sio_physx::toPhysX(pointsIn[i]));
         }
         startIndex += count;
 
@@ -319,20 +319,20 @@ SplinesCurve::~SplinesCurve()
 
 }
 
-void SplinesCurve::draw(omni::physx::OmniRenderBuffer& renderBuffer, const ::physx::PxTransform& tr) const
+void SplinesCurve::draw(omni::ev4sio_physx::OmniRenderBuffer& renderBuffer, const ::ev4sio_physx::PxTransform& tr) const
 {
     const size_t numLines = mPoints.size() - 1;
     if (mPoints.size() > 0 && numLines > 0)
     {
         for (size_t i = 0; i < numLines; i++)
         {
-            renderBuffer.addLine(::physx::PxDebugLine(tr.transform(mPoints[i]), tr.transform(mPoints[i + 1]),
-                                                      ::physx::PxDebugColor::eARGB_BLUE));
+            renderBuffer.addLine(::ev4sio_physx::PxDebugLine(tr.transform(mPoints[i]), tr.transform(mPoints[i + 1]),
+                                                      ::ev4sio_physx::PxDebugColor::eARGB_BLUE));
 
             if (mCurvaturePoints[i][0] != FLT_MAX)
             {
-                renderBuffer.addLine(::physx::PxDebugLine(tr.transform(mPoints[i]), tr.transform(mCurvaturePoints[i]),
-                                                          ::physx::PxDebugColor::eARGB_GREEN));
+                renderBuffer.addLine(::ev4sio_physx::PxDebugLine(tr.transform(mPoints[i]), tr.transform(mCurvaturePoints[i]),
+                                                          ::ev4sio_physx::PxDebugColor::eARGB_GREEN));
             }
         }
     }

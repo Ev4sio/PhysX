@@ -32,13 +32,13 @@
 #include <private/omni/physx/PhysxUsd.h>
 
 using namespace carb;
-using namespace ::physx;
-using namespace omni::physx::usdparser;
-using namespace omni::physx::internal;
+using namespace ::ev4sio_physx;
+using namespace omni::ev4sio_physx::usdparser;
+using namespace omni::ev4sio_physx::internal;
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
     std::atomic<size_t> ContactReport::s_liveInstanceCount{ 0 };
 
@@ -331,8 +331,8 @@ namespace physx
         return newType;
     }
 
-    void ContactReport::reportContact(const ::physx::PxActor* actor0, const ::physx::PxShape* shape0,
-        const ::physx::PxActor* actor1, const ::physx::PxShape* shape1, SimulationEvent event, uint32_t contactCount,
+    void ContactReport::reportContact(const ::ev4sio_physx::PxActor* actor0, const ::ev4sio_physx::PxShape* shape0,
+        const ::ev4sio_physx::PxActor* actor1, const ::ev4sio_physx::PxShape* shape1, SimulationEvent event, uint32_t contactCount,
         const std::vector<PxContactPairFrictionAnchor>& frictionAnchors)
     {
         const OmniPhysX& omniPhysX = OmniPhysX::getInstance();
@@ -414,7 +414,7 @@ namespace physx
                     const size_t frictionAnchorsSize = frictionAnchors.size();
                     if (frictionAnchorsSize)
                     {
-                        static_assert(sizeof(FrictionAnchor) == sizeof(::physx::PxContactPairFrictionAnchor), "FrictionAnchor structure size check.");
+                        static_assert(sizeof(FrictionAnchor) == sizeof(::ev4sio_physx::PxContactPairFrictionAnchor), "FrictionAnchor structure size check.");
                         contactEventStruct.mFrictionAnchorsData.resize(frictionAnchorsSize);
                         memcpy(contactEventStruct.mFrictionAnchorsData.data(), frictionAnchors.data(), sizeof(FrictionAnchor) * frictionAnchorsSize);
                     }
@@ -433,7 +433,7 @@ namespace physx
                     const size_t frictionAnchorsSize = frictionAnchors.size();
                     if (frictionAnchorsSize)
                     {
-                        static_assert(sizeof(FrictionAnchor) == sizeof(::physx::PxContactPairFrictionAnchor), "FrictionAnchor structure size check.");
+                        static_assert(sizeof(FrictionAnchor) == sizeof(::ev4sio_physx::PxContactPairFrictionAnchor), "FrictionAnchor structure size check.");
                         contactEventStruct.mFrictionAnchorsData.resize(frictionAnchorsOffset + frictionAnchorsSize);
                         memcpy(contactEventStruct.mFrictionAnchorsData.data() + frictionAnchorsOffset, frictionAnchors.data(), sizeof(FrictionAnchor) * frictionAnchorsSize);
                     }
@@ -449,7 +449,7 @@ namespace physx
             const size_t frictionAnchorsSize = frictionAnchors.size();
             if (frictionAnchorsSize)
             {
-                static_assert(sizeof(FrictionAnchor) == sizeof(::physx::PxContactPairFrictionAnchor), "FrictionAnchor structure size check.");
+                static_assert(sizeof(FrictionAnchor) == sizeof(::ev4sio_physx::PxContactPairFrictionAnchor), "FrictionAnchor structure size check.");
                 mFrictionAnchorsDataVector.resize(frictionAnchorsOffset + frictionAnchorsSize);
                 memcpy(mFrictionAnchorsDataVector.data() + frictionAnchorsOffset, frictionAnchors.data(), sizeof(FrictionAnchor) * frictionAnchorsSize);
             }
@@ -464,7 +464,7 @@ namespace physx
         }
     }
 
-    void ContactReport::reportContactShapeRemoved(const ::physx::PxActor* actor0, const ::physx::PxShape* shape0, const ::physx::PxActor* actor1, const ::physx::PxShape* shape1, const PxContactPairFlags contactFlags)
+    void ContactReport::reportContactShapeRemoved(const ::ev4sio_physx::PxActor* actor0, const ::ev4sio_physx::PxShape* shape0, const ::ev4sio_physx::PxActor* actor1, const ::ev4sio_physx::PxShape* shape1, const PxContactPairFlags contactFlags)
     {
         OmniPhysX& omniPhysX = OmniPhysX::getInstance();
         const internal::InternalPhysXDatabase& db = mAttachedStage.getInternalPhysXDatabase();
@@ -540,7 +540,7 @@ namespace physx
         }
     }
 
-    void ContactReport::reportContactPoint(const PhysXScene* scene, const ::physx::PxVec3& position, const ::physx::PxVec3& normal, const ::physx::PxVec3& impulse, float separation,
+    void ContactReport::reportContactPoint(const PhysXScene* scene, const ::ev4sio_physx::PxVec3& position, const ::ev4sio_physx::PxVec3& normal, const ::ev4sio_physx::PxVec3& impulse, float separation,
         uint32_t faceIndex0, uint32_t faceIndex1, const PxMaterial* material0, const PxMaterial* material1, bool batch)
     {
         OmniPhysX& omniPhysX = OmniPhysX::getInstance();
@@ -681,7 +681,7 @@ namespace physx
         }
     }
 
-    void ContactReport::reportJointBreak(const ::physx::PxJoint* joint)
+    void ContactReport::reportJointBreak(const ::ev4sio_physx::PxJoint* joint)
     {
         OmniPhysX& omniPhysX = OmniPhysX::getInstance();
         const internal::InternalPhysXDatabase& db = mAttachedStage.getInternalPhysXDatabase();

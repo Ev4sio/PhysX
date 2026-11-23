@@ -25,7 +25,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace usdparser
 {
@@ -34,15 +34,15 @@ class AttachedStage;
 
 struct InvokedTrigger
 {
-    const ::physx::PxShape* mTriggerShape;
-    const ::physx::PxShape* mOtherShape;
+    const ::ev4sio_physx::PxShape* mTriggerShape;
+    const ::ev4sio_physx::PxShape* mOtherShape;
     TriggerEventType::Enum mTriggerEvent;
     uint64_t mTriggerActorId = 0, mOtherActorId = 0;
 };
 
 using InvokedTriggers = std::vector<InvokedTrigger>;
 using TriggerCollisionMap = std::unordered_multimap<omni::physics::parse::ObjectKey,
-                                                     std::pair<const ::physx::PxShape*, size_t>,
+                                                     std::pair<const ::ev4sio_physx::PxShape*, size_t>,
                                                      omni::physics::parse::ObjectKey::Hash>;
 
 // Trigger-state write-back bookkeeping (PhysxTriggerStateAPI's triggeredCollisions
@@ -166,16 +166,16 @@ public:
     void release();
 
     void onTriggerEnterEvent(const usdparser::AttachedStage& attachedStage,
-                             const ::physx::PxShape* triggerShape,
-                             const ::physx::PxShape* otherShape,
+                             const ::ev4sio_physx::PxShape* triggerShape,
+                             const ::ev4sio_physx::PxShape* otherShape,
                              uint64_t triggerActorId = 0, uint64_t otherActorId = 0);
     void onTriggerLeaveEvent(const usdparser::AttachedStage& attachedStage,
-                             const ::physx::PxShape* triggerShape,
-                             const ::physx::PxShape* otherShape,
+                             const ::ev4sio_physx::PxShape* triggerShape,
+                             const ::ev4sio_physx::PxShape* otherShape,
                              uint64_t triggerActorId = 0, uint64_t otherActorId = 0);
 
-    void bufferTriggerEvent(const usdparser::AttachedStage& attachedStage, const ::physx::PxShape* triggerShape,
-                            const ::physx::PxShape* otherShape,
+    void bufferTriggerEvent(const usdparser::AttachedStage& attachedStage, const ::ev4sio_physx::PxShape* triggerShape,
+                            const ::ev4sio_physx::PxShape* otherShape,
                             TriggerEventType::Enum triggerEvent,
                             uint64_t triggerActorId = 0, uint64_t otherActorId = 0);
     void fireTriggerEvents(const usdparser::AttachedStage& attachedStage);
@@ -188,10 +188,10 @@ public:
     void preloadTrigger(const usdparser::AttachedStage& attachedStage, omni::physics::parse::ObjectKey triggerKey, bool usdOutput);
     void clearTriggers(const usdparser::AttachedStage& attachedStage);
     
-    void clearBufferedShape(const usdparser::AttachedStage& attachedStage, const ::physx::PxShape* shape);
+    void clearBufferedShape(const usdparser::AttachedStage& attachedStage, const ::ev4sio_physx::PxShape* shape);
 
-    omni::physx::SubscriptionId registerNativeCallback(TriggerSubscriptionEntry triggerSubscription);
-    void unregisterNativeCallback(omni::physx::SubscriptionId subscriptionID);
+    omni::ev4sio_physx::SubscriptionId registerNativeCallback(TriggerSubscriptionEntry triggerSubscription);
+    void unregisterNativeCallback(omni::ev4sio_physx::SubscriptionId subscriptionID);
     void retireSubscriptions(AttachHandle attach);
 
 private:
@@ -202,11 +202,11 @@ private:
     void processTriggerStateApiEnterEvent(const usdparser::AttachedStage& attachedStage,
                                           omni::physics::parse::ObjectKey triggerKey,
                                           omni::physics::parse::ObjectKey otherKey,
-                                          const ::physx::PxShape* otherShape);
+                                          const ::ev4sio_physx::PxShape* otherShape);
     void processTriggerStateApiLeaveEvent(const usdparser::AttachedStage& attachedStage,
                                           omni::physics::parse::ObjectKey triggerKey,
                                           omni::physics::parse::ObjectKey otherKey,
-                                          const ::physx::PxShape* otherShape);
+                                          const ::ev4sio_physx::PxShape* otherShape);
     void processNativeEvent(const usdparser::AttachedStage& attachedStage,
                             omni::physics::parse::ObjectKey triggerColliderKey,
                             omni::physics::parse::ObjectKey otherColliderKey,
@@ -219,5 +219,5 @@ private:
     TriggerSubscriptionRegistry mTriggerSubscriptions;
 };
 
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

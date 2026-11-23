@@ -6,7 +6,7 @@
 #ifndef PXFOUNDATION_PXUNIXSSE2INLINEAOS_H
 #define PXFOUNDATION_PXUNIXSSE2INLINEAOS_H
 
-namespace physx
+namespace ev4sio_physx
 {
 namespace aos
 {
@@ -49,7 +49,7 @@ PX_FORCE_INLINE static bool isValidFloatV(const FloatV a)
 
 #include "../../PxVecMathSSE.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 namespace aos
 {
@@ -63,8 +63,8 @@ namespace internalSimd
 #pragma clang diagnostic ignored "-Wglobal-constructors"
 #endif
 #endif
-const PX_ALIGN(16, PxF32 gMaskXYZ[4]) = { physx::PxUnionCast<PxF32>(0xffffffff), physx::PxUnionCast<PxF32>(0xffffffff),
-	                                      physx::PxUnionCast<PxF32>(0xffffffff), 0 };
+const PX_ALIGN(16, PxF32 gMaskXYZ[4]) = { ev4sio_physx::PxUnionCast<PxF32>(0xffffffff), ev4sio_physx::PxUnionCast<PxF32>(0xffffffff),
+	                                      ev4sio_physx::PxUnionCast<PxF32>(0xffffffff), 0 };
 #if PX_CLANG
 #if PX_LINUX
 #pragma clang diagnostic pop
@@ -672,6 +672,6 @@ PX_FORCE_INLINE VecU32V V4ConvertToU32VSaturate(const Vec4V in, PxU32 power)
 }*/
 
 } // namespace aos
-} // namespace physx
+} // namespace ev4sio_physx
 
 #endif // PXFOUNDATION_PXUNIXSSE2INLINEAOS_H

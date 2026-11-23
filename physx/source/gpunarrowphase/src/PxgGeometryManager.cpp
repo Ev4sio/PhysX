@@ -29,8 +29,8 @@
 
 // AD: PxgGeometryManager manages the CPU/GPU data transfers and the lifetime of collision geometries: Convex Hulls, Trimeshes, SDFs, Heightfields.
 
-using namespace physx;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
 
 // forward declarations of static functions
 static PxU64 computeBoxHullByteSize();
@@ -153,7 +153,7 @@ void PxgGeometryManager::removeGeometry(PxU32 idx)
 	// on the free list; the caller that removes twice is the real defect.
 	if (!geometryToRemove.mIsAllocated)
 	{
-		PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL,
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL,
 			"PxgGeometryManager::removeGeometry: geometry index was already released. Skipping.\n");
 		PX_ALWAYS_ASSERT();
 		return;
@@ -234,7 +234,7 @@ void PxgGeometryManager::scheduleCopyHtoD(PxgCopyManager& copyMan, PxCudaContext
 		mHostMemoryMapped = static_cast<PxU8*>(mHostMappedAlloc.allocate(mHostMemoryRequirements, PxsHeapStats::eNARROWPHASE, PX_FL));
 		if(!mHostMemoryMapped)
 		{
-			PxGetFoundation().error(PxErrorCode::eOUT_OF_MEMORY, PX_FL, "PxgGeometryManager: failed to allocate pinned host mHostMemoryMapped");
+			ev4sio_PxGetFoundation().error(PxErrorCode::eOUT_OF_MEMORY, PX_FL, "PxgGeometryManager: failed to allocate pinned host mHostMemoryMapped");
 
 			//PT: the scheduled geometries still point back here through mGeometryData[i].mCopyDescIndex. Clear
 			//those back-references before dropping the array, the same way the regular path below does, or they

@@ -51,9 +51,9 @@
 	#define EPILOG				bpStream, kernelParams, sizeof(kernelParams), PX_FL
 #endif
 
-using namespace physx;
-using namespace Bp;
-using namespace Cm;
+using namespace ev4sio_physx;
+using namespace ev4sio_Bp;
+using namespace ev4sio_Cm;
 
 PX_IMPLEMENT_OUTPUT_ERROR
 
@@ -110,8 +110,8 @@ PxgAABBManager::PxgAABBManager(PxgCudaKernelWranglerManager* gpuKernelWrangler,
 	mAggregatePairs				(allocDesc.hostAlloc, PxsHeapStats::eBROADPHASE),
 	mDirtyAggregateIndices		(allocDesc.hostAlloc, PxsHeapStats::eBROADPHASE),
 	mDirtyAggregates			(allocDesc.hostAlloc, PxsHeapStats::eBROADPHASE),
-	mFoundPairsMapped			(allocDesc.hostMappedAlloc, PxsHeapStats::eBROADPHASE, Cm::PinnableAllocatorFallback::eDISABLED),
-	mLostPairsMapped			(allocDesc.hostMappedAlloc, PxsHeapStats::eBROADPHASE, Cm::PinnableAllocatorFallback::eDISABLED),
+	mFoundPairsMapped			(allocDesc.hostMappedAlloc, PxsHeapStats::eBROADPHASE, ev4sio_Cm::PinnableAllocatorFallback::eDISABLED),
+	mLostPairsMapped			(allocDesc.hostMappedAlloc, PxsHeapStats::eBROADPHASE, ev4sio_Cm::PinnableAllocatorFallback::eDISABLED),
 	mDirtyBoundIndices			(allocDesc.hostAlloc, PxsHeapStats::eBROADPHASE),
 	mDirtyBoundStartIndices		(allocDesc.hostAlloc, PxsHeapStats::eBROADPHASE),
 	mRemovedAggregatedBounds	(allocDesc.hostAlloc, PxsHeapStats::eBROADPHASE),
@@ -483,7 +483,7 @@ bool PxgAABBManager::removeBounds(BoundsIndex index)
 }
 
 void PxgAABBManager::updateBPFirstPass(PxU32 /*numCpuTasks*/,
-	Cm::FlushPool& /*flushPool*/,
+	ev4sio_Cm::FlushPool& /*flushPool*/,
 	bool hasContactDistanceUpdated,
 	PxBaseTask* /*continuation*/)
 {
@@ -589,7 +589,7 @@ void PxgAABBManager::updateBPFirstPass(PxU32 /*numCpuTasks*/,
 }
 
 // PT: previously known as AABBManager::updateAABBsAndBP
-void PxgAABBManager::updateBPSecondPass(PxU32 numCpuTasks, Cm::FlushPool& flushPool, PxcScratchAllocator* scratchAllocator, PxBaseTask* continuation)
+void PxgAABBManager::updateBPSecondPass(PxU32 numCpuTasks, ev4sio_Cm::FlushPool& flushPool, PxcScratchAllocator* scratchAllocator, PxBaseTask* continuation)
 {
 	PX_PROFILE_ZONE("PxgAABBManager::updateBPSecondPass", mContextID);
 
@@ -835,7 +835,7 @@ void PxgAABBManager::preBpUpdate_GPU()
 	}
 }
 
-void PxgAABBManager::postBroadPhase(PxBaseTask* continuation, Cm::FlushPool& /*flushPool*/)
+void PxgAABBManager::postBroadPhase(PxBaseTask* continuation, ev4sio_Cm::FlushPool& /*flushPool*/)
 {
 	// PT: TODO: consider merging mCreatedOverlaps & mDestroyedOverlaps
 	// PT: TODO: revisit memory management of mCreatedOverlaps & mDestroyedOverlaps
@@ -881,7 +881,7 @@ void PxgAABBManager::reallocateChangedAABBMgActorHandleMap(const PxU32 size)
 // PT: reporting kept out-of-line so the inlined fast path is just the range test.
 static PX_NOINLINE bool reportInvalidOverlapIds(const char* context, PxU32 nbVolumes, PxU32 id0, PxU32 id1)
 {
-	PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "%s: out-of-range broadphase volume id (%u, %u with %u volumes) - dropping overlap pair.\n", context, id0, id1, nbVolumes);
+	ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "%s: out-of-range broadphase volume id (%u, %u with %u volumes) - dropping overlap pair.\n", context, id0, id1, nbVolumes);
 	return false;
 }
 
@@ -1320,7 +1320,7 @@ void PxgAABBManager::resizeFoundAndLostPairs()
 
 	if(desc.found_pairs_overflow_flags)
 	{
-		PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL,
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL,
 			"The application needs to increase PxGpuDynamicsMemoryConfig::foundLostAggregatePairsCapacity to %i, otherwise, the simulation will miss interactions", maxAggPairsNeeded);
 		
 		// AD: these can be lower than the max, because it can happen that the overflow flag is set because of the candidate pairs overflowing.
@@ -1331,14 +1331,14 @@ void PxgAABBManager::resizeFoundAndLostPairs()
 
 	if(desc.lost_pairs_overflow_flags)
 	{
-		PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL,
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL,
 			"The application needs to increase PxGpuDynamicsMemoryConfig::foundLostAggregatePairsCapacity buffers to %i, otherwise, the simulation will miss interactions", maxAggPairsNeeded);
 		sharedLostPairIndex = mMaxFoundLostPairs;
 	}
 
 	if(desc.agg_pairs_overflow_flags)
 	{
-		PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL,
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL,
 			"The application needs to increase PxGpuDynamicsMemoryConfig::totalAggregatePairsCapacity to %i , otherwise, the simulation will miss interactions\n", desc.aggPairOverflowCount);
 	}
 

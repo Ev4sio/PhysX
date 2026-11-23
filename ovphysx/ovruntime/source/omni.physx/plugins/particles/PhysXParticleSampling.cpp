@@ -46,14 +46,14 @@
 #include <utility>
 #include <vector>
 
-using namespace omni::physx::particles;
+using namespace omni::ev4sio_physx::particles;
 
 namespace
 {
 
 typedef std::unordered_map<omni::physics::parse::ObjectKey, PhysxParticleFactory*, omni::physics::parse::ObjectKey::Hash>
     PathToFactoryMap;
-using AttachedStage = omni::physx::usdparser::AttachedStage;
+using AttachedStage = omni::ev4sio_physx::usdparser::AttachedStage;
 
 
 PhysxParticleFactory* getParticleFactory(const AttachedStage& owner,
@@ -127,7 +127,7 @@ bool getSourceParticleData(AttachedStage& attachedStage, ObjectKey particleKey, 
 
 bool parseSamplingDesc(AttachedStage& attachedStage,
                        const ObjectKey samplerKey,
-                       omni::physx::usdparser::ParticleSamplingDesc& samplingDesc)
+                       omni::ev4sio_physx::usdparser::ParticleSamplingDesc& samplingDesc)
 {
     const IPhysicsSource* src = attachedStage.getSource();
     if (!src)
@@ -142,7 +142,7 @@ bool parseSamplingDesc(AttachedStage& attachedStage,
     }
 
     omni::physics::parse::ParseContext ctx(
-        const_cast<IPhysicsSource&>(*src), omni::physx::usdparser::iceDescriptorAllocator());
+        const_cast<IPhysicsSource&>(*src), omni::ev4sio_physx::usdparser::iceDescriptorAllocator());
     omni::physics::parse::DescPtr<omni::physics::parse::ParticleSamplingDesc> desc =
         omni::physics::parse::parseParticleSampling(ctx, samplerKey);
     if (!desc)
@@ -285,7 +285,7 @@ struct ParticleArrays
         }
     }
 
-    void set(const carb::Float3* positions, size_t numPoints, const ::physx::PxMat44d& rigidTransform,
+    void set(const carb::Float3* positions, size_t numPoints, const ::ev4sio_physx::PxMat44d& rigidTransform,
              float pointWidth, size_t dstIndex, size_t initializedEndIndex)
     {
         for (size_t p = 0; p < numPoints; ++p)
@@ -293,8 +293,8 @@ struct ParticleArrays
             // Same arithmetic as the previous GfMatrix4d::Transform(GfVec3f): widen
             // to double, accumulate column-by-column in the same order, narrow back.
             const carb::Float3& s = positions[p];
-            const ::physx::PxVec3d t =
-                rigidTransform.transform(::physx::PxVec3d(double(s.x), double(s.y), double(s.z)));
+            const ::ev4sio_physx::PxVec3d t =
+                rigidTransform.transform(::ev4sio_physx::PxVec3d(double(s.x), double(s.y), double(s.z)));
             points[dstIndex + p] = carb::Float3{ float(t.x), float(t.y), float(t.z) };
         }
 
@@ -320,11 +320,11 @@ struct ParticleArrays
         }
     }
 
-    void transformPoints(const ::physx::PxMat44d& transform, size_t dstIndex, size_t count)
+    void transformPoints(const ::ev4sio_physx::PxMat44d& transform, size_t dstIndex, size_t count)
     {
         auto xf = [&transform](const carb::Float3& v)
         {
-            const ::physx::PxVec3d t = transform.transform(::physx::PxVec3d(double(v.x), double(v.y), double(v.z)));
+            const ::ev4sio_physx::PxVec3d t = transform.transform(::ev4sio_physx::PxVec3d(double(v.x), double(v.y), double(v.z)));
             return carb::Float3{ float(t.x), float(t.y), float(t.z) };
         };
 
@@ -362,21 +362,21 @@ void readParticleArrayContents(AttachedStage& attachedStage, ObjectKey key, Part
         return;
 
     const omni::physics::parse::ReadTime t = omni::physics::parse::ReadTime::defaultTime();
-    omni::physx::internal::getArrayValue(attachedStage, key, src->internToken(out.isInstancer ? "positions" : "points"), t, out.points);
-    omni::physx::internal::getArrayValue(attachedStage, key, src->internToken("velocities"), t, out.velocities);
+    omni::ev4sio_physx::internal::getArrayValue(attachedStage, key, src->internToken(out.isInstancer ? "positions" : "points"), t, out.points);
+    omni::ev4sio_physx::internal::getArrayValue(attachedStage, key, src->internToken("velocities"), t, out.velocities);
 
     if (out.hasSimPoints)
-        omni::physx::internal::getArrayValue(attachedStage, key, src->internToken("physxParticle:simulationPoints"), t, out.simPoints);
+        omni::ev4sio_physx::internal::getArrayValue(attachedStage, key, src->internToken("physxParticle:simulationPoints"), t, out.simPoints);
 
     if (out.isPoints)
     {
-        omni::physx::internal::getArrayValue(attachedStage, key, src->internToken("widths"), t, out.widths);
+        omni::ev4sio_physx::internal::getArrayValue(attachedStage, key, src->internToken("widths"), t, out.widths);
     }
     else if (out.isInstancer)
     {
-        omni::physx::internal::getArrayValue(attachedStage, key, src->internToken("protoIndices"), t, out.protoIndices);
-        omni::physx::internal::getArrayValue(attachedStage, key, src->internToken("scales"), t, out.scales);
-        omni::physx::internal::getArrayValue(attachedStage, key, src->internToken("orientations"), t, out.orientations);
+        omni::ev4sio_physx::internal::getArrayValue(attachedStage, key, src->internToken("protoIndices"), t, out.protoIndices);
+        omni::ev4sio_physx::internal::getArrayValue(attachedStage, key, src->internToken("scales"), t, out.scales);
+        omni::ev4sio_physx::internal::getArrayValue(attachedStage, key, src->internToken("orientations"), t, out.orientations);
     }
 }
 
@@ -608,8 +608,8 @@ void PhysxParticleFactory::processParticleSamplingResults(ObjectKey samplerKey,
                                                           const carb::Float3* positions,
                                                           size_t numPoints,
                                                           float pointWidth,
-                                                          const ::physx::PxMat44d& rigidTransform,
-                                                          const ::physx::PxMat33d& shearScaleTransform,
+                                                          const ::ev4sio_physx::PxMat44d& rigidTransform,
+                                                          const ::ev4sio_physx::PxMat33d& shearScaleTransform,
                                                           bool registerOriginalCount)
 {
     PhysxParticleSampler* sampler = getParticleSampler(samplerKey);
@@ -769,8 +769,8 @@ void PhysxParticleFactory::processSamplingResults(AttachedStage& owner, ObjectKe
                                                   const carb::Float3* positions,
                                                   size_t numPoints,
                                                   float pointWidth,
-                                                  const ::physx::PxMat44d& rigidTransform,
-                                                  const ::physx::PxMat33d& shearScaleTransform,
+                                                  const ::ev4sio_physx::PxMat44d& rigidTransform,
+                                                  const ::ev4sio_physx::PxMat33d& shearScaleTransform,
                                                   bool registerOriginalCount)
 {
     PhysxParticleFactory* factory = getParticleFactory(owner, particleSetKey);
@@ -796,8 +796,8 @@ void PhysxParticleFactory::processSamplingResults(AttachedStage& owner, ObjectKe
 // STATIC:
 bool PhysxParticleFactory::getDecomposedTransform(const AttachedStage& owner, ObjectKey samplerKey,
                                                   ObjectKey particleSetKey,
-                                                  ::physx::PxMat44d& rigidTransform,
-                                                  ::physx::PxMat33d& shearScaleTransform)
+                                                  ::ev4sio_physx::PxMat44d& rigidTransform,
+                                                  ::ev4sio_physx::PxMat33d& shearScaleTransform)
 {
     PhysxParticleFactory* factory = getParticleFactory(owner, particleSetKey);
     if (!factory)
@@ -823,12 +823,12 @@ PhysxParticleSampler::PhysxParticleSampler(AttachedStage& owner, ObjectKey key, 
     // PxMat44d/PxMat33d default-construct UNINITIALIZED, unlike GfMatrix4d/GfMatrix3d
     // (whose default ctor is the identity) - so seed both before the decompose attempt,
     // not only on its failure path.
-    mRigidTransform = ::physx::PxMat44d(::physx::PxIdentity);
-    mShearScaleTransform = ::physx::PxMat33d(::physx::PxIdentity);
+    mRigidTransform = ::ev4sio_physx::PxMat44d(::ev4sio_physx::PxIdentity);
+    mShearScaleTransform = ::ev4sio_physx::PxMat33d(::ev4sio_physx::PxIdentity);
     if (!getDecomposedTransform(mRigidTransform, mShearScaleTransform))
     {
-        mRigidTransform = ::physx::PxMat44d(::physx::PxIdentity);
-        mShearScaleTransform = ::physx::PxMat33d(::physx::PxIdentity);
+        mRigidTransform = ::ev4sio_physx::PxMat44d(::ev4sio_physx::PxIdentity);
+        mShearScaleTransform = ::ev4sio_physx::PxMat33d(::ev4sio_physx::PxIdentity);
     }
 }
 
@@ -843,7 +843,7 @@ bool PhysxParticleSampler::update(bool forceResampling)
     if (!attachedStage)
         return false;
 
-    omni::physx::usdparser::ParticleSamplingDesc samplingDesc{};
+    omni::ev4sio_physx::usdparser::ParticleSamplingDesc samplingDesc{};
     if (!parseSamplingDesc(*attachedStage, mSamplerKey, samplingDesc))
         return false;
 
@@ -851,13 +851,13 @@ bool PhysxParticleSampler::update(bool forceResampling)
         return false;
 
     bool needToResample;
-    ::physx::PxMat44d newRigidTransform(::physx::PxIdentity);
+    ::ev4sio_physx::PxMat44d newRigidTransform(::ev4sio_physx::PxIdentity);
     bool needToTransform = checkTransforms(needToResample, newRigidTransform);
 
     bool result = true;
     if ((needToTransform && needToResample) || forceResampling)
     {
-        cookingdataasync::CookingDataAsync* cookingDataAsync = omni::physx::OmniPhysX::getInstance().getPhysXSetup().getCookingDataAsync();
+        cookingdataasync::CookingDataAsync* cookingDataAsync = omni::ev4sio_physx::OmniPhysX::getInstance().getPhysXSetup().getCookingDataAsync();
         if (cookingDataAsync)
         {
             cookingDataAsync->poissonSampleMesh(mSamplerKey, *attachedStage, samplingDesc, forceResampling, true);
@@ -877,8 +877,8 @@ bool PhysxParticleSampler::update(bool forceResampling)
 
 bool PhysxParticleSampler::processSamplingRegistration(size_t numPoints,
                                                        size_t totalRegisteredPoints,
-                                                       const ::physx::PxMat44d& rigidTransform,
-                                                       const ::physx::PxMat33d& shearScaleTransform)
+                                                       const ::ev4sio_physx::PxMat44d& rigidTransform,
+                                                       const ::ev4sio_physx::PxMat33d& shearScaleTransform)
 {
     mStartIndex = (uint32_t)totalRegisteredPoints;
     mParticleCount = (uint32_t)numPoints;
@@ -900,8 +900,8 @@ bool PhysxParticleSampler::processSamplingRegistration(size_t numPoints,
 bool PhysxParticleSampler::processSamplingResults(const carb::Float3* positions,
                                                   size_t numPoints,
                                                   float pointWidth,
-                                                  const ::physx::PxMat44d& rigidTransform,
-                                                  const ::physx::PxMat33d& shearScaleTransform,
+                                                  const ::ev4sio_physx::PxMat44d& rigidTransform,
+                                                  const ::ev4sio_physx::PxMat33d& shearScaleTransform,
                                                   bool factoryInitialized,
                                                   bool recreate,
                                                   int& firstChangedIndex,
@@ -1037,8 +1037,8 @@ void PhysxParticleSampler::moveStartIndex(int firstChangedIndex, int correction)
     }
 }
 
-bool PhysxParticleSampler::getDecomposedTransform(::physx::PxMat44d& rigidTransform,
-                                                  ::physx::PxMat33d& shearScaleTransform) const
+bool PhysxParticleSampler::getDecomposedTransform(::ev4sio_physx::PxMat44d& rigidTransform,
+                                                  ::ev4sio_physx::PxMat33d& shearScaleTransform) const
 {
     const AttachedStage* attachedStage = &mAttachedStage;
     const IPhysicsSource* src = attachedStage ? attachedStage->getSource() : nullptr;
@@ -1050,14 +1050,14 @@ bool PhysxParticleSampler::getDecomposedTransform(::physx::PxMat44d& rigidTransf
     if (!src->exists(mSamplerKey) || !src->isA(mSamplerKey, tok.meshType))
         return false;
 
-    const ::physx::PxMat44d l2w = omni::physx::internal::getWorldTransform(
+    const ::ev4sio_physx::PxMat44d l2w = omni::ev4sio_physx::internal::getWorldTransform(
         *attachedStage, mSamplerKey, omni::physics::parse::ReadTime::defaultTime());
     return decomposeSamplerTransform(l2w, rigidTransform, shearScaleTransform);
 }
 
-bool PhysxParticleSampler::checkTransforms(bool& resample, ::physx::PxMat44d& newRigidTransform)
+bool PhysxParticleSampler::checkTransforms(bool& resample, ::ev4sio_physx::PxMat44d& newRigidTransform)
 {
-    ::physx::PxMat33d newShearScaleTransform;
+    ::ev4sio_physx::PxMat33d newShearScaleTransform;
     if (!getDecomposedTransform(newRigidTransform, newShearScaleTransform))
     {
         return false;
@@ -1070,7 +1070,7 @@ bool PhysxParticleSampler::checkTransforms(bool& resample, ::physx::PxMat44d& ne
     return rigidChange || shearScaleChange;
 }
 
-void PhysxParticleSampler::transformPoints(::physx::PxMat44d& newRigidTransform)
+void PhysxParticleSampler::transformPoints(::ev4sio_physx::PxMat44d& newRigidTransform)
 {
     AttachedStage* attachedStage = &mAttachedStage;
     const IPhysicsSource* src = attachedStage ? attachedStage->getSource() : nullptr;
@@ -1083,8 +1083,8 @@ void PhysxParticleSampler::transformPoints(::physx::PxMat44d& newRigidTransform)
 
     // Gf `oldRigidTransformInv * newRigidTransform` -- operands swap under the
     // PhysX convention (the element-copy transpose).
-    const ::physx::PxMat44d oldRigidTransformInv = omni::physx::affineInverse(mRigidTransform);
-    const ::physx::PxMat44d transform = newRigidTransform * oldRigidTransformInv;
+    const ::ev4sio_physx::PxMat44d oldRigidTransformInv = omni::ev4sio_physx::affineInverse(mRigidTransform);
+    const ::ev4sio_physx::PxMat44d transform = newRigidTransform * oldRigidTransformInv;
     arrays.transformPoints(transform, mStartIndex, mParticleCount);
 
     IPhysicsDataWrite* dataWrite = attachedStage->getAuthoringDataWrite();
@@ -1113,7 +1113,7 @@ void PhysxParticleSampler::transformPoints(::physx::PxMat44d& newRigidTransform)
 // Particle-sampler entry points (internal, ObjectKey-keyed)
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace particles
 {
@@ -1122,17 +1122,17 @@ namespace particles
 // the same doubles in the same flat order -- so each holds the TRANSPOSE linear
 // map of its Gf counterpart, and the arithmetic is spelled in `gfmath`, the
 // bit-exact pxr transcriptions, rather than in the PhysX-semantics helpers
-// beside them. `gfmath::removeScaleShearGf` is NOT `omni::physx::removeScaleShear`
+// beside them. `gfmath::removeScaleShearGf` is NOT `omni::ev4sio_physx::removeScaleShear`
 // (that one is an orthonormalization and disagrees on sheared input) and
 // `gfmath::inverse` is NOT `affineInverse`; either substitution changes the
 // poisson-sampling cache key. See the gfmath banner in MatrixTools.h.
-bool decomposeSamplerTransform(const ::physx::PxMat44d& l2w,
-                               ::physx::PxMat44d& rigidTransform,
-                               ::physx::PxMat33d& shearScaleTransform)
+bool decomposeSamplerTransform(const ::ev4sio_physx::PxMat44d& l2w,
+                               ::ev4sio_physx::PxMat44d& rigidTransform,
+                               ::ev4sio_physx::PxMat33d& shearScaleTransform)
 {
     // Gf's `l2w.RemoveScaleShear()` and `l2w * l2w_r.GetInverse()`.
     rigidTransform = gfmath::removeScaleShearGf(l2w);
-    const ::physx::PxMat44d shearScale = gfmath::multiply(l2w, gfmath::inverse(rigidTransform));
+    const ::ev4sio_physx::PxMat44d shearScale = gfmath::multiply(l2w, gfmath::inverse(rigidTransform));
 
     // The nine wire bytes are Gf's ROW-MAJOR l2w_ss[i][j] for i,j in 0..2, which
     // is STRIDE-4 in the flat sixteen. Reading column0/1/2 of a PxMat33d built

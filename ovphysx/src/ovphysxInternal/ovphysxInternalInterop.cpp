@@ -27,7 +27,7 @@
  */
 
 // Sidecar interop: raw PhysX object lookup and ObjectKey resolution.
-// Bridges omni::physx types into C-ABI values usable by the main lib.
+// Bridges omni::ev4sio_physx types into C-ABI values usable by the main lib.
 
 #include "internal/sidecar/ovphysxInternalInterop.h"
 #include "ovphysx/ovphysx_legacy_types.h"
@@ -57,114 +57,114 @@
 #endif
 
 // Compile-time guards: ovphysx_physx_type_t enum values must stay aligned with
-// the internal omni::physx::PhysXType values so that ovphysx_internal_get_physx_ptr
+// the internal omni::ev4sio_physx::PhysXType values so that ovphysx_internal_get_physx_ptr
 // can forward the integer directly without a translation table.
-static_assert(OVPHYSX_PHYSX_TYPE_SCENE           == omni::physx::ePTScene,          "ovphysx_physx_type_t / PhysXType drift: SCENE");
-static_assert(OVPHYSX_PHYSX_TYPE_MATERIAL        == omni::physx::ePTMaterial,       "ovphysx_physx_type_t / PhysXType drift: MATERIAL");
-static_assert(OVPHYSX_PHYSX_TYPE_SHAPE           == omni::physx::ePTShape,          "ovphysx_physx_type_t / PhysXType drift: SHAPE");
-static_assert(OVPHYSX_PHYSX_TYPE_COMPOUND_SHAPE  == omni::physx::ePTCompoundShape,  "ovphysx_physx_type_t / PhysXType drift: COMPOUND_SHAPE");
-static_assert(OVPHYSX_PHYSX_TYPE_ACTOR           == omni::physx::ePTActor,          "ovphysx_physx_type_t / PhysXType drift: ACTOR");
-static_assert(OVPHYSX_PHYSX_TYPE_JOINT           == omni::physx::ePTJoint,          "ovphysx_physx_type_t / PhysXType drift: JOINT");
-static_assert(OVPHYSX_PHYSX_TYPE_CUSTOM_JOINT    == omni::physx::ePTCustomJoint,    "ovphysx_physx_type_t / PhysXType drift: CUSTOM_JOINT");
-static_assert(OVPHYSX_PHYSX_TYPE_ARTICULATION    == omni::physx::ePTArticulation,   "ovphysx_physx_type_t / PhysXType drift: ARTICULATION");
-static_assert(OVPHYSX_PHYSX_TYPE_LINK            == omni::physx::ePTLink,           "ovphysx_physx_type_t / PhysXType drift: LINK");
-static_assert(OVPHYSX_PHYSX_TYPE_LINK_JOINT      == omni::physx::ePTLinkJoint,      "ovphysx_physx_type_t / PhysXType drift: LINK_JOINT");
-static_assert(OVPHYSX_PHYSX_TYPE_PARTICLE_SYSTEM == omni::physx::ePTParticleSystem, "ovphysx_physx_type_t / PhysXType drift: PARTICLE_SYSTEM");
-static_assert(OVPHYSX_PHYSX_TYPE_PARTICLE_SET    == omni::physx::ePTParticleSet,    "ovphysx_physx_type_t / PhysXType drift: PARTICLE_SET");
-static_assert(OVPHYSX_PHYSX_TYPE_PHYSICS         == omni::physx::ePTPhysics,        "ovphysx_physx_type_t / PhysXType drift: PHYSICS");
+static_assert(OVPHYSX_PHYSX_TYPE_SCENE           == omni::ev4sio_physx::ePTScene,          "ovphysx_physx_type_t / PhysXType drift: SCENE");
+static_assert(OVPHYSX_PHYSX_TYPE_MATERIAL        == omni::ev4sio_physx::ePTMaterial,       "ovphysx_physx_type_t / PhysXType drift: MATERIAL");
+static_assert(OVPHYSX_PHYSX_TYPE_SHAPE           == omni::ev4sio_physx::ePTShape,          "ovphysx_physx_type_t / PhysXType drift: SHAPE");
+static_assert(OVPHYSX_PHYSX_TYPE_COMPOUND_SHAPE  == omni::ev4sio_physx::ePTCompoundShape,  "ovphysx_physx_type_t / PhysXType drift: COMPOUND_SHAPE");
+static_assert(OVPHYSX_PHYSX_TYPE_ACTOR           == omni::ev4sio_physx::ePTActor,          "ovphysx_physx_type_t / PhysXType drift: ACTOR");
+static_assert(OVPHYSX_PHYSX_TYPE_JOINT           == omni::ev4sio_physx::ePTJoint,          "ovphysx_physx_type_t / PhysXType drift: JOINT");
+static_assert(OVPHYSX_PHYSX_TYPE_CUSTOM_JOINT    == omni::ev4sio_physx::ePTCustomJoint,    "ovphysx_physx_type_t / PhysXType drift: CUSTOM_JOINT");
+static_assert(OVPHYSX_PHYSX_TYPE_ARTICULATION    == omni::ev4sio_physx::ePTArticulation,   "ovphysx_physx_type_t / PhysXType drift: ARTICULATION");
+static_assert(OVPHYSX_PHYSX_TYPE_LINK            == omni::ev4sio_physx::ePTLink,           "ovphysx_physx_type_t / PhysXType drift: LINK");
+static_assert(OVPHYSX_PHYSX_TYPE_LINK_JOINT      == omni::ev4sio_physx::ePTLinkJoint,      "ovphysx_physx_type_t / PhysXType drift: LINK_JOINT");
+static_assert(OVPHYSX_PHYSX_TYPE_PARTICLE_SYSTEM == omni::ev4sio_physx::ePTParticleSystem, "ovphysx_physx_type_t / PhysXType drift: PARTICLE_SYSTEM");
+static_assert(OVPHYSX_PHYSX_TYPE_PARTICLE_SET    == omni::ev4sio_physx::ePTParticleSet,    "ovphysx_physx_type_t / PhysXType drift: PARTICLE_SET");
+static_assert(OVPHYSX_PHYSX_TYPE_PHYSICS         == omni::ev4sio_physx::ePTPhysics,        "ovphysx_physx_type_t / PhysXType drift: PHYSICS");
 
-static_assert(OVPHYSX_QUERY_TARGET_ARTICULATION_LINK  == omni::physx::kOvxArticulationLink,  "sim object / OvxObjectType drift: LINK");
-static_assert(OVPHYSX_QUERY_TARGET_ARTICULATION_JOINT == omni::physx::kOvxArticulationJoint, "sim object / OvxObjectType drift: JOINT");
-static_assert(OVPHYSX_QUERY_TARGET_PARTICLE_SET       == omni::physx::kOvxParticleSet,       "sim object / OvxObjectType drift: PARTICLE_SET");
-static_assert(OVPHYSX_QUERY_TARGET_ARTICULATION       == omni::physx::kOvxArticulation,      "sim object / OvxObjectType drift: ARTICULATION");
-static_assert(OVPHYSX_QUERY_TARGET_SCENE              == omni::physx::kOvxScene,             "sim object / OvxObjectType drift: SCENE");
-static_assert(OVPHYSX_QUERY_TARGET_PHYSX_MATERIAL     == omni::physx::kOvxPhysxMaterial,     "sim object / OvxObjectType drift: MATERIAL");
-static_assert(OVPHYSX_QUERY_TARGET_SHAPE              == omni::physx::kOvxShape,             "sim object / OvxObjectType drift: SHAPE");
-static_assert(OVPHYSX_QUERY_TARGET_COMPOUND_SHAPE     == omni::physx::kOvxCompoundShape,     "sim object / OvxObjectType drift: COMPOUND_SHAPE");
-static_assert(OVPHYSX_QUERY_TARGET_RIGID_ACTOR        == omni::physx::kOvxRigidActor,        "sim object / OvxObjectType drift: ACTOR");
-static_assert(OVPHYSX_QUERY_TARGET_JOINT              == omni::physx::kOvxJoint,             "sim object / OvxObjectType drift: STANDALONE_JOINT");
-static_assert(OVPHYSX_QUERY_TARGET_CUSTOM_JOINT       == omni::physx::kOvxCustomJoint,       "sim object / OvxObjectType drift: CUSTOM_JOINT");
-static_assert(OVPHYSX_QUERY_TARGET_PARTICLE_SYSTEM    == omni::physx::kOvxParticleSystem,    "sim object / OvxObjectType drift: PARTICLE_SYSTEM");
-static_assert(OVPHYSX_QUERY_TARGET_PHYSICS            == omni::physx::kOvxPhysics,           "sim object / OvxObjectType drift: PHYSICS");
+static_assert(OVPHYSX_QUERY_TARGET_ARTICULATION_LINK  == omni::ev4sio_physx::kOvxArticulationLink,  "sim object / OvxObjectType drift: LINK");
+static_assert(OVPHYSX_QUERY_TARGET_ARTICULATION_JOINT == omni::ev4sio_physx::kOvxArticulationJoint, "sim object / OvxObjectType drift: JOINT");
+static_assert(OVPHYSX_QUERY_TARGET_PARTICLE_SET       == omni::ev4sio_physx::kOvxParticleSet,       "sim object / OvxObjectType drift: PARTICLE_SET");
+static_assert(OVPHYSX_QUERY_TARGET_ARTICULATION       == omni::ev4sio_physx::kOvxArticulation,      "sim object / OvxObjectType drift: ARTICULATION");
+static_assert(OVPHYSX_QUERY_TARGET_SCENE              == omni::ev4sio_physx::kOvxScene,             "sim object / OvxObjectType drift: SCENE");
+static_assert(OVPHYSX_QUERY_TARGET_PHYSX_MATERIAL     == omni::ev4sio_physx::kOvxPhysxMaterial,     "sim object / OvxObjectType drift: MATERIAL");
+static_assert(OVPHYSX_QUERY_TARGET_SHAPE              == omni::ev4sio_physx::kOvxShape,             "sim object / OvxObjectType drift: SHAPE");
+static_assert(OVPHYSX_QUERY_TARGET_COMPOUND_SHAPE     == omni::ev4sio_physx::kOvxCompoundShape,     "sim object / OvxObjectType drift: COMPOUND_SHAPE");
+static_assert(OVPHYSX_QUERY_TARGET_RIGID_ACTOR        == omni::ev4sio_physx::kOvxRigidActor,        "sim object / OvxObjectType drift: ACTOR");
+static_assert(OVPHYSX_QUERY_TARGET_JOINT              == omni::ev4sio_physx::kOvxJoint,             "sim object / OvxObjectType drift: STANDALONE_JOINT");
+static_assert(OVPHYSX_QUERY_TARGET_CUSTOM_JOINT       == omni::ev4sio_physx::kOvxCustomJoint,       "sim object / OvxObjectType drift: CUSTOM_JOINT");
+static_assert(OVPHYSX_QUERY_TARGET_PARTICLE_SYSTEM    == omni::ev4sio_physx::kOvxParticleSystem,    "sim object / OvxObjectType drift: PARTICLE_SYSTEM");
+static_assert(OVPHYSX_QUERY_TARGET_PHYSICS            == omni::ev4sio_physx::kOvxPhysics,           "sim object / OvxObjectType drift: PHYSICS");
 
 // Compile-time guards: the ovphysx_debug_*_t C structs must stay byte-for-byte
-// layout-compatible with omni::physx::DebugPoint / DebugLine / DebugTriangle because
+// layout-compatible with omni::ev4sio_physx::DebugPoint / DebugLine / DebugTriangle because
 // the debug-render getters reinterpret the omni.physx buffer without a copy
 // (see ovphysxPhysXInterop.cpp). Size checks catch added or removed fields, offset
 // checks catch reordering, and the is_same guards below catch an equal-width type
 // swap (e.g. uint32 colour -> float) that sizeof/offsetof alone would miss.
-static_assert(sizeof(ovphysx_debug_point_t) == sizeof(omni::physx::DebugPoint), "ovphysx_debug_point_t / DebugPoint size drift");
-static_assert(offsetof(ovphysx_debug_point_t, pos)   == offsetof(omni::physx::DebugPoint, mPos),   "debug_point pos offset drift");
-static_assert(offsetof(ovphysx_debug_point_t, color) == offsetof(omni::physx::DebugPoint, mColor), "debug_point color offset drift");
+static_assert(sizeof(ovphysx_debug_point_t) == sizeof(omni::ev4sio_physx::DebugPoint), "ovphysx_debug_point_t / DebugPoint size drift");
+static_assert(offsetof(ovphysx_debug_point_t, pos)   == offsetof(omni::ev4sio_physx::DebugPoint, mPos),   "debug_point pos offset drift");
+static_assert(offsetof(ovphysx_debug_point_t, color) == offsetof(omni::ev4sio_physx::DebugPoint, mColor), "debug_point color offset drift");
 
-static_assert(sizeof(ovphysx_debug_line_t) == sizeof(omni::physx::DebugLine), "ovphysx_debug_line_t / DebugLine size drift");
-static_assert(offsetof(ovphysx_debug_line_t, pos0)   == offsetof(omni::physx::DebugLine, mPos0),   "debug_line pos0 offset drift");
-static_assert(offsetof(ovphysx_debug_line_t, color0) == offsetof(omni::physx::DebugLine, mColor0), "debug_line color0 offset drift");
-static_assert(offsetof(ovphysx_debug_line_t, pos1)   == offsetof(omni::physx::DebugLine, mPos1),   "debug_line pos1 offset drift");
-static_assert(offsetof(ovphysx_debug_line_t, color1) == offsetof(omni::physx::DebugLine, mColor1), "debug_line color1 offset drift");
+static_assert(sizeof(ovphysx_debug_line_t) == sizeof(omni::ev4sio_physx::DebugLine), "ovphysx_debug_line_t / DebugLine size drift");
+static_assert(offsetof(ovphysx_debug_line_t, pos0)   == offsetof(omni::ev4sio_physx::DebugLine, mPos0),   "debug_line pos0 offset drift");
+static_assert(offsetof(ovphysx_debug_line_t, color0) == offsetof(omni::ev4sio_physx::DebugLine, mColor0), "debug_line color0 offset drift");
+static_assert(offsetof(ovphysx_debug_line_t, pos1)   == offsetof(omni::ev4sio_physx::DebugLine, mPos1),   "debug_line pos1 offset drift");
+static_assert(offsetof(ovphysx_debug_line_t, color1) == offsetof(omni::ev4sio_physx::DebugLine, mColor1), "debug_line color1 offset drift");
 
-static_assert(sizeof(ovphysx_debug_triangle_t) == sizeof(omni::physx::DebugTriangle), "ovphysx_debug_triangle_t / DebugTriangle size drift");
-static_assert(offsetof(ovphysx_debug_triangle_t, pos0)   == offsetof(omni::physx::DebugTriangle, mPos0),   "debug_triangle pos0 offset drift");
-static_assert(offsetof(ovphysx_debug_triangle_t, color0) == offsetof(omni::physx::DebugTriangle, mColor0), "debug_triangle color0 offset drift");
-static_assert(offsetof(ovphysx_debug_triangle_t, pos1)   == offsetof(omni::physx::DebugTriangle, mPos1),   "debug_triangle pos1 offset drift");
-static_assert(offsetof(ovphysx_debug_triangle_t, color1) == offsetof(omni::physx::DebugTriangle, mColor1), "debug_triangle color1 offset drift");
-static_assert(offsetof(ovphysx_debug_triangle_t, pos2)   == offsetof(omni::physx::DebugTriangle, mPos2),   "debug_triangle pos2 offset drift");
-static_assert(offsetof(ovphysx_debug_triangle_t, color2) == offsetof(omni::physx::DebugTriangle, mColor2), "debug_triangle color2 offset drift");
+static_assert(sizeof(ovphysx_debug_triangle_t) == sizeof(omni::ev4sio_physx::DebugTriangle), "ovphysx_debug_triangle_t / DebugTriangle size drift");
+static_assert(offsetof(ovphysx_debug_triangle_t, pos0)   == offsetof(omni::ev4sio_physx::DebugTriangle, mPos0),   "debug_triangle pos0 offset drift");
+static_assert(offsetof(ovphysx_debug_triangle_t, color0) == offsetof(omni::ev4sio_physx::DebugTriangle, mColor0), "debug_triangle color0 offset drift");
+static_assert(offsetof(ovphysx_debug_triangle_t, pos1)   == offsetof(omni::ev4sio_physx::DebugTriangle, mPos1),   "debug_triangle pos1 offset drift");
+static_assert(offsetof(ovphysx_debug_triangle_t, color1) == offsetof(omni::ev4sio_physx::DebugTriangle, mColor1), "debug_triangle color1 offset drift");
+static_assert(offsetof(ovphysx_debug_triangle_t, pos2)   == offsetof(omni::ev4sio_physx::DebugTriangle, mPos2),   "debug_triangle pos2 offset drift");
+static_assert(offsetof(ovphysx_debug_triangle_t, color2) == offsetof(omni::ev4sio_physx::DebugTriangle, mColor2), "debug_triangle color2 offset drift");
 
 // Per-field type guards: pin the omni-side field types so an equal-width substitution
 // (which size/offset checks cannot see) fails the build. carb::Float3 is itself pinned
 // to three floats so a Float3 component flip (float -> int) is caught too.
 static_assert(std::is_same<decltype(carb::Float3::x), float>::value, "carb::Float3 component is no longer float");
-static_assert(sizeof(omni::physx::DebugPoint) == sizeof(ovphysx_debug_point_t), "DebugPoint layout drift");
-static_assert(sizeof(omni::physx::DebugLine) == sizeof(ovphysx_debug_line_t), "DebugLine layout drift");
-static_assert(sizeof(omni::physx::DebugTriangle) == sizeof(ovphysx_debug_triangle_t), "DebugTriangle layout drift");
-static_assert(std::is_same<decltype(omni::physx::DebugPoint::mPos), carb::Float3>::value,     "DebugPoint::mPos type drift");
-static_assert(std::is_same<decltype(omni::physx::DebugPoint::mColor), uint32_t>::value,       "DebugPoint::mColor type drift");
-static_assert(std::is_same<decltype(omni::physx::DebugLine::mPos0), carb::Float3>::value,     "DebugLine::mPos0 type drift");
-static_assert(std::is_same<decltype(omni::physx::DebugLine::mColor0), uint32_t>::value,       "DebugLine::mColor0 type drift");
-static_assert(std::is_same<decltype(omni::physx::DebugLine::mPos1), carb::Float3>::value,     "DebugLine::mPos1 type drift");
-static_assert(std::is_same<decltype(omni::physx::DebugLine::mColor1), uint32_t>::value,       "DebugLine::mColor1 type drift");
-static_assert(std::is_same<decltype(omni::physx::DebugTriangle::mPos0), carb::Float3>::value, "DebugTriangle::mPos0 type drift");
-static_assert(std::is_same<decltype(omni::physx::DebugTriangle::mColor0), uint32_t>::value,   "DebugTriangle::mColor0 type drift");
-static_assert(std::is_same<decltype(omni::physx::DebugTriangle::mPos1), carb::Float3>::value, "DebugTriangle::mPos1 type drift");
-static_assert(std::is_same<decltype(omni::physx::DebugTriangle::mColor1), uint32_t>::value,   "DebugTriangle::mColor1 type drift");
-static_assert(std::is_same<decltype(omni::physx::DebugTriangle::mPos2), carb::Float3>::value, "DebugTriangle::mPos2 type drift");
-static_assert(std::is_same<decltype(omni::physx::DebugTriangle::mColor2), uint32_t>::value,   "DebugTriangle::mColor2 type drift");
+static_assert(sizeof(omni::ev4sio_physx::DebugPoint) == sizeof(ovphysx_debug_point_t), "DebugPoint layout drift");
+static_assert(sizeof(omni::ev4sio_physx::DebugLine) == sizeof(ovphysx_debug_line_t), "DebugLine layout drift");
+static_assert(sizeof(omni::ev4sio_physx::DebugTriangle) == sizeof(ovphysx_debug_triangle_t), "DebugTriangle layout drift");
+static_assert(std::is_same<decltype(omni::ev4sio_physx::DebugPoint::mPos), carb::Float3>::value,     "DebugPoint::mPos type drift");
+static_assert(std::is_same<decltype(omni::ev4sio_physx::DebugPoint::mColor), uint32_t>::value,       "DebugPoint::mColor type drift");
+static_assert(std::is_same<decltype(omni::ev4sio_physx::DebugLine::mPos0), carb::Float3>::value,     "DebugLine::mPos0 type drift");
+static_assert(std::is_same<decltype(omni::ev4sio_physx::DebugLine::mColor0), uint32_t>::value,       "DebugLine::mColor0 type drift");
+static_assert(std::is_same<decltype(omni::ev4sio_physx::DebugLine::mPos1), carb::Float3>::value,     "DebugLine::mPos1 type drift");
+static_assert(std::is_same<decltype(omni::ev4sio_physx::DebugLine::mColor1), uint32_t>::value,       "DebugLine::mColor1 type drift");
+static_assert(std::is_same<decltype(omni::ev4sio_physx::DebugTriangle::mPos0), carb::Float3>::value, "DebugTriangle::mPos0 type drift");
+static_assert(std::is_same<decltype(omni::ev4sio_physx::DebugTriangle::mColor0), uint32_t>::value,   "DebugTriangle::mColor0 type drift");
+static_assert(std::is_same<decltype(omni::ev4sio_physx::DebugTriangle::mPos1), carb::Float3>::value, "DebugTriangle::mPos1 type drift");
+static_assert(std::is_same<decltype(omni::ev4sio_physx::DebugTriangle::mColor1), uint32_t>::value,   "DebugTriangle::mColor1 type drift");
+static_assert(std::is_same<decltype(omni::ev4sio_physx::DebugTriangle::mPos2), carb::Float3>::value, "DebugTriangle::mPos2 type drift");
+static_assert(std::is_same<decltype(omni::ev4sio_physx::DebugTriangle::mColor2), uint32_t>::value,   "DebugTriangle::mColor2 type drift");
 
 // The public ovphysx_debug_render_parameter_t enum must mirror the internal
-// omni::physx::PhysXVisualizationParameter values one-for-one. The forward in
+// omni::ev4sio_physx::PhysXVisualizationParameter values one-for-one. The forward in
 // internal_set_visualization_parameter is a raw static_cast<PhysXVisualizationParameter>
 // with no translation table, so every enumerator is asserted. A reorder inside the
 // range that preserved count and endpoints would otherwise mis-map.
-static_assert((int)OVPHYSX_DEBUG_RENDER_PARAM_NONE                     == (int)omni::physx::eNone,                  "debug_render_parameter drift: NONE");
-static_assert((int)OVPHYSX_DEBUG_RENDER_PARAM_WORLD_AXES               == (int)omni::physx::eWorldAxes,             "debug_render_parameter drift: WORLD_AXES");
-static_assert((int)OVPHYSX_DEBUG_RENDER_PARAM_BODY_AXES                == (int)omni::physx::eBodyAxes,              "debug_render_parameter drift: BODY_AXES");
-static_assert((int)OVPHYSX_DEBUG_RENDER_PARAM_BODY_MASS_AXES           == (int)omni::physx::eBodyMassAxes,          "debug_render_parameter drift: BODY_MASS_AXES");
-static_assert((int)OVPHYSX_DEBUG_RENDER_PARAM_BODY_LINEAR_VELOCITY     == (int)omni::physx::eBodyLinearVelocity,    "debug_render_parameter drift: BODY_LINEAR_VELOCITY");
-static_assert((int)OVPHYSX_DEBUG_RENDER_PARAM_BODY_ANGULAR_VELOCITY    == (int)omni::physx::eBodyAngularVelocity,   "debug_render_parameter drift: BODY_ANGULAR_VELOCITY");
-static_assert((int)OVPHYSX_DEBUG_RENDER_PARAM_CONTACT_POINT            == (int)omni::physx::eContactPoint,          "debug_render_parameter drift: CONTACT_POINT");
-static_assert((int)OVPHYSX_DEBUG_RENDER_PARAM_CONTACT_NORMAL           == (int)omni::physx::eContactNormal,         "debug_render_parameter drift: CONTACT_NORMAL");
-static_assert((int)OVPHYSX_DEBUG_RENDER_PARAM_CONTACT_ERROR            == (int)omni::physx::eContactError,          "debug_render_parameter drift: CONTACT_ERROR");
-static_assert((int)OVPHYSX_DEBUG_RENDER_PARAM_CONTACT_IMPULSE          == (int)omni::physx::eContactImpulse,        "debug_render_parameter drift: CONTACT_IMPULSE");
-static_assert((int)OVPHYSX_DEBUG_RENDER_PARAM_FRICTION_POINT           == (int)omni::physx::eFrictionPoint,         "debug_render_parameter drift: FRICTION_POINT");
-static_assert((int)OVPHYSX_DEBUG_RENDER_PARAM_FRICTION_NORMAL          == (int)omni::physx::eFrictionNormal,        "debug_render_parameter drift: FRICTION_NORMAL");
-static_assert((int)OVPHYSX_DEBUG_RENDER_PARAM_FRICTION_IMPULSE         == (int)omni::physx::eFrictionImpulse,       "debug_render_parameter drift: FRICTION_IMPULSE");
-static_assert((int)OVPHYSX_DEBUG_RENDER_PARAM_ACTOR_AXES               == (int)omni::physx::eActorAxes,             "debug_render_parameter drift: ACTOR_AXES");
-static_assert((int)OVPHYSX_DEBUG_RENDER_PARAM_COLLISION_AABBS          == (int)omni::physx::eCollisionAABBs,        "debug_render_parameter drift: COLLISION_AABBS");
-static_assert((int)OVPHYSX_DEBUG_RENDER_PARAM_COLLISION_SHAPES         == (int)omni::physx::eCollisionShapes,       "debug_render_parameter drift: COLLISION_SHAPES");
-static_assert((int)OVPHYSX_DEBUG_RENDER_PARAM_COLLISION_AXES           == (int)omni::physx::eCollisionAxes,         "debug_render_parameter drift: COLLISION_AXES");
-static_assert((int)OVPHYSX_DEBUG_RENDER_PARAM_COLLISION_COMPOUNDS      == (int)omni::physx::eCollisionCompounds,    "debug_render_parameter drift: COLLISION_COMPOUNDS");
-static_assert((int)OVPHYSX_DEBUG_RENDER_PARAM_COLLISION_FACE_NORMALS   == (int)omni::physx::eCollisionFaceNormals,  "debug_render_parameter drift: COLLISION_FACE_NORMALS");
-static_assert((int)OVPHYSX_DEBUG_RENDER_PARAM_COLLISION_EDGES          == (int)omni::physx::eCollisionEdges,        "debug_render_parameter drift: COLLISION_EDGES");
-static_assert((int)OVPHYSX_DEBUG_RENDER_PARAM_COLLISION_STATIC_PRUNER  == (int)omni::physx::eCollisionStaticPruner, "debug_render_parameter drift: COLLISION_STATIC_PRUNER");
-static_assert((int)OVPHYSX_DEBUG_RENDER_PARAM_COLLISION_DYNAMIC_PRUNER == (int)omni::physx::eCollisionDynamicPruner,"debug_render_parameter drift: COLLISION_DYNAMIC_PRUNER");
-static_assert((int)OVPHYSX_DEBUG_RENDER_PARAM_JOINT_LOCAL_FRAMES       == (int)omni::physx::eJointLocalFrames,      "debug_render_parameter drift: JOINT_LOCAL_FRAMES");
-static_assert((int)OVPHYSX_DEBUG_RENDER_PARAM_JOINT_LIMITS             == (int)omni::physx::eJointLimits,           "debug_render_parameter drift: JOINT_LIMITS");
-static_assert((int)OVPHYSX_DEBUG_RENDER_PARAM_CULL_BOX                 == (int)omni::physx::eCullBox,               "debug_render_parameter drift: CULL_BOX");
-static_assert((int)OVPHYSX_DEBUG_RENDER_PARAM_MBP_REGIONS              == (int)omni::physx::eMBPRegions,            "debug_render_parameter drift: MBP_REGIONS");
-static_assert((int)OVPHYSX_DEBUG_RENDER_PARAM_SIMULATION_MESH          == (int)omni::physx::eSimulationMesh,        "debug_render_parameter drift: SIMULATION_MESH");
-static_assert((int)OVPHYSX_DEBUG_RENDER_PARAM_SDF                      == (int)omni::physx::eSDF,                   "debug_render_parameter drift: SDF");
-static_assert((int)OVPHYSX_DEBUG_RENDER_PARAM_COUNT                    == (int)omni::physx::ePhysXNumValues,        "debug_render_parameter COUNT must equal ePhysXNumValues");
+static_assert((int)OVPHYSX_DEBUG_RENDER_PARAM_NONE                     == (int)omni::ev4sio_physx::eNone,                  "debug_render_parameter drift: NONE");
+static_assert((int)OVPHYSX_DEBUG_RENDER_PARAM_WORLD_AXES               == (int)omni::ev4sio_physx::eWorldAxes,             "debug_render_parameter drift: WORLD_AXES");
+static_assert((int)OVPHYSX_DEBUG_RENDER_PARAM_BODY_AXES                == (int)omni::ev4sio_physx::eBodyAxes,              "debug_render_parameter drift: BODY_AXES");
+static_assert((int)OVPHYSX_DEBUG_RENDER_PARAM_BODY_MASS_AXES           == (int)omni::ev4sio_physx::eBodyMassAxes,          "debug_render_parameter drift: BODY_MASS_AXES");
+static_assert((int)OVPHYSX_DEBUG_RENDER_PARAM_BODY_LINEAR_VELOCITY     == (int)omni::ev4sio_physx::eBodyLinearVelocity,    "debug_render_parameter drift: BODY_LINEAR_VELOCITY");
+static_assert((int)OVPHYSX_DEBUG_RENDER_PARAM_BODY_ANGULAR_VELOCITY    == (int)omni::ev4sio_physx::eBodyAngularVelocity,   "debug_render_parameter drift: BODY_ANGULAR_VELOCITY");
+static_assert((int)OVPHYSX_DEBUG_RENDER_PARAM_CONTACT_POINT            == (int)omni::ev4sio_physx::eContactPoint,          "debug_render_parameter drift: CONTACT_POINT");
+static_assert((int)OVPHYSX_DEBUG_RENDER_PARAM_CONTACT_NORMAL           == (int)omni::ev4sio_physx::eContactNormal,         "debug_render_parameter drift: CONTACT_NORMAL");
+static_assert((int)OVPHYSX_DEBUG_RENDER_PARAM_CONTACT_ERROR            == (int)omni::ev4sio_physx::eContactError,          "debug_render_parameter drift: CONTACT_ERROR");
+static_assert((int)OVPHYSX_DEBUG_RENDER_PARAM_CONTACT_IMPULSE          == (int)omni::ev4sio_physx::eContactImpulse,        "debug_render_parameter drift: CONTACT_IMPULSE");
+static_assert((int)OVPHYSX_DEBUG_RENDER_PARAM_FRICTION_POINT           == (int)omni::ev4sio_physx::eFrictionPoint,         "debug_render_parameter drift: FRICTION_POINT");
+static_assert((int)OVPHYSX_DEBUG_RENDER_PARAM_FRICTION_NORMAL          == (int)omni::ev4sio_physx::eFrictionNormal,        "debug_render_parameter drift: FRICTION_NORMAL");
+static_assert((int)OVPHYSX_DEBUG_RENDER_PARAM_FRICTION_IMPULSE         == (int)omni::ev4sio_physx::eFrictionImpulse,       "debug_render_parameter drift: FRICTION_IMPULSE");
+static_assert((int)OVPHYSX_DEBUG_RENDER_PARAM_ACTOR_AXES               == (int)omni::ev4sio_physx::eActorAxes,             "debug_render_parameter drift: ACTOR_AXES");
+static_assert((int)OVPHYSX_DEBUG_RENDER_PARAM_COLLISION_AABBS          == (int)omni::ev4sio_physx::eCollisionAABBs,        "debug_render_parameter drift: COLLISION_AABBS");
+static_assert((int)OVPHYSX_DEBUG_RENDER_PARAM_COLLISION_SHAPES         == (int)omni::ev4sio_physx::eCollisionShapes,       "debug_render_parameter drift: COLLISION_SHAPES");
+static_assert((int)OVPHYSX_DEBUG_RENDER_PARAM_COLLISION_AXES           == (int)omni::ev4sio_physx::eCollisionAxes,         "debug_render_parameter drift: COLLISION_AXES");
+static_assert((int)OVPHYSX_DEBUG_RENDER_PARAM_COLLISION_COMPOUNDS      == (int)omni::ev4sio_physx::eCollisionCompounds,    "debug_render_parameter drift: COLLISION_COMPOUNDS");
+static_assert((int)OVPHYSX_DEBUG_RENDER_PARAM_COLLISION_FACE_NORMALS   == (int)omni::ev4sio_physx::eCollisionFaceNormals,  "debug_render_parameter drift: COLLISION_FACE_NORMALS");
+static_assert((int)OVPHYSX_DEBUG_RENDER_PARAM_COLLISION_EDGES          == (int)omni::ev4sio_physx::eCollisionEdges,        "debug_render_parameter drift: COLLISION_EDGES");
+static_assert((int)OVPHYSX_DEBUG_RENDER_PARAM_COLLISION_STATIC_PRUNER  == (int)omni::ev4sio_physx::eCollisionStaticPruner, "debug_render_parameter drift: COLLISION_STATIC_PRUNER");
+static_assert((int)OVPHYSX_DEBUG_RENDER_PARAM_COLLISION_DYNAMIC_PRUNER == (int)omni::ev4sio_physx::eCollisionDynamicPruner,"debug_render_parameter drift: COLLISION_DYNAMIC_PRUNER");
+static_assert((int)OVPHYSX_DEBUG_RENDER_PARAM_JOINT_LOCAL_FRAMES       == (int)omni::ev4sio_physx::eJointLocalFrames,      "debug_render_parameter drift: JOINT_LOCAL_FRAMES");
+static_assert((int)OVPHYSX_DEBUG_RENDER_PARAM_JOINT_LIMITS             == (int)omni::ev4sio_physx::eJointLimits,           "debug_render_parameter drift: JOINT_LIMITS");
+static_assert((int)OVPHYSX_DEBUG_RENDER_PARAM_CULL_BOX                 == (int)omni::ev4sio_physx::eCullBox,               "debug_render_parameter drift: CULL_BOX");
+static_assert((int)OVPHYSX_DEBUG_RENDER_PARAM_MBP_REGIONS              == (int)omni::ev4sio_physx::eMBPRegions,            "debug_render_parameter drift: MBP_REGIONS");
+static_assert((int)OVPHYSX_DEBUG_RENDER_PARAM_SIMULATION_MESH          == (int)omni::ev4sio_physx::eSimulationMesh,        "debug_render_parameter drift: SIMULATION_MESH");
+static_assert((int)OVPHYSX_DEBUG_RENDER_PARAM_SDF                      == (int)omni::ev4sio_physx::eSDF,                   "debug_render_parameter drift: SDF");
+static_assert((int)OVPHYSX_DEBUG_RENDER_PARAM_COUNT                    == (int)omni::ev4sio_physx::ePhysXNumValues,        "debug_render_parameter COUNT must equal ePhysXNumValues");
 
 // The public ovphysx output-read surface uses ovstage's own types directly
 // (ovstage_read_group_t / ovstage_query_result_t / ovx_token_or_string_t), so there
@@ -172,8 +172,8 @@ static_assert((int)OVPHYSX_DEBUG_RENDER_PARAM_COUNT                    == (int)o
 
 // The runtime's OvxReadStatus must map cleanly onto the 1 / 0 / -1 convention
 // ovphysx_internal_fetch_read_next returns.
-static_assert((int)omni::physx::kOvxReadStatusOk != (int)omni::physx::kOvxReadStatusEndOfIteration, "OvxReadStatus ok/eof collision");
-static_assert((int)omni::physx::kOvxReadStatusError != (int)omni::physx::kOvxReadStatusOk, "OvxReadStatus ok/error collision");
+static_assert((int)omni::ev4sio_physx::kOvxReadStatusOk != (int)omni::ev4sio_physx::kOvxReadStatusEndOfIteration, "OvxReadStatus ok/eof collision");
+static_assert((int)omni::ev4sio_physx::kOvxReadStatusError != (int)omni::ev4sio_physx::kOvxReadStatusOk, "OvxReadStatus ok/error collision");
 
 // try/catch guards the extern "C" boundary so C++ exceptions do not escape into C callers.
 // The enum range is not validated here because PhysX returns nullptr for unknown types.
@@ -196,7 +196,7 @@ OVPHYSX_INTERNAL_API void* ovphysx_internal_get_physx_ptr(uint64_t attach, const
 
     try
     {
-        omni::physx::IPhysx* physx = ovphysx::internal::sidecar::tryGetInjectedPhysxInterface();
+        omni::ev4sio_physx::IPhysx* physx = ovphysx::internal::sidecar::tryGetInjectedPhysxInterface();
         if (!physx)
         {
             CARB_LOG_ERROR("Internal sidecar: ovphysx_internal_get_physx_ptr failed to resolve IPhysx runtime interface");
@@ -215,7 +215,7 @@ OVPHYSX_INTERNAL_API void* ovphysx_internal_get_physx_ptr(uint64_t attach, const
             }
         }
 
-        return physx->getPhysXPtr(attach, key, static_cast<omni::physx::PhysXType>(physx_type));
+        return physx->getPhysXPtr(attach, key, static_cast<omni::ev4sio_physx::PhysXType>(physx_type));
     }
     catch (const std::exception& e)
     {
@@ -229,13 +229,13 @@ OVPHYSX_INTERNAL_API void* ovphysx_internal_get_physx_ptr(uint64_t attach, const
     }
 }
 
-// ---- PhysX debug-visualization bridge -> omni::physx::IPhysxVisualization ----
+// ---- PhysX debug-visualization bridge -> omni::ev4sio_physx::IPhysxVisualization ----
 // The sidecar resolves the interface from the owner-injected static runtime
 // accessor. All functions are no-ops (and never throw across the C ABI) when
 // the interface is unavailable.
 
 // NOTE: the debug-viz master scale eSCALE = viewportGizmoScale * visualizationScale.
-// omni::physx treats a non-positive (unset) viewport gizmo scale, the common case in
+// omni::ev4sio_physx treats a non-positive (unset) viewport gizmo scale, the common case in
 // headless hosts, as 1.0 when computing eSCALE (PhysXDebugVisualization.cpp). This
 // sidecar therefore does not seed the persistent /persistent/app/viewport/gizmo/scale
 // setting, which is a process-global side effect ovphysx should not own.
@@ -244,7 +244,7 @@ OVPHYSX_INTERNAL_API void ovphysx_internal_enable_visualization(uint64_t attach,
 {
     try
     {
-        omni::physx::IPhysxVisualization* visualization =
+        omni::ev4sio_physx::IPhysxVisualization* visualization =
             ovphysx::internal::sidecar::tryGetInjectedPhysxVisualizationInterface();
         if (visualization)
         {
@@ -261,11 +261,11 @@ OVPHYSX_INTERNAL_API void ovphysx_internal_set_visualization_parameter(uint64_t 
 {
     try
     {
-        omni::physx::IPhysxVisualization* visualization =
+        omni::ev4sio_physx::IPhysxVisualization* visualization =
             ovphysx::internal::sidecar::tryGetInjectedPhysxVisualizationInterface();
         if (visualization)
         {
-            visualization->setVisualizationParameter(attach, static_cast<omni::physx::PhysXVisualizationParameter>(param), on);
+            visualization->setVisualizationParameter(attach, static_cast<omni::ev4sio_physx::PhysXVisualizationParameter>(param), on);
         }
     }
     catch (...)
@@ -278,13 +278,13 @@ OVPHYSX_INTERNAL_API void ovphysx_internal_set_visualization_parameter_value(uin
 {
     try
     {
-        omni::physx::IPhysxVisualization* visualization =
+        omni::ev4sio_physx::IPhysxVisualization* visualization =
             ovphysx::internal::sidecar::tryGetInjectedPhysxVisualizationInterface();
         // ABI-appended member: an older omni.physx predating the API leaves
         // the pointer unset, same guard as the scope setter.
         if (visualization && visualization->setVisualizationParameterValue)
         {
-            visualization->setVisualizationParameterValue(attach, static_cast<omni::physx::PhysXVisualizationParameter>(param), value);
+            visualization->setVisualizationParameterValue(attach, static_cast<omni::ev4sio_physx::PhysXVisualizationParameter>(param), value);
         }
     }
     catch (...)
@@ -297,7 +297,7 @@ OVPHYSX_INTERNAL_API bool ovphysx_internal_set_visualization_scope_tokens(uint64
 {
     try
     {
-        omni::physx::IPhysxVisualization* visualization =
+        omni::ev4sio_physx::IPhysxVisualization* visualization =
             ovphysx::internal::sidecar::tryGetInjectedPhysxVisualizationInterface();
         if (!visualization || !visualization->setVisualizationScopeTokens)
             return false;
@@ -314,7 +314,7 @@ OVPHYSX_INTERNAL_API void ovphysx_internal_set_visualization_scale(uint64_t atta
 {
     try
     {
-        omni::physx::IPhysxVisualization* visualization =
+        omni::ev4sio_physx::IPhysxVisualization* visualization =
             ovphysx::internal::sidecar::tryGetInjectedPhysxVisualizationInterface();
         if (visualization)
         {
@@ -333,7 +333,7 @@ OVPHYSX_INTERNAL_API void ovphysx_internal_set_visualization_culling_box(uint64_
         return;
     try
     {
-        omni::physx::IPhysxVisualization* visualization =
+        omni::ev4sio_physx::IPhysxVisualization* visualization =
             ovphysx::internal::sidecar::tryGetInjectedPhysxVisualizationInterface();
         if (visualization)
         {
@@ -353,7 +353,7 @@ OVPHYSX_INTERNAL_API void ovphysx_internal_get_debug_points(uint64_t attach, con
     if (count) *count = 0;
     try
     {
-        omni::physx::IPhysxVisualization* visualization =
+        omni::ev4sio_physx::IPhysxVisualization* visualization =
             ovphysx::internal::sidecar::tryGetInjectedPhysxVisualizationInterface();
         if (visualization)
         {
@@ -373,7 +373,7 @@ OVPHYSX_INTERNAL_API void ovphysx_internal_get_debug_lines(uint64_t attach, cons
     if (count) *count = 0;
     try
     {
-        omni::physx::IPhysxVisualization* visualization =
+        omni::ev4sio_physx::IPhysxVisualization* visualization =
             ovphysx::internal::sidecar::tryGetInjectedPhysxVisualizationInterface();
         if (visualization)
         {
@@ -393,7 +393,7 @@ OVPHYSX_INTERNAL_API void ovphysx_internal_get_debug_triangles(uint64_t attach, 
     if (count) *count = 0;
     try
     {
-        omni::physx::IPhysxVisualization* visualization =
+        omni::ev4sio_physx::IPhysxVisualization* visualization =
             ovphysx::internal::sidecar::tryGetInjectedPhysxVisualizationInterface();
         if (visualization)
         {
@@ -414,11 +414,11 @@ OVPHYSX_INTERNAL_API void ovphysx_internal_debug_render_apply(
         return;
     try
     {
-        omni::physx::IPhysxVisualization* visualization =
+        omni::ev4sio_physx::IPhysxVisualization* visualization =
             ovphysx::internal::sidecar::tryGetInjectedPhysxVisualizationInterface();
         if (!visualization || !visualization->applyDebugRenderForAttach)
             return;
-        omni::physx::DebugRenderAttachRequest request{};
+        omni::ev4sio_physx::DebugRenderAttachRequest request{};
         request.attachHandle = state->attach_handle;
         request.enabled = state->enabled != 0;
         request.scale = state->scale;
@@ -448,7 +448,7 @@ OVPHYSX_INTERNAL_API void ovphysx_internal_debug_render_copy(
 {
     try
     {
-        omni::physx::IPhysxVisualization* visualization =
+        omni::ev4sio_physx::IPhysxVisualization* visualization =
             ovphysx::internal::sidecar::tryGetInjectedPhysxVisualizationInterface();
         if (!visualization || !visualization->copyDebugPrimitivesForAttach)
         {
@@ -459,9 +459,9 @@ OVPHYSX_INTERNAL_API void ovphysx_internal_debug_render_copy(
         }
         visualization->copyDebugPrimitivesForAttach(
             attach_handle,
-            static_cast<omni::physx::DebugPoint*>(points), point_count,
-            static_cast<omni::physx::DebugLine*>(lines), line_count,
-            static_cast<omni::physx::DebugTriangle*>(triangles), triangle_count);
+            static_cast<omni::ev4sio_physx::DebugPoint*>(points), point_count,
+            static_cast<omni::ev4sio_physx::DebugLine*>(lines), line_count,
+            static_cast<omni::ev4sio_physx::DebugTriangle*>(triangles), triangle_count);
     }
     catch (...)
     {
@@ -476,7 +476,7 @@ OVPHYSX_INTERNAL_API void ovphysx_internal_debug_render_copy(
 // Physics output read (ADR-0007)
 //
 // The runtime exports the ovstage-native read entry points as standalone
-// (non-carb) symbols (omni::physx::ovx*), injected here by the main library at
+// (non-carb) symbols (omni::ev4sio_physx::ovx*), injected here by the main library at
 // load. The sidecar owns the read-session bookkeeping and hands back each
 // ovstage_read_group_t verbatim. The public surface is ovstage's own type, with
 // no ovphysx mirror and no translation.
@@ -487,13 +487,13 @@ namespace
 // Read entry points injected by ovphysx_internal_set_ovx_read_accessors().
 struct OvxReadFns
 {
-    decltype(&omni::physx::ovxQuery)            query = nullptr;
-    decltype(&omni::physx::ovxQuerySelected)    querySelected = nullptr;
-    decltype(&omni::physx::ovxReadAttributes)   read = nullptr;
-    decltype(&omni::physx::ovxFetchReadNext)    fetch = nullptr;
-    decltype(&omni::physx::ovxReleaseGroup)     releaseGroup = nullptr;
-    decltype(&omni::physx::ovxReleaseRead)      releaseRead = nullptr;
-    decltype(&omni::physx::ovxReleaseQuery)     releaseQuery = nullptr;
+    decltype(&omni::ev4sio_physx::ovxQuery)            query = nullptr;
+    decltype(&omni::ev4sio_physx::ovxQuerySelected)    querySelected = nullptr;
+    decltype(&omni::ev4sio_physx::ovxReadAttributes)   read = nullptr;
+    decltype(&omni::ev4sio_physx::ovxFetchReadNext)    fetch = nullptr;
+    decltype(&omni::ev4sio_physx::ovxReleaseGroup)     releaseGroup = nullptr;
+    decltype(&omni::ev4sio_physx::ovxReleaseRead)      releaseRead = nullptr;
+    decltype(&omni::ev4sio_physx::ovxReleaseQuery)     releaseQuery = nullptr;
     bool ready() const
     {
         return query && querySelected && read && fetch && releaseGroup &&
@@ -503,7 +503,7 @@ struct OvxReadFns
 
 // Populated once by ovphysx_internal_set_ovx_read_accessors(), which the main
 // library's sidecar loader calls at startup with the addresses of its own
-// statically linked omni::physx::ovx* read entry points. The sidecar cannot resolve
+// statically linked omni::ev4sio_physx::ovx* read entry points. The sidecar cannot resolve
 // them itself: the owner's symbols are hidden and the static layout has no separate
 // libomni.physx.plugin.so to dlopen, so the same handshake as
 // ovphysx_internal_set_physx_runtime_accessors is used.
@@ -517,19 +517,19 @@ OvxReadFns& ovxReadFns()
 // The write half (ADR-0012), injected by the same handshake and for the same reason.
 struct OvxWriteFns
 {
-    decltype(&omni::physx::ovxWriteAttributes) write = nullptr;
-    decltype(&omni::physx::ovxFetchWriteNext) fetch = nullptr;
-    decltype(&omni::physx::ovxCommitGroup)    commit = nullptr;
-    decltype(&omni::physx::ovxReleaseWrite)   releaseWrite = nullptr;
-    decltype(&omni::physx::ovxCommitGroupMasked) commitMasked = nullptr;
-    decltype(&omni::physx::ovxValidateCommit) validateCommit = nullptr;
+    decltype(&omni::ev4sio_physx::ovxWriteAttributes) write = nullptr;
+    decltype(&omni::ev4sio_physx::ovxFetchWriteNext) fetch = nullptr;
+    decltype(&omni::ev4sio_physx::ovxCommitGroup)    commit = nullptr;
+    decltype(&omni::ev4sio_physx::ovxReleaseWrite)   releaseWrite = nullptr;
+    decltype(&omni::ev4sio_physx::ovxCommitGroupMasked) commitMasked = nullptr;
+    decltype(&omni::ev4sio_physx::ovxValidateCommit) validateCommit = nullptr;
 };
 
 OvxWriteFns g_ovxWrite;
 
 // The contact query (ADR-0044), injected by its own setter. Not part of OvxReadFns::ready(): an owner that
 // predates it still serves every other read.
-decltype(&omni::physx::ovxQueryContacts) g_ovxQueryContacts = nullptr;
+decltype(&omni::ev4sio_physx::ovxQueryContacts) g_ovxQueryContacts = nullptr;
 
 OvxWriteFns& ovxWriteFns()
 {
@@ -553,7 +553,7 @@ std::unordered_map<uint64_t, std::vector<ovphysx_write_attribute_result_t>> g_wr
 
 } // namespace
 
-// Owner-injected addresses of the statically linked omni::physx::ovx* read entry
+// Owner-injected addresses of the statically linked omni::ev4sio_physx::ovx* read entry
 // points. Passed as void* so the shared sidecar header stays free of the ovx/ovstage
 // read types, and cast back to the decltype pointer types here. See g_ovxRead.
 // Declared extern "C" so the loader can resolve it by plain name via dlsym/GetProcAddress.
@@ -612,7 +612,7 @@ OVPHYSX_INTERNAL_API uint64_t ovphysx_internal_write_attribute(uint64_t query,
             ownership = g_writeResults.extract(0);
             ownership.mapped().resize(attribute_count);
         }
-        omni::physx::OvxWriteResult result{};
+        omni::ev4sio_physx::OvxWriteResult result{};
         opened = f.write(query, attributes, attribute_count, out_summary ? &result : nullptr);
         if (!opened)
             return 0;
@@ -663,14 +663,14 @@ OVPHYSX_INTERNAL_API int ovphysx_internal_fetch_write_next(uint64_t write, ovphy
         if (!f.fetch)
             return -1;
         // Preserve the original producer address: it is the commit identity.
-        omni::physx::OvxFetchedWriteGroup fetched{};
-        const omni::physx::OvxWriteStatus status = f.fetch(write, &fetched);
-        if (status == omni::physx::kOvxWriteStatusOk)
+        omni::ev4sio_physx::OvxFetchedWriteGroup fetched{};
+        const omni::ev4sio_physx::OvxWriteStatus status = f.fetch(write, &fetched);
+        if (status == omni::ev4sio_physx::kOvxWriteStatusOk)
         {
             *out_group = {fetched.group, fetched.attributeIndex};
             return 1;
         }
-        return status == omni::physx::kOvxWriteStatusEndOfIteration ? 0 : -1;
+        return status == omni::ev4sio_physx::kOvxWriteStatusEndOfIteration ? 0 : -1;
     }
     catch (...)
     {
@@ -691,7 +691,7 @@ OVPHYSX_INTERNAL_API int ovphysx_internal_commit_group(uint64_t write,
         OvxWriteFns& f = ovxWriteFns();
         if (!f.commit)
             return 0;
-        omni::physx::OvxCommitFailure why = omni::physx::kOvxCommitFailureNone;
+        omni::ev4sio_physx::OvxCommitFailure why = omni::ev4sio_physx::kOvxCommitFailureNone;
         const bool ok = f.commit(write, group, write_done_sync, &why);
         if (!ok && out_failure)
             *out_failure = static_cast<int32_t>(why);
@@ -715,7 +715,7 @@ OVPHYSX_INTERNAL_API int ovphysx_internal_commit_group_masked(uint64_t write,
         OvxWriteFns& f = ovxWriteFns();
         if (!f.commitMasked)
             return 0;
-        omni::physx::OvxCommitFailure why = omni::physx::kOvxCommitFailureNone;
+        omni::ev4sio_physx::OvxCommitFailure why = omni::ev4sio_physx::kOvxCommitFailureNone;
         const bool ok = f.commitMasked(write, group, row_mask, write_done_sync, &why);
         if (!ok && out_failure)
             *out_failure = static_cast<int32_t>(why);
@@ -816,7 +816,7 @@ OVPHYSX_INTERNAL_API uint64_t ovphysx_internal_output_query_contacts(uint64_t at
     {
         if (!g_ovxQueryContacts)
             return 0;
-        return g_ovxQueryContacts(attach, static_cast<const omni::physx::OvxContactSensorSelection*>(selections),
+        return g_ovxQueryContacts(attach, static_cast<const omni::ev4sio_physx::OvxContactSensorSelection*>(selections),
                                   selectionCount, filterCount, out_summary);
     }
     catch (...)
@@ -845,7 +845,7 @@ OVPHYSX_INTERNAL_API uint64_t ovphysx_internal_read_outputs(uint64_t query,
         }
         if (out_summary)
             ownership.mapped().attributes.resize(attribute_count);
-        omni::physx::OvxReadResult result{};
+        omni::ev4sio_physx::OvxReadResult result{};
         opened = f.read(query, attribute_count ? attributes : nullptr, attribute_count,
                         out_summary ? &result : nullptr, cuda_sync);
         if (!opened)
@@ -900,10 +900,10 @@ OVPHYSX_INTERNAL_API int ovphysx_internal_fetch_read_next(uint64_t read, const o
             return -1;
 
         ovstage_read_group_t g{};
-        const omni::physx::OvxReadStatus st = f.fetch(read, &g);
-        if (st == omni::physx::kOvxReadStatusEndOfIteration)
+        const omni::ev4sio_physx::OvxReadStatus st = f.fetch(read, &g);
+        if (st == omni::ev4sio_physx::kOvxReadStatusEndOfIteration)
             return 0; // end of iteration (not an error)
-        if (st != omni::physx::kOvxReadStatusOk)
+        if (st != omni::ev4sio_physx::kOvxReadStatusOk)
             return -1; // fetch error, distinct from end of iteration
 
         std::lock_guard<std::mutex> lk(g_readMutex);

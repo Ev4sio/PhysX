@@ -11,7 +11,7 @@
 #include "vehicle/PxVehicleParams.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -45,7 +45,7 @@ void PxVehicleRigidBodyUpdate
 	PxVehicleRigidBodyState& rigidBodyState);
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

@@ -12,7 +12,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace tensors
 {
@@ -47,5 +47,5 @@ inline uint32_t vehicleWheelComponents(VehicleWheelComponent c)
 }
 
 } // namespace tensors
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

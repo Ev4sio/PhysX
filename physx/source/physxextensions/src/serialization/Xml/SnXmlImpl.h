@@ -10,7 +10,7 @@
 #include "foundation/PxString.h"
 #include "foundation/PxMemory.h"
 
-namespace physx { namespace Sn {
+namespace ev4sio_physx { namespace Sn {
 
 typedef CMemoryPoolManager TMemoryPoolManager;
 
@@ -122,7 +122,7 @@ namespace snXmlImpl {
 			for ( XmlNode* theNode = mFirstChild; theNode; theNode = theNode->mNextSibling )
 			{
 				XmlNode* theRepXNode = theNode;
-				if ( physx::Pxstricmp( theRepXNode->mName, inName ) == 0 )
+				if ( ev4sio_physx::Pxstricmp( theRepXNode->mName, inName ) == 0 )
 					return theNode;
 			}
 			return NULL;

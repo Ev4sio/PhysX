@@ -8,7 +8,7 @@
 
 #include "foundation/PxUserAllocated.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	class PxsKernelWranglerManager : public PxUserAllocated
 	{

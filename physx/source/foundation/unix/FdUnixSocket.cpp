@@ -23,7 +23,7 @@
 #define SOMAXCONN 5
 #endif
 
-namespace physx
+namespace ev4sio_physx
 {
 
 const uint32_t PxSocket::DEFAULT_BUFFER_SIZE = 32768;
@@ -453,4 +453,4 @@ bool PxSocket::isBlocking() const
 	return mImpl->isBlocking();
 }
 
-} // namespace physx
+} // namespace ev4sio_physx

@@ -9,7 +9,7 @@
 #include "extensions/PxGjkQueryExt.h"
 #include <common/utilities/MemoryMacros.h>
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 namespace omni
 {
@@ -62,7 +62,7 @@ namespace omni
             bvhDesc.bounds.count = numTris;
             bvhDesc.bounds.data = bounds;
             bvhDesc.bounds.stride = sizeof(PxBounds3);
-            PxBVH* bvh = PxCreateBVH(bvhDesc);
+            PxBVH* bvh = ev4sio_PxCreateBVH(bvhDesc);
             delete[] bounds;
             return bvh;
         }

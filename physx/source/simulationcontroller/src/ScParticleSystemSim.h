@@ -10,9 +10,9 @@
 #include "ScGpuActorSim.h"
 #include "ScParticleSystemCore.h" 
 
-namespace physx
+namespace ev4sio_physx
 {
-	namespace Sc
+	namespace ev4sio_Sc
 	{
 		class Scene;
 
@@ -23,7 +23,7 @@ namespace physx
 			ParticleSystemSim(ParticleSystemCore& core, Scene& scene);
 			~ParticleSystemSim();
 
-			PX_INLINE	Dy::ParticleSystem*		getLowLevelParticleSystem() const { return mLLParticleSystem; }
+			PX_INLINE	ev4sio_Dy::ParticleSystem*		getLowLevelParticleSystem() const { return mLLParticleSystem; }
 			PX_INLINE	ParticleSystemCore&		getCore() const { return static_cast<ParticleSystemCore&>(mCore); }
 
 			virtual			PxActor*		getPxActor() const PX_OVERRIDE { return getCore().getPxActor(); }
@@ -37,14 +37,14 @@ namespace physx
 			void							createLowLevelVolume();
 
 		private:
-			Dy::ParticleSystem*				mLLParticleSystem;
+			ev4sio_Dy::ParticleSystem*				mLLParticleSystem;
 
 // PT: as far as I can tell these are never actually called
 //								void			activate();
 //								void			deactivate();
 		};
 
-	} // namespace Sc
+	} // namespace ev4sio_Sc
 }
 #endif
 

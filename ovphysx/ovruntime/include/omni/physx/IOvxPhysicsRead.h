@@ -63,7 +63,7 @@
 #    define OMNI_OVX_API __attribute__((visibility("default")))
 #endif
 
-namespace omni::physx
+namespace omni::ev4sio_physx
 {
 
 // Query target a read selects (engine-internal type, not a USD
@@ -263,7 +263,7 @@ enum OvxReadStatus : int32_t
 // C linkage: pure C-ABI entry points (only ovstage C types + DLTensor), exported
 // under stable, unmangled names. A consumer that does not link the plugin at load
 // time resolves them by name with dlsym. Their C++ qualified name stays
-// `omni::physx::ovx*`.
+// `omni::ev4sio_physx::ovx*`.
 // Operations require idle runtime admission. Release returns false on busy
 // without dropping the caller's ownership; retry after pending work completes.
 extern "C"
@@ -479,4 +479,4 @@ OMNI_OVX_API bool ovxReleaseQuery(OvxOutputQueryHandle query);
 
 } // extern "C"
 
-} // namespace omni::physx
+} // namespace omni::ev4sio_physx

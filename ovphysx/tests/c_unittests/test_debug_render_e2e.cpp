@@ -596,7 +596,7 @@ TEST_F(DebugRenderE2E, ScopeRestrictsContactViz)
 {
 #ifndef OVPHYSX_TEST_PHYSXSDK_CONTACT_SCOPE_VIZ
     GTEST_SKIP() << "prebuilt PhysX SDK predates the contact-viz scope gate "
-                    "(Sc::ShapeInteraction::visualize either-side rule); asserted on source builds";
+                    "(ev4sio_Sc::ShapeInteraction::visualize either-side rule); asserted on source builds";
 #endif
     // Contact primitives are pair products emitted by ShapeInteraction::visualize,
     // not per-actor draws, so they need their own scope gate. Under the either-side

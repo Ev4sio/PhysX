@@ -15,9 +15,9 @@
 
 #include <stdio.h>
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Dy
+namespace ev4sio_Dy
 {
 
 /**
@@ -877,7 +877,7 @@ PX_CUDA_CALLABLE PX_FORCE_INLINE void accumulate1dConstraintImpulseTGS
 	}
 }
 
-} //namespace Dy
-} //namespace physx
+} //namespace ev4sio_Dy
+} //namespace ev4sio_physx
 #endif //DY_1DCONSTRAINT_CPUGPU_H
 

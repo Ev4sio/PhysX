@@ -13,7 +13,7 @@
 #include "PxgDeformableConstraints.h"
 #include "foundation/PxVec4.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	// Forward declarations from PxgSolverCoreDesc.h and PxgArticulationCoreDesc.h
 	struct PxgPrePrepDesc;
@@ -82,7 +82,7 @@ namespace physx
 		PxgTypedCudaBuffer<PxU16>					mRigidDeformableContactRigidMaterialBuffer;
 		PxgTypedCudaBuffer<PxU32>					mRigidDeformableContactCountBuffer;
 		PxgTypedCudaBuffer<PxU32>					mRigidDeformablePrevContactCountBuffer;
-		Cm::PinnableObject<PxU32>					mRigidDeformablePrevContactCountPinned;
+		ev4sio_Cm::PinnableObject<PxU32>					mRigidDeformablePrevContactCountPinned;
 
 		PxgTypedCudaBuffer<float4>					mRigidDeformableSortedContactPointBuffer;
 		PxgTypedCudaBuffer<float4>					mRigidDeformableSortedContactNormalPenBuffer;
@@ -107,7 +107,7 @@ namespace physx
 		PxgTypedCudaBuffer<PxgDeformablePairInfo>	mParticleDeformableContactInfoBuffer;
 		PxgTypedCudaBuffer<PxU32>					mParticleDeformableContactCountBuffer;
 		PxgTypedCudaBuffer<PxU32>					mParticleDeformablePrevContactCountBuffer;
-		Cm::PinnableObject<PxU32>					mParticleDeformablePrevContactCountPinned;
+		ev4sio_Cm::PinnableObject<PxU32>					mParticleDeformablePrevContactCountPinned;
 
 		PxgTypedCudaBuffer<float4>					mParticleDeformableSortedContactPointBuffer;
 		PxgTypedCudaBuffer<float4>					mParticleDeformableSortedContactNormalPenBuffer;

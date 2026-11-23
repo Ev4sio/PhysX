@@ -57,16 +57,16 @@ TaskGuardTestState g_taskGuardTest;
 
 struct PhysXExtensionsFixture
 {
-    physx::PxCustomGeometryExt::CylinderCallbacks cylinder{ 1.0f, 0.25f, 1, 0.01f };
-    physx::PxCustomGeometryExt::ConeCallbacks cone{ 1.0f, 0.25f, 1, 0.01f };
-    physx::PxMaterial* material{ nullptr };
-    std::array<physx::PxRigidDynamic*, 2> actors{};
-    std::array<physx::PxShape*, 2> shapes{};
-    std::array<physx::PxJoint*, 8> joints{};
+    ev4sio_physx::PxCustomGeometryExt::CylinderCallbacks cylinder{ 1.0f, 0.25f, 1, 0.01f };
+    ev4sio_physx::PxCustomGeometryExt::ConeCallbacks cone{ 1.0f, 0.25f, 1, 0.01f };
+    ev4sio_physx::PxMaterial* material{ nullptr };
+    std::array<ev4sio_physx::PxRigidDynamic*, 2> actors{};
+    std::array<ev4sio_physx::PxShape*, 2> shapes{};
+    std::array<ev4sio_physx::PxJoint*, 8> joints{};
 
-    bool create(physx::PxPhysics& physics)
+    bool create(ev4sio_physx::PxPhysics& physics)
     {
-        using namespace physx;
+        using namespace ev4sio_physx;
         material = physics.createMaterial(0.5f, 0.5f, 0.0f);
         actors = {
             physics.createRigidDynamic(PxTransform(PxVec3(-0.5f, 0.0f, 0.0f))),
@@ -114,12 +114,12 @@ struct PhysXExtensionsFixture
             if (*it)
                 (*it)->release();
         }
-        for (physx::PxShape* shape : shapes)
+        for (ev4sio_physx::PxShape* shape : shapes)
         {
             if (shape)
                 shape->release();
         }
-        for (physx::PxRigidDynamic* actor : actors)
+        for (ev4sio_physx::PxRigidDynamic* actor : actors)
         {
             if (actor)
                 actor->release();
@@ -158,12 +158,12 @@ OVPHYSX_API bool ovphysx_get_tensor_binding_cuda_context_internal(
 
 OVPHYSX_API void* ovphysx_get_optional_cuda_internal(void)
 {
-    return static_cast<void*>(omni::physx::runtime::tryGetOptionalCudaInterface());
+    return static_cast<void*>(omni::ev4sio_physx::runtime::tryGetOptionalCudaInterface());
 }
 
 OVPHYSX_API void* ovphysx_get_tensor_api_internal(void)
 {
-    return static_cast<void*>(omni::physx::runtime::tryGetTensorApiInterface());
+    return static_cast<void*>(omni::ev4sio_physx::runtime::tryGetTensorApiInterface());
 }
 
 OVPHYSX_API bool ovphysx_get_attach_cuda_selector_for_test_internal(int32_t* out_value)
@@ -272,7 +272,7 @@ OVPHYSX_API bool ovphysx_create_extensions_fixture_for_test_internal(
         return false;
 
     PhysXExtensionsFixture* fixture = new (std::nothrow) PhysXExtensionsFixture;
-    if (!fixture || !fixture->create(*static_cast<physx::PxPhysics*>(physicsPtr)))
+    if (!fixture || !fixture->create(*static_cast<ev4sio_physx::PxPhysics*>(physicsPtr)))
     {
         delete fixture;
         return false;
@@ -290,7 +290,7 @@ OVPHYSX_API void* ovphysx_create_d6_joint_at_path_for_test_internal(
     ovphysx_instance_handle_t handle, const char* joint_path, const char* body0_path, const char* body1_path)
 {
     const std::shared_ptr<InstanceData> instance = get_instance(handle);
-    omni::physx::IPhysx* runtime = omni::physx::runtime::tryGetPhysxInterface();
+    omni::ev4sio_physx::IPhysx* runtime = omni::ev4sio_physx::runtime::tryGetPhysxInterface();
     if (!instance || !runtime || !runtime->createD6JointAtPath || !runtime->resolveObjectKey)
         return nullptr;
     const auto body0 = runtime->resolveObjectKey(instance->attachHandle, body0_path);
@@ -477,26 +477,26 @@ OVPHYSX_API uint64_t ovphysx_subscribe_step_event_for_test_internal(
     void* user)
 {
     const std::shared_ptr<InstanceData> instance = get_instance(handle);
-    omni::physx::IPhysx* physx = omni::physx::runtime::tryGetPhysxInterface();
+    omni::ev4sio_physx::IPhysx* physx = omni::ev4sio_physx::runtime::tryGetPhysxInterface();
     if (!instance || !physx || !fn || instance->attachHandle == omni::physics::kNoAttach)
         return 0;
-    const omni::physx::SubscriptionId subscription =
+    const omni::ev4sio_physx::SubscriptionId subscription =
         physx->subscribePhysicsOnStepEvents(instance->attachHandle, pre_step, 0, fn, user);
-    return subscription == omni::physx::kInvalidSubscriptionId ? 0 : static_cast<uint64_t>(subscription) + 1;
+    return subscription == omni::ev4sio_physx::kInvalidSubscriptionId ? 0 : static_cast<uint64_t>(subscription) + 1;
 }
 
 OVPHYSX_API bool ovphysx_unsubscribe_step_event_for_test_internal(uint64_t subscription)
 {
-    omni::physx::IPhysx* physx = omni::physx::runtime::tryGetPhysxInterface();
+    omni::ev4sio_physx::IPhysx* physx = omni::ev4sio_physx::runtime::tryGetPhysxInterface();
     if (!physx || subscription == 0)
         return false;
-    physx->unsubscribePhysicsOnStepEvents(static_cast<omni::physx::SubscriptionId>(subscription - 1));
+    physx->unsubscribePhysicsOnStepEvents(static_cast<omni::ev4sio_physx::SubscriptionId>(subscription - 1));
     return true;
 }
 
 OVPHYSX_API void ovphysx_record_runtime_error_for_test_internal(const char* message)
 {
-    omni::physx::recordRuntimeError(message);
+    omni::ev4sio_physx::recordRuntimeError(message);
 }
 
 OVPHYSX_API bool ovphysx_hold_worker_after_next_submit_for_test_internal(ovphysx_instance_handle_t handle)

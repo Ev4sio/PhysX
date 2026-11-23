@@ -425,7 +425,7 @@ void ovphysx::InstanceJob::run()
     ovphysx::profiling::ApiProfileZone zone(
         carb::profiler::kCaptureMaskDefault,
         CARB_PROFILE_BEGIN(carb::profiler::kCaptureMaskDefault, "ovphysx job %s", m_api));
-    omni::physx::RuntimeErrorScope runtimeError;
+    omni::ev4sio_physx::RuntimeErrorScope runtimeError;
     // The thread's last error describes this job only.
     success();
     try
@@ -554,11 +554,11 @@ std::atomic<uint64_t> g_workerCudaCalls{0};
 
 // The CUDA interface for running long calls on instance workers, or null in hard
 // CPU-only mode, which never touches CUDA, and without a usable driver.
-omni::physx::IOptionalCuda* workerCuda() noexcept
+omni::ev4sio_physx::IOptionalCuda* workerCuda() noexcept
 {
     if (isProcessGpuDisabled())
         return nullptr;
-    omni::physx::IOptionalCuda* cuda = omni::physx::runtime::tryGetOptionalCudaInterface();
+    omni::ev4sio_physx::IOptionalCuda* cuda = omni::ev4sio_physx::runtime::tryGetOptionalCudaInterface();
     return cuda && cuda->cudaAvailable && cuda->cudaAvailable() ? cuda : nullptr;
 }
 
@@ -573,7 +573,7 @@ void relaxWorkerCaptureMode() noexcept
         return;
     CUstreamCaptureMode mode = CU_STREAM_CAPTURE_MODE_RELAXED;
     g_workerCudaCalls.fetch_add(1, std::memory_order_relaxed);
-    const CUresult result = omni::physx::cudaShim::cuThreadExchangeStreamCaptureMode_(&mode);
+    const CUresult result = omni::ev4sio_physx::cudaShim::cuThreadExchangeStreamCaptureMode_(&mode);
     if (result != CUDA_SUCCESS)
         CARB_LOG_WARN("[ovphysx] Instance worker kept its CUDA stream-capture mode (CUDA error %d)",
                       static_cast<int>(result));
@@ -586,7 +586,7 @@ bool exchangeCaptureMode(CUstreamCaptureMode& mode) noexcept
     if (!workerCuda())
         return false;
     g_workerCudaCalls.fetch_add(1, std::memory_order_relaxed);
-    return omni::physx::cudaShim::cuThreadExchangeStreamCaptureMode_(&mode) == CUDA_SUCCESS;
+    return omni::ev4sio_physx::cudaShim::cuThreadExchangeStreamCaptureMode_(&mode) == CUDA_SUCCESS;
 }
 
 // Whether a CUDA graph capture of a blocking stream holds the legacy default stream of
@@ -596,7 +596,7 @@ bool exchangeCaptureMode(CUstreamCaptureMode& mode) noexcept
 // without a current context, where the capture query would fail as an API error.
 bool legacyStreamHeldByCapture() noexcept
 {
-    omni::physx::IOptionalCuda* cuda = workerCuda();
+    omni::ev4sio_physx::IOptionalCuda* cuda = workerCuda();
     if (!cuda || !cuda->ctxGetCurrent)
         return false;
     uintptr_t context = 0;
@@ -613,7 +613,7 @@ bool legacyStreamHeldByCapture() noexcept
 // worker or a waiting caller runs in it; zero when none is current.
 uintptr_t submittingCudaContext() noexcept
 {
-    omni::physx::IOptionalCuda* cuda = workerCuda();
+    omni::ev4sio_physx::IOptionalCuda* cuda = workerCuda();
     if (!cuda || !cuda->ctxGetCurrent)
         return 0;
     uintptr_t context = 0;
@@ -734,7 +734,7 @@ private:
             CARB_LOG_ERROR("Could not restore the executing thread's CUDA context stack after attach");
     }
 
-    omni::physx::IOptionalCuda* m_cuda = nullptr;
+    omni::ev4sio_physx::IOptionalCuda* m_cuda = nullptr;
     std::vector<uintptr_t> m_detached;
     bool m_pushed = false;
     bool m_restoreEmpty = false;
@@ -823,7 +823,7 @@ enum class UnloadCaller : uint8_t
 
 thread_local UnloadCaller g_threadUnloadCaller = UnloadCaller::kUnknown;
 
-// Mirror of omni::physx::SceneMultiGPUMode (omni.physx plugin-internal enum).
+// Mirror of omni::ev4sio_physx::SceneMultiGPUMode (omni.physx plugin-internal enum).
 // Defined locally because the canonical header (SceneMultiGPUMode.h) is not on
 // ovphysx's include path. Values map 1:1 to /physics/sceneMultiGPUMode settings.
 static constexpr int32_t kMultiGPU_Disabled  = 0; // single GPU (eDisabled)
@@ -989,7 +989,7 @@ static bool validateActiveCudaGpuOrdinals(const std::vector<int32_t>& ordinals,
                                           char* errbuf, size_t errsize)
 {
     int count = 0;
-    const CUresult deviceCountResult = omni::physx::cudaShim::cuDeviceGetCount_(&count);
+    const CUresult deviceCountResult = omni::ev4sio_physx::cudaShim::cuDeviceGetCount_(&count);
     const bool haveCount = deviceCountResult == CUDA_SUCCESS && count > 0;
 
     // -1 means "PhysX auto-select" and is intentionally left unchecked.
@@ -1038,7 +1038,7 @@ static void applyAttachTimeGpuSelection(const InstanceData& instance,
     }
 
     int count = 0;
-    const CUresult deviceCountResult = omni::physx::cudaShim::cuDeviceGetCount_(&count);
+    const CUresult deviceCountResult = omni::ev4sio_physx::cudaShim::cuDeviceGetCount_(&count);
     if (deviceCountResult != CUDA_SUCCESS || count <= 0)
         return;
 
@@ -1269,19 +1269,19 @@ namespace
 } // end anonymous namespace (temporarily closed for ovphysx_ensure_physics_attached / omni_sdk_physx_simulate_instance)
 
 // Runtime status is internal. Preserve the existing ovphysx error surface.
-static ovphysx_api_status_t checkRuntimeResult(omni::physx::RuntimeResult result, const char* operation)
+static ovphysx_api_status_t checkRuntimeResult(omni::ev4sio_physx::RuntimeResult result, const char* operation)
 {
-    if (result == omni::physx::RuntimeResult::eSuccess)
+    if (result == omni::ev4sio_physx::RuntimeResult::eSuccess)
         return OVPHYSX_API_SUCCESS;
     return set_error(OVPHYSX_API_ERROR, std::string(operation) + " failed (runtime status " +
                      std::to_string(static_cast<uint32_t>(result)) + ")").status;
 }
 
-static bool recordingActive(omni::physx::IPhysxSimulation* simulation)
+static bool recordingActive(omni::ev4sio_physx::IPhysxSimulation* simulation)
 {
     bool recording = false;
     return simulation && simulation->getOmniPvdRecordingStatus &&
-        simulation->getOmniPvdRecordingStatus(&recording) == omni::physx::RuntimeResult::eSuccess && recording;
+        simulation->getOmniPvdRecordingStatus(&recording) == omni::ev4sio_physx::RuntimeResult::eSuccess && recording;
 }
 
 // Lazily calls attachStage() for the current stage if not yet done, then runs the
@@ -1306,7 +1306,7 @@ ovphysx_api_status_t ovphysx_ensure_physics_attached(ovphysx_instance_handle_t h
     int64_t stageId = instance->attachedStageId;
     if (stageId == 0 && instance->ovstage_attached)
     {
-        omni::physx::IPhysxSimulation* physxSim =
+        omni::ev4sio_physx::IPhysxSimulation* physxSim =
             instance->carbonite ? instance->carbonite->getPhysxSimulation() : nullptr;
         if (!physxSim)
             return OVPHYSX_API_ERROR;
@@ -1341,7 +1341,7 @@ ovphysx_api_status_t ovphysx_ensure_physics_attached(ovphysx_instance_handle_t h
     if (!framework)
         return OVPHYSX_API_ERROR;
 
-    omni::physx::IPhysxSimulation* physxSim =
+    omni::ev4sio_physx::IPhysxSimulation* physxSim =
         instance->carbonite ? instance->carbonite->getPhysxSimulation() : nullptr;
 
     // Attach PhysX to the stage if not done yet.
@@ -1359,8 +1359,8 @@ ovphysx_api_status_t ovphysx_ensure_physics_attached(ovphysx_instance_handle_t h
             // all CUDA driver calls inside the static foundation service.
             if (g_forceCpuMode.load(std::memory_order_acquire))
             {
-                if (omni::physx::IPhysxFoundation* foundation =
-                        omni::physx::runtime::tryGetPhysxFoundationInterface())
+                if (omni::ev4sio_physx::IPhysxFoundation* foundation =
+                        omni::ev4sio_physx::runtime::tryGetPhysxFoundationInterface())
                 {
                     foundation->setCpuMode(true);
                 }
@@ -1377,7 +1377,7 @@ ovphysx_api_status_t ovphysx_ensure_physics_attached(ovphysx_instance_handle_t h
                 }
                 physx_ok = newAttach != omni::physics::kNoAttach;
                 if (physx_ok)
-                    omni::physx::ovxDebugRenderNoteAttach(handle, newAttach, 0);
+                    omni::ev4sio_physx::ovxDebugRenderNoteAttach(handle, newAttach, 0);
             }
 
             if (!physx_ok) {
@@ -1391,7 +1391,7 @@ ovphysx_api_status_t ovphysx_ensure_physics_attached(ovphysx_instance_handle_t h
             {
                 physxSim->detachStage(instance->attachHandle);
                 ovphysx_object_change_detached_instance(handle);
-                omni::physx::ovxDebugRenderNoteAttach(handle, 0, 1);
+                omni::ev4sio_physx::ovxDebugRenderNoteAttach(handle, 0, 1);
                 std::unique_lock<std::shared_mutex> liveLock(g_instances_mutex);
                 instance->attachHandle = omni::physics::kNoAttach;
                 return OVPHYSX_API_ERROR;
@@ -1448,7 +1448,7 @@ static ovphysx_api_status_t dispatch_simulation(InstanceData& instance, ovphysx_
     if (attach_status != OVPHYSX_API_SUCCESS)
         return attach_status;
 
-    omni::physx::IPhysxSimulation* physxSim =
+    omni::ev4sio_physx::IPhysxSimulation* physxSim =
         instance.carbonite ? instance.carbonite->getPhysxSimulation() : nullptr;
     if (!physxSim) {
         CARB_LOG_ERROR("[PHYSICS SIMULATION] ERROR: PhysX simulation interface not available");
@@ -1458,7 +1458,7 @@ static ovphysx_api_status_t dispatch_simulation(InstanceData& instance, ovphysx_
     // Only the lane holder changes the attachment, so it is read without the map lock.
     const omni::physics::tensors::AttachHandle attach = instance.attachHandle;
     try {
-        omni::physx::RuntimeErrorScope runtimeError;
+        omni::ev4sio_physx::RuntimeErrorScope runtimeError;
         if (checkRuntimeResult(physxSim->simulate(attach, elapsedTime, currentTime), "simulate") != OVPHYSX_API_SUCCESS)
             return OVPHYSX_API_ERROR;
         dispatched = true;
@@ -1501,15 +1501,15 @@ static ovphysx_api_status_t fetch_simulation(InstanceData& instance, bool failed
             set_error(OVPHYSX_API_ERROR, message);
         failed = true;
     };
-    omni::physx::IPhysxSimulation* physxSim =
+    omni::ev4sio_physx::IPhysxSimulation* physxSim =
         instance.carbonite ? instance.carbonite->getPhysxSimulation() : nullptr;
     const omni::physics::tensors::AttachHandle attach = instance.attachHandle;
     if (!physxSim) {
         fail("PhysX simulation interface not available");
     } else if (attach != omni::physics::tensors::kNoAttach) {
         try {
-            omni::physx::RuntimeErrorScope runtimeError;
-            if (physxSim->fetchResults(attach) != omni::physx::RuntimeResult::eSuccess)
+            omni::ev4sio_physx::RuntimeErrorScope runtimeError;
+            if (physxSim->fetchResults(attach) != omni::ev4sio_physx::RuntimeResult::eSuccess)
                 fail("fetchResults rejected by the runtime");
             if (runtimeError.message()[0])
                 fail(runtimeError.message());
@@ -1592,7 +1592,7 @@ namespace { // reopen anonymous namespace
     // Approximate true selects a convex mesh and ignores the convex-core margin.
     static constexpr const char* kPathCollisionApproximateCones = "/physics/collisionApproximateCones";
     static constexpr const char* kPathCollisionApproximateCylinders = "/physics/collisionApproximateCylinders";
-    static constexpr const char* kPathNumThreads = omni::physx::kSettingNumThreads;
+    static constexpr const char* kPathNumThreads = omni::ev4sio_physx::kSettingNumThreads;
     static constexpr const char* kPathSceneMultiGPUMode = "/physics/sceneMultiGPUMode";
     static constexpr const char* kPathOvstageReadPoolMaxMB = "/physics/ovstageReadPoolMaxMB";
     static constexpr const char* kPathCookedColliderCacheDirectory = "/UJITSO/datastore/localCachePath";
@@ -1692,7 +1692,7 @@ namespace { // reopen anonymous namespace
             out = {OVPHYSX_CONFIG_VALUE_BOOL, nullptr, false};
             return true;
         case OVPHYSX_GLOBAL_CONFIG_OVD_RECORDING_CAPABLE:
-            out = {OVPHYSX_CONFIG_VALUE_BOOL, omni::physx::kOmniPvdRecordingCapable, true};
+            out = {OVPHYSX_CONFIG_VALUE_BOOL, omni::ev4sio_physx::kOmniPvdRecordingCapable, true};
             return true;
         case OVPHYSX_GLOBAL_CONFIG_ASYNC_EXECUTION:
             out = {OVPHYSX_CONFIG_VALUE_BOOL, nullptr, false};
@@ -2214,11 +2214,11 @@ namespace { // reopen anonymous namespace
         const std::vector<LiveAttachment> live = collect_live_attachments();
         if (live.empty())
             return OVPHYSX_API_SUCCESS;
-        if (omni::physx::runtime::isRuntimeExecuting())
+        if (omni::ev4sio_physx::runtime::isRuntimeExecuting())
             return OVPHYSX_API_INVALID_STATE;
         for (const LiveAttachment& attachment : live)
         {
-            if (!omni::physx::runtime::setAttachmentContactProcessingDisabled(attachment.attach, disabled))
+            if (!omni::ev4sio_physx::runtime::setAttachmentContactProcessingDisabled(attachment.attach, disabled))
                 return OVPHYSX_API_ERROR;
         }
         return OVPHYSX_API_SUCCESS;
@@ -2403,7 +2403,7 @@ namespace { // reopen anonymous namespace
 
         // Retired paths survive only as migration errors, not runtime settings.
         return configCarbonitePathEquals(entry.key.carbonite_key, "/physics/omniPvdOutputEnabled") ||
-               configCarbonitePathEquals(entry.key.carbonite_key, omni::physx::kOmniPvdRecordingCapable) ||
+               configCarbonitePathEquals(entry.key.carbonite_key, omni::ev4sio_physx::kOmniPvdRecordingCapable) ||
                configCarbonitePathEquals(entry.key.carbonite_key, "/persistent/physics/omniPvdOvdRecordingDirectory") ||
                configCarbonitePathEquals(entry.key.carbonite_key, "/physics/omniPvdTransport") ||
                configCarbonitePathEquals(entry.key.carbonite_key, "/physics/omniPvdTcpAddress") ||
@@ -2642,7 +2642,7 @@ namespace {
     // lock.
     static ovphysx_api_status_t enter_shared_runtime_safe_point(std::unique_lock<std::mutex>& transitionLock)
     {
-        if (companionRuntime().hasPendingPreviews() || omni::physx::runtime::isRuntimeExecuting())
+        if (companionRuntime().hasPendingPreviews() || omni::ev4sio_physx::runtime::isRuntimeExecuting())
             return OVPHYSX_API_INVALID_STATE;
         transitionLock.lock();
         return OVPHYSX_API_SUCCESS;
@@ -2652,11 +2652,11 @@ namespace {
     // transition that may have stopped OmniPVD sampling. Preserve the public
     // owner when sampling is still active. Another handle may own the recording.
     static void reconcile_recording_owner_after_runtime_transition(
-        omni::physx::IPhysxSimulation* physxSim)
+        omni::ev4sio_physx::IPhysxSimulation* physxSim)
     {
         bool recording = false;
         if (physxSim && physxSim->getOmniPvdRecordingStatus &&
-            physxSim->getOmniPvdRecordingStatus(&recording) == omni::physx::RuntimeResult::eSuccess && !recording)
+            physxSim->getOmniPvdRecordingStatus(&recording) == omni::ev4sio_physx::RuntimeResult::eSuccess && !recording)
             setRecordingOwner(OVPHYSX_INVALID_HANDLE);
     }
 
@@ -2669,7 +2669,7 @@ namespace {
         if (!instance || !instance->executor || instance->executor->heldByCurrent() ||
             ovphysx::currentCaller().callback || legacyStreamHeldByCapture())
             return;
-        omni::physx::IPhysxSimulation* simulation =
+        omni::ev4sio_physx::IPhysxSimulation* simulation =
             instance->carbonite ? instance->carbonite->getPhysxSimulation() : nullptr;
         if (!simulation || !simulation->hasPendingOmniPvdCaptureRequest || !simulation->processOmniPvdCaptureRequests)
             return;
@@ -2696,7 +2696,7 @@ namespace {
             g_omniPvdRecordingOwner == OVPHYSX_INVALID_HANDLE ||
             !simulation->hasPendingOmniPvdCaptureRequest(instance->attachHandle))
             return;
-        if (simulation->processOmniPvdCaptureRequests(instance->attachHandle) == omni::physx::RuntimeResult::eSuccess)
+        if (simulation->processOmniPvdCaptureRequests(instance->attachHandle) == omni::ev4sio_physx::RuntimeResult::eSuccess)
             reconcile_recording_owner_after_runtime_transition(simulation);
     }
 
@@ -2706,7 +2706,7 @@ namespace {
     // Detaching one attachment while another stays live does not stop a stream
     // that this instance did not start.
     static void finalize_recording_after_detach(
-        omni::physx::IPhysxSimulation* physxSim, ovphysx_instance_handle_t handle)
+        omni::ev4sio_physx::IPhysxSimulation* physxSim, ovphysx_instance_handle_t handle)
     {
         // The runtime records only after ovphysx_ovd_start_recording() set an owner, which
         // is cleared only once the runtime reports no recording. Without an owner there is
@@ -2717,7 +2717,7 @@ namespace {
         const bool lastLiveAttachment = !other_instance_attached(handle);
         if ((g_omniPvdRecordingOwner == handle || lastLiveAttachment) && recordingActive(physxSim))
         {
-            if (physxSim->stopOmniPvdRecording() != omni::physx::OmniPvdRecordingResult::eSuccess)
+            if (physxSim->stopOmniPvdRecording() != omni::ev4sio_physx::OmniPvdRecordingResult::eSuccess)
                 CARB_LOG_ERROR("Failed to finalize OmniPVD recording after detach");
         }
         reconcile_recording_owner_after_runtime_transition(physxSim);
@@ -2785,9 +2785,9 @@ namespace {
                                                    : static_cast<int64_t>(OVPHYSX_COMPILED_STAGE_CACHE_AUTOMATIC);
     }
 
-    static omni::physx::PhysxCompiledStageCacheMode resolveCompiledStageCacheMode(int64_t configured)
+    static omni::ev4sio_physx::PhysxCompiledStageCacheMode resolveCompiledStageCacheMode(int64_t configured)
     {
-        using Mode = omni::physx::PhysxCompiledStageCacheMode;
+        using Mode = omni::ev4sio_physx::PhysxCompiledStageCacheMode;
         switch (configured)
         {
         case OVPHYSX_COMPILED_STAGE_CACHE_DISABLED:
@@ -2806,9 +2806,9 @@ namespace {
         }
     }
 
-    static const char* compiledStageCacheModeName(omni::physx::PhysxCompiledStageCacheMode mode)
+    static const char* compiledStageCacheModeName(omni::ev4sio_physx::PhysxCompiledStageCacheMode mode)
     {
-        using Mode = omni::physx::PhysxCompiledStageCacheMode;
+        using Mode = omni::ev4sio_physx::PhysxCompiledStageCacheMode;
         switch (mode)
         {
         case Mode::eDisabled:
@@ -2822,9 +2822,9 @@ namespace {
         }
     }
 
-    static const char* compiledStageCacheResultName(omni::physx::PhysxCompiledStageCacheResult result)
+    static const char* compiledStageCacheResultName(omni::ev4sio_physx::PhysxCompiledStageCacheResult result)
     {
-        using Result = omni::physx::PhysxCompiledStageCacheResult;
+        using Result = omni::ev4sio_physx::PhysxCompiledStageCacheResult;
         switch (result)
         {
         case Result::eDisabled:
@@ -2894,7 +2894,7 @@ ovphysx::Caller ovphysx::currentCaller() noexcept
     caller.identity = InstanceExecutor::identityOf(task);
     if (ovphysx::isInLogCallback())
         caller.callback = "inside a log callback";
-    else if (tasking ? omni::physx::runtime::isInRuntimeCallback(task) : omni::physx::runtime::isInRuntimeCallback())
+    else if (tasking ? omni::ev4sio_physx::runtime::isInRuntimeCallback(task) : omni::ev4sio_physx::runtime::isInRuntimeCallback())
         caller.callback = "inside a runtime callback";
     else if (ovphysx_object_change_callback_active(tasking, task))
         caller.callback = "inside an object-change callback";
@@ -3177,7 +3177,7 @@ ovphysx_api_status_t omni_sdk_physx_unload_usd(ovphysx_instance_handle_t handle)
             // detachStage clears, and skipping it leaves dangling refs that corrupt
             // later simulate().
             {
-                omni::physx::IPhysxSimulation* physxSim =
+                omni::ev4sio_physx::IPhysxSimulation* physxSim =
                     instance->carbonite ? instance->carbonite->getPhysxSimulation() : nullptr;
 
                 if (physxSim)
@@ -3225,7 +3225,7 @@ ovphysx_api_status_t omni_sdk_physx_unload_usd(ovphysx_instance_handle_t handle)
             // clearing it, so the tensor backend does not hold stale views across
             // reset or reattach.
             if (omni::physics::tensors::TensorApi* tensorApi =
-                    omni::physx::runtime::tryGetTensorApiInterface()) {
+                    omni::ev4sio_physx::runtime::tryGetTensorApiInterface()) {
                 if (tensorApi->resetStage)
                     tensorApi->resetStage(instance->attachHandle);
             }
@@ -3306,7 +3306,7 @@ ovphysx_api_status_t omni_sdk_physx_destroy(
             recordingOwnedAtDestroy = g_omniPvdRecordingOwner == handle;
         }
         if (recordingOwnedAtDestroy &&
-            (companionRuntime().hasPendingPreviews() || omni::physx::runtime::isRuntimeExecuting()))
+            (companionRuntime().hasPendingPreviews() || omni::ev4sio_physx::runtime::isRuntimeExecuting()))
             return set_error(OVPHYSX_API_INVALID_STATE,
                              "Destroying the recording owner needs the shared runtime idle: fetch companion "
                              "previews and retry")
@@ -3362,7 +3362,7 @@ ovphysx_api_status_t omni_sdk_physx_destroy(
                     instanceShared->visualizationScopeDropped = true;
                 clearVisualizationScopeTokens(destroyedAttachHandle);
             }
-            omni::physx::ovxDebugRenderNoteAttach(handle, 0, 1);
+            omni::ev4sio_physx::ovxDebugRenderNoteAttach(handle, 0, 1);
 
             // ovphysx_detach_ovstage() bailed out before its runtime-detach block
             // (for example a companion transition refused it), so this handle may
@@ -3374,7 +3374,7 @@ ovphysx_api_status_t omni_sdk_physx_destroy(
                 std::lock_guard<std::mutex> attachLock(g_gpuAttachMutex);
                 if (instanceShared && instanceShared->attachHandle != omni::physics::tensors::kNoAttach)
                 {
-                    omni::physx::IPhysxSimulation* physxSim =
+                    omni::ev4sio_physx::IPhysxSimulation* physxSim =
                         instanceShared->carbonite ? instanceShared->carbonite->getPhysxSimulation() : nullptr;
                     if (physxSim && physxSim->detachStage)
                     {
@@ -3384,7 +3384,7 @@ ovphysx_api_status_t omni_sdk_physx_destroy(
                         // unload's reset and the later destroyedAttachHandle reset
                         // both skip this attachment.
                         if (omni::physics::tensors::TensorApi* tensorApi =
-                                omni::physx::runtime::tryGetTensorApiInterface())
+                                omni::ev4sio_physx::runtime::tryGetTensorApiInterface())
                         {
                             if (tensorApi->resetStage)
                                 tensorApi->resetStage(instanceShared->attachHandle);
@@ -3423,15 +3423,15 @@ ovphysx_api_status_t omni_sdk_physx_destroy(
             (g_omniPvdRecordingOwner == handle ||
              g_omniPvdRecordingOwner == OVPHYSX_INVALID_HANDLE))
         {
-            omni::physx::IPhysxSimulation* physxSim = recordingInstance->carbonite->getPhysxSimulation();
+            omni::ev4sio_physx::IPhysxSimulation* physxSim = recordingInstance->carbonite->getPhysxSimulation();
             if (physxSim && physxSim->stopOmniPvdRecording && physxSim->getOmniPvdRecordingStatus &&
                 recordingActive(physxSim))
             {
                 // If detach cleared the latch but did not actually stop sampling,
                 // restore ownership until the explicit finalizer succeeds.
                 setRecordingOwner(handle);
-                const omni::physx::OmniPvdRecordingResult stopResult = physxSim->stopOmniPvdRecording();
-                if (stopResult != omni::physx::OmniPvdRecordingResult::eSuccess)
+                const omni::ev4sio_physx::OmniPvdRecordingResult stopResult = physxSim->stopOmniPvdRecording();
+                if (stopResult != omni::ev4sio_physx::OmniPvdRecordingResult::eSuccess)
                     CARB_LOG_ERROR("[DESTROY] Failed to finalize the active OmniPVD recording");
             }
             reconcile_recording_owner_after_runtime_transition(physxSim);
@@ -3491,7 +3491,7 @@ ovphysx_api_status_t omni_sdk_physx_destroy(
         deferredCarbonite = std::move(instanceShared->carbonite);
     }
 
-    omni::physics::tensors::TensorApi* tensorApi = omni::physx::runtime::tryGetTensorApiInterface();
+    omni::physics::tensors::TensorApi* tensorApi = omni::ev4sio_physx::runtime::tryGetTensorApiInterface();
     if (tensorApi)
     {
         // Fallback for this attachment when unload did not clear its tensor data.
@@ -3716,7 +3716,7 @@ static ovphysx_result_t createInstanceInternal(const ovphysx_create_args* create
     // time rather than at first attach. The /physics/cudaDevice write is deferred to
     // the scene-attach path under g_gpuAttachMutex so it is atomic with PhysX attachment.
     if (args && args->active_cuda_gpus.ptr && args->active_cuda_gpus.length > 0 &&
-        !isProcessGpuDisabled() && omni::physx::cudaShim::isCudaAvailable())
+        !isProcessGpuDisabled() && omni::ev4sio_physx::cudaShim::isCudaAvailable())
     {
         // Validate multi-GPU patterns at create time so callers get a fast,
         // clear error rather than a silent single-GPU fallback at attach time.
@@ -3777,7 +3777,7 @@ static ovphysx_result_t createInstanceInternal(const ovphysx_create_args* create
 
         const char* cudaAvailableStr = "n/a";
         if (!processCpuOnly)
-            cudaAvailableStr = omni::physx::cudaShim::isCudaAvailable() ? "true" : "false";
+            cudaAvailableStr = omni::ev4sio_physx::cudaShim::isCudaAvailable() ? "true" : "false";
 
         char activeGpusBuf[128] = "inactive";
         if (!processCpuOnly)
@@ -4002,8 +4002,8 @@ bool copy_capture_paths(const ovphysx_string_t* paths, uint32_t count, std::vect
     for (uint32_t index = 0; index < count; ++index)
     {
         std::string path;
-        if (!omni::physx::copyOmniPvdConfigString(paths[index].ptr, paths[index].length, path) ||
-            !omni::physx::looksLikeAbsolutePrimPath(path, false))
+        if (!omni::ev4sio_physx::copyOmniPvdConfigString(paths[index].ptr, paths[index].length, path) ||
+            !omni::ev4sio_physx::looksLikeAbsolutePrimPath(path, false))
             return false;
         copied.push_back(std::move(path));
     }
@@ -4036,9 +4036,9 @@ OVPHYSX_API ovphysx_result_t ovphysx_ovd_start_recording(
 
     std::string filePath;
     std::string tcpAddress;
-    if (!omni::physx::copyOmniPvdConfigString(
+    if (!omni::ev4sio_physx::copyOmniPvdConfigString(
             destination->file_path.ptr, destination->file_path.length, filePath) ||
-        !omni::physx::copyOmniPvdConfigString(
+        !omni::ev4sio_physx::copyOmniPvdConfigString(
             destination->tcp_address.ptr, destination->tcp_address.length, tcpAddress))
     {
         return set_error(
@@ -4108,7 +4108,7 @@ OVPHYSX_API ovphysx_result_t ovphysx_ovd_start_recording(
     if (enter_shared_runtime_safe_point(recordingLock) != OVPHYSX_API_SUCCESS)
         return set_error(OVPHYSX_API_INVALID_STATE, "start_recording: failed to reach a shared-runtime safe point");
 
-    omni::physx::IPhysxSimulation* physxSim =
+    omni::ev4sio_physx::IPhysxSimulation* physxSim =
         instance->carbonite ? instance->carbonite->getPhysxSimulation() : nullptr;
     if (!physxSim || (discovery ? !physxSim->startOmniPvdDiscoveryWithFilterOwner :
                                     !physxSim->startOmniPvdRecordingWithFilterOwner))
@@ -4116,7 +4116,7 @@ OVPHYSX_API ovphysx_result_t ovphysx_ovd_start_recording(
 
     bool recording = false;
     if (!physxSim->getOmniPvdRecordingStatus ||
-        physxSim->getOmniPvdRecordingStatus(&recording) != omni::physx::RuntimeResult::eSuccess)
+        physxSim->getOmniPvdRecordingStatus(&recording) != omni::ev4sio_physx::RuntimeResult::eSuccess)
         return set_error(OVPHYSX_API_ERROR, std::string(operation) + "runtime status query failed");
     if (recording)
         return set_error(OVPHYSX_API_INVALID_STATE, std::string(operation) + "a recording is already active");
@@ -4126,9 +4126,9 @@ OVPHYSX_API ovphysx_result_t ovphysx_ovd_start_recording(
 
     // Resolve only after draining shared work and locking attachment transitions.
     // Public runtime lookups acquire their own admission, before recording starts.
-    ::physx::PxOmniPvdFilterDesc nativeCapture;
-    std::vector<const ::physx::PxScene*> scenes;
-    std::vector<const ::physx::PxBase*> objects;
+    ::ev4sio_physx::PxOmniPvdFilterDesc nativeCapture;
+    std::vector<const ::ev4sio_physx::PxScene*> scenes;
+    std::vector<const ::ev4sio_physx::PxBase*> objects;
     if (capture)
     {
         nativeCapture.recordSecondaryData = capture->record_secondary_data;
@@ -4136,59 +4136,59 @@ OVPHYSX_API ovphysx_result_t ovphysx_ovd_start_recording(
         {
             if (instance->attachHandle == omni::physics::kNoAttach)
                 return set_error(OVPHYSX_API_INVALID_STATE, std::string(operation) + "capture paths require the caller's attachment");
-            omni::physx::IPhysx* physxInterface = omni::physx::runtime::tryGetPhysxInterface();
+            omni::ev4sio_physx::IPhysx* physxInterface = omni::ev4sio_physx::runtime::tryGetPhysxInterface();
             if (!physxInterface || !physxInterface->resolveObjectKey || !physxInterface->getPhysXPtr)
                 return set_error(OVPHYSX_API_ERROR, std::string(operation) + "attachment lookup is unavailable");
             const omni::physics::AttachHandle attach = instance->attachHandle;
             for (const std::string& path : scenePaths)
             {
                 const omni::physics::parse::ObjectKey key = physxInterface->resolveObjectKey(attach, path.c_str());
-                const ::physx::PxScene* scene = static_cast<const ::physx::PxScene*>(
-                    physxInterface->getPhysXPtr(attach, key, omni::physx::ePTScene));
+                const ::ev4sio_physx::PxScene* scene = static_cast<const ::ev4sio_physx::PxScene*>(
+                    physxInterface->getPhysXPtr(attach, key, omni::ev4sio_physx::ePTScene));
                 if (!scene)
                     return set_error(OVPHYSX_API_NOT_FOUND, std::string(operation) + "scene path has no live physics scene in this attachment");
                 scenes.push_back(scene);
             }
             if (!objectPaths.empty())
             {
-                const omni::physx::RuntimeResult resolved =
-                    omni::physx::omniPvdResolveCaptureObjects(attach, objectPaths, objects);
-                if (resolved == omni::physx::RuntimeResult::eBusy)
+                const omni::ev4sio_physx::RuntimeResult resolved =
+                    omni::ev4sio_physx::omniPvdResolveCaptureObjects(attach, objectPaths, objects);
+                if (resolved == omni::ev4sio_physx::RuntimeResult::eBusy)
                     return set_error(OVPHYSX_API_INVALID_STATE, std::string(operation) + "object lookup is busy; retry transition");
-                if (resolved != omni::physx::RuntimeResult::eSuccess)
+                if (resolved != omni::ev4sio_physx::RuntimeResult::eSuccess)
                     return set_error(OVPHYSX_API_NOT_FOUND,
                                      std::string(operation) + "object path names no supported recording object in this attachment");
             }
         }
         nativeCapture.scenes = scenes.data();
-        nativeCapture.nbScenes = static_cast<::physx::PxU32>(scenes.size());
+        nativeCapture.nbScenes = static_cast<::ev4sio_physx::PxU32>(scenes.size());
         nativeCapture.objects = objects.data();
-        nativeCapture.nbObjects = static_cast<::physx::PxU32>(objects.size());
+        nativeCapture.nbObjects = static_cast<::ev4sio_physx::PxU32>(objects.size());
     }
 
-    const omni::physx::OmniPvdRecordingResult result = discovery ?
+    const omni::ev4sio_physx::OmniPvdRecordingResult result = discovery ?
         physxSim->startOmniPvdDiscoveryWithFilterOwner(target, tcpPort, tcpTimeoutMs,
                                                      capture ? &nativeCapture : nullptr, instance->attachHandle) :
         physxSim->startOmniPvdRecordingWithFilterOwner(transport, target, tcpPort, tcpTimeoutMs,
                                                      capture ? &nativeCapture : nullptr, instance->attachHandle);
     switch (result)
     {
-    case omni::physx::OmniPvdRecordingResult::eSuccess:
+    case omni::ev4sio_physx::OmniPvdRecordingResult::eSuccess:
         setRecordingOwner(handle);
         return success();
-    case omni::physx::OmniPvdRecordingResult::eInvalidState:
+    case omni::ev4sio_physx::OmniPvdRecordingResult::eInvalidState:
         return set_error(
             OVPHYSX_API_INVALID_STATE,
             std::string(operation) + "attach and initialize a stage before starting a late recording");
-    case omni::physx::OmniPvdRecordingResult::eNotSupported:
+    case omni::ev4sio_physx::OmniPvdRecordingResult::eNotSupported:
         return set_error(OVPHYSX_API_NOT_IMPLEMENTED, std::string(operation) + "OmniPVD recording is unsupported on this platform");
-    case omni::physx::OmniPvdRecordingResult::eNotCapable:
+    case omni::ev4sio_physx::OmniPvdRecordingResult::eNotCapable:
         return set_error(
             OVPHYSX_API_INVALID_STATE,
             std::string(operation) + "set OVPHYSX_GLOBAL_CONFIG_OVD_RECORDING_CAPABLE=true before creating the first instance");
-    case omni::physx::OmniPvdRecordingResult::eBusy:
+    case omni::ev4sio_physx::OmniPvdRecordingResult::eBusy:
         return set_error(OVPHYSX_API_INVALID_STATE, std::string(operation) + "runtime work is executing; retry transition");
-    case omni::physx::OmniPvdRecordingResult::eError:
+    case omni::ev4sio_physx::OmniPvdRecordingResult::eError:
     default:
         return set_error(OVPHYSX_API_ERROR, std::string(operation) + (discovery ? "failed to open the destination or start discovery" :
                                                             "failed to open the destination or start sampling"));
@@ -4214,7 +4214,7 @@ OVPHYSX_API ovphysx_result_t ovphysx_ovd_stop_recording(ovphysx_instance_handle_
     std::unique_lock<std::mutex> recordingLock(g_gpuAttachMutex, std::defer_lock);
     if (enter_shared_runtime_safe_point(recordingLock) != OVPHYSX_API_SUCCESS)
         return set_error(OVPHYSX_API_INVALID_STATE, "stop_recording: failed to reach a shared-runtime safe point");
-    omni::physx::IPhysxSimulation* physxSim =
+    omni::ev4sio_physx::IPhysxSimulation* physxSim =
         instance->carbonite ? instance->carbonite->getPhysxSimulation() : nullptr;
     if (!physxSim || !physxSim->stopOmniPvdRecording)
         return set_error(OVPHYSX_API_ERROR, "stop_recording: OmniPVD runtime API is unavailable");
@@ -4223,18 +4223,18 @@ OVPHYSX_API ovphysx_result_t ovphysx_ovd_stop_recording(ovphysx_instance_handle_
         return set_error(OVPHYSX_API_INVALID_STATE, "stop_recording: no recording is active");
     bool recording = false;
     if (!physxSim->getOmniPvdRecordingStatus ||
-        physxSim->getOmniPvdRecordingStatus(&recording) != omni::physx::RuntimeResult::eSuccess)
+        physxSim->getOmniPvdRecordingStatus(&recording) != omni::ev4sio_physx::RuntimeResult::eSuccess)
         return set_error(OVPHYSX_API_ERROR, "stop_recording: runtime status query failed");
     if (!recording)
         return set_error(OVPHYSX_API_INVALID_STATE, "stop_recording: no recording is active");
 
-    const omni::physx::OmniPvdRecordingResult result = physxSim->stopOmniPvdRecording();
+    const omni::ev4sio_physx::OmniPvdRecordingResult result = physxSim->stopOmniPvdRecording();
     reconcile_recording_owner_after_runtime_transition(physxSim);
-    if (result == omni::physx::OmniPvdRecordingResult::eSuccess)
+    if (result == omni::ev4sio_physx::OmniPvdRecordingResult::eSuccess)
         return success();
-    if (result == omni::physx::OmniPvdRecordingResult::eInvalidState)
+    if (result == omni::ev4sio_physx::OmniPvdRecordingResult::eInvalidState)
         return set_error(OVPHYSX_API_INVALID_STATE, "stop_recording: no recording is active");
-    if (result == omni::physx::OmniPvdRecordingResult::eNotSupported)
+    if (result == omni::ev4sio_physx::OmniPvdRecordingResult::eNotSupported)
         return set_error(OVPHYSX_API_NOT_IMPLEMENTED, "stop_recording: OmniPVD recording is unsupported on this platform");
     return set_error(OVPHYSX_API_ERROR, "stop_recording: failed to finalize the recording");
 }
@@ -4382,7 +4382,7 @@ OVPHYSX_API ovphysx_result_t ovphysx_shutdown(void) {
     }
 
     // Drain the direct PhysX runtime while Carbonite's settings/dictionary/log
-    // plugins are still resident. omni::physx::runtime::shutdown() tears down
+    // plugins are still resident. omni::ev4sio_physx::runtime::shutdown() tears down
     // OmniPhysX (UJITSO processors, scenes, tensors, foundation runtime). Left to
     // C++ static destruction at process exit, those objects reach back into an
     // already-torn-down Carbonite and the process dies with an access violation,
@@ -4395,7 +4395,7 @@ OVPHYSX_API ovphysx_result_t ovphysx_shutdown(void) {
     // Windows retains Carbonite's ExitProcess hook to protect dependency DLL teardown;
     // the packaged exit path bypasses release hooks and may leave private cache directories.
     removeExecutorWaitHooks();
-    omni::physx::runtime::shutdown();
+    omni::ev4sio_physx::runtime::shutdown();
     ovphysx::shutdownCarbonite();
     {
         std::lock_guard<std::mutex> recordingLock(g_gpuAttachMutex);
@@ -4570,7 +4570,7 @@ OVPHYSX_API ovphysx_result_t ovphysx_step_sync(ovphysx_instance_handle_t handle,
     instance->warmup_attach_handle.store(instance->attachHandle, std::memory_order_release);
 
     // Blocks until the step results are ready.
-    omni::physx::RuntimeErrorScope runtimeError;
+    omni::ev4sio_physx::RuntimeErrorScope runtimeError;
     if (checkRuntimeResult(physxSim->fetchResults(instance->attachHandle), "warmup fetchResults") != OVPHYSX_API_SUCCESS)
         return set_error(OVPHYSX_API_ERROR, "warmup: runtime rejected fetchResults");
     if (runtimeError.message()[0])
@@ -4925,7 +4925,7 @@ OVPHYSX_API ovphysx_result_t ovphysx_set_config(
             OVPHYSX_API_INVALID_ARGUMENT,
             parseError[0] != '\0' ? parseError : "active_cuda_gpus could not be parsed");
 
-    if (stringLength != 0 && !isProcessGpuDisabled() && omni::physx::cudaShim::isCudaAvailable())
+    if (stringLength != 0 && !isProcessGpuDisabled() && omni::ev4sio_physx::cudaShim::isCudaAvailable())
     {
         char validationErr[384] = {};
         if (!validateActiveCudaGpuOrdinals(ordinals, validationErr, sizeof(validationErr)))
@@ -5166,7 +5166,7 @@ struct AttachRequest
     // OVPHYSX_GLOBAL_CONFIG_COMPILED_STAGE_CACHE as configured when the call is made, and
     // the cache mode it resolved to then.
     int64_t configuredCacheMode = OVPHYSX_COMPILED_STAGE_CACHE_AUTOMATIC;
-    omni::physx::PhysxCompiledStageCacheMode cacheMode = omni::physx::PhysxCompiledStageCacheMode::eDisabled;
+    omni::ev4sio_physx::PhysxCompiledStageCacheMode cacheMode = omni::ev4sio_physx::PhysxCompiledStageCacheMode::eDisabled;
     // The CUDA context current on the submitting thread, which queued execution
     // reproduces on a worker or waiter; zero when none was current. Calling-thread
     // execution already has the submitting context and does not apply this snapshot.
@@ -5200,7 +5200,7 @@ static ovphysx_api_status_t attach_ovstage_body(ovphysx_instance_handle_t handle
         failure = "attach_ovstage: a stage is already attached; detach before attaching ovstage";
         return OVPHYSX_API_ERROR;
     }
-    omni::physx::IPhysxSimulation* physxSim =
+    omni::ev4sio_physx::IPhysxSimulation* physxSim =
         instance.carbonite ? instance.carbonite->getPhysxSimulation() : nullptr;
     if (!physxSim)
     {
@@ -5220,22 +5220,22 @@ static ovphysx_api_status_t attach_ovstage_body(ovphysx_instance_handle_t handle
     // the lifecycle lock keeps another attach from changing the process-global setting.
     if (carb::Framework* fw = carb::getFramework()) {
         if (carb::settings::ISettings* settings = fw->tryAcquireInterface<carb::settings::ISettings>())
-            settings->setBool(omni::physx::kSettingReplicatorEnvIdsOnAttach, request.useEnvIds);
+            settings->setBool(omni::ev4sio_physx::kSettingReplicatorEnvIdsOnAttach, request.useEnvIds);
     }
 
     // The runtime copies the cache mode for this attachment's later insertions and
     // writes the result before returning; it retains neither pointer.
-    omni::physx::PhysxCompiledStageCacheResult cacheResult = omni::physx::PhysxCompiledStageCacheResult::eDisabled;
-    omni::physx::PhysxCompiledStageCacheOptions cacheOptions;
+    omni::ev4sio_physx::PhysxCompiledStageCacheResult cacheResult = omni::ev4sio_physx::PhysxCompiledStageCacheResult::eDisabled;
+    omni::ev4sio_physx::PhysxCompiledStageCacheOptions cacheOptions;
     cacheOptions.mode = request.cacheMode;
     cacheOptions.result = &cacheResult;
     // A host's framework without cooking or a cache directory leaves the cache no
     // datastore of ovphysx's own: an enabled mode reports that instead of caching.
-    const bool cacheUnavailable = request.cacheMode != omni::physx::PhysxCompiledStageCacheMode::eDisabled &&
+    const bool cacheUnavailable = request.cacheMode != omni::ev4sio_physx::PhysxCompiledStageCacheMode::eDisabled &&
                                   ovphysx::compiledStageCacheUnavailable();
     if (cacheUnavailable)
-        cacheOptions.mode = omni::physx::PhysxCompiledStageCacheMode::eDisabled;
-    omni::physx::PhysxAttachOptions attachOptions;
+        cacheOptions.mode = omni::ev4sio_physx::PhysxCompiledStageCacheMode::eDisabled;
+    omni::ev4sio_physx::PhysxAttachOptions attachOptions;
     attachOptions.compiledStageCache = &cacheOptions;
 
     // GPU selection is process-global and PhysX consumes it synchronously while
@@ -5243,7 +5243,7 @@ static ovphysx_api_status_t attach_ovstage_body(ovphysx_instance_handle_t handle
     // stay in one transaction. The caller owns the sealed read ordinal, and the
     // initial scene parse reads at it. On the worker the submitting thread's CUDA
     // context is current meanwhile: active-context attach creates the scene in it.
-    omni::physx::RuntimeErrorScope runtimeError;
+    omni::ev4sio_physx::RuntimeErrorScope runtimeError;
     omni::physics::AttachHandle attachHandle = omni::physics::kNoAttach;
     bool busy = false;
     {
@@ -5257,11 +5257,11 @@ static ovphysx_api_status_t attach_ovstage_body(ovphysx_instance_handle_t handle
             return OVPHYSX_API_ERROR;
         }
         applyAttachTimeGpuSelection(instance, carb::getFramework(), "attachOvstage");
-        attachHandle = omni::physx::runtime::attachOvstageWithAdmission(
+        attachHandle = omni::ev4sio_physx::runtime::attachOvstageWithAdmission(
             &instance.ovstage_attach_payload, request.readOrdinal, attachOptions, busy);
     }
     if (cacheUnavailable)
-        cacheResult = omni::physx::PhysxCompiledStageCacheResult::eUnavailable;
+        cacheResult = omni::ev4sio_physx::PhysxCompiledStageCacheResult::eUnavailable;
     // A busy runtime refused the attach before it reached the cache.
     if (!busy) {
         CARB_LOG_INFO("[ovphysx] attach_ovstage: compiled stage cache: %s (mode %s%s)",
@@ -5300,7 +5300,7 @@ static ovphysx_api_status_t attach_ovstage_body(ovphysx_instance_handle_t handle
         instance.visualizationScopeDropped = false;
         instance.ovstage_attached = true;
     }
-    omni::physx::ovxDebugRenderNoteAttach(handle, attachHandle, 0);
+    omni::ev4sio_physx::ovxDebugRenderNoteAttach(handle, attachHandle, 0);
     if (!ovphysx_object_change_attach_instance(handle, attachHandle))
     {
         // The rollback runs under the lanes and the lifecycle lock this attach holds and
@@ -5377,7 +5377,7 @@ OVPHYSX_API ovphysx_enqueue_result_t ovphysx_attach_ovstage(ovphysx_instance_han
         if (ovphysx::refuseBlockingReentry(instance.get(), caller) != OVPHYSX_API_SUCCESS)
             return {OVPHYSX_API_INVALID_STATE, 0, 0};
 
-        omni::physx::IPhysxSimulation* physxSim =
+        omni::ev4sio_physx::IPhysxSimulation* physxSim =
             instance->carbonite ? instance->carbonite->getPhysxSimulation() : nullptr;
         if (!physxSim) {
             return set_enqueue_error(OVPHYSX_API_ERROR,
@@ -5493,7 +5493,7 @@ OVPHYSX_API ovphysx_enqueue_result_t ovphysx_attach_ovstage(ovphysx_instance_han
 
 // The body of an update job on the lane holder: earlier jobs have finished, so the
 // attachment checks see the state they left behind.
-static void run_update_job(ovphysx::InstanceJob& job, omni::physx::IPhysxSimulation* physxSim, uint64_t from_ordinal,
+static void run_update_job(ovphysx::InstanceJob& job, omni::ev4sio_physx::IPhysxSimulation* physxSim, uint64_t from_ordinal,
                            uint64_t to_ordinal, const ovphysx::SubmittedAttachment& submitted)
 {
     InstanceData& instance = job.instance();
@@ -5508,7 +5508,7 @@ static void run_update_job(ovphysx::InstanceJob& job, omni::physx::IPhysxSimulat
         return;
     }
 
-    omni::physx::RuntimeErrorScope runtimeError;
+    omni::ev4sio_physx::RuntimeErrorScope runtimeError;
     if (!physxSim->updateFromOvStage(instance.attachHandle, from_ordinal, to_ordinal))
     {
         static constexpr char kContext[] = "update_from_ovstage: IPhysxSimulation::updateFromOvStage failed";
@@ -5554,7 +5554,7 @@ OVPHYSX_API ovphysx_enqueue_result_t ovphysx_update_from_ovstage(ovphysx_instanc
                              "progress in this CUDA context; a graph replay would not repeat this update");
         }
 
-        omni::physx::IPhysxSimulation* physxSim =
+        omni::ev4sio_physx::IPhysxSimulation* physxSim =
             instance->carbonite ? instance->carbonite->getPhysxSimulation() : nullptr;
         if (!physxSim || !physxSim->updateFromOvStage) {
             return set_enqueue_error(OVPHYSX_API_ERROR,
@@ -5601,7 +5601,7 @@ struct CloneRequest
 
 // The body of a clone job on the lane holder: earlier jobs have finished, so the checks
 // below see the attachment, warmup and step state they left behind.
-static void run_clone_job(ovphysx::InstanceJob& job, omni::physx::IPhysxSimulation* physxSim, CloneRequest& request,
+static void run_clone_job(ovphysx::InstanceJob& job, omni::ev4sio_physx::IPhysxSimulation* physxSim, CloneRequest& request,
                           const ovphysx::SubmittedAttachment& submitted)
 {
     InstanceData& instance = job.instance();
@@ -5644,7 +5644,7 @@ static void run_clone_job(ovphysx::InstanceJob& job, omni::physx::IPhysxSimulati
     // Reserve target bookkeeping before cloning changes simulation state. Publishing the
     // successful target set is allocation-free.
     instance.cloned_target_paths.reserve(instance.cloned_target_paths.size() + request.targetSet.size());
-    omni::physx::RuntimeErrorScope runtimeError;
+    omni::ev4sio_physx::RuntimeErrorScope runtimeError;
     const bool cloned = physxSim->cloneEnvironments(
         instance.attachHandle, request.source.c_str(), request.targetPointers.data(),
         static_cast<uint32_t>(request.targetPointers.size()),
@@ -5665,7 +5665,7 @@ static void run_clone_job(ovphysx::InstanceJob& job, omni::physx::IPhysxSimulati
     // views live against a changed population.
     if (instance.attachHandle != omni::physics::tensors::kNoAttach)
     {
-        if (omni::physics::tensors::TensorApi* tensorApi = omni::physx::runtime::tryGetTensorApiInterface())
+        if (omni::physics::tensors::TensorApi* tensorApi = omni::ev4sio_physx::runtime::tryGetTensorApiInterface())
         {
             if (tensorApi->resetStage)
                 tensorApi->resetStage(instance.attachHandle);
@@ -5707,7 +5707,7 @@ OVPHYSX_API ovphysx_enqueue_result_t ovphysx_clone(ovphysx_instance_handle_t han
         if (ovphysx::refuseBlockingReentry(instance.get(), caller) != OVPHYSX_API_SUCCESS)
             return {OVPHYSX_API_INVALID_STATE, 0, 0};
 
-        omni::physx::IPhysxSimulation* physxSim =
+        omni::ev4sio_physx::IPhysxSimulation* physxSim =
             instance->carbonite ? instance->carbonite->getPhysxSimulation() : nullptr;
         if (!physxSim || !physxSim->cloneEnvironments) {
             return set_enqueue_error(OVPHYSX_API_ERROR, "clone: IPhysxSimulation::cloneEnvironments is unavailable");
@@ -5813,7 +5813,7 @@ static ovphysx_result_t detach_ovstage_body(ovphysx_instance_handle_t handle, In
         // may destroy that dictionary). A replacement stage must start unscoped.
         instance.visualizationScopeDropped = true;
         clearVisualizationScopeTokens(attachHandle);
-        omni::physx::ovxDebugRenderNoteAttach(handle, 0, 1);
+        omni::ev4sio_physx::ovxDebugRenderNoteAttach(handle, 0, 1);
 
         cleanup_output_writes(instance);
 
@@ -5826,12 +5826,12 @@ static ovphysx_result_t detach_ovstage_body(ovphysx_instance_handle_t handle, In
         // the attach handle and not gated on a nonzero stage id, because a
         // stageless attach needs this most of all.
         if (omni::physics::tensors::TensorApi* tensorApi =
-                omni::physx::runtime::tryGetTensorApiInterface()) {
+                omni::ev4sio_physx::runtime::tryGetTensorApiInterface()) {
             if (tensorApi->resetStage)
                 tensorApi->resetStage(attachHandle);
         }
 
-        omni::physx::IPhysxSimulation* physxSim =
+        omni::ev4sio_physx::IPhysxSimulation* physxSim =
             instance.carbonite ? instance.carbonite->getPhysxSimulation() : nullptr;
         {
             std::lock_guard<std::mutex> attachLock(g_gpuAttachMutex);

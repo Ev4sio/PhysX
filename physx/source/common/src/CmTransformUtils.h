@@ -11,7 +11,7 @@
 namespace
 {
 
-using namespace physx::aos;
+using namespace ev4sio_physx::aos;
 
 // V3PrepareCross would help here, but it's not on all platforms yet...
 
@@ -45,9 +45,9 @@ PX_FORCE_INLINE void transformInvFast(const FloatVArg wa, const Vec3VArg va, con
 
 }
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Cm
+namespace ev4sio_Cm
 {
 
 // PT: actor2World * shape2Actor

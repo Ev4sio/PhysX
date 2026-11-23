@@ -14,7 +14,7 @@
 #include "foundation/PxIO.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -579,7 +579,7 @@ template <class T, class Alloc> class PxArray
 			}
 			else
 			{
-				PxGetFoundation().error(PxErrorCode::eOUT_OF_MEMORY, PX_FL, "PxArray::allocate: allocator returned null pointer.");
+				ev4sio_PxGetFoundation().error(PxErrorCode::eOUT_OF_MEMORY, PX_FL, "PxArray::allocate: allocator returned null pointer.");
 			}
 		}
 		return p;
@@ -745,7 +745,7 @@ PX_INLINE void swap(PxArray<T, Alloc>& x, PxArray<T, Alloc>& y)
 }
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

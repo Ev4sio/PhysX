@@ -7,7 +7,7 @@
 #include "foundation/PxUserAllocated.h"
 #include "PxcNpMemBlockPool.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 PxcNpCacheStreamPair::PxcNpCacheStreamPair(PxcNpMemBlockPool& blockPool) :
 	mBlockPool	(blockPool),

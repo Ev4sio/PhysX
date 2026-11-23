@@ -15,7 +15,7 @@
 #include "triangle.cuh"
 #include "stdio.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 __device__ static PxReal distancePointTriangleSquared(const PxVec3 p,
@@ -140,6 +140,6 @@ __device__ inline bool intersectLineTri(const PxVec3& p, const PxVec3& q, const 
 	return u >= 0.f && v >= 0.f && w >= 0.f;
 }
 
-} // namespace physx
+} // namespace ev4sio_physx
 
 #endif

@@ -6,8 +6,8 @@
 #include "PxPvdBits.h"
 #include <stdarg.h>
 
-using namespace physx;
-using namespace physx::pvdsdk;
+using namespace ev4sio_physx;
+using namespace ev4sio_physx::pvdsdk;
 
 namespace
 {

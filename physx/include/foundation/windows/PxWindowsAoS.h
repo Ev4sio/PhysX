@@ -13,7 +13,7 @@
 #endif
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 namespace aos
@@ -113,7 +113,7 @@ struct Mat44V
 
 } // namespace aos
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

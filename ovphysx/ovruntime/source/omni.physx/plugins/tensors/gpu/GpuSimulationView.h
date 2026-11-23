@@ -23,7 +23,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace tensors
 {
@@ -33,7 +33,7 @@ class GpuSimulationView : public BaseSimulationView
 {
 public:
     GpuSimulationView(usdparser::AttachedStage* attachedStage,
-                      ::physx::PxScene* scene,
+                      ::ev4sio_physx::PxScene* scene,
                       GpuSimulationDataPtr gpuSimData);
 
     ~GpuSimulationView() override;
@@ -80,10 +80,10 @@ public:
     // the scene's actors. The caller cannot tell those apart and should invalidate the backend's
     // cache for this scene, then retry once.
     GpuRigidBodyView* supersetRigidView(
-        const std::unordered_map<const ::physx::PxRigidBody*, ::physx::PxU32>** outRowMap);
+        const std::unordered_map<const ::ev4sio_physx::PxRigidBody*, ::ev4sio_physx::PxU32>** outRowMap);
 
     GpuArticulationView* supersetArticulationView(
-        const std::unordered_map<const ::physx::PxArticulationReducedCoordinate*, ::physx::PxU32>** outRowMap,
+        const std::unordered_map<const ::ev4sio_physx::PxArticulationReducedCoordinate*, ::ev4sio_physx::PxU32>** outRowMap,
         const std::vector<ArticulationEntry>** outEntries);
 
     // Whether the superset view of that kind is already built, so asking for it builds nothing.
@@ -157,9 +157,9 @@ private:
 
     // Built on first use, released with this view.
     GpuRigidBodyView* mSupersetRigidView = nullptr;
-    std::unordered_map<const ::physx::PxRigidBody*, ::physx::PxU32> mSupersetRigidRowMap;
+    std::unordered_map<const ::ev4sio_physx::PxRigidBody*, ::ev4sio_physx::PxU32> mSupersetRigidRowMap;
     GpuArticulationView* mSupersetArtiView = nullptr;
-    std::unordered_map<const ::physx::PxArticulationReducedCoordinate*, ::physx::PxU32> mSupersetArtiRowMap;
+    std::unordered_map<const ::ev4sio_physx::PxArticulationReducedCoordinate*, ::ev4sio_physx::PxU32> mSupersetArtiRowMap;
     std::vector<ArticulationEntry> mSupersetArtiEntries;
 };
 
@@ -168,8 +168,8 @@ private:
 // SimulationView just to reach the scene -- avoiding, per call, the cache-validation topology walk plus
 // the view's construction, registration and removal (the GPU simulation data itself is cached and reused,
 // not rebuilt). Returns false if the DirectGPU refresh did not complete (computeArticulationData failed).
-bool gpuRefreshArticulationsKinematic(::physx::PxScene* scene);
+bool gpuRefreshArticulationsKinematic(::ev4sio_physx::PxScene* scene);
 
 } // namespace tensors
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

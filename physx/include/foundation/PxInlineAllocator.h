@@ -9,7 +9,7 @@
 #include "foundation/PxUserAllocated.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 // This is used by the array class to allocate some space for a small number of objects along with the metadata.
@@ -61,7 +61,7 @@ class PxInlineAllocator : private BaseAllocator
 	bool	mBufferUsed;
 };
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

@@ -11,9 +11,9 @@
 #include <stdio.h>
 
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Dy
+namespace ev4sio_Dy
 {
 
 
@@ -89,8 +89,8 @@ struct BiasCoefficientCollection
 };
 
 
-} //namespace Dy
-} //namespace physx
+} //namespace ev4sio_Dy
+} //namespace ev4sio_physx
 
 
 #endif //DY_BIAS_COEFFICIENT_CPUGPU_H

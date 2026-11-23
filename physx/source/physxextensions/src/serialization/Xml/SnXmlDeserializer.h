@@ -8,7 +8,7 @@
 
 #include "SnXmlVisitorReader.h"
 
-namespace physx { namespace Sn {
+namespace ev4sio_physx { namespace Sn {
 	
 	//Definitions needed internally in the Serializer headers.
 	template<typename TTriIndexElem>
@@ -148,7 +148,7 @@ namespace physx { namespace Sn {
 				{
 					//Drop what was parsed so far: a truncated buffer paired with a separately declared
 					//element count is a hazard of its own.
-					PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "RepX: malformed numeric token in buffer property '%s'. The property is ignored.", inPropName);
+					ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "RepX: malformed numeric token in buffer property '%s'. The property is ignored.", inPropName);
 				}
 				else
 				{
@@ -187,7 +187,7 @@ namespace physx { namespace Sn {
 
 		if (outCount > PX_MAX_U32)
 		{
-			PxGetFoundation().error(PxErrorCode::eOUT_OF_MEMORY, PX_FL, "PxBoundedData: The value of count is greater than PX_MAX_U32.");
+			ev4sio_PxGetFoundation().error(PxErrorCode::eOUT_OF_MEMORY, PX_FL, "PxBoundedData: The value of count is greater than PX_MAX_U32.");
 		}
 		else
 		{

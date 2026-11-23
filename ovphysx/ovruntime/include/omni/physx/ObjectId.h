@@ -9,7 +9,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace usdparser
 {
@@ -47,5 +47,5 @@ typedef size_t ObjectId;
 const ObjectId kInvalidObjectId = ObjectId(0xFFffFFffFF);
 
 } // namespace usdparser
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

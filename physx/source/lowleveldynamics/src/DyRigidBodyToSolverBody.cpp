@@ -8,10 +8,10 @@
 #include "PxsRigidBody.h"
 #include "PxvDynamics.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 // PT: TODO: SIMDify all this...
-void Dy::copyToSolverBodyData(const PxVec3& linearVelocity, const PxVec3& angularVelocity, PxReal invMass, const PxVec3& invInertia, const PxTransform& globalPose,
+void ev4sio_Dy::copyToSolverBodyData(const PxVec3& linearVelocity, const PxVec3& angularVelocity, PxReal invMass, const PxVec3& invInertia, const PxTransform& globalPose,
 	PxReal maxDepenetrationVelocity, PxReal maxContactImpulse, PxU32 nodeIndex, PxReal reportThreshold, PxSolverBodyData& data, PxU32 lockFlags,
 	PxReal dt, bool gyroscopicForces)
 {
@@ -19,14 +19,14 @@ void Dy::copyToSolverBodyData(const PxVec3& linearVelocity, const PxVec3& angula
 
 	const PxVec3p safeSqrtInvInertia = computeSafeSqrtInertia(invInertia);
 
-	Cm::transformInertiaTensor(safeSqrtInvInertia, globalPose.q, data.sqrtInvInertia);
+	ev4sio_Cm::transformInertiaTensor(safeSqrtInvInertia, globalPose.q, data.sqrtInvInertia);
 
 	PxVec3 ang = angularVelocity;
 	PxVec3 lin = linearVelocity;
 
 	if (gyroscopicForces)
 	{
-		const PxVec3 localInertia = Cm::safeRecip<PxVec3>(invInertia);
+		const PxVec3 localInertia = ev4sio_Cm::safeRecip<PxVec3>(invInertia);
 
 		const PxVec3 localAngVel = globalPose.q.rotateInv(ang);
 		const PxVec3 origMom = localInertia.multiply(localAngVel);

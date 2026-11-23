@@ -7,7 +7,7 @@
 #define PX_VEC_QUAT_H
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 namespace aos
@@ -468,7 +468,7 @@ PX_FORCE_INLINE QuatV Mat33GetQuatV(const Mat33V& a)
 
 } // namespace aos
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

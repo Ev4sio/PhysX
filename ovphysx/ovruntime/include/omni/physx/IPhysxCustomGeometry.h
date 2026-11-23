@@ -24,7 +24,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 static const size_t kInvalidCustomGeometryRegId = 0;
 
@@ -39,7 +39,7 @@ static const size_t kInvalidCustomGeometryRegId = 0;
 /// \return  User pointer that gets provided for each implementation function.
 typedef void* (*CreateCustomGeometryFn)(omni::physics::parse::ObjectKey key,
                                         AttachHandle attachHandle,
-                                        const ::physx::PxCustomGeometry::Type& typeId,
+                                        const ::ev4sio_physx::PxCustomGeometry::Type& typeId,
                                         void* userData);
 
 /// Release custom geometry function
@@ -59,7 +59,7 @@ typedef void (*ReleaseCustomGeometryObjectFn)(omni::physics::parse::ObjectKey ke
 /// \param[in] geometry		This geometry.
 /// \param[in] userObject	Created user custom geometry through CreateCustomGeometryFn
 /// \return  Bounding box in the geometry local space.
-typedef ::physx::PxBounds3 (*ComputeCustomGeometryLocalBoundsFn)(const ::physx::PxGeometry& geometry, void* userObject);
+typedef ::ev4sio_physx::PxBounds3 (*ComputeCustomGeometryLocalBoundsFn)(const ::ev4sio_physx::PxGeometry& geometry, void* userObject);
 
 /// Contacts generation function. Generate collision contacts between two geometries in given poses.
 ///
@@ -76,14 +76,14 @@ typedef ::physx::PxBounds3 (*ComputeCustomGeometryLocalBoundsFn)(const ::physx::
 /// CreateCustomGeometryFn belongs to geom1, this pointer is only valid if geom1 is a custom geometry too.
 ///
 /// \return True if there are contacts. False otherwise.
-typedef bool (*GenerateCustomGeometryContactsFn)(const ::physx::PxGeometry& geom0,
-                                                 const ::physx::PxGeometry& geom1,
-                                                 const ::physx::PxTransform& pose0,
-                                                 const ::physx::PxTransform& pose1,
+typedef bool (*GenerateCustomGeometryContactsFn)(const ::ev4sio_physx::PxGeometry& geom0,
+                                                 const ::ev4sio_physx::PxGeometry& geom1,
+                                                 const ::ev4sio_physx::PxTransform& pose0,
+                                                 const ::ev4sio_physx::PxTransform& pose1,
                                                  const float contactDistance,
                                                  const float meshContactMargin,
                                                  const float toleranceLength,
-                                                 ::physx::PxContactBuffer& contactBuffer,
+                                                 ::ev4sio_physx::PxContactBuffer& contactBuffer,
                                                  void* userObject0,
                                                  void* userObject1);
 
@@ -102,16 +102,16 @@ typedef bool (*GenerateCustomGeometryContactsFn)(const ::physx::PxGeometry& geom
 /// \param[in] userObject	    Created user custom geometry through CreateCustomGeometryFn
 ///
 /// \return Number of hits.
-typedef uint32_t (*RaycastCustomGeometryFn)(const ::physx::PxVec3& origin,
-                                            const ::physx::PxVec3& unitDir,
-                                            const ::physx::PxGeometry& geom,
-                                            const ::physx::PxTransform& pose,
+typedef uint32_t (*RaycastCustomGeometryFn)(const ::ev4sio_physx::PxVec3& origin,
+                                            const ::ev4sio_physx::PxVec3& unitDir,
+                                            const ::ev4sio_physx::PxGeometry& geom,
+                                            const ::ev4sio_physx::PxTransform& pose,
                                             float maxDist,
-                                            ::physx::PxHitFlags hitFlags,
+                                            ::ev4sio_physx::PxHitFlags hitFlags,
                                             uint32_t maxHits,
-                                            ::physx::PxGeomRaycastHit* rayHits,
+                                            ::ev4sio_physx::PxGeomRaycastHit* rayHits,
                                             uint32_t stride,
-                                            ::physx::PxRaycastThreadContext* threadContext,
+                                            ::ev4sio_physx::PxRaycastThreadContext* threadContext,
                                             void* userObject);
 
 /// Overlap function. Test if geometries overlap. Optional (scene query functionality will not work).
@@ -124,11 +124,11 @@ typedef uint32_t (*RaycastCustomGeometryFn)(const ::physx::PxVec3& origin,
 /// \param[in] userObject	    Created user custom geometry through CreateCustomGeometryFn
 ///
 /// \return True if there is overlap. False otherwise.
-typedef bool (*OverlapCustomGeometryFn)(const ::physx::PxGeometry& geom0,
-                                        const ::physx::PxTransform& pose0,
-                                        const ::physx::PxGeometry& geom1,
-                                        const ::physx::PxTransform& pose1,
-                                        ::physx::PxOverlapThreadContext* threadContext,
+typedef bool (*OverlapCustomGeometryFn)(const ::ev4sio_physx::PxGeometry& geom0,
+                                        const ::ev4sio_physx::PxTransform& pose0,
+                                        const ::ev4sio_physx::PxGeometry& geom1,
+                                        const ::ev4sio_physx::PxTransform& pose1,
+                                        ::ev4sio_physx::PxOverlapThreadContext* threadContext,
                                         void* userObject);
 
 /// Sweep function. Sweep one geometry against the other. Optional (scene query functionality will not work).
@@ -146,16 +146,16 @@ typedef bool (*OverlapCustomGeometryFn)(const ::physx::PxGeometry& geom0,
 /// custom geometry through CreateCustomGeometryFn
 ///
 /// \return True if there is hit. False otherwise.
-typedef bool (*SweepCustomGeometryFn)(const ::physx::PxVec3& unitDir,
+typedef bool (*SweepCustomGeometryFn)(const ::ev4sio_physx::PxVec3& unitDir,
                                       const float maxDist,
-                                      const ::physx::PxGeometry& geom0,
-                                      const ::physx::PxTransform& pose0,
-                                      const ::physx::PxGeometry& geom1,
-                                      const ::physx::PxTransform& pose1,
-                                      ::physx::PxGeomSweepHit& sweepHit,
-                                      ::physx::PxHitFlags hitFlags,
+                                      const ::ev4sio_physx::PxGeometry& geom0,
+                                      const ::ev4sio_physx::PxTransform& pose0,
+                                      const ::ev4sio_physx::PxGeometry& geom1,
+                                      const ::ev4sio_physx::PxTransform& pose1,
+                                      ::ev4sio_physx::PxGeomSweepHit& sweepHit,
+                                      ::ev4sio_physx::PxHitFlags hitFlags,
                                       const float inflation,
-                                      ::physx::PxSweepThreadContext* threadContext,
+                                      ::ev4sio_physx::PxSweepThreadContext* threadContext,
                                       void* userObject);
 
 /// Visualize custom geometry for debugging function. Optional.
@@ -165,10 +165,10 @@ typedef bool (*SweepCustomGeometryFn)(const ::physx::PxVec3& unitDir,
 /// \param[in] out			Render output.
 /// \param[in] cullbox		Region to visualize.
 /// \param[in] userObject	    Created user custom geometry through CreateCustomGeometryFn
-typedef void (*VisualizeCustomGeometryFn)(const ::physx::PxGeometry& geometry,
-                                          const ::physx::PxTransform& pose,
-                                          ::physx::PxRenderOutput& out,
-                                          const ::physx::PxBounds3& cullbox,
+typedef void (*VisualizeCustomGeometryFn)(const ::ev4sio_physx::PxGeometry& geometry,
+                                          const ::ev4sio_physx::PxTransform& pose,
+                                          ::ev4sio_physx::PxRenderOutput& out,
+                                          const ::ev4sio_physx::PxBounds3& cullbox,
                                           void* userObject);
 
 /// Compute custom geometry mass properties function. For geometries usable with dynamic rigid bodies.
@@ -176,8 +176,8 @@ typedef void (*VisualizeCustomGeometryFn)(const ::physx::PxGeometry& geometry,
 /// \param[in] geometry			This geometry.
 /// \param[out] massProperties	Mass properties to compute.
 /// \param[in] userObject	    Created user custom geometry through CreateCustomGeometryFn
-typedef void (*ComputeCustomGeometryMassPropertiesFn)(const ::physx::PxGeometry& geometry,
-                                                      ::physx::PxMassProperties& massProperties,
+typedef void (*ComputeCustomGeometryMassPropertiesFn)(const ::ev4sio_physx::PxGeometry& geometry,
+                                                      ::ev4sio_physx::PxMassProperties& massProperties,
                                                       void* userObject);
 
 /// Compatible with PhysX's PCM feature function. Allows to optimize contact generation.
@@ -185,7 +185,7 @@ typedef void (*ComputeCustomGeometryMassPropertiesFn)(const ::physx::PxGeometry&
 /// \param[in] geometry				This geometry.
 /// \param[out] breakingThreshold	The threshold to trigger contacts re-generation.
 /// \param[in] userObject	        Created user custom geometry through CreateCustomGeometryFn
-typedef bool (*UseCustomGeometryPersistentContactManifoldFn)(const ::physx::PxGeometry& geometry,
+typedef bool (*UseCustomGeometryPersistentContactManifoldFn)(const ::ev4sio_physx::PxGeometry& geometry,
                                                              float& breakingThreshold,
                                                              void* userObject);
 
@@ -231,5 +231,5 @@ struct IPhysxCustomGeometry
     bool(* tryUnregisterCustomGeometry)(size_t id);
 };
 
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

@@ -17,7 +17,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace gpu
 {
@@ -135,5 +135,5 @@ bool PhysXGpuLoader::isLoaded() const
 }
 
 } // namespace gpu
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

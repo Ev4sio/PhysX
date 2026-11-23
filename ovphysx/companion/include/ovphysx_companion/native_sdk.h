@@ -23,9 +23,9 @@
 
 namespace ovphysx::companion::native
 {
-using omni::physx::native::ParameterKind;
-using omni::physx::native::ParameterSpec;
-using omni::physx::native::ParameterValue;
+using omni::ev4sio_physx::native::ParameterKind;
+using omni::ev4sio_physx::native::ParameterSpec;
+using omni::ev4sio_physx::native::ParameterValue;
 
 // A read-only view valid only during create; copy values needed by later callbacks.
 struct ObjectContext
@@ -42,9 +42,9 @@ struct HostApi
 {
     uint32_t size;
     uint32_t version;
-    decltype(&physx::PxGeometryQuery::raycast) raycast;
-    decltype(&physx::PxGeometryQuery::overlap) overlap;
-    decltype(&physx::PxGeometryQuery::sweep) sweep;
+    decltype(&ev4sio_physx::PxGeometryQuery::raycast) raycast;
+    decltype(&ev4sio_physx::PxGeometryQuery::overlap) overlap;
+    decltype(&ev4sio_physx::PxGeometryQuery::sweep) sweep;
 };
 
 // Every non-null create result receives one release, including rollback. Callbacks
@@ -53,14 +53,14 @@ struct HostApi
 // by the object until release, and is copied by the runtime before solver work.
 struct JointCallbacks
 {
-    void* (*create)(const ObjectContext&, physx::PxRigidActor*, const physx::PxTransform&,
-                    physx::PxRigidActor*, const physx::PxTransform&, uint32_t& flags, void* context) noexcept = nullptr;
+    void* (*create)(const ObjectContext&, ev4sio_physx::PxRigidActor*, const ev4sio_physx::PxTransform&,
+                    ev4sio_physx::PxRigidActor*, const ev4sio_physx::PxTransform&, uint32_t& flags, void* context) noexcept = nullptr;
     void (*release)(void* object, void* context) noexcept = nullptr;
     void* (*prepare)(void* object) noexcept = nullptr;
     const void* (*constantBlock)(void* object) noexcept = nullptr;
     void (*comShift)(void* object, uint32_t actor) noexcept = nullptr;
-    void (*originShift)(void* object, const physx::PxVec3&) noexcept = nullptr;
-    physx::PxConstraintSolverPrep solverPrep = nullptr;
+    void (*originShift)(void* object, const ev4sio_physx::PxVec3&) noexcept = nullptr;
+    ev4sio_physx::PxConstraintSolverPrep solverPrep = nullptr;
     uint32_t dataSize = 0;
     uint32_t dataAlignment = 16;
     // Optional explicit refresh at an idle owner. On rejection, leave state unchanged.
@@ -69,23 +69,23 @@ struct JointCallbacks
 
 struct GeometryCallbacks
 {
-    void* (*create)(const ObjectContext&, const physx::PxCustomGeometry::Type&, void* context) noexcept = nullptr;
+    void* (*create)(const ObjectContext&, const ev4sio_physx::PxCustomGeometry::Type&, void* context) noexcept = nullptr;
     void (*release)(void* object, void* context) noexcept = nullptr;
-    physx::PxBounds3 (*bounds)(const physx::PxGeometry&, void*) = nullptr;
-    bool (*contacts)(const physx::PxGeometry&, const physx::PxGeometry&, const physx::PxTransform&,
-                     const physx::PxTransform&, float, float, float, physx::PxContactBuffer&, void*, void*) = nullptr;
-    void (*mass)(const physx::PxGeometry&, physx::PxMassProperties&, void*) = nullptr;
-    bool (*manifold)(const physx::PxGeometry&, float&, void*) = nullptr;
-    uint32_t (*raycast)(const physx::PxVec3&, const physx::PxVec3&, const physx::PxGeometry&,
-                        const physx::PxTransform&, float, physx::PxHitFlags, uint32_t,
-                        physx::PxGeomRaycastHit*, uint32_t, physx::PxRaycastThreadContext*, void*) = nullptr;
-    bool (*overlap)(const physx::PxGeometry&, const physx::PxTransform&, const physx::PxGeometry&,
-                    const physx::PxTransform&, physx::PxOverlapThreadContext*, void*) = nullptr;
-    bool (*sweep)(const physx::PxVec3&, float, const physx::PxGeometry&, const physx::PxTransform&,
-                  const physx::PxGeometry&, const physx::PxTransform&, physx::PxGeomSweepHit&,
-                  physx::PxHitFlags, float, physx::PxSweepThreadContext*, void*) = nullptr;
-    void (*visualize)(const physx::PxGeometry&, const physx::PxTransform&, physx::PxRenderOutput&,
-                      const physx::PxBounds3&, void*) = nullptr;
+    ev4sio_physx::PxBounds3 (*bounds)(const ev4sio_physx::PxGeometry&, void*) = nullptr;
+    bool (*contacts)(const ev4sio_physx::PxGeometry&, const ev4sio_physx::PxGeometry&, const ev4sio_physx::PxTransform&,
+                     const ev4sio_physx::PxTransform&, float, float, float, ev4sio_physx::PxContactBuffer&, void*, void*) = nullptr;
+    void (*mass)(const ev4sio_physx::PxGeometry&, ev4sio_physx::PxMassProperties&, void*) = nullptr;
+    bool (*manifold)(const ev4sio_physx::PxGeometry&, float&, void*) = nullptr;
+    uint32_t (*raycast)(const ev4sio_physx::PxVec3&, const ev4sio_physx::PxVec3&, const ev4sio_physx::PxGeometry&,
+                        const ev4sio_physx::PxTransform&, float, ev4sio_physx::PxHitFlags, uint32_t,
+                        ev4sio_physx::PxGeomRaycastHit*, uint32_t, ev4sio_physx::PxRaycastThreadContext*, void*) = nullptr;
+    bool (*overlap)(const ev4sio_physx::PxGeometry&, const ev4sio_physx::PxTransform&, const ev4sio_physx::PxGeometry&,
+                    const ev4sio_physx::PxTransform&, ev4sio_physx::PxOverlapThreadContext*, void*) = nullptr;
+    bool (*sweep)(const ev4sio_physx::PxVec3&, float, const ev4sio_physx::PxGeometry&, const ev4sio_physx::PxTransform&,
+                  const ev4sio_physx::PxGeometry&, const ev4sio_physx::PxTransform&, ev4sio_physx::PxGeomSweepHit&,
+                  ev4sio_physx::PxHitFlags, float, ev4sio_physx::PxSweepThreadContext*, void*) = nullptr;
+    void (*visualize)(const ev4sio_physx::PxGeometry&, const ev4sio_physx::PxTransform&, ev4sio_physx::PxRenderOutput&,
+                      const ev4sio_physx::PxBounds3&, void*) = nullptr;
 };
 
 enum class Kind : uint32_t { Joint = 1, Geometry = 2 };

@@ -7,7 +7,7 @@
 #include "collision/PxCollisionDefs.h"
 #include "solver/PxSolverDefs.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 namespace SnippetImmUtils
 {

@@ -13,13 +13,13 @@
 #include "foundation/PxUserAllocated.h"
 #include "PxgSimulationCoreDesc.h" // for PxgDeformablePairInfo
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Gu
+namespace ev4sio_Gu
 {
 class TriangleMesh;
 }
-namespace Cm
+namespace ev4sio_Cm
 {
 class VirtualAllocatorCallback;
 }
@@ -36,7 +36,7 @@ struct PxsDeformableSurfaceMaterialData;
 class PxgDeformableSurfaceTopology : public PxUserAllocated
 {
   public:
-	PxgDeformableSurfaceTopology(const Gu::TriangleMesh& triangleMesh);
+	PxgDeformableSurfaceTopology(const ev4sio_Gu::TriangleMesh& triangleMesh);
 
 	// Frees what the upload consumed, keeping the edge ownership.
 	void releaseUploadData();
@@ -90,7 +90,7 @@ class PxgFEMCloth
   public:
 
 	// to deallocate the host mirror. Make sure you pass in the right allocator!
-	void deallocate(Cm::VirtualAllocatorCallback& hostAlloc);
+	void deallocate(ev4sio_Cm::VirtualAllocatorCallback& hostAlloc);
 
 	void* mTriMeshData;
 
@@ -228,13 +228,13 @@ class PxgFEMCloth
 class PxgFEMClothUtil
 {
   public:
-	static PxU32 computeTriangleMeshByteSize(const Gu::TriangleMesh* triangleMesh);
-	static PxU32 loadOutTriangleMesh(void* mem, const Gu::TriangleMesh* triangleMesh);
+	static PxU32 computeTriangleMeshByteSize(const ev4sio_Gu::TriangleMesh* triangleMesh);
+	static PxU32 loadOutTriangleMesh(void* mem, const ev4sio_Gu::TriangleMesh* triangleMesh);
 
-	static PxU32 initialTriangleData(PxgFEMCloth& femCloth, const Gu::TriangleMesh* triangleMesh,
+	static PxU32 initialTriangleData(PxgFEMCloth& femCloth, const ev4sio_Gu::TriangleMesh* triangleMesh,
 									 const PxgDeformableSurfaceTopology& topology,
 									 const PxU16* materialHandles, PxsDeformableSurfaceMaterialData* materials, const PxU32 nbMaterials,
-									 Cm::VirtualAllocatorCallback& hostAlloc);
+									 ev4sio_Cm::VirtualAllocatorCallback& hostAlloc);
 
 	static void categorizeClothConstraints(PxArray<PxU32>& sharedTrianglePairs, PxArray<PxU32>& nonSharedTriangles,
 										   PxArray<PxU32>& nonSharedTrianglePairs, PxgFEMCloth& femCloth,
@@ -242,7 +242,7 @@ class PxgFEMClothUtil
 
 	static void computeNonSharedTriangleConfiguration(PxgFEMCloth& femCloth, const PxArray<PxU32>& orderedNonSharedTriangles,
 													  const PxArray<PxU32>& activeTriangleIndices,
-													  const Gu::TriangleMesh* const triangleMesh);
+													  const ev4sio_Gu::TriangleMesh* const triangleMesh);
 
 	static float updateFlexuralStiffnessPerTrianglePair(float t0Area, float t1Area, float hingeLength, float thickness, float inputStiffness);
 
@@ -254,11 +254,11 @@ class PxgFEMClothUtil
 
 	static void computeTrianglePairConfiguration(PxgFEMCloth& femCloth, PxArray<uint2>& trianglePairTriangleIndices,
 												 const PxArray<uint4>& trianglePairVertexIndices, const PxArray<PxU32>& orderedTrianglePairs,
-												 const PxArray<PxU32>& activeTrianglePairIndices, const Gu::TriangleMesh* const triangleMesh,
+												 const PxArray<PxU32>& activeTrianglePairIndices, const ev4sio_Gu::TriangleMesh* const triangleMesh,
 												 const PxsDeformableSurfaceMaterialData* materials, bool zeroRestBendingAngle,
 												 bool isSharedPartition);
 };
 
-} // namespace physx
+} // namespace ev4sio_physx
 
 #endif

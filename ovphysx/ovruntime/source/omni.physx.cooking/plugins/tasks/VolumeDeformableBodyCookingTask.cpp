@@ -17,19 +17,19 @@
 #include <common/foundation/MatrixTools.h>
 #include "extensions/PxTetMakerExt.h"
 
-using namespace ::physx;
-using namespace omni::physx;
+using namespace ::ev4sio_physx;
+using namespace omni::ev4sio_physx;
 
 namespace
 {
     // The cooking-parameter transforms arrive as sixteen raw doubles (carb::Double4[4]).
     // PxMat44d and GfMatrix4d hold that same element layout, so this is a copy, not a
     // transpose -- only the multiplication order flips. See common/foundation/MatrixTools.h.
-    inline ::physx::PxMat44d toPxMat44d(const carb::Double4 (&m)[4])
+    inline ::ev4sio_physx::PxMat44d toPxMat44d(const carb::Double4 (&m)[4])
     {
         double values[16];
         std::memcpy(values, m, sizeof(values));
-        return ::physx::PxMat44d(values);
+        return ::ev4sio_physx::PxMat44d(values);
     }
 
     // toPxVec3d / toFloat3 for PxVec3d live in common/foundation/CarbPhysXCast.h.
@@ -185,7 +185,7 @@ namespace
 
     inline carb::Float3 evaluateBarycentric(const carb::Uint3& triangle, const carb::Float3& bary, const float* vertices)
     {
-        const ::physx::PxVec3* v = reinterpret_cast<const ::physx::PxVec3*>(vertices);
+        const ::ev4sio_physx::PxVec3* v = reinterpret_cast<const ::ev4sio_physx::PxVec3*>(vertices);
         return fromPhysX(bary.x * v[triangle.x] + bary.y * v[triangle.y] + bary.z * v[triangle.z]);
     }
 
@@ -406,7 +406,7 @@ class VolumeDeformableBodyCookingTask : public cookingtask::CookingTask
 public:
     VolumeDeformableBodyCookingTask(
         const VolumeDeformableBodyCookingParams& params,
-        omni::physx::PhysxCookingComputeResult& result)
+        omni::ev4sio_physx::PhysxCookingComputeResult& result)
         : CookingTask(result)
     {
         static_assert(sizeof(m_simToCookingTransform) == sizeof(params.simToCookingTransform));
@@ -661,7 +661,7 @@ public:
                             m_collSurfaceIndices.size() * sizeof(uint32_t));
             }
 
-            const ::physx::PxMat44d cookingToSimTransform = omni::physx::affineInverse(m_simToCookingTransform);
+            const ::ev4sio_physx::PxMat44d cookingToSimTransform = omni::ev4sio_physx::affineInverse(m_simToCookingTransform);
             for (uint32_t p = 0; p < m_simPoints.size(); ++p)
             {
                 carb::Float3& v = m_simPoints.ptr()[p];
@@ -673,7 +673,7 @@ public:
             {
                 // Gf `cookingToSimTransform * m_simToCollTransform` -- operands swap
                 // under the PhysX convention.
-                const ::physx::PxMat44d cookingToCollTransform = m_simToCollTransform * cookingToSimTransform;
+                const ::ev4sio_physx::PxMat44d cookingToCollTransform = m_simToCollTransform * cookingToSimTransform;
                 for (uint32_t p = 0; p < m_collPoints.size(); ++p)
                 {
                     carb::Float3& v = m_collPoints.ptr()[p];
@@ -717,12 +717,12 @@ public:
         // If the task was canceled or already finalized, skip the saving step
         if (CookingTask::isCanceled() || CookingTask::isFinalized())
         {
-            CookingTask::fireFinishedCallback(omni::physx::PhysxCookingResult::eERROR_CANCELED);
+            CookingTask::fireFinishedCallback(omni::ev4sio_physx::PhysxCookingResult::eERROR_CANCELED);
         }
         else if (!CookingTask::isSucceeded())
         {
             CookingTask::setFinalized(true);
-            CookingTask::fireFinishedCallback(omni::physx::PhysxCookingResult::eERROR_COOKING_FAILED);
+            CookingTask::fireFinishedCallback(omni::ev4sio_physx::PhysxCookingResult::eERROR_COOKING_FAILED);
         }
         else
         {
@@ -732,7 +732,7 @@ public:
             // seemed to exhibit some thread safety issues
             CookingTask::saveTriangulation(getTriangulationOutputStream());
 
-            omni::physx::PhysxCookingComputeResult& result = CookingTask::getResultObject();
+            omni::ev4sio_physx::PhysxCookingComputeResult& result = CookingTask::getResultObject();
             PxDefaultMemoryOutputStream& cookDataStream = *CookingTask::getCookedDataOutputStreams()[0].get();
             PhysxCookedDataSpan cookedDataSpan;
             result.cookedData = &cookedDataSpan;
@@ -745,8 +745,8 @@ public:
     }
 
     //in
-    ::physx::PxMat44d m_simToCookingTransform;
-    ::physx::PxMat44d m_simToCollTransform;
+    ::ev4sio_physx::PxMat44d m_simToCookingTransform;
+    ::ev4sio_physx::PxMat44d m_simToCollTransform;
     std::vector<carb::Float3> m_srcPoints;
     bool m_isAutoMeshSimplificationEnabled;
     bool m_isAutoRemeshingEnabled;
@@ -766,7 +766,7 @@ public:
 };
 
 CookingTask* createVolumeDeformableBodyCookingTask(const VolumeDeformableBodyCookingParams& params,
-                                                   omni::physx::PhysxCookingComputeResult& result)
+                                                   omni::ev4sio_physx::PhysxCookingComputeResult& result)
 {
     return new VolumeDeformableBodyCookingTask(params, result);
 }

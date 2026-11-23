@@ -12,7 +12,7 @@
 #include "PxgIntrinsics.h"
 #include "PxgArticulationBlockData.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 static __device__ inline void AtomicAdd(float4& a, const float4 b)
@@ -137,6 +137,6 @@ PX_FORCE_INLINE __device__ void PxRedAddGlobal(float* addr, const float val)
 #endif
 }
 
-} // namespace physx
+} // namespace ev4sio_physx
 
 #endif

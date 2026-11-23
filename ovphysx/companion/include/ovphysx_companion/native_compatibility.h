@@ -14,7 +14,7 @@
 #define OVPHYSX_COMPANION_STRINGIFY(x) OVPHYSX_COMPANION_STRINGIFY_(x)
 namespace ovphysx::companion::native
 {
-using omni::physx::native::ParameterValue;
+using omni::ev4sio_physx::native::ParameterValue;
 struct Compatibility
 {
     uint32_t size = sizeof(Compatibility);
@@ -30,10 +30,10 @@ struct Compatibility
     char compiler[128] = "gcc:" __VERSION__ ":abi:" OVPHYSX_COMPANION_STRINGIFY(__GXX_ABI_VERSION)
         ":stdlib:" OVPHYSX_COMPANION_STRINGIFY(_GLIBCXX_USE_CXX11_ABI);
 #endif
-    uint32_t sdkVersion = PX_PHYSICS_VERSION;
+    uint32_t sdkVersion = ev4sio_PX_PHYSICS_VERSION;
     uint32_t pointerSize = sizeof(void*);
-    uint32_t transformSize = sizeof(physx::PxTransform);
-    uint32_t constraintRowSize = sizeof(physx::Px1DConstraint);
+    uint32_t transformSize = sizeof(ev4sio_physx::PxTransform);
+    uint32_t constraintRowSize = sizeof(ev4sio_physx::Px1DConstraint);
     uint32_t parameterSize = sizeof(ParameterValue);
 #if defined(_DEBUG)
     uint32_t debug = 1;

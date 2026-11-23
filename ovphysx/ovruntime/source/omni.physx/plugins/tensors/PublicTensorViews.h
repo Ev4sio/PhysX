@@ -23,7 +23,7 @@
 #include <omni/physics/tensors/ISdfShapeView.h>
 #include <omni/physics/tensors/ISimulationView.h>
 
-namespace omni::physx::tensors
+namespace omni::ev4sio_physx::tensors
 {
 namespace publicViews
 {

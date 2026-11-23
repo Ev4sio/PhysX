@@ -10,7 +10,7 @@
 #include "foundation/PxTransform.h"
 #include "distanceSegmentSegment.cuh"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 //0 is sphere, 1 is sphere, point = [x, y, z, pen];
@@ -816,6 +816,6 @@ PxU32 capsuleCapsule(const PxTransform& transform0, const PxTransform& transform
 
 }
 
-} // namespace physx
+} // namespace ev4sio_physx
 
 #endif

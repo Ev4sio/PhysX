@@ -33,7 +33,7 @@
 // Performs cooking operations asynchronously and non-blocking
 
 // Forward reference the PhysX data types used by this API
-namespace physx
+namespace ev4sio_physx
 {
 class PxDefaultMemoryInputData;
 class PxDefaultMemoryOutputStream;
@@ -41,12 +41,12 @@ class PxConvexMesh;
 class PxTriangleMesh;
 class PxCooking;
 class PxPhysics;
-} // namespace physx
+} // namespace ev4sio_physx
 
-// Forward reference the classes in the omni::physx::usdparser namespace used by this API
+// Forward reference the classes in the omni::ev4sio_physx::usdparser namespace used by this API
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 struct IPhysxCookingServicePrivate;
 
@@ -58,7 +58,7 @@ class MeshKey;
 class AttachedStage;
 
 } // namespace usdparser
-} // namespace physx
+} // namespace ev4sio_physx
 namespace physics
 {
 namespace parse
@@ -70,7 +70,7 @@ struct TriangleMeshPhysxShapeDesc;
 struct SpherePointsPhysxShapeDesc;
 } // namespace parse
 } // namespace physics
-namespace physx
+namespace ev4sio_physx
 {
 namespace usdparser
 {
@@ -80,7 +80,7 @@ using ConvexMeshDecompositionPhysxShapeDesc = ::omni::physics::parse::ConvexMesh
 using TriangleMeshPhysxShapeDesc            = ::omni::physics::parse::TriangleMeshPhysxShapeDesc;
 using SpherePointsPhysxShapeDesc            = ::omni::physics::parse::SpherePointsPhysxShapeDesc;
 } // namespace usdparser
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni
 
 // The CookingDataAsync API resides in the 'cookingdataasync' namespace
@@ -106,7 +106,7 @@ public:
     // Process-wide drain for shutdown and diagnostics.
     virtual uint32_t pump(void) = 0;
     // Simulation advances only its owning attachment's cooking queue.
-    virtual uint32_t pump(omni::physx::usdparser::AttachedStage& owner) = 0;
+    virtual uint32_t pump(omni::ev4sio_physx::usdparser::AttachedStage& owner) = 0;
 
     /**
      * This method returns the PhysX PxConvexMesh associated with this USD prim if available.
@@ -122,18 +122,18 @@ public:
      *
      * @return : Returns the pointer to the PxConvexMesh if it was available at this time.
      */
-    virtual ::physx::PxConvexMesh* getConvexMesh(const omni::physx::usdparser::ConvexMeshPhysxShapeDesc& desc,
+    virtual ::ev4sio_physx::PxConvexMesh* getConvexMesh(const omni::ev4sio_physx::usdparser::ConvexMeshPhysxShapeDesc& desc,
                                                  omni::physics::parse::ObjectKey primKey,
-                                                 const omni::physx::usdparser::AttachedStage& attachedStage,
+                                                 const omni::ev4sio_physx::usdparser::AttachedStage& attachedStage,
                                                  bool asynchronous,
-                                                 omni::physx::IPhysxCookingCallback* cb = nullptr) = 0;
+                                                 omni::ev4sio_physx::IPhysxCookingCallback* cb = nullptr) = 0;
 
-    virtual const omni::physx::usdparser::SpherePointsPhysxShapeDesc* getSpherePoints(
-        const omni::physx::usdparser::SpherePointsPhysxShapeDesc& desc,
+    virtual const omni::ev4sio_physx::usdparser::SpherePointsPhysxShapeDesc* getSpherePoints(
+        const omni::ev4sio_physx::usdparser::SpherePointsPhysxShapeDesc& desc,
         omni::physics::parse::ObjectKey primKey,
-        const omni::physx::usdparser::AttachedStage& attachedStage,
+        const omni::ev4sio_physx::usdparser::AttachedStage& attachedStage,
         bool asynchronous,
-        omni::physx::IPhysxCookingCallback* cb = nullptr) = 0;
+        omni::ev4sio_physx::IPhysxCookingCallback* cb = nullptr) = 0;
 
     /**
      * This method returns the PhysX PxTriangleMesh associated with this USD prim if available.
@@ -150,11 +150,11 @@ public:
      *
      * @return : Returns the pointer to the PxTriangleMesh if it was available at this time.
      */
-    virtual ::physx::PxTriangleMesh* getTriangleMesh(const omni::physx::usdparser::TriangleMeshPhysxShapeDesc& desc,
+    virtual ::ev4sio_physx::PxTriangleMesh* getTriangleMesh(const omni::ev4sio_physx::usdparser::TriangleMeshPhysxShapeDesc& desc,
                                                      omni::physics::parse::ObjectKey primKey,
-                                                     const omni::physx::usdparser::AttachedStage& attachedStage,
+                                                     const omni::ev4sio_physx::usdparser::AttachedStage& attachedStage,
                                                      bool asynchronous,
-                                                     omni::physx::IPhysxCookingCallback* cb = nullptr,
+                                                     omni::ev4sio_physx::IPhysxCookingCallback* cb = nullptr,
                                                      uint16_t* maxMaterialIndex = nullptr) = 0;
 
     /**
@@ -171,12 +171,12 @@ public:
      *
      * @return : Returns an std::vector of PxConvexMeshes if it was available at this time.
      */
-    virtual std::vector<::physx::PxConvexMesh*> getConvexMeshDecomposition(
-        const omni::physx::usdparser::ConvexMeshDecompositionPhysxShapeDesc& desc,
+    virtual std::vector<::ev4sio_physx::PxConvexMesh*> getConvexMeshDecomposition(
+        const omni::ev4sio_physx::usdparser::ConvexMeshDecompositionPhysxShapeDesc& desc,
         omni::physics::parse::ObjectKey primKey,
-        const omni::physx::usdparser::AttachedStage& attachedStage,
+        const omni::ev4sio_physx::usdparser::AttachedStage& attachedStage,
         bool asynchronous,
-        omni::physx::IPhysxCookingCallback* cb = nullptr) = 0;
+        omni::ev4sio_physx::IPhysxCookingCallback* cb = nullptr) = 0;
 
     /**
      * Helper method, that creates a PxDeformableVolumeMesh from the input data stream and parses the surface triangle
@@ -188,9 +188,9 @@ public:
      * @return : Returns the PxDeformableVolumeMesh instance. The caller of the method is responsible for releasing the
      * PxDeformableVolumeMesh.
      */
-    virtual ::physx::PxDeformableVolumeMesh* createDeformableVolumeMesh(
+    virtual ::ev4sio_physx::PxDeformableVolumeMesh* createDeformableVolumeMesh(
         std::vector<uint32_t>& outCollMeshSurfaceTriToTetMap,
-        ::physx::PxDefaultMemoryInputData& inData) = 0;
+        ::ev4sio_physx::PxDefaultMemoryInputData& inData) = 0;
 
     /**
      * Parses a deformable body.
@@ -202,9 +202,9 @@ public:
      * @param attachedStage : The attached stage owning the prim.
      * @return : Deformable body descriptor.
      */
-    virtual omni::physx::usdparser::PhysxDeformableBodyDesc* parseDeformableBody(
+    virtual omni::ev4sio_physx::usdparser::PhysxDeformableBodyDesc* parseDeformableBody(
         omni::physics::parse::ObjectKey bodyKey,
-        const omni::physx::usdparser::AttachedStage& attachedStage) = 0;
+        const omni::ev4sio_physx::usdparser::AttachedStage& attachedStage) = 0;
 
     /**
      * Runs the auto cook for a volume / surface deformable body and publishes the cooked sim and
@@ -223,15 +223,15 @@ public:
      * sink, in which case every array write is dropped and nothing is produced. A false return is
      * always accompanied by a diagnostic; the caller must not treat it as a completed cook.
      */
-    virtual bool cookVolumeDeformableBody(const omni::physx::usdparser::PhysxVolumeDeformableBodyDesc& desc,
+    virtual bool cookVolumeDeformableBody(const omni::ev4sio_physx::usdparser::PhysxVolumeDeformableBodyDesc& desc,
                                           omni::physics::parse::ObjectKey bodyKey,
-                                          const omni::physx::usdparser::AttachedStage& attachedStage,
+                                          const omni::ev4sio_physx::usdparser::AttachedStage& attachedStage,
                                           bool asynchronous) = 0;
 
     /** @see cookVolumeDeformableBody */
-    virtual bool cookSurfaceDeformableBody(const omni::physx::usdparser::PhysxSurfaceDeformableBodyDesc& desc,
+    virtual bool cookSurfaceDeformableBody(const omni::ev4sio_physx::usdparser::PhysxSurfaceDeformableBodyDesc& desc,
                                            omni::physics::parse::ObjectKey bodyKey,
-                                           const omni::physx::usdparser::AttachedStage& attachedStage,
+                                           const omni::ev4sio_physx::usdparser::AttachedStage& attachedStage,
                                            bool asynchronous) = 0;
 
     /**
@@ -247,10 +247,10 @@ public:
      *
      * @return : Returns true if data has been written to outStream.
      */
-    virtual bool cookDeformableVolumeMesh(::physx::PxDefaultMemoryOutputStream& outStream,
-                                          const omni::physx::usdparser::PhysxVolumeDeformableBodyDesc& desc,
+    virtual bool cookDeformableVolumeMesh(::ev4sio_physx::PxDefaultMemoryOutputStream& outStream,
+                                          const omni::ev4sio_physx::usdparser::PhysxVolumeDeformableBodyDesc& desc,
                                           omni::physics::parse::ObjectKey bodyKey,
-                                          const omni::physx::usdparser::AttachedStage& attachedStage,
+                                          const omni::ev4sio_physx::usdparser::AttachedStage& attachedStage,
                                           bool asynchronous) = 0;
 
     /**
@@ -270,14 +270,14 @@ public:
      * The matrices are the same sixteen doubles a GfMatrix4d holds, in the same
      * flat order (omni.physics.usd/TypeCast.h), so the PxMat44d carries the
      * transpose linear map and Gf's `A * B` is PhysX's `B * A`. Callers that keep
-     * Gf's accumulation order must go through omni::physx::gfmath.
+     * Gf's accumulation order must go through omni::ev4sio_physx::gfmath.
      *
      * @return : Returns true if computation was successfull.
      */
-    virtual bool computeDeformableCookingTransform(::physx::PxMat44d* simToCookingTransform,
-                                                   ::physx::PxMat44d* cookingToWorldTransform,
+    virtual bool computeDeformableCookingTransform(::ev4sio_physx::PxMat44d* simToCookingTransform,
+                                                   ::ev4sio_physx::PxMat44d* cookingToWorldTransform,
                                                    double* cookingToWorldScale,
-                                                   const ::physx::PxMat44d& simToWorld,
+                                                   const ::ev4sio_physx::PxMat44d& simToWorld,
                                                    const carb::Float3* boundsFitPoints,
                                                    size_t boundsFitPointCount) = 0;
 
@@ -292,8 +292,8 @@ public:
      * background cooking task for it.
      */
     virtual void poissonSampleMesh(omni::physics::parse::ObjectKey primKey,
-                                   const omni::physx::usdparser::AttachedStage& attachedStage,
-                                   const omni::physx::usdparser::ParticleSamplingDesc& samplingDesc,
+                                   const omni::ev4sio_physx::usdparser::AttachedStage& attachedStage,
+                                   const omni::ev4sio_physx::usdparser::ParticleSamplingDesc& samplingDesc,
                                    bool forceResampling,
                                    bool asynchronous) = 0;
 
@@ -351,7 +351,7 @@ public:
      *
      * @param attachedStage : The attached stage whose change feed to observe.
      */
-    virtual void registerOnChangeFeed(omni::physx::usdparser::AttachedStage& attachedStage) = 0;
+    virtual void registerOnChangeFeed(omni::ev4sio_physx::usdparser::AttachedStage& attachedStage) = 0;
 
     /**
      * Returns the solid shaded debug visualization triangle mesh for the cooked collision
@@ -369,8 +369,8 @@ public:
      *
      * @return : If a graphics collision representation exists, it will return a pointer to it.
      */
-    virtual const omni::physx::CollisionRepresentation* getCollisionRepresentation(
-        omni::physics::parse::ObjectKey key, const omni::physx::usdparser::PhysxShapeDesc& desc) = 0;
+    virtual const omni::ev4sio_physx::CollisionRepresentation* getCollisionRepresentation(
+        omni::physics::parse::ObjectKey key, const omni::ev4sio_physx::usdparser::PhysxShapeDesc& desc) = 0;
 
     /**
      * Release a previously queried collision representation.
@@ -379,7 +379,7 @@ public:
      * 'getCollisionRepresentation' should be paired with a call to 'releaseCollisionRepresentation' or you will get a
      * memory leak.
      */
-    virtual void releaseCollisionRepresentation(const omni::physx::CollisionRepresentation* cr) = 0;
+    virtual void releaseCollisionRepresentation(const omni::ev4sio_physx::CollisionRepresentation* cr) = 0;
 
     /**
      * Retrieves the unique 128 hash associated with this descriptor.  Takes into account the
@@ -394,8 +394,8 @@ public:
      * triangle mesh, and convex decomposition) other shape types are ignored as they don't have support for the solid
      * shaded debug visualization.
      */
-    virtual bool getMeshkey(const omni::physx::usdparser::PhysxShapeDesc& desc,
-                            omni::physx::usdparser::MeshKey& meshKey) = 0;
+    virtual bool getMeshkey(const omni::ev4sio_physx::usdparser::PhysxShapeDesc& desc,
+                            omni::ev4sio_physx::usdparser::MeshKey& meshKey) = 0;
 
     /**
      * This method releases the instance of the CookingDataAsync class.
@@ -405,11 +405,11 @@ public:
     virtual void resetLocalMeshCacheContents() = 0;
 
     // Source-free diagnostic requests use the process context.
-    virtual omni::physx::PhysxCookingAsyncContext getCookingAsyncContext() = 0;
-    virtual omni::physx::PhysxCookingAsyncContext getCookingAsyncContext(
-        const omni::physx::usdparser::AttachedStage& owner) = 0;
+    virtual omni::ev4sio_physx::PhysxCookingAsyncContext getCookingAsyncContext() = 0;
+    virtual omni::ev4sio_physx::PhysxCookingAsyncContext getCookingAsyncContext(
+        const omni::ev4sio_physx::usdparser::AttachedStage& owner) = 0;
 
-    virtual omni::physx::PhysxCookingStatistics getCookingStatistics() const = 0;
+    virtual omni::ev4sio_physx::PhysxCookingStatistics getCookingStatistics() const = 0;
 protected:
     /**
      * The class destructor if declared virtual to prevent anyone from trying to delete
@@ -425,8 +425,8 @@ protected:
  *
  * @return : Returns a pointer to the CookingDataAsync interface class if successful.
  */
-CookingDataAsync* createCookingDataAsync(physx::PxPhysics& physics,
-                                         omni::physx::IPhysxCookingServicePrivate& cookingServicePrivate,
-                                         omni::physx::IPhysxCookingService& cookingService,
-                                         omni::physx::PhysxCookingAsyncContext context);
+CookingDataAsync* createCookingDataAsync(ev4sio_physx::PxPhysics& physics,
+                                         omni::ev4sio_physx::IPhysxCookingServicePrivate& cookingServicePrivate,
+                                         omni::ev4sio_physx::IPhysxCookingService& cookingService,
+                                         omni::ev4sio_physx::PhysxCookingAsyncContext context);
 } // namespace cookingdataasync

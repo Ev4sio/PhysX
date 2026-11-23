@@ -71,7 +71,7 @@
 
 #include "../snippetcommon/SnippetPVD.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 using namespace snippetvehicle;
 
 
@@ -142,11 +142,11 @@ PxRigidStatic*	gGroundPlane = NULL;
 
 void initPhysX()
 {
-	gFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, gAllocator, gErrorCallback);
-	gPvd = PxCreatePvd(*gFoundation);
-	PxPvdTransport* transport = PxDefaultPvdSocketTransportCreate(PVD_HOST, 5425, 10);
+	gFoundation = ev4sio_PxCreateFoundation(ev4sio_PX_PHYSICS_VERSION, gAllocator, gErrorCallback);
+	gPvd = ev4sio_PxCreatePvd(*gFoundation);
+	PxPvdTransport* transport = ev4sio_PxDefaultPvdSocketTransportCreate(PVD_HOST, 5425, 10);
 	gPvd->connect(*transport,PxPvdInstrumentationFlag::eALL);
-	gPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *gFoundation, PxTolerancesScale(), true, gPvd);
+	gPhysics = ev4sio_PxCreatePhysics(ev4sio_PX_PHYSICS_VERSION, *gFoundation, PxTolerancesScale(), true, gPvd);
 		
 	PxSceneDesc sceneDesc(gPhysics->getTolerancesScale());
 	sceneDesc.gravity = gGravity;
@@ -166,14 +166,14 @@ void initPhysX()
 	}
 	gMaterial = gPhysics->createMaterial(0.5f, 0.5f, 0.6f);	
 
-	PxInitExtensions(*gPhysics, gPvd);
+	ev4sio_PxInitExtensions(*gPhysics, gPvd);
 	PxInitVehicleExtension(*gFoundation);
 }
 
 void cleanupPhysX()
 {
 	PxCloseVehicleExtension();
-	PxCloseExtensions();
+	ev4sio_PxCloseExtensions();
 
 	PX_RELEASE(gMaterial);
 	PX_RELEASE(gScene);

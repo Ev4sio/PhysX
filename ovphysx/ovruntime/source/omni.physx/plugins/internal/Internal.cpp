@@ -13,18 +13,18 @@
 
 #include <atomic>
 
-using namespace omni::physx;
-using namespace omni::physx::internal;
-using namespace omni::physx::usdparser;
+using namespace omni::ev4sio_physx;
+using namespace omni::ev4sio_physx::internal;
+using namespace omni::ev4sio_physx::usdparser;
 
-namespace omni::physx::internal
+namespace omni::ev4sio_physx::internal
 {
-uint64_t recordLifetimeEpoch(const ::physx::PxScene* scene)
+uint64_t recordLifetimeEpoch(const ::ev4sio_physx::PxScene* scene)
 {
     const auto* native = OmniPhysX::getInstance().getPhysXSetup().findPhysXScene(scene);
     return native ? native->getAttachedStage().recordVersion.load(std::memory_order_relaxed) : 0;
 }
-uint64_t kinematicToggleEpoch(const ::physx::PxScene* scene)
+uint64_t kinematicToggleEpoch(const ::ev4sio_physx::PxScene* scene)
 {
     const auto* native = OmniPhysX::getInstance().getPhysXSetup().findPhysXScene(scene);
     return native ? native->getAttachedStage().kinematicVersion.load(std::memory_order_relaxed) : 0;

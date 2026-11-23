@@ -373,7 +373,7 @@ class QhBounds3
 }
 
 #if !QH_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 /** @} */

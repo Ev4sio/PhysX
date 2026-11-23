@@ -28,7 +28,7 @@
 //#undef PXG_CONTACT_VALIDATION
 //#define PXG_CONTACT_VALIDATION	1
 
-namespace physx
+namespace ev4sio_physx
 {
 #if PXG_CONTACT_VALIDATION
 #pragma warning(push)
@@ -89,7 +89,7 @@ namespace physx
 #pragma warning(pop)
 #endif
 
-	class PxgBatchArticulationStaticConstraintPrePrepTask : public Cm::Task
+	class PxgBatchArticulationStaticConstraintPrePrepTask : public ev4sio_Cm::Task
 	{
 		PX_NOCOPY(PxgBatchArticulationStaticConstraintPrePrepTask)
 	private:
@@ -117,7 +117,7 @@ namespace physx
 			PxU32* selfContactIndices, PxU32* selfJointIndices, PxU32* selfContactCounts, PxU32* selfJointCounts,
 			PxU32 startIndex, PxU32 endIndex, PxNodeIndex* nodeIndices, PxgBodySimManager& bodyManager,
 			PxU32 nbArticulations) :
-			Cm::Task(context), 
+			ev4sio_Cm::Task(context),
 			mStaticContactIndices(staticContactIndices), mStaticJointIndices(staticJointIndices), 
 			mStaticContactCounts(staticContactCounts), mStaticJointCounts(staticJointCounts),
 			mSelfContactIndices(selfContactIndices), mSelfJointIndices(selfJointIndices),
@@ -186,7 +186,7 @@ namespace physx
 		}
 	};
 
-	class PxgBatchRigidStaticConstraintPrePrepTask : public Cm::Task
+	class PxgBatchRigidStaticConstraintPrePrepTask : public ev4sio_Cm::Task
 	{
 		PX_NOCOPY(PxgBatchRigidStaticConstraintPrePrepTask)
 	private:
@@ -209,7 +209,7 @@ namespace physx
 			PxU32* staticContactIndices, PxU32* staticJointIndices, PxU32* staticContactCounts, PxU32* staticJointCounts,
 			PxU32 startIndex, PxU32 endIndex, PxNodeIndex* nodeIndices, PxgBodySimManager& bodyManager,
 			PxU32 nbBodies) :
-			Cm::Task(context),
+			ev4sio_Cm::Task(context),
 			mStaticContactIndices(staticContactIndices), mStaticJointIndices(staticJointIndices),
 			mStaticContactCounts(staticContactCounts), mStaticJointCounts(staticJointCounts),
 			mStartIndex(startIndex), mEndIndex(endIndex),
@@ -317,9 +317,9 @@ namespace physx
 		mContext.doConstraintPrePrepCommon(mCont);
 	}
 
-	PxgGpuContext::PxgGpuContext(Cm::FlushPool& flushPool, IG::SimpleIslandManager& islandManager, PxU32 maxNumPartitions, PxU32 maxNumStaticPartitions,
+	PxgGpuContext::PxgGpuContext(ev4sio_Cm::FlushPool& flushPool, ev4sio_IG::SimpleIslandManager& islandManager, PxU32 maxNumPartitions, PxU32 maxNumStaticPartitions,
 		PxReal maxBiasCoefficient, PxvSimStats& simStats, PxgAllocatorDesc& allocDesc, PxReal lengthScale, PxU64 contextID, bool isTGS, PxSceneFlags sceneFlags) :
-		Dy::Context(islandManager, allocDesc.hostAlloc, allocDesc.hostMappedAlloc,
+		ev4sio_Dy::Context(islandManager, allocDesc.hostAlloc, allocDesc.hostMappedAlloc,
 					simStats, maxBiasCoefficient, lengthScale, contextID, sceneFlags),
 		mTotalEdges(0), mTotalPreviousEdges(0),
 		mFlushPool(flushPool), 
@@ -478,7 +478,7 @@ namespace physx
 		mGpuSolverCore->jointConstraintBlockPrePrepParallel(mNumConstraintBatches + mNumRigidStaticConstraintBatches + mNumArticConstraintBatches + mNumArtiStaticConstraintBatches + mNumArtiSelfConstraintBatches);
 	}
 
-	void PxgGpuContext::doStaticArticulationConstraintPrePrep(physx::PxBaseTask* continuation, const PxU32 articulationConstraintBatchIndex, const PxU32 articulationContactBatchIndex)
+	void PxgGpuContext::doStaticArticulationConstraintPrePrep(ev4sio_physx::PxBaseTask* continuation, const PxU32 articulationConstraintBatchIndex, const PxU32 articulationContactBatchIndex)
 	{
 		PxgBodySimManager& bodyManager = getSimulationController()->getBodySimManager();
 
@@ -524,7 +524,7 @@ namespace physx
 		}
 	}
 
-	void PxgGpuContext::doStaticRigidConstraintPrePrep(physx::PxBaseTask* continuation)
+	void PxgGpuContext::doStaticRigidConstraintPrePrep(ev4sio_physx::PxBaseTask* continuation)
 	{
 		PX_PROFILE_ZONE("Rigid Static constraint", 0);
 		PxgBodySimManager& bodyManager = getSimulationController()->getBodySimManager();
@@ -557,7 +557,7 @@ namespace physx
 		}
 	}
 
-	void PxgGpuContext::doConstraintSolveGPU(PxU32 maxNodes, Cm::PinnableBitMap& changedHandleMap)
+	void PxgGpuContext::doConstraintSolveGPU(PxU32 maxNodes, ev4sio_Cm::PinnableBitMap& changedHandleMap)
 	{
 		/**
 		* Things to do in here:
@@ -601,7 +601,7 @@ namespace physx
 			mSolverBodySleepDataPool, mEnableDirectGPUAPI && (getSimulationController()->getOVDReadbackMode() != PxsOVDReadbackMode::eFULL));
 	}
 
-	class PxgPostSolveWorkerTask : public Cm::Task
+	class PxgPostSolveWorkerTask : public ev4sio_Cm::Task
 	{
 		PxNodeIndex* mNodeIndices;
 		PxAlignedTransform* mBodyToWorldPool;
@@ -609,12 +609,12 @@ namespace physx
 		float4* mBodyVelocities;
 		PxU32 mNbBodies;
 		PxU32 mTotalBodies;
-		IG::IslandSim* mIslandSim;
+		ev4sio_IG::IslandSim* mIslandSim;
 
 	public:
 
 		PxgPostSolveWorkerTask(PxNodeIndex* nodeIndices, PxAlignedTransform* bodyToWorldPool, PxgSolverBodySleepData* solverBodySleepDataPool, float4* bodyVelocities, PxU32 nbBodies, PxU32 totalBodies,
-			IG::IslandSim* islandSim) : Cm::Task(0),
+			ev4sio_IG::IslandSim* islandSim) : ev4sio_Cm::Task(0),
 			mNodeIndices(nodeIndices), mBodyToWorldPool(bodyToWorldPool), mSolverBodySleepDataPool(solverBodySleepDataPool), mBodyVelocities(bodyVelocities), mNbBodies(nbBodies), mTotalBodies(totalBodies),
 			mIslandSim(islandSim)
 		{
@@ -671,7 +671,7 @@ namespace physx
 	};
 
 
-	class PxgPostSolveArticulationTask : public Cm::Task
+	class PxgPostSolveArticulationTask : public ev4sio_Cm::Task
 	{
 		PxNodeIndex* mNodeIndices;
 
@@ -682,7 +682,7 @@ namespace physx
 		PxU32 mNbArticulations;
 		PxU32 mArticulationStartIndex; //articulation offset in the nodeIndex
 		PxU32 mBatchStartIndex;
-		IG::SimpleIslandManager* mIslandManager;
+		ev4sio_IG::SimpleIslandManager* mIslandManager;
 		PxU32 mMaxLinks;
 		PxU32 mMaxDofs;
 		PxReal mDt;
@@ -693,9 +693,9 @@ namespace physx
 		PxgPostSolveArticulationTask(PxNodeIndex* nodeIndices, PxU8* linkAndJointAndRootStates,
 			PxgSolverBodySleepData* sleepData, PxU32 nbArticulation,
 			PxU32 articulationStartIndex,
-			IG::SimpleIslandManager* islandManager, const PxU32 batchStartIndex, const PxU32 maxLinks, const PxU32 maxDofs,
+			ev4sio_IG::SimpleIslandManager* islandManager, const PxU32 batchStartIndex, const PxU32 maxLinks, const PxU32 maxDofs,
 			const PxReal dt, const PxU32 totalArticulationCount) :
-			Cm::Task(0), mNodeIndices(nodeIndices),
+			ev4sio_Cm::Task(0), mNodeIndices(nodeIndices),
 			mLinkAndJointAndRootStates(linkAndJointAndRootStates),
 			mSleepData(sleepData),
 			mNbArticulations(nbArticulation),
@@ -717,7 +717,7 @@ namespace physx
 			//copy data from PxgSolverBodyData to PxsBodyCore
 			const PxU32 endIndex = mBatchStartIndex + mNbArticulations;
 
-			IG::IslandSim& sim = mIslandManager->getAccurateIslandSim();
+			ev4sio_IG::IslandSim& sim = mIslandManager->getAccurateIslandSim();
 
 			for (PxU32 a = mBatchStartIndex; a < endIndex; a++)
 			{
@@ -727,8 +727,8 @@ namespace physx
 				//const PxU32 nodeIndex = mNodeIndices[ind].index();
 				//copy integration data
 			
-				Dy::FeatherstoneArticulation& articulation = *getArticulationFromIG(sim, nodeIndex);
-				Dy::ArticulationData& artiData = articulation.getArticulationData();
+				ev4sio_Dy::FeatherstoneArticulation& articulation = *getArticulationFromIG(sim, nodeIndex);
+				ev4sio_Dy::ArticulationData& artiData = articulation.getArticulationData();
 
 				artiData.setDt(mDt);
 
@@ -743,9 +743,9 @@ namespace physx
 
 				//Decompose the buffer into its sub-arrays.
 				PxTransform* sBody2Worlds = NULL;
-				Cm::UnAlignedSpatialVector* sLinkVelocities = NULL;
-				Cm::UnAlignedSpatialVector* sLinkAccelerations = NULL;
-				Cm::UnAlignedSpatialVector* sLinkIncomingJointForces = NULL;
+				ev4sio_Cm::UnAlignedSpatialVector* sLinkVelocities = NULL;
+				ev4sio_Cm::UnAlignedSpatialVector* sLinkAccelerations = NULL;
+				ev4sio_Cm::UnAlignedSpatialVector* sLinkIncomingJointForces = NULL;
 				PxReal* sJointPositions = NULL;
 				PxReal* sJointVelocities = NULL;
 				PxReal* sJointAccels = NULL;
@@ -755,7 +755,7 @@ namespace physx
 					sBody2Worlds, sLinkVelocities, sLinkAccelerations, sLinkIncomingJointForces,
 					sJointPositions, sJointVelocities, sJointAccels);
 				
-				Dy::ArticulationCore* core = articulation.getCore();
+				ev4sio_Dy::ArticulationCore* core = articulation.getCore();
 				core->wakeCounter = mSleepData[a].wakeCounter;
 
 				if (mSleepData[a].internalFlags & PxsRigidBody::eACTIVATE_THIS_FRAME)
@@ -770,7 +770,7 @@ namespace physx
 					
 					// Zero all velocities when naturally going to sleep (matches CPU behavior)
 					// This is required by the API documentation for sleep behavior
-					const Cm::UnAlignedSpatialVector memZero = Cm::UnAlignedSpatialVector::Zero();
+					const ev4sio_Cm::UnAlignedSpatialVector memZero = ev4sio_Cm::UnAlignedSpatialVector::Zero();
 					for (PxU32 i = 0; i < numLinks; ++i)
 					{
 						sLinkVelocities[i] = memZero;
@@ -780,13 +780,13 @@ namespace physx
 					PxMemZero(sJointVelocities, sizeof(PxReal) * numDofs);
 				}
 
-				Dy::ArticulationLink* links = artiData.getLinks();
-				Cm::SpatialVectorF* linkVelocities = artiData.getMotionVelocities();
-				Cm::SpatialVectorF* linkAccelerations = artiData.getMotionAccelerations();
-				Cm::SpatialVectorF* linkIncomingJointForces = artiData.getLinkIncomingJointForces();
+				ev4sio_Dy::ArticulationLink* links = artiData.getLinks();
+				ev4sio_Cm::SpatialVectorF* linkVelocities = artiData.getMotionVelocities();
+				ev4sio_Cm::SpatialVectorF* linkAccelerations = artiData.getMotionAccelerations();
+				ev4sio_Cm::SpatialVectorF* linkIncomingJointForces = artiData.getLinkIncomingJointForces();
 				for (PxU32 i = 0; i < numLinks; ++i)
 				{
-					Dy::ArticulationLink& link = links[i];
+					ev4sio_Dy::ArticulationLink& link = links[i];
 					PX_ASSERT(sBody2Worlds[i].isValid());
 
 					link.bodyCore->body2World = sBody2Worlds[i];
@@ -826,7 +826,7 @@ namespace physx
 		PX_NOCOPY(PxgPostSolveArticulationTask)
 	};
 
-	void PxgGpuContext::processPatches(	Cm::FlushPool& flushPool, PxBaseTask* continuation,
+	void PxgGpuContext::processPatches(	ev4sio_Cm::FlushPool& flushPool, PxBaseTask* continuation,
 										PxsContactManager** lostFoundPatchManagers, PxU32 nbLostFoundPatchManagers, PxsContactManagerOutputCounts* outCounts)
 	{
 		mIncrementalPartition.processLostFoundPatches(	flushPool, continuation, mIslandManager.getAccurateIslandSim(),
@@ -834,7 +834,7 @@ namespace physx
 														lostFoundPatchManagers, nbLostFoundPatchManagers, outCounts);
 	}
 
-	void PxgGpuContext::doPostSolveTask(physx::PxBaseTask* continuation)
+	void PxgGpuContext::doPostSolveTask(ev4sio_physx::PxBaseTask* continuation)
 	{
 		if (!mSolvedThisFrame)
 			return;
@@ -863,7 +863,7 @@ namespace physx
 			//TODO - multi-thread this!
 			const PxU32 offset = 1 + mKinematicCount;
 
-			Cm::PinnableArray<PxgSolverBody>& solverBodyIter = mSolverBodyPool;
+			ev4sio_Cm::PinnableArray<PxgSolverBody>& solverBodyIter = mSolverBodyPool;
 
 			float4* bodyVelocities = reinterpret_cast<float4*>(solverBodyIter.begin());
 			PxAlignedTransform* body2Worlds = mBody2WorldPool.begin();
@@ -872,7 +872,7 @@ namespace physx
 
 			const PxU32 batchSize = 512;
 
-			IG::IslandSim* accurateIslandSim = &mIslandManager.getAccurateIslandSim();
+			ev4sio_IG::IslandSim* accurateIslandSim = &mIslandManager.getAccurateIslandSim();
 
 			//write back the data to PxsBodyCore
 			for (PxU32 i = offset; i < totalNumBodies; i += batchSize)
@@ -952,7 +952,7 @@ namespace physx
 
 	static void atomArticulationIntegration(const PxU32 numArticulations,
 		const PxNodeIndex* const PX_RESTRICT islandNodes,
-		IG::SimpleIslandManager& islandManager,
+		ev4sio_IG::SimpleIslandManager& islandManager,
 		PxI32* maxPosIters, PxI32* maxVelIters)
 	{
 		PxU32 localMaxPosIter = 0, localMaxVelIter = 0;
@@ -961,7 +961,7 @@ namespace physx
 			const PxNodeIndex nodeId = islandNodes[a];
 			//const PxU32 nodeIndex = nodeId.index();
 	
-			Dy::FeatherstoneArticulation* artic = getArticulationFromIG(islandManager.getAccurateIslandSim(), nodeId);
+			ev4sio_Dy::FeatherstoneArticulation* artic = getArticulationFromIG(islandManager.getAccurateIslandSim(), nodeId);
 
 			const PxU16 iterCount = artic->getIterationCounts();
 
@@ -973,12 +973,12 @@ namespace physx
 		PxAtomicMax(maxVelIters, (PxI32)localMaxVelIter);
 	}
 
-	class PxgSetupKinematicTask : public Cm::Task
+	class PxgSetupKinematicTask : public ev4sio_Cm::Task
 	{
 		const PxNodeIndex* const PX_RESTRICT	mKinematicNodes;
 		PxNodeIndex*							mActiveNodeIndex;		//copy island node index into this list
 		const PxU32								mNumBodies;
-		IG::SimpleIslandManager&				mIslandManager;
+		ev4sio_IG::SimpleIslandManager&				mIslandManager;
 		PxU32									mSolverBodyStartIndex;
 
 		PxgSolverBodyData*						mSolverBodyDataPool;
@@ -990,8 +990,8 @@ namespace physx
 	public:
 
 		PxgSetupKinematicTask(const PxNodeIndex* const PX_RESTRICT kinematicNodes, PxNodeIndex*	activeNodeIndex, const PxU32 numBodies,
-			IG::SimpleIslandManager& islandManager, PxU32 solverBodyStartIndex, PxgSolverBodyData* solverBodyDataPool,
-			PxgSolverBodySleepData* solverBodySleepDataPool, PxgSolverTxIData* txIData) : Cm::Task(0), mKinematicNodes(kinematicNodes), mActiveNodeIndex(activeNodeIndex), mNumBodies(numBodies),
+			ev4sio_IG::SimpleIslandManager& islandManager, PxU32 solverBodyStartIndex, PxgSolverBodyData* solverBodyDataPool,
+			PxgSolverBodySleepData* solverBodySleepDataPool, PxgSolverTxIData* txIData) : ev4sio_Cm::Task(0), mKinematicNodes(kinematicNodes), mActiveNodeIndex(activeNodeIndex), mNumBodies(numBodies),
 			mIslandManager(islandManager), mSolverBodyStartIndex(solverBodyStartIndex), mSolverBodyDataPool(solverBodyDataPool),
 			mSolverBodySleepDataPool(solverBodySleepDataPool), mSolverTxIData(txIData)
 		{
@@ -999,7 +999,7 @@ namespace physx
 
 		virtual void runInternal()	PX_OVERRIDE PX_FINAL
 		{
-			IG::IslandSim& islandSim = mIslandManager.getAccurateIslandSim();
+			ev4sio_IG::IslandSim& islandSim = mIslandManager.getAccurateIslandSim();
 
 			//Set up solver bodies for any kinematic bodies
 			for (PxU32 i = 0; i < mNumBodies; i++)
@@ -1018,20 +1018,20 @@ namespace physx
 		}
 	};
 
-	class PxgAtomIntegrationTask : public Cm::Task
+	class PxgAtomIntegrationTask : public ev4sio_Cm::Task
 	{
 		const PxNodeIndex* const PX_RESTRICT	mIslandNodes;
 		const PxU32								mNumBodies;
 		PxI32*									mMaxPosIters;
 		PxI32*									mMaxVelIters;
-		IG::SimpleIslandManager&				mIslandManager;
+		ev4sio_IG::SimpleIslandManager&				mIslandManager;
 
 		PX_NOCOPY(PxgAtomIntegrationTask)
 
 	public:
 
 		PxgAtomIntegrationTask(const PxNodeIndex* const PX_RESTRICT islandNodes, const PxU32 numBodies, PxI32* PX_RESTRICT maxPosIters, PxI32* PX_RESTRICT maxVelIters,
-			IG::SimpleIslandManager& islandManager) : Cm::Task(0),
+			ev4sio_IG::SimpleIslandManager& islandManager) : ev4sio_Cm::Task(0),
 			mIslandNodes(islandNodes),
 			mNumBodies(numBodies), mMaxPosIters(maxPosIters), mMaxVelIters(maxVelIters),
 			mIslandManager(islandManager)
@@ -1042,7 +1042,7 @@ namespace physx
 		{
 			PX_PROFILE_ZONE("GpuDynamics.PxgIntegrateTask", 0);
 			PxI32 localPosIters = 0; PxI32 localVelIters = 0;
-			IG::IslandSim& sim = mIslandManager.getAccurateIslandSim();
+			ev4sio_IG::IslandSim& sim = mIslandManager.getAccurateIslandSim();
 			for (PxU32 i = 0; i < mNumBodies; ++i)
 			{
 				const PxNodeIndex nodeId = mIslandNodes[i];
@@ -1064,7 +1064,7 @@ namespace physx
 		}
 	};
 
-	class PxgArticulationAtomIntegrationTask : public Cm::Task
+	class PxgArticulationAtomIntegrationTask : public ev4sio_Cm::Task
 	{
 		const PxNodeIndex* const PX_RESTRICT	mIslandNodes;
 
@@ -1072,7 +1072,7 @@ namespace physx
 
 		PxI32*									mMaxPosIters;
 		PxI32*									mMaxVelIters;
-		IG::SimpleIslandManager&				mIslandManager;
+		ev4sio_IG::SimpleIslandManager&				mIslandManager;
 
 		PX_NOCOPY(PxgArticulationAtomIntegrationTask)
 
@@ -1082,9 +1082,9 @@ namespace physx
 			const PxNodeIndex* const PX_RESTRICT islandNodes,
 			const PxU32 numArticulations, PxI32* maxPosIters,
 			PxI32* maxVelIters,
-			IG::SimpleIslandManager& islandManager
+			ev4sio_IG::SimpleIslandManager& islandManager
 		) :
-			Cm::Task(0), mIslandNodes(islandNodes),
+			ev4sio_Cm::Task(0), mIslandNodes(islandNodes),
 			mNumArticulations(numArticulations),
 			mMaxPosIters(maxPosIters),
 			mMaxVelIters(maxVelIters),
@@ -1105,7 +1105,7 @@ namespace physx
 		}
 	};
 
-	void PxgGpuContext::doPreIntegrationTaskCommon(physx::PxBaseTask* continuation)
+	void PxgGpuContext::doPreIntegrationTaskCommon(ev4sio_physx::PxBaseTask* continuation)
 	{
 		// AD: this task currently assumes we only have 1 solver island. If there is a variable amount of islands,
 		// the dependency chain needs to be fixed, because this task runs in parallel to allocating and setting
@@ -1119,17 +1119,17 @@ namespace physx
 		mArtiStaticConstraintBatchOffset = 0;
 		mArtiStaticContactBatchOffset = 0;
 
-		const IG::IslandSim& islandSim = mIslandManager.getAccurateIslandSim();
+		const ev4sio_IG::IslandSim& islandSim = mIslandManager.getAccurateIslandSim();
 
 		const PxU32 workerCount = PxMax(1u, continuation->getTaskManager()->getCpuDispatcher()->getWorkerCount());
 
 		const PxU32 atomBatchSize = PxMax(256u, PxMin(1024u, (mBodyCount + workerCount - 1) / workerCount));
 
-		const PxNodeIndex* const PX_RESTRICT nodeIndices = islandSim.getActiveNodes(IG::Node::eRIGID_BODY_TYPE);
+		const PxNodeIndex* const PX_RESTRICT nodeIndices = islandSim.getActiveNodes(ev4sio_IG::Node::eRIGID_BODY_TYPE);
 
 		mGpuSolverCore->acquireContext();
 
-		const PxNodeIndex* const PX_RESTRICT articulationNodeIndices = islandSim.getActiveNodes(IG::Node::eARTICULATION_TYPE);
+		const PxNodeIndex* const PX_RESTRICT articulationNodeIndices = islandSim.getActiveNodes(ev4sio_IG::Node::eARTICULATION_TYPE);
 
 		//Because we need to put the articulation active node index into the same list as mActiveNodeIndex, so we need to make sure
 		//articulation active node index start in the right place. In the active node index list, we start with static + kinematic +
@@ -1209,7 +1209,7 @@ namespace physx
 			{
 				const PxU32 index = activeSoftbodies[i];
 				const PxU32 nodeIdex = softBodyNodeIndex[index];
-				Dy::DeformableVolume* dySoftBody = reinterpret_cast<Dy::DeformableVolume*>(bodySimsLL[nodeIdex]);
+				ev4sio_Dy::DeformableVolume* dySoftBody = reinterpret_cast<ev4sio_Dy::DeformableVolume*>(bodySimsLL[nodeIdex]);
 
 				const PxU16 solverIterationCounts = dySoftBody->getIterationCounts();
 
@@ -1229,7 +1229,7 @@ namespace physx
 			{
 				const PxU32 index = activeFEMCloths[i];
 				const PxU32 nodeIdex = femClothNodeIndex[index];
-				Dy::DeformableSurface* dyFEMCloth = reinterpret_cast<Dy::DeformableSurface*>(bodySimsLL[nodeIdex]);
+				ev4sio_Dy::DeformableSurface* dyFEMCloth = reinterpret_cast<ev4sio_Dy::DeformableSurface*>(bodySimsLL[nodeIdex]);
 
 				const PxU16 solverIterationCounts = dyFEMCloth->getIterationCounts();
 
@@ -1244,7 +1244,7 @@ namespace physx
 		mGpuSolverCore->releaseContext();
 	}
 
-	void PxgGpuContext::doConstraintPrePrepCommon(physx::PxBaseTask* continuation)
+	void PxgGpuContext::doConstraintPrePrepCommon(ev4sio_physx::PxBaseTask* continuation)
 	{
 		if (getNarrowphaseCore()->mCudaContext->isInAbortMode())
 		{
@@ -1302,12 +1302,12 @@ namespace physx
 
 		mHasForceThresholds = mIncrementalPartition.hasForceThresholds();
 
-		const Cm::PinnableArray<PxU32>& startSlabIter = mIncrementalPartition.getStartSlabPerPartition();
-		const Cm::PinnableArray<PxU32>& articstartSlabIter = mIncrementalPartition.getArticStartSlabPerPartition();
+		const ev4sio_Cm::PinnableArray<PxU32>& startSlabIter = mIncrementalPartition.getStartSlabPerPartition();
+		const ev4sio_Cm::PinnableArray<PxU32>& articstartSlabIter = mIncrementalPartition.getArticStartSlabPerPartition();
 
 		PxgJointManager& jointManager = getSimulationController()->getJointManager();
-		const Cm::PinnableArray<PxgConstraintPrePrep>& rigidPreprepIter = jointManager.getGpuRigidJointPrePrep();
-		const Cm::PinnableArray<PxgConstraintPrePrep>& artiPreprepIter = jointManager.getGpuArtiJointPrePrep();
+		const ev4sio_Cm::PinnableArray<PxgConstraintPrePrep>& rigidPreprepIter = jointManager.getGpuRigidJointPrePrep();
+		const ev4sio_Cm::PinnableArray<PxgConstraintPrePrep>& artiPreprepIter = jointManager.getGpuArtiJointPrePrep();
 
 		//The code below iterates over all partitions, producing tasks to fill in data.
 
@@ -1328,7 +1328,7 @@ namespace physx
 				const PxU32 nbConstraints = partition.mPartitionIndices[PxgEdgeType::eCONSTRAINT].size();
 				const PxU32 nbArtiContacts = partition.mPartitionIndices[PxgEdgeType::eARTICULATION_CONTACT].size();
 				const PxU32 nbArtiConstraints = partition.mPartitionIndices[PxgEdgeType::eARTICULATION_CONSTRAINT].size();
-				//PxU32* constraintIds = partition.mPartitionIndices[IG::Edge::eCONSTRAINT].begin();
+				//PxU32* constraintIds = partition.mPartitionIndices[ev4sio_IG::Edge::eCONSTRAINT].begin();
 				const PartitionIndices& constraintIds = partition.mPartitionIndices[PxgEdgeType::eCONSTRAINT];
 				const PartitionIndices& artiConstraintIds = partition.mPartitionIndices[PxgEdgeType::eARTICULATION_CONSTRAINT];
 				const PartitionIndices& artiContactIds = partition.mPartitionIndices[PxgEdgeType::eARTICULATION_CONTACT];
@@ -1629,7 +1629,7 @@ namespace physx
 			nbSlabs,
 			maxCombinedSlabPartitions, mEnableStabilization, mPatchStreamAllocators[mCurrentContactStream]->mStart, mContactStreamAllocators[mCurrentContactStream]->mStart,
 			mForceStreamAllocator->mStart, mOutputIterator, mSolverBodyPool.size() - (mKinematicCount + 1), mKinematicCount + 1, mArticulationCount,
-			reinterpret_cast<Cm::UnAlignedSpatialVector*>(mGpuArticulationCore->getDeferredZ()),
+			reinterpret_cast<ev4sio_Cm::UnAlignedSpatialVector*>(mGpuArticulationCore->getDeferredZ()),
 			reinterpret_cast<PxU32*>(mGpuArticulationCore->getArticulationDirty()),
 			reinterpret_cast<uint4*>(mGpuArticulationCore->getArticulationSlabMask()),
 			mGPUShapeInteractions, mGPURestDistances, mGPUTorsionalData, mArtiStaticContactIndices.begin(), mArtiStaticContactIndices.size(),
@@ -1653,11 +1653,11 @@ namespace physx
 	{
 		PxU32 endIndex = mStartIndex + mNbToProcess;
 
-		Px1DConstraint tempRows[Dy::MAX_CONSTRAINT_ROWS];
+		Px1DConstraint tempRows[ev4sio_Dy::MAX_CONSTRAINT_ROWS];
 
 		for (PxU32 i = mStartIndex; i < endIndex; ++i)
 		{
-			const Dy::Constraint* constraint = mConstraints[i];
+			const ev4sio_Dy::Constraint* constraint = mConstraints[i];
 
 			const PxConstraintSolverPrep solverPrep = constraint->solverPrep;
 
@@ -1669,11 +1669,11 @@ namespace physx
 			const void* constantBlock = constraint->constantBlock;
 
 			PxgConstraintData& data = mConstraintData[i];
-			//Px1DConstraint* rows = &rowIter[i*Dy::MAX_CONSTRAINT_ROWS];
+			//Px1DConstraint* rows = &rowIter[i*ev4sio_Dy::MAX_CONSTRAINT_ROWS];
 
-			PxMemZero(tempRows, sizeof(Px1DConstraint)*Dy::MAX_CONSTRAINT_ROWS);
+			PxMemZero(tempRows, sizeof(Px1DConstraint)*ev4sio_Dy::MAX_CONSTRAINT_ROWS);
 
-			for (PxU32 j = 0; j < Dy::MAX_CONSTRAINT_ROWS; j++)
+			for (PxU32 j = 0; j < ev4sio_Dy::MAX_CONSTRAINT_ROWS; j++)
 			{
 				Px1DConstraint& c = tempRows[j];
 				c.minImpulse = -PX_MAX_REAL;
@@ -1687,7 +1687,7 @@ namespace physx
 			//TAG:solverprepcall
 			const PxU32 numRows = (constraint->flags & PxConstraintFlag::eDISABLE_CONSTRAINT) ? 0 :(*solverPrep)(tempRows,
 				body0WorldOffset,
-				Dy::MAX_CONSTRAINT_ROWS,
+				ev4sio_Dy::MAX_CONSTRAINT_ROWS,
 				ims,
 				constantBlock,
 				pose0, pose1, !!(constraint->flags & PxConstraintFlag::eENABLE_EXTENDED_LIMITS), ra, rb);
@@ -1717,20 +1717,20 @@ namespace physx
 		}
 	}
 
-	void PxgGpuContext::cpuJointPrePrepTask(physx::PxBaseTask* continuation)
+	void PxgGpuContext::cpuJointPrePrepTask(ev4sio_physx::PxBaseTask* continuation)
 	{
 		PxgJointManager& jointManager = getSimulationController()->getJointManager();
 
 		// AD: This could also be skipped with direct-GPU API, but at this point the constraints are already partitioned and I
 		// cannot figure out how to remove the CPU joints from there again.
 
-		const PxArray<const Dy::Constraint*>& cpuRigidConstraints = jointManager.getCpuRigidConstraints();
-		const PxArray<const Dy::Constraint*>& cpuArtiConstraints = jointManager.getCpuArtiConstraints();
+		const PxArray<const ev4sio_Dy::Constraint*>& cpuRigidConstraints = jointManager.getCpuRigidConstraints();
+		const PxArray<const ev4sio_Dy::Constraint*>& cpuArtiConstraints = jointManager.getCpuArtiConstraints();
 
 		const PxU32 nbCpuRigidConstraints = cpuRigidConstraints.size();
 		const PxU32 nbCpuArtiConstraints = cpuArtiConstraints.size();
 
-		const PxU32 gpuRigidJointOutputOffset = jointManager.getGpuNbRigidConstraints() * Dy::MAX_CONSTRAINT_ROWS;
+		const PxU32 gpuRigidJointOutputOffset = jointManager.getGpuNbRigidConstraints() * ev4sio_Dy::MAX_CONSTRAINT_ROWS;
 
 		const PxU32 nbJointsPerTask = 128u;	// PT: TODO: revisit
 		//for other joint
@@ -1746,7 +1746,7 @@ namespace physx
 			task->removeReference();
 		}
 
-		const PxU32 gpuArtiJointOutputOffset = jointManager.getGpuNbArtiConstraints() * Dy::MAX_CONSTRAINT_ROWS;
+		const PxU32 gpuArtiJointOutputOffset = jointManager.getGpuNbArtiConstraints() * ev4sio_Dy::MAX_CONSTRAINT_ROWS;
 
 		for (PxU32 a = 0; a < nbCpuArtiConstraints; a += nbJointsPerTask)
 		{
@@ -2078,7 +2078,7 @@ void PxgGpuPrePrepTask::runInternal()
 	mContext.doConstraintPrePrepGPU();
 
 	PxgJointManager& jointManager = mContext.getSimulationController()->getJointManager();
-	jointManager.reserveMemory(Dy::MAX_CONSTRAINT_ROWS);
+	jointManager.reserveMemory(ev4sio_Dy::MAX_CONSTRAINT_ROWS);
 
 	mContext.mGpuSolverCore->releaseContext();
 
@@ -2116,18 +2116,18 @@ void PxgGpuContext::updateBodyCore(PxBaseTask* continuation)
 #endif
 #endif
 
-static PX_FORCE_INLINE bool needsSolve(IG::IslandSim& islandSim, PxU32 bodyCount, PxU32 articulationCount)
+static PX_FORCE_INLINE bool needsSolve(ev4sio_IG::IslandSim& islandSim, PxU32 bodyCount, PxU32 articulationCount)
 {
-	const PxU32 particleCount = islandSim.getNbActiveNodes(IG::Node::ePARTICLESYSTEM_TYPE);
-	const PxU32 clothCount = islandSim.getNbActiveNodes(IG::Node::eDEFORMABLE_SURFACE_TYPE);
-	const PxU32 softBodyCount = islandSim.getNbActiveNodes(IG::Node::eDEFORMABLE_VOLUME_TYPE);
+	const PxU32 particleCount = islandSim.getNbActiveNodes(ev4sio_IG::Node::ePARTICLESYSTEM_TYPE);
+	const PxU32 clothCount = islandSim.getNbActiveNodes(ev4sio_IG::Node::eDEFORMABLE_SURFACE_TYPE);
+	const PxU32 softBodyCount = islandSim.getNbActiveNodes(ev4sio_IG::Node::eDEFORMABLE_VOLUME_TYPE);
 	const bool needsSolve = (0 != bodyCount || 0 != articulationCount || particleCount || softBodyCount || clothCount);
 	return needsSolve;
 }
 
-void PxgGpuContext::update(	Cm::FlushPool& flushPool, PxBaseTask* continuation, PxBaseTask* postPartitioningTask, PxBaseTask* /*lostTouchTask*/,
+void PxgGpuContext::update(	ev4sio_Cm::FlushPool& flushPool, PxBaseTask* continuation, PxBaseTask* postPartitioningTask, PxBaseTask* /*lostTouchTask*/,
 							PxvNphaseImplementationContext* nphase, PxU32 /*maxPatchesPerCM*/, PxU32 /*maxArticulationLinks*/, PxReal dt,
-							const PxVec3& gravity, Cm::PinnableBitMap& /*changedHandleMap*/)
+							const PxVec3& gravity, ev4sio_Cm::PinnableBitMap& /*changedHandleMap*/)
 {
 	mGpuSolverCore->acquireContext();
 
@@ -2143,10 +2143,10 @@ void PxgGpuContext::update(	Cm::FlushPool& flushPool, PxBaseTask* continuation, 
 	PX_ASSERT(noDuplicates(nphase->getLostFoundPatchManagers(), nphase->getNbLostFoundPatchManagers()));
 	//First and foremost, we need to get a set of islands (bodies, constraints etc.)
 	//These will be parameters
-	IG::IslandSim& islandSim = mIslandManager.getAccurateIslandSim();
+	ev4sio_IG::IslandSim& islandSim = mIslandManager.getAccurateIslandSim();
 
-	const PxU32 bodyCount = islandSim.getNbActiveNodes(IG::Node::eRIGID_BODY_TYPE);
-	const PxU32 articulationCount = islandSim.getNbActiveNodes(IG::Node::eARTICULATION_TYPE);
+	const PxU32 bodyCount = islandSim.getNbActiveNodes(ev4sio_IG::Node::eRIGID_BODY_TYPE);
+	const PxU32 articulationCount = islandSim.getNbActiveNodes(ev4sio_IG::Node::eARTICULATION_TYPE);
 
 	mGpuSolverCore->setGpuContactManagerOutputBase(gpuContactManagerOutputs);
 
@@ -2166,13 +2166,13 @@ void PxgGpuContext::update(	Cm::FlushPool& flushPool, PxBaseTask* continuation, 
 
 #if PX_ENABLE_SIM_STATS
 	mSimStats.mNbActiveKinematicBodies = islandSim.getNbActiveKinematics();
-	mSimStats.mNbActiveDynamicBodies = islandSim.getNbActiveNodes(IG::Node::eRIGID_BODY_TYPE);
-	mSimStats.mNbActiveConstraints = islandSim.getNbActiveEdges(IG::Edge::eCONSTRAINT);
+	mSimStats.mNbActiveDynamicBodies = islandSim.getNbActiveNodes(ev4sio_IG::Node::eRIGID_BODY_TYPE);
+	mSimStats.mNbActiveConstraints = islandSim.getNbActiveEdges(ev4sio_IG::Edge::eCONSTRAINT);
 	mSimStats.mNbPartitions = mIncrementalPartition.getNbPartitions();
 #else
 	PX_CATCH_UNDEFINED_ENABLE_SIM_STATS
 #endif
-	//mConstraintWriteBackStreamAllocator->reserve(sizeof(Dy::ConstraintWriteback) * nbConstraints);
+	//mConstraintWriteBackStreamAllocator->reserve(sizeof(ev4sio_Dy::ConstraintWriteback) * nbConstraints);
 
 	mConstraintsPerPartition.forceSize_Unsafe(0);
 	mDt = dt;
@@ -2263,8 +2263,8 @@ void PxgGpuContext::update(	Cm::FlushPool& flushPool, PxBaseTask* continuation, 
 	if (needsSolve(islandSim, bodyCount, articulationCount))
 	{
 		//Set up gpu workloads early!!!
-		const PxNodeIndex* const PX_RESTRICT nodeIndices = islandSim.getActiveNodes(IG::Node::eRIGID_BODY_TYPE);
-		const PxNodeIndex* const PX_RESTRICT articulationNodeIndices = islandSim.getActiveNodes(IG::Node::eARTICULATION_TYPE);
+		const PxNodeIndex* const PX_RESTRICT nodeIndices = islandSim.getActiveNodes(ev4sio_IG::Node::eRIGID_BODY_TYPE);
+		const PxNodeIndex* const PX_RESTRICT articulationNodeIndices = islandSim.getActiveNodes(ev4sio_IG::Node::eARTICULATION_TYPE);
 
 		PxMemCopy(mActiveNodeIndex.begin() + 1, islandSim.getActiveKinematics(), islandSim.getNbActiveKinematics() * sizeof(PxNodeIndex));
 		PxMemCopy(mActiveNodeIndex.begin() + 1 + kinematicCount, nodeIndices, sizeof(PxNodeIndex) * mBodyCount);
@@ -2319,9 +2319,9 @@ void PxgGpuContext::update(	Cm::FlushPool& flushPool, PxBaseTask* continuation, 
 
 void PxgGpuContext::updatePostPartitioning(PxBaseTask* lostTouchTask, PxvNphaseImplementationContext* /*nphase*/,
 	PxU32 maxPatchesPerCM, PxU32 /*maxArticulationLinks*/,
-	PxReal /*dt*/, const PxVec3& /*gravity*/, Cm::PinnableBitMap& changedHandleMap)
+	PxReal /*dt*/, const PxVec3& /*gravity*/, ev4sio_Cm::PinnableBitMap& changedHandleMap)
 {
-	IG::IslandSim& islandSim = mIslandManager.getAccurateIslandSim();
+	ev4sio_IG::IslandSim& islandSim = mIslandManager.getAccurateIslandSim();
 	mLostTouchTask = lostTouchTask;
 
 	if (getNarrowphaseCore()->mCudaContext->isInAbortMode())
@@ -2336,20 +2336,20 @@ void PxgGpuContext::updatePostPartitioning(PxBaseTask* lostTouchTask, PxvNphaseI
 
 	mGpuSolverCore->acquireContext();
 
-	const Cm::PinnableArray<PartitionIndexData>& partitionIndexDataIter = mIncrementalPartition.getPartitionIndexArray();
-	const Cm::PinnableArray<PartitionNodeData>& partitionNodeData = mIncrementalPartition.getPartitionNodeArray();
-	const Cm::PinnableArray<PxgSolverConstraintManagerConstants>& solverConstantData = mIncrementalPartition.getSolverConstants();
-	const Cm::PinnableArray<PxU32>& partitionStartBatchIndexIter = mIncrementalPartition.getStartSlabPerPartition();
-	const Cm::PinnableArray<PxU32>& partitionArticStartBatchIndexIter = mIncrementalPartition.getArticStartSlabPerPartition();
-	const Cm::PinnableArray<PxU32>& partitionJointBatchCountIter = mIncrementalPartition.getNbJointsPerPartition();
-	const Cm::PinnableArray<PxU32>& partitionArtiJointBatchCountIter = mIncrementalPartition.getNbArticJointsPerPartition();
+	const ev4sio_Cm::PinnableArray<PartitionIndexData>& partitionIndexDataIter = mIncrementalPartition.getPartitionIndexArray();
+	const ev4sio_Cm::PinnableArray<PartitionNodeData>& partitionNodeData = mIncrementalPartition.getPartitionNodeArray();
+	const ev4sio_Cm::PinnableArray<PxgSolverConstraintManagerConstants>& solverConstantData = mIncrementalPartition.getSolverConstants();
+	const ev4sio_Cm::PinnableArray<PxU32>& partitionStartBatchIndexIter = mIncrementalPartition.getStartSlabPerPartition();
+	const ev4sio_Cm::PinnableArray<PxU32>& partitionArticStartBatchIndexIter = mIncrementalPartition.getArticStartSlabPerPartition();
+	const ev4sio_Cm::PinnableArray<PxU32>& partitionJointBatchCountIter = mIncrementalPartition.getNbJointsPerPartition();
+	const ev4sio_Cm::PinnableArray<PxU32>& partitionArtiJointBatchCountIter = mIncrementalPartition.getNbArticJointsPerPartition();
 
 	const PxArray<PxU32>& npIndexArrayIter = mIncrementalPartition.getNpIndexArray();
-	Cm::PinnableArray<PxU32>& npIndexArrayStagingBuffer = mNodeIndicesStagingBuffer;
-	Cm::PinnableArray<PxU32>& islandIds = mIslandIds;
-	Cm::PinnableArray<PxU32>& islandStaticTouchCounts = mIslandStaticTouchCounts;
+	ev4sio_Cm::PinnableArray<PxU32>& npIndexArrayStagingBuffer = mNodeIndicesStagingBuffer;
+	ev4sio_Cm::PinnableArray<PxU32>& islandIds = mIslandIds;
+	ev4sio_Cm::PinnableArray<PxU32>& islandStaticTouchCounts = mIslandStaticTouchCounts;
 
-	const PxU32 nbConstraints = islandSim.getNbActiveEdges(IG::Edge::eCONSTRAINT);
+	const PxU32 nbConstraints = islandSim.getNbActiveEdges(ev4sio_IG::Edge::eCONSTRAINT);
 
 	// At this point we are ready to allocate the pinned memory for the solver.
 	allocateTempPinnedSolverMemoryCommon();
@@ -2383,7 +2383,7 @@ void PxgGpuContext::updatePostPartitioning(PxBaseTask* lostTouchTask, PxvNphaseI
 #if PX_ENABLE_ASSERTS
 	PxU32 accumulatedConstraints = mIncrementalPartition.getAccumulatedConstraintCount().size() == 0 ? 0 : mIncrementalPartition.getAccumulatedConstraintCount()[mIncrementalPartition.getAccumulatedConstraintCount().size() - 1];
 	PxU32 accumulatedArtiConstraints = mIncrementalPartition.getAccumulatedArtiConstraintCount().size() == 0 ? 0 : mIncrementalPartition.getAccumulatedArtiConstraintCount()[mIncrementalPartition.getAccumulatedArtiConstraintCount().size() - 1];
-	PX_ASSERT((nbPatches + islandSim.getNbActiveEdges(IG::Edge::eCONSTRAINT) + mIncrementalPartition.getTotalArticulationContacts()) == (accumulatedConstraints + accumulatedArtiConstraints + getSimulationController()->getBodySimManager().mTotalStaticArticJoints +
+	PX_ASSERT((nbPatches + islandSim.getNbActiveEdges(ev4sio_IG::Edge::eCONSTRAINT) + mIncrementalPartition.getTotalArticulationContacts()) == (accumulatedConstraints + accumulatedArtiConstraints + getSimulationController()->getBodySimManager().mTotalStaticArticJoints +
 		getSimulationController()->getBodySimManager().mTotalSelfArticJoints + getSimulationController()->getBodySimManager().mTotalStaticRBJoints));
 #endif
 
@@ -2405,7 +2405,7 @@ void PxgGpuContext::updatePostPartitioning(PxBaseTask* lostTouchTask, PxvNphaseI
 		mForceChangedThresholdStream.forceSize_Unsafe(0);
 		if(!mForceChangedThresholdStream.reserve(PxNextPowerOfTwo(mNumContactManagers)))
 		{
-			PxGetFoundation().error(PxErrorCode::eOUT_OF_MEMORY, PX_FL, "PxgGpuContext: failed to allocate pinned threshold stream.");
+			ev4sio_PxGetFoundation().error(PxErrorCode::eOUT_OF_MEMORY, PX_FL, "PxgGpuContext: failed to allocate pinned threshold stream.");
 			getNarrowphaseCore()->mCudaContext->setAbortMode(true);
 			mGpuSolverCore->releaseContext();
 			if (needsSolve(islandSim, bodyCount, articulationCount))
@@ -2478,7 +2478,7 @@ void PxgGpuContext::updatePostPartitioning(PxBaseTask* lostTouchTask, PxvNphaseI
 	PxMemCopy(islandIds.begin(), islandSim.getIslandIds(), sizeof(PxU32) * islandSim.getNbNodes());
 	PxMemCopy(islandStaticTouchCounts.begin(), islandSim.getIslandStaticTouchCount(), sizeof(PxU32) * islandSim.getNbIslands());
 
-	const Cm::PinnableArray<PxU32>& nodeInteractions = mIncrementalPartition.getNodeInteractionCountArray();
+	const ev4sio_Cm::PinnableArray<PxU32>& nodeInteractions = mIncrementalPartition.getNodeInteractionCountArray();
 
 	mGpuSolverCore->gpuMemDMAUpContactData(mContactStreamAllocators[mCurrentContactStream],
 		PxToU32(mContactStreamPool.mSharedDataIndex),

@@ -11,12 +11,12 @@
 #include "foundation/PxAtomic.h"
 #include "foundation/PxUserAllocated.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 struct PxvSimStats;
 
-namespace Sc
+namespace ev4sio_Sc
 {
 
 	/*
@@ -60,7 +60,7 @@ namespace Sc
 		PxU64 gpuMemSizeDeformableVolumes;
 	};
 
-} // namespace Sc
+} // namespace ev4sio_Sc
 
 }
 

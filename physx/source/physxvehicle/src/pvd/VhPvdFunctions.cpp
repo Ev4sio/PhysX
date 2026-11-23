@@ -15,7 +15,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-namespace physx
+namespace ev4sio_physx
 {
 
 #if PX_SUPPORT_OMNI_PVD
@@ -1319,7 +1319,7 @@ void PxVehiclePvdPhysXWheelAttachmentWrite
 		const PxU32 wheelId = axleDesc.wheelIdsInAxleOrder[i];
 		if(wheelId >= oh.nbWheels)
 		{
-			PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL,
+			ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL,
 				"PxVehiclePvdPhysXWheelAttachmentWrite - axleDesc.axleToWheelIds[i] must be less than the value of the nbWheels argument in the function PxVehiclePvdObjectCreate()");
 			return;
 		}
@@ -1327,7 +1327,7 @@ void PxVehiclePvdPhysXWheelAttachmentWrite
 		{
 			if(physxMaterialFrictionParams[wheelId].nbMaterialFrictions > oh.nbPhysXMaterialFrictions)
 			{
-				PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL,
+				ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL,
 					"PxVehiclePvdPhysXWheelAttachmentWrite - material friction count exceeds PxVehiclePvdObjectCreate() capacity");
 				return;
 			}
@@ -1877,4 +1877,4 @@ void PxVehiclePvdPhysXSteerStateWrite
 
 #endif
 
-} // namespace physx
+} // namespace ev4sio_physx

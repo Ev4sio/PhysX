@@ -5,7 +5,7 @@
 // @covers AC-1 AC-2 AC-3 AC-4 AC-5
 #pragma once
 #include "NativeInspection.h"
-namespace omni::physx::native
+namespace omni::ev4sio_physx::native
 {
 struct SceneQuery
 {

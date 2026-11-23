@@ -19,7 +19,7 @@ using namespace carb;
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace usdparser
 {
@@ -109,5 +109,5 @@ ObjectId createJoint(AttachedStage& attachedStage, omni::physics::parse::ObjectK
 
 
 } // namespace usdparser
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

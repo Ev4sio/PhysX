@@ -157,16 +157,16 @@ ovphysx_companion_status_t sceneStatistics(uint64_t handle, const char* path, ui
         const ovphysx_companion_status_t status = validate(session);
         if (status != OVPHYSX_COMPANION_OK)
             return status;
-        if (omni::physx::runtime::isRuntimeBusy(session.attachment))
+        if (omni::ev4sio_physx::runtime::isRuntimeBusy(session.attachment))
             return OVPHYSX_COMPANION_BUSY;
-        omni::physx::IPhysx * physics = omni::physx::runtime::tryGetPhysxInterface();
+        omni::ev4sio_physx::IPhysx * physics = omni::ev4sio_physx::runtime::tryGetPhysxInterface();
         if (!physics)
             return OVPHYSX_COMPANION_UNAVAILABLE;
         const omni::physics::parse::ObjectKey key = physics->resolveObjectKey(session.attachment, path);
         if (!key.valid())
             return OVPHYSX_COMPANION_NOT_FOUND;
-        omni::physx::PhysicsSceneStats counters;
-        if (!omni::physx::getPhysXSceneStatistics(session.attachment, key.handle, counters))
+        omni::ev4sio_physx::PhysicsSceneStats counters;
+        if (!omni::ev4sio_physx::getPhysXSceneStatistics(session.attachment, key.handle, counters))
             return OVPHYSX_COMPANION_ERROR;
         *output = {sizeof(*output), 1, {session.owner, session.attachment},
                    counters.nbDynamicRigids, counters.nbActiveDynamicRigids, counters.nbStaticRigids,
@@ -187,7 +187,7 @@ ovphysx_companion_status_t computeMass(const ovphysx_companion_mass_shape_t* sha
         return OVPHYSX_COMPANION_INVALID_ARGUMENT;
     try
     {
-        using namespace omni::physx::authoring;
+        using namespace omni::ev4sio_physx::authoring;
         std::vector<MassShape> input;
         input.reserve(count);
         for (uint32_t i = 0; i < count; ++i)
@@ -195,9 +195,9 @@ ovphysx_companion_status_t computeMass(const ovphysx_companion_mass_shape_t* sha
             const ovphysx_companion_mass_shape_t & s = shapes[i];
             MassShape item;
             item.kind = static_cast<PrimitiveKind>(s.kind);
-            item.dimensions = ::physx::PxVec3(s.dimensions[0], s.dimensions[1], s.dimensions[2]);
-            item.pose.p = ::physx::PxVec3(s.position[0], s.position[1], s.position[2]);
-            item.pose.q = ::physx::PxQuat(s.rotation[0], s.rotation[1], s.rotation[2], s.rotation[3]);
+            item.dimensions = ::ev4sio_physx::PxVec3(s.dimensions[0], s.dimensions[1], s.dimensions[2]);
+            item.pose.p = ::ev4sio_physx::PxVec3(s.position[0], s.position[1], s.position[2]);
+            item.pose.q = ::ev4sio_physx::PxQuat(s.rotation[0], s.rotation[1], s.rotation[2], s.rotation[3]);
             item.density = s.density;
             input.push_back(item);
         }
@@ -232,7 +232,7 @@ ovphysx_companion_status_t matchPoints(const float* source, uint32_t sourceCount
         return OVPHYSX_COMPANION_INVALID_ARGUMENT;
     try
     {
-        std::vector<::physx::PxVec3> a, b;
+        std::vector<::ev4sio_physx::PxVec3> a, b;
         a.reserve(sourceCount);
         b.reserve(targetCount);
         for (uint32_t i = 0; i < sourceCount; ++i)
@@ -240,7 +240,7 @@ ovphysx_companion_status_t matchPoints(const float* source, uint32_t sourceCount
         for (uint32_t i = 0; i < targetCount; ++i)
             b.emplace_back(target[size_t(i)*3], target[size_t(i)*3+1], target[size_t(i)*3+2]);
         std::vector<int32_t> matches;
-        if (!omni::physx::authoring::matchPoints(a.data(), sourceCount, b.data(), targetCount, distance, matches))
+        if (!omni::ev4sio_physx::authoring::matchPoints(a.data(), sourceCount, b.data(), targetCount, distance, matches))
             return OVPHYSX_COMPANION_INVALID_ARGUMENT;
         if (sourceCount) std::copy(matches.begin(), matches.end(), output);
         return OVPHYSX_COMPANION_OK;

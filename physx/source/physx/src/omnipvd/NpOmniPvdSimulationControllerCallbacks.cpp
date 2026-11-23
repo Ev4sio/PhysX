@@ -19,14 +19,14 @@
 #include "NpShape.h"
 #include "GuBounds.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 static PxBounds3 getCapturedWorldBounds(const NpShapeManager& shapeManager, const PxTransform& actorPose)
 {
 	PxBounds3 bounds = PxBounds3::empty();
 	NpShape* const* shapes = shapeManager.getShapes();
 	for (PxU32 i = 0; i < shapeManager.getNbShapes(); ++i)
-		bounds.include(Gu::computeBounds(shapes[i]->getCore().getGeometry(), actorPose * shapes[i]->getLocalPoseFast()));
+		bounds.include(ev4sio_Gu::computeBounds(shapes[i]->getCore().getGeometry(), actorPose * shapes[i]->getLocalPoseFast()));
 	if (bounds.isEmpty()) return bounds;
 	return PxBounds3::centerExtents(bounds.getCenter(), bounds.getExtents() * 1.01f);
 }
@@ -133,7 +133,7 @@ bool NpOmniPvdSimulationControllerCallbacks::isRigidDynamicCaptured(const PxsRig
 	return NpOmniPvdCaptureActor(*castPxsRigidBodyToPxRigidDynamic(&rigidBody));
 }
 
-bool NpOmniPvdSimulationControllerCallbacks::isArticulationCaptured(const Dy::FeatherstoneArticulation& articulation) const
+bool NpOmniPvdSimulationControllerCallbacks::isArticulationCaptured(const ev4sio_Dy::FeatherstoneArticulation& articulation) const
 {
 	return NpOmniPvdCaptureArticulation(*castFeatherstoneToNpArticulation(&articulation));
 }
@@ -149,7 +149,7 @@ bool NpOmniPvdSimulationControllerCallbacks::isRigidDynamicStateRequired(const P
 		&& (NpOmniPvdCaptureActorState(actor) || OmniPvdPxSampler::getInstance()->isJointStateActor(actor));
 }
 
-bool NpOmniPvdSimulationControllerCallbacks::isArticulationStateRequired(const Dy::FeatherstoneArticulation& articulation, PxArticulationGPUAPIReadType::Enum dataType) const
+bool NpOmniPvdSimulationControllerCallbacks::isArticulationStateRequired(const ev4sio_Dy::FeatherstoneArticulation& articulation, PxArticulationGPUAPIReadType::Enum dataType) const
 {
 	const NpArticulationReducedCoordinate& actor = *castFeatherstoneToNpArticulation(&articulation);
 	const bool linkPayload = dataType == PxArticulationGPUAPIReadType::eLINK_GLOBAL_POSE
@@ -174,7 +174,7 @@ bool NpOmniPvdSimulationControllerCallbacks::isContactReadEnabled() const
 
 void NpOmniPvdSimulationControllerCallbacks::reportReadbackFailure()
 {
-	PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL,
+	ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL,
 		"OmniPVD GPU capture readback failed; recording stopped to avoid incomplete state.");
 	OmniPvdPxSampler* sampler = OmniPvdPxSampler::getInstance();
 	if (sampler) sampler->stopSampling();
@@ -183,17 +183,17 @@ void NpOmniPvdSimulationControllerCallbacks::reportReadbackFailure()
 const PxRigidDynamic* NpOmniPvdSimulationControllerCallbacks::castPxsRigidBodyToPxRigidDynamic(const PxsRigidBody* rigidBody)
 {
 	const PxsBodyCore& pxsBodyCoreRef = rigidBody->getCore();
-	Sc::BodyCore& bodyCoreRef = Sc::BodyCore::getCore(pxsBodyCoreRef);
+	ev4sio_Sc::BodyCore& bodyCoreRef = ev4sio_Sc::BodyCore::getCore(pxsBodyCoreRef);
 	PxRigidDynamic* rigidDynamic = static_cast<PxRigidDynamic*>(bodyCoreRef.getPxActor());
 	PX_ASSERT(rigidDynamic->getConcreteType() == PxConcreteType::eRIGID_DYNAMIC);
 	return rigidDynamic;
 }
 
-const NpArticulationReducedCoordinate* NpOmniPvdSimulationControllerCallbacks::castFeatherstoneToNpArticulation(const Dy::FeatherstoneArticulation* const featherstone)
+const NpArticulationReducedCoordinate* NpOmniPvdSimulationControllerCallbacks::castFeatherstoneToNpArticulation(const ev4sio_Dy::FeatherstoneArticulation* const featherstone)
 {
-	const Sc::ArticulationSim* articulationSim = static_cast<const Sc::ArticulationSim*>(featherstone);
-	Sc::ArticulationCore& articulationCore = articulationSim->getCore();
-	NpArticulationReducedCoordinate* npArticulation = static_cast<NpArticulationReducedCoordinate*>(Sc::gOffsetTable.convertScArticulation2Px(&articulationCore));
+	const ev4sio_Sc::ArticulationSim* articulationSim = static_cast<const ev4sio_Sc::ArticulationSim*>(featherstone);
+	ev4sio_Sc::ArticulationCore& articulationCore = articulationSim->getCore();
+	NpArticulationReducedCoordinate* npArticulation = static_cast<NpArticulationReducedCoordinate*>(ev4sio_Sc::gOffsetTable.convertScArticulation2Px(&articulationCore));
 	PX_ASSERT(npArticulation->getConcreteType() == PxConcreteType::eARTICULATION_REDUCED_COORDINATE);
 	return npArticulation;
 }
@@ -301,7 +301,7 @@ static void scatterJointDofs(const PxArticulationJointReducedCoordinate& joint, 
 		axes[axis] = (joint.getMotion(static_cast<PxArticulationAxis::Enum>(axis)) != PxArticulationMotion::eLOCKED && dof < nbDofs) ? dofs[dof++] : 0.0f;
 }
 
-void NpOmniPvdSimulationControllerCallbacks::streamJointValues(const PxArticulationGPUAPIWriteType::Enum dataType, const Dy::FeatherstoneArticulation* const * articulations, PxReal* realsDataVec, const PxArticulationGPUIndex* nodeIndices,
+void NpOmniPvdSimulationControllerCallbacks::streamJointValues(const PxArticulationGPUAPIWriteType::Enum dataType, const ev4sio_Dy::FeatherstoneArticulation* const * articulations, PxReal* realsDataVec, const PxArticulationGPUIndex* nodeIndices,
 	PxU32 nbArticulations, PxU32 maxLinks, PxU32 maxSubElementsInBlock)
 {
 	mDofStarts.resizeUninitialized(maxLinks);
@@ -397,7 +397,7 @@ void NpOmniPvdSimulationControllerCallbacks::streamJointValues(const PxArticulat
 
 // The nodeIndices are expected to be remapped from gpuIndices to nodeIndices before this function is called
 // The remapping is done in PxgArticulationCore::ovdArticulationCallback
-void NpOmniPvdSimulationControllerCallbacks::processArticulationSet(const Dy::FeatherstoneArticulation* const *articulations, const void* dataVec, const PxArticulationGPUIndex* nodeIndices, PxArticulationGPUAPIWriteType::Enum dataType, PxU32 nbElements,
+void NpOmniPvdSimulationControllerCallbacks::processArticulationSet(const ev4sio_Dy::FeatherstoneArticulation* const *articulations, const void* dataVec, const PxArticulationGPUIndex* nodeIndices, PxArticulationGPUAPIWriteType::Enum dataType, PxU32 nbElements,
 		PxU32 maxLinks, PxU32 maxDofs, PxU32 maxFixedTendons, PxU32 maxTendonJoints, PxU32 maxSpatialTendons, PxU32 maxSpatialTendonAttachments)
 {
 	PxU32 nbrSubElementsPerBlock;
@@ -513,7 +513,7 @@ void NpOmniPvdSimulationControllerCallbacks::processRigidDynamicRead(const PxsRi
 	}
 }
 
-void NpOmniPvdSimulationControllerCallbacks::processArticulationRead(const Dy::FeatherstoneArticulation* const* articulations,
+void NpOmniPvdSimulationControllerCallbacks::processArticulationRead(const ev4sio_Dy::FeatherstoneArticulation* const* articulations,
 	const void* data, const PxArticulationGPUIndex* nodeIndices, PxArticulationGPUAPIReadType::Enum dataType,
 	PxU32 nbElements, PxU32 maxLinks, PxU32 maxDofs)
 {

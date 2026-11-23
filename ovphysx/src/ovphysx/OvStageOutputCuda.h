@@ -16,7 +16,7 @@
 #include <cstdint>
 #include <string>
 
-namespace omni::physx
+namespace omni::ev4sio_physx
 {
 struct IOptionalCuda;
 }
@@ -41,7 +41,7 @@ public:
     {
         return mReady;
     }
-    omni::physx::IOptionalCuda* cuda() const
+    omni::ev4sio_physx::IOptionalCuda* cuda() const
     {
         return mCuda;
     }
@@ -49,7 +49,7 @@ public:
 
 private:
     bool restoreContext() noexcept;
-    omni::physx::IOptionalCuda* mCuda = nullptr;
+    omni::ev4sio_physx::IOptionalCuda* mCuda = nullptr;
     bool mReady = false;
     bool mPushed = false;
     bool mRestoreNull = false;

@@ -47,7 +47,7 @@
 #include "sdfCollision.cuh"
 #include "reduction.cuh"
 
-using namespace physx;
+using namespace ev4sio_physx;
 using namespace schlock;
 
 extern "C" __host__ void initNarrowphaseKernels19() {}
@@ -180,7 +180,7 @@ __device__ static inline PxU32 triSphereCollide(
 	PxReal s, t;
 	const PxVec3 cloestPt = closestPtPointTriangle(sphereCenter, a, b, c, s, t);
 
-	//const PxVec3 cloestPt2 = Gu::closestPtPointTriangle2(sphereCenter, a, b, c, ab, ac);
+	//const PxVec3 cloestPt2 = ev4sio_Gu::closestPtPointTriangle2(sphereCenter, a, b, c, ab, ac);
 
 	//float4 tBarycentric;
 
@@ -2621,7 +2621,7 @@ void cloth_heightfieldVertexContactGenLaunch(
 			const PxVec3 normal = ab.cross(ac);
 
 			//p is outside
-			PxVec3 localClosestPt = Gu::closestPtPointTriangle2(localP0, a, b, c, ab, ac);
+			PxVec3 localClosestPt = ev4sio_Gu::closestPtPointTriangle2(localP0, a, b, c, ab, ac);
 
 
 			//tranform lcoalClosestPt to world space
@@ -2723,7 +2723,7 @@ __device__ static inline void clothParticleCollision(
 	const PxVec3 ac = c - a;
 	
 	//p is outside
-	PxVec3 closestPt = Gu::closestPtPointTriangle2(p, a, b, c, ab, ac);
+	PxVec3 closestPt = ev4sio_Gu::closestPtPointTriangle2(p, a, b, c, ab, ac);
 	const PxVec3 v = p - closestPt;
 	const PxReal sqDist = v.dot(v);
 
@@ -2899,7 +2899,7 @@ void cloth_meshVertexContactGenLaunch(
 			PxU8 * trimeshGeomPtr = reinterpret_cast<PxU8*>(trimeshShape->hullOrMeshPtr);
 
 			const uint4 nbVerts_nbTri_maxDepth_nbBv32TreeNodes = *reinterpret_cast<const uint4 *>(trimeshGeomPtr);
-			trimeshGeomPtr += sizeof(uint4) + sizeof(const Gu::BV32DataPacked)* nbVerts_nbTri_maxDepth_nbBv32TreeNodes.w;
+			trimeshGeomPtr += sizeof(uint4) + sizeof(const ev4sio_Gu::BV32DataPacked)* nbVerts_nbTri_maxDepth_nbBv32TreeNodes.w;
 
 			const float4* trimeshVerts = reinterpret_cast<const float4 *>(trimeshGeomPtr);
 
@@ -2937,7 +2937,7 @@ void cloth_meshVertexContactGenLaunch(
 			const PxVec3 normal = ab.cross(ac);
 
 			//p is outside
-			PxVec3 localClosestPt = Gu::closestPtPointTriangle2(localP0, a, b, c, ab, ac);
+			PxVec3 localClosestPt = ev4sio_Gu::closestPtPointTriangle2(localP0, a, b, c, ab, ac);
 
 
 			//tranform lcoalClosestPt to world space
@@ -3736,7 +3736,7 @@ void cloth_meshContactGenLaunch(
 				PxU8 * trimeshGeomPtr = reinterpret_cast<PxU8*>(trimeshShape->hullOrMeshPtr);
 
 				const uint4 nbVerts_nbTri_maxDepth_nbBv32TreeNodes = *reinterpret_cast<const uint4 *>(trimeshGeomPtr);
-				trimeshGeomPtr += sizeof(uint4) + sizeof(const Gu::BV32DataPacked)* nbVerts_nbTri_maxDepth_nbBv32TreeNodes.w;
+				trimeshGeomPtr += sizeof(uint4) + sizeof(const ev4sio_Gu::BV32DataPacked)* nbVerts_nbTri_maxDepth_nbBv32TreeNodes.w;
 
 				const float4* trimeshVerts = reinterpret_cast<const float4 *>(trimeshGeomPtr);
 

@@ -41,7 +41,7 @@
 #include "TriggerEvent.h"
 #include "AttachOptions.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 struct PxOmniPvdFilterDesc;
 }
@@ -49,7 +49,7 @@ struct PxOmniPvdFilterDesc;
 namespace omni
 {
 
-namespace physx
+namespace ev4sio_physx
 {
 
 /// Simulation output type
@@ -665,14 +665,14 @@ struct IPhysxSimulation
     /// Returns eBusy while runtime work is pending or from a runtime callback.
     OmniPvdRecordingResult(CARB_ABI* startOmniPvdRecordingWithFilter)(
         uint32_t transport, const char* target, uint16_t tcpPort, uint32_t tcpTimeoutMs,
-        const ::physx::PxOmniPvdFilterDesc* capture);
+        const ::ev4sio_physx::PxOmniPvdFilterDesc* capture);
 
     /// Start with a recording owner for receiver request admission.
     /// Appended separately so the local capture callback retains its signature.
     /// Returns eBusy while runtime work is pending or from a runtime callback.
     OmniPvdRecordingResult(CARB_ABI* startOmniPvdRecordingWithFilterOwner)(
         uint32_t transport, const char* target, uint16_t tcpPort, uint32_t tcpTimeoutMs,
-        const ::physx::PxOmniPvdFilterDesc* capture, AttachHandle selectionOwner);
+        const ::ev4sio_physx::PxOmniPvdFilterDesc* capture, AttachHandle selectionOwner);
 
     /// Buffer one complete receiver request or a terminal transport error.
     /// Nonblocking; takes only the native writer lock and no owner admission.
@@ -687,9 +687,9 @@ struct IPhysxSimulation
     /// Returns eBusy while runtime work is pending or from a runtime callback.
     OmniPvdRecordingResult(CARB_ABI* startOmniPvdDiscoveryWithFilterOwner)(
         const char* target, uint16_t tcpPort, uint32_t tcpTimeoutMs,
-        const ::physx::PxOmniPvdFilterDesc* scope, AttachHandle selectionOwner);
+        const ::ev4sio_physx::PxOmniPvdFilterDesc* scope, AttachHandle selectionOwner);
 };
 
 
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

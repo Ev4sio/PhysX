@@ -29,7 +29,7 @@
 namespace omni
 {
 
-namespace physx
+namespace ev4sio_physx
 {
 
 /// \defgroup private Private
@@ -511,5 +511,5 @@ static constexpr char kLocalSpaceVelocitiesMetadataAttributeName[] = "physics:lo
 
 /** @}*/
 
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

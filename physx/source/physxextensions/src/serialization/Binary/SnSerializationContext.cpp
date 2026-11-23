@@ -6,7 +6,7 @@
 #include "common/PxBase.h"
 #include "SnSerializationContext.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 using namespace Sn;
 
 PxBase* DeserializationContext::resolveReference(PxU32 kind, size_t reference) const
@@ -25,7 +25,7 @@ PxBase* DeserializationContext::resolveReference(PxU32 kind, size_t reference) c
 		const InternalPtrRefMap::Entry* entry0 = mInternalPtrReferencesMap.find(reference);
 		if (!entry0)
 		{
-			PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL,
+			ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL,
 				"PxDeserializationContext::resolveReference: unknown object reference in the serialized data.");
 			return NULL;
 		}
@@ -36,7 +36,7 @@ PxBase* DeserializationContext::resolveReference(PxU32 kind, size_t reference) c
 		const InternalHandle16RefMap::Entry* entry0 = mInternalHandle16ReferencesMap.find(PxU16(reference));
 		if (!entry0)
 		{
-			PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL,
+			ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL,
 				"PxDeserializationContext::resolveReference: unknown material reference %u in the serialized data.", PxU32(PxU16(reference)));
 			return NULL;
 		}
@@ -69,7 +69,7 @@ void SerializationContext::registerReference(PxBase& serializable, PxU32 kind, s
 #if PX_CHECKED
 	if ((kind & PX_SERIAL_REF_KIND_PTR_TYPE_BIT) == 0 && reference > 0xffff)
 	{
-		PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "PxSerializationContext::registerReference: only 16 bit handles supported.");
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "PxSerializationContext::registerReference: only 16 bit handles supported.");
 		return;
 	}
 #endif

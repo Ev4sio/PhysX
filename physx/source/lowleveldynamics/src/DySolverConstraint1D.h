@@ -14,10 +14,10 @@
 #include "DySolverConstraintDesc.h"
 #include "DyCpuGpu1dConstraint.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
-namespace Dy
+namespace ev4sio_Dy
 {
 
 // dsequeira: we should probably fork these structures for constraints and extended constraints,
@@ -82,8 +82,8 @@ PX_COMPILE_TIME_ASSERT(sizeof(SolverConstraint1D) == 96);
 struct SolverConstraint1DExt : public SolverConstraint1D
 {
 public:
-	Cm::SpatialVector deltaVA_;
-	Cm::SpatialVector deltaVB_;
+	ev4sio_Cm::SpatialVector deltaVA_;
+	ev4sio_Cm::SpatialVector deltaVB_;
 };
 
 PX_COMPILE_TIME_ASSERT(sizeof(SolverConstraint1DExt) == 160);

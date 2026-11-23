@@ -17,28 +17,28 @@
 #include "geometry/PxTetrahedronMesh.h"
 #include "cudamanager/PxCudaContextManager.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
-Sc::DeformableSurfaceCore::DeformableSurfaceCore() :
+ev4sio_Sc::DeformableSurfaceCore::DeformableSurfaceCore() :
 	ActorCore(PxActorType::eDEFORMABLE_SURFACE, PxActorFlag::eVISUALIZATION, PX_DEFAULT_CLIENT, 0),
 	mGpuMemStat(0)
 {
 	const PxTolerancesScale& scale = Physics::getInstance().getTolerancesScale();
 
-	// Dy::DeformableCore
+	// ev4sio_Dy::DeformableCore
 	mCore.sleepThreshold = 5e-5f * scale.speed * scale.speed;
 	mCore.solverIterationCounts = (1 << 8) | 4;
 	mCore.wakeCounter = Physics::sWakeCounterOnCreation;
 	mCore.dirty = true;
 }
 
-Sc::DeformableSurfaceCore::~DeformableSurfaceCore() { }
+ev4sio_Sc::DeformableSurfaceCore::~DeformableSurfaceCore() { }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 // PxActor API
 /////////////////////////////////////////////////////////////////////////////////////////
 
-void Sc::DeformableSurfaceCore::setActorFlags(PxActorFlags flags)
+void ev4sio_Sc::DeformableSurfaceCore::setActorFlags(PxActorFlags flags)
 {
 	mCore.actorFlags = flags;
 	mCore.dirty = true;
@@ -48,81 +48,81 @@ void Sc::DeformableSurfaceCore::setActorFlags(PxActorFlags flags)
 // PxDeformableBody API
 /////////////////////////////////////////////////////////////////////////////////////////
 
-void Sc::DeformableSurfaceCore::setBodyFlags(PxDeformableBodyFlags flags)
+void ev4sio_Sc::DeformableSurfaceCore::setBodyFlags(PxDeformableBodyFlags flags)
 {
 	mCore.bodyFlags = flags;
 	mCore.dirty = true;
 }
 
-void Sc::DeformableSurfaceCore::setLinearDamping(const PxReal v)
+void ev4sio_Sc::DeformableSurfaceCore::setLinearDamping(const PxReal v)
 {
 	mCore.linearDamping = v;
 	mCore.dirty = true;
 }
 
-void Sc::DeformableSurfaceCore::setMaxLinearVelocity(const PxReal v)
+void ev4sio_Sc::DeformableSurfaceCore::setMaxLinearVelocity(const PxReal v)
 {
 	mCore.maxLinearVelocity = (v > 1e15f) ? PX_MAX_REAL : v;
 	mCore.dirty = true;
 }
 
-void Sc::DeformableSurfaceCore::setMaxPenetrationBias(const PxReal v)
+void ev4sio_Sc::DeformableSurfaceCore::setMaxPenetrationBias(const PxReal v)
 {
 	mCore.maxPenetrationBias = v;
 	mCore.dirty = true;
 }
 
-void Sc::DeformableSurfaceCore::setSolverIterationCounts(const PxU16 c)
+void ev4sio_Sc::DeformableSurfaceCore::setSolverIterationCounts(const PxU16 c)
 {
 	mCore.solverIterationCounts = c;
 	mCore.dirty = true;
-	Sc::DeformableSurfaceSim* sim = getSim();
+	ev4sio_Sc::DeformableSurfaceSim* sim = getSim();
 	if (sim)
 		sim->getScene().setDynamicsDirty();
 }
 
-void Sc::DeformableSurfaceCore::setSleepThreshold(const PxReal v)
+void ev4sio_Sc::DeformableSurfaceCore::setSleepThreshold(const PxReal v)
 {
 	mCore.sleepThreshold = v;
 	mCore.dirty = true;
 }
 
-void Sc::DeformableSurfaceCore::setSettlingThreshold(const PxReal v)
+void ev4sio_Sc::DeformableSurfaceCore::setSettlingThreshold(const PxReal v)
 {
 	mCore.settlingThreshold = v;
 	mCore.dirty = true;
 }
 
-void Sc::DeformableSurfaceCore::setSettlingDamping(const PxReal v)
+void ev4sio_Sc::DeformableSurfaceCore::setSettlingDamping(const PxReal v)
 {
 	mCore.settlingDamping = v;
 	mCore.dirty = true;
 }
 
-void Sc::DeformableSurfaceCore::setSelfCollisionFilterDistance(const PxReal v)
+void ev4sio_Sc::DeformableSurfaceCore::setSelfCollisionFilterDistance(const PxReal v)
 {
 	mCore.selfCollisionFilterDistance = v;
 	mCore.dirty = true;
 }
 
 //deprecated
-void Sc::DeformableSurfaceCore::setSelfCollisionStressTolerance(const PxReal v)
+void ev4sio_Sc::DeformableSurfaceCore::setSelfCollisionStressTolerance(const PxReal v)
 {
 	mCore.selfCollisionStressTolerance = v;
 	mCore.dirty = true;
 }
 
-void Sc::DeformableSurfaceCore::setWakeCounter(const PxReal v)
+void ev4sio_Sc::DeformableSurfaceCore::setWakeCounter(const PxReal v)
 {
 	setWakeCounterInternal(v);
 }
 
-void Sc::DeformableSurfaceCore::setWakeCounterInternal(const PxReal v)
+void ev4sio_Sc::DeformableSurfaceCore::setWakeCounterInternal(const PxReal v)
 {
 	mCore.wakeCounter = v;
 	mCore.dirty = true;
 
-	Sc::DeformableSurfaceSim* sim = getSim();
+	ev4sio_Sc::DeformableSurfaceSim* sim = getSim();
 	if (sim)
 	{
 		sim->onSetWakeCounter();
@@ -133,19 +133,19 @@ void Sc::DeformableSurfaceCore::setWakeCounterInternal(const PxReal v)
 // PxDeformableSurface API
 /////////////////////////////////////////////////////////////////////////////////////////
 
-void Sc::DeformableSurfaceCore::setSurfaceFlags(PxDeformableSurfaceFlags flags)
+void ev4sio_Sc::DeformableSurfaceCore::setSurfaceFlags(PxDeformableSurfaceFlags flags)
 {
 	mCore.surfaceFlags = flags;
 	mCore.dirty = true;
 }
 
-void Sc::DeformableSurfaceCore::setNbCollisionPairUpdatesPerTimestep(const PxU32 frequency)
+void ev4sio_Sc::DeformableSurfaceCore::setNbCollisionPairUpdatesPerTimestep(const PxU32 frequency)
 {
 	mCore.nbCollisionPairUpdatesPerTimestep = frequency;
 	mCore.dirty = true;
 }
 
-void Sc::DeformableSurfaceCore::setNbCollisionSubsteps(const PxU32 frequency)
+void ev4sio_Sc::DeformableSurfaceCore::setNbCollisionSubsteps(const PxU32 frequency)
 {
 	mCore.nbCollisionSubsteps = frequency;
 	mCore.dirty = true;
@@ -155,10 +155,10 @@ void Sc::DeformableSurfaceCore::setNbCollisionSubsteps(const PxU32 frequency)
 // Internal API
 /////////////////////////////////////////////////////////////////////////////////////////
 
-PxU32 Sc::DeformableSurfaceCore::addRigidAttachments(Sc::BodyCore* core, PxDeformableAttachmentTargetType::Enum feature,
+PxU32 ev4sio_Sc::DeformableSurfaceCore::addRigidAttachments(ev4sio_Sc::BodyCore* core, PxDeformableAttachmentTargetType::Enum feature,
 	const PxU32* indices, const PxVec4* barycentrics, const PxTransform& frame, const PxVec4* coords, PxU32 count)
 {
-	Sc::DeformableSurfaceSim* sim = getSim();
+	ev4sio_Sc::DeformableSurfaceSim* sim = getSim();
 	PxU32 handle = PX_INVALID_U32;
 	if (sim)
 		handle = sim->getScene().addSurfaceRigidAttachments(core, *sim, feature, indices, barycentrics, frame, coords, count);
@@ -166,9 +166,9 @@ PxU32 Sc::DeformableSurfaceCore::addRigidAttachments(Sc::BodyCore* core, PxDefor
 	return handle;
 }
 
-void Sc::DeformableSurfaceCore::removeRigidAttachments(Sc::BodyCore* core, PxU32 handle)
+void ev4sio_Sc::DeformableSurfaceCore::removeRigidAttachments(ev4sio_Sc::BodyCore* core, PxU32 handle)
 {
-	Sc::DeformableSurfaceSim* sim = getSim();
+	ev4sio_Sc::DeformableSurfaceSim* sim = getSim();
 	if (sim)
 	{
 		sim->getScene().removeSurfaceRigidAttachments(core, *sim, handle);
@@ -176,11 +176,11 @@ void Sc::DeformableSurfaceCore::removeRigidAttachments(Sc::BodyCore* core, PxU32
 	}
 }
 
-PxU32 Sc::DeformableSurfaceCore::addSurfaceAttachments(Sc::DeformableSurfaceCore* otherCore, PxDeformableAttachmentTargetType::Enum feature0,
+PxU32 ev4sio_Sc::DeformableSurfaceCore::addSurfaceAttachments(ev4sio_Sc::DeformableSurfaceCore* otherCore, PxDeformableAttachmentTargetType::Enum feature0,
 	const PxU32* indices0, const PxVec4* barycentrics0, PxDeformableAttachmentTargetType::Enum feature1,
 	const PxU32* indices1, const PxVec4* barycentrics1, PxU32 count)
 {
-	Sc::DeformableSurfaceSim* sim = getSim();
+	ev4sio_Sc::DeformableSurfaceSim* sim = getSim();
 	PxU32 handle = PX_INVALID_U32;
 	if (sim)
 		handle = sim->getScene().addSurfaceSurfaceAttachments(*otherCore, feature0, indices0, barycentrics0, *sim,
@@ -189,69 +189,69 @@ PxU32 Sc::DeformableSurfaceCore::addSurfaceAttachments(Sc::DeformableSurfaceCore
 	return handle;
 }
 
-void Sc::DeformableSurfaceCore::removeSurfaceAttachments(Sc::DeformableSurfaceCore* otherCore, PxU32 handle)
+void ev4sio_Sc::DeformableSurfaceCore::removeSurfaceAttachments(ev4sio_Sc::DeformableSurfaceCore* otherCore, PxU32 handle)
 {
-	Sc::DeformableSurfaceSim* sim = getSim();
+	ev4sio_Sc::DeformableSurfaceSim* sim = getSim();
 	setWakeCounterInternal(ScInternalWakeCounterResetValue);
 	otherCore->setWakeCounterInternal(ScInternalWakeCounterResetValue);
 	if (sim)
 		sim->getScene().removeSurfaceSurfaceAttachments(*otherCore, *sim, handle);
 }
 
-void Sc::DeformableSurfaceCore::addRigidFilters(Sc::RigidCore* core, PxU32* triIndices, PxU32 triIndicesSize)
+void ev4sio_Sc::DeformableSurfaceCore::addRigidFilters(ev4sio_Sc::RigidCore* core, PxU32* triIndices, PxU32 triIndicesSize)
 {
-	Sc::DeformableSurfaceSim* sim = getSim();
+	ev4sio_Sc::DeformableSurfaceSim* sim = getSim();
 
 	if (sim)
 		sim->getScene().addSurfaceRigidFilters(core, *sim, triIndices, triIndicesSize);
 }
 
-void Sc::DeformableSurfaceCore::removeRigidFilters(Sc::RigidCore* core, PxU32* triIndices, PxU32 triIndicesSize)
+void ev4sio_Sc::DeformableSurfaceCore::removeRigidFilters(ev4sio_Sc::RigidCore* core, PxU32* triIndices, PxU32 triIndicesSize)
 {
-	Sc::DeformableSurfaceSim* sim = getSim();
+	ev4sio_Sc::DeformableSurfaceSim* sim = getSim();
 	if (sim)
 		sim->getScene().removeSurfaceRigidFilters(core, *sim, triIndices, triIndicesSize);
 }
 
-void Sc::DeformableSurfaceCore::addSurfaceFilters(Sc::DeformableSurfaceCore* otherCore, PxU32* otherTriIndices, PxU32* triIndices, PxU32 triIndicesSize)
+void ev4sio_Sc::DeformableSurfaceCore::addSurfaceFilters(ev4sio_Sc::DeformableSurfaceCore* otherCore, PxU32* otherTriIndices, PxU32* triIndices, PxU32 triIndicesSize)
 {
-	Sc::DeformableSurfaceSim* sim = getSim();
+	ev4sio_Sc::DeformableSurfaceSim* sim = getSim();
 	if (sim)
 		sim->getScene().addSurfaceSurfaceFilters(*otherCore, otherTriIndices, *sim, triIndices, triIndicesSize);
 }
 
-void Sc::DeformableSurfaceCore::removeSurfaceFilters(Sc::DeformableSurfaceCore* otherCore, PxU32* otherTriIndices, PxU32* triIndices, PxU32 triIndicesSize)
+void ev4sio_Sc::DeformableSurfaceCore::removeSurfaceFilters(ev4sio_Sc::DeformableSurfaceCore* otherCore, PxU32* otherTriIndices, PxU32* triIndices, PxU32 triIndicesSize)
 {
-	Sc::DeformableSurfaceSim* sim = getSim();
+	ev4sio_Sc::DeformableSurfaceSim* sim = getSim();
 	if (sim)
 		sim->getScene().removeSurfaceSurfaceFilters(*otherCore, otherTriIndices, *sim, triIndices, triIndicesSize);
 }
 
-void Sc::DeformableSurfaceCore::addMaterial(const PxU16 handle)
+void ev4sio_Sc::DeformableSurfaceCore::addMaterial(const PxU16 handle)
 {
 	mCore.materialHandles.pushBack(handle);
 	mCore.dirty = true;
 }
 
-void Sc::DeformableSurfaceCore::clearMaterials()
+void ev4sio_Sc::DeformableSurfaceCore::clearMaterials()
 {
 	mCore.materialHandles.clear();
 	mCore.dirty = true;
 }
 
-PxActor* Sc::DeformableSurfaceCore::getPxActor() const
+PxActor* ev4sio_Sc::DeformableSurfaceCore::getPxActor() const
 {
 	return PxPointerOffset<PxActor*>(const_cast<DeformableSurfaceCore*>(this), gOffsetTable.scCore2PxActor[getActorCoreType()]);
 }
 
-void Sc::DeformableSurfaceCore::attachShapeCore(ShapeCore* shapeCore)
+void ev4sio_Sc::DeformableSurfaceCore::attachShapeCore(ShapeCore* shapeCore)
 {
-	Sc::DeformableSurfaceSim* sim = getSim();
+	ev4sio_Sc::DeformableSurfaceSim* sim = getSim();
 	if (sim)
 		sim->attachShapeCore(shapeCore);
 }
 
-void Sc::DeformableSurfaceCore::onShapeChange(ShapeCore& shape, ShapeChangeNotifyFlags notifyFlags)
+void ev4sio_Sc::DeformableSurfaceCore::onShapeChange(ShapeCore& shape, ShapeChangeNotifyFlags notifyFlags)
 {
 	PX_UNUSED(shape);
 	DeformableSurfaceSim* sim = getSim();
@@ -273,9 +273,9 @@ void Sc::DeformableSurfaceCore::onShapeChange(ShapeCore& shape, ShapeChangeNotif
 		s.onRestOffsetChange();
 }
 
-Sc::DeformableSurfaceSim* Sc::DeformableSurfaceCore::getSim() const
+ev4sio_Sc::DeformableSurfaceSim* ev4sio_Sc::DeformableSurfaceCore::getSim() const
 {
-	return static_cast<Sc::DeformableSurfaceSim*>(ActorCore::getSim());
+	return static_cast<ev4sio_Sc::DeformableSurfaceSim*>(ActorCore::getSim());
 }
 
 #endif //PX_SUPPORT_GPU_PHYSX

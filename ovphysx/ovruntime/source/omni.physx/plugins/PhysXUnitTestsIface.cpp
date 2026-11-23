@@ -19,12 +19,12 @@
 #include <carb/logging/Log.h>
 #include <carb/logging/StandardLogger.h>
 
-using namespace ::physx;
+using namespace ::ev4sio_physx;
 using namespace carb;
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 PhysicsStats getPhysicsStats()
 {
@@ -392,7 +392,7 @@ bool endLoggerCheck()
 
 bool isCudaLibPresent()
 {
-    omni::physx::OmniPhysX& physx = omni::physx::OmniPhysX::getInstance();
+    omni::ev4sio_physx::OmniPhysX& physx = omni::ev4sio_physx::OmniPhysX::getInstance();
     return physx.isCudaLibPresent();
 }
 
@@ -498,5 +498,5 @@ size_t getSceneInternalForceCount(AttachHandle attach, const TestPathArg& sceneP
     return physxScene->getInternalScene()->mForces.size();
 }
 
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

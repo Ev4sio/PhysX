@@ -45,7 +45,7 @@
 //can be solved in parallel by using multiple lanes of SIMD registers.
 #define BATCH_CONTACTS 1
 
-using namespace physx;
+using namespace ev4sio_physx;
 using namespace immediate;
 using namespace SnippetImmUtils;
 
@@ -141,7 +141,7 @@ static void computeMassProps(MassProps& props, const PxGeometry& geometry, float
 }
 
 #ifdef TEST_IMMEDIATE_JOINTS
-	struct MyJointData : Ext::JointData
+	struct MyJointData : ev4sio_Ext::JointData
 	{
 		PxU32		mActors[2];
 		PxTransform	mLocalFrames[2];
@@ -328,7 +328,7 @@ void ImmediateScene::reset()
 
 	const PxU32 size = mArticulations.size();
 	for(PxU32 i=0;i<size;i++)	
-		PxReleaseArticulation(mArticulations[i]);
+		ev4sio_PxReleaseArticulation(mArticulations[i]);
 
 	mArticulations.clear();
 #ifdef TEST_IMMEDIATE_JOINTS
@@ -409,7 +409,7 @@ static PxArticulationCookie beginCreateImmediateArticulation(bool fixBase)
 {
 	PxArticulationDataRC data;
 	data.flags = fixBase ? PxArticulationFlag::eFIX_BASE : PxArticulationFlag::Enum(0);
-	return PxBeginCreateArticulationRC(data);
+	return ev4sio_PxBeginCreateArticulationRC(data);
 }
 
 void ImmediateScene::allocateTempBuffer(const PxU32 maxLinks)
@@ -430,7 +430,7 @@ PxArticulationHandle ImmediateScene::endCreateImmediateArticulation(PxArticulati
 
 	PxArticulationLinkHandle* realLinkHandles = PX_ALLOCATE(PxArticulationLinkHandle, sizeof(PxArticulationLinkHandle) * expectedNbLinks, "PxArticulationLinkHandle");
 
-	PxArticulationHandle immArt2 = PxEndCreateArticulationRC(immArt, realLinkHandles, expectedNbLinks);
+	PxArticulationHandle immArt2 = ev4sio_PxEndCreateArticulationRC(immArt, realLinkHandles, expectedNbLinks);
 	mArticulations.pushBack(immArt2);
 
 	mMaxNumArticulationsLinks = PxMax(mMaxNumArticulationsLinks, expectedNbLinks);
@@ -577,7 +577,7 @@ void ImmediateScene::createScene()
 		{
 			PxArticulationLinkDataRC linkData;
 			setupCommonLinkData(linkData, basePose, massProps);
-			base = PxAddArticulationLink(immArt, 0, linkData);
+			base = ev4sio_PxAddArticulationLink(immArt, 0, linkData);
 			baseID = createActor(boxGeom, basePose, &massProps, &base);
 		}
 
@@ -599,7 +599,7 @@ void ImmediateScene::createScene()
 				linkData.inboundJoint.childPose		= PxTransform(PxVec3(0.0f, 0.0f, -s));
 				linkData.inboundJoint.motion[PxArticulationAxis::eTWIST] = PxArticulationMotion::eFREE;
 
-				link = PxAddArticulationLink(immArt, &parent, linkData);
+				link = ev4sio_PxAddArticulationLink(immArt, &parent, linkData);
 				linkID = createActor(boxGeom, linkPose, &massProps, &link);
 
 				disableCollision(parentID, linkID);
@@ -636,7 +636,7 @@ void ImmediateScene::createScene()
 		{
 			PxArticulationLinkDataRC linkData;
 			setupCommonLinkData(linkData, basePose, massProps);
-			base = PxAddArticulationLink(immArt, 0, linkData);
+			base = ev4sio_PxAddArticulationLink(immArt, 0, linkData);
 			baseID = createActor(boxGeom, basePose, &massProps, &base);
 		}
 
@@ -660,7 +660,7 @@ void ImmediateScene::createScene()
 				linkData.inboundJoint.limits[PxArticulationAxis::eTWIST].low = -PxPi/8.0f;
 				linkData.inboundJoint.limits[PxArticulationAxis::eTWIST].high = PxPi/8.0f;
 
-				link = PxAddArticulationLink(immArt, &parent, linkData);
+				link = ev4sio_PxAddArticulationLink(immArt, &parent, linkData);
 				linkID = createActor(boxGeom, linkPose, &massProps, &link);
 
 				disableCollision(parentID, linkID);
@@ -694,7 +694,7 @@ void ImmediateScene::createScene()
 				PxArticulationLinkDataRC linkData;
 				setupCommonLinkData(linkData, basePose, massProps);
 
-				base = PxAddArticulationLink(immArt, 0, linkData);
+				base = ev4sio_PxAddArticulationLink(immArt, 0, linkData);
 				baseID = createActor(boxGeom, basePose, &massProps, &base);
 				PX_UNUSED(baseID);
 			}
@@ -724,7 +724,7 @@ void ImmediateScene::createScene()
 		{
 			PxArticulationLinkDataRC linkData;
 			setupCommonLinkData(linkData, basePose, massProps);
-			base = PxAddArticulationLink(immArt, 0, linkData);
+			base = ev4sio_PxAddArticulationLink(immArt, 0, linkData);
 			baseID = createActor(boxGeom, basePose, &massProps, &base);
 		}
 
@@ -751,7 +751,7 @@ void ImmediateScene::createScene()
 				linkData.inboundJoint.drives[PxArticulationAxis::eTWIST].driveType = PxArticulationDriveType::eFORCE;
 				linkData.inboundJoint.targetVel[PxArticulationAxis::eTWIST] = 4.0f;
 
-				link = PxAddArticulationLink(immArt, &parent, linkData);
+				link = ev4sio_PxAddArticulationLink(immArt, &parent, linkData);
 				linkID = createActor(boxGeom, linkPose, &massProps, &link);
 
 				disableCollision(parentID, linkID);
@@ -798,7 +798,7 @@ void ImmediateScene::createScene()
 			const PxTransform pose(PxVec3(0.f, 0.25f, 0.f));
 			PxArticulationLinkDataRC linkData;
 			setupCommonLinkData(linkData, pose, massProps);
-			base = PxAddArticulationLink(immArt, 0, linkData);
+			base = ev4sio_PxAddArticulationLink(immArt, 0, linkData);
 			baseID = createActor(boxGeom, pose, &massProps, &base);
 		}
 
@@ -820,7 +820,7 @@ void ImmediateScene::createScene()
 				linkData.inboundJoint.parentPose	= PxTransform(PxVec3(0.f, 0.25f, -0.9f));
 				linkData.inboundJoint.childPose		= PxTransform(PxVec3(0.f, -0.05f, 0.f));
 
-			leftRoot = PxAddArticulationLink(immArt, &base, linkData);
+			leftRoot = ev4sio_PxAddArticulationLink(immArt, &base, linkData);
 			leftRootID = createActor(boxGeom, pose, &massProps, &leftRoot);
 			disableCollision(baseID, leftRootID);
 		}
@@ -853,7 +853,7 @@ void ImmediateScene::createScene()
 					linkData.inboundJoint.drives[PxArticulationAxis::eZ].driveType = PxArticulationDriveType::eFORCE;
 				}
 
-			rightRoot = PxAddArticulationLink(immArt, &base, linkData);
+			rightRoot = ev4sio_PxAddArticulationLink(immArt, &base, linkData);
 			rightRootID = createActor(boxGeom, pose, &massProps, &rightRoot);
 			disableCollision(baseID, rightRootID);
 		}
@@ -891,7 +891,7 @@ void ImmediateScene::createScene()
 					linkData.inboundJoint.limits[PxArticulationAxis::eTWIST].low = -PxPi;
 					linkData.inboundJoint.limits[PxArticulationAxis::eTWIST].high = angle;
 
-				leftLink = PxAddArticulationLink(immArt, &currLeft, linkData);
+				leftLink = ev4sio_PxAddArticulationLink(immArt, &currLeft, linkData);
 				leftLinkID = createActor(boxGeom, pose, &massProps, &leftLink);
 				disableCollision(currLeftID, leftLinkID);
 				mActors[leftLinkID].mCollisionGroup = 1;
@@ -920,7 +920,7 @@ void ImmediateScene::createScene()
 					linkData.inboundJoint.limits[PxArticulationAxis::eTWIST].low = -angle;
 					linkData.inboundJoint.limits[PxArticulationAxis::eTWIST].high = PxPi;
 
-				rightLink = PxAddArticulationLink(immArt, &currRight, linkData);
+				rightLink = ev4sio_PxAddArticulationLink(immArt, &currRight, linkData);
 				rightLinkID = createActor(boxGeom, pose, &massProps, &rightLink);
 				disableCollision(currRightID, rightLinkID);
 				mActors[rightLinkID].mCollisionGroup = 1;
@@ -957,7 +957,7 @@ void ImmediateScene::createScene()
 				linkData.inboundJoint.childPose		= PxTransform(PxVec3(0.5f, 0.f, 0.f), pose.q.getConjugate());
 				linkData.inboundJoint.motion[PxArticulationAxis::eTWIST] = PxArticulationMotion::eFREE;
 
-			leftTop = PxAddArticulationLink(immArt, &currLeft, linkData);
+			leftTop = ev4sio_PxAddArticulationLink(immArt, &currLeft, linkData);
 			leftTopID = createActor(boxGeom, pose, &massProps, &leftTop);
 			disableCollision(currLeftID, leftTopID);
 			mActors[leftTopID].mCollisionGroup = 1;
@@ -984,7 +984,7 @@ void ImmediateScene::createScene()
 				linkData.inboundJoint.childPose		= PxTransform(PxVec3(0.5f, 0.f, 0.f), pose.q.getConjugate());
 				linkData.inboundJoint.motion[PxArticulationAxis::eTWIST] = PxArticulationMotion::eFREE;
 
-			rightTop = PxAddArticulationLink(immArt, &currRight, linkData);
+			rightTop = ev4sio_PxAddArticulationLink(immArt, &currRight, linkData);
 			rightTopID = createActor(boxGeom, pose, &massProps, &rightTop);
 			disableCollision(currRightID, rightTopID);
 			mActors[rightTopID].mCollisionGroup = 1;
@@ -1023,7 +1023,7 @@ void ImmediateScene::createScene()
 					linkData.inboundJoint.limits[PxArticulationAxis::eTWIST].low = -PxPi;
 					linkData.inboundJoint.limits[PxArticulationAxis::eTWIST].high = angle;
 
-				leftLink = PxAddArticulationLink(immArt, &currLeft, linkData);
+				leftLink = ev4sio_PxAddArticulationLink(immArt, &currLeft, linkData);
 				leftLinkID = createActor(boxGeom, pose, &massProps, &leftLink);
 				disableCollision(currLeftID, leftLinkID);
 				mActors[leftLinkID].mCollisionGroup = 1;
@@ -1052,7 +1052,7 @@ void ImmediateScene::createScene()
 					linkData.inboundJoint.limits[PxArticulationAxis::eTWIST].low = -angle;
 					linkData.inboundJoint.limits[PxArticulationAxis::eTWIST].high = PxPi;
 
-				rightLink = PxAddArticulationLink(immArt, &currRight, linkData);
+				rightLink = ev4sio_PxAddArticulationLink(immArt, &currRight, linkData);
 				rightLinkID = createActor(boxGeom, pose, &massProps, &rightLink);
 				disableCollision(currRightID, rightLinkID);
 				mActors[rightLinkID].mCollisionGroup = 1;
@@ -1099,7 +1099,7 @@ void ImmediateScene::createScene()
 					linkData.inboundJoint.parentPose	= PxTransform(PxVec3(0.f, 0.0f, 0.f));
 					linkData.inboundJoint.childPose		= PxTransform(PxVec3(0.f, -0.15f, -0.9f));
 
-				top = PxAddArticulationLink(immArt, &leftTop, linkData);
+				top = ev4sio_PxAddArticulationLink(immArt, &leftTop, linkData);
 				topID = createActor(boxGeom, pose, &massProps, &top);
 				disableCollision(leftTopID, topID);
 			}
@@ -1145,7 +1145,7 @@ void ImmediateScene::createScene()
 		convexDesc.points.stride	= sizeof(PxVec3);
 		convexDesc.points.data		= verts;
 		convexDesc.flags			= PxConvexFlag::eCOMPUTE_CONVEX;
-		PxConvexMesh* convexMesh = PxCreateConvexMesh(params, convexDesc);
+		PxConvexMesh* convexMesh = ev4sio_PxCreateConvexMesh(params, convexDesc);
 
 		const PxConvexMeshGeometry convexGeom(convexMesh);
 
@@ -1184,9 +1184,9 @@ void ImmediateScene::updateArticulations(float dt)
 	{
 		PxArticulationHandle articulation = mArticulations[i];
 #if USE_TGS
-		PxComputeUnconstrainedVelocitiesTGS(articulation, gGravity, stepDt, dt, stepInvDt, invTotalDt, 1.0f);
+		ev4sio_PxComputeUnconstrainedVelocitiesTGS(articulation, gGravity, stepDt, dt, stepInvDt, invTotalDt, 1.0f);
 #else
-		PxComputeUnconstrainedVelocities(articulation, gGravity, dt, 1.0f);
+		ev4sio_PxComputeUnconstrainedVelocities(articulation, gGravity, dt, 1.0f);
 #endif
 	}
 }
@@ -1303,7 +1303,7 @@ void ImmediateScene::narrowPhase()
 #if WITH_PERSISTENCY
 		PersistentContactPair& persistentData = mPersistentPairs[IDS(pair.mID0, pair.mID1)];
 
-		PxGenerateContacts(&pxGeom0, &pxGeom1, &tr0, &tr1, &persistentData.cache, 1, contactRecorder, gContactDistance, gMeshContactMargin, gToleranceLength, *mCacheAllocator);
+		ev4sio_PxGenerateContacts(&pxGeom0, &pxGeom1, &tr0, &tr1, &persistentData.cache, 1, contactRecorder, gContactDistance, gMeshContactMargin, gToleranceLength, *mCacheAllocator);
 		if(!contactRecorder.mHasContacts)
 		{
 			//Contact generation run but no touches found so clear cached friction data
@@ -1312,7 +1312,7 @@ void ImmediateScene::narrowPhase()
 		}
 #else
 		PxCache cache;
-		PxGenerateContacts(&pxGeom0, &pxGeom1, &tr0, &tr1, &cache, 1, contactRecorder, gContactDistance, gMeshContactMargin, gToleranceLength, *mCacheAllocator);
+		ev4sio_PxGenerateContacts(&pxGeom0, &pxGeom1, &tr0, &tr1, &cache, 1, contactRecorder, gContactDistance, gMeshContactMargin, gToleranceLength, *mCacheAllocator);
 #endif
 	}
 
@@ -1330,9 +1330,9 @@ void ImmediateScene::buildSolverBodyData(float dt)
 		if(mActors[i].mType==ImmediateActor::eSTATIC)
 		{
 #if USE_TGS
-			PxConstructStaticSolverBodyTGS(mPoses[i], mSolverBodies[i], mSolverBodyTxInertias[i], mSolverBodyData[i]);
+			ev4sio_PxConstructStaticSolverBodyTGS(mPoses[i], mSolverBodies[i], mSolverBodyTxInertias[i], mSolverBodyData[i]);
 #else
-			PxConstructStaticSolverBody(mPoses[i], mSolverBodyData[i]);
+			ev4sio_PxConstructStaticSolverBody(mPoses[i], mSolverBodyData[i]);
 #endif
 		}
 		else
@@ -1350,9 +1350,9 @@ void ImmediateScene::buildSolverBodyData(float dt)
 			data.maxLinearVelocitySq		= gMaxLinearVelocity*gMaxLinearVelocity;
 			data.maxAngularVelocitySq		= gMaxAngularVelocity*gMaxAngularVelocity;
 #if USE_TGS
-			PxConstructSolverBodiesTGS(&data, &mSolverBodies[i], &mSolverBodyTxInertias[i], &mSolverBodyData[i], 1, gGravity, dt);
+			ev4sio_PxConstructSolverBodiesTGS(&data, &mSolverBodies[i], &mSolverBodyTxInertias[i], &mSolverBodyData[i], 1, gGravity, dt);
 #else
-			PxConstructSolverBodies(&data, &mSolverBodyData[i], 1, gGravity, dt);
+			ev4sio_PxConstructSolverBodies(&data, &mSolverBodyData[i], 1, gGravity, dt);
 #endif
 		}
 	}
@@ -1425,7 +1425,7 @@ void ImmediateScene::buildSolverConstraintDesc()
 		setupDesc(desc, mActors.begin(), mSolverBodies.begin(), pair.mID1, true);
 
 		//Cache pointer to our contact data structure and identify which type of constraint this is. We'll need this later after batching.
-		//We store our pointer in the desc.constraint field as this field is ignored by PxBatchConstraints. It will later be overwritten by PxCreateContactConstraints.
+		//We store our pointer in the desc.constraint field as this field is ignored by ev4sio_PxBatchConstraints. It will later be overwritten by ev4sio_PxCreateContactConstraints.
 		//If we choose not to perform batching and instead just create a single header per-pair, then this would not be necessary because
 		//the constraintDescs would not have been reordered
 		desc.constraint				= reinterpret_cast<PxU8*>(const_cast<ContactPair*>(&pair));
@@ -1467,9 +1467,9 @@ static PxU32 SphericalJointSolverPrep(Px1DConstraint* constraints,
 	const MyJointData& data = *reinterpret_cast<const MyJointData*>(constantBlock);
 
 	PxTransform32 cA2w, cB2w;
-	Ext::joint::ConstraintHelper ch(constraints, invMassScale, cA2w, cB2w, body0WorldOffset, data, bA2w, bB2w);
+	ev4sio_Ext::joint::ConstraintHelper ch(constraints, invMassScale, cA2w, cB2w, body0WorldOffset, data, bA2w, bB2w);
 
-	Ext::joint::applyNeighborhoodOperator(cA2w, cB2w);
+	ev4sio_Ext::joint::applyNeighborhoodOperator(cA2w, cB2w);
 
 /*	if(data.jointFlags & PxSphericalJointFlag::eLIMIT_ENABLED)
 	{
@@ -1481,7 +1481,7 @@ static PxU32 SphericalJointSolverPrep(Px1DConstraint* constraints,
 		PxVec3 axis;
 		PxReal error;
 		const PxReal pad = data.limit.isSoft() ? 0.0f : data.limit.contactDistance;
-		const Cm::ConeLimitHelperTanLess coneHelper(data.limit.yAngle, data.limit.zAngle, pad);
+		const ev4sio_Cm::ConeLimitHelperTanLess coneHelper(data.limit.yAngle, data.limit.zAngle, pad);
 		const bool active = coneHelper.getLimit(swing, axis, error);				
 		if(active)
 			ch.angularLimit(cA2w.rotate(axis), error, data.limit);
@@ -1508,7 +1508,7 @@ static void setupDesc(PxTGSSolverContactDesc& contactDesc, const ImmediateScene:
 	if(link.articulation)
 	{
 		PxArticulationLinkDerivedDataRC linkData;
-		bool status = PxGetLinkData(link, linkData);
+		bool status = ev4sio_PxGetLinkData(link, linkData);
 		PX_ASSERT(status);
 		PX_UNUSED(status);
 
@@ -1536,7 +1536,7 @@ static void setupDesc(PxSolverContactDesc& contactDesc, const ImmediateScene::Im
 	if(link.articulation)
 	{
 		PxArticulationLinkDerivedDataRC linkData;
-		bool status = PxGetLinkData(link, linkData);
+		bool status = ev4sio_PxGetLinkData(link, linkData);
 		PX_ASSERT(status);
 		PX_UNUSED(status);
 
@@ -1573,7 +1573,7 @@ static void setupJointDesc(PxTGSSolverConstraintPrepDesc& jointDesc, const Immed
 	if(actors[bodyDataIndex].mLink.articulation)
 	{
 		PxArticulationLinkDerivedDataRC linkData;
-		bool status = PxGetLinkData(actors[bodyDataIndex].mLink, linkData);
+		bool status = ev4sio_PxGetLinkData(actors[bodyDataIndex].mLink, linkData);
 		PX_ASSERT(status);
 		PX_UNUSED(status);
 
@@ -1610,7 +1610,7 @@ static void setupJointDesc(PxSolverConstraintPrepDesc& jointDesc, const Immediat
 	if(actors[bodyDataIndex].mLink.articulation)
 	{
 		PxArticulationLinkDerivedDataRC linkData;
-		bool status = PxGetLinkData(actors[bodyDataIndex].mLink, linkData);
+		bool status = ev4sio_PxGetLinkData(actors[bodyDataIndex].mLink, linkData);
 		PX_ASSERT(status);
 		PX_UNUSED(status);
 
@@ -1653,22 +1653,22 @@ void ImmediateScene::createContactConstraints(float dt, float invDt, float lengt
 	PxArray<PxSolverConstraintDesc>& orderedDescs = mOrderedSolverConstraintDesc;
 
 #if USE_TGS
-	const PxU32 nbContactHeaders = physx::immediate::PxBatchConstraintsTGS(	mSolverConstraintDesc.begin(), mContactPairs.size(), mSolverBodies.begin(), nbBodies,
+	const PxU32 nbContactHeaders = ev4sio_physx::immediate::ev4sio_PxBatchConstraintsTGS(	mSolverConstraintDesc.begin(), mContactPairs.size(), mSolverBodies.begin(), nbBodies,
 																			mHeaders.begin(), orderedDescs.begin(),
 																			mArticulations.begin(), mArticulations.size());
 
 	//2 batch the joints...
-	const PxU32 nbJointHeaders = physx::immediate::PxBatchConstraintsTGS(	mSolverConstraintDesc.begin() + mContactPairs.size(), mJointData.size(), mSolverBodies.begin(), nbBodies,
+	const PxU32 nbJointHeaders = ev4sio_physx::immediate::ev4sio_PxBatchConstraintsTGS(	mSolverConstraintDesc.begin() + mContactPairs.size(), mJointData.size(), mSolverBodies.begin(), nbBodies,
 																			mHeaders.begin() + nbContactHeaders, orderedDescs.begin() + mContactPairs.size(),
 																			mArticulations.begin(), mArticulations.size());
 #else
 	//1 batch the contacts
-	const PxU32 nbContactHeaders = physx::immediate::PxBatchConstraints(mSolverConstraintDesc.begin(), mContactPairs.size(), mSolverBodies.begin(), nbBodies,
+	const PxU32 nbContactHeaders = ev4sio_physx::immediate::ev4sio_PxBatchConstraints(mSolverConstraintDesc.begin(), mContactPairs.size(), mSolverBodies.begin(), nbBodies,
 																		mHeaders.begin(), orderedDescs.begin(),
 																		mArticulations.begin(), mArticulations.size());
 
 	//2 batch the joints...
-	const PxU32 nbJointHeaders = physx::immediate::PxBatchConstraints(	mSolverConstraintDesc.begin() + mContactPairs.size(), mJointData.size(), mSolverBodies.begin(), nbBodies,
+	const PxU32 nbJointHeaders = ev4sio_physx::immediate::ev4sio_PxBatchConstraints(	mSolverConstraintDesc.begin() + mContactPairs.size(), mJointData.size(), mSolverBodies.begin(), nbBodies,
 																		mHeaders.begin() + nbContactHeaders, orderedDescs.begin() + mContactPairs.size(),
 																		mArticulations.begin(), mArticulations.size());
 #endif
@@ -1778,9 +1778,9 @@ void ImmediateScene::createContactConstraints(float dt, float invDt, float lengt
 		}
 
 #if USE_TGS
-		PxCreateContactConstraintsTGS(&header, 1, contactDescs, *mConstraintAllocator, stepInvDt, invDt, gBounceThreshold, gFrictionOffsetThreshold, gCorrelationDistance);
+		ev4sio_PxCreateContactConstraintsTGS(&header, 1, contactDescs, *mConstraintAllocator, stepInvDt, invDt, gBounceThreshold, gFrictionOffsetThreshold, gCorrelationDistance);
 #else
-		PxCreateContactConstraints(&header, 1, contactDescs, *mConstraintAllocator, invDt, gBounceThreshold, gFrictionOffsetThreshold, gCorrelationDistance, mTempZ.begin());
+		ev4sio_PxCreateContactConstraints(&header, 1, contactDescs, *mConstraintAllocator, invDt, gBounceThreshold, gFrictionOffsetThreshold, gCorrelationDistance, mTempZ.begin());
 #endif
 
 #if WITH_PERSISTENCY
@@ -1848,9 +1848,9 @@ void ImmediateScene::createContactConstraints(float dt, float invDt, float lengt
 			}
 
 #if USE_TGS
-			immediate::PxCreateJointConstraintsWithImmediateShadersTGS(&header, 1, constraints, jointDescs, *mConstraintAllocator, stepDt, dt, stepInvDt, invDt, lengthScale);
+			immediate::ev4sio_PxCreateJointConstraintsWithImmediateShadersTGS(&header, 1, constraints, jointDescs, *mConstraintAllocator, stepDt, dt, stepInvDt, invDt, lengthScale);
 #else
-			immediate::PxCreateJointConstraintsWithImmediateShaders(&header, 1, constraints, jointDescs, *mConstraintAllocator, dt, invDt, mTempZ.begin());
+			immediate::ev4sio_PxCreateJointConstraintsWithImmediateShaders(&header, 1, constraints, jointDescs, *mConstraintAllocator, dt, invDt, mTempZ.begin());
 #endif
 		}
 	}
@@ -1875,7 +1875,7 @@ void ImmediateScene::solveAndIntegrate(float dt)
 #if USE_TGS
 	const float stepDt = dt/float(gNbIterPos);
 
-	immediate::PxSolveConstraintsTGS(mHeaders.begin(), mHeaders.size(),
+	immediate::ev4sio_PxSolveConstraintsTGS(mHeaders.begin(), mHeaders.size(),
 #if BATCH_CONTACTS
 		mOrderedSolverConstraintDesc.begin(),
 #else
@@ -1888,7 +1888,7 @@ void ImmediateScene::solveAndIntegrate(float dt)
 
 	PxMemZero(mSolverBodies.begin(), mSolverBodies.size() * sizeof(PxSolverBody));
 
-	PxSolveConstraints(	mHeaders.begin(), mHeaders.size(),
+	ev4sio_PxSolveConstraints(	mHeaders.begin(), mHeaders.size(),
 #if BATCH_CONTACTS
 						mOrderedSolverConstraintDesc.begin(),
 #else
@@ -1905,9 +1905,9 @@ void ImmediateScene::solveAndIntegrate(float dt)
 #endif
 
 #if USE_TGS
-	PxIntegrateSolverBodiesTGS(mSolverBodies.begin(), mSolverBodyTxInertias.begin(), mPoses.begin(), nbDynamicActors, dt);
+	ev4sio_PxIntegrateSolverBodiesTGS(mSolverBodies.begin(), mSolverBodyTxInertias.begin(), mPoses.begin(), nbDynamicActors, dt);
 	for (PxU32 i = 0; i<nbArticulations; i++)
-		PxUpdateArticulationBodiesTGS(articulations[i], dt);
+		ev4sio_PxUpdateArticulationBodiesTGS(articulations[i], dt);
 
 	for (PxU32 i = 0; i<nbDynamicActors; i++)
 	{
@@ -1917,9 +1917,9 @@ void ImmediateScene::solveAndIntegrate(float dt)
 		mActors[i].mAngularVelocity = data.angularVelocity;
 	}
 #else
-	PxIntegrateSolverBodies(mSolverBodyData.begin(), mSolverBodies.begin(), mMotionLinearVelocity.begin(), mMotionAngularVelocity.begin(), nbDynamicActors, dt);
+	ev4sio_PxIntegrateSolverBodies(mSolverBodyData.begin(), mSolverBodies.begin(), mMotionLinearVelocity.begin(), mMotionAngularVelocity.begin(), nbDynamicActors, dt);
 	for (PxU32 i = 0; i<nbArticulations; i++)
-		PxUpdateArticulationBodies(articulations[i], dt);
+		ev4sio_PxUpdateArticulationBodies(articulations[i], dt);
 
 	for (PxU32 i = 0; i<nbDynamicActors; i++)
 	{
@@ -1937,7 +1937,7 @@ void ImmediateScene::solveAndIntegrate(float dt)
 		PX_ASSERT(mActors[j].mType==ImmediateActor::eLINK);
 
 		PxArticulationLinkDerivedDataRC data;
-		bool status = PxGetLinkData(mActors[j].mLink, data);
+		bool status = ev4sio_PxGetLinkData(mActors[j].mLink, data);
 		PX_ASSERT(status);
 		PX_UNUSED(status);
 
@@ -2023,7 +2023,7 @@ const PxContactPoint* getContacts()
 
 void initPhysics(bool /*interactive*/)
 {
-	gFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, gAllocator, gErrorCallback);
+	gFoundation = ev4sio_PxCreateFoundation(ev4sio_PX_PHYSICS_VERSION, gAllocator, gErrorCallback);
 
 	gScene = new ImmediateScene;
 	gScene->createScene();
@@ -2129,7 +2129,7 @@ void stepPhysics(bool /*interactive*/)
 //		printf("target: %f\n", target);
 
 		PxArticulationJointDataRC data;
-		bool status = PxGetJointData(gScene->mMotorLink, data);
+		bool status = ev4sio_PxGetJointData(gScene->mMotorLink, data);
 		PX_ASSERT(status);
 
 		data.targetVel[PxArticulationAxis::eTWIST] = target;
@@ -2140,7 +2140,7 @@ void stepPhysics(bool /*interactive*/)
 		data.parentPose	= PxTransform(PxVec3(0.0f, 0.0f, s));
 		data.childPose	= PxTransform(PxVec3(0.0f, 0.0f, -s));
 
-		status = PxSetJointData(gScene->mMotorLink, data);
+		status = ev4sio_PxSetJointData(gScene->mMotorLink, data);
 		PX_ASSERT(status);
 		PX_UNUSED(status);
 	}

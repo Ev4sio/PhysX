@@ -17,11 +17,11 @@
 
 #define DEBUG_COPY_MANAGER 0
 
-using namespace physx;
+using namespace ev4sio_physx;
 
-PxgCopyManager::PxgCopyManager(Cm::VirtualAllocatorCallback& hostMappedAlloc) :
+PxgCopyManager::PxgCopyManager(ev4sio_Cm::VirtualAllocatorCallback& hostMappedAlloc) :
 						mAllocFailed(false),
-						mDescriptorsQueueMapped(hostMappedAlloc, PxsHeapStats::eOTHER, Cm::PinnableAllocatorFallback::eDISABLED),
+						mDescriptorsQueueMapped(hostMappedAlloc, PxsHeapStats::eOTHER, ev4sio_Cm::PinnableAllocatorFallback::eDISABLED),
 						mNumDescriptors(0),
 						mFinishedEvent(0),
 						mEventRecorded(false)
@@ -49,7 +49,7 @@ void PxgCopyManager::pushDeferredHtoD(const PxgCopyDesc& desc)
 		newSize = PxMax<PxU32>(newSize * 2, 256u);
 		if(!mDescriptorsQueueMapped.resize(newSize))
 		{
-			PxGetFoundation().error(PxErrorCode::eOUT_OF_MEMORY, PX_FL, "PxgCopyManager: failed to allocate pinned host buffer for descriptors queue");
+			ev4sio_PxGetFoundation().error(PxErrorCode::eOUT_OF_MEMORY, PX_FL, "PxgCopyManager: failed to allocate pinned host buffer for descriptors queue");
 			mAllocFailed = true;
 			return;
 		}

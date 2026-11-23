@@ -13,11 +13,11 @@
 #include <cmath>
 #include <cstdint>
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace
 {
@@ -1410,5 +1410,5 @@ PxMat44d composeWithPivot(const PivotTransform& t)
 } // namespace gfmath
 // SPDX-SnippetEnd
 
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

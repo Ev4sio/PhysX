@@ -9,7 +9,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 
 /**
@@ -21,7 +21,7 @@ namespace physx
  * @implements REQ-COOK-CUDACTX-001
  * @covers AC-1
  */
-ICookingComputeService* createDefaultCookingComputingService(::physx::PxFoundation& foundation,
+ICookingComputeService* createDefaultCookingComputingService(::ev4sio_physx::PxFoundation& foundation,
                                                             AcquireSharedCudaContextManagerFn acquireSharedCudaContextManagerFn)
 {
 #ifndef OVRUNTIME_NO_UJITSO
@@ -34,5 +34,5 @@ ICookingComputeService* createDefaultCookingComputingService(::physx::PxFoundati
     return createCookingComputingService(foundation, acquireSharedCudaContextManagerFn);
 }
 
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

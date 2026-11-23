@@ -9,7 +9,7 @@
 #include "foundation/PxUserAllocated.h"
 #include "PxgCudaBuffer.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	class PxgHeapMemoryAllocator;
 

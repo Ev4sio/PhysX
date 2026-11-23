@@ -5,7 +5,7 @@
 
 #include "VhPvdWriter.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 #if PX_SUPPORT_OMNI_PVD
@@ -1751,4 +1751,4 @@ Vehicle registerVehicle(OmniPvdWriter& omniWriter)
 
 #endif //PX_SUPPORT_OMNI_PVD
 
-} // namespace physx
+} // namespace ev4sio_physx

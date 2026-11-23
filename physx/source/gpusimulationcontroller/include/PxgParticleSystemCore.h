@@ -10,7 +10,7 @@
 #include "PxgNonRigidCoreCommon.h"
 #include "PxgParticleSystem.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	//this is needed to force PhysXSimulationControllerGpu linkage as Static Library!
 	void createPxgParticleSystem();
@@ -19,7 +19,7 @@ namespace physx
 	class PxgParticleSystemBuffer;
 	class PxgParticleSystemDiffuseBuffer;
 
-	namespace Dy
+	namespace ev4sio_Dy
 	{
 		class ParticleSystemCore;
 	}
@@ -54,8 +54,8 @@ namespace physx
 
 		virtual void getMaxIterationCount(PxgBodySimManager& bodySimManager, PxI32& maxPosIters, PxI32& maxVelIters) = 0;
 		
-		void updateParticleSystemData(PxgParticleSystem& sys, Dy::ParticleSystemCore& dyParticleSystemCore);
-		//void updateSparseGridParams(PxSparseGridParams& params, Dy::ParticleSystemCore& dyParticleSystemCore);
+		void updateParticleSystemData(PxgParticleSystem& sys, ev4sio_Dy::ParticleSystemCore& dyParticleSystemCore);
+		//void updateSparseGridParams(PxSparseGridParams& params, ev4sio_Dy::ParticleSystemCore& dyParticleSystemCore);
 
 		PxgTypedCudaBuffer<PxgParticleSystem>& getParticleSystemBuffer() { return mParticleSystemBuffer;  }
 		PxgTypedCudaBuffer<PxU32>& getActiveParticleSystemBuffer() { return mActiveParticleSystemBuffer; }
@@ -86,13 +86,13 @@ namespace physx
 
 		PxU32 getHostContactCount() { return mHostContactCount.get(); }
 
-		Cm::PinnableArray<PxgParticleSystem>		mNewParticleSystemPool; //record the newly created particle system
-		Cm::PinnableArray<PxgParticleSystem>		mParticleSystemPool; //persistent cpu mirror
+		ev4sio_Cm::PinnableArray<PxgParticleSystem>		mNewParticleSystemPool; //record the newly created particle system
+		ev4sio_Cm::PinnableArray<PxgParticleSystem>		mParticleSystemPool; //persistent cpu mirror
 
 		PxArray<PxU32>								mNewParticleSystemNodeIndexPool;
 		PxArray<PxU32>								mParticleSystemNodeIndexPool;
 
-		Cm::PinnableArray<PxU32>					mDirtyParamsParticleSystems;
+		ev4sio_Cm::PinnableArray<PxU32>					mDirtyParamsParticleSystems;
 
 	protected:
 
@@ -232,7 +232,7 @@ namespace physx
 
 
 		// Diffuse particles
-		Cm::PinnableArray<PxgRadixSortBlockDesc>	mDiffuseParticlesRSDesc;
+		ev4sio_Cm::PinnableArray<PxgRadixSortBlockDesc>	mDiffuseParticlesRSDesc;
 	
 		PxVec3									mGravity; //this get set in preIntegrateSystems
 
@@ -243,7 +243,7 @@ namespace physx
 		PxU32									mMaxBuffersPerSystem;
 		PxU32									mMaxDiffusePerBuffer;
 		PxU32									mMaxDiffuseBuffersPerSystem;
-		Cm::PinnableObject<PxU32>				mHostContactCount;
+		ev4sio_Cm::PinnableObject<PxU32>				mHostContactCount;
 
 		friend class PxgSoftBodyCore;
 };

@@ -5,7 +5,7 @@
 
 #include <internal/Internal.h>
 
-namespace physx
+namespace ev4sio_physx
 {
 class PxGeometry;
 }

@@ -8,7 +8,7 @@
 
 #include "PxgFrictionPatch.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 template <typename FRICTION_HEADER, typename FRICTION>
@@ -46,6 +46,6 @@ static __device__ void writeBackContactBlockFriction(
 	}
 }
 
-} // namespace physx
+} // namespace ev4sio_physx
 
 #endif

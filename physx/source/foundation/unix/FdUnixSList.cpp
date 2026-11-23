@@ -13,7 +13,7 @@
 #define USE_MUTEX
 #endif
 
-namespace physx
+namespace ev4sio_physx
 {
 namespace
 {
@@ -126,4 +126,4 @@ uint32_t PxSListImpl::getSize()
 	return sizeof(SListDetail);
 }
 
-} // namespace physx
+} // namespace ev4sio_physx

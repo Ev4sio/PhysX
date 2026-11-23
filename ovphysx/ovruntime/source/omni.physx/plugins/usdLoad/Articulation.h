@@ -8,7 +8,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace usdparser
 {
@@ -21,5 +21,5 @@ void createArticulationLinks(AttachedStage& attachedStage,
                              const JointPathIndexMap& jointPathIndexMap);
 
 } // namespace usdparser
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

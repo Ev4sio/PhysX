@@ -8,7 +8,7 @@
 #include "RuntimeExecution.h"
 #include "usdLoad/LoadUsd.h"
 #include "usdLoad/AttachedStage.h"
-namespace omni::physx::native
+namespace omni::ev4sio_physx::native
 {
 ConfigurationResult configureAttachment(uint64_t attachment,uint32_t action,bool disabled,
                                         ConfigurationSnapshot& output) noexcept
@@ -16,7 +16,7 @@ try
 {
     if (action>1) return ConfigurationResult::Invalid;
     if (!runtime::tryGetPhysxInterface()) return ConfigurationResult::Stale;
-    std::shared_ptr<omni::physx::usdparser::AttachedStage> owner=usdparser::UsdLoad::getUsdLoad()->acquireAttachment(attachment);
+    std::shared_ptr<omni::ev4sio_physx::usdparser::AttachedStage> owner=usdparser::UsdLoad::getUsdLoad()->acquireAttachment(attachment);
     if (!owner) return ConfigurationResult::Stale;
     RuntimeExecutionScope admission(attachment);
     if (!admission) return ConfigurationResult::Busy;

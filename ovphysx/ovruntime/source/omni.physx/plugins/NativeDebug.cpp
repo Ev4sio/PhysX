@@ -12,7 +12,7 @@
 #include "usdLoad/AttachedStage.h"
 #include <cmath>
 #include <utility>
-namespace omni::physx::native
+namespace omni::ev4sio_physx::native
 {
 uint64_t debugParameterMask() noexcept
 {
@@ -22,11 +22,11 @@ namespace
 {
 bool cpu(const usdparser::AttachedStage& owner)
 {
-    for (const std::pair<const uint64_t, omni::physx::PhysXScene *> & item : owner.getPhysXScenes())
+    for (const std::pair<const uint64_t, omni::ev4sio_physx::PhysXScene *> & item : owner.getPhysXScenes())
     {
-        ::physx::PxScene * scene = item.second->getScene();
-        if (scene && (scene->getFlags().isSet(::physx::PxSceneFlag::eENABLE_GPU_DYNAMICS) ||
-                      scene->getFlags().isSet(::physx::PxSceneFlag::eENABLE_DIRECT_GPU_API))) return false;
+        ::ev4sio_physx::PxScene * scene = item.second->getScene();
+        if (scene && (scene->getFlags().isSet(::ev4sio_physx::PxSceneFlag::eENABLE_GPU_DYNAMICS) ||
+                      scene->getFlags().isSet(::ev4sio_physx::PxSceneFlag::eENABLE_DIRECT_GPU_API))) return false;
     }
     return true;
 }
@@ -42,7 +42,7 @@ try
             if (!std::isfinite(config.minimum[i]) || !std::isfinite(config.maximum[i]) || config.minimum[i]>config.maximum[i])
                 return DebugResult::Invalid;
     if (!runtime::tryGetPhysxInterface()) return DebugResult::Stale;
-    std::shared_ptr<omni::physx::usdparser::AttachedStage> owner = usdparser::UsdLoad::getUsdLoad()->acquireAttachment(attachment);
+    std::shared_ptr<omni::ev4sio_physx::usdparser::AttachedStage> owner = usdparser::UsdLoad::getUsdLoad()->acquireAttachment(attachment);
     if (!owner) return DebugResult::Stale;
     RuntimeExecutionScope admission(attachment);
     if (!admission) return DebugResult::Busy;
@@ -67,7 +67,7 @@ try
 {
     if (!maxVertices || maxVertices > 10000000) return DebugResult::Invalid;
     if (!runtime::tryGetPhysxInterface()) return DebugResult::Stale;
-    std::shared_ptr<omni::physx::usdparser::AttachedStage> owner = usdparser::UsdLoad::getUsdLoad()->acquireAttachment(attachment);
+    std::shared_ptr<omni::ev4sio_physx::usdparser::AttachedStage> owner = usdparser::UsdLoad::getUsdLoad()->acquireAttachment(attachment);
     if (!owner) return DebugResult::Stale;
     RuntimeExecutionScope admission(attachment);
     if (!admission) return DebugResult::Busy;
@@ -80,9 +80,9 @@ try
         const uint64_t np=getNbPoints(*owner), nl=getNbLines(*owner), nt=getNbTriangles(*owner);
         if (np+2*nl+3*nt > maxVertices) return DebugResult::Limit;
         result.points.reserve(np); result.lines.reserve(2*nl); result.triangles.reserve(3*nt);
-        const omni::physx::DebugPoint * points=getPoints(*owner);
-        const omni::physx::DebugLine * lines=getLines(*owner);
-        const omni::physx::DebugTriangle * triangles=getTriangles(*owner);
+        const omni::ev4sio_physx::DebugPoint * points=getPoints(*owner);
+        const omni::ev4sio_physx::DebugLine * lines=getLines(*owner);
+        const omni::ev4sio_physx::DebugTriangle * triangles=getTriangles(*owner);
         if ((np && !points) || (nl && !lines) || (nt && !triangles)) return DebugResult::Error;
         for (uint64_t i=0;i<np;++i) result.points.push_back(vertex(points[i].mPos,points[i].mColor));
         for (uint64_t i=0;i<nl;++i)

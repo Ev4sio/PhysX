@@ -6,7 +6,7 @@
 #ifndef __GJK_CUH__
 #define __GJK_CUH__
 
-namespace physx
+namespace ev4sio_physx
 {
 
 namespace squawk
@@ -398,7 +398,7 @@ restart:
 }
 } // namespace squawk
 
-} // namespace physx
+} // namespace ev4sio_physx
 
 #undef DEGENERATE_SIZE_FLAG
 

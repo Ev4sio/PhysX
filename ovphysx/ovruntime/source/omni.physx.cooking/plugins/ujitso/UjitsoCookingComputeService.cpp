@@ -36,7 +36,7 @@ using lock_guard = std::lock_guard<carb::tasking::MutexWrapper>;
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 
 constexpr char kLocalCookingCacheDirectoryName[] = "PhysXLocalMeshCache";
@@ -57,7 +57,7 @@ struct UjitsoCookingComputeService : public ICookingComputeService
      * 
      * \return pointer to a new UjitsoCookingComputeService if successful, nullptr otherwise.
      */
-    static UjitsoCookingComputeService* create(::physx::PxFoundation& foundation,
+    static UjitsoCookingComputeService* create(::ev4sio_physx::PxFoundation& foundation,
                                                AcquireSharedCudaContextManagerFn acquireSharedCudaContextManagerFn)
     {
         UjitsoCookingComputeService* service = new UjitsoCookingComputeService(foundation, acquireSharedCudaContextManagerFn);
@@ -243,7 +243,7 @@ struct UjitsoCookingComputeService : public ICookingComputeService
     virtual PhysxCookingOperationHandle requestDeformableVolumeMeshCookedData(
         PhysxCookingAsyncContext context,
         const PhysxCookingComputeRequest& request,
-        const omni::physx::DeformableVolumeMeshCookingParams& params) override final
+        const omni::ev4sio_physx::DeformableVolumeMeshCookingParams& params) override final
     {
         CARB_PROFILE_ZONE(0, "UjitsoCookingComputeService::requestDeformableVolumeMeshCookedData");
 
@@ -274,7 +274,7 @@ struct UjitsoCookingComputeService : public ICookingComputeService
     virtual PhysxCookingOperationHandle requestVolumeDeformableBodyCookedData(
         PhysxCookingAsyncContext context,
         const PhysxCookingComputeRequest& request,
-        const omni::physx::VolumeDeformableBodyCookingParams& params) override final
+        const omni::ev4sio_physx::VolumeDeformableBodyCookingParams& params) override final
     {
         CARB_PROFILE_ZONE(0, "UjitsoCookingComputeService::requestVolumeDeformableBodyCookedData");
 
@@ -305,7 +305,7 @@ struct UjitsoCookingComputeService : public ICookingComputeService
     virtual PhysxCookingOperationHandle requestSurfaceDeformableBodyCookedData(
         PhysxCookingAsyncContext context,
         const PhysxCookingComputeRequest& request,
-        const omni::physx::SurfaceDeformableBodyCookingParams& params) override final
+        const omni::ev4sio_physx::SurfaceDeformableBodyCookingParams& params) override final
     {
         CARB_PROFILE_ZONE(0, "UjitsoCookingComputeService::requestSurfaceDeformableBodyCookedData");
 
@@ -336,7 +336,7 @@ struct UjitsoCookingComputeService : public ICookingComputeService
     virtual PhysxCookingOperationHandle requestParticlePoissonSamplingCookedData(
         PhysxCookingAsyncContext context,
         const PhysxCookingComputeRequest& request,
-        const omni::physx::ParticlePoissonSamplingCookingParams& params) override final
+        const omni::ev4sio_physx::ParticlePoissonSamplingCookingParams& params) override final
     {
         // Fallback implementation only for particle poisson sampling cooking
         if (!fallbackContextIsValid(context)) return nullptr;
@@ -559,7 +559,7 @@ private:
     /**
      * Private constructor ensures that only the (safe) static create() function can produce a new object.
      */
-    explicit UjitsoCookingComputeService(::physx::PxFoundation& foundation,
+    explicit UjitsoCookingComputeService(::ev4sio_physx::PxFoundation& foundation,
                                          AcquireSharedCudaContextManagerFn acquireSharedCudaContextManagerFn) : m_resourceManager(nullptr), m_cookingProcessor(nullptr),
         m_triangulationProcessor(nullptr), m_allowCaching(true), m_allowRemoteCaching(false)
     {
@@ -573,7 +573,7 @@ private:
         auto dict = carb::getCachedInterface<carb::dictionary::IDictionary>();
         auto ujitsoSettings = m_settings->getSettingsDictionary("/UJITSO/datastore/GRPCDataStoreServer");
         const size_t childCount = dict->getItemChildCount(ujitsoSettings);
-        const bool useRemoteCache = m_settings->getAsBool(omni::physx::kSettingUjitsoRemoteCacheEnabled);
+        const bool useRemoteCache = m_settings->getAsBool(omni::ev4sio_physx::kSettingUjitsoRemoteCacheEnabled);
         if (useRemoteCache != (childCount > 0))
         {
             CARB_LOG_WARN(
@@ -955,11 +955,11 @@ private:
 
 // Public functions
 
-ICookingComputeService* createUjitsoCookingComputingService(::physx::PxFoundation& foundation,
+ICookingComputeService* createUjitsoCookingComputingService(::ev4sio_physx::PxFoundation& foundation,
                                                            AcquireSharedCudaContextManagerFn acquireSharedCudaContextManagerFn)
 {
     return UjitsoCookingComputeService::create(foundation, acquireSharedCudaContextManagerFn);
 }
 
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

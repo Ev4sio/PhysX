@@ -123,11 +123,11 @@
 #include <limits>
 #include <string_view>
 
-using namespace ::physx;
+using namespace ::ev4sio_physx;
 using namespace carb;
-using namespace omni::physx;
-using namespace omni::physx::internal;
-using namespace omni::physx::usdparser;
+using namespace omni::ev4sio_physx;
+using namespace omni::ev4sio_physx::internal;
+using namespace omni::ev4sio_physx::usdparser;
 using namespace cookingdataasync;
 
 PX_COMPILE_TIME_ASSERT(sizeof(PxVec3)==sizeof(carb::Float3));
@@ -140,7 +140,7 @@ OMNI_LOG_DEFINE_CHANNEL(OMNI_LOG_DEFAULT_CHANNEL, "omni.physx", "PhysX runtime")
 bool updateMaterialDensity(AttachedStage& attachedStage, ObjectId objectId, omni::physics::parse::TokenId propertyName, omni::physics::parse::ReadTime timeCode)
 {
     PhysXType internalType;
-    omni::physx::internal::InternalPhysXDatabase& internalPhysXDatabase = attachedStage.getInternalPhysXDatabase();
+    omni::ev4sio_physx::internal::InternalPhysXDatabase& internalPhysXDatabase = attachedStage.getInternalPhysXDatabase();
     void* objectRecord = internalPhysXDatabase.getRecord(internalType, objectId);
     if (!objectRecord)
         return true;
@@ -323,7 +323,7 @@ void* getPhysXPtrFastInternal(omni::physics::AttachHandle attach, ObjectId objec
     const std::shared_ptr<AttachedStage> attachedStage = UsdLoad::getUsdLoad()->acquireAttachment(attach);
     if (!attachedStage)
         return nullptr;
-    const omni::physx::internal::InternalPhysXDatabase& db = attachedStage->getInternalPhysXDatabase();
+    const omni::ev4sio_physx::internal::InternalPhysXDatabase& db = attachedStage->getInternalPhysXDatabase();
     if (objectId < db.getRecords().size())
     {
         const InternalDatabase::Record& record = db.getRecords()[objectId];
@@ -349,7 +349,7 @@ const void* createD6JointAtPath(omni::physics::AttachHandle attach, const char* 
     const std::shared_ptr<AttachedStage> attachedStage = UsdLoad::getUsdLoad()->acquireAttachment(attach);
     if (!attachedStage || !jointPath || !*jointPath)
         return nullptr;
-    omni::physx::internal::InternalPhysXDatabase& db = attachedStage->getInternalPhysXDatabase();
+    omni::ev4sio_physx::internal::InternalPhysXDatabase& db = attachedStage->getInternalPhysXDatabase();
 
     PxRigidActor* actor0 = (PxRigidActor *)getPhysXPtrInternal(attach, body0, ePTActor);
     if (!actor0)
@@ -391,7 +391,7 @@ void releaseD6Joint(omni::physics::AttachHandle attach, void* jointPtr)
     const std::shared_ptr<AttachedStage> attachedStage = UsdLoad::getUsdLoad()->acquireAttachment(attach);
     if (!attachedStage || !jointPtr)
         return;
-    omni::physx::internal::InternalPhysXDatabase& db = attachedStage->getInternalPhysXDatabase();
+    omni::ev4sio_physx::internal::InternalPhysXDatabase& db = attachedStage->getInternalPhysXDatabase();
     for (InternalDatabase::Record& record : db.getRecords())
     {
         if (record.mType == ePTJoint && record.mPtr == jointPtr)
@@ -815,7 +815,7 @@ bool physxSimulationCloneEnvironments(AttachHandle attachHandle, const char* sou
     // (kSettingReplicatorEnvIdsOnAttach, set by ovphysx before attaching), the source's bodies hold
     // env id 0, so with useEnvIds the source (env 0) and clones (1..N) are collision-safe even when
     // co-located. useEnvIds stays an optional GPU-broadphase filtering pass-through.
-    omni::physx::IReplicatorCallback cb{};
+    omni::ev4sio_physx::IReplicatorCallback cb{};
     cb.hierarchyRenameFn = &replicatorCloneRename;
     cb.userData = &renameUserData;
     PhysXReplicator replicator(cb);
@@ -941,7 +941,7 @@ static RuntimeResult processOmniPvdCaptureRequests(AttachHandle attach)
 
 static OmniPvdRecordingResult startOmniPvdRecordingWithFilterOwner(
     uint32_t transport, const char* target, uint16_t tcpPort, uint32_t tcpTimeoutMs,
-    const ::physx::PxOmniPvdFilterDesc* capture, AttachHandle selectionOwner)
+    const ::ev4sio_physx::PxOmniPvdFilterDesc* capture, AttachHandle selectionOwner)
 {
     RecordingAdmission admission;
     if (!admission) return OmniPvdRecordingResult::eBusy;
@@ -970,7 +970,7 @@ static OmniPvdRecordingResult startOmniPvdRecordingWithFilterOwner(
 
 static OmniPvdRecordingResult startOmniPvdDiscoveryWithFilterOwner(
     const char* target, uint16_t tcpPort, uint32_t tcpTimeoutMs,
-    const ::physx::PxOmniPvdFilterDesc* scope, AttachHandle selectionOwner)
+    const ::ev4sio_physx::PxOmniPvdFilterDesc* scope, AttachHandle selectionOwner)
 {
     RecordingAdmission admission;
     if (!admission) return OmniPvdRecordingResult::eBusy;
@@ -986,7 +986,7 @@ static OmniPvdRecordingResult startOmniPvdDiscoveryWithFilterOwner(
 
 static OmniPvdRecordingResult startOmniPvdRecordingWithFilter(
     uint32_t transport, const char* target, uint16_t tcpPort, uint32_t tcpTimeoutMs,
-    const ::physx::PxOmniPvdFilterDesc* capture)
+    const ::ev4sio_physx::PxOmniPvdFilterDesc* capture)
 {
     return startOmniPvdRecordingWithFilterOwner(transport, target, tcpPort, tcpTimeoutMs, capture, kNoAttach);
 }
@@ -1024,20 +1024,20 @@ void addCrashreporterMetadata()
 }
 
 void fillInterface(IPhysxSimulation& iface);
-void fillInterface(omni::physx::IPhysx& iface);
-void fillInterface(omni::physx::IPhysxPrivate& iface);
-void fillInterface(omni::physx::IPhysxReplicator& iface);
-void fillInterface(omni::physx::IPhysxCustomJoint& iface);
-void fillInterface(omni::physx::IPhysxCustomGeometry& iface);
-void fillInterface(omni::physx::IPhysxVisualization& iface);
-void fillInterface(omni::physx::IPhysxSceneQuery& iface);
-void fillInterface(omni::physx::IPhysxUnitTests& iface);
-void fillInterface(omni::physx::IPhysxCooking& iface);
+void fillInterface(omni::ev4sio_physx::IPhysx& iface);
+void fillInterface(omni::ev4sio_physx::IPhysxPrivate& iface);
+void fillInterface(omni::ev4sio_physx::IPhysxReplicator& iface);
+void fillInterface(omni::ev4sio_physx::IPhysxCustomJoint& iface);
+void fillInterface(omni::ev4sio_physx::IPhysxCustomGeometry& iface);
+void fillInterface(omni::ev4sio_physx::IPhysxVisualization& iface);
+void fillInterface(omni::ev4sio_physx::IPhysxSceneQuery& iface);
+void fillInterface(omni::ev4sio_physx::IPhysxUnitTests& iface);
+void fillInterface(omni::ev4sio_physx::IPhysxCooking& iface);
 void fillInterface(omni::physics::tensors::TensorApi& iface);
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 struct PhysXRuntimeInterfaces
 {
@@ -1117,7 +1117,7 @@ OMNI_PHYSX_RUNTIME_API void startup()
         // startup() is intentionally idempotent. Owners may call it again after
         // Carbonite dependencies are loaded so tensors can finish their own
         // Carbonite-dependent setup.
-        omni::physx::tensors::tensorsPluginStartup();
+        omni::ev4sio_physx::tensors::tensorsPluginStartup();
         return;
     }
 
@@ -1132,22 +1132,22 @@ OMNI_PHYSX_RUNTIME_API void startup()
     fillInterface(interfaces.physxUnitTests);
     fillInterface(interfaces.physxCooking);
     fillInterface(interfaces.physxSimulation);
-    omni::physx::foundation::initializeRuntime();
+    omni::ev4sio_physx::foundation::initializeRuntime();
     // Production installs no parse backend at startup (ADR-0005/0027): the registry stays empty
     // until an ovstage attach installs its own backends, or a test executable installs the USD
     // backends via omniPhysicsUsdInstallBackends().
     bridgeInstallStartupParseBackend();
-    interfaces.physxFoundation = omni::physx::foundation::getInterface();
-    interfaces.optionalCuda = omni::physx::foundation::getOptionalCudaInterface();
+    interfaces.physxFoundation = omni::ev4sio_physx::foundation::getInterface();
+    interfaces.optionalCuda = omni::ev4sio_physx::foundation::getOptionalCudaInterface();
     fillInterface(interfaces.tensorApi);
-    omni::physx::optionalCuda::setProvider(getOptionalCudaForShim);
+    omni::ev4sio_physx::optionalCuda::setProvider(getOptionalCudaForShim);
     addCrashreporterMetadata();
     initializeRuntimeCallbacks();
     omniPhysX.onStartup();
 
     // PhysX tensors initialize through the direct runtime accessors.
     omniPhysX.setPhysxRuntimeStarted(true);
-    omni::physx::tensors::tensorsPluginStartup();
+    omni::ev4sio_physx::tensors::tensorsPluginStartup();
 }
 
 OMNI_PHYSX_RUNTIME_API void shutdown()
@@ -1158,12 +1158,12 @@ OMNI_PHYSX_RUNTIME_API void shutdown()
         return;
     }
 
-    omni::physx::tensors::tensorsShutdown();
+    omni::ev4sio_physx::tensors::tensorsShutdown();
     OmniPhysX& omniPhysX = *omniPhysXPtr;
     omniPhysX.onShutdown();
     shutdownRuntimeCallbacks();
-    omni::physx::foundation::shutdownRuntime();
-    omni::physx::optionalCuda::setProvider(nullptr);
+    omni::ev4sio_physx::foundation::shutdownRuntime();
+    omni::ev4sio_physx::optionalCuda::setProvider(nullptr);
     omniPhysX.setPhysxRuntimeStarted(false);
     omniPhysX.releaseRuntimeInterfaces();
 }
@@ -1434,7 +1434,7 @@ OMNI_PHYSX_RUNTIME_API omni::physics::tensors::TensorApi* tryGetTensorApiInterfa
 }
 
 } // namespace runtime
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni
 
 static void resetSettingsInPreferences()
@@ -1469,7 +1469,7 @@ static void overwriteGPUSetting(int val)
     runtime.getISettings()->setInt(kSettingOverrideGPU, val);
 }
 
-void omni::physx::benchmarks::overwriteGPUSetting(bool enableGPU)
+void omni::ev4sio_physx::benchmarks::overwriteGPUSetting(bool enableGPU)
 {
     ::overwriteGPUSetting(enableGPU ? 1 : 0);
 }
@@ -1499,7 +1499,7 @@ static void setThreadCount(uint32_t threadCount)
 
 static void reconnectPVD()
 {
-    ::physx::PxPvd* pvd = OmniPhysX::getInstance().getPhysXSetup().getPvd();
+    ::ev4sio_physx::PxPvd* pvd = OmniPhysX::getInstance().getPhysXSetup().getPvd();
     if (pvd)
     {
         pvd->disconnect();
@@ -1517,7 +1517,7 @@ bool saveSceneToRepX(AttachHandle attach, const char* filepath)
     if (!owner || owner->getPhysXScenes().empty())
         return false;
     PxPhysics& physics = *OmniPhysX::getInstance().getPhysXSetup().getPhysics();
-    PxCollection* collection = PxCreateCollection();
+    PxCollection* collection = ev4sio_PxCreateCollection();
     PxSerializationRegistry* serializers = PxSerialization::createSerializationRegistry(physics);
     if (!collection || !serializers)
     {
@@ -1548,22 +1548,22 @@ bool saveSceneToRepX(AttachHandle attach, const char* filepath)
     return success;
 }
 
-void omni::physx::benchmarks::setThreadCount(uint32_t threadCount)
+void omni::ev4sio_physx::benchmarks::setThreadCount(uint32_t threadCount)
 {
     ::setThreadCount(threadCount);
 }
 
-void omni::physx::benchmarks::enablePVDProfile(bool enablePVD)
+void omni::ev4sio_physx::benchmarks::enablePVDProfile(bool enablePVD)
 {
     OmniPhysX::getInstance().setPvdProfileEnabled(enablePVD);
 }
 
-void omni::physx::benchmarks::enableProfile(bool enableProfle)
+void omni::ev4sio_physx::benchmarks::enableProfile(bool enableProfle)
 {
     OmniPhysX::getInstance().setOmniPhysXProfilingEnabled(enableProfle);
 }
 
-void omni::physx::benchmarks::getProfileStats(std::vector<PhysicsProfileStats>& stats)
+void omni::ev4sio_physx::benchmarks::getProfileStats(std::vector<PhysicsProfileStats>& stats)
 {
     std::lock_guard<carb::tasking::MutexWrapper> lock(OmniPhysX::getInstance().profileMutex);
     stats.clear();
@@ -1577,12 +1577,12 @@ void omni::physx::benchmarks::getProfileStats(std::vector<PhysicsProfileStats>& 
     OmniPhysX::getInstance().getOmniPhysXCrossThreadProfileMap().clear();
 }
 
-SubscriptionId omni::physx::benchmarks::subscribeProfileStatsEvents(ProfileStatsNotificationFn onEvent, void* userData)
+SubscriptionId omni::ev4sio_physx::benchmarks::subscribeProfileStatsEvents(ProfileStatsNotificationFn onEvent, void* userData)
 {
     return OmniPhysX::getInstance().addProfileStatsSubscription(onEvent, userData);
 }
 
-void omni::physx::benchmarks::unsubscribeProfileStatsEvents(SubscriptionId id)
+void omni::ev4sio_physx::benchmarks::unsubscribeProfileStatsEvents(SubscriptionId id)
 {
     OmniPhysX::getInstance().removeProfileStatsSubscription(id);
 }
@@ -1607,7 +1607,7 @@ static bool applySimulationInterfaceFunctionToPointInstancer(AttachHandle attach
                        static_cast<unsigned long long>(attachHandle));
         return false;
     }
-    const omni::physx::internal::InternalPhysXDatabase& db = attachedStage->getInternalPhysXDatabase();
+    const omni::ev4sio_physx::internal::InternalPhysXDatabase& db = attachedStage->getInternalPhysXDatabase();
     const ObjectIdMap* entries = attachedStage->getObjectIds(omni::physics::parse::ObjectKey{ path });
     if (!entries)
     {
@@ -1709,7 +1709,7 @@ static bool applySimulationInterfaceFunction(AttachHandle attachHandle, uint64_t
                        static_cast<unsigned long long>(attachHandle));
         return false;
     }
-    const omni::physx::internal::InternalPhysXDatabase& db = attachedStage->getInternalPhysXDatabase();
+    const omni::ev4sio_physx::internal::InternalPhysXDatabase& db = attachedStage->getInternalPhysXDatabase();
     const ObjectIdMap* entries = attachedStage->getObjectIds(omni::physics::parse::ObjectKey{ path });
     if (!entries)
     {
@@ -1999,7 +1999,7 @@ static float computeVehicleVelocity(omni::physics::AttachHandle attach, const us
 
     if (vehicleId != kInvalidObjectId)
     {
-        const omni::physx::internal::InternalPhysXDatabase& db = attachedStage->getInternalPhysXDatabase();
+        const omni::ev4sio_physx::internal::InternalPhysXDatabase& db = attachedStage->getInternalPhysXDatabase();
 
         void* internalObject = db.getInternalTypedRecord(ePTVehicle, vehicleId);
         if (internalObject)
@@ -2011,7 +2011,7 @@ static float computeVehicleVelocity(omni::physics::AttachHandle attach, const us
             else
             {
                 const InternalVehicleContext& vehicleContext = internalVehicle->mInternalScene.getVehicleContext();
-                const ::physx::PxVehicleFrame& frame = vehicleContext.getFrame();
+                const ::ev4sio_physx::PxVehicleFrame& frame = vehicleContext.getFrame();
                 dir = fromPhysX(frame.getLngAxis());
             }
 
@@ -2043,7 +2043,7 @@ static bool getVehicleDriveState(omni::physics::AttachHandle attach, const usdpa
 
     if (vehicleControllerId != kInvalidObjectId)
     {
-        const omni::physx::internal::InternalPhysXDatabase& db = attachedStage->getInternalPhysXDatabase();
+        const omni::ev4sio_physx::internal::InternalPhysXDatabase& db = attachedStage->getInternalPhysXDatabase();
 
         void* internalObject = db.getInternalTypedRecord(ePTVehicleController, vehicleControllerId);
         if (internalObject)
@@ -2076,7 +2076,7 @@ static bool getWheelState(omni::physics::AttachHandle attach, const usdparser::O
     if (!attachedStage)
         return false;
 
-    const omni::physx::internal::InternalPhysXDatabase& db = attachedStage->getInternalPhysXDatabase();
+    const omni::ev4sio_physx::internal::InternalPhysXDatabase& db = attachedStage->getInternalPhysXDatabase();
 
     for (uint32_t i = 0; i < wheelAttachmentIdCount; i++)
     {
@@ -2115,7 +2115,7 @@ static void setWheelRotationSpeed(omni::physics::AttachHandle attach, const usdp
     if (!attachedStage)
         return;
 
-    const omni::physx::internal::InternalPhysXDatabase& db = attachedStage->getInternalPhysXDatabase();
+    const omni::ev4sio_physx::internal::InternalPhysXDatabase& db = attachedStage->getInternalPhysXDatabase();
 
     for (uint32_t i = 0; i < wheelAttachmentIdCount; i++)
     {
@@ -2151,7 +2151,7 @@ static void setWheelRotationAngle(omni::physics::AttachHandle attach, const usdp
     if (!attachedStage)
         return;
 
-    const omni::physx::internal::InternalPhysXDatabase& db = attachedStage->getInternalPhysXDatabase();
+    const omni::ev4sio_physx::internal::InternalPhysXDatabase& db = attachedStage->getInternalPhysXDatabase();
 
     for (uint32_t i = 0; i < wheelAttachmentIdCount; i++)
     {
@@ -2182,7 +2182,7 @@ static void getInternalSurfaceDeformableBodyData(omni::physics::AttachHandle att
     if (!attachedStage)
         return;
 
-    InternalSurfaceDeformableBody* internalPtr = omni::physx::getInternalPtr<InternalSurfaceDeformableBody>(attachedStage->getInternalPhysXDatabase(), ePTDeformableSurface, deformableId);
+    InternalSurfaceDeformableBody* internalPtr = omni::ev4sio_physx::getInternalPtr<InternalSurfaceDeformableBody>(attachedStage->getInternalPhysXDatabase(), ePTDeformableSurface, deformableId);
     if (internalPtr)
     {
         // ADR-0019: the ABI now hands out the stored ObjectKeys directly, no path resolution needed.
@@ -2210,7 +2210,7 @@ static void getInternalVolumeDeformableBodyData(omni::physics::AttachHandle atta
     if (!attachedStage)
         return;
 
-    InternalVolumeDeformableBody* internalPtr = omni::physx::getInternalPtr<InternalVolumeDeformableBody>(attachedStage->getInternalPhysXDatabase(), ePTDeformableVolume, deformableId);
+    InternalVolumeDeformableBody* internalPtr = omni::ev4sio_physx::getInternalPtr<InternalVolumeDeformableBody>(attachedStage->getInternalPhysXDatabase(), ePTDeformableVolume, deformableId);
     if (internalPtr)
     {
         // ADR-0019: the ABI now hands out the stored ObjectKeys directly, no path resolution needed.
@@ -2298,7 +2298,7 @@ omni::physics::parse::ObjectKey getCollisionGroupFromCollider(omni::physics::Att
     const std::shared_ptr<AttachedStage> attachedStage = UsdLoad::getUsdLoad()->acquireAttachment(attach);
     if (!attachedStage)
         return {};
-    const omni::physx::internal::InternalPhysXDatabase& db = attachedStage->getInternalPhysXDatabase();
+    const omni::ev4sio_physx::internal::InternalPhysXDatabase& db = attachedStage->getInternalPhysXDatabase();
     const PxShape* shape = static_cast<const PxShape*>(getPhysXPtrInternal(attach, colliderKey, ePTShape));
     if (shape != nullptr)
     {
@@ -2337,7 +2337,7 @@ void setVehicleToRestState(omni::physics::AttachHandle attach, const usdparser::
 
     if (vehicleId != kInvalidObjectId)
     {
-        const omni::physx::internal::InternalPhysXDatabase& db = attachedStage->getInternalPhysXDatabase();
+        const omni::ev4sio_physx::internal::InternalPhysXDatabase& db = attachedStage->getInternalPhysXDatabase();
 
         void* internalObject = db.getInternalTypedRecord(ePTVehicle, vehicleId);
         if (internalObject)
@@ -2370,7 +2370,7 @@ bool getWheelTransformations(omni::physics::AttachHandle attach, const usdparser
 
     if (vehicleId != kInvalidObjectId)
     {
-        const omni::physx::internal::InternalPhysXDatabase& db = attachedStage->getInternalPhysXDatabase();
+        const omni::ev4sio_physx::internal::InternalPhysXDatabase& db = attachedStage->getInternalPhysXDatabase();
 
 
         void* internalObject = db.getInternalTypedRecord(ePTVehicle, vehicleId);
@@ -2446,21 +2446,21 @@ void* getPhysXPtrFast(AttachHandle attach, ObjectId objectId)
     return operation ? getPhysXPtrFastInternal(attach, objectId) : nullptr;
 }
 
-void fillInterface(omni::physx::IPhysxFoundation& iface)
+void fillInterface(omni::ev4sio_physx::IPhysxFoundation& iface)
 {
     // Publish a copy of the static library's canonical function table. The
     // foundation library itself has no Carbonite fillInterface entry point.
-    iface = omni::physx::foundation::getInterface();
+    iface = omni::ev4sio_physx::foundation::getInterface();
 }
 
-void fillInterface(omni::physx::IOptionalCuda& iface)
+void fillInterface(omni::ev4sio_physx::IOptionalCuda& iface)
 {
     // Publish a copy of the static library's canonical function table. The
     // foundation library itself has no Carbonite fillInterface entry point.
-    iface = omni::physx::foundation::getOptionalCudaInterface();
+    iface = omni::ev4sio_physx::foundation::getOptionalCudaInterface();
 }
 
-void fillInterface(omni::physx::IPhysx& iface)
+void fillInterface(omni::ev4sio_physx::IPhysx& iface)
 {
     iface.getObjectId = getObjectId;
     iface.getPhysXPtr = getPhysXPtr;

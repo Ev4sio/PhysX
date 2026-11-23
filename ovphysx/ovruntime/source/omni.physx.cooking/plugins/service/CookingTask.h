@@ -35,7 +35,7 @@ namespace convexdecomposition
 {
 struct ConvexDecomposition;
 }
-namespace physx
+namespace ev4sio_physx
 {
 struct PhysxCookingMeshView;
 struct TriangleMeshCookingParams;
@@ -69,7 +69,7 @@ struct TriangulationMesh
     std::vector<uint16_t> faceMaterials;
     uint16_t maxMaterialIndex = 0;
 };
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni
 
 // Forward reference carbonite Float3 struct
@@ -79,11 +79,11 @@ struct Float3; // Carbonite vec3
 }
 
 // Forward reference two physx sdk classes
-namespace physx
+namespace ev4sio_physx
 {
 class PxDefaultMemoryOutputStream; // Forward reference the memory output stream class
 class PxPhysics;
-} // namespace physx
+} // namespace ev4sio_physx
 
 // Forward reference the carbonite tasking interface
 namespace carb
@@ -117,7 +117,7 @@ inline std::string computeCookingTaskKey(uint64_t primId, const std::string& pri
 class CookingTask
 {
 public:
-    CookingTask(omni::physx::PhysxCookingComputeResult& result);
+    CookingTask(omni::ev4sio_physx::PhysxCookingComputeResult& result);
 
     /**
      * Declares the destructor as a pure virtual function. It must be declared as
@@ -170,7 +170,7 @@ public:
      * local cache so that the next time this mesh is encountered we can just load the triangulated data
      * directly from the cache.
      */
-    void saveTriangulation(::physx::PxDefaultMemoryOutputStream& stream);
+    void saveTriangulation(::ev4sio_physx::PxDefaultMemoryOutputStream& stream);
 
     /**
      * This method is used to make sure that the source mesh meets the criteria of a minimum thickness.
@@ -247,7 +247,7 @@ public:
      * @param result : The result object
      *
      */
-    void getCRC(omni::physx::usdparser::MeshKey& crc) const;
+    void getCRC(omni::ev4sio_physx::usdparser::MeshKey& crc) const;
 
     /**
      * Retrieve this task's opaque identity key, used to find/replace the active task for the
@@ -261,7 +261,7 @@ public:
 
     bool setPrimPathText(const char* primPathText);
 
-    void fireFinishedCallback(omni::physx::PhysxCookingResult::Enum result);
+    void fireFinishedCallback(omni::ev4sio_physx::PhysxCookingResult::Enum result);
 
 
     /**
@@ -335,15 +335,15 @@ public:
      * @implements REQ-COOK-CUDACTX-001
      * @covers AC-3
      */
-    void setPxCudaAndGPUPointers(::physx::PxCudaContextManager* cudaContextManager, ::physx::PxPhysicsGpu* physicsGPU);
+    void setPxCudaAndGPUPointers(::ev4sio_physx::PxCudaContextManager* cudaContextManager, ::ev4sio_physx::PxPhysicsGpu* physicsGPU);
 
     /**
      * @return : The manager set by setPxCudaAndGPUPointers(), still owned by this task - valid for
      *           as long as the task is alive, and not to be released by the caller.
      */
-    ::physx::PxCudaContextManager* getPxCudaContextManager();
+    ::ev4sio_physx::PxCudaContextManager* getPxCudaContextManager();
 
-    ::physx::PxPhysicsGpu* getPxPhysicsGPU();
+    ::ev4sio_physx::PxPhysicsGpu* getPxPhysicsGPU();
 
     /**
      * @return : Returns true if the task has been added to the background thread.
@@ -375,9 +375,9 @@ public:
      */
     void addPendingTask(CookingTask* ct);
 
-    ::physx::PxDefaultMemoryOutputStream& getTriangulationOutputStream();
+    ::ev4sio_physx::PxDefaultMemoryOutputStream& getTriangulationOutputStream();
 
-    std::vector<std::unique_ptr<::physx::PxDefaultMemoryOutputStream>>& getCookedDataOutputStreams()
+    std::vector<std::unique_ptr<::ev4sio_physx::PxDefaultMemoryOutputStream>>& getCookedDataOutputStreams()
     {
         return mCookedDataOutputStreams;
     }
@@ -394,45 +394,45 @@ public:
 
     bool getBuildTriangleAdjacencies() const;
 
-    ::physx::PxCookingParams getDefaultCookingParams() const
+    ::ev4sio_physx::PxCookingParams getDefaultCookingParams() const
     {
         return getCookingParams(getDefaultTolerances(getMetersPerUnit()));
     }
 
-    static ::physx::PxTolerancesScale getDefaultTolerances(double metersPerUnit)
+    static ::ev4sio_physx::PxTolerancesScale getDefaultTolerances(double metersPerUnit)
     {
-        return ::physx::PxTolerancesScale(float(1.0 / metersPerUnit), float(10.0 / metersPerUnit));
+        return ::ev4sio_physx::PxTolerancesScale(float(1.0 / metersPerUnit), float(10.0 / metersPerUnit));
     }
 
-    ::physx::PxCookingParams getCookingParams(const ::physx::PxTolerancesScale& tolerances) const;
+    ::ev4sio_physx::PxCookingParams getCookingParams(const ::ev4sio_physx::PxTolerancesScale& tolerances) const;
 
-    static bool deserializeTriangleMesh(::physx::PxDefaultMemoryInputData idata,
-                                        omni::physx::TriangulationMesh& triangulationMesh);
+    static bool deserializeTriangleMesh(::ev4sio_physx::PxDefaultMemoryInputData idata,
+                                        omni::ev4sio_physx::TriangulationMesh& triangulationMesh);
 
-    static void fillTriangulationView(const omni::physx::TriangulationMesh& triangulationMesh,
-                                      omni::physx::PhysxCookingMeshTriangulationView& triangulationView);
+    static void fillTriangulationView(const omni::ev4sio_physx::TriangulationMesh& triangulationMesh,
+                                      omni::ev4sio_physx::PhysxCookingMeshTriangulationView& triangulationView);
 
-    omni::physx::PhysxCookingComputeResult& getResultObject();
+    omni::ev4sio_physx::PhysxCookingComputeResult& getResultObject();
 
-    omni::physx::TriangulationMesh& getTriangulationMesh();
+    omni::ev4sio_physx::TriangulationMesh& getTriangulationMesh();
 
-    bool setupTaskFromRequest(const omni::physx::PhysxCookingComputeRequest& request, bool skipMeshProcessing);
+    bool setupTaskFromRequest(const omni::ev4sio_physx::PhysxCookingComputeRequest& request, bool skipMeshProcessing);
 
-    omni::physx::PhysxCookingAsyncContext getAsyncContext() const
+    omni::ev4sio_physx::PhysxCookingAsyncContext getAsyncContext() const
     {
         return mAsyncContext;
     }
 
-    void setAsyncContext(omni::physx::PhysxCookingAsyncContext context)
+    void setAsyncContext(omni::ev4sio_physx::PhysxCookingAsyncContext context)
     {
         mAsyncContext = context;
     }
 
-    void saveCallbackFromRequest(const omni::physx::PhysxCookingComputeRequest& request);
+    void saveCallbackFromRequest(const omni::ev4sio_physx::PhysxCookingComputeRequest& request);
 
 private:
-    omni::physx::PhysxCookingAsyncContext mAsyncContext = nullptr;
-    std::vector<std::unique_ptr<::physx::PxDefaultMemoryOutputStream>> mCookedDataOutputStreams;
+    omni::ev4sio_physx::PhysxCookingAsyncContext mAsyncContext = nullptr;
+    std::vector<std::unique_ptr<::ev4sio_physx::PxDefaultMemoryOutputStream>> mCookedDataOutputStreams;
 
     // A pointer to the internal implementation of these methods
     CookingTaskImpl* mImpl{ nullptr };
@@ -447,8 +447,8 @@ private:
  *
  * @return : Returns a pointer to the CookingTask for this operation
  */
-CookingTask* createConvexMeshCookingTask(const omni::physx::ConvexMeshCookingParams& desc,
-                                         omni::physx::PhysxCookingComputeResult& result);
+CookingTask* createConvexMeshCookingTask(const omni::ev4sio_physx::ConvexMeshCookingParams& desc,
+                                         omni::ev4sio_physx::PhysxCookingComputeResult& result);
 
 /***
  * Create a CookingTask to cook a static triangle mesh
@@ -460,9 +460,9 @@ CookingTask* createConvexMeshCookingTask(const omni::physx::ConvexMeshCookingPar
  *
  * @return : Returns a pointer to the CookingTask for this operation
  */
-CookingTask* createTriangleMeshCookingTask(const omni::physx::TriangleMeshCookingParams& triangleDesc,
-                                           const omni::physx::SdfMeshCookingParams& sdfDesc,
-                                           omni::physx::PhysxCookingComputeResult& result);
+CookingTask* createTriangleMeshCookingTask(const omni::ev4sio_physx::TriangleMeshCookingParams& triangleDesc,
+                                           const omni::ev4sio_physx::SdfMeshCookingParams& sdfDesc,
+                                           omni::ev4sio_physx::PhysxCookingComputeResult& result);
 
 /***
  * Create a CookingTask to cook for a convex decomposition
@@ -473,18 +473,18 @@ CookingTask* createTriangleMeshCookingTask(const omni::physx::TriangleMeshCookin
  *
  * @return : Returns a pointer to the CookingTask for this operation
  */
-CookingTask* createConvexDecompositionCookingTask(const omni::physx::ConvexDecompositionCookingParams& desc,
-                                                  omni::physx::PhysxCookingComputeResult& result,
+CookingTask* createConvexDecompositionCookingTask(const omni::ev4sio_physx::ConvexDecompositionCookingParams& desc,
+                                                  omni::ev4sio_physx::PhysxCookingComputeResult& result,
                                                   omni::convexdecomposition::ConvexDecomposition& convexDecomposition);
 
-CookingTask* createDeformableVolumeMeshCookingTask(const omni::physx::DeformableVolumeMeshCookingParams& params,
-                                                   omni::physx::PhysxCookingComputeResult& result);
+CookingTask* createDeformableVolumeMeshCookingTask(const omni::ev4sio_physx::DeformableVolumeMeshCookingParams& params,
+                                                   omni::ev4sio_physx::PhysxCookingComputeResult& result);
 
-CookingTask* createVolumeDeformableBodyCookingTask(const omni::physx::VolumeDeformableBodyCookingParams& params,
-                                                   omni::physx::PhysxCookingComputeResult& result);
+CookingTask* createVolumeDeformableBodyCookingTask(const omni::ev4sio_physx::VolumeDeformableBodyCookingParams& params,
+                                                   omni::ev4sio_physx::PhysxCookingComputeResult& result);
 
-CookingTask* createSurfaceDeformableBodyCookingTask(const omni::physx::SurfaceDeformableBodyCookingParams& params,
-                                                    omni::physx::PhysxCookingComputeResult& result);
+CookingTask* createSurfaceDeformableBodyCookingTask(const omni::ev4sio_physx::SurfaceDeformableBodyCookingParams& params,
+                                                    omni::ev4sio_physx::PhysxCookingComputeResult& result);
 
 /***
  * read particle clothdata from binary
@@ -492,14 +492,14 @@ CookingTask* createSurfaceDeformableBodyCookingTask(const omni::physx::SurfaceDe
  * @param out : descriptor of sampled data
  * @param cookedData : binary data
  */
-void readParticlePoissonSamplingData(omni::physx::PhysxCookingParticlePoissonSamplingData& out,
-                                     const omni::physx::PhysxCookedDataSpan& cookedData);
+void readParticlePoissonSamplingData(omni::ev4sio_physx::PhysxCookingParticlePoissonSamplingData& out,
+                                     const omni::ev4sio_physx::PhysxCookedDataSpan& cookedData);
 
-void readVolumeDeformableBodyData(omni::physx::PhysxCookingVolumeDeformableBodyData& out,
-                                  const omni::physx::PhysxCookedDataSpan& cookedData);
+void readVolumeDeformableBodyData(omni::ev4sio_physx::PhysxCookingVolumeDeformableBodyData& out,
+                                  const omni::ev4sio_physx::PhysxCookedDataSpan& cookedData);
 
-void readSurfaceDeformableBodyData(omni::physx::PhysxCookingSurfaceDeformableBodyData& out,
-                                   const omni::physx::PhysxCookedDataSpan& cookedData);
+void readSurfaceDeformableBodyData(omni::ev4sio_physx::PhysxCookingSurfaceDeformableBodyData& out,
+                                   const omni::ev4sio_physx::PhysxCookedDataSpan& cookedData);
 
 /***
  * Create a cooking task to sample particle positions from a mesh
@@ -510,8 +510,8 @@ void readSurfaceDeformableBodyData(omni::physx::PhysxCookingSurfaceDeformableBod
  *
  * @return : Returns a pointer to the cooking task interface for this operation
  */
-CookingTask* createPoissonSamplingCookingTask(const omni::physx::ParticlePoissonSamplingCookingParams& params,
-                                              omni::physx::PhysxCookingComputeResult& result);
+CookingTask* createPoissonSamplingCookingTask(const omni::ev4sio_physx::ParticlePoissonSamplingCookingParams& params,
+                                              omni::ev4sio_physx::PhysxCookingComputeResult& result);
 
 /***
  * Create a CookingTask to compute a sphere fill approximation
@@ -522,8 +522,8 @@ CookingTask* createPoissonSamplingCookingTask(const omni::physx::ParticlePoisson
  *
  * @return : Returns a pointer to the CookingTask for this operation
  */
-CookingTask* createSphereFillCookingTask(const omni::physx::SphereFillCookingParams& desc,
-                                         omni::physx::PhysxCookingComputeResult& result,
+CookingTask* createSphereFillCookingTask(const omni::ev4sio_physx::SphereFillCookingParams& desc,
+                                         omni::ev4sio_physx::PhysxCookingComputeResult& result,
                                          omni::convexdecomposition::ConvexDecomposition& convexDecomposition);
 
 } // namespace cookingtask

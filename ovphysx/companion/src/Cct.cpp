@@ -21,7 +21,7 @@ ovphysx_companion_status_t execute(uint64_t attachment, const char* path,
     if (!guard) return OVPHYSX_COMPANION_BUSY;
     CompanionOwnerLane owner;
     if (!owner.tryAcquireForAttachment(attachment)) return OVPHYSX_COMPANION_BUSY;
-    using namespace omni::physx::native;
+    using namespace omni::ev4sio_physx::native;
     CctCommand command;
     command.action = CctAction(input->action);
     command.generation = input->generation;

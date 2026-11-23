@@ -37,12 +37,12 @@
 #include "extensions/PxParticleExt.h"
 #endif
 
-using namespace omni::physx;
-using namespace omni::physx::internal;
-using namespace omni::physx::usdparser;
+using namespace omni::ev4sio_physx;
+using namespace omni::ev4sio_physx::internal;
+using namespace omni::ev4sio_physx::usdparser;
 using namespace carb;
-using namespace ::physx;
-using namespace ::physx::Ext;
+using namespace ::ev4sio_physx;
+using namespace ::ev4sio_physx::ev4sio_Ext;
 
 
 namespace
@@ -116,7 +116,7 @@ InternalParticleSet::InternalParticleSet(InternalPbdParticleSystem& particleSyst
     , mPhases(nullptr)
     , mDiffuseParticlePositions(nullptr)
     , mNumDiffuseParticles(0)
-    , mDiffuseParticleParams(::physx::PxDiffuseParticleParams())
+    , mDiffuseParticleParams(::ev4sio_physx::PxDiffuseParticleParams())
     , mMaxDiffuseParticleMultiplier(0.0f)
     , mDiffuseParticlesEnabled(false)
     , mDownloadDirtyFlags(0)
@@ -745,7 +745,7 @@ void InternalPbdParticleSystem::setPost(const uint32_t postFlags)
     }
 }
 
-void InternalPbdParticleSystem::enablePost(omni::physx::ParticlePostFlag::Enum flag, const bool enable)
+void InternalPbdParticleSystem::enablePost(omni::ev4sio_physx::ParticlePostFlag::Enum flag, const bool enable)
 {
     uint32_t currentPostFlags = particles::getPostprocessStages(mPhysXScene->getAttachedStage(), mKey);
     uint32_t newPostFlags = enable ? (currentPostFlags | flag) : (currentPostFlags & ~flag);

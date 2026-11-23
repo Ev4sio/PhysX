@@ -36,7 +36,7 @@ namespace Nv
 namespace Blast
 {
 
-bool PxMeshScaleDTO::serialize(Nv::Blast::Serialization::PxMeshScale::Builder builder, const physx::PxMeshScale * poco)
+bool PxMeshScaleDTO::serialize(Nv::Blast::Serialization::PxMeshScale::Builder builder, const ev4sio_physx::PxMeshScale * poco)
 {
     PxVec3DTO::serialize(builder.getScale(), &poco->scale);
     PxQuatDTO::serialize(builder.getRotation(), &poco->rotation);
@@ -45,14 +45,14 @@ bool PxMeshScaleDTO::serialize(Nv::Blast::Serialization::PxMeshScale::Builder bu
 }
 
 
-physx::PxMeshScale* PxMeshScaleDTO::deserialize(Nv::Blast::Serialization::PxMeshScale::Reader reader)
+ev4sio_physx::PxMeshScale* PxMeshScaleDTO::deserialize(Nv::Blast::Serialization::PxMeshScale::Reader reader)
 {
     NV_UNUSED(reader);
     return nullptr;
 }
 
 
-bool PxMeshScaleDTO::deserializeInto(Nv::Blast::Serialization::PxMeshScale::Reader reader, physx::PxMeshScale * poco)
+bool PxMeshScaleDTO::deserializeInto(Nv::Blast::Serialization::PxMeshScale::Reader reader, ev4sio_physx::PxMeshScale * poco)
 {
     PxVec3DTO::deserializeInto(reader.getScale(), &poco->scale);
     PxQuatDTO::deserializeInto(reader.getRotation(), &poco->rotation);

@@ -6,9 +6,9 @@
 #include "ScArticulationTendonCore.h"
 #include "ScArticulationTendonSim.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
-void Sc::ArticulationSpatialTendonCore::setStiffness(const PxReal stiffness)
+void ev4sio_Sc::ArticulationSpatialTendonCore::setStiffness(const PxReal stiffness)
 {
 	mStiffness = stiffness;
 
@@ -16,12 +16,12 @@ void Sc::ArticulationSpatialTendonCore::setStiffness(const PxReal stiffness)
 		mSim->setStiffness(stiffness);
 }
 
-PxReal Sc::ArticulationSpatialTendonCore::getStiffness() const
+PxReal ev4sio_Sc::ArticulationSpatialTendonCore::getStiffness() const
 {
 	return mStiffness;
 }
 
-void Sc::ArticulationSpatialTendonCore::setDamping(const PxReal damping)
+void ev4sio_Sc::ArticulationSpatialTendonCore::setDamping(const PxReal damping)
 {
 	mDamping = damping;
 
@@ -29,12 +29,12 @@ void Sc::ArticulationSpatialTendonCore::setDamping(const PxReal damping)
 		mSim->setDamping(damping);
 }
 
-PxReal Sc::ArticulationSpatialTendonCore::getDamping() const
+PxReal ev4sio_Sc::ArticulationSpatialTendonCore::getDamping() const
 {
 	return mDamping;
 }
 
-void Sc::ArticulationSpatialTendonCore::setLimitStiffness(const PxReal stiffness)
+void ev4sio_Sc::ArticulationSpatialTendonCore::setLimitStiffness(const PxReal stiffness)
 {
 	mLimitStiffness = stiffness;
 
@@ -42,12 +42,12 @@ void Sc::ArticulationSpatialTendonCore::setLimitStiffness(const PxReal stiffness
 		mSim->setLimitStiffness(stiffness);
 }
 
-PxReal Sc::ArticulationSpatialTendonCore::getLimitStiffness() const
+PxReal ev4sio_Sc::ArticulationSpatialTendonCore::getLimitStiffness() const
 {
 	return mLimitStiffness;
 }
 
-void Sc::ArticulationSpatialTendonCore::setOffset(const PxReal offset)
+void ev4sio_Sc::ArticulationSpatialTendonCore::setOffset(const PxReal offset)
 {
 	mOffset = offset;
 
@@ -55,14 +55,14 @@ void Sc::ArticulationSpatialTendonCore::setOffset(const PxReal offset)
 		mSim->setOffset(offset);
 }
 
-PxReal Sc::ArticulationSpatialTendonCore::getOffset() const
+PxReal ev4sio_Sc::ArticulationSpatialTendonCore::getOffset() const
 {
 	return mOffset;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Sc::ArticulationFixedTendonCore::setStiffness(const PxReal stiffness)
+void ev4sio_Sc::ArticulationFixedTendonCore::setStiffness(const PxReal stiffness)
 {
 	mStiffness = stiffness;
 
@@ -70,12 +70,12 @@ void Sc::ArticulationFixedTendonCore::setStiffness(const PxReal stiffness)
 		mSim->setStiffness(stiffness);
 }
 
-PxReal Sc::ArticulationFixedTendonCore::getStiffness() const
+PxReal ev4sio_Sc::ArticulationFixedTendonCore::getStiffness() const
 {
 	return mStiffness;
 }
 
-void Sc::ArticulationFixedTendonCore::setDamping(const PxReal damping)
+void ev4sio_Sc::ArticulationFixedTendonCore::setDamping(const PxReal damping)
 {
 	mDamping = damping;
 
@@ -83,36 +83,36 @@ void Sc::ArticulationFixedTendonCore::setDamping(const PxReal damping)
 		mSim->setDamping(damping);
 }
 
-PxReal Sc::ArticulationFixedTendonCore::getDamping() const
+PxReal ev4sio_Sc::ArticulationFixedTendonCore::getDamping() const
 {
 	return mDamping;
 }
 
-void Sc::ArticulationFixedTendonCore::setLimitStiffness(const PxReal stiffness)
+void ev4sio_Sc::ArticulationFixedTendonCore::setLimitStiffness(const PxReal stiffness)
 {
 	mLimitStiffness = stiffness;
 	if (mSim)
 		mSim->setLimitStiffness(stiffness);
 }
 
-PxReal Sc::ArticulationFixedTendonCore::getLimitStiffness() const
+PxReal ev4sio_Sc::ArticulationFixedTendonCore::getLimitStiffness() const
 {
 	return mLimitStiffness;
 }
 
-void Sc::ArticulationFixedTendonCore::setSpringRestLength(const PxReal restLength)
+void ev4sio_Sc::ArticulationFixedTendonCore::setSpringRestLength(const PxReal restLength)
 {
 	mRestLength = restLength;
 	if (mSim)
 		mSim->setSpringRestLength(restLength);
 }
 
-PxReal	Sc::ArticulationFixedTendonCore::getSpringRestLength() const
+PxReal	ev4sio_Sc::ArticulationFixedTendonCore::getSpringRestLength() const
 {
 	return mRestLength;
 }
 
-void Sc::ArticulationFixedTendonCore::setLimitRange(const PxReal lowLimit, const PxReal highLimit)
+void ev4sio_Sc::ArticulationFixedTendonCore::setLimitRange(const PxReal lowLimit, const PxReal highLimit)
 {
 	mLowLimit = lowLimit;
 	mHighLimit = highLimit;
@@ -121,20 +121,20 @@ void Sc::ArticulationFixedTendonCore::setLimitRange(const PxReal lowLimit, const
 		mSim->setLimitRange(lowLimit, highLimit);
 }
 
-void Sc::ArticulationFixedTendonCore::getLimitRange(PxReal& lowLimit, PxReal& highLimit) const
+void ev4sio_Sc::ArticulationFixedTendonCore::getLimitRange(PxReal& lowLimit, PxReal& highLimit) const
 {
 	lowLimit = mLowLimit;
 	highLimit = mHighLimit;
 }
 
-void Sc::ArticulationFixedTendonCore::setOffset(const PxReal offset)
+void ev4sio_Sc::ArticulationFixedTendonCore::setOffset(const PxReal offset)
 {
 	mOffset = offset;
 	if (mSim)
 		mSim->setOffset(offset);
 }
 
-PxReal Sc::ArticulationFixedTendonCore::getOffset() const
+PxReal ev4sio_Sc::ArticulationFixedTendonCore::getOffset() const
 {
 	return mOffset;
 }

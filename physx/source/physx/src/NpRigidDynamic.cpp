@@ -8,7 +8,7 @@
 #include "NpScene.h"
 #include "omnipvd/NpOmniPvdSetData.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -525,7 +525,7 @@ void NpRigidDynamic::putToSleep()
 
 	if (npScene && (npScene->getFlags() & PxSceneFlag::eDISABLE_SLEEPING))
 	{
-		PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxRigidDynamic::putToSleep(): sleeping is not supported when PxSceneFlag::eDISABLE_SLEEPING is enabled. Call ignored.");
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxRigidDynamic::putToSleep(): sleeping is not supported when PxSceneFlag::eDISABLE_SLEEPING is enabled. Call ignored.");
 		return;
 	}
 
@@ -587,7 +587,7 @@ PxReal NpRigidDynamic::getContactReportThreshold() const
 	return mCore.getContactReportThreshold();
 }
 
-PxU32 physx::NpRigidDynamicGetShapes(NpRigidDynamic& actor, NpShape* const*& shapes, bool* isCompound)
+PxU32 ev4sio_physx::NpRigidDynamicGetShapes(NpRigidDynamic& actor, NpShape* const*& shapes, bool* isCompound)
 {
 	NpShapeManager& sm = actor.getShapeManager();
 	shapes = sm.getShapes();

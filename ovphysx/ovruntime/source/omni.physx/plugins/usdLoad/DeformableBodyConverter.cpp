@@ -21,7 +21,7 @@
 
 #include <cstring>
 
-namespace omni::physx::usdparser::convert
+namespace omni::ev4sio_physx::usdparser::convert
 {
 
 namespace
@@ -154,4 +154,4 @@ PhysxDeformableBodyDesc* convertScannedDeformableBody(
     return dst;
 }
 
-} // namespace omni::physx::usdparser::convert
+} // namespace omni::ev4sio_physx::usdparser::convert

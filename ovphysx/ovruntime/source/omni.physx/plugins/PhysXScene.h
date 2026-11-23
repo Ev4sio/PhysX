@@ -29,7 +29,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace usdparser
 {
@@ -42,58 +42,58 @@ class ContactReport;
 
 class VehicleUpdateTask;
 
-class OmniFilterCallback : public ::physx::PxSimulationFilterCallback
+class OmniFilterCallback : public ::ev4sio_physx::PxSimulationFilterCallback
 {
     // PT: the old API uses PxU32s for pairIDs. We can just re-route that to the new API and keep supporting both.
 
-    virtual ::physx::PxFilterFlags pairFound(::physx::PxU32 pairID,
-                                             ::physx::PxFilterObjectAttributes attributes0,
-                                             ::physx::PxFilterData filterData0,
-                                             const ::physx::PxActor* a0,
-                                             const ::physx::PxShape* s0,
-                                             ::physx::PxFilterObjectAttributes attributes1,
-                                             ::physx::PxFilterData filterData1,
-                                             const ::physx::PxActor* a1,
-                                             const ::physx::PxShape* s1,
-                                             ::physx::PxPairFlags& pairFlags);
+    virtual ::ev4sio_physx::PxFilterFlags pairFound(::ev4sio_physx::PxU32 pairID,
+                                             ::ev4sio_physx::PxFilterObjectAttributes attributes0,
+                                             ::ev4sio_physx::PxFilterData filterData0,
+                                             const ::ev4sio_physx::PxActor* a0,
+                                             const ::ev4sio_physx::PxShape* s0,
+                                             ::ev4sio_physx::PxFilterObjectAttributes attributes1,
+                                             ::ev4sio_physx::PxFilterData filterData1,
+                                             const ::ev4sio_physx::PxActor* a1,
+                                             const ::ev4sio_physx::PxShape* s1,
+                                             ::ev4sio_physx::PxPairFlags& pairFlags);
 
-    virtual void pairLost(::physx::PxU32 /*pairID*/,
-                          ::physx::PxFilterObjectAttributes /*attributes0*/,
-                          ::physx::PxFilterData /*filterData0*/,
-                          ::physx::PxFilterObjectAttributes /*attributes1*/,
-                          ::physx::PxFilterData /*filterData1*/,
+    virtual void pairLost(::ev4sio_physx::PxU32 /*pairID*/,
+                          ::ev4sio_physx::PxFilterObjectAttributes /*attributes0*/,
+                          ::ev4sio_physx::PxFilterData /*filterData0*/,
+                          ::ev4sio_physx::PxFilterObjectAttributes /*attributes1*/,
+                          ::ev4sio_physx::PxFilterData /*filterData1*/,
                           bool /*objectRemoved*/)
     {
     }
 
-    virtual bool statusChange(::physx::PxU32& /*pairID*/, ::physx::PxPairFlags& /*pairFlags*/, ::physx::PxFilterFlags& /*filterFlags*/)
+    virtual bool statusChange(::ev4sio_physx::PxU32& /*pairID*/, ::ev4sio_physx::PxPairFlags& /*pairFlags*/, ::ev4sio_physx::PxFilterFlags& /*filterFlags*/)
     {
         return false;
     }
 
     // PT: the new API uses PxU64s for pairIDs
 
-    virtual ::physx::PxFilterFlags pairFound(::physx::PxU64 pairID,
-                                             ::physx::PxFilterObjectAttributes attributes0,
-                                             ::physx::PxFilterData filterData0,
-                                             const ::physx::PxActor* a0,
-                                             const ::physx::PxShape* s0,
-                                             ::physx::PxFilterObjectAttributes attributes1,
-                                             ::physx::PxFilterData filterData1,
-                                             const ::physx::PxActor* a1,
-                                             const ::physx::PxShape* s1,
-                                             ::physx::PxPairFlags& pairFlags);
+    virtual ::ev4sio_physx::PxFilterFlags pairFound(::ev4sio_physx::PxU64 pairID,
+                                             ::ev4sio_physx::PxFilterObjectAttributes attributes0,
+                                             ::ev4sio_physx::PxFilterData filterData0,
+                                             const ::ev4sio_physx::PxActor* a0,
+                                             const ::ev4sio_physx::PxShape* s0,
+                                             ::ev4sio_physx::PxFilterObjectAttributes attributes1,
+                                             ::ev4sio_physx::PxFilterData filterData1,
+                                             const ::ev4sio_physx::PxActor* a1,
+                                             const ::ev4sio_physx::PxShape* s1,
+                                             ::ev4sio_physx::PxPairFlags& pairFlags);
 
-    virtual void pairLost(::physx::PxU64 /*pairID*/,
-                          ::physx::PxFilterObjectAttributes /*attributes0*/,
-                          ::physx::PxFilterData /*filterData0*/,
-                          ::physx::PxFilterObjectAttributes /*attributes1*/,
-                          ::physx::PxFilterData /*filterData1*/,
+    virtual void pairLost(::ev4sio_physx::PxU64 /*pairID*/,
+                          ::ev4sio_physx::PxFilterObjectAttributes /*attributes0*/,
+                          ::ev4sio_physx::PxFilterData /*filterData0*/,
+                          ::ev4sio_physx::PxFilterObjectAttributes /*attributes1*/,
+                          ::ev4sio_physx::PxFilterData /*filterData1*/,
                           bool /*objectRemoved*/)
     {
     }
 
-    virtual bool statusChange(::physx::PxU64& /*pairID*/, ::physx::PxPairFlags& /*pairFlags*/, ::physx::PxFilterFlags& /*filterFlags*/)
+    virtual bool statusChange(::ev4sio_physx::PxU64& /*pairID*/, ::ev4sio_physx::PxPairFlags& /*pairFlags*/, ::ev4sio_physx::PxFilterFlags& /*filterFlags*/)
     {
         return false;
     }
@@ -104,21 +104,21 @@ public:
     ContactReport* mContactReport{ nullptr };
 };
 
-class OmniContactReportCallback : public ::physx::PxSimulationEventCallback, public ::physx::PxContactModifyCallback
+class OmniContactReportCallback : public ::ev4sio_physx::PxSimulationEventCallback, public ::ev4sio_physx::PxContactModifyCallback
 {
-    virtual void onConstraintBreak(::physx::PxConstraintInfo* constraints, ::physx::PxU32 count) final;
-    virtual void onWake(::physx::PxActor** actors, ::physx::PxU32 count) final;
-    virtual void onSleep(::physx::PxActor** actors, ::physx::PxU32 count) final;
-    virtual void onTrigger(::physx::PxTriggerPair* pairs, ::physx::PxU32 count) final;
-    virtual void onAdvance(const ::physx::PxRigidBody* const* bodyBuffer,
-                           const ::physx::PxTransform* poseBuffer,
-                           const ::physx::PxU32 count) final;
-    virtual void onContact(const ::physx::PxContactPairHeader& pairHeader,
-                           const ::physx::PxContactPair* pairsIn,
-                           ::physx::PxU32 countIn) final;
-    virtual void onContactModify(::physx::PxContactModifyPair* pairs, ::physx::PxU32 count) final;
+    virtual void onConstraintBreak(::ev4sio_physx::PxConstraintInfo* constraints, ::ev4sio_physx::PxU32 count) final;
+    virtual void onWake(::ev4sio_physx::PxActor** actors, ::ev4sio_physx::PxU32 count) final;
+    virtual void onSleep(::ev4sio_physx::PxActor** actors, ::ev4sio_physx::PxU32 count) final;
+    virtual void onTrigger(::ev4sio_physx::PxTriggerPair* pairs, ::ev4sio_physx::PxU32 count) final;
+    virtual void onAdvance(const ::ev4sio_physx::PxRigidBody* const* bodyBuffer,
+                           const ::ev4sio_physx::PxTransform* poseBuffer,
+                           const ::ev4sio_physx::PxU32 count) final;
+    virtual void onContact(const ::ev4sio_physx::PxContactPairHeader& pairHeader,
+                           const ::ev4sio_physx::PxContactPair* pairsIn,
+                           ::ev4sio_physx::PxU32 countIn) final;
+    virtual void onContactModify(::ev4sio_physx::PxContactModifyPair* pairs, ::ev4sio_physx::PxU32 count) final;
 
-    bool isFilteredEvent(const ::physx::PxShape* triggerShape, const ::physx::PxShape* otherShape);
+    bool isFilteredEvent(const ::ev4sio_physx::PxShape* triggerShape, const ::ev4sio_physx::PxShape* otherShape);
 
 public:
     OmniPhysX* mOmniPhysX{ nullptr };
@@ -128,13 +128,13 @@ public:
     float mStepSize{ 1.0f / 60.0f };
 };
 
-class VehicleUpdateSyncTask : public ::physx::PxLightCpuTask
+class VehicleUpdateSyncTask : public ::ev4sio_physx::PxLightCpuTask
 {
 private:
     VehicleUpdateSyncTask();
 
 public:
-    VehicleUpdateSyncTask(::physx::PxSync& sync) : mSync(sync)
+    VehicleUpdateSyncTask(::ev4sio_physx::PxSync& sync) : mSync(sync)
     {
     }
 
@@ -158,10 +158,10 @@ public:
     }
 
 private:
-    ::physx::PxSync& mSync;
+    ::ev4sio_physx::PxSync& mSync;
 };
 
-class SimulationCompletionTask : public ::physx::PxLightCpuTask
+class SimulationCompletionTask : public ::ev4sio_physx::PxLightCpuTask
 {
 public:
     void initialize(carb::tasking::ITasking* tasking, carb::tasking::TaskContext taskContext)
@@ -178,7 +178,7 @@ public:
     {
         carb::tasking::ITasking* const tasking = mTasking;
         const carb::tasking::TaskContext taskContext = mTaskContext;
-        ::physx::PxLightCpuTask::release();
+        ::ev4sio_physx::PxLightCpuTask::release();
         tasking->wakeTask(taskContext);
     }
 
@@ -192,7 +192,7 @@ private:
     carb::tasking::TaskContext mTaskContext{ carb::tasking::kInvalidTaskContext };
 };
 
-class PhysXStepper : public ::physx::PxLightCpuTask
+class PhysXStepper : public ::ev4sio_physx::PxLightCpuTask
 {
 public:
     PhysXStepper();
@@ -207,7 +207,7 @@ public:
     void launch(int nbSubsteps,
                 float stepSize,
                 PhysXScene* scene,
-                ::physx::PxTaskManager* taskManager,
+                ::ev4sio_physx::PxTaskManager* taskManager,
                 bool substeppingEnabled,
                 bool forceAsync,
                 bool lastStep);
@@ -232,13 +232,13 @@ public:
         return "PhysXStepper";
     }
 
-    static void customizeVehicleSimulationContext(::physx::PxVehiclePhysXSimulationContext&,
+    static void customizeVehicleSimulationContext(::ev4sio_physx::PxVehiclePhysXSimulationContext&,
                                                   const PhysXActorVehicleBase&,
                                                   PhysXSetup&);
 
 private:
     void createVehicleUpdateTasks();
-    void updateQuasistaticActors(const ::physx::PxU32 numActors, ::physx::PxActor** actors);
+    void updateQuasistaticActors(const ::ev4sio_physx::PxU32 numActors, ::ev4sio_physx::PxActor** actors);
 
     carb::tasking::MutexWrapper mCompleteLock;
     carb::tasking::ConditionVariableWrapper mCompleteCV;
@@ -254,7 +254,7 @@ private:
     bool mLastStep;
     bool mSubsteppingEnabled;
     bool mSkipSimulation;
-    ::physx::PxSceneQueryUpdateMode::Enum mSceneQueryUpdateMode;
+    ::ev4sio_physx::PxSceneQueryUpdateMode::Enum mSceneQueryUpdateMode;
     SimulationCompletionTask mSimulationCompletionTask;
 
     // vehicle update
@@ -262,7 +262,7 @@ private:
     // mVehicleSync must be declared (and therefore constructed) before
     // mVehicleUpdateSyncTask, which binds a reference to it in its
     // constructor -- member init order follows declaration order.
-    ::physx::PxSync mVehicleSync;
+    ::ev4sio_physx::PxSync mVehicleSync;
     VehicleUpdateSyncTask mVehicleUpdateSyncTask;
     std::atomic<int32_t> mVehicleProcessingIndex;
 };
@@ -271,7 +271,7 @@ private:
 class PhysXScene
 {
 public:
-    ::physx::PxScene* getScene() const
+    ::ev4sio_physx::PxScene* getScene() const
     {
         return mScene;
     }
@@ -286,12 +286,12 @@ public:
         return mSceneSdfPath;
     }
 
-    ::physx::PxControllerManager* getControllerManager() const
+    ::ev4sio_physx::PxControllerManager* getControllerManager() const
     {
         return mControllerManager;
     }
 
-    ::physx::PxMaterial* getDefaultMaterial() const
+    ::ev4sio_physx::PxMaterial* getDefaultMaterial() const
     {
         return mMaterial;
     }
@@ -301,7 +301,7 @@ public:
         return mMaterialPath;
     }
 
-    ::physx::PxDeformableVolumeMaterial* getDefaultVolumeDeformableMaterial() const
+    ::ev4sio_physx::PxDeformableVolumeMaterial* getDefaultVolumeDeformableMaterial() const
     {
         return mVolumeDeformableMaterial;
     }
@@ -310,7 +310,7 @@ public:
         return mVolumeDeformableMaterialPath;
     }
 
-    ::physx::PxDeformableSurfaceMaterial* getDefaultSurfaceDeformableMaterial() const
+    ::ev4sio_physx::PxDeformableSurfaceMaterial* getDefaultSurfaceDeformableMaterial() const
     {
         return mSurfaceDeformableMaterial;
     }
@@ -319,7 +319,7 @@ public:
         return mSurfaceDeformableMaterialPath;
     }
 
-    ::physx::PxPBDMaterial* getDefaultPBDMaterial() const
+    ::ev4sio_physx::PxPBDMaterial* getDefaultPBDMaterial() const
     {
         return mPBDMaterial;
     }
@@ -348,7 +348,7 @@ public:
 
     bool isReadbackSuppressed() const
     {
-        return mScene && mScene->getFlags().isSet(::physx::PxSceneFlag::eENABLE_DIRECT_GPU_API);
+        return mScene && mScene->getFlags().isSet(::ev4sio_physx::PxSceneFlag::eENABLE_DIRECT_GPU_API);
     }
 
     bool isInvertedCollisionGroupFilter() const
@@ -424,7 +424,7 @@ public:
 
     void updateMirroredBodies();
 
-    ::physx::PxSceneQueryUpdateMode::Enum getSceneQueryUpdateMode() const
+    ::ev4sio_physx::PxSceneQueryUpdateMode::Enum getSceneQueryUpdateMode() const
     {
         return mSceneQueryUpdateMode;
     }
@@ -461,9 +461,9 @@ public:
         if (!mScene)
             return false;
 
-        ::physx::PxSceneFlags sceneFlags = mScene->getFlags();
-        ::physx::PxBroadPhaseType::Enum bpType = mScene->getBroadPhaseType();
-        return (sceneFlags & ::physx::PxSceneFlag::eENABLE_GPU_DYNAMICS && bpType == ::physx::PxBroadPhaseType::eGPU);
+        ::ev4sio_physx::PxSceneFlags sceneFlags = mScene->getFlags();
+        ::ev4sio_physx::PxBroadPhaseType::Enum bpType = mScene->getBroadPhaseType();
+        return (sceneFlags & ::ev4sio_physx::PxSceneFlag::eENABLE_GPU_DYNAMICS && bpType == ::ev4sio_physx::PxBroadPhaseType::eGPU);
     }
 
 private:
@@ -472,8 +472,8 @@ private:
     ~PhysXScene();
 
     usdparser::AttachedStage& mAttachedStage;
-    ::physx::PxScene* mScene;
-    ::physx::PxControllerManager* mControllerManager;
+    ::ev4sio_physx::PxScene* mScene;
+    ::ev4sio_physx::PxControllerManager* mControllerManager;
     internal::InternalScene* mInternalScene;
     uint32_t mTimeStepsPerSeconds;
     usdparser::SceneUpdateType mSceneUpdateType;
@@ -482,19 +482,19 @@ private:
     omni::physics::parse::ObjectKey mSceneSdfPath;
 
     // default materials
-    ::physx::PxMaterial* mMaterial;
+    ::ev4sio_physx::PxMaterial* mMaterial;
     omni::physics::parse::ObjectKey mMaterialPath;
-    ::physx::PxDeformableVolumeMaterial* mVolumeDeformableMaterial;
+    ::ev4sio_physx::PxDeformableVolumeMaterial* mVolumeDeformableMaterial;
     omni::physics::parse::ObjectKey mVolumeDeformableMaterialPath;
-    ::physx::PxDeformableSurfaceMaterial* mSurfaceDeformableMaterial;
+    ::ev4sio_physx::PxDeformableSurfaceMaterial* mSurfaceDeformableMaterial;
     omni::physics::parse::ObjectKey mSurfaceDeformableMaterialPath;
-    ::physx::PxPBDMaterial* mPBDMaterial;
+    ::ev4sio_physx::PxPBDMaterial* mPBDMaterial;
     omni::physics::parse::ObjectKey mPBDMaterialPath;
 
     OmniFilterCallback mFilterCallback;
     OmniContactReportCallback mContactReportCallback;
 
-    ::physx::PxSceneQueryUpdateMode::Enum mSceneQueryUpdateMode;
+    ::ev4sio_physx::PxSceneQueryUpdateMode::Enum mSceneQueryUpdateMode;
 
     // simulation stepping
     float mRemaining;
@@ -509,7 +509,7 @@ private:
     ContactReport* mContactReport;
 };
 
-bool isRigidBodyDynamic(const omni::physx::usdparser::AttachedStage& attachedStage, omni::physx::usdparser::ObjectId id);
+bool isRigidBodyDynamic(const omni::ev4sio_physx::usdparser::AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId id);
 // Whether a scene of the attachment can simulate on the GPU: false when its GPU pipeline
 // override selects the CPU, or the process runs in CPU mode or lacks the CUDA library.
 bool attachmentMayUseGpu(const usdparser::AttachedStage& attachedStage);
@@ -519,5 +519,5 @@ bool attachmentMayUseGpu(const usdparser::AttachedStage& attachedStage);
 bool sceneRequestsGpu(const usdparser::AttachedStage& attachedStage, const usdparser::PhysxSceneDesc& desc);
 
 
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

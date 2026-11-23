@@ -11,7 +11,7 @@
 namespace omni
 {
 
-namespace physx
+namespace ev4sio_physx
 {
 
 ///  Default values
@@ -145,5 +145,5 @@ struct SphereFillCookingParams : CookingParams
     uint32_t voxelResolution{ defaultCookedVoxelResolution };
     carb::Float3 signScale = { 1.0f, 1.0f, 1.0f };
 };
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

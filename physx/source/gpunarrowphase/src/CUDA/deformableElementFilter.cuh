@@ -10,7 +10,7 @@
 #include "PxFiltering.h"
 #include "PxgSimulationCoreDesc.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 static __device__ bool find(const PxgDeformablePairInfo* pairs, const PxU32 nbPairs, const PxgDeformablePairInfo& pair)
@@ -127,6 +127,6 @@ static __device__ PX_FORCE_INLINE bool findSurfaceSurfaceEdgeEdgeFilter(const Px
 	return find(pairs, nbPairs, pair);
 }
 
-} // namespace physx
+} // namespace ev4sio_physx
 
 #endif // __DEFORMABLE_ELEMENT_FILTER_CUH__

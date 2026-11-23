@@ -21,7 +21,7 @@
 #include "PxsHeapStats.h"
 #include "foundation/PxHashMap.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	class PxCudaContextManager;
 
@@ -32,11 +32,11 @@ namespace physx
 	struct PxgAllocatorDesc;
 	struct PxGpuDynamicsMemoryConfig;
 
-	class PxgProcessFoundPairTask : public Cm::Task 
+	class PxgProcessFoundPairTask : public ev4sio_Cm::Task
 	{
 		PxgAABBManager* mManager;
 	public:
-		PxgProcessFoundPairTask(PxgAABBManager* manager) : Cm::Task(0), mManager(manager)
+		PxgProcessFoundPairTask(PxgAABBManager* manager) : ev4sio_Cm::Task(0), mManager(manager)
 		{
 		}
 
@@ -44,11 +44,11 @@ namespace physx
 		virtual const char* getName() const PX_OVERRIDE { return "PxgProcessFoundPairTask"; }
 	};
 
-	class PxgProcessLostPairTask : public Cm::Task
+	class PxgProcessLostPairTask : public ev4sio_Cm::Task
 	{
 		PxgAABBManager* mManager;
 	public:
-		PxgProcessLostPairTask(PxgAABBManager* manager) : Cm::Task(0), mManager(manager)
+		PxgProcessLostPairTask(PxgAABBManager* manager) : ev4sio_Cm::Task(0), mManager(manager)
 		{
 		}
 
@@ -56,14 +56,14 @@ namespace physx
 		virtual const char* getName() const PX_OVERRIDE { return "PxgProcessLostPairTask"; }
 	};
 	
-	class PxgAABBManager : public Bp::AABBManagerBase
+	class PxgAABBManager : public ev4sio_Bp::AABBManagerBase
 	{
 	public:
 											PxgAABBManager(PxgCudaKernelWranglerManager* gpuKernelWrangler,
 												PxCudaContextManager* cudaContextManager,
 												PxgAllocatorDesc& allocDesc,
 												const PxGpuDynamicsMemoryConfig& config,
-												Bp::BroadPhase& bp, Bp::BoundsArray& boundsArray, Cm::PinnableArray<PxReal>& contactDistance,
+												ev4sio_Bp::BroadPhase& bp, ev4sio_Bp::BoundsArray& boundsArray, ev4sio_Cm::PinnableArray<PxReal>& contactDistance,
 												PxU32 maxNbAggregates, PxU32 maxNbShapes,
 												PxU64 contextID, PxPairFilteringMode::Enum kineKineFilteringMode, 
 												PxPairFilteringMode::Enum staticKineFilteringMode);
@@ -72,13 +72,13 @@ namespace physx
 
 		// AABBManagerBase
 		virtual			void				destroy()	PX_OVERRIDE;
-		virtual			Bp::AggregateHandle	createAggregate(Bp::BoundsIndex index, Bp::FilterGroup::Enum group, void* userData, PxU32 maxNumShapes, PxAggregateFilterHint filterHint, PxU32 envID)	PX_OVERRIDE;
-		virtual			bool				destroyAggregate(Bp::BoundsIndex& index, Bp::FilterGroup::Enum& group, Bp::AggregateHandle aggregateHandle)	PX_OVERRIDE;
-		virtual			bool				addBounds(Bp::BoundsIndex index, PxReal contactDistance, Bp::FilterGroup::Enum group, void* userData, Bp::AggregateHandle aggregateHandle, Bp::ElementType::Enum volumeType, PxU32 envID)	PX_OVERRIDE;
-		virtual			bool				removeBounds(Bp::BoundsIndex index)	PX_OVERRIDE;
-		virtual			void				updateBPFirstPass(PxU32 numCpuTasks, Cm::FlushPool& flushPool, bool hasContactDistanceUpdated, PxBaseTask* continuation)	PX_OVERRIDE;
-		virtual			void				updateBPSecondPass(PxU32 numCpuTasks, Cm::FlushPool& flushPool, PxcScratchAllocator* scratchAllocator, PxBaseTask* continuation)	PX_OVERRIDE;
-		virtual			void				postBroadPhase(PxBaseTask*, Cm::FlushPool& flushPool)	PX_OVERRIDE;
+		virtual			ev4sio_Bp::AggregateHandle	createAggregate(ev4sio_Bp::BoundsIndex index, ev4sio_Bp::FilterGroup::Enum group, void* userData, PxU32 maxNumShapes, PxAggregateFilterHint filterHint, PxU32 envID)	PX_OVERRIDE;
+		virtual			bool				destroyAggregate(ev4sio_Bp::BoundsIndex& index, ev4sio_Bp::FilterGroup::Enum& group, ev4sio_Bp::AggregateHandle aggregateHandle)	PX_OVERRIDE;
+		virtual			bool				addBounds(ev4sio_Bp::BoundsIndex index, PxReal contactDistance, ev4sio_Bp::FilterGroup::Enum group, void* userData, ev4sio_Bp::AggregateHandle aggregateHandle, ev4sio_Bp::ElementType::Enum volumeType, PxU32 envID)	PX_OVERRIDE;
+		virtual			bool				removeBounds(ev4sio_Bp::BoundsIndex index)	PX_OVERRIDE;
+		virtual			void				updateBPFirstPass(PxU32 numCpuTasks, ev4sio_Cm::FlushPool& flushPool, bool hasContactDistanceUpdated, PxBaseTask* continuation)	PX_OVERRIDE;
+		virtual			void				updateBPSecondPass(PxU32 numCpuTasks, ev4sio_Cm::FlushPool& flushPool, PxcScratchAllocator* scratchAllocator, PxBaseTask* continuation)	PX_OVERRIDE;
+		virtual			void				postBroadPhase(PxBaseTask*, ev4sio_Cm::FlushPool& flushPool)	PX_OVERRIDE;
 		virtual			void				reallocateChangedAABBMgActorHandleMap(const PxU32 size)	PX_OVERRIDE;
 		virtual			void				visualize(PxRenderOutput& out)	PX_OVERRIDE;
 		virtual			void				releaseDeferredAggregateIds()	PX_OVERRIDE;
@@ -115,27 +115,27 @@ namespace physx
 
 		PxArray<PxgAggregate>				mAggregates;				//cpu mirror
 
-		Cm::PinnableArray<PxgAggregatePair>		mAggregatePairs;
-		Cm::PinnableArray<Bp::AggregateHandle>	mDirtyAggregateIndices;
-		Cm::PinnableArray<PxgAggregate>			mDirtyAggregates;
+		ev4sio_Cm::PinnableArray<PxgAggregatePair>		mAggregatePairs;
+		ev4sio_Cm::PinnableArray<ev4sio_Bp::AggregateHandle>	mDirtyAggregateIndices;
+		ev4sio_Cm::PinnableArray<PxgAggregate>			mDirtyAggregates;
 
 		//found and lost pairs for agg vs agg and agg vs actor, need to be device mapped memory
-		Cm::PinnableArray<PxgBroadPhasePair>	mFoundPairsMapped;
-		Cm::PinnableArray<PxgBroadPhasePair>	mLostPairsMapped;
+		ev4sio_Cm::PinnableArray<PxgBroadPhasePair>	mFoundPairsMapped;
+		ev4sio_Cm::PinnableArray<PxgBroadPhasePair>	mLostPairsMapped;
 
-		Cm::PinnableArray<PxU32>				mDirtyBoundIndices;
-		Cm::PinnableArray<PxU32>				mDirtyBoundStartIndices; //start index of each aggregate in the dirty bound indices list
+		ev4sio_Cm::PinnableArray<PxU32>				mDirtyBoundIndices;
+		ev4sio_Cm::PinnableArray<PxU32>				mDirtyBoundStartIndices; //start index of each aggregate in the dirty bound indices list
 
-		Cm::PinnableArray<PxU32>				mRemovedAggregatedBounds;
-		Cm::PinnableArray<PxU32>				mAddedAggregatedBounds;
+		ev4sio_Cm::PinnableArray<PxU32>				mRemovedAggregatedBounds;
+		ev4sio_Cm::PinnableArray<PxU32>				mAddedAggregatedBounds;
 
-		Cm::DeferredIDPool						mAggregatesIdPool; //generate the remap id between pxgbodysim and pxgaggregate
+		ev4sio_Cm::DeferredIDPool						mAggregatesIdPool; //generate the remap id between pxgbodysim and pxgaggregate
 		PxBitMap								mDirtyAggregateBitMap;
-		Cm::PinnableBitMap						mAggregatedBoundMap;
+		ev4sio_Cm::PinnableBitMap						mAggregatedBoundMap;
 
 		PxArray<PxgAggregateBuffer*>			mAggregateBufferArray;
 
-		Cm::PinnableObject<PxgAggregateDesc>	mAggregateDesc;
+		ev4sio_Cm::PinnableObject<PxgAggregateDesc>	mAggregateDesc;
 		
 		PxgCudaBuffer						mVolumeDataBuf;
 
@@ -222,15 +222,15 @@ namespace physx
 		bool								mPersistentStateChanged;
 	};
 
-	class PxgBoundsArray : public Bp::BoundsArray
+	class PxgBoundsArray : public ev4sio_Bp::BoundsArray
 	{
 	PX_NOCOPY(PxgBoundsArray)
 
 	public:
-	PxgBoundsArray(Cm::VirtualAllocatorCallback& mappedAllocator)
-	  : BoundsArray(mappedAllocator, PxsHeapStats::eBROADPHASE, Cm::PinnableAllocatorFallback::eDISABLED)
+	PxgBoundsArray(ev4sio_Cm::VirtualAllocatorCallback& mappedAllocator)
+	  : BoundsArray(mappedAllocator, PxsHeapStats::eBROADPHASE, ev4sio_Cm::PinnableAllocatorFallback::eDISABLED)
 	  , mEnableChangeTracking(false)
-	  , mChangesMapped(mappedAllocator, PxsHeapStats::eBROADPHASE, Cm::PinnableAllocatorFallback::eDISABLED)
+	  , mChangesMapped(mappedAllocator, PxsHeapStats::eBROADPHASE, ev4sio_Cm::PinnableAllocatorFallback::eDISABLED)
 	{}
 
 		virtual ~PxgBoundsArray() PX_OVERRIDE
@@ -258,7 +258,7 @@ namespace physx
 			}
 			else
 			{
-				Gu::computeBounds(mBounds[index], geom, transform, 0.0f, 1.0f);
+				ev4sio_Gu::computeBounds(mBounds[index], geom, transform, 0.0f, 1.0f);
 				updateChanges(index, PxgBoundTransformUpdate::eCOPY_FROM_CPU);
 			}
 		}
@@ -374,7 +374,7 @@ namespace physx
 		}
 
 		bool mEnableChangeTracking;
-		Cm::PinnableArray<PxgBoundTransformUpdate> mChangesMapped;
+		ev4sio_Cm::PinnableArray<PxgBoundTransformUpdate> mChangesMapped;
 		PxHashMap<PxU32, PxU32> mChangeMap;
 	};
 }

@@ -15,7 +15,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 // Suppression belongs to the source that is being authored. Retaining just the
 // counters allows scope exit after reentrant owner destruction without touching
@@ -46,5 +46,5 @@ private:
     bool mSource;
     bool mCooking;
 };
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

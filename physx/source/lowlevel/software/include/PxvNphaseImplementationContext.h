@@ -17,26 +17,26 @@
 #include "PxsDeformableVolumeMaterialCore.h"
 #include "PxsPBDMaterialCore.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace IG
+namespace ev4sio_IG
 {
 	class IslandSim;
 	typedef PxU32 EdgeIndex;
 }
 
-namespace Cm
+namespace ev4sio_Cm
 {
 	class FanoutTask;
 	class VirtualAllocatorCallback;
 }
 
-namespace Sc
+namespace ev4sio_Sc
 {
 	class ShapeInteraction;
 }
 
-namespace Gu
+namespace ev4sio_Gu
 {
 	class PersistentContactManifold;
 }
@@ -98,13 +98,13 @@ public:
 	virtual								~PxvNphaseImplementationContext() {}
 
 	virtual void						destroy() = 0;
-	virtual void						updateContactManager(PxReal dt, bool hasContactDistanceChanged, PxBaseTask* continuation, PxBaseTask* firstPassContinuation, Cm::FanoutTask* updateBoundAndShapeTask) = 0;
+	virtual void						updateContactManager(PxReal dt, bool hasContactDistanceChanged, PxBaseTask* continuation, PxBaseTask* firstPassContinuation, ev4sio_Cm::FanoutTask* updateBoundAndShapeTask) = 0;
 	virtual void						postBroadPhaseUpdateContactManager(PxBaseTask* continuation) = 0;
 	virtual void						secondPassUpdateContactManager(PxReal dt, PxBaseTask* continuation) = 0;
 	virtual void						fetchUpdateContactManager() = 0;
 	
-	virtual void						registerContactManager(PxsContactManager* cm, const Sc::ShapeInteraction* interaction, PxI32 touching, PxU32 patchCount) = 0;
-//	virtual void						registerContactManagers(PxsContactManager** cm, Sc::ShapeInteraction** shapeInteractions, PxU32 nbContactManagers, PxU32 maxContactManagerId) = 0;
+	virtual void						registerContactManager(PxsContactManager* cm, const ev4sio_Sc::ShapeInteraction* interaction, PxI32 touching, PxU32 patchCount) = 0;
+//	virtual void						registerContactManagers(PxsContactManager** cm, ev4sio_Sc::ShapeInteraction** shapeInteractions, PxU32 nbContactManagers, PxU32 maxContactManagerId) = 0;
 	virtual void						unregisterContactManager(PxsContactManager* cm) = 0;
 	// Deferred removal: unregisterContactManagerDeferred() marks the pair for removal and flushDeferredUnregisters()
 	// then compacts the pair arrays once for all marked pairs. No other pair registration or removal may happen in
@@ -122,7 +122,7 @@ public:
 	// - prefetchUnregisterSlot() fetches the slot that unregisterContactManagerDeferredThreadSafe() updates.
 	// flushDeferredUnregisters() then compacts the pair list as for unregisterContactManagerDeferred().
 	virtual void						beginDeferredUnregistersThreadSafe()															{ PX_ASSERT(0);					}
-	virtual bool						unregisterContactManagerDeferredThreadSafe(PxsContactManager*, Gu::PersistentContactManifold*&)	{ PX_ASSERT(0); return false;	}
+	virtual bool						unregisterContactManagerDeferredThreadSafe(PxsContactManager*, ev4sio_Gu::PersistentContactManifold*&)	{ PX_ASSERT(0); return false;	}
 	virtual void						addDeferredUnregisters(PxU32)																	{ PX_ASSERT(0);					}
 	virtual void						prefetchUnregisterSlot(const PxsContactManager*)	const										{								}
 	virtual void						refreshContactManager(PxsContactManager* cm) = 0;
@@ -175,7 +175,7 @@ public:
 
 	virtual PxsContactManagerOutput*	getGPUContactManagerOutputBase() = 0;
 	virtual PxReal*						getGPURestDistances() = 0;
-	virtual Sc::ShapeInteraction**		getGPUShapeInteractions() = 0;
+	virtual ev4sio_Sc::ShapeInteraction**		getGPUShapeInteractions() = 0;
 	virtual PxsTorsionalFrictionData*	getGPUTorsionalData() = 0;
 };
 
@@ -195,12 +195,12 @@ public:
 	virtual void								appendContactManagersFallback(PxsContactManagerOutput* outputs) = 0;
 	virtual void								removeContactManagersFallback(PxsContactManagerOutput* cmOutputs) = 0;
 
-	virtual const Sc::ShapeInteraction*const*	getShapeInteractionsGPU()	const	= 0;
+	virtual const ev4sio_Sc::ShapeInteraction*const*	getShapeInteractionsGPU()	const	= 0;
 	virtual const PxReal*						getRestDistancesGPU()		const	= 0;
 	virtual const PxsTorsionalFrictionData*		getTorsionalDataGPU()		const	= 0;
 };
 
-PxvNphaseImplementationFallback* createNphaseImplementationContext(PxsContext& context, IG::IslandSim* islandSim, Cm::VirtualAllocatorCallback& alloc, bool gpuDynamics);
+PxvNphaseImplementationFallback* createNphaseImplementationContext(PxsContext& context, ev4sio_IG::IslandSim* islandSim, ev4sio_Cm::VirtualAllocatorCallback& alloc, bool gpuDynamics);
 
 }
 

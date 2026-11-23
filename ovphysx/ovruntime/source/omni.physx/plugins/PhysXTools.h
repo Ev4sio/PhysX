@@ -67,24 +67,24 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 
 // pxr-free degToRad/radToDeg overloads (float, PxVec3, carb::Float3) live in PhysXToolsCore.h.
 
 template <class Type>
-inline Type* getPtr(const internal::InternalDatabase& internaldb, PhysXType type, omni::physx::usdparser::ObjectId id)
+inline Type* getPtr(const internal::InternalDatabase& internaldb, PhysXType type, omni::ev4sio_physx::usdparser::ObjectId id)
 {
-    if (id == omni::physx::usdparser::kInvalidObjectId)
+    if (id == omni::ev4sio_physx::usdparser::kInvalidObjectId)
         return nullptr;
     void* ptr = internaldb.getTypedRecord(type, id);
     return reinterpret_cast<Type*>(ptr);
 }
 
 template <class Type>
-inline Type* getInternalPtr(const internal::InternalDatabase& internaldb, PhysXType type, omni::physx::usdparser::ObjectId id)
+inline Type* getInternalPtr(const internal::InternalDatabase& internaldb, PhysXType type, omni::ev4sio_physx::usdparser::ObjectId id)
 {
-    if (id == omni::physx::usdparser::kInvalidObjectId)
+    if (id == omni::ev4sio_physx::usdparser::kInvalidObjectId)
         return nullptr;
     void* ptr = internaldb.getInternalTypedRecord(type, id);
     return reinterpret_cast<Type*>(ptr);
@@ -414,7 +414,7 @@ inline void clearCookedValue(usdparser::AttachedStage& attachedStage,
 // toPxMat44d/toParseMatrix4d (the PhysX <-> parse-lib Matrix4d conversion) are pxr-free and
 // live in PhysXToolsCore.h (included above).
 
-inline ::physx::PxMat44d getWorldTransform(const usdparser::AttachedStage& attachedStage,
+inline ::ev4sio_physx::PxMat44d getWorldTransform(const usdparser::AttachedStage& attachedStage,
                                             omni::physics::parse::ObjectKey key,
                                             omni::physics::parse::ReadTime time)
 {
@@ -427,7 +427,7 @@ inline ::physx::PxMat44d getWorldTransform(const usdparser::AttachedStage& attac
 // Local-to-world transform via the source's cached, time-independent overload
 // (pinned to EarliestTime). Use for load-time reads that previously went
 // through an EarliestTime UsdGeomXformCache — same result, shared cache.
-inline ::physx::PxMat44d getWorldTransform(const usdparser::AttachedStage& attachedStage,
+inline ::ev4sio_physx::PxMat44d getWorldTransform(const usdparser::AttachedStage& attachedStage,
                                             omni::physics::parse::ObjectKey key)
 {
     omni::physics::parse::Matrix4d m;
@@ -441,7 +441,7 @@ inline ::physx::PxMat44d getWorldTransform(const usdparser::AttachedStage& attac
 // (no direct USD prim access). `outResetsXformStack` receives whether the
 // object resets the inherited parent transform. Returns identity when the
 // source is unavailable or the key does not resolve.
-inline ::physx::PxMat44d getLocalTransform(const usdparser::AttachedStage& attachedStage,
+inline ::ev4sio_physx::PxMat44d getLocalTransform(const usdparser::AttachedStage& attachedStage,
                                             omni::physics::parse::ObjectKey key,
                                             omni::physics::parse::ReadTime time,
                                             bool& outResetsXformStack)
@@ -517,28 +517,28 @@ inline bool hasMultiApplyInstance(const usdparser::AttachedStage& attachedStage,
     return source->hasSchema(key, source->internToken(appliedSchema));
 }
 
-inline ::physx::PxQuat fixupCapsuleQuat(omni::physx::usdparser::Axis axis)
+inline ::ev4sio_physx::PxQuat fixupCapsuleQuat(omni::ev4sio_physx::usdparser::Axis axis)
 {
-    ::physx::PxQuat fixupQ(::physx::PxIdentity);
+    ::ev4sio_physx::PxQuat fixupQ(::ev4sio_physx::PxIdentity);
     const float hRt2 = sqrt(2.0f) / 2.0f;
     if (axis == usdparser::eZ)
     {
-        fixupQ = ::physx::PxQuat(hRt2, 0.0f, -hRt2, 0.0f);
+        fixupQ = ::ev4sio_physx::PxQuat(hRt2, 0.0f, -hRt2, 0.0f);
     }
     else if (axis == usdparser::eY)
     {
-        fixupQ = ::physx::PxQuat(hRt2, -hRt2, 0.0f, 0.0f);
+        fixupQ = ::ev4sio_physx::PxQuat(hRt2, -hRt2, 0.0f, 0.0f);
     }
     return fixupQ;
 }
 
-inline ::physx::PxQuat fixupConeAndCylinderQuat(omni::physx::usdparser::Axis axis)
+inline ::ev4sio_physx::PxQuat fixupConeAndCylinderQuat(omni::ev4sio_physx::usdparser::Axis axis)
 {
-    ::physx::PxQuat fixupQ(::physx::PxIdentity);
+    ::ev4sio_physx::PxQuat fixupQ(::ev4sio_physx::PxIdentity);
     if (axis == usdparser::eZ)
-        fixupQ = ::physx::PxQuat(::physx::PxPiDivTwo, ::physx::PxVec3(0, -1, 0));
+        fixupQ = ::ev4sio_physx::PxQuat(::ev4sio_physx::PxPiDivTwo, ::ev4sio_physx::PxVec3(0, -1, 0));
     else if (axis == usdparser::eY)
-        fixupQ = ::physx::PxQuat(::physx::PxPiDivTwo, ::physx::PxVec3(0, 0, 1));
+        fixupQ = ::ev4sio_physx::PxQuat(::ev4sio_physx::PxPiDivTwo, ::ev4sio_physx::PxVec3(0, 0, 1));
 
     return fixupQ;
 }
@@ -547,37 +547,37 @@ inline ::physx::PxQuat fixupConeAndCylinderQuat(omni::physx::usdparser::Axis axi
 // ObjectKey (ADR-0019) via the getObjectDataOrID ObjectKey overload in
 // ObjectDataQuery.h, so ADR-0018 callers can look up the joint's PhysX
 // pointer without constructing an SdfPath.
-inline bool getJointAndLocalPose(const omni::physx::usdparser::AttachedStage& attachedStage,
+inline bool getJointAndLocalPose(const omni::ev4sio_physx::usdparser::AttachedStage& attachedStage,
                                  omni::physics::parse::ObjectKey jointKey,
-                                 const ::physx::PxRigidActor* jointActor,
-                                 ::physx::PxBase*& jointOut,
-                                 ::physx::PxTransform& localFrame)
+                                 const ::ev4sio_physx::PxRigidActor* jointActor,
+                                 ::ev4sio_physx::PxBase*& jointOut,
+                                 ::ev4sio_physx::PxTransform& localFrame)
 {
-    ::physx::PxBase* joint =
-        reinterpret_cast<::physx::PxBase*>(omni::physx::getObjectDataOrID<omni::physx::ObjectDataQueryType::ePHYSX_PTR>(
+    ::ev4sio_physx::PxBase* joint =
+        reinterpret_cast<::ev4sio_physx::PxBase*>(omni::ev4sio_physx::getObjectDataOrID<omni::ev4sio_physx::ObjectDataQueryType::ePHYSX_PTR>(
             jointKey, ePTJoint, attachedStage.getInternalPhysXDatabase(), attachedStage));
     if (!joint)
     {
-        joint = reinterpret_cast<::physx::PxBase*>(
-            omni::physx::getObjectDataOrID<omni::physx::ObjectDataQueryType::ePHYSX_PTR>(
+        joint = reinterpret_cast<::ev4sio_physx::PxBase*>(
+            omni::ev4sio_physx::getObjectDataOrID<omni::ev4sio_physx::ObjectDataQueryType::ePHYSX_PTR>(
                 jointKey, ePTLinkJoint, attachedStage.getInternalPhysXDatabase(), attachedStage));
     }
 
-    if (joint && joint->getConcreteType() == ::physx::PxJointConcreteType::eD6)
+    if (joint && joint->getConcreteType() == ::ev4sio_physx::PxJointConcreteType::eD6)
     {
-        ::physx::PxRigidActor* actor0;
-        ::physx::PxRigidActor* actor1;
+        ::ev4sio_physx::PxRigidActor* actor0;
+        ::ev4sio_physx::PxRigidActor* actor1;
 
-        ::physx::PxJoint* jointPtr = (::physx::PxJoint*)joint;
+        ::ev4sio_physx::PxJoint* jointPtr = (::ev4sio_physx::PxJoint*)joint;
         jointPtr->getActors(actor0, actor1);
         if (jointActor == actor0)
-            localFrame = jointPtr->getLocalPose(::physx::PxJointActorIndex::eACTOR0);
+            localFrame = jointPtr->getLocalPose(::ev4sio_physx::PxJointActorIndex::eACTOR0);
         if (jointActor == actor1)
-            localFrame = jointPtr->getLocalPose(::physx::PxJointActorIndex::eACTOR1);
+            localFrame = jointPtr->getLocalPose(::ev4sio_physx::PxJointActorIndex::eACTOR1);
     }
-    else if (joint && joint->getConcreteType() == ::physx::PxConcreteType::eARTICULATION_JOINT_REDUCED_COORDINATE)
+    else if (joint && joint->getConcreteType() == ::ev4sio_physx::PxConcreteType::eARTICULATION_JOINT_REDUCED_COORDINATE)
     {
-        ::physx::PxArticulationJointReducedCoordinate* jointPtr = (::physx::PxArticulationJointReducedCoordinate*)joint;
+        ::ev4sio_physx::PxArticulationJointReducedCoordinate* jointPtr = (::ev4sio_physx::PxArticulationJointReducedCoordinate*)joint;
 
         if (jointActor == &jointPtr->getParentArticulationLink())
             localFrame = jointPtr->getParentPose();
@@ -600,21 +600,21 @@ inline bool getJointAndLocalPose(const omni::physx::usdparser::AttachedStage& at
 class FaceIndexResolve
 {
 public:
-    FaceIndexResolve(::physx::PxShape* shape) : mShape(shape)
+    FaceIndexResolve(::ev4sio_physx::PxShape* shape) : mShape(shape)
     {
     }
 
     uint32_t resolveFaceIndex(uint32_t faceIndex)
     {
         uint32_t retVal = 0;
-        const ::physx::PxGeometry& geom = mShape->getGeometry();
-        if (geom.getType() == ::physx::PxGeometryType::eTRIANGLEMESH)
+        const ::ev4sio_physx::PxGeometry& geom = mShape->getGeometry();
+        if (geom.getType() == ::ev4sio_physx::PxGeometryType::eTRIANGLEMESH)
         {
             if (faceIndex == UNKNOWN_FACE_ID)
                 return UNKNOWN_FACE_ID;
 
-            const ::physx::PxTriangleMeshGeometry& triGeom = static_cast<const ::physx::PxTriangleMeshGeometry&>(geom);
-            const ::physx::PxTriangleMesh* mesh = triGeom.triangleMesh;
+            const ::ev4sio_physx::PxTriangleMeshGeometry& triGeom = static_cast<const ::ev4sio_physx::PxTriangleMeshGeometry&>(geom);
+            const ::ev4sio_physx::PxTriangleMesh* mesh = triGeom.triangleMesh;
             if (mesh && faceIndex < mesh->getNbTriangles())
             {
                 const uint32_t remappedIndex = mesh->getTrianglesRemap()[faceIndex];
@@ -631,9 +631,9 @@ public:
     }
 
 private:
-    ::physx::PxShape* mShape;
+    ::ev4sio_physx::PxShape* mShape;
 };
 
 } // namespace internal
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

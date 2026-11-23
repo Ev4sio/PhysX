@@ -25,19 +25,19 @@
 #include <unordered_map>
 #include <vector>
 
-namespace physx { class PxScene; }
+namespace ev4sio_physx { class PxScene; }
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace internal
 {
 
 // Read only the database owned by this scene. A peer's mutations do not
 // invalidate the cached topology. Owner counters survive database rebuilding.
-uint64_t recordLifetimeEpoch(const ::physx::PxScene* scene);
-uint64_t kinematicToggleEpoch(const ::physx::PxScene* scene);
+uint64_t recordLifetimeEpoch(const ::ev4sio_physx::PxScene* scene);
+uint64_t kinematicToggleEpoch(const ::ev4sio_physx::PxScene* scene);
 
 class InternalDatabase : public Allocateable
 {
@@ -141,5 +141,5 @@ private:
     mutable size_t mIndexedRecords = 0;
 };
 } // namespace internal
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

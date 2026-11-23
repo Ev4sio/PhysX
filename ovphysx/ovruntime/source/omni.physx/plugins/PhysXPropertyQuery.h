@@ -6,7 +6,7 @@
 
 #pragma once
 
-// omni::physx::queryPrim / PhysXPropertyQueryManager (ADR-0018): arbitrary live-stage-by-id
+// omni::ev4sio_physx::queryPrim / PhysXPropertyQueryManager (ADR-0018): arbitrary live-stage-by-id
 // property/mass query (e.g. "select a prim in the viewport, compute its mass without
 // simulating"). Genuinely Kit/USD-authoring-only -- never reachable from ovphysx's own
 // ovstage attach path.
@@ -28,7 +28,7 @@ namespace kit
 struct StageUpdateNode;
 struct StageUpdateSettings;
 } // namespace kit
-namespace physx
+namespace ev4sio_physx
 {
 class PhysXPropertyQueryManager;
 struct PhysXPropertyQueryManagerImpl;
@@ -74,5 +74,5 @@ private:
     PhysXPropertyQueryManagerImpl* mImpl = nullptr;
 };
 
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

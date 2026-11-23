@@ -10,7 +10,7 @@
 #include <initializer_list>
 #include <new>
 #include <thread>
-using namespace physx;
+using namespace ev4sio_physx;
 namespace sdk = ovphysx::companion::native;
 namespace {
 std::atomic<uint32_t> creates{0}, releases{0}, preparations{0}, starts{0}, stops{0}, refreshes{0}, attempts{0}, comShifts{0}, originShifts{0};
@@ -38,7 +38,7 @@ void* create(const sdk::ObjectContext& input, PxRigidActor* a, const PxTransform
     if (input.parameterCount != 3) return nullptr;
     for (uint32_t i=0;i<3;++i) if (input.parameters[i].scalar < 0) return nullptr;
     // This sample implements ordinary rigid constraints, not articulation DOFs.
-    for (physx::PxRigidActor * actor : {a,b})
+    for (ev4sio_physx::PxRigidActor * actor : {a,b})
         if (actor && actor->getType() == PxActorType::eARTICULATION_LINK) return nullptr;
     Joint * j = new(std::nothrow) Joint;
     if (!j) return nullptr;

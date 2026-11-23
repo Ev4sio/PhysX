@@ -19,7 +19,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 
 namespace usdparser { class AttachedStage; }
@@ -41,7 +41,7 @@ struct GlobalSimulationFlag
     };
 };
 
-void physxSetSimulationCallback(AttachHandle attachHandle, const omni::physx::ISimulationCallback& cb);
+void physxSetSimulationCallback(AttachHandle attachHandle, const omni::ev4sio_physx::ISimulationCallback& cb);
 
 void physxSetSimulationFlags(AttachHandle attachHandle, uint32_t outputType, uint32_t flags);
 void physxAddSimulationFlags(AttachHandle attachHandle, uint32_t outputType, uint32_t flags);
@@ -145,5 +145,5 @@ private:
     OwnedFullContactRegistry mFullContactReportSubscriptions;
 };
 
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

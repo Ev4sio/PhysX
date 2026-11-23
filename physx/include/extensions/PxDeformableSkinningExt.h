@@ -10,7 +10,7 @@
 #include "foundation/PxVec3.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -70,7 +70,7 @@ public:
 };
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif // PX_DEFORMABLE_SKINNING_EXT_H

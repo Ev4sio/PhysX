@@ -64,8 +64,8 @@
 
 #include <usdBridge/AttachmentAuthoringBridge.h>
 
-using namespace ::physx;
-using namespace omni::physx::usdparser;
+using namespace ::ev4sio_physx;
+using namespace omni::ev4sio_physx::usdparser;
 using namespace cookingdataasync;
 
 #if !CARB_PLATFORM_WINDOWS
@@ -100,7 +100,7 @@ bool operator==(const carb::Int2& lhs, const carb::Int2& rhs)
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 bool setupAutoDeformableAttachment(AttachHandle attach, omni::physics::parse::ObjectKey key)
 {
@@ -175,7 +175,7 @@ struct DeformableMeshInfo
     std::vector<uint32_t> collSurfaceTriToTetMap;
     std::vector<carb::Float3> collPositions;
 
-    omni::physx::usdparser::MeshKey deformableBodyDataCrc;
+    omni::ev4sio_physx::usdparser::MeshKey deformableBodyDataCrc;
 };
 
 template <typename T = int>
@@ -280,11 +280,11 @@ void parseAttachableKeys(usdparser::AttachedStage& attachedStage, omni::physics:
         tok.physxAutoDeformableAttachmentAttachable1);
 }
 
-omni::physx::usdparser::MeshKey loadMeshKey(usdparser::AttachedStage& attachedStage,
+omni::ev4sio_physx::usdparser::MeshKey loadMeshKey(usdparser::AttachedStage& attachedStage,
                                             omni::physics::parse::ObjectKey key,
                                             std::string_view crcTokenName)
 {
-    omni::physx::usdparser::MeshKey meshKey;
+    omni::ev4sio_physx::usdparser::MeshKey meshKey;
     const omni::physics::parse::IPhysicsSource* src = attachedStage.getSource();
     if (!src)
         return meshKey;
@@ -307,7 +307,7 @@ omni::physx::usdparser::MeshKey loadMeshKey(usdparser::AttachedStage& attachedSt
 void storeMeshKey(usdparser::AttachedStage& attachedStage,
                   omni::physics::parse::ObjectKey key,
                   std::string_view crcTokenName,
-                  const omni::physx::usdparser::MeshKey& meshKey)
+                  const omni::ev4sio_physx::usdparser::MeshKey& meshKey)
 {
     if (omni::physics::parse::IPhysicsDataWrite* write = attachedStage.getAuthoringDataWrite())
     {
@@ -800,10 +800,10 @@ carb::Float4 computeDistancePointBarycentric(const carb::Float3* positions, cons
     for (uint32_t i = 0; i < 4; ++i)
     {
         uint32_t v = indices[srcTetIndex * 4 + i];
-        tp[i] = omni::physx::toPhysX(positions[v]);
+        tp[i] = omni::ev4sio_physx::toPhysX(positions[v]);
     }
     PxVec4 physxBary;
-    PxComputeBarycentric(tp[0], tp[1], tp[2], tp[3], omni::physx::toPhysX(srcPoint) + omni::physx::toPhysX(srcPointDistanceDir), physxBary);
+    PxComputeBarycentric(tp[0], tp[1], tp[2], tp[3], omni::ev4sio_physx::toPhysX(srcPoint) + omni::ev4sio_physx::toPhysX(srcPointDistanceDir), physxBary);
     return *reinterpret_cast<carb::Float4*>(&physxBary);
 }
 
@@ -1151,7 +1151,7 @@ void computeVtxTetAttachments(
     {
         for (PxU32 i = 0; i < srcPoints.size(); i++)
         {
-            PxVec3 srcPointDistanceDir = omni::physx::toPhysX(srcPointDistanceDirs[i]);
+            PxVec3 srcPointDistanceDir = omni::ev4sio_physx::toPhysX(srcPointDistanceDirs[i]);
             float separationSq = srcPointDistanceDir.magnitudeSquared();
 
             if (separationSq <= vertexOverlapOffset * vertexOverlapOffset)
@@ -1539,8 +1539,8 @@ bool parseMaskShape(usdparser::AttachedStage& attachedStage, PxGeometryHolder& g
     // MatrixTools.h) -- switching decompositions here would invalidate every
     // persisted attachment CRC and regenerate different attachment data on
     // sheared inputs. This keeps the pre-port CRC and attachment data intact.
-    const omni::physx::gfmath::PivotTransform shapeXf = omni::physx::gfmath::decomposeWithPivot(shapeMat);
-    const PxQuatd shapeRotD = omni::physx::gfmath::getQuat(shapeXf.rotation);
+    const omni::ev4sio_physx::gfmath::PivotTransform shapeXf = omni::ev4sio_physx::gfmath::decomposeWithPivot(shapeMat);
+    const PxQuatd shapeRotD = omni::ev4sio_physx::gfmath::getQuat(shapeXf.rotation);
     transform = PxTransform(PxVec3(float(shapeXf.translation.x), float(shapeXf.translation.y), float(shapeXf.translation.z)),
                             PxQuat(float(shapeRotD.x), float(shapeRotD.y), float(shapeRotD.z), float(shapeRotD.w)));
     PxVec3 shapeScale(float(shapeXf.scale.x), float(shapeXf.scale.y), float(shapeXf.scale.z));
@@ -2137,7 +2137,7 @@ void updateDeformableXformableAttachments(
     //the same frame, because we don't want to have an attachment per
     //collider. we assume all colliders move in the same frame if they move.
     const PxMat44d rigidToWorld(internal::getWorldTransform(attachedStage, rigidRootKey, omni::physics::parse::ReadTime::defaultTime()));
-    const PxMat44d worldToRigid = omni::physx::affineInverse(rigidToWorld);
+    const PxMat44d worldToRigid = omni::ev4sio_physx::affineInverse(rigidToWorld);
 
     std::vector<int32_t> attachmentVtxIndicesDeformable;
     std::vector<carb::Float3> attachmentVtxPointsXformable;
@@ -2186,8 +2186,8 @@ void updateDeformableXformableAttachments(
             // rigid-collider world transform would otherwise move the sampled
             // attachment points silently -- keep it numerically unchanged from
             // the pre-port behaviour, same as the CRC-hashed decomposition above.
-            const omni::physx::gfmath::PivotTransform poseXf = omni::physx::gfmath::decomposeWithPivot(mat);
-            const PxQuatd poseRotD = omni::physx::gfmath::getQuat(poseXf.rotation);
+            const omni::ev4sio_physx::gfmath::PivotTransform poseXf = omni::ev4sio_physx::gfmath::decomposeWithPivot(mat);
+            const PxQuatd poseRotD = omni::ev4sio_physx::gfmath::getQuat(poseXf.rotation);
             const PxTransform pose(PxVec3(float(poseXf.translation.x), float(poseXf.translation.y), float(poseXf.translation.z)),
                                    PxQuat(float(poseRotD.x), float(poseRotD.y), float(poseRotD.z), float(poseRotD.w)));
             const PxVec3 scale(float(poseXf.scale.x), float(poseXf.scale.y), float(poseXf.scale.z));
@@ -2205,7 +2205,7 @@ void updateDeformableXformableAttachments(
             scanOptions.descendantScope = omni::physics::parse::DescendantScope::eActive;
             const std::vector<std::string> scanRoots{ rigidColliderPathText };
             omni::physics::parse::ScannedStage scanned = attachedStage.scanStage(scanRoots, kNoExclude, scanOptions,
-                omni::physx::usdparser::iceDescriptorAllocator());
+                omni::ev4sio_physx::usdparser::iceDescriptorAllocator());
             usdparser::PhysxShapeDesc* shapeDesc = prepareScannedShapeForAttachment(attachedStage, scanned, rigidColliderPathText);
             if (!shapeDesc)
                 continue;
@@ -2366,9 +2366,9 @@ bool getDeformableMeshInfo(usdparser::AttachedStage& attachedStage,
     return true;
 }
 
-omni::physx::usdparser::MeshKey calculateAutoAttachmentCRC(const PhysxAutoAttachmentDesc& autoAttachmentDesc, const MaskShapes& maskShapes)
+omni::ev4sio_physx::usdparser::MeshKey calculateAutoAttachmentCRC(const PhysxAutoAttachmentDesc& autoAttachmentDesc, const MaskShapes& maskShapes)
 {
-    omni::physx::usdparser::MeshKey meshKey;
+    omni::ev4sio_physx::usdparser::MeshKey meshKey;
     meshKey.setMiscData((const uint8_t*)&autoAttachmentDesc.enableDeformableVertexAttachments, sizeof(autoAttachmentDesc.enableDeformableVertexAttachments));
     meshKey.setMiscData((const uint8_t*)&autoAttachmentDesc.deformableVertexOverlapOffset, sizeof(autoAttachmentDesc.deformableVertexOverlapOffset));
     meshKey.setMiscData((const uint8_t*)&autoAttachmentDesc.enableRigidSurfaceAttachments, sizeof(autoAttachmentDesc.enableRigidSurfaceAttachments));
@@ -2547,7 +2547,7 @@ bool parseAutoAttachmentInputs(usdparser::AttachedStage& attachedStage,
     if (!src->hasSchema(autoAttachmentKey, tok.physxAutoDeformableAttachmentAPI))
         return false;
 
-    CookingDataAsync* cookingDataAsync = omni::physx::OmniPhysX::getInstance().getPhysXSetup().getCookingDataAsync();
+    CookingDataAsync* cookingDataAsync = omni::ev4sio_physx::OmniPhysX::getInstance().getPhysXSetup().getCookingDataAsync();
     if (!cookingDataAsync)
     {
         CARB_LOG_WARN("%s: failed - Cooking not available", caller);
@@ -2888,7 +2888,7 @@ bool updateAutoDeformableAttachment(usdparser::AttachedStage& attachedStage, omn
     PhysxAutoAttachmentDesc autoAttachmentDesc;
     parsePhysxAutoAttachment(attachedStage, autoAttachmentDesc, autoAttachmentKey);
 
-    CookingDataAsync* cookingDataAsync = omni::physx::OmniPhysX::getInstance().getPhysXSetup().getCookingDataAsync();
+    CookingDataAsync* cookingDataAsync = omni::ev4sio_physx::OmniPhysX::getInstance().getPhysXSetup().getCookingDataAsync();
     if (!cookingDataAsync)
     {
         CARB_LOG_WARN("updateAutoDeformableAttachment: failed - Cooking not available");
@@ -2939,7 +2939,7 @@ bool updateAutoDeformableAttachment(usdparser::AttachedStage& attachedStage, omn
     // compute hash of auto attachment computation inputs, for which we care to recompute if different:
     // auto parameters
     // deformable mesh keys
-    omni::physx::usdparser::MeshKey inputCrc = calculateAutoAttachmentCRC(autoAttachmentDesc, maskShapes);
+    omni::ev4sio_physx::usdparser::MeshKey inputCrc = calculateAutoAttachmentCRC(autoAttachmentDesc, maskShapes);
 
     DeformableMeshInfo deformableMeshInfo[2];
     for (uint32_t d = 0; d < numDeformables; ++d)
@@ -2973,7 +2973,7 @@ bool updateAutoDeformableAttachment(usdparser::AttachedStage& attachedStage, omn
     // Cache key of the last generated payload: kept on the in-memory layout when the attach
     // cannot author sub-prims, otherwise as the inputCrc attribute on the prim.
     GeneratedAutoAttachmentLayout* layout = attachedStage.getGeneratedAutoAttachmentLayout(autoAttachmentKey);
-    omni::physx::usdparser::MeshKey storedInputCrc;
+    omni::ev4sio_physx::usdparser::MeshKey storedInputCrc;
     if (layout)
     {
         if (layout->inputCrc.size() == sizeof(storedInputCrc))
@@ -3093,5 +3093,5 @@ bool updateAutoDeformableAttachment(usdparser::AttachedStage& attachedStage, omn
     return true;
 }
 
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

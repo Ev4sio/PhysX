@@ -47,7 +47,7 @@
 #include "../snippetdeformablevolume/SnippetDeformableVolume.h"
 #include "../snippetdeformablesurface/SnippetDeformableSurface.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 using namespace ExtGpu;
 
 static PxDefaultAllocator                       gAllocator;
@@ -108,7 +108,7 @@ static PxConvexMesh* createTetrahedronConvex()
     PxTolerancesScale tol;
     PxCookingParams params(tol);
     params.buildGPUData = true;
-    return PxCreateConvexMesh(params, desc, gPhysics->getPhysicsInsertionCallback());
+    return ev4sio_PxCreateConvexMesh(params, desc, gPhysics->getPhysicsInsertionCallback());
 }
 
 static PxTriangleMesh* createGridTriangleMesh()
@@ -155,7 +155,7 @@ static PxTriangleMesh* createGridTriangleMesh()
     PxTolerancesScale tol;
     PxCookingParams params(tol);
     params.buildGPUData = true;
-    return PxCreateTriangleMesh(params, desc, gPhysics->getPhysicsInsertionCallback());
+    return ev4sio_PxCreateTriangleMesh(params, desc, gPhysics->getPhysicsInsertionCallback());
 }
 
 static PxHeightField* createPlateHeightField()
@@ -178,7 +178,7 @@ static PxHeightField* createPlateHeightField()
     desc.samples.data = samples;
     desc.samples.stride = sizeof(PxHeightFieldSample);
 
-    return PxCreateHeightField(desc, gPhysics->getPhysicsInsertionCallback());
+    return ev4sio_PxCreateHeightField(desc, gPhysics->getPhysicsInsertionCallback());
 }
 
 // 6-link capsule chain dangling from a fixed anchor. Revolute pins at every
@@ -554,7 +554,7 @@ static void createDeformableVolumeFromMesh(const PxCookingParams& params,
     PxDeformableVolume* dv = gPhysics->createDeformableVolume(*gCudaContextManager);
     if (!dv) return;
 
-    PxDeformableVolumeMaterial* mat = PxGetPhysics().createDeformableVolumeMaterial(2.e+5f, 0.3f, 0.1f);
+    PxDeformableVolumeMaterial* mat = ev4sio_PxGetPhysics().createDeformableVolumeMaterial(2.e+5f, 0.3f, 0.1f);
     PxTetrahedronMeshGeometry geom(mesh->getCollisionMesh());
     const PxShapeFlags sFlags = PxShapeFlag::eVISUALIZATION | PxShapeFlag::eSCENE_QUERY_SHAPE | PxShapeFlag::eSIMULATION_SHAPE;
     PxShape* shape = gPhysics->createShape(geom, &mat, 1, true, sFlags);
@@ -671,7 +671,7 @@ static void createDeformableCloth(const PxCookingParams& params)
     desc.triangles.stride   = 3 * sizeof(PxU32);
     desc.triangles.data     = tris.begin();
 
-    PxTriangleMesh* triMesh = PxCreateTriangleMesh(params, desc, gPhysics->getPhysicsInsertionCallback());
+    PxTriangleMesh* triMesh = ev4sio_PxCreateTriangleMesh(params, desc, gPhysics->getPhysicsInsertionCallback());
     if (!triMesh) return;
 
     PxDeformableSurface* ds = gPhysics->createDeformableSurface(*gCudaContextManager);
@@ -847,11 +847,11 @@ static void buildMultiGeomScene()
 
 static bool initPhysicsWithOmniPvd()
 {
-    gFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, gAllocator, gErrorCallback);
-    if (!gFoundation) { printf("Error: PxCreateFoundation\n"); return false; }
+    gFoundation = ev4sio_PxCreateFoundation(ev4sio_PX_PHYSICS_VERSION, gAllocator, gErrorCallback);
+    if (!gFoundation) { printf("Error: ev4sio_PxCreateFoundation\n"); return false; }
 
-    gOmniPvd = PxCreateOmniPvd(*gFoundation);
-    if (!gOmniPvd) { printf("Error: PxCreateOmniPvd\n"); return false; }
+    gOmniPvd = ev4sio_PxCreateOmniPvd(*gFoundation);
+    if (!gOmniPvd) { printf("Error: ev4sio_PxCreateOmniPvd\n"); return false; }
 
     OmniPvdWriter* writer = gOmniPvd->getWriter();
     if (!writer) { printf("Error: OmniPvd writer\n"); return false; }
@@ -866,8 +866,8 @@ static bool initPhysicsWithOmniPvd()
     }
     writer->setWriteStream(*gOmniPvdFileStream);
 
-    gPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *gFoundation, PxTolerancesScale(), true, NULL, gOmniPvd);
-    if (!gPhysics) { printf("Error: PxCreatePhysics\n"); return false; }
+    gPhysics = ev4sio_PxCreatePhysics(ev4sio_PX_PHYSICS_VERSION, *gFoundation, PxTolerancesScale(), true, NULL, gOmniPvd);
+    if (!gPhysics) { printf("Error: ev4sio_PxCreatePhysics\n"); return false; }
 
     if (!gPhysics->getOmniPvd() || !gPhysics->getOmniPvd()->startSampling())
     {
@@ -876,7 +876,7 @@ static bool initPhysicsWithOmniPvd()
     }
 
     PxCudaContextManagerDesc cudaDesc;
-    gCudaContextManager = PxCreateCudaContextManager(*gFoundation, cudaDesc, PxGetProfilerCallback());
+    gCudaContextManager = ev4sio_PxCreateCudaContextManager(*gFoundation, cudaDesc, ev4sio_PxGetProfilerCallback());
     if (gCudaContextManager && !gCudaContextManager->contextIsValid())
     {
         PX_RELEASE(gCudaContextManager);

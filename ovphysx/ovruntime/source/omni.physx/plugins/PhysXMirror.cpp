@@ -7,11 +7,11 @@
 
 #include <extensions/PxCollectionExt.h>
 
-using namespace ::physx;
+using namespace ::ev4sio_physx;
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace
 {
@@ -40,10 +40,10 @@ void addMeshToSharedCollection(const PxShape& shape, PxCollection& sharedCollect
 
 }
 
-void mirrorActor(::physx::PxActor& actor, void*& outMemory, uint32_t& memSize, ::physx::PxSerializationRegistry& sr, ::physx::PxCollection*& outSharedCol)
+void mirrorActor(::ev4sio_physx::PxActor& actor, void*& outMemory, uint32_t& memSize, ::ev4sio_physx::PxSerializationRegistry& sr, ::ev4sio_physx::PxCollection*& outSharedCol)
 {
-    PxCollection* collection = PxCreateCollection();
-    PxCollection* sharedCollection = PxCreateCollection();
+    PxCollection* collection = ev4sio_PxCreateCollection();
+    PxCollection* sharedCollection = ev4sio_PxCreateCollection();
 
     // share materials and meshes
     {
@@ -95,8 +95,8 @@ void mirrorActor(::physx::PxActor& actor, void*& outMemory, uint32_t& memSize, :
     outSharedCol = sharedCollection;
 }
 
-::physx::PxActor* instantiateMirrorActor(void* nonalignedBlock, ::physx::PxSerializationRegistry& sr, ::physx::PxScene& scene,
-    ::physx::PxCollection*& collectionOut, const ::physx::PxCollection* sharedCollection)
+::ev4sio_physx::PxActor* instantiateMirrorActor(void* nonalignedBlock, ::ev4sio_physx::PxSerializationRegistry& sr, ::ev4sio_physx::PxScene& scene,
+    ::ev4sio_physx::PxCollection*& collectionOut, const ::ev4sio_physx::PxCollection* sharedCollection)
 {
     void* memoryA = (void*)((size_t(nonalignedBlock) + PX_SERIAL_FILE_ALIGN) & ~(PX_SERIAL_FILE_ALIGN - 1));
 
@@ -129,10 +129,10 @@ void mirrorActor(::physx::PxActor& actor, void*& outMemory, uint32_t& memSize, :
     return retActor;
 }
 
-void mirrorHierarchy(::physx::PxScene& scene, void*& outMemory, uint32_t& memSize, ::physx::PxSerializationRegistry& sr, ::physx::PxCollection*& outSharedCol, const std::unordered_set<void*>& inPtrs)
+void mirrorHierarchy(::ev4sio_physx::PxScene& scene, void*& outMemory, uint32_t& memSize, ::ev4sio_physx::PxSerializationRegistry& sr, ::ev4sio_physx::PxCollection*& outSharedCol, const std::unordered_set<void*>& inPtrs)
 {
-    PxCollection* collection = PxCreateCollection();
-    PxCollection* sharedCollection = PxCreateCollection();
+    PxCollection* collection = ev4sio_PxCreateCollection();
+    PxCollection* sharedCollection = ev4sio_PxCreateCollection();
 
     // Dynamic/static bodies
     {
@@ -260,7 +260,7 @@ void mirrorHierarchy(::physx::PxScene& scene, void*& outMemory, uint32_t& memSiz
     outSharedCol = sharedCollection;
 }
 
-::physx::PxCollection* instantiateHierarchy(void* alignedBlock, ::physx::PxSerializationRegistry& sr, ::physx::PxScene& scene, const ::physx::PxCollection* sharedCollection, const ProcessObjectFn& proccesObjectFn)
+::ev4sio_physx::PxCollection* instantiateHierarchy(void* alignedBlock, ::ev4sio_physx::PxSerializationRegistry& sr, ::ev4sio_physx::PxScene& scene, const ::ev4sio_physx::PxCollection* sharedCollection, const ProcessObjectFn& proccesObjectFn)
 {
     PxCollection* collection1 = PxSerialization::createCollectionFromBinary(alignedBlock, sr, sharedCollection);
 

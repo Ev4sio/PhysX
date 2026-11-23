@@ -12,7 +12,7 @@
 #include "vector_functions.h"
 
 
-namespace physx
+namespace ev4sio_physx
 {
 
 #if PX_VC

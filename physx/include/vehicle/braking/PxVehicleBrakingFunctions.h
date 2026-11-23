@@ -14,7 +14,7 @@
 #include "../drivetrain/PxVehicleDrivetrainParams.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -43,7 +43,7 @@ PX_FORCE_INLINE void PxVehicleBrakeCommandResponseUpdate
 }
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

@@ -51,7 +51,7 @@ namespace {
 
 // ---- Hit conversion helpers ----
 
-ovphysx_scene_query_hit_t convertLocationHit(const omni::physx::SceneQueryHitLocation& src)
+ovphysx_scene_query_hit_t convertLocationHit(const omni::ev4sio_physx::SceneQueryHitLocation& src)
 {
     ovphysx_scene_query_hit_t h{};
     h.collision   = src.collision.handle;
@@ -69,7 +69,7 @@ ovphysx_scene_query_hit_t convertLocationHit(const omni::physx::SceneQueryHitLoc
     return h;
 }
 
-ovphysx_scene_query_hit_t convertOverlapHit(const omni::physx::OverlapHit& src)
+ovphysx_scene_query_hit_t convertOverlapHit(const omni::ev4sio_physx::OverlapHit& src)
 {
     ovphysx_scene_query_hit_t h{};
     h.collision   = src.collision.handle;
@@ -88,7 +88,7 @@ ovphysx_result_t encodeShapePrimPath(omni::physics::AttachHandle attach, const o
     if (hasEmbeddedNul(prim_path))
         return set_error(OVPHYSX_API_INVALID_ARGUMENT, "shape prim_path contains an embedded NUL byte");
 
-    omni::physx::IPhysx* physx = omni::physx::runtime::tryGetPhysxInterface();
+    omni::ev4sio_physx::IPhysx* physx = omni::ev4sio_physx::runtime::tryGetPhysxInterface();
     if (!physx)
         return set_error(OVPHYSX_API_ERROR, "IPhysx interface not available");
 
@@ -124,9 +124,9 @@ ovphysx_result_t validateSceneQueryArgs(
     return success();
 }
 
-omni::physx::IPhysxSceneQuery* acquireSceneQuery()
+omni::ev4sio_physx::IPhysxSceneQuery* acquireSceneQuery()
 {
-    return omni::physx::runtime::tryGetPhysxSceneQueryInterface();
+    return omni::ev4sio_physx::runtime::tryGetPhysxSceneQueryInterface();
 }
 
 } // anonymous namespace
@@ -173,7 +173,7 @@ OVPHYSX_API ovphysx_result_t ovphysx_raycast(
     {
     case OVPHYSX_SCENE_QUERY_MODE_CLOSEST:
     {
-        omni::physx::RaycastHit hit{};
+        omni::ev4sio_physx::RaycastHit hit{};
         if (sq->raycastClosest(instance->attachHandle, o, d, distance, hit, both_sides))
             buf.push_back(convertLocationHit(hit));
         break;
@@ -190,7 +190,7 @@ OVPHYSX_API ovphysx_result_t ovphysx_raycast(
     case OVPHYSX_SCENE_QUERY_MODE_ALL:
     {
         sq->raycastAll(instance->attachHandle, o, d, distance,
-            [&buf](const omni::physx::RaycastHit& hit) -> bool {
+            [&buf](const omni::ev4sio_physx::RaycastHit& hit) -> bool {
                 buf.push_back(convertLocationHit(hit));
                 return true;
             },
@@ -254,7 +254,7 @@ OVPHYSX_API ovphysx_result_t ovphysx_sweep(
         {
         case OVPHYSX_SCENE_QUERY_MODE_CLOSEST:
         {
-            omni::physx::SweepHit hit{};
+            omni::ev4sio_physx::SweepHit hit{};
             if (sq->sweepSphereClosest(instance->attachHandle, r, pos, dir, distance, hit, both_sides))
                 buf.push_back(convertLocationHit(hit));
             break;
@@ -271,7 +271,7 @@ OVPHYSX_API ovphysx_result_t ovphysx_sweep(
         case OVPHYSX_SCENE_QUERY_MODE_ALL:
         {
             sq->sweepSphereAll(instance->attachHandle, r, pos, dir, distance,
-                [&buf](const omni::physx::SweepHit& hit) -> bool {
+                [&buf](const omni::ev4sio_physx::SweepHit& hit) -> bool {
                     buf.push_back(convertLocationHit(hit));
                     return true;
                 },
@@ -299,7 +299,7 @@ OVPHYSX_API ovphysx_result_t ovphysx_sweep(
         {
         case OVPHYSX_SCENE_QUERY_MODE_CLOSEST:
         {
-            omni::physx::SweepHit hit{};
+            omni::ev4sio_physx::SweepHit hit{};
             if (sq->sweepBoxClosest(instance->attachHandle, halfExt, pos, rot, dir, distance, hit, both_sides))
                 buf.push_back(convertLocationHit(hit));
             break;
@@ -316,7 +316,7 @@ OVPHYSX_API ovphysx_result_t ovphysx_sweep(
         case OVPHYSX_SCENE_QUERY_MODE_ALL:
         {
             sq->sweepBoxAll(instance->attachHandle, halfExt, pos, rot, dir, distance,
-                [&buf](const omni::physx::SweepHit& hit) -> bool {
+                [&buf](const omni::ev4sio_physx::SweepHit& hit) -> bool {
                     buf.push_back(convertLocationHit(hit));
                     return true;
                 },
@@ -339,7 +339,7 @@ OVPHYSX_API ovphysx_result_t ovphysx_sweep(
         {
         case OVPHYSX_SCENE_QUERY_MODE_CLOSEST:
         {
-            omni::physx::SweepHit hit{};
+            omni::ev4sio_physx::SweepHit hit{};
             if (sq->sweepShapeClosest(instance->attachHandle, encoded, dir, distance, hit, both_sides))
                 buf.push_back(convertLocationHit(hit));
             break;
@@ -356,7 +356,7 @@ OVPHYSX_API ovphysx_result_t ovphysx_sweep(
         case OVPHYSX_SCENE_QUERY_MODE_ALL:
         {
             sq->sweepShapeAll(instance->attachHandle, encoded, dir, distance,
-                [&buf](const omni::physx::SweepHit& hit) -> bool {
+                [&buf](const omni::ev4sio_physx::SweepHit& hit) -> bool {
                     buf.push_back(convertLocationHit(hit));
                     return true;
                 },
@@ -415,7 +415,7 @@ OVPHYSX_API ovphysx_result_t ovphysx_overlap(
     // Only ANY changes behaviour (single boolean check instead of full enumeration).
     bool anyHit = (mode == OVPHYSX_SCENE_QUERY_MODE_ANY);
 
-    auto overlapReport = [&buf](const omni::physx::OverlapHit& hit) -> bool {
+    auto overlapReport = [&buf](const omni::ev4sio_physx::OverlapHit& hit) -> bool {
         buf.push_back(convertOverlapHit(hit));
         return true;
     };
@@ -528,7 +528,7 @@ OVPHYSX_API ovphysx_result_t ovphysx_scene_query_get_paths_from_ids(
     if (!instance)
         return set_error(OVPHYSX_API_ERROR, "invalid handle");
 
-    omni::physx::IPhysx* physx = omni::physx::runtime::tryGetPhysxInterface();
+    omni::ev4sio_physx::IPhysx* physx = omni::ev4sio_physx::runtime::tryGetPhysxInterface();
     if (!physx)
         return set_error(OVPHYSX_API_ERROR, "IPhysx interface not available");
 

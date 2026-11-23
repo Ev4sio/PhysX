@@ -12,7 +12,7 @@
 #include <cstring>
 namespace
 {
-using namespace omni::physx::native;
+using namespace omni::ev4sio_physx::native;
 ObjectReference reference(const ovphysx_companion_object_t& r)
 {return {r.attachment,r.object,r.key,r.generation,r.kind,r.instance};}
 ovphysx_companion_status_t execute(uint64_t attachment,const ovphysx_companion_query_t* input,uint32_t inputSize,

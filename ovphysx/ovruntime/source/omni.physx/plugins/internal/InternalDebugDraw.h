@@ -8,7 +8,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace internal
 {
@@ -22,5 +22,5 @@ struct InternalDebugDrawFlags
 };
 
 }
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

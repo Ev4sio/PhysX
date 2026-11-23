@@ -6,7 +6,7 @@
 #include "foundation/PxTime.h"
 #include "foundation/windows/PxWindowsInclude.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 static int64_t getTimeTicks()
 {

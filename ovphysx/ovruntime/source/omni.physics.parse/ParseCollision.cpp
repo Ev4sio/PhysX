@@ -359,9 +359,9 @@ bool fillSphereFillCookingExt(const PreparedSphereFillCookingExt& input, SphereF
     TokenId fm;
     if (input.physxSphereFillCollisionFillMode.read(fm))
     {
-        if      (fm == input.fillModeFlood)   params.fillMode = ::omni::physx::SphereFillMode::eFLOOD;
-        else if (fm == input.fillModeRaycast) params.fillMode = ::omni::physx::SphereFillMode::eRAYCAST;
-        else if (fm == input.fillModeSurface) params.fillMode = ::omni::physx::SphereFillMode::eSURFACE;
+        if      (fm == input.fillModeFlood)   params.fillMode = ::omni::ev4sio_physx::SphereFillMode::eFLOOD;
+        else if (fm == input.fillModeRaycast) params.fillMode = ::omni::ev4sio_physx::SphereFillMode::eRAYCAST;
+        else if (fm == input.fillModeSurface) params.fillMode = ::omni::ev4sio_physx::SphereFillMode::eSURFACE;
     }
     return true;
 }

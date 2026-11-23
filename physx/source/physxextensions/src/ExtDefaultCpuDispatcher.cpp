@@ -8,15 +8,15 @@
 #include "ExtTaskQueueHelper.h"
 #include "foundation/PxString.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
-PxDefaultCpuDispatcher* physx::PxDefaultCpuDispatcherCreate(PxU32 numThreads, PxU32* affinityMasks, PxDefaultCpuDispatcherWaitForWorkMode::Enum mode, PxU32 yieldProcessorCount)
+PxDefaultCpuDispatcher* ev4sio_physx::PxDefaultCpuDispatcherCreate(PxU32 numThreads, PxU32* affinityMasks, PxDefaultCpuDispatcherWaitForWorkMode::Enum mode, PxU32 yieldProcessorCount)
 {
-	return PX_NEW(Ext::DefaultCpuDispatcher)(numThreads, affinityMasks, mode, yieldProcessorCount);
+	return PX_NEW(ev4sio_Ext::DefaultCpuDispatcher)(numThreads, affinityMasks, mode, yieldProcessorCount);
 }
 
 #if !PX_SWITCH
-void Ext::DefaultCpuDispatcher::getAffinityMasks(PxU32* affinityMasks, PxU32 threadCount)
+void ev4sio_Ext::DefaultCpuDispatcher::getAffinityMasks(PxU32* affinityMasks, PxU32 threadCount)
 {
 	for(PxU32 i=0; i < threadCount; i++)
 	{
@@ -25,7 +25,7 @@ void Ext::DefaultCpuDispatcher::getAffinityMasks(PxU32* affinityMasks, PxU32 thr
 }
 #endif
 
-Ext::DefaultCpuDispatcher::DefaultCpuDispatcher(PxU32 numThreads, PxU32* affinityMasks, PxDefaultCpuDispatcherWaitForWorkMode::Enum mode, PxU32 yieldProcessorCount) : mNumThreads(numThreads), mShuttingDown(false)
+ev4sio_Ext::DefaultCpuDispatcher::DefaultCpuDispatcher(PxU32 numThreads, PxU32* affinityMasks, PxDefaultCpuDispatcherWaitForWorkMode::Enum mode, PxU32 yieldProcessorCount) : mNumThreads(numThreads), mShuttingDown(false)
 #if PX_PROFILE
 	,mRunProfiled(true)
 #else
@@ -81,7 +81,7 @@ Ext::DefaultCpuDispatcher::DefaultCpuDispatcher(PxU32 numThreads, PxU32* affinit
 	}
 }
 
-Ext::DefaultCpuDispatcher::~DefaultCpuDispatcher()
+ev4sio_Ext::DefaultCpuDispatcher::~DefaultCpuDispatcher()
 {
 	for(PxU32 i = 0; i < mNumThreads; ++i)
 		mWorkerThreads[i].signalQuit();
@@ -99,12 +99,12 @@ Ext::DefaultCpuDispatcher::~DefaultCpuDispatcher()
 	PX_FREE(mThreadNames);
 }
 
-void Ext::DefaultCpuDispatcher::release()
+void ev4sio_Ext::DefaultCpuDispatcher::release()
 {
 	PX_DELETE_THIS;
 }
 
-void Ext::DefaultCpuDispatcher::submitTask(PxBaseTask& task)
+void ev4sio_Ext::DefaultCpuDispatcher::submitTask(PxBaseTask& task)
 {
 	if(!mNumThreads)
 	{
@@ -136,7 +136,7 @@ void Ext::DefaultCpuDispatcher::submitTask(PxBaseTask& task)
 	}
 }
 
-void Ext::DefaultCpuDispatcher::resetWakeSignal()
+void ev4sio_Ext::DefaultCpuDispatcher::resetWakeSignal()
 {
 	PX_ASSERT(PxDefaultCpuDispatcherWaitForWorkMode::eWAIT_FOR_WORK == mWaitForWorkMode);
 	mWorkReady.reset();

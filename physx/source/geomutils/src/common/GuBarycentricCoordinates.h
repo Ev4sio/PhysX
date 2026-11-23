@@ -9,9 +9,9 @@
 #include "common/PxPhysXCommonConfig.h"
 #include "foundation/PxVecMath.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Gu
+namespace ev4sio_Gu
 {
 	//calculate the barycentric coorinates for a point in a segment
 	void barycentricCoordinates(const aos::Vec3VArg p, 
@@ -61,7 +61,7 @@ namespace Gu
 		return BAnd(con0, BAnd(con1, con2));
 	}
 
-} // namespace Gu
+} // namespace ev4sio_Gu
 
 }
 

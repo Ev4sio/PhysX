@@ -17,9 +17,9 @@
 
 #define PXC_SAME_NORMAL (0.999f)
 
-namespace physx
+namespace ev4sio_physx
 {
-	namespace Gu
+	namespace ev4sio_Gu
 	{
 		// some helpers
 
@@ -858,7 +858,7 @@ namespace physx
 		PX_CUDA_CALLABLE PX_INLINE
 		// generate multi-point contact for 2 convex shapes, using GJKEPA
 		// output (2 closest points and the separating axis)
-		static PxU32 generateContactPatch(const Gu::ConvexShape& convex0, const Gu::ConvexShape& convex1,
+		static PxU32 generateContactPatch(const ev4sio_Gu::ConvexShape& convex0, const ev4sio_Gu::ConvexShape& convex1,
 			const PxVec3& point0, const PxVec3& point1, const PxVec3& axis, PxVec3& normal, PxVec4* points)
 		{
 			FaceClipper clipper(convex0, convex1, point0, point1, axis);

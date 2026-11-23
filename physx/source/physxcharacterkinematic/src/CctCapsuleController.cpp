@@ -10,7 +10,7 @@
 #include "CctCapsuleController.h"
 #include "CctCharacterControllerManager.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 using namespace Cct;
 
 static PX_FORCE_INLINE float CCTtoProxyRadius(float r, PxF32 coeff)	{ return r * coeff;			}

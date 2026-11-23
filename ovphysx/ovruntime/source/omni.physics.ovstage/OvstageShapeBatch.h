@@ -253,7 +253,7 @@ inline bool fillOvstageShape(const PreparedOvstageShape& input, PhysxShapeDesc& 
         }
         else if (const PreparedTriangleMeshSimplificationCookingExt* cooking = std::get_if<PreparedTriangleMeshSimplificationCookingExt>(&input.cooking))
         {
-            shape.triangleMeshCookingParams.mode = omni::physx::TriangleMeshMode::eQUADRIC_SIMPLIFICATION;
+            shape.triangleMeshCookingParams.mode = omni::ev4sio_physx::TriangleMeshMode::eQUADRIC_SIMPLIFICATION;
             if (!fillTriangleMeshSimplificationCookingExt(*cooking, shape.triangleMeshCookingParams)) return false;
         }
         else return false;

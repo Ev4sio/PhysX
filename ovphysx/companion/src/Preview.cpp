@@ -19,7 +19,7 @@
 namespace ovphysx::companion::previews
 {
 using Status = ovphysx_companion_status_t;
-using namespace omni::physx;
+using namespace omni::ev4sio_physx;
 struct Preview {
     std::mutex mutex;
     CompanionServiceLease lease{companionRuntime()};
@@ -199,11 +199,11 @@ Status fetch(uint64_t h) noexcept {
 Status statistics(uint64_t h, const char* path, uint32_t size, ovphysx_companion_scene_statistics_t* output) noexcept {
     if (!path || path[0] != '/' || !output || size != sizeof(*output)) return OVPHYSX_COMPANION_INVALID_ARGUMENT;
     return withPreview(h, false, [=](Preview& p) -> Status {
-        omni::physx::IPhysx * physics = runtime::tryGetPhysxInterface();
+        omni::ev4sio_physx::IPhysx * physics = runtime::tryGetPhysxInterface();
         const omni::physics::parse::ObjectKey key = physics->resolveObjectKey(p.attachment, path);
         if (!key.valid()) return OVPHYSX_COMPANION_NOT_FOUND;
         PhysicsSceneStats counters;
-        if (!omni::physx::getPhysXSceneStatistics(p.attachment, key.handle, counters)) return OVPHYSX_COMPANION_ERROR;
+        if (!omni::ev4sio_physx::getPhysXSceneStatistics(p.attachment, key.handle, counters)) return OVPHYSX_COMPANION_ERROR;
         *output = {sizeof(*output), 1, {0, p.attachment}, counters.nbDynamicRigids, counters.nbActiveDynamicRigids,
             counters.nbStaticRigids, counters.nbKinematicBodies, counters.nbArticulations, counters.nbActiveConstraints};
         return OVPHYSX_COMPANION_OK;

@@ -33,7 +33,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace usdparser
 {
@@ -57,7 +57,7 @@ class BaseSimulationView : public omni::physics::tensors::ISimulationView
 {
 public:
     explicit BaseSimulationView(usdparser::AttachedStage* attachedStage,
-                                ::physx::PxScene* scene);
+                                ::ev4sio_physx::PxScene* scene);
 
     virtual ~BaseSimulationView() override;
 
@@ -92,7 +92,7 @@ public:
     void processArticulationEntries(const std::vector<std::string>& patterns, std::vector<ArticulationEntry>& entries);
     void findMatchingArticulations(const std::string& pattern,
                                    std::vector<ArticulationEntry>& entriesRet,
-                                   std::unordered_set<const ::physx::PxArticulationReducedCoordinate*>& seenArtis);
+                                   std::unordered_set<const ::ev4sio_physx::PxArticulationReducedCoordinate*>& seenArtis);
 
     void processRigidBodyEntries(const std::vector<std::string>& patterns, std::vector<RigidBodyEntry>& entries);
 
@@ -102,17 +102,17 @@ public:
     void processVolumeDeformableBodyEntries(const std::vector<std::string>& patterns, std::vector<DeformableBodyEntry>& entries);
     void findMatchingVolumeDeformableBodies(const std::string& pattern,
                                             std::vector<DeformableBodyEntry>& entriesRet,
-                                            std::unordered_set<const ::physx::PxDeformableBody*>& seenBodies);
+                                            std::unordered_set<const ::ev4sio_physx::PxDeformableBody*>& seenBodies);
 
     void processSurfaceDeformableBodyEntries(const std::vector<std::string>& patterns, std::vector<DeformableBodyEntry>& entries);
     void findMatchingSurfaceDeformableBodies(const std::string& pattern,
                                              std::vector<DeformableBodyEntry>& entriesRet,
-                                             std::unordered_set<const ::physx::PxDeformableBody*>& seenBodies);
+                                             std::unordered_set<const ::ev4sio_physx::PxDeformableBody*>& seenBodies);
 
     void processDeformableMaterialEntries(const std::vector<std::string>& patterns, std::vector<DeformableMaterialEntry>& entries);
     void findMatchingDeformableMaterials(const std::string& pattern,
                                          std::vector<DeformableMaterialEntry>& entriesRet,
-                                         std::unordered_set<const ::physx::PxDeformableMaterial*>& seenMaterials);
+                                         std::unordered_set<const ::ev4sio_physx::PxDeformableMaterial*>& seenMaterials);
 
     void processRigidContactViewEntries(const std::vector<std::string>& patterns,
                                         const std::vector<std::vector<std::string>>& filterPatterns,
@@ -140,7 +140,7 @@ public:
     // read path can construct an articulation view with no backing USD stage. Shared with
     // getArticulationAtPath (which resolves the key to the arti then delegates here).
     // `fallbackKey` seeds entryRet.path only when the g_physx canonical path is empty.
-    bool buildArticulationEntry(::physx::PxArticulationReducedCoordinate* arti,
+    bool buildArticulationEntry(::ev4sio_physx::PxArticulationReducedCoordinate* arti,
                                 omni::physics::parse::ObjectKey fallbackKey,
                                 ArticulationEntry& entryRet);
 
@@ -191,7 +191,7 @@ public:
     bool check() const override;
 
     bool release(bool recursive) override;
-    static void onPhysXObjectDeletedCallback(const omni::physx::PhysicsObjectChangeEvent& event, void* userData);
+    static void onPhysXObjectDeletedCallback(const omni::ev4sio_physx::PhysicsObjectChangeEvent& event, void* userData);
     static void onAllPhysXObjectDeletedCallback(omni::physics::AttachHandle attach, void* userData);
 
     // physics scene properties
@@ -207,14 +207,14 @@ public:
     void _onChildRelease(const BaseDeformableMaterialView* deformableView);
     void _onChildRelease(const BaseRigidContactView* rcView);
 
-    ::physx::PxMaterial* createSharedMaterial(float staticFriction,
+    ::ev4sio_physx::PxMaterial* createSharedMaterial(float staticFriction,
                                               float dynamicFriction,
                                               float restitution,
                                               float damping,
-                                              ::physx::PxCombineMode::Enum frictionCombineMode,
-                                              ::physx::PxCombineMode::Enum restitutionCombineMode,
-                                              ::physx::PxCombineMode::Enum dampingCombineMode,
-                                              ::physx::PxMaterialFlags flags = ::physx::PxMaterialFlags());
+                                              ::ev4sio_physx::PxCombineMode::Enum frictionCombineMode,
+                                              ::ev4sio_physx::PxCombineMode::Enum restitutionCombineMode,
+                                              ::ev4sio_physx::PxCombineMode::Enum dampingCombineMode,
+                                              ::ev4sio_physx::PxMaterialFlags flags = ::ev4sio_physx::PxMaterialFlags());
 
     // Build the shared-material pool key for a set of properties. The float
     // components use a representation that round-trips a float32 exactly, so two
@@ -223,16 +223,16 @@ public:
                                        float dynamicFriction,
                                        float restitution,
                                        float damping,
-                                       ::physx::PxCombineMode::Enum frictionCombineMode,
-                                       ::physx::PxCombineMode::Enum restitutionCombineMode,
-                                       ::physx::PxCombineMode::Enum dampingCombineMode,
-                                       ::physx::PxMaterialFlags flags);
+                                       ::ev4sio_physx::PxCombineMode::Enum frictionCombineMode,
+                                       ::ev4sio_physx::PxCombineMode::Enum restitutionCombineMode,
+                                       ::ev4sio_physx::PxCombineMode::Enum dampingCombineMode,
+                                       ::ev4sio_physx::PxMaterialFlags flags);
 
     // Drop one reference to a pooled material. When the last reference is
     // released, every pool entry that references it is removed (looked up by
     // pointer, not by a reconstructed key) and the material is recycled into
     // mUnusedMaterials. Materials not owned by the pool are ignored.
-    void releaseSharedMaterial(::physx::PxMaterial* material);
+    void releaseSharedMaterial(::ev4sio_physx::PxMaterial* material);
 
     bool getValid() const override
     {
@@ -240,30 +240,30 @@ public:
     }
     bool isSelectionCurrent() const override;
     void invalidate() override;
-    bool hasRigidBody(::physx::PxRigidBody* body) const;
-    bool hasArticulation(::physx::PxArticulationReducedCoordinate* arti) const;
-    bool hasLink(::physx::PxArticulationLink* link) const;
-    bool hasShape(::physx::PxShape* shape) const;
-    bool hasDeformableBody(::physx::PxDeformableBody* body) const;
-    bool hasScene(const ::physx::PxScene* scene) const;
-    bool hasfixedTendon(::physx::PxArticulationFixedTendon* ft) const;
-    bool hasSpatialTendon(::physx::PxArticulationSpatialTendon* st) const;
-    std::unordered_map<std::string, ::physx::PxMaterial*> mMaterials;
-    std::unordered_set<::physx::PxMaterial*> mUnusedMaterials;
-    std::unordered_map<::physx::PxMaterial*, int> mMaterialsRefCount;
+    bool hasRigidBody(::ev4sio_physx::PxRigidBody* body) const;
+    bool hasArticulation(::ev4sio_physx::PxArticulationReducedCoordinate* arti) const;
+    bool hasLink(::ev4sio_physx::PxArticulationLink* link) const;
+    bool hasShape(::ev4sio_physx::PxShape* shape) const;
+    bool hasDeformableBody(::ev4sio_physx::PxDeformableBody* body) const;
+    bool hasScene(const ::ev4sio_physx::PxScene* scene) const;
+    bool hasfixedTendon(::ev4sio_physx::PxArticulationFixedTendon* ft) const;
+    bool hasSpatialTendon(::ev4sio_physx::PxArticulationSpatialTendon* st) const;
+    std::unordered_map<std::string, ::ev4sio_physx::PxMaterial*> mMaterials;
+    std::unordered_set<::ev4sio_physx::PxMaterial*> mUnusedMaterials;
+    std::unordered_map<::ev4sio_physx::PxMaterial*, int> mMaterialsRefCount;
     // Reverse index: the exact pool key each live material is stored under, so
     // releaseSharedMaterial can drop its mMaterials entry in O(1) with the same
     // string used at insertion (no per-release map scan, no key reconstruction).
-    std::unordered_map<::physx::PxMaterial*, std::string> mMaterialKeys;
+    std::unordered_map<::ev4sio_physx::PxMaterial*, std::string> mMaterialKeys;
 
     // for fast lookup of all the physics elements of all the views
-    std::unordered_set<::physx::PxRigidBody*> rigidBodies;
-    std::unordered_set<::physx::PxArticulationReducedCoordinate*> articulations;
-    std::unordered_set<::physx::PxArticulationLink*> links;
-    std::unordered_set<::physx::PxShape*> shapes;
-    std::unordered_set<::physx::PxDeformableBody*> deformableBodies;
-    std::unordered_set<::physx::PxArticulationFixedTendon*> fixedTendons;
-    std::unordered_set<::physx::PxArticulationSpatialTendon*> spatialTendons;
+    std::unordered_set<::ev4sio_physx::PxRigidBody*> rigidBodies;
+    std::unordered_set<::ev4sio_physx::PxArticulationReducedCoordinate*> articulations;
+    std::unordered_set<::ev4sio_physx::PxArticulationLink*> links;
+    std::unordered_set<::ev4sio_physx::PxShape*> shapes;
+    std::unordered_set<::ev4sio_physx::PxDeformableBody*> deformableBodies;
+    std::unordered_set<::ev4sio_physx::PxArticulationFixedTendon*> fixedTendons;
+    std::unordered_set<::ev4sio_physx::PxArticulationSpatialTendon*> spatialTendons;
 
 protected:
     bool isValid = true;
@@ -274,7 +274,7 @@ protected:
     // resetStage() invalidate every view before the attach goes away.
     usdparser::AttachedStage* mAttachedStage = nullptr;
     const omni::physics::AttachHandle mAttachHandle;
-    ::physx::PxScene* mScene = nullptr;
+    ::ev4sio_physx::PxScene* mScene = nullptr;
     BaseSimulationDataPtr mSimData;
     bool mNoMatchLoggingQuiet = false;
 
@@ -292,7 +292,7 @@ private:
     const uint64_t mSelectionRecordEpoch;
     const uint64_t mSelectionReadOrdinal;
     const bool mSelectionRecursiveLeafMatch;
-    omni::physx::SubscriptionId subscriptionObjId;
+    omni::ev4sio_physx::SubscriptionId subscriptionObjId;
     std::mutex mMutex;
 };
 
@@ -311,7 +311,7 @@ void resolveMatchingObjectKeysBatch(const usdparser::AttachedStage* attachedStag
 // joints -- or null for anything else. The articulation view maps every matched object through this,
 // and so does the session query's prim-set selection for an articulation query, so both select the
 // same articulations for the same match.
-::physx::PxArticulationReducedCoordinate* resolveOwningArticulation(const usdparser::AttachedStage* attachedStage,
+::ev4sio_physx::PxArticulationReducedCoordinate* resolveOwningArticulation(const usdparser::AttachedStage* attachedStage,
                                                                     omni::physics::parse::ObjectKey key);
 
 // The SDF collision shape `key` names, or null when it names none: an object the source knows must carry
@@ -319,9 +319,9 @@ void resolveMatchingObjectKeysBatch(const usdparser::AttachedStage* attachedStag
 // its PhysX shape alone), and its PhysX shape must be a triangle mesh with a non-empty SDF. The SDF shape
 // view selects its shapes through this, and so does the session's SDF_SHAPE query (ADR-0048), so both
 // accept the same shapes. `warn` logs why a key is rejected.
-::physx::PxShape* sdfShapeFor(const usdparser::AttachedStage* attachedStage,
+::ev4sio_physx::PxShape* sdfShapeFor(const usdparser::AttachedStage* attachedStage,
                               omni::physics::parse::ObjectKey key,
                               bool warn);
 } // namespace tensors
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

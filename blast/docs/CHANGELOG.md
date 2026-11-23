@@ -423,7 +423,7 @@ excess forces are applied to the previously joined bodies.  Using a new stress s
   - Cube throw velocity can be "charged" by holding down the 'F' key.
 - New damage system built around "health," see API ### changes in NvBlastExtShaders and ### changes in NvBlastExtImpactDamageManager.
 - NvBlastExtShearGraphShader uses a chunk-based method to find the closest graph node, improving performance.
-- TkGroup no longer uses physx::PxTaskManager interface for task management.  Instead, a TkGroupWorker interface has been added.  The NvBlastExtPhysX extension uses the physx::PxTaskManager to implement this interface.
+- TkGroup no longer uses ev4sio_physx::PxTaskManager interface for task management.  Instead, a TkGroupWorker interface has been added.  The NvBlastExtPhysX extension uses the ev4sio_physx::PxTaskManager to implement this interface.
 - Better error handling in AuthoringTool (stderr and user error handler).
 - More consistent commandline switches in AuthoringTool and ApexImporter (--ll, --tk, --px flags).
 - Various small clean-ups.

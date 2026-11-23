@@ -97,7 +97,7 @@ using namespace carb;
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace usdparser
 {
@@ -311,10 +311,10 @@ void moveBody(AttachedStage& attachedStage, omni::physics::parse::ObjectKey key)
         // Source-routed world transform at the current (Default) edit-notice
         // frame; per-call read (this runs on the USD change-notice path, not the
         // per-frame sim write-back).
-        const ::physx::PxMat44d mat =
+        const ::ev4sio_physx::PxMat44d mat =
             internal::getWorldTransform(attachedStage, key, omni::physics::parse::ReadTime::defaultTime());
-        ::physx::PxTransform pose;
-        ::physx::PxVec3 sc;
+        ::ev4sio_physx::PxTransform pose;
+        ::ev4sio_physx::PxVec3 sc;
         decomposeMatrix(pose, sc, mat);
 
         fcTransform.position = toFloat3(pose.p);
@@ -401,12 +401,12 @@ void movePointInstancer(AttachedStage& attachedStage, omni::physics::parse::Obje
 
     PhysXUsdPhysicsInterface::Transform fcTransform;
 
-    const ::physx::PxMat44d instancerMatrix =
+    const ::ev4sio_physx::PxMat44d instancerMatrix =
         internal::getWorldTransform(attachedStage, key, omni::physics::parse::ReadTime::defaultTime());
-    ::physx::PxTransform instancerPose;
-    ::physx::PxVec3 instancerScale;
+    ::ev4sio_physx::PxTransform instancerPose;
+    ::ev4sio_physx::PxVec3 instancerScale;
     decomposeMatrix(instancerPose, instancerScale, instancerMatrix);
-    const ::physx::PxQuat instancerRotation = instancerPose.q.getNormalized();
+    const ::ev4sio_physx::PxQuat instancerRotation = instancerPose.q.getNormalized();
     fcTransform.scale = toFloat3(instancerScale);
 
     bool structChange = false;
@@ -444,17 +444,17 @@ void movePointInstancer(AttachedStage& attachedStage, omni::physics::parse::Obje
                 // they are converted here, at the boundary, and the rest is PhysX math.
                 const carb::Float3 instancePos =
                     i < positions.size() ? positions[i] : carb::Float3{ 0.0f, 0.0f, 0.0f };
-                const ::physx::PxVec3d transfPos =
-                    instancerMatrix.transform(::physx::PxVec3d(instancePos.x, instancePos.y, instancePos.z));
+                const ::ev4sio_physx::PxVec3d transfPos =
+                    instancerMatrix.transform(::ev4sio_physx::PxVec3d(instancePos.x, instancePos.y, instancePos.z));
 
-                const ::physx::PxQuat instanceOrient =
-                    i < orientations.size() ? toPhysXQuat(orientations[i]) : ::physx::PxQuat(::physx::PxIdentity);
+                const ::ev4sio_physx::PxQuat instanceOrient =
+                    i < orientations.size() ? toPhysXQuat(orientations[i]) : ::ev4sio_physx::PxQuat(::ev4sio_physx::PxIdentity);
                 // Quaternion products do NOT swap operands the way matrix
                 // products do: the Gf and PhysX Hamilton products have the same
                 // meaning (verified numerically -- in Gf, M(q1*q2) == M(q2)*M(q1),
                 // which cancels the matrix swap). The half-precision authored
                 // input is not unit-length, hence the normalization.
-                const ::physx::PxQuat transfOrient =
+                const ::ev4sio_physx::PxQuat transfOrient =
                     (instanceOrient * instancerRotation).getNormalized();
 
                 fcTransform.position = { float(transfPos.x), float(transfPos.y), float(transfPos.z) };
@@ -1369,7 +1369,7 @@ bool flushBufferedChanges(AttachedStage& attachedStage, float currentTime)
 
 void processUpdates(AttachedStage& attachedStage, float currentTime)
 {
-    CARB_PROFILE_ZONE(0, "physx::usdparser::processUpdates");
+    CARB_PROFILE_ZONE(0, "ev4sio_physx::usdparser::processUpdates");
 
     // The time base comes from the source alongside the other stage units, so both
     // loops below -- animated kinematic bodies (populated from the source,
@@ -1391,11 +1391,11 @@ void processUpdates(AttachedStage& attachedStage, float currentTime)
             // Time-aware world transform at the current sim frame, read
             // through the source (per-call; source-side caching can be
             // reintroduced to restore the previous xform-cache amortisation).
-            const ::physx::PxMat44d localToWorld =
+            const ::ev4sio_physx::PxMat44d localToWorld =
                 internal::getWorldTransform(attachedStage, bodyKey, readTime);
 
-            ::physx::PxTransform pose;
-            ::physx::PxVec3 sc;
+            ::ev4sio_physx::PxTransform pose;
+            ::ev4sio_physx::PxVec3 sc;
             decomposeMatrix(pose, sc, localToWorld);
 
             PhysXUsdPhysicsInterface::Transform fcTransform;
@@ -1457,7 +1457,7 @@ void processUpdates(AttachedStage& attachedStage, float currentTime)
 // the parse path -- returns true.
 bool onSourceChange(AttachedStage& attachedStage, const omni::physics::parse::ChangeBatch& batch)
 {
-    CARB_PROFILE_ZONE(0, "physx::usdparser::onSourceChange");
+    CARB_PROFILE_ZONE(0, "ev4sio_physx::usdparser::onSourceChange");
 
     UsdLoad* usdLoad = UsdLoad::getUsdLoad();
     if (attachedStage.sourceUpdatesBlocked())
@@ -1580,14 +1580,14 @@ bool onSourceChange(AttachedStage& attachedStage, const omni::physics::parse::Ch
         // so a whole-batch fallback would silently drop the serviceable bodies. In the common all-resolved
         // batch nothing is appended, so the vector makes no heap allocation.
         std::vector<uint32_t> unresolvedRows;
-        const omni::physx::DrainResult drained =
-            omni::physx::applyOvstageValueBatch(attachedStage, *psrc, batch, &unresolvedRows);
+        const omni::ev4sio_physx::DrainResult drained =
+            omni::ev4sio_physx::applyOvstageValueBatch(attachedStage, *psrc, batch, &unresolvedRows);
         // A partial commit followed by a scatter failure: the parse-path fallback would re-apply the rows
         // that DID reach the solver (a double-apply), so we must NOT fall through. Signal failure so
         // drainRange holds the cursor and the whole batch is retried on the next drain.
-        if (drained == omni::physx::DrainResult::Failed)
+        if (drained == omni::ev4sio_physx::DrainResult::Failed)
             return false;
-        if (drained == omni::physx::DrainResult::Applied)
+        if (drained == omni::ev4sio_physx::DrainResult::Applied)
         {
             // Only the rows the drain could not service (never committed, so no double-apply) still go
             // through the per-object property path.
@@ -1623,5 +1623,5 @@ void onSourceGroupComplete(AttachedStage& attachedStage)
 
 
 } // namespace usdparser
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

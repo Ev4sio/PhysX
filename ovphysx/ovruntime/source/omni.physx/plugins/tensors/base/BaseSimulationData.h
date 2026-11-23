@@ -31,7 +31,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace tensors
 {
@@ -51,5 +51,5 @@ struct BaseSimulationData
 using BaseSimulationDataPtr = std::shared_ptr<BaseSimulationData>;
 
 } // namespace tensors
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

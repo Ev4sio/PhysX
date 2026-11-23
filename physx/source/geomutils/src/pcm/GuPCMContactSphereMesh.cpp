@@ -10,8 +10,8 @@
 #include "GuFeatureCode.h"
 #include "GuBox.h"
 
-using namespace physx;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
 using namespace aos;
 
 namespace
@@ -30,7 +30,7 @@ struct PCMSphereVsMeshContactGenerationCallback : PCMMeshContactGenerationCallba
 		MultiplePersistentContactManifold& multiManifold,
 		PxContactBuffer& contactBuffer,
 		const PxU8* extraTriData,
-		const Cm::FastVertex2ShapeScaling& meshScaling,
+		const ev4sio_Cm::FastVertex2ShapeScaling& meshScaling,
 		bool idtMeshScale,
 		PxInlineArray<PxU32, LOCAL_PCM_CONTACTS_SIZE>* deferredContacts,
 		PxRenderOutput* renderOutput = NULL
@@ -50,7 +50,7 @@ struct PCMSphereVsMeshContactGenerationCallback : PCMMeshContactGenerationCallba
 };
 }
 
-bool Gu::pcmContactSphereMesh(GU_CONTACT_METHOD_ARGS)
+bool ev4sio_Gu::pcmContactSphereMesh(GU_CONTACT_METHOD_ARGS)
 {
 	PX_UNUSED(renderOutput);
 
@@ -83,7 +83,7 @@ bool Gu::pcmContactSphereMesh(GU_CONTACT_METHOD_ARGS)
 
 		const TriangleMesh* meshData = _getMeshData(shapeMesh);
 
-		Cm::FastVertex2ShapeScaling meshScaling;	// PT: TODO: get rid of default ctor :(
+		ev4sio_Cm::FastVertex2ShapeScaling meshScaling;	// PT: TODO: get rid of default ctor :(
 		const bool idtMeshScale = shapeMesh.scale.isIdentity();
 		if(!idtMeshScale)
 			meshScaling.init(shapeMesh.scale);
@@ -274,7 +274,7 @@ static FloatV pcmDistancePointTriangleSquared(	const Vec3VArg p,
 	return V3Dot(vv, vv);	
 }
 
-bool Gu::PCMSphereVsMeshContactGeneration::processTriangle(const PxVec3* verts, PxU32 triangleIndex, PxU8 triFlags, const PxU32* vertInds)
+bool ev4sio_Gu::PCMSphereVsMeshContactGeneration::processTriangle(const PxVec3* verts, PxU32 triangleIndex, PxU8 triFlags, const PxU32* vertInds)
 {
 	const FloatV zero = FZero();
 
@@ -350,7 +350,7 @@ bool Gu::PCMSphereVsMeshContactGeneration::processTriangle(const PxVec3* verts, 
 	return true;
 }
 
-void Gu::PCMSphereVsMeshContactGeneration::addToPatch(const Vec3VArg contactP, const Vec3VArg patchNormal, const FloatV dist, PxU32 triangleIndex)
+void ev4sio_Gu::PCMSphereVsMeshContactGeneration::addToPatch(const Vec3VArg contactP, const Vec3VArg patchNormal, const FloatV dist, PxU32 triangleIndex)
 {
 	PX_ASSERT(mNumContactPatch < PCM_MAX_CONTACTPATCH_SIZE);
 
@@ -400,7 +400,7 @@ void Gu::PCMSphereVsMeshContactGeneration::addToPatch(const Vec3VArg contactP, c
 	}
 }
 
-void Gu::PCMSphereVsMeshContactGeneration::generateLastContacts()
+void ev4sio_Gu::PCMSphereVsMeshContactGeneration::generateLastContacts()
 {
 	// Process delayed contacts
 	PxU32 nbSortedTriangle = mSortedTriangle.size();

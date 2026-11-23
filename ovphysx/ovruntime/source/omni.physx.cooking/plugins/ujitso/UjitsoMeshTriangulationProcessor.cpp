@@ -13,19 +13,19 @@
 #include <private/omni/physx/IPhysxCookingServicePrivate.h>
 
 using namespace carb::ujitso;
-using namespace physx;
+using namespace ev4sio_physx;
 using namespace triangulateusd;
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 
 // Utility
 
 static void extractPrimTriangulation(PxDefaultMemoryOutputStream& stream, const PhysicsTriangulationBuildData& triBuildData)
 {
-    CARB_PROFILE_ZONE(0, "omni::physx::extractPrimTriangulation");
+    CARB_PROFILE_ZONE(0, "omni::ev4sio_physx::extractPrimTriangulation");
 
     PhysxCookingMeshView meshView;
     meshView.points = omni::span<const carb::Float3>(triBuildData.points.data(), triBuildData.points.size());
@@ -218,5 +218,5 @@ OperationResult PhysxMeshTriangulationProcessor::buildImpl(BuildContext& context
                                 ValidationType::MANDATORY);
 }
 
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

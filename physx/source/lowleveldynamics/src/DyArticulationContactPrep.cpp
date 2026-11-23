@@ -6,9 +6,9 @@
 #include "DyFeatherstoneArticulation.h"
 #include "DyContactPrepShared.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Dy
+namespace ev4sio_Dy
 {
 
 // constraint-gen only, since these use getVelocity methods
@@ -39,15 +39,15 @@ PxReal SolverExtBody::projectVelocity(const PxVec3& linear, const PxVec3& angula
 	}
 	else
 	{
-		const Cm::SpatialVectorV velocity = mArticulation->getLinkVelocity(mLinkIndex);
+		const ev4sio_Cm::SpatialVectorV velocity = mArticulation->getLinkVelocity(mLinkIndex);
 
-		const FloatV fv = velocity.dot(Cm::SpatialVectorV(Cm::SpatialVector(linear, angular)));
+		const FloatV fv = velocity.dot(ev4sio_Cm::SpatialVectorV(ev4sio_Cm::SpatialVector(linear, angular)));
 
 		PxF32 f;
 		FStore(fv, &f);
 		return f;
 		/*PxF32 f;
-		FStore(getVelocity(*mFsData)[mLinkIndex].dot(Cm::SpatialVector(linear, angular)), &f);
+		FStore(getVelocity(*mFsData)[mLinkIndex].dot(ev4sio_Cm::SpatialVector(linear, angular)), &f);
 		return f;*/
 	}
 }
@@ -66,21 +66,21 @@ FloatV SolverExtBody::projectVelocity(const Vec3V& linear, const Vec3V& angular)
 	}
 	else
 	{
-		const Cm::SpatialVectorV velocity = mArticulation->getLinkVelocity(mLinkIndex);
+		const ev4sio_Cm::SpatialVectorV velocity = mArticulation->getLinkVelocity(mLinkIndex);
 
-		return velocity.dot(Cm::SpatialVectorV(linear, angular));
+		return velocity.dot(ev4sio_Cm::SpatialVectorV(linear, angular));
 	}
 }
 
-Cm::SpatialVectorV SolverExtBody::getVelocity() const
+ev4sio_Cm::SpatialVectorV SolverExtBody::getVelocity() const
 {
 	if(mLinkIndex == PxSolverConstraintDesc::RIGID_BODY)
-		return Cm::SpatialVectorV(V3LoadA(mBodyData->linearVelocity), V3LoadA(mBodyData->angularVelocity));
+		return ev4sio_Cm::SpatialVectorV(V3LoadA(mBodyData->linearVelocity), V3LoadA(mBodyData->angularVelocity));
 	else
 		return mArticulation->getLinkVelocity(mLinkIndex);
 }
 
-Cm::SpatialVector createImpulseResponseVector(const PxVec3& linear, const PxVec3& angular, const SolverExtBody& body)
+ev4sio_Cm::SpatialVector createImpulseResponseVector(const PxVec3& linear, const PxVec3& angular, const SolverExtBody& body)
 {
 	// Note: compared to the TGS version of this method, there seems to be no need to check for kinematic or static
 	//       bodies in PGS since the original angular constraint axis is tracked separately (ang0Writeback) and a zero
@@ -89,22 +89,22 @@ Cm::SpatialVector createImpulseResponseVector(const PxVec3& linear, const PxVec3
 
 	if (body.mLinkIndex == PxSolverConstraintDesc::RIGID_BODY)
 	{
-		return Cm::SpatialVector(linear, body.mBodyData->sqrtInvInertia * angular);
+		return ev4sio_Cm::SpatialVector(linear, body.mBodyData->sqrtInvInertia * angular);
 	}
-	return Cm::SpatialVector(linear, angular);
+	return ev4sio_Cm::SpatialVector(linear, angular);
 }
 
-Cm::SpatialVectorV createImpulseResponseVector(const Vec3V& linear, const Vec3V& angular, const SolverExtBody& body)
+ev4sio_Cm::SpatialVectorV createImpulseResponseVector(const Vec3V& linear, const Vec3V& angular, const SolverExtBody& body)
 {
 	if (body.mLinkIndex == PxSolverConstraintDesc::RIGID_BODY)
 	{
-		return Cm::SpatialVectorV(linear, M33MulV3(M33Load(body.mBodyData->sqrtInvInertia), angular));
+		return ev4sio_Cm::SpatialVectorV(linear, M33MulV3(M33Load(body.mBodyData->sqrtInvInertia), angular));
 	}
-	return Cm::SpatialVectorV(linear, angular);
+	return ev4sio_Cm::SpatialVectorV(linear, angular);
 }
 
-PxReal getImpulseResponse(	const SolverExtBody& b0, const Cm::SpatialVector& impulse0, Cm::SpatialVector& deltaV0, PxReal dom0, PxReal angDom0, 
-							const SolverExtBody& b1, const Cm::SpatialVector& impulse1, Cm::SpatialVector& deltaV1, PxReal dom1, PxReal angDom1, 
+PxReal getImpulseResponse(	const SolverExtBody& b0, const ev4sio_Cm::SpatialVector& impulse0, ev4sio_Cm::SpatialVector& deltaV0, PxReal dom0, PxReal angDom0,
+							const SolverExtBody& b1, const ev4sio_Cm::SpatialVector& impulse1, ev4sio_Cm::SpatialVector& deltaV1, PxReal dom1, PxReal angDom1,
 							bool allowSelfCollision)
 {
 	PxReal response;
@@ -150,8 +150,8 @@ PxReal getImpulseResponse(	const SolverExtBody& b0, const Cm::SpatialVector& imp
 	return response;
 }
 
-static FloatV getImpulseResponse_(	const SolverExtBody& b0, const Cm::SpatialVectorV& impulse0, Cm::SpatialVectorV& deltaV0, const FloatV& dom0, const FloatV& angDom0,
-									const SolverExtBody& b1, const Cm::SpatialVectorV& impulse1, Cm::SpatialVectorV& deltaV1, const FloatV& dom1, const FloatV& angDom1)
+static FloatV getImpulseResponse_(	const SolverExtBody& b0, const ev4sio_Cm::SpatialVectorV& impulse0, ev4sio_Cm::SpatialVectorV& deltaV0, const FloatV& dom0, const FloatV& angDom0,
+									const SolverExtBody& b1, const ev4sio_Cm::SpatialVectorV& impulse1, ev4sio_Cm::SpatialVectorV& deltaV1, const FloatV& dom1, const FloatV& angDom1)
 {
 	Vec3V response;
 	{
@@ -201,8 +201,8 @@ static FloatV setupExtSolverContact(
 	const PxContactPoint* contactBase0,
 	const PxContactPoint& contact,
 	SolverContactPointExt& solverContact,
-	const Cm::SpatialVectorV& v0,
-	const Cm::SpatialVectorV& v1,
+	const ev4sio_Cm::SpatialVectorV& v0,
+	const ev4sio_Cm::SpatialVectorV& v1,
 	const FloatV& cfm,
 	const FloatVArg norVel0,
 	const FloatVArg norVel1)
@@ -235,10 +235,10 @@ static FloatV setupExtSolverContact(
 
 	relAngVel = FSub(aVel0, aVel1);
 
-	Cm::SpatialVectorV deltaV0, deltaV1;
+	ev4sio_Cm::SpatialVectorV deltaV0, deltaV1;
 
-	const Cm::SpatialVectorV resp0 = createImpulseResponseVector(normal, raXn, b0);
-	const Cm::SpatialVectorV resp1 = createImpulseResponseVector(V3Neg(normal), V3Neg(rbXn), b1);
+	const ev4sio_Cm::SpatialVectorV resp0 = createImpulseResponseVector(normal, raXn, b0);
+	const ev4sio_Cm::SpatialVectorV resp1 = createImpulseResponseVector(V3Neg(normal), V3Neg(rbXn), b1);
 
 	const FloatV d0 = FLoad(contactDesc.invMassScales.linear0);
 	const FloatV d1 = FLoad(contactDesc.invMassScales.linear1);
@@ -367,8 +367,8 @@ void setupFinalizeExtSolverContacts(
 	const Vec3V frame0p = V3LoadU_SafeReadW(bodyFrame0.p);
 	const Vec3V frame1p = V3LoadU_SafeReadW(bodyFrame1.p);
 
-	const Cm::SpatialVectorV vel0 = b0.getVelocity();
-	const Cm::SpatialVectorV vel1 = b1.getVelocity();
+	const ev4sio_Cm::SpatialVectorV vel0 = b0.getVelocity();
+	const ev4sio_Cm::SpatialVectorV vel1 = b1.getVelocity();
 
 	const FloatV quarter = FLoad(0.25f);
 
@@ -546,10 +546,10 @@ void setupFinalizeExtSolverContacts(
 					raXn = V3Sel(V3IsGrtr(solverOffsetSlop, V3Abs(raXn)), V3Zero(), raXn);
 					rbXn = V3Sel(V3IsGrtr(solverOffsetSlop, V3Abs(rbXn)), V3Zero(), rbXn);
 
-					Cm::SpatialVectorV deltaV0, deltaV1;
+					ev4sio_Cm::SpatialVectorV deltaV0, deltaV1;
 
-					const Cm::SpatialVectorV resp0 = createImpulseResponseVector(t0, raXn, b0);
-					const Cm::SpatialVectorV resp1 = createImpulseResponseVector(V3Neg(t0), V3Neg(rbXn), b1);
+					const ev4sio_Cm::SpatialVectorV resp0 = createImpulseResponseVector(t0, raXn, b0);
+					const ev4sio_Cm::SpatialVectorV resp1 = createImpulseResponseVector(V3Neg(t0), V3Neg(rbXn), b1);
 					FloatV resp = FAdd(cfm, getImpulseResponse_(b0, resp0, deltaV0, d0, angD0,
 																b1, resp1, deltaV1, d1, angD1));
 
@@ -582,10 +582,10 @@ void setupFinalizeExtSolverContacts(
 					raXn = V3Sel(V3IsGrtr(solverOffsetSlop, V3Abs(raXn)), V3Zero(), raXn);
 					rbXn = V3Sel(V3IsGrtr(solverOffsetSlop, V3Abs(rbXn)), V3Zero(), rbXn);
 
-					Cm::SpatialVectorV deltaV0, deltaV1;
+					ev4sio_Cm::SpatialVectorV deltaV0, deltaV1;
 
-					const Cm::SpatialVectorV resp0 = createImpulseResponseVector(t1, raXn, b0);
-					const Cm::SpatialVectorV resp1 = createImpulseResponseVector(V3Neg(t1), V3Neg(rbXn), b1);
+					const ev4sio_Cm::SpatialVectorV resp0 = createImpulseResponseVector(t1, raXn, b0);
+					const ev4sio_Cm::SpatialVectorV resp1 = createImpulseResponseVector(V3Neg(t1), V3Neg(rbXn), b1);
 
 					FloatV resp = FAdd(cfm, getImpulseResponse_(b0, resp0, deltaV0, d0, angD0,
 																b1, resp1, deltaV1, d1, angD1));

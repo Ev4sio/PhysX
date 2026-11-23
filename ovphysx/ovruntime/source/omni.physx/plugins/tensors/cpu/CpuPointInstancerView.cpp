@@ -18,11 +18,11 @@
 
 #include <carb/logging/Log.h>
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace tensors
 {
@@ -198,8 +198,8 @@ bool CpuPointInstancerView::setInstancerColumnOvStage(const InstancerColumn colu
                 // proto and instancerWorld are the FORWARD transforms, which nothing stores -- the
                 // entry holds worldInverse and the instance holds protoInverse -- so both are
                 // inverted back here.
-                const ::physx::PxMat44d proto = omni::physx::affineInverse(inst.protoInverse);
-                const ::physx::PxMat44d instancerWorld = omni::physx::affineInverse(e.worldInverse);
+                const ::ev4sio_physx::PxMat44d proto = omni::ev4sio_physx::affineInverse(inst.protoInverse);
+                const ::ev4sio_physx::PxMat44d instancerWorld = omni::ev4sio_physx::affineInverse(e.worldInverse);
 
                 PxVec3 curPos;
                 PxQuat curRot;
@@ -242,5 +242,5 @@ bool CpuPointInstancerView::setInstancerColumnOvStage(const InstancerColumn colu
 }
 
 } // namespace tensors
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

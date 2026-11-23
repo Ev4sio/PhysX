@@ -30,7 +30,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace tensors
 {
@@ -39,7 +39,7 @@ namespace tensors
 // runtime. Converting from USD's row-vector convention is not a transpose: the two hold the SAME
 // sixteen doubles for the same transform, and what differs is the ORDER OF PRODUCTS -- Gf `A * B` is
 // PhysX `B * A`. See common/foundation/MatrixTools.h.
-using InstancerAffine = ::physx::PxMat44T<double>;
+using InstancerAffine = ::ev4sio_physx::PxMat44T<double>;
 
 // Double throughout: world-to-instancer is where a far-from-origin instancer loses precision -- large
 // world coordinates in, a small local one out, so float composition rounds away the digits the
@@ -66,17 +66,17 @@ OVX_INSTANCER_HD inline void instancerAffineFromPose(const double* q, const doub
     const double wx = q[3] * q[0], wy = q[3] * q[1], wz = q[3] * q[2];
 
     // Columns are the basis vectors and the translation.
-    out.column0 = ::physx::PxVec4T<double>(1.0 - 2.0 * (yy + zz), 2.0 * (xy + wz), 2.0 * (xz - wy), 0.0);
-    out.column1 = ::physx::PxVec4T<double>(2.0 * (xy - wz), 1.0 - 2.0 * (xx + zz), 2.0 * (yz + wx), 0.0);
-    out.column2 = ::physx::PxVec4T<double>(2.0 * (xz + wy), 2.0 * (yz - wx), 1.0 - 2.0 * (xx + yy), 0.0);
-    out.column3 = ::physx::PxVec4T<double>(p[0], p[1], p[2], 1.0);
+    out.column0 = ::ev4sio_physx::PxVec4T<double>(1.0 - 2.0 * (yy + zz), 2.0 * (xy + wz), 2.0 * (xz - wy), 0.0);
+    out.column1 = ::ev4sio_physx::PxVec4T<double>(2.0 * (xy - wz), 1.0 - 2.0 * (xx + zz), 2.0 * (yz + wx), 0.0);
+    out.column2 = ::ev4sio_physx::PxVec4T<double>(2.0 * (xz + wy), 2.0 * (yz - wx), 1.0 - 2.0 * (xx + yy), 0.0);
+    out.column3 = ::ev4sio_physx::PxVec4T<double>(p[0], p[1], p[2], 1.0);
 }
 
 // Quaternion from rotation columns, by the SAME factorisation the write path uses: this is
 // common/foundation/MatrixTools.cpp's decomposeMatrix, rotation half only, made PX_CUDA_CALLABLE
 // (decomposeMatrix itself is a non-inline free function with no device marking). It is a second copy
 // of that math, pinned by TestInstancerReframe's "read vs write path" section, which asserts
-// agreement with omni::physx::toTransform() to 1e-6 scaled and unscaled.
+// agreement with omni::ev4sio_physx::toTransform() to 1e-6 scaled and unscaled.
 //
 // Float narrowing is part of the contract: the host builds the quaternion in double, narrows to
 // PxQuat (float) and normalises in float. Reproduced step for step, because "agrees to 1e-6" is only
@@ -307,7 +307,7 @@ OVX_INSTANCER_HD inline void instancerUnreframe(const InstancerAffine& proto,
 }
 
 } // namespace tensors
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni
 
 // Scoped to this header: every use is above, and leaving it defined would put a bare OVX_* macro in

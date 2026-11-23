@@ -15,7 +15,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace usdparser
 {
@@ -41,7 +41,7 @@ static bool getAttribute(AttachedStage& attachedStage, T& val, omni::physics::pa
     {
         T attrVal{};
         // A failed read must leave `val` alone -- see the TfToken overload above.
-        if (!omni::physx::internal::getValue(attachedStage, key, attributeName, time, attrVal))
+        if (!omni::ev4sio_physx::internal::getValue(attachedStage, key, attributeName, time, attrVal))
             return false;
         if (isinf((float)attrVal))
         {
@@ -84,7 +84,7 @@ static void getAttribute(AttachedStage& attachedStage, T& val, omni::physics::pa
         return;
     // As above: leave `val` at the caller's default when the source cannot answer.
     T readVal{};
-    if (omni::physx::internal::getValue(attachedStage, key, attributeName, time, readVal))
+    if (omni::ev4sio_physx::internal::getValue(attachedStage, key, attributeName, time, readVal))
         val = readVal;
 
     if (onUpdate && src->mightBeTimeVarying(key, attributeName))
@@ -94,5 +94,5 @@ static void getAttribute(AttachedStage& attachedStage, T& val, omni::physics::pa
 }
 
 } // namespace usdparser
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

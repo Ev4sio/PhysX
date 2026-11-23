@@ -33,19 +33,19 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace internal
 {
 class InternalScene;
 class InternalVehicle;
 } // namespace internal
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace tensors
 {
@@ -65,7 +65,7 @@ enum class RigidBodyType : uint8_t
 
 struct RigidBodyEntry
 {
-    ::physx::PxRigidBody* body = nullptr;
+    ::ev4sio_physx::PxRigidBody* body = nullptr;
 
     RigidBodyType type = RigidBodyType::eInvalid;
 
@@ -75,11 +75,11 @@ struct RigidBodyEntry
 
     Subspace* subspace = nullptr;
 
-    ::physx::PxU32 numShapes = 0;
-    std::vector<::physx::PxShape*> shapes;
+    ::ev4sio_physx::PxU32 numShapes = 0;
+    std::vector<::ev4sio_physx::PxShape*> shapes;
 
     // Creation-time controller actor to prim frame correction; identity for other bodies.
-    ::physx::PxQuat orientationFixup{ ::physx::PxIdentity };
+    ::ev4sio_physx::PxQuat orientationFixup{ ::ev4sio_physx::PxIdentity };
 
     // Signed world scale the body was created with (InternalActor::mScale): the scale the parser
     // decomposed off its world transform (a replicated clone copies its source's), which PhysX does
@@ -87,22 +87,22 @@ struct RigidBodyEntry
     // not applied to it (controllers, DirectGPU bodies, links, time-sampled kinematics) -- so a view may
     // cache it; destroying the actor invalidates the view. Unit when the body has no owning database
     // record (an unmanaged actor).
-    ::physx::PxVec3 worldScale{ 1.0f };
+    ::ev4sio_physx::PxVec3 worldScale{ 1.0f };
 };
 
 // One instance of a point-instancer prototype. The body is a plain PxRigidDynamic in the scene, so it
 // resolves through the same superset row map every other rigid read uses.
 struct PointInstance
 {
-    ::physx::PxRigidDynamic* body = nullptr;
+    ::ev4sio_physx::PxRigidDynamic* body = nullptr;
 
     // Slot in the instancer's instance array. The emitted column is the full array placed by index,
     // so this is a scatter target, not a sequence position.
-    ::physx::PxU32 index = 0;
+    ::ev4sio_physx::PxU32 index = 0;
 
     // The prototype's own transform, inverted. Constant while the instance exists; instances of one
     // prototype each carry an identical copy.
-    ::physx::PxMat44d protoInverse{ ::physx::PxIdentity };
+    ::ev4sio_physx::PxMat44d protoInverse{ ::ev4sio_physx::PxIdentity };
 };
 
 // A point instancer and its instances, assembled by the caller rather than by walking PxScene: an
@@ -120,7 +120,7 @@ struct PointInstancerEntry
     // Recomputed by the caller per read, never cached: it comes from a stage query, so a moving
     // instancer changes it without creating or retiring any PhysX record, and the object-lifetime
     // epoch cannot see it. Caching behind that epoch would serve stale positions with no error.
-    ::physx::PxMat44d worldInverse{ ::physx::PxIdentity };
+    ::ev4sio_physx::PxMat44d worldInverse{ ::ev4sio_physx::PxIdentity };
 
     // Instance-array length to emit: max index + 1, not instances.size(). The column is the full
     // array placed by index, so a sparse instancer still publishes every slot.
@@ -129,28 +129,28 @@ struct PointInstancerEntry
     // destination sub-range from the same quantity -- otherwise a write lands silently inside the
     // next instancer's range. The reader sets both from one `acc.maxIndex` on adjacent lines; there
     // is no check, so keep them adjacent.
-    ::physx::PxU32 arrayLength = 0;
+    ::ev4sio_physx::PxU32 arrayLength = 0;
 
     std::vector<PointInstance> instances;
 };
 
 struct DeformableBodyEntry
 {
-    ::physx::PxDeformableBody* body = nullptr;
+    ::ev4sio_physx::PxDeformableBody* body = nullptr;
 
     std::string path;
     std::string simMeshPath;
     std::string collMeshPath;
 
     Subspace* subspace = nullptr;
-    std::vector<::physx::PxU32> simIndices;
-    std::vector<::physx::PxVec3> restPositions;
-    std::vector<::physx::PxU32> collIndices;
+    std::vector<::ev4sio_physx::PxU32> simIndices;
+    std::vector<::ev4sio_physx::PxVec3> restPositions;
+    std::vector<::ev4sio_physx::PxU32> collIndices;
 };
 
 struct DeformableMaterialEntry
 {
-    ::physx::PxDeformableMaterial* material = nullptr;
+    ::ev4sio_physx::PxDeformableMaterial* material = nullptr;
     std::string path;
     bool isSurface = false; // true when material is PxDeformableSurfaceMaterial
 };
@@ -159,15 +159,15 @@ struct SdfShapeEntry
 {
     std::string path;
     Subspace* subspace = nullptr;
-    ::physx::PxU32 numSamplePoints = 0;
-    ::physx::PxShape* shape;
+    ::ev4sio_physx::PxU32 numSamplePoints = 0;
+    ::ev4sio_physx::PxShape* shape;
 };
 
 struct DofImpl
 {
-    ::physx::PxArticulationJointReducedCoordinate* joint = nullptr;
-    ::physx::PxArticulationAxis::Enum axis = ::physx::PxArticulationAxis::eTWIST;
-    ::physx::PxU32 isEnvelopeUsed = 0;
+    ::ev4sio_physx::PxArticulationJointReducedCoordinate* joint = nullptr;
+    ::ev4sio_physx::PxArticulationAxis::Enum axis = ::ev4sio_physx::PxArticulationAxis::eTWIST;
+    ::ev4sio_physx::PxU32 isEnvelopeUsed = 0;
     std::string path;
 };
 
@@ -181,9 +181,9 @@ struct DofImpl
 // reader carries as ObjectKeys.
 struct VehicleEntry
 {
-    omni::physx::internal::InternalVehicle* vehicle = nullptr;
-    ::physx::PxRigidDynamic* actor = nullptr; // the chassis
-    ::physx::PxU32 numWheels = 0;
+    omni::ev4sio_physx::internal::InternalVehicle* vehicle = nullptr;
+    ::ev4sio_physx::PxRigidDynamic* actor = nullptr; // the chassis
+    ::ev4sio_physx::PxU32 numWheels = 0;
 };
 
 // represents an articulation instance
@@ -192,45 +192,45 @@ struct ArticulationEntry
     // common type info that can be shared by multiple articulations
     const ArticulationMetatype* metatype = nullptr;
 
-    ::physx::PxArticulationReducedCoordinate* arti = nullptr;
+    ::ev4sio_physx::PxArticulationReducedCoordinate* arti = nullptr;
 
     std::string path;
 
     Subspace* subspace = nullptr;
 
-    ::physx::PxU32 numLinks = 0;
-    ::physx::PxU32 numDofs = 0;
-    ::physx::PxU32 numShapes = 0;
-    ::physx::PxU32 numFixedTendons = 0;
-    ::physx::PxU32 numSpatialTendons = 0;
+    ::ev4sio_physx::PxU32 numLinks = 0;
+    ::ev4sio_physx::PxU32 numDofs = 0;
+    ::ev4sio_physx::PxU32 numShapes = 0;
+    ::ev4sio_physx::PxU32 numFixedTendons = 0;
+    ::ev4sio_physx::PxU32 numSpatialTendons = 0;
 
-    std::vector<::physx::PxArticulationLink*> links;
+    std::vector<::ev4sio_physx::PxArticulationLink*> links;
     std::vector<std::string> linkPaths;
-    std::vector<::physx::PxU32> dofStarts;
+    std::vector<::ev4sio_physx::PxU32> dofStarts;
     std::vector<FreeD6RotationAxesFlags> freeD6Axes;
     std::vector<DofImpl> dofImpls;
-    std::vector<::physx::PxShape*> shapes;
-    std::vector<::physx::PxArticulationFixedTendon*> fixedTendons;
-    std::vector<::physx::PxArticulationSpatialTendon*> spatialTendons;
-    std::vector<::physx::PxQuat> incomingJointPhysxToUsdRotations; // per-link rotation that was applied to the incoming
+    std::vector<::ev4sio_physx::PxShape*> shapes;
+    std::vector<::ev4sio_physx::PxArticulationFixedTendon*> fixedTendons;
+    std::vector<::ev4sio_physx::PxArticulationSpatialTendon*> spatialTendons;
+    std::vector<::ev4sio_physx::PxQuat> incomingJointPhysxToUsdRotations; // per-link rotation that was applied to the incoming
                                                                    // joint frame during USD parsing.
-    std::vector<::physx::PxTransform> jointChild; // incoming joint child transform
-    std::vector<::physx::PxTransform> jointParent; // incoming joint parent transform
-    std::vector<::physx::PxU32> parentIndices; // parent indices
+    std::vector<::ev4sio_physx::PxTransform> jointChild; // incoming joint child transform
+    std::vector<::ev4sio_physx::PxTransform> jointParent; // incoming joint parent transform
+    std::vector<::ev4sio_physx::PxU32> parentIndices; // parent indices
     std::vector<bool> isIncomingJointBody0Parent; // whether USD structure is similar to physx SDK
 };
 
-inline DofMotion fromPhysx(::physx::PxArticulationMotion::Enum m)
+inline DofMotion fromPhysx(::ev4sio_physx::PxArticulationMotion::Enum m)
 {
-    if (m == ::physx::PxArticulationMotion::eFREE)
+    if (m == ::ev4sio_physx::PxArticulationMotion::eFREE)
     {
         return omni::physics::tensors::DofMotion::eFree;
     }
-    else if (m == ::physx::PxArticulationMotion::eLIMITED)
+    else if (m == ::ev4sio_physx::PxArticulationMotion::eLIMITED)
     {
         return omni::physics::tensors::DofMotion::eLimited;
     }
-    else if (m == ::physx::PxArticulationMotion::eLOCKED)
+    else if (m == ::ev4sio_physx::PxArticulationMotion::eLOCKED)
     {
         return omni::physics::tensors::DofMotion::eLocked;
     }
@@ -259,9 +259,9 @@ struct RigidContactSensorEntry
     // riskier follow-up, not part of this identity/display-field cleanup.
     uint64_t referentId = 0; // legacy ObjectKey.handle-encoded identity, matches contact headers
 
-    ::physx::PxArticulationLink* link = nullptr; // set if referent is an articulation link
-    ::physx::PxRigidDynamic* rd = nullptr; // set if referent is a rigid dynamic
-    ::physx::PxShape* shape = nullptr; // set if referent is a rigid shape
+    ::ev4sio_physx::PxArticulationLink* link = nullptr; // set if referent is an articulation link
+    ::ev4sio_physx::PxRigidDynamic* rd = nullptr; // set if referent is a rigid dynamic
+    ::ev4sio_physx::PxShape* shape = nullptr; // set if referent is a rigid shape
     uint32_t nameID = 0xffffffff;
     std::unordered_map<uint64_t, uint32_t> filterIndexMap; // legacy ObjectKey.handle-keyed, see referentId above
 
@@ -291,5 +291,5 @@ inline omni::physics::parse::ObjectKey keyFromLegacyId(uint64_t id)
 }
 
 } // namespace tensors
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

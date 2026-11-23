@@ -25,13 +25,13 @@
 #include "usdLoad/Collision.h"
 #include <PxPhysicsAPI.h>
 
-using namespace ::physx;
-using namespace omni::physx::usdparser;
+using namespace ::ev4sio_physx;
+using namespace omni::ev4sio_physx::usdparser;
 using namespace cookingdataasync;
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 
 namespace
@@ -92,8 +92,8 @@ struct CollisionRepresentationConvex
     PhysxCollisionRepresentationRequest request;
     PhysxCollisionRepresentationConvexResult::CallbackType onResult;
 
-    static void returnMemoryCachedResult(const omni::physx::PhysxCookingDataType::Enum dataType,
-                                         const omni::physx::usdparser::MeshKey& cookedDataCRC,
+    static void returnMemoryCachedResult(const omni::ev4sio_physx::PhysxCookingDataType::Enum dataType,
+                                         const omni::ev4sio_physx::usdparser::MeshKey& cookedDataCRC,
                                          const PhysxCollisionRepresentationConvexResult::CallbackType& onResult)
     {
         PxPhysics& pxPhysics = *OmniPhysX::getInstance().getPhysXSetup().getPhysics();
@@ -102,11 +102,11 @@ struct CollisionRepresentationConvex
         {
         case PhysxCookingDataType::eCONVEX_MESH: {
             meshes.resize(1);
-            meshes[0] = omni::physx::getMeshCache()->getConvexMesh(cookedDataCRC);
+            meshes[0] = omni::ev4sio_physx::getMeshCache()->getConvexMesh(cookedDataCRC);
             break;
         }
         case PhysxCookingDataType::eCONVEX_DECOMPOSITION: {
-            meshes = omni::physx::getMeshCache()->getConvexDecomposition(cookedDataCRC);
+            meshes = omni::ev4sio_physx::getMeshCache()->getConvexDecomposition(cookedDataCRC);
             break;
         }
         default:
@@ -139,22 +139,22 @@ struct CollisionRepresentationConvex
         return true;
     }
 
-    static bool hasMemoryCachedResult(const omni::physx::PhysxCookingDataType::Enum dataType,
-                                      const omni::physx::usdparser::MeshKey& cookedDataCRC)
+    static bool hasMemoryCachedResult(const omni::ev4sio_physx::PhysxCookingDataType::Enum dataType,
+                                      const omni::ev4sio_physx::usdparser::MeshKey& cookedDataCRC)
     {
         switch (dataType)
         {
         case PhysxCookingDataType::eCONVEX_MESH:
-            return omni::physx::getMeshCache()->hasConvexMesh(cookedDataCRC);
+            return omni::ev4sio_physx::getMeshCache()->hasConvexMesh(cookedDataCRC);
         case PhysxCookingDataType::eCONVEX_DECOMPOSITION:
-            return omni::physx::getMeshCache()->hasConvexDecomposition(cookedDataCRC);
+            return omni::ev4sio_physx::getMeshCache()->hasConvexDecomposition(cookedDataCRC);
         }
         return false;
     }
 
-    void returnNewlyComputedRepresentation(const omni::physx::PhysxCookingComputeResult& cookingResult)
+    void returnNewlyComputedRepresentation(const omni::ev4sio_physx::PhysxCookingComputeResult& cookingResult)
     {
-        ::physx::PxPhysics& pxPhysics = *OmniPhysX::getInstance().getPhysXSetup().getPhysics();
+        ::ev4sio_physx::PxPhysics& pxPhysics = *OmniPhysX::getInstance().getPhysXSetup().getPhysics();
         switch (cookingResult.request->dataType)
         {
         case PhysxCookingDataType::eCONVEX_MESH:
@@ -171,7 +171,7 @@ struct CollisionRepresentationConvex
         onResult(PhysxCollisionRepresentationResult::eRESULT_ERROR_INVALID_RESULT, result);
     }
 
-    bool returnConvexRepresentation(const omni::physx::PhysxCookingComputeResult& result)
+    bool returnConvexRepresentation(const omni::ev4sio_physx::PhysxCookingComputeResult& result)
     {
         PxPhysics& pxPhysics = *OmniPhysX::getInstance().getPhysXSetup().getPhysics();
         std::vector<PxConvexMesh*> meshes;
@@ -180,11 +180,11 @@ struct CollisionRepresentationConvex
         {
         case PhysxCookingDataType::eCONVEX_MESH:
             meshes.resize(1);
-            createRuntimeMeshSucceeded = omni::physx::getMeshCache()->createRuntimeConvexMesh(
+            createRuntimeMeshSucceeded = omni::ev4sio_physx::getMeshCache()->createRuntimeConvexMesh(
                 pxPhysics, result.cookedDataCRC, result.cookedData[0], &meshes[0]);
             break;
         case PhysxCookingDataType::eCONVEX_DECOMPOSITION:
-            createRuntimeMeshSucceeded = omni::physx::getMeshCache()->createRuntimeConvexDecomposition(
+            createRuntimeMeshSucceeded = omni::ev4sio_physx::getMeshCache()->createRuntimeConvexDecomposition(
                 pxPhysics, result.cookedDataCRC, result.cookedData, result.cookedDataNumElements, &meshes);
             break;
         }
@@ -235,7 +235,7 @@ PhysxCollisionRepresentationTask requestCollisionRepresentation(const PhysxColli
         return { nullptr };
     }
 
-    omni::physx::IPhysxCookingService* cookingService =
+    omni::ev4sio_physx::IPhysxCookingService* cookingService =
         OmniPhysX::getInstance().getPhysXSetup().getCookingServiceInterface();
     if (!cookingService)
     {
@@ -254,7 +254,7 @@ PhysxCollisionRepresentationTask requestCollisionRepresentation(const PhysxColli
         return { nullptr };
     }
 
-    omni::physx::PhysxCookingAsyncContext asyncContext = cookingDataAsync->getCookingAsyncContext(*attachedStage);
+    omni::ev4sio_physx::PhysxCookingAsyncContext asyncContext = cookingDataAsync->getCookingAsyncContext(*attachedStage);
 
 
     //----------------------------------------------------------------------------------
@@ -269,7 +269,7 @@ PhysxCollisionRepresentationTask requestCollisionRepresentation(const PhysxColli
     cookingRequest.primStageId = attachedStage->getStageId();
     cookingRequest.attachHandle = attachedStage->getAttachHandle();
     const bool async = request.options.hasFlag(PhysxCollisionRepresentationRequest::Options::kComputeAsynchronously);
-    cookingRequest.options.setFlag(omni::physx::PhysxCookingComputeRequest::Options::kComputeGPUCookingData, true);
+    cookingRequest.options.setFlag(omni::ev4sio_physx::PhysxCookingComputeRequest::Options::kComputeGPUCookingData, true);
 
     cookingRequest.mode = PhysxCookingComputeRequest::eMODE_COMPUTE_CRC;
 
@@ -310,7 +310,7 @@ PhysxCollisionRepresentationTask requestCollisionRepresentation(const PhysxColli
 
     MeshKey cookedDataCRC;
     MeshKey meshKey;
-    cookingRequest.onFinished = [&cookedDataCRC, &meshKey](const omni::physx::PhysxCookingComputeResult& cookingResult) {
+    cookingRequest.onFinished = [&cookedDataCRC, &meshKey](const omni::ev4sio_physx::PhysxCookingComputeResult& cookingResult) {
         if (cookingResult.result == PhysxCookingResult::eVALID)
         {
             cookedDataCRC = cookingResult.cookedDataCRC;
@@ -372,7 +372,7 @@ PhysxCollisionRepresentationTask requestCollisionRepresentation(const PhysxColli
     cookingRequest.mode = PhysxCookingComputeRequest::eMODE_REQUEST_COOKED_DATA;
     cookingRequest.options.setFlag(PhysxCookingComputeRequest::Options::kComputeAsynchronously, async);
     cookingRequest.meshKey = meshKey;
-    cookingRequest.onFinished = [context, completion](const omni::physx::PhysxCookingComputeResult& cookingResult) {
+    cookingRequest.onFinished = [context, completion](const omni::ev4sio_physx::PhysxCookingComputeResult& cookingResult) {
         completeCollisionTask(completion);
         if (cookingResult.result == PhysxCookingResult::eVALID)
         {
@@ -457,7 +457,7 @@ RuntimeResult cancelCollisionRepresentationTask(PhysxCollisionRepresentationTask
     }
     if (!UsdLoad::getUsdLoad()->getAttachedStageByHandle(entry.attach))
         return RuntimeResult::eSuccess;
-    omni::physx::IPhysxCookingService* cookingService =
+    omni::ev4sio_physx::IPhysxCookingService* cookingService =
         OmniPhysX::getInstance().getPhysXSetup().getCookingServiceInterface();
     if (cookingService)
     {
@@ -465,5 +465,5 @@ RuntimeResult cancelCollisionRepresentationTask(PhysxCollisionRepresentationTask
     }
     return RuntimeResult::eSuccess;
 }
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

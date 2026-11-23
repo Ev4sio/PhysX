@@ -19,18 +19,18 @@
 
 #include <omni/physx/IPhysxVisualization.h>
 
-namespace omni { namespace physx { namespace usdparser { class AttachedStage; } } }
+namespace omni { namespace ev4sio_physx { namespace usdparser { class AttachedStage; } } }
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace internal
 {
 
 
 // All keyed by source-agnostic ObjectKey, not a stored SdfPath.
-using PxJointMap = std::unordered_multimap<omni::physics::parse::ObjectKey, std::pair<::physx::PxJoint*, bool>,
+using PxJointMap = std::unordered_multimap<omni::physics::parse::ObjectKey, std::pair<::ev4sio_physx::PxJoint*, bool>,
                                            omni::physics::parse::ObjectKey::Hash>;
 using SplinesCurveMap =
     std::unordered_map<omni::physics::parse::ObjectKey, SplinesCurve*, omni::physics::parse::ObjectKey::Hash>;
@@ -63,9 +63,9 @@ public:
 
     void resetStartProperties(bool useUsdUpdate, bool useVelocitiesUSDUpdate, bool outputVelocitiesLocalSpace);
 
-    omni::physx::usdparser::ObjectId createTireFrictionTable(
+    omni::ev4sio_physx::usdparser::ObjectId createTireFrictionTable(
         const usdparser::AttachedStage& attachedStage,
-        const omni::physx::usdparser::TireFrictionTableDesc& tireFrictionTableDesc);
+        const omni::ev4sio_physx::usdparser::TireFrictionTableDesc& tireFrictionTableDesc);
 
     void addDirtyMassActor(size_t actorIndex);
     void addDirtyMassActor(InternalActor* actor);
@@ -79,11 +79,11 @@ public:
 
     void debugDraw();
     void setVisualizationParameter(PhysXVisualizationParameter param, bool val);
-    const ::physx::PxRenderBuffer& getDebugRenderBuffer() const
+    const ::ev4sio_physx::PxRenderBuffer& getDebugRenderBuffer() const
     {
         return mRenderBuffer;
     }
-    ::physx::PxRenderBuffer& getDebugRenderBuffer()
+    ::ev4sio_physx::PxRenderBuffer& getDebugRenderBuffer()
     {
         return mRenderBuffer;
     }
@@ -104,8 +104,8 @@ public:
     {
         mPxJointMap.clear();
     }
-    void storePxJoint(const ::physx::PxRigidActor* actor, omni::physics::parse::ObjectKey key);
-    void removePxJoint(const ::physx::PxJoint* joint)
+    void storePxJoint(const ::ev4sio_physx::PxRigidActor* actor, omni::physics::parse::ObjectKey key);
+    void removePxJoint(const ::ev4sio_physx::PxJoint* joint)
     {
         PxJointMap::const_iterator it = mPxJointMap.begin();
         PxJointMap::const_iterator itEnd = mPxJointMap.end();
@@ -150,7 +150,7 @@ private:
     std::vector<InternalActor*> mDirtyMassActorList;
     std::vector<InternalParticle*> mDirtyMassParticleList;
 
-    std::unordered_set<const ::physx::PxJoint*> mResitualPxJoints;
+    std::unordered_set<const ::ev4sio_physx::PxJoint*> mResitualPxJoints;
 
     SplinesCurveMap mSplinesMap;
 
@@ -161,5 +161,5 @@ private:
 
 
 } // namespace internal
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

@@ -6,7 +6,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace optionalCuda
 {
@@ -19,13 +19,13 @@ std::atomic<ProviderFn>& getProviderSlot()
     return s_provider;
 }
 
-std::atomic<omni::physx::IOptionalCuda*>& getCachedSlot()
+std::atomic<omni::ev4sio_physx::IOptionalCuda*>& getCachedSlot()
 {
-    static std::atomic<omni::physx::IOptionalCuda*> s_cached{ nullptr };
+    static std::atomic<omni::ev4sio_physx::IOptionalCuda*> s_cached{ nullptr };
     return s_cached;
 }
 
 } // namespace detail
 } // namespace optionalCuda
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

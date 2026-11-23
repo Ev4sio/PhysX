@@ -16,7 +16,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 struct ContactEventHeader;
 struct ContactData;
@@ -37,7 +37,7 @@ struct RigidBodyDirtyForceFlags
 
 struct CpuRigidBodyDirtyForceTracker
 {
-    std::vector<::physx::PxRigidBody*> bodies;
+    std::vector<::ev4sio_physx::PxRigidBody*> bodies;
     std::vector<uint8_t> dirtyFlags;
 
     // whether any of the bodies have dirty forces or torques
@@ -48,14 +48,14 @@ using CpuRigidBodyDirtyForceTrackerPtr = std::shared_ptr<CpuRigidBodyDirtyForceT
 
 struct RigidContactHeaderRef
 {
-    const ::omni::physx::ContactEventHeader* header;
+    const ::omni::ev4sio_physx::ContactEventHeader* header;
     bool invert;
 
     RigidContactHeaderRef() : header(nullptr), invert(false)
     {
     }
 
-    RigidContactHeaderRef(const ::omni::physx::ContactEventHeader* header, bool invert) : header(header), invert(invert)
+    RigidContactHeaderRef(const ::omni::ev4sio_physx::ContactEventHeader* header, bool invert) : header(header), invert(invert)
     {
     }
 };
@@ -63,7 +63,7 @@ struct RigidContactHeaderRef
 class RigidContactBucket
 {
 public:
-    void addHeaderRef(const ::omni::physx::ContactEventHeader* header, bool invert)
+    void addHeaderRef(const ::omni::ev4sio_physx::ContactEventHeader* header, bool invert)
     {
         mHeaderRefs.emplace_back(header, invert);
         mContactCount += header->numContactData;
@@ -112,11 +112,11 @@ struct CpuSimulationData
     void addRigidContactBucket(uint64_t referentId, RigidContactBucket* bucket);
     void removeRigidContactBucket(uint64_t referentId, RigidContactBucket* bucket);
 
-    const ::omni::physx::ContactData* getCurrentContactData() const
+    const ::omni::ev4sio_physx::ContactData* getCurrentContactData() const
     {
         return mCurrentContactData;
     }
-    const ::omni::physx::FrictionAnchor* getCurrentFrictionData() const
+    const ::omni::ev4sio_physx::FrictionAnchor* getCurrentFrictionData() const
     {
         return mFrictionAnchorData;
     }
@@ -134,12 +134,12 @@ private:
     int64_t mRigidFrictionContactTimestamp = -1;
     std::unordered_map<uint64_t, std::vector<RigidContactBucket*>> mRigidContactBuckets;
 
-    const ::omni::physx::ContactData* mCurrentContactData = nullptr;
-    const ::omni::physx::FrictionAnchor* mFrictionAnchorData = nullptr;
+    const ::omni::ev4sio_physx::ContactData* mCurrentContactData = nullptr;
+    const ::omni::ev4sio_physx::FrictionAnchor* mFrictionAnchorData = nullptr;
 };
 
 using CpuSimulationDataPtr = std::shared_ptr<CpuSimulationData>;
 
 } // namespace tensors
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

@@ -21,11 +21,11 @@
 #include <cstring>
 
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace tensors
 {
@@ -76,7 +76,7 @@ bool BasePointInstancerView::check() const
     return mSim != nullptr && mSimData != nullptr;
 }
 
-bool BasePointInstancerView::setWorldInverses(const ::physx::PxMat44d* const inverses, const PxU32 numInstancers)
+bool BasePointInstancerView::setWorldInverses(const ::ev4sio_physx::PxMat44d* const inverses, const PxU32 numInstancers)
 {
     if (!inverses || numInstancers != mEntries.size())
         return false;
@@ -115,8 +115,8 @@ static void toSharedInputs(const PxTransform& worldPose,
     outWorldPos[2] = double(worldPose.p.z);
 }
 
-void BasePointInstancerView::unreframe(const ::physx::PxMat44d& proto,
-                                       const ::physx::PxMat44d& instancerWorld,
+void BasePointInstancerView::unreframe(const ::ev4sio_physx::PxMat44d& proto,
+                                       const ::ev4sio_physx::PxMat44d& instancerWorld,
                                        const PxVec3& localPos,
                                        const PxQuat& localRot,
                                        PxTransform& outWorld)
@@ -134,8 +134,8 @@ void BasePointInstancerView::unreframe(const ::physx::PxMat44d& proto,
                                   float(worldQuat[3])));
 }
 
-void BasePointInstancerView::reframePosition(const ::physx::PxMat44d& protoInverse,
-                                             const ::physx::PxMat44d& instancerWorldInverse,
+void BasePointInstancerView::reframePosition(const ::ev4sio_physx::PxMat44d& protoInverse,
+                                             const ::ev4sio_physx::PxMat44d& instancerWorldInverse,
                                              const PxTransform& worldPose,
                                              PxVec3& outPos)
 {
@@ -149,8 +149,8 @@ void BasePointInstancerView::reframePosition(const ::physx::PxMat44d& protoInver
     outPos = PxVec3(float(local.column3.x), float(local.column3.y), float(local.column3.z));
 }
 
-void BasePointInstancerView::reframe(const ::physx::PxMat44d& protoInverse,
-                                     const ::physx::PxMat44d& instancerWorldInverse,
+void BasePointInstancerView::reframe(const ::ev4sio_physx::PxMat44d& protoInverse,
+                                     const ::ev4sio_physx::PxMat44d& instancerWorldInverse,
                                      const PxTransform& worldPose,
                                      PxVec3& outPos,
                                      PxQuat& outRot)
@@ -170,5 +170,5 @@ void BasePointInstancerView::reframe(const ::physx::PxMat44d& protoInverse,
 }
 
 } // namespace tensors
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

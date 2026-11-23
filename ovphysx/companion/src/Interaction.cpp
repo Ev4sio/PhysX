@@ -15,7 +15,7 @@
 #include <mutex>
 namespace ovphysx::companion::interaction
 {
-using namespace omni::physx::native;
+using namespace omni::ev4sio_physx::native;
 using Status=ovphysx_companion_status_t;
 ObjectReference reference(const ovphysx_companion_object_t& r)
 {return {r.attachment,r.object,r.key,r.generation,r.kind,r.instance};}

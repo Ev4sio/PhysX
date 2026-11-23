@@ -14,7 +14,7 @@
 #include "PxgSimulationCoreDesc.h"
 #include <vector_types.h>
 
-namespace physx
+namespace ev4sio_physx
 {
 #define	EMPTY_CELL	0xffffffff
 

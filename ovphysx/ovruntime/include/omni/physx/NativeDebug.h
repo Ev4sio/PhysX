@@ -6,7 +6,7 @@
 #pragma once
 #include <cstdint>
 #include <vector>
-namespace omni::physx::native
+namespace omni::ev4sio_physx::native
 {
 enum class DebugResult : uint32_t { Success, Invalid, Stale, Busy, Unavailable, Limit, Error };
 struct DebugConfig

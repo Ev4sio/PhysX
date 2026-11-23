@@ -12,11 +12,11 @@
 
 #include <omni/physics/tensors/TensorUtils.h>
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace tensors
 {

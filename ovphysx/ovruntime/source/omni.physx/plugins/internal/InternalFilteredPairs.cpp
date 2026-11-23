@@ -20,10 +20,10 @@
 #include <PxPhysicsAPI.h>
 
 using namespace carb;
-using namespace ::physx;
-using namespace omni::physx;
-using namespace omni::physx::usdparser;
-using namespace omni::physx::internal;
+using namespace ::ev4sio_physx;
+using namespace omni::ev4sio_physx;
+using namespace omni::ev4sio_physx::usdparser;
+using namespace omni::ev4sio_physx::internal;
 
 
 // collection objects that do have filtered data
@@ -150,7 +150,7 @@ void handleFilteringPair(AttachedStage& attachedStage, size_t index0, size_t ind
         if (!objects0[i])
             continue;
 
-        const uint32_t hash0 = ::physx::PxComputeHash(uint64_t(objects0[i]));
+        const uint32_t hash0 = ::ev4sio_physx::PxComputeHash(uint64_t(objects0[i]));
         setFilterPairData(objects0[i], hash0);
         resetFiltering(objects0[i]);
         for (size_t j = 0; j < objects1.size(); ++j)
@@ -158,7 +158,7 @@ void handleFilteringPair(AttachedStage& attachedStage, size_t index0, size_t ind
             if (!objects1[j])
                 continue;
 
-            const uint32_t hash1 = ::physx::PxComputeHash(uint64_t(objects1[j]));
+            const uint32_t hash1 = ::ev4sio_physx::PxComputeHash(uint64_t(objects1[j]));
             setFilterPairData(objects1[j], hash1);
             resetFiltering(objects1[j]);
             const Pair<uint32_t> filterPair(hash0, hash1);
@@ -191,14 +191,14 @@ void removeFilteringPair(AttachedStage& attachedStage, size_t index0, size_t ind
                 if (!objects0[i])
                     continue;
 
-                const uint32_t hash0 = ::physx::PxComputeHash(uint64_t(objects0[i]));
+                const uint32_t hash0 = ::ev4sio_physx::PxComputeHash(uint64_t(objects0[i]));
                 resetFiltering(objects0[i]);
                 for (size_t j = 0; j < objects1.size(); ++j)
                 {
                     if (!objects1[j])
                         continue;
 
-                    const uint32_t hash1 = ::physx::PxComputeHash(uint64_t(objects1[j]));
+                    const uint32_t hash1 = ::ev4sio_physx::PxComputeHash(uint64_t(objects1[j]));
                     resetFiltering(objects1[j]);
                     const Pair<uint32_t> filterPair(hash0, hash1);
                     attachedStage.removeFilteredPair(filterPair);
@@ -225,7 +225,7 @@ void InternalFilteredPairs::removeFilteredPairs()
     }
 }
 
-void omni::physx::internal::changeFilteredPairs(usdparser::AttachedStage& attachedStage, omni::physics::parse::ObjectKey key, bool removed)
+void omni::ev4sio_physx::internal::changeFilteredPairs(usdparser::AttachedStage& attachedStage, omni::physics::parse::ObjectKey key, bool removed)
 {
     OmniPhysX& omniPhysX = OmniPhysX::getInstance();
     InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();

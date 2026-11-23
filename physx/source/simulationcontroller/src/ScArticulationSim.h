@@ -11,15 +11,15 @@
 #include "DyFeatherstoneArticulation.h"
 #include "BpVolumeData.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
-namespace Bp
+namespace ev4sio_Bp
 {
 	class BoundsArray;
 }
 
-namespace Sc
+namespace ev4sio_Sc
 {
 	class BodySim;
 	class BodyCore;
@@ -43,11 +43,11 @@ namespace Sc
 
 	typedef PxFlags<ArticulationSimDirtyFlag::Enum, PxU32> ArticulationSimDirtyFlags;
 
-	class ArticulationSim : public Dy::FeatherstoneArticulation
+	class ArticulationSim : public ev4sio_Dy::FeatherstoneArticulation
 	{
 		PX_NOCOPY(ArticulationSim)
 	public:
-											ArticulationSim(ArticulationCore& core, Scene& scene, BodyCore& root, Bp::AggregateHandle handle);
+											ArticulationSim(ArticulationCore& core, Scene& scene, BodyCore& root, ev4sio_Bp::AggregateHandle handle);
 											~ArticulationSim();
 
 	PX_FORCE_INLINE	ArticulationCore&		getCore()			const	{ return mCore;				}
@@ -79,8 +79,8 @@ namespace Sc
 					void					sleepCheck(PxReal dt, PxMutex& articulationSleepLock);
 					void					putToSleep();
 
-					void					updateCached(const UpdateCachedParams& params, Cm::PinnableBitMap* shapeChangedMap, bool fromTask, bool useAtomics);
-					void					updateCached_NotThreadSafe(const UpdateCachedParams& params, Cm::PinnableBitMap* shapeChangedMap, bool fromTask, bool useAtomics);
+					void					updateCached(const UpdateCachedParams& params, ev4sio_Cm::PinnableBitMap* shapeChangedMap, bool fromTask, bool useAtomics);
+					void					updateCached_NotThreadSafe(const UpdateCachedParams& params, ev4sio_Cm::PinnableBitMap* shapeChangedMap, bool fromTask, bool useAtomics);
 
 					void					setActive(bool b, bool asPartOfCreation=false);
 
@@ -109,7 +109,7 @@ namespace Sc
 
 	PX_FORCE_INLINE	PxSpatialVelocity		getLinkAcceleration(PxU32 linkId, bool isGpuSimEnabled) const
 											{
-												Cm::SpatialVector accel = getMotionAcceleration(linkId, isGpuSimEnabled);
+												ev4sio_Cm::SpatialVector accel = getMotionAcceleration(linkId, isGpuSimEnabled);
 												return reinterpret_cast<PxSpatialVelocity&>(accel);
 											}
 
@@ -119,12 +119,12 @@ namespace Sc
 					// the aggregate ID stored in the link cores, kept here to avoid chasing pointers to the root link in the serial part of
 					// updateArticulationAfterIntegration. An articulation can be removed from its aggregate at runtime while it stays in the
 					// scene (PxAggregate::removeArticulation / release), so this must be refreshed from NpArticulationReducedCoordinate::setAggregate.
-	PX_FORCE_INLINE Bp::AggregateHandle		getAggregateHandle()	const						{ return mAggregateHandle;		}
-	PX_FORCE_INLINE void					setAggregateHandle(Bp::AggregateHandle handle)		{ mAggregateHandle = handle;	}
+	PX_FORCE_INLINE ev4sio_Bp::AggregateHandle		getAggregateHandle()	const						{ return mAggregateHandle;		}
+	PX_FORCE_INLINE void					setAggregateHandle(ev4sio_Bp::AggregateHandle handle)		{ mAggregateHandle = handle;	}
 
 					PxU32					findBodyIndex(BodySim& body) const;
 
-					void					setJointDirty(Dy::ArticulationJointCore& jointCore);
+					void					setJointDirty(ev4sio_Dy::ArticulationJointCore& jointCore);
 
 					void					addLoopConstraint(ConstraintSim* constraint);
 					void					removeLoopConstraint(ConstraintSim* constraint);
@@ -134,7 +134,7 @@ namespace Sc
 	PX_FORCE_INLINE	void						setDirtyFlag(ArticulationSimDirtyFlag::Enum flag) { mDirtyFlags = flag; }
 	PX_FORCE_INLINE	ArticulationSimDirtyFlags	getDirtyFlag() const { return mDirtyFlags; }
 
-	PX_FORCE_INLINE	const Dy::ArticulationLink&	getLink(const PxU32 linkId) const { return mLinks[linkId]; }
+	PX_FORCE_INLINE	const ev4sio_Dy::ArticulationLink&	getLink(const PxU32 linkId) const { return mLinks[linkId]; }
 
 					PxU32					getRootActorIndex() const;
 					
@@ -160,23 +160,23 @@ namespace Sc
 	private:
 					Scene&										mScene;
 					ArticulationCore&							mCore;
-					PxArray<Dy::ArticulationLink>				mLinks;
+					PxArray<ev4sio_Dy::ArticulationLink>				mLinks;
 					PxArray<BodySim*>							mBodies;
 					PxArray<ArticulationJointSim*>				mJoints;
-					PxArray<Dy::ArticulationSpatialTendon*>		mSpatialTendons;
-					PxArray<Dy::ArticulationFixedTendon*>		mFixedTendons;
-					PxArray<Dy::ArticulationMimicJointCore*>	mMimicJoints;
+					PxArray<ev4sio_Dy::ArticulationSpatialTendon*>		mSpatialTendons;
+					PxArray<ev4sio_Dy::ArticulationFixedTendon*>		mFixedTendons;
+					PxArray<ev4sio_Dy::ArticulationMimicJointCore*>	mMimicJoints;
 					
 					PxNodeIndex									mIslandNodeIndex;
-					Bp::AggregateHandle							mAggregateHandle;
-					PxArray <Dy::ArticulationLoopConstraint>	mLoopConstraints;
+					ev4sio_Bp::AggregateHandle							mAggregateHandle;
+					PxArray <ev4sio_Dy::ArticulationLoopConstraint>	mLoopConstraints;
 					bool										mIsLLArticulationInitialized;
 					ArticulationSimDirtyFlags					mDirtyFlags;
 	};
 
-	ArticulationSim* getArticulationSim(const IG::IslandSim& islandSim, PxNodeIndex nodeIndex);
+	ArticulationSim* getArticulationSim(const ev4sio_IG::IslandSim& islandSim, PxNodeIndex nodeIndex);
 
-} // namespace Sc
+} // namespace ev4sio_Sc
 
 }
 

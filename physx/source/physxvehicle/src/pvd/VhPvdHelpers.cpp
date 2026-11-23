@@ -8,7 +8,7 @@
 #include "VhPvdAttributeHandles.h"
 #include "VhPvdObjectHandles.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 #if PX_SUPPORT_OMNI_PVD
@@ -418,4 +418,4 @@ void PxVehiclePvdObjectRelease
 #endif //#if PX_SUPPORT_OMNI_PVD
 
 
-} // namespace physx
+} // namespace ev4sio_physx

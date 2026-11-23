@@ -22,11 +22,11 @@
 #include "NpDeformableVolumeMaterial.h"
 #include "omnipvd/NpOmniPvdSetData.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 class PxCudaContextManager;
 
-namespace physx
+namespace ev4sio_physx
 {
 
 NpDeformableVolume::NpDeformableVolume(PxCudaContextManager& cudaContextManager) :
@@ -86,11 +86,11 @@ PxBounds3 NpDeformableVolume::getWorldBounds(float inflation) const
 
 	if (!getNpScene())
 	{
-		PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "Querying bounds of a PxDeformableBody which is not part of a PxScene is not supported.");
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "Querying bounds of a PxDeformableBody which is not part of a PxScene is not supported.");
 		return PxBounds3::empty();
 	}
 
-	const Sc::DeformableVolumeSim* sim = mCore.getSim();
+	const ev4sio_Sc::DeformableVolumeSim* sim = mCore.getSim();
 	PX_ASSERT(sim);
 
 	PX_SIMD_GUARD
@@ -98,7 +98,7 @@ PxBounds3 NpDeformableVolume::getWorldBounds(float inflation) const
 	NP_CHECK_SCENE_CORRUPTION_AND_RETURN_VAL(getNpScene(), PxBounds3::empty())
 
 	const PxU32 boundsIndex = sim->getShapeSim().getElementID();
-	const Bp::BoundsArray& boundsArray = getNpScene()->getScScene().getBoundsArray();
+	const ev4sio_Bp::BoundsArray& boundsArray = getNpScene()->getScScene().getBoundsArray();
 	const PxBounds3 bounds = boundsArray.getBounds(boundsIndex);
 	PX_ASSERT(bounds.isValid());
 
@@ -329,7 +329,7 @@ bool NpDeformableVolume::isSleeping() const
 	if (npScene && (npScene->getFlags() & PxSceneFlag::eDISABLE_SLEEPING))
 		return false;
 
-	Sc::DeformableVolumeSim* sim = mCore.getSim();
+	ev4sio_Sc::DeformableVolumeSim* sim = mCore.getSim();
 	if (sim)
 	{
 		return sim->isSleeping();
@@ -361,7 +361,7 @@ bool NpDeformableVolume::attachShape(PxShape& shape)
 	PX_CHECK_AND_RETURN_NULL(tetGeom.tetrahedronMesh != NULL,
 		"PxDeformableVolume::attachShape: PxTetrahedronMeshGeometry::tetrahedronMesh is NULL");
 
-	const Gu::TetrahedronMesh* tetMesh = Gu::_getTetraMeshData(tetGeom);
+	const ev4sio_Gu::TetrahedronMesh* tetMesh = ev4sio_Gu::_getTetraMeshData(tetGeom);
 	PX_CHECK_AND_RETURN_NULL(tetMesh->getBVTetrahedronMesh() != NULL,
 		"PxDeformableVolume::attachShape: the shape's tetrahedron mesh must be the collision mesh of a PxDeformableVolumeMesh, see PxDeformableVolumeMesh::getCollisionMesh()");
 	PX_CHECK_AND_RETURN_NULL(tetMesh->getNbTetrahedronsFast() <= PX_MAX_NB_DEFORMABLE_VOLUME_TET,
@@ -373,7 +373,7 @@ bool NpDeformableVolume::attachShape(PxShape& shape)
 	PX_CHECK_AND_RETURN_NULL(npShape->getCore().mShapeCoreFlags & PxShapeCoreFlag::eDEFORMABLE_VOLUME_SHAPE,
 		"PxDeformableVolume::attachShape: shape must be a deformable volume shape!");
 
-	Dy::DeformableVolumeCore& core = mCore.getCore();
+	ev4sio_Dy::DeformableVolumeCore& core = mCore.getCore();
 	PX_CHECK_AND_RETURN_NULL(core.positionInvMass == NULL,
 		"PxDeformableVolume::attachShape: positionInvMass already exists, overwrite not allowed, call detachShape first");
 
@@ -406,7 +406,7 @@ void NpDeformableVolume::detachShape()
 
 	PX_ASSERT(mDeviceMemoryAllocator);
 
-	Dy::DeformableVolumeCore& core = mCore.getCore();
+	ev4sio_Dy::DeformableVolumeCore& core = mCore.getCore();
 	if (core.restPosition)
 	{
 		mDeviceMemoryAllocator->deallocate(core.restPosition);
@@ -474,7 +474,7 @@ PxVec4* NpDeformableVolume::getPositionInvMassBufferD()
 {
 	PX_CHECK_AND_RETURN_NULL(mShape != NULL, "PxDeformableVolume::getPositionInvMassBufferD: Softbody does not have a shape, attach shape first.");
 
-	Dy::DeformableVolumeCore& core = mCore.getCore();
+	ev4sio_Dy::DeformableVolumeCore& core = mCore.getCore();
 	return core.positionInvMass;
 }
 
@@ -482,7 +482,7 @@ PxVec4* NpDeformableVolume::getRestPositionBufferD()
 {
 	PX_CHECK_AND_RETURN_NULL(mShape != NULL, "PxDeformableVolume::getRestPositionBufferD: Softbody does not have a shape, attach shape first.");
 
-	Dy::DeformableVolumeCore& core = mCore.getCore();
+	ev4sio_Dy::DeformableVolumeCore& core = mCore.getCore();
 	return core.restPosition;
 }
 
@@ -490,7 +490,7 @@ PxVec4* NpDeformableVolume::getSimPositionInvMassBufferD()
 {
 	PX_CHECK_AND_RETURN_NULL(mSimulationMesh != NULL, "PxDeformableVolume::getSimPositionInvMassBufferD: Softbody does not have a simulation mesh, attach simulation mesh first.");
 
-	Dy::DeformableVolumeCore& core = mCore.getCore();
+	ev4sio_Dy::DeformableVolumeCore& core = mCore.getCore();
 	return core.simPositionInvMass;
 }
 
@@ -498,7 +498,7 @@ PxVec4* NpDeformableVolume::getSimVelocityBufferD()
 {
 	PX_CHECK_AND_RETURN_NULL(mSimulationMesh != NULL, "PxDeformableVolume::getSimVelocityBufferD: Softbody does not have a simulation mesh, attach simulation mesh first.");
 
-	Dy::DeformableVolumeCore& core = mCore.getCore();
+	ev4sio_Dy::DeformableVolumeCore& core = mCore.getCore();
 	return core.simVelocity;
 }
 
@@ -506,7 +506,7 @@ void NpDeformableVolume::markDirty(PxDeformableVolumeDataFlags flags)
 {
 	NP_WRITE_CHECK(getNpScene());
 
-	Dy::DeformableVolumeCore& core = mCore.getCore();
+	ev4sio_Dy::DeformableVolumeCore& core = mCore.getCore();
 	core.dirtyFlags |= flags;
 }
 
@@ -525,19 +525,19 @@ bool NpDeformableVolume::attachSimulationMesh(PxTetrahedronMesh& simulationMesh,
 	PX_CHECK_AND_RETURN_NULL(getNpScene() == NULL,
 		"PxDeformableVolume::attachSimulationMesh: only allowed while the deformable volume is not part of a scene.");
 
-	Dy::DeformableVolumeCore& core = mCore.getCore();
+	ev4sio_Dy::DeformableVolumeCore& core = mCore.getCore();
 
 	PX_CHECK_AND_RETURN_NULL(core.simPositionInvMass == NULL, "PxDeformableVolume::attachSimulationMesh: simPositionInvMass already exists, overwrite not allowed, call detachSimulationMesh first");
 	PX_CHECK_AND_RETURN_NULL(core.simVelocity == NULL, "PxDeformableVolume::attachSimulationMesh: simVelocity already exists, overwrite not allowed, call detachSimulationMesh first");
-	Gu::TetrahedronMesh& tetMesh = static_cast<Gu::TetrahedronMesh&>(simulationMesh);
+	ev4sio_Gu::TetrahedronMesh& tetMesh = static_cast<ev4sio_Gu::TetrahedronMesh&>(simulationMesh);
 	PX_CHECK_AND_RETURN_NULL(tetMesh.getNbTetrahedronsFast() <= PX_MAX_NB_DEFORMABLE_VOLUME_TET, "PxDeformableVolume::attachSimulationMesh: simulation mesh contains too many tetrahedrons, see PX_MAX_NB_DEFORMABLE_VOLUME_TET");
 	PX_CHECK_AND_RETURN_NULL(tetMesh.getNbVerticesFast() <= PX_MAX_NB_DEFORMABLE_VOLUME_VTX, "PxDeformableVolume::attachSimulationMesh: simulation mesh contains too many vertices, see PX_MAX_NB_DEFORMABLE_VOLUME_VTX");
 
 	mSimulationMesh = &tetMesh;
-	mAuxData = static_cast<Gu::DeformableVolumeAuxData*>(&deformableVolumeAuxData);
+	mAuxData = static_cast<ev4sio_Gu::DeformableVolumeAuxData*>(&deformableVolumeAuxData);
 	// Both are read for as long as they stay attached.
-	Cm::RefCountable_incRefCount(*mSimulationMesh);
-	Cm::RefCountable_incRefCount(*mAuxData);
+	ev4sio_Cm::RefCountable_incRefCount(*mSimulationMesh);
+	ev4sio_Cm::RefCountable_incRefCount(*mAuxData);
 	const PxU32 numVertsGM = tetMesh.getNbVerticesFast();
 
 	createAllocator();
@@ -559,7 +559,7 @@ void NpDeformableVolume::detachSimulationMesh()
 
 	PX_ASSERT(mDeviceMemoryAllocator);
 
-	Dy::DeformableVolumeCore& core = mCore.getCore();
+	ev4sio_Dy::DeformableVolumeCore& core = mCore.getCore();
 	if (core.simPositionInvMass)
 	{
 		mDeviceMemoryAllocator->deallocate(core.simPositionInvMass);
@@ -572,8 +572,8 @@ void NpDeformableVolume::detachSimulationMesh()
 		core.simVelocity = NULL;
 	}
 
-	Cm::RefCountable_decRefCount(*mSimulationMesh);
-	Cm::RefCountable_decRefCount(*mAuxData);
+	ev4sio_Cm::RefCountable_decRefCount(*mSimulationMesh);
+	ev4sio_Cm::RefCountable_decRefCount(*mAuxData);
 	mSimulationMesh = NULL;
 	mAuxData = NULL;
 }
@@ -633,7 +633,7 @@ void NpDeformableVolume::createAllocator()
 void NpDeformableVolume::releaseAllocator()
 {
 	// deallocate device memory if not released already.
-	Dy::DeformableVolumeCore& core = mCore.getCore();
+	ev4sio_Dy::DeformableVolumeCore& core = mCore.getCore();
 	if (core.simVelocity)
 	{
 		mDeviceMemoryAllocator->deallocate(core.simVelocity);
@@ -665,7 +665,7 @@ void NpDeformableVolume::releaseAllocator()
 	}
 }
 
-Sc::DeformableVolumeCore* getDeformableVolumeCore(PxActor* actor)
+ev4sio_Sc::DeformableVolumeCore* getDeformableVolumeCore(PxActor* actor)
 {
 	if (actor->getConcreteType() == PxConcreteType::eDEFORMABLE_VOLUME)
 	{
@@ -675,6 +675,6 @@ Sc::DeformableVolumeCore* getDeformableVolumeCore(PxActor* actor)
 	return NULL;
 }
 
-} // namespace physx
+} // namespace ev4sio_physx
 
 #endif //PX_SUPPORT_GPU_PHYSX

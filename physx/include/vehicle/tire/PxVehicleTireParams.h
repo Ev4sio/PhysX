@@ -13,7 +13,7 @@
 #include "PxVehicleTireStates.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -131,7 +131,7 @@ struct PxVehicleTireForceParams
 };
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

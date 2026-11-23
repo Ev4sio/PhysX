@@ -27,7 +27,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 
 class PhysXSetup;
@@ -97,14 +97,14 @@ public:
     ~InternalParticleSet();
 
     // pinned host buffers
-    ::physx::PxVec4* mPositions;
-    ::physx::PxVec4* mVelocities;
-    ::physx::PxU32* mPhases;
+    ::ev4sio_physx::PxVec4* mPositions;
+    ::ev4sio_physx::PxVec4* mVelocities;
+    ::ev4sio_physx::PxU32* mPhases;
 
     // diffuse particles
-    ::physx::PxVec4* mDiffuseParticlePositions;
-    ::physx::PxU32 mNumDiffuseParticles;
-    ::physx::PxDiffuseParticleParams mDiffuseParticleParams;
+    ::ev4sio_physx::PxVec4* mDiffuseParticlePositions;
+    ::ev4sio_physx::PxU32 mNumDiffuseParticles;
+    ::ev4sio_physx::PxDiffuseParticleParams mDiffuseParticleParams;
     float mMaxDiffuseParticleMultiplier;
     bool mDiffuseParticlesEnabled;
     // Whether this particle set has counted itself in the parent particle
@@ -115,9 +115,9 @@ public:
     uint32_t mDownloadDirtyFlags;
 
     // particle User buffer
-    ::physx::PxParticleAndDiffuseBuffer* mParticleBuffer;
+    ::ev4sio_physx::PxParticleAndDiffuseBuffer* mParticleBuffer;
     uint32_t mUploadDirtyFlags;
-    ::physx::PxParticleAndDiffuseBuffer* mReplacementBuffer;
+    ::ev4sio_physx::PxParticleAndDiffuseBuffer* mReplacementBuffer;
 
     // restore
     std::vector<carb::Float3> mPositionSaveRestoreBuf;
@@ -125,7 +125,7 @@ public:
 
     uint32_t mMaxParticles;
 
-    ::physx::PxMat44d mWorldToLocal{ ::physx::PxIdentity };
+    ::ev4sio_physx::PxMat44d mWorldToLocal{ ::ev4sio_physx::PxIdentity };
 
     bool mFluid;
     float mParticleInvMass;
@@ -133,12 +133,12 @@ public:
 
     static uint32_t getMaxDiffuseParticles(uint32_t maxParticles, bool diffuseEnabled, float maxDiffuseParticleMultiplier);
 
-    static ::physx::PxParticleAndDiffuseBuffer* createUserBuffer(uint32_t maxParticles,
+    static ::ev4sio_physx::PxParticleAndDiffuseBuffer* createUserBuffer(uint32_t maxParticles,
                                                                  uint32_t numParticles,
                                                                  bool diffuseEnabled,
                                                                  float maxDiffuseParticleMultiplier,
-                                                                 ::physx::PxDiffuseParticleParams& diffuseParams,
-                                                                 ::physx::PxCudaContextManager* cudaContextManager);
+                                                                 ::ev4sio_physx::PxDiffuseParticleParams& diffuseParams,
+                                                                 ::ev4sio_physx::PxCudaContextManager* cudaContextManager);
 
     void uploadParticles(CUstream stream);
     void fetchParticles(CUstream stream,
@@ -217,7 +217,7 @@ public:
 
     ~InternalPbdParticleSystem();
 
-    ::physx::PxPBDParticleSystem* mPS;
+    ::ev4sio_physx::PxPBDParticleSystem* mPS;
     PhysXScene* mPhysXScene = nullptr;
 
     usdparser::ObjectId mMaterialId;
@@ -235,7 +235,7 @@ public:
 
     bool mHasPost;
 #if USE_PHYSX_GPU
-    omni::physx::particles::PostProcessCallback* mCallback;
+    omni::ev4sio_physx::particles::PostProcessCallback* mCallback;
 #endif
 
     // Whether the shared "DiffuseParticles" session-layer render prim is currently
@@ -253,11 +253,11 @@ public:
     void removeParticleSet(InternalParticleSet* internalParticleSet);
 
     void setPost(const uint32_t postFlags);
-    void enablePost(omni::physx::ParticlePostFlag::Enum flag, const bool enable);
+    void enablePost(omni::ev4sio_physx::ParticlePostFlag::Enum flag, const bool enable);
 };
 
 } // namespace internal
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni
 
 #ifdef _MSC_VER

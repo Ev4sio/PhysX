@@ -6,9 +6,9 @@
 #include "BpAABBManagerBase.h"
 #include "BpBroadPhase.h"
 
-using namespace physx;
-using namespace Bp;
-using namespace Cm;
+using namespace ev4sio_physx;
+using namespace ev4sio_Bp;
+using namespace ev4sio_Cm;
 
 AABBManagerBase::AABBManagerBase(	BroadPhase& bp, BoundsArray& boundsArray, PinnableArray<PxReal>& contactDistance,
 									PxU32 maxNbAggregates, PxU32 maxNbShapes, VirtualAllocatorCallback& allocator, PxU64 contextID,
@@ -36,7 +36,7 @@ AABBManagerBase::AABBManagerBase(	BroadPhase& bp, BoundsArray& boundsArray, Pinn
 	PX_CATCH_UNDEFINED_ENABLE_SIM_STATS
 #endif
 #if BP_USE_AGGREGATE_GROUP_TAIL
-	mAggregateGroupTide		(PxU32(Bp::FilterGroup::eAGGREGATE_BASE)),
+	mAggregateGroupTide		(PxU32(ev4sio_Bp::FilterGroup::eAGGREGATE_BASE)),
 #endif
 	mContextID				(contextID),
 	mOriginShifted			(false)
@@ -50,7 +50,7 @@ AABBManagerBase::AABBManagerBase(	BroadPhase& bp, BoundsArray& boundsArray, Pinn
 void AABBManagerBase::reserveShapeSpace(PxU32 nbTotalBounds)
 {
 	nbTotalBounds = PxNextPowerOfTwo(nbTotalBounds);
-	mGroups.resize(nbTotalBounds, Bp::FilterGroup::eINVALID);
+	mGroups.resize(nbTotalBounds, ev4sio_Bp::FilterGroup::eINVALID);
 	mVolumeData.resize(nbTotalBounds);					//KS - must be initialized so that userData is NULL for SQ-only shapes
 	mContactDistance.resizeUninitialized(nbTotalBounds);
 	mAddedHandleMap.resize(nbTotalBounds);

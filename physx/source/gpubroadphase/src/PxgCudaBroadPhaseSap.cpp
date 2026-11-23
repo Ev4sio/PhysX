@@ -66,13 +66,13 @@
 	#define EPILOG				mStream, kernelParams, sizeof(kernelParams), PX_FL
 #endif
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 PX_IMPLEMENT_OUTPUT_ERROR
 
 PxgCudaBroadPhaseSap::PxgCudaBroadPhaseSap(const PxGpuBroadPhaseDesc& desc, PxgCudaKernelWranglerManager* gpuKernelWrangler,
 	PxCudaContextManager* cudaContextManager, const PxGpuDynamicsMemoryConfig& init, PxgAllocatorDesc& allocDesc, PxU64 contextID) :
-	Bp::BroadPhase						(),
+	ev4sio_Bp::BroadPhase						(),
 	mContextID							(contextID),
 	mDesc								(desc),
 	mNumOfBoxes							(0),
@@ -146,8 +146,8 @@ PxgCudaBroadPhaseSap::PxgCudaBroadPhaseSap(const PxGpuBroadPhaseDesc& desc, PxgC
 	mBpDesc								(allocDesc.hostAlloc, PxsHeapStats::eBROADPHASE),
 	mRSDescs							(allocDesc.hostAlloc, PxsHeapStats::eBROADPHASE),
 	mRSDescsWOR							(allocDesc.hostAlloc, PxsHeapStats::eBROADPHASE),
-	mFoundActorPairsMapped				(allocDesc.hostMappedAlloc, PxsHeapStats::eBROADPHASE, Cm::PinnableAllocatorFallback::eDISABLED),
-	mLostActorPairsMapped				(allocDesc.hostMappedAlloc, PxsHeapStats::eBROADPHASE, Cm::PinnableAllocatorFallback::eDISABLED),
+	mFoundActorPairsMapped				(allocDesc.hostMappedAlloc, PxsHeapStats::eBROADPHASE, ev4sio_Cm::PinnableAllocatorFallback::eDISABLED),
+	mLostActorPairsMapped				(allocDesc.hostMappedAlloc, PxsHeapStats::eBROADPHASE, ev4sio_Cm::PinnableAllocatorFallback::eDISABLED),
 	mMaxFoundLostPairs					(init.foundLostPairsCapacity),
 	mMaxAggFoundLostPairs				(init.foundLostAggregatePairsCapacity),
 	mAABBManager						(NULL),
@@ -187,7 +187,7 @@ PxgCudaBroadPhaseSap::PxgCudaBroadPhaseSap(const PxGpuBroadPhaseDesc& desc, PxgC
 	// allocate pinned host buffers for actor pairs; abort on OOM
 	if(!mFoundActorPairsMapped.reserve(mMaxFoundLostPairs) || !mLostActorPairsMapped.reserve(mMaxFoundLostPairs))
 	{
-		PxGetFoundation().error(PxErrorCode::eOUT_OF_MEMORY, PX_FL, "PxgCudaBroadPhaseSap: failed to allocate pinned host buffers for actor pairs");
+		ev4sio_PxGetFoundation().error(PxErrorCode::eOUT_OF_MEMORY, PX_FL, "PxgCudaBroadPhaseSap: failed to allocate pinned host buffers for actor pairs");
 		mCudaContext->setAbortMode(true);
 		return;
 	}
@@ -259,7 +259,7 @@ void PxgCudaBroadPhaseSap::releaseGpuStreamsAndEvents()
 	mEvent = NULL;
 }
 
-void PxgCudaBroadPhaseSap::gpuDMAUp(const Bp::BroadPhaseUpdateData& updateData, PxgBroadPhaseDesc& bpDesc, PxgRadixSortDesc* rsDescs)
+void PxgCudaBroadPhaseSap::gpuDMAUp(const ev4sio_Bp::BroadPhaseUpdateData& updateData, PxgBroadPhaseDesc& bpDesc, PxgRadixSortDesc* rsDescs)
 {
 	PX_PROFILE_ZONE("PxgCudaBroadPhaseSap.gpuDMAUp", mContextID);
 
@@ -481,7 +481,7 @@ void PxgCudaBroadPhaseSap::gpuDMABack(const PxgBroadPhaseDesc& desc)
 
 	if (desc.found_lost_pairs_overflow_flags)
 	{
-		PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL,
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL,
 			"The application needs to increase PxGpuDynamicsMemoryConfig::foundLostPairsCapacity to %i, otherwise, the simulation will miss interactions\n", foundLostPairsNeeded);
 	}
 
@@ -507,7 +507,7 @@ struct ReportMore
 	}
 };
 
-/*bool hasDuplicates(Cm::PinnableArray<PxgBroadPhasePair>& iterator)
+/*bool hasDuplicates(ev4sio_Cm::PinnableArray<PxgBroadPhasePair>& iterator)
 {
 	for(PxU32 a = 1; a < iterator.size(); ++a)
 	{
@@ -546,11 +546,11 @@ void PxgCudaBroadPhaseSap::sortBuffer(PxgBroadPhasePair* PX_RESTRICT reportBuffe
 	}
 
 	// The second sort is stable and starts from the order of the first one, so the pairs are sorted by mVolA, then by mVolB.
-	Cm::RadixSort rs;
+	ev4sio_Cm::RadixSort rs;
 	PxU32 histogram[1024];
 	PxU32* links[256];
 	rs.SetBuffers(ranks0, ranks1, histogram, links);
-	const PxU32* sorted = rs.Sort(keys1, size, Cm::RADIX_UNSIGNED).Sort(keys0, size, Cm::RADIX_UNSIGNED).GetRanks();
+	const PxU32* sorted = rs.Sort(keys1, size, ev4sio_Cm::RADIX_UNSIGNED).Sort(keys0, size, ev4sio_Cm::RADIX_UNSIGNED).GetRanks();
 
 	// The keys are a copy of the pairs, which are written back in decreasing order like ReportMore sorts them.
 	for(PxU32 i=0;i<size;i++)
@@ -563,7 +563,7 @@ void PxgCudaBroadPhaseSap::sortBuffer(PxgBroadPhasePair* PX_RESTRICT reportBuffe
 	PX_FREE(keys0);
 }
 
-void PxgCudaBroadPhaseSap::purgeDuplicates(Cm::PinnableArray<PxgBroadPhasePair>& pairs)
+void PxgCudaBroadPhaseSap::purgeDuplicates(ev4sio_Cm::PinnableArray<PxgBroadPhasePair>& pairs)
 {
 	PX_PROFILE_ZONE("PxgCudaBroadPhaseSap.purgeDuplicates", mContextID);
 
@@ -978,7 +978,7 @@ void PxgCudaBroadPhaseSap::updateDescriptor(PxgBroadPhaseDesc& desc)
 		// - doAggPairCollisions (AGG_PAIR_COLLISION)
 		// - accumulateReportsStage_1 (BP_ACCUMULATE_REPORT_STAGE_1)
 		// - accumulateReportsStage_2 (BP_ACCUMULATE_REPORT_STAGE_2)
-		desc.aabbMngr_volumeData = reinterpret_cast<Bp::VolumeData*>(mAABBManager->getVolumeData());
+		desc.aabbMngr_volumeData = reinterpret_cast<ev4sio_Bp::VolumeData*>(mAABBManager->getVolumeData());
 	}
 #ifdef SUPPORT_UPDATE_HANDLES_ARRAY_FOR_GPU
 	else
@@ -1082,7 +1082,7 @@ void PxgCudaBroadPhaseSap::updateDescriptor(PxgBroadPhaseDesc& desc)
 	desc.max_found_lost_agg_pairs = mMaxAggFoundLostPairs;
 }
 
-void PxgCudaBroadPhaseSap::update(PxU32 /*numCpuTasks*/, Cm::FlushPool* /*flushPool*/, PxcScratchAllocator* /*scratchAllocator*/, const Bp::BroadPhaseUpdateData& updateData, PxBaseTask* /*continuation*/)
+void PxgCudaBroadPhaseSap::update(PxU32 /*numCpuTasks*/, ev4sio_Cm::FlushPool* /*flushPool*/, PxcScratchAllocator* /*scratchAllocator*/, const ev4sio_Bp::BroadPhaseUpdateData& updateData, PxBaseTask* /*continuation*/)
 {
 	PX_PROFILE_ZONE("PxgCudaBroadPhaseSap.update", mContextID);
 
@@ -1179,7 +1179,7 @@ void PxgCudaBroadPhaseSap::update(PxU32 /*numCpuTasks*/, Cm::FlushPool* /*flushP
 }
 
 // PT: called from PxgAABBManager::preBpUpdate_GPU
-void PxgCudaBroadPhaseSap::preBroadPhase(const Bp::BroadPhaseUpdateData& updateData)
+void PxgCudaBroadPhaseSap::preBroadPhase(const ev4sio_Bp::BroadPhaseUpdateData& updateData)
 {
 	PX_PROFILE_ZONE("PxgCudaBroadPhaseSap.preBroadPhase", mContextID);
 

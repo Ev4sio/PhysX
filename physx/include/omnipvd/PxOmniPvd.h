@@ -23,7 +23,7 @@ class OmniPvdWriter;
 #define PX_PHYSICS_OVD_INTEGRATION_VERSION_MINOR 5
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -608,7 +608,7 @@ public:
 
 };
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 /**
 \brief Creates an instance of the OmniPvd object
@@ -621,7 +621,7 @@ has been created already will return the same instance over and over.
 \return PxOmniPvd instance on succes, NULL otherwise.
 
 */
-PX_C_EXPORT PX_PHYSX_CORE_API physx::PxOmniPvd* PX_CALL_CONV PxCreateOmniPvd(physx::PxFoundation& foundation);
+PX_C_EXPORT PX_PHYSX_CORE_API ev4sio_physx::PxOmniPvd* PX_CALL_CONV ev4sio_PxCreateOmniPvd(ev4sio_physx::PxFoundation& foundation);
 
 
 #endif

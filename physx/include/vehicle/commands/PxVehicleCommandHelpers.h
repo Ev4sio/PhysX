@@ -11,7 +11,7 @@
 #include "PxVehicleCommandStates.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -41,7 +41,7 @@ PxReal PxVehicleNonLinearResponseCompute
 (const PxReal command, const PxReal longitudinalSpeed, const PxU32 wheelId, const PxVehicleCommandResponseParams& responseParams);
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

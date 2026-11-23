@@ -5,7 +5,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 struct IPhysx;
 struct IPhysxSimulation;
@@ -22,9 +22,9 @@ SimulationBackend* GetSimulationBackend();  // Returns nullptr if backend not in
 void tensorsPluginStartup();
 void tensorsShutdown();
 
-extern omni::physx::IPhysx* g_physx;
-extern omni::physx::IPhysxSimulation* g_physxSimulation;
-extern omni::physx::IPhysxPrivate* g_physxPrivate;
+extern omni::ev4sio_physx::IPhysx* g_physx;
+extern omni::ev4sio_physx::IPhysxSimulation* g_physxSimulation;
+extern omni::ev4sio_physx::IPhysxPrivate* g_physxPrivate;
 
 // When true (default), the pre-leaf tokens of a pattern are matched strictly
 // (level by level) and only the final named or glob leaf token is searched at
@@ -44,5 +44,5 @@ constexpr const char* kSettingRecursiveLeafPatternMatch = "/physics/tensors/recu
 constexpr bool kDefaultRecursiveLeafPatternMatch = true;
 
 } // namespace tensors
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

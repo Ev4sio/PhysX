@@ -21,7 +21,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace tensors
 {
@@ -73,7 +73,7 @@ public:
                            float dt) const override;
 
 private:
-    void accumulatePairImpulse(::physx::PxVec3& impulse,
+    void accumulatePairImpulse(::ev4sio_physx::PxVec3& impulse,
                                const RigidContactHeaderRef& headerRef,
                                ForceComponent component) const;
 
@@ -95,5 +95,5 @@ private:
 };
 
 } // namespace tensors
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

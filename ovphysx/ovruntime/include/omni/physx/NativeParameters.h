@@ -6,7 +6,7 @@
 #pragma once
 #include <cstdint>
 
-namespace omni::physx::native
+namespace omni::ev4sio_physx::native
 {
 enum class ParameterKind : uint32_t { Float = 1, Double = 2, Int = 3, Bool = 4, Float3 = 5 };
 

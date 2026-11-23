@@ -10,7 +10,7 @@
 #include "PxsContactManagerState.h"
 #include "PxgContactManager.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 PX_FORCE_INLINE __device__ PxU32 setContactPointAndForcePointers(PxsContactManagerOutput* PX_RESTRICT cmOutputs, PxgPatchAndContactCounters* PX_RESTRICT patchAndContactCounters,
@@ -167,6 +167,6 @@ PX_FORCE_INLINE __device__ void insertIntoPatchStream(const PxsMaterialData* PX_
 	}
 }
 
-} // namespace physx
+} // namespace ev4sio_physx
 
 #endif

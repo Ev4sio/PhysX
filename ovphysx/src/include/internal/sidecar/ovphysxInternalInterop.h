@@ -18,18 +18,18 @@
 #include <cstddef>
 #include <cstdint>
 
-// Sidecar interop exports that bridge omni::physx types into C-ABI values the
+// Sidecar interop exports that bridge omni::ev4sio_physx types into C-ABI values the
 // main library can use directly.
 
 extern "C" {
 
 // Look up a raw PhysX object pointer by selector and PhysX type. An empty path
 // selects the process-global PxPhysics and is valid only with ePTPhysics.
-// `physx_type` maps to omni::physx::PhysXType enum values.
+// `physx_type` maps to omni::ev4sio_physx::PhysXType enum values.
 // Returns the void* pointer or nullptr if not found.
 OVPHYSX_INTERNAL_API void* ovphysx_internal_get_physx_ptr(uint64_t attach, const char* prim_path, int physx_type);
 
-// PhysX debug-visualization bridge, forwarding to omni::physx::IPhysxVisualization.
+// PhysX debug-visualization bridge, forwarding to omni::ev4sio_physx::IPhysxVisualization.
 // enable authors the eVISUALIZATION flags, eSCALE and the param bitmask.
 // set_parameter toggles one PhysXVisualizationParameter index. get_* hand back the
 // OvPhysX debug buffer base pointer and element count, valid until the next step,
@@ -95,7 +95,7 @@ OVPHYSX_INTERNAL_API uint64_t ovphysx_internal_output_query_selected(uint64_t at
                                                                      size_t primPathCount,
                                                                      const ovx_string_t* pattern,
                                                                      ovstage_query_result_t* out_summary);
-// Contact query (ADR-0044): `selections` is a `const omni::physx::OvxContactSensorSelection*` of
+// Contact query (ADR-0044): `selections` is a `const omni::ev4sio_physx::OvxContactSensorSelection*` of
 // `selectionCount` entries, passed as void* to keep this header free of the runtime read types. Returns 0
 // on failure, with the runtime error recorded.
 OVPHYSX_INTERNAL_API uint64_t ovphysx_internal_output_query_contacts(uint64_t attach,
@@ -176,7 +176,7 @@ typedef int      (*OvphysxSidecarReleaseReadFn)(uint64_t);
 typedef int      (*OvphysxSidecarReleaseQueryFn)(uint64_t);
 typedef uint64_t (*OvphysxSidecarWriteAttributeFn)(uint64_t, const ovx_token_or_string_t*, size_t, ovphysx_write_result_t*);
 typedef int      (*OvphysxSidecarFetchWriteNextFn)(uint64_t, ovphysx_fetched_write_group_t*);
-// Mirrors omni::physx::OvxCommitFailure. Duplicated rather than included because this side of the
+// Mirrors omni::ev4sio_physx::OvxCommitFailure. Duplicated rather than included because this side of the
 // sidecar boundary does not depend on the ovruntime headers. ovphysxSidecarLoader.cpp sees both
 // and compares the numeric value of each known mirrored member at compile time.
 enum OvphysxSidecarCommitFailure : int32_t

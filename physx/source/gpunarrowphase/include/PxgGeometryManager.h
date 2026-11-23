@@ -46,14 +46,14 @@
 	- The pinned memory is contiguous, so the copy manager taking pairs of (src, dest) could potentially be replaced by a linear thing.
 */
 
-namespace physx
+namespace ev4sio_physx
 {
 
 class PxCudaContext;
 class PxgHeapMemoryAllocator;
 struct PxgAllocatorDesc;
 
-namespace Gu
+namespace ev4sio_Gu
 {
     struct ConvexHullData;
     class TriangleMesh;
@@ -163,9 +163,9 @@ public:
 
 	virtual ~PxgGeometryManager();
 
-	PxU32							addHull(const Gu::ConvexHullData& hull);
-	PxU32							addTriMesh(const Gu::TriangleMesh& triMesh);
-	PxU32							addHeightfield(const Gu::HeightFieldData& hf);
+	PxU32							addHull(const ev4sio_Gu::ConvexHullData& hull);
+	PxU32							addTriMesh(const ev4sio_Gu::TriangleMesh& triMesh);
+	PxU32							addHeightfield(const ev4sio_Gu::HeightFieldData& hf);
 	void							addBoxHull();
 
 	void							removeGeometry(PxU32 idx);
@@ -180,7 +180,7 @@ private:
 	PxU32 							addGeometryInternal(PxU64 byteSize, const void* geomPtr, UploadGeometryType::Enum type, PxU32 numPolyVertices = 0);
 
 	PxgHeapMemoryAllocator&									mDeviceAlloc;
-	Cm::VirtualAllocatorCallback&							mHostMappedAlloc;
+	ev4sio_Cm::VirtualAllocatorCallback&							mHostMappedAlloc;
 	PxU8*													mHostMemoryMapped;   //stores the pointer to the current pinned memory allocation.
 	PxU64													mHostMemoryRequirements; // accumulates pinned memory requirements for copies.
 	

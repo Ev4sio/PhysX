@@ -14,7 +14,7 @@
 #include <time.h>
 #include <sys/time.h>
 
-namespace physx
+namespace ev4sio_physx
 {
 
 namespace
@@ -133,4 +133,4 @@ bool PxSyncImpl::wait(uint32_t ms)
 	return getSync(this)->is_set || (lastSetCounter != getSync(this)->setCounter);
 }
 
-} // namespace physx
+} // namespace ev4sio_physx

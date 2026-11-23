@@ -14,9 +14,9 @@
 #include "usdLoad/LoadUsd.h"
 
 using namespace carb;
-using namespace omni::physx;
-using namespace omni::physx::internal;
-using namespace omni::physx::usdparser;
+using namespace omni::ev4sio_physx;
+using namespace omni::ev4sio_physx::internal;
+using namespace omni::ev4sio_physx::usdparser;
 
 bool setVoxelRange(long int stageId, omni::physics::parse::ObjectKey key, const int sx, const int sy, const int sz, const int ex, const int ey, const int ez, const int type, const int subType, const int update)
 {

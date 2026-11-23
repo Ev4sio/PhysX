@@ -72,7 +72,7 @@ using namespace carb;
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace usdparser
 {
@@ -140,7 +140,7 @@ static void parseInstancerMaterials(AttachedStage& attachedStage, ObjectKey inst
     {
         const std::vector<std::string> scanRoots{ std::string(attachedStage.textViewFor(childKey)) };
         omni::physics::parse::ScannedStage scanned = attachedStage.scanStage(scanRoots, kNoExclude, scanOptions,
-            omni::physx::usdparser::iceDescriptorAllocator());
+            omni::ev4sio_physx::usdparser::iceDescriptorAllocator());
 
         for (auto& matDesc : scanned.materials)
         {
@@ -175,11 +175,11 @@ static PhysxRigidBodyDesc* createPrototypeStaticBody(const AttachedStage& attach
 {
     PhysxRigidBodyDesc* bodyDesc = createStaticBody();
     bool resetXformStack;
-    const ::physx::PxMat44d protoLocal = internal::getLocalTransform(
+    const ::ev4sio_physx::PxMat44d protoLocal = internal::getLocalTransform(
         attachedStage, targetKey, omni::physics::parse::ReadTime::at(std::numeric_limits<double>::lowest()),
         resetXformStack);
-    ::physx::PxTransform pose;
-    ::physx::PxVec3 scale;
+    ::ev4sio_physx::PxTransform pose;
+    ::ev4sio_physx::PxVec3 scale;
     decomposeMatrix(pose, scale, internal::getWorldTransform(attachedStage, instancerKey) * protoLocal);
     bodyDesc->position = toFloat3(pose.p);
     bodyDesc->rotation = toFloat4(pose.q);
@@ -212,7 +212,7 @@ void parsePrototype(AttachedStage& attachedStage,
     scanOptions.prunePointInstancerDescendants = false;
     auto scanned = std::make_unique<omni::physics::parse::ScannedStage>();
     *scanned = attachedStage.scanStage(scanRoots, kNoExclude, scanOptions,
-                                                omni::physx::usdparser::iceDescriptorAllocator());
+                                                omni::ev4sio_physx::usdparser::iceDescriptorAllocator());
     if (!scanned->sourcePtr())
     {
         // targetKey exists on the source (callers only reach here after
@@ -312,11 +312,11 @@ void parsePrototype(AttachedStage& attachedStage,
                         bodyInstanced = true;
                         desc->rigidBody = parentKey;
                         bool resetXformStack;
-                        const ::physx::PxMat44d mat = internal::getLocalTransform(
+                        const ::ev4sio_physx::PxMat44d mat = internal::getLocalTransform(
                             attachedStage, key,
                             omni::physics::parse::ReadTime::at(std::numeric_limits<double>::lowest()), resetXformStack);
-                        ::physx::PxTransform pose;
-                        ::physx::PxVec3 scale;
+                        ::ev4sio_physx::PxTransform pose;
+                        ::ev4sio_physx::PxVec3 scale;
                         decomposeMatrix(pose, scale, mat);
                         desc->localPos = toFloat3(pose.p);
                         desc->localRot = toFloat4(pose.q);
@@ -478,8 +478,8 @@ void parseRigidBodyInstancer(AttachedStage& attachedStage,
             return;
     }
 
-    const ::physx::PxMat44d instancerMatrix = internal::getWorldTransform(attachedStage, instancerKey);
-    const ::physx::PxMat44d instancerMatrixInverse = affineInverse(instancerMatrix);
+    const ::ev4sio_physx::PxMat44d instancerMatrix = internal::getWorldTransform(attachedStage, instancerKey);
+    const ::ev4sio_physx::PxMat44d instancerMatrixInverse = affineInverse(instancerMatrix);
     // Bit-exact GfTransform::GetScale() (gfmath::decomposeWithPivot), not the
     // PhysX-native polar getScale: instancerMatrix is a PointInstancer world
     // transform, so ancestor non-uniform scale plus rotation can shear it, and
@@ -487,7 +487,7 @@ void parseRigidBodyInstancer(AttachedStage& attachedStage,
     // feeds bodyDesc->scale below, matching the Gf convention already used for
     // instancerActorMatrixInverse/protoWorld in this function.
     const gfmath::PivotTransform instancerXf = gfmath::decomposeWithPivot(instancerMatrix);
-    const ::physx::PxVec3 sc(float(instancerXf.scale.x), float(instancerXf.scale.y), float(instancerXf.scale.z));
+    const ::ev4sio_physx::PxVec3 sc(float(instancerXf.scale.x), float(instancerXf.scale.y), float(instancerXf.scale.z));
     // Bit-exact Gf::RemoveScaleShear() (gfmath::removeScaleShearGf), not the
     // PhysX-native removeScaleShear: this is a PointInstancer world transform,
     // so ancestor non-uniform scale plus rotation can shear it, and the two
@@ -495,7 +495,7 @@ void parseRigidBodyInstancer(AttachedStage& attachedStage,
     // cacheTargetPrototypeTransform below, and mirrors InternalActor.cpp's
     // fallback computation of the same quantity for an instance that reaches
     // it without a cached protoTransformInverse.
-    const ::physx::PxMat44d instancerActorMatrixInverse = affineInverse(gfmath::removeScaleShearGf(
+    const ::ev4sio_physx::PxMat44d instancerActorMatrixInverse = affineInverse(gfmath::removeScaleShearGf(
         internal::getWorldTransform(attachedStage, instancerKey, omni::physics::parse::ReadTime::defaultTime())));
 
     // prototypes relationship -> target prim keys, already in attachedStage's own
@@ -588,7 +588,7 @@ void parseRigidBodyInstancer(AttachedStage& attachedStage,
             return;
 
         // As above: bit-exact Gf decomposition to match instancerActorMatrixInverse.
-        const ::physx::PxMat44d protoWorld = gfmath::removeScaleShearGf(
+        const ::ev4sio_physx::PxMat44d protoWorld = gfmath::removeScaleShearGf(
             internal::getWorldTransform(attachedStage, targetKey, omni::physics::parse::ReadTime::defaultTime()));
         // Was, in Gf (row-vector) order: (protoWorld * instancerActorMatrixInverse).GetInverse().
         // Gf A * B is PhysX B * A on the same sixteen doubles, so the operands swap.
@@ -600,13 +600,13 @@ void parseRigidBodyInstancer(AttachedStage& attachedStage,
     std::vector<int64_t> inactiveItemsVector;
     if (src)
         src->getInactiveInstanceIds(instancerKey, inactiveItemsVector);
-    ::physx::PxBitMap inactiveIds;
-    ::physx::PxBitMap activeTargets;
+    ::ev4sio_physx::PxBitMap inactiveIds;
+    ::ev4sio_physx::PxBitMap activeTargets;
     if (!inactiveItemsVector.empty())
     {
         // we dont want to parse all targets, only those used.
-        activeTargets.resize(::physx::PxU32(targets.size()));
-        inactiveIds.resize(::physx::PxU32(indices.size()));
+        activeTargets.resize(::ev4sio_physx::PxU32(targets.size()));
+        inactiveIds.resize(::ev4sio_physx::PxU32(indices.size()));
         for (size_t i = 0; i < inactiveItemsVector.size(); i++)
         {
             // The source hands back instance positions, but they originate in backend data
@@ -619,7 +619,7 @@ void parseRigidBodyInstancer(AttachedStage& attachedStage,
                 continue;
             }
 
-            inactiveIds.set(::physx::PxU32(inactiveItemsVector[i]));
+            inactiveIds.set(::ev4sio_physx::PxU32(inactiveItemsVector[i]));
         }
 
         // if target is used set the bit for activeTargets
@@ -632,9 +632,9 @@ void parseRigidBodyInstancer(AttachedStage& attachedStage,
                 continue;
             }
 
-            if (!inactiveIds.test(::physx::PxU32(index)))
+            if (!inactiveIds.test(::ev4sio_physx::PxU32(index)))
             {
-                activeTargets.set(::physx::PxU32(indices[index]));
+                activeTargets.set(::ev4sio_physx::PxU32(indices[index]));
             }
         }
     }
@@ -648,8 +648,8 @@ void parseRigidBodyInstancer(AttachedStage& attachedStage,
         // targetObjects[indices[i]] read past its end.
         targetObjects.resize(targets.size());
 
-        ::physx::PxBitMap::Iterator it(activeTargets);
-        for (::physx::PxU32 index = it.getNext(); index != ::physx::PxBitMap::Iterator::DONE; index = it.getNext())
+        ::ev4sio_physx::PxBitMap::Iterator it(activeTargets);
+        for (::ev4sio_physx::PxU32 index = it.getNext(); index != ::ev4sio_physx::PxBitMap::Iterator::DONE; index = it.getNext())
         {
             ObjectInstance objectInstance = { instancerKey, index, omni::physics::parse::ObjectKey{}, false };
             const ObjectKey targetKey = targets[index];
@@ -687,7 +687,7 @@ void parseRigidBodyInstancer(AttachedStage& attachedStage,
     }
 
     ObjectKey topBodyKey;    // invalid until the shared top-level body is resolved (no UsdPrim)
-    ::physx::PxMat44d topBodyMatrixInverse(::physx::PxIdentity);
+    ::ev4sio_physx::PxMat44d topBodyMatrixInverse(::ev4sio_physx::PxIdentity);
 
     for (size_t i = 0; i < indices.size(); i++)
     {
@@ -697,7 +697,7 @@ void parseRigidBodyInstancer(AttachedStage& attachedStage,
         // A.B. we might consider traversing the BitMap here instead, though in most cases it might not be faster
         if (!inactiveItemsVector.empty())
         {
-            if (inactiveIds.test(::physx::PxU32(i)))
+            if (inactiveIds.test(::ev4sio_physx::PxU32(i)))
             {
                 continue; // skip inactive instances
             }
@@ -723,11 +723,11 @@ void parseRigidBodyInstancer(AttachedStage& attachedStage,
             // toPhysX(GfQuatf(GfQuath)) produced -- both read GetImaginary()/GetReal()
             // and GfHalf->float is exact -- so this is not a widening, just one hop
             // fewer. GfQuatf(1.0f) was the identity (real 1, imaginary 0).
-            const ::physx::PxVec3 instancePos =
-                i < positions.size() ? toPhysX(positions[i]) : ::physx::PxVec3(0.0f);
-            const ::physx::PxQuat instanceOrient = i < orientations.size() ?
+            const ::ev4sio_physx::PxVec3 instancePos =
+                i < positions.size() ? toPhysX(positions[i]) : ::ev4sio_physx::PxVec3(0.0f);
+            const ::ev4sio_physx::PxQuat instanceOrient = i < orientations.size() ?
                                                        toPhysXQuat(orientations[i]) :
-                                                       ::physx::PxQuat(::physx::PxIdentity);
+                                                       ::ev4sio_physx::PxQuat(::ev4sio_physx::PxIdentity);
             const carb::Float3 instanceScale =
                 i < scales.size() ? scales[i] : carb::Float3{ 1.0f, 1.0f, 1.0f };
 
@@ -756,23 +756,23 @@ void parseRigidBodyInstancer(AttachedStage& attachedStage,
             // Gf order was: localBody * instancerMatrixInverse, then
             // localBody * instanceMatrix * instancerMatrix. Gf A * B is PhysX B * A,
             // so each product is written with the operands reversed here.
-            ::physx::PxMat44d localBodyMatrix =
+            ::ev4sio_physx::PxMat44d localBodyMatrix =
                 makeMatrix(toPhysX(sourceBodyDesc->position, sourceBodyDesc->rotation));
             localBodyMatrix = instancerMatrixInverse * localBodyMatrix;
 
             localBodyMatrix.setPosition(localBodyMatrix.getPosition().multiply(
-                ::physx::PxVec3d(instanceScale.x, instanceScale.y, instanceScale.z)));
+                ::ev4sio_physx::PxVec3d(instanceScale.x, instanceScale.y, instanceScale.z)));
 
-            const ::physx::PxMat44d instanceMatrix =
-                makeMatrix(::physx::PxTransform(instancePos, instanceOrient));
+            const ::ev4sio_physx::PxMat44d instanceMatrix =
+                makeMatrix(::ev4sio_physx::PxTransform(instancePos, instanceOrient));
 
-            const ::physx::PxMat44d bodyMatrix = instancerMatrix * instanceMatrix * localBodyMatrix;
+            const ::ev4sio_physx::PxMat44d bodyMatrix = instancerMatrix * instanceMatrix * localBodyMatrix;
 
             // The instance's world pose, needed below before the descriptor fields are
             // filled: with `physics:localSpaceVelocities` the instance velocities are
             // expressed in this body's own frame, exactly as an ordinary body's
             // physics:velocity is (REQ-SIM-LOCALVELOCITY-001 AC-2/AC-5).
-            const ::physx::PxTransform bodyPose = toTransform(bodyMatrix);
+            const ::ev4sio_physx::PxTransform bodyPose = toTransform(bodyMatrix);
 
             PhysxRigidBodyDesc* bodyDesc = nullptr;
             if (sourceBodyDesc->type == eDynamicBody)
@@ -782,11 +782,11 @@ void parseRigidBodyInstancer(AttachedStage& attachedStage,
                 *dynamicBody = *(DynamicPhysxRigidBodyDesc*)sourceBodyDesc;
 
                 // degToRad(PxVec3) applies the same float scalar as degToRad(GfVec3f).
-                ::physx::PxVec3 angularVelocity = i < angularVelocities.size() ?
+                ::ev4sio_physx::PxVec3 angularVelocity = i < angularVelocities.size() ?
                                                       degToRad(toPhysX(angularVelocities[i])) :
-                                                      ::physx::PxVec3(0.0f);
-                ::physx::PxVec3 linearVelocity =
-                    i < velocities.size() ? toPhysX(velocities[i]) : ::physx::PxVec3(0.0f);
+                                                      ::ev4sio_physx::PxVec3(0.0f);
+                ::ev4sio_physx::PxVec3 linearVelocity =
+                    i < velocities.size() ? toPhysX(velocities[i]) : ::ev4sio_physx::PxVec3(0.0f);
 
                 if (dynamicBody->localSpaceVelocities)
                 {
@@ -848,15 +848,15 @@ void parseRigidBodyInstancer(AttachedStage& attachedStage,
                     affineInverse(internal::getWorldTransform(attachedStage, sourceShapeDesc->rigidBody));
             }
 
-            const ::physx::PxVec3 instancePos =
-                i < positions.size() ? toPhysX(positions[i]) : ::physx::PxVec3(0.0f);
-            const ::physx::PxQuat instanceOrient = i < orientations.size() ?
+            const ::ev4sio_physx::PxVec3 instancePos =
+                i < positions.size() ? toPhysX(positions[i]) : ::ev4sio_physx::PxVec3(0.0f);
+            const ::ev4sio_physx::PxQuat instanceOrient = i < orientations.size() ?
                                                        toPhysXQuat(orientations[i]) :
-                                                       ::physx::PxQuat(::physx::PxIdentity);
+                                                       ::ev4sio_physx::PxQuat(::ev4sio_physx::PxIdentity);
             const carb::Float3 instanceScale =
                 i < scales.size() ? scales[i] : carb::Float3{ 1.0f, 1.0f, 1.0f };
 
-            ::physx::PxMat44d localShapeMatrix =
+            ::ev4sio_physx::PxMat44d localShapeMatrix =
                 internal::getWorldTransform(attachedStage, targetObjects[indices[i]].descKey);
 
             // Do this only if the object is below the instancer
@@ -864,19 +864,19 @@ void parseRigidBodyInstancer(AttachedStage& attachedStage,
             if (!targetObjects[indices[i]].outsideInstancer)
                 localShapeMatrix = instancerMatrixInverse * localShapeMatrix;
 
-            const ::physx::PxMat44d instanceMatrix =
-                makeMatrix(::physx::PxTransform(instancePos, instanceOrient));
+            const ::ev4sio_physx::PxMat44d instanceMatrix =
+                makeMatrix(::ev4sio_physx::PxTransform(instancePos, instanceOrient));
 
             // Gf: localShapeMatrix * instanceMatrix * instancerMatrix, then
             // shapeWorldMatrix * topBodyMatrixInverse -- each product reversed here.
-            const ::physx::PxMat44d shapeWorldMatrix = instancerMatrix * instanceMatrix * localShapeMatrix;
-            const ::physx::PxMat44d newLocalShapeMatrix = topBodyMatrixInverse * shapeWorldMatrix;
+            const ::ev4sio_physx::PxMat44d shapeWorldMatrix = instancerMatrix * instanceMatrix * localShapeMatrix;
+            const ::ev4sio_physx::PxMat44d newLocalShapeMatrix = topBodyMatrixInverse * shapeWorldMatrix;
 
             PhysxShapeDesc* scaledShapeDesc = scaleShapeDesc(attachedStage, *sourceShapeDesc, instanceScale);
             if (!scaledShapeDesc)
                 continue; // Unsupported custom scale: skip this instance without dereferencing a null descriptor.
 
-            const ::physx::PxTransform newLocalShapePose = toTransform(newLocalShapeMatrix);
+            const ::ev4sio_physx::PxTransform newLocalShapePose = toTransform(newLocalShapeMatrix);
             scaledShapeDesc->localPos = toFloat3(newLocalShapePose.p);
             scaledShapeDesc->localRot = toFloat4(newLocalShapePose.q);
 
@@ -911,5 +911,5 @@ void parseRigidBodyInstancer(AttachedStage& attachedStage,
     }
 }
 } // namespace usdparser
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

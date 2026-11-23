@@ -16,7 +16,7 @@
 #include "../pvdruntime/include/OmniPvdFileWriteStream.h"
 #include "../pvdruntime/include/OmniPvdSocketWriteStream.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 static PxDefaultAllocator		gAllocator;
 static PxDefaultErrorCallback	gErrorCallback;
@@ -64,14 +64,14 @@ static void initPhysXScene()
 
 bool initPhysicsWithOmniPvd()
 {
-	gFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, gAllocator, gErrorCallback);
+	gFoundation = ev4sio_PxCreateFoundation(ev4sio_PX_PHYSICS_VERSION, gAllocator, gErrorCallback);
 	if (!gFoundation)
 	{
 		printf("Error : could not create PxFoundation!\n");
 		return false;
 	}
 
-	gOmniPvd = PxCreateOmniPvd(*gFoundation);
+	gOmniPvd = ev4sio_PxCreateOmniPvd(*gFoundation);
 	if (!gOmniPvd)
 	{
 		printf("Error : could not create PxOmniPvd!\n");
@@ -122,7 +122,7 @@ bool initPhysicsWithOmniPvd()
 		omniWriter->setWriteStream(*gOmniPvdSocketStream);
 	}
 
-	gPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *gFoundation, PxTolerancesScale(), true, NULL, gOmniPvd);
+	gPhysics = ev4sio_PxCreatePhysics(ev4sio_PX_PHYSICS_VERSION, *gFoundation, PxTolerancesScale(), true, NULL, gOmniPvd);
 	if (!gPhysics)
 	{
 		printf("Error : could not create a PhysX instance!\n");

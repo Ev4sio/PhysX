@@ -12,7 +12,7 @@
 #include "foundation/PxArray.h"
 #include "CudaKernelWrangler.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	class PxCudaContextManager;
 	class PxErrorCallback;

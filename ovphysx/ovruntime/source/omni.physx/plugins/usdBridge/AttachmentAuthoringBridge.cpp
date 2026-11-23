@@ -24,7 +24,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace attachmentauthoring
 {
@@ -107,5 +107,5 @@ void defineElementCollisionFilterPrim(const usdparser::AttachedStage& stage,
 }
 
 } // namespace attachmentauthoring
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

@@ -18,25 +18,25 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 
 // Selectable object types mirror PxOmniPvdFilterDesc. Dependencies are included by
 // the SDK; runtime helper pointers and articulation links are never selected directly.
-void omniPvdAppendCaptureObjects(PhysXType type, void* pointer, std::vector<const ::physx::PxBase*>& objects);
-inline const ::physx::PxBase* omniPvdCaptureObject(PhysXType type, void* pointer)
+void omniPvdAppendCaptureObjects(PhysXType type, void* pointer, std::vector<const ::ev4sio_physx::PxBase*>& objects);
+inline const ::ev4sio_physx::PxBase* omniPvdCaptureObject(PhysXType type, void* pointer)
 {
     if (!pointer)
         return nullptr;
     switch (type)
     {
-    case ePTActor: return static_cast<const ::physx::PxRigidActor*>(pointer);
+    case ePTActor: return static_cast<const ::ev4sio_physx::PxRigidActor*>(pointer);
     case ePTArticulation:
-    case ePTArticulationFixedBase: return static_cast<const ::physx::PxArticulationReducedCoordinate*>(pointer);
-    case ePTParticleSystem: return static_cast<const ::physx::PxPBDParticleSystem*>(pointer);
-    case ePTParticleSet: return static_cast<const ::physx::PxParticleAndDiffuseBuffer*>(pointer);
-    case ePTDeformableSurface: return static_cast<const ::physx::PxDeformableSurface*>(pointer);
-    case ePTDeformableVolume: return static_cast<const ::physx::PxDeformableVolume*>(pointer);
+    case ePTArticulationFixedBase: return static_cast<const ::ev4sio_physx::PxArticulationReducedCoordinate*>(pointer);
+    case ePTParticleSystem: return static_cast<const ::ev4sio_physx::PxPBDParticleSystem*>(pointer);
+    case ePTParticleSet: return static_cast<const ::ev4sio_physx::PxParticleAndDiffuseBuffer*>(pointer);
+    case ePTDeformableSurface: return static_cast<const ::ev4sio_physx::PxDeformableSurface*>(pointer);
+    case ePTDeformableVolume: return static_cast<const ::ev4sio_physx::PxDeformableVolume*>(pointer);
     default: return nullptr;
     }
 }
@@ -46,5 +46,5 @@ constexpr PhysXType kOmniPvdCaptureObjectTypes[] = {
     ePTParticleSet, ePTDeformableSurface, ePTDeformableVolume
 };
 
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

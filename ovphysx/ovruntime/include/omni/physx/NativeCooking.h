@@ -7,7 +7,7 @@
 #include <omni/physx/NativeInspection.h>
 #include <cstdint>
 #include <vector>
-namespace omni::physx::native
+namespace omni::ev4sio_physx::native
 {
 enum class RawCookKind:uint32_t {Convex=1,Triangle=2,Decomposition=3,Sdf=4,Spheres=5,Conforming=6,Voxel=7};
 struct RawCookMesh {

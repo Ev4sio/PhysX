@@ -19,11 +19,11 @@
 #include <PxPhysicsAPI.h>
 
 
-using namespace ::physx;
+using namespace ::ev4sio_physx;
 using namespace carb;
-using namespace omni::physx;
-using namespace omni::physx::usdparser;
-using namespace omni::physx::internal;
+using namespace omni::ev4sio_physx;
+using namespace omni::ev4sio_physx::usdparser;
+using namespace omni::ev4sio_physx::internal;
 
 //           123456789012
 // length of physxTendon: attribute namespace plus colon:
@@ -68,7 +68,7 @@ static bool getFloatBounded(const usdparser::AttachedStage& attachedStage, omni:
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 // update spatial tendons
-bool omni::physx::updateSpatialTendonStiffness(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateSpatialTendonStiffness(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     const internal::InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
@@ -106,7 +106,7 @@ bool omni::physx::updateSpatialTendonStiffness(AttachedStage& attachedStage, omn
     return true;
 }
 
-bool omni::physx::updateSpatialTendonDamping(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateSpatialTendonDamping(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     const internal::InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
@@ -144,7 +144,7 @@ bool omni::physx::updateSpatialTendonDamping(AttachedStage& attachedStage, omni:
     return true;
 }
 
-bool omni::physx::updateSpatialTendonLimitStiffness(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateSpatialTendonLimitStiffness(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     const internal::InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
@@ -182,7 +182,7 @@ bool omni::physx::updateSpatialTendonLimitStiffness(AttachedStage& attachedStage
     return true;
 }
 
-bool omni::physx::updateSpatialTendonOffset(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateSpatialTendonOffset(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     const internal::InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
@@ -208,7 +208,7 @@ bool omni::physx::updateSpatialTendonOffset(AttachedStage& attachedStage, omni::
     return true;
 }
 
-bool omni::physx::updateSpatialTendonEnabled(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateSpatialTendonEnabled(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     const internal::InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
@@ -256,7 +256,7 @@ bool omni::physx::updateSpatialTendonEnabled(AttachedStage& attachedStage, omni:
     return true;
 }
 
-bool omni::physx::updateTendonAttachmentGearing(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateTendonAttachmentGearing(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     const internal::InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
@@ -281,7 +281,7 @@ bool omni::physx::updateTendonAttachmentGearing(AttachedStage& attachedStage, om
     return true;
 }
 
-bool omni::physx::updateTendonAttachmentLocalPos(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateTendonAttachmentLocalPos(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     const internal::InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
@@ -300,7 +300,7 @@ bool omni::physx::updateTendonAttachmentLocalPos(AttachedStage& attachedStage, o
             // get link scale: attachment local pos is in scaled link-local
             // coordinates, so unscale for PhysX.
             const PxVec3 scale =
-                omni::physx::getScale(getWorldTransform(attachedStage, objectRecord->mKey, omni::physics::parse::ReadTime::defaultTime()));
+                omni::ev4sio_physx::getScale(getWorldTransform(attachedStage, objectRecord->mKey, omni::physics::parse::ReadTime::defaultTime()));
             pxAttachment->setRelativeOffset(toPhysX(vec).multiply(scale));
 
             // wake up articulation. Todo preist: Remove after SDK update where wake up is fixed.
@@ -311,7 +311,7 @@ bool omni::physx::updateTendonAttachmentLocalPos(AttachedStage& attachedStage, o
     return true;
 }
 
-bool omni::physx::updateTendonAttachmentLeafRestLength(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateTendonAttachmentLeafRestLength(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     const internal::InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
@@ -344,7 +344,7 @@ bool omni::physx::updateTendonAttachmentLeafRestLength(AttachedStage& attachedSt
     return true;
 }
 
-bool omni::physx::updateTendonAttachmentLeafLowLimit(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateTendonAttachmentLeafLowLimit(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     const internal::InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
@@ -378,7 +378,7 @@ bool omni::physx::updateTendonAttachmentLeafLowLimit(AttachedStage& attachedStag
     return true;
 }
 
-bool omni::physx::updateTendonAttachmentLeafHighLimit(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateTendonAttachmentLeafHighLimit(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     const internal::InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
@@ -413,7 +413,7 @@ bool omni::physx::updateTendonAttachmentLeafHighLimit(AttachedStage& attachedSta
 }
 
 // update fixed tendons
-bool omni::physx::updateFixedTendonStiffness(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateFixedTendonStiffness(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     const internal::InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
@@ -451,7 +451,7 @@ bool omni::physx::updateFixedTendonStiffness(AttachedStage& attachedStage, omni:
     return true;
 }
 
-bool omni::physx::updateFixedTendonLimitStiffness(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateFixedTendonLimitStiffness(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     const internal::InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
@@ -489,7 +489,7 @@ bool omni::physx::updateFixedTendonLimitStiffness(AttachedStage& attachedStage, 
     return true;
 }
 
-bool omni::physx::updateFixedTendonDamping(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateFixedTendonDamping(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     const internal::InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
@@ -527,7 +527,7 @@ bool omni::physx::updateFixedTendonDamping(AttachedStage& attachedStage, omni::p
     return true;
 }
 
-bool omni::physx::updateFixedTendonOffset(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateFixedTendonOffset(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     const internal::InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
@@ -553,7 +553,7 @@ bool omni::physx::updateFixedTendonOffset(AttachedStage& attachedStage, omni::ph
     return true;
 }
 
-bool omni::physx::updateFixedTendonRestLength(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateFixedTendonRestLength(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     const internal::InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
@@ -579,7 +579,7 @@ bool omni::physx::updateFixedTendonRestLength(AttachedStage& attachedStage, omni
     return true;
 }
 
-bool omni::physx::updateFixedTendonLowLimit(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateFixedTendonLowLimit(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     const internal::InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
@@ -614,7 +614,7 @@ bool omni::physx::updateFixedTendonLowLimit(AttachedStage& attachedStage, omni::
     return true;
 }
 
-bool omni::physx::updateFixedTendonHighLimit(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateFixedTendonHighLimit(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     const internal::InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
@@ -649,7 +649,7 @@ bool omni::physx::updateFixedTendonHighLimit(AttachedStage& attachedStage, omni:
     return true;
 }
 
-bool omni::physx::updateFixedTendonEnabled(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateFixedTendonEnabled(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     const internal::InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
@@ -698,7 +698,7 @@ bool omni::physx::updateFixedTendonEnabled(AttachedStage& attachedStage, omni::p
 }
 
 // WARNING: only works for joints with a single DOF (a.k.a revolute and prismatic joints)
-bool omni::physx::updateTendonAxisSingleGearing(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateTendonAxisSingleGearing(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     const internal::InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
@@ -757,7 +757,7 @@ bool omni::physx::updateTendonAxisSingleGearing(AttachedStage& attachedStage, om
 }
 
 // WARNING: only works for joints with a single DOF (a.k.a revolute and prismatic joints)
-bool omni::physx::updateTendonAxisSingleForceCoefficient(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateTendonAxisSingleForceCoefficient(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
                                                          omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     const internal::InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();

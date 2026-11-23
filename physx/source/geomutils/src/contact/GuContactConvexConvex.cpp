@@ -24,9 +24,9 @@
 	#define USE_BOX_DATA
 #endif
 
-using namespace physx;
-using namespace Gu;
-using namespace Cm;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
+using namespace ev4sio_Cm;
 using namespace aos;
 using namespace intrinsics;
 
@@ -731,7 +731,7 @@ static bool GuContactHullHull(	const PolygonalData& polyData0, const PolygonalDa
 // codepath significantly slower, and this is a lot more important than just box-vs-convex. The proper approach is to share the code and make sure scaling is NOT a perf hit.
 // PT: please leave this function in the same translation unit as PxcContactHullHull.
 
-bool Gu::contactBoxConvex(GU_CONTACT_METHOD_ARGS)
+bool ev4sio_Gu::contactBoxConvex(GU_CONTACT_METHOD_ARGS)
 {
 	PX_UNUSED(renderOutput);
 	PX_UNUSED(cache);
@@ -760,7 +760,7 @@ bool Gu::contactBoxConvex(GU_CONTACT_METHOD_ARGS)
 }
 
 // PT: please leave this function in the same translation unit as PxcContactHullHull.
-bool Gu::contactConvexConvex(GU_CONTACT_METHOD_ARGS)
+bool ev4sio_Gu::contactConvexConvex(GU_CONTACT_METHOD_ARGS)
 {
 	PX_UNUSED(cache);
 	PX_UNUSED(renderOutput);

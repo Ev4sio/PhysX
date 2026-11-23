@@ -29,7 +29,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace tensors
 {
@@ -51,7 +51,7 @@ OVX_POINTSET_HD inline void pointSetTransformPoint(const PointSetTransform& a, c
 }
 
 } // namespace tensors
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni
 
 // Scoped to this header: every use is above, and leaving it defined would put a bare OVX_* macro in

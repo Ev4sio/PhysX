@@ -19,7 +19,7 @@
 #include <arm_neon.h>
 #endif
 
-PX_INLINE physx::PxSIMDGuard::PxSIMDGuard(bool enable) 
+PX_INLINE ev4sio_physx::PxSIMDGuard::PxSIMDGuard(bool enable)
 #if !PX_EMSCRIPTEN && (PX_X86 || PX_X64)
 	: mEnabled(enable)
 #endif
@@ -41,7 +41,7 @@ PX_INLINE physx::PxSIMDGuard::PxSIMDGuard(bool enable)
 #endif
 }
 
-PX_INLINE physx::PxSIMDGuard::~PxSIMDGuard()
+PX_INLINE ev4sio_physx::PxSIMDGuard::~PxSIMDGuard()
 {
 #if !PX_EMSCRIPTEN && (PX_X86 || PX_X64)
 	if(mEnabled)

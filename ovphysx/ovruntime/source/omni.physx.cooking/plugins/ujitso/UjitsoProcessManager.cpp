@@ -15,7 +15,7 @@ using namespace carb::ujitso;
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 
 // UjitsoProcessManager static members
@@ -417,5 +417,5 @@ UjitsoProcessContext* UjitsoProcessManager::_find(lock_guard&, UjitsoProcessCont
     return r != m_requestMap.end() ? r->second : nullptr;
 }
 
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

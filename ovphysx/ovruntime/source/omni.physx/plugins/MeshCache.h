@@ -24,21 +24,21 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 
-using ConvexMeshVector = std::vector<::physx::PxConvexMesh*>;
+using ConvexMeshVector = std::vector<::ev4sio_physx::PxConvexMesh*>;
 using ConvexMeshMap =
-    std::unordered_map<omni::physx::usdparser::MeshKey, ::physx::PxConvexMesh*, omni::physx::usdparser::MeshKeyHash>;
+    std::unordered_map<omni::ev4sio_physx::usdparser::MeshKey, ::ev4sio_physx::PxConvexMesh*, omni::ev4sio_physx::usdparser::MeshKeyHash>;
 using TriangleMeshMap =
-    std::unordered_map<omni::physx::usdparser::MeshKey, ::physx::PxTriangleMesh*, omni::physx::usdparser::MeshKeyHash>;
+    std::unordered_map<omni::ev4sio_physx::usdparser::MeshKey, ::ev4sio_physx::PxTriangleMesh*, omni::ev4sio_physx::usdparser::MeshKeyHash>;
 using ConvexDecompositionMap =
-    std::unordered_map<omni::physx::usdparser::MeshKey, ConvexMeshVector, omni::physx::usdparser::MeshKeyHash>;
-using ConvexMeshDataMap = std::multimap<::physx::PxConvexMesh*, ConvexMeshData>;
-using TriMeshRemapTable = std::unordered_map<const ::physx::PxTriangleMesh*, const uint32_t*>;
-using SphereFillMap = std::unordered_map<omni::physx::usdparser::MeshKey,
-                                         omni::physx::usdparser::SpherePointsPhysxShapeDesc*,
-                                         omni::physx::usdparser::MeshKeyHash>;
+    std::unordered_map<omni::ev4sio_physx::usdparser::MeshKey, ConvexMeshVector, omni::ev4sio_physx::usdparser::MeshKeyHash>;
+using ConvexMeshDataMap = std::multimap<::ev4sio_physx::PxConvexMesh*, ConvexMeshData>;
+using TriMeshRemapTable = std::unordered_map<const ::ev4sio_physx::PxTriangleMesh*, const uint32_t*>;
+using SphereFillMap = std::unordered_map<omni::ev4sio_physx::usdparser::MeshKey,
+                                         omni::ev4sio_physx::usdparser::SpherePointsPhysxShapeDesc*,
+                                         omni::ev4sio_physx::usdparser::MeshKeyHash>;
 
 struct CollisionRepresentation;
 // @implements REQ-ATTACH-SERVICES-001
@@ -57,7 +57,7 @@ public:
         release();
     }
 
-    bool hasConvexMesh(const omni::physx::usdparser::MeshKey& crc) const
+    bool hasConvexMesh(const omni::ev4sio_physx::usdparser::MeshKey& crc) const
     {
         std::lock_guard<carb::tasking::RecursiveMutexWrapper> lock(mMutex);
         bool ret = false;
@@ -71,7 +71,7 @@ public:
         return ret;
     }
 
-    bool hasTriangleMesh(const omni::physx::usdparser::MeshKey& crc) const
+    bool hasTriangleMesh(const omni::ev4sio_physx::usdparser::MeshKey& crc) const
     {
         std::lock_guard<carb::tasking::RecursiveMutexWrapper> lock(mMutex);
         bool ret = false;
@@ -83,7 +83,7 @@ public:
         return ret;
     }
 
-    bool hasConvexDecomposition(const omni::physx::usdparser::MeshKey& crc) const
+    bool hasConvexDecomposition(const omni::ev4sio_physx::usdparser::MeshKey& crc) const
     {
         std::lock_guard<carb::tasking::RecursiveMutexWrapper> lock(mMutex);
         bool ret = false;
@@ -97,7 +97,7 @@ public:
         return ret;
     }
 
-    ::physx::PxConvexMesh* getConvexMesh(const omni::physx::usdparser::MeshKey& crc) const
+    ::ev4sio_physx::PxConvexMesh* getConvexMesh(const omni::ev4sio_physx::usdparser::MeshKey& crc) const
     {
         std::lock_guard<carb::tasking::RecursiveMutexWrapper> lock(mMutex);
         ConvexMeshMap::const_iterator it = mConvexMeshMap.find(crc);
@@ -106,11 +106,11 @@ public:
         return nullptr;
     }
 
-    ConvexMeshPolygon* getConvexMeshPolygons(::physx::PxConvexMesh* mesh);
+    ConvexMeshPolygon* getConvexMeshPolygons(::ev4sio_physx::PxConvexMesh* mesh);
 
-    void addConvexMesh(const omni::physx::usdparser::MeshKey& crc, ::physx::PxConvexMesh* mesh);
+    void addConvexMesh(const omni::ev4sio_physx::usdparser::MeshKey& crc, ::ev4sio_physx::PxConvexMesh* mesh);
 
-    ::physx::PxTriangleMesh* getTriangleMesh(const omni::physx::usdparser::MeshKey& crc) const
+    ::ev4sio_physx::PxTriangleMesh* getTriangleMesh(const omni::ev4sio_physx::usdparser::MeshKey& crc) const
     {
         std::lock_guard<carb::tasking::RecursiveMutexWrapper> lock(mMutex);
         TriangleMeshMap::const_iterator it = mTriangleMeshMap.find(crc);
@@ -119,8 +119,8 @@ public:
         return nullptr;
     }
 
-    void addTriangleMesh(const omni::physx::usdparser::MeshKey& crc,
-                         ::physx::PxTriangleMesh* mesh,
+    void addTriangleMesh(const omni::ev4sio_physx::usdparser::MeshKey& crc,
+                         ::ev4sio_physx::PxTriangleMesh* mesh,
                          gsl::span<const uint32_t>* inputTrianglesFaceMapping,
                          bool computeRemapTable)
     {
@@ -145,7 +145,7 @@ public:
     // A triangle mesh restored from a compiled bundle carries its face map in the
     // bundle. Its owner forgets the map before releasing the mesh: entries are
     // keyed by address.
-    void restoreTriangleMeshFaceMap(const ::physx::PxTriangleMesh* mesh, const uint32_t* faces, size_t count)
+    void restoreTriangleMeshFaceMap(const ::ev4sio_physx::PxTriangleMesh* mesh, const uint32_t* faces, size_t count)
     {
         std::unique_ptr<uint32_t[]> copy(new uint32_t[count]);
         memcpy(copy.get(), faces, sizeof(uint32_t) * count);
@@ -155,7 +155,7 @@ public:
         entry = copy.release();
     }
 
-    void forgetTriangleMeshFaceMap(const ::physx::PxTriangleMesh* mesh)
+    void forgetTriangleMeshFaceMap(const ::ev4sio_physx::PxTriangleMesh* mesh)
     {
         std::lock_guard<carb::tasking::RecursiveMutexWrapper> lock(mMutex);
         const TriMeshRemapTable::iterator found = mTriMeshRemapTable.find(mesh);
@@ -165,7 +165,7 @@ public:
         mTriMeshRemapTable.erase(found);
     }
 
-    const uint32_t* getTriangleMeshFaceMap(const ::physx::PxTriangleMesh* triMesh) const
+    const uint32_t* getTriangleMeshFaceMap(const ::ev4sio_physx::PxTriangleMesh* triMesh) const
     {
         std::lock_guard<carb::tasking::RecursiveMutexWrapper> lock(mMutex);
         TriMeshRemapTable::const_iterator fit = mTriMeshRemapTable.find(triMesh);
@@ -185,21 +185,21 @@ public:
         mRetainTriangleMeshCookedData.store(retain, std::memory_order_relaxed);
     }
 
-    std::shared_ptr<const std::vector<uint8_t>> getTriangleMeshCookedData(const ::physx::PxTriangleMesh* mesh) const
+    std::shared_ptr<const std::vector<uint8_t>> getTriangleMeshCookedData(const ::ev4sio_physx::PxTriangleMesh* mesh) const
     {
         std::lock_guard<carb::tasking::RecursiveMutexWrapper> lock(mMutex);
         const auto found = mTriMeshCookedData.find(mesh);
         return found == mTriMeshCookedData.end() ? nullptr : found->second;
     }
 
-    ConvexMeshVector getConvexDecomposition(const omni::physx::usdparser::MeshKey& crc) const
+    ConvexMeshVector getConvexDecomposition(const omni::ev4sio_physx::usdparser::MeshKey& crc) const
     {
         std::lock_guard<carb::tasking::RecursiveMutexWrapper> lock(mMutex);
         const auto found = mConvexDecompositionMap.find(crc);
         return found == mConvexDecompositionMap.end() ? ConvexMeshVector{} : found->second;
     }
 
-    bool getConvexMeshData(::physx::PxConvexMesh* mesh, ConvexMeshData& data) const
+    bool getConvexMeshData(::ev4sio_physx::PxConvexMesh* mesh, ConvexMeshData& data) const
     {
         std::lock_guard<carb::tasking::RecursiveMutexWrapper> lock(mMutex);
         const auto found = mConvexMeshDataMap.find(mesh);
@@ -209,21 +209,21 @@ public:
         return true;
     }
 
-    void addConvexDecomposition(const omni::physx::usdparser::MeshKey& crc, const ConvexMeshVector& meshes);
+    void addConvexDecomposition(const omni::ev4sio_physx::usdparser::MeshKey& crc, const ConvexMeshVector& meshes);
 
     void release();
 
-    const omni::physx::usdparser::SpherePointsPhysxShapeDesc* addSphereFill(
-        const omni::physx::usdparser::MeshKey& crc, const omni::physx::usdparser::SpherePointsPhysxShapeDesc& desc)
+    const omni::ev4sio_physx::usdparser::SpherePointsPhysxShapeDesc* addSphereFill(
+        const omni::ev4sio_physx::usdparser::MeshKey& crc, const omni::ev4sio_physx::usdparser::SpherePointsPhysxShapeDesc& desc)
     {
         std::lock_guard<carb::tasking::RecursiveMutexWrapper> lock(mMutex);
-        omni::physx::usdparser::SpherePointsPhysxShapeDesc* d = new omni::physx::usdparser::SpherePointsPhysxShapeDesc;
+        omni::ev4sio_physx::usdparser::SpherePointsPhysxShapeDesc* d = new omni::ev4sio_physx::usdparser::SpherePointsPhysxShapeDesc;
         *d = desc;
         mSphereFillMap[crc] = d;
         return d;
     }
 
-    const omni::physx::usdparser::SpherePointsPhysxShapeDesc* getSphereFill(const omni::physx::usdparser::MeshKey& crc) const
+    const omni::ev4sio_physx::usdparser::SpherePointsPhysxShapeDesc* getSphereFill(const omni::ev4sio_physx::usdparser::MeshKey& crc) const
     {
         std::lock_guard<carb::tasking::RecursiveMutexWrapper> lock(mMutex);
         SphereFillMap::const_iterator it = mSphereFillMap.find(crc);
@@ -232,31 +232,31 @@ public:
         return nullptr;
     }
 
-    bool createRuntimeTriangleMesh(::physx::PxPhysics& physics,
+    bool createRuntimeTriangleMesh(::ev4sio_physx::PxPhysics& physics,
                                    usdparser::MeshKey meshCRC,
                                    bool useOriginalTriangles,
-                                   omni::physx::PhysxCookedDataSpan inputCookedData,
+                                   omni::ev4sio_physx::PhysxCookedDataSpan inputCookedData,
                                    gsl::span<const uint32_t> inputTrianglesFaceMapping,
-                                   ::physx::PxTriangleMesh** returnedMesh = nullptr);
+                                   ::ev4sio_physx::PxTriangleMesh** returnedMesh = nullptr);
 
-    bool createRuntimeSphereFill(::physx::PxPhysics& physics,
+    bool createRuntimeSphereFill(::ev4sio_physx::PxPhysics& physics,
                                  usdparser::MeshKey crc,
-                                 omni::physx::PhysxCookedDataSpan inputCookedData,
-                                 const omni::physx::usdparser::SpherePointsPhysxShapeDesc** returnedMesh);
+                                 omni::ev4sio_physx::PhysxCookedDataSpan inputCookedData,
+                                 const omni::ev4sio_physx::usdparser::SpherePointsPhysxShapeDesc** returnedMesh);
 
-    bool createRuntimeConvexMesh(::physx::PxPhysics& physics,
+    bool createRuntimeConvexMesh(::ev4sio_physx::PxPhysics& physics,
                                  usdparser::MeshKey crc,
-                                 omni::physx::PhysxCookedDataSpan inputCookedData,
-                                 ::physx::PxConvexMesh** returnedMesh);
+                                 omni::ev4sio_physx::PhysxCookedDataSpan inputCookedData,
+                                 ::ev4sio_physx::PxConvexMesh** returnedMesh);
 
-    bool createRuntimeConvexDecomposition(::physx::PxPhysics& physics,
+    bool createRuntimeConvexDecomposition(::ev4sio_physx::PxPhysics& physics,
                                           usdparser::MeshKey crc,
-                                          const omni::physx::PhysxCookedDataSpan* inputCookedData,
+                                          const omni::ev4sio_physx::PhysxCookedDataSpan* inputCookedData,
                                           uint64_t inputCookedDataNumber,
-                                          std::vector<::physx::PxConvexMesh*>* returnedMeshes);
+                                          std::vector<::ev4sio_physx::PxConvexMesh*>* returnedMeshes);
 
-    omni::physx::CollisionRepresentation* getCollisionRepresentation(usdparser::MeshKey crc,
-                                                                     const omni::physx::usdparser::PhysxShapeDesc& desc);
+    omni::ev4sio_physx::CollisionRepresentation* getCollisionRepresentation(usdparser::MeshKey crc,
+                                                                     const omni::ev4sio_physx::usdparser::PhysxShapeDesc& desc);
 
 private:
     mutable carb::tasking::RecursiveMutexWrapper mMutex;
@@ -265,12 +265,12 @@ private:
     ConvexDecompositionMap mConvexDecompositionMap;
     ConvexMeshDataMap mConvexMeshDataMap;
     TriMeshRemapTable mTriMeshRemapTable;
-    std::unordered_map<const ::physx::PxTriangleMesh*, std::shared_ptr<const std::vector<uint8_t>>> mTriMeshCookedData;
+    std::unordered_map<const ::ev4sio_physx::PxTriangleMesh*, std::shared_ptr<const std::vector<uint8_t>>> mTriMeshCookedData;
     std::atomic<bool> mRetainTriangleMeshCookedData{ false };
     SphereFillMap mSphereFillMap;
 };
 
 MeshCache* getMeshCache();
 void releaseMeshCache();
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

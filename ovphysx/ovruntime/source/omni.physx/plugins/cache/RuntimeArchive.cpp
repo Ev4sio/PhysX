@@ -16,7 +16,7 @@
 #include <unordered_set>
 #include <unordered_map>
 
-namespace omni::physx::cache
+namespace omni::ev4sio_physx::cache
 {
 namespace
 {
@@ -1112,4 +1112,4 @@ bool decodeRuntimeArchive(const uint8_t* bytes, size_t size, RuntimeArchive& out
     output = std::move(candidate);
     return true;
 }
-} // namespace omni::physx::cache
+} // namespace omni::ev4sio_physx::cache

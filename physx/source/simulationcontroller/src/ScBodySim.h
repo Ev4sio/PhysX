@@ -17,16 +17,16 @@
 #include "PxRigidDynamic.h"
 #include "PxsRigidBody.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
-namespace Bp
+namespace ev4sio_Bp
 {
 	class BoundsArray;
 }
 	struct PxsExternalAccelerationProvider;
 	class PxsTransformCache;
-namespace Sc
+namespace ev4sio_Sc
 {
 	class Scene;
 	class ArticulationSim;
@@ -63,10 +63,10 @@ namespace Sc
 						void					addSpatialVelocity(const PxVec3* linVelDelta, const PxVec3* angVelDelta);
 						void					clearSpatialVelocity(bool force, bool torque);
 
-						void					updateCached(const UpdateCachedParams& params, Cm::PinnableBitMap* shapeChangedMap, bool fromTask, bool useAtomics);
-						void					updateCached_NotThreadSafe(const UpdateCachedParams& params, Cm::PinnableBitMap* shapeChangedMap, bool fromTask, bool useAtomics);
+						void					updateCached(const UpdateCachedParams& params, ev4sio_Cm::PinnableBitMap* shapeChangedMap, bool fromTask, bool useAtomics);
+						void					updateCached_NotThreadSafe(const UpdateCachedParams& params, ev4sio_Cm::PinnableBitMap* shapeChangedMap, bool fromTask, bool useAtomics);
 						void					updateCached_ThreadSafe(const UpdateCachedParams& params);
-						bool					updateCachedIfChanged(const UpdateCachedParams& params, Cm::PinnableBitMap* shapeChangedMap);	// see ShapeSimBase::updateCachedIfChanged()
+						bool					updateCachedIfChanged(const UpdateCachedParams& params, ev4sio_Cm::PinnableBitMap* shapeChangedMap);	// see ShapeSimBase::updateCachedIfChanged()
 
 		// Software prefetch for the deactivation loops in Scene. Each function is issued fewer bodies ahead than the
 		// previous one, in this order, since it dereferences what the previous one fetched. Loops that don't read the
@@ -77,7 +77,7 @@ namespace Sc
 		PX_FORCE_INLINE	void					prefetchInteractions()			const;
 		PX_FORCE_INLINE	void					prefetchShapes()				const;
 						void					prefetchShapesForUpdateCached(const UpdateCachedParams& params, bool bounds)	const;	// what updateCached() reads and writes per shape, the bounds entry optionally
-						void					updateContactDistance(PxReal* contactDistance, PxReal dt, const Bp::BoundsArray& boundsArray);
+						void					updateContactDistance(PxReal* contactDistance, PxReal dt, const ev4sio_Bp::BoundsArray& boundsArray);
 
 		// hooks for actions in body core when it's attached to a sim object. Generally
 		// we get called after the attribute changed.
@@ -117,7 +117,7 @@ namespace Sc
 		virtual			void					internalWakeUp(PxReal wakeCounterValue)	PX_OVERRIDE;		// PT: TODO: does it need to be virtual?
 						void					internalWakeUpArticulationLink(PxReal wakeCounterValue);	// called by ArticulationSim to wake up this link
 
-						PxReal					updateWakeCounter(PxReal dt, PxReal energyThreshold, const Cm::SpatialVector& motionVelocity);
+						PxReal					updateWakeCounter(PxReal dt, PxReal energyThreshold, const ev4sio_Cm::SpatialVector& motionVelocity);
 
 						void					notifyReadyForSleeping();			// inform the sleep island generation system that the body is ready for sleeping
 						void					notifyNotReadyForSleeping();		// inform the sleep island generation system that the body is not ready for sleeping
@@ -132,7 +132,7 @@ namespace Sc
 		PX_FORCE_INLINE PxIntBool				isFrozen()					const	{ return PxIntBool(mLLBody.mInternalFlags & PxsRigidBody::eFROZEN);									}
 
 		// External velocity changes - returns true if any forces were applied to this body
-						bool					updateForces(PxReal dt, PxsRigidBody** updatedBodySims, PxU32* updatedBodyNodeIndices, PxU32& index, Cm::SpatialVector* acceleration, 
+						bool					updateForces(PxReal dt, PxsRigidBody** updatedBodySims, PxU32* updatedBodyNodeIndices, PxU32& index, ev4sio_Cm::SpatialVector* acceleration,
 													PxsExternalAccelerationProvider* externalAccelerations = NULL, PxU32 maxNumExternalAccelerations = 0);
 
 		// PT: TODO: PxIntBool
@@ -183,7 +183,7 @@ namespace Sc
 						PxU32					deactivateThreadSafe(PxU32& activeListIndex);
 						void					finishDeactivation(PxU32 work);
 
-						void					freezeTransforms(const UpdateCachedParams& params, Cm::PinnableBitMap* shapeChangedMap);
+						void					freezeTransforms(const UpdateCachedParams& params, ev4sio_Cm::PinnableBitMap* shapeChangedMap);
 						void					freezeTransforms(PxsTransformCache& transformCache);
 
 						void					addToSpeculativeCCDMap();
@@ -227,9 +227,9 @@ namespace Sc
      #pragma warning(pop) 
 #endif
 
-} // namespace Sc
+} // namespace ev4sio_Sc
 
-PX_FORCE_INLINE void Sc::BodySim::prefetchSelf() const
+PX_FORCE_INLINE void ev4sio_Sc::BodySim::prefetchSelf() const
 {
 	PxPrefetchLine(&mShapes);
 	PxPrefetchLine(&mActiveListIndex);
@@ -237,7 +237,7 @@ PX_FORCE_INLINE void Sc::BodySim::prefetchSelf() const
 	PxPrefetchLine(&mArticulation);
 }
 
-PX_FORCE_INLINE void Sc::BodySim::prefetchCoreAndShapeArray() const
+PX_FORCE_INLINE void ev4sio_Sc::BodySim::prefetchCoreAndShapeArray() const
 {
 	const PxsBodyCore& core = *mLLBody.mCore;
 	PxPrefetchLine(&core.body2World);
@@ -249,7 +249,7 @@ PX_FORCE_INLINE void Sc::BodySim::prefetchCoreAndShapeArray() const
 		PxPrefetchLine(getElements());
 }
 
-PX_FORCE_INLINE void Sc::BodySim::prefetchCoreAndArrays() const
+PX_FORCE_INLINE void ev4sio_Sc::BodySim::prefetchCoreAndArrays() const
 {
 	prefetchCoreAndShapeArray();
 
@@ -265,7 +265,7 @@ PX_FORCE_INLINE void Sc::BodySim::prefetchCoreAndArrays() const
 	}
 }
 
-PX_FORCE_INLINE void Sc::BodySim::prefetchInteractions() const
+PX_FORCE_INLINE void ev4sio_Sc::BodySim::prefetchInteractions() const
 {
 	const PxU32 nbInteractions = getActorInteractionCount();
 	Interaction*const* interactions = getActorInteractions();
@@ -273,7 +273,7 @@ PX_FORCE_INLINE void Sc::BodySim::prefetchInteractions() const
 		PxPrefetchLine(interactions[i]);
 }
 
-PX_FORCE_INLINE void Sc::BodySim::prefetchShapes() const
+PX_FORCE_INLINE void ev4sio_Sc::BodySim::prefetchShapes() const
 {
 	const PxU32 nbShapes = getNbElements();
 	ElementSim*const* shapes = getElements();
@@ -281,7 +281,7 @@ PX_FORCE_INLINE void Sc::BodySim::prefetchShapes() const
 		PxPrefetchLine(shapes[i]);
 }
 
-PX_FORCE_INLINE void Sc::BodySim::setForcesToDefaults(bool enableGravity)
+PX_FORCE_INLINE void ev4sio_Sc::BodySim::setForcesToDefaults(bool enableGravity)
 {
 	if (!(mLLBody.mCore->mFlags & PxRigidBodyFlag::eRETAIN_ACCELERATIONS))
 	{

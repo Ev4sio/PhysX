@@ -8,9 +8,9 @@
 
 #include "common/PxPhysXCommonConfig.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Gu
+namespace ev4sio_Gu
 {
 	//! Contains AABB-tree build statistics
 	struct PX_PHYSX_COMMON_API BuildStats
@@ -29,7 +29,7 @@ namespace Gu
 		PX_FORCE_INLINE	PxU32	getCount()		const	{ return mCount;			}
 	};
 
-} // namespace Gu
+} // namespace ev4sio_Gu
 }
 
 #endif // GU_AABBTREE_BUILD_STATS_H

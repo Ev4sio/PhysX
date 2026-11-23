@@ -16,7 +16,7 @@
 
 #include "vehicle/tire/PxVehicleTireStates.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 PX_FORCE_INLINE void transformInertiaTensor(const PxVec3& invD, const PxMat33& M, PxMat33& mIInv)
@@ -121,4 +121,4 @@ void PxVehicleRigidBodyUpdate
 	rigidBodyState.externalTorque = PxVec3(PxZero);
 }
 
-} //namespace physx
+} //namespace ev4sio_physx

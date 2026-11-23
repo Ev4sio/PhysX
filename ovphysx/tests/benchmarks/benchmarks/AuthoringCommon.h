@@ -388,7 +388,7 @@ inline bool waitPopulation(ovstage_instance_t* stage, ovstage_population_op_id_t
 }
 
 
-inline bool recordOvphysxWaitErrors(const ovphysx::physx::WaitResult& wait, const char* row, const char* what)
+inline bool recordOvphysxWaitErrors(const ovphysx::ev4sio_physx::WaitResult& wait, const char* row, const char* what)
 {
     bool operationFailed = false;
     for (size_t i = 0; i < wait.errorCount(); ++i)
@@ -424,7 +424,7 @@ inline bool waitOvphysxTaskChecked(ovphysx_instance_handle_t handle, ovphysx_enq
                         static_cast<int>(error.length), error.ptr ? error.ptr : "");
         return false;
     }
-    ovphysx::physx::WaitResult wait;
+    ovphysx::ev4sio_physx::WaitResult wait;
     ovphysx_result_t result{all ? wait.waitAll(handle, kWaitTimeoutNs) :
         wait.waitTask(handle, task, kWaitTimeoutNs)};
 
@@ -440,7 +440,7 @@ inline bool waitOvphysxTaskChecked(ovphysx_instance_handle_t handle, ovphysx_enq
                         static_cast<unsigned long long>(wait.pendingTask().op_index));
         // A timed-out index is not consumed, so this re-wait is legal and is
         // the only way to reach a state where teardown is safe.
-        ovphysx::physx::WaitResult finalWait;
+        ovphysx::ev4sio_physx::WaitResult finalWait;
         result.status = all ? finalWait.waitAll(handle) : finalWait.waitTask(handle, task);
         operationFailed = recordOvphysxWaitErrors(finalWait, row, what) || operationFailed;
     }

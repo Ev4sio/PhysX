@@ -20,12 +20,12 @@
 #include "DyCorrelationBuffer.h"
 #include "foundation/PxAllocator.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 struct PxsIndexedContactManager;
 class PxsRigidBody;
 
-namespace Dy
+namespace ev4sio_Dy
 {
 
 /*!
@@ -101,7 +101,7 @@ public:
 	PxsBodyCore**								mBodyCoreArray;
 	PxsRigidBody**								mRigidBodyArray;
 	FeatherstoneArticulation**					mArticulationArray;
-	Cm::SpatialVector*							motionVelocityArray;
+	ev4sio_Cm::SpatialVector*							motionVelocityArray;
 	PxU32*										bodyRemapTable;
 	PxU32*										mNodeIndexArray;
 
@@ -127,8 +127,8 @@ public:
 	PxArray<PxU32>								sortIndexArray;
 #endif
 
-	PxArray<Cm::SpatialVectorF>					mZVector; // scratch space, used for propagation during constraint prepping
-	PxArray<Cm::SpatialVectorF>					mDeltaV; // scratch space, used temporarily for propagating velocities
+	PxArray<ev4sio_Cm::SpatialVectorF>					mZVector; // scratch space, used for propagation during constraint prepping
+	PxArray<ev4sio_Cm::SpatialVectorF>					mDeltaV; // scratch space, used temporarily for propagating velocities
 
 	PxU32										mOrderedContactDescCount;
 	PxU32										mOrderedFrictionDescCount;

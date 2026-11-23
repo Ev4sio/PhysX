@@ -7,8 +7,8 @@
 #include "GuTetrahedronMesh.h"
 #include "GuBox.h"
 
-using namespace physx;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
 
 void TetrahedronMesh::onRefCountZero()
 {
@@ -213,9 +213,9 @@ DeformableVolumeMesh::~DeformableVolumeMesh()
 		// Every shape built on the collision mesh holds a reference of its own, and an attached
 		// PxDeformableVolume holds one on the simulation mesh and the aux data, so give up this
 		// object's reference instead of deleting: the last holder destroys them.
-		Cm::RefCountable_decRefCount(*mCollisionMesh);
-		Cm::RefCountable_decRefCount(*mSimulationMesh);
-		Cm::RefCountable_decRefCount(*mDeformableVolumeAuxData);
+		ev4sio_Cm::RefCountable_decRefCount(*mCollisionMesh);
+		ev4sio_Cm::RefCountable_decRefCount(*mSimulationMesh);
+		ev4sio_Cm::RefCountable_decRefCount(*mDeformableVolumeAuxData);
 	}
 }
 
@@ -284,19 +284,19 @@ void DeformableVolumeMesh::importExtraData(PxDeserializationContext& context)
 
 void DeformableVolumeMesh::release()
 {
-	Cm::RefCountable_decRefCount(*this);
+	ev4sio_Cm::RefCountable_decRefCount(*this);
 }
 
 //PxVec3* TetrahedronMesh::getVerticesForModification()
 //{
-//	PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxDeformableVolumeMesh::getVerticesForModification() is not currently supported.");
+//	ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxDeformableVolumeMesh::getVerticesForModification() is not currently supported.");
 //
 //	return NULL;
 //}
 
 //PxBounds3 BVTetrahedronMesh::refitBVH()
 //{
-//	PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxDeformableVolumeMesh::refitBVH() is not currently supported.");
+//	ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxDeformableVolumeMesh::refitBVH() is not currently supported.");
 //
 //	return PxBounds3(mAABB.getMin(), mAABB.getMax());
 //}

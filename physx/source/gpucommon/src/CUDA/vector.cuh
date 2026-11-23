@@ -12,7 +12,7 @@
 #include "reduction.cuh"
 #include "MemoryAllocator.cuh"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 static __device__ PxReal rotateR(
@@ -985,6 +985,6 @@ static __device__ float expQuatR(
 	return out;
 }
 
-} // namespace physx
+} // namespace ev4sio_physx
 
 #endif

@@ -30,7 +30,7 @@
 
 #define PxSpinLockPause() asm("nop")
 
-namespace physx
+namespace ev4sio_physx
 {
 
 namespace
@@ -152,7 +152,7 @@ void PxThreadImpl::start(uint32_t stackSize, PxRunnable* runnable)
 #if defined(PTHREAD_STACK_MIN)
 	if(stackSize < PTHREAD_STACK_MIN)
 	{
-		PxGetFoundation().error(PxErrorCode::eDEBUG_WARNING, __FILE__, __LINE__,
+		ev4sio_PxGetFoundation().error(PxErrorCode::eDEBUG_WARNING, __FILE__, __LINE__,
 		                              "PxThreadImpl::start(): stack size was set below PTHREAD_STACK_MIN");
 		stackSize = PTHREAD_STACK_MIN;
 	}
@@ -440,4 +440,4 @@ PxU32 PxThreadImpl::getDefaultStackSize()
 	return 1 << 21;
 }
 
-} // namespace physx
+} // namespace ev4sio_physx

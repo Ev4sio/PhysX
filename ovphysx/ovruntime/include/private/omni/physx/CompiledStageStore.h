@@ -19,7 +19,7 @@
 #include <set>
 #include <vector>
 
-namespace omni::physx::cache
+namespace omni::ev4sio_physx::cache
 {
 // Local IDataStore adapter, using the same storage family as Ujitso cooking.
 // The creator owns both services for this adapter's lifetime. It chooses an
@@ -516,4 +516,4 @@ private:
     size_t mMaxBytes;
     ArtifactKind mKind;
 };
-} // namespace omni::physx::cache
+} // namespace omni::ev4sio_physx::cache

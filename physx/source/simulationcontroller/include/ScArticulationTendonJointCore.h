@@ -10,9 +10,9 @@
 #include "foundation/PxVec3.h"
 #include "solver/PxSolverDefs.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-	namespace Sc
+	namespace ev4sio_Sc
 	{
 		class ArticulationFixedTendonSim;
 
@@ -52,9 +52,9 @@ namespace physx
 			PxU32								mLLLinkIndex;
 			ArticulationTendonJointCore*		mParent;
 			PxU32								mLLTendonJointIndex;
-			Sc::ArticulationFixedTendonSim*		mTendonSim;
+			ev4sio_Sc::ArticulationFixedTendonSim*		mTendonSim;
 		};
-	}//namespace Sc
-}//namespace physx
+	}//namespace ev4sio_Sc
+}//namespace ev4sio_physx
 
 #endif

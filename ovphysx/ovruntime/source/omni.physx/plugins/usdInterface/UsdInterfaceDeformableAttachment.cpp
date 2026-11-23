@@ -40,10 +40,10 @@
 
 #include <common/utilities/MemoryMacros.h>
 
-using namespace omni::physx::usdparser;
-using namespace ::physx;
-using namespace omni::physx::internal;
-using namespace omni::physx;
+using namespace omni::ev4sio_physx::usdparser;
+using namespace ::ev4sio_physx;
+using namespace omni::ev4sio_physx::internal;
+using namespace omni::ev4sio_physx;
 
 
 // createDeformableAttachment/createDeformableCollisionFilter below are ObjectKey-native and
@@ -52,7 +52,7 @@ using namespace omni::physx;
 // (AttachedStage.h), so there is no remaining pxr dependency in this file.
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 
 namespace
@@ -84,7 +84,7 @@ struct ResultBuffer
 
 void copyLocalPositionsToPhysx(InternalDeformableAttachment::AttachmentData& attachmentData,
                                const std::vector<carb::Float3>& localPositions,
-                               ::physx::PxVec3 scale)
+                               ::ev4sio_physx::PxVec3 scale)
 {
     copyBuffer(attachmentData.coords, localPositions.data(), (unsigned int)localPositions.size(), scale);
     attachmentData.targetType = (attachmentData.actor != nullptr) ?
@@ -102,7 +102,7 @@ void convertVtxToPhysx(const usdparser::AttachedStage& attachedStage, InternalDe
 {
     if (attachmentData.physxType == ePTDeformableSurface)
     {
-        InternalSurfaceDeformableBody* internalPtr = omni::physx::getInternalPtr<InternalSurfaceDeformableBody>(attachedStage.getInternalPhysXDatabase(), ePTDeformableSurface, attachmentData.objId);
+        InternalSurfaceDeformableBody* internalPtr = omni::ev4sio_physx::getInternalPtr<InternalSurfaceDeformableBody>(attachedStage.getInternalPhysXDatabase(), ePTDeformableSurface, attachmentData.objId);
 
         std::vector<PxU32> vtxIds;
         std::vector<PxU32> triIds;
@@ -118,7 +118,7 @@ void convertVtxToPhysx(const usdparser::AttachedStage& attachedStage, InternalDe
     }
     else if (attachmentData.physxType == ePTDeformableVolume)
     {
-        InternalVolumeDeformableBody* internalPtr = omni::physx::getInternalPtr<InternalVolumeDeformableBody>(attachedStage.getInternalPhysXDatabase(), ePTDeformableVolume, attachmentData.objId);
+        InternalVolumeDeformableBody* internalPtr = omni::ev4sio_physx::getInternalPtr<InternalVolumeDeformableBody>(attachedStage.getInternalPhysXDatabase(), ePTDeformableVolume, attachmentData.objId);
 
         std::vector<PxU32> vtxIds;
         std::vector<PxU32> tetIds;
@@ -498,7 +498,7 @@ namespace
         }
         else if (filterData.physxType == ePTDeformableVolume)
         {
-            InternalVolumeDeformableBody* volume = omni::physx::getInternalPtr<InternalVolumeDeformableBody>(attachedStage.getInternalPhysXDatabase(), ePTDeformableVolume, (ObjectId)filterData.actor->userData);
+            InternalVolumeDeformableBody* volume = omni::ev4sio_physx::getInternalPtr<InternalVolumeDeformableBody>(attachedStage.getInternalPhysXDatabase(), ePTDeformableVolume, (ObjectId)filterData.actor->userData);
             if (volume && numDeformableElems == (uint32_t)volume->mCollMeshSurfaceTriToTetMap.size())
             {
                 const PxTetrahedronMesh& tetMesh = *volume->mDeformableVolumeMesh->getCollisionMesh();
@@ -803,5 +803,5 @@ void PhysXUsdPhysicsInterface::processDeformableCollisionFilterShapeEvents(const
     }
 }
 
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

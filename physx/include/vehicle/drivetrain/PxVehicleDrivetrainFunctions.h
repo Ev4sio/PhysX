@@ -10,7 +10,7 @@
 #include "vehicle/PxVehicleParams.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -283,7 +283,7 @@ void PxVehicleEngineDrivetrainUpdate
  PxVehicleEngineState& engineState, PxVehicleClutchSlipState& clutchState);
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

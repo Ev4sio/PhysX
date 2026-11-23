@@ -11,15 +11,15 @@
 #include "foundation/PxBounds3.h"
 #include "GuBV4Settings.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Gu
+namespace ev4sio_Gu
 {
 	class BV4Tree;
 	class SourceMeshBase;
 
 	// PT: TODO: refactor with SQ version (TA34704)
-	class AABBTreeNode : public physx::PxUserAllocated
+	class AABBTreeNode : public ev4sio_physx::PxUserAllocated
 	{
 		public:
 		PX_FORCE_INLINE						AABBTreeNode() : mPos(0), mNodePrimitives(NULL), mNbPrimitives(0)
@@ -67,7 +67,7 @@ namespace Gu
 	};
 
 	// PT: TODO: refactor with SQ version (TA34704)
-	class BV4_AABBTree : public physx::PxUserAllocated
+	class BV4_AABBTree : public ev4sio_physx::PxUserAllocated
 	{
 		public:
 											BV4_AABBTree();
@@ -94,7 +94,7 @@ namespace Gu
 
 	bool buildBV4Ex(BV4Tree& tree, SourceMeshBase& mesh, float epsilon, PxU32 nbPrimitivePerLeaf, bool quantized, BV4_BuildStrategy strategy=BV4_SPLATTER_POINTS);
 
-} // namespace Gu
+} // namespace ev4sio_Gu
 }
 
 #endif // GU_BV4_BUILD_H

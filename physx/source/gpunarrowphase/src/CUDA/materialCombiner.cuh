@@ -8,7 +8,7 @@
 
 #include "PxsMaterialCombiner.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 __device__ static __forceinline__
@@ -28,6 +28,6 @@ void combineMaterials(const PxsMaterialData* PX_RESTRICT materials, PxU16 index0
 		combinedRestitution, combinedFlags, combinedDamping);
 }
 
-} // namespace physx
+} // namespace ev4sio_physx
 
 #endif

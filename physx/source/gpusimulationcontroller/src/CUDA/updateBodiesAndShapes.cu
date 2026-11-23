@@ -32,7 +32,7 @@
 #include "PxgConstraintIdMap.h"
 #include "PxgSimulationCore.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 extern "C" __host__ void initSimulationControllerKernels0() {}
 
@@ -248,14 +248,14 @@ extern "C" __global__ void newArticulationsLaunch(const PxgUpdateArticulationDes
 	PxgArticulationLink* gNewLinks = scDesc->mNewLinks;
 	PxgArticulationLinkProp* gNewLinkProps = scDesc->mNewLinkProps;
 	PxReal*	gNewLinkWakeCounters = scDesc->mNewLinkWakeCounters;
-	Cm::UnAlignedSpatialVector* gNewLinkAccels = scDesc->mNewLinkExtAccels;
+	ev4sio_Cm::UnAlignedSpatialVector* gNewLinkAccels = scDesc->mNewLinkExtAccels;
 	PxU32* gNewLinkParents = scDesc->mNewLinkParents;
 	ArticulationBitField* gNewLinkChildren = scDesc->mNewLinkChildren;
 	PxTransform* gNewLinkBody2Worlds = scDesc->mNewLinkBody2Worlds;
 	PxTransform* gNewLinkBody2Actors = scDesc->mNewLinkBody2Actors;
 
-	Dy::ArticulationJointCore* gNewJointCore = scDesc->mNewJointCores;
-	Dy::ArticulationJointCoreData* gNewJointData = scDesc->mNewJointData;
+	ev4sio_Dy::ArticulationJointCore* gNewJointCore = scDesc->mNewJointCores;
+	ev4sio_Dy::ArticulationJointCoreData* gNewJointData = scDesc->mNewJointData;
 
 	//const PxU32 warpIndex = threadIdx.y;
 
@@ -372,14 +372,14 @@ extern "C" __global__ void newArticulationsLaunch(const PxgUpdateArticulationDes
 		uint4* dJoints = reinterpret_cast<uint4*>(msArticulation.joints);
 
 		//each ArticulationJointCore is less than 272 bytes, each thread read 16 bytes
-		warpCopy<uint4>(dJoints, sJoints, sizeof(Dy::ArticulationJointCore) * nbLinks);
+		warpCopy<uint4>(dJoints, sJoints, sizeof(ev4sio_Dy::ArticulationJointCore) * nbLinks);
 
 		//read joint data, each thread read 4 bytes
 		uint* sJointData = reinterpret_cast<uint*>(&gNewJointData[startIndex]);
 		uint* dJointData = reinterpret_cast<uint*>(msArticulation.jointData);
 
 		//each ArticulationJointCoreData is 20 bytes, each thread read 4 bytes
-		warpCopy<uint>(dJointData, sJointData, sizeof(Dy::ArticulationJointCoreData) * nbLinks);
+		warpCopy<uint>(dJointData, sJointData, sizeof(ev4sio_Dy::ArticulationJointCoreData) * nbLinks);
 
 		//copy spatial tendon
 		{
@@ -471,7 +471,7 @@ extern "C" __global__ void newArticulationsLaunch(const PxgUpdateArticulationDes
 		}
 
 		warpCopy<uint4>(reinterpret_cast<uint4*>(msArticulation.mimicJointCores), reinterpret_cast<uint4*>(&scDesc->mNewArticulationMimicJointPool[update.mimicJointStartIndex]),
-			sizeof(Dy::ArticulationMimicJointCore) * msArtiData.numMimicJoints);
+			sizeof(ev4sio_Dy::ArticulationMimicJointCore) * msArtiData.numMimicJoints);
 
 		warpCopy<uint>(reinterpret_cast<uint*>(msArticulation.pathToRoot), reinterpret_cast<uint*>(&scDesc->mNewPathToRootPool[update.pathToRootIndex]),
 			sizeof(uint) * msArtiData.numPathToRoots);
@@ -482,7 +482,7 @@ extern "C" __global__ void newArticulationsLaunch(const PxgUpdateArticulationDes
 		uint2* c2 = reinterpret_cast<uint2*>(msArticulation.coriolisVectors);
 		uint2 zero2 = make_uint2(0, 0);
 
-		PxU32 totalSize = (sizeof(Cm::UnAlignedSpatialVector) * nbLinks);
+		PxU32 totalSize = (sizeof(ev4sio_Cm::UnAlignedSpatialVector) * nbLinks);
 
 		warpCopy<uint>(c0, 0u, totalSize);
 		warpCopy<uint>(c1, 0u, totalSize);
@@ -520,7 +520,7 @@ extern "C" __global__ void newArticulationsLaunch(const PxgUpdateArticulationDes
 		//Now we need to see if there was any dof data that required updating!!!
 		PxU32 offset = dofStartIndex;
 
-		if (dirtyFlags & Dy::ArticulationDirtyFlag::eDIRTY_POSITIONS)
+		if (dirtyFlags & ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_POSITIONS)
 		{
 			warpCopy<PxReal>(msArticulation.jointPositions, dofData + offset, sizeof(PxReal)*numDofs);
 			offset += numDofs;
@@ -528,7 +528,7 @@ extern "C" __global__ void newArticulationsLaunch(const PxgUpdateArticulationDes
 		else
 			warpCopy<float>(jp, zero, totalSize);
 
-		if (dirtyFlags & Dy::ArticulationDirtyFlag::eDIRTY_VELOCITIES)
+		if (dirtyFlags & ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_VELOCITIES)
 		{
 			warpCopy<PxReal>(msArticulation.jointVelocities, dofData + offset, sizeof(PxReal)*numDofs);
 			offset += numDofs;
@@ -536,7 +536,7 @@ extern "C" __global__ void newArticulationsLaunch(const PxgUpdateArticulationDes
 		else
 			warpCopy<float>(jv, zero, totalSize);
 
-		if (dirtyFlags & Dy::ArticulationDirtyFlag::eDIRTY_FORCES)
+		if (dirtyFlags & ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_FORCES)
 		{
 			warpCopy<PxReal>(msArticulation.jointForce, dofData + offset, sizeof(PxReal)*numDofs);
 			offset += numDofs;
@@ -544,7 +544,7 @@ extern "C" __global__ void newArticulationsLaunch(const PxgUpdateArticulationDes
 		else
 			warpCopy<float>(jf, zero, totalSize);
 		
-		if(dirtyFlags & Dy::ArticulationDirtyFlag::eDIRTY_JOINT_TARGET_POS)
+		if(dirtyFlags & ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_JOINT_TARGET_POS)
 		{
 			warpCopy<PxReal>(msArticulation.jointTargetPositions, dofData + offset, sizeof(PxReal) * numDofs);
 			offset += numDofs;
@@ -552,7 +552,7 @@ extern "C" __global__ void newArticulationsLaunch(const PxgUpdateArticulationDes
 		else
 			warpCopy<float>(jtp, zero, totalSize);
 
-		if(dirtyFlags & Dy::ArticulationDirtyFlag::eDIRTY_JOINT_TARGET_VEL)
+		if(dirtyFlags & ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_JOINT_TARGET_VEL)
 		{
 			warpCopy<PxReal>(msArticulation.jointTargetVelocities, dofData + offset, sizeof(PxReal) * numDofs);
 			offset += numDofs;
@@ -560,14 +560,14 @@ extern "C" __global__ void newArticulationsLaunch(const PxgUpdateArticulationDes
 		else
 			warpCopy<float>(jtv, zero, totalSize);
 
-		if (dirtyFlags & Dy::ArticulationDirtyFlag::eDIRTY_EXT_ACCEL)
+		if (dirtyFlags & ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_EXT_ACCEL)
 		{
 			warpCopy<uint2>(reinterpret_cast<uint2*>(msArticulation.externalAccelerations), reinterpret_cast<uint2*>(&gNewLinkAccels[startIndex]),
-				sizeof(Cm::UnAlignedSpatialVector)*nbLinks);	
+				sizeof(ev4sio_Cm::UnAlignedSpatialVector)*nbLinks);
 		}
 		else
 			warpCopy<uint2>(reinterpret_cast<uint2*>(msArticulation.externalAccelerations), make_uint2(0,0),
-				sizeof(Cm::UnAlignedSpatialVector)*nbLinks);
+				sizeof(ev4sio_Cm::UnAlignedSpatialVector)*nbLinks);
 
 		// AD: I wonder whether we should raise all the flags here to make jcalc more simple.
 	}
@@ -579,11 +579,11 @@ extern "C" __global__ void updateArticulationsLaunch(const PxgUpdateArticulation
 	const PxReal* dofData, const bool directAPI)
 {
 	//simUpdates and nbSimUpdates are in mapped host memory, so we have to really efficiently read them in...
-	Dy::ArticulationJointCore* gNewJointCore = scDesc->mNewJointCores;
-	Dy::ArticulationJointCoreData* gNewJointData = scDesc->mNewJointData;
+	ev4sio_Dy::ArticulationJointCore* gNewJointCore = scDesc->mNewJointCores;
+	ev4sio_Dy::ArticulationJointCoreData* gNewJointData = scDesc->mNewJointData;
 	PxgArticulationLink* gNewLinks = scDesc->mNewLinks;
 	PxReal* gNewLinkWakeCounters = scDesc->mNewLinkWakeCounters;
-	Cm::UnAlignedSpatialVector* gNewLinkAccels = scDesc->mNewLinkExtAccels;
+	ev4sio_Cm::UnAlignedSpatialVector* gNewLinkAccels = scDesc->mNewLinkExtAccels;
 	PxgArticulationLinkProp* gNewLinkProps = scDesc->mNewLinkProps;
 	PxU32* gNewLinkParents = scDesc->mNewLinkParents;
 	ArticulationBitField* gNewLinkChildren = scDesc->mNewLinkChildren;
@@ -642,8 +642,8 @@ extern "C" __global__ void updateArticulationsLaunch(const PxgUpdateArticulation
 		const PxU32 nbLinks = msArticulation.data.numLinks;
 
 		// AD: this will most likely copy across stale joint positions/velocities with direct-GPU API
-		// because pos/vel is also stored in Dy::ArticulationJointCore. I couldn't find a place where it's read though.
-		if (flags & Dy::ArticulationDirtyFlag::eDIRTY_JOINTS)
+		// because pos/vel is also stored in ev4sio_Dy::ArticulationJointCore. I couldn't find a place where it's read though.
+		if (flags & ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_JOINTS)
 		{
 			//Copy across joints...
 
@@ -651,24 +651,24 @@ extern "C" __global__ void updateArticulationsLaunch(const PxgUpdateArticulation
 			uint4* dJoints = reinterpret_cast<uint4*>(msArticulation.joints);
 
 			//each ArticulationJointCore is less than 304 bytes, each thread read 16 bytes
-			warpCopy<uint4>(dJoints, sJoints, sizeof(Dy::ArticulationJointCore) * nbLinks);
+			warpCopy<uint4>(dJoints, sJoints, sizeof(ev4sio_Dy::ArticulationJointCore) * nbLinks);
 
 			//read joint data, each thread read 4 bytes
 			uint* sJointData = reinterpret_cast<uint*>(&gNewJointData[msUpdate.linkStartIndex]);
 			uint* dJointData = reinterpret_cast<uint*>(msArticulation.jointData);
 
 			//each ArticulationJointCoreData is 20 bytes, each thread read 4 bytes
-			warpCopy<uint>(dJointData, sJointData, sizeof(Dy::ArticulationJointCoreData) * nbLinks);
+			warpCopy<uint>(dJointData, sJointData, sizeof(ev4sio_Dy::ArticulationJointCoreData) * nbLinks);
 
 			// we declare confiDirty in this case? not sure. For armature it could be updateDirty because we only update the values?
 			// we need to figure out to what degree there actually cound be a confiDirty coming from the joints. Maybe if we change motion etc? Is that even allowed?
 			msArticulation.data.confiDirty = true;
 		}
 
-		if (flags & Dy::ArticulationDirtyFlag::eDIRTY_MIMIC_JOINT)
+		if (flags & ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_MIMIC_JOINT)
 		{
 			const PxU32 mimicJointStartIndex = msUpdate.mimicJointStartIndex;
-			Dy::ArticulationMimicJointCore* mimicJointCores = &scDesc->mNewArticulationMimicJointPool[mimicJointStartIndex];
+			ev4sio_Dy::ArticulationMimicJointCore* mimicJointCores = &scDesc->mNewArticulationMimicJointPool[mimicJointStartIndex];
 
 			const PxU32 nbMimicJoints = msArticulation.data.numMimicJoints;
 
@@ -677,13 +677,13 @@ extern "C" __global__ void updateArticulationsLaunch(const PxgUpdateArticulation
 			uint4* dMimicJoints = reinterpret_cast<uint4*>(msArticulation.mimicJointCores);
 
 			//each ArticulationMimicJointCore is 32 bytes, each thread read 16 bytes
-			warpCopy<uint4>(dMimicJoints, sMimicJoints, sizeof(Dy::ArticulationMimicJointCore) * nbMimicJoints);
+			warpCopy<uint4>(dMimicJoints, sMimicJoints, sizeof(ev4sio_Dy::ArticulationMimicJointCore) * nbMimicJoints);
 		}
 
 		// only write tendon/tendon joints if direct-GPU API is off.
 		if (!directAPI)
 		{
-			if (flags & Dy::ArticulationDirtyFlag::eDIRTY_SPATIAL_TENDON)
+			if (flags & ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_SPATIAL_TENDON)
 			{
 				const PxU32 spatialTendonStartIndex = msUpdate.spatialTendonStartIndex;
 				PxGpuSpatialTendonData* spatialTendonParams = &scDesc->mNewSpatialTendonParamsPool[spatialTendonStartIndex];
@@ -698,7 +698,7 @@ extern "C" __global__ void updateArticulationsLaunch(const PxgUpdateArticulation
 				warpCopy<uint4>(dTendonParams, sTendonParams, sizeof(PxGpuSpatialTendonData) * nbSpatialTendons);
 			}
 
-			if (flags & Dy::ArticulationDirtyFlag::eDIRTY_SPATIAL_TENDON_ATTACHMENT)
+			if (flags & ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_SPATIAL_TENDON_ATTACHMENT)
 			{
 				const PxU32 spatialTendonAttachmentStartIndex = msUpdate.spatialTendonAttachmentStartIndex;
 
@@ -722,7 +722,7 @@ extern "C" __global__ void updateArticulationsLaunch(const PxgUpdateArticulation
 				}
 			}
 		
-			if (flags & Dy::ArticulationDirtyFlag::eDIRTY_FIXED_TENDON)
+			if (flags & ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_FIXED_TENDON)
 			{
 				const PxU32 fixedTendonStartIndex = msUpdate.fixedTendonStartIndex;
 				PxGpuFixedTendonData* fixedTendonParams = &scDesc->mNewFixedTendonParamsPool[fixedTendonStartIndex];
@@ -738,7 +738,7 @@ extern "C" __global__ void updateArticulationsLaunch(const PxgUpdateArticulation
 				warpCopy<uint4>(dTendonParams, sTendonParams, sizeof(PxGpuFixedTendonData) * nbFixedTendons);
 			}
 
-			if (flags & Dy::ArticulationDirtyFlag::eDIRTY_FIXED_TENDON_JOINT)
+			if (flags & ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_FIXED_TENDON_JOINT)
 			{
 				const PxU32 fixedTendonJointStartIndex = msUpdate.fixedTendonJointStartIndex;
 
@@ -762,7 +762,7 @@ extern "C" __global__ void updateArticulationsLaunch(const PxgUpdateArticulation
 			}
 		}
 
-		if (flags & Dy::ArticulationDirtyFlag::eDIRTY_LINKS)
+		if (flags & ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_LINKS)
 		{
 			const PxU32 nbLinks = msArticulation.data.numLinks;
 
@@ -846,7 +846,7 @@ extern "C" __global__ void updateArticulationsLaunch(const PxgUpdateArticulation
 			warpCopy<uint>(dBody2Actors, sBody2Actors, sizeof(PxTransform) * nbLinks);
 		}
 		// I think we need to guard here anyway because updateKinematic now writes directly into the persistent data.
-		else if (flags & Dy::ArticulationDirtyFlag::eDIRTY_POSITIONS && !directAPI)
+		else if (flags & ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_POSITIONS && !directAPI)
 		{
 			//If we didn't update links, but we did update positions, we need to read link poses in regardless!
 			//shouldn't updateKinematic just raise a flag?
@@ -865,46 +865,46 @@ extern "C" __global__ void updateArticulationsLaunch(const PxgUpdateArticulation
 		// only write joint state / forces if direct GPU API is off:
 		if (!directAPI)
 		{
-			if (flags & Dy::ArticulationDirtyFlag::eDIRTY_POSITIONS)
+			if (flags & ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_POSITIONS)
 			{
 				warpCopy<PxReal>(msArticulation.jointPositions, dofData + offset, sizeof(PxReal) * numDofs);
 				offset += numDofs;
 				if ((threadIdx.x & 31) == 0)
-					msArticulation.data.gpuDirtyFlag |= Dy::ArticulationDirtyFlag::eDIRTY_POSITIONS;
+					msArticulation.data.gpuDirtyFlag |= ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_POSITIONS;
 			}
-			if (flags & Dy::ArticulationDirtyFlag::eDIRTY_VELOCITIES)
+			if (flags & ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_VELOCITIES)
 			{
 				warpCopy<PxReal>(msArticulation.jointVelocities, dofData + offset, sizeof(PxReal) * numDofs);
 				offset += numDofs;
 				if ((threadIdx.x & 31) == 0)
-					msArticulation.data.gpuDirtyFlag |= Dy::ArticulationDirtyFlag::eDIRTY_VELOCITIES;
+					msArticulation.data.gpuDirtyFlag |= ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_VELOCITIES;
 			}
-			if (flags & Dy::ArticulationDirtyFlag::eDIRTY_FORCES)
+			if (flags & ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_FORCES)
 			{
 				warpCopy<PxReal>(msArticulation.jointForce, dofData + offset, sizeof(PxReal) * numDofs);
 				offset += numDofs;
 				if ((threadIdx.x & 31) == 0)
-					msArticulation.data.gpuDirtyFlag |= Dy::ArticulationDirtyFlag::eDIRTY_FORCES;
+					msArticulation.data.gpuDirtyFlag |= ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_FORCES;
 			}
-			if (flags & Dy::ArticulationDirtyFlag::eDIRTY_JOINT_TARGET_POS)
+			if (flags & ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_JOINT_TARGET_POS)
 			{
 				warpCopy<PxReal>(msArticulation.jointTargetPositions, dofData + offset, sizeof(PxReal) * numDofs);
 				offset += numDofs;
 				if ((threadIdx.x & 31) == 0)
-					msArticulation.data.gpuDirtyFlag |= Dy::ArticulationDirtyFlag::eDIRTY_JOINT_TARGET_POS;
+					msArticulation.data.gpuDirtyFlag |= ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_JOINT_TARGET_POS;
 			}
-			if (flags & Dy::ArticulationDirtyFlag::eDIRTY_JOINT_TARGET_VEL)
+			if (flags & ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_JOINT_TARGET_VEL)
 			{
 				warpCopy<PxReal>(msArticulation.jointTargetVelocities, dofData + offset, sizeof(PxReal) * numDofs);
 				offset += numDofs;
 				if ((threadIdx.x & 31) == 0)
-					msArticulation.data.gpuDirtyFlag |= Dy::ArticulationDirtyFlag::eDIRTY_JOINT_TARGET_VEL;
+					msArticulation.data.gpuDirtyFlag |= ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_JOINT_TARGET_VEL;
 			}
 			__syncwarp();
 		}
 
 		// AD this should theoretically also be covered by the direct API if - it's state but it cannot be set/get from direct-GPU API yet.
-		if (flags & Dy::ArticulationDirtyFlag::eDIRTY_WAKECOUNTER)
+		if (flags & ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_WAKECOUNTER)
 		{
 			//read link body2World
 			PxReal* sLinkWakeCounters = &gNewLinkWakeCounters[msUpdate.linkStartIndex];
@@ -914,7 +914,7 @@ extern "C" __global__ void updateArticulationsLaunch(const PxgUpdateArticulation
 			warpCopy<PxReal>(dLinkWakeCounters, sLinkWakeCounters, sizeof(PxReal) * nbLinks);
 		}
 
-		if(flags & Dy::ArticulationDirtyFlag::eDIRTY_USER_FLAGS)
+		if(flags & ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_USER_FLAGS)
 		{
 			scDesc->mArticulationPool[articIndex].data.flags = msUpdate.userFlags;
 			scDesc->mArticulationPool[articIndex].data.confiDirty = true;
@@ -931,12 +931,12 @@ extern "C" __global__ void updateArticulationsLaunch(const PxgUpdateArticulation
 
 		if (!directAPI)
 		{
-			if (flags & Dy::ArticulationDirtyFlag::eDIRTY_EXT_ACCEL)
+			if (flags & ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_EXT_ACCEL)
 			{
 				warpCopy<uint2>(reinterpret_cast<uint2*>(msArticulation.externalAccelerations), reinterpret_cast<uint2*>(&gNewLinkAccels[msUpdate.linkStartIndex]),
-					sizeof(Cm::UnAlignedSpatialVector)* nbLinks);
+					sizeof(ev4sio_Cm::UnAlignedSpatialVector)* nbLinks);
 				if ((threadIdx.x & 31) == 0)
-					msArticulation.data.gpuDirtyFlag |= Dy::ArticulationDirtyFlag::eDIRTY_EXT_ACCEL;
+					msArticulation.data.gpuDirtyFlag |= ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_EXT_ACCEL;
 			}
 			__syncwarp();
 		}
@@ -944,12 +944,12 @@ extern "C" __global__ void updateArticulationsLaunch(const PxgUpdateArticulation
 		// AD the comment below is also outdated, but I'm leaving it here for future reference until the jcalc is cleanup up completely.
 		//KS - if only forces are dirty, the confi is considered to *not* be dirty. Any other state forces a complete
 		//recreation of the articulation block data format.
-		//scDesc->mArticulationPool[articIndex].data.dataDirty = (flags & (~(Dy::ArticulationDirtyFlag::eDIRTY_FORCES | Dy::ArticulationDirtyFlag::eIN_DIRTY_LIST))) != 0;
+		//scDesc->mArticulationPool[articIndex].data.dataDirty = (flags & (~(ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_FORCES | ev4sio_Dy::ArticulationDirtyFlag::eIN_DIRTY_LIST))) != 0;
 		
 		// The solver clears the flags after it has read them, and it doesn't run for sleeping
 		// articulations, so the flags of every upload until then are kept.
 		if ((threadIdx.x & 31) == 0)
-			scDesc->mArticulationPool[articIndex].data.updateDirty |= flags & (~(Dy::ArticulationDirtyFlag::eDIRTY_FORCES | Dy::ArticulationDirtyFlag::eIN_DIRTY_LIST));
+			scDesc->mArticulationPool[articIndex].data.updateDirty |= flags & (~(ev4sio_Dy::ArticulationDirtyFlag::eDIRTY_FORCES | ev4sio_Dy::ArticulationDirtyFlag::eIN_DIRTY_LIST));
 	}
 }
 
@@ -1333,7 +1333,7 @@ extern "C" __global__ void setRigidDynamicTorque(
 
 		// TODO AD: transform the torque into body space, multiply with inertia, transform acceleration back into world space.
 		PxMat33 inverseInertiaWorldSpace;
-		Cm::transformInertiaTensor(PxVec3(invInertia.x, invInertia.y, invInertia.z), PxMat33(bodySim.body2World.q), inverseInertiaWorldSpace);
+		ev4sio_Cm::transformInertiaTensor(PxVec3(invInertia.x, invInertia.y, invInertia.z), PxMat33(bodySim.body2World.q), inverseInertiaWorldSpace);
 
 		const PxVec3 deltaAng = inverseInertiaWorldSpace * torque;
 		bodySim.externalAngularAcceleration = make_float4(deltaAng.x, deltaAng.y, deltaAng.z, 0.0f);
@@ -1384,7 +1384,7 @@ extern "C" __global__ void getRigidDynamicTorque(
 		                     invInertia.y > 0.f ? 1.f / invInertia.y : 0.f,
 		                     invInertia.z > 0.f ? 1.f / invInertia.z : 0.f);
 		PxMat33 inertiaWorldSpace;
-		Cm::transformInertiaTensor(inertia, PxMat33(bodySim.body2World.q), inertiaWorldSpace);
+		ev4sio_Cm::transformInertiaTensor(inertia, PxMat33(bodySim.body2World.q), inertiaWorldSpace);
 		data[globalThreadIndex] = inertiaWorldSpace * PxLoad3(bodySim.externalAngularAcceleration);
 	}
 }

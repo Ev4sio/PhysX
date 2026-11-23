@@ -9,7 +9,7 @@
 #include <omni/physx/NativeJointState.h>
 #include <common/foundation/CarbPhysXCast.h>
 
-namespace omni::physx::attachmentJoint
+namespace omni::ev4sio_physx::attachmentJoint
 {
 // Private owner-qualified reads; callers hold public runtime admission.
 inline carb::Float4 frameCorrection(const usdparser::AttachedStage* owner, usdparser::ObjectId id)
@@ -27,7 +27,7 @@ inline carb::Float4 frameCorrection(const usdparser::AttachedStage* owner, usdpa
 
         if (!intJoint)
             return carb::Float4{0, 0, 0, 1.0f};
-        ::physx::PxQuat jointCorrection = intJoint->getLocalPoseFixupQuat();
+        ::ev4sio_physx::PxQuat jointCorrection = intJoint->getLocalPoseFixupQuat();
 
         return toFloat4(jointCorrection);
     }

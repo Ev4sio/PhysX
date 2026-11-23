@@ -24,9 +24,9 @@
 #include "GuMTD.h"
 #include "CmMatrix34.h"
 
-using namespace physx;
-using namespace Gu;
-using namespace Cm;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
+using namespace ev4sio_Cm;
 using namespace aos;
 
 #define	BATCH_TRIANGLE_NUMBER	32u
@@ -183,7 +183,7 @@ static PX_FORCE_INLINE bool finalizeMTD(PxGeomSweepHit& hit, const Vec3VArg tran
 	return foundInitial;
 }
 
-bool physx::Gu::computeCapsule_TriangleMeshMTD(	const PxTriangleMeshGeometry& triMeshGeom, const PxTransform& pose, CapsuleV& capsuleV, PxReal inflatedRadius, 
+bool ev4sio_physx::ev4sio_Gu::computeCapsule_TriangleMeshMTD(	const PxTriangleMeshGeometry& triMeshGeom, const PxTransform& pose, CapsuleV& capsuleV, PxReal inflatedRadius,
 												bool isDoubleSided, PxGeomSweepHit& hit)
 {
 	TriangleMesh* triMesh = static_cast<TriangleMesh*>(triMeshGeom.triangleMesh);
@@ -294,7 +294,7 @@ bool physx::Gu::computeCapsule_TriangleMeshMTD(	const PxTriangleMeshGeometry& tr
 }
 
 
-bool physx::Gu::computeCapsule_HeightFieldMTD(const PxHeightFieldGeometry& heightFieldGeom, const PxTransform& pose, CapsuleV& capsuleV, PxReal inflatedRadius, bool isDoubleSided, PxGeomSweepHit& hit)
+bool ev4sio_physx::ev4sio_Gu::computeCapsule_HeightFieldMTD(const PxHeightFieldGeometry& heightFieldGeom, const PxTransform& pose, CapsuleV& capsuleV, PxReal inflatedRadius, bool isDoubleSided, PxGeomSweepHit& hit)
 {
 	//inflated the capsule by 1% in case of some disagreement between sweep and mtd calculation.If sweep said initial overlap, but mtd has a positive separation,
 	//we are still be able to return a valid normal but we should zero the distance.
@@ -429,7 +429,7 @@ static bool calculateMTD(	const PolygonalData& polyData, const SupportLocal* pol
 	return hadContacts;
 }
 
-bool physx::Gu::computeBox_TriangleMeshMTD(const PxTriangleMeshGeometry& triMeshGeom, const PxTransform& pose, const Box& _box, const PxTransform& boxTransform, PxReal inflation, bool isDoubleSided, PxGeomSweepHit& hit)
+bool ev4sio_physx::ev4sio_Gu::computeBox_TriangleMeshMTD(const PxTriangleMeshGeometry& triMeshGeom, const PxTransform& pose, const Box& _box, const PxTransform& boxTransform, PxReal inflation, bool isDoubleSided, PxGeomSweepHit& hit)
 {
 	TriangleMesh* triMesh = static_cast<TriangleMesh*>(triMeshGeom.triangleMesh);
 	const PxU8* extraTrigData = triMesh->getExtraTrigData();
@@ -563,7 +563,7 @@ bool physx::Gu::computeBox_TriangleMeshMTD(const PxTriangleMeshGeometry& triMesh
 	return finalizeMTD(hit, translation, worldContactA, triangleIndex, foundInitial);
 }
 
-bool physx::Gu::computeBox_HeightFieldMTD(const PxHeightFieldGeometry& heightFieldGeom, const PxTransform& pose, const Box& _box, const PxTransform& boxTransform, PxReal inflation, bool isDoubleSided, PxGeomSweepHit& hit)
+bool ev4sio_physx::ev4sio_Gu::computeBox_HeightFieldMTD(const PxHeightFieldGeometry& heightFieldGeom, const PxTransform& pose, const Box& _box, const PxTransform& boxTransform, PxReal inflation, bool isDoubleSided, PxGeomSweepHit& hit)
 {
 	const HeightFieldUtil hfUtil(heightFieldGeom);
 
@@ -701,7 +701,7 @@ bool physx::Gu::computeBox_HeightFieldMTD(const PxHeightFieldGeometry& heightFie
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool physx::Gu::computeConvex_TriangleMeshMTD(	const PxTriangleMeshGeometry& triMeshGeom, const PxTransform& pose, const PxConvexMeshGeometry& convexGeom, const PxTransform& convexPose, PxReal inflation,
+bool ev4sio_physx::ev4sio_Gu::computeConvex_TriangleMeshMTD(	const PxTriangleMeshGeometry& triMeshGeom, const PxTransform& pose, const PxConvexMeshGeometry& convexGeom, const PxTransform& convexPose, PxReal inflation,
 												bool isDoubleSided, PxGeomSweepHit& hit)
 {
 	const Vec3V zeroV = V3Zero();
@@ -853,7 +853,7 @@ bool physx::Gu::computeConvex_TriangleMeshMTD(	const PxTriangleMeshGeometry& tri
 	return finalizeMTD(hit, translation, worldContactA, triangleIndex, foundInitial);
 }
 
-bool physx::Gu::computeConvex_HeightFieldMTD(const PxHeightFieldGeometry& heightFieldGeom, const PxTransform& pose, const PxConvexMeshGeometry& convexGeom, const PxTransform& convexPose, PxReal inflation, bool isDoubleSided, PxGeomSweepHit& hit)
+bool ev4sio_physx::ev4sio_Gu::computeConvex_HeightFieldMTD(const PxHeightFieldGeometry& heightFieldGeom, const PxTransform& pose, const PxConvexMeshGeometry& convexGeom, const PxTransform& convexPose, PxReal inflation, bool isDoubleSided, PxGeomSweepHit& hit)
 {
 	const HeightFieldUtil hfUtil(heightFieldGeom);
 	
@@ -1005,7 +1005,7 @@ bool physx::Gu::computeConvex_HeightFieldMTD(const PxHeightFieldGeometry& height
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-bool physx::Gu::computeSphere_SphereMTD(const Sphere& sphere0, const Sphere& sphere1, PxGeomSweepHit& hit)
+bool ev4sio_physx::ev4sio_Gu::computeSphere_SphereMTD(const Sphere& sphere0, const Sphere& sphere1, PxGeomSweepHit& hit)
 {
 	const PxVec3 delta = sphere1.center - sphere0.center;
 	const PxReal d2 = delta.magnitudeSquared();
@@ -1018,7 +1018,7 @@ bool physx::Gu::computeSphere_SphereMTD(const Sphere& sphere0, const Sphere& sph
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-bool physx::Gu::computeSphere_CapsuleMTD( const Sphere& sphere, const Capsule& capsule, PxGeomSweepHit& hit)
+bool ev4sio_physx::ev4sio_Gu::computeSphere_CapsuleMTD( const Sphere& sphere, const Capsule& capsule, PxGeomSweepHit& hit)
 {
 	const PxReal radiusSum = sphere.radius + capsule.radius;
 
@@ -1035,7 +1035,7 @@ bool physx::Gu::computeSphere_CapsuleMTD( const Sphere& sphere, const Capsule& c
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-bool physx::Gu::computeCapsule_CapsuleMTD(const Capsule& capsule0, const Capsule& capsule1, PxGeomSweepHit& hit)
+bool ev4sio_physx::ev4sio_Gu::computeCapsule_CapsuleMTD(const Capsule& capsule0, const Capsule& capsule1, PxGeomSweepHit& hit)
 {
 	PxReal s,t;
 	distanceSegmentSegmentSquared(capsule0, capsule1, &s, &t);
@@ -1054,7 +1054,7 @@ bool physx::Gu::computeCapsule_CapsuleMTD(const Capsule& capsule0, const Capsule
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-bool physx::Gu::computePlane_CapsuleMTD(const PxPlane& plane, const Capsule& capsule, PxGeomSweepHit& hit)
+bool ev4sio_physx::ev4sio_Gu::computePlane_CapsuleMTD(const PxPlane& plane, const Capsule& capsule, PxGeomSweepHit& hit)
 {
 	const PxReal d0 = plane.distance(capsule.p0);
 	const PxReal d1 = plane.distance(capsule.p1);
@@ -1078,7 +1078,7 @@ bool physx::Gu::computePlane_CapsuleMTD(const PxPlane& plane, const Capsule& cap
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-bool physx::Gu::computePlane_BoxMTD(const PxPlane& plane, const Box& box, PxGeomSweepHit& hit)
+bool ev4sio_physx::ev4sio_Gu::computePlane_BoxMTD(const PxPlane& plane, const Box& box, PxGeomSweepHit& hit)
 {
 	PxVec3 pts[8];
 	box.computeBoxPoints(pts);
@@ -1101,7 +1101,7 @@ bool physx::Gu::computePlane_BoxMTD(const PxPlane& plane, const Box& box, PxGeom
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-bool physx::Gu::computePlane_ConvexMTD(const PxPlane& plane, const PxConvexMeshGeometry& convexGeom, const PxTransform& convexPose, PxGeomSweepHit& hit)
+bool ev4sio_physx::ev4sio_Gu::computePlane_ConvexMTD(const PxPlane& plane, const PxConvexMeshGeometry& convexGeom, const PxTransform& convexPose, PxGeomSweepHit& hit)
 {
 	const ConvexMesh* convexMesh = static_cast<const ConvexMesh*>(convexGeom.convexMesh);
 	const FastVertex2ShapeScaling convexScaling(convexGeom.scale);

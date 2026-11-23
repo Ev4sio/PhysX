@@ -39,7 +39,7 @@
 #include <optional>
 #include <unordered_set>
 
-namespace omni::physx::cache
+namespace omni::ev4sio_physx::cache
 {
 // Replicator environment ids on attach are eligible: hydration gives restored
 // objects the ids ordinary loading would (creationEnvironmentId).
@@ -245,7 +245,7 @@ bool decodeStoredBundle(const BundleView& view,
 }
 CookedTriangleMesh cookedTriangleMeshes(bool insertion, bool* missing)
 {
-    return [insertion, missing](const ::physx::PxTriangleMesh& mesh) {
+    return [insertion, missing](const ::ev4sio_physx::PxTriangleMesh& mesh) {
         std::shared_ptr<const Bytes> cooked = getMeshCache()->getTriangleMeshCookedData(&mesh);
         if (cooked)
             return cooked;
@@ -309,7 +309,7 @@ Digest attachmentCompatibility(const usdparser::AttachedStage& owner)
     // Devices do not come or go while the process runs, and CPU mode, once set,
     // stays set; ask about the device once, since the check warns on every call
     // on a machine without one.
-    const omni::physx::IPhysxFoundation& foundation = omni::physx::foundation::getInterface();
+    const omni::ev4sio_physx::IPhysxFoundation& foundation = omni::ev4sio_physx::foundation::getInterface();
     static const bool cudaDevice = foundation.cudaDeviceCheck && foundation.cudaDeviceCheck();
     w.u8(cudaDevice && !(foundation.isCpuMode && foundation.isCpuMode()));
     // Stage units scale what the parser derives (default densities and masses,
@@ -318,7 +318,7 @@ Digest attachmentCompatibility(const usdparser::AttachedStage& owner)
     w.f32(units.metersPerUnit);
     w.f32(units.kilogramsPerUnit);
     w.u32(uint32_t(units.upAxis));
-    const ::physx::PxTolerancesScale scale = OmniPhysX::getInstance().getPhysXSetup().getPhysics()->getTolerancesScale();
+    const ::ev4sio_physx::PxTolerancesScale scale = OmniPhysX::getInstance().getPhysXSetup().getPhysics()->getTolerancesScale();
     w.f32(scale.length);
     w.f32(scale.speed);
     return digest(w.data().data(), w.data().size());
@@ -699,7 +699,7 @@ void AttachmentCache::store()
         }
         c.owner.getPhysXPhysicsInterface()->finishSetup(c.owner);
         RuntimeArchive archive;
-        CollectionPtr roots(PxCreateCollection());
+        CollectionPtr roots(ev4sio_PxCreateCollection());
         Bundle bundle;
         bundle.input = c.fingerprint.value;
         bundle.compatibility = c.profile;
@@ -979,7 +979,7 @@ bool loadCompiledInsertion(usdparser::AttachedStage& owner,
         profileWriter.u32(sceneDesc.maxPosIterationCount);
         profileWriter.u32(sceneDesc.minVelIterationCount);
         profileWriter.u32(sceneDesc.maxVelIterationCount);
-        const ::physx::PxVec3 gravity = liveScene.getScene()->getGravity();
+        const ::ev4sio_physx::PxVec3 gravity = liveScene.getScene()->getGravity();
         profileWriter.f32(gravity.x);
         profileWriter.f32(gravity.y);
         profileWriter.f32(gravity.z);
@@ -1111,7 +1111,7 @@ bool loadCompiledInsertion(usdparser::AttachedStage& owner,
         {
             owner.getPhysXPhysicsInterface()->finishSetup(owner);
             selection.records = std::move(created->records);
-            CollectionPtr collection(PxCreateCollection());
+            CollectionPtr collection(ev4sio_PxCreateCollection());
             RuntimeArchive archive;
             Bundle bundle;
             bundle.input = inputs->fingerprint().value;
@@ -1239,4 +1239,4 @@ std::unique_ptr<RuntimeArtifactService> RuntimeArtifactService::create(Mode mode
         return nullptr;
     return std::unique_ptr<RuntimeArtifactService>(new RuntimeArtifactService(std::move(data), *keys, mode));
 }
-} // namespace omni::physx::cache
+} // namespace omni::ev4sio_physx::cache

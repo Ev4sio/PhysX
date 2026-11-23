@@ -11,7 +11,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace usdparser
 {
@@ -45,5 +45,5 @@ float completeSolidRestOffset(float metersPerUnit, float solidRestOffset, float 
 float completeParticleContactOffset(float metersPerUnit, float particleContactOffset);
 
 } // namespace usdparser
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

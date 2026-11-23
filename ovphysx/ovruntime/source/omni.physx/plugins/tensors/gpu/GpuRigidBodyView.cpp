@@ -58,11 +58,11 @@ using omni::physics::tensors::checkTensorSizeExact;
 using omni::physics::tensors::checkTensorSizeMinimum;
 using omni::physics::tensors::getTensorTotalSize;
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace tensors
 {
@@ -116,7 +116,7 @@ GpuRigidBodyView::GpuRigidBodyView(GpuSimulationView* sim,
             // actor-pointer map. The actor pointer is stable across
             // disable/enable cycles; the island node index is not (PhysX
             // removes disabled bodies from the island system).
-            std::unordered_map<::physx::PxRigidDynamic*, uint32_t>::iterator actorIt = mGpuSimData->mActor2RdIndexMap.find(rd);
+            std::unordered_map<::ev4sio_physx::PxRigidDynamic*, uint32_t>::iterator actorIt = mGpuSimData->mActor2RdIndexMap.find(rd);
             PxU32 rdIdx = 0xffffffff;
             if (actorIt != mGpuSimData->mActor2RdIndexMap.end())
                 rdIdx = actorIt->second;
@@ -2960,5 +2960,5 @@ void GpuRigidBodyView::markRdDisableDirty()
 }
 
 } // namespace tensors
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

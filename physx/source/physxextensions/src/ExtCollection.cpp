@@ -21,7 +21,7 @@
 
 #include "foundation/PxArray.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 void PxCollectionExt::releaseObjects(PxCollection& collection, bool releaseExclusiveShapes)
 {
@@ -77,7 +77,7 @@ void PxCollectionExt::remove(PxCollection& collection, PxType concreteType, PxCo
 
 PxCollection* PxCollectionExt::createCollection(PxPhysics& physics)
 {
-	PxCollection* collection = PxCreateCollection();
+	PxCollection* collection = ev4sio_PxCreateCollection();
 	if (!collection)
 		return NULL;
 
@@ -144,7 +144,7 @@ PxCollection* PxCollectionExt::createCollection(PxPhysics& physics)
 
 PxCollection* PxCollectionExt::createCollection(PxScene& scene)
 {
-	PxCollection* collection = PxCreateCollection();
+	PxCollection* collection = ev4sio_PxCreateCollection();
 	if (!collection)
 		return NULL;
 

@@ -23,7 +23,7 @@
 //The largest epsilon we will permit (scaled by PxTolerancesScale.length)
 #define	PCM_WITNESS_POINT_UPPER_EPS		5e-2f
 
-namespace physx
+namespace ev4sio_physx
 {
 struct PxgPersistentContactManifold;
 struct PxgPersistentContactMultiManifold;
@@ -32,7 +32,7 @@ struct PxsContactManagerOutput;
 class PxsContactManager;
 struct PxsTorsionalFrictionData;
 
-namespace Sc
+namespace ev4sio_Sc
 {
 	class ShapeInteraction;
 }
@@ -43,7 +43,7 @@ struct PxgPairManagementData
 	PxgContactManagerInput*			mContactManagerInputData;
 	PxsContactManagerOutput*		mContactManagerOutputData;
 	PxsContactManager**				mCpuContactManagerMapping;
-	Sc::ShapeInteraction**			mShapeInteractions;
+	ev4sio_Sc::ShapeInteraction**			mShapeInteractions;
 	PxReal*							mRestDistances;
 	PxsTorsionalFrictionData*		mTorsionalData;
 	PxU32*							mTempAccumulator;
@@ -155,14 +155,14 @@ __host__ __device__ inline bool isValidTet(const PxVec3& worldV0, const PxVec3& 
 	return (worldV1 - worldV0).dot((worldV2 - worldV0).cross(worldV3 - worldV0)) > 1e-9f;
 }
 
-} // namespace physx
+} // namespace ev4sio_physx
 
 //device only functions
 #if PX_CUDA_COMPILER
 
 #include "reduction.cuh"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 class MeshScaling
@@ -385,7 +385,7 @@ PxU32 invalidate_BoxConvex(const PxVec3& curRelPos, const PxQuat& curQuatA, cons
 	return generateContacts;
 }
 
-} // namespace physx
+} // namespace ev4sio_physx
 
 #endif
 #endif

@@ -10,7 +10,7 @@
 #include "PxProfileEventNames.h"
 #include "PxProfileEventSender.h"
 
-namespace physx { 
+namespace ev4sio_physx {
 	class PxAllocatorCallback;
 
 	namespace profile {

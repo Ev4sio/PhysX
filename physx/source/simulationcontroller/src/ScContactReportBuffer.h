@@ -8,9 +8,9 @@
 
 #include "common/PxProfileZone.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-	namespace Sc
+	namespace ev4sio_Sc
 	{
 		class ContactReportBuffer
 		{
@@ -53,11 +53,11 @@ namespace physx
 			bool			mAllocationLocked;
 		};
 
-	} // namespace Sc
+	} // namespace ev4sio_Sc
 
 	//////////////////////////////////////////////////////////////////////////
 
-	PX_FORCE_INLINE void Sc::ContactReportBuffer::reset()
+	PX_FORCE_INLINE void ev4sio_Sc::ContactReportBuffer::reset()
 	{
 		mCurrentBufferIndex = 0;	
 		mLastBufferIndex = 0xFFFFFFFF;
@@ -65,7 +65,7 @@ namespace physx
 
 	//////////////////////////////////////////////////////////////////////////
 
-	void Sc::ContactReportBuffer::flush()
+	void ev4sio_Sc::ContactReportBuffer::flush()
 	{
 		mCurrentBufferIndex = 0;
 		mLastBufferIndex = 0xFFFFFFFF;
@@ -83,7 +83,7 @@ namespace physx
 
 	//////////////////////////////////////////////////////////////////////////
 
-	PxU8* Sc::ContactReportBuffer::allocateNotThreadSafe(PxU32 size, PxU32& index ,PxU32 alignment/* =16 */)
+	PxU8* ev4sio_Sc::ContactReportBuffer::allocateNotThreadSafe(PxU32 size, PxU32& index ,PxU32 alignment/* =16 */)
 	{
 		PX_ASSERT(PxIsPowerOfTwo(alignment));
 		
@@ -123,7 +123,7 @@ namespace physx
 
 	//////////////////////////////////////////////////////////////////////////
 
-	PxU8* Sc::ContactReportBuffer::reallocateNotThreadSafe(PxU32 size, PxU32& index ,PxU32 alignment/* =16 */, PxU32 lastIndex)
+	PxU8* ev4sio_Sc::ContactReportBuffer::reallocateNotThreadSafe(PxU32 size, PxU32& index ,PxU32 alignment/* =16 */, PxU32 lastIndex)
 	{
 		if(lastIndex != mLastBufferIndex)
 		{
@@ -138,12 +138,12 @@ namespace physx
 
 	//////////////////////////////////////////////////////////////////////////
 
-	PX_FORCE_INLINE PxU8* Sc::ContactReportBuffer::allocateBuffer(PxU32 size)
+	PX_FORCE_INLINE PxU8* ev4sio_Sc::ContactReportBuffer::allocateBuffer(PxU32 size)
 	{
 		return (static_cast<PxU8*>(PX_ALLOC(size, "ContactReportBuffer")));
 	}
 
-} // namespace physx
+} // namespace ev4sio_physx
 
 #endif
 

@@ -13,7 +13,7 @@
 #include "PxPvdDataStream.h"
 #include "foundation/PxMutex.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 namespace profile
 {

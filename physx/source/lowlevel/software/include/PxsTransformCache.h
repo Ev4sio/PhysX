@@ -15,7 +15,7 @@
 
 #define PX_DEFAULT_CACHE_SIZE 512 // this is currently not in use
 
-namespace physx
+namespace ev4sio_physx
 {
 
 	class PxsTransformCache : public PxUserAllocated
@@ -23,7 +23,7 @@ namespace physx
 		typedef PxU32 RefCountType;
 
 	public:
-		PxsTransformCache(Cm::VirtualAllocatorCallback& alloc, Cm::PinnableAllocatorFallback::Enum fallback) :
+		PxsTransformCache(ev4sio_Cm::VirtualAllocatorCallback& alloc, ev4sio_Cm::PinnableAllocatorFallback::Enum fallback) :
 			mTransformCache(alloc, PxsHeapStats::eNARROWPHASE, fallback), mHasAnythingChanged(true), mAllocFailed(false)
 		{
 			/*mTransformCache.reserve(PX_DEFAULT_CACHE_SIZE);
@@ -96,7 +96,7 @@ namespace physx
 		PX_FORCE_INLINE bool hadAllocationFailure()	const	{ return mAllocFailed;	}
 
 	protected:
-		Cm::PinnableArray<PxsCachedTransform>	mTransformCache;
+		ev4sio_Cm::PinnableArray<PxsCachedTransform>	mTransformCache;
 
 	private:
 		PxU32									mUsedSize;

@@ -12,7 +12,7 @@
 #include "foundation/PxSort.h"
 #include "cutil_math.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 /*******************************************************************************
@@ -47,37 +47,37 @@ void computeEdgeOwnership(PxArray<bool>& triangleUsed, PxArray<PxU8>& edgeOwners
  *
  ******************************************************************************/
 
-PxU32 PxgFEMClothUtil::computeTriangleMeshByteSize(const Gu::TriangleMesh* triangleMesh)
+PxU32 PxgFEMClothUtil::computeTriangleMeshByteSize(const ev4sio_Gu::TriangleMesh* triangleMesh)
 {
 	const PxU32 meshDataSize = sizeof(uint4); // (nbVerts, nbTriangles, maxDepth, nbBv32TreeNodes)
 
 	// ML: don't know whether we need to have local bound
-	Gu::BV32Tree* bv32Tree = triangleMesh->mGRB_BV32Tree;
-	const PxU32 bv32Size = bv32Tree->mNbPackedNodes * sizeof(Gu::BV32DataPacked) + bv32Tree->mMaxTreeDepth * sizeof(Gu::BV32DataDepthInfo) +
+	ev4sio_Gu::BV32Tree* bv32Tree = triangleMesh->mGRB_BV32Tree;
+	const PxU32 bv32Size = bv32Tree->mNbPackedNodes * sizeof(ev4sio_Gu::BV32DataPacked) + bv32Tree->mMaxTreeDepth * sizeof(ev4sio_Gu::BV32DataDepthInfo) +
 						   bv32Tree->mNbPackedNodes * sizeof(PxU32);
 
 	return meshDataSize + bv32Size;
 }
 
-PxU32 PxgFEMClothUtil::loadOutTriangleMesh(void* mem, const Gu::TriangleMesh* triangleMesh)
+PxU32 PxgFEMClothUtil::loadOutTriangleMesh(void* mem, const ev4sio_Gu::TriangleMesh* triangleMesh)
 {
 	const PxU32 nbTriangles = triangleMesh->getNbTrianglesFast();
 	const PxU32 numVerts = triangleMesh->getNbVerticesFast();
 
-	Gu::BV32Tree* bv32Tree = triangleMesh->mGRB_BV32Tree;
+	ev4sio_Gu::BV32Tree* bv32Tree = triangleMesh->mGRB_BV32Tree;
 
 	PxU8* m = (PxU8*)mem;
 	*((uint4*)m) = make_uint4(numVerts, nbTriangles, bv32Tree->mMaxTreeDepth, bv32Tree->mNbPackedNodes);
 	m += sizeof(uint4);
 
 	// Midphase
-	PxMemCopy(m, bv32Tree->mPackedNodes, sizeof(Gu::BV32DataPacked) * bv32Tree->mNbPackedNodes);
-	m += sizeof(Gu::BV32DataPacked) * bv32Tree->mNbPackedNodes;
+	PxMemCopy(m, bv32Tree->mPackedNodes, sizeof(ev4sio_Gu::BV32DataPacked) * bv32Tree->mNbPackedNodes);
+	m += sizeof(ev4sio_Gu::BV32DataPacked) * bv32Tree->mNbPackedNodes;
 
 	PX_ASSERT(bv32Tree->mNbPackedNodes > 0);
 
-	PxMemCopy(m, bv32Tree->mTreeDepthInfo, sizeof(Gu::BV32DataDepthInfo) * bv32Tree->mMaxTreeDepth);
-	m += sizeof(Gu::BV32DataDepthInfo) * bv32Tree->mMaxTreeDepth;
+	PxMemCopy(m, bv32Tree->mTreeDepthInfo, sizeof(ev4sio_Gu::BV32DataDepthInfo) * bv32Tree->mMaxTreeDepth);
+	m += sizeof(ev4sio_Gu::BV32DataDepthInfo) * bv32Tree->mMaxTreeDepth;
 
 	PxMemCopy(m, bv32Tree->mRemapPackedNodeIndexWithDepth, sizeof(PxU32) * bv32Tree->mNbPackedNodes);
 	m += sizeof(PxU32) * bv32Tree->mNbPackedNodes;
@@ -88,7 +88,7 @@ PxU32 PxgFEMClothUtil::loadOutTriangleMesh(void* mem, const Gu::TriangleMesh* tr
 // Derives the mesh topology a cloth needs, the bending triangle pairs and the edge ownership deciding
 // which triangle tests each shared edge. It reads the mesh and nothing else, so it can run before a
 // cloth exists on the GPU.
-static void computeTriangleTopology(const Gu::TriangleMesh& triangleMesh, PxArray<PxU8>& edgeOwnershipNibbles,
+static void computeTriangleTopology(const ev4sio_Gu::TriangleMesh& triangleMesh, PxArray<PxU8>& edgeOwnershipNibbles,
 									PxArray<uint2>& trianglePairTriangleIndices, PxArray<uint4>& trianglePairVertexIndices)
 {
 	const PxU32 nbTriangles = triangleMesh.getNbTrianglesFast();
@@ -257,7 +257,7 @@ static void computeTriangleTopology(const Gu::TriangleMesh& triangleMesh, PxArra
 						 maxEdgesPerVertex);
 }
 
-PxgDeformableSurfaceTopology::PxgDeformableSurfaceTopology(const Gu::TriangleMesh& triangleMesh)
+PxgDeformableSurfaceTopology::PxgDeformableSurfaceTopology(const ev4sio_Gu::TriangleMesh& triangleMesh)
 {
 	computeTriangleTopology(triangleMesh, mEdgeOwnershipNibbles, mTrianglePairTriangleIndices, mTrianglePairVertexIndices);
 }
@@ -268,10 +268,10 @@ void PxgDeformableSurfaceTopology::releaseUploadData()
 	mTrianglePairVertexIndices.reset();
 }
 
-PxU32 PxgFEMClothUtil::initialTriangleData(PxgFEMCloth& femCloth, const Gu::TriangleMesh* triangleMesh,
+PxU32 PxgFEMClothUtil::initialTriangleData(PxgFEMCloth& femCloth, const ev4sio_Gu::TriangleMesh* triangleMesh,
 										   const PxgDeformableSurfaceTopology& topology,
 										   const PxU16* materialHandles, PxsDeformableSurfaceMaterialData* materials,
-										   const PxU32 nbMaterials, Cm::VirtualAllocatorCallback& hostAlloc)
+										   const PxU32 nbMaterials, ev4sio_Cm::VirtualAllocatorCallback& hostAlloc)
 {
 	const PxU32 nbTriangles = triangleMesh->getNbTrianglesFast();
 	const PxU32 nbVertices = triangleMesh->getNbVerticesFast();
@@ -446,7 +446,7 @@ static void initialMaterialData(const PxU16* materialIndices, const PxU16* mater
 
 void PxgFEMClothUtil::computeNonSharedTriangleConfiguration(PxgFEMCloth& femCloth, const PxArray<PxU32>& orderedNonSharedTriangles,
 															const PxArray<PxU32>& activeTriangleIndices,
-															const Gu::TriangleMesh* const triangleMesh)
+															const ev4sio_Gu::TriangleMesh* const triangleMesh)
 {
 	const PxVec3* positions = triangleMesh->getVerticesFast();
 	float4* orderedTriangleRestPoseInv = femCloth.mOrderedNonSharedTriangleRestPoseInv;
@@ -622,7 +622,7 @@ bool PxgFEMClothUtil::updateRestConfiguration(float4* orderedRestAngleAndStiffne
 
 void PxgFEMClothUtil::computeTrianglePairConfiguration(
 	PxgFEMCloth& femCloth, PxArray<uint2>& trianglePairTriangleIndices, const PxArray<uint4>& trianglePairVertexIndices,
-	const PxArray<PxU32>& orderedTrianglePairs, const PxArray<PxU32>& activeTrianglePairIndices, const Gu::TriangleMesh* const triangleMesh,
+	const PxArray<PxU32>& orderedTrianglePairs, const PxArray<PxU32>& activeTrianglePairIndices, const ev4sio_Gu::TriangleMesh* const triangleMesh,
 	const PxsDeformableSurfaceMaterialData* materials, bool zeroRestBendingAngle, bool isSharedPartition)
 {
 	const PxVec3* positions = triangleMesh->getVerticesFast();
@@ -882,7 +882,7 @@ void encodeEdgeOwnership(PxU8* edgeOwnershipNibbles, PxU32 triIndex, bool ownsEd
 	packed = PxU8((packed & ~(0xFu << shift)) | (bits << shift));
 }
 
-void PxgFEMCloth::deallocate(Cm::VirtualAllocatorCallback& hostAlloc)
+void PxgFEMCloth::deallocate(ev4sio_Cm::VirtualAllocatorCallback& hostAlloc)
 {
 	if (mNbNonSharedTriangles)
 	{
@@ -921,4 +921,4 @@ void PxgFEMCloth::deallocate(Cm::VirtualAllocatorCallback& hostAlloc)
 	hostAlloc.deallocate(mDynamicFrictions);
 }
 
-} // namespace physx
+} // namespace ev4sio_physx

@@ -26,7 +26,7 @@
 
 // "Active" means a recording is in progress: OVD is set up AND sampling. No PhysX operation should
 // write OVD data when not sampling (before startSampling() or after stopSampling()).
-#define OMNI_PVD_ACTIVE (physx::NpOmniPvdSampling())
+#define OMNI_PVD_ACTIVE (ev4sio_physx::NpOmniPvdSampling())
 
 #undef OMNI_PVD_SHOULD_RECORD_CREATION
 #undef OMNI_PVD_SHOULD_RECORD_DESTRUCTION
@@ -34,15 +34,15 @@
 #undef OMNI_PVD_SHOULD_RECORD_ADDITION
 #undef OMNI_PVD_SHOULD_RECORD_REMOVAL
 #define OMNI_PVD_SHOULD_RECORD_CREATION(writer, regData, classID, objectRef) \
-physx::NpOmniPvdShouldRecordCreation(#classID, regData->pvd##classID.getObjectHandle(objectRef))
+ev4sio_physx::NpOmniPvdShouldRecordCreation(#classID, regData->pvd##classID.getObjectHandle(objectRef))
 #define OMNI_PVD_SHOULD_RECORD_DESTRUCTION(writer, regData, classID, objectRef) \
-physx::NpOmniPvdShouldRecordDestruction(#classID, regData->pvd##classID.getObjectHandle(objectRef))
+ev4sio_physx::NpOmniPvdShouldRecordDestruction(#classID, regData->pvd##classID.getObjectHandle(objectRef))
 #define OMNI_PVD_SHOULD_RECORD_VALUE(writer, regData, classID, attributeID, objectRef) \
-physx::NpOmniPvdShouldRecordValue(writer, regData, #classID, #attributeID, regData->pvd##classID.getObjectHandle(objectRef))
+ev4sio_physx::NpOmniPvdShouldRecordValue(writer, regData, #classID, #attributeID, regData->pvd##classID.getObjectHandle(objectRef))
 #define OMNI_PVD_SHOULD_RECORD_ADDITION(writer, regData, classID, attributeID, objectRef, valueRef) \
-physx::NpOmniPvdShouldRecordAddition(writer, regData, #classID, #attributeID, regData->pvd##classID.getObjectHandle(objectRef), reinterpret_cast<physx::PxU64>(&(valueRef)))
+ev4sio_physx::NpOmniPvdShouldRecordAddition(writer, regData, #classID, #attributeID, regData->pvd##classID.getObjectHandle(objectRef), reinterpret_cast<ev4sio_physx::PxU64>(&(valueRef)))
 #define OMNI_PVD_SHOULD_RECORD_REMOVAL(writer, regData, classID, attributeID, objectRef, valueRef) \
-physx::NpOmniPvdShouldRecordRemoval(writer, regData, #classID, #attributeID, regData->pvd##classID.getObjectHandle(objectRef), reinterpret_cast<physx::PxU64>(&(valueRef)))
+ev4sio_physx::NpOmniPvdShouldRecordRemoval(writer, regData, #classID, #attributeID, regData->pvd##classID.getObjectHandle(objectRef), reinterpret_cast<ev4sio_physx::PxU64>(&(valueRef)))
 
 
 //
@@ -52,7 +52,7 @@ physx::NpOmniPvdShouldRecordRemoval(writer, regData, #classID, #attributeID, reg
 // hooks do not write between stopSampling() and the next startSampling().
 #undef OMNI_PVD_GET_WRITER
 #define OMNI_PVD_GET_WRITER(writer) \
-physx::PxOmniPvd::ScopedExclusiveWriter writeLock(physx::NpOmniPvdSampling() ? NpOmniPvdGetInstance() : NULL); \
+ev4sio_physx::PxOmniPvd::ScopedExclusiveWriter writeLock(ev4sio_physx::NpOmniPvdSampling() ? NpOmniPvdGetInstance() : NULL); \
 OmniPvdWriter* writer = writeLock.getWriter();
 
 

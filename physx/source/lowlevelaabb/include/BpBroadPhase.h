@@ -10,17 +10,17 @@
 #include "PxBroadPhase.h"
 #include "BpBroadPhaseUpdate.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	class PxcScratchAllocator;
 	class PxBaseTask;
 
-namespace Cm
+namespace ev4sio_Cm
 {
 	class FlushPool;
 }
 
-namespace Bp
+namespace ev4sio_Bp
 {
 
 /**
@@ -124,12 +124,12 @@ public:
 	correctness/consistency of broadphase behavior with illegal input data in PX_RELEASE and PX_PROFILE configs because validity checks are not active 
 	in these builds.
 	*/
-	virtual	void	update(PxU32 numCpuTasks, Cm::FlushPool* flushPool, PxcScratchAllocator* scratchAllocator, const BroadPhaseUpdateData& updateData, physx::PxBaseTask* continuation) = 0;
+	virtual	void	update(PxU32 numCpuTasks, ev4sio_Cm::FlushPool* flushPool, PxcScratchAllocator* scratchAllocator, const BroadPhaseUpdateData& updateData, ev4sio_physx::PxBaseTask* continuation) = 0;
 
 	/**
 	\brief prepare broad phase data.
 	*/
-	virtual	void	preBroadPhase(const Bp::BroadPhaseUpdateData& updateData) = 0;
+	virtual	void	preBroadPhase(const ev4sio_Bp::BroadPhaseUpdateData& updateData) = 0;
 
 	/**
 	\brief Fetch the results of any asynchronous broad phase work.
@@ -187,8 +187,8 @@ public:
 #endif
 };
 
-} //namespace Bp
+} //namespace ev4sio_Bp
 
-} //namespace physx
+} //namespace ev4sio_physx
 
 #endif //BP_BROADPHASE_H

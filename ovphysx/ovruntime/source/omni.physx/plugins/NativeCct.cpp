@@ -14,15 +14,15 @@
 #include <cmath>
 #include <cstring>
 
-namespace omni::physx::native
+namespace omni::ev4sio_physx::native
 {
 namespace
 {
-struct ControllerFilter : ::physx::PxControllerFilterCallback
+struct ControllerFilter : ::ev4sio_physx::PxControllerFilterCallback
 {
     bool include;
     explicit ControllerFilter(bool value) : include(value) {}
-    bool filter(const ::physx::PxController&, const ::physx::PxController&) override { return include; }
+    bool filter(const ::ev4sio_physx::PxController&, const ::ev4sio_physx::PxController&) override { return include; }
 };
 template<typename T> bool finite3(const T (&value)[3])
 {
@@ -32,7 +32,7 @@ template<typename T> bool finite3(const T (&value)[3])
 CctResult controlCct(uint64_t attachment, const char* path, const CctCommand& command, CctState& output) noexcept
 try
 {
-    using namespace ::physx;
+    using namespace ::ev4sio_physx;
     if (!path || path[0] != '/' || uint32_t(command.action) > uint32_t(CctAction::Remove) ||
         (command.action != CctAction::Describe && !command.generation))
         return CctResult::Invalid;
@@ -47,7 +47,7 @@ try
         return CctResult::Invalid;
     if (!runtime::tryGetPhysxInterface())
         return CctResult::Stale;
-    std::shared_ptr<omni::physx::usdparser::AttachedStage> owner = usdparser::UsdLoad::getUsdLoad()->acquireAttachment(attachment);
+    std::shared_ptr<omni::ev4sio_physx::usdparser::AttachedStage> owner = usdparser::UsdLoad::getUsdLoad()->acquireAttachment(attachment);
     if (!owner)
         return CctResult::Stale;
     RuntimeExecutionScope admission(attachment);
@@ -57,19 +57,19 @@ try
     if (!source)
         return CctResult::NotFound;
     const omni::physics::parse::ObjectKey key = source->findByPath(path);
-    omni::physx::usdparser::ObjectDb * objects = owner->getObjectDatabase();
+    omni::ev4sio_physx::usdparser::ObjectDb * objects = owner->getObjectDatabase();
     const uint64_t id = objects->findEntry(key, usdparser::eCct);
-    omni::physx::internal::InternalPhysXDatabase & database = owner->getInternalPhysXDatabase();
-    const omni::physx::internal::InternalDatabase::Record * record = database.getFullTypedRecord(ePTCct, id);
+    omni::ev4sio_physx::internal::InternalPhysXDatabase & database = owner->getInternalPhysXDatabase();
+    const omni::ev4sio_physx::internal::InternalDatabase::Record * record = database.getFullTypedRecord(ePTCct, id);
     if (!record || !record->mPtr || record->mKey != key)
         return command.generation ? CctResult::Stale : CctResult::NotFound;
     if (command.generation && command.generation != record->mGeneration)
         return CctResult::Stale;
-    ::physx::PxController * controller = static_cast<PxController*>(record->mPtr);
+    ::ev4sio_physx::PxController * controller = static_cast<PxController*>(record->mPtr);
     if (controller->getType() != PxControllerShapeType::eCAPSULE)
         return CctResult::Unavailable;
-    ::physx::PxCapsuleController * capsule = static_cast<PxCapsuleController*>(controller);
-    ::physx::PxScene * scene = capsule->getScene();
+    ::ev4sio_physx::PxCapsuleController * capsule = static_cast<PxCapsuleController*>(controller);
+    ::ev4sio_physx::PxScene * scene = capsule->getScene();
     if (!scene || scene->getFlags().isSet(PxSceneFlag::eENABLE_GPU_DYNAMICS) ||
         scene->getFlags().isSet(PxSceneFlag::eENABLE_DIRECT_GPU_API))
         return CctResult::Unavailable;
@@ -92,7 +92,7 @@ try
     }
     else if (command.action == CctAction::Resize)
     {
-        const ::physx::PxVec3T<double> foot = capsule->getFootPosition();
+        const ::ev4sio_physx::PxVec3T<double> foot = capsule->getFootPosition();
         if (!capsule->setRadius(command.radius))
             return CctResult::Error;
         capsule->resize(command.height);
@@ -108,9 +108,9 @@ try
     CctState result;
     result.key = key.handle;
     result.generation = record->mGeneration;
-    const ::physx::PxVec3T<double> position = capsule->getPosition();
+    const ::ev4sio_physx::PxVec3T<double> position = capsule->getPosition();
     result.position[0] = position.x; result.position[1] = position.y; result.position[2] = position.z;
-    const ::physx::PxVec3T<float> up = capsule->getUpDirection(), gravity = scene->getGravity();
+    const ::ev4sio_physx::PxVec3T<float> up = capsule->getUpDirection(), gravity = scene->getGravity();
     result.up[0] = up.x; result.up[1] = up.y; result.up[2] = up.z;
     result.gravity[0] = gravity.x; result.gravity[1] = gravity.y; result.gravity[2] = gravity.z;
     result.height = capsule->getHeight(); result.radius = capsule->getRadius(); result.collisions = collisions;

@@ -242,9 +242,9 @@ TEST_F(ExecutorTasks, StepJobReportsPendingWhileQueuedAndRunningWhileItRuns)
         GTEST_SKIP() << kNoWorkerThread;
     ASSERT_TRUE(test_utils::attach_usd_with_ovstage(m_handle, "tests/data/boxes_falling_on_groundplane.usda"));
     ASSERT_EQ(ovphysx_step_sync(m_handle, 1.0f / 60.0f).status, OVPHYSX_API_SUCCESS);
-    physx::PxScene* const scene = static_cast<physx::PxScene*>(
+    ev4sio_physx::PxScene* const scene = static_cast<ev4sio_physx::PxScene*>(
         test_utils::read_physx_pointer(m_handle, OVPHYSX_QUERY_TARGET_SCENE, "/World/physicsScene"));
-    physx::PxRigidDynamic* const actor = static_cast<physx::PxRigidDynamic*>(
+    ev4sio_physx::PxRigidDynamic* const actor = static_cast<ev4sio_physx::PxRigidDynamic*>(
         test_utils::read_physx_pointer(m_handle, OVPHYSX_QUERY_TARGET_RIGID_ACTOR, "/World/Cube1"));
     ASSERT_NE(scene, nullptr);
     ASSERT_NE(actor, nullptr);

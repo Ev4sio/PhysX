@@ -5,8 +5,8 @@
 
 #include "ScShapeSim.h"
 
-using namespace physx;
-using namespace Sc;
+using namespace ev4sio_physx;
+using namespace ev4sio_Sc;
 
 void resetElementID(Scene& scene, ShapeSimBase& shapeSim);
 

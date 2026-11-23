@@ -5,11 +5,11 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 struct IPhysx;
 struct IPhysxVisualization;
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni
 
 namespace ovphysx
@@ -19,8 +19,8 @@ namespace internal
 namespace sidecar
 {
 
-omni::physx::IPhysx* tryGetInjectedPhysxInterface();
-omni::physx::IPhysxVisualization* tryGetInjectedPhysxVisualizationInterface();
+omni::ev4sio_physx::IPhysx* tryGetInjectedPhysxInterface();
+omni::ev4sio_physx::IPhysxVisualization* tryGetInjectedPhysxVisualizationInterface();
 
 } // namespace sidecar
 } // namespace internal

@@ -10,7 +10,7 @@
 #include "foundation/PxUtilities.h"
 #include "PxsMaterialShared.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 struct PxsMaterialData 

@@ -58,10 +58,10 @@
 
 #include <regex>
 
-using namespace ::physx;
+using namespace ::ev4sio_physx;
 using namespace carb::tasking;
-using namespace omni::physx::usdparser;
-using namespace omni::physx::internal;
+using namespace omni::ev4sio_physx::usdparser;
+using namespace omni::ev4sio_physx::internal;
 
 using CompoundShapeMap = std::unordered_map<omni::physics::parse::ObjectKey, std::pair<CompoundShape*, size_t>,
                                              omni::physics::parse::ObjectKey::Hash>;
@@ -74,7 +74,7 @@ static constexpr uint32_t kMaxPhysxEnvironments = 1u << 24;
 
 namespace omni
 {
-    namespace physx
+    namespace ev4sio_physx
     {
 
         template <typename T>
@@ -1370,7 +1370,7 @@ namespace omni
                                     newShape->mMassInfo = oldShape->mMassInfo;
                                     newShape->mMaterialId = oldShape->mMaterialId;
 
-                                    std::vector<::physx::PxShape*>& cShapes = const_cast<std::vector<::physx::PxShape*>&>(newShape->getShapes());
+                                    std::vector<::ev4sio_physx::PxShape*>& cShapes = const_cast<std::vector<::ev4sio_physx::PxShape*>&>(newShape->getShapes());
                                     cShapes.push_back(&shape);
 
                                     const ObjectId outId = recordsIndex ? db.addRecordAtIndex(recordsIndex++, ePTCompoundShape, newShape, internalShape, newKey) : db.addRecord(ePTCompoundShape, newShape, internalShape, newKey);
@@ -1399,7 +1399,7 @@ namespace omni
                                 else
                                 {
                                     CompoundShape* newShape = fit->second.first;
-                                    std::vector<::physx::PxShape*>& cShapes = const_cast<std::vector<::physx::PxShape*>&>(newShape->getShapes());
+                                    std::vector<::ev4sio_physx::PxShape*>& cShapes = const_cast<std::vector<::ev4sio_physx::PxShape*>&>(newShape->getShapes());
                                     cShapes.push_back(&shape);
 
                                     shape.userData = (void*)(fit->second.second);
@@ -1626,7 +1626,7 @@ namespace omni
                     {
                         if (data.collection)
                         {
-                            ::physx::PxCollectionExt::releaseObjects(*data.collection);
+                            ::ev4sio_physx::PxCollectionExt::releaseObjects(*data.collection);
                             data.collection->release();
                         }
                     }
@@ -1929,10 +1929,10 @@ namespace omni
     }
 }
 
-void fillInterface(omni::physx::IPhysxReplicator& iface)
+void fillInterface(omni::ev4sio_physx::IPhysxReplicator& iface)
 {
-    iface.registerReplicator = omni::physx::registerReplicator;
-    iface.unregisterReplicator = omni::physx::unregisterReplicator;
-    iface.replicate = omni::physx::replicate;
-    iface.isReplicatorStage = omni::physx::isReplicatorStage;
+    iface.registerReplicator = omni::ev4sio_physx::registerReplicator;
+    iface.unregisterReplicator = omni::ev4sio_physx::unregisterReplicator;
+    iface.replicate = omni::ev4sio_physx::replicate;
+    iface.isReplicatorStage = omni::ev4sio_physx::isReplicatorStage;
 }

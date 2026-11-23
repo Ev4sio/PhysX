@@ -17,7 +17,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 
 carb::Float4 getJointFramePhysxToUsdQuat(AttachHandle attach, usdparser::ObjectId id)
@@ -35,5 +35,5 @@ void getJointStateData(AttachHandle attach, usdparser::ObjectId id, JointStateDa
         attachmentJoint::stateData(owner, id, data);
 }
 
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

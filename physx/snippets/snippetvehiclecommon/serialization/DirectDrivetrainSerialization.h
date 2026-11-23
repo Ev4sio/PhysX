@@ -30,7 +30,7 @@
 namespace snippetvehicle
 {
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 bool readThrottleResponseParams
 (const rapidjson::Document& config, const PxVehicleAxleDescription& axleDesc,

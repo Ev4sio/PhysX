@@ -52,8 +52,8 @@ extern "C" OVPHYSX_API ovphysx_companion_status_t ovphysx_companion_custom_inter
         }
         if (!services)
             return OVPHYSX_COMPANION_UNAVAILABLE;
-        omni::physx::IPhysxCustomJoint* joints = omni::physx::runtime::tryGetPhysxCustomJointInterface();
-        omni::physx::IPhysxCustomGeometry* geometry = omni::physx::runtime::tryGetPhysxCustomGeometryInterface();
+        omni::ev4sio_physx::IPhysxCustomJoint* joints = omni::ev4sio_physx::runtime::tryGetPhysxCustomJointInterface();
+        omni::ev4sio_physx::IPhysxCustomGeometry* geometry = omni::ev4sio_physx::runtime::tryGetPhysxCustomGeometryInterface();
         if (!joints || !geometry)
             return OVPHYSX_COMPANION_UNAVAILABLE;
         CompanionRegistry<ovphysx::companion::custom_interfaces::Lease>& registry = companionRuntime().customInterfaces();
@@ -73,7 +73,7 @@ extern "C" OVPHYSX_API ovphysx_companion_status_t ovphysx_companion_custom_inter
     try
     {
         CompanionOperationGuard admission(companionRuntime());
-        if (!admission || omni::physx::runtime::isRuntimeBusy(0))
+        if (!admission || omni::ev4sio_physx::runtime::isRuntimeBusy(0))
             return OVPHYSX_COMPANION_BUSY;
         CompanionRegistry<ovphysx::companion::custom_interfaces::Lease>& registry = companionRuntime().customInterfaces();
         std::shared_ptr<ovphysx::companion::custom_interfaces::Lease> retained;

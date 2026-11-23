@@ -10,10 +10,10 @@
 #include "foundation/PxAlloca.h"
 #include "foundation/PxFPU.h"
 
-using namespace physx;
-using namespace Cm;
+using namespace ev4sio_physx;
+using namespace ev4sio_Cm;
 
-void physx::readChunk(PxI8& a, PxI8& b, PxI8& c, PxI8& d, PxInputStream& stream)
+void ev4sio_physx::readChunk(PxI8& a, PxI8& b, PxI8& c, PxI8& d, PxInputStream& stream)
 {
 	stream.read(&a, sizeof(PxI8));
 	stream.read(&b, sizeof(PxI8));
@@ -23,7 +23,7 @@ void physx::readChunk(PxI8& a, PxI8& b, PxI8& c, PxI8& d, PxInputStream& stream)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-PxU16 physx::readWord(bool mismatch, PxInputStream& stream)
+PxU16 ev4sio_physx::readWord(bool mismatch, PxInputStream& stream)
 {
 	PxU16 d;
 	stream.read(&d, sizeof(PxU16));
@@ -33,7 +33,7 @@ PxU16 physx::readWord(bool mismatch, PxInputStream& stream)
 	return d;
 }
 
-PxU32 physx::readDword(bool mismatch, PxInputStream& stream)
+PxU32 ev4sio_physx::readDword(bool mismatch, PxInputStream& stream)
 {
 	PxU32 d;
 	stream.read(&d, sizeof(PxU32));
@@ -43,7 +43,7 @@ PxU32 physx::readDword(bool mismatch, PxInputStream& stream)
 	return d;
 }
 
-PxF32 physx::readFloat(bool mismatch, PxInputStream& stream)
+PxF32 ev4sio_physx::readFloat(bool mismatch, PxInputStream& stream)
 {
 	union
 	{
@@ -60,21 +60,21 @@ PxF32 physx::readFloat(bool mismatch, PxInputStream& stream)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void physx::writeWord(PxU16 value, bool mismatch, PxOutputStream& stream)
+void ev4sio_physx::writeWord(PxU16 value, bool mismatch, PxOutputStream& stream)
 {
 	if(mismatch)
 		flip(value);
 	stream.write(&value, sizeof(PxU16));
 }
 
-void physx::writeDword(PxU32 value, bool mismatch, PxOutputStream& stream)
+void ev4sio_physx::writeDword(PxU32 value, bool mismatch, PxOutputStream& stream)
 {
 	if(mismatch)
 		flip(value);
 	stream.write(&value, sizeof(PxU32));
 }
 
-void physx::writeFloat(PxF32 value, bool mismatch, PxOutputStream& stream)
+void ev4sio_physx::writeFloat(PxF32 value, bool mismatch, PxOutputStream& stream)
 {
 	if(mismatch)
 		flip(value);
@@ -83,7 +83,7 @@ void physx::writeFloat(PxF32 value, bool mismatch, PxOutputStream& stream)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-bool physx::readFloatBuffer(PxF32* dest, PxU32 nbFloats, bool mismatch, PxInputStream& stream)
+bool ev4sio_physx::readFloatBuffer(PxF32* dest, PxU32 nbFloats, bool mismatch, PxInputStream& stream)
 {
 	stream.read(dest, sizeof(PxF32)*nbFloats);
 	if(mismatch)
@@ -94,7 +94,7 @@ bool physx::readFloatBuffer(PxF32* dest, PxU32 nbFloats, bool mismatch, PxInputS
 	return true;
 }
 
-void physx::writeFloatBuffer(const PxF32* src, PxU32 nb, bool mismatch, PxOutputStream& stream)
+void ev4sio_physx::writeFloatBuffer(const PxF32* src, PxU32 nb, bool mismatch, PxOutputStream& stream)
 {
 	if(mismatch)
 	{
@@ -109,7 +109,7 @@ void physx::writeFloatBuffer(const PxF32* src, PxU32 nb, bool mismatch, PxOutput
 		stream.write(src, sizeof(PxF32) * nb);
 }
 
-void physx::writeWordBuffer(const PxU16* src, PxU32 nb, bool mismatch, PxOutputStream& stream)
+void ev4sio_physx::writeWordBuffer(const PxU16* src, PxU32 nb, bool mismatch, PxOutputStream& stream)
 {
 	if(mismatch)
 	{
@@ -124,7 +124,7 @@ void physx::writeWordBuffer(const PxU16* src, PxU32 nb, bool mismatch, PxOutputS
 		stream.write(src, sizeof(PxU16) * nb);
 }
 
-void physx::readWordBuffer(PxU16* dest, PxU32 nb, bool mismatch, PxInputStream& stream)
+void ev4sio_physx::readWordBuffer(PxU16* dest, PxU32 nb, bool mismatch, PxInputStream& stream)
 {
 	stream.read(dest, sizeof(PxU16)*nb);
 	if(mismatch)
@@ -136,7 +136,7 @@ void physx::readWordBuffer(PxU16* dest, PxU32 nb, bool mismatch, PxInputStream& 
 	}
 }
 
-void physx::writeWordBuffer(const PxI16* src, PxU32 nb, bool mismatch, PxOutputStream& stream)
+void ev4sio_physx::writeWordBuffer(const PxI16* src, PxU32 nb, bool mismatch, PxOutputStream& stream)
 {
 	if (mismatch)
 	{
@@ -151,17 +151,17 @@ void physx::writeWordBuffer(const PxI16* src, PxU32 nb, bool mismatch, PxOutputS
 		stream.write(src, sizeof(PxI16) * nb);
 }
 
-void physx::readByteBuffer(PxU8* dest, PxU32 nb, PxInputStream& stream)
+void ev4sio_physx::readByteBuffer(PxU8* dest, PxU32 nb, PxInputStream& stream)
 {
 	stream.read(dest, sizeof(PxU8) * nb);	
 }
 
-void physx::writeByteBuffer(const PxU8* src, PxU32 nb, PxOutputStream& stream)
+void ev4sio_physx::writeByteBuffer(const PxU8* src, PxU32 nb, PxOutputStream& stream)
 {
 	stream.write(src, sizeof(PxU8) * nb);
 }
 
-void physx::readWordBuffer(PxI16* dest, PxU32 nb, bool mismatch, PxInputStream& stream)
+void ev4sio_physx::readWordBuffer(PxI16* dest, PxU32 nb, bool mismatch, PxInputStream& stream)
 {
 	stream.read(dest, sizeof(PxI16)*nb);
 	if (mismatch)
@@ -175,7 +175,7 @@ void physx::readWordBuffer(PxI16* dest, PxU32 nb, bool mismatch, PxInputStream& 
 
 ///////////////////////////////////////////////////////////////////////////////
 
-bool physx::writeHeader(PxI8 a, PxI8 b, PxI8 c, PxI8 d, PxU32 version, bool mismatch, PxOutputStream& stream)
+bool ev4sio_physx::writeHeader(PxI8 a, PxI8 b, PxI8 c, PxI8 d, PxU32 version, bool mismatch, PxOutputStream& stream)
 {
 	// Store endianness
 	PxI8 streamFlags = PxLittleEndian();
@@ -189,7 +189,7 @@ bool physx::writeHeader(PxI8 a, PxI8 b, PxI8 c, PxI8 d, PxU32 version, bool mism
 	return true;
 }
 
-bool Cm::WriteHeader(PxU8 a, PxU8 b, PxU8 c, PxU8 d, PxU32 version, bool mismatch, PxOutputStream& stream)
+bool ev4sio_Cm::WriteHeader(PxU8 a, PxU8 b, PxU8 c, PxU8 d, PxU32 version, bool mismatch, PxOutputStream& stream)
 {
 	// Store endianness
 	PxU8 streamFlags = PxU8(PxLittleEndian());
@@ -203,7 +203,7 @@ bool Cm::WriteHeader(PxU8 a, PxU8 b, PxU8 c, PxU8 d, PxU32 version, bool mismatc
 	return true;
 }
 
-bool physx::readHeader(PxI8 a_, PxI8 b_, PxI8 c_, PxI8 d_, PxU32& version, bool& mismatch, PxInputStream& stream)
+bool ev4sio_physx::readHeader(PxI8 a_, PxI8 b_, PxI8 c_, PxI8 d_, PxU32& version, bool& mismatch, PxInputStream& stream)
 {
 	// Import header
 	PxI8 a, b, c, d;
@@ -222,7 +222,7 @@ bool physx::readHeader(PxI8 a_, PxI8 b_, PxI8 c_, PxI8 d_, PxU32& version, bool&
 	return true;
 }
 
-bool Cm::ReadHeader(PxU8 a_, PxU8 b_, PxU8 c_, PxU8 d_, PxU32& version, bool& mismatch, PxInputStream& stream)
+bool ev4sio_Cm::ReadHeader(PxU8 a_, PxU8 b_, PxU8 c_, PxU8 d_, PxU32& version, bool& mismatch, PxInputStream& stream)
 {
 	// Import header
 	PxI8 a, b, c, d;
@@ -243,7 +243,7 @@ bool Cm::ReadHeader(PxU8 a_, PxU8 b_, PxU8 c_, PxU8 d_, PxU32& version, bool& mi
 
 ///////////////////////////////////////////////////////////////////////////////
 
-PxU32 physx::computeMaxIndex(const PxU32* indices, PxU32 nbIndices)
+PxU32 ev4sio_physx::computeMaxIndex(const PxU32* indices, PxU32 nbIndices)
 {
 	PxU32 maxIndex=0;
 	while(nbIndices--)
@@ -254,7 +254,7 @@ PxU32 physx::computeMaxIndex(const PxU32* indices, PxU32 nbIndices)
 	}
 	return maxIndex;
 }
-PxU16 physx::computeMaxIndex(const PxU16* indices, PxU32 nbIndices)
+PxU16 ev4sio_physx::computeMaxIndex(const PxU16* indices, PxU32 nbIndices)
 {
 	PxU16 maxIndex=0;
 	while(nbIndices--)
@@ -266,7 +266,7 @@ PxU16 physx::computeMaxIndex(const PxU16* indices, PxU32 nbIndices)
 	return maxIndex;
 }
 
-void physx::storeIndices(PxU32 maxIndex, PxU32 nbIndices, const PxU32* indices, PxOutputStream& stream, bool platformMismatch)
+void ev4sio_physx::storeIndices(PxU32 maxIndex, PxU32 nbIndices, const PxU32* indices, PxOutputStream& stream, bool platformMismatch)
 {
 	if(maxIndex<=0xff)
 	{
@@ -287,7 +287,7 @@ void physx::storeIndices(PxU32 maxIndex, PxU32 nbIndices, const PxU32* indices, 
 	}
 }
 
-void physx::readIndices(PxU32 maxIndex, PxU32 nbIndices, PxU32* indices, PxInputStream& stream, bool platformMismatch)
+void ev4sio_physx::readIndices(PxU32 maxIndex, PxU32 nbIndices, PxU32* indices, PxInputStream& stream, bool platformMismatch)
 {
 	if(maxIndex<=0xff)
 	{
@@ -311,7 +311,7 @@ void physx::readIndices(PxU32 maxIndex, PxU32 nbIndices, PxU32* indices, PxInput
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void Cm::StoreIndices(PxU32 maxIndex, PxU32 nbIndices, const PxU32* indices, PxOutputStream& stream, bool platformMismatch)
+void ev4sio_Cm::StoreIndices(PxU32 maxIndex, PxU32 nbIndices, const PxU32* indices, PxOutputStream& stream, bool platformMismatch)
 {
 	if(maxIndex<=0xff)
 	{
@@ -334,7 +334,7 @@ void Cm::StoreIndices(PxU32 maxIndex, PxU32 nbIndices, const PxU32* indices, PxO
 	}
 }
 
-void Cm::ReadIndices(PxU32 maxIndex, PxU32 nbIndices, PxU32* indices, PxInputStream& stream, bool platformMismatch)
+void ev4sio_Cm::ReadIndices(PxU32 maxIndex, PxU32 nbIndices, PxU32* indices, PxInputStream& stream, bool platformMismatch)
 {
 	if(maxIndex<=0xff)
 	{
@@ -360,7 +360,7 @@ void Cm::ReadIndices(PxU32 maxIndex, PxU32 nbIndices, PxU32* indices, PxInputStr
 	}
 }
 
-void Cm::StoreIndices(PxU16 maxIndex, PxU32 nbIndices, const PxU16* indices, PxOutputStream& stream, bool platformMismatch)
+void ev4sio_Cm::StoreIndices(PxU16 maxIndex, PxU32 nbIndices, const PxU16* indices, PxOutputStream& stream, bool platformMismatch)
 {
 	if(maxIndex<=0xff)
 	{
@@ -377,7 +377,7 @@ void Cm::StoreIndices(PxU16 maxIndex, PxU32 nbIndices, const PxU16* indices, PxO
 	}
 }
 
-void Cm::ReadIndices(PxU16 maxIndex, PxU32 nbIndices, PxU16* indices, PxInputStream& stream, bool platformMismatch)
+void ev4sio_Cm::ReadIndices(PxU16 maxIndex, PxU32 nbIndices, PxU16* indices, PxInputStream& stream, bool platformMismatch)
 {
 	if(maxIndex<=0xff)
 	{

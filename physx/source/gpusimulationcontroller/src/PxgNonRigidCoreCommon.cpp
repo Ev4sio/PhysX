@@ -10,7 +10,7 @@
 #include "PxgRadixSortKernelIndices.h"
 #include "common/PxPhysXCommonConfig.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 PxgEssentialCore::PxgEssentialCore(PxgCudaKernelWranglerManager* gpuKernelWrangler, PxCudaContextManager* cudaContextManager,
 	PxgAllocatorDesc& allocDesc, PxgSimulationController* simController, PxgGpuContext* gpuContext) :

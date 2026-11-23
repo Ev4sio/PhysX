@@ -34,7 +34,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace contactread
 {
@@ -57,7 +57,7 @@ struct ContactReportView
 std::vector<float> reduceNetForces(const std::vector<omni::physics::parse::ObjectKey>& sensors,
                                    const ContactReportView& report,
                                    float invDt,
-                                   omni::physx::tensors::ForceComponent component);
+                                   omni::ev4sio_physx::tensors::ForceComponent component);
 
 // Force matrix per sensor row, one component: [S, F, 3] row-major, `filters` holding each row's F filter
 // keys. A sensor side's pair lands in the column of the OTHER side's body -- its actor id, or failing that
@@ -69,7 +69,7 @@ std::vector<float> reduceForceMatrix(const std::vector<omni::physics::parse::Obj
                                      uint32_t filterCount,
                                      const ContactReportView& report,
                                      float invDt,
-                                     omni::physx::tensors::ForceComponent component);
+                                     omni::ev4sio_physx::tensors::ForceComponent component);
 
 // Per-element contact data laid out slot by slot: each sensor row has a fixed number of slots (a filtered
 // read: one per filter column; a raw read: one), and a slot's elements follow the previous slots' in report
@@ -93,7 +93,7 @@ ContactElements reduceFilteredDetail(const std::vector<omni::physics::parse::Obj
                                      uint32_t filterCount,
                                      const ContactReportView& report,
                                      float invDt,
-                                     omni::physx::tensors::ForceComponent component);
+                                     omni::ev4sio_physx::tensors::ForceComponent component);
 
 // Only the filtered detail's counts -- reduceFilteredDetail's ContactElements::counts -- for a read of the
 // count companions alone, which needs no element.
@@ -101,7 +101,7 @@ std::vector<int32_t> countFilteredDetail(const std::vector<omni::physics::parse:
                                          const std::vector<omni::physics::parse::ObjectKey>& filters,
                                          uint32_t filterCount,
                                          const ContactReportView& report,
-                                         omni::physx::tensors::ForceComponent component);
+                                         omni::ev4sio_physx::tensors::ForceComponent component);
 
 // Raw contacts per sensor row: an element per contact point of every pair the sensor is in, whatever the
 // other body, one slot per row, with the other side's actor id -- CpuRigidContactView::getRawContactData's
@@ -141,5 +141,5 @@ ContactEvents reduceContactEvents(const std::vector<omni::physics::parse::Object
                                   const ContactReportView& report);
 
 } // namespace contactread
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

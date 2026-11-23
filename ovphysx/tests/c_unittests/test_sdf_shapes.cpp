@@ -317,12 +317,12 @@ TEST_F(SdfShapesGpuTest, EvaluatesTheCubeAroundItsFace)
     ASSERT_TRUE(openSdfQuery(m_handle, "/World/Cube", live));
     ASSERT_EQ(live.rows, 1u);
 
-    physx::PxScene* const scene =
-        static_cast<physx::PxScene*>(read_physx_pointer(m_handle, OVPHYSX_QUERY_TARGET_SCENE, "/World/PhysicsScene"));
+    ev4sio_physx::PxScene* const scene =
+        static_cast<ev4sio_physx::PxScene*>(read_physx_pointer(m_handle, OVPHYSX_QUERY_TARGET_SCENE, "/World/PhysicsScene"));
     ASSERT_NE(scene, nullptr);
-    physx::PxCudaContextManager* const manager = scene->getCudaContextManager();
+    ev4sio_physx::PxCudaContextManager* const manager = scene->getCudaContextManager();
     ASSERT_NE(manager, nullptr);
-    physx::PxCudaContext* const cuda = manager->getCudaContext();
+    ev4sio_physx::PxCudaContext* const cuda = manager->getCudaContext();
     const int ordinal = static_cast<int>(manager->getDevice());
 
     const float hostPoints[6] = { 0.45f, 0.0f, 0.0f, 0.55f, 0.0f, 0.0f };
@@ -330,7 +330,7 @@ TEST_F(SdfShapesGpuTest, EvaluatesTheCubeAroundItsFace)
     CUdeviceptr pointsDevice = 0;
     CUdeviceptr outDevice = 0;
     {
-        physx::PxScopedCudaLock lock(*manager);
+        ev4sio_physx::PxScopedCudaLock lock(*manager);
         ASSERT_EQ(cuda->memAlloc(&pointsDevice, sizeof(hostPoints)), 0);
         ASSERT_EQ(cuda->memAlloc(&outDevice, sizeof(hostOut)), 0);
         ASSERT_EQ(cuda->memcpyHtoD(pointsDevice, hostPoints, sizeof(hostPoints)), 0);
@@ -359,7 +359,7 @@ TEST_F(SdfShapesGpuTest, EvaluatesTheCubeAroundItsFace)
     EXPECT_NE(last_task_error().find("the query has 1 SDF shapes"), std::string::npos) << last_task_error();
 
     {
-        physx::PxScopedCudaLock lock(*manager);
+        ev4sio_physx::PxScopedCudaLock lock(*manager);
         EXPECT_EQ(cuda->memcpyDtoH(hostOut, outDevice, sizeof(hostOut)), 0);
     }
     EXPECT_LT(hostOut[3], 0.0f) << "inside the +x face";
@@ -378,7 +378,7 @@ TEST_F(SdfShapesGpuTest, EvaluatesTheCubeAroundItsFace)
     CUstream producer = nullptr;
     CUevent written = nullptr;
     {
-        physx::PxScopedCudaLock lock(*manager);
+        ev4sio_physx::PxScopedCudaLock lock(*manager);
         ASSERT_EQ(cuda->streamCreate(&producer, kNonBlockingStream), 0);
         ASSERT_EQ(cuda->eventCreate(&written, kNoTimingEvent), 0);
         ASSERT_EQ(cuda->memcpyHtoDAsync(pointsDevice, swappedPoints, sizeof(swappedPoints), producer), 0);
@@ -391,7 +391,7 @@ TEST_F(SdfShapesGpuTest, EvaluatesTheCubeAroundItsFace)
         complete_task(m_handle, ovphysx_evaluate_sdf_shapes(m_handle, live.query, &points, &out, handoff));
     EXPECT_EQ(afterProducer.status, OVPHYSX_API_SUCCESS) << last_task_error();
     {
-        physx::PxScopedCudaLock lock(*manager);
+        ev4sio_physx::PxScopedCudaLock lock(*manager);
         EXPECT_EQ(cuda->memcpyDtoH(handedOff, outDevice, sizeof(handedOff)), 0);
         cuda->eventDestroy(written);
         cuda->streamDestroy(producer);

@@ -10,7 +10,7 @@
 #include "foundation/PxIO.h"
 #include "SnXmlMemoryPool.h"
 
-namespace physx {
+namespace ev4sio_physx {
 
 	template<typename TDataType>
 	struct XmlDefaultValue

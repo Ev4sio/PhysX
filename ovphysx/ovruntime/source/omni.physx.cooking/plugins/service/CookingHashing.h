@@ -16,13 +16,13 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 struct MeshKeyComputation
 {
-    static omni::physx::usdparser::MeshKey computeMeshKey(const PhysxCookingMeshView& meshView)
+    static omni::ev4sio_physx::usdparser::MeshKey computeMeshKey(const PhysxCookingMeshView& meshView)
     {
-        omni::physx::usdparser::MeshKey meshKey;
+        omni::ev4sio_physx::usdparser::MeshKey meshKey;
         meshKey.computeVerticesHash(static_cast<uint32_t>(meshView.points.size()), &meshView.points.data()->x);
         meshKey.computeIndicesHash(
             static_cast<uint32_t>(meshView.indices.size()), reinterpret_cast<const uint32_t*>(meshView.indices.data()));
@@ -35,16 +35,16 @@ struct MeshKeyComputation
         return meshKey;
     }
 
-    static omni::physx::usdparser::MeshKey computeMeshKey(const PhysxCookingDeformableBodyView& deformableBodyView)
+    static omni::ev4sio_physx::usdparser::MeshKey computeMeshKey(const PhysxCookingDeformableBodyView& deformableBodyView)
     {
-        omni::physx::usdparser::MeshKey meshKey;
+        omni::ev4sio_physx::usdparser::MeshKey meshKey;
         meshKey.computeVerticesHash(static_cast<uint32_t>(deformableBodyView.srcPointsInSim.size()), &deformableBodyView.srcPointsInSim.data()->x);
         return meshKey;
     }
 
-    static omni::physx::usdparser::MeshKey computeMeshKey(const PhysxCookingDeformableVolumeMeshView& volumeMeshView)
+    static omni::ev4sio_physx::usdparser::MeshKey computeMeshKey(const PhysxCookingDeformableVolumeMeshView& volumeMeshView)
     {
-        omni::physx::usdparser::MeshKey meshKey;
+        omni::ev4sio_physx::usdparser::MeshKey meshKey;
         meshKey.computeVerticesHash(static_cast<uint32_t>(volumeMeshView.simPoints.size()), &volumeMeshView.simPoints.data()->x);
         meshKey.computeVerticesHash(static_cast<uint32_t>(volumeMeshView.simBindPoints.size()), &volumeMeshView.simBindPoints.data()->x);
         meshKey.computeIndicesHash(static_cast<uint32_t>(volumeMeshView.simIndices.size() * 4), reinterpret_cast<const uint32_t*>(volumeMeshView.simIndices.data()));
@@ -60,7 +60,7 @@ struct MeshKeyComputation
 
 struct MeshCRCComputation
 {
-    using MeshKey = omni::physx::usdparser::MeshKey;
+    using MeshKey = omni::ev4sio_physx::usdparser::MeshKey;
 
     // The stage's unit scale is a cooking INPUT, not metadata: CookingTask::getDefaultCookingParams
     // turns it into the PxTolerancesScale (`1/metersPerUnit`, `10/metersPerUnit`) that every cooking
@@ -99,7 +99,7 @@ struct MeshCRCComputation
         meshKey.setMaxHullVertices(params.maxHullVertices);
 
         meshKey.setSignScale(&params.signScale.x);
-        meshKey.setCookedDataVersion(omni::physx::PhysxCookingDataVersion_ConvexMesh);
+        meshKey.setCookedDataVersion(omni::ev4sio_physx::PhysxCookingDataVersion_ConvexMesh);
         return meshKey;
     }
 
@@ -113,7 +113,7 @@ struct MeshCRCComputation
         meshKey.setUseShrinkwrap(params.shrinkWrap);
 
         meshKey.setSignScale(&params.signScale.x);
-        meshKey.setCookedDataVersion(omni::physx::PhysxCookingDataVersion_ConvexDecomposition);
+        meshKey.setCookedDataVersion(omni::ev4sio_physx::PhysxCookingDataVersion_ConvexDecomposition);
         return meshKey;
     }
 
@@ -125,7 +125,7 @@ struct MeshCRCComputation
         meshKey.setFillMode(params.fillMode);
 
         meshKey.setSignScale(&params.signScale.x);
-        meshKey.setCookedDataVersion(omni::physx::PhysxCookingDataVersion_SphereFill);
+        meshKey.setCookedDataVersion(omni::ev4sio_physx::PhysxCookingDataVersion_SphereFill);
         return meshKey;
     }
 
@@ -146,12 +146,12 @@ struct MeshCRCComputation
         if (sdfMeshCookingParams.sdfResolution > 0)
         {
             meshKey = MeshCRCComputation::deriveSdfMeshCRC(meshKey, triangleMeshCookingParams, sdfMeshCookingParams);
-            meshKey.setCookedDataVersion(omni::physx::PhysxCookingDataVersion_TriangleMesh);
-            meshKey.setCookedDataVersion(omni::physx::PhysxCookingDataVersion_TriangleMeshSDF);
+            meshKey.setCookedDataVersion(omni::ev4sio_physx::PhysxCookingDataVersion_TriangleMesh);
+            meshKey.setCookedDataVersion(omni::ev4sio_physx::PhysxCookingDataVersion_TriangleMeshSDF);
         }
         else
         {
-            meshKey.setCookedDataVersion(omni::physx::PhysxCookingDataVersion_TriangleMesh);
+            meshKey.setCookedDataVersion(omni::ev4sio_physx::PhysxCookingDataVersion_TriangleMesh);
         }
         return meshKey;
     }
@@ -159,7 +159,7 @@ struct MeshCRCComputation
     static MeshKey deriveParticlePoissonSamplingCRC(MeshKey meshKey,
                                                     const ParticlePoissonSamplingCookingParams& params)
     {
-        meshKey.setCookedDataVersion(omni::physx::PhysxCookingDataVersion_ParticlePoissonSampling);
+        meshKey.setCookedDataVersion(omni::ev4sio_physx::PhysxCookingDataVersion_ParticlePoissonSampling);
         meshKey.setMiscData(reinterpret_cast<const uint8_t*>(&params.shearScale), sizeof(params.shearScale));
         meshKey.setMiscData(reinterpret_cast<const uint8_t*>(&params.samplingDistance), sizeof(params.samplingDistance));
         meshKey.setMiscData(reinterpret_cast<const uint8_t*>(&params.maxSamples), sizeof(params.maxSamples));
@@ -171,7 +171,7 @@ struct MeshCRCComputation
     {
         MeshKey meshKey = MeshKey();
 
-        meshKey.setCookedDataVersion(omni::physx::PhysxCookingDataVersion_DeformableVolumeMesh);
+        meshKey.setCookedDataVersion(omni::ev4sio_physx::PhysxCookingDataVersion_DeformableVolumeMesh);
         meshKey.setMiscData(reinterpret_cast<const uint8_t*>(params.simPoints.data()),
             sizeof(carb::Float3) * params.simPoints.size());
         meshKey.setMiscData(reinterpret_cast<const uint8_t*>(params.simBindPoints.data()),
@@ -194,7 +194,7 @@ struct MeshCRCComputation
                                                  const VolumeDeformableBodyCookingParams& params)
     {
         // src positions are already factored into the meshKey
-        meshKey.setCookedDataVersion(omni::physx::PhysxCookingDataVersion_VolumeDeformableBody);
+        meshKey.setCookedDataVersion(omni::ev4sio_physx::PhysxCookingDataVersion_VolumeDeformableBody);
 
         meshKey.setMiscData(reinterpret_cast<const uint8_t*>(params.simToCookingTransform),
                             sizeof(params.simToCookingTransform));
@@ -229,7 +229,7 @@ struct MeshCRCComputation
                                                   const SurfaceDeformableBodyCookingParams& params)
     {
         // src positions are already factored into the meshKey
-        meshKey.setCookedDataVersion(omni::physx::PhysxCookingDataVersion_SurfaceDeformableBody);
+        meshKey.setCookedDataVersion(omni::ev4sio_physx::PhysxCookingDataVersion_SurfaceDeformableBody);
 
         meshKey.setMiscData(reinterpret_cast<const uint8_t*>(params.simToCookingTransform),
                             sizeof(params.simToCookingTransform));
@@ -286,5 +286,5 @@ private:
         return meshKey;
     }
 };
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

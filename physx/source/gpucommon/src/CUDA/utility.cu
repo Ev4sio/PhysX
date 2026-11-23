@@ -13,7 +13,7 @@
 #include "PxDeformableSkinning.h"
 #include "atomic.cuh"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 extern "C" __host__ void initCommonKernels2() {}
 

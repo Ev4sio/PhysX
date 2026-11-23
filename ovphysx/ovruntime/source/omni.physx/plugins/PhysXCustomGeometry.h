@@ -37,7 +37,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace usdparser { class AttachedStage; }
 struct CustomGeometryInfo
@@ -47,7 +47,7 @@ struct CustomGeometryInfo
     // TfToken one) can be recomputed at unregister time without holding a TfToken.
     std::string customGeomtryAPIToken;
     ICustomGeometryCallback customGeometryCb;
-    std::shared_ptr<::physx::PxCustomGeometry::Type> typeId;
+    std::shared_ptr<::ev4sio_physx::PxCustomGeometry::Type> typeId;
 };
 
 
@@ -65,7 +65,7 @@ struct GeometryTrackingKey
     }
 };
 
-class CustomPhysXGeometryCallback : public ::physx::PxCustomGeometry::Callbacks, public Allocateable
+class CustomPhysXGeometryCallback : public ::ev4sio_physx::PxCustomGeometry::Callbacks, public Allocateable
 {
 public:
     CustomPhysXGeometryCallback(PhysXCustomGeometryManager& manager, const usdparser::AttachedStage& owner, omni::physics::parse::ObjectKey key,
@@ -76,54 +76,54 @@ public:
     void release();
 
     // PxCustomGeometry::Callbacks boilerplate
-    virtual ::physx::PxCustomGeometry::Type getCustomType() const
+    virtual ::ev4sio_physx::PxCustomGeometry::Type getCustomType() const
     {
         return *mCustomGeometryInfo.typeId;
     }
 
-    ::physx::PxBounds3 getLocalBounds(const ::physx::PxGeometry& geometry) const;
+    ::ev4sio_physx::PxBounds3 getLocalBounds(const ::ev4sio_physx::PxGeometry& geometry) const;
 
-    bool generateContacts(const ::physx::PxGeometry& geom0,
-                          const ::physx::PxGeometry& geom1,
-                          const ::physx::PxTransform& pose0,
-                          const ::physx::PxTransform& pose1,
+    bool generateContacts(const ::ev4sio_physx::PxGeometry& geom0,
+                          const ::ev4sio_physx::PxGeometry& geom1,
+                          const ::ev4sio_physx::PxTransform& pose0,
+                          const ::ev4sio_physx::PxTransform& pose1,
                           const float contactDistance,
                           const float meshContactMargin,
                           const float toleranceLength,
-                          ::physx::PxContactBuffer& contactBuffer) const;
+                          ::ev4sio_physx::PxContactBuffer& contactBuffer) const;
 
-    ::physx::PxU32 raycast(const ::physx::PxVec3& origin,
-                           const ::physx::PxVec3& unitDir,
-                           const ::physx::PxGeometry& geom,
-                           const ::physx::PxTransform& pose,
-                           ::physx::PxReal maxDist,
-                           ::physx::PxHitFlags hitFlags,
-                           ::physx::PxU32 maxHits,
-                           ::physx::PxGeomRaycastHit* rayHits,
-                           ::physx::PxU32 stride,
-                           ::physx::PxRaycastThreadContext* threadContext) const;
-    bool overlap(const ::physx::PxGeometry& geom0,
-                 const ::physx::PxTransform& pose0,
-                 const ::physx::PxGeometry& geom1,
-                 const ::physx::PxTransform& pose1,
-                 ::physx::PxOverlapThreadContext* threadContext) const;
-    bool sweep(const ::physx::PxVec3& unitDir,
-               const ::physx::PxReal maxDist,
-               const ::physx::PxGeometry& geom0,
-               const ::physx::PxTransform& pose0,
-               const ::physx::PxGeometry& geom1,
-               const ::physx::PxTransform& pose1,
-               ::physx::PxGeomSweepHit& sweepHit,
-               ::physx::PxHitFlags hitFlags,
-               const ::physx::PxReal inflation,
-               ::physx::PxSweepThreadContext* threadContext) const;
+    ::ev4sio_physx::PxU32 raycast(const ::ev4sio_physx::PxVec3& origin,
+                           const ::ev4sio_physx::PxVec3& unitDir,
+                           const ::ev4sio_physx::PxGeometry& geom,
+                           const ::ev4sio_physx::PxTransform& pose,
+                           ::ev4sio_physx::PxReal maxDist,
+                           ::ev4sio_physx::PxHitFlags hitFlags,
+                           ::ev4sio_physx::PxU32 maxHits,
+                           ::ev4sio_physx::PxGeomRaycastHit* rayHits,
+                           ::ev4sio_physx::PxU32 stride,
+                           ::ev4sio_physx::PxRaycastThreadContext* threadContext) const;
+    bool overlap(const ::ev4sio_physx::PxGeometry& geom0,
+                 const ::ev4sio_physx::PxTransform& pose0,
+                 const ::ev4sio_physx::PxGeometry& geom1,
+                 const ::ev4sio_physx::PxTransform& pose1,
+                 ::ev4sio_physx::PxOverlapThreadContext* threadContext) const;
+    bool sweep(const ::ev4sio_physx::PxVec3& unitDir,
+               const ::ev4sio_physx::PxReal maxDist,
+               const ::ev4sio_physx::PxGeometry& geom0,
+               const ::ev4sio_physx::PxTransform& pose0,
+               const ::ev4sio_physx::PxGeometry& geom1,
+               const ::ev4sio_physx::PxTransform& pose1,
+               ::ev4sio_physx::PxGeomSweepHit& sweepHit,
+               ::ev4sio_physx::PxHitFlags hitFlags,
+               const ::ev4sio_physx::PxReal inflation,
+               ::ev4sio_physx::PxSweepThreadContext* threadContext) const;
 
-    void visualize(const ::physx::PxGeometry& geometry,
-                   ::physx::PxRenderOutput& out,
-                   const ::physx::PxTransform& absPose,
-                   const ::physx::PxBounds3& cullbox) const;
-    void computeMassProperties(const ::physx::PxGeometry& geometry, ::physx::PxMassProperties& massProperties) const;
-    bool usePersistentContactManifold(const ::physx::PxGeometry& geometry, ::physx::PxReal& breakingThreshold) const;
+    void visualize(const ::ev4sio_physx::PxGeometry& geometry,
+                   ::ev4sio_physx::PxRenderOutput& out,
+                   const ::ev4sio_physx::PxTransform& absPose,
+                   const ::ev4sio_physx::PxBounds3& cullbox) const;
+    void computeMassProperties(const ::ev4sio_physx::PxGeometry& geometry, ::ev4sio_physx::PxMassProperties& massProperties) const;
+    bool usePersistentContactManifold(const ::ev4sio_physx::PxGeometry& geometry, ::ev4sio_physx::PxReal& breakingThreshold) const;
 
     ~CustomPhysXGeometryCallback();
 
@@ -150,7 +150,7 @@ using CustomGeometryTypeMap = std::unordered_map<size_t, CustomGeometryInfo>;
 using CustomGeometryMap =
     std::unordered_multimap<omni::physics::parse::ObjectKey, CustomPhysXGeometryCallback*, omni::physics::parse::ObjectKey::Hash>;
 
-class PhysXCustomGeometryManager : public ::physx::PxDeletionListener
+class PhysXCustomGeometryManager : public ::ev4sio_physx::PxDeletionListener
 {
 public:
     PhysXCustomGeometryManager();
@@ -162,10 +162,10 @@ public:
 
     // SDK setup registers this one listener before publishing any shapes. Each
     // provisional geometry preallocates a tracking node; binding is allocation-free.
-    void bindShape(CustomPhysXGeometryCallback&, const ::physx::PxShape&);
+    void bindShape(CustomPhysXGeometryCallback&, const ::ev4sio_physx::PxShape&);
     void forgetGeometry(CustomPhysXGeometryCallback&) noexcept;
     void releaseUnboundGeometry(CustomPhysXGeometryCallback*);
-    void onRelease(const ::physx::PxBase*, void*, ::physx::PxDeletionEventFlag::Enum) override;
+    void onRelease(const ::ev4sio_physx::PxBase*, void*, ::ev4sio_physx::PxDeletionEventFlag::Enum) override;
 
     void clear();
     void clear(const usdparser::AttachedStage& owner);
@@ -181,12 +181,12 @@ public:
         return mCustomGeometryTypeMap;
     }
 
-    bool isKnownType(const ::physx::PxCustomGeometry::Type& customType) const
+    bool isKnownType(const ::ev4sio_physx::PxCustomGeometry::Type& customType) const
     {
         std::lock_guard<carb::tasking::MutexWrapper> lock(mRegistryMutex);
-        for (const std::weak_ptr<::physx::PxCustomGeometry::Type>& entry : mKnownTypes)
+        for (const std::weak_ptr<::ev4sio_physx::PxCustomGeometry::Type>& entry : mKnownTypes)
         {
-            const std::shared_ptr<::physx::PxCustomGeometry::Type> live = entry.lock();
+            const std::shared_ptr<::ev4sio_physx::PxCustomGeometry::Type> live = entry.lock();
             if (live && *live == customType)
                 return true;
         }
@@ -196,11 +196,11 @@ public:
 private:
     std::mutex mShapesMutex;
     std::map<GeometryTrackingKey, CustomPhysXGeometryCallback*> mShapes;
-    std::vector<std::weak_ptr<::physx::PxCustomGeometry::Type>> mKnownTypes;
+    std::vector<std::weak_ptr<::ev4sio_physx::PxCustomGeometry::Type>> mKnownTypes;
     size_t mGeometryRegistryCounter;
     CustomGeometryRegistryMap mCustomGeometryRegistryMap;
     CustomGeometryTypeMap mCustomGeometryTypeMap;
     mutable carb::tasking::MutexWrapper mRegistryMutex;
 };
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

@@ -11,13 +11,13 @@
 #include "PxgRadixSortDesc.h"
 #include "CmPinnableArray.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 	class PxgRadixSortCore
 	{
 	public:
-		Cm::PinnableArray<PxgRadixSortBlockDesc>	mRSDesc;
+		ev4sio_Cm::PinnableArray<PxgRadixSortBlockDesc>	mRSDesc;
 		PxgCudaBufferN<2>							mRadixSortDescBuf; //radix sort with rank
 		PxgCudaBuffer								mRadixCountTotalBuf;
 		PxU32										mRadixCountSize;

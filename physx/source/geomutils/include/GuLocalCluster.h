@@ -11,12 +11,12 @@
 #include "foundation/PxInlineArray.h"
 #include "geometry/PxTriangle.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	class PxTriangleMeshGeometry;
 	class PxMeshScale;
 
-namespace Gu
+namespace ev4sio_Gu
 {
 	// PT: a local cluster is a triangle and its immediate neighbor.
 	// For a regular triangle with at most 3 neighbors the structure will not allocate extra memory.
@@ -36,7 +36,7 @@ namespace Gu
 	PX_PHYSX_COMMON_API	void createLocalCluster(LocalCluster& mesh, const PxTriangleMeshGeometry& meshGeom, const PxTransform* meshPose, PxU32 triIndex, const EdgeList* edgeList = NULL);
 	PX_PHYSX_COMMON_API	float depenetrateLocalClusters(const LocalCluster& mesh0, const LocalCluster& mesh1, const PxVec3& inputDir, bool iterative);
 
-} // namespace Gu
+} // namespace ev4sio_Gu
 }
 
 #endif

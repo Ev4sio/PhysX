@@ -20,7 +20,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 
 // A caller's CUDA stream as a stream-ordered session operation uses it (ADR-0052).
@@ -104,5 +104,5 @@ inline bool resolveCallerStream(uintptr_t stream, uintptr_t waitEvent, CallerStr
     return cuda->streamGetCtx(stream, &out.context, &status);
 }
 
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

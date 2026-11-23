@@ -10,7 +10,7 @@
 #include <memory>
 #include <thread>
 
-namespace omni::physx
+namespace omni::ev4sio_physx
 {
 struct RuntimeCallbackStorage
 {

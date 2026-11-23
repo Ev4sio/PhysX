@@ -25,7 +25,7 @@
 #include "DyCpuGpu1dConstraint.h"
 #include "PxgPartitionNode.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 #define PXC_SAME_NORMAL 0.999f
@@ -183,7 +183,7 @@ static __device__ PX_FORCE_INLINE void queryReduced1dConstraintSolverConstantsPG
 		// coeff0: constant (to be scaled by recipUnitResponse)
 		// coeff1: unbiasedConstant (to be scaled by recipUnitResponse)
 
-		const PxReal bounceVel = Dy::computeBounceVelocity(constraintFlags, jointSpeedForRestitutionBounce, bounceThreshold, restitution, geometricError);
+		const PxReal bounceVel = ev4sio_Dy::computeBounceVelocity(constraintFlags, jointSpeedForRestitutionBounce, bounceThreshold, restitution, geometricError);
 		if (bounceVel != 0.0f)
 		{
 			coeff0 = bounceVel;
@@ -358,6 +358,6 @@ computeCompliantContactCoefficientsTGS(PxU8 flags, PxReal nrdt, PxReal unitRespo
 	scaledBias = nrdt * x * oneIfAccelElseR;
 }
 
-} // namespace physx
+} // namespace ev4sio_physx
 
 #endif

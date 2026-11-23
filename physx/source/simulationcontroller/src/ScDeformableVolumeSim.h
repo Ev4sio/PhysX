@@ -11,9 +11,9 @@
 #include "ScDeformableVolumeCore.h" 
 #include "ScGpuActorSim.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Sc
+namespace ev4sio_Sc
 {
 
 class Scene;
@@ -25,7 +25,7 @@ public:
 											DeformableVolumeSim(DeformableVolumeCore& core, Scene& scene);
 											~DeformableVolumeSim();
 
-	PX_INLINE	Dy::DeformableVolume*		getLowLevelDeformableVolume() const { return mLLDeformableVolume; }
+	PX_INLINE	ev4sio_Dy::DeformableVolume*		getLowLevelDeformableVolume() const { return mLLDeformableVolume; }
 	PX_INLINE	DeformableVolumeCore&		getCore() const { return static_cast<DeformableVolumeCore&>(mCore); }
 
 	virtual		PxActor*					getPxActor() const PX_OVERRIDE { return getCore().getPxActor(); }
@@ -51,7 +51,7 @@ public:
 
 				PxU32						getGpuIndex()	const;
 private:
-				Dy::DeformableVolume*		mLLDeformableVolume;
+				ev4sio_Dy::DeformableVolume*		mLLDeformableVolume;
 				PxU32						mIslandNodeIndex;
 		
 // PT: as far as I can tell these are never actually called
@@ -59,8 +59,8 @@ private:
 //							void			deactivate();
 };
 
-} // namespace Sc
-} // namespace physx
+} // namespace ev4sio_Sc
+} // namespace ev4sio_physx
 
 #endif // PX_SUPPORT_GPU_PHYSX
 #endif // SC_DEFORMABLE_VOLUME_SIM_H

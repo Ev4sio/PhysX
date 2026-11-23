@@ -13,7 +13,7 @@
 #include "PxPhysXConfig.h"
 #include "PxvGeometry.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 /*!

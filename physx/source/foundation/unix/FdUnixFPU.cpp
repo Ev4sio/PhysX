@@ -15,7 +15,7 @@ PX_COMPILE_TIME_ASSERT(8 * sizeof(uint32_t) >= sizeof(fenv_t));
 #include <xmmintrin.h>
 #endif
 
-physx::PxFPUGuard::PxFPUGuard()
+ev4sio_physx::PxFPUGuard::PxFPUGuard()
 {
 #if defined(__CYGWIN__)
 #pragma message "FPUGuard::FPUGuard() is not implemented"
@@ -40,7 +40,7 @@ physx::PxFPUGuard::PxFPUGuard()
 #endif
 }
 
-physx::PxFPUGuard::~PxFPUGuard()
+ev4sio_physx::PxFPUGuard::~PxFPUGuard()
 {
 #if defined(__CYGWIN__)
 #pragma message "PxFPUGuard::~PxFPUGuard() is not implemented"
@@ -55,7 +55,7 @@ physx::PxFPUGuard::~PxFPUGuard()
 #endif
 }
 
-PX_FOUNDATION_API void physx::PxEnableFPExceptions()
+PX_FOUNDATION_API void ev4sio_physx::PxEnableFPExceptions()
 {
 #if PX_LINUX && !defined(__EMSCRIPTEN__)
 	feclearexcept(FE_ALL_EXCEPT);
@@ -72,7 +72,7 @@ PX_FOUNDATION_API void physx::PxEnableFPExceptions()
 #endif
 }
 
-PX_FOUNDATION_API void physx::PxDisableFPExceptions()
+PX_FOUNDATION_API void ev4sio_physx::PxDisableFPExceptions()
 {
 #if PX_LINUX && !defined(__EMSCRIPTEN__)
 	fedisableexcept(FE_ALL_EXCEPT);

@@ -28,8 +28,8 @@ then install it. The standalone inspector build alone does not build PhysX or th
 
 For an existing application, follow its scene ownership and stepping loop:
 
-1. At initialization, create `PxOmniPvd` with `PxCreateOmniPvd(*foundation)` and pass it
-   as the final argument to `PxCreatePhysics`. Check all returned pointers.
+1. At initialization, create `PxOmniPvd` with `ev4sio_PxCreateOmniPvd(*foundation)` and pass it
+   as the final argument to `ev4sio_PxCreatePhysics`. Check all returned pointers.
    There is no setter that retrofits the sampler onto an existing `PxPhysics`.
 2. At an idle scene boundary, obtain `physics->getOmniPvd()->getWriter()`.
    Create an owned `createOmniPvdFileWriteStream()`, select a new path with

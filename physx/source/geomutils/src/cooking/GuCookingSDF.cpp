@@ -9,7 +9,7 @@
 #include "GuCooking.h"
 #include "PxSDFBuilder.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 namespace
 {
@@ -204,7 +204,7 @@ static bool createSDFSparse(PxTriangleMeshDesc& desc, PxSDFDesc& sdfDesc, PxArra
 	{
 		PxArray<PxReal> denseSdf;			
 		PxArray<PxReal> sparseSdf;
-		Gu::SDFUsingWindingNumbersSparse(
+		ev4sio_Gu::SDFUsingWindingNumbersSparse(
 			baseMeshSpecified ? verticesPtr : &mesh.m_positions[0],
 			baseMeshSpecified ? indices32.begin() : &mesh.m_indices[0],
 			baseMeshSpecified ? indices32.size() : mesh.m_indices.size(),
@@ -213,7 +213,7 @@ static bool createSDFSparse(PxTriangleMeshDesc& desc, PxSDFDesc& sdfDesc, PxArra
 			sdfCoarse, sdfSubgridsStartSlots, sparseSdf, denseSdf, subgridsMinSdfValue, subgridsMaxSdfValue, sdfDesc.numThreadsForSdfConstruction, sdfDesc.sdfBuilder);
 
 		PxArray<PxReal> uncompressedSdfDataSubgrids;
-		Gu::convertSparseSDFTo3DTextureLayout(dx, dy, dz, sdfDesc.subgridSize, sdfSubgridsStartSlots.begin(), sparseSdf.begin(), sparseSdf.size(), uncompressedSdfDataSubgrids,
+		ev4sio_Gu::convertSparseSDFTo3DTextureLayout(dx, dy, dz, sdfDesc.subgridSize, sdfSubgridsStartSlots.begin(), sparseSdf.begin(), sparseSdf.size(), uncompressedSdfDataSubgrids,
 			sdfDesc.sdfSubgrids3DTexBlockDim.x, sdfDesc.sdfSubgrids3DTexBlockDim.y, sdfDesc.sdfSubgrids3DTexBlockDim.z);
 
 		if (sdfDesc.bitsPerSubgridPixel == 4)
@@ -236,7 +236,7 @@ static bool createSDFSparse(PxTriangleMeshDesc& desc, PxSDFDesc& sdfDesc, PxArra
 		PxArray<PxU32> repairedIndices;
 		//Analyze the mesh to catch and fix some special cases
 		//There are meshes where every triangle is present once with cw and once with ccw orientation. Try to filter out only one set
-		Gu::analyzeAndFixMesh(verts, indices, numTriangleIndices, repairedIndices);
+		ev4sio_Gu::analyzeAndFixMesh(verts, indices, numTriangleIndices, repairedIndices);
 		const PxU32* ind = repairedIndices.size() > 0 ? repairedIndices.begin() : indices;
 		if (repairedIndices.size() > 0)
 			numTriangleIndices = repairedIndices.size();
@@ -349,7 +349,7 @@ static bool createSDF(PxTriangleMeshDesc& desc, PxSDFDesc& sdfDesc, PxArray<PxRe
 
 	if (sdfDesc.sdfBuilder == NULL) 
 	{
-		Gu::SDFUsingWindingNumbers(verts, indices, numTriangleIndices, dx, dy, dz, &sdf[0], meshLower,
+		ev4sio_Gu::SDFUsingWindingNumbers(verts, indices, numTriangleIndices, dx, dy, dz, &sdf[0], meshLower,
 			meshLower + PxVec3(static_cast<PxReal>(dx), static_cast<PxReal>(dy), static_cast<PxReal>(dz)) * spacing, NULL, true,
 			sdfDesc.numThreadsForSdfConstruction, sdfDesc.sdfBuilder);
 	}
@@ -358,7 +358,7 @@ static bool createSDF(PxTriangleMeshDesc& desc, PxSDFDesc& sdfDesc, PxArray<PxRe
 		PxArray<PxU32> repairedIndices;
 		//Analyze the mesh to catch and fix some special cases
 		//There are meshes where every triangle is present once with cw and once with ccw orientation. Try to filter out only one set
-		Gu::analyzeAndFixMesh(verts, indices, numTriangleIndices, repairedIndices);
+		ev4sio_Gu::analyzeAndFixMesh(verts, indices, numTriangleIndices, repairedIndices);
 		const PxU32* ind = repairedIndices.size() > 0 ? repairedIndices.begin() : indices;
 		if (repairedIndices.size() > 0)
 			numTriangleIndices = repairedIndices.size();
@@ -378,7 +378,7 @@ static bool createSDF(PxTriangleMeshDesc& desc, PxSDFDesc& sdfDesc, PxArray<PxRe
 	return true;
 }
 
-bool physx::buildSDF(PxTriangleMeshDesc& desc, PxArray<PxReal>& sdf, PxArray<PxU8>& sdfDataSubgrids, PxArray<PxU32>& sdfSubgridsStartSlots)
+bool ev4sio_physx::buildSDF(PxTriangleMeshDesc& desc, PxArray<PxReal>& sdf, PxArray<PxU8>& sdfDataSubgrids, PxArray<PxU32>& sdfSubgridsStartSlots)
 {
 	PxSDFDesc& sdfDesc = *desc.sdfDesc;
 

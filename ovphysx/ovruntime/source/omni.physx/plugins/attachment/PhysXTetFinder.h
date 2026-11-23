@@ -15,7 +15,7 @@
 #include <internal/Internal.h>
 #include "foundation/PxTransform.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 class PxGeometry;
 }
@@ -63,8 +63,8 @@ void tetMeshLocalToPoints(carb::Float3* points,
 void overlapTetMeshGeom(int32_t*& tetIds,
                         uint32_t& tetIdsSize,
                         const uint64_t tetFinder,
-                        const ::physx::PxGeometry& geom,
-                        const ::physx::PxTransform& geomPos,
+                        const ::ev4sio_physx::PxGeometry& geom,
+                        const ::ev4sio_physx::PxTransform& geomPos,
                         const float overlapOffset,
                         void* (*allocateBytes)(size_t),
                         void* triMeshSampler = nullptr);

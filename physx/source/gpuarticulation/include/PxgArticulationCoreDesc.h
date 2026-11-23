@@ -10,7 +10,7 @@
 #include "foundation/PxVec3.h"
 #include "PxgArticulationBlockData.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	class PxgArticulation;
 	struct PxgBodySim;
@@ -18,12 +18,12 @@ namespace physx
 
 	class PxNodeIndex;
 
-	namespace IG
+	namespace ev4sio_IG
 	{
 		class NodeIndex;
 	};
 
-	namespace Cm
+	namespace ev4sio_Cm
 	{
 		struct UnAlignedSpatialVector;
 	}
@@ -44,7 +44,7 @@ namespace physx
 		bool							isExternalForcesEveryTgsIterationEnabled;
 		bool							isSleepingDisabled;
 
-		Cm::UnAlignedSpatialVector*		impulses;
+		ev4sio_Cm::UnAlignedSpatialVector*		impulses;
 		PxU32							nbSlabs;
 		PxU32							nbPartitions;
 		uint2*							slabHasChanges; // one uint2 per articulation per slab. Stores up to two link indices to communicate which links holds an impulse from the solver.

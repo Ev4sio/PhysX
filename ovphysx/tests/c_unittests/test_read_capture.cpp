@@ -117,7 +117,7 @@ ovx_token_or_string_t attrName(const char* name)
 }
 
 // The column's floats, once the device work producing them has completed.
-std::vector<float> columnToHost(omni::physx::IOptionalCuda* cuda, const DLTensor& column)
+std::vector<float> columnToHost(omni::ev4sio_physx::IOptionalCuda* cuda, const DLTensor& column)
 {
     std::vector<float> host(size_t(column.shape[0]) * size_t(column.dtype.lanes));
     EXPECT_TRUE(cuda->memcpyDtoH(host.data(), reinterpret_cast<uintptr_t>(column.data) + column.byte_offset,
@@ -226,13 +226,13 @@ TEST_F(ReadCaptureGpuTest, CapturedReadReplaysTheCurrentPoses)
 {
     CudaGraphDriver driver;
     ASSERT_TRUE(driver.ok());
-    omni::physx::IOptionalCuda* cuda = ovphysx::test_cuda::getCuda();
+    omni::ev4sio_physx::IOptionalCuda* cuda = ovphysx::test_cuda::getCuda();
     ASSERT_TRUE(test_utils::attach_usd_with_ovstage(m_handle, "tests/data/boxes_falling_on_groundplane_gpu.usda"));
     ASSERT_EQ(ovphysx_step_sync(m_handle, 1.0f / 60.0f).status, OVPHYSX_API_SUCCESS);
-    physx::PxRigidActor* actor = static_cast<physx::PxRigidActor*>(
+    ev4sio_physx::PxRigidActor* actor = static_cast<ev4sio_physx::PxRigidActor*>(
         test_utils::read_physx_pointer(m_handle, OVPHYSX_QUERY_TARGET_RIGID_ACTOR, "/World/Cube1"));
     ASSERT_NE(actor, nullptr);
-    physx::PxCudaContextManager* manager = actor->getScene()->getCudaContextManager();
+    ev4sio_physx::PxCudaContextManager* manager = actor->getScene()->getCudaContextManager();
     ASSERT_NE(manager, nullptr);
 
     // The caller's stream, in the scene's CUDA context.

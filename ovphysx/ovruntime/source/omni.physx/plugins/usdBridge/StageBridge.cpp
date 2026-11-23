@@ -41,7 +41,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace usdparser
 {
@@ -186,7 +186,7 @@ ScannedCollision bridgeParseForeignStageCollision(uint64_t stageId,
     static const std::vector<std::string> kNoExclude;
     omni::physics::parse::ScannedStage scanned =
         reparse->scan(*session, std::vector<std::string>{ colPath }, kNoExclude,
-                      omni::physics::parse::ScanOptions{}, omni::physx::usdparser::iceDescriptorAllocator());
+                      omni::physics::parse::ScanOptions{}, omni::ev4sio_physx::usdparser::iceDescriptorAllocator());
     PhysxShapeDesc* selected = selectScannedCollision(outStorage, scanned, outCollisionKey);
     return ScannedCollision(std::move(scanned), selected);
 }
@@ -209,11 +209,11 @@ ScannedCollision bridgeScanCollisionRoot(AttachedStage& attachedStage,
     omni::physics::parse::ScannedStage scanned =
         attachedStage.scanStage(scanRoots, kNoExclude,
                                         attachedStage.descriptorScanOptions(),
-                                        omni::physx::usdparser::iceDescriptorAllocator());
+                                        omni::ev4sio_physx::usdparser::iceDescriptorAllocator());
     PhysxShapeDesc* selected = selectScannedCollision(attachedStage, scanned, gPrimKey);
     return ScannedCollision(std::move(scanned), selected);
 }
 
 } // namespace usdparser
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

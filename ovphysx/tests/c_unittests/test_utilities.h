@@ -45,7 +45,7 @@ inline ovphysx_result_t complete_task(ovphysx_instance_handle_t handle, ovphysx_
         message.assign(error.ptr ? error.ptr : "", error.length);
         return { task.status };
     }
-    ovphysx::physx::WaitResult result;
+    ovphysx::ev4sio_physx::WaitResult result;
     const ovphysx_result_t status{ result.waitTask(handle, task) };
     for (size_t index = 0; index < result.errorCount(); ++index)
     {

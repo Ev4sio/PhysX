@@ -32,7 +32,7 @@
 	#include "omnipvd/OmniPvdPxSampler.h"
 #endif
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -40,7 +40,7 @@ PX_IMPLEMENT_OUTPUT_ERROR
 
 ///////////////////////////////////////////////////////////////////////////////
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 bool NpScene::checkResultsInternal(bool block)
 {
@@ -85,7 +85,7 @@ void NpScene::fetchResultsParticleSystem()
 	{
 		if (mCudaContextManager->getCudaContext()->isInAbortMode())
 		{
-			PxGetFoundation().error(PxErrorCode::eABORT, PX_FL, "PhysX failed to allocate GPU memory - aborting simulation.");
+			ev4sio_PxGetFoundation().error(PxErrorCode::eABORT, PX_FL, "PhysX failed to allocate GPU memory - aborting simulation.");
 			mCorruptedState = true;
 		}
 	}
@@ -156,11 +156,11 @@ void NpScene::fetchResultsPostContactCallbacks()
 
 	mRenderBuffer.append(mScene.getRenderBuffer());
 
-	PX_ASSERT(getSimulationStage() != Sc::SimulationStage::eCOMPLETE);
+	PX_ASSERT(getSimulationStage() != ev4sio_Sc::SimulationStage::eCOMPLETE);
 	if (mControllingSimulation)
 		mTaskManager->stopSimulation();
 
-	setSimulationStage(Sc::SimulationStage::eCOMPLETE);
+	setSimulationStage(ev4sio_Sc::SimulationStage::eCOMPLETE);
 #if PX_SUPPORT_OMNI_PVD
 	mSceneOvdClient.setContactsValid(true);
 #endif
@@ -323,7 +323,7 @@ bool NpScene::fetchResults(bool block, PxU32* errorState)
 {
 	NP_CHECK_CORRUPTION_AND_RETURN_VAL(true)
 
-	if(getSimulationStage() != Sc::SimulationStage::eADVANCE)
+	if(getSimulationStage() != ev4sio_Sc::SimulationStage::eADVANCE)
 		return outputError<PxErrorCode::eINVALID_OPERATION>(__LINE__, "PxScene::fetchResults: fetchResults() called illegally! It must be called after advance() or simulate()");
 
 	if(!checkResultsInternal(block)) // this should wait on the mPhysicsDone event, which is set in the SceneCompletion task
@@ -380,7 +380,7 @@ bool NpScene::fetchResultsStart(const PxContactPairHeader*& contactPairs, PxU32&
 {
 	NP_CHECK_CORRUPTION_AND_RETURN_VAL(true)
 
-	if (getSimulationStage() != Sc::SimulationStage::eADVANCE)
+	if (getSimulationStage() != ev4sio_Sc::SimulationStage::eADVANCE)
 		return outputError<PxErrorCode::eINVALID_OPERATION>(__LINE__, "PxScene::fetchResultsStart: fetchResultsStart() called illegally! It must be called after advance() or simulate()");
 
 	if (!checkResultsInternal(block))
@@ -410,7 +410,7 @@ bool NpScene::fetchResultsStart(const PxContactPairHeader*& contactPairs, PxU32&
 
 namespace
 {
-	class NpContactCallbackTask : public physx::PxLightCpuTask
+	class NpContactCallbackTask : public ev4sio_physx::PxLightCpuTask
 	{
 		NpScene*					mScene;
 		const PxContactPairHeader*	mContactPairHeaders;
@@ -462,7 +462,7 @@ void NpScene::processCallbacks(PxBaseTask* continuation)
 	const PxContactPairHeader* contactPairs = pairs.begin();
 	const PxU32 nbToProcess = 256;
 
-	Cm::FlushPool* flushPool = mScene.getFlushPool();
+	ev4sio_Cm::FlushPool* flushPool = mScene.getFlushPool();
 
 	for (PxU32 i = 0; i < nbPairs; i += nbToProcess)
 	{

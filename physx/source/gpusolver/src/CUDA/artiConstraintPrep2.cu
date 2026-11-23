@@ -25,13 +25,13 @@
 #include <assert.h>
 
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 extern "C" __host__ void initSolverKernels13() {}
 
 static __device__ void createPxgSolverExtBody(const PxNodeIndex& nodeIndex, const PxU32 solverBodyIndex, const PxgArticulation* const PX_RESTRICT articulations,
-	const physx::PxgSolverBodyData* const PX_RESTRICT solverBodyData,
-	const PxgSolverTxIData* const PX_RESTRICT txIDatas, physx::PxgSolverExtBody2& b,
+	const ev4sio_physx::PxgSolverBodyData* const PX_RESTRICT solverBodyData,
+	const PxgSolverTxIData* const PX_RESTRICT txIDatas, ev4sio_physx::PxgSolverExtBody2& b,
 	const PxAlignedTransform* const PX_RESTRICT bodyFrames)
 {
 	if (nodeIndex.isArticulation())
@@ -65,7 +65,7 @@ static __device__ void createPxgSolverExtBody(const PxNodeIndex& nodeIndex, cons
 		const PxgSolverBodyData& solverBody = solverBodyData[solverBodyIndex];
 		const bool isKinematic = solverBody.flags & PxRigidBodyFlag::eKINEMATIC;
 
-		Cm::UnAlignedSpatialVector velocity(PxVec3(0.f), PxVec3(0.f));
+		ev4sio_Cm::UnAlignedSpatialVector velocity(PxVec3(0.f), PxVec3(0.f));
 		PxReal penBiasClamp = -PX_MAX_F32;
 		PxReal invMass = 0.f;
 		PxAlignedTransform body2World = bodyFrames[solverBodyIndex];
@@ -110,7 +110,7 @@ static __device__ void createPxgSolverExtBody(const PxNodeIndex& nodeIndex, cons
 	}
 }
 
-static __device__ Cm::UnAlignedSpatialVector createImpulseResponseVector(const physx::PxgSolverExtBody2& b, const Cm::UnAlignedSpatialVector& impulse)
+static __device__ ev4sio_Cm::UnAlignedSpatialVector createImpulseResponseVector(const ev4sio_physx::PxgSolverExtBody2& b, const ev4sio_Cm::UnAlignedSpatialVector& impulse)
 {
 	if (b.islandNodeIndex.isArticulation() || b.islandNodeIndex.isStaticBody() || b.isKinematic)
 	{
@@ -121,11 +121,11 @@ static __device__ Cm::UnAlignedSpatialVector createImpulseResponseVector(const p
 	{
 		//For rigid bodies, the angular velocity is scaled by sqrtInertia. This allows us to use the same vector to
 		//project from sqrtInertia space to velocity space and from momentum (inertia) space to sqrtInertia space.
-		return Cm::UnAlignedSpatialVector(b.mSpatialResponse.multiplyInertia(impulse.top), impulse.bottom);
+		return ev4sio_Cm::UnAlignedSpatialVector(b.mSpatialResponse.multiplyInertia(impulse.top), impulse.bottom);
 	}
 }
 
-static __device__ PxReal projectVelocity(const PxgSolverExtBody2& b, const Cm::UnAlignedSpatialVector& responseVector)
+static __device__ PxReal projectVelocity(const PxgSolverExtBody2& b, const ev4sio_Cm::UnAlignedSpatialVector& responseVector)
 {
 	return b.velocity.dot(responseVector);
 }
@@ -135,7 +135,7 @@ static __device__ PxReal projectAngular(const PxgSolverExtBody2& b, const PxVec3
 	return b.velocity.top.dot(responseVector);
 }
 
-static __device__ Cm::UnAlignedSpatialVector getImpulseResponse(const PxgSolverExtBody2& b, const Cm::UnAlignedSpatialVector& vector)
+static __device__ ev4sio_Cm::UnAlignedSpatialVector getImpulseResponse(const PxgSolverExtBody2& b, const ev4sio_Cm::UnAlignedSpatialVector& vector)
 {
 	return b.mSpatialResponse * vector;
 }
@@ -164,7 +164,7 @@ static __device__ void setupFinalizeExtSolverConstraintsBlock(PxgBlockContactDat
 	const float2 torsionalFrictionData,
 	const PxReal totalDt)
 {
-	using namespace physx;
+	using namespace ev4sio_physx;
 	// NOTE II: the friction patches are sparse (some of them have no contact patches, and
 	// therefore did not get written back to the cache) but the patch addresses are dense,
 	// corresponding to valid patches
@@ -285,15 +285,15 @@ static __device__ void setupFinalizeExtSolverConstraintsBlock(PxgBlockContactDat
 			//printf("%i: normal = (%f, %f, %f), raXn = (%f, %f, %f), rbXn = (%f, %f, %f)\n", threadIndex, normal.x, normal.y, normal.z, raXn.x, raXn.y, raXn.z,
 			//	rbXn.x, rbXn.y, rbXn.z);
 
-			const Cm::UnAlignedSpatialVector response0 = createImpulseResponseVector(b0, Cm::UnAlignedSpatialVector(raXn, normal));
-			const Cm::UnAlignedSpatialVector response1 = createImpulseResponseVector(b1, Cm::UnAlignedSpatialVector(-rbXn, -normal));
+			const ev4sio_Cm::UnAlignedSpatialVector response0 = createImpulseResponseVector(b0, ev4sio_Cm::UnAlignedSpatialVector(raXn, normal));
+			const ev4sio_Cm::UnAlignedSpatialVector response1 = createImpulseResponseVector(b1, ev4sio_Cm::UnAlignedSpatialVector(-rbXn, -normal));
 
 			//printf("%i: response0 = (%f, %f, %f, %f, %f, %f), response1 = (%f, %f, %f, %f, %f, %f)\n", 
 			//	threadIndex, response0.top.x, response0.top.y, response0.top.z, response0.bottom.x, response0.bottom.y, response0.bottom.z,
 			//	response1.top.x, response1.top.y, response1.top.z, response1.bottom.x, response1.bottom.y, response1.bottom.z);
 
-			const Cm::UnAlignedSpatialVector deltaV0 = getImpulseResponse(b0, Cm::UnAlignedSpatialVector(normal, raXn).scale(lin0X_ang0Y_lin1Z_ang1W.x, lin0X_ang0Y_lin1Z_ang1W.y));
-			const Cm::UnAlignedSpatialVector deltaV1 = getImpulseResponse(b1, Cm::UnAlignedSpatialVector(-normal, -rbXn).scale(lin0X_ang0Y_lin1Z_ang1W.z, lin0X_ang0Y_lin1Z_ang1W.w));
+			const ev4sio_Cm::UnAlignedSpatialVector deltaV0 = getImpulseResponse(b0, ev4sio_Cm::UnAlignedSpatialVector(normal, raXn).scale(lin0X_ang0Y_lin1Z_ang1W.x, lin0X_ang0Y_lin1Z_ang1W.y));
+			const ev4sio_Cm::UnAlignedSpatialVector deltaV1 = getImpulseResponse(b1, ev4sio_Cm::UnAlignedSpatialVector(-normal, -rbXn).scale(lin0X_ang0Y_lin1Z_ang1W.z, lin0X_ang0Y_lin1Z_ang1W.w));
 
 			//printf("%i: DeltaV0 = (%f, %f, %f, %f, %f, %f), deltaV1 = (%f, %f, %f, %f, %f, %f)\n", threadIndex, deltaV0.top.x, deltaV0.top.y, deltaV0.top.z,
 			//	deltaV0.bottom.x, deltaV0.bottom.y, deltaV0.bottom.z, deltaV1.top.x, deltaV1.top.y, deltaV1.top.z,
@@ -483,11 +483,11 @@ static __device__ void setupFinalizeExtSolverConstraintsBlock(PxgBlockContactDat
 					rbXn.y = PxAbs(rbXn.y) < solverOffsetSlop ? 0.f : rbXn.y;
 					rbXn.z = PxAbs(rbXn.z) < solverOffsetSlop ? 0.f : rbXn.z;
 					
-					const Cm::UnAlignedSpatialVector response0 = createImpulseResponseVector(b0, Cm::UnAlignedSpatialVector(raXn, t0));
-					const Cm::UnAlignedSpatialVector response1 = createImpulseResponseVector(b1, Cm::UnAlignedSpatialVector(-rbXn, -t0));
+					const ev4sio_Cm::UnAlignedSpatialVector response0 = createImpulseResponseVector(b0, ev4sio_Cm::UnAlignedSpatialVector(raXn, t0));
+					const ev4sio_Cm::UnAlignedSpatialVector response1 = createImpulseResponseVector(b1, ev4sio_Cm::UnAlignedSpatialVector(-rbXn, -t0));
 
-					const Cm::UnAlignedSpatialVector deltaV0 = getImpulseResponse(b0, Cm::UnAlignedSpatialVector(t0, raXn).scale(lin0X_ang0Y_lin1Z_ang1W.x, lin0X_ang0Y_lin1Z_ang1W.y));
-					const Cm::UnAlignedSpatialVector deltaV1 = getImpulseResponse(b1, Cm::UnAlignedSpatialVector(-t0, -rbXn).scale(lin0X_ang0Y_lin1Z_ang1W.z, lin0X_ang0Y_lin1Z_ang1W.w));
+					const ev4sio_Cm::UnAlignedSpatialVector deltaV0 = getImpulseResponse(b0, ev4sio_Cm::UnAlignedSpatialVector(t0, raXn).scale(lin0X_ang0Y_lin1Z_ang1W.x, lin0X_ang0Y_lin1Z_ang1W.y));
+					const ev4sio_Cm::UnAlignedSpatialVector deltaV1 = getImpulseResponse(b1, ev4sio_Cm::UnAlignedSpatialVector(-t0, -rbXn).scale(lin0X_ang0Y_lin1Z_ang1W.z, lin0X_ang0Y_lin1Z_ang1W.w));
 
 					//printf("%i: deltaV0 = (%f, %f, %f, %f, %f, %f)\n", b0.linkIndex, deltaV0.top.x, deltaV0.top.y, deltaV0.top.z,
 					//	deltaV0.bottom.x, deltaV0.bottom.y, deltaV0.bottom.z);
@@ -498,9 +498,9 @@ static __device__ void setupFinalizeExtSolverConstraintsBlock(PxgBlockContactDat
 					float targetVel = tvel.dot(t0);//V3Dot(V3LoadU(buffer.contacts[index].targetVel), t0);
 
 					if (!b0.islandNodeIndex.isArticulation())
-						targetVel -= projectVelocity(b0, Cm::UnAlignedSpatialVector(raXn, t0));
+						targetVel -= projectVelocity(b0, ev4sio_Cm::UnAlignedSpatialVector(raXn, t0));
 					if (!b1.islandNodeIndex.isArticulation())
-						targetVel += projectVelocity(b1, Cm::UnAlignedSpatialVector(rbXn, t0));
+						targetVel += projectVelocity(b1, ev4sio_Cm::UnAlignedSpatialVector(rbXn, t0));
 
 					// Storing resp0 and resp1, separately.
 					const float bias = t0.dot(error) * invDt;
@@ -542,11 +542,11 @@ static __device__ void setupFinalizeExtSolverConstraintsBlock(PxgBlockContactDat
 					rbXn.y = PxAbs(rbXn.y) < solverOffsetSlop ? 0.f : rbXn.y;
 					rbXn.z = PxAbs(rbXn.z) < solverOffsetSlop ? 0.f : rbXn.z;
 
-					const Cm::UnAlignedSpatialVector response0 = createImpulseResponseVector(b0, Cm::UnAlignedSpatialVector(raXn, t1));
-					const Cm::UnAlignedSpatialVector response1 = createImpulseResponseVector(b1, Cm::UnAlignedSpatialVector(-rbXn, -t1));
+					const ev4sio_Cm::UnAlignedSpatialVector response0 = createImpulseResponseVector(b0, ev4sio_Cm::UnAlignedSpatialVector(raXn, t1));
+					const ev4sio_Cm::UnAlignedSpatialVector response1 = createImpulseResponseVector(b1, ev4sio_Cm::UnAlignedSpatialVector(-rbXn, -t1));
 
-					const Cm::UnAlignedSpatialVector deltaV0 = getImpulseResponse(b0, Cm::UnAlignedSpatialVector(t1, raXn).scale(lin0X_ang0Y_lin1Z_ang1W.x, lin0X_ang0Y_lin1Z_ang1W.y));
-					const Cm::UnAlignedSpatialVector deltaV1 = getImpulseResponse(b1, Cm::UnAlignedSpatialVector(-t1, -rbXn).scale(lin0X_ang0Y_lin1Z_ang1W.z, lin0X_ang0Y_lin1Z_ang1W.w));
+					const ev4sio_Cm::UnAlignedSpatialVector deltaV0 = getImpulseResponse(b0, ev4sio_Cm::UnAlignedSpatialVector(t1, raXn).scale(lin0X_ang0Y_lin1Z_ang1W.x, lin0X_ang0Y_lin1Z_ang1W.y));
+					const ev4sio_Cm::UnAlignedSpatialVector deltaV1 = getImpulseResponse(b1, ev4sio_Cm::UnAlignedSpatialVector(-t1, -rbXn).scale(lin0X_ang0Y_lin1Z_ang1W.z, lin0X_ang0Y_lin1Z_ang1W.w));
 
 					const float resp0 = deltaV0.dot(response0);
 					const float resp1 = deltaV1.dot(response1);
@@ -554,9 +554,9 @@ static __device__ void setupFinalizeExtSolverConstraintsBlock(PxgBlockContactDat
 					float targetVel = tvel.dot(t1);//V3Dot(V3LoadU(buffer.contacts[index].targetVel), t0);
 
 					if (!b0.islandNodeIndex.isArticulation())
-						targetVel -= projectVelocity(b0, Cm::UnAlignedSpatialVector(raXn, t1));
+						targetVel -= projectVelocity(b0, ev4sio_Cm::UnAlignedSpatialVector(raXn, t1));
 					if (!b1.islandNodeIndex.isArticulation())
-						targetVel += projectVelocity(b1, Cm::UnAlignedSpatialVector(rbXn, t1));
+						targetVel += projectVelocity(b1, ev4sio_Cm::UnAlignedSpatialVector(rbXn, t1));
 
 					// Storing resp0 and resp1, separately.
 					const float bias = t1.dot(error) * invDt;
@@ -612,7 +612,7 @@ static __device__ void setupFinalizeExtSolverConstraintsBlock(PxgBlockContactDat
 	const float2 torsionalFrictionData,
 	const PxReal totalDt)
 {
-	using namespace physx;
+	using namespace ev4sio_physx;
 	// NOTE II: the friction patches are sparse (some of them have no contact patches, and
 	// therefore did not get written back to the cache) but the patch addresses are dense,
 	// corresponding to valid patches
@@ -745,15 +745,15 @@ static __device__ void setupFinalizeExtSolverConstraintsBlock(PxgBlockContactDat
 			//printf("%i: normal = (%f, %f, %f), raXn = (%f, %f, %f), rbXn = (%f, %f, %f)\n", threadIndex, normal.x, normal.y, normal.z, raXn.x, raXn.y, raXn.z,
 			//	rbXn.x, rbXn.y, rbXn.z);
 
-			const Cm::UnAlignedSpatialVector response0 = createImpulseResponseVector(b0, Cm::UnAlignedSpatialVector(raXn, normal));
-			const Cm::UnAlignedSpatialVector response1 = createImpulseResponseVector(b1, Cm::UnAlignedSpatialVector(-rbXn, -normal));
+			const ev4sio_Cm::UnAlignedSpatialVector response0 = createImpulseResponseVector(b0, ev4sio_Cm::UnAlignedSpatialVector(raXn, normal));
+			const ev4sio_Cm::UnAlignedSpatialVector response1 = createImpulseResponseVector(b1, ev4sio_Cm::UnAlignedSpatialVector(-rbXn, -normal));
 
 			//printf("%i: response0 = (%f, %f, %f, %f, %f, %f), response1 = (%f, %f, %f, %f, %f, %f)\n", 
 			//	threadIndex, response0.top.x, response0.top.y, response0.top.z, response0.bottom.x, response0.bottom.y, response0.bottom.z,
 			//	response1.top.x, response1.top.y, response1.top.z, response1.bottom.x, response1.bottom.y, response1.bottom.z);
 
-			const Cm::UnAlignedSpatialVector deltaV0 = getImpulseResponse(b0, Cm::UnAlignedSpatialVector(normal, raXn).scale(lin0X_ang0Y_lin1Z_ang1W.x, lin0X_ang0Y_lin1Z_ang1W.y));
-			const Cm::UnAlignedSpatialVector deltaV1 = getImpulseResponse(b1, Cm::UnAlignedSpatialVector(-normal, -rbXn).scale(lin0X_ang0Y_lin1Z_ang1W.z, lin0X_ang0Y_lin1Z_ang1W.w));
+			const ev4sio_Cm::UnAlignedSpatialVector deltaV0 = getImpulseResponse(b0, ev4sio_Cm::UnAlignedSpatialVector(normal, raXn).scale(lin0X_ang0Y_lin1Z_ang1W.x, lin0X_ang0Y_lin1Z_ang1W.y));
+			const ev4sio_Cm::UnAlignedSpatialVector deltaV1 = getImpulseResponse(b1, ev4sio_Cm::UnAlignedSpatialVector(-normal, -rbXn).scale(lin0X_ang0Y_lin1Z_ang1W.z, lin0X_ang0Y_lin1Z_ang1W.w));
 
 			//printf("%i: DeltaV0 = (%f, %f, %f, %f, %f, %f), deltaV1 = (%f, %f, %f, %f, %f, %f)\n", threadIndex, deltaV0.top.x, deltaV0.top.y, deltaV0.top.z,
 			//	deltaV0.bottom.x, deltaV0.bottom.y, deltaV0.bottom.z, deltaV1.top.x, deltaV1.top.y, deltaV1.top.z,
@@ -930,11 +930,11 @@ static __device__ void setupFinalizeExtSolverConstraintsBlock(PxgBlockContactDat
 					rbXn.y = PxAbs(rbXn.y) < solverOffsetSlop ? 0.f : rbXn.y;
 					rbXn.z = PxAbs(rbXn.z) < solverOffsetSlop ? 0.f : rbXn.z;
 
-					const Cm::UnAlignedSpatialVector response0 = createImpulseResponseVector(b0, Cm::UnAlignedSpatialVector(raXn, t0));
-					const Cm::UnAlignedSpatialVector response1 = createImpulseResponseVector(b1, Cm::UnAlignedSpatialVector(-rbXn, -t0));
+					const ev4sio_Cm::UnAlignedSpatialVector response0 = createImpulseResponseVector(b0, ev4sio_Cm::UnAlignedSpatialVector(raXn, t0));
+					const ev4sio_Cm::UnAlignedSpatialVector response1 = createImpulseResponseVector(b1, ev4sio_Cm::UnAlignedSpatialVector(-rbXn, -t0));
 
-					const Cm::UnAlignedSpatialVector deltaV0 = getImpulseResponse(b0, Cm::UnAlignedSpatialVector(t0, raXn).scale(lin0X_ang0Y_lin1Z_ang1W.x, lin0X_ang0Y_lin1Z_ang1W.y));
-					const Cm::UnAlignedSpatialVector deltaV1 = getImpulseResponse(b1, Cm::UnAlignedSpatialVector(-t0, -rbXn).scale(lin0X_ang0Y_lin1Z_ang1W.z, lin0X_ang0Y_lin1Z_ang1W.w));
+					const ev4sio_Cm::UnAlignedSpatialVector deltaV0 = getImpulseResponse(b0, ev4sio_Cm::UnAlignedSpatialVector(t0, raXn).scale(lin0X_ang0Y_lin1Z_ang1W.x, lin0X_ang0Y_lin1Z_ang1W.y));
+					const ev4sio_Cm::UnAlignedSpatialVector deltaV1 = getImpulseResponse(b1, ev4sio_Cm::UnAlignedSpatialVector(-t0, -rbXn).scale(lin0X_ang0Y_lin1Z_ang1W.z, lin0X_ang0Y_lin1Z_ang1W.w));
 
 					//printf("%i: deltaV0 = (%f, %f, %f, %f, %f, %f)\n", b0.linkIndex, deltaV0.top.x, deltaV0.top.y, deltaV0.top.z,
 					//	deltaV0.bottom.x, deltaV0.bottom.y, deltaV0.bottom.z);
@@ -945,9 +945,9 @@ static __device__ void setupFinalizeExtSolverConstraintsBlock(PxgBlockContactDat
 					float targetVel = tvel.dot(t0);//V3Dot(V3LoadU(buffer.contacts[index].targetVel), t0);
 
 					if (b0.isKinematic)
-						targetVel -= projectVelocity(b0, Cm::UnAlignedSpatialVector(raXn, t0));
+						targetVel -= projectVelocity(b0, ev4sio_Cm::UnAlignedSpatialVector(raXn, t0));
 					if (b1.isKinematic)
-						targetVel += projectVelocity(b1, Cm::UnAlignedSpatialVector(rbXn, t0));
+						targetVel += projectVelocity(b1, ev4sio_Cm::UnAlignedSpatialVector(rbXn, t0));
 
 					//printf("%i: Normal = (%f, %f, %f), raXn = (%f, %f, %f), Friction velMultiplier = %f, biasedErr = %f, targetVel = %f\n", 
 					//	b0.linkIndex, t0.x, t0.y, t0.z, raXn.x, raXn.y, raXn.z, velMultiplier, t0.dot(error)*invDt, targetVel);
@@ -989,11 +989,11 @@ static __device__ void setupFinalizeExtSolverConstraintsBlock(PxgBlockContactDat
 					rbXn.y = PxAbs(rbXn.y) < solverOffsetSlop ? 0.f : rbXn.y;
 					rbXn.z = PxAbs(rbXn.z) < solverOffsetSlop ? 0.f : rbXn.z;
 
-					const Cm::UnAlignedSpatialVector response0 = createImpulseResponseVector(b0, Cm::UnAlignedSpatialVector(raXn, t1));
-					const Cm::UnAlignedSpatialVector response1 = createImpulseResponseVector(b1, Cm::UnAlignedSpatialVector(-rbXn, -t1));
+					const ev4sio_Cm::UnAlignedSpatialVector response0 = createImpulseResponseVector(b0, ev4sio_Cm::UnAlignedSpatialVector(raXn, t1));
+					const ev4sio_Cm::UnAlignedSpatialVector response1 = createImpulseResponseVector(b1, ev4sio_Cm::UnAlignedSpatialVector(-rbXn, -t1));
 
-					const Cm::UnAlignedSpatialVector deltaV0 = getImpulseResponse(b0, Cm::UnAlignedSpatialVector(t1, raXn).scale(lin0X_ang0Y_lin1Z_ang1W.x, lin0X_ang0Y_lin1Z_ang1W.y));
-					const Cm::UnAlignedSpatialVector deltaV1 = getImpulseResponse(b1, Cm::UnAlignedSpatialVector(-t1, -rbXn).scale(lin0X_ang0Y_lin1Z_ang1W.z, lin0X_ang0Y_lin1Z_ang1W.w));
+					const ev4sio_Cm::UnAlignedSpatialVector deltaV0 = getImpulseResponse(b0, ev4sio_Cm::UnAlignedSpatialVector(t1, raXn).scale(lin0X_ang0Y_lin1Z_ang1W.x, lin0X_ang0Y_lin1Z_ang1W.y));
+					const ev4sio_Cm::UnAlignedSpatialVector deltaV1 = getImpulseResponse(b1, ev4sio_Cm::UnAlignedSpatialVector(-t1, -rbXn).scale(lin0X_ang0Y_lin1Z_ang1W.z, lin0X_ang0Y_lin1Z_ang1W.w));
 
 					const float resp0 = deltaV0.dot(response0);
 					const float resp1 = deltaV1.dot(response1);
@@ -1001,9 +1001,9 @@ static __device__ void setupFinalizeExtSolverConstraintsBlock(PxgBlockContactDat
 					float targetVel = tvel.dot(t1);//V3Dot(V3LoadU(buffer.contacts[index].targetVel), t0);
 
 					if (b0.isKinematic)
-						targetVel -= projectVelocity(b0, Cm::UnAlignedSpatialVector(raXn, t1));
+						targetVel -= projectVelocity(b0, ev4sio_Cm::UnAlignedSpatialVector(raXn, t1));
 					if (b1.isKinematic)
-						targetVel += projectVelocity(b1, Cm::UnAlignedSpatialVector(rbXn, t1));
+						targetVel += projectVelocity(b1, ev4sio_Cm::UnAlignedSpatialVector(rbXn, t1));
 
 					//printf("%i: deltaV0 = (%f, %f, %f, %f, %f, %f)\n", b0.linkIndex, deltaV0.top.x, deltaV0.top.y, deltaV0.top.z,
 					//	deltaV0.bottom.x, deltaV0.bottom.y, deltaV0.bottom.z);
@@ -1044,11 +1044,11 @@ static __device__ void setupFinalizeExtSolverConstraintsBlock(PxgBlockContactDat
 				params.blockFrictionHeader->torsionalFrictionScale[threadIndex] = frictionScale;
 
 
-				const Cm::UnAlignedSpatialVector response0 = createImpulseResponseVector(b0, Cm::UnAlignedSpatialVector(normal, PxVec3(0.f)));
-				const Cm::UnAlignedSpatialVector response1 = createImpulseResponseVector(b1, Cm::UnAlignedSpatialVector(-normal, PxVec3(0.f)));
+				const ev4sio_Cm::UnAlignedSpatialVector response0 = createImpulseResponseVector(b0, ev4sio_Cm::UnAlignedSpatialVector(normal, PxVec3(0.f)));
+				const ev4sio_Cm::UnAlignedSpatialVector response1 = createImpulseResponseVector(b1, ev4sio_Cm::UnAlignedSpatialVector(-normal, PxVec3(0.f)));
 
-				const Cm::UnAlignedSpatialVector deltaV0 = getImpulseResponse(b0, Cm::UnAlignedSpatialVector(PxVec3(0.f), normal).scale(lin0X_ang0Y_lin1Z_ang1W.x, lin0X_ang0Y_lin1Z_ang1W.y));
-				const Cm::UnAlignedSpatialVector deltaV1 = getImpulseResponse(b1, Cm::UnAlignedSpatialVector(PxVec3(0.f), -normal).scale(lin0X_ang0Y_lin1Z_ang1W.z, lin0X_ang0Y_lin1Z_ang1W.w));
+				const ev4sio_Cm::UnAlignedSpatialVector deltaV0 = getImpulseResponse(b0, ev4sio_Cm::UnAlignedSpatialVector(PxVec3(0.f), normal).scale(lin0X_ang0Y_lin1Z_ang1W.x, lin0X_ang0Y_lin1Z_ang1W.y));
+				const ev4sio_Cm::UnAlignedSpatialVector deltaV1 = getImpulseResponse(b1, ev4sio_Cm::UnAlignedSpatialVector(PxVec3(0.f), -normal).scale(lin0X_ang0Y_lin1Z_ang1W.z, lin0X_ang0Y_lin1Z_ang1W.w));
 
 				//printf("%i: deltaV0 = (%f, %f, %f, %f, %f, %f)\n", b0.linkIndex, deltaV0.top.x, deltaV0.top.y, deltaV0.top.z,
 				//	deltaV0.bottom.x, deltaV0.bottom.y, deltaV0.bottom.z);
@@ -1341,7 +1341,7 @@ static __device__ void preprocessRowsBlock(
 	PxgBlockConstraint1DParameters* rowParameters,
 	const PxU32 threadIndex)
 {
-	using namespace physx;
+	using namespace ev4sio_physx;
 
 	const PxU32 numRows = constraintData->mNumRows[threadIndex];
 
@@ -1373,11 +1373,11 @@ static __device__ PxU32 setUpArti1DConstraintBlock(
 	float dt, float recipdt, 
 	float biasCoefficient,
 	PxgSolverExtBody2& b0, PxgSolverExtBody2& b1,
-	const physx::PxgSolverBodyPrepData* bodyData0, 
-	const physx::PxgSolverBodyPrepData* bodyData1,
+	const ev4sio_physx::PxgSolverBodyPrepData* bodyData0,
+	const ev4sio_physx::PxgSolverBodyPrepData* bodyData1,
 	const PxU32 threadIndex)
 {
-	using namespace physx;
+	using namespace ev4sio_physx;
 
 	const PxReal erp = biasCoefficient;
 	PxU32 outCount = 0;
@@ -1415,11 +1415,11 @@ static __device__ PxU32 setUpArti1DConstraintBlock(
 		const PxReal minImpulse = c_linear1XYZ_minImpulseW.w * driveScale;
 		const PxReal maxImpulse = c_angular1XYZ_maxImpulseW.w * driveScale;
 
-		const Cm::UnAlignedSpatialVector response0 = createImpulseResponseVector(b0, Cm::UnAlignedSpatialVector(cang0, clin0));
-		const Cm::UnAlignedSpatialVector response1 = createImpulseResponseVector(b1, Cm::UnAlignedSpatialVector(-cang1, -clin1));
+		const ev4sio_Cm::UnAlignedSpatialVector response0 = createImpulseResponseVector(b0, ev4sio_Cm::UnAlignedSpatialVector(cang0, clin0));
+		const ev4sio_Cm::UnAlignedSpatialVector response1 = createImpulseResponseVector(b1, ev4sio_Cm::UnAlignedSpatialVector(-cang1, -clin1));
 
-		const Cm::UnAlignedSpatialVector deltaV0 = getImpulseResponse(b0, Cm::UnAlignedSpatialVector(clin0, cang0).scale(lin0X_ang0Y_lin1Z_ang1W.x, lin0X_ang0Y_lin1Z_ang1W.y));
-		const Cm::UnAlignedSpatialVector deltaV1 = getImpulseResponse(b1, Cm::UnAlignedSpatialVector(-clin1, -cang1).scale(lin0X_ang0Y_lin1Z_ang1W.z, lin0X_ang0Y_lin1Z_ang1W.w));
+		const ev4sio_Cm::UnAlignedSpatialVector deltaV0 = getImpulseResponse(b0, ev4sio_Cm::UnAlignedSpatialVector(clin0, cang0).scale(lin0X_ang0Y_lin1Z_ang1W.x, lin0X_ang0Y_lin1Z_ang1W.y));
+		const ev4sio_Cm::UnAlignedSpatialVector deltaV1 = getImpulseResponse(b1, ev4sio_Cm::UnAlignedSpatialVector(-clin1, -cang1).scale(lin0X_ang0Y_lin1Z_ang1W.z, lin0X_ang0Y_lin1Z_ang1W.w));
 		const float resp0 = deltaV0.dot(response0);
 		const float resp1 = deltaV1.dot(response1);
 
@@ -1454,10 +1454,10 @@ static __device__ PxU32 setUpArti1DConstraintBlock(
 		const bool b1IsRigidDynamic = (b1.linkIndex == PxSolverConstraintDesc::RIGID_BODY);
 		if (needNormalVel || b0IsRigidDynamic || b1IsRigidDynamic)
 		{
-			const PxReal vel0 = projectVelocity(b0, Cm::UnAlignedSpatialVector(cang0, clin0));
-			const PxReal vel1 = projectVelocity(b1, Cm::UnAlignedSpatialVector(cang1, clin1));
+			const PxReal vel0 = projectVelocity(b0, ev4sio_Cm::UnAlignedSpatialVector(cang0, clin0));
+			const PxReal vel1 = projectVelocity(b1, ev4sio_Cm::UnAlignedSpatialVector(cang1, clin1));
 
-			Dy::computeJointSpeedPGS(vel0, b0IsRigidDynamic, vel1, b1IsRigidDynamic, jointSpeedForRestitutionBounce, initJointSpeed);
+			ev4sio_Dy::computeJointSpeedPGS(vel0, b0IsRigidDynamic, vel1, b1IsRigidDynamic, jointSpeedForRestitutionBounce, initJointSpeed);
 		}
 
 		// Raising flags for spring and acceleration spring.
@@ -1485,8 +1485,8 @@ static __device__ PxU32 setUpArti1DConstraintBlock(
 
 
 static __device__ void intializeTGSBlock1D(
-	const physx::PxgBlockConstraint1DVelocities& rv,
-	const physx::PxgBlockConstraint1DParameters& rp,
+	const ev4sio_physx::PxgBlockConstraint1DVelocities& rv,
+	const ev4sio_physx::PxgBlockConstraint1DParameters& rp,
 	const float jointSpeedForRestitutionBounce, const PxReal initJointSpeed,
 	const float resp0, const float resp1, const float erp,
 	const float stepDt, const float simDt, const float recipStepDt, const float recipSimDt,
@@ -1497,7 +1497,7 @@ static __device__ void intializeTGSBlock1D(
 	PxgTGSBlockSolverConstraint1DCon& scon,
 	PxReal cfm)
 {
-	using namespace physx;
+	using namespace ev4sio_physx;
 
 	PxReal maxBiasVelocity;
 	{
@@ -1509,7 +1509,7 @@ static __device__ void intializeTGSBlock1D(
 		const PxReal geometricError = rv.linear0XYZ_geometricErrorW[threadIndex].w;
 		const PxReal velocityTarget = rv.angular0XYZ_velocityTargetW[threadIndex].w;
 
-		maxBiasVelocity = Dy::computeMaxBiasVelocityTGS(flags, jointSpeedForRestitutionBounce, bounceVelocityThreshold, 
+		maxBiasVelocity = ev4sio_Dy::computeMaxBiasVelocityTGS(flags, jointSpeedForRestitutionBounce, bounceVelocityThreshold,
 			restitution, geometricError, true, lengthScale, recipSimDt);
 
 		// To use different mass for mass-splitting every sub-timestep (or iteration),
@@ -1518,7 +1518,7 @@ static __device__ void intializeTGSBlock1D(
 		// This does not change the previous impulse formulation, but a different mass is used due to mass-splitting.
 
 		PxReal coeff0, coeff1, coeff2, coeff3;
-		Dy::queryReduced1dConstraintSolverConstantsTGS(flags, stiffness, damping, restitution, bounceVelocityThreshold,
+		ev4sio_Dy::queryReduced1dConstraintSolverConstantsTGS(flags, stiffness, damping, restitution, bounceVelocityThreshold,
 		                                               geometricError, velocityTarget, jointSpeedForRestitutionBounce,
 		                                               initJointSpeed, erp, stepDt, recipStepDt, coeff0, coeff1, coeff2, coeff3);
 
@@ -1545,11 +1545,11 @@ static __device__ PxU32 setUpArti1DConstraintBlock(
 	float lengthScale,
 	const PxReal biasCoefficient,
 	PxgSolverExtBody2& b0, PxgSolverExtBody2& b1,
-	const physx::PxgSolverBodyPrepData* bodyData0,
-	const physx::PxgSolverBodyPrepData* bodyData1,
+	const ev4sio_physx::PxgSolverBodyPrepData* bodyData0,
+	const ev4sio_physx::PxgSolverBodyPrepData* bodyData1,
 	const PxU32 threadIndex)
 {
-	using namespace physx;
+	using namespace ev4sio_physx;
 
 	const PxReal erp = biasCoefficient;
 	
@@ -1583,11 +1583,11 @@ static __device__ PxU32 setUpArti1DConstraintBlock(
 		const PxVec3 cang0(c_angular0XYZ_velocityTargetW.x, c_angular0XYZ_velocityTargetW.y, c_angular0XYZ_velocityTargetW.z);
 		const PxVec3 cang1(c_angular1XYZ_maxImpulseW.x, c_angular1XYZ_maxImpulseW.y, c_angular1XYZ_maxImpulseW.z);
 
-		const Cm::UnAlignedSpatialVector response0 = createImpulseResponseVector(b0, Cm::UnAlignedSpatialVector(cang0, clin0));
-		const Cm::UnAlignedSpatialVector response1 = createImpulseResponseVector(b1, Cm::UnAlignedSpatialVector(-cang1, -clin1));
+		const ev4sio_Cm::UnAlignedSpatialVector response0 = createImpulseResponseVector(b0, ev4sio_Cm::UnAlignedSpatialVector(cang0, clin0));
+		const ev4sio_Cm::UnAlignedSpatialVector response1 = createImpulseResponseVector(b1, ev4sio_Cm::UnAlignedSpatialVector(-cang1, -clin1));
 
-		const Cm::UnAlignedSpatialVector deltaV0 = getImpulseResponse(b0, Cm::UnAlignedSpatialVector(clin0, cang0).scale(lin0X_ang0Y_lin1Z_ang1W.x, lin0X_ang0Y_lin1Z_ang1W.y));
-		const Cm::UnAlignedSpatialVector deltaV1 = getImpulseResponse(b1, Cm::UnAlignedSpatialVector(-clin1, -cang1).scale(lin0X_ang0Y_lin1Z_ang1W.z, lin0X_ang0Y_lin1Z_ang1W.w));
+		const ev4sio_Cm::UnAlignedSpatialVector deltaV0 = getImpulseResponse(b0, ev4sio_Cm::UnAlignedSpatialVector(clin0, cang0).scale(lin0X_ang0Y_lin1Z_ang1W.x, lin0X_ang0Y_lin1Z_ang1W.y));
+		const ev4sio_Cm::UnAlignedSpatialVector deltaV1 = getImpulseResponse(b1, ev4sio_Cm::UnAlignedSpatialVector(-clin1, -cang1).scale(lin0X_ang0Y_lin1Z_ang1W.z, lin0X_ang0Y_lin1Z_ang1W.w));
 
 		const float resp0 = deltaV0.dot(response0);
 		const float resp1 = deltaV1.dot(response1);
@@ -1617,9 +1617,9 @@ static __device__ PxU32 setUpArti1DConstraintBlock(
 		PxReal jointSpeedForRestitutionBounce;
 		PxReal initJointSpeed;
 		{
-			const PxReal vel0 = projectVelocity(b0, Cm::UnAlignedSpatialVector(cang0, clin0));
-			const PxReal vel1 = projectVelocity(b1, Cm::UnAlignedSpatialVector(cang1, clin1));
-			Dy::computeJointSpeedTGS(vel0, b0.isKinematic, vel1, b1.isKinematic, jointSpeedForRestitutionBounce, initJointSpeed);
+			const PxReal vel0 = projectVelocity(b0, ev4sio_Cm::UnAlignedSpatialVector(cang0, clin0));
+			const PxReal vel1 = projectVelocity(b1, ev4sio_Cm::UnAlignedSpatialVector(cang1, clin1));
+			ev4sio_Dy::computeJointSpeedTGS(vel0, b0.isKinematic, vel1, b1.isKinematic, jointSpeedForRestitutionBounce, initJointSpeed);
 		}
 
 		// JIRA: PX-4383
@@ -1639,13 +1639,13 @@ static __device__ PxU32 setUpArti1DConstraintBlock(
 
 		const bool hasDriveLimit = rpFlags & Px1DConstraintFlag::eHAS_DRIVE_LIMIT;
 		const bool driveLimitsAreForces = constraintData->mFlags[threadIndex] & PxConstraintFlag::eDRIVE_LIMITS_ARE_FORCES;
-		Dy::computeMinMaxImpulseOrForceAsImpulse(
+		ev4sio_Dy::computeMinMaxImpulseOrForceAsImpulse(
 			c_linear1XYZ_minImpulseW.w, c_angular1XYZ_maxImpulseW.w, 
 			hasDriveLimit, driveLimitsAreForces, simDt, 
 			ccon.minImpulse[threadIndex], ccon.maxImpulse[threadIndex]);
 
 		PxU32 flags = 0;
-		Dy::raiseInternalFlagsTGS(rpFlags, rpSolveHint, flags);
+		ev4sio_Dy::raiseInternalFlagsTGS(rpFlags, rpSolveHint, flags);
 
 		ccon.flags[threadIndex] = flags;
 
@@ -1673,7 +1673,7 @@ static __device__ void setupArtiSolverConstraintBlockGPU(
 	PxgSolverExtBody2& b0,
 	PxgSolverExtBody2& b1)
 {
-	using namespace physx;
+	using namespace ev4sio_physx;
 
 	//distance constraint might have zero number of rows	
 	params.jointHeader->rowCounts[threadIndexInWarp] = PxU8(constraintData->mNumRows[threadIndexInWarp]);
@@ -1700,7 +1700,7 @@ static __device__ void setupArtiSolverConstraintBlockGPU(
 	const PxReal cfm = PxMax(b0.cfm, b1.cfm);
 	params.jointHeader->cfm[threadIndexInWarp] = cfm;
 
-	__shared__ PxU32 sortedRowIndices[NbThreads][Dy::MAX_CONSTRAINT_ROWS];
+	__shared__ PxU32 sortedRowIndices[NbThreads][ev4sio_Dy::MAX_CONSTRAINT_ROWS];
 
 	preprocessRowsBlock(sortedRowIndices[threadIdx.x + threadIdx.y * blockDim.x], constraintData, rowVelocities, rowParameters, threadIndexInWarp);
 
@@ -1727,7 +1727,7 @@ static __device__ void setupArtiSolverConstraintBlockGPU(
 	PxgSolverExtBody2& b0,
 	PxgSolverExtBody2& b1)
 {
-	using namespace physx;
+	using namespace ev4sio_physx;
 
 	//distance constraint might have zero number of rows	
 	//params.jointHeader->rowCounts_breakable_orthoAxisCount[threadIndexInWarp].x = PxU8(constraintData->mNumRows[threadIndexInWarp]);
@@ -1757,7 +1757,7 @@ static __device__ void setupArtiSolverConstraintBlockGPU(
 	PxU8 rowCounts = PxU8(constraintData->mNumRows[threadIndexInWarp]);
 	const PxU8 breakable = PxU8((raWorld_linBreakForce.w != PX_MAX_F32) || (angBreakForce != PX_MAX_F32));
 	
-	__shared__ PxU32 sortedRowIndices[NbThreads][Dy::MAX_CONSTRAINT_ROWS];
+	__shared__ PxU32 sortedRowIndices[NbThreads][ev4sio_Dy::MAX_CONSTRAINT_ROWS];
 
 	preprocessRowsBlock(sortedRowIndices[threadIdx.x + threadIdx.y * blockDim.x], constraintData, rowVelocities, rowParameters, threadIndexInWarp);
 
@@ -1853,8 +1853,8 @@ __device__ void artiJointConstraintBlockPrepare(
 		{
 			//desc.descIndex for joint in fact is the batch index
 			PxgBlockConstraint1DData& constraintData = constraintPrepDesc->blockJointPrepPool[descIndexBatch];
-			PxgBlockConstraint1DVelocities* rowVelocities = &constraintPrepDesc->blockJointPrepPool0[descIndexBatch * Dy::MAX_CONSTRAINT_ROWS];
-			PxgBlockConstraint1DParameters* rowParameters = &constraintPrepDesc->blockJointPrepPool1[descIndexBatch * Dy::MAX_CONSTRAINT_ROWS];
+			PxgBlockConstraint1DVelocities* rowVelocities = &constraintPrepDesc->blockJointPrepPool0[descIndexBatch * ev4sio_Dy::MAX_CONSTRAINT_ROWS];
+			PxgBlockConstraint1DParameters* rowParameters = &constraintPrepDesc->blockJointPrepPool1[descIndexBatch * ev4sio_Dy::MAX_CONSTRAINT_ROWS];
 
 			const PxNodeIndex nodeIndexA = batch.bodyANodeIndex[threadIndexInWarp];
 			const PxNodeIndex nodeIndexB = batch.bodyBNodeIndex[threadIndexInWarp];

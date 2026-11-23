@@ -20,7 +20,7 @@
 // AD: hardcode this here to avoid pulling in CUDA headers.
 #define CUDA_OUT_OF_MEMORY 2
 
-class CarbPhysXErrorCallback : public ::physx::PxErrorCallback
+class CarbPhysXErrorCallback : public ::ev4sio_physx::PxErrorCallback
 {
 public:
     CarbPhysXErrorCallback()
@@ -42,22 +42,22 @@ public:
 
     void setMaxNumErrors(uint32_t maxNumErrors) { mMaxNumErrors = maxNumErrors; }
 
-    void reportError(::physx::PxErrorCode::Enum code, const char* message, const char* file, int line) override
+    void reportError(::ev4sio_physx::PxErrorCode::Enum code, const char* message, const char* file, int line) override
     {
-        if((code == ::physx::PxErrorCode::eNO_ERROR) || (code & ::physx::PxErrorCode::eDEBUG_INFO))
+        if((code == ::ev4sio_physx::PxErrorCode::eNO_ERROR) || (code & ::ev4sio_physx::PxErrorCode::eDEBUG_INFO))
         {
             CARB_LOG_INFO("PhysX info: %s, FILE %s, LINE %d", message, file, line);
         }
-        else if(code & (::physx::PxErrorCode::eDEBUG_WARNING | ::physx::PxErrorCode::ePERF_WARNING))
+        else if(code & (::ev4sio_physx::PxErrorCode::eDEBUG_WARNING | ::ev4sio_physx::PxErrorCode::ePERF_WARNING))
         {
             // A.B. ignore this msg its valid
             if (!strstr(message,"Filtering: Pair with no contact/trigger reports detected"))
                 CARB_LOG_WARN("PhysX warning: %s, FILE %s, LINE %d", message, file, line);
         }
-        else if(code & ::physx::PxErrorCode::eABORT)
+        else if(code & ::ev4sio_physx::PxErrorCode::eABORT)
         {
             // Capture only the SDK cause; the log also carries its source file and line.
-            omni::physx::recordRuntimeError(message);
+            omni::ev4sio_physx::recordRuntimeError(message);
             CARB_LOG_ERROR("PhysX ABORT error: %s, FILE %s, LINE %d", message, file, line);
             sendTooManyErrorsStopSimulationEvent();
         }
@@ -69,7 +69,7 @@ public:
                 customErrMsg = message;
             }
 
-            omni::physx::recordRuntimeError(customErrMsg.c_str());
+            omni::ev4sio_physx::recordRuntimeError(customErrMsg.c_str());
             CARB_LOG_ERROR("PhysX error: %s, FILE %s, LINE %d", customErrMsg.c_str(), file, line);
 
             if (mEventStream)
@@ -121,7 +121,7 @@ private:
         CARB_LOG_ERROR("PhysX error: %s", buffer);
         if (mEventStream)
         {
-            sendErrorEvent(mEventStream, omni::physx::ePhysxTooManyErrors,
+            sendErrorEvent(mEventStream, omni::ev4sio_physx::ePhysxTooManyErrors,
                            std::make_pair("errorString", (const char*)buffer));
         }
     }

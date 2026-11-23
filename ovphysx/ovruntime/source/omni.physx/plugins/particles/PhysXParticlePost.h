@@ -29,7 +29,7 @@
 #include <unordered_set>
 #include <vector>
 
-namespace physx
+namespace ev4sio_physx
 {
 class PxGeometry;
 
@@ -38,11 +38,11 @@ class PxAnisotropyGenerator;
 class PxSmoothedPositionGenerator;
 class PxIsosurfaceExtractor;
 struct PxIsosurfaceParams;
-} // namespace physx
+} // namespace ev4sio_physx
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 
 namespace usdparser { class AttachedStage; }
@@ -56,7 +56,7 @@ class InternalParticleSet;
 namespace particles
 {
 
-class PostProcessCallback : public ::physx::PxParticleSystemCallback, public Allocateable
+class PostProcessCallback : public ::ev4sio_physx::PxParticleSystemCallback, public Allocateable
 {
 public:
     PostProcessCallback(internal::InternalPbdParticleSystem* particleSystem)
@@ -68,9 +68,9 @@ public:
     {
     }
 
-    void initialize(::physx::PxAnisotropyGenerator* anisotropyGenerator,
-                    ::physx::PxSmoothedPositionGenerator* smoothedPositionGenerator,
-                    ::physx::PxIsosurfaceExtractor* isosurfaceExtractor,
+    void initialize(::ev4sio_physx::PxAnisotropyGenerator* anisotropyGenerator,
+                    ::ev4sio_physx::PxSmoothedPositionGenerator* smoothedPositionGenerator,
+                    ::ev4sio_physx::PxIsosurfaceExtractor* isosurfaceExtractor,
                     uint32_t* resultNumParticles)
     {
         mAnisotropyGenerator = anisotropyGenerator;
@@ -79,11 +79,11 @@ public:
         mResultNumParticles = resultNumParticles;
     }
 
-    virtual void onPostSolve(const ::physx::PxGpuMirroredPointer<::physx::PxGpuParticleSystem>& gpuParticleSystem,
+    virtual void onPostSolve(const ::ev4sio_physx::PxGpuMirroredPointer<::ev4sio_physx::PxGpuParticleSystem>& gpuParticleSystem,
                              CUstream stream);
-    virtual void onBegin(const ::physx::PxGpuMirroredPointer<::physx::PxGpuParticleSystem>& gpuParticleSystem,
+    virtual void onBegin(const ::ev4sio_physx::PxGpuMirroredPointer<::ev4sio_physx::PxGpuParticleSystem>& gpuParticleSystem,
                          CUstream stream);
-    virtual void onAdvance(const ::physx::PxGpuMirroredPointer<::physx::PxGpuParticleSystem>& /*gpuParticleSystem*/,
+    virtual void onAdvance(const ::ev4sio_physx::PxGpuMirroredPointer<::ev4sio_physx::PxGpuParticleSystem>& /*gpuParticleSystem*/,
                            CUstream /*stream*/)
     {
     }
@@ -92,9 +92,9 @@ public:
     }
 
     internal::InternalPbdParticleSystem* mParticleSystem;
-    ::physx::PxAnisotropyGenerator* mAnisotropyGenerator;
-    ::physx::PxSmoothedPositionGenerator* mSmoothedPositionGenerator;
-    ::physx::PxIsosurfaceExtractor* mIsosurfaceExtractor;
+    ::ev4sio_physx::PxAnisotropyGenerator* mAnisotropyGenerator;
+    ::ev4sio_physx::PxSmoothedPositionGenerator* mSmoothedPositionGenerator;
+    ::ev4sio_physx::PxIsosurfaceExtractor* mIsosurfaceExtractor;
     uint32_t* mResultNumParticles;
 };
 
@@ -119,8 +119,8 @@ public:
     // retrieve/process results
     void syncPostSolveWork();
     void updateMesh();
-    void getAnisotropy(::physx::PxVec4*& anisotropyQ1, ::physx::PxVec4*& anisotropyQ2, ::physx::PxVec4*& anisotropyQ3);
-    ::physx::PxVec4* getSmoothedPositions();
+    void getAnisotropy(::ev4sio_physx::PxVec4*& anisotropyQ1, ::ev4sio_physx::PxVec4*& anisotropyQ2, ::ev4sio_physx::PxVec4*& anisotropyQ3);
+    ::ev4sio_physx::PxVec4* getSmoothedPositions();
 
 private:
     struct ParticleSet
@@ -133,18 +133,18 @@ private:
 
     bool parseParticleContactOffset(float& particleContactOffset);
 
-    void createNeighborhoodProvider(float particleRestOffset, const ::physx::PxU32 maxParticles);
+    void createNeighborhoodProvider(float particleRestOffset, const ::ev4sio_physx::PxU32 maxParticles);
 
-    void updateAnisotropyGenerator(const ::physx::PxU32 maxParticles);
+    void updateAnisotropyGenerator(const ::ev4sio_physx::PxU32 maxParticles);
     void releaseAnisotropyGenerator();
 
-    void updateSmoothedPositionGenerator(const ::physx::PxU32 maxParticles);
+    void updateSmoothedPositionGenerator(const ::ev4sio_physx::PxU32 maxParticles);
     void releaseSmoothedPositionGenerator();
 
-    void updateIsosurfaceExtractor(const ::physx::PxU32 maxParticles);
+    void updateIsosurfaceExtractor(const ::ev4sio_physx::PxU32 maxParticles);
     void releaseIsosurfaceExtractor();
 
-    void updateFromPoints(const ::physx::PxVec4* points, const ::physx::PxU32 numPoints);
+    void updateFromPoints(const ::ev4sio_physx::PxVec4* points, const ::ev4sio_physx::PxU32 numPoints);
     void updateScaleOrient();
     void updatePoints();
     void restorePoints();
@@ -154,15 +154,15 @@ private:
 
     bool hasAnisotropy() const
     {
-        return mFlags & omni::physx::ParticlePostFlag::eAnisotropy;
+        return mFlags & omni::ev4sio_physx::ParticlePostFlag::eAnisotropy;
     }
     bool hasSmoothing() const
     {
-        return mFlags & omni::physx::ParticlePostFlag::eSmoothing;
+        return mFlags & omni::ev4sio_physx::ParticlePostFlag::eSmoothing;
     }
     bool hasIsosurface() const
     {
-        return mFlags & omni::physx::ParticlePostFlag::eIsosurface;
+        return mFlags & omni::ev4sio_physx::ParticlePostFlag::eIsosurface;
     }
 
     std::vector<ParticleSet>& getTmpParticleSets();
@@ -173,36 +173,36 @@ private:
     uint32_t mMaxParticlesCallback = 0;
     uint32_t mFlags = ParticlePostFlag::eNone;
     internal::InternalPbdParticleSystem* mParent = nullptr;
-    ::physx::PxCudaContextManager* mCudaContextManager = nullptr;
+    ::ev4sio_physx::PxCudaContextManager* mCudaContextManager = nullptr;
     std::vector<ParticleSet> mTmpParticleSets;
     uint32_t mResultNumParticles = 0;
 
 #if USE_PHYSX_GPU
-    ::physx::PxParticleNeighborhoodProvider* mNeighborhoodProvider = nullptr;
-    ::physx::PxAnisotropyGenerator* mAnisotropyGenerator = nullptr;
-    ::physx::PxSmoothedPositionGenerator* mSmoothedPositionGenerator = nullptr;
-    ::physx::PxIsosurfaceExtractor* mIsosurfaceExtractor = nullptr;
+    ::ev4sio_physx::PxParticleNeighborhoodProvider* mNeighborhoodProvider = nullptr;
+    ::ev4sio_physx::PxAnisotropyGenerator* mAnisotropyGenerator = nullptr;
+    ::ev4sio_physx::PxSmoothedPositionGenerator* mSmoothedPositionGenerator = nullptr;
+    ::ev4sio_physx::PxIsosurfaceExtractor* mIsosurfaceExtractor = nullptr;
     int32_t mMaxNumIsosurfaceSubgrids = 0;
     float mIsosurfaceGridSpacing = 0.0f;
 
-    ::physx::PxVec4* mParticlesPreview;
+    ::ev4sio_physx::PxVec4* mParticlesPreview;
     uint32_t mMaxParticlesPreview = 0;
 
-    ::physx::PxVec4* mAnisotropyQ1;
-    ::physx::PxVec4* mAnisotropyQ2;
-    ::physx::PxVec4* mAnisotropyQ3;
+    ::ev4sio_physx::PxVec4* mAnisotropyQ1;
+    ::ev4sio_physx::PxVec4* mAnisotropyQ2;
+    ::ev4sio_physx::PxVec4* mAnisotropyQ3;
 
-    ::physx::PxVec4* mSmoothedPositions;
+    ::ev4sio_physx::PxVec4* mSmoothedPositions;
 
-    ::physx::PxVec4* mIsosurfaceVertices;
-    ::physx::PxU32* mIsosurfaceTriangleIndices;
-    ::physx::PxVec4* mIsosurfaceNormals;
+    ::ev4sio_physx::PxVec4* mIsosurfaceVertices;
+    ::ev4sio_physx::PxU32* mIsosurfaceTriangleIndices;
+    ::ev4sio_physx::PxVec4* mIsosurfaceNormals;
 #endif
 };
 
 #if USE_PHYSX_GPU
 void setIsosurfaceGridFilteringPasses(
-    ::physx::PxIsosurfaceParams& isosurfaceParams,
+    ::ev4sio_physx::PxIsosurfaceParams& isosurfaceParams,
     const std::vector<omni::physics::parse::ParticleIsosurfaceDesc::GridFilteringPass::Enum>& passes);
 #endif
 
@@ -213,11 +213,11 @@ void releasePostprocess(usdparser::AttachedStage& owner, omni::physics::parse::O
                         internal::InternalPbdParticleSystem* parent);
 
 void updateIsosurfaceMesh(usdparser::AttachedStage& owner, omni::physics::parse::ObjectKey particleSystemKey);
-void getAnisotropy(usdparser::AttachedStage& owner, ::physx::PxVec4*& anisotropyQ1,
-                   ::physx::PxVec4*& anisotropyQ2,
-                   ::physx::PxVec4*& anisotropyQ3,
+void getAnisotropy(usdparser::AttachedStage& owner, ::ev4sio_physx::PxVec4*& anisotropyQ1,
+                   ::ev4sio_physx::PxVec4*& anisotropyQ2,
+                   ::ev4sio_physx::PxVec4*& anisotropyQ3,
                    omni::physics::parse::ObjectKey particleSystemKey);
-::physx::PxVec4* getSmoothedPositions(usdparser::AttachedStage& owner, omni::physics::parse::ObjectKey particleSystemKey);
+::ev4sio_physx::PxVec4* getSmoothedPositions(usdparser::AttachedStage& owner, omni::physics::parse::ObjectKey particleSystemKey);
 
 void notifyParticleSystemResize(const usdparser::AttachedStage& owner, omni::physics::parse::ObjectKey particleSystemKey);
 void notifyPhysXRelease(usdparser::AttachedStage& owner);
@@ -242,5 +242,5 @@ void updatePostprocess(usdparser::AttachedStage& owner, omni::physics::parse::Ob
 
 
 } // namespace particles
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

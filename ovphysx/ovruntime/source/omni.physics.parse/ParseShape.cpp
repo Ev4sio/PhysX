@@ -312,7 +312,7 @@ size_t buildMergedMesh(ParseContext& ctx, ObjectKey colliderKey, MergeMeshDesc& 
     Matrix4d colliderWorld;
     src.getLocalToWorldTransform(colliderKey, colliderWorld);
     // Gf's `member * inverse(collider)` reads `inverse(collider) * member` in PhysX operand order.
-    const ::physx::PxMat44d colliderInverse = omni::physx::affineInverse(::physx::PxMat44d(colliderWorld.data));
+    const ::ev4sio_physx::PxMat44d colliderInverse = omni::ev4sio_physx::affineInverse(::ev4sio_physx::PxMat44d(colliderWorld.data));
 
     size_t merged = 0;
     for (const ObjectKey member : members)
@@ -338,13 +338,13 @@ size_t buildMergedMesh(ParseContext& ctx, ObjectKey colliderKey, MergeMeshDesc& 
 
         Matrix4d memberWorld;
         src.getLocalToWorldTransform(member, memberWorld);
-        const ::physx::PxMat44d relative = colliderInverse * ::physx::PxMat44d(memberWorld.data);
+        const ::ev4sio_physx::PxMat44d relative = colliderInverse * ::ev4sio_physx::PxMat44d(memberWorld.data);
         // A reflecting member transform is baked into the points, where PhysX's negative
         // meshScale handling cannot see it, so it reverses the winding like a left-handed
         // authoring does.
-        const ::physx::PxVec3d basis0 = relative.column0.getXYZ();
-        const ::physx::PxVec3d basis1 = relative.column1.getXYZ();
-        const ::physx::PxVec3d basis2 = relative.column2.getXYZ();
+        const ::ev4sio_physx::PxVec3d basis0 = relative.column0.getXYZ();
+        const ::ev4sio_physx::PxVec3d basis1 = relative.column1.getXYZ();
+        const ::ev4sio_physx::PxVec3d basis2 = relative.column2.getXYZ();
         const bool reflects = basis0.dot(basis1.cross(basis2)) < 0.0;
         const bool reverse = leftHanded != reflects;
 
@@ -355,7 +355,7 @@ size_t buildMergedMesh(ParseContext& ctx, ObjectKey colliderKey, MergeMeshDesc& 
         const size_t facesOffset = out.faces.size();
         for (size_t i = 0; i < points.count; ++i)
         {
-            const ::physx::PxVec3d p = relative.transform(::physx::PxVec3d(points[i].x, points[i].y, points[i].z));
+            const ::ev4sio_physx::PxVec3d p = relative.transform(::ev4sio_physx::PxVec3d(points[i].x, points[i].y, points[i].z));
             out.points.push_back({ float(p.x), float(p.y), float(p.z) });
         }
         out.faces.insert(out.faces.end(), faceCounts.data, faceCounts.data + faceCounts.count);

@@ -17,7 +17,7 @@ inline ovphysx_companion_status_t readNativeMass(
     float copied=0;
     const ovphysx_companion_status_t status=api.visit(&body,sizeof(body),AccessKind::Dynamic,
         [](const ObjectLease& lease,void* destination) noexcept {
-            const ::physx::PxRigidDynamic* dynamic=lease.dynamic();
+            const ::ev4sio_physx::PxRigidDynamic* dynamic=lease.dynamic();
             if(!dynamic)return false;
             *static_cast<float*>(destination)=dynamic->getMass();
             return true;

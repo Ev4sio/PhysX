@@ -20,7 +20,7 @@
 #include <foundation/PxFlags.h>
 #include <PxContact.h>
 
-namespace physx
+namespace ev4sio_physx
 {
 class PxArticulationReducedCoordinate;
 class PxArticulationCache;
@@ -35,11 +35,11 @@ class PxRigidDynamic;
 class PxShape;
 class PxScene;
 struct PxGpuContactPair;
-} // namespace physx
+} // namespace ev4sio_physx
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace tensors
 {
@@ -47,38 +47,38 @@ namespace tensors
 // how transforms are stored in public tensors - NOTE: it swaps p and q wrt PxTransform
 struct TensorTransform
 {
-    ::physx::PxVec3 p;
-    ::physx::PxQuat q;
+    ::ev4sio_physx::PxVec3 p;
+    ::ev4sio_physx::PxQuat q;
 };
 
 // how velocities are stored in public tensors - NOTE: it swaps linear and angular wrt PhysX direct GPU API
 struct TensorVelAcc
 {
-    ::physx::PxVec3 linear;
-    ::physx::PxVec3 angular;
+    ::ev4sio_physx::PxVec3 linear;
+    ::ev4sio_physx::PxVec3 angular;
 };
 
-// how velocities are reported by PhysX direct GPU API (Cm::UnAlignedSpatialVector)
+// how velocities are reported by PhysX direct GPU API (ev4sio_Cm::UnAlignedSpatialVector)
 // TODO: can choose more general names for PhysxVelAcc and TensorTransform such as SO3LieGroupTuple and
 // SO3LieAlgebraTuple to reuse the same structure for accelerations as well.
 struct PhysxVelAcc
 {
-    ::physx::PxVec3 angular;
-    ::physx::PxVec3 linear;
+    ::ev4sio_physx::PxVec3 angular;
+    ::ev4sio_physx::PxVec3 linear;
 };
 
-// how force sensor data are reported by PhysX direct GPU API (Cm::UnAlignedSpatialVector)
+// how force sensor data are reported by PhysX direct GPU API (ev4sio_Cm::UnAlignedSpatialVector)
 struct PhysxGpuSpatialForces
 {
-    ::physx::PxVec3 force;
-    ::physx::PxVec3 torque;
+    ::ev4sio_physx::PxVec3 force;
+    ::ev4sio_physx::PxVec3 torque;
 };
 
 
 class PhysxCudaContextGuard
 {
 public:
-    explicit PhysxCudaContextGuard(::physx::PxCudaContextManager* cudaContextManager)
+    explicit PhysxCudaContextGuard(::ev4sio_physx::PxCudaContextManager* cudaContextManager)
         : mCudaContextManager(cudaContextManager)
     {
         if (mCudaContextManager)
@@ -96,7 +96,7 @@ public:
     }
 
 private:
-    ::physx::PxCudaContextManager* mCudaContextManager;
+    ::ev4sio_physx::PxCudaContextManager* mCudaContextManager;
 };
 
 struct FreeD6RotationAxesFlag
@@ -109,8 +109,8 @@ struct FreeD6RotationAxesFlag
     };
 };
 
-using FreeD6RotationAxesFlags = ::physx::PxFlags<FreeD6RotationAxesFlag::Enum, ::physx::PxU8>;
+using FreeD6RotationAxesFlags = ::ev4sio_physx::PxFlags<FreeD6RotationAxesFlag::Enum, ::ev4sio_physx::PxU8>;
 
 } // namespace tensors
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

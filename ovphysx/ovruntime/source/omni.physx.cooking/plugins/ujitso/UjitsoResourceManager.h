@@ -27,7 +27,7 @@ struct IDataGrid;
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 
 /**
@@ -228,5 +228,5 @@ private:
     carb::tasking::ITasking* m_tasking;
 };
 
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

@@ -20,16 +20,16 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace cudaShimWrappers
 {
 
 // -- getCudaShim() accessor (single definition) --
 
-static inline omni::physx::IOptionalCuda* getCudaShim()
+static inline omni::ev4sio_physx::IOptionalCuda* getCudaShim()
 {
-    return omni::physx::optionalCuda::get();
+    return omni::ev4sio_physx::optionalCuda::get();
 }
 
 // -- Bool-returning check helper + macro --
@@ -43,7 +43,7 @@ static inline bool checkCudaShimOp(bool ok, const char* file, int line)
     return ok;
 }
 
-#define CHECK_CUDA_SHIM(expr) omni::physx::cudaShimWrappers::checkCudaShimOp(expr, __FILE__, __LINE__)
+#define CHECK_CUDA_SHIM(expr) omni::ev4sio_physx::cudaShimWrappers::checkCudaShimOp(expr, __FILE__, __LINE__)
 
 // -- Typed safe wrappers --
 
@@ -109,12 +109,12 @@ static inline bool shimCuCtxPopCurrent(CUcontext* out, const char* file, int lin
 
 // -- Convenience macros that inject __FILE__, __LINE__ --
 
-#define SHIM_CU_ALLOC(out, bytes) omni::physx::cudaShimWrappers::shimCuMemAlloc(out, bytes, __FILE__, __LINE__)
-#define SHIM_CU_EVENT_CREATE(out, flags) omni::physx::cudaShimWrappers::shimCuEventCreate(out, flags, __FILE__, __LINE__)
-#define SHIM_CU_STREAM_CREATE(out, flags) omni::physx::cudaShimWrappers::shimCuStreamCreate(out, flags, __FILE__, __LINE__)
-#define SHIM_CU_CTX_GET_CURRENT(out) omni::physx::cudaShimWrappers::shimCuCtxGetCurrent(out, __FILE__, __LINE__)
-#define SHIM_CU_CTX_POP_CURRENT(out) omni::physx::cudaShimWrappers::shimCuCtxPopCurrent(out, __FILE__, __LINE__)
+#define SHIM_CU_ALLOC(out, bytes) omni::ev4sio_physx::cudaShimWrappers::shimCuMemAlloc(out, bytes, __FILE__, __LINE__)
+#define SHIM_CU_EVENT_CREATE(out, flags) omni::ev4sio_physx::cudaShimWrappers::shimCuEventCreate(out, flags, __FILE__, __LINE__)
+#define SHIM_CU_STREAM_CREATE(out, flags) omni::ev4sio_physx::cudaShimWrappers::shimCuStreamCreate(out, flags, __FILE__, __LINE__)
+#define SHIM_CU_CTX_GET_CURRENT(out) omni::ev4sio_physx::cudaShimWrappers::shimCuCtxGetCurrent(out, __FILE__, __LINE__)
+#define SHIM_CU_CTX_POP_CURRENT(out) omni::ev4sio_physx::cudaShimWrappers::shimCuCtxPopCurrent(out, __FILE__, __LINE__)
 
 } // namespace cudaShimWrappers
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

@@ -31,11 +31,11 @@
 
 #include <cstring>
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace tensors
 {
@@ -87,7 +87,7 @@ GpuPointInstancerView::GpuPointInstancerView(GpuSimulationView* const sim,
             rec.slot = inst.index;
             rec.protoInverse = inst.protoInverse;
             // Both directions stored, so the write does not invert in a kernel. See the record.
-            rec.proto = omni::physx::affineInverse(inst.protoInverse);
+            rec.proto = omni::ev4sio_physx::affineInverse(inst.protoInverse);
             records.push_back(rec);
         }
         // Holes were already dropped by the guard above, so a range covers only LIVE instances --
@@ -151,7 +151,7 @@ GpuPointInstancerView::~GpuPointInstancerView()
     CHECK_CUDA(cudaFree(mWorldForwardsDev)); // allocated beside the inverses, so freed beside them
 }
 
-bool GpuPointInstancerView::setWorldInverses(const ::physx::PxMat44d* const inverses, const PxU32 numInstancers)
+bool GpuPointInstancerView::setWorldInverses(const ::ev4sio_physx::PxMat44d* const inverses, const PxU32 numInstancers)
 {
     if (!BasePointInstancerView::setWorldInverses(inverses, numInstancers))
         return false;
@@ -189,7 +189,7 @@ bool GpuPointInstancerView::uploadWorldInverses() const
     std::vector<InstancerAffine> hostFwd(mWorldInversesHost.size());
     for (size_t i = 0; i < mWorldInversesHost.size(); ++i)
     {
-        hostFwd[i] = omni::physx::affineInverse(mWorldInversesHost[i]);
+        hostFwd[i] = omni::ev4sio_physx::affineInverse(mWorldInversesHost[i]);
     }
 
     if (!mGpuSimData || !mGpuSimData->rewriteTable(mWorldInversesDev, mWorldInversesHost.data(),
@@ -338,9 +338,9 @@ bool GpuPointInstancerView::prepareInstancerWriteOvStage(const PxU32 instancerIn
 }
 
 bool GpuPointInstancerView::setInstancerColumnOvStage(const InstancerColumn column,
-                                                      const ::physx::PxU32 instancerIndex,
+                                                      const ::ev4sio_physx::PxU32 instancerIndex,
                                                       const void* const src,
-                                                      const ::physx::PxU32 arrayLength,
+                                                      const ::ev4sio_physx::PxU32 arrayLength,
                                                       const uint8_t*,
                                                       const OvStageDeviceWriteArgs* const sessionDeviceArgs)
 {
@@ -417,5 +417,5 @@ bool GpuPointInstancerView::setInstancerColumnOvStage(const InstancerColumn colu
 }
 
 } // namespace tensors
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

@@ -10,7 +10,7 @@
 #include "foundation/PxUserAllocated.h"
 #include "foundation/PxBounds3.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 struct PxgAllocatorDesc;

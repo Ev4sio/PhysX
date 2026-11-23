@@ -32,12 +32,12 @@
 
 #include <utility>
 
-using namespace physx;
+using namespace ev4sio_physx;
 using namespace carb;
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace tensors
 {
@@ -206,7 +206,7 @@ CpuArticulationView* CpuSimulationView::supersetArticulationView(
     return mSupersetArtiView;
 }
 
-BaseVehicleView* CpuSimulationView::vehicleView(omni::physx::internal::InternalScene& scene)
+BaseVehicleView* CpuSimulationView::vehicleView(omni::ev4sio_physx::internal::InternalScene& scene)
 {
     // A mismatched InternalScene would build the view from another scene's vehicles while validating
     // the epoch against a counter that never moves for them.

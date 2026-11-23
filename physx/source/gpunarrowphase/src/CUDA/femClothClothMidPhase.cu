@@ -39,7 +39,7 @@
 #include "bv32Traversal.cuh"
 #include "triangleMesh.cuh"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 extern "C" __host__ void initNarrowphaseKernels21() {}
 
@@ -63,12 +63,12 @@ struct TriangleLeafBoundMinMaxTraverser
 	PxReal mContactDistance;
 	const PxVec3 tMax;
 	PxReal mBestDistance;
-	const physx::PxU32 triangleIndex;
+	const ev4sio_physx::PxU32 triangleIndex;
 
 	//output
 	PxU32 mPrimIndex;
 
-	PX_FORCE_INLINE __device__ TriangleLeafBoundMinMaxTraverser(femMidphaseScratch* PX_RESTRICT s_warpScratch, physx::PxU32 triangleIndex, const PxBounds3& triangleBound,
+	PX_FORCE_INLINE __device__ TriangleLeafBoundMinMaxTraverser(femMidphaseScratch* PX_RESTRICT s_warpScratch, ev4sio_physx::PxU32 triangleIndex, const PxBounds3& triangleBound,
 		Triangle* triangle, const PxReal contactDistance) :
 		s_warpScratch(s_warpScratch), triangleIndex(triangleIndex), tMin(triangleBound.minimum), tMax(triangleBound.maximum), mTriangle(triangle), mContactDistance(contactDistance), mBestDistance(PX_MAX_F32),
 		mPrimIndex(0xFFFFFFFF)
@@ -78,7 +78,7 @@ struct TriangleLeafBoundMinMaxTraverser
 	{
 		if (primitiveIndex != 0xFFFFFFFF) 
 		{
-			using namespace physx;
+			using namespace ev4sio_physx;
 
 			const uint4* trimeshTriangleIndices = s_warpScratch->meshVertsIndices;
 			const float4 * trimeshVerts = s_warpScratch->meshVerts;
@@ -364,7 +364,7 @@ __device__ PxReal distSqInRestPose(const float4* PX_RESTRICT restVerts0, const f
 struct ClothTreeVertexTraverser
 {
 	const PxU32 contactSize;
-	physx::PxU32 vertexIdx;
+	ev4sio_physx::PxU32 vertexIdx;
 	const PxReal contactDist;
 	const PxReal filterDistSq;
 	const PxU32 clothId0;
@@ -748,7 +748,7 @@ __device__ static inline void cloth_selfCollisionMidphaseCoreVT(
 		PxU8* trimeshGeomPtr = reinterpret_cast<PxU8*>(cloth->mTriMeshData);
 		trimeshGeomPtr += sizeof(uint4);
 
-		Gu::BV32DataPacked* bv32PackedNodes = reinterpret_cast<Gu::BV32DataPacked*>(trimeshGeomPtr);
+		ev4sio_Gu::BV32DataPacked* bv32PackedNodes = reinterpret_cast<ev4sio_Gu::BV32DataPacked*>(trimeshGeomPtr);
 		s_warpScratch->bv32PackedNodes = bv32PackedNodes;
 	}
 
@@ -813,7 +813,7 @@ __device__ static inline void cloth_selfCollisionMidphaseCoreEE(
 		PxU8* trimeshGeomPtr = reinterpret_cast<PxU8*>(cloth->mTriMeshData);
 		trimeshGeomPtr += sizeof(uint4);
 
-		Gu::BV32DataPacked* bv32PackedNodes = reinterpret_cast<Gu::BV32DataPacked*>(trimeshGeomPtr);
+		ev4sio_Gu::BV32DataPacked* bv32PackedNodes = reinterpret_cast<ev4sio_Gu::BV32DataPacked*>(trimeshGeomPtr);
 		s_warpScratch->bv32PackedNodes = bv32PackedNodes;
 	}
 
@@ -950,7 +950,7 @@ __device__ static inline void femDifferentClothCollisionCoreVT(
 
 			trimeshGeomPtr += sizeof(uint4);
 
-			Gu::BV32DataPacked* bv32PackedNodes = reinterpret_cast<Gu::BV32DataPacked*>(trimeshGeomPtr);
+			ev4sio_Gu::BV32DataPacked* bv32PackedNodes = reinterpret_cast<ev4sio_Gu::BV32DataPacked*>(trimeshGeomPtr);
 			s_warpScratch->bv32PackedNodes = bv32PackedNodes;
 		}
 
@@ -1034,7 +1034,7 @@ __device__ static inline void femDifferentClothCollisionCoreEE(
 
 			trimeshGeomPtr += sizeof(uint4);
 
-			Gu::BV32DataPacked* bv32PackedNodes = reinterpret_cast<Gu::BV32DataPacked*>(trimeshGeomPtr);
+			ev4sio_Gu::BV32DataPacked* bv32PackedNodes = reinterpret_cast<ev4sio_Gu::BV32DataPacked*>(trimeshGeomPtr);
 			s_warpScratch->bv32PackedNodes = bv32PackedNodes;
 		}
 

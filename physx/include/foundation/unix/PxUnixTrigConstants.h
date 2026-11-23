@@ -9,7 +9,7 @@
 #include "foundation/PxMath.h"
 #include "foundation/PxPreprocessor.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 namespace aos
 {
@@ -48,6 +48,6 @@ PX_GLOBALCONST PX_VECTORF32 g_PXTwoPi = { { PxTwoPi, PxTwoPi, PxTwoPi, PxTwoPi }
 #endif
 #endif
 } // namespace aos
-} // namespace physx
+} // namespace ev4sio_physx
 
 #endif //PXFOUNDATION_PXUNIXTRIGCONSTANTS_H

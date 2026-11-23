@@ -18,12 +18,12 @@
 #include <omni/physics/parse/KnownTokens.h>
 
 using namespace carb;
-using namespace ::physx;
-using namespace omni::physx::usdparser;
+using namespace ::ev4sio_physx;
+using namespace omni::ev4sio_physx::usdparser;
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 
 class CCTBehaviorCallback : public PxControllerBehaviorCallback
@@ -157,5 +157,5 @@ PxCapsuleControllerDesc parsePhysXCharacterControllerDesc(usdparser::AttachedSta
     return cctDesc;
 }
 
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

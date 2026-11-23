@@ -16,7 +16,7 @@
 #include <vector>
 namespace ovphysx::companion::events
 {
-using namespace omni::physx::native;
+using namespace omni::ev4sio_physx::native;
 using Status=ovphysx_companion_status_t;
 struct Queue {
     CompanionServiceLease lease{companionRuntime()};

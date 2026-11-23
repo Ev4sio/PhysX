@@ -9,10 +9,10 @@
 #include <numeric>
 #include <limits>
 
-namespace omni::physx::authoring
+namespace omni::ev4sio_physx::authoring
 {
-bool matchPoints(const ::physx::PxVec3* source, uint32_t sourceCount,
-                 const ::physx::PxVec3* target, uint32_t targetCount, float distance,
+bool matchPoints(const ::ev4sio_physx::PxVec3* source, uint32_t sourceCount,
+                 const ::ev4sio_physx::PxVec3* target, uint32_t targetCount, float distance,
                  std::vector<int32_t>& output)
 {
     if ((!source && sourceCount) || (!target && targetCount) || !std::isfinite(distance) || distance < 0 ||

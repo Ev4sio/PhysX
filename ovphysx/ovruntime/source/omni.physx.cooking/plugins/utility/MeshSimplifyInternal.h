@@ -7,7 +7,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 
 void simplifyTriangleMeshInternal(carb::Float3*& dstPoints,
@@ -122,6 +122,6 @@ void remeshTriangleMeshInternal(carb::Float3*& dstPoints,
                                 const uint32_t remeshingVoxelResolution,
                                 void* (*allocateBytes)(size_t));
 
-} // namespace physx
+} // namespace ev4sio_physx
 
 } // namespace omni

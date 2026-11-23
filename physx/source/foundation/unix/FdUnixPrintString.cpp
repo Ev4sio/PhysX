@@ -6,7 +6,7 @@
 #include "foundation/PxString.h"
 #include <stdio.h>
 
-namespace physx
+namespace ev4sio_physx
 {
 
 void PxPrintString(const char* str)
@@ -14,4 +14,4 @@ void PxPrintString(const char* str)
 	puts(str);
 }
 
-} // namespace physx
+} // namespace ev4sio_physx

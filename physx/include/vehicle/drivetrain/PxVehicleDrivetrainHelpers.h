@@ -10,7 +10,7 @@
 #include "vehicle/drivetrain/PxVehicleDrivetrainStates.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -125,7 +125,7 @@ void PX_DEPRECATED PxVehicleLegacyDifferentialTorqueRatiosCompute
 
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

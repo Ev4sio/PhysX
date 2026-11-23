@@ -8,9 +8,9 @@
 
 #include "foundation/PxPreprocessor.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-	namespace Cm
+	namespace ev4sio_Cm
 	{
 		class VirtualAllocatorCallback;
 	}
@@ -21,8 +21,8 @@ namespace physx
 	struct PxgAllocatorDesc
 	{
 		PxgAllocatorDesc(PxgHeapMemoryAllocator& deviceAllocator,
-						 Cm::VirtualAllocatorCallback& hostAllocator,
-						 Cm::VirtualAllocatorCallback& hostMappedAllocator)
+						 ev4sio_Cm::VirtualAllocatorCallback& hostAllocator,
+						 ev4sio_Cm::VirtualAllocatorCallback& hostMappedAllocator)
 		:
 			deviceAlloc(deviceAllocator),
 			hostAlloc(hostAllocator),
@@ -30,8 +30,8 @@ namespace physx
 		{}
 
 		PxgHeapMemoryAllocator& deviceAlloc;				// device mem allocation always goes through the heap memory allocator
-		Cm::VirtualAllocatorCallback& hostAlloc;			// pinned host mem allocation may go through other allocators for testing
-		Cm::VirtualAllocatorCallback& hostMappedAlloc;		// pinned host mem allocation may go through other allocators for testing
+		ev4sio_Cm::VirtualAllocatorCallback& hostAlloc;			// pinned host mem allocation may go through other allocators for testing
+		ev4sio_Cm::VirtualAllocatorCallback& hostMappedAlloc;		// pinned host mem allocation may go through other allocators for testing
 	};
 }
 

@@ -17,9 +17,9 @@
 #include "PxFiltering.h"
 #include "ScRigidCore.h" //KS - required for ShapeChangeNotifyFlags. Ideally, we should move that to a separate shared file
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Sc
+namespace ev4sio_Sc
 {
 
 class DeformableSurfaceSim;
@@ -96,19 +96,19 @@ public:
 	// Internal API
 	//---------------------------------------------------------------------------------
 
-	PxU32						addRigidAttachments(Sc::BodyCore* core, PxDeformableAttachmentTargetType::Enum feature,
+	PxU32						addRigidAttachments(ev4sio_Sc::BodyCore* core, PxDeformableAttachmentTargetType::Enum feature,
 									const PxU32* indices, const PxVec4* barycentrics, const PxTransform& frame, const PxVec4* coords, PxU32 count);
-	void						removeRigidAttachments(Sc::BodyCore* core, PxU32 handle);
+	void						removeRigidAttachments(ev4sio_Sc::BodyCore* core, PxU32 handle);
 
-	PxU32						addSurfaceAttachments(Sc::DeformableSurfaceCore* otherCore, PxDeformableAttachmentTargetType::Enum feature0, const PxU32* indices0, const PxVec4* barycentrics0,
+	PxU32						addSurfaceAttachments(ev4sio_Sc::DeformableSurfaceCore* otherCore, PxDeformableAttachmentTargetType::Enum feature0, const PxU32* indices0, const PxVec4* barycentrics0,
 									PxDeformableAttachmentTargetType::Enum feature1, const PxU32* indices1, const PxVec4* barycentrics1, PxU32 count);
-	void						removeSurfaceAttachments(Sc::DeformableSurfaceCore* otherCore, PxU32 handle);
+	void						removeSurfaceAttachments(ev4sio_Sc::DeformableSurfaceCore* otherCore, PxU32 handle);
 
-	void						addRigidFilters(Sc::RigidCore* core, PxU32* triIndices, PxU32 triIndicesSize);
-	void						removeRigidFilters(Sc::RigidCore* core, PxU32* triIndices, PxU32 triIndicesSize);
+	void						addRigidFilters(ev4sio_Sc::RigidCore* core, PxU32* triIndices, PxU32 triIndicesSize);
+	void						removeRigidFilters(ev4sio_Sc::RigidCore* core, PxU32* triIndices, PxU32 triIndicesSize);
 
-	void						addSurfaceFilters(Sc::DeformableSurfaceCore* otherCore, PxU32* otherTriIndices, PxU32* triIndices, PxU32 triIndicesSize);
-	void						removeSurfaceFilters(Sc::DeformableSurfaceCore* otherCore, PxU32* otherTriIndices, PxU32* triIndices, PxU32 triIndicesSize);
+	void						addSurfaceFilters(ev4sio_Sc::DeformableSurfaceCore* otherCore, PxU32* otherTriIndices, PxU32* triIndices, PxU32 triIndicesSize);
+	void						removeSurfaceFilters(ev4sio_Sc::DeformableSurfaceCore* otherCore, PxU32* otherTriIndices, PxU32* triIndices, PxU32 triIndicesSize);
 
 	void						addMaterial(const PxU16 handle);
 	void						clearMaterials();
@@ -118,16 +118,16 @@ public:
 	PX_FORCE_INLINE	PxU64&		getGpuMemStat() { return mGpuMemStat; }
 
 	DeformableSurfaceSim*								getSim() const;
-	PX_FORCE_INLINE	const Dy::DeformableSurfaceCore&	getCore() const { return mCore; }
-	PX_FORCE_INLINE	Dy::DeformableSurfaceCore&			getCore() { return mCore; }
+	PX_FORCE_INLINE	const ev4sio_Dy::DeformableSurfaceCore&	getCore() const { return mCore; }
+	PX_FORCE_INLINE	ev4sio_Dy::DeformableSurfaceCore&			getCore() { return mCore; }
 
 private:
-	Dy::DeformableSurfaceCore	mCore;
+	ev4sio_Dy::DeformableSurfaceCore	mCore;
 	PxU64						mGpuMemStat;
 };
 
-} // namespace Sc
-} // namespace physx
+} // namespace ev4sio_Sc
+} // namespace ev4sio_physx
 
 #endif // PX_SUPPORT_GPU_PHYSX
 #endif // SC_DEFORMABLE_SURFACE_CORE

@@ -12,11 +12,11 @@
 
 #include <PxPhysicsAPI.h>
 
-using namespace ::physx;
+using namespace ::ev4sio_physx;
 using namespace carb;
-using namespace omni::physx;
-using namespace omni::physx::usdparser;
-using namespace omni::physx::internal;
+using namespace omni::ev4sio_physx;
+using namespace omni::ev4sio_physx::usdparser;
+using namespace omni::ev4sio_physx::internal;
 
 
 
@@ -234,15 +234,15 @@ static bool attrRangeCheck(const float value, const float min, const float max,
     }
 }
 
-static const InternalDatabase::Record* getObjectRecord(const AttachedStage& attachedStage, omni::physx::PhysXType type,
-    omni::physx::usdparser::ObjectId objectId)
+static const InternalDatabase::Record* getObjectRecord(const AttachedStage& attachedStage, omni::ev4sio_physx::PhysXType type,
+    omni::ev4sio_physx::usdparser::ObjectId objectId)
 {
-    omni::physx::internal::InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
+    omni::ev4sio_physx::internal::InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
 
     return db.getFullTypedRecord(type, objectId);
 }
 
-bool omni::physx::updateVehicleContextUpdateMode(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleContextUpdateMode(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     attrNoModDuringSimErrLog(attachedStage, property);
@@ -250,7 +250,7 @@ bool omni::physx::updateVehicleContextUpdateMode(AttachedStage& attachedStage, o
     return true;
 }
 
-bool omni::physx::updateVehicleContextVerticalAxis(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleContextVerticalAxis(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     attrNoModDuringSimErrLog(attachedStage, property);
@@ -258,7 +258,7 @@ bool omni::physx::updateVehicleContextVerticalAxis(AttachedStage& attachedStage,
     return true;
 }
 
-bool omni::physx::updateVehicleContextLongitudinalAxis(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleContextLongitudinalAxis(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     attrNoModDuringSimErrLog(attachedStage, property);
@@ -266,7 +266,7 @@ bool omni::physx::updateVehicleContextLongitudinalAxis(AttachedStage& attachedSt
     return true;
 }
 
-static bool updateVehicleEngineData(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+static bool updateVehicleEngineData(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode, const EngineParam::Enum engineParam)
 {
     const InternalDatabase::Record* objectRecord = getObjectRecord(attachedStage, ePTVehicleEngine, objectId);
@@ -354,31 +354,31 @@ static bool updateVehicleEngineData(AttachedStage& attachedStage, omni::physx::u
     return true;
 }
 
-bool omni::physx::updateVehicleEngineMomentOfInertia(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleEngineMomentOfInertia(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     return updateVehicleEngineData(attachedStage, objectId, property, timeCode, EngineParam::eMOI);
 }
 
-bool omni::physx::updateVehicleEnginePeakTorque(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleEnginePeakTorque(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     return updateVehicleEngineData(attachedStage, objectId, property, timeCode, EngineParam::ePEAK_TORQUE);
 }
 
-bool omni::physx::updateVehicleEngineMaxRotationSpeed(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleEngineMaxRotationSpeed(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     return updateVehicleEngineData(attachedStage, objectId, property, timeCode, EngineParam::eMAX_ROT_SPEED);
 }
 
-bool omni::physx::updateVehicleEngineIdleRotationSpeed(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleEngineIdleRotationSpeed(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     return updateVehicleEngineData(attachedStage, objectId, property, timeCode, EngineParam::eIDLE_ROT_SPEED);
 }
 
-bool omni::physx::updateVehicleEngineTorqueCurve(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId,
+bool omni::ev4sio_physx::updateVehicleEngineTorqueCurve(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     attrNoModDuringSimErrLog(attachedStage, property);
@@ -386,25 +386,25 @@ bool omni::physx::updateVehicleEngineTorqueCurve(AttachedStage& attachedStage, o
     return true;
 }
 
-bool omni::physx::updateVehicleEngineDampingRateFullThrottle(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleEngineDampingRateFullThrottle(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     return updateVehicleEngineData(attachedStage, objectId, property, timeCode, EngineParam::eDAMP_FULL_THROTTLE);
 }
 
-bool omni::physx::updateVehicleEngineDampingRateZeroThrottleClutchEngaged(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleEngineDampingRateZeroThrottleClutchEngaged(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     return updateVehicleEngineData(attachedStage, objectId, property, timeCode, EngineParam::eDAMP_ZERO_THROTTLE_CLUTCH_ENGAGED);
 }
 
-bool omni::physx::updateVehicleEngineDampingRateZeroThrottleClutchDisengaged(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleEngineDampingRateZeroThrottleClutchDisengaged(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     return updateVehicleEngineData(attachedStage, objectId, property, timeCode, EngineParam::eDAMP_ZERO_THROTTLE_CLUTCH_DISENGAGED);
 }
 
-bool omni::physx::updateVehicleTireFrictionTableFrictionValues(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleTireFrictionTableFrictionValues(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     const InternalDatabase::Record* objectRecord = getObjectRecord(attachedStage, ePTVehicleTireFrictionTable, objectId);
@@ -420,7 +420,7 @@ bool omni::physx::updateVehicleTireFrictionTableFrictionValues(AttachedStage& at
     return true;
 }
 
-bool omni::physx::updateVehicleTireFrictionTableGroundMaterials(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId,
+bool omni::ev4sio_physx::updateVehicleTireFrictionTableGroundMaterials(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     relNoModDuringSimErrLog(attachedStage, property);
@@ -428,7 +428,7 @@ bool omni::physx::updateVehicleTireFrictionTableGroundMaterials(AttachedStage& a
     return true;
 }
 
-bool omni::physx::updateVehicleTireFrictionTableDefaultFrictionValue(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleTireFrictionTableDefaultFrictionValue(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     const InternalDatabase::Record* objectRecord = getObjectRecord(attachedStage, ePTVehicleTireFrictionTable, objectId);
@@ -581,8 +581,8 @@ static bool updateVehicleSuspensionData(InternalVehicleWheelReferenceList* wheel
 }
 
 template<typename T>
-static bool getWheelReferenceProperty(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
-    omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode, omni::physx::PhysXType type,
+static bool getWheelReferenceProperty(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
+    omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode, omni::ev4sio_physx::PhysXType type,
     T& value, InternalVehicleWheelReferenceList*& vehicleWheelRefList)
 {
     const InternalDatabase::Record* objectRecord = getObjectRecord(attachedStage, type, objectId);
@@ -597,7 +597,7 @@ static bool getWheelReferenceProperty(AttachedStage& attachedStage, omni::physx:
     return true;
 }
 
-bool omni::physx::updateVehicleSuspensionSpringStrength(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleSuspensionSpringStrength(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     float value;
@@ -616,7 +616,7 @@ bool omni::physx::updateVehicleSuspensionSpringStrength(AttachedStage& attachedS
     return true;
 }
 
-bool omni::physx::updateVehicleSuspensionSpringDamperRate(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleSuspensionSpringDamperRate(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     float value;
@@ -635,7 +635,7 @@ bool omni::physx::updateVehicleSuspensionSpringDamperRate(AttachedStage& attache
     return true;
 }
 
-bool omni::physx::updateVehicleSuspensionMaxCompression(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleSuspensionMaxCompression(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     float value;
@@ -654,7 +654,7 @@ bool omni::physx::updateVehicleSuspensionMaxCompression(AttachedStage& attachedS
     return true;
 }
 
-bool omni::physx::updateVehicleSuspensionMaxDroop(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleSuspensionMaxDroop(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     float value;
@@ -674,7 +674,7 @@ bool omni::physx::updateVehicleSuspensionMaxDroop(AttachedStage& attachedStage, 
     return true;
 }
 
-bool omni::physx::updateVehicleSuspensionTravelDistance(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleSuspensionTravelDistance(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     float value;
@@ -693,7 +693,7 @@ bool omni::physx::updateVehicleSuspensionTravelDistance(AttachedStage& attachedS
     return true;
 }
 
-bool omni::physx::updateVehicleSuspensionSprungMass(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleSuspensionSprungMass(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     float value;
@@ -713,7 +713,7 @@ bool omni::physx::updateVehicleSuspensionSprungMass(AttachedStage& attachedStage
     return true;
 }
 
-bool omni::physx::updateVehicleSuspensionCamberAtRest(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleSuspensionCamberAtRest(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     float value;
@@ -726,7 +726,7 @@ bool omni::physx::updateVehicleSuspensionCamberAtRest(AttachedStage& attachedSta
     return true;
 }
 
-bool omni::physx::updateVehicleSuspensionCamberAtMaxCompression(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleSuspensionCamberAtMaxCompression(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     float value;
@@ -739,7 +739,7 @@ bool omni::physx::updateVehicleSuspensionCamberAtMaxCompression(AttachedStage& a
     return true;
 }
 
-bool omni::physx::updateVehicleSuspensionCamberAtMaxDroop(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleSuspensionCamberAtMaxDroop(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     float value;
@@ -753,7 +753,7 @@ bool omni::physx::updateVehicleSuspensionCamberAtMaxDroop(AttachedStage& attache
 }
 
 static bool updateVehicleTireData(InternalVehicleWheelReferenceList* wheelRefList,
-    const float* valueFloat, const void* valuePtr, const ::physx::PxVec2* valueFloat2,
+    const float* valueFloat, const void* valuePtr, const ::ev4sio_physx::PxVec2* valueFloat2,
     const TireParam::Enum tireParam,
     const AttachedStage& attachedStage, omni::physics::parse::TokenId property)
 {
@@ -833,8 +833,8 @@ static bool updateVehicleTireData(InternalVehicleWheelReferenceList* wheelRefLis
                 case TireParam::eTIRE_FRICTION_TABLE:
                 {
                     CARB_ASSERT(valuePtr);
-                    const ::physx::PxVehiclePhysXMaterialFrictionParams* materialFrictionTable =
-                        static_cast<const ::physx::PxVehiclePhysXMaterialFrictionParams*>(valuePtr);
+                    const ::ev4sio_physx::PxVehiclePhysXMaterialFrictionParams* materialFrictionTable =
+                        static_cast<const ::ev4sio_physx::PxVehiclePhysXMaterialFrictionParams*>(valuePtr);
                     physxVehicle->setTireMaterialFrictionTable(currentIndex, materialFrictionTable);
                 }
                 break;
@@ -876,7 +876,7 @@ static bool updateVehicleTireData(InternalVehicleWheelReferenceList* wheelRefLis
     return true;
 }
 
-bool omni::physx::updateVehicleTireLatStiffX(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleTireLatStiffX(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     float value;
@@ -896,7 +896,7 @@ bool omni::physx::updateVehicleTireLatStiffX(AttachedStage& attachedStage, omni:
     return true;
 }
 
-bool omni::physx::updateVehicleTireLatStiffY(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleTireLatStiffY(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     float value;
@@ -916,7 +916,7 @@ bool omni::physx::updateVehicleTireLatStiffY(AttachedStage& attachedStage, omni:
     return true;
 }
 
-bool omni::physx::updateVehicleTireLateralStiffnessGraph(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleTireLateralStiffnessGraph(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     carb::Float2 valueFloat2;
@@ -943,7 +943,7 @@ bool omni::physx::updateVehicleTireLateralStiffnessGraph(AttachedStage& attached
     return true;
 }
 
-bool omni::physx::updateVehicleTireLongStiffPerGrav(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleTireLongStiffPerGrav(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     float value;
@@ -963,7 +963,7 @@ bool omni::physx::updateVehicleTireLongStiffPerGrav(AttachedStage& attachedStage
     return true;
 }
 
-bool omni::physx::updateVehicleTireLongitudinalStiffness(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleTireLongitudinalStiffness(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     float value;
@@ -983,7 +983,7 @@ bool omni::physx::updateVehicleTireLongitudinalStiffness(AttachedStage& attached
     return true;
 }
 
-bool omni::physx::updateVehicleTireCamberStiffPerGrav(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleTireCamberStiffPerGrav(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     float value;
@@ -1003,7 +1003,7 @@ bool omni::physx::updateVehicleTireCamberStiffPerGrav(AttachedStage& attachedSta
     return true;
 }
 
-bool omni::physx::updateVehicleTireCamberStiffness(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleTireCamberStiffness(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     float value;
@@ -1023,7 +1023,7 @@ bool omni::physx::updateVehicleTireCamberStiffness(AttachedStage& attachedStage,
     return true;
 }
 
-bool omni::physx::updateVehicleTireFrictionVsSlip(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId,
+bool omni::ev4sio_physx::updateVehicleTireFrictionVsSlip(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     attrNoModDuringSimErrLog(attachedStage, property);
@@ -1031,7 +1031,7 @@ bool omni::physx::updateVehicleTireFrictionVsSlip(AttachedStage& attachedStage, 
     return true;
 }
 
-bool omni::physx::updateVehicleTireFrictionTableRel(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleTireFrictionTableRel(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     const InternalDatabase::Record* objectRecord = getObjectRecord(attachedStage, ePTVehicleTire, objectId);
@@ -1044,7 +1044,7 @@ bool omni::physx::updateVehicleTireFrictionTableRel(AttachedStage& attachedStage
     // materializing an SdfPath/TfToken (see updateVehicleWheelAttachmentCollisionGroup
     // above). getRelationshipValue's TokenId+ObjectKey sibling takes the dispatched
     // property TokenId directly and returns targets as ObjectKeys; getObjectId (declared
-    // above, ObjectKey-keyed) and omni::physx::getInternalPtr<T> (PhysXTools.h,
+    // above, ObjectKey-keyed) and omni::ev4sio_physx::getInternalPtr<T> (PhysXTools.h,
     // ObjectId-keyed) resolve the target straight to its internal record.
     const std::string relationshipPath = std::string(attachedStage.textFor(objectRecord->mKey)) + "." + tokenText(attachedStage, property);
     std::vector<omni::physics::parse::ObjectKey> targets;
@@ -1057,7 +1057,7 @@ bool omni::physx::updateVehicleTireFrictionTableRel(AttachedStage& attachedStage
         CARB_LOG_ERROR("Relationship \"%s\" needs to have exactly 1 entry.\n", relationshipPath.c_str());
     if (single)
     {
-        InternalTireFrictionTable* tireFrictionTable = omni::physx::getInternalPtr<InternalTireFrictionTable>(attachedStage.getInternalPhysXDatabase(),
+        InternalTireFrictionTable* tireFrictionTable = omni::ev4sio_physx::getInternalPtr<InternalTireFrictionTable>(attachedStage.getInternalPhysXDatabase(),
             ePTVehicleTireFrictionTable, getObjectDataOrID<ObjectDataQueryType::eOBJECT_ID>(key, ePTVehicleTireFrictionTable, attachedStage.getInternalPhysXDatabase(), attachedStage));
         if (tireFrictionTable)
         {
@@ -1075,7 +1075,7 @@ bool omni::physx::updateVehicleTireFrictionTableRel(AttachedStage& attachedStage
     return true;
 }
 
-bool omni::physx::updateVehicleTireRestLoad(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleTireRestLoad(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     float value;
@@ -1193,7 +1193,7 @@ static bool updateVehicleWheelData(InternalVehicleWheelReferenceList* wheelRefLi
     return true;
 }
 
-bool omni::physx::updateVehicleWheelRadius(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleWheelRadius(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     float value;
@@ -1212,7 +1212,7 @@ bool omni::physx::updateVehicleWheelRadius(AttachedStage& attachedStage, omni::p
     return true;
 }
 
-bool omni::physx::updateVehicleWheelWidth(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleWheelWidth(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     float value;
@@ -1231,7 +1231,7 @@ bool omni::physx::updateVehicleWheelWidth(AttachedStage& attachedStage, omni::ph
     return true;
 }
 
-bool omni::physx::updateVehicleWheelMass(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleWheelMass(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     float value;
@@ -1250,7 +1250,7 @@ bool omni::physx::updateVehicleWheelMass(AttachedStage& attachedStage, omni::phy
     return true;
 }
 
-bool omni::physx::updateVehicleWheelMomentOfInertia(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleWheelMomentOfInertia(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     float value;
@@ -1269,7 +1269,7 @@ bool omni::physx::updateVehicleWheelMomentOfInertia(AttachedStage& attachedStage
     return true;
 }
 
-bool omni::physx::updateVehicleWheelDampingRate(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleWheelDampingRate(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     float value;
@@ -1288,7 +1288,7 @@ bool omni::physx::updateVehicleWheelDampingRate(AttachedStage& attachedStage, om
     return true;
 }
 
-bool omni::physx::updateVehicleWheelMaxBrakeTorque(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleWheelMaxBrakeTorque(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     float value;
@@ -1307,7 +1307,7 @@ bool omni::physx::updateVehicleWheelMaxBrakeTorque(AttachedStage& attachedStage,
     return true;
 }
 
-bool omni::physx::updateVehicleWheelMaxHandBrakeTorque(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleWheelMaxHandBrakeTorque(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     float value;
@@ -1326,7 +1326,7 @@ bool omni::physx::updateVehicleWheelMaxHandBrakeTorque(AttachedStage& attachedSt
     return true;
 }
 
-bool omni::physx::updateVehicleWheelMaxSteerAngle(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleWheelMaxSteerAngle(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     float value;
@@ -1345,7 +1345,7 @@ bool omni::physx::updateVehicleWheelMaxSteerAngle(AttachedStage& attachedStage, 
     return true;
 }
 
-bool omni::physx::updateVehicleWheelToeAngle(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleWheelToeAngle(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     float value;
@@ -1525,7 +1525,7 @@ static bool updateVehicleWheelAttachmentData(InternalVehicleWheelAttachment* whe
     return true;
 }
 
-static InternalVehicleWheelAttachment* getWheelAttachment(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+static InternalVehicleWheelAttachment* getWheelAttachment(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::ObjectKey& key)
 {
     const InternalDatabase::Record* objectRecord = getObjectRecord(attachedStage, ePTVehicleWheelAttachment, objectId);
@@ -1539,7 +1539,7 @@ static InternalVehicleWheelAttachment* getWheelAttachment(AttachedStage& attache
 }
 
 template<typename T>
-static bool getWheelAttachmentProperty(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+static bool getWheelAttachmentProperty(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode,
     T& value, InternalVehicleWheelAttachment*& wheelAttachment)
 {
@@ -1558,7 +1558,7 @@ static bool getWheelAttachmentProperty(AttachedStage& attachedStage, omni::physx
     return true;
 }
 
-bool omni::physx::updateVehicleWheelAttachmentIndex(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleWheelAttachmentIndex(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     attrNoModDuringSimErrLog(attachedStage, property);
@@ -1566,7 +1566,7 @@ bool omni::physx::updateVehicleWheelAttachmentIndex(AttachedStage& attachedStage
     return true;
 }
 
-bool omni::physx::updateVehicleWheelAttachmentWheel(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleWheelAttachmentWheel(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     relNoModDuringSimErrLog(attachedStage, property);
@@ -1574,7 +1574,7 @@ bool omni::physx::updateVehicleWheelAttachmentWheel(AttachedStage& attachedStage
     return true;
 }
 
-bool omni::physx::updateVehicleWheelAttachmentTire(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleWheelAttachmentTire(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     relNoModDuringSimErrLog(attachedStage, property);
@@ -1582,7 +1582,7 @@ bool omni::physx::updateVehicleWheelAttachmentTire(AttachedStage& attachedStage,
     return true;
 }
 
-bool omni::physx::updateVehicleWheelAttachmentSuspension(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleWheelAttachmentSuspension(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     relNoModDuringSimErrLog(attachedStage, property);
@@ -1590,7 +1590,7 @@ bool omni::physx::updateVehicleWheelAttachmentSuspension(AttachedStage& attached
     return true;
 }
 
-bool omni::physx::updateVehicleWheelAttachmentSuspensionTravelDirection(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleWheelAttachmentSuspensionTravelDirection(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     carb::Float3 value;
@@ -1605,7 +1605,7 @@ bool omni::physx::updateVehicleWheelAttachmentSuspensionTravelDirection(Attached
     return true;
 }
 
-bool omni::physx::updateVehicleWheelAttachmentSuspensionForceAppPointOffset(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleWheelAttachmentSuspensionForceAppPointOffset(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     carb::Float3 value;
@@ -1620,7 +1620,7 @@ bool omni::physx::updateVehicleWheelAttachmentSuspensionForceAppPointOffset(Atta
     return true;
 }
 
-bool omni::physx::updateVehicleWheelAttachmentWheelCenterOfMassOffset(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleWheelAttachmentWheelCenterOfMassOffset(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     carb::Float3 value;
@@ -1635,7 +1635,7 @@ bool omni::physx::updateVehicleWheelAttachmentWheelCenterOfMassOffset(AttachedSt
     return true;
 }
 
-bool omni::physx::updateVehicleWheelAttachmentTireForceAppPointOffset(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleWheelAttachmentTireForceAppPointOffset(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     carb::Float3 value;
@@ -1650,7 +1650,7 @@ bool omni::physx::updateVehicleWheelAttachmentTireForceAppPointOffset(AttachedSt
     return true;
 }
 
-bool omni::physx::updateVehicleWheelAttachmentSuspensionFramePosition(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleWheelAttachmentSuspensionFramePosition(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     carb::Float3 value;
@@ -1665,7 +1665,7 @@ bool omni::physx::updateVehicleWheelAttachmentSuspensionFramePosition(AttachedSt
     return true;
 }
 
-bool omni::physx::updateVehicleWheelAttachmentSuspensionFrameOrientation(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleWheelAttachmentSuspensionFrameOrientation(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     carb::Float4 value;
@@ -1680,7 +1680,7 @@ bool omni::physx::updateVehicleWheelAttachmentSuspensionFrameOrientation(Attache
     return true;
 }
 
-bool omni::physx::updateVehicleWheelAttachmentWheelFramePosition(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleWheelAttachmentWheelFramePosition(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     carb::Float3 value;
@@ -1695,7 +1695,7 @@ bool omni::physx::updateVehicleWheelAttachmentWheelFramePosition(AttachedStage& 
     return true;
 }
 
-bool omni::physx::updateVehicleWheelAttachmentWheelFrameOrientation(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleWheelAttachmentWheelFrameOrientation(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     carb::Float4 value;
@@ -1710,7 +1710,7 @@ bool omni::physx::updateVehicleWheelAttachmentWheelFrameOrientation(AttachedStag
     return true;
 }
 
-bool omni::physx::updateVehicleWheelAttachmentDriven(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleWheelAttachmentDriven(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     bool value;
@@ -1724,7 +1724,7 @@ bool omni::physx::updateVehicleWheelAttachmentDriven(AttachedStage& attachedStag
     return true;
 }
 
-bool omni::physx::updateVehicleWheelAttachmentCollisionGroup(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleWheelAttachmentCollisionGroup(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     omni::physics::parse::ObjectKey key;
@@ -1823,7 +1823,7 @@ static bool checkSuspensionComplianceValues(const TVecType* values, const uint32
 }
 
 template<const uint32_t tAttribute>
-static bool updateVehicleSuspensionComplianceValues(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+static bool updateVehicleSuspensionComplianceValues(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     omni::physics::parse::ObjectKey key;
@@ -1890,7 +1890,7 @@ static bool updateVehicleSuspensionComplianceValues(AttachedStage& attachedStage
     return true;
 }
 
-bool omni::physx::updateVehicleSuspensionComplWheelToeAngle(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleSuspensionComplWheelToeAngle(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     updateVehicleSuspensionComplianceValues<SuspensionComplianceParam::eWHEEL_TOE_ANGLE>(attachedStage, objectId,
@@ -1899,7 +1899,7 @@ bool omni::physx::updateVehicleSuspensionComplWheelToeAngle(AttachedStage& attac
     return true;
 }
 
-bool omni::physx::updateVehicleSuspensionComplWheelCamberAngle(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleSuspensionComplWheelCamberAngle(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     updateVehicleSuspensionComplianceValues<SuspensionComplianceParam::eWHEEL_CAMBER_ANGLE>(attachedStage, objectId,
@@ -1908,7 +1908,7 @@ bool omni::physx::updateVehicleSuspensionComplWheelCamberAngle(AttachedStage& at
     return true;
 }
 
-bool omni::physx::updateVehicleSuspensionComplSuspForceAppPoint(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleSuspensionComplSuspForceAppPoint(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     updateVehicleSuspensionComplianceValues<SuspensionComplianceParam::eSUSPENSION_FORCE_APP_POINT>(attachedStage, objectId,
@@ -1917,7 +1917,7 @@ bool omni::physx::updateVehicleSuspensionComplSuspForceAppPoint(AttachedStage& a
     return true;
 }
 
-bool omni::physx::updateVehicleSuspensionComplTireForceAppPoint(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleSuspensionComplTireForceAppPoint(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     updateVehicleSuspensionComplianceValues<SuspensionComplianceParam::eTIRE_FORCE_APP_POINT>(attachedStage, objectId,
@@ -1926,7 +1926,7 @@ bool omni::physx::updateVehicleSuspensionComplTireForceAppPoint(AttachedStage& a
     return true;
 }
 
-static InternalVehicle* getInternalVehicle(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+static InternalVehicle* getInternalVehicle(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::ObjectKey& key)
 {
     const InternalDatabase::Record* objectRecord = getObjectRecord(attachedStage, ePTVehicle, objectId);
@@ -1939,7 +1939,7 @@ static InternalVehicle* getInternalVehicle(AttachedStage& attachedStage, omni::p
         return nullptr;
 }
 
-bool omni::physx::updateVehicleEnabled(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleEnabled(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     omni::physics::parse::ObjectKey key;
@@ -1957,7 +1957,7 @@ bool omni::physx::updateVehicleEnabled(AttachedStage& attachedStage, omni::physx
     return true;
 }
 
-bool omni::physx::updateVehicleLimitSuspensionExpansionVelocity(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleLimitSuspensionExpansionVelocity(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     omni::physics::parse::ObjectKey key;
@@ -1975,7 +1975,7 @@ bool omni::physx::updateVehicleLimitSuspensionExpansionVelocity(AttachedStage& a
     return true;
 }
 
-static bool updateVehicleFloatVal(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+static bool updateVehicleFloatVal(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode,
     const VehicleParam::Enum paramId)
 {
@@ -2076,61 +2076,61 @@ static bool updateVehicleFloatVal(AttachedStage& attachedStage, omni::physx::usd
     return true;
 }
 
-bool omni::physx::updateVehicleMinPassiveLongslipDenom(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleMinPassiveLongslipDenom(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     return updateVehicleFloatVal(attachedStage, objectId, property, timeCode, VehicleParam::eTIRE_MIN_PASSIVE_LONG_SLIP_DENOM);
 }
 
-bool omni::physx::updateVehicleMinActiveLongslipDenom(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleMinActiveLongslipDenom(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     return updateVehicleFloatVal(attachedStage, objectId, property, timeCode, VehicleParam::eTIRE_MIN_ACTIVE_LONG_SLIP_DENOM);
 }
 
-bool omni::physx::updateVehicleMinLateralSlipDenom(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleMinLateralSlipDenom(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     return updateVehicleFloatVal(attachedStage, objectId, property, timeCode, VehicleParam::eTIRE_MIN_LAT_SLIP_DENOM);
 }
 
-bool omni::physx::updateVehicleLongitudinalStickyTireThresholdSpeed(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleLongitudinalStickyTireThresholdSpeed(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     return updateVehicleFloatVal(attachedStage, objectId, property, timeCode, VehicleParam::eTIRE_LONG_STICKY_THRESHOLD_SPEED);
 }
 
-bool omni::physx::updateVehicleLongitudinalStickyTireThresholdTime(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleLongitudinalStickyTireThresholdTime(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     return updateVehicleFloatVal(attachedStage, objectId, property, timeCode, VehicleParam::eTIRE_LONG_STICKY_THRESHOLD_TIME);
 }
 
-bool omni::physx::updateVehicleLongitudinalStickyTireDamping(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleLongitudinalStickyTireDamping(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     return updateVehicleFloatVal(attachedStage, objectId, property, timeCode, VehicleParam::eTIRE_LONG_STICKY_DAMPING);
 }
 
-bool omni::physx::updateVehicleLateralStickyTireThresholdSpeed(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleLateralStickyTireThresholdSpeed(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     return updateVehicleFloatVal(attachedStage, objectId, property, timeCode, VehicleParam::eTIRE_LAT_STICKY_THRESHOLD_SPEED);
 }
 
-bool omni::physx::updateVehicleLateralStickyTireThresholdTime(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleLateralStickyTireThresholdTime(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     return updateVehicleFloatVal(attachedStage, objectId, property, timeCode, VehicleParam::eTIRE_LAT_STICKY_THRESHOLD_TIME);
 }
 
-bool omni::physx::updateVehicleLateralStickyTireDamping(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleLateralStickyTireDamping(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     return updateVehicleFloatVal(attachedStage, objectId, property, timeCode, VehicleParam::eTIRE_LAT_STICKY_DAMPING);
 }
 
-static InternalVehicle* getInternalVehicleFromController(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+static InternalVehicle* getInternalVehicleFromController(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::ObjectKey& key)
 {
     const InternalDatabase::Record* objectRecord = getObjectRecord(attachedStage, ePTVehicleController, objectId);
@@ -2207,7 +2207,7 @@ static bool updateVehicleControllerData(InternalVehicle* vehicle,
     return true;
 }
 
-static bool updateVehicleControllerFloatVal(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+static bool updateVehicleControllerFloatVal(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode,
     const VehicleControllerParam::Enum paramId,
     const float min = 0.0f, const float max = 1.0f)
@@ -2230,56 +2230,56 @@ static bool updateVehicleControllerFloatVal(AttachedStage& attachedStage, omni::
     return true;
 }
 
-bool omni::physx::updateVehicleControllerAccelerator(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleControllerAccelerator(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     return updateVehicleControllerFloatVal(attachedStage, objectId, property, timeCode, VehicleControllerParam::eACCELERATOR);
 }
 
-bool omni::physx::updateVehicleControllerBrake0(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleControllerBrake0(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     return updateVehicleControllerFloatVal(attachedStage, objectId, property, timeCode, VehicleControllerParam::eBRAKE0);
 }
 
-bool omni::physx::updateVehicleControllerBrake1(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleControllerBrake1(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     return updateVehicleControllerFloatVal(attachedStage, objectId, property, timeCode, VehicleControllerParam::eBRAKE1);
 }
 
-bool omni::physx::updateVehicleControllerBrake(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleControllerBrake(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     return updateVehicleControllerFloatVal(attachedStage, objectId, property, timeCode, VehicleControllerParam::eBRAKE);
 }
 
-bool omni::physx::updateVehicleControllerHandbrake(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleControllerHandbrake(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     return updateVehicleControllerFloatVal(attachedStage, objectId, property, timeCode, VehicleControllerParam::eHANDBRAKE);
 }
 
-bool omni::physx::updateVehicleControllerSteer(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleControllerSteer(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     return updateVehicleControllerFloatVal(attachedStage, objectId, property, timeCode, VehicleControllerParam::eSTEER,
         -1.0f, 1.0f);
 }
 
-bool omni::physx::updateVehicleControllerSteerLeft(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleControllerSteerLeft(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     return updateVehicleControllerFloatVal(attachedStage, objectId, property, timeCode, VehicleControllerParam::eSTEER_LEFT);
 }
 
-bool omni::physx::updateVehicleControllerSteerRight(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleControllerSteerRight(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     return updateVehicleControllerFloatVal(attachedStage, objectId, property, timeCode, VehicleControllerParam::eSTEER_RIGHT);
 }
 
-bool omni::physx::updateVehicleControllerTargetGear(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleControllerTargetGear(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     omni::physics::parse::ObjectKey key;
@@ -2291,8 +2291,8 @@ bool omni::physx::updateVehicleControllerTargetGear(AttachedStage& attachedStage
         if (!getValue<int>(attachedStage, key, property, timeCode, value))
             return true;
 
-        constexpr int highestGear = ::physx::PxVehicleGearboxParams::eMAX_NB_GEARS - 2;
-        constexpr int automaticGear = ::physx::PxVehicleEngineDriveTransmissionCommandState::eAUTOMATIC_GEAR;
+        constexpr int highestGear = ::ev4sio_physx::PxVehicleGearboxParams::eMAX_NB_GEARS - 2;
+        constexpr int automaticGear = ::ev4sio_physx::PxVehicleEngineDriveTransmissionCommandState::eAUTOMATIC_GEAR;
         if ((value != automaticGear) &&
             ((value < -1) || (value > (highestGear))))
         {
@@ -2307,7 +2307,7 @@ bool omni::physx::updateVehicleControllerTargetGear(AttachedStage& attachedStage
     return true;
 }
 
-static bool updateVehicleTankControllerFloatVal(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+static bool updateVehicleTankControllerFloatVal(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode,
     const VehicleTankControllerParam::Enum paramId)
 {
@@ -2339,21 +2339,21 @@ static bool updateVehicleTankControllerFloatVal(AttachedStage& attachedStage, om
     return true;
 }
 
-bool omni::physx::updateVehicleTankControllerThrust0(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleTankControllerThrust0(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     return updateVehicleTankControllerFloatVal(attachedStage, objectId, property, timeCode,
         VehicleTankControllerParam::eTHRUST0);
 }
 
-bool omni::physx::updateVehicleTankControllerThrust1(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleTankControllerThrust1(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     return updateVehicleTankControllerFloatVal(attachedStage, objectId, property, timeCode,
         VehicleTankControllerParam::eTHRUST1);
 }
 
-bool omni::physx::updateVehicleDriveBasicPeakTorque(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleDriveBasicPeakTorque(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     const InternalDatabase::Record* objectRecord = getObjectRecord(attachedStage, ePTVehicleDriveBasic, objectId);
@@ -2410,7 +2410,7 @@ static bool updateVehicleWheelControllerData(InternalVehicleWheelAttachment* whe
 }
 
 template<typename T>
-static bool getWheelControllerProperty(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+static bool getWheelControllerProperty(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode,
     T& value, InternalVehicleWheelAttachment*& wheelAttachment)
 {
@@ -2426,7 +2426,7 @@ static bool getWheelControllerProperty(AttachedStage& attachedStage, omni::physx
     return true;
 }
 
-bool omni::physx::updateVehicleWheelControllerDriveTorque(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleWheelControllerDriveTorque(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     float value;
@@ -2439,7 +2439,7 @@ bool omni::physx::updateVehicleWheelControllerDriveTorque(AttachedStage& attache
     return true;
 }
 
-bool omni::physx::updateVehicleWheelControllerBrakeTorque(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleWheelControllerBrakeTorque(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     float value;
@@ -2458,7 +2458,7 @@ bool omni::physx::updateVehicleWheelControllerBrakeTorque(AttachedStage& attache
     return true;
 }
 
-bool omni::physx::updateVehicleWheelControllerSteerAngle(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleWheelControllerSteerAngle(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     float value;
@@ -2471,7 +2471,7 @@ bool omni::physx::updateVehicleWheelControllerSteerAngle(AttachedStage& attached
     return true;
 }
 
-bool omni::physx::updateVehicleMultiWheelDifferentialWheels(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleMultiWheelDifferentialWheels(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     attrNoModDuringSimErrLog(attachedStage, property);
@@ -2485,7 +2485,7 @@ static void sendArraySizeMismatchError(const AttachedStage& attachedStage, omni:
         tokenText(attachedStage, property).c_str());
 }
 
-bool omni::physx::updateVehicleMultiWheelDifferentialTorqueRatios(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleMultiWheelDifferentialTorqueRatios(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     omni::physics::parse::ObjectKey key;
@@ -2529,7 +2529,7 @@ bool omni::physx::updateVehicleMultiWheelDifferentialTorqueRatios(AttachedStage&
     return true;
 }
 
-bool omni::physx::updateVehicleMultiWheelDifferentialAverageWheelSpeedRatios(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleMultiWheelDifferentialAverageWheelSpeedRatios(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     omni::physics::parse::ObjectKey key;
@@ -2562,7 +2562,7 @@ bool omni::physx::updateVehicleMultiWheelDifferentialAverageWheelSpeedRatios(Att
     return true;
 }
 
-bool omni::physx::updateVehicleTankDifferentialNumberOfWheelsPerTrack(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleTankDifferentialNumberOfWheelsPerTrack(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     attrNoModDuringSimErrLog(attachedStage, property);
@@ -2570,7 +2570,7 @@ bool omni::physx::updateVehicleTankDifferentialNumberOfWheelsPerTrack(AttachedSt
     return true;
 }
 
-bool omni::physx::updateVehicleTankDifferentialThrustIndexPerTrack(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleTankDifferentialThrustIndexPerTrack(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     attrNoModDuringSimErrLog(attachedStage, property);
@@ -2578,7 +2578,7 @@ bool omni::physx::updateVehicleTankDifferentialThrustIndexPerTrack(AttachedStage
     return true;
 }
 
-bool omni::physx::updateVehicleTankDifferentialTrackToWheelIndices(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleTankDifferentialTrackToWheelIndices(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     attrNoModDuringSimErrLog(attachedStage, property);
@@ -2586,7 +2586,7 @@ bool omni::physx::updateVehicleTankDifferentialTrackToWheelIndices(AttachedStage
     return true;
 }
 
-bool omni::physx::updateVehicleTankDifferentialWheelIndicesInTrackOrder(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleTankDifferentialWheelIndicesInTrackOrder(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     attrNoModDuringSimErrLog(attachedStage, property);
@@ -2594,7 +2594,7 @@ bool omni::physx::updateVehicleTankDifferentialWheelIndicesInTrackOrder(Attached
     return true;
 }
 
-static bool updateVehicleBrakesWheels(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId,
+static bool updateVehicleBrakesWheels(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime)
 {
     attrNoModDuringSimErrLog(attachedStage, property);
@@ -2602,19 +2602,19 @@ static bool updateVehicleBrakesWheels(AttachedStage& attachedStage, omni::physx:
     return true;
 }
 
-bool omni::physx::updateVehicleBrakes0Wheels(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleBrakes0Wheels(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     return updateVehicleBrakesWheels(attachedStage, objectId, property, timeCode);
 }
 
-bool omni::physx::updateVehicleBrakes1Wheels(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleBrakes1Wheels(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     return updateVehicleBrakesWheels(attachedStage, objectId, property, timeCode);
 }
 
-static bool updateVehicleBrakesMaxBrakeTorque(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+static bool updateVehicleBrakesMaxBrakeTorque(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode, uint32_t brakesIndex)
 {
     omni::physics::parse::ObjectKey key;
@@ -2642,19 +2642,19 @@ static bool updateVehicleBrakesMaxBrakeTorque(AttachedStage& attachedStage, omni
     return true;
 }
 
-bool omni::physx::updateVehicleBrakes0MaxBrakeTorque(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleBrakes0MaxBrakeTorque(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     return updateVehicleBrakesMaxBrakeTorque(attachedStage, objectId, property, timeCode, 0);
 }
 
-bool omni::physx::updateVehicleBrakes1MaxBrakeTorque(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleBrakes1MaxBrakeTorque(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     return updateVehicleBrakesMaxBrakeTorque(attachedStage, objectId, property, timeCode, 1);
 }
 
-static bool updateVehicleBrakesTorqueMultipliers(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+static bool updateVehicleBrakesTorqueMultipliers(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode, uint32_t brakesIndex)
 {
     omni::physics::parse::ObjectKey key;
@@ -2690,19 +2690,19 @@ static bool updateVehicleBrakesTorqueMultipliers(AttachedStage& attachedStage, o
     return true;
 }
 
-bool omni::physx::updateVehicleBrakes0TorqueMultipliers(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleBrakes0TorqueMultipliers(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     return updateVehicleBrakesTorqueMultipliers(attachedStage, objectId, property, timeCode, 0); 
 }
 
-bool omni::physx::updateVehicleBrakes1TorqueMultipliers(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleBrakes1TorqueMultipliers(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     return updateVehicleBrakesTorqueMultipliers(attachedStage, objectId, property, timeCode, 1); 
 }
 
-bool omni::physx::updateVehicleSteeringWheels(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleSteeringWheels(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     attrNoModDuringSimErrLog(attachedStage, property);
@@ -2727,7 +2727,7 @@ static bool maxSteerAngleRangeCheck(const float value, const AttachedStage& atta
     }
 }
 
-bool omni::physx::updateVehicleSteeringMaxSteerAngle(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleSteeringMaxSteerAngle(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     omni::physics::parse::ObjectKey key;
@@ -2761,7 +2761,7 @@ bool omni::physx::updateVehicleSteeringMaxSteerAngle(AttachedStage& attachedStag
     return true;
 }
 
-bool omni::physx::updateVehicleSteeringAngleMultipliers(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleSteeringAngleMultipliers(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     omni::physics::parse::ObjectKey key;
@@ -2796,7 +2796,7 @@ bool omni::physx::updateVehicleSteeringAngleMultipliers(AttachedStage& attachedS
     return true;
 }
 
-static bool updateVehicleAckermannSteeringFloatVal(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+static bool updateVehicleAckermannSteeringFloatVal(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode,
     const VehicleAckermannParam::Enum paramId)
 {
@@ -2876,7 +2876,7 @@ static bool updateVehicleAckermannSteeringFloatVal(AttachedStage& attachedStage,
     return true;
 }
 
-bool omni::physx::updateVehicleAckermannSteeringWheel0(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleAckermannSteeringWheel0(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     attrNoModDuringSimErrLog(attachedStage, property);
@@ -2884,7 +2884,7 @@ bool omni::physx::updateVehicleAckermannSteeringWheel0(AttachedStage& attachedSt
     return true;
 }
 
-bool omni::physx::updateVehicleAckermannSteeringWheel1(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleAckermannSteeringWheel1(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     attrNoModDuringSimErrLog(attachedStage, property);
@@ -2892,35 +2892,35 @@ bool omni::physx::updateVehicleAckermannSteeringWheel1(AttachedStage& attachedSt
     return true;
 }
 
-bool omni::physx::updateVehicleAckermannSteeringMaxSteerAngle(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleAckermannSteeringMaxSteerAngle(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     return updateVehicleAckermannSteeringFloatVal(attachedStage, objectId, property, timeCode,
         VehicleAckermannParam::eMAX_STEER_ANGLE);
 }
 
-bool omni::physx::updateVehicleAckermannSteeringWheelBase(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleAckermannSteeringWheelBase(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     return updateVehicleAckermannSteeringFloatVal(attachedStage, objectId, property, timeCode,
         VehicleAckermannParam::eWHEEL_BASE);
 }
 
-bool omni::physx::updateVehicleAckermannSteeringTrackWidth(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleAckermannSteeringTrackWidth(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     return updateVehicleAckermannSteeringFloatVal(attachedStage, objectId, property, timeCode,
         VehicleAckermannParam::eTRACK_WIDTH);
 }
 
-bool omni::physx::updateVehicleAckermannSteeringStrength(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleAckermannSteeringStrength(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     return updateVehicleAckermannSteeringFloatVal(attachedStage, objectId, property, timeCode,
         VehicleAckermannParam::eSTRENGTH);
 }
 
-bool omni::physx::updateVehicleNCRDriveCommandValues(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleNCRDriveCommandValues(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     attrNoModDuringSimErrLog(attachedStage, property);
@@ -2928,7 +2928,7 @@ bool omni::physx::updateVehicleNCRDriveCommandValues(AttachedStage& attachedStag
     return true;
 }
 
-bool omni::physx::updateVehicleNCRSteerCommandValues(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleNCRSteerCommandValues(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     attrNoModDuringSimErrLog(attachedStage, property);
@@ -2936,7 +2936,7 @@ bool omni::physx::updateVehicleNCRSteerCommandValues(AttachedStage& attachedStag
     return true;
 }
 
-bool omni::physx::updateVehicleNCRBrakes0CommandValues(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleNCRBrakes0CommandValues(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     attrNoModDuringSimErrLog(attachedStage, property);
@@ -2944,7 +2944,7 @@ bool omni::physx::updateVehicleNCRBrakes0CommandValues(AttachedStage& attachedSt
     return true;
 }
 
-bool omni::physx::updateVehicleNCRBrakes1CommandValues(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleNCRBrakes1CommandValues(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     attrNoModDuringSimErrLog(attachedStage, property);
@@ -2952,7 +2952,7 @@ bool omni::physx::updateVehicleNCRBrakes1CommandValues(AttachedStage& attachedSt
     return true;
 }
 
-bool omni::physx::updateVehicleNCRDriveSpeedResponsesPerCommandValue(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleNCRDriveSpeedResponsesPerCommandValue(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     attrNoModDuringSimErrLog(attachedStage, property);
@@ -2960,7 +2960,7 @@ bool omni::physx::updateVehicleNCRDriveSpeedResponsesPerCommandValue(AttachedSta
     return true;
 }
 
-bool omni::physx::updateVehicleNCRSteerSpeedResponsesPerCommandValue(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleNCRSteerSpeedResponsesPerCommandValue(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     attrNoModDuringSimErrLog(attachedStage, property);
@@ -2968,7 +2968,7 @@ bool omni::physx::updateVehicleNCRSteerSpeedResponsesPerCommandValue(AttachedSta
     return true;
 }
 
-bool omni::physx::updateVehicleNCRBrakes0SpeedResponsesPerCommandValue(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleNCRBrakes0SpeedResponsesPerCommandValue(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     attrNoModDuringSimErrLog(attachedStage, property);
@@ -2976,7 +2976,7 @@ bool omni::physx::updateVehicleNCRBrakes0SpeedResponsesPerCommandValue(AttachedS
     return true;
 }
 
-bool omni::physx::updateVehicleNCRBrakes1SpeedResponsesPerCommandValue(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleNCRBrakes1SpeedResponsesPerCommandValue(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     attrNoModDuringSimErrLog(attachedStage, property);
@@ -2984,7 +2984,7 @@ bool omni::physx::updateVehicleNCRBrakes1SpeedResponsesPerCommandValue(AttachedS
     return true;
 }
 
-bool omni::physx::updateVehicleNCRDriveSpeedResponses(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleNCRDriveSpeedResponses(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     attrNoModDuringSimErrLog(attachedStage, property);
@@ -2992,7 +2992,7 @@ bool omni::physx::updateVehicleNCRDriveSpeedResponses(AttachedStage& attachedSta
     return true;
 }
 
-bool omni::physx::updateVehicleNCRSteerSpeedResponses(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleNCRSteerSpeedResponses(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     attrNoModDuringSimErrLog(attachedStage, property);
@@ -3000,7 +3000,7 @@ bool omni::physx::updateVehicleNCRSteerSpeedResponses(AttachedStage& attachedSta
     return true;
 }
 
-bool omni::physx::updateVehicleNCRBrakes0SpeedResponses(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleNCRBrakes0SpeedResponses(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     attrNoModDuringSimErrLog(attachedStage, property);
@@ -3008,7 +3008,7 @@ bool omni::physx::updateVehicleNCRBrakes0SpeedResponses(AttachedStage& attachedS
     return true;
 }
 
-bool omni::physx::updateVehicleNCRBrakes1SpeedResponses(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateVehicleNCRBrakes1SpeedResponses(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     attrNoModDuringSimErrLog(attachedStage, property);

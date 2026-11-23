@@ -17,7 +17,7 @@
 
 #define SSM_GPU_DEBUG	0
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 PxgShapeSimManager::PxgShapeSimManager(PxgAllocatorDesc& allocDesc) :
 	mTotalNumShapes		(0),
@@ -28,7 +28,7 @@ PxgShapeSimManager::PxgShapeSimManager(PxgAllocatorDesc& allocDesc) :
 {
 }
 
-void PxgShapeSimManager::addPxgShape(Sc::ShapeSimBase* shapeSimBase, const PxsShapeCore* shapeCore, PxNodeIndex nodeIndex, PxU32 index)
+void PxgShapeSimManager::addPxgShape(ev4sio_Sc::ShapeSimBase* shapeSimBase, const PxsShapeCore* shapeCore, PxNodeIndex nodeIndex, PxU32 index)
 {
 	if(mShapeSims.capacity() <= index)
 	{
@@ -63,9 +63,9 @@ void PxgShapeSimManager::removePxgShape(PxU32 index)
 	mNewShapeSims.pushBack(index);
 }
 
-namespace physx	// PT: only in physx namespace for the friend access to work
+namespace ev4sio_physx	// PT: only in physx namespace for the friend access to work
 {
-	class PxgCopyToShapeSimTask : public Cm::Task
+	class PxgCopyToShapeSimTask : public ev4sio_Cm::Task
 	{
 		PxgShapeSimManager*		mShapeSimManager;
 		PxgGpuNarrowphaseCore*	mNpCore;
@@ -74,7 +74,7 @@ namespace physx	// PT: only in physx namespace for the friend access to work
 
 	public:
 		PxgCopyToShapeSimTask(PxgShapeSimManager* shapeSimManager, PxgGpuNarrowphaseCore* npCore, PxU32 startIdx, PxU32 nbToProcess) :
-			Cm::Task			(0),	// PT: TODO: add missing context ID ... but then again it's missing from most of the GPU code anyway
+			ev4sio_Cm::Task			(0),	// PT: TODO: add missing context ID ... but then again it's missing from most of the GPU code anyway
 			mShapeSimManager	(shapeSimManager),
 			mNpCore				(npCore),
 			mStartIndex			(startIdx),
@@ -107,7 +107,7 @@ namespace physx	// PT: only in physx namespace for the friend access to work
 				shapeSim.mShapeFlags = shapeCore->mShapeFlags;
 				// ML: if the shape has been removed, we shouldn't calculate the bound (PT: otherwise it crashes, as the corresponding shape data has already been deleted)
 				if (shapeSim.mElementIndex != PX_INVALID_U32)
-					shapeSim.mLocalBounds = Gu::computeBounds(shapeCore->mGeometry.getGeometry(), PxTransform(PxIdentity));
+					shapeSim.mLocalBounds = ev4sio_Gu::computeBounds(shapeCore->mGeometry.getGeometry(), PxTransform(PxIdentity));
 				else
 					shapeSim.mElementIndex = shapeIndex;
 
@@ -126,7 +126,7 @@ namespace physx	// PT: only in physx namespace for the friend access to work
 	};
 }
 
-void PxgShapeSimManager::copyToGpuShapeSim(PxgGpuNarrowphaseCore* npCore, PxBaseTask* continuation, Cm::FlushPool& flushPool)
+void PxgShapeSimManager::copyToGpuShapeSim(PxgGpuNarrowphaseCore* npCore, PxBaseTask* continuation, ev4sio_Cm::FlushPool& flushPool)
 {
 	const PxU32 nbNewShapes = mNewShapeSims.size();
 
@@ -152,7 +152,7 @@ void PxgShapeSimManager::gpuMemDmaUpShapeSim(PxCudaContext* cudaContext, CUstrea
 {
 	const PxU32 nbTotalShapes = mTotalNumShapes;
 		
-	const Cm::PinnableArray<PxgNewShapeSim>& newShapeSimPool = mPxgShapeSimPool;
+	const ev4sio_Cm::PinnableArray<PxgNewShapeSim>& newShapeSimPool = mPxgShapeSimPool;
 
 	const PxU32 nbNewShapes = newShapeSimPool.size();
 
@@ -189,7 +189,7 @@ void PxgShapeSimManager::gpuMemDmaUpShapeSim(PxCudaContext* cudaContext, CUstrea
 #if SSM_GPU_DEBUG
 		result = cudaContext->streamSynchronize(stream);
 		if (result != CUDA_SUCCESS)
-			PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "updateShapesLaunch kernel fail!\n");
+			ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "updateShapesLaunch kernel fail!\n");
 #endif
 	}
 

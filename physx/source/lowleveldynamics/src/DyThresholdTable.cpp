@@ -6,9 +6,9 @@
 #include "DyThresholdTable.h"
 #include "foundation/PxUtilities.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-	namespace Dy
+	namespace ev4sio_Dy
 	{
 		bool ThresholdTable::check(const ThresholdStreamElement* stream, PxU32 streamSize, const PxU32 nodeIndexA, const PxU32 nodeIndexB, PxReal dt)
 		{

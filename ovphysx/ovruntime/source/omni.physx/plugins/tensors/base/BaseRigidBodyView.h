@@ -20,7 +20,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace tensors
 {
@@ -62,7 +62,7 @@ public:
     // Set the actor flag and notify the solver when the affected body is already active, or when
     // gravity is re-enabled. Shared by rigid-body, per-link, and per-link articulation-view writes
     // so legacy tensor bindings and the ovstage write API have identical simulation semantics.
-    static void setDisableGravityAndRefresh(::physx::PxRigidBody& body, bool disabled);
+    static void setDisableGravityAndRefresh(::ev4sio_physx::PxRigidBody& body, bool disabled);
 
     // Kinematic target: a CPU-only per-body PhysX API (PxRigidDynamic::set/getKinematicTarget), no
     // device batch. Lives on the base view for both backends, like the disable-gravity CPU-only path.
@@ -124,69 +124,69 @@ public:
     // ovstage property WRITE (ADR-0012), public alongside the gathers they invert. Host-only: none
     // of these has a device destination, so one implementation serves both backends -- see
     // setBodyPropertyOvStage.
-    bool setMassesOvStage(const TensorDesc* srcTensor, const ::physx::PxU32* outRecordIdx, ::physx::PxU32 numOutputs, uint64_t rowsToken, bool wholeSet);
-    bool setInertiasOvStage(const TensorDesc* srcTensor, const ::physx::PxU32* outRecordIdx, ::physx::PxU32 numOutputs, uint64_t rowsToken, bool wholeSet);
-    bool setComPositionsOvStage(const TensorDesc* srcTensor, const ::physx::PxU32* outRecordIdx, ::physx::PxU32 numOutputs, uint64_t rowsToken, bool wholeSet);
-    bool setComOrientationsOvStage(const TensorDesc* srcTensor, const ::physx::PxU32* outRecordIdx, ::physx::PxU32 numOutputs, uint64_t rowsToken, bool wholeSet);
-    bool setDisableGravitiesOvStage(const TensorDesc* srcTensor, const ::physx::PxU32* outRecordIdx, ::physx::PxU32 numOutputs, uint64_t rowsToken, bool wholeSet);
-    bool setDisableSimulationsOvStage(const TensorDesc* srcTensor, const ::physx::PxU32* outRecordIdx, ::physx::PxU32 numOutputs, uint64_t rowsToken, bool wholeSet);
-    bool setWakeStatesOvStage(const TensorDesc* srcTensor, const ::physx::PxU32* outRecordIdx, ::physx::PxU32 numOutputs, uint64_t rowsToken, bool wholeSet);
-    bool setKinematicTargetPositionsOvStage(const TensorDesc* srcTensor, const ::physx::PxU32* outRecordIdx, ::physx::PxU32 numOutputs, uint64_t rowsToken, bool wholeSet);
-    bool setKinematicTargetOrientationsOvStage(const TensorDesc* srcTensor, const ::physx::PxU32* outRecordIdx, ::physx::PxU32 numOutputs, uint64_t rowsToken, bool wholeSet);
-    bool setStaticFrictionsOvStage(const TensorDesc* srcTensor, const ::physx::PxU32* outRecordIdx, ::physx::PxU32 numOutputs, uint64_t rowsToken, bool wholeSet);
-    bool setDynamicFrictionsOvStage(const TensorDesc* srcTensor, const ::physx::PxU32* outRecordIdx, ::physx::PxU32 numOutputs, uint64_t rowsToken, bool wholeSet);
-    bool setRestitutionsOvStage(const TensorDesc* srcTensor, const ::physx::PxU32* outRecordIdx, ::physx::PxU32 numOutputs, uint64_t rowsToken, bool wholeSet);
-    bool setContactOffsetsOvStage(const TensorDesc* srcTensor, const ::physx::PxU32* outRecordIdx, ::physx::PxU32 numOutputs, uint64_t rowsToken, bool wholeSet);
-    bool setRestOffsetsOvStage(const TensorDesc* srcTensor, const ::physx::PxU32* outRecordIdx, ::physx::PxU32 numOutputs, uint64_t rowsToken, bool wholeSet);
+    bool setMassesOvStage(const TensorDesc* srcTensor, const ::ev4sio_physx::PxU32* outRecordIdx, ::ev4sio_physx::PxU32 numOutputs, uint64_t rowsToken, bool wholeSet);
+    bool setInertiasOvStage(const TensorDesc* srcTensor, const ::ev4sio_physx::PxU32* outRecordIdx, ::ev4sio_physx::PxU32 numOutputs, uint64_t rowsToken, bool wholeSet);
+    bool setComPositionsOvStage(const TensorDesc* srcTensor, const ::ev4sio_physx::PxU32* outRecordIdx, ::ev4sio_physx::PxU32 numOutputs, uint64_t rowsToken, bool wholeSet);
+    bool setComOrientationsOvStage(const TensorDesc* srcTensor, const ::ev4sio_physx::PxU32* outRecordIdx, ::ev4sio_physx::PxU32 numOutputs, uint64_t rowsToken, bool wholeSet);
+    bool setDisableGravitiesOvStage(const TensorDesc* srcTensor, const ::ev4sio_physx::PxU32* outRecordIdx, ::ev4sio_physx::PxU32 numOutputs, uint64_t rowsToken, bool wholeSet);
+    bool setDisableSimulationsOvStage(const TensorDesc* srcTensor, const ::ev4sio_physx::PxU32* outRecordIdx, ::ev4sio_physx::PxU32 numOutputs, uint64_t rowsToken, bool wholeSet);
+    bool setWakeStatesOvStage(const TensorDesc* srcTensor, const ::ev4sio_physx::PxU32* outRecordIdx, ::ev4sio_physx::PxU32 numOutputs, uint64_t rowsToken, bool wholeSet);
+    bool setKinematicTargetPositionsOvStage(const TensorDesc* srcTensor, const ::ev4sio_physx::PxU32* outRecordIdx, ::ev4sio_physx::PxU32 numOutputs, uint64_t rowsToken, bool wholeSet);
+    bool setKinematicTargetOrientationsOvStage(const TensorDesc* srcTensor, const ::ev4sio_physx::PxU32* outRecordIdx, ::ev4sio_physx::PxU32 numOutputs, uint64_t rowsToken, bool wholeSet);
+    bool setStaticFrictionsOvStage(const TensorDesc* srcTensor, const ::ev4sio_physx::PxU32* outRecordIdx, ::ev4sio_physx::PxU32 numOutputs, uint64_t rowsToken, bool wholeSet);
+    bool setDynamicFrictionsOvStage(const TensorDesc* srcTensor, const ::ev4sio_physx::PxU32* outRecordIdx, ::ev4sio_physx::PxU32 numOutputs, uint64_t rowsToken, bool wholeSet);
+    bool setRestitutionsOvStage(const TensorDesc* srcTensor, const ::ev4sio_physx::PxU32* outRecordIdx, ::ev4sio_physx::PxU32 numOutputs, uint64_t rowsToken, bool wholeSet);
+    bool setContactOffsetsOvStage(const TensorDesc* srcTensor, const ::ev4sio_physx::PxU32* outRecordIdx, ::ev4sio_physx::PxU32 numOutputs, uint64_t rowsToken, bool wholeSet);
+    bool setRestOffsetsOvStage(const TensorDesc* srcTensor, const ::ev4sio_physx::PxU32* outRecordIdx, ::ev4sio_physx::PxU32 numOutputs, uint64_t rowsToken, bool wholeSet);
 
     bool getMassesOvStage(const TensorDesc* dstTensor,
-                          const ::physx::PxU32* outRecordIdx,
-                          ::physx::PxU32 numOutputs,
+                          const ::ev4sio_physx::PxU32* outRecordIdx,
+                          ::ev4sio_physx::PxU32 numOutputs,
                           uint64_t rowsToken) const;
     bool getInvMassesOvStage(const TensorDesc* dstTensor,
-                             const ::physx::PxU32* outRecordIdx,
-                             ::physx::PxU32 numOutputs,
+                             const ::ev4sio_physx::PxU32* outRecordIdx,
+                             ::ev4sio_physx::PxU32 numOutputs,
                              uint64_t rowsToken) const;
     bool getInertiasOvStage(const TensorDesc* dstTensor,
-                            const ::physx::PxU32* outRecordIdx,
-                            ::physx::PxU32 numOutputs,
+                            const ::ev4sio_physx::PxU32* outRecordIdx,
+                            ::ev4sio_physx::PxU32 numOutputs,
                             uint64_t rowsToken) const;
     bool getInvInertiasOvStage(const TensorDesc* dstTensor,
-                               const ::physx::PxU32* outRecordIdx,
-                               ::physx::PxU32 numOutputs,
+                               const ::ev4sio_physx::PxU32* outRecordIdx,
+                               ::ev4sio_physx::PxU32 numOutputs,
                                uint64_t rowsToken) const;
     bool getComPositionsOvStage(const TensorDesc* dstTensor,
-                                const ::physx::PxU32* outRecordIdx,
-                                ::physx::PxU32 numOutputs,
+                                const ::ev4sio_physx::PxU32* outRecordIdx,
+                                ::ev4sio_physx::PxU32 numOutputs,
                                 uint64_t rowsToken) const;
     bool getComOrientationsOvStage(const TensorDesc* dstTensor,
-                                   const ::physx::PxU32* outRecordIdx,
-                                   ::physx::PxU32 numOutputs,
+                                   const ::ev4sio_physx::PxU32* outRecordIdx,
+                                   ::ev4sio_physx::PxU32 numOutputs,
                                    uint64_t rowsToken) const;
     // uint8 columns, not float: the tensor API reports these as byte flags and the read emits them
     // the same way rather than widening them to 0.0/1.0.
     bool getDisableGravitiesOvStage(const TensorDesc* dstTensor,
-                                    const ::physx::PxU32* outRecordIdx,
-                                    ::physx::PxU32 numOutputs,
+                                    const ::ev4sio_physx::PxU32* outRecordIdx,
+                                    ::ev4sio_physx::PxU32 numOutputs,
                                     uint64_t rowsToken) const;
     bool getDisableSimulationsOvStage(const TensorDesc* dstTensor,
-                                      const ::physx::PxU32* outRecordIdx,
-                                      ::physx::PxU32 numOutputs,
+                                      const ::ev4sio_physx::PxU32* outRecordIdx,
+                                      ::ev4sio_physx::PxU32 numOutputs,
                                       uint64_t rowsToken) const;
     // Host uint8 state snapshot. Links report the owning articulation's state; a scene with
     // sleeping disabled supplies false without reading simulation state from the host.
     bool getSleepStatesOvStage(const TensorDesc* dstTensor,
-                              const ::physx::PxU32* outRecordIdx,
-                              ::physx::PxU32 numOutputs,
+                              const ::ev4sio_physx::PxU32* outRecordIdx,
+                              ::ev4sio_physx::PxU32 numOutputs,
                               uint64_t rowsToken) const;
     // Float columns: the pending kinematic target pose, split POINT + QUATERNION like the live pose.
     bool getKinematicTargetPositionsOvStage(const TensorDesc* dstTensor,
-                                            const ::physx::PxU32* outRecordIdx,
-                                            ::physx::PxU32 numOutputs,
+                                            const ::ev4sio_physx::PxU32* outRecordIdx,
+                                            ::ev4sio_physx::PxU32 numOutputs,
                                             uint64_t rowsToken) const;
     bool getKinematicTargetOrientationsOvStage(const TensorDesc* dstTensor,
-                                               const ::physx::PxU32* outRecordIdx,
-                                               ::physx::PxU32 numOutputs,
+                                               const ::ev4sio_physx::PxU32* outRecordIdx,
+                                               ::ev4sio_physx::PxU32 numOutputs,
                                                uint64_t rowsToken) const;
 
     // ------------------------------------------------------------------------------------------
@@ -198,35 +198,35 @@ public:
     // over the same row list. Padding is zero-filled; the companion shapeCount column tells a
     // consumer where the real values stop.
     bool getStaticFrictionsOvStage(const TensorDesc* dstTensor,
-                                   const ::physx::PxU32* outRecordIdx,
-                                   ::physx::PxU32 numOutputs,
+                                   const ::ev4sio_physx::PxU32* outRecordIdx,
+                                   ::ev4sio_physx::PxU32 numOutputs,
                                    uint64_t rowsToken) const;
     bool getDynamicFrictionsOvStage(const TensorDesc* dstTensor,
-                                    const ::physx::PxU32* outRecordIdx,
-                                    ::physx::PxU32 numOutputs,
+                                    const ::ev4sio_physx::PxU32* outRecordIdx,
+                                    ::ev4sio_physx::PxU32 numOutputs,
                                     uint64_t rowsToken) const;
     bool getRestitutionsOvStage(const TensorDesc* dstTensor,
-                                const ::physx::PxU32* outRecordIdx,
-                                ::physx::PxU32 numOutputs,
+                                const ::ev4sio_physx::PxU32* outRecordIdx,
+                                ::ev4sio_physx::PxU32 numOutputs,
                                 uint64_t rowsToken) const;
     bool getContactOffsetsOvStage(const TensorDesc* dstTensor,
-                                  const ::physx::PxU32* outRecordIdx,
-                                  ::physx::PxU32 numOutputs,
+                                  const ::ev4sio_physx::PxU32* outRecordIdx,
+                                  ::ev4sio_physx::PxU32 numOutputs,
                                   uint64_t rowsToken) const;
     bool getRestOffsetsOvStage(const TensorDesc* dstTensor,
-                               const ::physx::PxU32* outRecordIdx,
-                               ::physx::PxU32 numOutputs,
+                               const ::ev4sio_physx::PxU32* outRecordIdx,
+                               ::ev4sio_physx::PxU32 numOutputs,
                                uint64_t rowsToken) const;
     // int32, one per body: how many of that row's `shapeWidth` entries are real.
     bool getShapeCountsOvStage(const TensorDesc* dstTensor,
-                               const ::physx::PxU32* outRecordIdx,
-                               ::physx::PxU32 numOutputs,
+                               const ::ev4sio_physx::PxU32* outRecordIdx,
+                               ::ev4sio_physx::PxU32 numOutputs,
                                uint64_t rowsToken) const;
 
     // Widest shape count among the named rows. The QUERIED set, not the whole view: mMaxShapes is
     // computed over the superset (every body in the scene), so using it would let an unrelated
     // many-shaped body widen every read's per-shape column.
-    uint32_t maxShapesForRows(const ::physx::PxU32* outRecordIdx, ::physx::PxU32 numOutputs) const;
+    uint32_t maxShapesForRows(const ::ev4sio_physx::PxU32* outRecordIdx, ::ev4sio_physx::PxU32 numOutputs) const;
 
     // One requested per-shape column: which property, and where its values go. Keyed by
     // OvStageShapeProperty rather than the protected BodyProperty so the reader can name it.
@@ -239,9 +239,9 @@ public:
     // Every requested per-shape column in one walk of each body's shapes, resolving a shape's
     // material once for the whole set rather than once per column (REQ-READ-ATTRS-001 AC-12).
     bool getShapePropertyColumnsOvStage(const ShapePropertyColumn* columns,
-                                        ::physx::PxU32 numColumns,
-                                        const ::physx::PxU32* outRecordIdx,
-                                        ::physx::PxU32 numOutputs) const;
+                                        ::ev4sio_physx::PxU32 numColumns,
+                                        const ::ev4sio_physx::PxU32* outRecordIdx,
+                                        ::ev4sio_physx::PxU32 numOutputs) const;
 
 protected:
     // Which property a column carries, so one gather serves them all.
@@ -289,8 +289,8 @@ protected:
 
     bool getBodyPropertyOvStage(BodyProperty prop,
                                 const TensorDesc* dstTensor,
-                                const ::physx::PxU32* outRecordIdx,
-                                ::physx::PxU32 numOutputs) const;
+                                const ::ev4sio_physx::PxU32* outRecordIdx,
+                                ::ev4sio_physx::PxU32 numOutputs) const;
 
     // ovstage property WRITE (ADR-0012): the inverse of the gather above, sharing its
     // layout table and its record indirection.
@@ -304,8 +304,8 @@ protected:
     // rejected by layout rather than silently ignored.
     bool setBodyPropertyOvStage(BodyProperty prop,
                                 const TensorDesc* srcTensor,
-                                const ::physx::PxU32* outRecordIdx,
-                                ::physx::PxU32 numOutputs);
+                                const ::ev4sio_physx::PxU32* outRecordIdx,
+                                ::ev4sio_physx::PxU32 numOutputs);
 
 
 protected:
@@ -323,5 +323,5 @@ protected:
 };
 
 } // namespace tensors
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

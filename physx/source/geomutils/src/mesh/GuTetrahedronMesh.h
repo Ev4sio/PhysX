@@ -17,9 +17,9 @@
 #include "GuCenterExtents.h"
 #include "GuMeshFactory.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-	namespace Gu
+	namespace ev4sio_Gu
 	{
 		class MeshFactory;
 		class BVTetrahedronMesh;
@@ -37,9 +37,9 @@ namespace physx
 
 			virtual const char*				getConcreteTypeName()	const PX_OVERRIDE { return "PxDeformableVolumeAuxData"; }
 
-			virtual	void					acquireReference() PX_OVERRIDE { Cm::RefCountable_incRefCount(*this);			}
-			virtual	PxU32					getReferenceCount()		const PX_OVERRIDE { return Cm::RefCountable_getRefCount(*this);	}
-			virtual	void					release() PX_OVERRIDE { Cm::RefCountable_decRefCount(*this);			}
+			virtual	void					acquireReference() PX_OVERRIDE { ev4sio_Cm::RefCountable_incRefCount(*this);			}
+			virtual	PxU32					getReferenceCount()		const PX_OVERRIDE { return ev4sio_Cm::RefCountable_getRefCount(*this);	}
+			virtual	void					release() PX_OVERRIDE { ev4sio_Cm::RefCountable_decRefCount(*this);			}
 			virtual	void					onRefCountZero() PX_OVERRIDE { PX_DELETE_THIS; }
 			virtual PxReal*					getGridModelInvMass() PX_OVERRIDE { return mGridModelInvMass; }
 
@@ -105,9 +105,9 @@ namespace physx
 
 			virtual const char*				getConcreteTypeName()	const PX_OVERRIDE { return "PxTetrahedronMesh"; }
 
-			virtual	void					acquireReference() PX_OVERRIDE { Cm::RefCountable_incRefCount(*this);			}
-			virtual	PxU32					getReferenceCount()		const PX_OVERRIDE { return Cm::RefCountable_getRefCount(*this);	}
-			virtual	void					release() PX_OVERRIDE { Cm::RefCountable_decRefCount(*this);			}
+			virtual	void					acquireReference() PX_OVERRIDE { ev4sio_Cm::RefCountable_incRefCount(*this);			}
+			virtual	PxU32					getReferenceCount()		const PX_OVERRIDE { return ev4sio_Cm::RefCountable_getRefCount(*this);	}
+			virtual	void					release() PX_OVERRIDE { ev4sio_Cm::RefCountable_decRefCount(*this);			}
 			virtual	void					onRefCountZero() PX_OVERRIDE;
 
 			virtual	PxU32						getNbVertices()						const PX_OVERRIDE { return mNbVertices; }
@@ -160,9 +160,9 @@ namespace physx
 			MeshFactory*			mMeshFactory;					// PT: changed to pointer for serialization
 		};
 
-		PX_FORCE_INLINE const Gu::TetrahedronMesh*	_getTetraMeshData(const PxTetrahedronMeshGeometry& meshGeom)
+		PX_FORCE_INLINE const ev4sio_Gu::TetrahedronMesh*	_getTetraMeshData(const PxTetrahedronMeshGeometry& meshGeom)
 		{
-			return static_cast<const Gu::TetrahedronMesh*>(meshGeom.tetrahedronMesh);
+			return static_cast<const ev4sio_Gu::TetrahedronMesh*>(meshGeom.tetrahedronMesh);
 		}
 
 		class BVTetrahedronMesh : public TetrahedronMesh
@@ -182,9 +182,9 @@ namespace physx
 
 			//virtual PxBounds3					refitBVH();
 
-			PX_FORCE_INLINE				const Gu::BV4Tree&		getBV4Tree()						const { return mBV4Tree; }
+			PX_FORCE_INLINE				const ev4sio_Gu::BV4Tree&		getBV4Tree()						const { return mBV4Tree; }
 
-			PX_FORCE_INLINE				Gu::BV4Tree&			getBV4Tree() { return mBV4Tree; }
+			PX_FORCE_INLINE				ev4sio_Gu::BV4Tree&			getBV4Tree() { return mBV4Tree; }
 
 			PX_FORCE_INLINE				void*					getGRBTetraFaceRemap()				{ return mGRB_faceRemap; }
 
@@ -205,12 +205,12 @@ namespace physx
 			PxU8*					mGRB_tetraSurfaceHint;
 			PxU32*					mGRB_faceRemap;
 			PxU32*					mGRB_faceRemapInverse;
-			Gu::BV32Tree*			mGRB_BV32Tree;					//!< GRB: BV32 tree
+			ev4sio_Gu::BV32Tree*			mGRB_BV32Tree;					//!< GRB: BV32 tree
 
 		private:
-			Gu::TetrahedronSourceMesh			mMeshInterface4;
-			Gu::BV4Tree							mBV4Tree;
-			Gu::TetrahedronSourceMesh			mMeshInterface32;
+			ev4sio_Gu::TetrahedronSourceMesh			mMeshInterface4;
+			ev4sio_Gu::BV4Tree							mBV4Tree;
+			ev4sio_Gu::TetrahedronSourceMesh			mMeshInterface32;
 		};
 
 		// Possible optimization: align the whole struct to cache line
@@ -229,8 +229,8 @@ namespace physx
 			virtual	void								requiresObjects(PxProcessPxBaseCallback&) {}
 			//~PX_SERIALIZATION
 
-			virtual	void								acquireReference() PX_OVERRIDE { Cm::RefCountable_incRefCount(*this);			}
-			virtual	PxU32								getReferenceCount()	const PX_OVERRIDE { return Cm::RefCountable_getRefCount(*this);	}
+			virtual	void								acquireReference() PX_OVERRIDE { ev4sio_Cm::RefCountable_incRefCount(*this);			}
+			virtual	PxU32								getReferenceCount()	const PX_OVERRIDE { return ev4sio_Cm::RefCountable_getRefCount(*this);	}
 			virtual	void								onRefCountZero() PX_OVERRIDE;
 
 			//virtual	PxMeshMidPhase::Enum	getMidphaseID()			const { return PxMeshMidPhase::eBVH34; }
@@ -271,7 +271,7 @@ namespace physx
 #pragma warning(pop)
 #endif
 
-	} // namespace Gu
+	} // namespace ev4sio_Gu
 }
 
 #endif

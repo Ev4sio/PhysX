@@ -92,7 +92,7 @@ https://developercommunity.visualstudio.com/content/problem/66047/possible-compi
 #define PX_CATCH_UNDEFINED_ENABLE_SIM_STATS
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 	typedef PxU32 PxTriangleID;
@@ -100,7 +100,7 @@ namespace physx
 	typedef PxU16 PxDeformableMaterialTableIndex;
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

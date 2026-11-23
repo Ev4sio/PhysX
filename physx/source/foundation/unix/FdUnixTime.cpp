@@ -17,7 +17,7 @@
 #define CLOCKID CLOCK_REALTIME
 #endif
 
-namespace physx
+namespace ev4sio_physx
 {
 
 static const PxCounterFrequencyToTensOfNanos gCounterFreq = PxTime::getCounterFrequency();
@@ -89,4 +89,4 @@ uint64_t PxTime::getCurrentCounterValue()
 }
 #endif
 
-} // namespace physx
+} // namespace ev4sio_physx

@@ -15,7 +15,7 @@
 	#define __STG_PTR   "r"
 #endif
 
-namespace physx
+namespace ev4sio_physx
 {
 #if __CUDA_ARCH__ >= 350
 	template <typename T>

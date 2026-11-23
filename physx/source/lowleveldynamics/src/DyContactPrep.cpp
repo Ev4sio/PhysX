@@ -8,12 +8,12 @@
 #include "DyContactPrepShared.h"
 #include "DySolverConstraint1DStep.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 using namespace aos;
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Dy
+namespace ev4sio_Dy
 {
 
 static void setupFinalizeSolverConstraints(
@@ -389,7 +389,7 @@ PX_FORCE_INLINE void computeBlockStreamByteSizes(const bool useExtContacts, cons
 	PX_ASSERT(0 == (_frictionPatchByteSize & 0x0f));
 }
 
-static bool reserveBlockStreams(const bool useExtContacts, Dy::CorrelationBuffer& cBuffer,
+static bool reserveBlockStreams(const bool useExtContacts, ev4sio_Dy::CorrelationBuffer& cBuffer,
 						PxU8*& solverConstraint,
 						FrictionPatch*& _frictionPatches,
 						PxU32& numFrictionPatches, PxU32& solverConstraintByteSize,
@@ -497,7 +497,7 @@ bool createFinalizeSolverContacts(
 
 #if PX_CHECKED
 	if (overflow)
-		PxGetFoundation().error(physx::PxErrorCode::eDEBUG_WARNING, PX_FL, "Dropping contacts in solver because we exceeded limit of 32 friction patches.");
+		ev4sio_PxGetFoundation().error(ev4sio_physx::PxErrorCode::eDEBUG_WARNING, PX_FL, "Dropping contacts in solver because we exceeded limit of 32 friction patches.");
 #endif
 
 	growPatches(c, contactDesc.contacts, contactDesc.bodyFrame0, contactDesc.bodyFrame1, 0, frictionOffsetThreshold + contactDesc.restDistance);

@@ -35,8 +35,8 @@ bool checkMeshThickness(const Mesh &inputMesh, Mesh &outputMesh, float minThickn
 
     if ( inputMesh.triangleCount )
     {
-        physx::PxBounds3 b = physx::PxBounds3::empty();
-        physx::PxPlane plane(0.0f, 0.0f, 0.0f, 0.0f);
+        ev4sio_physx::PxBounds3 b = ev4sio_physx::PxBounds3::empty();
+        ev4sio_physx::PxPlane plane(0.0f, 0.0f, 0.0f, 0.0f);
         bool isTiny = true;
         bool isPlanar = true;
         // Iterate through all triangles so long as they are either coplanar or tiny
@@ -45,16 +45,16 @@ bool checkMeshThickness(const Mesh &inputMesh, Mesh &outputMesh, float minThickn
             uint32_t i1 = inputMesh.indices[i*3+0];
             uint32_t i2 = inputMesh.indices[i*3+1];
             uint32_t i3 = inputMesh.indices[i*3+2];
-            const ::physx::PxVec3& p1 = *(const ::physx::PxVec3 *)&inputMesh.vertices[i1*3];
-            const ::physx::PxVec3& p2 = *(const ::physx::PxVec3 *)&inputMesh.vertices[i2*3];
-            const ::physx::PxVec3& p3 = *(const ::physx::PxVec3 *)&inputMesh.vertices[i3*3];
+            const ::ev4sio_physx::PxVec3& p1 = *(const ::ev4sio_physx::PxVec3 *)&inputMesh.vertices[i1*3];
+            const ::ev4sio_physx::PxVec3& p2 = *(const ::ev4sio_physx::PxVec3 *)&inputMesh.vertices[i2*3];
+            const ::ev4sio_physx::PxVec3& p3 = *(const ::ev4sio_physx::PxVec3 *)&inputMesh.vertices[i3*3];
             // If still tiny, include these points and check whether the bounding box stays tiny
             if ( isTiny )
             {
                 b.include(p1);
                 b.include(p2);
                 b.include(p3);
-                ::physx::PxVec3 extents = b.getDimensions();
+                ::ev4sio_physx::PxVec3 extents = b.getDimensions();
                 if ( extents.x > halfThickness || extents.y > halfThickness || extents.z > halfThickness )
                 {
                     isTiny = false;
@@ -64,11 +64,11 @@ bool checkMeshThickness(const Mesh &inputMesh, Mesh &outputMesh, float minThickn
             // their normal nearly matches and the plane's D coefficient is within the minimum thickness
             if ( i == 0 )
             {
-                plane = physx::PxPlane(p1,p2,p3);
+                plane = ev4sio_physx::PxPlane(p1,p2,p3);
             }
             else if ( isPlanar ) 
             {
-                physx::PxPlane tplane(p1,p2,p3);
+                ev4sio_physx::PxPlane tplane(p1,p2,p3);
                 float dot = plane.n.dot(tplane.n);
                 if ( dot >= 0.98f )
                 {
@@ -89,22 +89,22 @@ bool checkMeshThickness(const Mesh &inputMesh, Mesh &outputMesh, float minThickn
         }
         if ( isTiny ) // we need to create a bounding box which reflects a hull that at least meets the minimum thickness
         {
-            ::physx::PxVec3 box[8];
+            ::ev4sio_physx::PxVec3 box[8];
 
-            physx::PxBounds3 bounds;
-            ::physx::PxVec3 thickness(halfThickness,halfThickness,halfThickness);
+            ev4sio_physx::PxBounds3 bounds;
+            ::ev4sio_physx::PxVec3 thickness(halfThickness,halfThickness,halfThickness);
 
             bounds.minimum = b.getCenter() - thickness;
             bounds.maximum = b.getCenter() + thickness;
 
-            box[0] = ::physx::PxVec3(bounds.minimum.x, bounds.minimum.y, bounds.minimum.z);
-            box[1] = ::physx::PxVec3(bounds.maximum.x, bounds.minimum.y, bounds.minimum.z);
-            box[2] = ::physx::PxVec3(bounds.maximum.x, bounds.maximum.y, bounds.minimum.z);
-            box[3] = ::physx::PxVec3(bounds.minimum.x, bounds.maximum.y, bounds.minimum.z);
-            box[4] = ::physx::PxVec3(bounds.minimum.x, bounds.minimum.y, bounds.maximum.z);
-            box[5] = ::physx::PxVec3(bounds.maximum.x, bounds.minimum.y, bounds.maximum.z);
-            box[6] = ::physx::PxVec3(bounds.maximum.x, bounds.maximum.y, bounds.maximum.z);
-            box[7] = ::physx::PxVec3(bounds.minimum.x, bounds.maximum.y, bounds.maximum.z);
+            box[0] = ::ev4sio_physx::PxVec3(bounds.minimum.x, bounds.minimum.y, bounds.minimum.z);
+            box[1] = ::ev4sio_physx::PxVec3(bounds.maximum.x, bounds.minimum.y, bounds.minimum.z);
+            box[2] = ::ev4sio_physx::PxVec3(bounds.maximum.x, bounds.maximum.y, bounds.minimum.z);
+            box[3] = ::ev4sio_physx::PxVec3(bounds.minimum.x, bounds.maximum.y, bounds.minimum.z);
+            box[4] = ::ev4sio_physx::PxVec3(bounds.minimum.x, bounds.minimum.y, bounds.maximum.z);
+            box[5] = ::ev4sio_physx::PxVec3(bounds.maximum.x, bounds.minimum.y, bounds.maximum.z);
+            box[6] = ::ev4sio_physx::PxVec3(bounds.maximum.x, bounds.maximum.y, bounds.maximum.z);
+            box[7] = ::ev4sio_physx::PxVec3(bounds.minimum.x, bounds.maximum.y, bounds.maximum.z);
 
             outputMesh.vertexCount = 8;
             outputMesh.triangleCount = 12;
@@ -112,7 +112,7 @@ bool checkMeshThickness(const Mesh &inputMesh, Mesh &outputMesh, float minThickn
             float* newVertices = (float *)GetAllocator()->malloc(sizeof(float)*outputMesh.vertexCount * 3);
             uint32_t* newIndices = (uint32_t *)GetAllocator()->malloc(sizeof(uint32_t)*outputMesh.triangleCount * 3);
 
-            memcpy(newVertices, box, sizeof(::physx::PxVec3) * outputMesh.vertexCount);
+            memcpy(newVertices, box, sizeof(::ev4sio_physx::PxVec3) * outputMesh.vertexCount);
 
             outputMesh.vertices = newVertices;
             outputMesh.indices = newIndices;
@@ -147,12 +147,12 @@ bool checkMeshThickness(const Mesh &inputMesh, Mesh &outputMesh, float minThickn
             uint32_t* newIndices = (uint32_t *)GetAllocator()->malloc(sizeof(uint32_t)*outputMesh.triangleCount*3);
             outputMesh.vertices = newVertices;
             outputMesh.indices = newIndices;
-            ::physx::PxVec3 thickness = plane.n*halfThickness;
+            ::ev4sio_physx::PxVec3 thickness = plane.n*halfThickness;
             for (uint32_t i=0; i<inputMesh.vertexCount; i++)
             {
-                const ::physx::PxVec3 &p = *(const ::physx::PxVec3 *)&inputMesh.vertices[i*3];
-                ::physx::PxVec3 &p1 = (::physx::PxVec3 &)newVertices[i*3];
-                ::physx::PxVec3 &p2 = (::physx::PxVec3 &)newVertices[(i+inputMesh.vertexCount)*3];
+                const ::ev4sio_physx::PxVec3 &p = *(const ::ev4sio_physx::PxVec3 *)&inputMesh.vertices[i*3];
+                ::ev4sio_physx::PxVec3 &p1 = (::ev4sio_physx::PxVec3 &)newVertices[i*3];
+                ::ev4sio_physx::PxVec3 &p2 = (::ev4sio_physx::PxVec3 &)newVertices[(i+inputMesh.vertexCount)*3];
                 p1 = p-thickness;
                 p2 = p+thickness;
             }

@@ -15,14 +15,14 @@
 #include "InternalScene.h"
 
 
-using namespace omni::physx;
-using namespace omni::physx::internal;
-using namespace omni::physx::usdparser;
+using namespace omni::ev4sio_physx;
+using namespace omni::ev4sio_physx::internal;
+using namespace omni::ev4sio_physx::usdparser;
 using namespace carb;
-using namespace ::physx;
+using namespace ::ev4sio_physx;
 
 
-static PxArticulationAxis::Enum getArticulationAxis(const ::physx::PxArticulationJointReducedCoordinate& joint,
+static PxArticulationAxis::Enum getArticulationAxis(const ::ev4sio_physx::PxArticulationJointReducedCoordinate& joint,
     int jointAxis)
 {
     if (joint.getJointType() == PxArticulationJointType::ePRISMATIC)
@@ -105,8 +105,8 @@ static PxReal translateOffset(float offset, PxArticulationAxis::Enum pxMimicJoin
 
 
 InternalMimicJoint::InternalMimicJoint(InternalScene& internalScene,
-    const ::physx::PxArticulationJointReducedCoordinate& targetJoint,
-    const ::physx::PxArticulationJointReducedCoordinate& referenceJoint,
+    const ::ev4sio_physx::PxArticulationJointReducedCoordinate& targetJoint,
+    const ::ev4sio_physx::PxArticulationJointReducedCoordinate& referenceJoint,
     int targetJointAxis, int referenceJointAxis, float gearing, float offset, float naturalFrequency, float dampingRatio,
     usdparser::ObjectType objectType, float gearingSign, float offsetSign)
     : mInternalScene(internalScene)
@@ -136,7 +136,7 @@ InternalMimicJoint::InternalMimicJoint(InternalScene& internalScene,
 
 // Constructor used by replicator, it cant call the internalScene.addMimicJoint(*this);, this is not thread safe, will be called after creation
 InternalMimicJoint::InternalMimicJoint(InternalScene& internalScene,
-                                       ::physx::PxArticulationMimicJoint& pxMimicJoint,
+                                       ::ev4sio_physx::PxArticulationMimicJoint& pxMimicJoint,
                                        usdparser::ObjectType objectType,
                                        float gearingSign,
                                        float offsetSign)

@@ -13,7 +13,7 @@
 #include "PxArticulationReducedCoordinate.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -58,7 +58,7 @@ namespace immediate
 	};
 
 	/**
-	\brief Callback class to record contact points produced by immediate::PxGenerateContacts
+	\brief Callback class to record contact points produced by immediate::ev4sio_PxGenerateContacts
 	*/
 	class PxContactRecorder
 	{
@@ -67,7 +67,7 @@ namespace immediate
 		\brief Method to record new contacts
 		\param	[in] contactPoints	The contact points produced
 		\param	[in] nbContacts		The number of contact points produced
-		\param	[in] index			The index of this pair. This is an index from 0-N-1 identifying which pair this relates to from within the array of pairs passed to PxGenerateContacts
+		\param	[in] index			The index of this pair. This is an index from 0-N-1 identifying which pair this relates to from within the array of pairs passed to ev4sio_PxGenerateContacts
 		\return a boolean to indicate if this callback successfully stored the contacts or not.
 		*/
 		virtual bool recordContacts(const PxContactPoint* contactPoints, PxU32 nbContacts, PxU32 index) = 0;
@@ -84,14 +84,14 @@ namespace immediate
 	\param	[in] dt					The timestep
 	\param  [in] gyroscopicForces	Indicates whether gyroscopic forces should be integrated
 	*/
-	PX_C_EXPORT PX_PHYSX_CORE_API void PxConstructSolverBodies(const PxRigidBodyData* inRigidData, PxSolverBodyData* outSolverBodyData, PxU32 nbBodies, const PxVec3& gravity, PxReal dt, bool gyroscopicForces = false);
+	PX_C_EXPORT PX_PHYSX_CORE_API void ev4sio_PxConstructSolverBodies(const PxRigidBodyData* inRigidData, PxSolverBodyData* outSolverBodyData, PxU32 nbBodies, const PxVec3& gravity, PxReal dt, bool gyroscopicForces = false);
 
 	/**
 	\brief Constructs a PxSolverBodyData structure for a static body at a given pose.
 	\param	[in] globalPose			The pose of this static actor
 	\param	[out] solverBodyData	The solver body representation of this static actor
 	*/
-	PX_C_EXPORT PX_PHYSX_CORE_API void PxConstructStaticSolverBody(const PxTransform& globalPose, PxSolverBodyData& solverBodyData);
+	PX_C_EXPORT PX_PHYSX_CORE_API void ev4sio_PxConstructStaticSolverBody(const PxTransform& globalPose, PxSolverBodyData& solverBodyData);
 
 	/**
 	\brief Groups together sets of independent PxSolverConstraintDesc objects to be solved using SIMD SOA approach.
@@ -110,13 +110,13 @@ namespace immediate
 			infinite mass (static or kinematic). This means that either appending static/kinematic to the end of the array of bodies or placing static/kinematic bodies at before the start body pointer
 			will ensure that the minimum number of batches are produced.
 	*/
-	PX_C_EXPORT PX_PHYSX_CORE_API PxU32 PxBatchConstraints(	const PxSolverConstraintDesc* solverConstraintDescs, PxU32 nbConstraints, PxSolverBody* solverBodies, PxU32 nbBodies,
+	PX_C_EXPORT PX_PHYSX_CORE_API PxU32 ev4sio_PxBatchConstraints(	const PxSolverConstraintDesc* solverConstraintDescs, PxU32 nbConstraints, PxSolverBody* solverBodies, PxU32 nbBodies,
 															PxConstraintBatchHeader* outBatchHeaders, PxSolverConstraintDesc* outOrderedConstraintDescs,
 															PxArticulationHandle* articulations=NULL, PxU32 nbArticulations=0);
 
 	/**	
-	\brief Creates a set of contact constraint blocks. Note that, depending the results of PxBatchConstraints, each batchHeader may refer to up to 4 solverConstraintDescs.
-	This function will allocate both constraint and friction patch data via the PxConstraintAllocator provided. Constraint data is only valid until PxSolveConstraints has completed. 
+	\brief Creates a set of contact constraint blocks. Note that, depending the results of ev4sio_PxBatchConstraints, each batchHeader may refer to up to 4 solverConstraintDescs.
+	This function will allocate both constraint and friction patch data via the PxConstraintAllocator provided. Constraint data is only valid until ev4sio_PxSolveConstraints has completed.
 	Friction data is to be retained and provided by the application for friction correlation.
 
 	\param	[in] batchHeaders				Array of batch headers to process
@@ -132,12 +132,12 @@ namespace immediate
 
 	\return a boolean to define if this method was successful or not.
 	*/
-	PX_C_EXPORT PX_PHYSX_CORE_API bool PxCreateContactConstraints(PxConstraintBatchHeader* batchHeaders, PxU32 nbHeaders, PxSolverContactDesc* contactDescs,
+	PX_C_EXPORT PX_PHYSX_CORE_API bool ev4sio_PxCreateContactConstraints(PxConstraintBatchHeader* batchHeaders, PxU32 nbHeaders, PxSolverContactDesc* contactDescs,
 		PxConstraintAllocator& allocator, PxReal invDt, PxReal bounceThreshold, PxReal frictionOffsetThreshold, PxReal correlationDistance,
 		PxSpatialVector* Z = NULL);
 
 	/**
-	\brief Creates a set of joint constraint blocks. Note that, depending the results of PxBatchConstraints, the batchHeader may refer to up to 4 solverConstraintDescs
+	\brief Creates a set of joint constraint blocks. Note that, depending the results of ev4sio_PxBatchConstraints, the batchHeader may refer to up to 4 solverConstraintDescs
 	\param	[in] batchHeaders	The array of batch headers to be processed.
 	\param	[in] nbHeaders		The total number of batch headers to process.
 	\param	[in] jointDescs		An array of constraint prep descs defining the properties of the constraints being created.
@@ -147,11 +147,11 @@ namespace immediate
 	\param	[out] Z				Deprecated, no longer used. Any value (including NULL) can be passed.
 	\return a boolean indicating if this method was successful or not.
 	*/
-	PX_C_EXPORT PX_PHYSX_CORE_API bool PxCreateJointConstraints(PxConstraintBatchHeader* batchHeaders, PxU32 nbHeaders, PxSolverConstraintPrepDesc* jointDescs, 
+	PX_C_EXPORT PX_PHYSX_CORE_API bool ev4sio_PxCreateJointConstraints(PxConstraintBatchHeader* batchHeaders, PxU32 nbHeaders, PxSolverConstraintPrepDesc* jointDescs,
 		PxConstraintAllocator& allocator, PxSpatialVector* Z, PxReal dt, PxReal invDt);
 
 	/**
-	\brief Creates a set of joint constraint blocks. This function runs joint shaders defined inside PxConstraint** param, fills in joint row information in jointDescs and then calls PxCreateJointConstraints.
+	\brief Creates a set of joint constraint blocks. This function runs joint shaders defined inside PxConstraint** param, fills in joint row information in jointDescs and then calls ev4sio_PxCreateJointConstraints.
 	\param	[in] batchHeaders	The set of batchHeaders to be processed.
 	\param	[in] nbBatchHeaders	The number of batch headers to process.
 	\param	[in] constraints	The set of constraints to be used to produce constraint rows.
@@ -161,9 +161,9 @@ namespace immediate
 	\param	[in] invDt			The inverse timestep.
 	\param	[out] Z				Temporary buffer for impulse propagation. 
 	\return a boolean indicating if this method was successful or not.
-	\see PxCreateJointConstraints
+	\see ev4sio_PxCreateJointConstraints
 	*/
-	PX_C_EXPORT PX_PHYSX_CORE_API bool PxCreateJointConstraintsWithShaders(PxConstraintBatchHeader* batchHeaders, PxU32 nbBatchHeaders, PxConstraint** constraints, PxSolverConstraintPrepDesc* jointDescs, PxConstraintAllocator& allocator, PxReal dt, PxReal invDt, PxSpatialVector* Z = NULL);
+	PX_C_EXPORT PX_PHYSX_CORE_API bool ev4sio_PxCreateJointConstraintsWithShaders(PxConstraintBatchHeader* batchHeaders, PxU32 nbBatchHeaders, PxConstraint** constraints, PxSolverConstraintPrepDesc* jointDescs, PxConstraintAllocator& allocator, PxReal dt, PxReal invDt, PxSpatialVector* Z = NULL);
 
 	struct PxImmediateConstraint
 	{
@@ -172,7 +172,7 @@ namespace immediate
 	};
 
 	/**
-	\brief Creates a set of joint constraint blocks. This function runs joint shaders defined inside PxImmediateConstraint* param, fills in joint row information in jointDescs and then calls PxCreateJointConstraints.
+	\brief Creates a set of joint constraint blocks. This function runs joint shaders defined inside PxImmediateConstraint* param, fills in joint row information in jointDescs and then calls ev4sio_PxCreateJointConstraints.
 	\param	[in] batchHeaders	The set of batchHeaders to be processed.
 	\param	[in] nbBatchHeaders	The number of batch headers to process.
 	\param	[in] constraints	The set of constraints to be used to produce constraint rows.
@@ -182,9 +182,9 @@ namespace immediate
 	\param	[in] invDt			The inverse timestep.
 	\param	[out] Z				Temporary buffer for impulse propagation.
 	\return a boolean indicating if this method was successful or not.
-	\see PxCreateJointConstraints
+	\see ev4sio_PxCreateJointConstraints
 	*/
-	PX_C_EXPORT PX_PHYSX_CORE_API bool PxCreateJointConstraintsWithImmediateShaders(PxConstraintBatchHeader* batchHeaders, PxU32 nbBatchHeaders, PxImmediateConstraint* constraints, PxSolverConstraintPrepDesc* jointDescs, PxConstraintAllocator& allocator, PxReal dt, PxReal invDt, PxSpatialVector* Z = NULL);
+	PX_C_EXPORT PX_PHYSX_CORE_API bool ev4sio_PxCreateJointConstraintsWithImmediateShaders(PxConstraintBatchHeader* batchHeaders, PxU32 nbBatchHeaders, PxImmediateConstraint* constraints, PxSolverConstraintPrepDesc* jointDescs, PxConstraintAllocator& allocator, PxReal dt, PxReal invDt, PxSpatialVector* Z = NULL);
 
 	/**
 	\brief Iteratively solves the set of constraints defined by the provided PxConstraintBatchHeader and PxSolverConstraintDesc structures. Updates deltaVelocities inside the PxSolverBody structures. Produces resulting linear and angular motion velocities.
@@ -204,7 +204,7 @@ namespace immediate
 	\param	[out] Z						Deprecated, no longer used. Any value (including NULL) can be passed.
 	\param	[out] deltaV				Temporary buffer for velocity change
 	*/
-	PX_C_EXPORT PX_PHYSX_CORE_API void PxSolveConstraints(const PxConstraintBatchHeader* batchHeaders, PxU32 nbBatchHeaders, const PxSolverConstraintDesc* solverConstraintDescs,
+	PX_C_EXPORT PX_PHYSX_CORE_API void ev4sio_PxSolveConstraints(const PxConstraintBatchHeader* batchHeaders, PxU32 nbBatchHeaders, const PxSolverConstraintDesc* solverConstraintDescs,
 		const PxSolverBody* solverBodies, PxVec3* linearMotionVelocity, PxVec3* angularMotionVelocity, PxU32 nbSolverBodies, PxU32 nbPositionIterations, PxU32 nbVelocityIterations,
 		float dt=0.0f, float invDt=0.0f, PxU32 nbSolverArticulations=0, PxArticulationHandle* solverArticulations=NULL, PxSpatialVector* Z = NULL, PxSpatialVector* deltaV = NULL);
 
@@ -218,7 +218,7 @@ namespace immediate
 	\param	[in] nbBodiesToIntegrate		The total number of bodies to integrate
 	\param	[in] dt							The timestep
 	*/
-	PX_C_EXPORT PX_PHYSX_CORE_API void PxIntegrateSolverBodies(PxSolverBodyData* solverBodyData, PxSolverBody* solverBody, PxVec3* linearMotionVelocity, PxVec3* angularMotionState, PxU32 nbBodiesToIntegrate, PxReal dt);
+	PX_C_EXPORT PX_PHYSX_CORE_API void ev4sio_PxIntegrateSolverBodies(PxSolverBodyData* solverBodyData, PxSolverBody* solverBody, PxVec3* linearMotionVelocity, PxVec3* angularMotionState, PxU32 nbBodiesToIntegrate, PxReal dt);
 
 	/**
 	\brief Performs contact generation for a given pair of geometries at the specified poses. Produced contacts are stored in the provided contact recorder. Information is cached in PxCache structure
@@ -240,7 +240,7 @@ namespace immediate
 
 	\return a boolean indicating if the function was successful or not.
 	*/
-	PX_C_EXPORT PX_PHYSX_CORE_API bool PxGenerateContacts(	const PxGeometry* const * geom0, const PxGeometry* const * geom1, const PxTransform* pose0, const PxTransform* pose1,
+	PX_C_EXPORT PX_PHYSX_CORE_API bool ev4sio_PxGenerateContacts(	const PxGeometry* const * geom0, const PxGeometry* const * geom1, const PxTransform* pose0, const PxTransform* pose1,
 															PxCache* contactCache, PxU32 nbPairs, PxContactRecorder& contactRecorder,
 															PxReal contactDistance, PxReal meshContactMargin, PxReal toleranceLength, PxCacheAllocator& allocator);
 
@@ -364,32 +364,32 @@ namespace immediate
 
 	Returned cookie must be used to add links to the articulation, and to complete creating the articulation.
 
-	The cookie is a temporary ID for the articulation, only valid until PxEndCreateArticulationRC is called.
+	The cookie is a temporary ID for the articulation, only valid until ev4sio_PxEndCreateArticulationRC is called.
 
 	\param	[in] data	Articulation data
 
 	\return	Articulation cookie
 
-	\see PxAddArticulationLink PxEndCreateArticulationRC
+	\see ev4sio_PxAddArticulationLink ev4sio_PxEndCreateArticulationRC
 	*/
-	PX_C_EXPORT PX_PHYSX_CORE_API PxArticulationCookie PxBeginCreateArticulationRC(const PxArticulationDataRC& data);
+	PX_C_EXPORT PX_PHYSX_CORE_API PxArticulationCookie ev4sio_PxBeginCreateArticulationRC(const PxArticulationDataRC& data);
 
 	/**
 	\brief Add a link to the articulation.
 
 	All links must be added before the articulation is completed. It is not possible to add a new link at runtime.
 
-	Returned cookie is a temporary ID for the link, only valid until PxEndCreateArticulationRC is called.
+	Returned cookie is a temporary ID for the link, only valid until ev4sio_PxEndCreateArticulationRC is called.
 
-	\param	[in] articulation	Cookie value returned by PxBeginCreateArticulationRC
+	\param	[in] articulation	Cookie value returned by ev4sio_PxBeginCreateArticulationRC
 	\param	[in] parent			Parent for the new link, or NULL if this is the root link
 	\param	[in] data			Link data
 
 	\return	Link cookie
 
-	\see PxBeginCreateArticulationRC PxEndCreateArticulationRC
+	\see ev4sio_PxBeginCreateArticulationRC ev4sio_PxEndCreateArticulationRC
 	*/
-	PX_C_EXPORT PX_PHYSX_CORE_API PxArticulationLinkCookie PxAddArticulationLink(PxArticulationCookie articulation, const PxArticulationLinkCookie* parent, const PxArticulationLinkDataRC& data);
+	PX_C_EXPORT PX_PHYSX_CORE_API PxArticulationLinkCookie ev4sio_PxAddArticulationLink(PxArticulationCookie articulation, const PxArticulationLinkCookie* parent, const PxArticulationLinkDataRC& data);
 
 	/**
 	\brief End creation of an immediate-mode reduced-coordinate articulation.
@@ -397,35 +397,35 @@ namespace immediate
 	This call completes the creation of the articulation. All involved cookies become unsafe to use after that point.
 
 	The links are actually created in this function, and it returns the actual link handles to users. The given buffer should be large enough
-	to contain as many links as created between the PxBeginCreateArticulationRC & PxEndCreateArticulationRC calls, i.e.
-	if N calls were made to PxAddArticulationLink, the buffer should be large enough to contain N handles.
+	to contain as many links as created between the ev4sio_PxBeginCreateArticulationRC & ev4sio_PxEndCreateArticulationRC calls, i.e.
+	if N calls were made to ev4sio_PxAddArticulationLink, the buffer should be large enough to contain N handles.
 
-	\param	[in] articulation	Cookie value returned by PxBeginCreateArticulationRC
+	\param	[in] articulation	Cookie value returned by ev4sio_PxBeginCreateArticulationRC
 	\param	[out] linkHandles	Articulation link handles of all created articulation links
 	\param	[in] bufferSize		Size of linkHandles buffer. Must match internal expected number of articulation links.
 
 	\return	Articulation handle, or NULL if creation failed
 
-	\see PxAddArticulationLink PxEndCreateArticulationRC
+	\see ev4sio_PxAddArticulationLink ev4sio_PxEndCreateArticulationRC
 	*/
-	PX_C_EXPORT PX_PHYSX_CORE_API PxArticulationHandle PxEndCreateArticulationRC(PxArticulationCookie articulation, PxArticulationLinkHandle* linkHandles, PxU32 bufferSize);
+	PX_C_EXPORT PX_PHYSX_CORE_API PxArticulationHandle ev4sio_PxEndCreateArticulationRC(PxArticulationCookie articulation, PxArticulationLinkHandle* linkHandles, PxU32 bufferSize);
 
 	/**
 	\brief Releases an immediate-mode reduced-coordinate articulation.
 	\param	[in] articulation	Articulation handle
 
-	\see PxBeginCreateArticulationRC PxEndCreateArticulationRC
+	\see ev4sio_PxBeginCreateArticulationRC ev4sio_PxEndCreateArticulationRC
 	*/
-	PX_C_EXPORT PX_PHYSX_CORE_API void PxReleaseArticulation(PxArticulationHandle articulation);
+	PX_C_EXPORT PX_PHYSX_CORE_API void ev4sio_PxReleaseArticulation(PxArticulationHandle articulation);
 
 	/**
 	\brief Creates an articulation cache.
 	\param	[in] articulation	Articulation handle
 	\return	Articulation cache
 
-	\see PxReleaseArticulationCache
+	\see ev4sio_PxReleaseArticulationCache
 	*/
-	PX_C_EXPORT PX_PHYSX_CORE_API PxArticulationCache* PxCreateArticulationCache(PxArticulationHandle articulation);
+	PX_C_EXPORT PX_PHYSX_CORE_API PxArticulationCache* ev4sio_PxCreateArticulationCache(PxArticulationHandle articulation);
 
 	/**
 	\brief Copy the internal data of the articulation to the cache
@@ -433,9 +433,9 @@ namespace immediate
 	\param[in] cache		Articulation data
 	\param[in] flag			Indicates which values of the articulation system are copied to the cache
 
-	\see createCache PxApplyArticulationCache
+	\see createCache ev4sio_PxApplyArticulationCache
 	*/
-	PX_C_EXPORT PX_PHYSX_CORE_API void PxCopyInternalStateToArticulationCache(PxArticulationHandle articulation, PxArticulationCache& cache, PxArticulationCacheFlags flag);
+	PX_C_EXPORT PX_PHYSX_CORE_API void ev4sio_PxCopyInternalStateToArticulationCache(PxArticulationHandle articulation, PxArticulationCache& cache, PxArticulationCacheFlags flag);
 	
 	/**
 	\brief Apply the user defined data in the cache to the articulation system
@@ -443,18 +443,18 @@ namespace immediate
 	\param[in] cache 		Articulation data.
 	\param[in] flag			Defines which values in the cache will be applied to the articulation
 
-	\see createCache PxCopyInternalStateToArticulationCache
+	\see createCache ev4sio_PxCopyInternalStateToArticulationCache
 	*/	
-	PX_C_EXPORT PX_PHYSX_CORE_API void PxApplyArticulationCache(PxArticulationHandle articulation, PxArticulationCache& cache, PxArticulationCacheFlags flag);
+	PX_C_EXPORT PX_PHYSX_CORE_API void ev4sio_PxApplyArticulationCache(PxArticulationHandle articulation, PxArticulationCache& cache, PxArticulationCacheFlags flag);
 
 	/**
 	\brief Release an articulation cache
 
 	\param[in] cache	The cache to release
 
-	\see PxCreateArticulationCache PxCopyInternalStateToArticulationCache PxCopyInternalStateToArticulationCache
+	\see ev4sio_PxCreateArticulationCache ev4sio_PxCopyInternalStateToArticulationCache ev4sio_PxCopyInternalStateToArticulationCache
 	*/
-	PX_C_EXPORT PX_PHYSX_CORE_API void PxReleaseArticulationCache(PxArticulationCache& cache);
+	PX_C_EXPORT PX_PHYSX_CORE_API void ev4sio_PxReleaseArticulationCache(PxArticulationCache& cache);
 
 	/**
 	\brief Retrieves non-mutable link data from a link handle.
@@ -463,9 +463,9 @@ namespace immediate
 	\param	[out] data	Link data
 	\return	True if success
 
-	\see PxGetAllLinkData
+	\see ev4sio_PxGetAllLinkData
 	*/
-	PX_C_EXPORT PX_PHYSX_CORE_API bool PxGetLinkData(const PxArticulationLinkHandle& link, PxArticulationLinkDerivedDataRC& data);
+	PX_C_EXPORT PX_PHYSX_CORE_API bool ev4sio_PxGetLinkData(const PxArticulationLinkHandle& link, PxArticulationLinkDerivedDataRC& data);
 
 	/**
 	\brief Retrieves non-mutable link data from an articulation handle (all links).
@@ -474,9 +474,9 @@ namespace immediate
 	\param	[out] data			Link data for N links, or NULL to just retrieve the number of links.
 	\return	Number of links in the articulation = number of link data structure written to the data array.
 
-	\see PxGetLinkData
+	\see ev4sio_PxGetLinkData
 	*/
-	PX_C_EXPORT PX_PHYSX_CORE_API PxU32 PxGetAllLinkData(const PxArticulationHandle articulation, PxArticulationLinkDerivedDataRC* data);
+	PX_C_EXPORT PX_PHYSX_CORE_API PxU32 ev4sio_PxGetAllLinkData(const PxArticulationHandle articulation, PxArticulationLinkDerivedDataRC* data);
 
 	/**
 	\brief Retrieves mutable link data from a link handle.
@@ -484,9 +484,9 @@ namespace immediate
 	\param	[out] data	Data for this link
 	\return	True if success
 
-	\see PxSetMutableLinkData
+	\see ev4sio_PxSetMutableLinkData
 	*/
-	PX_C_EXPORT PX_PHYSX_CORE_API bool PxGetMutableLinkData(const PxArticulationLinkHandle& link, PxArticulationLinkMutableDataRC& data);
+	PX_C_EXPORT PX_PHYSX_CORE_API bool ev4sio_PxGetMutableLinkData(const PxArticulationLinkHandle& link, PxArticulationLinkMutableDataRC& data);
 
 	/**
 	\brief Sets mutable link data for given link.
@@ -494,9 +494,9 @@ namespace immediate
 	\param	[in] data	Data for this link
 	\return	True if success
 
-	\see PxGetMutableLinkData
+	\see ev4sio_PxGetMutableLinkData
 	*/
-	PX_C_EXPORT PX_PHYSX_CORE_API bool PxSetMutableLinkData(const PxArticulationLinkHandle& link, const PxArticulationLinkMutableDataRC& data);
+	PX_C_EXPORT PX_PHYSX_CORE_API bool ev4sio_PxSetMutableLinkData(const PxArticulationLinkHandle& link, const PxArticulationLinkMutableDataRC& data);
 
 	/**
 	\brief Retrieves joint data from a link handle.
@@ -504,9 +504,9 @@ namespace immediate
 	\param	[out] data	Joint data for this link
 	\return	True if success
 
-	\see PxSetJointData
+	\see ev4sio_PxSetJointData
 	*/
-	PX_C_EXPORT PX_PHYSX_CORE_API bool PxGetJointData(const PxArticulationLinkHandle& link, PxArticulationJointDataRC& data);
+	PX_C_EXPORT PX_PHYSX_CORE_API bool ev4sio_PxGetJointData(const PxArticulationLinkHandle& link, PxArticulationJointDataRC& data);
 
 	/**
 	\brief Sets joint data for given link.
@@ -514,9 +514,9 @@ namespace immediate
 	\param	[in] data	Joint data for this link
 	\return	True if success
 
-	\see PxGetJointData
+	\see ev4sio_PxGetJointData
 	*/
-	PX_C_EXPORT PX_PHYSX_CORE_API bool PxSetJointData(const PxArticulationLinkHandle& link, const PxArticulationJointDataRC& data);
+	PX_C_EXPORT PX_PHYSX_CORE_API bool ev4sio_PxSetJointData(const PxArticulationLinkHandle& link, const PxArticulationJointDataRC& data);
 
 	/**
 	\brief Computes unconstrained velocities for a given articulation.
@@ -525,14 +525,14 @@ namespace immediate
 	\param	[in] dt				Timestep
 	\param	[in] invLengthScale 1/lengthScale from PxTolerancesScale.
 	*/
-	PX_C_EXPORT PX_PHYSX_CORE_API void PxComputeUnconstrainedVelocities(PxArticulationHandle articulation, const PxVec3& gravity, PxReal dt, PxReal invLengthScale);
+	PX_C_EXPORT PX_PHYSX_CORE_API void ev4sio_PxComputeUnconstrainedVelocities(PxArticulationHandle articulation, const PxVec3& gravity, PxReal dt, PxReal invLengthScale);
 
 	/**
 	\brief Updates bodies for a given articulation.
 	\param	[in] articulation	Articulation handle
 	\param	[in] dt				Timestep
 	*/
-	PX_C_EXPORT PX_PHYSX_CORE_API void PxUpdateArticulationBodies(PxArticulationHandle articulation, PxReal dt);
+	PX_C_EXPORT PX_PHYSX_CORE_API void ev4sio_PxUpdateArticulationBodies(PxArticulationHandle articulation, PxReal dt);
 
 	/**
 	\brief Computes unconstrained velocities for a given articulation.
@@ -544,7 +544,7 @@ namespace immediate
 	\param	[in] invTotalDt		1/Timestep
 	\param	[in] invLengthScale 1/lengthScale from PxTolerancesScale.
 	*/
-	PX_C_EXPORT PX_PHYSX_CORE_API void PxComputeUnconstrainedVelocitiesTGS(	PxArticulationHandle articulation, const PxVec3& gravity, PxReal dt,
+	PX_C_EXPORT PX_PHYSX_CORE_API void ev4sio_PxComputeUnconstrainedVelocitiesTGS(	PxArticulationHandle articulation, const PxVec3& gravity, PxReal dt,
 																			PxReal totalDt, PxReal invDt, PxReal invTotalDt, PxReal invLengthScale);
 
 	/**
@@ -552,7 +552,7 @@ namespace immediate
 	\param	[in] articulation	Articulation handle
 	\param	[in] dt				Timestep
 	*/
-	PX_C_EXPORT PX_PHYSX_CORE_API void PxUpdateArticulationBodiesTGS(PxArticulationHandle articulation, PxReal dt);
+	PX_C_EXPORT PX_PHYSX_CORE_API void ev4sio_PxUpdateArticulationBodiesTGS(PxArticulationHandle articulation, PxReal dt);
 
 	/**
 	\brief Constructs a PxSolverBodyData structure based on rigid body properties. Applies gravity, damping and clamps maximum velocity.
@@ -565,7 +565,7 @@ namespace immediate
 	\param	[in] dt					The timestep
 	\param	[in] gyroscopicForces	Indicates whether gyroscopic forces should be integrated
 	*/
-	PX_C_EXPORT PX_PHYSX_CORE_API void PxConstructSolverBodiesTGS(const PxRigidBodyData* inRigidData, PxTGSSolverBodyVel* outSolverBodyVel, PxTGSSolverBodyTxInertia* outSolverBodyTxInertia, PxTGSSolverBodyData* outSolverBodyData, PxU32 nbBodies, const PxVec3& gravity, PxReal dt, bool gyroscopicForces = false);
+	PX_C_EXPORT PX_PHYSX_CORE_API void ev4sio_PxConstructSolverBodiesTGS(const PxRigidBodyData* inRigidData, PxTGSSolverBodyVel* outSolverBodyVel, PxTGSSolverBodyTxInertia* outSolverBodyTxInertia, PxTGSSolverBodyData* outSolverBodyData, PxU32 nbBodies, const PxVec3& gravity, PxReal dt, bool gyroscopicForces = false);
 
 	/**
 	\brief Constructs a PxSolverBodyData structure for a static body at a given pose.
@@ -574,7 +574,7 @@ namespace immediate
 	\param	[out] solverBodyTxInertia The intertia and transform delta component of this body (will be zero)
 	\param	[out] solverBodyData	The solver body representation of this static actor
 	*/
-	PX_C_EXPORT PX_PHYSX_CORE_API void PxConstructStaticSolverBodyTGS(const PxTransform& globalPose, PxTGSSolverBodyVel& solverBodyVel, PxTGSSolverBodyTxInertia& solverBodyTxInertia, PxTGSSolverBodyData& solverBodyData);
+	PX_C_EXPORT PX_PHYSX_CORE_API void ev4sio_PxConstructStaticSolverBodyTGS(const PxTransform& globalPose, PxTGSSolverBodyVel& solverBodyVel, PxTGSSolverBodyTxInertia& solverBodyTxInertia, PxTGSSolverBodyData& solverBodyData);
 
 	/**
 	\brief Groups together sets of independent PxSolverConstraintDesc objects to be solved using SIMD SOA approach.
@@ -593,13 +593,13 @@ namespace immediate
 	infinite mass (static or kinematic). This means that either appending static/kinematic to the end of the array of bodies or placing static/kinematic bodies at before the start body pointer
 	will ensure that the minimum number of batches are produced.
 	*/
-	PX_C_EXPORT PX_PHYSX_CORE_API PxU32 PxBatchConstraintsTGS(	const PxSolverConstraintDesc* solverConstraintDescs, PxU32 nbConstraints, PxTGSSolverBodyVel* solverBodies, PxU32 nbBodies,
+	PX_C_EXPORT PX_PHYSX_CORE_API PxU32 ev4sio_PxBatchConstraintsTGS(	const PxSolverConstraintDesc* solverConstraintDescs, PxU32 nbConstraints, PxTGSSolverBodyVel* solverBodies, PxU32 nbBodies,
 																PxConstraintBatchHeader* outBatchHeaders, PxSolverConstraintDesc* outOrderedConstraintDescs,
 																PxArticulationHandle* articulations = NULL, PxU32 nbArticulations = 0);
 
 	/**
-	\brief Creates a set of contact constraint blocks. Note that, depending the results of PxBatchConstraints, each batchHeader may refer to up to 4 solverConstraintDescs.
-	This function will allocate both constraint and friction patch data via the PxConstraintAllocator provided. Constraint data is only valid until PxSolveConstraints has completed.
+	\brief Creates a set of contact constraint blocks. Note that, depending the results of ev4sio_PxBatchConstraints, each batchHeader may refer to up to 4 solverConstraintDescs.
+	This function will allocate both constraint and friction patch data via the PxConstraintAllocator provided. Constraint data is only valid until ev4sio_PxSolveConstraints has completed.
 	Friction data is to be retained and provided by the application for friction correlation.
 
 	\param	[in] batchHeaders				Array of batch headers to process
@@ -615,12 +615,12 @@ namespace immediate
 
 	\return a boolean to define if this method was successful or not.
 	*/
-	PX_C_EXPORT PX_PHYSX_CORE_API bool PxCreateContactConstraintsTGS(	PxConstraintBatchHeader* batchHeaders, PxU32 nbHeaders, PxTGSSolverContactDesc* contactDescs,
+	PX_C_EXPORT PX_PHYSX_CORE_API bool ev4sio_PxCreateContactConstraintsTGS(	PxConstraintBatchHeader* batchHeaders, PxU32 nbHeaders, PxTGSSolverContactDesc* contactDescs,
 																		PxConstraintAllocator& allocator, PxReal invDt, PxReal invTotalDt, PxReal bounceThreshold,
 																		PxReal frictionOffsetThreshold, PxReal correlationDistance);
 
 	/**
-	\brief Creates a set of joint constraint blocks. Note that, depending the results of PxBatchConstraints, the batchHeader may refer to up to 4 solverConstraintDescs
+	\brief Creates a set of joint constraint blocks. Note that, depending the results of ev4sio_PxBatchConstraints, the batchHeader may refer to up to 4 solverConstraintDescs
 	\param	[in] batchHeaders	The array of batch headers to be processed
 	\param	[in] nbHeaders		The total number of batch headers to process
 	\param	[in] jointDescs		An array of constraint prep descs defining the properties of the constraints being created
@@ -632,12 +632,12 @@ namespace immediate
 	\param	[in] lengthScale	PxToleranceScale::length, i.e. a meter in simulation units
 	\return a boolean indicating if this method was successful or not.
 	*/
-	PX_C_EXPORT PX_PHYSX_CORE_API bool PxCreateJointConstraintsTGS(	PxConstraintBatchHeader* batchHeaders, PxU32 nbHeaders,
+	PX_C_EXPORT PX_PHYSX_CORE_API bool ev4sio_PxCreateJointConstraintsTGS(	PxConstraintBatchHeader* batchHeaders, PxU32 nbHeaders,
 																	PxTGSSolverConstraintPrepDesc* jointDescs, PxConstraintAllocator& allocator, PxReal dt, PxReal totalDt, PxReal invDt,
 																	PxReal invTotalDt, PxReal lengthScale);
 
 	/**
-	\brief Creates a set of joint constraint blocks. This function runs joint shaders defined inside PxConstraint** param, fills in joint row information in jointDescs and then calls PxCreateJointConstraints.
+	\brief Creates a set of joint constraint blocks. This function runs joint shaders defined inside PxConstraint** param, fills in joint row information in jointDescs and then calls ev4sio_PxCreateJointConstraints.
 	\param	[in] batchHeaders	The set of batchHeaders to be processed
 	\param	[in] nbBatchHeaders	The number of batch headers to process.
 	\param	[in] constraints	The set of constraints to be used to produce constraint rows
@@ -649,13 +649,13 @@ namespace immediate
 	\param	[in] invTotalDt		The inverse total time-step
 	\param	[in] lengthScale	PxToleranceScale::length, i.e. a meter in simulation units
 	\return a boolean indicating if this method was successful or not.
-	\see PxCreateJointConstraints
+	\see ev4sio_PxCreateJointConstraints
 	*/
-	PX_C_EXPORT PX_PHYSX_CORE_API bool PxCreateJointConstraintsWithShadersTGS(	PxConstraintBatchHeader* batchHeaders, PxU32 nbBatchHeaders, PxConstraint** constraints, PxTGSSolverConstraintPrepDesc* jointDescs, PxConstraintAllocator& allocator,
+	PX_C_EXPORT PX_PHYSX_CORE_API bool ev4sio_PxCreateJointConstraintsWithShadersTGS(	PxConstraintBatchHeader* batchHeaders, PxU32 nbBatchHeaders, PxConstraint** constraints, PxTGSSolverConstraintPrepDesc* jointDescs, PxConstraintAllocator& allocator,
 																				PxReal dt, PxReal totalDt, PxReal invDt, PxReal invTotalDt, PxReal lengthScale);
 
 	/**
-	\brief Creates a set of joint constraint blocks. This function runs joint shaders defined inside PxImmediateConstraint* param, fills in joint row information in jointDescs and then calls PxCreateJointConstraints.
+	\brief Creates a set of joint constraint blocks. This function runs joint shaders defined inside PxImmediateConstraint* param, fills in joint row information in jointDescs and then calls ev4sio_PxCreateJointConstraints.
 	\param	[in] batchHeaders	The set of batchHeaders to be processed
 	\param	[in] nbBatchHeaders	The number of batch headers to process.
 	\param	[in] constraints	The set of constraints to be used to produce constraint rows
@@ -667,9 +667,9 @@ namespace immediate
 	\param	[in] invTotalDt		The inverse total time-step
 	\param	[in] lengthScale	PxToleranceScale::length, i.e. a meter in simulation units
 	\return a boolean indicating if this method was successful or not.
-	\see PxCreateJointConstraints
+	\see ev4sio_PxCreateJointConstraints
 	*/
-	PX_C_EXPORT PX_PHYSX_CORE_API bool PxCreateJointConstraintsWithImmediateShadersTGS(PxConstraintBatchHeader* batchHeaders, PxU32 nbBatchHeaders, PxImmediateConstraint* constraints, PxTGSSolverConstraintPrepDesc* jointDescs,
+	PX_C_EXPORT PX_PHYSX_CORE_API bool ev4sio_PxCreateJointConstraintsWithImmediateShadersTGS(PxConstraintBatchHeader* batchHeaders, PxU32 nbBatchHeaders, PxImmediateConstraint* constraints, PxTGSSolverConstraintPrepDesc* jointDescs,
 																						PxConstraintAllocator& allocator, PxReal dt, PxReal totalDt, PxReal invDt, PxReal invTotalDt, PxReal lengthScale);
 
 	/**
@@ -689,7 +689,7 @@ namespace immediate
 	\param	[out] Z						Deprecated, no longer used. Any value (including NULL) can be passed.
 	\param	[out] deltaV				Temporary buffer for velocity change (only if articulations are used, size should be at least as large as the maximum number of links in any articulations being simulated)
 	*/
-	PX_C_EXPORT PX_PHYSX_CORE_API void PxSolveConstraintsTGS(	const PxConstraintBatchHeader* batchHeaders, PxU32 nbBatchHeaders, const PxSolverConstraintDesc* solverConstraintDescs,
+	PX_C_EXPORT PX_PHYSX_CORE_API void ev4sio_PxSolveConstraintsTGS(	const PxConstraintBatchHeader* batchHeaders, PxU32 nbBatchHeaders, const PxSolverConstraintDesc* solverConstraintDescs,
 																PxTGSSolverBodyVel* solverBodies, PxTGSSolverBodyTxInertia* txInertias, PxU32 nbSolverBodies, PxU32 nbPositionIterations, PxU32 nbVelocityIterations,
 																float dt, float invDt, PxU32 nbSolverArticulations = 0, PxArticulationHandle* solverArticulations = NULL, PxSpatialVector* Z = NULL, PxSpatialVector* deltaV = NULL);
 
@@ -702,7 +702,7 @@ namespace immediate
 	\param	[in] nbBodiesToIntegrate	The total number of bodies to integrate
 	\param	[in] dt						The timestep
 	*/
-	PX_C_EXPORT PX_PHYSX_CORE_API void PxIntegrateSolverBodiesTGS(PxTGSSolverBodyVel* solverBody, const PxTGSSolverBodyTxInertia* txInertia, PxTransform* poses, PxU32 nbBodiesToIntegrate, PxReal dt);
+	PX_C_EXPORT PX_PHYSX_CORE_API void ev4sio_PxIntegrateSolverBodiesTGS(PxTGSSolverBodyVel* solverBody, const PxTGSSolverBodyTxInertia* txInertia, PxTransform* poses, PxU32 nbBodiesToIntegrate, PxReal dt);
 
 #if !PX_DOXYGEN
 }

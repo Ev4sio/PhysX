@@ -45,11 +45,11 @@ namespace Nv
 namespace Blast
 {
 
-extern physx::PxPhysics* sExtPxSerializerPhysics;
-extern physx::PxCooking* sExtPxSerializerCooking;
+extern ev4sio_physx::PxPhysics* sExtPxSerializerPhysics;
+extern ev4sio_physx::PxCooking* sExtPxSerializerCooking;
 
 
-bool PxConvexMeshGeometryDTO::serialize(Nv::Blast::Serialization::PxConvexMeshGeometry::Builder builder, const physx::PxConvexMeshGeometry * poco)
+bool PxConvexMeshGeometryDTO::serialize(Nv::Blast::Serialization::PxConvexMeshGeometry::Builder builder, const ev4sio_physx::PxConvexMeshGeometry * poco)
 {
     NVBLAST_ASSERT(sExtPxSerializerCooking != nullptr);
 
@@ -57,20 +57,20 @@ bool PxConvexMeshGeometryDTO::serialize(Nv::Blast::Serialization::PxConvexMeshGe
 
     //TODO: Use cooking.cookConvexMesh to cook the mesh to a stream - then get that backing buffer and put it into the Data field
 
-    physx::PxConvexMeshDesc desc;
+    ev4sio_physx::PxConvexMeshDesc desc;
     desc.points.data = poco->convexMesh->getVertices();
     desc.points.count = poco->convexMesh->getNbVertices();
-    desc.points.stride = sizeof(physx::PxVec3);
+    desc.points.stride = sizeof(ev4sio_physx::PxVec3);
 
     std::vector<uint32_t> indicesScratch;
-    std::vector<physx::PxHullPolygon> hullPolygonsScratch;
+    std::vector<ev4sio_physx::PxHullPolygon> hullPolygonsScratch;
 
     hullPolygonsScratch.resize(poco->convexMesh->getNbPolygons());
 
     uint32_t indexCount = 0;
     for (uint32_t i = 0; i < hullPolygonsScratch.size(); i++)
     {
-        physx::PxHullPolygon polygon;
+        ev4sio_physx::PxHullPolygon polygon;
         poco->convexMesh->getPolygonData(i, polygon);
         if (polygon.mNbVerts)
         {
@@ -81,7 +81,7 @@ bool PxConvexMeshGeometryDTO::serialize(Nv::Blast::Serialization::PxConvexMeshGe
 
     for (uint32_t i = 0; i < hullPolygonsScratch.size(); i++)
     {
-        physx::PxHullPolygon polygon;
+        ev4sio_physx::PxHullPolygon polygon;
         poco->convexMesh->getPolygonData(i, polygon);
         for (uint32_t j = 0; j < polygon.mNbVerts; j++)
         {
@@ -97,9 +97,9 @@ bool PxConvexMeshGeometryDTO::serialize(Nv::Blast::Serialization::PxConvexMeshGe
 
     desc.polygons.count = poco->convexMesh->getNbPolygons();
     desc.polygons.data = hullPolygonsScratch.data();
-    desc.polygons.stride = sizeof(physx::PxHullPolygon);
+    desc.polygons.stride = sizeof(ev4sio_physx::PxHullPolygon);
         
-    physx::PxDefaultMemoryOutputStream outStream(NvBlastGetPxAllocatorCallback());
+    ev4sio_physx::PxDefaultMemoryOutputStream outStream(NvBlastGetPxAllocatorCallback());
     if (!sExtPxSerializerCooking->cookConvexMesh(desc, outStream))
     {
         return false;
@@ -113,7 +113,7 @@ bool PxConvexMeshGeometryDTO::serialize(Nv::Blast::Serialization::PxConvexMeshGe
 }
 
 
-physx::PxConvexMeshGeometry* PxConvexMeshGeometryDTO::deserialize(Nv::Blast::Serialization::PxConvexMeshGeometry::Reader reader)
+ev4sio_physx::PxConvexMeshGeometry* PxConvexMeshGeometryDTO::deserialize(Nv::Blast::Serialization::PxConvexMeshGeometry::Reader reader)
 {
     NVBLAST_ASSERT(sExtPxSerializerCooking != nullptr);
 
@@ -123,7 +123,7 @@ physx::PxConvexMeshGeometry* PxConvexMeshGeometryDTO::deserialize(Nv::Blast::Ser
 }
 
 
-bool PxConvexMeshGeometryDTO::deserializeInto(Nv::Blast::Serialization::PxConvexMeshGeometry::Reader reader, physx::PxConvexMeshGeometry * poco)
+bool PxConvexMeshGeometryDTO::deserializeInto(Nv::Blast::Serialization::PxConvexMeshGeometry::Reader reader, ev4sio_physx::PxConvexMeshGeometry * poco)
 {
     NVBLAST_ASSERT(sExtPxSerializerPhysics != nullptr);
 

@@ -13,18 +13,18 @@
 #include <string>
 #include <vector>
 
-namespace physx
+namespace ev4sio_physx
 {
 class PxBase;
 }
 
-namespace omni::physx
+namespace omni::ev4sio_physx
 {
 
 // The caller validates exact absolute paths, drains shared work and excludes
 // attachment transitions. Resolution takes one owner execution scope and expands
 // all matching supported native objects.
 RuntimeResult omniPvdResolveCaptureObjects(omni::physics::AttachHandle attach, const std::vector<std::string>& paths,
-                                          std::vector<const ::physx::PxBase*>& objects);
+                                          std::vector<const ::ev4sio_physx::PxBase*>& objects);
 
-} // namespace omni::physx
+} // namespace omni::ev4sio_physx

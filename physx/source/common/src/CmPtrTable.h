@@ -10,13 +10,13 @@
 #include "foundation/PxIO.h"
 #include "common/PxPhysXCommonConfig.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 class PxSerializationContext;
 class PxDeserializationContext;
 class PxOutputStream;
 
-namespace Cm
+namespace ev4sio_Cm
 {
 class PtrTableStorageManager
 {
@@ -92,7 +92,7 @@ public:
 	PxU32	mFreeSlot;		// PT: padding bytes on x64
 };
 
-} // namespace Cm
+} // namespace ev4sio_Cm
 
 }
 

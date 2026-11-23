@@ -5,8 +5,8 @@
 
 #include "CmCollection.h"
 
-using namespace physx;
-using namespace Cm;
+using namespace ev4sio_physx;
+using namespace ev4sio_Cm;
 
 void Collection::add(PxBase& object, PxSerialObjectId id)
 {
@@ -15,7 +15,7 @@ void Collection::add(PxBase& object, PxSerialObjectId id)
 	{
 		if( originId != id)
 		{
-			 PxGetFoundation().error(physx::PxErrorCode::eINVALID_PARAMETER, PX_FL,
+			 ev4sio_PxGetFoundation().error(ev4sio_physx::PxErrorCode::eINVALID_PARAMETER, PX_FL,
 		        "PxCollection::add called for an object that has an associated id already present in the collection!");
 		}
 		return;		   
@@ -25,7 +25,7 @@ void Collection::add(PxBase& object, PxSerialObjectId id)
 	{
 		if(!mIds.insert(id, &object))
 		{
-		   PxGetFoundation().error(physx::PxErrorCode::eINVALID_PARAMETER, PX_FL,
+		   ev4sio_PxGetFoundation().error(ev4sio_physx::PxErrorCode::eINVALID_PARAMETER, PX_FL,
 		        "PxCollection::add called with an id which is already used in the collection");
 		   return;	
 		}
@@ -186,7 +186,7 @@ PxU32 Collection::getIds(PxSerialObjectId* userBuffer, PxU32 bufferSize, PxU32 s
 	return dstIndex;
 }
 
-PxCollection*	PxCreateCollection()
+PxCollection*	ev4sio_PxCreateCollection()
 {
 	return PX_NEW(Collection);
 }

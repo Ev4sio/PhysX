@@ -7,7 +7,7 @@
 
 namespace omni
 {
-    namespace physx
+    namespace ev4sio_physx
     {
         void convertVec4fToVec3fBlock(float3** out, const float4** in, const int2* offset, const size_t numBlocks, const size_t numThreadsPerBlocks);
         void convertVec3fToVec4fBlock(float4** out, const float3** in, const int2* offset, const size_t numBlocks, const size_t numThreadsPerBlocks);

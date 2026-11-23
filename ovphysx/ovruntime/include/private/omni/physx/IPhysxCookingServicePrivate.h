@@ -5,13 +5,13 @@
 #include <omni/physx/IPhysxCookingService.h>
 #include "PhysxUsd.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 class PxCudaContextManager;
 }
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 
 /// Input triangle mesh view (read only) for generating tetrahedral mesh. See
@@ -188,15 +188,15 @@ struct IPhysxCookingServicePrivate
     PhysxCookingOperationHandle(CARB_ABI* requestSdfMeshCookedData)(
         PhysxCookingAsyncContext context,
         const PhysxCookingComputeRequest& request,
-        const omni::physx::TriangleMeshCookingParams& triangleMeshCookingParams,
-        const omni::physx::SdfMeshCookingParams& sdfMeshCookingParams,
-        ::physx::PxCudaContextManager* cudaContextManager);
+        const omni::ev4sio_physx::TriangleMeshCookingParams& triangleMeshCookingParams,
+        const omni::ev4sio_physx::SdfMeshCookingParams& sdfMeshCookingParams,
+        ::ev4sio_physx::PxCudaContextManager* cudaContextManager);
 
     /// Get cooked data for particle poisson sampling. Context must not be null if kComputeAsynchronously is set
     PhysxCookingOperationHandle(CARB_ABI* requestParticlePoissonSamplingCookedData)(
         PhysxCookingAsyncContext context,
         const PhysxCookingComputeRequest& request,
-        const omni::physx::ParticlePoissonSamplingCookingParams& params);
+        const omni::ev4sio_physx::ParticlePoissonSamplingCookingParams& params);
 
     void(CARB_ABI* readParticlePoissonSamplingData)(PhysxCookingParticlePoissonSamplingData& out,
                                                     const PhysxCookedDataSpan& cookedData);
@@ -210,17 +210,17 @@ struct IPhysxCookingServicePrivate
     PhysxCookingOperationHandle(CARB_ABI* requestDeformableVolumeMeshCookedData)(
         PhysxCookingAsyncContext context,
         const PhysxCookingComputeRequest& request,
-        const omni::physx::DeformableVolumeMeshCookingParams& params);
+        const omni::ev4sio_physx::DeformableVolumeMeshCookingParams& params);
 
     PhysxCookingOperationHandle(CARB_ABI* requestVolumeDeformableBodyCookedData)(
         PhysxCookingAsyncContext context,
         const PhysxCookingComputeRequest& request,
-        const omni::physx::VolumeDeformableBodyCookingParams& params);
+        const omni::ev4sio_physx::VolumeDeformableBodyCookingParams& params);
 
     PhysxCookingOperationHandle(CARB_ABI* requestSurfaceDeformableBodyCookedData)(
         PhysxCookingAsyncContext context,
         const PhysxCookingComputeRequest& request,
-        const omni::physx::SurfaceDeformableBodyCookingParams& params);
+        const omni::ev4sio_physx::SurfaceDeformableBodyCookingParams& params);
 
     // Read volume deformable body tet mesh data from binary
     // TODO: move to extensions/common (OM-121591)
@@ -233,6 +233,6 @@ struct IPhysxCookingServicePrivate
                                                   const PhysxCookedDataSpan& cookedData);
 
 };
-} // namespace physx
+} // namespace ev4sio_physx
 
 } // namespace omni

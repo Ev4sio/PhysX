@@ -26,9 +26,9 @@
 #include "foundation/PxFPU.h"
 #include "common/PxInsertionCallback.h"
 
-using namespace physx;
-using namespace Gu;
-using namespace Cm;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
+using namespace ev4sio_Cm;
 using namespace aos;
 
 #define SB_PARTITION_LIMIT 8 // max # partitions allowed. This value SHOULD NOT change. See also PxgSoftBody.h.
@@ -47,7 +47,7 @@ namespace
 			{
 				if (tet.mRef[j] >= numVertices)
 				{
-					PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL,
+					ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL,
 						"TetrahedronMeshBuilder: tetrahedron %u has vertex index %u >= numVertices %u. Invalid mesh data.",
 						i, tet.mRef[j], numVertices);
 					return false;
@@ -238,7 +238,7 @@ bool TetrahedronMeshBuilder::importMesh(const PxTetrahedronMeshDesc& collisionMe
 #if PX_CHECKED
 	if (!collisionMesh.checkTetrahedronIndices())
 	{
-		PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "Invalid tetrahedron indices.");
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "Invalid tetrahedron indices.");
 		return false;
 	}
 #endif
@@ -385,7 +385,7 @@ void computeRestPoseAndPointMass(TetrahedronT<PxU32>* tetIndices, const PxU32 nb
 		if (volume <= 1.e-9f)
 		{
 			//Neo-hookean model can deal with bad tets, so not issueing this error anymore
-			//PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "computeRestPoseAndPointMass(): tretrahedron is degenerate or inverted");
+			//ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "computeRestPoseAndPointMass(): tretrahedron is degenerate or inverted");
 			if (volume == 0)
 				QInv = PxMat33(PxZero);
 			else
@@ -1707,7 +1707,7 @@ bool TetrahedronMeshBuilder::createCollisionModelMapping(const TetrahedronMeshDa
 		// Free temp allocations
 		PX_FREE(tempCounts);
 
-		PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "TetrahedronMeshBuilder::createCollisionModelMapping: invalid tetrahedron vertex indices.");
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "TetrahedronMeshBuilder::createCollisionModelMapping: invalid tetrahedron vertex indices.");
 
 		return false;
 	}
@@ -1905,7 +1905,7 @@ bool TetrahedronMeshBuilder::createCollisionModelMapping(const TetrahedronMeshDa
 		PX_FREE(surfaceVertsHint);
 		PX_FREE(surfaceVertToTetRemap);
 
-		PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "BV4_AABBTree tree failed to build.");
+		ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "BV4_AABBTree tree failed to build.");
 
 		return false;
 	}
@@ -1985,7 +1985,7 @@ bool TetrahedronMeshBuilder::computeModelsMapping(TetrahedronMeshData& simulatio
 			// Free temp allocations
 			PX_FREE(gridModelVertices);
 
-			PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "TetrahedronMeshBuilder::computeModelsMapping: invalid tetrahedron vertex indices.");
+			ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "TetrahedronMeshBuilder::computeModelsMapping: invalid tetrahedron vertex indices.");
 
 			return false;
 		}
@@ -2008,7 +2008,7 @@ bool TetrahedronMeshBuilder::computeModelsMapping(TetrahedronMeshData& simulatio
 			// Free temp allocations
 			PX_FREE(gridModelVertices);
 			
-			PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "BV32 tree failed to build.");
+			ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "BV32 tree failed to build.");
 			
 			return false;
 		}
@@ -2483,11 +2483,11 @@ bool TetrahedronMeshBuilder::loadFromDesc(const PxTetrahedronMeshDesc& simulatio
 	TetrahedronMeshData& collisionMesh, DeformableVolumeCollisionData& collisionData, CollisionMeshMappingData& mappingData, const PxCookingParams&	params, bool validateMesh)
 {
 	if (!simulationMeshDesc.isValid() || !collisionMeshDesc.isValid() || !deformableVolumeDataDesc.isValid())
-		return PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "TetrahedronMesh::loadFromDesc: desc.isValid() failed!");
+		return ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "TetrahedronMesh::loadFromDesc: desc.isValid() failed!");
 
 	// verify the mesh params
 	if (!params.midphaseDesc.isValid())
-		return PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "TetrahedronMesh::loadFromDesc: mParams.midphaseDesc.isValid() failed!");
+		return ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "TetrahedronMesh::loadFromDesc: mParams.midphaseDesc.isValid() failed!");
 
 	if (!computeCollisionData(collisionMeshDesc, collisionMesh, collisionData, params, validateMesh))
 		return false;
@@ -2770,7 +2770,7 @@ bool TetrahedronMeshBuilder::createMidPhaseStructure(TetrahedronMeshData& collis
 	const PxU32 nbTetsPerLeaf = 15;
 
 	if (!buildBV4Ex(collisionData.mBV4Tree, meshInterface, gBoxEpsilon, nbTetsPerLeaf, false))
-		return PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "BV4 tree failed to build.");
+		return ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "BV4 tree failed to build.");
 			
 	const PxU32* order = meshInterface.getRemap();
 	if (!params.suppressTriangleMeshRemapTable || params.buildGPUData)
@@ -2853,7 +2853,7 @@ bool BV32TetrahedronMeshBuilder::createMidPhaseStructure(const PxCookingParams& 
 	PxU32 nbTetrahedronPerLeaf = 32;
 
 	if (!BuildBV32Ex(bv32Tree, meshInterface, gBoxEpsilon, nbTetrahedronPerLeaf))
-		return PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "BV32 tree failed to build.");
+		return ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "BV32 tree failed to build.");
 
 	const PxU32* order = meshInterface.getRemap();
 

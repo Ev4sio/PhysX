@@ -17,7 +17,7 @@
 #include "foundation/PxPreprocessor.h"
 #include "foundation/PxSimpleTypes.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	class KernelWrangler;
 	class PxgBpCudaMemoryAllocator;
@@ -30,7 +30,7 @@ namespace physx
 	class PxgCudaKernelWranglerManager;
 	class PxSceneDesc;
 
-class PxgCudaBroadPhaseSap : public Bp::BroadPhase
+class PxgCudaBroadPhaseSap : public ev4sio_Bp::BroadPhase
 {
 												PX_NOCOPY(PxgCudaBroadPhaseSap)
 	public:
@@ -42,32 +42,32 @@ class PxgCudaBroadPhaseSap : public Bp::BroadPhase
 																	 PxU64 contextID);
 
 												~PxgCudaBroadPhaseSap();
-	// Bp::BroadPhase
+	// ev4sio_Bp::BroadPhase
 	virtual			PxBroadPhaseType::Enum		getType()				const		PX_OVERRIDE	{ return PxBroadPhaseType::eGPU; }
 	virtual			void						release()	PX_OVERRIDE;
-	virtual			void						update(PxU32 numCpuTasks, Cm::FlushPool* flushPool, PxcScratchAllocator* scratchAllocator, const Bp::BroadPhaseUpdateData& updateData, PxBaseTask* continuation)	PX_OVERRIDE;
-	virtual			void						preBroadPhase(const Bp::BroadPhaseUpdateData& updateData)	PX_OVERRIDE;
+	virtual			void						update(PxU32 numCpuTasks, ev4sio_Cm::FlushPool* flushPool, PxcScratchAllocator* scratchAllocator, const ev4sio_Bp::BroadPhaseUpdateData& updateData, PxBaseTask* continuation)	PX_OVERRIDE;
+	virtual			void						preBroadPhase(const ev4sio_Bp::BroadPhaseUpdateData& updateData)	PX_OVERRIDE;
 	virtual			void						fetchBroadPhaseResults()			PX_OVERRIDE;
 
-	virtual			const Bp::BroadPhasePair*	getCreatedPairs(PxU32& nbCreatedPairs)		const 		PX_OVERRIDE
+	virtual			const ev4sio_Bp::BroadPhasePair*	getCreatedPairs(PxU32& nbCreatedPairs)		const 		PX_OVERRIDE
 												{
 													nbCreatedPairs = mFoundActorPairsMapped.size();
-													return reinterpret_cast<const Bp::BroadPhasePair*>(mFoundActorPairsMapped.begin());
+													return reinterpret_cast<const ev4sio_Bp::BroadPhasePair*>(mFoundActorPairsMapped.begin());
 												}
 
-	virtual			const Bp::BroadPhasePair*	getDeletedPairs(PxU32& nbDeletedPairs)		const 		PX_OVERRIDE
+	virtual			const ev4sio_Bp::BroadPhasePair*	getDeletedPairs(PxU32& nbDeletedPairs)		const 		PX_OVERRIDE
 												{
 													nbDeletedPairs = mLostActorPairsMapped.size();
-													return reinterpret_cast<const Bp::BroadPhasePair*>(mLostActorPairsMapped.begin());
+													return reinterpret_cast<const ev4sio_Bp::BroadPhasePair*>(mLostActorPairsMapped.begin());
 												}
 
 	virtual			void						freeBuffers()						PX_OVERRIDE;
 	// PT: TODO: shift origin for GPU BP?
 	virtual			void						shiftOrigin(const PxVec3& /*shift*/, const PxBounds3* /*boundsArray*/, const PxReal* /*contactDistances*/) PX_OVERRIDE	{}
 #if PX_CHECKED
-	virtual			Bp::BroadPhaseUpdateError::Enum	isValid(const Bp::BroadPhaseUpdateData&) const PX_OVERRIDE				{ return Bp::BroadPhaseUpdateError::eNO_ERROR; }
+	virtual			ev4sio_Bp::BroadPhaseUpdateError::Enum	isValid(const ev4sio_Bp::BroadPhaseUpdateData&) const PX_OVERRIDE				{ return ev4sio_Bp::BroadPhaseUpdateError::eNO_ERROR; }
 #endif
-	//~Bp::BroadPhase
+	//~ev4sio_Bp::BroadPhase
 
 	PX_FORCE_INLINE	PxgTypedCudaBuffer<PxBounds3>& getBoundsBuffer()			{ return mBoxFpBoundsBuf;				}
 	PX_FORCE_INLINE	PxgTypedCudaBuffer<PxReal>&	getContactDistBuffer()			{ return mBoxContactDistancesBuf;		}
@@ -83,7 +83,7 @@ class PxgCudaBroadPhaseSap : public Bp::BroadPhase
 					void						purgeDuplicateLostPairs();
 
 	// PT: TODO: wait, why is this in the BP?
-	PX_FORCE_INLINE	void						sortPairs(Cm::PinnableArray<PxgBroadPhasePair>& pairs)	{ sortBuffer(pairs.begin(), pairs.size());	}
+	PX_FORCE_INLINE	void						sortPairs(ev4sio_Cm::PinnableArray<PxgBroadPhasePair>& pairs)	{ sortBuffer(pairs.begin(), pairs.size());	}
 	PX_FORCE_INLINE	void						setGPUAABBManager(PxgAABBManager* manager)			{ mAABBManager = manager;					}
 
 #if PX_ENABLE_SIM_STATS
@@ -93,7 +93,7 @@ class PxgCudaBroadPhaseSap : public Bp::BroadPhase
 #endif
 
 	private:
-					void						gpuDMAUp(const Bp::BroadPhaseUpdateData& updateData, PxgBroadPhaseDesc& desc, PxgRadixSortDesc* rsDescs);
+					void						gpuDMAUp(const ev4sio_Bp::BroadPhaseUpdateData& updateData, PxgBroadPhaseDesc& desc, PxgRadixSortDesc* rsDescs);
 					void						gpuDMABack(const PxgBroadPhaseDesc& desc);
 
 					void						createGpuStreamsAndEvents();
@@ -121,7 +121,7 @@ class PxgCudaBroadPhaseSap : public Bp::BroadPhase
 					void						updateRadixSortDesc(PxgRadixSortDesc* rsDesc);
 					void						runRadixSort(const PxU32 numOfKeys, CUdeviceptr radixSortDescBuf);
 
-					void						purgeDuplicates(Cm::PinnableArray<PxgBroadPhasePair>& pairs);
+					void						purgeDuplicates(ev4sio_Cm::PinnableArray<PxgBroadPhasePair>& pairs);
 	
 					void						runCopyResultsKernel(PxgBroadPhaseDesc& desc);
 					void						sortBuffer(PxgBroadPhasePair* reportBuffer, PxU32 size);
@@ -230,13 +230,13 @@ class PxgCudaBroadPhaseSap : public Bp::BroadPhase
 					// needs to be device mapped memory
 					PxU32*						mEventMapped;
 		
-					Cm::PinnableObject<PxgBroadPhaseDesc>	mBpDesc;
-					Cm::PinnableArray<PxgRadixSortDesc>		mRSDescs;
-					Cm::PinnableArray<PxgRadixSortDesc>		mRSDescsWOR; //wor :: without ranks
+					ev4sio_Cm::PinnableObject<PxgBroadPhaseDesc>	mBpDesc;
+					ev4sio_Cm::PinnableArray<PxgRadixSortDesc>		mRSDescs;
+					ev4sio_Cm::PinnableArray<PxgRadixSortDesc>		mRSDescsWOR; //wor :: without ranks
 	
 					// needs to be device mapped memory
-					Cm::PinnableArray<PxgBroadPhasePair>	mFoundActorPairsMapped;
-					Cm::PinnableArray<PxgBroadPhasePair>	mLostActorPairsMapped;
+					ev4sio_Cm::PinnableArray<PxgBroadPhasePair>	mFoundActorPairsMapped;
+					ev4sio_Cm::PinnableArray<PxgBroadPhasePair>	mLostActorPairsMapped;
 
 					PxU32						mMaxFoundLostPairs;
 					PxU32						mMaxAggFoundLostPairs;

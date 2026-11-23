@@ -13,7 +13,7 @@
 #include "ScDeformableSurfaceCore.h"
 #include "NpActorTemplate.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 class NpShape;
@@ -98,8 +98,8 @@ public:
 	PX_FORCE_INLINE const NpShape* getShapeInternal() const { return mShape; }
 #endif
 
-	PX_FORCE_INLINE	const Sc::DeformableSurfaceCore&	getCore() const { return mCore; }
-	PX_FORCE_INLINE	Sc::DeformableSurfaceCore&			getCore() { return mCore; }
+	PX_FORCE_INLINE	const ev4sio_Sc::DeformableSurfaceCore&	getCore() const { return mCore; }
+	PX_FORCE_INLINE	ev4sio_Sc::DeformableSurfaceCore&			getCore() { return mCore; }
 	static PX_FORCE_INLINE size_t						getCoreOffset() { return PX_OFFSET_OF_RT(NpDeformableSurface, mCore); }
 
 	void									updateMaterials();
@@ -109,15 +109,15 @@ private:
 	void 									releaseAllocator();
 
 	NpShape*								mShape; //deformable surface can only have one triangle mesh shape.
-	Sc::DeformableSurfaceCore				mCore;
+	ev4sio_Sc::DeformableSurfaceCore				mCore;
 	PxCudaContextManager*					mCudaContextManager;
 	PxsMemoryManager*						mMemoryManager;
-	Cm::VirtualAllocatorCallback*				mDeviceMemoryAllocator;
+	ev4sio_Cm::VirtualAllocatorCallback*				mDeviceMemoryAllocator;
 };
 
-Sc::DeformableSurfaceCore* getDeformableSurfaceCore(PxActor* actor);
+ev4sio_Sc::DeformableSurfaceCore* getDeformableSurfaceCore(PxActor* actor);
 
-} // namespace physx
+} // namespace ev4sio_physx
 
 #endif // PX_SUPPORT_GPU_PHYSX
 #endif // NP_DEFORMABLE_SURFACE

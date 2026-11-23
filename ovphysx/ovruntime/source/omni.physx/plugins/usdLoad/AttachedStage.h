@@ -113,16 +113,16 @@
 // interfaces (ADR-0005) — it never names a concrete backend type. Consumers
 // that need USD specifics down-cast the abstraction on demand (asUsdSource /
 // asUsdDataWrite), which yields null under a non-USD backend.
-namespace physx { class PxCpuDispatcher; class PxCudaContextManager; }
+namespace ev4sio_physx { class PxCpuDispatcher; class PxCudaContextManager; }
 namespace omni::sampling { struct SurfaceSampler; }
-namespace omni::physx::native { class Drag; }
-namespace omni::physx::cache
+namespace omni::ev4sio_physx::native { class Drag; }
+namespace omni::ev4sio_physx::cache
 {
 class DecodedCollection;
 class RuntimeArtifactService;
-} // namespace omni::physx::cache
-namespace omni::physx { class CustomPhysXJoint; class CustomPhysXGeometryCallback; }
-namespace omni::physx::particles
+} // namespace omni::ev4sio_physx::cache
+namespace omni::ev4sio_physx { class CustomPhysXJoint; class CustomPhysXGeometryCallback; }
+namespace omni::ev4sio_physx::particles
 {
 class PhysxParticleFactory;
 class ParticlePostprocess;
@@ -137,11 +137,11 @@ using PostprocessRefMap = std::unordered_map<omni::physics::parse::ObjectKey, Po
 namespace omni { namespace physics { namespace parse { class DescriptorBatchAllocator; struct ScanOptions; class IPhysicsSource; class IPhysicsDataWrite; class IChangeFeed; struct AttachTarget; } } }
 // Defined in OvxPhysicsWrite.cpp (same module); forward-declared to avoid pulling the write header
 // into this widely-included one. -1 unless every attached scene is DirectGPU on the same device.
-namespace omni { namespace physx { namespace usdparser { class AttachedStage; } int ovxDirectGpuDeviceOrdinal(usdparser::AttachedStage& owner); } }
+namespace omni { namespace ev4sio_physx { namespace usdparser { class AttachedStage; } int ovxDirectGpuDeviceOrdinal(usdparser::AttachedStage& owner); } }
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 void retireCollisionRepresentationTasks(omni::physics::AttachHandle attach);
 class PhysXScene;
@@ -326,8 +326,8 @@ public:
     std::unordered_map<uint64_t, std::weak_ptr<native::Drag>> interactionDrags;
     mutable std::unordered_map<omni::physics::parse::ObjectKey, CustomPhysXJoint*, omni::physics::parse::ObjectKey::Hash> customJoints;
     mutable std::unordered_multimap<omni::physics::parse::ObjectKey, CustomPhysXGeometryCallback*, omni::physics::parse::ObjectKey::Hash> customGeometries;
-    std::shared_ptr<::physx::PxCpuDispatcher> cpuDispatcher;
-    std::vector<std::shared_ptr<::physx::PxCudaContextManager>> cudaContextManagers;
+    std::shared_ptr<::ev4sio_physx::PxCpuDispatcher> cpuDispatcher;
+    std::vector<std::shared_ptr<::ev4sio_physx::PxCudaContextManager>> cudaContextManagers;
     size_t nextCudaContext = 0;
     std::unordered_map<uint64_t, std::shared_ptr<omni::sampling::SurfaceSampler>> surfaceSamplers;
     mutable std::unordered_map<omni::physics::parse::ObjectKey, particles::PhysxParticleFactory*,
@@ -354,7 +354,7 @@ public:
     void setCookingRetirement(std::function<void()> retire) const { mRetireCooking = std::move(retire); }
     void retireCooking() const
     {
-        omni::physx::retireCollisionRepresentationTasks(getAttachHandle());
+        omni::ev4sio_physx::retireCollisionRepresentationTasks(getAttachHandle());
         std::function<void()> retire = std::move(mRetireCooking);
         if (retire)
             retire();
@@ -526,7 +526,7 @@ public:
     // collection is freed once all of them are unused (see the .cpp).
     void retainCompiledCollection(std::unique_ptr<cache::DecodedCollection>& collection,
                                   std::vector<ObjectId> records,
-                                  std::vector<::physx::PxRefCounted*> shared);
+                                  std::vector<::ev4sio_physx::PxRefCounted*> shared);
     size_t retainedCompiledCollectionCount() const
     {
         return mCompiledCollections.size();
@@ -843,7 +843,7 @@ public:
         // Learn the sim's residency now that its scenes exist (interest registration ran during
         // attach, before the scenes were built): on a DirectGPU sim the feed then reads
         // device-eligible value columns straight from device and the scatter borrows them.
-        mChangeFeed->setDeviceOrdinal(omni::physx::ovxDirectGpuDeviceOrdinal(*this));
+        mChangeFeed->setDeviceOrdinal(omni::ev4sio_physx::ovxDirectGpuDeviceOrdinal(*this));
         bool ok = mChangeFeed->drainRange(unreadFromOrdinal, toOrdinal);
         if (ok)
         {
@@ -1193,7 +1193,7 @@ void bufferRequestRigidBodyMassUpdate(omni::physics::parse::ObjectKey key)
     // problem for auto-generated attachment data.
     //
     // Written only by the deformable cooking write-back and read only through
-    // omni::physx::internal::getArrayValue / getValue, which gate the lookup on
+    // omni::ev4sio_physx::internal::getArrayValue / getValue, which gate the lookup on
     // there being no live write sink — the carrier substitutes for a missing
     // sink, it never shadows a working one.
     // ------------------------------------------------------------------
@@ -1485,7 +1485,7 @@ private:
         ~RetainedCollection(); // drops the shared references before the storage
         std::unique_ptr<cache::DecodedCollection> collection;
         std::vector<ObjectId> records;
-        std::vector<::physx::PxRefCounted*> shared; // each holds one reference of ours
+        std::vector<::ev4sio_physx::PxRefCounted*> shared; // each holds one reference of ours
     };
     // Held by pointer: pruning must never assign one collection over another,
     // which would free that one's storage without dropping its shared references.
@@ -1586,5 +1586,5 @@ private:
 };
 
 } // namespace usdparser
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

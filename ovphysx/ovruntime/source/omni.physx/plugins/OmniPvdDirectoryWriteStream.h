@@ -16,7 +16,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 
 // The runtime owns this stream; OmniPvdWriter only borrows it. Each open reserves
@@ -148,5 +148,5 @@ private:
     bool mOwnsReservedFile{ false };
 };
 
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

@@ -435,7 +435,7 @@ void scaleMeshPoints(ParseContext& ctx, BufferHandle points,
 void scaleShapeDescByInstance(PhysxShapeDesc& desc, carb::Float3 instanceScale);
 
 // Construct a BoundingSpherePhysxShapeDesc from already-computed bounds.
-// The PhysX cooking-driven OBB / bounding-sphere compute (`PxCreateConvexMesh`)
+// The PhysX cooking-driven OBB / bounding-sphere compute (`ev4sio_PxCreateConvexMesh`)
 // stays at the routing site since it requires the full PhysX SDK; the
 // parse-lib only owns the descriptor-construction shell + common shape fill.
 // Returns nullptr when `info.simulationOwners` cannot resolve to scenes

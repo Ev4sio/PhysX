@@ -32,7 +32,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace tensors
 {
@@ -77,20 +77,20 @@ public:
     // `countsDev`, `startsDev` and `cursorDev` hold [S, F] PxU32, and each output at least `capacity` elements
     // (1 float per force or separation, 3 per point, normal or friction force); an element at or past
     // `capacity` is dropped.
-    bool getFilteredContactCountsOvStage(::physx::PxU32* countsDev, ForceComponent component) const;
+    bool getFilteredContactCountsOvStage(::ev4sio_physx::PxU32* countsDev, ForceComponent component) const;
     bool getFilteredContactDataOvStage(float* forceDev,
                                        float* pointDev,
                                        float* normalDev,
                                        float* separationDev,
-                                       ::physx::PxU32* cursorDev,
-                                       const ::physx::PxU32* startsDev,
-                                       ::physx::PxU32 capacity,
+                                       ::ev4sio_physx::PxU32* cursorDev,
+                                       const ::ev4sio_physx::PxU32* startsDev,
+                                       ::ev4sio_physx::PxU32 capacity,
                                        float dt) const;
     bool getFilteredFrictionDataOvStage(float* forceDev,
                                         float* pointDev,
-                                        ::physx::PxU32* cursorDev,
-                                        const ::physx::PxU32* startsDev,
-                                        ::physx::PxU32 capacity,
+                                        ::ev4sio_physx::PxU32* cursorDev,
+                                        const ::ev4sio_physx::PxU32* startsDev,
+                                        ::ev4sio_physx::PxU32 capacity,
                                         float dt) const;
 
     // The raw contacts (getRawContactData) split the same way, one slot per sensor: getRawContactCountsOvStage
@@ -98,15 +98,15 @@ public:
     // element, the (sensor, other) body pair's identities into `bodyPairsDev` through the table
     // setActorHandles installed -- 0 for an actor it does not hold. Sized as above, one slot per sensor:
     // `countsDev`, `startsDev` and `cursorDev` hold [S] PxU32, and `bodyPairsDev` 2 uint64 per element.
-    bool getRawContactCountsOvStage(::physx::PxU32* countsDev) const;
+    bool getRawContactCountsOvStage(::ev4sio_physx::PxU32* countsDev) const;
     bool getRawContactsOvStage(float* forceDev,
                                float* pointDev,
                                float* normalDev,
                                float* separationDev,
                                uint64_t* bodyPairsDev,
-                               ::physx::PxU32* cursorDev,
-                               const ::physx::PxU32* startsDev,
-                               ::physx::PxU32 capacity,
+                               ::ev4sio_physx::PxU32* cursorDev,
+                               const ::ev4sio_physx::PxU32* startsDev,
+                               ::ev4sio_physx::PxU32 capacity,
                                float dt) const;
 
     // The raw identities are the caller's, not the legacy path ids: getLegacyActorIds reads the scene's actor
@@ -155,7 +155,7 @@ private:
     bool refreshReferentTables(const char* functionName) const;
 
     // The rigid-dynamic table from the sensors' live island nodes. A disabled sensor owns no entry.
-    void collectRdContactIndices(std::vector<::physx::PxU32>& rdContactIndices) const;
+    void collectRdContactIndices(std::vector<::ev4sio_physx::PxU32>& rdContactIndices) const;
 
     bool getNetForces(const TensorDesc* dstTensor,
                       float dt,
@@ -174,13 +174,13 @@ private:
     GpuSimulationDataPtr mGpuSimData;
 
     // O(1) map from physx GPU rigid dynamic index to referent index, rebuilt by refreshReferentTables
-    mutable ::physx::PxU32* mRdContactIndicesDev = nullptr;
-    mutable ::physx::PxU32 mRdContactIndexCapacity = 0;
+    mutable ::ev4sio_physx::PxU32* mRdContactIndicesDev = nullptr;
+    mutable ::ev4sio_physx::PxU32 mRdContactIndexCapacity = 0;
     // GpuSimulationData::mRdDisableEpoch when the rigid-dynamic table was built
     mutable uint64_t mRdDisableEpoch = 0;
 
     // O(1) map from physx GPU articulation link index to referent index
-    ::physx::PxU32* mLinkContactIndicesDev = nullptr;
+    ::ev4sio_physx::PxU32* mLinkContactIndicesDev = nullptr;
 
     GpuRigidContactFilterIdPair* mFilterLookupDev = nullptr;
 
@@ -193,17 +193,17 @@ private:
     // [numSensors, 2*numSensors) start indices. Kept contiguous and separate from the
     // caller's interleaved (numSensors, 2) tensor so exclusiveScan and the count/fill
     // kernels keep taking plain arrays; a final pack kernel interleaves the result.
-    ::physx::PxU32* mRawLayoutScratchDev = nullptr;
+    ::ev4sio_physx::PxU32* mRawLayoutScratchDev = nullptr;
 
-    ::physx::PxU32* mContactCountMatrix = nullptr;
+    ::ev4sio_physx::PxU32* mContactCountMatrix = nullptr;
 
     // getRawContactsOvStage's identity table (setActorHandles): the legacy actor table's actors, sorted as it is,
     // with the caller's identities.
     GpuActorPathIdPair* mActorHandleLookupDev = nullptr;
-    ::physx::PxU32 mNumActorHandlePairs = 0;
+    ::ev4sio_physx::PxU32 mNumActorHandlePairs = 0;
     bool mActorHandlesSet = false;
 };
 
 } // namespace tensors
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

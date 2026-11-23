@@ -18,7 +18,7 @@
 #include "denseGridStandalone.cuh"
 #include "sparseGridStandalone.cuh"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 #define ENABLE_KERNEL_LAUNCH_ERROR_CHECK 0
 

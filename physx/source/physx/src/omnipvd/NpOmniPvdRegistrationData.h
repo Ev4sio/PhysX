@@ -33,7 +33,7 @@
 #include "PxParticleBuffer.h"
 #endif
 
-namespace physx
+namespace ev4sio_physx
 {
 
 // The public PxSpatialForce has alignment padding. The wire reaction is six packed floats.

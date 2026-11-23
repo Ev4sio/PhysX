@@ -19,21 +19,21 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace usdparser { class AttachedStage; }
 
 struct ContactPoint
 {
     const PhysXScene* mScene;
-    ::physx::PxVec3 mPosition;
-    ::physx::PxVec3 mNormal;
-    ::physx::PxVec3 mImpulse;
+    ::ev4sio_physx::PxVec3 mPosition;
+    ::ev4sio_physx::PxVec3 mNormal;
+    ::ev4sio_physx::PxVec3 mImpulse;
     float mSeparation;
     uint32_t mFaceIndex0;
     uint32_t mFaceIndex1;
-    const ::physx::PxMaterial* mMaterial0;
-    const ::physx::PxMaterial* mMaterial1;
+    const ::ev4sio_physx::PxMaterial* mMaterial0;
+    const ::ev4sio_physx::PxMaterial* mMaterial1;
 };
 
 struct CompoundShapeReportData
@@ -50,13 +50,13 @@ struct CompoundShapeReportData
 // asInt-encoded and backend-agnostic): keyed/valued by ObjectKey rather than
 // SdfPath so this state works under any IPhysicsSource.
 using UnresolvedContactPairsMap =
-    std::unordered_multimap<const ::physx::PxRigidActor*, std::pair<omni::physics::parse::ObjectKey, float>>;
+    std::unordered_multimap<const ::ev4sio_physx::PxRigidActor*, std::pair<omni::physics::parse::ObjectKey, float>>;
 using ContactPairsMap =
-    std::unordered_multimap<const ::physx::PxRigidActor*, std::pair<const ::physx::PxRigidActor*, float>>;
-using ReleasedObjectsMap = std::unordered_map<const ::physx::PxBase*, omni::physics::parse::ObjectKey>;
+    std::unordered_multimap<const ::ev4sio_physx::PxRigidActor*, std::pair<const ::ev4sio_physx::PxRigidActor*, float>>;
+using ReleasedObjectsMap = std::unordered_map<const ::ev4sio_physx::PxBase*, omni::physics::parse::ObjectKey>;
 using CompoundShapeBufferedData = std::map<Pair<void*>, CompoundShapeReportData>;
 using DeletedEventsSet = std::unordered_set<Pair<uint64_t>, PairHash>;
-using ContactHeadersVector = std::vector<omni::physx::ContactEventHeader>;
+using ContactHeadersVector = std::vector<omni::ev4sio_physx::ContactEventHeader>;
 using ContactDataVector = std::vector<ContactData>;
 using FrictionAnchorsDataVector = std::vector<FrictionAnchor>;
 // A.B. replace with unordered map, map is used now for determinacy, we need to try to replace with PhysX SDK hash map
@@ -96,12 +96,12 @@ public:
         return mContactPairsMap.empty();
     }
 
-    void addActorPair(::physx::PxRigidActor* body, omni::physics::parse::ObjectKey key, float forceThreshold)
+    void addActorPair(::ev4sio_physx::PxRigidActor* body, omni::physics::parse::ObjectKey key, float forceThreshold)
     {
         mUnresolvedContactPairsMap.insert(std::make_pair(body, std::make_pair(key, forceThreshold)));
     }
 
-    void removeActor(::physx::PxRigidActor* actor, omni::physics::parse::ObjectKey key)
+    void removeActor(::ev4sio_physx::PxRigidActor* actor, omni::physics::parse::ObjectKey key)
     {
         ContactPairsMap::iterator it = mContactPairsMap.begin();
         while (it != mContactPairsMap.end())
@@ -124,12 +124,12 @@ public:
         mReleaseActorsMap[actor] = key;
     }
 
-    void removeShape(::physx::PxShape* shape, omni::physics::parse::ObjectKey key)
+    void removeShape(::ev4sio_physx::PxShape* shape, omni::physics::parse::ObjectKey key)
     {
         mReleaseShapesMap[shape] = key;
     }
 
-    void swapActor(::physx::PxRigidActor* oldActor, ::physx::PxRigidActor* newActor)
+    void swapActor(::ev4sio_physx::PxRigidActor* oldActor, ::ev4sio_physx::PxRigidActor* newActor)
     {
         ContactPairsMap::iterator it = mContactPairsMap.begin();
         while (it != mContactPairsMap.end())
@@ -177,17 +177,17 @@ public:
         return mContactPairsMap;
     }
 
-    inline bool checkPair(const ::physx::PxActor* actor0, const ::physx::PxActor* actor1) const
+    inline bool checkPair(const ::ev4sio_physx::PxActor* actor0, const ::ev4sio_physx::PxActor* actor1) const
     {
         return checkPairInternal(actor0, actor1) || checkPairInternal(actor1, actor0);
     }
 
-    inline bool checkThreshold(const ::physx::PxActor* actor0, const ::physx::PxActor* actor1, float force)
+    inline bool checkThreshold(const ::ev4sio_physx::PxActor* actor0, const ::ev4sio_physx::PxActor* actor1, float force)
     {
         return checkThresholdInternal(actor0, force) || checkThresholdInternal(actor1, force);
     }
 
-    void setBodyThreshold(const ::physx::PxRigidActor* actor, float force)
+    void setBodyThreshold(const ::ev4sio_physx::PxRigidActor* actor, float force)
     {
         ContactPairsMap::iterator it = mContactPairsMap.find(actor);
         ContactPairsMap::const_iterator endIt = mContactPairsMap.end();
@@ -198,32 +198,32 @@ public:
         }
     }
 
-    void reportContact(const ::physx::PxActor* actor0,
-                       const ::physx::PxShape* shape0,
-                       const ::physx::PxActor* actor1,
-                       const ::physx::PxShape* shape1,
+    void reportContact(const ::ev4sio_physx::PxActor* actor0,
+                       const ::ev4sio_physx::PxShape* shape0,
+                       const ::ev4sio_physx::PxActor* actor1,
+                       const ::ev4sio_physx::PxShape* shape1,
                        SimulationEvent event,
                        uint32_t contactCount,
-                       const std::vector<::physx::PxContactPairFrictionAnchor>& frictionAnchors);
+                       const std::vector<::ev4sio_physx::PxContactPairFrictionAnchor>& frictionAnchors);
 
-    void reportContactShapeRemoved(const ::physx::PxActor* actor0,
-                                   const ::physx::PxShape* shape0,
-                                   const ::physx::PxActor* actor1,
-                                   const ::physx::PxShape* shape1,
-                                   const ::physx::PxContactPairFlags contactFlags);
+    void reportContactShapeRemoved(const ::ev4sio_physx::PxActor* actor0,
+                                   const ::ev4sio_physx::PxShape* shape0,
+                                   const ::ev4sio_physx::PxActor* actor1,
+                                   const ::ev4sio_physx::PxShape* shape1,
+                                   const ::ev4sio_physx::PxContactPairFlags contactFlags);
 
     void reportContactPoint(const PhysXScene*,
-                            const ::physx::PxVec3& position,
-                            const ::physx::PxVec3& normal,
-                            const ::physx::PxVec3& impulse,
+                            const ::ev4sio_physx::PxVec3& position,
+                            const ::ev4sio_physx::PxVec3& normal,
+                            const ::ev4sio_physx::PxVec3& impulse,
                             float separation,
                             uint32_t faceIndex0,
                             uint32_t faceIndex1,
-                            const ::physx::PxMaterial* material0,
-                            const ::physx::PxMaterial* material1,
+                            const ::ev4sio_physx::PxMaterial* material0,
+                            const ::ev4sio_physx::PxMaterial* material1,
                             bool batch = true);
 
-    void reportJointBreak(const ::physx::PxJoint* joint);
+    void reportJointBreak(const ::ev4sio_physx::PxJoint* joint);
 
     void clearReleasedObjectsMap()
     {
@@ -282,9 +282,9 @@ private:
 
     static std::atomic<size_t> s_liveInstanceCount;
 
-    inline bool checkPairInternal(const ::physx::PxActor* actor, const ::physx::PxActor* otherActor) const
+    inline bool checkPairInternal(const ::ev4sio_physx::PxActor* actor, const ::ev4sio_physx::PxActor* otherActor) const
     {
-        const ::physx::PxRigidActor* body = (const ::physx::PxRigidActor*)actor;
+        const ::ev4sio_physx::PxRigidActor* body = (const ::ev4sio_physx::PxRigidActor*)actor;
         ContactPairsMap::const_iterator it = mContactPairsMap.find(body);
         ContactPairsMap::const_iterator endIt = mContactPairsMap.end();
 
@@ -298,9 +298,9 @@ private:
         return false;
     }
 
-    inline bool checkThresholdInternal(const ::physx::PxActor* actor, float force) const
+    inline bool checkThresholdInternal(const ::ev4sio_physx::PxActor* actor, float force) const
     {
-        ::physx::PxRigidActor* body = (::physx::PxRigidActor*)actor;
+        ::ev4sio_physx::PxRigidActor* body = (::ev4sio_physx::PxRigidActor*)actor;
         ContactPairsMap::const_iterator it = mContactPairsMap.find(body);
         ContactPairsMap::const_iterator endIt = mContactPairsMap.end();
 
@@ -314,12 +314,12 @@ private:
 void setupContactReportToArticulation(PhysXScene* ps,
                                       const usdparser::AttachedStage& attachedStage,
                                       omni::physics::parse::ObjectKey key,
-                                      ::physx::PxArticulationReducedCoordinate& art);
+                                      ::ev4sio_physx::PxArticulationReducedCoordinate& art);
 void setupContactReport(PhysXScene* ps,
                         usdparser::AttachedStage& attachedStage,
-                        ::physx::PxRigidActor& rigidActor,
+                        ::ev4sio_physx::PxRigidActor& rigidActor,
                         omni::physics::parse::ObjectKey key);
 void changeContactReport(usdparser::AttachedStage& attachedStage, omni::physics::parse::ObjectKey key, bool removed);
 
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

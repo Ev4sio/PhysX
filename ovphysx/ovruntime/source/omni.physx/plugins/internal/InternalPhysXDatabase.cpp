@@ -32,10 +32,10 @@
 #include <common/utilities/MemoryMacros.h>
 
 
-using namespace omni::physx::internal;
-using namespace omni::physx::usdparser;
+using namespace omni::ev4sio_physx::internal;
+using namespace omni::ev4sio_physx::usdparser;
 using namespace carb;
-using namespace ::physx;
+using namespace ::ev4sio_physx;
 
 
 InternalPhysXDatabase::InternalPhysXDatabase(const AttachedStage* attachedStage)
@@ -146,7 +146,7 @@ void InternalPhysXDatabase::release()
         {
             if (mAttachedStage)
             {
-                const std::unordered_map<omni::physics::parse::ObjectKey, omni::physx::CustomPhysXJoint *, omni::physics::parse::ObjectKey::Hash>::iterator found = mAttachedStage->customJoints.find(rec.mKey);
+                const std::unordered_map<omni::physics::parse::ObjectKey, omni::ev4sio_physx::CustomPhysXJoint *, omni::physics::parse::ObjectKey::Hash>::iterator found = mAttachedStage->customJoints.find(rec.mKey);
                 if (found != mAttachedStage->customJoints.end() && found->second == rec.mPtr)
                     found->second->release();
             }
@@ -297,9 +297,9 @@ SplinesCurve* InternalPhysXDatabase::addSplinesCurve(const AttachedStage& attach
     return splinesCurve;
 }
 
-omni::physx::usdparser::ObjectId InternalPhysXDatabase::createTireFrictionTable(
+omni::ev4sio_physx::usdparser::ObjectId InternalPhysXDatabase::createTireFrictionTable(
         const usdparser::AttachedStage& attachedStage,
-        const omni::physx::usdparser::TireFrictionTableDesc& tireFrictionTableDesc)
+        const omni::ev4sio_physx::usdparser::TireFrictionTableDesc& tireFrictionTableDesc)
 {
     InternalTireFrictionTable* tireFrictionTable = InternalTireFrictionTable::create(attachedStage, tireFrictionTableDesc, *this);
     if (tireFrictionTable)
@@ -423,7 +423,7 @@ void InternalPhysXDatabase::updateDirtyMassActors()
     mDirtyMassParticleList.clear();
 }
 
-void InternalPhysXDatabase::storePxJoint(const ::physx::PxRigidActor* actor, omni::physics::parse::ObjectKey key)
+void InternalPhysXDatabase::storePxJoint(const ::ev4sio_physx::PxRigidActor* actor, omni::physics::parse::ObjectKey key)
 {
     const PxU32 numConstraints = actor->getNbConstraints();
     std::vector<PxConstraint*> constaints;

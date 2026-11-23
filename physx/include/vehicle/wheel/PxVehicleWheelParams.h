@@ -11,7 +11,7 @@
 #include "vehicle/PxVehicleParams.h"
 
 #if !PX_DOXYGEN
-namespace physx
+namespace ev4sio_physx
 {
 #endif
 
@@ -83,7 +83,7 @@ struct PxVehicleWheelParams
 };
 
 #if !PX_DOXYGEN
-} // namespace physx
+} // namespace ev4sio_physx
 #endif
 
 #endif

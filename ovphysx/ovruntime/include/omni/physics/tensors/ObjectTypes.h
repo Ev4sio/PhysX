@@ -25,7 +25,7 @@ enum class ObjectType : uint32_t
     eArticulationLink, //!< Articulation link object
     eArticulationRootLink, //!< Articulation root link object
     eArticulationJoint, //!< Reduced-coordinate articulation joint object
-    eJoint, //!< Maximal-coordinate (standalone) joint object (physx::PxJoint)
+    eJoint, //!< Maximal-coordinate (standalone) joint object (ev4sio_physx::PxJoint)
     eCustomJoint, //!< Plugin-registered custom joint (CustomPhysXJoint via ePTCustomJoint)
     eTypeCount //!< Total number of object types
 };

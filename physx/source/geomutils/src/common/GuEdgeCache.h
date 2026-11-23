@@ -10,9 +10,9 @@
 #include "foundation/PxAllocator.h"
 #include "foundation/PxHash.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Gu
+namespace ev4sio_Gu
 {
 	class EdgeCache
 	{

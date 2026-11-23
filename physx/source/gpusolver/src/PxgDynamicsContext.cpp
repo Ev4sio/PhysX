@@ -8,10 +8,10 @@
 #include "PxgArticulationCore.h"
 #include "PxgCudaSolverCore.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-	PxgDynamicsContext::PxgDynamicsContext(Cm::FlushPool& flushPool, PxsKernelWranglerManager* gpuKernelWrangler, PxCudaContextManager* cudaContextManager,
-		const PxGpuDynamicsMemoryConfig& config, IG::SimpleIslandManager& islandManager, PxU32 maxNumPartitions, PxU32 maxNumStaticPartitions,
+	PxgDynamicsContext::PxgDynamicsContext(ev4sio_Cm::FlushPool& flushPool, PxsKernelWranglerManager* gpuKernelWrangler, PxCudaContextManager* cudaContextManager,
+		const PxGpuDynamicsMemoryConfig& config, ev4sio_IG::SimpleIslandManager& islandManager, PxU32 maxNumPartitions, PxU32 maxNumStaticPartitions,
 		PxReal maxBiasCoefficient, PxvSimStats& simStats, PxgAllocatorDesc& allocDesc,
 		PxReal lengthScale, PxU64 contextID, PxSceneFlags sceneFlags)
 	:

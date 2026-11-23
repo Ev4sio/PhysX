@@ -30,53 +30,53 @@ struct AdvanceGate
     bool watchdog_fired = false;
 };
 
-class GatedSimulationCallback final : public physx::PxSimulationEventCallback
+class GatedSimulationCallback final : public ev4sio_physx::PxSimulationEventCallback
 {
 public:
     GatedSimulationCallback(
-        physx::PxSimulationEventCallback* original,
+        ev4sio_physx::PxSimulationEventCallback* original,
         std::shared_ptr<AdvanceGate> gate)
         : m_original(original), m_gate(std::move(gate))
     {
     }
 
-    void onConstraintBreak(physx::PxConstraintInfo* constraints, physx::PxU32 count) override
+    void onConstraintBreak(ev4sio_physx::PxConstraintInfo* constraints, ev4sio_physx::PxU32 count) override
     {
         if (m_original != nullptr)
             m_original->onConstraintBreak(constraints, count);
     }
 
-    void onWake(physx::PxActor** actors, physx::PxU32 count) override
+    void onWake(ev4sio_physx::PxActor** actors, ev4sio_physx::PxU32 count) override
     {
         if (m_original != nullptr)
             m_original->onWake(actors, count);
     }
 
-    void onSleep(physx::PxActor** actors, physx::PxU32 count) override
+    void onSleep(ev4sio_physx::PxActor** actors, ev4sio_physx::PxU32 count) override
     {
         if (m_original != nullptr)
             m_original->onSleep(actors, count);
     }
 
     void onContact(
-        const physx::PxContactPairHeader& pair_header,
-        const physx::PxContactPair* pairs,
-        physx::PxU32 pair_count) override
+        const ev4sio_physx::PxContactPairHeader& pair_header,
+        const ev4sio_physx::PxContactPair* pairs,
+        ev4sio_physx::PxU32 pair_count) override
     {
         if (m_original != nullptr)
             m_original->onContact(pair_header, pairs, pair_count);
     }
 
-    void onTrigger(physx::PxTriggerPair* pairs, physx::PxU32 count) override
+    void onTrigger(ev4sio_physx::PxTriggerPair* pairs, ev4sio_physx::PxU32 count) override
     {
         if (m_original != nullptr)
             m_original->onTrigger(pairs, count);
     }
 
     void onAdvance(
-        const physx::PxRigidBody* const* bodies,
-        const physx::PxTransform* poses,
-        physx::PxU32 count) override
+        const ev4sio_physx::PxRigidBody* const* bodies,
+        const ev4sio_physx::PxTransform* poses,
+        ev4sio_physx::PxU32 count) override
     {
         if (m_original != nullptr)
             m_original->onAdvance(bodies, poses, count);
@@ -88,7 +88,7 @@ public:
     }
 
 private:
-    physx::PxSimulationEventCallback* m_original;
+    ev4sio_physx::PxSimulationEventCallback* m_original;
     std::shared_ptr<AdvanceGate> m_gate;
 };
 
@@ -115,19 +115,19 @@ class GatedSimulationScope final
 public:
     GatedSimulationScope(
         ovphysx_instance_handle_t handle,
-        physx::PxScene* scene,
-        physx::PxRigidDynamic* actor)
+        ev4sio_physx::PxScene* scene,
+        ev4sio_physx::PxRigidDynamic* actor)
         : m_handle(handle),
           m_scene(scene),
           m_actor(actor),
           m_originalCallback(scene->getSimulationEventCallback()),
           m_previewWasSet(actor->getRigidBodyFlags().isSet(
-              physx::PxRigidBodyFlag::eENABLE_POSE_INTEGRATION_PREVIEW)),
+              ev4sio_physx::PxRigidBodyFlag::eENABLE_POSE_INTEGRATION_PREVIEW)),
           m_gate(std::make_shared<AdvanceGate>()),
           m_callback(m_originalCallback, m_gate)
     {
         m_actor->setRigidBodyFlag(
-            physx::PxRigidBodyFlag::eENABLE_POSE_INTEGRATION_PREVIEW,
+            ev4sio_physx::PxRigidBodyFlag::eENABLE_POSE_INTEGRATION_PREVIEW,
             true);
         m_actor->wakeUp();
         m_scene->setSimulationEventCallback(&m_callback);
@@ -201,7 +201,7 @@ public:
 
         m_scene->setSimulationEventCallback(m_originalCallback);
         m_actor->setRigidBodyFlag(
-            physx::PxRigidBodyFlag::eENABLE_POSE_INTEGRATION_PREVIEW,
+            ev4sio_physx::PxRigidBodyFlag::eENABLE_POSE_INTEGRATION_PREVIEW,
             m_previewWasSet);
         m_restored = true;
         return m_finalStatus;
@@ -209,9 +209,9 @@ public:
 
 private:
     ovphysx_instance_handle_t m_handle;
-    physx::PxScene* m_scene;
-    physx::PxRigidDynamic* m_actor;
-    physx::PxSimulationEventCallback* m_originalCallback;
+    ev4sio_physx::PxScene* m_scene;
+    ev4sio_physx::PxRigidDynamic* m_actor;
+    ev4sio_physx::PxSimulationEventCallback* m_originalCallback;
     bool m_previewWasSet;
     std::shared_ptr<AdvanceGate> m_gate;
     GatedSimulationCallback m_callback;

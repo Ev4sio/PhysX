@@ -13,7 +13,7 @@
 #include "omnipvd/NpOmniPvdSimulationControllerCallbacks.h"
 #endif
 
-namespace physx
+namespace ev4sio_physx
 {
 
 class NpScene;

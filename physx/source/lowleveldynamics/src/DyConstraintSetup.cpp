@@ -17,12 +17,12 @@
 #include "DyAllocator.h"
 #include "foundation/PxVecMath.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 using namespace aos;
 
-namespace physx
+namespace ev4sio_physx
 {
-namespace Dy
+namespace ev4sio_Dy
 {
 	// dsequeira:
 	//
@@ -739,8 +739,8 @@ PxReal simDt, PxReal recipSimDt, PxReal biasCoefficient)
 			init(s, c.linear0, c.linear1, c.angular0, c.angular1, minImpulse, maxImpulse);
 			SolverConstraint1DExt& e = static_cast<SolverConstraint1DExt&>(s);
 
-			const Cm::SpatialVector resp0 = createImpulseResponseVector(e.lin0, e.ang0, eb0);
-			const Cm::SpatialVector resp1 = createImpulseResponseVector(-e.lin1, -e.ang1, eb1);
+			const ev4sio_Cm::SpatialVector resp0 = createImpulseResponseVector(e.lin0, e.ang0, eb0);
+			const ev4sio_Cm::SpatialVector resp1 = createImpulseResponseVector(-e.lin1, -e.ang1, eb1);
 
 			// PT: deltaVX writes: we write the delta vectors to memory and ensure padding is zero after that.
 			unitResponse = getImpulseResponse(	eb0, resp0, e.deltaVA_, prepDesc.invMassScales.linear0, prepDesc.invMassScales.angular0,
@@ -769,7 +769,7 @@ PxReal simDt, PxReal recipSimDt, PxReal biasCoefficient)
 				vel0 = eb0.projectVelocity(c.linear0, c.angular0);
 				vel1 = eb1.projectVelocity(c.linear1, c.angular1);
 
-				Dy::computeJointSpeedPGS(vel0, b0IsRigidDynamic, vel1, b1IsRigidDynamic, jointSpeedForRestitutionBounce, initJointSpeed);
+				ev4sio_Dy::computeJointSpeedPGS(vel0, b0IsRigidDynamic, vel1, b1IsRigidDynamic, jointSpeedForRestitutionBounce, initJointSpeed);
 			}
 
 			//minResponseThreshold = PxMax(minResponseThreshold, DY_ARTICULATION_MIN_RESPONSE);

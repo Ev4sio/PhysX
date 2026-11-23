@@ -10,9 +10,9 @@
 #include "foundation/PxArray.h"
 #include "PxProfileAllocatorWrapper.h"
 
-namespace physx { 
+namespace ev4sio_physx {
 
-	using namespace physx::profile;
+	using namespace ev4sio_physx::profile;
 
 	/** 
 	 *	Linked list used to store next node ptr.

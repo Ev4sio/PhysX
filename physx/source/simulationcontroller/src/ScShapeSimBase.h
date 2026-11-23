@@ -8,19 +8,19 @@
 #include "ScShapeCore.h"
 #include "ScRigidSim.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-	namespace Sc
+	namespace ev4sio_Sc
 	{
 		class ShapeCore;
 
 		struct UpdateCachedParams
 		{
-			PX_FORCE_INLINE	UpdateCachedParams(PxsTransformCache& cache, Bp::BoundsArray& bounds, PxU32 flags = 0) :
+			PX_FORCE_INLINE	UpdateCachedParams(PxsTransformCache& cache, ev4sio_Bp::BoundsArray& bounds, PxU32 flags = 0) :
 				mTransformCache(cache), mBoundsArray(bounds), mTransformFlags(flags)	{}
 
 			PxsTransformCache&	mTransformCache;
-			Bp::BoundsArray&	mBoundsArray;
+			ev4sio_Bp::BoundsArray&	mBoundsArray;
 			PxU32				mTransformFlags;
 		};
 
@@ -85,18 +85,18 @@ namespace physx
 			// "fromTask" indicates whether this is called from a single-threaded caller or from multiple tasks. If true, the transform cache changed bool is not set,
 			// and the virtual calls from updateBounds are skipped.
 			// "useAtomics" tells the code to use atomic ORs to update the bitmap.
-							void					updateCached(const UpdateCachedParams& params, Cm::PinnableBitMap* shapeChangedMap, bool fromTask, bool useAtomics);
+							void					updateCached(const UpdateCachedParams& params, ev4sio_Cm::PinnableBitMap* shapeChangedMap, bool fromTask, bool useAtomics);
 
 			// Task-safe variant for shapes whose cached data may already be current: when the cached transform and flags
 			// equal the new ones, the bounds and the changed bit are left alone. Returns true when anything was written.
-							bool					updateCachedIfChanged(const UpdateCachedParams& params, Cm::PinnableBitMap* shapeChangedMap);
+							bool					updateCachedIfChanged(const UpdateCachedParams& params, ev4sio_Cm::PinnableBitMap* shapeChangedMap);
 
 			// PT: use this version when calling from a single thread. In particular the code is not thread-safe
 			// when shapeChangedMap is not null. If shapeChangedMap is null, the code might be safe to call from
 			// multiple threads but it could be suboptimal, as we will write to the same cache line from multiple
 			// threads. If shapeChangedMap is not null, the 'useAtomics' parameter controls if writes to the map
 			// use atomics or not.
-			PX_FORCE_INLINE	void					updateCached_NotThreadSafe(const UpdateCachedParams& params, Cm::PinnableBitMap* shapeChangedMap, bool fromTask, bool useAtomics)
+			PX_FORCE_INLINE	void					updateCached_NotThreadSafe(const UpdateCachedParams& params, ev4sio_Cm::PinnableBitMap* shapeChangedMap, bool fromTask, bool useAtomics)
 													{
 														updateCached(params, shapeChangedMap, fromTask, useAtomics);
 													}
@@ -132,7 +132,7 @@ namespace physx
 			return *mShapeCore;
 		}
 
-	} // namespace Sc
+	} // namespace ev4sio_Sc
 }
 
 #endif

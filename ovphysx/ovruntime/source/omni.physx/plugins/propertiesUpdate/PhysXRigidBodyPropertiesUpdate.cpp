@@ -73,11 +73,11 @@
 #include <PxPhysicsAPI.h>
 
 
-using namespace ::physx;
+using namespace ::ev4sio_physx;
 using namespace carb;
-using namespace omni::physx;
-using namespace omni::physx::usdparser;
-using namespace omni::physx::internal;
+using namespace omni::ev4sio_physx;
+using namespace omni::ev4sio_physx::usdparser;
+using namespace omni::ev4sio_physx::internal;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 // body
@@ -187,7 +187,7 @@ void applyPhysxProps(AttachedStage& attachedStage, omni::physics::parse::ObjectK
     if (!src || !src->exists(key))
         return;
 
-    omni::physics::parse::ParseContext ctx(*src, omni::physx::usdparser::iceDescriptorAllocator());
+    omni::physics::parse::ParseContext ctx(*src, omni::ev4sio_physx::usdparser::iceDescriptorAllocator());
     ctx.adoptKnownTokens(attachedStage.getKnownTokens());
     omni::physics::parse::DescPtr<omni::physics::parse::DynamicPhysxRigidBodyDesc> dyn =
         omni::physics::parse::parseDynamicBody(ctx, key);
@@ -198,7 +198,7 @@ void applyPhysxProps(AttachedStage& attachedStage, omni::physics::parse::ObjectK
 }
 
 
-bool omni::physx::updateBodyEnabled(AttachedStage& attachedStage, ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
+bool omni::ev4sio_physx::updateBodyEnabled(AttachedStage& attachedStage, ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
 
@@ -282,7 +282,7 @@ bool omni::physx::updateBodyEnabled(AttachedStage& attachedStage, ObjectId objec
     return true;
 }
 
-bool omni::physx::updateBodyDensity(AttachedStage& attachedStage, ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
+bool omni::ev4sio_physx::updateBodyDensity(AttachedStage& attachedStage, ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
 
@@ -307,7 +307,7 @@ void updateLinearVelocity(InternalActor* internalActor, PxRigidActor* actor, boo
     }
 }
 
-bool omni::physx::updateBodyLinearVelocity(AttachedStage& attachedStage, ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
+bool omni::ev4sio_physx::updateBodyLinearVelocity(AttachedStage& attachedStage, ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     const InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
     PhysXType type = ePTRemoved;
@@ -318,7 +318,7 @@ bool omni::physx::updateBodyLinearVelocity(AttachedStage& attachedStage, ObjectI
     return updateBodyLinearVelocity(attachedStage, objectId, value);
 }
 
-bool omni::physx::updateBodyLinearVelocity(AttachedStage& attachedStage, ObjectId objectId, const carb::Float3& data)
+bool omni::ev4sio_physx::updateBodyLinearVelocity(AttachedStage& attachedStage, ObjectId objectId, const carb::Float3& data)
 {
     const InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
 
@@ -386,7 +386,7 @@ void updateAngularVelocity(InternalActor* internalActor,
     }
 }
 
-bool omni::physx::updateBodyAngularVelocity(AttachedStage& attachedStage, ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
+bool omni::ev4sio_physx::updateBodyAngularVelocity(AttachedStage& attachedStage, ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     const InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
     PhysXType type = ePTRemoved;
@@ -397,7 +397,7 @@ bool omni::physx::updateBodyAngularVelocity(AttachedStage& attachedStage, Object
     return updateBodyAngularVelocity(attachedStage, objectId, value);
 }
 
-bool omni::physx::updateBodyAngularVelocity(AttachedStage& attachedStage, ObjectId objectId, const carb::Float3& data)
+bool omni::ev4sio_physx::updateBodyAngularVelocity(AttachedStage& attachedStage, ObjectId objectId, const carb::Float3& data)
 {
     const InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
 
@@ -450,7 +450,7 @@ bool omni::physx::updateBodyAngularVelocity(AttachedStage& attachedStage, Object
     return true;
 }
 
-bool omni::physx::updateBodyLinearDamping(AttachedStage& attachedStage, ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
+bool omni::ev4sio_physx::updateBodyLinearDamping(AttachedStage& attachedStage, ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     const InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
 
@@ -472,7 +472,7 @@ bool omni::physx::updateBodyLinearDamping(AttachedStage& attachedStage, ObjectId
     return true;
 }
 
-bool omni::physx::updateBodyAngularDamping(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateBodyAngularDamping(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     const InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
@@ -495,7 +495,7 @@ bool omni::physx::updateBodyAngularDamping(AttachedStage& attachedStage, omni::p
     return true;
 }
 
-bool omni::physx::updateBodyMaxLinearVelocity(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateBodyMaxLinearVelocity(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     const InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
@@ -518,7 +518,7 @@ bool omni::physx::updateBodyMaxLinearVelocity(AttachedStage& attachedStage, omni
     return true;
 }
 
-bool omni::physx::updateBodyMaxAngularVelocity(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateBodyMaxAngularVelocity(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     const InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
@@ -542,7 +542,7 @@ bool omni::physx::updateBodyMaxAngularVelocity(AttachedStage& attachedStage, omn
     return true;
 }
 
-bool omni::physx::updateBodyMaxContactImpulse(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateBodyMaxContactImpulse(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     const InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
@@ -565,7 +565,7 @@ bool omni::physx::updateBodyMaxContactImpulse(AttachedStage& attachedStage, omni
     return true;
 }
 
-bool omni::physx::updateBodySleepThreshold(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateBodySleepThreshold(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     const InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
@@ -596,7 +596,7 @@ bool omni::physx::updateBodySleepThreshold(AttachedStage& attachedStage, omni::p
     return true;
 }
 
-bool omni::physx::updateBodyStabilizationThreshold(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateBodyStabilizationThreshold(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     const InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
@@ -627,7 +627,7 @@ bool omni::physx::updateBodyStabilizationThreshold(AttachedStage& attachedStage,
     return true;
 }
 
-bool omni::physx::updateBodyMaxDepenetrationVelocity(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateBodyMaxDepenetrationVelocity(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     const InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
@@ -650,7 +650,7 @@ bool omni::physx::updateBodyMaxDepenetrationVelocity(AttachedStage& attachedStag
     return true;
 }
 
-bool omni::physx::updateBodyContactSlopCoefficient(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateBodyContactSlopCoefficient(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     const internal::InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
@@ -673,7 +673,7 @@ bool omni::physx::updateBodyContactSlopCoefficient(AttachedStage& attachedStage,
     return true;
 }
 
-bool omni::physx::updateBodySolverPositionIterationCount(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateBodySolverPositionIterationCount(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     const InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
@@ -703,7 +703,7 @@ bool omni::physx::updateBodySolverPositionIterationCount(AttachedStage& attached
     return true;
 }
 
-bool omni::physx::updateBodySolverVelocityIterationCount(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateBodySolverVelocityIterationCount(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     const InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
@@ -733,7 +733,7 @@ bool omni::physx::updateBodySolverVelocityIterationCount(AttachedStage& attached
     return true;
 }
 
-bool omni::physx::updateBodyEnableKinematics(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateBodyEnableKinematics(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     const InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
@@ -800,7 +800,7 @@ bool omni::physx::updateBodyEnableKinematics(AttachedStage& attachedStage, omni:
     return true;
 }
 
-bool omni::physx::updateBodyEnableCCD(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
+bool omni::ev4sio_physx::updateBodyEnableCCD(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     const InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
 
@@ -824,7 +824,7 @@ bool omni::physx::updateBodyEnableCCD(AttachedStage& attachedStage, omni::physx:
     return true;
 }
 
-bool omni::physx::updateBodyEnableSpeculativeCCD(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateBodyEnableSpeculativeCCD(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     const InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
@@ -849,7 +849,7 @@ bool omni::physx::updateBodyEnableSpeculativeCCD(AttachedStage& attachedStage, o
     return true;
 }
 
-bool omni::physx::updateBodyGyroscopicForces(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateBodyGyroscopicForces(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     const InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
@@ -875,7 +875,7 @@ bool omni::physx::updateBodyGyroscopicForces(AttachedStage& attachedStage, omni:
 }
 
 
-bool omni::physx::updateBodyRetainAccelerations(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateBodyRetainAccelerations(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     const InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
@@ -900,7 +900,7 @@ bool omni::physx::updateBodyRetainAccelerations(AttachedStage& attachedStage, om
     return true;
 }
 
-bool omni::physx::updateBodyDisableGravity(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateBodyDisableGravity(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     const InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
@@ -933,7 +933,7 @@ bool omni::physx::updateBodyDisableGravity(AttachedStage& attachedStage, omni::p
     return true;
 }
 
-bool omni::physx::updateBodyLockedPosAxis(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateBodyLockedPosAxis(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     const InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
@@ -960,7 +960,7 @@ bool omni::physx::updateBodyLockedPosAxis(AttachedStage& attachedStage, omni::ph
     return true;
 }
 
-bool omni::physx::updateBodyLockedRotAxis(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateBodyLockedRotAxis(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     const InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
@@ -990,7 +990,7 @@ bool omni::physx::updateBodyLockedRotAxis(AttachedStage& attachedStage, omni::ph
     return true;
 }
 
-bool omni::physx::updateBodySolveContacts(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateBodySolveContacts(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     const internal::InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
@@ -1013,14 +1013,14 @@ bool omni::physx::updateBodySolveContacts(AttachedStage& attachedStage, omni::ph
     return true;
 }
 
-bool omni::physx::updateBodyTransformStack(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
+bool omni::ev4sio_physx::updateBodyTransformStack(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId, omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     // No-op: transform write-back goes through IPhysicsDataWrite, which resolves each
     // body's parent frame per-frame, so no cached parent state needs refreshing here.
     return true;
 }
 
-bool omni::physx::updateBodyCfmScale(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateBodyCfmScale(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     const internal::InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
@@ -1080,7 +1080,7 @@ static void moveInternalActorToScene(InternalActor& internalActor, PhysXScene& n
     newPhysXScene.getAttachedStage().recordVersion.fetch_add(1, std::memory_order_relaxed);
 }
 
-void clearSimulationOwners(const AttachedStage& attachedStage, InternalActor& internalActor, omni::physx::usdparser::ObjectId sceneId)
+void clearSimulationOwners(const AttachedStage& attachedStage, InternalActor& internalActor, omni::ev4sio_physx::usdparser::ObjectId sceneId)
 {
     for (MirrorActor& mirror : internalActor.mMirrors)
     {
@@ -1126,7 +1126,7 @@ void clearSimulationOwners(const AttachedStage& attachedStage, InternalActor& in
 
 void swapMainSimulationOwner(AttachedStage& attachedStage, InternalActor& internalActor, omni::physics::parse::ObjectKey ownerKey)
 {
-    omni::physx::usdparser::ObjectId sceneId = omni::physx::usdparser::ObjectId(getObjectDataOrID<ObjectDataQueryType::eOBJECT_ID>(ownerKey, ePTScene, attachedStage.getInternalPhysXDatabase(), attachedStage));
+    omni::ev4sio_physx::usdparser::ObjectId sceneId = omni::ev4sio_physx::usdparser::ObjectId(getObjectDataOrID<ObjectDataQueryType::eOBJECT_ID>(ownerKey, ePTScene, attachedStage.getInternalPhysXDatabase(), attachedStage));
     PhysXScene* physxScene = attachedStage.getPhysXScene(sceneId);
     if (!physxScene)
     {
@@ -1154,14 +1154,14 @@ void createMirrorSimulationOwner(AttachedStage& attachedStage, InternalActor& in
     internalActor.mMirrorMemsize = memSize;
     internalActor.mMirrorMemory = mirrorMemBlock;
 
-    omni::physx::usdparser::ObjectId sceneId = omni::physx::usdparser::ObjectId(getObjectDataOrID<ObjectDataQueryType::eOBJECT_ID>(ownersKeys[0], ePTScene, attachedStage.getInternalPhysXDatabase(), attachedStage));
+    omni::ev4sio_physx::usdparser::ObjectId sceneId = omni::ev4sio_physx::usdparser::ObjectId(getObjectDataOrID<ObjectDataQueryType::eOBJECT_ID>(ownersKeys[0], ePTScene, attachedStage.getInternalPhysXDatabase(), attachedStage));
     PhysXScene* physxScene = attachedStage.getPhysXScene(sceneId);
     physxScene->getInternalScene()->mMirorredActors.push_back(&internalActor);
 
     for (size_t i = 1; i < ownersKeys.size(); i++)
     {
         void* nm = copyAlignedMemory(mirrorMemBlock, memSize);
-        omni::physx::usdparser::ObjectId mirrorSceneId = omni::physx::usdparser::ObjectId(getObjectDataOrID<ObjectDataQueryType::eOBJECT_ID>(ownersKeys[i], ePTScene, attachedStage.getInternalPhysXDatabase(), attachedStage));
+        omni::ev4sio_physx::usdparser::ObjectId mirrorSceneId = omni::ev4sio_physx::usdparser::ObjectId(getObjectDataOrID<ObjectDataQueryType::eOBJECT_ID>(ownersKeys[i], ePTScene, attachedStage.getInternalPhysXDatabase(), attachedStage));
         PhysXScene* mirrorScene = attachedStage.getPhysXScene(mirrorSceneId);
         PxCollection* col = nullptr;
         PxRigidActor* actor = (PxRigidActor*)instantiateMirrorActor(nm, *physxSetup.getSerializationRegistry(),
@@ -1184,7 +1184,7 @@ void swapMirrorSimulationOwner(AttachedStage& attachedStage, InternalActor& inte
 {
     PhysXSetup& physxSetup = OmniPhysX::getInstance().getPhysXSetup();
 
-    omni::physx::usdparser::ObjectId sceneId = omni::physx::usdparser::ObjectId(getObjectDataOrID<ObjectDataQueryType::eOBJECT_ID>(ownerKey, ePTScene, attachedStage.getInternalPhysXDatabase(), attachedStage));
+    omni::ev4sio_physx::usdparser::ObjectId sceneId = omni::ev4sio_physx::usdparser::ObjectId(getObjectDataOrID<ObjectDataQueryType::eOBJECT_ID>(ownerKey, ePTScene, attachedStage.getInternalPhysXDatabase(), attachedStage));
     PhysXScene* physxScene = attachedStage.getPhysXScene(sceneId);
 
     if (!physxScene)
@@ -1212,7 +1212,7 @@ void swapMirrorSimulationOwner(AttachedStage& attachedStage, InternalActor& inte
     {
         // Add mirror
         void* nm = copyAlignedMemory(internalActor.mMirrorMemory, internalActor.mMirrorMemsize);
-        omni::physx::usdparser::ObjectId mirrorSceneId = omni::physx::usdparser::ObjectId(getObjectDataOrID<ObjectDataQueryType::eOBJECT_ID>(ownerKey, ePTScene, attachedStage.getInternalPhysXDatabase(), attachedStage));
+        omni::ev4sio_physx::usdparser::ObjectId mirrorSceneId = omni::ev4sio_physx::usdparser::ObjectId(getObjectDataOrID<ObjectDataQueryType::eOBJECT_ID>(ownerKey, ePTScene, attachedStage.getInternalPhysXDatabase(), attachedStage));
         PhysXScene* mirrorScene = attachedStage.getPhysXScene(mirrorSceneId);
         PxCollection* col = nullptr;
         PxRigidActor* actor = (PxRigidActor*)instantiateMirrorActor(nm, *physxSetup.getSerializationRegistry(),
@@ -1230,7 +1230,7 @@ void swapMirrorSimulationOwner(AttachedStage& attachedStage, InternalActor& inte
     }
 }
 
-bool omni::physx::updateBodySimulationOwner(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateBodySimulationOwner(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     const internal::InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
@@ -1257,7 +1257,7 @@ bool omni::physx::updateBodySimulationOwner(AttachedStage& attachedStage, omni::
                 {
                     if (owners.size() == 1)
                     {
-                        const omni::physx::usdparser::ObjectId sceneId = omni::physx::usdparser::ObjectId(getObjectDataOrID<ObjectDataQueryType::eOBJECT_ID>(owners[0], ePTScene, attachedStage.getInternalPhysXDatabase(), attachedStage));
+                        const omni::ev4sio_physx::usdparser::ObjectId sceneId = omni::ev4sio_physx::usdparser::ObjectId(getObjectDataOrID<ObjectDataQueryType::eOBJECT_ID>(owners[0], ePTScene, attachedStage.getInternalPhysXDatabase(), attachedStage));
                         clearSimulationOwners(attachedStage, *internalActor, sceneId);
                     }
                     else
@@ -1293,7 +1293,7 @@ bool omni::physx::updateBodySimulationOwner(AttachedStage& attachedStage, omni::
     return true;
 }
 
-bool omni::physx::updateBodySurfaceVelocityEnabled(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateBodySurfaceVelocityEnabled(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     const internal::InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
@@ -1318,7 +1318,7 @@ bool omni::physx::updateBodySurfaceVelocityEnabled(AttachedStage& attachedStage,
     return true;
 }
 
-bool omni::physx::updateBodySurfaceVelocityLocalSpace(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateBodySurfaceVelocityLocalSpace(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     const internal::InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
@@ -1360,7 +1360,7 @@ bool omni::physx::updateBodySurfaceVelocityLocalSpace(AttachedStage& attachedSta
     return true;
 }
 
-bool omni::physx::updateBodySurfaceLinearVelocity(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateBodySurfaceLinearVelocity(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     const internal::InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
@@ -1393,8 +1393,8 @@ bool omni::physx::updateBodySurfaceLinearVelocity(AttachedStage& attachedStage, 
 }
 
 
-bool omni::physx::updateBodySplineSurfaceVelocityEnabled(AttachedStage& attachedStage,
-                                                   omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateBodySplineSurfaceVelocityEnabled(AttachedStage& attachedStage,
+                                                   omni::ev4sio_physx::usdparser::ObjectId objectId,
                                                    omni::physics::parse::TokenId property,
                                                    omni::physics::parse::ReadTime timeCode)
 {
@@ -1499,8 +1499,8 @@ bool omni::physx::updateBodySplineSurfaceVelocityEnabled(AttachedStage& attached
     return true;
 }
 
-bool omni::physx::updateBodySplineSurfaceVelocityMagnitude(AttachedStage& attachedStage,
-                                                  omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateBodySplineSurfaceVelocityMagnitude(AttachedStage& attachedStage,
+                                                  omni::ev4sio_physx::usdparser::ObjectId objectId,
                                                   omni::physics::parse::TokenId property,
                                                   omni::physics::parse::ReadTime timeCode)
 {
@@ -1526,7 +1526,7 @@ bool omni::physx::updateBodySplineSurfaceVelocityMagnitude(AttachedStage& attach
     return true;
 }
 
-bool omni::physx::updateBodySurfaceAngularVelocity(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updateBodySurfaceAngularVelocity(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     const internal::InternalPhysXDatabase& db = attachedStage.getInternalPhysXDatabase();
@@ -1551,7 +1551,7 @@ bool omni::physx::updateBodySurfaceAngularVelocity(AttachedStage& attachedStage,
     return true;
 }
 
-bool omni::physx::updatePhysxContactReportThreshold(AttachedStage& attachedStage, omni::physx::usdparser::ObjectId objectId,
+bool omni::ev4sio_physx::updatePhysxContactReportThreshold(AttachedStage& attachedStage, omni::ev4sio_physx::usdparser::ObjectId objectId,
     omni::physics::parse::TokenId property, omni::physics::parse::ReadTime timeCode)
 {
     const OmniPhysX& omniPhysX = OmniPhysX::getInstance();

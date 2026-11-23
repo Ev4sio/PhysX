@@ -31,4 +31,4 @@
 #include "NvBlastExtPxSerialization-capn.h"
 #include "PxCooking.h"
 
-DTO_CLASS(PxTransform, physx::PxTransform, Nv::Blast::Serialization::PxTransform)
+DTO_CLASS(PxTransform, ev4sio_physx::PxTransform, Nv::Blast::Serialization::PxTransform)

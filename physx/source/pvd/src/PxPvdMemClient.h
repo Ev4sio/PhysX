@@ -13,7 +13,7 @@
 #include "PxProfileEventBufferClient.h"
 #include "PxProfileMemory.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 class PvdDataStream;
 
@@ -54,6 +54,6 @@ class PvdMemClient : public PvdClient,
 };
 
 } // namespace pvdsdk
-} // namespace physx
+} // namespace ev4sio_physx
 
 #endif

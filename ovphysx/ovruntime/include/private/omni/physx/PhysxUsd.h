@@ -44,7 +44,7 @@
 
 // `omni::physics::parse` (in `Descriptors.h`) is the canonical home for
 // descriptor types. This header re-exports the parse-lib types into
-// `omni::physx::usdparser::` via `using` aliases so legacy consumer code
+// `omni::ev4sio_physx::usdparser::` via `using` aliases so legacy consumer code
 // keeps compiling, and additionally defines the descriptor variants that
 // still differ from their parse-lib mirror — almost always because the
 // consumer-side bookkeeping keys by `PXR_NS::SdfPath` where parse-lib
@@ -54,7 +54,7 @@
 // namespace.
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace usdparser
 {
@@ -660,5 +660,5 @@ using CctDesc        = ::omni::physics::parse::CctDesc;
 using CapsuleCctDesc = ::omni::physics::parse::CapsuleCctDesc;
 
 } // namespace usdparser
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

@@ -14,10 +14,10 @@
 
 #include <omni/physics/parse/KnownTokens.h>
 
-namespace omni::physx::usdparser::callbacks
+namespace omni::ev4sio_physx::usdparser::callbacks
 {
 
-using namespace ::omni::physx;
+using namespace ::omni::ev4sio_physx;
 using omni::physics::parse::IPhysicsSource;
 using omni::physics::parse::ObjectKey;
 using omni::physics::parse::TokenId;
@@ -236,4 +236,4 @@ void applyTimeSampledCallbacks(AttachedStage& attachedStage,
     }
 }
 
-} // namespace omni::physx::usdparser::callbacks
+} // namespace omni::ev4sio_physx::usdparser::callbacks

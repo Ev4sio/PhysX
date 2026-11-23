@@ -26,7 +26,7 @@
 namespace omni
 {
 
-namespace physx
+namespace ev4sio_physx
 {
 
 enum PhysXType
@@ -219,7 +219,7 @@ struct IPhysicsObjectChangeCallback
     bool notifyInitialPopulation = false;
 };
 
-using PhysicsObjectChangeSubscriptionRegistry = EventSubscriptionRegistry<omni::physx::IPhysicsObjectChangeCallback>;
+using PhysicsObjectChangeSubscriptionRegistry = EventSubscriptionRegistry<omni::ev4sio_physx::IPhysicsObjectChangeCallback>;
 
 /// Struct holding the drive related state of a vehicle.
 ///
@@ -858,5 +858,5 @@ struct IPhysx
 };
 
 
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

@@ -9,7 +9,7 @@
 #include "foundation/PxSimpleTypes.h"
 #include "PxgPersistentContactManifold.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	struct GPU_BUCKET_ID
 	{

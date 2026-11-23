@@ -16,7 +16,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 
 /**
@@ -100,7 +100,7 @@ typedef void (*OnContactReportEventFn)(const ContactEventHeader* eventHeaders,
                                        void* userData);
 
 using ContactReportEventSubscriptionRegistry =
-    EventSubscriptionRegistry<std::pair<omni::physx::OnContactReportEventFn, void*>>;
+    EventSubscriptionRegistry<std::pair<omni::ev4sio_physx::OnContactReportEventFn, void*>>;
 
 /**
 \brief Contact report event function including friction anchors
@@ -122,6 +122,6 @@ typedef void (*OnFullContactReportEventFn)(const ContactEventHeader* eventHeader
                                            void* userData);
 
 using FullContactReportEventSubscriptionRegistry =
-    EventSubscriptionRegistry<std::pair<omni::physx::OnFullContactReportEventFn, void*>>;
-} // namespace physx
+    EventSubscriptionRegistry<std::pair<omni::ev4sio_physx::OnFullContactReportEventFn, void*>>;
+} // namespace ev4sio_physx
 } // namespace omni

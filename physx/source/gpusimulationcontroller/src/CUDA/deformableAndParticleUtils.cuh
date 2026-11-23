@@ -21,7 +21,7 @@
 #include "PxgSolverCoreDesc.h"
 #include "atomic.cuh"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 // Integer-count refcount bumps: add 1 to .w per touched vertex. The universal DB refcount
@@ -988,12 +988,12 @@ struct PxgDeformablePart
 	// The weights are already resolved on this part, so these do not touch the block.
 	PX_FORCE_INLINE __device__ void bumpClothRefCount(PxgFEMCloth& cloth) const
 	{
-		::physx::bumpClothRefCount(cloth, ref, bc);
+		::ev4sio_physx::bumpClothRefCount(cloth, ref, bc);
 	}
 
 	PX_FORCE_INLINE __device__ void bumpSoftBodyRefCount(const PxgSoftBody& softbody) const
 	{
-		::physx::bumpSoftBodyRefCount(softbody, ref, bc);
+		::ev4sio_physx::bumpSoftBodyRefCount(softbody, ref, bc);
 	}
 
 	// Edge variant for the CC EE solver, where each side is a cloth edge.
@@ -1468,6 +1468,6 @@ PX_FORCE_INLINE __device__ bool solveDbDbAttachment(
 	return false;
 }
 
-} // namespace physx
+} // namespace ev4sio_physx
 
 #endif // __DEFORMABLE_AND_PARTICLE_UTILS_CUH__

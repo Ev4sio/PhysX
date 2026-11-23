@@ -49,7 +49,7 @@ protected:
         void* rawScene = test_utils::read_physx_pointer(
             m_handle, OVPHYSX_QUERY_TARGET_SCENE, "/World/physicsScene");
         ASSERT_NE(rawScene, nullptr);
-        physx::PxScene* scene = static_cast<physx::PxScene*>(rawScene);
+        ev4sio_physx::PxScene* scene = static_cast<ev4sio_physx::PxScene*>(rawScene);
         ASSERT_NE(scene->getCpuDispatcher(), nullptr);
         EXPECT_EQ(scene->getCpuDispatcher()->getWorkerCount(), static_cast<uint32_t>(requested));
 

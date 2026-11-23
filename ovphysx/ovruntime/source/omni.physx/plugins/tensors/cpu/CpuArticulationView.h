@@ -13,7 +13,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace tensors
 {
@@ -45,33 +45,33 @@ public:
     // Every requested root-state column in one pass: the four columns come from two host fetches, so
     // the single-column entry points below are one-column cases of this.
     bool getRootStateColumnsOvStage(const RootStateColumn* columns,
-                                    ::physx::PxU32 numColumns,
-                                    const ::physx::PxU32* rows,
-                                    ::physx::PxU32 count) const;
+                                    ::ev4sio_physx::PxU32 numColumns,
+                                    const ::ev4sio_physx::PxU32* rows,
+                                    ::ev4sio_physx::PxU32 count) const;
 
     bool getPositionsOvStage(const TensorDesc* dstTensor,
-                             const ::physx::PxU32* rows,
-                             ::physx::PxU32 count,
+                             const ::ev4sio_physx::PxU32* rows,
+                             ::ev4sio_physx::PxU32 count,
                              uint64_t rowsToken) const;
     bool getOrientationsOvStage(const TensorDesc* dstTensor,
-                                const ::physx::PxU32* rows,
-                                ::physx::PxU32 count,
+                                const ::ev4sio_physx::PxU32* rows,
+                                ::ev4sio_physx::PxU32 count,
                                 uint64_t rowsToken) const;
     bool getLinearVelocitiesOvStage(const TensorDesc* dstTensor,
-                                    const ::physx::PxU32* rows,
-                                    ::physx::PxU32 count,
+                                    const ::ev4sio_physx::PxU32* rows,
+                                    ::ev4sio_physx::PxU32 count,
                                     uint64_t rowsToken) const;
     bool getAngularVelocitiesOvStage(const TensorDesc* dstTensor,
-                                     const ::physx::PxU32* rows,
-                                     ::physx::PxU32 count,
+                                     const ::ev4sio_physx::PxU32* rows,
+                                     ::ev4sio_physx::PxU32 count,
                                      uint64_t rowsToken) const;
     bool getMassCentersWorldOvStage(const TensorDesc* dstTensor,
-                                    const ::physx::PxU32* rows,
-                                    ::physx::PxU32 count,
+                                    const ::ev4sio_physx::PxU32* rows,
+                                    ::ev4sio_physx::PxU32 count,
                                     uint64_t rowsToken) const;
     bool getMassCentersLocalOvStage(const TensorDesc* dstTensor,
-                                    const ::physx::PxU32* rows,
-                                    ::physx::PxU32 count,
+                                    const ::ev4sio_physx::PxU32* rows,
+                                    ::ev4sio_physx::PxU32 count,
                                     uint64_t rowsToken) const;
 
     // Inverse dynamics columns (REQ-READ-INVDYN-001). Unlike the getters above, the caller supplies the
@@ -83,30 +83,30 @@ public:
     // and Coriolis term the centroidal column is defined against are computed once and reused rather
     // than recomputed. The single-column entry points below are one-column cases of this.
     bool getInverseDynamicsColumnsOvStage(const InverseDynamicsColumnRequest* columns,
-                                   ::physx::PxU32 numColumns,
-                                   const ::physx::PxU32* rows,
-                                   ::physx::PxU32 count,
+                                   ::ev4sio_physx::PxU32 numColumns,
+                                   const ::ev4sio_physx::PxU32* rows,
+                                   ::ev4sio_physx::PxU32 count,
                                    uint64_t rowsToken) const;
 
     bool getJacobiansOvStage(const TensorDesc* dstTensor,
-                             const ::physx::PxU32* rows,
-                             ::physx::PxU32 count,
+                             const ::ev4sio_physx::PxU32* rows,
+                             ::ev4sio_physx::PxU32 count,
                              uint64_t rowsToken) const;
     bool getMassMatricesOvStage(const TensorDesc* dstTensor,
-                                const ::physx::PxU32* rows,
-                                ::physx::PxU32 count,
+                                const ::ev4sio_physx::PxU32* rows,
+                                ::ev4sio_physx::PxU32 count,
                                 uint64_t rowsToken) const;
     bool getCoriolisForcesOvStage(const TensorDesc* dstTensor,
-                                  const ::physx::PxU32* rows,
-                                  ::physx::PxU32 count,
+                                  const ::ev4sio_physx::PxU32* rows,
+                                  ::ev4sio_physx::PxU32 count,
                                   uint64_t rowsToken) const;
     bool getGravityForcesOvStage(const TensorDesc* dstTensor,
-                                 const ::physx::PxU32* rows,
-                                 ::physx::PxU32 count,
+                                 const ::ev4sio_physx::PxU32* rows,
+                                 ::ev4sio_physx::PxU32 count,
                                  uint64_t rowsToken) const;
     bool getCentroidalMomentaOvStage(const TensorDesc* dstTensor,
-                                     const ::physx::PxU32* rows,
-                                     ::physx::PxU32 count,
+                                     const ::ev4sio_physx::PxU32* rows,
+                                     ::ev4sio_physx::PxU32 count,
                                      uint64_t rowsToken) const;
 
     bool setRootTransforms(const TensorDesc* srcTensor, const TensorDesc* indexTensor) override;
@@ -121,51 +121,51 @@ public:
     // refreshing a scene's worth. CPU only -- each DirectGPU state column is its own
     // PxArticulationGPUAPIReadType, so there is no shared fetch for a set form to collapse.
     bool getDofStateColumnsOvStage(const DofStateColumn* columns,
-                                   ::physx::PxU32 numColumns,
+                                   ::ev4sio_physx::PxU32 numColumns,
                                    const ArticulationDofOvStageRecord* records,
-                                   ::physx::PxU32 numOutputs) const;
+                                   ::ev4sio_physx::PxU32 numOutputs) const;
 
     // ovstage joint-state read (ADR-0008): gather one scalar per (joint-prim, enabled-axis) into a
     // flat host column of `numOutputs` float32 elements (records built by the ovphysx reader).
     // CPU counterpart of a DOF column of GpuArticulationView::readOvStageRecordColumns.
     bool getDofPositionsOvStage(const ArticulationDofOvStageRecord* records,
-                                ::physx::PxU32 numOutputs, const TensorDesc* dstTensor) const;
+                                ::ev4sio_physx::PxU32 numOutputs, const TensorDesc* dstTensor) const;
     bool getDofVelocitiesOvStage(const ArticulationDofOvStageRecord* records,
-                                 ::physx::PxU32 numOutputs, const TensorDesc* dstTensor) const;
+                                 ::ev4sio_physx::PxU32 numOutputs, const TensorDesc* dstTensor) const;
     bool getDofPositionTargetsOvStage(const ArticulationDofOvStageRecord* records,
-                                      ::physx::PxU32 numOutputs, const TensorDesc* dstTensor) const;
+                                      ::ev4sio_physx::PxU32 numOutputs, const TensorDesc* dstTensor) const;
     bool getDofVelocityTargetsOvStage(const ArticulationDofOvStageRecord* records,
-                                      ::physx::PxU32 numOutputs, const TensorDesc* dstTensor) const;
+                                      ::ev4sio_physx::PxU32 numOutputs, const TensorDesc* dstTensor) const;
     bool getDofActuationForcesOvStage(const ArticulationDofOvStageRecord* records,
-                                      ::physx::PxU32 numOutputs, const TensorDesc* dstTensor) const;
+                                      ::ev4sio_physx::PxU32 numOutputs, const TensorDesc* dstTensor) const;
     // Not a DOF-buffer column like the five above: the solver reaction is the link incoming joint force
     // projected onto the axis, which the dense getDofProjectedJointForces already does (joint frame and
     // body order included). This gathers that dense result rather than re-deriving the projection.
     bool getDofProjectedForcesOvStage(const ArticulationDofOvStageRecord* records,
-                                      ::physx::PxU32 numOutputs, const TensorDesc* dstTensor) const;
+                                      ::ev4sio_physx::PxU32 numOutputs, const TensorDesc* dstTensor) const;
     // Per-LINK ovstage read: the inbound joint's spatial force in the joint frame USD authored, 6
     // floats (force, torque) per record. Gathered from the same dense getLinkIncomingJointForce.
     bool getLinkIncomingJointForcesOvStage(const ArticulationLinkOvStageRecord* records,
-                                           ::physx::PxU32 numOutputs, const TensorDesc* dstTensor) const;
+                                           ::ev4sio_physx::PxU32 numOutputs, const TensorDesc* dstTensor) const;
 
     // CPU counterpart of GpuArticulationView::setDofPositionsOvStage. Read-modify-write for the same
     // reason the device path is: applyCache writes a whole articulation's DOF block, so a DOF this
     // call does not address must already hold its current value.
     bool setDofPositionsOvStage(const TensorDesc* srcTensor,
                                 const ArticulationDofOvStageRecord* records,
-                                ::physx::PxU32 numOutputs);
+                                ::ev4sio_physx::PxU32 numOutputs);
     bool setDofVelocitiesOvStage(const TensorDesc* srcTensor,
                                  const ArticulationDofOvStageRecord* records,
-                                 ::physx::PxU32 numOutputs);
+                                 ::ev4sio_physx::PxU32 numOutputs);
     bool setDofPositionTargetsOvStage(const TensorDesc* srcTensor,
                                       const ArticulationDofOvStageRecord* records,
-                                      ::physx::PxU32 numOutputs);
+                                      ::ev4sio_physx::PxU32 numOutputs);
     bool setDofVelocityTargetsOvStage(const TensorDesc* srcTensor,
                                       const ArticulationDofOvStageRecord* records,
-                                      ::physx::PxU32 numOutputs);
+                                      ::ev4sio_physx::PxU32 numOutputs);
     bool setDofActuationForcesOvStage(const TensorDesc* srcTensor,
                                       const ArticulationDofOvStageRecord* records,
-                                      ::physx::PxU32 numOutputs);
+                                      ::ev4sio_physx::PxU32 numOutputs);
 
     // CPU counterpart of GpuArticulationView::setRootAttributeOvStage. `rows` names the view
     // articulations the query matched; output i addresses view articulation rows[i].
@@ -179,27 +179,27 @@ public:
     // backends stay callable through one row in the write table.
     bool setRootAttributeOvStage(const char* attribName,
                                  const TensorDesc* srcTensor,
-                                 const ::physx::PxU32* rows,
-                                 ::physx::PxU32 numOutputs,
+                                 const ::ev4sio_physx::PxU32* rows,
+                                 ::ev4sio_physx::PxU32 numOutputs,
                                  uint64_t rowsToken,
                                  bool angular, // see GpuArticulationView::setRootAttributeOvStage
                                  bool pose);
 
     bool setRootPositionsOvStage(const TensorDesc* srcTensor,
-                                 const ::physx::PxU32* rows,
-                                 ::physx::PxU32 numOutputs,
+                                 const ::ev4sio_physx::PxU32* rows,
+                                 ::ev4sio_physx::PxU32 numOutputs,
                                  uint64_t rowsToken);
     bool setRootOrientationsOvStage(const TensorDesc* srcTensor,
-                                    const ::physx::PxU32* rows,
-                                    ::physx::PxU32 numOutputs,
+                                    const ::ev4sio_physx::PxU32* rows,
+                                    ::ev4sio_physx::PxU32 numOutputs,
                                     uint64_t rowsToken);
     bool setRootLinearVelocitiesOvStage(const TensorDesc* srcTensor,
-                                        const ::physx::PxU32* rows,
-                                        ::physx::PxU32 numOutputs,
+                                        const ::ev4sio_physx::PxU32* rows,
+                                        ::ev4sio_physx::PxU32 numOutputs,
                                         uint64_t rowsToken);
     bool setRootAngularVelocitiesOvStage(const TensorDesc* srcTensor,
-                                         const ::physx::PxU32* rows,
-                                         ::physx::PxU32 numOutputs,
+                                         const ::ev4sio_physx::PxU32* rows,
+                                         ::ev4sio_physx::PxU32 numOutputs,
                                          uint64_t rowsToken);
 
 
@@ -207,10 +207,10 @@ public:
     // `numOutputs * comp` float32 elements. CPU counterpart of
     // GpuArticulationView::readOvStageRecordColumns.
     bool getFixedTendonPropertiesOvStage(const ArticulationTendonOvStageRecord* records,
-                                         ::physx::PxU32 numOutputs, TendonProperty prop,
+                                         ::ev4sio_physx::PxU32 numOutputs, TendonProperty prop,
                                          const TensorDesc* dstTensor) const;
     bool getSpatialTendonPropertiesOvStage(const ArticulationTendonOvStageRecord* records,
-                                           ::physx::PxU32 numOutputs, TendonProperty prop,
+                                           ::ev4sio_physx::PxU32 numOutputs, TendonProperty prop,
                                            const TensorDesc* dstTensor) const;
 
     // CPU counterpart of GpuArticulationView::set{Fixed,Spatial}TendonPropertiesOvStage.
@@ -220,10 +220,10 @@ public:
     // construction. The GPU path needs its explicit pre-read only because PhysX moves whole structs.
     bool setFixedTendonPropertiesOvStage(const TensorDesc* srcTensor,
                                          const ArticulationTendonOvStageRecord* records,
-                                         ::physx::PxU32 numOutputs, TendonProperty prop);
+                                         ::ev4sio_physx::PxU32 numOutputs, TendonProperty prop);
     bool setSpatialTendonPropertiesOvStage(const TensorDesc* srcTensor,
                                            const ArticulationTendonOvStageRecord* records,
-                                           ::physx::PxU32 numOutputs, TendonProperty prop);
+                                           ::ev4sio_physx::PxU32 numOutputs, TendonProperty prop);
 
     bool setDofPositions(const TensorDesc* srcTensor, const TensorDesc* indexTensor) override;
     bool setDofVelocities(const TensorDesc* srcTensor, const TensorDesc* indexTensor) override;
@@ -330,25 +330,25 @@ private:
     // getters above forward here.
     bool getInverseDynamicsColumnOvStage(InverseDynamicsColumn column,
                                   const TensorDesc* dstTensor,
-                                  const ::physx::PxU32* rows,
-                                  ::physx::PxU32 count,
+                                  const ::ev4sio_physx::PxU32* rows,
+                                  ::ev4sio_physx::PxU32 count,
                                   uint64_t rowsToken) const;
 
     bool getMassCentersOvStage(const TensorDesc* dstTensor,
-                               const ::physx::PxU32* rows,
-                               ::physx::PxU32 count,
+                               const ::ev4sio_physx::PxU32* rows,
+                               ::ev4sio_physx::PxU32 count,
                                bool localFrame) const;
 
     // One column's values, off state getDofStateColumnsOvStage has already refreshed. Split out so the
     // refresh cannot be run per column by accident: the only caller is that set form's loop.
     bool gatherDofStateColumn(const DofStateColumn& column,
                               const ArticulationDofOvStageRecord* records,
-                              ::physx::PxU32 numOutputs) const;
+                              ::ev4sio_physx::PxU32 numOutputs) const;
 
     // Shared body of the ovstage DOF read: refresh whatever `quantity` needs, then gather
     // dst[i] = dofScaleFor(records[i], policy) * raw(quantity, viewArtiIdx, physxDofIdx).
     bool getDofAttributeOvStage(const TensorDesc* dstTensor, DofStateQuantity quantity,
-                                const ArticulationDofOvStageRecord* records, ::physx::PxU32 numOutputs) const;
+                                const ArticulationDofOvStageRecord* records, ::ev4sio_physx::PxU32 numOutputs) const;
     // The ovstage DOF WRITE: the inverse of the gather above, taking the same `quantity` so the two
     // cannot disagree about which cache backs a column or which folds it carries -- both read the
     // facts table on BaseArticulationView rather than being told.
@@ -357,25 +357,25 @@ private:
     // joint setters, while state and actuation force go through the cache and need a
     // read-modify-write, because applyCache pushes a whole articulation's block.
     bool setDofAttributeOvStage(const TensorDesc* srcTensor, DofStateQuantity quantity,
-                                const ArticulationDofOvStageRecord* records, ::physx::PxU32 numOutputs);
+                                const ArticulationDofOvStageRecord* records, ::ev4sio_physx::PxU32 numOutputs);
 
     // Shared body of the ovstage tendon read. `fixed` picks which per-entry tendon list the records
     // index and which getters the property resolves to.
     bool getTendonPropertiesOvStage(const char* attribName, const TensorDesc* dstTensor, bool fixed,
                                     TendonProperty prop, const ArticulationTendonOvStageRecord* records,
-                                    ::physx::PxU32 numOutputs) const;
+                                    ::ev4sio_physx::PxU32 numOutputs) const;
     bool setTendonPropertiesOvStage(const char* attribName, const TensorDesc* srcTensor, bool fixed,
                                     TendonProperty prop, const ArticulationTendonOvStageRecord* records,
-                                    ::physx::PxU32 numOutputs);
+                                    ::ev4sio_physx::PxU32 numOutputs);
 
     void prepareDirtyForceTracker();
     CpuRigidBodyDirtyForceTrackerPtr mDirtyForceTracker;
-    std::vector<::physx::PxArticulationCache*> mArticulationCaches;
+    std::vector<::ev4sio_physx::PxArticulationCache*> mArticulationCaches;
     // Per-read scratch, sized once and reused. `mutable` because the reads are const: these are
     // scratch, not state, and nothing observable depends on what is left in them between reads. Not
     // thread safe, like the view itself -- one ovphysx instance serialises its own reads.
     mutable std::vector<uint8_t> mDofRefreshMarks; // all zero between reads; see getDofStateColumnsOvStage
-    mutable std::vector<::physx::PxU32> mDofRefreshList; // the distinct entries, in first-seen order
+    mutable std::vector<::ev4sio_physx::PxU32> mDofRefreshList; // the distinct entries, in first-seen order
     mutable std::vector<float> mDofStagingRow; // whole-view dense DOF row: getDofProjectedForcesOvStage
     mutable std::vector<float> mLinkStagingRow; // whole-view dense link row: getLinkIncomingJointForcesOvStage
     CpuSimulationDataPtr mCpuSimData;
@@ -383,5 +383,5 @@ private:
 };
 
 } // namespace tensors
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

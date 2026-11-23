@@ -113,8 +113,8 @@ TEST_F(PhysXTestFixture, PhysXAsync_PendingSimulationTimeoutsDoNotBlockOrConsume
         m_handle, OVPHYSX_QUERY_TARGET_SCENE, "/World/physicsScene");
     ASSERT_NE(scene_pointer, nullptr);
 
-    physx::PxScene* const scene = static_cast<physx::PxScene*>(scene_pointer);
-    physx::PxCpuDispatcher* const dispatcher = scene->getCpuDispatcher();
+    ev4sio_physx::PxScene* const scene = static_cast<ev4sio_physx::PxScene*>(scene_pointer);
+    ev4sio_physx::PxCpuDispatcher* const dispatcher = scene->getCpuDispatcher();
     ASSERT_NE(dispatcher, nullptr);
     if (dispatcher->getWorkerCount() == 0)
         GTEST_SKIP() << "CPU dispatcher has no worker thread for an asynchronous onAdvance callback";
@@ -123,7 +123,7 @@ TEST_F(PhysXTestFixture, PhysXAsync_PendingSimulationTimeoutsDoNotBlockOrConsume
         m_handle, OVPHYSX_QUERY_TARGET_RIGID_ACTOR, "/World/Cube1");
     ASSERT_NE(actor_pointer, nullptr);
 
-    physx::PxRigidDynamic* const actor = static_cast<physx::PxRigidDynamic*>(actor_pointer);
+    ev4sio_physx::PxRigidDynamic* const actor = static_cast<ev4sio_physx::PxRigidDynamic*>(actor_pointer);
     GatedSimulationScope simulation_scope(m_handle, scene, actor);
 
     ovphysx_enqueue_result_t pending_step = ovphysx_step(m_handle, 1.0f / 60.0f);
@@ -149,9 +149,9 @@ TEST_F(PhysXTestFixture, PhysXAsync_PendingSimulationTimeoutsDoNotBlockOrConsume
     }
 
     EXPECT_TRUE(waitForTaskSuccess(m_handle, initial_step, 0));
-    ovphysx::physx::WaitResult original;
+    ovphysx::ev4sio_physx::WaitResult original;
     EXPECT_EQ(original.waitTask(m_handle, pending_step, 0), OVPHYSX_API_TIMEOUT);
-    ovphysx::physx::WaitResult moved(std::move(original));
+    ovphysx::ev4sio_physx::WaitResult moved(std::move(original));
     EXPECT_EQ(moved.status(), OVPHYSX_API_TIMEOUT);
     EXPECT_EQ(moved.pendingTask().op_index, pending_step.op_index);
     EXPECT_EQ(original.pendingTask().op_index, 0u);

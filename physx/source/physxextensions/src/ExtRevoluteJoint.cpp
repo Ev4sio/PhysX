@@ -8,8 +8,8 @@
 
 #include "omnipvd/ExtOmniPvdSetData.h"
 
-using namespace physx;
-using namespace Ext;
+using namespace ev4sio_physx;
+using namespace ev4sio_Ext;
 
 RevoluteJoint::RevoluteJoint(const PxTolerancesScale& /*scale*/, PxRigidActor* actor0, const PxTransform& localFrame0, PxRigidActor* actor1, const PxTransform& localFrame1) :
 	RevoluteJointT(PxJointConcreteType::eREVOLUTE, actor0, localFrame0, actor1, localFrame1, "RevoluteJointData")
@@ -243,7 +243,7 @@ PxConstraintSolverPrep RevoluteJoint::getPrep()	const	{ return gRevoluteJointSha
 // PT: for tests / benchmarks
 PxConstraintSolverPrep getRevoluteJointPrep()	{ return gRevoluteJointShaders.solverPrep; }
 
-PxRevoluteJoint* physx::PxRevoluteJointCreate(PxPhysics& physics, PxRigidActor* actor0, const PxTransform& localFrame0, PxRigidActor* actor1, const PxTransform& localFrame1)
+PxRevoluteJoint* ev4sio_physx::PxRevoluteJointCreate(PxPhysics& physics, PxRigidActor* actor0, const PxTransform& localFrame0, PxRigidActor* actor1, const PxTransform& localFrame1)
 {
 	PX_CHECK_AND_RETURN_NULL(localFrame0.isSane(), "PxRevoluteJointCreate: local frame 0 is not a valid transform"); 
 	PX_CHECK_AND_RETURN_NULL(localFrame1.isSane(), "PxRevoluteJointCreate: local frame 1 is not a valid transform"); 
@@ -284,9 +284,9 @@ void RevoluteJoint::updateOmniPvdProperties(const PxConstraintOmniPvdState& stat
 	OMNI_PVD_WRITE_SCOPE_END
 }
 
-template<> void physx::Ext::omniPvdInitJoint<RevoluteJoint>(OmniPvdWriter* pvdWriter, const OmniPvdPxExtensionsRegistrationData* pvdRegData, RevoluteJoint& joint); // declared before the wrapper so the wrapper binds the explicit form below instead of implicitly instantiating it
+template<> void ev4sio_physx::ev4sio_Ext::omniPvdInitJoint<RevoluteJoint>(OmniPvdWriter* pvdWriter, const OmniPvdPxExtensionsRegistrationData* pvdRegData, RevoluteJoint& joint); // declared before the wrapper so the wrapper binds the explicit form below instead of implicitly instantiating it
 template<>
-void physx::Ext::omniPvdInitJoint<RevoluteJoint>(RevoluteJoint& joint)
+void ev4sio_physx::ev4sio_Ext::omniPvdInitJoint<RevoluteJoint>(RevoluteJoint& joint)
 {
 	OMNI_PVD_WRITE_SCOPE_BEGIN(pvdWriter, pvdRegData)
 	omniPvdInitJoint(pvdWriter, pvdRegData, joint);
@@ -294,7 +294,7 @@ void physx::Ext::omniPvdInitJoint<RevoluteJoint>(RevoluteJoint& joint)
 }
 
 template<>
-void physx::Ext::omniPvdInitJoint<RevoluteJoint>(OmniPvdWriter* pvdWriter, const OmniPvdPxExtensionsRegistrationData* pvdRegData, RevoluteJoint& joint)
+void ev4sio_physx::ev4sio_Ext::omniPvdInitJoint<RevoluteJoint>(OmniPvdWriter* pvdWriter, const OmniPvdPxExtensionsRegistrationData* pvdRegData, RevoluteJoint& joint)
 {
 	PxRevoluteJoint& j = static_cast<PxRevoluteJoint&>(joint);
 	OMNI_PVD_CREATE_EXPLICIT(pvdWriter, pvdRegData, OMNI_PVD_CONTEXT_HANDLE, PxRevoluteJoint, j);

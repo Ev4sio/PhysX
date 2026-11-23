@@ -15,7 +15,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 
 // Stable content hash for custom-geometry token names.  Used as the
@@ -37,5 +37,5 @@ inline size_t computeCustomGeometryHash(const std::string& tokenStr)
     return omni::physics::parse::customGeometryTokenHash(tokenStr);
 }
 
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

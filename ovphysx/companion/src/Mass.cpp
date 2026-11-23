@@ -10,9 +10,9 @@
 #include <vector>
 namespace
 {
-using namespace omni::physx::authoring;
-using ::physx::PxVec3;
-using ::physx::PxQuat;
+using namespace omni::ev4sio_physx::authoring;
+using ::ev4sio_physx::PxVec3;
+using ::ev4sio_physx::PxQuat;
 MassOverrides overrides(const ovphysx_companion_mass_overrides_t& value)
 {
     return {value.flags,value.mass,PxVec3(value.center[0],value.center[1],value.center[2]),
@@ -33,7 +33,7 @@ try
     for (uint32_t i=0;i<count;++i)
     {
         *invalid=i;
-        const ovphysx_companion_general_mass_shape_t & source=input[i];omni::physx::authoring::GeneralMassShape & shape=shapes[i];
+        const ovphysx_companion_general_mass_shape_t & source=input[i];omni::ev4sio_physx::authoring::GeneralMassShape & shape=shapes[i];
         if (source.size!=sizeof(source) || source.kind>3) return OVPHYSX_COMPANION_INVALID_ARGUMENT;
         shape.kind=source.kind;shape.density=source.density;shape.overrides=overrides(source.overrides);
         shape.dimensions=PxVec3(source.dimensions[0],source.dimensions[1],source.dimensions[2]);

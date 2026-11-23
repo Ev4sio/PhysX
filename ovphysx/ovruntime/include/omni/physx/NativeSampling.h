@@ -6,7 +6,7 @@
 #pragma once
 #include "NativeInspection.h"
 #include <vector>
-namespace omni::physx::native
+namespace omni::ev4sio_physx::native
 {
 struct SamplingOptions
 {

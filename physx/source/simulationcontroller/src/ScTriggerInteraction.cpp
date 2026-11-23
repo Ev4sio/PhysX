@@ -7,8 +7,8 @@
 #include "ScBodySim.h"
 #include "ScNPhaseCore.h"
 
-using namespace physx;
-using namespace Sc;
+using namespace ev4sio_physx;
+using namespace ev4sio_Sc;
 
 TriggerInteraction::TriggerInteraction(	ShapeSimBase& tShape, ShapeSimBase& oShape) :
 										ElementSimInteraction(tShape, oShape, InteractionType::eTRIGGER, InteractionFlag::eRB_ELEMENT | InteractionFlag::eFILTERABLE),
@@ -31,7 +31,7 @@ TriggerInteraction::TriggerInteraction(	ShapeSimBase& tShape, ShapeSimBase& oSha
 	}
 
 	PX_ASSERT(getTriggerShape().getFlags() & PxShapeFlag::eTRIGGER_SHAPE);
-	mTriggerCache.state = Gu::TRIGGER_DISJOINT;
+	mTriggerCache.state = ev4sio_Gu::TRIGGER_DISJOINT;
 }
 
 TriggerInteraction::~TriggerInteraction()

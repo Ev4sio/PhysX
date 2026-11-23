@@ -14,8 +14,8 @@
 #include "GuBV4.h"
 #include <stdio.h>
 
-using namespace physx;
-using namespace Gu;
+using namespace ev4sio_physx;
+using namespace ev4sio_Gu;
 
 #include "foundation/PxVecMath.h"
 using namespace aos;
@@ -536,7 +536,7 @@ static void setEmpty(CenterExtents& box)
 // For type1: we have 3 nodes, we need 8*2 = 16 bits => 6 bits/node = 18 bits available, ok
 // For type2: we have 4 nodes, we need 8*3 = 24 bits => 6 bits/node = 24 bits available, ok
 //#pragma pack(1)
-struct BVData : public physx::PxUserAllocated
+struct BVData : public ev4sio_physx::PxUserAllocated
 {
 	BVData();
 	CenterExtents	mAABB;
@@ -555,7 +555,7 @@ BVData::BVData() : mData64(PX_INVALID_U64)
 #endif
 }
 
-struct BV4Node : public physx::PxUserAllocated
+struct BV4Node : public ev4sio_physx::PxUserAllocated
 {
 	PX_FORCE_INLINE	BV4Node()	{}
 	PX_FORCE_INLINE	~BV4Node()	{}
@@ -606,7 +606,7 @@ struct BV4BuildParams
 
 #ifdef GU_BV4_USE_NODE_POOLS
 	//
-	struct Slab : public physx::PxUserAllocated
+	struct Slab : public ev4sio_physx::PxUserAllocated
 	{
 		BV4Node	mNodes[NB_NODES_PER_SLAB];
 		PxU32	mNbUsedNodes;
@@ -1807,7 +1807,7 @@ static bool gReorderCallback(const AABBTreeNode* current, PxU32 /*depth*/, void*
 	return true;
 }
 
-bool physx::Gu::buildBV4Ex(BV4Tree& tree, SourceMeshBase& mesh, float epsilon, PxU32 nbPrimitivePerLeaf, bool quantized, BV4_BuildStrategy strategy)
+bool ev4sio_physx::ev4sio_Gu::buildBV4Ex(BV4Tree& tree, SourceMeshBase& mesh, float epsilon, PxU32 nbPrimitivePerLeaf, bool quantized, BV4_BuildStrategy strategy)
 {
 	//either number of triangle or number of tetrahedron
 	const PxU32 nbPrimitives = mesh.getNbPrimitives();

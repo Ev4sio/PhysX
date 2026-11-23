@@ -10,7 +10,7 @@
 #include "PxgCommonDefines.h"
 //#include "nputils.cuh"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 static __device__ __forceinline__
@@ -53,13 +53,13 @@ PxVec3 warpShuffleMax(PxVec3 v)
 
 //// experimentally, seems more register-efficient to coalesce this
 //static __device__ __forceinline__
-//physx::PxReal shuffleDot(const physx::PxU32 syncMask, const physx::PxVec3& v0, int shuffle0, const physx::PxVec3& v1)
+//ev4sio_physx::PxReal shuffleDot(const ev4sio_physx::PxU32 syncMask, const ev4sio_physx::PxVec3& v0, int shuffle0, const ev4sio_physx::PxVec3& v1)
 //{
 //	return __shfl_sync(syncMask, v0.x, shuffle0)*v1.x + __shfl_sync(syncMask, v0.y, shuffle0)*v1.y + __shfl_sync(syncMask, v0.z, shuffle0)*v1.z;
 //}
 //
 //static __device__ __forceinline__
-//physx::PxU32 maxIndex(physx::PxReal v, physx::PxU32 mask, physx::PxReal& maxV)
+//ev4sio_physx::PxU32 maxIndex(ev4sio_physx::PxReal v, ev4sio_physx::PxU32 mask, ev4sio_physx::PxReal& maxV)
 //{
 //	maxV = mask & (1 << threadIdx.x) ? v : -FLT_MAX;
 //
@@ -73,7 +73,7 @@ PxVec3 warpShuffleMax(PxVec3 v)
 //}
 //
 //static __device__ __forceinline__
-//physx::PxU32 minIndex(physx::PxReal v, physx::PxU32 mask, physx::PxReal& minV)
+//ev4sio_physx::PxU32 minIndex(ev4sio_physx::PxReal v, ev4sio_physx::PxU32 mask, ev4sio_physx::PxReal& minV)
 //{
 //	minV = mask & (1 << threadIdx.x) ? v : FLT_MAX;
 //
@@ -86,6 +86,6 @@ PxVec3 warpShuffleMax(PxVec3 v)
 //	return lowestSetIndex(__ballot_sync(FULL_MASK, minV == v)&mask);
 //}
 
-} // namespace physx
+} // namespace ev4sio_physx
 
 #endif //SHUFFLE_CUH

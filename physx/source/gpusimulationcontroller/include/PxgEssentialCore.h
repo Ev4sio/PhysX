@@ -9,7 +9,7 @@
 #include "cudamanager/PxCudaTypes.h"
 #include "PxgAllocatorDesc.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	class PxCudaContextManager;
 	class PxCudaContext;

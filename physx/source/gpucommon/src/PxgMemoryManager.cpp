@@ -6,9 +6,9 @@
 #include "PxgMemoryManager.h"
 #include "PxgCudaMemoryAllocator.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
-namespace physx
+namespace ev4sio_physx
 {
 	PxgCudaAllocatorCallbackBase::PxgCudaAllocatorCallbackBase(PxCudaContextManager& contextManager) : mContextManager(contextManager), mCudaContext(*contextManager.getCudaContext()) {}
 }
@@ -22,7 +22,7 @@ namespace
 	public:
 		PxgCudaHostMemoryAllocatorCallback(PxCudaContextManager& contextManager) : PxgCudaAllocatorCallbackBase(contextManager)	{}
 
-		// Cm::VirtualAllocatorCallback
+		// ev4sio_Cm::VirtualAllocatorCallback
 		virtual	void*	allocate(size_t size, int, const char* file, int line)	PX_OVERRIDE PX_FINAL
 		{
 			PxScopedCudaLock lock(mContextManager);
@@ -37,7 +37,7 @@ namespace
 				PxgPinnedMemoryDeallocate(mCudaContext, ptr);
 			}
 		}
-		//~Cm::VirtualAllocatorCallback
+		//~ev4sio_Cm::VirtualAllocatorCallback
 	};
 
 	// PT: this one calls PxgCudaDeviceMemoryAllocate/PxgCudaDeviceMemoryDeallocate, i.e. cuMemAlloc/cuMemFree
@@ -45,7 +45,7 @@ namespace
 	{
 	public:
 		PxgCudaDeviceMemoryAllocatorCallback(PxCudaContextManager& contextManager) : PxgCudaAllocatorCallbackBase(contextManager)	{}
-		// Cm::VirtualAllocatorCallback
+		// ev4sio_Cm::VirtualAllocatorCallback
 
 		virtual	void*	allocate(size_t size, int, const char* file, int line)	PX_OVERRIDE PX_FINAL
 		{
@@ -61,7 +61,7 @@ namespace
 				PxgCudaDeviceMemoryDeallocate(mCudaContext, ptr);
 			}
 		}
-		//~Cm::VirtualAllocatorCallback
+		//~ev4sio_Cm::VirtualAllocatorCallback
 	};
 
 }
@@ -93,7 +93,7 @@ PxgCudaAllocatorCallbackBase* PxgMemoryManager::getCudaHostMemoryAllocator(const
 	{
 		return mPinnedHostMemoryAllocator;
 	}
-	PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "Unsupported pinned memory allocator requested.");
+	ev4sio_PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "Unsupported pinned memory allocator requested.");
 	return NULL;
 }
 
@@ -104,7 +104,7 @@ PxgCudaAllocatorCallbackBase* PxgMemoryManager::getCudaDeviceMemoryAllocator()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-PxsMemoryManager* physx::createPxgMemoryManager(PxCudaContextManager* cudaContextManager)
+PxsMemoryManager* ev4sio_physx::createPxgMemoryManager(PxCudaContextManager* cudaContextManager)
 {
 	if(!cudaContextManager)
 		return NULL;

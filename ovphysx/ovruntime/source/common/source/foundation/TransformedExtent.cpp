@@ -8,14 +8,14 @@
 
 #include "common/foundation/TransformedExtent.h"
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 
-void computeTransformedExtent(const ::physx::PxBounds3& worldBounds, const ::physx::PxMat44d& m,
+void computeTransformedExtent(const ::ev4sio_physx::PxBounds3& worldBounds, const ::ev4sio_physx::PxMat44d& m,
                               carb::Float3 (&outExtent)[2])
 {
     const double lo[3] = { worldBounds.minimum.x, worldBounds.minimum.y, worldBounds.minimum.z };
@@ -54,5 +54,5 @@ void computeTransformedExtent(const ::physx::PxBounds3& worldBounds, const ::phy
     outExtent[1] = carb::Float3{ float(newMax[0]), float(newMax[1]), float(newMax[2]) };
 }
 
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

@@ -12,8 +12,8 @@
 #include "SnXmlDeserializer.h"		
 #include "SnRepXCoreSerializer.h"
 
-using namespace physx::Sn;
-namespace physx { 
+using namespace ev4sio_physx::Sn;
+namespace ev4sio_physx {
 	typedef PxReadOnlyPropertyInfo<PxPropertyInfoName::PxArticulationLink_InboundJoint, PxArticulationLink, PxArticulationJointReducedCoordinate *> TIncomingJointPropType;
 		
 	//*************************************************************
@@ -153,7 +153,7 @@ namespace physx {
 			TMemoryPoolManager theManager(mAllocator);
 			MemoryBuffer theTempBuf( &theManager );
 			theTempBuf.clear();
-			PxCookTriangleMesh( *inArgs.cooker, meshDesc, theTempBuf );
+			ev4sio_PxCookTriangleMesh( *inArgs.cooker, meshDesc, theTempBuf );
 
 			writeBuffer( inWriter, inTempBuffer, 16, theTempBuf.mBuffer, theTempBuf.mWriteOffset, "CookedData", writeDatatype<PxU8> );
 		}
@@ -192,7 +192,7 @@ namespace physx {
 			// ### DEFENSIVE against NvBugs 6408886 / OMPE-100163
 			if(!theDesc.isValid())
 			{
-				PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "RepX: invalid triangle mesh descriptor. The mesh is not created.");
+				ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "RepX: invalid triangle mesh descriptor. The mesh is not created.");
 				return PxCreateRepXObject(theMesh);
 			}
 			PX_ASSERT(inArgs.cooker);
@@ -201,7 +201,7 @@ namespace physx {
 			PxCookingParams params = *inArgs.cooker;
 			params.midphaseDesc = PxMeshMidPhase::eBVH33;
 
-			if(PxCookTriangleMesh( params, theDesc, theTempBuf ))
+			if(ev4sio_PxCookTriangleMesh( params, theDesc, theTempBuf ))
 				theMesh = static_cast<PxBVH33TriangleMesh*>(inArgs.physics.createTriangleMesh( theTempBuf ));
 		}
 
@@ -259,7 +259,7 @@ namespace physx {
 			TMemoryPoolManager theManager(mAllocator);
 			MemoryBuffer theTempBuf( &theManager );
 			theTempBuf.clear();
-			PxCookTriangleMesh( *inArgs.cooker, meshDesc, theTempBuf );
+			ev4sio_PxCookTriangleMesh( *inArgs.cooker, meshDesc, theTempBuf );
 
 			writeBuffer( inWriter, inTempBuffer, 16, theTempBuf.mBuffer, theTempBuf.mWriteOffset, "CookedData", writeDatatype<PxU8> );
 		}
@@ -298,7 +298,7 @@ namespace physx {
 			// ### DEFENSIVE against NvBugs 6408886 / OMPE-100163
 			if(!theDesc.isValid())
 			{
-				PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "RepX: invalid triangle mesh descriptor. The mesh is not created.");
+				ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "RepX: invalid triangle mesh descriptor. The mesh is not created.");
 				return PxCreateRepXObject(theMesh);
 			}
 			PX_ASSERT(inArgs.cooker);
@@ -307,7 +307,7 @@ namespace physx {
 			PxCookingParams params = *inArgs.cooker;
 			params.midphaseDesc = PxMeshMidPhase::eBVH34;
 
-			if(PxCookTriangleMesh( params, theDesc, theTempBuf ))
+			if(ev4sio_PxCookTriangleMesh( params, theDesc, theTempBuf ))
 				theMesh = static_cast<PxBVH34TriangleMesh*>(inArgs.physics.createTriangleMesh( theTempBuf ));
 		}
 
@@ -356,11 +356,11 @@ namespace physx {
 		// ### DEFENSIVE against NvBugs 6408886 / OMPE-100163
 		if ( theDesc.samples.data == NULL || count < PxU64(theDesc.nbRows) * PxU64(theDesc.nbColumns) )
 		{
-			PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "RepX: height field carries fewer samples than nbRows * nbColumns. The height field is not created.");
+			ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "RepX: height field carries fewer samples than nbRows * nbColumns. The height field is not created.");
 			PxHeightField* theNullField = NULL;
 			return PxCreateRepXObject(theNullField);
 		}
-		PxHeightField* retval = PxCreateHeightField( theDesc, inArgs.physics.getPhysicsInsertionCallback() );
+		PxHeightField* retval = ev4sio_PxCreateHeightField( theDesc, inArgs.physics.getPhysicsInsertionCallback() );
 		return PxCreateRepXObject(retval);
 	}
 
@@ -382,7 +382,7 @@ namespace physx {
 			theDesc.flags = PxConvexFlag::eCOMPUTE_CONVEX;
 			TMemoryPoolManager theManager(mAllocator);
 			MemoryBuffer theTempBuf( &theManager );
-			PxCookConvexMesh( *inArgs.cooker, theDesc, theTempBuf );
+			ev4sio_PxCookConvexMesh( *inArgs.cooker, theDesc, theTempBuf );
 
 			writeBuffer( inWriter, inTempBuffer, 16, theTempBuf.mBuffer, theTempBuf.mWriteOffset, "CookedData", writeDatatype<PxU8> );
 		}
@@ -417,13 +417,13 @@ namespace physx {
 			// ### DEFENSIVE against NvBugs 6408886 / OMPE-100163
 			if(!theDesc.isValid())
 			{
-				PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "RepX: invalid convex mesh descriptor. The mesh is not created.");
+				ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "RepX: invalid convex mesh descriptor. The mesh is not created.");
 				return PxCreateRepXObject(theMesh);
 			}
 			PX_ASSERT(inArgs.cooker);
 			theTempBuf.clear();
 
-			if(PxCookConvexMesh( *inArgs.cooker, theDesc, theTempBuf ))
+			if(ev4sio_PxCookConvexMesh( *inArgs.cooker, theDesc, theTempBuf ))
 				theMesh = inArgs.physics.createConvexMesh( theTempBuf );
 		}
 
@@ -525,7 +525,7 @@ namespace physx {
 				matSuccess = inReader.gotoNextSibling() )
 			{
 				const char* actorType = inReader.getCurrentItemName();
-				if ( 0 == physx::Pxstricmp( actorType, "PxActorRef" ) ) 
+				if ( 0 == ev4sio_physx::Pxstricmp( actorType, "PxActorRef" ) )
 				{
 					PxActor *actor = NULL;
 					ret &= readReference<PxActor>( inReader, *inCollection, actor );
@@ -540,7 +540,7 @@ namespace physx {
 						theAggregate->addActor(*actor);
 					}
 				}
-				else if ( 0 == physx::Pxstricmp( actorType, "PxArticulationRef" ) ) 
+				else if ( 0 == ev4sio_physx::Pxstricmp( actorType, "PxArticulationRef" ) )
 				{
 					PxArticulationReducedCoordinate* articulation = NULL;
 					ret &= readReference<PxArticulationReducedCoordinate>( inReader, *inCollection, articulation );

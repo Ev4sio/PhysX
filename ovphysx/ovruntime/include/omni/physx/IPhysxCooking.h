@@ -30,7 +30,7 @@
 namespace omni
 {
 
-namespace physx
+namespace ev4sio_physx
 {
 
 /// Cooking finished callback
@@ -247,5 +247,5 @@ struct IPhysxCooking
 };
 
 
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

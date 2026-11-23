@@ -124,14 +124,14 @@ ovphysx_enqueue_result_t PhysX::evaluateSdfShapes(ovphysx_query_handle_t query,
 // Synchronization
 //------------------------------------------------------------------------------------------------------------
 
-physx::WaitResult PhysX::waitTask(ovphysx_enqueue_result_t task, ovphysx_timeout_t timeout_ns) {
-    physx::WaitResult result;
+ev4sio_physx::WaitResult PhysX::waitTask(ovphysx_enqueue_result_t task, ovphysx_timeout_t timeout_ns) {
+    ev4sio_physx::WaitResult result;
     result.waitTask(m_handle, task, timeout_ns);
     return result;
 }
 
-physx::WaitResult PhysX::waitAll(ovphysx_timeout_t timeout_ns) {
-    physx::WaitResult result;
+ev4sio_physx::WaitResult PhysX::waitAll(ovphysx_timeout_t timeout_ns) {
+    ev4sio_physx::WaitResult result;
     result.waitAll(m_handle, timeout_ns);
     return result;
 }

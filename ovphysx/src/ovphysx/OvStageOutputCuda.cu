@@ -36,7 +36,7 @@ OutputCudaContextScope::OutputCudaContextScope() : OutputCudaContextScope(nullpt
 }
 
 OutputCudaContextScope::OutputCudaContextScope(const OutputCudaBuffers* buffers)
-    : mCuda(omni::physx::runtime::tryGetOptionalCudaInterface())
+    : mCuda(omni::ev4sio_physx::runtime::tryGetOptionalCudaInterface())
 {
     if (buffers)
     {

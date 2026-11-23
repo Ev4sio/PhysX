@@ -5,14 +5,14 @@
 
 #include "../service/CookingComputeService.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 class PxFoundation;
-} // namespace physx
+} // namespace ev4sio_physx
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 
 /**
@@ -35,8 +35,8 @@ namespace physx
  * \return a new ujitso cooking compute service if successful, nullptr otherwise.
  */
 ICookingComputeService* createUjitsoCookingComputingService(
-    ::physx::PxFoundation& foundation,
+    ::ev4sio_physx::PxFoundation& foundation,
     AcquireSharedCudaContextManagerFn acquireSharedCudaContextManagerFn = nullptr);
 
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

@@ -10,7 +10,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace usdparser
 {
@@ -21,5 +21,5 @@ void collectFilteredPairs(AttachedStage& attachedStage,
                           ObjectIdPairVector& pairVector);
 
 } // namespace usdparser
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

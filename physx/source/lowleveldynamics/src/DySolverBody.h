@@ -10,13 +10,13 @@
 #include "CmSpatialVector.h"
 #include "solver/PxSolverDefs.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 class PxsRigidBody;
 struct PxsBodyCore;
 
-namespace Dy
+namespace ev4sio_Dy
 {
 
 // PT: TODO: make sure this is still needed / replace with V4sqrt

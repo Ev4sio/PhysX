@@ -9,7 +9,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 PhysicsStats getPhysicsStats();
 BatchedContactBufferStats getBatchedContactBufferStats(AttachHandle attach);
@@ -26,5 +26,5 @@ size_t getSceneInternalActorCount(AttachHandle attach, const TestPathArg& sceneP
 bool getForceRigidActor(AttachHandle attach, const TestPathArg& forcePath, void** outRigidActor);
 size_t getSceneInternalForceCount(AttachHandle attach, const TestPathArg& scenePath);
 
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

@@ -189,13 +189,13 @@
 #include <unordered_set>
 #include <vector>
 
-using namespace ::physx;
-using namespace omni::physx;          // OmniPhysX, OvxAttr, kOvx* scopes, ePT* enum
-using namespace omni::physx::internal;
-using namespace omni::physx::usdparser;
+using namespace ::ev4sio_physx;
+using namespace omni::ev4sio_physx;          // OmniPhysX, OvxAttr, kOvx* scopes, ePT* enum
+using namespace omni::ev4sio_physx::internal;
+using namespace omni::ev4sio_physx::usdparser;
 using omni::physics::parse::IPhysicsSource;
 using omni::physics::parse::ObjectKey;
-using namespace omni::physx::ovx; // scanRigidRecords / bucketForScene / allPhysicsScenes / ...
+using namespace omni::ev4sio_physx::ovx; // scanRigidRecords / bucketForScene / allPhysicsScenes / ...
 
 
 namespace
@@ -314,7 +314,7 @@ struct ContextPool
 };
 
 std::mutex g_poolMutex;
-std::unordered_map<::physx::PxCudaContextManager*, ContextPool> g_pool;
+std::unordered_map<::ev4sio_physx::PxCudaContextManager*, ContextPool> g_pool;
 
 // Set while the runtime tears the pool down for shutdown (ovxDrainColumnPools): a session that returns
 // a buffer during teardown then FREES it rather than re-pooling into a pool that is about to be
@@ -374,7 +374,7 @@ uintptr_t poolAcquireFrom(std::vector<PooledColumn>& freeList,
     return ptr;
 }
 
-uintptr_t poolAcquireColumn(::physx::PxCudaContextManager* mgr,
+uintptr_t poolAcquireColumn(::ev4sio_physx::PxCudaContextManager* mgr,
                             size_t bytes,
                             size_t& capacityOut,
                             uint64_t tag = 0,
@@ -383,7 +383,7 @@ uintptr_t poolAcquireColumn(::physx::PxCudaContextManager* mgr,
     if (!mgr || bytes == 0)
         return 0;
     std::lock_guard<std::mutex> lock(g_poolMutex);
-    std::unordered_map<::physx::PxCudaContextManager*, ContextPool>::iterator it = g_pool.find(mgr);
+    std::unordered_map<::ev4sio_physx::PxCudaContextManager*, ContextPool>::iterator it = g_pool.find(mgr);
     if (it == g_pool.end())
         return 0;
     const uintptr_t ptr = poolAcquireFrom(it->second.deviceFree, bytes, capacityOut, tag, tagOut);
@@ -392,12 +392,12 @@ uintptr_t poolAcquireColumn(::physx::PxCudaContextManager* mgr,
     return ptr;
 }
 
-uintptr_t poolAcquirePinned(::physx::PxCudaContextManager* mgr, size_t bytes, size_t& capacityOut)
+uintptr_t poolAcquirePinned(::ev4sio_physx::PxCudaContextManager* mgr, size_t bytes, size_t& capacityOut)
 {
     if (!mgr || bytes == 0)
         return 0;
     std::lock_guard<std::mutex> lock(g_poolMutex);
-    std::unordered_map<::physx::PxCudaContextManager*, ContextPool>::iterator it = g_pool.find(mgr);
+    std::unordered_map<::ev4sio_physx::PxCudaContextManager*, ContextPool>::iterator it = g_pool.find(mgr);
     if (it == g_pool.end())
         return 0;
     const uintptr_t ptr = poolAcquireFrom(it->second.pinnedFree, bytes, capacityOut);
@@ -408,7 +408,7 @@ uintptr_t poolAcquirePinned(::physx::PxCudaContextManager* mgr, size_t bytes, si
 
 // Take the pool's single manager reference on this context's first pooled buffer. Caller holds
 // g_poolMutex and the ContextPool reference it passes.
-void poolTakeReference(::physx::PxCudaContextManager* mgr, ContextPool& pool)
+void poolTakeReference(::ev4sio_physx::PxCudaContextManager* mgr, ContextPool& pool)
 {
     if (!pool.refHeld)
     {
@@ -424,7 +424,7 @@ void poolTakeReference(::physx::PxCudaContextManager* mgr, ContextPool& pool)
 // checked-out one, so it is safe at any time. Evicts arbitrarily within each list: this enforces the
 // bound, it does NOT choose cold vs hot blocks to keep a phase-changed working set warm -- that is a
 // separate eviction policy, deliberately out of scope. Caller holds g_poolMutex.
-void poolTrimToBudget(ContextPool& pool, ::physx::PxCudaContext* cu, size_t budget)
+void poolTrimToBudget(ContextPool& pool, ::ev4sio_physx::PxCudaContext* cu, size_t budget)
 {
     while (pool.pooledBytes > budget && !pool.deviceFree.empty())
     {
@@ -447,8 +447,8 @@ void poolTrimToBudget(ContextPool& pool, ::physx::PxCudaContext* cu, size_t budg
 // Return a device column to the pool, or free it outright when the pool is full or the context is
 // unknown. The caller has already waited on the completion event, so the buffer is idle. `tag` is what
 // poolAcquireFrom prefers it by.
-bool poolReleaseColumn(::physx::PxCudaContextManager* mgr,
-                       ::physx::PxCudaContext* cu,
+bool poolReleaseColumn(::ev4sio_physx::PxCudaContextManager* mgr,
+                       ::ev4sio_physx::PxCudaContext* cu,
                        uintptr_t ptr,
                        size_t bytes,
                        uint64_t tag = 0)
@@ -472,7 +472,7 @@ bool poolReleaseColumn(::physx::PxCudaContextManager* mgr,
     // empty entry. An entry with refHeld == false is a manager the pool holds a raw pointer to but
     // never took a reference on, so a later stale sweep would dereference it after the manager was
     // destroyed. The insert happens only on the retain path below, together with the reference.
-    const std::unordered_map<::physx::PxCudaContextManager*, ContextPool>::iterator it = g_pool.find(mgr);
+    const std::unordered_map<::ev4sio_physx::PxCudaContextManager*, ContextPool>::iterator it = g_pool.find(mgr);
     // Trim the retained set to the current budget before deciding this release; the admit check below
     // only limits growth. With budget 0 (pool disabled at runtime) this empties the free lists, so a
     // disable frees what earlier releases retained under a higher budget, not just this buffer -- the
@@ -493,7 +493,7 @@ bool poolReleaseColumn(::physx::PxCudaContextManager* mgr,
 }
 
 // The pinned-host counterpart: same rules, freed with memFreeHost rather than memFree.
-bool poolReleasePinned(::physx::PxCudaContextManager* mgr, ::physx::PxCudaContext* cu, uintptr_t ptr, size_t bytes)
+bool poolReleasePinned(::ev4sio_physx::PxCudaContextManager* mgr, ::ev4sio_physx::PxCudaContext* cu, uintptr_t ptr, size_t bytes)
 {
     if (!ptr)
         return true;
@@ -511,7 +511,7 @@ bool poolReleasePinned(::physx::PxCudaContextManager* mgr, ::physx::PxCudaContex
     }
     // find(), not operator[]: see poolReleaseColumn -- a rejected return must not leave an empty,
     // reference-less entry for the stale sweep to dereference after the manager is gone.
-    const std::unordered_map<::physx::PxCudaContextManager*, ContextPool>::iterator it = g_pool.find(mgr);
+    const std::unordered_map<::ev4sio_physx::PxCudaContextManager*, ContextPool>::iterator it = g_pool.find(mgr);
     if (it != g_pool.end() && it->second.pooledBytes > budget)
         poolTrimToBudget(it->second, cu, budget); // enforce a possibly-lowered budget (see poolReleaseColumn)
     const size_t held = (it != g_pool.end()) ? it->second.pooledBytes : 0;
@@ -532,7 +532,7 @@ bool poolReleasePinned(::physx::PxCudaContextManager* mgr, ::physx::PxCudaContex
 // (CUDA lock first). Move the free lists out under the pool lock, release it, then free.
 struct ReclaimedPool
 {
-    ::physx::PxCudaContextManager* mgr = nullptr;
+    ::ev4sio_physx::PxCudaContextManager* mgr = nullptr;
     std::vector<PooledColumn> deviceBuffers;
     std::vector<PooledColumn> pinnedBuffers;
     bool refHeld = false;
@@ -569,12 +569,12 @@ void freeReclaimedPools(std::vector<ReclaimedPool>& reclaimed)
 // another read, so its pooled memory and the reference pinning its manager are released. An empty
 // `live` flushes all. Called once per read with the live context set, so a detached or destroyed
 // context is reclaimed on the next read rather than pinned to process exit.
-void poolFlushStaleContexts(const std::unordered_set<::physx::PxCudaContextManager*>& live)
+void poolFlushStaleContexts(const std::unordered_set<::ev4sio_physx::PxCudaContextManager*>& live)
 {
     std::vector<ReclaimedPool> reclaimed;
     {
         std::lock_guard<std::mutex> lock(g_poolMutex);
-        for (std::unordered_map<::physx::PxCudaContextManager*, ContextPool>::iterator it = g_pool.begin();
+        for (std::unordered_map<::ev4sio_physx::PxCudaContextManager*, ContextPool>::iterator it = g_pool.begin();
              it != g_pool.end();)
         {
             if (!it->first || live.find(it->first) == live.end())
@@ -674,7 +674,7 @@ struct SelectedJointRows
     // The scene's record version and view generation these were packed from; 0 for none.
     uint64_t sourceVersion = 0;
     uint64_t sourceGeneration = 0;
-    std::vector<omni::physx::tensors::ArticulationDofOvStageRecord> recs;
+    std::vector<omni::ev4sio_physx::tensors::ArticulationDofOvStageRecord> recs;
     uint64_t recsVersion = 0;
     std::vector<ObjectKey> dofKeys;
     std::vector<ovx_primpath_t> dofHandles;
@@ -682,7 +682,7 @@ struct SelectedJointRows
     // articulation of the view.
     std::vector<PxU32> fetchRows;
     // The records, each naming its articulation by its position in `fetchRows`, and their content version.
-    std::vector<omni::physx::tensors::ArticulationDofOvStageRecord> fetchRecs;
+    std::vector<omni::ev4sio_physx::tensors::ArticulationDofOvStageRecord> fetchRecs;
     uint64_t fetchVersion = 0;
     // The head a partial fetch uploads (`fetchRecs`, then the articulations' GPU indices), built by its first read.
     std::shared_ptr<const std::vector<uint8_t>> fetchHead;
@@ -712,7 +712,7 @@ struct HeldReadBuffer
     uint64_t version = 0;
     // The device work, queued on `stream` once every builder has planned. Each returns false on failure, having
     // logged it.
-    std::vector<std::function<bool(const omni::physx::tensors::OvStageDeviceReadArgs&)>> gathers;
+    std::vector<std::function<bool(const omni::ev4sio_physx::tensors::OvStageDeviceReadArgs&)>> gathers;
     // The backend's scene view the gathers were planned over, if built, and its generation: a view rebuilt before
     // they are queued freed what they hold.
     const void* sceneView = nullptr;
@@ -932,8 +932,8 @@ enum class CapturedSuperset
 // releases nothing.
 bool capturedSceneViewCurrent(PxScene* scene, CapturedSuperset superset)
 {
-    omni::physx::tensors::SimulationBackend* const backend = omni::physx::tensors::GetSimulationBackend();
-    omni::physx::tensors::GpuSimulationView* const sv = backend ? backend->currentSceneView(scene) : nullptr;
+    omni::ev4sio_physx::tensors::SimulationBackend* const backend = omni::ev4sio_physx::tensors::GetSimulationBackend();
+    omni::ev4sio_physx::tensors::GpuSimulationView* const sv = backend ? backend->currentSceneView(scene) : nullptr;
     if (!sv)
         return false;
     if (superset == CapturedSuperset::eRigid)
@@ -986,7 +986,7 @@ size_t holdReadBuffer(ReadSession& s,
                       size_t headBytes,
                       uint64_t version)
 {
-    omni::physx::IOptionalCuda* const cuda = omni::physx::cudaShimWrappers::getCudaShim();
+    omni::ev4sio_physx::IOptionalCuda* const cuda = omni::ev4sio_physx::cudaShimWrappers::getCudaShim();
     PxCudaContext* const cu = ctxMgr ? ctxMgr->getCudaContext() : nullptr;
     if (!cuda || !cu || !s.queryBuffers || bytes == 0 || scratchBytes == 0)
     {
@@ -1078,7 +1078,7 @@ size_t holdReadBuffer(ReadSession& s,
     }
     for (uintptr_t* event : { &h.buffer.ready, &h.buffer.fork, &h.buffer.join })
         ok = ok && (*event || cuda->eventCreate(event, CU_EVENT_DISABLE_TIMING, nullptr));
-    if (omni::physx::tensors::SimulationBackend* const backend = omni::physx::tensors::GetSimulationBackend())
+    if (omni::ev4sio_physx::tensors::SimulationBackend* const backend = omni::ev4sio_physx::tensors::GetSimulationBackend())
         h.sceneView = backend->currentSceneView(scene, &h.sceneViewGeneration);
     s.held.push_back(std::move(h));
     if (!ok)
@@ -1121,19 +1121,19 @@ size_t holdReadBuffer(ReadSession& s,
 size_t holdRecordRead(ReadSession& s,
                       PxCudaContextManager* ctxMgr,
                       const QueryDeviceBuffers::Key& key,
-                      omni::physx::tensors::GpuArticulationView* view,
+                      omni::ev4sio_physx::tensors::GpuArticulationView* view,
                       uint64_t generation,
                       const void* records,
                       PxU32 numRecords,
                       size_t recordBytes,
                       uint64_t recordsVersion,
-                      std::vector<omni::physx::tensors::GpuArticulationView::OvStageRecordReadColumn>& columns,
+                      std::vector<omni::ev4sio_physx::tensors::GpuArticulationView::OvStageRecordReadColumn>& columns,
                       const std::vector<size_t>& columnFloats,
                       const PxU32* fetchRows = nullptr,
                       PxU32 fetchCount = 0,
                       std::shared_ptr<const std::vector<uint8_t>>* keptHead = nullptr)
 {
-    omni::physx::tensors::GpuArticulationView::OvStageRecordReadPlan plan;
+    omni::ev4sio_physx::tensors::GpuArticulationView::OvStageRecordReadPlan plan;
     std::vector<uint8_t> fetchHead;
     size_t scratchBytes = 0;
     if (!view->planOvStageRecordRead(numRecords, recordBytes, columns.data(), static_cast<PxU32>(columns.size()),
@@ -1155,7 +1155,7 @@ size_t holdRecordRead(ReadSession& s,
         std::vector<uint8_t> head(bytes, bytes + headBytes);
         if (!fetchHead.empty())
         {
-            head.resize(omni::physx::tensors::OvStageScratch::alignUp(headBytes), 0);
+            head.resize(omni::ev4sio_physx::tensors::OvStageScratch::alignUp(headBytes), 0);
             head.insert(head.end(), fetchHead.begin(), fetchHead.end());
         }
         return head;
@@ -1187,7 +1187,7 @@ size_t holdRecordRead(ReadSession& s,
         at += alignColumnFloats(columnFloats[c]) * sizeof(float);
     }
     s.held[held].gathers.push_back(
-        [view, plan, columns](const omni::physx::tensors::OvStageDeviceReadArgs& args)
+        [view, plan, columns](const omni::ev4sio_physx::tensors::OvStageDeviceReadArgs& args)
         { return view->readOvStageRecordColumns(args, plan, columns.data(), static_cast<PxU32>(columns.size())); });
     return held;
 }
@@ -1198,13 +1198,13 @@ size_t holdRecordRead(ReadSession& s,
 // ordering, an upload or a gather failed, or a completion could not be recorded.
 bool dispatchHeldReads(ReadSession& s)
 {
-    omni::physx::IOptionalCuda* const cuda = omni::physx::cudaShimWrappers::getCudaShim();
+    omni::ev4sio_physx::IOptionalCuda* const cuda = omni::ev4sio_physx::cudaShimWrappers::getCudaShim();
     if (!cuda)
         return s.held.empty();
     const bool capturing = s.caller.capturing;
     // Before anything is queued, so a failure partway keeps the buffers from the query (keepCapturedFromQuery).
     s.captured = capturing && !s.held.empty();
-    omni::physx::tensors::SimulationBackend* const backend = omni::physx::tensors::GetSimulationBackend();
+    omni::ev4sio_physx::tensors::SimulationBackend* const backend = omni::ev4sio_physx::tensors::GetSimulationBackend();
     bool ok = true;
     for (HeldReadBuffer& h : s.held)
     {
@@ -1253,7 +1253,7 @@ bool dispatchHeldReads(ReadSession& s)
         h.buffer.recsVersion = h.version;
 
         bool unjoined = false;
-        omni::physx::tensors::OvStageDeviceReadArgs args;
+        omni::ev4sio_physx::tensors::OvStageDeviceReadArgs args;
         args.stream = reinterpret_cast<CUstream>(h.stream);
         args.fork = reinterpret_cast<CUevent>(h.buffer.fork);
         args.join = reinterpret_cast<CUevent>(h.buffer.join);
@@ -1262,7 +1262,7 @@ bool dispatchHeldReads(ReadSession& s)
         args.capturing = capturing;
         args.unjoined = &unjoined;
         h.settled = false; // until its completion is recorded
-        for (const std::function<bool(const omni::physx::tensors::OvStageDeviceReadArgs&)>& gather : h.gathers)
+        for (const std::function<bool(const omni::ev4sio_physx::tensors::OvStageDeviceReadArgs&)>& gather : h.gathers)
             ok = gather(args) && ok;
         h.gathers.clear();
         // Recorded even after a failed gather, which may have queued part of its work: the buffer's next user waits
@@ -1396,7 +1396,7 @@ struct QueryState
 
     // Device buffers this query's operations reuse across steps (QueryDeviceBuffers.h). Shared with its
     // open write sessions, which may outlive the query.
-    std::shared_ptr<omni::physx::ovx::QueryDeviceBuffers> deviceBuffers;
+    std::shared_ptr<omni::ev4sio_physx::ovx::QueryDeviceBuffers> deviceBuffers;
 
     // The scenes the query's last complete read held rows in, and the stage's record version then (ADR-0055): the
     // next read decides from them, while no object was created or removed since, whether it waits on the host
@@ -1696,8 +1696,8 @@ struct InstancerAccum
     // the reframe that fills it is exactly the work the view does, so the enumeration never computes
     // it. What is collected instead is the instance list the view is built from, and the frame its
     // local poses are expressed in.
-    std::vector<omni::physx::tensors::PointInstance> instances;
-    ::physx::PxMat44d worldInverse{ ::physx::PxIdentity };
+    std::vector<omni::ev4sio_physx::tensors::PointInstance> instances;
+    ::ev4sio_physx::PxMat44d worldInverse{ ::ev4sio_physx::PxIdentity };
 
     // The scene this instancer's bodies live in. A view belongs to ONE scene -- a body's DirectGPU
     // index is only meaningful in the scene that owns it -- so the backend builder buckets on this
@@ -1741,7 +1741,7 @@ void enumerateInstancers(AttachedStage& as,
 {
     InternalPhysXDatabase& db = as.getInternalPhysXDatabase();
     std::unordered_map<uint64_t, size_t> instancerSlot;   // instancerKey.handle -> index in instancers
-    std::map<uint64_t, ::physx::PxMat44d> instancerWorldInv; // cached per instancer
+    std::map<uint64_t, ::ev4sio_physx::PxMat44d> instancerWorldInv; // cached per instancer
 
     const std::vector<InternalDatabase::Record>& records = db.getRecords();
 
@@ -1753,7 +1753,7 @@ void enumerateInstancers(AttachedStage& as,
     {
         for (const InternalDatabase::Record& rec : records)
         {
-            if (rec.mType != omni::physx::ePTActor || !rec.mPtr || !rec.mInternalPtr)
+            if (rec.mType != omni::ev4sio_physx::ePTActor || !rec.mPtr || !rec.mInternalPtr)
                 continue;
             PxRigidDynamic* d = reinterpret_cast<PxRigidActor*>(rec.mPtr)->is<PxRigidDynamic>();
             InternalActor* ia = reinterpret_cast<InternalActor*>(rec.mInternalPtr);
@@ -1771,7 +1771,7 @@ void enumerateInstancers(AttachedStage& as,
     for (size_t ri = 0; ri < records.size(); ++ri)
     {
         const InternalDatabase::Record& rec = records[ri];
-        if (rec.mType != omni::physx::ePTActor || !rec.mPtr || !rec.mInternalPtr)
+        if (rec.mType != omni::ev4sio_physx::ePTActor || !rec.mPtr || !rec.mInternalPtr)
             continue;
         PxRigidActor* actor = reinterpret_cast<PxRigidActor*>(rec.mPtr);
         PxRigidDynamic* dyn = actor->is<PxRigidDynamic>();
@@ -1783,7 +1783,7 @@ void enumerateInstancers(AttachedStage& as,
         // one; else approximate with isSleeping() -- a kinematic body reports active only while it
         // is being moved.
         bool bodyActive = true;
-        if (scope == omni::physx::kOvxActive)
+        if (scope == omni::ev4sio_physx::kOvxActive)
         {
             bodyActive = activeSet.sceneReports(dyn->getScene())
                              ? activeSet.isActive(ri)
@@ -1804,13 +1804,13 @@ void enumerateInstancers(AttachedStage& as,
         //
         // Left identity under eKeysOnly, which is only safe because that mode's caller reads nothing but the
         // key. Anything that starts reading InstancerAccum::worldInverse has to resolve it here too.
-        ::physx::PxMat44d worldInverse(::physx::PxIdentity);
+        ::ev4sio_physx::PxMat44d worldInverse(::ev4sio_physx::PxIdentity);
         if (collect != InstancerCollect::eKeysOnly)
         {
-            std::map<uint64_t, ::physx::PxMat44d>::iterator invIt = instancerWorldInv.find(ih);
+            std::map<uint64_t, ::ev4sio_physx::PxMat44d>::iterator invIt = instancerWorldInv.find(ih);
             if (invIt == instancerWorldInv.end())
                 invIt = instancerWorldInv
-                            .emplace(ih, omni::physx::affineInverse(getWorldTransform(
+                            .emplace(ih, omni::ev4sio_physx::affineInverse(getWorldTransform(
                                              as, ia->mInstanceKey, omni::physics::parse::ReadTime::defaultTime())))
                             .first;
             worldInverse = invIt->second;
@@ -1835,7 +1835,7 @@ void enumerateInstancers(AttachedStage& as,
         InstancerAccum& devAcc = instancers[devSlotIt->second];
         if (collect == InstancerCollect::eDescriptions)
         {
-            omni::physx::tensors::PointInstance pi;
+            omni::ev4sio_physx::tensors::PointInstance pi;
             pi.body = dyn;
             pi.index = ia->mInstanceIndex;
             pi.protoInverse = ia->mProtoTransformInverse;
@@ -1849,7 +1849,7 @@ void enumerateInstancers(AttachedStage& as,
     // last step. The retained ones still carry their full instance set (above), so
     // each is emitted as a dense, contract-compliant full array — no intra-tensor
     // scatter (see buildRigidBodyGroups).
-    if (scope == omni::physx::kOvxActive)
+    if (scope == omni::ev4sio_physx::kOvxActive)
         instancers.erase(std::remove_if(instancers.begin(), instancers.end(),
                                         [](const InstancerAccum& a) { return !a.hasActive; }),
                          instancers.end());
@@ -1878,9 +1878,9 @@ struct RigidAttributeRow
     // the widest body in this read -- is resolved at emit from the view, as one padded fixed group.
     bool perShape;
     // The host reader of a hostOnly column on a DirectGPU scene; a device column names its gather in `gpuColumn`.
-    bool (omni::physx::tensors::GpuRigidBodyView::*gpuRead)(
+    bool (omni::ev4sio_physx::tensors::GpuRigidBodyView::*gpuRead)(
         const omni::physics::tensors::TensorDesc*, const PxU32*, PxU32, uint64_t) const;
-    bool (omni::physx::tensors::CpuRigidBodyView::*cpuRead)(
+    bool (omni::ev4sio_physx::tensors::CpuRigidBodyView::*cpuRead)(
         const omni::physics::tensors::TensorDesc*, const PxU32*, PxU32, uint64_t) const;
 
     // Which OvStageShapeProperty a per-shape row IS, so the emit hands the whole per-shape set to one backend
@@ -1889,11 +1889,11 @@ struct RigidAttributeRow
     // Read only when `perShape` is true; eNone is the "not applicable" answer for every other row. Both
     // switches in OvStageShapeProperty.h handle eNone explicitly -- -Wno-switch is set tree-wide, so nothing
     // would report a sixth property.
-    omni::physx::tensors::OvStageShapeProperty shapeProperty =
-        omni::physx::tensors::OvStageShapeProperty::eNone;
+    omni::ev4sio_physx::tensors::OvStageShapeProperty shapeProperty =
+        omni::ev4sio_physx::tensors::OvStageShapeProperty::eNone;
     // The device column a DirectGPU scene gathers on the read's stream (ADR-0055); eNone for a hostOnly row.
-    omni::physx::tensors::GpuRigidBodyView::OvStageRigidRead gpuColumn =
-        omni::physx::tensors::GpuRigidBodyView::OvStageRigidRead::eNone;
+    omni::ev4sio_physx::tensors::GpuRigidBodyView::OvStageRigidRead gpuColumn =
+        omni::ev4sio_physx::tensors::GpuRigidBodyView::OvStageRigidRead::eNone;
 };
 
 // A backend with no reader for an attribute names one of these instead of a stub, so a row still has to say
@@ -1905,9 +1905,9 @@ constexpr decltype(RigidAttributeRow::cpuRead) kRigidNotOnCpu = nullptr;
 
 constexpr omni::physics::tensors::TensorDataType kF32 = omni::physics::tensors::TensorDataType::eFloat32;
 
-using RigidGpuColumn = omni::physx::tensors::GpuRigidBodyView::OvStageRigidRead;
-constexpr omni::physx::tensors::OvStageShapeProperty kNoShapeProperty =
-    omni::physx::tensors::OvStageShapeProperty::eNone;
+using RigidGpuColumn = omni::ev4sio_physx::tensors::GpuRigidBodyView::OvStageRigidRead;
+constexpr omni::ev4sio_physx::tensors::OvStageShapeProperty kNoShapeProperty =
+    omni::ev4sio_physx::tensors::OvStageShapeProperty::eNone;
 
 // Array names follow UsdGeomPointInstancer: velocities and accelerations denote the
 // linear quantities. USD has no angular acceleration, so angularAccelerations keeps
@@ -1925,9 +1925,9 @@ constexpr RigidAttributeRow kRigidAttributes[] = {
 // properties are authored inputs and therefore use the same host reader on both backends. Keeping
 // them in a table separate from kRigidAttributes is load-bearing: these rows index articulations,
 // not bodies or links, even where the public attribute spelling is deliberately shared.
-using ArticulationCpuRead = bool (omni::physx::tensors::CpuArticulationView::*)(
+using ArticulationCpuRead = bool (omni::ev4sio_physx::tensors::CpuArticulationView::*)(
     const omni::physics::tensors::TensorDesc*, const PxU32*, PxU32, uint64_t) const;
-using ArticulationHostRead = bool (omni::physx::tensors::BaseArticulationView::*)(
+using ArticulationHostRead = bool (omni::ev4sio_physx::tensors::BaseArticulationView::*)(
     const omni::physics::tensors::TensorDesc*, const PxU32*, PxU32) const;
 
 struct ArticulationRootAttributeRow
@@ -1951,7 +1951,7 @@ struct ArticulationRootAttributeRow
     // true. Forced, not chosen: these dimensions are a function of each articulation's topology, so one
     // group cannot express two cohorts.
     bool perCohort;
-    omni::physx::tensors::BaseArticulationView::InverseDynamicsColumn inverseDynamicsColumn;
+    omni::ev4sio_physx::tensors::BaseArticulationView::InverseDynamicsColumn inverseDynamicsColumn;
     ArticulationCpuRead cpuRead;
     // The host-only reads live on the BASE view and take no rowsToken -- there is no device copy to keep in
     // step -- so their signature differs and they need a slot of their own rather than the CPU one.
@@ -1960,12 +1960,12 @@ struct ArticulationRootAttributeRow
     // Which root-state quantity this row IS, or eNone. On the row rather than in a token list beside the
     // table, whose failure mode is silent: rename a token there and the column is still SERVED, it just stops
     // sharing its fetch. Defaulted, so only the four root-state rows say so.
-    omni::physx::tensors::BaseArticulationView::RootStateQuantity rootState =
-        omni::physx::tensors::BaseArticulationView::RootStateQuantity::eNone;
+    omni::ev4sio_physx::tensors::BaseArticulationView::RootStateQuantity rootState =
+        omni::ev4sio_physx::tensors::BaseArticulationView::RootStateQuantity::eNone;
     // The device column a DirectGPU scene gathers on the read's stream (ADR-0055); eNone for a row it does not
     // serve there. A hostOnly row is served through `hostRead` on both backends.
-    omni::physx::tensors::GpuArticulationView::OvStageArtiRead gpuColumn =
-        omni::physx::tensors::GpuArticulationView::OvStageArtiRead::eNone;
+    omni::ev4sio_physx::tensors::GpuArticulationView::OvStageArtiRead gpuColumn =
+        omni::ev4sio_physx::tensors::GpuArticulationView::OvStageArtiRead::eNone;
 };
 
 // The articulation equivalents of kRigidNotOnCpu above, and for the same reason: a row must say
@@ -1974,9 +1974,9 @@ struct ArticulationRootAttributeRow
 constexpr decltype(ArticulationRootAttributeRow::cpuRead) kArtiRootNotOnCpu = nullptr;
 constexpr decltype(ArticulationRootAttributeRow::hostRead) kArtiRootNotOnHost = nullptr;
 
-using InvDynCol = omni::physx::tensors::BaseArticulationView::InverseDynamicsColumn;
-using RSQ = omni::physx::tensors::BaseArticulationView::RootStateQuantity;
-using ArtiGpuColumn = omni::physx::tensors::GpuArticulationView::OvStageArtiRead;
+using InvDynCol = omni::ev4sio_physx::tensors::BaseArticulationView::InverseDynamicsColumn;
+using RSQ = omni::ev4sio_physx::tensors::BaseArticulationView::RootStateQuantity;
+using ArtiGpuColumn = omni::ev4sio_physx::tensors::GpuArticulationView::OvStageArtiRead;
 
 constexpr ArticulationRootAttributeRow kArticulationRootAttributes[] = {
 #include "generated/kArticulationRootAttributes.inc"
@@ -1998,9 +1998,9 @@ struct JointAttributeRow
 {
     const char* token;
     // The device column a DirectGPU scene gathers on the read's stream (ADR-0055).
-    omni::physx::tensors::GpuArticulationView::OvStageRecordRead gpuColumn;
-    bool (omni::physx::tensors::CpuArticulationView::*cpuRead)(
-        const omni::physx::tensors::ArticulationDofOvStageRecord*, PxU32,
+    omni::ev4sio_physx::tensors::GpuArticulationView::OvStageRecordRead gpuColumn;
+    bool (omni::ev4sio_physx::tensors::CpuArticulationView::*cpuRead)(
+        const omni::ev4sio_physx::tensors::ArticulationDofOvStageRecord*, PxU32,
         const omni::physics::tensors::TensorDesc*) const;
 
     // Which DOF state quantity this column IS, so the emit hands the whole cache-backed set to one refresh
@@ -2009,12 +2009,12 @@ struct JointAttributeRow
     // Host-side only: it selects the CPU cache flags. eNone is the "not a state column" answer and
     // jointProjectedForce is the row that takes it -- derived from the link incoming joint forces rather than
     // read out of the articulation cache. Defaulted, so only the five state rows say so.
-    omni::physx::tensors::BaseArticulationView::DofStateQuantity stateQuantity =
-        omni::physx::tensors::BaseArticulationView::DofStateQuantity::eNone;
+    omni::ev4sio_physx::tensors::BaseArticulationView::DofStateQuantity stateQuantity =
+        omni::ev4sio_physx::tensors::BaseArticulationView::DofStateQuantity::eNone;
 };
 
 constexpr decltype(JointAttributeRow::cpuRead) kJointNotOnCpu = nullptr;
-using RecordGpuColumn = omni::physx::tensors::GpuArticulationView::OvStageRecordRead;
+using RecordGpuColumn = omni::ev4sio_physx::tensors::GpuArticulationView::OvStageRecordRead;
 
 constexpr JointAttributeRow kJointAttributes[] = {
 #include "generated/kJointAttributes.inc"
@@ -2038,7 +2038,7 @@ const JointAttributeRow* findJointAttribute(std::string_view token)
 struct JointPropertyAttributeRow
 {
     const char* token;
-    omni::physx::tensors::DofProperty prop;
+    omni::ev4sio_physx::tensors::DofProperty prop;
 };
 
 constexpr JointPropertyAttributeRow kJointPropertyAttributes[] = {
@@ -2103,7 +2103,7 @@ void* allocHostColumn(GroupStore& g, omni::physics::tensors::TensorDataType dtyp
 bool rigidRowOnGpu(const RigidAttributeRow& row)
 {
     return row.hostOnly ? row.gpuRead != kRigidNotOnGpu :
-                          row.gpuColumn != omni::physx::tensors::GpuRigidBodyView::OvStageRigidRead::eNone;
+                          row.gpuColumn != omni::ev4sio_physx::tensors::GpuRigidBodyView::OvStageRigidRead::eNone;
 }
 
 // Null for a name this type does not produce -- a normal answer, not a failure.
@@ -2182,7 +2182,7 @@ bool emitRigidBodyColumns(ReadSession& s,
                           PxScene* scene,
                           const std::vector<PxRigidBody*>& bodies,
                           const std::vector<ObjectKey>& keys,
-                          omni::physx::tensors::RigidBodyType type,
+                          omni::ev4sio_physx::tensors::RigidBodyType type,
                           const std::vector<std::string>& names,
                           uint32_t scope,
                           // The cache entry `bodies` and `keys` point into, when the caller served
@@ -2206,7 +2206,7 @@ bool emitRigidBodyColumns(ReadSession& s,
     const bool gpu = scene->getFlags().isSet(PxSceneFlag::eENABLE_DIRECT_GPU_API);
     const int matchedCount = static_cast<int>(bodies.size());
     const char* kindName =
-        (type == omni::physx::tensors::RigidBodyType::eArticulationLink) ? "articulation link" : "rigid body";
+        (type == omni::ev4sio_physx::tensors::RigidBodyType::eArticulationLink) ? "articulation link" : "rigid body";
     // Fail-closed: on any backend build/read failure the whole set is skipped rather than emitting
     // stale host data. Warn once so a non-empty set silently yielding no column is diagnosable
     // instead of looking like "no matching objects".
@@ -2239,7 +2239,7 @@ bool emitRigidBodyColumns(ReadSession& s,
         return true;
     }
 
-    omni::physx::tensors::SimulationBackend* backend = omni::physx::tensors::GetSimulationBackend();
+    omni::ev4sio_physx::tensors::SimulationBackend* backend = omni::ev4sio_physx::tensors::GetSimulationBackend();
     if (!backend)
     {
         warnNoColumn("no tensor backend");
@@ -2278,7 +2278,7 @@ bool emitRigidBodyColumns(ReadSession& s,
         // DirectGPU state and is correctly absent from those.
         bool wantsDisableSim = false;
         for (const std::string& nm : names)
-            if (std::string_view(nm) == omni::physx::OvxAttr::kDisableSimulation)
+            if (std::string_view(nm) == omni::ev4sio_physx::OvxAttr::kDisableSimulation)
             {
                 wantsDisableSim = true;
                 break;
@@ -2315,7 +2315,7 @@ bool emitRigidBodyColumns(ReadSession& s,
         // reused by a different scene -- so the cache is dropped and rebuilt. Giving up on a miss instead
         // would emit no columns at all for that read.
         int devOrd = 0;
-        omni::physx::tensors::GpuRigidBodyView* grbv = nullptr;
+        omni::ev4sio_physx::tensors::GpuRigidBodyView* grbv = nullptr;
         std::vector<PxU32> rowsOwned;
         bool rowsResolved = false;
         bool rowsFromCache = false;
@@ -2336,7 +2336,7 @@ bool emitRigidBodyColumns(ReadSession& s,
         for (int attempt = 0; attempt < 2; ++attempt)
         {
             const std::unordered_map<const PxRigidBody*, PxU32>* rowMap = nullptr;
-            omni::physx::tensors::GpuSimulationView* sv = s.caller.capturing ?
+            omni::ev4sio_physx::tensors::GpuSimulationView* sv = s.caller.capturing ?
                                                               backend->currentSceneView(scene, &generation) :
                                                               backend->acquireSceneView(scene, &generation);
             grbv = sv ? sv->supersetRigidView(&rowMap) : nullptr;
@@ -2463,7 +2463,7 @@ bool emitRigidBodyColumns(ReadSession& s,
             if (!rowsFromCache)
             {
                 ce.generation = generation;
-                ce.dbEpoch = omni::physx::internal::recordLifetimeEpoch(scene);
+                ce.dbEpoch = omni::ev4sio_physx::internal::recordLifetimeEpoch(scene);
                 ce.keys = outputKeys;
                 ce.handles.clear();
                 omni::physics::ovstage::canonicalisePathHandles(source, outputKeys.data(), outputKeys.size(),
@@ -2500,9 +2500,9 @@ bool emitRigidBodyColumns(ReadSession& s,
         // rows and PhysX staging they are gathered through: a held query's next read with the same rows reuses it,
         // uploads nothing and hands out the same pointers. The columns stay individually addressable -- each group
         // points at its own span.
-        using RigidReadColumn = omni::physx::tensors::GpuRigidBodyView::OvStageRigidReadColumn;
+        using RigidReadColumn = omni::ev4sio_physx::tensors::GpuRigidBodyView::OvStageRigidReadColumn;
         std::vector<RigidReadColumn> devColumns;
-        omni::physx::tensors::GpuRigidBodyView::OvStageRigidReadPlan devPlan;
+        omni::ev4sio_physx::tensors::GpuRigidBodyView::OvStageRigidReadPlan devPlan;
         size_t held = SIZE_MAX;
         CUdeviceptr columnBase = 0;
         bool anyHostOnly = false;
@@ -2589,7 +2589,7 @@ bool emitRigidBodyColumns(ReadSession& s,
                     const size_t numShapeCols = shapeRows.size();
                     devShapeGroups.resize(numShapeCols);
                     std::vector<omni::physics::tensors::TensorDesc> descs(numShapeCols);
-                    std::vector<omni::physx::tensors::BaseRigidBodyView::ShapePropertyColumn> columns(numShapeCols);
+                    std::vector<omni::ev4sio_physx::tensors::BaseRigidBodyView::ShapePropertyColumn> columns(numShapeCols);
                     for (size_t k = 0; k < numShapeCols; ++k)
                     {
                         devShapeGroups[k].isArray = false;
@@ -2679,7 +2679,7 @@ bool emitRigidBodyColumns(ReadSession& s,
                     // its disabled row (value 1) is present; every other host-only column stays filtered.
                     // It is never per-shape, so the width above is unaffected.
                     const bool useAll = disableSimUnfiltered &&
-                                        std::string_view(name) == omni::physx::OvxAttr::kDisableSimulation;
+                                        std::string_view(name) == omni::ev4sio_physx::OvxAttr::kDisableSimulation;
                     // No enabled rows and not the unfiltered disableSimulation column: this host-only
                     // property (mass, inertia, centerOfMass, disableGravity, ...) has no rows to gather,
                     // and its host getter rejects a null column, so emit nothing for it -- mirroring the
@@ -2755,9 +2755,9 @@ bool emitRigidBodyColumns(ReadSession& s,
             }
             else
             {
-                omni::physx::tensors::GpuRigidBodyView* const view = grbv;
+                omni::ev4sio_physx::tensors::GpuRigidBodyView* const view = grbv;
                 s.held[held].gathers.push_back(
-                    [view, devPlan, devColumns](const omni::physx::tensors::OvStageDeviceReadArgs& args)
+                    [view, devPlan, devColumns](const omni::ev4sio_physx::tensors::OvStageDeviceReadArgs& args)
                     {
                         return view->readOvStageColumns(args, devPlan, devColumns.data(),
                                                         static_cast<PxU32>(devColumns.size()));
@@ -2778,7 +2778,7 @@ bool emitRigidBodyColumns(ReadSession& s,
         // intermediate and no second strided pass, and only the component actually requested is queried off
         // the body. Served by the backend's cached superset view exactly as the device branch is, so no view
         // is constructed per read.
-        omni::physx::tensors::CpuRigidBodyView* crbv = nullptr;
+        omni::ev4sio_physx::tensors::CpuRigidBodyView* crbv = nullptr;
         std::vector<PxU32> rowsOwned;
         bool rowsResolved = false;
         bool rowsFromCache = false;
@@ -2790,7 +2790,7 @@ bool emitRigidBodyColumns(ReadSession& s,
         for (int attempt = 0; attempt < 2; ++attempt)
         {
             const std::unordered_map<const PxRigidBody*, PxU32>* rowMap = nullptr;
-            omni::physx::tensors::CpuSimulationView* sv = backend->acquireCpuSceneView(scene, &generation);
+            omni::ev4sio_physx::tensors::CpuSimulationView* sv = backend->acquireCpuSceneView(scene, &generation);
             crbv = sv ? sv->supersetRigidView(&rowMap) : nullptr;
             if (!crbv || !rowMap)
             {
@@ -2858,7 +2858,7 @@ bool emitRigidBodyColumns(ReadSession& s,
             if (!rowsFromCache)
             {
                 ce.generation = generation;
-                ce.dbEpoch = omni::physx::internal::recordLifetimeEpoch(scene);
+                ce.dbEpoch = omni::ev4sio_physx::internal::recordLifetimeEpoch(scene);
                 ce.keys = keys;
                 ce.handles.clear();
                 omni::physics::ovstage::canonicalisePathHandles(source, keys.data(), keys.size(),
@@ -2916,7 +2916,7 @@ bool emitRigidBodyColumns(ReadSession& s,
                     const size_t numShapeCols = shapeRows.size();
                     shapeGroups.resize(numShapeCols);
                     std::vector<omni::physics::tensors::TensorDesc> descs(numShapeCols);
-                    std::vector<omni::physx::tensors::BaseRigidBodyView::ShapePropertyColumn> columns(numShapeCols);
+                    std::vector<omni::ev4sio_physx::tensors::BaseRigidBodyView::ShapePropertyColumn> columns(numShapeCols);
                     for (size_t k = 0; k < numShapeCols; ++k)
                     {
                         shapeGroups[k].isArray = false;
@@ -3099,14 +3099,14 @@ bool buildStandaloneRigid(ReadSession& s, IPhysicsSource& source, PxScene* scene
         if (!selBucket)
             return true; // this scene owns no standalone bodies; not an error
         const std::vector<size_t> keep = selectedIndices(s.selection, selBucket->keys);
-        const std::vector<::physx::PxRigidBody*> selBodies = gatherByIndices(selBucket->bodies, keep);
+        const std::vector<::ev4sio_physx::PxRigidBody*> selBodies = gatherByIndices(selBucket->bodies, keep);
         const std::vector<ObjectKey> selKeys = gatherByIndices(selBucket->keys, keep);
         return emitRigidBodyColumns(s, source, scene, selBodies, selKeys,
-                                    omni::physx::tensors::RigidBodyType::eRigidDynamic, names, scope);
+                                    omni::ev4sio_physx::tensors::RigidBodyType::eRigidDynamic, names, scope);
     }
 
-    omni::physx::tensors::SimulationBackend* backend = omni::physx::tensors::GetSimulationBackend();
-    const RigidReadCacheKey cacheKey{ scene, static_cast<int>(omni::physx::tensors::RigidBodyType::eRigidDynamic),
+    omni::ev4sio_physx::tensors::SimulationBackend* backend = omni::ev4sio_physx::tensors::GetSimulationBackend();
+    const RigidReadCacheKey cacheKey{ scene, static_cast<int>(omni::ev4sio_physx::tensors::RigidBodyType::eRigidDynamic),
                                       scope };
 
     // ACTIVE is normally recomputed every read because the engine active-actor set changes each step. On a
@@ -3114,20 +3114,20 @@ bool buildStandaloneRigid(ReadSession& s, IPhysicsSource& source, PxScene* scene
     // non-kinematic bodies -- a subset that only changes when an object is created/retired
     // (recordLifetimeEpoch) or a body's kinematic flag flips (kinematicToggleEpoch). So it caches like
     // ALL, and steady-state active reads reuse the list rather than re-walking the record database.
-    const bool gpu = scene->getFlags().isSet(::physx::PxSceneFlag::eENABLE_DIRECT_GPU_API);
-    const bool activeCacheable = gpu && scope == omni::physx::kOvxActive;
+    const bool gpu = scene->getFlags().isSet(::ev4sio_physx::PxSceneFlag::eENABLE_DIRECT_GPU_API);
+    const bool activeCacheable = gpu && scope == omni::ev4sio_physx::kOvxActive;
 
     // The body set is derived from the object database and from nothing else, so it is unchanged exactly
     // while no object has been created or retired -- which the epoch answers on its own, with no view to
     // acquire. The rows and handles still need the generation, checked by the emit below, which has to
     // acquire a view anyway in order to read.
-    if (backend && (scope == omni::physx::kOvxAll || activeCacheable))
+    if (backend && (scope == omni::ev4sio_physx::kOvxAll || activeCacheable))
     {
         const std::unordered_map<RigidReadCacheKey, RigidReadCacheEntry, RigidReadCacheKeyHash>::iterator
             epochHit = g_rigidReadCache.find(cacheKey);
         if (epochHit != g_rigidReadCache.end() &&
-            epochHit->second.dbEpoch == omni::physx::internal::recordLifetimeEpoch(scene) &&
-            (!activeCacheable || epochHit->second.kinematicEpoch == omni::physx::internal::kinematicToggleEpoch(scene)) &&
+            epochHit->second.dbEpoch == omni::ev4sio_physx::internal::recordLifetimeEpoch(scene) &&
+            (!activeCacheable || epochHit->second.kinematicEpoch == omni::ev4sio_physx::internal::kinematicToggleEpoch(scene)) &&
             !epochHit->second.bodies.empty() &&
             epochHit->second.bodies.size() == epochHit->second.keys.size())
         {
@@ -3135,7 +3135,7 @@ bool buildStandaloneRigid(ReadSession& s, IPhysicsSource& source, PxScene* scene
             // map operation, so nothing can rehash underneath them while they are in use.
             RigidReadCacheEntry& ce = epochHit->second;
             return emitRigidBodyColumns(s, source, scene, ce.bodies, ce.keys,
-                                        omni::physx::tensors::RigidBodyType::eRigidDynamic, names, scope,
+                                        omni::ev4sio_physx::tensors::RigidBodyType::eRigidDynamic, names, scope,
                                         &ce);
         }
     }
@@ -3148,7 +3148,7 @@ bool buildStandaloneRigid(ReadSession& s, IPhysicsSource& source, PxScene* scene
     // rows and handles alongside them. The DirectGPU active entry stores keys and both epochs up front
     // so the hit path above is complete; the ALL entry only needs its bodies, since a scene with no
     // disabled body is the only one the ALL hit path admits and the emit fills the rest.
-    if (scope == omni::physx::kOvxAll)
+    if (scope == omni::ev4sio_physx::kOvxAll)
     {
         g_rigidReadCache[cacheKey].bodies = bucket->bodies;
     }
@@ -3157,8 +3157,8 @@ bool buildStandaloneRigid(ReadSession& s, IPhysicsSource& source, PxScene* scene
         RigidReadCacheEntry& ce = g_rigidReadCache[cacheKey];
         ce.bodies = bucket->bodies;
         ce.keys = bucket->keys;
-        ce.dbEpoch = omni::physx::internal::recordLifetimeEpoch(scene);
-        ce.kinematicEpoch = omni::physx::internal::kinematicToggleEpoch(scene);
+        ce.dbEpoch = omni::ev4sio_physx::internal::recordLifetimeEpoch(scene);
+        ce.kinematicEpoch = omni::ev4sio_physx::internal::kinematicToggleEpoch(scene);
         // Force the emit to re-resolve rows/handles for this set. A kinematic flip changes active
         // membership WITHOUT rebuilding the superset view, so the generation the emit's row cache keys
         // on is unchanged and it would otherwise serve the previous active set's rows under these keys.
@@ -3166,7 +3166,7 @@ bool buildStandaloneRigid(ReadSession& s, IPhysicsSource& source, PxScene* scene
     }
 
     return emitRigidBodyColumns(s, source, scene, bucket->bodies, bucket->keys,
-                                omni::physx::tensors::RigidBodyType::eRigidDynamic, names, scope);
+                                omni::ev4sio_physx::tensors::RigidBodyType::eRigidDynamic, names, scope);
 }
 
 // True when a scene runs DirectGPU, which is the only shape the device instancer path serves. Whether the
@@ -3231,7 +3231,7 @@ struct CachedLinkScan
     // Content version of `recs`, minted on each rebuild; the device record upload keys on this (see
     // buildLinkIncomingJointForce), so it re-uploads on any content change, not only a generation move.
     uint64_t recsVersion = 0;
-    std::vector<omni::physx::tensors::ArticulationLinkOvStageRecord> recs;
+    std::vector<omni::ev4sio_physx::tensors::ArticulationLinkOvStageRecord> recs;
 };
 std::unordered_map<const PxScene*, CachedLinkScan> g_linkScanCache;
 
@@ -3251,7 +3251,7 @@ struct LazyLinkScan
             // nothing outside consumes the set. LazyRigidScan holds its equivalent because the
             // instancer fallback reads it too, which is a reason this holder does not have.
             const ActiveActorSet activeSet =
-                (scope == omni::physx::kOvxActive) ? collectActiveActors(owner) : ActiveActorSet{};
+                (scope == omni::ev4sio_physx::kOvxActive) ? collectActiveActors(owner) : ActiveActorSet{};
             complete = scanLinkRecords(owner, scope, activeSet, data);
             ran = true;
         }
@@ -3262,7 +3262,7 @@ struct LazyLinkScan
 // What a link advertises on top of a rigid body's set. A named list, not a token comparison at its one
 // consumer: attrNamesForType appends this and the `wanted` check below accepts it, so per AC-2 of
 // REQ-READ-ATTRS-001 discovery cannot drift from what is served.
-constexpr const char* kArticulationLinkOnlyAttributes[] = { omni::physx::OvxAttr::kLinkIncomingJointForce };
+constexpr const char* kArticulationLinkOnlyAttributes[] = { omni::ev4sio_physx::OvxAttr::kLinkIncomingJointForce };
 
 // The one link attribute a rigid-body view cannot serve: the value lives in the ARTICULATION view (the
 // articulation cache on CPU, the link incoming-joint-force buffer on GPU). Defined below where that
@@ -3286,13 +3286,13 @@ bool buildArticulationLinks(ReadSession& s, IPhysicsSource& source, PxScene* sce
     {
         if (!s.attributeResults.empty())
         {
-            const ActiveActorSet active = scope == omni::physx::kOvxActive ? collectActiveActors(lazy.owner) :
+            const ActiveActorSet active = scope == omni::ev4sio_physx::kOvxActive ? collectActiveActors(lazy.owner) :
                                                                            ActiveActorSet{};
             const std::vector<InternalDatabase::Record>& records = lazy.owner.getInternalPhysXDatabase().getRecords();
             for (size_t ri = 0; ri < records.size(); ++ri)
             {
                 const InternalDatabase::Record& rec = records[ri];
-                if (rec.mType != omni::physx::ePTLink || !rec.mPtr || !s.selection.admits(rec.mKey))
+                if (rec.mType != omni::ev4sio_physx::ePTLink || !rec.mPtr || !s.selection.admits(rec.mKey))
                     continue;
                 const PxArticulationLink* const link = reinterpret_cast<PxRigidActor*>(rec.mPtr)->is<PxArticulationLink>();
                 if (!link || !linkInScope(*link, ri, scope, active))
@@ -3320,20 +3320,20 @@ bool buildArticulationLinks(ReadSession& s, IPhysicsSource& source, PxScene* sce
         if (!selBucket)
             return true; // this scene owns no links; not an error
         const std::vector<size_t> keep = selectedIndices(s.selection, selBucket->keys);
-        const std::vector<::physx::PxRigidBody*> selBodies = gatherByIndices(selBucket->bodies, keep);
+        const std::vector<::ev4sio_physx::PxRigidBody*> selBodies = gatherByIndices(selBucket->bodies, keep);
         const std::vector<ObjectKey> selKeys = gatherByIndices(selBucket->keys, keep);
         const bool rigidOk = emitRigidBodyColumns(s, source, scene, selBodies, selKeys,
-                                                  omni::physx::tensors::RigidBodyType::eArticulationLink, names, scope);
+                                                  omni::ev4sio_physx::tensors::RigidBodyType::eArticulationLink, names, scope);
         const bool artiOk = buildLinkIncomingJointForce(s, source, scene, selBodies, selKeys, names, /*linkCache=*/nullptr);
         return rigidOk && artiOk;
     }
 
     const RigidSceneBucket* bucket = nullptr;
     CachedLinkScan* linkCache = nullptr;
-    if (scope == omni::physx::kOvxAll)
+    if (scope == omni::ev4sio_physx::kOvxAll)
     {
         CachedLinkScan& lc = g_linkScanCache[scene];
-        const uint64_t dbEpochNow = omni::physx::internal::recordLifetimeEpoch(scene);
+        const uint64_t dbEpochNow = omni::ev4sio_physx::internal::recordLifetimeEpoch(scene);
         if (lc.dbEpoch != dbEpochNow)
         {
             lc.data = lazy.get(); // this read's single walk, kept for the reads that follow
@@ -3358,7 +3358,7 @@ bool buildArticulationLinks(ReadSession& s, IPhysicsSource& source, PxScene* sce
         return true; // this scene owns no links; not an error
 
     const bool rigidOk = emitRigidBodyColumns(s, source, scene, bucket->bodies, bucket->keys,
-                                              omni::physx::tensors::RigidBodyType::eArticulationLink, names, scope);
+                                              omni::ev4sio_physx::tensors::RigidBodyType::eArticulationLink, names, scope);
     // Over the SAME prim list and the same scope, so a read asking for pose and linkIncomingJointForce
     // together gets both over one link set. Not folded into the rigid emit above because the source
     // is a different view; a read asking for neither pays one string comparison per requested name.
@@ -3388,7 +3388,7 @@ struct InstancerViewCacheEntry
     // instancers through CpuPointInstancerView; check(), release() and setWorldInverses() are on the
     // base, whose destructor is virtual so release() deletes the right one, and each backend's column
     // read is reached through its own type.
-    omni::physx::tensors::BasePointInstancerView* view = nullptr;
+    omni::ev4sio_physx::tensors::BasePointInstancerView* view = nullptr;
     // What the emit needs about each instancer, in the order the view was built in. Held here so a cache HIT
     // does not have to enumerate at all -- rebuilding these means walking the object database and
     // materialising one description per instance.
@@ -3416,7 +3416,7 @@ struct HostInstancerViewCacheEntry
 {
     uint64_t dbEpoch = 0;
     uint64_t generation = 0;
-    omni::physx::tensors::CpuPointInstancerView* view = nullptr;
+    omni::ev4sio_physx::tensors::CpuPointInstancerView* view = nullptr;
     std::vector<ObjectKey> keys;
     std::vector<uint32_t> arrayLengths;
 };
@@ -3424,7 +3424,7 @@ std::unordered_map<const PxScene*, HostInstancerViewCacheEntry> g_hostInstancerV
 
 } // namespace (reopened below)
 
-namespace omni::physx::ovx
+namespace omni::ev4sio_physx::ovx
 {
 // Deterministic teardown: free EVERY pooled output-column buffer and drop every manager reference,
 // ahead of the runtime's CUDA/foundation shutdown. Called from OmniPhysX::onShutdown before
@@ -3445,7 +3445,7 @@ void ovxDrainColumnPools()
 
 // Declared in OvxPhysicsShared.h. Lives here because everything it touches does: enumerateInstancers,
 // the Gf world-transform query, and the entry type the view is built from.
-bool instancerWriteTargets(::physx::PxScene* scene, const uint32_t scope, InstancerWriteTargets& out)
+bool instancerWriteTargets(::ev4sio_physx::PxScene* scene, const uint32_t scope, InstancerWriteTargets& out)
 {
     out.listed = false;
     out.view = nullptr;
@@ -3456,7 +3456,7 @@ bool instancerWriteTargets(::physx::PxScene* scene, const uint32_t scope, Instan
     SourceContext ctx;
     if (!getSceneSourceContext(scene, "instancerWriteTargets", ctx))
         return false;
-    omni::physx::tensors::SimulationBackend* backend = omni::physx::tensors::GetSimulationBackend();
+    omni::ev4sio_physx::tensors::SimulationBackend* backend = omni::ev4sio_physx::tensors::GetSimulationBackend();
     if (!backend)
         return false;
 
@@ -3465,7 +3465,7 @@ bool instancerWriteTargets(::physx::PxScene* scene, const uint32_t scope, Instan
     // the whole write session with nothing logged, since the device branch below never ran.
     const bool gpu = scene->getFlags().isSet(PxSceneFlag::eENABLE_DIRECT_GPU_API);
     uint64_t generation = 0;
-    omni::physx::tensors::CpuSimulationView* sv = nullptr;
+    omni::ev4sio_physx::tensors::CpuSimulationView* sv = nullptr;
     if (gpu)
     {
         if (!backend->acquireSceneView(scene, &generation))
@@ -3485,17 +3485,17 @@ bool instancerWriteTargets(::physx::PxScene* scene, const uint32_t scope, Instan
     if (gpu)
     {
         InstancerViewCacheEntry& dev = g_instancerViewCache[scene];
-        const uint64_t dbEpochNowDev = omni::physx::internal::recordLifetimeEpoch(scene);
+        const uint64_t dbEpochNowDev = omni::ev4sio_physx::internal::recordLifetimeEpoch(scene);
         if (!dev.built || dev.dbEpoch != dbEpochNowDev || dev.generation != generation)
             return true; // no device view built yet -- read an instancer column first; not a failure
         out.listed = true; // the read's enumeration for this state, which built a view only if it found instancers
         if (!dev.view)
             return true; // the scene holds no instancers
-        std::vector<::physx::PxMat44d> worldInverses;
+        std::vector<::ev4sio_physx::PxMat44d> worldInverses;
         worldInverses.reserve(dev.keys.size());
         for (const ObjectKey& key : dev.keys)
             worldInverses.push_back(
-                omni::physx::affineInverse(getWorldTransform(
+                omni::ev4sio_physx::affineInverse(getWorldTransform(
                     *ctx.stage, key, omni::physics::parse::ReadTime::defaultTime())));
         if (!dev.view->setWorldInverses(worldInverses.data(), PxU32(dev.keys.size())))
         {
@@ -3512,7 +3512,7 @@ bool instancerWriteTargets(::physx::PxScene* scene, const uint32_t scope, Instan
     }
 
     HostInstancerViewCacheEntry& ce = g_hostInstancerViewCache[scene];
-    const uint64_t dbEpochNow = omni::physx::internal::recordLifetimeEpoch(scene);
+    const uint64_t dbEpochNow = omni::ev4sio_physx::internal::recordLifetimeEpoch(scene);
     if (ce.dbEpoch != dbEpochNow || ce.generation != generation || !ce.view)
     {
         std::vector<InstancerAccum> instancers;
@@ -3528,11 +3528,11 @@ bool instancerWriteTargets(::physx::PxScene* scene, const uint32_t scope, Instan
         ce.view = nullptr;
         if (!instancers.empty())
         {
-            std::vector<omni::physx::tensors::PointInstancerEntry> entries;
+            std::vector<omni::ev4sio_physx::tensors::PointInstancerEntry> entries;
             entries.reserve(instancers.size());
             for (const InstancerAccum& acc : instancers)
             {
-                omni::physx::tensors::PointInstancerEntry e;
+                omni::ev4sio_physx::tensors::PointInstancerEntry e;
                 e.worldInverse = acc.worldInverse;
                 e.arrayLength = acc.maxIndex + 1;
                 e.instances = acc.instances;
@@ -3557,11 +3557,11 @@ bool instancerWriteTargets(::physx::PxScene* scene, const uint32_t scope, Instan
     // retiring nothing, so the epoch guarding everything above cannot see it.
     if (ce.view)
     {
-        std::vector<::physx::PxMat44d> worldInverses;
+        std::vector<::ev4sio_physx::PxMat44d> worldInverses;
         worldInverses.reserve(ce.keys.size());
         for (const ObjectKey& key : ce.keys)
             worldInverses.push_back(
-                omni::physx::affineInverse(getWorldTransform(
+                omni::ev4sio_physx::affineInverse(getWorldTransform(
                     *ctx.stage, key, omni::physics::parse::ReadTime::defaultTime())));
         if (!ce.view->setWorldInverses(worldInverses.data(), PxU32(ce.keys.size())))
             return false;
@@ -3573,26 +3573,26 @@ bool instancerWriteTargets(::physx::PxScene* scene, const uint32_t scope, Instan
     out.arrayLengths = ce.arrayLengths;
     return true;
 }
-} // namespace omni::physx::ovx
+} // namespace omni::ev4sio_physx::ovx
 
 namespace
 {
 
 // Which of the view's four columns an attribute name reads, if any.
-bool instancerColumnForName(const std::string& name, omni::physx::tensors::BasePointInstancerView::InstancerColumn& out)
+bool instancerColumnForName(const std::string& name, omni::ev4sio_physx::tensors::BasePointInstancerView::InstancerColumn& out)
 {
-    using Column = omni::physx::tensors::BasePointInstancerView::InstancerColumn;
-    if (name == omni::physx::OvxAttr::kPosition)
+    using Column = omni::ev4sio_physx::tensors::BasePointInstancerView::InstancerColumn;
+    if (name == omni::ev4sio_physx::OvxAttr::kPosition)
         out = Column::eLocalPosition;
-    else if (name == omni::physx::OvxAttr::kOrientation)
+    else if (name == omni::ev4sio_physx::OvxAttr::kOrientation)
         out = Column::eLocalOrientation;
-    else if (name == omni::physx::OvxAttr::kLinearVelocity)
+    else if (name == omni::ev4sio_physx::OvxAttr::kLinearVelocity)
         out = Column::eLinearVelocity;
-    else if (name == omni::physx::OvxAttr::kAngularVelocity)
+    else if (name == omni::ev4sio_physx::OvxAttr::kAngularVelocity)
         out = Column::eAngularVelocity;
-    else if (name == omni::physx::OvxAttr::kLinearAcceleration)
+    else if (name == omni::ev4sio_physx::OvxAttr::kLinearAcceleration)
         out = Column::eLinearAcceleration;
-    else if (name == omni::physx::OvxAttr::kAngularAcceleration)
+    else if (name == omni::ev4sio_physx::OvxAttr::kAngularAcceleration)
         out = Column::eAngularAcceleration;
     else
         return false;
@@ -3643,7 +3643,7 @@ bool computeActiveInstancerMask(PxScene* scene, const InstancerViewCacheEntry& c
                                    if (recordIndex >= records.size())
                                        return;
                                    const InternalDatabase::Record& rec = records[recordIndex];
-                                   if (rec.mType != omni::physx::ePTActor || !rec.mInternalPtr)
+                                   if (rec.mType != omni::ev4sio_physx::ePTActor || !rec.mInternalPtr)
                                        return;
                                    const InternalActor* ia =
                                        reinterpret_cast<const InternalActor*>(rec.mInternalPtr);
@@ -3659,12 +3659,12 @@ bool computeActiveInstancerMask(PxScene* scene, const InstancerViewCacheEntry& c
 
     // No active list on this scene, so ask each body its own sleep state -- over the instances the
     // view already holds, which is why this needs no walk either.
-    const std::vector<omni::physx::tensors::PointInstancerEntry>& entries = ce.view->getEntries();
+    const std::vector<omni::ev4sio_physx::tensors::PointInstancerEntry>& entries = ce.view->getEntries();
     if (entries.size() != ce.keys.size())
         return false; // the two went out of step; declining is the safe answer
     for (size_t i = 0; i < entries.size(); ++i)
     {
-        for (const omni::physx::tensors::PointInstance& pi : entries[i].instances)
+        for (const omni::ev4sio_physx::tensors::PointInstance& pi : entries[i].instances)
         {
             PxRigidDynamic* const d = pi.body;
             if (d && !((d->getRigidBodyFlags() & PxRigidBodyFlag::eKINEMATIC) || d->isSleeping()))
@@ -3710,7 +3710,7 @@ bool buildInstancerBackendGroups(ReadSession& s,
     // ordering are identical.
     const bool gpu = sceneRunsDirectGpu(scene);
 
-    omni::physx::tensors::SimulationBackend* const backend = omni::physx::tensors::GetSimulationBackend();
+    omni::ev4sio_physx::tensors::SimulationBackend* const backend = omni::ev4sio_physx::tensors::GetSimulationBackend();
     if (!backend)
         return false;
 
@@ -3737,8 +3737,8 @@ bool buildInstancerBackendGroups(ReadSession& s,
     }
 
     uint64_t generation = 0;
-    omni::physx::tensors::GpuSimulationView* gpuSv = nullptr;
-    omni::physx::tensors::CpuSimulationView* cpuSv = nullptr;
+    omni::ev4sio_physx::tensors::GpuSimulationView* gpuSv = nullptr;
+    omni::ev4sio_physx::tensors::CpuSimulationView* cpuSv = nullptr;
     int devOrd = -1;
     if (gpu)
     {
@@ -3803,7 +3803,7 @@ bool buildInstancerBackendGroups(ReadSession& s,
         enumerateInstancers(as, kOvxAll, kNoActiveActors, instancers, &lazy.get().instanced,
                             InstancerCollect::eDescriptions);
 
-        std::vector<omni::physx::tensors::PointInstancerEntry> entries;
+        std::vector<omni::ev4sio_physx::tensors::PointInstancerEntry> entries;
         entries.reserve(instancers.size());
         ce.keys.clear();
         ce.maxIndex.clear();
@@ -3829,7 +3829,7 @@ bool buildInstancerBackendGroups(ReadSession& s,
                 return false;
             }
             ce.slotForInstancer.emplace(acc.instancerKey.handle, ce.keys.size());
-            omni::physx::tensors::PointInstancerEntry e;
+            omni::ev4sio_physx::tensors::PointInstancerEntry e;
             e.worldInverse = acc.worldInverse;
             e.arrayLength = acc.maxIndex + 1;
             e.instances = acc.instances;
@@ -3851,9 +3851,9 @@ bool buildInstancerBackendGroups(ReadSession& s,
             return true;
         }
 
-        ce.view = gpu ? static_cast<omni::physx::tensors::BasePointInstancerView*>(
+        ce.view = gpu ? static_cast<omni::ev4sio_physx::tensors::BasePointInstancerView*>(
                             gpuSv->createPointInstancerViewFromEntries(entries)) :
-                        static_cast<omni::physx::tensors::BasePointInstancerView*>(
+                        static_cast<omni::ev4sio_physx::tensors::BasePointInstancerView*>(
                             cpuSv->createPointInstancerViewFromEntries(entries));
         if (!ce.view)
         {
@@ -3908,7 +3908,7 @@ bool buildInstancerBackendGroups(ReadSession& s,
     {
         std::string arrayName;
         std::string requestedName;
-        omni::physx::tensors::BasePointInstancerView::InstancerColumn column;
+        omni::ev4sio_physx::tensors::BasePointInstancerView::InstancerColumn column;
         int comp = 0;
         size_t base = 0; // float offset of this column's region within the allocation
         std::vector<PxU32> offsets; // per instancer, floats from `base`
@@ -3955,7 +3955,7 @@ bool buildInstancerBackendGroups(ReadSession& s,
         // overwriting neighbouring instances silently. Declining fails the read rather than emitting
         // a column the kernel would scatter at the wrong stride.
         const int kernelStride =
-            (plan.column == omni::physx::tensors::BasePointInstancerView::InstancerColumn::eLocalOrientation) ? 4 : 3;
+            (plan.column == omni::ev4sio_physx::tensors::BasePointInstancerView::InstancerColumn::eLocalOrientation) ? 4 : 3;
         if (comp != kernelStride)
         {
             CARB_LOG_ERROR("ovxReadAttributes: '%s' is %d wide but the instancer kernel scatters at %d; "
@@ -4039,11 +4039,11 @@ bool buildInstancerBackendGroups(ReadSession& s,
     // changes it while creating and retiring nothing, so the epoch guarding everything else above
     // cannot see it. One query per INSTANCER, not per instance -- which is why it is affordable to
     // redo unconditionally.
-    std::vector<::physx::PxMat44d> worldInverses;
+    std::vector<::ev4sio_physx::PxMat44d> worldInverses;
     worldInverses.reserve(numInstancers);
     for (const ObjectKey& key : ce.keys)
         worldInverses.push_back(
-            omni::physx::affineInverse(getWorldTransform(as, key, omni::physics::parse::ReadTime::defaultTime())));
+            omni::ev4sio_physx::affineInverse(getWorldTransform(as, key, omni::physics::parse::ReadTime::defaultTime())));
     if (!ce.view->setWorldInverses(worldInverses.data(), PxU32(numInstancers)))
         return false;
 
@@ -4071,9 +4071,9 @@ bool buildInstancerBackendGroups(ReadSession& s,
         }
         // Every column is one span of a buffer the query holds (ADR-0055), headed by the columns' per-instancer
         // offsets and followed by the PhysX copies they are gathered from.
-        omni::physx::tensors::GpuPointInstancerView* const gpuView =
-            static_cast<omni::physx::tensors::GpuPointInstancerView*>(ce.view);
-        std::vector<omni::physx::tensors::BasePointInstancerView::InstancerColumn> columns;
+        omni::ev4sio_physx::tensors::GpuPointInstancerView* const gpuView =
+            static_cast<omni::ev4sio_physx::tensors::GpuPointInstancerView*>(ce.view);
+        std::vector<omni::ev4sio_physx::tensors::BasePointInstancerView::InstancerColumn> columns;
         std::vector<const PxU32*> offsets;
         for (const ColumnPlan& plan : plans)
         {
@@ -4108,7 +4108,7 @@ bool buildInstancerBackendGroups(ReadSession& s,
         PxCudaContextManager* const manager = ctxMgr;
         s.held[held].gathers.push_back(
             [gpuView, manager, columnBase, totalFloats, columns, dsts](
-                const omni::physx::tensors::OvStageDeviceReadArgs& args)
+                const omni::ev4sio_physx::tensors::OvStageDeviceReadArgs& args)
             {
                 if (manager->getCudaContext()->memsetD32Async(columnBase, 0u, totalFloats, args.stream) != 0)
                 {
@@ -4133,7 +4133,7 @@ bool buildInstancerBackendGroups(ReadSession& s,
         // before anything is published is what makes that fallback safe.
         for (const ColumnPlan& plan : plans)
         {
-            if (!static_cast<omni::physx::tensors::CpuPointInstancerView*>(ce.view)->getInstancerColumnsOvStage(
+            if (!static_cast<omni::ev4sio_physx::tensors::CpuPointInstancerView*>(ce.view)->getInstancerColumnsOvStage(
                     plan.column, hostColumn.data() + plan.base, plan.offsets.data(), PxU32(numInstancers)))
                 return false;
         }
@@ -4375,9 +4375,9 @@ void buildArticulationLinkGroups(ReadSession& s,
 // once rather than in a branch per device per caller.
 struct ArticulationViewBinding
 {
-    omni::physx::tensors::GpuArticulationView* gpuAv = nullptr; // set iff gpu
-    omni::physx::tensors::CpuArticulationView* cpuAv = nullptr; // set iff !gpu
-    const std::vector<omni::physx::tensors::ArticulationEntry>* entries = nullptr;
+    omni::ev4sio_physx::tensors::GpuArticulationView* gpuAv = nullptr; // set iff gpu
+    omni::ev4sio_physx::tensors::CpuArticulationView* cpuAv = nullptr; // set iff !gpu
+    const std::vector<omni::ev4sio_physx::tensors::ArticulationEntry>* entries = nullptr;
     int devOrd = -1;         // host columns keep -1; only read under `if (gpu)`
     uint64_t generation = 0; // the view build whose rows localToRow names
     // Translates this read's articulation index into the superset row the cached view and the
@@ -4389,7 +4389,7 @@ struct ArticulationViewBinding
     bool usedCachedRows = false;
 };
 
-bool articulationShapeTopologyMatches(const omni::physx::tensors::ArticulationEntry& entry,
+bool articulationShapeTopologyMatches(const omni::ev4sio_physx::tensors::ArticulationEntry& entry,
                                       PxArticulationReducedCoordinate* articulation,
                                       std::vector<PxArticulationLink*>& createdLinks,
                                       std::vector<PxArticulationLink*>& orderedLinks, std::vector<PxShape*>& shapes)
@@ -4441,7 +4441,7 @@ bool articulationShapeTopologyMatches(const omni::physx::tensors::ArticulationEn
     return entry.numShapes == shapeOffset && entry.shapes.size() == shapeOffset;
 }
 
-bool articulationShapeTopologiesMatch(const std::vector<omni::physx::tensors::ArticulationEntry>& entries,
+bool articulationShapeTopologiesMatch(const std::vector<omni::ev4sio_physx::tensors::ArticulationEntry>& entries,
                                       const std::vector<PxArticulationReducedCoordinate*>& articulations,
                                       const std::vector<uint32_t>& rows)
 {
@@ -4468,7 +4468,7 @@ bool articulationShapeTopologiesMatch(const std::vector<omni::physx::tensors::Ar
 // caller states the condition rather than this function guessing it, because the three callers guard
 // on different things (the tendon path also requires its enumeration to be current). Ignored when
 // `requireShapeTopology` is set, since that check reads the mapping here.
-bool acquireArticulationBinding(omni::physx::tensors::SimulationBackend* backend, PxScene* scene, bool gpu,
+bool acquireArticulationBinding(omni::ev4sio_physx::tensors::SimulationBackend* backend, PxScene* scene, bool gpu,
                                 const std::vector<PxArticulationReducedCoordinate*>& artis,
                                 ArticulationViewBinding& out, const std::vector<uint32_t>* cachedRows = nullptr,
                                 uint64_t cachedGeneration = 0, bool requireShapeTopology = false,
@@ -4495,7 +4495,7 @@ bool acquireArticulationBinding(omni::physx::tensors::SimulationBackend* backend
         out.usedCachedRows = false;
         if (gpu)
         {
-            omni::physx::tensors::GpuSimulationView* sv = capturing ?
+            omni::ev4sio_physx::tensors::GpuSimulationView* sv = capturing ?
                                                               backend->currentSceneView(scene, &out.generation) :
                                                               backend->acquireSceneView(scene, &out.generation);
             out.gpuAv = sv ? sv->supersetArticulationView(&artiRowMap, &out.entries) : nullptr;
@@ -4504,7 +4504,7 @@ bool acquireArticulationBinding(omni::physx::tensors::SimulationBackend* backend
         }
         else
         {
-            omni::physx::tensors::CpuSimulationView* csv = backend->acquireCpuSceneView(scene, &out.generation);
+            omni::ev4sio_physx::tensors::CpuSimulationView* csv = backend->acquireCpuSceneView(scene, &out.generation);
             out.cpuAv = csv ? csv->supersetArticulationView(&artiRowMap, &out.entries) : nullptr;
             out.devOrd = -1;
         }
@@ -4630,19 +4630,19 @@ bool refreshArticulationStructuralCache(AttachedStage& owner, const std::vector<
 
 } // namespace (reopened below)
 
-namespace omni::physx::ovx
+namespace omni::ev4sio_physx::ovx
 {
 // Declared in OvxPhysicsShared.h so the WRITE can fill and read this cache without a prior read
 // having run. The walk itself is unchanged and still lives in this file.
 //
 // Callers retain outputCacheMutex across refresh and every borrowed cache entry.
 // Both public read/write entry points and internal change-feed drains obey this rule.
-bool refreshArticulationCache(AttachedStage& owner, const std::vector<::physx::PxScene*>& scenes)
+bool refreshArticulationCache(AttachedStage& owner, const std::vector<::ev4sio_physx::PxScene*>& scenes)
 {
     return refreshArticulationStructuralCache(owner, scenes);
 }
 
-ArticulationReadCacheEntry* articulationCacheEntry(const ::physx::PxScene* scene)
+ArticulationReadCacheEntry* articulationCacheEntry(const ::ev4sio_physx::PxScene* scene)
 {
     InternalScene* internalScene = internalSceneOf(scene);
     if (!internalScene)
@@ -4653,7 +4653,7 @@ ArticulationReadCacheEntry* articulationCacheEntry(const ::physx::PxScene* scene
     const auto entry = owner->second.byScene.find(scene);
     return entry == owner->second.byScene.end() ? nullptr : &entry->second;
 }
-} // namespace omni::physx::ovx
+} // namespace omni::ev4sio_physx::ovx
 
 namespace
 {
@@ -4736,7 +4736,7 @@ bool refreshArticulationStructuralCache(AttachedStage& owner, const std::vector<
         for (size_t recordIndex = 0; recordIndex < records.size(); ++recordIndex)
         {
             const InternalDatabase::Record& rec = records[recordIndex];
-            if (rec.mType == omni::physx::ePTArticulation && rec.mPtr)
+            if (rec.mType == omni::ev4sio_physx::ePTArticulation && rec.mPtr)
             {
                 PxArticulationReducedCoordinate* arti = reinterpret_cast<PxArticulationReducedCoordinate*>(rec.mPtr);
                 // The SDK articulation is not inserted into its PxScene until the first update,
@@ -4762,7 +4762,7 @@ bool refreshArticulationStructuralCache(AttachedStage& owner, const std::vector<
                 entry.roots.emplace_back();
                 next.rootsInDatabaseOrder.push_back({ scene, rootIndex });
             }
-            else if (rec.mType == omni::physx::ePTLink && rec.mPtr)
+            else if (rec.mType == omni::ev4sio_physx::ePTLink && rec.mPtr)
             {
                 PxArticulationLink* link = reinterpret_cast<PxRigidActor*>(rec.mPtr)->is<PxArticulationLink>();
                 if (!link)
@@ -4771,7 +4771,7 @@ bool refreshArticulationStructuralCache(AttachedStage& owner, const std::vector<
                     &static_cast<PxArticulationReducedCoordinate&>(link->getArticulation());
                 pendingLinks.push_back({ link->getScene(), arti, recordIndex });
             }
-            else if (rec.mType == omni::physx::ePTLinkJoint && rec.mPtr && rec.mInternalPtr)
+            else if (rec.mType == omni::ev4sio_physx::ePTLinkJoint && rec.mPtr && rec.mInternalPtr)
             {
                 PxArticulationJointReducedCoordinate* joint =
                     reinterpret_cast<PxArticulationJointReducedCoordinate*>(rec.mPtr);
@@ -4852,7 +4852,7 @@ bool refreshArticulationStructuralCache(AttachedStage& owner, const std::vector<
 bool articulationRootInScope(const ArticulationReadCacheEntry& entry, size_t rootIndex, uint32_t scope,
                              const ActiveActorSet& activeActors, const PxScene* owningScene)
 {
-    if (scope != omni::physx::kOvxActive)
+    if (scope != omni::ev4sio_physx::kOvxActive)
         return true;
     if (rootIndex >= entry.roots.size() || rootIndex >= entry.rootArtis.size())
         return false;
@@ -4881,7 +4881,7 @@ bool articulationRootInScope(const ArticulationReadCacheEntry& entry, size_t roo
 // REQ-READ-ARTICULATION-001 AC-2 already gives the rows themselves (REQ-READ-INVDYN-001 AC-3).
 struct ArticulationCohort
 {
-    const omni::physx::tensors::ArticulationMetatype* metatype = nullptr;
+    const omni::ev4sio_physx::tensors::ArticulationMetatype* metatype = nullptr;
     std::vector<PxU32> rows;
     std::vector<ObjectKey> keys;
     std::vector<ovx_primpath_t> handles;
@@ -4932,16 +4932,16 @@ struct ArticulationDescriptor
 };
 
 const ArticulationDescriptor kArticulationDescriptors[] = {
-    { DescriptorColumn::eDofJointPath, omni::physx::OvxAttr::kDofJointPath },
-    { DescriptorColumn::eDofAxisIndex, omni::physx::OvxAttr::kDofAxisIndex },
-    { DescriptorColumn::eDofAxisKind, omni::physx::OvxAttr::kDofAxisKind },
-    { DescriptorColumn::eDofJointType, omni::physx::OvxAttr::kDofJointType },
-    { DescriptorColumn::eLinkPath, omni::physx::OvxAttr::kLinkPath },
-    { DescriptorColumn::eLinkInboundJoint, omni::physx::OvxAttr::kLinkInboundJoint },
-    { DescriptorColumn::eFixedTendonRoot, omni::physx::OvxAttr::kFixedTendonRoot },
-    { DescriptorColumn::eFixedTendonInstance, omni::physx::OvxAttr::kFixedTendonInstance },
-    { DescriptorColumn::eSpatialTendonRoot, omni::physx::OvxAttr::kSpatialTendonRoot },
-    { DescriptorColumn::eSpatialTendonInstance, omni::physx::OvxAttr::kSpatialTendonInstance },
+    { DescriptorColumn::eDofJointPath, omni::ev4sio_physx::OvxAttr::kDofJointPath },
+    { DescriptorColumn::eDofAxisIndex, omni::ev4sio_physx::OvxAttr::kDofAxisIndex },
+    { DescriptorColumn::eDofAxisKind, omni::ev4sio_physx::OvxAttr::kDofAxisKind },
+    { DescriptorColumn::eDofJointType, omni::ev4sio_physx::OvxAttr::kDofJointType },
+    { DescriptorColumn::eLinkPath, omni::ev4sio_physx::OvxAttr::kLinkPath },
+    { DescriptorColumn::eLinkInboundJoint, omni::ev4sio_physx::OvxAttr::kLinkInboundJoint },
+    { DescriptorColumn::eFixedTendonRoot, omni::ev4sio_physx::OvxAttr::kFixedTendonRoot },
+    { DescriptorColumn::eFixedTendonInstance, omni::ev4sio_physx::OvxAttr::kFixedTendonInstance },
+    { DescriptorColumn::eSpatialTendonRoot, omni::ev4sio_physx::OvxAttr::kSpatialTendonRoot },
+    { DescriptorColumn::eSpatialTendonInstance, omni::ev4sio_physx::OvxAttr::kSpatialTendonInstance },
 };
 
 const char* descriptorToken(DescriptorColumn kind)
@@ -4969,7 +4969,7 @@ void failArticulationRootBackend(ReadSession& session, int rootCount, const char
 
 // getLinkIndex() order. A link whose userData is not an ePTLink record fails the read: publishing
 // a zero handle would look like padding inside linkCount.
-bool appendLinkKeys(const omni::physx::tensors::ArticulationEntry& entry,
+bool appendLinkKeys(const omni::ev4sio_physx::tensors::ArticulationEntry& entry,
                     uint32_t linkCount,
                     const std::vector<InternalDatabase::Record>& records,
                     std::vector<ObjectKey>& keys)
@@ -4978,10 +4978,10 @@ bool appendLinkKeys(const omni::physx::tensors::ArticulationEntry& entry,
         return false;
     for (uint32_t linkIndex = 0; linkIndex < linkCount; ++linkIndex)
     {
-        ::physx::PxArticulationLink* link = entry.links[linkIndex];
+        ::ev4sio_physx::PxArticulationLink* link = entry.links[linkIndex];
         const size_t recordIndex = link ? reinterpret_cast<size_t>(link->userData) : records.size();
         if (!link || link->getLinkIndex() != linkIndex || recordIndex >= records.size() ||
-            records[recordIndex].mType != omni::physx::ePTLink)
+            records[recordIndex].mType != omni::ev4sio_physx::ePTLink)
             return false;
         keys.push_back(records[recordIndex].mKey);
     }
@@ -4993,7 +4993,7 @@ bool appendLinkKeys(const omni::physx::tensors::ArticulationEntry& entry,
 bool cacheFullPopulationLinkHandles(ArticulationReadCacheEntry& cache,
                                     IPhysicsSource& source,
                                     PxScene* scene,
-                                    const std::vector<omni::physx::tensors::ArticulationEntry>& entries,
+                                    const std::vector<omni::ev4sio_physx::tensors::ArticulationEntry>& entries,
                                     const std::vector<uint32_t>& rows)
 {
     if (cache.rootGeneration == 0 || rows.size() != cache.rootArtis.size())
@@ -5050,7 +5050,7 @@ bool buildArticulationRoot(ReadSession& s, IPhysicsSource& source, PxScene* scen
     std::vector<ObjectKey> selectedKeys;
     const std::vector<PxArticulationReducedCoordinate*>* artis = &cache.rootArtis;
     const std::vector<ObjectKey>* keys = &cache.rootKeys;
-    if (scope == omni::physx::kOvxActive)
+    if (scope == omni::ev4sio_physx::kOvxActive)
     {
         const ActiveActorSet activeActors = collectActiveActorsForScene(scene);
         selectedArtis.reserve(rootCount);
@@ -5109,7 +5109,7 @@ bool buildArticulationRoot(ReadSession& s, IPhysicsSource& source, PxScene* scen
         return true;
     }
 
-    omni::physx::tensors::SimulationBackend* backend = omni::physx::tensors::GetSimulationBackend();
+    omni::ev4sio_physx::tensors::SimulationBackend* backend = omni::ev4sio_physx::tensors::GetSimulationBackend();
     if (!backend)
     {
         failArticulationRootBackend(s, rootCountForLog, "no tensor backend");
@@ -5157,7 +5157,7 @@ bool buildArticulationRoot(ReadSession& s, IPhysicsSource& source, PxScene* scen
 
     // A selected read is never cacheable: it emits a subset, so it must not overwrite the cache's
     // full-population rows/handles (REQ-READ-SELECT-001 AC-5). Same fresh path kOvxActive takes.
-    const bool cacheable = scope == omni::physx::kOvxAll && !s.selection.active();
+    const bool cacheable = scope == omni::ev4sio_physx::kOvxAll && !s.selection.active();
     const bool requestsShapeTopology = std::any_of(
         requested.begin(), requested.end(), [](const RequestedArticulationColumn& r) { return r.row && r.row->hostOnly; });
     // Shape topology belongs to the scene's structural epoch, not to one ALL/ACTIVE membership.
@@ -5259,11 +5259,11 @@ bool buildArticulationRoot(ReadSession& s, IPhysicsSource& source, PxScene* scen
             canonicalHandles = &selectedHandles;
     }
     const PxU32 outputCount = static_cast<PxU32>(artis->size());
-    omni::physx::tensors::GpuArticulationView* gpuView = binding.gpuAv;
-    omni::physx::tensors::CpuArticulationView* cpuView = binding.cpuAv;
-    omni::physx::tensors::BaseArticulationView* baseView =
-        gpu ? static_cast<omni::physx::tensors::BaseArticulationView*>(gpuView) :
-              static_cast<omni::physx::tensors::BaseArticulationView*>(cpuView);
+    omni::ev4sio_physx::tensors::GpuArticulationView* gpuView = binding.gpuAv;
+    omni::ev4sio_physx::tensors::CpuArticulationView* cpuView = binding.cpuAv;
+    omni::ev4sio_physx::tensors::BaseArticulationView* baseView =
+        gpu ? static_cast<omni::ev4sio_physx::tensors::BaseArticulationView*>(gpuView) :
+              static_cast<omni::ev4sio_physx::tensors::BaseArticulationView*>(cpuView);
 
     // Cohorts, built once and only when something asks for a per-cohort column. Membership is the interned
     // metatype pointer, which is already the identity isHomogeneous() compares. First appearance wins the
@@ -5280,7 +5280,7 @@ bool buildArticulationRoot(ReadSession& s, IPhysicsSource& source, PxScene* scen
         for (PxU32 i = 0; i < outputCount; ++i)
         {
             const PxU32 viewRow = (*rows)[i];
-            const omni::physx::tensors::ArticulationMetatype* const metatype = baseView->getMetatype(viewRow);
+            const omni::ev4sio_physx::tensors::ArticulationMetatype* const metatype = baseView->getMetatype(viewRow);
             std::vector<ArticulationCohort>::iterator found = cohorts.begin();
             for (; found != cohorts.end(); ++found)
                 if (found->metatype == metatype)
@@ -5302,14 +5302,14 @@ bool buildArticulationRoot(ReadSession& s, IPhysicsSource& source, PxScene* scen
     // holds for that row set (ADR-0055), with the GPU index list and PhysX scratch it is read through: a held
     // query's next read with the same rows reuses it, uploads nothing and hands out the same pointers. The gathers
     // queue on the read's stream once every builder has planned.
-    using ArtiReadColumn = omni::physx::tensors::GpuArticulationView::OvStageArtiReadColumn;
+    using ArtiReadColumn = omni::ev4sio_physx::tensors::GpuArticulationView::OvStageArtiReadColumn;
     struct DeviceRowSet
     {
         const PxU32* rows = nullptr;
         PxU32 count = 0;
         std::vector<ArtiReadColumn> planned; // kinds and widths, to plan with
         std::vector<ArtiReadColumn> columns; // the same with their destinations, in the order they are carved
-        omni::physx::tensors::GpuArticulationView::OvStageArtiReadPlan plan;
+        omni::ev4sio_physx::tensors::GpuArticulationView::OvStageArtiReadPlan plan;
         size_t totalFloats = 0;
         size_t cursor = 0;
         size_t held = SIZE_MAX;
@@ -5501,7 +5501,7 @@ bool buildArticulationRoot(ReadSession& s, IPhysicsSource& source, PxScene* scen
             const size_t numRootState = rootStateRows.size();
             std::vector<PendingArticulationRootGroup> items(numRootState);
             std::vector<omni::physics::tensors::TensorDesc> descs(numRootState);
-            std::vector<omni::physx::tensors::BaseArticulationView::RootStateColumn> columns(numRootState);
+            std::vector<omni::ev4sio_physx::tensors::BaseArticulationView::RootStateColumn> columns(numRootState);
             bool allocated = true;
             for (size_t i = 0; i < numRootState && allocated; ++i)
             {
@@ -5566,7 +5566,7 @@ bool buildArticulationRoot(ReadSession& s, IPhysicsSource& source, PxScene* scen
     // Only the five COMPUTE columns share the gather; eNone is not an inverse dynamics column and stays on the
     // per-column path. row->inverseDynamicsColumn names the specific column (coriolis and gravity distinct), so
     // the request carries it directly.
-    using InvDynReq = omni::physx::tensors::BaseArticulationView::InverseDynamicsColumnRequest;
+    using InvDynReq = omni::ev4sio_physx::tensors::BaseArticulationView::InverseDynamicsColumnRequest;
     const auto isInverseDynamicsCompute = [](const ArticulationRootAttributeRow* row) -> bool
     {
         switch (row->inverseDynamicsColumn)
@@ -5681,9 +5681,9 @@ bool buildArticulationRoot(ReadSession& s, IPhysicsSource& source, PxScene* scen
         CARB_ASSERT(set.cursor <= set.totalFloats);
         if (set.held == SIZE_MAX || set.columns.empty())
             continue;
-        omni::physx::tensors::GpuArticulationView* const view = gpuView;
+        omni::ev4sio_physx::tensors::GpuArticulationView* const view = gpuView;
         s.held[set.held].gathers.push_back(
-            [view, plan = set.plan, columns = set.columns](const omni::physx::tensors::OvStageDeviceReadArgs& args)
+            [view, plan = set.plan, columns = set.columns](const omni::ev4sio_physx::tensors::OvStageDeviceReadArgs& args)
             { return view->readOvStageColumns(args, plan, columns.data(), static_cast<PxU32>(columns.size())); });
     }
 
@@ -5753,13 +5753,13 @@ bool buildArticulationRoot(ReadSession& s, IPhysicsSource& source, PxScene* scen
                 return false;
             }
             const std::vector<uint32_t>* const jLocalToRow = jointBinding.resolvedLocalToRow;
-            const std::vector<omni::physx::tensors::ArticulationEntry>& jEntries = *jointBinding.entries;
+            const std::vector<omni::ev4sio_physx::tensors::ArticulationEntry>& jEntries = *jointBinding.entries;
             // A null row map is the warm-cache fast path: the records are already current for this
             // generation, so rebuild only when the map was resolved (forming *null would be undefined).
             if (jLocalToRow)
                 ensureJointRecords(cache, source, cache.joints, jEntries, *jLocalToRow, jointBinding.generation,
                                    /*enumCached=*/true);
-            const std::vector<omni::physx::tensors::ArticulationDofOvStageRecord>& recs = cache.recs;
+            const std::vector<omni::ev4sio_physx::tensors::ArticulationDofOvStageRecord>& recs = cache.recs;
             const std::vector<JointSlice>& slices = cache.slices;
             const bool haveHandles = cache.sliceHandles.size() == slices.size();
 
@@ -5801,7 +5801,7 @@ bool buildArticulationRoot(ReadSession& s, IPhysicsSource& source, PxScene* scen
                 const uint64_t jointHandle = haveHandles ? cache.sliceHandles[si].raw_id : 0;
                 for (uint32_t a = 0; a < sl.count; ++a)
                 {
-                    const omni::physx::tensors::ArticulationDofOvStageRecord& rec = recs[sl.offset + a];
+                    const omni::ev4sio_physx::tensors::ArticulationDofOvStageRecord& rec = recs[sl.offset + a];
                     const std::unordered_map<const PxArticulationReducedCoordinate*, PxU32>::const_iterator it =
                         rootRowOf.find(jEntries[rec.viewArtiIdx].arti);
                     if (it == rootRowOf.end())
@@ -5821,7 +5821,7 @@ bool buildArticulationRoot(ReadSession& s, IPhysicsSource& source, PxScene* scen
                         axisScratch[idx] = static_cast<int32_t>(a); // slice position == axis ordinal within the joint
                     if (wantKind || wantType)
                     {
-                        const std::vector<omni::physx::tensors::DofImpl>& impls = jEntries[rec.viewArtiIdx].dofImpls;
+                        const std::vector<omni::ev4sio_physx::tensors::DofImpl>& impls = jEntries[rec.viewArtiIdx].dofImpls;
                         // A real DOF with no axis would publish 0, which is also twist. Fail closed.
                         if (d >= impls.size())
                         {
@@ -5834,11 +5834,11 @@ bool buildArticulationRoot(ReadSession& s, IPhysicsSource& source, PxScene* scen
                         {
                             // eFIX is 0, the same value as padding past dofCount. A DOF row is never a
                             // fixed joint, so a 0 here would be published as a real type.
-                            ::physx::PxArticulationJointReducedCoordinate* joint = impls[d].joint;
-                            const ::physx::PxArticulationJointType::Enum jointType =
-                                joint ? joint->getJointType() : ::physx::PxArticulationJointType::eUNDEFINED;
-                            if (!joint || jointType == ::physx::PxArticulationJointType::eFIX ||
-                                jointType == ::physx::PxArticulationJointType::eUNDEFINED)
+                            ::ev4sio_physx::PxArticulationJointReducedCoordinate* joint = impls[d].joint;
+                            const ::ev4sio_physx::PxArticulationJointType::Enum jointType =
+                                joint ? joint->getJointType() : ::ev4sio_physx::PxArticulationJointType::eUNDEFINED;
+                            if (!joint || jointType == ::ev4sio_physx::PxArticulationJointType::eFIX ||
+                                jointType == ::ev4sio_physx::PxArticulationJointType::eUNDEFINED)
                             {
                                 failArticulationRootBackend(s, rootCountForLog, "DOF joint type unavailable");
                                 return false;
@@ -5901,7 +5901,7 @@ bool buildArticulationRoot(ReadSession& s, IPhysicsSource& source, PxScene* scen
             bool linksOk = true;
             if (useCache)
             {
-                std::unordered_map<const ::physx::PxArticulationReducedCoordinate*, uint32_t> rootIndexOf;
+                std::unordered_map<const ::ev4sio_physx::PxArticulationReducedCoordinate*, uint32_t> rootIndexOf;
                 if (!cacheable)
                 {
                     rootIndexOf.reserve(cache.rootArtis.size());
@@ -5913,7 +5913,7 @@ bool buildArticulationRoot(ReadSession& s, IPhysicsSource& source, PxScene* scen
                     uint32_t rootIndex = r;
                     if (!cacheable)
                     {
-                        const std::unordered_map<const ::physx::PxArticulationReducedCoordinate*, uint32_t>::const_iterator
+                        const std::unordered_map<const ::ev4sio_physx::PxArticulationReducedCoordinate*, uint32_t>::const_iterator
                             found = rootIndexOf.find((*artis)[r]);
                         if (found == rootIndexOf.end())
                         {
@@ -5951,7 +5951,7 @@ bool buildArticulationRoot(ReadSession& s, IPhysicsSource& source, PxScene* scen
                 linksOk = records != nullptr;
                 for (PxU32 r = 0; linksOk && r < outputCount; ++r)
                 {
-                    const omni::physx::tensors::ArticulationEntry& entry = (*binding.entries)[(*rows)[r]];
+                    const omni::ev4sio_physx::tensors::ArticulationEntry& entry = (*binding.entries)[(*rows)[r]];
                     if (!appendLinkKeys(entry, rootLinks[r], *records, linkKeys))
                     {
                         linksOk = false;
@@ -6004,7 +6004,7 @@ bool buildArticulationRoot(ReadSession& s, IPhysicsSource& source, PxScene* scen
             bool jointsOk = records != nullptr;
             for (PxU32 r = 0; jointsOk && r < outputCount; ++r)
             {
-                const omni::physx::tensors::ArticulationEntry& entry = (*binding.entries)[(*rows)[r]];
+                const omni::ev4sio_physx::tensors::ArticulationEntry& entry = (*binding.entries)[(*rows)[r]];
                 if (entry.links.size() < rootLinks[r])
                 {
                     jointsOk = false;
@@ -6012,17 +6012,17 @@ bool buildArticulationRoot(ReadSession& s, IPhysicsSource& source, PxScene* scen
                 }
                 for (uint32_t linkIndex = 0; linkIndex < rootLinks[r]; ++linkIndex)
                 {
-                    ::physx::PxArticulationLink* link = entry.links[linkIndex];
+                    ::ev4sio_physx::PxArticulationLink* link = entry.links[linkIndex];
                     if (!link || link->getLinkIndex() != linkIndex)
                     {
                         jointsOk = false;
                         break;
                     }
-                    ::physx::PxArticulationJointReducedCoordinate* joint = link->getInboundJoint();
+                    ::ev4sio_physx::PxArticulationJointReducedCoordinate* joint = link->getInboundJoint();
                     if (!joint)
                         continue;
                     const size_t recordIndex = reinterpret_cast<size_t>(joint->userData);
-                    if (recordIndex >= records->size() || (*records)[recordIndex].mType != omni::physx::ePTLinkJoint)
+                    if (recordIndex >= records->size() || (*records)[recordIndex].mType != omni::ev4sio_physx::ePTLinkJoint)
                     {
                         jointsOk = false;
                         break;
@@ -6075,7 +6075,7 @@ bool buildArticulationRoot(ReadSession& s, IPhysicsSource& source, PxScene* scen
             uint32_t widest = 0;
             for (PxU32 r = 0; r < outputCount; ++r)
             {
-                const omni::physx::tensors::ArticulationEntry& entry = (*binding.entries)[(*rows)[r]];
+                const omni::ev4sio_physx::tensors::ArticulationEntry& entry = (*binding.entries)[(*rows)[r]];
                 widest = std::max(widest, fixed ? entry.numFixedTendons : entry.numSpatialTendons);
             }
             if (widest == 0)
@@ -6085,7 +6085,7 @@ bool buildArticulationRoot(ReadSession& s, IPhysicsSource& source, PxScene* scen
             const ovx::TendonReadCacheEntry& tc = ovx::tendonCacheEntry(scene, fixed);
             struct SlotKey
             {
-                const ::physx::PxArticulationReducedCoordinate* arti = nullptr;
+                const ::ev4sio_physx::PxArticulationReducedCoordinate* arti = nullptr;
                 uint32_t index = 0;
                 bool operator==(const SlotKey& other) const { return arti == other.arti && index == other.index; }
             };
@@ -6126,7 +6126,7 @@ bool buildArticulationRoot(ReadSession& s, IPhysicsSource& source, PxScene* scen
             std::vector<size_t> slots;
             for (PxU32 r = 0; r < outputCount; ++r)
             {
-                const omni::physx::tensors::ArticulationEntry& entry = (*binding.entries)[(*rows)[r]];
+                const omni::ev4sio_physx::tensors::ArticulationEntry& entry = (*binding.entries)[(*rows)[r]];
                 const uint32_t count = fixed ? entry.numFixedTendons : entry.numSpatialTendons;
                 for (uint32_t tendonIndex = 0; tendonIndex < count; ++tendonIndex)
                 {
@@ -6309,9 +6309,9 @@ void warnArticulationJointBackend(int jointCount, const char* reason)
 SelectedJointRows packSelectedJoints(const KeySelection& selection,
                                      const ArticulationReadCacheEntry& jc,
                                      uint64_t viewGeneration,
-                                     const omni::physx::tensors::GpuArticulationView* gpuAv)
+                                     const omni::ev4sio_physx::tensors::GpuArticulationView* gpuAv)
 {
-    using DofRecord = omni::physx::tensors::ArticulationDofOvStageRecord;
+    using DofRecord = omni::ev4sio_physx::tensors::ArticulationDofOvStageRecord;
     SelectedJointRows sel;
     const std::vector<size_t> keep = selectedIndices(selection, jc.sliceKeys);
     const std::vector<JointSlice> slices = gatherByIndices(jc.slices, keep);
@@ -6423,7 +6423,7 @@ bool buildJointState(ReadSession& s, IPhysicsSource& source, PxScene* scene, con
         return true;
     }
 
-    omni::physx::tensors::SimulationBackend* backend = omni::physx::tensors::GetSimulationBackend();
+    omni::ev4sio_physx::tensors::SimulationBackend* backend = omni::ev4sio_physx::tensors::GetSimulationBackend();
     if (!backend)
     {
         warnArticulationJointBackend(numJoints, "no tensor backend");
@@ -6464,8 +6464,8 @@ bool buildJointState(ReadSession& s, IPhysicsSource& source, PxScene* scene, con
         warnArticulationJointBackend(numJoints, "superset articulation view unavailable");
         return false;
     }
-    omni::physx::tensors::GpuArticulationView* gpuAv = binding.gpuAv;
-    omni::physx::tensors::CpuArticulationView* cpuAv = binding.cpuAv;
+    omni::ev4sio_physx::tensors::GpuArticulationView* gpuAv = binding.gpuAv;
+    omni::ev4sio_physx::tensors::CpuArticulationView* cpuAv = binding.cpuAv;
     const int devOrd = binding.devOrd;
     const uint64_t viewGeneration = binding.generation;
     // Pointer, not a reference: acquireArticulationBinding skips resolving the mapping when the view is warm
@@ -6474,7 +6474,7 @@ bool buildJointState(ReadSession& s, IPhysicsSource& source, PxScene* scene, con
     // the map to the builder would be undefined even though the cached path never reads it. So rebuild only
     // when the map was resolved; when it was skipped, jc's records are already current for this generation.
     const std::vector<uint32_t>* const localToRowPtr = binding.resolvedLocalToRow;
-    const std::vector<omni::physx::tensors::ArticulationEntry>& entries = *binding.entries;
+    const std::vector<omni::ev4sio_physx::tensors::ArticulationEntry>& entries = *binding.entries;
     // Records, slices and canonical handles come from ensureJointRecords -- the SAME shared builder
     // the write calls into this same ArticulationReadCacheEntry. The degrees detection, the
     // body0IsParent sign and the angScale/invAngScale fold therefore have one producer, so a read
@@ -6483,7 +6483,7 @@ bool buildJointState(ReadSession& s, IPhysicsSource& source, PxScene* scene, con
     // the joint set, so the enumeration behind these superset rows is current.
     if (localToRowPtr)
         ensureJointRecords(jc, source, joints, entries, *localToRowPtr, viewGeneration, /*enumCached=*/true);
-    using DofRecord = omni::physx::tensors::ArticulationDofOvStageRecord;
+    using DofRecord = omni::ev4sio_physx::tensors::ArticulationDofOvStageRecord;
     const std::vector<DofRecord>& allRecs = jc.recs;
     if (allRecs.empty())
         return true; // no unlocked DOF on any queried joint -- nothing to emit
@@ -6520,8 +6520,8 @@ bool buildJointState(ReadSession& s, IPhysicsSource& source, PxScene* scene, con
     // GPU: every device column is one span of a buffer the query holds (ADR-0055), headed by the record list, which
     // every column's gather reads and which is uploaded only when its content changes. Only a DEVICE-sourced
     // attribute needs it -- a read asking for nothing but properties gathers entirely on the host.
-    using RecordColumn = omni::physx::tensors::GpuArticulationView::OvStageRecordReadColumn;
-    using RecordRead = omni::physx::tensors::GpuArticulationView::OvStageRecordRead;
+    using RecordColumn = omni::ev4sio_physx::tensors::GpuArticulationView::OvStageRecordReadColumn;
+    using RecordRead = omni::ev4sio_physx::tensors::GpuArticulationView::OvStageRecordRead;
     std::vector<RecordColumn> devColumns;
     std::vector<size_t> devColumnOf(jointNames.size(), SIZE_MAX);
     size_t held = SIZE_MAX;
@@ -6569,7 +6569,7 @@ bool buildJointState(ReadSession& s, IPhysicsSource& source, PxScene* scene, con
     std::vector<std::vector<float>> propFloats(jointNames.size());
     std::vector<std::vector<uint8_t>> propBytes(jointNames.size());
     {
-        std::vector<omni::physx::tensors::BaseArticulationView::DofPropertyColumn> propColumns;
+        std::vector<omni::ev4sio_physx::tensors::BaseArticulationView::DofPropertyColumn> propColumns;
         std::vector<omni::physics::tensors::TensorDesc> propDescs;
         propColumns.reserve(jointNames.size());
         propDescs.reserve(jointNames.size());
@@ -6581,13 +6581,13 @@ bool buildJointState(ReadSession& s, IPhysicsSource& source, PxScene* scene, con
             const JointPropertyAttributeRow* propRow = findJointPropertyAttribute(name);
             if (!propRow)
                 continue;
-            const uint32_t comp = omni::physx::tensors::dofPropertyComponents(propRow->prop);
+            const uint32_t comp = omni::ev4sio_physx::tensors::dofPropertyComponents(propRow->prop);
             const size_t elems = size_t(numOut) * comp;
             omni::physics::tensors::TensorDesc td;
             td.device = -1;
             td.numDims = 1;
             td.dims[0] = static_cast<int64_t>(elems);
-            if (omni::physx::tensors::dofPropertyIsByte(propRow->prop))
+            if (omni::ev4sio_physx::tensors::dofPropertyIsByte(propRow->prop))
             {
                 std::vector<uint8_t>& buf = propBytes[nameIdx];
                 buf.resize(elems);
@@ -6611,9 +6611,9 @@ bool buildJointState(ReadSession& s, IPhysicsSource& source, PxScene* scene, con
 
         if (!propColumns.empty())
         {
-            const omni::physx::tensors::BaseArticulationView* baseAv =
-                gpu ? static_cast<const omni::physx::tensors::BaseArticulationView*>(gpuAv) :
-                      static_cast<const omni::physx::tensors::BaseArticulationView*>(cpuAv);
+            const omni::ev4sio_physx::tensors::BaseArticulationView* baseAv =
+                gpu ? static_cast<const omni::ev4sio_physx::tensors::BaseArticulationView*>(gpuAv) :
+                      static_cast<const omni::ev4sio_physx::tensors::BaseArticulationView*>(cpuAv);
             if (!baseAv->getDofPropertiesOvStage(propColumns.data(),
                                                  static_cast<PxU32>(propColumns.size()), recs.data(), numOut))
             {
@@ -6633,7 +6633,7 @@ bool buildJointState(ReadSession& s, IPhysicsSource& source, PxScene* scene, con
     std::vector<std::vector<float>> stateFloats(jointNames.size());
     if (!gpu)
     {
-        std::vector<omni::physx::tensors::BaseArticulationView::DofStateColumn> stateColumns;
+        std::vector<omni::ev4sio_physx::tensors::BaseArticulationView::DofStateColumn> stateColumns;
         std::vector<omni::physics::tensors::TensorDesc> stateDescs;
         stateColumns.reserve(jointNames.size());
         stateDescs.reserve(jointNames.size());
@@ -6641,7 +6641,7 @@ bool buildJointState(ReadSession& s, IPhysicsSource& source, PxScene* scene, con
         {
             const JointAttributeRow* const row = findJointAttribute(jointNames[nameIdx]);
             if (!row || !row->cpuRead ||
-                row->stateQuantity == omni::physx::tensors::BaseArticulationView::DofStateQuantity::eNone)
+                row->stateQuantity == omni::ev4sio_physx::tensors::BaseArticulationView::DofStateQuantity::eNone)
                 continue;
             std::vector<float>& buf = stateFloats[nameIdx];
             buf.resize(numOut);
@@ -6690,8 +6690,8 @@ bool buildJointState(ReadSession& s, IPhysicsSource& source, PxScene* scene, con
         // A PROPERTY column is host-resident on both devices (see kJointPropertyAttributes), so the
         // device branch is "device-sourced attribute AND DirectGPU scene", not just the latter.
         const bool deviceColumn = gpu && row != nullptr;
-        const uint32_t comp = propRow ? omni::physx::tensors::dofPropertyComponents(propRow->prop) : 1u;
-        const bool isByte = propRow && omni::physx::tensors::dofPropertyIsByte(propRow->prop);
+        const uint32_t comp = propRow ? omni::ev4sio_physx::tensors::dofPropertyComponents(propRow->prop) : 1u;
+        const bool isByte = propRow && omni::ev4sio_physx::tensors::dofPropertyIsByte(propRow->prop);
         const size_t elems = size_t(numOut) * comp;
         CUdeviceptr outBuf = 0;         // GPU: the device column the query holds (groups point into it)
         std::vector<float> hostOut;     // host float column (the group takes ownership below)
@@ -6720,7 +6720,7 @@ bool buildJointState(ReadSession& s, IPhysicsSource& source, PxScene* scene, con
                     hostOut = std::move(propFloats[nameIdx]);
                 got = true;
             }
-            else if (row->stateQuantity != omni::physx::tensors::BaseArticulationView::DofStateQuantity::eNone)
+            else if (row->stateQuantity != omni::ev4sio_physx::tensors::BaseArticulationView::DofStateQuantity::eNone)
             {
                 // Filled by the one refresh pass above; taken here so group order still follows the
                 // caller's list. The ROW says whether this is a state column, the same way the branch
@@ -6899,7 +6899,7 @@ bool buildLinkIncomingJointForce(ReadSession& s,
         return true;
 
     const bool gpu = scene->getFlags().isSet(PxSceneFlag::eENABLE_DIRECT_GPU_API);
-    omni::physx::tensors::SimulationBackend* backend = omni::physx::tensors::GetSimulationBackend();
+    omni::ev4sio_physx::tensors::SimulationBackend* backend = omni::ev4sio_physx::tensors::GetSimulationBackend();
     if (!backend)
     {
         warnNoColumn("no tensor backend");
@@ -6944,11 +6944,11 @@ bool buildLinkIncomingJointForce(ReadSession& s,
     //    superset row, so it survives only the view build that numbered the rows. Caching it on the
     //    epoch would let it outlive a view rebuild and address rows that no longer mean the same
     //    thing -- which fails by returning another selection's values rather than by failing.
-    std::vector<omni::physx::tensors::ArticulationLinkOvStageRecord> scratchRecs;
-    std::vector<omni::physx::tensors::ArticulationLinkOvStageRecord>& recs = cache ? cache->recs : scratchRecs;
+    std::vector<omni::ev4sio_physx::tensors::ArticulationLinkOvStageRecord> scratchRecs;
+    std::vector<omni::ev4sio_physx::tensors::ArticulationLinkOvStageRecord>& recs = cache ? cache->recs : scratchRecs;
     if (!cache || cache->generation != binding.generation || binding.generation == 0)
     {
-        recs.assign(linkKeys.size(), omni::physx::tensors::ArticulationLinkOvStageRecord{});
+        recs.assign(linkKeys.size(), omni::ev4sio_physx::tensors::ArticulationLinkOvStageRecord{});
         for (size_t i = 0; i < linkKeys.size(); ++i)
         {
             recs[i].viewArtiIdx = (*binding.resolvedLocalToRow)[localArtiIdx[i]];
@@ -6985,10 +6985,10 @@ bool buildLinkIncomingJointForce(ReadSession& s,
     {
         // A span of a buffer the query holds (ADR-0055), headed by the record list, which is uploaded only when its
         // content changes and gathered once every builder has planned.
-        std::vector<omni::physx::tensors::GpuArticulationView::OvStageRecordReadColumn> columns(1);
-        columns[0].kind = omni::physx::tensors::GpuArticulationView::OvStageRecordRead::eLinkIncomingJointForce;
+        std::vector<omni::ev4sio_physx::tensors::GpuArticulationView::OvStageRecordReadColumn> columns(1);
+        columns[0].kind = omni::ev4sio_physx::tensors::GpuArticulationView::OvStageRecordRead::eLinkIncomingJointForce;
         g.held = holdRecordRead(s, ctxMgr, heldKey, binding.gpuAv, binding.generation, recs.data(), numOut,
-                                sizeof(omni::physx::tensors::ArticulationLinkOvStageRecord),
+                                sizeof(omni::ev4sio_physx::tensors::ArticulationLinkOvStageRecord),
                                 cache ? cache->recsVersion : 0, columns, { size_t(numOut) * comp });
         if (g.held == SIZE_MAX)
         {
@@ -7013,7 +7013,7 @@ bool buildLinkIncomingJointForce(ReadSession& s,
 
     // A FIXED group -- one row per link prim, `comp` lanes wide -- not an array group: a link has
     // exactly one incoming joint. Same shape as the rigid-body columns over the same prim list.
-    if (!finalizeGroup(s, source, std::move(g), omni::physx::OvxAttr::kLinkIncomingJointForce, linkKeys, numOut, comp,
+    if (!finalizeGroup(s, source, std::move(g), omni::ev4sio_physx::OvxAttr::kLinkIncomingJointForce, linkKeys, numOut, comp,
                        haveHandles ? &handles : nullptr))
     {
         warnNoColumn("group emission failed");
@@ -7073,7 +7073,7 @@ void buildJointStateGroups(ReadSession& s,
 struct TendonAttributeRow
 {
     const char* token;
-    omni::physx::tensors::TendonProperty prop;
+    omni::ev4sio_physx::tensors::TendonProperty prop;
     bool fixedOnly;
 };
 
@@ -7105,19 +7105,19 @@ std::unordered_map<const PxScene*, TendonReadCacheEntry> g_spatialTendonReadCach
 // Forward declaration: the shared accessor below sits beside the caches it serves, ahead of the walk.
 // `complete`, when given, is cleared if the walk skipped an articulation still pending scene insertion.
 void enumerateTendons(PxScene* scene, bool fixed, std::vector<TendonRec>& out,
-                      std::vector<::physx::PxArticulationReducedCoordinate*>& artis, bool* complete = nullptr);
+                      std::vector<::ev4sio_physx::PxArticulationReducedCoordinate*>& artis, bool* complete = nullptr);
 
 } // namespace (reopened below)
 
-namespace omni::physx::ovx
+namespace omni::ev4sio_physx::ovx
 {
 // Declared in OvxPhysicsShared.h. Same epoch gate the read's own path uses, so a write that runs
 // first pays the walk and the read that follows gets the hit, or the reverse -- either way it
 // happens once per structural change rather than once per direction.
-TendonReadCacheEntry& tendonCacheEntry(::physx::PxScene* scene, bool fixed)
+TendonReadCacheEntry& tendonCacheEntry(::ev4sio_physx::PxScene* scene, bool fixed)
 {
     TendonReadCacheEntry& tc = fixed ? g_fixedTendonReadCache[scene] : g_spatialTendonReadCache[scene];
-    const uint64_t dbEpochNow = omni::physx::internal::recordLifetimeEpoch(scene);
+    const uint64_t dbEpochNow = omni::ev4sio_physx::internal::recordLifetimeEpoch(scene);
     // No !tendons.empty() guard: dbEpoch IS the "nothing cached yet" sentinel, since a fresh entry
     // holds 0 and the epoch counter starts at 1. Adding one would make an EMPTY result uncacheable.
     if (tc.dbEpoch != dbEpochNow)
@@ -7133,7 +7133,7 @@ TendonReadCacheEntry& tendonCacheEntry(::physx::PxScene* scene, bool fixed)
     }
     return tc;
 }
-} // namespace omni::physx::ovx
+} // namespace omni::ev4sio_physx::ovx
 
 namespace
 {
@@ -7153,20 +7153,20 @@ namespace
 void enumerateTendons(PxScene* scene,
                       bool fixed,
                       std::vector<TendonRec>& out,
-                      std::vector<::physx::PxArticulationReducedCoordinate*>& artis,
+                      std::vector<::ev4sio_physx::PxArticulationReducedCoordinate*>& artis,
                       bool* complete)
 {
     InternalScene* owner = internalSceneOf(scene);
     if (!owner)
         return;
     InternalPhysXDatabase& db = owner->getAttachedStage().getInternalPhysXDatabase();
-    std::unordered_map<::physx::PxArticulationReducedCoordinate*, uint32_t> artiIndex;
+    std::unordered_map<::ev4sio_physx::PxArticulationReducedCoordinate*, uint32_t> artiIndex;
     // Resolving a tendon's index means asking its articulation for its tendon list, so the list is
     // fetched once per articulation rather than once per tendon.
-    std::unordered_map<const ::physx::PxArticulationReducedCoordinate*,
+    std::unordered_map<const ::ev4sio_physx::PxArticulationReducedCoordinate*,
                        std::unordered_map<const void*, uint32_t>> tendonIndexByArti;
 
-    const omni::physx::PhysXType wantType = fixed ? omni::physx::ePTFixedTendonAxis : omni::physx::ePTTendonAttachment;
+    const omni::ev4sio_physx::PhysXType wantType = fixed ? omni::ev4sio_physx::ePTFixedTendonAxis : omni::ev4sio_physx::ePTTendonAttachment;
     for (const InternalDatabase::Record& rec : db.getRecords())
     {
         if (rec.mType != wantType || !rec.mPtr)
@@ -7174,14 +7174,14 @@ void enumerateTendons(PxScene* scene,
 
         // Roots only: a non-root axis or attachment is part of a tendon, not one of its own.
         const void* tendonPtr = nullptr;
-        ::physx::PxArticulationReducedCoordinate* arti = nullptr;
+        ::ev4sio_physx::PxArticulationReducedCoordinate* arti = nullptr;
         if (fixed)
         {
-            ::physx::PxArticulationTendonJoint* tj =
-                reinterpret_cast<::physx::PxArticulationTendonJoint*>(rec.mPtr);
+            ::ev4sio_physx::PxArticulationTendonJoint* tj =
+                reinterpret_cast<::ev4sio_physx::PxArticulationTendonJoint*>(rec.mPtr);
             if (tj->getParent())
                 continue;
-            ::physx::PxArticulationFixedTendon* tendon = tj->getTendon();
+            ::ev4sio_physx::PxArticulationFixedTendon* tendon = tj->getTendon();
             if (!tendon)
                 continue;
             tendonPtr = tendon;
@@ -7189,10 +7189,10 @@ void enumerateTendons(PxScene* scene,
         }
         else
         {
-            ::physx::PxArticulationAttachment* at = reinterpret_cast<::physx::PxArticulationAttachment*>(rec.mPtr);
+            ::ev4sio_physx::PxArticulationAttachment* at = reinterpret_cast<::ev4sio_physx::PxArticulationAttachment*>(rec.mPtr);
             if (at->getParent())
                 continue;
-            ::physx::PxArticulationSpatialTendon* tendon = at->getTendon();
+            ::ev4sio_physx::PxArticulationSpatialTendon* tendon = at->getTendon();
             if (!tendon)
                 continue;
             tendonPtr = tendon;
@@ -7203,7 +7203,7 @@ void enumerateTendons(PxScene* scene,
             const std::vector<InternalDatabase::Record>& records = db.getRecords();
             const size_t index = reinterpret_cast<size_t>(arti->userData);
             const InternalArticulation* pending =
-                index < records.size() && records[index].mType == omni::physx::ePTArticulation ?
+                index < records.size() && records[index].mType == omni::ev4sio_physx::ePTArticulation ?
                     reinterpret_cast<const InternalArticulation*>(records[index].mInternalPtr) : nullptr;
             const PxScene* intendedScene = pending && pending->mPhysxScene ?
                                               pending->mPhysxScene->getScene() : nullptr;
@@ -7214,7 +7214,7 @@ void enumerateTendons(PxScene* scene,
         if (!arti || arti->getScene() != scene)
             continue; // read each articulation through its owning scene's view
 
-        std::unordered_map<const ::physx::PxArticulationReducedCoordinate*,
+        std::unordered_map<const ::ev4sio_physx::PxArticulationReducedCoordinate*,
                            std::unordered_map<const void*, uint32_t>>::iterator idxIt =
             tendonIndexByArti.find(arti);
         if (idxIt == tendonIndexByArti.end())
@@ -7223,7 +7223,7 @@ void enumerateTendons(PxScene* scene,
             if (fixed)
             {
                 const uint32_t n = arti->getNbFixedTendons();
-                std::vector<::physx::PxArticulationFixedTendon*> buf(n);
+                std::vector<::ev4sio_physx::PxArticulationFixedTendon*> buf(n);
                 if (n)
                     arti->getFixedTendons(buf.data(), n);
                 for (uint32_t i = 0; i < n; ++i)
@@ -7232,7 +7232,7 @@ void enumerateTendons(PxScene* scene,
             else
             {
                 const uint32_t n = arti->getNbSpatialTendons();
-                std::vector<::physx::PxArticulationSpatialTendon*> buf(n);
+                std::vector<::ev4sio_physx::PxArticulationSpatialTendon*> buf(n);
                 if (n)
                     arti->getSpatialTendons(buf.data(), n);
                 for (uint32_t i = 0; i < n; ++i)
@@ -7244,7 +7244,7 @@ void enumerateTendons(PxScene* scene,
         if (hit == idxIt->second.end())
             continue; // a tendon its own articulation does not list: nothing addressable to read
 
-        std::unordered_map<::physx::PxArticulationReducedCoordinate*, uint32_t>::iterator it = artiIndex.find(arti);
+        std::unordered_map<::ev4sio_physx::PxArticulationReducedCoordinate*, uint32_t>::iterator it = artiIndex.find(arti);
         uint32_t vi;
         if (it == artiIndex.end())
         {
@@ -7284,7 +7284,7 @@ bool buildTendonState(ReadSession& s,
 {
     std::vector<std::string> wanted;
     const bool wantInstance = std::any_of(names.begin(), names.end(), [](const std::string& name) {
-        return name == omni::physx::OvxAttr::kTendonInstance;
+        return name == omni::ev4sio_physx::OvxAttr::kTendonInstance;
     });
     for (const std::string& name : names)
         if (findTendonAttribute(name, fixed))
@@ -7306,7 +7306,7 @@ bool buildTendonState(ReadSession& s,
             {
                 std::vector<std::string> omitNames = wanted;
                 if (wantInstance)
-                    omitNames.emplace_back(omni::physx::OvxAttr::kTendonInstance);
+                    omitNames.emplace_back(omni::ev4sio_physx::OvxAttr::kTendonInstance);
                 s.omit(omitNames, kOvxReadOmissionNotReady);
             }
         }
@@ -7327,7 +7327,7 @@ bool buildTendonState(ReadSession& s,
     // and copying the vectors out would put an O(tendons) copy back on exactly the path the cache
     // exists to make free.
     const std::vector<TendonRec>& tendons = tc.tendons;
-    const std::vector<::physx::PxArticulationReducedCoordinate*>& artis = tc.artis;
+    const std::vector<::ev4sio_physx::PxArticulationReducedCoordinate*>& artis = tc.artis;
     if (tendons.empty())
         return true;
 
@@ -7347,7 +7347,7 @@ bool buildTendonState(ReadSession& s,
         !s.hostReady(gpu ? "host-resident tendon columns" : "columns of a CPU scene", scene))
         return false;
 
-    omni::physx::tensors::SimulationBackend* backend = omni::physx::tensors::GetSimulationBackend();
+    omni::ev4sio_physx::tensors::SimulationBackend* backend = omni::ev4sio_physx::tensors::GetSimulationBackend();
     if (!backend)
     {
         warnNoTendonColumn("no tensor backend");
@@ -7387,8 +7387,8 @@ bool buildTendonState(ReadSession& s,
         warnNoTendonColumn("superset articulation view unavailable");
         return false;
     }
-    omni::physx::tensors::GpuArticulationView* gpuAv = binding.gpuAv;
-    omni::physx::tensors::CpuArticulationView* cpuAv = binding.cpuAv;
+    omni::ev4sio_physx::tensors::GpuArticulationView* gpuAv = binding.gpuAv;
+    omni::ev4sio_physx::tensors::CpuArticulationView* cpuAv = binding.cpuAv;
     const int devOrd = binding.devOrd;
     const uint64_t viewGeneration = binding.generation;
     // Pointer, not a reference -- see buildJointState: the warm-read skip leaves this null, and it is
@@ -7411,7 +7411,7 @@ bool buildTendonState(ReadSession& s,
         const std::vector<uint32_t>& localToRow = *localToRowPtr;
         for (const TendonRec& tr : tendons)
         {
-            omni::physx::tensors::ArticulationTendonOvStageRecord r;
+            omni::ev4sio_physx::tensors::ArticulationTendonOvStageRecord r;
             r.viewArtiIdx = localToRow[tr.viewArtiIdx];
             r.tendonIdx = tr.tendonIdx;
             tc.recs.push_back(r);
@@ -7430,11 +7430,11 @@ bool buildTendonState(ReadSession& s,
     // tendon), so the filtered rows must be gathered compacted: build filtered records/keys/handles and a
     // fresh device-upload version, never mutating the shared TendonReadCacheEntry (REQ-READ-SELECT-001
     // AC-5). Unselected reads keep the zero-copy cache path below.
-    std::vector<omni::physx::tensors::ArticulationTendonOvStageRecord> selRecs;
+    std::vector<omni::ev4sio_physx::tensors::ArticulationTendonOvStageRecord> selRecs;
     std::vector<ObjectKey> selKeys;
     std::vector<ovx_primpath_t> selHandles;
     std::vector<size_t> kept;
-    const std::vector<omni::physx::tensors::ArticulationTendonOvStageRecord>* recsP = &tc.recs;
+    const std::vector<omni::ev4sio_physx::tensors::ArticulationTendonOvStageRecord>* recsP = &tc.recs;
     const std::vector<ObjectKey>* keysP = &tc.keys;
     const std::vector<ovx_primpath_t>* handlesP = &tc.handles;
     uint64_t recsUploadVersion = tc.recsVersion;
@@ -7455,7 +7455,7 @@ bool buildTendonState(ReadSession& s,
     }
 
     // By reference, as above: on a hit this is the entire body of work the cache saves.
-    const std::vector<omni::physx::tensors::ArticulationTendonOvStageRecord>& recs = *recsP;
+    const std::vector<omni::ev4sio_physx::tensors::ArticulationTendonOvStageRecord>& recs = *recsP;
     const std::vector<ObjectKey>& keys = *keysP;
     const std::vector<ovx_primpath_t>& handles = *handlesP;
     const uint32_t numOut = static_cast<uint32_t>(recs.size());
@@ -7466,8 +7466,8 @@ bool buildTendonState(ReadSession& s,
     // records themselves for a selection's compacted list. FIXED and SPATIAL hold separate buffers. tendonInstance
     // is built from tc.tendons and is not one of these columns, so a token-only read leaves devColumns empty and
     // does not hold a buffer.
-    using RecordColumn = omni::physx::tensors::GpuArticulationView::OvStageRecordReadColumn;
-    using RecordRead = omni::physx::tensors::GpuArticulationView::OvStageRecordRead;
+    using RecordColumn = omni::ev4sio_physx::tensors::GpuArticulationView::OvStageRecordReadColumn;
+    using RecordRead = omni::ev4sio_physx::tensors::GpuArticulationView::OvStageRecordRead;
     std::vector<RecordColumn> devColumns;
     size_t held = SIZE_MAX;
     if (gpu)
@@ -7482,12 +7482,12 @@ bool buildTendonState(ReadSession& s,
             column.kind = fixed ? RecordRead::eFixedTendon : RecordRead::eSpatialTendon;
             column.tendonProperty = row->prop;
             devColumns.push_back(column);
-            devFloats.push_back(size_t(numOut) * omni::physx::tensors::tendonPropertyComponents(row->prop));
+            devFloats.push_back(size_t(numOut) * omni::ev4sio_physx::tensors::tendonPropertyComponents(row->prop));
         }
         if (!devColumns.empty())
         {
             held = holdRecordRead(s, ctxMgr, heldKey, gpuAv, viewGeneration, recs.data(), numOut,
-                                  sizeof(omni::physx::tensors::ArticulationTendonOvStageRecord),
+                                  sizeof(omni::ev4sio_physx::tensors::ArticulationTendonOvStageRecord),
                                   s.selection.active() ? 0 : recsUploadVersion, devColumns, devFloats);
             if (held == SIZE_MAX)
             {
@@ -7505,7 +7505,7 @@ bool buildTendonState(ReadSession& s,
     size_t devColumn = 0;
     for (const std::string& name : names)
     {
-        if (name == omni::physx::OvxAttr::kTendonInstance)
+        if (name == omni::ev4sio_physx::OvxAttr::kTendonInstance)
         {
             ovx_path_dictionary_t* dict = sourceDictionary(source);
             if (!dict)
@@ -7564,7 +7564,7 @@ bool buildTendonState(ReadSession& s,
         const TendonAttributeRow* row = findTendonAttribute(name, fixed);
         if (!row)
             continue;
-        const uint32_t comp = omni::physx::tensors::tendonPropertyComponents(row->prop);
+        const uint32_t comp = omni::ev4sio_physx::tensors::tendonPropertyComponents(row->prop);
         const size_t floats = size_t(numOut) * comp;
 
         GroupStore g;
@@ -7652,7 +7652,7 @@ void buildTendonGroups(ReadSession& s,
 // Vehicle wheels (per-wheel world transform — a fixed group)
 // ----------------------------------------------------------------------------
 
-using VehicleView = omni::physx::tensors::BaseVehicleView;
+using VehicleView = omni::ev4sio_physx::tensors::BaseVehicleView;
 using VehicleDtype = omni::physics::tensors::TensorDataType;
 
 struct VehicleDriveAttribute
@@ -7693,7 +7693,7 @@ const VehicleWheelAttribute* vehicleWheelAttribute(const std::string& name)
 
 bool isVehicleWheelPose(const std::string& name)
 {
-    return name == omni::physx::OvxAttr::kPosition || name == omni::physx::OvxAttr::kOrientation;
+    return name == omni::ev4sio_physx::OvxAttr::kPosition || name == omni::ev4sio_physx::OvxAttr::kOrientation;
 }
 
 // Storage and DLTensor dtype agree before the typed backend fills a column.
@@ -7750,7 +7750,7 @@ void forEachVehicleWheelRow(InternalVehicle& veh, Fn&& fn)
 // the only thing that can be reported as moving or not is the body they hang off.
 bool vehicleActorInScope(PxRigidDynamic& actor, uint32_t scope, const ActiveActorSet& activeSet)
 {
-    if (scope != omni::physx::kOvxActive)
+    if (scope != omni::ev4sio_physx::kOvxActive)
         return true;
     if (activeSet.sceneReports(actor.getScene()))
         return activeSet.isActive(reinterpret_cast<size_t>(actor.userData)); // its own record index
@@ -7780,11 +7780,11 @@ std::unordered_map<const PxScene*, VehicleReadCacheEntry> g_vehicleReadCache;
 
 } // namespace (reopened below)
 
-namespace omni::physx::ovx
+namespace omni::ev4sio_physx::ovx
 {
 VehicleReadCacheEntry* refreshVehicleCache(IPhysicsSource& source,
-                                         ::physx::PxScene* scene,
-                                         omni::physx::tensors::BaseVehicleView** outView)
+                                         ::ev4sio_physx::PxScene* scene,
+                                         omni::ev4sio_physx::tensors::BaseVehicleView** outView)
 {
     if (outView)
         *outView = nullptr;
@@ -7800,13 +7800,13 @@ VehicleReadCacheEntry* refreshVehicleCache(IPhysicsSource& source,
         empty.setEpoch = internalScene->mVehicleSetEpoch;
         return &empty;
     }
-    omni::physx::tensors::SimulationBackend* backend = omni::physx::tensors::GetSimulationBackend();
+    omni::ev4sio_physx::tensors::SimulationBackend* backend = omni::ev4sio_physx::tensors::GetSimulationBackend();
     uint64_t generation = 0;
-    omni::physx::tensors::CpuSimulationView* sv =
+    omni::ev4sio_physx::tensors::CpuSimulationView* sv =
         backend ? backend->acquireCpuSceneView(scene, &generation) : nullptr;
     if (!sv)
         return nullptr;
-    omni::physx::tensors::BaseVehicleView* vv = sv->vehicleView(*internalScene);
+    omni::ev4sio_physx::tensors::BaseVehicleView* vv = sv->vehicleView(*internalScene);
     const uint64_t setEpoch = internalScene->mVehicleSetEpoch;
     VehicleReadCacheEntry& vc = g_vehicleReadCache[scene];
     if (vc.setEpoch != setEpoch || vc.generation != generation)
@@ -7816,10 +7816,10 @@ VehicleReadCacheEntry* refreshVehicleCache(IPhysicsSource& source,
         if (vv)
         {
             // A row's existence is structural, independent of its per-step transform validity.
-            const std::vector<omni::physx::tensors::VehicleEntry>& entries = vv->getEntries();
+            const std::vector<omni::ev4sio_physx::tensors::VehicleEntry>& entries = vv->getEntries();
             std::unordered_map<const InternalVehicle*, ObjectKey> vehicleKeys;
             for (const InternalDatabase::Record& record : internalScene->getAttachedStage().getInternalPhysXDatabase().getRecords())
-                if (record.mType == omni::physx::ePTVehicle && record.mInternalPtr)
+                if (record.mType == omni::ev4sio_physx::ePTVehicle && record.mInternalPtr)
                     vehicleKeys.emplace(static_cast<const InternalVehicle*>(record.mInternalPtr), record.mKey);
             for (uint32_t i = 0; i < entries.size(); ++i)
             {
@@ -7830,7 +7830,7 @@ VehicleReadCacheEntry* refreshVehicleCache(IPhysicsSource& source,
                 forEachVehicleWheelRow(*entries[i].vehicle,
                                        [&](uint32_t wheelIdx, const ObjectKey& key)
                                        {
-                                           omni::physx::tensors::VehicleWheelOvStageRecord r;
+                                           omni::ev4sio_physx::tensors::VehicleWheelOvStageRecord r;
                                            r.viewVehicleIdx = i;
                                            r.wheelIdx = wheelIdx;
                                            next.recs.push_back(r);
@@ -7853,13 +7853,13 @@ VehicleReadCacheEntry* refreshVehicleCache(IPhysicsSource& source,
     return &vc;
 }
 
-VehicleReadCacheEntry* vehicleCacheEntry(const ::physx::PxScene* scene)
+VehicleReadCacheEntry* vehicleCacheEntry(const ::ev4sio_physx::PxScene* scene)
 {
     const std::unordered_map<const PxScene*, VehicleReadCacheEntry>::iterator it =
         g_vehicleReadCache.find(scene);
     return it == g_vehicleReadCache.end() ? nullptr : &it->second;
 }
-} // namespace omni::physx::ovx
+} // namespace omni::ev4sio_physx::ovx
 
 namespace
 {
@@ -7890,7 +7890,7 @@ void buildVehicleWheelState(ReadSession& s,
     // attached to a DirectGPU scene at all -- its suspension and sticky-tire constraints are custom
     // PxConstraints with a CPU solver-prep function, which PhysX refuses there -- so the scene this
     // runs on is never one acquireSceneView would serve.
-    omni::physx::tensors::BaseVehicleView* vv = nullptr;
+    omni::ev4sio_physx::tensors::BaseVehicleView* vv = nullptr;
     VehicleReadCacheEntry* cached = refreshVehicleCache(source, scene, &vv);
     if (!cached)
     {
@@ -7905,9 +7905,9 @@ void buildVehicleWheelState(ReadSession& s,
     // cached rows here rather than re-deriving them, and neither mutates the shared VehicleReadCacheEntry
     // (REQ-READ-SELECT-001 AC-5): the handles come out by gather, which keeps the expensive half --
     // interning a key -- on the cache-miss path even for an active-only or selected read.
-    const bool filterActive = (scope == omni::physx::kOvxActive);
+    const bool filterActive = (scope == omni::ev4sio_physx::kOvxActive);
     const bool filtered = filterActive || s.selection.active();
-    std::vector<omni::physx::tensors::VehicleWheelOvStageRecord> subRecs;
+    std::vector<omni::ev4sio_physx::tensors::VehicleWheelOvStageRecord> subRecs;
     std::vector<ObjectKey> subKeys;
     std::vector<ovx_primpath_t> subHandles;
     if (filtered)
@@ -7915,7 +7915,7 @@ void buildVehicleWheelState(ReadSession& s,
         std::vector<bool> inScope;
         if (filterActive)
         {
-            const std::vector<omni::physx::tensors::VehicleEntry>& entries = vv->getEntries();
+            const std::vector<omni::ev4sio_physx::tensors::VehicleEntry>& entries = vv->getEntries();
             inScope.assign(entries.size(), false);
             for (size_t i = 0; i < entries.size(); ++i)
                 inScope[i] = vehicleActorInScope(*entries[i].actor, scope, activeSet);
@@ -7933,7 +7933,7 @@ void buildVehicleWheelState(ReadSession& s,
                 subHandles.push_back(vc.handles[i]);
         }
     }
-    const std::vector<omni::physx::tensors::VehicleWheelOvStageRecord>& recs = filtered ? subRecs : vc.recs;
+    const std::vector<omni::ev4sio_physx::tensors::VehicleWheelOvStageRecord>& recs = filtered ? subRecs : vc.recs;
     const std::vector<ObjectKey>& keys = filtered ? subKeys : vc.keys;
     const std::vector<ovx_primpath_t>& handles = filtered ? subHandles : vc.handles;
     const uint32_t numOut = static_cast<uint32_t>(recs.size());
@@ -7954,14 +7954,14 @@ void buildVehicleWheelState(ReadSession& s,
     {
         wheelGroups.resize(wanted.size());
         std::vector<omni::physics::tensors::TensorDesc> descs(wanted.size());
-        std::vector<omni::physx::tensors::BaseVehicleView::WheelTransformColumn> columns(wanted.size());
+        std::vector<omni::ev4sio_physx::tensors::BaseVehicleView::WheelTransformColumn> columns(wanted.size());
         for (size_t k = 0; k < wanted.size(); ++k)
         {
-            const omni::physx::tensors::VehicleWheelComponent component =
-                (wanted[k] == omni::physx::OvxAttr::kOrientation) ?
-                    omni::physx::tensors::VehicleWheelComponent::eOrientation :
-                    omni::physx::tensors::VehicleWheelComponent::ePosition;
-            const size_t floats = size_t(numOut) * omni::physx::tensors::vehicleWheelComponents(component);
+            const omni::ev4sio_physx::tensors::VehicleWheelComponent component =
+                (wanted[k] == omni::ev4sio_physx::OvxAttr::kOrientation) ?
+                    omni::ev4sio_physx::tensors::VehicleWheelComponent::eOrientation :
+                    omni::ev4sio_physx::tensors::VehicleWheelComponent::ePosition;
+            const size_t floats = size_t(numOut) * omni::ev4sio_physx::tensors::vehicleWheelComponents(component);
             wheelGroups[k].isArray = false;
             wheelGroups[k].floats.resize(floats);
             descs[k].device = -1;
@@ -7984,10 +7984,10 @@ void buildVehicleWheelState(ReadSession& s,
     for (const std::string& name : wanted)
     {
         const size_t slot = wheelSlot++;
-        const omni::physx::tensors::VehicleWheelComponent component =
-            (name == omni::physx::OvxAttr::kOrientation) ? omni::physx::tensors::VehicleWheelComponent::eOrientation :
-                                                           omni::physx::tensors::VehicleWheelComponent::ePosition;
-        const uint32_t comp = omni::physx::tensors::vehicleWheelComponents(component);
+        const omni::ev4sio_physx::tensors::VehicleWheelComponent component =
+            (name == omni::ev4sio_physx::OvxAttr::kOrientation) ? omni::ev4sio_physx::tensors::VehicleWheelComponent::eOrientation :
+                                                           omni::ev4sio_physx::tensors::VehicleWheelComponent::ePosition;
+        const uint32_t comp = omni::ev4sio_physx::tensors::vehicleWheelComponents(component);
         const size_t floats = size_t(numOut) * comp;
 
         // Filled by the set call above; emitted here so group order still follows `wanted`.
@@ -8041,7 +8041,7 @@ void buildVehicleDriveState(ReadSession& s, IPhysicsSource& source, PxScene* sce
     }
     if (!view)
         return;
-    const std::vector<omni::physx::tensors::VehicleEntry>& entries = view->getEntries();
+    const std::vector<omni::ev4sio_physx::tensors::VehicleEntry>& entries = view->getEntries();
 
     // Shared control state and engine-only telemetry have different applicability.
     for (bool engineOnly : { false, true })
@@ -8061,14 +8061,14 @@ void buildVehicleDriveState(ReadSession& s, IPhysicsSource& source, PxScene* sce
         for (size_t i = 0; i < cache->vehicleKeys.size(); ++i)
         {
             const uint32_t row = static_cast<uint32_t>(i);
-            const omni::physx::tensors::VehicleEntry& entry = entries[row];
+            const omni::ev4sio_physx::tensors::VehicleEntry& entry = entries[row];
             if (!vehicleActorInScope(*entry.actor, scope, activeSet) ||
                 (s.selection.active() && !s.selection.admits(cache->vehicleKeys[i])))
                 continue;
             if (engineOnly ? !entry.vehicle->hasEngineDrive() : !entry.vehicle->hasDrive())
             {
                 for (const VehicleDriveAttribute* attribute : wanted)
-                    s.omit(attribute->name, omni::physx::kOvxReadOmissionUnsupportedConfiguration);
+                    s.omit(attribute->name, omni::ev4sio_physx::kOvxReadOmissionUnsupportedConfiguration);
                 continue;
             }
             records.push_back(row);
@@ -8113,7 +8113,7 @@ bool vehicleGroundPaths(IPhysicsSource& source, AttachedStage& owner, std::vecto
     std::vector<size_t> rows;
     for (size_t i = 0; i < ids.size(); ++i)
     {
-        const ObjectKey key = omni::physx::attachmentLookup::keyForObject(&owner, ids[i]);
+        const ObjectKey key = omni::ev4sio_physx::attachmentLookup::keyForObject(&owner, ids[i]);
         if (key.valid() && owner.isKeyLive(key))
         {
             keys.push_back(key);
@@ -8148,8 +8148,8 @@ void buildVehicleWheelTelemetry(ReadSession& s, IPhysicsSource& source, PxScene*
     }
     if (!view)
         return;
-    const std::vector<omni::physx::tensors::VehicleEntry>& entries = view->getEntries();
-    std::vector<omni::physx::tensors::VehicleWheelOvStageRecord> records;
+    const std::vector<omni::ev4sio_physx::tensors::VehicleEntry>& entries = view->getEntries();
+    std::vector<omni::ev4sio_physx::tensors::VehicleWheelOvStageRecord> records;
     std::vector<ObjectKey> keys;
     std::vector<ovx_primpath_t> handles;
     for (size_t i = 0; i < cache->recs.size(); ++i)
@@ -8218,7 +8218,7 @@ void buildVehicleGroups(ReadSession& s, IPhysicsSource& source, AttachedStage& a
     const std::vector<ScenePair> scenes = allPhysicsScenesWithInternal(as);
     purgeDeadSceneEntries(g_vehicleReadCache, scenesOf(scenes));
     const ActiveActorSet activeSet =
-        (scope == omni::physx::kOvxActive) ? collectActiveActors(as) : ActiveActorSet{};
+        (scope == omni::ev4sio_physx::kOvxActive) ? collectActiveActors(as) : ActiveActorSet{};
     for (const ScenePair& sp : scenes)
     {
         const size_t firstGroup = s.groups.size();
@@ -8377,7 +8377,7 @@ void collectDeformableTopologyPart(IPhysicsSource& source,
 struct DeformableReadCacheEntry
 {
     uint64_t dbEpoch = 0;
-    std::unique_ptr<omni::physx::tensors::GpuPointSetReadView> view;
+    std::unique_ptr<omni::ev4sio_physx::tensors::GpuPointSetReadView> view;
     std::vector<ObjectKey> keys; // one per view row, in the view's order
     std::vector<InternalDeformableBody*> bodies; // ditto: the reframe matrix comes from here
     std::vector<PxDeformableBody*> pxBodies; // ditto, for isSleeping()
@@ -8409,7 +8409,7 @@ std::unordered_map<const PxScene*, DeformableReadCacheEntry> g_surfaceDeformable
 // PxMat44T's own), so this is an element-wise narrow rather than a relayout. Kept as a named
 // function anyway: it is the one place the two are asserted to agree, and a transpose slipped in
 // here would be invisible everywhere else.
-void toPointSetTransform(const ::physx::PxMat44d& m, omni::physx::tensors::PointSetTransform& out)
+void toPointSetTransform(const ::ev4sio_physx::PxMat44d& m, omni::ev4sio_physx::tensors::PointSetTransform& out)
 {
     const double* src = m.front();
     for (int i = 0; i < 16; ++i)
@@ -8420,7 +8420,7 @@ void toPointSetTransform(const ::physx::PxMat44d& m, omni::physx::tensors::Point
 // HERE rather than at emit, so the view's rows, `keys` and `bodies` stay index-aligned.
 void collectDeformableEntries(InternalScene* sc,
                               bool isVolume,
-                              std::vector<omni::physx::tensors::PointSetReadEntry>& entries,
+                              std::vector<omni::ev4sio_physx::tensors::PointSetReadEntry>& entries,
                               DeformableReadCacheEntry& ce)
 {
     // Built from empty rather than appended to, so this function's result depends on the scene
@@ -8435,7 +8435,7 @@ void collectDeformableEntries(InternalScene* sc,
     {
         if (!b || !px || b->mNumSimMeshVertices == 0 || !pos || !vel)
             return;
-        omni::physx::tensors::PointSetReadEntry e;
+        omni::ev4sio_physx::tensors::PointSetReadEntry e;
         e.positions = pos;
         e.velocities = vel;
         e.numPoints = b->mNumSimMeshVertices;
@@ -8472,14 +8472,14 @@ void collectDeformableEntries(InternalScene* sc,
 
 } // namespace (reopened below)
 
-namespace omni::physx::ovx
+namespace omni::ev4sio_physx::ovx
 {
 // The deformable counterpart of particleWriteTargets (ADR-0012). Declared in
 // OvxPhysicsShared.h; it lives here because collectDeformableEntries does, and the write must inherit
 // that function's admission rules whole rather than restate them -- a body with no sim-mesh
 // vertices, or no PhysX object, is skipped identically, and the ORDER matches, which is what lets a
 // caller read a column and write it straight back.
-bool deformableWriteTargets(::physx::PxScene* scene, const bool isVolume, DeformableWriteTargets& out)
+bool deformableWriteTargets(::ev4sio_physx::PxScene* scene, const bool isVolume, DeformableWriteTargets& out)
 {
     out.keys.clear();
     out.bodies.clear();
@@ -8502,7 +8502,7 @@ bool deformableWriteTargets(::physx::PxScene* scene, const bool isVolume, Deform
     if (!sc)
         return true; // not a live physics scene: nothing to offer, not a failure
 
-    std::vector<omni::physx::tensors::PointSetReadEntry> entries;
+    std::vector<omni::ev4sio_physx::tensors::PointSetReadEntry> entries;
     DeformableReadCacheEntry scratch;
     collectDeformableEntries(sc, isVolume, entries, scratch);
 
@@ -8510,11 +8510,11 @@ bool deformableWriteTargets(::physx::PxScene* scene, const bool isVolume, Deform
     out.bodies = std::move(scratch.pxBodies);
     out.internals = std::move(scratch.bodies);
     out.counts.reserve(entries.size());
-    for (const omni::physx::tensors::PointSetReadEntry& e : entries)
+    for (const omni::ev4sio_physx::tensors::PointSetReadEntry& e : entries)
         out.counts.push_back(uint32_t(e.numPoints));
     return true;
 }
-} // namespace omni::physx::ovx
+} // namespace omni::ev4sio_physx::ovx
 
 namespace
 {
@@ -8587,26 +8587,26 @@ void buildDeformableGroups(ReadSession& s,
     bool wantKinematicTarget = false;
     for (const std::string& nm : names)
     {
-        if (nm == omni::physx::OvxAttr::kPoints) wantPoints = true;
-        else if (nm == omni::physx::OvxAttr::kVelocities) wantVel = true;
-        else if (nm == omni::physx::OvxAttr::kRestPoints) wantRestPoints = true;
-        else if (nm == omni::physx::OvxAttr::kSimElementIndices) wantSimIndices = true;
-        else if (nm == omni::physx::OvxAttr::kCollisionElementIndices) wantCollIndices = true;
-        else if (nm == omni::physx::OvxAttr::kKinematicTarget) wantKinematicTarget = true;
+        if (nm == omni::ev4sio_physx::OvxAttr::kPoints) wantPoints = true;
+        else if (nm == omni::ev4sio_physx::OvxAttr::kVelocities) wantVel = true;
+        else if (nm == omni::ev4sio_physx::OvxAttr::kRestPoints) wantRestPoints = true;
+        else if (nm == omni::ev4sio_physx::OvxAttr::kSimElementIndices) wantSimIndices = true;
+        else if (nm == omni::ev4sio_physx::OvxAttr::kCollisionElementIndices) wantCollIndices = true;
+        else if (nm == omni::ev4sio_physx::OvxAttr::kKinematicTarget) wantKinematicTarget = true;
         else CARB_LOG_WARN("ovxReadAttributes: '%s' is not a deformable output attribute "
                            "for this type — skipped.", nm.c_str());
     }
     if (!wantPoints && !wantVel && !wantRestPoints && !wantSimIndices && !wantCollIndices && !wantKinematicTarget)
         return;
 
-    const bool isVolume = (type == omni::physx::kOvxDeformableVolume);
+    const bool isVolume = (type == omni::ev4sio_physx::kOvxDeformableVolume);
     if (wantCollIndices && !isVolume)
     {
         // A surface deformable has no collision mesh distinct from its simulation mesh, so this is
         // an attribute the type does not have rather than one the read failed to produce. Refused
         // by name (AC-4) instead of falling through to a neighbouring column.
         CARB_LOG_WARN("ovxReadAttributes: '%s' is a volume-deformable attribute; surface deformables "
-                      "have no separate collision mesh — skipped.", omni::physx::OvxAttr::kCollisionElementIndices);
+                      "have no separate collision mesh — skipped.", omni::ev4sio_physx::OvxAttr::kCollisionElementIndices);
         wantCollIndices = false;
     }
     if (wantKinematicTarget && !isVolume)
@@ -8614,7 +8614,7 @@ void buildDeformableGroups(ReadSession& s,
         // Kinematic targeting is driven through PxDeformableVolume::setKinematicTargetBufferD, which a
         // surface deformable does not have -- an attribute the type lacks, refused by name (AC-4).
         CARB_LOG_WARN("ovxReadAttributes: '%s' is a volume-deformable attribute; surface deformables "
-                      "are not kinematically targeted — skipped.", omni::physx::OvxAttr::kKinematicTarget);
+                      "are not kinematically targeted — skipped.", omni::ev4sio_physx::OvxAttr::kKinematicTarget);
         wantKinematicTarget = false;
     }
     std::unordered_map<const PxScene*, DeformableReadCacheEntry>& cache =
@@ -8626,7 +8626,7 @@ void buildDeformableGroups(ReadSession& s,
 
     for (const InternalDatabase::Record& rec : db.getRecords())
     {
-        if (rec.mType != omni::physx::ePTScene || !rec.mInternalPtr)
+        if (rec.mType != omni::ev4sio_physx::ePTScene || !rec.mInternalPtr)
             continue;
         InternalScene* sc = reinterpret_cast<InternalScene*>(rec.mInternalPtr);
         PxScene* scene = sc->getScene();
@@ -8733,11 +8733,11 @@ void buildDeformableGroups(ReadSession& s,
             ce.drop();
         if (!ce.view)
         {
-            std::vector<omni::physx::tensors::PointSetReadEntry> entries;
+            std::vector<omni::ev4sio_physx::tensors::PointSetReadEntry> entries;
             collectDeformableEntries(sc, isVolume, entries, ce);
             if (!entries.empty())
-                ce.view.reset(new omni::physx::tensors::GpuPointSetReadView(
-                    ctxMgr, entries, omni::physx::tensors::PointSetSourceLayout::eVec4));
+                ce.view.reset(new omni::ev4sio_physx::tensors::GpuPointSetReadView(
+                    ctxMgr, entries, omni::ev4sio_physx::tensors::PointSetSourceLayout::eVec4));
             if (!ce.view || !ce.view->isUsable())
             {
                 // Dropped rather than kept: a view that cannot serve answers every column with
@@ -8777,7 +8777,7 @@ void buildDeformableGroups(ReadSession& s,
         {
             for (PxU32 i = 0; i < numBodies; ++i)
             {
-                if (scope == omni::physx::kOvxActive && ce.pxBodies[i]->isSleeping())
+                if (scope == omni::ev4sio_physx::kOvxActive && ce.pxBodies[i]->isSleeping())
                     continue;
                 if (s.selection.active() && !s.selection.admits(ce.keys[i]))
                     continue; // prim-set selection: only admitted bodies contribute a KT slice
@@ -8808,11 +8808,11 @@ void buildDeformableGroups(ReadSession& s,
         const size_t pointFloats = alignColumnFloats(size_t(columnFloats) * numColumns);
         if (numColumns > 0 || !ktRows.empty())
         {
-            std::vector<omni::physx::tensors::PointSetTransform> xf(numBodies);
+            std::vector<omni::ev4sio_physx::tensors::PointSetTransform> xf(numBodies);
             for (PxU32 i = 0; i < numBodies; ++i)
                 toPointSetTransform(ce.bodies[i]->mWorldToSimMesh, xf[i]);
             const uint8_t* const xfBytes = reinterpret_cast<const uint8_t*>(xf.data());
-            std::vector<uint8_t> head(xfBytes, xfBytes + xf.size() * sizeof(omni::physx::tensors::PointSetTransform));
+            std::vector<uint8_t> head(xfBytes, xfBytes + xf.size() * sizeof(omni::ev4sio_physx::tensors::PointSetTransform));
             // The kinematic-target layout is not uploaded -- the gathers take it as launch parameters -- but a
             // capture records those, so it is part of what the parked buffer must still describe.
             std::vector<uint8_t> versioned = head;
@@ -8846,7 +8846,7 @@ void buildDeformableGroups(ReadSession& s,
             {
                 float* dst;
                 const PxVec4* src;
-                omni::physx::tensors::PointSetTransform worldToLocal;
+                omni::ev4sio_physx::tensors::PointSetTransform worldToLocal;
                 PxU32 nodes;
             };
             std::vector<KinematicTargetGather> ktGathers;
@@ -8854,18 +8854,18 @@ void buildDeformableGroups(ReadSession& s,
             {
                 InternalVolumeDeformableBody* vb = static_cast<InternalVolumeDeformableBody*>(ce.bodies[ktRows[r]]);
                 // world -> sim-mesh, the same reframe the points read applies (the write inverts it)
-                omni::physx::tensors::PointSetTransform worldToLocal;
+                omni::ev4sio_physx::tensors::PointSetTransform worldToLocal;
                 toPointSetTransform(vb->mWorldToSimMesh, worldToLocal);
                 ktGathers.push_back({ reinterpret_cast<float*>(ktColumnBase + ktOffsetFloats[r] * sizeof(float)),
                                       vb->mSimMeshKinematicTargetsD, worldToLocal, ktNodeCounts[r] });
             }
-            const omni::physx::tensors::GpuPointSetReadView* const view = ce.view.get();
+            const omni::ev4sio_physx::tensors::GpuPointSetReadView* const view = ce.view.get();
             PxCudaContextManager* const manager = ctxMgr;
             s.held[held].gathers.push_back(
                 [view, manager, columnBase, totalFloats, columnFloats, wantPoints, wantVel, pointsColumn,
-                 velocityColumn, isVolume, ktGathers](const omni::physx::tensors::OvStageDeviceReadArgs& args)
+                 velocityColumn, isVolume, ktGathers](const omni::ev4sio_physx::tensors::OvStageDeviceReadArgs& args)
                 {
-                    using Column = omni::physx::tensors::GpuPointSetReadView::Column;
+                    using Column = omni::ev4sio_physx::tensors::GpuPointSetReadView::Column;
                     const auto columnPtr = [&](uint32_t idx)
                     { return reinterpret_cast<void*>(columnBase + size_t(idx) * columnFloats * sizeof(float)); };
                     if (manager->getCudaContext()->memsetD32Async(columnBase, 0u, totalFloats, args.stream) != 0)
@@ -8873,14 +8873,14 @@ void buildDeformableGroups(ReadSession& s,
                         CARB_LOG_ERROR("ovphysx read: %s", pointSetFailureText(PointSetFailure::eColumnZero));
                         return false;
                     }
-                    const omni::physx::tensors::PointSetTransform* const transforms =
-                        static_cast<const omni::physx::tensors::PointSetTransform*>(args.scratch);
+                    const omni::ev4sio_physx::tensors::PointSetTransform* const transforms =
+                        static_cast<const omni::ev4sio_physx::tensors::PointSetTransform*>(args.scratch);
                     bool ok = (!wantPoints || view->readColumnOvStage(Column::ePoints, columnPtr(pointsColumn),
                                                                       transforms, args)) &&
                               (!wantVel || view->readColumnOvStage(Column::eVelocities, columnPtr(velocityColumn),
                                                                    transforms, args));
                     for (const KinematicTargetGather& kt : ktGathers)
-                        ok = ok && omni::physx::tensors::fetchKinematicTargetColumnOvStage(
+                        ok = ok && omni::ev4sio_physx::tensors::fetchKinematicTargetColumnOvStage(
                                        kt.dst, kt.src, kt.worldToLocal, kt.nodes, /*reframe*/ true, args.stream);
                     if (!ok)
                         CARB_LOG_ERROR("ovphysx read: %s %s", isVolume ? "volume deformable" : "surface deformable",
@@ -8904,7 +8904,7 @@ void buildDeformableGroups(ReadSession& s,
         rows.reserve(numBodies);
         for (PxU32 i = 0; i < numBodies; ++i)
         {
-            if (scope == omni::physx::kOvxActive && ce.pxBodies[i]->isSleeping())
+            if (scope == omni::ev4sio_physx::kOvxActive && ce.pxBodies[i]->isSleeping())
                 continue;
             if (s.selection.active() && !s.selection.admits(ce.keys[i]))
                 continue; // prim-set selection: emit only admitted bodies (the column gather stays full)
@@ -8975,10 +8975,10 @@ void buildDeformableGroups(ReadSession& s,
                 t.byte_offset = 0;
                 g.tensors.push_back(t);
             }
-            if (!finalizeArrayGroup(s, source, std::move(g), omni::physx::OvxAttr::kKinematicTarget, ktKeys))
+            if (!finalizeArrayGroup(s, source, std::move(g), omni::ev4sio_physx::OvxAttr::kKinematicTarget, ktKeys))
             {
                 CARB_LOG_ERROR("ovphysx read: could not publish the %s column",
-                               omni::physx::OvxAttr::kKinematicTarget);
+                               omni::ev4sio_physx::OvxAttr::kKinematicTarget);
                 s.backendFailed = true;
             }
         };
@@ -9131,31 +9131,31 @@ void buildDeformableGroups(ReadSession& s,
         {
             // No trailing else: an unrecognised name was warned about once before the scene loop, and
             // warning again here would repeat it per scene.
-            if (nm == omni::physx::OvxAttr::kPoints)
+            if (nm == omni::ev4sio_physx::OvxAttr::kPoints)
             {
                 if (held != SIZE_MAX)
                     emit(nm.c_str(), pointsColumn);
             }
-            else if (nm == omni::physx::OvxAttr::kVelocities)
+            else if (nm == omni::ev4sio_physx::OvxAttr::kVelocities)
             {
                 if (held != SIZE_MAX)
                     emit(nm.c_str(), velocityColumn);
             }
-            else if (nm == omni::physx::OvxAttr::kRestPoints)
+            else if (nm == omni::ev4sio_physx::OvxAttr::kRestPoints)
             {
                 emitTopology(nm.c_str(), 3, Topo::eRestPoints, ce.haveRestPoints);
             }
-            else if (nm == omni::physx::OvxAttr::kSimElementIndices)
+            else if (nm == omni::ev4sio_physx::OvxAttr::kSimElementIndices)
             {
                 emitTopology(nm.c_str(), simElementLanes(isVolume), Topo::eSimIndices, ce.haveSimIndices);
             }
-            else if (nm == omni::physx::OvxAttr::kCollisionElementIndices && wantCollIndices)
+            else if (nm == omni::ev4sio_physx::OvxAttr::kCollisionElementIndices && wantCollIndices)
             {
                 // Gated on the flag, not re-tested here: `wantCollIndices` carries the surface-
                 // deformable suppression decided (and warned about) once above.
                 emitTopology(nm.c_str(), 4, Topo::eCollIndices, ce.haveCollIndices);
             }
-            else if (nm == omni::physx::OvxAttr::kKinematicTarget && wantKinematicTarget)
+            else if (nm == omni::ev4sio_physx::OvxAttr::kKinematicTarget && wantKinematicTarget)
             {
                 // `wantKinematicTarget` carries the surface suppression from above. A scene with no body set
                 // up publishes nothing here (ktRows empty) -- the attribute is omitted for that scene rather
@@ -9233,7 +9233,7 @@ void forEachSkinMeshRow(InternalScene* internalScene, Fn&& fn)
 struct SkinMeshReadCacheEntry
 {
     uint64_t dbEpoch = 0;
-    std::unique_ptr<omni::physx::tensors::GpuPointSetReadView> view;
+    std::unique_ptr<omni::ev4sio_physx::tensors::GpuPointSetReadView> view;
     std::vector<ObjectKey> keys; // one per view row: the SKIN MESH prim
     std::vector<InternalDeformableBody*> ownerBodies; // ditto: the reframe matrix and the slice come from here
     std::vector<PxDeformableBody*> ownerPxBodies; // ditto, for isSleeping()
@@ -9253,7 +9253,7 @@ std::unordered_map<const PxScene*, SkinMeshReadCacheEntry> g_skinMeshCache;
 // Build the view's rows for one scene, through the shared enumeration above so the rows, `keys` and
 // `ownerBodies` stay index-aligned with what discovery counts.
 void collectSkinMeshEntries(InternalScene* internalScene,
-                            std::vector<omni::physx::tensors::PointSetReadEntry>& entries,
+                            std::vector<omni::ev4sio_physx::tensors::PointSetReadEntry>& entries,
                             SkinMeshReadCacheEntry& cacheEntry)
 {
     entries.clear();
@@ -9262,7 +9262,7 @@ void collectSkinMeshEntries(InternalScene* internalScene,
                        [&](InternalDeformableBody* internalBody, PxDeformableBody* deformableBody,
                            uint32_t skinMeshIndex, carb::Uint2 range)
     {
-        omni::physx::tensors::PointSetReadEntry entry;
+        omni::ev4sio_physx::tensors::PointSetReadEntry entry;
         entry.positions = internalBody->mAllSkinnedVerticesD + range.x; // PxVec3*, the view is built eVec3
         entry.velocities = nullptr; // skinning produces positions only, so the view never gathers this column
         entry.numPoints = range.y;
@@ -9295,9 +9295,9 @@ void failSkinMeshBackend(ReadSession& session, PointSetFailure which)
 template <typename Pred>
 bool allSkinningCallbacks(InternalScene* internalScene, Pred&& pred)
 {
-    omni::physx::deformables::DeformablePostSolveCallback* callbacks[2] = {
+    omni::ev4sio_physx::deformables::DeformablePostSolveCallback* callbacks[2] = {
         internalScene->mVolumeDeformablePostSolveCallback, internalScene->mSurfaceDeformablePostSolveCallback };
-    for (omni::physx::deformables::DeformablePostSolveCallback* callback : callbacks)
+    for (omni::ev4sio_physx::deformables::DeformablePostSolveCallback* callback : callbacks)
         if (callback && !pred(*callback))
             return false;
     return true;
@@ -9307,7 +9307,7 @@ bool allSkinningCallbacks(InternalScene* internalScene, Pred&& pred)
 // event leaves nothing to order against, and that is refused rather than gathered unordered.
 bool orderAfterSkinning(InternalScene* internalScene, PxCudaContext* cudaContext, CUstream stream)
 {
-    return allSkinningCallbacks(internalScene, [&](omni::physx::deformables::DeformablePostSolveCallback& callback)
+    return allSkinningCallbacks(internalScene, [&](omni::ev4sio_physx::deformables::DeformablePostSolveCallback& callback)
     {
         const CUevent skinningDoneEvent = callback.getSkinningDoneEvent();
         return skinningDoneEvent && cudaContext->streamWaitEvent(stream, skinningDoneEvent) == CUDA_SUCCESS;
@@ -9318,7 +9318,7 @@ bool orderAfterSkinning(InternalScene* internalScene, PxCudaContext* cudaContext
 // before rewriting the buffer. Refused on failure for the same reason as the forward edge.
 bool orderNextSkinningAfterGather(InternalScene* internalScene, PxCudaContext* cudaContext, CUstream stream)
 {
-    return allSkinningCallbacks(internalScene, [&](omni::physx::deformables::DeformablePostSolveCallback& callback)
+    return allSkinningCallbacks(internalScene, [&](omni::ev4sio_physx::deformables::DeformablePostSolveCallback& callback)
                                 { return callback.recordConsumerDone(cudaContext, stream); });
 }
 
@@ -9330,7 +9330,7 @@ void buildDeformableSkinMeshGroups(ReadSession& s,
 {
     // ovxReadAttributes reports every name attrNamesForType does not advertise as an unsupported attribute
     // and drops it before dispatch, so `points` is the only name that reaches this builder.
-    if (std::find(names.begin(), names.end(), omni::physx::OvxAttr::kPoints) == names.end())
+    if (std::find(names.begin(), names.end(), omni::ev4sio_physx::OvxAttr::kPoints) == names.end())
         return;
 
     InternalPhysXDatabase& db = as.getInternalPhysXDatabase();
@@ -9339,7 +9339,7 @@ void buildDeformableSkinMeshGroups(ReadSession& s,
 
     for (const InternalDatabase::Record& rec : db.getRecords())
     {
-        if (rec.mType != omni::physx::ePTScene || !rec.mInternalPtr)
+        if (rec.mType != omni::ev4sio_physx::ePTScene || !rec.mInternalPtr)
             continue;
         InternalScene* sc = reinterpret_cast<InternalScene*>(rec.mInternalPtr);
         PxScene* scene = sc->getScene();
@@ -9376,11 +9376,11 @@ void buildDeformableSkinMeshGroups(ReadSession& s,
             ce.clearRows();
         if (!ce.view)
         {
-            std::vector<omni::physx::tensors::PointSetReadEntry> entries;
+            std::vector<omni::ev4sio_physx::tensors::PointSetReadEntry> entries;
             collectSkinMeshEntries(sc, entries, ce);
             if (!entries.empty())
-                ce.view.reset(new omni::physx::tensors::GpuPointSetReadView(
-                    ctxMgr, entries, omni::physx::tensors::PointSetSourceLayout::eVec3));
+                ce.view.reset(new omni::ev4sio_physx::tensors::GpuPointSetReadView(
+                    ctxMgr, entries, omni::ev4sio_physx::tensors::PointSetSourceLayout::eVec3));
             if (!ce.view || !ce.view->isUsable())
             {
                 // Same split as the sim-mesh read. A scene with no skinned mesh produces no entries, which
@@ -9401,11 +9401,11 @@ void buildDeformableSkinMeshGroups(ReadSession& s,
         // Resolved every read and never cached, for the same reason the sim-mesh read re-resolves its
         // matrices: the epoch above cannot see a transform change. One entry per ROW, so it is cheap. They
         // head the buffer the query holds for the column, uploaded only when they changed.
-        std::vector<omni::physx::tensors::PointSetTransform> xf(numRows);
+        std::vector<omni::ev4sio_physx::tensors::PointSetTransform> xf(numRows);
         for (PxU32 i = 0; i < numRows; ++i)
             toPointSetTransform(ce.ownerBodies[i]->mWorldToSkinMeshTransforms[ce.skinMeshIndices[i]], xf[i]);
         const uint8_t* const xfBytes = reinterpret_cast<const uint8_t*>(xf.data());
-        std::vector<uint8_t> head(xfBytes, xfBytes + xf.size() * sizeof(omni::physx::tensors::PointSetTransform));
+        std::vector<uint8_t> head(xfBytes, xfBytes + xf.size() * sizeof(omni::ev4sio_physx::tensors::PointSetTransform));
         const size_t columnBytes = size_t(columnFloats) * sizeof(float);
         const size_t scratchBytes = head.size();
         const uint64_t version = heldReadVersion(head, dbEpochNow, columnBytes ^ (uint64_t(scratchBytes) << 32));
@@ -9418,12 +9418,12 @@ void buildDeformableSkinMeshGroups(ReadSession& s,
             return;
         }
         const CUdeviceptr columnBase = s.held[held].buffer.data;
-        const omni::physx::tensors::GpuPointSetReadView* const view = ce.view.get();
+        const omni::ev4sio_physx::tensors::GpuPointSetReadView* const view = ce.view.get();
         PxCudaContextManager* const manager = ctxMgr;
         s.held[held].gathers.push_back(
-            [view, manager, sc, columnBase, columnFloats](const omni::physx::tensors::OvStageDeviceReadArgs& args)
+            [view, manager, sc, columnBase, columnFloats](const omni::ev4sio_physx::tensors::OvStageDeviceReadArgs& args)
             {
-                using Column = omni::physx::tensors::GpuPointSetReadView::Column;
+                using Column = omni::ev4sio_physx::tensors::GpuPointSetReadView::Column;
                 PxCudaContext* const cu = manager->getCudaContext();
                 // Before any device work of this read: everything below runs on the read's stream after this wait.
                 if (!orderAfterSkinning(sc, cu, args.stream))
@@ -9438,8 +9438,8 @@ void buildDeformableSkinMeshGroups(ReadSession& s,
                     CARB_LOG_ERROR("ovphysx read: %s", pointSetFailureText(PointSetFailure::eColumnZero));
                     return false;
                 }
-                const omni::physx::tensors::PointSetTransform* const transforms =
-                    static_cast<const omni::physx::tensors::PointSetTransform*>(args.scratch);
+                const omni::ev4sio_physx::tensors::PointSetTransform* const transforms =
+                    static_cast<const omni::ev4sio_physx::tensors::PointSetTransform*>(args.scratch);
                 if (!view->readColumnOvStage(Column::ePoints, reinterpret_cast<void*>(columnBase), transforms, args))
                 {
                     CARB_LOG_ERROR("ovphysx read: deformable skin mesh %s",
@@ -9465,7 +9465,7 @@ void buildDeformableSkinMeshGroups(ReadSession& s,
         rows.reserve(numRows);
         for (PxU32 i = 0; i < numRows; ++i)
         {
-            if (scope == omni::physx::kOvxActive && ce.ownerPxBodies[i]->isSleeping())
+            if (scope == omni::ev4sio_physx::kOvxActive && ce.ownerPxBodies[i]->isSleeping())
                 continue;
             if (s.selection.active() && !s.selection.admits(ce.keys[i]))
                 continue; // prim-set selection: emit only admitted skin meshes (the column gather stays full)
@@ -9496,10 +9496,10 @@ void buildDeformableSkinMeshGroups(ReadSession& s,
             t.byte_offset = 0;
             g.tensors.push_back(t);
         }
-        if (!finalizeArrayGroup(s, source, std::move(g), omni::physx::OvxAttr::kPoints, keys))
+        if (!finalizeArrayGroup(s, source, std::move(g), omni::ev4sio_physx::OvxAttr::kPoints, keys))
         {
             CARB_LOG_ERROR("ovphysx read: could not publish the deformable skin-mesh %s column",
-                           omni::physx::OvxAttr::kPoints);
+                           omni::ev4sio_physx::OvxAttr::kPoints);
             s.backendFailed = true;
         }
     }
@@ -9584,8 +9584,8 @@ void buildDeformableMaterialGroups(ReadSession& s, IPhysicsSource& source, Attac
     InternalPhysXDatabase& db = as.getInternalPhysXDatabase();
     for (const InternalDatabase::Record& rec : db.getRecords())
     {
-        const bool recordSaysSurface = rec.mType == omni::physx::ePTDeformableSurfaceMaterial;
-        if ((rec.mType != omni::physx::ePTDeformableVolumeMaterial && !recordSaysSurface) || !rec.mPtr)
+        const bool recordSaysSurface = rec.mType == omni::ev4sio_physx::ePTDeformableSurfaceMaterial;
+        if ((rec.mType != omni::ev4sio_physx::ePTDeformableVolumeMaterial && !recordSaysSurface) || !rec.mPtr)
             continue;
         const PxDeformableMaterial* material = static_cast<const PxDeformableMaterial*>(rec.mPtr);
 
@@ -9658,15 +9658,15 @@ void buildDeformableMaterialGroups(ReadSession& s, IPhysicsSource& source, Attac
 struct ParticleReadCacheEntry
 {
     uint64_t dbEpoch = 0;
-    std::unique_ptr<omni::physx::tensors::GpuPointSetReadView> view;
+    std::unique_ptr<omni::ev4sio_physx::tensors::GpuPointSetReadView> view;
     std::vector<ObjectKey> keys; // one per view row, in the view's order
     std::vector<InternalParticleSet*> sets; // ditto: the reframe matrix and the pending flags
     std::vector<InternalParticleSet*> omittedSets; // scene-owned sets with no readable row at build
     // What the view was BUILT from, kept so a read can tell whether it still holds. Not derivable
     // from the view: it uploads these to the device records and does not retain them. See the
     // re-validation in buildParticleGroups for why the object-lifetime epoch cannot cover this.
-    std::vector<const ::physx::PxVec4*> builtPositions;
-    std::vector<::physx::PxU32> builtCounts;
+    std::vector<const ::ev4sio_physx::PxVec4*> builtPositions;
+    std::vector<::ev4sio_physx::PxU32> builtCounts;
 
     // Drops the view and what it was built from.
     void drop()
@@ -9695,7 +9695,7 @@ std::unordered_map<const PxScene*, ParticleReadCacheEntry> g_particleReadCache;
 // a cache MISS and a particle set has no per-scene list to iterate the way `sc->mVolumeDeformableBodies`
 // gives the deformable path one. If InternalScene ever grows a particle-set list, this should use it.
 void collectParticleEntries(InternalScene* sc,
-                            std::vector<omni::physx::tensors::PointSetReadEntry>& entries,
+                            std::vector<omni::ev4sio_physx::tensors::PointSetReadEntry>& entries,
                             ParticleReadCacheEntry& ce)
 {
     InternalPhysXDatabase& db = sc->getAttachedStage().getInternalPhysXDatabase();
@@ -9716,7 +9716,7 @@ void collectParticleEntries(InternalScene* sc,
     bool reserved = false;
     for (const InternalDatabase::Record& rec : db.getRecords())
     {
-        if (rec.mType != omni::physx::ePTParticleSet || !rec.mInternalPtr)
+        if (rec.mType != omni::ev4sio_physx::ePTParticleSet || !rec.mInternalPtr)
             continue;
         InternalParticleSet* ps = reinterpret_cast<InternalParticleSet*>(rec.mInternalPtr);
 
@@ -9738,7 +9738,7 @@ void collectParticleEntries(InternalScene* sc,
             continue;
         }
 
-        omni::physx::tensors::PointSetReadEntry e;
+        omni::ev4sio_physx::tensors::PointSetReadEntry e;
         e.positions = reinterpret_cast<const PxVec4*>(ps->mParticleBuffer->getPositionInvMasses());
         e.velocities = reinterpret_cast<const PxVec4*>(ps->mParticleBuffer->getVelocities());
         e.numPoints = ps->mNumParticles;
@@ -9771,7 +9771,7 @@ void collectParticleEntries(InternalScene* sc,
 
 } // namespace (reopened below)
 
-namespace omni::physx::ovx
+namespace omni::ev4sio_physx::ovx
 {
 // The particle counterpart of instancerWriteTargets (ADR-0012). It hands back the SETS
 // rather than a view, because the write's destination is each set's staging pair -- see
@@ -9785,7 +9785,7 @@ namespace omni::physx::ovx
 // The scratch cache entry is deliberate. The enumeration fills one, and the write wants only three
 // of its five parallel arrays; reusing the read's cached entry instead would mean this call could
 // invalidate a read cache as a side effect.
-bool particleWriteTargets(::physx::PxScene* scene, const uint32_t /*scope*/, ParticleWriteTargets& out)
+bool particleWriteTargets(::ev4sio_physx::PxScene* scene, const uint32_t /*scope*/, ParticleWriteTargets& out)
 {
     out.keys.clear();
     out.sets.clear();
@@ -9807,7 +9807,7 @@ bool particleWriteTargets(::physx::PxScene* scene, const uint32_t /*scope*/, Par
     if (!sc)
         return true; // not a live physics scene: no sets to offer, not a failure
 
-    std::vector<omni::physx::tensors::PointSetReadEntry> entries;
+    std::vector<omni::ev4sio_physx::tensors::PointSetReadEntry> entries;
     ParticleReadCacheEntry scratch;
     collectParticleEntries(sc, entries, scratch);
 
@@ -9818,7 +9818,7 @@ bool particleWriteTargets(::physx::PxScene* scene, const uint32_t /*scope*/, Par
         out.counts.push_back(uint32_t(n));
     return true;
 }
-} // namespace omni::physx::ovx
+} // namespace omni::ev4sio_physx::ovx
 
 namespace
 {
@@ -9857,8 +9857,8 @@ void buildParticleGroups(ReadSession& s,
     bool wantPoints = false, wantVel = false;
     for (const std::string& nm : names)
     {
-        if (nm == omni::physx::OvxAttr::kPoints || nm == omni::physx::OvxAttr::kPositions) wantPoints = true;
-        else if (nm == omni::physx::OvxAttr::kVelocities) wantVel = true;
+        if (nm == omni::ev4sio_physx::OvxAttr::kPoints || nm == omni::ev4sio_physx::OvxAttr::kPositions) wantPoints = true;
+        else if (nm == omni::ev4sio_physx::OvxAttr::kVelocities) wantVel = true;
         // The public request is canonicalized before dispatch; only points is emitted.
         else CARB_LOG_WARN("ovxReadAttributes: '%s' is not a particle output attribute "
                            "(only points / positions / velocities) — skipped.", nm.c_str());
@@ -9872,7 +9872,7 @@ void buildParticleGroups(ReadSession& s,
 
     for (const InternalDatabase::Record& rec : db.getRecords())
     {
-        if (rec.mType != omni::physx::ePTScene || !rec.mInternalPtr)
+        if (rec.mType != omni::ev4sio_physx::ePTScene || !rec.mInternalPtr)
             continue;
         InternalScene* sc = reinterpret_cast<InternalScene*>(rec.mInternalPtr);
         PxScene* scene = sc->getScene();
@@ -9995,11 +9995,11 @@ void buildParticleGroups(ReadSession& s,
             ce.drop();
         if (!ce.view)
         {
-            std::vector<omni::physx::tensors::PointSetReadEntry> entries;
+            std::vector<omni::ev4sio_physx::tensors::PointSetReadEntry> entries;
             collectParticleEntries(sc, entries, ce);
             if (!entries.empty())
-                ce.view.reset(new omni::physx::tensors::GpuPointSetReadView(
-                    ctxMgr, entries, omni::physx::tensors::PointSetSourceLayout::eVec4));
+                ce.view.reset(new omni::ev4sio_physx::tensors::GpuPointSetReadView(
+                    ctxMgr, entries, omni::ev4sio_physx::tensors::PointSetSourceLayout::eVec4));
             if (!ce.view || !ce.view->isUsable())
             {
                 // A scene holding no servable particle set is an ANSWER, not a failure -- and note
@@ -10031,7 +10031,7 @@ void buildParticleGroups(ReadSession& s,
         // changes this while creating and retiring nothing, so the object lifetime epoch guarding the view
         // cannot see it. One entry per SET, not per particle. They head the buffer the query holds for the
         // columns (ADR-0055), uploaded only when they changed.
-        std::vector<omni::physx::tensors::PointSetTransform> xf(numSets);
+        std::vector<omni::ev4sio_physx::tensors::PointSetTransform> xf(numSets);
         for (PxU32 i = 0; i < numSets; ++i)
             toPointSetTransform(ce.sets[i]->mWorldToLocal, xf[i]);
         uint32_t pointsColumn = 0, velocityColumn = 0;
@@ -10075,7 +10075,7 @@ void buildParticleGroups(ReadSession& s,
                     const float src3[3] = { src[v].x, src[v].y, src[v].z };
                     // Velocities are WORLD on this path too -- the device column does not reframe them.
                     if (arePoints)
-                        omni::physx::tensors::pointSetTransformPoint(xf[i], src3, &pending[at + v * 3]);
+                        omni::ev4sio_physx::tensors::pointSetTransformPoint(xf[i], src3, &pending[at + v * 3]);
                     else
                         std::memcpy(&pending[at + v * 3], src3, sizeof(src3));
                 }
@@ -10091,7 +10091,7 @@ void buildParticleGroups(ReadSession& s,
             return;
 
         const uint8_t* const xfBytes = reinterpret_cast<const uint8_t*>(xf.data());
-        std::vector<uint8_t> head(xfBytes, xfBytes + xf.size() * sizeof(omni::physx::tensors::PointSetTransform));
+        std::vector<uint8_t> head(xfBytes, xfBytes + xf.size() * sizeof(omni::ev4sio_physx::tensors::PointSetTransform));
         const size_t columnBytes = totalFloats * sizeof(float);
         const size_t scratchBytes = head.size();
         const uint64_t version =
@@ -10107,13 +10107,13 @@ void buildParticleGroups(ReadSession& s,
         const CUdeviceptr columnBase = s.held[held].buffer.data;
         // Zeroed, for the same reason as the deformable path: a pending set's slice is patched onto the zero, so
         // a set the patch does not reach keeps whatever the zero left.
-        const omni::physx::tensors::GpuPointSetReadView* const view = ce.view.get();
+        const omni::ev4sio_physx::tensors::GpuPointSetReadView* const view = ce.view.get();
         PxCudaContextManager* const manager = ctxMgr;
         s.held[held].gathers.push_back(
             [view, manager, columnBase, totalFloats, columnFloats, wantPoints, wantVel, pointsColumn, velocityColumn,
-             pendingCopies, pending](const omni::physx::tensors::OvStageDeviceReadArgs& args)
+             pendingCopies, pending](const omni::ev4sio_physx::tensors::OvStageDeviceReadArgs& args)
             {
-                using Column = omni::physx::tensors::GpuPointSetReadView::Column;
+                using Column = omni::ev4sio_physx::tensors::GpuPointSetReadView::Column;
                 PxCudaContext* const cu = manager->getCudaContext();
                 const auto columnPtr = [&](uint32_t idx)
                 { return reinterpret_cast<void*>(columnBase + size_t(idx) * columnFloats * sizeof(float)); };
@@ -10122,8 +10122,8 @@ void buildParticleGroups(ReadSession& s,
                     CARB_LOG_ERROR("ovphysx read: %s", pointSetFailureText(PointSetFailure::eColumnZero));
                     return false;
                 }
-                const omni::physx::tensors::PointSetTransform* const transforms =
-                    static_cast<const omni::physx::tensors::PointSetTransform*>(args.scratch);
+                const omni::ev4sio_physx::tensors::PointSetTransform* const transforms =
+                    static_cast<const omni::ev4sio_physx::tensors::PointSetTransform*>(args.scratch);
                 bool ok = (!wantPoints ||
                            view->readColumnOvStage(Column::ePoints, columnPtr(pointsColumn), transforms, args)) &&
                           (!wantVel ||
@@ -10219,9 +10219,9 @@ void buildParticleGroups(ReadSession& s,
         // AC-9: a column the gather could not produce is OMITTED, never published zero-filled.
         for (const std::string& nm : names)
         {
-            if (nm == omni::physx::OvxAttr::kPoints || nm == omni::physx::OvxAttr::kPositions)
+            if (nm == omni::ev4sio_physx::OvxAttr::kPoints || nm == omni::ev4sio_physx::OvxAttr::kPositions)
                 emit(nm.c_str(), pointsColumn);
-            else if (nm == omni::physx::OvxAttr::kVelocities)
+            else if (nm == omni::ev4sio_physx::OvxAttr::kVelocities)
                 emit(nm.c_str(), velocityColumn);
         }
     }
@@ -10265,12 +10265,12 @@ PxScene* reportingBodyScene(AttachedStage& as,
                             const std::vector<InternalDatabase::Record>& records,
                             const ObjectKey& key)
 {
-    using omni::physx::tensors::BaseSimulationView;
+    using omni::ev4sio_physx::tensors::BaseSimulationView;
     if (objectDb.getSchemaAPIs(key) & SchemaAPIFlag::eContactReportAPI)
     {
-        PxActor* actor = static_cast<PxActor*>(BaseSimulationView::resolvePhysXPtr(&as, key, omni::physx::ePTActor));
+        PxActor* actor = static_cast<PxActor*>(BaseSimulationView::resolvePhysXPtr(&as, key, omni::ev4sio_physx::ePTActor));
         if (!actor)
-            actor = static_cast<PxActor*>(BaseSimulationView::resolvePhysXPtr(&as, key, omni::physx::ePTLink));
+            actor = static_cast<PxActor*>(BaseSimulationView::resolvePhysXPtr(&as, key, omni::ev4sio_physx::ePTLink));
         if (actor)
             return actor->getScene();
         // A collider carrying the schema is its own sensor row -- but host-only. The host reducer attributes
@@ -10279,7 +10279,7 @@ PxScene* reportingBodyScene(AttachedStage& as,
         // resolves no shape key, so a collider row would read a silent zero indistinguishable from "no
         // contact"; a DirectGPU scene therefore does not offer it as a row at all, as the event family is
         // omitted there rather than zero-filled.
-        PxShape* const shape = static_cast<PxShape*>(BaseSimulationView::resolvePhysXPtr(&as, key, omni::physx::ePTShape));
+        PxShape* const shape = static_cast<PxShape*>(BaseSimulationView::resolvePhysXPtr(&as, key, omni::ev4sio_physx::ePTShape));
         PxRigidActor* const shapeActor = shape ? shape->getActor() : nullptr;
         PxScene* shapeScene = shapeActor ? shapeActor->getScene() : nullptr;
         if (shape && !shape->isExclusive())
@@ -10291,12 +10291,12 @@ PxScene* reportingBodyScene(AttachedStage& as,
                     key, ePTShape, as.getInternalPhysXDatabase(), as));
             shapeScene = internalShape && internalShape->mPhysicsScene ? internalShape->mPhysicsScene->getScene() : nullptr;
         }
-        if (shapeScene && shapeScene->getFlags().isSet(::physx::PxSceneFlag::eENABLE_DIRECT_GPU_API))
+        if (shapeScene && shapeScene->getFlags().isSet(::ev4sio_physx::PxSceneFlag::eENABLE_DIRECT_GPU_API))
             return nullptr; // collider rows are host-only; the device cannot serve a shape key
         return shapeScene;
     }
     PxArticulationLink* const link =
-        static_cast<PxArticulationLink*>(BaseSimulationView::resolvePhysXPtr(&as, key, omni::physx::ePTLink));
+        static_cast<PxArticulationLink*>(BaseSimulationView::resolvePhysXPtr(&as, key, omni::ev4sio_physx::ePTLink));
     if (!link)
         return nullptr;
     // An articulation's userData is its database record index, as a link's is.
@@ -10378,7 +10378,7 @@ std::vector<ContactSceneRows> collectContactSensorRows(AttachedStage& as, const 
     {
         if (!rec.mPtr || !(objectDb->getSchemaAPIs(rec.mKey) & SchemaAPIFlag::eContactReportAPI))
             continue;
-        if (rec.mType == omni::physx::ePTArticulation)
+        if (rec.mType == omni::ev4sio_physx::ePTArticulation)
         {
             const PxArticulationReducedCoordinate* const articulation =
                 static_cast<const PxArticulationReducedCoordinate*>(rec.mPtr);
@@ -10406,21 +10406,21 @@ std::vector<ContactSceneRows> collectContactSensorRows(AttachedStage& as, const 
 // on the host the reducer serves a collider its own shape's contacts (ADR-0044 2026-10-05 amendment). The
 // filter fields mirror the binding's view
 // construction: every column keeps its key and path, and a valid key maps its legacy id to its column.
-omni::physx::tensors::RigidContactSensorEntry contactSensorEntry(AttachedStage& as,
+omni::ev4sio_physx::tensors::RigidContactSensorEntry contactSensorEntry(AttachedStage& as,
                                                                  const ObjectKey& key,
                                                                  const ObjectKey* filterKeys,
                                                                  uint32_t filterCount)
 {
-    using omni::physx::tensors::BaseSimulationView;
-    omni::physx::tensors::RigidContactSensorEntry e;
+    using omni::ev4sio_physx::tensors::BaseSimulationView;
+    omni::ev4sio_physx::tensors::RigidContactSensorEntry e;
     const char* const path = as.textFor(key);
     e.path = path ? path : "";
-    e.referentId = omni::physx::tensors::asInt(key);
-    e.link = static_cast<PxArticulationLink*>(BaseSimulationView::resolvePhysXPtr(&as, key, omni::physx::ePTLink));
+    e.referentId = omni::ev4sio_physx::tensors::asInt(key);
+    e.link = static_cast<PxArticulationLink*>(BaseSimulationView::resolvePhysXPtr(&as, key, omni::ev4sio_physx::ePTLink));
     if (!e.link)
     {
         PxActor* const actor =
-            static_cast<PxActor*>(BaseSimulationView::resolvePhysXPtr(&as, key, omni::physx::ePTActor));
+            static_cast<PxActor*>(BaseSimulationView::resolvePhysXPtr(&as, key, omni::ev4sio_physx::ePTActor));
         if (actor && actor->getType() == PxActorType::eRIGID_DYNAMIC)
             e.rd = static_cast<PxRigidDynamic*>(actor);
     }
@@ -10431,7 +10431,7 @@ omni::physx::tensors::RigidContactSensorEntry contactSensorEntry(AttachedStage& 
         const char* const filterPath = as.textFor(filterKeys[j]);
         e.filterPaths[j] = filterPath ? filterPath : "";
         if (filterKeys[j].valid())
-            e.filterIndexMap[omni::physx::tensors::asInt(filterKeys[j])] = j;
+            e.filterIndexMap[omni::ev4sio_physx::tensors::asInt(filterKeys[j])] = j;
     }
     return e;
 }
@@ -10465,7 +10465,7 @@ struct ContactViewCacheEntry
     // deregisters it, which is why a generation bump drops the pointer without releasing.
     std::vector<ObjectKey> sensors;
     std::vector<ObjectKey> filters;
-    omni::physx::tensors::GpuRigidContactView* view = nullptr;
+    omni::ev4sio_physx::tensors::GpuRigidContactView* view = nullptr;
     // A contact-query reducer's users: the live contact queries whose latest read used this reducer.
     std::unordered_set<uint64_t> queries;
     // The contact reads of its attachment in a row that found it with no user (see purgeContactViewCache).
@@ -10484,7 +10484,7 @@ std::map<const PxScene*, SceneContactReducers> g_contactViewCache;
 
 // Release a cached reducer through its still-live parent, when the generation still matches: a mismatch means
 // the backend already released it with the old sim view.
-void releaseContactReducer(omni::physx::tensors::SimulationBackend* backend,
+void releaseContactReducer(omni::ev4sio_physx::tensors::SimulationBackend* backend,
                            PxScene* scene,
                            ContactViewCacheEntry& entry)
 {
@@ -10530,7 +10530,7 @@ ContactViewCacheEntry& contactQueryReducer(std::list<ContactViewCacheEntry>& red
 // or for their scene's retirement. A nonzero readingQuery drops its previous claims in this attachment
 // before idle accounting. The builder registers its current reducers again, so reducers in scenes
 // absent from this read can become idle even while the query stays alive.
-void purgeContactViewCache(omni::physx::tensors::SimulationBackend* backend,
+void purgeContactViewCache(omni::ev4sio_physx::tensors::SimulationBackend* backend,
                            AttachedStage& as,
                            uint64_t readingQuery)
 {
@@ -10575,7 +10575,7 @@ void purgeContactViewCache(omni::physx::tensors::SimulationBackend* backend,
         it = listed.count(*it) ? std::next(it) : g_releasedContactQueries.erase(it);
 }
 
-using omni::physx::tensors::ForceComponent;
+using omni::ev4sio_physx::tensors::ForceComponent;
 
 // ContactColumn, ContactFamily, ContactArray and ContactEventArray are unscoped on purpose: they index their
 // tables and the per-read arrays sized by them without casts.
@@ -10884,7 +10884,7 @@ struct DeviceElements
 uintptr_t countDeviceSlots(ReadSession& s,
                            PxCudaContextManager* ctxMgr,
                            PxCudaContext* cu,
-                           const omni::physx::tensors::GpuRigidContactView& view,
+                           const omni::ev4sio_physx::tensors::GpuRigidContactView& view,
                            ContactFamily family,
                            uint32_t rowCount,
                            uint32_t filterCount)
@@ -10909,7 +10909,7 @@ uintptr_t countDeviceSlots(ReadSession& s,
 bool reduceDeviceElements(ReadSession& s,
                           PxCudaContextManager* ctxMgr,
                           PxCudaContext* cu,
-                          const omni::physx::tensors::GpuRigidContactView& view,
+                          const omni::ev4sio_physx::tensors::GpuRigidContactView& view,
                           const bool (&want)[kContactFamilyCount],
                           uint32_t rowCount,
                           uint32_t filterCount,
@@ -10996,7 +10996,7 @@ bool reduceDeviceElements(ReadSession& s,
                 view.getRawContactsOvStage(at(kArrayRawContactForce), at(kArrayRawContactPoint),
                                            at(kArrayRawContactNormal), at(kArrayRawContactSeparation),
                                            reinterpret_cast<uint64_t*>(pairs), cursor, startsIn, capacity, dt) &&
-                omni::physx::tensors::fetchRawContactOtherBodyOvStage(reinterpret_cast<uint64_t*>(out[k].otherBodies),
+                omni::ev4sio_physx::tensors::fetchRawContactOtherBodyOvStage(reinterpret_cast<uint64_t*>(out[k].otherBodies),
                                                                       reinterpret_cast<const uint64_t*>(pairs),
                                                                       capacity);
         }
@@ -11008,7 +11008,7 @@ bool reduceDeviceElements(ReadSession& s,
 
 // Install the prim-handle identities the device raw fill writes, once per reducer: the scene's actor table,
 // its legacy ids (object keys) canonicalised to prim-path handles. Returns false on a failure.
-bool installRawIdentities(IPhysicsSource& source, omni::physx::tensors::GpuRigidContactView& view)
+bool installRawIdentities(IPhysicsSource& source, omni::ev4sio_physx::tensors::GpuRigidContactView& view)
 {
     if (view.hasActorHandles())
         return true;
@@ -11018,7 +11018,7 @@ bool installRawIdentities(IPhysicsSource& source, omni::physx::tensors::GpuRigid
     std::vector<ObjectKey> keys;
     keys.reserve(ids.size());
     for (const uint64_t id : ids)
-        keys.push_back(omni::physx::tensors::keyFromLegacyId(id));
+        keys.push_back(omni::ev4sio_physx::tensors::keyFromLegacyId(id));
     std::vector<ovx_primpath_t> handles;
     ovx_path_dictionary_t* dict = nullptr;
     if (!omni::physics::ovstage::canonicalisePathHandles(source, keys.data(), keys.size(), handles, &dict))
@@ -11037,7 +11037,7 @@ bool primHandlesForIds(IPhysicsSource& source, const std::vector<uint64_t>& ids,
     std::vector<ObjectKey> keys;
     for (const uint64_t id : ids)
         if (unique.emplace(id, keys.size()).second)
-            keys.push_back(omni::physx::tensors::keyFromLegacyId(id));
+            keys.push_back(omni::ev4sio_physx::tensors::keyFromLegacyId(id));
     std::vector<ovx_primpath_t> handles;
     ovx_path_dictionary_t* dict = nullptr;
     if (!omni::physics::ovstage::canonicalisePathHandles(source, keys.data(), keys.size(), handles, &dict))
@@ -11049,7 +11049,7 @@ bool primHandlesForIds(IPhysicsSource& source, const std::vector<uint64_t>& ids,
 }
 
 // A host float array's values in its family's reduction.
-std::vector<float>& hostArrayValues(omni::physx::contactread::ContactElements& elements, ContactArray a)
+std::vector<float>& hostArrayValues(omni::ev4sio_physx::contactread::ContactElements& elements, ContactArray a)
 {
     switch (a)
     {
@@ -11138,7 +11138,7 @@ bool publishArrayRuns(ReadSession& s,
 // level with at least one element; returns the values' address, or 0 when an identity array cannot be resolved
 // (a non-ovstage source).
 uintptr_t takeEventValues(IPhysicsSource& source,
-                          omni::physx::contactread::ContactEvents& ev,
+                          omni::ev4sio_physx::contactread::ContactEvents& ev,
                           ContactEventArray e,
                           bool last,
                           std::vector<uint64_t>& handles,
@@ -11222,7 +11222,7 @@ uintptr_t compactDeviceRows(ReadSession& s,
         pinned[i] = static_cast<uint32_t>(keep[i]);
     if (cu->memcpyHtoDAsync(static_cast<CUdeviceptr>(idxDev), pinned, idxBytes, 0) != 0)
         return 0;
-    if (!omni::physx::tensors::compactContactSensorRowsOvStage(
+    if (!omni::ev4sio_physx::tensors::compactContactSensorRowsOvStage(
             reinterpret_cast<float*>(out), reinterpret_cast<const float*>(full),
             reinterpret_cast<const uint32_t*>(idxDev), static_cast<uint32_t>(keep.size()), comp))
         return 0;
@@ -11255,7 +11255,7 @@ void buildContactSensorGroups(ReadSession& s,
                               AttachedStage& as,
                               const std::vector<std::string>& names)
 {
-    omni::physx::tensors::SimulationBackend* const backend = omni::physx::tensors::GetSimulationBackend();
+    omni::ev4sio_physx::tensors::SimulationBackend* const backend = omni::ev4sio_physx::tensors::GetSimulationBackend();
     // Reconcile ownership even when no scene has reporting rows in this read.
     purgeContactViewCache(backend, as, s.contactSpec ? s.queryId : 0);
 
@@ -11355,7 +11355,7 @@ void buildContactSensorGroups(ReadSession& s,
             // Reduce against THIS scene's own contact report, not getFullContactReport (default scene
             // only) -- otherwise a non-default host scene's sensors would find no contacts and read zero.
             const ContactReport* const cr = physxScene ? physxScene->getContactReport() : nullptr;
-            omni::physx::contactread::ContactReportView report;
+            omni::ev4sio_physx::contactread::ContactReportView report;
             if (cr)
             {
                 report.headers = cr->getContactHeaderVector().data();
@@ -11365,9 +11365,9 @@ void buildContactSensorGroups(ReadSession& s,
             }
             // Reduce each requested quantity once and publish in request order (AC-19).
             std::vector<float> reduced[kContactColumnCount];
-            omni::physx::contactread::ContactElements elements[kContactFamilyCount];
+            omni::ev4sio_physx::contactread::ContactElements elements[kContactFamilyCount];
             std::vector<uint64_t> otherBodies; // the raw other bodies as prim-path handles
-            omni::physx::contactread::ContactEvents events;
+            omni::ev4sio_physx::contactread::ContactEvents events;
             std::vector<uint64_t> eventHandles[kContactEventArrayCount]; // identity arrays, resolved on first use
             size_t remaining[kContactColumnCount] = {};
             size_t remainingArray[kContactArrayCount] = {};
@@ -11381,10 +11381,10 @@ void buildContactSensorGroups(ReadSession& s,
                 if (!wanted[c] || kContactColumns[c].row == ContactRow::eFilterCount)
                     continue;
                 if (kContactColumns[c].row == ContactRow::eFilterVec3)
-                    reduced[c] = omni::physx::contactread::reduceForceMatrix(
+                    reduced[c] = omni::ev4sio_physx::contactread::reduceForceMatrix(
                         subsetKeys, rows.filters, filterCount, report, invDt, kContactColumns[c].component);
                 else
-                    reduced[c] = omni::physx::contactread::reduceNetForces(
+                    reduced[c] = omni::ev4sio_physx::contactread::reduceNetForces(
                         subsetKeys, report, invDt, kContactColumns[c].component);
             }
             // A filtered family's count companion alone needs only its count pass, not its elements.
@@ -11392,15 +11392,15 @@ void buildContactSensorGroups(ReadSession& s,
             {
                 const ContactFamily family = filteredFamily(component);
                 if (wantFamily[family])
-                    elements[family] = omni::physx::contactread::reduceFilteredDetail(
+                    elements[family] = omni::ev4sio_physx::contactread::reduceFilteredDetail(
                         subsetKeys, rows.filters, filterCount, report, invDt, component);
                 else if (wantCounts[family])
-                    elements[family].counts = omni::physx::contactread::countFilteredDetail(
+                    elements[family].counts = omni::ev4sio_physx::contactread::countFilteredDetail(
                         subsetKeys, rows.filters, filterCount, report, component);
             }
             if (wantFamily[kFamilyRaw])
             {
-                elements[kFamilyRaw] = omni::physx::contactread::reduceRawContacts(subsetKeys, report, invDt);
+                elements[kFamilyRaw] = omni::ev4sio_physx::contactread::reduceRawContacts(subsetKeys, report, invDt);
                 if (wantOtherBody && !primHandlesForIds(source, elements[kFamilyRaw].other, otherBodies))
                 {
                     CARB_LOG_ERROR("ovxReadAttributes: contact sensors: the raw contacts' other bodies could not be "
@@ -11410,7 +11410,7 @@ void buildContactSensorGroups(ReadSession& s,
                 }
             }
             if (wantEvents)
-                events = omni::physx::contactread::reduceContactEvents(subsetKeys, report);
+                events = omni::ev4sio_physx::contactread::reduceContactEvents(subsetKeys, report);
             // A shared prim list per prim set, built by its first group and reused by the rest: the rows for
             // the fixed columns, and per family the rows with an element for its arrays.
             ovx_primpath_list_t sharedList = OVX_INVALID_PRIMPATH_LIST;
@@ -11451,7 +11451,7 @@ void buildContactSensorGroups(ReadSession& s,
                 {
                     const ContactArray a = static_cast<ContactArray>(r.index);
                     const ContactFamily family = kContactArrays[a].family;
-                    omni::physx::contactread::ContactElements& e = elements[family];
+                    omni::ev4sio_physx::contactread::ContactElements& e = elements[family];
                     const bool last = --remainingArray[a] == 0u;
                     GroupStore g;
                     uintptr_t base = 0;
@@ -11523,7 +11523,7 @@ void buildContactSensorGroups(ReadSession& s,
             continue;
         }
         uint64_t generation = 0;
-        omni::physx::tensors::GpuSimulationView* const sv = backend->acquireSceneView(scene, &generation);
+        omni::ev4sio_physx::tensors::GpuSimulationView* const sv = backend->acquireSceneView(scene, &generation);
         if (!sv || !sv->getGpuSimulationData())
         {
             CARB_LOG_WARN("ovxReadAttributes: contact sensors: no GPU simulation data for a DirectGPU scene.");
@@ -11575,7 +11575,7 @@ void buildContactSensorGroups(ReadSession& s,
         // Reuse the cached reducer only while it still matches -- see ContactViewCacheEntry. A plain query
         // (selected or not) shares the scene's full-population reducer; a contact query shares the one its
         // rows took with every contact query that resolves to the same sensors and filters.
-        const uint64_t dbEpoch = omni::physx::internal::recordLifetimeEpoch(scene);
+        const uint64_t dbEpoch = omni::ev4sio_physx::internal::recordLifetimeEpoch(scene);
         SceneContactReducers& reducers = g_contactViewCache[scene];
         ContactViewCacheEntry& ce =
             s.contactSpec ? contactQueryReducer(reducers.queries, s.queryId, rows) : reducers.plain;
@@ -11591,7 +11591,7 @@ void buildContactSensorGroups(ReadSession& s,
         if (!ce.view)
         {
             // One entry per row, in order, so the reduction's row i keys back to rows.sensors[i].
-            std::vector<omni::physx::tensors::RigidContactSensorEntry> entries;
+            std::vector<omni::ev4sio_physx::tensors::RigidContactSensorEntry> entries;
             entries.reserve(rows.sensors.size());
             for (size_t i = 0; i < rows.sensors.size(); ++i)
                 entries.push_back(contactSensorEntry(as, rows.sensors[i],
@@ -11613,7 +11613,7 @@ void buildContactSensorGroups(ReadSession& s,
             ce.generation = generation;
             ce.dbEpoch = dbEpoch;
         }
-        omni::physx::tensors::GpuRigidContactView* const view = ce.view; // borrowed -- owned by the cache/sim view
+        omni::ev4sio_physx::tensors::GpuRigidContactView* const view = ce.view; // borrowed -- owned by the cache/sim view
 
         // One master device column per requested force column, over the reducer's full rows, from the read's
         // per-context pool (ADR-0027); acquireColumn registers each for release and for the per-context
@@ -11819,7 +11819,7 @@ void buildPhysXPointerColumn(ReadSession& s,
 {
     if (type == kOvxPhysics)
     {
-        ::physx::PxPhysics* const physics = OmniPhysX::getInstance().getPhysXSetup().getPhysics();
+        ::ev4sio_physx::PxPhysics* const physics = OmniPhysX::getInstance().getPhysXSetup().getPhysics();
         if (!physics)
             return;
         ovx_path_dictionary_t* dict = sourceDictionary(source);
@@ -11908,7 +11908,7 @@ void buildGroups(ReadSession& s,
                  uint32_t scope,
                  const std::vector<std::string>& names)
 {
-    using namespace omni::physx;
+    using namespace omni::ev4sio_physx;
     std::vector<std::string> requested;
     requested.reserve(names.size());
     bool wantPointer = false;
@@ -11994,7 +11994,7 @@ void buildGroups(ReadSession& s,
 // Output attribute names available for a query type (for ovxFetchQueryResult).
 std::vector<std::string> attrNamesForType(uint32_t type)
 {
-    using namespace omni::physx;
+    using namespace omni::ev4sio_physx;
     switch (type)
     {
     // Derived from the tables that serve these types, so discovery cannot advertise a different set
@@ -12151,7 +12151,7 @@ std::vector<SdfShapeRow> collectSdfShapeRows(AttachedStage& as, const QueryState
     {
         if (!seen.insert(key.handle).second)
             return;
-        PxShape* const shape = omni::physx::tensors::sdfShapeFor(&as, key, warn);
+        PxShape* const shape = omni::ev4sio_physx::tensors::sdfShapeFor(&as, key, warn);
         if (!shape)
             return;
         // The shape's GPU index and SDF device data live in its actor's scene, so the evaluation's scene is the
@@ -12207,7 +12207,7 @@ std::vector<ObjectKey> collectMatchedKeys(AttachedStage& as, uint32_t type, uint
     if (complete)
         *complete = true;
     ArticulationReadCache& cache = g_articulationReadCaches[as.getAttachHandle()];
-    using namespace omni::physx;
+    using namespace omni::ev4sio_physx;
     std::vector<ObjectKey> keys;
     InternalPhysXDatabase& db = as.getInternalPhysXDatabase();
     if (type == kOvxRigidBody)
@@ -12374,9 +12374,9 @@ std::vector<ObjectKey> collectMatchedKeys(AttachedStage& as, uint32_t type, uint
     }
     else if (type == kOvxCharacterController)
     {
-        std::vector<omni::physx::ovx::CctOvStageRow> rows;
-        if (omni::physx::ovx::enumerateCctRows(as, scope, rows))
-            for (const omni::physx::ovx::CctOvStageRow& row : rows)
+        std::vector<omni::ev4sio_physx::ovx::CctOvStageRow> rows;
+        if (omni::ev4sio_physx::ovx::enumerateCctRows(as, scope, rows))
+            for (const omni::ev4sio_physx::ovx::CctOvStageRow& row : rows)
                 keys.push_back(row.key);
     }
     else if (type == kOvxDeformableMaterial)
@@ -12501,7 +12501,7 @@ bool kinematicOnCallerStream(PxScene* scene,
                              PxU32 count,
                              uintptr_t finish = 0)
 {
-    omni::physx::IOptionalCuda* const cuda = omni::physx::cudaShimWrappers::getCudaShim();
+    omni::ev4sio_physx::IOptionalCuda* const cuda = omni::ev4sio_physx::cudaShimWrappers::getCudaShim();
     int status = 0;
     if (!cuda || (caller.waitEvent && !cuda->streamWaitEvent(caller.stream, caller.waitEvent, 0, &status)))
         return false;
@@ -12511,12 +12511,12 @@ bool kinematicOnCallerStream(PxScene* scene,
               (finish || cuda->eventCreate(&ownFinish, CU_EVENT_DISABLE_TIMING, &status));
     if (ok)
     {
-        omni::physx::tensors::OvStageDeviceWriteArgs deviceArgs;
+        omni::ev4sio_physx::tensors::OvStageDeviceWriteArgs deviceArgs;
         deviceArgs.stream = reinterpret_cast<CUstream>(caller.stream);
         deviceArgs.fork = reinterpret_cast<CUevent>(start);
         deviceArgs.join = reinterpret_cast<CUevent>(finish ? finish : ownFinish);
         // A refresh with nothing flagged launches no kernel; PhysX still waits for `fork` and records `join`.
-        ok = omni::physx::tensors::physxOnStream(deviceArgs, [&](CUevent fork, CUevent join) {
+        ok = omni::ev4sio_physx::tensors::physxOnStream(deviceArgs, [&](CUevent fork, CUevent join) {
             return scene->getDirectGPUAPI().computeArticulationData(
                 nullptr, indices, PxArticulationGPUAPIComputeType::eUPDATE_KINEMATIC, count, fork, join);
         });
@@ -12697,11 +12697,11 @@ bool sceneWideKinematicScenes(AttachedStage& owner,
 
 } // namespace
 
-namespace omni::physx::ovx
+namespace omni::ev4sio_physx::ovx
 {
-void ovxRetireSceneCaches(const ::physx::PxScene* scene, uint64_t attach)
+void ovxRetireSceneCaches(const ::ev4sio_physx::PxScene* scene, uint64_t attach)
 {
-    std::lock_guard<carb::tasking::RecursiveMutexWrapper> lock(omni::physx::ovx::outputCacheMutex());
+    std::lock_guard<carb::tasking::RecursiveMutexWrapper> lock(omni::ev4sio_physx::ovx::outputCacheMutex());
     // GPU views borrow their context manager. Free their device records while
     // the retiring scene still guarantees that manager and its native objects.
     g_particleReadCache.erase(scene);
@@ -12728,9 +12728,9 @@ void ovxRetireSceneCaches(const ::physx::PxScene* scene, uint64_t attach)
     for (auto it = g_rigidReadCache.begin(); it != g_rigidReadCache.end();)
         it = it->first.scene == scene ? g_rigidReadCache.erase(it) : std::next(it);
 }
-} // namespace omni::physx::ovx
+} // namespace omni::ev4sio_physx::ovx
 
-namespace omni::physx::ovx
+namespace omni::ev4sio_physx::ovx
 {
 size_t attachmentReadCacheEntryCount()
 {
@@ -12752,7 +12752,7 @@ uint64_t contactReducerBuildCount()
 
 void retireAttachmentReadCaches(AttachHandle attach, bool retireReadMetadata)
 {
-    std::lock_guard<carb::tasking::RecursiveMutexWrapper> lock(omni::physx::ovx::outputCacheMutex());
+    std::lock_guard<carb::tasking::RecursiveMutexWrapper> lock(omni::ev4sio_physx::ovx::outputCacheMutex());
     sInstancedSets.erase(attach);
     g_articulationReadCaches.erase(attach);
     if (!retireReadMetadata)
@@ -12779,12 +12779,12 @@ void retireAttachmentReadCaches(AttachHandle attach, bool retireReadMetadata)
 }
 }
 
-namespace omni::physx
+namespace omni::ev4sio_physx
 {
 
 static AttachHandle queryOwner(OvxOutputQueryHandle query)
 {
-    std::lock_guard<carb::tasking::RecursiveMutexWrapper> lock(omni::physx::ovx::outputCacheMutex());
+    std::lock_guard<carb::tasking::RecursiveMutexWrapper> lock(omni::ev4sio_physx::ovx::outputCacheMutex());
     const auto it = g_queries.find(query);
     if (it == g_queries.end())
         return omni::physics::kNoAttach;
@@ -12794,7 +12794,7 @@ static AttachHandle queryOwner(OvxOutputQueryHandle query)
 }
 static AttachHandle readOwner(OvxReadHandle read)
 {
-    std::lock_guard<carb::tasking::RecursiveMutexWrapper> lock(omni::physx::ovx::outputCacheMutex());
+    std::lock_guard<carb::tasking::RecursiveMutexWrapper> lock(omni::ev4sio_physx::ovx::outputCacheMutex());
     const auto it = g_reads.find(read);
     return it == g_reads.end() ? omni::physics::kNoAttach : it->second.attach;
 }
@@ -12803,7 +12803,7 @@ OvxOutputQueryHandle ovxOpenDebugRenderQuery(uint64_t instanceId, uint32_t scope
 {
     if (scope != kOvxAll && scope != kOvxActive)
         return 0;
-    std::lock_guard<carb::tasking::RecursiveMutexWrapper> lock(omni::physx::ovx::outputCacheMutex());
+    std::lock_guard<carb::tasking::RecursiveMutexWrapper> lock(omni::ev4sio_physx::ovx::outputCacheMutex());
     const uint64_t handle = g_nextQuery++;
     QueryState query;
     query.type = kOvxDebugRender;
@@ -12819,7 +12819,7 @@ void ovxDebugRenderNoteAttach(uint64_t instanceId, uint64_t attach, int clearSco
     debug_render::SavedState state;
     bool apply = false;
     {
-        std::lock_guard<carb::tasking::RecursiveMutexWrapper> lock(omni::physx::ovx::outputCacheMutex());
+        std::lock_guard<carb::tasking::RecursiveMutexWrapper> lock(omni::ev4sio_physx::ovx::outputCacheMutex());
         debug_render::setAttach(instanceId, attach, clearScope != 0);
         for (std::pair<const uint64_t, QueryState>& entry : g_queries)
         {
@@ -12911,7 +12911,7 @@ OvxOutputQueryHandle ovxQuery(uint64_t attachHandle, uint32_t type, uint32_t sco
     if (!getSourceContext(attachHandle, "ovxQuery", ctx))
         return 0;
 
-    std::lock_guard<carb::tasking::RecursiveMutexWrapper> lock(omni::physx::ovx::outputCacheMutex());
+    std::lock_guard<carb::tasking::RecursiveMutexWrapper> lock(omni::ev4sio_physx::ovx::outputCacheMutex());
     const uint64_t h = g_nextQuery++;
     QueryState qs;
     qs.type = type;
@@ -12975,7 +12975,7 @@ OvxOutputQueryHandle ovxQuerySelected(uint64_t attachHandle, uint32_t type,
         // selects the identical prims.
         std::vector<std::string> pats{ std::string(pattern->ptr, pattern->length) };
         std::vector<std::vector<ObjectKey>> perPattern;
-        omni::physx::tensors::resolveMatchingObjectKeysBatch(ctx.stage, pats, perPattern);
+        omni::ev4sio_physx::tensors::resolveMatchingObjectKeysBatch(ctx.stage, pats, perPattern);
         for (const std::vector<ObjectKey>& v : perPattern)
         {
             selected.insert(v.begin(), v.end());
@@ -12994,15 +12994,15 @@ OvxOutputQueryHandle ovxQuerySelected(uint64_t attachHandle, uint32_t type,
         for (const ObjectKey& key : selected)
         {
             const PxArticulationReducedCoordinate* arti =
-                omni::physx::tensors::resolveOwningArticulation(ctx.stage, key);
+                omni::ev4sio_physx::tensors::resolveOwningArticulation(ctx.stage, key);
             const size_t recordIndex = arti ? reinterpret_cast<size_t>(arti->userData) : records.size();
-            if (recordIndex < records.size() && records[recordIndex].mType == omni::physx::ePTArticulation)
+            if (recordIndex < records.size() && records[recordIndex].mType == omni::ev4sio_physx::ePTArticulation)
                 owners.push_back(records[recordIndex].mKey);
         }
         selected.insert(owners.begin(), owners.end());
     }
 
-    std::lock_guard<carb::tasking::RecursiveMutexWrapper> lock(omni::physx::ovx::outputCacheMutex());
+    std::lock_guard<carb::tasking::RecursiveMutexWrapper> lock(omni::ev4sio_physx::ovx::outputCacheMutex());
     const uint64_t h = g_nextQuery++;
     QueryState qs;
     qs.type = type;
@@ -13115,7 +13115,7 @@ OvxOutputQueryHandle ovxQueryContacts(uint64_t attachHandle,
                 addPattern(selections[si].filters[f]);
     }
     if (!distinct.empty())
-        omni::physx::tensors::resolveMatchingObjectKeysBatch(ctx.stage, distinct, patterns.matches);
+        omni::ev4sio_physx::tensors::resolveMatchingObjectKeysBatch(ctx.stage, distinct, patterns.matches);
 
     std::shared_ptr<ContactQuerySpec> spec = std::make_shared<ContactQuerySpec>();
     spec->filterCount = filterCount;
@@ -13179,7 +13179,7 @@ OvxOutputQueryHandle ovxQueryContacts(uint64_t attachHandle,
         spec->filters.insert(spec->filters.end(), filters.begin(), filters.end());
     }
 
-    std::lock_guard<carb::tasking::RecursiveMutexWrapper> lock(omni::physx::ovx::outputCacheMutex());
+    std::lock_guard<carb::tasking::RecursiveMutexWrapper> lock(omni::ev4sio_physx::ovx::outputCacheMutex());
     const uint64_t h = g_nextQuery++;
     QueryState qs;
     qs.type = kOvxContactSensor;
@@ -13201,7 +13201,7 @@ ovx_path_dictionary_t* ovxQueryDictionary(OvxOutputQueryHandle query)
     RuntimeExecutionScope execution = RuntimeExecutionScope::output(queryOwner(query), true);
     if (!execution)
         return nullptr;
-    std::lock_guard<carb::tasking::RecursiveMutexWrapper> lock(omni::physx::ovx::outputCacheMutex());
+    std::lock_guard<carb::tasking::RecursiveMutexWrapper> lock(omni::ev4sio_physx::ovx::outputCacheMutex());
     auto it = g_queries.find(query);
     if (it == g_queries.end())
         return nullptr;
@@ -13231,7 +13231,7 @@ bool ovxFetchQueryResult(OvxOutputQueryHandle query, ovstage_query_result_t* out
         return false;
     *outResult = ovstage_query_result_t{};
 
-    std::lock_guard<carb::tasking::RecursiveMutexWrapper> lock(omni::physx::ovx::outputCacheMutex());
+    std::lock_guard<carb::tasking::RecursiveMutexWrapper> lock(omni::ev4sio_physx::ovx::outputCacheMutex());
     auto it = g_queries.find(query);
     if (it == g_queries.end())
     {
@@ -13272,7 +13272,7 @@ bool ovxUpdateArticulationsKinematic(OvxOutputQueryHandle query, uint32_t flags,
         return false;
     }
 
-    std::unique_lock<carb::tasking::RecursiveMutexWrapper> lock(omni::physx::ovx::outputCacheMutex());
+    std::unique_lock<carb::tasking::RecursiveMutexWrapper> lock(omni::ev4sio_physx::ovx::outputCacheMutex());
     const std::unordered_map<uint64_t, QueryState>::const_iterator it = g_queries.find(query);
     if (it == g_queries.end())
     {
@@ -13331,7 +13331,7 @@ bool ovxUpdateArticulationsKinematic(OvxOutputQueryHandle query, uint32_t flags,
     // scene still needs a step for the GPU indices the refresh uses.
     if (PhysXUsdPhysicsInterface* const setup = ctx.stage->getPhysXPhysicsInterface())
         setup->finishSetup(*ctx.stage);
-    omni::physx::tensors::SimulationBackend* const backend = omni::physx::tensors::GetSimulationBackend();
+    omni::ev4sio_physx::tensors::SimulationBackend* const backend = omni::ev4sio_physx::tensors::GetSimulationBackend();
     const bool stepped = backend && backend->getStepCount(q.attach) >= 1;
     const auto notStepped = []()
     {
@@ -13522,7 +13522,7 @@ bool ovxUpdateArticulationsKinematic(OvxOutputQueryHandle query, uint32_t flags,
         // The index list is the query's reused buffer for this scene, parked again with the event recorded after
         // the refresh, so a held query updates through the same device pointer every call and uploads the list
         // only when it changes -- which a captured call cannot do (ADR-0052).
-        omni::physx::IOptionalCuda* const shim = omni::physx::cudaShimWrappers::getCudaShim();
+        omni::ev4sio_physx::IOptionalCuda* const shim = omni::ev4sio_physx::cudaShimWrappers::getCudaShim();
         const QueryDeviceBuffers::Key bufferKey{ scene, nullptr, QueryDeviceBuffers::kKinematicUpdateIndices };
         const size_t indexBytes = indices.size() * sizeof(PxArticulationGPUIndex);
         const uint64_t version = indexListVersion(indices);
@@ -13659,7 +13659,7 @@ static bool evaluateSdfShapes(OvxOutputQueryHandle query,
     if (!checkOnly && !waitForCallerProducer(pointsReady, "ovxEvaluateSdfShapes", "nothing was evaluated"))
         return false;
 
-    std::lock_guard<carb::tasking::RecursiveMutexWrapper> lock(omni::physx::ovx::outputCacheMutex());
+    std::lock_guard<carb::tasking::RecursiveMutexWrapper> lock(omni::ev4sio_physx::ovx::outputCacheMutex());
     const std::unordered_map<uint64_t, QueryState>::const_iterator it = g_queries.find(query);
     if (it == g_queries.end())
     {
@@ -13751,7 +13751,7 @@ static bool evaluateSdfShapes(OvxOutputQueryHandle query,
     // PhysX hands an inserted shape its GPU index at once, but uploads its data and grows the device shape buffer
     // only in the scene's next simulate: the scene must have simulated since the attachment last changed a record.
     // A scene that never simulated keeps the SDF view's message; the public call warms it up.
-    omni::physx::tensors::SimulationBackend* const backend = omni::physx::tensors::GetSimulationBackend();
+    omni::ev4sio_physx::tensors::SimulationBackend* const backend = omni::ev4sio_physx::tensors::GetSimulationBackend();
     const PhysXScene* const physxScene = OmniPhysX::getInstance().getPhysXSetup().findPhysXScene(scene);
     const uint64_t simulatedAt = physxScene ? physxScene->recordVersionAtLastSimulate() : 0;
     if (!backend || simulatedAt == 0)
@@ -13778,7 +13778,7 @@ static bool evaluateSdfShapes(OvxOutputQueryHandle query,
             return false;
         }
     }
-    omni::physx::tensors::GpuSimulationView* const sv = backend->acquireSceneView(scene);
+    omni::ev4sio_physx::tensors::GpuSimulationView* const sv = backend->acquireSceneView(scene);
     if (!sv)
     {
         OVX_RUNTIME_ERROR("ovxEvaluateSdfShapes: no GPU simulation view for the scene.");
@@ -13865,7 +13865,7 @@ static bool evaluateSdfShapes(OvxOutputQueryHandle query,
             cache.pointsCapacity = pointTotal;
     }
     if (ok)
-        ok = omni::physx::tensors::packSdfQueryPointsOvStage(reinterpret_cast<PxVec4*>(cache.pointsDevice), src,
+        ok = omni::ev4sio_physx::tensors::packSdfQueryPointsOvStage(reinterpret_cast<PxVec4*>(cache.pointsDevice), src,
                                                             static_cast<PxU32>(pointTotal)); // at most 2^31 - 1
     // PhysX evaluates on a stream of its own: the start event orders it after the packing on the null stream.
     if (ok)
@@ -14039,7 +14039,7 @@ OvxReadHandle ovxReadAttributes(OvxOutputQueryHandle query, const ovx_token_or_s
     {
         bool waits = true;
         {
-            std::lock_guard<carb::tasking::RecursiveMutexWrapper> lock(omni::physx::ovx::outputCacheMutex());
+            std::lock_guard<carb::tasking::RecursiveMutexWrapper> lock(omni::ev4sio_physx::ovx::outputCacheMutex());
             waits = readWaitsOnHost(query, attrs, attrCount, caller);
         }
         if (waits)
@@ -14057,7 +14057,7 @@ OvxReadHandle ovxReadAttributes(OvxOutputQueryHandle query, const ovx_token_or_s
             producerWaited = true;
         }
     }
-    std::lock_guard<carb::tasking::RecursiveMutexWrapper> lock(omni::physx::ovx::outputCacheMutex());
+    std::lock_guard<carb::tasking::RecursiveMutexWrapper> lock(omni::ev4sio_physx::ovx::outputCacheMutex());
     auto it = g_queries.find(query);
     if (it == g_queries.end())
     {
@@ -14154,7 +14154,7 @@ OvxReadHandle ovxReadAttributes(OvxOutputQueryHandle query, const ovx_token_or_s
         if (!sceneRunsDirectGpu(scene) || !manager->getCudaContext() ||
             (sync.stream != 0 && caller.sharesContext(reinterpret_cast<uintptr_t>(manager->getContext()))))
             continue;
-        const omni::physx::tensors::CudaContextGuard current(manager->getContext());
+        const omni::ev4sio_physx::tensors::CudaContextGuard current(manager->getContext());
         if (currentLegacyStreamHeldByCapture())
         {
             OVX_RUNTIME_ERROR("ovxReadAttributes: the legacy default stream cannot be used while a blocking stream of "
@@ -14361,7 +14361,7 @@ OvxReadStatus ovxFetchReadNext(OvxReadHandle read, ovstage_read_group_t* outGrou
         return kOvxReadStatusError;
     *outGroup = ovstage_read_group_t{};
 
-    std::lock_guard<carb::tasking::RecursiveMutexWrapper> lock(omni::physx::ovx::outputCacheMutex());
+    std::lock_guard<carb::tasking::RecursiveMutexWrapper> lock(omni::ev4sio_physx::ovx::outputCacheMutex());
     auto it = g_reads.find(read);
     if (it == g_reads.end())
     {
@@ -14441,7 +14441,7 @@ bool ovxReleaseGroup(OvxReadHandle read, const ovstage_read_group_t* group)
         return false;
     if (!group || group->prims.list == OVX_INVALID_PRIMPATH_LIST)
         return true;
-    std::lock_guard<carb::tasking::RecursiveMutexWrapper> lock(omni::physx::ovx::outputCacheMutex());
+    std::lock_guard<carb::tasking::RecursiveMutexWrapper> lock(omni::ev4sio_physx::ovx::outputCacheMutex());
     auto it = g_reads.find(read);
     if (it == g_reads.end())
         return true;
@@ -14663,7 +14663,7 @@ bool ovxReleaseRead(OvxReadHandle read)
     RuntimeExecutionScope execution = RuntimeExecutionScope::output(readOwner(read), true);
     if (!execution)
         return false;
-    std::lock_guard<carb::tasking::RecursiveMutexWrapper> lock(omni::physx::ovx::outputCacheMutex());
+    std::lock_guard<carb::tasking::RecursiveMutexWrapper> lock(omni::ev4sio_physx::ovx::outputCacheMutex());
     auto it = g_reads.find(read);
     if (it == g_reads.end())
         return true;
@@ -14676,7 +14676,7 @@ bool ovxReleaseRead(OvxReadHandle read)
 
 bool ovxReleaseQuery(OvxOutputQueryHandle query)
 {
-    std::lock_guard<carb::tasking::RecursiveMutexWrapper> lock(omni::physx::ovx::outputCacheMutex());
+    std::lock_guard<carb::tasking::RecursiveMutexWrapper> lock(omni::ev4sio_physx::ovx::outputCacheMutex());
     // No attach guard needed, and deliberately so: this dereferences nothing of the attach. QueryState owns only
     // its own vectors, a BORROWED dict pointer, an SDF_SHAPE query's device buffers (already freed if their scene
     // retired) and the device buffers its operations park for reuse, all of which hold their own reference on
@@ -14702,9 +14702,9 @@ bool ovxReleaseQuery(OvxOutputQueryHandle query)
     return true;
 }
 
-} // namespace omni::physx
+} // namespace omni::ev4sio_physx
 
-namespace omni::physx::ovx
+namespace omni::ev4sio_physx::ovx
 {
 
 // Declared in OvxPhysicsShared.h; see there for why one counter serves both directions. Forwards to
@@ -14744,7 +14744,7 @@ bool returnToReadPool(PxCudaContextManager* ctxMgr, CUdeviceptr ptr, size_t byte
 // Declared in OvxPhysicsShared.h for the write session; see there for the lock-order note.
 bool queryTypeScope(uint64_t query, uint64_t& outAttach, uint32_t& outType, uint32_t& outScope)
 {
-    std::lock_guard<carb::tasking::RecursiveMutexWrapper> lock(omni::physx::ovx::outputCacheMutex());
+    std::lock_guard<carb::tasking::RecursiveMutexWrapper> lock(omni::ev4sio_physx::ovx::outputCacheMutex());
     const std::unordered_map<uint64_t, QueryState>::const_iterator it = g_queries.find(query);
     if (it == g_queries.end())
         return false;
@@ -14765,7 +14765,7 @@ bool queryTypeScope(uint64_t query, uint64_t& outAttach, uint32_t& outType, uint
 
 bool debugRenderQuery(uint64_t query, uint64_t& outInstance, uint64_t& outAttach)
 {
-    std::lock_guard<carb::tasking::RecursiveMutexWrapper> lock(omni::physx::ovx::outputCacheMutex());
+    std::lock_guard<carb::tasking::RecursiveMutexWrapper> lock(omni::ev4sio_physx::ovx::outputCacheMutex());
     const std::unordered_map<uint64_t, QueryState>::const_iterator it = g_queries.find(query);
     if (it == g_queries.end() || it->second.type != kOvxDebugRender)
         return false;
@@ -14815,7 +14815,7 @@ ovx_path_dictionary_t* queryDictionaryLocked(uint64_t query)
 
 bool querySelection(uint64_t query, std::unordered_set<ObjectKey, ObjectKey::Hash>& outKeys)
 {
-    std::lock_guard<carb::tasking::RecursiveMutexWrapper> lock(omni::physx::ovx::outputCacheMutex());
+    std::lock_guard<carb::tasking::RecursiveMutexWrapper> lock(omni::ev4sio_physx::ovx::outputCacheMutex());
     const std::unordered_map<uint64_t, QueryState>::const_iterator it = g_queries.find(query);
     if (it == g_queries.end() || !it->second.hasSelection)
         return false;
@@ -14825,7 +14825,7 @@ bool querySelection(uint64_t query, std::unordered_set<ObjectKey, ObjectKey::Has
 
 std::shared_ptr<QueryDeviceBuffers> queryDeviceBuffers(uint64_t query)
 {
-    std::lock_guard<carb::tasking::RecursiveMutexWrapper> lock(omni::physx::ovx::outputCacheMutex());
+    std::lock_guard<carb::tasking::RecursiveMutexWrapper> lock(omni::ev4sio_physx::ovx::outputCacheMutex());
     const std::unordered_map<uint64_t, QueryState>::iterator it = g_queries.find(query);
     if (it == g_queries.end())
         return nullptr;
@@ -14834,4 +14834,4 @@ std::shared_ptr<QueryDeviceBuffers> queryDeviceBuffers(uint64_t query)
     return it->second.deviceBuffers;
 }
 
-} // namespace omni::physx::ovx
+} // namespace omni::ev4sio_physx::ovx

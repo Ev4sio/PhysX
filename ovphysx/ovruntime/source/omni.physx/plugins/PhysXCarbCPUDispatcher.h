@@ -10,7 +10,7 @@
 #include <carb/tasking/TaskingUtils.h>
 
 
-class PhysXCarbCpuDispatcher : public ::physx::PxCpuDispatcher
+class PhysXCarbCpuDispatcher : public ::ev4sio_physx::PxCpuDispatcher
 {
 public:
     PhysXCarbCpuDispatcher(uint32_t numThreads)
@@ -39,7 +39,7 @@ public:
         mTasking = nullptr;
     }
 
-    virtual void submitTask(::physx::PxBaseTask& task)
+    virtual void submitTask(::ev4sio_physx::PxBaseTask& task)
     {
         if (mNumThreads)
         {

@@ -446,16 +446,16 @@ TEST_F(CollisionGeometryConfigTest, SelectsConeAndCylinderShapeGeometry)
             ovphysx_config_value_bool(!coneCustom)).status, OVPHYSX_API_SUCCESS);
         ASSERT_TRUE(attach_usd_with_ovstage(m_handle, "tests/data/cone_and_cylinder.usda"));
 
-        physx::PxShape* cone = static_cast<physx::PxShape*>(
+        ev4sio_physx::PxShape* cone = static_cast<ev4sio_physx::PxShape*>(
             read_physx_pointer(m_handle, OVPHYSX_QUERY_TARGET_SHAPE, "/World/Cone"));
-        physx::PxShape* cylinder = static_cast<physx::PxShape*>(
+        ev4sio_physx::PxShape* cylinder = static_cast<ev4sio_physx::PxShape*>(
             read_physx_pointer(m_handle, OVPHYSX_QUERY_TARGET_SHAPE, "/World/Cylinder"));
         ASSERT_NE(cone, nullptr);
         ASSERT_NE(cylinder, nullptr);
         EXPECT_EQ(cone->getGeometry().getType(), coneCustom ?
-            physx::PxGeometryType::eCONVEXCORE : physx::PxGeometryType::eCONVEXMESH);
+            ev4sio_physx::PxGeometryType::eCONVEXCORE : ev4sio_physx::PxGeometryType::eCONVEXMESH);
         EXPECT_EQ(cylinder->getGeometry().getType(), coneCustom ?
-            physx::PxGeometryType::eCONVEXMESH : physx::PxGeometryType::eCONVEXCORE);
+            ev4sio_physx::PxGeometryType::eCONVEXMESH : ev4sio_physx::PxGeometryType::eCONVEXCORE);
 
         ASSERT_TRUE(destroy_ovstage_test_attachments(m_handle));
     }

@@ -57,14 +57,14 @@ inline uintptr_t cudaContextOf(ovphysx_instance_handle_t handle, const char* pat
     void* pointer = test_utils::read_physx_pointer(handle, objectType, path);
     if (!pointer)
         return 0;
-    physx::PxScene* scene = nullptr;
+    ev4sio_physx::PxScene* scene = nullptr;
     if (type == OVPHYSX_PHYSX_TYPE_SCENE)
-        scene = static_cast<physx::PxScene*>(pointer);
+        scene = static_cast<ev4sio_physx::PxScene*>(pointer);
     else if (type == OVPHYSX_PHYSX_TYPE_ACTOR || type == OVPHYSX_PHYSX_TYPE_LINK)
-        scene = static_cast<physx::PxActor*>(pointer)->getScene();
+        scene = static_cast<ev4sio_physx::PxActor*>(pointer)->getScene();
     else if (type == OVPHYSX_PHYSX_TYPE_ARTICULATION)
-        scene = static_cast<physx::PxArticulationReducedCoordinate*>(pointer)->getScene();
-    physx::PxCudaContextManager* manager = scene ? scene->getCudaContextManager() : nullptr;
+        scene = static_cast<ev4sio_physx::PxArticulationReducedCoordinate*>(pointer)->getScene();
+    ev4sio_physx::PxCudaContextManager* manager = scene ? scene->getCudaContextManager() : nullptr;
     return manager ? reinterpret_cast<uintptr_t>(manager->getContext()) : 0;
 }
 
@@ -153,7 +153,7 @@ inline bool hostBytes(const DLTensor& tensor, const ovstage_cuda_sync_t& sync, u
         std::memcpy(out.data(), source, out.size());
         return true;
     }
-    omni::physx::IOptionalCuda* cuda = ovphysx::test_cuda::getCuda();
+    omni::ev4sio_physx::IOptionalCuda* cuda = ovphysx::test_cuda::getCuda();
     ovphysx::test_cuda::ScopedCudaContextPush context(cuda, cudaContext);
     if (!context.ok())
         return false;
@@ -174,7 +174,7 @@ inline bool deviceUpload(const DLTensor& tensor, const std::vector<unsigned char
         std::memcpy(destination, bytes.data(), bytes.size());
         return true;
     }
-    omni::physx::IOptionalCuda* cuda = ovphysx::test_cuda::getCuda();
+    omni::ev4sio_physx::IOptionalCuda* cuda = ovphysx::test_cuda::getCuda();
     ovphysx::test_cuda::ScopedCudaContextPush context(cuda, cudaContext);
     return context.ok() && cuda->memcpyHtoD(reinterpret_cast<uintptr_t>(destination), bytes.data(), bytes.size(), nullptr);
 }

@@ -9,9 +9,9 @@
 #include "PxPhysXConfig.h"
 #include "foundation/PxAssert.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-	namespace Bp
+	namespace ev4sio_Bp
 	{
 		typedef PxU32 AggregateHandle;	// PT: currently an index in mAggregates array
 
@@ -85,7 +85,7 @@ namespace physx
 			PX_CUDA_INLINE	AggregateHandle		getAggregate()		const { return mAggregate >> 1; }
 
 		private:
-							void*				mUserData;	// PT: in PhysX this is an Sc::ElementSim ptr
+							void*				mUserData;	// PT: in PhysX this is an ev4sio_Sc::ElementSim ptr
 			// PT: TODO: consider moving this to a separate array, which wouldn't be allocated at all for people not using aggregates.
 			// PT: current encoding:
 			// aggregate == PX_INVALID_U32 => single actor

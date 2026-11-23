@@ -12,15 +12,15 @@
 #include "foundation/PxVecMath.h"
 #include "DySolverContact.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
-namespace Sc
+namespace ev4sio_Sc
 {
 	class ShapeInteraction;
 }
 	
-namespace Dy
+namespace ev4sio_Dy
 {
 
 /**
@@ -62,7 +62,7 @@ struct SolverContactHeader4
 	Vec4V	normalY;
 	Vec4V	normalZ;
 
-	Sc::ShapeInteraction* shapeInteraction[4];		//192 or 208
+	ev4sio_Sc::ShapeInteraction* shapeInteraction[4];		//192 or 208
 }; 
 
 #if !PX_P64_FAMILY

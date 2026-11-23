@@ -38,7 +38,7 @@ using namespace carb;
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace usdparser
 {
@@ -92,8 +92,8 @@ PhysxForceDesc* parsePhysxForce(AttachedStage& attachedStage, omni::physics::par
         // first keyframe rather than the op default/identity. The 2-arg
         // getWorldTransform overload is the source's cached EarliestTime read
         // (PhysXTools.h) -- pxr-free and the same load-time result.
-        const ::physx::PxMat44d pose = internal::getWorldTransform(attachedStage, key);
-        const ::physx::PxVec3d worldPos = pose.getPosition();
+        const ::ev4sio_physx::PxMat44d pose = internal::getWorldTransform(attachedStage, key);
+        const ::ev4sio_physx::PxVec3d worldPos = pose.getPosition();
         desc->worldPos = { float(worldPos.x), float(worldPos.y), float(worldPos.z) };
 
         if (src->mightWorldTransformBeTimeVarying(key))
@@ -116,7 +116,7 @@ omni::physics::parse::ObjectKey getRigidBodySimulationOwner(AttachedStage& attac
     const omni::physics::parse::IPhysicsSource* src = attachedStage.getSource();
     const omni::physics::parse::KnownTokens& tok = attachedStage.getKnownTokens();
     std::vector<omni::physics::parse::ObjectKey> owners;
-    omni::physx::internal::getRelationshipValue(attachedStage, bodyKey, tok.physicsSimulationOwner, owners);
+    omni::ev4sio_physx::internal::getRelationshipValue(attachedStage, bodyKey, tok.physicsSimulationOwner, owners);
     if (!owners.empty())
     {
         return owners[0];
@@ -158,7 +158,7 @@ void finalizePhysxForce(AttachedStage& attachedStage, omni::physics::parse::Obje
         if (src->hasSchema(parent, tok.physicsRigidBodyAPI))
         {
             std::vector<omni::physics::parse::ObjectKey> owners;
-            omni::physx::internal::getRelationshipValue(attachedStage, parent, tok.physicsSimulationOwner, owners);
+            omni::ev4sio_physx::internal::getRelationshipValue(attachedStage, parent, tok.physicsSimulationOwner, owners);
             if (!owners.empty())
             {
                 const ObjectId entry = attachedStage.getObjectDatabase()->findEntry(owners[0], eScene);
@@ -172,11 +172,11 @@ void finalizePhysxForce(AttachedStage& attachedStage, omni::physics::parse::Obje
             // parsePhysxForce); caching can be reintroduced source-side. The
             // 2-arg getWorldTransform overload is the source's cached
             // EarliestTime read (PhysXTools.h) -- pxr-free, same result.
-            const ::physx::PxMat44d childWorld = internal::getWorldTransform(attachedStage, forceKey);
-            const ::physx::PxMat44d parentWorld = internal::getWorldTransform(attachedStage, parent);
+            const ::ev4sio_physx::PxMat44d childWorld = internal::getWorldTransform(attachedStage, forceKey);
+            const ::ev4sio_physx::PxMat44d parentWorld = internal::getWorldTransform(attachedStage, parent);
             // childWorld * parentWorld^-1 in the USD row-vector convention is the
             // reversed product under PhysX's column-vector convention.
-            const ::physx::PxMat44d rel = affineInverse(parentWorld) * childWorld;
+            const ::ev4sio_physx::PxMat44d rel = affineInverse(parentWorld) * childWorld;
             desc.localRot = toFloat4(toTransform(rel).q.getNormalized());
         }
     }
@@ -342,5 +342,5 @@ void finalizeDeformableBody(AttachedStage& attachedStage, PhysxDeformableBodyDes
 }
 
 } // namespace usdparser
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

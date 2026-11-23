@@ -9,7 +9,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace tensors
 {
@@ -67,10 +67,10 @@ private:
 
 protected:
 
-    using MaterialSetter = void (::physx::PxDeformableMaterial::*)(::physx::PxReal);
-    using MaterialGetter = ::physx::PxReal (::physx::PxDeformableMaterial::*)() const;
-    using SurfaceMaterialSetter = void (::physx::PxDeformableSurfaceMaterial::*)(::physx::PxReal);
-    using SurfaceMaterialGetter = ::physx::PxReal (::physx::PxDeformableSurfaceMaterial::*)() const;
+    using MaterialSetter = void (::ev4sio_physx::PxDeformableMaterial::*)(::ev4sio_physx::PxReal);
+    using MaterialGetter = ::ev4sio_physx::PxReal (::ev4sio_physx::PxDeformableMaterial::*)() const;
+    using SurfaceMaterialSetter = void (::ev4sio_physx::PxDeformableSurfaceMaterial::*)(::ev4sio_physx::PxReal);
+    using SurfaceMaterialGetter = ::ev4sio_physx::PxReal (::ev4sio_physx::PxDeformableSurfaceMaterial::*)() const;
 
     // Pointer to one of the indexed setX(srcTensor, indexTensor) members above.
     using IndexedSetter = bool (BaseDeformableMaterialView::*)(const TensorDesc*, const TensorDesc*);
@@ -110,5 +110,5 @@ protected:
 };
 
 } // namespace tensors
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

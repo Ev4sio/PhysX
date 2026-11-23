@@ -10,12 +10,12 @@
 #include "geometry/PxGeometryHit.h"
 #include "geometry/PxTriangleMesh.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	class PxTriangleMeshGeometry;
 	class PxMeshScale;
 
-namespace Gu
+namespace ev4sio_Gu
 {
 	/**
 	Depenetrates two triangle meshes in a given direction (reference code).
@@ -107,7 +107,7 @@ namespace Gu
 														const PxTriangleMeshGeometry& meshGeom1, const PxTransform& meshPose1,
 														PxU32 nbPairs, const PxGeomIndexPair* pairs);
 
-} // namespace Gu
+} // namespace ev4sio_Gu
 }
 
 #endif

@@ -14,7 +14,7 @@
 #include "cudamanager/PxCudaContextManager.h"
 #endif
 
-using namespace physx;
+using namespace ev4sio_physx;
 using namespace PvdDomInspect;
 namespace
 {
@@ -131,9 +131,9 @@ int run(int argc, char** argv)
     }
     NewCapture stream(argv[1]);
     Physics p;
-    p.foundation = PxCreateFoundation(PX_PHYSICS_VERSION, p.allocator, p.errors); require(p.foundation, "Foundation failed");
-    p.omni = PxCreateOmniPvd(*p.foundation); require(p.omni, "OmniPVD unavailable. Use checked/profile/debug SDK");
-    p.physics = PxCreatePhysics(PX_PHYSICS_VERSION, *p.foundation, PxTolerancesScale(), false, nullptr, p.omni);
+    p.foundation = ev4sio_PxCreateFoundation(ev4sio_PX_PHYSICS_VERSION, p.allocator, p.errors); require(p.foundation, "Foundation failed");
+    p.omni = ev4sio_PxCreateOmniPvd(*p.foundation); require(p.omni, "OmniPVD unavailable. Use checked/profile/debug SDK");
+    p.physics = ev4sio_PxCreatePhysics(ev4sio_PX_PHYSICS_VERSION, *p.foundation, PxTolerancesScale(), false, nullptr, p.omni);
     require(p.physics, "Physics failed");
     PxSceneDesc desc(p.physics->getTolerancesScale());
     p.dispatcher = PxDefaultCpuDispatcherCreate(1); require(p.dispatcher, "CPU dispatcher failed");
@@ -143,7 +143,7 @@ int run(int argc, char** argv)
     {
 #ifndef DISABLE_CUDA_PHYSX
         PxCudaContextManagerDesc cudaDesc;
-        p.cuda = PxCreateCudaContextManager(*p.foundation, cudaDesc, PxGetProfilerCallback());
+        p.cuda = ev4sio_PxCreateCudaContextManager(*p.foundation, cudaDesc, ev4sio_PxGetProfilerCallback());
         if (!p.cuda || !p.cuda->contextIsValid()) { std::cerr << "GPU unavailable\n"; return 77; }
         desc.cudaContextManager = p.cuda;
         desc.flags |= PxSceneFlag::eENABLE_GPU_DYNAMICS;

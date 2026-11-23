@@ -18,7 +18,7 @@
 namespace omni
 {
 
-namespace physx
+namespace ev4sio_physx
 {
 
 namespace usdparser
@@ -29,7 +29,7 @@ class AttachedStage;
 // Reads PhysxCharacterControllerAPI through the parse source, so it resolves with
 // no backing USD stage (it used to build the schema object on the stage, which is a
 // null deref there rather than a silent miss).
-::physx::PxCapsuleControllerDesc parsePhysXCharacterControllerDesc(omni::physx::usdparser::AttachedStage& attachedStage,
+::ev4sio_physx::PxCapsuleControllerDesc parsePhysXCharacterControllerDesc(omni::ev4sio_physx::usdparser::AttachedStage& attachedStage,
                                                                    omni::physics::parse::ObjectKey key,
                                                                    float radius,
                                                                    float height);
@@ -38,11 +38,11 @@ class AttachedStage;
 // envelope's maxEffort, a force or torque. Without PhysxDrivePerformanceEnvelopeAPI the other envelope terms
 // keep their defaults (unlimited actuator velocity, no resistance, no gradient), and the envelope is a plain
 // effort limit. A zero force limit leaves the drive without effort.
-inline ::physx::PxArticulationDrive toPhysX(const omni::physx::usdparser::PhysxJointDrive& drive)
+inline ::ev4sio_physx::PxArticulationDrive toPhysX(const omni::ev4sio_physx::usdparser::PhysxJointDrive& drive)
 {
-    return ::physx::PxArticulationDrive(drive.stiffness, drive.damping, ::physx::PxPerformanceEnvelope(drive.forceLimit, drive.maxActuatorVelocity, drive.velocityDependentResistance, drive.speedEffortGradient),
-        drive.acceleration ? ::physx::PxArticulationDriveType::eACCELERATION :
-                            ::physx::PxArticulationDriveType::eFORCE);
+    return ::ev4sio_physx::PxArticulationDrive(drive.stiffness, drive.damping, ::ev4sio_physx::PxPerformanceEnvelope(drive.forceLimit, drive.maxActuatorVelocity, drive.velocityDependentResistance, drive.speedEffortGradient),
+        drive.acceleration ? ::ev4sio_physx::PxArticulationDriveType::eACCELERATION :
+                            ::ev4sio_physx::PxArticulationDriveType::eFORCE);
 }
 
 // PhysxDrivePerformanceEnvelopeAPI values as parsing reads them: NaN reads as unauthored and gives the term's
@@ -72,5 +72,5 @@ inline float toPhysXSpeedEffortGradient(float value, bool rotational)
     value = clampEnvelopeValue(value, 0.0f);
     return rotational ? degToRad(value) : value;
 }
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

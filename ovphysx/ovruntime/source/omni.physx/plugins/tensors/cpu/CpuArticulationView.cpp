@@ -69,11 +69,11 @@ using omni::physics::tensors::checkTensorSizeMinimum;
 using omni::physics::tensors::checkRecordIndices;
 using omni::physics::tensors::getTensorTotalSize;
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace tensors
 {
@@ -86,9 +86,9 @@ namespace
 // explicit because J transforms columns, M transforms rows and columns, and [A | b] leaves b alone.
 void copyJacobianToAuthoredDofBasis(float* dst,
                                     const float* src,
-                                    ::physx::PxU32 rows,
-                                    ::physx::PxU32 cols,
-                                    ::physx::PxU32 rootDofs,
+                                    ::ev4sio_physx::PxU32 rows,
+                                    ::ev4sio_physx::PxU32 cols,
+                                    ::ev4sio_physx::PxU32 rootDofs,
                                     const ArticulationMetatype& metatype)
 {
     memcpy(dst, src, size_t(rows) * cols * sizeof(float));
@@ -96,13 +96,13 @@ void copyJacobianToAuthoredDofBasis(float* dst,
     {
         return;
     }
-    const ::physx::PxU32 dofCount = metatype.getDofCount();
-    for (::physx::PxU32 dof = 0; dof < dofCount; ++dof)
+    const ::ev4sio_physx::PxU32 dofCount = metatype.getDofCount();
+    for (::ev4sio_physx::PxU32 dof = 0; dof < dofCount; ++dof)
     {
         if (!metatype.isDofBody0Parent(dof))
         {
-            const ::physx::PxU32 col = rootDofs + dof;
-            for (::physx::PxU32 row = 0; row < rows; ++row)
+            const ::ev4sio_physx::PxU32 col = rootDofs + dof;
+            for (::ev4sio_physx::PxU32 row = 0; row < rows; ++row)
             {
                 dst[row * cols + col] = -dst[row * cols + col];
             }
@@ -112,8 +112,8 @@ void copyJacobianToAuthoredDofBasis(float* dst,
 
 void copyMassMatrixToAuthoredDofBasis(float* dst,
                                       const float* src,
-                                      ::physx::PxU32 generalizedCoords,
-                                      ::physx::PxU32 rootDofs,
+                                      ::ev4sio_physx::PxU32 generalizedCoords,
+                                      ::ev4sio_physx::PxU32 rootDofs,
                                       const ArticulationMetatype& metatype)
 {
     memcpy(dst, src, size_t(generalizedCoords) * generalizedCoords * sizeof(float));
@@ -121,17 +121,17 @@ void copyMassMatrixToAuthoredDofBasis(float* dst,
     {
         return;
     }
-    const ::physx::PxU32 dofCount = metatype.getDofCount();
-    for (::physx::PxU32 dof = 0; dof < dofCount; ++dof)
+    const ::ev4sio_physx::PxU32 dofCount = metatype.getDofCount();
+    for (::ev4sio_physx::PxU32 dof = 0; dof < dofCount; ++dof)
     {
         if (!metatype.isDofBody0Parent(dof))
         {
-            const ::physx::PxU32 coord = rootDofs + dof;
-            for (::physx::PxU32 col = 0; col < generalizedCoords; ++col)
+            const ::ev4sio_physx::PxU32 coord = rootDofs + dof;
+            for (::ev4sio_physx::PxU32 col = 0; col < generalizedCoords; ++col)
             {
                 dst[coord * generalizedCoords + col] = -dst[coord * generalizedCoords + col];
             }
-            for (::physx::PxU32 row = 0; row < generalizedCoords; ++row)
+            for (::ev4sio_physx::PxU32 row = 0; row < generalizedCoords; ++row)
             {
                 dst[row * generalizedCoords + coord] = -dst[row * generalizedCoords + coord];
             }
@@ -140,11 +140,11 @@ void copyMassMatrixToAuthoredDofBasis(float* dst,
 }
 
 void copyCentroidalMomentumToAuthoredDofBasis(
-    float* dst, const float* matrix, const float* bias, ::physx::PxU32 numDofs, const ArticulationMetatype& metatype)
+    float* dst, const float* matrix, const float* bias, ::ev4sio_physx::PxU32 numDofs, const ArticulationMetatype& metatype)
 {
-    const ::physx::PxU32 generalizedCoords = numDofs + 6u;
-    const ::physx::PxU32 dstStride = generalizedCoords + 1u;
-    for (::physx::PxU32 row = 0; row < 6u; ++row)
+    const ::ev4sio_physx::PxU32 generalizedCoords = numDofs + 6u;
+    const ::ev4sio_physx::PxU32 dstStride = generalizedCoords + 1u;
+    for (::ev4sio_physx::PxU32 row = 0; row < 6u; ++row)
     {
         memcpy(dst + row * dstStride, matrix + row * generalizedCoords, size_t(generalizedCoords) * sizeof(float));
         dst[row * dstStride + generalizedCoords] = bias[row];
@@ -153,13 +153,13 @@ void copyCentroidalMomentumToAuthoredDofBasis(
     {
         return;
     }
-    const ::physx::PxU32 dofCount = metatype.getDofCount();
-    for (::physx::PxU32 dof = 0; dof < dofCount; ++dof)
+    const ::ev4sio_physx::PxU32 dofCount = metatype.getDofCount();
+    for (::ev4sio_physx::PxU32 dof = 0; dof < dofCount; ++dof)
     {
         if (!metatype.isDofBody0Parent(dof))
         {
-            const ::physx::PxU32 col = 6u + dof;
-            for (::physx::PxU32 row = 0; row < 6u; ++row)
+            const ::ev4sio_physx::PxU32 col = 6u + dof;
+            for (::ev4sio_physx::PxU32 row = 0; row < 6u; ++row)
             {
                 dst[row * dstStride + col] = -dst[row * dstStride + col];
             }
@@ -171,16 +171,16 @@ void copyCentroidalMomentumToAuthoredDofBasis(
 // articulation or cache only while walking it, and buildArticulationRootGroups publishes nothing on
 // failure, which only holds if a failed column leaves no half-filled buffer behind.
 bool ovStageRootRowsResolvable(const std::vector<ArticulationEntry>& entries,
-                               const std::vector<::physx::PxArticulationCache*>& caches,
-                               const ::physx::PxU32* rows,
-                               ::physx::PxU32 count,
+                               const std::vector<::ev4sio_physx::PxArticulationCache*>& caches,
+                               const ::ev4sio_physx::PxU32* rows,
+                               ::ev4sio_physx::PxU32 count,
                                bool needCache,
                                const char* label,
                                const char* funcName)
 {
-    for (::physx::PxU32 i = 0; i < count; ++i)
+    for (::ev4sio_physx::PxU32 i = 0; i < count; ++i)
     {
-        const ::physx::PxU32 row = rows ? rows[i] : i;
+        const ::ev4sio_physx::PxU32 row = rows ? rows[i] : i;
         if (!entries[row].arti || (needCache && (!caches[row] || !caches[row]->rootLinkData)))
         {
             CARB_LOG_ERROR("%s: %s row %u has no resolvable articulation state", funcName, label, row);

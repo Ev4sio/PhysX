@@ -10,7 +10,7 @@
 #include <common/PxRenderOutput.h>
 #include <atomic>
 #include <new>
-using namespace physx;
+using namespace ev4sio_physx;
 namespace sdk=ovphysx::companion::native;
 namespace {
 std::atomic<uint32_t> creates{0},releases{0},contacts{0},starts{0},stops{0},rays{0},overlaps{0},sweeps{0},draws{0};

@@ -14,22 +14,22 @@
 
 #define GPU_JOINT_PREP	1
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 static PX_FORCE_INLINE void resetConstraintPrepPrep(PxgConstraintPrePrep& preData)
 {
 	preData.mNodeIndexA = preData.mNodeIndexB = PxNodeIndex(PX_INVALID_NODE);
 }
 
-static PX_FORCE_INLINE void setupConstraintPrepPrep(PxgConstraintPrePrep& preData, const Dy::Constraint* constraint)
+static PX_FORCE_INLINE void setupConstraintPrepPrep(PxgConstraintPrePrep& preData, const ev4sio_Dy::Constraint* constraint)
 {
 	preData.mFlags = constraint->flags;
 	preData.mLinBreakForce = constraint->linBreakForce;
 	preData.mAngBreakForce = constraint->angBreakForce;
 }
 
-static PX_FORCE_INLINE void setupConstraintPrepPrep(PxgConstraintPrePrep& preData, const Dy::Constraint* constraint,
-													const IG::IslandSim& islandSim, const PxNodeIndex nodeIndex0, const PxNodeIndex nodeIndex1)
+static PX_FORCE_INLINE void setupConstraintPrepPrep(PxgConstraintPrePrep& preData, const ev4sio_Dy::Constraint* constraint,
+													const ev4sio_IG::IslandSim& islandSim, const PxNodeIndex nodeIndex0, const PxNodeIndex nodeIndex1)
 {
 	preData.mNodeIndexA = nodeIndex0;
 	preData.mNodeIndexB = nodeIndex1;
@@ -41,15 +41,15 @@ static PX_FORCE_INLINE void setupConstraintPrepPrep(PxgConstraintPrePrep& preDat
 	::setupConstraintPrepPrep(preData, constraint);
 }
 
-PxgJointManager::GpuJoints::GpuJoints(Cm::VirtualAllocatorCallback& hostMappedAlloc)
+PxgJointManager::GpuJoints::GpuJoints(ev4sio_Cm::VirtualAllocatorCallback& hostMappedAlloc)
 :
-	mJointDataMapped(hostMappedAlloc, PxsHeapStats::eSOLVER, Cm::PinnableAllocatorFallback::eDISABLED),
-	mJointPrePrepMapped(hostMappedAlloc, PxsHeapStats::eSOLVER, Cm::PinnableAllocatorFallback::eDISABLED),
-	mDirtyIndicesMapped(hostMappedAlloc, PxsHeapStats::eSOLVER, Cm::PinnableAllocatorFallback::eDISABLED)
+	mJointDataMapped(hostMappedAlloc, PxsHeapStats::eSOLVER, ev4sio_Cm::PinnableAllocatorFallback::eDISABLED),
+	mJointPrePrepMapped(hostMappedAlloc, PxsHeapStats::eSOLVER, ev4sio_Cm::PinnableAllocatorFallback::eDISABLED),
+	mDirtyIndicesMapped(hostMappedAlloc, PxsHeapStats::eSOLVER, ev4sio_Cm::PinnableAllocatorFallback::eDISABLED)
 {
 }
 
-PxgJointManager::CpuJoints::CpuJoints(Cm::VirtualAllocatorCallback& hostAlloc)
+PxgJointManager::CpuJoints::CpuJoints(ev4sio_Cm::VirtualAllocatorCallback& hostAlloc)
 :
 	mConstraintData(hostAlloc, PxsHeapStats::eSOLVER),
 	mConstraintRows(hostAlloc, PxsHeapStats::eSOLVER),
@@ -57,7 +57,7 @@ PxgJointManager::CpuJoints::CpuJoints(Cm::VirtualAllocatorCallback& hostAlloc)
 {
 }
 
-PxgJointManager::PxgJointManager(Cm::VirtualAllocatorCallback& hostAlloc, Cm::VirtualAllocatorCallback& hostMappedAlloc,
+PxgJointManager::PxgJointManager(ev4sio_Cm::VirtualAllocatorCallback& hostAlloc, ev4sio_Cm::VirtualAllocatorCallback& hostMappedAlloc,
 								 bool isDirectGpuApiEnabled, PxCudaContext* cudaContext)
 :
 	mGpuRigidJoints(hostMappedAlloc),
@@ -108,7 +108,7 @@ void PxgJointManager::reserveMemoryPreAddRemove()
 	}
 }
 
-void PxgJointManager::registerJoint(const Dy::Constraint& constraint)
+void PxgJointManager::registerJoint(const ev4sio_Dy::Constraint& constraint)
 {
 	if (mIsDirectGpuApiEnabled && (constraint.flags & PxConstraintFlag::eGPU_COMPATIBLE) && GPU_JOINT_PREP)
 	{
@@ -119,9 +119,9 @@ void PxgJointManager::registerJoint(const Dy::Constraint& constraint)
 }
 
 static PX_FORCE_INLINE void removeJointCpu(PxU32 edgeIndex, PxU32 index,
-	const IG::GPUExternalData& islandSimGpuData,
+	const ev4sio_IG::GPUExternalData& islandSimGpuData,
 	PxHashMap<PxU32, PxU32>& cpuConstraintIndexMap,
-	PxArray<const Dy::Constraint*>& cpuConstraintList,
+	PxArray<const ev4sio_Dy::Constraint*>& cpuConstraintList,
 	PxArray<PxU32>& cpuConstraintEdgeIndices,
 	PxArray<PxU32>& cpuUniqueIndices,
 	PxArray<PxU32>& jointIndices)
@@ -145,9 +145,9 @@ static PX_FORCE_INLINE void removeJointCpu(PxU32 edgeIndex, PxU32 index,
 
 static PX_FORCE_INLINE bool removeJointGpu(PxU32 edgeIndex, PxU32 jointDataIndex,
 	PxHashMap<PxU32, PxU32>& gpuConstraintIndexMap,
-	Cm::PinnableArray<PxgConstraintPrePrep>& gpuConstraintPrePrepEntriesMapped,
-	Cm::PinnableArray<PxU32>& gpuDirtyJointDataIndicesMapped,
-	Cm::IDPool& gpuIdPool,
+	ev4sio_Cm::PinnableArray<PxgConstraintPrePrep>& gpuConstraintPrePrepEntriesMapped,
+	ev4sio_Cm::PinnableArray<PxU32>& gpuDirtyJointDataIndicesMapped,
+	ev4sio_Cm::IDPool& gpuIdPool,
 	PxgJointManager::ConstraintIdMap& gpuConstraintIdMapHost,
 	PxHashMap<PxU32, PxU32>& edgeIndexToGpuConstraintIdMap,
 	bool& isGpuConstraintIdMapDirty,
@@ -183,8 +183,8 @@ static PX_FORCE_INLINE bool removeJointGpu(PxU32 edgeIndex, PxU32 jointDataIndex
 	return true;
 }
 
-void PxgJointManager::removeJoint(PxU32 edgeIndex, PxArray<PxU32>& jointIndices, const IG::CPUExternalData& islandSimCpuData,
-								  const IG::GPUExternalData& islandSimGpuData)
+void PxgJointManager::removeJoint(PxU32 edgeIndex, PxArray<PxU32>& jointIndices, const ev4sio_IG::CPUExternalData& islandSimCpuData,
+								  const ev4sio_IG::GPUExternalData& islandSimGpuData)
 {
 	if(mCudaContext->isInAbortMode())
 	{
@@ -203,7 +203,7 @@ void PxgJointManager::removeJoint(PxU32 edgeIndex, PxArray<PxU32>& jointIndices,
 						   gpuJoints.mIDPool, mGpuConstraintIdMapHost, mEdgeIndexToGpuConstraintIdMap, mIsGpuConstraintIdMapDirty,
 						   mIsDirectGpuApiEnabled))
 		{
-			PxGetFoundation().error(PxErrorCode::eOUT_OF_MEMORY, PX_FL, "PxgJointManager::removeJoint: failed to allocate pinned host buffer");
+			ev4sio_PxGetFoundation().error(PxErrorCode::eOUT_OF_MEMORY, PX_FL, "PxgJointManager::removeJoint: failed to allocate pinned host buffer");
 			mCudaContext->setAbortMode(true);
 		}
 	}
@@ -219,16 +219,16 @@ void PxgJointManager::removeJoint(PxU32 edgeIndex, PxArray<PxU32>& jointIndices,
 	}
 }
 
-static PX_FORCE_INLINE bool addJointGpu(const Dy::Constraint& constraint, PxU32 edgeIndex, PxU32 uniqueId,
+static PX_FORCE_INLINE bool addJointGpu(const ev4sio_Dy::Constraint& constraint, PxU32 edgeIndex, PxU32 uniqueId,
 	PxNodeIndex nodeIndex0, PxNodeIndex nodeIndex1,
-	Cm::IDPool& idPool, 
-	Cm::PinnableArray<PxgD6JointData>& jointDataEntriesMapped,
-	Cm::PinnableArray<PxgConstraintPrePrep>& constraintPrePrepEntriesMapped,
-	Cm::PinnableArray<PxU32>& dirtyJointDataIndicesMapped,
+	ev4sio_Cm::IDPool& idPool,
+	ev4sio_Cm::PinnableArray<PxgD6JointData>& jointDataEntriesMapped,
+	ev4sio_Cm::PinnableArray<PxgConstraintPrePrep>& constraintPrePrepEntriesMapped,
+	ev4sio_Cm::PinnableArray<PxU32>& dirtyJointDataIndicesMapped,
 	PxHashMap<PxU32, PxU32>& constraintIndexMap,
 	PxArray<PxU32>& jointIndices, 
-	Cm::PinnableArray<PxgSolverConstraintManagerConstants>& managerIter,
-	const IG::IslandSim& islandSim,
+	ev4sio_Cm::PinnableArray<PxgSolverConstraintManagerConstants>& managerIter,
+	const ev4sio_IG::IslandSim& islandSim,
 	PxgJointManager::ConstraintIdMap& gpuConstraintIdMapHost,
 	PxHashMap<PxU32, PxU32>& edgeIndexToGpuConstraintIdMap,
 	bool& isGpuConstraintIdMapDirty,
@@ -282,16 +282,16 @@ static PX_FORCE_INLINE bool addJointGpu(const Dy::Constraint& constraint, PxU32 
 	return true;
 }
 
-static PX_FORCE_INLINE void addJointCpu(const Dy::Constraint& constraint, PxU32 edgeIndex, PxU32 uniqueId,
-	PxArray<const Dy::Constraint*>& constraintList,
+static PX_FORCE_INLINE void addJointCpu(const ev4sio_Dy::Constraint& constraint, PxU32 edgeIndex, PxU32 uniqueId,
+	PxArray<const ev4sio_Dy::Constraint*>& constraintList,
 	PxHashMap<PxU32, PxU32>& constraintIndexMap,
 	PxArray<PxU32>& constraintEdgeIndices,
 	PxArray<PxU32>& uniqueIndices,
 	PxArray<PxU32>& jointIndices, 
-	Cm::PinnableArray<PxgSolverConstraintManagerConstants>& managerIter)
+	ev4sio_Cm::PinnableArray<PxgSolverConstraintManagerConstants>& managerIter)
 {
 	const PxU32 index = constraintList.size();
-	//In CPU, we work with Dy::Constraint and fill in PxgConstraintData
+	//In CPU, we work with ev4sio_Dy::Constraint and fill in PxgConstraintData
 	constraintIndexMap.insert(edgeIndex, index);
 
 	constraintList.pushBack(&constraint);
@@ -302,8 +302,8 @@ static PX_FORCE_INLINE void addJointCpu(const Dy::Constraint& constraint, PxU32 
 	managerIter[uniqueId].mConstraintWriteBackIndex = constraint.index; // this is the joint writeback index
 }
 
-void PxgJointManager::addJoint(PxU32 edgeIndex, const Dy::Constraint* constraint, IG::IslandSim& islandSim, PxArray<PxU32>& jointIndices, 
-	Cm::PinnableArray<PxgSolverConstraintManagerConstants>& managerIter, PxU32 uniqueId)
+void PxgJointManager::addJoint(PxU32 edgeIndex, const ev4sio_Dy::Constraint* constraint, ev4sio_IG::IslandSim& islandSim, PxArray<PxU32>& jointIndices,
+	ev4sio_Cm::PinnableArray<PxgSolverConstraintManagerConstants>& managerIter, PxU32 uniqueId)
 {
 	if(mCudaContext->isInAbortMode())
 	{
@@ -328,7 +328,7 @@ void PxgJointManager::addJoint(PxU32 edgeIndex, const Dy::Constraint* constraint
 
 		if(!added)
 		{
-			PxGetFoundation().error(PxErrorCode::eOUT_OF_MEMORY, PX_FL, "PxgJointManager::addJoint: failed to allocate pinned host buffer");
+			ev4sio_PxGetFoundation().error(PxErrorCode::eOUT_OF_MEMORY, PX_FL, "PxgJointManager::addJoint: failed to allocate pinned host buffer");
 			mCudaContext->setAbortMode(true);
 		}
 	}
@@ -341,10 +341,10 @@ void PxgJointManager::addJoint(PxU32 edgeIndex, const Dy::Constraint* constraint
 	}
 }
 
-static PX_FORCE_INLINE bool updateJointGpu(const Dy::Constraint& constraint, const PxU32 jointDataId,
-	Cm::PinnableArray<PxgD6JointData>& jointDataEntriesMapped,
-	Cm::PinnableArray<PxgConstraintPrePrep>& constraintPrePrepEntriesMapped,
-	Cm::PinnableArray<PxU32>& dirtyJointDataIndicesMapped)
+static PX_FORCE_INLINE bool updateJointGpu(const ev4sio_Dy::Constraint& constraint, const PxU32 jointDataId,
+	ev4sio_Cm::PinnableArray<PxgD6JointData>& jointDataEntriesMapped,
+	ev4sio_Cm::PinnableArray<PxgConstraintPrePrep>& constraintPrePrepEntriesMapped,
+	ev4sio_Cm::PinnableArray<PxU32>& dirtyJointDataIndicesMapped)
 {
 	PxgD6JointData jointDataCopy = *reinterpret_cast<const PxgD6JointData*>(constraint.constantBlock);
 
@@ -358,7 +358,7 @@ static PX_FORCE_INLINE bool updateJointGpu(const Dy::Constraint& constraint, con
 	return true;
 }
 
-void PxgJointManager::updateJoint(PxU32 edgeIndex, const Dy::Constraint* constraint)
+void PxgJointManager::updateJoint(PxU32 edgeIndex, const ev4sio_Dy::Constraint* constraint)
 {
 	if(mCudaContext->isInAbortMode())
 	{
@@ -399,7 +399,7 @@ void PxgJointManager::updateJoint(PxU32 edgeIndex, const Dy::Constraint* constra
 															gpuJoints->mJointDataMapped, gpuJoints->mJointPrePrepMapped, 
 															gpuJoints->mDirtyIndicesMapped))
 		{
-			PxGetFoundation().error(PxErrorCode::eOUT_OF_MEMORY, PX_FL,
+			ev4sio_PxGetFoundation().error(PxErrorCode::eOUT_OF_MEMORY, PX_FL,
 									"PxgJointManager: failed to allocate pinned host buffer for dirty indices");
 			mCudaContext->setAbortMode(true);
 		}

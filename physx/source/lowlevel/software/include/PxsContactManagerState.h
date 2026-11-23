@@ -8,7 +8,7 @@
 
 #include "foundation/PxSimpleTypes.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 	/**
 	There is an implicit 1:1 mapping between PxgContactManagerInput and PxsContactManagerOutput. The structures are split because PxgNpContactManagerInput contains constant

@@ -152,7 +152,7 @@ inline const char* dlConvertErrorMessage(DLConvertError err)
 
 inline omni::physics::tensors::TensorApi* getTensorApi()
 {
-    return omni::physx::runtime::tryGetTensorApiInterface();
+    return omni::ev4sio_physx::runtime::tryGetTensorApiInterface();
 }
 
 } // namespace internal

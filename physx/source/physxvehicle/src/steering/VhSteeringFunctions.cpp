@@ -11,7 +11,7 @@
 
 #include "vehicle/steering/PxVehicleSteeringParams.h"
 
-namespace physx
+namespace ev4sio_physx
 {
 
 void PxVehicleSteerCommandResponseUpdate
@@ -67,4 +67,4 @@ void PxVehicleAckermannSteerUpdate
 	}
 }
 
-} //namespace physx
+} //namespace ev4sio_physx

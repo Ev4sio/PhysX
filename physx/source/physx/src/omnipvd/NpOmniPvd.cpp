@@ -21,10 +21,10 @@
 #include "foundation/PxErrorCallback.h"
 #include "foundation/PxErrors.h"
 
-physx::PxU32 physx::NpOmniPvd::mRefCount = 0;
-physx::NpOmniPvd* physx::NpOmniPvd::mInstance = NULL;
+ev4sio_physx::PxU32 ev4sio_physx::NpOmniPvd::mRefCount = 0;
+ev4sio_physx::NpOmniPvd* ev4sio_physx::NpOmniPvd::mInstance = NULL;
 
-namespace physx
+namespace ev4sio_physx
 {
 	NpOmniPvd::NpOmniPvd() :
 		mWriter			(NULL),
@@ -65,7 +65,7 @@ namespace physx
 		}
 	}
 
-	// Called once by physx::PxOmniPvd* PxCreateOmniPvd(...)
+	// Called once by ev4sio_physx::PxOmniPvd* ev4sio_PxCreateOmniPvd(...)
 	// Called once by NpPhysics::NpPhysics(...)
 	void NpOmniPvd::incRefCount()
 	{
@@ -144,7 +144,7 @@ namespace physx
 			physics.getScenes(&scene, 1, i);
 			if (static_cast<NpScene*>(scene)->isAPIWriteForbidden())
 			{
-				PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL,
+				ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL,
 					"PxOmniPvd::startSampling(): every scene must be idle before recording starts.");
 				return false;
 			}
@@ -154,7 +154,7 @@ namespace physx
 		if ((mCaptureDiscovery && (mPhysXSampler->validateCaptureDesc(desc) ||
 			!restrictCaptureDiscovery(desc, discoveryScenes, discoveryObjects))) || !mPhysXSampler->setCaptureDesc(desc))
 		{
-			PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL,
+			ev4sio_PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL,
 				"PxOmniPvd::startSampling(): invalid filter, unsupported object type, object not owned by this PxPhysics, or filter outside the capture discovery scope.");
 			return false;
 		}
@@ -583,22 +583,22 @@ namespace physx
 	}
 }
 
-physx::PxOmniPvd* PxCreateOmniPvd(physx::PxFoundation& foundation)
+ev4sio_physx::PxOmniPvd* ev4sio_PxCreateOmniPvd(ev4sio_physx::PxFoundation& foundation)
 {
 	PX_UNUSED(foundation);
 #if PX_SUPPORT_OMNI_PVD
-	if (physx::NpOmniPvd::mInstance)
+	if (ev4sio_physx::NpOmniPvd::mInstance)
 	{
 		// No need to call this function again
 		//foundation.getErrorCallback()
-		return physx::NpOmniPvd::mInstance;
+		return ev4sio_physx::NpOmniPvd::mInstance;
 	}	
-	physx::NpOmniPvd::mInstance = PX_PLACEMENT_NEW(PX_ALLOC(sizeof(physx::NpOmniPvd), "NpOmniPvd"), physx::NpOmniPvd)();
+	ev4sio_physx::NpOmniPvd::mInstance = PX_PLACEMENT_NEW(PX_ALLOC(sizeof(ev4sio_physx::NpOmniPvd), "NpOmniPvd"), ev4sio_physx::NpOmniPvd)();
 	
-	if (physx::NpOmniPvd::mInstance)
+	if (ev4sio_physx::NpOmniPvd::mInstance)
 	{
-		physx::NpOmniPvd::mRefCount = 1; // Sets the reference counter to exactly 1
-		return physx::NpOmniPvd::mInstance;
+		ev4sio_physx::NpOmniPvd::mRefCount = 1; // Sets the reference counter to exactly 1
+		return ev4sio_physx::NpOmniPvd::mInstance;
 	}
 	return NULL;
 #else

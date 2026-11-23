@@ -7,8 +7,8 @@
 #include "foundation/PxHashMap.h"
 #include "ExtUtilities.h"
 
-using namespace physx;
-using namespace Ext;
+using namespace ev4sio_physx;
+using namespace ev4sio_Ext;
 
 //http://tizian.cs.uni-bonn.de/publications/BaudsonKlein.pdf Page 44
 static const PxI32 neighborFaces[4][3] = { { 0, 1, 2 }, { 0, 3, 1 }, { 0, 2, 3 }, { 1, 3, 2 } };
@@ -70,7 +70,7 @@ DelaunayTetrahedralizer::DelaunayTetrahedralizer(const PxVec3d& min, const PxVec
 		vertexToTet.pushBack(0);
 }
 
-void physx::Ext::buildNeighborhood(const PxI32* tets, PxU32 numTets, PxArray<PxI32>& result)
+void ev4sio_physx::ev4sio_Ext::buildNeighborhood(const PxI32* tets, PxU32 numTets, PxArray<PxI32>& result)
 {
 	PxU32 l = 4 * numTets;
 	result.clear();
@@ -105,7 +105,7 @@ void physx::Ext::buildNeighborhood(const PxI32* tets, PxU32 numTets, PxArray<PxI
 	}
 }
 
-void physx::Ext::buildNeighborhood(const PxArray<Tetrahedron>& tets, PxArray<PxI32>& result)
+void ev4sio_physx::ev4sio_Ext::buildNeighborhood(const PxArray<Tetrahedron>& tets, PxArray<PxI32>& result)
 {
 	buildNeighborhood(reinterpret_cast<const PxI32*>(tets.begin()), tets.size(), result);
 }
@@ -1098,8 +1098,8 @@ bool DelaunayTetrahedralizer::canCollapseEdge(PxI32 edgeVertexAToKeep, PxI32 edg
 	PxF64& qualityAfterCollapse, PxF64 volumeChangeThreshold, BaseTetAnalyzer* tetAnalyzer)
 {
 	return ::canCollapseEdge(edgeVertexAToKeep, edgeVertexBToRemove, centeredNormalizedPoints,
-		tetsConnectedToA, //physx::Ext::collectTetsConnectedToVertex(result, neighbors, vertexToTet, edgeVertexAToKeep),
-		tetsConnectedToB, //physx::Ext::collectTetsConnectedToVertex(result, neighbors, vertexToTet, edgeVertexBToRemove),
+		tetsConnectedToA, //ev4sio_physx::ev4sio_Ext::collectTetsConnectedToVertex(result, neighbors, vertexToTet, edgeVertexAToKeep),
+		tetsConnectedToB, //ev4sio_physx::ev4sio_Ext::collectTetsConnectedToVertex(result, neighbors, vertexToTet, edgeVertexBToRemove),
 		result, qualityAfterCollapse, volumeChangeThreshold, tetAnalyzer);
 }
 
@@ -1841,7 +1841,7 @@ static bool containsAll(const PxArray<PxI32>& list, const PxArray<PxI32>& itemsT
 	return true;
 }
 
-bool physx::Ext::optimizeByCollapsing(DelaunayTetrahedralizer& del, const PxArray<EdgeWithLength>& edges,
+bool ev4sio_physx::ev4sio_Ext::optimizeByCollapsing(DelaunayTetrahedralizer& del, const PxArray<EdgeWithLength>& edges,
 	PxArray<PxArray<PxI32>>& pointToOriginalTriangle, PxI32 numFixPoints, BaseTetAnalyzer* qualityAnalyzer)
 {
 	PxI32 l = PxI32(pointToOriginalTriangle.size());
@@ -1912,7 +1912,7 @@ bool physx::Ext::optimizeByCollapsing(DelaunayTetrahedralizer& del, const PxArra
 	return success;
 }
 
-bool physx::Ext::optimizeBySwapping(DelaunayTetrahedralizer& del, const PxArray<EdgeWithLength>& edges,
+bool ev4sio_physx::ev4sio_Ext::optimizeBySwapping(DelaunayTetrahedralizer& del, const PxArray<EdgeWithLength>& edges,
 	const PxArray<PxArray<PxI32>>& pointToOriginalTriangle, BaseTetAnalyzer* qualityAnalyzer)
 {
 	PxI32 l = PxI32(pointToOriginalTriangle.size());
@@ -1982,7 +1982,7 @@ static void patternSearchOptimize(PxI32 pointToModify, PxF64 step, PxArray<PxVec
 	}
 }
 
-bool physx::Ext::optimizeBySplitting(DelaunayTetrahedralizer& del, const PxArray<EdgeWithLength>& edges, const PxArray<PxArray<PxI32>>& pointToOriginalTriangle,
+bool ev4sio_physx::ev4sio_Ext::optimizeBySplitting(DelaunayTetrahedralizer& del, const PxArray<EdgeWithLength>& edges, const PxArray<PxArray<PxI32>>& pointToOriginalTriangle,
 	PxI32 maxPointsToInsert, bool sortByQuality, BaseTetAnalyzer* qualityAnalyzer, PxF64 qualityThreshold)
 {
 	const PxF64 qualityThresholdPow3 = qualityThreshold * qualityThreshold * qualityThreshold;
@@ -2079,7 +2079,7 @@ static void updateEdges(PxArray<EdgeWithLength>& edges, PxHashSet<PxU64>& tetEdg
 	PxSort(edges.begin(), edges.size(), PxLess<EdgeWithLength>());
 }
 
-void physx::Ext::optimize(DelaunayTetrahedralizer& del, PxArray<PxArray<PxI32>>& pointToOriginalTriangle, PxI32 numFixPoints,
+void ev4sio_physx::ev4sio_Ext::optimize(DelaunayTetrahedralizer& del, PxArray<PxArray<PxI32>>& pointToOriginalTriangle, PxI32 numFixPoints,
 	PxArray<PxVec3d>& optimizedPoints, PxArray<Tetrahedron>& optimizedTets, PxI32 numPasses)
 {
 	PxHashSet<PxU64> tetEdges;

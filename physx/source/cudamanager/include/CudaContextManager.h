@@ -8,7 +8,7 @@
 
 #if PX_SUPPORT_GPU_PHYSX
 
-namespace physx
+namespace ev4sio_physx
 {
 
 class PxCudaContextManager;

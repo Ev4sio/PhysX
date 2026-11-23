@@ -55,16 +55,16 @@
 #include <stdexcept>
 
 
-using namespace ::physx;
+using namespace ::ev4sio_physx;
 using namespace carb;
-using namespace omni::physx::usdparser;
-using namespace omni::physx::internal;
+using namespace omni::ev4sio_physx::usdparser;
+using namespace omni::ev4sio_physx::internal;
 using namespace cookingdataasync;
 
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 
 // A scene filter for the *Scene-suffixed entry points: nullopt means "no specific scene was
@@ -1086,5 +1086,5 @@ RuntimeResult physXUpdateUsd(AttachHandle attach)
 
 
 
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

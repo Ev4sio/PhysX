@@ -36,9 +36,9 @@
 #include <omni/physics/parse/ScanBackend.h>
 #include <omni/physics/parse/ScannedStage.h>
 
-using namespace physx;
-using namespace omni::physx;
-using namespace omni::physx::usdparser;
+using namespace ev4sio_physx;
+using namespace omni::ev4sio_physx;
+using namespace omni::ev4sio_physx::usdparser;
 
 namespace omni
 {
@@ -84,7 +84,7 @@ namespace omni
             bvhDesc.bounds.count = numTets;
             bvhDesc.bounds.data = bounds;
             bvhDesc.bounds.stride = sizeof(PxBounds3);
-            PxBVH* bvh = PxCreateBVH(bvhDesc);
+            PxBVH* bvh = ev4sio_PxCreateBVH(bvhDesc);
             delete[] bounds;
             return bvh;
         }
@@ -115,7 +115,7 @@ namespace omni
             bvhDesc.bounds.count = numTris;
             bvhDesc.bounds.data = bounds;
             bvhDesc.bounds.stride = sizeof(PxBounds3);
-            PxBVH* bvh = PxCreateBVH(bvhDesc);
+            PxBVH* bvh = ev4sio_PxCreateBVH(bvhDesc);
             delete[] bounds;
             return bvh;
         }
@@ -726,7 +726,7 @@ namespace omni
                 return result;
             }
 
-            PxFindOverlap(callback, *bvh0, *bvh1);
+            ev4sio_PxFindOverlap(callback, *bvh0, *bvh1);
 
             bvhToRelease->release();
 
@@ -828,7 +828,7 @@ namespace omni
                 return result;
             }
 
-            PxFindOverlap(callback, *mBvh, *triBVH);
+            ev4sio_PxFindOverlap(callback, *mBvh, *triBVH);
 
             triBVH->release();
 
@@ -931,7 +931,7 @@ namespace omni
                 return;
             }
 
-            PxFindOverlap(callback, *bvh0, *bvh1);
+            ev4sio_PxFindOverlap(callback, *bvh0, *bvh1);
 
             bvhToRelease->release();
         }
@@ -1046,7 +1046,7 @@ namespace omni
                 return;
             }
 
-            PxFindOverlap(callback, *mBvh, *triBVH);
+            ev4sio_PxFindOverlap(callback, *mBvh, *triBVH);
 
             triBVH->release();
         }
@@ -1241,7 +1241,7 @@ namespace omni
         void overlapTetMeshSphere(int32_t*& tetIds, uint32_t& tetIdsSize, const uint64_t tetFinder, const carb::Float3& center, const float radius, void* (*allocateBytes)(size_t))
         {
             const PxSphereGeometry& geom = PxSphereGeometry(radius);
-            const PxTransform& geomPos = PxTransform(physx::toPhysX(center));
+            const PxTransform& geomPos = PxTransform(ev4sio_physx::toPhysX(center));
 
             overlapTetMeshGeom(tetIds, tetIdsSize, tetFinder, geom, geomPos, 0.0f, allocateBytes);
         }
@@ -1249,8 +1249,8 @@ namespace omni
         void overlapTetMeshCapsule(int32_t*& tetIds, uint32_t& tetIdsSize, const uint64_t tetFinder, const carb::Float3& pos, const carb::Float3& axis, const float radius, const float halfHeight, void* (*allocateBytes)(size_t))
         {
             const PxCapsuleGeometry& geom = PxCapsuleGeometry(radius, halfHeight);
-            const PxQuat& quat = PxShortestRotation(PxVec3(1.0f, 0.0f, 0.0f), physx::toPhysX(axis));
-            const PxTransform& geomPos = PxTransform(physx::toPhysX(pos), quat);
+            const PxQuat& quat = PxShortestRotation(PxVec3(1.0f, 0.0f, 0.0f), ev4sio_physx::toPhysX(axis));
+            const PxTransform& geomPos = PxTransform(ev4sio_physx::toPhysX(pos), quat);
 
             overlapTetMeshGeom(tetIds, tetIdsSize, tetFinder, geom, geomPos, 0.0f, allocateBytes);
         }
@@ -1401,7 +1401,7 @@ namespace omni
 
         void getClosestPoints(omni::physics::AttachHandle attach, carb::Float3* closestPoints, float* dists, const carb::Float3* points, const uint32_t pointsSize, omni::physics::parse::ObjectKey rigidKey)
         {
-            omni::physx::RuntimeExecutionScope operation(attach);
+            omni::ev4sio_physx::RuntimeExecutionScope operation(attach);
             if (!operation)
                 return;
             usdparser::AttachedStage* attachedStage = usdparser::UsdLoad::getUsdLoad()->getAttachedStageByHandle(attach);
@@ -1420,8 +1420,8 @@ namespace omni
                 return;
             }
 
-            const PxMat44d mat = omni::physx::internal::getWorldTransform(*attachedStage, rigidKey, omni::physics::parse::ReadTime::defaultTime());
-            PxTransform transform = omni::physx::toTransform(mat);
+            const PxMat44d mat = omni::ev4sio_physx::internal::getWorldTransform(*attachedStage, rigidKey, omni::physics::parse::ReadTime::defaultTime());
+            PxTransform transform = omni::ev4sio_physx::toTransform(mat);
 
             for (size_t i = 0; i < pointsSize; ++i)
             {
@@ -1512,7 +1512,7 @@ namespace omni
                 case eConvexMeshShape:
                 {
                     ConvexMeshPhysxShapeDesc* convexDesc = (ConvexMeshPhysxShapeDesc*)shapeDesc;
-                    cookingdataasync::CookingDataAsync* cookingDataAsync = omni::physx::OmniPhysX::getInstance().getPhysXSetup().getCookingDataAsync();
+                    cookingdataasync::CookingDataAsync* cookingDataAsync = omni::ev4sio_physx::OmniPhysX::getInstance().getPhysXSetup().getCookingDataAsync();
                     CARB_ASSERT(cookingDataAsync);
                     PxConvexMesh* convexMesh = cookingDataAsync->getConvexMesh(*convexDesc, rigidKey, *attachedStage, false);
                     if (convexMesh)
@@ -1525,7 +1525,7 @@ namespace omni
                 case eConvexMeshDecompositionShape:
                 {
                     ConvexMeshDecompositionPhysxShapeDesc* convexDecompositionDesc = (ConvexMeshDecompositionPhysxShapeDesc*)shapeDesc;
-                    cookingdataasync::CookingDataAsync* cookingDataAsync = omni::physx::OmniPhysX::getInstance().getPhysXSetup().getCookingDataAsync();
+                    cookingdataasync::CookingDataAsync* cookingDataAsync = omni::ev4sio_physx::OmniPhysX::getInstance().getPhysXSetup().getCookingDataAsync();
                     CARB_ASSERT(cookingDataAsync);
                     std::vector<PxConvexMesh*> convexMeshes = cookingDataAsync->getConvexMeshDecomposition(*convexDecompositionDesc, rigidKey, *attachedStage, false);
                     if (!convexMeshes.empty())
@@ -1542,7 +1542,7 @@ namespace omni
                 case eTriangleMeshShape:
                 {
                     TriangleMeshPhysxShapeDesc* meshDesc = (TriangleMeshPhysxShapeDesc*)shapeDesc;
-                    cookingdataasync::CookingDataAsync* cookingDataAsync = omni::physx::OmniPhysX::getInstance().getPhysXSetup().getCookingDataAsync();
+                    cookingdataasync::CookingDataAsync* cookingDataAsync = omni::ev4sio_physx::OmniPhysX::getInstance().getPhysXSetup().getCookingDataAsync();
                     CARB_ASSERT(cookingDataAsync);
                     PxTriangleMesh* triMesh = cookingDataAsync->getTriangleMesh(*meshDesc, rigidKey, *attachedStage, false);
                     if (triMesh)

@@ -11,7 +11,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace usdparser
 {
@@ -26,5 +26,5 @@ void releaseMimicJoint(AttachedStage&, omni::physics::parse::ObjectKey mimicJoin
 
 
 } // namespace usdparser
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

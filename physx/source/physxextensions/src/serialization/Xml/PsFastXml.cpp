@@ -13,7 +13,7 @@
 #include <new>
 #include <ctype.h>
 
-using namespace physx;
+using namespace ev4sio_physx;
 
 namespace
 {
@@ -32,7 +32,7 @@ static const Entity entity[NUM_ENTITY] = {
 	{ "&lt;", 4, '<' }, { "&amp;", 5, '&' }, { "&gt;", 4, '>' }, { "&quot;", 6, '\"' }, { "&apos;", 6, '\'' }
 };
 
-class MyFastXml : public physx::shdfnd::FastXml
+class MyFastXml : public ev4sio_physx::shdfnd::FastXml
 {
   public:
 	enum CharType
@@ -306,7 +306,7 @@ class MyFastXml : public physx::shdfnd::FastXml
 		return scan;
 	}
 
-	virtual bool processXml(physx::PxInputData& fileBuf, bool streamFromMemory) PX_OVERRIDE
+	virtual bool processXml(ev4sio_physx::PxInputData& fileBuf, bool streamFromMemory) PX_OVERRIDE
 	{
 		releaseMemory();
 		mFileBuf = &fileBuf;
@@ -876,7 +876,7 @@ class MyFastXml : public physx::shdfnd::FastXml
 
 	CharType mTypes[256];
 
-	physx::PxInputData* mFileBuf;
+	ev4sio_physx::PxInputData* mFileBuf;
 
 	char* mReadBuffer;
 	char* mReadBufferEnd;
@@ -895,7 +895,7 @@ class MyFastXml : public physx::shdfnd::FastXml
 };
 }
 
-namespace physx
+namespace ev4sio_physx
 {
 namespace shdfnd
 {

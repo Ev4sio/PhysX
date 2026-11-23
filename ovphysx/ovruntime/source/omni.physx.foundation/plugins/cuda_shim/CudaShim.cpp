@@ -41,7 +41,7 @@
 
 namespace omni
 {
-namespace physx
+namespace ev4sio_physx
 {
 namespace cudaShim
 {
@@ -899,5 +899,5 @@ bool setDevice(int ordinal)
 }
 
 } // namespace cudaShim
-} // namespace physx
+} // namespace ev4sio_physx
 } // namespace omni

@@ -14,9 +14,9 @@
 #include "PxgCudaBuffer.h"
 #include "DyCpuGpuBiasCoefficient.h"
 
-namespace physx
+namespace ev4sio_physx
 {
-	namespace Dy
+	namespace ev4sio_Dy
 	{
 		struct ConstraintWriteback;
 	}
@@ -81,7 +81,7 @@ namespace physx
 		PxReal frictionOffsetThreshold;
 		PxReal correlationDistance;
 		PxReal ccdMaxSeparation;
-		Dy::BiasCoefficientCollection biasCoefficients;
+		ev4sio_Dy::BiasCoefficientCollection biasCoefficients;
 		PxVec3 gravity;
 	};
 
@@ -215,14 +215,14 @@ namespace physx
 				PxU32 totalNumJoints,
 				const PxU32* islandIds, const PxU32* nodeInteractionCounts, PxU32 nbNodes, const PxU32* islandStaticTouchCount, PxU32 nbIslands) = 0;
 
-		virtual void gpuMemDmaUpBodyData(Cm::PinnableArray<PxgSolverBodyData>& solverBodyDataPool,
-			Cm::PinnableArray<PxgSolverTxIData>& solverTxIDataPool,
+		virtual void gpuMemDmaUpBodyData(ev4sio_Cm::PinnableArray<PxgSolverBodyData>& solverBodyDataPool,
+			ev4sio_Cm::PinnableArray<PxgSolverTxIData>& solverTxIDataPool,
 			const PxU32 numSolverBodies,
 			const PxU32 totalNumRigidBatches, const PxU32 totalNumArticBatches,
 			const PxU32 nbSlabs, const PxU32 nbStaticSlabs, const PxU32 maxNumStaticPartitions) = 0;
 
 		virtual void allocateSolverBodyBuffers(const PxU32 numSolverBodies,
-			Cm::PinnableArray<PxNodeIndex>& islandNodeIndices,
+			ev4sio_Cm::PinnableArray<PxNodeIndex>& islandNodeIndices,
 			const PxU32 numActiveActiculations, const PxU32 maxArticulationLinks) = 0;
 
 		virtual void gpuMemDMAUp(PxgPinnedHostLinearMemoryAllocator& hostAllocator, const PxgConstraintPrePrepData& data,
@@ -236,8 +236,8 @@ namespace physx
 			const PxU32 totalCurrentEdges, const PxU32 totalPreviousEdges, const PxU32 numSlabs, const PxU32 maxNbPartitions,
 			const bool enableStabilization,
 			PxU8* cpuContactPatchStreamBase, PxU8* cpuContactStreamBase, PxU8* cpuForceStreamBase, PxsContactManagerOutputIterator& outputIterator,
-			const PxU32 totalActiveBodyCount, const PxU32 activeBodyStartIndex, const PxU32 numArticulations, Cm::UnAlignedSpatialVector* deferredZ,
-			PxU32* articulationDirty, uint4* articulationSlabMask, Sc::ShapeInteraction** shapeInteractions, PxReal* restDistances,
+			const PxU32 totalActiveBodyCount, const PxU32 activeBodyStartIndex, const PxU32 numArticulations, ev4sio_Cm::UnAlignedSpatialVector* deferredZ,
+			PxU32* articulationDirty, uint4* articulationSlabMask, ev4sio_Sc::ShapeInteraction** shapeInteractions, PxReal* restDistances,
 			PxsTorsionalFrictionData* torsionalData,
 			PxU32* artiStaticContactIndices, const PxU32 artiContactIndSize, PxU32* artiStaticJointIndices, PxU32 artiStaticJointSize,
 			PxU32* artiStaticContactCounts, PxU32* artiStaticJointCounts,
@@ -247,7 +247,7 @@ namespace physx
 			PxU32* rigidStaticContactCounts, PxU32* rigidSaticJointCounts, const PxReal lengthScale, bool hasForceThresholds) = 0;
 
 		virtual void gpuMemDMAbackSolverData(PxU8* forceBufferPool, PxU32 forceBufferOffset, PxU32 forceBufferUpperPartSize,
-			PxU32 forceBufferLowerPartSize, Dy::ThresholdStreamElement* changedElems, bool hasForceThresholds, Dy::ConstraintWriteback* constraintWriteBack,
+			PxU32 forceBufferLowerPartSize, ev4sio_Dy::ThresholdStreamElement* changedElems, bool hasForceThresholds, ev4sio_Dy::ConstraintWriteback* constraintWriteBack,
 			const PxU32 writeBackSize, bool copyAllToHost) = 0;
 
 		virtual void syncDmaBack(PxU32& nbChangedThresholdElements) = 0;
@@ -269,7 +269,7 @@ namespace physx
 		virtual void nonRigidConstraintPrepare(PxU32 nbParticulations) = 0;
 
 		virtual void solveContactMultiBlockParallel(PxgIslandContext* islandContexts, const PxU32 numIslands, const PxU32 maxPartitions,
-			Cm::PinnableArray<PxU32>& constraintsPerPartition, Cm::PinnableArray<PxU32>& artiConstraintsPerPartition, const PxVec3& gravity,
+			ev4sio_Cm::PinnableArray<PxU32>& constraintsPerPartition, ev4sio_Cm::PinnableArray<PxU32>& artiConstraintsPerPartition, const PxVec3& gravity,
 			const bool solveArticulationContactLast) = 0;
 
 		virtual void accumulatedForceThresholdStream(PxU32 maxNodes) = 0;
@@ -298,32 +298,32 @@ namespace physx
 		void allocateFrictionCounts(PxU32 totalEdges);
 
 		void gpuMemDMAbackSolverBodies(float4* solverBodyPool, PxU32 nbSolverBodies,
-			Cm::PinnableArray<PxAlignedTransform>& body2WorldPool,
-			Cm::PinnableArray<PxgSolverBodySleepData>& solverBodySleepDataPool, bool enableDirectGPUAPI);
+			ev4sio_Cm::PinnableArray<PxAlignedTransform>& body2WorldPool,
+			ev4sio_Cm::PinnableArray<PxgSolverBodySleepData>& solverBodySleepDataPool, bool enableDirectGPUAPI);
 
-		void allocateSolverBodyBuffersCommon(PxU32 numSolverBodies, Cm::PinnableArray<PxNodeIndex>& islandNodeIndices);
+		void allocateSolverBodyBuffersCommon(PxU32 numSolverBodies, ev4sio_Cm::PinnableArray<PxNodeIndex>& islandNodeIndices);
 
 		void constructConstraintPrePrepDesc(PxgPrePrepDesc& preDesc, PxU32 numBatches, PxU32 numStaticBatches, PxU32 numArticBatches, PxU32 numArticStaticBatches, PxU32 numArticSelfBatches,
 			const PxgPartitionData& pData, PxContact* cpuCompressedcontactsBase, PxContactPatch* cpuCompressedPatchesBase, PxReal* cpuForceBufferBase,
 			PxU32 nbD6RigidJoint, PxU32 nbD6ArtiJoint, PxU32 nbTotalArtiJoints,
 			PxsContactManagerOutputIterator& outputIterator, PxU32 maxConstraintPartitions, PxU32 totalActiveBodies, PxU32 totalActiveArticulations,
-			PxU32 activeBodyStartOffset, Sc::ShapeInteraction** shapeInteractions, PxReal* restDistances, PxsTorsionalFrictionData* torsionalData, PxU32 nbElementsPerBody, PxU32 numSlabs);
+			PxU32 activeBodyStartOffset, ev4sio_Sc::ShapeInteraction** shapeInteractions, PxReal* restDistances, PxsTorsionalFrictionData* torsionalData, PxU32 nbElementsPerBody, PxU32 numSlabs);
 
 		void constructSolverSharedDescCommon(PxgSolverSharedDescBase& desc,
-			const PxgConstantData& cData, Cm::UnAlignedSpatialVector* deferredZ, PxU32* articulationDirty, uint4* articulationSlabMask);
+			const PxgConstantData& cData, ev4sio_Cm::UnAlignedSpatialVector* deferredZ, PxU32* articulationDirty, uint4* articulationSlabMask);
 
 		void constructSolverDesc(PxgSolverCoreDesc& scDesc, PxU32 numIslands, PxU32 numSolverBodies, PxU32 numConstraintBatchHeader, PxU32 numArticConstraints, PxU32 numSlabs, bool enableStabilization);
 
-		void gpuMemDMAUpJointData(const Cm::PinnableArray<PxgConstraintData>& cpuJointDataPool, const Cm::PinnableArray<Px1DConstraint>& cpuJointRowPool,
+		void gpuMemDMAUpJointData(const ev4sio_Cm::PinnableArray<PxgConstraintData>& cpuJointDataPool, const ev4sio_Cm::PinnableArray<Px1DConstraint>& cpuJointRowPool,
 			PxU32 nbCpuJoints, PxU32 nbGpuJoints, PxU32 totalCpuRows);
 
-		void gpuMemDMAUpArtiJointData(const Cm::PinnableArray<PxgConstraintData>& artiJointDataPool, const Cm::PinnableArray<Px1DConstraint>& artiJointRowPool,
+		void gpuMemDMAUpArtiJointData(const ev4sio_Cm::PinnableArray<PxgConstraintData>& artiJointDataPool, const ev4sio_Cm::PinnableArray<Px1DConstraint>& artiJointRowPool,
 			PxU32 nbCpuArtiJoints, PxU32 nbGpuArtiJoints, PxU32 totalArtiRows);
 
 		void constraintPrePrepParallel(PxU32 nbConstraintBatches, PxU32 nbD6Joints, PxU32 numBodies);
 		
-		void precomputeReferenceCount(PxgIslandContext* islandContext, PxU32 islandIndex, Cm::PinnableArray<PxU32>& constraintsPerPartition,
-			Cm::PinnableArray<PxU32>& artiConstraintsPerPartition, bool isTGS, PxReal minPen = 0.0f, PxReal elapsedTime = 0.0f);
+		void precomputeReferenceCount(PxgIslandContext* islandContext, PxU32 islandIndex, ev4sio_Cm::PinnableArray<PxU32>& constraintsPerPartition,
+			ev4sio_Cm::PinnableArray<PxU32>& artiConstraintsPerPartition, bool isTGS, PxReal minPen = 0.0f, PxReal elapsedTime = 0.0f);
 		
 		void resetVelocities(bool isTGS);
 
