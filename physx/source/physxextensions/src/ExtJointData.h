@@ -16,7 +16,7 @@ namespace ev4sio_Ext
 	{
 				PxConstraintInvMassScale	invMassScale;
 				PxTransform32				c2b[2];
-	protected:
+	// Ev4sio.Native owns copies of joint data and needs a public destructor.
 		        ~JointData()	{}
 	};
 

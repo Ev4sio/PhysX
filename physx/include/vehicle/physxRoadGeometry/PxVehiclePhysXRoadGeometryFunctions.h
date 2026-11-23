@@ -57,7 +57,8 @@ void PxVehiclePhysXRoadGeometryQueryUpdate
  const PxScene& scene, const PxConvexMesh* unitCylinderSweepMesh,
  const PxVehicleFrame& frame,
  PxVehicleRoadGeometryState& roadGeomState,
- PxVehiclePhysXRoadGeometryQueryState* physxRoadGeometryState);
+ PxVehiclePhysXRoadGeometryQueryState* physxRoadGeometryState,
+ PxVehicleModifySuspensionSweepHit sweepHitShader = NULL, const void* sweepHitShaderData = NULL);
 
 #if !PX_DOXYGEN
 } // namespace ev4sio_physx

@@ -643,6 +643,27 @@ void computeTireForceMichiganModel
 	tireAlignMoment = fMy;
 }
 
+// Adapted from the Ev4sio 4.1 tire shader signature to current parameter units.
+void ev4sio_PxVehicleComputeTireForceDefault(const void* shaderData,
+    PxF32 tireFriction, PxF32 longSlip, PxF32 latSlip, PxF32 camber,
+    PxF32 tireLongSpeed, PxF32 tireLatSpeed,
+    PxF32 wheelOmega, PxF32 wheelRadius, PxF32 recipWheelRadius,
+    PxF32 restTireLoad, PxF32 normalisedTireLoad, PxF32 tireLoad,
+    PxF32 gravity, PxF32 recipGravity,
+    PxF32& wheelTorque, PxF32& tireLongForceMag, PxF32& tireLatForceMag, PxF32& tireAlignMoment)
+{
+    PX_UNUSED(tireLongSpeed); PX_UNUSED(tireLatSpeed);
+    PX_UNUSED(wheelOmega); PX_UNUSED(recipWheelRadius);
+    PX_UNUSED(restTireLoad); PX_UNUSED(normalisedTireLoad);
+    PX_UNUSED(gravity); PX_UNUSED(recipGravity);
+    wheelTorque = tireLongForceMag = tireLatForceMag = tireAlignMoment = 0.0f;
+    if (!shaderData || tireFriction <= 0.0f || tireLoad <= 0.0f)
+        return;
+    computeTireForceMichiganModel(*static_cast<const PxVehicleTireForceParams*>(shaderData),
+        tireFriction, longSlip, latSlip, camber, wheelRadius, tireLoad,
+        wheelTorque, tireLongForceMag, tireLatForceMag, tireAlignMoment);
+}
+
 void PxVehicleTireForcesUpdate
 (const PxVehicleWheelParams& whlParams, const PxVehicleSuspensionParams& suspParams,
  const PxVehicleTireForceParams& trForceParams,
@@ -650,7 +671,8 @@ void PxVehicleTireForcesUpdate
  const PxVehicleTireGripState& trGripState, const PxVehicleTireDirectionState& trDirectionState, 
  const PxVehicleTireSlipState& trSlipState, const PxVehicleTireCamberAngleState& cmbAngleState,
  const PxVehicleRigidBodyState& rigidBodyState,
- PxVehicleTireForce& trForce)
+ PxVehicleTireForce& trForce, const PxVehicleTireSpeedState* tireSpeedState,
+ PxReal wheelOmega, PxReal gravityMagnitude)
 {
 	trForce.setToDefault();
 
@@ -669,8 +691,24 @@ void PxVehicleTireForcesUpdate
 	const PxF32 latSlip = trSlipState.slips[PxVehicleTireDirectionModes::eLATERAL];
 	const PxF32 camber = cmbAngleState.camberAngle;
 	const PxF32 wheelRadius = whlParams.radius;
-	computeTireForceMichiganModel(trForceParams, friction, lngSlip, latSlip, camber, wheelRadius, tireLoad,
-		wheelTorque, tireLongForceMag, tireLatForceMag, tireAlignMoment);
+    if (trForceParams.tireForceShader)
+    {
+        PX_CHECK_AND_RETURN(tireSpeedState, "Ev4sio tire shader requires the tire speed state");
+        trForceParams.tireForceShader(
+            trForceParams.tireForceShaderData ? trForceParams.tireForceShaderData : &trForceParams,
+            friction, lngSlip, latSlip, camber,
+            tireSpeedState->speedStates[PxVehicleTireDirectionModes::eLONGITUDINAL],
+            tireSpeedState->speedStates[PxVehicleTireDirectionModes::eLATERAL],
+            wheelOmega, wheelRadius, 1.0f / wheelRadius,
+            trForceParams.restLoad, tireLoad / trForceParams.restLoad, tireLoad,
+            gravityMagnitude, gravityMagnitude > 0.0f ? 1.0f / gravityMagnitude : 0.0f,
+            wheelTorque, tireLongForceMag, tireLatForceMag, tireAlignMoment);
+    }
+    else
+    {
+        computeTireForceMichiganModel(trForceParams, friction, lngSlip, latSlip, camber, wheelRadius, tireLoad,
+            wheelTorque, tireLongForceMag, tireLatForceMag, tireAlignMoment);
+    }
 
 	//Compute the forces.
 	const PxVec3 tireLongForce = trDirectionState.directions[PxVehicleTireDirectionModes::eLONGITUDINAL]*tireLongForceMag;

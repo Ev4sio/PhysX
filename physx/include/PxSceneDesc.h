@@ -501,7 +501,7 @@ struct PxGpuDynamicsMemoryConfig
 	{
 	}
 
-	PX_PHYSX_CORE_API bool isValid() const;
+	PX_INLINE bool isValid() const;
 };
 
 PX_INLINE bool PxGpuDynamicsMemoryConfig::isValid() const

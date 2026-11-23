@@ -1,4 +1,9 @@
 newoption {
+    trigger = "build-tests",
+    description = "Build Blast unit tests."
+}
+
+newoption {
     trigger     = "platform-host",
     description = "(Optional) Specify host platform for cross-compilation"
 }
@@ -254,7 +259,7 @@ workspace (workspace_name)
     filter {}
 
 function blast_sdklib_bare_setup(name)
-    kind "SharedLib"
+    kind "StaticLib"
     location (workspaceDir.."/%{prj.name}")
 
     filter { "system:windows" }
@@ -584,6 +589,7 @@ group "sdk"
         }
 
 
+if _OPTIONS["build-tests"] then
 group "tests"
     project "UnitTests"
         kind "ConsoleApp"
@@ -681,3 +687,5 @@ group "tests"
             "sign-compare"
         }
     filter {}
+
+end

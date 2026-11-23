@@ -69,7 +69,8 @@ void PxVehiclePhysXRoadGeometryQueryUpdate
  const PxScene& scene, const PxConvexMesh* unitCylinderSweepMesh, 
  const PxVehicleFrame& frame,
  PxVehicleRoadGeometryState& roadGeomState,
- PxVehiclePhysXRoadGeometryQueryState* physxRoadGeometryState)
+ PxVehiclePhysXRoadGeometryQueryState* physxRoadGeometryState,
+ PxVehicleModifySuspensionSweepHit sweepHitShader, const void* sweepHitShaderData)
 {
 	if(PxVehiclePhysXRoadGeometryQueryType::eRAYCAST == queryType)
 	{
@@ -133,6 +134,9 @@ void PxVehiclePhysXRoadGeometryQueryUpdate
 		if (buff.hasBlock && buff.block.distance >= 0.0f)
 		{
 			//Sweep started outside scene geometry.
+            if (sweepHitShader)
+                sweepHitShader(sweepHitShaderData, T.p, w, 2.0f * wheelParams.halfWidth,
+                    wheelParams.radius, buff.block, buff.block.actor);
 			const PxPlane hitPlane(buff.block.position, buff.block.normal);
 			roadGeomState.plane = hitPlane;
 			roadGeomState.hitState = true;
@@ -174,6 +178,19 @@ void PxVehiclePhysXRoadGeometryQueryUpdate
 			if (b2 && buff2.distance > 0.0f)
 			{
 				//Sweep started outside scene geometry.
+                if (sweepHitShader)
+                {
+                    PxSweepHit adjustedHit = buff.block;
+                    adjustedHit.position = buff2.position;
+                    adjustedHit.normal = buff2.normal;
+                    adjustedHit.distance = buff2.distance;
+                    adjustedHit.faceIndex = buff2.faceIndex;
+                    sweepHitShader(sweepHitShaderData, pose0.p, unitDir, 2.0f * wheelParams.halfWidth,
+                        wheelParams.radius, adjustedHit, adjustedHit.actor);
+                    buff.block = adjustedHit;
+                    buff2.position = adjustedHit.position;
+                    buff2.normal = adjustedHit.normal;
+                }
 				const PxPlane hitPlane(buff2.position, buff2.normal);
 				roadGeomState.plane = hitPlane;
 				roadGeomState.hitState = true;

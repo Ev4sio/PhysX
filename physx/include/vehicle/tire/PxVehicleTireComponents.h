@@ -157,7 +157,8 @@ public:
 				tireGripStates[wheelId], tireDirectionStates[wheelId],
 				tireSlipStates[wheelId], tireCamberAngleStates[wheelId],
 				*rigidBodyState,
-				tireForces[wheelId]);
+				tireForces[wheelId], &tireSpeedStates[wheelId],
+                wheelRigidBody1DStates[wheelId].rotationSpeed, context.gravity.magnitude());
 		}
 
 		return true;
@@ -301,7 +302,8 @@ public:
 				tireGripStates[wheelId], tireDirectionStates[wheelId],
 				tireSlipStates[wheelId], tireCamberAngleStates[wheelId],
 				*rigidBodyState,
-				tireForces[wheelId]);
+				tireForces[wheelId], &tireSpeedStates[wheelId],
+                wheelRigidBody1DStates[wheelId].rotationSpeed, context.gravity.magnitude());
 		}
 
 		return true;

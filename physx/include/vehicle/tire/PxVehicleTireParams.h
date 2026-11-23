@@ -11,6 +11,7 @@
 #include "vehicle/PxVehicleParams.h"
 
 #include "PxVehicleTireStates.h"
+#include "vehicle/PxVehicleEv4sioCallbacks.h"
 
 #if !PX_DOXYGEN
 namespace ev4sio_physx
@@ -98,6 +99,11 @@ struct PxVehicleTireForceParams
 	\note loadFilter[1][1] is maxFilteredNormalisedLoad
 	*/
 	PxReal loadFilter[2][2]; //2 (x,y) points
+
+    // Optional Ev4sio tire shader. NULL preserves the upstream model.
+    // NULL shader data passes this parameter object to the shader.
+    PxVehicleComputeTireForce tireForceShader = NULL;
+    const void* tireForceShaderData = NULL;
 
 	PX_FORCE_INLINE PxVehicleTireForceParams transformAndScale(
 		const PxVehicleFrame& srcFrame, const PxVehicleFrame& trgFrame, const PxVehicleScale& srcScale, const PxVehicleScale& trgScale) const

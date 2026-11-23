@@ -12,6 +12,7 @@ SET(LL_SOURCE_DIR ${PHYSX_SOURCE_DIR}/physxvehicle/src)
 include(${PHYSX_ROOT_DIR}/${PROJECT_CMAKE_FILES_DIR}/${TARGET_BUILD_PLATFORM}/PhysXVehicle.cmake)
 
 SET(PHYSX_VEHICLE_HEADERS
+    ${PHYSX_ROOT_DIR}/include/vehicle/PxVehicleEv4sioCallbacks.h
 	${PHYSX_ROOT_DIR}/include/vehicle/PxVehicleAPI.h
 	${PHYSX_ROOT_DIR}/include/vehicle/PxVehicleComponent.h
 	${PHYSX_ROOT_DIR}/include/vehicle/PxVehicleComponentSequence.h

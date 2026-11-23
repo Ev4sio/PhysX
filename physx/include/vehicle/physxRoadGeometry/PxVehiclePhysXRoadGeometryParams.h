@@ -9,6 +9,7 @@
 #include "foundation/PxFoundation.h"
 
 #include "PxQueryFiltering.h"
+#include "vehicle/PxVehicleEv4sioCallbacks.h"
 
 #if !PX_DOXYGEN
 namespace ev4sio_physx
@@ -75,6 +76,11 @@ struct PxVehiclePhysXRoadGeometryQueryParams
 	\see PxSceneQuerySystemBase::sweep
 	*/
 	PxVehiclePhysXRoadGeometryQueryType::Enum roadGeometryQueryType;
+
+    PxVehicleModifySuspensionSweepHit suspensionSweepHitShader = NULL;
+    const void* suspensionSweepHitShaderData = NULL;
+    // Optional array indexed by wheel ID; overrides the shared data pointer.
+    const void* const* suspensionSweepHitShaderDataEntries = NULL;
 
 	PX_FORCE_INLINE PxVehiclePhysXRoadGeometryQueryParams transformAndScale(
 		const PxVehicleFrame& srcFrame, const PxVehicleFrame& trgFrame, const PxVehicleScale& srcScale, const PxVehicleScale& trgScale) const

@@ -229,6 +229,9 @@ and lateral directions of the tire.
 \param[in] tireCamberAngleState is the camber angle of the tire expressed in radians.
 \param[in] rigidBodyState describes the current pose of the vehicle's rigid body in the world frame.
 \param[out] tireForce is the computed tire forces in the world frame.
+\param[in] tireSpeedState Required when tireForceParams.tireForceShader is set.
+\param[in] wheelOmega Wheel angular speed supplied to the optional tire shader.
+\param[in] gravityMagnitude Gravity magnitude supplied to the optional tire shader.
 */
 void PxVehicleTireForcesUpdate
 (const PxVehicleWheelParams& wheelParams, const PxVehicleSuspensionParams& suspensionParams,
@@ -237,7 +240,9 @@ void PxVehicleTireForcesUpdate
  const PxVehicleTireGripState& tireGripState, const PxVehicleTireDirectionState& tireDirectionState, 
  const PxVehicleTireSlipState& tireSlipState, const PxVehicleTireCamberAngleState& tireCamberAngleState,
  const PxVehicleRigidBodyState& rigidBodyState,
- PxVehicleTireForce& tireForce);
+ PxVehicleTireForce& tireForce,
+ const PxVehicleTireSpeedState* tireSpeedState = NULL,
+ PxReal wheelOmega = 0.0f, PxReal gravityMagnitude = 0.0f);
 
 #if !PX_DOXYGEN
 } // namespace ev4sio_physx

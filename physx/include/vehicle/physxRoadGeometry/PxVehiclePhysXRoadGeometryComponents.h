@@ -94,7 +94,10 @@ public:
 					steerResponseStates[wheelId], *rigidBodyState,
 					*physxContext.physxScene, physxContext.physxUnitCylinderSweepMesh, context.frame,
 					roadGeometryStates[wheelId], 
-					!physxRoadGeometryStates.isEmpty() ? &physxRoadGeometryStates[wheelId] : NULL);
+					!physxRoadGeometryStates.isEmpty() ? &physxRoadGeometryStates[wheelId] : NULL,
+                    roadGeomParams->suspensionSweepHitShader,
+                    roadGeomParams->suspensionSweepHitShaderDataEntries ?
+                        roadGeomParams->suspensionSweepHitShaderDataEntries[wheelId] : roadGeomParams->suspensionSweepHitShaderData);
 			}
 		}
 		else
