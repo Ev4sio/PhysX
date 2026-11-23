@@ -7,6 +7,7 @@ import glob
 import os.path
 import shutil
 import subprocess
+import shlex
 import xml.etree.ElementTree
 
 
@@ -125,8 +126,10 @@ class CMakePreset:
                 print('Using preset xml: '+xmlPath)
             else:
                 print('Preset xml file: '+xmlPath+' not found')
-                exit()
+                raise SystemExit(1)
 
+        self.cmakeSwitches = []
+        self.cmakeParams = []
         # get the xml
         presetNode = xml.etree.ElementTree.parse(xmlPath).getroot()
         self.presetName = presetNode.attrib['name']
@@ -209,17 +212,26 @@ class CMakePreset:
             
         # Only add CUDA paths if GPU is enabled
         if gpuEnabled:
-            if os.environ.get('PM_CUDA_PATH') is not None:
-                cuda_path = os.environ['PM_CUDA_PATH']
-                outString = outString + ' -DCUDAToolkit_ROOT_DIR=' + cuda_path
+            nvcc_name = 'nvcc.exe' if sys.platform == 'win32' else 'nvcc'
+            cuda_path = None
+            for candidate in (os.environ.get('PM_CUDA_PATH'), os.environ.get('CUDA_PATH')):
+                if not candidate:
+                    continue
+                candidate = candidate.strip('"').replace('\\', '/')
+                if os.path.isfile(candidate + '/bin/' + nvcc_name):
+                    cuda_path = candidate
+                    break
+                print('Skipping unavailable CUDA toolkit: ' + candidate)
+            if cuda_path:
+                outString = outString + ' -DCUDAToolkit_ROOT="' + cuda_path + '"'
 
                 nvcc_name = 'nvcc.exe' if sys.platform == 'win32' else 'nvcc'
                 nvcc_path = cuda_path + '/bin/' + nvcc_name
                 if os.path.isfile(nvcc_path):
-                    outString = outString + ' -DCMAKE_CUDA_COMPILER=' + nvcc_path
+                    outString = outString + ' -DCMAKE_CUDA_COMPILER="' + nvcc_path + '"'
 
-                if self.compiler in ['vc15', 'vc16', 'vc17'] and self.generator != 'ninja':
-                    outString = outString + ' -T cuda=' + cuda_path
+                if self.compiler in ['vc15', 'vc16', 'vc17', 'vc18'] and self.generator != 'ninja':
+                    outString = outString + ' -T "cuda=' + cuda_path + '"'
                 # TODO: Need to do the same for gcc (aarch64) when we package it with Packman
                 elif self.compiler == 'clang':
                     if os.environ.get('PM_clang_PATH') is not None:
@@ -241,7 +253,8 @@ class CMakePreset:
         vs_versions = {
             'vc15': '\"Visual Studio 15 2017\"',
             'vc16': '\"Visual Studio 16 2019\"',
-            'vc17': '\"Visual Studio 17 2022\"'
+            'vc17': '\"Visual Studio 17 2022\"',
+            'vc18': '\"Visual Studio 18 2026\"'
         }
 
         # Visual studio
@@ -338,13 +351,19 @@ def getCommonParams():
     return outString
 
 def cleanupCompilerDir(compilerDirName):
-    if os.path.exists(compilerDirName):
-        if sys.platform == 'win32':
-            os.system('rmdir /S /Q ' + compilerDirName)
-        else:
-            shutil.rmtree(compilerDirName, True)
-    if os.path.exists(compilerDirName) == False:
-        os.makedirs(compilerDirName)
+    # Reconfigure in place: keep incremental builds and never remove a directory
+    # assembled from a preset name. CMake diagnoses incompatible generators.
+    compiler_root = os.path.realpath(os.path.join(os.environ['PHYSX_ROOT_DIR'], 'compiler'))
+    output = os.path.realpath(compilerDirName)
+    if os.path.commonpath([compiler_root, output]) != compiler_root or output == compiler_root:
+        raise ValueError('Preset output must be inside the PhysX compiler directory')
+    os.makedirs(output, exist_ok=True)
+
+
+def runCMake(executable, source, params, output):
+    print('Cmake params:' + params, flush=True)
+    subprocess.check_call([executable, source] + shlex.split(params), cwd=output)
+
 
 def presetProvided(pName, physx_root_dir):
     parsedPreset = CMakePreset(pName, physx_root_dir)
@@ -373,12 +392,7 @@ def presetProvided(pName, physx_root_dir):
         outputDir = os.path.join(physx_root_dir, 'compiler', parsedPreset.presetName)
         cleanupCompilerDir(outputDir)
 
-        # run the cmake script
-        #print('Cmake params:' + cmakeParams)
-        os.chdir(outputDir)
-        os.system(cmakeExec + ' \"' +
-                  physx_root_dir + '/compiler/' + cmakeMasterDir + '\"' + cmakeParams)
-        os.chdir(physx_root_dir)
+        runCMake(cmakeExec, physx_root_dir + '/compiler/' + cmakeMasterDir, cmakeParams, outputDir)
     else:
         configs = ['debug', 'checked', 'profile', 'release']
         for config in configs:
@@ -386,13 +400,8 @@ def presetProvided(pName, physx_root_dir):
             outputDir = os.path.join(physx_root_dir, 'compiler', parsedPreset.presetName + '-' + config)
             cleanupCompilerDir(outputDir)
 
-            # run the cmake script
-            #print('Cmake params:' + cmakeParams)
-            os.chdir(outputDir)
-            # print(cmakeExec + ' \"' + physx_root_dir + '/compiler/' + cmakeMasterDir + '\"' + cmakeParams + ' -DCMAKE_BUILD_TYPE=' + config)
-            os.system(cmakeExec + ' \"' + physx_root_dir + '/compiler/' +
-                      cmakeMasterDir + '\"' + cmakeParams + ' -DCMAKE_BUILD_TYPE=' + config)
-            os.chdir(physx_root_dir)
+            runCMake(cmakeExec, physx_root_dir + '/compiler/' + cmakeMasterDir,
+                     cmakeParams + ' -DCMAKE_BUILD_TYPE=' + config, outputDir)
     pass
 
 
@@ -424,4 +433,8 @@ def main():
             presetProvided(presetName, physx_root_dir)
         else:
             print('Preset not supported on this build platform.')
-main()
+if __name__ == '__main__':
+    try:
+        main()
+    except subprocess.CalledProcessError as error:
+        raise SystemExit(error.returncode)

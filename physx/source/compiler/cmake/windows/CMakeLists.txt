@@ -61,6 +61,14 @@ IF(PX_GENERATE_STATIC_LIBRARIES)
 	SET(PHYSX_LIBTYPE_DEFS "PX_PHYSX_STATIC_LIB;" CACHE INTERNAL "PhysX lib type defs")
 ENDIF()
 
+# CPU targets are configured before the GPU subdirectory. Define this here
+# so a clean static GPU build excludes the dynamic wrappers in PxGpu.cpp.
+IF(PX_GENERATE_GPU_STATIC_LIBRARIES)
+    SET(PHYSXGPU_LIBTYPE_DEFS "PX_PHYSX_GPU_STATIC;" CACHE INTERNAL "PhysX GPU lib type defs" FORCE)
+ELSE()
+    SET(PHYSXGPU_LIBTYPE_DEFS "" CACHE INTERNAL "PhysX GPU lib type defs" FORCE)
+ENDIF()
+
 # These flags are local to the directory the CMakeLists.txt is in, so don't get carried over to OTHER CMakeLists.txt (thus the CACHE variables above)
 SET(CMAKE_CXX_FLAGS ${PHYSX_CXX_FLAGS})
 

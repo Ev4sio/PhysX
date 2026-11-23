@@ -179,6 +179,26 @@ cudaError_t CUDARTAPI cudaLaunchKernel( const void* , dim3 , dim3 , void** , siz
 	return cudaSuccess;
 }
 
+#if CUDA_VERSION >= 13000
+// CUDA 13.3 emits these private-runtime references in its host launch stubs.
+// PhysX registers the fatbins above, then launches kernels through the driver
+// API (PxCudaContext::launchKernel), never through these runtime stubs. Keep
+// the archive linkable without CUDART and reject accidental runtime launches.
+extern "C"
+cudaError_t CUDARTAPI __cudaGetKernel(cudaKernel_t* kernel, const void*)
+{
+	if(kernel)
+		*kernel = NULL;
+	return cudaErrorNotSupported;
+}
+
+extern "C"
+cudaError_t CUDARTAPI __cudaLaunchKernel(cudaKernel_t, dim3, dim3, void**, size_t, cudaStream_t)
+{
+	return cudaErrorNotSupported;
+}
+#endif
+
 extern "C"
 cudaError_t CUDARTAPI cudaSetupArgument(const void*, size_t, size_t)
 {

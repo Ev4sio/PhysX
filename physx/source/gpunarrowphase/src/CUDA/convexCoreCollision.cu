@@ -26,7 +26,6 @@
 #include "triangleMesh.cuh"
 
 #include "GuConvexSupport.h"
-#include "GuConvexSupport.cpp"
 #include "GuRefGjkEpa.h"
 
 #include "bv32Traversal.cuh"

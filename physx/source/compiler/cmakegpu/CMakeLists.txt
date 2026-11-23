@@ -73,8 +73,12 @@ SET(SOURCE_DISTRO_FILE_LIST "")
 IF(PX_GENERATE_GPU_REDUCED_ARCHITECTURES)
 	GENERATE_ARCH_CODE_LIST(SASS "80,86,89,90,100,120" PTX "120")
 ELSE()
-	# Volta is the minimum compute arch required because NGC supports V100
-	GENERATE_ARCH_CODE_LIST(SASS "70,80,86,89,90,100,120" PTX "120")
+    # CUDA 13 removed Volta. Keep upstream's newer Blackwell targets.
+    IF(CMAKE_CUDA_COMPILER_VERSION VERSION_LESS 13.0)
+        GENERATE_ARCH_CODE_LIST(SASS "70,80,86,89,90,100,120" PTX "120")
+    ELSE()
+        GENERATE_ARCH_CODE_LIST(SASS "80,86,89,90,100,120" PTX "120")
+    ENDIF()
 ENDIF()
 
 # Force response files off because clangd does not parse them
