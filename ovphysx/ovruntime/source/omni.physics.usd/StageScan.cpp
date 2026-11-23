@@ -1,0 +1,365 @@
+// SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
+
+// @implements REQ-SIM-LOCALVELOCITY-001
+// @covers AC-8
+
+/**
+ * Whole-stage scan implementation — see ADR-0002 for the architecture
+ * and ADR-0003 for the native USD driver design. This file is the
+ * thin public-API shell around `ScannedStage` / `scanStage`; prim
+ * discovery + classification + per-concept descriptor production
+ * live in `NativeWalker.cpp`.
+ *
+ * @implements REQ-PARSE-SCAN-001
+ * @covers AC-1 AC-2 AC-3 AC-4 AC-5 AC-6 AC-7 AC-8 AC-9 AC-12 AC-13 AC-16 AC-19
+ *
+ * @implements REQ-PARSE-ART-002
+ * @covers AC-1 AC-2 AC-3 AC-5 AC-6
+ *
+ * @implements REQ-PARSE-DEF-001
+ * @covers AC-6
+ *
+ * @implements REQ-RUNTIME-ERROR-001
+ * @covers AC-3 AC-4
+ */
+
+#include <pxr/base/gf/transform.h>
+#include <pxr/usd/sdf/layer.h>
+#include <pxr/usd/sdf/layerUtils.h>
+#include <pxr/usd/usd/collectionMembershipQuery.h>
+#include <pxr/usd/usd/editContext.h>
+#include <pxr/usd/usd/primRange.h>
+#include <pxr/usd/usd/stage.h>
+#include <pxr/usd/usdGeom/xformCache.h>
+#include <pxr/usd/usdPhysics/scene.h>
+
+#include <physxSchema/physxSceneAPI.h>
+
+#include <omni/physics/usd/StageScan.h>
+#include <omni/physics/usd/UsdScanBackend.h>
+#include <omni/physx/RuntimeError.h>
+
+#include "NativeWalker.h"
+#include "UsdSource.h" // asUsdSource — USD-source fast resolver path
+
+#include <omni/physics/usd/PrimIterator.h>
+
+#include <carb/logging/Log.h>
+
+#include <exception>
+
+namespace omni::physics::usd
+{
+using namespace omni::physics::parse;
+
+// `ScannedStage` (the USD view) defaults its ctors/move in the header. Its
+// resolvers route through the backend source: a `UsdSource` resolves directly
+// (O(1) interned-table lookup, no string parse); any other source (ovstage)
+// reconstructs the SdfPath / TfToken from the source's path/token string and
+// lazily memoizes it.
+
+PXR_NS::SdfPath ScannedStage::pathFor(parse::ObjectKey key) const
+{
+    const parse::IPhysicsSource* src = sourcePtr();
+    if (!src)
+        return {};
+    if (const UsdSource* usd = asUsdSource(src))
+        return usd->pathFor(key); // interned, string-free
+
+    auto it = mPathCache.find(key);
+    if (it != mPathCache.end())
+        return it->second;
+    const std::string_view s = src->sourceKeyToString(key);
+    PXR_NS::SdfPath path = s.empty() ? PXR_NS::SdfPath() : PXR_NS::SdfPath(std::string(s));
+    mPathCache.emplace(key, path);
+    return path;
+}
+
+parse::ObjectKey ScannedStage::keyFor(const PXR_NS::SdfPath& path) const
+{
+    const parse::IPhysicsSource* src = sourcePtr();
+    if (!src)
+        return {};
+    if (const UsdSource* usd = asUsdSource(src))
+        return usd->keyFor(path);
+    return src->findByPath(path.GetString());
+}
+
+PXR_NS::TfToken ScannedStage::tfTokenFor(parse::TokenId id) const
+{
+    const parse::IPhysicsSource* src = sourcePtr();
+    if (!src)
+        return {};
+    if (const UsdSource* usd = asUsdSource(src))
+        return usd->tfTokenFor(id); // interned, string-free
+
+    auto it = mTokenCache.find(id);
+    if (it != mTokenCache.end())
+        return it->second;
+    const std::string_view s = src->tokenToString(id);
+    PXR_NS::TfToken token = s.empty() ? PXR_NS::TfToken() : PXR_NS::TfToken(std::string(s));
+    mTokenCache.emplace(id, token);
+    return token;
+}
+
+// ---------------------------------------------------------------------------
+// Public scanStage entry points — delegate to scanStageNative.
+// ---------------------------------------------------------------------------
+
+ScannedStage scanStage(PXR_NS::UsdStageWeakPtr stage,
+                       omni::physics::schema::PrimIteratorBase& primIterator,
+                       parse::IDescriptorAllocator& allocator)
+{
+    if (!stage)
+        return {};
+    return scanStageNative(stage, primIterator, allocator);
+}
+
+ScannedStage scanStage(PXR_NS::UsdStageWeakPtr stage,
+                       parse::IDescriptorAllocator& allocator)
+{
+    if (!stage)
+        return {};
+
+    PXR_NS::UsdPrimRange range = PXR_NS::UsdPrimRange::AllPrims(stage->GetPseudoRoot());
+    omni::physics::schema::PrimIteratorRange primIterator(range);
+    return scanStage(stage, primIterator, allocator);
+}
+
+ScannedStage scanStage(PXR_NS::UsdStageWeakPtr stage,
+                       const PXR_NS::SdfPath& root,
+                       parse::IDescriptorAllocator& allocator,
+                       SubtreeTraversal traversal)
+{
+    if (!stage)
+        return {};
+
+    PXR_NS::UsdPrim prim = stage->GetPrimAtPath(root);
+    if (!prim)
+        return {};
+
+    PXR_NS::UsdPrimRange range = [&]
+    {
+        switch (traversal)
+        {
+        case SubtreeTraversal::eDefault:
+            // Plain default predicate, no instance proxies.
+            return PXR_NS::UsdPrimRange(prim);
+        case SubtreeTraversal::eAllPrims:
+            // Every prim (incl. inactive / abstract / unloaded).
+            return PXR_NS::UsdPrimRange(prim, PXR_NS::UsdPrimAllPrimsPredicate);
+        case SubtreeTraversal::eInstanceProxies:
+        default:
+            // Default predicate, descending into instance proxies.
+            return PXR_NS::UsdPrimRange(prim, PXR_NS::UsdTraverseInstanceProxies(
+                PXR_NS::UsdPrimIsActive && PXR_NS::UsdPrimIsDefined && PXR_NS::UsdPrimIsLoaded &&
+                !PXR_NS::UsdPrimIsAbstract));
+        }
+    }();
+    omni::physics::schema::PrimIteratorRange primIterator(range);
+    return scanStage(stage, primIterator, allocator);
+}
+
+PXR_NS::SdfPath createDefaultPhysicsScene(PXR_NS::UsdStageWeakPtr stage, const PXR_NS::SdfPath& scenePath)
+{
+    if (!stage || scenePath.IsEmpty())
+        return {};
+
+    // Author on the session layer (matches the legacy ScopedLayerEdit). The
+    // prim spec (with its UsdPhysicsScene type), PhysxSceneAPI, and the hidden /
+    // no-delete session metadata are all created within this edit context.
+    // UsdPhysicsScene::Define already authors the prim spec (and any missing
+    // ancestors) on the edit target, so no separate SdfJustCreatePrimInLayer is
+    // needed.
+    PXR_NS::UsdEditContext editContext(stage, stage->GetSessionLayer());
+
+    PXR_NS::UsdPhysicsScene scene = PXR_NS::UsdPhysicsScene::Define(stage, scenePath);
+    if (!scene)
+        return {};
+    PXR_NS::PhysxSchemaPhysxSceneAPI::Apply(scene.GetPrim());
+
+    static const PXR_NS::TfToken kHideInStageWindow("hide_in_stage_window");
+    static const PXR_NS::TfToken kNoDelete("no_delete");
+    PXR_NS::UsdPrim prim = scene.GetPrim();
+    prim.SetMetadata(kHideInStageWindow, true);
+    prim.SetMetadata(kNoDelete, true);
+    return scenePath;
+}
+
+void removeDefaultPhysicsScene(PXR_NS::UsdStageWeakPtr stage, const PXR_NS::SdfPath& scenePath)
+{
+    if (!stage || scenePath.IsEmpty() || !stage->GetPrimAtPath(scenePath))
+        return;
+    PXR_NS::UsdEditContext editContext(stage, stage->GetSessionLayer());
+    stage->RemovePrim(scenePath);
+}
+
+SubtreeTraversal traversalForScope(parse::DescendantScope scope)
+{
+    switch (scope)
+    {
+    case parse::DescendantScope::eAll:
+        return SubtreeTraversal::eAllPrims;
+    case parse::DescendantScope::eActive:
+        return SubtreeTraversal::eDefault;
+    case parse::DescendantScope::eActiveInstanced:
+    default:
+        return SubtreeTraversal::eInstanceProxies;
+    }
+}
+
+ScannedStage scanStage(PXR_NS::UsdStageWeakPtr stage,
+                       const std::vector<PXR_NS::SdfPath>& roots,
+                       const std::unordered_set<PXR_NS::SdfPath, PXR_NS::SdfPath::Hash>& excludePaths,
+                       parse::IDescriptorAllocator& allocator,
+                       SubtreeTraversal traversal)
+{
+    if (!stage || roots.empty())
+        return {};
+
+    if (!excludePaths.empty())
+    {
+        const std::set<PXR_NS::SdfPath> rootSet(roots.begin(), roots.end());
+        omni::physics::schema::PrimIteratorMapRange rootsIterator(rootSet, stage);
+        omni::physics::schema::PrimIteratorExcludeRange primIterator(rootsIterator, excludePaths);
+        return scanStage(stage, primIterator, allocator);
+    }
+
+    if (roots.size() == 1 && traversal != SubtreeTraversal::eInstanceProxies)
+        return scanStage(stage, roots.front(), allocator, traversal);
+
+    // Multi-root (or single-root) walk, each root descended with instance proxies.
+    // PrimIteratorMapRange resolves the prims and walks each with the same
+    // predicate; ordering is the map's sorted-path order.
+    (void)traversal; // both supported shapes use the instance-proxy predicate
+    std::set<PXR_NS::SdfPath> rootSet(roots.begin(), roots.end());
+    omni::physics::schema::PrimIteratorMapRange primIterator(rootSet, stage);
+    return scanStage(stage, primIterator, allocator);
+}
+
+// The native USD walk over a backend-opaque AttachTarget: reinterprets
+// `target.nativeStage` as the live UsdStageWeakPtr and passes the consumer
+// options to the native walker. Shared by the backend-less fallback below
+// and by UsdScanBackend::scan() (this file's bottom), which is the same walk
+// wrapped as a registerable IScanBackend (ADR-0018 scanStage
+// backend-registration gap) so AttachTarget-based callers can go through
+// `parse::scanStage()` unconditionally instead of forking on whether a
+// backend happens to be registered.
+ScannedStage scanTargetNative(const parse::AttachTarget& target,
+                              const std::vector<PXR_NS::SdfPath>& scanRoots,
+                              const std::unordered_set<PXR_NS::SdfPath, PXR_NS::SdfPath::Hash>& excludePaths,
+                              parse::IDescriptorAllocator& allocator,
+                              const parse::ScanOptions& options)
+{
+    const PXR_NS::UsdStageWeakPtr stage =
+        target.nativeStage ? *static_cast<const PXR_NS::UsdStageWeakPtr*>(target.nativeStage) : PXR_NS::UsdStageWeakPtr{};
+    // Share the matching attach's identity table, with private scan-local caches.
+    // A foreign backend or a different stage cannot provide this identity owner.
+    UsdSource* source = dynamic_cast<UsdSource*>(target.attachedSource);
+    if (!stage || scanRoots.empty() ||
+        (target.attachedSource && (!source || !source->isForStage(stage))))
+        return {};
+    const SubtreeTraversal traversal = traversalForScope(options.descendantScope);
+    if (!excludePaths.empty())
+    {
+        const std::set<PXR_NS::SdfPath> rootSet(scanRoots.begin(), scanRoots.end());
+        omni::physics::schema::PrimIteratorMapRange rootsIterator(rootSet, stage);
+        omni::physics::schema::PrimIteratorExcludeRange iterator(rootsIterator, excludePaths);
+        return scanStageNative(stage, iterator, allocator, source, options.outputVelocitiesLocalSpaceDefault);
+    }
+    if (scanRoots.size() == 1 && traversal != SubtreeTraversal::eInstanceProxies)
+    {
+        const PXR_NS::UsdPrim prim = stage->GetPrimAtPath(scanRoots.front());
+        if (!prim)
+            return {};
+        PXR_NS::UsdPrimRange range = traversal == SubtreeTraversal::eAllPrims ?
+            PXR_NS::UsdPrimRange(prim, PXR_NS::UsdPrimAllPrimsPredicate) : PXR_NS::UsdPrimRange(prim);
+        omni::physics::schema::PrimIteratorRange iterator(range);
+        return scanStageNative(stage, iterator, allocator, source, options.outputVelocitiesLocalSpaceDefault);
+    }
+    const std::set<PXR_NS::SdfPath> rootSet(scanRoots.begin(), scanRoots.end());
+    omni::physics::schema::PrimIteratorMapRange iterator(rootSet, stage);
+    return scanStageNative(stage, iterator, allocator, source, options.outputVelocitiesLocalSpaceDefault);
+}
+
+// Backend-dispatched whole-stage scan (ADR-0002 M2c) — the single switch point.
+ScannedStage scanStage(const parse::AttachTarget& target,
+                       const std::vector<PXR_NS::SdfPath>& scanRoots,
+                       const std::unordered_set<PXR_NS::SdfPath, PXR_NS::SdfPath::Hash>& excludePaths,
+                       parse::IDescriptorAllocator& allocator,
+                       const parse::ScanOptions& options)
+{
+    if (IScanBackend* backend = scanBackend())
+    {
+        std::vector<std::string> rootStrings;
+        rootStrings.reserve(scanRoots.size());
+        for (const PXR_NS::SdfPath& root : scanRoots)
+            rootStrings.push_back(root.GetString());
+
+        std::vector<std::string> excludeStrings;
+        excludeStrings.reserve(excludePaths.size());
+        for (const PXR_NS::SdfPath& path : excludePaths)
+            excludeStrings.push_back(path.GetString());
+
+        try
+        {
+            return backend->scan(target, rootStrings, excludeStrings, options, allocator);
+        }
+        catch (const std::exception& error)
+        {
+            OVX_RUNTIME_ERROR("Physics scan backend failed: %s", error.what());
+        }
+        catch (...)
+        {
+            OVX_RUNTIME_ERROR("Physics scan backend failed with an unknown exception");
+        }
+
+        return {};
+    }
+
+    // Default: the native USD walk over the live stage handle.
+    return scanTargetNative(target, scanRoots, excludePaths, allocator, options);
+}
+
+namespace
+{
+// Stateless native-USD IScanBackend (ADR-0018 scanStage backend-registration
+// gap). Wraps scanTargetNative() above verbatim -- the same native-USD-walk
+// fallback the backend-less scanStage(AttachTarget, ...) overload already
+// runs -- so `parse::scanStage()` callers get an unconditional, correct scan
+// once this is registered, without depending on which backend (if any)
+// happens to be installed. Unlike OvstageScanBackend, no per-attach payload
+// or identity check: `target.nativeStage` is a stage-id-keyed live
+// UsdStageWeakPtr*, valid for any USD attach target, not one attach's opaque
+// payload, so any target this backend receives is one it understands.
+class UsdScanBackend final : public parse::IScanBackend
+{
+public:
+    parse::ScannedStage scan(const parse::AttachTarget& target,
+                             const std::vector<std::string>& scanRoots,
+                             const std::vector<std::string>& excludePaths,
+                             const parse::ScanOptions& options,
+                             parse::IDescriptorAllocator& allocator) override
+    {
+        std::vector<PXR_NS::SdfPath> roots;
+        roots.reserve(scanRoots.size());
+        for (const std::string& root : scanRoots)
+            roots.emplace_back(root);
+
+        std::unordered_set<PXR_NS::SdfPath, PXR_NS::SdfPath::Hash> excludes;
+        excludes.reserve(excludePaths.size());
+        for (const std::string& path : excludePaths)
+            excludes.emplace(path);
+
+        return scanTargetNative(target, roots, excludes, allocator, options);
+    }
+};
+} // namespace
+
+std::unique_ptr<parse::IScanBackend> makeUsdScanBackend()
+{
+    return std::make_unique<UsdScanBackend>();
+}
+
+} // namespace omni::physics::usd

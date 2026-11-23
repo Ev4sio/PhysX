@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #include "GuMTD.h"
 #include "GuDistancePointSegment.h"
@@ -553,8 +530,8 @@ static bool computeMTD_SphereConvex(PxVec3& mtd, PxF32& depth, const Sphere& sph
 ///////////////////////////////////////////////////////////////////////////////
 
 //ML : capsule will be in the local space of convexHullV
-static bool internalComputeMTD_CapsuleConvex(const CapsuleV& capsule, const bool idtScale, const ConvexHullV& convexHullV, const aos::PxTransformV& transf1,
-									   aos::FloatV& penetrationDepth, aos::Vec3V& normal)
+static bool internalComputeMTD_CapsuleConvex(const CapsuleV& capsule, const bool idtScale, const ConvexHullV& convexHullV, const PxTransformV& transf1,
+									   FloatV& penetrationDepth, Vec3V& normal)
 {
 	PolygonalData polyData;
 	getPCMConvexData(convexHullV, idtScale, polyData);
@@ -610,8 +587,8 @@ static bool computeMTD_CapsuleConvex(PxVec3& mtd, PxF32& depth, const Capsule& c
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-static bool internalComputeMTD_BoxConvex(const PxVec3 halfExtents, const BoxV& box, const bool idtScale, const ConvexHullV& convexHullV, const aos::PxTransformV& transf0, const aos::PxTransformV& transf1,
-									   aos::FloatV& penetrationDepth, aos::Vec3V& normal)
+static bool internalComputeMTD_BoxConvex(const PxVec3 halfExtents, const BoxV& box, const bool idtScale, const ConvexHullV& convexHullV, const PxTransformV& transf0, const PxTransformV& transf1,
+									   FloatV& penetrationDepth, Vec3V& normal)
 {
 	PolygonalData polyData0;
 	PCMPolygonalBox polyBox0(halfExtents);
@@ -671,8 +648,8 @@ static bool computeMTD_BoxConvex(PxVec3& mtd, PxF32& depth, const Box& box, cons
 	return hasContacts;
 }
 
-static bool internalComputeMTD_ConvexConvex(const bool idtScale0, const bool idtScale1, const ConvexHullV& convexHullV0, const ConvexHullV& convexHullV1, const aos::PxTransformV& transf0, const aos::PxTransformV& transf1,
-									   aos::FloatV& penetrationDepth, aos::Vec3V& normal)
+static bool internalComputeMTD_ConvexConvex(const bool idtScale0, const bool idtScale1, const ConvexHullV& convexHullV0, const ConvexHullV& convexHullV1, const PxTransformV& transf0, const PxTransformV& transf1,
+									   FloatV& penetrationDepth, Vec3V& normal)
 {
 	PolygonalData polyData0, polyData1;
 	getPCMConvexData(convexHullV0, idtScale0, polyData0);
@@ -959,6 +936,39 @@ static bool computeMTD_CustomGeometry(PxVec3& mtd, PxF32& depth, const PxCustomG
 		return false;
 
 	return processContacts(mtd, depth, contactBuffer.count, contactBuffer.contacts);
+}
+
+static bool computeMTD_ConvexCore(PxVec3& mtd, PxF32& depth, const PxConvexCoreGeometry& geom0, const PxTransform32& pose0, const PxGeometry& geom1, const PxTransform32& pose1)
+{
+	Cache cache;
+	PxContactBuffer contactBuffer;
+	contactBuffer.reset();
+	bool res;
+
+	switch (geom1.getType())
+	{
+	case PxGeometryType::ePLANE:
+		res = contactPlaneConvexCore(geom1, geom0, pose1, pose0, NarrowPhaseParams(0.0f, 0.0f, 1.0f), cache, contactBuffer, NULL)
+			&& processContacts(mtd, depth, contactBuffer.count, contactBuffer.contacts);
+		mtd = -mtd;
+		break;
+	case PxGeometryType::eSPHERE:
+	case PxGeometryType::eCAPSULE:
+	case PxGeometryType::eBOX:
+	case PxGeometryType::eCONVEXCORE:
+	case PxGeometryType::eCONVEXMESH:
+		res = contactConvexCoreConvex(geom0, geom1, pose0, pose1, NarrowPhaseParams(0.0f, 0.0f, 1.0f), cache, contactBuffer, NULL)
+			&& processContacts(mtd, depth, contactBuffer.count, contactBuffer.contacts);
+		break;
+	case PxGeometryType::eTRIANGLEMESH:
+		res = contactConvexCoreTrimesh(geom0, geom1, pose0, pose1, NarrowPhaseParams(0.0f, 0.0f, 1.0f), cache, contactBuffer, NULL)
+			&& processContacts(mtd, depth, contactBuffer.count, contactBuffer.contacts);
+		break;
+	default:
+		res = false;
+	}
+
+	return res;
 }
 
 static bool GeomMTDCallback_NotSupported(GU_MTD_FUNC_PARAMS)
@@ -1292,6 +1302,30 @@ static bool GeomMTDCallback_GeometryCustomGeometry(GU_MTD_FUNC_PARAMS)
 	return false;
 }
 
+static bool GeomMTDCallback_ConvexCoreGeometry(GU_MTD_FUNC_PARAMS)
+{
+	PX_ASSERT(geom0.getType() == PxGeometryType::eCONVEXCORE);
+
+	const PxConvexCoreGeometry& convexCoreGeom = static_cast<const PxConvexCoreGeometry&>(geom0);
+
+	return computeMTD_ConvexCore(mtd, depth, convexCoreGeom, pose0, geom1, pose1);
+}
+
+static bool GeomMTDCallback_GeometryConvexCore(GU_MTD_FUNC_PARAMS)
+{
+	PX_ASSERT(geom1.getType() == PxGeometryType::eCONVEXCORE);
+
+	const PxConvexCoreGeometry& convexCoreGeom = static_cast<const PxConvexCoreGeometry&>(geom1);
+
+	if (computeMTD_ConvexCore(mtd, depth, convexCoreGeom, pose1, geom0, pose0))
+	{
+		mtd = -mtd;
+		return true;
+	}
+
+	return false;
+}
+
 Gu::GeomMTDFunc gGeomMTDMethodTable[][PxGeometryType::eGEOMETRY_COUNT] = 
 {
 	//PxGeometryType::eSPHERE
@@ -1300,7 +1334,7 @@ Gu::GeomMTDFunc gGeomMTDMethodTable[][PxGeometryType::eGEOMETRY_COUNT] =
 		GeomMTDCallback_SpherePlane,		//PxGeometryType::ePLANE
 		GeomMTDCallback_SphereCapsule,		//PxGeometryType::eCAPSULE
 		GeomMTDCallback_SphereBox,			//PxGeometryType::eBOX
-		GeomMTDCallback_NotSupported,		//PxGeometryType::eCONVEXCORE
+		GeomMTDCallback_GeometryConvexCore,	//PxGeometryType::eCONVEXCORE
 		GeomMTDCallback_SphereConvex,		//PxGeometryType::eCONVEXMESH
 		GeomMTDCallback_NotSupported,		//PxGeometryType::ePARTICLESYSTEM
 		GeomMTDCallback_NotSupported,		//PxGeometryType::eTETRAHEDRONMESH
@@ -1315,7 +1349,7 @@ Gu::GeomMTDFunc gGeomMTDMethodTable[][PxGeometryType::eGEOMETRY_COUNT] =
 		GeomMTDCallback_NotSupported,		//PxGeometryType::ePLANE
 		GeomMTDCallback_PlaneCapsule,		//PxGeometryType::eCAPSULE
 		GeomMTDCallback_PlaneBox,			//PxGeometryType::eBOX
-		GeomMTDCallback_NotSupported,		//PxGeometryType::eCONVEXCORE
+		GeomMTDCallback_GeometryConvexCore,	//PxGeometryType::eCONVEXCORE
 		GeomMTDCallback_PlaneConvex,		//PxGeometryType::eCONVEXMESH
 		GeomMTDCallback_NotSupported,		//PxGeometryType::ePARTICLESYSTEM
 		GeomMTDCallback_NotSupported,		//PxGeometryType::eTETRAHEDRONMESH
@@ -1330,7 +1364,7 @@ Gu::GeomMTDFunc gGeomMTDMethodTable[][PxGeometryType::eGEOMETRY_COUNT] =
 		0,									//PxGeometryType::ePLANE
 		GeomMTDCallback_CapsuleCapsule,		//PxGeometryType::eCAPSULE
 		GeomMTDCallback_CapsuleBox,			//PxGeometryType::eBOX
-		GeomMTDCallback_NotSupported,		//PxGeometryType::eCONVEXCORE
+		GeomMTDCallback_GeometryConvexCore,	//PxGeometryType::eCONVEXCORE
 		GeomMTDCallback_CapsuleConvex,		//PxGeometryType::eCONVEXMESH
 		GeomMTDCallback_NotSupported,		//PxGeometryType::ePARTICLESYSTEM
 		GeomMTDCallback_NotSupported,		//PxGeometryType::eTETRAHEDRONMESH
@@ -1345,7 +1379,7 @@ Gu::GeomMTDFunc gGeomMTDMethodTable[][PxGeometryType::eGEOMETRY_COUNT] =
 		0,									//PxGeometryType::ePLANE
 		0,									//PxGeometryType::eCAPSULE
 		GeomMTDCallback_BoxBox,				//PxGeometryType::eBOX
-		GeomMTDCallback_NotSupported,		//PxGeometryType::eCONVEXCORE
+		GeomMTDCallback_GeometryConvexCore,	//PxGeometryType::eCONVEXCORE
 		GeomMTDCallback_BoxConvex,			//PxGeometryType::eCONVEXMESH
 		GeomMTDCallback_NotSupported,		//PxGeometryType::ePARTICLESYSTEM
 		GeomMTDCallback_NotSupported,		//PxGeometryType::eTETRAHEDRONMESH
@@ -1354,19 +1388,19 @@ Gu::GeomMTDFunc gGeomMTDMethodTable[][PxGeometryType::eGEOMETRY_COUNT] =
 		GeomMTDCallback_GeometryCustomGeometry,	//PxGeometryType::eCUSTOM
 	},
 
-	//PxGeometryType::eCONVEX
+	//PxGeometryType::eCONVEXCORE
 	{
 		0,									//PxGeometryType::eSPHERE
 		0,									//PxGeometryType::ePLANE
 		0,									//PxGeometryType::eCAPSULE
 		0,									//PxGeometryType::eBOX
-		0,									//PxGeometryType::eCONVEXCORE
-		GeomMTDCallback_NotSupported,		//PxGeometryType::eCONVEXMESH
+		GeomMTDCallback_GeometryConvexCore,	//PxGeometryType::eCONVEXCORE
+		GeomMTDCallback_ConvexCoreGeometry,	//PxGeometryType::eCONVEXMESH
 		GeomMTDCallback_NotSupported,		//PxGeometryType::ePARTICLESYSTEM
 		GeomMTDCallback_NotSupported,		//PxGeometryType::eTETRAHEDRONMESH
-		GeomMTDCallback_NotSupported,		//PxGeometryType::eTRIANGLEMESH
+		GeomMTDCallback_ConvexCoreGeometry,	//PxGeometryType::eTRIANGLEMESH
 		GeomMTDCallback_NotSupported,		//PxGeometryType::eHEIGHTFIELD
-		GeomMTDCallback_NotSupported,		//PxGeometryType::eCUSTOM
+		GeomMTDCallback_GeometryCustomGeometry,	//PxGeometryType::eCUSTOM
 	},
 
 	//PxGeometryType::eCONVEXMESH

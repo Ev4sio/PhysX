@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #include "foundation/PxPreprocessor.h"
 
@@ -41,7 +18,8 @@
 #include "PxsRigidBody.h"
 #include "PxgArticulation.h"
 #include "PxgAggregate.h"
-#include "PxgAABBManager.h"
+#include "PxgBoundTransformUpdate.h"
+#include "BpFiltering.h"
 #include <assert.h>
 #include <stdio.h>
 
@@ -49,27 +27,57 @@ using namespace physx;
 
 extern "C" __host__ void initSimulationControllerKernels1() {}
 
+// Shared by the merge and the update after the solver, so that both compute the same shape pose.
+static __device__ PxTransform getShapeAbsPose(const PxgShapeSim& shapeSim, const PxgBodySim* PX_RESTRICT bodySims, const PxgArticulation* PX_RESTRICT articulations)
+{
+	const PxNodeIndex nodeIndex = shapeSim.mBodySimIndex;
+	const PxgBodySim& bodySim = bodySims[nodeIndex.index()];
+	if (nodeIndex.isArticulation())
+	{
+		PX_ASSERT(articulations);
+		const PxgArticulation& articulation = articulations[bodySim.articulationRemapId];
+		const PxU32 linkId = nodeIndex.articulationLinkId();
+		return getAbsPose(articulation.linkBody2Worlds[linkId], shapeSim.mTransform, articulation.linkBody2Actors[linkId]);
+	}
+	return getAbsPose(bodySim.body2World.getTransform(), shapeSim.mTransform, bodySim.body2Actor_maxImpulseW.getTransform());
+}
+
 extern "C" __global__ void mergeTransformCacheAndBoundArrayChanges(
-    PxBounds3* PX_RESTRICT deviceBounds,
-    PxsCachedTransform* PX_RESTRICT deviceTransforms,
-    const PxBounds3* PX_RESTRICT boundsArray,
-    const PxsCachedTransform* PX_RESTRICT transformsArray,
-    const PxBoundTransformUpdate* PX_RESTRICT changes,
-    const PxU32 numChanges
-) {
-    int idx = blockIdx.x * blockDim.x + threadIdx.x;
-    if (idx < numChanges) {
-        PxU32 indexTo = changes[idx].indexTo;
-        PxU32 indexFrom = changes[idx].indexFrom & 0x7FFFFFFF;
-        bool isNew = (changes[idx].indexFrom & (1U << 31)) != 0;
-        if (isNew) {
-            deviceBounds[indexTo] = boundsArray[indexFrom];
-            deviceTransforms[indexTo] = transformsArray[indexFrom];
-        } else {
-            deviceBounds[indexTo] = deviceBounds[indexFrom];
-            deviceTransforms[indexTo] = deviceTransforms[indexFrom];
-        }
-    }
+	PxBounds3* PX_RESTRICT deviceBounds,
+	PxsCachedTransform* PX_RESTRICT deviceTransforms,
+	const PxBounds3* PX_RESTRICT boundsArray,
+	const PxsCachedTransform* PX_RESTRICT transformsArray,
+	const PxgBoundTransformUpdate* PX_RESTRICT changes,
+	const PxU32 numChanges,
+	const PxgShapeSim* PX_RESTRICT shapeSims,
+	const PxgBodySim* PX_RESTRICT bodySims,
+	const PxgArticulation* PX_RESTRICT articulations,
+	const PxgShape* PX_RESTRICT shapes)
+{
+	int idx = blockIdx.x * blockDim.x + threadIdx.x;
+	if (idx < numChanges)
+	{
+		PxU32 index = changes[idx].index & PxgBoundTransformUpdate::eINDEX_MASK;
+		PxU32 kind = changes[idx].index & PxgBoundTransformUpdate::eKIND_MASK;
+		if (kind == PxgBoundTransformUpdate::eCOMPUTE_FROM_GPU_POSE)
+		{
+			const PxgShapeSim& shapeSim = shapeSims[index];
+			// A shape removed after its re-insertion in the same step has no body any more. Its element ID is not reused before
+			// the merge, because released IDs return to the pool only in fetchResults().
+			if (shapeSim.mBodySimIndex.isValid())
+			{
+				const PxU32 shapeFlags = shapeSim.mShapeFlags;
+				const bool isBPOrSq = shapeFlags & PxU32(PxShapeFlag::eSIMULATION_SHAPE | PxShapeFlag::eTRIGGER_SHAPE | PxShapeFlag::eSCENE_QUERY_SHAPE);
+				updateCacheAndBound(getShapeAbsPose(shapeSim, bodySims, articulations), shapeSim, index, deviceTransforms, deviceBounds, shapes, isBPOrSq);
+			}
+		}
+		else
+		{
+			PX_ASSERT(kind == PxgBoundTransformUpdate::eCOPY_FROM_CPU);
+			deviceBounds[index] = boundsArray[index];
+			deviceTransforms[index] = transformsArray[index];
+		}
+	}
 }
 
 extern "C" __global__ void updateTransformCacheAndBoundArrayLaunch(const PxgSimulationCoreDesc* scDesc)
@@ -130,7 +138,6 @@ extern "C" __global__ void updateTransformCacheAndBoundArrayLaunch(const PxgSimu
 				if (activeNodeIndex != 0xFFFFFFFF)
 				{
 					const PxU32 internalFlags = gSleepData[activeNodeIndex].internalFlags;
-					const PxTransform body2World = bodySim.body2World.getTransform();
 
 					if ((internalFlags & PxsRigidBody::eFREEZE_THIS_FRAME) && (internalFlags &  PxsRigidBody::eFROZEN))
 					{
@@ -143,11 +150,11 @@ extern "C" __global__ void updateTransformCacheAndBoundArrayLaunch(const PxgSimu
 					}
 
 					if (!(internalFlags & PxsRigidBody::eFROZEN) || (internalFlags & PxsRigidBody::eFREEZE_THIS_FRAME))
-					{					
+					{
 						if (isBP)
 							updated[elementIndex] = 1;
 
-						const PxTransform absPos = getAbsPose(body2World, shapeSim.mTransform, bodySim.body2Actor_maxImpulseW.getTransform());
+						const PxTransform absPos = getShapeAbsPose(shapeSim, gBodySimPool, NULL);
 
 						updateCacheAndBound(absPos, shapeSim, elementIndex, gTransformCache, gBounds, gShapes, isBPOrSq);
 					}
@@ -159,23 +166,16 @@ extern "C" __global__ void updateTransformCacheAndBoundArrayLaunch(const PxgSimu
 				}
 			}
 			else
-			{			
+			{
 				//This is articulation
 				const PxU32 articulationId = bodySim.articulationRemapId;
-				const PxgArticulation& articulation = gArticulations[articulationId];
 				const PxgSolverBodySleepData artiSleepData = gArticulationSleepData[articulationId];
 				const PxU32 internalFlags = artiSleepData.internalFlags;
-
-				const PxU32 linkId = bodySimNodeIndex.articulationLinkId();
-
-				const PxTransform body2World = articulation.linkBody2Worlds[linkId];
 
 				if (isBP)
 					updated[elementIndex] = 1;
 
-				const PxTransform body2Actor = articulation.linkBody2Actors[linkId];
-
-				const PxTransform absPos = getAbsPose(body2World, shapeSim.mTransform, body2Actor);
+				const PxTransform absPos = getShapeAbsPose(shapeSim, gBodySimPool, gArticulations);
 
 				updateCacheAndBound(absPos, shapeSim, elementIndex, gTransformCache, gBounds, gShapes, isBPOrSq);
 
@@ -214,16 +214,11 @@ extern "C" __global__ void updateChangedAABBMgrHandlesLaunch(const PxgSimulation
 }
 
 //This kernel merge direct API updated handle and the CPU API updated handle
-extern "C" __global__ void mergeChangedAABBMgrHandlesLaunch(const PxgUpdateActorDataDesc* updateActorDesc)
+extern "C" __global__ void mergeChangedAABBMgrHandlesLaunch(const PxU32* updated, const PxU32 nbUpdated, const PxU32* groups, const PxU32 nbGroups,
+	PxU32* changedAABBMgrHandles, const PxU32 nbChangedAABBMgrHandleWords)
 {
-	//max number of shapes
-	const PxU32 gNumElements = updateActorDesc->mBitMapWordCounts * 32;
-
-	//This is Direct API changed handles
-	const PxU32* updated = updateActorDesc->mUpdated;
-
-	//This is CPU API changed handles
-	PxU32* gChangedAABBMgrHandles = updateActorDesc->mChangedAABBMgrHandles;
+	// Both bounds are multiples of 32, so whole warps enter and leave the loop together.
+	const PxU32 gNumElements = PxMin(nbChangedAABBMgrHandleWords * 32, nbUpdated);
 
 	const PxU32 idx = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -231,13 +226,14 @@ extern "C" __global__ void mergeChangedAABBMgrHandlesLaunch(const PxgUpdateActor
 
 	for (PxU32 i = idx; i < gNumElements; i += blockDim.x * gridDim.x)
 	{
-		const PxU32 updateBit = updated[i];
+		// A shape with neither the simulation nor the trigger flag has no bounds in the broadphase.
+		const PxU32 updateBit = updated[i] && i < nbGroups && groups[i] != PxU32(Bp::FilterGroup::eINVALID);
 
 		const PxU32 word = __ballot_sync(FULL_MASK, updateBit);
 
 		if (threadIndexInWarp == 0)
 		{
-			gChangedAABBMgrHandles[i / WARP_SIZE] |= word;
+			changedAABBMgrHandles[i / WARP_SIZE] |= word;
 		}
 	}
 }

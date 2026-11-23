@@ -1,5 +1,8 @@
 # NVIDIA PhysX
 
+<details>
+<summary>Copyright & License</summary>
+
 Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -26,26 +29,65 @@ OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-## Introduction
+</details>
 
-Welcome to the NVIDIA PhysX source code repository.
+Please also see license files in the root folder and in the respective subfolders.
 
-This repository contains source releases of the PhysX, Flow, and Blast SDKs used in NVIDIA Omniverse.
+## Content
 
-## Documentation
+This repo contains:
 
-The user guide and API documentation are available on [GitHub Pages](https://nvidia-omniverse.github.io/PhysX). Please create an [Issue](https://github.com/NVIDIA-Omniverse/PhysX/issues/) if you find a documentation issue.
+| Directory | Description |
+|---|---|
+| [`ovphysx/`](ovphysx/) | ovphysx — C API with Python bindings for USD physics simulation with DLPack tensor interop (`pip install ovphysx`) |
+| [`physx/`](physx/) | PhysX SDK — real-time physics simulation engine |
 
-## Instructions
+### ovphysx
 
-Please see instructions specific to each of the libraries in the respective subfolder.
+| Release | Compatibility |
+|---|---|
+| [0.8](https://github.com/NVIDIA-Omniverse/PhysX/tree/ovphysx-0.8.0) | PhysX SDK 5.13.0 |
+| [0.7](https://github.com/NVIDIA-Omniverse/PhysX/tree/ovphysx-0.7.0) | PhysX SDK 5.12.0 |
+| [0.6](https://github.com/NVIDIA-Omniverse/PhysX/tree/ovphysx-0.6.4) | PhysX SDK 5.11.0 |
+| [0.5](https://github.com/NVIDIA-Omniverse/PhysX/tree/ovphysx-0.5.11) | PhysX SDK 5.10.0 |
+| [0.4](https://github.com/NVIDIA-Omniverse/PhysX/tree/ovphysx-0.4.13) | PhysX SDK 5.9.0 |
+| [0.3](https://github.com/NVIDIA-Omniverse/PhysX/tree/ovphysx-0.3.7) | PhysX SDK 5.9.0 |
+| [0.2](https://github.com/NVIDIA-Omniverse/PhysX/tree/ovphysx-0.2.9) | PhysX SDK 5.8.0 |
 
-## Community-Maintained Build Configuration Fork
+### Omniverse PhysX Extensions and PhysX SDK
 
-Please see [the O3DE Fork](https://github.com/o3de/PhysX) for community-maintained additional build configurations.
+| Release | Compatibility |
+|---|---|
+| [110.1 and 5.9.0](https://github.com/NVIDIA-Omniverse/PhysX/tree/110.1-omni-and-physx-5.9.0) | [IsaacSim 6.0.0](https://github.com/isaac-sim/IsaacSim/tree/v6.0.0) |
+| [110.0 and 5.8.0](https://github.com/NVIDIA-Omniverse/PhysX/tree/110.0-omni-and-physx-5.8.0) | [IsaacSim 6.0.0-dev2](https://github.com/isaac-sim/IsaacSim/tree/v6.0.0-dev2) |
+| [109.0 and 5.7.0](https://github.com/NVIDIA-Omniverse/PhysX/tree/109.0-omni-and-physx-5.7.0) | [IsaacSim 6.0.0-dev](https://github.com/isaac-sim/IsaacSim/tree/v6.0.0-dev) |
+| [107.3 and 5.6.1](https://github.com/NVIDIA-Omniverse/PhysX/tree/107.3-omni-and-physx-5.6.1) | [IsaacSim 5.1.0](https://github.com/isaac-sim/IsaacSim/tree/v5.1.0) |
+
+Additional simulation libraries:
+
+| Directory | Description |
+|---|---|
+| [`blast/`](blast/) | Blast SDK — destruction and fracture simulation |
+| [`flow/`](flow/) | Flow SDK — fluid and fire simulation |
 
 ## Support
 
 * Please use GitHub [Discussions](https://github.com/NVIDIA-Omniverse/PhysX/discussions/) for questions and comments.
 * GitHub [Issues](https://github.com/NVIDIA-Omniverse/PhysX/issues) should only be used for bug reports or documentation issues.
 * You can also ask questions in the NVIDIA Omniverse #physics [Discord Channel](https://discord.com/invite/XWQNJDNuaC).
+
+
+<!-- physics-component-licenses-begin -->
+## Component licenses
+
+These licenses apply to the listed components; other components retain their own licenses.
+
+- `ovphysx/` source: [Apache License 2.0](ovphysx/LICENSE.txt), with the bundled-component exceptions in [third-party notices](ovphysx/THIRD_PARTY_NOTICES.md).
+- `physx/` source: [Apache License 2.0](physx/LICENSE.md), with the bundled-component exceptions in [third-party notices](physx/THIRD_PARTY_NOTICES.md).
+- ovphysx binaries: [NVIDIA Omniverse agreements](ovphysx/licenses/LICENSE-binary.txt).
+- Omniverse Extensions dependencies: [NVIDIA agreements](ovphysx/tools/internal-licenses/Omniverse-Extensions-LICENSE.txt).
+- OpenUSD-derived code: [Tomorrow Open Source Technology License 1.0](ovphysx/tools/internal-licenses/OpenUSD-LICENSE.txt).
+- DLPack: [Apache License 2.0, upstream contributor attribution](ovphysx/tools/internal-licenses/dlpack-LICENSE.txt).
+- Repoman bootstrap tooling: [MIT](ovphysx/tools/internal-licenses/repoman-LICENSE.txt).
+- V-HACD code: [BSD 3-Clause](ovphysx/tools/internal-licenses/vhacd-LICENSE.txt).
+<!-- physics-component-licenses-end -->

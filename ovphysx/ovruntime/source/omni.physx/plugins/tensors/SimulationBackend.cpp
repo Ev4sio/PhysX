@@ -1,0 +1,841 @@
+// SPDX-FileCopyrightText: Copyright (c) 2020-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
+
+// @implements REQ-ATTACH-VIEWS-001
+// @covers AC-1 AC-2 AC-3
+
+// @implements REQ-ATTACH-RESOLVE-001
+// @covers AC-4
+
+/**
+ * @implements REQ-READ-CORE-001
+ * @covers AC-3 AC-7
+ *
+ * @implements REQ-TENSOR-VIEW-001
+ * @covers AC-6 AC-8 AC-9 AC-11 AC-13 AC-14 AC-16
+ *
+ * @implements REQ-TENSOR-ATTACH-001
+ * @covers AC-1
+ *
+ * @implements REQ-TENSOR-SCENE-001
+ * @covers AC-1 AC-2
+ */
+
+/**
+ * @implements REQ-ATTACH-VIEWS-001
+ * @covers AC-2
+ */
+
+#include "internal/Internal.h" // recordLifetimeEpoch
+#include "tensors/GlobalsAreBad.h"
+#include "tensors/SimulationBackend.h"
+#include <OmniPhysX.h>
+#include <PhysXScene.h>
+#include "tensors/cpu/CpuSimulationView.h"
+#include "tensors/gpu/GpuSimulationView.h"
+#include "tensors/gpu/CudaCommon.h"
+
+#include "usdLoad/AttachedStage.h"
+#include "usdInterface/UsdInterface.h"
+#include "usdLoad/LoadTools.h"
+#include "usdLoad/LoadUsd.h"
+
+#include <carb/Framework.h>
+#include <carb/logging/Log.h>
+#include <carb/InterfaceUtils.h>
+#include <omni/physx/IPhysx.h>
+#include <private/omni/physx/IPhysxPrivate.h>
+#include <omni/physx/IPhysxSimulation.h>
+
+#include <algorithm>
+#include <atomic>
+#include <limits>
+
+// so we can determine the physx device ordinal
+#include <carb/events/IEvents.h>
+#include <common/utilities/PhysXErrorCallback.h>
+static CarbPhysXErrorCallback gErrorCallback;
+
+using namespace physx;
+
+namespace omni
+{
+namespace physx
+{
+namespace tensors
+{
+
+namespace
+{
+// Backend-level destruction hook. Distinct from the per-view subscriptions, which only invalidate
+// the view that owns them: this one exists so the per-stage data is dropped even when no view is
+// alive to observe the deletion.
+void onPhysXObjectDestroyedCallback(const omni::physx::PhysicsObjectChangeEvent& event, void* userData)
+{
+    const omni::physx::PhysXType type = event.type;
+    if (!userData || !g_physx)
+        return;
+
+    SimulationBackend* backend = static_cast<SimulationBackend*>(userData);
+    if (type == omni::physx::ePTScene)
+    {
+        backend->onSceneDestroyed(static_cast<PxScene*>(event.nativeObject));
+    }
+
+}
+} // namespace
+
+SimulationBackend::SimulationBackend()
+{
+    if (g_physx)
+    {
+        omni::physx::IPhysicsObjectChangeCallback callback;
+        callback.objectDestructionNotifyFn = onPhysXObjectDestroyedCallback;
+        callback.allObjectsDestructionNotifyFn = [](omni::physics::AttachHandle attach, void* userData) {
+            static_cast<SimulationBackend*>(userData)->resetStage(attach);
+        };
+        callback.stopCallbackWhenSimStopped = false;
+        callback.userData = this;
+        mObjectChangeSubscriptionId = getPhysXUsdPhysicsInterface().subscribeToObjectChangeNotifications(callback);
+    }
+
+    if (mObjectChangeSubscriptionId == omni::physx::kInvalidSubscriptionId)
+    {
+        CARB_LOG_ERROR(
+            "Failed to subscribe to physics object change notifications; simulation data for a replaced physics scene will not be rebuilt");
+    }
+}
+
+void SimulationBackend::shutdown()
+{
+    if (g_physx && mObjectChangeSubscriptionId != omni::physx::kInvalidSubscriptionId)
+    {
+        g_physx->unsubscribeObjectChangeNotifications(mObjectChangeSubscriptionId);
+    }
+    mObjectChangeSubscriptionId = omni::physx::kInvalidSubscriptionId;
+
+    // ~SimulationBackend calls only this, never reset(), so for a backend torn down without a reset
+    // this is the last chance to free the views it owns. Safe to run twice: takeOwnedViews() clears
+    // what it detaches, so a shutdown() after a reset() finds nothing.
+    std::vector<ISimulationView*> pendingRelease;
+    {
+        std::lock_guard<std::mutex> lock(mStageDataMutex);
+        takeOwnedViews(pendingRelease);
+    }
+    // Outside the lock: ~BaseSimulationView calls back into removeSimulationView().
+    for (ISimulationView* v : pendingRelease)
+        v->release(true);
+}
+
+SimulationBackend::~SimulationBackend()
+{
+    shutdown();
+}
+
+void SimulationBackend::onSceneDestroyed(const PxScene* scene)
+{
+    if (!scene)
+        return;
+
+    std::lock_guard<std::mutex> lock(mStageDataMutex);
+
+    for (auto it = mGpuSimDataByScene.begin(); it != mGpuSimDataByScene.end();)
+    {
+        if (it->first.scene == scene)
+        {
+            it = mGpuSimDataByScene.erase(it);
+        }
+        else
+        {
+            ++it;
+        }
+    }
+    for (auto it = mRdDisableByScene.begin(); it != mRdDisableByScene.end();)
+    {
+        if (it->first.scene == scene)
+        {
+            it = mRdDisableByScene.erase(it);
+        }
+        else
+        {
+            ++it;
+        }
+    }
+
+    // The CPU side has no scene to match on (CpuSimulationData holds none), so it is reclaimed by
+    // resetStage on the attach axis rather than here.
+    //
+    // The scene cache is this backend's own: drop the entry describing the dead scene, detaching
+    // its superset view for the next acquire to release -- releasing here would re-enter
+    // removeSimulationView under this lock.
+    for (std::unordered_map<SceneKey, SceneCacheEntry, SceneKeyHash>::iterator it = mSceneCache.begin();
+         it != mSceneCache.end();)
+    {
+        if (it->first.scene == scene)
+        {
+            takeSceneCacheViews(it->second, mDeferredViewReleases);
+            it = mSceneCache.erase(it);
+        }
+        else
+        {
+            ++it;
+        }
+    }
+}
+
+ISimulationView* SimulationBackend::createSimulationView(AttachHandle attachHandle)
+{
+    if (!g_physx)
+    {
+        CARB_LOG_ERROR("Failed to create simulation view: physics interface is not available");
+        return nullptr;
+    }
+
+    // ADR-0013: the handle identifies an attach, not a USD stage. Resolve it to the
+    // AttachedStage that owns the physics objects; a null USD stage behind it is legal
+    // (a stageless ovstage attach), an unresolvable handle is not.
+    usdparser::AttachedStage* attachedStage =
+        usdparser::UsdLoad::getUsdLoad()->getAttachedStageByHandle(attachHandle);
+    if (!attachedStage)
+    {
+        CARB_LOG_ERROR("Failed to create simulation view: attach handle %llu does not identify a live attach",
+                       static_cast<unsigned long long>(attachHandle));
+        return nullptr;
+    }
+
+    PxScene* scene = findPhysicsScene(*attachedStage);
+    if (!scene)
+    {
+        CARB_LOG_ERROR("Failed to create simulation view: no active physics scene found");
+        return nullptr;
+    }
+
+    bool useGpuPipeline = scene->getFlags().isSet(PxSceneFlag::eENABLE_DIRECT_GPU_API);
+
+    std::lock_guard<std::mutex> lock(mStageDataMutex);
+
+    if (useGpuPipeline)
+    {
+        // Through the same helper the cached path uses. Reusing the entry whenever the SCENE
+        // pointer matched was not enough: init() sizes every device buffer from the scene's counts
+        // and there is no resize path, so a scene that GREW since the entry was built hands the next
+        // view buffers too small for the counts it passes to the DirectGPU getters. That writes out
+        // of bounds, poisons the CUDA context, and surfaces as an unrelated CUDA 700 later.
+        const GpuSimulationDataPtr gpuData = ensureGpuSimDataLocked(attachHandle, scene);
+        if (!gpuData)
+        {
+            CARB_LOG_ERROR("Failed to initialize GPU simulation data");
+            return nullptr;
+        }
+        GpuSimulationView* simView = new GpuSimulationView(attachedStage, scene, gpuData);
+        mViewsByAttach[attachHandle].push_back(simView);
+        return simView;
+    }
+    else
+    {
+        auto& cpuData = mCpuSimDataByAttach[attachHandle];
+        if (!cpuData)
+        {
+            cpuData = std::make_shared<CpuSimulationData>(*this, attachHandle);
+        }
+        CpuSimulationView* simView = new CpuSimulationView(attachedStage, scene, cpuData);
+        mViewsByAttach[attachHandle].push_back(simView);
+        return simView;
+    }
+}
+
+bool SimulationBackend::updateArticulationsKinematic(AttachHandle attachHandle)
+{
+    if (!g_physx)
+    {
+        CARB_LOG_ERROR("Failed to update articulation kinematics: physics interface is not available");
+        return false;
+    }
+
+    usdparser::AttachedStage* attachedStage =
+        usdparser::UsdLoad::getUsdLoad()->getAttachedStageByHandle(attachHandle);
+    if (!attachedStage)
+    {
+        CARB_LOG_ERROR("Failed to update articulation kinematics: attach handle %llu does not identify a live attach",
+                       static_cast<unsigned long long>(attachHandle));
+        return false;
+    }
+
+    PxScene* scene = findPhysicsScene(*attachedStage);
+    if (!scene)
+    {
+        CARB_LOG_ERROR("Failed to update articulation kinematics: no active physics scene found");
+        return false;
+    }
+
+    // FK refresh is DirectGPU-only, exactly as the former GpuSimulationView path was; a no-op elsewhere.
+    // Deliberately NO createSimulationView here: the op needs only the scene and its CUDA context. A
+    // per-call createSimulationView does NOT rebuild the GPU simulation data -- ensureGpuSimDataLocked
+    // reuses the cached buffers while the shape and record epoch match (the steady state) -- but it still pays,
+    // every call, the cache-validation topology walk plus the view object's construction, its
+    // registration in mViewsByAttach, and its later removal. That is the overhead this path avoids.
+    if (scene->getFlags().isSet(PxSceneFlag::eENABLE_DIRECT_GPU_API))
+    {
+        // Propagate the DirectGPU result: computeArticulationData returns false when the API is
+        // uninitialized/forbidden or a synchronous CUDA error occurs. Reporting success here would let a
+        // caller read link transforms this refresh did not actually recompute.
+        if (!gpuRefreshArticulationsKinematic(scene))
+        {
+            CARB_LOG_ERROR("Failed to update articulation kinematics: the DirectGPU FK refresh did not complete");
+            return false;
+        }
+    }
+
+    // A non-DirectGPU scene keeps its articulation FK on the host, so there is nothing to refresh --
+    // trivially successful.
+    return true;
+}
+
+// Topology the simulation data is sized and indexed by, compared against what a cache entry was built with
+// whenever sceneCacheEntryValid's fast path does not apply (see SceneCacheEntry). The articulation strides come
+// from articulationStrides, the function GpuSimulationData::init sizes its buffers with, so the two cannot
+// diverge: a divergence would either never match (the cache silently never hits) or match when the buffers were
+// sized differently (the crash this validation exists to prevent).
+void SimulationBackend::sceneTopology(::physx::PxScene* scene, SceneTopology& t)
+{
+    t = SceneTopology{};
+    t.numRds = scene->getNbActors(PxActorTypeFlag::eRIGID_DYNAMIC);
+    t.numArtis = scene->getNbArticulations();
+    if (t.numArtis == 0)
+        return;
+    articulationStrides(scene, t.maxLinks, t.maxDofs, t.maxFixedTendons, t.maxSpatialTendons);
+}
+
+bool SimulationBackend::gpuSimDataShapeMatches(const GpuSimulationData& data, ::physx::PxScene* scene)
+{
+    SceneTopology now;
+    sceneTopology(scene, now);
+    return data.mNumRds == now.numRds && data.mNumArtis == now.numArtis && data.mMaxLinks == now.maxLinks &&
+           data.mMaxDofs == now.maxDofs && data.mMaxFixedTendons == now.maxFixedTendons &&
+           data.mMaxSpatialTendons == now.maxSpatialTendons;
+}
+
+// The AttachedStage that owns `scene`. Null for a scene with no live attach, which the view
+// constructors accept -- a stageless attach has no UsdStage behind it and never dereferences one.
+usdparser::AttachedStage* SimulationBackend::attachedStageFor(const ::physx::PxScene* scene) const
+{
+    const AttachHandle handle = attachOwning(scene);
+    return handle == omni::physics::kNoAttach ?
+               nullptr :
+               usdparser::UsdLoad::getUsdLoad()->getAttachedStageByHandle(handle);
+}
+
+// A scene's actual owner supplies the cache identity. Foreign native scenes have none.
+AttachHandle SimulationBackend::attachOwning(const ::physx::PxScene* scene) const
+{
+    const PhysXScene* owner = OmniPhysX::getInstance().getPhysXSetup().findPhysXScene(scene);
+    return owner ? owner->getAttachedStage().getAttachHandle() : omni::physics::kNoAttach;
+}
+
+GpuSimulationDataPtr SimulationBackend::ensureGpuSimDataLocked(AttachHandle attachHandle, ::physx::PxScene* scene)
+{
+    // init() sizes every device buffer from the scene's counts and there is no resize path, so data
+    // built for a smaller scene must not be reused for a grown one: a view passes its own larger
+    // count to the DirectGPU getters and writes out of bounds. Nothing reports it at the call site --
+    // it poisons the CUDA context and surfaces as a later, unrelated CUDA 700.
+    // Keyed by attach AND scene, so an attach holding several scenes keeps one entry per scene:
+    // keying on attach alone made two scenes alternate through a single entry and rebuilt every
+    // device buffer on each read. The entry is dropped when the scene it describes grew.
+    // Also dropped when a record was created or removed since it was built: a replacement can restore
+    // every count while the actor and articulation maps still describe the objects it replaced.
+    const SceneKey key{ attachHandle, scene };
+    const std::unordered_map<SceneKey, GpuSimulationDataPtr, SceneKeyHash>::iterator it =
+        mGpuSimDataByScene.find(key);
+    if (it != mGpuSimDataByScene.end())
+    {
+        if (it->second && it->second->mRecordEpoch == internal::recordLifetimeEpoch(scene) &&
+            gpuSimDataShapeMatches(*it->second, scene))
+            return it->second;
+        // Dropping the map's reference does not free the data under a view that still holds one;
+        // that view keeps the buffers it was built against until it releases.
+        mGpuSimDataByScene.erase(it);
+    }
+
+    // Shared with the copies older views still hold, so a disable through either side reaches the other.
+    // Given before init(), whose census then writes into the shared state.
+    std::shared_ptr<GpuRdDisableState>& rdDisableState = mRdDisableByScene[key];
+    if (!rdDisableState)
+        rdDisableState = std::make_shared<GpuRdDisableState>();
+    GpuSimulationDataPtr data = std::make_shared<GpuSimulationData>(*this, attachHandle, rdDisableState);
+    if (!data->init(scene))
+        return nullptr; // nothing was inserted, so there is nothing to roll back
+    mGpuSimDataByScene[key] = data;
+    return data;
+}
+
+bool SimulationBackend::sceneCacheEntryValid(const SceneCacheEntry& entry, ::physx::PxScene* scene)
+{
+    if (entry.scene != scene)
+        return false;
+    if (entry.gpuPipeline != scene->getFlags().isSet(PxSceneFlag::eENABLE_DIRECT_GPU_API))
+        return false;
+    if (entry.ctxMgr != scene->getCudaContextManager())
+        return false;
+
+    // A cached view whose scene was deleted has been invalidated in place (REQ-TENSOR-VIEW-001):
+    // its simulation data is torn down and its scene pointer nulled, so hasScene() stops matching.
+    // Handing that view back crashes on first use, and the checks above cannot see it -- a later
+    // scene reusing the address passes all of them. This is the authoritative test, and unlike the
+    // destruction notification it does not depend on the subscription having been established.
+    if (entry.supersetView && !static_cast<BaseSimulationView*>(entry.supersetView)->hasScene(scene))
+        return false;
+
+    // The view invalidates itself when an actor, articulation, link or shape it holds is destroyed
+    // (BaseSimulationView's destruction subscription, membership-checked per type). That is the
+    // mechanism ADR-0008 Decision 3 names, and it is what catches a removal the topology probe
+    // below cannot see -- a destroy and create in one step nets to the same counts.
+    if (entry.supersetView && !entry.supersetView->getValid())
+        return false;
+
+    // The superset view's destruction check sees only objects it holds, and an added static changes no
+    // count. The GPU data's maps describe the records of the epoch it was built under, so a moved epoch rebuilds.
+    const uint64_t recordEpoch = internal::recordLifetimeEpoch(scene);
+    if (entry.gpuData && entry.gpuData->mRecordEpoch != recordEpoch)
+        return false;
+
+    // The simulation data has no resize path: every buffer is sized in init() from these, and
+    // mActor2RdIndexMap is built from the actor set they describe. A recycled PxScene* shows up
+    // here as a topology mismatch -- a rigid-only entry reused for a scene with articulations
+    // leaves mLinkOrRootTransformsDev unallocated.
+    //
+    // Skipped while the database still reports the epoch this topology was measured under -- one
+    // create or remove bumps it -- so the O(articulations) walk, and with it the raise to PhysX's
+    // DirectGPU strides, is elided here; the two O(1) scene counts are not. PhysX's strides only grow when
+    // it simulates an articulation larger than any before, which a record was created for (moving the
+    // epoch); an articulation added to the PxScene outside the records is not supported.
+    // The first simulate is the gap the epoch misses: it
+    // inserts an articulation into its PxScene (getNbArticulations 0 -> N) with no record event, so an
+    // entry built before it -- e.g. by a pre-step write's instancer-view acquire -- would otherwise be
+    // reused with null articulation device buffers and null-deref a post-step articulation read.
+    // Re-checking the counts here rebuilds it once the step has inserted the articulations.
+    if (entry.dbEpoch != 0 && entry.dbEpoch == recordEpoch &&
+        entry.topology.numRds == scene->getNbActors(PxActorTypeFlag::eRIGID_DYNAMIC) &&
+        entry.topology.numArtis == scene->getNbArticulations())
+        return true;
+
+    SceneTopology now;
+    sceneTopology(scene, now);
+    return entry.topology == now;
+}
+
+void SimulationBackend::takeOwnedViews(std::vector<ISimulationView*>& out)
+{
+    // The backend owns the cached superset views, so they are detached here and destroyed after the
+    // lock is dropped.
+    for (auto& [key, entry] : mSceneCache)
+        takeSceneCacheViews(entry, out);
+    mSceneCache.clear();
+
+    // Views detached by a destruction notification and not yet drained. The only other drain is the
+    // next acquire, so without this a scene destroyed and then never read again leaves its superset
+    // views -- and the device allocations they own -- alive for the process lifetime.
+    out.insert(out.end(), mDeferredViewReleases.begin(), mDeferredViewReleases.end());
+    mDeferredViewReleases.clear();
+}
+
+void SimulationBackend::takeSceneCacheViews(SceneCacheEntry& entry, std::vector<ISimulationView*>& out)
+{
+    if (entry.supersetView)
+        out.push_back(entry.supersetView);
+    entry.supersetView = nullptr; // the superset rigid/articulation views are its children
+}
+
+void SimulationBackend::invalidateSceneCache(::physx::PxScene* scene)
+{
+    std::vector<ISimulationView*> pendingRelease;
+    {
+        std::lock_guard<std::mutex> lock(mStageDataMutex);
+        const SceneKey key{ attachOwning(scene), scene };
+        const std::unordered_map<SceneKey, SceneCacheEntry, SceneKeyHash>::iterator it = mSceneCache.find(key);
+        if (it != mSceneCache.end())
+        {
+            takeSceneCacheViews(it->second, pendingRelease);
+            mSceneCache.erase(it);
+        }
+        // The simulation data too, not just the entry. What goes stale is the data's actor map and
+        // the sizes its buffers were built from; rebuilding the entry around the SAME data cannot
+        // repair that, and the caller would retry against an identically stale view forever.
+        // Dropping the shared_ptr does not free it under a view that still holds one.
+        //
+        // Only this scene's. The attach's CpuSimulationData is deliberately kept: nothing in it is
+        // derived from a scene, so it cannot go stale for a scene reason, and dropping it here
+        // would leave a sibling scene's cached entry holding the old instance while the next
+        // acquire built a second one -- two contact-bucket registries behind one attach.
+        mGpuSimDataByScene.erase(key);
+    }
+    // Outside the lock: releasing a view destroys it, and ~BaseSimulationView calls back into
+    // removeSimulationView(), which takes mStageDataMutex.
+    for (ISimulationView* v : pendingRelease)
+        v->release(true);
+}
+
+
+SimulationBackend::SceneCacheEntry* SimulationBackend::ensureSceneCacheEntryLocked(
+    ::physx::PxScene* scene, std::vector<ISimulationView*>& pendingRelease)
+{
+    // Guarded here rather than at each caller: everything below dereferences `scene`.
+    if (!scene)
+        return nullptr;
+
+    const AttachHandle attachHandle = attachOwning(scene);
+    const SceneKey key{ attachHandle, scene };
+
+    // Views detached by onSceneDestroyed: their scene is gone, so releasing them is safe now and
+    // the caller does it after dropping the lock.
+    if (!mDeferredViewReleases.empty())
+    {
+        pendingRelease.insert(pendingRelease.end(), mDeferredViewReleases.begin(), mDeferredViewReleases.end());
+        mDeferredViewReleases.clear();
+    }
+
+    const bool useGpuPipeline = scene->getFlags().isSet(PxSceneFlag::eENABLE_DIRECT_GPU_API);
+
+    SceneCacheEntry& entry = mSceneCache[key];
+    if (!sceneCacheEntryValid(entry, scene))
+    {
+        // Stale or first use: drop whatever was held and rebuild. Dropping the shared_ptr does not
+        // free the data out from under a view that still holds it -- the last reference wins. The
+        // entry's cached superset view is detached for release by the caller, not leaked.
+        takeSceneCacheViews(entry, pendingRelease);
+        entry = SceneCacheEntry{};
+        // A rebuild invalidates everything a consumer derived from the previous entry.
+        // Process-wide, not per-backend: a consumer caching against this number can outlive the
+        // backend that issued it, and a counter restarting at zero with a recycled scene address
+        // hands that consumer a match for data describing a scene that no longer exists.
+        static std::atomic<uint64_t> sGeneration{ 0 };
+        entry.generation = ++sGeneration;
+        entry.scene = scene;
+        entry.ctxMgr = scene->getCudaContextManager();
+        entry.gpuPipeline = useGpuPipeline;
+        // Sampled before the walk: taking it after would seal in an epoch that a mutation racing
+        // the walk had already invalidated, so the entry would claim to describe a scene it never
+        // measured. Sampling first can only cost an extra rebuild.
+        entry.dbEpoch = internal::recordLifetimeEpoch(scene);
+        sceneTopology(scene, entry.topology);
+
+        // This scene's simulation data, NOT a copy of it: every consumer of the scene shares the
+        // one instance. It carries the attach handle, which is nonzero for every live attach
+        // (ADR-0013), so the data can resolve its own attach -- that is what makes the authored
+        // GPU-contact capacity reachable on the ovstage path.
+        if (useGpuPipeline)
+        {
+            GpuSimulationDataPtr gpuData = ensureGpuSimDataLocked(attachHandle, scene);
+            if (!gpuData)
+            {
+                CARB_LOG_ERROR("Failed to initialize GPU simulation data for stageless scene view");
+                mSceneCache.erase(key);
+                return nullptr;
+            }
+            entry.gpuData = gpuData;
+        }
+        else
+        {
+            CpuSimulationDataPtr& cpuData = mCpuSimDataByAttach[attachHandle];
+            if (!cpuData)
+                cpuData = std::make_shared<CpuSimulationData>(*this, attachHandle);
+            entry.cpuData = cpuData;
+        }
+    }
+    // No eviction policy, because there is nothing to bound: an entry holds the superset view and
+    // its row maps, the scene's simulation data is shared rather than copied, and onSceneDestroyed
+    // drops the entry when the scene goes. The live scene count IS the size.
+    // Returns the entry just validated or built, not a fresh lookup: mSceneCache[key] would
+    // re-insert a default-constructed entry if any path above had erased it, and hand the caller a
+    // non-null pointer to it -- straight through the `if (!entryPtr)` guard.
+    return &entry;
+}
+
+ISimulationView* SimulationBackend::createSimulationViewForScene(::physx::PxScene* scene)
+{
+    if (!scene)
+    {
+        CARB_LOG_ERROR("createSimulationViewForScene: null scene");
+        return nullptr;
+    }
+
+    // The view is per-call; the simulation data behind it is cached per scene and shared by
+    // shared_ptr. Views are tracked under mViewsByAttach so reset()/resetStage() can still reach them.
+
+    const bool useGpuPipeline = scene->getFlags().isSet(PxSceneFlag::eENABLE_DIRECT_GPU_API);
+
+    std::vector<ISimulationView*> pendingRelease;
+    ISimulationView* result = [&]() -> ISimulationView*
+    {
+        std::lock_guard<std::mutex> lock(mStageDataMutex);
+
+        SceneCacheEntry* entryPtr = ensureSceneCacheEntryLocked(scene, pendingRelease);
+        if (!entryPtr)
+            return nullptr; // anything detached is still released below
+        SceneCacheEntry& entry = *entryPtr;
+
+        if (useGpuPipeline)
+        {
+            // Null UsdStage: the rigid/articulation read path never dereferences it, and the
+            // pattern matchers (which would) are bypassed -- entries come from an actor set.
+            GpuSimulationView* simView = new GpuSimulationView(attachedStageFor(scene), scene, entry.gpuData);
+            mViewsByAttach[attachOwning(scene)].push_back(simView);
+            return simView;
+        }
+        CpuSimulationView* simView = new CpuSimulationView(attachedStageFor(scene), scene, entry.cpuData);
+        mViewsByAttach[attachOwning(scene)].push_back(simView);
+        return simView;
+    }();
+
+    // Outside the lock: ~BaseSimulationView calls back into removeSimulationView().
+    for (ISimulationView* v : pendingRelease)
+        v->release(true);
+    return result;
+}
+
+CpuSimulationView* SimulationBackend::acquireCpuSceneView(PxScene* scene, uint64_t* outGeneration)
+{
+    if (outGeneration)
+        *outGeneration = 0;
+    if (!scene || scene->getFlags().isSet(PxSceneFlag::eENABLE_DIRECT_GPU_API))
+        return nullptr;
+
+    std::vector<ISimulationView*> pendingRelease;
+    CpuSimulationView* result = [&]() -> CpuSimulationView*
+    {
+        std::lock_guard<std::mutex> lock(mStageDataMutex);
+        SceneCacheEntry* entryPtr = ensureSceneCacheEntryLocked(scene, pendingRelease);
+        if (!entryPtr)
+            return nullptr;
+        SceneCacheEntry& entry = *entryPtr;
+
+        if (!entry.supersetView)
+        {
+            CpuSimulationView* sv = new CpuSimulationView(attachedStageFor(scene), scene, entry.cpuData);
+            mViewsByAttach[attachOwning(scene)].push_back(sv);
+            entry.supersetView = sv;
+        }
+
+        if (outGeneration)
+            *outGeneration = entry.generation;
+        // Safe: the pipeline gate above is what admits an entry here, and entry.supersetView is only
+        // ever built by the matching branch.
+        return static_cast<CpuSimulationView*>(entry.supersetView);
+    }();
+
+    for (ISimulationView* v : pendingRelease)
+        v->release(true);
+    return result;
+}
+
+GpuSimulationView* SimulationBackend::acquireSceneView(PxScene* scene, uint64_t* outGeneration)
+{
+    if (outGeneration)
+        *outGeneration = 0;
+    if (!scene || !scene->getFlags().isSet(PxSceneFlag::eENABLE_DIRECT_GPU_API))
+        return nullptr;
+
+    std::vector<ISimulationView*> pendingRelease;
+    GpuSimulationView* result = [&]() -> GpuSimulationView*
+    {
+        std::lock_guard<std::mutex> lock(mStageDataMutex);
+        // Straight to the validated entry: constructing a throwaway view here would cost a
+        // subscribeObjectChangeNotifications / unsubscribe round-trip on every read.
+        SceneCacheEntry* entryPtr = ensureSceneCacheEntryLocked(scene, pendingRelease);
+        if (!entryPtr)
+            return nullptr;
+        SceneCacheEntry& entry = *entryPtr;
+
+        if (!entry.supersetView)
+        {
+            GpuSimulationView* sv = new GpuSimulationView(attachedStageFor(scene), scene, entry.gpuData);
+            mViewsByAttach[attachOwning(scene)].push_back(sv);
+            entry.supersetView = sv;
+        }
+
+        if (outGeneration)
+            *outGeneration = entry.generation;
+        // Safe: the GPU gate above is what admits an entry here at all, and entry.supersetView is
+        // only ever built by the matching branch.
+        return static_cast<GpuSimulationView*>(entry.supersetView);
+    }();
+
+    for (ISimulationView* v : pendingRelease)
+        v->release(true);
+    return result;
+}
+
+GpuSimulationView* SimulationBackend::currentSceneView(PxScene* scene, uint64_t* outGeneration)
+{
+    if (outGeneration)
+        *outGeneration = 0;
+    if (!scene || !scene->getFlags().isSet(PxSceneFlag::eENABLE_DIRECT_GPU_API))
+        return nullptr;
+
+    std::lock_guard<std::mutex> lock(mStageDataMutex);
+    const std::unordered_map<SceneKey, SceneCacheEntry, SceneKeyHash>::const_iterator it =
+        mSceneCache.find(SceneKey{ attachOwning(scene), scene });
+    if (it == mSceneCache.end() || !it->second.supersetView || !sceneCacheEntryValid(it->second, scene))
+        return nullptr;
+    if (outGeneration)
+        *outGeneration = it->second.generation;
+    return static_cast<GpuSimulationView*>(it->second.supersetView);
+}
+
+bool SimulationBackend::sceneMayHaveDisabledRigidDynamics(PxScene* scene)
+{
+    if (!scene)
+        return false;
+
+    std::lock_guard<std::mutex> lock(mStageDataMutex);
+    const std::unordered_map<SceneKey, GpuSimulationDataPtr, SceneKeyHash>::const_iterator it =
+        mGpuSimDataByScene.find(SceneKey{ attachOwning(scene), scene });
+    if (it == mGpuSimDataByScene.end() || !it->second)
+        return true; // unknown scene -- say "maybe" so the caller scans rather than trusts us
+    return it->second->mMayHaveDisabledRd;
+}
+
+void SimulationBackend::removeSimulationView(ISimulationView* view)
+{
+    std::lock_guard<std::mutex> lock(mStageDataMutex);
+
+    // Remove from the per-attach index. Linear scan is acceptable: views per attach
+    // are few and removeSimulationView is not on the hot path.
+    for (auto& [handle, views] : mViewsByAttach)
+    {
+        auto it = std::find(views.begin(), views.end(), view);
+        if (it != views.end())
+        {
+            views.erase(it);
+            return;
+        }
+    }
+}
+
+void SimulationBackend::reset()
+{
+    std::vector<ISimulationView*> pendingRelease;
+    {
+        std::lock_guard<std::mutex> lock(mStageDataMutex);
+
+        // The backend owns the cached superset views and the device allocations under them, so a
+        // reset that clears the per-attach data without this leaves them alive for the process
+        // lifetime -- and pointing at simulation data that has just been dropped.
+        takeOwnedViews(pendingRelease);
+
+        mCpuSimDataByAttach.clear();
+        mGpuSimDataByScene.clear();
+        mRdDisableByScene.clear();
+
+        for (auto& [handle, views] : mViewsByAttach)
+            for (auto* view : views)
+                view->invalidate();
+        mViewsByAttach.clear();
+
+    }
+    // Outside the lock: ~BaseSimulationView calls back into removeSimulationView().
+    for (ISimulationView* v : pendingRelease)
+        v->release(true);
+}
+
+void SimulationBackend::resetStage(AttachHandle attachHandle)
+{
+    if (attachHandle == omni::physics::tensors::kNoAttach)
+        return;
+
+    std::vector<ISimulationView*> pendingRelease;
+    {
+        std::lock_guard<std::mutex> lock(mStageDataMutex);
+
+        // Every one of this attach's cached superset views has to go with the data it reads --
+        // all of them, since the attach may hold several scenes. Without this a Play/Stop cycle
+        // leaves an entry pointing at simulation data this function is about to erase, and the next
+        // acquire for a recycled attach handle finds it. Detached under the lock, released below it.
+        for (std::unordered_map<SceneKey, SceneCacheEntry, SceneKeyHash>::iterator cacheIt = mSceneCache.begin();
+             cacheIt != mSceneCache.end();)
+        {
+            if (cacheIt->first.attach == attachHandle)
+            {
+                takeSceneCacheViews(cacheIt->second, pendingRelease);
+                cacheIt = mSceneCache.erase(cacheIt);
+            }
+            else
+            {
+                ++cacheIt;
+            }
+        }
+
+        // Invalidate and remove all views for this attach before releasing the data.
+        // Views hold shared_ptrs to the data AND a borrowed AttachedStage, so this must
+        // run before the attach is torn down.
+        auto viewIt = mViewsByAttach.find(attachHandle);
+        if (viewIt != mViewsByAttach.end())
+        {
+            for (auto* view : viewIt->second)
+                view->invalidate();
+            mViewsByAttach.erase(viewIt);
+        }
+
+        mCpuSimDataByAttach.erase(attachHandle);
+        for (std::unordered_map<SceneKey, GpuSimulationDataPtr, SceneKeyHash>::iterator it = mGpuSimDataByScene.begin();
+             it != mGpuSimDataByScene.end();)
+        {
+            if (it->first.attach == attachHandle)
+            {
+                it = mGpuSimDataByScene.erase(it);
+            }
+            else
+            {
+                ++it;
+            }
+        }
+        for (std::unordered_map<SceneKey, std::shared_ptr<GpuRdDisableState>, SceneKeyHash>::iterator it =
+                 mRdDisableByScene.begin();
+             it != mRdDisableByScene.end();)
+        {
+            if (it->first.attach == attachHandle)
+            {
+                it = mRdDisableByScene.erase(it);
+            }
+            else
+            {
+                ++it;
+            }
+        }
+        // Tensor cache invalidation does not reset the attachment's clock.
+
+    }
+    // Outside the lock: ~BaseSimulationView calls back into removeSimulationView().
+    for (ISimulationView* v : pendingRelease)
+        v->release(true);
+}
+
+PxScene* SimulationBackend::findPhysicsScene(const usdparser::AttachedStage& attachedStage) const
+{
+    const PhysXScene* scene = attachedStage.getDefaultPhysXScene();
+    return scene ? scene->getScene() : nullptr;
+}
+
+int64_t SimulationBackend::getTimestamp(AttachHandle attachHandle) const
+{
+    const usdparser::AttachedStage* stage =
+        usdparser::UsdLoad::getUsdLoad()->getAttachedStageByHandle(attachHandle);
+    return stage ? static_cast<int64_t>(stage->simulationTimestamp()) : 0;
+}
+
+int64_t SimulationBackend::getStepCount(AttachHandle attachHandle) const
+{
+    const usdparser::AttachedStage* stage =
+        usdparser::UsdLoad::getUsdLoad()->getAttachedStageByHandle(attachHandle);
+    return stage ? static_cast<int64_t>(stage->simulationStepCount()) : 0;
+}
+
+void SimulationBackend::incrementStepCount(AttachHandle attachHandle)
+{
+    if (usdparser::AttachedStage* stage =
+            usdparser::UsdLoad::getUsdLoad()->getAttachedStageByHandle(attachHandle))
+        stage->recordManualStep();
+}
+
+}
+}
+}

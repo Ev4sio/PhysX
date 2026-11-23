@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef __CONTACT_PATCH_UTILS_CUH__
 #define __CONTACT_PATCH_UTILS_CUH__
@@ -32,6 +9,9 @@
 #include "materialCombiner.cuh"
 #include "PxsContactManagerState.h"
 #include "PxgContactManager.h"
+
+namespace physx
+{
 
 PX_FORCE_INLINE __device__ PxU32 setContactPointAndForcePointers(PxsContactManagerOutput* PX_RESTRICT cmOutputs, PxgPatchAndContactCounters* PX_RESTRICT patchAndContactCounters,
 	PxU8* PX_RESTRICT startContactPoints, PxU8* PX_RESTRICT startContactForces, PxU32 contactBytesLimit, PxU32 forceBytesLimit, PxU32 workIndex, PxU32 nbContacts)
@@ -46,16 +26,17 @@ PX_FORCE_INLINE __device__ PxU32 setContactPointAndForcePointers(PxsContactManag
 		contactByteOffset = atomicAdd(&(patchAndContactCounters->contactsBytes), sizeof(PxContact) * nbContacts);
 		forceAndIndiceByteOffset = atomicAdd(&(patchAndContactCounters->forceAndIndiceBytes), sizeof(PxU32) * nbContacts);
 
-		if ((contactByteOffset + sizeof(PxContact)) > contactBytesLimit)
+		if ((contactByteOffset + sizeof(PxContact) * nbContacts) > contactBytesLimit)
 		{
 			patchAndContactCounters->setOverflowError(PxgPatchAndContactCounters::CONTACT_BUFFER_OVERFLOW);
 			contactByteOffset = 0xFFFFFFFF; //overflow
 		}
 
-		if ((forceAndIndiceByteOffset + sizeof(PxU32)) > forceBytesLimit)
+		if ((forceAndIndiceByteOffset + sizeof(PxU32) * nbContacts) > forceBytesLimit)
 		{
 			patchAndContactCounters->setOverflowError(PxgPatchAndContactCounters::FORCE_BUFFER_OVERFLOW);
 			forceAndIndiceByteOffset = 0xFFFFFFFF; //overflow
+			contactByteOffset = 0xFFFFFFFF;
 		}
 	
 		if (contactByteOffset != 0xFFFFFFFF)
@@ -76,6 +57,11 @@ PX_FORCE_INLINE __device__ PxU32 setContactPointAndForcePointers(PxsContactManag
 PX_FORCE_INLINE __device__ PxU32 registerContactPatch(PxsContactManagerOutput* PX_RESTRICT cmOutputs, PxgPatchAndContactCounters* PX_RESTRICT patchAndContactCounters,
 	PxU32* PX_RESTRICT touchChangeFlags, PxU32* PX_RESTRICT patchChangeFlags, PxU8* PX_RESTRICT startContactPatches, PxU32 patchBytesLimit, PxU32 workIndex, PxU32 nbContacts)
 {
+	// Preserve patch demand even if contact or force allocation failed.
+	const bool patchRequested = nbContacts > 0;
+	if (patchRequested && (!cmOutputs[workIndex].contactPoints || !cmOutputs[workIndex].contactForces))
+		nbContacts = 0;
+
 	PxU32 allflags = reinterpret_cast<PxU32*>(&((cmOutputs + workIndex)->allflagsStart))[0];
 
 	PxU8 oldStatusFlags = u16Low(u32High(allflags));
@@ -100,14 +86,14 @@ PX_FORCE_INLINE __device__ PxU32 registerContactPatch(PxsContactManagerOutput* P
 	touchChangeFlags[workIndex] = change;
 	patchChangeFlags[workIndex] = (prevPatches != numPatches);
 
-	reinterpret_cast<PxU32*>(&((cmOutputs + workIndex)->allflagsStart))[0] = merge(merge(prevPatches, statusFlags),
-		merge(numPatches, 0));
+	reinterpret_cast<PxU32*>(&((cmOutputs + workIndex)->allflagsStart))[0] = ::merge(::merge(prevPatches, statusFlags),
+		::merge(numPatches, 0));
 
 	cmOutputs[workIndex].nbContacts = nbContacts;
 
 	//fill in patch information
 	PxU32 patchIndex = 0xFFFFFFFF;
-	if (nbContacts)
+	if (patchRequested)
 	{
 		patchIndex = atomicAdd(&(patchAndContactCounters->patchesBytes), sizeof(PxContactPatch));
 
@@ -122,16 +108,18 @@ PX_FORCE_INLINE __device__ PxU32 registerContactPatch(PxsContactManagerOutput* P
 			statusFlags &= (~PxsContactManagerStatusFlag::eTOUCH_KNOWN);
 			statusFlags |= PxsContactManagerStatusFlag::eHAS_NO_TOUCH;
 
-			reinterpret_cast<PxU32*>(&((cmOutputs + workIndex)->allflagsStart))[0] = merge(merge(prevPatches, statusFlags), 0);
+			reinterpret_cast<PxU32*>(&((cmOutputs + workIndex)->allflagsStart))[0] = ::merge(::merge(prevPatches, statusFlags), 0);
 			cmOutputs[workIndex].nbContacts = 0;
 
 			touchChangeFlags[workIndex] = previouslyHadTouch;
 			patchChangeFlags[workIndex] = prevPatches != 0;
 		}
-		else
+		else if (nbContacts)
 		{
 			(cmOutputs + workIndex)->contactPatches = startContactPatches + patchIndex;
 		}
+		else
+			patchIndex = 0xFFFFFFFF;
 	}
 	return patchIndex;
 }
@@ -169,7 +157,7 @@ PX_FORCE_INLINE __device__ void insertIntoPatchStream(const PxsMaterialData* PX_
 		patch->restitution = restitution;
 		patch->materialIndex0 = materialIndex0;
 		patch->materialIndex1 = materialIndex1;
-		assert(materialFlags <= PX_MAX_U8);
+		PX_ASSERT(materialFlags <= PX_MAX_U8);
 		patch->materialFlags = PxU8(materialFlags);
 		patch->internalFlags = 0;
 		patch->mMassModification.linear0 = 1.0f;
@@ -178,5 +166,7 @@ PX_FORCE_INLINE __device__ void insertIntoPatchStream(const PxsMaterialData* PX_
 		patch->mMassModification.angular1 = 1.0f;
 	}
 }
+
+} // namespace physx
 
 #endif

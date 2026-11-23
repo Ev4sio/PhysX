@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef NP_OMNI_PVD_SET_DATA_H
 #define NP_OMNI_PVD_SET_DATA_H
@@ -37,6 +14,7 @@
 
 
 #define OMNI_PVD_CONTEXT_HANDLE 1
+#define OMNI_PVD_CAPTURE_CATALOG_CONTEXT 2
 
 
 #if PX_SUPPORT_OMNI_PVD
@@ -46,15 +24,35 @@
 #include "NpOmniPvd.h"
 
 
-#define OMNI_PVD_ACTIVE (::OmniPvdPxSampler::getInstance() != NULL)
+// "Active" means a recording is in progress: OVD is set up AND sampling. No PhysX operation should
+// write OVD data when not sampling (before startSampling() or after stopSampling()).
+#define OMNI_PVD_ACTIVE (physx::NpOmniPvdSampling())
+
+#undef OMNI_PVD_SHOULD_RECORD_CREATION
+#undef OMNI_PVD_SHOULD_RECORD_DESTRUCTION
+#undef OMNI_PVD_SHOULD_RECORD_VALUE
+#undef OMNI_PVD_SHOULD_RECORD_ADDITION
+#undef OMNI_PVD_SHOULD_RECORD_REMOVAL
+#define OMNI_PVD_SHOULD_RECORD_CREATION(writer, regData, classID, objectRef) \
+physx::NpOmniPvdShouldRecordCreation(#classID, regData->pvd##classID.getObjectHandle(objectRef))
+#define OMNI_PVD_SHOULD_RECORD_DESTRUCTION(writer, regData, classID, objectRef) \
+physx::NpOmniPvdShouldRecordDestruction(#classID, regData->pvd##classID.getObjectHandle(objectRef))
+#define OMNI_PVD_SHOULD_RECORD_VALUE(writer, regData, classID, attributeID, objectRef) \
+physx::NpOmniPvdShouldRecordValue(writer, regData, #classID, #attributeID, regData->pvd##classID.getObjectHandle(objectRef))
+#define OMNI_PVD_SHOULD_RECORD_ADDITION(writer, regData, classID, attributeID, objectRef, valueRef) \
+physx::NpOmniPvdShouldRecordAddition(writer, regData, #classID, #attributeID, regData->pvd##classID.getObjectHandle(objectRef), reinterpret_cast<physx::PxU64>(&(valueRef)))
+#define OMNI_PVD_SHOULD_RECORD_REMOVAL(writer, regData, classID, attributeID, objectRef, valueRef) \
+physx::NpOmniPvdShouldRecordRemoval(writer, regData, #classID, #attributeID, regData->pvd##classID.getObjectHandle(objectRef), reinterpret_cast<physx::PxU64>(&(valueRef)))
 
 
 //
 // Define the macros needed in CmOmniPvdAutoGenSetData.h
 //
+// The write scope yields a NULL writer when not sampling, so attribute setters and other per-object
+// hooks do not write between stopSampling() and the next startSampling().
 #undef OMNI_PVD_GET_WRITER
 #define OMNI_PVD_GET_WRITER(writer) \
-physx::PxOmniPvd::ScopedExclusiveWriter writeLock(NpOmniPvdGetInstance()); \
+physx::PxOmniPvd::ScopedExclusiveWriter writeLock(physx::NpOmniPvdSampling() ? NpOmniPvdGetInstance() : NULL); \
 OmniPvdWriter* writer = writeLock.getWriter();
 
 

@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #include "NpAggregate.h"
 #include "PxActor.h"
@@ -86,7 +63,7 @@ static PX_FORCE_INLINE void setAggregate(NpAggregate* aggregate, PxActor& actor)
 NpAggregate::NpAggregate(PxU32 maxActors, PxU32 maxShapes, PxAggregateFilterHint filterHint) :
 	PxAggregate		(PxConcreteType::eAGGREGATE, PxBaseFlag::eOWNS_MEMORY | PxBaseFlag::eIS_RELEASABLE),
 	NpBase			(NpType::eAGGREGATE),
-	mAggregateID	(PX_INVALID_U32),
+	mAggregateHandle(PX_INVALID_U32),
 	mMaxNbActors	(maxActors),
 	mMaxNbShapes	(maxShapes),
 	mFilterHint		(filterHint),
@@ -108,7 +85,7 @@ void NpAggregate::scAddActor(NpActor& actor)
 {
 	PX_ASSERT(!isAPIWriteForbidden());
 
-	actor.getActorCore().setAggregateID(mAggregateID);
+	actor.getActorCore().setAggregateID(mAggregateHandle);
 	PvdAttachActorToAggregate( this, &actor );
 	PvdUpdateProperties( this );
 }
@@ -121,7 +98,15 @@ void NpAggregate::scRemoveActor(NpActor& actor, bool reinsert)
 	ac.setAggregateID(PX_INVALID_U32);
 		
 	if(getNpScene() && reinsert)
+	{
+#if PX_SUPPORT_GPU_PHYSX
+		detachStaticElementFilters(actor);
+#endif
 		ac.reinsertShapes();
+#if PX_SUPPORT_GPU_PHYSX
+		attachStaticElementFilters(actor);
+#endif
+	}
 
 	//Update pvd status
 	PvdDetachActorFromAggregate( this, &actor );
@@ -133,7 +118,7 @@ void NpAggregate::removeAndReinsert(PxActor& actor, bool reinsert)
 	NpActor& np = NpActor::getFromPxActor(actor);
 
 	np.setAggregate(NULL, actor);
-	
+
 	scRemoveActor(np, reinsert);
 }
 
@@ -144,7 +129,9 @@ void NpAggregate::release()
 
 	PX_CHECK_SCENE_API_WRITE_FORBIDDEN(s, "PxAggregate::release() not allowed while simulation is running. Call will be ignored.")
 
-	PX_SIMD_GUARD;
+	NP_CHECK_SCENE_CORRUPTION_AND_RETURN(s)
+
+	PX_SIMD_GUARD
 
 	NpPhysics::getInstance().notifyDeletionListenersUserRelease(this, NULL);
 
@@ -170,6 +157,8 @@ void NpAggregate::release()
 	}
 
 	NpDestroyAggregate(this);
+
+	NP_CHECK_SCENE_CUDA_ABORT_AND_SET_CORRUPTION(s)
 }
 
 void NpAggregate::addActorInternal(PxActor& actor, NpScene& s, const PxBVH* bvh)
@@ -227,7 +216,7 @@ bool NpAggregate::addActor(PxActor& actor, const PxBVH* bvh)
 
 	PX_CHECK_SCENE_API_WRITE_FORBIDDEN_AND_RETURN_VAL(npScene, "PxAggregate::addActor() not allowed while simulation is running. Call will be ignored.", false);
 
-	PX_SIMD_GUARD;
+	PX_SIMD_GUARD
 
 	if(mNbActors==mMaxNbActors)
 		return outputError<PxErrorCode::eDEBUG_WARNING>(__LINE__, "PxAggregate: cannot add actor to aggregate, max number of actors reached.");
@@ -273,7 +262,7 @@ bool NpAggregate::addActor(PxActor& actor, const PxBVH* bvh)
 		return outputError<PxErrorCode::eDEBUG_WARNING>(__LINE__, "PxAggregate: cannot add non-static actor to static aggregate.");
 
 	if(PxGetAggregateType(mFilterHint)==PxAggregateType::eKINEMATIC)
-	{	
+	{
 		bool isKine = false;
 		if(ctype == PxConcreteType::eRIGID_DYNAMIC)
 		{
@@ -284,19 +273,20 @@ bool NpAggregate::addActor(PxActor& actor, const PxBVH* bvh)
 			return outputError<PxErrorCode::eDEBUG_WARNING>(__LINE__, "PxAggregate: cannot add non-kinematic actor to kinematic aggregate.");
 	}
 
+	NP_CHECK_SCENE_CORRUPTION_AND_RETURN_VAL(npScene, false)
+
 	setAggregate(this, actor);
 
 	mActors[mNbActors++] = &actor;
 
 	mNbShapes += numShapes;
 
-	OMNI_PVD_ADD(OMNI_PVD_CONTEXT_HANDLE, PxAggregate, actors, static_cast<PxAggregate&>(*this), actor);
-
 	// PT: when an object is added to a aggregate at runtime, i.e. when the aggregate has already been added to the scene,
 	// we need to immediately add the newcomer to the scene as well.
 	if(npScene)
 	{
 		addActorInternal(actor, *npScene, bvh);
+		NP_CHECK_SCENE_CUDA_ABORT_AND_SET_CORRUPTION(npScene)
 	}
 	else
 	{
@@ -308,6 +298,8 @@ bool NpAggregate::addActor(PxActor& actor, const PxBVH* bvh)
 			NpActor::getFromPxActor(actor).addConnector(NpConnectorType::eBvh, bvhMutable, "PxBVH already added to the PxActor!");
 		}
 	}
+	// Emit membership after scene insertion so the selection sees the actor's current scene.
+	OMNI_PVD_ADD(OMNI_PVD_CONTEXT_HANDLE, PxAggregate, actors, static_cast<PxAggregate&>(*this), actor);
 	return true;
 }
 
@@ -337,7 +329,9 @@ bool NpAggregate::removeActor(PxActor& actor)
 
 	PX_CHECK_SCENE_API_WRITE_FORBIDDEN_AND_RETURN_VAL(npScene, "PxAggregate::removeActor() not allowed while simulation is running. Call will be ignored.", false);
 
-	PX_SIMD_GUARD;
+	NP_CHECK_SCENE_CORRUPTION_AND_RETURN_VAL(npScene, false)
+
+	PX_SIMD_GUARD
 
 	if(actor.getType() == PxActorType::eARTICULATION_LINK)
 		return outputError<PxErrorCode::eDEBUG_WARNING>(__LINE__, "PxAggregate: can't remove articulation link, only whole articulations can be removed");
@@ -363,7 +357,9 @@ bool NpAggregate::removeActor(PxActor& actor)
 	//
 	// We assume that when called by the user, we always want to reinsert. The framework however will call the internal function
 	// without reinsertion.
-	return removeActorAndReinsert(actor, true);
+	bool ret = removeActorAndReinsert(actor, true);
+	NP_CHECK_SCENE_CUDA_ABORT_AND_SET_CORRUPTION(npScene)
+	return ret;
 }
 
 bool NpAggregate::addArticulation(PxArticulationReducedCoordinate& art)
@@ -373,7 +369,7 @@ bool NpAggregate::addArticulation(PxArticulationReducedCoordinate& art)
 
 	PX_CHECK_SCENE_API_WRITE_FORBIDDEN_AND_RETURN_VAL(npScene, "PxAggregate::addArticulation() not allowed while simulation is running. Call will be ignored.", false);
 
-	PX_SIMD_GUARD;
+	PX_SIMD_GUARD
 
 	if((mNbActors+art.getNbLinks()) > mMaxNbActors)
 		return outputError<PxErrorCode::eDEBUG_WARNING>(__LINE__, "PxAggregate: cannot add articulation links, max number of actors reached.");
@@ -401,6 +397,8 @@ bool NpAggregate::addArticulation(PxArticulationReducedCoordinate& art)
 			return outputError<PxErrorCode::eDEBUG_WARNING>(__LINE__, "PxAggregate: cannot add articulation to aggregate, all links must have a default environment ID.");
 	}
 
+	NP_CHECK_SCENE_CORRUPTION_AND_RETURN_VAL(npScene, false)
+
 	impl->setAggregate(this);
 
 	for(PxU32 i=0; i<nbLinks; i++)
@@ -419,8 +417,19 @@ bool NpAggregate::addArticulation(PxArticulationReducedCoordinate& art)
 	// PT: when an object is added to a aggregate at runtime, i.e. when the aggregate has already been added to the scene,
 	// we need to immediately add the newcomer to the scene as well.
 	if(npScene)
+	{
 		npScene->addArticulationInternal(art);
+		NP_CHECK_SCENE_CUDA_ABORT_AND_SET_CORRUPTION(npScene)
+	}
 
+#if PX_SUPPORT_OMNI_PVD
+	// Emit membership after scene insertion so the selection sees each link's current scene.
+	for(PxU32 i=0; i<nbLinks; i++)
+	{
+		OMNI_PVD_ADD(OMNI_PVD_CONTEXT_HANDLE, PxAggregate, actors,
+			static_cast<PxAggregate&>(*this), static_cast<PxActor&>(*links[i]));
+	}
+#endif
 	return true;
 }
 
@@ -436,6 +445,7 @@ bool NpAggregate::removeArticulationAndReinsert(PxArticulationReducedCoordinate&
 			mNbShapes -= static_cast<NpArticulationLink*>(mActors[idx])->getNbShapes();
 			mActors[idx] = mActors[--mNbActors];
 			removeAndReinsert(*a, reinsert);
+			OMNI_PVD_REMOVE(OMNI_PVD_CONTEXT_HANDLE, PxAggregate, actors, static_cast<PxAggregate&>(*this), *a);
 			found = true;
 		}
 		else
@@ -456,10 +466,14 @@ bool NpAggregate::removeArticulation(PxArticulationReducedCoordinate& art)
 
 	PX_CHECK_SCENE_API_WRITE_FORBIDDEN_AND_RETURN_VAL(npScene, "PxAggregate::removeArticulation() not allowed while simulation is running. Call will be ignored.", false);
 
-	PX_SIMD_GUARD;
+	NP_CHECK_SCENE_CORRUPTION_AND_RETURN_VAL(npScene, false)
+
+	PX_SIMD_GUARD
 
 	// see comments in removeActor()
-	return removeArticulationAndReinsert(art, true);
+	bool ret = removeArticulationAndReinsert(art, true);
+	NP_CHECK_SCENE_CUDA_ABORT_AND_SET_CORRUPTION(npScene)
+	return ret;
 }
 
 PxU32 NpAggregate::getNbActors() const
@@ -525,7 +539,7 @@ PxU32 NpAggregate::getEnvironmentID() const
 
 void NpAggregate::preExportDataReset()
 {
-	mAggregateID = PX_INVALID_U32;
+	mAggregateHandle = PX_INVALID_U32;
 }
 
 void NpAggregate::exportExtraData(PxSerializationContext& stream)
@@ -563,7 +577,7 @@ void NpAggregate::resolveReferences(PxDeserializationContext& context)
 					static_cast<NpArticulationReducedCoordinate&>(articulation).setAggregate(this);
 			}
 		}
-	}	
+	}
 }
 
 NpAggregate* NpAggregate::createObject(PxU8*& address, PxDeserializationContext& context)

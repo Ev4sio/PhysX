@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #include "NpShapeManager.h"
 #include "NpPtrTableStorageManager.h"
@@ -56,7 +33,7 @@ static void getSQGlobalPose(PxTransform& globalPose, const NpShape& npShape, con
 	{
 		actor2World = &static_cast<const NpRigidStatic&>(npActor).getCore().getActor2World();
 
-		if(npShape.getCore().getCore().mShapeCoreFlags.isSet(PxShapeCoreFlag::eIDT_TRANSFORM))
+		if(npShape.getCore().mShapeCoreFlags.isSet(PxShapeCoreFlag::eIDT_TRANSFORM))
 		{
 			PX_ASSERT(shape2Actor.p.isZero() && shape2Actor.q.isIdentity());
 			globalPose = *actor2World;
@@ -111,7 +88,13 @@ NpShapeManager::NpShapeManager() :
 // PX_SERIALIZATION
 NpShapeManager::NpShapeManager(const PxEMPTY) :
 	mShapes			(PxEmpty)
-{	
+{
+	//Not part of the serialized image: the exported bytes carry the source process' pointer, and nothing on the
+	//import path used to overwrite it. PruningStructure::resolveReferences now re-points its actors back at
+	//itself, mirroring build(), so the non-NULL value that NpScene::addCollection() uses as its routing flag is
+	//restored where it is meant to be - and an actor whose pruning structure is not in the collection, or whose
+	//load never got that far, is left with NULL instead of a foreign address (OMPE-109162).
+	mPruningStructure = NULL;
 }
 
 NpShapeManager::~NpShapeManager() 
@@ -147,7 +130,16 @@ static PX_INLINE void onShapeAttach(NpActor& ro, NpShape& shape)
 	PX_ASSERT(!npScene->isAPIWriteForbidden());
 
 	if(!(ro.getActorFlags().isSet(PxActorFlag::eDISABLE_SIMULATION)))
+	{
+		// The pairs are removed for the shapes present before the change and rebuilt for those after it.
+#if PX_SUPPORT_GPU_PHYSX
+		detachStaticElementFilters(ro);
+#endif
 		ro.getScRigidCore().addShapeToScene(shape.getCore());
+#if PX_SUPPORT_GPU_PHYSX
+		attachStaticElementFilters(ro);
+#endif
+	}
 
 #if PX_SUPPORT_PVD
 	npScene->getScenePvdClientInternal().createPvdInstance(&shape, *ro.getScRigidCore().getPxActor()); 
@@ -168,14 +160,36 @@ static PX_INLINE void onShapeDetach(NpActor& ro, NpShape& shape, bool wakeOnLost
 	npScene->getScenePvdClientInternal().releasePvdInstance(&shape, *ro.getScRigidCore().getPxActor());
 #endif
 	if(!(ro.getActorFlags().isSet(PxActorFlag::eDISABLE_SIMULATION)))
+	{
+		// The pairs are removed while the shape still has its transform cache id and rebuilt for the rest.
+#if PX_SUPPORT_GPU_PHYSX
+		detachStaticElementFilters(ro);
+#endif
 		ro.getScRigidCore().removeShapeFromScene(shape.getCore(), wakeOnLostTouch);
+#if PX_SUPPORT_GPU_PHYSX
+		attachStaticElementFilters(ro);
+#endif
+	}
 
 	shape.setSceneIfExclusive(NULL);
 
 }
 
-void NpShapeManager::attachShape(NpShape& shape, PxRigidActor& actor)
+bool NpShapeManager::attachShape(NpShape& shape, PxRigidActor& actor)
 {
+#if PX_CHECKED
+	{
+		// PT: fix for https://github.com/NVIDIA-Omniverse/PhysX/issues/339
+		const PxU32 nbShapes = mShapes.getCount();
+		void*const*	shapes = mShapes.getPtrs();
+		for(PxU32 i=0; i<nbShapes; i++)
+		{
+			if(shapes[i] == &shape)
+				return false;
+		}
+	}
+#endif
+
 	PX_ASSERT(!mPruningStructure);
 
 	PtrTableStorageManager& sm = NpFactory::getInstance().getPtrTableStorageManager();
@@ -202,15 +216,34 @@ void NpShapeManager::attachShape(NpShape& shape, PxRigidActor& actor)
 	shape.onActorAttach(actor);
 
 	shape.setShapeManagerArrayIndex(index);
+	return true;
 }
 
-bool NpShapeManager::detachShape(NpShape& s, PxRigidActor& actor, bool wakeOnLostTouch)
+NpShapeManager::DetachResult::Enum NpShapeManager::detachShape(NpShape& s, PxRigidActor& actor, bool wakeOnLostTouch)
 {
 	PX_ASSERT(!mPruningStructure);
 
 	const PxU32 index = s.getShapeManagerArrayIndex(mShapes);
-	if(index==0xffffffff)
-		return false;
+	if(index == 0xffffffff)
+		return DetachResult::eNOT_ATTACHED;
+
+	// ### DEFENSIVE (OMPE-103062): for exclusive shapes the above returns an index cached on the shape itself
+	// at attach time, which is never validated against this table. Out of bounds, it makes both
+	// setShapeManagerArrayIndex() and PtrTable::replaceWithLast() below write past the end; in bounds but
+	// stale, it silently detaches whichever shape happens to occupy that slot. So test identity, not just
+	// bounds - the bounds test alone covers only half of the same failure mode.
+	const PxU32 nbShapes = mShapes.getCount();
+	void** ptrs = mShapes.getPtrs();
+	if(index >= nbShapes || reinterpret_cast<NpShape*>(ptrs[index]) != &s)
+	{
+		// PT: tell "it belongs to another actor" apart from "our bookkeeping is broken", so that the message
+		// the user ends up seeing is accurate in both cases. Only paid on the already-broken path.
+		if(mShapes.find(&s) == 0xffffffff)
+			return DetachResult::eNOT_ATTACHED;
+
+		PxGetFoundation().error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "PxRigidActor::detachShape: shape's cached index (%u) does not match its position in this actor (%u shapes). Shape not detached.", index, nbShapes);
+		return DetachResult::eERROR_REPORTED;
+	}
 
 	NpScene* scene = NpActor::getNpSceneFromActor(actor);
 	if(scene && isSceneQuery(s))
@@ -219,7 +252,7 @@ bool NpShapeManager::detachShape(NpShape& s, PxRigidActor& actor, bool wakeOnLos
 
 		// if this is the last shape of a compound shape, we have to remove the compound id 
 		// and in case of a dynamic actor, remove it from the active list
-		if(isSqCompound() && (mShapes.getCount() == 1))
+		if(isSqCompound() && (nbShapes == 1))
 		{
 			setCompoundID(NP_INVALID_COMPOUND_ID);
 			const PxType actorType = actor.getConcreteType();
@@ -236,15 +269,13 @@ bool NpShapeManager::detachShape(NpShape& s, PxRigidActor& actor, bool wakeOnLos
 	onShapeDetach(ro, s, wakeOnLostTouch);
 
 	PxAggregate* agg = ro.getAggregate();
-	if (agg)
+	if(agg)
 		static_cast<NpAggregate*>(agg)->decShapeCount();
 
 	PtrTableStorageManager& sm = NpFactory::getInstance().getPtrTableStorageManager();
 
-	void** ptrs = mShapes.getPtrs();
-	PX_ASSERT(reinterpret_cast<NpShape*>(ptrs[index]) == &s);
-	const PxU32 last = mShapes.getCount() - 1;
-	if (index != last)
+	const PxU32 last = nbShapes - 1;
+	if(index != last)
 	{
 		NpShape* moved = reinterpret_cast<NpShape*>(ptrs[last]);
 		PX_ASSERT(moved->checkShapeManagerArrayIndex(mShapes));
@@ -252,9 +283,9 @@ bool NpShapeManager::detachShape(NpShape& s, PxRigidActor& actor, bool wakeOnLos
 	}
 	mShapes.replaceWithLast(index, sm);
 	s.clearShapeManagerArrayIndex();
-	
+
 	s.onActorDetach();
-	return true;
+	return DetachResult::eDETACHED;
 }
 
 void NpShapeManager::detachAll(PxSceneQuerySystem* pxsq, const PxRigidActor& actor)

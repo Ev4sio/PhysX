@@ -1,28 +1,5 @@
-## Redistribution and use in source and binary forms, with or without
-## modification, are permitted provided that the following conditions
-## are met:
-##  * Redistributions of source code must retain the above copyright
-##    notice, this list of conditions and the following disclaimer.
-##  * Redistributions in binary form must reproduce the above copyright
-##    notice, this list of conditions and the following disclaimer in the
-##    documentation and/or other materials provided with the distribution.
-##  * Neither the name of NVIDIA CORPORATION nor the names of its
-##    contributors may be used to endorse or promote products derived
-##    from this software without specific prior written permission.
-##
-## THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-## EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-## IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-## PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-## CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-## EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-## PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-## PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-## OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-## (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-## OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-##
-## Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+## SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+## SPDX-License-Identifier: Apache-2.0
 
 #
 # Build PhysX (PROJECT not SOLUTION)
@@ -55,6 +32,9 @@ SET(PHYSX_RESOURCE
 )
 SOURCE_GROUP(resource FILES ${PHYSX_RESOURCE})
 
+SET(PHYSX_DEVICE_SOURCE
+)
+
 SET(PHYSX_GPU_SOURCE
 	${PX_SOURCE_DIR}/gpu/PxGpu.cpp
 	${PX_SOURCE_DIR}/gpu/PxPhysXGpuModuleLoader.cpp
@@ -83,6 +63,7 @@ SET(PHYSX_PLATFORM_SRC_FILES
 	${PHYSX_RESOURCE}
 	${PHYSX_COMMON_WINDOWS_HEADERS}
 	
+	${PHYSX_DEVICE_SOURCE}
 	${PHYSX_GPU_SOURCE}
 
 	${PHYSX_WINDOWS_SOURCE}
@@ -90,9 +71,11 @@ SET(PHYSX_PLATFORM_SRC_FILES
 	${PHYSX_PLATFORM_OBJECT_FILES}	
 )
 
-INSTALL(FILES ${PHYSX_GPU_HEADERS} DESTINATION include/gpu)
-INSTALL(FILES ${PHYSX_CUDACONTEXT_MANAGER_GPU_HEADERS} DESTINATION include/cudamanager)
-INSTALL(FILES ${PHYSX_COMMON_WINDOWS_HEADERS} DESTINATION include/common/windows)
+IF(NOT DEFINED PX_ENABLE_INSTALL OR PX_ENABLE_INSTALL)
+	INSTALL(FILES ${PHYSX_GPU_HEADERS} DESTINATION include/gpu)
+	INSTALL(FILES ${PHYSX_CUDACONTEXT_MANAGER_GPU_HEADERS} DESTINATION include/cudamanager)
+	INSTALL(FILES ${PHYSX_COMMON_WINDOWS_HEADERS} DESTINATION include/common/windows)
+ENDIF()
 
 # Set default PhysXGpu shared library name
 IF(CMAKE_SIZEOF_VOID_P EQUAL 8)

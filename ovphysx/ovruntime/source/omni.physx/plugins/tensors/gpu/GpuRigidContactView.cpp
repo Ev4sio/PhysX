@@ -1,0 +1,1146 @@
+// SPDX-FileCopyrightText: Copyright (c) 2020-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
+
+// @implements REQ-TENSOR-CONTACT-004
+// @covers AC-1 AC-2
+
+/**
+ * @implements REQ-TENSOR-CONTACT-003
+ * @covers AC-1 AC-2 AC-3 AC-4 AC-5
+ *
+ * @implements REQ-TENSOR-CONTACT-001
+ * @covers AC-1 AC-2 AC-3 AC-4
+ *
+ * @implements REQ-TENSOR-CONTACT-002
+ * @covers AC-1 AC-2 AC-3
+ *
+ * @implements REQ-TENSOR-ATTACH-001
+ * @covers AC-1
+ *
+ * @implements REQ-PUBLICAPI-001
+ * @covers AC-40
+ *
+ * @implements REQ-READ-CONTACT-001
+ * @covers AC-4 AC-7
+ *
+ * @implements REQ-READ-CONTACT-003
+ * @covers AC-2
+ *
+ * @implements REQ-READ-CONTACT-004
+ * @covers AC-2
+ *
+ * @implements REQ-READ-CONTACT-005
+ * @covers AC-2
+ *
+ * @implements REQ-TENSOR-CONTACT-005
+ * @covers AC-2 AC-3 AC-4 AC-5
+ */
+
+#include "tensors/gpu/GpuRigidContactView.h"
+#include "tensors/gpu/GpuSimulationView.h"
+#include "tensors/gpu/CudaKernels.h"
+#include "usdLoad/AttachedStage.h"
+
+#include "tensors/GlobalsAreBad.h"
+#include "tensors/CommonTypes.h"
+
+#include <PxPhysicsAPI.h>
+
+#include <carb/logging/Log.h>
+#include <omni/physx/IPhysx.h>
+
+#include <omni/physics/tensors/TensorUtils.h>
+
+#include <unordered_map>
+#include <utility>
+
+using omni::physics::tensors::checkTensorDevice;
+using omni::physics::tensors::checkTensorFloat32;
+using omni::physics::tensors::checkTensorInt32;
+using omni::physics::tensors::checkTensorInt64;
+using omni::physics::tensors::checkTensorSizeExact;
+using omni::physics::tensors::checkTensorSizeMinimum;
+using omni::physics::tensors::getTensorTotalSize;
+
+using namespace physx;
+
+namespace omni
+{
+namespace physx
+{
+namespace tensors
+{
+
+
+GpuRigidContactView::GpuRigidContactView(GpuSimulationView* sim,
+                                         std::vector<RigidContactSensorEntry>&& entries,
+                                         uint32_t numFilters,
+                                         uint32_t maxContactDataCount,
+                                         int device)
+    : BaseRigidContactView(sim, std::move(entries), numFilters, maxContactDataCount), mDevice(device)
+{
+    mGpuSimData = sim->getGpuSimulationData();
+
+    PxU32 numSensors = PxU32(mEntries.size());
+
+    // Sized by the live sensor indices: the GpuSimulationData snapshot misses bodies added or enabled since.
+    std::vector<PxU32> linkContactIndices;
+    std::vector<PxU32> rdContactIndices;
+
+    std::vector<GpuRigidContactFilterIdPair> filterLookup(numSensors * numFilters);
+
+    mRdDisableEpoch = mGpuSimData->mRdDisableEpoch;
+    collectRdContactIndices(rdContactIndices);
+
+    usdparser::AttachedStage* attachedStage = sim->getAttachedStage();
+    std::unordered_map<omni::physics::parse::ObjectKey, PxActor*, omni::physics::parse::ObjectKey::Hash>
+        resolvedFilterActors;
+    resolvedFilterActors.reserve(numFilters);
+    for (PxU32 i = 0; i < numSensors; i++)
+    {
+        auto& entry = mEntries[i];
+
+        if (entry.link)
+        {
+            PxArticulationReducedCoordinate& arti = entry.link->getArticulation();
+            PxArticulationGPUIndex artiIdx = arti.getGPUIndex();
+            PxU32 linkIdx = entry.link->getLinkIndex();
+            // The kernels resolve links through the snapshot's node map and link stride.
+            auto artiIt = mGpuSimData->mNodeIdx2ArtiIdxMap.find(entry.link->getInternalIslandNodeIndex().index());
+            if (artiIt == mGpuSimData->mNodeIdx2ArtiIdxMap.end() || artiIt->second != artiIdx ||
+                linkIdx >= mGpuSimData->mMaxLinks)
+            {
+                CARB_LOG_ERROR("GPU contact view cannot report contacts for '%s': its articulation is not in the GPU "
+                               "data cached for this scene (added or replaced after that data was built)",
+                               entry.path.c_str());
+            }
+            else
+            {
+                PxU32 globalLinkIdx = artiIdx * mGpuSimData->mMaxLinks + linkIdx;
+                if (globalLinkIdx >= linkContactIndices.size())
+                    linkContactIndices.resize(globalLinkIdx + 1, 0xffffffff);
+                linkContactIndices[globalLinkIdx] = i;
+            }
+        }
+        else if (!entry.rd && entry.shape)
+        {
+            // TODO!!! - handle shapes
+            CARB_LOG_WARN("GPU contact info for collider '%s' is not supported", entry.path.c_str());
+        }
+
+        if (numFilters > 0)
+        {
+            // filter lookup table per referent
+            GpuRigidContactFilterIdPair* filterIdPairs = filterLookup.data() + i * numFilters;
+            PxU32 j = 0;
+            for (auto& srcPair : entry.filterIndexMap)
+            {
+                const omni::physics::parse::ObjectKey filterKey = entry.filterKeys[srcPair.second];
+                auto insertion = resolvedFilterActors.emplace(filterKey, nullptr);
+                if (insertion.second)
+                {
+                    insertion.first->second = static_cast<PxActor*>(
+                        BaseSimulationView::resolvePhysXPtr(attachedStage, filterKey, omni::physx::ePTActor));
+                    if (!insertion.first->second)
+                    {
+                        insertion.first->second = static_cast<PxArticulationLink*>(
+                            BaseSimulationView::resolvePhysXPtr(attachedStage, filterKey, omni::physx::ePTLink));
+                    }
+                }
+                PxActor* actor = insertion.first->second;
+
+                if (actor)
+                {
+                    filterIdPairs[j].actor = actor;
+                    filterIdPairs[j].filterIndex = srcPair.second;
+                    ++j;
+                }
+                else
+                {
+                    // TODO!!! - handle shapes
+                    CARB_LOG_WARN("GPU contact filter for collider '%s' is not supported",
+                                  entry.filterPaths[srcPair.second].c_str());
+                }
+            }
+            std::sort(filterIdPairs, filterIdPairs + numFilters, GpuRigidContactFilterIdPair::LessThan());
+        }
+    }
+
+    PhysxCudaContextGuard ctxGuarg(mGpuSimData->mCudaContextManager);
+
+    const size_t linkBufSize = linkContactIndices.size();
+    if (linkBufSize > 0)
+    {
+        if (!CHECK_CUDA(cudaMalloc(&mLinkContactIndicesDev, linkBufSize * sizeof(PxU32))))
+        {
+            return;
+        }
+        if (!CHECK_CUDA(cudaMemcpy(mLinkContactIndicesDev, linkContactIndices.data(), linkBufSize * sizeof(PxU32), cudaMemcpyHostToDevice)))
+        {
+            return;
+        }
+    }
+
+    const size_t rdBufSize = rdContactIndices.size();
+    if (rdBufSize > 0)
+    {
+        if (!CHECK_CUDA(cudaMalloc(&mRdContactIndicesDev, rdBufSize * sizeof(PxU32))))
+        {
+            return;
+        }
+        mRdContactIndexCapacity = PxU32(rdBufSize);
+        if (!CHECK_CUDA(cudaMemcpy(mRdContactIndicesDev, rdContactIndices.data(), rdBufSize * sizeof(PxU32), cudaMemcpyHostToDevice)))
+        {
+            return;
+        }
+    }
+
+    if (numSensors > 0)
+    {
+        if (!CHECK_CUDA(cudaMalloc(&mRawLayoutScratchDev, 2 * numSensors * sizeof(PxU32))))
+        {
+            return;
+        }
+    }
+
+    if (numFilters > 0)
+    {
+        if (!CHECK_CUDA(cudaMalloc(&mFilterLookupDev, numSensors * numFilters * sizeof(GpuRigidContactFilterIdPair))))
+        {
+            return;
+        }
+        if (!CHECK_CUDA(cudaMemcpy(mFilterLookupDev, filterLookup.data(), numSensors * numFilters * sizeof(GpuRigidContactFilterIdPair), cudaMemcpyHostToDevice)))
+        {
+            return;
+        }
+    }
+
+    mReferentTables.nodeIdx2ArtiGpuIdx = mGpuSimData->mNodeIdx2ArtiGpuIdxDev;
+    mReferentTables.nodeIdx2ArtiGpuIdxCount = mGpuSimData->mNodeIdx2ArtiGpuIdxCount;
+    mReferentTables.rdContactIndices = mRdContactIndicesDev;
+    mReferentTables.rdContactIndexCount = PxU32(rdBufSize);
+    mReferentTables.linkContactIndices = mLinkContactIndicesDev;
+    mReferentTables.linkContactIndexCount = PxU32(linkBufSize);
+    mReferentTables.maxLinks = mGpuSimData->mMaxLinks;
+    mConstructed = true;
+}
+
+GpuRigidContactView::~GpuRigidContactView()
+{
+    if (mGpuSimData)
+    {
+        CudaContextGuard ctxGuard(mGpuSimData->mCtx);
+
+        CHECK_CUDA(cudaFree(mLinkContactIndicesDev));
+        CHECK_CUDA(cudaFree(mRdContactIndicesDev));
+        CHECK_CUDA(cudaFree(mFilterLookupDev));
+        CHECK_CUDA(cudaFree(mRawLayoutScratchDev));
+        CHECK_CUDA(cudaFree(mActorHandleLookupDev));
+    }
+}
+
+bool GpuRigidContactView::check() const
+{
+    return mConstructed;
+}
+
+void GpuRigidContactView::collectRdContactIndices(std::vector<PxU32>& rdContactIndices) const
+{
+    rdContactIndices.clear();
+    for (PxU32 i = 0; i < PxU32(mEntries.size()); i++)
+    {
+        const RigidContactSensorEntry& entry = mEntries[i];
+        if (entry.link || !entry.rd)
+            continue;
+        const PxU32 rdIdx = entry.rd->getInternalIslandNodeIndex().index();
+        // A disabled rigid dynamic has no island node (index 0xffffffff) and owns no contact row.
+        if (rdIdx == 0xffffffffu)
+            continue;
+        if (rdIdx >= rdContactIndices.size())
+            rdContactIndices.resize(rdIdx + 1, 0xffffffff);
+        rdContactIndices[rdIdx] = i;
+    }
+}
+
+bool GpuRigidContactView::refreshReferentTables(const char* functionName) const
+{
+    if (!mConstructed)
+    {
+        CARB_LOG_ERROR("GPU contact view failed to upload its lookup tables and cannot run %s", functionName);
+        return false;
+    }
+    if (mGpuSimData->mRdDisableEpoch == mRdDisableEpoch)
+        return true;
+
+    // Sampled before the nodes are read, so a toggle racing the walk triggers another rebuild.
+    const uint64_t epoch = mGpuSimData->mRdDisableEpoch;
+    std::vector<PxU32> rdContactIndices;
+    collectRdContactIndices(rdContactIndices);
+    const PxU32 count = PxU32(rdContactIndices.size());
+
+    PhysxCudaContextGuard ctxGuard(mGpuSimData->mCudaContextManager);
+    if (count > mRdContactIndexCapacity)
+    {
+        PxU32* grown = nullptr;
+        if (!CHECK_CUDA(cudaMalloc(&grown, count * sizeof(PxU32))))
+            return false;
+        CHECK_CUDA(cudaFree(mRdContactIndicesDev));
+        mRdContactIndicesDev = grown;
+        mRdContactIndexCapacity = count;
+        mReferentTables.rdContactIndices = grown;
+        mReferentTables.rdContactIndexCount = 0;
+    }
+    if (count > 0 && !mGpuSimData->rewriteTable(mRdContactIndicesDev, rdContactIndices.data(), count * sizeof(PxU32)))
+    {
+        CARB_LOG_ERROR("GPU contact view failed to update its rigid dynamic table and cannot run %s", functionName);
+        return false;
+    }
+    mReferentTables.rdContactIndices = mRdContactIndicesDev;
+    mReferentTables.rdContactIndexCount = count;
+    mRdDisableEpoch = epoch;
+    return true;
+}
+
+bool GpuRigidContactView::getNetNormalContactForces(const TensorDesc* dstTensor, float dt) const
+{
+    return getNetForces(dstTensor, dt, ForceComponent::eNormal, "net normal contact forces", __FUNCTION__);
+}
+
+bool GpuRigidContactView::getNetFrictionContactForces(const TensorDesc* dstTensor, float dt) const
+{
+    return getNetForces(dstTensor, dt, ForceComponent::eFriction, "net friction contact forces", __FUNCTION__);
+}
+
+bool GpuRigidContactView::getNetForces(const TensorDesc* dstTensor, float dt, ForceComponent component,
+                                       const char* description,
+                                       const char* functionName) const
+{
+    CHECK_VALID_DATA_SIM_RETURN(mGpuSimData, mSim, false);
+    if (!refreshReferentTables(functionName))
+        return false;
+
+    GPUAPI_CHECK_READY(mGpuSimData, false);
+
+    if (!dstTensor || !dstTensor->data)
+    {
+        return false;
+    }
+
+    if (!checkTensorDevice(*dstTensor, mDevice, description, functionName) ||
+        !checkTensorFloat32(*dstTensor, description, functionName) ||
+        !checkTensorSizeExact(*dstTensor, getSensorCount() * 3, description, functionName))
+    {
+        return false;
+    }
+
+    PxVec3* dstForce = static_cast<PxVec3*>(dstTensor->data);
+
+    mGpuSimData->updateContactReports();
+
+    PhysxCudaContextGuard ctxGuarg(mGpuSimData->mCudaContextManager);
+
+    float timeStepInv = 1.0f / dt;
+
+    if (!clearContactBuffer(dstForce, getSensorCount() * sizeof(PxVec3)))
+        return false;
+    CHECK_CUDA(cudaStreamSynchronize(nullptr));
+
+    if (!fetchNetRigidContactForces(
+            dstForce,
+            mGpuSimData->mGpuContactPairsDev,
+            mGpuSimData->mNumContactPairs,
+            mReferentTables,
+            timeStepInv,
+            component))
+    {
+        return false;
+    }
+
+    CHECK_CUDA(cudaStreamSynchronize(nullptr));
+
+    return true;
+}
+
+bool GpuRigidContactView::getNetContactForcesOvStage(const TensorDesc* dstTensor,
+                                                     float dt,
+                                                     ForceComponent component) const
+{
+    CHECK_VALID_DATA_SIM_RETURN(mGpuSimData, mSim, false);
+    if (!refreshReferentTables(__FUNCTION__))
+        return false;
+
+    GPUAPI_CHECK_READY(mGpuSimData, false);
+
+    if (!dstTensor || !dstTensor->data)
+    {
+        return false;
+    }
+
+    const char* description = component == ForceComponent::eFriction ? "net friction forces" : "net contact forces";
+    if (!checkTensorDevice(*dstTensor, mDevice, description, __FUNCTION__) ||
+        !checkTensorFloat32(*dstTensor, description, __FUNCTION__) ||
+        !checkTensorSizeExact(*dstTensor, getSensorCount() * 3, description, __FUNCTION__))
+    {
+        return false;
+    }
+
+    PxVec3* dstForce = static_cast<PxVec3*>(dstTensor->data);
+
+    mGpuSimData->updateContactReports();
+
+    PhysxCudaContextGuard ctxGuarg(mGpuSimData->mCudaContextManager);
+
+    // Guarded, unlike getNetForces: a scene that could not resolve its step dt passes 0 here, and
+    // 1/0 = inf then inf * impulse = NaN would corrupt every row. A zero scale yields a zero column,
+    // matching the host reducer's `dt > 0 ? 1/dt : 0`.
+    const float timeStepInv = dt > 0.0f ? 1.0f / dt : 0.0f;
+
+    // Async on the null stream with no trailing sync: the memset and the reduction are stream-ordered, and
+    // the caller's per-context completion event (recorded later on the same stream) covers both. The count
+    // readback inside updateContactReports still blocks -- it sizes the launch -- but the reduction does not.
+    CHECK_CUDA(cudaMemsetAsync(dstForce, 0, getSensorCount() * sizeof(PxVec3), nullptr));
+
+    if (!fetchNetRigidContactForces(
+            dstForce,
+            mGpuSimData->mGpuContactPairsDev,
+            mGpuSimData->mNumContactPairs,
+            mReferentTables,
+            timeStepInv,
+            component))
+    {
+        return false;
+    }
+
+    return true;
+}
+
+bool GpuRigidContactView::getContactForceMatrixOvStage(const TensorDesc* dstTensor,
+                                                       float dt,
+                                                       ForceComponent component) const
+{
+    CHECK_VALID_DATA_SIM_RETURN(mGpuSimData, mSim, false);
+    if (!refreshReferentTables(__FUNCTION__))
+        return false;
+
+    GPUAPI_CHECK_READY(mGpuSimData, false);
+
+    if (!dstTensor || !dstTensor->data)
+    {
+        return false;
+    }
+
+    const char* description =
+        component == ForceComponent::eFriction ? "friction contact force matrix" : "normal contact force matrix";
+    if (!checkTensorDevice(*dstTensor, mDevice, description, __FUNCTION__) ||
+        !checkTensorFloat32(*dstTensor, description, __FUNCTION__) ||
+        !checkTensorSizeExact(*dstTensor, getSensorCount() * getFilterCount() * 3, description, __FUNCTION__))
+    {
+        return false;
+    }
+
+    PxVec3* dstForce = static_cast<PxVec3*>(dstTensor->data);
+
+    mGpuSimData->updateContactReports();
+
+    PhysxCudaContextGuard ctxGuarg(mGpuSimData->mCudaContextManager);
+
+    // Guarded as in getNetContactForcesOvStage, and likewise stream-ordered with no trailing sync.
+    const float timeStepInv = dt > 0.0f ? 1.0f / dt : 0.0f;
+    CHECK_CUDA(cudaMemsetAsync(dstForce, 0, getSensorCount() * getFilterCount() * sizeof(PxVec3), nullptr));
+
+    return fetchRigidContactForceMatrix(dstForce,
+                                        mGpuSimData->mGpuContactPairsDev,
+                                        mGpuSimData->mNumContactPairs,
+                                        mNumFilters,
+                                        mReferentTables,
+                                        timeStepInv,
+                                        mFilterLookupDev,
+                                        component);
+}
+
+bool GpuRigidContactView::getFilteredContactCountsOvStage(PxU32* countsDev, ForceComponent component) const
+{
+    CHECK_VALID_DATA_SIM_RETURN(mGpuSimData, mSim, false);
+    if (!refreshReferentTables(__FUNCTION__))
+        return false;
+
+    GPUAPI_CHECK_READY(mGpuSimData, false);
+
+    if (!countsDev)
+        return false;
+
+    mGpuSimData->updateContactReports();
+
+    PhysxCudaContextGuard ctxGuarg(mGpuSimData->mCudaContextManager);
+
+    CHECK_CUDA(cudaMemsetAsync(countsDev, 0, getSensorCount() * getFilterCount() * sizeof(PxU32), nullptr));
+    if (component == ForceComponent::eFriction)
+        return fetchFrictionCount(countsDev, mGpuSimData->mGpuContactPairsDev, mGpuSimData->mNumContactPairs,
+                                  mNumFilters, mReferentTables, mFilterLookupDev);
+    return fetchRigidContactCount(countsDev, mGpuSimData->mGpuContactPairsDev, mGpuSimData->mNumContactPairs,
+                                  mNumFilters, mReferentTables, mFilterLookupDev);
+}
+
+bool GpuRigidContactView::getFilteredContactDataOvStage(float* forceDev,
+                                                        float* pointDev,
+                                                        float* normalDev,
+                                                        float* separationDev,
+                                                        PxU32* cursorDev,
+                                                        const PxU32* startsDev,
+                                                        PxU32 capacity,
+                                                        float dt) const
+{
+    CHECK_VALID_DATA_SIM_RETURN(mGpuSimData, mSim, false);
+    if (!refreshReferentTables(__FUNCTION__))
+        return false;
+
+    GPUAPI_CHECK_READY(mGpuSimData, false);
+
+    if (!forceDev || !pointDev || !normalDev || !separationDev || !cursorDev || !startsDev)
+        return false;
+
+    mGpuSimData->updateContactReports();
+
+    PhysxCudaContextGuard ctxGuarg(mGpuSimData->mCudaContextManager);
+
+    // Guarded as in getNetContactForcesOvStage.
+    const float timeStepInv = dt > 0.0f ? 1.0f / dt : 0.0f;
+    CHECK_CUDA(cudaMemsetAsync(cursorDev, 0, getSensorCount() * getFilterCount() * sizeof(PxU32), nullptr));
+    return fetchRigidContactData(forceDev, reinterpret_cast<PxVec3*>(pointDev), reinterpret_cast<PxVec3*>(normalDev),
+                                 separationDev, cursorDev, const_cast<PxU32*>(startsDev),
+                                 mGpuSimData->mGpuContactPairsDev, mGpuSimData->mNumContactPairs, mNumFilters, capacity,
+                                 mReferentTables, timeStepInv, mFilterLookupDev);
+}
+
+bool GpuRigidContactView::getFilteredFrictionDataOvStage(
+    float* forceDev, float* pointDev, PxU32* cursorDev, const PxU32* startsDev, PxU32 capacity, float dt) const
+{
+    CHECK_VALID_DATA_SIM_RETURN(mGpuSimData, mSim, false);
+    if (!refreshReferentTables(__FUNCTION__))
+        return false;
+
+    GPUAPI_CHECK_READY(mGpuSimData, false);
+
+    if (!forceDev || !pointDev || !cursorDev || !startsDev)
+        return false;
+
+    mGpuSimData->updateContactReports();
+
+    PhysxCudaContextGuard ctxGuarg(mGpuSimData->mCudaContextManager);
+
+    const float timeStepInv = dt > 0.0f ? 1.0f / dt : 0.0f;
+    CHECK_CUDA(cudaMemsetAsync(cursorDev, 0, getSensorCount() * getFilterCount() * sizeof(PxU32), nullptr));
+    return fetchRigidFrictionData(reinterpret_cast<PxVec3*>(forceDev), reinterpret_cast<PxVec3*>(pointDev), cursorDev,
+                                  const_cast<PxU32*>(startsDev), mGpuSimData->mGpuContactPairsDev,
+                                  mGpuSimData->mNumContactPairs, mNumFilters, capacity, mReferentTables,
+                                  timeStepInv, mFilterLookupDev);
+}
+
+bool GpuRigidContactView::getRawContactCountsOvStage(PxU32* countsDev) const
+{
+    CHECK_VALID_DATA_SIM_RETURN(mGpuSimData, mSim, false);
+    if (!refreshReferentTables(__FUNCTION__))
+        return false;
+
+    GPUAPI_CHECK_READY(mGpuSimData, false);
+
+    if (!countsDev)
+        return false;
+
+    mGpuSimData->updateContactReports();
+
+    PhysxCudaContextGuard ctxGuarg(mGpuSimData->mCudaContextManager);
+
+    CHECK_CUDA(cudaMemsetAsync(countsDev, 0, getSensorCount() * sizeof(PxU32), nullptr));
+    return fetchRawRigidContactCount(countsDev, mGpuSimData->mGpuContactPairsDev, mGpuSimData->mNumContactPairs,
+                                     mReferentTables);
+}
+
+bool GpuRigidContactView::getRawContactsOvStage(float* forceDev,
+                                                float* pointDev,
+                                                float* normalDev,
+                                                float* separationDev,
+                                                uint64_t* bodyPairsDev,
+                                                PxU32* cursorDev,
+                                                const PxU32* startsDev,
+                                                PxU32 capacity,
+                                                float dt) const
+{
+    CHECK_VALID_DATA_SIM_RETURN(mGpuSimData, mSim, false);
+    if (!refreshReferentTables(__FUNCTION__))
+        return false;
+
+    GPUAPI_CHECK_READY(mGpuSimData, false);
+
+    if (!forceDev || !pointDev || !normalDev || !separationDev || !bodyPairsDev || !cursorDev || !startsDev)
+        return false;
+
+    mGpuSimData->updateContactReports();
+
+    PhysxCudaContextGuard ctxGuarg(mGpuSimData->mCudaContextManager);
+
+    // Guarded as in getNetContactForcesOvStage.
+    const float timeStepInv = dt > 0.0f ? 1.0f / dt : 0.0f;
+    CHECK_CUDA(cudaMemsetAsync(cursorDev, 0, getSensorCount() * sizeof(PxU32), nullptr));
+    return fetchRawRigidContactData(forceDev, reinterpret_cast<PxVec3*>(pointDev), reinterpret_cast<PxVec3*>(normalDev),
+                                    separationDev, bodyPairsDev, cursorDev, const_cast<PxU32*>(startsDev),
+                                    mGpuSimData->mGpuContactPairsDev, mGpuSimData->mNumContactPairs, capacity,
+                                    mReferentTables, timeStepInv, mActorHandleLookupDev,
+                                    mNumActorHandlePairs);
+}
+
+bool GpuRigidContactView::getLegacyActorIds(std::vector<uint64_t>& out) const
+{
+    CHECK_VALID_DATA_SIM_RETURN(mGpuSimData, mSim, false);
+
+    out.clear();
+    const PxU32 n = mGpuSimData->mNumActorPathPairs;
+    if (n == 0 || !mGpuSimData->mActorPathLookupDev)
+        return true;
+    std::vector<GpuActorPathIdPair> table(n);
+    PhysxCudaContextGuard ctxGuarg(mGpuSimData->mCudaContextManager);
+    if (!CHECK_CUDA(cudaMemcpy(table.data(), mGpuSimData->mActorPathLookupDev, n * sizeof(GpuActorPathIdPair),
+                               cudaMemcpyDeviceToHost)))
+        return false;
+    out.reserve(n);
+    for (const GpuActorPathIdPair& pair : table)
+        out.push_back(pair.pathId);
+    return true;
+}
+
+bool GpuRigidContactView::setActorHandles(const std::vector<uint64_t>& handles)
+{
+    CHECK_VALID_DATA_SIM_RETURN(mGpuSimData, mSim, false);
+
+    const PxU32 n = mGpuSimData->mNumActorPathPairs;
+    if (handles.size() != n)
+        return false;
+    PhysxCudaContextGuard ctxGuarg(mGpuSimData->mCudaContextManager);
+    CHECK_CUDA(cudaFree(mActorHandleLookupDev));
+    mActorHandleLookupDev = nullptr;
+    mNumActorHandlePairs = 0;
+    mActorHandlesSet = false;
+    if (n > 0)
+    {
+        std::vector<GpuActorPathIdPair> table(n);
+        if (!CHECK_CUDA(cudaMemcpy(table.data(), mGpuSimData->mActorPathLookupDev, n * sizeof(GpuActorPathIdPair),
+                                   cudaMemcpyDeviceToHost)))
+            return false;
+        for (PxU32 i = 0; i < n; ++i)
+            table[i].pathId = handles[i]; // same actors, same order: the binary search still holds
+        if (!CHECK_CUDA(cudaMalloc(&mActorHandleLookupDev, n * sizeof(GpuActorPathIdPair))) ||
+            !CHECK_CUDA(cudaMemcpy(mActorHandleLookupDev, table.data(), n * sizeof(GpuActorPathIdPair),
+                                   cudaMemcpyHostToDevice)))
+            return false;
+        mNumActorHandlePairs = n;
+    }
+    mActorHandlesSet = true;
+    return true;
+}
+
+bool GpuRigidContactView::getNormalContactForceMatrix(const TensorDesc* dstTensor, float dt) const
+{
+    return getForceMatrix(dstTensor, dt, ForceComponent::eNormal, "normal contact force matrix", __FUNCTION__);
+}
+
+bool GpuRigidContactView::getFrictionContactForceMatrix(const TensorDesc* dstTensor, float dt) const
+{
+    return getForceMatrix(dstTensor, dt, ForceComponent::eFriction, "friction contact force matrix", __FUNCTION__);
+}
+
+bool GpuRigidContactView::getForceMatrix(const TensorDesc* dstTensor, float dt, ForceComponent component,
+                                         const char* description,
+                                         const char* functionName) const
+{
+    CHECK_VALID_DATA_SIM_RETURN(mGpuSimData, mSim, false);
+    if (!refreshReferentTables(functionName))
+        return false;
+
+    GPUAPI_CHECK_READY(mGpuSimData, false);
+
+    if (!dstTensor || !dstTensor->data)
+    {
+        return false;
+    }
+
+    if (!checkTensorDevice(*dstTensor, mDevice, description, functionName) ||
+        !checkTensorFloat32(*dstTensor, description, functionName) ||
+        !checkTensorSizeExact(*dstTensor, getSensorCount() * getFilterCount() * 3, description, functionName))
+    {
+        return false;
+    }
+
+    PxVec3* dstForce = static_cast<PxVec3*>(dstTensor->data);
+
+    mGpuSimData->updateContactReports();
+
+    PhysxCudaContextGuard ctxGuarg(mGpuSimData->mCudaContextManager);
+
+    float timeStepInv = 1.0f / dt;
+
+    if (!clearContactBuffer(dstForce, getSensorCount() * getFilterCount() * sizeof(PxVec3)))
+        return false;
+    CHECK_CUDA(cudaStreamSynchronize(nullptr));
+
+    if (!fetchRigidContactForceMatrix(
+            dstForce,
+            mGpuSimData->mGpuContactPairsDev,
+            mGpuSimData->mNumContactPairs,
+            mNumFilters,
+            mReferentTables,
+            timeStepInv,
+            mFilterLookupDev,
+            component))
+    {
+        return false;
+    }
+
+    CHECK_CUDA(cudaStreamSynchronize(nullptr));
+
+    return true;
+}
+
+bool GpuRigidContactView::getNormalContactData(const TensorDesc* contactForceTensor,
+                                               const TensorDesc* contactPointTensor,
+                                               const TensorDesc* contactNormalTensor,
+                                               const TensorDesc* contactSeparationTensor,
+                                               const TensorDesc* contactCountTensor,
+                                               const TensorDesc* contactStartIndicesTensor,
+                                               uint32_t* outRequiredContactCount,
+                                               float dt) const
+{
+    CHECK_VALID_DATA_SIM_RETURN(mGpuSimData, mSim, false);
+    if (!refreshReferentTables(__FUNCTION__))
+        return false;
+
+    GPUAPI_CHECK_READY(mGpuSimData, false);
+    if (!contactForceTensor || !contactForceTensor->data || !contactPointTensor || !contactPointTensor->data ||
+        !contactNormalTensor || !contactNormalTensor->data || !contactSeparationTensor ||
+        !contactSeparationTensor->data || !contactCountTensor || !contactCountTensor->data ||
+        !contactStartIndicesTensor || !contactStartIndicesTensor->data || !outRequiredContactCount)
+    {
+        return false;
+    }
+    *outRequiredContactCount = 0;
+
+    if (!checkTensorDevice(*contactForceTensor, mDevice, "contact force buffer", __FUNCTION__) ||
+        !checkTensorFloat32(*contactForceTensor, "contact force buffer", __FUNCTION__) ||
+        !checkTensorSizeExact(*contactForceTensor, getMaxContactDataCount(), "contact force buffer", __FUNCTION__))
+    {
+        return false;
+    }
+    if (!checkTensorDevice(*contactPointTensor, mDevice, "contact point buffer", __FUNCTION__) ||
+        !checkTensorFloat32(*contactPointTensor, "contact point buffer", __FUNCTION__) ||
+        !checkTensorSizeExact(*contactPointTensor, getMaxContactDataCount() * 3,
+                              "contact point buffer", __FUNCTION__))
+    {
+        return false;
+    }
+    if (!checkTensorDevice(*contactNormalTensor, mDevice, "contact normal buffer", __FUNCTION__) ||
+        !checkTensorFloat32(*contactNormalTensor, "contact normal buffer", __FUNCTION__) ||
+        !checkTensorSizeExact(*contactNormalTensor,  getMaxContactDataCount() * 3,
+                              "contact normal buffer", __FUNCTION__))
+    {
+        return false;
+    }
+
+    if (!checkTensorDevice(*contactSeparationTensor, mDevice, "contact separation buffer", __FUNCTION__) ||
+        !checkTensorFloat32(*contactSeparationTensor, "contact separation buffer", __FUNCTION__) ||
+        !checkTensorSizeExact(*contactSeparationTensor, getMaxContactDataCount(),
+                              "contact separation buffer", __FUNCTION__))
+    {
+        return false;
+    }
+    if (!checkTensorDevice(*contactCountTensor, mDevice, "contact count matrix", __FUNCTION__) ||
+        !checkTensorInt32(*contactCountTensor, "contact count matrix", __FUNCTION__) ||
+        !checkTensorSizeExact(
+            *contactCountTensor, getSensorCount() * getFilterCount(), "contact count matrix", __FUNCTION__))
+    {
+        return false;
+    }
+    if (!checkTensorDevice(*contactStartIndicesTensor, mDevice, "contact start indices matrix", __FUNCTION__) ||
+        !checkTensorInt32(*contactStartIndicesTensor, "contact start indices matrix", __FUNCTION__) ||
+        !checkTensorSizeExact(*contactStartIndicesTensor, getSensorCount() * getFilterCount(),
+                              "contact start indices matrix", __FUNCTION__))
+    {
+        return false;
+    }
+
+    PxReal* dstForces = static_cast<PxReal*>(contactForceTensor->data);
+    PxVec3* dstPoints = static_cast<PxVec3*>(contactPointTensor->data);
+    PxVec3* dstNormals = static_cast<PxVec3*>(contactNormalTensor->data);
+    PxReal* dstSeparations = static_cast<PxReal*>(contactSeparationTensor->data);
+    PxU32* dstCounts = static_cast<PxU32*>(contactCountTensor->data);
+    PxU32* dstStartIndices = static_cast<PxU32*>(contactStartIndicesTensor->data);
+
+    mGpuSimData->updateContactReports();
+
+    PhysxCudaContextGuard ctxGuarg(mGpuSimData->mCudaContextManager);
+    if (!clearContactBuffer(dstForces, getMaxContactDataCount()* sizeof(PxReal)))
+        return false;
+    if (!clearContactBuffer(dstPoints, getMaxContactDataCount() * sizeof(PxVec3)))
+        return false;
+    if (!clearContactBuffer(dstNormals, getMaxContactDataCount()* sizeof(PxVec3)))
+        return false;
+    if (!clearContactBuffer(dstSeparations, getMaxContactDataCount() * sizeof(PxReal)))
+        return false;
+    if (!clearContactBuffer(dstCounts, getSensorCount() * getFilterCount() * sizeof(PxU32)))
+        return false;
+    if (!clearContactBuffer(dstStartIndices, getSensorCount() * getFilterCount() * sizeof(PxU32)))
+        return false;
+    CHECK_CUDA(cudaStreamSynchronize(nullptr));
+    float timeStepInv = 1.0f / dt;
+
+    if (!fetchRigidContactCount(dstCounts, mGpuSimData->mGpuContactPairsDev, mGpuSimData->mNumContactPairs, mNumFilters,
+                                mReferentTables, mFilterLookupDev))
+    {
+        return false;
+    }
+    CHECK_CUDA(cudaStreamSynchronize(nullptr));
+    exclusiveScan(dstCounts, dstStartIndices, getSensorCount() * getFilterCount());
+    {
+        PxU32 lastCount = 0;
+        PxU32 lastStartIdx = 0;
+        const PxU32 numPairs = getSensorCount() * getFilterCount();
+        if (numPairs > 0)
+        {
+            if (!CHECK_CUDA(cudaMemcpy(&lastCount, &dstCounts[numPairs - 1], sizeof(PxU32), cudaMemcpyDeviceToHost)))
+            {
+                return false;
+            }
+            if (!CHECK_CUDA(cudaMemcpy(&lastStartIdx, &dstStartIndices[numPairs - 1], sizeof(PxU32),
+                                       cudaMemcpyDeviceToHost)))
+            {
+                return false;
+            }
+        }
+        *outRequiredContactCount = lastStartIdx + lastCount;
+        if (*outRequiredContactCount > getMaxContactDataCount())
+            CARB_LOG_WARN(
+                "Incomplete contact data is reported in GpuRigidContactView::getNormalContactData because there are more contact data points than specified maxContactDataCount = %u.",
+                getMaxContactDataCount());
+    }
+
+    if (!clearContactBuffer(dstCounts, getSensorCount() * getFilterCount() * sizeof(PxU32)))
+        return false;
+    CHECK_CUDA(cudaStreamSynchronize(nullptr));
+
+    if (!fetchRigidContactData(dstForces, dstPoints, dstNormals, dstSeparations, dstCounts, dstStartIndices,
+                               mGpuSimData->mGpuContactPairsDev, mGpuSimData->mNumContactPairs, mNumFilters,
+                               getMaxContactDataCount(), mReferentTables, timeStepInv, mFilterLookupDev))
+    {
+        return false;
+    }
+
+    CHECK_CUDA(cudaStreamSynchronize(nullptr));
+
+    if (!clampContactLayout(dstCounts, dstStartIndices, getSensorCount() * getFilterCount(), getMaxContactDataCount()))
+        return false;
+    if (!CHECK_CUDA(cudaStreamSynchronize(nullptr)))
+        return false;
+
+    return true;
+}
+
+bool GpuRigidContactView::getFrictionContactData(const TensorDesc* FrictionForceTensor,
+                                                 const TensorDesc* contactPointTensor,
+                                                 const TensorDesc* contactCountTensor,
+                                                 const TensorDesc* contactStartIndicesTensor,
+                                                 uint32_t* outRequiredFrictionCount,
+                                                 float dt) const
+{
+    CHECK_VALID_DATA_SIM_RETURN(mGpuSimData, mSim, false);
+    if (!refreshReferentTables(__FUNCTION__))
+        return false;
+
+    GPUAPI_CHECK_READY(mGpuSimData, false);
+    if (!FrictionForceTensor || !FrictionForceTensor->data || !contactPointTensor || !contactPointTensor->data ||
+        !contactCountTensor || !contactCountTensor->data || !contactStartIndicesTensor ||
+        !contactStartIndicesTensor->data || !outRequiredFrictionCount)
+    {
+        return false;
+    }
+    *outRequiredFrictionCount = 0;
+
+    if (!checkTensorDevice(*FrictionForceTensor, mDevice, "friction force buffer", __FUNCTION__) ||
+        !checkTensorFloat32(*FrictionForceTensor, "friction force buffer", __FUNCTION__) ||
+        !checkTensorSizeExact(*FrictionForceTensor, getMaxContactDataCount() * 3, "friction force buffer", __FUNCTION__))
+    {
+        return false;
+    }
+    if (!checkTensorDevice(*contactPointTensor, mDevice, "contact point buffer", __FUNCTION__) ||
+        !checkTensorFloat32(*contactPointTensor, "contact point buffer", __FUNCTION__) ||
+        !checkTensorSizeExact(*contactPointTensor, getMaxContactDataCount() * 3, "contact point buffer", __FUNCTION__))
+    {
+        return false;
+    }
+
+    if (!checkTensorDevice(*contactCountTensor, mDevice, "contact count matrix", __FUNCTION__) ||
+        !checkTensorInt32(*contactCountTensor, "contact count matrix", __FUNCTION__) ||
+        !checkTensorSizeExact(
+            *contactCountTensor, getSensorCount() * getFilterCount(), "contact count matrix", __FUNCTION__))
+    {
+        return false;
+    }
+    if (!checkTensorDevice(*contactStartIndicesTensor, mDevice, "contact start indices matrix", __FUNCTION__) ||
+        !checkTensorInt32(*contactStartIndicesTensor, "contact start indices matrix", __FUNCTION__) ||
+        !checkTensorSizeExact(*contactStartIndicesTensor, getSensorCount() * getFilterCount(),
+                              "contact start indices matrix", __FUNCTION__))
+    {
+        return false;
+    }
+
+    PxVec3* dstForces = static_cast<PxVec3*>(FrictionForceTensor->data);
+    PxVec3* dstPoints = static_cast<PxVec3*>(contactPointTensor->data);
+    PxU32* dstCounts = static_cast<PxU32*>(contactCountTensor->data);
+    PxU32* dstStartIndices = static_cast<PxU32*>(contactStartIndicesTensor->data);
+
+    mGpuSimData->updateContactReports();
+
+    PhysxCudaContextGuard ctxGuarg(mGpuSimData->mCudaContextManager);
+    if (!clearContactBuffer(dstForces, getMaxContactDataCount()* sizeof(PxVec3)))
+        return false;
+    if (!clearContactBuffer(dstPoints, getMaxContactDataCount() * sizeof(PxVec3)))
+        return false;
+    if (!clearContactBuffer(dstCounts, getSensorCount() * getFilterCount() * sizeof(PxU32)))
+        return false;
+    if (!clearContactBuffer(dstStartIndices, getSensorCount() * getFilterCount() * sizeof(PxU32)))
+        return false;
+    CHECK_CUDA(cudaStreamSynchronize(nullptr));
+    float timeStepInv = 1.0f / dt;
+
+    if (!fetchFrictionCount(dstCounts, mGpuSimData->mGpuContactPairsDev, mGpuSimData->mNumContactPairs, mNumFilters,
+                            mReferentTables, mFilterLookupDev))
+    {
+        return false;
+    }
+    CHECK_CUDA(cudaStreamSynchronize(nullptr));
+    exclusiveScan(dstCounts, dstStartIndices, getSensorCount() * getFilterCount());
+    {
+        PxU32 lastCount = 0;
+        PxU32 lastStartIdx = 0;
+        const PxU32 numPairs = getSensorCount() * getFilterCount();
+        if (numPairs > 0)
+        {
+            if (!CHECK_CUDA(cudaMemcpy(&lastCount, &dstCounts[numPairs - 1], sizeof(PxU32), cudaMemcpyDeviceToHost)))
+            {
+                return false;
+            }
+            if (!CHECK_CUDA(cudaMemcpy(&lastStartIdx, &dstStartIndices[numPairs - 1], sizeof(PxU32),
+                                       cudaMemcpyDeviceToHost)))
+            {
+                return false;
+            }
+        }
+        *outRequiredFrictionCount = lastStartIdx + lastCount;
+        if (*outRequiredFrictionCount > getMaxContactDataCount())
+            CARB_LOG_WARN(
+                "Incomplete contact data is reported in GpuRigidContactView::getFrictionContactData because there are more contact data points than specified maxContactDataCount = %u.",
+                getMaxContactDataCount());
+    }
+
+    if (!clearContactBuffer(dstCounts, getSensorCount() * getFilterCount() * sizeof(PxU32)))
+        return false;
+    CHECK_CUDA(cudaStreamSynchronize(nullptr));
+
+    if (!fetchRigidFrictionData(dstForces, dstPoints, dstCounts, dstStartIndices, mGpuSimData->mGpuContactPairsDev,
+                                mGpuSimData->mNumContactPairs, mNumFilters, getMaxContactDataCount(),
+                                mReferentTables, timeStepInv, mFilterLookupDev))
+    {
+        return false;
+    }
+
+    CHECK_CUDA(cudaStreamSynchronize(nullptr));
+
+    if (!clampContactLayout(dstCounts, dstStartIndices, getSensorCount() * getFilterCount(), getMaxContactDataCount()))
+        return false;
+    if (!CHECK_CUDA(cudaStreamSynchronize(nullptr)))
+        return false;
+
+    return true;
+}
+
+bool GpuRigidContactView::getRawContactData(const TensorDesc* contactForceTensor,
+                                            const TensorDesc* contactPointTensor,
+                                            const TensorDesc* contactNormalTensor,
+                                            const TensorDesc* contactSeparationTensor,
+                                            const TensorDesc* sensorLayoutTensor,
+                                            const TensorDesc* actorIdsTensor,
+                                            uint32_t* outRequiredContactCount,
+                                            float dt) const
+{
+    CHECK_VALID_DATA_SIM_RETURN(mGpuSimData, mSim, false);
+    if (!refreshReferentTables(__FUNCTION__))
+        return false;
+
+    GPUAPI_CHECK_READY(mGpuSimData, false);
+
+    if (!contactForceTensor || !contactForceTensor->data || !contactPointTensor || !contactPointTensor->data ||
+        !contactNormalTensor || !contactNormalTensor->data || !contactSeparationTensor ||
+        !contactSeparationTensor->data || !sensorLayoutTensor || !sensorLayoutTensor->data ||
+        !actorIdsTensor || !actorIdsTensor->data || !outRequiredContactCount)
+    {
+        return false;
+    }
+    *outRequiredContactCount = 0;
+
+    if (!checkTensorDevice(*contactForceTensor, mDevice, "contact force buffer", __FUNCTION__) ||
+        !checkTensorFloat32(*contactForceTensor, "contact force buffer", __FUNCTION__) ||
+        !checkTensorSizeExact(*contactForceTensor, getMaxContactDataCount(), "contact force buffer", __FUNCTION__))
+    {
+        return false;
+    }
+
+    if (!checkTensorDevice(*contactPointTensor, mDevice, "contact point buffer", __FUNCTION__) ||
+        !checkTensorFloat32(*contactPointTensor, "contact point buffer", __FUNCTION__) ||
+        !checkTensorSizeExact(*contactPointTensor, getMaxContactDataCount() * 3, "contact point buffer", __FUNCTION__))
+    {
+        return false;
+    }
+
+    if (!checkTensorDevice(*contactNormalTensor, mDevice, "contact normal buffer", __FUNCTION__) ||
+        !checkTensorFloat32(*contactNormalTensor, "contact normal buffer", __FUNCTION__) ||
+        !checkTensorSizeExact(*contactNormalTensor, getMaxContactDataCount() * 3, "contact normal buffer", __FUNCTION__))
+    {
+        return false;
+    }
+
+    if (!checkTensorDevice(*contactSeparationTensor, mDevice, "contact separation buffer", __FUNCTION__) ||
+        !checkTensorFloat32(*contactSeparationTensor, "contact separation buffer", __FUNCTION__) ||
+        !checkTensorSizeExact(*contactSeparationTensor, getMaxContactDataCount(), "contact separation buffer", __FUNCTION__))
+    {
+        return false;
+    }
+
+    // Per-sensor layout is (numSensors, 2): column 0 count, column 1 start index. No
+    // filter dimension.
+    if (!checkTensorDevice(*sensorLayoutTensor, mDevice, "sensor layout buffer", __FUNCTION__) ||
+        !checkTensorInt32(*sensorLayoutTensor, "sensor layout buffer", __FUNCTION__) ||
+        !checkTensorSizeExact(*sensorLayoutTensor, getSensorCount() * 2, "sensor layout buffer", __FUNCTION__))
+    {
+        return false;
+    }
+
+    // Per-contact identities are (maxContactDataCount, 2): column 0 the reporting
+    // sensor's actor, column 1 the actor it contacted.
+    if (!checkTensorDevice(*actorIdsTensor, mDevice, "actor IDs buffer", __FUNCTION__) ||
+        !checkTensorInt64(*actorIdsTensor, "actor IDs buffer", __FUNCTION__) ||
+        !checkTensorSizeExact(*actorIdsTensor, getMaxContactDataCount() * 2, "actor IDs buffer", __FUNCTION__))
+    {
+        return false;
+    }
+
+    PxReal* dstForces = static_cast<PxReal*>(contactForceTensor->data);
+    PxVec3* dstPoints = static_cast<PxVec3*>(contactPointTensor->data);
+    PxVec3* dstNormals = static_cast<PxVec3*>(contactNormalTensor->data);
+    PxReal* dstSeparations = static_cast<PxReal*>(contactSeparationTensor->data);
+    PxU32* dstSensorLayout = static_cast<PxU32*>(sensorLayoutTensor->data);
+    uint64_t* dstActorIds = static_cast<uint64_t*>(actorIdsTensor->data);
+
+    // Counts and starts stay contiguous in scratch for the kernels below; the caller's
+    // interleaved tensor is filled once at the end.
+    PxU32* dstCounts = mRawLayoutScratchDev;
+    PxU32* dstStartIndices = mRawLayoutScratchDev ? mRawLayoutScratchDev + getSensorCount() : nullptr;
+
+    mGpuSimData->updateContactReports();
+
+    PhysxCudaContextGuard ctxGuard(mGpuSimData->mCudaContextManager);
+
+    if (!clearContactBuffer(dstForces, getMaxContactDataCount() * sizeof(PxReal)))
+        return false;
+    if (!clearContactBuffer(dstPoints, getMaxContactDataCount() * sizeof(PxVec3)))
+        return false;
+    if (!clearContactBuffer(dstNormals, getMaxContactDataCount() * sizeof(PxVec3)))
+        return false;
+    if (!clearContactBuffer(dstSeparations, getMaxContactDataCount() * sizeof(PxReal)))
+        return false;
+    if (!clearContactBuffer(dstSensorLayout, getSensorCount() * 2 * sizeof(PxU32)))
+        return false;
+    if (!clearContactBuffer(dstActorIds, getMaxContactDataCount() * 2 * sizeof(uint64_t)))
+        return false;
+    CHECK_CUDA(cudaStreamSynchronize(nullptr));
+
+    if (getSensorCount() == 0)
+        return true;
+
+    if (!mRawLayoutScratchDev)
+        return false;
+
+    // No sync after this memset: it and the count/scan/fill kernels below all run on the
+    // default stream, which orders them. The scratch is device-only and never read by the
+    // host, so there is nothing to wait for here.
+    if (!clearContactBuffer(mRawLayoutScratchDev, 2 * getSensorCount() * sizeof(PxU32)))
+        return false;
+
+    float timeStepInv = 1.0f / dt;
+
+    // First pass: count contacts per sensor
+    if (!fetchRawRigidContactCount(dstCounts, mGpuSimData->mGpuContactPairsDev, mGpuSimData->mNumContactPairs,
+                                   mReferentTables))
+    {
+        return false;
+    }
+    CHECK_CUDA(cudaStreamSynchronize(nullptr));
+
+    exclusiveScan(dstCounts, dstStartIndices, getSensorCount());
+
+    {
+        PxU32 lastCount = 0;
+        PxU32 lastStartIdx = 0;
+        if (!CHECK_CUDA(cudaMemcpy(&lastCount, &dstCounts[getSensorCount() - 1], sizeof(PxU32),
+                                   cudaMemcpyDeviceToHost)))
+        {
+            return false;
+        }
+        if (!CHECK_CUDA(cudaMemcpy(&lastStartIdx, &dstStartIndices[getSensorCount() - 1],
+                                   sizeof(PxU32), cudaMemcpyDeviceToHost)))
+        {
+            return false;
+        }
+        *outRequiredContactCount = lastStartIdx + lastCount;
+        if (*outRequiredContactCount > getMaxContactDataCount())
+        {
+            CARB_LOG_WARN(
+                "Incomplete raw contact data in GpuRigidContactView::getRawContactData because there are more "
+                "contact data points than specified maxContactDataCount = %u.",
+                getMaxContactDataCount());
+        }
+    }
+
+    // Reset counts for second pass (data kernel will atomically increment)
+    if (!clearContactBuffer(dstCounts, getSensorCount() * sizeof(PxU32)))
+        return false;
+    CHECK_CUDA(cudaStreamSynchronize(nullptr));
+
+    // Second pass: fill contact data and both actor IDs
+    if (!fetchRawRigidContactData(dstForces, dstPoints, dstNormals, dstSeparations, dstActorIds,
+                                  dstCounts, dstStartIndices, mGpuSimData->mGpuContactPairsDev,
+                                  mGpuSimData->mNumContactPairs, getMaxContactDataCount(), mReferentTables,
+                                  timeStepInv, mGpuSimData->mActorPathLookupDev,
+                                  mGpuSimData->mNumActorPathPairs))
+    {
+        return false;
+    }
+    CHECK_CUDA(cudaStreamSynchronize(nullptr));
+
+    // Correct per-sensor counts to reflect only what was actually written.
+    if (!clampContactLayout(dstCounts, dstStartIndices, getSensorCount(), getMaxContactDataCount()))
+        return false;
+    if (!CHECK_CUDA(cudaStreamSynchronize(nullptr)))
+        return false;
+
+    // Interleave scratch into the caller's (numSensors, 2) layout tensor. These last two
+    // steps are the ones that populate the caller's layout tensor, so their status is
+    // returned rather than dropped: reporting success here with the sync having failed
+    // would hand back the memset zeros as if the step genuinely had no contacts.
+    if (!packSensorLayout(dstSensorLayout, dstCounts, dstStartIndices, getSensorCount()))
+        return false;
+    if (!CHECK_CUDA(cudaStreamSynchronize(nullptr)))
+        return false;
+
+    return true;
+}
+
+}
+}
+}

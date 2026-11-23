@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef PXS_SIMULATION_CONTROLLER_H
 #define PXS_SIMULATION_CONTROLLER_H
@@ -33,13 +10,14 @@
 #include "foundation/PxSimpleTypes.h"
 #include "foundation/PxPreprocessor.h"
 #include "foundation/PxTransform.h"
-#include "foundation/PxBitMap.h"
-#include "foundation/PxPinnedArray.h"
+#include "CmPinnableArray.h"
+#include "CmPinnableBitMap.h"
 #include "foundation/PxUserAllocated.h"
 #include "PxScene.h"
 #include "PxParticleSystem.h"
 #include "PxArticulationTendonData.h"
 #include "PxNodeIndex.h"
+#include "PxDeformableAttachment.h"
 
 namespace physx
 {
@@ -82,18 +60,35 @@ namespace physx
 	class PxsContext;
 
 	class PxsRigidBody;
-	class PxsKernelWranglerManager;
-	class PxsHeapMemoryAllocatorManager;
-	class PxgParticleSystemCore;
-	struct PxConeLimitedConstraint;
 
 	struct PxsShapeCore;
 
-	class PxPhysXGpu;
-
-	struct PxgSolverConstraintManagerConstants;
 	struct PxsExternalAccelerationProvider;
 	
+	// How a GPU scene provides rigid body and articulation state to OmniPVD. NpScene turns OmniPVD readback on
+	// with setEnableOVDReadback(true) when its PxPhysics has an OmniPVD sampler. getOVDReadbackMode() derives the
+	// mode from that flag, PxSceneFlag::eENABLE_DIRECT_GPU_API and the current recording, so the mode changes with
+	// startSampling() and stopSampling(). A full recording has no scene or object list and records secondary data,
+	// as startSampling() without a filter does.
+	struct PxsOVDReadbackMode
+	{
+		enum Enum
+		{
+			// No OmniPVD readback: the PxPhysics has no OmniPVD sampler, or the scene does not use GPU dynamics.
+			// The base PxsSimulationController always returns eDISABLED.
+			eDISABLED,
+			// Direct GPU API scene, unless a full recording runs. This includes the time when nothing is recorded.
+			// The per-step bulk copies of rigid body and articulation state to the host stay off. OmniPVD reads
+			// only the recorded objects from the device, by GPU index.
+			eINDEXED,
+			// The per-step bulk copies of rigid body and articulation state to the host run. A Direct GPU API scene
+			// uses this mode only during a full recording, because that recording reads the pose and velocity of
+			// every active actor from the host. A GPU scene without the Direct GPU API makes these copies in every
+			// mode, and reports eFULL whenever OmniPVD readback is on.
+			eFULL
+		};
+	};
+
 	class PxsSimulationControllerCallback : public PxUserAllocated
 	{
 	public:
@@ -108,6 +103,23 @@ namespace physx
 	{
 	public:
 		virtual void    processRigidDynamicSet(const PxsRigidBody* const * rigids, const void* dataVec, const PxRigidDynamicGPUIndex* gpuIndices, PxRigidDynamicGPUAPIWriteType::Enum dataType, PxU32 nbElements) = 0;
+		virtual bool isCaptureActive() const = 0;
+		virtual bool isSelectiveCapture() const = 0;
+		virtual bool isCapturingAllObjects() const = 0;
+		virtual bool isTakingSnapshot() const = 0;
+		virtual bool isRigidDynamicReadEnabled(PxRigidDynamicGPUAPIReadType::Enum dataType) const = 0;
+		virtual bool isRigidDynamicWriteEnabled(PxRigidDynamicGPUAPIWriteType::Enum dataType) const = 0;
+		virtual bool isArticulationReadEnabled(PxArticulationGPUAPIReadType::Enum dataType) const = 0;
+		virtual bool isArticulationWriteEnabled(PxArticulationGPUAPIWriteType::Enum dataType) const = 0;
+		virtual bool isRigidDynamicCaptured(const PxsRigidBody& rigidBody) const = 0;
+		virtual bool isArticulationCaptured(const Dy::FeatherstoneArticulation& articulation) const = 0;
+		virtual bool isRigidDynamicStateRequired(const PxsRigidBody& rigidBody, PxRigidDynamicGPUAPIReadType::Enum dataType) const = 0;
+		virtual bool isArticulationStateRequired(const Dy::FeatherstoneArticulation& articulation, PxArticulationGPUAPIReadType::Enum dataType) const = 0;
+		virtual bool isContactReadEnabled() const = 0;
+		virtual bool isContactPairCaptured(const PxActor& actor0, const PxActor& actor1) const = 0;
+		virtual void reportReadbackFailure() = 0;
+		virtual void processRigidDynamicRead(const PxsRigidBody* const* rigids, const void* data, const PxRigidDynamicGPUIndex* indices, PxRigidDynamicGPUAPIReadType::Enum dataType, PxU32 nbElements) = 0;
+		virtual void processArticulationRead(const Dy::FeatherstoneArticulation* const* articulations, const void* data, const PxArticulationGPUIndex* nodeIndices, PxArticulationGPUAPIReadType::Enum dataType, PxU32 nbElements, PxU32 maxLinks, PxU32 maxDofs) = 0;
 		virtual void    processArticulationSet(const Dy::FeatherstoneArticulation* const * simBodyVec, const void* dataVec, const PxArticulationGPUIndex* indexVec, PxArticulationGPUAPIWriteType::Enum dataType, PxU32 nbElements,
 			PxU32 maxLinks, PxU32 maxDofs, PxU32 maxFixedTendons, PxU32 maxTendonJoints, PxU32 maxSpatialTendons, PxU32 maxSpatialTendonAttachments) = 0;
 		
@@ -139,102 +151,80 @@ namespace physx
 		virtual void addSoftBody(Dy::DeformableVolume* /*deformableVolume*/, const PxNodeIndex& /*nodeIndex*/)	{}
 		virtual void releaseSoftBody(Dy::DeformableVolume* /*deformableVolume*/) 	{}
 		virtual void releaseDeferredSoftBodyIds() 	{}
+		virtual PxU32 getNbReservedSoftBodyIds()	const	{ return 0; }
 		virtual void activateSoftbody(Dy::DeformableVolume* /*deformableVolume*/) 	{}
 		virtual void deactivateSoftbody(Dy::DeformableVolume* /*deformableVolume*/) 	{}
 		virtual void activateSoftbodySelfCollision(Dy::DeformableVolume* /*deformableVolume*/) 	{}
 		virtual void deactivateSoftbodySelfCollision(Dy::DeformableVolume* /*deformableVolume*/) 	{}
 		virtual void setSoftBodyWakeCounter(Dy::DeformableVolume* /*deformableVolume*/) 	{}
 
-		virtual void addParticleFilter(Dy::DeformableVolume* /*deformableVolume*/, Dy::ParticleSystem* /*particleSystem*/,
-			PxU32 /*particleId*/, PxU32 /*userBufferId*/, PxU32 /*tetId*/) 	{}
-		virtual void removeParticleFilter(Dy::DeformableVolume* /*deformableVolume*/,
-			const Dy::ParticleSystem* /*particleSystem*/, PxU32 /*particleId*/, PxU32 /*userBufferId*/, PxU32 /*tetId*/) 	{}
 
-		virtual PxU32 addParticleAttachment(Dy::DeformableVolume* /*deformableVolume*/, const Dy::ParticleSystem* /*particleSystem*/,
-			PxU32 /*particleId*/, PxU32 /*userBufferId*/, PxU32 /*tetId*/, const PxVec4& /*barycentrics*/, const bool /*isActive*/) 	{ return 0; }
-		virtual void removeParticleAttachment(Dy::DeformableVolume* /*deformableVolume*/, PxU32 /*handle*/) 	{}
+		virtual PxU32 addVolumeRigidAttachments(Dy::DeformableVolume* /*deformableVolume*/, PxsRigidBody* /*rigidBody*/, const PxNodeIndex& /*rigidNodeIndex*/,
+			PxDeformableAttachmentTargetType::Enum /*feature*/, const PxU32* /*indices*/, const PxVec4* /*barycentrics*/,
+			const PxTransform& /*frame*/, const PxVec4* /*coords*/, PxU32 /*count*/, const bool /*isActive*/)	{ return PX_INVALID_U32; }
+		virtual void removeVolumeRigidAttachments(Dy::DeformableVolume* /*deformableVolume*/, PxU32 /*handle*/) 	{}
 
-		virtual void addRigidFilter(Dy::DeformableVolume* /*deformableVolume*/, const PxNodeIndex& /*rigidNodeIndex*/, PxU32 /*vertIndex*/) 	{}
-		virtual void removeRigidFilter(Dy::DeformableVolume* /*deformableVolume*/,
-			const PxNodeIndex& /*rigidNodeIndex*/, PxU32 /*vertIndex*/) 	{}
+		virtual PxU32 addVolumeVolumeAttachments(Dy::DeformableVolume* /*deformableVolume0*/, PxDeformableAttachmentTargetType::Enum /*feature0*/,
+			const PxU32* /*indices0*/, const PxVec4* /*barycentrics0*/, Dy::DeformableVolume* /*deformableVolume1*/,
+			PxDeformableAttachmentTargetType::Enum /*feature1*/, const PxU32* /*indices1*/, const PxVec4* /*barycentrics1*/,
+			PxU32 /*count*/, const bool /*addToActive*/)	{ return PX_INVALID_U32; }
+		virtual void removeVolumeVolumeAttachments(Dy::DeformableVolume* /*deformableVolume0*/, PxU32 /*handle*/) 	{}
 
-		virtual PxU32 addRigidAttachment(Dy::DeformableVolume* /*deformableVolume*/, const PxNodeIndex& /*softBodyNodeIndex*/,
-			PxsRigidBody* /*rigidBody*/, const PxNodeIndex& /*rigidNodeIndex*/, PxU32 /*vertIndex*/, const PxVec3& /*actorSpacePose*/,
-			PxConeLimitedConstraint* /*constraint*/, const bool /*isActive*/, bool /*doConversion*/) 	{ return 0; }
-		virtual void removeRigidAttachment(Dy::DeformableVolume* /*deformableVolume*/, PxU32 /*handle*/) 	{}
+		virtual PxU32 addVolumeSurfaceAttachments(Dy::DeformableVolume* /*deformableVolume*/, PxDeformableAttachmentTargetType::Enum /*feature0*/,
+			const PxU32* /*indices0*/, const PxVec4* /*barycentrics0*/, Dy::DeformableSurface* /*deformableSurface*/,
+			PxDeformableAttachmentTargetType::Enum /*feature1*/, const PxU32* /*indices1*/, const PxVec4* /*barycentrics1*/,
+			PxU32 /*count*/, const bool /*isActive*/)	{ return PX_INVALID_U32; }
+		virtual void removeVolumeSurfaceAttachments(Dy::DeformableVolume* /*deformableVolume*/,PxU32 /*handle*/) 	{}
 
-		virtual void addTetRigidFilter(Dy::DeformableVolume* /*deformableVolume*/,
-			const PxNodeIndex& /*rigidNodeIndex*/, PxU32 /*tetId*/) 	{}
+		virtual void addVolumeRigidFilters(Dy::DeformableVolume* /*deformableVolume*/,
+			const PxNodeIndex& /*rigidNodeIndex*/, PxU32* /*tetIndices*/, PxU32 /*tetIndicesSize*/) 	{}
+		virtual void removeVolumeRigidFilters(Dy::DeformableVolume* /*deformableVolume*/,
+			const PxNodeIndex& /*rigidNodeIndex*/, PxU32* /*tetIndices*/, PxU32 /*tetIndicesSize*/) 	{}
 
-		virtual PxU32 addTetRigidAttachment(Dy::DeformableVolume* /*deformableVolume*/,
-			PxsRigidBody* /*rigidBody*/, const PxNodeIndex& /*rigidNodeIndex*/, PxU32 /*tetIdx*/, 
-			const PxVec4& /*barycentrics*/, const PxVec3& /*actorSpacePose*/, PxConeLimitedConstraint* /*constraint*/,
-			const bool /*isActive*/, bool /*doConversion*/) { return 0; }
+		// A PxRigidStatic has no node. Its filters reference its shapes by transform cache id.
+		virtual void addVolumeStaticShapeFilters(Dy::DeformableVolume* /*deformableVolume*/,
+			const PxU32* /*shapeCacheIds*/, PxU32 /*nbShapes*/, PxU32* /*tetIndices*/, PxU32 /*tetIndicesSize*/) 	{}
+		virtual void removeVolumeStaticShapeFilters(Dy::DeformableVolume* /*deformableVolume*/,
+			const PxU32* /*shapeCacheIds*/, PxU32 /*nbShapes*/, PxU32* /*tetIndices*/, PxU32 /*tetIndicesSize*/) 	{}
 
-		virtual void removeTetRigidFilter(Dy::DeformableVolume* /*deformableVolume*/, 
-			const PxNodeIndex& /*rigidNodeIndex*/, PxU32 /*tetId*/) 	{}
-
-		virtual void addSoftBodyFilter(Dy::DeformableVolume* /*deformableVolume0*/, Dy::DeformableVolume* /*deformableVolume1*/, PxU32 /*tetIdx0*/, 
-			PxU32 /*tetIdx1*/) 	{}
-		virtual void removeSoftBodyFilter(Dy::DeformableVolume* /*deformableVolume0*/, Dy::DeformableVolume* /*deformableVolume1*/, PxU32 /*tetIdx0*/,
-			PxU32 /*tetId1*/) 	{}
-		virtual void addSoftBodyFilters(Dy::DeformableVolume* /*deformableVolume0*/, Dy::DeformableVolume* /*deformableVolume1*/, PxU32* /*tetIndices0*/, PxU32* /*tetIndices1*/,
+		virtual void addVolumeVolumeFilters(Dy::DeformableVolume* /*deformableVolume0*/, Dy::DeformableVolume* /*deformableVolume1*/, PxU32* /*tetIndices0*/, PxU32* /*tetIndices1*/,
 			PxU32 /*tetIndicesSize*/) 	{}
-		virtual void removeSoftBodyFilters(Dy::DeformableVolume* /*deformableVolume0*/, Dy::DeformableVolume* /*deformableVolume1*/, PxU32* /*tetIndices0*/, PxU32* /*tetIndices1*/,
+		virtual void removeVolumeVolumeFilters(Dy::DeformableVolume* /*deformableVolume0*/, Dy::DeformableVolume* /*deformableVolume1*/, PxU32* /*tetIndices0*/, PxU32* /*tetIndices1*/,
 			PxU32 /*tetIndicesSize*/) 	{}
 
-		virtual PxU32 addSoftBodyAttachment(Dy::DeformableVolume* /*deformableVolume0*/, Dy::DeformableVolume* /*deformableVolume1*/, PxU32 /*tetIdx0*/, PxU32 /*tetIdx1*/,
-			const PxVec4& /*tetBarycentric0*/, const PxVec4& /*tetBarycentric1*/,
-			PxConeLimitedConstraint* /*constraint*/, PxReal /*constraintOffset*/, const bool /*isActive*/, bool /*doConversion*/) { return 0; }
-
-		virtual void removeSoftBodyAttachment(Dy::DeformableVolume* /*deformableVolume0*/, PxU32 /*handle*/) 	{}
-
-		virtual void addClothFilter(Dy::DeformableVolume* /*deformableVolume*/, Dy::DeformableSurface* /*deformableSurface*/, PxU32 /*triIdx*/, PxU32 /*tetIdx*/) 	{}
-		virtual void removeClothFilter(Dy::DeformableVolume* /*deformableVolume*/, Dy::DeformableSurface* /*deformableSurface*/, PxU32 /*triIdx*/, PxU32 /*tetIdx*/) 	{}
-
-		virtual void addVertClothFilter(Dy::DeformableVolume* /*deformableVolume*/, Dy::DeformableSurface* /*deformableSurface*/, PxU32 /*vertIdx*/, PxU32 /*tetIdx*/) 	{}
-		virtual void removeVertClothFilter(Dy::DeformableVolume* /*deformableVolume*/, Dy::DeformableSurface* /*deformableSurface*/, PxU32 /*vertIdx*/, PxU32 /*tetIdx*/) 	{}
-
-		virtual PxU32 addClothAttachment(Dy::DeformableVolume* /*deformableVolume*/, Dy::DeformableSurface* /*deformableSurface*/, PxU32 /*triIdx*/,
-			const PxVec4& /*triBarycentric*/, PxU32 /*tetIdx*/, const PxVec4& /*tetBarycentric*/, 
-			PxConeLimitedConstraint* /*constraint*/, PxReal /*constraintOffset*/,
-			const bool /*isActive*/, bool /*doConversion*/) { return 0; }
-
-		virtual void removeClothAttachment(Dy::DeformableVolume* /*deformableVolume*/,PxU32 /*handle*/) 	{}
-
+		virtual void addVolumeSurfaceFilters(Dy::DeformableVolume* /*deformableVolume*/, Dy::DeformableSurface* /*deformableSurface*/, PxU32* /*triIndices*/, PxU32* /*tetIndices*/, PxU32 /*indicesSize*/) 	{}
+		virtual void removeVolumeSurfaceFilters(Dy::DeformableVolume* /*deformableVolume*/, Dy::DeformableSurface* /*deformableSurface*/, PxU32* /*triIndices*/, PxU32* /*tetIndices*/, PxU32 /*indicesSize*/) 	{}
 		virtual void addFEMCloth(Dy::DeformableSurface*, const PxNodeIndex&) {}
 		virtual void releaseFEMCloth(Dy::DeformableSurface*) 	{}
 		virtual void releaseDeferredFEMClothIds() 	{}
+		virtual PxU32 getNbReservedFEMClothIds()	const	{ return 0; }
 		virtual void activateCloth(Dy::DeformableSurface*) 	{}
 		virtual void deactivateCloth(Dy::DeformableSurface*) 	{}
 		virtual void setClothWakeCounter(Dy::DeformableSurface*) 	{}
 
-		virtual PxU32 addRigidAttachment(Dy::DeformableSurface* /*cloth*/, const PxNodeIndex& /*clothNodeIndex*/,
-			PxsRigidBody* /*rigidBody*/, const PxNodeIndex& /*rigidNodeIndex*/, PxU32 /*vertIndex*/, const PxVec3& /*actorSpacePose*/,
-			PxConeLimitedConstraint* /*constraint*/, const bool /*isActive*/) 	{ return 0; }
-		virtual void removeRigidAttachment(Dy::DeformableSurface* /*cloth*/, PxU32 /*handle*/) 	{}
+		virtual PxU32 addSurfaceRigidAttachments(Dy::DeformableSurface* /*deformableSurface*/, PxsRigidBody* /*rigidBody*/, const PxNodeIndex& /*rigidNodeIndex*/,
+			PxDeformableAttachmentTargetType::Enum /*feature*/, const PxU32* /*indices*/, const PxVec4* /*barycentrics*/,
+			const PxTransform& /*frame*/, const PxVec4* /*coords*/, PxU32 /*count*/, const bool /*isActive*/)	{ return PX_INVALID_U32; }
+		virtual void removeSurfaceRigidAttachments(Dy::DeformableSurface* /*cloth*/, PxU32 /*handle*/) 	{}
 
-		virtual void addTriRigidFilter(Dy::DeformableSurface* /*deformableSurface*/,
-			const PxNodeIndex& /*rigidNodeIndex*/, PxU32 /*triIdx*/) 	{}
+		virtual PxU32 addSurfaceSurfaceAttachments(Dy::DeformableSurface* /*deformableSurface0*/, PxDeformableAttachmentTargetType::Enum /*feature0*/,
+			const PxU32* /*indices0*/, const PxVec4* /*barycentrics0*/, Dy::DeformableSurface* /*deformableSurface1*/,
+			PxDeformableAttachmentTargetType::Enum /*feature1*/, const PxU32* /*indices1*/, const PxVec4* /*barycentrics1*/,
+			PxU32 /*count*/, const bool /*addToActive*/)	{ return PX_INVALID_U32; }
+		virtual void removeSurfaceSurfaceAttachments(Dy::DeformableSurface* /*deformableSurface*/, PxU32 /*handle*/) 	{}
 
-		virtual void removeTriRigidFilter(Dy::DeformableSurface* /*deformableSurface*/, 
-			const PxNodeIndex& /*rigidNodeIndex*/, PxU32 /*triIdx*/) 	{}
+		virtual void addSurfaceRigidFilters(Dy::DeformableSurface* /*deformableSurface*/,
+			const PxNodeIndex& /*rigidNodeIndex*/, PxU32* /*triIndices*/, PxU32 /*triIndicesSize*/) 	{}
+		virtual void removeSurfaceRigidFilters(Dy::DeformableSurface* /*deformableSurface*/,
+			const PxNodeIndex& /*rigidNodeIndex*/, PxU32* /*triIndices*/, PxU32 /*triIndicesSize*/) 	{}
 
-		virtual PxU32 addTriRigidAttachment(Dy::DeformableSurface* /*deformableSurface*/,
-			PxsRigidBody* /*rigidBody*/, const PxNodeIndex& /*rigidNodeIndex*/, PxU32 /*triIdx*/, const PxVec4& /*barycentrics*/, 
-			const PxVec3& /*actorSpacePose*/, PxConeLimitedConstraint* /*constraint*/,
-			const bool /*isActive*/) { return 0; }
+		virtual void addSurfaceStaticShapeFilters(Dy::DeformableSurface* /*deformableSurface*/,
+			const PxU32* /*shapeCacheIds*/, PxU32 /*nbShapes*/, PxU32* /*triIndices*/, PxU32 /*triIndicesSize*/) 	{}
+		virtual void removeSurfaceStaticShapeFilters(Dy::DeformableSurface* /*deformableSurface*/,
+			const PxU32* /*shapeCacheIds*/, PxU32 /*nbShapes*/, PxU32* /*triIndices*/, PxU32 /*triIndicesSize*/) 	{}
 
-		virtual void removeTriRigidAttachment(Dy::DeformableSurface* /*deformableSurface*/, PxU32 /*handle*/) 	{}
-
-		virtual void addClothFilter(Dy::DeformableSurface* /*deformableSurface0*/, Dy::DeformableSurface* /*deformableSurface1*/, PxU32 /*triIdx0*/, PxU32 /*triIdx1*/) 	{}
-		virtual void removeClothFilter(Dy::DeformableSurface* /*deformableSurface0*/, Dy::DeformableSurface* /*deformableSurface1*/, PxU32 /*triIdx0*/, PxU32 /*triIdx1*/) 	{}
-
-		virtual PxU32 addTriClothAttachment(Dy::DeformableSurface* /*deformableSurface0*/, Dy::DeformableSurface* /*deformableSurface1*/, PxU32 /*triIdx0*/, PxU32 /*triIdx1*/,
-			const PxVec4& /*triBarycentric0*/, const PxVec4& /*triBarycentric1*/, const bool /*addToActive*/) { return 0; }
-
-		virtual void removeTriClothAttachment(Dy::DeformableSurface* /*deformableSurface*/, PxU32 /*handle*/) 	{}
-
+		virtual void addSurfaceSurfaceFilters(Dy::DeformableSurface* /*deformableSurface0*/, Dy::DeformableSurface* /*deformableSurface1*/, PxU32* /*triIndices0*/, PxU32* /*triIndices1*/, PxU32 /*triIndicesSize*/) 	{}
+		virtual void removeSurfaceSurfaceFilters(Dy::DeformableSurface* /*deformableSurface0*/, Dy::DeformableSurface* /*deformableSurface1*/, PxU32* /*triIndices0*/, PxU32* /*triIndices1*/, PxU32 /*triIndicesSize*/) 	{}
 		virtual void addParticleSystem(Dy::ParticleSystem* /*particleSystem*/, const PxNodeIndex& /*nodeIndex*/) 	{}
 		virtual void releaseParticleSystem(Dy::ParticleSystem* /*particleSystem*/) 	{}
 		virtual void releaseDeferredParticleSystemIds() 	{}
@@ -242,15 +232,41 @@ namespace physx
 #endif
 
 		virtual void setEnableOVDReadback(bool) {}
-		virtual bool getEnableOVDReadback() const { return false; }
+		virtual PxsOVDReadbackMode::Enum getOVDReadbackMode() const { return PxsOVDReadbackMode::eDISABLED; }
 		virtual void setEnableOVDCollisionReadback(bool) {}
 		virtual bool getEnableOVDCollisionReadback() const { return false; }
+		virtual bool getEnableOVDContactCollection() const { return getEnableOVDCollisionReadback(); }
+
+		// True from the insertion of an articulation until its first upload to the GPU is queued, not run. The next bounds merge
+		// waits for the simulation stream, so it reads the uploaded articulation.
+		virtual bool isArticulationUploadPending(PxU32 /*gpuIndex*/) const { return false; }
 
 #if PX_SUPPORT_OMNI_PVD
 		virtual void setOVDCallbacks(PxsSimulationControllerOVDCallbacks& /*ovdCallbacks*/) {}
+		virtual bool ovdReadbackRigidDynamicData(const PxRigidDynamicGPUIndex* /*indices*/, PxU32 /*nbElements*/, PxRigidDynamicGPUAPIReadType::Enum /*dataType*/) { return true; }
+		virtual bool ovdReadbackArticulationData(const PxArticulationGPUIndex* /*indices*/, PxU32 /*nbElements*/, PxArticulationGPUAPIReadType::Enum /*dataType*/) { return true; }
+		virtual bool ovdIsContactPairCaptured(const PxActor& /*actor0*/, const PxActor& /*actor1*/) const { return true; }
+		virtual bool ovdBeginContactReadback() { return false; }
+		virtual void ovdQueueContactReadback(const void* /*patches*/, const void* /*points*/, const void* /*friction*/, const PxReal* /*forces*/, PxU32 /*nbContacts*/, PxU32 /*nbPatches*/) {}
+		virtual bool ovdFinishContactReadback() { return true; }
+		virtual bool ovdReadbackContactPair(const void* /*patches*/, const void* /*points*/, const void* /*friction*/, const PxReal* /*forces*/, PxU32 /*nbContacts*/, PxU32 /*nbPatches*/) { return true; }
+		// Explicit OmniPVD payload copies, excluding shared simulation synchronization and index metadata.
+		virtual PxU64 getOmniPvdReadbackBytes() const { return 0; }
+		virtual void recordOmniPvdReadbackBytes(PxU64) {}
+		// Explicit rigid body, articulation and contact payload copies, excluding index metadata.
+		virtual PxU64 getOmniPvdReadbackCopyCount() const { return 0; }
+		virtual void recordOmniPvdReadbackCopy(PxU64 bytes) { recordOmniPvdReadbackBytes(bytes); }
+		// Read back and emit to OVD the force/torque the given rigid dynamics hold on the GPU, for a
+		// full-state snapshot (late attach). gpuIndices are PxRigidDynamic node indices. No-op on CPU.
+		virtual void ovdSnapshotRigidDynamicForces(const PxRigidDynamicGPUIndex* /*gpuIndices*/, PxU32 /*nbElements*/) {}
+		// Same, for articulation link force/torque set through the direct-GPU articulation API. gpuIndices
+		// are PxArticulationReducedCoordinate GPU indices. No-op on CPU.
+		virtual void ovdSnapshotArticulationForces(const PxArticulationGPUIndex* /*gpuIndices*/, PxU32 /*nbElements*/) {}
 #endif
 
 		virtual void updateDynamic(Dy::FeatherstoneArticulation* /*articulation*/, const PxNodeIndex& /*nodeIndex*/) {}
+		// Direct GPU API: the body2World target of a kinematic for this step. It is applied to the GPU pose after the solver.
+		virtual void setKinematicTargetDirectGPU(const PxNodeIndex& /*nodeIndex*/, const PxTransform& /*body2World*/) {}
 		virtual void addJoint(const Dy::Constraint&) {}
 		virtual void updateJoint(const PxU32 /*edgeIndex*/, Dy::Constraint* /*constraint*/){}
 		virtual void updateBodies(PxsRigidBody** /*rigidBodies*/, PxU32* /*nodeIndices*/, const PxU32 /*nbBodies*/, PxsExternalAccelerationProvider* /*externalAccelerations*/) {}
@@ -260,17 +276,24 @@ namespace physx
 		virtual	void preIntegrateAndUpdateBound(PxBaseTask* /*continuation*/, const PxVec3 /*gravity*/, const PxReal /*dt*/){}
 		virtual void updateParticleSystemsAndSoftBodies(){}
 		virtual void sortContacts(){}
-		virtual void update(PxBitMapPinned& /*changedHandleMap*/){}
+		virtual void update(Cm::PinnableBitMap& /*changedHandleMap*/){}
 		virtual void updateArticulation(Dy::FeatherstoneArticulation* /*articulation*/, const PxNodeIndex& /*nodeIndex*/) {}
 		virtual void updateArticulationJoint(Dy::FeatherstoneArticulation* /*articulation*/, const PxNodeIndex& /*nodeIndex*/) {}
 //		virtual void updateArticulationTendon(Dy::FeatherstoneArticulation* /*articulation*/, const PxNodeIndex& /*nodeIndex*/) {}
 		virtual void updateArticulationExtAccel(Dy::FeatherstoneArticulation* /*articulation*/, const PxNodeIndex& /*nodeIndex*/) {}
 		virtual void updateArticulationAfterIntegration(PxsContext*	/*llContext*/, Bp::AABBManagerBase* /*aabbManager*/,
-			PxArray<Sc::BodySim*>& /*ccdBodies*/, PxBaseTask* /*continuation*/, IG::IslandSim& /*islandSim*/, float /*dt*/)	{}
+			PxArray<Sc::BodySim*>& /*ccdBodies*/, PxBaseTask* /*continuation*/, IG::IslandSim& /*islandSim*/, float /*dt*/, bool /*isSleepingDisabled*/)	{}
 
 		virtual void mergeChangedAABBMgHandle() {}
-		virtual void gpuDmabackData(PxsTransformCache& /*cache*/, Bp::BoundsArray& /*boundArray*/, PxBitMapPinned& /*changedAABBMgrHandles*/, bool /*enableDirectGPUAPI*/){}
+		virtual void gpuDmabackData(PxsTransformCache& /*cache*/, Bp::BoundsArray& /*boundArray*/, Cm::PinnableBitMap& /*changedAABBMgrHandles*/, bool /*enableDirectGPUAPI*/){}
 		virtual void	updateScBodyAndShapeSim(PxsTransformCache& cache, Bp::BoundsArray& boundArray, PxBaseTask* continuation) = 0;
+		
+		// PdHC: Returns pointer to GPU-computed rigid body accelerations, or NULL if not available.
+		// Accelerations are computed on GPU using velocity-delta in gpuMemDmaBack for both
+		// DirectGPU and non-DirectGPU (CPU Frontend + GPU Backend) modes.
+		// GPU implementations (PxgSimulationController) provide actual data; CPU implementations return NULL.
+		virtual const void* getRigidBodyAccelerations() const { return NULL; }
+
 		virtual PxU32* getActiveBodies()		{ return NULL;	}
 		virtual PxU32* getDeactiveBodies()		{ return NULL;	}
 		virtual void** getRigidBodies()			{ return NULL;	}
@@ -298,7 +321,7 @@ namespace physx
 
 		// NEW DIRECT-GPU API
 
-		virtual bool	getRigidDynamicData(void* /*data*/, const PxRigidDynamicGPUIndex* /*gpuIndices*/, PxRigidDynamicGPUAPIReadType::Enum /*dataType*/, PxU32 /*nbElements*/, float /*oneOverDt*/, CUevent /*startEvent*/, CUevent /*finishEvent*/) const { return false; }
+		virtual bool	getRigidDynamicData(void* /*data*/, const PxRigidDynamicGPUIndex* /*gpuIndices*/, PxRigidDynamicGPUAPIReadType::Enum /*dataType*/, PxU32 /*nbElements*/, CUevent /*startEvent*/, CUevent /*finishEvent*/) const { return false; }
 		virtual bool 	setRigidDynamicData(const void* /*data*/, const PxRigidDynamicGPUIndex* /*gpuIndices*/, PxRigidDynamicGPUAPIWriteType::Enum /*dataType*/, PxU32 /*nbElements*/, CUevent /*startEvent*/, CUevent /*finishEvent*/) { return false; }
 
 		virtual bool 	getArticulationData(void* /*data*/, const PxArticulationGPUIndex* /*gpuIndices*/, PxArticulationGPUAPIReadType::Enum /*dataType*/, PxU32 /*nbElements*/, CUevent /*startEvent*/, CUevent /*finishEvent*/) const { return false; }
@@ -314,19 +337,12 @@ namespace physx
 
 		// END NEW DIRECT-GPU API
 
-		// DEPRECATED DIRECT-GPU API
-
-		PX_DEPRECATED virtual	void	copySoftBodyDataDEPRECATED(void** /*data*/, void* /*dataSizes*/, void* /*softBodyIndices*/, PxSoftBodyGpuDataFlag::Enum /*flag*/, const PxU32 /*nbCopySoftBodies*/, const PxU32 /*maxSize*/, CUevent /*copyEvent*/) {}
-		PX_DEPRECATED virtual	void	applySoftBodyDataDEPRECATED(void** /*data*/, void* /*dataSizes*/, void* /*softBodyIndices*/, PxSoftBodyGpuDataFlag::Enum /*flag*/, const PxU32 /*nbUpdatedSoftBodies*/, const PxU32 /*maxSize*/, CUevent /*applyEvent*/, CUevent /*signalEvent*/) {}
-		PX_DEPRECATED virtual 	void	applyParticleBufferDataDEPRECATED(const PxU32* /*indices*/, const PxGpuParticleBufferIndexPair* /*indexPairs*/, const PxParticleBufferFlags* /*flags*/, PxU32 /*nbUpdatedBuffers*/, CUevent /*waitEvent*/, CUevent /*signalEvent*/) {}
-
-		// END DEPRECATED DIRECT-GPU API
 
 		virtual	PxU32	getInternalShapeIndex(const PxsShapeCore& /*shapeCore*/)	{ return PX_INVALID_U32;	}
 
 		virtual void	syncParticleData()	{}
 
-		virtual void    updateBoundsAndShapes(Bp::AABBManagerBase& /*aabbManager*/, bool /*useDirectApi*/){}
+		virtual void	updateBoundsAndShapes(Bp::AABBManagerBase& /*aabbManager*/, bool /*useDirectApi*/){}
 
 #if PX_SUPPORT_GPU_PHYSX
 		virtual PxU32					getNbDeactivatedDeformableSurfaces()	const	{ return 0;		}

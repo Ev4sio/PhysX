@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
-// Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
+// Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #include "PxgBroadPhaseDesc.h"
 #include "PxgIntegerAABB.h"
@@ -52,6 +29,12 @@ extern "C" __host__ void initBroadphaseKernels0() {}
 
 #define USE_ENV_IDS	1
 
+// PT: kernels marked with "###ONESHOT" are the ones that run for "one shot" queries (a single call to the broadphase).
+// Others are needed for incremental updates.
+
+// PT: we use(d) this macro to detect overflows
+#define CHECK64(x)	if(x>0x00000000ffffffff)	{ printf("FOUND OVERFLOW! %s = %lld\n", #x, x);	}
+
 #if USE_ENV_IDS
 static __device__ PX_FORCE_INLINE bool filtering(PxU32 groupId, PxU32 otherGroupId, PxU32 envId, PxU32 otherEnvId)
 {
@@ -75,8 +58,6 @@ static __device__ PX_FORCE_INLINE bool filtering(PxU32 groupId, PxU32 otherGroup
 }
 #endif
 
-static const PxU32 GRID_SNAP_VAL = 4;	// PT: should probably be PxgIntegerAABB::eGRID_SNAP_VAL
-
 static __device__ PX_FORCE_INLINE PxU32 encodeFloat(PxReal f)
 {
 	const PxU32 i = __float_as_int(f);
@@ -84,98 +65,63 @@ static __device__ PX_FORCE_INLINE PxU32 encodeFloat(PxReal f)
 	return i & PX_SIGN_BITMASK ? ~i : i | PX_SIGN_BITMASK;
 }
 
-// PT: see below, complete mystery why we encode both min & max effectively with "encodeFloatMax" here.
-static __device__ PX_FORCE_INLINE PxU32 encode(PxReal f, PxU32 mask)
+// PT: shared objects (like ground planes) get assigned bounds that cover the entire space, so that they properly collide with
+// all scattered envs. To avoid it, users should properly duplicate these objects in each env and give them a proper env ID.
+#define gEncodedMinExtent	0x01800000	// encodeFloat(-PX_MAX_BOUNDS_EXTENTS) & (~1);
+#define gEncodedMaxExtent	0xfe7fffff	// (encodeFloat(PX_MAX_BOUNDS_EXTENTS) & (~1)) | 1;
+
+extern "C" __global__ void translateAABBsLaunch(const PxBounds3* PX_RESTRICT inArray,
+												PxgIntegerAABB* PX_RESTRICT outArray,
+												const PxReal* PX_RESTRICT contactDistances,
+												const PxU32* PX_RESTRICT envIds,
+												PxU32 boxesCapacity,
+												PxU8 nbBitsShiftX, PxU8 nbBitsShiftY, PxU8 nbBitsShiftZ,
+												PxU8 nbBitsEnvIDX, PxU8 nbBitsEnvIDY, PxU8 nbBitsEnvIDZ)	// BP_TRANSLATE_AABBS //###ONESHOT
 {
-	const PxU32 a = ((encodeFloat(f) >> GRID_SNAP_VAL) + 1) << GRID_SNAP_VAL;
-	return a | mask;
-}
-
-//static __device__ PxU32 gMax = 0;
-//static __device__ PxU32 gMin = 5000000;
-
-extern "C" __global__ void translateAABBsLaunch(const PxgBroadPhaseDesc* bpDesc)	// BP_TRANSLATE_AABBS
-{
-	// Passed to kernel launch:
-	//PxU32 blockDimX = PxgBPKernelBlockDim::BP_TRANSLATE_AABBS = 256;
-	//PxU32 blockDimY = 1;
-	//PxU32 blockDimZ = 1;
-	//printf("blockDim.x / y /z: %d %d %d\n", blockDim.x, blockDim.y, blockDim.z);
-	// => blockDim.x = PxgBPKernelBlockDim::BP_TRANSLATE_AABBS = 256
-	// => blockDim.y = blockDim.z = 1
-
-	//atomicMax(&gMax, threadIdx.x);
-	//atomicMin(&gMin, threadIdx.x);
-	//printf("gMin gMax: %d %d\n", gMin, gMax);
-	//printf("threadIdx.x / y / z: %d %d %d\n", threadIdx.x, threadIdx.y, threadIdx.z);
-	// => 0 <= threadIdx.x < 256
-	// => threadIdx.y = threadIdx.z = 0
-
-	// Passed to kernel launch:
-	//PxU32 gridDimX = nbBlocks;
-	//PxU32 gridDimY = 1;
-	//PxU32 gridDimZ = 1,
-	//atomicMax(&gMax, blockIdx.x);
-	//atomicMin(&gMin, blockIdx.x);
-	//printf("gMin gMax: %d %d\n", gMin, gMax);
-	//printf("blockIdx.x / y / z: %d %d %d\n", blockIdx.x, blockIdx.y, blockIdx.z);
-	// => 0 <= blockIdx.x < nbBlocks
-	// => blockIdx.y = blockIdx.z = 0
-
 	// translate the bounds in the array from float to PxgIntegerAABB, using 8 threads per AABB
 	const PxU32 globalThreadIndex = threadIdx.x + blockDim.x * blockIdx.x;
 	// PT: max globalThreadIndex = 256 + 256 * nbBlocks = ~8x the capacity
 
 	const PxU32 boxIndex = globalThreadIndex>>3;
-	// PT: TODO: pass ins & outs as explicit params to the function, much easier for readers of the code
-	const PxBounds3* PX_RESTRICT inArray = bpDesc->updateData_fpBounds;
-	PxgIntegerAABB* PX_RESTRICT outArray = bpDesc->newIntegerBounds;
-	if(boxIndex < bpDesc->updateData_BoxesCapacity)	// PT: TODO: why do we use capacity here? More than what's needed?
+
+	if(boxIndex < boxesCapacity)	// PT: TODO: why do we use capacity here? More than what's needed?
 	{
-		// PT: mystery why we load "inArray" before the branch for bounds but we don't do the same for distances
-		const PxReal contactDistance = bpDesc->updateData_contactDistances[boxIndex];
+		const PxU32 shifts[6] = {	nbBitsShiftX, nbBitsShiftY, nbBitsShiftZ,
+									nbBitsShiftX, nbBitsShiftY, nbBitsShiftZ	};
+		const PxU32 envIdShifts[6] = {	nbBitsEnvIDX, nbBitsEnvIDY, nbBitsEnvIDZ,
+										nbBitsEnvIDX, nbBitsEnvIDY, nbBitsEnvIDZ	};
+
+		const PxReal contactDistance = contactDistances[boxIndex];
 		const PxU32 a = threadIdx.x & 7;	// PT: same as "globalThreadIndex & 7"
 		if(a<6)	// PT: only 6 values per box to translate, 2 threads do nothing
 		{
 			// PT: read input coordinate that needs translating, will be a min (a<3) or a max (a>=3)
 			const PxReal in = (reinterpret_cast<const PxReal*>(inArray + boxIndex))[a];
-			// PT: complete mystery why we encode both min & max effectively with "encodeFloatMax" here.
-			// PT: The commented out line below shows the original code, which made more sense to me.
-			//PxU32 out = a<3 ? encodeMin(in-contactDistance) : encodeMax(in+contactDistance);
+
 			// PT: mask = 0 for min, mask = 1 for max
 			const PxU32 mask = a < 3 ? 0 : 1;
 			// PT: runtime-inflated bounds
 			const PxReal projection = a < 3 ? in - contactDistance : in + contactDistance;
+
 			// PT: encode inflated coordinate & write it out
-			const PxU32 out = encode(projection, mask);
+			const PxU32 shift = shifts[a];
+			const PxU32 envIdShift = envIdShifts[a];
+
+			const PxU32 b = (encodeFloat(projection) >> shift) & (~1);
+			PxU32 out = b | mask;
+
+			if(envIds && envIdShift)
+			{
+				const PxU32 envId = envIds[boxIndex];
+				if(envId != PX_INVALID_U32)
+					out |= envId << (32 - envIdShift);
+				else
+					out = mask ? gEncodedMaxExtent : gEncodedMinExtent;
+			}
+
 			outArray[boxIndex].mMinMax[a] = out;
 		}
 	}
-
-// DS: sadly this version doesn't work - something to do with the bounds array being double buffered, I think
-#if ONLY_MODIFIED_BOUNDS
-	PxU32 nbCreated = bpDesc->numCreatedHandles, nbUpdated = bpDesc->numUpdatedHandles;
-
-	PxBounds3* inArray = bpDesc->fpBounds;
-	PxgIntegerAABB* outArray = bpDesc->newIntegerBounds;
-	PxReal* contactDistances = bpDesc->updateData_contactDistances;
-	
-	PxU32 handleIndex = globalThreadIndex>>3;
-
-	if(handleIndex < nbCreated + nbUpdated)
-	{
-		PxU32 boxIndex = handleIndex < nbCreated ? bpDesc->createdHandles[handleIndex] : bpDesc->updatedHandles[handleIndex - nbCreated];
-
-		PxReal contactDistance = contactDistances[boxIndex];
-		PxU32 a = threadIdx.x&7;
-		if(a<6)
-		{
-			PxReal in = (reinterpret_cast<const PxReal*>(inArray+boxIndex))[a];
-			PxU32 out = a<3 ? encodeMin(in-contactDistance) : encodeMax(in+contactDistance);
-			outArray[boxIndex].mMinMax[a] = out;
-		}
-	}
-#endif
 }
 
 //mark the handle as deleted
@@ -220,7 +166,7 @@ extern "C" __global__ void markRemovedPairsLaunch(const PxgBroadPhaseDesc* bpDes
 
 		bounds[handle].setEmpty();
 	}
-}  
+}
 
 //set projections and sap box as invalid
 static __device__ PX_FORCE_INLINE void clearPairs(const PxU32 handle, PxgSapBox1D* boxSapBox1D, PxU32* boxProjection)
@@ -262,10 +208,10 @@ extern "C" __global__ void markRemovedPairsProjectionsLaunch(const PxgBroadPhase
 		clearPairs(handle, boxSapBox1DY, boxProjectionY);
 		clearPairs(handle, boxSapBox1DZ, boxProjectionZ);
 	}
-}   
+}
 
 //This kernel will be called when we have new pairs inserted into the scene
-extern "C" __global__ void markCreatedPairsLaunch(const PxgBroadPhaseDesc* bpDesc)	// BP_UPDATE_CREATEDPAIRS
+extern "C" __global__ void markCreatedPairsLaunch(const PxgBroadPhaseDesc* bpDesc)	// BP_UPDATE_CREATEDPAIRS //###ONESHOT
 {
 	const PxU32 numCreatedHandleSize = bpDesc->numCreatedHandles;
 
@@ -335,7 +281,7 @@ extern "C" __global__ void markCreatedPairsLaunch(const PxgBroadPhaseDesc* bpDes
 
 //handles has been sorted when we are calling the radix sort kernel, so in this kernel, we need to get out the sorted handle and initialize PxgSapBox1D
 //we call this function twice: one is for incremental sap, the other is for generated new pairs
-extern "C" __global__ void initializeSapBox1DLaunch(const PxgBroadPhaseDesc* bpDesc, const PxU32 numHandles, bool isNew)	// BP_INITIALIZE_SAPBOX
+extern "C" __global__ void initializeSapBox1DLaunch(const PxgBroadPhaseDesc* bpDesc, const PxU32 numHandles, bool isNew)	// BP_INITIALIZE_SAPBOX //###ONESHOT
 {
 	//const PxU32 numHandles = bpDesc->numPreviousHandles + bpDesc->numCreatedHandles - bpDesc->numRemovedHandles;
 
@@ -410,9 +356,14 @@ extern "C" __global__ void markUpdatedPairsLaunch(const PxgBroadPhaseDesc* bpDes
 		//printf("mask %i\n", mask);
 
 #if PX_DEBUG
-		const PxU32* aggregatedBoundHandles = bpDesc->aabbMngr_aggregatedBoundHandles;
-		const PxU32 aggregatedBoundMask = aggregatedBoundHandles[word];
-		assert(!(mask & aggregatedBoundMask));
+		// The aggregated-bounds map grows only for broadphase entries and aggregates, so it can be shorter than the
+		// changed-handle map, or unallocated. Its range includes every handle with a changed bit.
+		if (mask)
+		{
+			const PxU32* aggregatedBoundHandles = bpDesc->aabbMngr_aggregatedBoundHandles;
+			const PxU32 aggregatedBoundMask = aggregatedBoundHandles[word];
+			assert(!(mask & aggregatedBoundMask));
+		}
 #endif
 
 		const PxU32 addedBoundMask = addedHandles[word];
@@ -734,7 +685,7 @@ static __device__ void secondPassEndPtsHistogram(
 
 //This function is called before we create regions. We need to create three end points histogram for three axis. The idea for using this three
 //end points histogram is to do spatial partitioning based on the exclusive end points.
-extern "C" __global__ void computeEndPtsHistogram(const PxgBroadPhaseDesc* bpDesc, const bool isIncremental)	// BP_COMPUTE_ENDPT_HISTOGRAM
+extern "C" __global__ void computeEndPtsHistogram(const PxgBroadPhaseDesc* bpDesc, const bool isIncremental)	// BP_COMPUTE_ENDPT_HISTOGRAM //###ONESHOT
 {
 	//for(PxU32 axis = 0; axis < 3; ++axis)
 	PxU32 axis = blockIdx.y;
@@ -773,8 +724,8 @@ extern "C" __global__ void computeEndPtsHistogram(const PxgBroadPhaseDesc* bpDes
 }
 
 //This function is called after computeEndPtsHistogramWithinABlockKernel before we create regions
-// PT: the aforementioned kernel ("computeEndPtsHistogramWithinABlockKernel") doesn't exist anymore
-extern "C" __global__ void outputEndPtsHistogram(const PxgBroadPhaseDesc* bpDesc, const bool isIncremental)	// BP_OUTPUT_ENDPT_HISTOGRAM
+// PT: the aforementioned kernel ("computeEndPtsHistogramWithinABlockKernel") doesn't exist anymore => probably computeEndPtsHistogram now
+extern "C" __global__ void outputEndPtsHistogram(const PxgBroadPhaseDesc* bpDesc, const bool isIncremental)	// BP_OUTPUT_ENDPT_HISTOGRAM //###ONESHOT
 {
 	PxU32 axis = blockIdx.y;
 
@@ -811,8 +762,8 @@ extern "C" __global__ void outputEndPtsHistogram(const PxgBroadPhaseDesc* bpDesc
 		}
 	}
 }
-  
-extern "C" __global__ void createRegionsKernel(const PxgBroadPhaseDesc* bpDesc)	// BP_CREATE_REGIONS
+
+extern "C" __global__ void createRegionsKernel(const PxgBroadPhaseDesc* bpDesc)	// BP_CREATE_REGIONS //###ONESHOT
 {
 	const PxU32* endPtsHistogramX = bpDesc->totalEndPtHistogram[AXIS_X];
 	const PxU32* endPtsHistogramY = bpDesc->totalEndPtHistogram[AXIS_Y];
@@ -890,10 +841,10 @@ extern "C" __global__ void createRegionsKernel(const PxgBroadPhaseDesc* bpDesc)	
 
 				if (eRegionX >= sRegionX)
 					regionCount = (eRegionX - sRegionX + 1) * yzRegionAccum;
-			}  
+			}
 			regionAccum[workIndex] = regionCount;
 		}
-	}  
+	}
 }
 
 template <PxU32 WARP_PERBLOCK_SIZE>
@@ -998,7 +949,7 @@ static __device__ void outputHistogram(PxU32* histogram, const PxU32* blockHisto
 	}
 }
 
-extern "C" __global__ void computeStartRegionsHistogram(const PxgBroadPhaseDesc* bpDesc)	// BP_COMPUTE_START_REGION_HISTOGRAM
+extern "C" __global__ void computeStartRegionsHistogram(const PxgBroadPhaseDesc* bpDesc)	// BP_COMPUTE_START_REGION_HISTOGRAM //###ONESHOT
 {
 	PxU32* startRegionAccum = bpDesc->startRegionAccum;
 	PxU32* blockStartRegionAccum = bpDesc->blockStartRegionAccum;
@@ -1010,7 +961,7 @@ extern "C" __global__ void computeStartRegionsHistogram(const PxgBroadPhaseDesc*
 	computeHistogram<PxgBPKernelBlockDim::BP_COMPUTE_START_REGION_HISTOGRAM/WARP_SIZE>(startRegionAccum, blockStartRegionAccum, nbProjections);
 }
 
-extern "C" __global__ void outputStartRegionsHistogram(PxgBroadPhaseDesc* bpDesc)	// BP_OUTPUT_START_REGION_HISTOGRAM
+extern "C" __global__ void outputStartRegionsHistogram(PxgBroadPhaseDesc* bpDesc)	// BP_OUTPUT_START_REGION_HISTOGRAM //###ONESHOT
 {
 	PxU32* startRegionAccum = bpDesc->startRegionAccum;
 	const PxU32* blockStartRegionAccum = bpDesc->blockStartRegionAccum;
@@ -1021,7 +972,7 @@ extern "C" __global__ void outputStartRegionsHistogram(PxgBroadPhaseDesc* bpDesc
 	outputHistogram<PxgBPKernelBlockDim::BP_OUTPUT_START_REGION_HISTOGRAM/WARP_SIZE>(startRegionAccum, blockStartRegionAccum, bpDesc->startRegionAccumTotal, nbProjections);
 }
 
-extern "C" __global__ void computeRegionsHistogram(const PxgBroadPhaseDesc* bpDesc)	// BP_COMPUTE_REGION_HISTOGRAM
+extern "C" __global__ void computeRegionsHistogram(const PxgBroadPhaseDesc* bpDesc)	// BP_COMPUTE_REGION_HISTOGRAM //###ONESHOT
 {
 	PxU32* regionAccum = bpDesc->regionAccum;
 	PxU32* blockRegionAccum = bpDesc->blockRegionAccum;
@@ -1032,7 +983,7 @@ extern "C" __global__ void computeRegionsHistogram(const PxgBroadPhaseDesc* bpDe
 	computeHistogram<PxgBPKernelBlockDim::BP_COMPUTE_REGION_HISTOGRAM/WARP_SIZE>(regionAccum, blockRegionAccum, nbProjections);
 }
 
-extern "C" __global__ void outputRegionsHistogram(PxgBroadPhaseDesc* bpDesc)	// BP_OUTPUT_REGION_HISTOGRAM
+extern "C" __global__ void outputRegionsHistogram(PxgBroadPhaseDesc* bpDesc)	// BP_OUTPUT_REGION_HISTOGRAM //###ONESHOT
 {
 	PxU32* regionAccum = bpDesc->regionAccum;
 	const PxU32* blockRegionAccum = bpDesc->blockRegionAccum;
@@ -1043,7 +994,7 @@ extern "C" __global__ void outputRegionsHistogram(PxgBroadPhaseDesc* bpDesc)	// 
 	outputHistogram<PxgBPKernelBlockDim::BP_OUTPUT_REGION_HISTOGRAM/WARP_SIZE>(regionAccum, blockRegionAccum, bpDesc->regionAccumTotal, nbProjections);
 }
 
-extern "C" __global__ void writeOutStartAndActiveRegionHistogram(const PxgBroadPhaseDesc* bpDesc)	// BP_WRITEOUT_ACTIVE_HISTOGRAM
+extern "C" __global__ void writeOutStartAndActiveRegionHistogram(const PxgBroadPhaseDesc* bpDesc)	// BP_WRITEOUT_ACTIVE_HISTOGRAM //###ONESHOT
 {
 	const PxU32* startRegionAccum = bpDesc->startRegionAccum;
 
@@ -1103,7 +1054,7 @@ extern "C" __global__ void writeOutStartAndActiveRegionHistogram(const PxgBroadP
 	}
 }
 
-extern "C" __global__ void computeStartAndActiveRegionHistogram(const PxgBroadPhaseDesc* bpDesc)	// BP_COMPUTE_ACTIVE_HISTOGRAM
+extern "C" __global__ void computeStartAndActiveRegionHistogram(const PxgBroadPhaseDesc* bpDesc)	// BP_COMPUTE_ACTIVE_HISTOGRAM //###ONESHOT
 {
 	//the compiler should be able to strip this out
 	__shared__ PxU32 sStartHistogram[WARP_SIZE * WARP_PERBLOCK_SIZE_16];
@@ -1199,7 +1150,7 @@ extern "C" __global__ void computeStartAndActiveRegionHistogram(const PxgBroadPh
 	}
 }
 
-extern "C" __global__ void outputOrderedActiveRegionHistogram(const PxgBroadPhaseDesc* bpDesc)	// BP_OUTPUT_ACTIVE_HISTOGRAM
+extern "C" __global__ void outputOrderedActiveRegionHistogram(const PxgBroadPhaseDesc* bpDesc)	// BP_OUTPUT_ACTIVE_HISTOGRAM //###ONESHOT
 {
 	const PxU32* startRegionAccum = bpDesc->startRegionAccum;
 
@@ -1274,14 +1225,14 @@ extern "C" __global__ void outputOrderedActiveRegionHistogram(const PxgBroadPhas
 	}
 }
 
-extern "C" __global__ void writeOutOverlapChecksForInsertedBoundsRegionsHistogram(const PxgBroadPhaseDesc* bpDesc)	// BP_WRITEOUT_OVERLAPCHECKS_HISTOGRAM_NEWBOUNDS
+extern "C" __global__ void writeOutOverlapChecksForInsertedBoundsRegionsHistogram(const PxgBroadPhaseDesc* bpDesc)	// BP_WRITEOUT_OVERLAPCHECKS_HISTOGRAM_NEWBOUNDS //###ONESHOT
 {
 	const PxU32 numHandles = bpDesc->numPreviousHandles + bpDesc->numCreatedHandles - bpDesc->numRemovedHandles;
 	const PxU32 nbProjections = numHandles * 2 ;
 	
 	const PxgSapBox1D* boxSapBox1DX = bpDesc->boxSapBox1D[AXIS_X];
 
-	PxU32* overlapChecks = bpDesc->overlapChecksRegion;
+	regionOverlapType* overlapChecks = bpDesc->overlapChecksRegion;
 
 	PxgHandleRegion* handleRegiones = bpDesc->overlapChecksHandleRegiones;
 
@@ -1345,22 +1296,30 @@ extern "C" __global__ void writeOutOverlapChecksForInsertedBoundsRegionsHistogra
 			handleRegiones[workIndex].handleIndex = handle;
 			handleRegiones[workIndex].regionIndex = regionIndex;
 			overlapChecks[workIndex] = regionEndIndex - regionStartIndex;
+			//CHECK64(overlapChecks[workIndex])	// PT: this one doesn't fire in this kernel
 		}
 	}
 }
 
-extern "C" __global__ void computeOverlapChecksForRegionsHistogram(const PxgBroadPhaseDesc* bpDesc)	// BP_COMPUTE_OVERLAPCHECKS_HISTOGRAM
+// PT: we use defines instead of typedefs to be able to use the same names but with different types
+// in each kernel. At time of writing ltype is used where the UTs proved that 64bit was necessary,
+// and ltype2 is used when the jury is still out - the UT does not fail with a 32bit type there but
+// from looking at the code it seems that it should still be 64bit.
+#define ltype	PxU64
+#define ltype2	PxU64
+extern "C" __global__ void computeOverlapChecksForRegionsHistogram(const PxgBroadPhaseDesc* bpDesc)	// BP_COMPUTE_OVERLAPCHECKS_HISTOGRAM //###ONESHOT
 {
 	//if the hardware support shfl, the compiler should be able to strip out this memory
-	__shared__ PxU32 sPairCount[PxgBPKernelBlockDim::BP_COMPUTE_OVERLAPCHECKS_HISTOGRAM];
+	__shared__ ltype2 sPairCount[PxgBPKernelBlockDim::BP_COMPUTE_OVERLAPCHECKS_HISTOGRAM];
 
 	const PxU32 WARP_PERBLOCK_SIZE = PxgBPKernelBlockDim::BP_COMPUTE_OVERLAPCHECKS_HISTOGRAM / WARP_SIZE;
 
-	__shared__ PxU32 sPairWarpCount[WARP_PERBLOCK_SIZE];
+	// PT: there is no evidence that sPairWarpCount must be 64bit but it is involved in 64bit accumulations
+	__shared__ ltype2 sPairWarpCount[WARP_PERBLOCK_SIZE];
 
-	PxU32* blockOverlapChecks = bpDesc->blockOverlapChecksRegion;
+	regionOverlapType* blockOverlapChecks = bpDesc->blockOverlapChecksRegion;	// PT: must be 64bit because of overflow below (1)
 
-	PxU32* overlapChecks = bpDesc->overlapChecksRegion;
+	regionOverlapType* overlapChecks = bpDesc->overlapChecksRegion;	// PT: must be 64bit because of overflow below (2)
 
 	const PxU32 idx = threadIdx.x;
 
@@ -1375,42 +1334,58 @@ extern "C" __global__ void computeOverlapChecksForRegionsHistogram(const PxgBroa
 
 	const PxU32 numIterationPerBlock = (totalBlockRequired + (BLOCK_SIZE-1))/ BLOCK_SIZE;
 
-	__shared__ PxU32 accum;
+	__shared__ ltype accum;	// PT: must be 64bit because of overflow below (1)
 
-	if(idx ==  (WARP_PERBLOCK_SIZE - 1))
+	if(idx == (WARP_PERBLOCK_SIZE - 1))
 		accum = 0;
 
 	for(PxU32 i=0; i<numIterationPerBlock; ++i)
 	{
 		const PxU32 workIndex = i*WARP_SIZE*WARP_PERBLOCK_SIZE + idx + numIterationPerBlock * blockIdx.x * blockDim.x;
 
-		PxU32 nbComparision = 0;
+		// PT: there is no evidence that nbComparision must be 64bit but it reads from a 64bit buffer so....
+		ltype2 nbComparision = 0;
 		if(workIndex < totalComparision)
 			nbComparision = overlapChecks[workIndex];
+		//CHECK64(nbComparision)	// PT: this one doesn't fire
 
-		const PxU32 pairCount = warpScanAdd<WARP_SIZE>(FULL_MASK, idx, threadIndexInWarp, sPairCount, nbComparision, nbComparision);
+		// PT: there is no evidence that pairCount must be 64bit but it is involved in 64bit accumulations
+		const ltype2 pairCount = warpScanAdd<WARP_SIZE>(FULL_MASK, idx, threadIndexInWarp, sPairCount, nbComparision, nbComparision);
+		//CHECK64(pairCount)	// PT: this one doesn't fire
 
 		if(threadIndexInWarp == (WARP_SIZE-1))
+		{
 			sPairWarpCount[warpIndexInBlock] = pairCount + nbComparision;
+			//CHECK64(sPairWarpCount[warpIndexInBlock])	// PT: this one doesn't fire
+		}
 	
 		__syncthreads();
 
-		PxU32 value = 0;
-		PxU32 res = 0;
+		// PT: there is no evidence that value and res must be 64bit but they are involved in 64bit accumulations
+		ltype2 value = 0;
+		ltype2 res = 0;
 		unsigned mask_idx = __ballot_sync(FULL_MASK, idx < WARP_PERBLOCK_SIZE);
 		if(idx  < WARP_PERBLOCK_SIZE)
 		{
 			value = sPairWarpCount[idx];
+			//CHECK64(value)	// PT: this one doesn't fire
 
 			res = warpScanAddWriteToSharedMem<WARP_PERBLOCK_SIZE>(mask_idx, idx, threadIndexInWarp, sPairWarpCount, value, value);
+			//CHECK64(sPairWarpCount[idx])	// PT: this one doesn't fire
+			//CHECK64(res)					// PT: this one doesn't fire
 		}
 
-		PxU32 prevAccum = accum;
+		ltype prevAccum = accum;	// PT: must be 64bit because accum is 64bit (1)
 
 		__syncthreads();
 
 		if(workIndex < totalComparision)
+		{
 			overlapChecks[workIndex] = pairCount + sPairWarpCount[warpIndexInBlock] + prevAccum;
+			//CHECK64(prevAccum)						// PT: this one fires
+			//CHECK64(overlapChecks[workIndex])			// PT: this one fires so overlapChecks must be 64bit (2)
+			//CHECK64(sPairWarpCount[warpIndexInBlock])	// PT: this one doesn't fire
+		}
 
 		__syncthreads();
 
@@ -1422,12 +1397,17 @@ extern "C" __global__ void computeOverlapChecksForRegionsHistogram(const PxgBroa
 	{
 		//write out the global start index address
 		blockOverlapChecks[blockIdx.x] = accum;
+		//CHECK64(accum)	// PT: this one fires so blockOverlapChecks and accum must be 64bit (1)
 	}
 }
+#undef ltype
+#undef ltype2
 
-extern "C" __global__ void outputOverlapChecksForRegionHistogram(PxgBroadPhaseDesc* bpDesc)	// BP_OUTPUT_OVERLAPCHECKS_HISTOGRAM
+#define ltype	PxU64
+extern "C" __global__ void outputOverlapChecksForRegionHistogram(PxgBroadPhaseDesc* bpDesc)	// BP_OUTPUT_OVERLAPCHECKS_HISTOGRAM //###ONESHOT
 {
-	__shared__ PxU32 sAxisAccum[BLOCK_SIZE];
+	// PT: must be 64bit because of overflow below (3)
+	__shared__ ltype sAxisAccum[BLOCK_SIZE];
 
 	const PxU32 idx = threadIdx.x;
 
@@ -1435,22 +1415,29 @@ extern "C" __global__ void outputOverlapChecksForRegionHistogram(PxgBroadPhaseDe
 
 	const PxU32 globalThreadIndex = threadIdx.x + blockDim.x*blockIdx.x;
 
-	const PxU32* blockOverlapChecks = bpDesc->blockOverlapChecksRegion;
+	const regionOverlapType* blockOverlapChecks = bpDesc->blockOverlapChecksRegion;
 
 	//exclusive accumulation 
-	PxU32* overlapChecks = bpDesc->overlapChecksRegion;
+	regionOverlapType* overlapChecks = bpDesc->overlapChecksRegion;
 
-	PxU32 res = 0;
-	PxU32 val = 0;
+	ltype res = 0;	// PT: must be 64bit because of overflow below (1)
+	ltype val = 0;	// PT: must be 64bit because of overflow below (2)
 	unsigned mask_idx = __ballot_sync(FULL_MASK, idx < BLOCK_SIZE);
 	if(idx < BLOCK_SIZE)
 	{
 		val = blockOverlapChecks[idx];
+		//CHECK64(val)	// PT: this one fires so val must be 64bit (2)
+
 		res = warpScanAddWriteToSharedMem<BLOCK_SIZE>(mask_idx, idx, threadIndexInWarp, sAxisAccum, val, val);
+		//CHECK64(res)				// PT: this one fires so res must be 64bit (1)
+		//CHECK64(sAxisAccum[idx])	// PT: this one fires so sAxisAccum must be 64bit (3)
 	}
 
 	if(globalThreadIndex == (BLOCK_SIZE-1))
+	{
 		bpDesc->overlapChecksTotalRegion = res + val;
+		//CHECK64(bpDesc->overlapChecksTotalRegion)	// PT: this one fires so overlapChecksTotalRegion must be 64bit
+	}
 
 	const PxU32 totalComparision = bpDesc->regionAccumTotal;
 
@@ -1460,7 +1447,7 @@ extern "C" __global__ void outputOverlapChecksForRegionHistogram(PxgBroadPhaseDe
 
 	__syncthreads();
 
-	PxU32 blockAccum = sAxisAccum[blockIdx.x];
+	const ltype blockAccum = sAxisAccum[blockIdx.x];
 
 	for(PxU32 i=0; i<numIterationPerBlock; ++i)
 	{
@@ -1470,6 +1457,7 @@ extern "C" __global__ void outputOverlapChecksForRegionHistogram(PxgBroadPhaseDe
 			overlapChecks[workIndex] = overlapChecks[workIndex] + blockAccum;
 	}
 }
+#undef ltype
 
 static __device__ bool isSeparatedBeforeAxis(const PxU32 axis, const PxgIntegerAABB& aabb0, const PxgIntegerAABB& aabb1)
 {
@@ -1495,11 +1483,36 @@ static __device__ PX_FORCE_INLINE void updatePair(PxU32 handle, PxU32 otherHandl
 	report[index] = PxgBroadPhasePair(handle, otherHandle);
 }
 
-extern "C" __global__ void performIncrementalSAP(PxgBroadPhaseDesc* bpDesc)	// BP_INCREMENTAL_SAP
+// Finds the projection that work item workId belongs to, and the work item's offset within that projection's comparisons.
+// The prefix sums are stored in two levels (see PxgBroadPhaseDesc::incrementalWarpComparisons): first find the warp,
+// using its 64-bit base, then the projection within the warp, using the 32-bit offsets.
+static __device__ PX_FORCE_INLINE PxU32 findIncrementalProjection(const PxU64* warpComparisons, const PxU32* comparisons, const PxU32 nbProjections, const PxU64 workId, PxU32& offset)
+{
+	const PxU32 nbWarps = (nbProjections + WARP_SIZE - 1) / WARP_SIZE;
+	const PxU32 warpId = binarySearch(warpComparisons, nbWarps, workId);
+
+	// The comparisons of a warp fit in 32 bits
+	const PxU32 workIdInWarp = PxU32(workId - warpComparisons[warpId]);
+
+	const PxU32 firstProjection = warpId * WARP_SIZE;
+	const PxU32 index = firstProjection + binarySearch(comparisons + firstProjection, PxMin(nbProjections - firstProjection, WARP_SIZE), workIdInWarp);
+	offset = workIdInWarp - comparisons[index];
+	return index;
+}
+
+// 6 resident blocks per SM, i.e. at most 40 registers: the kernel needs the occupancy to hide its memory latency (OMPE-120355).
+// sm_75 holds at most 1024 threads per SM, i.e. 4 blocks, and ptxas rejects a higher minimum.
+#if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ == 750)
+#define BP_INCREMENTAL_SAP_MIN_BLOCKS_PER_SM	4
+#else
+#define BP_INCREMENTAL_SAP_MIN_BLOCKS_PER_SM	6
+#endif
+extern "C" __global__ __launch_bounds__(PxgBPKernelBlockDim::BP_INCREMENTAL_SAP, BP_INCREMENTAL_SAP_MIN_BLOCKS_PER_SM) void performIncrementalSAP(PxgBroadPhaseDesc* bpDesc)	// BP_INCREMENTAL_SAP
 {
 	const PxU32 WARP_PERBLOCK_SIZE = PxgBPKernelBlockDim::BP_INCREMENTAL_SAP / WARP_SIZE;
-	__shared__ PxU32 sTotalComparisons;
+	__shared__ PxU64 sTotalComparisons;
 	__shared__ const PxU32* sComparisonHistograms;
+	__shared__ const PxU64* sWarpComparisonHistograms;
 	__shared__ const PxU32* sRanks;
 	__shared__ PxgBroadPhasePair* sFoundOrLost[2];
 	__shared__ const PxU32* sSortedHandles;
@@ -1526,6 +1539,7 @@ extern "C" __global__ void performIncrementalSAP(PxgBroadPhaseDesc* bpDesc)	// B
 	{
 		sTotalComparisons = bpDesc->totalIncrementalComparisons[blockIdx.y];
 		sComparisonHistograms = bpDesc->incrementalComparisons[blockIdx.y];
+		sWarpComparisonHistograms = bpDesc->incrementalWarpComparisons[blockIdx.y];
 		sRanks = bpDesc->boxProjectionRanks[blockIdx.y];
 		//sRanks[threadIdx.x] = bpDesc->boxProjectionRanks[threadIdx.x];
 		//sSortedHandles[threadIdx.x][0] = bpDesc->boxTempHandles[threadIdx.x];
@@ -1557,8 +1571,9 @@ extern "C" __global__ void performIncrementalSAP(PxgBroadPhaseDesc* bpDesc)	// B
 	__syncthreads();
 	//Loop over all 3 axes, do incremental swaps, produce results...
 
-	PxU32 nbBlocksProcessed = 0;
-	PxU32 blockId = blockIdx.x;
+	// The number of comparisons can exceed 32 bits, so work ids and block counters are 64-bit
+	PxU64 nbBlocksProcessed = 0;
+	PxU64 blockId = blockIdx.x;
 
 	const PxU32 threadIndexInWarp = threadIdx.x&(WARP_SIZE-1);
 	const PxU32 warpIndex = threadIdx.x/WARP_SIZE;
@@ -1566,11 +1581,12 @@ extern "C" __global__ void performIncrementalSAP(PxgBroadPhaseDesc* bpDesc)	// B
 	PxU32 axis = blockIdx.y;
 	{
 		//This is the number of iterations per-grid
-		const PxU32 totalCmpsThisAxis = sTotalComparisons;
-		const PxU32 nbBlocksRequired = (totalCmpsThisAxis + blockDim.x-1)/blockDim.x;
-		const PxU32 blockStartIndex = nbBlocksProcessed;
-		const PxU32 blockEndIndex = blockStartIndex + nbBlocksRequired;
+		const PxU64 totalCmpsThisAxis = sTotalComparisons;
+		const PxU64 nbBlocksRequired = (totalCmpsThisAxis + blockDim.x-1)/blockDim.x;
+		const PxU64 blockStartIndex = nbBlocksProcessed;
+		const PxU64 blockEndIndex = blockStartIndex + nbBlocksRequired;
 		const PxU32* histogram = sComparisonHistograms;
+		const PxU64* warpHistogram = sWarpComparisonHistograms;
 
 		const PxU32* boxRanks = sRanks;
 
@@ -1579,7 +1595,7 @@ extern "C" __global__ void performIncrementalSAP(PxgBroadPhaseDesc* bpDesc)	// B
 			//OK. We need to process this block of work...
 			//Work out the threadIdx to be able to process the pair...
 
-			const PxU32 workId = (blockId-blockStartIndex) * (blockDim.x) + threadIdx.x;
+			const PxU64 workId = (blockId-blockStartIndex) * (blockDim.x) + threadIdx.x;
 
 			PxU32 handle = 0xFFFFFFFF;
 			PxU32 otherHandle = 0xFFFFFFFF;
@@ -1590,7 +1606,8 @@ extern "C" __global__ void performIncrementalSAP(PxgBroadPhaseDesc* bpDesc)	// B
 			{
 				//Then we have something to do...
 				//Stage 1 -> work out which projection we're processing...
-				PxU32 index = binarySearch(histogram, nbProjections, workId);
+				PxU32 offset;
+				const PxU32 index = findIncrementalProjection(warpHistogram, histogram, nbProjections, workId, offset);
 
 				const PxU32 sortedHandle = sSortedHandles[index];
 
@@ -1602,10 +1619,6 @@ extern "C" __global__ void performIncrementalSAP(PxgBroadPhaseDesc* bpDesc)	// B
 #if USE_ENV_IDS
 				const PxU32 envId = envIds ? envIds[handle] : PX_INVALID_U32;
 #endif
-				//Now figure out how far offset we are...
-
-				const PxU32 offset = workId - histogram[index];
-
 				//Now figure out which swaps etc. we are processing...
 
 				const PxU32 prevIndex = boxRanks[index];
@@ -1652,6 +1665,7 @@ extern "C" __global__ void performIncrementalSAP(PxgBroadPhaseDesc* bpDesc)	// B
 
 					const PxgIntegerAABB& otherAABB = aabbs0[otherHandle];
 					const PxgIntegerAABB& otherOldAABB = aabbs1[otherHandle];
+
 					if(aabb.intersects(otherAABB) && !oldAABB.intersects1D(otherOldAABB, axis))
 					{
 						//If this is a down sweep, this is a found pair. If this is an up sweep, this is a lost pair
@@ -1668,7 +1682,7 @@ extern "C" __global__ void performIncrementalSAP(PxgBroadPhaseDesc* bpDesc)	// B
 			const PxU32 val1 = foundOrLostID == 0 ? 0 : foundOrLostPair;
 
 			const PxU32 res0 = warpScanAddWriteToSharedMem<WARP_SIZE>(FULL_MASK, threadIdx.x, threadIndexInWarp, sFoundLostAccumulator[0], val0, val0);
-			const PxU32 res1 = warpScanAddWriteToSharedMem< WARP_SIZE>(FULL_MASK, threadIdx.x, threadIndexInWarp, sFoundLostAccumulator[1], val1, val1);
+			const PxU32 res1 = warpScanAddWriteToSharedMem<WARP_SIZE>(FULL_MASK, threadIdx.x, threadIndexInWarp, sFoundLostAccumulator[1], val1, val1);
 
 			if(threadIndexInWarp == (WARP_SIZE-1))
 			{
@@ -1711,7 +1725,9 @@ extern "C" __global__ void performIncrementalSAP(PxgBroadPhaseDesc* bpDesc)	// B
 	}
 }
 
-extern "C" __global__ void generateFoundPairsForNewBoundsRegion(PxgBroadPhaseDesc* bpDesc)	// BP_GENERATE_FOUNDPAIR_NEWBOUNDS
+#define ltype	PxU64
+#define ltype2	PxU32
+extern "C" __global__ void generateFoundPairsForNewBoundsRegion(PxgBroadPhaseDesc* bpDesc)	// BP_GENERATE_FOUNDPAIR_NEWBOUNDS //###ONESHOT
 {
 	const PxU32 numHandles = bpDesc->numPreviousHandles + bpDesc->numCreatedHandles - bpDesc->numRemovedHandles;
 	const PxU32 nbProjections = numHandles * 2 ;
@@ -1723,9 +1739,9 @@ extern "C" __global__ void generateFoundPairsForNewBoundsRegion(PxgBroadPhaseDes
 	const PxU32 WARP_PERBLOCK_SIZE = PxgBPKernelBlockDim::BP_GENERATE_FOUNDPAIR_NEWBOUNDS/WARP_SIZE;
 
 	//if hardware support shfl, the compiler should be able to strip this memory out
-	__shared__ PxU32 sFoundPairsCount[PxgBPKernelBlockDim::BP_GENERATE_FOUNDPAIR_NEWBOUNDS];
+	__shared__ ltype2 sFoundPairsCount[PxgBPKernelBlockDim::BP_GENERATE_FOUNDPAIR_NEWBOUNDS];
 
-	__shared__ PxU32 sFoundPairsWarpCount[WARP_PERBLOCK_SIZE];
+	__shared__ ltype2 sFoundPairsWarpCount[WARP_PERBLOCK_SIZE];
 	__shared__ PxU32 sFoundStartIndex;
 
 	__shared__ const PxU32* sStartEndPtHistograms[2];
@@ -1754,24 +1770,31 @@ extern "C" __global__ void generateFoundPairsForNewBoundsRegion(PxgBroadPhaseDes
 	const PxU32 warpIndexInBlock = threadIdx.x/WARP_SIZE;
 	const PxU32 threadIndexInWarp = threadIdx.x&(WARP_SIZE-1);
 
-	const PxU32* overlapChecks = bpDesc->overlapChecksRegion;
+	const regionOverlapType* overlapChecks = bpDesc->overlapChecksRegion;
 	const PxU32 overlCheckesSize = bpDesc->regionAccumTotal;
 
 	const PxgHandleRegion* handleRegions = bpDesc->overlapChecksHandleRegiones;
 	
-	const PxU32 totalPair = bpDesc->overlapChecksTotalRegion;
-	const PxU32 totalBlockRequired = (totalPair + (blockDim.x-1))/ blockDim.x;
-	const PxU32 numIterationPerBlock = (totalBlockRequired + (gridDim.x-1))/ gridDim.x;
+	const ltype totalPair = bpDesc->overlapChecksTotalRegion;
+	//CHECK64(totalPair)	// PT: this one fires so overlapChecksTotalRegion must be 64bit
 
-	const PxU32 max_found_lost_pair = bpDesc->max_found_lost_pairs;
+	// PT: these ones don't fire in our repro but clearly they could depending on involved values, so we still use 64bit there.
+	const ltype totalBlockRequired = (totalPair + (blockDim.x-1))/ blockDim.x;
+	const ltype numIterationPerBlock = (totalBlockRequired + (gridDim.x-1))/ gridDim.x;
+	//CHECK64(totalBlockRequired)
+	//CHECK64(numIterationPerBlock)
 
-	for(PxU32 i=0; i<numIterationPerBlock; ++i)
-	{	
-		const PxU32 workIndex = i*blockDim.x + threadIdx.x + numIterationPerBlock * blockIdx.x * blockDim.x;
+	const PxU32 max_found_lost_pair = bpDesc->max_found_lost_pairs;	// PT: this is gpuDynamicsConfig.foundLostPairsCapacity
+	//printf("max_found_lost_pair %d\n", max_found_lost_pair);
+
+	for(ltype i=0; i<numIterationPerBlock; ++i)	// PT: using 64bit for the index because numIterationPerBlock is 64bit
+	{
+		const ltype workIndex = i*blockDim.x + threadIdx.x + numIterationPerBlock * blockIdx.x * blockDim.x;
+		//CHECK64(workIndex)	// PT: this one fires so workIndex must be 64bit
 
 		//initialize found pair count buffer
 
-		PxU32 foundCount = 0;
+		ltype2 foundCount = 0;
 
 		PxU32 handle  =  0xFFFFFFFF;
 		PxU32 otherHandle = 0xFFFFFFFF;
@@ -1792,7 +1815,8 @@ extern "C" __global__ void generateFoundPairsForNewBoundsRegion(PxgBroadPhaseDes
 
 			const bool isNew = isNewProjection(boxHandles[boxStartIndexX]);
 
-			const PxU32 offset = workIndex - overlapChecks[index];
+			const ltype offset = workIndex - overlapChecks[index];
+			//CHECK64(offset)	// PT: this one doesn't fire
 
 			const PxU32* startEndPtHistogramRegion = &sStartEndPtHistograms[isNew][regionIndex];
 			const PxU32* orderedStartHandlesRegion = &sOrderedStartRegionHandles[isNew][regionIndex];
@@ -1800,11 +1824,12 @@ extern "C" __global__ void generateFoundPairsForNewBoundsRegion(PxgBroadPhaseDes
 			const PxU32 regionStartIndex = startEndPtHistogramRegion[boxStartIndexX +1];
 			const PxU32 regionEndIndex = startEndPtHistogramRegion[boxEndIndexX];
 			
-			if(regionEndIndex > regionStartIndex )
+			if(regionEndIndex > regionStartIndex)
 			{
-				const PxU32 otherIndex = regionStartIndex + offset;
+				const ltype otherIndex = regionStartIndex + offset;
+				//CHECK64(otherIndex)	// PT: this one doesn't fire
 
-				if(otherIndex < regionEndIndex )
+				if(otherIndex < regionEndIndex)
 				{
 					const PxU32 group = boxGroups[handle];
 #if USE_ENV_IDS
@@ -1841,29 +1866,34 @@ extern "C" __global__ void generateFoundPairsForNewBoundsRegion(PxgBroadPhaseDes
 						}
 					}
 				}
-			}  
+			}
 		}
 	
-		PxU32 res = warpScanAdd<WARP_SIZE>(FULL_MASK, threadIdx.x, threadIndexInWarp, sFoundPairsCount, foundCount, foundCount);
-
+		ltype2 res = warpScanAdd<WARP_SIZE>(FULL_MASK, threadIdx.x, threadIndexInWarp, sFoundPairsCount, foundCount, foundCount);
+		//CHECK64(res)	// PT: this one does not fire
 		if(threadIndexInWarp == (WARP_SIZE-1))
+		{
 			sFoundPairsWarpCount[warpIndexInBlock] = res + foundCount;
+			//CHECK64(sFoundPairsWarpCount[warpIndexInBlock])	// PT: this one does not fire
+		}
 
 		__syncthreads();
 
-		PxU32 totalRes = 0;
-		PxU32 value = 0;
+		ltype2 totalRes = 0;
+		ltype2 value = 0;
 		unsigned mask_threadIdx = __ballot_sync(FULL_MASK, threadIdx.x < WARP_PERBLOCK_SIZE);
 		if(threadIdx.x < WARP_PERBLOCK_SIZE)
 		{
 			value = sFoundPairsWarpCount[threadIdx.x];
 
 			totalRes = warpScanAddWriteToSharedMem<WARP_PERBLOCK_SIZE>(mask_threadIdx, threadIdx.x, threadIndexInWarp, sFoundPairsWarpCount, value, value);
+			//CHECK64(totalRes)	// PT: this one does not fire
 		}
 
 		__syncthreads();
 
-		const PxU32 totalOverlapPairs = totalRes + value;
+		const ltype2 totalOverlapPairs = totalRes + value;
+		//CHECK64(totalOverlapPairs)	// PT: this one does not fire
 		//write it out to global memory
 		if(threadIdx.x == (WARP_PERBLOCK_SIZE-1) && totalOverlapPairs > 0)
 			sFoundStartIndex = atomicAdd(&shareReportIndex, totalOverlapPairs);
@@ -1872,8 +1902,10 @@ extern "C" __global__ void generateFoundPairsForNewBoundsRegion(PxgBroadPhaseDes
 
 		if(foundCount)
 		{
-			const PxU32 foundOffset = res + sFoundPairsWarpCount[warpIndexInBlock];
-			const PxU32 position = sFoundStartIndex + foundOffset;
+			const ltype2 foundOffset = res + sFoundPairsWarpCount[warpIndexInBlock];
+			const ltype2 position = sFoundStartIndex + foundOffset;
+			//CHECK64(foundOffset)	// PT: this one does not fire
+			//CHECK64(position)	// PT: this one does not fire
 			if (position < max_found_lost_pair)
 				updatePair(handle, otherHandle, reports, position);
 		}
@@ -1881,8 +1913,10 @@ extern "C" __global__ void generateFoundPairsForNewBoundsRegion(PxgBroadPhaseDes
 		__syncthreads(); //Required because sFoundPairsWarpCount is read in next loop iteration
 	}
 }
+#undef ltype
+#undef ltype2
 
-extern "C" __global__ void clearNewFlagLaunch(const PxgBroadPhaseDesc* bpDesc)	// BP_CLEAR_NEWFLAG
+extern "C" __global__ void clearNewFlagLaunch(const PxgBroadPhaseDesc* bpDesc)	// BP_CLEAR_NEWFLAG //###ONESHOT
 {
 	const PxU32 numCreatedHandleSize = bpDesc->numCreatedHandles;
 	
@@ -1937,18 +1971,24 @@ extern "C" __global__ void computeIncrementalComparisonHistograms_Stage1(const P
 	PxU32* incComparisons1 = bpDesc->incrementalComparisons[AXIS_Y];
 	PxU32* incComparisons2 = bpDesc->incrementalComparisons[AXIS_Z];
 
+	PxU64* warpComparisons0 = bpDesc->incrementalWarpComparisons[AXIS_X];
+	PxU64* warpComparisons1 = bpDesc->incrementalWarpComparisons[AXIS_Y];
+	PxU64* warpComparisons2 = bpDesc->incrementalWarpComparisons[AXIS_Z];
+
 	//if hardware support shfl, the compiler should be able to strip these three array out
 	__shared__ PxU32 sComparisons0[PxgBPKernelBlockDim::BP_COMPUTE_INCREMENTAL_CMP_COUNTS1];
 	__shared__ PxU32 sComparisons1[PxgBPKernelBlockDim::BP_COMPUTE_INCREMENTAL_CMP_COUNTS1];
 	__shared__ PxU32 sComparisons2[PxgBPKernelBlockDim::BP_COMPUTE_INCREMENTAL_CMP_COUNTS1];
 
-	__shared__ PxU32 sBlockAccum0[WARP_PERBLOCK_SIZE];
-	__shared__ PxU32 sBlockAccum1[WARP_PERBLOCK_SIZE];
-	__shared__ PxU32 sBlockAccum2[WARP_PERBLOCK_SIZE];
+	// The comparisons of a single projection, and their sum over a warp, fit in 32 bits.
+	// Sums over more projections can overflow after large teleports, so they use 64 bits.
+	__shared__ PxU64 sBlockAccum0[WARP_PERBLOCK_SIZE];
+	__shared__ PxU64 sBlockAccum1[WARP_PERBLOCK_SIZE];
+	__shared__ PxU64 sBlockAccum2[WARP_PERBLOCK_SIZE];
 
-	__shared__ PxU32 sAccum0;
-	__shared__ PxU32 sAccum1;
-	__shared__ PxU32 sAccum2;
+	__shared__ PxU64 sAccum0;
+	__shared__ PxU64 sAccum1;
+	__shared__ PxU64 sAccum2;
 
 	__shared__ PxU32* sStartEndAccum[2][2][3];
 
@@ -2042,9 +2082,9 @@ extern "C" __global__ void computeIncrementalComparisonHistograms_Stage1(const P
 			sBlockAccum2[warpIndex] = res2 + comparisons2;
 		}
 
-		PxU32 accum0 = sAccum0;
-		PxU32 accum1 = sAccum1;
-		PxU32 accum2 = sAccum2;
+		const PxU64 accum0 = sAccum0;
+		const PxU64 accum1 = sAccum1;
+		const PxU64 accum2 = sAccum2;
 
 		__syncthreads();
 
@@ -2053,8 +2093,8 @@ extern "C" __global__ void computeIncrementalComparisonHistograms_Stage1(const P
 			unsigned mask_threadIndexInWarp = __ballot_sync(FULL_MASK, threadIndexInWarp < WARP_PERBLOCK_SIZE);
 			if(threadIndexInWarp < WARP_PERBLOCK_SIZE)
 			{
-				const PxU32 val = sBlockAccum0[threadIndexInWarp];
-				const PxU32 res = warpScanAddWriteToSharedMem<WARP_PERBLOCK_SIZE>(mask_threadIndexInWarp, threadIndexInWarp, threadIndexInWarp, sBlockAccum0, val, val);
+				const PxU64 val = sBlockAccum0[threadIndexInWarp];
+				const PxU64 res = warpScanAddWriteToSharedMem<WARP_PERBLOCK_SIZE>(mask_threadIndexInWarp, threadIndexInWarp, threadIndexInWarp, sBlockAccum0, val, val);
 
 				if(threadIndexInWarp == (WARP_PERBLOCK_SIZE-1))
 					sAccum0 += val+res;
@@ -2065,21 +2105,21 @@ extern "C" __global__ void computeIncrementalComparisonHistograms_Stage1(const P
 			unsigned mask_threadIndexInWarp = __ballot_sync(FULL_MASK, threadIndexInWarp < WARP_PERBLOCK_SIZE);
 			if(threadIndexInWarp < WARP_PERBLOCK_SIZE)
 			{
-				const PxU32 val = sBlockAccum1[threadIndexInWarp];
+				const PxU64 val = sBlockAccum1[threadIndexInWarp];
 
-				const PxU32 res = warpScanAddWriteToSharedMem<WARP_PERBLOCK_SIZE>(mask_threadIndexInWarp, threadIndexInWarp, threadIndexInWarp, sBlockAccum1, val, val);
+				const PxU64 res = warpScanAddWriteToSharedMem<WARP_PERBLOCK_SIZE>(mask_threadIndexInWarp, threadIndexInWarp, threadIndexInWarp, sBlockAccum1, val, val);
 				if(threadIndexInWarp == (WARP_PERBLOCK_SIZE-1))
 					sAccum1 += val+res;
-			}	
+			}
 		}
 		else if (warpIndex == 2)
 		{
 			unsigned mask_threadIndexInWarp = __ballot_sync(FULL_MASK, threadIndexInWarp < WARP_PERBLOCK_SIZE);
 			if(threadIndexInWarp < WARP_PERBLOCK_SIZE)
 			{
-				const PxU32 val = sBlockAccum2[threadIndexInWarp];
+				const PxU64 val = sBlockAccum2[threadIndexInWarp];
 
-				const PxU32 res = warpScanAddWriteToSharedMem<WARP_PERBLOCK_SIZE>(mask_threadIndexInWarp, threadIndexInWarp, threadIndexInWarp, sBlockAccum2, val, val);
+				const PxU64 res = warpScanAddWriteToSharedMem<WARP_PERBLOCK_SIZE>(mask_threadIndexInWarp, threadIndexInWarp, threadIndexInWarp, sBlockAccum2, val, val);
 				if(threadIndexInWarp == (WARP_PERBLOCK_SIZE-1))
 					sAccum2 += val+res;
 			}
@@ -2089,9 +2129,18 @@ extern "C" __global__ void computeIncrementalComparisonHistograms_Stage1(const P
 
 		if(readIdx < nbProjections)
 		{
-			incComparisons0[readIdx] = accum0 + res0 + sBlockAccum0[warpIndex];
-			incComparisons1[readIdx] = accum1 + res1 + sBlockAccum1[warpIndex];
-			incComparisons2[readIdx] = accum2 + res2 + sBlockAccum2[warpIndex];
+			incComparisons0[readIdx] = res0;
+			incComparisons1[readIdx] = res1;
+			incComparisons2[readIdx] = res2;
+
+			// The warp's base is relative to this block here, Stage2 adds the block's base
+			if(threadIndexInWarp == 0)
+			{
+				const PxU32 warpId = readIdx / WARP_SIZE;
+				warpComparisons0[warpId] = accum0 + sBlockAccum0[warpIndex];
+				warpComparisons1[warpId] = accum1 + sBlockAccum1[warpIndex];
+				warpComparisons2[warpId] = accum2 + sBlockAccum2[warpIndex];
+			}
 		}
 		__syncthreads();
 	}
@@ -2114,17 +2163,17 @@ extern "C" __global__ void computeIncrementalComparisonHistograms_Stage2(PxgBroa
 	//const PxU32 numHandles = bpDesc->numPreviousHandles + bpDesc->numCreatedHandles - bpDesc->numRemovedHandles;
 	PxU32 nbProjections = numHandles * 2;
 
-	PxU32* incComparisons0 = bpDesc->incrementalComparisons[0];
-	PxU32* incComparisons1 = bpDesc->incrementalComparisons[1];
-	PxU32* incComparisons2 = bpDesc->incrementalComparisons[2];
+	PxU64* warpComparisons0 = bpDesc->incrementalWarpComparisons[0];
+	PxU64* warpComparisons1 = bpDesc->incrementalWarpComparisons[1];
+	PxU64* warpComparisons2 = bpDesc->incrementalWarpComparisons[2];
 
-	const PxU32* incBlockComparisons0 = bpDesc->incrementalBlockComparisons[0];
-	const PxU32* incBlockComparisons1 = bpDesc->incrementalBlockComparisons[1];
-	const PxU32* incBlockComparisons2 = bpDesc->incrementalBlockComparisons[2];
+	const PxU64* incBlockComparisons0 = bpDesc->incrementalBlockComparisons[0];
+	const PxU64* incBlockComparisons1 = bpDesc->incrementalBlockComparisons[1];
+	const PxU64* incBlockComparisons2 = bpDesc->incrementalBlockComparisons[2];
 
-	__shared__ PxU32 sBlockAccum0[BLOCK_SIZE];
-	__shared__ PxU32 sBlockAccum1[BLOCK_SIZE];
-	__shared__ PxU32 sBlockAccum2[BLOCK_SIZE];
+	__shared__ PxU64 sBlockAccum0[BLOCK_SIZE];
+	__shared__ PxU64 sBlockAccum1[BLOCK_SIZE];
+	__shared__ PxU64 sBlockAccum2[BLOCK_SIZE];
 
 	const PxU32 warpIndex = threadIdx.x/WARP_SIZE;
 	const PxU32 threadIndexInWarp = threadIdx.x&(WARP_SIZE-1);
@@ -2134,9 +2183,9 @@ extern "C" __global__ void computeIncrementalComparisonHistograms_Stage2(PxgBroa
 		const unsigned mask_threadIndexInWarp = __ballot_sync(FULL_MASK, threadIndexInWarp < BLOCK_SIZE);
 		if(threadIndexInWarp < BLOCK_SIZE)
 		{
-			const PxU32 val = incBlockComparisons0[threadIndexInWarp];
+			const PxU64 val = incBlockComparisons0[threadIndexInWarp];
 
-			const PxU32 res = warpScanAddWriteToSharedMem<BLOCK_SIZE>(mask_threadIndexInWarp, threadIndexInWarp, threadIndexInWarp, sBlockAccum0, val, val);
+			const PxU64 res = warpScanAddWriteToSharedMem<BLOCK_SIZE>(mask_threadIndexInWarp, threadIndexInWarp, threadIndexInWarp, sBlockAccum0, val, val);
 			if(threadIndexInWarp == (BLOCK_SIZE-1) && blockIdx.x == 0)
 				bpDesc->totalIncrementalComparisons[0] = res + val;
 		}
@@ -2146,9 +2195,9 @@ extern "C" __global__ void computeIncrementalComparisonHistograms_Stage2(PxgBroa
 		const unsigned mask_threadIndexInWarp = __ballot_sync(FULL_MASK, threadIndexInWarp < BLOCK_SIZE);
 		if(threadIndexInWarp < BLOCK_SIZE)
 		{
-			const PxU32 val = incBlockComparisons1[threadIndexInWarp];
+			const PxU64 val = incBlockComparisons1[threadIndexInWarp];
 
-			const PxU32 res = warpScanAddWriteToSharedMem<BLOCK_SIZE>(mask_threadIndexInWarp, threadIndexInWarp, threadIndexInWarp, sBlockAccum1, val, val);
+			const PxU64 res = warpScanAddWriteToSharedMem<BLOCK_SIZE>(mask_threadIndexInWarp, threadIndexInWarp, threadIndexInWarp, sBlockAccum1, val, val);
 			if(threadIndexInWarp == (BLOCK_SIZE-1) && blockIdx.x == 0)
 				bpDesc->totalIncrementalComparisons[1] = res + val;
 		}
@@ -2158,9 +2207,9 @@ extern "C" __global__ void computeIncrementalComparisonHistograms_Stage2(PxgBroa
 		const unsigned mask_threadIndexInWarp = __ballot_sync(FULL_MASK, threadIndexInWarp < BLOCK_SIZE);
 		if(threadIndexInWarp < BLOCK_SIZE)
 		{
-			const PxU32 val = incBlockComparisons2[threadIndexInWarp];
+			const PxU64 val = incBlockComparisons2[threadIndexInWarp];
 
-			const PxU32 res = warpScanAddWriteToSharedMem<BLOCK_SIZE>(mask_threadIndexInWarp, threadIndexInWarp, threadIndexInWarp, sBlockAccum2, val, val);
+			const PxU64 res = warpScanAddWriteToSharedMem<BLOCK_SIZE>(mask_threadIndexInWarp, threadIndexInWarp, threadIndexInWarp, sBlockAccum2, val, val);
 			if(threadIndexInWarp == (BLOCK_SIZE-1) && blockIdx.x == 0)
 				bpDesc->totalIncrementalComparisons[2] = res + val;
 		}
@@ -2168,25 +2217,26 @@ extern "C" __global__ void computeIncrementalComparisonHistograms_Stage2(PxgBroa
 
 	__syncthreads();
 
+	// Same partition as Stage1: each block processed nbIterationsPerBlock chunks of blockDim.x projections.
+	// Only the warp bases need the block's base, the per-projection offsets are relative to their warp.
 	const PxU32 nbBlocksRequired = (nbProjections + blockDim.x-1)/blockDim.x;
 
 	const PxU32 nbIterationsPerBlock = (nbBlocksRequired + gridDim.x-1)/gridDim.x;
 
-	const PxU32 blockAccumulation0 = sBlockAccum0[blockIdx.x];
-	const PxU32 blockAccumulation1 = sBlockAccum1[blockIdx.x];
-	const PxU32 blockAccumulation2 = sBlockAccum2[blockIdx.x];
+	const PxU32 nbWarpsPerChunk = blockDim.x/WARP_SIZE;
+	const PxU32 nbWarps = (nbProjections + WARP_SIZE-1)/WARP_SIZE;
+	const PxU32 firstWarp = blockIdx.x*nbIterationsPerBlock*nbWarpsPerChunk;
+	const PxU32 lastWarp = PxMin(firstWarp + nbIterationsPerBlock*nbWarpsPerChunk, nbWarps);
 
-	for(PxU32 i = 0; i < nbIterationsPerBlock; ++i)
+	const PxU64 blockAccumulation0 = sBlockAccum0[blockIdx.x];
+	const PxU64 blockAccumulation1 = sBlockAccum1[blockIdx.x];
+	const PxU64 blockAccumulation2 = sBlockAccum2[blockIdx.x];
+
+	for(PxU32 i = firstWarp + threadIdx.x; i < lastWarp; i += blockDim.x)
 	{
-		const PxI32 blockId = blockIdx.x*nbIterationsPerBlock + i;
-		const PxI32 readIdx = blockId * blockDim.x + threadIdx.x;
-
-		if(readIdx < nbProjections)
-		{
-			incComparisons0[readIdx] = incComparisons0[readIdx] + blockAccumulation0;
-			incComparisons1[readIdx] = incComparisons1[readIdx] + blockAccumulation1;
-			incComparisons2[readIdx] = incComparisons2[readIdx] + blockAccumulation2;
-		}
+		warpComparisons0[i] += blockAccumulation0;
+		warpComparisons1[i] += blockAccumulation1;
+		warpComparisons2[i] += blockAccumulation2;
 	}
 }
 
@@ -2254,7 +2304,7 @@ extern "C" __global__ void updateHandles(const PxgBroadPhaseDesc* bpDesc)	// BP_
 //compute aggregate/actor pairs
 //aggFoundPairs blockIdx.y == 0, aggLostPairs blockIdx.y == 2
 //actorFoundPairs blockIdx.y == 1, actorFoundPairs blockIdx.y == 3 
-extern "C" __global__ void accumulateReportsStage_1(const PxgBroadPhaseDesc* bpDesc)	// BP_ACCUMULATE_REPORT_STAGE_1
+extern "C" __global__ void accumulateReportsStage_1(const PxgBroadPhaseDesc* bpDesc)	// BP_ACCUMULATE_REPORT_STAGE_1 //###ONESHOT
 {
 	const PxU32 nbPairs = (blockIdx.y / 2 == 0) ? bpDesc->sharedFoundPairIndex : bpDesc->sharedLostPairIndex;
 
@@ -2352,7 +2402,7 @@ extern "C" __global__ void accumulateReportsStage_1(const PxgBroadPhaseDesc* bpD
 
 //aggFoundPairs blockIdx.y == 0, aggLostPairs blockIdx.y == 2
 //actorFoundPairs blockIdx.y == 1, actorFoundPairs blockIdx.y == 3 
-extern "C" __global__ void accumulateReportsStage_2(PxgBroadPhaseDesc* bpDesc)	// BP_ACCUMULATE_REPORT_STAGE_2
+extern "C" __global__ void accumulateReportsStage_2(PxgBroadPhaseDesc* bpDesc)	// BP_ACCUMULATE_REPORT_STAGE_2 //###ONESHOT
 {
 	const PxU32 warpPerBlock = PxgBPKernelBlockDim::BP_COMPUTE_INCREMENTAL_CMP_COUNTS2 / WARP_SIZE;
 
@@ -2533,7 +2583,7 @@ extern "C" __global__ void accumulateReportsStage_2(PxgBroadPhaseDesc* bpDesc)	/
 }
 
 //copy found and lost reports to the mapped memory 
-extern "C" __global__ void copyReports(PxgBroadPhaseDesc* bpDesc)	// BP_COPY_REPORTS
+extern "C" __global__ void copyReports(PxgBroadPhaseDesc* bpDesc)	// BP_COPY_REPORTS //###ONESHOT
 {
 	const PxU32 max_found_lost_pairs = bpDesc->max_found_lost_pairs;
 

@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef SC_DEFORMABLE_SURFACE_CORE
 #define SC_DEFORMABLE_SURFACE_CORE
@@ -39,7 +16,6 @@
 #include "ScShapeCore.h"
 #include "PxFiltering.h"
 #include "ScRigidCore.h" //KS - required for ShapeChangeNotifyFlags. Ideally, we should move that to a separate shared file
-#include "PxConeLimitedConstraint.h"
 
 namespace physx
 {
@@ -120,22 +96,19 @@ public:
 	// Internal API
 	//---------------------------------------------------------------------------------
 
-	PxU32						addRigidAttachment(Sc::BodyCore* core, PxU32 vertId, const PxVec3& actorSpacePose, PxConeLimitedConstraint* constraint);
-	void						removeRigidAttachment(Sc::BodyCore* core, PxU32 handle);
+	PxU32						addRigidAttachments(Sc::BodyCore* core, PxDeformableAttachmentTargetType::Enum feature,
+									const PxU32* indices, const PxVec4* barycentrics, const PxTransform& frame, const PxVec4* coords, PxU32 count);
+	void						removeRigidAttachments(Sc::BodyCore* core, PxU32 handle);
 
-	void						addTriRigidFilter(Sc::BodyCore* core, PxU32 triIdx);
-	void						removeTriRigidFilter(Sc::BodyCore* core, PxU32 triIdx);
+	PxU32						addSurfaceAttachments(Sc::DeformableSurfaceCore* otherCore, PxDeformableAttachmentTargetType::Enum feature0, const PxU32* indices0, const PxVec4* barycentrics0,
+									PxDeformableAttachmentTargetType::Enum feature1, const PxU32* indices1, const PxVec4* barycentrics1, PxU32 count);
+	void						removeSurfaceAttachments(Sc::DeformableSurfaceCore* otherCore, PxU32 handle);
 
-	PxU32						addTriRigidAttachment(Sc::BodyCore* core, PxU32 triIdx, const PxVec4& barycentric, 
-									const PxVec3& actorSpacePose, PxConeLimitedConstraint* constraint);
-	void						removeTriRigidAttachment(Sc::BodyCore* core, PxU32 handle);
+	void						addRigidFilters(Sc::RigidCore* core, PxU32* triIndices, PxU32 triIndicesSize);
+	void						removeRigidFilters(Sc::RigidCore* core, PxU32* triIndices, PxU32 triIndicesSize);
 
-	void						addClothFilter(Sc::DeformableSurfaceCore* otherCore, PxU32 otherTriIdx, PxU32 triIdx);
-	void						removeClothFilter(Sc::DeformableSurfaceCore* otherCore, PxU32 otherTriIdx0, PxU32 triIdx);
-
-	PxU32						addClothAttachment(Sc::DeformableSurfaceCore* otherCore, PxU32 otherTriIdx, const PxVec4& otherTriBarycentric, PxU32 triIdx, 
-									const PxVec4& triBarycentric);
-	void						removeClothAttachment(Sc::DeformableSurfaceCore* otherCore, PxU32 handle);
+	void						addSurfaceFilters(Sc::DeformableSurfaceCore* otherCore, PxU32* otherTriIndices, PxU32* triIndices, PxU32 triIndicesSize);
+	void						removeSurfaceFilters(Sc::DeformableSurfaceCore* otherCore, PxU32* otherTriIndices, PxU32* triIndices, PxU32 triIndicesSize);
 
 	void						addMaterial(const PxU16 handle);
 	void						clearMaterials();

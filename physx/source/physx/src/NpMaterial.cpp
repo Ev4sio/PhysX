@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #include "NpMaterial.h"
 #include "NpPhysics.h"
@@ -49,7 +26,7 @@ NpMaterial::~NpMaterial()
 }
 
 // PX_SERIALIZATION
-void NpMaterial::resolveReferences(PxDeserializationContext&)
+bool NpMaterial::resolveReferences(PxDeserializationContext&)
 {
 	// ### this one could be automated if NpMaterial would inherit from MaterialCore
 	// ### well actually in that case the pointer would not even be needed....
@@ -58,7 +35,9 @@ void NpMaterial::resolveReferences(PxDeserializationContext&)
 	// Maybe not the best place to do it but it has to be done before the shapes resolve material indices
 	// since the material index translation table is needed there. This requires that the materials have
 	// been added to the table already.
-	NpPhysics::getInstance().addMaterial(this);
+	// A rejected material - in practice the 64K limit - has been reported and destroyed in place by
+	// addMaterial(), so on false the caller must fail the load without touching this object again.
+	return NpPhysics::getInstance().addMaterial(this) != NULL;
 }
 
 void NpMaterial::onRefCountZero()
@@ -76,9 +55,17 @@ void NpMaterial::onRefCountZero()
 NpMaterial* NpMaterial::createObject(PxU8*& address, PxDeserializationContext& context)
 {
 	NpMaterial* obj = PX_PLACEMENT_NEW(address, NpMaterial(PxBaseFlag::eIS_RELEASABLE));
-	address += sizeof(NpMaterial);	
+	address += sizeof(NpMaterial);
 	obj->importExtraData(context);
-	obj->resolveReferences(context);
+
+	// A material that could not be registered would leave every shape referencing it resolving to an empty
+	// slot or, once the index is recycled, to an unrelated material (OMPE-109162). Fail the load instead:
+	// the caller (SnBinaryDeserialization) reports it, releases the objects it had already created -
+	// including any material that did register, which would otherwise be left in the table pointing into the
+	// caller's memory block - and returns NULL. obj is already destroyed at this point.
+	if(!obj->resolveReferences(context))
+		return NULL;
+
 	return obj;
 }
 //~PX_SERIALIZATION

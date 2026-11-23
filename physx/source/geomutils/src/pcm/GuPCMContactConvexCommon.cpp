@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #include "GuVecTriangle.h"
 #include "GuPCMContactConvexCommon.h"
@@ -50,7 +27,7 @@ void PCMConvexVsMeshContactGeneration::addContactsToPatch(const Vec3VArg patchNo
 		//contacts inside a signlePersistentContactManifold
 		SinglePersistentContactManifold::reduceContacts(&mManifoldContacts[previousNumContacts], newContacts);
 		mNumContacts = previousNumContacts + GU_SINGLE_MANIFOLD_SINGLE_POLYGONE_CACHE_SIZE;  
-	}   
+	}
 
 	//get rid of duplicate manifold contacts for the newly created contacts
 	for(PxU32 i = previousNumContacts; i<mNumContacts; ++i)
@@ -89,6 +66,28 @@ void PCMConvexVsMeshContactGeneration::addContactsToPatch(const Vec3VArg patchNo
 	}
 }
 
+// Returns the edges of the triangle that can hold a convex face with the given normal, as ETD_CONVEX_EDGE flags. These are
+// the active edges almost perpendicular to the normal. The vertices and the normal are in the shape space of the convex.
+static PxU8 getEdgesHoldingFace(const PxVec3* verts, PxU8 triFlags, const PxVec3& faceNormal)
+{
+	// Squared cosine of the angle between the edge and the face normal, above which the edge cannot hold the face.
+	const PxReal maxCosSq = 0.04f;
+	const PxReal normalSq = faceNormal.magnitudeSquared();
+	const PxU8 edgeFlags[3] = { ETD_CONVEX_EDGE_01, ETD_CONVEX_EDGE_12, ETD_CONVEX_EDGE_20 };
+	PxU8 holdingEdges = 0;
+	for(PxU32 i=0;i<3;i++)
+	{
+		if(triFlags & edgeFlags[i])
+		{
+			const PxVec3 edge = verts[i == 2 ? 0 : i + 1] - verts[i];
+			const PxReal d = edge.dot(faceNormal);
+			if(d*d < maxCosSq*edge.magnitudeSquared()*normalSq)
+				holdingEdges |= edgeFlags[i];
+		}
+	}
+	return holdingEdges;
+}
+
 void PCMConvexVsMeshContactGeneration::generateLastContacts()
 {
 	// Process delayed contacts
@@ -109,10 +108,29 @@ void PCMConvexVsMeshContactGeneration::generateLastContacts()
 
 			const PxU8 triFlags = PxU8(currentContact.triFlags32);
 
-			const bool needsProcessing =	(((triFlags & ETD_CONVEX_EDGE_01) != 0 || mEdgeCache.get(CachedEdge(ref0, ref1)) == NULL)) && 
-											(((triFlags & ETD_CONVEX_EDGE_12) != 0 || mEdgeCache.get(CachedEdge(ref1, ref2)) == NULL)) && 
-											(((triFlags & ETD_CONVEX_EDGE_20) != 0 || mEdgeCache.get(CachedEdge(ref2, ref0)) == NULL));
-			
+			// Skip the triangle if a triangle that generated contacts shares an inactive edge with it.
+			bool needsProcessing =	(((triFlags & ETD_CONVEX_EDGE_01) != 0 || mEdgeCache.get(CachedEdge(ref0, ref1)) == NULL)) &&
+									(((triFlags & ETD_CONVEX_EDGE_12) != 0 || mEdgeCache.get(CachedEdge(ref1, ref2)) == NULL)) &&
+									(((triFlags & ETD_CONVEX_EDGE_20) != 0 || mEdgeCache.get(CachedEdge(ref2, ref0)) == NULL));
+
+			// Also skip it if it shares a vertex with such a triangle and neither of its edges at that vertex can hold the convex
+			// face used for it. The face would only add contacts with a normal far from the mesh normal there.
+			if(needsProcessing)
+			{
+				const bool cached0 = mVertexCache.contains(CachedVertex(ref0));
+				const bool cached1 = mVertexCache.contains(CachedVertex(ref1));
+				const bool cached2 = mVertexCache.contains(CachedVertex(ref2));
+				if(cached0 || cached1 || cached2)
+				{
+					PxVec3 faceNormal;
+					V3StoreU(M33TrnspsMulV3(mPolyMap->shape2Vertex, V3LoadU(mPolyData.mPolygons[currentContact.mFeatureIndex].mPlane.n)), faceNormal);
+					const PxU8 holdingEdges = getEdgesHoldingFace(currentContact.mVerts, triFlags, faceNormal);
+					needsProcessing =	((holdingEdges & (ETD_CONVEX_EDGE_01 | ETD_CONVEX_EDGE_20)) != 0 || !cached0) &&
+										((holdingEdges & (ETD_CONVEX_EDGE_01 | ETD_CONVEX_EDGE_12)) != 0 || !cached1) &&
+										((holdingEdges & (ETD_CONVEX_EDGE_12 | ETD_CONVEX_EDGE_20)) != 0 || !cached2);
+				}
+			}
+
 			if(needsProcessing)
 			{
 				const TriangleV localTriangle(currentContact.mVerts);
@@ -159,7 +177,7 @@ void PCMConvexVsMeshContactGeneration::generateLastContacts()
 						{
 							mManifoldContacts[k] = mManifoldContacts[k+1];
 						}
-					}	
+					}
 				}
 
 				mNumContacts = currentContacts;

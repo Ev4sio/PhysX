@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 // PT: this file contains most Scene functions called during the simulate() call, i.e. the "pipeline" functions.
 // Ideally they should be listed in the order in which they are called in the single-threaded version, to help
@@ -42,9 +19,8 @@
 
 #if PX_SUPPORT_GPU_PHYSX
 	#include "PxPhysXGpu.h"
-	#include "PxsKernelWrangler.h"
-	#include "PxsHeapMemoryAllocator.h"
 	#include "cudamanager/PxCudaContextManager.h"
+	#include "cudamanager/PxCudaContext.h"
 #endif
 
 #include "ScShapeInteraction.h"
@@ -165,26 +141,24 @@ class DirtyShapeUpdatesTask : public Cm::Task
 public:
 	static const PxU32 MaxShapes = 256;
 
-	PxsTransformCache&	mCache;
-	BoundsArray&		mBoundsArray;
-	ShapeSim*			mShapes[MaxShapes];
-	PxU32				mNbShapes;
+	const UpdateCachedParams	mParams;
+	ShapeSim*					mShapes[MaxShapes];
+	PxU32						mNbShapes;
 
 	DirtyShapeUpdatesTask(PxU64 contextID, PxsTransformCache& cache, BoundsArray& boundsArray) : 
 		Cm::Task	(contextID),
-		mCache		(cache),
-		mBoundsArray(boundsArray),
+		mParams		(cache, boundsArray),
 		mNbShapes	(0)
 	{
 	}
 
-	virtual void runInternal() 
+	virtual void runInternal() PX_OVERRIDE
 	{
 		for (PxU32 a = 0; a < mNbShapes; ++a)
-			mShapes[a]->updateCached(mCache, mBoundsArray);
+			mShapes[a]->updateCached_ThreadSafe(mParams);
 	}
 
-	virtual const char* getName() const { return "DirtyShapeUpdatesTask";  }
+	virtual const char* getName() const PX_OVERRIDE { return "DirtyShapeUpdatesTask";  }
 
 private:
 	PX_NOCOPY(DirtyShapeUpdatesTask)
@@ -209,9 +183,11 @@ void Sc::Scene::updateDirtyShapes(PxBaseTask* continuation)
 	BoundsArray& boundsArray = mAABBManager->getBoundsArray();
 
 	Cm::FlushPool& pool = mLLContext->getTaskPool();
-	PxBitMapPinned& changedMap = mAABBManager->getChangedAABBMgActorHandleMap();
+	PinnableBitMap& changedMap = mAABBManager->getChangedAABBMgActorHandleMap();
 
 	DirtyShapeUpdatesTask* task = createDirtyShapeUpdateTask(pool, mContextId, cache, boundsArray);
+
+	const bool trackChanges = boundsArray.isChangeTrackingEnabled();
 
 	// PT: TASK-CREATION TAG
 	bool hasDirtyShapes = false;
@@ -225,6 +201,13 @@ void Sc::Scene::updateDirtyShapes(PxBaseTask* continuation)
 			hasDirtyShapes = true;
 			changedMap.growAndSet(index);
 			task->mShapes[nbDirtyShapes++] = shapeSim;
+
+			// markForUpdate() is not thread-safe, so it is called here and not in the tasks, which write the values afterwards.
+			if(trackChanges)
+			{
+				const bool isDynamicRigidShape = bool(shapeSim->getActor().isDynamicRigid());
+				boundsArray.markForUpdate(index, isDynamicRigidShape);
+			}
 
 			// PT: consider better load balancing?
 			if(nbDirtyShapes == DirtyShapeUpdatesTask::MaxShapes)
@@ -393,7 +376,9 @@ void Sc::Scene::updateBroadPhase(PxBaseTask* continuation)
 
 	PxBaseTask* rigidBodyNPhaseUnlock = mCCDPass ? NULL : &mRigidBodyNPhaseUnlock;
 
-	mAABBManager->updateBPSecondPass(&mLLContext->getScratchAllocator(), continuation);
+	const PxU32 numCpuTasks = continuation->getTaskManager()->getCpuDispatcher()->getWorkerCount();
+
+	mAABBManager->updateBPSecondPass(numCpuTasks, mLLContext->getTaskPool(), &mLLContext->getScratchAllocator(), continuation);
 
 	// PT: decoupling: I moved this back from updateBPSecondPass
 	//if this is mCCDPass, narrowPhaseUnlockTask will be NULL
@@ -463,14 +448,14 @@ namespace
 		{
 		}
 
-		virtual void runInternal()
+		virtual void runInternal() PX_OVERRIDE
 		{
 			// PT: after this call we have mNbToKeep + mNbToSuppress surviving pairs moved to the start of mPairs,
 			// with corresponding filtering data at the start of mFinfo.
 			mNPhaseCore->runOverlapFilters(mNbToProcess, mPairs, mFinfo, mNbToKeep, mNbToSuppress);
 		}
 
-		virtual const char* getName() const { return "OverlapFilterTask"; }
+		virtual const char* getName() const PX_OVERRIDE { return "OverlapFilterTask"; }
 	};
 }
 
@@ -539,29 +524,38 @@ void Sc::Scene::finishBroadPhase(PxBaseTask* continuation)
 
 			if(createdOverlapCount)
 			{
-				mLLContext->getSimStats().mNbNewPairs += createdOverlapCount;
-
-				Cm::FlushPool& flushPool = mLLContext->getTaskPool();
-
-				// PT: temporary data, similar to mOverlapFilterTaskHead. Will be filled with filter info for each pair by the OverlapFilterTask.
-				// PT: TODO: revisit this pattern forceSize_Unsafe / reserve / forceSize_Unsafe - why??
-				mFilterInfo.forceSize_Unsafe(0);
-				mFilterInfo.reserve(createdOverlapCount);
-				mFilterInfo.forceSize_Unsafe(createdOverlapCount);
-
-				// PT: TASK-CREATION TAG
-				// PT: TODO: revisit task creation here
-				const PxU32 nbPairsPerTask = OverlapFilterTask::MaxPairs;
-				OverlapFilterTask* previousTask = NULL;
-				for(PxU32 a=0; a<createdOverlapCount; a+=nbPairsPerTask)
+#if PX_SUPPORT_GPU_PHYSX
+				const bool useGpu = isUsingGpuDynamicsOrBp();
+				PxCudaContextManager* ccm = useGpu ? getCudaContextManager() : NULL;
+				const bool abortMode = ccm && ccm->getCudaContext()->isInAbortMode();
+				// skip OverlapFilterTask in abort mode, since created overlaps might not be valid
+				if(!abortMode)
+#endif
 				{
-					const PxU32 nbToProcess = PxMin(createdOverlapCount - a, nbPairsPerTask);
-					OverlapFilterTask* task = PX_PLACEMENT_NEW(flushPool.allocate(sizeof(OverlapFilterTask)), OverlapFilterTask)(mContextId, mNPhaseCore, mFilterInfo.begin() + a, p + a, nbToProcess);
+					mLLContext->getSimStats().mNbNewPairs += createdOverlapCount;
 
-					startTask(task, &mPreallocateContactManagers);
+					Cm::FlushPool& flushPool = mLLContext->getTaskPool();
 
-					// PT: setup a linked-list of OverlapFilterTasks, will be parsed in preallocateContactManagers
-					updateTaskLinkedList(previousTask, task, mOverlapFilterTaskHead);
+					// PT: temporary data, similar to mOverlapFilterTaskHead. Will be filled with filter info for each pair by the OverlapFilterTask.
+					// PT: TODO: revisit this pattern forceSize_Unsafe / reserve / forceSize_Unsafe - why??
+					mFilterInfo.forceSize_Unsafe(0);
+					mFilterInfo.reserve(createdOverlapCount);
+					mFilterInfo.forceSize_Unsafe(createdOverlapCount);
+
+					// PT: TASK-CREATION TAG
+					// PT: TODO: revisit task creation here
+					const PxU32 nbPairsPerTask = OverlapFilterTask::MaxPairs;
+					OverlapFilterTask* previousTask = NULL;
+					for(PxU32 a=0; a<createdOverlapCount; a+=nbPairsPerTask)
+					{
+						const PxU32 nbToProcess = PxMin(createdOverlapCount - a, nbPairsPerTask);
+						OverlapFilterTask* task = PX_PLACEMENT_NEW(flushPool.allocate(sizeof(OverlapFilterTask)), OverlapFilterTask)(mContextId, mNPhaseCore, mFilterInfo.begin() + a, p + a, nbToProcess);
+
+						startTask(task, &mPreallocateContactManagers);
+
+						// PT: setup a linked-list of OverlapFilterTasks, will be parsed in preallocateContactManagers
+						updateTaskLinkedList(previousTask, task, mOverlapFilterTaskHead);
+					}
 				}
 			}
 		}
@@ -575,7 +569,7 @@ void Sc::Scene::finishBroadPhase(PxBaseTask* continuation)
 #else
 	PX_CATCH_UNDEFINED_ENABLE_SIM_STATS
 #endif
-	}	
+	}
 }
 
 void Sc::Scene::postBroadPhaseContinuation(PxBaseTask* continuation)
@@ -632,7 +626,7 @@ namespace
 		{
 		}
 
-		virtual void runInternal()
+		virtual void runInternal() PX_OVERRIDE
 		{
 			PxsContactManager** currentCm = mContactManagers;
 			ShapeInteraction** currentSI = mShapeInteractions;
@@ -645,6 +639,13 @@ namespace
 				// PT: TODO: why did we switch 0/1 here? => undoing this makes FilteringTestsIllegalFlags.eKILL_and_eSUPPRESS fail
 				ShapeSimBase* s0 = reinterpret_cast<ShapeSimBase*>(pair.mUserData1);
 				ShapeSimBase* s1 = reinterpret_cast<ShapeSimBase*>(pair.mUserData0);
+
+				//### DEFENSIVE coding for OMPE-71676
+				if(!s0 || !s1)
+				{
+					outputError<PxErrorCode::eINTERNAL_ERROR>(__LINE__, "OnOverlapCreatedTask: null shape in created overlap. Skipping.");
+					continue;
+				}
 
 				ElementSimInteraction* interaction = mNPhaseCore->createRbElementInteraction(mFinfo[i], *s0, *s1, *currentCm, *currentSI, *currentEI, false);
 				if(interaction)
@@ -677,7 +678,7 @@ namespace
 			mNbShapeInteractions = PxU32(currentSI - mShapeInteractions);
 		}
 
-		virtual const char* getName() const { return "OnOverlapCreatedTask"; }
+		virtual const char* getName() const PX_OVERRIDE { return "OnOverlapCreatedTask"; }
 	};
 }
 
@@ -738,7 +739,7 @@ void Sc::Scene::preallocateContactManagers(PxBaseTask* continuation)
 
 		OverlapTaskCreator(
 			NPhaseCore* const PX_RESTRICT core, Cm::PoolList<PxsContactManager>& cmPool, Cm::FlushPool& flushPool, PxBaseTask* const continuation,
-			const  AABBOverlap* const pairs, const  FilterInfo* const fInfo,
+			const AABBOverlap* const pairs, const FilterInfo* const fInfo,
 			PxsContactManager** const cms, ShapeInteraction** const shapeInter, ElementInteractionMarker** const markerIter,
 			PxU64 contextId) :
 			mCore(core), mCMPool(cmPool), mFlushPool(flushPool), mContinuation(continuation),
@@ -814,8 +815,8 @@ void Sc::Scene::preallocateContactManagers(PxBaseTask* continuation)
 			const PxU32 nb = filterTask->mNbToKeep + filterTask->mNbToSuppress;
 			if(pairs + createdOverlapCount != filterTask->mPairs)	// PT: always happens for first task, sometimes for all tasks if nothing was filtered
 			{
-				PxMemCopy(pairs + createdOverlapCount, filterTask->mPairs, sizeof(AABBOverlap) * nb);
-				PxMemCopy(fInfo + createdOverlapCount, filterTask->mFinfo, sizeof(FilterInfo) * nb);
+				PxMemMove(pairs + createdOverlapCount, filterTask->mPairs, sizeof(AABBOverlap) * nb);
+				PxMemMove(fInfo + createdOverlapCount, filterTask->mFinfo, sizeof(FilterInfo) * nb);
 			}
 			createdOverlapCount += nb;
 			batchSize += nb;
@@ -861,17 +862,19 @@ void Sc::Scene::processLostTouchPairs()
 		ActorSim* body1 = pairs[i].body1;
 		ActorSim* body2 = pairs[i].body2;
 
-		// If one has been deleted, we wake the other one
 		const PxIntBool deletedBody1 = mLostTouchPairsDeletedBodyIDs.boundedTest(pairs[i].body1ID);
 		const PxIntBool deletedBody2 = mLostTouchPairsDeletedBodyIDs.boundedTest(pairs[i].body2ID);
 		if(deletedBody1 || deletedBody2)
 		{
-			if(!deletedBody1) 
+			if(!deletedBody1 && body1)
 				body1->internalWakeUp();
-			if(!deletedBody2) 
+			if(!deletedBody2 && body2)
 				body2->internalWakeUp();
 			continue;
 		}
+
+		if(!body1 || !body2)
+			continue;
 
 		const bool b1Active = body1->isActive();
 		const bool b2Active = body2->isActive();
@@ -908,7 +911,7 @@ namespace
 		PxU32						mNbDelayed;
 		DelayedGPUTypes&			mGPUTypes;
 
-		IslandInsertionTask(PxU64 contextID,  IG::SimpleIslandManager* simpleIslandManager, ShapeInteraction** preallocatedShapeInteractions,
+		IslandInsertionTask(PxU64 contextID, IG::SimpleIslandManager* simpleIslandManager, ShapeInteraction** preallocatedShapeInteractions,
 			const IG::EdgeIndex* handles, AABBOverlap* pairs, DelayedGPUTypes& gpuTypes, PxU32 nbToProcess) :
 			Cm::Task						(contextID),
 			mNext							(NULL),
@@ -924,7 +927,7 @@ namespace
 
 		PX_FORCE_INLINE	IG::EdgeIndex*	getDelayed()	{ return reinterpret_cast<IG::EdgeIndex*>(mPairs);	}
 
-		virtual void runInternal()
+		virtual void runInternal() PX_OVERRIDE
 		{
 			// PT: the pairs buffer we used to create the shape interactions in OnOverlapCreatedTask is now free to reuse.
 			// By construction we have at least one AABBOverlap per shape interaction so there's enough space for edge indices.
@@ -968,7 +971,7 @@ namespace
 						// PT: codepath needed for AttachmentTests.DeformableSurfaceFiltering_GPU, also reached in ParticleCollisionTests.RigidDeltaAccum etc
 						mGPUTypes.mLock.lock();	// PT: this is not a common case so we just use a plain mutex for now
 							// PT: record what we'll need to call mSimpleIslandManager->setEdgeConnected(edgeIdx, type) later
-							DelayedGPUTypes::Data& data = mGPUTypes.mDelayed.insert();
+							DelayedGPUTypes::Data& data = *mGPUTypes.mDelayed.insert();
 							data.mEdgeIndex = edgeIdx;
 							data.mType = type;
 						mGPUTypes.mLock.unlock();
@@ -978,7 +981,7 @@ namespace
 			mNbDelayed = PxU32(delayed - getDelayed());
 		}
 
-		virtual const char* getName() const { return "IslandInsertionTask"; }
+		virtual const char* getName() const PX_OVERRIDE { return "IslandInsertionTask"; }
 	};
 }
 
@@ -1307,6 +1310,18 @@ void Sc::Scene::finishBroadPhaseStage2(PxU32 ccdPass)
 				ElementSim* volume0 = reinterpret_cast<ElementSim*>(p->mUserData0);
 				ElementSim* volume1 = reinterpret_cast<ElementSim*>(p->mUserData1);
 
+				//### DEFENSIVE coding for OMPE-103063 (cf. OMPE-71676)
+				//The conversion pass in AABBManager::postBpStage3 nulls a pair whose volume id was out
+				//of range, and a shape removed between push and conversion can null one too. Must come
+				//before findInteraction(), which dereferences both volumes.
+				if(!volume0 || !volume1)
+				{
+					outputError<PxErrorCode::eINTERNAL_ERROR>(__LINE__, "Sc::Scene: null volume in destroyed overlap. Skipping.");
+					p->mPairUserData = NULL;	//keep the bookkeeping processLostContacts3 reads consistent
+					p++;
+					continue;
+				}
+
 				//KS - this is a bit ugly. We split the "onOverlapRemoved" for shape interactions to parallelize it and that means
 				//that we have to call each of the individual stages of the remove here.
 
@@ -1352,8 +1367,11 @@ void Sc::Scene::finishBroadPhaseStage2(PxU32 ccdPass)
 
 				p->mPairUserData = NULL;
 
-				//KS - this is a bit ugly. 
-				mNPhaseCore->onOverlapRemoved(volume0, volume1, ccdPass, NULL, outputs);
+				if(volume0 && volume1)	//### DEFENSIVE coding for OMPE-103063 (cf. OMPE-71676)
+					mNPhaseCore->onOverlapRemoved(volume0, volume1, ccdPass, NULL, outputs);	//KS - this is a bit ugly.
+				else
+					outputError<PxErrorCode::eINTERNAL_ERROR>(__LINE__, "Sc::Scene: null volume in destroyed overlap. Skipping.");
+
 				p++;
 			}
 		}
@@ -1384,15 +1402,19 @@ void Sc::Scene::advanceStep(PxBaseTask* continuation)
 	{
 		mFinalizationPhase.setContinuation(continuation);
 
+		// Chain: afterIntegration -> [CCD ->] [bodyAcceleration ->] finalizationPhase -> continuation
+		if(mBodyAccelerationTask)
+			mBodyAccelerationTask->setContinuation(*mTaskManager, &mFinalizationPhase);
+
 		if(mPublicFlags & PxSceneFlag::eENABLE_CCD)
 		{
-			mUpdateCCDMultiPass.setContinuation(&mFinalizationPhase);
+			mUpdateCCDMultiPass.setContinuation(mBodyAccelerationTask ? mBodyAccelerationTask : &mFinalizationPhase);
 			mAfterIntegration.setContinuation(&mUpdateCCDMultiPass);
 			mUpdateCCDMultiPass.removeReference();
 		}
 		else
 		{
-			mAfterIntegration.setContinuation(&mFinalizationPhase);
+			mAfterIntegration.setContinuation(mBodyAccelerationTask ? mBodyAccelerationTask : &mFinalizationPhase);
 		}
 
 		const bool useGpu = isUsingGpuDynamicsOrBp();
@@ -1423,6 +1445,8 @@ void Sc::Scene::advanceStep(PxBaseTask* continuation)
 		mSecondPassNarrowPhase.setContinuation(&mPostNarrowPhase);
 
 		mFinalizationPhase.removeReference();
+		if(mBodyAccelerationTask)
+			mBodyAccelerationTask->removeReference();
 		mAfterIntegration.removeReference();
 		mPostSolver.removeReference();
 		if(useGpu)
@@ -1589,12 +1613,12 @@ namespace
 		{
 		}
 
-		virtual const char* getName() const
+		virtual const char* getName() const PX_OVERRIDE
 		{
 			return "InteractionNewTouchTask";
 		}
 	
-		virtual void runInternal()
+		virtual void runInternal() PX_OVERRIDE
 		{
 			mNphaseCore->lockReports();
 			for(PxU32 i = 0; i < mNbEvents; ++i)
@@ -1620,27 +1644,25 @@ void Sc::Scene::processNarrowPhaseTouchEvents(PxBaseTask* continuation)
 
 		// Update touch states from LL
 		PxU32 newTouchCount, lostTouchCount;
-		PxU32 ccdTouchCount = 0;
 		{
 			PX_PROFILE_ZONE("Sim.preIslandGen.managerTouchEvents", mContextId);
+
+			// Use cached counters from getManagerTouchEventCount() as a pre-allocation hint only.
+			// The counters can be stale in rare scenarios (e.g. large heightfields on GPU), so
+			// fillManagerTouchEvents() uses PxArray::pushBack which grows dynamically on overflow.
+			// The bitmap is only iterated once (inside fillManagerTouchEvents), not here.
 			context->getManagerTouchEventCount(&newTouchCount, &lostTouchCount, NULL);
-			//PX_ALLOCA(newTouches, PxvContactManagerTouchEvent, newTouchCount);
-			//PX_ALLOCA(lostTouches, PxvContactManagerTouchEvent, lostTouchCount);
 
-			mTouchFoundEvents.forceSize_Unsafe(0);
+			mTouchFoundEvents.clear();
 			mTouchFoundEvents.reserve(newTouchCount);
-			mTouchFoundEvents.forceSize_Unsafe(newTouchCount);
 
-			mTouchLostEvents.forceSize_Unsafe(0);
+			mTouchLostEvents.clear();
 			mTouchLostEvents.reserve(lostTouchCount);
-			mTouchLostEvents.forceSize_Unsafe(lostTouchCount);
 
-			context->fillManagerTouchEvents(mTouchFoundEvents.begin(), newTouchCount,
-											mTouchLostEvents.begin(), lostTouchCount,
-											NULL, ccdTouchCount);
+			context->fillManagerTouchEvents(mTouchFoundEvents, mTouchLostEvents, NULL);
 
-			mTouchFoundEvents.forceSize_Unsafe(newTouchCount);
-			mTouchLostEvents.forceSize_Unsafe(lostTouchCount);
+			newTouchCount = mTouchFoundEvents.size();
+			lostTouchCount = mTouchLostEvents.size();
 		}
 
 		context->getSimStats().mNbNewTouches = newTouchCount;
@@ -1814,7 +1836,7 @@ namespace
 		{
 		}
 
-		virtual void runInternal()
+		virtual void runInternal() PX_OVERRIDE
 		{
 			PX_PROFILE_ZONE("Sim.ScBeforeSolverTask", mContextID);
 
@@ -1840,7 +1862,7 @@ namespace
 				mSimulationController->updateBodies(updatedBodySims, updatedBodyNodeIndices, nbUpdatedBodySims, mAccelerationProvider);
 		}
 
-		virtual const char* getName() const
+		virtual const char* getName() const PX_OVERRIDE
 		{
 			return "ScScene.beforeSolver";
 		}
@@ -1866,7 +1888,7 @@ namespace
 		{
 		}
 
-		virtual void runInternal()
+		virtual void runInternal() PX_OVERRIDE
 		{
 			PX_PROFILE_ZONE("Sim.ScArticBeforeSolverTask", mContextID);
 
@@ -1879,7 +1901,7 @@ namespace
 			}
 		}
 
-		virtual const char* getName() const
+		virtual const char* getName() const PX_OVERRIDE
 		{
 			return "ScScene.ScArticBeforeSolverTask";
 		}
@@ -1907,7 +1929,7 @@ namespace
 		{
 		}
 
-		virtual void runInternal()
+		virtual void runInternal() PX_OVERRIDE
 		{
 			PX_PROFILE_ZONE("Sim.ScArticBeforeSolverCCDTask", mContextID);
 			const IG::IslandSim& islandSim = mIslandManager->getAccurateIslandSim();
@@ -1920,7 +1942,7 @@ namespace
 			}
 		}
 
-		virtual const char* getName() const
+		virtual const char* getName() const PX_OVERRIDE
 		{
 			return "ScScene.ScArticBeforeSolverCCDTask";
 		}
@@ -1947,11 +1969,11 @@ void Sc::Scene::beforeSolver(PxBaseTask* continuation)
 
 	mNumDeactivatingNodes[IG::Node::eRIGID_BODY_TYPE] = 0;//islandSim.getNbNodesToDeactivate(IG::Node::eRIGID_BODY_TYPE);
 	mNumDeactivatingNodes[IG::Node::eARTICULATION_TYPE] = 0;//islandSim.getNbNodesToDeactivate(IG::Node::eARTICULATION_TYPE);
-//#if PX_SUPPORT_GPU_PHYSX
+#if PX_SUPPORT_GPU_PHYSX
 	mNumDeactivatingNodes[IG::Node::eDEFORMABLE_SURFACE_TYPE] = 0;
 	mNumDeactivatingNodes[IG::Node::eDEFORMABLE_VOLUME_TYPE] = 0;
 	mNumDeactivatingNodes[IG::Node::ePARTICLESYSTEM_TYPE] = 0;
-//#endif
+#endif
 
 	const PxU32 MaxBodiesPerTask = ScBeforeSolverTask::MaxBodiesPerTask;
 
@@ -2040,10 +2062,8 @@ void Sc::Scene::updateBodies(PxBaseTask* continuation)
 	ArticulationSim* const* artiSim = mDirtyArticulationSims.getEntries();
 	for (PxU32 a = 0; a < nbDirtyArticulations; ++a)
 	{
-		if (artiSim[a]->getLowLevelArticulation()->mGPUDirtyFlags & (Dy::ArticulationDirtyFlag::eDIRTY_EXT_ACCEL))
-		{
-			mSimulationController->updateArticulationExtAccel(artiSim[a]->getLowLevelArticulation(), artiSim[a]->getIslandNodeIndex());
-		}
+		if (artiSim[a]->mGPUDirtyFlags & (Dy::ArticulationDirtyFlag::eDIRTY_EXT_ACCEL))
+			mSimulationController->updateArticulationExtAccel(artiSim[a], artiSim[a]->getIslandNodeIndex());
 	}
 
 	//dma bodies and articulation data to gpu
@@ -2090,6 +2110,11 @@ void Sc::Scene::updateDynamics(PxBaseTask* /*continuation*/)
 
 	if(isUsingGpuDynamicsOrBp())
 	{
+		if (getFlags() & PxSceneFlag::eENABLE_DIRECT_GPU_API)
+		{
+			mDynamicsContext->setActiveBreakableConstraintCount(mActiveBreakableConstraints.size());
+		}
+
 		mDynamicsContext->update(	flushPool, &mUpdateSimulationController, &mUpdateDynamicsPostPartitioning, &mProcessLostContactsTask,
 									nphase,	maxPatchCount, mMaxNbArticulationLinks, mDt, mGravity, mAABBManager->getChangedAABBMgActorHandleMap());
 	}
@@ -2134,6 +2159,17 @@ static PX_FORCE_INLINE void findInteractions(const NPhaseCore& core, PxU32 count
 		// PT: it seems very questionable to store this within the BP structures at this point. If anything
 		// we should have stored that there when the overlap was created, and we wouldn't have to look for the
 		// interaction here.
+		// ### DEFENSIVE: OMPE-103063 - findInteractions() is the first consumer of the destroyed-overlap
+		// array (it fills mPairUserData for processLostContacts2/3), so an unvalidated pair faults here
+		// before any of the guards further down the pipeline can run.
+		if(!volume0 || !volume1)
+		{
+			outputError<PxErrorCode::eINTERNAL_ERROR>(__LINE__, "Sc::Scene: null volume in destroyed overlap. Skipping.");
+			overlaps->mPairUserData = NULL;
+			overlaps++;
+			continue;
+		}
+
 		overlaps->mPairUserData = core.findInteraction(volume0, volume1);
 		overlaps++;
 	}
@@ -2183,12 +2219,12 @@ void Sc::Scene::processLostContacts(PxBaseTask* continuation)
 					{
 					}
 
-					virtual void runInternal()
+					virtual void runInternal() PX_OVERRIDE
 					{
 						::findInteractions(mNPhaseCore, mCount, mOverlaps);
 					}
 
-					virtual const char* getName() const { return "FindInteractionTask"; }
+					virtual const char* getName() const PX_OVERRIDE { return "FindInteractionTask"; }
 				};
 
 				Cm::FlushPool& flushPool = mLLContext->getTaskPool();
@@ -2413,7 +2449,11 @@ void Sc::Scene::processLostContacts3(PxBaseTask* /*continuation*/)
 				ElementSim* volume0 = reinterpret_cast<ElementSim*>(p->mUserData0);
 				ElementSim* volume1 = reinterpret_cast<ElementSim*>(p->mUserData1);
 
-				mNPhaseCore->onOverlapRemoved(volume0, volume1, false, p->mPairUserData, outputs);
+				if(volume0 && volume1)	//### DEFENSIVE coding for OMPE-103063 (cf. OMPE-71676)
+					mNPhaseCore->onOverlapRemoved(volume0, volume1, false, p->mPairUserData, outputs);
+				else
+					outputError<PxErrorCode::eINTERNAL_ERROR>(__LINE__, "Sc::Scene: null volume in destroyed overlap. Skipping.");
+
 				p++;
 			}
 		}
@@ -2425,8 +2465,12 @@ void Sc::Scene::processLostContacts3(PxBaseTask* /*continuation*/)
 			{
 				ElementSim* volume0 = reinterpret_cast<ElementSim*>(p->mUserData0);
 				ElementSim* volume1 = reinterpret_cast<ElementSim*>(p->mUserData1);
+				
+				if(volume0 && volume1)	//### DEFENSIVE coding for OMPE-103063 (cf. OMPE-71676)
+					mNPhaseCore->onOverlapRemoved(volume0, volume1, false, NULL, outputs);
+				else
+					outputError<PxErrorCode::eINTERNAL_ERROR>(__LINE__, "Sc::Scene: null volume in destroyed overlap. Skipping.");
 
-				mNPhaseCore->onOverlapRemoved(volume0, volume1, false, NULL, outputs);
 				p++;
 			}
 		}
@@ -2439,46 +2483,20 @@ void Sc::Scene::processLostContacts3(PxBaseTask* /*continuation*/)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-/*static*/ bool deactivateInteraction(Interaction* interaction, const InteractionType::Enum type);
-
-void Sc::Scene::postThirdPassIslandGen(PxBaseTask* /*continuation*/)
+void Sc::Scene::postThirdPassIslandGen(PxBaseTask* continuation)
 {
 	PX_PROFILE_ZONE("Sc::Scene::postThirdPassIslandGen", mContextId);
 
-	putObjectsToSleep();
-
+	// Skip deactivating interactions when sleeping is disabled
+	if(!(mPublicFlags & PxSceneFlag::eDISABLE_SLEEPING))
 	{
-		PX_PROFILE_ZONE("Sc::Scene::putInteractionsToSleep", mContextId);
-		const IG::IslandSim& islandSim = mSimpleIslandManager->getSpeculativeIslandSim();
+		// Large islands fall asleep in tasks, see ScSleep.cpp. The last task of that chain processes the persistent
+		// contact events in place of this function.
+		if(putObjectsAndInteractionsToSleepParallel(continuation))
+			return;
 
-		//KS - only deactivate contact managers based on speculative state to trigger contact gen. When the actors were deactivated based on accurate state
-		//joints should have been deactivated.
-
-		for(PxU32 t = 0; t < IG::Edge::eEDGE_TYPE_COUNT; ++t)
-		{
-			const IG::Edge::EdgeType edgeType = IG::Edge::EdgeType(t);
-			if(edgeType == IG::Edge::eCONSTRAINT)
-				continue;
-
-			const PxU32 nbDeactivatingEdges = islandSim.getNbDeactivatingEdges(edgeType);
-			const IG::EdgeIndex* deactivatingEdgeIds = islandSim.getDeactivatingEdges(edgeType);
-
-			for(PxU32 i = 0; i < nbDeactivatingEdges; ++i)
-			{
-				Interaction* interaction = mSimpleIslandManager->getInteractionFromEdgeIndex(deactivatingEdgeIds[i]);
-
-				if(interaction && interaction->readInteractionFlag(InteractionFlag::eIS_ACTIVE))
-				{
-					if(!islandSim.getEdge(deactivatingEdgeIds[i]).isActive())
-					{
-						const InteractionType::Enum type = interaction->getType();
-						const bool proceed = deactivateInteraction(interaction, type);
-						if(proceed && (type < InteractionType::eTRACKED_IN_SCENE_COUNT))
-							notifyInteractionDeactivated(interaction);
-					}
-				}
-			}
-		}
+		putObjectsToSleep();
+		putInteractionsToSleep();
 	}
 
 	PxvNphaseImplementationContext*	implCtx = mLLContext->getNphaseImplementationContext();
@@ -2498,7 +2516,7 @@ void Sc::Scene::updateSimulationController(PxBaseTask* continuation)
 	PxsTransformCache& cache = getLowLevelContext()->getTransformCache();
 	BoundsArray& boundArray = getBoundsArray();
 
-	PxBitMapPinned& changedAABBMgrActorHandles = mAABBManager->getChangedAABBMgActorHandleMap();
+	PinnableBitMap& changedAABBMgrActorHandles = mAABBManager->getChangedAABBMgActorHandleMap();
 
 	mSimulationController->gpuDmabackData(cache, boundArray, changedAABBMgrActorHandles, mPublicFlags & PxSceneFlag::eENABLE_DIRECT_GPU_API);
 
@@ -2565,13 +2583,13 @@ void Sc::Scene::checkForceThresholdContactEvents(PxU32 ccdPass)
 
 	PxsContactManagerOutputIterator outputs = mLLContext->getNphaseImplementationContext()->getContactManagerOutputs();
 
-	ThresholdStream& thresholdStream = mDynamicsContext->getForceChangedThresholdStream();
+	const ThresholdStreamMapped& thresholdStream = mDynamicsContext->getForceChangedThresholdStream();
 
 	const PxU32 nbThresholdElements = thresholdStream.size();
 
 	for(PxU32 i = 0; i< nbThresholdElements; ++i)
 	{
-		ThresholdStreamElement& elem = thresholdStream[i];
+		const ThresholdStreamElement& elem = thresholdStream[i];
 		ShapeInteraction* si = elem.shapeInteraction;
 
 		//If there is a shapeInteraction and the shapeInteraction points to a contactManager (i.e. the CM was not destroyed in parallel with the solver)
@@ -2607,6 +2625,140 @@ void Sc::Scene::checkForceThresholdContactEvents(PxU32 ccdPass)
 	}
 }
 
+void Sc::Scene::forceThresholdContactEvents(PxBaseTask*)
+{
+	checkForceThresholdContactEvents(0);
+}
+
+static PX_FORCE_INLINE BodySim* getBodySimFromIG(const IG::IslandSim& islandSim, PxNodeIndex nodeIndex, PxU32 rigidBodyOffset)
+{
+	return reinterpret_cast<BodySim*>(reinterpret_cast<PxU8*>(getRigidBodyFromIG(islandSim, nodeIndex)) - rigidBodyOffset);
+}
+
+static const PxU32 gMaxDeactivatedBodiesPerTask = 512;
+
+// Updates the bodies that island generation put to sleep this step. CPU scenes run this from ScDeactivatedBodiesTask.
+// GPU scenes run it single-threaded under the low-level lock: the GPU bounds array records its changes in the virtual
+// updateBounds() and the GPU body update appends to a list, neither of which is thread-safe.
+static void updateDeactivatedBodies(Sc::Scene& scene, const UpdateCachedParams& params, const PxNodeIndex* indices, PxU32 nbBodies, bool singleThreaded)
+{
+	const IG::IslandSim& islandSim = scene.getSimpleIslandManager()->getAccurateIslandSim();
+	const PxU32 rigidBodyOffset = BodySim::getRigidBodyOffset();
+	PinnableBitMap& changedAABBMgrActorHandles = scene.getAABBManager()->getChangedAABBMgActorHandleMap();
+
+	bool anyChanged = false;
+
+	// Prefetch pipeline, same scheme as in Scene::putObjectsToSleep(): node, sim, body core and shape array, shapes,
+	// then the shape cores and the transform cache and bounds entries that updateCached() reads and writes.
+	const PxU32 nodeDistance = 10;
+	const PxU32 simDistance = 8;
+	const PxU32 coreDistance = 6;
+	const PxU32 shapeDistance = 4;
+	const PxU32 cacheDistance = 2;
+
+	for(PxU32 i = 0; i < nbBodies; i++)
+	{
+		if(i + nodeDistance < nbBodies)
+			islandSim.prefetchNode(indices[i + nodeDistance]);
+		if(i + simDistance < nbBodies)
+			getBodySimFromIG(islandSim, indices[i + simDistance], rigidBodyOffset)->prefetchSelf();
+		if(i + coreDistance < nbBodies)
+			getBodySimFromIG(islandSim, indices[i + coreDistance], rigidBodyOffset)->prefetchCoreAndShapeArray();
+		if(i + shapeDistance < nbBodies)
+			getBodySimFromIG(islandSim, indices[i + shapeDistance], rigidBodyOffset)->prefetchShapes();
+		if(i + cacheDistance < nbBodies)
+			getBodySimFromIG(islandSim, indices[i + cacheDistance], rigidBodyOffset)->prefetchShapesForUpdateCached(params, singleThreaded);
+
+		PxsRigidBody* rigid = getRigidBodyFromIG(islandSim, indices[i]);
+		BodySim* bodySim = reinterpret_cast<BodySim*>(reinterpret_cast<PxU8*>(rigid) - rigidBodyOffset);
+
+		//we need to set the rigid body back to the previous pose for the deactivated objects. This emulates the previous behavior where island gen ran before the solver, ensuring
+		//that bodies that should be deactivated this frame never reach the solver. We now run the solver in parallel with island gen, so objects that should be deactivated this frame
+		//still reach the solver and are integrated. However, on the frame when they should be deactivated, we roll back to their state at the beginning of the frame to ensure that the
+		//user perceives the same behavior as before.
+		rigid->setPose(rigid->getLastCCDTransform());
+
+		if(singleThreaded)
+		{
+			// PT: we are not inside a task here so we can run the non-thread-safe version, but we still need atomics for the bitmap update, as there are other parts running in parallel
+			// that also update the same bitmap.
+			bodySim->updateCached_NotThreadSafe(params, &changedAABBMgrActorHandles, false, true);
+
+			scene.gpu_updateBodySim(*bodySim);
+
+			//solver is running in parallel with IG(so solver might solving the body which IG identify as deactivatedNodes). After we moved sleepCheck into the solver after integration, sleepChecks
+			//might have processed bodies that are now considered deactivated. This could have resulted in either freezing or unfreezing one of these bodies this frame, so we need to process those
+			//events to ensure that the SqManager's bounds arrays are consistently maintained. Also, we need to clear the frame flags for these bodies.
+
+			if(rigid->isFreezeThisFrame())
+				bodySim->freezeTransforms(params, &changedAABBMgrActorHandles);
+		}
+		else
+		{
+			// These bodies left the active list before the after-integration tasks ran, so their caches normally still
+			// hold the pose they are rolled back to, and nothing has to be written.
+			anyChanged |= bodySim->updateCachedIfChanged(params, &changedAABBMgrActorHandles);
+
+			// putObjectsToSleep() deactivated these bodies, which removed their scene-query bounds, so
+			// freezeTransforms() needs no lock.
+			PX_ASSERT(!bodySim->isActive());
+			if(rigid->isFreezeThisFrame())
+				bodySim->freezeTransforms(params, &changedAABBMgrActorHandles);
+		}
+
+		//KS - the IG deactivates bodies in parallel with the solver. It appears that under certain circumstances, the solver's integration (which performs
+		//sleep checks) could decide that the body is no longer a candidate for sleeping on the same frame that the island gen decides to deactivate the island
+		//that the body is contained in. This is a rare occurrence but the behavior we want to emulate is that of IG running before solver so we should therefore
+		//permit the IG to make the authoritative decision over whether the body should be active or inactive.
+		PxsBodyCore& bodyCore = bodySim->getBodyCore().getCore();
+		bodyCore.wakeCounter = 0.0f;
+		bodyCore.linearVelocity = PxVec3(0.0f);
+		bodyCore.angularVelocity = PxVec3(0.0f);
+
+		rigid->clearAllFrameFlags();
+	}
+
+	if(anyChanged)
+	{
+		params.mTransformCache.setChangedState();
+		params.mBoundsArray.setChangedState();
+	}
+}
+
+namespace
+{
+	class ScDeactivatedBodiesTask : public Cm::Task
+	{
+	public:
+		static const PxU32 MaxBodies = gMaxDeactivatedBodiesPerTask;
+
+		ScDeactivatedBodiesTask(Sc::Scene& scene, const UpdateCachedParams& params, const PxNodeIndex* indices, PxU32 nbBodies) :
+			Cm::Task	(scene.getContextId()),
+			mScene		(scene),
+			mParams		(params),
+			mIndices	(indices),
+			mNbBodies	(nbBodies)
+		{
+		}
+
+		virtual void runInternal() PX_OVERRIDE
+		{
+			PX_PROFILE_ZONE("AfterIntegration::deactivateStage", mContextID);
+			updateDeactivatedBodies(mScene, mParams, mIndices, mNbBodies, false);
+		}
+
+		virtual const char* getName() const PX_OVERRIDE { return "ScScene.deactivatedBodiesTask"; }
+
+	private:
+		Sc::Scene&					mScene;
+		const UpdateCachedParams	mParams;
+		const PxNodeIndex* const	mIndices;
+		const PxU32					mNbBodies;
+
+		PX_NOCOPY(ScDeactivatedBodiesTask)
+	};
+}
+
 void Sc::Scene::afterIntegration(PxBaseTask* continuation)
 {
 	PX_PROFILE_ZONE("Sc::Scene::afterIntegration", mContextId);
@@ -2616,6 +2768,11 @@ void Sc::Scene::afterIntegration(PxBaseTask* continuation)
 
 	PxsTransformCache& cache = getLowLevelContext()->getTransformCache();
 	BoundsArray& boundArray = getBoundsArray();
+	const UpdateCachedParams params(cache, boundArray);
+
+	const PxU32 nbDeactivatedBodies = mSimpleIslandManager->getAccurateIslandSim().getNbNodesToDeactivate(IG::Node::eRIGID_BODY_TYPE) - mNumDeactivatingNodes[IG::Node::eRIGID_BODY_TYPE];
+	const PxNodeIndex* deactivatedBodies = mSimpleIslandManager->getAccurateIslandSim().getNodesToDeactivate(IG::Node::eRIGID_BODY_TYPE) + mNumDeactivatingNodes[IG::Node::eRIGID_BODY_TYPE];
+	const bool gpu = isUsingGpuDynamicsOrBp();
 
 	{
 		PX_PROFILE_ZONE("AfterIntegration::lockStage", mContextId);
@@ -2626,54 +2783,10 @@ void Sc::Scene::afterIntegration(PxBaseTask* continuation)
 			mSimulationController->updateScBodyAndShapeSim(cache, boundArray, continuation);
 		}
 
-		const IG::IslandSim& islandSim = mSimpleIslandManager->getAccurateIslandSim();
-
-		const PxU32 rigidBodyOffset = BodySim::getRigidBodyOffset();
-
-		const PxU32 numBodiesToDeactivate = islandSim.getNbNodesToDeactivate(IG::Node::eRIGID_BODY_TYPE);
-
-		const PxNodeIndex*const deactivatingIndices = islandSim.getNodesToDeactivate(IG::Node::eRIGID_BODY_TYPE);
-
-		PxU32 previousNumBodiesToDeactivate = mNumDeactivatingNodes[IG::Node::eRIGID_BODY_TYPE];
-
+		if(gpu && nbDeactivatedBodies)
 		{
 			PX_PROFILE_ZONE("AfterIntegration::deactivateStage", mContextId);
-
-			PxBitMapPinned& changedAABBMgrActorHandles = mAABBManager->getChangedAABBMgActorHandleMap();
-			for(PxU32 i = previousNumBodiesToDeactivate; i < numBodiesToDeactivate; i++)
-			{
-				PxsRigidBody* rigid = getRigidBodyFromIG(islandSim, deactivatingIndices[i]);
-				BodySim* bodySim = reinterpret_cast<BodySim*>(reinterpret_cast<PxU8*>(rigid) - rigidBodyOffset);
-				//we need to set the rigid body back to the previous pose for the deactivated objects. This emulates the previous behavior where island gen ran before the solver, ensuring
-				//that bodies that should be deactivated this frame never reach the solver. We now run the solver in parallel with island gen, so objects that should be deactivated this frame
-				//still reach the solver and are integrated. However, on the frame when they should be deactivated, we roll back to their state at the beginning of the frame to ensure that the
-				//user perceives the same behavior as before.
-
-				PxsBodyCore& bodyCore = bodySim->getBodyCore().getCore();
-
-				//if(!islandSim.getNode(bodySim->getNodeIndex()).isActive())
-				rigid->setPose(rigid->getLastCCDTransform());
-
-				bodySim->updateCached(&changedAABBMgrActorHandles);
-				updateBodySim(*bodySim);
-
-				//solver is running in parallel with IG(so solver might solving the body which IG identify as deactivatedNodes). After we moved sleepCheck into the solver after integration, sleepChecks
-				//might have processed bodies that are now considered deactivated. This could have resulted in either freezing or unfreezing one of these bodies this frame, so we need to process those
-				//events to ensure that the SqManager's bounds arrays are consistently maintained. Also, we need to clear the frame flags for these bodies.
-
-				if(rigid->isFreezeThisFrame())
-					bodySim->freezeTransforms(&mAABBManager->getChangedAABBMgActorHandleMap());
-
-				//KS - the IG deactivates bodies in parallel with the solver. It appears that under certain circumstances, the solver's integration (which performs
-				//sleep checks) could decide that the body is no longer a candidate for sleeping on the same frame that the island gen decides to deactivate the island
-				//that the body is contained in. This is a rare occurrence but the behavior we want to emulate is that of IG running before solver so we should therefore
-				//permit the IG to make the authoritative decision over whether the body should be active or inactive.
-				bodyCore.wakeCounter = 0.0f;
-				bodyCore.linearVelocity = PxVec3(0.0f);
-				bodyCore.angularVelocity = PxVec3(0.0f);
-
-				rigid->clearAllFrameFlags();
-			}
+			updateDeactivatedBodies(*this, params, deactivatedBodies, nbDeactivatedBodies, true);
 		}
 
 		updateKinematicCached(continuation);
@@ -2681,12 +2794,40 @@ void Sc::Scene::afterIntegration(PxBaseTask* continuation)
 		mLLContext->getLock().unlock();
 	}
 
+	typedef Cm::DelegateTask<Sc::Scene, &Sc::Scene::forceThresholdContactEvents> ForceThresholdContactEventsTask;
+	ForceThresholdContactEventsTask* forceThresholdTask = NULL;
+	if(!gpu && nbDeactivatedBodies)
+	{
+		const PxU32 maxBodiesPerTask = ScDeactivatedBodiesTask::MaxBodies;
+		if(nbDeactivatedBodies <= maxBodiesPerTask)
+		{
+			PX_PROFILE_ZONE("AfterIntegration::deactivateStage", mContextId);
+			updateDeactivatedBodies(*this, params, deactivatedBodies, nbDeactivatedBodies, false);
+		}
+		else
+		{
+			Cm::FlushPool& flushPool = mLLContext->getTaskPool();
+
+			// The force-threshold reports read the velocities that these tasks reset, so they run in a task that
+			// follows them. That task is released at the end of this function.
+			forceThresholdTask = PX_PLACEMENT_NEW(flushPool.allocate(sizeof(ForceThresholdContactEventsTask)), ForceThresholdContactEventsTask)(mContextId, this, "ScScene.forceThresholdContactEvents");
+			forceThresholdTask->setContinuation(continuation);
+
+			for(PxU32 start = 0; start < nbDeactivatedBodies; start += maxBodiesPerTask)
+			{
+				const PxU32 nb = PxMin(maxBodiesPerTask, nbDeactivatedBodies - start);
+				ScDeactivatedBodiesTask* task = PX_PLACEMENT_NEW(flushPool.allocate(sizeof(ScDeactivatedBodiesTask)), ScDeactivatedBodiesTask)(*this, params, deactivatedBodies + start, nb);
+				startTask(task, forceThresholdTask);
+			}
+		}
+	}
+
 	IG::IslandSim& islandSim = mSimpleIslandManager->getAccurateIslandSim();
 
 	const PxU32 nbActiveArticulations = islandSim.getNbActiveNodes(IG::Node::eARTICULATION_TYPE);
 
 	if(nbActiveArticulations)
-		mSimulationController->updateArticulationAfterIntegration(mLLContext, mAABBManager, mCcdBodies, continuation, islandSim, mDt);
+		mSimulationController->updateArticulationAfterIntegration(mLLContext, mAABBManager, mCcdBodies, continuation, islandSim, mDt, mDynamicsContext->isSleepingDisabled());
 
 	const PxU32 numArticsToDeactivate = islandSim.getNbNodesToDeactivate(IG::Node::eARTICULATION_TYPE);
 
@@ -2725,7 +2866,10 @@ void Sc::Scene::afterIntegration(PxBaseTask* continuation)
 
 	PX_PROFILE_STOP_CROSSTHREAD("Basic.dynamics", mContextId);
 
-	checkForceThresholdContactEvents(0); 		
+	if(forceThresholdTask)
+		forceThresholdTask->removeReference();
+	else
+		checkForceThresholdContactEvents(0);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -2770,33 +2914,32 @@ void Sc::Scene::finalizationPhase(PxBaseTask* /*continuation*/)
 {
 	PX_PROFILE_ZONE("Sim.sceneFinalization", mContextId);
 
+#if PX_SUPPORT_GPU_PHYSX
 	if(mCCDContext)
 	{
-		if(mSimulationController->mGPU)	// PT: skip this on CPU, see empty CPU function called in updateBodySim
+		if(mSimulationController->mGPU)	// PT: skip this on CPU, see empty CPU function called in gpu_updateBodySim
 		{
 			//KS - force simulation controller to update any bodies updated by the CCD. When running GPU simulation, this would be required
 			//to ensure that cached body states are updated
 			const PxU32 nbUpdatedBodies = mCCDContext->getNumUpdatedBodies();
 			PxsRigidBody*const* updatedBodies = mCCDContext->getUpdatedBodies();
 
-			const PxU32 rigidBodyOffset = BodySim::getRigidBodyOffset();			
+			const PxU32 rigidBodyOffset = BodySim::getRigidBodyOffset();
 
 			for(PxU32 a=0; a<nbUpdatedBodies; ++a)
 			{
 				BodySim* bodySim = reinterpret_cast<BodySim*>(reinterpret_cast<PxU8*>(updatedBodies[a]) - rigidBodyOffset);
-				updateBodySim(*bodySim);
+				gpu_updateBodySim(*bodySim);
 			}
 		}
 
 		mCCDContext->clearUpdatedBodies();
 	}
+#endif
 
 	fireOnAdvanceCallback();  // placed here because it needs to be done after sleep check and after potential CCD passes
 
 	checkConstraintBreakage(); // Performs breakage tests on breakable constraints
-	
-	if (getFlags() & PxSceneFlag::eENABLE_SOLVER_RESIDUAL_REPORTING)
-		collectSolverResidual();
 
 	PX_PROFILE_STOP_CROSSTHREAD("Basic.rigidBodySolver", mContextId);
 
@@ -2812,94 +2955,6 @@ void Sc::Scene::finalizationPhase(PxBaseTask* /*continuation*/)
 	// VR: do this at finalizationPhase when all contact and
 	// friction impulses and CCD contacts are already computed
 	visualizeContacts();
-}
-
-void Sc::Scene::collectSolverResidual()
-{
-	PX_PROFILE_ZONE("Sim.collectSolverResidual", mContextId);
-
-	PxU32 counter = mDynamicsContext->getContactErrorCounter();
-	PxReal rmsGlobalResidual = mDynamicsContext->getContactError();
-	PxReal maxGlobalResidual = mDynamicsContext->getMaxContactError();
-
-
-	PxU32 counterPosIter = mDynamicsContext->getContactErrorCounterPosIter();
-	PxReal rmsGlobalResidualPosIter = mDynamicsContext->getContactErrorPosIter();
-	PxReal maxGlobalResidualPosIter = mDynamicsContext->getMaxContactErrorPosIter();
-
-	PX_ASSERT(PxIsFinite(rmsGlobalResidual) && PxIsFinite(maxGlobalResidual));
-
-	const PxPinnedArray<Dy::ConstraintWriteback>& pool = mDynamicsContext->getConstraintWriteBackPool();
-	const PxPinnedArray<PxReal>& poolPosIterResidualGpu = mDynamicsContext->getConstraintPositionIterResidualPoolGpu();
-
-	ConstraintCore* const* constraints = mConstraints.getEntries();
-	PxU32 count = mConstraints.size();
-	while (count--)
-	{
-		ConstraintCore* core = constraints[count];
-		ConstraintSim* sim = core->getSim();
-		const Dy::ConstraintWriteback& solverOutput = pool[sim->getLowLevelConstraint().index];
-		PxReal positionIterationResidual = solverOutput.getPositionIterationResidual();
-		if (poolPosIterResidualGpu.size() > 0)
-			positionIterationResidual += poolPosIterResidualGpu[sim->getLowLevelConstraint().index];
-
-		PxConstraintResidual residual;
-		residual.positionIterationResidual = positionIterationResidual;
-		residual.velocityIterationResidual = solverOutput.residual;
-		core->setSolverResidual(residual);
-
-
-		rmsGlobalResidual += solverOutput.residual * solverOutput.residual;
-		maxGlobalResidual = PxMax(PxAbs(solverOutput.residual), maxGlobalResidual);
-
-		PX_ASSERT(PxIsFinite(rmsGlobalResidual) && PxIsFinite(maxGlobalResidual));
-
-
-		rmsGlobalResidualPosIter += positionIterationResidual * positionIterationResidual;
-		maxGlobalResidualPosIter = PxMax(PxAbs(positionIterationResidual), maxGlobalResidualPosIter);
-
-		PX_ASSERT(PxIsFinite(rmsGlobalResidualPosIter) && PxIsFinite(maxGlobalResidualPosIter));
-	}
-	counter += mConstraints.size();
-	counterPosIter += mConstraints.size();
-
-	ArticulationCore* const* articulations = mArticulations.getEntries();
-	count = mArticulations.size();
-	while (count--)
-	{
-		ArticulationCore* core = articulations[count];
-		ArticulationSim* sim = core->getSim();
-		const Dy::ErrorAccumulator& internalErrVelIter = sim->getLowLevelArticulation()->mInternalErrorAccumulatorVelIter;
-		rmsGlobalResidual += internalErrVelIter.mErrorSumOfSquares;
-		counter += internalErrVelIter.mCounter;
-		maxGlobalResidual = PxMax(maxGlobalResidual, internalErrVelIter.mMaxError);
-
-		const Dy::ErrorAccumulator& contactErrVelIter = sim->getLowLevelArticulation()->mContactErrorAccumulatorVelIter;
-		rmsGlobalResidual += contactErrVelIter.mErrorSumOfSquares;
-		counter += contactErrVelIter.mCounter;
-		maxGlobalResidual = PxMax(maxGlobalResidual, contactErrVelIter.mMaxError);
-
-		PX_ASSERT(PxIsFinite(rmsGlobalResidual) && PxIsFinite(maxGlobalResidual));
-
-
-		const Dy::ErrorAccumulator& internalErrPosIter = sim->getLowLevelArticulation()->mInternalErrorAccumulatorPosIter;
-		rmsGlobalResidualPosIter += internalErrPosIter.mErrorSumOfSquares;
-		counterPosIter += internalErrPosIter.mCounter;
-		maxGlobalResidualPosIter = PxMax(maxGlobalResidualPosIter, internalErrPosIter.mMaxError);
-
-		const Dy::ErrorAccumulator& contactErrPosIter = sim->getLowLevelArticulation()->mContactErrorAccumulatorPosIter;
-		rmsGlobalResidualPosIter += contactErrPosIter.mErrorSumOfSquares;
-		counterPosIter += contactErrPosIter.mCounter;
-		maxGlobalResidualPosIter = PxMax(maxGlobalResidualPosIter, contactErrPosIter.mMaxError);
-
-		PX_ASSERT(PxIsFinite(rmsGlobalResidualPosIter) && PxIsFinite(maxGlobalResidualPosIter));
-	}
-
-	mResidual.velocityIterationResidual.rmsResidual = PxSqrt(1.0f / PxMax(1u, counter) * rmsGlobalResidual);
-	mResidual.velocityIterationResidual.maxResidual = maxGlobalResidual;
-
-	mResidual.positionIterationResidual.rmsResidual = PxSqrt(1.0f / PxMax(1u, counterPosIter) * rmsGlobalResidualPosIter);
-	mResidual.positionIterationResidual.maxResidual = maxGlobalResidualPosIter;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

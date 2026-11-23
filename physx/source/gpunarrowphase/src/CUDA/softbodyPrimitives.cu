@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved. 
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #include "foundation/PxQuat.h"
 #include "foundation/PxSimpleTypes.h"
@@ -43,14 +20,14 @@
 
 #include "PxgContactManager.h"
 #include "PxgConvexConvexShape.h"
+#include "PxgDeformableContactWriters.h"
 #include "PxgFEMCloth.h"
-#include "PxgSoftBodyCore.h"
 #include "PxgNpKernelIndices.h"
 #include "PxgParticleSystem.h"
 #include "PxgSimulationCoreDesc.h"
 #include "PxgSoftBody.h"
 
-#include "PxsTransformCache.h"
+#include "PxsCachedTransform.h"
 
 #include "convexNpCommon.h"
 #include "cudaNpCommon.h"
@@ -252,7 +229,7 @@ __device__ static inline void tetPlaneCollide(
 	PxTransform&				planeTransform,
 	const PxReal				contactDist,
 	const PxReal				restDist,
-	PxgFEMContactWriter&		writer,
+	PxgRigidDbContactWriter&	writer,
 	PxU32						rigidBodyMaterialId
 )
 {
@@ -285,17 +262,20 @@ __device__ static inline void tetPlaneCollide(
 	const PxU32 index = globalScanExclusiveSingleWarp(intersect, writer.totalContactCount);
 
 	if (intersect && index < writer.maxNumContacts)
-	{	
-		PxU64 pairInd0 = rigidId.getInd();
-		PxU32 pairInd1 = PxEncodeSoftBodyIndex(softbodyId, tetrahedronIdx);
+	{
+		PxU64 rigidRef = rigidId.getInd();
+		PxU64 tetRef = PxgEncodeDeformableTetrahedron(softbodyId, tetrahedronIdx);
 
-		writer.writeRigidVsDeformableContactNoBarycentric(index, make_float4(worldPoint.x, worldPoint.y, worldPoint.z, restDist), make_float4(worldNormal.x, worldNormal.y, worldNormal.z, pen),
-			pairInd0, pairInd1, rigidId.getInd(), rigidBodyMaterialId);
+		writer.writeVolumeContact(index, make_float4(worldPoint.x, worldPoint.y, worldPoint.z, restDist), make_float4(worldNormal.x, worldNormal.y, worldNormal.z, pen),
+			rigidRef, rigidBodyMaterialId, tetRef);
 	}
 }
 
-PX_FORCE_INLINE __device__ void writeContactNoBarycentricFullWarp(PxgFEMContactWriter& writer, bool intersect, const float* closestPointA, const float* closestPointB, PxReal penOffset,
-	const PxReal* normalPtr, bool flipOutputNormal, PxReal restDist, PxU64 pairInd0, PxU32 pairInd1, PxU32 rigidBodyMaterialId, bool alternativeWriteMode = false)
+// Full warp equivalent of PxgRigidDbContactWriter::writeVolumeContact, and it claims the contact index
+// rather than taking one. It is not a method because the two float4 stores are split across four lanes and
+// the writer header is also compiled for the host.
+PX_FORCE_INLINE __device__ void writeVolumeContactFullWarp(PxgRigidDbContactWriter& writer, bool intersect, const float* closestPointA, const float* closestPointB, PxReal penOffset,
+	const PxReal* normalPtr, bool flipOutputNormal, PxReal restDist, PxU64 rigidRef, PxU32 rigidBodyMaterialId, PxU64 tetRef)
 {
 	int32_t index = 0xFFffFFff;
 	if (threadIdx.x == 0 && intersect)
@@ -312,18 +292,7 @@ PX_FORCE_INLINE __device__ void writeContactNoBarycentricFullWarp(PxgFEMContactW
 	index = __shfl_sync(FULL_MASK, index, 0);
 	if (index != 0xFFffFFff)
 	{
-		if (alternativeWriteMode)
-		{
-			writer.contactSortedByX[index] = PxU32(pairInd0 & 0xffffffff);
-		}
-		else
-		{
-			writer.contactByX[index] = pairInd0; // rigidId;
-			writer.tempContactByX[index] = PxU32(pairInd0 & 0xffffffff);
-		}
-
-		writer.contactIndexSortedByX[index] = index;
-		
+		writer.writeSortKey(index, rigidRef);
 
 		PxReal witnessA = 0.f;
 		PxReal witnessB = 0.f;
@@ -351,33 +320,30 @@ PX_FORCE_INLINE __device__ void writeContactNoBarycentricFullWarp(PxgFEMContactW
 
 			if (threadIdx.x == 0)
 			{
-				PxgFemVsRigidContactInfo* ptr = reinterpret_cast<PxgFemVsRigidContactInfo*>(&writer.outContactInfo[index]);
-				ptr->pairInd0 = pairInd0;
-				ptr->pairInd1 = pairInd1;
-				ptr->rigidMatInd = rigidBodyMaterialId;
+				PxgDeformablePairInfo* ptr = &writer.outContactInfo[index];
+				ptr->ref0 = rigidRef;
+				ptr->ref1 = tetRef;
+				writer.outRigidMaterialIndex[index] = PxU16(rigidBodyMaterialId);
 			}
 		}
 	}
 }
 
 __device__ static inline void sbPrimitiveCollision(
-	PxU32 globalWarpIndex,
-	const PxReal toleranceLength,
-	const PxgContactManagerInput* PX_RESTRICT cmInputs,
-	const uint4 curPair,
-	const PxsCachedTransform* PX_RESTRICT transformCache,
-	const PxReal* PX_RESTRICT contactDistance,
-	const PxReal* PX_RESTRICT restDistance,
-	const PxgShape* PX_RESTRICT gpuShapes,
-	const PxgSoftBody* PX_RESTRICT softbodies,
-	const PxNodeIndex* PX_RESTRICT shapeToRigidRemapTable,
-
-	sbTetDataScratch*			s_warpScratch,
-	squawk::EpaScratch&			ss_epa_scratch,
-	TetCollideScratch&			ss_scratch,
-	PxgRigidFilterPair*			pairs,
-	const PxU32					nbPairs,
-	PxgFEMContactWriter&		writer	
+	PxU32										globalWarpIndex,
+	const PxReal								toleranceLength,
+	const PxgContactManagerInput* PX_RESTRICT	cmInputs,
+	const uint4									curPair,
+	const PxsCachedTransform* PX_RESTRICT		transformCache,
+	const PxReal* PX_RESTRICT					contactDistance,
+	const PxReal* PX_RESTRICT					restDistance,
+	const PxgShape* PX_RESTRICT					gpuShapes,
+	const PxgSoftBody* PX_RESTRICT				softbodies,
+	const PxNodeIndex* PX_RESTRICT				shapeToRigidRemapTable,
+	sbTetDataScratch*							s_warpScratch,
+	squawk::EpaScratch&							ss_epa_scratch,
+	TetCollideScratch&							ss_scratch,
+	PxgRigidDbContactWriter&					writer
 	)
 {
 	const PxU32 cmIdx = curPair.x;
@@ -403,11 +369,9 @@ __device__ static inline void sbPrimitiveCollision(
 	const PxU32 softbodyId = softbodyShape.particleOrSoftbodyId;
 	const PxgSoftBody& softbody = softbodies[softbodyId];
 
-	const PxU32 softBodyMask = PxEncodeSoftBodyIndex(softbodyId, tetrahedronIdx);
-
-	//If we found the tetrahedron index in the attachment list, we don't need to generate contacts between the rigid
-	//body and the tetrahedron
-	if (find(pairs, nbPairs, rigidId.getInd(), softBodyMask))
+	// A filter pair for this rigid and tetrahedron suppresses contact generation between them.
+	if (findRigidVolumeFilter(softbody.mRigidVolumeFilterPairs, softbody.mNumRigidVolumeFilterPairs,
+		rigidId, rigidCacheRef, softbodyId, tetrahedronIdx))
 		return;
 
 	if (threadIdx.x == 0)
@@ -560,11 +524,11 @@ __device__ static inline void sbPrimitiveCollision(
 		bool intersect = (result == GjkResult::eOVERLAP || result == GjkResult::eCLOSE);
 
 
-		PxU64 pairInd0 = rigidId.getInd();
-		PxU32 pairInd1 = PxEncodeSoftBodyIndex(softbodyId, tetrahedronIdx);
+		PxU64 rigidRef = rigidId.getInd();
+		PxU64 tetRef = PxgEncodeDeformableTetrahedron(softbodyId, tetrahedronIdx);
 
-		writeContactNoBarycentricFullWarp(writer, intersect, &ss_scratch.gjkOutput.closestPointA.x, &ss_scratch.gjkOutput.closestPointB.x, -radius,
-			&ss_scratch.gjkOutput.direction.x, false, restDist, pairInd0, pairInd1, rigidShape.materialIndex);
+		writeVolumeContactFullWarp(writer, intersect, &ss_scratch.gjkOutput.closestPointA.x, &ss_scratch.gjkOutput.closestPointB.x, -radius,
+			&ss_scratch.gjkOutput.direction.x, false, restDist, rigidRef, rigidShape.materialIndex, tetRef);
 	}
 }
 
@@ -578,14 +542,11 @@ void sb_primitiveContactGenLaunch(
 	const PxgShape* PX_RESTRICT					gpuShapes,
 	const PxgSoftBody* PX_RESTRICT				softbodies,
 	const PxNodeIndex* PX_RESTRICT				shapeToRigidRemapTable,
-
 	PxU8* PX_RESTRICT							stackPtr,
 	PxU32* PX_RESTRICT							midphasePairsNum,
 	const PxU32									stackSizeBytes,
-	PxgRigidFilterPair*							softBodyRigidPairs,
-	const PxU32									numSoftBodyRigidPairs,
-	PxU32* PX_RESTRICT							stackSizeNeededOnDevice,				
-	PxgFEMContactWriter							writer
+	PxU32* PX_RESTRICT							stackSizeNeededOnDevice,
+	PxgRigidDbContactWriter						writer
 )
 {
 	const PxU32 warpIndex = threadIdx.y;
@@ -629,9 +590,7 @@ void sb_primitiveContactGenLaunch(
 			s_warpScratch,
 			ss_epa_scratch,
 			ss_scratch,
-			softBodyRigidPairs,
-			numSoftBodyRigidPairs,
-			writer			
+			writer
 			);
 	}
 
@@ -667,22 +626,19 @@ PX_COMPILE_TIME_ASSERT(sizeof(sbHeightfieldScratch) <= WARP_SIZE * sizeof(PxU32)
 
 
 __device__ static inline void sbMeshCollision(
-	PxU32 globalWarpIndex,
-	const PxgContactManagerInput* PX_RESTRICT cmInputs,
-	const uint4 curPair,
-	const PxsCachedTransform* PX_RESTRICT transformCache,
-	const PxReal* PX_RESTRICT contactDistance,
-	const PxReal* PX_RESTRICT restDistance,
-	const PxgShape* PX_RESTRICT gpuShapes,
-	const PxgSoftBody* PX_RESTRICT softbodies,
-	const PxNodeIndex* PX_RESTRICT shapeToRigidRemapTable,
-
-	sbsbScratch*				s_warpScratch,
-	squawk::EpaScratch&			ss_epa_scratch,
-	TetCollideScratch&			ss_scratch,
-	PxgRigidFilterPair*			pairs,
-	const PxU32					nbPairs,
-	PxgFEMContactWriter&		writer
+	PxU32										globalWarpIndex,
+	const PxgContactManagerInput* PX_RESTRICT	cmInputs,
+	const uint4									curPair,
+	const PxsCachedTransform* PX_RESTRICT		transformCache,
+	const PxReal* PX_RESTRICT					contactDistance,
+	const PxReal* PX_RESTRICT					restDistance,
+	const PxgShape* PX_RESTRICT					gpuShapes,
+	const PxgSoftBody* PX_RESTRICT				softbodies,
+	const PxNodeIndex* PX_RESTRICT				shapeToRigidRemapTable,
+	sbsbScratch*								s_warpScratch,
+	squawk::EpaScratch&							ss_epa_scratch,
+	TetCollideScratch&							ss_scratch,
+	PxgRigidDbContactWriter&					writer
 )
 {
 	const PxU32 cmIdx = curPair.x;
@@ -709,11 +665,10 @@ __device__ static inline void sbMeshCollision(
 	const PxgSoftBody& softbody = softbodies[softbodyId];
 
 	const PxNodeIndex rigidId = shapeToRigidRemapTable[trimeshCacheRef];
-	const PxU32 softBodyMask = PxEncodeSoftBodyIndex(softbodyId, tetrahedronInd);
-	
-	//If we found the tetrahedron index in the attachment list, we don't need to generate contacts between the rigid
-	//body and the tetrahedron
-	if (find(pairs, nbPairs, rigidId.getInd(), softBodyMask))
+
+	// A filter pair for this rigid and tetrahedron suppresses contact generation between them.
+	if (findRigidVolumeFilter(softbody.mRigidVolumeFilterPairs, softbody.mNumRigidVolumeFilterPairs,
+		rigidId, trimeshCacheRef, softbodyId, tetrahedronInd))
 		return;
 
 	if (threadIdx.x == 0)
@@ -771,8 +726,6 @@ __device__ static inline void sbMeshCollision(
 		v = verts[ind];
 	}
 
-	const PxU32 mask = 0x1ff;
-
 	float s = 0.f, p = 0.f;
 	if (threadIdx.x < 3)
 	{
@@ -792,14 +745,14 @@ __device__ static inline void sbMeshCollision(
 		v0 = rotateInvR(v0, trimeshScale.rotation, threadIdx.x);
 
 		//shfl 3, 4, 5 value to 0, 1, 2
-		m = __shfl_sync(mask, v, threadIdx.x + 3);
+		m = __shfl_sync(FULL_MASK, v, threadIdx.x + 3);
 		v1 = rotateR(m, trimeshScale.rotation, threadIdx.x);
 		v1 *= s;
 		v1 = rotateInvR(v1, trimeshScale.rotation, threadIdx.x);
 
 		
 		//shfl 6, 7, 8 value to 0, 1, 2
-		m = __shfl_sync(mask, v, threadIdx.x + 6);
+		m = __shfl_sync(FULL_MASK, v, threadIdx.x + 6);
 		v2 = rotateR(m, trimeshScale.rotation, threadIdx.x);
 		v2 *= s;
 		v2 = rotateInvR(v2, trimeshScale.rotation, threadIdx.x);
@@ -880,12 +833,12 @@ __device__ static inline void sbMeshCollision(
 		intersect = intersect && ss_scratch.gjkOutput.direction.dot(n) >= 0.f;
 	}
 
-	PxU64 pairId0 = rigidId.getInd();
-	PxU32 pairId1 = PxEncodeSoftBodyIndex(softbodyId, tetrahedronInd);
+	PxU64 rigidRef = rigidId.getInd();
+	PxU64 tetRef = PxgEncodeDeformableTetrahedron(softbodyId, tetrahedronInd);
 
 	const PxVec3 normal = ss_scratch.gjkOutput.direction.getNormalized();
-	writeContactNoBarycentricFullWarp(writer, intersect, &ss_scratch.gjkOutput.closestPointA.x, &ss_scratch.gjkOutput.closestPointB.x, 
-		0, &normal.x, true, restDistance[cmIdx], pairId0, pairId1, trimeshShape.materialIndex, true);
+	writeVolumeContactFullWarp(writer, intersect, &ss_scratch.gjkOutput.closestPointA.x, &ss_scratch.gjkOutput.closestPointB.x,
+		0, &normal.x, true, restDistance[cmIdx], rigidRef, trimeshShape.materialIndex, tetRef);
 }
 
 extern "C" __global__
@@ -901,10 +854,8 @@ void sb_meshContactGenLaunch(
 	PxU8* PX_RESTRICT							stackPtr,
 	PxU32* PX_RESTRICT							midphasePairsNum,
 	const PxU32									stackSizeBytes,
-	PxgRigidFilterPair*	 PX_RESTRICT			filterPairs,
-	const PxU32									nbFilterPairs,
 	PxU32* PX_RESTRICT							stackSizeNeededOnDevice,
-	PxgFEMContactWriter							writer
+	PxgRigidDbContactWriter						writer
 )
 {
 
@@ -948,9 +899,7 @@ void sb_meshContactGenLaunch(
 			s_warpScratch,
 			ss_epa_scratch,
 			ss_scratch,
-			filterPairs,
-			nbFilterPairs,
-			writer			
+			writer
 		);
 	}
 
@@ -975,7 +924,7 @@ __device__ static inline void sbHeightfieldCollision(
 	sbHeightfieldScratch*						s_warpScratch,
 	squawk::EpaScratch&							ss_epa_scratch,
 	TetCollideScratch&							ss_scratch,
-	PxgFEMContactWriter&						writer
+	PxgRigidDbContactWriter&					writer
 )
 {
 	const PxU32 cmIdx = curPair.x;
@@ -1000,6 +949,12 @@ __device__ static inline void sbHeightfieldCollision(
 	const PxU32 softbodyId = softbodyShape.particleOrSoftbodyId;
 	const PxgSoftBody& softbody = softbodies[softbodyId];
 
+	const PxNodeIndex rigidId = shapeToRigidRemapTable[heightfieldCacheRef];
+
+	// A filter pair for this rigid and tetrahedron suppresses contact generation between them.
+	if (findRigidVolumeFilter(softbody.mRigidVolumeFilterPairs, softbody.mNumRigidVolumeFilterPairs,
+		rigidId, heightfieldCacheRef, softbodyId, tetrahedronInd))
+		return;
 
 	if (threadIdx.x == 0)
 	{
@@ -1123,16 +1078,15 @@ __device__ static inline void sbHeightfieldCollision(
 
 	bool intersect = (result == GjkResult::eOVERLAP || result == GjkResult::eCLOSE);
 
-	const PxNodeIndex rigidId = shapeToRigidRemapTable[heightfieldCacheRef];
-	PxU64 pairId0 = rigidId.getInd();
-	PxU32 pairId1 = PxEncodeSoftBodyIndex(softbodyId, tetrahedronInd);
+	PxU64 rigidRef = rigidId.getInd();
+	PxU64 tetRef = PxgEncodeDeformableTetrahedron(softbodyId, tetrahedronInd);
 
 	const PxVec3 v20(ss_scratch.vB[2] - ss_scratch.vB[0]);
 	const PxVec3 v21(ss_scratch.vB[1] - ss_scratch.vB[0]);
 	const PxVec3 n = (v20.cross(v21)).getNormalized();
 
-	writeContactNoBarycentricFullWarp(writer, intersect, &ss_scratch.gjkOutput.closestPointA.x, &ss_scratch.gjkOutput.closestPointB.x,
-		0, &n.x, true, restDistance[cmIdx], pairId0, pairId1, heightfieldShape.materialIndex, true);
+	writeVolumeContactFullWarp(writer, intersect, &ss_scratch.gjkOutput.closestPointA.x, &ss_scratch.gjkOutput.closestPointB.x,
+		0, &n.x, true, restDistance[cmIdx], rigidRef, heightfieldShape.materialIndex, tetRef);
 }
 
 extern "C" __global__
@@ -1150,7 +1104,7 @@ void sb_heightfieldContactGenLaunch(
 	PxU32* PX_RESTRICT							midphasePairsNum,
 	const PxU32									stackSizeBytes,
 	PxU32* PX_RESTRICT							stackSizeNeededOnDevice,
-	PxgFEMContactWriter							writer
+	PxgRigidDbContactWriter						writer
 )
 {
 	const PxU32 stackSize = stackSizeBytes / sizeof(uint4);
@@ -1206,21 +1160,16 @@ void sb_heightfieldContactGenLaunch(
 __device__ static inline void sbClothCollision(
 	PxU32										globalWarpIndex,
 	const PxgContactManagerInput* PX_RESTRICT	cmInputs,
-	const uint4 curPair,
+	const uint4									curPair,
 	const PxsCachedTransform* PX_RESTRICT		transformCache,
 	const PxReal* PX_RESTRICT					contactDistance,
 	const PxgShape* PX_RESTRICT					gpuShapes,
 	const PxgSoftBody* PX_RESTRICT				softbodies,
 	const PxgFEMCloth* PX_RESTRICT				clothes,
-
 	sbsbScratch*								s_warpScratch,
 	squawk::EpaScratch&							ss_epa_scratch,
 	TetCollideScratch&							ss_scratch,
-
-	PxgNonRigidFilterPair*						filterPairs,
-	const PxU32									nbFilterPairs,
-
-	PxgSoftBodyContactWriter&					writer
+	PxgDbDbContactWriter&						writer
 )
 {
 	const PxU32 cmIdx = curPair.x;
@@ -1259,32 +1208,20 @@ __device__ static inline void sbClothCollision(
 
 
 		s_warpScratch->tetmeshVerts[1] = cloth.mPosition_InvMass;
-		s_warpScratch->tetmeshTetIndices[1] = cloth.mTriangleVertexIndices;
+		s_warpScratch->tetmeshTetIndices[1] = cloth.mTriangleVertexIndices_ownedEdges;
 
 	}
 
 	__syncwarp();
 
-	const PxU32 softBodyMask = PxEncodeSoftBodyIndex(softbodyId, tetrahedronInd);
-	const PxU32 softBodyFullMask = PxEncodeSoftBodyIndex(softbodyId, PX_MAX_NB_DEFORMABLE_VOLUME_TET);
-	const uint4 triVertInds = s_warpScratch->tetmeshTetIndices[1][triangleInd];
+	const PxgDeformablePairInfo* filterPairs = softbody.mVolumeSurfaceFilterPairs;
+	const PxU32 nbFilterPairs = softbody.mNumVolumeSurfaceFilterPairs;
 
-	const PxU32 clothMask0 = PxEncodeClothIndex(clothId, triVertInds.x);
-	const PxU32 clothMask1 = PxEncodeClothIndex(clothId, triVertInds.y);
-	const PxU32 clothMask2 = PxEncodeClothIndex(clothId, triVertInds.z);
-	const PxU32 clothFullMask = PxEncodeClothIndex(clothId, PX_MAX_NB_DEFORMABLE_SURFACE_VTX);
-
-	if (find(filterPairs, nbFilterPairs, softBodyMask, clothFullMask))
-	{
-		return;
-	}
-
-	//If we find the cloth mask and soft body mask in the filter pairs, we don't need to generate contacts between the triangle and the tetrahedron
-	bool skipTriangle =	(find(filterPairs, nbFilterPairs, softBodyFullMask, clothMask0) || find(filterPairs, nbFilterPairs, softBodyMask, clothMask0)) &&
-						(find(filterPairs, nbFilterPairs, softBodyFullMask, clothMask1) || find(filterPairs, nbFilterPairs, softBodyMask, clothMask1)) &&
-						(find(filterPairs, nbFilterPairs, softBodyFullMask, clothMask2) || find(filterPairs, nbFilterPairs, softBodyMask, clothMask2));
-
-	if (skipTriangle)
+	// Filters this tetrahedron against the whole surface, then against the input triangle. Also checks
+	// whether the triangle is filtered against any tetrahedron.
+	if (findVolumeSurfaceTriangleFilter(filterPairs, nbFilterPairs, softbodyId, tetrahedronInd, clothId, PxgDeformableRef::ANY_FEATURE) ||
+		findVolumeSurfaceTriangleFilter(filterPairs, nbFilterPairs, softbodyId, tetrahedronInd, clothId, triangleInd) ||
+		findVolumeSurfaceTriangleFilter(filterPairs, nbFilterPairs, softbodyId, PxgDeformableRef::ANY_FEATURE, clothId, triangleInd))
 	{
 		return;
 	}
@@ -1323,8 +1260,6 @@ __device__ static inline void sbClothCollision(
 		const PxU32 ind = threadIdx.x % 3;
 		v = verts[ind];
 	}
-
-	const PxU32 mask = 0x1ff;
 
 	float /*s = 0.f, */p = 0.f;
 	if (threadIdx.x < 3)
@@ -1365,12 +1300,12 @@ __device__ static inline void sbClothCollision(
 		v0 = rotateR(m, clothToWorld.q, threadIdx.x) + p;
 
 		//shfl 3, 4, 5 value to 0, 1, 2
-		m = __shfl_sync(mask, v, threadIdx.x + 3);
+		m = __shfl_sync(FULL_MASK, v, threadIdx.x + 3);
 
 		v1 = rotateR(m, clothToWorld.q, threadIdx.x) + p;
 
 		//shfl 6, 7, 8 value to 0, 1, 2
-		m = __shfl_sync(mask, v, threadIdx.x + 6);
+		m = __shfl_sync(FULL_MASK, v, threadIdx.x + 6);
 		v2 = rotateR(m, clothToWorld.q, threadIdx.x) + p;
 	}
 
@@ -1498,12 +1433,12 @@ __device__ static inline void sbClothCollision(
 		if (index != 0xffffffff)
 		{
 
-			PxU32 pairId0 = PxEncodeClothIndex(clothId, triangleInd);
-			PxU32 pairId1 = PxEncodeSoftBodyIndex(softbodyId, tetrahedronInd);
+			PxU64 triRef = PxgEncodeDeformableTriangle(clothId, triangleInd);
+			PxU64 tetRef = PxgEncodeDeformableTetrahedron(softbodyId, tetrahedronInd);
 
 			/*if (threadIdx.x == 0)
 			{
-				const PxU32 newTriInd = pairId1.getFemTriId();
+				const PxU32 newTriInd = tetRef.getFemTriId();
 				printf("%i softbodyId %i tetrahedronInd %i clothId %i triangleId %i newTriInd %i\n", index, softbodyId, tetrahedronInd, clothId, triangleInd, newTriInd);
 			}*/
 
@@ -1532,9 +1467,11 @@ __device__ static inline void sbClothCollision(
 				float* point = reinterpret_cast<float*>(&writer.outPoint[index]);
 				float* normalPen = reinterpret_cast<float*>(&writer.outNormalPen[index]);
 				float* rBarycentric0 = reinterpret_cast<float*>(&writer.outBarycentric0[index]);
-				float* rBarycentric1 = reinterpret_cast<float*>(&writer.outBarycentric1[index]);
 
-				const PxReal outP = threadIdx.x < 3 ? witnessB : 0.f;
+				// The point is the soft body's witness, which the remap converts into a simulation mesh
+				// tetrahedron and the corresponding barycentric. The cloth's barycentric is written here
+				// because it needs no remapping.
+				const PxReal outP = threadIdx.x < 3 ? witnessA : 0.f;
 				point[threadIdx.x] = outP;
 
 				const PxReal outNP = threadIdx.x < 3 ? (-normal) : pen;
@@ -1543,13 +1480,10 @@ __device__ static inline void sbClothCollision(
 				const float* tBarycentric0 = reinterpret_cast<float*>(&barycentric0.x);
 				rBarycentric0[threadIdx.x] = tBarycentric0[threadIdx.x];
 
-				const float* tBarycentric1 = reinterpret_cast<float*>(&barycentric1.x);
-				rBarycentric1[threadIdx.x] = tBarycentric1[threadIdx.x];
-
 				if (threadIdx.x == 0)
 				{
-					writer.outContactInfo[index].pairInd0 = pairId0; //cloth 
-					writer.outContactInfo[index].pairInd1 = pairId1; //soft body
+					writer.outContactInfo[index].ref0 = triRef; //cloth
+					writer.outContactInfo[index].ref1 = tetRef; //soft body
 
 					//if (index == 0)
 					//{
@@ -1590,14 +1524,11 @@ void sb_clothContactGenLaunch(
 	const PxgShape* PX_RESTRICT					gpuShapes,
 	const PxgSoftBody* PX_RESTRICT				softbodies,
 	const PxgFEMCloth* PX_RESTRICT				clothes,
-
 	PxU8* PX_RESTRICT							stackPtr,
 	PxU32* PX_RESTRICT							midphasePairsNum,
 	const PxU32									stackSizeBytes,
-	PxgNonRigidFilterPair*						filterPairs,
-	const PxU32									nbFilterPairs,
 	PxU32* PX_RESTRICT							stackSizeNeededOnDevice,
-	PxgSoftBodyContactWriter					writer
+	PxgDbDbContactWriter						writer
 )
 {
 	const PxU32 stackSize = stackSizeBytes / sizeof(uint4);
@@ -1638,9 +1569,7 @@ void sb_clothContactGenLaunch(
 			s_warpScratch,
 			ss_epa_scratch,
 			ss_scratch,
-			filterPairs,
-			nbFilterPairs,
-			writer			
+			writer
 		);
 	}
 
@@ -1655,13 +1584,15 @@ void fem_reorderRigidContactsLaunch(
 	const float4* contacts,
 	const float4* normalpens,
 	const float4* barycentrics,
-	const PxgFemContactInfo* contactInfos,
+	PxgDeformablePairInfo* contactInfos,
+	const PxU16* contactMaterials,
 	const PxU32* numContacts,
 	const PxU32* remapByRigid,
 	float4* sortedContacts,
 	float4* sortedNormalPens,
 	float4* sortedBarycentrics,
-	PxgFemContactInfo* sortedContactInfos,
+	PxgDeformablePairInfo* sortedContactInfos,
+	PxU16* sortedContactMaterials,
 	PxU64*	sortedRigidIds
 )
 {
@@ -1681,12 +1612,13 @@ void fem_reorderRigidContactsLaunch(
 		sortedNormalPens[index] = normalpens[remapIndex];
 		sortedBarycentrics[index] = barycentrics[remapIndex];
 
-		const PxgFemContactInfo contactInfo = contactInfos[remapIndex];
+		const PxgDeformablePairInfo contactInfo = contactInfos[remapIndex];
 
-		PxU64 rigidId = contactInfo.pairInd0;
+		PxU64 rigidId = contactInfo.ref0;
 		//assert(reinterpret_cast<const IG::NodeIndex&>(rigidId).isStaticBody());
 
 		sortedContactInfos[index] = contactInfo;
+		sortedContactMaterials[index] = contactMaterials[remapIndex];
 		sortedRigidIds[index] = rigidId;
 	}
 }
@@ -1696,13 +1628,13 @@ void sb_reorderPSContactsLaunch(
 	const float4* contacts,
 	const float4* normalpens,
 	const float4* barycentrics,
-	const PxgFemContactInfo* contactInfos,
+	PxgDeformablePairInfo* contactInfos,
 	const PxU32* numContacts,
 	const PxU32* remapByRigid,
 	float4* sortedContacts,
 	float4* sortedNormalPens,
 	float4* sortedBarycentrics,
-	PxgFemContactInfo* sortedContactInfos
+	PxgDeformablePairInfo* sortedContactInfos
 )
 {
 	const PxU32 totalNumContacts = *numContacts;
@@ -1964,13 +1896,10 @@ __device__ static inline void sbParticleCollision(
 	const uint4										curPair,
 	const PxsCachedTransform* PX_RESTRICT			transformCache,
 	const PxReal* PX_RESTRICT						contactDistance,
-	const PxReal* PX_RESTRICT						restDistances,
 	const PxgShape* PX_RESTRICT						gpuShapes,
 	const PxgParticleSystem* PX_RESTRICT			particleSystems,
 	const PxgSoftBody* PX_RESTRICT					softbodies,
-	const PxgNonRigidFilterPair*	PX_RESTRICT		pairs,
-	const PxU32										nbPairs,
-	PxgFEMContactWriter&							writer
+	PxgParticleDbContactWriter&						writer
 )
 {
 	const PxU32 cmIdx = curPair.x;
@@ -1985,7 +1914,6 @@ __device__ static inline void sbParticleCollision(
 		particleShape, particleCacheRef, softbodyShape, softbodyCacheRef);
 
 	const PxReal cDistance = contactDistance[particleCacheRef] + contactDistance[softbodyCacheRef];
-	const PxReal restDistance = restDistances[cmIdx];
 
 	const PxU32 softbodyId = softbodyShape.particleOrSoftbodyId;
 	const PxgSoftBody& softbody = softbodies[softbodyId];
@@ -2000,14 +1928,9 @@ __device__ static inline void sbParticleCollision(
 
 	const uint4 tetIdx = softbody.mTetIndices[tetrahedronIdx];
 
-	const PxU32 unsortedParticleIndex = particleSystem.mSortedToUnsortedMapping[particleIndex];
-	const PxU64 particleMask = PxEncodeParticleIndex(particleSystemId, unsortedParticleIndex);
-	const PxU32 tetMask = PxEncodeSoftBodyIndex(softbodyId, tetrahedronIdx);
-	const PxU32 tetFullMask = PxEncodeSoftBodyIndex(softbodyId, PX_MAX_NB_DEFORMABLE_VOLUME_TET);
-
 	PxU8 surfaceMask = softbody.mTetMeshSurfaceHint[tetrahedronIdx];
 
-	if (surfaceMask == 0 || find(particleSystem, pairs, nbPairs, particleMask, tetFullMask)|| find(particleSystem, pairs, nbPairs, particleMask, tetMask))
+	if (surfaceMask == 0)
 		return;
 
 	const float4 a_ = tetmeshVerts[tetIdx.x];
@@ -2029,13 +1952,10 @@ __device__ static inline void sbParticleCollision(
 	/*if(threadIdx.x == 16)
 		printf("idx %i result(%f, %f, %f, %f)\n", threadIdx.x, result.x, result.y, result.z, result.w);*/
 
-	float4 tBarycentric;
 	PxVec3 closestP;
 	PxVec3 n2;
 	PxReal sqDist = PX_MAX_F32;
 	closestPtTetrahedron(p, surfaceMask, a, b, c, d, n2, closestP, sqDist);
-
-	computeTetBarycentric(a, b, c, d, closestP, tBarycentric);
 
 	PxVec3 n = -(p - closestP);
 
@@ -2044,7 +1964,7 @@ __device__ static inline void sbParticleCollision(
 	//this means the p is inside for the tetrahedron
 	if (result.x >= 0.f && result.y >= 0.f && result.z >= 0.f && result.w >= 0.f)
 	{
-		pen = n.dot(n2) - restDistance;
+		pen = n.dot(n2);
 		n = n2;
 	}
 	else
@@ -2061,8 +1981,6 @@ __device__ static inline void sbParticleCollision(
 		{
 			n = n2;
 		}
-
-		pen -= restDistance;
 	}
 
 	int32_t index = atomicAdd(writer.totalContactCount, 1);
@@ -2070,14 +1988,11 @@ __device__ static inline void sbParticleCollision(
 		return;
 
 	{
-		//first 32 bits for particle system, second 32 bits for particle index
-		const PxU64 compressedParticleIndex = PxEncodeParticleIndex(particleSystemId, particleIndex);
-		
-		PxU64 pairInd0 = PxEncodeParticleIndex(particleSystemId, particleIndex);
-		PxU32 pairInd1 = PxEncodeSoftBodyIndex(softbodyId, tetrahedronIdx);
+		PxU64 particleRef = PxgEncodeParticleRef(particleSystemId, particleIndex);
+		PxU64 tetRef = PxgEncodeDeformableTetrahedron(softbodyId, tetrahedronIdx);
 
-		writer.writeContact(index, make_float4(p.x, p.y, p.z, 0.f), make_float4(n.x, n.y, n.z, pen), tBarycentric,
-			pairInd0, pairInd1, compressedParticleIndex);
+		writer.writeVolumeContact(index, make_float4(p.x, p.y, p.z, 0.f), make_float4(n.x, n.y, n.z, pen),
+			particleRef, tetRef);
 	}
 }
 
@@ -2087,17 +2002,14 @@ void sb_psContactGenLaunch(
 	const PxgContactManagerInput* PX_RESTRICT	cmInputs,
 	const PxsCachedTransform* PX_RESTRICT		transformCache,
 	const PxReal* PX_RESTRICT					contactDistance,
-	const PxReal* PX_RESTRICT					restDistances,
 	const PxgShape* PX_RESTRICT					gpuShapes,
 	const PxgParticleSystem* PX_RESTRICT		particleSystems,
 	const PxgSoftBody* PX_RESTRICT				softbodies,
-	const PxgNonRigidFilterPair* PX_RESTRICT	filterPairs,
-	const PxU32									numFilterPairs,
 	const PxU32									stackSizeBytes,
 	PxU8* PX_RESTRICT							stackPtr,
 	PxU32* PX_RESTRICT							midphasePairsNum,
-	PxU32* PX_RESTRICT							stackSizeNeededOnDevice,											//output
-	PxgFEMContactWriter							writer	
+	PxU32* PX_RESTRICT							stackSizeNeededOnDevice,	//output
+	PxgParticleDbContactWriter					writer
 )
 {
 	const PxU32 globalThreadIdx = threadIdx.x + blockIdx.x * blockDim.x;
@@ -2114,9 +2026,9 @@ void sb_psContactGenLaunch(
 		const uint4 curPair = pairs[i];
 
 		sbParticleCollision(tolerenceLength, cmInputs,
-			curPair, transformCache, contactDistance, restDistances, gpuShapes,
-			particleSystems, softbodies, filterPairs, numFilterPairs,
-			writer			
+			curPair, transformCache, contactDistance, gpuShapes,
+			particleSystems, softbodies,
+			writer
 		);
 	}
 
@@ -2130,14 +2042,13 @@ void sb_psContactGenLaunch(
 
 
 extern "C" __global__
-void sb_rcs_contact_remap_to_simLaunch(
+void sb_other_contact_remap_to_simLaunch(
 	const PxgSoftBody* PX_RESTRICT	softbodies,
 	const PxU32						maxNumContacts,
 	const float4*					point,
-	float4*							outBarycentric,								//output
-	PxgFemVsRigidContactInfo *		outContactInfo,								//output
-	float4* PX_RESTRICT				outInvMasses,								//output
-	PxU32*							totalContactCount,							//output
+	float4*							outBarycentric,		//output
+	PxgDeformablePairInfo *			outContactInfo,		//output
+	PxU32*							totalContactCount,	//output
 	const PxU32*					prevContactCount
 )
 {
@@ -2162,13 +2073,11 @@ void sb_rcs_contact_remap_to_simLaunch(
 	{
 		const PxVec3 contact = PxLoad3(point[contactIndex]);
 
-		PxgFemVsRigidContactInfo& contactInfo = outContactInfo[contactIndex];
+		const PxgDeformablePairInfo& contactInfo = outContactInfo[contactIndex];
 
-		const PxU32 pairInd1 = PxU32(contactInfo.pairInd1);
-		
-		const PxU32 softbodyId = PxGetSoftBodyId(pairInd1);
+		const PxU32 softbodyId = PxgGetDeformableId(contactInfo.ref1);
 		const PxgSoftBody& softbody = softbodies[softbodyId];
-		const PxU32 tetInd = PxGetSoftBodyElementIndex(pairInd1);
+		const PxU32 tetInd = PxgGetDeformableFeatureId(contactInfo.ref1);
 
 		const uint4* simTetrahedrons = softbody.mSimTetIndices;
 		const float4* simVerts = softbody.mSimPosition_InvMass;
@@ -2183,9 +2092,8 @@ void sb_rcs_contact_remap_to_simLaunch(
 		assert(nbIterations > 0);
 
 		// result variables
-		PxU32 simTetInd = 0xffffffff;
+		PxU64 simTetRef = PxgEncodeInvalidDeformableRef(softbodyId);
 		float4 barycentric;
-		float4 invMasses;
 		PxReal sqDist = PX_MAX_F32;
 		bool valid = false;
 
@@ -2221,17 +2129,15 @@ void sb_rcs_contact_remap_to_simLaunch(
 					if (tmpDist < sqDist)
 					{
 						sqDist = tmpDist;
-						simTetInd = tmpSimTetInd;
+						simTetRef = PxgEncodeDeformableTetrahedron(softbodyId, tmpSimTetInd);
 						computeTetBarycentric(a, b, c, d, tmpClosest, barycentric);
-						invMasses = make_float4(v0.w, v1.w, v2.w, v3.w);
 					}
 				}
 				else
 				{
-					simTetInd = tmpSimTetInd;
+					simTetRef = PxgEncodeDeformableTetrahedron(softbodyId, tmpSimTetInd);
 					barycentric = tmpBarycentric;
 					sqDist = 0.f;
-					invMasses = make_float4(v0.w, v1.w, v2.w, v3.w);
 				}
 			}
 
@@ -2243,12 +2149,8 @@ void sb_rcs_contact_remap_to_simLaunch(
 				PxU32 firstThreadIntersect = lowestSetIndex(resultWarp);
 				if (idxInWarp == firstThreadIntersect)
 				{
-					PxU32 newPairInd = PxEncodeSoftBodyIndex(softbodyId, simTetInd);
-					outContactInfo[contactIndex].pairInd1 = newPairInd;
+					outContactInfo[contactIndex].ref1 = simTetRef;
 					outBarycentric[contactIndex] = barycentric;
-
-					if(outInvMasses != NULL)
-						outInvMasses[contactIndex] = invMasses;
 				}
 
 				valid = true;
@@ -2269,12 +2171,8 @@ void sb_rcs_contact_remap_to_simLaunch(
 				barycentric.z = PxClamp(barycentric.z, 0.f, 1.f);
 				barycentric.w = PxClamp(barycentric.w, 0.f, 1.f);
 				
-				PxU32 newPairInd = PxEncodeSoftBodyIndex(softbodyId, simTetInd);
-				outContactInfo[contactIndex].pairInd1 = newPairInd;
+				outContactInfo[contactIndex].ref1 = simTetRef;
 				outBarycentric[contactIndex] = barycentric;
-
-				if(outInvMasses != NULL)
-					outInvMasses[contactIndex] = invMasses;
 			}
 		}
 	}
@@ -2283,19 +2181,22 @@ void sb_rcs_contact_remap_to_simLaunch(
 
 
 extern "C" __global__
-void sb_ss_contact_remap_to_simLaunch(
-	const PxgSoftBody* PX_RESTRICT softbodies,
-	float4*						outBarycentric0,							//output
-	float4*						outBarycentric1,							//output
-	PxgFemContactInfo*			outContactInfo,								//output
-	PxU32*						totalContactCount,							//output
-	PxU32*						prevContactCount,
-	const PxU32					maxNbContacts
+__launch_bounds__(512, 1)
+void sb_fem_contact_remap_to_simLaunch(
+	const PxgSoftBody* PX_RESTRICT	softbodies,
+	const float4*					point,
+	float4*							outBarycentric0,	//output
+	float4*							outBarycentric1,	//output
+	PxgDeformablePairInfo*			outContactInfo,		//output
+	PxU32*							totalContactCount,	//output
+	PxU32*							prevContactCount,
+	const PxU32						maxNbContacts
 )
 {
 	const PxU32 warpIdx = threadIdx.y;
 	const PxU32 idxInWarp = threadIdx.x;
-	//first grid read pairInd0 and second grid read pairInd1
+	// One row per grid: the first remaps side 1, the second side 0.
+	// softbodyFemContactApplyCollisionToSimMeshMapping launches the second row for a volume pair alone.
 	const PxU32 pairIndex = blockIdx.y;
 
 	const PxU32 globalWarpIdx = warpIdx + blockIdx.x * blockDim.y;
@@ -2309,26 +2210,46 @@ void sb_ss_contact_remap_to_simLaunch(
 	}
 	const PxU32 startOffset = *prevContactCount;
 
-	//each warp do remap from contacts in collision mesh to simulation mesh
-	for (PxU32 contactIndex = globalWarpIdx + startOffset; contactIndex < numContacts; contactIndex += gridDim.x * blockDim.y)
+	// Side 0 is a collision mesh vertex, whose embedding in the simulation mesh is already available, so
+	// this row is a lookup per contact rather than a search per warp. It shares a launch with the row
+	// below only because both remap this stream, and could be a kernel of its own running beside it.
+	if (pairIndex == 1)
 	{
-		PxgFemContactInfo contactInfo = outContactInfo[contactIndex];
+		const PxU32 globalThreadIdx = idxInWarp + blockDim.x * globalWarpIdx;
+		const PxU32 nbThreads = gridDim.x * blockDim.x * blockDim.y;
 
-		PxU64 pairInd = contactInfo.pairInd1;
-		float4* remapBarycentric = outBarycentric1;
-		if (pairIndex == 0)
+		for (PxU32 contactIndex = globalThreadIdx + startOffset; contactIndex < numContacts; contactIndex += nbThreads)
 		{
-			pairInd = contactInfo.pairInd0;
-			remapBarycentric = outBarycentric0;
+			const PxU64 vertexRef = outContactInfo[contactIndex].ref0;
+			PX_ASSERT(PxgGetDeformableFeatureType(vertexRef) == PxgDeformableRef::eVERTEX);
+
+			const PxU32 softbodyId = PxgGetDeformableId(vertexRef);
+			const PxgSoftBody& softbody = softbodies[softbodyId];
+			const PxU32 vertIdx = PxgGetDeformableFeatureId(vertexRef);
+
+			outContactInfo[contactIndex].ref0 =
+				PxgEncodeDeformableTetrahedron(softbodyId, softbody.mVertsRemapInGridModel[vertIdx]);
+			outBarycentric0[contactIndex] = softbody.mVertsBarycentricInGridModel[vertIdx];
 		}
 
-		//we store the contacts in the barycentric array
-		const float4 tBarycentric = remapBarycentric[contactIndex];
-		const PxVec3 contact(tBarycentric.x, tBarycentric.y, tBarycentric.z);
+		return;
+	}
+
+	// Side 1 is a tetrahedron met at the contact point, so its simulation tetrahedron has to be searched
+	// for. Each warp takes one contact.
+	for (PxU32 contactIndex = globalWarpIdx + startOffset; contactIndex < numContacts; contactIndex += gridDim.x * blockDim.y)
+	{
+		PxgDeformablePairInfo contactInfo = outContactInfo[contactIndex];
+
+		PxU64 featureRef = contactInfo.ref1;
+		float4* remapBarycentric = outBarycentric1;
+
+		const float4 witness = point[contactIndex];
+		const PxVec3 contact(witness.x, witness.y, witness.z);
 	
-		const PxU32 softbodyId = PxGetSoftBodyId(pairInd);
+		const PxU32 softbodyId = PxgGetDeformableId(featureRef);
 		const PxgSoftBody& softbody = softbodies[softbodyId];
-		const PxU32 tetInd = PxGetSoftBodyElementIndex(pairInd);
+		const PxU32 tetInd = PxgGetDeformableFeatureId(featureRef);
 
 		const uint4* simTetrahedrons = softbody.mSimTetIndices;
 		const float4* simVerts = softbody.mSimPosition_InvMass;
@@ -2341,7 +2262,7 @@ void sb_ss_contact_remap_to_simLaunch(
 
 		const PxU32 nbIterations = (range + WARP_SIZE - 1) / WARP_SIZE;
 
-		PxU32 simTetInd = 0xffffffff;
+		PxU64 simTetRef = PxgEncodeInvalidDeformableRef(softbodyId);
 		float4 barycentric;
 		PxReal sqDist = PX_MAX_F32;
 		PxU32 winnerLane = 0xffffffff;
@@ -2382,13 +2303,13 @@ void sb_ss_contact_remap_to_simLaunch(
 						if (tmpDist < sqDist)
 						{
 							sqDist = tmpDist;
-							simTetInd = tmpSimTetInd;
+							simTetRef = PxgEncodeDeformableTetrahedron(softbodyId, tmpSimTetInd);
 							computeTetBarycentric(a, b, c, d, tmpClosest, barycentric);
 						}
 					}
 					else
 					{
-						simTetInd = tmpSimTetInd;
+						simTetRef = PxgEncodeDeformableTetrahedron(softbodyId, tmpSimTetInd);
 						barycentric = tmpBarycentric;
 						//sqDist = 0.f;
 					}
@@ -2402,12 +2323,7 @@ void sb_ss_contact_remap_to_simLaunch(
 				PxU32 firstThreadIntersect = lowestSetIndex(resultWarp);
 				if (idxInWarp == firstThreadIntersect)
 				{
-					PxU32 newPairInd = PxEncodeSoftBodyIndex(softbodyId, simTetInd);
-					if (pairIndex == 0)
-						outContactInfo[contactIndex].pairInd0 = newPairInd;
-					else
-						outContactInfo[contactIndex].pairInd1 = newPairInd;
-					//*outputPairInd = newPairInd;
+					outContactInfo[contactIndex].ref1 = simTetRef;
 					remapBarycentric[contactIndex] = barycentric;
 				}
 
@@ -2418,11 +2334,9 @@ void sb_ss_contact_remap_to_simLaunch(
 
 		if (__ballot_sync(FULL_MASK, hasTet) == 0)
 		{
-			PxU32 newPairInd = PxEncodeSoftBodyIndex(softbodyId, 0);
-			if (pairIndex == 0)
-				outContactInfo[contactIndex].pairInd0 = newPairInd;
-			else
-				outContactInfo[contactIndex].pairInd1 = newPairInd;
+			// No candidate simulation tetrahedron is geometrically valid, so this participant has no
+			// feature and simTetRef still holds the invalid reference it started with.
+			outContactInfo[contactIndex].ref1 = simTetRef;
 
 			remapBarycentric[contactIndex] = make_float4(0.f, 0.f, 0.f, 0.f);
 		}
@@ -2438,12 +2352,7 @@ void sb_ss_contact_remap_to_simLaunch(
 				barycentric.z = PxClamp(barycentric.z, 0.f, 1.f);
 				barycentric.w = PxClamp(barycentric.w, 0.f, 1.f);*/
 
-				PxU32 newPairInd = PxEncodeSoftBodyIndex(softbodyId, simTetInd);
-
-				if (pairIndex == 0)
-					outContactInfo[contactIndex].pairInd0 = newPairInd;
-				else
-					outContactInfo[contactIndex].pairInd1 = newPairInd;
+				outContactInfo[contactIndex].ref1 = simTetRef;
 
 				remapBarycentric[contactIndex] = barycentric;
 			}
@@ -2456,18 +2365,15 @@ void sb_ss_contact_remap_to_simLaunch(
 
 
 __device__ static inline void sbClothVertCollision(
-	const PxReal										toleranceLength,
-	const PxgContactManagerInput* PX_RESTRICT			cmInputs,
-	const uint4											curPair,
-	const PxsCachedTransform* PX_RESTRICT				transformCache,
-	const PxReal* PX_RESTRICT							contactDistance,
-	const PxgShape* PX_RESTRICT							gpuShapes,
-	const PxgFEMCloth* PX_RESTRICT						clothes,
-	const PxgSoftBody* PX_RESTRICT						softbodies,
-	PxgNonRigidFilterPair*								filterPairs,
-	const PxU32											nbFilterPairs,
-
-	PxgSoftBodyContactWriter&							writer
+	const PxReal								toleranceLength,
+	const PxgContactManagerInput* PX_RESTRICT	cmInputs,
+	const uint4									curPair,
+	const PxsCachedTransform* PX_RESTRICT		transformCache,
+	const PxReal* PX_RESTRICT					contactDistance,
+	const PxgShape* PX_RESTRICT					gpuShapes,
+	const PxgFEMCloth* PX_RESTRICT				clothes,
+	const PxgSoftBody* PX_RESTRICT				softbodies,
+	PxgDbDbContactWriter&						writer
 )
 {
 	const PxU32 cmIdx = curPair.x;
@@ -2487,15 +2393,14 @@ __device__ static inline void sbClothVertCollision(
 	const PxU32 clothId = clothShape.particleOrSoftbodyId;
 	const PxgFEMCloth& cloth = clothes[clothId];
 
-	const PxU32 softBodyMask = PxEncodeSoftBodyIndex(softbodyId, tetrahedronIdx);
-	const PxU32 softBodyFullMask = PxEncodeSoftBodyIndex(softbodyId, PX_MAX_NB_DEFORMABLE_VOLUME_TET);
-	const PxU32 clothMask = PxEncodeClothIndex(clothId, particleIndex);
-	const PxU32 clothFullMask = PxEncodeClothIndex(clothId, PX_MAX_NB_DEFORMABLE_SURFACE_VTX);
+	const PxgDeformablePairInfo* filterPairs = softbody.mVolumeSurfaceFilterPairs;
+	const PxU32 nbFilterPairs = softbody.mNumVolumeSurfaceFilterPairs;
 
-	// If we find the cloth mask and soft body mask in the filter pairs, we don't need to generate contacts between the vertex and the tetrahedron
-	if(find(filterPairs, nbFilterPairs, softBodyFullMask, clothMask) ||
-	   find(filterPairs, nbFilterPairs, softBodyMask, clothFullMask) ||
-	   find(filterPairs, nbFilterPairs, softBodyMask, clothMask))
+	// A filter pair for this tetrahedron and this cloth vertex suppresses contact generation between
+	// them. Also checks whether either of the two is filtered against any.
+	if(findVolumeSurfaceVertexFilter(filterPairs, nbFilterPairs, softbodyId, PxgDeformableRef::ANY_FEATURE, clothId, particleIndex) ||
+	   findVolumeSurfaceVertexFilter(filterPairs, nbFilterPairs, softbodyId, tetrahedronIdx, clothId, PxgDeformableRef::ANY_FEATURE) ||
+	   findVolumeSurfaceVertexFilter(filterPairs, nbFilterPairs, softbodyId, tetrahedronIdx, clothId, particleIndex))
 	{
 		return;
 	}
@@ -2525,14 +2430,10 @@ __device__ static inline void sbClothVertCollision(
 
 		const float4 result = PointOutsideOfPlane4(p, a, b, c, d);
 
-		float4 tBarycentric;
-
 		PxVec3 closestP;
 		PxVec3 n2;
 		PxReal sqDist = PX_MAX_F32;
 		closestPtTetrahedron(p, surfaceMask, a, b, c, d, n2, closestP, sqDist);
-
-		computeTetBarycentric(a, b, c, d, closestP, tBarycentric);
 
 		PxVec3 v = closestP - p;
 		const float m = v.normalize();
@@ -2572,12 +2473,11 @@ __device__ static inline void sbClothVertCollision(
 
 		if (index != 0xffffffff)
 		{
-			//first 8 bits for soft body, second 24 bits for tetrahedron index
-			PxU32 pairInd0 = PxEncodeClothIndex(clothId, particleIndex);
-			PxU32 pairInd1 = PxEncodeSoftBodyIndex(softbodyId, tetrahedronIdx);
+			PxU64 vertRef = PxgEncodeDeformableVertex(clothId, particleIndex);
+			PxU64 tetRef = PxgEncodeDeformableTetrahedron(softbodyId, tetrahedronIdx);
 
-			writer.writeContact(index, make_float4(contact.x, contact.y, contact.z, 0.f), make_float4(n.x, n.y, n.z, pen),
-				make_float4(0.f, 0.f, 0.f, 1.f), tBarycentric, pairInd0, pairInd1);
+			writer.writeSurfaceVolumeContact(index, make_float4(contact.x, contact.y, contact.z, 0.f),
+				make_float4(n.x, n.y, n.z, pen), vertRef, tetRef);
 		}
 	}
 }
@@ -2591,16 +2491,11 @@ void sb_clothVertContactGenLaunch(
 	const PxgShape* PX_RESTRICT					gpuShapes,
 	const PxgSoftBody* PX_RESTRICT				softbodies,
 	const PxgFEMCloth* PX_RESTRICT				clothes,
-
 	const PxU32									stackSizeBytes,
 	PxU8* PX_RESTRICT							stackPtr,
 	PxU32* PX_RESTRICT							midphasePairsNum,
-
-	PxgNonRigidFilterPair* PX_RESTRICT			filterPairs,
-	const PxU32									nbFilterPairs,
-
 	PxU32* PX_RESTRICT							stackSizeNeededOnDevice,
-	PxgSoftBodyContactWriter					writer
+	PxgDbDbContactWriter						writer
 )
 {
 	const PxU32 globalThreadIdx = threadIdx.x + blockIdx.x * blockDim.x;
@@ -2618,7 +2513,7 @@ void sb_clothVertContactGenLaunch(
 
 		sbClothVertCollision(tolerenceLength, cmInputs,
 			curPair, transformCache, contactDistance, gpuShapes,
-			clothes, softbodies, filterPairs, nbFilterPairs,
+			clothes, softbodies,
 			writer);
 	}
 

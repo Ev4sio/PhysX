@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
            
 #include "ScShapeInteraction.h"
 #if PX_SUPPORT_GPU_PHYSX
@@ -166,19 +143,6 @@ PX_FORCE_INLINE	void Sc::ShapeInteraction::processReportPairOnActivate()
 		getScene().getNPhaseCore()->addToPersistentContactEventPairs(this);
 		mFlags &= ~WAS_IN_PERSISTENT_EVENT_LIST;
 	}
-}
-
-PX_FORCE_INLINE	void Sc::ShapeInteraction::processReportPairOnDeactivate()
-{
-	PX_ASSERT(isReportPair());
-	PX_ASSERT(mReportPairIndex != INVALID_REPORT_PAIR_ID);
-	PX_COMPILE_TIME_ASSERT(IS_IN_PERSISTENT_EVENT_LIST == (WAS_IN_PERSISTENT_EVENT_LIST >> 1));
-	PX_ASSERT(!(readFlag(WAS_IN_PERSISTENT_EVENT_LIST)));
-
-	const PxU32 wasInPersList = (mFlags & IS_IN_PERSISTENT_EVENT_LIST) << 1;
-	mFlags |= wasInPersList;
-
-	removeFromReportPairList();
 }
 
 void Sc::ShapeInteraction::setContactReportPostSolverVelocity(ContactStreamManager& cs)
@@ -769,7 +733,7 @@ PX_FORCE_INLINE void Sc::ShapeInteraction::updateFlags(const Sc::Scene& scene, c
 	setFlag(CONTACTS_COLLECT_POINTS, (	(pairFlags & PxPairFlag::eNOTIFY_CONTACT_POINTS) ||
 										(pairFlags & PxPairFlag::eMODIFY_CONTACTS) || 
 #if PX_SUPPORT_GPU_PHYSX
-										scene.getSimulationController()->getEnableOVDCollisionReadback() ||
+										scene.getSimulationController()->getEnableOVDContactCollection() ||
 #endif
 										scene.getVisualizationParameter(PxVisualizationParameter::eCONTACT_POINT) ||
 										scene.getVisualizationParameter(PxVisualizationParameter::eCONTACT_NORMAL) ||
@@ -798,6 +762,19 @@ static PX_INLINE void setupDominance(PxcNpWorkUnit& unit, Sc::Scene& scene, Sc::
 
 	unit.setDominance0(cdom.dominance0);
 	unit.setDominance1(cdom.dominance1);
+}
+
+static PX_FORCE_INLINE bool isShapeVisualizationEnabled(const Sc::ShapeSimBase& shape)
+{
+	const Sc::ShapeCore& core = shape.getCore();
+	return (shape.getActor().getActorCore().getActorFlags() & PxActorFlag::eVISUALIZATION) &&
+		(!core.mShapeCoreFlags.isSet(PxShapeCoreFlag::eIS_EXCLUSIVE) ||
+		 (core.getFlags() & PxShapeFlag::eVISUALIZATION));
+}
+
+static PX_FORCE_INLINE bool isPairVisualizationEnabled(const Sc::ShapeSimBase& shape0, const Sc::ShapeSimBase& shape1)
+{
+	return isShapeVisualizationEnabled(shape0) || isShapeVisualizationEnabled(shape1);
 }
 
 void Sc::ShapeInteraction::updateState(const PxU8 externalDirtyFlags)
@@ -864,6 +841,14 @@ void Sc::ShapeInteraction::updateState(const PxU8 externalDirtyFlags)
 		// Update skin width
 		if(dirtyFlags & InteractionDirtyFlag::eREST_OFFSET)
 			mManager->setRestDistance(ScGetRestOffset(shapeSim0) + ScGetRestOffset(shapeSim1));
+
+		if(dirtyFlags & InteractionDirtyFlag::eVISUALIZATION)
+		{
+			if(isPairVisualizationEnabled(shapeSim0, shapeSim1))
+				mManager->mFlags |= PxsContactManager::PXS_CM_VISUALIZATION;
+			else
+				mManager->mFlags &= ~PxsContactManager::PXS_CM_VISUALIZATION;
+		}
 
 		//we may want to only write these if they have changed, the set code is a bit painful for the integration flags because of bit unpacking + packing.
 		mManager->setCCD((getPairFlags() & PxPairFlag::eDETECT_CCD_CONTACT) != 0);
@@ -936,10 +921,29 @@ bool Sc::ShapeInteraction::onActivate(PxsContactManager* contactManager)
 		return false;
 }
 
-bool Sc::ShapeInteraction::onDeactivate()
+bool Sc::ShapeInteraction::onDeactivate(bool deferManagerUnregister)
 {
+	PxsContactManager* detachedManager;
+	bool needsReportListRemoval;
+	if(!onDeactivateThreadSafe(detachedManager, needsReportListRemoval))
+		return false;
+
+	if(needsReportListRemoval)
+		removeFromReportPairList();
+
+	if(detachedManager)
+		releaseManager(detachedManager, deferManagerUnregister);
+
+	return true;
+}
+
+bool Sc::ShapeInteraction::onDeactivateThreadSafe(PxsContactManager*& detachedManager, bool& needsReportListRemoval)
+{
+	detachedManager = NULL;
+	needsReportListRemoval = false;
+
 	PX_ASSERT(!getActor0().isStaticRigid() || !getActor1().isStaticRigid());
-	
+
 	const ActorSim& bodySim0 = getActor0();
 	const ActorSim& bodySim1 = getActor1();
 
@@ -950,7 +954,18 @@ bool Sc::ShapeInteraction::onDeactivate()
 	if((!bodySim0.isActive()) && (bodySim1.isStaticRigid() || !bodySim1.isActive()))
 	{
 		if(mReportPairIndex != INVALID_REPORT_PAIR_ID)
-			processReportPairOnDeactivate();
+		{
+			// The pair remembers that it was in the persistent event list, so that it can rejoin it when it wakes up. The
+			// caller takes it out of the list, see removeFromReportPairList().
+			PX_ASSERT(isReportPair());
+			PX_COMPILE_TIME_ASSERT(IS_IN_PERSISTENT_EVENT_LIST == (WAS_IN_PERSISTENT_EVENT_LIST >> 1));
+			PX_ASSERT(!(readFlag(WAS_IN_PERSISTENT_EVENT_LIST)));
+
+			const PxU32 wasInPersList = (mFlags & IS_IN_PERSISTENT_EVENT_LIST) << 1;
+			mFlags |= wasInPersList;
+
+			needsReportListRemoval = true;
+		}
 
 		PX_ASSERT((mManager->getTouchStatus() > 0) == (hasTouch() > 0));
 
@@ -967,7 +982,8 @@ bool Sc::ShapeInteraction::onDeactivate()
 				raiseFlag(HAS_NO_TOUCH);
 			}
 
-			destroyManager();	
+			detachedManager = mManager;
+			mManager = NULL;
 			if(mEdgeIndex != IG_INVALID_EDGE)
 				islandManager->clearEdgeRigidCM(mEdgeIndex);
 		}
@@ -1040,8 +1056,8 @@ void Sc::ShapeInteraction::createManager(PxsContactManager* contactManager)
 
 	const bool kinematicActor = bs1.isDynamicRigid() ? static_cast<BodySim&>(bs1).isKinematic() : false;
 
-	const PxsShapeCore* shapeCore0 = &shapeSim0.getCore().getCore();
-	const PxsShapeCore* shapeCore1 = &shapeSim1.getCore().getCore();
+	const PxsShapeCore* shapeCore0 = &shapeSim0.getCore();
+	const PxsShapeCore* shapeCore1 = &shapeSim1.getCore();
 
 	//Initialize the manager....
 
@@ -1114,7 +1130,9 @@ void Sc::ShapeInteraction::createManager(PxsContactManager* contactManager)
 	unit.mFlags = wuflags;
 	setupDominance(unit, scene, bs0, bs1);
 
-	manager->mFlags = PxU32(contactChangeable ? PxsContactManager::PXS_CM_CHANGEABLE : 0) | PxU32(disableCCDContact ? 0 : PxsContactManager::PXS_CM_CCD_LINEAR);
+	manager->mFlags = PxU32(contactChangeable ? PxsContactManager::PXS_CM_CHANGEABLE : 0) |
+		PxU32(disableCCDContact ? 0 : PxsContactManager::PXS_CM_CCD_LINEAR) |
+		PxU32(isPairVisualizationEnabled(shapeSim0, shapeSim1) ? PxsContactManager::PXS_CM_VISUALIZATION : 0);
 
 	unit.mNpIndex = 0xFFffFFff;
 

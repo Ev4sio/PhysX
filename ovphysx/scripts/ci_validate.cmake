@@ -1,0 +1,82 @@
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+# @implements REQ-PACKAGING-TESTDEPS-001
+# @covers AC-5 AC-6
+# @implements REQ-PACKAGING-TESTRESULT-001
+# @covers AC-3
+
+# CI validation script.
+cmake_minimum_required(VERSION 3.16)
+
+get_filename_component(SCRIPT_DIR "${CMAKE_CURRENT_LIST_FILE}" DIRECTORY)
+get_filename_component(PROJECT_ROOT "${SCRIPT_DIR}/.." ABSOLUTE)
+message(STATUS "Validating test-result guards (ovphysx)")
+execute_process(
+    COMMAND "${CMAKE_COMMAND}" -P "${PROJECT_ROOT}/tests/cmake/test_result_guards.cmake"
+    RESULT_VARIABLE TEST_RESULT_GUARDS_RESULT
+)
+if(NOT TEST_RESULT_GUARDS_RESULT STREQUAL "0")
+    message(FATAL_ERROR "ovphysx test-result guard tests failed (exit code: ${TEST_RESULT_GUARDS_RESULT})")
+endif()
+
+# ---------------------------------------------------------------------------
+# uv.lock validation
+#
+# ovstage must resolve from an index URL and carry a sha256 per wheel, so uv verifies what
+# it installs (ADR-0033).
+# ---------------------------------------------------------------------------
+message(STATUS "Validating uv.lock files (ovstage index + hashes)")
+find_package(Python3 COMPONENTS Interpreter REQUIRED)
+execute_process(
+    COMMAND "${Python3_EXECUTABLE}" "${SCRIPT_DIR}/validate_python_test_uv_lock.py"
+    WORKING_DIRECTORY "${PROJECT_ROOT}"
+    RESULT_VARIABLE UV_LOCK_VALIDATE_RESULT
+    ERROR_VARIABLE UV_LOCK_VALIDATE_ERROR
+    ERROR_STRIP_TRAILING_WHITESPACE
+    OUTPUT_VARIABLE UV_LOCK_VALIDATE_OUTPUT
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+if(NOT UV_LOCK_VALIDATE_RESULT STREQUAL "0")
+    message(FATAL_ERROR
+        "uv.lock validation failed (exit ${UV_LOCK_VALIDATE_RESULT}): "
+        "${UV_LOCK_VALIDATE_ERROR}\n${UV_LOCK_VALIDATE_OUTPUT}")
+endif()
+message(STATUS "  [OK] ${UV_LOCK_VALIDATE_OUTPUT}")
+
+message(STATUS "")
+message(STATUS "Validating Python type stubs (pyright)")
+execute_process(
+    COMMAND ${CMAKE_COMMAND} -P "${SCRIPT_DIR}/test_pyright.cmake"
+    WORKING_DIRECTORY "${PROJECT_ROOT}"
+    RESULT_VARIABLE PYRIGHT_RESULT
+)
+if(NOT PYRIGHT_RESULT EQUAL 0)
+    message(FATAL_ERROR "pyright validation failed (exit code: ${PYRIGHT_RESULT})")
+endif()
+message(STATUS "  [OK] pyright validation passed")
+
+message(STATUS "Validating CMake version requirement (ovphysx)")
+execute_process(
+    COMMAND "${CMAKE_COMMAND}"
+            "-DVERSION_MODULE=${PROJECT_ROOT}/cmake/RequireCMakeVersion.cmake"
+            -P "${PROJECT_ROOT}/tests/cmake/test_require_cmake_version.cmake"
+    RESULT_VARIABLE REQUIRE_CMAKE_VERSION_RESULT
+)
+if(NOT REQUIRE_CMAKE_VERSION_RESULT STREQUAL "0")
+    message(FATAL_ERROR "ovphysx CMake version requirement tests failed (exit code: ${REQUIRE_CMAKE_VERSION_RESULT})")
+endif()
+message(STATUS "  [OK] ovphysx CMake version requirement tests passed")
+
+message(STATUS "Validating host path helpers (ovphysx)")
+execute_process(
+    COMMAND "${CMAKE_COMMAND}"
+            "-DTEST_ROOT=${PROJECT_ROOT}/_build/tests/host_path_utils"
+            "-DPATH_HELPER=${SCRIPT_DIR}/host_path_utils.cmake"
+            -P "${PROJECT_ROOT}/tests/cmake/test_host_path_utils.cmake"
+    RESULT_VARIABLE HOST_PATH_UTILS_RESULT
+)
+if(NOT HOST_PATH_UTILS_RESULT STREQUAL "0")
+    message(FATAL_ERROR "ovphysx host path helper tests failed (exit code: ${HOST_PATH_UTILS_RESULT})")
+endif()
+message(STATUS "  [OK] ovphysx host path helper tests passed")

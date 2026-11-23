@@ -1,0 +1,115 @@
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ovphysx-python-tests"
+version = "0.0.1"
+requires-python = ">=3.10"
+dependencies = [
+  "Pillow==12.3.0",  # Decode both portable and rendered documentation images.
+  "physx-usd-schemas>=25.11.2",
+  "pytest>=9",  # faulthandler_exit_on_timeout (the hung-test watchdog below) exists from 9.0
+  "numpy>=1.20",  # Required for tensor binding tests
+  "warp-lang>=1.16,<1.17",  # public read frontend plus DLPack interop smoke tests
+  # Stock OpenUSD from PyPI is the only python-USD source for the test run
+  # (REQ-PACKAGING-PYTESTUSD-001). The main session's only pxr user,
+  # test_documentation_contracts.py, opens a .usda in a clean subprocess, and the
+  # pure-pxr utils_tests/ suite runs in its own pytest process -- no ovstage monolith
+  # is resident next to usd-core either way. No internal USD monolith is ever fetched.
+  # usd-core has no linux-aarch64 wheel on PyPI, so exclude that platform; the
+  # doc-contracts test skips itself there and test_python_runtime.cmake does not launch
+  # utils_tests/ there. Wheels exist for linux x86_64 and Windows (the two
+  # required-environments below that can pip-install it).
+  "usd-core; platform_machine != 'aarch64'",
+  # The Newton USD schema the parser reads newton:* fallbacks from. Registered next
+  # to the codeless PhysX schemas by test_utils.register_physx_schemas_with_ovstage.
+  "newton-usd-schemas>=0.4.1",
+  # Depend on the local Python package name; source mapping below
+  # The ovphysx wheel includes the SDK plus TensorBindingsAPI support.
+  "ovphysx",
+  # Imported directly by test_ovstage_runtime_singletons, test_step_and_write_to_ovstage,
+  # test_write_api and test_utils. Deliberately unversioned: ovphysx's own `ovstage==` pin
+  # is what fixes the version, and declaring it here is what lets [tool.uv.sources] route it
+  # to the ovstage index (a source pin does not reach a purely transitive dependency).
+  "ovstage",
+]
+
+[tool.setuptools]
+# This is a test environment, not a package to install
+# Tell setuptools to not discover or package any modules
+py-modules = []
+
+[tool.pytest.ini_options]
+addopts = "--ignore=cpu_tests -v -s"
+testpaths = ["."]
+# @implements REQ-PACKAGING-TESTHANG-001
+# @covers AC-1 AC-2 AC-3
+# Hung-test watchdog. A single test that runs longer than this many seconds makes
+# pytest's built-in faulthandler plugin write every thread's Python stack to the
+# process's stderr and exit the process, so the driver sees a failure within
+# minutes instead of a silent job that holds its runner until the job timeout.
+# The budget is per test, not per pass: the slowest test measured on any CI
+# runner is about 40 s (test_public_build_flags on the Windows VS runner) and the
+# slowest CPU-mode test about 11 s (linux-debug). The whole-pass TIMEOUTs in
+# scripts/test_python_runtime.cmake are not a substitute: CMake 3.28 to 4.1.2
+# (issue #27378; the Windows runners use 4.1.0) stop waiting without terminating
+# the child, and the orphaned pytest then keeps the step's pipes open. The timer
+# is armed per test and re-armed after a failure by _watchdog_rearm.py; hangs in
+# collection, session start/finish or interpreter exit are outside it, and the
+# lifecycle files are bounded by their runner's per-job budget instead. pdb entry
+# cancels the timer; for an IDE debugger pass -o faulthandler_timeout=0.
+faulthandler_timeout = 300
+faulthandler_exit_on_timeout = true
+filterwarnings = [
+    # The tensor-binding API is intentionally deprecated (REQ-CAPI-WRITE-001 AC-11) but stays
+    # supported for the deprecation period. Turn its DeprecationWarning into an ERROR so a NEW test
+    # that reaches for the deprecated API fails loudly instead of being hidden by a suite-wide
+    # ignore. The known compat callers are allow-listed in conftest.py
+    # (_TENSOR_BINDING_COMPAT_FILES), where a per-item `ignore` filterwarnings marker takes
+    # precedence over this ini filter; that allowlist is the inventory of callers still to migrate.
+    # test_tensor_binding_deprecation.py still asserts the warning via pytest.warns, which records
+    # it regardless of the filter.
+    "error:ovphysx tensor bindings are deprecated:DeprecationWarning",
+    "error:ovphysx scene queries are deprecated:DeprecationWarning",
+    "error:ovphysx contact bindings are deprecated:DeprecationWarning",
+    "error:ovphysx SDF views are deprecated:DeprecationWarning",
+    "error:ovphysx object-type lookup is deprecated:DeprecationWarning",
+]
+markers = [
+  "cuda: requires a CUDA-capable Warp runtime",
+]
+
+[tool.uv]
+required-environments = [
+  # Keep ovstage wheel resolution aligned with python/pyproject.toml so aarch64 CI
+  # can install the locked manylinux_2_35_aarch64 wheel.
+  "sys_platform == 'linux' and platform_machine == 'x86_64'",
+  "sys_platform == 'linux' and platform_machine == 'aarch64'",
+  "sys_platform == 'win32' and platform_machine == 'AMD64'",
+]
+
+# Resolve OVStage from its explicit index with hashes in uv.lock (ADR-0033).
+
+[[tool.uv.index]]
+name = "pypi"
+url = "https://pypi.org/simple"
+default = true
+
+[[tool.uv.index]]
+name = "ovstage"
+url = "https://pypi.org/simple"
+explicit = true
+
+[[tool.uv.index]]
+name = "physx-usd-schemas"
+url = "https://pypi.org/simple"
+explicit = true
+
+[tool.uv.sources]
+"ovphysx" = { path = "../../python", editable = true }
+ovstage = { index = "ovstage" }
+physx-usd-schemas = { index = "physx-usd-schemas" }

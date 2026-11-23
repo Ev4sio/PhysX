@@ -1,46 +1,26 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef NP_OMNI_PVD_H
 #define NP_OMNI_PVD_H
 
 #include "omnipvd/PxOmniPvd.h"
 #include "foundation/PxMutex.h"
+#include "foundation/PxArray.h"
+#include "foundation/PxHashSet.h"
 #include "NpOmniPvdMetaData.h"
+#include "OmniPvdCaptureRequest.h"
 
 class OmniPvdReader;
 class OmniPvdWriter;
-class OmniPvdLoader;
-class OmniPvdFileWriteStream;
 class OmniPvdPxSampler;
 
 namespace physx
 {
+
+class PxPhysics;
 
 class NpOmniPvd : public PxOmniPvd
 {
@@ -50,25 +30,53 @@ public:
 	static void destroyInstance();
 	static void incRefCount();
 	static void decRefCount();
-	void release();
+	void release() PX_OVERRIDE;
 
-	bool initOmniPvd();
-	
-	OmniPvdWriter* getWriter();
+	OmniPvdWriter* getWriter() PX_OVERRIDE;
 	
 	OmniPvdWriter* blockingWriterLoad();
 
-	OmniPvdWriter* acquireExclusiveWriterAccess();
-	void releaseExclusiveWriterAccess();
+	OmniPvdWriter* acquireExclusiveWriterAccess() PX_OVERRIDE;
+	void releaseExclusiveWriterAccess() PX_OVERRIDE;
 
-	OmniPvdFileWriteStream* getFileWriteStream();
-	bool startSampling();
-	
-	OmniPvdLoader* mLoader;
-	OmniPvdFileWriteStream* mFileWriteStream;
+	bool startSampling(const PxOmniPvdFilterDesc* filter) PX_OVERRIDE;
+	bool startCaptureDiscovery(const PxOmniPvdFilterDesc* scope) PX_OVERRIDE;
+	bool isCaptureDiscoveryActive() const PX_OVERRIDE;
+	bool isCaptureDiscoveryScene(const PxScene& scene) const;
+	bool isCaptureDiscoveryObject(const PxBase& object) const;
+	bool restrictCaptureDiscovery(PxOmniPvdFilterDesc& desc, PxArray<const PxScene*>& scenes, PxArray<const PxBase*>& objects) const;
+	bool isObjectRecorded(const PxBase& object) const PX_OVERRIDE;
+	bool validateFilterDesc(const PxOmniPvdFilterDesc& filter) const PX_OVERRIDE;
+	bool processCaptureRequests(PxOmniPvdCaptureFilter* filter = NULL) PX_OVERRIDE;
+	bool hasPendingCaptureRequest() PX_OVERRIDE;
+	void notifyObjectCapture(const PxBase& object);
+	bool stopSampling() PX_OVERRIDE;
+	bool isSampling() const PX_OVERRIDE;
+	// Callback registry (see PxOmniPvdEventCallback): startSampling() invokes each registered
+	// callback's onStartSampling(*this, filter) after the core objects are recorded.
+	void addEventCallback(PxOmniPvdEventCallback& callback) PX_OVERRIDE;
+	void removeEventCallback(PxOmniPvdEventCallback& callback) PX_OVERRIDE;
+
 	OmniPvdWriter* mWriter;
 	OmniPvdPxSampler* mPhysXSampler;
 	NpOmniPvdMetaData mMetaData;
+	bool mCaptureDiscovery;
+	bool mDiscoveryAllObjects;
+	PxU64 mDiscoveryGeneration;
+	PxArray<PxU8> mDiscoveryRows;
+	PxU64 mDiscoveryStream; // address and session of the stream that received the catalog rows
+	PxU64 mDiscoveryStreamSession;
+	PxU64 mRecordingStream;
+	PxU64 mRecordingStreamSession;
+	PxHashSet<PxU64> mDiscoveryScenes;
+	PxHashSet<PxU64> mDiscoveryObjects;
+	PxU64 mCaptureEpoch;
+	PxU64 mCaptureRequestSession;
+	PxU64 mLastCaptureRequestId;
+	OmniPvdCaptureRequestResult::Enum mPendingCaptureResult;
+	OmniPvdCaptureRequest mPendingCaptureRequest;
+	PxArray<OmniPvdObjectHandle> mPendingCaptureHandles;
+	PxArray<PxOmniPvdEventCallback*> mEventCallbacks;
 	static PxU32 mRefCount;
 	static NpOmniPvd* mInstance;
 	PxMutex mMutex;

@@ -1,0 +1,64 @@
+<!-- SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved. -->
+<!-- SPDX-License-Identifier: Apache-2.0 -->
+
+---
+id: REQ-PACKAGING-DOCS-001
+title: Portable Artifact Documentation
+status: implemented
+owner: ovphysx
+---
+
+## Description
+
+The ovphysx Python wheel and C/C++ SDK provide a portable copy of the public
+documentation alongside the rendered HTML. Portable documentation lets offline
+consumers and tools inspect the same guides, simulation-setup material, Python
+API source, and referenced images that are public in the source repository.
+
+The documentation payload is a property of the release, not of the platform a
+given artifact was built on: every platform's wheel and SDK of one release
+carries the same documentation, including the rendered HTML tree and the C
+headers Sphinx publishes as download artifacts.
+
+Internal publishing documentation and source-only test trees remain excluded
+from both artifacts. Packaging documentation does not change runtime behavior.
+
+## Acceptance Criteria
+
+- AC-1: The Python wheel and C/C++ SDK preserve the source-relative path of
+  every public `docs/**/*.md`, `docs/**/*.rst`, `docs/**/*.png`, and
+  `docs/**/*.jpg` file. Markdown is converted to portable Markdown by resolving
+  supported MyST constructs; RST and images are copied verbatim.
+
+- AC-2: Neither artifact contains a public-doc path with an `internal/` segment.
+  Every inline relative link in its portable Markdown resolves inside the
+  artifact, except C/C++ header links that resolve only in the SDK; portable
+  documentation must not link to source-only `tests/` paths.
+
+- AC-3: A wheel or SDK built for release carries the rendered documentation
+  tree, with an `index.html` and the downloadable C headers
+  (`ovphysx.h`, `ovphysx_types.h`, `ovphysx_config.h`, `ovphysx_legacy.h`,
+  `ovphysx_legacy_types.h`). Producing either
+  artifact without it fails rather than succeeding with a smaller payload.
+  Builds that opt out of rendering documentation are unaffected.
+
+## Test References
+
+- TEST-PACKAGING-DOCS-001
+
+## Code References
+
+- ovphysx/repo.toml
+- ovphysx/scripts/preprocess_docs.cmake
+- ovphysx/scripts/stage_documentation.cmake
+- ovphysx/scripts/test_documentation_package.py
+- ovphysx/cmake/public_headers.cmake
+- ovphysx/scripts/build_wheel.cmake
+- ovphysx/scripts/install.cmake
+- ovphysx/scripts/test_python_wheel.cmake
+- ovphysx/tests/python_tests/wheel_documentation_smoke.py
+- ovphysx/docs/developer_guide.md
+
+## Dependencies
+
+- None

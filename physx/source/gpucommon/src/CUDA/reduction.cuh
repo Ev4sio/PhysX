@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
-// Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
+// Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef __CU_REDUCTION_CUH__
 #define __CU_REDUCTION_CUH__
@@ -37,7 +14,8 @@
 #include "assert.h"
 #include "utils.cuh"
 
-using namespace physx;
+namespace physx
+{
 
 struct MinOpFloat
 {
@@ -491,9 +469,8 @@ static __device__ void scanKernel2of2(
 
 //This is the parallel version of sum. 
 template<PxU32 nbElems, typename T>
-static __inline__ __device__ T warpScanAdd(const PxU32 syncMask, const PxU32 index, const PxU32 threadIndexInWarp, T* sData, const T originalValue, const T value)
+static __inline__ __device__ T warpScanAdd(const PxU32 syncMask, const PxU32 /*index*/, const PxU32 threadIndexInWarp, T* /*sData*/, const T originalValue, const T value)
 {
-
 	unsigned mask_local = __ballot_sync(syncMask, threadIndexInWarp < nbElems);
 
 	if(threadIndexInWarp < nbElems)
@@ -515,8 +492,7 @@ static __inline__ __device__ T warpScanAdd(const PxU32 syncMask, const PxU32 ind
 }
 
 template<PxU32 nbElems>
-static __inline__ __device__ PxU32 warpScanMax(const PxU32 syncMask, const PxU32 index, const PxU32 threadIndexInWarp, PxU32* sData, const PxU32 originalValue)
-
+static __inline__ __device__ PxU32 warpScanMax(const PxU32 syncMask, const PxU32 /*index*/, const PxU32 threadIndexInWarp, PxU32* /*sData*/, const PxU32 originalValue)
 {
 	unsigned mask_local = __ballot_sync(syncMask, threadIndexInWarp < nbElems);
 
@@ -542,21 +518,20 @@ static __inline__ __device__ PxU32 warpScanMax(const PxU32 syncMask, const PxU32
 
 //This is the parallel version of exclusive sum. We have 32 thread in a warp, so that we need to
 //have 2 exp 5 step(16) of add
-template<PxU32 nbElems>
-static __inline__ __device__ PxU32 warpScanAddWriteToSharedMem(const PxU32 syncMask, const PxU32 index, const PxU32 threadIndexInWarp, PxU32* sData, const PxU32 originalValue, const PxU32 value)
+template<PxU32 nbElems, typename T>
+static __inline__ __device__ T warpScanAddWriteToSharedMem(PxU32 syncMask, PxU32 index, PxU32 threadIndexInWarp, T* sData, T originalValue, T value)
 {
-
 	unsigned mask_local = __ballot_sync(syncMask, threadIndexInWarp < nbElems);
 
 	if(threadIndexInWarp < nbElems)
 	{
-		PxU32 temp = 0;
-		PxU32 val = originalValue;
+		T temp = 0;
+		T val = originalValue;
 
 		#pragma unroll
 		for(PxU32 i = 1; i < nbElems; i<<=1)
 		{
-			temp = __shfl_sync(mask_local, (int)val, threadIndexInWarp-i);
+			temp = __shfl_sync(mask_local, val, threadIndexInWarp-i);
 			
 			if(threadIndexInWarp >= i)
 				val += temp;
@@ -570,7 +545,6 @@ static __inline__ __device__ PxU32 warpScanAddWriteToSharedMem(const PxU32 syncM
 
 	return 0;	
 }
-
 
 PX_FORCE_INLINE __device__ PxU32 warpCountAndBroadcast(PxU32 mask, bool threadContributesElement)
 {
@@ -591,8 +565,6 @@ PX_FORCE_INLINE __device__ PxU32 threadBlockCountAndBroadcast(bool threadContrib
 
 	return warpReduction<AddOpPxU32, PxU32>(FULL_MASK, sharedMem[threadIndexInWarp]);
 }
-
-
 
 // Performs an exclusive scan over a warp. Every thread can only contribute 0 or 1 to the scan through the mask
 PX_FORCE_INLINE __device__ PxU32 warpScanExclusive(PxU32 mask, PxU32 threadIndexInWarp)
@@ -634,7 +606,6 @@ PX_FORCE_INLINE __device__ PxU32 threadBlockScanExclusive(bool threadContributes
 	__shared__ PxU32 perWarpCountS[NbWarps];
 	return threadBlockScanExclusive<NbWarps>(threadContributesElement, totalSum, perWarpCountS);
 }
-
 
 //Performs an exclusive scan over a warp. Every thread can contribute an arbitrary value to the sum. The return value will be the exclusive cumulative sum for every thread. totalSum will provide the total number of contributed elements.
 //perWarpCountS must be shared memory with NbWarps entries available
@@ -713,6 +684,23 @@ PX_FORCE_INLINE __device__ PxU32 globalScanExclusiveSingleWarp(bool threadContri
 	return __shfl_sync(FULL_MASK, startIndex, 0) + offset;
 }
 
+//Overrides "globalScanExclusiveSingleWarp" to support adding multiple elements per thread, rather than limiting to a single element.
+PX_FORCE_INLINE __device__ PxU32 globalScanExclusiveSingleWarp(PxU32 numElements, PxU32* atomicCounter)
+{
+	const PxU32 idxInWarp = threadIdx.x & 31;
+	const PxU32 offset = warpScanExclusive<AddOpPxU32, PxU32>(numElements);
+
+	PxU32 startIndex = 0xFFffFFff - 32; // -32 to prevent wrap-around
+	if(idxInWarp == 31)
+	{
+		PxU32 totalSum = offset + numElements; // When executed by the last thread in the warp, this is the total sum of all
+											   // numElements over the whole warp
+		if(totalSum > 0)
+			startIndex = atomicAdd(atomicCounter, totalSum);
+	}
+	return __shfl_sync(FULL_MASK, startIndex, 31) + offset;
+}
+
 // returns the largest index into the (sorted!) data array s.t. data[index] <= value
 // if there is no such index (i.e., data[0] > value) returns 0
 template<class T>
@@ -740,5 +728,7 @@ static __device__ PxU32 binarySearch(const T* PX_RESTRICT data, const PxU32 numE
 
 	return left ? left - 1 : 0;
 }
+
+} // namespace physx
 
 #endif //CU_REDUCTION_CU

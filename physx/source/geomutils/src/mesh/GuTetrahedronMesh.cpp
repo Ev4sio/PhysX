@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #include "GuMidphaseInterface.h"
 #include "GuTetrahedronMesh.h"
@@ -35,18 +12,14 @@ using namespace Gu;
 
 void TetrahedronMesh::onRefCountZero()
 {
-	if (mMeshFactory)
-	{
-		::onRefCountZero(this, mMeshFactory, false, "PxTetrahedronMesh::release: double deletion detected!");
-	}
+	// If mMeshFactory is NULL the helper will skip the registry lookup, and then delete the mesh directly.
+	::onRefCountZero(this, mMeshFactory, false, "PxTetrahedronMesh::release: double deletion detected!");
 }
 
 void DeformableVolumeMesh::onRefCountZero()
 {
-	if (mMeshFactory)
-	{
-		::onRefCountZero(this, mMeshFactory, false, "PxDeformableVolumeMesh::release: double deletion detected!");
-	}
+	// If mMeshFactory is NULL the helper will skip the registry lookup, and then delete the mesh directly.
+	::onRefCountZero(this, mMeshFactory, false, "PxDeformableVolumeMesh::release: double deletion detected!");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -227,17 +200,22 @@ DeformableVolumeMesh::DeformableVolumeMesh(MeshFactory* factory, DeformableVolum
 	, mMeshFactory(factory)
 {
 	mDeformableVolumeAuxData = PX_NEW(DeformableVolumeAuxData)(d.mSimulationData, d.mCollisionData, d.mMappingData);
-	mCollisionMesh = PX_NEW(BVTetrahedronMesh)(d.mCollisionMesh, d.mCollisionData, factory);
-	mSimulationMesh = PX_NEW(TetrahedronMesh)(factory, d.mSimulationMesh);
+	// Only this DeformableVolumeMesh is registered with the factory, so the sub-meshes reference no factory:
+	// at ref count zero they delete themselves rather than failing a lookup and reporting a double deletion.
+	mCollisionMesh = PX_NEW(BVTetrahedronMesh)(d.mCollisionMesh, d.mCollisionData, NULL);
+	mSimulationMesh = PX_NEW(TetrahedronMesh)(NULL, d.mSimulationMesh);
 }
 
 DeformableVolumeMesh::~DeformableVolumeMesh()
-{	
+{
 	if (getBaseFlags() & PxBaseFlag::eOWNS_MEMORY)
 	{
-		PX_DELETE(mDeformableVolumeAuxData);
-		PX_DELETE(mCollisionMesh);
-		PX_DELETE(mSimulationMesh);
+		// Every shape built on the collision mesh holds a reference of its own, and an attached
+		// PxDeformableVolume holds one on the simulation mesh and the aux data, so give up this
+		// object's reference instead of deleting: the last holder destroys them.
+		Cm::RefCountable_decRefCount(*mCollisionMesh);
+		Cm::RefCountable_decRefCount(*mSimulationMesh);
+		Cm::RefCountable_decRefCount(*mDeformableVolumeAuxData);
 	}
 }
 

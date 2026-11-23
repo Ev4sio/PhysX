@@ -1,33 +1,11 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
-// Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
+// Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #include "foundation/PxVec4.h"
 
+#include "PxgArticulation.h"
 #include "PxContact.h"
 #include "PxMaterial.h"
 
@@ -183,7 +161,8 @@ static __device__ PxU32 createSolverContactConstraintDescsFromPatchWithSharedMem
 
 			PxU32 internalFlags = contactPatch->internalFlags;
 
-			bool perPointFriction = internalFlags & PxContactPatch::eHAS_TARGET_VELOCITY || workUnit.mFlags[threadIndex] & PxgNpWorkUnitFlag::eDISABLE_STRONG_FRICTION;
+			const bool hasTargetVelocity = internalFlags & PxContactPatch::eHAS_TARGET_VELOCITY;
+			const bool disableStrongFriction = hasTargetVelocity || (workUnit.mFlags[threadIndex] & PxgNpWorkUnitFlag::eDISABLE_STRONG_FRICTION);
 			bool disableFriction = false;
 			bool isAccelerationSpring = false;
 
@@ -234,8 +213,10 @@ static __device__ PxU32 createSolverContactConstraintDescsFromPatchWithSharedMem
 			}
 
 			PxU8 solverFlags = 0;
-			if (perPointFriction)
-				solverFlags |= PxgSolverContactFlags::ePER_POINT_FRICTION;
+			if (hasTargetVelocity)
+				solverFlags |= PxgSolverContactFlags::eHAS_TARGET_VELOCITY;
+			if (disableStrongFriction)
+				solverFlags |= PxgSolverContactFlags::eDISABLE_STRONG_FRICTION;
 			if (flags & PxgNpWorkUnitFlag::eFORCE_THRESHOLD)
 				solverFlags |= PxgSolverContactFlags::eHAS_FORCE_THRESHOLDS;
 			if (disableFriction)
@@ -489,6 +470,27 @@ PX_FORCE_INLINE PX_CUDA_CALLABLE void applyNeighborhoodOperator(const PxTransfor
 		cB2w.q = -cB2w.q;
 }
 
+static constexpr PxU32 gDriveXDataIndex = 0;
+PX_COMPILE_TIME_ASSERT(gDriveXDataIndex < PxgD6JointData::sDriveEntryCapacity);
+
+static constexpr PxU32 gDriveYDataIndex = 1;
+PX_COMPILE_TIME_ASSERT(gDriveYDataIndex < PxgD6JointData::sDriveEntryCapacity);
+
+static constexpr PxU32 gDriveZDataIndex = 2;
+PX_COMPILE_TIME_ASSERT(gDriveZDataIndex < PxgD6JointData::sDriveEntryCapacity);
+
+static constexpr PxU32 gDriveTwistDataIndex = 3;
+PX_COMPILE_TIME_ASSERT(gDriveTwistDataIndex < PxgD6JointData::sDriveEntryCapacity);
+
+static constexpr PxU32 gDriveSwing1DataIndex = 4;
+PX_COMPILE_TIME_ASSERT(gDriveSwing1DataIndex < PxgD6JointData::sDriveEntryCapacity);
+
+static constexpr PxU32 gDriveSwing2DataIndex = 5;
+PX_COMPILE_TIME_ASSERT(gDriveSwing2DataIndex < PxgD6JointData::sDriveEntryCapacity);
+
+static constexpr PxU32 gDriveSlerpDataIndex = gDriveSwing2DataIndex;  // PxgD6Drive::eSLERP maps to the data entry of PxgD6Drive::eSWING2
+PX_COMPILE_TIME_ASSERT(gDriveSlerpDataIndex < PxgD6JointData::sDriveEntryCapacity);
+
 static __device__ PxU32 D6JointSolverPrep(Px1DConstraint* constraints, const PxgD6JointData& data, 
 											const PxTransform& bA2w, const PxTransform& bB2w,
 											bool useExtendedLimits,
@@ -535,43 +537,65 @@ static __device__ PxU32 D6JointSolverPrep(Px1DConstraint* constraints, const Pxg
 		{
 			// -driveVelocity because velTarget is child (body1) - parent (body0) and Jacobian is 1 for body0 and -1 for parent
 			if(driving & (1<<(PxgD6Drive::eX+i)))
-				g.linear(&constraints[constraintCount++], cA2w_m[i], -data.driveLinearVelocity[i], posErr[i], drives[PxgD6Drive::eX+i]); 
+				g.linear(&constraints[constraintCount++], cA2w_m[i], -data.driveLinearVelocity[i], posErr[i], drives[gDriveXDataIndex + i]);
+
+			PX_COMPILE_TIME_ASSERT(gDriveYDataIndex == (gDriveXDataIndex + 1));
+			PX_COMPILE_TIME_ASSERT(gDriveZDataIndex == (gDriveYDataIndex + 1));
+
+			PX_COMPILE_TIME_ASSERT(PxgD6Drive::eY == (PxgD6Drive::eX + 1));
+			PX_COMPILE_TIME_ASSERT(PxgD6Drive::eZ == (PxgD6Drive::eY + 1));
 		}
 	}
 
-	if(driving & ((1<<PxgD6Drive::eSLERP)|(1<<PxgD6Drive::eSWING)|(1<<PxgD6Drive::eTWIST)))
+	if(driving & ((1 << PxgD6Drive::eSLERP) | (1 << PxgD6Drive::eTWIST) | (1 << PxgD6Drive::eSWING1) | (1 << PxgD6Drive::eSWING2)))
 	{
 		const PxQuat d2cA_q = cB2cA.q.dot(data.drivePosition.q)>0 ? data.drivePosition.q : -data.drivePosition.q; 
 
-		const PxVec3& v = data.driveAngularVelocity;
-		const PxQuat delta = d2cA_q.getConjugate() * cB2cA.q;
-
 		if(driving & (1<<PxgD6Drive::eSLERP))
 		{
+			const PxQuat delta = d2cA_q.getConjugate() * cB2cA.q;
+
 			const PxVec3 velTarget = -cA2w.rotate(data.driveAngularVelocity);
 
 			PxVec3 axis[3] = { PxVec3(1.f,0,0), PxVec3(0,1.f,0), PxVec3(0,0,1.f) };
 				
-			if(drives[PxgD6Drive::eSLERP].stiffness!=0)
+			if (drives[gDriveSlerpDataIndex].stiffness != 0)
 				computeJacobianAxes(axis, cA2w.q * d2cA_q, cB2w.q);	// converges faster if there is only velocity drive
 
 			for(PxU32 i = 0; i < 3; i++)
-				g.angular(&constraints[constraintCount++], axis[i], axis[i].dot(velTarget), -delta.getImaginaryPart()[i], drives[PxgD6Drive::eSLERP], PxConstraintSolveHint::eSLERP_SPRING);
+				g.angular(&constraints[constraintCount++], axis[i], axis[i].dot(velTarget), -delta.getImaginaryPart()[i], drives[gDriveSlerpDataIndex], PxConstraintSolveHint::eSLERP_SPRING);
 		}
 		else 
 		{
-			if(driving & (1<<PxgD6Drive::eTWIST))
-				g.angular(&constraints[constraintCount++], cA2w_m.column0, v.x, -2.0f * delta.x, drives[PxgD6Drive::eTWIST]); 
+			const PxVec3& v = data.driveAngularVelocity;
 
-			if(driving & (1<<PxgD6Drive::eSWING))
+			// see documentation of CPU version in ExtD6Joint.cpp
+			const PxQuat delta = cB2cA.q * d2cA_q.getConjugate();
+
+			if(driving & (1 << PxgD6Drive::eTWIST))
+			{
+				const PxReal errX = -2.0f * delta.x;
+
+				g.angular(&constraints[constraintCount++], cA2w_m.column0, v.x, errX, drives[gDriveTwistDataIndex]);
+			}
+
+			if (driving & ((1 << PxgD6Drive::eSWING1) | (1 << PxgD6Drive::eSWING2)))
 			{
 				const PxVec3 err = delta.getBasisVector0();
 
-				if(!(locked & SWING1_FLAG))
-					g.angular(&constraints[constraintCount++], aY, v.y, err.z, drives[PxgD6Drive::eSWING]);
+				if (driving & (1 << PxgD6Drive::eSWING1))
+				{
+					const PxReal errY = err.z;
 
-				if(!(locked & SWING2_FLAG))
-					g.angular(&constraints[constraintCount++], aZ, v.z, -err.y, drives[PxgD6Drive::eSWING]);
+					g.angular(&constraints[constraintCount++], aY, v.y, errY, drives[gDriveSwing1DataIndex]);
+				}
+
+				if (driving & (1 << PxgD6Drive::eSWING2))
+				{
+					const PxReal errZ = -err.y;
+
+					g.angular(&constraints[constraintCount++], aZ, v.z, errZ, drives[gDriveSwing2DataIndex]);
+				}
 			}
 		}
 	}
@@ -765,7 +789,7 @@ extern "C" __global__ void constraintContactBlockPrePrepLaunch(PxgPrePrepDesc* g
 
 		if(conType == PxgSolverConstraintDesc::eCONTACT ||
 			conType == PxgSolverConstraintDesc::eARTICULATION_CONTACT)
-		{			
+		{
 			//Copy across data from batchHeader!!!
 			batch.constraintType = batchHeader.constraintType;
 			batch.mConstraintBatchIndex = batchHeader.mConstraintBatchIndex;

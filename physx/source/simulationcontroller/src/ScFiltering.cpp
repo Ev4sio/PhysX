@@ -1,36 +1,15 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
-// Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
+// Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #include "ScFiltering.h"
 #include "ScShapeInteraction.h"
 #include "ScTriggerInteraction.h"
 #include "ScConstraintCore.h"
 #include "ScArticulationSim.h"
+#include "ScArticulationCore.h"
+#include "geometry/PxTriangleMesh.h"
 
 using namespace physx;
 using namespace Sc;
@@ -157,7 +136,9 @@ static PX_INLINE PxPairFlags checkRbPairFlags(	const ShapeSimBase& s0, const Sha
 
 #if PX_CHECKED
 	// we want to avoid to run contact generation for pairs that should not get resolved or have no contact/trigger reports
-	if (!(PxU32(pairFlags) & (PxPairFlag::eSOLVE_CONTACT | ShapeInteraction::CONTACT_REPORT_EVENTS)))
+	// note: when the Direct GPU API is used, report callbacks are not supported but contact data can be read from the device
+	//       directly, thus there should be no warning since it is legitimate to get contact information that way.
+	if ((!isDirectGPU) && (!(PxU32(pairFlags) & (PxPairFlag::eSOLVE_CONTACT | ShapeInteraction::CONTACT_REPORT_EVENTS))))
 		outputError<PxErrorCode::eDEBUG_WARNING>(__LINE__, "Filtering: Pair with no contact/trigger reports detected, nor is PxPairFlag::eSOLVE_CONTACT set. It is recommended to suppress/kill such pairs for performance reasons.");
 	else if(!(pairFlags & (PxPairFlag::eDETECT_DISCRETE_CONTACT | PxPairFlag::eDETECT_CCD_CONTACT)))
 		outputError<PxErrorCode::eDEBUG_WARNING>(__LINE__, "Filtering: Pair did not request either eDETECT_DISCRETE_CONTACT or eDETECT_CCD_CONTACT. It is recommended to suppress/kill such pairs for performance reasons.");
@@ -393,6 +374,18 @@ static bool filterRbCollisionPairShared(	FilterInfo& filterInfo, bool& isNonRigi
 	if(filterJointedBodies(rbActor0, rbActor1))
 		return createFilterInfo(filterInfo, PxFilterFlag::eSUPPRESS);
 
+	if (!isNonRigid)
+	{
+		if (s0.getGeometryType() == PxGeometryType::eTRIANGLEMESH &&
+			s1.getGeometryType() == PxGeometryType::eTRIANGLEMESH)
+		{
+			const PxTriangleMeshGeometry& m0 = static_cast<const PxTriangleMeshGeometry&>(s0.getCore().getGeometry());
+			const PxTriangleMeshGeometry& m1 = static_cast<const PxTriangleMeshGeometry&>(s1.getCore().getGeometry());
+			if (m0.triangleMesh->getSDF() == NULL && m1.triangleMesh->getSDF() == NULL)
+				return createFilterInfo(filterInfo, PxFilterFlag::eKILL);
+		}
+	}
+
 	const PxFilterObjectType::Enum filterType0 = PxGetFilterObjectType(filterAttr0);
 	const PxFilterObjectType::Enum filterType1 = PxGetFilterObjectType(filterAttr1);
 
@@ -429,7 +422,7 @@ static bool filterRbCollisionPairShared(	FilterInfo& filterInfo, bool& isNonRigi
 				const bool isStaticOrKinematic = (filterType0 == PxFilterObjectType::eRIGID_STATIC) || kine0;
 				if(fixedBaseLink && isStaticOrKinematic)
 					return createFilterInfo(filterInfo, PxFilterFlag::eSUPPRESS);
-			}	
+			}
 		}
 	}
 

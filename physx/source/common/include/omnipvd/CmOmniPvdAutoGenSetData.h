@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 
 //
@@ -34,6 +11,11 @@
 // OMNI_PVD_GET_WRITER and OMNI_PVD_GET_REGISTRATION_DATA have to be defined before
 // including this header. These two macros need to fetch and assign the pointer to
 // the OmniPvdWriter instance and the registration structure instance respectively.
+// The recording predicates OMNI_PVD_SHOULD_RECORD_CREATION, OMNI_PVD_SHOULD_RECORD_DESTRUCTION
+// and OMNI_PVD_SHOULD_RECORD_VALUE have to be defined as well, plus OMNI_PVD_SHOULD_RECORD_ADDITION
+// and OMNI_PVD_SHOULD_RECORD_REMOVAL if OMNI_PVD_ADD or OMNI_PVD_REMOVE is used. There are no
+// default definitions. A predicate returns true if the command is to be written. It may also
+// update the schema's recording state and write other commands first.
 // See CmOmniPvdAutoGenCreateRegistrationStruct.h for a more detailed overview of the
 // whole approach.
 //
@@ -85,6 +67,7 @@ OMNI_PVD_GET_REGISTRATION_DATA(regData)
                                                                                      \
 PX_ASSERT(writer);                                                                   \
 PX_ASSERT(regData);                                                                  \
+if (OMNI_PVD_SHOULD_RECORD_CREATION(writer, regData, classID, objectRef)) \
 regData->pvd##classID.createInstance(*writer, contextHandle, objectRef);
 
 
@@ -114,6 +97,7 @@ OMNI_PVD_WRITE_SCOPE_END                                                        
                                                                                       \
 PX_ASSERT(writer);                                                                    \
 PX_ASSERT(regData);                                                                   \
+if (OMNI_PVD_SHOULD_RECORD_DESTRUCTION(writer, regData, classID, objectRef)) \
 regData->pvd##classID.destroyInstance(*writer, contextHandle, objectRef);
 
 
@@ -145,6 +129,7 @@ OMNI_PVD_WRITE_SCOPE_END                                                        
                                                                                                          \
 PX_ASSERT(writer);                                                                                       \
 PX_ASSERT(regData);                                                                                      \
+if (OMNI_PVD_SHOULD_RECORD_VALUE(writer, regData, classID, attributeID, objectRef)) \
 regData->pvd##classID.set_##attributeID##_(*writer, contextHandle, objectRef, valueRef);
 
 
@@ -186,6 +171,7 @@ OMNI_PVD_WRITE_SCOPE_END                                                        
                                                                                                                             \
 PX_ASSERT(writer);                                                                                                          \
 PX_ASSERT(regData);                                                                                                         \
+if (OMNI_PVD_SHOULD_RECORD_VALUE(writer, regData, classID, attributeID, objectRef)) \
 regData->pvd##classID.set_##attributeID##_(*writer, contextHandle, objectRef, valuesPtr, valueCount);
 
 
@@ -216,6 +202,7 @@ OMNI_PVD_WRITE_SCOPE_END                                                        
                                                                                                          \
 PX_ASSERT(writer);                                                                                       \
 PX_ASSERT(regData);                                                                                      \
+if (OMNI_PVD_SHOULD_RECORD_ADDITION(writer, regData, classID, attributeID, objectRef, valueRef)) \
 regData->pvd##classID.addTo_##attributeID##_(*writer, contextHandle, objectRef, valueRef);
 
 
@@ -243,6 +230,7 @@ OMNI_PVD_WRITE_SCOPE_END                                                        
                                                                                                             \
 PX_ASSERT(writer);                                                                                          \
 PX_ASSERT(regData);                                                                                         \
+if (OMNI_PVD_SHOULD_RECORD_REMOVAL(writer, regData, classID, attributeID, objectRef, valueRef)) \
 regData->pvd##classID.removeFrom_##attributeID##_(*writer, contextHandle, objectRef, valueRef);
 
 

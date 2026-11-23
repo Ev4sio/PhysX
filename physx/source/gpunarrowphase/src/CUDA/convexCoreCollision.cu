@@ -1,42 +1,19 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #include "foundation/PxSimpleTypes.h"
 
 #include "cuda.h"
 #include "cudaNpCommon.h"
 
-#include "PxsTransformCache.h"
+#include "PxsCachedTransform.h"
 #include "PxsContactManagerState.h"
 #include "PxgContactManager.h"
 #include "PxgConvexConvexShape.h"
 #include "PxgPersistentContactManifold.h"
-#include "PxgSoftBodyCore.h"
+#include "PxgDeformableContactWriters.h"
 #include "PxgSoftBody.h"
 #include "PxgFEMCloth.h"
 
@@ -49,6 +26,7 @@
 #include "triangleMesh.cuh"
 
 #include "GuConvexSupport.h"
+#include "GuConvexSupport.cpp"
 #include "GuRefGjkEpa.h"
 
 #include "bv32Traversal.cuh"
@@ -193,22 +171,24 @@ struct TestOutput
 	{
 		PxU32 contactByteOffset = 0xFFFFFFFF;
 		PxU32 forceAndIndiceByteOffset = 0xFFFFFFFF;
+		const bool patchRequested = nbContacts > 0;
 
 		if (nbContacts)
 		{
 			contactByteOffset = atomicAdd(&(patchAndContactCounters->contactsBytes), sizeof(PxContact) * nbContacts);
 			forceAndIndiceByteOffset = atomicAdd(&(patchAndContactCounters->forceAndIndiceBytes), sizeof(PxU32) * nbContacts);
 
-			if ((contactByteOffset + sizeof(PxContact)) > contactBytesLimit)
+			if ((contactByteOffset + sizeof(PxContact) * nbContacts) > contactBytesLimit)
 			{
 				patchAndContactCounters->setOverflowError(PxgPatchAndContactCounters::CONTACT_BUFFER_OVERFLOW);
 				contactByteOffset = 0xFFFFFFFF; //overflow
 			}
 
-			if ((forceAndIndiceByteOffset + sizeof(PxU32)) > forceBytesLimit)
+			if ((forceAndIndiceByteOffset + sizeof(PxU32) * nbContacts) > forceBytesLimit)
 			{
 				patchAndContactCounters->setOverflowError(PxgPatchAndContactCounters::FORCE_BUFFER_OVERFLOW);
 				forceAndIndiceByteOffset = 0xFFFFFFFF; //overflow
+				contactByteOffset = 0xFFFFFFFF;
 			}
 		}
 
@@ -231,6 +211,7 @@ struct TestOutput
 		{
 			output.contactForces = NULL;
 			output.contactPoints = NULL;
+			nbContacts = 0;
 		}
 
 		PxU32 allflags = reinterpret_cast<PxU32*>(&(output.allflagsStart))[0];
@@ -261,7 +242,7 @@ struct TestOutput
 		cmOutputs[testIndex].nbContacts = nbContacts;
 
 		PxU32 patchIndex = 0xFFFFFFFF;
-		if (nbContacts)
+		if (patchRequested)
 		{
 			patchIndex = atomicAdd(&(patchAndContactCounters->patchesBytes), sizeof(PxContactPatch));
 
@@ -279,10 +260,12 @@ struct TestOutput
 				touchChangeFlags[testIndex] = previouslyHadTouch;
 				patchChangeFlags[testIndex] = prevPatches != 0;
 			}
-			else
+			else if (nbContacts)
 			{
 				output.contactPatches = startContactPatches + patchIndex;
 			}
+			else
+				patchIndex = 0xFFFFFFFF;
 		}
 
 		insertIntoPatchStream(materials, patchStream, shape0, shape1, patchIndex, normal, nbContacts);
@@ -311,22 +294,24 @@ struct TestOutput
 
 		PxU8 numPatches = PxU8(contact.numPatches());
 		PxU16 numPoints = PxU16(contact.numPoints());
+		const PxU8 nbRequestedPatches = numPatches;
 
 		if (numPoints)
 		{
 			contactByteOffset = atomicAdd(&(patchAndContactCounters->contactsBytes), sizeof(PxContact) * numPoints);
 			forceAndIndiceByteOffset = atomicAdd(&(patchAndContactCounters->forceAndIndiceBytes), sizeof(PxU32) * numPoints);
 
-			if ((contactByteOffset + sizeof(PxContact)) > contactBytesLimit)
+			if ((contactByteOffset + sizeof(PxContact) * numPoints) > contactBytesLimit)
 			{
 				patchAndContactCounters->setOverflowError(PxgPatchAndContactCounters::CONTACT_BUFFER_OVERFLOW);
 				contactByteOffset = 0xFFFFFFFF; //overflow
 			}
 
-			if ((forceAndIndiceByteOffset + sizeof(PxU32)) > forceBytesLimit)
+			if ((forceAndIndiceByteOffset + sizeof(PxU32) * numPoints) > forceBytesLimit)
 			{
 				patchAndContactCounters->setOverflowError(PxgPatchAndContactCounters::FORCE_BUFFER_OVERFLOW);
 				forceAndIndiceByteOffset = 0xFFFFFFFF; //overflow
+				contactByteOffset = 0xFFFFFFFF;
 			}
 		}
 
@@ -352,6 +337,8 @@ struct TestOutput
 		{
 			output.contactForces = NULL;
 			output.contactPoints = NULL;
+			numPoints = 0;
+			numPatches = 0;
 		}
 
 		PxU32 allflags = reinterpret_cast<PxU32*>(&(output.allflagsStart))[0];
@@ -380,11 +367,11 @@ struct TestOutput
 		output.nbContacts = numPoints;
 
 		PxU32 patchIndex = 0xFFFFFFFF;
-		if (numPatches)
+		if (nbRequestedPatches)
 		{
-			patchIndex = atomicAdd(&(patchAndContactCounters->patchesBytes), numPatches * sizeof(PxContactPatch));
+			patchIndex = atomicAdd(&(patchAndContactCounters->patchesBytes), nbRequestedPatches * sizeof(PxContactPatch));
 
-			if ((patchIndex + numPatches * sizeof(PxContactPatch)) > patchBytesLimit)
+			if ((patchIndex + nbRequestedPatches * sizeof(PxContactPatch)) > patchBytesLimit)
 			{
 				patchAndContactCounters->setOverflowError(PxgPatchAndContactCounters::PATCH_BUFFER_OVERFLOW);
 				patchIndex = 0xFFFFFFFF; //overflow
@@ -398,10 +385,12 @@ struct TestOutput
 				touchChangeFlags[testIndex] = previouslyHadTouch;
 				patchChangeFlags[testIndex] = prevPatches != 0;
 			}
-			else
+			else if (numPatches)
 			{
 				output.contactPatches = startContactPatches + patchIndex;
 			}
+			else
+				patchIndex = 0xFFFFFFFF;
 		}
 
 		if (patchIndex != 0xFFFFFFFF)
@@ -612,7 +601,7 @@ struct TrimeshBvh
 		PxU8* trimeshGeomPtr = reinterpret_cast<PxU8*>(femCloth.mTriMeshData);
 		trimeshGeomPtr += sizeof(uint4); // skip nbVerts_nbTets_maxDepth_nbBv32TreeNodes
 		trimeshVerts = femCloth.mPosition_InvMass;
-		trimeshTriIndices = femCloth.mTriangleVertexIndices;
+		trimeshTriIndices = femCloth.mTriangleVertexIndices_ownedEdges;
 		bv32PackedNodes = reinterpret_cast<const Gu::BV32DataPacked*>(trimeshGeomPtr);
 	}
 
@@ -691,12 +680,20 @@ namespace physx
 				Point point;
 				PxVec3 normal;
 
+				// PT: contacts produced here carry no face index, and nothing downstream needs one: the GPU
+				// narrow phase takes both materials from the shapes and applies them to the whole patch (see
+				// writeOutput below). Meshes with per-triangle materials never reach this code anyway - they
+				// fail PxgGpuNarrowphaseCore::isMeshGPUCompatible(), so the pair is routed to the CPU narrow
+				// phase, which is where the per-triangle material lookup lives.
 				__device__ static NewPoint make(const PxVec3& p, PxReal d, const PxVec3& n)
-					{ NewPoint np; np.point = Point::make(p, d); np.normal = n; return np; }
+					{ NewPoint np; np.point = Point::make(p, d, PXC_CONTACT_NO_FACE_INDEX); np.normal = n; return np; }
 			};
 
 			NewPoint newPoints[WARP_SIZE * MAX_CONVEX_CONTACTS];
 			Point tmpBuffer[8];
+
+			PX_FORCE_INLINE __device__ void init()
+				{ mNumPatches = mNumPoints = 0; }
 
 			__device__ void addPoints(const PxVec3& normal, PxVec3 points[Gu::MAX_CONVEX_CONTACTS],
 				PxReal dists[Gu::MAX_CONVEX_CONTACTS], PxU32 numPoints, const PxTransform& transform)
@@ -723,10 +720,10 @@ namespace physx
 						PxVec3 minDistNormal = shuffle(FULL_MASK, p.normal, minDistThread);
 
 						// select points with the same normal as the deepest one
-						bool sameNormal = p.normal.dot(minDistNormal) > SAME_NORMAL;
+						bool sameNormal = p.normal.dot(minDistNormal) > PXC_SAME_NORMAL;
 						PxU32 sameNormalMask = allMask & __ballot_sync(FULL_MASK, sameNormal);
 
-						// selest up to 4 best points forming the largest quad
+						// select up to 4 best points forming the largest quad
 						PxU32 deepest;
 						PxU32 bestPointsMask = reducePoints(p.point.p, p.point.d, minDistNormal, sameNormalMask, deepest);
 						PxU32 count = __popc(bestPointsMask);
@@ -837,7 +834,7 @@ namespace physx
 				PxReal maxDot = normal.dot(patchNormal);
 				PxU32 maxDotThread = maxIndex(maxDot, FULL_MASK, maxDot);
 
-				if (maxDot > SAME_NORMAL)
+				if (maxDot > PXC_SAME_NORMAL)
 					// fitting patch found
 					return maxDotThread;
 
@@ -956,7 +953,6 @@ void convexCoreTrimeshNphase_Kernel32(
 		PxBounds3 convexBounds;
 		TestTrimesh trimesh;
 		Gu::Contact32 contact;
-		PxU32 contactLock;
 
 		__device__ static _Shared& cast(PxU8* ptr)
 			{ return *reinterpret_cast<_Shared*>(ptr); }
@@ -974,15 +970,14 @@ void convexCoreTrimeshNphase_Kernel32(
 
 	if (warpThreadIndex == 0)
 	{
-		in = TestInput(testIndex, cmInputs, shapes, transformCache, contactDistance, NULL);
+		PX_PLACEMENT_NEW(&in, TestInput(testIndex, cmInputs, shapes, transformCache, contactDistance, NULL));
 		in.checkTypes(PxGeometryType::eCONVEXCORE, PxGeometryType::eTRIANGLEMESH);
 		transform0in1 = in.transform1.transformInv(in.transform0);
 		Gu::makeConvexShape(in.shape0, transform0in1, convex);
 		convexBounds = convex.computeBounds();
 		convexBounds.fattenFast(in.contactDist);
-		trimesh = TestTrimesh(TrimeshBvh(in.shape1));
-		contact = Gu::Contact32();
-		_sh.contactLock = 0;
+		PX_PLACEMENT_NEW(&trimesh, TestTrimesh(TrimeshBvh(in.shape1)));
+		contact.init();
 	}
 
 	__syncwarp();
@@ -1003,25 +998,8 @@ void convexCoreTrimeshNphase_Kernel32(
 				const PxVec3 triNormal = sh.trimesh.bvh.getTriNormal(triIndex);
 				numPoints = Gu::generateContacts(sh.convex, tri, sh.in.contactDist, triNormal, normal, points, dists);
 			}
-#if 1
-			// this version uses full warp of 32 threads to generate contact patches
+
 			sh.contact.addPoints(normal, points, dists, numPoints, sh.in.transform1);
-#else
-			// in this version every thread waits on a spinlock for its turn to add
-			// its contact points to one of contact patches. the version is slow and
-			// will be removed after the version above proves reliable.
-			if (numPoints)
-			{
-				const PxVec3 worldNormal = sh.in.transform1.rotate(normal);
-				for (PxU32 i = 0; i < numPoints; ++i)
-				{
-					const PxVec3 worldPoint = sh.in.transform1.transform(points[i]);
-					while (atomicCAS(&sh.contactLock, 0, 1) != 0);
-					sh.contact.addPoint(worldPoint, worldNormal, dists[i]);
-					atomicExch(&sh.contactLock, 0);
-				}
-			}
-#endif
 		}
 	}
 	callback(_sh);
@@ -1100,7 +1078,7 @@ extern "C" __global__ void convexCoreTetmeshNphase_Kernel32(
 	const PxsCachedTransform * PX_RESTRICT transformCache,
 	const PxReal * PX_RESTRICT contactDistance,
 	const PxReal * PX_RESTRICT restDistance,
-	PxgFEMContactWriter writer
+	PxgRigidDbContactWriter writer
 )
 {
 	assert(blockDim.x == WARP_SIZE);
@@ -1125,7 +1103,8 @@ extern "C" __global__ void convexCoreTetmeshNphase_Kernel32(
 		TestTetmesh tetmesh;
 		PxNodeIndex rigidId;
 		PxU32 softbodyId;
-		PxgFEMContactWriter writer;
+		const PxgSoftBody* softbody;
+		PxgRigidDbContactWriter writer;
 
 		__device__ static _Shared& cast(PxU8* ptr)
 			{ return *reinterpret_cast<_Shared*>(ptr); }
@@ -1142,15 +1121,16 @@ extern "C" __global__ void convexCoreTetmeshNphase_Kernel32(
 
 	if (warpThreadIndex == 0)
 	{
-		in = TestInput(testIndex, cmInputs, shapes, transformCache, contactDistance, restDistance);
+		PX_PLACEMENT_NEW(&in, TestInput(testIndex, cmInputs, shapes, transformCache, contactDistance, restDistance));
 		in.checkTypes(PxGeometryType::eCONVEXCORE, PxGeometryType::eTETRAHEDRONMESH);
 		transform0in1 = in.transform1.transformInv(in.transform0);
 		Gu::makeConvexShape(in.shape0, transform0in1, convex);
 		convexBounds = convex.computeBounds();
 		convexBounds.fattenFast(in.contactDist);
-		tetmesh = TestTetmesh(TetmeshBvh(in.shape1, softbodies));
+		PX_PLACEMENT_NEW(&tetmesh, TestTetmesh(TetmeshBvh(in.shape1, softbodies)));
 		_sh.rigidId = shapeToRigidRemapTable[_sh.in.cacheRef0];
 		_sh.softbodyId = _sh.in.shape1.particleOrSoftbodyId;
+		_sh.softbody = &softbodies[_sh.softbodyId];
 		_sh.writer = writer;
 	}
 
@@ -1167,13 +1147,16 @@ extern "C" __global__ void convexCoreTetmeshNphase_Kernel32(
 			PxReal dists[Gu::MAX_CONVEX_CONTACTS];
 			PxU32 numPoints = 0;
 
-			if (tetIndex != 0xffffffff)
+			// A filter pair for this rigid and tetrahedron suppresses contact generation between them.
+			if (tetIndex != 0xffffffff &&
+				!findRigidVolumeFilter(sh.softbody->mRigidVolumeFilterPairs, sh.softbody->mNumRigidVolumeFilterPairs,
+					sh.rigidId, sh.in.cacheRef0, sh.softbodyId, tetIndex))
 				numPoints = Gu::generateContacts(sh.convex, tet, sh.in.contactDist, normal, points, dists);
 
 			if (numPoints)
 			{
-				const PxU64 pairInd0 = sh.rigidId.getInd();
-				const PxU32 pairInd1 = PxEncodeSoftBodyIndex(sh.softbodyId, tetIndex);
+				const PxU64 rigidRef = sh.rigidId.getInd();
+				const PxU64 tetRef = PxgEncodeDeformableTetrahedron(sh.softbodyId, tetIndex);
 				const PxU32 index = atomicAdd(sh.writer.totalContactCount, numPoints);
 				for (PxU32 i = 0; i < numPoints; ++i)
 				{
@@ -1181,8 +1164,8 @@ extern "C" __global__ void convexCoreTetmeshNphase_Kernel32(
 					if (dists[i] < 0) dists[i] *= 0.4f; // VR @@@ add fake ERP. it overshoots otherwise
 					const float4 posRest = make_float4(point.x, point.y, point.z, sh.in.restDist);
 					const float4 normDist = make_float4(-normal.x, -normal.y, -normal.z, dists[i]);
-					sh.writer.writeRigidVsDeformableContactNoBarycentric(index + i, posRest, normDist, pairInd0,
-						pairInd1, pairInd0, sh.in.shape0.materialIndex);
+					sh.writer.writeVolumeContact(index + i, posRest, normDist,
+						rigidRef, sh.in.shape0.materialIndex, tetRef);
 				}
 			}
 		}
@@ -1202,11 +1185,9 @@ void convexCoreClothmeshNphase_Kernel32(
 	const PxsCachedTransform * PX_RESTRICT transformCache,
 	const PxReal * PX_RESTRICT contactDistance,
 	const PxReal * PX_RESTRICT restDistance,
-	const PxgRigidFilterPair * PX_RESTRICT filterPairs,
-	const PxU32 nbFilterPairs,
 	const PxU32 stackSizeBytes,
 	PxU32 * PX_RESTRICT stackSizeNeededOnDevice,
-	PxgFEMContactWriter writer
+	PxgRigidDbContactWriter writer
 )
 {
 	const PxU32 threadIndex = blockIdx.x * blockDim.x + threadIdx.x;
@@ -1227,13 +1208,11 @@ void convexCoreClothmeshNphase_Kernel32(
 
 		const PxNodeIndex rigidId = shapeToRigidRemapTable[in.cacheRef0];
 		const PxU32 clothId = in.shape1.particleOrSoftbodyId;
-		const TrimeshBvh bvh(femClothes[clothId]);
+		const PxgFEMCloth& cloth = femClothes[clothId];
+		const TrimeshBvh bvh(cloth);
 
 		const PxU64 rigidInd = rigidId.getInd();
-		const uint4 vertInds = bvh.getTriIndices(triIndex);
-		if (find(filterPairs, nbFilterPairs, rigidInd, PxEncodeClothIndex(clothId, vertInds.x)) &&
-			find(filterPairs, nbFilterPairs, rigidInd, PxEncodeClothIndex(clothId, vertInds.y)) &&
-			find(filterPairs, nbFilterPairs, rigidInd, PxEncodeClothIndex(clothId, vertInds.z)))
+		if (findRigidSurfaceTriangleFilter(cloth.mRigidSurfaceFilterPairs, cloth.mNumRigidSurfaceFilterPairs, rigidId, in.cacheRef0, clothId, triIndex))
 			continue;
 
 		const PxTransform transform0in1 = in.transform1.transformInv(in.transform0);
@@ -1258,17 +1237,21 @@ void convexCoreClothmeshNphase_Kernel32(
 
 		if (numPoints)
 		{
-			const PxU64 pairInd0 = rigidInd;
-			const PxU32 pairInd1 = PxEncodeClothIndex(clothId, triIndex);
+			const PxU64 rigidRef = rigidInd;
+			const PxU64 triRef = PxgEncodeDeformableTriangle(clothId, triIndex);
 			const PxU32 index = atomicAdd(writer.totalContactCount, numPoints);
 			for (PxU32 i = 0; i < numPoints; ++i)
 			{
 				const PxVec3 point = points[i] + normal * dists[i] * 0.5f;
 				const float4 posRest = make_float4(point.x, point.y, point.z, in.restDist);
 				const float4 normDist = make_float4(-normal.x, -normal.y, -normal.z, dists[i]);
-				const float4 barycentric = bvh.getTriBarycentric(triIndex, point);
-				writer.writeRigidVsDeformableContact(index + i, posRest, normDist, barycentric, pairInd0,
-					pairInd1, in.shape0.materialIndex, rigidId);
+				// generateContacts returns the midpoint of the two witness points, so the cloth's own witness
+				// is half a separation back along the normal. Taken anywhere else, the barycentric of a
+				// separated contact lands outside the triangle and the impulse reaches the wrong vertices.
+				const PxVec3 clothPoint = points[i] - normal * dists[i] * 0.5f;
+				const float4 barycentric = bvh.getTriBarycentric(triIndex, clothPoint);
+				writer.writeSurfaceContact(index + i, posRest, normDist,
+					rigidRef, in.shape0.materialIndex, triRef, barycentric);
 			}
 		}
 	}

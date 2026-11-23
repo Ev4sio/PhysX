@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #include "geometry/PxConvexMeshGeometry.h"
 #include "geometry/PxSphereGeometry.h"
@@ -53,10 +30,10 @@ static const PxReal gEpsilon = .01f;
 
 //#define USE_VIRTUAL_GJK
 #ifdef USE_VIRTUAL_GJK
-static bool virtualGjkRaycastPenetration(const GjkConvex& a, const GjkConvex& b, const aos::Vec3VArg initialDir, const aos::FloatVArg initialLambda, const aos::Vec3VArg s, const aos::Vec3VArg r, aos::FloatV& lambda, 
-		aos::Vec3V& normal, aos::Vec3V& closestA, const PxReal _inflation, const bool initialOverlap)
+static bool virtualGjkRaycastPenetration(const GjkConvex& a, const GjkConvex& b, const Vec3VArg initialDir, const FloatVArg initialLambda, const Vec3VArg s, const Vec3VArg r, FloatV& lambda, 
+		Vec3V& normal, Vec3V& closestA, const PxReal _inflation, const bool initialOverlap, const bool useClosestB = false, const PxReal toleranceScale = 0.1f, const PxReal mtdInflation = 0.0f)
 {
-	return gjkRaycastPenetration<GjkConvex, GjkConvex >(a, b, initialDir, initialLambda, s, r, lambda, normal, closestA, _inflation, initialOverlap);
+	return gjkRaycastPenetration<GjkConvex, GjkConvex >(a, b, initialDir, initialLambda, s, r, lambda, normal, closestA, _inflation, initialOverlap, useClosestB, toleranceScale, mtdInflation);
 }
 #endif
 
@@ -346,10 +323,10 @@ bool sweepCapsule_ConvexGeom(GU_CAPSULE_SWEEP_FUNC_PARAMS)
 	const LocalConvex<ConvexHullV> convexB(convexHull);
 	const Vec3V initialSearchDir = V3Sub(capsule.getCenter(), convexHull.getCenter());
 #ifdef USE_VIRTUAL_GJK
-	if(!virtualGjkRaycastPenetration(convexA, convexB, initialSearchDir, zero, zeroV, dir, toi, normal, closestA, lss.radius + inflation, isMtd))
+	if(!virtualGjkRaycastPenetration(convexA, convexB, initialSearchDir, zero, zeroV, dir, toi, normal, closestA, lss.radius + inflation, isMtd, false, 0.1f, inflation))
 		return false;
 #else
-	if(!gjkRaycastPenetration<LocalConvex<CapsuleV>, LocalConvex<ConvexHullV> >(convexA, convexB, initialSearchDir, zero, zeroV, dir, toi, normal, closestA, lss.radius + inflation, isMtd))
+	if(!gjkRaycastPenetration<LocalConvex<CapsuleV>, LocalConvex<ConvexHullV> >(convexA, convexB, initialSearchDir, zero, zeroV, dir, toi, normal, closestA, lss.radius + inflation, isMtd, false, 0.1f, inflation))
 		return false;
 #endif
 	if(hasInitialOverlap(sweepHit, unitDir, toi, normal, closestA, convexPose, isMtd, true))
@@ -477,10 +454,10 @@ bool sweepBox_ConvexGeom(GU_BOX_SWEEP_FUNC_PARAMS)
 	const RelativeConvex<BoxV> convexA(boxV, aToB);
 	const LocalConvex<ConvexHullV> convexB(convexHull);
 #ifdef USE_VIRTUAL_GJK
-	if(!virtualGjkRaycastPenetration(convexA, convexB, aToB.p, zero, zeroV, dir, toi, normal, closestA, inflation, isMtd))
+	if(!virtualGjkRaycastPenetration(convexA, convexB, aToB.p, zero, zeroV, dir, toi, normal, closestA, inflation, isMtd, false, 0.1f, inflation))
 		return false;
 #else
-	if(!gjkRaycastPenetration<RelativeConvex<BoxV>,LocalConvex<ConvexHullV> >(convexA, convexB, aToB.p, zero, zeroV, dir, toi, normal, closestA, inflation, isMtd))
+	if(!gjkRaycastPenetration<RelativeConvex<BoxV>,LocalConvex<ConvexHullV> >(convexA, convexB, aToB.p, zero, zeroV, dir, toi, normal, closestA, inflation, isMtd, false, 0.1f, inflation))
 		return false;
 #endif
 	if(hasInitialOverlap(sweepHit, unitDir, toi, normal, closestA, convexPose, isMtd, true))
@@ -557,10 +534,10 @@ bool sweepConvex_SphereGeom(GU_CONVEX_SWEEP_FUNC_PARAMS)
 	const LocalConvex<ConvexHullV> convexB(convexHull);
 	const Vec3V initialSearchDir = V3Sub(capsule.getCenter(), convexHull.getCenter());
 #ifdef USE_VIRTUAL_GJK
-	if(!virtualGjkRaycastPenetration(convexA, convexB, initialSearchDir, zero, zeroV, dir, toi, normal, closestA, sphereGeom.radius+inflation, isMtd))
+	if(!virtualGjkRaycastPenetration(convexA, convexB, initialSearchDir, zero, zeroV, dir, toi, normal, closestA, sphereGeom.radius+inflation, isMtd, false, 0.1f, inflation))
 		return false;
 #else
-	if(!gjkRaycastPenetration<LocalConvex<CapsuleV>, LocalConvex<ConvexHullV> >(convexA, convexB, initialSearchDir, zero, zeroV, dir, toi, normal, closestA, sphereGeom.radius+inflation, isMtd))
+	if(!gjkRaycastPenetration<LocalConvex<CapsuleV>, LocalConvex<ConvexHullV> >(convexA, convexB, initialSearchDir, zero, zeroV, dir, toi, normal, closestA, sphereGeom.radius+inflation, isMtd, false, 0.1f, inflation))
 		return false;
 #endif
 	if(hasInitialOverlap(sweepHit, unitDir, toi, normal, closestA, convexPose, isMtd, false))
@@ -609,7 +586,7 @@ bool sweepConvex_PlaneGeom(GU_CONVEX_SWEEP_FUNC_PARAMS)
 		float t;
 		PxVec3 pointOnPlane;
 		if(intersectRayPlane(worldPt, unitDir, plane, t, &pointOnPlane))
-		{	
+		{
 			if(plane.distance(worldPt) <= 0.0f)
 			{
 				initialOverlap = true;
@@ -737,10 +714,10 @@ bool sweepConvex_ConvexGeom(GU_CONVEX_SWEEP_FUNC_PARAMS)
 	const RelativeConvex<ConvexHullV> convexA(otherConvexHull, aToB);
 	const LocalConvex<ConvexHullV> convexB(convexHull);
 #ifdef USE_VIRTUAL_GJK
-	if(!virtualGjkRaycastPenetration(convexA, convexB, aToB.p, zero, zeroV, dir, toi, normal, closestA, inflation, isMtd))
+	if(!virtualGjkRaycastPenetration(convexA, convexB, aToB.p, zero, zeroV, dir, toi, normal, closestA, inflation, isMtd, false, 0.1f, inflation))
 		return false;
 #else
-	if(!gjkRaycastPenetration<RelativeConvex<ConvexHullV>, LocalConvex<ConvexHullV> >(convexA, convexB, aToB.p, zero, zeroV, dir, toi, normal, closestA, inflation, isMtd))
+	if(!gjkRaycastPenetration<RelativeConvex<ConvexHullV>, LocalConvex<ConvexHullV> >(convexA, convexB, aToB.p, zero, zeroV, dir, toi, normal, closestA, inflation, isMtd, false, 0.1f, inflation))
 		return false;
 #endif
 	if(hasInitialOverlap(sweepHit, unitDir, toi, normal, closestA, convexPose, isMtd, false))

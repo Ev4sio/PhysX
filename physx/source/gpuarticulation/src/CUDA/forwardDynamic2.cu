@@ -1,37 +1,16 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #include "CmSpatialVector.h"
+#include "PxgArticulation.h"
 #include "PxgArticulationCoreDesc.h"
 #include "PxgArticulationLink.h"
 #include "DyArticulationJointCore.h"
 #include "DyFeatherstoneArticulationUtils.h"
 #include "DyFeatherstoneArticulationJointData.h"
+#include "DyCpuGpuArticulation.h"
 #include "PxgBodySim.h" 
 #include "cutil_math.h"
 #include "reduction.cuh"
@@ -378,7 +357,8 @@ static __device__ void jcalc(const PxgArticulation& articulation, PxgArticulatio
 
 	if (confiDirty || dataDirty)
 	{
-		Cm::UnAlignedSpatialVector* PX_RESTRICT jointAxis = articulation.jointAxis;
+		Cm::UnAlignedSpatialVector jointAxis[3];
+
 		Dy::SpatialSubspaceMatrix* PX_RESTRICT motionMatrix = articulation.motionMatrix;
 		PxU32* PX_RESTRICT jointOffsets = articulation.jointOffsets;
 		PxQuat* PX_RESTRICT relativeQuats = articulation.relativeQuat;
@@ -387,47 +367,47 @@ static __device__ void jcalc(const PxgArticulation& articulation, PxgArticulatio
 		PxReal* PX_RESTRICT cfms = articulation.cfms;
 		const PxgArticulationLinkProp* PX_RESTRICT props = articulation.linkProps;
 
-		if (confiDirty)
+		// The cfm scales come from the link records, which change with the configuration and with dirty links.
+		const bool cfmScaleDirty = confiDirty || (artiData.updateDirty & Dy::ArticulationDirtyFlag::eDIRTY_LINKS);
+
+		if (cfmScaleDirty)
 			cfmScale[0] = (artiData.flags & PxArticulationFlag::eFIX_BASE) ? 0.f : links[0].cfmScale * invLengthScale;
 
 		if (dataDirty)
 			cfms[0] = (artiData.flags & PxArticulationFlag::eFIX_BASE) ? 0.f : props[0].invInertiaXYZ_invMass.w * cfmScale[0];
 
 		// PT: preload next link data
-		PxReal nextDof = gJointData[1].nbDof;
-		PxReal nextOffset = gJointData[1].jointOffset;
+		PxU32 nextDof = gJointData[1].nbDof;
+		PxU32 nextOffset = gJointData[1].jointOffset;
 
-		PxU32 totalDofs = 0;
 		for (PxU32 linkID = 1; linkID < numLinks; linkID++)
 		{
 			ArticulationJointCore& joint = gJoints[linkID];
 
 			// PT: preload next link data
-			const PxReal dof = nextDof;
-			const PxReal offset = nextOffset;
+			const PxU32 dof = nextDof;
+			const PxU32 offset = nextOffset;
 			if(linkID!=numLinks-1)
 			{
 				nextDof = gJointData[linkID+1].nbDof;
 				nextOffset = gJointData[linkID+1].jointOffset;
 			}
 
-			computeJointAxis(dof, &joint, jointAxis + totalDofs);
+			computeJointAxis(dof, &joint, jointAxis);
 
-			joint.setJointFrame(motionMatrix[linkID].columns, jointAxis + totalDofs, relativeQuats[linkID], dof);
+			joint.setJointFrame(motionMatrix[linkID].columns, jointAxis, relativeQuats[linkID], dof);
 
 			jointOffsets[linkID] = offset;
 
-			if (confiDirty)
+			if (cfmScaleDirty)
 				cfmScale[linkID] = links[linkID].cfmScale * invLengthScale;
 
 			if (dataDirty)
 				cfms[linkID] = props[linkID].invInertiaXYZ_invMass.w * cfmScale[linkID];
-
-			totalDofs += dof;
 		}
 
 		artiData.confiDirty = false;
-		// do not reset artiData.updateDirty here; hold on until block data is copied below in the else if (dataDirty) block
+		// Do not reset artiData.updateDirty here. The block copy below resets it.
 	}
 	//KS - now we copy the data we may/may not have computed above into the batch format.
 	//This has to be done every frame because there are no guarantees that articulations will be batched 
@@ -439,9 +419,6 @@ static __device__ void jcalc(const PxgArticulation& articulation, PxgArticulatio
 		PxTransform* body2Worlds = articulation.linkBody2Worlds;
 		PxU32* parents = articulation.parents;
 
-		Cm::UnAlignedSpatialVector* jointAxis = articulation.jointAxis;
-
-
 		const PxReal* PX_RESTRICT jointPositions = articulation.jointPositions;
 		const PxReal* PX_RESTRICT jointVelocities = articulation.jointVelocities;
 		const PxReal* PX_RESTRICT jointTargetPositions = articulation.jointTargetPositions;
@@ -451,12 +428,17 @@ static __device__ void jcalc(const PxgArticulation& articulation, PxgArticulatio
 
 		PxQuat* PX_RESTRICT relativeQuats = articulation.relativeQuat;
 
-
 		PxgArticulationBlockLinkData& rootLinkBlockData = articulationLinkBlocks[0];
 		PxgArticulationLink& rootLink = links[0];
 		rootLinkBlockData.mDisableGravity[threadIndexInWarp] = rootLink.disableGravity;
 		rootLinkBlockData.mRetainsAcceleration[threadIndexInWarp] = rootLink.retainsAccelerations;
 		rootLinkBlockData.mDofs[threadIndexInWarp] = 0;
+		// The root has no inbound joint or parent link.
+		rootLinkBlockData.mParents[threadIndexInWarp] = DY_ARTICULATION_LINK_NONE;
+		rootLinkBlockData.mJointOffset[threadIndexInWarp] = 0;
+		rootLinkBlockData.mRw_x[threadIndexInWarp] = 0.0f;
+		rootLinkBlockData.mRw_y[threadIndexInWarp] = 0.0f;
+		rootLinkBlockData.mRw_z[threadIndexInWarp] = 0.0f;
 
 		rootLinkBlockData.mLinDampingX_AngDampingY_maxLinVelSqZ_maxAngVelSqW[threadIndexInWarp] =
 			make_float4(rootLink.linearDamping, rootLink.angularDamping, rootLink.maxLinearVelocitySq, rootLink.maxAngularVelocitySq);
@@ -506,8 +488,6 @@ static __device__ void jcalc(const PxgArticulation& articulation, PxgArticulatio
 			{
 				PxgArticulationBlockDofData& dofBlock = articulationDofBlocks[jointOffset + i];
 
-				const Cm::UnAlignedSpatialVector axis = jointAxis[jointOffset + i];
-				storeSpatialVector(dofBlock.mJointAxis, axis, threadIndexInWarp);
 				const PxU32 dofId = joint.dofIds[i];
 				dofBlock.mDofIds[threadIndexInWarp] = dofId;
 				linkBlockData.mInvDofIds[dofId][threadIndexInWarp] = i;
@@ -518,14 +498,15 @@ static __device__ void jcalc(const PxgArticulation& articulation, PxgArticulatio
 				dofBlock.mConstraintData.mArmature[threadIndexInWarp] = joint.armature[dofId];
 				dofBlock.mConstraintData.mDriveTargetPos[threadIndexInWarp] = jTargetPos[i];
 				dofBlock.mConstraintData.mLimits_LowLimitX_highLimitY[threadIndexInWarp] = make_float2(joint.limits[dofId].low, joint.limits[dofId].high);
-				
-				dofBlock.mConstraintData.mMaxForce[threadIndexInWarp] = joint.drives[dofId].maxForce;
-				//old friction
-				dofBlock.mConstraintData.mFrictionCoefficient[threadIndexInWarp] = joint.frictionCoefficient;
-				//new friction
+			
 				dofBlock.mConstraintData.mStaticFrictionEffort[threadIndexInWarp] = joint.frictionParams[dofId].staticFrictionEffort;
 				dofBlock.mConstraintData.mDynamicFrictionEffort[threadIndexInWarp] = joint.frictionParams[dofId].dynamicFrictionEffort;
 				dofBlock.mConstraintData.mViscousFrictionCoefficient[threadIndexInWarp] = joint.frictionParams[dofId].viscousFrictionCoefficient;
+				dofBlock.mConstraintData.mMaxEffort[threadIndexInWarp] = joint.drives[dofId].envelope.maxEffort;
+				dofBlock.mConstraintData.mMaxActuatorVelocity[threadIndexInWarp] = joint.drives[dofId].envelope.maxActuatorVelocity;
+				dofBlock.mConstraintData.mVelocityDependentResistance[threadIndexInWarp] = joint.drives[dofId].envelope.velocityDependentResistance;
+				dofBlock.mConstraintData.mSpeedEffortGradient[threadIndexInWarp] = joint.drives[dofId].envelope.speedEffortGradient;
+
 				dofBlock.mConstraintData.mDriveType[threadIndexInWarp] = joint.drives[dofId].driveType;
 
 				dofBlock.mConstraintData.mMaxJointVelocity[threadIndexInWarp] = joint.maxJointVelocity[dofId];
@@ -575,6 +556,9 @@ static __device__ void jcalc(const PxgArticulation& articulation, PxgArticulatio
 		initializeMimicJointsBlock(articulation, artiData, artiBlock, mimicJointBlocks, threadIndexInWarp);
 
 		artiBlock.mFlags[threadIndexInWarp] = articulation.data.flags;
+
+		// The full rebuild above covers every updateDirty bit.
+		artiData.updateDirty = 0;
 	}
 	else if (dataDirty)
 	{
@@ -632,7 +616,6 @@ static __device__ void jcalc(const PxgArticulation& articulation, PxgArticulatio
 			PxU32 nextNbDofs = jointData1.nbDof;
 			PxU32 nextJointOffset = jointData1.jointOffset;
 			PxU32 nextDofId0 = joint1.dofIds[0];
-			PxReal nextFrictionCoefficient = joint1.frictionCoefficient;
 
 			for (PxU32 linkID = 1; linkID < numLinks; linkID++)
 			{
@@ -651,7 +634,6 @@ static __device__ void jcalc(const PxgArticulation& articulation, PxgArticulatio
 				const PxU32 nbDofs = nextNbDofs;
 				const PxU32 jointOffset = nextJointOffset;
 				const PxU32 dofId0 = nextDofId0;
-				const PxReal frictionCoefficient = nextFrictionCoefficient;
 
 				if(linkID!=numLinks-1)
 				{
@@ -670,7 +652,6 @@ static __device__ void jcalc(const PxgArticulation& articulation, PxgArticulatio
 					nextNbDofs = nextJointData.nbDof;
 					nextJointOffset = nextJointData.jointOffset;
 					nextDofId0 = nextJoint.dofIds[0];
-					nextFrictionCoefficient = nextJoint.frictionCoefficient;
 				}
 
 				const PxReal* PX_RESTRICT jPos = &jointPositions[jointOffset];
@@ -690,13 +671,15 @@ static __device__ void jcalc(const PxgArticulation& articulation, PxgArticulatio
 					dofBlock.mConstraintData.mTargetPosBias[threadIndexInWarp] = 0.0f;
 					dofBlock.mConstraintData.mArmature[threadIndexInWarp] = joint.armature[dofId];
 					dofBlock.mConstraintData.mLimits_LowLimitX_highLimitY[threadIndexInWarp] = make_float2(joint.limits[dofId].low, joint.limits[dofId].high);
-					dofBlock.mConstraintData.mMaxForce[threadIndexInWarp] = joint.drives[dofId].maxForce;
-					dofBlock.mConstraintData.mFrictionCoefficient[threadIndexInWarp] = frictionCoefficient;
-
-
+					
 					dofBlock.mConstraintData.mStaticFrictionEffort[threadIndexInWarp] = joint.frictionParams[dofId].staticFrictionEffort;
 					dofBlock.mConstraintData.mDynamicFrictionEffort[threadIndexInWarp] = joint.frictionParams[dofId].dynamicFrictionEffort;
 					dofBlock.mConstraintData.mViscousFrictionCoefficient[threadIndexInWarp] = joint.frictionParams[dofId].viscousFrictionCoefficient;
+
+					dofBlock.mConstraintData.mMaxEffort[threadIndexInWarp] = joint.drives[dofId].envelope.maxEffort;
+					dofBlock.mConstraintData.mMaxActuatorVelocity[threadIndexInWarp] = joint.drives[dofId].envelope.maxActuatorVelocity;
+					dofBlock.mConstraintData.mVelocityDependentResistance[threadIndexInWarp] = joint.drives[dofId].envelope.velocityDependentResistance;
+					dofBlock.mConstraintData.mSpeedEffortGradient[threadIndexInWarp] = joint.drives[dofId].envelope.speedEffortGradient;
 
 					dofBlock.mConstraintData.mDriveType[threadIndexInWarp] = joint.drives[dofId].driveType;
 
@@ -892,6 +875,31 @@ static __device__ void jcalc(const PxgArticulation& articulation, PxgArticulatio
 	}
 }
 
+// GPU wrapper: extract link-local anchor offsets and prismatic slide from the
+// block data structures, then delegate to the shared Dy::computeLinkRw.
+static __device__ PX_FORCE_INLINE PxVec3 computeLinkRwGpu(
+	const PxgArticulationBlockLinkData& link,
+	const PxQuat& parentQW,
+	const PxQuat& childQW,
+	const PxgArticulationBlockDofData* PX_RESTRICT linkDofs,
+	PxU32 threadIndexInWarp)
+{
+	const float4 co = link.mChildPose.p[threadIndexInWarp];
+	const float4 po = link.mParentPose.p[threadIndexInWarp];
+	const PxVec3 childOffset(co.x, co.y, co.z);   // unnegated; Dy::computeLinkRw uses slide-childOffset
+	const PxVec3 parentOffset(po.x, po.y, po.z);
+
+	PxVec3 slide(0.f);
+	if (link.mJointType[threadIndexInWarp] == PxArticulationJointType::ePRISMATIC)
+	{
+		const PxReal jPos = linkDofs[0].mJointPositions[threadIndexInWarp];
+		const Cm::UnAlignedSpatialVector motionMatrix = loadSpatialVector(linkDofs[0].mLocalMotionMatrix, threadIndexInWarp);
+		slide = motionMatrix.bottom * jPos;
+	}
+
+	return Dy::computeLinkRw(parentQW, childQW, parentOffset, childOffset, slide);
+}
+
 static __device__ void computeUnconstrainedVelocitiesInternal1T(const PxgBodySim& bodySim,
 	const PxgArticulationCoreDesc* const PX_RESTRICT scDesc,
 	PxgArticulationBlockData& articulationBlock,
@@ -959,11 +967,10 @@ static __device__ void computeUnconstrainedVelocitiesInternal1T(const PxgBodySim
 		// so that we do not reload parent, body2World and linkBlock.mRw_xyz multiple times.
 		// A longer loop also offers more opportunities for preloading & hiding latencies.
 
-		const Cm::UnAlignedSpatialVector rootVel = loadSpatialVector(articulationLinkBlocks[0].mMotionVelocity, threadIndexInWarp);
 		articulationLinkBlocks[0].mPreTransform.p[threadIndexInWarp] = articulationLinkBlocks[0].mAccumulatedPose.p[threadIndexInWarp];
 		articulationLinkBlocks[0].mPreTransform.q[threadIndexInWarp] = articulationLinkBlocks[0].mAccumulatedPose.q[threadIndexInWarp];
 
-		//Is it really necessary? It is already resolved as an internal cosntraint.
+		//Is it really necessary? It is already resolved as an internal constraint.
 		PxgArticulationBlockDofData* PX_RESTRICT dofs = articulationDofBlocks;
 		PxReal ratio = 1.0f;
 		for (PxU32 linkID = 1; linkID < numLinks; ++linkID)
@@ -983,9 +990,6 @@ static __device__ void computeUnconstrainedVelocitiesInternal1T(const PxgBodySim
 				}
 			}
 		}
-
-		msArticulation.rootPreMotionVelocity->top = rootVel.top;
-		msArticulation.rootPreMotionVelocity->bottom = rootVel.bottom;
 
 		//velocities contributed by joint velocities
 		dofs = articulationDofBlocks;
@@ -1008,11 +1012,29 @@ static __device__ void computeUnconstrainedVelocitiesInternal1T(const PxgBodySim
 			const PxU32 dof = linkBlock.mDofs[threadIndexInWarp];
 
 			Cm::UnAlignedSpatialVector linkVelocity = loadSpatialVector(articulationLinkBlocks[parent].mMotionVelocity, threadIndexInWarp);
-			const PxVec3 pBody2World = loadPxVec3(articulationLinkBlocks[parent].mAccumulatedPose.p, threadIndexInWarp);
 
 			storeSpatialTransform(linkBlock.mPreTransform, threadIndexInWarp, body2World);
 
-			const PxVec3 rw = body2World.p - pBody2World;
+			// OMPE-94459: precision-clean Rw. The legacy
+			// `rw = body2World.p - parent.world.p` subtracts two world-scale
+			// floats; ULP imprecision grows with world-coord magnitude
+			// (~1.5e-5 at 100m). Stored mRw feeds Coriolis, motion-accel
+			// translation, and impulse propagation, so eliminating this
+			// precision floor breaks the amplification chain that drove body-
+			// local divergence at large world coords. computeLinkRw rebuilds Rw
+			// from the stored world orientations and link-local anchor offsets,
+			// touching no world-scale positions.
+			//
+			// Prismatic uses the joint position for its slide term. Ordering
+			// invariant: that joint state and the link poses read here must be
+			// mutually consistent at this point. If a future direct-GPU-API
+			// joint-position write (eDIRTY_POSITIONS) ever reaches
+			// computeUnconstrainedVelocities before the kinematic-update forward
+			// pass runs, the prismatic slide would diverge from the integrated
+			// pose. Keep this recompute after that forward pass.
+			const float4 pq = articulationLinkBlocks[parent].mAccumulatedPose.q[threadIndexInWarp];
+			const PxQuat parentQW(pq.x, pq.y, pq.z, pq.w);
+			const PxVec3 rw = computeLinkRwGpu(linkBlock, parentQW, body2World.q, dofs, threadIndexInWarp);
 			linkBlock.mRw_x[threadIndexInWarp] = rw.x;
 			linkBlock.mRw_y[threadIndexInWarp] = rw.y;
 			linkBlock.mRw_z[threadIndexInWarp] = rw.z;
@@ -1189,7 +1211,7 @@ static __device__ void computeSpatialInertiaW(const PxgArticulation& msArticulat
 				Cm::UnAlignedSpatialVector deltaV = Cm::UnAlignedSpatialVector::Zero();
 				for (PxU32 ind = 0; ind < nbDofs; ++ind)
 				{
-					PxReal jVel = dofs[ind].mJointVelocities[threadIndexInWarp];
+					const PxReal jVel = dofs[ind].mJointVelocities[threadIndexInWarp];
 					deltaV += loadSpatialVector(dofs[ind].mWorldMotionMatrix, threadIndexInWarp) * jVel;
 				}
 
@@ -1267,10 +1289,7 @@ static __device__ void computeSpatialInertiaW(const PxgArticulation& msArticulat
 		Cm::UnAlignedSpatialVector zExtToStore;
 		if(isExternalForcesEveryTgsIterationEnabled)
 		{
-			// Contrary to the CPU version, where we can just re-use the externalAcceleration buffer to store
-			// the isolated external Z forces, we cannot do this here because the externalAccelerations is only
-			// refreshed on demand if something changes, so we must not override it. Instead, we write into the zAForces
-			// buffer, which otherwise just serves as a scratch space.
+			// The isolated external Z forces are stored in the zAForces buffer, which otherwise just serves as a scratch space.
 			// We could consider also applying the internal forces per substep, in which case we can even use the linkData.mZAVector (PX-4793)
 			externalZIsolated[linkID] = zExt;
 			zExtToStore = zDamp;
@@ -1280,11 +1299,8 @@ static __device__ void computeSpatialInertiaW(const PxgArticulation& msArticulat
 			zExtToStore = zDamp + zExt;
 		}
 
-		//KS - we store in 2x places because we need the bias force afterwards to compute the articulated
-		//transmission force
 		storeSpatialVector(linkData.mZAVector, zExtToStore, threadIndexInWarp);
 		storeSpatialVector(linkData.mZAIntVector, zInt, threadIndexInWarp);
-		storeSpatialVector(linkData.mBiasForce, zExtToStore + zInt, threadIndexInWarp);
 
 		linkData.mMass[threadIndexInWarp] = m;
 	}
@@ -1337,7 +1353,7 @@ static __device__ PX_FORCE_INLINE void computeIs(
 	PxgArticulationBlockDofData* dofData,
 	PxgArticulationBlockLinkData& linkData,
 	const PxU32 threadIndexInWarp)
-{	
+{
 	assert(dofs<=3);
 	for (PxU32 ind = 0; ind < 3; ++ind)
 	{
@@ -1353,23 +1369,22 @@ static __device__ PX_FORCE_INLINE void computeIs(
 static __device__ SpatialMatrix constructSpatialMatrix(const Cm::UnAlignedSpatialVector& Is, const Cm::UnAlignedSpatialVector& stI)
 {
 	//construct top left
-	PxVec3 tLeftC0 = Is.top * stI.top.x;
-	PxVec3 tLeftC1 = Is.top * stI.top.y;
-	PxVec3 tLeftC2 = Is.top * stI.top.z;
-
-	PxMat33 topLeft(tLeftC0, tLeftC1, tLeftC2);
+	const PxVec3 tLeftC0 = Is.top * stI.top.x;
+	const PxVec3 tLeftC1 = Is.top * stI.top.y;
+	const PxVec3 tLeftC2 = Is.top * stI.top.z;
+	const PxMat33 topLeft(tLeftC0, tLeftC1, tLeftC2);
 
 	//construct top right
-	PxVec3 tRightC0 = Is.top * stI.bottom.x;
-	PxVec3 tRightC1 = Is.top * stI.bottom.y;
-	PxVec3 tRightC2 = Is.top * stI.bottom.z;
-	PxMat33 topRight(tRightC0, tRightC1, tRightC2);
+	const PxVec3 tRightC0 = Is.top * stI.bottom.x;
+	const PxVec3 tRightC1 = Is.top * stI.bottom.y;
+	const PxVec3 tRightC2 = Is.top * stI.bottom.z;
+	const PxMat33 topRight(tRightC0, tRightC1, tRightC2);
 
 	//construct bottom left
-	PxVec3 bLeftC0 = Is.bottom * stI.top.x;
-	PxVec3 bLeftC1 = Is.bottom * stI.top.y;
-	PxVec3 bLeftC2 = Is.bottom * stI.top.z;
-	PxMat33 bottomLeft(bLeftC0, bLeftC1, bLeftC2);
+	const PxVec3 bLeftC0 = Is.bottom * stI.top.x;
+	const PxVec3 bLeftC1 = Is.bottom * stI.top.y;
+	const PxVec3 bLeftC2 = Is.bottom * stI.top.z;
+	const PxMat33 bottomLeft(bLeftC0, bLeftC1, bLeftC2);
 
 	return SpatialMatrix(topLeft, topRight, bottomLeft);
 }
@@ -1388,6 +1403,7 @@ static __device__ SpatialMatrix constructSpatialMatrix(const Cm::UnAlignedSpatia
 static __device__ Dy::SpatialMatrix computePropagateSpatialInertia_ZA_ZIc(PxgArticulationBlockLinkData& linkData,
 	PxgArticulationBlockDofData* dofData,
 	const Cm::UnAlignedSpatialVector* const PX_RESTRICT msIs, 
+	bool isExternalForcesEveryTgsIterationEnabled,
 	const PxReal* const PX_RESTRICT jF, // can be NULL in which case assume zero joint forces
 	const Cm::UnAlignedSpatialVector& Z,
 	const Cm::UnAlignedSpatialVector& ZIcInt,
@@ -1424,9 +1440,10 @@ static __device__ Dy::SpatialMatrix computePropagateSpatialInertia_ZA_ZIc(PxgArt
 		//link.qstZIc[ind] = jF[ind] - stZ;
 		//const PxReal qstZic = jF[0] - stZ;
 		const PxReal qstZ = -stZ;
-		const PxReal qstZIcInternal = (jF ? jF[0] : 0.0f) - stZInt;
+		const PxReal qstZIcInternal = (!isExternalForcesEveryTgsIterationEnabled && jF ? jF[0] : 0.0f) - stZInt;
 		dofData[0].mQstZ[threadIndexInWarp] = qstZ;
 		dofData[0].mQstZIcInternal[threadIndexInWarp] = qstZIcInternal;
+		dofData[0].mConstraintData.mExternalEffort[threadIndexInWarp] = jF? jF[0] : 0.0;
 
 		ZA += isInvD * qstZ;
 		ZAInt += isInvD * qstZIcInternal;
@@ -1461,11 +1478,12 @@ static __device__ Dy::SpatialMatrix computePropagateSpatialInertia_ZA_ZIc(PxgArt
 
 				//link.qstZIc[ind] = jF[ind] - stZ;
 				const PxReal qstZ = -stZ;
-				const PxReal qstZicInt = (jF ? jF[ind2] : 0.0f) - stZInt;
+				const PxReal qstZicInt = (!isExternalForcesEveryTgsIterationEnabled && jF ? jF[ind2] : 0.0f) - stZInt;
 				qstZG[ind2] = qstZ;
 				qstZIcIntG[ind2] = qstZicInt;
 				dofData[ind2].mQstZ[threadIndexInWarp] = qstZ;
 				dofData[ind2].mQstZIcInternal[threadIndexInWarp] = qstZicInt;
+				dofData[ind2].mConstraintData.mExternalEffort[threadIndexInWarp] = jF ? jF[ind2] : 0.0f;
 			}
 		}
 
@@ -1606,10 +1624,10 @@ static __device__ void computeArticulatedSpatialInertiaW(
 		Cm::UnAlignedSpatialVector translatedZA = spatialZA;
 		Cm::UnAlignedSpatialVector translatedZAInt = ZIcInt;
 
-		const PxReal* const PX_RESTRICT jF = isExternalForcesEveryTgsIterationEnabled ? NULL : &jointForces[jointOffset];
+		const PxReal* const PX_RESTRICT jF = &jointForces[jointOffset];
 
 		computeIs(dof, articulatedInertia, msIs, dofData, blockData, threadIdx.x);
-		Dy::SpatialMatrix spatialInertiaW = articulatedInertia - computePropagateSpatialInertia_ZA_ZIc(blockData, dofData, msIs, jF, spatialZA, ZIcInt, translatedZA, translatedZAInt, threadIdx.x, linkID);
+		Dy::SpatialMatrix spatialInertiaW = articulatedInertia - computePropagateSpatialInertia_ZA_ZIc(blockData, dofData, msIs, isExternalForcesEveryTgsIterationEnabled, jF, spatialZA, ZIcInt, translatedZA, translatedZAInt, threadIdx.x, linkID);
 
 		//accumulate childen's articulated zero acceleration force to parent's articulated zero acceleration
 		translateSpatialVectorInPlace(PxVec3(rwx, rwy, rwz), translatedZA);
@@ -1617,9 +1635,6 @@ static __device__ void computeArticulatedSpatialInertiaW(
 
 		storeSpatialVector(linkBlockData[parent].mZAVector, parentZAVector + translatedZA, threadIndexInWarp);
 		storeSpatialVector(linkBlockData[parent].mZAIntVector, parentZAIntVector + translatedZAInt, threadIndexInWarp);
-
-		const Cm::UnAlignedSpatialVector pSpatialZA = loadSpatialVector(linkBlockData[parent].mZAVector, threadIndexInWarp);
-		const Cm::UnAlignedSpatialVector pspatialZAInt = loadSpatialVector(linkBlockData[parent].mZAIntVector, threadIndexInWarp);
 
 		//transform spatial inertia into parent space
 		translateInertia(constructSkewSymmetricMatrix(make_float4(rwx, rwy, rwz, 0.f)), spatialInertiaW);
@@ -1680,26 +1695,6 @@ extern "C" __global__ void computeUnconstrainedSpatialInertiaLaunch1T(
 		computeArticulatedSpatialInertiaW(numLinks, linkBlockData, dofBlockData, *articulationBlocks, articulation.jointForce,
 											scDesc->isExternalForcesEveryTgsIterationEnabled, threadIndexInWarp);
 	}
-}
-
-static __device__ Cm::UnAlignedSpatialVector propagateImpulseW_2(const Cm::UnAlignedSpatialVector* isInvD, const PxVec3& childToParent,
-	const Cm::UnAlignedSpatialVector* motionMatrix, const Cm::UnAlignedSpatialVector& Z, const PxU32 dofCount, PxReal* qstZ)
-{
-	Cm::UnAlignedSpatialVector temp = Z;
-
-#pragma unroll (3)
-	for (PxU32 ind = 0; ind < 3; ++ind)
-	{
-		if (ind < dofCount)
-		{
-			const PxReal stZ = -motionMatrix[ind].innerProduct(Z);
-			qstZ[ind] += stZ;
-			temp += isInvD[ind] * stZ;
-		}
-	}
-
-	//parent space's spatial zero acceleration impulse
-	return FeatherstoneArticulation::translateSpatialVector(childToParent, temp);
 }
 
 static __device__ PX_FORCE_INLINE void writeMatrix(const PxSpatialMatrix& matrix, PxSpatialMatrix* dstMatrix, 
@@ -1910,11 +1905,11 @@ extern "C" __global__ void computeMassMatrix1T(const PxgArticulationCoreDesc* co
 
 					PxReal qstZ[3] = { 0.f, 0.f, 0.f };
 					//(1) Propagate impulse to parent
-					const Cm::UnAlignedSpatialVector Zp = propagateImpulseW_2(isInvD, rw, motionV, vec, dof, qstZ);
+					const Cm::UnAlignedSpatialVector Zp = propagateImpulseW_everythingPreLoaded(isInvD, rw, motionV, vec, dof, qstZ);
 
 					//(2) Get deltaV response for parent
 					const Cm::UnAlignedSpatialVector Zr = -(parentResponse * Zp);
-					const Cm::UnAlignedSpatialVector deltaV = propagateAccelerationW(rw, invStIsT, motionV, Zr, dof, isW, qstZ);
+					const Cm::UnAlignedSpatialVector deltaV = propagateAccelerationW_everythingPreLoaded(rw, invStIsT, motionV, Zr, dof, isW, qstZ);
 
 					response.column[i][0] = deltaV.top.x; response.column[i][1] = deltaV.top.y; response.column[i][2] = deltaV.top.z;
 					response.column[i][3] = deltaV.bottom.x; response.column[i][4] = deltaV.bottom.y; response.column[i][5] = deltaV.bottom.z;
@@ -2044,7 +2039,7 @@ static __device__ void computeLinkAcceleration(PxgArticulationBlockData& PX_REST
 			PxReal jAccel = 0.f;
 			if (ind < dofs)
 			{
-				jAccel = qstZ[ind] - isWs[ind].innerProduct(pMotionAcceleration);;
+				jAccel = qstZ[ind] - isWs[ind].innerProduct(pMotionAcceleration);
 			}
 			tJAccel[ind] = jAccel;
 		}
@@ -2322,45 +2317,6 @@ static __device__ void computeLinkAcceleration(PxgArticulationBlockData& PX_REST
 	}
 }
 
-static void __device__ computeJointTransmittedFrictionForce(PxgArticulationBlockLinkData* artiLinks, PxU32 nbLinks,
-	const PxU32 threadIndexInWarp)
-{
-	//const PxU32 linkCount = data.getLinkCount();
-	const PxU32 startIndex = nbLinks - 1;
-
-	for (PxU32 linkID = startIndex; linkID > 0; --linkID)
-	{
-		PxgArticulationBlockLinkData& link = artiLinks[linkID];
-		const PxU32 parent = link.mParents[threadIndexInWarp];
-		const Cm::UnAlignedSpatialVector biasForce = loadSpatialVector(artiLinks[parent].mBiasForce, threadIndexInWarp);
-
-		const float rwx = link.mRw_x[threadIndexInWarp];
-		const float rwy = link.mRw_y[threadIndexInWarp];
-		const float rwz = link.mRw_z[threadIndexInWarp];
-
-		const float4 invInertiaXYZ_invMassW = link.mInvInertiaXYZ_invMassW[threadIndexInWarp];
-		const float4 q = link.mAccumulatedPose.q[threadIndexInWarp];
-		PxQuat rot(q.x, q.y, q.z, q.w);
-		const PxReal m = invInertiaXYZ_invMassW.w == 0.f ? 0.f : 1.f/ invInertiaXYZ_invMassW.w;
-		const PxVec3 inertia(invInertiaXYZ_invMassW.x == 0.f ? 0.f : 1.f / invInertiaXYZ_invMassW.x,
-			invInertiaXYZ_invMassW.y == 0.f ? 0.f : 1.f / invInertiaXYZ_invMassW.y, 
-			invInertiaXYZ_invMassW.z == 0.f ? 0.f : 1.f / invInertiaXYZ_invMassW.z);
-
-		const Cm::UnAlignedSpatialVector motionAcceleration = loadSpatialVector(link.mMotionAcceleration, threadIndexInWarp)
-			+ loadSpatialVector(link.mMotionAccelerationInternal, threadIndexInWarp);
-		Cm::UnAlignedSpatialVector Ia = loadSpatialVector(link.mBiasForce, threadIndexInWarp);
-		Ia.bottom += rot.rotate(rot.rotateInv(motionAcceleration.top).multiply(inertia));
-		Ia.top += motionAcceleration.bottom * m;
-
-		storeSpatialVector(link.mBiasForce, Ia, threadIndexInWarp);
-
-		storeSpatialVector(artiLinks[parent].mBiasForce, biasForce + FeatherstoneArticulation::translateSpatialVector(PxVec3(rwx, rwy, rwz),
-			Ia), threadIndexInWarp);
-	}
-
-	storeSpatialVector(artiLinks[0].mBiasForce, Cm::UnAlignedSpatialVector::Zero(), threadIndexInWarp);
-}
-
 extern "C" __global__ void computeUnconstrainedAccelerationsLaunch1T(
 	PxgArticulationCoreDesc* scDesc)
 {
@@ -2386,8 +2342,6 @@ extern "C" __global__ void computeUnconstrainedAccelerationsLaunch1T(
 
 		//compute link accelerations and velocities
 		computeLinkAcceleration(articulation, linkData, dofData, numLinks, scDesc->dt, threadIndexInWarp);
-
-		computeJointTransmittedFrictionForce(linkData, numLinks, threadIndexInWarp);
 	}
 }
 
@@ -2466,7 +2420,7 @@ static __device__ void computeAndEnforceJointPositions(
 	{
 		PxgArticulationBlockLinkData& link = linkData[linkID];
 		PxU8 jointType = link.mJointType[threadIndexInWarp];
-		PxU8 jointOffset = link.mJointOffset[threadIndexInWarp];
+		const PxU32 jointOffset = link.mJointOffset[threadIndexInWarp];
 
 		PxgArticulationBlockDofData* dof = &dofData[jointOffset];
 		// We don't need to deal with eREVOLUTE_UNWRAPPED case because there are no joint position changed
@@ -2482,21 +2436,6 @@ static __device__ void computeAndEnforceJointPositions(
 			jPos = PxClamp(jPos, -PxTwoPi * 2.f, PxTwoPi * 2.f);
 
 			dof->mJointPositions[threadIndexInWarp] = jPos;
-		}
-		else if (jointType == PxArticulationJointType::ePRISMATIC)
-		{
-			if (dof->mMotion[threadIndexInWarp] == PxArticulationMotion::eLIMITED)
-			{
-				float2 limits_LowX_highY = dof->mConstraintData.mLimits_LowLimitX_highLimitY[threadIndexInWarp];
-				PxReal jPosition = dof->mJointPositions[threadIndexInWarp];
-				if (jPosition < limits_LowX_highY.x)
-					jPosition = limits_LowX_highY.x;
-
-				if (jPosition > limits_LowX_highY.y)
-					jPosition = limits_LowX_highY.y;
-
-				dof->mJointPositions[threadIndexInWarp] = jPosition;
-			}
 		}
 		else if (jointType == PxArticulationJointType::eSPHERICAL)
 		{
@@ -2569,9 +2508,6 @@ static __device__ void propagateLink(PxTransform& PX_RESTRICT body2World, const 
 
 		const PxReal pos = dof[0].mJointPositions[threadIndexInWarp] + delta;
 		dof[0].mJointPositions[threadIndexInWarp] = pos;
-
-		//KS - TODO - requires some plumbing!
-		//enforcePrismaticLimits(jPosition, joint);
 
 		newParentToChild = relativeQuat;
 		const Cm::UnAlignedSpatialVector motionMatrix = loadSpatialVector(dof[0].mLocalMotionMatrix, threadIndexInWarp);
@@ -2858,7 +2794,7 @@ static void __device__ conserveMomentum(PxgArticulationBlockData& articulation,
 			{
 				if(ind<dofs)
 				{
-					PxReal jVel = artiDofs[jointOffset + ind].mJointVelocities[threadIndexInWarp];
+					const PxReal jVel = artiDofs[jointOffset + ind].mJointVelocities[threadIndexInWarp];
 					//deltaV += data.mWorldMotionMatrix[jointDatum.jointOffset + ind] * jVel;
 					vel += loadSpatialVector(artiDofs[jointOffset + ind].mLocalMotionMatrix, threadIndexInWarp).rotate(childPose) * jVel;
 				}
@@ -2896,7 +2832,7 @@ static void __device__ conserveMomentum(PxgArticulationBlockData& articulation,
 			}
 
 			const PxVec3 offset = pose.p - postCOM;
-			PxMat33 R(pose.q);
+			const PxMat33 R(pose.q);
 			const PxVec3 offsetMass = offset * mass;
 
 			PxMat33 inertia;
@@ -3050,6 +2986,51 @@ static __device__ void updateBodiesInternal(
 	}
 }
 
+// Under eENABLE_EXTERNAL_FORCES_EVERY_ITERATION_TGS, articulation.zAForces[link] holds
+// only the per-link isolated external Z (gravity + user accelerations). The substep kernel
+// artiApplyTgsSubstepForces propagates these per-substep through joint dofs, so per-link
+// storage is what the substep needs. The end-of-step joint force readback in
+// updateBodiesLaunch_Part2, however, needs the cumulative external Z chain at each link
+// (own + propagated descendants) because mZAVector excludes external Z under TGS-ext.
+// zAForces[] is overwritten at the start of the next sim step in computeSpatialInertiaW,
+// so cumulative state does not leak across frames.
+//
+// The leaves->root sweep uses propagateImpulseW (no joint impulse) so each joint's free
+// DOFs are projected out of the propagated wrench - same pattern as artiApplyTgsSubstepForces
+// and the prep-time backward sweep. Without this projection, free axes (e.g. prismatic slide
+// axis aligned with gravity) would over-report a transmitted force where the descendants are
+// actually free-falling along that DOF. WriteToProvidedQstZ + providedQstZ=NULL is the no-op
+// variant: the propagation arithmetic still runs, but the per-DOF QstZ accumulation is skipped.
+static __device__ void accumulateExternalZAcrossChainW(
+	const PxgArticulation& articulation,
+	const PxgArticulationBlockLinkData* PX_RESTRICT linkData,
+	PxgArticulationBlockDofData* PX_RESTRICT dofData,
+	const PxU32 numLinks,
+	const PxU32 threadIndexInWarp)
+{
+	Cm::UnAlignedSpatialVector* PX_RESTRICT zAForces = articulation.zAForces;
+	for (PxU32 linkID = numLinks - 1; linkID > 0; --linkID)
+	{
+		const PxgArticulationBlockLinkData& blockData = linkData[linkID];
+		const PxU32 parent = blockData.mParents[threadIndexInWarp];
+		const float rwx = blockData.mRw_x[threadIndexInWarp];
+		const float rwy = blockData.mRw_y[threadIndexInWarp];
+		const float rwz = blockData.mRw_z[threadIndexInWarp];
+		const PxU32 dofCount = blockData.mDofs[threadIndexInWarp];
+		const PxU32 jointOffset = blockData.mJointOffset[threadIndexInWarp];
+
+		const Cm::UnAlignedSpatialVector childZ = zAForces[linkID];
+		const Cm::UnAlignedSpatialVector translated =
+			propagateImpulseW<WriteToProvidedQstZ>(
+				PxVec3(rwx, rwy, rwz),
+				&dofData[jointOffset],
+				childZ,
+				dofCount, threadIndexInWarp,
+				NULL, 1.0f, NULL);
+		zAForces[parent] += translated;
+	}
+}
+
 extern "C" __global__ void updateBodiesLaunch1T(
 	const PxgArticulationCoreDesc* const PX_RESTRICT scDesc,
 	PxReal dt, bool integrate)
@@ -3077,6 +3058,14 @@ extern "C" __global__ void updateBodiesLaunch1T(
 		else
 			updateBodiesInternal<false>(articulation, linkData, dofData, dt, threadIndexInWarp, scDesc,
 				maxLinks, maxDofs, globalThreadIndex, nbArticulations);
+
+		if (scDesc->isExternalForcesEveryTgsIterationEnabled)
+		{
+			const PxU32 articulationIndex = articulation.mArticulationIndex[threadIndexInWarp];
+			const PxgArticulation& arti = scDesc->articulations[articulationIndex];
+			const PxU32 linkCount = articulation.mNumLinks[threadIndexInWarp];
+			accumulateExternalZAcrossChainW(arti, linkData, dofData, linkCount, threadIndexInWarp);
+		}
 	}
 }
 
@@ -3127,7 +3116,7 @@ extern "C" __global__ void updateBodiesLaunch_Part2(
 			Cm::UnAlignedSpatialVector* linkIncomingJointForces = articulation.linkIncomingJointForces;
 
 			if(linkIndex==0)
-			{	
+			{
 				const Cm::SpatialVectorF linkMotionAccelerationW = loadSpatialVectorF(linkData[0].mMotionAcceleration, threadIndexInWarp);
 				const Cm::SpatialVectorF linkSpatialDeltaVelW = loadSpatialVectorF(linkData[0].mSolverSpatialDeltaVel, threadIndexInWarp);
 
@@ -3142,8 +3131,21 @@ extern "C" __global__ void updateBodiesLaunch_Part2(
 				linkIncomingJointForces[0].bottom = PxVec3(PxZero);
 			}
 			else
-			{	
-				const Cm::SpatialVectorF linkZAForceExtW = loadSpatialVectorF(linkData[linkIndex].mZAVector, threadIndexInWarp);
+			{
+				Cm::SpatialVectorF linkZAForceExtW = loadSpatialVectorF(linkData[linkIndex].mZAVector, threadIndexInWarp);
+				if (scDesc->isExternalForcesEveryTgsIterationEnabled)
+				{
+					// Under eENABLE_EXTERNAL_FORCES_EVERY_ITERATION_TGS, computeSpatialInertiaW
+					// splits the external Z (gravity + user accelerations) out of mZAVector
+					// into articulation.zAForces[] so it can be re-applied each substep
+					// (mZAVector keeps only zDamp). The leaves->root sweep in updateBodiesLaunch1T
+					// accumulates descendants' contributions into articulation.zAForces[link] just
+					// before this kernel runs, so adding it back here recovers the full external-Z
+					// chain (own + propagated descendants) for the readback.
+					const Cm::UnAlignedSpatialVector zExtChain = articulation.zAForces[linkIndex];
+					linkZAForceExtW.top += zExtChain.top;
+					linkZAForceExtW.bottom += zExtChain.bottom;
+				}
 				const Cm::SpatialVectorF linkZAForceIntW = loadSpatialVectorF(linkData[linkIndex].mZAIntVector, threadIndexInWarp);
 				const Cm::SpatialVectorF linkMotionAccelerationExtW = loadSpatialVectorF(linkData[linkIndex].mMotionAcceleration, threadIndexInWarp);
 				const Cm::SpatialVectorF linkMotionAccelerationIntW = loadSpatialVectorF(linkData[linkIndex].mMotionAccelerationInternal, threadIndexInWarp);
@@ -3161,7 +3163,7 @@ extern "C" __global__ void updateBodiesLaunch_Part2(
 
 				//Compute the force measured at the link.
 				Cm::SpatialVectorF incomingJointForceW =
-					linkSpatialInertiaW*accelerationW + 
+					linkSpatialInertiaW*accelerationW +
 					(linkZAForceExtW + linkZAForceIntW + linkSpatialImpulseW*invDt);	// PT: at link
 
 				//Compute the equivalent force measured at the joint.
@@ -3197,12 +3199,15 @@ extern "C" __global__ void updateBodiesLaunch_Part2(
 			if (!integrate)
 				posMotionV *= invDt;
 
-			//each thread produce a wc
-			sleepCheck1T(gSleepData[linkIndex], lwc, accumulatedPose,
-				posMotionV.bottom, posMotionV.top, dt, sleepThreshold,
-				inverseInertiaXYZ_invMass);
+			if (!scDesc->isSleepingDisabled)
+			{
+				//each thread produce a wc
+				sleepCheck1T(gSleepData[linkIndex], lwc, accumulatedPose,
+					posMotionV.bottom, posMotionV.top, dt, sleepThreshold,
+					inverseInertiaXYZ_invMass);
 
-			gLinkWakeCounters[linkIndex] = lwc;
+				gLinkWakeCounters[linkIndex] = lwc;
+			}
 		}
 	}
 }
@@ -3459,7 +3464,7 @@ extern "C" __global__ void artiComputeDependencies(PxgArticulationCoreDesc* scDe
 			//Output for this partition. This part is where to propagate up for this link
 			if (nextPartition < nbPartitions)
 			{
-				const PxU32 offset = globalWarpIndex + nextPartition * nbArticulationBatchPerPartition * wordSize;
+				const PxU32 offset = (globalWarpIndex + nextPartition * nbArticulationBatchPerPartition) * wordSize;
 				PxgArticulationBitFieldStackData* pathToRootPerPartition = &scDesc->mPathToRootsPerPartition[offset];
 
 				for (PxU32 j = 0; j < wordSize; ++j)
@@ -3498,10 +3503,11 @@ extern "C" __global__ void artiApplyTgsSubstepForces(PxgArticulationCoreDesc* sc
 
 	if(globalThreadIndex < nbArticulations)
 	{
-		const PxgArticulation& articulation = scDesc->articulations[globalThreadIndex];
+		PxgArticulationBlockData& articulationBlock = scDesc->mArticulationBlocks[globalWarpIndex];
+		const PxU32 articulationIndex = articulationBlock.mArticulationIndex[threadIndexInWarp];
+		const PxgArticulation& articulation = scDesc->articulations[articulationIndex];
 		const Cm::UnAlignedSpatialVector* PX_RESTRICT zExt = articulation.zAForces;
 		const PxReal* PX_RESTRICT jointForces = articulation.jointForce;
-		PxgArticulationBlockData& articulationBlock = scDesc->mArticulationBlocks[globalWarpIndex];
 		PxgArticulationBlockLinkData* artiLinks = &scDesc->mArticulationLinkBlocks[globalWarpIndex * maxLinks];
 		PxgArticulationBlockDofData* artiDofs = &scDesc->mArticulationDofBlocks[globalWarpIndex * maxDofs];
 		const PxU32 numLinks = articulationBlock.mNumLinks[threadIndexInWarp];
@@ -3536,7 +3542,7 @@ extern "C" __global__ void artiApplyTgsSubstepForces(PxgArticulationCoreDesc* sc
 			    isolatedYW * stepDt + loadSpatialVector(linkData.mScratchImpulse, threadIndexInWarp);
 
 			Cm::UnAlignedSpatialVector propagatedYWParent =
-			    propagateImpulseW_0(PxVec3(rwx, rwy, rwz), dofData, articulatedYW, dofCount, threadIndexInWarp, jointForce, stepDt);
+			    propagateImpulseW<WriteToDeferredQstZ>(PxVec3(rwx, rwy, rwz), dofData, articulatedYW, dofCount, threadIndexInWarp, jointForce, stepDt);
 
 			if(parent > 0 || !isFixedBase)
 				addSpatialVector(artiLinks[parent].mScratchImpulse, propagatedYWParent, threadIndexInWarp);
@@ -3611,7 +3617,7 @@ __device__ void artiPropagateImpulses2(PxgArticulationCoreDesc* scDesc,
 					const PxU32 nbArticulationBatchPerPartition = (nbArticulations + 31) / 32;
 					const PxU32 wordSize = (maxLinks + 63) / 64;
 
-					const PxU32 offset2 = globalWarpIndex + partitionId * nbArticulationBatchPerPartition * wordSize;
+					const PxU32 offset2 = (globalWarpIndex + partitionId * nbArticulationBatchPerPartition) * wordSize;
 
 					// Counting the number of active slabs used in contacts and joints.
 					// The split mass used in contacts and joints is tied back here.
@@ -3769,34 +3775,6 @@ extern "C" __global__ void artiPropagateVelocityTGS(PxgArticulationCoreDesc* PX_
 }
 
 
-extern "C" __global__ void dmaArticulationResidual(PxgArticulationCoreDesc* scDesc, Dy::ErrorAccumulator* errorPinnedHost)
-{
-	const PxU32 globalThreadIdx = threadIdx.x + blockIdx.x * blockDim.x;
-	 
-	const PxNodeIndex* gIslandNodeIndex = scDesc->islandNodeIndices;
-	const PxgBodySim* gBodySim = scDesc->mBodySimBufferDeviceData;
-	const PxU32 articulationOffset = scDesc->articulationOffset;
-	const PxgArticulation* articulations = scDesc->articulations;
-
-	const PxU32 nbArticulations = scDesc->nbArticulations;
-
-	if (globalThreadIdx < nbArticulations)
-	{
-		const PxU32 nodeIndex = gIslandNodeIndex[globalThreadIdx + articulationOffset].index();
-
-		const PxgBodySim& bodySim = gBodySim[nodeIndex];
-
-		const PxU32 index = bodySim.articulationRemapId;
-
-		const PxgArticulation& articulation = articulations[index];
-
-		assert(index < nbArticulations);		
-		errorPinnedHost[index] = articulation.internalResidualAccumulator; //Copies the position iteration residual because this kernel runs after the position iterations and before the velocity iterations
-		errorPinnedHost[index + nbArticulations] = articulation.contactResidualAccumulator;
-	}
-}
-
-
 extern "C" __global__ void dmaBackArticulationDataLaunch(
 	PxgArticulationCoreDesc* scDesc,
 	PxgArticulationOutputDesc* outputDesc)
@@ -3814,9 +3792,6 @@ extern "C" __global__ void dmaBackArticulationDataLaunch(
 	PxgSolverBodySleepData* gArticulationSleepData = scDesc->articulationSleepData;
 	PxU32 articulationOffset = scDesc->articulationOffset;
 	PxgArticulation* articulations = scDesc->articulations;
-
-	if (globalThreadIndex == 0 && outputDesc->contactResidualAccumulator)
-		outputDesc->contactResidualAccumulator[0] = scDesc->mContactErrorAccumulator;
 
 	if (globalThreadIndex < nbArticulations)
 	{
@@ -3844,11 +3819,6 @@ extern "C" __global__ void dmaBackArticulationDataLaunch(
 		const PxU32 index = bodySim.articulationRemapId;
 
 		PxgArticulation& articulation = articulations[index];
-		if (outputDesc->errorAccumulator) 
-		{
-			outputDesc->errorAccumulator[index] = articulation.internalResidualAccumulator; //Copies the velocity iteration residual because this kernel runs at the end of the solver
-			outputDesc->errorAccumulator[index + nbArticulations] = articulation.contactResidualAccumulator;
-		}
 
 		//copy from buffers unique to each articulation to a single buffer for the entire scene.
 
@@ -3974,7 +3944,7 @@ extern "C" __global__ void stepArticulation1TTGS(const PxgArticulationCoreDesc* 
 			//deltaLin += deltaVelLin*dt; deltaAng += deltaVelAng*dt.
 			//In the limit that dt tends towards zero, these two methods should give the same outcome.
 			//currPos - origPos was found to accumulate more numeric noise.
-			//https://nvidia-omniverse.atlassian.net/browse/PX-3638
+			//PX-3638
 			//Computing dqAxis and dqAngle is likely more expensive than integrating the angular velocity.
 			deltaMotionVel *= stepDt;
 			deltaMotion += deltaMotionVel;
@@ -4001,27 +3971,38 @@ static void __device__ PxcFsFlushVelocity(PxgArticulationBlockData& articulation
 {
 	Cm::UnAlignedSpatialVector deltaV = Cm::UnAlignedSpatialVector::Zero();
 	Cm::UnAlignedSpatialVector deferredZ = -loadSpatialVector(articulation.mRootDeferredZ, threadIndexInWarp);
+
+	// For fixed-base, mMotionVelocity[0] is zero by invariant; skip the load and
+	// publish zero to outVelocity below. Non-fixed-base loads + integrates.
+	Cm::UnAlignedSpatialVector vel = Cm::UnAlignedSpatialVector::Zero();
+
 	if (!fixBase)
 	{
+		vel = loadSpatialVector(artiLinks[0].mMotionVelocity, threadIndexInWarp);
+
+		// Accumulate root mSolverSpatialDeltaVel: parity with PxcFsFlushVelocity in
+		// articulationDynamic.cuh. Without it, mSolverSpatialDeltaVel stays at zero on every
+		// articulation flushed via this path, and joint-force readback returns stale data.
+		const Cm::UnAlignedSpatialVector solverSpatialDeltaVel0 = loadSpatialVector(artiLinks[0].mSolverSpatialDeltaVel, threadIndexInWarp);
+
 		Dy::SpatialMatrix invInertia;
 		loadSpatialMatrix(articulation.mInvSpatialArticulatedInertia, threadIndexInWarp, invInertia);
 		//deltaV = invInertia * (-loadSpatialVector(artiLinks[0].mDeferredZ, threadIndexInWarp));
 
 		deltaV = invInertia * deferredZ;
 
-		Cm::UnAlignedSpatialVector vel = loadSpatialVector(artiLinks[0].mMotionVelocity, threadIndexInWarp);
-
 		vel += deltaV;
-
-		//output velocity to the solver outArtiVelocity buffer
-		outVelocity[0] = make_float4(vel.bottom.x, vel.bottom.y, vel.bottom.z, 0.f);
-		outVelocity[offset] = make_float4(vel.top.x, vel.top.y, vel.top.z, 0.f);
 
 		//store back vel to block velocity data
 		storeSpatialVector(artiLinks[0].mMotionVelocity, vel, threadIndexInWarp);
 
 		storeSpatialVector(articulation.mRootDeferredZ, Cm::UnAlignedSpatialVector::Zero(), threadIndexInWarp);
+
+		storeSpatialVector(artiLinks[0].mSolverSpatialDeltaVel, solverSpatialDeltaVel0 + deltaV, threadIndexInWarp);
 	}
+
+	outVelocity[0] = make_float4(vel.bottom.x, vel.bottom.y, vel.bottom.z, 0.f);
+	outVelocity[offset] = make_float4(vel.top.x, vel.top.y, vel.top.z, 0.f);
 
 	storeSpatialVector(artiLinks[0].mScratchDeltaV, deltaV, threadIndexInWarp);
 	addSpatialVector(artiLinks[0].mConstraintForces, deferredZ, threadIndexInWarp);
@@ -4042,6 +4023,9 @@ static void __device__ PxcFsFlushVelocity(PxgArticulationBlockData& articulation
 			const PxU32 nbDofs = nextNbDofs;
 			const PxU32 parent = nextParent;
 
+			// Parity with PxcFsFlushVelocity in articulationDynamic.cuh.
+			const Cm::UnAlignedSpatialVector preloadedSolverSpatialDeltaVel = loadSpatialVector(tLink.mSolverSpatialDeltaVel, threadIndexInWarp);
+
 			Cm::UnAlignedSpatialVector motionV = nextMotionV;
 
 			if ((i + 1) < linkCount)
@@ -4054,7 +4038,9 @@ static void __device__ PxcFsFlushVelocity(PxgArticulationBlockData& articulation
 			if (parent != (i - 1))
 				deltaV = loadSpatialVector(artiLinks[parent].mScratchDeltaV, threadIndexInWarp);
 
-			deltaV = propagateAccelerationW(tLink, dofs, nbDofs, deltaV, threadIndexInWarp);
+			deltaV = propagateAccelerationW_nothingpreloaded_updateJointDofVels(tLink, dofs, nbDofs, deltaV, threadIndexInWarp);
+
+			storeSpatialVector(tLink.mSolverSpatialDeltaVel, preloadedSolverSpatialDeltaVel + deltaV, threadIndexInWarp);
 
 			//zeroing mDeferredQstZ
 			for (PxU32 ind = 0; ind < nbDofs; ++ind)
@@ -4187,7 +4173,7 @@ extern "C" __global__ void artiPushImpulse(
 
 				const Cm::UnAlignedSpatialVector Z = loadSpatialVector(linkData.mScratchImpulse, threadIndexInWarp);
 
-				Cm::UnAlignedSpatialVector propagatedZ = propagateImpulseW_0(PxVec3(rwx, rwy, rwz),
+				Cm::UnAlignedSpatialVector propagatedZ = propagateImpulseW<WriteToDeferredQstZ>(PxVec3(rwx, rwy, rwz),
 					dofData, Z,
 					dofCount, threadIndexInWarp);
 
@@ -4196,18 +4182,44 @@ extern "C" __global__ void artiPushImpulse(
 				storeSpatialVector(linkData.mScratchImpulse, Cm::UnAlignedSpatialVector::Zero(), threadIndexInWarp);
 			}
 
-			const bool fixedBase = articulation.mFlags[threadIndexInWarp] & PxArticulationFlag::eFIX_BASE;
-			
-			if (!fixedBase)
+			// OMPE-42519: flush mScratchImpulse[0] into mRootDeferredZ.
+			//
+			// History: an earlier !fixedBase-only block here propagated
+			//   mat * (-mScratchImpulse[0])  (a deltaV, in velocity space)
+			// into mRootDeferredZ. But mRootDeferredZ accumulates *impulse*, not
+			// deltaV -- wrong units. That broke deformable -> articulation-link
+			// interactions, and OMPE-66339 wholesale disabled the block as the
+			// minimal fix. Disabling left mScratchImpulse[0] un-flushed though,
+			// so on free-root single-link articulations the leftover impulse
+			// contaminated the next iter's articulation-contact solve when a
+			// bystander rigid-vs-articulation contact was in the scene.
+			//
+			// Put the propagation back with correct impulse-space semantics
+			// (matching averageLinkImpulsesAndPropagate at end-of-iter):
+			//   mRootDeferredZ += mScratchImpulse[0];
+			//   mScratchImpulse[0] = 0;
+			//
+			// Unlike the OMPE-66339-era code, the flush runs for both
+			// free-root and fixed-base, matching the shape of
+			// averageLinkImpulsesAndPropagate at end-of-iter. The
+			// OMPE-42519 readback itself does not depend on the
+			// fixed-base side of this flush -- it consumes
+			// mSolverSpatialImpulse (written by
+			// accumulateDeltaVRigidSecond* in rigidDeltaAccum.cu),
+			// not mRootDeferredZ.
+			//
+			// Fixed-base is latently asymmetric: PxcFsFlushVelocity
+			// clears mRootDeferredZ only inside its !fixBase branch,
+			// so for a fixed root the value flushed here resides in
+			// mRootDeferredZ and is re-accumulated into
+			// mConstraintForces on every subsequent flush. Harmless
+			// today because mConstraintForces has no consumer -- it is
+			// written but never read, never DMA'd back to the host,
+			// and never sampled by the readback path. Tracked as
+			// OMPE-93501.
 			{
-				//(1) Compute updated link velocity...
-				PxSpatialMatrix mat;
-				loadSpatialMatrix(artiLinks[0].mSpatialResponseMatrix, threadIndexInWarp, mat);
-
-				Cm::UnAlignedSpatialVector deltaV = mat * (-loadSpatialVector(artiLinks[0].mScratchImpulse, threadIndexInWarp));
-
-				storeSpatialVector(articulation.mRootDeferredZ, deltaV, threadIndexInWarp);
-
+				const Cm::UnAlignedSpatialVector rootZ = loadSpatialVector(artiLinks[0].mScratchImpulse, threadIndexInWarp);
+				addSpatialVector(articulation.mRootDeferredZ, rootZ, threadIndexInWarp);
 				storeSpatialVector(artiLinks[0].mScratchImpulse, Cm::UnAlignedSpatialVector::Zero(), threadIndexInWarp);
 			}
 		}

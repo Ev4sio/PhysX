@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef SC_SHAPE_INTERACTION_H
 #define SC_SHAPE_INTERACTION_H
@@ -151,7 +128,18 @@ namespace Sc
 		PX_FORCE_INLINE	PxIntBool				hasKnownTouchState() const;
 
 						bool					onActivate(PxsContactManager* contactManager);
-						bool					onDeactivate();
+						// With deferManagerUnregister the contact manager is only marked for removal from the narrowphase, and
+						// the caller has to flush the deferred removals afterwards. See PxvNphaseImplementationContext.
+						bool					onDeactivate(bool deferManagerUnregister = false);
+						// The part of onDeactivate() that only writes to this pair and to the island manager's per-edge data,
+						// so that different tasks can run it on different pairs at the same time. The contact manager is
+						// detached and returned in detachedManager, the caller takes it out of the narrowphase and returns
+						// it to the pool. A pair in a contact report list stays in it and sets needsReportListRemoval, the
+						// caller then removes it from a single thread. In GPU scenes the island manager's deactivateEdge()
+						// appends to a shared list, so only the serial onDeactivate() is safe there.
+						bool					onDeactivateThreadSafe(PxsContactManager*& detachedManager, bool& needsReportListRemoval);
+						// Prefetches the actor and contact manager data that onDeactivate() reads.
+		PX_FORCE_INLINE	void					prefetchDeactivationData()	const;
 
 						void					updateState(const PxU8 externalDirtyFlags);
 
@@ -176,7 +164,8 @@ namespace Sc
 
 						void					createManager(PxsContactManager* contactManager);
 		PX_INLINE		bool					updateManager(PxsContactManager* contactManager);
-		PX_INLINE		void					destroyManager();
+		PX_INLINE		void					destroyManager(bool deferUnregister = false);
+		PX_INLINE		void					releaseManager(PxsContactManager* manager, bool deferUnregister) const;
 		PX_FORCE_INLINE	bool					activeManagerAllowed() const;
 		PX_FORCE_INLINE	PxU32					getManagerContactState()		const	{ return mFlags & LL_MANAGER_RECREATE_EVENT; }
 
@@ -194,7 +183,6 @@ namespace Sc
 		PX_FORCE_INLINE	void					setPairFlags(PxPairFlags flags);
 
 		PX_FORCE_INLINE	void					processReportPairOnActivate();
-		PX_FORCE_INLINE	void					processReportPairOnDeactivate();
 
 		// Certain SiFlag cache properties of the pair. If these properties change then the flags have to be updated.
 		// For example: is collision enabled for this pair? are contact points requested for this pair?
@@ -267,19 +255,38 @@ PX_INLINE bool Sc::ShapeInteraction::updateManager(PxsContactManager* contactMan
 		return false;
 }
 
-PX_INLINE void Sc::ShapeInteraction::destroyManager()
+PX_FORCE_INLINE void Sc::ShapeInteraction::prefetchDeactivationData() const
 {
-	PX_ASSERT(mManager);
+	getActorSim0().prefetchActivationState();
+	getActorSim1().prefetchActivationState();
+	if(mManager)
+	{
+		PxPrefetchLine(mManager);
+		PxPrefetchLine(mManager, 64);
+	}
+}
+
+PX_INLINE void Sc::ShapeInteraction::releaseManager(PxsContactManager* manager, bool deferUnregister) const
+{
+	PX_ASSERT(manager);
 
 	Scene& scene = getScene();
-	
+
 	PxvNphaseImplementationContext* nphaseImplementationContext = scene.getLowLevelContext()->getNphaseImplementationContext();
 	PX_ASSERT(nphaseImplementationContext);
-	nphaseImplementationContext->unregisterContactManager(mManager);
+	if(deferUnregister)
+		nphaseImplementationContext->unregisterContactManagerDeferred(manager);
+	else
+		nphaseImplementationContext->unregisterContactManager(manager);
 
 	/*if (mEdgeIndex != IG_INVALID_EDGE)
 		scene.getSimpleIslandManager()->clearEdgeRigidCM(mEdgeIndex);*/
-	scene.getLowLevelContext()->destroyContactManager(mManager);
+	scene.getLowLevelContext()->destroyContactManager(manager);
+}
+
+PX_INLINE void Sc::ShapeInteraction::destroyManager(bool deferUnregister)
+{
+	releaseManager(mManager, deferUnregister);
 	mManager = 0;
 }
 

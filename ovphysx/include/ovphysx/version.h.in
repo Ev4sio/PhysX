@@ -1,0 +1,26 @@
+// SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
+
+// @implements REQ-PACKAGING-BUILDNUM-001
+// @covers AC-5
+
+// Compile-time version macros.  Auto-generated from version.h.in by CMake.
+// For runtime version queries, use ovphysx_get_version() / ovphysx_get_version_string()
+// declared in ovphysx/ovphysx.h.
+
+#ifndef OVPHYSX_VERSION_H
+#define OVPHYSX_VERSION_H
+
+#define OVPHYSX_VERSION_MAJOR @OVPHYSX_VERSION_MAJOR@
+#define OVPHYSX_VERSION_MINOR @OVPHYSX_VERSION_MINOR@
+#define OVPHYSX_VERSION_PATCH @OVPHYSX_VERSION_PATCH@
+
+/* Pre-release identifier (e.g., "specialFeature" for version "0.1.4-specialFeature") */
+/* Empty string if no pre-release suffix */
+#define OVPHYSX_VERSION_PRERELEASE "@OVPHYSX_VERSION_PRERELEASE@"
+
+/* Full version string: pre-release suffix and, in CI, the build number */
+/* appended as a fourth component (e.g. "0.1.4-specialFeature", "0.6.3.1234") */
+#define OVPHYSX_VERSION_STRING "@OVPHYSX_VERSION_FULL@"
+
+#endif // OVPHYSX_VERSION_H

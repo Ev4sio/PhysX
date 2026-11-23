@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #include "NpArticulationReducedCoordinate.h"
 #include "NpRigidActorTemplateInternal.h"
@@ -56,7 +33,7 @@ void NpArticulationLink::importExtraData(PxDeserializationContext& context)
 }
 
 void NpArticulationLink::resolveReferences(PxDeserializationContext& context)
-{	
+{
     context.translatePxBase(mRoot);
     context.translatePxBase(mInboundJoint);
     context.translatePxBase(mParent);
@@ -245,6 +222,7 @@ void NpArticulationLink::addForce(const PxVec3& force, PxForceMode::Enum mode, b
 	if (npScene && (npScene->getFlags() & PxSceneFlag::eENABLE_DIRECT_GPU_API) && npScene->isDirectGPUAPIInitialized())
 	{
 		PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxArticulationLink::addForce(): it is illegal to call this method if PxSceneFlag::eENABLE_DIRECT_GPU_API is enabled!");
+		return;
 	}
 
 	addSpatialForce(&force, NULL, mode);
@@ -264,6 +242,7 @@ void NpArticulationLink::addTorque(const PxVec3& torque, PxForceMode::Enum mode,
 	if (npScene && (npScene->getFlags() & PxSceneFlag::eENABLE_DIRECT_GPU_API) && npScene->isDirectGPUAPIInitialized())
 	{
 		PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxArticulationLink::addTorque(): it is illegal to call this method if PxSceneFlag::eENABLE_DIRECT_GPU_API is enabled!");
+		return;
 	}
 
 	addSpatialForce(NULL, &torque, mode);
@@ -284,6 +263,7 @@ void NpArticulationLink::setForceAndTorque(const PxVec3& force, const PxVec3& to
 	if (npScene && (npScene->getFlags() & PxSceneFlag::eENABLE_DIRECT_GPU_API) && npScene->isDirectGPUAPIInitialized())
 	{
 		PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxArticulationLink::setForceAndTorque(): it is illegal to call this method if PxSceneFlag::eENABLE_DIRECT_GPU_API is enabled!");
+		return;
 	}
 
 	setSpatialForce(&force, &torque, mode);
@@ -302,6 +282,7 @@ void NpArticulationLink::clearForce(PxForceMode::Enum mode)
 	if (npScene && (npScene->getFlags() & PxSceneFlag::eENABLE_DIRECT_GPU_API) && npScene->isDirectGPUAPIInitialized())
 	{
 		PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxArticulationLink::clearForce(): it is illegal to call this method if PxSceneFlag::eENABLE_DIRECT_GPU_API is enabled!");
+		return;
 	}
 
 	clearSpatialForce(mode, true, false);
@@ -318,6 +299,7 @@ void NpArticulationLink::clearTorque(PxForceMode::Enum mode)
 	if (npScene && (npScene->getFlags() & PxSceneFlag::eENABLE_DIRECT_GPU_API) && npScene->isDirectGPUAPIInitialized())
 	{
 		PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxArticulationLink::clearTorque(): it is illegal to call this method if PxSceneFlag::eENABLE_DIRECT_GPU_API is enabled!");
+		return;
 	}
 
 	clearSpatialForce(mode, false, true);
@@ -330,7 +312,7 @@ void NpArticulationLink::setCfmScale(const PxReal cfmScale)
 
 	PX_CHECK_SCENE_API_WRITE_FORBIDDEN(getNpScene(), "PxArticulationLink::setCfmScale() not allowed while simulation is running. Call will be ignored.")
 
-	mCore.getCore().cfmScale = cfmScale;
+	mCore.setCfmScale(cfmScale);
 	OMNI_PVD_SET(OMNI_PVD_CONTEXT_HANDLE, PxArticulationLink, CFMScale, static_cast<PxArticulationLink&>(*this), cfmScale); // @@@
 }
 
@@ -351,6 +333,7 @@ void NpArticulationLink::setGlobalPoseInternal(const PxTransform& pose, bool aut
 	if (npScene && (npScene->getFlags() & PxSceneFlag::eENABLE_DIRECT_GPU_API) && npScene->isDirectGPUAPIInitialized())
 	{
 		PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxArticulationLink::setGlobalPose(): it is illegal to call this method if PxSceneFlag::eENABLE_DIRECT_GPU_API is enabled!");
+		return;
 	}
 
 #if PX_CHECKED

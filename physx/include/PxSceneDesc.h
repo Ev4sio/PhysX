@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef PX_SCENE_DESC_H
 #define PX_SCENE_DESC_H
@@ -47,33 +24,6 @@ namespace physx
 	class PxBroadPhaseCallback;
 	class PxCudaContextManager;
 	class PxPostSolveCallback;
-
-/**
-\brief Enum for selecting the friction algorithm used for simulation.
-
-\deprecated Since only the patch friction model is supported now, the friction type option is obsolete.
-
-#PxFrictionType::ePATCH is the default friction logic (Couloumb type friction model). Friction gets computed per contact patch.
-Up to two contact points lying in the contact patch area are selected as friction anchors to which friction impulses are applied. If there
-are more than two contact points, to select anchors from, the anchors are selected using a heuristic that tries to maximize the distance
-between the anchors within the contact patch area. For each contact patch, two perpendicular axes of the contact patch plane are selected.
-A 1D-constraint along each of the two axes is used to implement friction at a friction anchor point. Note that the two axes are processed
-separately when the PGS solver type is selected. This can lead to asymmetries when transitioning from dynamic to static friction and vice
-versa in certain edge cases. The TGS solver type, on the other hand, works with the combined impulse along the two axes and as such avoids
-this potential problem, but this is slightly more computationally expensive. Another difference between TGS and PGS is that TGS applies
-friction throughout all position and all velocity iterations, while PGS by default applies friction throughout the last 3 position iterations
-and all velocity iterations (unless #PxSceneFlag::eENABLE_FRICTION_EVERY_ITERATION is used).
-
-#PxFrictionType::eFRICTION_COUNT is the total number of friction models supported by the SDK.
-*/
-struct PX_DEPRECATED PxFrictionType
-{
-	enum Enum
-	{
-		ePATCH,				//!< Select default patch-friction model.
-		eFRICTION_COUNT		//!< The total number of friction models supported by the SDK.
-	};
-};
 
 /**
 \brief Enum for selecting the type of solver used for the simulation.
@@ -213,6 +163,10 @@ struct PxSceneFlag
 		number of solver iterations is used.
 
 		Note that this flag is not mutable and must be set in PxSceneDesc at scene creation.
+
+		\note Support depends on the simulation backend. The CPU narrow phase honors this flag for all pair types. With GPU dynamics (see PxSceneFlag::eENABLE_GPU_DYNAMICS)
+		only the convex vs. convex narrow phase generates average points: the remaining GPU pair types, in particular those involving a triangle mesh, a heightfield, a plane or
+		a convex core geometry, ignore this flag, so enabling it has no stabilization effect on them.
 		*/
 		eENABLE_AVERAGE_POINT = (1 << 11),
 
@@ -278,22 +232,26 @@ struct PxSceneFlag
 		eENABLE_FRICTION_EVERY_ITERATION = (1 << 15),
 
 		/**
-		\brief Controls application of gravity and other external forces per TGS solver position iterations
+		\brief Controls application of gravity and other external forces per TGS solver position iteration
 
-		By default, external forces such as gravity are applied just once at the beginning of each simulate() call. With this
-		flag enabled the same forces are applied in each sub time step (position iteration) of the TGS solver, leading to greater stability and better solver convergence.
-		One consequence is that a body in freefall will move a shorter distance over the entire simulation step if the flag is raised.
+		\deprecated Applying gravity and other external forces in every position iteration is the default, and it will be the only supported
+		behavior of the TGS solver once the flag is removed.
 
-		Note that raising this flag makes the distance traveled under freefall dependent on the number of solver iterations.
-		Since solver iterations are determined per-island, bodies assigned to an island with fewer solver iterations will travel a larger distance than bodies assigned to an island with more iterations.
+		With this flag raised, gravity and other external forces such as those applied with PxRigidBody::addForce() are applied in each sub time step
+		(position iteration) of the TGS solver, leading to greater stability and better solver convergence. With the flag cleared, the same forces
+		are applied just once at the beginning of each simulate() call.
+		One consequence is that a body in freefall moves a shorter distance over the entire simulation step with the flag raised.
 
-		\note This feature is only supported for the TGS solver.
+		Note that with the flag raised, the distance traveled under freefall depends on the number of solver iterations.
+		Since solver iterations are determined per-island, bodies assigned to an island with fewer solver iterations travel a larger distance than bodies assigned to an island with more iterations.
 
-		<b>Default</b> false
+		\note This flag has an effect with the TGS solver only. A scene using PxSolverType::ePGS retains the flag but ignores it.
+
+		<b>Default</b> true
 		*/
-		eENABLE_EXTERNAL_FORCES_EVERY_ITERATION_TGS = (1 << 16),
+		PX_DEPRECATED eENABLE_EXTERNAL_FORCES_EVERY_ITERATION_TGS = (1 << 16),
 
-		/*
+		/**
 		\brief Enables the direct-GPU API. Raising this flag is only allowed if eENABLE_GPU_DYNAMICS is raised and 
 		PxBroadphaseType::eGPU is used.
 
@@ -305,8 +263,10 @@ struct PxSceneFlag
 		PxDirectGPUAPI::getArticulationData(), PxDirectGPUAPI::copyContactData()), and reading state directly from the actor
 		is not allowed.
 
+		\note This flag requires PxSceneFlag::eDISABLE_SLEEPING to be raised.
+
 		\note This flag is not mutable and must be set in PxSceneDesc at scene creation.
-		\see PxScene::getDirectGPUAPI() PxDirectGPUAPI
+		\see PxScene::getDirectGPUAPI() PxDirectGPUAPI eDISABLE_SLEEPING
 
 		<b>Default</b> false
 		*/
@@ -336,12 +296,44 @@ struct PxSceneFlag
 		*/
 		eENABLE_BODY_ACCELERATIONS = (1 << 18),
 
-		/*
-		\brief Enables the solver residual reporting.
+		/**
+		\brief Reorders articulation contact constraints and articulation joint maximum velocity constraints in the solver.
 
-		\note Enabling this flag can have a negative impact on the performance but the impact should be small.
+		When this flag is raised, the solver will observe the following order:
+		- joint friction, joint drive, joint position limit
+		- link dynamic contact
+		- link static contact
+		- joint max velocity
+
+		When the flag is lowered, the solver will observe a modified order:
+		- link dynamic contact
+		- joint friction, joint drive, joint position limit
+		- joint max velocity
+		- link static contact
+
+		Raising the flag can be useful for certain simulation scenarios such as gripping, where it is desirable for dynamic contact 
+		to be resolved after joint drive but before max joint velocity.
+
+		\note Raising this flag may have a negative effect on simulation performance.
+
+		\note A goal of raising this flag is shallower contact penetration. This will in turn result in a reduced force 
+		reported by PxArticulationCache::linkIncomingJointForce.
+ 
+		<b>Default</b> false
 		*/
-		eENABLE_SOLVER_RESIDUAL_REPORTING = (1 << 19),
+		eSOLVE_ARTICULATION_CONTACT_LAST = (1 << 19),
+
+		/**
+		\brief Disables all sleeping logic in the scene.
+
+		When this flag is raised, no objects will be put to sleep. They will all be treated by the solver as awake.
+		This is a performance optimization for use cases where sleeping is not desired.
+
+		\note This flag is automatically enabled when PxSceneFlag::eENABLE_DIRECT_GPU_API is set.
+
+		<b>Default</b> false
+		*/
+		eDISABLE_SLEEPING = (1 << 20),
 
 		eMUTABLE_FLAGS = eENABLE_ACTIVE_ACTORS|eEXCLUDE_KINEMATICS_FROM_ACTIVE_ACTORS
 	};
@@ -429,19 +421,70 @@ PX_INLINE bool PxSceneLimits::isValid() const
 
 struct PxGpuDynamicsMemoryConfig
 {
-	PxU64 tempBufferCapacity;				//!< Initial capacity of temp solver buffer allocated in pinned host memory. This buffer will grow if more memory is needed than specified here.
-	PxU32 maxRigidContactCount;				//!< Size of contact stream buffer allocated in pinned host memory. This is double-buffered so total allocation size = 2* contactStreamCapacity * sizeof(PxContact).
-	PxU32 maxRigidPatchCount;				//!< Size of the contact patch stream buffer allocated in pinned host memory. This is double-buffered so total allocation size = 2 * patchStreamCapacity * sizeof(PxContactPatch).
-	PxU32 heapCapacity;						//!< Initial capacity of the GPU and pinned host memory heaps. Additional memory will be allocated if more memory is required.
-	PxU32 foundLostPairsCapacity;			//!< Capacity of found and lost buffers allocated in GPU global memory. This is used for the found/lost pair reports in the BP. 
-	PxU32 foundLostAggregatePairsCapacity;	//!< Capacity of found and lost buffers in aggregate system allocated in GPU global memory. This is used for the found/lost pair reports in AABB manager.
-	PxU32 totalAggregatePairsCapacity;		//!< Capacity of aggregate pair buffer allocated in GPU global memory.
-	PxU32 maxDeformableSurfaceContacts;		//!< Capacity of deformable surface contact buffer allocated in GPU global memory.
-	PX_DEPRECATED PxU32 maxFemClothContacts;//!< Deprecated, replace with maxDeformableSurfaceContacts.
-	PxU32 maxDeformableVolumeContacts;		//!< Capacity of deformable volume contact buffer allocated in GPU global memory.
-	PX_DEPRECATED PxU32 maxSoftBodyContacts;//!< Deprecated, replace with maxDeformableVolumeContacts.
-	PxU32 maxParticleContacts;				//!< Capacity of particle contact buffer allocated in GPU global memory.
-	PxU32 collisionStackSize;				//!< Capacity of the collision stack buffer, used as scratch space during narrowphase collision detection.
+	/**
+	\brief Initial capacity of temp solver buffer allocated in pinned host memory.
+	This buffer will grow if more memory is needed than specified here.
+	*/
+	PxU64 tempBufferCapacity;
+
+	/**
+	\brief Size of contact stream buffer allocated in pinned host memory.
+	This is double-buffered so total allocation size = 2 * maxRigidContactCount * sizeof(PxContact).
+	*/
+	PxU32 maxRigidContactCount;
+
+	/**
+	\brief Size of the contact patch stream buffer allocated in pinned host memory.
+	This is double-buffered so total allocation size = 2 * maxRigidPatchCount * sizeof(PxContactPatch).
+	*/
+	PxU32 maxRigidPatchCount;
+
+	/**
+	\brief Initial capacity of the device and pinned host memory heaps.
+	Additional memory will be allocated if more memory is required, in increments of heapCapacity.
+	If an allocation is larger than half of heapCapacity, then the heap is bypassed and the memory 
+	is allocated directly. The configuration heapCapacity == 0 is valid: In this case no heap is 
+	allocated, and all allocations bypass the heap.
+	*/
+	PxU32 heapCapacity;
+
+	/**
+	\brief Capacity of found and lost buffers allocated in GPU global memory.
+	This is used for the found/lost pair reports in the BP.
+	*/
+	PxU32 foundLostPairsCapacity;
+
+	/**
+	\brief Capacity of found and lost buffers in aggregate system allocated in GPU global memory.
+	This is used for the found/lost pair reports in AABB manager.
+	*/
+	PxU32 foundLostAggregatePairsCapacity;
+
+	/**
+	\brief Capacity of aggregate pair buffer allocated in GPU global memory.
+	*/
+	PxU32 totalAggregatePairsCapacity;
+
+	/**
+	\brief Capacity of deformable surface contact buffer allocated in GPU global memory.
+	*/
+	PxU32 maxDeformableSurfaceContacts;
+
+	/**
+	\brief Capacity of deformable volume contact buffer allocated in GPU global memory.
+	*/
+	PxU32 maxDeformableVolumeContacts;
+
+	/**
+	\brief Capacity of particle contact buffer allocated in GPU global memory.
+	*/
+	PxU32 maxParticleContacts;
+
+	/**
+	\brief Capacity of the collision stack buffer.
+	Used as scratch space during narrowphase collision detection.
+	*/
+	PxU32 collisionStackSize;
 
 	PxGpuDynamicsMemoryConfig() :
 		tempBufferCapacity(16 * 1024 * 1024),
@@ -452,9 +495,7 @@ struct PxGpuDynamicsMemoryConfig
 		foundLostAggregatePairsCapacity(1024),
 		totalAggregatePairsCapacity(1024),
 		maxDeformableSurfaceContacts(1 * 1024 * 1024),
-		maxFemClothContacts(0), // deprecated, if > 0, used instead of maxDeformableSurfaceContacts
 		maxDeformableVolumeContacts(1 * 1024 * 1024),
-		maxSoftBodyContacts(0), // deprecated, if > 0, used instead of maxDeformableVolumeContacts
 		maxParticleContacts(1*1024*1024),
 		collisionStackSize(64*1024*1024)
 	{
@@ -466,7 +507,7 @@ struct PxGpuDynamicsMemoryConfig
 PX_INLINE bool PxGpuDynamicsMemoryConfig::isValid() const
 {
 	const bool isPowerOfTwo = PxIsPowerOfTwo(heapCapacity);
-	return isPowerOfTwo;
+	return isPowerOfTwo || (heapCapacity == 0);
 }
 
 //#endif
@@ -538,7 +579,6 @@ public:
 	\see PxPostSolveCallback
 	*/
 	PxPostSolveCallback* deformableVolumePostSolveCallback;
-
 
 	/**
 	\brief Shared global filter data which will get passed into the filter shader.
@@ -618,22 +658,22 @@ public:
 	PxBroadPhaseCallback*	broadPhaseCallback;
 
 	/**
+	\brief Optional GPU broad-phase descriptor.
+
+	This is only used for the GPU broadphase (PxBroadPhaseType::eGPU).
+
+	<b>Default:</b> NULL
+
+	\see PxBroadPhaseType
+	*/
+	PxGpuBroadPhaseDesc*	gpuBroadPhaseDesc;
+
+	/**
 	\brief Expected scene limits.
 
 	\see PxSceneLimits PxScene.getLimits()
 	*/
 	PxSceneLimits	limits;
-
-	/**
-	\brief Selects the friction algorithm to use for simulation.
-
-	\deprecated Since only the patch friction model is supported now, the frictionType parameter is obsolete.
-
-	<b>Default:</b> PxFrictionType::ePATCH
-
-	\see PxFrictionType PxScene.getFrictionType()
-	*/
-	PX_DEPRECATED PxFrictionType::Enum frictionType;
 
 	/**
 	\brief Selects the solver algorithm to use.
@@ -689,7 +729,7 @@ public:
 	/**
 	\brief Flags used to select scene options.
 
-	<b>Default:</b> PxSceneFlag::eENABLE_PCM
+	<b>Default:</b> PxSceneFlag::eENABLE_PCM | PxSceneFlag::eENABLE_EXTERNAL_FORCES_EVERY_ITERATION_TGS
 
 	\see PxSceneFlag PxSceneFlags PxScene.getFlags() PxScene.setFlag()
 	*/
@@ -1001,14 +1041,14 @@ PX_INLINE PxSceneDesc::PxSceneDesc(const PxTolerancesScale& scale):
 
 	broadPhaseType					(PxBroadPhaseType::ePABP),
 	broadPhaseCallback				(NULL),
+	gpuBroadPhaseDesc				(NULL),
 
-	frictionType					(PxFrictionType::ePATCH),
 	solverType						(PxSolverType::ePGS),
 	bounceThresholdVelocity			(0.2f * scale.speed),
 	frictionOffsetThreshold			(0.04f * scale.length),
 	frictionCorrelationDistance		(0.025f * scale.length),
 
-	flags							(PxSceneFlag::eENABLE_PCM),
+	flags							(PxSceneFlag::eENABLE_PCM | PxSceneFlag::eENABLE_EXTERNAL_FORCES_EVERY_ITERATION_TGS),
 
 	cpuDispatcher					(NULL),
 	cudaContextManager				(NULL),
@@ -1088,9 +1128,6 @@ PX_INLINE bool PxSceneDesc::isValid() const
 	if(!sanityBounds.isValid())
 		return false;
 
-	if(solverType == PxSolverType::ePGS && (flags & PxSceneFlag::eENABLE_EXTERNAL_FORCES_EVERY_ITERATION_TGS))
-		return false;
-
 #if PX_SUPPORT_GPU_PHYSX
 	if(!PxIsPowerOfTwo(gpuMaxNumPartitions))
 		return false;
@@ -1109,6 +1146,9 @@ PX_INLINE bool PxSceneDesc::isValid() const
 		if(flags & PxSceneFlag::eENABLE_CCD)
 			return false;
 	}
+
+	if(gpuBroadPhaseDesc && broadPhaseType != PxBroadPhaseType::eGPU)
+		return false;
 #endif
 
 	if(contactPairSlabSize == 0)

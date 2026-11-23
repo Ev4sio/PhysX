@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #include "geometry/PxGeometryQuery.h"
 #include "geometry/PxSphereGeometry.h"
@@ -34,7 +11,9 @@
 #include "geometry/PxTriangleMeshGeometry.h"
 #include "geometry/PxConvexMeshGeometry.h"
 #include "geometry/PxHeightFieldGeometry.h"
-#include "geometry/PxParticleSystemGeometry.h"
+#if PX_SUPPORT_GPU_PHYSX
+	#include "geometry/PxParticleSystemGeometry.h"
+#endif
 #include "geometry/PxCustomGeometry.h"
 #include "geometry/PxConvexCoreGeometry.h"
 #include "foundation/PxAtomic.h"
@@ -58,6 +37,8 @@
 #include "GuVecConvexHull.h"
 #include "GuPCMShapeConvex.h"
 #include "GuPCMContactConvexCommon.h"
+#include "GuConvexSupport.h"
+#include "GuConvexGeometry.h"
 
 using namespace physx;
 using namespace Gu;
@@ -80,8 +61,10 @@ bool PxGeometryQuery::isValid(const PxGeometry& g)
 		case PxGeometryType::eCONVEXMESH:		return static_cast<const PxConvexMeshGeometry&>(g).isValid();
 		case PxGeometryType::eTRIANGLEMESH:		return static_cast<const PxTriangleMeshGeometry&>(g).isValid();
 		case PxGeometryType::eHEIGHTFIELD:		return static_cast<const PxHeightFieldGeometry&>(g).isValid();
+#if PX_SUPPORT_GPU_PHYSX
 		case PxGeometryType::eTETRAHEDRONMESH:	return static_cast<const PxTetrahedronMeshGeometry&>(g).isValid();
 		case PxGeometryType::ePARTICLESYSTEM:	return static_cast<const PxParticleSystemGeometry&>(g).isValid();
+#endif
 		case PxGeometryType::eCUSTOM:			return static_cast<const PxCustomGeometry&>(g).isValid();
 	}
 	return false;
@@ -283,6 +266,30 @@ PxReal PxGeometryQuery::pointDistance(const PxVec3& point, const PxGeometry& geo
 				*closestPoint = cp;
 			return sqDistance;
 		}
+		case PxGeometryType::eCONVEXCORE:
+		{
+			const PxConvexCoreGeometry& convexGeom = static_cast<const PxConvexCoreGeometry&>(geom);
+
+			// Create a point support
+			Gu::ConvexShape pointShape;
+			pointShape.coreType = Gu::ConvexCore::Type::ePOINT;
+			pointShape.pose = PxTransform(PxIdentity);
+			pointShape.margin = 0.0f;
+
+			// Create convex core shape
+			Gu::ConvexShape convexShape;
+			Gu::makeConvexShape(convexGeom, pose, convexShape);
+			PX_ASSERT(convexShape.isValid());
+
+			// Compute distance using GJK
+			PxVec3 pointA, pointB, axis;
+			const PxReal distance = Gu::RefGjkEpa::computeGjkDistance(pointShape, convexShape, PxTransform(PxIdentity), pose, FLT_MAX, pointA, pointB, axis);
+
+			if(closestPoint)
+				*closestPoint = pointB;
+
+			return distance * distance;
+		}
 		case PxGeometryType::eTRIANGLEMESH:
 		{
 			const PxTriangleMeshGeometry& meshGeom = static_cast<const PxTriangleMeshGeometry&>(geom);
@@ -306,13 +313,14 @@ PxReal PxGeometryQuery::pointDistance(const PxVec3& point, const PxGeometry& geo
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void PxGeometryQuery::computeGeomBounds(PxBounds3& bounds, const PxGeometry& geom, const PxTransform& pose, float offset, float inflation, PxGeometryQueryFlags queryFlags)
+bool PxGeometryQuery::computeGeomBounds(PxBounds3& bounds, const PxGeometry& geom, const PxTransform& pose, float offset, float inflation, PxGeometryQueryFlags queryFlags)
 {
 	PX_SIMD_GUARD_CNDT(queryFlags & PxGeometryQueryFlag::eSIMD_GUARD)
-	PX_CHECK_AND_RETURN(pose.isValid(), "PxGeometryQuery::computeGeomBounds(): pose is not valid.");
+	PX_CHECK_AND_RETURN_VAL(pose.isValid(), "PxGeometryQuery::computeGeomBounds(): pose is not valid.", false);
 
 	Gu::computeBounds(bounds, geom, pose, offset, inflation);
 	PX_ASSERT(bounds.isValid());
+	return true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -452,8 +460,49 @@ bool PxGeometryQuery::generateTriangleContacts(const PxGeometry& geom, const PxT
 
 			break;
 		}
+		case PxGeometryType::eCONVEXCORE:
+		{
+			const PxConvexCoreGeometry& convex = static_cast<const PxConvexCoreGeometry&>(geom);
+
+			Gu::ConvexShape convexShape;
+			Gu::makeConvexShape(convex, pose, convexShape);
+			PX_ASSERT(convexShape.isValid());
+
+			// Create the triangle shape as a points-based convex shape
+			Gu::ConvexShape triShape;
+			triShape.coreType = Gu::ConvexCore::Type::ePOINTS;
+			triShape.pose = PxTransform(PxIdentity);
+			triShape.margin = meshContactMargin;
+			// Initialize the points core data
+			Gu::ConvexCore::PointsCore triCore;
+			triCore.points = triangleVertices;
+			triCore.numPoints = 3;
+			triCore.stride = sizeof(PxVec3);
+			triCore.S = PxVec3(1.0f);
+			triCore.R = PxQuat(PxIdentity);
+			// Copy the core data into the shape's core data buffer
+			PX_ASSERT(sizeof(triCore) <= Gu::ConvexCore::MAX_CORE_SIZE);
+			PxMemCopy(triShape.coreData, &triCore, sizeof(triCore));
+
+			PxVec3 normal, points[Gu::MAX_CONVEX_CONTACTS];
+			PxReal dists[Gu::MAX_CONVEX_CONTACTS];
+			if (PxU32 count = Gu::generateContacts(convexShape, triShape, contactDistance + meshContactMargin, normal, points, dists))
+			{
+				for (PxU32 i = 0; i < count; ++i)
+				{
+					PxContactPoint contact;
+					contact.point = points[i];
+					contact.normal = normal;
+					contact.separation = dists[i];
+					contact.internalFaceIndex1 = triangleIndex;
+					contactBuffer.contact(contact);
+				}
+			}
+
+			break;
+		}
 		default:
-			PX_ASSERT(0); // Unsupported gepmetry type
+			PX_ASSERT(0); // Unsupported geometry type
 			break;
 	}
 

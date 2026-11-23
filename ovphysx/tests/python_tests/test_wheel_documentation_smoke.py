@@ -1,0 +1,271 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+# @implements REQ-PACKAGING-DOCS-001
+# @covers AC-1 AC-2
+
+from io import BytesIO
+from pathlib import Path
+
+import pytest
+from PIL import Image
+from wheel_documentation_smoke import _broken_relative_links, validate
+
+
+@pytest.mark.parametrize("fence", ["```", "~~~"])
+def test_fenced_code_is_not_scanned_as_links(tmp_path: Path, fence: str) -> None:
+    docs = tmp_path / "docs"
+    docs.mkdir()
+    (docs / "index.md").write_text(
+        f"{fence}cpp\n"
+        "const auto cleanup = [&](uint64_t& handle, auto function) {};\n"
+        "[example](not-a-link.md)\n"
+        f"{fence}\n"
+        "[missing](missing.md)\n",
+        encoding="utf-8",
+    )
+
+    assert _broken_relative_links(tmp_path) == ["docs/index.md:5: missing.md"]
+
+
+@pytest.mark.parametrize("opener, non_closer", [
+    ("````", "```"), ("~~~", "```"), ("```", "~~~"), ("```", "```cpp"),
+])
+def test_code_fence_requires_matching_closer(tmp_path: Path, opener: str, non_closer: str) -> None:
+    docs = tmp_path / "docs"
+    docs.mkdir()
+    (docs / "index.md").write_text(
+        f"{opener}\n{non_closer}\n"
+        "[example](not-a-link.md)\n"
+        f"{opener}\n"
+        "[missing](missing.md)\n",
+        encoding="utf-8",
+    )
+
+    assert _broken_relative_links(tmp_path) == ["docs/index.md:5: missing.md"]
+
+
+def test_supported_markdown_destinations_with_whitespace(tmp_path: Path) -> None:
+    package_root = tmp_path / "package"
+    docs = package_root / "docs"
+    docs.mkdir(parents=True)
+    target = docs / "space file.md"
+    target.write_text("# Target\n", encoding="utf-8")
+    (docs / "index.md").write_text(
+        "[angle](<space file.md>)\n" "[escaped](space\\ file.md)\n" '[title](space%20file.md "Title")\n',
+        encoding="utf-8",
+    )
+
+    assert _broken_relative_links(package_root) == []
+
+    target.unlink()
+    assert len(_broken_relative_links(package_root)) == 3
+
+
+def test_relative_markdown_destination_cannot_escape_package(tmp_path: Path) -> None:
+    package_root = tmp_path / "package"
+    docs = package_root / "docs"
+    docs.mkdir(parents=True)
+    (tmp_path / "outside.md").write_text("# Outside\n", encoding="utf-8")
+    (docs / "index.md").write_text("[outside](../../outside.md)\n", encoding="utf-8")
+
+    assert _broken_relative_links(package_root) == ["docs/index.md:1: ../../outside.md"]
+
+
+def test_header_exception_cannot_escape_package(tmp_path: Path) -> None:
+    package_root = tmp_path / "package"
+    docs = package_root / "docs"
+    docs.mkdir(parents=True)
+    (tmp_path / "outside.md").write_text("# Outside\n", encoding="utf-8")
+    (docs / "index.md").write_text("[outside](../include/../../outside.md)\n", encoding="utf-8")
+
+    assert _broken_relative_links(package_root, allow_unbundled_header_links=True) == [
+        "docs/index.md:1: ../include/../../outside.md"
+    ]
+
+
+def test_header_exception_applies_only_to_wheel(tmp_path: Path) -> None:
+    package_root = tmp_path / "package"
+    docs = package_root / "docs"
+    include = package_root / "include"
+    docs.mkdir(parents=True)
+    include.mkdir()
+    (docs / "index.md").write_text("[header](../include/header.h)\n", encoding="utf-8")
+
+    assert _broken_relative_links(package_root) == ["docs/index.md:1: ../include/header.h"]
+    assert _broken_relative_links(package_root, allow_unbundled_header_links=True) == []
+
+    (include / "header.h").write_text("/* header */\n", encoding="utf-8")
+    assert _broken_relative_links(package_root) == []
+
+
+def test_validate_rejects_nested_internal_docs(tmp_path: Path) -> None:
+    source_docs = tmp_path / "source-docs"
+    package_root = tmp_path / "package"
+    package_docs = package_root / "docs"
+    source_docs.mkdir()
+    package_docs.mkdir(parents=True)
+    (source_docs / "index.md").write_text("# Index\n", encoding="utf-8")
+    (package_docs / "index.md").write_text("# Index\n", encoding="utf-8")
+    internal = package_docs / "guides" / "internal"
+    internal.mkdir(parents=True)
+    (internal / "secret.md").write_text("# Secret\n", encoding="utf-8")
+
+    with pytest.raises(RuntimeError, match="Internal documentation leaked"):
+        validate(package_root, source_docs)
+
+
+def test_validate_rejects_stale_portable_docs(tmp_path: Path) -> None:
+    source_docs = tmp_path / "source-docs"
+    package_root = tmp_path / "package"
+    package_docs = package_root / "docs"
+    source_docs.mkdir()
+    package_docs.mkdir(parents=True)
+    (source_docs / "index.md").write_text("# Index\n", encoding="utf-8")
+    (package_docs / "index.md").write_text("# Index\n", encoding="utf-8")
+    (package_docs / "stale.md").write_text("# Stale\n", encoding="utf-8")
+
+    with pytest.raises(RuntimeError, match="Unexpected portable documentation"):
+        validate(package_root, source_docs)
+
+
+def test_validate_compares_raw_documentation_bytes(tmp_path: Path) -> None:
+    source_docs = tmp_path / "source-docs"
+    package_root = tmp_path / "package"
+    package_docs = package_root / "docs"
+    source_docs.mkdir()
+    package_docs.mkdir(parents=True)
+    (source_docs / "diagram.png").write_bytes(b"source")
+    (package_docs / "diagram.png").write_bytes(b"artifact")
+
+    with pytest.raises(RuntimeError, match="RST or image content differs"):
+        validate(package_root, source_docs)
+
+
+def _portable_docs_package(tmp_path: Path) -> tuple[Path, Path]:
+    """Build the artifact shape the aarch64 wheel had: portable docs, no html/."""
+    source_docs = tmp_path / "source-docs"
+    package_root = tmp_path / "package"
+    package_docs = package_root / "docs"
+    source_docs.mkdir()
+    package_docs.mkdir(parents=True)
+    (source_docs / "index.md").write_text("# Index\n", encoding="utf-8")
+    (package_docs / "index.md").write_text("# Index\n", encoding="utf-8")
+    return package_root, source_docs
+
+
+def _add_rendered_docs(package_root: Path, *, headers: bool = True) -> Path:
+    rendered = package_root / "docs" / "html"
+    downloads = rendered / "_downloads" / "7e283c7a99c85402f12c8ca292dd4f25"
+    downloads.mkdir(parents=True)
+    (rendered / "index.html").write_text("<html></html>\n", encoding="utf-8")
+    if headers:
+        for name in (
+            "ovphysx.h",
+            "ovphysx_attributes.h",
+            "ovphysx_types.h",
+            "ovphysx_config.h",
+            "ovphysx_geometry_query.h",
+            "ovphysx_population.h",
+            "ovphysx_utils.h",
+            "ovphysx_legacy.h",
+            "ovphysx_legacy_config.h",
+            "ovphysx_legacy_types.h",
+        ):
+            (downloads / name).write_text("/* header */\n", encoding="utf-8")
+    return rendered
+
+
+def test_validate_ignores_absent_rendered_docs_by_default(tmp_path: Path) -> None:
+    package_root, source_docs = _portable_docs_package(tmp_path)
+
+    validate(package_root, source_docs)
+
+
+def test_validate_rejects_absent_rendered_docs_when_required(tmp_path: Path) -> None:
+    package_root, source_docs = _portable_docs_package(tmp_path)
+
+    with pytest.raises(RuntimeError, match="rendered documentation tree is absent"):
+        validate(package_root, source_docs, require_rendered_docs=True)
+
+
+def test_validate_rejects_rendered_docs_without_downloadable_headers(tmp_path: Path) -> None:
+    package_root, source_docs = _portable_docs_package(tmp_path)
+    _add_rendered_docs(package_root, headers=False)
+
+    with pytest.raises(RuntimeError, match="downloadable C headers are absent"):
+        validate(package_root, source_docs, require_rendered_docs=True)
+
+
+def test_validate_rejects_rendered_docs_without_index(tmp_path: Path) -> None:
+    package_root, source_docs = _portable_docs_package(tmp_path)
+    rendered = _add_rendered_docs(package_root)
+    (rendered / "index.html").unlink()
+
+    with pytest.raises(RuntimeError, match="no index.html"):
+        validate(package_root, source_docs, require_rendered_docs=True)
+
+
+def test_validate_accepts_complete_rendered_docs(tmp_path: Path) -> None:
+    package_root, source_docs = _portable_docs_package(tmp_path)
+    _add_rendered_docs(package_root)
+
+    validate(package_root, source_docs, require_rendered_docs=True)
+
+
+def _image_bytes(format: str) -> bytes:
+    stream = BytesIO()
+    Image.new("RGB", (8, 8), (15, 70, 140)).save(stream, format=format)
+    return stream.getvalue()
+
+
+def _package_images(tmp_path: Path, suffix: str) -> tuple[Path, Path, Path, Path]:
+    package_root, source_docs = _portable_docs_package(tmp_path)
+    rendered = _add_rendered_docs(package_root) / "_images"
+    rendered.mkdir()
+    portable_image = package_root / "docs" / f"diagram{suffix}"
+    rendered_image = rendered / f"diagram{suffix}"
+    data = _image_bytes("PNG" if suffix == ".png" else "JPEG")
+    (source_docs / portable_image.name).write_bytes(data)
+    portable_image.write_bytes(data)
+    rendered_image.write_bytes(data)
+    return package_root, source_docs, portable_image, rendered_image
+
+
+@pytest.mark.parametrize("suffix", [".png", ".jpg"])
+@pytest.mark.parametrize("layout", ["portable", "rendered"])
+def test_validate_rejects_lfs_pointer_images(tmp_path: Path, suffix: str, layout: str) -> None:
+    package_root, source_docs, portable, rendered = _package_images(tmp_path, suffix)
+    pointer = b"version https://git-lfs.github.com/spec/v1\noid sha256:" + b"0" * 64 + b"\nsize 1000\n"
+    target = portable if layout == "portable" else rendered
+    target.write_bytes(pointer)
+    if layout == "portable":
+        # Matching source and artifact bytes used to conceal the broken payload.
+        (source_docs / portable.name).write_bytes(pointer)
+    with pytest.raises(RuntimeError, match="Git LFS pointer"):
+        validate(package_root, source_docs, require_rendered_docs=True)
+
+
+@pytest.mark.parametrize("suffix", [".png", ".jpg"])
+@pytest.mark.parametrize("layout", ["portable", "rendered"])
+def test_validate_rejects_truncated_images(tmp_path: Path, suffix: str, layout: str) -> None:
+    package_root, source_docs, portable, rendered = _package_images(tmp_path, suffix)
+    target = portable if layout == "portable" else rendered
+    target.write_bytes(target.read_bytes()[:40])
+    if layout == "portable":
+        (source_docs / portable.name).write_bytes(target.read_bytes())
+    with pytest.raises(RuntimeError, match="Invalid documentation images"):
+        validate(package_root, source_docs, require_rendered_docs=True)
+
+
+@pytest.mark.parametrize("suffix", [".png", ".jpg"])
+def test_validate_accepts_decodable_images(tmp_path: Path, suffix: str) -> None:
+    package_root, source_docs, _, _ = _package_images(tmp_path, suffix)
+    validate(package_root, source_docs, require_rendered_docs=True)
+
+
+def test_validate_rejects_wrong_image_format(tmp_path: Path) -> None:
+    package_root, source_docs, portable, rendered = _package_images(tmp_path, ".png")
+    rendered.write_bytes(_image_bytes("JPEG"))
+    with pytest.raises(RuntimeError, match="expected PNG, found JPEG"):
+        validate(package_root, source_docs, require_rendered_docs=True)

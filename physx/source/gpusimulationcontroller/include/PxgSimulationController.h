@@ -1,114 +1,58 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef PXG_SIMULATION_CONTROLLER_H
 #define	PXG_SIMULATION_CONTROLLER_H
 
 #include "PxgBodySimManager.h"
 #include "PxgJointManager.h"
-#include "PxsSimulationController.h"
-#include "PxgHeapMemAllocator.h"
-#include "CmTask.h"
 #include "PxgArticulationLink.h"
-#include "DyArticulationJointCore.h"
-#include "PxgArticulation.h"
-#include "PxgArticulationTendon.h"
-#include "PxgSimulationCoreDesc.h"
 #include "PxgSoftBody.h"
 #include "PxgFEMCloth.h"
-#include "PxgParticleSystem.h"
-#include "PxArticulationTendonData.h"
+#include "PxgAllocatorDesc.h"
+#include "PxgAttachmentManager.h"
+#include "PxgDeformableFilterManager.h"
+#include "PxgSimulationCoreDesc.h"
+#include "DyDeformableVolume.h"
+
+#include "PxsSimulationController.h"
+#include "CmTask.h"
+
 #include "foundation/PxPreprocessor.h"
 #include "foundation/PxSimpleTypes.h"
-
-#include "BpAABBManagerBase.h"
-#include "PxgAABBManager.h"
-#include "PxsTransformCache.h"
-#include "PxgNarrowphaseCore.h"
-#define PXG_SC_DEBUG	0
 
 namespace physx
 {
 	//this is needed to force PhysXSimulationControllerGpu linkage as Static Library!
 	void createPxgSimulationController();
 
-	namespace shdfnd
-	{
-		class PxVirtualAllocatorCallback;
-	}
-
-	namespace Dy
-	{
-		class ParticleSystemCore;
-	}
-
 	namespace Bp
 	{
 		class BroadPhase;
 	}
 
+	namespace Dy
+	{
+		struct ArticulationLink;
+	}
+
+	class PxsKernelWranglerManager;
+
 	class PxgSimulationCore;
+	class PxgParticleSystemCore;
 	class PxgPBDParticleSystemCore;
 	class PxgSoftBodyCore;
 	class PxgFEMClothCore;
+	class PxgCudaBuffer;
+	class PxgBoundsArray;
 	class PxgGpuContext;
 	class PxgNphaseImplementationContext;
-	struct PxsCachedTransform;
-
 	class PxgSimulationController;
 	class PxgCudaKernelWranglerManager;
 	class PxgCudaBroadPhaseSap;
 
-	struct SoftBodyAttachmentAndFilterData
-	{
-	public:
-		PxPinnedArray<PxgFEMRigidAttachment>* rigidAttachments;
-		PxPinnedArray<PxgRigidFilterPair>* rigidFilterPairs;
-		bool dirtyRigidAttachments;
-		PxInt32ArrayPinned* activeRigidAttachments;
-		bool dirtyActiveRigidAttachments;
-		PxPinnedArray<PxgFEMFEMAttachment>* softBodyAttachments;
-		bool dirtySoftBodyAttachments;
-		PxInt32ArrayPinned* activeSoftBodyAttachments;
-		bool dirtyActiveSoftBodyAttachments;
-		PxArray<Dy::DeformableVolume*>* dirtyDeformableVolumeForFilterPairs;
-		PxPinnedArray<PxgFEMFEMAttachment>* clothAttachments;
-		PxPinnedArray<PxgNonRigidFilterPair>* clothFilterPairs;
-		bool dirtyClothAttachments;
-		PxInt32ArrayPinned* activeClothAttachments;
-		bool dirtyActiveClothAttachments;
-		PxPinnedArray<PxgFEMFEMAttachment>* particleAttachments;
-		PxPinnedArray<PxgNonRigidFilterPair>* particleFilterPairs;
-		bool dirtyParticleAttachments;
-		PxInt32ArrayPinned* activeParticleAttachments;
-		bool dirtyActiveParticleAttachments;
-	};
-	
 	class PxgCopyToBodySimTask : public Cm::Task
 	{
 		PxgSimulationController& mController;
@@ -123,9 +67,9 @@ namespace physx
 		{
 		}
 
-		virtual void runInternal();
+		virtual void runInternal() PX_OVERRIDE;
 
-		virtual const char* getName() const
+		virtual const char* getName() const PX_OVERRIDE
 		{
 			return "PxgCopyToBodySimTask";
 		}
@@ -169,9 +113,9 @@ namespace physx
 		{
 		}
 
-		virtual void runInternal();
+		virtual void runInternal() PX_OVERRIDE;
 
-		virtual const char* getName() const
+		virtual const char* getName() const PX_OVERRIDE
 		{
 			return "PxgCopyToArticulationSimTask";
 		}
@@ -212,9 +156,9 @@ namespace physx
 		{
 		}
 
-		virtual void runInternal();
+		virtual void runInternal() PX_OVERRIDE;
 
-		virtual const char* getName() const
+		virtual const char* getName() const PX_OVERRIDE
 		{
 			return "PxgUpdateArticulationSimTask";
 		}
@@ -238,9 +182,9 @@ namespace physx
 		{
 		}
 
-		virtual void runInternal();
+		virtual void runInternal() PX_OVERRIDE;
 
-		virtual const char* getName() const
+		virtual const char* getName() const PX_OVERRIDE
 		{
 			return "PxgCopyToSoftBodySimTask";
 		}
@@ -264,9 +208,9 @@ namespace physx
 		{
 		}
 
-		virtual void runInternal();
+		virtual void runInternal() PX_OVERRIDE;
 
-		virtual const char* getName() const
+		virtual const char* getName() const PX_OVERRIDE
 		{
 			return "PxgCopyToFEMClothSimTask";
 		}
@@ -288,9 +232,9 @@ namespace physx
 		{
 		}
 
-		virtual void runInternal();
+		virtual void runInternal() PX_OVERRIDE;
 
-		virtual const char* getName() const
+		virtual const char* getName() const PX_OVERRIDE
 		{
 			return "PxgCopyToPBDParticleSystemSimTask";
 		}
@@ -308,9 +252,9 @@ namespace physx
 		{
 		}
 
-		virtual void runInternal();
+		virtual void runInternal() PX_OVERRIDE;
 
-		virtual const char* getName() const
+		virtual const char* getName() const PX_OVERRIDE
 		{
 			return "PxgPostCopyToShapeSimTask";
 		}
@@ -328,9 +272,9 @@ namespace physx
 		{
 		}
 
-		virtual void runInternal();
+		virtual void runInternal() PX_OVERRIDE;
 
-		virtual const char* getName() const
+		virtual const char* getName() const PX_OVERRIDE
 		{
 			return "PxgPostCopyToBodySimTask";
 		}
@@ -346,103 +290,17 @@ namespace physx
 	public:
 		PxgPostUpdateParticleAndSoftBodyTask(PxgSimulationController& controller) : Cm::Task(0), mController(controller) {}
 
-		virtual void runInternal();
+		virtual void runInternal() PX_OVERRIDE;
 
 		void setGravity(const PxVec3 gravity) { mGravity = gravity; }
 		void setDt(const PxReal dt) { mDt = dt; }
 
-		virtual const char* getName() const
+		virtual const char* getName() const PX_OVERRIDE
 		{
 			return "PxgPostUpdateParticleAndSoftBodyTask";
 		}
 	private:
 		PX_NOCOPY(PxgPostUpdateParticleAndSoftBodyTask)
-	};
-
-	template <typename Attachment>
-	class AttachmentManager
-	{
-	public:
-		PxPinnedArray<Attachment>	mAttachments;
-		PxInt32ArrayPinned	mActiveAttachments;
-		PxHashMap<PxU32, PxU32> mHandleToAttachmentMapping;
-		PxHashMap<PxU32, PxU32>	mHandleToActiveIndex;
-		PxArray<PxU32> mHandles;
-
-		PxU32 mBaseHandle;
-		bool mAttachmentsDirty;
-		bool mActiveAttachmentsDirty;
-
-		AttachmentManager(PxgHeapMemoryAllocatorManager* manager) : 
-			mAttachments(manager->mMappedMemoryAllocators),
-			mActiveAttachments(manager->mMappedMemoryAllocators),
-			mBaseHandle(0),
-			mAttachmentsDirty(false),
-			mActiveAttachmentsDirty(false)
-		{
-		}
-
-		void addAttachment(const Attachment& attachment, const PxU32 handle)
-		{
-			const PxU32 size = mAttachments.size();
-			mAttachments.pushBack(attachment);
-			mHandles.pushBack(handle);
-			mHandleToAttachmentMapping[handle] = size;
-			mAttachmentsDirty = true;
-		}
-
-		bool removeAttachment(const PxU32 handle)
-		{
-			deactivateAttachment(handle);
-
-			//Now remove this current handle...
-			PxHashMap<PxU32, PxU32>::Entry mapping;
-			bool found = mHandleToAttachmentMapping.erase(handle, mapping);
-			if (found)
-			{
-				mAttachments.replaceWithLast(mapping.second);
-				mHandles.replaceWithLast(mapping.second);
-				if (mapping.second < mAttachments.size())
-				{
-					PxU32 newHandle = mHandles[mapping.second];
-					mHandleToAttachmentMapping[newHandle] = mapping.second;
-					const PxHashMap<PxU32, PxU32>::Entry* activeMapping = mHandleToActiveIndex.find(newHandle);
-					if (activeMapping)
-					{
-						mActiveAttachments[activeMapping->second] = mapping.second;
-					}
-				}
-				mAttachmentsDirty = true;
-			}
-			return found;
-		}
-
-		void activateAttachment(const PxU32 handle)
-		{
-			PX_ASSERT(!mHandleToActiveIndex.find(handle));
-			PxU32 index = mHandleToAttachmentMapping[handle];
-			mHandleToActiveIndex[handle] = mActiveAttachments.size();
-			mActiveAttachments.pushBack(index);
-			mActiveAttachmentsDirty = true;
-		}
-
-		void deactivateAttachment(const PxU32 handle)
-		{
-			PxHashMap<PxU32, PxU32>::Entry mapping;
-			bool found = mHandleToActiveIndex.erase(handle, mapping);
-			if (found)
-			{
-				mActiveAttachments.replaceWithLast(mapping.second);
-
-				if (mapping.second < mActiveAttachments.size())
-				{
-					PxU32 replaceHandle = mHandles[mActiveAttachments[mapping.second]];
-					mHandleToActiveIndex[replaceHandle] = mapping.second;
-				}
-
-				mActiveAttachmentsDirty = true;
-			}
-		}
 	};
 
 	class PxgSimulationController : public PxsSimulationController
@@ -451,7 +309,7 @@ namespace physx
 	public:
 		PxgSimulationController(PxsKernelWranglerManager* gpuWranglerManagers, PxCudaContextManager* cudaContextManager,
 			PxgGpuContext* dynamicContext, PxgNphaseImplementationContext* npContext, Bp::BroadPhase* bp, bool useGpuBroadphase,
-			PxsSimulationControllerCallback* callback, PxgHeapMemoryAllocatorManager* heapMemoryManager,
+			PxsSimulationControllerCallback* callback, PxgAllocatorDesc& allocDesc,
 			PxU32 maxSoftBodyContacts, PxU32 maxFemClothContacts, PxU32 maxParticleContacts, PxU32 collisionStackSizeBytes, bool enableBodyAccelerations);
 
 		virtual ~PxgSimulationController();
@@ -467,96 +325,73 @@ namespace physx
 		virtual void releaseArticulation(Dy::FeatherstoneArticulation* articulation, const PxNodeIndex& nodeIndex)	PX_OVERRIDE;
 		virtual void releaseDeferredArticulationIds()	PX_OVERRIDE;
 
-		virtual void addParticleFilter(Dy::DeformableVolume* deformableVolume, Dy::ParticleSystem* particleSystem,
-			PxU32 particleId, PxU32 userBufferId, PxU32 tetId)	PX_OVERRIDE;
-		virtual void removeParticleFilter(Dy::DeformableVolume* deformableVolume,
-			const Dy::ParticleSystem* particleSystem, PxU32 particleId, PxU32 userBufferId, PxU32 tetId)	PX_OVERRIDE;
 
-		virtual PxU32 addParticleAttachment(Dy::DeformableVolume* deformableVolume, const Dy::ParticleSystem* particleSystem,
-			 PxU32 particleId, PxU32 userBufferId, PxU32 tetId, const PxVec4& barycentrics, const bool isActive)	PX_OVERRIDE;
-		virtual void removeParticleAttachment(Dy::DeformableVolume* deformableVolume, PxU32 handle)	PX_OVERRIDE;
+		virtual PxU32 addVolumeRigidAttachments(Dy::DeformableVolume* deformableVolume, PxsRigidBody* rigidBody, const PxNodeIndex& rigidNodeIndex,
+			PxDeformableAttachmentTargetType::Enum feature, const PxU32* indices, const PxVec4* barycentrics,
+			const PxTransform& frame, const PxVec4* coords, PxU32 count, const bool isActive)	PX_OVERRIDE;
+		virtual void removeVolumeRigidAttachments(Dy::DeformableVolume* deformableVolume, PxU32 handle)	PX_OVERRIDE;
 
-		virtual void addRigidFilter(Dy::DeformableVolume* deformableVolume, const PxNodeIndex& rigidNodeIndex, PxU32 vertIndex)	PX_OVERRIDE;
-		virtual void removeRigidFilter(Dy::DeformableVolume* deformableVolume, const PxNodeIndex& rigidNodeIndex, PxU32 vertIndex)	PX_OVERRIDE;
+		virtual PxU32 addVolumeVolumeAttachments(Dy::DeformableVolume* deformableVolume0, PxDeformableAttachmentTargetType::Enum feature0,
+			const PxU32* indices0, const PxVec4* barycentrics0, Dy::DeformableVolume* deformableVolume1,
+			PxDeformableAttachmentTargetType::Enum feature1, const PxU32* indices1, const PxVec4* barycentrics1,
+			PxU32 count, const bool addToActive)	PX_OVERRIDE;
+		virtual void removeVolumeVolumeAttachments(Dy::DeformableVolume* deformableVolume0, PxU32 handle)	PX_OVERRIDE;
 
-		virtual PxU32 addRigidAttachment(Dy::DeformableVolume* deformableVolume, const PxNodeIndex& softBodyNodeIndex,
-			PxsRigidBody* rigidBody, const PxNodeIndex& rigidNodeIndex, PxU32 vertIndex, const PxVec3& actorSpacePose,
-			PxConeLimitedConstraint* constraint, const bool isActive, bool doConversion)	PX_OVERRIDE;
-		
-		virtual PxU32 addTetRigidAttachment(Dy::DeformableVolume* deformableVolume,
-			PxsRigidBody* rigidBody, const PxNodeIndex& rigidNodeIndex, PxU32 tetIdx, const PxVec4& barycentrics, const PxVec3& actorSpacePose,
-			PxConeLimitedConstraint* constraint, const bool isActive, bool doConversion)	PX_OVERRIDE;
+		virtual PxU32 addVolumeSurfaceAttachments(Dy::DeformableVolume* deformableVolume, PxDeformableAttachmentTargetType::Enum feature0,
+			const PxU32* indices0, const PxVec4* barycentrics0, Dy::DeformableSurface* deformableSurface,
+			PxDeformableAttachmentTargetType::Enum feature1, const PxU32* indices1, const PxVec4* barycentrics1,
+			PxU32 count, const bool isActive)	PX_OVERRIDE;
+		virtual void removeVolumeSurfaceAttachments(Dy::DeformableVolume* deformableVolume, PxU32 handle)	PX_OVERRIDE;
 
-		virtual void removeRigidAttachment(Dy::DeformableVolume* deformableVolume, PxU32 handle)	PX_OVERRIDE;
+		virtual void addVolumeRigidFilters(Dy::DeformableVolume* deformableVolume,
+			const PxNodeIndex& rigidNodeIndex, PxU32* tetIndices, PxU32 tetIndicesSize)	PX_OVERRIDE;
+		virtual void removeVolumeRigidFilters(Dy::DeformableVolume* deformableVolume,
+			const PxNodeIndex& rigidNodeIndex, PxU32* tetIndices, PxU32 tetIndicesSize)	PX_OVERRIDE;
+		virtual void addVolumeStaticShapeFilters(Dy::DeformableVolume* deformableVolume,
+			const PxU32* shapeCacheIds, PxU32 nbShapes, PxU32* tetIndices, PxU32 tetIndicesSize)	PX_OVERRIDE;
+		virtual void removeVolumeStaticShapeFilters(Dy::DeformableVolume* deformableVolume,
+			const PxU32* shapeCacheIds, PxU32 nbShapes, PxU32* tetIndices, PxU32 tetIndicesSize)	PX_OVERRIDE;
 
-		virtual void addTetRigidFilter(Dy::DeformableVolume* deformableVolume,
-			const PxNodeIndex& rigidNodeIndex, PxU32 tetId)	PX_OVERRIDE;
-		virtual void removeTetRigidFilter(Dy::DeformableVolume* deformableVolume,
-			const PxNodeIndex& rigidNodeIndex, PxU32 tetId)	PX_OVERRIDE;
-
-		virtual void addSoftBodyFilter(Dy::DeformableVolume* deformableVolume0, Dy::DeformableVolume* deformableVolume1, PxU32 tetIdx0,
-			PxU32 tetIdx1)	PX_OVERRIDE;
-		virtual void removeSoftBodyFilter(Dy::DeformableVolume* deformableVolume0, Dy::DeformableVolume* deformableVolume1, PxU32 tetIdx0,
-			PxU32 tetId1)	PX_OVERRIDE;
-		virtual void addSoftBodyFilters(Dy::DeformableVolume* deformableVolume0, Dy::DeformableVolume* deformableVolume1, PxU32* tetIndices0, PxU32* tetIndices1,
+		virtual void addVolumeVolumeFilters(Dy::DeformableVolume* deformableVolume0, Dy::DeformableVolume* deformableVolume1, PxU32* tetIndices0, PxU32* tetIndices1,
 			PxU32 tetIndicesSize)	PX_OVERRIDE;
-		virtual void removeSoftBodyFilters(Dy::DeformableVolume* deformableVolume0, Dy::DeformableVolume* deformableVolume1, PxU32* tetIndices0, PxU32* tetIndices1,
+		virtual void removeVolumeVolumeFilters(Dy::DeformableVolume* deformableVolume0, Dy::DeformableVolume* deformableVolume1, PxU32* tetIndices0, PxU32* tetIndices1,
 			PxU32 tetIndicesSize)	PX_OVERRIDE;
 
-		virtual PxU32 addSoftBodyAttachment(Dy::DeformableVolume* deformableVolume0, Dy::DeformableVolume* deformableVolume1, PxU32 tetIdx0, PxU32 tetIdx1,
-			const PxVec4& tetBarycentric0, const PxVec4& tetBarycentric1, PxConeLimitedConstraint* constraint, PxReal constraintOffset,
-			const bool addToActive, bool doConversion)	PX_OVERRIDE;
+		virtual void addVolumeSurfaceFilters(Dy::DeformableVolume* deformableVolume, Dy::DeformableSurface* deformableSurface, PxU32* triIndices, PxU32* tetIndices,
+			PxU32 indicesSize)	PX_OVERRIDE;
+		virtual void removeVolumeSurfaceFilters(Dy::DeformableVolume* deformableVolume, Dy::DeformableSurface* deformableSurface, PxU32* triIndices, PxU32* tetIndices,
+			PxU32 indicesSize)	PX_OVERRIDE;
 
-		virtual void removeSoftBodyAttachment(Dy::DeformableVolume* deformableVolume0, PxU32 handle)	PX_OVERRIDE;
+		virtual PxU32 addSurfaceRigidAttachments(Dy::DeformableSurface* deformableSurface, PxsRigidBody* rigidBody, const PxNodeIndex& rigidNodeIndex,
+			PxDeformableAttachmentTargetType::Enum feature, const PxU32* indices, const PxVec4* barycentrics,
+			const PxTransform& frame, const PxVec4* coords, PxU32 count, const bool isActive)	PX_OVERRIDE;
+		virtual void removeSurfaceRigidAttachments(Dy::DeformableSurface* deformableSurface, PxU32 handle)	PX_OVERRIDE;
 
-		virtual void addClothFilter(Dy::DeformableVolume* deformableVolume, Dy::DeformableSurface* deformableSurface, PxU32 triIdx, PxU32 tetIdx)	PX_OVERRIDE;
-		virtual void removeClothFilter(Dy::DeformableVolume* deformableVolume, Dy::DeformableSurface* deformableSurface, PxU32 triId, PxU32 tetIdx)	PX_OVERRIDE;
+		virtual PxU32 addSurfaceSurfaceAttachments(Dy::DeformableSurface* deformableSurface0, PxDeformableAttachmentTargetType::Enum feature0,
+			const PxU32* indices0, const PxVec4* barycentrics0, Dy::DeformableSurface* deformableSurface1,
+			PxDeformableAttachmentTargetType::Enum feature1, const PxU32* indices1, const PxVec4* barycentrics1,
+			PxU32 count, const bool addToActive)	PX_OVERRIDE;
+		virtual void removeSurfaceSurfaceAttachments(Dy::DeformableSurface* deformableSurface0, PxU32 handle)	PX_OVERRIDE;
 
-		virtual PxU32 addClothAttachment(Dy::DeformableVolume* deformableVolume, Dy::DeformableSurface* deformableSurface, PxU32 triIdx,
-			const PxVec4& triBarycentric, PxU32 tetIdx, const PxVec4& tetBarycentric,
-			PxConeLimitedConstraint* constraint, PxReal constraintOffset,
-			const bool isActive, bool doConversion)	PX_OVERRIDE;
+		virtual void addSurfaceRigidFilters(Dy::DeformableSurface* deformableSurface,
+			const PxNodeIndex& rigidNodeIndex, PxU32* triIndices, PxU32 triIndicesSize)	PX_OVERRIDE;
+		virtual void removeSurfaceRigidFilters(Dy::DeformableSurface* deformableSurface, const PxNodeIndex& rigidNodeIndex, PxU32* triIndices,
+			PxU32 triIndicesSize)	PX_OVERRIDE;
+		virtual void addSurfaceStaticShapeFilters(Dy::DeformableSurface* deformableSurface,
+			const PxU32* shapeCacheIds, PxU32 nbShapes, PxU32* triIndices, PxU32 triIndicesSize)	PX_OVERRIDE;
+		virtual void removeSurfaceStaticShapeFilters(Dy::DeformableSurface* deformableSurface,
+			const PxU32* shapeCacheIds, PxU32 nbShapes, PxU32* triIndices, PxU32 triIndicesSize)	PX_OVERRIDE;
 
-		virtual void removeClothAttachment(Dy::DeformableVolume* deformableVolume, PxU32 handle)	PX_OVERRIDE;
+		virtual void addSurfaceSurfaceFilters(Dy::DeformableSurface* deformableSurface0, Dy::DeformableSurface* deformableSurface1, PxU32* triIndices0, PxU32* triIndices1,
+			PxU32 triIndicesSize)	PX_OVERRIDE;
+		virtual void removeSurfaceSurfaceFilters(Dy::DeformableSurface* deformableSurface0, Dy::DeformableSurface* deformableSurface1, PxU32* triIndices0, PxU32* triIndices1,
+			PxU32 triIndicesSize)	PX_OVERRIDE;
 
-		virtual PxU32 addRigidAttachment(Dy::DeformableSurface* deformableSurface, const PxNodeIndex& clothNodeIndex,
-			PxsRigidBody* rigidBody, const PxNodeIndex& rigidNodeIndex, PxU32 vertIndex, const PxVec3& actorSpacePose,
-			PxConeLimitedConstraint* constraint, const bool isActive)	PX_OVERRIDE;
-
-		virtual void removeRigidAttachment(Dy::DeformableSurface* deformableSurface, PxU32 handle)	PX_OVERRIDE;
-
-		virtual void addTriRigidFilter(Dy::DeformableSurface* deformableSurface,
-			const PxNodeIndex& rigidNodeIndex, PxU32 triIdx)	PX_OVERRIDE;
-
-		virtual void removeTriRigidFilter(Dy::DeformableSurface* deformableSurface, const PxNodeIndex& rigidNodeIndex,PxU32 triIdx)	PX_OVERRIDE;
-
-		virtual PxU32 addTriRigidAttachment(Dy::DeformableSurface* deformableSurface,
-			PxsRigidBody* rigidBody, const PxNodeIndex& rigidNodeIndex, PxU32 triIdx, const PxVec4& barycentrics, 
-			const PxVec3& actorSpacePose, PxConeLimitedConstraint* constraint,
-			const bool isActive)	PX_OVERRIDE;
-
-		virtual void removeTriRigidAttachment(Dy::DeformableSurface* deformableSurface, PxU32 handle)	PX_OVERRIDE;
-
-		virtual void addClothFilter(Dy::DeformableSurface* deformableSurface0, Dy::DeformableSurface* deformableSurface1, PxU32 triIdx0, PxU32 triIdx1)	PX_OVERRIDE;
-		virtual void removeClothFilter(Dy::DeformableSurface* deformableSurface0, Dy::DeformableSurface* deformableSurface1, PxU32 triIdx0, PxU32 triId1)	PX_OVERRIDE;
-
-		virtual PxU32 addTriClothAttachment(Dy::DeformableSurface* deformableSurface0, Dy::DeformableSurface* deformableSurface1, PxU32 triIdx0, PxU32 triIdx1,
-			const PxVec4& triBarycentric0, const PxVec4& triBarycentric1, const bool addToActive)	PX_OVERRIDE;
-		
-		virtual void removeTriClothAttachment(Dy::DeformableSurface* deformableSurface0, PxU32 handle)	PX_OVERRIDE;
-
-		PxU32 addRigidAttachmentInternal(const PxU32 nonRigidId, const PxU32 elemId, const bool isVertex, const PxVec4& barycentric, PxsRigidBody* rigidBody,
-			const PxNodeIndex& rigidNodeIndex, const PxVec3& actorSpacePose, PxConeLimitedConstraint* constraint,
-			AttachmentManager<PxgFEMRigidAttachment>& attachments, bool addToActive);
-
-		void addSoftBodyFiltersInternal(Dy::DeformableVolume* deformableVolume0, Dy::DeformableVolume* deformableVolume1, PxU32* tetIndices, PxU32 size);
-		void removeSoftBodyFiltersInternal(Dy::DeformableVolume* deformableVolume0, Dy::DeformableVolume* deformableVolume1, PxU32* tetIndices, PxU32 size);
-
-		void createDeformableSurfaceCore();
-		void createDeformableVolumeCore();
 		virtual void addSoftBody(Dy::DeformableVolume* deformableVolume, const PxNodeIndex& nodeIndex)	PX_OVERRIDE;
 		virtual void releaseSoftBody(Dy::DeformableVolume* deformableVolume)	PX_OVERRIDE;
+
 		virtual void releaseDeferredSoftBodyIds()	PX_OVERRIDE;
+		virtual PxU32 getNbReservedSoftBodyIds()	const	PX_OVERRIDE;
 		virtual void activateSoftbody(Dy::DeformableVolume* deformableVolume)	PX_OVERRIDE;
 		virtual void deactivateSoftbody(Dy::DeformableVolume* deformableVolume)	PX_OVERRIDE;
 		virtual void activateSoftbodySelfCollision(Dy::DeformableVolume* deformableVolume)	PX_OVERRIDE;
@@ -566,6 +401,7 @@ namespace physx
 		virtual void addFEMCloth(Dy::DeformableSurface* deformableSurface, const PxNodeIndex& nodeIndex)	PX_OVERRIDE;
 		virtual void releaseFEMCloth(Dy::DeformableSurface* deformableSurface)	PX_OVERRIDE;
 		virtual void releaseDeferredFEMClothIds()	PX_OVERRIDE;
+		virtual PxU32 getNbReservedFEMClothIds()	const	PX_OVERRIDE;
 		virtual void activateCloth(Dy::DeformableSurface* deformableSurface)	PX_OVERRIDE;
 		virtual void deactivateCloth(Dy::DeformableSurface* deformableSurface)	PX_OVERRIDE;
 		virtual void setClothWakeCounter(Dy::DeformableSurface* deformableSurface)	PX_OVERRIDE;
@@ -575,6 +411,7 @@ namespace physx
 		virtual void releaseDeferredParticleSystemIds()	PX_OVERRIDE;
 
 		virtual void updateDynamic(Dy::FeatherstoneArticulation* articulation, const PxNodeIndex& nodeIndex)	PX_OVERRIDE;
+		virtual void setKinematicTargetDirectGPU(const PxNodeIndex& nodeIndex, const PxTransform& body2World)	PX_OVERRIDE;
 		virtual void updateBodies(PxsRigidBody** rigidBodies, PxU32* nodeIndices, const PxU32 nbBodies, PxsExternalAccelerationProvider* externalAccelerations)	PX_OVERRIDE;
 		virtual void addJoint(const Dy::Constraint&) PX_OVERRIDE;
 		virtual void updateJoint(const PxU32 edgeIndex, Dy::Constraint* constraint)	PX_OVERRIDE;
@@ -584,15 +421,18 @@ namespace physx
 		virtual void preIntegrateAndUpdateBound(PxBaseTask* continuation, const PxVec3 gravity, const PxReal dt)	PX_OVERRIDE;
 		virtual void updateParticleSystemsAndSoftBodies()	PX_OVERRIDE;
 		virtual void sortContacts()	PX_OVERRIDE;
-		virtual void update(PxBitMapPinned& changedHandleMap)	PX_OVERRIDE;
+		virtual void update(Cm::PinnableBitMap& changedHandleMap)	PX_OVERRIDE;
 		virtual void mergeChangedAABBMgHandle()	PX_OVERRIDE;
-		virtual void gpuDmabackData(PxsTransformCache& cache, Bp::BoundsArray& boundArray, PxBitMapPinned&  changedAABBMgrHandles, bool enableDirectGPUAPI)	PX_OVERRIDE;
+		virtual void gpuDmabackData(PxsTransformCache& cache, Bp::BoundsArray& boundArray, Cm::PinnableBitMap& changedAABBMgrHandles, bool enableDirectGPUAPI)	PX_OVERRIDE;
 		virtual void updateScBodyAndShapeSim(PxsTransformCache& cache, Bp::BoundsArray& boundArray, PxBaseTask* continuation)	PX_OVERRIDE;
+		
+		virtual const void* getRigidBodyAccelerations() const PX_OVERRIDE;
+
 		virtual void updateArticulation(Dy::FeatherstoneArticulation* articulation, const PxNodeIndex& nodeIndex)	PX_OVERRIDE;
 		virtual void updateArticulationJoint(Dy::FeatherstoneArticulation* articulation, const PxNodeIndex& nodeIndex)	PX_OVERRIDE;
 		virtual void updateArticulationExtAccel(Dy::FeatherstoneArticulation* articulation, const PxNodeIndex& nodeIndex)	PX_OVERRIDE;
 		virtual void updateArticulationAfterIntegration(PxsContext* /*llContext*/, Bp::AABBManagerBase* /*aabbManager*/,
-			PxArray<Sc::BodySim*>& /*ccdBodies*/, PxBaseTask* /*continuation*/, IG::IslandSim& /*islandSim*/, float /*dt*/) PX_OVERRIDE	{}
+			PxArray<Sc::BodySim*>& /*ccdBodies*/, PxBaseTask* /*continuation*/, IG::IslandSim& /*islandSim*/, float /*dt*/, bool /*isSleepingDisabled*/) PX_OVERRIDE	{}
 		virtual PxU32* getActiveBodies()	PX_OVERRIDE;
 		virtual PxU32* getDeactiveBodies()	PX_OVERRIDE;
 		virtual void** getRigidBodies()	PX_OVERRIDE;
@@ -608,21 +448,13 @@ namespace physx
 		virtual void	setBounds(Bp::BoundsArray* boundArray)	PX_OVERRIDE;
 		virtual void	reserve(const PxU32 nbBodies)	PX_OVERRIDE;
 
-		PX_INLINE PxU32   getArticulationRemapIndex(const PxU32 nodeIndex) { return mBodySimManager.getArticulationRemapIndex(nodeIndex); }
+		virtual PX_INLINE PxU32   getArticulationRemapIndex(const PxU32 nodeIndex) PX_OVERRIDE { return mBodySimManager.getArticulationRemapIndex(nodeIndex); }
 		
 		virtual void	setDeformableSurfaceGpuPostSolveCallback(PxPostSolveCallback* postSolveCallback) PX_OVERRIDE PX_FINAL;
 		virtual void	setDeformableVolumeGpuPostSolveCallback(PxPostSolveCallback* postSolveCallback) PX_OVERRIDE PX_FINAL;
 
-		// deprecated direct-GPU API
-
-		PX_DEPRECATED	virtual	void	copySoftBodyDataDEPRECATED(void** data, void* dataEndIndices, void* softBodyIndices, PxSoftBodyGpuDataFlag::Enum flag, const PxU32 nbCopySoftBodies, const PxU32 maxSize, CUevent copyEvent) PX_OVERRIDE PX_FINAL;
-		PX_DEPRECATED	virtual	void	applySoftBodyDataDEPRECATED(void** data, void* dataEndIndices, void* softBodyIndices, PxSoftBodyGpuDataFlag::Enum flag, const PxU32 nbUpdatedSoftBodies, const PxU32 maxSize, CUevent applyEvent, CUevent signalEvent) PX_OVERRIDE PX_FINAL;	
-
-		PX_DEPRECATED	virtual void	applyParticleBufferDataDEPRECATED(const PxU32* indices, const PxGpuParticleBufferIndexPair* indexPair, const PxParticleBufferFlags* flags, PxU32 nbUpdatedBuffers, CUevent waitEvent, CUevent signalEvent)	PX_OVERRIDE;
-		// end deprecated direct-GPU API
-
 		// new direct-GPU API
-		virtual bool	getRigidDynamicData(void* data, const PxRigidDynamicGPUIndex* gpuIndices, PxRigidDynamicGPUAPIReadType::Enum dataType, PxU32 nbElements, float oneOverDt, CUevent startEvent, CUevent finishEvent) const PX_OVERRIDE PX_FINAL;
+		virtual bool	getRigidDynamicData(void* data, const PxRigidDynamicGPUIndex* gpuIndices, PxRigidDynamicGPUAPIReadType::Enum dataType, PxU32 nbElements, CUevent startEvent, CUevent finishEvent) const PX_OVERRIDE PX_FINAL;
 		virtual bool 	setRigidDynamicData(const void* data, const PxRigidDynamicGPUIndex* gpuIndices, PxRigidDynamicGPUAPIWriteType::Enum dataType, PxU32 nbElements, CUevent startEvent, CUevent finishEvent) PX_OVERRIDE PX_FINAL;
 		
 		virtual bool 	getArticulationData(void* data, const PxArticulationGPUIndex* gpuIndices, PxArticulationGPUAPIReadType::Enum dataType, PxU32 nbElements, CUevent startEvent, CUevent finishEvent) const PX_OVERRIDE PX_FINAL;
@@ -636,12 +468,13 @@ namespace physx
 
 		virtual bool	getD6JointData(void* data, const PxD6JointGPUIndex* gpuIndices, PxD6JointGPUAPIReadType::Enum dataType, PxU32 nbElements, PxF32 oneOverDt, CUevent startEvent, CUevent finishEvent) const PX_OVERRIDE PX_FINAL;
 
+		void		 initDirectGPUAPIState();
 		// end new direct-GPU API
 
 		virtual	PxU32	getInternalShapeIndex(const PxsShapeCore& shapeCore)	PX_OVERRIDE PX_FINAL;
 
 		virtual void	syncParticleData()	PX_OVERRIDE;
-		virtual void    updateBoundsAndShapes(Bp::AABBManagerBase& aabbManager, bool useDirectApi)	PX_OVERRIDE;
+		virtual void	updateBoundsAndShapes(Bp::AABBManagerBase& aabbManager, bool useDirectApi)	PX_OVERRIDE;
 
 		PX_FORCE_INLINE PxgSimulationCore* getSimulationCore() { return mSimulationCore; }
 		PX_FORCE_INLINE PxgJointManager& getJointManager() { return mJointManager; }
@@ -677,9 +510,6 @@ namespace physx
 		void preIntegrateAndUpdateBoundFEMCloth(const PxVec3 gravity, const PxReal dt);
 		void updateJointsAndSyncData();
 
-		void computeSoftBodySimMeshData(Dy::DeformableVolume* deformableVolume, PxU32 tetId, const PxVec4& tetBarycentric,
-			PxU32& outTetId, PxVec4& outTetBarycentric);
-
 		PX_FORCE_INLINE PxU32 getMaxLinks() { return mMaxLinks; }
 
 		PX_FORCE_INLINE PxU32 getMaxFemContacts() { return mMaxFemClothContacts; }
@@ -700,14 +530,30 @@ namespace physx
 
 
 		virtual void setEnableOVDReadback(bool enableOVDReadback) PX_OVERRIDE;
-		virtual bool getEnableOVDReadback() const PX_OVERRIDE;
+		virtual PxsOVDReadbackMode::Enum getOVDReadbackMode() const PX_OVERRIDE;
 
 		virtual void setEnableOVDCollisionReadback(bool enableOVDCollisionsReadback) PX_OVERRIDE;
 		virtual bool getEnableOVDCollisionReadback() const PX_OVERRIDE;
+		virtual bool getEnableOVDContactCollection() const PX_OVERRIDE { return mEnableOVDCollisionReadback; }
+
+		virtual bool isArticulationUploadPending(PxU32 gpuIndex) const PX_OVERRIDE { return mBodySimManager.mPendingArticulationUploads.boundedTest(gpuIndex) != 0; }
 
 #if PX_SUPPORT_OMNI_PVD
 		virtual void setOVDCallbacks(PxsSimulationControllerOVDCallbacks& ovdCallbacks) PX_OVERRIDE;
+		virtual bool ovdReadbackRigidDynamicData(const PxRigidDynamicGPUIndex* indices, PxU32 nbElements, PxRigidDynamicGPUAPIReadType::Enum dataType) PX_OVERRIDE;
+		virtual bool ovdReadbackArticulationData(const PxArticulationGPUIndex* indices, PxU32 nbElements, PxArticulationGPUAPIReadType::Enum dataType) PX_OVERRIDE;
+		virtual bool ovdIsContactPairCaptured(const PxActor& actor0, const PxActor& actor1) const PX_OVERRIDE;
+		virtual bool ovdBeginContactReadback() PX_OVERRIDE;
+		virtual void ovdQueueContactReadback(const void* patches, const void* points, const void* friction, const PxReal* forces, PxU32 nbContacts, PxU32 nbPatches) PX_OVERRIDE;
+		virtual bool ovdFinishContactReadback() PX_OVERRIDE;
+		virtual bool ovdReadbackContactPair(const void* patches, const void* points, const void* friction, const PxReal* forces, PxU32 nbContacts, PxU32 nbPatches) PX_OVERRIDE;
+		virtual PxU64 getOmniPvdReadbackBytes() const PX_OVERRIDE { return mOmniPvdReadbackBytes; }
+		virtual void recordOmniPvdReadbackBytes(PxU64 bytes) PX_OVERRIDE { mOmniPvdReadbackBytes += bytes; }
+		virtual PxU64 getOmniPvdReadbackCopyCount() const PX_OVERRIDE { return mOmniPvdReadbackCopyCount; }
+		virtual void recordOmniPvdReadbackCopy(PxU64 bytes) PX_OVERRIDE { mOmniPvdReadbackBytes += bytes; ++mOmniPvdReadbackCopyCount; }
 		PX_FORCE_INLINE PxsSimulationControllerOVDCallbacks* getOVDCallbacks() { return mOvdCallbacks; }
+		virtual void ovdSnapshotRigidDynamicForces(const PxRigidDynamicGPUIndex* gpuIndices, PxU32 nbElements) PX_OVERRIDE;
+		virtual void ovdSnapshotArticulationForces(const PxArticulationGPUIndex* gpuIndices, PxU32 nbElements) PX_OVERRIDE;
 #endif
 		virtual bool hasDeformableSurfaces() const PX_OVERRIDE	{ return mFEMClothCore != NULL;  }
 		virtual bool hasDeformableVolumes() const PX_OVERRIDE	{ return mSoftBodyCore != NULL; }
@@ -715,6 +561,9 @@ namespace physx
 		bool	 		getRecomputeArticulationBlockFormat() const { return mRecomputeArticulationBlockFormat; }
 
 	private:
+
+		void createDeformableSurfaceCore();
+		void createDeformableVolumeCore();
 
 		void copyToGpuBodySim(PxBaseTask* continuation);
 		void copyToGpuParticleSystem(PxBaseTask* continuation);
@@ -738,6 +587,10 @@ namespace physx
 			PxI32* sharedFixedTendonIndex, PxI32* sharedFixedTendonJointIndex,
 			PxI32* sharedMimicJointIndex);
 
+		// Writes the complete staged GPU record of an articulation link at a slot of the link pools: the link,
+		// its properties, its poses and its parent. The GPU copies these whole, so every field must be written.
+		void stageArticulationLink(PxU32 index, const Dy::ArticulationLink& cpuLink);
+
 		void copyToGpuSoftBodySim(PxU32 startIndex, PxU32 nbToCopy);
 
 		void copyToGpuFEMClothSim(PxU32 startIndex, PxU32 nbToCopy);
@@ -754,11 +607,7 @@ namespace physx
 		void mergeBoundsAndTransformsChanges(PxgBoundsArray& directGPUBoundsArray,
 																	  PxsTransformCache& transformCache,
 																	  PxgCudaBuffer& gpuTransformCache, PxU32 boundsArraySize, PxU32 totalTransformCacheSize,
-																		 PxU32 numChanges, CUstream npStream);
-
-#if PXG_SC_DEBUG
-		void validateCacheAndBounds(PxBoundsArrayPinned& boundArray, PxCachedTransformArrayPinned& cachedTransform);
-#endif
+																	  PxU32 numChanges, CUstream npStream);
 
 		PxgPostCopyToShapeSimTask								mPostCopyShapeSimTask;
 		PxgPostCopyToBodySimTask								mPostCopyBodySimTask;
@@ -774,85 +623,80 @@ namespace physx
 		PxgGpuContext*											mDynamicContext;
 		PxgNphaseImplementationContext*							mNpContext;
 
-		PxPinnedArray<PxgBodySim>								mNewBodySimPool;
-		PxPinnedArray<PxgArticulationLink>						mLinksPool;
-		PxFloatArrayPinned										mLinkWakeCounterPool;
-		PxPinnedArray<Cm::UnAlignedSpatialVector>				mLinkAccelPool;
-		PxPinnedArray<PxgArticulationLinkProp>					mLinkPropPool;
-		PxPinnedArray<PxgArticulationLinkSleepData>				mLinkSleepDataPool;
-		PxPinnedArray<ArticulationBitField>						mLinkChildPool;
-		PxInt32ArrayPinned										mLinkParentPool;
-		PxPinnedArray<PxTransform>								mLinkBody2WorldPool;
-		PxPinnedArray<PxTransform>								mLinkBody2ActorPool;
+		Cm::PinnableArray<PxgBodySim>							mNewBodySimPool;
+		Cm::PinnableArray<PxgArticulationLink>					mLinksPool;
+		Cm::PinnableArray<PxReal>								mLinkWakeCounterPool;
+		Cm::PinnableArray<Cm::UnAlignedSpatialVector>			mLinkAccelPool;
+		Cm::PinnableArray<PxgArticulationLinkProp>				mLinkPropPool;
+		Cm::PinnableArray<PxgArticulationLinkSleepData>			mLinkSleepDataPool;
+		Cm::PinnableArray<ArticulationBitField>					mLinkChildPool;
+		Cm::PinnableArray<PxU32>								mLinkParentPool;
+		Cm::PinnableArray<PxTransform>							mLinkBody2WorldPool;
+		Cm::PinnableArray<PxTransform>							mLinkBody2ActorPool;
 		
-		PxPinnedArray<Dy::ArticulationJointCore>				mJointPool;
-		PxPinnedArray<Dy::ArticulationJointCoreData>			mJointDataPool;
-		PxPinnedArray<PxgArticulationSimUpdate>					mLinkJointIndexPool; //this record the start index of the link for an articulation in an array
-		PxPinnedArray<PxgArticulation>							mArticulationPool;
-		PxPinnedArray<PxGpuSpatialTendonData>					mSpatialTendonParamPool;
-		PxPinnedArray<PxgArticulationTendon>					mSpatialTendonPool;
-		PxPinnedArray<PxgArticulationTendonElementFixedData>	mAttachmentFixedPool;
-		PxPinnedArray<PxGpuTendonAttachmentData>				mAttachmentModPool;
-		PxInt32ArrayPinned										mTendonAttachmentMapPool; //store each start index of the attachment to the corresponding tendons
-		PxPinnedArray<PxGpuFixedTendonData>						mFixedTendonParamPool;
-		PxPinnedArray<PxgArticulationTendon>					mFixedTendonPool;
-		PxPinnedArray<PxgArticulationTendonElementFixedData>	mTendonJointFixedDataPool;
-		PxPinnedArray<PxGpuTendonJointCoefficientData>			mTendonJointCoefficientDataPool;
-		PxInt32ArrayPinned										mTendonTendonJointMapPool; //store each start index of the attachment to the corresponding tendons
+		Cm::PinnableArray<Dy::ArticulationJointCore>				mJointPool;
+		Cm::PinnableArray<Dy::ArticulationJointCoreData>			mJointDataPool;
+		Cm::PinnableArray<PxgArticulationSimUpdate>					mLinkJointIndexPool; //this record the start index of the link for an articulation in an array
+		Cm::PinnableArray<PxgArticulation>							mArticulationPool;
+		Cm::PinnableArray<PxGpuSpatialTendonData>					mSpatialTendonParamPool;
+		Cm::PinnableArray<PxgArticulationTendon>					mSpatialTendonPool;
+		Cm::PinnableArray<PxgArticulationTendonElementFixedData>	mAttachmentFixedPool;
+		Cm::PinnableArray<PxGpuTendonAttachmentData>				mAttachmentModPool;
+		Cm::PinnableArray<PxU32>									mTendonAttachmentMapPool; //store each start index of the attachment to the corresponding tendons
+		Cm::PinnableArray<PxGpuFixedTendonData>						mFixedTendonParamPool;
+		Cm::PinnableArray<PxgArticulationTendon>					mFixedTendonPool;
+		Cm::PinnableArray<PxgArticulationTendonElementFixedData>	mTendonJointFixedDataPool;
+		Cm::PinnableArray<PxGpuTendonJointCoefficientData>			mTendonJointCoefficientDataPool;
+		Cm::PinnableArray<PxU32>									mTendonTendonJointMapPool; //store each start index of the attachment to the corresponding tendons
 
-		PxInt32ArrayPinned										mPathToRootPool;
+		Cm::PinnableArray<PxU32>									mPathToRootPool;
 
-		PxPinnedArray<Dy::ArticulationMimicJointCore>			mMimicJointPool;
+		Cm::PinnableArray<Dy::ArticulationMimicJointCore>			mMimicJointPool;
 
-		PxPinnedArray<PxgArticulationSimUpdate>					mArticulationUpdatePool;	//Articulation update headers
-		PxFloatArrayPinned										mArticulationDofDataPool;	//Articulation dof information (jointV, jointP etc.)
-		PxPinnedArray<PxgSoftBody>								mNewSoftBodyPool;
-		PxArray<PxgSoftBodyData>								mNewSoftBodyDataPool;
-		PxPinnedArray<PxgSoftBody>								mSoftBodyPool;
-		PxArray<PxgSoftBodyData>								mSoftBodyDataPool;
-		PxInt32ArrayPinned										mSoftBodyElementIndexPool;
-		PxArray<PxU32>											mNewSoftBodyNodeIndexPool;
-		PxArray<PxU32>											mNewSoftBodyElementIndexPool;
-		PxArray<PxU32>											mSoftBodyNodeIndexPool;
-		PxArray<PxU32>											mNewTetMeshByteSizePool;
+		Cm::PinnableArray<PxgArticulationSimUpdate>					mArticulationUpdatePoolMapped;	//Articulation update headers
+		Cm::PinnableArray<PxReal>									mArticulationDofDataPoolMapped;	//Articulation dof information (jointV, jointP etc.)
+		Cm::PinnableArray<PxgSoftBody>								mNewSoftBodyPool;
+		PxArray<PxgSoftBodyData>									mNewSoftBodyDataPool;
+		Cm::PinnableArray<PxgSoftBody>								mSoftBodyPool;
+		PxArray<PxgSoftBodyData>									mSoftBodyDataPool;
+		Cm::PinnableArray<PxU32>									mSoftBodyElementIndexPool;
+		PxArray<PxU32>												mNewSoftBodyNodeIndexPool;
+		PxArray<PxU32>												mNewSoftBodyElementIndexPool;
+		PxArray<PxU32>												mSoftBodyNodeIndexPool;
+		PxArray<PxU32>												mNewTetMeshByteSizePool;
 
-		AttachmentManager<PxgFEMFEMAttachment>					mParticleSoftBodyAttachments;
-		PxPinnedArray<PxgNonRigidFilterPair>					mSoftBodyParticleFilterPairs;
-		PxArray<PxU32>											mSoftBodyParticleFilterRefs;
+		PxgAttachmentManager										mVolumeRigidAttachments;
+		PxgAttachmentManager										mVolumeVolumeAttachments;
+		PxgAttachmentManager										mVolumeSurfaceAttachments;
 
-		AttachmentManager<PxgFEMRigidAttachment>				mRigidSoftBodyAttachments;
-		PxPinnedArray<PxgRigidFilterPair>						mSoftBodyRigidFilterPairs;
-		PxArray<PxU32>											mSoftBodyRigidFilterRefs;
+		PxgDeformableFilterManager								mVolumeRigidFilters;
+		PxgDeformableFilterManager								mVolumeVolumeFilters;
+		PxgDeformableFilterManager								mVolumeSurfaceFilters;
 
-		AttachmentManager<PxgFEMFEMAttachment>					mSoftBodySoftBodyAttachments;
-		PxArray <Dy::DeformableVolume*>							mDirtyDeformableVolumeForFilterPairs;
+		Cm::PinnableArray<PxgFEMCloth>								mNewFEMClothPool;
+		PxArray<PxgFEMClothData>									mNewFEMClothDataPool;
+		Cm::PinnableArray<PxgFEMCloth>								mFEMClothPool;
+		PxArray<PxgFEMClothData>									mFEMClothDataPool;
+		Cm::PinnableArray<PxU32>									mFEMClothElementIndexPool;
+		PxArray<PxU32>												mNewFEMClothNodeIndexPool;
+		PxArray<PxU32>												mNewFEMClothElementIndexPool;
+		PxArray<PxU32>												mFEMClothNodeIndexPool;
+		PxArray<PxU32>												mNewTriangleMeshByteSizePool;
 
-		AttachmentManager<PxgFEMFEMAttachment>					mSoftBodyClothAttachments;
-		PxPinnedArray<PxgNonRigidFilterPair>					mSoftBodyClothTetVertFilterPairs;
-		PxArray<PxU32>											mSoftBodyClothTetVertFilterRefs;
+		// Mesh topology per deformable surface, keyed by its GPU remap id. Derived when the surface joins
+		// a scene, which is before its element filters register, and dropped when it leaves.
+		PxArray<PxgDeformableSurfaceTopology*>						mSurfaceTopologies;
 
-		AttachmentManager<PxgFEMFEMAttachment>					mClothClothAttachments;
-		PxPinnedArray<PxgNonRigidFilterPair>					mClothClothVertTriFilterPairs;
-		PxArray<PxU32>											mClothClothVertTriFilterRefs;
+		PxgAttachmentManager										mSurfaceRigidAttachments;
+		PxgAttachmentManager										mSurfaceSurfaceAttachments;
 
-		PxPinnedArray<PxgFEMCloth>								mNewFEMClothPool;
-		PxArray<PxgFEMClothData>								mNewFEMClothDataPool;
-		PxPinnedArray<PxgFEMCloth>								mFEMClothPool;
-		PxArray<PxgFEMClothData>								mFEMClothDataPool;
-		PxInt32ArrayPinned										mFEMClothElementIndexPool;
-		PxArray<PxU32>											mNewFEMClothNodeIndexPool;
-		PxArray<PxU32>											mNewFEMClothElementIndexPool;
-		PxArray<PxU32>											mFEMClothNodeIndexPool;
-		PxArray<PxU32>											mNewTriangleMeshByteSizePool;
+		PxgDeformableFilterManager								mSurfaceRigidFilters;
+		PxgDeformableFilterManager								mSurfaceSurfaceFilters;
 
-		AttachmentManager<PxgFEMRigidAttachment>				mClothRigidAttachments;
-		PxPinnedArray<PxgRigidFilterPair>						mClothRigidFilterPairs;
-		PxArray<PxU32>											mClothRigidFilterRefs;
-
-		PxInt32ArrayPinned										mFrozenPool;
-		PxInt32ArrayPinned										mUnfrozenPool;
-		PxInt32ArrayPinned										mActivatePool;
-		PxInt32ArrayPinned										mDeactivatePool;
+		Cm::PinnableArray<PxU32>									mFrozenPool;
+		Cm::PinnableArray<PxU32>									mUnfrozenPool;
+		Cm::PinnableArray<PxU32>									mActivatePool;
+		Cm::PinnableArray<PxU32>									mDeactivatePool;
 
 		PxU32													mNbFrozenShapes;
 		PxU32													mNbUnfrozenShapes;
@@ -869,7 +713,7 @@ namespace physx
 
 		PxgCudaKernelWranglerManager*							mGpuWranglerManager;
 		PxCudaContextManager*									mCudaContextManager;
-		PxgHeapMemoryAllocatorManager*							mHeapMemoryManager;
+		PxgAllocatorDesc										mAllocDesc;
 		PxgCudaBroadPhaseSap*									mBroadPhase;
 		PxU32													mMaxLinks;
 		PxU32													mMaxDofs;
@@ -890,6 +734,25 @@ namespace physx
 		bool													mEnableOVDCollisionReadback;
 #if PX_SUPPORT_OMNI_PVD
 		PxsSimulationControllerOVDCallbacks*					mOvdCallbacks;
+		PxU64 mOmniPvdReadbackBytes;
+		PxU64 mOmniPvdReadbackCopyCount;
+		struct OmniPvdContactPair
+		{
+			const void* patches;
+			const void* points;
+			const void* friction;
+			const PxReal* forces;
+			PxU32 nbContacts;
+			PxU32 nbPatches;
+		};
+		struct OmniPvdContactRange { PxU64 offset; PxU64 bytes; };
+		struct OmniPvdContactRangeLess
+		{
+			bool operator()(const OmniPvdContactRange& first, const OmniPvdContactRange& second) const { return first.offset < second.offset; }
+		};
+		PxArray<OmniPvdContactPair> mOmniPvdContactPairs;
+		PxArray<OmniPvdContactRange> mOmniPvdContactRanges;
+		bool mOmniPvdContactBatchPrepared;
 #endif
 		friend class PxgCopyToBodySimTask;
 		friend class PxgCopyToArticulationSimTask;

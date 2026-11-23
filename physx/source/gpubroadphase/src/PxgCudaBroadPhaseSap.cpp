@@ -1,35 +1,13 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved. 
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #include "foundation/PxAllocator.h"
 #include "foundation/PxTime.h"
 #include "foundation/PxMemory.h"
 #include "foundation/PxSort.h"
+#include "CmRadixSort.h"
 
 #include "common/PxProfileZone.h"
 #include "PxvSimStats.h"
@@ -42,7 +20,6 @@
 #include "BpBroadPhaseUpdate.h"
 #include "PxgSapBox1D.h"
 #include "PxgRadixSortDesc.h"
-#include "PxgCudaMemoryAllocator.h"
 #include "PxgKernelWrangler.h"
 #include "PxgKernelIndices.h"
 #include "PxSceneDesc.h"
@@ -59,6 +36,7 @@
 #include "cudamanager/PxCudaContextManager.h"
 
 #include "PxgKernelLauncher.h"
+#include "PxgCommonDefines.h"
 
 // PT: TODO:
 // - most of these functions don't need to be member functions
@@ -77,7 +55,7 @@
 	#define GPU_DEBUG_STREAM(s, x)
 #endif
 
-#define PROLOG	mGpuKernelWranglerManager->mKernelWrangler, mCudaContext
+#define PROLOG	mGpuKernelWranglerManager, mCudaContext
 #if USE_NEW_LAUNCH_FUNCTION
 	#define KERNEL_PARAM_TYPE	void*
 	#define CUDA_KERNEL_PARAM	PX_CUDA_KERNEL_PARAM2
@@ -92,11 +70,11 @@ using namespace physx;
 
 PX_IMPLEMENT_OUTPUT_ERROR
 
-PxgCudaBroadPhaseSap::PxgCudaBroadPhaseSap(PxgCudaKernelWranglerManager* gpuKernelWrangler, PxCudaContextManager* cudaContextManager, const PxGpuDynamicsMemoryConfig& init, PxgHeapMemoryAllocatorManager* heapMemoryManager, PxU64 contextID) :
+PxgCudaBroadPhaseSap::PxgCudaBroadPhaseSap(const PxGpuBroadPhaseDesc& desc, PxgCudaKernelWranglerManager* gpuKernelWrangler,
+	PxCudaContextManager* cudaContextManager, const PxGpuDynamicsMemoryConfig& init, PxgAllocatorDesc& allocDesc, PxU64 contextID) :
 	Bp::BroadPhase						(),
-
 	mContextID							(contextID),
-
+	mDesc								(desc),
 	mNumOfBoxes							(0),
 	mUpdateData_CreatedHandleSize		(0),
 	mUpdateData_RemovedHandleSize		(0),
@@ -104,70 +82,72 @@ PxgCudaBroadPhaseSap::PxgCudaBroadPhaseSap(PxgCudaKernelWranglerManager* gpuKern
 	mUpdateData_UpdatedHandleSize		(0),
 #endif
 	mUpdateData_BoxesCapacity			(0),
-
 	mGpuKernelWranglerManager			(gpuKernelWrangler),
 	mCudaContextManager					(cudaContextManager),
 	mCudaContext						(cudaContextManager->getCudaContext()),
-	mHeapMemoryManager					(heapMemoryManager),
-	mCreatedHandlesBuf					(heapMemoryManager, PxsHeapStats::eBROADPHASE),
-	mRemovedHandlesBuf					(heapMemoryManager, PxsHeapStats::eBROADPHASE),
+	mIncrementalSapGridDimX				(PxgBPKernelGridDim::BP_INCREMENTAL_SAP),
+	mCreatedHandlesBuf					(allocDesc.deviceAlloc, PxsHeapStats::eBROADPHASE),
+	mRemovedHandlesBuf					(allocDesc.deviceAlloc, PxsHeapStats::eBROADPHASE),
 #ifdef SUPPORT_UPDATE_HANDLES_ARRAY_FOR_GPU
 	// PT: looks like this stuff used to be here but got removed for some reason!
-	mUpdatedHandlesBuf					(heapMemoryManager, PxsHeapStats::eBROADPHASE),
+	mUpdatedHandlesBuf					(allocDesc.deviceAlloc, PxsHeapStats::eBROADPHASE),
 #endif
-	mBoxFpBoundsBuf						(heapMemoryManager, PxsHeapStats::eBROADPHASE),
-	mBoxContactDistancesBuf				(heapMemoryManager, PxsHeapStats::eBROADPHASE),
-	mBoxGroupsBuf						(heapMemoryManager, PxsHeapStats::eBROADPHASE),
-	mBoxEnvIDsBuf						(heapMemoryManager, PxsHeapStats::eBROADPHASE),
-	mNewIntegerBoundsBuf				(heapMemoryManager, PxsHeapStats::eBROADPHASE),
-	mOldIntegerBoundsBuf				(heapMemoryManager, PxsHeapStats::eBROADPHASE),
-	mBoxPtProjectionsBuf				(heapMemoryManager, PxsHeapStats::eBROADPHASE),
-	mBoxProjectionRanksBuf				(heapMemoryManager, PxsHeapStats::eBROADPHASE),
-	mBoxPtHandlesBuf					(heapMemoryManager, PxsHeapStats::eBROADPHASE),
-	mTempBoxPtProjectionBuf				(heapMemoryManager, PxsHeapStats::eBROADPHASE),
-	mTempBoxPtHandlesBuf				(heapMemoryManager, PxsHeapStats::eBROADPHASE),
-	mRadixCountBuf						(heapMemoryManager, PxsHeapStats::eBROADPHASE),
-	mBoxSapBox1DBuf						(heapMemoryManager, PxsHeapStats::eBROADPHASE),
-	mNewBoxSapBox1DBuf					(heapMemoryManager, PxsHeapStats::eBROADPHASE),
-	mEndPtHistogramBuf					(heapMemoryManager, PxsHeapStats::eBROADPHASE),
-	mBlockEndPtHistogramBuf				(heapMemoryManager, PxsHeapStats::eBROADPHASE),
-	mEndPtHandleBuf						(heapMemoryManager, PxsHeapStats::eBROADPHASE),
-	mStartPtHistogramBuf				(heapMemoryManager, PxsHeapStats::eBROADPHASE),
-	mBlockStartPtHistogramBuf			(heapMemoryManager, PxsHeapStats::eBROADPHASE),
-	mStartPtHandleBuf					(heapMemoryManager, PxsHeapStats::eBROADPHASE),
-	mTotalEndPtHistogramBuf				(heapMemoryManager, PxsHeapStats::eBROADPHASE),
-	mBlockTotalEndPtHistogramBuf		(heapMemoryManager, PxsHeapStats::eBROADPHASE),
-	mActiveRegionTotalBuf				(heapMemoryManager, PxsHeapStats::eBROADPHASE),
-	mStartRegionsTotalBuf				(heapMemoryManager, PxsHeapStats::eBROADPHASE),
-	mOrderedActiveRegionHandlesTotalBuf	(heapMemoryManager, PxsHeapStats::eBROADPHASE),
-	mOrderedStartRegionHandlesTotalBuf	(heapMemoryManager, PxsHeapStats::eBROADPHASE),
-	mOverlapChecksRegionBuf				(heapMemoryManager, PxsHeapStats::eBROADPHASE),
-	mBlockOverlapChecksRegionBuf		(heapMemoryManager, PxsHeapStats::eBROADPHASE),
-	mOverlapChecksHandleRegionBuf		(heapMemoryManager, PxsHeapStats::eBROADPHASE),
-	mIncrementalComparisons				(heapMemoryManager, PxsHeapStats::eBROADPHASE),
-	mIncrementalBlockComparisons		(heapMemoryManager, PxsHeapStats::eBROADPHASE),
-	mAggregateReportBlockBuf			(heapMemoryManager, PxsHeapStats::eBROADPHASE),
-	mActorReportBlockBuf				(heapMemoryManager, PxsHeapStats::eBROADPHASE),
-	mRegionRangeBuf						(heapMemoryManager, PxsHeapStats::eBROADPHASE),
-	mStartRegionAccumBuf				(heapMemoryManager, PxsHeapStats::eBROADPHASE),
-	mBlockStartRegionAccumBuf			(heapMemoryManager, PxsHeapStats::eBROADPHASE),
-	mRegionAccumBuf						(heapMemoryManager, PxsHeapStats::eBROADPHASE),
-	mBlockRegionAccumBuf				(heapMemoryManager, PxsHeapStats::eBROADPHASE),
-	mFoundPairsBuf						(heapMemoryManager, PxsHeapStats::eBROADPHASE),
-	mLostPairsBuf						(heapMemoryManager, PxsHeapStats::eBROADPHASE),
-	mFoundAggregateBuf					(heapMemoryManager, PxsHeapStats::eBROADPHASE),
-	mLostAggregateBuf					(heapMemoryManager, PxsHeapStats::eBROADPHASE),
-	mFoundActorBuf						(heapMemoryManager, PxsHeapStats::eBROADPHASE),
-	mLostActorBuf						(heapMemoryManager, PxsHeapStats::eBROADPHASE),
-	mBPDescBuf							(heapMemoryManager, PxsHeapStats::eBROADPHASE),
-	mRadixSortDescBuf					(heapMemoryManager, PxsHeapStats::eBROADPHASE),
-	mRadixSortWORDescBuf				(heapMemoryManager, PxsHeapStats::eBROADPHASE),
-	mPinnedEvent						(NULL),
-	mBpDesc								(NULL),
-	mRSDesc								(NULL),
-	mRSDescWOR							(NULL),
-	mFoundActorPairs					(PxVirtualAllocator(heapMemoryManager->mMappedMemoryAllocators, PxsHeapStats::eBROADPHASE)),
-	mLostActorPairs						(PxVirtualAllocator(heapMemoryManager->mMappedMemoryAllocators, PxsHeapStats::eBROADPHASE)),
+	mBoxFpBoundsBuf						(allocDesc.deviceAlloc, PxsHeapStats::eBROADPHASE),
+	mBoxContactDistancesBuf				(allocDesc.deviceAlloc, PxsHeapStats::eBROADPHASE),
+	mBoxGroupsBuf						(allocDesc.deviceAlloc, PxsHeapStats::eBROADPHASE),
+	mBoxEnvIDsBuf						(allocDesc.deviceAlloc, PxsHeapStats::eBROADPHASE),
+	mNewIntegerBoundsBuf				(allocDesc.deviceAlloc, PxsHeapStats::eBROADPHASE),
+	mOldIntegerBoundsBuf				(allocDesc.deviceAlloc, PxsHeapStats::eBROADPHASE),
+	mBoxPtProjectionsBuf				(allocDesc.deviceAlloc, PxsHeapStats::eBROADPHASE),
+	mBoxProjectionRanksBuf				(allocDesc.deviceAlloc, PxsHeapStats::eBROADPHASE),
+	mBoxPtHandlesBuf					(allocDesc.deviceAlloc, PxsHeapStats::eBROADPHASE),
+	mTempBoxPtProjectionBuf				(allocDesc.deviceAlloc, PxsHeapStats::eBROADPHASE),
+	mTempBoxPtHandlesBuf				(allocDesc.deviceAlloc, PxsHeapStats::eBROADPHASE),
+	mRadixCountBuf						(allocDesc.deviceAlloc, PxsHeapStats::eBROADPHASE),
+	mBoxSapBox1DBuf						(allocDesc.deviceAlloc, PxsHeapStats::eBROADPHASE),
+	mNewBoxSapBox1DBuf					(allocDesc.deviceAlloc, PxsHeapStats::eBROADPHASE),
+	mEndPtHistogramBuf					(allocDesc.deviceAlloc, PxsHeapStats::eBROADPHASE),
+	mBlockEndPtHistogramBuf				(allocDesc.deviceAlloc, PxsHeapStats::eBROADPHASE),
+	mEndPtHandleBuf						(allocDesc.deviceAlloc, PxsHeapStats::eBROADPHASE),
+	mStartPtHistogramBuf				(allocDesc.deviceAlloc, PxsHeapStats::eBROADPHASE),
+	mBlockStartPtHistogramBuf			(allocDesc.deviceAlloc, PxsHeapStats::eBROADPHASE),
+	mStartPtHandleBuf					(allocDesc.deviceAlloc, PxsHeapStats::eBROADPHASE),
+	mTotalEndPtHistogramBuf				(allocDesc.deviceAlloc, PxsHeapStats::eBROADPHASE),
+	mBlockTotalEndPtHistogramBuf		(allocDesc.deviceAlloc, PxsHeapStats::eBROADPHASE),
+	mActiveRegionTotalBuf				(allocDesc.deviceAlloc, PxsHeapStats::eBROADPHASE),
+	mStartRegionsTotalBuf				(allocDesc.deviceAlloc, PxsHeapStats::eBROADPHASE),
+	mOrderedActiveRegionHandlesTotalBuf	(allocDesc.deviceAlloc, PxsHeapStats::eBROADPHASE),
+	mOrderedStartRegionHandlesTotalBuf	(allocDesc.deviceAlloc, PxsHeapStats::eBROADPHASE),
+	mOverlapChecksRegionBuf				(allocDesc.deviceAlloc, PxsHeapStats::eBROADPHASE),
+	mBlockOverlapChecksRegionBuf		(allocDesc.deviceAlloc, PxsHeapStats::eBROADPHASE),
+	mOverlapChecksHandleRegionBuf		(allocDesc.deviceAlloc, PxsHeapStats::eBROADPHASE),
+	mIncrementalComparisons				(allocDesc.deviceAlloc, PxsHeapStats::eBROADPHASE),
+	mIncrementalWarpComparisons			(allocDesc.deviceAlloc, PxsHeapStats::eBROADPHASE),
+	mIncrementalBlockComparisons		(allocDesc.deviceAlloc, PxsHeapStats::eBROADPHASE),
+	mAggregateReportBlockBuf			(allocDesc.deviceAlloc, PxsHeapStats::eBROADPHASE),
+	mActorReportBlockBuf				(allocDesc.deviceAlloc, PxsHeapStats::eBROADPHASE),
+	mRegionRangeBuf						(allocDesc.deviceAlloc, PxsHeapStats::eBROADPHASE),
+	mStartRegionAccumBuf				(allocDesc.deviceAlloc, PxsHeapStats::eBROADPHASE),
+	mBlockStartRegionAccumBuf			(allocDesc.deviceAlloc, PxsHeapStats::eBROADPHASE),
+	mRegionAccumBuf						(allocDesc.deviceAlloc, PxsHeapStats::eBROADPHASE),
+	mBlockRegionAccumBuf				(allocDesc.deviceAlloc, PxsHeapStats::eBROADPHASE),
+	mFoundPairsBuf						(allocDesc.deviceAlloc, PxsHeapStats::eBROADPHASE),
+	mLostPairsBuf						(allocDesc.deviceAlloc, PxsHeapStats::eBROADPHASE),
+	mFoundAggregateBuf					(allocDesc.deviceAlloc, PxsHeapStats::eBROADPHASE),
+	mLostAggregateBuf					(allocDesc.deviceAlloc, PxsHeapStats::eBROADPHASE),
+	mFoundActorBuf						(allocDesc.deviceAlloc, PxsHeapStats::eBROADPHASE),
+	mLostActorBuf						(allocDesc.deviceAlloc, PxsHeapStats::eBROADPHASE),
+	mBPDescBuf							(allocDesc.deviceAlloc, PxsHeapStats::eBROADPHASE),
+	mRadixSortDescBuf					(allocDesc.deviceAlloc, PxsHeapStats::eBROADPHASE),
+	mRadixSortWORDescBuf				(allocDesc.deviceAlloc, PxsHeapStats::eBROADPHASE),
+	mStream								(NULL),
+	mEvent								(NULL),
+	mEventMapped						(NULL),
+	mBpDesc								(allocDesc.hostAlloc, PxsHeapStats::eBROADPHASE),
+	mRSDescs							(allocDesc.hostAlloc, PxsHeapStats::eBROADPHASE),
+	mRSDescsWOR							(allocDesc.hostAlloc, PxsHeapStats::eBROADPHASE),
+	mFoundActorPairsMapped				(allocDesc.hostMappedAlloc, PxsHeapStats::eBROADPHASE, Cm::PinnableAllocatorFallback::eDISABLED),
+	mLostActorPairsMapped				(allocDesc.hostMappedAlloc, PxsHeapStats::eBROADPHASE, Cm::PinnableAllocatorFallback::eDISABLED),
 	mMaxFoundLostPairs					(init.foundLostPairsCapacity),
 	mMaxAggFoundLostPairs				(init.foundLostAggregatePairsCapacity),
 	mAABBManager						(NULL),
@@ -188,9 +168,8 @@ PxgCudaBroadPhaseSap::PxgCudaBroadPhaseSap(PxgCudaKernelWranglerManager* gpuKern
 	mRadixSortDescBuf.allocate(sizeof(PxgRadixSortDesc)*6, PX_FL);
 	mRadixSortWORDescBuf.allocate(sizeof(PxgRadixSortDesc)*6, PX_FL);
 
-	mBpDesc = reinterpret_cast<PxgBroadPhaseDesc*>(mHeapMemoryManager->mMappedMemoryAllocators->allocate(sizeof(PxgBroadPhaseDesc), PxsHeapStats::eBROADPHASE, PX_FL));
-	mRSDesc = reinterpret_cast<PxgRadixSortDesc*>(mHeapMemoryManager->mMappedMemoryAllocators->allocate(sizeof(PxgRadixSortDesc) * 6, PxsHeapStats::eBROADPHASE, PX_FL));
-	mRSDescWOR = reinterpret_cast<PxgRadixSortDesc*>(mHeapMemoryManager->mMappedMemoryAllocators->allocate(sizeof(PxgRadixSortDesc) * 6, PxsHeapStats::eBROADPHASE, PX_FL));
+	mRSDescs.resize(6);
+	mRSDescsWOR.resize(6);
 	
 	mRegionAccumTotal = 0;
 	mOverlapChecksTotalRegion = 0;
@@ -205,23 +184,36 @@ PxgCudaBroadPhaseSap::PxgCudaBroadPhaseSap(PxgCudaKernelWranglerManager* gpuKern
 	mFoundActorBuf.allocate(mMaxFoundLostPairs * sizeof(PxgBroadPhasePair), PX_FL);
 	mLostActorBuf.allocate(mMaxFoundLostPairs * sizeof(PxgBroadPhasePair), PX_FL);
 
-	mFoundActorPairs.forceSize_Unsafe(0);
-	mFoundActorPairs.reserve(mMaxFoundLostPairs);
-
-	mLostActorPairs.forceSize_Unsafe(0);
-	mLostActorPairs.reserve(mMaxFoundLostPairs);
+	// allocate pinned host buffers for actor pairs; abort on OOM
+	if(!mFoundActorPairsMapped.reserve(mMaxFoundLostPairs) || !mLostActorPairsMapped.reserve(mMaxFoundLostPairs))
+	{
+		PxGetFoundation().error(PxErrorCode::eOUT_OF_MEMORY, PX_FL, "PxgCudaBroadPhaseSap: failed to allocate pinned host buffers for actor pairs");
+		mCudaContext->setAbortMode(true);
+		return;
+	}
 
 	createGpuStreamsAndEvents();
+	computeIncrementalSapGridDim();
+}
+
+// performIncrementalSAP distributes its work over the blocks of each axis with a grid-stride loop, so any number of
+// blocks gives the same results. With a fixed number of blocks, the blocks that do not fit in the first wave run in a
+// second wave while most SMs idle, depending on the GPU's SM count and on the kernel's register count (OMPE-120355).
+// So the grid is sized to the number of blocks that can be resident at the same time, split over the 3 axes.
+void PxgCudaBroadPhaseSap::computeIncrementalSapGridDim()
+{
+	int nbBlocksPerSM = 0;
+	const CUresult result = cuOccupancyMaxActiveBlocksPerMultiprocessor(&nbBlocksPerSM, mGpuKernelWranglerManager->getCuFunction(PxgKernelIds::BP_INCREMENTAL_SAP), PxgBPKernelBlockDim::BP_INCREMENTAL_SAP, 0);
+	const int nbSMs = mCudaContextManager->getMultiprocessorCount();
+
+	// Keep the default grid if the query fails
+	if(result == CUDA_SUCCESS && nbBlocksPerSM > 0 && nbSMs > 0)
+		mIncrementalSapGridDimX = PxMax(PxU32(nbSMs * nbBlocksPerSM) / 3, 1u);
 }
 
 PxgCudaBroadPhaseSap::~PxgCudaBroadPhaseSap()
 {
 	PxScopedCudaLock _lock_(*mCudaContextManager);
-		
-	mHeapMemoryManager->mMappedMemoryAllocators->deallocate(mBpDesc);
-	mHeapMemoryManager->mMappedMemoryAllocators->deallocate(mRSDesc);
-	mHeapMemoryManager->mMappedMemoryAllocators->deallocate(mRSDescWOR);
-
 	releaseGpuStreamsAndEvents();
 }
 
@@ -243,10 +235,15 @@ void PxgCudaBroadPhaseSap::createGpuStreamsAndEvents()
 
 	result = mCudaContext->eventCreate(&mEvent, CU_EVENT_DISABLE_TIMING);
 
-	mPinnedEvent = PX_PINNED_MEMORY_ALLOC(PxU32, *mCudaContextManager, 1);
-
 	if (result != CUDA_SUCCESS)
 		outputError<PxErrorCode::eINTERNAL_ERROR>(__LINE__, "GPU Create Event 0 fail!!\n");
+
+	mEventMapped = PX_PINNED_MEMORY_ALLOC_FLAGS(PxU32, *mCudaContextManager, 1, CU_MEMHOSTALLOC_PORTABLE | CU_MEMHOSTALLOC_DEVICEMAP);
+	if(!mEventMapped)
+	{
+		outputError<PxErrorCode::eOUT_OF_MEMORY>(__LINE__, "PxgCudaBroadPhaseSap: failed to allocate pinned event");
+		mCudaContext->setAbortMode(true);
+	}
 }
 
 void PxgCudaBroadPhaseSap::releaseGpuStreamsAndEvents()
@@ -255,7 +252,7 @@ void PxgCudaBroadPhaseSap::releaseGpuStreamsAndEvents()
 	mCudaContext->streamDestroy(mStream);
 	mStream = NULL;
 
-	PX_PINNED_MEMORY_FREE(*mCudaContextManager, mPinnedEvent);
+	PX_PINNED_MEMORY_FREE(*mCudaContextManager, mEventMapped);
 
 	//destroy event
 	mCudaContext->eventDestroy(mEvent);
@@ -303,14 +300,6 @@ void PxgCudaBroadPhaseSap::gpuDMAUp(const Bp::BroadPhaseUpdateData& updateData, 
 			
 		for (PxU32 j = 0; j < 2; ++j)
 		{
-			//mEndPtHistogramBuf[j][i].allocateCopyOldDataAsync(nbProjections * sizeof(int), mStreams.begin(), mHeapMemoryManager);
-			//mBlockEndPtHistogramBuf[j][i].allocateCopyOldDataAsync(PxgBPKernelGridDim::BP_OUTPUT_ENDPT_HISTOGRAM * sizeof(int), mStreams.begin(), mHeapMemoryManager); // 32 block
-			//mEndPtHandleBuf[j][i].allocateCopyOldDataAsync(mNumOfBoxes*sizeof(int), mStreams.begin(), mHeapMemoryManager);
-
-			//mStartPtHistogramBuf[j][i].allocateCopyOldDataAsync(nbProjections * sizeof(int), mStreams.begin(), mHeapMemoryManager);
-			//mBlockStartPtHistogramBuf[j][i].allocateCopyOldDataAsync(PxgBPKernelGridDim::BP_OUTPUT_ENDPT_HISTOGRAM * sizeof(int), mStreams.begin(), mHeapMemoryManager); // 32 block
-			//mStartPtHandleBuf[j][i].allocateCopyOldDataAsync(mNumOfBoxes*sizeof(int), mStreams.begin(), mHeapMemoryManager);
-
 			const PxU32 index = j * 3 + i;
 
 			mBoxPtHandlesBuf[index].allocateCopyOldDataAsync(paddedProjections * sizeof(int), mCudaContext, mStream, PX_FL);
@@ -324,8 +313,9 @@ void PxgCudaBroadPhaseSap::gpuDMAUp(const Bp::BroadPhaseUpdateData& updateData, 
 			mStartPtHandleBuf[index].allocateCopyOldDataAsync(mNumOfBoxes*sizeof(int), mCudaContext, mStream, PX_FL);
 		}
 
-		mIncrementalComparisons[i].allocate(nbProjections* sizeof(int), PX_FL);
-		mIncrementalBlockComparisons[i].allocate(PxgBPKernelGridDim::BP_COMPUTE_INCREMENTAL_CMP_COUNTS1 * sizeof(int), PX_FL);
+		mIncrementalComparisons[i].allocate(nbProjections * sizeof(PxU32), PX_FL);
+		mIncrementalWarpComparisons[i].allocate(((nbProjections + WARP_SIZE - 1) / WARP_SIZE) * sizeof(PxU64), PX_FL);
+		mIncrementalBlockComparisons[i].allocate(PxgBPKernelGridDim::BP_COMPUTE_INCREMENTAL_CMP_COUNTS1 * sizeof(PxU64), PX_FL);
 
 		mTotalEndPtHistogramBuf[i].allocate(nbProjections*sizeof(PxU32), PX_FL);
 		mBlockTotalEndPtHistogramBuf[i].allocate(PxgBPKernelGridDim::BP_OUTPUT_ENDPT_HISTOGRAM*sizeof(PxU32), PX_FL);
@@ -345,8 +335,8 @@ void PxgCudaBroadPhaseSap::gpuDMAUp(const Bp::BroadPhaseUpdateData& updateData, 
 	mOrderedActiveRegionHandlesTotalBuf.allocate(totalNbProjectionRegions * sizeof(int), PX_FL);
 	mOrderedStartRegionHandlesTotalBuf.allocate(totalNbProjectionRegions * sizeof(int), PX_FL);
 
-	mOverlapChecksRegionBuf.allocate(64 * mNumOfBoxes * sizeof(int), PX_FL);
-	mBlockOverlapChecksRegionBuf.allocate(PxgBPKernelGridDim::BP_OUTPUT_OVERLAPCHECKS_HISTOGRAM * sizeof(int), PX_FL);
+	mOverlapChecksRegionBuf.allocate(64 * mNumOfBoxes * sizeof(regionOverlapType), PX_FL);
+	mBlockOverlapChecksRegionBuf.allocate(PxgBPKernelGridDim::BP_OUTPUT_OVERLAPCHECKS_HISTOGRAM * sizeof(regionOverlapType), PX_FL);
 	mOverlapChecksHandleRegionBuf.allocate(64 * mNumOfBoxes * sizeof(PxgHandleRegion), PX_FL);
 	mRegionRangeBuf.allocate(mUpdateData_BoxesCapacity * sizeof(PxgIntegerRegion), PX_FL);
 	mStartRegionAccumBuf.allocate(nbProjections * sizeof(int), PX_FL);
@@ -389,9 +379,8 @@ void PxgCudaBroadPhaseSap::gpuDMAUp(const Bp::BroadPhaseUpdateData& updateData, 
 	}*/
 		
 	mCudaContext->memcpyHtoDAsync(mBPDescBuf.getDevicePtr(), (void*)&bpDesc, sizeof(PxgBroadPhaseDesc), mStream);
-
 	mCudaContext->memcpyHtoDAsync(mRadixSortDescBuf.getDevicePtr(), rsDescs, sizeof(PxgRadixSortDesc)*6, mStream);
-	mCudaContext->memcpyHtoDAsync(mRadixSortWORDescBuf.getDevicePtr(), mRSDescWOR, sizeof(PxgRadixSortDesc) * 6, mStream);
+	mCudaContext->memcpyHtoDAsync(mRadixSortWORDescBuf.getDevicePtr(), mRSDescsWOR.begin(), sizeof(PxgRadixSortDesc)*6, mStream);
 	/*PxCudaStreamFlush(mStreams.begin());*/
 
 #if GPU_BP_DEBUG
@@ -403,8 +392,8 @@ void PxgCudaBroadPhaseSap::gpuDMAUp(const Bp::BroadPhaseUpdateData& updateData, 
 
 void PxgCudaBroadPhaseSap::freeBuffers()
 {
-	mLostActorPairs.forceSize_Unsafe(0);
-	mFoundActorPairs.forceSize_Unsafe(0);
+	mLostActorPairsMapped.forceSize_Unsafe(0);
+	mFoundActorPairsMapped.forceSize_Unsafe(0);
 }
 
 void PxgCudaBroadPhaseSap::runCopyResultsKernel(PxgBroadPhaseDesc& /*desc*/)
@@ -443,7 +432,7 @@ void PxgCudaBroadPhaseSap::gpuDMABack(const PxgBroadPhaseDesc& desc)
 		mCudaContext->memcpyDtoHAsync((void*)&desc, bpBuff, sizeof(PxgBroadPhaseDesc), mStream);
 		//resultR = mCudaContext->streamSynchronize(mStream);
 
-		void* devicePtr = getMappedDevicePtr(mCudaContext, mPinnedEvent);
+		void* devicePtr = getMappedDevicePtr(mCudaContext, mEventMapped);
 		KERNEL_PARAM_TYPE kernelParams[] = { CUDA_KERNEL_PARAM(devicePtr) };
 
 		_launch<GPU_BP_DEBUG>(PROLOG, PxgKernelIds::BP_SIGNAL_COMPLETE, 1, 1, 1, 1, 1, 1, 0, EPILOG);
@@ -454,7 +443,7 @@ void PxgCudaBroadPhaseSap::gpuDMABack(const PxgBroadPhaseDesc& desc)
 	{
 		PX_PROFILE_ZONE("PxgCudaBroadPhaseSap.Synchronize", mContextID);
 		//mCudaContext->streamSynchronize(mStream);
-		volatile PxU32* eventPtr = mPinnedEvent;
+		volatile PxU32* eventPtr = mEventMapped;
 
 		if (!spinWait(*eventPtr, 0.1f))
 			mCudaContext->streamSynchronize(mStream);
@@ -496,14 +485,16 @@ void PxgCudaBroadPhaseSap::gpuDMABack(const PxgBroadPhaseDesc& desc)
 			"The application needs to increase PxGpuDynamicsMemoryConfig::foundLostPairsCapacity to %i, otherwise, the simulation will miss interactions\n", foundLostPairsNeeded);
 	}
 
-	mFoundActorPairs.forceSize_Unsafe(PxMin(mMaxFoundLostPairs, desc.sharedFoundPairIndex) - desc.sharedFoundAggPairIndex);
-	mLostActorPairs.forceSize_Unsafe(PxMin(mMaxFoundLostPairs, desc.sharedLostPairIndex) - desc.sharedLostAggPairIndex);
-
 	// AD: safety in case copyReports did not run due to abort mode
-	if (mCudaContext->isInAbortMode())
+	if(!mCudaContext->isInAbortMode())
 	{
-		mFoundActorPairs.forceSize_Unsafe(0);
-		mLostActorPairs.forceSize_Unsafe(0);
+		mFoundActorPairsMapped.forceSize_Unsafe(PxMin(mMaxFoundLostPairs, desc.sharedFoundPairIndex) - desc.sharedFoundAggPairIndex);
+		mLostActorPairsMapped.forceSize_Unsafe(PxMin(mMaxFoundLostPairs, desc.sharedLostPairIndex) - desc.sharedLostAggPairIndex);
+	}
+	else
+	{
+		mFoundActorPairsMapped.forceSize_Unsafe(0);
+		mLostActorPairsMapped.forceSize_Unsafe(0);
 	}
 }
 
@@ -516,7 +507,7 @@ struct ReportMore
 	}
 };
 
-/*bool hasDuplicates(PxPinnedArray<PxgBroadPhasePair>& iterator)
+/*bool hasDuplicates(Cm::PinnableArray<PxgBroadPhasePair>& iterator)
 {
 	for(PxU32 a = 1; a < iterator.size(); ++a)
 	{
@@ -526,79 +517,53 @@ struct ReportMore
 	return false;
 }*/
 
+// Below this number of pairs, PxSort is faster than the radix sort.
+static const PxU32 gMinNbPairsForRadixSort = 128;
+
+// The radix sort writes back only the two indices of each pair.
+PX_COMPILE_TIME_ASSERT(sizeof(PxgBroadPhasePair)==2*sizeof(PxU32));
+
 void PxgCudaBroadPhaseSap::sortBuffer(PxgBroadPhasePair* PX_RESTRICT reportBuffer, const PxU32 size)
 {
 	PX_PROFILE_ZONE("PxgCudaBroadPhaseSap::sortBuffer", mContextID);
 
-#if 1
-	PxSort(reportBuffer, size, ReportMore());
-#else
-	const PxU32 SmallBufferLimit = 512;
-
-	if (size < SmallBufferLimit)
-		PxSort(reportBuffer, size, ReportMore());
-	else
+	// Keys and ranks of the radix sort. The found and lost pairs are sorted in parallel, so they are allocated per call.
+	PxU32* keys0 = size>=gMinNbPairsForRadixSort ? PX_ALLOCATE(PxU32, size_t(size)*4, "PxgCudaBroadPhaseSap::sortBuffer") : NULL;
+	if(!keys0)
 	{
-		//Histogram sort...
-		mHistogramBuffer.forceSize_Unsafe(0);
-		mHistogramBuffer.reserve(mBoxesCapacity);
-		mHistogramBuffer.forceSize_Unsafe(mBoxesCapacity);
-
-		PxMemZero(mHistogramBuffer.begin(), sizeof(PxU32) * mBoxesCapacity);
-
-		mTempPairBuffer.forceSize_Unsafe(0);
-		mTempPairBuffer.reserve(size);
-		mTempPairBuffer.forceSize_Unsafe(size);
-
-		for (PxU32 a = 0; a < size; ++a)
-		{
-			++mHistogramBuffer[reportBuffer[a].mVolA];
-		}
-
-		//Compute runsum
-		PxU32 runsum = 0;
-		PxU32 boxesCapacity = mBoxesCapacity;
-		//for (PxU32 a = 0; a < mBoxesCapacity; ++a)
-		while(boxesCapacity--)
-		{
-			PxU32 value = mHistogramBuffer[boxesCapacity];
-			mHistogramBuffer[boxesCapacity] = runsum;
-			runsum += value;
-		}
-
-		for (PxU32 a = 0; a < size; ++a)
-		{
-			PxU32 idx = mHistogramBuffer[reportBuffer[a].mVolA]++;
-			mTempPairBuffer[idx] = reportBuffer[a];
-		}
-
-		PxMemZero(mHistogramBuffer.begin(), sizeof(PxU32) * mBoxesCapacity);
-
-		for (PxU32 a = 0; a < size; ++a)
-		{
-			++mHistogramBuffer[reportBuffer[a].mVolB];
-		}
-
-		runsum = 0;
-		boxesCapacity = mBoxesCapacity;
-		//for (PxU32 a = 0; a < mBoxesCapacity; ++a)
-		while(boxesCapacity--)
-		{
-			PxU32 value = mHistogramBuffer[boxesCapacity];
-			mHistogramBuffer[boxesCapacity] = runsum;
-			runsum += value;
-		}
-
-		for (PxU32 a = 0; a < size; ++a)
-		{
-			PxU32 idx = mHistogramBuffer[mTempPairBuffer[a].mVolB]++;
-			reportBuffer[idx] = mTempPairBuffer[a];
-		}
+		// Small buffer, or failed allocation reported by the allocator
+		PxSort(reportBuffer, size, ReportMore());
+		return;
 	}
-#endif
+
+	PxU32* keys1 = keys0 + size;
+	PxU32* ranks0 = keys1 + size;
+	PxU32* ranks1 = ranks0 + size;
+	for(PxU32 i=0;i<size;i++)
+	{
+		keys0[i] = reportBuffer[i].mVolA;
+		keys1[i] = reportBuffer[i].mVolB;
+	}
+
+	// The second sort is stable and starts from the order of the first one, so the pairs are sorted by mVolA, then by mVolB.
+	Cm::RadixSort rs;
+	PxU32 histogram[1024];
+	PxU32* links[256];
+	rs.SetBuffers(ranks0, ranks1, histogram, links);
+	const PxU32* sorted = rs.Sort(keys1, size, Cm::RADIX_UNSIGNED).Sort(keys0, size, Cm::RADIX_UNSIGNED).GetRanks();
+
+	// The keys are a copy of the pairs, which are written back in decreasing order like ReportMore sorts them.
+	for(PxU32 i=0;i<size;i++)
+	{
+		const PxU32 index = sorted[size-1-i];
+		reportBuffer[i].mVolA = keys0[index];
+		reportBuffer[i].mVolB = keys1[index];
+	}
+
+	PX_FREE(keys0);
 }
 
-void PxgCudaBroadPhaseSap::purgeDuplicates(PxPinnedArray<PxgBroadPhasePair>& pairs)
+void PxgCudaBroadPhaseSap::purgeDuplicates(Cm::PinnableArray<PxgBroadPhasePair>& pairs)
 {
 	PX_PROFILE_ZONE("PxgCudaBroadPhaseSap.purgeDuplicates", mContextID);
 
@@ -635,12 +600,12 @@ void PxgCudaBroadPhaseSap::purgeDuplicates(PxPinnedArray<PxgBroadPhasePair>& pai
 
 void PxgCudaBroadPhaseSap::purgeDuplicateFoundPairs()
 {
-	purgeDuplicates(mFoundActorPairs);
+	purgeDuplicates(mFoundActorPairsMapped);
 }
 
 void PxgCudaBroadPhaseSap::purgeDuplicateLostPairs()
 {
-	purgeDuplicates(mLostActorPairs);
+	purgeDuplicates(mLostActorPairsMapped);
 }
 
 void PxgCudaBroadPhaseSap::runRadixSort(const PxU32 numOfKeys, CUdeviceptr radixSortDescBuf)
@@ -733,13 +698,6 @@ void PxgCudaBroadPhaseSap::initializeSapBoxKernel(const PxU32 numHandles, bool i
 	}
 }
 
-// PT:
-// In:
-//    bpDesc->updateData_fpBounds
-//    bpDesc->updateData_contactDistances
-//    bpDesc->updateData_BoxesCapacity
-// Out:
-//    bpDesc->newIntegerBounds
 void PxgCudaBroadPhaseSap::translateAABBsKernel()
 {
 	PX_PROFILE_ZONE("PxgCudaBroadPhaseSap.translateAABBsKernel", mContextID);
@@ -747,8 +705,24 @@ void PxgCudaBroadPhaseSap::translateAABBsKernel()
 	if(mUpdateData_BoxesCapacity == 0)
 		return;
 
-	CUdeviceptr bpDescd = mBPDescBuf.getDevicePtr();
-	KERNEL_PARAM_TYPE kernelParams[] = { CUDA_KERNEL_PARAM(bpDescd) };
+	const PxBounds3* updateData_fpBounds = reinterpret_cast<PxBounds3*>(mBoxFpBoundsBuf.getDevicePtr());
+	PxgIntegerAABB* newIntegerBounds = reinterpret_cast<PxgIntegerAABB*>(mNewIntegerBoundsBuf.getDevicePtr());
+	const PxReal* updateData_contactDistances = reinterpret_cast<PxReal*>(mBoxContactDistancesBuf.getDevicePtr());
+	const PxU32* updateData_envIDs = reinterpret_cast<PxU32*>(mBoxEnvIDsBuf.getDevicePtr());
+
+	KERNEL_PARAM_TYPE kernelParams[] = {
+		CUDA_KERNEL_PARAM(updateData_fpBounds),
+		CUDA_KERNEL_PARAM(newIntegerBounds),
+		CUDA_KERNEL_PARAM(updateData_contactDistances),
+		CUDA_KERNEL_PARAM(updateData_envIDs),
+		CUDA_KERNEL_PARAM(mUpdateData_BoxesCapacity),
+		CUDA_KERNEL_PARAM(mDesc.gpuBroadPhaseNbBitsShiftX),
+		CUDA_KERNEL_PARAM(mDesc.gpuBroadPhaseNbBitsShiftY),
+		CUDA_KERNEL_PARAM(mDesc.gpuBroadPhaseNbBitsShiftZ),
+		CUDA_KERNEL_PARAM(mDesc.gpuBroadPhaseNbBitsEnvIDX),
+		CUDA_KERNEL_PARAM(mDesc.gpuBroadPhaseNbBitsEnvIDY),
+		CUDA_KERNEL_PARAM(mDesc.gpuBroadPhaseNbBitsEnvIDZ)
+	};
 
 	const PxU32 aabbsPerBlock = PxgBPKernelBlockDim::BP_TRANSLATE_AABBS/8;
 	const PxU32 nbBlocks = (mUpdateData_BoxesCapacity + aabbsPerBlock-1)/aabbsPerBlock;	// PT: do we really need mBoxesCapacity here?
@@ -793,7 +767,7 @@ void PxgCudaBroadPhaseSap::markUpdatedPairsKernel()
 
 #ifdef SUPPORT_UPDATE_HANDLES_ARRAY_FOR_GPU
 		// PT: we need a new kernel to use this as a standalone BP and break the coupling between this class and the GPU AABB manager
-		if(mBpDesc->updateData_updatedHandles)
+		if(mBpDesc.get().updateData_updatedHandles)
 			_launch<GPU_BP_DEBUG>(PROLOG, PxgKernelIds::BP_UPDATE_UPDATEDPAIRS2, PxgBPKernelGridDim::BP_UPDATE_UPDATEDPAIRS2, 1, 1, PxgBPKernelBlockDim::BP_UPDATE_UPDATEDPAIRS2, 1, 1, 0, EPILOG);
 		else
 #endif
@@ -893,7 +867,7 @@ void PxgCudaBroadPhaseSap::performIncrementalSapKernel()
 
 		_launch<GPU_BP_DEBUG>(PROLOG, PxgKernelIds::BP_COMPUTE_INCREMENTAL_CMP_COUNTS1, PxgBPKernelGridDim::BP_COMPUTE_INCREMENTAL_CMP_COUNTS1, 1, 1, PxgBPKernelBlockDim::BP_COMPUTE_INCREMENTAL_CMP_COUNTS1, 1, 1, 0, EPILOG);
 		_launch<GPU_BP_DEBUG>(PROLOG, PxgKernelIds::BP_COMPUTE_INCREMENTAL_CMP_COUNTS2, PxgBPKernelGridDim::BP_COMPUTE_INCREMENTAL_CMP_COUNTS2, 1, 1, PxgBPKernelBlockDim::BP_COMPUTE_INCREMENTAL_CMP_COUNTS2, 1, 1, 0, EPILOG);
-		_launch<GPU_BP_DEBUG>(PROLOG, PxgKernelIds::BP_INCREMENTAL_SAP, PxgBPKernelGridDim::BP_INCREMENTAL_SAP, 3, 1, PxgBPKernelBlockDim::BP_INCREMENTAL_SAP, 1, 1, 0, EPILOG);
+		_launch<GPU_BP_DEBUG>(PROLOG, PxgKernelIds::BP_INCREMENTAL_SAP, mIncrementalSapGridDimX, 3, 1, PxgBPKernelBlockDim::BP_INCREMENTAL_SAP, 1, 1, 0, EPILOG);
 	}
 }
 
@@ -956,17 +930,17 @@ void PxgCudaBroadPhaseSap::updateRadixSortDesc(PxgRadixSortDesc* rsDescs)
 
 		CUdeviceptr inputVald = mBoxPtHandlesBuf[i].getDevicePtr();
 
-		mRSDescWOR[i].inputKeys			= reinterpret_cast<PxU32*>(inputKeyd);
-		mRSDescWOR[i].inputRanks		= reinterpret_cast<PxU32*>(inputVald);
-		mRSDescWOR[i].outputKeys		= reinterpret_cast<PxU32*>(outputKeyd);
-		mRSDescWOR[i].outputRanks		= reinterpret_cast<PxU32*>(outputRankd);
-		mRSDescWOR[i].radixBlockCounts	= reinterpret_cast<PxU32*>(radixCountd);
+		mRSDescsWOR[i].inputKeys		= reinterpret_cast<PxU32*>(inputKeyd);
+		mRSDescsWOR[i].inputRanks		= reinterpret_cast<PxU32*>(inputVald);
+		mRSDescsWOR[i].outputKeys		= reinterpret_cast<PxU32*>(outputKeyd);
+		mRSDescsWOR[i].outputRanks		= reinterpret_cast<PxU32*>(outputRankd);
+		mRSDescsWOR[i].radixBlockCounts	= reinterpret_cast<PxU32*>(radixCountd);
 
-		mRSDescWOR[offIndex].outputKeys			= reinterpret_cast<PxU32*>(inputKeyd);
-		mRSDescWOR[offIndex].outputRanks		= reinterpret_cast<PxU32*>(inputVald);
-		mRSDescWOR[offIndex].inputKeys			= reinterpret_cast<PxU32*>(outputKeyd);
-		mRSDescWOR[offIndex].inputRanks			= reinterpret_cast<PxU32*>(outputRankd);
-		mRSDescWOR[offIndex].radixBlockCounts	= reinterpret_cast<PxU32*>(radixCountd);
+		mRSDescsWOR[offIndex].outputKeys		= reinterpret_cast<PxU32*>(inputKeyd);
+		mRSDescsWOR[offIndex].outputRanks		= reinterpret_cast<PxU32*>(inputVald);
+		mRSDescsWOR[offIndex].inputKeys			= reinterpret_cast<PxU32*>(outputKeyd);
+		mRSDescsWOR[offIndex].inputRanks		= reinterpret_cast<PxU32*>(outputRankd);
+		mRSDescsWOR[offIndex].radixBlockCounts	= reinterpret_cast<PxU32*>(radixCountd);
 	}
 }
 
@@ -1004,7 +978,7 @@ void PxgCudaBroadPhaseSap::updateDescriptor(PxgBroadPhaseDesc& desc)
 		// - doAggPairCollisions (AGG_PAIR_COLLISION)
 		// - accumulateReportsStage_1 (BP_ACCUMULATE_REPORT_STAGE_1)
 		// - accumulateReportsStage_2 (BP_ACCUMULATE_REPORT_STAGE_2)
-		desc.aabbMngr_volumeData = reinterpret_cast<Bp::VolumeData*>(mAABBManager->mVolumDataBuf.getDevicePtr());
+		desc.aabbMngr_volumeData = reinterpret_cast<Bp::VolumeData*>(mAABBManager->getVolumeData());
 	}
 #ifdef SUPPORT_UPDATE_HANDLES_ARRAY_FOR_GPU
 	else
@@ -1023,7 +997,6 @@ void PxgCudaBroadPhaseSap::updateDescriptor(PxgBroadPhaseDesc& desc)
 	desc.updateData_contactDistances = reinterpret_cast<PxReal*>(mBoxContactDistancesBuf.getDevicePtr());
 	desc.updateData_groups = reinterpret_cast<PxU32*>(mBoxGroupsBuf.getDevicePtr());
 	desc.updateData_envIDs = reinterpret_cast<PxU32*>(mBoxEnvIDsBuf.getDevicePtr());
-	desc.updateData_BoxesCapacity = mUpdateData_BoxesCapacity;
 
 	desc.numPreviousHandles = previousBoxes;
 	//desc.numHandles = mNumOfBoxes;
@@ -1036,8 +1009,8 @@ void PxgCudaBroadPhaseSap::updateDescriptor(PxgBroadPhaseDesc& desc)
 	desc.foundActorPairReport	= reinterpret_cast<PxgBroadPhasePair*>(mFoundActorBuf.getDevicePtr());
 	desc.lostActorPairReport	= reinterpret_cast<PxgBroadPhasePair*>(mLostActorBuf.getDevicePtr());
 
-	desc.foundPairReportMap	= reinterpret_cast<PxgBroadPhasePair*>(getMappedDevicePtr(mCudaContext, mFoundActorPairs.begin()));
-	desc.lostPairReportMap	= reinterpret_cast<PxgBroadPhasePair*>(getMappedDevicePtr(mCudaContext, mLostActorPairs.begin()));
+	desc.foundPairReportMap	= reinterpret_cast<PxgBroadPhasePair*>(getMappedDevicePtr(mCudaContext, mFoundActorPairsMapped.begin()));
+	desc.lostPairReportMap	= reinterpret_cast<PxgBroadPhasePair*>(getMappedDevicePtr(mCudaContext, mLostActorPairsMapped.begin()));
 
 	for (PxU32 i = 0; i < 3; ++i)
 	{
@@ -1069,7 +1042,8 @@ void PxgCudaBroadPhaseSap::updateDescriptor(PxgBroadPhaseDesc& desc)
 			}
 
 			desc.incrementalComparisons[i] = reinterpret_cast<PxU32*>(mIncrementalComparisons[i].getDevicePtr());
-			desc.incrementalBlockComparisons[i] = reinterpret_cast<PxU32*>(mIncrementalBlockComparisons[i].getDevicePtr());
+			desc.incrementalWarpComparisons[i] = reinterpret_cast<PxU64*>(mIncrementalWarpComparisons[i].getDevicePtr());
+			desc.incrementalBlockComparisons[i] = reinterpret_cast<PxU64*>(mIncrementalBlockComparisons[i].getDevicePtr());
 		}
 	}
 		
@@ -1084,8 +1058,8 @@ void PxgCudaBroadPhaseSap::updateDescriptor(PxgBroadPhaseDesc& desc)
 	desc.orderedActiveRegionHandles = reinterpret_cast<PxU32*>(mOrderedActiveRegionHandlesTotalBuf.getDevicePtr());
 	desc.orderedStartRegionHandles = reinterpret_cast<PxU32*>(mOrderedStartRegionHandlesTotalBuf.getDevicePtr());
 
-	desc.blockOverlapChecksRegion = reinterpret_cast<PxU32*>(mBlockOverlapChecksRegionBuf.getDevicePtr());
-	desc.overlapChecksRegion = reinterpret_cast<PxU32*>(mOverlapChecksRegionBuf.getDevicePtr());
+	desc.blockOverlapChecksRegion = reinterpret_cast<regionOverlapType*>(mBlockOverlapChecksRegionBuf.getDevicePtr());
+	desc.overlapChecksRegion = reinterpret_cast<regionOverlapType*>(mOverlapChecksRegionBuf.getDevicePtr());
 	desc.overlapChecksHandleRegiones = reinterpret_cast<PxgHandleRegion*>(mOverlapChecksHandleRegionBuf.getDevicePtr());
 	desc.regionRange = reinterpret_cast<PxgIntegerRegion*>(mRegionRangeBuf.getDevicePtr());
 	desc.startRegionAccum = reinterpret_cast<PxU32*>(mStartRegionAccumBuf.getDevicePtr());
@@ -1108,18 +1082,18 @@ void PxgCudaBroadPhaseSap::updateDescriptor(PxgBroadPhaseDesc& desc)
 	desc.max_found_lost_agg_pairs = mMaxAggFoundLostPairs;
 }
 
-void PxgCudaBroadPhaseSap::update(PxcScratchAllocator* /*scratchAllocator*/, const Bp::BroadPhaseUpdateData& updateData, PxBaseTask* /*continuation*/)
+void PxgCudaBroadPhaseSap::update(PxU32 /*numCpuTasks*/, Cm::FlushPool* /*flushPool*/, PxcScratchAllocator* /*scratchAllocator*/, const Bp::BroadPhaseUpdateData& updateData, PxBaseTask* /*continuation*/)
 {
 	PX_PROFILE_ZONE("PxgCudaBroadPhaseSap.update", mContextID);
 
 	// PT: TODO: this function is now the only place left using getGpuStateChanged() and getStateChanged()
 	// PT: TODO: could we move this outside of the update call to sever this last connection?
-	*mPinnedEvent = 0;
+	*mEventMapped = 0;
 
 	PxScopedCudaLock _lock_(*mCudaContextManager);
 
 	const PxU32 previousNumOfBoxes = mNumOfBoxes; 
-	gpuDMAUp(updateData, *mBpDesc, mRSDesc);
+	gpuDMAUp(updateData, mBpDesc.get(), mRSDescs.begin());
 
 	const bool gpuStateChanged = updateData.getGpuStateChanged();
 	bool forcedUpdate = false;
@@ -1199,7 +1173,7 @@ void PxgCudaBroadPhaseSap::update(PxcScratchAllocator* /*scratchAllocator*/, con
 
 	clearNewFlagKernel();
 
-	runCopyResultsKernel(*mBpDesc);
+	runCopyResultsKernel(mBpDesc.get());
 
 	//mCudaContext->streamFlush(mStream);
 }
@@ -1246,7 +1220,7 @@ void PxgCudaBroadPhaseSap::fetchBroadPhaseResults()
 
 	PxScopedCudaLock _lock_(*mCudaContextManager);
 
-	gpuDMABack(*mBpDesc);
+	gpuDMABack(mBpDesc.get());
 
 	//purgeDuplicateFoundPairs();
 	//purgeDuplicateLostPairs();

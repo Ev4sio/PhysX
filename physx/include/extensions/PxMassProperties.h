@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef PX_MASS_PROPERTIES_H
 #define PX_MASS_PROPERTIES_H
@@ -77,8 +54,9 @@ public:
 	\brief Compute mass properties based on a provided geometry structure.
 
 	This constructor assumes the geometry has a density of 1. Mass and inertia tensor scale linearly with density.
+	The inertia tensor is relative to the center of mass, with axes parallel to the geometry's local frame.
 
-	\param[in] geometry The geometry to compute the mass properties for. Supported geometry types are: sphere, box, capsule and convex mesh.
+	\param[in] geometry The geometry to compute the mass properties for. Supported geometry types are: sphere, box, capsule, convex core, convex mesh, triangle mesh and custom geometry.
 	*/
 	PxMassProperties(const PxGeometry& geometry)
 	{
@@ -120,6 +98,7 @@ public:
 			{
 				const PxConvexCoreGeometry& g = static_cast<const PxConvexCoreGeometry&>(geometry);
 				PxConvexCoreExt::computeMassInfo(g, mass, inertiaTensor, centerOfMass);
+				inertiaTensor = inertiaAboutCenterOfMass(inertiaTensor, mass, centerOfMass);
 			}
 			break;
 
@@ -132,13 +111,7 @@ public:
 				PxReal unscaledMass;
 				c.convexMesh->getMassInformation(unscaledMass, unscaledInertiaTensorNonCOM, unscaledCoM);				
 
-				// inertia tensor relative to center of mass
-				unscaledInertiaTensorCOM[0][0] = unscaledInertiaTensorNonCOM[0][0] - unscaledMass*PxReal((unscaledCoM.y*unscaledCoM.y+unscaledCoM.z*unscaledCoM.z));
-				unscaledInertiaTensorCOM[1][1] = unscaledInertiaTensorNonCOM[1][1] - unscaledMass*PxReal((unscaledCoM.z*unscaledCoM.z+unscaledCoM.x*unscaledCoM.x));
-				unscaledInertiaTensorCOM[2][2] = unscaledInertiaTensorNonCOM[2][2] - unscaledMass*PxReal((unscaledCoM.x*unscaledCoM.x+unscaledCoM.y*unscaledCoM.y));
-				unscaledInertiaTensorCOM[0][1] = unscaledInertiaTensorCOM[1][0] = (unscaledInertiaTensorNonCOM[0][1] + unscaledMass*PxReal(unscaledCoM.x*unscaledCoM.y));
-				unscaledInertiaTensorCOM[1][2] = unscaledInertiaTensorCOM[2][1] = (unscaledInertiaTensorNonCOM[1][2] + unscaledMass*PxReal(unscaledCoM.y*unscaledCoM.z));
-				unscaledInertiaTensorCOM[0][2] = unscaledInertiaTensorCOM[2][0] = (unscaledInertiaTensorNonCOM[0][2] + unscaledMass*PxReal(unscaledCoM.z*unscaledCoM.x));
+				unscaledInertiaTensorCOM = inertiaAboutCenterOfMass(unscaledInertiaTensorNonCOM, unscaledMass, unscaledCoM);
 
 				const PxMeshScale& s = c.scale;
 				mass = unscaledMass * s.scale.x * s.scale.y * s.scale.z;
@@ -151,6 +124,7 @@ public:
 			{
 				*this = PxMassProperties();
 				static_cast<const PxCustomGeometry&>(geometry).callbacks->computeMassProperties(geometry, *this);
+				inertiaTensor = inertiaAboutCenterOfMass(inertiaTensor, mass, centerOfMass);
 			}
 			break;
 
@@ -164,13 +138,7 @@ public:
 				PxReal unscaledMass;
 				g.triangleMesh->getMassInformation(unscaledMass, unscaledInertiaTensorNonCOM, unscaledCoM);
 
-				// inertia tensor relative to center of mass
-				unscaledInertiaTensorCOM[0][0] = unscaledInertiaTensorNonCOM[0][0] - unscaledMass * PxReal((unscaledCoM.y*unscaledCoM.y + unscaledCoM.z*unscaledCoM.z));
-				unscaledInertiaTensorCOM[1][1] = unscaledInertiaTensorNonCOM[1][1] - unscaledMass * PxReal((unscaledCoM.z*unscaledCoM.z + unscaledCoM.x*unscaledCoM.x));
-				unscaledInertiaTensorCOM[2][2] = unscaledInertiaTensorNonCOM[2][2] - unscaledMass * PxReal((unscaledCoM.x*unscaledCoM.x + unscaledCoM.y*unscaledCoM.y));
-				unscaledInertiaTensorCOM[0][1] = unscaledInertiaTensorCOM[1][0] = (unscaledInertiaTensorNonCOM[0][1] + unscaledMass * PxReal(unscaledCoM.x*unscaledCoM.y));
-				unscaledInertiaTensorCOM[1][2] = unscaledInertiaTensorCOM[2][1] = (unscaledInertiaTensorNonCOM[1][2] + unscaledMass * PxReal(unscaledCoM.y*unscaledCoM.z));
-				unscaledInertiaTensorCOM[0][2] = unscaledInertiaTensorCOM[2][0] = (unscaledInertiaTensorNonCOM[0][2] + unscaledMass * PxReal(unscaledCoM.z*unscaledCoM.x));
+				unscaledInertiaTensorCOM = inertiaAboutCenterOfMass(unscaledInertiaTensorNonCOM, unscaledMass, unscaledCoM);
 
 				const PxMeshScale& s = g.scale;
 				mass = unscaledMass * s.scale.x * s.scale.y * s.scale.z;
@@ -361,6 +329,20 @@ public:
 	PxMat33 inertiaTensor;			//!< The inertia tensor of the object.
 	PxVec3  centerOfMass;			//!< The center of mass of the object.
 	PxReal	mass;					//!< The mass of the object.
+
+private:
+	// Convert geometry-origin inertia to center-of-mass inertia without rotating the axes.
+	PX_FORCE_INLINE static PxMat33 inertiaAboutCenterOfMass(const PxMat33& inertia, PxReal mass, const PxVec3& com)
+	{
+		PxMat33 result;
+		result[0][0] = inertia[0][0] - mass * (com.y * com.y + com.z * com.z);
+		result[1][1] = inertia[1][1] - mass * (com.z * com.z + com.x * com.x);
+		result[2][2] = inertia[2][2] - mass * (com.x * com.x + com.y * com.y);
+		result[0][1] = result[1][0] = inertia[0][1] + mass * com.x * com.y;
+		result[1][2] = result[2][1] = inertia[1][2] + mass * com.y * com.z;
+		result[0][2] = result[2][0] = inertia[0][2] + mass * com.z * com.x;
+		return result;
+	}
 };
 
 #if !PX_DOXYGEN

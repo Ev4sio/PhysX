@@ -1,0 +1,195 @@
+// SPDX-FileCopyrightText: Copyright (c) 2018-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
+
+// @implements REQ-ATTACH-IO-001
+// @covers AC-2
+// @implements REQ-ATTACH-EXECUTION-001
+// @covers AC-1 AC-2
+
+/**
+ * @implements REQ-SIM-SCENEQUERY-001
+ * @covers AC-1 AC-2
+ */
+
+#pragma once
+#include <carb/Types.h>
+#include "OmniPhysX.h"
+#include <common/utilities/LockingList.h>
+#include <omni/physics/parse/KnownTokens.h>
+
+namespace omni
+{
+namespace physx
+{
+
+struct ManipCmd
+{
+    enum Type
+    {
+        ePush = 0,
+        eGrabWithJoint,
+        eGrabWithForce,
+        eManipCmdTypeCount
+    };
+    enum State
+    {
+        eStartOrUpdate = 0,
+        eRelease,
+        eManipCmdStateCount
+    };
+    enum ExecutionType
+    {
+        eOnce = 0, // Removed after first execution.
+        eRepeating, // Remains in the command buffer until cleared.
+        eTerminal, // Removed after first execution along with any commands sitting in prior to it in the command buffer
+                   // (including the repeating).
+        eManipCmdExecTypeCount
+    };
+
+    ::physx::PxVec3 orig;
+    ::physx::PxVec3 dir;
+    Type type;
+    State state;
+    ExecutionType exec;
+    float acceleration = 0.0f;
+    float pickingForce = 0.0f;
+    bool ignoreInvisible = false;
+};
+
+struct DeformableId
+{
+    DeformableId() : object(-1), subObject(-1), element(-1), bary(0.0f)
+    {
+    }
+    int object;
+    int subObject;
+    int element;
+    ::physx::PxVec4 bary;
+};
+
+struct PickType
+{
+    enum Enum
+    {
+        eNONE,
+        eRIGID,
+        eSURFACE_DEFORMABLE,
+        eVOLUME_DEFORMABLE
+    };
+};
+
+// Picker object when performing picking operations
+struct Picker
+{
+    PickType::Enum type;
+
+    // eRIGID data
+    ::physx::PxRigidBody* hitRigidActor;
+    ::physx::PxD6Joint* joint; // joint for joint grabbing.
+
+    // deformable picking data
+    DeformableId hitDeformableId;
+    ::physx::PxDeformableAttachment* deformableAttachment;
+    ::physx::PxDeformableElementFilter* deformableFilter;
+
+    // general
+    ::physx::PxRigidDynamic* targetActor; // actor for joint grabbing.
+    PhysXScene* physXScene;
+
+    Picker()
+        : type(PickType::eNONE),
+          hitRigidActor(nullptr),
+          joint(nullptr),
+          hitDeformableId(),
+          deformableAttachment(nullptr),
+          deformableFilter(nullptr),
+          targetActor(nullptr),
+          physXScene(nullptr)
+    {
+    }
+};
+
+class RaycastManager
+{
+public:
+    explicit RaycastManager(const usdparser::AttachedStage& owner);
+
+    ~RaycastManager();
+
+    void onUpdateRaycasts(float elapsedSecs);
+    void handleRaycastInput(const float* orig, const float* dir, bool input);
+    void handleInteractionEvent(const float* orig, const float* dir, PhysicsInteractionEvent interactionEvent);
+    bool interactiveActorRaycast(const carb::Float3* origin, const carb::Float3* direction);
+    void clearPicker(const ::physx::PxRigidActor* rb);
+    void clearPickerForScene(const ::physx::PxScene* scene);
+    void clearCommandBuffer();
+    Picker& getPicker()
+    {
+        return picker;
+    }
+
+private:
+    void push(const float* orig, const float* dir, float acceleration);
+    void grab(const float* orig, const float* dir);
+
+private:
+    void applyManipCmd(const ManipCmd& cmd, float delta_time);
+    void startPickingDeformable(PickType::Enum type, const DeformableId& id, ::physx::PxReal distance, const ::physx::PxVec3& hitPoint);
+    void updatePickingDeformable(const ::physx::PxVec3& target);
+    void releasePickingDeformable();
+    const usdparser::AttachedStage& mOwner;
+    float manipDist = 0.0f;
+    ::physx::PxVec3 grabbingLocalPoint{0.0f};
+    float grabbingDistance = 0.0f;
+    float grabbingSavedAngularDamping = 0.0f;
+    bool grabInProgress = false;
+    bool pushInProgress = false;
+    bool lastInput = false;
+    PhysicsInteractionEvent lastEvent = PhysicsInteractionEvent::eNone;
+    mutable LockingList<ManipCmd> mManipCmdBuffer;
+    Picker picker;
+};
+
+void handleRaycast(AttachHandle attach, const float* orig, const float* dir, bool input);
+
+// KnownTokens is batch-interned once by the caller (see raycastSingle()) and
+// handed in by const reference -- preFilter() runs once per broad-phase
+// candidate shape, so re-interning the several-hundred-name vocabulary inside it would
+// turn a single query into hundreds of full batch-interns (see REQ-SIM-SCENEQUERY-001).
+class raycastFilterExcludeInvisible : ::physx::PxQueryFilterCallback
+{
+public:
+    raycastFilterExcludeInvisible(const internal::InternalPhysXDatabase& database, const omni::physics::parse::IPhysicsSource* source,
+                                  const omni::physics::parse::KnownTokens& tokens)
+        : mDatabase(database), mSource(source), mTokens(tokens){};
+    ~raycastFilterExcludeInvisible(){};
+
+    virtual ::physx::PxQueryHitType::Enum preFilter(const ::physx::PxFilterData& filterData0,
+                                                    const ::physx::PxShape* shape,
+                                                    const ::physx::PxRigidActor* actor,
+                                                    ::physx::PxHitFlags&) override;
+
+    virtual ::physx::PxQueryHitType::Enum postFilter(const ::physx::PxFilterData&,
+                                                     const ::physx::PxQueryHit&,
+                                                     const ::physx::PxShape*,
+                                                     const ::physx::PxRigidActor*) override
+    {
+        return ::physx::PxQueryHitType::eBLOCK;
+    }
+
+private:
+    const internal::InternalPhysXDatabase& mDatabase;
+    const omni::physics::parse::IPhysicsSource* mSource;
+    const omni::physics::parse::KnownTokens& mTokens;
+};
+
+// Test-only observability for REQ-SIM-SCENEQUERY-001 (IPhysxUnitTests-exposed): counts the
+// exact preFilter() and per-query KnownTokens::intern() call sites AC-1/AC-2 constrain, so a
+// unit test can prove a query actually reached them instead of asserting
+// isInteractiveActorRaycast's timing-dependent return value.
+void resetRaycastQueryTestCounters();
+uint32_t getRaycastPreFilterCallCount();
+uint32_t getRaycastQueryInternCount();
+
+} // namespace physx
+} // namespace omni

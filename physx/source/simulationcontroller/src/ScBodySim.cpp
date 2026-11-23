@@ -1,43 +1,17 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #include "ScBodySim.h"
 #include "ScShapeSim.h"
-#include "ScScene.h"
 #include "ScArticulationSim.h"
-#include "PxsContext.h"
-#include "PxsSimpleIslandManager.h"
-#include "PxsSimulationController.h"
-#include "ScSimStateData.h"
+#include "ScArticulationCore.h"
 
 using namespace physx;
 using namespace Dy;
 using namespace Sc;
+using namespace Cm;
 
 #define PX_FREEZE_INTERVAL 1.5f
 #define PX_FREE_EXIT_THRESHOLD 4.f
@@ -61,19 +35,23 @@ BodySim::BodySim(Scene& scene, BodyCore& core, bool compound) :
 	RigidSim		(scene, core),
 	mLLBody			(&core.getCore(), PX_FREEZE_INTERVAL),
 	mSimStateData	(NULL),
-	mVelModState	(VMF_GRAVITY_DIRTY),
 	mArticulation	(NULL)
 {
+	PxU16 internalFlags = mLLBody.mInternalFlags | VMF_GRAVITY_DIRTY;
+
 	core.getCore().numCountedInteractions = 0;
 	core.getCore().disableGravity = core.getActorFlags() & PxActorFlag::eDISABLE_GRAVITY;
+
 	if(core.getFlags() & PxRigidBodyFlag::eENABLE_SPECULATIVE_CCD)
-		mLLBody.mInternalFlags |= PxsRigidBody::eSPECULATIVE_CCD;
+		internalFlags |= PxsRigidBody::eSPECULATIVE_CCD_GPU;
 
 	if(core.getFlags() & PxRigidBodyFlag::eENABLE_GYROSCOPIC_FORCES)
-		mLLBody.mInternalFlags |= PxsRigidBody::eENABLE_GYROSCOPIC;
+		internalFlags |= PxsRigidBody::eENABLE_GYROSCOPIC_GPU;
 
 	if(core.getFlags() & PxRigidBodyFlag::eRETAIN_ACCELERATIONS)
-		mLLBody.mInternalFlags |= PxsRigidBody::eRETAIN_ACCELERATION;
+		internalFlags |= PxsRigidBody::eRETAIN_ACCELERATION_GPU;
+
+	mLLBody.mInternalFlags = internalFlags;
 
 	// PT: don't read the core ptr we just wrote, use input param
 	// PT: at time of writing we get a big L2 here because even though bodycore has been prefetched, the wake counter is 160 bytes away
@@ -90,6 +68,7 @@ BodySim::BodySim(Scene& scene, BodyCore& core, bool compound) :
 	}
 	else
 	{
+		// PT: ?? can mArticulation be non null here?
 		if(mArticulation)
 		{
 			const PxU32 linkIndex = mArticulation->findBodyIndex(*this);
@@ -161,33 +140,6 @@ BodySim::~BodySim()
 	mActiveCompoundListIndex = SC_NOT_IN_SCENE_INDEX;
 
 	mCore.setSim(NULL);
-}
-
-void BodySim::updateCached(PxBitMapPinned* shapeChangedMap)
-{
-	if(!(mLLBody.mInternalFlags & PxsRigidBody::eFROZEN))
-	{
-		PxU32 nbElems = getNbElements();
-		ElementSim** elems = getElements();
-		while (nbElems--)
-		{
-			ShapeSim* current = static_cast<ShapeSim*>(*elems++);
-			current->updateCached(0, shapeChangedMap);
-		}
-	}
-}
-
-void BodySim::updateCached(PxsTransformCache& transformCache, Bp::BoundsArray& boundsArray)
-{
-	PX_ASSERT(!(mLLBody.mInternalFlags & PxsRigidBody::eFROZEN));	// PT: should not be called otherwise
-
-	PxU32 nbElems = getNbElements();
-	ElementSim** elems = getElements();
-	while (nbElems--)
-	{
-		ShapeSim* current = static_cast<ShapeSim*>(*elems++);
-		current->updateCached(transformCache, boundsArray);
-	}
 }
 
 bool BodySim::setupSimStateData(bool isKinematic)
@@ -395,13 +347,15 @@ void BodySim::postActorFlagChange(PxU32 oldFlags, PxU32 newFlags)
 
 	if (isWeightless != wasWeightless)
 	{
-		if (mVelModState == 0)
+		if ((mLLBody.mInternalFlags & VMF_ALL_FLAGS) == 0)
 			raiseVelocityModFlag(VMF_GRAVITY_DIRTY);
 
 		getBodyCore().getCore().disableGravity = isWeightless!=0;
 
 		if(mArticulation)
 			mArticulation->setArticulationDirty(ArticulationDirtyFlag::eDIRTY_LINKS); // forces an update in PxgSimulationController::updateGpuArticulationSim
+		else
+			mScene.gpu_updateBodySim(*this);
 	}
 }
 
@@ -446,7 +400,7 @@ void BodySim::activate()
 																								// exception: object gets newly added, then the state change will happen later
 		if(!isArticulationLink())
 		{
-			mLLBody.mInternalFlags &= (~PxsRigidBody::eFROZEN);
+			mLLBody.mInternalFlags &= ~PxsRigidBody::eFROZEN;
 			// Put in list of activated bodies. The list gets cleared at the end of a sim step after the sleep callbacks have been fired.
 			mScene.onBodyWakeUp(this);
 		}
@@ -504,10 +458,91 @@ void BodySim::deactivate()
 		removeFromSpeculativeCCDMap();
 }
 
+PxU32 BodySim::deactivateThreadSafe(PxU32& activeListIndex)
+{
+	PX_ASSERT(isActive());
+	activeListIndex = mActiveListIndex;
+	mActiveListIndex = SC_NOT_IN_ACTIVE_LIST_INDEX;
+
+	PxU32 work = 0;
+	if(readInternalFlag(BF_IS_COMPOUND_RIGID))
+		work |= eCOMPOUND;
+	if(readInternalFlag(BF_HAS_NON_IG_INTERACTIONS))
+		work |= eDEACTIVATE_INTERACTIONS;
+
+	BodyCore& core = getBodyCore();
+
+	PX_ASSERT((!isKinematic()) || notInScene() || !readInternalFlag(BF_KINEMATIC_MOVED));	// kinematics should only get deactivated when no target is set.
+	if(!readInternalFlag(BF_ON_DEATHROW))
+	{
+		PX_ASSERT(core.getWakeCounter() == 0.0f);
+		const PxVec3 zero(0.0f);
+		core.setLinearVelocityInternal(zero);
+		core.setAngularVelocityInternal(zero);
+
+		setForcesToDefaults(!core.getCore().disableGravity);
+	}
+
+	if(!isArticulationLink() && mScene.needsSleepNotifications())	// Articulations have their own sleep logic.
+		work |= eSLEEP_NOTIFICATION;
+
+	const PxU32 flags = core.getFlags();
+	if(flags & PxRigidBodyFlag::eENABLE_POSE_INTEGRATION_PREVIEW)
+		work |= ePOSE_PREVIEW;
+	if(flags & PxRigidBodyFlag::eENABLE_SPECULATIVE_CCD)
+		work |= eSPECULATIVE_CCD;
+
+	PxU32 nbElems = getNbElements();
+	ElementSim*const* elems = getElements();
+	while(nbElems--)
+	{
+		if(static_cast<const ShapeSim*>(*elems++)->getSqBoundsId() != PX_INVALID_U32)
+		{
+			work |= eSQ_BOUNDS;
+			break;
+		}
+	}
+	return work;
+}
+
+void BodySim::finishDeactivation(PxU32 work)
+{
+	PX_ASSERT(!isActive());
+
+	if(work & eCOMPOUND)
+		mScene.removeFromActiveCompoundBodyList(*this);
+
+	if(work & eDEACTIVATE_INTERACTIONS)
+		deactivateInteractions(*this);
+
+	if(work & eSLEEP_NOTIFICATION)
+		mScene.onBodySleep(this);
+
+	if(work & ePOSE_PREVIEW)
+	{
+		PX_ASSERT(mScene.isInPosePreviewList(*this));
+		mScene.removeFromPosePreviewList(*this);
+	}
+
+	if(work & eSQ_BOUNDS)
+		destroySqBounds();
+
+	if(work & eSPECULATIVE_CCD)
+		removeFromSpeculativeCCDMap();
+}
+
 void BodySim::wakeUp()
 {
+	// Reset acceleration state only on genuine sleep-to-wake transition for
+	// dynamic bodies. Kinematic sleep/wake is a normal part of their lifecycle
+	// (sleep when idle, wake on setKinematicTarget) and prevVel is still valid.
+	const bool resetAccel = !isActive() && !isKinematic();
+
 	setActive(true);
 	notifyWakeUp();
+
+	if(resetAccel)
+		raiseInternalFlag(BF_RESET_ACCELERATION);
 }
 
 void BodySim::putToSleep()
@@ -546,12 +581,15 @@ void BodySim::internalWakeUpBase(PxReal wakeCounterValue)	//this one can only in
 		getBodyCore().setWakeCounterFromSim(wakeCounterValue);
 
 		//we need to update the gpu body sim because we reset the wake counter for the body core
-		mScene.updateBodySim(*this);
+		mScene.gpu_updateBodySim(*this);
 		setActive(true);
 		notifyWakeUp();
 
+		// Reset acceleration state to avoid spurious spike after wake-up
+		raiseInternalFlag(BF_RESET_ACCELERATION);
+
 		if(0)	// PT: commented-out for PX-2197
-			mLLBody.mInternalFlags &= (~PxsRigidBody::eFROZEN);
+			mLLBody.mInternalFlags &= ~PxsRigidBody::eFROZEN;
 	}
 }
 
@@ -564,6 +602,33 @@ void BodySim::notifyReadyForSleeping()
 void BodySim::notifyNotReadyForSleeping()
 {
 	mScene.getSimpleIslandManager()->activateNode(mNodeIndex);
+}
+
+bool BodySim::checkSleepReadinessBesidesWakeCounter()
+{
+	// If sleeping is disabled in the scene, bodies are never ready for sleep
+	if(mScene.getFlags() & PxSceneFlag::eDISABLE_SLEEPING)
+		return false;
+
+	const BodyCore& bodyCore = getBodyCore();
+	const SimStateData* simStateData = getSimStateData(false);
+	const VelocityMod* velmod = simStateData ? simStateData->getVelocityModData() : NULL;
+
+	bool readyForSleep = bodyCore.getLinearVelocity().isZero() && bodyCore.getAngularVelocity().isZero();
+
+	if (readVelocityModFlag(VMF_ACC_DIRTY))
+	{
+		readyForSleep = readyForSleep && (!velmod || velmod->getLinearVelModPerSec().isZero());
+		readyForSleep = readyForSleep && (!velmod || velmod->getAngularVelModPerSec().isZero());
+	}
+
+	if (readVelocityModFlag(VMF_VEL_DIRTY))
+	{
+		readyForSleep = readyForSleep && (!velmod || velmod->getLinearVelModPerStep().isZero());
+		readyForSleep = readyForSleep && (!velmod || velmod->getAngularVelModPerStep().isZero());
+	}
+
+	return readyForSleep;
 }
 
 void BodySim::notifyWakeUp()
@@ -587,11 +652,11 @@ PxReal BodySim::updateWakeCounter(PxReal dt, PxReal energyThreshold, const Cm::S
 
 	PxReal wc = core.getWakeCounter();
 	
+	if(wc < wakeCounterResetTime * 0.5f || wc < dt)
 	{
 		PxVec3 bcSleepLinVelAcc = mLLBody.mSleepLinVelAcc;
 		PxVec3 bcSleepAngVelAcc = mLLBody.mSleepAngVelAcc;
 
-		if(wc < wakeCounterResetTime * 0.5f || wc < dt)
 		{
 			const PxTransform& body2World = getBody2World();
 
@@ -599,7 +664,7 @@ PxReal BodySim::updateWakeCounter(PxReal dt, PxReal energyThreshold, const Cm::S
 			const PxVec3 t = core.getInverseInertia();
 			const PxVec3 inertia(t.x > 0.0f ? 1.0f/t.x : 1.0f, t.y > 0.0f ? 1.0f/t.y : 1.0f, t.z > 0.0f ? 1.0f/t.z : 1.0f);
 
-			PxVec3 sleepLinVelAcc = motionVelocity.linear;
+			const PxVec3& sleepLinVelAcc = motionVelocity.linear;
 			PxVec3 sleepAngVelAcc = body2World.q.rotateInv(motionVelocity.angular);
 
 			bcSleepLinVelAcc += sleepLinVelAcc;
@@ -698,13 +763,59 @@ bool BodySim::updateForces(PxReal dt, PxsRigidBody** updatedBodySims, PxU32* upd
 		}
 		else
 		{
-			if (mScene.getFlags() & PxSceneFlag::eENABLE_EXTERNAL_FORCES_EVERY_ITERATION_TGS)
+			// PdHC: For GPU dynamics mode with body accelerations enabled, we must use external 
+			// accelerations instead of directly modifying CPU velocity. This ensures that the 
+			// velocity-delta method for acceleration computation works correctly:
+			// - If we modify CPU velocity directly, the "previous" velocity capture sees the post-force
+			//   velocity, causing the force effect to cancel out in the delta.
+			// - With external accelerations, the GPU integrates forces during simulation, so
+			//   velocity-delta correctly captures: accel = (curVel - prevVel) / dt = gravity + force/mass
+
+			const bool useExternalAccelerations =
+				(mScene.getSolverType() == PxSolverType::eTGS && (mScene.getFlags() & PxSceneFlag::eENABLE_EXTERNAL_FORCES_EVERY_ITERATION_TGS)) ||
+				(mScene.isUsingGpuDynamics() && (mScene.getFlags() & PxSceneFlag::eENABLE_BODY_ACCELERATIONS));
+
+			if (useExternalAccelerations)
 			{
 				if (linVelDt != PxVec3(0.0f) || angVelDt != PxVec3(0.0f)) 
 				{
 					const PxReal invDt = 1.f / dt;
 					PxsRigidBodyExternalAcceleration acc(linVelDt * invDt, angVelDt * invDt);
 					externalAccelerations->setValue(acc, getNodeIndex().index(), maxNumExternalAccelerations);
+				}
+
+				if (mLLBody.mCore->mFlags & PxRigidBodyFlag::eRETAIN_ACCELERATIONS)
+				{
+					if (velDirty)
+					{
+#if PX_DEBUG
+						if (!accDirty)
+						{
+							PX_ASSERT(velmod->getLinearVelModPerSec().isZero() && velmod->getAngularVelModPerSec().isZero());
+							// if VMF_ACC_DIRTY is not raised, then acceleration has to be zero when eRETAIN_ACCELERATIONS
+							// is set because the else-statement will clear the flag if acc is zero.
+						}
+#endif
+						// if there has not been any acceleration/force applied ever (or has been cleared) but an
+						// impulse/deltaVelocity is applied, then updateForces() has to run again next step to
+						// ensure the external acceleration value gets set to zero (assuming no more impulse or
+						// deltaVelocity is applied) and is uploaded to the GPU. Applied impulse/deltaVelocity
+						// should last for one step only. If the next step does not update forces, the applied
+						// impulse or deltaVelocity will stay active. CPU does in theory not need this because the
+						// accelerations get cleared all the time but clearing the flag in the else-statement also
+						// avoids running the updateForces() code again and again for no good reason.
+						// The if-statement does not check for (!accDirty) because it does not hurt to raise a flag
+						// that has been raised already.
+						raiseVelocityModFlag(VMF_ACC_DIRTY);
+					}
+					else if (velmod->getLinearVelModPerSec().isZero() && velmod->getAngularVelModPerSec().isZero())
+					{
+						// this is the counterpart to the logic described further above. If this is the frame after
+						// VMF_ACC_DIRTY has been raised but no acceleration/force or impulse/deltaVelocity has
+						// been applied (or maybe has been cleared), then the flag should be cleared again even with
+						// eRETAIN_ACCELERATIONS on because it will be pointless to upload zero to GPU again and again.
+						clearVelocityModFlag(VMF_ACC_DIRTY);
+					}
 				}
 			}
 			else
@@ -758,7 +869,7 @@ void BodySim::setArticulation(ArticulationSim* a, PxReal wakeCounter, bool aslee
 			while (nbElements--)
 			{
 				ShapeSim* sim = static_cast<ShapeSim*>(*current++);
-				ctx->registerShape(mNodeIndex, sim->getCore().getCore(), sim->getElementID(), sim->getActor().getPxActor());
+				ctx->registerShape(mNodeIndex, sim->getCore(), sim->getElementID(), sim->getActor().getPxActor());
 			}
 		}
 
@@ -839,18 +950,6 @@ void BodySim::destroySqBounds()
 	{
 		ShapeSim* current = static_cast<ShapeSim*>(*elems++);
 		current->destroySqBounds();
-	}
-}
-
-void BodySim::freezeTransforms(PxBitMapPinned* shapeChangedMap)
-{
-	PxU32 nbElems = getNbElements();
-	ElementSim** elems = getElements();
-	while (nbElems--)
-	{
-		ShapeSim* sim = static_cast<ShapeSim*>(*elems++);
-		sim->updateCached(PxsTransformFlag::eFROZEN, shapeChangedMap);
-		sim->destroySqBounds();
 	}
 }
 

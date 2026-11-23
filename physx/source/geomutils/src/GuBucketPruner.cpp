@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #include "foundation/PxMemory.h"
 #include "foundation/PxBitUtils.h"
@@ -1255,15 +1232,17 @@ namespace
 	static PX_FORCE_INLINE void precomputeRayData(RayParams* PX_RESTRICT rayParams, const PxVec3& rayOrig, const PxVec3& rayDir, float maxDist)
 	{
 	#ifdef USE_SIMD
-		const float Half = 0.5f * maxDist;
-		const __m128 HalfV = _mm_load1_ps(&Half);
-		const __m128 DataV = _mm_mul_ps(_mm_loadu_ps(&rayDir.x), HalfV);
-		const __m128 Data2V = _mm_add_ps(_mm_loadu_ps(&rayOrig.x), DataV);
-		const PxU32 MaskI = 0x7fffffff;
-		const __m128 FDirV = _mm_and_ps(_mm_load1_ps(reinterpret_cast<const float*>(&MaskI)), DataV);
-		_mm_store_ps(&rayParams->mData.x, DataV);
-		_mm_store_ps(&rayParams->mData2.x, Data2V);
-		_mm_store_ps(&rayParams->mFDir.x, FDirV);
+		const float half = 0.5f * maxDist;
+		const __m128 halfV = _mm_load1_ps(&half);
+		const __m128 rayDirV = _mm_set_ps(0.0f, rayDir.z, rayDir.y, rayDir.x);
+		const __m128 rayOrigV = _mm_set_ps(0.0f, rayOrig.z, rayOrig.y, rayOrig.x);
+		const __m128 dataV = _mm_mul_ps(rayDirV, halfV);
+		const __m128 data2V = _mm_add_ps(rayOrigV, dataV);
+		const PxU32 maskI = 0x7fffffff;
+		const __m128 fDirV = _mm_and_ps(_mm_load1_ps(reinterpret_cast<const float*>(&maskI)), dataV);
+		_mm_store_ps(&rayParams->mData.x, dataV);
+		_mm_store_ps(&rayParams->mData2.x, data2V);
+		_mm_store_ps(&rayParams->mFDir.x, fDirV);
 	#else
 		const PxVec3 data = 0.5f * rayDir * maxDist;
 		rayParams->mData = data;
@@ -1913,7 +1892,7 @@ struct BucketPrunerAABBAABBTest
 	PX_FORCE_INLINE BucketPrunerAABBAABBTest(const PxBounds3& queryBox) : mBox(queryBox)	{}
 
 	PX_FORCE_INLINE PxIntBool operator()(const BucketBox& box) const
-	{	
+	{
 		// PT: we don't use PxBounds3::intersects() because isValid() asserts on our empty boxes!
 		const PxVec3 bucketMin = box.getMin();
 		const PxVec3 bucketMax = box.getMax();
@@ -1923,7 +1902,7 @@ struct BucketPrunerAABBAABBTest
 	}
 
 	PX_FORCE_INLINE PxIntBool operator()(const PxBounds3& bounds) const
-	{	
+	{
 		// PT: we don't use PxBounds3::intersects() because isValid() asserts on our empty boxes!
 		const PxVec3& bucketMin = bounds.minimum;
 		const PxVec3& bucketMax = bounds.maximum;
@@ -1944,7 +1923,7 @@ private:
 	{}
 
 	PX_FORCE_INLINE PxIntBool operator()(const BucketBox& box) const
-	{	
+	{
 		return V3AllGrtrOrEq(V3Add(mExtents, AlignedLoad(&box.mExtents.x)), V3Abs(V3Sub(AlignedLoad(&box.mCenter.x), mCenter)));
 	}
 private:
@@ -1980,7 +1959,7 @@ struct OBBAABBTest_SIMD
 	}
 
 	PX_FORCE_INLINE PxIntBool operator()(const BucketBox& box) const	
-	{	
+	{
 		const Vec3V extentsV = V3LoadU(box.mExtents);
 
 		const Vec3V t = V3Sub(mT, V3LoadU(box.mCenter));
@@ -2025,7 +2004,7 @@ struct OBBAABBTest_SIMD
 	}
 
 	PX_FORCE_INLINE PxIntBool operator()(const PxBounds3& bounds) const	
-	{	
+	{
 		BucketBox tmp;
 		tmp.mCenter = bounds.getCenter();
 		tmp.mExtents = bounds.getExtents();
@@ -2129,7 +2108,7 @@ bool BucketPrunerCore::overlap(const ShapeData& queryVolume, PrunerOverlapCallba
 		case PxGeometryType::eBOX:
 		{
 			if(queryVolume.isOBB())
-			{	
+			{
 				const BucketPrunerOverlapTraversal<BucketPrunerOBBAABBTest, false> overlap;
 				again = overlap(*this,
 							BucketPrunerOBBAABBTest(
@@ -2275,7 +2254,7 @@ static void visualize(PxRenderOutput& out, const BucketBox& bounds)
 
 void BucketPrunerCore::visualize(PxRenderOutput& out, PxU32 color) const
 {
-	const PxTransform idt = PxTransform(PxIdentity);
+	const PxTransform idt(PxIdentity);
 	out << idt;
 	out << color;
 

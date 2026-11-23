@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef SC_ARTICULATION_JOINT_CORE_H
 #define SC_ARTICULATION_JOINT_CORE_H
@@ -88,8 +65,6 @@ namespace Sc
 						void								setJointVelocity(PxArticulationAxis::Enum axis, const PxReal jointVel);
 						PxReal								getJointVelocity(PxArticulationAxis::Enum axis)	const;
 
-						void								setMaxJointVelocity(PxReal maxJointV);
-		PX_FORCE_INLINE	PxReal								getMaxJointVelocity()	const	{ return mCore.maxJointVelocity[0];	}
 
 						void								setMaxJointVelocity(PxArticulationAxis::Enum axis, PxReal maxJointV);
 		PX_FORCE_INLINE	PxReal								getMaxJointVelocity(PxArticulationAxis::Enum axis)	const	{ return mCore.maxJointVelocity[axis];	}
@@ -99,9 +74,6 @@ namespace Sc
 
 		PX_FORCE_INLINE	void								setJointType(PxArticulationJointType::Enum type)	{ mCore.setJointType(type);								}
 		PX_FORCE_INLINE	PxArticulationJointType::Enum		getJointType()								const	{ return PxArticulationJointType::Enum(mCore.jointType);	}
-						
-						void								setFrictionCoefficient(const PxReal coefficient);
-		PX_FORCE_INLINE	PxReal								getFrictionCoefficient()					const	{ return mCore.frictionCoefficient;				}
 
 						void								setFrictionParams(PxArticulationAxis::Enum axis, const PxJointFrictionParams& jointFrictionParams);
 		PX_FORCE_INLINE PxJointFrictionParams				getFrictionParams(PxArticulationAxis::Enum axis) const	{ return mCore.frictionParams[axis];				}

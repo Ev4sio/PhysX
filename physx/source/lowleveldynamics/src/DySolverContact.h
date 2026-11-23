@@ -1,37 +1,14 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef DY_SOLVER_CONTACT_H
 #define DY_SOLVER_CONTACT_H
 
 #include "foundation/PxSimpleTypes.h"
 #include "foundation/PxVec3.h"
-#include "PxvConfig.h"
+#include "PxPhysXConfig.h"
 #include "foundation/PxVecMath.h"
 
 namespace physx
@@ -91,7 +68,7 @@ struct SolverContactHeader
 	PX_FORCE_INLINE FloatV getDominance0() const			{ return V4GetZ(staticFrictionX_dynamicFrictionY_dominance0Z_dominance1W);	}
 	PX_FORCE_INLINE FloatV getDominance1() const			{ return V4GetW(staticFrictionX_dynamicFrictionY_dominance0Z_dominance1W);	}
 
-	PX_FORCE_INLINE void setStaticFriction(PxF32 f)			{ V4WriteX(staticFrictionX_dynamicFrictionY_dominance0Z_dominance1W, f);	}
+/*	PX_FORCE_INLINE void setStaticFriction(PxF32 f)			{ V4WriteX(staticFrictionX_dynamicFrictionY_dominance0Z_dominance1W, f);	}
 	PX_FORCE_INLINE void setDynamicFriction(PxF32 f)		{ V4WriteY(staticFrictionX_dynamicFrictionY_dominance0Z_dominance1W, f);	}
 	PX_FORCE_INLINE void setDominance0(PxF32 f)				{ V4WriteZ(staticFrictionX_dynamicFrictionY_dominance0Z_dominance1W, f);	}
 	PX_FORCE_INLINE void setDominance1(PxF32 f)				{ V4WriteW(staticFrictionX_dynamicFrictionY_dominance0Z_dominance1W, f);	}
@@ -99,7 +76,7 @@ struct SolverContactHeader
 	PX_FORCE_INLINE PxF32 getStaticFrictionPxF32() const	{ return V4ReadX(staticFrictionX_dynamicFrictionY_dominance0Z_dominance1W);	}
 	PX_FORCE_INLINE PxF32 getDynamicFrictionPxF32() const	{ return V4ReadY(staticFrictionX_dynamicFrictionY_dominance0Z_dominance1W);	}
 	PX_FORCE_INLINE PxF32 getDominance0PxF32() const		{ return V4ReadZ(staticFrictionX_dynamicFrictionY_dominance0Z_dominance1W);	}
-	PX_FORCE_INLINE PxF32 getDominance1PxF32() const		{ return V4ReadW(staticFrictionX_dynamicFrictionY_dominance0Z_dominance1W);	}
+	PX_FORCE_INLINE PxF32 getDominance1PxF32() const		{ return V4ReadW(staticFrictionX_dynamicFrictionY_dominance0Z_dominance1W);	}*/
 }; 
 
 #if !PX_P64_FAMILY
@@ -143,25 +120,27 @@ struct SolverContactPointExt : public SolverContactPoint
 
 PX_COMPILE_TIME_ASSERT(sizeof(SolverContactPointExt) == 112);
 
-
 /**
 \brief A single friction constraint for the solver.
 */
 struct SolverContactFriction
 {
-	// PT: TODO: there's room for 3 floats in the padding bytes so we could just stick appliedForce / velMultiplier / bias there
-	// and avoid doing all the data packing / unpacking for these members...
-	Vec4V normalXYZ_appliedForceW;		//16
-	Vec4V raXnXYZ_velMultiplierW;		//32
-	Vec4V rbXnXYZ_biasW;				//48
-	PxReal targetVel;					//52
-	PxU32 mPad[3];						//64
+	// PT: appliedForce / velMultiplier / bias used to be packed into the W lanes of the three vectors, which
+	// cost a V4GetW shuffle per read and a V4SetW insert per write. They now live in what was padding, so the
+	// struct is still 64 bytes but the scalars are plain loads/stores.
+	Vec3V normal;			//16
+	Vec3V raXn;				//32
+	Vec3V rbXn;				//48
+	PxReal targetVel;		//52
+	PxReal appliedForce;	//56	used to be stored in W of previous Vecs
+	PxReal velMultiplier;	//60	used to be stored in W of previous Vecs
+	PxReal bias;			//64	used to be stored in W of previous Vecs
 
-	PX_FORCE_INLINE void setAppliedForce(const FloatV f)	{ normalXYZ_appliedForceW = V4SetW(normalXYZ_appliedForceW,f);	}
-	PX_FORCE_INLINE void setBias(const FloatV f)			{ rbXnXYZ_biasW = V4SetW(rbXnXYZ_biasW,f);						}
+	PX_FORCE_INLINE void setAppliedForce(const FloatV f)	{ FStore(f, &appliedForce);	}
+	PX_FORCE_INLINE void setBias(const FloatV f)			{ FStore(f, &bias);			}
 
-	PX_FORCE_INLINE Vec3V getNormal() const { return Vec3V_From_Vec4V(normalXYZ_appliedForceW); }
-	PX_FORCE_INLINE FloatV getAppliedForce() const { return V4GetW(normalXYZ_appliedForceW); }
+	PX_FORCE_INLINE Vec3V getNormal() const			{ return normal;				}
+	PX_FORCE_INLINE FloatV getAppliedForce() const	{ return FLoad(appliedForce);	}
 }; 
 
 PX_COMPILE_TIME_ASSERT(sizeof(SolverContactFriction) == 64);

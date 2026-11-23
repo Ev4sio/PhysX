@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #include "ExtSphericalJoint.h"
 #include "ExtConstraintHelper.h"
@@ -44,7 +21,7 @@ SphericalJoint::SphericalJoint(const PxTolerancesScale& /*scale*/, PxRigidActor*
 }
 
 void SphericalJoint::setLimitCone(const PxJointLimitCone &limit)
-{	
+{
 	PX_CHECK_AND_RETURN(limit.isValid(), "PxSphericalJoint::setLimit: invalid parameter");
 	data().limit = limit; 
 	markDirty();
@@ -64,7 +41,7 @@ void SphericalJoint::setLimitCone(const PxJointLimitCone &limit)
 }
 
 PxJointLimitCone SphericalJoint::getLimitCone() const
-{	
+{
 	return data().limit; 
 }
 
@@ -188,23 +165,36 @@ void SphericalJoint::resolveReferences(PxDeserializationContext& context)
 
 void SphericalJoint::updateOmniPvdProperties() const
 {
+	updateOmniPvdProperties(omniPvdCpuJointState(*this));
+}
+
+void SphericalJoint::updateOmniPvdProperties(const PxConstraintOmniPvdState& state) const
+{
+	if (!omniPvdJointPoseValid(state)) return;
 	OMNI_PVD_WRITE_SCOPE_BEGIN(pvdWriter, pvdRegData)
 
     const PxSphericalJoint& j = static_cast<const PxSphericalJoint&>(*this);
-	OMNI_PVD_SET_EXPLICIT(pvdWriter, pvdRegData, OMNI_PVD_CONTEXT_HANDLE, PxSphericalJoint, swingYAngle, j, getSwingYAngle())
-	OMNI_PVD_SET_EXPLICIT(pvdWriter, pvdRegData, OMNI_PVD_CONTEXT_HANDLE, PxSphericalJoint, swingZAngle, j, getSwingZAngle())
+	OMNI_PVD_SET_EXPLICIT(pvdWriter, pvdRegData, OMNI_PVD_CONTEXT_HANDLE, PxSphericalJoint, swingYAngle, j, omniPvdJointAngle(j, state, 1))
+	OMNI_PVD_SET_EXPLICIT(pvdWriter, pvdRegData, OMNI_PVD_CONTEXT_HANDLE, PxSphericalJoint, swingZAngle, j, omniPvdJointAngle(j, state, 2))
 
 	OMNI_PVD_WRITE_SCOPE_END
 }
 
+template<> void physx::Ext::omniPvdInitJoint<SphericalJoint>(OmniPvdWriter* pvdWriter, const OmniPvdPxExtensionsRegistrationData* pvdRegData, SphericalJoint& joint); // declared before the wrapper so the wrapper binds the explicit form below instead of implicitly instantiating it
 template<>
 void physx::Ext::omniPvdInitJoint<SphericalJoint>(SphericalJoint& joint)
 {
 	OMNI_PVD_WRITE_SCOPE_BEGIN(pvdWriter, pvdRegData)
+	omniPvdInitJoint(pvdWriter, pvdRegData, joint);
+	OMNI_PVD_WRITE_SCOPE_END
+}
 
+template<>
+void physx::Ext::omniPvdInitJoint<SphericalJoint>(OmniPvdWriter* pvdWriter, const OmniPvdPxExtensionsRegistrationData* pvdRegData, SphericalJoint& joint)
+{
 	PxSphericalJoint& j = static_cast<PxSphericalJoint&>(joint);
 	OMNI_PVD_CREATE_EXPLICIT(pvdWriter, pvdRegData, OMNI_PVD_CONTEXT_HANDLE, PxSphericalJoint, j);
-	omniPvdSetBaseJointParams(static_cast<PxJoint&>(joint), PxJointConcreteType::eSPHERICAL);
+	omniPvdSetBaseJointParams(pvdWriter, pvdRegData, static_cast<PxJoint&>(joint), PxJointConcreteType::eSPHERICAL);
 
 	PxJointLimitCone limit = joint.getLimitCone();
 	OMNI_PVD_SET_EXPLICIT(pvdWriter, pvdRegData, OMNI_PVD_CONTEXT_HANDLE, PxSphericalJoint, limitYAngle, j, limit.yAngle)
@@ -216,10 +206,6 @@ void physx::Ext::omniPvdInitJoint<SphericalJoint>(SphericalJoint& joint)
 
 	OMNI_PVD_SET_EXPLICIT(pvdWriter, pvdRegData, OMNI_PVD_CONTEXT_HANDLE, PxSphericalJoint, jointFlags, j, joint.getSphericalJointFlags())
 
-	OMNI_PVD_SET_EXPLICIT(pvdWriter, pvdRegData, OMNI_PVD_CONTEXT_HANDLE, PxSphericalJoint, swingYAngle, j, joint.getSwingYAngle())
-	OMNI_PVD_SET_EXPLICIT(pvdWriter, pvdRegData, OMNI_PVD_CONTEXT_HANDLE, PxSphericalJoint, swingZAngle, j, joint.getSwingZAngle())
-
-	OMNI_PVD_WRITE_SCOPE_END
 }
 
 #endif

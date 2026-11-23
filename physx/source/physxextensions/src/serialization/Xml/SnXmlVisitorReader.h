@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef SN_XML_VISITOR_READER_H
 #define SN_XML_VISITOR_READER_H
@@ -167,7 +144,7 @@ namespace physx { namespace Sn {
 	
 	template<typename TReaderType, typename TGeomType>
 	inline PxGeometry* parseGeometry( TReaderType& reader, TGeomType& /*inGeom*/)
-	{	
+	{
 		PxAllocatorCallback& inAllocator = reader.mAllocator.getAllocator();
 		
 		TGeomType* shape = PX_PLACEMENT_NEW((inAllocator.allocate(sizeof(TGeomType), "parseGeometry", PX_FL)), TGeomType);
@@ -317,9 +294,9 @@ namespace physx { namespace Sn {
 					case PxGeometryType::eGEOMETRY_COUNT:
 					case PxGeometryType::eINVALID:
 						PX_ASSERT(0);			
-					}		
+					}
 					visitor.mAllocator.getAllocator().deallocate(geometry);
-				}				
+				}
 			}
 		}
 		visitor.popCurrentContext();
@@ -588,6 +565,32 @@ namespace physx { namespace Sn {
 				inProp.set( mObj, propVal );
 			}
 		}
+
+		//
+		// The D6 joint has been changed such that it is necessary to specify what kind of angular drive model to apply.
+		// Depending on that choice, it is not legal anymore to set/get drive parameters for certain angular drive types.
+		// In theory, only the expected entries should have been stored and no custom check should be needed, however,
+		// when dumping from a PVD file to RepX, the system just blindly dumps all drive types. Hence, it is necessary
+		// to filter out the invalid drive types still.
+		//
+		// Note: using partial template specialization because the compiler for aarch64 did not yet support in-class
+		//       explicit specialization
+		//
+		typedef Vd::PxPvdIndexedPropertyAccessor<PxExtensionsPropertyInfoName::PxD6Joint_Drive, PxD6Joint, PxD6Drive::Enum, PxD6JointDrive> PxD6JointDriveAccessor;
+		template<typename TInfoType>
+		void complexProperty( PxU32* /*key*/, const PxD6JointDriveAccessor& inProp, TInfoType& inInfo )
+		{
+			typedef typename PxD6JointDriveAccessor::prop_type TPropertyType;
+			if ( gotoTopName() )
+			{
+				if (isD6JointDriveAccessAllowed(inProp.mIndex, mObj->getAngularDriveConfig()))
+				{
+					TPropertyType propVal = inProp.get( mObj );
+					readComplexObj( *this, &propVal, inInfo );
+					inProp.set( mObj, propVal );
+				}
+			}
+		}
 		
 		template<typename TAccessorType, typename TInfoType>
 		void bufferCollectionProperty( PxU32* /*key*/, const TAccessorType& inProp, TInfoType& inInfo )
@@ -604,7 +607,7 @@ namespace physx { namespace Sn {
 					TPropertyType propVal;
 					readComplexObj( *this, &propVal, inInfo );
 					theData.pushBack(propVal);
-				}	
+				}
 			}
 			this->popCurrentContext();
 
@@ -628,7 +631,7 @@ namespace physx { namespace Sn {
 					readComplexObj( *this, &propVal, inInfo );
 					inProp.set(mObj, index, propVal);
 					++index;
-				}	
+				}
 			}
 			this->popCurrentContext();
 		}
@@ -653,8 +656,8 @@ namespace physx { namespace Sn {
 						TPropertyType propYVal;
 						readComplexObj( *this, &propYVal, inInfo );
 						const_cast<TAccessorType&>(inProp).addPair(mObj, propXVal, propYVal);
-					}					
-				}	
+					}
+				}
 			}
 			this->popCurrentContext();
 		}
@@ -715,7 +718,7 @@ namespace physx { namespace Sn {
 				if (parentReader->read( "RigidBodyFlags", value ))
 				{
 					if(strstr(value, "eKINEMATIC"))
-					{						
+					{
 						mObj->setRigidBodyFlag(PxRigidBodyFlag::eKINEMATIC, true);
 					}
 				}
@@ -741,7 +744,7 @@ namespace physx { namespace Sn {
 			}
 		}
 	private:		
-		RepXVisitorReader<PxRigidDynamic>& operator=(const  RepXVisitorReader<PxRigidDynamic>&);			
+		RepXVisitorReader<PxRigidDynamic>& operator=(const RepXVisitorReader<PxRigidDynamic>&);			
 	};
 	
 	template<>
@@ -763,7 +766,7 @@ namespace physx { namespace Sn {
 		{
 		}
 	private:
-		 RepXVisitorReader<PxShape>& operator=(const  RepXVisitorReader<PxShape>&);
+		 RepXVisitorReader<PxShape>& operator=(const RepXVisitorReader<PxShape>&);
 	};
 
 	template<>
@@ -862,7 +865,6 @@ namespace physx { namespace Sn {
 		info.visitInstanceProperties( theOp );
 		return !hadError;
 	}
-
 	
 	template<typename TObjType>
 	inline bool readAllProperties( PxRepXInstantiationArgs args, XmlReader& reader, TObjType* obj, XmlMemoryAllocator& alloc, PxCollection& collection )

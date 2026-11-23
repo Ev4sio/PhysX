@@ -1,36 +1,13 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef PXV_GEOMETRY_H
 #define PXV_GEOMETRY_H
 
 #include "foundation/PxTransform.h"
-#include "PxvConfig.h"
+#include "PxPhysXConfig.h"
 
 /*!
 \file
@@ -110,6 +87,7 @@ struct PxTriangleMeshGeometryLL: public PxTriangleMeshGeometry
 	MaterialIndicesStruct	materialsLL;
 };
 
+#if PX_SUPPORT_GPU_PHYSX
 struct PxParticleSystemGeometryLL : public PxParticleSystemGeometry
 {
 	MaterialIndicesStruct	materialsLL;
@@ -119,17 +97,20 @@ struct PxTetrahedronMeshGeometryLL : public PxTetrahedronMeshGeometry
 {
 	MaterialIndicesStruct	materialsLL;
 };
+#endif
 
 struct PxHeightFieldGeometryLL : public PxHeightFieldGeometry
 {
 	MaterialIndicesStruct	materialsLL;
 };
 
-template <> struct PxcGeometryTraits<PxParticleSystemGeometryLL>	{ enum { TypeID = PxGeometryType::ePARTICLESYSTEM}; };
 template <> struct PxcGeometryTraits<PxConvexMeshGeometryLL>		{ enum { TypeID = PxGeometryType::eCONVEXMESH }; };
 template <> struct PxcGeometryTraits<PxTriangleMeshGeometryLL>		{ enum { TypeID = PxGeometryType::eTRIANGLEMESH }; };
-template <> struct PxcGeometryTraits<PxTetrahedronMeshGeometryLL>	{ enum { TypeID = PxGeometryType::eTETRAHEDRONMESH }; };
 template <> struct PxcGeometryTraits<PxHeightFieldGeometryLL>		{ enum { TypeID = PxGeometryType::eHEIGHTFIELD }; };
+#if PX_SUPPORT_GPU_PHYSX
+template <> struct PxcGeometryTraits<PxParticleSystemGeometryLL>	{ enum { TypeID = PxGeometryType::ePARTICLESYSTEM}; };
+template <> struct PxcGeometryTraits<PxTetrahedronMeshGeometryLL>	{ enum { TypeID = PxGeometryType::eTETRAHEDRONMESH }; };
+#endif
 
 class InvalidGeometry : public PxGeometry
 {
@@ -174,11 +155,13 @@ private:
 		PxU8	plane[sizeof(PxPlaneGeometry)];
 		PxU8	convexCore[sizeof(PxConvexCoreGeometry)];
 		PxU8	convex[sizeof(PxConvexMeshGeometryLL)];
-		PxU8	particleSystem[sizeof(PxParticleSystemGeometryLL)];
 		PxU8	mesh[sizeof(PxTriangleMeshGeometryLL)];
-		PxU8	tetMesh[sizeof(PxTetrahedronMeshGeometryLL)];
 		PxU8	heightfield[sizeof(PxHeightFieldGeometryLL)];
 		PxU8	custom[sizeof(PxCustomGeometry)];
+#if PX_SUPPORT_GPU_PHYSX
+		PxU8	particleSystem[sizeof(PxParticleSystemGeometryLL)];
+		PxU8	tetMesh[sizeof(PxTetrahedronMeshGeometryLL)];
+#endif
 		PxU8	invalid[sizeof(InvalidGeometry)];
 	} mGeometry;
 };

@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #include <cuda.h>
 #include <cuda_runtime.h>
@@ -41,7 +18,7 @@
 #include "PxgContactManager.h"
 #include "PxgConvexConvexShape.h"
 #include "PxgNpKernelIndices.h"
-#include "PxsTransformCache.h"
+#include "PxsCachedTransform.h"
 
 #include "PxgCommonDefines.h"
 #include "reduction.cuh"
@@ -464,10 +441,14 @@ __device__ PxU32 sphereHeightfieldNarrowphaseCore(
 
 		//printf("remapCpuTriangleIdx %i sqInflatedSphereRadius %f sqDist %f faceContact %i\n", remapCpuTriangleIdx, sqInflatedSphereRadius, sqDist, PxU32(faceContact));
 
+		// A rim edge has no neighbor triangle (BOUNDARY). It stays active and keeps the result of distancePointTriangleSquared.
 		switch (mask)
 		{
 		case ConvexTriIntermediateData::eE01:
 		{
+			if (triAdjTriIndices.x == BOUNDARY)
+				break;
+
 			PxVec3 triLocV0Adj, triLocV1Adj, triLocV2Adj;
 			getTriangle(triLocV0Adj, triLocV1Adj, triLocV2Adj, NULL, triAdjTriIndices.x, heightfieldShape.scale, rows, columns, samples);
 			const PxVec3 triNormalAdj = ((triLocV1Adj - triLocV0Adj).cross(triLocV2Adj - triLocV0Adj)).getNormalized();
@@ -478,19 +459,25 @@ __device__ PxU32 sphereHeightfieldNarrowphaseCore(
 		}
 		case ConvexTriIntermediateData::eE12:
 		{
+			if (triAdjTriIndices.y == BOUNDARY)
+				break;
+
 			PxVec3 triLocV0Adj, triLocV1Adj, triLocV2Adj;
 			getTriangle(triLocV0Adj, triLocV1Adj, triLocV2Adj, NULL, triAdjTriIndices.y, heightfieldShape.scale, rows, columns, samples);
 			const PxVec3 triNormalAdj = ((triLocV1Adj - triLocV0Adj).cross(triLocV2Adj - triLocV0Adj)).getNormalized();
 
-			/*printf("%x: triNormalAdj = (%f, %f, %f), triNormal = (%f, %f, %f)\n", triangleIdx, triNormalAdj.x, triNormalAdj.y, triNormalAdj.z, 
+			/*printf("%x: triNormalAdj = (%f, %f, %f), triNormal = (%f, %f, %f)\n", triangleIdx, triNormalAdj.x, triNormalAdj.y, triNormalAdj.z,
 				triNormal.x, triNormal.y, triNormal.z);*/
 
 			generateContact = (triNormalAdj.dot(triLocV0 - triLocV0Adj) < 0.f);
-			
+
 			break;
 		}
 		case ConvexTriIntermediateData::eE02:
 		{
+			if (triAdjTriIndices.z == BOUNDARY)
+				break;
+
 			PxVec3 triLocV0Adj, triLocV1Adj, triLocV2Adj;
 			getTriangle(triLocV0Adj, triLocV1Adj, triLocV2Adj, NULL, triAdjTriIndices.z, heightfieldShape.scale, rows, columns, samples);
 			const PxVec3 triNormalAdj = ((triLocV1Adj - triLocV0Adj).cross(triLocV2Adj - triLocV0Adj)).getNormalized();
@@ -498,7 +485,7 @@ __device__ PxU32 sphereHeightfieldNarrowphaseCore(
 			generateContact = ((triNormalAdj.dot(triLocV1 - triLocV0Adj)) < 0.f);
 			break;
 		}
-		
+
 		}
 
 		if (generateContact)

@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef __DEFORMABLE_ELEMENT_FILTER_CUH__
 #define __DEFORMABLE_ELEMENT_FILTER_CUH__
@@ -32,23 +9,22 @@
 #include "foundation/PxSimpleTypes.h"
 #include "PxFiltering.h"
 #include "PxgSimulationCoreDesc.h"
-#include "PxgParticleSystem.h"
 
-using namespace physx;
-
-static __device__ bool find(PxParticleRigidFilterPair* pairs, const PxU32 nbPairs, PxParticleRigidFilterPair& pair)
+namespace physx
 {
-	//Binary search...
+
+static __device__ bool find(const PxgDeformablePairInfo* pairs, const PxU32 nbPairs, const PxgDeformablePairInfo& pair)
+{
 	PxU32 l = 0, r = nbPairs;
 
 	while (l < r)
 	{
 		PxU32 mid = (l + r) / 2;
-		const PxParticleRigidFilterPair& p = pairs[mid];
+		PxI32 cmp = PxgComparePairInfo(pair, pairs[mid]);
 
-		if (pair == p)
+		if (cmp == 0)
 			return true;
-		else if (pair < p)
+		if (cmp < 0)
 			r = mid;
 		else
 			l = mid + 1;
@@ -56,125 +32,101 @@ static __device__ bool find(PxParticleRigidFilterPair* pairs, const PxU32 nbPair
 	return false;
 }
 
-static __device__ bool find(PxParticleRigidFilterPair* pairs, const PxU32 nbPairs, PxU64 rigidId, PxU32 particleId)
+// One helper per filter array. The helper name gives the order of the two references, which differs
+// per array.
+
+// Volume against volume:
+// ref0 is a vertex of the probing volume's collision mesh.
+// ref1 is a tetrahedron of the other volume.
+static __device__ PX_FORCE_INLINE bool findVolumeVolumeFilter(const PxgDeformablePairInfo* pairs, const PxU32 nbPairs,
+	const PxU32 volumeId0, const PxU32 volumeVertexId0, const PxU32 volumeId1, const PxU32 volumeTetId1)
 {
-	PxParticleRigidFilterPair pair;
-	pair.mID0 = rigidId;
-	pair.mID1 = particleId;
+	PxgDeformablePairInfo pair = { PxgEncodeDeformableVertex(volumeId0, volumeVertexId0),
+								   PxgEncodeDeformableTetrahedron(volumeId1, volumeTetId1) };
 	return find(pairs, nbPairs, pair);
 }
 
-static __device__ bool find(const PxgRigidFilterPair* pairs, const PxU32 nbPairs, PxgRigidFilterPair& pair, bool ignoreIndex2)
+// Rigid against volume:
+// ref0 is the rigid's filter reference, see PxgEncodeRigidFilterRef.
+// ref1 is a tetrahedron of the volume.
+static __device__ PX_FORCE_INLINE bool findRigidVolumeFilter(const PxgDeformablePairInfo* pairs, const PxU32 nbPairs,
+	const PxNodeIndex& rigidId, const PxU32 rigidCacheRef, const PxU32 volumeId, const PxU32 volumeTetId)
 {
-	//Binary search...
-	PxU32 l = 0, r = nbPairs;
-
-	while (l < r)
-	{
-		PxU32 mid = (l + r) / 2;
-		const PxgRigidFilterPair& p = pairs[mid];
-		PxI32 cmp = pair.compare(p);
-
-		if (cmp == 0 || (ignoreIndex2 && pair.index0 == p.index0 && pair.index1 == p.index1))
-			return true;
-		if (cmp < 0)
-			r = mid;
-		else
-			l = mid + 1;
-
-	}
-	return false;
+	PxgDeformablePairInfo pair = { PxgEncodeRigidFilterRef(rigidId, rigidCacheRef), PxgEncodeDeformableTetrahedron(volumeId, volumeTetId) };
+	return find(pairs, nbPairs, pair);
 }
 
-static __device__ bool find(const PxgRigidFilterPair* pairs, const PxU32 nbPairs, PxU64 rigidId, PxU32 compressedParticleId)
+// Volume against surface, for the paths that resolve a single vertex:
+// ref0 is a tetrahedron of the volume.
+// ref1 is a vertex of the surface.
+// Vertices and triangles are resolved from the same pair list based on the feature type in the reference.
+static __device__ PX_FORCE_INLINE bool findVolumeSurfaceVertexFilter(const PxgDeformablePairInfo* pairs, const PxU32 nbPairs,
+	const PxU32 volumeId, const PxU32 volumeTetId, const PxU32 surfaceId, const PxU32 surfaceVertexId)
 {
-	PxgRigidFilterPair pair;
-	pair.index0 = rigidId;
-	pair.index1 = compressedParticleId;
-	pair.index2 = 0;
-	return find(pairs, nbPairs, pair, true);
+	PxgDeformablePairInfo pair = { PxgEncodeDeformableTetrahedron(volumeId, volumeTetId),
+								   PxgEncodeDeformableVertex(surfaceId, surfaceVertexId) };
+	return find(pairs, nbPairs, pair);
 }
 
-
-
-static __device__ PxU32 findRange(PxU32 value, PxU32* values, PxU32 length)
+// Volume against surface, for the paths that resolve a whole triangle:
+// ref0 is a tetrahedron of the volume.
+// ref1 is a triangle of the surface.
+// Vertices and triangles are resolved from the same pair list based on the feature type in the reference.
+static __device__ PX_FORCE_INLINE bool findVolumeSurfaceTriangleFilter(const PxgDeformablePairInfo* pairs, const PxU32 nbPairs,
+	const PxU32 volumeId, const PxU32 volumeTetId, const PxU32 surfaceId, const PxU32 surfaceTriId)
 {
-	if (length == 0)
-		return 0;
-
-	PxU32 l = 0, r = length;
-	while (l < r)
-	{
-		PxU32 m = (l + r) / 2;
-		if (values[m] > value)
-			r = m;
-		else
-			l = m + 1;
-
-	}
-	return r-1;
+	PxgDeformablePairInfo pair = { PxgEncodeDeformableTetrahedron(volumeId, volumeTetId),
+								   PxgEncodeDeformableTriangle(surfaceId, surfaceTriId) };
+	return find(pairs, nbPairs, pair);
 }
 
-static __device__ bool find(PxgParticleSystem& particleSystem, PxU64 rigidId, PxU64 compressedParticleId)
+// Rigid against surface, for the paths that resolve a single vertex:
+// ref0 is the rigid's filter reference, see PxgEncodeRigidFilterRef.
+// ref1 is a vertex of the surface.
+// Vertices and triangles are resolved from the same pair list based on the feature type in the reference.
+static __device__ PX_FORCE_INLINE bool findRigidSurfaceVertexFilter(const PxgDeformablePairInfo* pairs, const PxU32 nbPairs,
+	const PxNodeIndex& rigidId, const PxU32 rigidCacheRef, const PxU32 surfaceId, const PxU32 surfaceVertexId)
 {
-	// this is the ID into the flat uber buffer
-	PxU32 particleId = PxGetParticleIndex(compressedParticleId);
-
-	PxU32 id = findRange(particleId, particleSystem.mParticleBufferRunsum, particleSystem.mCommonData.mNumParticleBuffers);
-	
-	PxgParticleSimBuffer& particleBuffer = particleSystem.mParticleSimBuffers[id];	
-	return find(particleBuffer.mFilterPairs, particleBuffer.mNumFilterPairs, rigidId, particleId - particleSystem.mParticleBufferRunsum[id]);
+	PxgDeformablePairInfo pair = { PxgEncodeRigidFilterRef(rigidId, rigidCacheRef), PxgEncodeDeformableVertex(surfaceId, surfaceVertexId) };
+	return find(pairs, nbPairs, pair);
 }
 
-static __device__ bool find(const PxgNonRigidFilterPair* pairs, const PxU32 nbPairs, PxgNonRigidFilterPair& pair, bool ignoreIndex2)
+// Rigid against surface, for the paths that resolve a whole triangle:
+// ref0 is the rigid's filter reference, see PxgEncodeRigidFilterRef.
+// ref1 is a triangle of the surface.
+// Vertices and triangles are resolved from the same pair list based on the feature type in the reference.
+static __device__ PX_FORCE_INLINE bool findRigidSurfaceTriangleFilter(const PxgDeformablePairInfo* pairs, const PxU32 nbPairs,
+	const PxNodeIndex& rigidId, const PxU32 rigidCacheRef, const PxU32 surfaceId, const PxU32 surfaceTriId)
 {
-	//Binary search...
-	PxU32 l = 0, r = nbPairs;
-
-	while (l < r)
-	{
-		PxU32 mid = (l + r) / 2;
-		const PxgNonRigidFilterPair& p = pairs[mid];
-		PxI32 cmp = pair.compare(p);
-
-		if (cmp == 0 || (ignoreIndex2 && pair.index0 == p.index0 && pair.index1 == p.index1))
-			return true;
-		if (cmp < 0)
-			r = mid;
-		else
-			l = mid + 1;
-
-	}
-	return false;
+	PxgDeformablePairInfo pair = { PxgEncodeRigidFilterRef(rigidId, rigidCacheRef), PxgEncodeDeformableTriangle(surfaceId, surfaceTriId) };
+	return find(pairs, nbPairs, pair);
 }
 
-static __device__ bool find(const PxgNonRigidFilterPair* pairs, const PxU32 nbPairs, const PxU32 compressedId0, const PxU32 compressedId1)
+// Surface against surface, for the paths that resolve a vertex against a triangle:
+// ref0 is a vertex of the probing surface.
+// ref1 is a triangle of the other surface.
+// Vertex-face and edge-edge are resolved from the same pair list based on the feature type in the reference.
+static __device__ PX_FORCE_INLINE bool findSurfaceSurfaceVertexTriangleFilter(const PxgDeformablePairInfo* pairs, const PxU32 nbPairs,
+	const PxU32 surfaceId0, const PxU32 surfaceVertexId0, const PxU32 surfaceId1, const PxU32 surfaceTriId1)
 {
-	PxgNonRigidFilterPair pair;
-	pair.index0 = compressedId0;
-	pair.index1 = compressedId1;
-	pair.index2 = 0;
-	return find(pairs, nbPairs, pair, true);
+	PxgDeformablePairInfo pair = { PxgEncodeDeformableVertex(surfaceId0, surfaceVertexId0),
+								   PxgEncodeDeformableTriangle(surfaceId1, surfaceTriId1) };
+	return find(pairs, nbPairs, pair);
 }
 
-static __device__ bool find(const PxgNonRigidFilterPair* pairs, const PxU32 nbPairs, const PxU32 compressedId0, const PxU32 compressedId1, PxU32 uniqueParticleUserBufferId)
+// Surface against surface, for the paths that resolve two triangle edges:
+// ref0 is a triangle edge of the probing surface.
+// ref1 is a triangle edge of the other surface.
+// Vertex-face and edge-edge are resolved from the same pair list based on the feature type in the reference.
+static __device__ PX_FORCE_INLINE bool findSurfaceSurfaceEdgeEdgeFilter(const PxgDeformablePairInfo* pairs, const PxU32 nbPairs,
+	const PxU32 surfaceId0, const PxU32 surfaceTriId0, const PxU32 localEdge0,
+	const PxU32 surfaceId1, const PxU32 surfaceTriId1, const PxU32 localEdge1)
 {
-	PxgNonRigidFilterPair pair;
-	pair.index0 = compressedId0;
-	pair.index1 = compressedId1;
-	pair.index2 = uniqueParticleUserBufferId;
-
-	return find(pairs, nbPairs, pair, false);
+	PxgDeformablePairInfo pair = { PxgEncodeDeformableTriangleEdge(surfaceId0, surfaceTriId0, localEdge0),
+								   PxgEncodeDeformableTriangleEdge(surfaceId1, surfaceTriId1, localEdge1) };
+	return find(pairs, nbPairs, pair);
 }
 
-static __device__ bool find(const PxgParticleSystem& particleSystem, const PxgNonRigidFilterPair* pairs, const PxU32 nbPairs, const PxU32 compressedParticleId, const PxU32 compressedId1)
-{
-	PxU32 particleId = PxGetParticleIndex(compressedParticleId);
-
-	PxU32 id = findRange(particleId, particleSystem.mParticleBufferRunsum, particleSystem.mCommonData.mNumParticleBuffers);
-
-	PxgParticleSimBuffer& particleBuffer = particleSystem.mParticleSimBuffers[id];
-	return find(pairs, nbPairs, compressedParticleId, compressedId1, particleBuffer.mUniqueId);
-}
+} // namespace physx
 
 #endif // __DEFORMABLE_ELEMENT_FILTER_CUH__

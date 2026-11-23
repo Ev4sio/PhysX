@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
-// Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
+// Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef PXFOUNDATION_PXUNIXINTRINSICS_H
 #define PXFOUNDATION_PXUNIXINTRINSICS_H
@@ -136,13 +113,15 @@ PX_CUDA_CALLABLE PX_FORCE_INLINE bool isFinite(float a)
 //! \brief platform-specific finiteness check (not INF or NAN)
 PX_CUDA_CALLABLE PX_FORCE_INLINE bool isFinite(double a)
 {
-	return !!isfinite(a);
+    union localU { PxU64 i; double d; } doubleUnion;
+    doubleUnion.d = a;
+    return !((doubleUnion.i & 0x7fffffffffffffffULL) >= 0x7ff0000000000000ULL);
 }
 
 /*!
 Sets \c count bytes starting at \c dst to zero.
 */
-PX_FORCE_INLINE void* memZero(void* dest, uint32_t count)
+PX_FORCE_INLINE void* memZero(void* dest, size_t count)
 {
 	return memset(dest, 0, count);
 }
@@ -150,7 +129,7 @@ PX_FORCE_INLINE void* memZero(void* dest, uint32_t count)
 /*!
 Sets \c count bytes starting at \c dst to \c c.
 */
-PX_FORCE_INLINE void* memSet(void* dest, int32_t c, uint32_t count)
+PX_FORCE_INLINE void* memSet(void* dest, int32_t c, size_t count)
 {
 	return memset(dest, c, count);
 }
@@ -158,7 +137,7 @@ PX_FORCE_INLINE void* memSet(void* dest, int32_t c, uint32_t count)
 /*!
 Copies \c count bytes from \c src to \c dst. User memMove if regions overlap.
 */
-PX_FORCE_INLINE void* memCopy(void* dest, const void* src, uint32_t count)
+PX_FORCE_INLINE void* memCopy(void* dest, const void* src, size_t count)
 {
 	return memcpy(dest, src, count);
 }
@@ -166,7 +145,7 @@ PX_FORCE_INLINE void* memCopy(void* dest, const void* src, uint32_t count)
 /*!
 Copies \c count bytes from \c src to \c dst. Supports overlapping regions.
 */
-PX_FORCE_INLINE void* memMove(void* dest, const void* src, uint32_t count)
+PX_FORCE_INLINE void* memMove(void* dest, const void* src, size_t count)
 {
 	return memmove(dest, src, count);
 }
@@ -176,4 +155,4 @@ PX_FORCE_INLINE void* memMove(void* dest, const void* src, uint32_t count)
 } // namespace physx
 #endif
 
-#endif // #ifndef PXFOUNDATION_PXUNIXINTRINSICS_H
+#endif

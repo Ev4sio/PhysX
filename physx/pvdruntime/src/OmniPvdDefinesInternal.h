@@ -1,40 +1,42 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef OMNI_PVD_DEFINES_INTERNAL_H
 #define OMNI_PVD_DEFINES_INTERNAL_H
 
-#include <stdint.h>
+#include "OmniPvdDefines.h"
+#include <limits.h>
 
 
-// types used to store certain properties in the PVD data stream
+// Types used to store fields in the PVD data stream.
 typedef uint8_t OmniPvdCommandStorageType;
 typedef uint16_t OmniPvdDataTypeStorageType;
+typedef uint16_t OmniPvdStringLengthStorageType;
+typedef uint8_t OmniPvdAttributeHandleDepthStorageType;
+typedef uint32_t OmniPvdAttributeDataLengthStorageType;
+typedef uint32_t OmniPvdAttributeElementCountStorageType;
+typedef uint64_t OmniPvdFrameTimestampStorageType;
+typedef uint32_t OmniPvdMessageLineStorageType;
+typedef uint32_t OmniPvdMessageTypeStorageType;
+
+static_assert(CHAR_BIT == 8, "OmniPVD requires 8-bit bytes.");
+static_assert(sizeof(OmniPvdCommandStorageType) == 1, "OmniPVD commands must be 1 byte.");
+static_assert(sizeof(OmniPvdDataTypeStorageType) == 2, "OmniPVD data types must be 2 bytes.");
+static_assert(sizeof(OmniPvdStringLengthStorageType) == 2, "OmniPVD string lengths must be 2 bytes.");
+static_assert(sizeof(OmniPvdAttributeHandleDepthStorageType) == 1, "OmniPVD path depths must be 1 byte.");
+static_assert(sizeof(OmniPvdAttributeDataLengthStorageType) == 4, "OmniPVD payload lengths must be 4 bytes.");
+static_assert(sizeof(OmniPvdAttributeElementCountStorageType) == 4, "OmniPVD element counts must be 4 bytes.");
+static_assert(sizeof(OmniPvdFrameTimestampStorageType) == 8, "OmniPVD frame timestamps must be 8 bytes.");
+static_assert(sizeof(OmniPvdMessageLineStorageType) == 4, "OmniPVD message lines must be 4 bytes.");
+static_assert(sizeof(OmniPvdMessageTypeStorageType) == 4, "OmniPVD message types must be 4 bytes.");
+static_assert(sizeof(OmniPvdClassHandle) == 4, "OmniPVD class handles must be 4 bytes.");
+static_assert(sizeof(OmniPvdAttributeHandle) == 4, "OmniPVD attribute handles must be 4 bytes.");
+static_assert(sizeof(OmniPvdContextHandle) == 8, "OmniPVD context handles must be 8 bytes.");
+static_assert(sizeof(OmniPvdObjectHandle) == 8, "OmniPVD object handles must be 8 bytes.");
+static_assert(sizeof(OmniPvdVersionType) == 4, "OmniPVD version fields must be 4 bytes.");
+static_assert(sizeof(OmniPvdEnumValueType) == 4, "OmniPVD enum values must be 4 bytes.");
 
 
 #endif

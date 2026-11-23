@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #include "NpCheck.h"
 #include "NpArticulationJointReducedCoordinate.h"
@@ -182,24 +159,6 @@ PxArticulationMotion::Enum NpArticulationJointReducedCoordinate::getMotion(PxArt
 	return mCore.getMotion(axis);
 }
 
-void NpArticulationJointReducedCoordinate::setFrictionCoefficient(const PxReal coefficient)
-{
-	NP_WRITE_CHECK(getNpScene());
-
-	PX_CHECK_SCENE_API_WRITE_FORBIDDEN(getNpScene(), "PxArticulationJointReducedCoordinate::setFrictionCoefficient() not allowed while simulation is running. Call will be ignored.")
-
-	OMNI_PVD_SET(OMNI_PVD_CONTEXT_HANDLE, PxArticulationJointReducedCoordinate, frictionCoefficient, static_cast<PxArticulationJointReducedCoordinate&>(*this), coefficient);
-
-	scSetFrictionCoefficient(coefficient);
-}
-
-PxReal NpArticulationJointReducedCoordinate::getFrictionCoefficient() const
-{
-	NP_READ_CHECK(getNpScene());
-
-	return mCore.getFrictionCoefficient();
-}
-
 void NpArticulationJointReducedCoordinate::setFrictionParams(PxArticulationAxis::Enum axis, const PxJointFrictionParams& jointFrictionParams)
 {
 	NP_WRITE_CHECK(getNpScene());
@@ -240,24 +199,6 @@ PxJointFrictionParams NpArticulationJointReducedCoordinate::getFrictionParams(Px
 	return mCore.getFrictionParams(axis);
 }
 
-void NpArticulationJointReducedCoordinate::setMaxJointVelocity(const PxReal maxJointV)
-{
-	NP_WRITE_CHECK(getNpScene());
-
-	PX_CHECK_SCENE_API_WRITE_FORBIDDEN(getNpScene(), "PxArticulationJointReducedCoordinate::setMaxJointVelocity() not allowed while simulation is running. Call will be ignored.")
-
-	OMNI_PVD_SET(OMNI_PVD_CONTEXT_HANDLE, PxArticulationJointReducedCoordinate, maxJointVelocity, static_cast<PxArticulationJointReducedCoordinate&>(*this), maxJointV);
-
-	scSetMaxJointVelocity(maxJointV);
-}
-
-PxReal NpArticulationJointReducedCoordinate::getMaxJointVelocity() const
-{
-	NP_READ_CHECK(getNpScene());
-
-	return mCore.getMaxJointVelocity();
-}
-
 void NpArticulationJointReducedCoordinate::setMaxJointVelocity(PxArticulationAxis::Enum axis, const PxReal maxJointV)
 {
 	NP_WRITE_CHECK(getNpScene());
@@ -274,7 +215,7 @@ void NpArticulationJointReducedCoordinate::setMaxJointVelocity(PxArticulationAxi
 		maxJointVs[ax] = mCore.getMaxJointVelocity(static_cast<PxArticulationAxis::Enum>(ax));
 	OMNI_PVD_SET_ARRAY_EXPLICIT(pvdWriter, pvdRegData, OMNI_PVD_CONTEXT_HANDLE, PxArticulationJointReducedCoordinate, maxJointDofVelocity,
 								joint, maxJointVs, PxArticulationAxis::eCOUNT);
-	
+
 	OMNI_PVD_WRITE_SCOPE_END
 #endif
 }
@@ -325,6 +266,14 @@ void NpArticulationJointReducedCoordinate::setDriveParams(PxArticulationAxis::En
 
 	PX_CHECK_SCENE_API_WRITE_FORBIDDEN(getNpScene(), "PxArticulationJointReducedCoordinate::setDriveParams() not allowed while simulation is running. Call will be ignored.")
 
+	PX_CHECK_AND_RETURN(
+		drive.envelope.maxActuatorVelocity >= 0.0f &&
+		drive.envelope.maxEffort >= 0.0f &&
+		drive.envelope.velocityDependentResistance >= 0.0f &&
+		drive.envelope.speedEffortGradient >= 0.0f,
+		"All envelope parameters must be non-negative."
+	);
+	
 	scSetDrive(axis, drive);
 
 #if PX_SUPPORT_OMNI_PVD
@@ -339,10 +288,22 @@ void NpArticulationJointReducedCoordinate::setDriveParams(PxArticulationAxis::En
 	for (PxU32 ax = 0; ax < PxArticulationAxis::eCOUNT; ++ax)
 		dampings[ax] = mCore.getDrive(static_cast<PxArticulationAxis::Enum>(ax)).damping;
 	OMNI_PVD_SET_ARRAY_EXPLICIT(pvdWriter, pvdRegData, OMNI_PVD_CONTEXT_HANDLE, PxArticulationJointReducedCoordinate, driveDamping, joint, dampings, PxArticulationAxis::eCOUNT);
-	PxReal maxforces[PxArticulationAxis::eCOUNT];
+	PxReal maxefforts[PxArticulationAxis::eCOUNT];
 	for (PxU32 ax = 0; ax < PxArticulationAxis::eCOUNT; ++ax)
-		maxforces[ax] = mCore.getDrive(static_cast<PxArticulationAxis::Enum>(ax)).maxForce;
-	OMNI_PVD_SET_ARRAY_EXPLICIT(pvdWriter, pvdRegData, OMNI_PVD_CONTEXT_HANDLE, PxArticulationJointReducedCoordinate, driveMaxForce, joint, maxforces, PxArticulationAxis::eCOUNT);
+		maxefforts[ax] = mCore.getDrive(static_cast<PxArticulationAxis::Enum>(ax)).envelope.maxEffort;
+	OMNI_PVD_SET_ARRAY_EXPLICIT(pvdWriter, pvdRegData, OMNI_PVD_CONTEXT_HANDLE, PxArticulationJointReducedCoordinate, driveMaxEffort, joint, maxefforts, PxArticulationAxis::eCOUNT);
+	PxReal maxactuatorvelocities[PxArticulationAxis::eCOUNT];
+	for (PxU32 ax = 0; ax < PxArticulationAxis::eCOUNT; ++ax)
+		maxactuatorvelocities[ax] = mCore.getDrive(static_cast<PxArticulationAxis::Enum>(ax)).envelope.maxActuatorVelocity;
+	OMNI_PVD_SET_ARRAY_EXPLICIT(pvdWriter, pvdRegData, OMNI_PVD_CONTEXT_HANDLE, PxArticulationJointReducedCoordinate, driveMaxActuatorVelocity, joint, maxactuatorvelocities, PxArticulationAxis::eCOUNT);
+	PxReal velocitydependentresistances[PxArticulationAxis::eCOUNT];
+	for (PxU32 ax = 0; ax < PxArticulationAxis::eCOUNT; ++ax)
+		velocitydependentresistances[ax] = mCore.getDrive(static_cast<PxArticulationAxis::Enum>(ax)).envelope.velocityDependentResistance;
+	OMNI_PVD_SET_ARRAY_EXPLICIT(pvdWriter, pvdRegData, OMNI_PVD_CONTEXT_HANDLE, PxArticulationJointReducedCoordinate, driveVelocityDependentResistance, joint, velocitydependentresistances, PxArticulationAxis::eCOUNT);
+	PxReal speedeffortgradients[PxArticulationAxis::eCOUNT];
+	for (PxU32 ax = 0; ax < PxArticulationAxis::eCOUNT; ++ax)
+	speedeffortgradients[ax] = mCore.getDrive(static_cast<PxArticulationAxis::Enum>(ax)).envelope.speedEffortGradient;
+	OMNI_PVD_SET_ARRAY_EXPLICIT(pvdWriter, pvdRegData, OMNI_PVD_CONTEXT_HANDLE, PxArticulationJointReducedCoordinate, driveSpeedEffortGradient, joint, speedeffortgradients, PxArticulationAxis::eCOUNT);
 	PxArticulationDriveType::Enum drivetypes[PxArticulationAxis::eCOUNT];
 	for (PxU32 ax = 0; ax < PxArticulationAxis::eCOUNT; ++ax)
 		drivetypes[ax] = mCore.getDrive(static_cast<PxArticulationAxis::Enum>(ax)).driveType;
@@ -371,6 +332,7 @@ void NpArticulationJointReducedCoordinate::setDriveTarget(PxArticulationAxis::En
 	if (npScene && (npScene->getFlags() & PxSceneFlag::eENABLE_DIRECT_GPU_API) && npScene->isDirectGPUAPIInitialized())
 	{
 		PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxArticulationJointReducedCoordinate::setDriveTarget(): it is illegal to call this method if PxSceneFlag::eENABLE_DIRECT_GPU_API is enabled!");
+		return;
 	}
 
 	if (autowake && npScene)
@@ -399,6 +361,7 @@ void NpArticulationJointReducedCoordinate::setDriveVelocity(PxArticulationAxis::
 	if (npScene && (npScene->getFlags() & PxSceneFlag::eENABLE_DIRECT_GPU_API) && npScene->isDirectGPUAPIInitialized())
 	{
 		PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxArticulationJointReducedCoordinate::setDriveVelocity(): it is illegal to call this method if PxSceneFlag::eENABLE_DIRECT_GPU_API is enabled!");
+		return;
 	}
 
 	if (autowake && npScene)
@@ -524,6 +487,7 @@ void NpArticulationJointReducedCoordinate::setJointPosition(PxArticulationAxis::
 	if (npScene && (npScene->getFlags() & PxSceneFlag::eENABLE_DIRECT_GPU_API) && npScene->isDirectGPUAPIInitialized())
 	{
 		PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxArticulationJointReducedCoordinate::setJointPosition(): it is illegal to call this method if PxSceneFlag::eENABLE_DIRECT_GPU_API is enabled!");
+		return;
 	}
 
 	scSetJointPosition(axis, jointPos);
@@ -556,6 +520,7 @@ void NpArticulationJointReducedCoordinate::setJointVelocity(PxArticulationAxis::
 	if (npScene && (npScene->getFlags() & PxSceneFlag::eENABLE_DIRECT_GPU_API) && npScene->isDirectGPUAPIInitialized())
 	{
 		PxGetFoundation().error(PxErrorCode::eINVALID_OPERATION, PX_FL, "PxArticulationJointReducedCoordinate::setJointVelocity(): it is illegal to call this method if PxSceneFlag::eENABLE_DIRECT_GPU_API is enabled!");
+		return;
 	}
 
 	scSetJointVelocity(axis, jointVel);

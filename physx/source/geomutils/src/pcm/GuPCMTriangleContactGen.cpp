@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #include "GuPCMTriangleContactGen.h"
 #include "GuPCMContactConvexCommon.h"
@@ -85,7 +62,7 @@ static bool testPolyFaceNormal(const PolygonalData& polyData, const SupportLocal
 				_feature = i;
 				_faceNormal = planeNormal;
 			}
-		}   
+		}
 	}
 	else
 	{
@@ -184,6 +161,8 @@ static bool testPolyEdgeNormal(const TriangleV& triangle, const PxU8 triFlags, c
 
 	PxU32 nbTriangleAxes = 0;
 	Vec3V triangleAxes[3];
+	Vec3V toThirdVertex[3];
+	FloatV thirdVertexTolerance[3];
 	for(PxI8 kStart = 0, kEnd =2; kStart<3; kEnd = kStart++)
 	{
 		const bool active = (triFlags & (1 << (kEnd+3))) != 0;
@@ -192,6 +171,9 @@ static bool testPolyEdgeNormal(const TriangleV& triangle, const PxU8 triFlags, c
 		{
 			const Vec3V p00 = vertexSpaceTriangle.verts[kStart];
 			const Vec3V p01 = vertexSpaceTriangle.verts[kEnd];
+			//in the shape space, like n0 below
+			toThirdVertex[nbTriangleAxes] = V3Sub(triangle.verts[3 - kStart - kEnd], triangle.verts[kStart]);
+			thirdVertexTolerance[nbTriangleAxes] = FMul(FLoad(1e-4f), V3Length(toThirdVertex[nbTriangleAxes]));
 			triangleAxes[nbTriangleAxes++] = V3Sub(p01, p00);
 		}
 	}
@@ -241,14 +223,23 @@ static bool testPolyEdgeNormal(const TriangleV& triangle, const PxU8 triFlags, c
 					const FloatV tempOverlap0 = FSub(max0, min1);
 					const FloatV tempOverlap1 = FSub(max1, min0);
 
-					if(FAllGrtr(overlap, tempOverlap0))
+					// The axis is an edge-edge axis only if the triangle edge is the feature of the triangle that is
+					// closest to the convex along the axis. Otherwise another feature of the triangle sets the overlap
+					// along the axis, for example an inactive edge shared with a coplanar triangle, and the contact
+					// normal would point across that edge. The third vertex of the triangle must then not be closer
+					// to the convex than the edge.
+					const FloatV thirdVertexProj = V3Dot(n0, toThirdVertex[j]);
+
+					// The convex is on the positive side of the axis, the triangle on the negative side.
+					if(FAllGrtrOrEq(thirdVertexTolerance[j], thirdVertexProj) && FAllGrtr(overlap, tempOverlap0))
 					{
 						overlap = tempOverlap0;
 						minNormal = n0;
 						status = edgeStatus;
 					}
 
-					if(FAllGrtr(overlap, tempOverlap1))
+					// The convex is on the negative side of the axis, the triangle on the positive side.
+					if(FAllGrtrOrEq(thirdVertexProj, FNeg(thirdVertexTolerance[j])) && FAllGrtr(overlap, tempOverlap1))
 					{
 						overlap = tempOverlap1;
 						minNormal = V3Neg(n0);

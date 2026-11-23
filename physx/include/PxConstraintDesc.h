@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef PX_CONSTRAINT_DESC_H
 #define PX_CONSTRAINT_DESC_H
@@ -376,6 +353,36 @@ struct PxPvdUpdateType
 };
 
 /**
+\brief Recorded endpoint state supplied to a constraint's OmniPVD update.
+
+Indices match the actor order returned by PxConstraint::getActors(). Poses and velocities
+are in world space. A NULL actor denotes the world and has a valid identity pose and zero
+velocities. Static actors have valid zero velocities. Device state that has not been read
+back is invalid and must not be replaced with a Direct GPU actor's CPU getters.
+
+The SDK owns this state. It is valid only for the duration of updateOmniPvdProperties().
+*/
+struct PxConstraintOmniPvdState
+{
+	PxTransform actorGlobalPose[2]; //!< Actor poses, valid when actorPoseValid is true.
+	PxVec3 actorLinearVelocity[2]; //!< Center-of-mass velocities, valid when actorVelocityValid is true.
+	PxVec3 actorAngularVelocity[2]; //!< Angular velocities, valid when actorVelocityValid is true.
+	bool actorPoseValid[2]; //!< Whether each endpoint pose is available.
+	bool actorVelocityValid[2]; //!< Whether both velocity vectors for each endpoint are available.
+
+	/** \brief Initializes both endpoints with invalid state. */
+	PX_INLINE PxConstraintOmniPvdState()
+	{
+		for (PxU32 i = 0; i < 2; ++i)
+		{
+			actorGlobalPose[i] = PxTransform(PxIdentity);
+			actorLinearVelocity[i] = actorAngularVelocity[i] = PxVec3(0.0f);
+			actorPoseValid[i] = actorVelocityValid[i] = false;
+		}
+	}
+};
+
+/**
 \brief This class connects a custom constraint to the SDK
 
 This class connects a custom constraint to the SDK, and functions are called by the SDK
@@ -403,6 +410,23 @@ public:
 	\brief this function is called by the SDK to update OmniPVD's view of it
 	*/
 	virtual void	updateOmniPvdProperties() const		= 0;
+
+	/**
+	\brief Updates OmniPVD using the endpoint state recorded by the SDK.
+
+	Called after the initial snapshot and for recorded constraint updates.
+	It is not called while PxPhysics::createConstraint() runs for this connector, so the owner can
+	finish initializing the connector after that call returns. This overload
+	uses the same endpoint readback as core recording and does not initiate another readback.
+	The default implementation calls the no-argument overload for existing connectors.
+
+	\param[in] state Borrowed endpoint state, valid only during this call.
+	*/
+	virtual void updateOmniPvdProperties(const PxConstraintOmniPvdState& state) const
+	{
+		PX_UNUSED(state);
+		updateOmniPvdProperties();
+	}
 
 	/**
 	\brief Constraint release callback

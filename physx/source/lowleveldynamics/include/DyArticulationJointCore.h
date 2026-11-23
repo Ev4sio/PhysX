@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef DY_ARTICULATION_JOINT_CORE_H
 #define DY_ARTICULATION_JOINT_CORE_H
@@ -67,9 +44,14 @@ namespace physx
 		public:
 
 			// PX_SERIALIZATION
-			ArticulationJointCore(const PxEMPTY&) : jCalcUpdateFrames(false) 
+			ArticulationJointCore(const PxEMPTY&) : drives{ PxArticulationDrive(PxEmpty),
+				PxArticulationDrive(PxEmpty),
+				PxArticulationDrive(PxEmpty),
+				PxArticulationDrive(PxEmpty),
+				PxArticulationDrive(PxEmpty),
+				PxArticulationDrive(PxEmpty) }, jCalcUpdateFrames(false) 
 			{ 
-				PX_COMPILE_TIME_ASSERT(sizeof(PxArticulationMotions) == sizeof(PxU8)); 
+				PX_COMPILE_TIME_ASSERT(sizeof(PxArticulationMotions) == sizeof(PxU8));
 			}
 			//~PX_SERIALIZATION
 
@@ -83,17 +65,17 @@ namespace physx
 			PX_FORCE_INLINE	void	setLimit(PxArticulationAxis::Enum axis, const PxArticulationLimit& limit)	{ limits[axis] = limit;					}
 			PX_FORCE_INLINE	void	setDrive(PxArticulationAxis::Enum axis, const PxArticulationDrive& drive)	{ drives[axis] = drive;					}
 			PX_FORCE_INLINE	void	setJointType(PxArticulationJointType::Enum type)							{ jointType = PxU8(type);				}
-			PX_FORCE_INLINE	void	setMaxJointVelocity(const PxReal maxJointV)								{ 
+			PX_FORCE_INLINE	void	setMaxJointVelocity(const PxReal maxJointV)
+			{ 
 				for(PxU32 i = 0; i < PxArticulationAxis::eCOUNT; i++)
 				{
 					maxJointVelocity[i] = maxJointV;
 				}
 			}
-			PX_FORCE_INLINE	void	setMaxJointVelocity(PxArticulationAxis::Enum axis, const PxReal maxJointV)								{ 
+			PX_FORCE_INLINE	void	setMaxJointVelocity(PxArticulationAxis::Enum axis, const PxReal maxJointV)
+			{ 
 				maxJointVelocity[axis] = maxJointV;
 			}
-			PX_FORCE_INLINE	void	setFrictionCoefficient(const PxReal coefficient)							{ frictionCoefficient = coefficient;	}
-
 			PX_FORCE_INLINE void setFrictionParams(PxArticulationAxis::Enum axis, const PxJointFrictionParams& jointFrictionParams) 
 			{ 
 				frictionParams[axis] = jointFrictionParams;
@@ -106,17 +88,15 @@ namespace physx
 
 				parentPose			= parentFrame;
 				childPose			= childFrame;
-				jointOffset			= 0;
-				jCalcUpdateFrames		= true;
+				jCalcUpdateFrames	= true;
 
-				setFrictionCoefficient(0.05f);
 				setMaxJointVelocity(100.0f);
 				setJointType(PxArticulationJointType::eUNDEFINED);
 
 				for(PxU32 i=0; i<PxArticulationAxis::eCOUNT; i++)
 				{
 					setLimit(PxArticulationAxis::Enum(i), PxArticulationLimit(0.0f, 0.0f));
-					setDrive(PxArticulationAxis::Enum(i), PxArticulationDrive(0.0f, 0.0f, 0.0f, PxArticulationDriveType::eNONE));
+					setDrive(PxArticulationAxis::Enum(i), PxArticulationDrive(0.0f, 0.0f, PxPerformanceEnvelope(), PxArticulationDriveType::eNONE));
 					setFrictionParams(PxArticulationAxis::Enum(i), PxJointFrictionParams(0.0f, 0.0f, 0.0f));
 					setFrictionParams(PxArticulationAxis::Enum(i), PxJointFrictionParams(0.0f, 0.0f, 0.0f));
 					targetP[i] = 0.0f;
@@ -143,7 +123,6 @@ namespace physx
 					computeMotionMatrix(motionMatrix, jointAxis, dofs);
 
 					jCalcUpdateFrames = false;
-
 				}
 			}
 
@@ -151,6 +130,12 @@ namespace physx
 																	  const Cm::UnAlignedSpatialVector* jointAxis,
 																	  const PxU32 dofs)
 			{
+				// PT: the joint axes are computed like this:
+				// Cm::UnAlignedSpatialVector axis = Cm::UnAlignedSpatialVector::Zero();
+				// axis[i] = 1.f;
+				// So we could store and pass a simple index in [0;6] instead of the full spatial vector, and then
+				// use specialized rotateAndNormalize() functions that take advantage of zeros.
+
 				const PxVec3 childOffset = -childPose.p;
 
 				switch (jointType)
@@ -179,7 +164,6 @@ namespace physx
 				}
 				case PxArticulationJointType::eSPHERICAL:
 				{
-
 					for (PxU32 ind = 0; ind < dofs; ++ind)
 					{
 						const Cm::UnAlignedSpatialVector& jJointAxis = jointAxis[ind];
@@ -225,47 +209,41 @@ namespace physx
 					motion[i] = other.motion[i];
 				}
 
-				frictionCoefficient = other.frictionCoefficient;
-				jointOffset = other.jointOffset;
 				jCalcUpdateFrames = other.jCalcUpdateFrames;
 				jointType = other.jointType;
 			}
 
-			PX_FORCE_INLINE	void	setParentPose(const PxTransform& t)										{ parentPose = t;			jCalcUpdateFrames = true;				}
-			PX_FORCE_INLINE	void	setChildPose(const PxTransform& t)										{ childPose = t;			jCalcUpdateFrames = true;				}
-			PX_FORCE_INLINE	void	setMotion(PxArticulationAxis::Enum axis, PxArticulationMotion::Enum m)	{ motion[axis] = PxU8(m);}
-			PX_FORCE_INLINE	void	setTargetP(PxArticulationAxis::Enum axis, PxReal value)					{ targetP[axis] = value; }
-			PX_FORCE_INLINE	void	setTargetV(PxArticulationAxis::Enum axis, PxReal value)					{ targetV[axis] = value; }
-			PX_FORCE_INLINE	void	setArmature(PxArticulationAxis::Enum axis, PxReal value)				{ armature[axis] = value;}
+			PX_FORCE_INLINE	void	setParentPose(const PxTransform& t)										{ parentPose = t;	jCalcUpdateFrames = true;	}
+			PX_FORCE_INLINE	void	setChildPose(const PxTransform& t)										{ childPose = t;	jCalcUpdateFrames = true;	}
+			PX_FORCE_INLINE	void	setMotion(PxArticulationAxis::Enum axis, PxArticulationMotion::Enum m)	{ motion[axis] = PxU8(m);	}
+			PX_FORCE_INLINE	void	setTargetP(PxArticulationAxis::Enum axis, PxReal value)					{ targetP[axis] = value;	}
+			PX_FORCE_INLINE	void	setTargetV(PxArticulationAxis::Enum axis, PxReal value)					{ targetV[axis] = value;	}
+			PX_FORCE_INLINE	void	setArmature(PxArticulationAxis::Enum axis, PxReal value)				{ armature[axis] = value;	}
 
 			// attachment points, don't change the order, otherwise it will break GPU code
-			PxTransform						parentPose;								//28		28
-			PxTransform						childPose;								//28		56
+			PxTransform						parentPose;										//28		28
+			PxTransform						childPose;										//28		56
 
 			//KS - temp place to put reduced coordinate limit and drive values
-			PxArticulationLimit				limits[PxArticulationAxis::eCOUNT];		//48		104
-			PxArticulationDrive				drives[PxArticulationAxis::eCOUNT];		//96		200
-			PxReal							targetP[PxArticulationAxis::eCOUNT];	//24		224
-			PxReal							targetV[PxArticulationAxis::eCOUNT];	//24		248
-			PxReal							armature[PxArticulationAxis::eCOUNT];	//24		272
-			
-			PxReal							jointPos[PxArticulationAxis::eCOUNT];	//24		296	
-			PxReal							jointVel[PxArticulationAxis::eCOUNT];	//24		320
-			
-			PxReal							frictionCoefficient;					//4			324
-			PxJointFrictionParams			frictionParams[PxArticulationAxis::eCOUNT]; //72	396
-			PxReal							maxJointVelocity[PxArticulationAxis::eCOUNT]; // 24			420
+			PxArticulationLimit				limits[PxArticulationAxis::eCOUNT];				//48		104
+			PxArticulationDrive				drives[PxArticulationAxis::eCOUNT];				//168		272
+			PxReal							targetP[PxArticulationAxis::eCOUNT];			//24		296
+			PxReal							targetV[PxArticulationAxis::eCOUNT];			//24		320
+			PxReal							armature[PxArticulationAxis::eCOUNT];			//24		344
 
-			//this is the dof offset for the joint in the cache. 
-			PxU32							jointOffset;							//4			424
+			PxReal							jointPos[PxArticulationAxis::eCOUNT];			//24		368
+			PxReal							jointVel[PxArticulationAxis::eCOUNT];			//24		392
 
-			PxU8							dofIds[PxArticulationAxis::eCOUNT];		//6			430
-			PxU8							motion[PxArticulationAxis::eCOUNT];		//6			436
-			PxU8							invDofIds[PxArticulationAxis::eCOUNT];	//6			442
+			PxJointFrictionParams			frictionParams[PxArticulationAxis::eCOUNT];		//72		464
+			PxReal							maxJointVelocity[PxArticulationAxis::eCOUNT];	//24		488
 
-			bool							jCalcUpdateFrames;						//1			443
-			PxU8							jointType;								//1			444
-			PxReal padding[1];														//4		````448
+			PxU8							dofIds[PxArticulationAxis::eCOUNT];				//6			494
+			PxU8							motion[PxArticulationAxis::eCOUNT];				//6			500
+			PxU8							invDofIds[PxArticulationAxis::eCOUNT];			//6			506
+
+			bool							jCalcUpdateFrames;								//1			507
+			PxU8							jointType;										//1			508
+			PxReal							padding[1];										//4			512
 		}PX_ALIGN_SUFFIX(16);
 	}
 }

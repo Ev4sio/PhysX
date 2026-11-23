@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved. 
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #include <stdio.h>
 #include <stdint.h>
@@ -43,9 +20,8 @@
 #include "PxgContactManager.h"
 #include "PxgConvexConvexShape.h"
 #include "PxsContactManagerState.h"
-#include "PxsTransformCache.h"
+#include "PxsCachedTransform.h"
 #include "PxgParticleSystem.h"
-#include "PxgParticleSystemCore.h"
 #include "PxgParticleSystemCoreKernelIndices.h"
 #include "PxgNpKernelIndices.h"
 #include "PxsMaterialCore.h"
@@ -304,7 +280,7 @@ struct PsTreeContactGenTraverser
 		PxgParticleContactInfo* PX_RESTRICT oneWayContactInfos,		//output
 		PxNodeIndex* PX_RESTRICT oneWayContactNodeIndices,			//output
 		PxU32* PX_RESTRICT oneWayContactCounts,						//output
-		PxgParticleContactWriter& writer,		
+		PxgRigidParticleContactWriter& writer,
 		const bool isDiffuseParticlesThread,
 		const PxReal restDist
 		)
@@ -356,13 +332,13 @@ struct PsTreeContactGenTraverser
 
 				if (remaining && !isDiffuseParticlesThread)
 				{
-					PxU64 compressedParticleIndex = PxEncodeParticleIndex(particleSystemId, globalParticleIndex);
+					PxU64 particleRef = PxgEncodeParticleRef(particleSystemId, globalParticleIndex);
 
 					for (PxU32 i = id, index = startIndex; i < contactCount; ++i, ++index)
 					{
 						const PxVec3& normal = s_warpScratch->shLocalContacts[idxInWarp][i];
 						PxReal penetration = s_warpScratch->shLocalContactDepths[idxInWarp][i] - restDist;
-						writer.writeContact(index, PxVec4(normal, penetration), compressedParticleIndex, rigidId);
+						writer.writeContact(index, PxVec4(normal, penetration), rigidId, particleRef);
 					}
 				}
 			}
@@ -381,8 +357,7 @@ __device__ static inline void psSdfMeshMidphaseCollision(
 	const PxgShape* PX_RESTRICT gpuShapes,
 	PxgParticleSystem* particleSystems,
 	PxNodeIndex* PX_RESTRICT shapeToRigidRemapTable,
-
-	PxgParticleContactWriter& writer
+	PxgRigidParticleContactWriter& writer
 )
 {
 	__shared__ __align__(16) char sMesh[sizeof(PxgTriangleMesh)];
@@ -464,8 +439,6 @@ __device__ static inline void psSdfMeshMidphaseCollision(
 		oneWayNodeIndices = particleSystem.mOneWayNodeIndex;
 		oneWayContactCounts = particleSystem.mOneWayContactCount;
 	}
-
-	const PxU32* PX_RESTRICT gridParticleIndex = particleSystem.mSortedToUnsortedMapping;
 
 	PxReal cullScale = contactDist;
 	cullScale /= trimeshShape.scale.scale.abs().minElement();
@@ -569,10 +542,6 @@ __device__ static inline void psSdfMeshMidphaseCollision(
 				}
 			}
 
-			const PxU64 particleMask = PxEncodeParticleIndex(particleSystemId, gridParticleIndex[ind]);
-
-			if (!isDiffuseParticlesThread && find(particleSystem, rigidId.getInd(), particleMask))
-				candidateContact = false;
 		}
 		
 
@@ -602,7 +571,7 @@ __device__ static inline void psSdfMeshMidphaseCollision(
 			PxVec4 normalPen(normal.x, normal.y, normal.z, finalSep/*sep - restDist + normal.dot(posPrev - pos)*/);
 
 			writer.writeContact(contactIndex, normalPen,
-				PxEncodeParticleIndex(particleSystemId, ind), rigidId);
+				rigidId, PxgEncodeParticleRef(particleSystemId, ind));
 		}
 	}
 }
@@ -622,7 +591,7 @@ __device__ static inline void psMeshMidphaseCollision(
 	PsMidphaseScratch*	s_warpScratch,
 	PxgParticleSystem* particleSystems,
 	PxNodeIndex* PX_RESTRICT shapeToRigidRemapTable,
-	PxgParticleContactWriter& writer
+	PxgRigidParticleContactWriter& writer
 )
 {
 	//thread index in warp
@@ -703,8 +672,6 @@ __device__ static inline void psMeshMidphaseCollision(
 	const PxU32 nbWarpsRequired = (numParticles + WARP_SIZE - 1) / WARP_SIZE;
 	const PxU32 totalNumWarps = PxgParticleSystemKernelGridDim::PS_MESH_COLLISION * PS_MIDPHASE_COLLISION_WAPRS_PER_BLOCK;
 	const PxU32 nbIterationsPerWarps = (nbWarpsRequired + totalNumWarps - 1) / totalNumWarps;
-	const PxU32* PX_RESTRICT gridParticleIndex = particleSystem.mSortedToUnsortedMapping;
-
 	for (PxU32 i = 0; i < nbIterationsPerWarps; ++i)
 	{
 		const PxU32 workIndex = i + (warpIdx + WarpsPerBlock * blockIdx.x) * nbIterationsPerWarps;
@@ -712,10 +679,6 @@ __device__ static inline void psMeshMidphaseCollision(
 		if (workIndex < nbWarpsRequired)
 		{
 			const PxU32 particleIndex = idxInWarp + workIndex * WARP_SIZE;
-			const PxU64 particleMask = PxEncodeParticleIndex(particleSystemId, gridParticleIndex[particleIndex]);
-
-			if (!isDiffuseParticlesThread && find(particleSystem, rigidId.getInd(), particleMask))
-				return;
 
 			PsTreeContactGenTraverser traverser(
 				s_warpScratch,
@@ -750,11 +713,9 @@ void ps_sdfMeshCollisonLaunch(
 	const PxReal* PX_RESTRICT					contactDistance,
 	const PxReal* PX_RESTRICT					restDistances,
 	const PxgShape* PX_RESTRICT					gpuShapes,
-
-	PxgParticleSystem* PX_RESTRICT				particleSystems,						//output
+	PxgParticleSystem* PX_RESTRICT				particleSystems,			//output
 	PxNodeIndex* PX_RESTRICT					shapeToRigidRemapTable,
-
-	PxgParticleContactWriter writer
+	PxgRigidParticleContactWriter				writer
 )
 {
 	psSdfMeshMidphaseCollision(
@@ -782,9 +743,9 @@ void ps_meshCollisonLaunch(
 	const PxReal* PX_RESTRICT					contactDistance,
 	const PxReal* PX_RESTRICT					restDistances,
 	const PxgShape* PX_RESTRICT					gpuShapes,
-	PxgParticleSystem* PX_RESTRICT				particleSystems,						//output
+	PxgParticleSystem* PX_RESTRICT				particleSystems,			//output
 	PxNodeIndex* PX_RESTRICT					shapeToRigidRemapTable,
-	PxgParticleContactWriter					writer
+	PxgRigidParticleContactWriter				writer
 )
 {
 	__shared__ __align__(16) PxU8 scratchMem[PS_MIDPHASE_COLLISION_WAPRS_PER_BLOCK][sizeof(PsMidphaseScratch)];

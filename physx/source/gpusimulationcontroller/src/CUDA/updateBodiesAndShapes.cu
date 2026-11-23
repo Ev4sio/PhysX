@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #include "PxDirectGPUAPI.h"
 #include "PxNodeIndex.h"
@@ -39,6 +16,7 @@
 #include "PxgArticulationCoreDesc.h"
 #include "PxgSoftBody.h"
 #include "DyArticulationJointCore.h"
+#include "DyArticulationMimicJointCore.h"
 #include "DyFeatherstoneArticulationJointData.h"
 #include "PxgSimulationCoreKernelIndices.h"
 #include "CmUtils.h"
@@ -46,13 +24,13 @@
 #include "DyFeatherstoneArticulation.h"
 #include "PxArticulationTendonData.h"
 #include "updateCacheAndBound.cuh"
-#include "PxgMemCopyDispatcher.h"
 #include "assert.h"
 #include "CmSpatialVector.h"
 #include "utils.cuh"
 #include "reduction.cuh"
 #include "PxgConstraintWriteBack.h"
 #include "PxgConstraintIdMap.h"
+#include "PxgSimulationCore.h"
 
 using namespace physx;
 
@@ -109,6 +87,9 @@ extern "C" __global__ void updateBodiesLaunchDirectAPI(const PxgNewBodiesDesc* s
 
 	//persistent data
 	uint4* gBodySimPool = reinterpret_cast<uint4*>(scDesc->mBodySimBufferDeviceData);
+	
+	// PdHC: Previous velocities buffer for acceleration computation
+	PxgBodySimVelocities* gPrevVelocities = scDesc->mPrevVelocitiesBuffer;
 
 	const PxU32 idx = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -126,11 +107,22 @@ extern "C" __global__ void updateBodiesLaunchDirectAPI(const PxgNewBodiesDesc* s
 
 		const PxU32 bodyIndex = __shfl_sync(mask_loop, data.w, PXG_BODY_SIM_BODYSIM_INDEX_IND, 16);
 		const PxU32 internalFlags = __shfl_sync(mask_loop, data.y, PXG_BODY_SIM_FLAGS_IND, 16);
-		// preist: note that we copy this flag to persistent GPU memory on first transfer, but that is no problem
-		// because we only check the update data flag here which will be reset on CPU
+		
 		const bool firstTransfer = internalFlags & PxsRigidBody::eFIRST_BODY_COPY_GPU;
 		const bool copyVel = internalFlags & PxsRigidBody::eVELOCITY_COPY_GPU;
 
+		// clear the data transfer related flags such that they are not stored on the device (other code clears
+		// them on the CPU side too). A potential readback of these flags from GPU to host (for example, sleep
+		// related flags) could potentially trigger undesired transfers from stale host memory to device memory.
+		if (index == PXG_BODY_SIM_FLAGS_IND)
+		{
+			PX_COMPILE_TIME_ASSERT(offsetof(PxgBodySim, internalFlags) == (offsetof(uint4, y) + (PXG_BODY_SIM_FLAGS_IND * sizeof(uint4))));
+			PX_COMPILE_TIME_ASSERT(sizeof(PxgBodySim::internalFlags) == sizeof(uint4::y));
+			// these asserts should cover the important aspects to fail if some layout changed that would make
+			// the operation below break
+
+			data.y &= ~(PxsRigidBody::eFIRST_BODY_COPY_GPU | PxsRigidBody::eVELOCITY_COPY_GPU);
+		}
 
 		// figure out which threads will execute the else below.
 		const PxU32 sync_mask = __ballot_sync(mask_loop, (index < PXG_BODY_SIM_SIZE_WITHOUT_ACCELERATION) && !firstTransfer);
@@ -141,6 +133,20 @@ extern "C" __global__ void updateBodiesLaunchDirectAPI(const PxgNewBodiesDesc* s
 			if(firstTransfer)
 			{
 				gBodySimPool[bodyIndex * PXG_BODY_SIM_UINT4_SIZE + index] = data;
+				
+				// PdHC: For new bodies, also initialize their previous velocity to their initial velocity.
+				// This ensures correct acceleration computation on the first frame.
+				// Only thread 0 writes the velocity (index 0 = linear, index 1 = angular)
+				if(index == 0 && gPrevVelocities)
+				{
+					// data at index 0 is linearVelocityXYZ_inverseMassW
+					gPrevVelocities[bodyIndex].linearVelocity = reinterpret_cast<const float4&>(data);
+				}
+				else if(index == 1 && gPrevVelocities)
+				{
+					// data at index 1 is angularVelocityXYZ_maxPenBiasW
+					gPrevVelocities[bodyIndex].angularVelocity = reinterpret_cast<const float4&>(data);
+				}
 			}
 			else if (index < PXG_BODY_SIM_SIZE_WITHOUT_ACCELERATION)
 			{
@@ -221,6 +227,16 @@ extern "C" __global__ void updateShapesLaunch(const PxgNewShapeSim* PX_RESTRICT 
 		dst.mHullDataIndex = hullDataIndex;
 		dst.mShapeFlags = shapeFlags;
 		dst.mShapeType = shapeType;
+	}
+}
+
+// The kinematic update without an index list skips a slot whose data.index is not the slot.
+extern "C" __global__ void markArticulationSlotsEmptyLaunch(PxgArticulation* gArticulations, const PxU32* slots, const PxU32 nbSlots)
+{
+	const PxU32 i = blockIdx.x * blockDim.x + threadIdx.x;
+	if (i < nbSlots)
+	{
+		gArticulations[slots[i]].data.index = 0xFFFFFFFF;
 	}
 }
 
@@ -463,7 +479,7 @@ extern "C" __global__ void newArticulationsLaunch(const PxgUpdateArticulationDes
 		//initialize articulation link data to zero
 		uint* c0 = reinterpret_cast<uint*>(msArticulation.motionVelocities);		//Cannot guarantee 8-byte alignment so need to use uint
 		uint* c1 = reinterpret_cast<uint*>(msArticulation.motionAccelerations);		//Cannot guarantee 8-byte alignment so need to use uint
-		uint2* c2 = reinterpret_cast<uint2*>(msArticulation.corioliseVectors);
+		uint2* c2 = reinterpret_cast<uint2*>(msArticulation.coriolisVectors);
 		uint2 zero2 = make_uint2(0, 0);
 
 		PxU32 totalSize = (sizeof(Cm::UnAlignedSpatialVector) * nbLinks);
@@ -481,9 +497,9 @@ extern "C" __global__ void newArticulationsLaunch(const PxgUpdateArticulationDes
 		warpCopy<uint4>(sleepData, zero4, totalSize);
 
 		//initialize joint data to zero
-		const PxU8 dofs = msArticulation.data.numJointDofs;
+		const PxU32 numDofs = msArticulation.data.numJointDofs;
 
-		totalSize = (sizeof(PxReal) * dofs);
+		totalSize = (sizeof(PxReal) * numDofs);
 
 		//KS - these *may* be non-zero on the host. We really need to make sure that these are set up correctly!!!
 		float* jv = msArticulation.jointVelocities;
@@ -496,9 +512,12 @@ extern "C" __global__ void newArticulationsLaunch(const PxgUpdateArticulationDes
 
 		__syncwarp(); 
 
-		//Now we need to see if there was any dof data that required updating!!!
-		const PxU32 numDofs = msArticulation.data.numJointDofs;
+		// A fixed base does not move, so the CPU root velocity in the copied root link record is cleared. The sync above orders the clear
+		// after the copy.
+		if((msArtiData.flags & PxArticulationFlag::eFIX_BASE) && (threadIdx.x & 31) == 0)
+			clearRootVelocity(msArticulation);
 
+		//Now we need to see if there was any dof data that required updating!!!
 		PxU32 offset = dofStartIndex;
 
 		if (dirtyFlags & Dy::ArticulationDirtyFlag::eDIRTY_POSITIONS)
@@ -743,72 +762,88 @@ extern "C" __global__ void updateArticulationsLaunch(const PxgUpdateArticulation
 			}
 		}
 
-		if ((flags & Dy::ArticulationDirtyFlag::eDIRTY_LINKS) || (flags & Dy::ArticulationDirtyFlag::eDIRTY_ROOT_VELOCITIES))
+		if (flags & Dy::ArticulationDirtyFlag::eDIRTY_LINKS)
 		{
 			const PxU32 nbLinks = msArticulation.data.numLinks;
 
-			uint4* sLinks = reinterpret_cast<uint4*>(&gNewLinks[msUpdate.linkStartIndex]);
-			uint4* dLinks = reinterpret_cast<uint4*>(msArticulation.links);
-
-			//each PxgArticulationLink is 74 bytes, each thread read 16 bytes
-			warpCopy<uint4>(dLinks, sLinks, (sizeof(PxgArticulationLink) * nbLinks));
-
-			if(flags & Dy::ArticulationDirtyFlag::eDIRTY_LINKS)
+			if (directAPI)
 			{
-				//copy link properties
-				uint4* sLinkProp = reinterpret_cast<uint4*>(&gNewLinkProps[msUpdate.linkStartIndex]);
-				uint4* dLinkProp = reinterpret_cast<uint4*>(msArticulation.linkProps);
-
-				warpCopy<uint4>(dLinkProp, sLinkProp, sizeof(uint4) * nbLinks);
-
-				//read link parent
-				uint* sParents = &gNewLinkParents[msUpdate.linkStartIndex];
-				uint* dParents = msArticulation.parents;
-
-				warpCopy<uint>(dParents, sParents, sizeof(uint) * nbLinks);
-
-				uint* sChildren = reinterpret_cast<uint*>(&gNewLinkChildren[msUpdate.linkStartIndex]);
-				uint* dChildren = reinterpret_cast<uint*>(msArticulation.children);
-
-				warpCopy<uint>(dChildren, sChildren, sizeof(ArticulationBitField)*nbLinks);
-
-				// we update all body2Worlds to a potentially updated CMassLocalPose.
-				if (directAPI)
+				// With the direct GPU API, the GPU holds the current link velocities and the staged ones can be stale.
+				// Only the xyz components of the GPU velocities are kept, because the w components hold the penetration bias
+				// clamp and the inverse mass, which are set on the CPU. Each link record is accessed by one lane only in this
+				// kernel, so no warp synchronization is needed.
+				const PxU32 idxInWarp = threadIdx.x & (WARP_SIZE - 1);
+				for (PxU32 linkIndex = idxInWarp; linkIndex < nbLinks; linkIndex += WARP_SIZE)
 				{
-					// AD: this should be flag-guarded because we're doing quite a bit of work here.
-					// But currently impossible because we lose track of that information going down the 
-					// layers and then just mark the entire body dirty.
-					const uint idxInWarp = threadIdx.x & (WARP_SIZE - 1);
-					for (uint linkIndex = idxInWarp; linkIndex < nbLinks; linkIndex += WARP_SIZE)
-					{
-						const PxTransform oldBody2Actor = msArticulation.linkBody2Actors[linkIndex];
-						const PxTransform newBody2Actor = gNewLinkBody2Actors[msUpdate.linkStartIndex + linkIndex];
-
-						if (!(oldBody2Actor == newBody2Actor))
-						{
-							const PxTransform actor2World = msArticulation.linkBody2Worlds[linkIndex] * oldBody2Actor.getInverse();
-							msArticulation.linkBody2Worlds[linkIndex] = actor2World * newBody2Actor;
-						}
-					}
-					__syncwarp(); // should be fine, direct-API is always same for everyone!
+					PxgArticulationLink link = gNewLinks[msUpdate.linkStartIndex + linkIndex];
+					const float4 angVel = msArticulation.links[linkIndex].initialAngVelXYZ_penBiasClamp;
+					const float4 linVel = msArticulation.links[linkIndex].initialLinVelXYZ_invMassW;
+					link.initialAngVelXYZ_penBiasClamp = make_float4(angVel.x, angVel.y, angVel.z, link.initialAngVelXYZ_penBiasClamp.w);
+					link.initialLinVelXYZ_invMassW = make_float4(linVel.x, linVel.y, linVel.z, link.initialLinVelXYZ_invMassW.w);
+					msArticulation.links[linkIndex] = link;
 				}
-				else
-				{
-					//read link body2World
-					uint* sBody2Worlds = reinterpret_cast<uint*>(&gNewLinkBody2Worlds[msUpdate.linkStartIndex]);
-					uint* dBody2Worlds = reinterpret_cast<uint*>(msArticulation.linkBody2Worlds);
-
-					// each PxTransform is 28 bytes, each thread read 4 bytes
-					warpCopy<uint>(dBody2Worlds, sBody2Worlds, sizeof(PxTransform) * nbLinks);
-				}
-
-				//read link body2actor
-				uint* sBody2Actors = reinterpret_cast<uint*>(&gNewLinkBody2Actors[msUpdate.linkStartIndex]);
-				uint* dBody2Actors = reinterpret_cast<uint*>(msArticulation.linkBody2Actors);
-
-				//each PxTransform is 28 bytes, each thread read 4 bytes
-				warpCopy<uint>(dBody2Actors, sBody2Actors, sizeof(PxTransform) * nbLinks);
 			}
+			else
+			{
+				uint4* sLinks = reinterpret_cast<uint4*>(&gNewLinks[msUpdate.linkStartIndex]);
+				uint4* dLinks = reinterpret_cast<uint4*>(msArticulation.links);
+
+				warpCopy<uint4>(dLinks, sLinks, (sizeof(PxgArticulationLink) * nbLinks));
+			}
+
+			//copy link properties
+			uint4* sLinkProp = reinterpret_cast<uint4*>(&gNewLinkProps[msUpdate.linkStartIndex]);
+			uint4* dLinkProp = reinterpret_cast<uint4*>(msArticulation.linkProps);
+
+			warpCopy<uint4>(dLinkProp, sLinkProp, sizeof(uint4) * nbLinks);
+
+			//read link parent
+			uint* sParents = &gNewLinkParents[msUpdate.linkStartIndex];
+			uint* dParents = msArticulation.parents;
+
+			warpCopy<uint>(dParents, sParents, sizeof(uint) * nbLinks);
+
+			uint* sChildren = reinterpret_cast<uint*>(&gNewLinkChildren[msUpdate.linkStartIndex]);
+			uint* dChildren = reinterpret_cast<uint*>(msArticulation.children);
+
+			warpCopy<uint>(dChildren, sChildren, sizeof(ArticulationBitField)*nbLinks);
+
+			// we update all body2Worlds to a potentially updated CMassLocalPose.
+			if (directAPI)
+			{
+				// AD: this should be flag-guarded because we're doing quite a bit of work here.
+				// But currently impossible because we lose track of that information going down the 
+				// layers and then just mark the entire body dirty.
+				const uint idxInWarp = threadIdx.x & (WARP_SIZE - 1);
+				for (uint linkIndex = idxInWarp; linkIndex < nbLinks; linkIndex += WARP_SIZE)
+				{
+					const PxTransform oldBody2Actor = msArticulation.linkBody2Actors[linkIndex];
+					const PxTransform newBody2Actor = gNewLinkBody2Actors[msUpdate.linkStartIndex + linkIndex];
+
+					if (!(oldBody2Actor == newBody2Actor))
+					{
+						const PxTransform actor2World = msArticulation.linkBody2Worlds[linkIndex] * oldBody2Actor.getInverse();
+						msArticulation.linkBody2Worlds[linkIndex] = actor2World * newBody2Actor;
+					}
+				}
+				__syncwarp(); // should be fine, direct-API is always same for everyone!
+			}
+			else
+			{
+				//read link body2World
+				uint* sBody2Worlds = reinterpret_cast<uint*>(&gNewLinkBody2Worlds[msUpdate.linkStartIndex]);
+				uint* dBody2Worlds = reinterpret_cast<uint*>(msArticulation.linkBody2Worlds);
+
+				// each PxTransform is 28 bytes, each thread read 4 bytes
+				warpCopy<uint>(dBody2Worlds, sBody2Worlds, sizeof(PxTransform) * nbLinks);
+			}
+
+			//read link body2actor
+			uint* sBody2Actors = reinterpret_cast<uint*>(&gNewLinkBody2Actors[msUpdate.linkStartIndex]);
+			uint* dBody2Actors = reinterpret_cast<uint*>(msArticulation.linkBody2Actors);
+
+			//each PxTransform is 28 bytes, each thread read 4 bytes
+			warpCopy<uint>(dBody2Actors, sBody2Actors, sizeof(PxTransform) * nbLinks);
 		}
 		// I think we need to guard here anyway because updateKinematic now writes directly into the persistent data.
 		else if (flags & Dy::ArticulationDirtyFlag::eDIRTY_POSITIONS && !directAPI)
@@ -880,9 +915,18 @@ extern "C" __global__ void updateArticulationsLaunch(const PxgUpdateArticulation
 		}
 
 		if(flags & Dy::ArticulationDirtyFlag::eDIRTY_USER_FLAGS)
-		{			
+		{
 			scDesc->mArticulationPool[articIndex].data.flags = msUpdate.userFlags;
 			scDesc->mArticulationPool[articIndex].data.confiDirty = true;
+
+			// A fixed base does not move, but the GPU data can still hold a root velocity from before eFIX_BASE was set, also when the flag
+			// was cleared and set again in the same step. The sync orders the clear after the link record copy.
+			if(msUpdate.userFlags & PxArticulationFlag::eFIX_BASE)
+			{
+				__syncwarp();
+				if((threadIdx.x & 31) == 0)
+					clearRootVelocity(msArticulation);
+			}
 		}
 
 		if (!directAPI)
@@ -902,7 +946,10 @@ extern "C" __global__ void updateArticulationsLaunch(const PxgUpdateArticulation
 		//recreation of the articulation block data format.
 		//scDesc->mArticulationPool[articIndex].data.dataDirty = (flags & (~(Dy::ArticulationDirtyFlag::eDIRTY_FORCES | Dy::ArticulationDirtyFlag::eIN_DIRTY_LIST))) != 0;
 		
-		scDesc->mArticulationPool[articIndex].data.updateDirty = flags & (~(Dy::ArticulationDirtyFlag::eDIRTY_FORCES | Dy::ArticulationDirtyFlag::eIN_DIRTY_LIST));
+		// The solver clears the flags after it has read them, and it doesn't run for sleeping
+		// articulations, so the flags of every upload until then are kept.
+		if ((threadIdx.x & 31) == 0)
+			scDesc->mArticulationPool[articIndex].data.updateDirty |= flags & (~(Dy::ArticulationDirtyFlag::eDIRTY_FORCES | Dy::ArticulationDirtyFlag::eIN_DIRTY_LIST));
 	}
 }
 
@@ -1052,43 +1099,48 @@ extern "C" __global__ void getRigidDynamicAngularVelocity(
 	}
 }
 
-// PT: the accelerations are computed in these kernels (and not directly in the integration kernels)
-// to minimize the amount of work done for all bodies. In this version the accelerations are only
-// computed for a subset of bodies (the ones passed to the Direct GPU API), while computing them
-// during integration would mean computing them for all bodies all the time.
-// Also we have two integration kernels (PGS / TGS), so doing the work there would cause more code
-// duplication and potential divergences if we only change one version one day, etc.
-
-// PT: for acceleration getters (eENABLE_BODY_ACCELERATIONS)
-extern "C" __global__ void getRigidDynamicLinearAcceleration(
-	PxVec3* PX_RESTRICT data,
-	const PxRigidDynamicGPUIndex* PX_RESTRICT gpuIndices,
+// Computes linear and angular accelerations for all rigid bodies.
+// This is the single source of truth for acceleration computation, used by both:
+// - DirectGPU API (via getRigidDynamicLinearAcceleration/getRigidDynamicAngularAcceleration gather kernels)
+// - CPU path (via DMA back to mBodySimAccelerationsPinned)
+extern "C" __global__ void computeRigidBodyAccelerations(
+	PxgRigidBodyAcceleration* PX_RESTRICT accelerations,
 	const PxgBodySim* PX_RESTRICT bodySimBufferDeviceData,
 	const PxgBodySimVelocities* PX_RESTRICT prevVelocities,
-	const PxU32 nbElements, const float oneOverDt
+	const PxU32 nbElements,
+	const float oneOverDt
 )
 {
-	const PxU32 globalThreadIndex = threadIdx.x + blockDim.x * blockIdx.x;
+	const PxU32 index = threadIdx.x + blockDim.x * blockIdx.x;
 
-	if (globalThreadIndex < nbElements)
+	if (index < nbElements)
 	{
-		const PxU32 index = gpuIndices[globalThreadIndex];
 		const PxgBodySim& bodySim = bodySimBufferDeviceData[index];
+		const PxgBodySimVelocities& prev = prevVelocities[index];
 
+		// Linear Acceleration
 		const float4 linVel = bodySim.linearVelocityXYZ_inverseMassW;
-		const float4 deltaLinVel = linVel - prevVelocities[index].linearVelocity;
+		const float4 deltaLinVel = linVel - prev.linearVelocity;
 		const float4 linAccel = deltaLinVel * oneOverDt;
-		data[globalThreadIndex] = PxLoad3(linAccel);
+		accelerations[index].linear = PxLoad3(linAccel);
+
+		// Angular Acceleration
+		const float4 angVel = bodySim.angularVelocityXYZ_maxPenBiasW;
+		const float4 deltaAngVel = angVel - prev.angularVelocity;
+		const float4 angAccel = deltaAngVel * oneOverDt;
+		accelerations[index].angular = PxLoad3(angAccel);
 	}
 }
 
-// PT: for acceleration getters (eENABLE_BODY_ACCELERATIONS)
-extern "C" __global__ void getRigidDynamicAngularAcceleration(
+// Gather kernels for DirectGPU API - read from pre-computed accelerations buffer
+// These are simple gather operations, no computation needed since computeRigidBodyAccelerations
+// already computed all accelerations during gpuMemDmaBack.
+
+extern "C" __global__ void getRigidDynamicLinearAcceleration(
 	PxVec3* PX_RESTRICT data,
 	const PxRigidDynamicGPUIndex* PX_RESTRICT gpuIndices,
-	const PxgBodySim* PX_RESTRICT bodySimBufferDeviceData,
-	const PxgBodySimVelocities* PX_RESTRICT prevVelocities,
-	const PxU32 nbElements, const float oneOverDt
+	const PxgRigidBodyAcceleration* PX_RESTRICT accelerations,
+	const PxU32 nbElements
 )
 {
 	const PxU32 globalThreadIndex = threadIdx.x + blockDim.x * blockIdx.x;
@@ -1096,12 +1148,23 @@ extern "C" __global__ void getRigidDynamicAngularAcceleration(
 	if (globalThreadIndex < nbElements)
 	{
 		const PxU32 index = gpuIndices[globalThreadIndex];
-		const PxgBodySim& bodySim = bodySimBufferDeviceData[index];
+		data[globalThreadIndex] = accelerations[index].linear;
+	}
+}
 
-		const float4 angVel = bodySim.angularVelocityXYZ_maxPenBiasW;
-		const float4 deltaAngVel = angVel - prevVelocities[index].angularVelocity;
-		const float4 angAccel = deltaAngVel * oneOverDt;
-		data[globalThreadIndex] = PxLoad3(angAccel);
+extern "C" __global__ void getRigidDynamicAngularAcceleration(
+	PxVec3* PX_RESTRICT data,
+	const PxRigidDynamicGPUIndex* PX_RESTRICT gpuIndices,
+	const PxgRigidBodyAcceleration* PX_RESTRICT accelerations,
+	const PxU32 nbElements
+)
+{
+	const PxU32 globalThreadIndex = threadIdx.x + blockDim.x * blockIdx.x;
+
+	if (globalThreadIndex < nbElements)
+	{
+		const PxU32 index = gpuIndices[globalThreadIndex];
+		data[globalThreadIndex] = accelerations[index].angular;
 	}
 }
 
@@ -1277,21 +1340,52 @@ extern "C" __global__ void setRigidDynamicTorque(
 	}
 }
 
-extern "C" __global__ void copyUserData(PxgPtrPair* pairs, const PxU32 numToProcess)
+// OVD full-state snapshot readback: recover the applied (and, with eRETAIN_ACCELERATIONS, retained)
+// force/torque from the external-acceleration accumulators that setRigidDynamicForce/Torque wrote, so a
+// late attach can re-emit them. These invert the conversions done there:
+//   externalLinearAcceleration  = force  * invMass        -> force  = externalLinearAcceleration / invMass
+//   externalAngularAcceleration = invInertiaWorld * torque -> torque = inertiaWorld * externalAngularAcceleration
+extern "C" __global__ void getRigidDynamicForce(
+	PxVec3* PX_RESTRICT data,
+	const PxRigidDynamicGPUIndex* PX_RESTRICT gpuIndices,
+	const PxgBodySim* PX_RESTRICT bodySimBufferDeviceData,
+	const PxU32 nbElements
+)
 {
-	if (blockIdx.y < numToProcess)
-	{
-		const PxU32 globalThreadIdx = threadIdx.x + blockIdx.x * blockDim.x;
-		const PxU32 totalThreads = blockDim.x * gridDim.x;
-		PxgPtrPair& pair = pairs[blockIdx.y];
-		const PxU32 size = (PxU32)(pair.size/4);
-		const PxU32* src = (PxU32*)pair.src;
-		PxU32* dst = (PxU32*)pair.dst;
+	const PxU32 globalThreadIndex = threadIdx.x + blockDim.x * blockIdx.x;
 
-		for (size_t i = globalThreadIdx; i < size; i += totalThreads)
-		{
-			dst[i] = src[i];
-		}
+	if (globalThreadIndex < nbElements)
+	{
+		const PxU32 index = gpuIndices[globalThreadIndex];
+		const PxgBodySim& bodySim = bodySimBufferDeviceData[index];
+
+		const float invMass = bodySim.linearVelocityXYZ_inverseMassW.w;
+		const PxVec3 accel = PxLoad3(bodySim.externalLinearAcceleration);
+		data[globalThreadIndex] = (invMass > 0.f) ? (accel * (1.f / invMass)) : PxVec3(0.f);
+	}
+}
+
+extern "C" __global__ void getRigidDynamicTorque(
+	PxVec3* PX_RESTRICT data,
+	const PxRigidDynamicGPUIndex* PX_RESTRICT gpuIndices,
+	const PxgBodySim* PX_RESTRICT bodySimBufferDeviceData,
+	const PxU32 nbElements
+)
+{
+	const PxU32 globalThreadIndex = threadIdx.x + blockDim.x * blockIdx.x;
+
+	if (globalThreadIndex < nbElements)
+	{
+		const PxU32 index = gpuIndices[globalThreadIndex];
+		const PxgBodySim& bodySim = bodySimBufferDeviceData[index];
+
+		const float4 invInertia = bodySim.inverseInertiaXYZ_contactReportThresholdW;
+		const PxVec3 inertia(invInertia.x > 0.f ? 1.f / invInertia.x : 0.f,
+		                     invInertia.y > 0.f ? 1.f / invInertia.y : 0.f,
+		                     invInertia.z > 0.f ? 1.f / invInertia.z : 0.f);
+		PxMat33 inertiaWorldSpace;
+		Cm::transformInertiaTensor(inertia, PxMat33(bodySim.body2World.q), inertiaWorldSpace);
+		data[globalThreadIndex] = inertiaWorldSpace * PxLoad3(bodySim.externalAngularAcceleration);
 	}
 }
 
@@ -1327,19 +1421,12 @@ static PX_FORCE_INLINE __device__  void getD6JointForceOrTorque(
 			if (tExtractOperation == gExtractForce)
 				data[globalThreadIndex] = PxLoad3(constraintWriteBack.linearImpulse_broken) * oneOverDt;
 			else
-				data[globalThreadIndex] = PxLoad3(constraintWriteBack.angularImpulse_residual) * oneOverDt;
+				data[globalThreadIndex] = PxLoad3(constraintWriteBack.angularImpulse) * oneOverDt;
 		}
 		else
 		{
-			assert(index < constraintIdMapSize);
-			// with correct usage the above should always hold but a user might, for example, add
-			// joints and directly get some parameter via direct GPU API without simulating first.
-
-			// the joint might be inactive/sleeping (note that at the time of writing this, joints could not
-			// go to sleep with direct GPU API enabled since the sleep state of rigid bodies did not get sent
-			// back to the host). Nonetheless, this case is covered here already and the only valid scenario
-			// to reach the else-statement.
-
+			// The joint has no solver output: no simulation step has processed it since it was added, or it is inactive.
+			// Its index can be beyond the constraint ID map, which only grows during a simulation step.
 			data[globalThreadIndex] = PxVec3(0.0f);
 		}
 	}
@@ -1381,4 +1468,20 @@ extern "C" __global__ void getD6JointTorques(
 		data, gpuIndices, nbElements,
 		constraintWriteBackBuffer, oneOverDt, 
 		constraintIdMap, constraintIdMapSize);
+}
+
+extern "C" __global__ void copyRigidBodyVelocitiesToPrevious(
+	PxgBodySimVelocities* PX_RESTRICT prevVelocities,
+	const PxgBodySim* PX_RESTRICT bodySimBufferDeviceData,
+	const PxU32 nbElements
+)
+{
+	const PxU32 index = threadIdx.x + blockDim.x * blockIdx.x;
+
+	if (index < nbElements)
+	{
+		const PxgBodySim& bodySim = bodySimBufferDeviceData[index];
+		prevVelocities[index].linearVelocity = bodySim.linearVelocityXYZ_inverseMassW;
+		prevVelocities[index].angularVelocity = bodySim.angularVelocityXYZ_maxPenBiasW;
+	}
 }

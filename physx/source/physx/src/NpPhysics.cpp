@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #include "NpPhysics.h"
 
@@ -39,7 +16,6 @@
 #include "CmUtils.h"
 #include "NpRigidStatic.h"
 #include "NpRigidDynamic.h"
-#include "omnipvd/OmniPvdPxSampler.h"
 #if PX_SUPPORT_GPU_PHYSX
 #include "NpDeformableVolume.h"
 #include "NpPBDParticleSystem.h"
@@ -56,18 +32,21 @@
 #include "GuOverlapTests.h" // dynamic registration of HFs in Gu
 #include "PxDeletionListener.h"
 #include "PxPhysicsSerialization.h"
+#if PX_SUPPORT_PVD
 #include "PvdPhysicsClient.h"
+#endif
 #include "omnipvd/NpOmniPvdSetData.h"
-#include "cudamanager/PxCudaContext.h"
 #include "common/PxProfileZone.h"
 
 #if PX_SUPPORT_OMNI_PVD
+#include "omnipvd/OmniPvdPxSampler.h"
 #include "omnipvd/NpOmniPvd.h"
 #include "OmniPvdWriter.h"
 #endif
 
 #if PX_SUPPORT_GPU_PHYSX
 #include "PxPhysXGpu.h"
+#include "cudamanager/PxCudaContext.h"
 #endif
 
 //~PX_SERIALIZATION
@@ -106,13 +85,13 @@ NpPhysics::NpPhysics(const PxTolerancesScale& scale, const PxvOffsetTable& pxvOf
 #if PX_SUPPORT_PVD	
 	mPvd = pvd;
 	if(pvd)
-	{		
+	{
 	    mPvdPhysicsClient = PX_NEW(Vd::PvdPhysicsClient)(mPvd);	
 	    foundation.registerErrorCallback(*mPvdPhysicsClient);
 		foundation.registerAllocationListener(*mPvd);	
 	}
 	else
-	{		
+	{
 		mPvdPhysicsClient = NULL;
 	}
 #else
@@ -149,8 +128,14 @@ NpPhysics::NpPhysics(const PxTolerancesScale& scale, const PxvOffsetTable& pxvOf
 	mOmniPvd = NULL;
 	if (omniPvd)
 	{
+		// Create the sampler whenever a writer is available, regardless of
+		// whether a write stream is already bound. Binding the OmniPvd sets up the
+		// sampler + factory listener, but recording (the full-state snapshot plus
+		// per-frame sampling) stays OFF until the user calls startSampling(): the
+		// sampler's mIsSampling flag defaults to false, so construction never
+		// implicitly samples or emits. Recording is opt-in via startSampling().
 		OmniPvdWriter* omniWriter = omniPvd->getWriter();
-		if (omniWriter && omniWriter->getWriteStream())
+		if (omniWriter)
 		{
 			mOmniPvdSampler = PX_NEW(::OmniPvdPxSampler)();
 			mOmniPvd = omniPvd;
@@ -195,13 +180,13 @@ NpPhysics::~NpPhysics()
 
 #if PX_SUPPORT_PVD	
 	if(mPvd)
-	{	
+	{
 		mPvdPhysicsClient->destroyPvdInstance(this);
 		mPvd->removeClient(mPvdPhysicsClient);
 		mFoundation.deregisterErrorCallback(*mPvdPhysicsClient);
 		PX_DELETE(mPvdPhysicsClient);	
 		mFoundation.deregisterAllocationListener(*mPvd);
-	}	
+	}
 #endif
 
 	const DeletionListenerMap::Entry* delListenerEntries = mDeletionListenerMap.getEntries();
@@ -217,6 +202,12 @@ NpPhysics::~NpPhysics()
 	OMNI_PVD_DESTROY(OMNI_PVD_CONTEXT_HANDLE, PxPhysics, static_cast<PxPhysics&>(*this))
 	if (mOmniPvd)
 	{
+		// The ctor stashed mOmniPvdSampler into the (ref-counted) PxOmniPvd singleton, which
+		// can outlive this PxPhysics. Clear that pointer before deleting the sampler so a
+		// later PxOmniPvd::startSampling()/stopSampling() cannot dereference a freed sampler.
+		// End discovery too: the singleton must not revive its scope for a later PxPhysics.
+		mOmniPvd->stopSampling();
+		static_cast<NpOmniPvd*>(mOmniPvd)->mPhysXSampler = NULL;
 		mFoundation.deregisterErrorCallback(*mOmniPvdSampler);
 		NpOmniPvd::decRefCount();
 	}
@@ -269,7 +260,7 @@ void NpPhysics::initOffsetTables(PxvOffsetTable& pxvOffsetTable)
 	}
 	{
 		Sc::OffsetTable& scOffsetTable = Sc::gOffsetTable;
-		pxvOffsetTable.pxsShapeCore2PxShape			= scOffsetTable.scShape2Px				- ptrdiff_t(Sc::ShapeCore::getCoreOffset());
+		pxvOffsetTable.pxsShapeCore2PxShape			= scOffsetTable.scShape2Px;
 		pxvOffsetTable.pxsRigidCore2PxRigidBody		= scOffsetTable.scRigidDynamic2PxActor	- ptrdiff_t(Sc::BodyCore::getCoreOffset());
 		pxvOffsetTable.pxsRigidCore2PxRigidStatic	= scOffsetTable.scRigidStatic2PxActor	- ptrdiff_t(Sc::StaticCore::getCoreOffset());
 	}
@@ -316,7 +307,7 @@ NpPhysics* NpPhysics::createInstance(PxU32 version, PxFoundation& foundation, co
 
 #if PX_SUPPORT_PVD			
 	    if(pvd)
-		{			
+		{
 			NpFactory::getInstance().setNpFactoryListener( *mInstance->mPvdPhysicsClient );					
 			pvd->addClient(mInstance->mPvdPhysicsClient);
 		}
@@ -337,7 +328,7 @@ PxU32 NpPhysics::releaseInstance()
 
 #if PX_SUPPORT_PVD	
 	if(mInstance->mPvd)
-	{	
+	{
 		NpFactory::getInstance().removeFactoryListener( *mInstance->mPvdPhysicsClient );		
 	}
 #endif
@@ -359,7 +350,15 @@ void NpPhysics::release()
 
 PxScene* NpPhysics::createScene(const PxSceneDesc& desc)
 {
-	PX_CHECK_AND_RETURN_NULL(desc.isValid(), "Physics::createScene: desc.isValid() is false!");
+	PxSceneDesc mutableDesc = desc;
+
+	if((mutableDesc.flags & PxSceneFlag::eENABLE_DIRECT_GPU_API) && !(mutableDesc.flags & PxSceneFlag::eDISABLE_SLEEPING))
+	{
+		mFoundation.error(PxErrorCode::eDEBUG_WARNING, PX_FL, "eENABLE_DIRECT_GPU_API is set, automatically enabling eDISABLE_SLEEPING");
+		mutableDesc.flags |= PxSceneFlag::eDISABLE_SLEEPING;
+	}
+
+	PX_CHECK_AND_RETURN_NULL(mutableDesc.isValid(), "Physics::createScene: desc.isValid() is false!");
 	const PxTolerancesScale& scale = mPhysics.getTolerancesScale();
 	const PxTolerancesScale& descScale = desc.getTolerancesScale();
 	PX_UNUSED(scale);
@@ -368,7 +367,7 @@ PxScene* NpPhysics::createScene(const PxSceneDesc& desc)
 
 	PxMutex::ScopedLock lock(mSceneAndMaterialMutex);  // done here because scene constructor accesses profiling manager of the SDK
 
-	NpScene* npScene = PX_NEW (NpScene)(desc, *this);
+	NpScene* npScene = PX_NEW (NpScene)(mutableDesc, *this);
 	if(!npScene)
 	{
 		mFoundation.error(PxErrorCode::eINTERNAL_ERROR, PX_FL, "Unable to create scene.");
@@ -380,7 +379,7 @@ PxScene* NpPhysics::createScene(const PxSceneDesc& desc)
 		return NULL;
 	}
 
-	npScene->loadFromDesc(desc);
+	npScene->loadFromDesc(mutableDesc);
 
 	OMNI_PVD_ADD(OMNI_PVD_CONTEXT_HANDLE, PxPhysics, scenes, static_cast<PxPhysics&>(*this), static_cast<PxScene&>(*npScene))
 
@@ -521,12 +520,26 @@ PxRigidDynamic* NpPhysics::createRigidDynamic(const PxTransform& globalPose)
 
 PxConstraint* NpPhysics::createConstraint(PxRigidActor* actor0, PxRigidActor* actor1, PxConstraintConnector& connector, const PxConstraintShaderTable& shaders, PxU32 dataSize)
 {
-	return NpFactory::getInstance().createConstraint(actor0, actor1, connector, shaders, dataSize);
+#if PX_SUPPORT_OMNI_PVD
+	if (mOmniPvdSampler)
+		mOmniPvdSampler->beginConstraintCreation(connector);
+#endif
+	PxConstraint* constraint = NpFactory::getInstance().createConstraint(actor0, actor1, connector, shaders, dataSize);
+#if PX_SUPPORT_OMNI_PVD
+	if (mOmniPvdSampler)
+		mOmniPvdSampler->endConstraintCreation(connector);
+#endif
+	return constraint;
 }
 
 PxU32 NpPhysics::getNbConstraints() const
 {
 	return NpFactory::getInstance().getNbConstraints();
+}
+
+PxU32 NpPhysics::getConstraints(PxConstraint** userBuffer, PxU32 bufferSize, PxU32 startIndex) const
+{
+	return NpFactory::getInstance().getConstraints(userBuffer, bufferSize, startIndex);
 }
 
 PxArticulationReducedCoordinate* NpPhysics::createArticulationReducedCoordinate()
@@ -632,7 +645,16 @@ static NpMaterialT* addMaterial(
 	else
 	{
 		PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, error);
+
+		//setMaterial() has already cleared the index of a material it rejected, so destroying it here cannot
+		//unregister a slot it does not own: both NpMaterialManager::removeMaterial and NpScene::removeMaterial
+		//skip MATERIAL_INVALID_HANDLE. Getting that wrong is the material table corruption behind OMPE-109162,
+		//where a deserialized copy took the *source* material's slot down with it.
+		//onRefCountZero() dispatches on eOWNS_MEMORY, so this returns an owned material to the pool and
+		//destroys a deserialized one in place. Its caller must therefore not touch it again - which is why
+		//resolveReferences() reports the outcome instead of leaving it to be read back off the object.
 		m->release();
+
 		return NULL;
 	}
 }
@@ -938,68 +960,42 @@ PxU32 NpPhysics::getBVHs(PxBVH** userBuffer, PxU32 bufferSize, PxU32 startIndex)
 ///////////////////////////////////////////////////////////////////////////////
 
 #if PX_SUPPORT_GPU_PHYSX
-PxParticleBuffer* NpPhysics::createParticleBuffer(PxU32 maxParticles, PxU32 maxVolumes, PxCudaContextManager* cudaContextManager)
+PxParticleBuffer* NpPhysics::createParticleBuffer(PxU32 maxParticles, PxCudaContextManager* cudaContextManager)
 {
 	if (cudaContextManager)
 	{
-		return NpFactory::getInstance().createParticleBuffer(maxParticles, maxVolumes, *cudaContextManager);
+		return NpFactory::getInstance().createParticleBuffer(maxParticles, *cudaContextManager);
 	}
 	return NULL;
 }
 
-PxParticleAndDiffuseBuffer* NpPhysics::createParticleAndDiffuseBuffer(PxU32 maxParticles, PxU32 maxVolumes, PxU32 maxDiffuseParticles, PxCudaContextManager* cudaContextManager)
+PxParticleAndDiffuseBuffer* NpPhysics::createParticleAndDiffuseBuffer(PxU32 maxParticles, PxU32 maxDiffuseParticles, PxCudaContextManager* cudaContextManager)
 {
 	if (cudaContextManager)
 	{
-		return NpFactory::getInstance().createParticleAndDiffuseBuffer(maxParticles, maxVolumes, maxDiffuseParticles, *cudaContextManager);
+		return NpFactory::getInstance().createParticleAndDiffuseBuffer(maxParticles, maxDiffuseParticles, *cudaContextManager);
 	}
 	return NULL;
 }
 
-PxParticleClothBuffer* NpPhysics::createParticleClothBuffer(PxU32 maxParticles, PxU32 maxNumVolumes, PxU32 maxNumCloths, PxU32 maxNumTriangles, PxU32 maxNumSprings, PxCudaContextManager* cudaContextManager)
-{
-	if (cudaContextManager)
-	{
-		return NpFactory::getInstance().createParticleClothBuffer(maxParticles, maxNumVolumes, maxNumCloths, maxNumTriangles, maxNumSprings, *cudaContextManager);
-	}
-	return NULL;
-}
-
-PxParticleRigidBuffer* NpPhysics::createParticleRigidBuffer(PxU32 maxParticles, PxU32 maxNumVolumes, PxU32 maxNumRigids, PxCudaContextManager* cudaContextManager)
-{
-	if (cudaContextManager)
-	{
-		return NpFactory::getInstance().createParticleRigidBuffer(maxParticles, maxNumVolumes, maxNumRigids, *cudaContextManager);
-	}
-	return NULL;
-}
 #else
-PxParticleBuffer* NpPhysics::createParticleBuffer(PxU32, PxU32, PxCudaContextManager*)
+PxParticleBuffer* NpPhysics::createParticleBuffer(PxU32, PxCudaContextManager*)
 {
 	return NULL;
 }
 
-PxParticleAndDiffuseBuffer* NpPhysics::createParticleAndDiffuseBuffer(PxU32, PxU32, PxU32, PxCudaContextManager*)
+PxParticleAndDiffuseBuffer* NpPhysics::createParticleAndDiffuseBuffer(PxU32, PxU32, PxCudaContextManager*)
 {
 	return NULL;
 }
 
-PxParticleClothBuffer* NpPhysics::createParticleClothBuffer(PxU32, PxU32, PxU32, PxU32, PxU32, PxCudaContextManager*)
-{
-	return NULL;
-}
-
-PxParticleRigidBuffer* NpPhysics::createParticleRigidBuffer(PxU32, PxU32, PxU32, PxCudaContextManager*)
-{
-	return NULL;
-}
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////
 
 PxPruningStructure* NpPhysics::createPruningStructure(PxRigidActor*const* actors, PxU32 nbActors)
 {
-	PX_SIMD_GUARD;
+	PX_SIMD_GUARD
 
 	PX_ASSERT(actors);
 	PX_ASSERT(nbActors > 0);
@@ -1164,6 +1160,6 @@ PxPhysics* PxCreatePhysics(PxU32 version, PxFoundation& foundation, const physx:
 void PxAddCollectionToPhysics(const PxCollection& collection)
 {
 	NpFactory& factory = NpFactory::getInstance();
-	const Cm::Collection& c = static_cast<const Cm::Collection&>(collection);	
+	const Cm::Collection& c = static_cast<const Cm::Collection&>(collection);
     factory.addCollection(c);
 }

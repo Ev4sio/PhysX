@@ -1,34 +1,12 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
-// Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
+// Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef PX_METADATACOMPARE_H
 #define PX_METADATACOMPARE_H
 #include "PxMetaDataObjects.h"
+#include "PxExtensionMetaDataObjects.h"
 #include "foundation/PxInlineArray.h"
 
 //Implement a basic equality comparison system based on the meta data system.
@@ -149,6 +127,39 @@ struct EqualityOp
 		{
 			TIndexType theIndex( static_cast<TIndexType>( theName->mValue ) );
 			update( areEqual( inProp.get( mLhs, theIndex ), inProp.get( mRhs, theIndex ), NULL ), inProp.mName );
+		}
+	}
+
+	//
+	// The D6 joint has been changed such that it is necessary to specify what kind of angular drive model to apply.
+	// Depending on that choice, it is not legal anymore to set/get drive parameters for certain angular drive types.
+	// The serialization system, however, just blindly tries to get all drive parameters.
+	//
+	// Note: using partial template specialization because the compiler for aarch64 did not yet support in-class
+	//       explicit specialization
+	//
+	template<PxU32 TKey>
+	void compareIndex( const PxIndexedPropertyInfo<TKey, PxD6Joint, PxD6Drive::Enum, PxD6JointDrive> &inProp, const PxU32ToName* inNames ) 
+	{
+		for ( const PxU32ToName* theName = inNames;
+			theName->mName != NULL && !hasFailed();
+			++theName )
+		{
+			PxD6Drive::Enum theIndex( static_cast<PxD6Drive::Enum>( theName->mValue ) );
+
+			const PxD6AngularDriveConfig::Enum angDriveConfigLhs = mLhs->getAngularDriveConfig();
+			const PxD6AngularDriveConfig::Enum angDriveConfigRhs = mRhs->getAngularDriveConfig();
+
+			if (angDriveConfigLhs != angDriveConfigRhs)
+			{
+				// can not compare the values if the angular drive configs are different.
+				return;
+			}
+
+			if (isD6JointDriveAccessAllowed(theIndex, angDriveConfigLhs))
+			{
+				update( areEqual( inProp.get(mLhs, theIndex), inProp.get(mRhs, theIndex), NULL ), inProp.mName );
+			}
 		}
 	}
 	

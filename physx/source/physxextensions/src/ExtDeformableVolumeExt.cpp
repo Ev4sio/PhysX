@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #include "extensions/PxDeformableVolumeExt.h"
 #include "extensions/PxTetMakerExt.h"
@@ -214,7 +191,7 @@ void PxDeformableVolumeExt::transform(PxDeformableVolume& deformableVolume, cons
 		m.column0 = PxVec3(row0.x, row1.x, row2.x);
 		m.column1 = PxVec3(row0.y, row1.y, row2.y);
 		m.column2 = PxVec3(row0.z, row1.z, row2.z);
-	}	
+	}
 
 
 	PxMat33* tetraRestPoses = static_cast<Gu::DeformableVolumeAuxData*>(deformableVolume.getDeformableVolumeAuxData())->getRestPosesFast(); // reinterpret_cast<PxMat33*>(simMeshData->deformableVolumeAuxData.getGridModelRestPosesFast());
@@ -352,6 +329,9 @@ PxDeformableVolumeMesh* PxDeformableVolumeExt::createDeformableVolumeMeshNoVoxel
 PxDeformableVolume* PxDeformableVolumeExt::createDeformableVolumeFromMesh(PxDeformableVolumeMesh* deformableVolumeMesh, const PxTransform& transform, const PxDeformableVolumeMaterial& material, PxCudaContextManager& cudaContextManager,
 	PxReal density, PxReal scale)
 {
+	if (!deformableVolumeMesh)
+		return NULL;
+
 	PxDeformableVolume* deformableVolume = PxGetPhysics().createDeformableVolume(cudaContextManager);
 	if (deformableVolume)
 	{
@@ -364,6 +344,7 @@ PxDeformableVolume* PxDeformableVolumeExt::createDeformableVolumeFromMesh(PxDefo
 		if (shape)
 		{
 			deformableVolume->attachShape(*shape);
+			shape->release();
 		}
 		deformableVolume->attachSimulationMesh(*deformableVolumeMesh->getSimulationMesh(), *deformableVolumeMesh->getDeformableVolumeAuxData());
 
@@ -373,6 +354,11 @@ PxDeformableVolume* PxDeformableVolumeExt::createDeformableVolumeFromMesh(PxDefo
 		PxVec4* restPositionPinned;
 
 		PxDeformableVolumeExt::allocateAndInitializeHostMirror(*deformableVolume, &cudaContextManager, simPositionInvMassPinned, simVelocityPinned, collPositionInvMassPinned, restPositionPinned);
+		if (!simPositionInvMassPinned)
+		{
+			deformableVolume->release();
+			return NULL;
+		}
 
 		const PxReal maxInvMassRatio = 50.f;
 
@@ -440,8 +426,14 @@ PxDeformableVolume* PxDeformableVolumeExt::createDeformableVolumeBox(const PxTra
 	params.midphaseDesc = PxMeshMidPhase::eBVH34;
 
 	PxDeformableVolumeMesh* deformableVolumeMesh = createDeformableVolumeMesh(params, surfaceMesh, numVoxelsAlongLongestAABBAxis, PxGetPhysics().getPhysicsInsertionCallback());
+	if (!deformableVolumeMesh)
+		return NULL;
 
-	return createDeformableVolumeFromMesh(deformableVolumeMesh, transform, material, cudaContextManager, density, scale);
+	PxDeformableVolume* deformableVolume = createDeformableVolumeFromMesh(deformableVolumeMesh, transform, material, cudaContextManager, density, scale);
+	// The shape holds the collision mesh, and the deformable volume holds the simulation mesh and auxiliary data,
+	// so the mesh itself is no longer needed.
+	deformableVolumeMesh->release();
+	return deformableVolume;
 }
 
 void PxDeformableVolumeExt::allocateAndInitializeHostMirror(PxDeformableVolume& deformableVolume, PxCudaContextManager* cudaContextManager, PxVec4*& simPositionInvMassPinned, PxVec4*& simVelocityPinned, PxVec4*& collPositionInvMassPinned, PxVec4*& restPositionPinned)
@@ -459,7 +451,22 @@ void PxDeformableVolumeExt::allocateAndInitializeHostMirror(PxDeformableVolume& 
 	restPositionPinned = PX_EXT_PINNED_MEMORY_ALLOC(PxVec4, *cudaContextManager, nbCollVerts);
 #else
 	PX_UNUSED(cudaContextManager);
+	simPositionInvMassPinned = NULL;
+	simVelocityPinned = NULL;
+	collPositionInvMassPinned = NULL;
+	restPositionPinned = NULL;
 #endif
+
+	if (!simPositionInvMassPinned || !simVelocityPinned || !collPositionInvMassPinned || !restPositionPinned)
+	{
+#if PX_SUPPORT_GPU_PHYSX
+		PX_EXT_PINNED_MEMORY_FREE(*cudaContextManager, simPositionInvMassPinned)
+		PX_EXT_PINNED_MEMORY_FREE(*cudaContextManager, simVelocityPinned)
+		PX_EXT_PINNED_MEMORY_FREE(*cudaContextManager, collPositionInvMassPinned)
+		PX_EXT_PINNED_MEMORY_FREE(*cudaContextManager, restPositionPinned)
+#endif
+		return;
+	}
 
 	// write positionInvMass into CPU part.
 	const PxVec3* positions = deformableVolume.getCollisionMesh()->getVertices();
@@ -522,7 +529,7 @@ struct InternalDeformableVolumeState
 				mInvMasses[i] = 1.0f / mInvMasses[i];
 			else
 				mInvMasses[i] = 0.0f;
-		}		
+		}
 
 		mPrevPos.resize(nbVertices);
 		for (PxU32 i = 0; i < mPrevPos.size(); ++i)

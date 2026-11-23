@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef GU_GJKRAYCAST_H
 #define GU_GJKRAYCAST_H
@@ -52,7 +29,7 @@ namespace Gu
 							the TOI will return the time at which both shapes are touching.
 	*/
 	template<class ConvexA, class ConvexB>
-	bool gjkRaycast(const ConvexA& a, const ConvexB& b, const aos::Vec3VArg initialDir, const aos::FloatVArg initialLambda, const aos::Vec3VArg s, const aos::Vec3VArg r, aos::FloatV& lambda, aos::Vec3V& normal, aos::Vec3V& closestA, const PxReal _inflation)
+	bool gjkRaycast(const ConvexA& a, const ConvexB& b, const aos::Vec3VArg initialDir, const aos::FloatVArg initialLambda, const aos::Vec3VArg s, const aos::Vec3VArg r, aos::FloatV& lambda, aos::Vec3V& normal, aos::Vec3V& closestA, const PxReal _inflation, const PxReal toleranceScale = 0.1f)
 	{
 		PX_UNUSED(initialLambda);
 
@@ -87,7 +64,7 @@ namespace Gu
 		Vec3V support = Q[0];
 
 		const FloatV minMargin = FMin(a.ConvexA::getSweepMargin(), b.ConvexB::getSweepMargin());
-		const FloatV eps1 = FMul(minMargin, FLoad(0.1f));
+		const FloatV eps1 = FMul(minMargin, FLoad(toleranceScale));
 		const FloatV inflationPlusEps(FAdd(eps1, inflation));
 		const FloatV eps2 = FMul(eps1, eps1);
 
@@ -107,7 +84,7 @@ namespace Gu
 		Vec3V nor = v;
 		
 		while(BAllEqTTTT(bNotTerminated))
-		{	
+		{
 			minDist = sDist;
 			preClos = clos;
 
@@ -187,7 +164,7 @@ namespace Gu
 		lambda = _lambda;
 		
 		const Vec3V closestP = V3Sel(bNotDegenerated, clos, preClos);
-		Vec3V closA = zeroV, closB = zeroV;
+		Vec3V closA = x, closB = x;
 		getClosestPoint(Q, A, B, closestP, closA, closB, size);
 		closestA = V3Sel(aQuadratic, V3NegScaleSub(nor, a.getMargin(), closA), closA);  
 		
@@ -209,20 +186,22 @@ namespace Gu
 	*/
 	template<class ConvexA, class ConvexB>
 	bool gjkRaycastPenetration(const ConvexA& a, const ConvexB& b, const aos::Vec3VArg initialDir, const aos::FloatVArg initialLambda, const aos::Vec3VArg s, const aos::Vec3VArg r, aos::FloatV& lambda, 
-		aos::Vec3V& normal, aos::Vec3V& closestA, const PxReal _inflation, const bool initialOverlap)
+		aos::Vec3V& normal, aos::Vec3V& closestA, const PxReal _inflation, const bool initialOverlap, const bool useClosestB = false, const PxReal toleranceScale = 0.1f, const PxReal mtdInflation = 0.0f)
 	{
 		using namespace aos;
 		Vec3V closA;
 		Vec3V norm; 
 		FloatV _lambda;
-		if(gjkRaycast(a, b, initialDir, initialLambda, s, r, _lambda, norm, closA, _inflation))
+		if(gjkRaycast(a, b, initialDir, initialLambda, s, r, _lambda, norm, closA, _inflation, toleranceScale))
 		{
 			const FloatV zero = FZero();
 			lambda = _lambda;
 			if(FAllEq(_lambda, zero) && initialOverlap)
 			{
 				//time of impact is zero, the sweep shape is intesect, use epa to get the normal and contact point
-				const FloatV contactDist = getSweepContactEps(a.getMargin(), b.getMargin());
+				// Query inflation excludes the quadratic radii already included in penetration.
+				const FloatV additionalInflation = FLoad(mtdInflation);
+				const FloatV contactDist = FAdd(getSweepContactEps(a.getMargin(), b.getMargin()), additionalInflation);
 
 				FloatV sDist(zero);
 				PxU8 aIndices[4];
@@ -244,7 +223,7 @@ namespace Gu
 				//norm = V3Neg(norm);
 				if(status == GJK_CONTACT)
 				{
-					closA = output.closestA;
+					closA = useClosestB ? output.closestB : output.closestA;
 					sDist = output.penDep;
 					norm = output.normal;
 				}
@@ -254,13 +233,13 @@ namespace Gu
 
 					if (status == EPA_CONTACT || status == EPA_DEGENERATE)
 					{
-						closA = output.closestA;
+						closA = useClosestB ? output.closestB : output.closestA;
 						sDist = output.penDep;
 						norm = output.normal;
 					}
 					else
 					{
-						//ML: if EPA fail, we will use the ray direction as the normal and set pentration to be zero
+						// EPA failure falls back to the sweep direction and the query inflation shell.
 						closA = V3Zero();
 						sDist = zero;
 						norm = V3Normalize(V3Neg(r));
@@ -270,11 +249,11 @@ namespace Gu
 				{
 					//ML:: this will be gjk degenerate case. However, we can still
 					//reply on the previous iteration's closest feature information
-					closA = output.closestA;
+					closA = useClosestB ? output.closestB : output.closestA;
 					sDist = output.penDep;
 					norm = output.normal;
 				}
-				lambda = FMin(zero, sDist);
+				lambda = FMin(zero, FSub(sDist, additionalInflation));
 			}
 			closestA = closA;
 			normal = norm;

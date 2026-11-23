@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #include "extensions/PxTetrahedronMeshExt.h"
 #include "foundation/PxMathUtils.h"
@@ -56,7 +33,7 @@ namespace
 		PxReal mTolerance = 1e-6f;
 
 		TetrahedronFinderCallback(const PxVec3& queryPoint, const PxVec3* vertices, const PxU32* tets, const PxReal tolerance = 1e-6f) :
-			mQueryPoint(queryPoint), mTetId(-1), mVertices(vertices), mTets(tets), mTolerance(tolerance) {}
+			mQueryPoint(queryPoint), mTetId(-1), mBary(0.0f), mVertices(vertices), mTets(tets), mTolerance(tolerance) {}
 
 		PX_FORCE_INLINE	bool testPrimitive(const PxU32 primitiveStartId, const PxU32 numPrimitives)
 		{
@@ -94,7 +71,7 @@ namespace
 		PxReal mTolerance = 1e-6f;
 
 		ClosestTetrahedronFinderCallback(const PxVec3& queryPoint, const PxVec3* vertices, const PxU32* tets) :
-			mQueryPoint(queryPoint), mTetId(-1), mVertices(vertices), mTets(tets) {}
+			mQueryPoint(queryPoint), mTetId(-1), mBary(0.0f), mVertices(vertices), mTets(tets) {}
 
 		PX_FORCE_INLINE	bool testPrimitive(const PxU32 primitiveStartId, const PxU32 numPrimitives)
 		{
@@ -148,7 +125,8 @@ static int process(PxU32* stack, PxU32& stackSize, const Gu::BVDataSwizzledNQ* n
 		if (node->isLeaf(i))
 		{
 			PxU32 primitiveIndex = node->getPrimitive(i);
-			const PxU32 numPrimitives = Gu::getNbPrimitives(primitiveIndex);
+			// getNbPrimitives returns one less than the count, for the SDK's own do { } while(nbToGo--) leaf loops.
+			const PxU32 numPrimitives = Gu::getNbPrimitives(primitiveIndex) + 1;
 			if(callback.testPrimitive(primitiveIndex, numPrimitives)) //Returns true if the query should be terminated immediately
 				return 1;
 		}
@@ -183,20 +161,50 @@ static void traverseBVH(const Gu::BV4Tree& tree, T& callback)
 	}
 }
 
+// Only a PxDeformableVolumeMesh's collision mesh owns a tree. A single-point query on any other mesh could only
+// be a linear scan, so those are rejected. createPointsToTetrahedronMap builds a tree of its own for that case.
+static const Gu::BVTetrahedronMesh* getCollisionMesh(const PxTetrahedronMesh& mesh)
+{
+	return static_cast<const Gu::TetrahedronMesh&>(mesh).getBVTetrahedronMesh();
+}
+
+// A collision mesh of 15 or fewer tetrahedra fits in one leaf and is cooked without any tree node, so the scan is
+// its only path, as in BV4_OverlapBoxCB. Larger meshes always get a tree.
+template<typename T>
+static void traverseOrScan(const Gu::BVTetrahedronMesh& mesh, T& callback)
+{
+	if (mesh.getBV4Tree().mNbNodes)
+		traverseBVH(mesh.getBV4Tree(), callback);
+	else
+		callback.testPrimitive(0, mesh.getNbTetrahedronsFast());
+}
+
 PxI32 PxTetrahedronMeshExt::findTetrahedronContainingPoint(const PxTetrahedronMesh* mesh, const PxVec3& point, PxVec4& bary, PxReal tolerance)
 {
+	PX_CHECK_AND_RETURN_VAL(mesh, "PxTetrahedronMeshExt::findTetrahedronContainingPoint: mesh is NULL", -1);
+	const Gu::BVTetrahedronMesh* collisionMesh = getCollisionMesh(*mesh);
+	if (!collisionMesh)
+	{
+		PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "PxTetrahedronMeshExt::findTetrahedronContainingPoint: requires the collision mesh of a PxDeformableVolumeMesh, see PxDeformableVolumeMesh::getCollisionMesh(). For a mesh without a bounding volume hierarchy use createPointsToTetrahedronMap()");
+		return -1;
+	}
 	TetrahedronFinderCallback callback(point, mesh->getVertices(), static_cast<const PxU32*>(mesh->getTetrahedrons()), tolerance);
-	traverseBVH(static_cast<const Gu::BVTetrahedronMesh*>(mesh)->getBV4Tree(), callback);
+	traverseOrScan(*collisionMesh, callback);
 	bary = callback.mBary;
 	return callback.mTetId;
 }
 
 PxI32 PxTetrahedronMeshExt::findTetrahedronClosestToPoint(const PxTetrahedronMesh* mesh, const PxVec3& point, PxVec4& bary)
 {
+	PX_CHECK_AND_RETURN_VAL(mesh, "PxTetrahedronMeshExt::findTetrahedronClosestToPoint: mesh is NULL", -1);
+	const Gu::BVTetrahedronMesh* collisionMesh = getCollisionMesh(*mesh);
+	if (!collisionMesh)
+	{
+		PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "PxTetrahedronMeshExt::findTetrahedronClosestToPoint: requires the collision mesh of a PxDeformableVolumeMesh, see PxDeformableVolumeMesh::getCollisionMesh(). For a mesh without a bounding volume hierarchy use createPointsToTetrahedronMap()");
+		return -1;
+	}
 	ClosestTetrahedronFinderCallback callback(point, mesh->getVertices(), static_cast<const PxU32*>(mesh->getTetrahedrons()));
-	const Gu::BV4Tree& tree = static_cast<const Gu::BVTetrahedronMesh*>(mesh)->getBV4Tree();
-	if (tree.mNbNodes) traverseBVH(tree, callback);
-	else callback.testPrimitive(0, mesh->getNbTetrahedrons());
+	traverseOrScan(*collisionMesh, callback);
 	bary = callback.mBary;
 	return callback.mTetId;
 }

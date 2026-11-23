@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef PXV_NPHASE_IMPLEMENTATION_CONTEXT_H
 #define PXV_NPHASE_IMPLEMENTATION_CONTEXT_H
@@ -51,11 +28,17 @@ namespace IG
 namespace Cm
 {
 	class FanoutTask;
+	class VirtualAllocatorCallback;
 }
 
 namespace Sc
 {
 	class ShapeInteraction;
+}
+
+namespace Gu
+{
+	class PersistentContactManifold;
 }
 
 class PxNodeIndex;
@@ -123,6 +106,25 @@ public:
 	virtual void						registerContactManager(PxsContactManager* cm, const Sc::ShapeInteraction* interaction, PxI32 touching, PxU32 patchCount) = 0;
 //	virtual void						registerContactManagers(PxsContactManager** cm, Sc::ShapeInteraction** shapeInteractions, PxU32 nbContactManagers, PxU32 maxContactManagerId) = 0;
 	virtual void						unregisterContactManager(PxsContactManager* cm) = 0;
+	// Deferred removal: unregisterContactManagerDeferred() marks the pair for removal and flushDeferredUnregisters()
+	// then compacts the pair arrays once for all marked pairs. No other pair registration or removal may happen in
+	// between. The default removes the pair immediately.
+	virtual void						unregisterContactManagerDeferred(PxsContactManager* cm)	{ unregisterContactManager(cm);	}
+	virtual void						flushDeferredUnregisters()								{								}
+	// Task-safe deferred removal, for callers that unregister many pairs from several threads at once:
+	// - beginDeferredUnregistersThreadSafe() sizes the bookkeeping. It runs on a single thread, before the tasks. The
+	//   list of new pairs has to be empty, as it is after appendContactManagers().
+	// - unregisterContactManagerDeferredThreadSafe() marks the pair's slot with an atomic bit set and hands the slot's
+	//   manifold, if any, to the caller instead of releasing it, since the manifold pools are not thread-safe. The
+	//   caller releases it from a single thread with PxsContext::destroyManifold(). The function returns true when it
+	//   marked the slot, so that the caller can count the removals.
+	// - addDeferredUnregisters() reports that count, once per task.
+	// - prefetchUnregisterSlot() fetches the slot that unregisterContactManagerDeferredThreadSafe() updates.
+	// flushDeferredUnregisters() then compacts the pair list as for unregisterContactManagerDeferred().
+	virtual void						beginDeferredUnregistersThreadSafe()															{ PX_ASSERT(0);					}
+	virtual bool						unregisterContactManagerDeferredThreadSafe(PxsContactManager*, Gu::PersistentContactManifold*&)	{ PX_ASSERT(0); return false;	}
+	virtual void						addDeferredUnregisters(PxU32)																	{ PX_ASSERT(0);					}
+	virtual void						prefetchUnregisterSlot(const PxsContactManager*)	const										{								}
 	virtual void						refreshContactManager(PxsContactManager* cm) = 0;
 
 	virtual void						registerShape(const PxNodeIndex& nodeIndex, const PxsShapeCore& shapeCore, const PxU32 transformCacheID, PxActor* actor, const bool isDeformableSurface = false) = 0;
@@ -198,7 +200,7 @@ public:
 	virtual const PxsTorsionalFrictionData*		getTorsionalDataGPU()		const	= 0;
 };
 
-PxvNphaseImplementationFallback* createNphaseImplementationContext(PxsContext& context, IG::IslandSim* islandSim, PxVirtualAllocatorCallback* allocator, bool gpuDynamics);
+PxvNphaseImplementationFallback* createNphaseImplementationContext(PxsContext& context, IG::IslandSim* islandSim, Cm::VirtualAllocatorCallback& alloc, bool gpuDynamics);
 
 }
 

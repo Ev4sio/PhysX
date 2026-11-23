@@ -1,0 +1,306 @@
+// SPDX-FileCopyrightText: Copyright (c) 2018-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
+
+/**
+ * @implements REQ-CAPI-BENCHMARK-001
+ * @covers AC-4
+ */
+
+// Adapted from omni.physx/tests/test.benchmarks/framework/BmGlobals.cpp.
+//
+// The registry / accumulator logic is preserved verbatim so future updates
+// from omni.physx merge cleanly. Glob filtering uses the local BmFilter helper.
+// The BmGlobals constructor is rewritten because ovphysx does not bootstrap
+// through a carb::AppScoped plus a manual plugin list. It goes through
+// ovphysx::PhysX,
+// which handles Carbonite startup, plugin loading and GPU foundation
+// creation internally.
+//
+// Two things here matter for AC-4. The rewritten constructor can leave
+// getPhysX() null without throwing, which is the bootstrap failure the
+// harness has to turn into "no row runs, nothing is published, exit nonzero".
+// And bmGetDefaultResult() reduces an empty sample vector to avgTime 0, which
+// is the zero-valued record an unexecuted row must never publish.
+
+#include "BmGlobals.h"
+
+#include "BmFilter.h"
+
+#include "BmUtils.h"
+
+#include <carb/ClientUtils.h>
+
+#include <ovphysx/ovphysx_config.h>
+#include <ovphysx/experimental/ovphysx.hpp>
+
+#include <algorithm>
+#include <cstring>
+#include <string>
+
+namespace
+{
+BmRegistrable** sRegistry = 0;
+uint32_t sSize = 0;
+uint32_t sCapacity = 0;
+
+} // namespace
+
+
+void bmRegisterBenchmark(BmRegistrable& benchmark)
+{
+    if (sSize == sCapacity)
+    {
+        BmRegistrable** oldRegistry = sRegistry;
+        uint32_t oldCapacity = sCapacity;
+        sCapacity = sCapacity ? sCapacity * 2 : 16;
+
+        sRegistry = new BmRegistrable*[sCapacity];
+        memcpy(sRegistry, oldRegistry, oldCapacity * sizeof(BmRegistrable*));
+        if (oldRegistry)
+            delete[] oldRegistry;
+    }
+    sRegistry[sSize++] = &benchmark;
+}
+
+struct StrLess
+{
+    bool operator()(const BmRegistrable* a, const BmRegistrable* b) const
+    {
+        return BmStricmp(a->getName(), b->getName()) < 0;
+    }
+};
+
+void bmGetRegister(std::vector<BmRegistrable*>& a, const char* filterString, bool includeHidden)
+{
+    for (uint32_t i = 0; i < sSize; i++)
+    {
+        if (BenchmarkHarness::matchFilter(filterString, sRegistry[i]->getName()) && (!sRegistry[i]->isHidden() || includeHidden))
+            a.push_back(sRegistry[i]);
+    }
+
+    std::sort(a.begin(), a.end(), StrLess());
+}
+
+
+// ---------------------------------------------------------------------------
+// BmGlobals, ovphysx version. Creates a single PhysX instance. Each fixture
+// selects CPU or GPU and forceGpu gates the matching benchmark pass. The
+// unused omni.physx-specific parameters are accepted but ignored to keep the
+// constructor signature interchangeable.
+// ---------------------------------------------------------------------------
+
+BmGlobals::BmGlobals(bool sanityCheck,
+                     const char* dataFolder,
+                     int32_t numThreads,
+                     bool forceGpu,
+                     bool directGpu,
+                     bool profile,
+                     const char** /*kitArguments*/,
+                     uint32_t /*kitArgumentCount*/)
+    : mSanityCheck(sanityCheck),
+      mNumThreads(numThreads),
+      mForceGpu(forceGpu),
+      mDirectGpu(directGpu),
+      mProfile(profile),
+      mLifecycleInitialized(false),
+      mCurrentTestName(""),
+      mDataFolder(dataFolder),
+      mPhysX(nullptr),
+      mFramework(nullptr),
+      mFileSystem(nullptr)
+{
+    mThis = this;
+
+    ovphysx::CreateArgs args;
+    if (mDirectGpu)
+    {
+        args.setActiveCudaGpus("0");
+        if (mNumThreads < 0)
+        {
+            mNumThreads = 8;
+        }
+    }
+    // Device (CPU vs GPU) is resolved per stage during ovstage ingest from
+    // physxScene:enableGPUDynamics, not as a create argument. The forceGpu()
+    // gate on each benchmark ensures only stages matching the current pass's
+    // device are loaded.
+
+    // --threads=N on the CLI sets the Carbonite /persistent/physics/numThreads setting
+    // before PhysX bootstrap, so the dispatcher comes up with N workers
+    // (1 is the single-threaded baseline, 0 is auto). DirectGPU defaults to the
+    // eight workers used by IsaacLab unless the CLI overrides it. Otherwise,
+    // N == -1 leaves the runtime default in place. The PhysicsScene USD
+    // attributes carry no thread count, so this is the only route.
+    // The entries array must outlive PhysX::create.
+    ovphysx_config_entry_t configEntries[7]{};
+    uint32_t configEntryCount = 0;
+    if (mNumThreads >= 0)
+    {
+        configEntries[configEntryCount++] = ovphysx_config_entry_num_threads(mNumThreads);
+    }
+    if (mDirectGpu)
+    {
+        configEntries[configEntryCount++] = ovphysx_config_entry_carbonite(
+            OVPHYSX_LITERAL("/physics/physxDispatcher"), OVPHYSX_LITERAL("true"));
+        configEntries[configEntryCount++] = ovphysx_config_entry_carbonite(
+            OVPHYSX_LITERAL("/physics/suppressReadback"), OVPHYSX_LITERAL("true"));
+        configEntries[configEntryCount++] = ovphysx_config_entry_carbonite(
+            OVPHYSX_LITERAL("/physics/suppressFabricUpdate"), OVPHYSX_LITERAL("true"));
+        configEntries[configEntryCount++] = ovphysx_config_entry_carbonite(
+            OVPHYSX_LITERAL("/physics/updateToUsd"), OVPHYSX_LITERAL("false"));
+        configEntries[configEntryCount++] = ovphysx_config_entry_carbonite(
+            OVPHYSX_LITERAL("/physics/updateVelocitiesToUsd"), OVPHYSX_LITERAL("false"));
+        configEntries[configEntryCount++] = ovphysx_config_entry_carbonite(
+            OVPHYSX_LITERAL("/physics/updateParticlesToUsd"), OVPHYSX_LITERAL("false"));
+    }
+    if (configEntryCount > 0)
+    {
+        args.setConfigEntries(configEntries, configEntryCount);
+    }
+
+    ovphysx_result_t initResult = ovphysx_initialize();
+    if (initResult.status != OVPHYSX_API_SUCCESS)
+    {
+        printFormatted("BmGlobals: ovphysx_initialize failed with status=%d", static_cast<int>(initResult.status));
+        return;
+    }
+    mLifecycleInitialized = true;
+
+    mPhysX = new ovphysx::PhysX();
+    ovphysx_api_status_t st = ovphysx::PhysX::create(*mPhysX, args);
+    if (st != OVPHYSX_API_SUCCESS)
+    {
+        printFormatted("BmGlobals: PhysX::create failed with status=%d", static_cast<int>(st));
+        delete mPhysX;
+        mPhysX = nullptr;
+        ovphysx_shutdown();
+        mLifecycleInitialized = false;
+        return;
+    }
+
+    // Acquire the carb framework and IFileSystem now that ovphysx::PhysX::create
+    // has performed Carbonite bootstrap. BmOutput.cpp uses these to write
+    // its report and baseline files.
+    //
+    // The executable statically links its own Carbonite framework, separate
+    // from the SDK's framework. Release it before CRT static destruction.
+    mFramework = carb::getFramework();
+    if (!mFramework)
+    {
+        mFramework = carb::acquireFramework(g_carbClientName.c_str());
+        if (mFramework)
+        {
+            g_carbFramework = mFramework;
+            mOwnsCarbFramework = true;
+        }
+    }
+    if (mFramework)
+    {
+        mFileSystem = mFramework->acquireInterface<carb::filesystem::IFileSystem>();
+    }
+}
+
+BmGlobals::~BmGlobals()
+{
+    // Drop the borrowed interface pointers before releasing their framework.
+    mFileSystem = nullptr;
+    mFramework = nullptr;
+
+    // Keep this executable's framework alive while instance and SDK shutdown log.
+    delete mPhysX;
+    mPhysX = nullptr;
+    if (mLifecycleInitialized)
+    {
+        ovphysx_shutdown();
+        mLifecycleInitialized = false;
+    }
+
+    // Release only the framework acquired here, while its static state is alive.
+    if (mOwnsCarbFramework)
+    {
+        carb::releaseFramework();
+        mOwnsCarbFramework = false;
+    }
+}
+
+std::string BmGlobals::getDataFolder() const
+{
+    if (mDataFolder)
+        return mDataFolder;
+    if (mFileSystem)
+    {
+        // Matches the omni.physx fallback, relative to the executable's directory.
+        // The resolved base path differs because the ovphysx and omni.physx tree
+        // layouts differ. The --data CLI flag is the preferred way to point at
+        // fixtures and is what scripts/test_benchmarks_cpp.cmake uses.
+        return std::string(mFileSystem->getAppDirectoryPath()) + "/../../../tests/data";
+    }
+    return "tests/data";
+}
+
+void BmGlobals::release()
+{
+    // No carb scripting context to tear down here. Kept as a no-op so the
+    // teardown sequence matches the omni.physx harness.
+}
+
+void bmCreateGlobals(bool sanityCheck,
+                     const char* dataFolder,
+                     int32_t numThreads,
+                     bool forceGpu,
+                     bool directGpu,
+                     bool profile,
+                     const char** kitArguments,
+                     uint32_t kitArgumentCount)
+{
+    new BmGlobals(sanityCheck, dataFolder, numThreads, forceGpu, directGpu, profile,
+        kitArguments, kitArgumentCount);
+}
+
+void BmGlobals::destroyInstance()
+{
+    if (!mThis)
+    {
+        return;
+    }
+    mThis->release();
+
+    delete mThis;
+    // getInstance() past this point is a null deref, not a use-after-free.
+    mThis = nullptr;
+}
+
+
+void bmDestroyGlobals()
+{
+    BmGlobals::destroyInstance();
+}
+
+BmGlobals* BmGlobals::mThis;
+
+// ---------------------------------------------------------------------------
+
+BmResult bmGetDefaultResult(BmRecord& r)
+{
+    BmResult result;
+    result.maxMemory = 0;
+    uint64_t size = r.time.size();
+
+    uint64_t total = 0;
+    uint64_t stdDevSum = 0;
+    for (uint32_t i = 0; i < size; i++)
+    {
+        total += r.time[i];
+        stdDevSum += r.stdDev[i];
+    }
+
+    if (size == 0) {
+        result.avgTime = 0;
+        result.stdDevTime = 0;
+    } else {
+        result.avgTime = total / size;
+        result.stdDevTime = stdDevSum / size;
+    }
+
+    return result;
+}

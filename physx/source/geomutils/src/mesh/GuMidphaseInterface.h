@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef GU_MIDPHASE_INTERFACE_H
 #define GU_MIDPHASE_INTERFACE_H
@@ -158,7 +135,7 @@ namespace Gu
 	PX_PHYSX_COMMON_API bool intersectBoxVsMesh_BV4		(const Box& box,			const TriangleMesh& triMesh, const PxTransform& meshTransform, const PxMeshScale& meshScale, LimitedResults* results);
 	PX_PHYSX_COMMON_API bool intersectCapsuleVsMesh_BV4	(const Capsule& capsule,	const TriangleMesh& triMesh, const PxTransform& meshTransform, const PxMeshScale& meshScale, LimitedResults* results);
 	PX_PHYSX_COMMON_API void intersectOBB_BV4(const TriangleMesh* mesh, const Box& obb, MeshHitCallback<PxGeomRaycastHit>& callback, bool bothTriangleSidesCollide, bool checkObbIsAligned);
-	PX_PHYSX_COMMON_API void intersectOBB_BV4(const TetrahedronMesh* mesh, const Box& obb, TetMeshHitCallback<PxGeomRaycastHit>& callback);
+	PX_PHYSX_COMMON_API void intersectOBB_BV4(const BVTetrahedronMesh* mesh, const Box& obb, TetMeshHitCallback<PxGeomRaycastHit>& callback);
 	PX_PHYSX_COMMON_API bool sweepCapsule_MeshGeom_BV4(	const TriangleMesh* mesh, const PxTriangleMeshGeometry& triMeshGeom, const PxTransform& pose,
 									const Gu::Capsule& lss, const PxVec3& unitDir, PxReal distance,
 									PxGeomSweepHit& sweepHit, PxHitFlags hitFlags, PxReal inflation);
@@ -316,10 +293,10 @@ namespace Midphase
 		gMidphaseBoxCBOverlapTable[index](mesh, obb, callback, bothTriangleSidesCollide, checkObbIsAligned);
 	}
 
-	// \param[in]	mesh						tetrahedron mesh
+	// \param[in]	mesh						collision mesh of a deformable volume, the only tetrahedron mesh with a midphase tree
 	// \param[in]	box							box
 	// \param[in]	callback					callback object, called each time a hit is found
-	PX_FORCE_INLINE void intersectOBB(const TetrahedronMesh* mesh, const Box& obb, TetMeshHitCallback<PxGeomRaycastHit>& callback)
+	PX_FORCE_INLINE void intersectOBB(const BVTetrahedronMesh* mesh, const Box& obb, TetMeshHitCallback<PxGeomRaycastHit>& callback)
 	{
 		intersectOBB_BV4(mesh, obb, callback);
 	}

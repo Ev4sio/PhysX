@@ -1,0 +1,242 @@
+# SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+# @implements REQ-PYTHON-BINDING-SYNC-001
+# @covers AC-1 AC-2 AC-3
+
+"""
+DLPack utility functions for tensor interoperability.
+
+Internal module - not part of the public API.
+"""
+
+import ctypes
+from ctypes import POINTER, c_int64, c_void_p
+
+from .dlpack import (
+    DLDataType,
+    DLDataTypeCode,
+    DLDevice,
+    DLDeviceType,
+    DLManagedTensor,
+    DLTensor,
+    PyCapsule_GetPointer,
+    PyCapsule_IsValid,
+)
+
+# Match omni::physics::tensors::kMaxDimensions in TensorDesc.h.
+_MAX_TENSOR_RANK = 8
+
+
+def _validate_c_contiguous_layout(dl_tensor: DLTensor) -> None:
+    """Validate that DLTensor strides describe C-contiguous layout."""
+    ndim = dl_tensor.ndim
+    if ndim <= 0 or ndim > _MAX_TENSOR_RANK:
+        raise ValueError(f"Tensor rank must be between 1 and {_MAX_TENSOR_RANK}, got {ndim}")
+    if not dl_tensor.shape:
+        raise ValueError("Tensor shape must not be null")
+    if not dl_tensor.strides:
+        return
+
+    # Any zero-sized dim makes the tensor empty, so contiguity holds trivially.
+    # NumPy reports stride 0 for the dims outside a zero-sized one, which would
+    # otherwise fail the per-dim stride check below.
+    if any(dl_tensor.shape[i] == 0 for i in range(ndim)):
+        return
+
+    expected_stride = 1
+    for dim_idx in range(ndim - 1, -1, -1):
+        dim = dl_tensor.shape[dim_idx]
+
+        # Dim of size 1 has irrelevant stride and contributes a factor of 1
+        # to expected_stride, so skip.
+        if dim == 1:
+            continue
+
+        if dl_tensor.strides[dim_idx] != expected_stride:
+            raise ValueError(
+                "Tensor must be C-contiguous (row-major). Call .contiguous() on a PyTorch tensor before passing it."
+            )
+
+        expected_stride *= dim
+
+
+def copy_dltensor(dl_tensor: DLTensor) -> DLTensor:
+    """Copy DLTensor metadata without taking ownership of its data buffer."""
+    copied = DLTensor.from_buffer_copy(dl_tensor)
+    shape = (c_int64 * dl_tensor.ndim)(*(dl_tensor.shape[i] for i in range(dl_tensor.ndim)))
+    copied.shape = ctypes.cast(shape, POINTER(c_int64))
+
+    strides = None
+    if dl_tensor.strides:
+        strides = (c_int64 * dl_tensor.ndim)(*(dl_tensor.strides[i] for i in range(dl_tensor.ndim)))
+        copied.strides = ctypes.cast(strides, POINTER(c_int64))
+
+    copied._keepalive = (shape, strides)
+    return copied
+
+
+def synchronize_tensor_producer(obj) -> object | None:
+    """Wait for producer work and return any capsule acquired for stream handoff."""
+    is_warp = type(obj).__module__.partition(".")[0] == "warp"
+    if is_warp:
+        if not getattr(getattr(obj, "device", None), "is_cuda", False):
+            return None
+        device = obj.device
+    else:
+        if not hasattr(obj, "__dlpack__") or not hasattr(obj, "__dlpack_device__"):
+            return None
+        device_type, device_id = obj.__dlpack_device__()
+        if device_type not in (DLDeviceType.kDLCUDA, DLDeviceType.kDLCUDAManaged):
+            return None
+        device = f"cuda:{device_id}"
+    import warp as wp
+
+    # PhysX may use another CUDA context. Finish the producer's handoff on
+    # Warp's stream before native access; retain the original capsule metadata.
+    stream = wp.get_stream(device)
+    capsule = None
+    try:
+        with wp.ScopedDevice(stream.device):
+            if not is_warp:
+                capsule = obj.__dlpack__(stream=int(stream.cuda_stream or 1))
+            ready = stream.record_event()
+            wp.synchronize_event(ready)
+            # Check this handoff, not work another caller enqueues after it.
+            # Warp logs CUDA wait errors, so require completion before proceeding.
+            if not ready.is_complete:
+                raise RuntimeError(f"CUDA producer work on {stream.device} did not complete")
+        return capsule
+    finally:
+        del capsule
+
+
+def _dlpack_on_cuda(obj) -> bool:
+    """Whether a __dlpack__ exporter's tensor lives in CUDA device or managed memory."""
+    device = getattr(obj, "__dlpack_device__", None)
+    return device is not None and device()[0] in (DLDeviceType.kDLCUDA, DLDeviceType.kDLCUDAManaged)
+
+
+def acquire_dltensor(obj, *, synchronize: bool = True) -> tuple[DLTensor, object | None]:
+    """Extract DLTensor and a keepalive reference (if needed).
+
+    For objects implementing __dlpack__(), the returned DLTensor points into a
+    DLManagedTensor owned by a Python capsule. The capsule must stay alive
+    until the native call completes.
+
+    Args:
+        obj: DLTensor, object with __dlpack__(), or numpy-like array
+        synchronize: Wait on the host for the producer first, as
+            ``synchronize_tensor_producer`` does. Pass False when the native call is itself
+            ordered after the stream that produced ``obj``: then a CUDA tensor is exported
+            with DLPack's no-synchronization stream, -1, and nothing is waited for.
+
+    Returns:
+        Tuple of (DLTensor, keepalive_object). The keepalive_object must be
+        kept alive for the duration of any C calls using the DLTensor.
+    """
+    if isinstance(obj, DLTensor):
+        return obj, None
+
+    capsule = synchronize_tensor_producer(obj) if synchronize else None
+
+    # __dlpack__ protocol (NumPy >= 1.22, PyTorch, etc.)
+    if hasattr(obj, "__dlpack__"):
+        if capsule is None:
+            unordered = not synchronize and _dlpack_on_cuda(obj)
+            capsule = obj.__dlpack__(stream=-1) if unordered else obj.__dlpack__()
+        try:
+            if PyCapsule_IsValid(capsule, b"dltensor") != 1:
+                raise TypeError("__dlpack__() did not return a valid 'dltensor' capsule")
+            managed_ptr = PyCapsule_GetPointer(capsule, b"dltensor")
+            if not managed_ptr:
+                raise TypeError("Failed to extract DLManagedTensor from capsule")
+            managed = ctypes.cast(managed_ptr, POINTER(DLManagedTensor)).contents
+            _validate_c_contiguous_layout(managed.dl_tensor)
+            return managed.dl_tensor, capsule
+        finally:
+            del capsule
+
+    # NumPy-like
+    if hasattr(obj, "__array_interface__"):
+        import numpy as np
+
+        arr = np.asarray(obj)
+        return numpy_to_dltensor(arr), None
+
+    raise TypeError(
+        f"Object of type {type(obj).__name__} is not DLPack-compatible. "
+        "Pass a NumPy array, PyTorch tensor, or object with __dlpack__ method."
+    )
+
+
+def numpy_to_dltensor(arr) -> DLTensor:
+    """Convert NumPy array to DLTensor.
+
+    The returned DLTensor has a _keepalive attribute that holds references to
+    the underlying data buffers. The caller must keep the DLTensor alive for
+    the duration of any C calls using it.
+
+    Args:
+        arr: NumPy array (must be C-contiguous)
+
+    Returns:
+        DLTensor with _keepalive attribute containing references that must
+        stay alive during C calls.
+    """
+    import numpy as np
+
+    if not arr.flags["C_CONTIGUOUS"]:
+        raise ValueError("Array must be C-contiguous")
+
+    dl_tensor = DLTensor()
+    dl_tensor.data = arr.ctypes.data_as(c_void_p)
+    dl_tensor.ndim = arr.ndim
+
+    # The shape array must stay alive for the duration of the C call.
+    shape_array = (c_int64 * arr.ndim)(*arr.shape)
+    dl_tensor.shape = ctypes.cast(shape_array, POINTER(c_int64))
+
+    # Strides converted from bytes to elements. The array must stay alive for the duration of the C call.
+    strides_array = (c_int64 * arr.ndim)(*[s // arr.itemsize for s in arr.strides])
+    dl_tensor.strides = ctypes.cast(strides_array, POINTER(c_int64))
+
+    dl_tensor.device = DLDevice()
+    dl_tensor.device.device_type = DLDeviceType.kDLCPU
+    dl_tensor.device.device_id = 0
+
+    dl_tensor.dtype = DLDataType()
+    if arr.dtype == np.float32:
+        dl_tensor.dtype.code = DLDataTypeCode.kDLFloat
+        dl_tensor.dtype.bits = 32
+    elif arr.dtype == np.int32:
+        dl_tensor.dtype.code = DLDataTypeCode.kDLInt
+        dl_tensor.dtype.bits = 32
+    elif arr.dtype == np.float64:
+        dl_tensor.dtype.code = DLDataTypeCode.kDLFloat
+        dl_tensor.dtype.bits = 64
+    elif arr.dtype == np.bool_:
+        dl_tensor.dtype.code = DLDataTypeCode.kDLBool
+        dl_tensor.dtype.bits = 8
+    elif arr.dtype == np.uint8:
+        dl_tensor.dtype.code = DLDataTypeCode.kDLUInt
+        dl_tensor.dtype.bits = 8
+    elif arr.dtype == np.int64:
+        dl_tensor.dtype.code = DLDataTypeCode.kDLInt
+        dl_tensor.dtype.bits = 64
+    elif arr.dtype == np.uint64:
+        dl_tensor.dtype.code = DLDataTypeCode.kDLUInt
+        dl_tensor.dtype.bits = 64
+    elif arr.dtype == np.uint32:
+        dl_tensor.dtype.code = DLDataTypeCode.kDLUInt
+        dl_tensor.dtype.bits = 32
+    else:
+        raise ValueError(f"Unsupported dtype: {arr.dtype}")
+    dl_tensor.dtype.lanes = 1
+
+    dl_tensor.byte_offset = 0
+
+    # Store references on the tensor to prevent GC during C call
+    dl_tensor._keepalive = (arr, shape_array, strides_array)
+
+    return dl_tensor

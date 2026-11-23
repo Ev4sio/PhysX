@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
-// Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
+// Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef GU_CONVEX_SUPPORT_H
 #define GU_CONVEX_SUPPORT_H
@@ -35,7 +12,10 @@
 #include "foundation/PxMat33.h"
 #include "foundation/PxTransform.h"
 #include "foundation/PxMathUtils.h"
+#include "PxContact.h"
 #include "GuRefGjkEpa.h"
+
+#define PXC_SAME_NORMAL (0.999f)
 
 namespace physx
 {
@@ -429,10 +409,10 @@ namespace physx
 					const PxVec3 p1 = getPoint(index[1]), p2 = getPoint(index[2]);
 					const PxVec3 n0 = (p1 - p0).cross(p2 - p0).getNormalized();
 					PxReal dot0 = dir.dot(n0);
-					if (dot0 < 0)
-						dot0 = -dot0;
 					if (dot0 > dEps1)
 						faceNormal = n0;
+					else if (dot0 < -dEps1)
+						faceNormal = -n0;
 					else
 					{
 						const PxVec3 n1 = (p1 - p0).cross(dir).cross(p1 - p0).getNormalized();
@@ -568,8 +548,8 @@ namespace physx
 		// enclosing a corresponding set of points. then it creates a quad
 		// perpendicular to the direction and containing the reference point.
 		// and finally it clips the quad with the planes from both sets.
-		// MAX_CONTACTS vertices of the clipped poingon, forming the biggest
-		// poligon are returned.
+		// MAX_CONTACTS vertices of the clipped polygon, forming the biggest
+		// polygon are returned.
 		struct FaceClipper
 		{
 			PX_CUDA_CALLABLE PX_INLINE
@@ -579,6 +559,18 @@ namespace physx
 			{
 				mNumPoints0 = convex0.contactFace(-mAxis, mPoint0, mFaceNormal0, mFacePoints0);
 				mNumPoints1 = convex1.contactFace(mAxis, mPoint1, mFaceNormal1, mFacePoints1);
+			}
+
+			PX_CUDA_CALLABLE PX_INLINE
+			FaceClipper(const PxVec3* facePoints0, PxU32 numPoints0, const PxVec3* facePoints1, PxU32 numPoints1, const PxVec3& faceNormal0, const PxVec3& faceNormal1, const PxVec3& point0, const PxVec3& point1, const PxVec3& axis)
+				:
+				mPoint0(point0), mPoint1(point1), mAxis(axis), mFaceNormal0(faceNormal0), mFaceNormal1(faceNormal1), mNumPoints0(numPoints0), mNumPoints1(numPoints1)
+			{
+				for (PxU32 i = 0; i < mNumPoints0; ++i)
+					mFacePoints0[i] = facePoints0[i];
+
+				for (PxU32 i = 0; i < mNumPoints1; ++i)
+					mFacePoints1[i] = facePoints1[i];
 			}
 
 			PX_CUDA_CALLABLE
@@ -676,6 +668,7 @@ namespace physx
 				PxU32 numClipPlanes = 0;
 				PxVec4 clipPlanes[MAX_CLIP_PLANES];
 				makePlanes(clipPlanes, numClipPlanes);
+				PX_ASSERT(numClipPlanes <= MAX_CLIP_PLANES);
 
 				PxU32 numPolyPoints = 0;
 				PxVec3 polyPoints[MAX_POLYGON_POINTS];
@@ -724,55 +717,46 @@ namespace physx
 
 				const PxVec3 axis = mAxis;
 				const PxReal eps = 1e-5f;
-				const PxReal eps2 = eps * eps;
-				PxU32 start = 0, stop = PxU32(-1);
-				while (true)
+
+				for (PxU32 i = 0; i < numPoints; ++i)
 				{
-					const PxVec3& s = facePoints[start];
-					for (PxU32 i = 0; i < numPoints; ++i)
+					const PxVec3& s = facePoints[i];
+					for (PxU32 j = i + 1; j < numPoints; ++j)
 					{
-						if (i == start)
-							continue;
-				
-						const PxVec3& e = facePoints[i];
+						const PxVec3& e = facePoints[j];
+
 						PxVec3 n = (e - s).cross(axis);
-						if (n.magnitudeSquared() < eps2)
+						if (n.magnitudeSquared() < eps * eps)
 							continue;
 
 						n.normalizeFast();
-				
-						bool edge = true;
-						for (PxU32 j = 0; j < numPoints; ++j)
+
+						PxU32 posCount = 0, negCount = 0;
+						for (PxU32 k = 0; k < numPoints; ++k)
 						{
-							if (j == i || j == start)
+							if (k == i || k == j)
 								continue;
-				
-							const PxVec3& v = facePoints[j];
-							if ((v - s).dot(n) > eps)
-							{
-								edge = false;
-								break;
-							}
+
+							const PxReal d = (facePoints[k] - s).dot(n);
+							if (d > eps)
+								posCount++;
+							else
+								negCount++;
 						}
 
-						if (edge)
-						{
-							planes[numPlanes++] = PxVec4(-n, n.dot(s));
+						if (posCount && negCount)
+							continue;
 
-							if (stop == PxU32(-1))
-								stop = start;
+						if (posCount)
+							n = -n;
 
-							start = i;
+						// degenerate (e.g. collinear) face points can produce more
+						// pairs than actual edges, cap to avoid buffer overrun
+						if (numPlanes >= MAX_CLIP_PLANES)
+							return;
 
-							break;
-						}
+						planes[numPlanes++] = PxVec4(-n, n.dot(s));
 					}
-
-					if (stop == PxU32(-1))
-						++start;
-
-					if (start == stop)
-						break;
 				}
 			}
 
@@ -902,10 +886,15 @@ namespace physx
 			struct Point
 			{
 				PxVec3 p; PxReal d;
+				// PT: index of the triangle this point came from, or PXC_CONTACT_NO_FACE_INDEX for shapes that
+				// have no such thing. It must survive patch reduction so the material lookup downstream can use
+				// it, which it does for free: the reduction code below copies whole Point objects and
+				// reducePolygon() takes an explicit stride.
+				PxU32 faceIndex;
 
 				PX_CUDA_CALLABLE PX_INLINE
-				static Point make(const PxVec3& p, PxReal d)
-					{ Point pt; pt.p = p; pt.d = d; return pt; }
+				static Point make(const PxVec3& p, PxReal d, PxU32 faceIndex)
+					{ Point pt; pt.p = p; pt.d = d; pt.faceIndex = faceIndex; return pt; }
 			};
 
 			PX_CUDA_CALLABLE PX_INLINE
@@ -935,24 +924,22 @@ namespace physx
 				{ return mPoints[patchIndex * MAX_PATCH_POINTS + pointIndex]; }
 
 			PX_CUDA_CALLABLE
-			void addPoint(const PxVec3& position, const PxVec3& normal, PxReal depth)
+			void addPoint(const PxVec3& position, const PxVec3& normal, PxReal depth, PxU32 faceIndex)
 			{
 				for (PxU32 i = 0; i < mNumPatches; ++i)
 				{
 					Patch& patch = mPatches[i];
-					if (patch.normal.dot(normal) >= SAME_NORMAL)
+					if (patch.normal.dot(normal) >= PXC_SAME_NORMAL)
 					{
-						addPatchPoint(i, Point::make(position, depth));
+						addPatchPoint(i, Point::make(position, depth, faceIndex));
 						return;
 					}
 				}
 
-				addPatch(normal, Point::make(position, depth));
+				addPatch(normal, Point::make(position, depth, faceIndex));
 			}
 
 		protected:
-
-			PxReal SAME_NORMAL = 0.999f; // see PXC_SAME_NORMAL
 
 			struct Patch
 			{
@@ -1163,41 +1150,8 @@ namespace physx
 
 		PX_CUDA_CALLABLE
 		// generates contacts between a plane and a convex
-		static PxU32 generateContacts(const PxPlane& plane0, const ConvexShape& convex1, const PxReal contactDist,
-			PxVec3& normal, PxVec3 points[MAX_CONVEX_CONTACTS], PxReal dists[MAX_CONVEX_CONTACTS])
-		{
-			normal = -plane0.n;
-
-			const PxVec3 point1 = convex1.support(normal);
-			const PxReal dist = plane0.distance(point1);
-
-			PxU32 numContacts = 0;
-
-			if (dist < contactDist)
-			{
-				PxVec3 faceNormal, facePoints[Gu::ConvexCore::MAX_FACE_POINTS];
-				const PxU32 numPoints = convex1.contactFace(normal, point1, faceNormal, facePoints);
-				
-				if (numPoints == 0)
-				{
-					const PxVec3 point = point1 + normal * dist * 0.5f;
-					points[numContacts] = point;
-					dists[numContacts] = dist;
-					++numContacts;
-				}
-
-				for (PxU32 i = 0; i < numPoints; ++i)
-				{
-					const PxVec3 p1 = facePoints[i];
-					const PxReal d = plane0.distance(p1);
-					points[numContacts] = p1 + normal * d * 0.5f;
-					dists[numContacts] = d;
-					++numContacts;
-				}
-			}
-
-			return numContacts;
-		}
+		PxU32 generateContacts(const PxPlane& plane0, const ConvexShape& convex1, const PxReal contactDist,
+			PxVec3& normal, PxVec3 points[MAX_CONVEX_CONTACTS], PxReal dists[MAX_CONVEX_CONTACTS]);
 
 		PX_CUDA_CALLABLE
 		// generates contacts between 2 convexes (cullDir is for triangle backface culling)
@@ -1240,11 +1194,6 @@ namespace physx
 		static PxU32 generateContacts(const ConvexShape& convex0, const ConvexShape& convex1, const PxReal contactDist,
 			PxVec3& normal, PxVec3 points[MAX_CONVEX_CONTACTS], PxReal dists[MAX_CONVEX_CONTACTS])
 			{ return generateContacts(convex0, convex1, contactDist, PxVec3(0), normal, points, dists); }
-
-		PX_CUDA_CALLABLE PX_INLINE
-		// suppress a warning about an unreferenced local symbol
-		PxU32 suppressUnhelpfulWarnings()
-			{ PxPlane p; ConvexShape cs; PxReal r(0); PxVec3 v; return generateContacts(p, cs, r, v, NULL, NULL); }
 	}
 }
 

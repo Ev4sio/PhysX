@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef EXT_D6_JOINT_H
 #define EXT_D6_JOINT_H
@@ -40,6 +17,8 @@ namespace Ext
 {
 	struct D6JointData : public JointData
 	{
+		static constexpr PxU32 sDriveEntryCapacity = 6;
+
 		PxD6Motion::Enum		motion[6]; 
 		PxJointLinearLimit		distanceLimit;
 		PxJointLinearLimitPair	linearLimitX;
@@ -49,7 +28,7 @@ namespace Ext
 		PxJointLimitCone		swingLimit;
 		PxJointLimitPyramid		pyramidSwingLimit;
 
-		PxD6JointDrive			drive[PxD6Drive::eCOUNT];
+		PxD6JointDrive			drive[sDriveEntryCapacity];
 
 		PxTransform				drivePosition;
 		PxVec3					driveLinearVelocity;
@@ -73,6 +52,8 @@ namespace Ext
 		bool					mUseConeLimit;
 		bool					mUsePyramidLimits;
 
+		PxU8					angularDriveConfig;  // stores the angular drive config (PxD6AngularDriveConfig::Enum)
+
 	private:
 		D6JointData(const PxJointLinearLimit& distance,
 					const PxJointLinearLimitPair& linearX,
@@ -91,7 +72,8 @@ namespace Ext
 		mUseDistanceLimit	(false),
 		mUseNewLinearLimits	(false),
 		mUseConeLimit		(false),
-		mUsePyramidLimits	(false)
+		mUsePyramidLimits	(false),
+		angularDriveConfig	(PxD6AngularDriveConfig::eSWING_TWIST)
 		{}
 	};
 
@@ -106,6 +88,10 @@ namespace Ext
 		static	D6Joint*				createObject(PxU8*& address, PxDeserializationContext& context)	{ return createJointObject<D6Joint>(address, context);	}
 //~PX_SERIALIZATION
 										D6Joint(const PxTolerancesScale& scale, PxRigidActor* actor0, const PxTransform& localFrame0, PxRigidActor* actor1, const PxTransform& localFrame1);
+#if PX_SUPPORT_OMNI_PVD
+		virtual							~D6Joint();
+#endif
+
 		// PxD6Joint
 		virtual	void					setMotion(PxD6Axis::Enum index, PxD6Motion::Enum t)	PX_OVERRIDE;
 		virtual	PxD6Motion::Enum		getMotion(PxD6Axis::Enum index)	const	PX_OVERRIDE;
@@ -129,6 +115,8 @@ namespace Ext
 		virtual	void					setDriveVelocity(const PxVec3& linear, const PxVec3& angular, bool autowake = true)	PX_OVERRIDE;
 		virtual	void					getDriveVelocity(PxVec3& linear, PxVec3& angular)	const	PX_OVERRIDE;
 		virtual PxD6JointGPUIndex		getGPUIndex() const PX_OVERRIDE;
+		virtual void					setAngularDriveConfig(PxD6AngularDriveConfig::Enum) PX_OVERRIDE;
+		virtual PxD6AngularDriveConfig::Enum getAngularDriveConfig() const PX_OVERRIDE;
 		//~PxD6Joint
 
 		// PxConstraintConnector
@@ -136,11 +124,18 @@ namespace Ext
 		virtual	void*					prepareData()	PX_OVERRIDE;
 #if PX_SUPPORT_OMNI_PVD
 		virtual void updateOmniPvdProperties() const PX_OVERRIDE;
+		virtual void updateOmniPvdProperties(const PxConstraintOmniPvdState& state) const PX_OVERRIDE;
 #endif
 		//~PxConstraintConnector
 
+#if PX_SUPPORT_OMNI_PVD
+		void omniPvdDestroyDrives(OmniPvdWriter* pvdWriter, const OmniPvdPxExtensionsRegistrationData* pvdRegData) const;
+		friend void omniPvdInitJoint<D6Joint>(D6Joint& joint);
+		friend void omniPvdInitJoint<D6Joint>(OmniPvdWriter* pvdWriter, const OmniPvdPxExtensionsRegistrationData* pvdRegData, D6Joint& joint);
+#endif
+
 	private:
-		bool active(const PxD6Drive::Enum index) const
+		PX_FORCE_INLINE bool isDriveActive(PxU32 index) const
 		{
 			const PxD6JointDrive& d = data().drive[index];
 			return d.stiffness!=0 || d.damping != 0;

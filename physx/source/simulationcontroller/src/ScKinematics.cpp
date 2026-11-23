@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #include "common/PxProfileZone.h"
 #include "ScScene.h"
@@ -35,6 +12,7 @@
 
 using namespace physx;
 using namespace Sc;
+using namespace Cm;
 
 //PX_IMPLEMENT_OUTPUT_ERROR
 
@@ -111,13 +89,13 @@ class ScKinematicUpdateTask : public Cm::Task
 public:
 
 	static const PxU32 NbKinematicsPerTask = 1024;
-	
+
 	ScKinematicUpdateTask(Sc::BodyCore*const* kinematics, PxU32 nbKinematics, PxReal oneOverDt, PxU64 contextID) :
 		Cm::Task(contextID), mKinematics(kinematics), mNbKinematics(nbKinematics), mOneOverDt(oneOverDt)
 	{
 	}
 
-	virtual void runInternal()
+	virtual void runInternal() PX_OVERRIDE
 	{
 		Sc::BodyCore*const*	kinematics = mKinematics;
 		PxU32 nb = mNbKinematics;
@@ -133,7 +111,7 @@ public:
 		}
 	}
 
-	virtual const char* getName() const
+	virtual const char* getName() const PX_OVERRIDE
 	{
 		return "ScScene.KinematicUpdateTask";
 	}
@@ -159,6 +137,32 @@ void Sc::Scene::kinematicsSetup(PxBaseTask* continuation)
 	PxMemCopy(mActiveKinematicsCopy, kinematics, nbKinematics*sizeof(BodyCore*));
 	kinematics = mActiveKinematicsCopy;
 
+	if((mPublicFlags & PxSceneFlag::eENABLE_GPU_DYNAMICS))
+	{
+		// PT: running this serially for now because it's unsafe: mNPhaseCore->updateDirtyInteractions() (called after this)
+		// can also call mSimulationController.updateDynamic() via BodySim::internalWakeUpBase
+		// This runs before ScKinematicUpdateTask is dispatched. The task clears the settling bits in the internal flags word
+		// that BF_KINEMATIC_MOVED is read from here, so running alongside it would be a data race.
+		for(PxU32 i = 0; i < nbKinematics; i++)
+		{
+			Sc::BodyCore* b = kinematics[i];
+			Sc::BodySim* bodySim = b->getSim();
+			PX_ASSERT(!bodySim->getArticulation());
+			// With the direct GPU API, the upload keeps the GPU velocity of a body unless it is flagged, and the velocity of an
+			// active kinematic is set on the CPU in every step. The target is applied to the GPU pose after the solver.
+			if(mPublicFlags & PxSceneFlag::eENABLE_DIRECT_GPU_API)
+			{
+				bodySim->getLowLevelBody().mInternalFlags |= PxsRigidBody::eVELOCITY_COPY_GPU;
+				PxTransform target;
+				if(bodySim->readInternalFlag(BodySim::BF_KINEMATIC_MOVED) && b->getKinematicTarget(target))
+				{
+					mSimulationController->setKinematicTargetDirectGPU(bodySim->getNodeIndex(), target);
+				}
+			}
+			mSimulationController->updateDynamic(NULL, bodySim->getNodeIndex());
+		}
+	}
+
 	Cm::FlushPool& flushPool = mLLContext->getTaskPool();
 
 	// PT: TASK-CREATION TAG
@@ -170,20 +174,6 @@ void Sc::Scene::kinematicsSetup(PxBaseTask* continuation)
 
 		task->setContinuation(continuation);
 		task->removeReference();
-	}
-
-	if((mPublicFlags & PxSceneFlag::eENABLE_GPU_DYNAMICS))
-	{
-		// PT: running this serially for now because it's unsafe: mNPhaseCore->updateDirtyInteractions() (called after this)
-		// can also call mSimulationController.updateDynamic() via BodySim::internalWakeUpBase
-		PxU32 nb = nbKinematics;
-		while(nb--)
-		{
-			Sc::BodyCore* b = *kinematics++;
-			Sc::BodySim* bodySim = b->getSim();
-			PX_ASSERT(!bodySim->getArticulation());
-			mSimulationController->updateDynamic(NULL, bodySim->getNodeIndex());
-		}
 	}
 }
 
@@ -233,7 +223,7 @@ public:
 	{
 	}
 
-	virtual void runInternal()
+	virtual void runInternal() PX_OVERRIDE
 	{
 		const PxU32 nb = mNbKinematics;
 
@@ -256,7 +246,7 @@ public:
 		}
 	}
 
-	virtual const char* getName() const
+	virtual const char* getName() const PX_OVERRIDE
 	{
 		return "ScScene.ScKinematicPoseUpdateTask";
 	}
@@ -288,21 +278,21 @@ namespace
 {
 class ScKinematicShapeUpdateTask : public Cm::Task
 {
-	Sc::BodyCore*const*		mKinematics;
-	const PxU32				mNbKinematics;
-	PxsTransformCache&		mCache;
-	Bp::BoundsArray&		mBoundsArray;
+	Sc::BodyCore*const*			mKinematics;
+	const PxU32					mNbKinematics;
+	const UpdateCachedParams	mParams;
+	PinnableBitMap*				mChangedAABBMap;
 
 	PX_NOCOPY(ScKinematicShapeUpdateTask)
 public:
 	static const PxU32 NbKinematicsShapesPerTask = 1024;
 
-	ScKinematicShapeUpdateTask(Sc::BodyCore*const* kinematics, PxU32 nbKinematics, PxsTransformCache& cache, Bp::BoundsArray& boundsArray, PxU64 contextID) :
-		Cm::Task(contextID), mKinematics(kinematics), mNbKinematics(nbKinematics), mCache(cache), mBoundsArray(boundsArray)
+	ScKinematicShapeUpdateTask(Sc::BodyCore*const* kinematics, PxU32 nbKinematics, PxsTransformCache& cache, Bp::BoundsArray& boundsArray, PinnableBitMap* changedAABBMap, PxU64 contextID) :
+		Cm::Task(contextID), mKinematics(kinematics), mNbKinematics(nbKinematics), mParams(cache, boundsArray), mChangedAABBMap(changedAABBMap)
 	{
 	}
 
-	virtual void runInternal()
+	virtual void runInternal() PX_OVERRIDE
 	{
 		const PxU32 nb = mNbKinematics;
 		for(PxU32 a=0; a<nb; ++a)
@@ -311,17 +301,18 @@ public:
 			PX_ASSERT(b->getSim()->isKinematic());
 			PX_ASSERT(b->getSim()->isActive());
 
-			b->getSim()->updateCached(mCache, mBoundsArray);
+			b->getSim()->updateCached(mParams, mChangedAABBMap, true, true);
 		}
 	}
 
-	virtual const char* getName() const
+	virtual const char* getName() const PX_OVERRIDE
 	{
 		return "ScScene.KinematicShapeUpdateTask";
 	}
 };
 }
 
+// PT: warning, this runs in parallel with ScAfterIntegrationTask and updateArticulationAfterIntegration, and all of these touching the getChangedAABBMgActorHandleMap() bitmap
 void Sc::Scene::updateKinematicCached(PxBaseTask* continuation)
 {
 	PX_PROFILE_ZONE("Sim.updateKinematicCached", mContextId);
@@ -333,6 +324,7 @@ void Sc::Scene::updateKinematicCached(PxBaseTask* continuation)
 	BodyCore*const* kinematics = getActiveKinematicBodies();
 
 	Cm::FlushPool& flushPool = mLLContext->getTaskPool();
+	PinnableBitMap& changedAABBMap = mAABBManager->getChangedAABBMgActorHandleMap();
 	
 	PxU32 startIndex = 0;
 	PxU32 nbShapes = 0;
@@ -352,7 +344,7 @@ void Sc::Scene::updateKinematicCached(PxBaseTask* continuation)
 			if (nbShapes >= ScKinematicShapeUpdateTask::NbKinematicsShapesPerTask)
 			{
 				ScKinematicShapeUpdateTask* task = PX_PLACEMENT_NEW(flushPool.allocate(sizeof(ScKinematicShapeUpdateTask)), ScKinematicShapeUpdateTask)
-					(kinematics + startIndex, (i + 1) - startIndex, mLLContext->getTransformCache(), *mBoundsArray, mContextId);
+					(kinematics + startIndex, (i + 1) - startIndex, mLLContext->getTransformCache(), *mBoundsArray, &changedAABBMap, mContextId);
 
 				task->setContinuation(continuation);
 				task->removeReference();
@@ -364,7 +356,7 @@ void Sc::Scene::updateKinematicCached(PxBaseTask* continuation)
 		if(nbShapes)
 		{
 			ScKinematicShapeUpdateTask* task = PX_PLACEMENT_NEW(flushPool.allocate(sizeof(ScKinematicShapeUpdateTask)), ScKinematicShapeUpdateTask)
-				(kinematics + startIndex, nbKinematics - startIndex, mLLContext->getTransformCache(), *mBoundsArray, mContextId);
+				(kinematics + startIndex, nbKinematics - startIndex, mLLContext->getTransformCache(), *mBoundsArray, &changedAABBMap, mContextId);
 
 			task->setContinuation(continuation);
 			task->removeReference();
@@ -372,36 +364,25 @@ void Sc::Scene::updateKinematicCached(PxBaseTask* continuation)
 	}
 
 	{
-		PxBitMapPinned& changedAABBMap = mAABBManager->getChangedAABBMgActorHandleMap();
 		mLLContext->getTransformCache().setChangedState();
 		mBoundsArray->setChangedState();
+		// Direct GPU API steps without solver work write kinematic targets but skip the GPU shape update. Marking every moved
+		// kinematic ensures the next step recomputes its shape bounds and transforms from the GPU pose before collision detection.
+		const bool trackChanges = mBoundsArray->isChangeTrackingEnabled();
 		for (PxU32 i = 0; i < nbKinematics; ++i)
 		{
-			Sc::BodySim* bodySim = static_cast<Sc::BodyCore*>(kinematics[i])->getSim();
-
-			if ((i+16) < nbKinematics)
+			Sc::BodySim* bodySim = kinematics[i]->getSim();
+			mSimulationController->updateDynamic(NULL, bodySim->getNodeIndex());
+			if(trackChanges && bodySim->readInternalFlag(BodySim::BF_KINEMATIC_MOVED))
 			{
-				PxPrefetchLine(kinematics[i + 16]);
-				if ((i + 8) < nbKinematics)
+				PxU32 nbElems = bodySim->getNbElements();
+				ElementSim** elems = bodySim->getElements();
+				while(nbElems--)
 				{
-					PxPrefetchLine(kinematics[i + 8]->getSim());
+					const ShapeSim* shapeSim = static_cast<const ShapeSim*>(*elems++);
+					mBoundsArray->markForUpdate(shapeSim->getElementID(), true);
 				}
 			}
-
-			// PT: ### changedMap pattern #1
-			PxU32 nbElems = bodySim->getNbElements();
-			Sc::ElementSim** elems = bodySim->getElements();
-			while (nbElems--)
-			{
-				Sc::ShapeSim* sim = static_cast<Sc::ShapeSim*>(*elems++);
-				//KS - TODO - can we parallelize this? The problem with parallelizing is that it's a bit operation,
-				//so we would either need to use atomic operations or have some high-level concept that guarantees 
-				//that threads don't write to the same word in the map simultaneously
-				if (sim->getFlags()&PxU32(PxShapeFlag::eSIMULATION_SHAPE | PxShapeFlag::eTRIGGER_SHAPE))
-					changedAABBMap.set(sim->getElementID());
-			}
-
-			mSimulationController->updateDynamic(NULL, bodySim->getNodeIndex());
 		}
 	}
 }

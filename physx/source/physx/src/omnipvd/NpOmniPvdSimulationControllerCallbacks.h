@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef NP_OMNI_PVD_SIMULATION_CONTROLLER_CALLBACKS_H
 #define NP_OMNI_PVD_SIMULATION_CONTROLLER_CALLBACKS_H
@@ -44,11 +21,28 @@ class NpOmniPvdSimulationControllerCallbacks : public PxsSimulationControllerOVD
 {  
 public:
 	NpOmniPvdSimulationControllerCallbacks(NpScene& scene);
+	virtual bool isCaptureActive() const PX_OVERRIDE;
+	virtual bool isSelectiveCapture() const PX_OVERRIDE;
+	virtual bool isCapturingAllObjects() const PX_OVERRIDE;
+	virtual bool isTakingSnapshot() const PX_OVERRIDE;
+	virtual bool isRigidDynamicReadEnabled(PxRigidDynamicGPUAPIReadType::Enum dataType) const PX_OVERRIDE;
+	virtual bool isRigidDynamicWriteEnabled(PxRigidDynamicGPUAPIWriteType::Enum dataType) const PX_OVERRIDE;
+	virtual bool isArticulationReadEnabled(PxArticulationGPUAPIReadType::Enum dataType) const PX_OVERRIDE;
+	virtual bool isArticulationWriteEnabled(PxArticulationGPUAPIWriteType::Enum dataType) const PX_OVERRIDE;
+	virtual bool isRigidDynamicCaptured(const PxsRigidBody& rigidBody) const PX_OVERRIDE;
+	virtual bool isArticulationCaptured(const Dy::FeatherstoneArticulation& articulation) const PX_OVERRIDE;
+	virtual bool isRigidDynamicStateRequired(const PxsRigidBody& rigidBody, PxRigidDynamicGPUAPIReadType::Enum dataType) const PX_OVERRIDE;
+	virtual bool isArticulationStateRequired(const Dy::FeatherstoneArticulation& articulation, PxArticulationGPUAPIReadType::Enum dataType) const PX_OVERRIDE;
+	virtual bool isContactReadEnabled() const PX_OVERRIDE;
+	virtual bool isContactPairCaptured(const PxActor& actor0, const PxActor& actor1) const PX_OVERRIDE;
+	virtual void reportReadbackFailure() PX_OVERRIDE;
+	virtual void processRigidDynamicRead(const PxsRigidBody* const* rigids, const void* data, const PxRigidDynamicGPUIndex* indices, PxRigidDynamicGPUAPIReadType::Enum dataType, PxU32 nbElements) PX_OVERRIDE;
+	virtual void processArticulationRead(const Dy::FeatherstoneArticulation* const* articulations, const void* data, const PxArticulationGPUIndex* nodeIndices, PxArticulationGPUAPIReadType::Enum dataType, PxU32 nbElements, PxU32 maxLinks, PxU32 maxDofs) PX_OVERRIDE;
 	virtual void processRigidDynamicSet(const PxsRigidBody* const * rigids, const void* dataVec, const PxRigidDynamicGPUIndex* gpuIndices, PxRigidDynamicGPUAPIWriteType::Enum dataType, PxU32 nbElements) PX_OVERRIDE;
 	virtual void processArticulationSet(const Dy::FeatherstoneArticulation* const * articulations, const void* dataVec, const PxArticulationGPUIndex* nodeIndices, PxArticulationGPUAPIWriteType::Enum dataType, PxU32 nbElements,
 			PxU32 maxLinks, PxU32 maxDofs, PxU32 maxFixedTendons, PxU32 maxTendonJoints, PxU32 maxSpatialTendons, PxU32 maxSpatialTendonAttachments) PX_OVERRIDE;
 private:
-	const PxRigidDynamic* castPxsRigidBodyToPxRigidDynamic(const PxsRigidBody* rigidBody);
+	static const PxRigidDynamic* castPxsRigidBodyToPxRigidDynamic(const PxsRigidBody* rigidBody);
 	static const NpArticulationReducedCoordinate* castFeatherstoneToNpArticulation(const Dy::FeatherstoneArticulation* const featherstone);
 	void setDofOffsetVec(PxArray<PxU32>& dofStarts, PxU32 nbLinks, const NpArticulationLink* const * npLinks);
 	void streamJointValues(const PxArticulationGPUAPIWriteType::Enum dataType, const Dy::FeatherstoneArticulation* const * articulations, PxReal* realsDataVec, const PxArticulationGPUIndex* nodeIndices,

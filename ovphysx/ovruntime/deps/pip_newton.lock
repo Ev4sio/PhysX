@@ -1,0 +1,5 @@
+# SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+# Native build input; compatibility remains in pip_newton.toml.
+newton-usd-schemas @ https://files.pythonhosted.org/packages/ad/7c/3cc9cd3d4e04d9d39a5ad0501119a390bd87f285db74e00be50da0cd7d6f/newton_usd_schemas-0.7.0-py3-none-any.whl#sha256=194c7ef6a2bdfe3b2b119090141c5c87ea5180f0d0a64433805eed39b55938d8

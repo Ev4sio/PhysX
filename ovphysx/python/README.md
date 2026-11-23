@@ -1,0 +1,67 @@
+<!-- SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved. -->
+<!-- SPDX-License-Identifier: Apache-2.0 -->
+
+# ovphysx
+
+ovphysx is a self-contained Python library for ovstage/USD-based physics simulation
+with Warp-array output and downstream DLPack interoperability. It wraps NVIDIA
+PhysX and provides:
+
+- ovstage attachment plus rigid-body / articulation simulation
+- Same-device `warp.array` output on CPU and CUDA through session reads (`PhysX.read()` / `read_sync()`)
+- Downstream zero-copy framework interoperability through Warp's DLPack support
+- Environment cloning for batched reinforcement-learning workloads
+
+## Quick start
+
+```bash
+pip install ovphysx physx-usd-schemas newton-usd-schemas
+```
+
+`newton-usd-schemas` is the Newton USD schema the snippet below registers next
+to the external PhysX schemas; scenes that author no `newton:*` attributes can leave it out
+and drop the `newton_schema_root()` entry.
+
+```python
+from pathlib import Path
+
+import ovphysx
+from ovphysx.samples.python_samples.schema_support import physx_schema_paths
+import ovstage
+from ovphysx.population import physics_population_descs
+from ovphysx import PhysX
+
+usd_path = (
+    Path(ovphysx.__file__).resolve().parent
+    / "samples"
+    / "data"
+    / "simple_physics_scene.usda"
+)
+if not usd_path.is_file():
+    raise FileNotFoundError(f"ovphysx sample data is missing: {usd_path}")
+
+# Register external PhysX and Newton schemas before the first population.
+ovstage.population.register_usd_schemas(
+    [*[str(p) for p in physx_schema_paths()], str(ovphysx.newton_schema_root())]
+)
+stage = ovstage.Stage("scene")
+ovstage.population.open_usd_with_desc(
+    stage,
+    str(usd_path),
+    ordinal=1,
+    time=ovstage.population.DEFAULT_TIME,
+    descs=physics_population_descs(rendering=True),
+)
+# attach_ovstage() reads at a sealed ordinal.
+stage.advance_write_floor(ordinal=1).wait()
+
+physx = PhysX()
+physx.wait_task(physx.attach_ovstage(stage, read_ordinal=1))
+physx.step_sync(1.0 / 60.0)
+physx.wait_task(physx.detach_ovstage())
+physx.destroy()
+stage.destroy()
+```
+
+For full documentation and tutorials, see `ovphysx/docs/` inside the
+installed package, or the [ovphysx repository](https://github.com/NVIDIA-Omniverse/PhysX).

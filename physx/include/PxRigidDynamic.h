@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef PX_RIGID_DYNAMIC_H
 #define PX_RIGID_DYNAMIC_H
@@ -310,21 +287,23 @@ public:
 	virtual		void				setRigidDynamicLockFlags(PxRigidDynamicLockFlags flags) = 0;
 	
 	/**
-	\brief Retrieves the linear velocity of an actor.
+	\brief Retrieves the actor's center-of-mass linear velocity.
 
 	\note It is not allowed to use this method while the simulation is running (except during PxScene::collide(),
 	in PxContactModifyCallback or in contact report callbacks).
 
-	\note The linear velocity is reported with respect to the rigid dynamic's center of mass and not the actor frame origin.
+	\note The linear velocity is reported with respect to the actor's center of mass and not the actor frame origin.
 
-	\return The linear velocity of the actor.
+	\note This method should not be used after the direct GPU API has been enabled and initialized. See #PxDirectGPUAPI for the details.
+
+	\return The actor's center-of-mass linear velocity.
 
 	\see PxRigidDynamic.setLinearVelocity() getAngularVelocity()
 	*/
-	virtual		PxVec3			getLinearVelocity()		const = 0;
+	virtual		PxVec3			getLinearVelocity()		const PX_OVERRIDE = 0;
 
 	/**
-	\brief Sets the linear velocity of the actor.
+	\brief Sets the actor's center-of-mass linear velocity.
 
 	Note that if you continuously set the velocity of an actor yourself,
 	forces such as gravity or friction will not be able to manifest themselves, because forces directly
@@ -337,9 +316,11 @@ public:
 
 	\note It is invalid to use this method if PxActorFlag::eDISABLE_SIMULATION is set.
 
-	\note The linear velocity is applied with respect to the rigid dynamic's center of mass and not the actor frame origin.
+	\note This method should not be used after the direct GPU API has been enabled and initialized. See #PxDirectGPUAPI for the details.
 
-	\param[in] linVel New linear velocity of actor. <b>Range:</b> velocity vector
+	\note The linear velocity is applied with respect to the actor's center of mass and not the actor frame origin.
+
+	\param[in] linVel New center-of-mass linear velocity of the actor. <b>Range:</b> velocity vector
 	\param[in] autowake Whether to wake the object up if it is asleep. If true and the current wake counter value is
 	smaller than #PxSceneDesc::wakeCounterResetValue it will get increased to the reset value.
 
@@ -353,11 +334,13 @@ public:
 	\note It is not allowed to use this method while the simulation is running (except during PxScene::collide(),
 	in PxContactModifyCallback or in contact report callbacks).
 
+	\note This method should not be used after the direct GPU API has been enabled and initialized. See #PxDirectGPUAPI for the details.
+
 	\return The angular velocity of the actor.
 
 	\see PxRigidDynamic.setAngularVelocity() getLinearVelocity()
 	*/
-	virtual		PxVec3			getAngularVelocity()	const = 0;
+	virtual		PxVec3			getAngularVelocity()	const PX_OVERRIDE = 0;
 
 	/**
 	\brief Sets the angular velocity of the actor.
@@ -371,6 +354,8 @@ public:
 	new velocity is non-zero.
 
 	\note It is invalid to use this method if PxActorFlag::eDISABLE_SIMULATION is set.
+
+	\note This method should not be used after the direct GPU API has been enabled and initialized. See #PxDirectGPUAPI for the details.
 
 	\param[in] angVel New angular velocity of actor. <b>Range:</b> angular velocity vector
 	\param[in] autowake Whether to wake the object up if it is asleep. If true and the current wake counter value is
@@ -458,7 +443,7 @@ protected:
 	PX_INLINE						PxRigidDynamic(PxType concreteType, PxBaseFlags baseFlags) : PxRigidBody(concreteType, baseFlags) { }
 	PX_INLINE						PxRigidDynamic(PxBaseFlags baseFlags) : PxRigidBody(baseFlags) {}
 	virtual							~PxRigidDynamic() {}
-	virtual		bool				isKindOf(const char* name) const { PX_IS_KIND_OF(name, "PxRigidDynamic", PxRigidBody); }
+	virtual		bool				isKindOf(const char* name) const PX_OVERRIDE { PX_IS_KIND_OF(name, "PxRigidDynamic", PxRigidBody); }
 };
 
 #if !PX_DOXYGEN

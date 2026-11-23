@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef PX_DEFORMABLE_VOLUME_EXT_H
 #define PX_DEFORMABLE_VOLUME_EXT_H
@@ -147,15 +124,6 @@ public:
 	static PxDeformableVolumeMesh* createDeformableVolumeMesh(const PxCookingParams& params, const PxSimpleTriangleMesh& surfaceMesh, PxU32 numVoxelsAlongLongestAABBAxis, PxInsertionCallback& insertionCallback, const bool validate = true);
 
 	/**
-	\brief Deprecated
-	\see createDeformableVolumeMesh
-	*/
-	PX_DEPRECATED static PX_FORCE_INLINE PxDeformableVolumeMesh* createSoftBodyMesh(const PxCookingParams& params, const PxSimpleTriangleMesh& surfaceMesh, PxU32 numVoxelsAlongLongestAABBAxis, PxInsertionCallback& insertionCallback, const bool validate = true)
-	{
-		return createDeformableVolumeMesh(params, surfaceMesh, numVoxelsAlongLongestAABBAxis, insertionCallback, validate);
-	}
-
-	/**
 	\brief Creates a full deformable volume mesh matching the shape given as input. Uses the same surface-matching mesh for collision detection and FEM simulation.
 
 	\param[in] params Cooking params instance required for mesh processing
@@ -170,16 +138,6 @@ public:
 		PxInsertionCallback& insertionCallback, PxReal maxWeightRatioInTet = 1.5f, const bool validate = true);
 
 	/**
-	\brief Deprecated
-	\see createDeformableVolumeMeshNoVoxels
-	*/
-	PX_DEPRECATED static PX_FORCE_INLINE PxDeformableVolumeMesh* createSoftBodyMeshNoVoxels(const PxCookingParams& params, const PxSimpleTriangleMesh& surfaceMesh,
-		PxInsertionCallback& insertionCallback, PxReal maxWeightRatioInTet = 1.5f, const bool validate = true)
-	{
-		return createDeformableVolumeMeshNoVoxels(params, surfaceMesh, insertionCallback, maxWeightRatioInTet, validate);
-	}
-
-	/**
 	\brief Creates a deformable volume instance from a deformable volume mesh
 
 	\param[in] deformableVolumeMesh The deformable volume mesh
@@ -188,26 +146,12 @@ public:
 	\param[in] cudaContextManager A cuda context manager
 	\param[in] density The density used to compute the mass properties
 	\param[in] scale The scaling of the deformable volume
-	\return Deformable volume instance
+	\return Deformable volume instance. NULL if deformableVolumeMesh is NULL, or if the deformable volume or its pinned
+	host buffers could not be created.
 	\see PxDeformableVolumeMesh, PxDeformableVolume
 	*/
 	static PxDeformableVolume* createDeformableVolumeFromMesh(PxDeformableVolumeMesh* deformableVolumeMesh, const PxTransform& transform,
 		const PxDeformableVolumeMaterial& material, PxCudaContextManager& cudaContextManager, PxReal density = 100.0f, PxReal scale = 1.0f);
-
-	/**
-	\brief Deprecated
-	\see createDeformableVolumeFromMesh
-	*/
-	PX_DEPRECATED static PX_FORCE_INLINE PxDeformableVolume* createSoftBodyFromMesh(PxDeformableVolumeMesh* deformableVolumeMesh, const PxTransform& transform,
-		const PxDeformableVolumeMaterial& material, PxCudaContextManager& cudaContextManager, PxReal density = 100.0f, PxU32 solverIterationCount = 30,
-		const PxFEMParameters& femParams = PxFEMParameters(), PxReal scale = 1.0f)
-	{
-		PxDeformableVolume* deformableVolume = createDeformableVolumeFromMesh(deformableVolumeMesh, transform, material,
-			cudaContextManager, density, scale);
-		deformableVolume->setParameter(femParams);
-		deformableVolume->setSolverIterationCounts(solverIterationCount);
-		return deformableVolume;
-	}
 
 	/**
 	\brief Creates a deformable volume instance with a box shape
@@ -220,26 +164,12 @@ public:
 	\param[in] density The density used to compute the mass properties
 	\param[in] numVoxelsAlongLongestAABBAxis The number of voxels to use for the simulation mesh along the longest bounding box dimension
 	\param[in] scale The scaling of the deformable volume
-	\return Deformable volume instance
+	\return Deformable volume instance. NULL if the deformable volume mesh, the deformable volume or its pinned host
+	buffers could not be created.
 	\see PxDeformableVolumeMesh, PxDeformableVolume
 	*/
 	static PxDeformableVolume* createDeformableVolumeBox(const PxTransform& transform, const PxVec3& boxDimensions, const PxDeformableVolumeMaterial& material,
 		PxCudaContextManager& cudaContextManager, PxReal maxEdgeLength = -1.0f, PxReal density = 100.0f, PxU32 numVoxelsAlongLongestAABBAxis = 10, PxReal scale = 1.0f);
-
-	/**
-	\brief Deprecated
-	\see createDeformableVolumeBox
-	*/
-	PX_DEPRECATED static PX_FORCE_INLINE PxDeformableVolume* createSoftBodyBox(const PxTransform& transform, const PxVec3& boxDimensions, const PxDeformableVolumeMaterial& material,
-		PxCudaContextManager& cudaContextManager, PxReal maxEdgeLength = -1.0f, PxReal density = 100.0f, PxU32 solverIterationCount = 30,
-		const PxFEMParameters& femParams = PxFEMParameters(), PxU32 numVoxelsAlongLongestAABBAxis = 10, PxReal scale = 1.0f)
-	{
-		PxDeformableVolume* deformableVolume = createDeformableVolumeBox(transform, boxDimensions, material, cudaContextManager, maxEdgeLength, density,
-			numVoxelsAlongLongestAABBAxis, scale);
-		deformableVolume->setParameter(femParams);
-		deformableVolume->setSolverIterationCounts(solverIterationCount);
-		return deformableVolume;
-	}
 
 	/**
 	\brief allocates and initializes pinned host memory buffers from an actor with shape.
@@ -250,6 +180,9 @@ public:
     \param[in] simVelocityPinned A reference to a pointer for the return value of the simVelocityPinned buffer, will be set by this function.
     \param[in] collPositionInvMassPinned A reference to a pointer for the return value of the collPositionInvMassPinned buffer, will be set by this function.
     \param[in] restPositionPinned A reference to a pointer for the return value of the restPositionPinned buffer, will be set by this function.
+
+	\note If any of the four allocations fails, the buffers already allocated are freed, all four pointers are set to NULL and
+	nothing is written. The caller has to check the pointers before using them.
 
 	\see PxDeformableVolume
 	 */
@@ -268,15 +201,6 @@ public:
 	*/
 	static void relaxDeformableVolumeMesh(const PxVec4* verticesOriginal, PxVec4* verticesDeformed, PxU32 nbVertices, 
 		const PxU32* tetrahedra, PxU32 nbTetraheda, const bool* vertexIsFixed = NULL, PxU32 numIterations = 200);
-
-	/**
-	\brief Deprecated
-	\see relaxDeformableVolumeMesh
-	*/
-	PX_DEPRECATED static PX_FORCE_INLINE void relaxSoftBodyMesh(const PxVec4* verticesOriginal, PxVec4* verticesDeformed, PxU32 nbVertices, const PxU32* tetrahedra, PxU32 nbTetraheda, const bool* vertexIsFixed = NULL, PxU32 numIterations = 200)
-	{
-		relaxDeformableVolumeMesh(verticesOriginal, verticesDeformed, nbVertices, tetrahedra, nbTetraheda, vertexIsFixed, numIterations);
-	}
 
 	/**
 	\brief Converts the tet id and barycentric from the collision mesh to the tet id and barycentric of the simulation mesh.

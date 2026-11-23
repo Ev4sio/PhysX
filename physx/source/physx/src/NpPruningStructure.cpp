@@ -1,30 +1,7 @@
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions
-// are met:
-//  * Redistributions of source code must retain the above copyright
-//    notice, this list of conditions and the following disclaimer.
-//  * Redistributions in binary form must reproduce the above copyright
-//    notice, this list of conditions and the following disclaimer in the
-//    documentation and/or other materials provided with the distribution.
-//  * Neither the name of NVIDIA CORPORATION nor the names of its
-//    contributors may be used to endorse or promote products derived
-//    from this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-// EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-// PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-// OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// Copyright (c) 2008-2025 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// SPDX-FileCopyrightText: Copyright (c) 2008-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 #include "NpPruningStructure.h"
 #include "GuAABBTree.h"
@@ -67,7 +44,7 @@ PruningStructure::PruningStructure()
 
 //////////////////////////////////////////////////////////////////////////
 PruningStructure::~PruningStructure()
-{	
+{
 	if(getBaseFlags() & PxBaseFlag::eOWNS_MEMORY)
 	{
 		for(PxU32 i=0; i<2; i++)
@@ -85,7 +62,7 @@ void PruningStructure::release()
 {
 	// if we release the pruning structure we set the pruner structure to NUUL
 	for (PxU32 i = 0; i < mNbActors; i++)
-	{		
+	{
 		PX_ASSERT(mActors[i]);			
 
 		PxType type = mActors[i]->getConcreteType();
@@ -172,7 +149,7 @@ bool PruningStructure::build(PxRigidActor*const* actors, PxU32 nbActors)
 			{
 				PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "PrunerStructure::build: Provided actor has already a pruning structure!");
 				return false;
-			}			
+			}
 			rs->getShapeManager().setPruningStructure(this);
 		}
 		else if (type == PxConcreteType::eRIGID_DYNAMIC)
@@ -240,7 +217,7 @@ bool PruningStructure::build(PxRigidActor*const* actors, PxU32 nbActors)
 
 			// discard the data
 			bounds[i].release();
-		}		
+		}
 	}
 
 	// store the actors for verification and serialization
@@ -270,7 +247,19 @@ void PruningStructure::resolveReferences(PxDeserializationContext& context)
 		return;
 
 	for (PxU32 i = 0; i < mNbActors; i++)
+	{
 		context.translatePxBase(mActors[i]);
+
+		//Re-point the actor at this structure, the way build() does. NpShapeManager's deserialization
+		//constructor clears the field, so without this the flag NpScene::addCollection() reads would be lost.
+		//This runs after the actors are constructed: a pruning structure requires them, and the collection is
+		//sorted dependencies-first.
+		const PxType type = mActors[i]->getConcreteType();
+		if (type == PxConcreteType::eRIGID_STATIC)
+			static_cast<NpRigidStatic*>(mActors[i])->getShapeManager().setPruningStructure(this);
+		else if (type == PxConcreteType::eRIGID_DYNAMIC)
+			static_cast<NpRigidDynamic*>(mActors[i])->getShapeManager().setPruningStructure(this);
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -326,6 +315,20 @@ void PruningStructure::importExtraData(PxDeserializationContext& context)
 	if (!isValid())
 	{
 		PxGetFoundation().error(PxErrorCode::eDEBUG_WARNING, PX_FL, "PrunerStructure::importExtraData: Pruning structure is invalid!");
+
+		//Nothing was written for any of these - exportExtraData() bails out at the same test - so what the object
+		//image carries is the *exporting* process' addresses and counts. Leaving them in place means release()
+		//walks a foreign mActors array (it does so unconditionally), and requiresObjects() bails out at that test
+		//too, so the collection sorter sees no children and emits an invalid structure at its own position,
+		//usually first. That puts it in reach of any failed load, not just a completed one. Empty it instead.
+		//Freeing nothing: this instance does not own its memory, and ~PruningStructure only frees when it does.
+		mActors = NULL;
+		mNbActors = 0;
+		for (PxU32 i = 0; i < 2; i++)
+		{
+			mData[i].mAABBTreeNodes = NULL;
+			mData[i].mAABBTreeIndices = NULL;
+		}
 		return;
 	}
 
@@ -362,7 +365,7 @@ const void* PruningStructure::getDynamicMergeData()		const
 }
 
 PxU32 PruningStructure::getRigidActors(PxRigidActor** userBuffer, PxU32 bufferSize, PxU32 startIndex/* =0 */) const
-{	
+{
 	if(!isValid())
 	{
 		PxGetFoundation().error(PxErrorCode::eDEBUG_WARNING, PX_FL, "PrunerStructure::getRigidActors: Pruning structure is invalid!");
@@ -391,9 +394,14 @@ void PruningStructure::invalidate(PxActor* actor)
 			else if (type == PxConcreteType::eRIGID_DYNAMIC)
 				static_cast<NpRigidDynamic*>(mActors[i])->getShapeManager().setPruningStructure(NULL);
 
-			mActors[i] = mActors[mNbActors--];
+			//Post-decrement here read mActors[mNbActors], one past the last element - mActors is allocated with
+			//exactly mNbActors entries (see build()) - and stored that out-of-bounds value back into the list,
+			//while the actor that should have been moved down was dropped. release() then walked the wild
+			//pointer, and release() never cleared the back-pointer of the actor it lost, leaving it pointing
+			//at a freed structure.
+			mActors[i] = mActors[--mNbActors];
 			break;
-		}		
+		}
 	}
 
 	mValid = false;

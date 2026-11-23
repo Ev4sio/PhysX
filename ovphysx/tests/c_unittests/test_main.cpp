@@ -1,0 +1,140 @@
+// SPDX-FileCopyrightText: Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
+
+#include <gtest/gtest.h>
+#include "ovphysx/ovphysx.h"
+#include "ovphysx/ovphysx_config.h"
+#include "global_test_environment.h"
+#include "ovphysxTestHelpers.h"
+#include <filesystem>
+#include <iostream>
+#include <cstdlib>
+#include <string>
+
+namespace fs = std::filesystem;
+
+// Self-bootstrap the test environment so the binary can run standalone from
+// PROJECT_ROOT (ovphysx/) after build+install.
+// OVPHYSX_INSTALL_DIR is set via a CMake compile definition as a relative path,
+// so the binary must be launched with cwd = PROJECT_ROOT.
+static void bootstrap_test_environment()
+{
+    const fs::path installDir(OVPHYSX_INSTALL_DIR);
+
+    // The install layout must exist. Relative paths require cwd = ovphysx/.
+    if (!fs::is_directory(installDir))
+    {
+        std::cerr << "ERROR: Install directory not found: " << fs::absolute(installDir) << "\n"
+                  << "Make sure you run from ovphysx/ (PROJECT_ROOT) and that\n"
+                  << "the SDK is installed: cmake -P scripts/install.cmake\n";
+        std::exit(1);
+    }
+    const fs::path pluginsDir = installDir / "plugins";
+    if (!fs::is_directory(pluginsDir))
+    {
+        std::cerr << "ERROR: Plugins directory not found: " << fs::absolute(pluginsDir) << "\n"
+                  << "Run: cmake -P scripts/install.cmake\n";
+        std::exit(1);
+    }
+
+#ifdef _WIN32
+    // On Windows, GetModuleHandleExA may resolve to the test executable instead
+    // of ovphysx.dll, so set OVPHYSX_LIB to guide plugin/config discovery to
+    // the installed SDK layout. Linux uses dladdr which resolves correctly.
+    {
+        const fs::path installLib = installDir / "bin" / "ovphysx.dll";
+        if (std::getenv("OVPHYSX_LIB") == nullptr && fs::exists(installLib))
+        {
+            _putenv_s("OVPHYSX_LIB", fs::absolute(installLib).string().c_str());
+        }
+    }
+#endif
+
+    // Windows: link-time DLLs (ovphysx.dll and dependencies) must be on PATH before
+    // process launch, because the OS loader resolves them before main(). test_cpp.cmake
+    // handles this. This bootstrap only covers env vars needed after the process is
+    // running. For standalone Windows execution the user has to put the DLLs on PATH.
+    //
+    // Linux: no LD_LIBRARY_PATH is needed. BUILD_RPATH in CMakeLists.txt covers
+    // _install/lib, _install/plugins, _install/plugins/bin/deps, and the Python lib dir.
+
+    // Clear PYTHONPATH to avoid conflicts with installed Python packages.
+    // Note: _putenv_s with "" removes the variable on MSVC (equivalent to unsetenv).
+#ifdef _WIN32
+    _putenv_s("PYTHONPATH", "");
+#else
+    setenv("PYTHONPATH", "", 1);
+#endif
+}
+
+class PhysXShutdownEnvironment final : public ::testing::Environment
+{
+public:
+    void SetUp() override
+    {
+        const char* lifecycleOwnsInitialization = std::getenv("OVPHYSX_TEST_LIFECYCLE_OWNS_INIT");
+        if (lifecycleOwnsInitialization != nullptr && std::string(lifecycleOwnsInitialization) == "1")
+        {
+            return;
+        }
+
+        ovphysx_result_t r = ovphysx_initialize();
+        if (r.status != OVPHYSX_API_SUCCESS)
+        {
+            std::cerr << "ERROR: ovphysx_initialize failed in test setup\n";
+            std::exit(1);
+        }
+        m_initialized = true;
+    }
+
+    void TearDown() override
+    {
+        destroySharedCpuInstance();
+        if (m_initialized)
+        {
+            // Balance ovphysx_initialize() and complete the platform's SDK shutdown.
+            const ovphysx_result_t shutdownResult = ovphysx_shutdown();
+            if (shutdownResult.status != OVPHYSX_API_SUCCESS)
+            {
+                ovphysx_string_t err = ovphysx_get_last_error();
+                ADD_FAILURE() << "ovphysx_shutdown() failed; leaked instance(s) may still be alive: "
+                              << std::string(err.ptr ? err.ptr : "", err.ptr ? err.length : 0);
+            }
+        }
+    }
+
+private:
+    bool m_initialized = false;
+};
+
+// OVPHYSX_TEST_EXECUTION ("queue" or "noworker") chooses where the instances of this test
+// process run their short async calls and steps: "queue" queues every short call through the
+// library's private test hook, "noworker" creates every instance without a worker thread
+// (OVPHYSX_GLOBAL_CONFIG_ASYNC_EXECUTION false). The library reads no environment for
+// it: this program applies the choice before any instance exists (scripts/test_cpp.cmake
+// runs the CPU tests once more in each mode).
+static void apply_test_execution()
+{
+    const std::string mode = ovphysxTestExecution();
+    if (mode.empty())
+        return;
+    if (mode == "queue")
+    {
+        if (ovphysx_set_test_execution_for_test_internal(OVPHYSX_TEST_EXECUTION_QUEUE))
+            return;
+    }
+    if (mode == "noworker" &&
+        ovphysx_set_global_config(OVPHYSX_GLOBAL_CONFIG_ASYNC_EXECUTION, ovphysx_config_value_bool(false))
+                .status == OVPHYSX_API_SUCCESS)
+        return;
+    std::cerr << "ERROR: OVPHYSX_TEST_EXECUTION must be queue or noworker, got " << mode << "\n";
+    std::exit(1);
+}
+
+int main(int argc, char **argv) {
+    bootstrap_test_environment();
+    apply_test_execution();
+    ::testing::InitGoogleTest(&argc, argv);
+    ::testing::AddGlobalTestEnvironment(new PhysXShutdownEnvironment());
+    return RUN_ALL_TESTS();
+}
